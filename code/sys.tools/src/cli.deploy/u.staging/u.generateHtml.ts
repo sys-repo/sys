@@ -79,7 +79,7 @@ function renderHtml(dirs: TDir[]): string {
   return TEMPLATE.replace('__LIST__\n', list);
 }
 
-const MARKER = '@sys/tools staging index';
+const MARKER = '@sys/tools: index';
 const MARKER_TOKEN = `<!-- ${MARKER} -->`;
 
 const shouldOverwrite = async (target: string, force: boolean): Promise<boolean> => {

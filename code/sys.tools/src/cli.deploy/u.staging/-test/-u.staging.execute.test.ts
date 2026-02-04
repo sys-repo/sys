@@ -63,7 +63,7 @@ describe('Staging: executeStaging', () => {
       const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
       expect(index.ok).to.eql(true);
       expect(index.exists).to.eql(true);
-      expect(String(index.data ?? '')).to.include('<!-- @sys/tools staging index -->');
+      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
     });
   });
 
@@ -130,7 +130,7 @@ describe('Staging: executeStaging', () => {
       const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
       expect(index.ok).to.eql(true);
       expect(index.exists).to.eql(true);
-      expect(String(index.data ?? '')).to.include('<!-- @sys/tools staging index -->');
+      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
 
       const dist = await Fs.readJson(`${tmp}/stage/dist/site/dist.json`);
       expect(dist.ok).to.eql(true);

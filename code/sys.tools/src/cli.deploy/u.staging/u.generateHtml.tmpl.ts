@@ -2,7 +2,7 @@ import { Color, Str } from '../common.ts';
 
 export const TEMPLATE = Str.dedent(`
   <!doctype html>
-  <!-- @sys/tools staging index -->
+  <!-- @sys/tools: index -->
   <html lang="en">
     <head>
       <meta charset="utf-8" />
