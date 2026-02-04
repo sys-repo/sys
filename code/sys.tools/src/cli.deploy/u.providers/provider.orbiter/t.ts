@@ -1,3 +1,5 @@
+import type { t } from '../common.ts';
+
 /**
  * Orbiter provider configuration (YAML configuration).
  */
@@ -9,6 +11,19 @@ export type OrbiterProvider = {
 
   /** Logical domain / bucket name (eg "fs"). */
   domain: string;
+
+  /**
+   * Optional shard deployment config.
+   * When present, shard-aware mappings can be expanded and validated.
+   */
+  shards?: {
+    /** Total shard count (0..N-1). */
+    total: number;
+    /** Optional allowlist of shard indices to deploy. */
+    enabled?: number[];
+    /** Optional shard index → siteId map. */
+    siteIds?: Record<number, t.StringUrl>;
+  };
 };
 
 /**

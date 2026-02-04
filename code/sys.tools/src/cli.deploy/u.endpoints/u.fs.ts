@@ -1,4 +1,4 @@
-import { type t, Fs, Path, pkg, Schema, Yaml } from '../common.ts';
+import { type t, Fs, Is, Obj, Path, pkg, Schema, Yaml } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
@@ -54,6 +54,9 @@ export const EndpointsFs = {
 
     const errors: t.Yaml.Error[] = [];
     const mappings = checked.doc.mappings ?? [];
+    const providerShards = checked.doc.provider?.kind === 'orbiter'
+      ? checked.doc.provider?.shards
+      : undefined;
 
     {
       const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
@@ -81,6 +84,8 @@ export const EndpointsFs = {
       }
     }
 
+    validateProviderShards(providerShards, errors);
+
     for (let i = 0; i < mappings.length; i++) {
       const m = mappings[i];
       const sourceRaw = String(m?.dir?.source ?? '').trim();
@@ -97,17 +102,18 @@ export const EndpointsFs = {
       }
 
       const stagingRaw = String(m?.dir?.staging ?? '').trim();
+      const shards = resolveShardConfig(m, providerShards);
       const expanded = expandShardTemplatePaths({
         source: sourceRaw,
         staging: stagingRaw,
-        total: m?.shards?.total,
-        requireAll: m?.shards?.requireAll,
+        total: shards.total,
+        requireAll: shards.requireAll,
       });
       const requireAll = shouldRequireAllShards({
         source: sourceRaw,
         staging: stagingRaw,
-        total: m?.shards?.total,
-        requireAll: m?.shards?.requireAll,
+        total: shards.total,
+        requireAll: shards.requireAll,
       });
 
       let found = 0;
@@ -173,6 +179,107 @@ export const EndpointsFs = {
     return checked;
   },
 } as const;
+
+function resolveShardConfig(
+  mapping: t.DeployTool.Config.EndpointYaml.Mapping,
+  providerShards: t.OrbiterProvider['shards'] | undefined,
+): { readonly total?: number; readonly requireAll?: boolean } {
+  if (Is.num(mapping.shards?.total)) {
+    return { total: mapping.shards?.total, requireAll: mapping.shards?.requireAll };
+  }
+  return { total: providerShards?.total, requireAll: undefined };
+}
+
+function validateProviderShards(
+  shards: t.OrbiterProvider['shards'] | undefined,
+  errors: t.Yaml.Error[],
+) {
+  if (!shards) return;
+
+  const total = shards.total;
+  if (!Is.num(total) || !Number.isFinite(total) || total <= 0 || !Number.isInteger(total)) {
+    errors.push(
+      Yaml.Error.synthetic({
+        message: `provider.shards.total must be a positive integer: ${String(total)}`,
+        code: EndpointYamlErrorCode,
+        pos: [0, 0],
+      }),
+    );
+    return;
+  }
+
+  if (shards.enabled?.length) {
+    const seen = new Set<number>();
+    for (const value of shards.enabled) {
+      if (!Is.num(value) || !Number.isInteger(value)) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.enabled must contain integers: ${String(value)}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+        continue;
+      }
+      if (value < 0 || value >= total) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.enabled out of range (0..${total - 1}): ${String(value)}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+        continue;
+      }
+      if (seen.has(value)) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.enabled has duplicate: ${String(value)}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+        continue;
+      }
+      seen.add(value);
+    }
+  }
+
+  if (shards.siteIds) {
+    for (const [key, value] of Obj.entries(shards.siteIds)) {
+      const index = Number.parseInt(String(key), 10);
+      if (!Is.num(index) || !Number.isInteger(index)) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.siteIds key must be integer: ${String(key)}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+        continue;
+      }
+      if (index < 0 || index >= total) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.siteIds key out of range (0..${total - 1}): ${String(key)}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+        continue;
+      }
+      if (!Is.str(value) || !value.trim()) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `provider.shards.siteIds[${String(key)}] must be a non-empty string`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+      }
+    }
+  }
+}
 
 function resolveCwdFromYamlPath(path: t.StringPath): t.StringDir {
   const depth = EndpointsFs.dir.split('/').filter(Boolean).length;

@@ -41,6 +41,20 @@ export const OrbiterProviderSchema = {
 
       /** Logical domain / bucket name. */
       domain: Schema.Type.String(),
+
+      /** Optional shard deployment config. */
+      shards: Schema.Type.Optional(
+        Schema.Type.Object(
+          {
+            total: Schema.Type.Number(),
+            enabled: Schema.Type.Optional(Schema.Type.Array(Schema.Type.Number())),
+            siteIds: Schema.Type.Optional(
+              Schema.Type.Record(Schema.Type.String(), Schema.Type.String()),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
     },
     { additionalProperties: false },
   ),

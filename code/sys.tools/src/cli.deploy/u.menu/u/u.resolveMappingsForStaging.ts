@@ -25,10 +25,12 @@ export async function resolveMappingsForStaging(args: {
     : await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(String(yamlAbs));
 
   const raw = res.ok ? res.data?.mappings ?? [] : [];
+  const provider = res.ok ? res.data?.provider : undefined;
+  const providerShards = provider?.kind === 'orbiter' ? provider.shards : undefined;
   const bases = res.ok ? resolveBases(cwd, res.data ?? {}) : undefined;
   const resolved: t.DeployTool.Staging.Mapping[] = [];
   for (const m of raw) {
-    const expanded = await expandShardMappings(m, bases);
+    const expanded = await expandShardMappings(m, providerShards, bases);
     resolved.push(...expanded);
   }
 
@@ -37,24 +39,26 @@ export async function resolveMappingsForStaging(args: {
 
 async function expandShardMappings(
   mapping: t.DeployTool.Config.EndpointYaml.Mapping,
+  providerShards: t.OrbiterProvider['shards'] | undefined,
   bases?: ReturnType<typeof resolveBases>,
 ): Promise<t.DeployTool.Staging.Mapping[]> {
   const source = String(mapping.dir.source ?? '').trim();
   const staging = String(mapping.dir.staging ?? '').trim();
+  const shards = resolveShardConfig(mapping, providerShards);
   const expanded = expandShardTemplatePaths({
     source,
     staging,
-    total: mapping.shards?.total,
-    requireAll: mapping.shards?.requireAll,
+    total: shards.total,
+    requireAll: shards.requireAll,
   });
 
   const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
-  const total = mapping.shards?.total;
+  const total = shards.total;
   const requireAll = shouldRequireAllShards({
     source,
     staging,
-    total: mapping.shards?.total,
-    requireAll: mapping.shards?.requireAll,
+    total: shards.total,
+    requireAll: shards.requireAll,
   });
 
   if (!bases || !hasTemplate || requireAll || !Is.num(total) || !Number.isFinite(total) || total <= 0) {
@@ -69,4 +73,14 @@ async function expandShardMappings(
     }
   }
   return filtered;
+}
+
+function resolveShardConfig(
+  mapping: t.DeployTool.Config.EndpointYaml.Mapping,
+  providerShards: t.OrbiterProvider['shards'] | undefined,
+): { readonly total?: number; readonly requireAll?: boolean } {
+  if (Is.num(mapping.shards?.total)) {
+    return { total: mapping.shards?.total, requireAll: mapping.shards?.requireAll };
+  }
+  return { total: providerShards?.total, requireAll: undefined };
 }

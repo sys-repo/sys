@@ -13,6 +13,25 @@ describe('Orbiter Provider: Schema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('accepts shard config', () => {
+    const value = {
+      kind: 'orbiter',
+      siteId: 'site',
+      domain: 'fs',
+      shards: {
+        total: 64,
+        enabled: [1, 4, 5],
+        siteIds: {
+          1: 'aaa-bbb',
+          4: 'ccc-ddd',
+        },
+      },
+    };
+
+    const res = OrbiterProvider.Schema.validate(value);
+    expect(res.ok).to.eql(true);
+  });
+
   it('rejects missing required fields', () => {
     const value = {
       kind: 'orbiter',

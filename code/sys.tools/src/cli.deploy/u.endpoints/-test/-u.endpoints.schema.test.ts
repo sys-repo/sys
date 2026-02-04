@@ -26,8 +26,8 @@ describe('Schema: endpoint', () => {
       staging: { dir: './staging' },
       provider: {
         kind: 'orbiter',
-        siteId: 'fs',
-        domain: 'fs',
+        siteId: 'abc123',
+        domain: 'example.com',
       },
       mappings: [],
     };
@@ -42,6 +42,26 @@ describe('Schema: endpoint', () => {
       readonly mappings?: unknown;
       readonly staging: unknown;
     }>();
+  });
+
+  it('validate: accepts provider.orbiter shards', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'orbiter',
+        siteId: 'fs',
+        domain: 'fs',
+        shards: {
+          total: 64,
+          enabled: [1, 2],
+          siteIds: { 1: 'a', 2: 'b' },
+        },
+      },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
   });
 
   it('validate: rejects provider.orbiter unknown keys', () => {

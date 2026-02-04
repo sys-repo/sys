@@ -162,6 +162,61 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: shard templates use provider.shards.total → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
+      await Fs.ensureDir(`${tmp}/code/video/partition-1`);
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: orbiter
+          siteId: 123abc
+          domain: example.com
+          shards: { total: 2 }
+        source:
+          dir: ./code
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            dir:
+              source: ./video/partition-<shard>
+              staging: ./<shard>.video.cdn.example
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+    });
+  });
+
+  it('validateYaml: rejects provider.shards.enabled out of range', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: orbiter
+          siteId: 123abc
+          domain: example.com
+          shards:
+            total: 2
+            enabled: [3]
+        staging:
+          dir: ./staging
+        mappings: []
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+    });
+  });
+
   it('validateYaml: shard templates allow sparse dirs by default', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-sparse-ok')}`;

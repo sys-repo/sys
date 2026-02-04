@@ -61,6 +61,42 @@ describe('Deploy: resolveMappingsForStaging', () => {
     expect(res.mappings[0]?.dir.staging).to.eql('./<shard>.video.cdn.example');
   });
 
+  it('expands templates using provider.shards when mapping shards are absent', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/video/partition-0`);
+      await Fs.ensureDir(`${tmp}/src/video/partition-1`);
+
+      const res = await resolveMappingsForStaging({
+        cwd: tmp as t.StringDir,
+        yamlPath: './noop.yaml',
+        yaml: {
+          provider: {
+            kind: 'orbiter',
+            siteId: 'site',
+            domain: 'example.com',
+            shards: { total: 2 },
+          },
+          source: { dir: './src' },
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              dir: {
+                source: './video/partition-<shard>',
+                staging: './<shard>.video.cdn.example',
+              },
+            },
+          ],
+        },
+      });
+
+      expect(res.ok).to.eql(true);
+      expect(res.mappings.length).to.eql(2);
+      expect(res.mappings[0]?.dir.source).to.eql('./video/partition-0');
+      expect(res.mappings[1]?.dir.source).to.eql('./video/partition-1');
+    });
+  });
+
   it('does not expand when no templates are present', async () => {
     const res = await resolveMappingsForStaging({
       cwd: '/tmp',
