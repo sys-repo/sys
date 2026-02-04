@@ -7,7 +7,7 @@ import { Uncontrolled } from './ui.tsx';
  * Component:
  */
 export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
-  const { origin, defaults, env } = props;
+  const { origin, env, spec } = props;
   const ref = React.useRef<t.HttpOriginController>(null);
 
   /**
@@ -15,7 +15,7 @@ export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
    */
   Signal.useRedrawEffect(() => ref?.current?.listen());
   React.useEffect(() => {
-    const controller = createController({ origin, env, props: { defaults } });
+    const controller = createController({ origin, env, props: { spec } });
     ref.current = controller;
     return () => controller.dispose();
   }, [origin, env]);
@@ -29,6 +29,7 @@ export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
       debug={props.debug}
       style={props.style}
       theme={props.theme}
+      spec={spec}
       {...ref.current?.view()}
     />
   );

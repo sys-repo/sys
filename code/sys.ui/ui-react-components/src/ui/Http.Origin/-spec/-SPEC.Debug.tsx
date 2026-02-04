@@ -36,13 +36,12 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
-    origin: s<t.HttpOriginMap__LEGACY | undefined>(),
     controlled: s(snap.controlled),
     sample: s(snap.sample),
     width: s(snap.width),
   };
   const p = props;
-  const controller = HttpOrigin.controller({ env: p.env, origin: p.origin });
+  const controller = HttpOrigin.controller({ env: p.env });
   const api = {
     props,
     controller,
@@ -160,7 +159,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <HttpOrigin.UI.Controlled debug={v.debug} origin={p.origin} />
+      <HttpOrigin.UI.Controlled debug={v.debug} spec={debug.sample()} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button

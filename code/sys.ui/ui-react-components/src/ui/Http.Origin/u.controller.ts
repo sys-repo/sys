@@ -1,12 +1,12 @@
-import { type t, D, Rx, Signal } from './common.ts';
+import { type t, Rx, Signal } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 
 export const createController: t.HttpOriginControllerFactory = (args) => {
   const s = Signal.create;
   let rev = 0;
   const state = {
-    kind: args.env ?? s(args.props?.env || D.env.default),
-    origin: args.origin ?? s(D.env.local),
+    env: args.env ?? s(args.props?.env || 'localhost'),
+    origin: args.origin ?? s<t.UrlTree | undefined>(undefined),
   };
 
   const api = Rx.toLifecycle<t.HttpOriginController>({
@@ -17,9 +17,9 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
     view(): ReturnType<t.HttpOriginController['view']> {
       const v = Signal.toObject(state);
       return {
-        env: v.kind,
-        defaults: args.props?.defaults,
-        onChange: (e) => (state.kind.value = e.next),
+        env: v.env,
+        spec: args.props?.spec,
+        onChange: (e) => (state.env.value = e.next),
       };
     },
     listen() {
@@ -33,9 +33,9 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
   });
 
   const unsubscribeB = Signal.effect(() => {
-    const kind = state.kind.value;
-    const defaults = args.props?.defaults?.origin;
-    const { origin } = resolveOrigin({ kind, defaults });
+    const env = state.env.value;
+    const defaults = args.props?.spec;
+    const { origin } = resolveOrigin({ env, defaults });
     state.origin.value = origin;
   });
 

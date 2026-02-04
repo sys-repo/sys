@@ -8,7 +8,7 @@ type P = t.HttpOriginProps;
 
 export const Uncontrolled: React.FC<P> = (props) => {
   const { debug = false } = props;
-  const { origin, kind } = resolveOrigin({ kind: props.env, defaults: props.defaults?.origin });
+  const { origin, env } = resolveOrigin({ env: props.env, defaults: props.spec });
 
   /**
    * Render:
@@ -33,7 +33,7 @@ export const Uncontrolled: React.FC<P> = (props) => {
         <OriginSelector theme={theme.name} env={props.env} onChange={props.onChange} />
       </div>
       <div className={styles.divider.class} />
-      <Info theme={theme.name} kind={kind} origin={origin} />
+      <Info theme={theme.name} env={env} origin={origin} />
     </div>
   );
 };

@@ -11,22 +11,9 @@ type P = t.HttpOriginProps;
 /**
  * Constants:
  */
-const local = 'http://localhost:4040';
-const prod = 'example.com';
-
 const name = 'Http.Origin';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-
-  env: {
-    default: 'localhost' satisfies t.HttpOriginEnv,
-    local: { app: local, cdn: { default: local, video: local } } satisfies t.HttpOriginMap__LEGACY,
-    prod: {
-      app: `https://${prod}`,
-      cdn: { default: `https://cdn.${prod}`, video: `https://video.cdn.${prod}` },
-    } satisfies t.HttpOriginMap__LEGACY,
-  },
 } as const;
-export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

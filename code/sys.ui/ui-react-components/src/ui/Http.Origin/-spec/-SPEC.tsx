@@ -10,12 +10,19 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const props = debug.controller.view();
-    return <HttpOrigin.UI.Uncontrolled debug={v.debug} theme={v.theme} {...props} />;
+    return (
+      <HttpOrigin.UI.Uncontrolled
+        debug={v.debug}
+        theme={v.theme}
+        spec={debug.sample()}
+        {...props}
+      />
+    );
   }
 
   function RootControlled() {
     const v = Signal.toObject(p);
-    return <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} origin={p.origin} />;
+    return <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} spec={debug.sample()} />;
   }
 
   e.it('init', (e) => {

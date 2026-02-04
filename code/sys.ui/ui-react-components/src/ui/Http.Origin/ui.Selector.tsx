@@ -7,7 +7,7 @@ type P = t.HttpOriginProps;
  * Component:
  */
 export const OriginSelector: React.FC<P> = (props) => {
-  const { debug = false, env = D.env.default } = props;
+  const { debug = false, env = 'localhost' } = props;
 
   /**
    * Render:

@@ -11,7 +11,9 @@ describe('HttpOrigin.Data', () => {
 
   describe('Data.flatten', () => {
     it('walks nested tree depth-first', () => {
-      const rows = Data.flatten(Sample.media.production);
+      const tree = Sample.media.production;
+      expect(tree).to.not.equal(undefined);
+      const rows = Data.flatten(tree!);
       expect(rows).to.eql([
         { key: 'api', url: 'https://api.example.com' },
         { key: 'assets.images', url: 'https://img.example.com' },
@@ -22,7 +24,9 @@ describe('HttpOrigin.Data', () => {
     });
 
     it('honors a prefix', () => {
-      const rows = Data.flatten(Sample.cdn.production, 'origin');
+      const tree = Sample.cdn.production;
+      expect(tree).to.not.equal(undefined);
+      const rows = Data.flatten(tree!, 'origin');
       expect(rows).to.eql([
         { key: 'origin.app', url: 'https://app.example.com' },
         { key: 'origin.cdn.default', url: 'https://cdn.example.com' },

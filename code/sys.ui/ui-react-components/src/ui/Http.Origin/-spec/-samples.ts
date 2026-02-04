@@ -12,13 +12,12 @@ export type MyMedia = {
 };
 
 export type SampleName = keyof Samples;
-export type Sample<T extends t.UrlTree> = { readonly [E in t.HttpOriginEnv]: T };
 export type Samples = {
-  readonly cdn: Sample<MyCdn>;
-  readonly media: Sample<MyMedia>;
+  readonly cdn: t.HttpOriginSpecMap<t.HttpOriginEnv>;
+  readonly media: t.HttpOriginSpecMap<t.HttpOriginEnv>;
 };
 
-const cdn: Sample<MyCdn> = {
+const cdn: t.HttpOriginSpecMap<t.HttpOriginEnv> = {
   localhost: {
     app: 'http://localhost:3000',
     cdn: { default: 'http://localhost:4000', video: 'http://localhost:4001' },
@@ -29,7 +28,7 @@ const cdn: Sample<MyCdn> = {
   },
 };
 
-const media: Sample<MyMedia> = {
+const media: t.HttpOriginSpecMap<t.HttpOriginEnv> = {
   localhost: {
     api: 'http://localhost:5000',
     assets: { images: 'http://localhost:5001', video: 'http://localhost:5002' },
