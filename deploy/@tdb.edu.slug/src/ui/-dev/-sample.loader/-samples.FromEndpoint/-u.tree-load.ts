@@ -7,15 +7,18 @@ export const SampleTree: t.FetchSample = {
    * Load slug-tree manifest.
    */
   async run(e) {
-    const basePath = e.is.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
-    const manifestsDir = '-manifests';
+    const basePath = e.is.local ? 'staging/slc.cdn/kb' : 'kb';
     const origin = e.origin.cdn.default;
-    const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
-      origin,
-      `${basePath}/${manifestsDir}`,
-    );
+    const manifestsDir = '-manifests';
+    const manifestsPath = `${basePath}/${manifestsDir}`;
+
+    const descriptor = await SlugClient.FromEndpoint.Descriptor.load(origin, manifestsPath);
     if (!descriptor.ok) return e.result(descriptor);
-    const docid = descriptor.value.bundles[0]?.docid;
+
+    console.log('descriptor', descriptor);
+
+    // const docid = descriptor.value.bundles[0]?.docid;
+    const docid = 'kb';
     if (!docid) {
       return e.result({
         ok: false,
