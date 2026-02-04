@@ -1,17 +1,17 @@
 import { type DebugSignals, type t, Url } from './-common.ts';
-import { type FetchAction, type FetchActionArgs, fetchButton } from './-u.fetch.btn.tsx';
+import { fetchButton } from './-u.fetch.btn.tsx';
 
 /** Samples */
-import { sampleDescriptorLoad } from './-u.sample.-descriptor-load.ts';
 import { sampleAssetsLoad } from './-u.sample.-assets-load.ts';
 import { sampleBundleLoad } from './-u.sample.-bundle-load.ts';
+import { sampleDescriptorLoad } from './-u.sample.-descriptor-load.ts';
 import { sampleFileContentGet } from './-u.sample.-filecontent-get.ts';
 import { samplePlaybackLoad } from './-u.sample.-playback-load.ts';
 import { sampleTreeLoad } from './-u.sample.-tree-load.ts';
 
 export function fetchSamples(debug: DebugSignals) {
   const items: t.ReactNode[] = [];
-  const btn = (label: string, fn: FetchAction) => {
+  const btn = (label: string, fn: t.FetchAction) => {
     const i = items.length - 1;
     items.push(fetchButton(debug, label, fn, i));
   };
@@ -42,7 +42,7 @@ export function fetchSamples(debug: DebugSignals) {
   };
   btn('FromEndpoint.Descriptor.load', sampleDescriptorLoad);
 
-  const withDocid = (label: string, fn: (e: FetchActionArgs) => Promise<void>) =>
+  const withDocid = (label: string, fn: (e: t.FetchActionArgs) => Promise<void>) =>
     btn(label, async (e) => {
       const docid = resolveDocid();
       if (!docid) {

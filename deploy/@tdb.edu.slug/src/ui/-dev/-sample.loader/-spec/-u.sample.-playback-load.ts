@@ -1,9 +1,9 @@
-import { type FetchActionArgs, SlugClient } from './-common.ts';
+import { type t, SlugClient } from './-common.ts';
 
 /**
  * Load playback manifest.
  */
-export async function samplePlaybackLoad(e: FetchActionArgs) {
+export async function samplePlaybackLoad(e: t.FetchActionArgs) {
   const { manifestsDir } = e;
   if (!e.baseUrl || !e.docid) {
     return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });

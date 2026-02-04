@@ -1,9 +1,13 @@
-import { type FetchActionArgs, SlugClient } from './-common.ts';
+import { type t, SlugClient } from './-common.ts';
 
 /**
  * Load assets manifest.
  */
-export async function sampleAssetsLoad(e: FetchActionArgs) {
+export const SampleAssets = {
+  label: '',
+} as const;
+
+export async function sampleAssetsLoad(e: t.FetchActionArgs) {
   if (!e.baseUrl || !e.docid) {
     return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });
   }

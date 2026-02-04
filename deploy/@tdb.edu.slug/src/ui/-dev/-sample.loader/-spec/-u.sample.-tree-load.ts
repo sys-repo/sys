@@ -1,9 +1,9 @@
-import { type FetchActionArgs, SlugClient } from './-common.ts';
+import { type t, SlugClient } from './-common.ts';
 
 /**
  * Load slug-tree manifest.
  */
-export async function sampleTreeLoad(e: FetchActionArgs) {
+export async function sampleTreeLoad(e: t.FetchActionArgs) {
   if (!e.baseUrl || !e.docid) {
     return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });
   }
