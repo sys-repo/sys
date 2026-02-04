@@ -42,12 +42,13 @@ export async function promptEndpointAction(args: {
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
   const pushElapsed = args.pushElapsed;
   const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const pushElapsedMeta =
-    pushedOk && pushElapsed ? ` ${c.gray(c.dim(`(in ${pushElapsed})`))}` : '';
-  const pushShardMeta = pushedOk && pushShards
-    ? ` ${c.gray(c.dim(`, ${pushShards} ${Str.plural(pushShards, 'shard')}`))}`
+  const shardPart = pushedOk && pushShards
+    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
     : '';
-  const pushMeta = `${pushUrlMeta}${pushElapsedMeta}${pushShardMeta}`;
+  const elapsedPart = pushedOk && pushElapsed ? `${pushElapsed}${shardPart}` : undefined;
+  const pushElapsedMeta =
+    pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
+  const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
   const pushPrefix = `  ${hashPrefix}  pushed ✔`;
   const pushName = pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
   const answer = await Cli.Input.Select.prompt<A>({
