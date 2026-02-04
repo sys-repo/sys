@@ -111,19 +111,19 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     }
 
     const showPush = capability.show;
-      const picked = await promptEndpointAction({
-        checkOk: check.ok,
-        ranOk,
-        showPush,
-        pushedOk,
-        pushElapsed,
-        pushShards,
-        pushBytes,
-        hashPrefix,
-        stageAge,
-        stageSize,
-        pushUrl,
-        hasStageMeta,
+    const picked = await promptEndpointAction({
+      checkOk: check.ok,
+      ranOk,
+      showPush,
+      pushedOk,
+      pushElapsed,
+      pushShards,
+      pushBytes,
+      hashPrefix,
+      stageAge,
+      stageSize,
+      pushUrl,
+      hasStageMeta,
     });
 
     if (picked === 'back') return { kind: 'back' };
@@ -149,7 +149,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       if (!provider) continue;
 
-      const targets = await resolvePushTargets({ cwd, yaml });
+      const plan = await resolvePushTargets({ cwd, yaml });
+      const targets = plan.targets;
       if (!targets.length) {
         const b = Str.builder()
           .line(c.yellow('Push skipped'))
@@ -193,6 +194,14 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushedOk = true;
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
         pushBytes = bytesTotal || undefined;
+        const stats = plan.stats;
+        const table = Cli.table();
+        table.push([c.gray('  targets'), stats.total]);
+        table.push([c.gray('  root'), stats.root]);
+        table.push([c.gray('  shards'), stats.shard]);
+        if (stats.base) table.push([c.gray('base'), stats.base]);
+        if (stats.skippedShards) table.push([c.yellow('skipped'), stats.skippedShards]);
+        console.info(String(table));
       }
 
       continue;

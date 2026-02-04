@@ -5,7 +5,7 @@ import { withTmpDir } from '../../-test/-fixtures.ts';
 describe('Deploy: resolvePushTargets', () => {
   it('returns no targets for shard mappings without siteIds', async () => {
     await withTmpDir(async (tmp) => {
-      const res = await resolvePushTargets({
+      const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
           provider: {
@@ -27,7 +27,7 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      expect(res.length).to.eql(0);
+      expect(plan.targets.length).to.eql(0);
     });
   });
 
@@ -35,7 +35,7 @@ describe('Deploy: resolvePushTargets', () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);
 
-      const res = await resolvePushTargets({
+      const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
           provider: {
@@ -57,9 +57,9 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      expect(res.length).to.eql(1);
-      expect(res[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
-      expect(res[0]?.provider.siteId).to.eql('site-1');
+      expect(plan.targets.length).to.eql(1);
+      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
+      expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
     });
   });
 
@@ -68,7 +68,7 @@ describe('Deploy: resolvePushTargets', () => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);
       await Fs.ensureDir(`${tmp}/staging/-root`);
 
-      const res = await resolvePushTargets({
+      const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
           provider: {
@@ -97,8 +97,8 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      const root = res.find((target) => target.stagingDir.endsWith('/-root'));
-      const shard = res.find((target) => target.shard === 1);
+      const root = plan.targets.find((target) => target.stagingDir.endsWith('/-root'));
+      const shard = plan.targets.find((target) => target.shard === 1);
 
       expect(root?.provider.siteId).to.eql('base');
       expect(shard?.provider.siteId).to.eql('site-1');
@@ -110,7 +110,7 @@ describe('Deploy: resolvePushTargets', () => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);
       await Fs.ensureDir(`${tmp}/staging/shard.2`);
 
-      const res = await resolvePushTargets({
+      const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
           provider: {
@@ -132,9 +132,9 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      expect(res.length).to.eql(1);
-      expect(res[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
-      expect(res[0]?.provider.siteId).to.eql('site-1');
+      expect(plan.targets.length).to.eql(1);
+      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
+      expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
     });
   });
 
@@ -142,7 +142,7 @@ describe('Deploy: resolvePushTargets', () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/staging`);
 
-      const res = await resolvePushTargets({
+      const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
           provider: {
@@ -163,9 +163,9 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      expect(res.length).to.eql(1);
-      expect(res[0]?.stagingDir).to.eql(`${tmp}/staging`);
-      expect(res[0]?.provider.siteId).to.eql('base');
+      expect(plan.targets.length).to.eql(1);
+      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging`);
+      expect(plan.targets[0]?.provider.siteId).to.eql('base');
     });
   });
 });

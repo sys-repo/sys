@@ -9,12 +9,27 @@ export type PushTarget = {
   readonly domain?: string;
 };
 
+export type PushTargetStats = {
+  readonly total: number;
+  readonly shard: number;
+  readonly root: number;
+  readonly base: number;
+  readonly skippedShards: number;
+};
+
+export type PushTargetPlan = {
+  readonly targets: readonly PushTarget[];
+  readonly stats: PushTargetStats;
+};
+
 export async function resolvePushTargets(args: {
   cwd: t.StringDir;
   yaml: t.DeployTool.Config.EndpointYaml.Doc;
-}): Promise<readonly PushTarget[]> {
+}): Promise<PushTargetPlan> {
   const provider = args.yaml.provider;
-  if (!provider || provider.kind !== 'orbiter') return [];
+  if (!provider || provider.kind !== 'orbiter') {
+    return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
+  }
   const baseDomain = String(provider.domain ?? '').trim();
 
   const mappings = args.yaml.mappings ?? [];
@@ -43,12 +58,18 @@ export async function resolvePushTargets(args: {
   }
 
   if (shardMappings.length === 0) {
-    if (!(await Fs.exists(stagingRootAbs))) return [];
-    return [{ provider, stagingDir: stagingRootAbs }];
+    if (!(await Fs.exists(stagingRootAbs))) {
+      return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
+    }
+    return {
+      targets: [{ provider, stagingDir: stagingRootAbs }],
+      stats: { total: 1, shard: 0, root: 0, base: 1, skippedShards: 0 },
+    };
   }
 
   const targets: PushTarget[] = [];
   const seen = new Set<string>();
+  let skippedShards = 0;
 
   for (const mapping of baseMappings) {
     const stagingRel = String(mapping.dir.staging ?? '').trim() || '.';
@@ -74,8 +95,32 @@ export async function resolvePushTargets(args: {
   const shardConfig = provider.shards;
   const siteIds = shardConfig?.siteIds;
   const total = shardConfig?.total;
-  if (!Is.num(total) || !Number.isFinite(total) || total <= 0) return targets;
-  if (!siteIds || Obj.keys(siteIds).length === 0) return targets;
+  if (!Is.num(total) || !Number.isFinite(total) || total <= 0) {
+    const rootCount = indexMapping ? 1 : 0;
+    return {
+      targets,
+      stats: {
+        total: targets.length,
+        shard: 0,
+        root: rootCount,
+        base: Math.max(0, targets.length - rootCount),
+        skippedShards,
+      },
+    };
+  }
+  if (!siteIds || Obj.keys(siteIds).length === 0) {
+    const rootCount = indexMapping ? 1 : 0;
+    return {
+      targets,
+      stats: {
+        total: targets.length,
+        shard: 0,
+        root: rootCount,
+        base: Math.max(0, targets.length - rootCount),
+        skippedShards,
+      },
+    };
+  }
 
   const only = shardConfig?.only ?? [];
   const indices =
@@ -87,11 +132,13 @@ export async function resolvePushTargets(args: {
     const siteId = siteIds[shard];
     if (!Is.str(siteId) || !siteId.trim()) continue;
 
+    let hasShardOutput = false;
     for (const mapping of shardMappings) {
       const stagingRel = String(mapping.dir.staging ?? '').trim() || '.';
       const expandedRel = resolveShardTemplate(stagingRel, shard, total);
       const stagingAbs = Path.resolve(stagingRootAbs, expandedRel);
       if (!(await Fs.exists(stagingAbs))) continue;
+      hasShardOutput = true;
       const providerForShard = { ...provider, siteId };
       const shardDomain = baseDomain ? `${shard}.${baseDomain}` : undefined;
       targets.push({
@@ -101,7 +148,20 @@ export async function resolvePushTargets(args: {
         shard,
       });
     }
+    if (!hasShardOutput) skippedShards += 1;
   }
 
-  return targets;
+  const shardCount = targets.filter((target) => Is.num(target.shard)).length;
+  const baseCount = targets.filter((target) => !Is.num(target.shard)).length;
+  const rootCount = indexMapping ? 1 : 0;
+  return {
+    targets,
+    stats: {
+      total: targets.length,
+      shard: shardCount,
+      root: rootCount,
+      base: Math.max(0, baseCount - rootCount),
+      skippedShards,
+    },
+  };
 }

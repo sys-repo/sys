@@ -85,7 +85,8 @@ export async function pushCapabilityOf(args: {
    * Before: we incorrectly resolved `m.dir.staging` directly under `cwd`,
    * which breaks multi-mapping endpoints (e.g. "./staging" + "./ui.components").
    */
-  const targets = await resolvePushTargets({ cwd, yaml });
+  const plan = await resolvePushTargets({ cwd, yaml });
+  const targets = plan.targets;
   const stagingAbs = [...new Set(targets.map((t) => t.stagingDir))];
   const stagingDirs = stagingAbs.filter(Boolean) as readonly t.StringDir[];
 
