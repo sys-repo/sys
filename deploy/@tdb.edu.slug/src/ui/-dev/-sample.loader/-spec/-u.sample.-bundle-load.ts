@@ -1,4 +1,4 @@
-import { type t, SlugClient } from './-common.ts';
+import { type t, SlugClient, Url } from './-common.ts';
 
 export const SampleBundle: t.FetchSample = {
   label: 'FromEndpoint.Bundle.load',
@@ -7,11 +7,21 @@ export const SampleBundle: t.FetchSample = {
    * Load bundle manifest.
    */
   async run(e) {
-    if (!e.baseUrl || !e.docid) {
-      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });
+    const basePath = e.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
+    const manifestsDir = '-manifests';
+    const origin = e.origin.cdn.default;
+    const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
+      origin,
+      `${basePath}/${manifestsDir}`,
+    );
+    if (!descriptor.ok) return e.result(descriptor);
+    const docid = descriptor.value.bundles[0]?.docid;
+    if (!docid) {
+      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing docid in descriptor.' } });
     }
-    const res = await SlugClient.FromEndpoint.Bundle.load(e.baseUrl, e.docid, {
-      layout: { manifestsDir: e.manifestsDir },
+    const baseUrl = Url.parse(origin).join(basePath);
+    const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, {
+      layout: { manifestsDir },
     });
     e.result(res);
   },
