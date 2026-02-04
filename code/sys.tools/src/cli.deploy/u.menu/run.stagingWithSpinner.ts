@@ -15,6 +15,7 @@ export async function runStagingWithSpinner(args: {
   stagingRoot: t.StringRelativeDir;
   sourceRoot?: string;
   clear?: boolean;
+  indexBaseDomain?: string;
 }): Promise<RunStagingResult> {
   const { cwd, mappings } = args;
 
@@ -48,6 +49,7 @@ export async function runStagingWithSpinner(args: {
       mappings,
       stagingRoot: args.stagingRoot,
       sourceRoot: args.sourceRoot,
+      indexBaseDomain: args.indexBaseDomain,
       concurrency: stagingConcurrencyDefault({ total }),
       cleanStagingRoot: args.clear ?? false,
       writeDistJson: true,

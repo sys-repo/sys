@@ -177,6 +177,43 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('index: runs after copy and sees staged outputs', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/shard.1`);
+      await Fs.write(`${tmp}/src/shard.1/a.txt`, 'x');
+
+      const mappings = [
+        { mode: 'copy' as const, dir: { source: 'src/shard.1', staging: 'shard.1' } },
+        { mode: 'index' as const, dir: { source: '.', staging: 'dist/root' } },
+      ];
+
+      await executeStaging({ ...stageOptions(tmp), mappings });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      expect(html.includes('shard.1')).to.eql(true);
+    });
+  });
+
+  it('index: renders absolute shard links when base domain provided', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/stage/shard.1`);
+      await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
+      await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
+
+      const dir = { source: '.', staging: 'dist/root' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        mappings: [{ mode: 'index', dir }],
+        indexBaseDomain: 'video.cdn.example',
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      expect(html.includes('https://1.video.cdn.example/')).to.eql(true);
+    });
+  });
+
   it('failure: emits mapping:fail and throws first error (no mapping:done); does not write dist.json', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;

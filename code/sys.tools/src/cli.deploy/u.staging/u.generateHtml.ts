@@ -14,7 +14,7 @@ type TDir = {
  */
 export async function ensureIndexHtml(
   cwd: t.StringDir,
-  options: { readonly force?: boolean } = {},
+  options: { readonly force?: boolean; readonly baseDomain?: string } = {},
 ): Promise<void> {
   const raw = String(cwd ?? '').trim();
   if (!raw) return;
@@ -31,7 +31,7 @@ export async function ensureIndexHtml(
   }
 
   const dirs = await directories(root);
-  const html = renderHtml(dirs);
+  const html = renderHtml(dirs, options.baseDomain);
   await Fs.write(target, html);
 }
 
@@ -56,17 +56,23 @@ async function directories(root: t.StringDir) {
   return res;
 }
 
-function renderHtml(dirs: TDir[]): string {
+function renderHtml(dirs: TDir[], baseDomain?: string): string {
   const indent = ' '.repeat(8);
+  const domain = String(baseDomain ?? '').trim();
 
   const items = dirs
     .map((dir) => {
       const trimmed = Str.trimLeadingDotSlash(dir.rel);
-      const href = dir.hasIndex
-        ? `./${trimmed}/`
-        : dir.hasDistJson
-          ? `./${trimmed}/dist.json`
-          : `./${trimmed}/`;
+      const shardIndex = parseShardIndex(trimmed);
+      const absolute =
+        shardIndex !== undefined && domain ? `https://${shardIndex}.${domain}/` : undefined;
+      const href =
+        absolute ??
+        (dir.hasIndex
+          ? `./${trimmed}/`
+          : dir.hasDistJson
+            ? `./${trimmed}/dist.json`
+            : `./${trimmed}/`);
       let label = trimmed;
       if (dir.dist) {
         const hash = dir.dist.hash.digest;
@@ -78,6 +84,13 @@ function renderHtml(dirs: TDir[]): string {
 
   const list = items ? `${items}\n${indent}<hr />\n` : '';
   return TEMPLATE.replace('__LIST__\n', list);
+}
+
+function parseShardIndex(input: string): number | undefined {
+  const m = /^shard\.(\d+)$/.exec(input);
+  if (!m) return undefined;
+  const value = Number.parseInt(m[1]!, 10);
+  return Number.isFinite(value) ? value : undefined;
 }
 
 const MARKER = '@sys/tools: index';

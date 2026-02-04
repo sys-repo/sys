@@ -209,6 +209,10 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
       const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
       const clearStaging = freshYaml.staging?.clear === true;
+      const indexBaseDomain =
+        freshYaml.provider?.kind === 'orbiter'
+          ? String(freshYaml.provider.domain ?? '').trim()
+          : undefined;
 
       const res = await runStagingWithSpinner({
         cwd,
@@ -216,6 +220,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         sourceRoot: sourceRootRel,
         stagingRoot: stagingRootRel,
         clear: clearStaging,
+        indexBaseDomain,
       });
 
       ranOk = res.ok;

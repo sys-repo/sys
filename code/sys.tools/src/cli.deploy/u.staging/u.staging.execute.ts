@@ -13,6 +13,7 @@ type Args = {
   concurrency?: number;
   onProgress?: (e: StagingProgressEvent) => void;
   sourceRoot?: string;
+  indexBaseDomain?: string;
 
   /**
    * Optional single staging root dir for deterministic lifecycle operations.
@@ -78,6 +79,7 @@ export async function executeStaging(options: Args): Promise<void> {
     emit,
     total,
     indexOffset: 0,
+    indexBaseDomain: options.indexBaseDomain,
   });
 
   await runPhase({
@@ -90,11 +92,12 @@ export async function executeStaging(options: Args): Promise<void> {
     emit,
     total,
     indexOffset: standard.length,
+    indexBaseDomain: options.indexBaseDomain,
   });
 
   const rootAbs = stagingBaseAbs;
   // Always refresh the root index after successful staging (safe: only overwrites if marker present).
-  await ensureIndexHtml(rootAbs, { force: true });
+  await ensureIndexHtml(rootAbs, { force: true, baseDomain: options.indexBaseDomain });
 
   if (options.writeDistJson) {
     if (!options.stagingRoot)
@@ -116,6 +119,7 @@ async function runPhase(args: {
   emit: (e: StagingProgressEvent) => void;
   total: number;
   indexOffset: number;
+  indexBaseDomain?: string;
 }): Promise<void> {
   const {
     cwd,
@@ -127,6 +131,7 @@ async function runPhase(args: {
     emit,
     total,
     indexOffset,
+    indexBaseDomain,
   } = args;
   const phaseTotal = mappings.length;
   if (phaseTotal === 0) return;
@@ -180,7 +185,13 @@ async function runPhase(args: {
             break;
           }
           case 'index': {
-            await execIndex(cwd, { ...dir, source: m.dir.source }, reportStep, stagingBaseAbs);
+            await execIndex(
+              cwd,
+              { ...dir, source: m.dir.source },
+              reportStep,
+              stagingBaseAbs,
+              indexBaseDomain,
+            );
             break;
           }
         }
