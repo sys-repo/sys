@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@testing-library/react": "16.3.2",
-    "@types/react": "19.2.10",
+    "@types/react": "19.2.11",
     "@types/react-dom": "19.2.3",
     "hono": "4.11.7",
     "motion": "12.31.0",
