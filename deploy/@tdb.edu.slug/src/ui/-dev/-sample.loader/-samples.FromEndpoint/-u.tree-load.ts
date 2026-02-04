@@ -25,10 +25,9 @@ export const SampleTree: t.FetchSample = {
         error: { kind: 'schema', message: 'Missing docid in descriptor.' },
       });
     }
+    const FromEndpoint = SlugClient.FromEndpoint;
     const baseUrl = Url.parse(origin).join(basePath);
-    const res = await SlugClient.FromEndpoint.Tree.load(baseUrl, docid, {
-      layout: { manifestsDir },
-    });
+    const res = await FromEndpoint.Tree.load(baseUrl, docid, { layout: { manifestsDir } });
     e.result(res);
   },
 };
