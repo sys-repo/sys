@@ -138,6 +138,45 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('index: generates index.html into staging target from staging root', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/stage/alpha`);
+      await Fs.write(`${tmp}/stage/alpha/a.txt`, 'x');
+
+      const dir = { source: '.', staging: 'dist/root' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      expect(index.ok).to.eql(true);
+      expect(index.exists).to.eql(true);
+      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
+
+      const dist = await Fs.readJson(`${tmp}/stage/dist/root/dist.json`);
+      expect(dist.ok).to.eql(true);
+      expect(dist.exists).to.eql(true);
+    });
+  });
+
+  it('index: includes hash labels and excludes -root entry', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/stage/shard.1`);
+      await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
+      await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
+
+      await Fs.ensureDir(`${tmp}/stage/-root`);
+      await Fs.write(`${tmp}/stage/-root/index.html`, '<!doctype html>');
+
+      const dir = { source: '.', staging: 'dist/root' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      expect(html.includes('shard.1')).to.eql(true);
+      expect(html.includes('version')).to.eql(true);
+      expect(html.includes('-root')).to.eql(false);
+    });
+  });
+
   it('failure: emits mapping:fail and throws first error (no mapping:done); does not write dist.json', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;
@@ -383,7 +422,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/new.txt`, 'new');
 
       await Fs.ensureDir(`${tmp}/stage`);
-      await Fs.write(`${tmp}/stage/index.html`, '<!-- @sys/tools staging index -->\n');
+      await Fs.write(`${tmp}/stage/index.html`, '<!-- @sys/tools: index -->\n');
 
       const dir = { source: 'src', staging: 'dist/my-output' };
       await executeStaging({
@@ -393,7 +432,7 @@ describe('Staging: executeStaging', () => {
       });
 
       const index = await Fs.readText(`${tmp}/stage/index.html`);
-      expect(index.data).to.not.eql('<!-- @sys/tools staging index -->\n');
+      expect(index.data).to.not.eql('<!-- @sys/tools: index -->\n');
     });
   });
 
@@ -424,7 +463,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/new.txt`, 'new');
 
       await Fs.ensureDir(`${tmp}/stage`);
-      const before = '<!-- @sys/tools staging index -->\n<!-- stale -->\n';
+      const before = '<!-- @sys/tools: index -->\n<!-- stale -->\n';
       await Fs.write(`${tmp}/stage/index.html`, before);
 
       const dir = { source: 'src', staging: 'dist/my-output' };

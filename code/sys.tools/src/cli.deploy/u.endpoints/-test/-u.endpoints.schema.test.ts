@@ -108,8 +108,8 @@ describe('Schema: endpoint', () => {
       staging: { dir: './staging' },
       mappings: [
         {
-          dir: { source: '.', staging: '.' },
           mode: 'wat' as unknown,
+          dir: { source: '.', staging: '.' },
         },
       ],
     });
@@ -118,13 +118,28 @@ describe('Schema: endpoint', () => {
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
+  it('validate: accepts mapping.mode "index"', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      mappings: [
+        {
+          mode: 'index',
+          dir: { source: '.', staging: '.' },
+        },
+      ],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
   it('validate: rejects unknown keys inside mapping objects', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: './staging' },
       mappings: [
         {
-          dir: { source: '.', staging: '.' },
           mode: 'copy',
+          dir: { source: '.', staging: '.' },
           extra: true,
         },
       ],
@@ -139,8 +154,8 @@ describe('Schema: endpoint', () => {
       staging: { dir: './staging' },
       mappings: [
         {
-          dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
           mode: 'copy',
+          dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
           shards: { total: 64, requireAll: true },
         },
       ],
@@ -155,8 +170,8 @@ describe('Schema: endpoint', () => {
       staging: { dir: './staging' },
       mappings: [
         {
-          dir: { source: '.', staging: '.', extra: 'x' },
           mode: 'copy',
+          dir: { source: '.', staging: '.', extra: 'x' },
         },
       ],
     });

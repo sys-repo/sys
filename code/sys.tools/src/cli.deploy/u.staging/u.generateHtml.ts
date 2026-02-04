@@ -46,6 +46,7 @@ async function directories(root: t.StringDir) {
   for (const entry of entries.filter((entry) => entry.isDirectory)) {
     const abs = entry.path;
     const rel = Str.trimSlashes(abs.startsWith(root) ? abs.slice(root.length) : abs);
+    if (rel === '-root') continue;
     const dist = (await Pkg.Dist.load(abs)).dist;
     const hasIndex = await Fs.exists(Fs.join(abs, 'index.html'));
     const hasDistJson = await Fs.exists(Fs.join(abs, 'dist.json'));

@@ -51,7 +51,7 @@ export namespace DeployTool {
        * - 'build+copy' → build first, then copy output
        * - 'copy'       → copy as-is
        */
-      export type SourceMode = 'copy' | 'build+copy';
+      export type SourceMode = 'copy' | 'build+copy' | 'index';
 
       /**
        * Maps an input directory into the generated endpoint staging dir.
@@ -166,7 +166,8 @@ export namespace DeployTool {
      */
     export type Mapping =
       | { readonly mode: 'copy'; readonly dir: Dir }
-      | { readonly mode: 'build+copy'; readonly dir: Dir };
+      | { readonly mode: 'build+copy'; readonly dir: Dir }
+      | { readonly mode: 'index'; readonly dir: Dir };
 
     /** Build progress. */
     export type ProgressKind = 'mapping:start' | 'mapping:step' | 'mapping:done' | 'mapping:fail';

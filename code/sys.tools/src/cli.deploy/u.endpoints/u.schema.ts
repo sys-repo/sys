@@ -58,6 +58,7 @@ export const EndpointYamlSchema = {
               mode: Schema.Type.Union([
                 Schema.Type.Literal('copy'),
                 Schema.Type.Literal('build+copy'),
+                Schema.Type.Literal('index'),
               ]),
               shards: Schema.Type.Optional(
                 Schema.Type.Object(

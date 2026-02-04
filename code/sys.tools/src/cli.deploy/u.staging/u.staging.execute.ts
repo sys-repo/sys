@@ -1,6 +1,7 @@
 import { type t, Fs, Is, Path } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
+import { execIndex } from './u.execIndex.ts';
 import { ensureIndexHtml } from './u.generateHtml.ts';
 import { resolvePath } from '../u.endpoints/u.resolve.ts';
 
@@ -43,7 +44,8 @@ export async function executeStaging(options: Args): Promise<void> {
   const stagingBaseAbs = resolvePath(cwd, options.stagingRoot ?? '.');
 
   if (options.cleanStagingRoot) {
-    if (!options.stagingRoot) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+    if (!options.stagingRoot)
+      throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
     const rootAbs = stagingBaseAbs;
     const cwdAbs = Path.resolve(cwd, '.');
 
@@ -62,6 +64,73 @@ export async function executeStaging(options: Args): Promise<void> {
       : 1;
 
   const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
+
+  const standard = mappings.filter((m) => m.mode !== 'index');
+  const indexes = mappings.filter((m) => m.mode === 'index');
+
+  await runPhase({
+    cwd,
+    mappings: standard,
+    overwrite,
+    concurrency,
+    sourceBaseAbs,
+    stagingBaseAbs,
+    emit,
+    total,
+    indexOffset: 0,
+  });
+
+  await runPhase({
+    cwd,
+    mappings: indexes,
+    overwrite,
+    concurrency: 1,
+    sourceBaseAbs,
+    stagingBaseAbs,
+    emit,
+    total,
+    indexOffset: standard.length,
+  });
+
+  const rootAbs = stagingBaseAbs;
+  // Always refresh the root index after successful staging (safe: only overwrites if marker present).
+  await ensureIndexHtml(rootAbs, { force: true });
+
+  if (options.writeDistJson) {
+    if (!options.stagingRoot)
+      throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
+
+    const write = options.onWriteDistJson;
+    if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
+    await write({ stagingRoot: rootAbs });
+  }
+}
+
+async function runPhase(args: {
+  cwd: t.StringDir;
+  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
+  overwrite: boolean;
+  concurrency: number;
+  sourceBaseAbs: t.StringDir;
+  stagingBaseAbs: t.StringDir;
+  emit: (e: StagingProgressEvent) => void;
+  total: number;
+  indexOffset: number;
+}): Promise<void> {
+  const {
+    cwd,
+    mappings,
+    overwrite,
+    concurrency,
+    sourceBaseAbs,
+    stagingBaseAbs,
+    emit,
+    total,
+    indexOffset,
+  } = args;
+  const phaseTotal = mappings.length;
+  if (phaseTotal === 0) return;
+
   let next = 0;
   let firstErr: unknown;
 
@@ -69,15 +138,22 @@ export async function executeStaging(options: Args): Promise<void> {
     while (true) {
       if (firstErr) return;
 
-      const index = next;
+      const localIndex = next;
       next += 1;
 
-      if (index >= total) return;
+      if (localIndex >= phaseTotal) return;
 
-      const m = mappings[index]!;
-      const source = resolvePath(sourceBaseAbs, m.dir.source);
+      const m = mappings[localIndex]!;
+      const index = indexOffset + localIndex;
       const staging = resolvePath(stagingBaseAbs, m.dir.staging);
-      const dir: t.DeployTool.Staging.Dir = { ...m.dir, source, staging };
+      const source =
+        m.mode === 'index'
+          ? resolvePath(stagingBaseAbs, m.dir.source)
+          : resolvePath(sourceBaseAbs, m.dir.source);
+      const dir: t.DeployTool.Staging.Dir =
+        m.mode === 'index'
+          ? { ...m.dir, staging }
+          : { ...m.dir, source, staging };
 
       emit({ kind: 'mapping:start', index, total, mode: m.mode, source, staging });
 
@@ -103,6 +179,10 @@ export async function executeStaging(options: Args): Promise<void> {
             await execBuildCopy(cwd, dir, reportStep, { overwrite });
             break;
           }
+          case 'index': {
+            await execIndex(cwd, { ...dir, source: m.dir.source }, reportStep, stagingBaseAbs);
+            break;
+          }
         }
 
         emit({ kind: 'mapping:done', index, total, mode: m.mode, source, staging });
@@ -114,22 +194,10 @@ export async function executeStaging(options: Args): Promise<void> {
     }
   };
 
-  const n = Math.min(concurrency, Math.max(1, total));
+  const n = Math.min(concurrency, Math.max(1, phaseTotal));
   const workers: Promise<void>[] = [];
   for (let i = 0; i < n; i++) workers.push(runOne());
   await Promise.all(workers);
 
   if (firstErr) throw firstErr;
-
-  const rootAbs = stagingBaseAbs;
-  // Always refresh the root index after successful staging (safe: only overwrites if marker present).
-  await ensureIndexHtml(rootAbs, { force: true });
-
-  if (options.writeDistJson) {
-    if (!options.stagingRoot) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
-
-    const write = options.onWriteDistJson;
-    if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
-    await write({ stagingRoot: rootAbs });
-  }
 }

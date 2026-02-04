@@ -57,7 +57,15 @@ export async function pushCapabilityOf(args: {
     yaml = undefined;
   }
 
-  const provider = yaml?.provider;
+  if (!yaml) {
+    return {
+      show: false,
+      reason: 'yaml-invalid',
+      hint: 'Unable to read endpoint YAML.',
+    };
+  }
+
+  const provider = yaml.provider;
   if (!provider) {
     return {
       show: false,
