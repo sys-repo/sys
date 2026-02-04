@@ -20,7 +20,7 @@ export type OrbiterProvider = {
     /** Total shard count (0..N-1). */
     total: number;
     /** Optional allowlist of shard indices to deploy. */
-    enabled?: number[];
+    only?: number[];
     /** Optional shard index → siteId map. */
     siteIds?: Record<number, t.StringUrl>;
   };

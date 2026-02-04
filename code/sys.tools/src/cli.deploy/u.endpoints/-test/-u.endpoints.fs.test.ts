@@ -192,7 +192,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: rejects provider.shards.enabled out of range', async () => {
+  it('validateYaml: rejects provider.shards.only out of range', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
@@ -204,7 +204,7 @@ describe('EndpointsFs', () => {
           domain: example.com
           shards:
             total: 2
-            enabled: [3]
+            only: [3]
         staging:
           dir: ./staging
         mappings: []

@@ -20,7 +20,7 @@ describe('Orbiter Provider: Schema', () => {
       domain: 'fs',
       shards: {
         total: 64,
-        enabled: [1, 4, 5],
+        only: [1, 4, 5],
         siteIds: {
           1: 'aaa-bbb',
           4: 'ccc-ddd',

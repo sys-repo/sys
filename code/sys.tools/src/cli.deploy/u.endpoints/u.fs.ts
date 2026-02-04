@@ -208,13 +208,13 @@ function validateProviderShards(
     return;
   }
 
-  if (shards.enabled?.length) {
+  if (shards.only?.length) {
     const seen = new Set<number>();
-    for (const value of shards.enabled) {
+    for (const value of shards.only) {
       if (!Is.num(value) || !Number.isInteger(value)) {
         errors.push(
           Yaml.Error.synthetic({
-            message: `provider.shards.enabled must contain integers: ${String(value)}`,
+            message: `provider.shards.only must contain integers: ${String(value)}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
@@ -224,7 +224,7 @@ function validateProviderShards(
       if (value < 0 || value >= total) {
         errors.push(
           Yaml.Error.synthetic({
-            message: `provider.shards.enabled out of range (0..${total - 1}): ${String(value)}`,
+            message: `provider.shards.only out of range (0..${total - 1}): ${String(value)}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
@@ -234,7 +234,7 @@ function validateProviderShards(
       if (seen.has(value)) {
         errors.push(
           Yaml.Error.synthetic({
-            message: `provider.shards.enabled has duplicate: ${String(value)}`,
+            message: `provider.shards.only has duplicate: ${String(value)}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),

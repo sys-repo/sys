@@ -53,7 +53,7 @@ describe('Schema: endpoint', () => {
         domain: 'fs',
         shards: {
           total: 64,
-          enabled: [1, 2],
+          only: [1, 2],
           siteIds: { 1: 'a', 2: 'b' },
         },
       },
