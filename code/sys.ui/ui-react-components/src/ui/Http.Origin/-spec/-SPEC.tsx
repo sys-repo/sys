@@ -23,6 +23,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
     update();
     function update() {
+      ctx.subject.size([p.width.value, null]);
       debug.listen();
       ctx.redraw();
     }
@@ -31,7 +32,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([350, null])
+      //
       .display('grid')
       .render(() => (p.controlled.value ? <RootControlled /> : <Root />));
   });

@@ -7,6 +7,7 @@ type P = t.HttpOriginProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
   controlled?: boolean;
   sample?: SampleName;
+  width?: t.Pixels;
 };
 const defaults: Storage = {
   debug: false,
@@ -14,6 +15,7 @@ const defaults: Storage = {
   env: 'localhost',
   controlled: true,
   sample: 'cdn',
+  width: 350,
 };
 
 /**
@@ -37,6 +39,7 @@ export async function createDebugSignals() {
     origin: s<t.HttpOriginMap__LEGACY | undefined>(),
     controlled: s(snap.controlled),
     sample: s(snap.sample),
+    width: s(snap.width),
   };
   const p = props;
   const controller = HttpOrigin.controller({ env: p.env, origin: p.origin });
@@ -69,6 +72,7 @@ export async function createDebugSignals() {
       d.env = p.env.value;
       d.controlled = p.controlled.value;
       d.sample = p.sample.value;
+      d.width = p.width.value;
     });
   });
 
@@ -120,11 +124,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `width: ${p.width.value}`}
+        onClick={() => Signal.cycle<t.Pixels>(p.width, [280, 350, 420])}
+      />
+
+      <hr />
+      <Button
+        block
         label={() => `env: ${p.env.value}`}
         onClick={() => Signal.cycle<t.HttpOriginEnv>(p.env, ['localhost', 'production'])}
       />
 
-      <hr />
       <Button
         block
         label={() => `sample: ${p.sample.value}`}
