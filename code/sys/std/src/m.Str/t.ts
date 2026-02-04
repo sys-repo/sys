@@ -19,6 +19,9 @@ export type StrLib = {
   /** White space (not collapsed by Posix/Linux log digests). */
   readonly SPACE: '\u200B';
 
+  /** Algorithms for performing string comparisons when sorting. */
+  readonly Compare: t.StrCompareLib;
+
   /** The "lorem ipsum" helper library. */
   readonly Lorem: StrLoremLib;
   /** The "lorem ipsum" string. */
@@ -229,4 +232,20 @@ export type StrLoremLib = {
   readonly text: string;
   toString(): string;
   words(count?: number): string;
+};
+
+/**
+ * Algorithms for performing string comparisons when sorting.
+ */
+export type StrCompareLib = {
+  /**
+   * Natural string comparator factory (numeric segments sort numerically).
+   */
+  natural(options?: StrCompareOptions): (a: string, b: string) => number;
+};
+
+/** Options for string comparison algorithms. */
+export type StrCompareOptions = {
+  readonly locale?: string;
+  readonly sensitivity?: Intl.CollatorOptions['sensitivity'];
 };

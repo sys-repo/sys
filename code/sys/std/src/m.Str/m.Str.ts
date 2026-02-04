@@ -1,5 +1,6 @@
 import { type t, SPACE } from './common.ts';
 
+import { Compare } from './m.Compare.ts';
 import { Lorem } from './m.Lorem.ts';
 import { builder } from './u.builder.ts';
 import { bytes } from './u.bytes.ts';
@@ -29,6 +30,7 @@ export { bytes, capitalize, diff, plural };
 
 export const Str: t.StrLib = {
   SPACE,
+  Compare,
   Lorem,
   lorem: Lorem.text,
   builder,
