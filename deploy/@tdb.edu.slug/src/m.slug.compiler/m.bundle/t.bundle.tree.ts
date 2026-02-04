@@ -6,6 +6,8 @@ import type { t } from './common.ts';
 export type SlugBundleFileTree = {
   /** Source directory to scan. */
   readonly source?: t.StringPath;
+  /** Explicit bundle docid (used for manifest indexes). */
+  readonly docid?: t.StringId;
   /** CRDT configuration for DAG-based lookup. */
   readonly crdt: {
     readonly docid: t.StringId;

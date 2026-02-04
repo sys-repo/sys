@@ -45,7 +45,7 @@ export async function runSlugTreeFs(args: {
   }
 
   const includePath = targetDirs.some((item) => item.kind === 'source');
-  const docid = config.crdt.docid;
+  const docid = resolveDocid(config, targets);
   let fileEntries: t.SlugFileContentEntry[] = [];
   let sourceFiles = 0;
   let sha256Files = 0;
@@ -90,9 +90,12 @@ export async function runSlugTreeFs(args: {
       manifests += 1;
       const assetsPath = deriveAssetsPath(target.path);
       if (assetsPath && fileEntries.length > 0) {
+        if (!docid) {
+          throw new Error('Slug-tree bundle docid could not be resolved from config or manifest.');
+        }
         await writeSlugFileContentIndex({
           targetPath: assetsPath,
-          docid: docid as t.StringId,
+          docid,
           entries: fileEntries,
         });
         manifests += 1;
@@ -112,6 +115,25 @@ export async function runSlugTreeFs(args: {
   const elapsed = Date.now() - startedAt;
   const files = sourceFiles > 0 ? sourceFiles : sha256Files;
   return { files, sourceFiles, sha256Files, manifests, elapsed };
+}
+
+function resolveDocid(
+  config: t.SlugBundleFileTree,
+  targets: Array<{ raw: t.StringPath; path: t.StringFile }>,
+): t.StringId | undefined {
+  const explicit = String(config.docid ?? '').trim();
+  if (explicit) return explicit as t.StringId;
+
+  const candidates = targets
+    .map((t) => Fs.basename(t.path))
+    .map((name) => {
+      const match = /^slug-tree\.([^.]+)\.(json|ya?ml)$/i.exec(name);
+      return match?.[1];
+    })
+    .filter((v): v is string => !!v);
+
+  if (candidates.length > 0) return candidates[0] as t.StringId;
+  return undefined;
 }
 
 function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {

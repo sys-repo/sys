@@ -16,6 +16,7 @@ describe('Lint: slug-tree:fs', () => {
 
       const config: t.SlugBundleFileTree = {
         source: 'src',
+        docid: 'kb',
         crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           manifests: 'out/slug-tree.kb.json',
@@ -53,7 +54,7 @@ describe('Lint: slug-tree:fs', () => {
       };
       const isAssetsValid = SlugSchema.FileContent.Is.index(assets);
       expect(isAssetsValid).to.eql(true);
-      expect(assets.docid).to.eql('slug:test');
+      expect(assets.docid).to.eql('kb');
 
       const outputs: Array<{
         name: string;
@@ -165,6 +166,36 @@ describe('Lint: slug-tree:fs', () => {
       expect(await Fs.exists(Fs.join(tmpDir, 'out/source/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/content/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/dist.json'))).to.eql(true);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('derives docid from manifest filename when explicit docid missing', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(srcDir);
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'hello');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        crdt: { docid: '<tbd>' as t.StringId, path: '/slug' },
+        target: {
+          manifests: 'out/slug-tree.kb.json',
+          dir: [{ kind: 'sha256', path: 'out/sha256' }],
+        },
+      };
+      await runSlugTreeFs({
+        cwd: tmpDir,
+        config,
+        createCrdt: async () => 'crdt:test' as t.StringRef,
+      });
+
+      const assetsPath = Fs.join(tmpDir, 'out/slug-tree.kb.assets.json');
+      const assetsRaw = (await Fs.readText(assetsPath)).data ?? '';
+      const assets = Json.parse(assetsRaw) as { docid: string };
+      expect(assets.docid).to.eql('kb');
     } finally {
       await Fs.remove(tmpDir);
     }

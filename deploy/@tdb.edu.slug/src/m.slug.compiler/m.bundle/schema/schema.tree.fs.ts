@@ -3,6 +3,7 @@ import { SchemaCrdtConfig } from './schema.crdt.ts';
 
 export const SchemaSlugTreeFsFields = {
   source: Schema.Type.Optional(Schema.Type.String()),
+  docid: Schema.Type.Optional(Schema.Type.String()),
   crdt: SchemaCrdtConfig,
   target: Schema.Type.Optional(
     Schema.Type.Object(
