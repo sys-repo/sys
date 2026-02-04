@@ -142,19 +142,18 @@ describe('EndpointsFs', () => {
       await Fs.ensureDir(`${tmp}/code/video/partition-0`);
       await Fs.ensureDir(`${tmp}/code/video/partition-1`);
 
-      const yaml = [
-        'source:',
-        '  dir: ./code',
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: copy',
-        '    shards: { total: 2 }',
-        '    dir:',
-        '      source: ./video/partition-<shard>',
-        '      staging: ./<shard>.video.cdn.example',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        source:
+          dir: ./code
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            shards: { total: 2 }
+            dir:
+              source: ./video/partition-<shard>
+              staging: ./<shard>.video.cdn.example
+      `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -206,6 +205,56 @@ describe('EndpointsFs', () => {
           shards:
             total: 2
             enabled: [3]
+        staging:
+          dir: ./staging
+        mappings: []
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+    });
+  });
+
+  it('validateYaml: rejects provider.shards.siteIds invalid key', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-key')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: orbiter
+          siteId: 123abc
+          domain: example.com
+          shards:
+            total: 2
+            siteIds:
+              x: 11111111-1111-1111-1111-111111111111
+        staging:
+          dir: ./staging
+        mappings: []
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+    });
+  });
+
+  it('validateYaml: rejects provider.shards.siteIds empty value', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-value')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: orbiter
+          siteId: 123abc
+          domain: example.com
+          shards:
+            total: 2
+            siteIds:
+              1: ''
         staging:
           dir: ./staging
         mappings: []
