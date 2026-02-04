@@ -7,7 +7,7 @@ type P = t.HttpOriginProps;
  * Component:
  */
 export const OriginSelector: React.FC<P> = (props) => {
-  const { debug = false, kind = D.kind.default } = props;
+  const { debug = false, env = D.env.default } = props;
 
   /**
    * Render:
@@ -30,7 +30,7 @@ export const OriginSelector: React.FC<P> = (props) => {
 
   const btn = (value: t.HttpOriginEnv) => {
     const label = `${value}`;
-    const isSelected = value === kind;
+    const isSelected = value === env;
     return (
       <Button theme={theme.name} onMouseDown={() => props.onChange?.({ next: value })}>
         <div className={styles.button.class}>

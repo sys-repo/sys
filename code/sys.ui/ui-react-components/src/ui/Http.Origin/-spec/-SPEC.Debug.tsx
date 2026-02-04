@@ -3,11 +3,11 @@ import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } 
 import { HttpOrigin } from '../mod.ts';
 
 type P = t.HttpOriginProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'kind'> & { controlled?: boolean };
+type Storage = Pick<P, 'debug' | 'theme' | 'env'> & { controlled?: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  kind: 'localhost',
+  env: 'localhost',
   controlled: true,
 };
 
@@ -28,12 +28,12 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    kind: s(snap.kind),
+    env: s(snap.env),
     origin: s<t.HttpOriginMap | undefined>(),
     controlled: s(snap.controlled),
   };
   const p = props;
-  const controller = HttpOrigin.controller({ kind: p.kind, origin: p.origin });
+  const controller = HttpOrigin.controller({ env: p.env, origin: p.origin });
   const api = {
     props,
     controller,
@@ -54,7 +54,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.kind = p.kind.value;
+      d.env = p.env.value;
       d.controlled = p.controlled.value;
     });
   });
@@ -104,6 +104,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `kind: ${p.env.value}`}
+        onClick={() => Signal.cycle<t.HttpOriginEnv>(p.env, ['localhost', 'production'])}
       />
 
       <hr />

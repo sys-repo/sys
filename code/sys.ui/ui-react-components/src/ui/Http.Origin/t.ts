@@ -23,7 +23,7 @@ export type HttpOriginLib = {
  * Component
  */
 export type HttpOriginProps = {
-  kind?: t.HttpOriginEnv;
+  env?: t.HttpOriginEnv;
   defaults?: { origin?: t.HttpOriginDefaults };
   //
   debug?: boolean;
@@ -36,7 +36,7 @@ export type HttpOriginProps = {
  * Controlled Component
  */
 export type HttpOriginControlledProps = {
-  kind?: t.SignalOptional<t.HttpOriginEnv>;
+  env?: t.SignalOptional<t.HttpOriginEnv>;
   origin?: t.SignalOptional<t.HttpOriginMap>;
   defaults?: t.HttpOriginProps['defaults'];
   debug?: boolean;
@@ -48,15 +48,15 @@ export type HttpOriginControlledProps = {
  * Controller (State)
  */
 type CtrlArgs = {
-  props?: Pick<HttpOriginProps, 'kind' | 'defaults'>;
-  kind?: t.Signal<t.HttpOriginEnv | undefined>;
+  props?: Pick<HttpOriginProps, 'env' | 'defaults'>;
+  env?: t.Signal<t.HttpOriginEnv | undefined>;
   origin?: t.Signal<t.HttpOriginMap | undefined>;
 };
 export type HttpOriginControllerFactory = (args: CtrlArgs) => HttpOriginController;
 export type HttpOriginController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;
   readonly listen: () => void;
-  readonly view: () => Pick<HttpOriginProps, 'kind' | 'defaults' | 'onChange'>;
+  readonly view: () => Pick<HttpOriginProps, 'env' | 'defaults' | 'onChange'>;
   readonly state: {
     readonly kind: t.ReadonlySignal<t.HttpOriginEnv | undefined>;
     readonly origin: t.ReadonlySignal<t.HttpOriginMap | undefined>;

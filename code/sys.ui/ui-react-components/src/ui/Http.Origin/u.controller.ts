@@ -5,8 +5,8 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
   const s = Signal.create;
   let rev = 0;
   const state = {
-    kind: args.kind ?? s(args.props?.kind || D.kind.default),
-    origin: args.origin ?? s(D.kind.local),
+    kind: args.env ?? s(args.props?.env || D.env.default),
+    origin: args.origin ?? s(D.env.local),
   };
 
   const api = Rx.toLifecycle<t.HttpOriginController>({
@@ -17,7 +17,7 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
     view(): ReturnType<t.HttpOriginController['view']> {
       const v = Signal.toObject(state);
       return {
-        kind: v.kind,
+        env: v.kind,
         defaults: args.props?.defaults,
         onChange: (e) => (state.kind.value = e.next),
       };
