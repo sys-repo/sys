@@ -13,3 +13,8 @@ export type FetchActionArgs = {
   readonly hash?: string;
   result(value: unknown): void;
 };
+
+export type FetchSample = {
+  readonly label: string;
+  readonly run: FetchAction;
+};

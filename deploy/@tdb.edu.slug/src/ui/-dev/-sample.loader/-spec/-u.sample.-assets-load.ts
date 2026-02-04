@@ -1,18 +1,18 @@
 import { type t, SlugClient } from './-common.ts';
 
-/**
- * Load assets manifest.
- */
-export const SampleAssets = {
-  label: '',
-} as const;
+export const SampleAssets: t.FetchSample = {
+  label: 'FromEndpoint.Assets.load',
 
-export async function sampleAssetsLoad(e: t.FetchActionArgs) {
-  if (!e.baseUrl || !e.docid) {
-    return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });
-  }
-  const res = await SlugClient.FromEndpoint.Assets.load(e.baseUrl, e.docid, {
-    layout: { manifestsDir: e.manifestsDir },
-  });
-  e.result(res);
-}
+  /**
+   * Load assets manifest.
+   */
+  async run(e) {
+    if (!e.baseUrl || !e.docid) {
+      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing baseUrl/docid.' } });
+    }
+    const res = await SlugClient.FromEndpoint.Assets.load(e.baseUrl, e.docid, {
+      layout: { manifestsDir: e.manifestsDir },
+    });
+    e.result(res);
+  },
+};

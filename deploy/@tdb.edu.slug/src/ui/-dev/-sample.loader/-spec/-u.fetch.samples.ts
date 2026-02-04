@@ -2,12 +2,12 @@ import { type DebugSignals, type t, Url } from './-common.ts';
 import { fetchButton } from './-u.fetch.btn.tsx';
 
 /** Samples */
-import { sampleAssetsLoad } from './-u.sample.-assets-load.ts';
-import { sampleBundleLoad } from './-u.sample.-bundle-load.ts';
-import { sampleDescriptorLoad } from './-u.sample.-descriptor-load.ts';
-import { sampleFileContentGet } from './-u.sample.-filecontent-get.ts';
-import { samplePlaybackLoad } from './-u.sample.-playback-load.ts';
-import { sampleTreeLoad } from './-u.sample.-tree-load.ts';
+import { SampleAssets } from './-u.sample.-assets-load.ts';
+import { SampleBundle } from './-u.sample.-bundle-load.ts';
+import { SampleDescriptor } from './-u.sample.-descriptor-load.ts';
+import { SampleFileContentGet } from './-u.sample.-filecontent-get.ts';
+import { SamplePlayback } from './-u.sample.-playback-load.ts';
+import { SampleTree } from './-u.sample.-tree-load.ts';
 
 export function fetchSamples(debug: DebugSignals) {
   const items: t.ReactNode[] = [];
@@ -40,7 +40,7 @@ export function fetchSamples(debug: DebugSignals) {
       manifestsDir,
     };
   };
-  btn('FromEndpoint.Descriptor.load', sampleDescriptorLoad);
+  btn(SampleDescriptor.label, SampleDescriptor.run);
 
   const withDocid = (label: string, fn: (e: t.FetchActionArgs) => Promise<void>) =>
     btn(label, async (e) => {
@@ -55,10 +55,10 @@ export function fetchSamples(debug: DebugSignals) {
       await fn({ ...e, docid, baseUrl, manifestsDir });
     });
 
-  withDocid('FromEndpoint.Tree.load', sampleTreeLoad);
-  withDocid('FromEndpoint.Playback.load', samplePlaybackLoad);
-  withDocid('FromEndpoint.Assets.load', sampleAssetsLoad);
-  withDocid('FromEndpoint.Bundle.load', sampleBundleLoad);
+  withDocid(SampleTree.label, SampleTree.run);
+  withDocid(SamplePlayback.label, SamplePlayback.run);
+  withDocid(SampleAssets.label, SampleAssets.run);
+  withDocid(SampleBundle.label, SampleBundle.run);
 
   btn('FromEndpoint.FileContent.get', async (e) => {
     const hash = resolveHash();
@@ -69,7 +69,7 @@ export function fetchSamples(debug: DebugSignals) {
       });
     }
     const { baseUrl } = base(e);
-    await sampleFileContentGet({ ...e, hash, baseUrl });
+    await SampleFileContentGet.run({ ...e, hash, baseUrl });
   });
 
   return items;
