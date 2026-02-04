@@ -1,11 +1,11 @@
 import { type t } from './common.ts';
 
 /** Type re-exports. */
-export type * from './ui.HttpOrigin/t.ts';
+export type * from './ui.Http.SlugOrigin/t.ts';
 
 /**
  * Dev UI helpers.
  */
 export type DevLib = {
-  HttpOrigin: t.HttpOriginLib;
+  SlugOrigin: t.SlugHttpOriginLib;
 };

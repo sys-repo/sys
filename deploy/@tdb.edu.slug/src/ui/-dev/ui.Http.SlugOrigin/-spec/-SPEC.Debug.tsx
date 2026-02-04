@@ -1,25 +1,14 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  ClientLoader,
-  Color,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-} from '../common.ts';
-import { HttpOrigin } from '../mod.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Button, ObjectView } from '../common.ts';
+import { SlugOrigin } from '../mod.ts';
 
-type P = t.DevOriginProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'kind'> & { controlled?: boolean };
+type P = t.SlugHttpOriginProps;
+type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  kind: 'localhost',
-  controlled: true,
+  env: 'localhost',
 };
 
 /**
@@ -39,22 +28,18 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    kind: s(snap.kind),
-    origin: s<t.SlugLoaderOrigin | undefined>(),
-    controlled: s(snap.controlled),
+    env: s(snap.env),
+    origin: s<t.SlugHttpOrigins | undefined>(),
   };
   const p = props;
-  const controller = HttpOrigin.controller({ kind: p.kind, origin: p.origin });
   const api = {
     props,
-    controller,
     listen,
     reset,
   };
 
   function listen() {
     Signal.listen(props, true);
-    controller.listen();
   }
 
   function reset() {
@@ -65,8 +50,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.kind = p.kind.value;
-      d.controlled = p.controlled.value;
+      d.env = p.env.value;
     });
   });
 
@@ -88,7 +72,6 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const ctrl = debug.controller;
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -108,42 +91,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `controlled: ${p.controlled.value}`}
-        onClick={() => Signal.toggle(p.controlled)}
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `theme: ${v.theme ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={() => `env: ${p.env.value ?? `(undefined)`}`}
+        onClick={() => {
+          return Signal.cycle<t.HttpOriginEnv | undefined>(p.env, ['localhost', 'production']);
+        }}
       />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
-        name={`controller:rev:${ctrl.rev}`}
-        data={Signal.toObject(ctrl, { func: false })}
-        style={{ marginTop: 6 }}
-        expand={1}
-      />
+      <ObjectView name={'origins'} data={SlugOrigin.origins} expand={0} style={{ marginTop: 6 }} />
 
-      <hr style={{ margin: '15px 0 20px 0' }} />
-      <HttpOrigin.UI.Controlled debug={v.debug} origin={p.origin} />
+      <hr />
 
-      <hr style={{ margin: '15px 0 20px 0' }} />
-      <Button
-        block
-        label={() => `tmp 🐷`}
-        onClick={async () => {
-          const origin = ctrl.state.origin.value;
-          if (origin) {
-            const loader = ClientLoader.make({ origin });
-            const m = await loader.Tree.load('kv');
-            console.log('m', m);
-          }
-        }}
-      />
+      <SlugOrigin.UI env={p.env} origin={p.origin} style={{ marginTop: 20 }} />
     </div>
   );
 };

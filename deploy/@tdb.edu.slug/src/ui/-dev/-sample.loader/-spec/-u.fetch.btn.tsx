@@ -13,7 +13,7 @@ export function fetchButton(debug: t.DebugSignals, label: string, fn: t.FetchAct
       label={label}
       onClick={async () => {
         const origin = v.origin;
-        const local = v.originKind === 'localhost';
+        const local = v.env === 'localhost';
         if (!origin) return;
         p.spinning.value = true;
 

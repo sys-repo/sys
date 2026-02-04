@@ -7,6 +7,7 @@ export {
   Bullet,
   Button,
   Cropmarks,
+  HttpOrigin,
   KeyValue,
   ObjectView,
   Player,

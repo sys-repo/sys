@@ -3,8 +3,8 @@
  * Dev UI helpers.
  */
 import { type t } from './common.ts';
-import { HttpOrigin } from './ui.HttpOrigin/mod.ts';
+import { SlugOrigin } from './ui.Http.SlugOrigin/mod.ts';
 
 export const Dev: t.DevLib = {
-  HttpOrigin,
+  SlugOrigin,
 };

@@ -5,7 +5,7 @@ import { fetchSamples } from './-u.fetch.samples.tsx';
 
 import { type SampleLoaderProps as P } from '../ui.tsx';
 
-type Storage = Pick<P, 'debug' | 'theme'> & { originKind?: t.DevOriginKind };
+type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
@@ -28,7 +28,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    originKind: s(snap.originKind),
+    env: s(snap.env),
     origin: s<t.SlugLoaderOrigin | undefined>(),
     response: s<unknown>(),
     spinning: s(false),
@@ -52,7 +52,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.originKind = p.originKind.value;
+      d.env = p.env.value;
     });
   });
 
@@ -91,12 +91,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
       <hr />
-
-      <Dev.HttpOrigin.UI.Controlled
-        kind={p.originKind}
-        origin={p.origin}
-        style={{ marginBottom: 30 }}
-      />
+      <Dev.SlugOrigin.UI env={p.env} origin={p.origin} style={{ marginBottom: 30 }} />
 
       <Button
         block

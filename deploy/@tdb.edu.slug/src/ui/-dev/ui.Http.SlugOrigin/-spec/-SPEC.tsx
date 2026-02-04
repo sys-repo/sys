@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../../-test.ui.ts';
 import { D } from '../common.ts';
-import { HttpOrigin } from '../mod.ts';
+import { SlugOrigin } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -9,19 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return (
-      <HttpOrigin.UI.Uncontrolled
-        //
-        debug={v.debug}
-        theme={v.theme}
-        {...debug.controller.view()}
-      />
-    );
-  }
-
-  function RootControlled() {
-    const v = Signal.toObject(p);
-    return <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} origin={p.origin} />;
+    return <SlugOrigin.UI debug={v.debug} theme={v.theme} env={p.env} origin={p.origin} />;
   }
 
   e.it('init', (e) => {
@@ -37,9 +25,9 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([350, null])
+      .size([360, null])
       .display('grid')
-      .render(() => (p.controlled.value ? <RootControlled /> : <Root />));
+      .render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {
