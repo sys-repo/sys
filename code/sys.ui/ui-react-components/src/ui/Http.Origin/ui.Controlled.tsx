@@ -18,7 +18,7 @@ export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
     const controller = createController({ origin, env, props: { spec } });
     ref.current = controller;
     return () => controller.dispose();
-  }, [origin, env]);
+  }, [origin, env, spec]);
 
   /**
    * Render:
@@ -29,8 +29,8 @@ export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
       debug={props.debug}
       style={props.style}
       theme={props.theme}
-      spec={spec}
       {...ref.current?.view()}
+      spec={spec}
     />
   );
 };

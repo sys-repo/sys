@@ -14,8 +14,8 @@ export default Spec.describe(D.displayName, async (e) => {
       <HttpOrigin.UI.Uncontrolled
         debug={v.debug}
         theme={v.theme}
-        spec={debug.sample()}
         {...props}
+        spec={debug.sample()}
       />
     );
   }

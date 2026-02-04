@@ -37,7 +37,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     env: s(snap.env),
     controlled: s(snap.controlled),
-    sample: s(snap.sample),
+    sample: s(snap.sample ?? defaults.sample),
     width: s(snap.width),
   };
   const p = props;
@@ -60,7 +60,7 @@ export async function createDebugSignals() {
   }
 
   function sample() {
-    const key = p.sample.value;
+    const key = p.sample.value ?? defaults.sample;
     return key ? Sample[key] : undefined;
   }
 
@@ -121,11 +121,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
-        block
-        label={() => `width: ${p.width.value}`}
-        onClick={() => Signal.cycle<t.Pixels>(p.width, [280, 350, 420])}
-      />
 
       <hr />
       <Button
@@ -142,7 +137,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-
+      <Button
+        block
+        label={() => `width: ${p.width.value}px`}
+        onClick={() => Signal.cycle<t.Pixels>(p.width, [280, 350, 420])}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
@@ -154,8 +153,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={`debug.sample:${v.sample}`}
         data={debug.sample()}
-        expand={0}
         style={{ marginTop: 6 }}
+        expand={1}
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
