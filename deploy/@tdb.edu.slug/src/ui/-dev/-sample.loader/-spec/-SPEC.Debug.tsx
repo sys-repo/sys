@@ -111,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <div className={Styles.title.class}>{'Fetch Samples:'}</div>
+      <div className={Styles.title.class}>{'SlugClient:'}</div>
       {fetchSamples(debug)}
     </div>
   );

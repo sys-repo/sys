@@ -8,7 +8,7 @@ export function fetchSamples(debug: DebugSignals) {
     items.push(fetchButton(debug, label, fn, items.length - 1));
   };
 
-  btn('SlugClient: Descriptor.load', async (e) => {
+  btn('FromEndpoint.Descriptor.load', async (e) => {
     let path = e.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
     const host = e.origin.cdn.default;
     const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
