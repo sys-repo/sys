@@ -15,13 +15,19 @@ export function fetchSamples(debug: DebugSignals) {
     const i = items.length - 1;
     items.push(fetchButton(debug, label, fn, i));
   };
+
+  const hr = () => items.push(<hr key={items.length} />);
+
+  btn(SampleBundle.label, SampleBundle.run);
   btn(SampleDescriptor.label, SampleDescriptor.run);
 
+  hr();
   btn(SampleTree.label, SampleTree.run);
+  btn(SampleFileContentGet.label, SampleFileContentGet.run);
+
+  hr();
   btn(SamplePlayback.label, SamplePlayback.run);
   btn(SampleAssets.label, SampleAssets.run);
-  btn(SampleBundle.label, SampleBundle.run);
-  btn(SampleFileContentGet.label, SampleFileContentGet.run);
 
   return items;
 }
