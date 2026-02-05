@@ -162,6 +162,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       let okCount = 0;
       let bytesTotal = 0;
+      let skipped = 0;
       for (const target of targets) {
         const domainRaw = String(target.domain ?? target.provider.domain ?? '').trim();
         const domain = toHttpsUrl(domainRaw);
@@ -170,6 +171,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           if (res.ok) {
             console.info(c.gray(`push skipped (up-to-date) ${c.white(domain)}`));
             okCount += 1;
+            skipped += 1;
             continue;
           }
         }
@@ -211,8 +213,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         table.push([c.gray('  targets'), stats.total]);
         table.push([c.gray('  root'), stats.root]);
         table.push([c.gray('  shards'), stats.shard]);
-        if (stats.base) table.push([c.gray('base'), stats.base]);
-        if (stats.skippedShards) table.push([c.yellow('skipped'), stats.skippedShards]);
+        if (stats.base) table.push([c.gray('  base'), stats.base]);
+        if (skipped) table.push([c.yellow('  skipped'), skipped]);
+        if (stats.skippedShards) table.push([c.yellow('  skipped'), stats.skippedShards]);
         console.info(c.green('\nPushed'));
         console.info(Str.trimEdgeNewlines(String(table)));
         console.info();
