@@ -1,7 +1,4 @@
-import { type t, Fs } from '../common.ts';
-import { EndpointsFs } from './u.fs.ts';
-
-const LEGACY_DIRS = ['-endpoints', '-config/deploy'] as const;
+import { type t } from '../common.ts';
 
 export type MigrateResult = {
   readonly migrated: number;
@@ -9,47 +6,13 @@ export type MigrateResult = {
 };
 
 /**
- * Migration helpers for moving legacy endpoint YAMLs into the pkg-scoped dir.
+ * Migration helpers for endpoint YAMLs.
+ *
+ * Legacy migrations removed (unused).
  */
 export const EndpointsMigrate = {
   async run(cwd: t.StringDir): Promise<MigrateResult> {
-    const targetDir = Fs.join(cwd, EndpointsFs.dir);
-    let migrated = 0;
-    let skipped = 0;
-
-    for (const legacy of LEGACY_DIRS) {
-      const sourceDir = Fs.join(cwd, legacy);
-      if (!(await Fs.exists(sourceDir))) continue;
-
-      await Fs.ensureDir(targetDir);
-
-      for await (const entry of Deno.readDir(sourceDir)) {
-        if (!entry.isFile) continue;
-        if (!entry.name.endsWith(EndpointsFs.ext)) continue;
-        const from = Fs.join(sourceDir, entry.name);
-        const to = Fs.join(targetDir, entry.name);
-        if (await Fs.exists(to)) {
-          skipped++;
-          continue;
-        }
-        await Fs.move(from, to);
-        migrated++;
-      }
-
-      const remaining = await countDirEntries(sourceDir);
-      if (remaining === 0) {
-        await Fs.remove(sourceDir);
-      }
-    }
-
-    return { migrated, skipped };
+    void cwd;
+    return { migrated: 0, skipped: 0 };
   },
 } as const;
-
-async function countDirEntries(dir: t.StringDir): Promise<number> {
-  let count = 0;
-  for await (const entry of Deno.readDir(dir)) {
-    if (entry) count++;
-  }
-  return count;
-}
