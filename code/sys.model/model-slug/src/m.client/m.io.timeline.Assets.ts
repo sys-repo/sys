@@ -32,8 +32,11 @@ async function load(
       return {
         ok: false,
         error: {
-          kind: 'schema',
+          kind: 'http',
           message: msg('Assets manifest missing despite dist.json entry.'),
+          status: res.status,
+          statusText: res.statusText,
+          url: res.url ?? url,
         },
       };
     }

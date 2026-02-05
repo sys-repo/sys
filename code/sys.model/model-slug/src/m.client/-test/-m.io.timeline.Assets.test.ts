@@ -110,6 +110,28 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
     }
   });
 
+  it('returns http metadata when manifest is missing', async () => {
+    const docid = 'crdt:assets-missing' as t.StringId;
+    const cleaned = SlugClient.Url.clean(docid);
+    const cleanup = stubFetch((url) => {
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+        return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    try {
+      const result = await Assets.load('http://example.com/', docid);
+      expect(result.ok).to.eql(false);
+      if (result.ok) throw new Error('expected http error');
+      expect(result.error.kind).to.equal('http');
+      if (result.error.kind !== 'http') throw new Error('expected http failure');
+      expect(result.error.status).to.equal(404);
+      expect(result.error.message).to.include('Assets manifest missing despite dist.json entry.');
+    } finally {
+      cleanup();
+    }
+  });
+
   it('returns schema info when manifest is invalid', async () => {
     const docid = 'crdt:assets-schema' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
