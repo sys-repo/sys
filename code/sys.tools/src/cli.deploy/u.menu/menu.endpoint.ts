@@ -211,12 +211,20 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushBytes = bytesTotal || undefined;
         const stats = plan.stats;
         const table = Cli.table();
-        table.push([c.gray('  targets'), stats.total]);
-        table.push([c.gray('  root'), stats.root]);
-        table.push([c.gray('  shards'), stats.shard]);
-        if (stats.base) table.push([c.gray('  base'), stats.base]);
-        if (skipped) table.push([c.yellow('  skipped'), skipped]);
-        if (stats.skippedShards) table.push([c.yellow('  skipped'), stats.skippedShards]);
+        table.push([c.gray('  targets'), stats.total, c.italic(c.gray('total push targets'))]);
+        table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
+        table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
+        if (stats.base) {
+          table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
+        }
+        if (skipped) table.push([c.yellow('  skipped'), skipped, c.italic(c.gray('up-to-date'))]);
+        if (stats.skippedShards) {
+          table.push([
+            c.yellow('  skipped'),
+            stats.skippedShards,
+            c.italic(c.gray('missing shard output')),
+          ]);
+        }
         console.info(c.green('\nPushed'));
         console.info(Str.trimEdgeNewlines(String(table)));
         console.info();
