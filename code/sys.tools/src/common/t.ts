@@ -28,7 +28,7 @@ export type { Graph } from '@sys/immutable/t';
 export type { ProcOutput } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
-export type { Yaml } from '@sys/yaml/t';
+export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** @system: UI */
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';

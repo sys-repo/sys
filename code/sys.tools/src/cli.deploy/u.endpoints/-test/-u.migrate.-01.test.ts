@@ -12,8 +12,8 @@ describe('EndpointsMigrate.-01', () => {
 
       const res = await migrate01(tmp);
 
-      expect(res.migrated).to.eql(1);
-      expect(res.skipped).to.eql(0);
+      expect(res.migrated.length).to.eql(1);
+      expect(res.skipped.length).to.eql(0);
 
       const nextDir = `${tmp}/${EndpointsFs.dir}`;
       const nextPath = `${nextDir}/alpha.yaml`;
