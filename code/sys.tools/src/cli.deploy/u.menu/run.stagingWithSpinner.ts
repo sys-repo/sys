@@ -30,10 +30,10 @@ export async function runStagingWithSpinner(args: {
   const render = (): string => {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
     const lines: string[] = [];
-    lines.push(`Staging (${c.white(String(done + 1))}/${total})...`);
+    lines.push(`staging (${c.white(String(done + 1))}/${total})...`);
 
     for (const name of names) {
-      lines.push(c.gray(c.dim(`  - ${name}`)));
+      lines.push(c.gray(`  - ${c.white(name)}`));
     }
 
     return lines.join('\n');
@@ -92,7 +92,11 @@ export async function runStagingWithSpinner(args: {
       },
     });
 
-    spin.succeed(Fmt.spinnerText('Staging complete'));
+    const dist = (await Pkg.Dist.load(args.stagingRoot)).dist;
+    const hash = String(dist?.hash?.digest ?? '').trim();
+    const suffix = hash ? `${c.dim(c.gray('#'))}${c.green(hash.slice(-5))}` : '';
+    const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
+    spin.succeed(Fmt.spinnerText(status));
     return { ok: true };
   } catch (error) {
     spin.fail(Fmt.spinnerText('Staging failed'));
