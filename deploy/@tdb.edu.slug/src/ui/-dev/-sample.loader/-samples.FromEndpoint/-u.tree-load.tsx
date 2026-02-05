@@ -1,9 +1,31 @@
-import { type t, Is, SlugClient, Url } from './-common.ts';
-
-const FromEndpoint = SlugClient.FromEndpoint;
+import { type t, Color, css, Is, KeyValue, SlugClient, Url } from './-common.ts';
 
 export const SampleTree: t.FetchSample = {
-  label: 'FromEndpoint.Tree.load',
+  label() {
+    const theme = Color.theme();
+    const styles = {
+      base: css({
+        backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+        color: Color.MAGENTA,
+        padding: 12,
+        borderRadius: 4,
+        border: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
+      }),
+      label: css({ fontFamily: 'monospace', fontSize: 11, fontWeight: 600 }),
+      info: css({ MarginX: 10, MarginY: 8 }),
+    };
+    return (
+      <div className={styles.base.class}>
+        <div className={styles.label.class}>{`FromEndpoint.Tree.load`}</div>
+
+        <KeyValue.UI
+          mono={true}
+          items={KeyValue.fromObject({ foo: 123, bar: 'baz' })}
+          style={styles.info}
+        />
+      </div>
+    );
+  },
 
   /**
    * Load slug-tree and file-content (via ref).
@@ -30,7 +52,7 @@ async function loadContentFromRef(args: {
   manifestsDir: t.StringDir;
   ref: string;
 }): Promise<t.SlugClientResult<{ hash: string; content: t.SlugFileContentDoc }>> {
-  const index = await FromEndpoint.FileContent.index(args.baseUrl, args.docid, {
+  const index = await SlugClient.FromEndpoint.FileContent.index(args.baseUrl, args.docid, {
     layout: { manifestsDir: args.manifestsDir },
   });
   if (!index.ok) return index;
@@ -48,7 +70,7 @@ async function loadContentFromRef(args: {
     };
   }
 
-  const content = await FromEndpoint.FileContent.get(args.baseUrl, hash, {
+  const content = await SlugClient.FromEndpoint.FileContent.get(args.baseUrl, hash, {
     layout: { contentDir: 'content' },
   });
   if (!content.ok) return content;
