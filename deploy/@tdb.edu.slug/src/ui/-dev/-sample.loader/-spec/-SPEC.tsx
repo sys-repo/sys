@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
+    ctx.debug.width(420);
     ctx.subject
       .size([420, 500])
       .display('grid')
