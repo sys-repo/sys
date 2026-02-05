@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, KeyValue, Obj, Spinners, ObjectView } from './common.ts';
+import { type t, Color, css, Obj, ObjectView, Spinners } from './common.ts';
 
 /**
  * Component:
@@ -37,9 +37,11 @@ export const SampleLoader: React.FC<SampleLoaderProps> = (props) => {
     </div>
   );
 
+  const data = Obj.truncateStrings({ ...(props.response ?? {}) });
+
   const elBody = !spinning && (
     <div className={styles.body.class}>
-      <ObjectView name={'response'} data={props.response} theme={theme.name} expand={5} />
+      <ObjectView name={'response'} data={data} theme={theme.name} expand={5} />
     </div>
   );
 
