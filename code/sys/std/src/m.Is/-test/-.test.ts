@@ -622,31 +622,31 @@ describe('Is (common flags)', () => {
 
   describe('Is.urlString', () => {
     it('true for absolute http/https URLs', () => {
-      expect(Is.urlString('https://example.com')).to.equal(true);
-      expect(Is.urlString('http://example.com/foo/bar?x=1')).to.equal(true);
+      expect(Is.urlString('https://example.com')).to.eql(true);
+      expect(Is.urlString('http://example.com/foo/bar?x=1')).to.eql(true);
     });
 
     it('false for non-http/https or relative strings', () => {
-      expect(Is.urlString('/relative/path')).to.equal(false);
-      expect(Is.urlString('example.com/foo')).to.equal(false);
-      expect(Is.urlString('ftp://example.com')).to.equal(false);
-      expect(Is.urlString('')).to.equal(false);
-      expect(Is.urlString('   ')).to.equal(false);
-      expect(Is.urlString('not-a-url')).to.equal(false);
+      expect(Is.urlString('/relative/path')).to.eql(false);
+      expect(Is.urlString('example.com/foo')).to.eql(false);
+      expect(Is.urlString('ftp://example.com')).to.eql(false);
+      expect(Is.urlString('')).to.eql(false);
+      expect(Is.urlString('   ')).to.eql(false);
+      expect(Is.urlString('not-a-url')).to.eql(false);
     });
 
     it('false for non-string values (including URL/HttpUrl)', () => {
       const httpUrl = Url.parse('https://example.com/foo'); // HttpUrl
       const url = new URL('https://example.com/bar');
 
-      expect(Is.urlString(httpUrl)).to.equal(false);
-      expect(Is.urlString(url)).to.equal(false);
-      expect(Is.urlString(undefined)).to.equal(false);
-      expect(Is.urlString(null)).to.equal(false);
-      expect(Is.urlString(123)).to.equal(false);
-      expect(Is.urlString(true)).to.equal(false);
-      expect(Is.urlString({ href: 'https://example.com' })).to.equal(false);
-      expect(Is.urlString(['https://example.com'])).to.equal(false);
+      expect(Is.urlString(httpUrl)).to.eql(false);
+      expect(Is.urlString(url)).to.eql(false);
+      expect(Is.urlString(undefined)).to.eql(false);
+      expect(Is.urlString(null)).to.eql(false);
+      expect(Is.urlString(123)).to.eql(false);
+      expect(Is.urlString(true)).to.eql(false);
+      expect(Is.urlString({ href: 'https://example.com' })).to.eql(false);
+      expect(Is.urlString(['https://example.com'])).to.eql(false);
     });
   });
 });
