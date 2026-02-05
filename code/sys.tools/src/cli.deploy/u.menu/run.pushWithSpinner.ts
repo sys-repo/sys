@@ -41,20 +41,16 @@ export async function runPushWithSpinner(args: {
   try {
     const res = await pushProvider(args);
 
-  if (res.ok) {
-    const elapsed = Time.elapsed(started).toString();
-    const summary = `elapsed ${elapsed}${bytes ? `, ${Str.bytes(bytes)}` : ''}`;
-    const url = providerLabel ? `https://${providerLabel}` : '';
-    const status = [
-      c.green('push complete'),
-      c.gray(`(${summary})`),
-      url ? c.white(url) : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
-    spin.succeed(Fmt.spinnerText(status));
-    return { ok: true, elapsed, bytes };
-  }
+    if (res.ok) {
+      const elapsed = Time.elapsed(started).toString();
+      const summary = `elapsed ${elapsed}${bytes ? `, ${Str.bytes(bytes)}` : ''}`;
+      const url = providerLabel ? `https://${providerLabel}` : '';
+      const status = [c.green('push complete'), c.gray(`(${summary})`), url ? c.white(url) : '']
+        .filter(Boolean)
+        .join(' ');
+      spin.succeed(Fmt.spinnerText(status));
+      return { ok: true, elapsed, bytes };
+    }
 
     spin.fail(Fmt.spinnerText('push failed'));
     return { ok: false, error: res.error, hint: res.hint };
