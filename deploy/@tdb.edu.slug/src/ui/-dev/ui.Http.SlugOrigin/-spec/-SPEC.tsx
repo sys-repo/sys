@@ -25,7 +25,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([360, null])
+      .size([450, null])
       .display('grid')
       .render(() => <Root />);
   });
