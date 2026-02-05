@@ -21,6 +21,7 @@ export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
+export { Http } from '@sys/http/client';
 export { Graph } from '@sys/immutable/graph';
 export { Jsr } from '@sys/jsr';
 export { Net } from '@sys/net';

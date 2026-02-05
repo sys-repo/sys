@@ -1,17 +1,18 @@
-import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time } from '../common.ts';
+import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time, Url } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
+import { checkUpToDate } from './u/u.checkUpToDate.ts';
 import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
-import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
+import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 
 type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
 
@@ -162,6 +163,17 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       let okCount = 0;
       let bytesTotal = 0;
       for (const target of targets) {
+        const domainRaw = String(target.domain ?? target.provider.domain ?? '').trim();
+        const domain = toHttpsUrl(domainRaw);
+        if (domain) {
+          const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
+          if (res.ok) {
+            console.info(c.gray(`push skipped (up-to-date) ${c.white(domain)}`));
+            okCount += 1;
+            continue;
+          }
+        }
+
         const res = await runPushWithSpinner({
           cwd,
           provider: target.provider,
@@ -293,4 +305,13 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       return { kind: 'deleted', key };
     }
   }
+}
+
+function toHttpsUrl(input: string): string {
+  const raw = String(input ?? '').trim();
+  if (!raw) return '';
+  if (Is.urlString(raw)) return Url.normalize(raw);
+  const noScheme = Str.trimHttpScheme(raw);
+  const cleaned = Str.trimLeadingSlashes(noScheme);
+  return Url.normalize(`https://${cleaned}`);
 }
