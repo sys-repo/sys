@@ -1,11 +1,11 @@
 /**
  * @module
  */
-import type { t } from './common.ts';
-import { origins } from './u.origins.ts';
+import { type t, ClientLoader, D } from './common.ts';
 import { SlugHttpOrigin as UI } from './ui.tsx';
 
 export const SlugOrigin: t.SlugHttpOriginLib = {
   UI,
-  origins,
+  Origin: ClientLoader.Origin,
+  Default: { spec: D.spec },
 };

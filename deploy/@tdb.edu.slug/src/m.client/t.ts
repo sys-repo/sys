@@ -8,6 +8,7 @@ export type SlugLoaderLib = {
   readonly make: (origin: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: {
+    readonly create: (port: t.PortNumber, prod: t.StringHostname) => t.SlugHttpOriginsSpecMap;
     readonly parse: (input: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoaderOrigin;
   };
 };

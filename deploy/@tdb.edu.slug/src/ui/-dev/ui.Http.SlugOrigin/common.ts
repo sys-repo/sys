@@ -1,4 +1,4 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { type t, pkg, Pkg, ClientLoader } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -8,6 +8,14 @@ type P = t.SlugHttpOriginProps;
  * Constants:
  */
 const name = 'SlugHttpOrigin';
-export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
+const domain = 'slc.db.team';
+const port = 4040;
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  spec: ClientLoader.Origin.create(port, domain),
+  port,
+  domain,
+} as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

@@ -1,9 +1,8 @@
 import React from 'react';
-import { type t, HttpOrigin } from './common.ts';
-import { origins } from './u.origins.ts';
+import { type t, HttpOrigin, D } from './common.ts';
 
 export const SlugHttpOrigin: React.FC<t.SlugHttpOriginProps> = (props) => {
-  const { spec = origins } = props;
+  const { spec = D.spec } = props;
   return (
     <HttpOrigin.UI.Controlled
       theme={props.theme}

@@ -2,7 +2,18 @@ import { type t, Is, Url } from './common.ts';
 
 export const Origin: t.SlugLoaderLib['Origin'] = {
   parse,
+  create,
 };
+
+/**
+ * Methods
+ */
+export function create(port: t.PortNumber, prod: t.StringHostname): t.SlugHttpOriginsSpecMap {
+  return {
+    localhost: Origin.parse(`http://localhost:${port}`),
+    production: Origin.parse(`https://${prod}`),
+  };
+}
 
 export function parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrigin {
   if (Is.object(input)) return input;
@@ -14,9 +25,6 @@ export function parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrig
       video: 'staging/slc.cdn.video/',
     },
   };
-
-  console.log('input', input);
-  console.trace();
 
   if (Is.localhost(input)) {
     return {

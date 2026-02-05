@@ -10,7 +10,8 @@ export type SlugHttpOriginsSpecMap = t.HttpOriginSpecMap<t.HttpOriginEnv, t.Slug
  */
 export type SlugHttpOriginLib = {
   readonly UI: t.FC<SlugHttpOriginProps>;
-  readonly origins: t.SlugHttpOriginsSpecMap;
+  readonly Origin: t.SlugLoaderLib['Origin'];
+  readonly Default: { readonly spec: t.SlugHttpOriginsSpecMap };
 };
 
 /**
