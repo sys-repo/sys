@@ -1,20 +1,19 @@
 import { type t, Is, Url } from './common.ts';
 
-export const paths: t.SlugLoaderOrigin = {
-  app: 'staging/slc',
-  cdn: {
-    default: 'staging/slc.cdn',
-    video: 'staging/slc.cdn.video',
-  },
-};
-
 export const Origin: t.SlugLoaderLib['Origin'] = {
-  paths,
   parse,
 };
 
 export function parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrigin {
   if (Is.object(input)) return input;
+
+  const paths: t.SlugLoaderOrigin = {
+    app: 'staging/slc/',
+    cdn: {
+      default: 'staging/slc.cdn/',
+      video: 'staging/slc.cdn.video/',
+    },
+  };
 
   console.log('input', input);
   console.trace();

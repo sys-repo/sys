@@ -8,7 +8,6 @@ export type SlugLoaderLib = {
   readonly make: (origin: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: {
-    readonly paths: t.SlugLoaderOrigin;
     readonly parse: (input: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoaderOrigin;
   };
 };
@@ -19,8 +18,6 @@ export type SlugLoaderLib = {
 export type SlugLoader = {
   /** Canonicalized origin endpoints used by the loader. */
   readonly origin: t.SlugLoaderOrigin;
-  /** SlugTree loader bound to the loader origin. */
-  // readonly Tree: SlugLoaderTreeLib;
 };
 
 /**
