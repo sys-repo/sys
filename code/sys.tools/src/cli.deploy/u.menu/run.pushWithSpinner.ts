@@ -26,8 +26,8 @@ export async function runPushWithSpinner(args: {
     args.provider.kind === 'orbiter' ? String(args.provider.domain ?? '').trim() : '';
   const providerLabel = String(args.domain ?? '').trim() || providerDomain || args.provider.kind;
   let pushing = shardLabel
-    ? `Pushing ${shardLabel} to ${c.white(providerLabel)}`
-    : `Pushing to ${c.white(providerLabel)}`;
+    ? `pushing ${shardLabel} to ${c.white(providerLabel)}`
+    : `pushing to ${c.white(providerLabel)}`;
   if (bytes) pushing += ` (${Str.bytes(bytes)})`;
 
   const started = Time.now.timestamp;
