@@ -3,7 +3,12 @@ import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 
 type RunPushResult =
-  | { readonly ok: true; readonly elapsed?: string; readonly shards?: number; readonly bytes?: number }
+  | {
+      readonly ok: true;
+      readonly elapsed?: string;
+      readonly shards?: number;
+      readonly bytes?: number;
+    }
   | { readonly ok: false; readonly error?: unknown; readonly hint?: string };
 
 /**
