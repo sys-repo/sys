@@ -45,6 +45,9 @@ export type StringSemver = string;
 /** String that represents a <name> of something. */
 export type StringName = string;
 
+/** String that represents a URL hostname. */
+export type StringHostname = string;
+
 /** String contains a regular-expression */
 export type StringReg = string;
 
