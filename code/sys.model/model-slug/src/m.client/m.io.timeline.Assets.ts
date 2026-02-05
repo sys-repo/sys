@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
-import { D, Http, SlugSchema, Url } from './common.ts';
+import { D, Http, SlugSchema } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
+import { ClientUrl } from './u.url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const Assets: t.SlugClientAssetsLib = {
@@ -15,7 +16,11 @@ async function load(
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
-  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.assetsFilename(cleanedDocid));
+  const url = ClientUrl.manifests({
+    baseUrl,
+    manifestsDir,
+    filename: SlugUrl.assetsFilename(cleanedDocid),
+  });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 

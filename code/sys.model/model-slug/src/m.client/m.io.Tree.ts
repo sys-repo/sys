@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
-import { SlugSchema, D, Http, Url } from './common.ts';
+import { SlugSchema, D, Http } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
+import { ClientUrl } from './u.url.ts';
 
 export const Tree: t.SlugClientTreeLib = {
   load,
@@ -15,7 +16,11 @@ async function load(
   const fetch = Http.fetcher();
   const manifestsBaseUrl = options?.manifestsBaseUrl ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
-  const url = Url.parse(manifestsBaseUrl).join(manifestsDir, SlugUrl.treeFilename(docid));
+  const url = ClientUrl.manifests({
+    baseUrl: manifestsBaseUrl,
+    manifestsDir,
+    filename: SlugUrl.treeFilename(docid),
+  });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 

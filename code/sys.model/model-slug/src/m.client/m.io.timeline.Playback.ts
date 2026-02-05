@@ -1,12 +1,11 @@
-import { Http, PlaybackSchema, Url } from './common.ts';
+import { Http, PlaybackSchema } from './common.ts';
 
 import { type t, D } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
+import { ClientUrl } from './u.url.ts';
 
-export const Playback: t.SlugClientPlaybackLib = {
-  load,
-};
+export const Playback: t.SlugClientPlaybackLib = { load };
 
 async function load<P = unknown>(
   baseUrl: t.StringUrl,
@@ -16,7 +15,11 @@ async function load<P = unknown>(
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
-  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.playbackFilename(cleanedDocid));
+  const url = ClientUrl.manifests({
+    baseUrl,
+    manifestsDir,
+    filename: SlugUrl.playbackFilename(cleanedDocid),
+  });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 

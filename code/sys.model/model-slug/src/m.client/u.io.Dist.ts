@@ -1,4 +1,5 @@
-import { type t, D, Http, Pkg, Url } from './common.ts';
+import { type t, D, Http, Pkg } from './common.ts';
+import { ClientUrl } from './u.url.ts';
 
 type CacheKey = string;
 const cache = new Map<CacheKey, Promise<t.SlugClientResult<t.DistPkg>>>();
@@ -20,7 +21,7 @@ async function load(
     promise = (async () => {
       const fetch = Http.fetcher();
       const manifestsDir = opts?.layout?.manifestsDir ?? 'manifests';
-      const url = Url.parse(baseUrl).join(manifestsDir, 'dist.json');
+      const url = ClientUrl.manifests({ baseUrl, manifestsDir, filename: 'dist.json' });
 
       const req: RequestInit = { ...D.CACHE_INIT, ...(opts?.init ?? {}) };
       req.cache = D.CACHE_INIT.cache;
