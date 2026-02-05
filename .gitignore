@@ -15,6 +15,9 @@ node_modules
 # Deployment config from https://docs.orbiter.host/cli
 orbiter.json
 
-# Codex (local agent state)
+# @sys/tools:
+-config
+
+# Codex (local agent state):
 .claude/
 .codex/
