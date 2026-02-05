@@ -1,21 +1,6 @@
-import { type t } from './common.ts';
-
-const port = 4040;
+import { type t, ClientLoader } from './common.ts';
 
 export const origins: t.SlugHttpOriginsSpecMap = {
-  localhost: {
-    app: localhost(port),
-    cdn: { default: localhost(port), video: localhost(port) },
-  },
-  production: {
-    app: 'https://slc.db.team',
-    cdn: { default: 'https://cdn.slc.db.team', video: 'https://video.cdn.slc.db.team' },
-  },
+  localhost: ClientLoader.Origin.parse('http://localhost:4040'),
+  production: ClientLoader.Origin.parse('https://slc.db.team'),
 };
-
-/**
- * Helpers
- */
-function localhost(port: t.PortNumber) {
-  return `http://localhost:${port}`;
-}

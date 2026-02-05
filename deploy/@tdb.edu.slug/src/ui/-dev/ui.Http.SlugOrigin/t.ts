@@ -3,11 +3,7 @@ import type { t } from './common.ts';
 /**
  * Slug url-endpoint origins.
  */
-export type SlugHttpOriginsSpecMap = t.HttpOriginSpecMap<t.HttpOriginEnv, t.SlugHttpOrigins>;
-export type SlugHttpOrigins = {
-  app: t.StringUrl;
-  cdn: { default: t.StringUrl; video: t.StringUrl };
-};
+export type SlugHttpOriginsSpecMap = t.HttpOriginSpecMap<t.HttpOriginEnv, t.SlugLoaderOrigin>;
 
 /**
  * Visual helpers for selecting and working with the url-enpoint origins.
@@ -22,7 +18,7 @@ export type SlugHttpOriginLib = {
  */
 export type SlugHttpOriginProps = {
   env?: t.SignalOptional<t.HttpOriginEnv>;
-  origin?: t.SignalOptional<t.SlugHttpOrigins>;
+  origin?: t.SignalOptional<t.SlugLoaderOrigin>;
   spec?: t.SlugHttpOriginsSpecMap;
 
   debug?: boolean;
