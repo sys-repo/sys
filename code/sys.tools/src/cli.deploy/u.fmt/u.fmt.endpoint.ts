@@ -24,12 +24,11 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
-  const shardTotal =
-    yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
+  const shardTotal = yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
   const mappingsLabel =
     Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
-      ? `${mappingsCount} over ${shardTotal}-shards`
-      : String(mappingsCount);
+      ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${c.white(`${shardTotal}-shards`)}`
+      : `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
   const providerFmt = fmtProvider(yaml?.provider);
   const providerDomain =
     yaml?.provider?.kind === 'orbiter' ? String(yaml.provider.domain ?? '').trim() : '';
@@ -49,7 +48,9 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
     ...(providerDomain ? [childText('domain')] : []),
-    ...(providerFmt && providerProbe && !providerProbe.ok ? [childText('provider probe', true)] : []),
+    ...(providerFmt && providerProbe && !providerProbe.ok
+      ? [childText('provider probe', true)]
+      : []),
   ];
   const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
 
@@ -69,7 +70,8 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
 
   rows.forEach((row, index) => {
-    const isLast = index === rows.length - 1 && !(providerFmt && providerProbe && !providerProbe.ok);
+    const isLast =
+      index === rows.length - 1 && !(providerFmt && providerProbe && !providerProbe.ok);
     body.push([child(row.label, isLast), row.value]);
   });
 
@@ -136,7 +138,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       const extraLeftPad = ' '.repeat(Math.max(0, desiredLeftWidth - baseLeftWidth));
 
       const flowFor = (g: Group) => {
-        const srcLines = g.srcNames.map((x) => c.white(String(x)));
+        const srcLines = g.srcNames.map((x) => c.gray(String(x)));
         const dstLines = g.dsts.map((x) => c.white(String(x)));
         return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };
