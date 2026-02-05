@@ -26,8 +26,4 @@ export const SlugUrl: t.SlugClientUrlLib = {
   fileContentFilename(hash) {
     return `${hash}.json`;
   },
-
-  isAbsoluteHref(href = '') {
-    return href.startsWith('http://') || href.startsWith('https://');
-  },
 };

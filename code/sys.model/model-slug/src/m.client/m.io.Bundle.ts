@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, Is } from './common.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
 import { Playback } from './m.io.timeline.Playback.ts';
 import { SlugUrl } from './m.Url.ts';
@@ -47,7 +47,8 @@ async function load<P = unknown>(
   const baseOrigin = hrefBase.origin;
   const basePath = hrefBase.pathname.replace(/\/$/, '');
   const normalizeHref = (href: string) => {
-    if (SlugUrl.isAbsoluteHref(href)) return href;
+    const raw = href;
+    if (Is.urlString(raw)) return raw;
     if (href.startsWith('/')) {
       return new URL(`${basePath}${href}`, baseOrigin).toString();
     }

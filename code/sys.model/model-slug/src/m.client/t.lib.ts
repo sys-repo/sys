@@ -16,7 +16,6 @@ export type SlugClientUrlLib = {
   readonly playbackFilename: (docid: t.StringId) => string;
   readonly treeFilename: (docid: t.StringId) => string;
   readonly fileContentFilename: (hash: string) => string;
-  readonly isAbsoluteHref: (href: string) => boolean;
 };
 
 /** Helpers for normalizing client errors. */
