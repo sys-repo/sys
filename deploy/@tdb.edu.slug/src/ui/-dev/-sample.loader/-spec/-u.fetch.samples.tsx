@@ -13,7 +13,7 @@ import {
 
 export function fetchSamples(debug: DebugSignals) {
   const items: t.ReactNode[] = [];
-  const btn = (label: string, fn: t.FetchAction) => {
+  const btn = (label: t.ReactNode | (() => t.ReactNode), fn: t.FetchAction) => {
     const i = items.length - 1;
     items.push(fetchButton(debug, label, fn, i));
   };

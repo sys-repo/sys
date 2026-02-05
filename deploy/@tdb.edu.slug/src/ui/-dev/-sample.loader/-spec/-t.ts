@@ -11,6 +11,6 @@ export type FetchActionArgs = {
 };
 
 export type FetchSample = {
-  readonly label: string;
+  readonly label: t.ReactNode | (() => t.ReactNode);
   readonly run: FetchAction;
 };

@@ -3,7 +3,12 @@ import { type t, Button, Signal } from './-common.ts';
 /**
  * Generate a fetch-sample button.
  */
-export function fetchButton(debug: t.DebugSignals, label: string, fn: t.FetchAction, index = 0) {
+export function fetchButton(
+  debug: t.DebugSignals,
+  label: t.ReactNode | (() => t.ReactNode),
+  fn: t.FetchAction,
+  index = 0,
+) {
   const p = debug.props;
   const v = Signal.toObject(p);
   return (
