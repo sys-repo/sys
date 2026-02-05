@@ -1,10 +1,7 @@
 import type { t } from './common.ts';
 
 /** Loader options for slug file-content endpoints. */
-export type SlugFileContentLoadOptions = t.SlugLoadOptions & {
-  manifestsBaseUrl?: t.StringUrl;
-  contentBaseUrl?: t.StringUrl;
-};
+export type SlugFileContentLoadOptions = t.SlugLoadOptions;
 
 /** File-content endpoint loaders. */
 export type SlugClientFileContentLib = {

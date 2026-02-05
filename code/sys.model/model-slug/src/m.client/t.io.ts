@@ -16,6 +16,8 @@ export type SlugLoadOptions = {
   init?: RequestInit;
   baseHref?: t.StringUrl;
   layout?: SlugClientLayout;
+  manifestsBaseUrl?: t.StringUrl;
+  contentBaseUrl?: t.StringUrl;
 };
 
 /** Resolver for bundle-relative hrefs. */
@@ -40,6 +42,4 @@ export type SlugClientTreeFromDescriptorLib = {
 };
 
 /** Load options specific to tree endpoints. */
-export type SlugTreeLoadOptions = t.SlugLoadOptions & {
-  manifestsBaseUrl?: t.StringUrl;
-};
+export type SlugTreeLoadOptions = t.SlugLoadOptions;
