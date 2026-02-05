@@ -70,7 +70,7 @@ export namespace ServeTool {
     /**
      * Filesystem conventions for serve location YAML storage.
      */
-    export type DirName = `-config/${string}/serve`;
+    export type DirName = `-config/${string}.serve`;
     export type Ext = '.yaml';
     export type YamlCheck =
       | { readonly ok: true; readonly doc: Doc }

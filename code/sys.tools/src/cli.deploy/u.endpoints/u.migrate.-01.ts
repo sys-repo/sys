@@ -7,7 +7,7 @@ import { EndpointsFs } from './u.fs.ts';
  */
 export async function migrate01(cwd: t.StringDir): Promise<t.YamlConfig.Migrate.DirResult> {
   const legacyDir = `-config/${pkg.name}/deploy`;
-  const root = YamlConfig.File.fromPkg('-config' as t.StringDir, pkg).dir.name;
+  const root = YamlConfig.File.fromPkg('-config', pkg).dir.name;
   const targetDir = `-config/${root}.deploy`;
 
   return await YamlConfig.File.migrateDir({

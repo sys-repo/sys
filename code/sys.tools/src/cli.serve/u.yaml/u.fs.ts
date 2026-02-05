@@ -1,7 +1,9 @@
 import { type t, Fs, Path, pkg, Schema, Str, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
 import { ServeYamlErrorCode, validateServeYamlText } from './u.validate.ts';
 
-const SERVE_DIR = `-config/${pkg.name}/serve` satisfies t.ServeTool.LocationYaml.DirName;
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const SERVE_DIR = `-config/${ROOT}.serve` satisfies t.ServeTool.LocationYaml.DirName;
 const SERVE_EXT = '.yaml' satisfies t.ServeTool.LocationYaml.Ext;
 
 export const ServeFs = {

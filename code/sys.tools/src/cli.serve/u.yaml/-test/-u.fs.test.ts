@@ -4,7 +4,7 @@ import { ServeFs } from '../mod.ts';
 
 describe('ServeFs', () => {
   it('fileOf: uses pkg.name dir', () => {
-    expect(ServeFs.dir).to.eql(`-config/${pkg.name}/serve`);
+    expect(ServeFs.dir).to.eql(`-config/${pkg.name.replace('/', '.')}.serve`);
   });
 
   it('fileOf: returns "<dir>/<name>.yaml"', () => {
