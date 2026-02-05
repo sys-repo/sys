@@ -5,7 +5,7 @@ import { withTmpDir } from '../../-test/-fixtures.ts';
 
 describe('CrdtDocsFs', () => {
   it('dir uses pkg.name', () => {
-    expect(CrdtDocsFs.dir).to.eql(`-config/${pkg.name.replace('/', '.')}.crdt.docs`);
+    expect(CrdtDocsFs.dir).to.eql(`-config/${pkg.name.replace('/', '.')}.crdt/docs`);
   });
 
   it('fileOf returns <dir>/<id>.yaml', () => {

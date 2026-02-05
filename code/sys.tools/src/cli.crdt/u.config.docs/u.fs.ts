@@ -5,7 +5,7 @@ import { CrdtDocYamlErrorCode, validateDocumentYamlText } from './u.validate.ts'
 import { Schema } from '@sys/schema';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
-const DOCS_DIR = `-config/${ROOT}.crdt.docs` satisfies t.CrdtTool.DocumentYaml.DirName;
+const DOCS_DIR = `-config/${ROOT}.crdt/docs` satisfies t.CrdtTool.DocumentYaml.DirName;
 const DOCS_EXT = '.yaml' satisfies t.CrdtTool.DocumentYaml.Ext;
 
 export const CrdtDocsFs = {

@@ -61,7 +61,7 @@ export namespace CrdtTool {
     };
 
     /** Filesystem conventions for document YAML storage. */
-    export type DirName = `-config/${string}.crdt.docs`;
+    export type DirName = `-config/${string}.crdt/docs`;
     export type Ext = '.yaml';
     export type YamlCheck =
       | { readonly ok: true; readonly doc: Doc }
