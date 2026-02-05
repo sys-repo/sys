@@ -31,5 +31,5 @@ export const Info: React.FC<InfoProps> = (props) => {
    * Render:
    */
 
-  return <KeyValue.UI theme={props.theme} items={items} />;
+  return <KeyValue.UI theme={props.theme} items={items} layout={{ kind: 'table' }} />;
 };
