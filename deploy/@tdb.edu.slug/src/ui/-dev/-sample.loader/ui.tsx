@@ -41,7 +41,7 @@ export const SampleLoader: React.FC<SampleLoaderProps> = (props) => {
 
   const elBody = !spinning && (
     <div className={styles.body.class}>
-      <ObjectView name={'response'} data={data} theme={theme.name} expand={5} />
+      <ObjectView name={'http:response'} data={data} theme={theme.name} expand={5} />
     </div>
   );
 
