@@ -24,10 +24,18 @@ async function removeEmptyParents(cwd: t.StringDir, start: t.StringPath, stopAt:
   let current = Fs.dirname(Fs.join(cwd, start));
   while (true) {
     if (!(await Fs.exists(current))) break;
-    const files = await Fs.ls(current, { includeDirs: true } as const);
-    if (files.length > 0) break;
+    const remaining = await countDirEntries(current);
+    if (remaining > 0) break;
     await Fs.remove(current);
     if (Fs.basename(current) === stopAt) break;
     current = Fs.dirname(current);
   }
+}
+
+async function countDirEntries(dir: t.StringDir): Promise<number> {
+  let count = 0;
+  for await (const entry of Deno.readDir(dir)) {
+    if (entry) count++;
+  }
+  return count;
 }
