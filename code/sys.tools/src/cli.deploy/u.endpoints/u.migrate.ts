@@ -1,18 +1,11 @@
 import { type t } from '../common.ts';
-
-export type MigrateResult = {
-  readonly migrated: number;
-  readonly skipped: number;
-};
+import { migrate01, type MigrateResult } from './u.migrate.-01.ts';
 
 /**
- * Migration helpers for endpoint YAMLs.
- *
- * Legacy migrations removed (unused).
+ * Endpoint YAML migration orchestrator.
  */
 export const EndpointsMigrate = {
   async run(cwd: t.StringDir): Promise<MigrateResult> {
-    void cwd;
-    return { migrated: 0, skipped: 0 };
+    return await migrate01(cwd);
   },
 } as const;

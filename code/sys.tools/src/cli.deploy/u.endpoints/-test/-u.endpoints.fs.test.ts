@@ -4,7 +4,7 @@ import { EndpointsFs } from '../mod.ts';
 
 describe('EndpointsFs', () => {
   it('fileOf: uses pkg.name dir', () => {
-    expect(EndpointsFs.dir).to.eql(`-config/${pkg.name}/deploy`);
+    expect(EndpointsFs.dir).to.eql(`-config/${pkg.name.replace('/', '.')}.deploy`);
   });
 
   it('fileOf: returns "<dir>/<name>.yaml"', () => {

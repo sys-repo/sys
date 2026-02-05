@@ -1,10 +1,12 @@
 import { type t, Fs, Is, Obj, Path, pkg, Schema, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
 import { expandShardTemplatePaths, shouldRequireAllShards } from '../u.shardTemplate.ts';
 
-const ENDPOINTS_DIR = `-config/${pkg.name}/deploy` satisfies t.DeployTool.Endpoint.Fs.DirName;
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const ENDPOINTS_DIR = `-config/${ROOT}.deploy` satisfies t.DeployTool.Endpoint.Fs.DirName;
 const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.Endpoint.Fs.Ext;
 
 export const EndpointsFs = {
@@ -54,9 +56,8 @@ export const EndpointsFs = {
 
     const errors: t.Yaml.Error[] = [];
     const mappings = checked.doc.mappings ?? [];
-    const providerShards = checked.doc.provider?.kind === 'orbiter'
-      ? checked.doc.provider?.shards
-      : undefined;
+    const providerShards =
+      checked.doc.provider?.kind === 'orbiter' ? checked.doc.provider?.shards : undefined;
 
     {
       const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
