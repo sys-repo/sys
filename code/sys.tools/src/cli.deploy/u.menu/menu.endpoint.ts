@@ -160,6 +160,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         continue;
       }
 
+      const pushStarted = Time.now.timestamp;
       let okCount = 0;
       let bytesTotal = 0;
       let skipped = 0;
@@ -200,11 +201,11 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         }
 
         okCount += 1;
-        pushElapsed = res.elapsed;
         if (Is.num(res.bytes)) bytesTotal += res.bytes;
       }
 
       if (okCount === targets.length && targets.length > 0) {
+        pushElapsed = Time.elapsed(pushStarted).toString();
         pushedOk = true;
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
         pushBytes = bytesTotal || undefined;
