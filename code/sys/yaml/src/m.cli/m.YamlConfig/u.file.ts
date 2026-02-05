@@ -10,8 +10,8 @@ export const create: t.YamlConfigFileLib['create'] = (args) => {
   };
 };
 
-export const fromPkg: t.YamlConfigFileLib['fromPkg'] = (pkg) => {
+export const fromPkg: t.YamlConfigFileLib['fromPkg'] = (dir, pkg) => {
   const name = Pkg.toString(pkg, undefined, false);
   const flattened = Str.replaceAll(name, '/', '.').after as t.StringName;
-  return create({ dir: '-config' as t.StringDir, basename: flattened });
+  return create({ dir, basename: flattened });
 };

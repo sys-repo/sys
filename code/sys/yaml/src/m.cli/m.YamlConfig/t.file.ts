@@ -11,7 +11,7 @@ export type YamlConfigFileLib = {
   /**
    * Create a config file root for a package name (flattened).
    */
-  readonly fromPkg: (pkg: t.Pkg) => YamlConfigFile;
+  readonly fromPkg: (dir: t.StringDir, pkg: t.Pkg) => YamlConfigFile;
 };
 
 /**
