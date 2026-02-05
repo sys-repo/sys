@@ -18,6 +18,7 @@ import { MediaCompositionSchema as MediaComposition } from './m.MediaComposition
 import { SlugTreeSchema as Tree } from './m.SlugTree/mod.ts';
 import { TraitsSchema as Traits } from './m.Traits/mod.ts';
 
+/** Slug schema surface composed from domain schema modules. */
 export const SlugSchema: t.SlugSchemaLib = {
   Traits,
   Tree,

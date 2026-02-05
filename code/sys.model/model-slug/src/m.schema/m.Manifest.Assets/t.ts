@@ -1,15 +1,18 @@
 import type { t } from './common.ts';
 
+/** Schema library for slug asset manifests. */
 export type SlugAssetsSchemaLib = {
   readonly Manifest: SlugAssetsManifestSchemaLib;
 };
 
+/** Schema helpers for slug asset-manifest documents. */
 export type SlugAssetsManifestSchemaLib = {
   readonly schema: (args?: never) => t.TSchema;
   readonly standard: (args?: never) => t.StandardSchemaV1<unknown, t.SlugAssetsManifest>;
   readonly parse: (input: unknown, args?: never) => t.SchemaResult<t.SlugAssetsManifest>;
 };
 
+/** Asset-manifest document shape. */
 export type SlugAssetsManifest = {
   readonly docid: t.StringId;
   readonly assets: readonly SlugAsset[];

@@ -36,12 +36,15 @@ export type SlugSchemaLib = {
  * Validation result.
  */
 export type SlugValidateResult<T> = SlugValidateOK<T> | SlugValidateFail;
+/** Successful validation result wrapper. */
 export type SlugValidateOK<T> = { ok: true; sequence: T };
+/** Failed validation result wrapper. */
 export type SlugValidateFail = { ok: false; error: Error };
 
 /**
  * Errors.
  */
+/** Schema value error with path context. */
 export type SchemaValueError = {
   readonly path: string | readonly string[];
   readonly message: string;

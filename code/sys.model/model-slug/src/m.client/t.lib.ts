@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+/** Client surface for slug loaders. */
 export type SlugClientLib = {
   readonly Error: t.SlugClientErrorLib;
   readonly Url: t.SlugClientUrlLib;
@@ -7,6 +8,7 @@ export type SlugClientLib = {
   readonly FromDescriptor: t.SlugClientFromDescriptorLib;
 };
 
+/** Helpers for slug URL and filename derivation. */
 export type SlugClientUrlLib = {
   readonly clean: (docid: t.StringId) => t.StringId;
   readonly assetsFilename: (docid: t.StringId) => string;
@@ -17,11 +19,13 @@ export type SlugClientUrlLib = {
   readonly isAbsoluteHref: (href: string) => boolean;
 };
 
+/** Helpers for normalizing client errors. */
 export type SlugClientErrorLib = {
   readonly unwrap: <T>(res: t.SlugClientResult<T>) => T;
   readonly throw: (err: t.SlugClientError) => never;
 };
 
+/** Endpoint loaders grouped by resource kind. */
 export type SlugFromEndpointLib = {
   readonly Descriptor: t.SlugClientDescriptorLoadLib;
   readonly Tree: t.SlugClientTreeLib;

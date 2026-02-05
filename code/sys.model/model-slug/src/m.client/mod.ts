@@ -14,6 +14,7 @@ import { Playback } from './m.io.timeline.Playback.ts';
 import { Tree } from './m.io.Tree.ts';
 import { SlugUrl as Url } from './m.Url.ts';
 
+/** Slug client surface for descriptor and endpoint loaders. */
 export const SlugClient: t.SlugClientLib = {
   Url,
   Error,

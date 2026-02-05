@@ -1,8 +1,10 @@
 import type { t } from './common.ts';
 import type { BundleDescriptorBase } from '../t.core.ts';
 
+/** Asset-kind union for slug-tree media sequence bundles. */
 export type BundleDescriptorSlugTreeMediaSeqAssetKind = 'video' | 'image';
 
+/** Bundle descriptor for slug-tree media sequence layouts. */
 export type BundleDescriptorSlugTreeMediaSeq = BundleDescriptorBase & {
   readonly kind: 'slug-tree:media:seq';
   readonly layout?: {

@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+/** Schema library for slug file-content documents. */
 export type SlugFileContentSchemaLib = {
   readonly Index: t.TSchema;
   readonly Props: t.TSchema;
@@ -7,6 +8,7 @@ export type SlugFileContentSchemaLib = {
   readonly Is: t.SlugFileContentSchemaIsLib;
 };
 
+/** Validator for slug file-content documents. */
 export type SlugFileContentValidate = (
   input: unknown,
 ) => t.SlugValidateResult<t.SlugFileContentDoc>;

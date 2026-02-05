@@ -1,10 +1,12 @@
 import type { t } from './common.ts';
 
+/** Loader options for slug file-content endpoints. */
 export type SlugFileContentLoadOptions = t.SlugLoadOptions & {
   manifestsBaseUrl?: t.StringUrl;
   contentBaseUrl?: t.StringUrl;
 };
 
+/** File-content endpoint loaders. */
 export type SlugClientFileContentLib = {
   readonly index: (
     baseUrl: t.StringUrl,
@@ -18,6 +20,7 @@ export type SlugClientFileContentLib = {
   ) => Promise<t.SlugClientResult<t.SlugFileContentDoc>>;
 };
 
+/** File-content loaders scoped to a descriptor client. */
 export type SlugClientFileContentFromDescriptorLib = {
   readonly index: (
     options?: t.SlugFileContentLoadOptions,

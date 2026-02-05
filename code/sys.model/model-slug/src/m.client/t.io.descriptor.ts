@@ -1,9 +1,11 @@
 import type { t } from './common.ts';
 
+/** Descriptor-to-client constructor surface. */
 export type SlugClientFromDescriptorLib = {
   readonly make: (args: SlugClientFromDescriptorArgs) => t.SlugClientResult<SlugClientDescriptor>;
 };
 
+/** Loader for reading a descriptor document. */
 export type SlugClientDescriptorLoadLib = {
   readonly load: (
     origin: t.StringUrl,
@@ -11,6 +13,7 @@ export type SlugClientDescriptorLoadLib = {
   ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
 };
 
+/** Inputs for constructing a descriptor-backed client. */
 export type SlugClientFromDescriptorArgs = {
   readonly descriptor: t.BundleDescriptor | t.BundleDescriptorDoc;
   readonly baseUrl: t.StringUrl;
@@ -19,6 +22,7 @@ export type SlugClientFromDescriptorArgs = {
   readonly docid?: t.StringId;
 };
 
+/** Normalized slug descriptor with derived loaders. */
 export type SlugClientDescriptor = {
   readonly kind: t.BundleDescriptorKind;
   readonly docid: t.StringId;
