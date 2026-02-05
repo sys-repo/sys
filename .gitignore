@@ -19,4 +19,6 @@ vite.config.ts.timestamp-*
 # Deployment config from https://docs.orbiter.host/cli
 orbiter.json
 
-.claude
+# Codex (local agent state)
+.claude/
+.codex/
