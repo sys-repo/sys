@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it } from '../../-test.ts';
 import { Is } from '../mod.ts';
 
 describe('Is (browser environment)', () => {

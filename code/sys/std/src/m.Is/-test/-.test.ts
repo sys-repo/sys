@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 import {
   isEmptyRecord,
   isObject,
@@ -6,10 +6,10 @@ import {
   isPlainRecord,
   isPromise,
   isRecord,
-} from '../common.ts';
-import { Rx } from '../m.Rx/mod.ts';
-import { Url } from '../m.Url/mod.ts';
-import { Err, Is } from '../mod.ts';
+} from '../../common.ts';
+import { Rx } from '../../m.Rx/mod.ts';
+import { Url } from '../../m.Url/mod.ts';
+import { Err, Is } from '../../mod.ts';
 
 describe('Is (common flags)', () => {
   it('API', () => {
