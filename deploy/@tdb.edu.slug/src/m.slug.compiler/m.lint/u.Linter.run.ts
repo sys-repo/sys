@@ -7,6 +7,7 @@ import {
   selectSlugLintProfile,
   selectSlugLintProfileAction,
 } from './u.lint.menu.ts';
+import { LintProfileMigrate } from './u.migrate.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 import { printSummary } from './u.lint.print.ts';
@@ -30,6 +31,10 @@ export async function run(
 ): Promise<t.SlugLintResult> {
   const { interactive = false } = opts;
   let facets = normalizeFacets(opts.facets);
+
+  if (opts.cwd) {
+    await LintProfileMigrate.run(opts.cwd);
+  }
 
   if (opts.cwd && interactive) {
     return await runInteractiveLint({ dag, yamlPath, facets, opts });

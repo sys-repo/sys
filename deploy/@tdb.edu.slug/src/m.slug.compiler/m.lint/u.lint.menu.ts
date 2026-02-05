@@ -3,7 +3,8 @@ import { YamlConfig } from '@sys/yaml/cli';
 import type { YamlConfigMenuExtra, YamlConfigMenuItemArgs } from '@sys/yaml/t';
 import { LintProfileSchema } from './u.schema.ts';
 
-const PROFILE_DIR = Fs.join('-config', pkg.name, 'lint');
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const PROFILE_DIR = Fs.join('-config', ROOT, 'lint');
 const PROFILE_EXT = '.yaml';
 const DEFAULT_PROFILE = 'default';
 

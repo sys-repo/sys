@@ -24,6 +24,7 @@ export type {
   StrBuilder,
   Timecode,
 } from '@sys/std/t';
+export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** User interface */
 export type { ColorTheme } from '@sys/color/t';

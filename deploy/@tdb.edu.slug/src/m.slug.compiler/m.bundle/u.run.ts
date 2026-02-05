@@ -1,12 +1,16 @@
 import { type t, c, Cli } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { selectBundleProfile, selectBundleProfileAction } from './u.menu.ts';
+import { BundleProfileMigrate } from './u.migrate.ts';
 import { runProfile } from './u.profile.ts';
 
 /**
  * Run the bundler using the given CRDT commands
  */
 export const run: t.SlugBundleLib['run'] = async (args) => {
+  if (args.cwd) {
+    await BundleProfileMigrate.run(args.cwd);
+  }
   if (!args.interactive) {
     const pick = await selectBundleProfile(args.cwd, { interactive: false });
     if (pick.kind !== 'run') return { kind: 'stay' };
