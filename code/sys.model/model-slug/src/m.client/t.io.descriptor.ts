@@ -17,7 +17,6 @@ export type SlugClientDescriptorLoadLib = {
 export type SlugClientFromDescriptorArgs = {
   readonly descriptor: t.BundleDescriptor | t.BundleDescriptorDoc;
   readonly baseUrl: t.StringUrl;
-  readonly baseHref?: t.StringUrl;
   readonly kind?: t.BundleDescriptorKind;
   readonly docid?: t.StringId;
 };

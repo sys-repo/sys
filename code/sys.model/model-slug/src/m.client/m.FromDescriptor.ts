@@ -16,7 +16,7 @@ function make(args: t.SlugClientFromDescriptorArgs) {
 
   const descriptor = resolved.value;
   const baseUrl = applyBasePath(args.baseUrl, descriptor.basePath);
-  const baseHref = args.baseHref ?? baseUrl;
+  const baseHref = baseUrl;
   const layout = descriptorLayout(descriptor);
 
   const withOptions = <T extends t.SlugLoadOptions>(options?: T): T => {
