@@ -31,6 +31,37 @@ export const SampleTree: t.FetchSample = {
    * Load slug-tree and file-content (via ref).
    */
   async run(e) {
+    const basePath = 'kb';
+    const origin = e.origin.cdn.default;
+    const manifestsDir = '-manifests';
+    const docid = 'kb';
+
+    const baseUrl = Url.parse(origin).join(basePath);
+    const FromEndpoint = SlugClient.FromEndpoint;
+    const tree = await FromEndpoint.Tree.load(baseUrl, docid, { layout: { manifestsDir } });
+    if (!tree.ok) return e.result(tree);
+
+    const ref = findTreeRef(tree.value.tree);
+    if (!ref) {
+      return e.result({
+        ok: false,
+        error: { kind: 'schema', message: 'Missing ref in slug-tree.' },
+      });
+    }
+
+    const content = await loadContentFromRef({ baseUrl, docid, manifestsDir, ref });
+    if (!content.ok) return e.result(content);
+
+    return e.result({
+      ok: true,
+      value: {
+        tree: tree.value,
+        ref,
+        hash: content.value.hash,
+        content: content.value.content,
+      },
+    });
+  },
 };
 
 function findTreeRef(tree: readonly t.SlugTreeItem[]): string | undefined {
