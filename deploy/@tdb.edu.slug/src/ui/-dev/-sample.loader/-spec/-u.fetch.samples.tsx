@@ -2,12 +2,14 @@ import { type DebugSignals, type t } from './-common.ts';
 import { fetchButton } from './-u.fetch.btn.tsx';
 
 /** Samples */
-import { SampleAssets } from '../-samples.FromEndpoint/-u.assets-load.ts';
-import { SampleBundle } from '../-samples.FromEndpoint/-u.bundle-load.ts';
-import { SampleDescriptor } from '../-samples.FromEndpoint/-u.descriptor-load.ts';
-import { SampleFileContentGet } from '../-samples.FromEndpoint/-u.filecontent-get.ts';
-import { SamplePlayback } from '../-samples.FromEndpoint/-u.playback-load.ts';
-import { SampleTree } from '../-samples.FromEndpoint/-u.tree-load.ts';
+import {
+  SampleAssets,
+  SampleBundle,
+  SampleDescriptor,
+  SampleFileContentGet,
+  SamplePlayback,
+  SampleTree,
+} from '../-samples.FromEndpoint/mod.ts';
 
 export function fetchSamples(debug: DebugSignals) {
   const items: t.ReactNode[] = [];
