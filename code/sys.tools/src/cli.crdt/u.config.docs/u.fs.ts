@@ -1,9 +1,11 @@
 import { type t, Fs, pkg, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
 import { CrdtDocSchema } from './u.schema.ts';
 import { CrdtDocYamlErrorCode, validateDocumentYamlText } from './u.validate.ts';
 import { Schema } from '@sys/schema';
 
-const DOCS_DIR = `-config/${pkg.name}/crdt/docs` satisfies t.CrdtTool.DocumentYaml.DirName;
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const DOCS_DIR = `-config/${ROOT}.crdt.docs` satisfies t.CrdtTool.DocumentYaml.DirName;
 const DOCS_EXT = '.yaml' satisfies t.CrdtTool.DocumentYaml.Ext;
 
 export const CrdtDocsFs = {

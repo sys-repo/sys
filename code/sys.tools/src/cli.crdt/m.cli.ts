@@ -1,6 +1,6 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
-import { CrdtDocsFs, selectDocumentMenu } from './u.config.docs/mod.ts';
-import { CrdtReposFs, promptRepoSyncMenu } from './u.config.repo/mod.ts';
+import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.config.docs/mod.ts';
+import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu } from './u.config.repo/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { createCrdtLog } from './u.log.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
@@ -49,6 +49,9 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.RunReturn> {
+  await CrdtDocsMigrate.run(cwd);
+  await CrdtReposMigrate.run(cwd);
+
   const opt = (name: string, value: C) => ({ name, value }) as const;
   const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
 

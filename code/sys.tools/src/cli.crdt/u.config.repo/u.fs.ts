@@ -1,9 +1,11 @@
 import { type t, Fs, Is, pkg, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
 import { CrdtRepoSchema, DEFAULT_PORTS } from './u.schema.ts';
 import { CrdtRepoYamlErrorCode, validateRepoYamlText } from './u.validate.ts';
 import { Schema } from '@sys/schema';
 
-const REPO_DIR = `-config/${pkg.name}/crdt` satisfies t.CrdtTool.RepoYaml.DirName;
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const REPO_DIR = `-config/${ROOT}.crdt` satisfies t.CrdtTool.RepoYaml.DirName;
 const REPO_EXT = '.yaml' satisfies t.CrdtTool.RepoYaml.Ext;
 const REPO_NAME = 'repo';
 
