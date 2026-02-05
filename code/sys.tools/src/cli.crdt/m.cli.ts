@@ -1,9 +1,8 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
-import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.config.docs/mod.ts';
-import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu } from './u.config.repo/mod.ts';
+import { CrdtDocsFs, selectDocumentMenu } from './u.config.docs/mod.ts';
+import { CrdtReposFs, promptRepoSyncMenu } from './u.config.repo/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { createCrdtLog } from './u.log.ts';
-import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
@@ -50,11 +49,6 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.RunReturn> {
-  const legacy = await loadLegacyConfig(cwd);
-  await CrdtDocsMigrate.run(cwd, legacy?.doc);
-  await CrdtReposMigrate.run(cwd, legacy?.doc);
-  if (legacy) await removeLegacyConfig(legacy.path);
-
   const opt = (name: string, value: C) => ({ name, value }) as const;
   const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
 

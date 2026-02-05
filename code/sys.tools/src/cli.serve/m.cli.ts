@@ -4,7 +4,7 @@ import { type t, Args, c, D, done, Fs, Is } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
-import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
+import { ServeFs } from './u.yaml/mod.ts';
 
 const Imports = {
   pull: () => import('./cmd.pull/mod.ts'),
@@ -18,9 +18,6 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
-
-  /* Migrate legacy configs (idempotent). */
-  await ServeMigrate.run(cwd);
 
   /* Run */
   console.info(await Fmt.header(toolname));
