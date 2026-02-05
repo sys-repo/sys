@@ -14,6 +14,7 @@ import { number, numeric } from './u.number.ts';
 import { string } from './u.string.ts';
 import { urlLike, urlString } from './u.url.ts';
 import { websocket } from './u.websocket.ts';
+import { browser } from './u.browser.ts';
 
 /**
  * Common flag evaluators.
@@ -44,6 +45,7 @@ export const Is: StdIsLib = {
   urlLike,
   urlString,
   websocket,
+  browser,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -149,25 +151,6 @@ export const Is: StdIsLib = {
   statusOK(input) {
     if (typeof input !== 'number') return false;
     return String(input)[0] === '2';
-  },
-
-  /**
-   * Determines if currently running within a browser environment
-   * (excluding Deno's web-like runtime).
-   */
-  browser() {
-    const g = globalThis as any;
-
-    // When mocked/virtual-dom return `true` (we are a browser).
-    if (!!g.__SYS_BROWSER_MOCK__) return true;
-
-    // Real browser (or worker).
-    const hasNavigator =
-      typeof g.navigator === 'object' && typeof g.navigator.userAgent === 'string';
-
-    // Deno (exclude, which looks superficially like a browser).
-    const isDeno = typeof g.Deno === 'object' && g.Deno?.version?.deno;
-    return hasNavigator && !isDeno;
   },
 
   /**
