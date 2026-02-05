@@ -8,7 +8,8 @@ export type SlugLoaderLib = {
   readonly make: (origin: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: {
-    parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrigin;
+    readonly paths: t.SlugLoaderOrigin;
+    readonly parse: (input: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoaderOrigin;
   };
 };
 
