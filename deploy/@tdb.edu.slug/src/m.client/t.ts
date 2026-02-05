@@ -1,14 +1,15 @@
 import type { t } from './common.ts';
 
-type MakeArgs = { origin: t.StringUrl | t.SlugLoaderOrigin };
-
 /**
  * Tools for wrapping a pure HTTP `SlugClient` for loading
  * data within a complex UI domain.
  */
 export type SlugLoaderLib = {
+  readonly make: (origin: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoader;
   readonly Fetch: t.SlugClientLib;
-  readonly make: (args: MakeArgs) => t.SlugLoader;
+  readonly Origin: {
+    parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrigin;
+  };
 };
 
 /**
@@ -18,7 +19,7 @@ export type SlugLoader = {
   /** Canonicalized origin endpoints used by the loader. */
   readonly origin: t.SlugLoaderOrigin;
   /** SlugTree loader bound to the loader origin. */
-  readonly Tree: SlugLoaderTreeLib;
+  // readonly Tree: SlugLoaderTreeLib;
 };
 
 /**
@@ -37,11 +38,4 @@ export type SlugLoader = {
 export type SlugLoaderOrigin = {
   app: t.StringUrl;
   cdn: { default: t.StringUrl; video: t.StringUrl };
-};
-
-export type SlugLoaderTreeLib = {
-  readonly load: (
-    docid: t.StringId,
-    options?: t.SlugTreeLoadOptions,
-  ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };

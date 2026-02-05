@@ -1,7 +1,9 @@
-import { type t, SlugClient } from './common.ts';
+import { type t, SlugClient as Fetch } from './common.ts';
 import { make } from './u.make.ts';
+import { Origin } from './m.Origin.ts';
 
 export const ClientLoader: t.SlugLoaderLib = {
-  Fetch: SlugClient,
+  Fetch,
+  Origin,
   make,
 };
