@@ -36,4 +36,29 @@ describe('YamlConfig.File', () => {
       expect(res.dir.name).to.eql('@scope.foo');
     });
   });
+
+  describe('File.migrateDir', () => {
+    it('migrateDir: moves zY AML files and removes empty source', async () => {
+      const tmp = await Fs.makeTempDir();
+      try {
+        const from = Fs.join(tmp.absolute, 'from');
+        const to = Fs.join(tmp.absolute, 'to');
+        await Fs.ensureDir(from);
+        await Fs.write(Fs.join(from, 'alpha.yaml'), 'alpha: 1\n');
+
+        const res = await File.migrateDir({
+          cwd: tmp.absolute,
+          from: 'from',
+          to: 'to',
+        });
+
+        expect(res.migrated.length).to.eql(1);
+        expect(res.skipped.length).to.eql(0);
+        expect(await Fs.exists(Fs.join(to, 'alpha.yaml'))).to.eql(true);
+        expect(await Fs.exists(from)).to.eql(false);
+      } finally {
+        await Fs.remove(tmp.absolute);
+      }
+    });
+  });
 });
