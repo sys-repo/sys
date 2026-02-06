@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../../-test.ui.ts';
 import { D } from '../common.ts';
-import { SampleLoader } from '../mod.ts';
+import { SlugLoader } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -10,7 +10,7 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     return (
-      <SampleLoader.Result
+      <SlugLoader.Result
         debug={v.debug}
         theme={v.theme}
         spinning={v.spinning}
