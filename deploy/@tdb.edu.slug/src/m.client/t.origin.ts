@@ -9,17 +9,19 @@ export type SlugLoaderOriginLib = {
 };
 
 /**
- * Origin end-points:
+ * Bundle target folder(s):
  *
  *       staging.cdn
  *       └── slc
  *           ├── default   (manifests, json, images, etc.)
  *           └── video     (large streaming media)
  *
+ * Origin end-points:
+ *
  *                    <hostname>
  *                cdn.<hostname>     ← staging.cdn/slc/default/*
  *          video.cdn.<hostname>     ← staging.cdn/slc/video/*
- *  <shard>.video.cdn.<hostname>     ← staging.cdn/slc/video/*
+ *  <shard>.video.cdn.<hostname>     ← staging.cdn/slc/video/*  |  { shards: 64 } | 0..63
  *
  */
 export type SlugLoaderOrigin = {
