@@ -37,6 +37,26 @@ describe('DenoFile', () => {
       const res = await DenoFile.load('./404.json');
       expect(res.exists).to.eql(false);
     });
+
+    it('supports deno.jsonc', async () => {
+      const fs = await Testing.dir('DenoFile.load.jsonc').create();
+      const jsonc = `{
+        // comment
+        "name": "jsonc-module",
+        "version": "0.1.0"
+      }`;
+
+      const file = fs.join('deno.jsonc');
+      await Fs.write(file, jsonc);
+
+      const resFile = await DenoFile.load(file);
+      expect(resFile.exists).to.eql(true);
+      expect(resFile.data?.name).to.eql('jsonc-module');
+
+      const resDir = await DenoFile.load(fs.dir);
+      expect(resDir.exists).to.eql(true);
+      expect(resDir.data?.name).to.eql('jsonc-module');
+    });
   });
 
   describe('DenoFile.Is', () => {
@@ -133,6 +153,22 @@ describe('DenoFile', () => {
         await test('.', 'deno.json');
       });
 
+      it('finds deno.jsonc when deno.json is missing', async () => {
+        const fs = await Testing.dir('DenoFile.nearest.jsonc').create();
+        await Fs.write(
+          fs.join('deno.jsonc'),
+          `{
+            // comment
+            "name": "jsonc-root",
+            "version": "0.0.0"
+          }`,
+        );
+        await Fs.write(fs.join('src/foo/bar/baz.txt'), 'baz');
+
+        const res = await DenoFile.Path.nearest(fs.join('src/foo/bar/baz.txt'));
+        expect(res).to.eql(fs.join('deno.jsonc'));
+      });
+
       it('skips nearest match via `shouldStop` parameter', async () => {
         const fs = await setup();
         const test = async (
@@ -181,6 +217,23 @@ describe('DenoFile', () => {
       it('from path: not found', async () => {
         const res = await DenoFile.workspace('./404.json');
         expect(res.exists).to.eql(false);
+        expect(res.children).to.eql([]);
+      });
+
+      it('from path: jsonc', async () => {
+        const fs = await Testing.dir('DenoFile.workspace.jsonc').create();
+        await Fs.write(
+          fs.join('deno.jsonc'),
+          `{
+            // comment
+            "name": "jsonc-root",
+            "version": "0.0.0",
+            "workspace": []
+          }`,
+        );
+
+        const res = await DenoFile.workspace(fs.join('deno.jsonc'));
+        expect(res.exists).to.eql(true);
         expect(res.children).to.eql([]);
       });
     });

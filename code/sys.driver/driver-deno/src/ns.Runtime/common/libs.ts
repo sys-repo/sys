@@ -7,5 +7,6 @@ export { Dir, Fs } from '@sys/fs';
 export { Jsr } from '@sys/jsr';
 export { Process } from '@sys/process';
 export { Ignore } from '@sys/std/ignore';
+export { Json } from '@sys/std';
 export { Semver } from '@sys/std/semver/server';
 export { TmplEngine } from '@sys/tmpl-engine';

@@ -2,11 +2,11 @@ import type { t } from '../common.ts';
 export type * from './t.Path.ts';
 export type * from './t.Workspace.ts';
 
-/** A file-path to a `deno.json` file. */
+/** A file-path to a `deno.json` or `deno.jsonc` file. */
 export type DenoFilePath = t.StringPath;
 
 /**
- * Library: `deno.json` file tools.
+ * Library: `deno.json` / `deno.jsonc` file tools.
  */
 export type DenoFileLib = {
   /** Helpers for wrangling `deno.json` file paths. */
@@ -16,7 +16,7 @@ export type DenoFileLib = {
   readonly Is: t.DenoFileIsLib;
 
   /**
-   * Load a `deno.json` file at the given file path.
+   * Load a `deno.json` / `deno.jsonc` file at the given file path.
    */
   load(path?: t.DenoFilePath): Promise<t.DenoFileLoadResult>;
 
@@ -27,7 +27,7 @@ export type DenoFileLib = {
 
   /**
    * Walks up from the starting path looking for the nearest
-   * ancestor `deno.json` file.
+   * ancestor `deno.json` / `deno.jsonc` file.
    */
   nearest(
     start: t.StringPath,
