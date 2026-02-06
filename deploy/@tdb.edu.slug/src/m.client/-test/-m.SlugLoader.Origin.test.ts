@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Origin } from '../m.Origin.ts';
+import { Origin } from '../m.SlugLoader.Origin.ts';
 
 describe('Origin', () => {
   describe('parse', () => {
