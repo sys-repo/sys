@@ -1,4 +1,4 @@
-import { type t, exists, Path, Err } from './common.ts';
+import { type t, exists, Err, Json, Path } from './common.ts';
 
 /**
  * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
@@ -20,7 +20,12 @@ export const readText: t.FsReadText = async (path: string) => {
  * as strongly-typed, parsed JSON.
  */
 export const readJson: t.FsReadJson = async <T>(path: string) => {
-  const parse = JSON.parse;
+  const parse = (text: string) => {
+    const ext = Path.extname(path);
+    if (text.trim().length === 0) throw Err.std('JSON file is empty.');
+    if (ext === '.jsonc') return Json.parse<T>(text, {} as T, { jsonc: true });
+    return JSON.parse(text);
+  };
   return handleRead<T>({ path, parse, format: 'JSON' });
 };
 

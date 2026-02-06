@@ -65,6 +65,13 @@ describe('Fs: read from the file-system operations', () => {
       expect(res.data?.name).to.eql('@sys/fs');
     });
 
+    it('success: jsonc', async () => {
+      const path = './src/-test/-sample-files/foo.jsonc';
+      const res = await Fs.readJson<{ foo: number }>(path);
+      assertSuccess(res, path);
+      expect(res.data?.foo).to.eql(123);
+    });
+
     it('fail: does not exist', async () => {
       const path = '404.json';
       const res = await Fs.readJson(path);
@@ -78,6 +85,20 @@ describe('Fs: read from the file-system operations', () => {
       assertParseError(res, path);
       expect(res.error?.name).to.eql('SyntaxError');
       expect(res.error?.message).to.include('Unexpected token');
+    });
+
+    it('fail: JSON empty', async () => {
+      const path = './src/-test/-sample-files/empty.json';
+      const res = await Fs.readJson(path);
+      assertParseError(res, path);
+      expect(res.error?.message).to.include('JSON file is empty');
+    });
+
+    it('fail: JSONC empty', async () => {
+      const path = './src/-test/-sample-files/empty.jsonc';
+      const res = await Fs.readJson(path);
+      assertParseError(res, path);
+      expect(res.error?.message).to.include('JSON file is empty');
     });
 
     it('fail: not a text document', async () => {
