@@ -1,25 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './-common.ts';
+import React from 'react';
+import { type t, Color, css, Signal } from './-common.ts';
 
-export function createEntry(debug: t.DebugSignals, sample: t.FetchSample, index: t.Index) {
-  return <ProbeContainer key={index} debug={debug} sample={sample} />;
-}
-
-/**
- * Internal:
- */
-type ProbeContainerProps = {
+export type ProbeContainerProps = {
   debug: t.DebugSignals;
   sample: t.FetchSample;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
-function ProbeContainer(props: ProbeContainerProps) {
+/**
+ * Component:
+ */
+export const ProbeContainer: React.FC<ProbeContainerProps> = (props) => {
   const { debug, sample } = props;
 
+  /**
+   * Effects:
+   */
   const v = Signal.toObject(debug.props);
   Signal.useRedrawEffect(debug.listen);
 
+  /**
+   * Render:
+   */
   const theme = Color.theme(v.theme);
   const styles = {
     base: css({
@@ -35,4 +37,4 @@ function ProbeContainer(props: ProbeContainerProps) {
       <div>{sample.title}</div>
     </div>
   );
-}
+};

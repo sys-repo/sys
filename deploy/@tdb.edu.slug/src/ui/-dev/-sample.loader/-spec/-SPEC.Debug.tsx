@@ -2,8 +2,8 @@ import React from 'react';
 import { Dev } from '../../mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { fetchSamples } from './-u.fetch.samples.tsx';
-
 import { type SampleLoaderProps as P } from '../ui.tsx';
+import { renderSamples } from './-ui.samples.tsx';
 
 type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
 const defaults: Storage = {
@@ -108,6 +108,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <div className={Styles.title.class}>{'SlugClient:'}</div>
       {fetchSamples(debug)}
+
+      <hr />
+      {renderSamples(debug)}
     </div>
   );
 };
