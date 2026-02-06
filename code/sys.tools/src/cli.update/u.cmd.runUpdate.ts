@@ -48,7 +48,10 @@ export async function runUpdate(
   const out = await refreshCache(cwd);
   spinner.stop();
 
-  if (!out.success) throw new Error(out.toString());
+  if (!out.success) {
+    const msg = `Failed to refresh JSR cache for ${pkg.name}. Command: deno cache --reload jsr:@sys/tools\n${out.toString()}`;
+    throw new Error(msg);
+  }
 
   console.info(c.gray(`Updated ${c.white(pkg.name)} to latest ${c.green(version.latest + ' ✔')}`));
   console.info();
