@@ -8,7 +8,7 @@ export type * from './t.origin.ts';
  * data within a complex UI domain.
  */
 export type SlugLoaderLib = {
-  readonly make: (origin: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoader;
+  readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: t.SlugLoaderOriginLib;
 };
@@ -18,5 +18,5 @@ export type SlugLoaderLib = {
  */
 export type SlugLoader = {
   /** Canonicalized origin endpoints used by the loader. */
-  readonly origin: t.SlugLoaderOrigin;
+  readonly origin: t.SlugUrlOrigin;
 };

@@ -15,10 +15,10 @@ export function create(port: t.PortNumber, prod: t.StringHostname): t.SlugHttpOr
   };
 }
 
-export function parse(input: t.StringUrl | t.SlugLoaderOrigin): t.SlugLoaderOrigin {
+export function parse(input: t.StringUrl | t.SlugUrlOrigin): t.SlugUrlOrigin {
   if (Is.object(input)) return input;
 
-  const paths: t.SlugLoaderOrigin = {
+  const paths: t.SlugUrlOrigin = {
     app: 'staging/slc/',
     cdn: {
       default: 'staging/slc.cdn/',

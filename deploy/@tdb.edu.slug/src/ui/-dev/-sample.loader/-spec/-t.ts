@@ -6,7 +6,7 @@ export type * from './-SPEC.Debug.tsx';
 export type FetchAction = (e: t.FetchActionArgs) => Promise<void>;
 export type FetchActionArgs = {
   readonly is: { readonly local: boolean };
-  readonly origin: t.SlugLoaderOrigin;
+  readonly origin: t.SlugUrlOrigin;
   readonly result: (value: unknown) => void;
 };
 

@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type SlugLoaderOriginLib = {
   readonly create: (port: t.PortNumber, prod: t.StringHostname) => t.SlugHttpOriginsSpecMap;
-  readonly parse: (input: t.StringUrl | t.SlugLoaderOrigin) => t.SlugLoaderOrigin;
+  readonly parse: (input: t.StringUrl | t.SlugUrlOrigin) => t.SlugUrlOrigin;
 };
 
 /**
@@ -24,7 +24,7 @@ export type SlugLoaderOriginLib = {
  *  <shard>.video.cdn.<hostname>     ← staging.cdn/slc/video/*  |  { shards: 64 } | 0..63
  *
  */
-export type SlugLoaderOrigin = {
+export type SlugUrlOrigin = {
   app: t.StringUrl;
   cdn: { default: t.StringUrl; video: t.StringUrl };
 };
