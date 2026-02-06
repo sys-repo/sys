@@ -1,4 +1,4 @@
-import { type t, pkg, Pkg, ClientLoader } from '../common.ts';
+import { type t, pkg, Pkg, SlugLoader } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -13,7 +13,7 @@ const port = 4040;
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  spec: ClientLoader.Origin.create(port, domain),
+  spec: SlugLoader.Origin.create(port, domain),
   port,
   domain,
 } as const;
