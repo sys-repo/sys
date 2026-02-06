@@ -21,6 +21,7 @@ groups:
     - import: jsr:@std/datetime@0.225.7
     - import: jsr:@std/dotenv@0.225.6
     - import: jsr:@std/encoding@1.0.10
+      subpaths: [jsonc]
     - import: jsr:@std/fs@1.0.22
     - import: jsr:@std/http@1.0.24
       subpaths: [file-server]

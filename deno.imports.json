@@ -24,6 +24,7 @@
     "@std/datetime": "jsr:@std/datetime@0.225.7",
     "@std/dotenv": "jsr:@std/dotenv@0.225.6",
     "@std/encoding": "jsr:@std/encoding@1.0.10",
+    "@std/encoding/jsonc": "jsr:@std/encoding@1.0.10/jsonc",
     "@std/fs": "jsr:@std/fs@1.0.22",
     "@std/http": "jsr:@std/http@1.0.24",
     "@std/http/file-server": "jsr:@std/http@1.0.24/file-server",
