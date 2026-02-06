@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, Color, css, Obj, ObjectView, Spinners } from './common.ts';
+import { type t, Color, css, KeyValue, Obj, ObjectView, Spinners } from './common.ts';
 
-export const Result: React.FC<t.SampleResultProps> = (props) => {
+export const Result: React.FC<t.SlugLoaderView.ResultProps> = (props) => {
   const { debug = false, spinning = false } = props;
 
   /**
@@ -9,15 +9,10 @@ export const Result: React.FC<t.SampleResultProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      color: theme.fg,
-      Scroll: true,
-    }),
-    body: css({
-      padding: 10,
-    }),
+    base: css({ position: 'relative', color: theme.fg, Scroll: true }),
+    body: css({ padding: 10 }),
     spinner: css({ Absolute: 0, pointerEvents: 'none', display: 'grid', placeItems: 'center' }),
+    obj: css({ marginTop: 6 }),
   };
 
   const elSpinner = spinning && (
@@ -28,9 +23,19 @@ export const Result: React.FC<t.SampleResultProps> = (props) => {
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
 
+  const items = KeyValue.fromObject({ foo: 123, bar: 456 });
+  items.push({ kind: 'hr' });
+
   const elBody = !spinning && (
     <div className={styles.body.class}>
-      <ObjectView name={'http:response'} data={data} theme={theme.name} expand={5} />
+      <KeyValue.UI theme={theme.name} items={items} />
+      <ObjectView
+        name={'http:response'}
+        data={data}
+        theme={theme.name}
+        style={styles.obj}
+        expand={5}
+      />
     </div>
   );
 

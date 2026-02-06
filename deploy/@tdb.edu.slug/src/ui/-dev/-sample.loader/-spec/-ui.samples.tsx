@@ -17,7 +17,7 @@ export function renderSamples(debug: t.DebugSignals) {
  * Helpers
  */
 function renderers(debug: t.DebugSignals) {
-  type T = t.FetchSample;
+  type T = t.SlugLoaderView.FetchSample;
   const items: t.ReactNode[] = [];
   const create = (sample: T) => render(debug, sample, items.length - 1);
   const push = (sample: T) => items.push(create(sample));
@@ -25,6 +25,6 @@ function renderers(debug: t.DebugSignals) {
   return { items, push, hr } as const;
 }
 
-function render(debug: t.DebugSignals, sample: t.FetchSample, index: t.Index) {
+function render(debug: t.DebugSignals, sample: t.SlugLoaderView.FetchSample, index: t.Index) {
   return <ProbeContainer key={index} debug={debug} sample={sample} />;
 }

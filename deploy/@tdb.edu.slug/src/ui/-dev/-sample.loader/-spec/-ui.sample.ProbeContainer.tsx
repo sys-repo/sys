@@ -3,7 +3,7 @@ import { type t, Color, css, Signal } from './-common.ts';
 
 export type ProbeContainerProps = {
   debug: t.DebugSignals;
-  sample: t.FetchSample;
+  sample: t.SlugLoaderView.FetchSample;
   style?: t.CssInput;
 };
 
