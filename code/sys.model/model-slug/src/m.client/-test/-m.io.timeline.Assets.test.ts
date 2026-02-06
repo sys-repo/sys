@@ -39,7 +39,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
       if (!result.ok) throw new Error('expected assets result');
       expect(result.ok).to.eql(true);
       expect(result.value).to.eql(manifest);
-      expect(seenUrls[0]).to.include('/manifests/');
+      expect(seenUrls[0]).to.include('/-manifests/');
       expect(seenUrls[0]).to.include(SlugClient.Url.assetsFilename(cleaned));
     } finally {
       cleanup();

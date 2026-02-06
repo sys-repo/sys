@@ -183,10 +183,11 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     };
 
     const cleanup = stubFetch((url) => {
-      if (url.includes('http://manifests-a.example.com/manifests/dist.json')) return jsonResponse(distA);
-      if (url.includes('http://manifests-b.example.com/manifests/dist.json')) return jsonResponse(distB);
-      if (url.includes(SlugClient.Url.playbackFilename(cleanedA))) return jsonResponse(playbackA);
-      if (url.includes(SlugClient.Url.playbackFilename(cleanedB))) return jsonResponse(playbackB);
+      const res = jsonResponse;
+      if (url.includes('http://manifests-a.example.com/-manifests/dist.json')) return res(distA);
+      if (url.includes('http://manifests-b.example.com/-manifests/dist.json')) return res(distB);
+      if (url.includes(SlugClient.Url.playbackFilename(cleanedA))) return res(playbackA);
+      if (url.includes(SlugClient.Url.playbackFilename(cleanedB))) return res(playbackB);
       if (url.includes(SlugClient.Url.assetsFilename(cleanedA))) {
         throw new Error('assets manifest should not be fetched');
       }

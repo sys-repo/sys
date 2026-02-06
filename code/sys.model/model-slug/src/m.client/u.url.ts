@@ -1,41 +1,33 @@
-import { type t, Url } from './common.ts';
+import { type t, D, Url } from './common.ts';
 
-type ManifestsArgs = {
-  baseUrl: t.StringUrl;
-  manifestsDir: t.StringDir;
-  filename: string;
-};
-
-type ContentArgs = {
-  baseUrl: t.StringUrl;
-  contentDir: t.StringDir;
-  filename: string;
-};
-
-type DescriptorArgs = {
-  origin: t.StringUrl;
-  manifests: t.StringPath;
-  filename: string;
-};
+type ManifestsArgs = { baseUrl: t.StringUrl; manifestsDir: t.StringDir; filename: string };
+type ContentArgs = { baseUrl: t.StringUrl; contentDir: t.StringDir; filename: string };
+type DescriptorArgs = { origin: t.StringUrl; manifests: t.StringPath; filename: string };
 
 export const ClientUrl = {
-  manifestsLocation(baseUrl: t.StringUrl, options?: t.SlugLoadOptions): {
+  manifestsLocation(
+    baseUrl: t.StringUrl,
+    options?: t.SlugLoadOptions,
+  ): {
     readonly baseUrl: t.StringUrl;
     readonly manifestsDir: t.StringDir;
   } {
     return {
       baseUrl: options?.urls?.manifestBase ?? baseUrl,
-      manifestsDir: options?.layout?.manifestsDir ?? 'manifests',
+      manifestsDir: options?.layout?.manifestsDir ?? D.manifestsDir,
     };
   },
 
-  contentLocation(baseUrl: t.StringUrl, options?: t.SlugLoadOptions): {
+  contentLocation(
+    baseUrl: t.StringUrl,
+    options?: t.SlugLoadOptions,
+  ): {
     readonly baseUrl: t.StringUrl;
     readonly contentDir: t.StringDir;
   } {
     return {
       baseUrl: options?.urls?.contentBase ?? baseUrl,
-      contentDir: options?.layout?.contentDir ?? 'json',
+      contentDir: options?.layout?.contentDir ?? D.contentLocation,
     };
   },
 
