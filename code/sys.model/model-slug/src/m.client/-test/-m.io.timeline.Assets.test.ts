@@ -6,9 +6,9 @@ import type { t } from '../common.ts';
 import { D } from '../common.ts';
 import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
 
-describe('SlugClient.FromEndpoint.Assets.load', () => {
+describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
   it('is the SlugClient asset loader', () => {
-    expect(SlugClient.FromEndpoint.Assets).to.equal(Assets);
+    expect(SlugClient.FromEndpoint.Timeline.Assets).to.equal(Assets);
   });
 
   it('loads assets manifest (happy path)', async () => {

@@ -22,9 +22,7 @@ export const SlugClient: t.SlugClientLib = {
   FromEndpoint: {
     Descriptor,
     Tree,
-    Assets,
-    Bundle,
-    Playback,
     FileContent,
+    Timeline: { Assets, Bundle, Playback },
   },
 };

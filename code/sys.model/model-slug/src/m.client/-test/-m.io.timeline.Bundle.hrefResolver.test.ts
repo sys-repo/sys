@@ -4,8 +4,8 @@ import { SlugClient } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 import { jsonResponse, stubFetch } from './u.fixture.ts';
 
-describe('SlugClient.Bundle: hrefResolver', () => {
-  describe('SlugClient.Bundle hrefResolver types', () => {
+describe('SlugClient.Timeline.Bundle: hrefResolver', () => {
+  describe('SlugClient.Timeline.Bundle hrefResolver types', () => {
     it('uses media-seq asset kinds for timeline resolver', () => {
       type Resolver = t.SlugTimelineBundleHrefResolver;
       type Args = Parameters<Resolver>[0];
@@ -22,7 +22,7 @@ describe('SlugClient.Bundle: hrefResolver', () => {
   });
 });
 
-describe('SlugClient.FromEndpoint.Bundle.load (hrefResolver)', () => {
+describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
   const docid = 'crdt:bundle-href' as t.StringId;
   const makeDist = (parts: string[]): t.DistPkg => {
     const hashParts: Record<string, t.StringFileHashUri> = {};
@@ -90,7 +90,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (hrefResolver)', () => {
 
     try {
       Dist.invalidate('http://example.com/');
-      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid, {
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load('http://example.com/', docid, {
         hrefResolver: ({ href, kind }) => {
           const path = new URL(href).pathname;
           if (kind === 'video') return `https://video.example.com${path}`;

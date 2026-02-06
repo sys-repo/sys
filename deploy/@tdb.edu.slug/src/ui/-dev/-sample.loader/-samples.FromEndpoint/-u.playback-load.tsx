@@ -1,7 +1,7 @@
 import { type t, SlugClient, Url } from './-common.ts';
 
 export const SamplePlayback: t.FetchSample = {
-  label: 'FromEndpoint.Playback.load',
+  label: 'FromEndpoint.Timeline.Playback.load',
 
   /**
    * Load playback manifest.
@@ -24,7 +24,7 @@ export const SamplePlayback: t.FetchSample = {
     }
 
     const baseUrl = Url.parse(origin).join(basePath);
-    const Playback = SlugClient.FromEndpoint.Playback;
+    const Playback = SlugClient.FromEndpoint.Timeline.Playback;
     const res = await Playback.load(baseUrl, docid, { layout: { manifestsDir } });
     e.result(res);
   },

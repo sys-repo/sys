@@ -17,7 +17,7 @@ type Props = {
  * is a `refOnly` slug with a ref ID, loads the bundle from the endpoint.
  */
 export function attachSlugLoaderEffect(adapter: SlugEffectAdapter, props: Props): void {
-  const { baseUrl, loadBundle = SlugClient.FromEndpoint.Bundle.load, setBundle } = props;
+  const { baseUrl, loadBundle = SlugClient.FromEndpoint.Timeline.Bundle.load, setBundle } = props;
   const onBundle = setBundle ?? (() => {});
   let loadGen = 0; // Staleness tracking.
   const getSlug = () => adapter.current() ?? {};

@@ -32,6 +32,12 @@ export type SlugClientTimelineBundleFromDescriptorLib = {
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
 
+/** Timeline loaders scoped to a descriptor client. */
+export type SlugClientTimelineFromDescriptorLib = {
+  readonly Playback: t.SlugClientPlaybackFromDescriptorLib;
+  readonly Assets: t.SlugClientAssetsFromDescriptorLib;
+  readonly Bundle: t.SlugClientTimelineBundleFromDescriptorLib;
+};
 /** Options for loading a timeline bundle. */
 export type SlugTimelineBundleLoadOptions = t.SlugLoadOptions & {
   hrefResolver?: SlugTimelineBundleHrefResolver;

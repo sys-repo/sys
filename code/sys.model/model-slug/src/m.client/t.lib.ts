@@ -28,8 +28,12 @@ export type SlugClientErrorLib = {
 export type SlugFromEndpointLib = {
   readonly Descriptor: t.SlugClientDescriptorLoadLib;
   readonly Tree: t.SlugClientTreeLib;
+  readonly Timeline: t.SlugClientTimelineLib;
+  readonly FileContent: t.SlugClientFileContentLib;
+};
+
+export type SlugClientTimelineLib = {
   readonly Playback: t.SlugClientPlaybackLib;
   readonly Assets: t.SlugClientAssetsLib;
   readonly Bundle: t.SlugClientTimelineBundleLib;
-  readonly FileContent: t.SlugClientFileContentLib;
 };

@@ -1,7 +1,7 @@
 import { type t, SlugClient, Url } from './-common.ts';
 
 export const SampleAssets: t.FetchSample = {
-  label: 'FromEndpoint.Assets.load',
+  label: 'FromEndpoint.Timeline.Assets.load',
 
   /**
    * Load assets manifest.
@@ -23,7 +23,7 @@ export const SampleAssets: t.FetchSample = {
       });
     }
     const baseUrl = Url.parse(origin).join(basePath);
-    const res = await SlugClient.FromEndpoint.Assets.load(baseUrl, docid, {
+    const res = await SlugClient.FromEndpoint.Timeline.Assets.load(baseUrl, docid, {
       layout: { manifestsDir },
     });
     e.result(res);

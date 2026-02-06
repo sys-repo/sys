@@ -28,7 +28,7 @@ const makeDist = (parts: string[]): t.DistPkg => {
   };
 };
 
-describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
+describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   it('skips assets when dist lacks assets entry', async () => {
     const docid = 'crdt:dist-only-playback' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
@@ -61,7 +61,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       if (!result.ok) throw new Error('expected bundle result');
       const bundle = result.value;
       expect(bundle.resolveAsset({ kind: 'video', logicalPath: '/video/main' })).to.eql(undefined);
@@ -119,7 +119,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       if (!result.ok) throw new Error('expected bundle');
       expect(assetsRequested).to.eql(true);
     } finally {
@@ -145,7 +145,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema failure');
       expect(result.error.kind).to.eql('schema');
@@ -182,7 +182,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema failure');
       expect(result.error.kind).to.eql('schema');

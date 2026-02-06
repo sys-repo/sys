@@ -16,7 +16,7 @@ Loads slug manifests (tree, assets, playback), validates them against
 import { SlugClient, SlugSchema } from 'jsr:@sys/model-slug';
 
 // Load a playback-ready bundle (assets + timecode playback)
-const bundle = await SlugClient.FromEndpoint.Bundle.load(
+const bundle = await SlugClient.FromEndpoint.Timeline.Bundle.load(
   'https://example.com/publish.assets',
   'crdt:my-docid',
 );

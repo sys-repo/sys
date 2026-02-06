@@ -180,9 +180,9 @@ describe('BundleProfile domain-free config (e2e)', () => {
       });
       if (!mediaClient.ok) throw new Error('expected media client');
 
-      const bundleResult = await mediaClient.value.Bundle.load({
+      const bundleResult = await mediaClient.value.Timeline.Bundle.load({
         urls: { assetBase: 'https://media.example.com/' },
-        hrefResolver: ({ href, kind }) => {
+        hrefResolver: ({ href, kind }: Parameters<t.SlugTimelineBundleHrefResolver>[0]) => {
           const path = new URL(href).pathname;
           if (kind === 'video') return `https://video.example.com${path}`;
           if (kind === 'image') return `https://images.example.com${path}`;

@@ -6,9 +6,9 @@ import type { t } from '../common.ts';
 import { D } from '../common.ts';
 import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
 
-describe('SlugClient.FromEndpoint.Playback.load', () => {
+describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
   it('is the SlugClient playback loader', () => {
-    expect(SlugClient.FromEndpoint.Playback).to.equal(Playback);
+    expect(SlugClient.FromEndpoint.Timeline.Playback).to.equal(Playback);
   });
 
   it('loads playback manifest (happy path)', async () => {

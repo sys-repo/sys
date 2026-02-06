@@ -1,7 +1,7 @@
 import { type t, SlugClient, Url } from './-common.ts';
 
 export const SampleBundle: t.FetchSample = {
-  label: 'FromEndpoint.Bundle.load',
+  label: 'FromEndpoint.Timeline.Bundle.load',
 
   /**
    * Load bundle manifest.
@@ -23,7 +23,7 @@ export const SampleBundle: t.FetchSample = {
       });
     }
     const baseUrl = Url.parse(origin).join(basePath);
-    const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, {
+    const res = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
       layout: { manifestsDir },
     });
     e.result(res);

@@ -28,7 +28,7 @@ const makeDist = (parts: string[]): t.DistPkg => {
   };
 };
 
-describe('SlugClient.FromEndpoint.Bundle.load', () => {
+describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
     const docid = 'crdt:bundle-happy' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
@@ -97,7 +97,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
     try {
       Dist.invalidate(baseUrl);
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       if (!result.ok) throw new Error('expected bundle result');
       expect(result.ok).to.eql(true);
 
@@ -189,7 +189,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
     try {
       Dist.invalidate(baseUrl);
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, {
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
         urls: { assetBase },
       });
       if (!result.ok) throw new Error('expected bundle result');
@@ -241,7 +241,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
     try {
       Dist.invalidate(baseUrl);
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected http error');
       expect(result.error.kind).to.eql('http');
@@ -292,7 +292,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
     try {
       Dist.invalidate(baseUrl);
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema error');
       expect(result.error.kind).to.eql('schema');
@@ -343,7 +343,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
     try {
       Dist.invalidate(baseUrl);
-      const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema mismatch');
       expect(result.error.kind).to.eql('schema');

@@ -43,14 +43,16 @@ function make(args: t.SlugClientFromDescriptorArgs) {
     Tree: {
       load: (options) => Tree.load(baseUrl, descriptor.docid, withOptions(options)),
     },
-    Assets: {
-      load: (options) => Assets.load(baseUrl, descriptor.docid, withOptions(options)),
-    },
-    Playback: {
-      load: (options) => Playback.load(baseUrl, descriptor.docid, withOptions(options)),
-    },
-    Bundle: {
-      load: (options) => Bundle.load(baseUrl, descriptor.docid, withOptions(options)),
+    Timeline: {
+      Assets: {
+        load: (options) => Assets.load(baseUrl, descriptor.docid, withOptions(options)),
+      },
+      Playback: {
+        load: (options) => Playback.load(baseUrl, descriptor.docid, withOptions(options)),
+      },
+      Bundle: {
+        load: (options) => Bundle.load(baseUrl, descriptor.docid, withOptions(options)),
+      },
     },
     FileContent: {
       index: (options) => FileContent.index(baseUrl, descriptor.docid, withOptions(options)),

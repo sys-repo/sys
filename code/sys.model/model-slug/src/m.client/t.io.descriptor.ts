@@ -29,8 +29,6 @@ export type SlugClientDescriptor = {
   readonly assetBase: t.StringUrl;
   readonly layout?: t.SlugClientLayout;
   readonly Tree: t.SlugClientTreeFromDescriptorLib;
-  readonly Playback: t.SlugClientPlaybackFromDescriptorLib;
-  readonly Assets: t.SlugClientAssetsFromDescriptorLib;
-  readonly Bundle: t.SlugClientTimelineBundleFromDescriptorLib;
+  readonly Timeline: t.SlugClientTimelineFromDescriptorLib;
   readonly FileContent: t.SlugClientFileContentFromDescriptorLib;
 };
