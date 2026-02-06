@@ -33,19 +33,6 @@ It's time. Good things happen collectively when everything conforms to the same 
 
 ---
 
-### Initialize (New): 🧫
-Scaffold a new project within the current-working-directory (`cwd`) on the local file-system:
-
-```bash
-deno run -A jsr:@sys/driver-vite/init
-```
-
-<p>&nbsp;<p>
-
----
-
-<p>&nbsp;<p>
-
 ### Runtime ← Bundler
 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/f76ef3f2-f4f3-40bf-9301-517e21fe5a0d)
@@ -72,9 +59,6 @@ Usage: deno task [COMMAND]
   deno task dev       Run the development server.
   deno task build     Transpile to production bundle.
   deno task serve     Run a local HTTP server over the production bundle.
-
-  deno task upgrade   Upgrade to latest version.
-  deno task backup    Take a snapshot of the project.
   deno task clean     Delete temporary files.
   deno task help      Show help.
 ```
