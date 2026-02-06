@@ -203,4 +203,48 @@ describe('Json', () => {
       expect(err.cause?.name).to.eql('SyntaxError');
     });
   });
+
+  describe('Json.parse (jsonc)', () => {
+    it('parses JSONC with comments', () => {
+      const text = `{
+        // comment
+        "foo": 123,
+        "bar": "baz"
+      }`;
+      const res = Json.parse<{ foo: number; bar: string }>(
+        text,
+        { foo: 0, bar: '' },
+        { jsonc: true },
+      );
+      expect(res?.foo).to.eql(123);
+      expect(res?.bar).to.eql('baz');
+    });
+
+    it('throws on invalid JSONC', () => {
+      const fn = () => Json.parse(`$-FAIL`, {}, { jsonc: true });
+      expect(fn).to.throw();
+    });
+  });
+
+  describe('Json.safeParse (jsonc)', () => {
+    it('parses JSONC with comments', () => {
+      const text = `{
+        // comment
+        "foo": 123
+      }`;
+      const res = Json.safeParse<{ foo: number }>(text, { foo: 0 }, { jsonc: true });
+      expect(res.ok).to.eql(true);
+      expect(res.data?.foo).to.eql(123);
+      expect(res.error).to.eql(undefined);
+    });
+
+    it('returns error on invalid JSONC', () => {
+      const res = Json.safeParse(`$-FAIL`, {}, { jsonc: true });
+      expect(res.ok).to.eql(false);
+      expect(res.data).to.eql(undefined);
+      const err = res.error!;
+      expect(err.message).to.include('Failed while parsing JSONC');
+      expect(err.cause?.name).to.eql('SyntaxError');
+    });
+  });
 });
