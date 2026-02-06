@@ -26,14 +26,14 @@ export type HttpClientLib = {
    */
   readonly Preload: t.HttpPreloadLib;
 
-  /** Convert `Headers` into a simple headers object */
+  /** Convert headers input into a normalized `{key: string}` headers object. */
   toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
 
   /** Convert a `Response` into an HTTP client error. */
   toError(input: Response): t.HttpError | undefined;
 
-  /** Convert a `Response` into a standard HTTP fetch response. */
-  toResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
+  /** Convert a `Response` into a standard JSON HTTP fetch response. */
+  toJsonResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
 
   /** Convert the `Blob` response to a `Uint8Array`. */
   toUint8Array(input?: Blob): Promise<Uint8Array>;

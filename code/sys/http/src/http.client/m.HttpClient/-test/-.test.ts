@@ -40,27 +40,44 @@ describe('Http', () => {
     });
   });
 
-  describe('Http.toResponse', () => {
+  describe('Http.toJsonResponse', () => {
     type T = { count: number };
 
-    it('toResponse: data', async () => {
+    it('toJsonResponse: data', async () => {
       const obj = { count: 123 };
       const input = new Response(JSON.stringify(obj));
-      const res = await Http.toResponse<T>(input);
+      const res = await Http.toJsonResponse<T>(input);
       expect(res.ok).to.eql(true);
       expect(res.data).to.eql(obj);
       expect(res.error).to.eql(undefined);
     });
 
-    it('toResponse: error', async () => {
+    it('toJsonResponse: error', async () => {
       const input = new Response('Not Found', { status: 404, statusText: 'foo' });
-      const res = await Http.toResponse(input);
+      const res = await Http.toJsonResponse(input);
       expect(res.ok).to.eql(false);
       expect(res.data).to.eql(undefined);
       expect(res.error?.status).to.eql(404);
       expect(res.error?.statusText).to.eql('foo');
       expect(res.error?.message).to.eql('404 foo');
       expect(res.error?.headers).to.eql({ 'content-type': 'text/plain;charset=UTF-8' });
+    });
+
+    it('toJsonResponse: invalid JSON body', async () => {
+      const input = new Response('not-json', {
+        status: 200,
+        statusText: 'OK',
+        headers: { 'content-type': 'application/json' },
+      });
+      const res = await Http.toJsonResponse(input);
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(200);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.name).to.eql('HttpError');
+      expect(res.error?.message).to.eql('200 OK');
+      expect(res.error?.cause?.name).to.eql('SyntaxError');
+      expect(res.error?.headers).to.eql({ 'content-type': 'application/json' });
     });
   });
 
