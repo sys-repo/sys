@@ -28,7 +28,6 @@ export type ViteEntryArgs =
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
   | ViteEntryArgsUpgrade
-  | ViteEntryArgsBackup
   | ViteEntryArgsHelp;
 
 /** The `clean` command. */
@@ -50,14 +49,6 @@ export type ViteEntryArgsUpgrade = {
   force?: boolean;
   version?: t.StringSemver;
   dryRun?: boolean;
-};
-
-/** The `backup` command. */
-export type ViteEntryArgsBackup = {
-  cmd: 'backup';
-  dir?: P;
-  force?: boolean;
-  includeDist?: boolean;
 };
 
 /** The `help` information command. */

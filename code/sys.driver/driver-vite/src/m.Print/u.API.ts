@@ -41,7 +41,6 @@ export const API: t.ViteLogApi = {
     if (!minimal) {
       table.push(['', '']);
       push('upgrade', `Upgrade to latest version.`);
-      push('backup', `Take a snapshot of the project.`);
       push('clean', `Delete temporary files.`);
     }
     push('help', `Show help.`);

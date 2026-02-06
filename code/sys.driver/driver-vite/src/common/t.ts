@@ -21,7 +21,6 @@ export type {
   DenoFileJson,
   DenoFilePath,
   DenoImportMapJson,
-  DenoModuleBackup,
   DenoWorkspace,
   DenoWorkspaceChild,
   Dep,

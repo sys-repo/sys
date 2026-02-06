@@ -8,7 +8,6 @@
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "clean": "deno    run -RWE  --allow-ffi             <ENTRY> --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
-    "backup": "deno   run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=backup",
     "help": "deno     run -RE   --allow-ffi             <ENTRY> --cmd=help",
 
     "tmp": "deno      run -A ./-scripts/-tmp.ts"

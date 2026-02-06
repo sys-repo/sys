@@ -29,10 +29,6 @@ export type ViteLib = {
    */
   dev(args: ViteDevArgs): Promise<t.ViteProcess>;
 
-  /**
-   * Create a backup snapshot of the project.
-   */
-  backup(args: t.ViteBackupArgs): Promise<t.DenoModuleBackup>;
 };
 
 /**
@@ -98,13 +94,4 @@ export type ViteBuildResponse = {
   readonly cmd: { readonly input: string; readonly output: t.ProcOutput };
   readonly elapsed: t.Msecs;
   toString(options?: ToStringOptions): string;
-};
-
-/** Arguments passed to the `VitePress.Env.backup` method. */
-export type ViteBackupArgs = {
-  dir: t.StringDir;
-  silent?: boolean;
-  includeDist?: boolean;
-  message?: string;
-  force?: boolean;
 };

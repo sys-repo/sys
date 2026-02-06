@@ -1,5 +1,5 @@
 import { Wrangle } from '../m.Vite/u.wrangle.ts';
-import { type t, Args, c, DenoModule, Path, pkg, Vite, ViteLog } from './common.ts';
+import { type t, Args, c, DenoModule, Path, pkg, ViteLog } from './common.ts';
 
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
@@ -52,14 +52,6 @@ export const main: t.ViteEntryLib['main'] = async (input) => {
     return;
   }
 
-  if (cmd === 'backup') {
-    const { dir = '.', includeDist, force } = args;
-    console.info();
-    await Vite.backup({ dir, includeDist, force });
-    console.info();
-    return;
-  }
-
   if (cmd === 'upgrade') {
     const { dir = '.', force = false, dryRun } = args;
     await DenoModule.upgrade({
@@ -69,10 +61,6 @@ export const main: t.ViteEntryLib['main'] = async (input) => {
       dir,
       force,
       dryRun,
-      async beforeUpgrade({ message }) {
-        console.info();
-        await Vite.backup({ dir, includeDist: false, message });
-      },
     });
     return;
   }

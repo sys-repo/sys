@@ -29,11 +29,6 @@ export type VitepressLib = {
    * https://vitepress.dev/reference/cli#vitepress-build
    */
   build(options?: t.VitepressBuildArgs | t.StringDir): Promise<t.VitepressBuildResponse>;
-
-  /**
-   * Create a backup snapshot of the project.
-   */
-  backup(args: t.VitepressBackupArgs): Promise<t.DenoModuleBackup>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
@@ -82,13 +77,4 @@ export type VitepressBuildResponse = {
   dirs: t.ViteBundleIO;
   dist: t.DistPkg;
   toString(options?: ToStringOptions): string;
-};
-
-/** Arguments passed to the `VitePress.Env.backup` method. */
-export type VitepressBackupArgs = {
-  dir: t.StringDir;
-  silent?: boolean;
-  includeDist?: boolean;
-  force?: boolean;
-  message?: string;
 };
