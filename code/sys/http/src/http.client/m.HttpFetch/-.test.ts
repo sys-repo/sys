@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../../-test.ts';
+import { Time, Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
 
 import { type t, Rx } from './common.ts';
@@ -381,6 +381,61 @@ describe('Http.Fetch', () => {
       expect(error?.cause?.message).to.include('Fetch operation disposed before completing');
 
       expect(fetch.disposed).to.eql(true);
+      await server.dispose();
+    });
+
+    it('init.signal aborts request', async () => {
+      const server = Testing.Http.server(
+        () =>
+          new Promise((resolve) => Time.delay(250, () => resolve(Testing.Http.json({ foo: 123 })))),
+      );
+
+      const fetch = Fetch.make();
+      const ctrl = new AbortController();
+      const promise = fetch.json(server.url.toString(), { signal: ctrl.signal });
+      ctrl.abort();
+      const res = await promise;
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(520);
+      expect(fetch.disposed).to.eql(false);
+      expect(res.error?.name).to.eql('HttpError');
+      await server.dispose();
+    });
+
+    it('lifecycle aborts even when init.signal is provided', async () => {
+      const life = Rx.disposable();
+      const server = Testing.Http.server(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve(Testing.Http.json({ foo: 123 })), 250);
+          }),
+      );
+
+      const fetch = Fetch.make(life.dispose$);
+      const ctrl = new AbortController();
+      const promise = fetch.json(server.url.toString(), { signal: ctrl.signal });
+      life.dispose();
+      const res = await promise;
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(499);
+      expect(fetch.disposed).to.eql(true);
+      expect(res.error?.name).to.eql('HttpError');
+      await server.dispose();
+    });
+
+    it('pre-aborted init.signal fails immediately', async () => {
+      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
+      const fetch = Fetch.make();
+      const ctrl = new AbortController();
+      ctrl.abort();
+
+      const res = await fetch.json(server.url.toString(), { signal: ctrl.signal });
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(520);
+      expect(res.error?.name).to.eql('HttpError');
+
       await server.dispose();
     });
 

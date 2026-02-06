@@ -40,11 +40,12 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
         mergedHeaders['content-type'] = contentType;
       }
 
+      const { signal, dispose } = wrangle.signal(life.signal, init.signal ?? undefined);
       const fetched = await fetch(url, {
         ...init,
-        signal: life.signal,
+        signal,
         headers: mergedHeaders,
-      });
+      }).finally(dispose);
       status = fetched.status;
       statusText = fetched.statusText;
       headers = fetched.headers;
@@ -200,5 +201,18 @@ const wrangle = {
     }
 
     return headers;
+  },
+
+  signal(...signals: Array<AbortSignal | undefined>) {
+    const active = signals.filter((signal): signal is AbortSignal => !!signal);
+    if (active.length <= 1) return { signal: active[0], dispose: () => {} };
+
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    active.forEach((signal) => signal.addEventListener('abort', onAbort, { once: true }));
+    if (active.some((signal) => signal.aborted)) onAbort();
+
+    const dispose = () => active.forEach((signal) => signal.removeEventListener('abort', onAbort));
+    return { signal: controller.signal, dispose };
   },
 } as const;

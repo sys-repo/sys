@@ -5,7 +5,7 @@ type O = Record<string, unknown>;
  * Convert a [Header] object into a simple {key/value} object.
  */
 export function toHeaders(input?: Headers | HeadersInit): t.HttpHeaders {
-  const res: any = {};
+  const res: Record<string, string> = {};
   if (!input) return res;
 
   if (input instanceof Headers) {
@@ -18,7 +18,14 @@ export function toHeaders(input?: Headers | HeadersInit): t.HttpHeaders {
     return res;
   }
 
-  return isRecord(input) ? input : res;
+  if (isRecord(input)) {
+    Object.entries(input).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+      res[key] = String(value);
+    });
+  }
+
+  return res;
 }
 
 /**

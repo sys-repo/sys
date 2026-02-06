@@ -86,9 +86,14 @@ describe('Http', () => {
       expect(Http.toHeaders()).to.eql({});
     });
 
-    it('{HttpHeaders} record → no change', () => {
-      const headers: t.HttpHeaders = { 'content-type': 'application/json', pkg: 'name@1.2.3' };
-      expect(Http.toHeaders(headers)).to.equal(headers);
+    it('{HttpHeaders} record → normalized object copy', () => {
+      const headers: t.HttpHeaders = {
+        'content-type': 'application/json',
+        pkg: 'name@1.2.3',
+      };
+      const result = Http.toHeaders(headers);
+      expect(result).to.eql(headers);
+      expect(result).to.not.equal(headers);
     });
 
     it('from [Headers] object', () => {
