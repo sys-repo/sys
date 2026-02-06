@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, ROOT } from '../-test.ts';
+import { type t, describe, expect, Fs, it, ROOT, Testing } from '../-test.ts';
 import { ViteConfig } from '../m.Vite.Config/mod.ts';
 import { workspace } from './mod.ts';
 
@@ -41,6 +41,44 @@ describe('ViteConfig.workspace', () => {
       const includesClient = (input: string) => input.includes('/client');
       const isOnlyClients = ws.aliases.every((item) => includesClient(String(item.find)));
       expect(isOnlyClients).to.eql(true);
+    });
+
+    it('loads from jsonc workspace file', async () => {
+      const fs = await Testing.dir('ViteConfig.workspace.jsonc').create();
+      const root = fs.dir;
+      const childDir = Fs.join(root, 'pkg-a');
+      const childSrc = Fs.join(childDir, 'src');
+
+      await Fs.ensureDir(childSrc);
+      await Fs.write(Fs.join(childSrc, 'mod.ts'), 'export const ok = true;');
+      await Fs.write(
+        Fs.join(childDir, 'deno.json'),
+        JSON.stringify(
+          {
+            name: '@sys/pkg-a',
+            version: '0.0.0',
+            exports: {
+              './mod': './src/mod.ts',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await Fs.write(
+        Fs.join(root, 'deno.jsonc'),
+        `{
+          // comment
+          "name": "root",
+          "version": "0.0.0",
+          "workspace": ["pkg-a"]
+        }`,
+      );
+
+      const ws = await workspace({ denofile: Fs.join(root, 'deno.jsonc'), walkup: false });
+      const match = ws.aliases.find((item) => item.find === '@sys/pkg-a/mod');
+      expect(ws.exists).to.eql(true);
+      expect(match?.replacement).to.eql(Fs.join(childDir, 'src/mod.ts'));
     });
 
     it('all files exist', async () => {
