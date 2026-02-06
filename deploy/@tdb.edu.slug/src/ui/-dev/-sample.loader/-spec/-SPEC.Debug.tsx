@@ -2,10 +2,9 @@ import React from 'react';
 import { Dev } from '../../mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { fetchSamples } from './-u.fetch.samples__.tsx';
-import { type SampleLoaderProps as P } from '../ui.tsx';
 import { renderSamples } from './-ui.samples.tsx';
 
-type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
+type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',

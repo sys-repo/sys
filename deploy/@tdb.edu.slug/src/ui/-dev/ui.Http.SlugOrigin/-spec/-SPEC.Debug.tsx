@@ -33,7 +33,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     env: s(snap.env),
     domain: s(snap.domain),
-    origin: s<t.SlugLoaderOrigin | undefined>(),
+    origin: s<t.SlugUrlOrigin | undefined>(),
     spec: s<t.SlugHttpOriginsSpecMap>(),
   };
   const p = props;

@@ -1,5 +1,6 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
+export * as t from './common.t.ts';
 export * from '../common.ts';
 
 /**

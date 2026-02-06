@@ -10,7 +10,12 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     return (
-      <SampleLoader debug={v.debug} theme={v.theme} spinning={v.spinning} response={v.response} />
+      <SampleLoader.Result
+        debug={v.debug}
+        theme={v.theme}
+        spinning={v.spinning}
+        response={v.response}
+      />
     );
   }
 

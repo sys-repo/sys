@@ -1,18 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Obj, ObjectView, Spinners } from './common.ts';
 
-/**
- * Component:
- */
-export type SampleLoaderProps = {
-  spinning?: boolean;
-  response?: unknown;
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
-
-export const SampleLoader: React.FC<SampleLoaderProps> = (props) => {
+export const Result: React.FC<t.SampleResultProps> = (props) => {
   const { debug = false, spinning = false } = props;
 
   /**
