@@ -1,5 +1,5 @@
 import { loadConfigFromFile } from 'vite';
-import { type t, Delete, Err, Path, PATHS } from './common.ts';
+import { type t, Delete, Err, Fs, Path, PATHS } from './common.ts';
 
 /**
  * Attempts to dynamically load a `vite.config.ts` module.
@@ -11,6 +11,15 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   /**
    * TODO 🐷 change configRoot to ./.tmp/sample/<vite.config.ts>
    */
+  if (configFile && !(await Fs.exists(configFile))) {
+    const root = Path.dirname(configFile);
+    errors.push(`A config file could not be found in directory: ${root}`);
+    return Delete.undefined<t.ViteConfigFromFile>({
+      exists: false,
+      paths: undefined,
+      error: errors.toError(),
+    });
+  }
 
   const command = 'build';
   const mode = 'production';
