@@ -21,7 +21,7 @@ groups:
     - import: jsr:@std/datetime@0.225.7
     - import: jsr:@std/dotenv@0.225.6
     - import: jsr:@std/encoding@1.0.10
-      subpaths: [jsonc]
+    - import: jsr:@std/jsonc@1.0.2
     - import: jsr:@std/fs@1.0.22
     - import: jsr:@std/http@1.0.24
       subpaths: [file-server]
@@ -70,7 +70,7 @@ groups:
   ui/react:
     - import: npm:react@19.2.4
     - import: npm:react-dom@19.2.4
-    - import: npm:@types/react@19.2.11
+    - import: npm:@types/react@19.2.13
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.2
 
@@ -89,7 +89,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.70
+    - import: npm:ai@6.0.73
     - import: npm:@ai-sdk/openai@3.0.25
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
@@ -119,12 +119,12 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.3
-  - import: npm:@farcaster/frame-sdk@0.1.13
+  - import: npm:@farcaster/frame-sdk@0.1.14
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.5.0
   - import: npm:hash-it@7.0.2
   - import: npm:ignore@7.0.5
-  - import: npm:ora@9.2.0
+  - import: npm:ora@9.3.0
   - import: npm:@preact/signals-core@1.13.0
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
@@ -159,5 +159,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.31.0
+  - import: npm:motion@12.33.0
   - import: npm:hono@4.11.7
