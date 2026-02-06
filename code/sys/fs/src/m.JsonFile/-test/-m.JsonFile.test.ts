@@ -111,6 +111,25 @@ describe('JsonFile', () => {
       expect(file.current['.meta'].tmp).to.eql(123);
       expect(file.current.foo).to.eql('hello');
     });
+
+    it('reads from jsonc file', async () => {
+      type T = t.JsonFileDoc & { msg?: string };
+      const dir = Fs.join(root, slug());
+      const path = Fs.join(dir, 'foo.jsonc');
+
+      await Fs.ensureDir(dir);
+      await Fs.write(
+        path,
+        `{
+          // comment
+          "msg": "hello",
+          ".meta": { "createdAt": 0 }
+        }`,
+      );
+
+      const file = await JsonFile.get<T>(path, JsonFile.default<T>({ msg: '' }));
+      expect(file.current.msg).to.eql('hello');
+    });
   });
 
   describe('save', () => {
