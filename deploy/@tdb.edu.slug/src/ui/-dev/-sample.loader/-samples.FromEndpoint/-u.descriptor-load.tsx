@@ -1,6 +1,6 @@
-import { type t, SlugClient } from './-common.ts';
+import { type t, SlugClient } from './common.ts';
 
-export const SampleDescriptor: t.FetchSample = {
+export const SampleDescriptor__: t.FetchSample__ = {
   label: 'FromEndpoint.Descriptor.load',
 
   /**

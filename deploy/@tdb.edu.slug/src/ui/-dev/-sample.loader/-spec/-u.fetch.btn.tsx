@@ -6,7 +6,7 @@ import { type t, Button, Signal } from './-common.ts';
 export function fetchButton(
   debug: t.DebugSignals,
   label: t.ReactNode | (() => t.ReactNode),
-  fn: t.FetchAction,
+  fn: t.FetchAction__,
   index = 0,
 ) {
   const p = debug.props;

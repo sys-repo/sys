@@ -1,6 +1,6 @@
-import { type t, Color, css, Is, KeyValue, SlugClient, Url } from './-common.ts';
+import { type t, Color, css, Is, KeyValue, SlugClient, Url } from './common.ts';
 
-export const SampleTree: t.FetchSample = {
+export const SampleTree: t.FetchSample__ = {
   label() {
     const theme = Color.theme();
     const styles = {
