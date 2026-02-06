@@ -34,8 +34,3 @@ export {
   Svg,
   VimeoBackground,
 } from '@sys/ui-react-components';
-
-/**
- * @drivers
- */
-export { useMiniApp } from '@sys/driver-farcaster/ui';
