@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { Url } from './common.ts';
-import { Bundle } from './m.io.Bundle.ts';
+import { Bundle } from './m.io.timeline.Bundle.ts';
 import { FileContent } from './m.io.FileContent.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
 import { Playback } from './m.io.timeline.Playback.ts';
