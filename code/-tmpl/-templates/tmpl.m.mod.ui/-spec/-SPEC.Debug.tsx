@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from './common.ts';
 
-type P = t.MyComponentProps;
+type P = t.MyComponent.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
   debug: false,
