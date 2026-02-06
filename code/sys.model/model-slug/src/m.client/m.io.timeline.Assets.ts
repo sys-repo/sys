@@ -15,9 +15,10 @@ async function load(
 ): Promise<t.SlugClientResult<t.SpecTimelineAssetsManifest>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
+  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
   const url = ClientUrl.manifests({
-    baseUrl,
+    baseUrl: manifestsBaseUrl,
     manifestsDir,
     filename: SlugUrl.assetsFilename(cleanedDocid),
   });

@@ -46,6 +46,28 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     }
   });
 
+  it('loads manifests from urls.manifestBase', async () => {
+    const docid = 'crdt:assets-split' as t.StringId;
+    const cleaned = SlugClient.Url.clean(docid);
+    const manifest: t.SpecTimelineAssetsManifest = { docid: cleaned, assets: [] };
+    const seen: string[] = [];
+    const cleanup = stubFetch((url) => {
+      seen.push(url);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(manifest);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    try {
+      const result = await Assets.load('http://content.example.com/', docid, {
+        urls: { manifestBase: 'http://manifests.example.com/' },
+      });
+      if (!result.ok) throw new Error('expected assets result');
+      expect(seen[0]).to.include('http://manifests.example.com');
+    } finally {
+      cleanup();
+    }
+  });
+
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:assets-init' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);

@@ -3,7 +3,7 @@ import { ClientUrl } from './u.url.ts';
 
 type CacheKey = string;
 const cache = new Map<CacheKey, Promise<t.SlugClientResult<t.DistPkg>>>();
-const invalidate = (baseUrl: t.StringUrl) => cache.delete(baseUrl);
+const invalidate = (_baseUrl: t.StringUrl) => cache.clear();
 
 export const Dist = {
   load,
@@ -15,13 +15,18 @@ async function load(
   baseUrl: t.StringUrl,
   opts?: t.SlugLoadOptions,
 ): Promise<t.SlugClientResult<t.DistPkg>> {
-  const key = baseUrl;
+  const manifestsBaseUrl = opts?.urls?.manifestBase ?? baseUrl;
+  const manifestsDir = opts?.layout?.manifestsDir ?? 'manifests';
+  const key = `${manifestsBaseUrl}|${manifestsDir}`;
   let promise = cache.get(key);
   if (!promise) {
     promise = (async () => {
       const fetch = Http.fetcher();
-      const manifestsDir = opts?.layout?.manifestsDir ?? 'manifests';
-      const url = ClientUrl.manifests({ baseUrl, manifestsDir, filename: 'dist.json' });
+      const url = ClientUrl.manifests({
+        baseUrl: manifestsBaseUrl,
+        manifestsDir,
+        filename: 'dist.json',
+      });
 
       const req: RequestInit = { ...D.CACHE_INIT, ...(opts?.init ?? {}) };
       req.cache = D.CACHE_INIT.cache;

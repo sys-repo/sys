@@ -14,9 +14,10 @@ async function load<P = unknown>(
 ): Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
+  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
   const url = ClientUrl.manifests({
-    baseUrl,
+    baseUrl: manifestsBaseUrl,
     manifestsDir,
     filename: SlugUrl.playbackFilename(cleanedDocid),
   });

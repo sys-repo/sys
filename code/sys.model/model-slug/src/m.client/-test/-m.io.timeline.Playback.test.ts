@@ -42,6 +42,32 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     }
   });
 
+  it('loads manifests from urls.manifestBase', async () => {
+    const docid = 'crdt:playback-split' as t.StringId;
+    const cleaned = SlugClient.Url.clean(docid);
+    const manifest: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+    const seen: string[] = [];
+    const cleanup = stubFetch((url) => {
+      seen.push(url);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(manifest);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    try {
+      const result = await Playback.load('http://content.example.com/', docid, {
+        urls: { manifestBase: 'http://manifests.example.com/' },
+      });
+      if (!result.ok) throw new Error('expected playback result');
+      expect(seen[0]).to.include('http://manifests.example.com');
+    } finally {
+      cleanup();
+    }
+  });
+
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:playback-init' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);

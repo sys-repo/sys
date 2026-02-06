@@ -129,6 +129,90 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     }
   });
 
+  it('loads dist and timeline manifests from urls.manifestBase', async () => {
+    const docid = 'crdt:bundle-manifest-base' as t.StringId;
+    const cleaned = SlugClient.Url.clean(docid);
+    const dist = makeDist([SlugClient.Url.playbackFilename(cleaned)]);
+    const playback: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const seen: string[] = [];
+    const cleanup = stubFetch((url) => {
+      seen.push(url);
+      if (url.includes('dist.json')) return jsonResponse(dist);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
+        throw new Error('assets manifest should not be fetched');
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    try {
+      Dist.invalidate(baseUrl);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        urls: { manifestBase: 'http://manifests.example.com/' },
+      });
+      if (!result.ok) throw new Error('expected bundle result');
+      expect(seen.some((url) => url.includes('http://manifests.example.com'))).to.eql(true);
+      expect(seen.some((url) => url.includes('http://example.com/manifests'))).to.eql(false);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('caches dist by manifestBase', async () => {
+    const docidA = 'crdt:bundle-dist-cache-a' as t.StringId;
+    const docidB = 'crdt:bundle-dist-cache-b' as t.StringId;
+    const cleanedA = SlugClient.Url.clean(docidA);
+    const cleanedB = SlugClient.Url.clean(docidB);
+
+    const distA = makeDist([SlugClient.Url.playbackFilename(cleanedA)]);
+    const distB = makeDist([SlugClient.Url.playbackFilename(cleanedB)]);
+    const playbackA: t.SpecTimelineManifest = {
+      docid: cleanedA,
+      composition: [{ src: 'video/a' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+    const playbackB: t.SpecTimelineManifest = {
+      docid: cleanedB,
+      composition: [{ src: 'video/b' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const cleanup = stubFetch((url) => {
+      if (url.includes('http://manifests-a.example.com/manifests/dist.json')) return jsonResponse(distA);
+      if (url.includes('http://manifests-b.example.com/manifests/dist.json')) return jsonResponse(distB);
+      if (url.includes(SlugClient.Url.playbackFilename(cleanedA))) return jsonResponse(playbackA);
+      if (url.includes(SlugClient.Url.playbackFilename(cleanedB))) return jsonResponse(playbackB);
+      if (url.includes(SlugClient.Url.assetsFilename(cleanedA))) {
+        throw new Error('assets manifest should not be fetched');
+      }
+      if (url.includes(SlugClient.Url.assetsFilename(cleanedB))) {
+        throw new Error('assets manifest should not be fetched');
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    try {
+      Dist.invalidate(baseUrl);
+      const first = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docidA, {
+        urls: { manifestBase: 'http://manifests-a.example.com/' },
+      });
+      if (!first.ok) throw new Error('expected first bundle result');
+
+      const second = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docidB, {
+        urls: { manifestBase: 'http://manifests-b.example.com/' },
+      });
+      if (!second.ok) throw new Error('expected second bundle result');
+      expect(second.value.docid).to.eql(cleanedB);
+    } finally {
+      cleanup();
+    }
+  });
+
   it('resolves hrefs against the provided assetBase', async () => {
     const docid = 'crdt:bundle-basehref' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
