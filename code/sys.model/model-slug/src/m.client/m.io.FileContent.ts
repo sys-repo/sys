@@ -16,7 +16,7 @@ async function index(
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
-  const manifestsBaseUrl = options?.manifestsBaseUrl ?? baseUrl;
+  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
   const url = ClientUrl.manifests({
     baseUrl: manifestsBaseUrl,
@@ -73,7 +73,7 @@ async function get(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
   const fetch = Http.fetcher();
-  const contentBaseUrl = options?.contentBaseUrl ?? baseUrl;
+  const contentBaseUrl = options?.urls?.contentBase ?? baseUrl;
   const contentDir = options?.layout?.contentDir ?? 'json';
   const url = ClientUrl.content({
     baseUrl: contentBaseUrl,

@@ -4,7 +4,7 @@ import { SlugClient } from '../mod.ts';
 import { jsonResponse, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
-  it('uses manifestsBaseUrl for index and contentBaseUrl for content', async () => {
+  it('uses urls.manifestBase for index and urls.contentBase for content', async () => {
     const docid = 'crdt:file-split' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
     const index: t.SlugFileContentIndex = {
@@ -28,8 +28,10 @@ describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
 
     try {
       const options = {
-        manifestsBaseUrl: 'http://manifests.example.com/',
-        contentBaseUrl: 'http://content.example.com/',
+        urls: {
+          manifestBase: 'http://manifests.example.com/',
+          contentBase: 'http://content.example.com/',
+        },
       };
 
       const indexResult = await SlugClient.FromEndpoint.FileContent.index(

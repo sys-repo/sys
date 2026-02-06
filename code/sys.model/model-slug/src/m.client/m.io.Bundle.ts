@@ -43,7 +43,7 @@ async function load<P = unknown>(
   const playbackResult = await Playback.load<P>(baseUrl, docid, opts);
   if (!playbackResult.ok) return { ok: false, error: playbackResult.error };
 
-  const hrefBase = new URL(opts?.baseHref ?? baseUrl);
+  const hrefBase = new URL(opts?.urls?.assetBase ?? baseUrl);
   const baseOrigin = hrefBase.origin;
   const basePath = hrefBase.pathname.replace(/\/$/, '');
   const normalizeHref = (href: string) => {

@@ -14,7 +14,7 @@ async function load(
 ): Promise<t.SlugClientResult<t.SlugTreeDoc>> {
   docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
-  const manifestsBaseUrl = options?.manifestsBaseUrl ?? baseUrl;
+  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
   const url = ClientUrl.manifests({
     baseUrl: manifestsBaseUrl,

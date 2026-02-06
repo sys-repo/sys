@@ -129,7 +129,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     }
   });
 
-  it('resolves hrefs against the provided baseHref', async () => {
+  it('resolves hrefs against the provided assetBase', async () => {
     const docid = 'crdt:bundle-basehref' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
 
@@ -183,14 +183,14 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
-    const baseHref = 'https://cdn.example.com/prefix/';
-    const baseHrefUrl = new URL(baseHref);
-    const baseHrefPath = baseHrefUrl.pathname.replace(/\/$/, '');
+    const assetBase = 'https://cdn.example.com/prefix/';
+    const assetBaseUrl = new URL(assetBase);
+    const assetBasePath = assetBaseUrl.pathname.replace(/\/$/, '');
 
     try {
       Dist.invalidate(baseUrl);
       const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, {
-        baseHref,
+        urls: { assetBase },
       });
       if (!result.ok) throw new Error('expected bundle result');
       const bundle = result.value;
@@ -200,14 +200,14 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
         logicalPath: '/video/main',
       });
       expect(assetA?.href).to.eql(
-        new URL(`${baseHrefPath}/video/main.mp4`, baseHrefUrl.origin).toString(),
+        new URL(`${assetBasePath}/video/main.mp4`, assetBaseUrl.origin).toString(),
       );
 
       const assetB = bundle.resolveAsset({
         kind: 'image',
         logicalPath: 'image/rel',
       });
-      expect(assetB?.href).to.eql(new URL('relative/pic.png', baseHref).toString());
+      expect(assetB?.href).to.eql(new URL('relative/pic.png', assetBase).toString());
     } finally {
       cleanup();
     }

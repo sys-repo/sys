@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 /**
  * Endpoint loaders:
  */
+
 /** Endpoint layout overrides for manifests and content. */
 export type SlugClientLayout = {
   /** Directory where manifests are stored relative to the base URL. */
@@ -14,10 +15,15 @@ export type SlugClientLayout = {
 /** Common load options for slug endpoints. */
 export type SlugLoadOptions = {
   init?: RequestInit;
-  baseHref?: t.StringUrl;
   layout?: SlugClientLayout;
-  manifestsBaseUrl?: t.StringUrl;
-  contentBaseUrl?: t.StringUrl;
+  urls?: SlugLoadUrls;
+};
+
+/** Optional base URL overrides for slug loading. */
+export type SlugLoadUrls = {
+  readonly manifestBase?: t.StringUrl;
+  readonly contentBase?: t.StringUrl;
+  readonly assetBase?: t.StringUrl;
 };
 
 /** Resolver for bundle-relative hrefs. */

@@ -16,13 +16,16 @@ function make(args: t.SlugClientFromDescriptorArgs) {
 
   const descriptor = resolved.value;
   const baseUrl = applyBasePath(args.baseUrl, descriptor.basePath);
-  const baseHref = baseUrl;
+  const assetBase = baseUrl;
   const layout = descriptorLayout(descriptor);
 
   const withOptions = <T extends t.SlugLoadOptions>(options?: T): T => {
     const next = {
       ...options,
-      baseHref: options?.baseHref ?? baseHref,
+      urls: {
+        ...(options?.urls ?? {}),
+        assetBase: options?.urls?.assetBase ?? assetBase,
+      },
       layout: {
         ...(layout ?? {}),
         ...(options?.layout ?? {}),
@@ -35,7 +38,7 @@ function make(args: t.SlugClientFromDescriptorArgs) {
     kind: descriptor.kind,
     docid: descriptor.docid,
     baseUrl,
-    baseHref,
+    assetBase,
     layout,
     Tree: {
       load: (options) => Tree.load(baseUrl, descriptor.docid, withOptions(options)),

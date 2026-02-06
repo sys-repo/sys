@@ -26,7 +26,7 @@ export type SlugClientDescriptor = {
   readonly kind: t.BundleDescriptorKind;
   readonly docid: t.StringId;
   readonly baseUrl: t.StringUrl;
-  readonly baseHref: t.StringUrl;
+  readonly assetBase: t.StringUrl;
   readonly layout?: t.SlugClientLayout;
   readonly Tree: t.SlugClientTreeFromDescriptorLib;
   readonly Playback: t.SlugClientPlaybackFromDescriptorLib;

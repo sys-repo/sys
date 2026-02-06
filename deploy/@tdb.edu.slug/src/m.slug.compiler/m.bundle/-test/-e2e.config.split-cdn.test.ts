@@ -152,19 +152,23 @@ describe('BundleProfile domain-free config (e2e)', () => {
       if (!fsClient.ok) throw new Error('expected fs client');
 
       const treeResult = await fsClient.value.Tree.load({
-        manifestsBaseUrl: 'https://manifests.example.com/kb/',
+        urls: { manifestBase: 'https://manifests.example.com/kb/' },
       });
       if (!treeResult.ok) throw new Error('expected tree result');
 
       const indexResult = await fsClient.value.FileContent.index({
-        manifestsBaseUrl: 'https://manifests.example.com/kb/',
-        contentBaseUrl: 'https://content.example.com/kb/',
+        urls: {
+          manifestBase: 'https://manifests.example.com/kb/',
+          contentBase: 'https://content.example.com/kb/',
+        },
       });
       if (!indexResult.ok) throw new Error('expected index result');
 
       const docResult = await fsClient.value.FileContent.get('hash-a', {
-        manifestsBaseUrl: 'https://manifests.example.com/kb/',
-        contentBaseUrl: 'https://content.example.com/kb/',
+        urls: {
+          manifestBase: 'https://manifests.example.com/kb/',
+          contentBase: 'https://content.example.com/kb/',
+        },
       });
       if (!docResult.ok) throw new Error('expected doc result');
 
@@ -177,7 +181,7 @@ describe('BundleProfile domain-free config (e2e)', () => {
       if (!mediaClient.ok) throw new Error('expected media client');
 
       const bundleResult = await mediaClient.value.Bundle.load({
-        baseHref: 'https://media.example.com/',
+        urls: { assetBase: 'https://media.example.com/' },
         hrefResolver: ({ href, kind }) => {
           const path = new URL(href).pathname;
           if (kind === 'video') return `https://video.example.com${path}`;
