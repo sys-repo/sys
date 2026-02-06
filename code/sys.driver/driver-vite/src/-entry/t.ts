@@ -27,7 +27,6 @@ export type ViteEntryArgs =
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
-  | ViteEntryArgsUpgrade
   | ViteEntryArgsHelp;
 
 /** The `clean` command. */
@@ -41,15 +40,6 @@ export type ViteEntryArgsBuild = { cmd: 'build'; dir?: P; silent?: boolean };
 
 /** The `serve` the built project `/dist` folder command. */
 export type ViteEntryArgsServe = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
-
-/** The `upgrade` command. */
-export type ViteEntryArgsUpgrade = {
-  cmd: 'upgrade';
-  dir?: P;
-  force?: boolean;
-  version?: t.StringSemver;
-  dryRun?: boolean;
-};
 
 /** The `help` information command. */
 export type ViteEntryArgsHelp = { cmd: 'help'; dir?: P; info?: boolean };

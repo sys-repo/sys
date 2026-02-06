@@ -14,4 +14,4 @@ export { Http } from '@sys/http/server';
 export { Net } from '@sys/net';
 export { Process } from '@sys/process';
 
-export { DenoDeps, DenoFile, DenoModule } from '@sys/driver-deno/runtime';
+export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
