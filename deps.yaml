@@ -82,15 +82,15 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.4
     - import: npm:prosemirror-state@1.4.4
-    - import: npm:prosemirror-view@1.41.5
+    - import: npm:prosemirror-view@1.41.6
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.73
-    - import: npm:@ai-sdk/openai@3.0.25
+    - import: npm:ai@6.0.75
+    - import: npm:@ai-sdk/openai@3.0.26
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
@@ -159,4 +159,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.33.0
-  - import: npm:hono@4.11.7
+  - import: npm:hono@4.11.8
