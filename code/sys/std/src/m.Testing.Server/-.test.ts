@@ -101,4 +101,25 @@ describe('Testing.HttpServer', () => {
     expect(res.status).to.eql(404);
     expect(res.statusText).to.eql('Not Found');
   });
+
+  it('handler assertion failure surfaces on dispose', async () => {
+    const server = Testing.Http.server(() => {
+      throw new Error('boom');
+    });
+
+    const url = toClientUrl(server.url.join('foo'));
+    const res = await fetch(url);
+    expect(res.status).to.eql(500);
+    await res.text();
+
+    let error: unknown;
+    try {
+      await server.dispose();
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.be.instanceOf(Error);
+    expect((error as Error).message).to.include('Test HTTP server handler error: boom');
+  });
 });

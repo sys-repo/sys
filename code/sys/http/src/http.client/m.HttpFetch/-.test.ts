@@ -234,8 +234,8 @@ describe('Http.Fetch', () => {
       const server = Testing.Http.server((req) => {
         // ↓ 1-byte probe should keep our Range header.
         expect(req.headers.get('range')).to.eql('bytes=0-0');
-        // ↓ blob() still injects its default content-type.
-        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        // ↓ default contentTypePolicy=corsSafe does not set content-type for GET without body.
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.blob(new Uint8Array([0]));
       });
 
@@ -255,6 +255,32 @@ describe('Http.Fetch', () => {
       await fetch.text(server.url.toString(), {
         headers: { 'content-type': 'application/x-demo' },
       });
+
+      await server.dispose();
+    });
+
+    it('corsSafe sets content-type for body requests', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('POST');
+        expect(req.headers.get('content-type')).to.eql('application/json');
+        return Testing.Http.json({ ok: true });
+      });
+
+      const fetch = Fetch.make();
+      await fetch.json(server.url.toString(), { method: 'POST', body: '{}' });
+
+      await server.dispose();
+    });
+
+    it('{ contentTypePolicy: always } sets content-type for GET requests', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('GET');
+        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        return Testing.Http.blob(new Uint8Array([1]));
+      });
+
+      const fetch = Fetch.make({ contentTypePolicy: 'always' });
+      await fetch.blob(server.url.toString());
 
       await server.dispose();
     });
