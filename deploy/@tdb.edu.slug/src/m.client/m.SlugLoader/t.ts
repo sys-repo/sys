@@ -7,16 +7,16 @@ export type * from './t.origin.ts';
  * Tools for wrapping a pure HTTP `SlugClient` for loading
  * data within a complex UI domain.
  */
-export type SlugLoaderLib = {
-  readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugLoader;
+export type SlugClientLoaderLib = {
+  readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugClientLoader;
   readonly Fetch: t.SlugClientLib;
-  readonly Origin: t.SlugLoaderOriginLib;
+  readonly Origin: t.SlugClientLoaderOriginLib;
 };
 
 /**
  * Client loader instance.
  */
-export type SlugLoader = {
+export type SlugClientLoader = {
   /** Canonicalized origin endpoints used by the loader. */
   readonly origin: t.SlugUrlOrigin;
 };

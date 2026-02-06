@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Tools for declaring origin-url maps for slugs.
  */
-export type SlugLoaderOriginLib = {
+export type SlugClientLoaderOriginLib = {
   readonly create: (port: t.PortNumber, prod: t.StringHostname) => t.SlugHttpOriginsSpecMap;
   readonly parse: (input: t.StringUrl | t.SlugUrlOrigin) => t.SlugUrlOrigin;
 };

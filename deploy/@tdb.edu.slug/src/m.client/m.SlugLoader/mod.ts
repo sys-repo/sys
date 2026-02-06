@@ -2,7 +2,7 @@ import { type t, SlugClient as Fetch } from './common.ts';
 import { make } from './u.make.ts';
 import { Origin } from './m.Origin.ts';
 
-export const SlugLoader: t.SlugLoaderLib = {
+export const SlugLoader: t.SlugClientLoaderLib = {
   Fetch,
   Origin,
   make,

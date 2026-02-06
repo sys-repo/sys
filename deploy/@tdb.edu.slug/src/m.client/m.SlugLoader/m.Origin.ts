@@ -1,6 +1,6 @@
 import { type t, Is, Url } from './common.ts';
 
-export const Origin: t.SlugLoaderOriginLib = {
+export const Origin: t.SlugClientLoaderOriginLib = {
   parse,
   create,
 };
