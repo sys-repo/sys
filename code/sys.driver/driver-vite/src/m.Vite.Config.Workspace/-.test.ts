@@ -19,6 +19,7 @@ describe('ViteConfig.workspace', () => {
     expect(map(a.children).includes('code/sys/std')).to.eql(true);
     expect(map(a.children)).to.eql(map(b.children));
     expect(c.exists).to.eql(false); // NB: did not walk up to the root workspace `deno.json`
+    expect(c.error).to.eql('Workspace not found (walkup=false).');
   });
 
   describe('resolution {aliases}', () => {
