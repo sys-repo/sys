@@ -16,6 +16,7 @@ export type SlugClientLayout = {
 export type SlugLoadOptions = {
   init?: RequestInit;
   layout?: SlugClientLayout;
+  /** Overrides base origins; directory layout still comes from `layout`. */
   urls?: SlugLoadUrls;
 };
 

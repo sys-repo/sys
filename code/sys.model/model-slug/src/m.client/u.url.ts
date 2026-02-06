@@ -19,6 +19,26 @@ type DescriptorArgs = {
 };
 
 export const ClientUrl = {
+  manifestsLocation(baseUrl: t.StringUrl, options?: t.SlugLoadOptions): {
+    readonly baseUrl: t.StringUrl;
+    readonly manifestsDir: t.StringDir;
+  } {
+    return {
+      baseUrl: options?.urls?.manifestBase ?? baseUrl,
+      manifestsDir: options?.layout?.manifestsDir ?? 'manifests',
+    };
+  },
+
+  contentLocation(baseUrl: t.StringUrl, options?: t.SlugLoadOptions): {
+    readonly baseUrl: t.StringUrl;
+    readonly contentDir: t.StringDir;
+  } {
+    return {
+      baseUrl: options?.urls?.contentBase ?? baseUrl,
+      contentDir: options?.layout?.contentDir ?? 'json',
+    };
+  },
+
   manifests(args: ManifestsArgs): string {
     return Url.parse(args.baseUrl).join(args.manifestsDir, args.filename);
   },

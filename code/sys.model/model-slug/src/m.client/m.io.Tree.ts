@@ -14,11 +14,10 @@ async function load(
 ): Promise<t.SlugClientResult<t.SlugTreeDoc>> {
   docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
-  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
-  const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
+  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
   const url = ClientUrl.manifests({
-    baseUrl: manifestsBaseUrl,
-    manifestsDir,
+    baseUrl: manifests.baseUrl,
+    manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.treeFilename(docid),
   });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };

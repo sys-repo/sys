@@ -1,5 +1,4 @@
-import type { t } from './common.ts';
-import { D, Http, Schema, SlugSchema } from './common.ts';
+import { type t, D, Http, Schema, SlugSchema } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { ClientUrl } from './u.url.ts';
 import { formatSchemaReason } from './u.schema.ts';
@@ -16,11 +15,10 @@ async function index(
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
-  const manifestsBaseUrl = options?.urls?.manifestBase ?? baseUrl;
-  const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
+  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
   const url = ClientUrl.manifests({
-    baseUrl: manifestsBaseUrl,
-    manifestsDir,
+    baseUrl: manifests.baseUrl,
+    manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.treeAssetsFilename(cleanedDocid),
   });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
@@ -73,11 +71,10 @@ async function get(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
   const fetch = Http.fetcher();
-  const contentBaseUrl = options?.urls?.contentBase ?? baseUrl;
-  const contentDir = options?.layout?.contentDir ?? 'json';
+  const content = ClientUrl.contentLocation(baseUrl, options);
   const url = ClientUrl.content({
-    baseUrl: contentBaseUrl,
-    contentDir,
+    baseUrl: content.baseUrl,
+    contentDir: content.contentDir,
     filename: SlugUrl.fileContentFilename(hash),
   });
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };

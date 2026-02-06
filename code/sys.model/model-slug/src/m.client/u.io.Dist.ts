@@ -15,8 +15,9 @@ async function load(
   baseUrl: t.StringUrl,
   opts?: t.SlugLoadOptions,
 ): Promise<t.SlugClientResult<t.DistPkg>> {
-  const manifestsBaseUrl = opts?.urls?.manifestBase ?? baseUrl;
-  const manifestsDir = opts?.layout?.manifestsDir ?? 'manifests';
+  const manifests = ClientUrl.manifestsLocation(baseUrl, opts);
+  const manifestsBaseUrl = manifests.baseUrl;
+  const manifestsDir = manifests.manifestsDir;
   const key = `${manifestsBaseUrl}|${manifestsDir}`;
   let promise = cache.get(key);
   if (!promise) {
