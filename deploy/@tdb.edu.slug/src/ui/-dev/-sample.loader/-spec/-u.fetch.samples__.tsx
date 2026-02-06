@@ -1,5 +1,5 @@
 import { type t } from './-common.ts';
-import { fetchButton } from './-u.fetch.btn.tsx';
+import { fetchButton } from './-u.fetch.btn__.tsx';
 
 /** Samples */
 import { SampleDescriptor__, SampleTree } from '../-samples.FromEndpoint/mod.ts';
