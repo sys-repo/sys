@@ -1,5 +1,5 @@
-import { describe, expect, it, SlugClient } from '../../-test.ts';
-import { Origin } from '../m.SlugLoader.Origin.ts';
+import { describe, expect, it, SlugClient } from '../../../-test.ts';
+import { Origin } from '../m.Origin.ts';
 import { SlugLoader } from '../mod.ts';
 
 describe(`client: HTTP loader tools`, () => {

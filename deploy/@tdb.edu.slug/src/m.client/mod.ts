@@ -1,5 +1,5 @@
 /**
  * @module
- * Slug client loader and endpoint helpers.
+ * Slug HTTP client tools.
  */
-export { SlugLoader } from './m.SlugLoader.ts';
+export { SlugLoader } from './m.SlugLoader/mod.ts';

@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { Origin } from './m.SlugLoader.Origin.ts';
+import { Origin } from './m.Origin.ts';
 
 type M = t.SlugLoaderLib['make'];
 

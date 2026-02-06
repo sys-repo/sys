@@ -1,8 +1,18 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Origin } from '../m.SlugLoader.Origin.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Origin } from '../m.Origin.ts';
 
 describe('Origin', () => {
-  describe('parse', () => {
+  describe('Origin.create', () => {
+    it('builds localhost/production origins', () => {
+      const res = Origin.create(4040, 'slc.db.team');
+      expect(res).to.eql({
+        localhost: Origin.parse('http://localhost:4040'),
+        production: Origin.parse('https://slc.db.team'),
+      });
+    });
+  });
+
+  describe('Origin.parse', () => {
     it('returns object input as-is', () => {
       const input = {
         app: 'https://example.com/app',
@@ -31,16 +41,6 @@ describe('Origin', () => {
           default: 'https://cdn.slc.db.team/',
           video: 'https://video.cdn.slc.db.team/',
         },
-      });
-    });
-  });
-
-  describe('create', () => {
-    it('builds localhost/production origins', () => {
-      const res = Origin.create(4040, 'slc.db.team');
-      expect(res).to.eql({
-        localhost: Origin.parse('http://localhost:4040'),
-        production: Origin.parse('https://slc.db.team'),
       });
     });
   });
