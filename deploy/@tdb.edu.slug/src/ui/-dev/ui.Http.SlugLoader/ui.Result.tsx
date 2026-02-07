@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, KeyValue, Obj, ObjectView, Spinners } from './common.ts';
 
-export const Result: React.FC<t.SlugLoaderView.ResultProps> = (props) => {
+export const Result: React.FC<t.ActionProbeView.ResultProps> = (props) => {
   const { debug = false, spinning = false } = props;
 
   /**

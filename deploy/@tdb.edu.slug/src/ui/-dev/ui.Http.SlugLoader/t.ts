@@ -1,18 +1,18 @@
 import type { t } from './common.ts';
 
-export namespace SlugLoaderView {
+export namespace ActionProbe {
   type ParamsObject = Record<string, unknown>;
 
   export type Lib = {
-    readonly Probe: t.FC<t.SlugLoaderView.ProbeProps>;
-    readonly Result: t.FC<t.SlugLoaderView.ResultProps>;
+    readonly Probe: t.FC<t.ActionProbe.ProbeProps>;
+    readonly Result: t.FC<t.ActionProbe.ResultProps>;
   };
 
   /**
    * Component:
    */
   export type ProbeProps<TParams extends ParamsObject = ParamsObject> = {
-    sample: t.SlugLoaderView.ProbeSpec<TParams>;
+    sample: t.ActionProbe.ProbeSpec<TParams>;
     is: ProbeRenderArgs<TParams>['is'];
     origin: t.SlugUrlOrigin;
     spinning?: boolean;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, KeyValue, Obj } from './common.ts';
 
-type P = t.SlugLoaderView.ProbeProps;
+type P = t.ActionProbeView.ProbeProps;
 
 /**
  * Component:
@@ -12,7 +12,7 @@ export const Probe: React.FC<P> = (props) => {
   /**
    * State:
    */
-  type TArgs = t.SlugLoaderView.ProbeRenderArgs;
+  type TArgs = t.ActionProbeView.ProbeRenderArgs;
   const [body, setBody] = React.useState<t.ReactNode>();
   const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
   const paramsRef = React.useRef<unknown>(undefined);
@@ -48,7 +48,7 @@ export const Probe: React.FC<P> = (props) => {
 
     props.onRunStart?.();
     try {
-      const args: t.SlugLoaderView.ProbeRunArgs = {
+      const args: t.ActionProbeView.ProbeRunArgs = {
         is,
         origin,
         params<T = unknown>() {
@@ -74,11 +74,11 @@ export const Probe: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      Padding: [8, 12],
-      borderRadius: 4,
+      backgroundColor: Color.alpha(theme.fg, 0.03),
       border: `dashed 1px ${Color.alpha(theme.fg, 0.25)}`,
+      borderRadius: 4,
+      Padding: [8, 12],
       display: 'grid',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',

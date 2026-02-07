@@ -1,7 +1,7 @@
-import { type t, Signal, SlugLoader } from './common.ts';
+import { type t, Signal, ActionProbe } from './common.ts';
 
 type Options = { theme?: t.CommonTheme };
-type TSample = t.SlugLoaderView.ProbeSpec;
+type TSample = t.ActionProbeView.ProbeSpec;
 
 export function renderer(debug: t.DebugSignals, opts: Options = {}) {
   const items: t.ReactNode[] = [];
@@ -20,7 +20,7 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
   if (!origin) return null;
 
   return (
-    <SlugLoader.Probe
+    <ActionProbe.Probe
       //
       style={{ MarginY: 5 }}
       key={probe}
