@@ -4,7 +4,11 @@ import type { t } from './common.ts';
  * A list of <Bullet>'s.
  */
 export namespace BulletList {
-  export type Lib = { readonly UI: t.FC<Props> };
+  export type Lib = {
+    readonly UI: t.FC<Props>;
+    readonly toggle: (selected: Selected | undefined, id: string) => string[];
+  };
+  export type Selected = t.StringId | t.StringId[];
 
   export type Item = {
     id: t.StringId;
@@ -14,11 +18,11 @@ export namespace BulletList {
 
   export type Props = {
     items: Item[];
-    selected?: t.StringId;
+    selected?: Selected;
 
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
-    onSelect?: (e: { id: string }) => void;
+    onSelect?: (e: { id: string; modifiers: t.KeyboardModifierFlags }) => void;
   };
 }

@@ -34,10 +34,13 @@ export const BulletList: t.FC<t.BulletList.Props> = (props) => {
             key={id}
             theme={theme.name}
             enabled={enabled}
-            onMouseDown={() => props.onSelect?.({ id })}
+            onMouse={(e) => {
+              if (e.action !== 'MouseDown') return;
+              props.onSelect?.({ id, modifiers: e.modifiers });
+            }}
           >
             <div className={styles.row.class}>
-              <Bullet theme={theme.name} selected={id === selected} />
+              <Bullet theme={theme.name} selected={isSelected(selected, id)} />
               <div>{label}</div>
             </div>
           </Button>
@@ -46,3 +49,11 @@ export const BulletList: t.FC<t.BulletList.Props> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+function isSelected(selected: t.BulletList.Selected | undefined, id: string): boolean {
+  if (Array.isArray(selected)) return selected.includes(id);
+  return selected === id;
+}

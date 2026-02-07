@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { type t, D, Keyboard } from './common.ts';
 import { BulletList } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -17,9 +17,16 @@ export default Spec.describe(D.displayName, async (e) => {
         items={[
           { id: 'localhost' },
           { id: 'production' },
+          { id: 'foobar' },
           { id: 'disabled', enabled: false },
         ]}
-        onSelect={(e) => (p.selected.value = e.id)}
+        onSelect={(e) => {
+          if (Keyboard.Is.command(e.modifiers)) {
+            p.selected.value = BulletList.toggle(p.selected.value, e.id);
+            return;
+          }
+          p.selected.value = e.id;
+        }}
       />
     );
   }
