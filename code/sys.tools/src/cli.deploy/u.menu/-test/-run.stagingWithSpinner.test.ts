@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Pkg } from '../../../-test.ts';
+import { describe, expect, Fs, it, Pkg, Str } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
 import { runStagingWithSpinner } from '../run.stagingWithSpinner.ts';
 
@@ -52,6 +52,106 @@ describe('Staging: runStagingWithSpinner', () => {
       expect(root.exists).to.eql(true);
       expect(root.dist?.hash.parts['child/a.txt']).to.not.eql(undefined);
       expect(root.dist?.hash.parts['child/.DS_Store']).to.eql(undefined);
+    });
+  });
+
+  it('build+copy: root dist hash is idempotent across repeated no-op staging runs', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+
+      const buildFile = Str.dedent(`
+        await Deno.mkdir('dist', { recursive: true });
+        await Deno.writeTextFile('dist/a.txt', 'built');
+      `);
+
+      const denoJson = Str.dedent(`
+        {
+          "name": "tmp-staging-build",
+          "version": "0.0.0",
+          "tasks": {
+            "test": "deno eval \\"Deno.exit(0)\\"",
+            "build": "deno run -A ./-build.ts"
+          }
+        }
+      `);
+
+      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
+      await Fs.write(`${srcRoot}/deno.json`, denoJson);
+
+      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
+
+      const a = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+        clear: true,
+      });
+      expect(a.ok).to.eql(true);
+      const first = await Pkg.Dist.load(`${tmp}/stage`);
+      const hash1 = String(first.dist?.hash?.digest ?? '').trim();
+      expect(hash1).to.not.eql('');
+
+      const b = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+      });
+      expect(b.ok).to.eql(true);
+      const second = await Pkg.Dist.load(`${tmp}/stage`);
+      const hash2 = String(second.dist?.hash?.digest ?? '').trim();
+
+      expect(hash2).to.eql(hash1);
+    });
+  });
+
+  it('build+copy: sync removes stale compiled files from staging target', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+      await Fs.write(`${srcRoot}/mode.txt`, 'v1');
+
+      const buildFile = Str.dedent(`
+        await Deno.remove('dist', { recursive: true }).catch(() => {});
+        await Deno.mkdir('dist', { recursive: true });
+        const mode = (await Deno.readTextFile('./mode.txt')).trim();
+        await Deno.writeTextFile(\`dist/chunk-\${mode}.js\`, mode);
+      `);
+
+      const denoJson = Str.dedent(`
+        {
+          "name": "tmp-staging-build",
+          "version": "0.0.0",
+          "tasks": {
+            "test": "deno eval \\"Deno.exit(0)\\"",
+            "build": "deno run -A ./-build.ts"
+          }
+        }
+      `);
+
+      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
+      await Fs.write(`${srcRoot}/deno.json`, denoJson);
+
+      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
+
+      const first = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+        clear: true,
+      });
+      expect(first.ok).to.eql(true);
+      expect(await Fs.exists(`${tmp}/stage/chunk-v1.js`)).to.eql(true);
+
+      await Fs.write(`${srcRoot}/mode.txt`, 'v2');
+      const second = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+      });
+      expect(second.ok).to.eql(true);
+      expect(await Fs.exists(`${tmp}/stage/chunk-v2.js`)).to.eql(true);
+      expect(await Fs.exists(`${tmp}/stage/chunk-v1.js`)).to.eql(false);
     });
   });
 });

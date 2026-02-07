@@ -11,6 +11,7 @@ export const sample: t.DistPkg = {
     size: { total: 0, pkg: 0 },
     builder: '@scope/sample@0.0.0',
     runtime: 'deno=<version>:v8=<version>:typescript=<version>',
+    hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   url: { base: '/' },

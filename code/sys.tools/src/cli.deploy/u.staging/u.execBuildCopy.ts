@@ -11,7 +11,6 @@ export async function execBuildCopy(
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
   options: { readonly overwrite?: boolean } = {},
 ): Promise<void> {
-  const { overwrite = false } = options;
 
   const sourceRaw = String(dir.source ?? '');
   const stagingRaw = String(dir.staging ?? '');
@@ -29,8 +28,14 @@ export async function execBuildCopy(
     throw new Error(`Failed to build: ${dir.source}\n\n${res.text.stderr}`);
   }
 
-  reportStep('merge into staging');
-  await copyInto({ src: srcDist, dst, overwrite });
+  reportStep('sync into staging');
+  await copyInto({
+    src: srcDist,
+    dst,
+    // Build outputs should always reflect the latest compile state.
+    overwrite: true,
+    sync: true,
+  });
 
   reportStep('index.html');
   await ensureIndexHtml(dst);

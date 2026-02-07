@@ -92,7 +92,8 @@ export async function runStagingWithSpinner(args: {
       },
     });
 
-    const dist = (await Pkg.Dist.load(args.stagingRoot)).dist;
+    const stageAbs = Path.resolve(cwd, args.stagingRoot);
+    const dist = (await Pkg.Dist.load(stageAbs)).dist;
     const hash = String(dist?.hash?.digest ?? '').trim();
     const suffix = hash ? `${c.dim(c.gray('#'))}${c.green(hash.slice(-5))}` : '';
     const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;

@@ -71,6 +71,7 @@ export const HelloWorld: t.DistPkg = {
     size: { total: 889372, pkg: 888698 },
     builder: '@sys/driver-vite@0.0.245',
     runtime: 'deno=2.6.1:v8=14.2.231.17-rusty:typescript=5.9.2',
+    hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
   },
   entry: 'pkg/-entry.Bk8IHgcT.js',
   url: { base: '/' },

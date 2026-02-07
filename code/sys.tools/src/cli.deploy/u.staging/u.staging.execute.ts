@@ -181,7 +181,7 @@ async function runPhase(args: {
             break;
           }
           case 'build+copy': {
-            await execBuildCopy(cwd, dir, reportStep, { overwrite });
+            await execBuildCopy(cwd, dir, reportStep);
             break;
           }
           case 'index': {
