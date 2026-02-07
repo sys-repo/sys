@@ -5,9 +5,9 @@ describe('ActionProbe.Signals', () => {
   it('create: initializes defaults', () => {
     const api = Signals.create();
     const p = api.props;
-    expect(p.activeProbe.value).to.eql(undefined);
-    expect(p.resultItems.value).to.eql([]);
-    expect(p.response.value).to.eql(undefined);
+    expect(p.probe.active.value).to.eql(undefined);
+    expect(p.result.items.value).to.eql([]);
+    expect(p.result.response.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -19,9 +19,9 @@ describe('ActionProbe.Signals', () => {
     api.start('p:1');
 
     const p = api.props;
-    expect(p.activeProbe.value).to.eql('p:1');
-    expect(p.resultItems.value).to.eql([]);
-    expect(p.response.value).to.eql(undefined);
+    expect(p.probe.active.value).to.eql('p:1');
+    expect(p.result.items.value).to.eql([]);
+    expect(p.result.response.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(true);
   });
 
@@ -30,11 +30,11 @@ describe('ActionProbe.Signals', () => {
     api.start('p:1').item({ k: 'a', v: 1 }).item({ k: 'b', v: 2 }).result({ ok: true }).end();
 
     const p = api.props;
-    expect(p.resultItems.value).to.eql([
+    expect(p.result.items.value).to.eql([
       { k: 'a', v: 1 },
       { k: 'b', v: 2 },
     ]);
-    expect(p.response.value).to.eql({ ok: true });
+    expect(p.result.response.value).to.eql({ ok: true });
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -45,9 +45,9 @@ describe('ActionProbe.Signals', () => {
     api.reset();
 
     const p = api.props;
-    expect(p.activeProbe.value).to.eql(undefined);
-    expect(p.resultItems.value).to.eql([]);
-    expect(p.response.value).to.eql(undefined);
+    expect(p.probe.active.value).to.eql(undefined);
+    expect(p.result.items.value).to.eql([]);
+    expect(p.result.response.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(false);
   });
 });

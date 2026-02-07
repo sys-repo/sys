@@ -30,7 +30,7 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
       style={{ MarginY: 8, MarginX: 15 }}
       key={probe}
       env={{ is: { local }, origin }}
-      spinning={v.spinning && v.activeProbe === probe}
+      spinning={v.spinning && v.probe.active === probe}
       theme={opts.theme ?? v.theme}
       debug={v.debug}
       sample={sample}

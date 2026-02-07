@@ -22,16 +22,19 @@ export type ActionProbeSignals = {
 
 /** Raw signal handles used by the execution-state API. */
 export type ActionProbeSignalProps = {
-  readonly activeProbe: t.Signal<string | undefined>;
-  readonly resultItems: t.Signal<t.KeyValueItem[]>;
-  readonly response: t.Signal<unknown>;
   readonly spinning: t.Signal<boolean>;
+  readonly probe: {
+    readonly active: t.Signal<string | undefined>;
+  };
+  readonly result: {
+    readonly items: t.Signal<t.KeyValueItem[]>;
+    readonly response: t.Signal<unknown>;
+  };
 };
 
 /** Serializable snapshot shape for ActionProbe execution state. */
 export type ActionProbeSignalsState = {
-  activeProbe: string | undefined;
-  resultItems: t.KeyValueItem[];
-  response: unknown;
   spinning: boolean;
+  probe: { active: string | undefined };
+  result: { items: t.KeyValueItem[]; response: unknown };
 };
