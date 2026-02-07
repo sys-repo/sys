@@ -417,6 +417,7 @@ describe('Pkg.Dist', () => {
         const res = await Pkg.Dist.load(path);
         expect(res.path).to.eql(Fs.resolve(sample.path.filepath));
         expect(res.exists).to.eql(true);
+        expect(res.kind).to.eql('canonical');
         expect(res.error).to.eql(undefined);
         expect(res.dist?.pkg).to.eql(pkg); // NB: loaded, with data.
       };
@@ -428,8 +429,36 @@ describe('Pkg.Dist', () => {
     it('404: does not exist', async () => {
       const res = await Pkg.Dist.load('404_foobar');
       expect(res.exists).to.eql(false);
+      expect(res.kind).to.eql('missing');
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('does not exist');
+    });
+
+    it('legacy: loads legacy shape as compat (not canonical)', async () => {
+      const sample = await Sample.init();
+      const { filepath } = sample.path;
+      const legacy: t.DistPkgLegacy = {
+        type: 'https://jsr.io/@sys/types/0.0.100/src/types/t.Pkg.dist.ts',
+        pkg: { name: '@sample/legacy', version: '0.0.1' },
+        build: {
+          time: 1746520471244,
+          size: { total: 1, pkg: 1 },
+          builder: '@sample/legacy@0.0.1',
+          runtime: '<runtime-uri>',
+        },
+        entry: '',
+        url: { base: '/' },
+        hash: { digest: 'sha256-deadbeef', parts: { './index.js': 'sha256-deadbeef' } },
+      };
+
+      await Fs.write(filepath, `${JSON.stringify(legacy, null, '  ')}\n`);
+      const res = await Pkg.Dist.load(sample.path.dir);
+
+      expect(res.exists).to.eql(true);
+      expect(res.kind).to.eql('legacy');
+      expect(res.dist).to.eql(undefined);
+      expect(res.legacy?.pkg).to.eql(legacy.pkg);
+      expect(res.error).to.eql(undefined);
     });
   });
 

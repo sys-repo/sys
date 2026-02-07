@@ -152,6 +152,31 @@ describe('Pkg', () => {
         };
         expect(Pkg.Is.dist(dist)).to.eql(true);
       });
+
+      it('distCompat: true for legacy and canonical', () => {
+        const legacy: t.DistPkgLegacy = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+          },
+          entry: 'pkg/entry.js',
+          url: { base: '/' },
+          hash: { digest: 'acbc', parts: { './pkg/entry.js': 'yyyy' } },
+        };
+
+        const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
+          policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
+        });
+
+        expect(Pkg.Is.distCompat(legacy)).to.eql(true);
+        expect(Pkg.Is.dist(legacy)).to.eql(false);
+        expect(Pkg.Is.distCompat(canonical)).to.eql(true);
+        expect(Pkg.Is.dist(canonical)).to.eql(true);
+      });
     });
   });
 

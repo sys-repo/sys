@@ -8,6 +8,9 @@ export type PkgDistLib = {
   /** Type guards. */
   readonly Is: PkgDistIsLib;
 
+  /** Legacy-compatibility helpers for dist schema evolution. */
+  readonly Compat: PkgDistCompatLib;
+
   /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
@@ -49,6 +52,23 @@ export type PkgDistPartLib = {
 
   /** Extract only the size (bytes) (if any). */
   size(value: unknown): number | undefined;
+};
+
+/**
+ * Compatibility helpers for legacy `dist.json` shapes.
+ */
+export type PkgDistCompatLib = {
+  /** Determine if the given input is legacy (compat) shape (not canonical). */
+  legacy(input: unknown): input is t.DistPkgLegacy;
+
+  /**
+   * Convert legacy/canonical input to canonical `DistPkg`.
+   * Legacy input requires explicit `policy`.
+   */
+  toCanonical(
+    input: unknown,
+    options?: { policy?: t.StringUri },
+  ): t.DistPkg | undefined;
 };
 
 /** Options passed to the [Pkg.Dist.fetch] method. */

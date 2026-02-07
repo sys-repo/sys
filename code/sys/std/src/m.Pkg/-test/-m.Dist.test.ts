@@ -8,6 +8,32 @@ describe('Pkg.Dist', () => {
     expect(Pkg.Dist).to.equal(Dist);
   });
 
+  describe('Dist.Compat', () => {
+    it('toCanonical: legacy requires explicit policy', () => {
+      const legacy: t.DistPkgLegacy = {
+        type: 'https://jsr.io/@sample/foo',
+        pkg: { name: '@ns/foo', version: '1.2.3' },
+        build: {
+          time: 1746520471244,
+          size: { total: 1234, pkg: 1234 },
+          builder: '@scope/sample@0.0.0',
+          runtime: '<runtime-uri>',
+        },
+        entry: './main.js',
+        url: { base: '/' },
+        hash: { digest: 'sha256-0000', parts: { './index.html': 'sha256-0000' } },
+      };
+
+      expect(Pkg.Dist.Compat.legacy(legacy)).to.eql(true);
+      expect(Pkg.Dist.Compat.toCanonical(legacy)).to.eql(undefined);
+
+      const policy = 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts';
+      const canonical = Pkg.Dist.Compat.toCanonical(legacy, { policy });
+      expect(canonical?.build.hash.policy).to.eql(policy);
+      expect(Pkg.Is.dist(canonical)).to.eql(true);
+    });
+  });
+
   describe('Dist.Is', () => {
     it('Is.codePath: true', () => {
       const test = (path: string, expected: boolean) => {

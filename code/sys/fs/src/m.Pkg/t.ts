@@ -91,7 +91,9 @@ export type PkgDistComputeResponse = {
 export type PkgDistLoadResponse = {
   exists: boolean;
   path: t.StringPath;
+  kind: 'canonical' | 'legacy' | 'invalid' | 'missing';
   dist?: t.DistPkg;
+  legacy?: t.DistPkgLegacy;
   error?: t.StdError;
 };
 

@@ -100,16 +100,29 @@ export const Dist: PkgDistFsLib = {
       errors.push(`File at path does not exist: ${path}`);
     }
 
+    let kind: t.PkgDistLoadResponse['kind'] = exists ? 'invalid' : 'missing';
     let dist: t.DistPkg | undefined;
+    let legacy: t.DistPkgLegacy | undefined;
     if (exists) {
-      dist = (await Fs.readJson<t.DistPkg>(path)).data;
+      const loaded = (await Fs.readJson<unknown>(path)).data;
+      if (Pkg.Is.dist(loaded)) {
+        kind = 'canonical';
+        dist = loaded;
+      } else if (Pkg.Is.distCompat(loaded)) {
+        kind = 'legacy';
+        legacy = loaded;
+      } else {
+        errors.push(`The loaded file is not a valid DistPkg (canonical or legacy): ${path}`);
+      }
     }
 
     // Finish up.
     const res: t.PkgDistLoadResponse = {
       exists,
+      kind,
       path,
       dist,
+      legacy,
       error: errors.toError('Several errors occured while loading the `dist.json`'),
     };
     return res;
@@ -124,7 +137,9 @@ export const Dist: PkgDistFsLib = {
     const loaded = await Dist.load(dir);
     const { path, dist, exists } = loaded;
     if (!exists) {
-      errors.push(loaded.error);
+      errors.push(`File at path does not exist: ${path}`);
+    } else if (!dist) {
+      errors.push(`Cannot verify non-canonical dist.json (${loaded.kind}): ${path}`);
     }
 
     const res: t.PkgDistVerifyResponse = {

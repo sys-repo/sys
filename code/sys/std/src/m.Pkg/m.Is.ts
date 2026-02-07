@@ -21,17 +21,28 @@ export const PkgIs: t.PkgIsLib = {
   },
 
   dist(input: any): input is t.DistPkg {
-    if (!isObject(input)) return false;
+    if (!wrangle.distBase(input)) return false;
     const dist = input as t.DistPkg;
+    if (!isObject(dist.build.hash)) return false;
+    return typeof dist.build.hash.policy === 'string';
+  },
+
+  distCompat(input: any): input is t.DistPkg | t.DistPkgLegacy {
+    return wrangle.distBase(input);
+  },
+};
+
+const wrangle = {
+  distBase(input: any) {
+    if (!isObject(input)) return false;
+    const dist = input as t.DistPkg | t.DistPkgLegacy;
     if (typeof dist.type !== 'string') return false;
     if (!PkgIs.pkg(dist.pkg)) return false;
-    if (!isObject(dist.build)) return false;
-    if (!isObject(dist.build.hash)) return false;
     return (
+      isObject(dist.build) &&
       typeof dist.entry === 'string' &&
-      typeof dist.build.hash.policy === 'string' &&
       typeof dist.hash.digest === 'string' &&
       isObject(dist.hash.parts)
     );
   },
-};
+} as const;

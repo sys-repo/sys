@@ -48,6 +48,14 @@ export type DistPkg = {
 };
 
 /**
+ * Legacy distribution package metadata.
+ * NB: Prior schema shape without `build.hash.policy`.
+ */
+export type DistPkgLegacy = Omit<DistPkg, 'build'> & {
+  build: Omit<DistPkg['build'], 'hash'>;
+};
+
+/**
  * Distribution-package size statistics.
  */
 export type DistPkgSize = {

@@ -12,4 +12,7 @@ export type PkgIsLib = {
 
   /** Determine if the given input is a `DistPkg` */
   dist(input: unknown): input is t.DistPkg;
+
+  /** Determine if the given input is a canonical or legacy `DistPkg` shape. */
+  distCompat(input: unknown): input is t.DistPkg | t.DistPkgLegacy;
 };
