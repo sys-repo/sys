@@ -18,9 +18,10 @@ export async function checkUpToDate(args: {
   const base = toHttpsUrl(domain);
   if (!base) return { ok: false, reason: 'no-domain' };
   const distUrl = `${Str.trimTrailingSlashes(base)}/dist.json`;
+  const distUrlText = `${c.white(Str.trimTrailingSlashes(base))}/${c.cyan('dist.json')}`;
   const client = Http.fetcher();
   const spinner = Cli.spinner();
-  spinner.start(c.italic(c.gray(`checking version ${c.white(distUrl)}`)));
+  spinner.start(c.italic(c.gray(`checking version ${distUrlText}`)));
   const remote = await client.json<t.DistPkg>(distUrl);
   spinner.stop();
   if (!remote.ok) return { ok: false, reason: 'remote-fetch-failed', error: remote.error };

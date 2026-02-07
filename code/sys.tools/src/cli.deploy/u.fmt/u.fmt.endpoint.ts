@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fmt, Fs, Is, Str } from '../common.ts';
+import { type t, c, Cli, Fmt, Fs, Is, Pkg, Str } from '../common.ts';
 import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
@@ -100,6 +100,13 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     };
 
     const mappings = yaml?.mappings ?? [];
+    const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
+    const stagingRootAbs = Fs.join(cwd, stagingRootRel);
+    const hashSuffix = (digest?: string) => {
+      const value = String(digest ?? '').trim();
+      if (!value) return '';
+      return `${c.dim(c.gray('#'))}${c.green(value.slice(-5))}`;
+    };
 
     if (mappings.length) {
       const mt = Cli.table();
@@ -107,16 +114,20 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       type Group = {
         readonly mode: string;
         readonly srcNames: readonly string[];
-        readonly dsts: readonly string[];
+        readonly dsts: readonly { readonly path: string; readonly hash: string }[];
       };
 
       const groups: Group[] = [];
-      const byMode = new Map<string, { srcNames: string[]; dsts: string[] }>();
+      const byMode = new Map<string, { srcNames: string[]; dsts: Array<{ path: string; hash: string }> }>();
 
       for (const m of mappings) {
         const mode = String(m.mode ?? '');
         const src = tail(String(m.dir.source ?? ''));
-        const dst = String(m.dir.staging ?? '');
+        const dstRaw = String(m.dir.staging ?? '');
+        const targetAbs = Fs.join(stagingRootAbs, dstRaw || '.');
+        const dist = (await Pkg.Dist.load(targetAbs)).dist;
+        const hash = hashSuffix(dist?.hash?.digest);
+        const dst = { path: dstRaw, hash };
 
         const hit = byMode.get(mode);
         if (hit) {
@@ -139,7 +150,13 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
       const flowFor = (g: Group) => {
         const srcLines = g.srcNames.map((x) => c.gray(String(x)));
-        const dstLines = g.dsts.map((x) => c.white(String(x)));
+        const maxDstPathLen = g.dsts.reduce((acc, d) => Math.max(acc, d.path.length), 0);
+        const dstLines = g.dsts.map((d) => {
+          const path = c.white(d.path);
+          if (!d.hash) return path;
+          const pad = ' '.repeat(Math.max(1, maxDstPathLen - d.path.length + 1));
+          return `${path}${pad}${d.hash}`;
+        });
         return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };
 
