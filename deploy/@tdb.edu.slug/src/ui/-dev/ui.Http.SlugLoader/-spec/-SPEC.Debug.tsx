@@ -101,9 +101,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <hr />
-      <Dev.SlugOrigin.UI env={p.env} origin={p.origin} style={{ marginBottom: 30 }} />
-
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
@@ -115,12 +112,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
 
-      <hr />
+      <hr style={{ marginTop: 20, marginBottom: 20 }} />
 
-      <div className={Styles.title.class} style={{ marginBottom: 15 }}>
-        <div>{'Fetch'}</div>
-        <div>{'HttpClient'}</div>
-      </div>
+      <Dev.SlugOrigin.UI
+        env={p.env}
+        origin={p.origin}
+        style={{ marginTop: 10, marginBottom: 30 }}
+      />
+
       {renderSamples(debug, { theme: theme.name })}
     </div>
   );

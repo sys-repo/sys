@@ -1,22 +1,20 @@
 import { type t, Str, SlugClient } from './common.ts';
 
 type Params = {
-  readonly path: string;
-};
-type Env = {
-  readonly is: { readonly local: boolean };
-  readonly origin: t.SlugUrlOrigin;
+  path: string;
 };
 
-export const DescriptorSample: t.ActionProbe.ProbeSpec<Env, Params> = {
+export const DescriptorSample: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
     e.params({ path });
-    e.element(<div>{Str.Lorem.words(18)}</div>);
-    e.item({ k: 'foo', v: 'bar' });
-    e.item({ k: 'foo2', v: '456' });
-    e.element(Str.Lorem.words(5));
+    e.element(
+      <div>
+        Loads <code>dist.client.json</code> and validates descriptor bundles
+        (kind/docid/basePath/layout).
+      </div>,
+    );
     e.item({ k: 'path', v: path });
   },
   async run(e) {
