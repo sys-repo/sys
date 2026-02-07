@@ -10,6 +10,7 @@ export type * as t from './types.ts';
 /**
  * Components:
  */
+export { ActionProbe } from './ui/ActionProbe/mod.ts';
 export { Bullet } from './ui/Bullet/mod.ts';
 export { Button } from './ui/Button/mod.ts';
 export { IconButtons } from './ui/Buttons.Icons/mod.ts';
