@@ -9,6 +9,8 @@ export const ns = 'sys.ui.component';
  * Components:
  */
 export const SpecsComponents = {
+  [`${ns}: ActionProbe`]: () => import('../ui/ActionProbe/-spec/-SPEC.tsx'),
+
   [`${ns}: Button`]: () => import('../ui/Button/-spec/-SPEC.tsx'),
   [`${ns}: Buttons.Switch`]: () => import('../ui/Buttons.Switch/-spec/-SPEC.tsx'),
   [`${ns}: Buttons.Icons`]: () => import('../ui/Buttons.Icons/-spec/-SPEC.tsx'),

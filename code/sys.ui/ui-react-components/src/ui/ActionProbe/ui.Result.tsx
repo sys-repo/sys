@@ -1,0 +1,68 @@
+import React from 'react';
+import { type t, Color, css, KeyValue, Obj, ObjectView, Spinners } from './common.ts';
+
+export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
+  const { debug = false, spinning = false } = props;
+
+  const data = Obj.truncateStrings({ ...(props.response ?? {}) });
+  const items = [...(props.items ?? [])];
+  const hasItems = items.length > 0;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    spinner: css({ Absolute: 0, pointerEvents: 'none', display: 'grid', placeItems: 'center' }),
+    body: {
+      base: css({
+        position: 'relative',
+        display: 'grid',
+        gridTemplateRows: hasItems ? `auto auto 1fr` : '1fr',
+      }),
+      top: css({ padding: 10 }),
+      hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
+      bottom: {
+        base: css({ position: 'relative' }),
+        inner: css({ padding: 10, Scroll: true, Absolute: 0 }),
+      },
+    },
+    obj: css({}),
+  };
+
+  const elSpinner = spinning && (
+    <div className={styles.spinner.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
+
+  const elBody = !spinning && (
+    <div className={styles.body.base.class}>
+      {hasItems && (
+        <div className={styles.body.top.class}>
+          <KeyValue.UI theme={theme.name} items={items} />
+        </div>
+      )}
+      {hasItems && <div className={styles.body.hr.class} />}
+      <div className={styles.body.bottom.base.class}>
+        <div className={styles.body.bottom.inner.class}>
+          <ObjectView
+            name={'action:result'}
+            data={data}
+            theme={theme.name}
+            style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
+            expand={5}
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      {elSpinner}
+      {elBody}
+    </div>
+  );
+};
