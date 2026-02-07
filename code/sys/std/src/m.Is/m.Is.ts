@@ -169,13 +169,17 @@ export const Is: StdIsLib = {
    * Determine if the given value (or the browser is environment) is "localhost".
    */
   localhost(value) {
+    const isLocalhostHost = (host: unknown) =>
+      Is.string(host) &&
+      (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]');
+
     if (value == null) {
       if (!Is.browser()) return false;
-      return window.location.hostname === 'localhost';
+      return isLocalhostHost(window.location.hostname);
     } else {
       try {
-        if (Is.string(value)) return new URL(value).hostname === 'localhost';
-        if (Is.object(value)) return value.hostname === 'localhost';
+        if (Is.string(value)) return isLocalhostHost(new URL(value).hostname);
+        if (Is.object(value)) return isLocalhostHost(value.hostname);
       } catch (error) {
         return false;
       }

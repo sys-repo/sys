@@ -8,7 +8,7 @@ type P = t.HttpOriginProps;
  */
 export const OriginSelector: React.FC<P> = (props) => {
   const { debug = false, env = 'localhost' } = props;
-  const localhostEnabled = isBrowserLocalhost();
+  const localhostEnabled = Is.localhost();
   const items: t.BulletList.Item[] = [
     { id: 'localhost', enabled: localhostEnabled },
     { id: 'production' },

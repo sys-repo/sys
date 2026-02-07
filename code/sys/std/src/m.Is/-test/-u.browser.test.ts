@@ -27,6 +27,8 @@ describe('Is (browser environment)', () => {
       expect(Is.localhost(window.location)).to.eql(true);
       expect(Is.localhost('http://localhost')).to.eql(true);
       expect(Is.localhost(url)).to.eql(true);
+      expect(Is.localhost('http://127.0.0.1:1234')).to.eql(true);
+      expect(Is.localhost('http://[::1]:1234')).to.eql(true);
     });
 
     it('Is.localhost: false', () => {

@@ -7,6 +7,7 @@ import {
   Color,
   css,
   D,
+  Is,
   LocalStorage,
   Obj,
   ObjectView,
@@ -83,7 +84,7 @@ export async function createDebugSignals() {
   });
 
   Signal.effect(() => {
-    if (isBrowserLocalhost()) return;
+    if (Is.localhost()) return;
     if (p.env.value === 'localhost') p.env.value = 'production';
   });
 
@@ -96,12 +97,6 @@ function normalizeDescriptorMode(input: unknown): DescriptorMode {
 
 function isDescriptorMode(input: unknown): input is DescriptorMode {
   return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
-}
-
-function isBrowserLocalhost(): boolean {
-  const hostname = globalThis.location?.hostname;
-  if (!hostname) return true;
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
 }
 
 const Styles = {
