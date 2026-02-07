@@ -61,7 +61,17 @@ export type PkgDistComputeArgs = {
   url?: t.DistPkg['url'];
   save?: boolean;
   filter?(path: t.StringPath): boolean;
-  /** Trust child dist.json hashes to avoid re-hashing nested bundles. */
+  /**
+   * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
+   *
+   * Behavior:
+   * - Child content hash parts are merged into the parent hash tree.
+   * - Child `dist.json` file bytes are intentionally NOT included in the parent hash.
+   *
+   * Rationale:
+   * - Keeps parent digest content-stable across rebuilds where only child metadata
+   *   (for example `build.time`) changes.
+   */
   trustChildDist?: boolean;
 };
 

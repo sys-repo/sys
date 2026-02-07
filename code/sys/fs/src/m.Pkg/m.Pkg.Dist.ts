@@ -159,7 +159,9 @@ const wrangle = {
     if (children.length === 0) return await wrangle.hashesBase(path, filter);
 
     const childAbs = children.map((child) => Path.join(path, child.rootRel));
+    const excludeDistJson = (value: string) => Path.basename(value) !== 'dist.json';
     const mergedFilter = (value: string) => {
+      if (!excludeDistJson(value)) return false;
       const isChild = childAbs.some(
         (root) => value === root || value.startsWith(Path.join(root, '')),
       );
@@ -170,21 +172,20 @@ const wrangle = {
     const res = await DirHash.compute(path, { filter: mergedFilter });
     const parts: t.DeepMutable<t.CompositeHashParts> = { ...res.hash.parts };
 
+    /**
+     * Merge child content hashes into the parent tree.
+     *
+     * NB:
+     * We intentionally do not hash child `dist.json` file bytes into the parent
+     * digest. Child `dist.json` includes volatile build metadata (for example
+     * timestamps), which would make parent hashes churn across no-op rebuilds.
+     */
     for (const child of children) {
       const { rootRel, dist } = child;
       for (const [childPath, uri] of Object.entries(dist.hash.parts)) {
         const rel = Str.trimLeadingDotSlash(childPath);
         const full = Path.join(rootRel, rel);
         parts[full] = uri;
-      }
-
-      const distRel = Path.join(rootRel, 'dist.json');
-      const file = await Fs.read(Path.join(path, distRel));
-      if (file.exists) {
-        const builder = CompositeHash.builder();
-        builder.add(distRel, file.data);
-        const part = builder.parts[distRel];
-        if (part) parts[distRel] = part;
       }
     }
 
@@ -193,7 +194,7 @@ const wrangle = {
   },
 
   async hashesBase(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
-    const excludeDistJson = (value: string) => value !== './dist.json';
+    const excludeDistJson = (value: string) => Path.basename(value) !== 'dist.json';
     const mergedFilter = (value: string) => {
       if (!excludeDistJson(value)) return false;
       return filter ? filter(value) : true;
@@ -223,7 +224,7 @@ const wrangle = {
     const children: Array<{ rootRel: string; dist: t.DistPkg }> = [];
     for (const rootRel of top) {
       const loaded = await Dist.load(Path.join(path, rootRel));
-      if (loaded.dist) children.push({ rootRel, dist: loaded.dist });
+      if (Pkg.Is.dist(loaded.dist)) children.push({ rootRel, dist: loaded.dist });
     }
     return children;
   },

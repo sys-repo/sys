@@ -1,4 +1,4 @@
-import { type t, Arr, c, Cli, Num, Path, Str } from './common.ts';
+import { type t, Arr, c, Cli, Fs, Num, Path, Str } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { toModuleString } from './u.log.ts';
 
@@ -9,7 +9,12 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
   /**
    * Calculate:
    */
-  const subPackages = paths.filter((path) => path.includes('/dist.json'));
+  const glob = Fs.glob(dir, { includeDirs: false });
+  const entries = await glob.find('**/dist.json');
+  const subPackages = entries
+    .map((entry) => Path.relative(dir, entry.path))
+    .map((rel) => Str.trimLeadingDotSlash(rel))
+    .filter((rel) => rel !== 'dist.json' && rel.endsWith('/dist.json'));
   if (subPackages.length === 0) return '';
 
   function toContent(dist: t.DistPkg, childBundles: t.StringPath[]) {

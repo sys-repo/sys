@@ -114,6 +114,28 @@ describe('Pkg.Dist', () => {
       expect(Object.prototype.hasOwnProperty.call(dist.hash.parts, ignoredRelPath)).to.eql(false);
     });
 
+    it('Dist.compute(): excludes root dist.json regardless of key style', async () => {
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
+      const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+      const keys = Object.keys(res.dist.hash.parts);
+      expect(keys.includes('./dist.json')).to.eql(false);
+      expect(keys.includes('dist.json')).to.eql(false);
+    });
+
+    it('Dist.compute(): root hash is idempotent across repeated save runs', async () => {
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
+
+      const first = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+      const second = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+
+      expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
+      expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
+      expect(Object.keys(second.dist.hash.parts).includes('./dist.json')).to.eql(false);
+      expect(Object.keys(second.dist.hash.parts).includes('dist.json')).to.eql(false);
+    });
+
     it('custom: url/base (compiled pathing)', async () => {
       const pkg = { name: 'my-package', version: '0.0.0' };
       const builder = { name: 'my-builder', version: '0.0.0' };
@@ -177,7 +199,7 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include('path is not a directory');
     });
 
-    it('trustChildDist: reuses child dist.json hashes', async () => {
+    it('trustChildDist: reuses child content hashes without hashing child dist.json bytes', async () => {
       const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist/');
       await Fs.remove(root);
       await Fs.ensureDir(root);
@@ -211,9 +233,92 @@ describe('Pkg.Dist', () => {
         expect(rootRes.dist.hash.parts[rootKey]).to.eql(childParts[childKey!]);
 
         const distKey = Path.join('child', 'dist.json');
-        expect(rootRes.dist.hash.parts[distKey]).to.not.eql(undefined);
+        expect(rootRes.dist.hash.parts[distKey]).to.eql(undefined);
 
         const verify = await Pkg.Dist.verify(root, rootRes.dist.hash);
+        expect(verify.is.valid).to.eql(true);
+      } finally {
+        await Fs.remove(root);
+      }
+    });
+
+    it('trustChildDist: parent hash is idempotent across repeated save runs', async () => {
+      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.idempotent/');
+      await Fs.remove(root);
+      await Fs.ensureDir(root);
+
+      try {
+        const childDir = Fs.join(root, 'child');
+        await Fs.ensureDir(childDir);
+        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
+
+        await Pkg.Dist.compute({
+          dir: childDir,
+          pkg: { name: '@child/pkg', version: '0.0.0' },
+          builder: { name: '@child/pkg', version: '0.0.0' },
+          save: true,
+        });
+
+        const first = await Pkg.Dist.compute({
+          dir: root,
+          pkg: { name: '@root/pkg', version: '0.0.0' },
+          builder: { name: '@root/pkg', version: '0.0.0' },
+          trustChildDist: true,
+          save: true,
+        });
+
+        const second = await Pkg.Dist.compute({
+          dir: root,
+          pkg: { name: '@root/pkg', version: '0.0.0' },
+          builder: { name: '@root/pkg', version: '0.0.0' },
+          trustChildDist: true,
+          save: true,
+        });
+
+        expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
+        expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
+        expect(Object.keys(second.dist.hash.parts).includes('child/dist.json')).to.eql(false);
+
+        const verify = await Pkg.Dist.verify(root, second.dist.hash);
+        expect(verify.is.valid).to.eql(true);
+      } finally {
+        await Fs.remove(root);
+      }
+    });
+
+    it('trustChildDist: ignores invalid child dist.json and falls back to file hashing', async () => {
+      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.invalid-child/');
+      await Fs.remove(root);
+      await Fs.ensureDir(root);
+
+      try {
+        const childDir = Fs.join(root, 'child');
+        await Fs.ensureDir(childDir);
+        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
+        await Fs.write(Fs.join(childDir, 'dist.json'), '{"not":"a-dist"}\n');
+
+        const first = await Pkg.Dist.compute({
+          dir: root,
+          pkg: { name: '@root/pkg', version: '0.0.0' },
+          builder: { name: '@root/pkg', version: '0.0.0' },
+          trustChildDist: true,
+          save: true,
+        });
+
+        const second = await Pkg.Dist.compute({
+          dir: root,
+          pkg: { name: '@root/pkg', version: '0.0.0' },
+          builder: { name: '@root/pkg', version: '0.0.0' },
+          trustChildDist: true,
+          save: true,
+        });
+
+        expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
+        expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
+        expect(first.dist.hash.parts['child/a.txt']).to.not.eql(undefined);
+        expect(first.dist.hash.parts['child/dist.json']).to.eql(undefined);
+
+        const verify = await Pkg.Dist.verify(root, second.dist.hash);
         expect(verify.is.valid).to.eql(true);
       } finally {
         await Fs.remove(root);
@@ -245,7 +350,7 @@ describe('Pkg.Dist', () => {
       await Fs.write(Fs.join(staticDir, 'a.bin'), 'a'.repeat(10));
       await Fs.write(Fs.join(staticDir, 'b.bin'), 'b'.repeat(20));
 
-      // Root dist (must "see" the child dist.json in the hash parts).
+      // Root dist (must "see" child content in the hash parts).
       const computed = await Pkg.Dist.compute({
         dir: root,
         pkg: { name: '@root/pkg', version: '0.0.0' },
@@ -254,15 +359,15 @@ describe('Pkg.Dist', () => {
 
       const dist = computed.dist;
 
-      // Be robust to whether DirHash emits "./sys/dev/dist.json" or "sys/dev/dist.json".
-      const childDistPath = Object.keys(dist.hash.parts).find((p) => {
+      // Be robust to whether DirHash emits "./sys/dev/hello.txt" or "sys/dev/hello.txt".
+      const childContentPath = Object.keys(dist.hash.parts).find((p) => {
         return (
-          p === './sys/dev/dist.json' ||
-          p === 'sys/dev/dist.json' ||
-          p.endsWith('sys/dev/dist.json')
+          p === './sys/dev/hello.txt' ||
+          p === 'sys/dev/hello.txt' ||
+          p.endsWith('sys/dev/hello.txt')
         );
       });
-      expect(childDistPath).to.not.equal(undefined);
+      expect(childContentPath).to.not.equal(undefined);
 
       // Render.
       const text = await Pkg.Dist.Log.children(root, dist);
@@ -279,7 +384,7 @@ describe('Pkg.Dist', () => {
       expect(match?.[1]).to.not.equal(undefined);
 
       // Expected bytes = sum of files NOT inside the child package root(s).
-      const childRoot = Path.dirname(childDistPath ?? './sys/dev/dist.json');
+      const childRoot = Path.dirname(childContentPath ?? './sys/dev/hello.txt');
       const includedPaths = Object.keys(dist.hash.parts).filter(
         (p) => !p.startsWith(`${childRoot}/`),
       );
