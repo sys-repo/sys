@@ -3,7 +3,6 @@ import { type t, Obj } from './common.ts';
 
 type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
-type Block = { kind: 'element'; node: t.ReactNode } | { kind: 'kv'; items: t.KeyValueItem[] };
 
 type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
   sample: t.ActionProbe.ProbeSpec<TEnv, TParams>;
@@ -21,7 +20,7 @@ export function useProbeRenderModel<TEnv extends EnvObject, TParams extends Para
    * Hooks:
    */
   const paramsRef = React.useRef<TParams | undefined>(undefined);
-  const [blocks, setBlocks] = React.useState<Block[]>([]);
+  const [blocks, setBlocks] = React.useState<t.ActionProbe.ProbeRenderBlock[]>([]);
   const getParams = React.useCallback(
     <T = TParams>() => paramsRef.current as Readonly<T> | undefined,
     [],
@@ -32,7 +31,7 @@ export function useProbeRenderModel<TEnv extends EnvObject, TParams extends Para
    */
   React.useEffect(() => {
     paramsRef.current = undefined;
-    const blocks: Block[] = [];
+    const blocks: t.ActionProbe.ProbeRenderBlock[] = [];
     let currentItems: t.KeyValueItem[] | undefined;
 
     const e: TRenderArgs = {

@@ -48,6 +48,9 @@ export namespace ActionProbe {
   export type ProbeRender<TEnv extends O = O, TParams extends O = O> = (
     e: ProbeRenderArgs<TEnv, TParams>,
   ) => void;
+  export type ProbeRenderBlock =
+    | { kind: 'element'; node: t.ReactNode }
+    | { kind: 'kv'; items: t.KeyValueItem[] };
   export type ProbeRenderArgs<TEnv extends O = O, TParams extends O = O> = TEnv & {
     readonly theme?: t.CommonTheme;
     readonly params: (value: TParams) => ProbeRenderArgs<TEnv, TParams>;

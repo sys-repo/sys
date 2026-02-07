@@ -10,7 +10,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     const delay = Num.random.int(300, 1500);
 
     const styles = {
-      base: css({ backgroundColor: Color.ruby(0.03), fontStyle: 'italic' }),
+      base: css({ fontStyle: 'italic' }),
     };
 
     e.params({ label, delay });

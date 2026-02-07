@@ -1,7 +1,9 @@
-import { type t, Button, Color, css, D, Keyboard, KeyValue } from './common.ts';
+import { type t, Color, css, D, Keyboard } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
 import { useProbeStyles } from './use.Styles.ts';
+import { Header } from './ui.Probe.Header.tsx';
+import { Body } from './ui.Probe.Body.tsx';
 
 type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
@@ -37,47 +39,17 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     base: css({
       color: theme.fg,
       backgroundColor: Color.alpha(theme.fg, 0.03),
-      Padding: [8, 12],
       outline: 'none',
       border: `dashed 1px ${Color.alpha(theme.fg, focused ? 0.6 : 0.25)}`,
       borderRadius,
-      boxShadow: focused ? `0 3px 35px ${Color.alpha(Color.DARK, 0.14)}` : 'none',
+      boxShadow: focused ? `0 3px 35px ${Color.alpha(Color.DARK, 0.12)}` : 'none',
       ':focus': { outline: 'none' },
       ':focus-visible': { outline: 'none' },
-      transition: 'box-shadow 50ms ease',
-      display: 'grid',
-      gridAutoFlow: 'row',
-      gridAutoRows: 'min-content',
-      rowGap: 8,
+      transition: 'box-shadow 40ms ease',
     }),
-    title: {
-      base: css({
-        fontSize: 11,
-        fontWeight: 600,
-        userSelect: 'none',
-        display: 'grid',
-        gridTemplateColumns: `auto 1fr auto`,
-      }),
-      left: css({}),
-      right: css({}),
-    },
-    body: css({
-      fontSize: 11,
-      lineHeight: 1.4,
-    }),
+    header: css({ borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
+    body: css({}),
   };
-
-  const elTitle = (
-    <div className={styles.title.base.class}>
-      <div className={styles.title.left.class}>{sample.title ?? 'Untitled Probe'}</div>
-      <div />
-      <div className={styles.title.right.class}>
-        <Button enabled={canRun && !spinning} onClick={run}>
-          {spinning ? 'Running...' : 'Run'}
-        </Button>
-      </div>
-    </div>
-  );
 
   return (
     <div
@@ -93,17 +65,14 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         run();
       }}
     >
-      {elTitle}
-      {blocks.map((block, index) => {
-        if (block.kind === 'element') {
-          return (
-            <div key={index} className={styles.body.class}>
-              {block.node}
-            </div>
-          );
-        }
-        return <KeyValue.UI key={index} theme={theme.name} items={block.items} mono={true} />;
-      })}
+      <Header
+        title={sample.title}
+        canRun={canRun}
+        spinning={spinning}
+        onRun={run}
+        style={styles.header}
+      />
+      <Body blocks={blocks} theme={theme.name} style={styles.body} />
     </div>
   );
 };
