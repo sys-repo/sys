@@ -17,6 +17,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       selected: e.probe?.treeContent?.ref,
       onSelect: e.probe?.treeContent?.onRefChange,
     });
+    e.item({ kind: 'hr' });
     e.item({ k: 'base-path', v: basePath });
     e.item({ k: 'doc-id', v: docid });
   },
