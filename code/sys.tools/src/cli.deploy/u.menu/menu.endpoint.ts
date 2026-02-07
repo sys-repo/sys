@@ -172,7 +172,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         if (domain) {
           const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
           if (res.ok) {
-            console.info(c.gray(`push skipped (up-to-date) ${c.white(domain)}`));
+            const line = `${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`;
+            console.info(line);
             okCount += 1;
             skipped += 1;
             continue;
