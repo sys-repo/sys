@@ -1,6 +1,5 @@
 import { Dev, Signal, Spec } from '../../../-test.ui.ts';
-import { D } from '../common.ts';
-import { ActionProbe } from '../mod.ts';
+import { ActionProbe, D } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
