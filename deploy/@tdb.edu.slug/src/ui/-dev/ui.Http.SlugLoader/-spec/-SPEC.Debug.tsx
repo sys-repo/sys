@@ -107,20 +107,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-
-      <hr style={{ marginTop: 20, marginBottom: 20 }} />
+      <hr style={{ marginTop: 10, marginBottom: 15 }} />
 
       <Dev.SlugOrigin.UI
+        debug={v.debug}
         env={p.env}
         origin={p.origin}
         style={{ marginTop: 10, marginBottom: 30 }}
       />
-
       {renderSamples(debug, { theme: theme.name })}
+
+      <hr style={{ marginTop: 50, borderTopWidth: 5, opacity: 0.4 }} />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

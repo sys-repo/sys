@@ -14,6 +14,7 @@ export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
   const { items, push } = renderer(debug, opts);
   push(Sample.Descriptor);
   push(Sample.TreeContent);
+  push(Sample.TreePlaybackAssets);
   return items;
 }
 
