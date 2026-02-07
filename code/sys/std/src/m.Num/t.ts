@@ -3,6 +3,34 @@ import type { t } from './common.ts';
 export type * from './t.percent.ts';
 export type * from './t.ratio.ts';
 
+export type NumRandomSource = 'math' | 'crypto' | (() => number);
+
+export type NumRandomOptions = {
+  /**
+   * Random source to use.
+   * - 'math': Math.random (default)
+   * - 'crypto': crypto.getRandomValues
+   * - fn: custom RNG that must return [0, 1)
+   */
+  readonly source?: NumRandomSource;
+};
+
+export type NumRandom = {
+  /**
+   * Random float in [min, max).
+   * Defaults:
+   * - () => [0, 1)
+   * - (max) => [0, max)
+   * - (min, max) => [min, max)
+   */
+  (min?: number, max?: number, opts?: NumRandomOptions): number;
+
+  /**
+   * Random integer in [min, max] (inclusive).
+   */
+  int(min: number, max: number, opts?: NumRandomOptions): number;
+};
+
 /**
  * Tools for working with numbers.
  */
@@ -29,6 +57,9 @@ export type NumberLib = {
    * Alias of Number.POSITIVE_INFINITY.
    */
   readonly INFINITY: number;
+
+  /** Random number tools. */
+  readonly random: NumRandom;
 
   /** Rounds a number to the specified number of decimal places. */
   round(value: number, precision?: number): number;

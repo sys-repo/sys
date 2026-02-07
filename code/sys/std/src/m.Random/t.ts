@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /**
  * Tools for generating random values.
  */
@@ -7,6 +9,9 @@ export type RandomLib = {
 
   /** Generates a random base-36 string of exactly the specified length. */
   base36(length: number): string;
+
+  /** Random number tools alias (Num.random). */
+  readonly number: t.NumberLib['random'];
 
   /**
    * Generate a non-sequental identifier.

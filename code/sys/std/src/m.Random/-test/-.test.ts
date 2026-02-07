@@ -1,8 +1,10 @@
-import { R, Testing, describe, expect, it } from '../-test.ts';
-import { Random, cuid, slug } from './mod.ts';
+import { R, Testing, describe, expect, it } from '../../-test.ts';
+import { Num } from '../../m.Num/mod.ts';
+import { Random, cuid, slug } from '../mod.ts';
 
 describe('Random', () => {
   it('API', () => {
+    expect(Random.number).to.equal(Num.random);
     expect(Random.slug).to.equal(slug);
     expect(Random.cuid).to.equal(cuid);
   });

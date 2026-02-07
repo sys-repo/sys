@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 import { Percent } from './m.Percent.ts';
 import { Ratio } from './m.Ratio.ts';
+import { random } from './u.random.ts';
 import { toLetter, toString } from './u.string.ts';
 import { clamp, round, sum } from './u.ts';
 
@@ -18,6 +19,7 @@ export const Num: t.NumberLib = {
   sum,
   round,
   clamp,
+  random,
 
   toString,
   toLetter,
