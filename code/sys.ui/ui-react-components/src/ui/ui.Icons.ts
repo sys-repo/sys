@@ -14,6 +14,7 @@ import {
   MdFace,
   MdMic,
   MdMicOff,
+  MdPlayArrow,
   MdSettings,
 } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
@@ -25,6 +26,7 @@ const icon = Icon.renderer;
  * Icon Collection:
  */
 export const Icons = {
+  Play: icon(MdPlayArrow),
   Close: icon(MdClose),
   Face: icon(MdFace),
   Object: icon(VscSymbolClass),

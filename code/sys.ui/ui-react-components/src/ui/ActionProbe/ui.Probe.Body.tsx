@@ -17,7 +17,7 @@ export const Body: React.FC<BodyProps> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
-      PaddingX: 20,
+      PaddingX: 25,
       paddingTop: 15,
       paddingBottom: 20,
       display: 'grid',

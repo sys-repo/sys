@@ -1,5 +1,5 @@
 import { type t, css, Color } from './common.ts';
-import { RunButton } from './ui.btn.Run.tsx';
+import { RunButton } from './ui.Probe.RunButton.tsx';
 
 type HeaderProps = {
   title?: t.ReactNode;
@@ -26,15 +26,18 @@ export const Header: React.FC<HeaderProps> = (props) => {
       userSelect: 'none',
       display: 'grid',
       gridTemplateColumns: `auto 1fr auto`,
-      Padding: [6, 10],
+      alignItems: 'center',
+      Padding: [5, 11],
     }),
+    title: css({}),
+    run: css({ alignSelf: 'center', transform: 'translateY(1px)' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{title ?? 'Untitled Probe'}</div>
+      <div className={styles.title.class}>{title ?? 'Untitled Probe'}</div>
       <div />
-      <div>
+      <div className={styles.run.class}>
         <RunButton canRun={canRun} spinning={spinning} onRun={onRun} theme={theme.name} />
       </div>
     </div>
