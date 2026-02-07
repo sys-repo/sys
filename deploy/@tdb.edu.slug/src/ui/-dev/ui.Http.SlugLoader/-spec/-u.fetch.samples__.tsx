@@ -1,4 +1,4 @@
-import { type t } from './-common.ts';
+import { type t } from './common.ts';
 import { fetchButton } from './-u.fetch.btn__.tsx';
 
 /** Samples */

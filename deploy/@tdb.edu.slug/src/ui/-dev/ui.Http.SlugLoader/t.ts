@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 export namespace SlugLoaderView {
   export type Lib = {
+    readonly Probe: t.FC<t.SlugLoaderView.ProbeProps>;
     readonly Result: t.FC<t.SlugLoaderView.ResultProps>;
   };
 
@@ -10,6 +11,9 @@ export namespace SlugLoaderView {
    */
   export type ProbeProps = {
     sample: t.SlugLoaderView.FetchSample;
+    is: ProbeRenderArgs['is'];
+    origin: t.SlugUrlOrigin;
+
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
@@ -27,16 +31,23 @@ export namespace SlugLoaderView {
    */
   export type FetchSample = {
     readonly title: t.ReactNode;
-    readonly probe: FetchSampleRender;
+    readonly render: ProbeRender;
+    readonly run?: FetchAction;
   };
 
-  export type FetchSampleRender = (e: FetchSampleRenderArgs) => t.ReactNode | void;
-  export type FetchSampleRenderArgs = {
+  type CommonArgs = {
     readonly is: { readonly local: boolean };
-    readonly theme: t.CommonTheme;
     readonly origin: t.SlugUrlOrigin;
-    readonly next: (patch: Partial<FetchSampleState>) => void;
   };
 
-  export type FetchSampleState = {};
+  export type ProbeRender = (e: ProbeRenderArgs) => t.ReactNode | null;
+  export type ProbeRenderArgs = CommonArgs & {
+    readonly theme?: t.CommonTheme;
+    item(item: t.KeyValueItem): ProbeRenderArgs;
+  };
+
+  export type FetchAction = (e: FetchActionArgs) => Promise<void>;
+  export type FetchActionArgs = CommonArgs & {
+    readonly result: (value: unknown) => void;
+  };
 }

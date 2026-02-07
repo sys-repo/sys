@@ -1,6 +1,17 @@
 import React from 'react';
 import { Dev } from '../../mod.ts';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  Immutable,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { fetchSamples } from './-u.fetch.samples__.tsx';
 import { renderSamples } from './-ui.samples.tsx';
 
@@ -23,6 +34,9 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+
+  // type TState = t.SlugLoaderView.FetchState;
+  // const state = Immutable.clonerRef<TState>({});
 
   const props = {
     debug: s(snap.debug),
@@ -109,7 +123,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {fetchSamples(debug)}
 
       <hr />
-      {renderSamples(debug)}
+      {renderSamples(debug, { theme: theme.name })}
     </div>
   );
 };

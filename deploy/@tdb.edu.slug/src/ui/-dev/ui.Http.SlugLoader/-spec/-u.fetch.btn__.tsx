@@ -1,4 +1,4 @@
-import { type t, Button, Signal } from './-common.ts';
+import { type t, Button, Signal } from './common.ts';
 
 /**
  * Generate a fetch-sample button.

@@ -1,30 +1,14 @@
-import { type t } from './-common.ts';
-import { ProbeContainer } from './-ui.sample.ProbeContainer.tsx';
-
-/** Samples */
 import { Sample } from '../-samples.FromEndpoint/mod.ts';
+import { type t } from './common.ts';
+import { renderer } from './-ui.samples.renderer.tsx';
 
-export function renderSamples(debug: t.DebugSignals) {
-  const { items, push, hr } = renderers(debug);
+type Options = { theme?: t.CommonTheme };
+
+export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
+  const { items, push, hr } = renderer(debug, opts);
 
   push(Sample.Descriptor);
   hr();
 
   return items;
-}
-
-/**
- * Helpers
- */
-function renderers(debug: t.DebugSignals) {
-  type T = t.SlugLoaderView.FetchSample;
-  const items: t.ReactNode[] = [];
-  const create = (sample: T) => render(debug, sample, items.length - 1);
-  const push = (sample: T) => items.push(create(sample));
-  const hr = () => items.push(<hr key={items.length} />);
-  return { items, push, hr } as const;
-}
-
-function render(debug: t.DebugSignals, sample: t.SlugLoaderView.FetchSample, index: t.Index) {
-  return <ProbeContainer key={index} debug={debug} sample={sample} />;
 }

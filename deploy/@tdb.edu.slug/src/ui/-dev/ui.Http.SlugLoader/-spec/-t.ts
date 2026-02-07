@@ -1,4 +1,4 @@
-import type { t } from './-common.ts';
+import type { t } from './common.ts';
 
 export type * from '../../../../common/t.ts';
 export type * from './-SPEC.Debug.tsx';
