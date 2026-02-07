@@ -333,11 +333,12 @@ describe('Time Delay/Wait', () => {
       });
     });
 
-    it('Time.wait → cancel', () => {
+    it('Time.wait → cancel', async () => {
       const startedAt = new Date();
       const res = Time.wait(15);
       res.cancel();
-      expect(calcDiff(startedAt)).to.be.closeTo(0, 5); // NB: cancel stops the delay.
+      await res;
+      expect(calcDiff(startedAt)).to.be.lessThan(15); // NB: cancel settles before the scheduled timeout.
       expect(res.is).to.eql({ completed: false, cancelled: true, done: true });
     });
 
