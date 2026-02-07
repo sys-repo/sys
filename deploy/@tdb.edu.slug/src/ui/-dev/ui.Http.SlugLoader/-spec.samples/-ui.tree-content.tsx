@@ -1,4 +1,4 @@
-import { type t, SlugClient, Url } from './common.ts';
+import { type t, Str, SlugClient, Url } from './common.ts';
 
 type Params = {
   basePath: string;
@@ -76,7 +76,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     if (!content.ok) return e.result(content);
     const frontmatter = content.value.frontmatter;
     e.item({ k: 'ref', v: ref });
-    e.item({ k: 'hash', v: hash });
+    e.item({ k: 'hash', v: Str.ellipsize(hash, [20, 5], '..') });
     e.item({ k: 'contentType', v: content.value.contentType });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
     e.item({ k: 'tree.items', v: tree.value.tree.length });
