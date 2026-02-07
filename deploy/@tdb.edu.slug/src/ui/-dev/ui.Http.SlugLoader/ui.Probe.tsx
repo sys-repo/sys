@@ -28,16 +28,15 @@ export const Probe: React.FC<P> = (props) => {
       ...common,
       theme,
       item(item) {
-        console.log('item', item);
-        setItems([...items, item]);
-        // bump();
+        setItems((last) => [...last, item]);
         return args;
       },
     };
 
-    //
+    setBody(sample.render(args));
   }, [props.theme, Obj.hash({ is, origin })]);
 
+  console.log('items', items);
 
   /**
    * Render:
