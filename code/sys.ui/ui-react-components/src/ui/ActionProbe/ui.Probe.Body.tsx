@@ -28,16 +28,18 @@ export const Body: React.FC<BodyProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {blocks.map((block, index) => {
-        if (block.kind === 'element') {
-          return (
-            <div key={index} className={styles.item.class}>
-              {block.node}
-            </div>
-          );
-        }
-        return <KeyValue.UI key={index} theme={theme.name} items={block.items} mono={true} />;
-      })}
+      <div data-part={'probe-body-content'}>
+        {blocks.map((block, index) => {
+          if (block.kind === 'element') {
+            return (
+              <div key={index} className={styles.item.class}>
+                {block.node}
+              </div>
+            );
+          }
+          return <KeyValue.UI key={index} theme={theme.name} items={block.items} mono={true} />;
+        })}
+      </div>
     </div>
   );
 };

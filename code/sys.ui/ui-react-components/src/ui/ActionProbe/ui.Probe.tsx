@@ -64,6 +64,13 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         e.preventDefault();
         run();
       }}
+      onDoubleClick={(e) => {
+        if (!canRun || spinning) return;
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('[data-part="probe-body-content"]')) return;
+        if (target?.closest('[role="button"]')) return;
+        run();
+      }}
     >
       <Header
         title={sample.title}
