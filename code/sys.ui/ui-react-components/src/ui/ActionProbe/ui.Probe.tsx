@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Button, Color, css, KeyValue } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
+import { useProbeStyles } from './use.Styles.ts';
 
 type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
@@ -13,6 +14,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
   const { debug = false, sample, env, spinning = false } = props;
+  const theme = Color.theme(props.theme);
+  const { componentAttr } = useProbeStyles(theme.fg);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
     run: sample.run,
@@ -24,10 +27,6 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     onRunResult: props.onRunResult,
   });
 
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       color: theme.fg,
@@ -70,7 +69,11 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   );
 
   return (
-    <div className={css(styles.base, props.style).class} onDoubleClick={run}>
+    <div
+      data-component={componentAttr}
+      className={css(styles.base, props.style).class}
+      onDoubleClick={run}
+    >
       {elTitle}
       {blocks.map((block, index) => {
         if (block.kind === 'element') {
