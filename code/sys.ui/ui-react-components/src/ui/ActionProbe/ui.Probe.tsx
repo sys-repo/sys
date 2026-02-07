@@ -69,11 +69,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   );
 
   return (
-    <div
-      data-component={componentAttr}
-      className={css(styles.base, props.style).class}
-      onDoubleClick={run}
-    >
+    <div data-component={componentAttr} className={css(styles.base, props.style).class}>
       {elTitle}
       {blocks.map((block, index) => {
         if (block.kind === 'element') {
