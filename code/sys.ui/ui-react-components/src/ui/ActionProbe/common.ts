@@ -10,6 +10,10 @@ export { Spinners } from '../Spinners/mod.ts';
  * Constants:
  */
 const name = 'ActionProbe';
-export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  borderRadius: 6,
+} as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

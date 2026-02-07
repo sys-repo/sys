@@ -1,5 +1,4 @@
-import React from 'react';
-import { type t, Button, Color, css, Keyboard, KeyValue } from './common.ts';
+import { type t, Button, Color, css, D, Keyboard, KeyValue } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
 import { useProbeStyles } from './use.Styles.ts';
@@ -31,14 +30,14 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     base: css({
       color: theme.fg,
       backgroundColor: Color.alpha(theme.fg, 0.03),
-      border: `solid 1px ${focused ? Color.alpha(Color.BLUE, 1) : Color.alpha(theme.fg, 0.25)}`,
-      borderRadius: 4,
       Padding: [8, 12],
       outline: 'none',
-      boxShadow: 'none',
-      ':focus': { outline: 'none', boxShadow: 'none' },
-      ':focus-visible': { outline: 'none', boxShadow: 'none' },
-      transition: 'border-color 120ms ease',
+      border: `dashed 1px ${Color.alpha(theme.fg, focused ? 0.6 : 0.25)}`,
+      borderRadius: D.borderRadius,
+      boxShadow: focused ? `0 3px 35px ${Color.alpha(Color.DARK, 0.14)}` : 'none',
+      ':focus': { outline: 'none' },
+      ':focus-visible': { outline: 'none' },
+      transition: 'box-shadow 50ms ease',
       display: 'grid',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
