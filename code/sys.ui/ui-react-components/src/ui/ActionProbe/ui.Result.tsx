@@ -3,6 +3,7 @@ import { type t, Color, css, KeyValue, Obj, ObjectView, Spinners } from './commo
 
 export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   const { debug = false, spinning = false } = props;
+  const obj = props.obj;
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
   const items = [...(props.items ?? [])];
@@ -52,7 +53,9 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
             data={data}
             theme={theme.name}
             style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
-            expand={5}
+            expand={obj?.expand ?? 5}
+            show={obj?.show}
+            sortKeys={obj?.sortKeys}
           />
         </div>
       </div>

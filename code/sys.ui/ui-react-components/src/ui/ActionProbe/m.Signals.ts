@@ -3,7 +3,7 @@ import { type t, Signal } from './common.ts';
 const defaults: t.ActionProbeSignalsState = {
   spinning: false,
   probe: { active: undefined },
-  result: { items: [], response: undefined },
+  result: { items: [], response: undefined, obj: undefined },
 };
 
 export const Signals: t.ActionProbeSignalsLib = {
@@ -16,6 +16,7 @@ export const Signals: t.ActionProbeSignalsLib = {
       result: {
         items: input.result?.items ?? defaults.result.items,
         response: input.result?.response ?? defaults.result.response,
+        obj: input.result?.obj ?? defaults.result.obj,
       },
     };
 
@@ -28,6 +29,7 @@ export const Signals: t.ActionProbeSignalsLib = {
       result: {
         items: s(initial.result.items),
         response: s(initial.result.response),
+        obj: s(initial.result.obj),
       },
     };
 
@@ -43,8 +45,8 @@ export const Signals: t.ActionProbeSignalsLib = {
           onRunEnd: () => {
             api.end();
           },
-          onRunResult: (value) => {
-            api.result(value);
+          onRunResult: (value, obj) => {
+            api.result(value, obj);
           },
           onRunItem: (item) => {
             api.item(item);
@@ -55,6 +57,7 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.probe.active.value = probe;
         props.result.items.value = [];
         props.result.response.value = undefined;
+        props.result.obj.value = undefined;
         props.spinning.value = true;
         return api;
       },
@@ -62,8 +65,9 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.result.items.value = [...props.result.items.value, item];
         return api;
       },
-      result(value) {
+      result(value, obj) {
         props.result.response.value = value;
+        props.result.obj.value = obj;
         return api;
       },
       end() {
@@ -75,6 +79,7 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.probe.active.value = defaults.probe.active;
         props.result.items.value = defaults.result.items;
         props.result.response.value = defaults.result.response;
+        props.result.obj.value = defaults.result.obj;
         return api;
       },
     };

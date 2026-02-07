@@ -16,6 +16,7 @@ export default Spec.describe(D.displayName, async (e) => {
         spinning={v.spinning}
         items={v.result.items}
         response={v.result.response}
+        obj={v.result.obj}
       />
     );
   }

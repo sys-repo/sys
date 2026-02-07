@@ -8,6 +8,7 @@ describe('ActionProbe.Signals', () => {
     expect(p.probe.active.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
+    expect(p.result.obj.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -22,12 +23,18 @@ describe('ActionProbe.Signals', () => {
     expect(p.probe.active.value).to.eql('p:1');
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
+    expect(p.result.obj.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(true);
   });
 
   it('item/result/end: mutates execution channel', () => {
     const api = Signals.create();
-    api.start('p:1').item({ k: 'a', v: 1 }).item({ k: 'b', v: 2 }).result({ ok: true }).end();
+    api
+      .start('p:1')
+      .item({ k: 'a', v: 1 })
+      .item({ k: 'b', v: 2 })
+      .result({ ok: true }, { expand: 2 })
+      .end();
 
     const p = api.props;
     expect(p.result.items.value).to.eql([
@@ -35,6 +42,7 @@ describe('ActionProbe.Signals', () => {
       { k: 'b', v: 2 },
     ]);
     expect(p.result.response.value).to.eql({ ok: true });
+    expect(p.result.obj.value).to.eql({ expand: 2 });
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -48,6 +56,7 @@ describe('ActionProbe.Signals', () => {
     expect(p.probe.active.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
+    expect(p.result.obj.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -57,13 +66,14 @@ describe('ActionProbe.Signals', () => {
 
     run.onRunStart();
     run.onRunItem({ k: 'foo', v: 123 });
-    run.onRunResult({ ok: true });
+    run.onRunResult({ ok: true }, { expand: { level: 1 } });
     run.onRunEnd();
 
     const p = api.props;
     expect(p.probe.active.value).to.eql('p:2');
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
     expect(p.result.response.value).to.eql({ ok: true });
+    expect(p.result.obj.value).to.eql({ expand: { level: 1 } });
     expect(p.spinning.value).to.eql(false);
   });
 });

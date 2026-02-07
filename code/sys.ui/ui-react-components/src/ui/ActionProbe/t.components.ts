@@ -11,7 +11,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   spinning?: boolean;
   onRunStart?: () => void;
   onRunEnd?: () => void;
-  onRunResult?: (value: unknown) => void;
+  onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   onRunItem?: (item: t.KeyValueItem) => void;
 
   debug?: boolean;
@@ -25,6 +25,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
 export type ActionResultProps = {
   spinning?: boolean;
   response?: unknown;
+  obj?: t.ActionProbe.ProbeRunObjectConfig;
   items?: readonly t.KeyValueItem[];
   header?: { mono?: boolean };
   debug?: boolean;

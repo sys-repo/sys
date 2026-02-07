@@ -58,8 +58,12 @@ export namespace ActionProbe {
   export type ProbeRun<TEnv extends O = O, TParams extends O = O> = (
     e: ProbeRunArgs<TEnv, TParams>,
   ) => Promise<void>;
+
+  export type ProbeRunObjectConfig = Pick<t.ObjectViewProps, 'expand' | 'show' | 'sortKeys'>;
+
   export type ProbeRunArgs<TEnv extends O = O, TParams extends O = O> = TEnv & {
     readonly params: <T = TParams>() => Readonly<T> | undefined;
+    obj(input: ProbeRunObjectConfig): ProbeRunArgs<TEnv, TParams>;
     item(item: t.KeyValueItem): ProbeRunArgs<TEnv, TParams>;
     readonly result: (value: unknown) => void;
   };

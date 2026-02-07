@@ -25,7 +25,7 @@ export function renderSamples(debug: DebugSignals, opts: Options = {}) {
 function renderer(state: DebugSignals, opts: Options = {}) {
   return ActionProbe.renderer<DebugSignals, TEnv>({
     state,
-    style: { MarginY: 8, MarginX: 15 },
+    style: { MarginY: 15, MarginX: 15 },
     resolve: ({ state, probe }) => {
       const v = Signal.toObject(state.props);
       const local = v.env === 'localhost';

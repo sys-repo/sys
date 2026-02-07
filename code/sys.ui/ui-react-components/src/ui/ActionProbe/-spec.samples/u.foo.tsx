@@ -29,7 +29,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     await Time.wait(delay);
     e.item({ k: 'latency', v: `${delay}ms` });
     e.item({ k: 'foo', v: `bar 👋` });
-    e.result({
+    e.obj({ expand: ['$', '$.value'] }).result({
       ok: true,
       value: {
         label,

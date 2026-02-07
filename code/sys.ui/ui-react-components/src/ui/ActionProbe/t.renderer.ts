@@ -46,6 +46,6 @@ export type ActionProbeRendererResolvedProps<TEnv extends Record<string, unknown
   readonly debug?: boolean;
   readonly onRunStart?: () => void;
   readonly onRunEnd?: () => void;
-  readonly onRunResult?: (value: unknown) => void;
+  readonly onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   readonly onRunItem?: (item: t.KeyValueItem) => void;
 };

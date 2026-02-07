@@ -11,7 +11,7 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
   onRunStart?: () => void;
   onRunEnd?: () => void;
   onRunItem?: (item: t.KeyValueItem) => void;
-  onRunResult?: (value: unknown) => void;
+  onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
 };
 
 export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject>(
@@ -24,15 +24,20 @@ export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject
 
     onRunStart?.();
     try {
+      let obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
       const e: t.ActionProbe.ProbeRunArgs<TEnv, TParams> = {
         ...env,
         params: getParams,
+        obj(input) {
+          obj = { ...(obj ?? {}), ...input, show: { ...(obj?.show ?? {}), ...(input.show ?? {}) } };
+          return e;
+        },
         item(item) {
           onRunItem?.(item);
           return e;
         },
         result(value) {
-          onRunResult?.(value);
+          onRunResult?.(value, obj);
         },
       };
       await handler(e);

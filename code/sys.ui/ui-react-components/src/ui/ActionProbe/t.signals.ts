@@ -16,7 +16,7 @@ export type ActionProbeSignals = {
   handlers(probe: string): ActionProbeRunHandlers;
   start(probe: string): ActionProbeSignals;
   item(item: t.KeyValueItem): ActionProbeSignals;
-  result(value: unknown): ActionProbeSignals;
+  result(value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig): ActionProbeSignals;
   end(): ActionProbeSignals;
   reset(): ActionProbeSignals;
 };
@@ -25,7 +25,7 @@ export type ActionProbeSignals = {
 export type ActionProbeRunHandlers = {
   readonly onRunStart: () => void;
   readonly onRunEnd: () => void;
-  readonly onRunResult: (value: unknown) => void;
+  readonly onRunResult: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   readonly onRunItem: (item: t.KeyValueItem) => void;
 };
 
@@ -38,6 +38,7 @@ export type ActionProbeSignalProps = {
   readonly result: {
     readonly items: t.Signal<t.KeyValueItem[]>;
     readonly response: t.Signal<unknown>;
+    readonly obj: t.Signal<t.ActionProbe.ProbeRunObjectConfig | undefined>;
   };
 };
 
@@ -45,5 +46,9 @@ export type ActionProbeSignalProps = {
 export type ActionProbeSignalsState = {
   spinning: boolean;
   probe: { active: string | undefined };
-  result: { items: t.KeyValueItem[]; response: unknown };
+  result: {
+    items: t.KeyValueItem[];
+    response: unknown;
+    obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
+  };
 };
