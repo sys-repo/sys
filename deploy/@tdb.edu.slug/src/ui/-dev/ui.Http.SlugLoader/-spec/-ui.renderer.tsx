@@ -1,7 +1,7 @@
 import { type t, Signal, ActionProbe } from './common.ts';
 
 type Options = { theme?: t.CommonTheme };
-type TSample = t.ActionProbeView.ProbeSpec;
+type TSample = t.ActionProbe.ProbeSpec;
 
 export function renderer(debug: t.DebugSignals, opts: Options = {}) {
   const items: t.ReactNode[] = [];
@@ -22,7 +22,7 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
   return (
     <ActionProbe.Probe
       //
-      style={{ MarginY: 5 }}
+      style={{ MarginY: 8 }}
       key={probe}
       origin={origin}
       is={{ local }}

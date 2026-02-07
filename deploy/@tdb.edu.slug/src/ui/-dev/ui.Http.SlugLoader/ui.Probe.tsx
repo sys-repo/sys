@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, KeyValue, Obj } from './common.ts';
 
-type P = t.ActionProbeView.ProbeProps;
+type P = t.ActionProbe.ProbeProps;
 
 /**
  * Component:
@@ -12,7 +12,7 @@ export const Probe: React.FC<P> = (props) => {
   /**
    * State:
    */
-  type TArgs = t.ActionProbeView.ProbeRenderArgs;
+  type TArgs = t.ActionProbe.ProbeRenderArgs;
   const [body, setBody] = React.useState<t.ReactNode>();
   const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
   const paramsRef = React.useRef<unknown>(undefined);
@@ -48,7 +48,7 @@ export const Probe: React.FC<P> = (props) => {
 
     props.onRunStart?.();
     try {
-      const args: t.ActionProbeView.ProbeRunArgs = {
+      const args: t.ActionProbe.ProbeRunArgs = {
         is,
         origin,
         params<T = unknown>() {

@@ -9,5 +9,5 @@ export type * from './ui.Http.SlugLoader/t.ts';
  */
 export type DevLib = {
   SlugOrigin: t.SlugHttpOriginLib;
-  ActionProbe: t.ActionProbeView.Lib;
+  ActionProbe: t.ActionProbe.Lib;
 };

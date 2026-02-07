@@ -9,7 +9,7 @@ export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
 
   push(Sample.Descriptor);
   push(Sample.Descriptor);
-  hr();
+  // hr();
 
   return items;
 }
