@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 export type * from '../../../../common/t.ts';
 export type * from './-SPEC.Debug.tsx';
 
-export type DescriptorMode = 'descriptor' | t.BundleDescriptorKind;
+export type DescriptorMode = t.BundleDescriptorKind;
 export type DescriptorParams = {
   path: string;
   kind: DescriptorMode;

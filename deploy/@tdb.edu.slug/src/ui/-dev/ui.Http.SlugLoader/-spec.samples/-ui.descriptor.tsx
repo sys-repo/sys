@@ -6,10 +6,10 @@ type Params = t.DescriptorParams;
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
-    const kind = e.descriptorKind ?? 'descriptor';
+    const kind = e.descriptorKind ?? 'slug-tree:fs';
     const descriptorPath = resolveDescriptorPath(kind);
     e.params({ path: descriptorPath, kind });
-    renderDescriptorCard(e, { kind, onKindChange: e.onDescriptorKindChange });
+    renderDescriptorCard(e, { origin: e.origin, kind, onKindChange: e.onDescriptorKindChange });
     e.item({ k: 'path', v: descriptorPath });
   },
   async run(e) {
@@ -28,9 +28,6 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'kind', v: kind });
 
     const descriptor = await SlugClient.FromEndpoint.Descriptor.load(e.origin.cdn.default, path);
-    if (kind === 'descriptor') {
-      return e.result(descriptor);
-    }
     if (!descriptor.ok) return e.result(descriptor);
     const docid = resolveDocid(descriptor.value, kind);
     e.item({ k: 'docid', v: docid ?? '(auto:none)' });
@@ -105,8 +102,10 @@ function resolveClientBasePath(kind: t.DescriptorMode): string {
   return 'kb/-manifests';
 }
 
-function resolveDocid(descriptor: t.BundleDescriptorDoc, kind: t.DescriptorMode): string | undefined {
-  if (kind === 'descriptor') return undefined;
+function resolveDocid(
+  descriptor: t.BundleDescriptorDoc,
+  kind: t.DescriptorMode,
+): string | undefined {
   const match = descriptor.bundles.find((item) => item.kind === kind);
   return match?.docid;
 }

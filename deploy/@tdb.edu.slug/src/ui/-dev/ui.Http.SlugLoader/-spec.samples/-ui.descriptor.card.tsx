@@ -1,11 +1,16 @@
-import { type t, BulletList } from './common.ts';
+import React from 'react';
+import { type t, BulletList, SlugClient } from './common.ts';
 
 type Props = {
+  origin: t.SlugUrlOrigin;
   kind: t.DescriptorMode;
   onKindChange?: (next: t.DescriptorMode) => void;
 };
 
-export function renderDescriptorCard(e: t.ActionProbe.ProbeRenderArgs<t.TEnv, t.DescriptorParams>, props: Props) {
+export function renderDescriptorCard(
+  e: t.ActionProbe.ProbeRenderArgs<t.TEnv, t.DescriptorParams>,
+  props: Props,
+) {
   const { kind } = props;
 
   e.element(
@@ -15,29 +20,71 @@ export function renderDescriptorCard(e: t.ActionProbe.ProbeRenderArgs<t.TEnv, t.
     </div>,
   );
 
-  e.element(
-    <BulletList.UI
-      selected={kind}
-      items={[
-        { id: 'descriptor', label: 'descriptor' },
-        { id: 'slug-tree:fs', label: 'descriptor: content/file' },
-        { id: 'slug-tree:media:seq', label: 'descriptor: playback/assets' },
-      ]}
-      onSelect={(ev) => {
-        if (!isDescriptorMode(ev.id)) return;
-        props.onKindChange?.(ev.id);
-      }}
-    />,
-  );
-
+  e.element(<KindSelector origin={props.origin} selected={kind} onChange={props.onKindChange} />);
+  e.item({ kind: 'hr' });
   e.item({ k: 'kind', v: kind });
 }
 
-function isDescriptorKind(input: string): input is t.BundleDescriptorKind {
-  return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
+type SelectorProps = {
+  origin: t.SlugUrlOrigin;
+  selected: t.DescriptorMode;
+  onChange?: (next: t.DescriptorMode) => void;
+};
+
+function KindSelector(props: SelectorProps) {
+  const [items, setItems] = React.useState<t.BulletList.Item[]>(fallbackItems());
+
+  React.useEffect(() => {
+    let disposed = false;
+    void loadItems(props.origin.cdn.default).then((next) => {
+      if (disposed) return;
+      setItems(next);
+    });
+    return () => {
+      disposed = true;
+    };
+  }, [props.origin.cdn.default]);
+
+  return (
+    <BulletList.UI
+      selected={props.selected}
+      items={items}
+      onSelect={(ev) => {
+        if (!isDescriptorMode(ev.id)) return;
+        props.onChange?.(ev.id);
+      }}
+    />
+  );
 }
 
 function isDescriptorMode(input: string): input is t.DescriptorMode {
-  if (input === 'descriptor') return true;
-  return isDescriptorKind(input);
+  return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
+}
+
+async function loadItems(origin: string): Promise<t.BulletList.Item[]> {
+  const paths = ['kb/-manifests', 'program/-manifests'] as const;
+  const list = await Promise.all(
+    paths.map(async (path) => {
+      const res = await SlugClient.FromEndpoint.Descriptor.load(origin, path);
+      if (!res.ok) return [];
+      return res.value.bundles.map((bundle) => bundle.kind);
+    }),
+  );
+
+  const ids = [...new Set(list.flat())];
+  if (ids.length === 0) return fallbackItems();
+  return ids.map((id) => ({ id, label: labelForKind(id) }));
+}
+
+function fallbackItems(): t.BulletList.Item[] {
+  return [
+    { id: 'slug-tree:fs', label: labelForKind('slug-tree:fs') },
+    { id: 'slug-tree:media:seq', label: labelForKind('slug-tree:media:seq') },
+  ];
+}
+
+function labelForKind(kind: t.BundleDescriptorKind): string {
+  if (kind === 'slug-tree:fs') return 'descriptor: content/file';
+  if (kind === 'slug-tree:media:seq') return 'descriptor: playback/assets';
+  return `descriptor: ${kind}`;
 }

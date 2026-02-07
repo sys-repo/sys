@@ -14,7 +14,7 @@ import {
 } from '../common.ts';
 import { renderSamples } from './-u.samples.tsx';
 
-type DescriptorMode = 'descriptor' | t.BundleDescriptorKind;
+type DescriptorMode = t.BundleDescriptorKind;
 type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -24,7 +24,7 @@ type Storage = {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  descriptorKind: 'descriptor',
+  descriptorKind: 'slug-tree:fs',
 };
 
 /**
@@ -46,7 +46,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
-    descriptorKind: s(snap.descriptorKind),
+    descriptorKind: s(normalizeDescriptorMode(snap.descriptorKind)),
     origin: s<t.SlugUrlOrigin | undefined>(),
     ...action.props,
   };
@@ -77,6 +77,14 @@ export async function createDebugSignals() {
   });
 
   return api;
+}
+
+function normalizeDescriptorMode(input: unknown): DescriptorMode {
+  return isDescriptorMode(input) ? input : 'slug-tree:fs';
+}
+
+function isDescriptorMode(input: unknown): input is DescriptorMode {
+  return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
 }
 
 const Styles = {
