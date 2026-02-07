@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BulletList, Color, css } from './common.ts';
+import { type t, BulletList, Color, css, Is } from './common.ts';
 
 type P = t.HttpOriginProps;
 
@@ -8,7 +8,17 @@ type P = t.HttpOriginProps;
  */
 export const OriginSelector: React.FC<P> = (props) => {
   const { debug = false, env = 'localhost' } = props;
-  const items: t.BulletList.Item[] = [{ id: 'localhost' }, { id: 'production' }];
+  const localhostEnabled = isBrowserLocalhost();
+  const items: t.BulletList.Item[] = [
+    { id: 'localhost', enabled: localhostEnabled },
+    { id: 'production' },
+  ];
+
+  React.useEffect(() => {
+    if (localhostEnabled) return;
+    if (env !== 'localhost') return;
+    props.onChange?.({ next: 'production' });
+  }, [localhostEnabled, env, props]);
 
   /**
    * Render:

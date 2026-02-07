@@ -9,7 +9,11 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
     const descriptorPath = resolveDescriptorPath(kind);
     e.params({ path: descriptorPath, kind });
-    renderDescriptorCard(e, { origin: e.origin, kind, onKindChange: e.probe?.descriptor?.onKindChange });
+    renderDescriptorCard(e, {
+      origin: e.origin,
+      kind,
+      onKindChange: e.probe?.descriptor?.onKindChange,
+    });
     e.item({ k: 'path', v: descriptorPath });
   },
   async run(e) {
@@ -30,9 +34,9 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const descriptor = await SlugClient.FromEndpoint.Descriptor.load(e.origin.cdn.default, path);
     if (!descriptor.ok) return e.result(descriptor);
     const docid = resolveDocid(descriptor.value, kind);
-    e.item({ k: 'docid', v: docid ?? '(auto:none)' });
+    e.item({ k: 'doc-id', v: docid ?? '(auto:none)' });
     const basePath = resolveClientBasePath(kind);
-    e.item({ k: 'basePath', v: basePath });
+    e.item({ k: 'base-path', v: basePath });
 
     const client = SlugClient.FromDescriptor.make({
       descriptor: descriptor.value,

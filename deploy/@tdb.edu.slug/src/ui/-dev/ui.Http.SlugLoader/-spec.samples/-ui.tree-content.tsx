@@ -17,8 +17,8 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       selected: e.probe?.treeContent?.ref,
       onSelect: e.probe?.treeContent?.onRefChange,
     });
-    e.item({ k: 'basePath', v: basePath });
-    e.item({ k: 'docid', v: docid });
+    e.item({ k: 'base-path', v: basePath });
+    e.item({ k: 'doc-id', v: docid });
   },
 
   async run(e) {
@@ -39,7 +39,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     const baseUrl = Url.parse(e.origin.cdn.default).join(basePath);
     e.item({ k: 'origin', v: e.origin.cdn.default });
-    e.item({ k: 'baseUrl', v: baseUrl });
+    e.item({ k: 'base-url', v: baseUrl });
     const tree = await SlugClient.FromEndpoint.Tree.load(baseUrl, docid, {
       layout: { manifestsDir },
     });
@@ -76,12 +76,13 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const frontmatter = content.value.frontmatter;
     e.item({ k: 'ref', v: ref });
     e.item({ k: 'hash', v: Str.ellipsize(hash, [20, 5], '..') });
-    e.item({ k: 'contentType', v: content.value.contentType });
+    e.item({ k: 'content-type', v: content.value.contentType });
     e.item({ kind: 'hr' });
+    e.item({ k: 'content/frontmatter:', v: frontmatter ? 'yes' : 'no' });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
-    e.item({ k: 'refs.loaded', v: refs.length });
-    e.item({ k: 'tree.items', v: tree.value.tree.length });
-    e.item({ k: 'contentIndex.entries', v: index.value.entries.length });
+    e.item({ k: 'refs: loaded', v: refs.length });
+    e.item({ k: 'tree: items', v: tree.value.tree.length });
+    e.item({ k: 'content-index: entries', v: index.value.entries.length });
 
     return e.result({
       ok: true,

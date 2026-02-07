@@ -82,6 +82,11 @@ export async function createDebugSignals() {
     });
   });
 
+  Signal.effect(() => {
+    if (isBrowserLocalhost()) return;
+    if (p.env.value === 'localhost') p.env.value = 'production';
+  });
+
   return api;
 }
 
@@ -91,6 +96,12 @@ function normalizeDescriptorMode(input: unknown): DescriptorMode {
 
 function isDescriptorMode(input: unknown): input is DescriptorMode {
   return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
+}
+
+function isBrowserLocalhost(): boolean {
+  const hostname = globalThis.location?.hostname;
+  if (!hostname) return true;
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
 }
 
 const Styles = {
@@ -112,7 +123,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
-  /**
+  /**F
    * Render:
    */
   const theme = Color.theme();
@@ -124,23 +135,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
-        block
-        label={() => `theme: ${v.theme ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
-
-      <hr style={{ marginTop: 10, marginBottom: 15 }} />
+      <hr style={{ marginTop: 10, marginBottom: 10 }} />
 
       <Dev.SlugOrigin.UI
         debug={v.debug}
         env={p.env}
         origin={p.origin}
-        style={{ marginTop: 10, marginBottom: 20 }}
+        style={{ marginTop: 10, marginBottom: 30 }}
       />
       {renderSamples(debug, { theme: theme.name })}
+      <hr style={{ marginTop: 70, borderTopWidth: 5, opacity: 0.4 }} />
 
-      <hr style={{ marginTop: 50, borderTopWidth: 5, opacity: 0.4 }} />
+      <Button
+        block
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

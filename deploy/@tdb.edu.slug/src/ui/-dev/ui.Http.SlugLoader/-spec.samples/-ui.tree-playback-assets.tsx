@@ -14,13 +14,9 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const manifestsDir = '-manifests';
 
     e.params({ basePath, docid, manifestsDir });
-    e.element(
-      <div>
-        Loads tree, assets, playback, and timeline bundle for one docid.
-      </div>,
-    );
-    e.item({ k: 'basePath', v: basePath });
-    e.item({ k: 'docid', v: docid });
+    e.element(<div>Loads tree, assets, playback, and timeline bundle for one docid.</div>);
+    e.item({ k: 'base-path', v: basePath });
+    e.item({ k: 'doc-id', v: docid });
   },
 
   async run(e) {
