@@ -78,6 +78,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'ref', v: ref });
     e.item({ k: 'hash', v: Str.ellipsize(hash, [20, 5], '..') });
     e.item({ k: 'contentType', v: content.value.contentType });
+    e.item({ kind: 'hr' });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
     e.item({ k: 'tree.items', v: tree.value.tree.length });
     e.item({ k: 'contentIndex.entries', v: index.value.entries.length });
