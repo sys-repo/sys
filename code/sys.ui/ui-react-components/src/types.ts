@@ -3,6 +3,7 @@
  */
 export type * from './ui/ActionProbe/t.ts';
 export type * from './ui/Bullet/t.ts';
+export type * from './ui/BulletList/t.ts';
 export type * from './ui/Button/t.ts';
 export type * from './ui/Buttons.Icons/t.ts';
 export type * from './ui/Buttons.Switch/t.ts';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Button, Color, css, D } from './common.ts';
+import { type t, BulletList, Color, css } from './common.ts';
 
 type P = t.HttpOriginProps;
 
@@ -8,6 +8,7 @@ type P = t.HttpOriginProps;
  */
 export const OriginSelector: React.FC<P> = (props) => {
   const { debug = false, env = 'localhost' } = props;
+  const items: t.BulletList.Item[] = [{ id: 'localhost' }, { id: 'production' }];
 
   /**
    * Render:
@@ -20,31 +21,23 @@ export const OriginSelector: React.FC<P> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    button: css({
-      display: 'grid',
-      gridTemplateColumns: `auto 1fr`,
-      alignItems: 'center',
-      gap: 8,
-    }),
-  };
-
-  const btn = (value: t.HttpOriginEnv) => {
-    const label = `${value}`;
-    const isSelected = value === env;
-    return (
-      <Button theme={theme.name} onMouseDown={() => props.onChange?.({ next: value })}>
-        <div className={styles.button.class}>
-          <Bullet theme={theme.name} selected={isSelected} />
-          <div>{label}</div>
-        </div>
-      </Button>
-    );
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {btn('localhost')}
-      {btn('production')}
+      <BulletList.UI
+        theme={theme.name}
+        selected={env}
+        items={items}
+        onSelect={(e) => {
+          if (!isEnv(e.id)) return;
+          props.onChange?.({ next: e.id });
+        }}
+      />
     </div>
   );
 };
+
+function isEnv(input: string): input is t.HttpOriginEnv {
+  return input === 'localhost' || input === 'production';
+}
