@@ -6,11 +6,11 @@ type Params = t.DescriptorParams;
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
-    const path = 'kb/-manifests';
     const kind = e.descriptorKind ?? 'descriptor';
-    e.params({ path, kind });
+    const descriptorPath = resolveDescriptorPath(kind);
+    e.params({ path: descriptorPath, kind });
     renderDescriptorCard(e, { kind, onKindChange: e.onDescriptorKindChange });
-    e.item({ k: 'path', v: path });
+    e.item({ k: 'path', v: descriptorPath });
   },
   async run(e) {
     const params = e.params<Params>();
@@ -30,11 +30,16 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       return e.result(descriptor);
     }
     if (!descriptor.ok) return e.result(descriptor);
+    const docid = resolveDocid(descriptor.value, kind);
+    e.item({ k: 'docid', v: docid ?? '(auto:none)' });
+    const basePath = resolveClientBasePath(kind);
+    e.item({ k: 'basePath', v: basePath });
 
     const client = SlugClient.FromDescriptor.make({
       descriptor: descriptor.value,
-      baseUrl: Url.parse(e.origin.cdn.default).join(path),
+      baseUrl: Url.parse(e.origin.cdn.default).join(basePath),
       kind,
+      docid,
     });
     if (!client.ok) return e.result(client);
 
@@ -87,3 +92,19 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     });
   },
 };
+
+function resolveDescriptorPath(kind: t.DescriptorMode): string {
+  if (kind === 'slug-tree:media:seq') return 'program/-manifests';
+  return 'kb/-manifests';
+}
+
+function resolveClientBasePath(kind: t.DescriptorMode): string {
+  if (kind === 'slug-tree:media:seq') return 'program';
+  return 'kb/-manifests';
+}
+
+function resolveDocid(descriptor: t.BundleDescriptorDoc, kind: t.DescriptorMode): string | undefined {
+  if (kind === 'descriptor') return undefined;
+  const match = descriptor.bundles.find((item) => item.kind === kind);
+  return match?.docid;
+}
