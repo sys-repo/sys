@@ -1,0 +1,45 @@
+import React from 'react';
+import { type t } from './common.ts';
+
+type EnvObject = Record<string, unknown>;
+type ParamsObject = Record<string, unknown>;
+
+type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
+  run?: t.ActionProbe.ProbeRun<TEnv, TParams>;
+  env: TEnv;
+  getParams: <T = TParams>() => Readonly<T> | undefined;
+  onRunStart?: () => void;
+  onRunEnd?: () => void;
+  onRunItem?: (item: t.KeyValueItem) => void;
+  onRunResult?: (value: unknown) => void;
+};
+
+export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject>(
+  args: Args<TEnv, TParams>,
+) {
+  const { run: handler, env, getParams, onRunStart, onRunEnd, onRunItem, onRunResult } = args;
+
+  const run = React.useCallback(async () => {
+    if (!handler) return;
+
+    onRunStart?.();
+    try {
+      const e: t.ActionProbe.ProbeRunArgs<TEnv, TParams> = {
+        ...env,
+        params: getParams,
+        item(item) {
+          onRunItem?.(item);
+          return e;
+        },
+        result(value) {
+          onRunResult?.(value);
+        },
+      };
+      await handler(e);
+    } finally {
+      onRunEnd?.();
+    }
+  }, [env, getParams, handler, onRunEnd, onRunItem, onRunResult, onRunStart]);
+
+  return { run, canRun: !!handler } as const;
+}

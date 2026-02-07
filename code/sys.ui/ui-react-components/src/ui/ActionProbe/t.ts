@@ -55,7 +55,7 @@ export namespace ActionProbe {
   };
 
   /**
-   * Fetch Samples
+   * Probes:
    */
   export type ProbeSpec<
     TEnv extends EnvObject = EnvObject,
@@ -69,9 +69,7 @@ export namespace ActionProbe {
   export type ProbeRender<
     TEnv extends EnvObject = EnvObject,
     TParams extends ParamsObject = ParamsObject,
-  > = (
-    e: ProbeRenderArgs<TEnv, TParams>,
-  ) => void;
+  > = (e: ProbeRenderArgs<TEnv, TParams>) => void;
   export type ProbeRenderArgs<
     TEnv extends EnvObject = EnvObject,
     TParams extends ParamsObject = ParamsObject,
@@ -85,9 +83,7 @@ export namespace ActionProbe {
   export type ProbeRun<
     TEnv extends EnvObject = EnvObject,
     TParams extends ParamsObject = ParamsObject,
-  > = (
-    e: ProbeRunArgs<TEnv, TParams>,
-  ) => Promise<void>;
+  > = (e: ProbeRunArgs<TEnv, TParams>) => Promise<void>;
   export type ProbeRunArgs<
     TEnv extends EnvObject = EnvObject,
     TParams extends ParamsObject = ParamsObject,

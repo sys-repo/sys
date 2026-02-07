@@ -1,5 +1,7 @@
 import React from 'react';
-import { type t, Button, Color, css, KeyValue, Obj } from './common.ts';
+import { type t, Button, Color, css, KeyValue } from './common.ts';
+import { useProbeRenderModel } from './use.RenderModel.ts';
+import { useProbeRun } from './use.Run.ts';
 
 type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
@@ -11,75 +13,16 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
   const { debug = false, sample, env, spinning = false } = props;
-  type Block = { kind: 'element'; node: t.ReactNode } | { kind: 'kv'; items: t.KeyValueItem[] };
-
-  /**
-   * State:
-   */
-  type TArgs = t.ActionProbe.ProbeRenderArgs<TEnv, TParams>;
-  const [blocks, setBlocks] = React.useState<Block[]>([]);
-  const paramsRef = React.useRef<TParams | undefined>(undefined);
-
-  /**
-   * Effect:
-   */
-  React.useEffect(() => {
-    const theme = props.theme;
-    const common = env;
-    paramsRef.current = undefined;
-    const blocks: Block[] = [];
-    let currentItems: t.KeyValueItem[] | undefined;
-
-    const args: TArgs = {
-      ...common,
-      theme,
-      params(value) {
-        paramsRef.current = Object.freeze(value);
-        return args;
-      },
-      element(node) {
-        currentItems = undefined;
-        blocks.push({ kind: 'element', node });
-        return args;
-      },
-      item(item) {
-        if (!currentItems) {
-          currentItems = [];
-          blocks.push({ kind: 'kv', items: currentItems });
-        }
-        currentItems.push(item);
-        return args;
-      },
-    };
-
-    sample.render(args);
-    setBlocks(blocks);
-  }, [props.theme, Obj.hash(env)]);
-
-  const run = React.useCallback(async () => {
-    const handler = sample.run;
-    if (!handler) return;
-
-    props.onRunStart?.();
-    try {
-      const args: t.ActionProbe.ProbeRunArgs<TEnv, TParams> = {
-        ...env,
-        params<T = TParams>() {
-          return paramsRef.current as Readonly<T> | undefined;
-        },
-        item(item) {
-          props.onRunItem?.(item);
-          return args;
-        },
-        result(value) {
-          props.onRunResult?.(value);
-        },
-      };
-      await handler(args);
-    } finally {
-      props.onRunEnd?.();
-    }
-  }, [env, props, sample]);
+  const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
+  const { run, canRun } = useProbeRun({
+    run: sample.run,
+    env,
+    getParams,
+    onRunStart: props.onRunStart,
+    onRunEnd: props.onRunEnd,
+    onRunItem: props.onRunItem,
+    onRunResult: props.onRunResult,
+  });
 
   /**
    * Render:
@@ -119,7 +62,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       <div className={styles.title.left.class}>{sample.title ?? 'Untitled Probe'}</div>
       <div />
       <div className={styles.title.right.class}>
-        <Button enabled={!!sample.run && !spinning} onClick={run}>
+        <Button enabled={canRun && !spinning} onClick={run}>
           {spinning ? 'Running...' : 'Run'}
         </Button>
       </div>
