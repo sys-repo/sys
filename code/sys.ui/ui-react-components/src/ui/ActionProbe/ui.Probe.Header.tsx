@@ -5,13 +5,14 @@ type HeaderProps = {
   title?: t.ReactNode;
   canRun: boolean;
   spinning: boolean;
+  focused?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onRun: () => void;
 };
 
 export const Header: React.FC<HeaderProps> = (props) => {
-  const { title, canRun, spinning, onRun } = props;
+  const { title, canRun, spinning, focused = false, onRun } = props;
 
   /**
    * Render:
@@ -38,7 +39,13 @@ export const Header: React.FC<HeaderProps> = (props) => {
       <div className={styles.title.class}>{title ?? 'Untitled Probe'}</div>
       <div />
       <div className={styles.run.class}>
-        <RunButton canRun={canRun} spinning={spinning} onRun={onRun} theme={theme.name} />
+        <RunButton
+          canRun={canRun}
+          spinning={spinning}
+          focused={focused}
+          onRun={onRun}
+          theme={theme.name}
+        />
       </div>
     </div>
   );

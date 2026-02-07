@@ -69,6 +69,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         title={sample.title}
         canRun={canRun}
         spinning={spinning}
+        focused={focused}
         onRun={run}
         style={styles.header}
       />
