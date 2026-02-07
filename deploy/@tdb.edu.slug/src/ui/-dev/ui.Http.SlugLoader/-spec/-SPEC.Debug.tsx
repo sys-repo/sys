@@ -1,6 +1,17 @@
 import React from 'react';
 import { Dev } from '../../mod.ts';
-import { type t, ActionProbe, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  ActionProbe,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { renderSamples } from './-ui.samples.tsx';
 
 type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
@@ -107,8 +118,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
 
       <div className={Styles.title.class} style={{ marginBottom: 15 }}>
-        <div>{'SlugClient:'}</div>
-        <div>{'HTTP'}</div>
+        <div>{'Fetch'}</div>
+        <div>{'HttpClient'}</div>
       </div>
       {renderSamples(debug, { theme: theme.name })}
     </div>
