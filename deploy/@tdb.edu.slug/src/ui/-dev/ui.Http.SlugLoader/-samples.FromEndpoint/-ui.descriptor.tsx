@@ -1,26 +1,31 @@
-import { type t, Str, Button, SlugClient, Time } from './common.ts';
+import { type t, Str, SlugClient } from './common.ts';
 
-export const DescriptorSample: t.SlugLoaderView.FetchSample = {
+type DescriptorParams = {
+  readonly path: string;
+};
+
+export const DescriptorSample: t.SlugLoaderView.ProbeSpec<DescriptorParams> = {
   title: 'Descriptor',
   render(e) {
+    const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
+    e.params({ path });
     e.item({ k: 'foo', v: 'bar' });
     e.item({ k: 'foo2', v: '456' });
+    e.item({ k: 'path', v: path });
 
     return <div>{Str.Lorem.words(18)}</div>;
   },
   async run(e) {
-    console.log(`-------------------------------------------`);
-    console.log('run', e);
+    const params = e.params<DescriptorParams>();
+    const path = params?.path;
+    if (!path) {
+      e.item({ k: 'error', v: 'Missing params.path' });
+      return e.result({ ok: false, error: { message: 'Missing params.path' } });
+    }
+
+    e.item({ k: 'origin', v: e.origin.cdn.default });
+    e.item({ k: 'path', v: path });
+    const res = await SlugClient.FromEndpoint.Descriptor.load(e.origin.cdn.default, path);
+    e.result(res);
   },
 };
-
-/**
- * Tmp 🐷
- */
-
-async function tmpLoad(e: t.SlugLoaderView.ProbeRenderArgs) {
-  const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
-  const res = await SlugClient.FromEndpoint.Descriptor.load(e.origin.cdn.default, path);
-  // e.result(res);
-  console.log('res', res);
-}

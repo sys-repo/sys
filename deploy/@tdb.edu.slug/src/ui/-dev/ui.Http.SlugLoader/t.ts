@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 
 export namespace SlugLoaderView {
+  type ParamsObject = Record<string, unknown>;
+
   export type Lib = {
     readonly Probe: t.FC<t.SlugLoaderView.ProbeProps>;
     readonly Result: t.FC<t.SlugLoaderView.ResultProps>;
@@ -9,10 +11,15 @@ export namespace SlugLoaderView {
   /**
    * Component:
    */
-  export type ProbeProps = {
-    sample: t.SlugLoaderView.FetchSample;
-    is: ProbeRenderArgs['is'];
+  export type ProbeProps<TParams extends ParamsObject = ParamsObject> = {
+    sample: t.SlugLoaderView.ProbeSpec<TParams>;
+    is: ProbeRenderArgs<TParams>['is'];
     origin: t.SlugUrlOrigin;
+    spinning?: boolean;
+    onRunStart?: () => void;
+    onRunEnd?: () => void;
+    onRunResult?: (value: unknown) => void;
+    onRunItem?: (item: t.KeyValueItem) => void;
 
     debug?: boolean;
     theme?: t.CommonTheme;
@@ -21,6 +28,7 @@ export namespace SlugLoaderView {
   export type ResultProps = {
     spinning?: boolean;
     response?: unknown;
+    items?: readonly t.KeyValueItem[];
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
@@ -29,10 +37,10 @@ export namespace SlugLoaderView {
   /**
    * Fetch Samples
    */
-  export type FetchSample = {
+  export type ProbeSpec<TParams extends ParamsObject = ParamsObject> = {
     readonly title: t.ReactNode;
-    readonly render: ProbeRender;
-    readonly run?: FetchAction;
+    readonly render: ProbeRender<TParams>;
+    readonly run?: ProbeRun<TParams>;
   };
 
   type CommonArgs = {
@@ -40,14 +48,21 @@ export namespace SlugLoaderView {
     readonly origin: t.SlugUrlOrigin;
   };
 
-  export type ProbeRender = (e: ProbeRenderArgs) => t.ReactNode | null;
-  export type ProbeRenderArgs = CommonArgs & {
+  export type ProbeRender<TParams extends ParamsObject = ParamsObject> = (
+    e: ProbeRenderArgs<TParams>,
+  ) => t.ReactNode | null;
+  export type ProbeRenderArgs<TParams extends ParamsObject = ParamsObject> = CommonArgs & {
     readonly theme?: t.CommonTheme;
-    item(item: t.KeyValueItem): ProbeRenderArgs;
+    readonly params: (value: TParams) => ProbeRenderArgs<TParams>;
+    item(item: t.KeyValueItem): ProbeRenderArgs<TParams>;
   };
 
-  export type FetchAction = (e: FetchActionArgs) => Promise<void>;
-  export type FetchActionArgs = CommonArgs & {
+  export type ProbeRun<TParams extends ParamsObject = ParamsObject> = (
+    e: ProbeRunArgs<TParams>,
+  ) => Promise<void>;
+  export type ProbeRunArgs<TParams extends ParamsObject = ParamsObject> = CommonArgs & {
+    readonly params: <T = TParams>() => Readonly<T> | undefined;
+    item(item: t.KeyValueItem): ProbeRunArgs<TParams>;
     readonly result: (value: unknown) => void;
   };
 }

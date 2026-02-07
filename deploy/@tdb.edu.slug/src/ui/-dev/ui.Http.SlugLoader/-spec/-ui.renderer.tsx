@@ -1,7 +1,7 @@
 import { type t, Signal, SlugLoader } from './common.ts';
 
 type Options = { theme?: t.CommonTheme };
-type TSample = t.SlugLoaderView.FetchSample;
+type TSample = t.SlugLoaderView.ProbeSpec;
 
 export function renderer(debug: t.DebugSignals, opts: Options = {}) {
   const items: t.ReactNode[] = [];
@@ -12,20 +12,39 @@ export function renderer(debug: t.DebugSignals, opts: Options = {}) {
 }
 
 function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Options) {
-  const v = Signal.toObject(debug.props);
+  const p = debug.props;
+  const v = Signal.toObject(p);
   const local = v.env === 'localhost';
   const origin = v.origin;
+  const probe = String(index);
   if (!origin) return null;
 
   return (
     <SlugLoader.Probe
       //
-      key={index}
+      style={{ MarginY: 5 }}
+      key={probe}
       origin={origin}
       is={{ local }}
+      spinning={v.spinning && v.activeProbe === probe}
       theme={opts.theme ?? v.theme}
       debug={v.debug}
       sample={sample}
+      onRunStart={() => {
+        p.activeProbe.value = probe;
+        p.resultItems.value = [];
+        p.response.value = undefined;
+        p.spinning.value = true;
+      }}
+      onRunEnd={() => {
+        p.spinning.value = false;
+      }}
+      onRunResult={(value) => {
+        p.response.value = value;
+      }}
+      onRunItem={(item) => {
+        p.resultItems.value = [...p.resultItems.value, item];
+      }}
     />
   );
 }

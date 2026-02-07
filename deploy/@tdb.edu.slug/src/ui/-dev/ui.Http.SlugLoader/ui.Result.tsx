@@ -22,18 +22,16 @@ export const Result: React.FC<t.SlugLoaderView.ResultProps> = (props) => {
   );
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
-
-  const items = KeyValue.fromObject({ foo: 123, bar: 456 });
-  items.push({ kind: 'hr' });
+  const items = [...(props.items ?? [])];
 
   const elBody = !spinning && (
     <div className={styles.body.class}>
-      <KeyValue.UI theme={theme.name} items={items} />
+      {items.length > 0 && <KeyValue.UI theme={theme.name} items={items} />}
       <ObjectView
         name={'http:response'}
         data={data}
         theme={theme.name}
-        style={styles.obj}
+        style={css(styles.obj, items.length > 0 ? undefined : { marginTop: 0 })}
         expand={5}
       />
     </div>

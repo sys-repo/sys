@@ -12,7 +12,6 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
-import { fetchSamples } from './-u.fetch.samples__.tsx';
 import { renderSamples } from './-ui.samples.tsx';
 
 type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
@@ -35,14 +34,13 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  // type TState = t.SlugLoaderView.FetchState;
-  // const state = Immutable.clonerRef<TState>({});
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
+    activeProbe: s<string | undefined>(),
+    resultItems: s<t.KeyValueItem[]>([]),
     response: s<unknown>(),
     spinning: s(false),
   };
@@ -59,6 +57,10 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.activeProbe.value = undefined;
+    p.resultItems.value = [];
+    p.response.value = undefined;
+    p.spinning.value = false;
   }
 
   Signal.effect(() => {
@@ -120,9 +122,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
 
       <div className={Styles.title.class}>{'SlugClient:'}</div>
-      {fetchSamples(debug)}
-
-      <hr />
       {renderSamples(debug, { theme: theme.name })}
     </div>
   );

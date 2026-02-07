@@ -14,6 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         spinning={v.spinning}
+        items={v.resultItems}
         response={v.response}
       />
     );

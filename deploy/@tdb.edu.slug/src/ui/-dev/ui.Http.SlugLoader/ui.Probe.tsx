@@ -7,7 +7,7 @@ type P = t.SlugLoaderView.ProbeProps;
  * Component:
  */
 export const Probe: React.FC<P> = (props) => {
-  const { debug = false, sample, is, origin } = props;
+  const { debug = false, sample, is, origin, spinning = false } = props;
 
   /**
    * State:
@@ -15,6 +15,7 @@ export const Probe: React.FC<P> = (props) => {
   type TArgs = t.SlugLoaderView.ProbeRenderArgs;
   const [body, setBody] = React.useState<t.ReactNode>();
   const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
+  const paramsRef = React.useRef<unknown>(undefined);
 
   /**
    * Effect:
@@ -22,11 +23,16 @@ export const Probe: React.FC<P> = (props) => {
   React.useEffect(() => {
     const theme = props.theme;
     const common = { is, origin };
+    paramsRef.current = undefined;
     setItems([]);
 
     const args: TArgs = {
       ...common,
       theme,
+      params(value) {
+        paramsRef.current = Object.freeze(value);
+        return args;
+      },
       item(item) {
         setItems((last) => [...last, item]);
         return args;
@@ -36,7 +42,31 @@ export const Probe: React.FC<P> = (props) => {
     setBody(sample.render(args));
   }, [props.theme, Obj.hash({ is, origin })]);
 
-  console.log('items', items);
+  const run = React.useCallback(async () => {
+    const handler = sample.run;
+    if (!handler) return;
+
+    props.onRunStart?.();
+    try {
+      const args: t.SlugLoaderView.ProbeRunArgs = {
+        is,
+        origin,
+        params<T = unknown>() {
+          return paramsRef.current as Readonly<T> | undefined;
+        },
+        item(item) {
+          props.onRunItem?.(item);
+          return args;
+        },
+        result(value) {
+          props.onRunResult?.(value);
+        },
+      };
+      await handler(args);
+    } finally {
+      props.onRunEnd?.();
+    }
+  }, [is, origin, props, sample]);
 
   /**
    * Render:
@@ -77,7 +107,9 @@ export const Probe: React.FC<P> = (props) => {
       <div className={styles.title.left.class}>{sample.title ?? 'Untitled Probe'}</div>
       <div />
       <div className={styles.title.right.class}>
-        <Button>{'Run'}</Button>
+        <Button enabled={!!sample.run && !spinning} onClick={run}>
+          {spinning ? 'Running...' : 'Run'}
+        </Button>
       </div>
     </div>
   );
