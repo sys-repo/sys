@@ -47,7 +47,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       ':focus-visible': { outline: 'none' },
       transition: 'box-shadow 40ms ease',
     }),
-    header: css({ borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
+    header: css({ borderBottom: `dashed 1px ${Color.alpha(theme.fg, 0.2)}` }),
     body: css({}),
   };
 

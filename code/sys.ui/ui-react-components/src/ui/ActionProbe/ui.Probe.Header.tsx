@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: `auto 1fr auto`,
       alignItems: 'center',
-      Padding: [5, 11],
+      Padding: [5, 10],
     }),
     title: css({}),
     run: css({ alignSelf: 'center', transform: 'translateY(1px)' }),
