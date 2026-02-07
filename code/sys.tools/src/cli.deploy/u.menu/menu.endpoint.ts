@@ -15,6 +15,7 @@ import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
 import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 
 type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
+const STAGE_JUST_NOW_MSEC = 1000;
 
 /**
  * Interactive menu for configuring a single deploy endpoint.
@@ -81,7 +82,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
     const buildTime = dist?.build?.time;
-    const stageAge = Is.num(buildTime) && digest ? Time.elapsed(buildTime).toString() : undefined;
+    const stageAge =
+      Is.num(buildTime) && digest ? formatStageAge(Time.elapsed(buildTime).msec) : undefined;
     const stageSizeTotal = dist?.build?.size?.total;
     const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
     const hasStageMeta = !!(stageAge || stageSize);
@@ -326,4 +328,10 @@ function toHttpsUrl(input: string): string {
   const noScheme = Str.trimHttpScheme(raw);
   const cleaned = Str.trimLeadingSlashes(noScheme);
   return Url.normalize(`https://${cleaned}`);
+}
+
+function formatStageAge(msec: number): string {
+  if (!Number.isFinite(msec) || msec < 0) return '';
+  if (msec < STAGE_JUST_NOW_MSEC) return 'just now';
+  return Time.Duration.create(msec).toString();
 }

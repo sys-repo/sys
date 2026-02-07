@@ -33,7 +33,9 @@ export async function promptEndpointAction(args: {
     pushShards,
     pushBytes,
   } = args;
-  const stageAgeText = stageAge ? ` ${c.gray(c.dim(`- ${stageAge} ago`))}` : '';
+  const stageAgeText = stageAge
+    ? ` ${c.gray(c.dim(stageAge === 'just now' ? `- ${stageAge}` : `- ${stageAge} ago`))}`
+    : '';
   const stageSizeText = stageSize ? ` ${c.gray(c.dim(`| ${stageSize}`))}` : '';
   const stageMeta = `${stageAgeText}${stageSizeText}`;
   const stageLabel = pushedOk
