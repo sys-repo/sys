@@ -26,7 +26,7 @@ function renderer(state: DebugSignals, opts: Options = {}) {
   return ActionProbe.renderer<DebugSignals, TEnv>({
     state,
     style: { MarginY: 15, MarginX: 15 },
-    resolve: ({ state, probe }) => {
+    resolve: ({ state, probe, sample }) => {
       const v = Signal.toObject(state.props);
       const local = v.env === 'localhost';
       return {
@@ -34,7 +34,7 @@ function renderer(state: DebugSignals, opts: Options = {}) {
         spinning: v.spinning && v.probe.active === probe,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
-        ...state.action.handlers(probe),
+        ...state.action.handlers(probe, sample.title),
       };
     },
   });

@@ -36,6 +36,7 @@ export type ActionProbeRendererResolveArgs<TState> = {
   readonly state: TState;
   readonly index: t.Index;
   readonly probe: string;
+  readonly sample: t.ActionProbe.ProbeSpec;
 };
 
 /** Computed props used to render each ActionProbe.Probe instance. */

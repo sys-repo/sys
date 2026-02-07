@@ -8,6 +8,8 @@ const defaults: t.ActionProbeSignalsState = {
 
 export const Signals: t.ActionProbeSignalsLib = {
   create(input = {}) {
+    let runTitle: t.ReactNode | undefined;
+
     const initial: t.ActionProbeSignalsState = {
       spinning: input.spinning ?? defaults.spinning,
       probe: {
@@ -37,10 +39,10 @@ export const Signals: t.ActionProbeSignalsLib = {
       get props() {
         return props;
       },
-      handlers(probe) {
+      handlers(probe, title) {
         return {
           onRunStart: () => {
-            api.start(probe);
+            api.start(probe, title);
           },
           onRunEnd: () => {
             api.end();
@@ -53,7 +55,8 @@ export const Signals: t.ActionProbeSignalsLib = {
           },
         };
       },
-      start(probe) {
+      start(probe, title) {
+        runTitle = title;
         props.probe.active.value = probe;
         props.result.items.value = [];
         props.result.response.value = undefined;
@@ -71,10 +74,16 @@ export const Signals: t.ActionProbeSignalsLib = {
         return api;
       },
       end() {
+        const hasTitle = props.result.items.value.some((item) => item.kind === 'title');
+        if (runTitle && !hasTitle) {
+          props.result.items.value = [{ kind: 'title', v: runTitle }, ...props.result.items.value];
+        }
+        runTitle = undefined;
         props.spinning.value = false;
         return api;
       },
       reset() {
+        runTitle = undefined;
         props.spinning.value = defaults.spinning;
         props.probe.active.value = defaults.probe.active;
         props.result.items.value = defaults.result.items;

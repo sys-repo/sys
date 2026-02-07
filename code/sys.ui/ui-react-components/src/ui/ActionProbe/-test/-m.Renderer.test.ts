@@ -62,4 +62,19 @@ describe('ActionProbe.Renderer', () => {
 
     expect(called).to.eql(true);
   });
+
+  it('push: passes sample into resolve args', () => {
+    let title = '';
+    const api = Renderer.create({
+      state: {},
+      resolve: ({ sample }): t.ActionProbeRendererResolvedProps<Env> => {
+        title = String(sample.title);
+        return { env: { kind: 'demo' } };
+      },
+    });
+
+    api.push(sample);
+
+    expect(title).to.eql('Test');
+  });
 });

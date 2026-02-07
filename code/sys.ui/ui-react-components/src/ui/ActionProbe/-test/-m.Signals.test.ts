@@ -76,4 +76,35 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.obj.value).to.eql({ expand: { level: 1 } });
     expect(p.spinning.value).to.eql(false);
   });
+
+  it('handlers: auto-inserts title item from probe title on run end', () => {
+    const api = Signals.create();
+    const run = api.handlers('p:3', 'My Probe');
+
+    run.onRunStart();
+    run.onRunItem({ k: 'foo', v: 123 });
+    run.onRunEnd();
+
+    const p = api.props;
+    expect(p.result.items.value).to.eql([
+      { kind: 'title', v: 'My Probe' },
+      { k: 'foo', v: 123 },
+    ]);
+  });
+
+  it('handlers: does not duplicate title when run emits explicit title item', () => {
+    const api = Signals.create();
+    const run = api.handlers('p:4', 'My Probe');
+
+    run.onRunStart();
+    run.onRunItem({ kind: 'title', v: 'Explicit Title' });
+    run.onRunItem({ k: 'foo', v: 123 });
+    run.onRunEnd();
+
+    const p = api.props;
+    expect(p.result.items.value).to.eql([
+      { kind: 'title', v: 'Explicit Title' },
+      { k: 'foo', v: 123 },
+    ]);
+  });
 });

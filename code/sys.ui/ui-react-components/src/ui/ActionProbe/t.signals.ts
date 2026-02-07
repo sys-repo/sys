@@ -13,8 +13,8 @@ export type ActionProbeSignalsFactory = (
 /** Mutable execution-state API for ActionProbe hosts. */
 export type ActionProbeSignals = {
   readonly props: ActionProbeSignalProps;
-  handlers(probe: string): ActionProbeRunHandlers;
-  start(probe: string): ActionProbeSignals;
+  handlers(probe: string, title?: t.ReactNode): ActionProbeRunHandlers;
+  start(probe: string, title?: t.ReactNode): ActionProbeSignals;
   item(item: t.KeyValueItem): ActionProbeSignals;
   result(value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig): ActionProbeSignals;
   end(): ActionProbeSignals;
