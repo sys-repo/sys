@@ -94,6 +94,7 @@ groups:
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
+    - import: npm:@elevenlabs/elevenlabs-js@2.34.0
 
   yaml:
     - import: npm:yaml@2.8.2

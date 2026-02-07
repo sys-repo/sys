@@ -10,6 +10,7 @@
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.8",
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",
+    "@elevenlabs/elevenlabs-js": "npm:@elevenlabs/elevenlabs-js@2.34.0",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@2.0.1",
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.0.1/legacy.js",
