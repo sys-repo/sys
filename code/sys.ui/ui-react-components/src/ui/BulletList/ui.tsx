@@ -1,6 +1,8 @@
-import { type t, Bullet, Button, Color, css } from './common.ts';
+import { type t, Bullet, Button, Color, css, Keyboard } from './common.ts';
 
-export const BulletList: t.FC<t.BulletList.Props> = (props) => {
+type P = t.BulletList.Props;
+
+export const BulletList: t.FC<P> = (props) => {
   const { debug = false, selected } = props;
   const items = props.items ?? [];
 
@@ -34,10 +36,7 @@ export const BulletList: t.FC<t.BulletList.Props> = (props) => {
             key={id}
             theme={theme.name}
             enabled={enabled}
-            onMouse={(e) => {
-              if (e.action !== 'MouseDown') return;
-              props.onSelect?.({ id, modifiers: e.modifiers });
-            }}
+            onMouse={(e) => handleSelect(props.onSelect, id, e)}
           >
             <div className={styles.row.class}>
               <Bullet theme={theme.name} selected={isSelected(selected, id)} />
@@ -56,4 +55,24 @@ export const BulletList: t.FC<t.BulletList.Props> = (props) => {
 function isSelected(selected: t.BulletList.Selected | undefined, id: string): boolean {
   if (Array.isArray(selected)) return selected.includes(id);
   return selected === id;
+}
+
+function handleSelect(
+  onSelect: t.BulletList.Props['onSelect'],
+  id: string,
+  e: t.ButtonMouseHandlerArgs,
+): void {
+  if (e.action !== 'MouseDown') return;
+  onSelect?.(toSelectEvent(id, e.modifiers));
+}
+
+function toSelectEvent(id: string, modifiers: t.KeyboardModifierFlags): t.BulletList.OnSelectArgs {
+  return {
+    id,
+    modifiers,
+    is: {
+      command: Keyboard.Is.command(modifiers),
+      modified: Keyboard.Is.modified(modifiers),
+    },
+  };
 }

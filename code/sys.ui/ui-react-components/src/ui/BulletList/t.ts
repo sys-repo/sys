@@ -23,6 +23,13 @@ export namespace BulletList {
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
-    onSelect?: (e: { id: string; modifiers: t.KeyboardModifierFlags }) => void;
+    onSelect?: OnSelectHandler;
+  };
+
+  export type OnSelectHandler = (e: OnSelectArgs) => void;
+  export type OnSelectArgs = {
+    readonly id: t.StringId;
+    readonly modifiers: t.KeyboardModifierFlags;
+    readonly is: { readonly command: boolean; readonly modified: boolean };
   };
 }

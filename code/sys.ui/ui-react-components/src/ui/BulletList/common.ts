@@ -1,10 +1,8 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 
-export * from '../common.ts';
 export { Bullet } from '../Bullet/mod.ts';
 export { Button } from '../Button/mod.ts';
-
-type P = t.BulletList.Props;
+export * from '../common.ts';
 
 /**
  * Constants:
