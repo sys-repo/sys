@@ -23,6 +23,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
   const items = [...(props.items ?? [])];
+  if (items.length > 0) items.push({ kind: 'hr' });
 
   const elBody = !spinning && (
     <div className={styles.body.class}>
