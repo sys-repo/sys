@@ -13,6 +13,8 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'path', v: descriptorPath });
   },
   async run(e) {
+    e.obj({ expand: { paths: ['$', '$.value'] } });
+
     const params = e.params<Params>();
     const path = params?.path;
     const kind = params?.kind;
