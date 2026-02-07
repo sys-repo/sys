@@ -22,8 +22,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     focused = false,
     borderRadius = D.borderRadius,
   } = props;
-  const theme = Color.theme(props.theme);
-  const { componentAttr } = useProbeStyles(theme.fg);
+
+  const { componentAttr } = useProbeStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
     run: sample.run,
@@ -35,6 +35,10 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     onRunResult: props.onRunResult,
   });
 
+  /**
+   * Render
+   */
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       color: theme.fg,

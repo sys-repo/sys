@@ -1,21 +1,27 @@
 import React from 'react';
-import { Color, pkg, Style } from './common.ts';
+import { type t, Color, pkg, Style } from './common.ts';
 
 const componentAttr = `${pkg.name}:ActionProbe`;
 
-export const useProbeStyles = (fg: string) => {
+export const useProbeStyles = (props: { theme?: t.CommonTheme }) => {
   React.useEffect(() => {
+    const theme = Color.theme(props.theme);
     const sheet = Style.Dom.stylesheet();
-    sheet.rule(`[data-component="${componentAttr}"] code`, {
+    const scope = `[data-component="${componentAttr}"]`;
+    const rule = (selector: string, css: t.CssValue) => sheet.rule(`${scope} ${selector}`, css);
+
+    rule('code', {
+      backgroundColor: Color.alpha(theme.fg, 0.03),
+      color: Color.alpha(theme.fg, 0.8),
       fontFamily: 'monospace',
+      fontWeight: 600,
       fontSize: '0.95em',
       lineHeight: 1,
-      Padding: [2, 5],
+      Padding: [2, 4],
       borderRadius: 4,
-      border: `solid 1px ${Color.alpha(fg, 0.2)}`,
-      backgroundColor: Color.alpha(fg, 0.05),
+      border: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
     });
-  }, [fg]);
+  }, [props.theme]);
 
   return { componentAttr } as const;
 };
