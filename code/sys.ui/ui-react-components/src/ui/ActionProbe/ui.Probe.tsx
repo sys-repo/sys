@@ -21,7 +21,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     run: sample.run,
     env,
     getParams,
-    onRunStart: props.onRunStart,
+    onRunStart: () => props.onRunStart?.({ title: sample.title }),
     onRunEnd: props.onRunEnd,
     onRunItem: props.onRunItem,
     onRunResult: props.onRunResult,

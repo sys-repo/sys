@@ -10,12 +10,7 @@ export const Renderer: t.ActionProbeRendererLib = {
       items,
       push(sample) {
         const probe = String(index);
-        const resolved = args.resolve({
-          state: args.state,
-          index,
-          probe,
-          sample: sample as t.ActionProbe.ProbeSpec,
-        });
+        const resolved = args.resolve({ state: args.state, index, probe });
         index++;
         if (!resolved) {
           items.push(null);

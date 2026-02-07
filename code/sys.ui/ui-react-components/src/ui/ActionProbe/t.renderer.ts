@@ -36,7 +36,6 @@ export type ActionProbeRendererResolveArgs<TState> = {
   readonly state: TState;
   readonly index: t.Index;
   readonly probe: string;
-  readonly sample: t.ActionProbe.ProbeSpec;
 };
 
 /** Computed props used to render each ActionProbe.Probe instance. */
@@ -45,7 +44,7 @@ export type ActionProbeRendererResolvedProps<TEnv extends Record<string, unknown
   readonly spinning?: boolean;
   readonly theme?: t.CommonTheme;
   readonly debug?: boolean;
-  readonly onRunStart?: () => void;
+  readonly onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
   readonly onRunEnd?: () => void;
   readonly onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   readonly onRunItem?: (item: t.KeyValueItem) => void;

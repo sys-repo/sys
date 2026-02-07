@@ -3,7 +3,7 @@ import { type t } from '../common.ts';
 import { Renderer } from '../m.Renderer.tsx';
 
 type Env = { readonly kind: 'demo' };
-type ProbeNode = { key: string | null; props: { onRunStart?: () => void } };
+type ProbeNode = { key: string | null; props: { onRunStart?: (args?: t.ActionProbeRunStartArgs) => void } };
 const sample: t.ActionProbe.ProbeSpec<Env> = {
   title: 'Test',
   render() {},
@@ -61,20 +61,5 @@ describe('ActionProbe.Renderer', () => {
     (api.items[0] as ProbeNode).props.onRunStart?.();
 
     expect(called).to.eql(true);
-  });
-
-  it('push: passes sample into resolve args', () => {
-    let title = '';
-    const api = Renderer.create({
-      state: {},
-      resolve: ({ sample }): t.ActionProbeRendererResolvedProps<Env> => {
-        title = String(sample.title);
-        return { env: { kind: 'demo' } };
-      },
-    });
-
-    api.push(sample);
-
-    expect(title).to.eql('Test');
   });
 });

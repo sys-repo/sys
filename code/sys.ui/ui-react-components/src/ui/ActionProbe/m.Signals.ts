@@ -41,16 +41,16 @@ export const Signals: t.ActionProbeSignalsLib = {
       },
       handlers(probe, title) {
         return {
-          onRunStart: () => {
-            api.start(probe, title);
+          onRunStart(args) {
+            api.start(probe, args?.title ?? title);
           },
-          onRunEnd: () => {
+          onRunEnd() {
             api.end();
           },
-          onRunResult: (value, obj) => {
+          onRunResult(value, obj) {
             api.result(value, obj);
           },
-          onRunItem: (item) => {
+          onRunItem(item) {
             api.item(item);
           },
         };

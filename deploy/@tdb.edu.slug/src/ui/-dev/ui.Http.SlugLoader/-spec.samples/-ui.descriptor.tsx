@@ -6,10 +6,10 @@ type Params = t.DescriptorParams;
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
-    const kind = e.descriptorKind ?? 'slug-tree:fs';
+    const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
     const descriptorPath = resolveDescriptorPath(kind);
     e.params({ path: descriptorPath, kind });
-    renderDescriptorCard(e, { origin: e.origin, kind, onKindChange: e.onDescriptorKindChange });
+    renderDescriptorCard(e, { origin: e.origin, kind, onKindChange: e.probe?.descriptor?.onKindChange });
     e.item({ k: 'path', v: descriptorPath });
   },
   async run(e) {

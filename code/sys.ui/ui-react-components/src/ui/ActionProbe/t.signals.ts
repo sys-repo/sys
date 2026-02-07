@@ -22,8 +22,13 @@ export type ActionProbeSignals = {
 };
 
 /** ActionProbe run-event handlers bound to a probe id. */
+export type ActionProbeRunStartArgs = {
+  readonly title?: t.ReactNode;
+};
+
+/** ActionProbe run-event handlers bound to a probe id. */
 export type ActionProbeRunHandlers = {
-  readonly onRunStart: () => void;
+  readonly onRunStart: (args?: ActionProbeRunStartArgs) => void;
   readonly onRunEnd: () => void;
   readonly onRunResult: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   readonly onRunItem: (item: t.KeyValueItem) => void;
