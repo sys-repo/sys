@@ -41,7 +41,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
     <div className={styles.body.base.class}>
       {hasItems && (
         <div className={styles.body.top.class}>
-          <KeyValue.UI theme={theme.name} items={items} />
+          <KeyValue.UI theme={theme.name} items={items} mono={props.header?.mono ?? true} />
         </div>
       )}
       {hasItems && <div className={styles.body.hr.class} />}

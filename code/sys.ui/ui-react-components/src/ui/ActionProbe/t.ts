@@ -52,6 +52,7 @@ export namespace ActionProbe {
     spinning?: boolean;
     response?: unknown;
     items?: readonly t.KeyValueItem[];
+    header?: { mono?: boolean };
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
