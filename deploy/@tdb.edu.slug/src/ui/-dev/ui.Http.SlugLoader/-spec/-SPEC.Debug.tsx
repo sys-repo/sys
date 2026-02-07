@@ -107,7 +107,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <div className={Styles.title.class}>{'SlugClient:'}</div>
+      <div className={Styles.title.class} style={{ marginBottom: 15 }}>
+        {'SlugClient:'}
+      </div>
       {renderSamples(debug, { theme: theme.name })}
     </div>
   );

@@ -23,7 +23,7 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
   return (
     <ActionProbe.Probe
       //
-      style={{ MarginY: 8 }}
+      style={{ MarginY: 8, MarginX: 15 }}
       key={probe}
       origin={origin}
       is={{ local }}
