@@ -1,11 +1,7 @@
 import { type t, Str, SlugClient, Url } from './common.ts';
+import { renderTreeContentCard } from './-ui.tree-content.card.tsx';
 
-type Params = {
-  basePath: string;
-  docid: string;
-  manifestsDir: string;
-  contentDir: string;
-};
+type Params = t.TreeContentParams;
 
 export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Tree + Content',
@@ -16,11 +12,11 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const contentDir = 'content';
 
     e.params({ basePath, docid, manifestsDir, contentDir });
-    e.element(
-      <div>
-        Loads tree, resolves one <code>ref</code>, then loads indexed file-content by hash.
-      </div>,
-    );
+    renderTreeContentCard(e, {
+      refs: e.probe?.treeContent?.refs,
+      selected: e.probe?.treeContent?.ref,
+      onSelect: e.probe?.treeContent?.onRefChange,
+    });
     e.item({ k: 'basePath', v: basePath });
     e.item({ k: 'docid', v: docid });
   },
@@ -49,13 +45,16 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     });
     if (!tree.ok) return e.result(tree);
 
-    const ref = findFirstRef(tree.value.tree);
+    const refs = findRefs(tree.value.tree, 3);
+    e.probe?.treeContent?.onRefsChange?.(refs);
+    const ref = resolveRef(e.probe?.treeContent?.ref, refs);
     if (!ref) {
       return e.result({
         ok: false,
         error: { kind: 'schema', message: 'No ref found in slug-tree.' },
       });
     }
+    e.probe?.treeContent?.onRefChange?.(ref);
 
     const index = await SlugClient.FromEndpoint.FileContent.index(baseUrl, docid, {
       layout: { manifestsDir },
@@ -80,6 +79,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'contentType', v: content.value.contentType });
     e.item({ kind: 'hr' });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
+    e.item({ k: 'refs.loaded', v: refs.length });
     e.item({ k: 'tree.items', v: tree.value.tree.length });
     e.item({ k: 'contentIndex.entries', v: index.value.entries.length });
 
@@ -97,18 +97,25 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   },
 };
 
-function findFirstRef(tree: readonly t.SlugTreeItem[]): string | undefined {
+function findRefs(tree: readonly t.SlugTreeItem[], total = 3): string[] {
+  const refs: string[] = [];
   for (const item of tree) {
+    if (refs.length >= total) break;
     const ref = (item as { ref?: unknown }).ref;
-    if (typeof ref === 'string' && ref.length > 0) return ref;
+    if (typeof ref === 'string' && ref.length > 0) refs.push(ref);
 
     const slugs = (item as { slugs?: readonly t.SlugTreeItem[] }).slugs;
-    if (Array.isArray(slugs)) {
-      const found = findFirstRef(slugs);
-      if (found) return found;
+    if (Array.isArray(slugs) && refs.length < total) {
+      const remaining = total - refs.length;
+      refs.push(...findRefs(slugs, remaining));
     }
   }
-  return undefined;
+  return refs.filter((item, index, all) => all.indexOf(item) === index).slice(0, total);
+}
+
+function resolveRef(selected: string | undefined, refs: string[]): string | undefined {
+  if (selected && refs.includes(selected)) return selected;
+  return refs[0];
 }
 
 function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {

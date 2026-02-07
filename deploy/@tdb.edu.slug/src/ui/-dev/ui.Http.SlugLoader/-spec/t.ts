@@ -8,10 +8,26 @@ export type DescriptorParams = {
   path: string;
   kind: DescriptorMode;
 };
+export type TreeContentParams = {
+  basePath: string;
+  docid: string;
+  manifestsDir: string;
+  contentDir: string;
+};
 
 export type TEnv = {
   is: { local: boolean };
   readonly origin: t.SlugUrlOrigin;
-  readonly descriptorKind?: DescriptorMode;
-  readonly onDescriptorKindChange?: (next: DescriptorMode) => void;
+  readonly probe?: {
+    readonly descriptor?: {
+      readonly kind?: DescriptorMode;
+      readonly onKindChange?: (next: DescriptorMode) => void;
+    };
+    readonly treeContent?: {
+      readonly refs?: string[];
+      readonly ref?: string;
+      readonly onRefChange?: (next: string) => void;
+      readonly onRefsChange?: (next: string[]) => void;
+    };
+  };
 };

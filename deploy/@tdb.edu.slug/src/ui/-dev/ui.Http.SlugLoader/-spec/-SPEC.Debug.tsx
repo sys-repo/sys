@@ -20,6 +20,8 @@ type Storage = {
   theme?: t.CommonTheme;
   env?: t.HttpOriginEnv;
   descriptorKind?: DescriptorMode;
+  treeContentRef?: string;
+  treeContentRefs?: string[];
 };
 const defaults: Storage = {
   debug: false,
@@ -47,6 +49,8 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     env: s(snap.env),
     descriptorKind: s(normalizeDescriptorMode(snap.descriptorKind)),
+    treeContentRef: s(snap.treeContentRef),
+    treeContentRefs: s(snap.treeContentRefs),
     origin: s<t.SlugUrlOrigin | undefined>(),
     ...action.props,
   };
@@ -73,6 +77,8 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.env = p.env.value;
       d.descriptorKind = p.descriptorKind.value;
+      d.treeContentRef = p.treeContentRef.value;
+      d.treeContentRefs = p.treeContentRefs.value;
     });
   });
 
@@ -130,7 +136,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         debug={v.debug}
         env={p.env}
         origin={p.origin}
-        style={{ marginTop: 10, marginBottom: 30 }}
+        style={{ marginTop: 10, marginBottom: 20 }}
       />
       {renderSamples(debug, { theme: theme.name })}
 
