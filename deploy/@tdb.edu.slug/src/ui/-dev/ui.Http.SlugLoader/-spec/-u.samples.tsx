@@ -5,6 +5,8 @@ type Options = { theme?: t.CommonTheme };
 type TEnv = {
   readonly is: { readonly local: boolean };
   readonly origin: t.SlugUrlOrigin;
+  readonly descriptorKind?: t.DescriptorMode;
+  readonly onDescriptorKindChange?: (next: t.DescriptorMode) => void;
 };
 
 /**
@@ -31,7 +33,12 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
       const origin = v.origin;
       if (!origin) return undefined;
       return {
-        env: { is: { local }, origin },
+        env: {
+          is: { local },
+          origin,
+          descriptorKind: v.descriptorKind,
+          onDescriptorKindChange: (next) => (state.props.descriptorKind.value = next),
+        },
         spinning: v.spinning && v.probe.active === probe,
         theme: opts.theme ?? v.theme,
         debug: v.debug,

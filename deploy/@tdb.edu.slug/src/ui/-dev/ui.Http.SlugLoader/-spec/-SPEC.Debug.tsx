@@ -14,10 +14,17 @@ import {
 } from '../common.ts';
 import { renderSamples } from './-u.samples.tsx';
 
-type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
+type DescriptorMode = 'descriptor' | t.BundleDescriptorKind;
+type Storage = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  env?: t.HttpOriginEnv;
+  descriptorKind?: DescriptorMode;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  descriptorKind: 'descriptor',
 };
 
 /**
@@ -39,6 +46,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    descriptorKind: s(snap.descriptorKind),
     origin: s<t.SlugUrlOrigin | undefined>(),
     ...action.props,
   };
@@ -64,6 +72,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
+      d.descriptorKind = p.descriptorKind.value;
     });
   });
 
