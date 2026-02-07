@@ -4,7 +4,7 @@ type Params = {
   path: string;
 };
 
-export const DescriptorSample: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
+export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
