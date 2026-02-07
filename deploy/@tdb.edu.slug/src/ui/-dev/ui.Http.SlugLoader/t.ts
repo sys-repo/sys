@@ -1,11 +1,21 @@
 import type { t } from './common.ts';
 
+/** Type re-exports. */
+export type * from './t.signals.ts';
+
+/**
+ * ActionProbe:
+ * A reusable probe surface for configuring and executing domain actions
+ * with host-owned lifecycle state and shared result rendering.
+ */
 export namespace ActionProbe {
   type ParamsObject = Record<string, unknown>;
 
   export type Lib = {
     readonly Probe: t.FC<t.ActionProbe.ProbeProps>;
     readonly Result: t.FC<t.ActionProbe.ResultProps>;
+    readonly Signals: t.ActionProbeSignalsLib;
+    readonly signals: t.ActionProbeSignalsLib['create'];
   };
 
   /**

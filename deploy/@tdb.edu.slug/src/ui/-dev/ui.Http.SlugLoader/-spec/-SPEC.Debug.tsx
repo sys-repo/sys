@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dev } from '../../mod.ts';
+import { ActionProbe } from '../mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { renderSamples } from './-ui.samples.tsx';
 
@@ -22,20 +23,19 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const action = ActionProbe.Signals.create();
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
-    activeProbe: s<string | undefined>(),
-    resultItems: s<t.KeyValueItem[]>([]),
-    response: s<unknown>(),
-    spinning: s(false),
+    ...action.props,
   };
   const p = props;
   const api = {
     props,
+    action,
     listen,
     reset,
   };
@@ -46,10 +46,7 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
-    p.activeProbe.value = undefined;
-    p.resultItems.value = [];
-    p.response.value = undefined;
-    p.spinning.value = false;
+    action.reset();
   }
 
   Signal.effect(() => {

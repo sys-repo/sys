@@ -12,6 +12,7 @@ export function renderer(debug: t.DebugSignals, opts: Options = {}) {
 }
 
 function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Options) {
+  const action = debug.action;
   const p = debug.props;
   const v = Signal.toObject(p);
   const local = v.env === 'localhost';
@@ -31,19 +32,16 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
       debug={v.debug}
       sample={sample}
       onRunStart={() => {
-        p.activeProbe.value = probe;
-        p.resultItems.value = [];
-        p.response.value = undefined;
-        p.spinning.value = true;
+        action.start(probe);
       }}
       onRunEnd={() => {
-        p.spinning.value = false;
+        action.end();
       }}
       onRunResult={(value) => {
-        p.response.value = value;
+        action.result(value);
       }}
       onRunItem={(item) => {
-        p.resultItems.value = [...p.resultItems.value, item];
+        action.item(item);
       }}
     />
   );
