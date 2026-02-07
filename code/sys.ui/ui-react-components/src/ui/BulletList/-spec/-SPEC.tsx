@@ -13,12 +13,13 @@ export default Spec.describe(D.displayName, async (e) => {
       <BulletList.UI
         debug={v.debug}
         theme={v.theme}
-        selected={'localhost'}
+        selected={v.selected}
         items={[
           { id: 'localhost' },
           { id: 'production' },
           { id: 'disabled', enabled: false },
         ]}
+        onSelect={(e) => (p.selected.value = e.id)}
       />
     );
   }

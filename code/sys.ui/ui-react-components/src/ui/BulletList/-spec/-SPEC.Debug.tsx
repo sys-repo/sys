@@ -3,10 +3,11 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.BulletList.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selected'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  selected: 'localhost',
 };
 
 /**
@@ -26,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    selected: s(snap.selected),
   };
   const p = props;
   const api = {
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.selected = p.selected.value;
     });
   });
 
