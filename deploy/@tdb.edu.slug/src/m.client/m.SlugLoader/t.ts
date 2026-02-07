@@ -11,6 +11,7 @@ export type SlugClientLoaderLib = {
   readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugClientLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: t.SlugClientLoaderOriginLib;
+  readonly Descriptor: t.SlugClientLoaderDescriptorLib;
 };
 
 /**
@@ -19,4 +20,30 @@ export type SlugClientLoaderLib = {
 export type SlugClientLoader = {
   /** Canonicalized origin endpoints used by the loader. */
   readonly origin: t.SlugUrlOrigin;
+};
+
+export type SlugClientLoaderDescriptorLib = {
+  /** Resolve deploy profile path/base policy for a descriptor kind. */
+  readonly target: (kind: t.BundleDescriptorKind) => t.SlugClientResult<t.SlugClientLoaderDescriptorTarget>;
+  /** Load descriptor document from canonical descriptor path. */
+  readonly load: (
+    origin: t.StringUrl,
+    kind: t.BundleDescriptorKind,
+  ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
+  /** Build descriptor-backed client from canonical deploy profile path policy. */
+  readonly client: (
+    args: SlugClientLoaderDescriptorClientArgs,
+  ) => Promise<t.SlugClientResult<t.SlugClientDescriptor>>;
+};
+
+export type SlugClientLoaderDescriptorTarget = {
+  readonly kind: t.BundleDescriptorKind;
+  readonly descriptorPath: t.StringPath;
+  readonly basePath: t.StringPath;
+};
+
+export type SlugClientLoaderDescriptorClientArgs = {
+  readonly origin: t.StringUrl;
+  readonly kind: t.BundleDescriptorKind;
+  readonly docid?: t.StringId;
 };

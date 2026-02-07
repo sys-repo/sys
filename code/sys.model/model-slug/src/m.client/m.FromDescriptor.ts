@@ -7,11 +7,16 @@ import { Playback } from './m.io.timeline.Playback.ts';
 import { Tree } from './m.io.Tree.ts';
 
 export const FromDescriptor: t.SlugClientFromDescriptorLib = {
+  select,
   make,
 };
 
 function make(args: t.SlugClientFromDescriptorArgs) {
-  const resolved = resolveDescriptor(args.descriptor, args.kind, args.docid);
+  const resolved = select({
+    descriptor: args.descriptor,
+    kind: args.kind,
+    docid: args.docid,
+  });
   if (!resolved.ok) return resolved;
 
   const descriptor = resolved.value;
@@ -64,6 +69,10 @@ function make(args: t.SlugClientFromDescriptorArgs) {
     ok: true,
     value: client,
   } satisfies t.SlugClientResult<t.SlugClientDescriptor>;
+}
+
+function select(args: t.SlugClientFromDescriptorSelectArgs): t.SlugClientResult<t.BundleDescriptor> {
+  return resolveDescriptor(args.descriptor, args.kind, args.docid);
 }
 
 function applyBasePath(baseUrl: t.StringUrl, basePath?: t.StringPath): t.StringUrl {

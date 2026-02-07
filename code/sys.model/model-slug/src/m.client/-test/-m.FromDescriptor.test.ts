@@ -4,6 +4,34 @@ import type { t } from '../common.ts';
 import { jsonResponse, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromDescriptor', () => {
+  it('selects one bundle by kind/docid', () => {
+    const descriptor: t.BundleDescriptorDoc = {
+      bundles: [
+        {
+          kind: 'slug-tree:fs',
+          version: 1,
+          docid: 'kb',
+        },
+        {
+          kind: 'slug-tree:media:seq',
+          version: 1,
+          docid: 'program-docid',
+        },
+      ],
+    };
+
+    const result = SlugClient.FromDescriptor.select({
+      descriptor,
+      kind: 'slug-tree:media:seq',
+      docid: 'program-docid',
+    });
+
+    expect(result.ok).to.eql(true);
+    if (!result.ok) return;
+    expect(result.value.kind).to.eql('slug-tree:media:seq');
+    expect(result.value.docid).to.eql('program-docid');
+  });
+
   it('binds baseUrl, basePath, docid, and layout', async () => {
     const descriptor: t.BundleDescriptorDoc = {
       bundles: [

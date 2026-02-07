@@ -2,6 +2,9 @@ import type { t } from './common.ts';
 
 /** Descriptor-to-client constructor surface. */
 export type SlugClientFromDescriptorLib = {
+  readonly select: (
+    args: SlugClientFromDescriptorSelectArgs,
+  ) => t.SlugClientResult<t.BundleDescriptor>;
   readonly make: (args: SlugClientFromDescriptorArgs) => t.SlugClientResult<SlugClientDescriptor>;
 };
 
@@ -17,6 +20,13 @@ export type SlugClientDescriptorLoadLib = {
 export type SlugClientFromDescriptorArgs = {
   readonly descriptor: t.BundleDescriptor | t.BundleDescriptorDoc;
   readonly baseUrl: t.StringUrl;
+  readonly kind?: t.BundleDescriptorKind;
+  readonly docid?: t.StringId;
+};
+
+/** Inputs for selecting one bundle from a descriptor (or descriptor-doc). */
+export type SlugClientFromDescriptorSelectArgs = {
+  readonly descriptor: t.BundleDescriptor | t.BundleDescriptorDoc;
   readonly kind?: t.BundleDescriptorKind;
   readonly docid?: t.StringId;
 };

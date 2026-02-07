@@ -1,49 +1,50 @@
-import { type t, Str, SlugClient, Url } from './common.ts';
+import { type t, SlugLoader, Str } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree-content.card.tsx';
 
-type Params = t.TreeContentParams;
+type Params = {
+  kind: t.BundleDescriptorKind;
+};
 
 export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Tree + Content',
   render(e) {
-    const basePath = 'kb';
-    const docid = 'kb';
-    const manifestsDir = '-manifests';
-    const contentDir = 'content';
+    const kind: t.BundleDescriptorKind = 'slug-tree:fs';
 
-    e.params({ basePath, docid, manifestsDir, contentDir });
+    e.params({ kind });
     renderTreeContentCard(e, {
       refs: e.probe?.treeContent?.refs,
       selected: e.probe?.treeContent?.ref,
       onSelect: e.probe?.treeContent?.onRefChange,
     });
+    e.item({ k: 'kind', v: kind });
     e.item({ kind: 'hr' });
-    e.item({ k: 'base-path', v: basePath });
-    e.item({ k: 'doc-id', v: docid });
   },
 
   async run(e) {
     e.obj({ expand: { paths: ['$', '$.value'] } });
 
     const params = e.params<Params>();
-    const basePath = params?.basePath;
-    const docid = params?.docid;
-    const manifestsDir = params?.manifestsDir;
-    const contentDir = params?.contentDir;
+    const kind = params?.kind;
 
-    if (!basePath || !docid || !manifestsDir || !contentDir) {
+    if (!kind) {
       return e.result({
         ok: false,
-        error: { message: 'Missing required params for tree/content load.' },
+        error: { message: 'Missing required params for tree/content load (kind).' },
       });
     }
 
-    const baseUrl = Url.parse(e.origin.cdn.default).join(basePath);
+    const client = await SlugLoader.Descriptor.client({
+      origin: e.origin.cdn.default,
+      kind,
+    });
+    if (!client.ok) return e.result(client);
+
+    const docid = client.value.docid;
+    const baseUrl = client.value.baseUrl;
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'base-url', v: baseUrl });
-    const tree = await SlugClient.FromEndpoint.Tree.load(baseUrl, docid, {
-      layout: { manifestsDir },
-    });
+    e.item({ k: 'doc-id', v: docid });
+    const tree = await client.value.Tree.load();
     if (!tree.ok) return e.result(tree);
 
     const refs = findRefs(tree.value.tree, 3);
@@ -57,9 +58,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     }
     e.probe?.treeContent?.onRefChange?.(ref);
 
-    const index = await SlugClient.FromEndpoint.FileContent.index(baseUrl, docid, {
-      layout: { manifestsDir },
-    });
+    const index = await client.value.FileContent.index();
     if (!index.ok) return e.result(index);
 
     const hash = findHash(index.value.entries, ref);
@@ -70,9 +69,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       });
     }
 
-    const content = await SlugClient.FromEndpoint.FileContent.get(baseUrl, hash, {
-      layout: { contentDir },
-    });
+    const content = await client.value.FileContent.get(hash);
     if (!content.ok) return e.result(content);
     const frontmatter = content.value.frontmatter;
     e.item({ k: 'ref', v: ref });

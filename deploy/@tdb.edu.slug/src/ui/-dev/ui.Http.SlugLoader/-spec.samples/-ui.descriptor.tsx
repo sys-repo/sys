@@ -1,4 +1,4 @@
-import { type t, SlugClient, Url } from './common.ts';
+import { type t, SlugLoader } from './common.ts';
 import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
 
 type Params = t.DescriptorParams;
@@ -7,7 +7,8 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
     const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
-    const descriptorPath = resolveDescriptorPath(kind);
+    const target = SlugLoader.Descriptor.target(kind);
+    const descriptorPath = target.ok ? target.value.descriptorPath : '(unknown)';
     e.params({ path: descriptorPath, kind });
     renderDescriptorCard(e, {
       origin: e.origin,
@@ -31,18 +32,19 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'path', v: path });
     e.item({ k: 'kind', v: kind });
 
-    const descriptor = await SlugClient.FromEndpoint.Descriptor.load(e.origin.cdn.default, path);
+    const descriptor = await SlugLoader.Descriptor.load(e.origin.cdn.default, kind);
     if (!descriptor.ok) return e.result(descriptor);
-    const docid = resolveDocid(descriptor.value, kind);
+    const selected = SlugLoader.Fetch.FromDescriptor.select({ descriptor: descriptor.value, kind });
+    const docid = selected.ok ? selected.value.docid : undefined;
     e.item({ k: 'doc-id', v: docid ?? '(auto:none)' });
-    const basePath = resolveClientBasePath(kind);
+    const target = SlugLoader.Descriptor.target(kind);
+    if (!target.ok) return e.result(target);
+    const basePath = target.value.basePath;
     e.item({ k: 'base-path', v: basePath });
 
-    const client = SlugClient.FromDescriptor.make({
-      descriptor: descriptor.value,
-      baseUrl: Url.parse(e.origin.cdn.default).join(basePath),
+    const client = await SlugLoader.Descriptor.client({
+      origin: e.origin.cdn.default,
       kind,
-      docid,
     });
     if (!client.ok) return e.result(client);
 
@@ -95,21 +97,3 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     });
   },
 };
-
-function resolveDescriptorPath(kind: t.DescriptorMode): string {
-  if (kind === 'slug-tree:media:seq') return 'program/-manifests';
-  return 'kb/-manifests';
-}
-
-function resolveClientBasePath(kind: t.DescriptorMode): string {
-  if (kind === 'slug-tree:media:seq') return 'program';
-  return 'kb/-manifests';
-}
-
-function resolveDocid(
-  descriptor: t.BundleDescriptorDoc,
-  kind: t.DescriptorMode,
-): string | undefined {
-  const match = descriptor.bundles.find((item) => item.kind === kind);
-  return match?.docid;
-}

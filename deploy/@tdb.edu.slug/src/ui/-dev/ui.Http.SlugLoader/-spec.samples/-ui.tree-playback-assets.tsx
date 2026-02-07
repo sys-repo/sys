@@ -1,17 +1,17 @@
-import { type t, SlugClient, Url } from './common.ts';
+import { type t, SlugLoader } from './common.ts';
 
 type Params = {
-  descriptorPath: string;
   kind: t.BundleDescriptorKind;
 };
 
 export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Tree + Playback + Assets',
   render(e) {
-    const descriptorPath = 'program/-manifests';
     const kind: t.BundleDescriptorKind = 'slug-tree:media:seq';
+    const target = SlugLoader.Descriptor.target(kind);
+    const descriptorPath = target.ok ? target.value.descriptorPath : '(unknown)';
 
-    e.params({ descriptorPath, kind });
+    e.params({ kind });
     e.element(<div>Loads media descriptor, assets, and playback manifests for one docid.</div>);
     e.item({ k: 'kind', v: kind });
     e.item({ k: 'path', v: descriptorPath });
@@ -21,42 +21,25 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.obj({ expand: { paths: ['$', '$.value'] } });
 
     const params = e.params<Params>();
-    const descriptorPath = params?.descriptorPath;
     const kind = params?.kind;
 
-    if (!descriptorPath || !kind) {
+    if (!kind) {
       return e.result({
         ok: false,
-        error: { message: 'Missing required params for tree/playback/assets load (path/kind).' },
+        error: { message: 'Missing required params for tree/playback/assets load (kind).' },
       });
     }
 
-    const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
-      e.origin.cdn.default,
-      descriptorPath,
-    );
+    const descriptor = await SlugLoader.Descriptor.load(e.origin.cdn.default, kind);
     if (!descriptor.ok) return e.result(descriptor);
 
-    const selected = descriptor.value.bundles.find((item) => item.kind === kind);
-    const docid = selected?.docid;
-    if (!docid) {
-      return e.result({
-        ok: false,
-        error: {
-          kind: 'schema',
-          message: `No descriptor bundle found for kind: ${kind}`,
-        },
-      });
-    }
-
-    const basePath = descriptorPath.replace(/\/-manifests$/, '');
-    const client = SlugClient.FromDescriptor.make({
-      descriptor: descriptor.value,
-      baseUrl: Url.parse(e.origin.cdn.default).join(basePath),
+    const client = await SlugLoader.Descriptor.client({
+      origin: e.origin.cdn.default,
       kind,
-      docid,
     });
     if (!client.ok) return e.result(client);
+    const target = SlugLoader.Descriptor.target(kind);
+    if (!target.ok) return e.result(target);
 
     const assets = await client.value.Timeline.Assets.load();
     if (!assets.ok) return e.result(assets);
@@ -65,8 +48,8 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     if (!playback.ok) return e.result(playback);
 
     e.item({ k: 'origin', v: e.origin.cdn.default });
-    e.item({ k: 'basePath', v: basePath });
-    e.item({ k: 'docid', v: docid });
+    e.item({ k: 'basePath', v: target.value.basePath });
+    e.item({ k: 'docid', v: client.value.docid });
     e.item({ kind: 'hr' });
     e.item({ k: 'descriptor: loaded', v: 'yes' });
     e.item({ k: 'assets', v: assets.value.assets.length });
@@ -77,7 +60,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       ok: true,
       value: {
         kind,
-        docid,
+        docid: client.value.docid,
         descriptor: { bundles: descriptor.value.bundles.length },
         assets: assets.value,
         playback: playback.value,

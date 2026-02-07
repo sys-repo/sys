@@ -7,8 +7,8 @@ type Props = {
   onSelect?: (next: string) => void;
 };
 
-export function renderTreeContentCard(
-  e: t.ActionProbe.ProbeRenderArgs<t.TEnv, t.TreeContentParams>,
+export function renderTreeContentCard<TParams extends Record<string, unknown>>(
+  e: t.ActionProbe.ProbeRenderArgs<t.TEnv, TParams>,
   props: Props,
 ) {
   const refs = props.refs ?? [];

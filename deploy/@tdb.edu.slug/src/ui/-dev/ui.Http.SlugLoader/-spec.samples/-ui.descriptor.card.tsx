@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BulletList, SlugClient } from './common.ts';
+import { type t, BulletList, SlugLoader } from './common.ts';
 
 type Props = {
   origin: t.SlugUrlOrigin;
@@ -62,10 +62,10 @@ function isDescriptorMode(input: string): input is t.DescriptorMode {
 }
 
 async function loadItems(origin: string): Promise<t.BulletList.Item[]> {
-  const paths = ['kb/-manifests', 'program/-manifests'] as const;
+  const kinds: t.BundleDescriptorKind[] = ['slug-tree:fs', 'slug-tree:media:seq'];
   const list = await Promise.all(
-    paths.map(async (path) => {
-      const res = await SlugClient.FromEndpoint.Descriptor.load(origin, path);
+    kinds.map(async (kind) => {
+      const res = await SlugLoader.Descriptor.load(origin, kind);
       if (!res.ok) return [];
       return res.value.bundles.map((bundle) => bundle.kind);
     }),
