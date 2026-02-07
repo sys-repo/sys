@@ -9,9 +9,7 @@ export async function execBuildCopy(
   cwd: t.StringDir,
   dir: t.DeployTool.Staging.Dir,
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
-  options: { readonly overwrite?: boolean } = {},
 ): Promise<void> {
-
   const sourceRaw = String(dir.source ?? '');
   const stagingRaw = String(dir.staging ?? '');
 
