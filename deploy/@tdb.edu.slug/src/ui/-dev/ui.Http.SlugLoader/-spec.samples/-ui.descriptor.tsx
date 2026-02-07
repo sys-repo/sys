@@ -1,4 +1,4 @@
-import { type t, SlugClient } from './common.ts';
+import { type t, SlugClient, Url } from './common.ts';
 import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
 
 type Params = t.DescriptorParams;
@@ -6,7 +6,7 @@ type Params = t.DescriptorParams;
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
   render(e) {
-    const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
+    const path = 'kb/-manifests';
     const kind = e.descriptorKind ?? 'descriptor';
     e.params({ path, kind });
     renderDescriptorCard(e, { kind, onKindChange: e.onDescriptorKindChange });
@@ -33,7 +33,7 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     const client = SlugClient.FromDescriptor.make({
       descriptor: descriptor.value,
-      baseUrl: e.origin.cdn.default,
+      baseUrl: Url.parse(e.origin.cdn.default).join(path),
       kind,
     });
     if (!client.ok) return e.result(client);
