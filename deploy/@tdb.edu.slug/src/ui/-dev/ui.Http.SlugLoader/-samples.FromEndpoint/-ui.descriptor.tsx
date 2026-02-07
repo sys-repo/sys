@@ -1,15 +1,14 @@
 import { type t, Str, SlugClient } from './common.ts';
 
-type DescriptorParams = {
+type Params = {
   readonly path: string;
 };
-
-type DescriptorEnv = {
+type Env = {
   readonly is: { readonly local: boolean };
   readonly origin: t.SlugUrlOrigin;
 };
 
-export const DescriptorSample: t.ActionProbe.ProbeSpec<DescriptorEnv, DescriptorParams> = {
+export const DescriptorSample: t.ActionProbe.ProbeSpec<Env, Params> = {
   title: 'Descriptor',
   render(e) {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
@@ -21,7 +20,7 @@ export const DescriptorSample: t.ActionProbe.ProbeSpec<DescriptorEnv, Descriptor
     return <div>{Str.Lorem.words(18)}</div>;
   },
   async run(e) {
-    const params = e.params<DescriptorParams>();
+    const params = e.params<Params>();
     const path = params?.path;
     if (!path) {
       e.item({ k: 'error', v: 'Missing params.path' });
