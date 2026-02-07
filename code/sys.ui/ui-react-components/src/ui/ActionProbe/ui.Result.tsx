@@ -15,12 +15,21 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
-    spinner: css({ Absolute: 0, pointerEvents: 'none', display: 'grid', placeItems: 'center' }),
+    spinner: css({
+      Absolute: 0,
+      pointerEvents: 'none',
+      display: 'grid',
+      placeItems: 'center',
+    }),
     body: {
       base: css({
         position: 'relative',
         display: 'grid',
         gridTemplateRows: hasItems ? `auto auto 1fr` : '1fr',
+        pointerEvents: spinning ? 'none' : 'auto',
+        filter: `blur(${spinning ? 1 : 0}px)`,
+        opacity: spinning ? 0.12 : 1,
+        transition: 'opacity 100ms ease',
       }),
       top: css({ padding: 10 }),
       hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
@@ -38,7 +47,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
     </div>
   );
 
-  const elBody = !spinning && (
+  const elBody = (
     <div className={styles.body.base.class}>
       {hasItems && (
         <div className={styles.body.top.class}>
