@@ -1,28 +1,31 @@
 import React from 'react';
 import { type t, Button, Color, css, KeyValue, Obj } from './common.ts';
 
-type P = t.ActionProbe.ProbeProps;
+type EnvObject = Record<string, unknown>;
+type ParamsObject = Record<string, unknown>;
 
 /**
  * Component:
  */
-export const Probe: React.FC<P> = (props) => {
-  const { debug = false, sample, is, origin, spinning = false } = props;
+export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
+  props: t.ActionProbe.ProbeProps<TEnv, TParams>,
+) => {
+  const { debug = false, sample, env, spinning = false } = props;
 
   /**
    * State:
    */
-  type TArgs = t.ActionProbe.ProbeRenderArgs;
+  type TArgs = t.ActionProbe.ProbeRenderArgs<TEnv, TParams>;
   const [body, setBody] = React.useState<t.ReactNode>();
   const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
-  const paramsRef = React.useRef<unknown>(undefined);
+  const paramsRef = React.useRef<TParams | undefined>(undefined);
 
   /**
    * Effect:
    */
   React.useEffect(() => {
     const theme = props.theme;
-    const common = { is, origin };
+    const common = env;
     paramsRef.current = undefined;
     setItems([]);
 
@@ -40,7 +43,7 @@ export const Probe: React.FC<P> = (props) => {
     };
 
     setBody(sample.render(args));
-  }, [props.theme, Obj.hash({ is, origin })]);
+  }, [props.theme, Obj.hash(env)]);
 
   const run = React.useCallback(async () => {
     const handler = sample.run;
@@ -48,10 +51,9 @@ export const Probe: React.FC<P> = (props) => {
 
     props.onRunStart?.();
     try {
-      const args: t.ActionProbe.ProbeRunArgs = {
-        is,
-        origin,
-        params<T = unknown>() {
+      const args: t.ActionProbe.ProbeRunArgs<TEnv, TParams> = {
+        ...env,
+        params<T = TParams>() {
           return paramsRef.current as Readonly<T> | undefined;
         },
         item(item) {
@@ -66,7 +68,7 @@ export const Probe: React.FC<P> = (props) => {
     } finally {
       props.onRunEnd?.();
     }
-  }, [is, origin, props, sample]);
+  }, [env, props, sample]);
 
   /**
    * Render:

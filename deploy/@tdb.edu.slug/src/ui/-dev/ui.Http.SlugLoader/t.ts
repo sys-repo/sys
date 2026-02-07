@@ -9,22 +9,32 @@ export type * from './t.signals.ts';
  * with host-owned lifecycle state and shared result rendering.
  */
 export namespace ActionProbe {
+  type EnvObject = Record<string, unknown>;
   type ParamsObject = Record<string, unknown>;
 
   export type Lib = {
-    readonly Probe: t.FC<t.ActionProbe.ProbeProps>;
+    readonly Probe: t.ActionProbe.ProbeComponent;
     readonly Result: t.FC<t.ActionProbe.ResultProps>;
     readonly Signals: t.ActionProbeSignalsLib;
     readonly signals: t.ActionProbeSignalsLib['create'];
   };
 
+  export type ProbeComponent = <
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  >(
+    props: t.ActionProbe.ProbeProps<TEnv, TParams>,
+  ) => t.ReactNode;
+
   /**
    * Component:
    */
-  export type ProbeProps<TParams extends ParamsObject = ParamsObject> = {
-    sample: t.ActionProbe.ProbeSpec<TParams>;
-    is: ProbeRenderArgs<TParams>['is'];
-    origin: t.SlugUrlOrigin;
+  export type ProbeProps<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = {
+    sample: t.ActionProbe.ProbeSpec<TEnv, TParams>;
+    env: TEnv;
     spinning?: boolean;
     onRunStart?: () => void;
     onRunEnd?: () => void;
@@ -47,32 +57,42 @@ export namespace ActionProbe {
   /**
    * Fetch Samples
    */
-  export type ProbeSpec<TParams extends ParamsObject = ParamsObject> = {
+  export type ProbeSpec<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = {
     readonly title: t.ReactNode;
-    readonly render: ProbeRender<TParams>;
-    readonly run?: ProbeRun<TParams>;
+    readonly render: ProbeRender<TEnv, TParams>;
+    readonly run?: ProbeRun<TEnv, TParams>;
   };
 
-  type CommonArgs = {
-    readonly is: { readonly local: boolean };
-    readonly origin: t.SlugUrlOrigin;
-  };
-
-  export type ProbeRender<TParams extends ParamsObject = ParamsObject> = (
-    e: ProbeRenderArgs<TParams>,
+  export type ProbeRender<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = (
+    e: ProbeRenderArgs<TEnv, TParams>,
   ) => t.ReactNode | null;
-  export type ProbeRenderArgs<TParams extends ParamsObject = ParamsObject> = CommonArgs & {
+  export type ProbeRenderArgs<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = TEnv & {
     readonly theme?: t.CommonTheme;
-    readonly params: (value: TParams) => ProbeRenderArgs<TParams>;
-    item(item: t.KeyValueItem): ProbeRenderArgs<TParams>;
+    readonly params: (value: TParams) => ProbeRenderArgs<TEnv, TParams>;
+    item(item: t.KeyValueItem): ProbeRenderArgs<TEnv, TParams>;
   };
 
-  export type ProbeRun<TParams extends ParamsObject = ParamsObject> = (
-    e: ProbeRunArgs<TParams>,
+  export type ProbeRun<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = (
+    e: ProbeRunArgs<TEnv, TParams>,
   ) => Promise<void>;
-  export type ProbeRunArgs<TParams extends ParamsObject = ParamsObject> = CommonArgs & {
+  export type ProbeRunArgs<
+    TEnv extends EnvObject = EnvObject,
+    TParams extends ParamsObject = ParamsObject,
+  > = TEnv & {
     readonly params: <T = TParams>() => Readonly<T> | undefined;
-    item(item: t.KeyValueItem): ProbeRunArgs<TParams>;
+    item(item: t.KeyValueItem): ProbeRunArgs<TEnv, TParams>;
     readonly result: (value: unknown) => void;
   };
 }

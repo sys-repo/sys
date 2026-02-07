@@ -10,4 +10,5 @@ export const ActionProbe: t.ActionProbe.Lib = {
   Probe,
   Result,
   Signals,
+  signals: Signals.create,
 };

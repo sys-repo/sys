@@ -1,7 +1,11 @@
 import { type t, Signal, ActionProbe } from './common.ts';
 
 type Options = { theme?: t.CommonTheme };
-type TSample = t.ActionProbe.ProbeSpec;
+type TEnv = {
+  readonly is: { readonly local: boolean };
+  readonly origin: t.SlugUrlOrigin;
+};
+type TSample = t.ActionProbe.ProbeSpec<TEnv>;
 
 export function renderer(debug: t.DebugSignals, opts: Options = {}) {
   const items: t.ReactNode[] = [];
@@ -25,8 +29,7 @@ function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Op
       //
       style={{ MarginY: 8, MarginX: 15 }}
       key={probe}
-      origin={origin}
-      is={{ local }}
+      env={{ is: { local }, origin }}
       spinning={v.spinning && v.activeProbe === probe}
       theme={opts.theme ?? v.theme}
       debug={v.debug}

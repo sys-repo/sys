@@ -4,7 +4,12 @@ type DescriptorParams = {
   readonly path: string;
 };
 
-export const DescriptorSample: t.ActionProbe.ProbeSpec<DescriptorParams> = {
+type DescriptorEnv = {
+  readonly is: { readonly local: boolean };
+  readonly origin: t.SlugUrlOrigin;
+};
+
+export const DescriptorSample: t.ActionProbe.ProbeSpec<DescriptorEnv, DescriptorParams> = {
   title: 'Descriptor',
   render(e) {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
