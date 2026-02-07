@@ -12,7 +12,14 @@ type ParamsObject = Record<string, unknown>;
 export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
-  const { debug = false, sample, env, spinning = false, focused = false } = props;
+  const {
+    debug = false,
+    sample,
+    env,
+    spinning = false,
+    focused = false,
+    borderRadius = D.borderRadius,
+  } = props;
   const theme = Color.theme(props.theme);
   const { componentAttr } = useProbeStyles(theme.fg);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
@@ -33,7 +40,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       Padding: [8, 12],
       outline: 'none',
       border: `dashed 1px ${Color.alpha(theme.fg, focused ? 0.6 : 0.25)}`,
-      borderRadius: D.borderRadius,
+      borderRadius,
       boxShadow: focused ? `0 3px 35px ${Color.alpha(Color.DARK, 0.14)}` : 'none',
       ':focus': { outline: 'none' },
       ':focus-visible': { outline: 'none' },
