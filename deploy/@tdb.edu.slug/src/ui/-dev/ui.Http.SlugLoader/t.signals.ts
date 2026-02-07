@@ -1,13 +1,22 @@
 import { type t } from './common.ts';
 
+/**
+ *
+ */
 export type ActionProbeSignalsLib = {
   readonly create: ActionProbeSignalsFactory;
 };
 
+/**
+ *
+ */
 export type ActionProbeSignalsFactory = (
   defaults?: Partial<ActionProbeSignalsState>,
 ) => ActionProbeSignals;
 
+/**
+ *
+ */
 export type ActionProbeSignals = {
   readonly props: ActionProbeSignalProps;
   start(probe: string): ActionProbeSignals;
@@ -17,12 +26,12 @@ export type ActionProbeSignals = {
   reset(): ActionProbeSignals;
 };
 
-export type ActionProbeSignalProps = Readonly<{
-  activeProbe: t.Signal<string | undefined>;
-  resultItems: t.Signal<t.KeyValueItem[]>;
-  response: t.Signal<unknown>;
-  spinning: t.Signal<boolean>;
-}>;
+export type ActionProbeSignalProps = {
+  readonly activeProbe: t.Signal<string | undefined>;
+  readonly resultItems: t.Signal<t.KeyValueItem[]>;
+  readonly response: t.Signal<unknown>;
+  readonly spinning: t.Signal<boolean>;
+};
 
 export type ActionProbeSignalsState = {
   activeProbe: string | undefined;

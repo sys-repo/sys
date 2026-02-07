@@ -13,11 +13,11 @@ export const DescriptorSample: t.ActionProbe.ProbeSpec<Env, Params> = {
   render(e) {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
     e.params({ path });
+    e.element(<div>{Str.Lorem.words(18)}</div>);
     e.item({ k: 'foo', v: 'bar' });
     e.item({ k: 'foo2', v: '456' });
+    e.element(Str.Lorem.words(5));
     e.item({ k: 'path', v: path });
-
-    return <div>{Str.Lorem.words(18)}</div>;
   },
   async run(e) {
     const params = e.params<Params>();

@@ -71,13 +71,14 @@ export namespace ActionProbe {
     TParams extends ParamsObject = ParamsObject,
   > = (
     e: ProbeRenderArgs<TEnv, TParams>,
-  ) => t.ReactNode | null;
+  ) => void;
   export type ProbeRenderArgs<
     TEnv extends EnvObject = EnvObject,
     TParams extends ParamsObject = ParamsObject,
   > = TEnv & {
     readonly theme?: t.CommonTheme;
     readonly params: (value: TParams) => ProbeRenderArgs<TEnv, TParams>;
+    element(node: t.ReactNode): ProbeRenderArgs<TEnv, TParams>;
     item(item: t.KeyValueItem): ProbeRenderArgs<TEnv, TParams>;
   };
 

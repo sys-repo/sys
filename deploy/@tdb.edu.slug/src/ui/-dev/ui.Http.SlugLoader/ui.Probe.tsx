@@ -11,13 +11,13 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
   const { debug = false, sample, env, spinning = false } = props;
+  type Block = { kind: 'element'; node: t.ReactNode } | { kind: 'kv'; items: t.KeyValueItem[] };
 
   /**
    * State:
    */
   type TArgs = t.ActionProbe.ProbeRenderArgs<TEnv, TParams>;
-  const [body, setBody] = React.useState<t.ReactNode>();
-  const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
+  const [blocks, setBlocks] = React.useState<Block[]>([]);
   const paramsRef = React.useRef<TParams | undefined>(undefined);
 
   /**
@@ -27,7 +27,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     const theme = props.theme;
     const common = env;
     paramsRef.current = undefined;
-    setItems([]);
+    const blocks: Block[] = [];
+    let currentItems: t.KeyValueItem[] | undefined;
 
     const args: TArgs = {
       ...common,
@@ -36,13 +37,23 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         paramsRef.current = Object.freeze(value);
         return args;
       },
+      element(node) {
+        currentItems = undefined;
+        blocks.push({ kind: 'element', node });
+        return args;
+      },
       item(item) {
-        setItems((last) => [...last, item]);
+        if (!currentItems) {
+          currentItems = [];
+          blocks.push({ kind: 'kv', items: currentItems });
+        }
+        currentItems.push(item);
         return args;
       },
     };
 
-    setBody(sample.render(args));
+    sample.render(args);
+    setBlocks(blocks);
   }, [props.theme, Obj.hash(env)]);
 
   const run = React.useCallback(async () => {
@@ -119,8 +130,16 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   return (
     <div className={css(styles.base, props.style).class}>
       {elTitle}
-      {body && <div className={styles.body.class}>{body}</div>}
-      {items.length > 0 && <KeyValue.UI theme={theme.name} items={items} mono={true} />}
+      {blocks.map((block, index) => {
+        if (block.kind === 'element') {
+          return (
+            <div key={index} className={styles.body.class}>
+              {block.node}
+            </div>
+          );
+        }
+        return <KeyValue.UI key={index} theme={theme.name} items={block.items} mono={true} />;
+      })}
     </div>
   );
 };
