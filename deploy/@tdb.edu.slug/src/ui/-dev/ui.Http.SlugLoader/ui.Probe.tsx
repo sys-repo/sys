@@ -111,7 +111,6 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     body: css({
       fontSize: 11,
       lineHeight: 1.4,
-      color: Color.alpha(theme.fg, 0.6),
     }),
   };
 

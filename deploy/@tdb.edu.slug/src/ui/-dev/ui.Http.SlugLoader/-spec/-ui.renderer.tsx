@@ -9,9 +9,9 @@ type TSample = t.ActionProbe.ProbeSpec<TEnv>;
 
 export function renderer(debug: t.DebugSignals, opts: Options = {}) {
   const items: t.ReactNode[] = [];
-  const create = (sample: TSample) => render(debug, sample, items.length - 1, opts);
+  const create = (sample: TSample) => render(debug, sample, items.length, opts);
   const push = (sample: TSample) => items.push(create(sample));
-  const hr = () => items.push(<hr key={items.length} />);
+  const hr = () => items.push(<hr key={`hr-${items.length}`} />);
   return { items, push, hr } as const;
 }
 
