@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { type t, Schedule } from '../common.ts';
 
 /**
- * Hook: useCoalescedRev
+ * Hook: useRev (redraw).
  *
  * Returns a tuple [rev, bump] where:
  * - `rev` is a monotonic counter
