@@ -5,47 +5,27 @@ type TEnv = {
   readonly is: { readonly local: boolean };
   readonly origin: t.SlugUrlOrigin;
 };
-type TSample = t.ActionProbe.ProbeSpec<TEnv>;
 
-export function renderer(debug: t.DebugSignals, opts: Options = {}) {
-  const items: t.ReactNode[] = [];
-  const create = (sample: TSample) => render(debug, sample, items.length, opts);
-  const push = (sample: TSample) => items.push(create(sample));
-  const hr = () => items.push(<hr key={`hr-${items.length}`} />);
-  return { items, push, hr } as const;
-}
-
-function render(debug: t.DebugSignals, sample: TSample, index: t.Index, opts: Options) {
-  const action = debug.action;
-  const p = debug.props;
-  const v = Signal.toObject(p);
-  const local = v.env === 'localhost';
-  const origin = v.origin;
-  const probe = String(index);
-  if (!origin) return null;
-
-  return (
-    <ActionProbe.Probe
-      //
-      style={{ MarginY: 8, MarginX: 15 }}
-      key={probe}
-      env={{ is: { local }, origin }}
-      spinning={v.spinning && v.probe.active === probe}
-      theme={opts.theme ?? v.theme}
-      debug={v.debug}
-      sample={sample}
-      onRunStart={() => {
-        action.start(probe);
-      }}
-      onRunEnd={() => {
-        action.end();
-      }}
-      onRunResult={(value) => {
-        action.result(value);
-      }}
-      onRunItem={(item) => {
-        action.item(item);
-      }}
-    />
-  );
+export function renderer(state: t.DebugSignals, opts: Options = {}) {
+  return ActionProbe.renderer<t.DebugSignals, TEnv>({
+    state,
+    style: { MarginY: 8, MarginX: 15 },
+    resolve: ({ state, probe }) => {
+      const v = Signal.toObject(state.props);
+      const origin = v.origin;
+      if (!origin) return undefined;
+      const local = v.env === 'localhost';
+      const action = state.action;
+      return {
+        env: { is: { local }, origin },
+        spinning: v.spinning && v.probe.active === probe,
+        theme: opts.theme ?? v.theme,
+        debug: v.debug,
+        onRunStart: () => action.start(probe),
+        onRunEnd: () => action.end(),
+        onRunResult: (value) => action.result(value),
+        onRunItem: (item) => action.item(item),
+      };
+    },
+  });
 }

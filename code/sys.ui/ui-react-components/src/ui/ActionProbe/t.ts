@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.signals.ts';
+export type * from './t.renderer.ts';
 
 /**
  * ActionProbe:
@@ -17,6 +18,8 @@ export namespace ActionProbe {
     readonly Result: t.FC<t.ActionProbe.ResultProps>;
     readonly Signals: t.ActionProbeSignalsLib;
     readonly signals: t.ActionProbeSignalsLib['create'];
+    readonly Renderer: t.ActionProbeRendererLib;
+    readonly renderer: t.ActionProbeRendererLib['create'];
   };
 
   export type ProbeComponent = <
