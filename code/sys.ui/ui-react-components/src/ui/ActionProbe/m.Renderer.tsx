@@ -24,12 +24,15 @@ export const Renderer: t.ActionProbeRendererLib = {
             sample={sample}
             env={resolved.env}
             spinning={resolved.spinning}
+            focused={resolved.focused}
             theme={resolved.theme}
             debug={resolved.debug}
             onRunStart={resolved.onRunStart}
             onRunEnd={resolved.onRunEnd}
             onRunResult={resolved.onRunResult}
             onRunItem={resolved.onRunItem}
+            onFocus={resolved.onFocus}
+            onBlur={resolved.onBlur}
           />,
         );
         return api;

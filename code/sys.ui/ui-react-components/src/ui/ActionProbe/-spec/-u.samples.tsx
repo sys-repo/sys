@@ -25,16 +25,19 @@ export function renderSamples(debug: DebugSignals, opts: Options = {}) {
 function renderer(state: DebugSignals, opts: Options = {}) {
   return ActionProbe.renderer<DebugSignals, TEnv>({
     state,
-    style: { MarginY: 15, MarginX: 15 },
+    style: { MarginY: 20, MarginX: 10 },
     resolve: ({ state, probe }) => {
       const v = Signal.toObject(state.props);
       const local = v.env === 'localhost';
       return {
         env: { is: { local } },
         spinning: v.spinning && v.probe.active === probe,
+        focused: v.probe.focused === probe,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
         ...state.action.handlers(probe),
+        onFocus: () => state.action.focus(probe),
+        onBlur: () => state.action.blur(probe),
       };
     },
   });

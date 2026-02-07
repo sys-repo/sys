@@ -6,6 +6,7 @@ describe('ActionProbe.Signals', () => {
     const api = Signals.create();
     const p = api.props;
     expect(p.probe.active.value).to.eql(undefined);
+    expect(p.probe.focused.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
@@ -21,10 +22,24 @@ describe('ActionProbe.Signals', () => {
 
     const p = api.props;
     expect(p.probe.active.value).to.eql('p:1');
+    expect(p.probe.focused.value).to.eql('p:1');
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(true);
+  });
+
+  it('focus/blur: tracks focused probe independently of active state', () => {
+    const api = Signals.create();
+    api.focus('p:1');
+
+    expect(api.props.probe.focused.value).to.eql('p:1');
+
+    api.blur('p:2');
+    expect(api.props.probe.focused.value).to.eql('p:1');
+
+    api.blur('p:1');
+    expect(api.props.probe.focused.value).to.eql(undefined);
   });
 
   it('item/result/end: mutates execution channel', () => {
@@ -54,6 +69,7 @@ describe('ActionProbe.Signals', () => {
 
     const p = api.props;
     expect(p.probe.active.value).to.eql(undefined);
+    expect(p.probe.focused.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
@@ -71,6 +87,7 @@ describe('ActionProbe.Signals', () => {
 
     const p = api.props;
     expect(p.probe.active.value).to.eql('p:2');
+    expect(p.probe.focused.value).to.eql('p:2');
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
     expect(p.result.response.value).to.eql({ ok: true });
     expect(p.result.obj.value).to.eql({ expand: { level: 1 } });

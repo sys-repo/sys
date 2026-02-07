@@ -9,10 +9,13 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   sample: t.ActionProbe.ProbeSpec<TEnv, TParams>;
   env: TEnv;
   spinning?: boolean;
+  focused?: boolean;
   onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
   onRunEnd?: () => void;
   onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   onRunItem?: (item: t.KeyValueItem) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 
   debug?: boolean;
   theme?: t.CommonTheme;

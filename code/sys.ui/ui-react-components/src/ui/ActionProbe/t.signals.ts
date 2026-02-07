@@ -15,6 +15,8 @@ export type ActionProbeSignals = {
   readonly props: ActionProbeSignalProps;
   handlers(probe: string, title?: t.ReactNode): ActionProbeRunHandlers;
   start(probe: string, title?: t.ReactNode): ActionProbeSignals;
+  focus(probe: string): ActionProbeSignals;
+  blur(probe?: string): ActionProbeSignals;
   item(item: t.KeyValueItem): ActionProbeSignals;
   result(value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig): ActionProbeSignals;
   end(): ActionProbeSignals;
@@ -39,6 +41,7 @@ export type ActionProbeSignalProps = {
   readonly spinning: t.Signal<boolean>;
   readonly probe: {
     readonly active: t.Signal<string | undefined>;
+    readonly focused: t.Signal<string | undefined>;
   };
   readonly result: {
     readonly items: t.Signal<t.KeyValueItem[]>;
@@ -50,7 +53,7 @@ export type ActionProbeSignalProps = {
 /** Serializable snapshot shape for ActionProbe execution state. */
 export type ActionProbeSignalsState = {
   spinning: boolean;
-  probe: { active: string | undefined };
+  probe: { active: string | undefined; focused: string | undefined };
   result: {
     items: t.KeyValueItem[];
     response: unknown;

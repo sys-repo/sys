@@ -42,10 +42,13 @@ export type ActionProbeRendererResolveArgs<TState> = {
 export type ActionProbeRendererResolvedProps<TEnv extends Record<string, unknown>> = {
   readonly env: TEnv;
   readonly spinning?: boolean;
+  readonly focused?: boolean;
   readonly theme?: t.CommonTheme;
   readonly debug?: boolean;
   readonly onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
   readonly onRunEnd?: () => void;
   readonly onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   readonly onRunItem?: (item: t.KeyValueItem) => void;
+  readonly onFocus?: () => void;
+  readonly onBlur?: () => void;
 };

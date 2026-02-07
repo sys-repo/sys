@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, KeyValue } from './common.ts';
+import { type t, Button, Color, css, Keyboard, KeyValue } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
 import { useProbeStyles } from './use.Styles.ts';
@@ -13,7 +13,7 @@ type ParamsObject = Record<string, unknown>;
 export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
-  const { debug = false, sample, env, spinning = false } = props;
+  const { debug = false, sample, env, spinning = false, focused = false } = props;
   const theme = Color.theme(props.theme);
   const { componentAttr } = useProbeStyles(theme.fg);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
@@ -31,9 +31,14 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     base: css({
       color: theme.fg,
       backgroundColor: Color.alpha(theme.fg, 0.03),
-      border: `dashed 1px ${Color.alpha(theme.fg, 0.25)}`,
+      border: `solid 1px ${focused ? Color.alpha(Color.BLUE, 1) : Color.alpha(theme.fg, 0.25)}`,
       borderRadius: 4,
       Padding: [8, 12],
+      outline: 'none',
+      boxShadow: 'none',
+      ':focus': { outline: 'none', boxShadow: 'none' },
+      ':focus-visible': { outline: 'none', boxShadow: 'none' },
+      transition: 'border-color 120ms ease',
       display: 'grid',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
@@ -69,7 +74,19 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   );
 
   return (
-    <div data-component={componentAttr} className={css(styles.base, props.style).class}>
+    <div
+      data-component={componentAttr}
+      className={css(styles.base, props.style).class}
+      tabIndex={0}
+      onFocus={props.onFocus}
+      onBlur={props.onBlur}
+      onKeyDown={(e) => {
+        if (!Keyboard.Is.command(e) || e.key !== 'Enter') return;
+        if (!canRun || spinning) return;
+        e.preventDefault();
+        run();
+      }}
+    >
       {elTitle}
       {blocks.map((block, index) => {
         if (block.kind === 'element') {
