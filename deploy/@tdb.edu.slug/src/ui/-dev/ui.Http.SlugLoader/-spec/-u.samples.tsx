@@ -49,9 +49,12 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
           },
         },
         spinning: v.spinning && v.probe.active === probe,
+        focused: v.probe.focused === probe,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
         ...state.action.handlers(probe),
+        onFocus: () => state.action.focus(probe),
+        onBlur: () => state.action.blur(probe),
       };
     },
   });
