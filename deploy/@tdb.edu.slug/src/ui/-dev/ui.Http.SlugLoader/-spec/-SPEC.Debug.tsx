@@ -12,7 +12,7 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
-import { renderSamples } from './-samples.tsx';
+import { renderSamples } from './-u.samples.tsx';
 
 type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
 const defaults: Storage = {
