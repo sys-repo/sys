@@ -1,9 +1,7 @@
-import { type t, BulletList, SlugClient } from './common.ts';
+import { type t, SlugClient } from './common.ts';
+import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
 
-type Params = {
-  path: string;
-  kind: t.DescriptorMode;
-};
+type Params = t.DescriptorParams;
 
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'Descriptor',
@@ -11,28 +9,8 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const path = e.is.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
     const kind = e.descriptorKind ?? 'descriptor';
     e.params({ path, kind });
-    e.element(
-      <div>
-        Loads <code>dist.client.json</code>, then runs kind-specific calls for filesystem or media
-        descriptors.
-      </div>,
-    );
-    e.element(
-      <BulletList.UI
-        selected={kind}
-        items={[
-          { id: 'descriptor', label: 'descriptor' },
-          { id: 'slug-tree:fs', label: 'descriptor: content/file' },
-          { id: 'slug-tree:media:seq', label: 'descriptor: playback/assets' },
-        ]}
-        onSelect={(ev) => {
-          if (!isDescriptorMode(ev.id)) return;
-          e.onDescriptorKindChange?.(ev.id);
-        }}
-      />,
-    );
+    renderDescriptorCard(e, { kind, onKindChange: e.onDescriptorKindChange });
     e.item({ k: 'path', v: path });
-    e.item({ k: 'kind', v: kind });
   },
   async run(e) {
     const params = e.params<Params>();
@@ -85,8 +63,10 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     const assets = await client.value.Timeline.Assets.load();
     if (!assets.ok) return e.result(assets);
+
     const playback = await client.value.Timeline.Playback.load();
     if (!playback.ok) return e.result(playback);
+
     const bundle = await client.value.Timeline.Bundle.load();
     if (!bundle.ok) return e.result(bundle);
 
@@ -107,12 +87,3 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     });
   },
 };
-
-function isDescriptorKind(input: string): input is t.BundleDescriptorKind {
-  return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
-}
-
-function isDescriptorMode(input: string): input is t.DescriptorMode {
-  if (input === 'descriptor') return true;
-  return isDescriptorKind(input);
-}

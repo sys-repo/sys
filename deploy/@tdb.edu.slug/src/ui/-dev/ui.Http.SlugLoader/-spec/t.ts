@@ -4,6 +4,10 @@ export type * from '../../../../common/t.ts';
 export type * from './-SPEC.Debug.tsx';
 
 export type DescriptorMode = 'descriptor' | t.BundleDescriptorKind;
+export type DescriptorParams = {
+  path: string;
+  kind: DescriptorMode;
+};
 
 export type TEnv = {
   is: { local: boolean };
