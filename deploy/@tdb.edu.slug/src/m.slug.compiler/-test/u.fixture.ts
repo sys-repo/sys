@@ -37,6 +37,7 @@ export function makeDist(parts: string[]): t.DistPkg {
       size: { total: 0, pkg: 0 },
       builder: 'foobar@0.0.1',
       runtime: 'deno=1:v8=1:typescript=5',
+      hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
     },
     entry: '',
     url: { base: '/' },
