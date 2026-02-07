@@ -21,14 +21,15 @@ export const Body: React.FC<BodyProps> = (props) => {
       display: 'grid',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
-      gap: 8,
+      rowGap: 8,
     }),
+    content: css({ display: 'contents' }),
     item: css({ fontSize: 11, lineHeight: 1.4 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div data-part={'probe-body-content'}>
+      <div data-part={'probe-body-content'} className={styles.content.class}>
         {blocks.map((block, index) => {
           if (block.kind === 'element') {
             return (
