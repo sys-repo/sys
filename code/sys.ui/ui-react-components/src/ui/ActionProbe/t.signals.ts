@@ -13,11 +13,20 @@ export type ActionProbeSignalsFactory = (
 /** Mutable execution-state API for ActionProbe hosts. */
 export type ActionProbeSignals = {
   readonly props: ActionProbeSignalProps;
+  handlers(probe: string): ActionProbeRunHandlers;
   start(probe: string): ActionProbeSignals;
   item(item: t.KeyValueItem): ActionProbeSignals;
   result(value: unknown): ActionProbeSignals;
   end(): ActionProbeSignals;
   reset(): ActionProbeSignals;
+};
+
+/** ActionProbe run-event handlers bound to a probe id. */
+export type ActionProbeRunHandlers = {
+  readonly onRunStart: () => void;
+  readonly onRunEnd: () => void;
+  readonly onRunResult: (value: unknown) => void;
+  readonly onRunItem: (item: t.KeyValueItem) => void;
 };
 
 /** Raw signal handles used by the execution-state API. */

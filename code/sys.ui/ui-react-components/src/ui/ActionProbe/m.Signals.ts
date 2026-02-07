@@ -35,6 +35,22 @@ export const Signals: t.ActionProbeSignalsLib = {
       get props() {
         return props;
       },
+      handlers(probe) {
+        return {
+          onRunStart: () => {
+            api.start(probe);
+          },
+          onRunEnd: () => {
+            api.end();
+          },
+          onRunResult: (value) => {
+            api.result(value);
+          },
+          onRunItem: (item) => {
+            api.item(item);
+          },
+        };
+      },
       start(probe) {
         props.probe.active.value = probe;
         props.result.items.value = [];

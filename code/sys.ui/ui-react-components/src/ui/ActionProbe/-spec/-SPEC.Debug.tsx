@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { ActionProbe } from '../mod.ts';
-import { renderSamples } from './-u.samples.tsx';
+import { renderSamples } from './-samples.tsx';
 
 type Storage = {
   debug?: boolean;

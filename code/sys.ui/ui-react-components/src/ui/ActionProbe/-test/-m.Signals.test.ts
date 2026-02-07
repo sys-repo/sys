@@ -50,4 +50,20 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.response.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(false);
   });
+
+  it('handlers: maps run callbacks to canonical signal transitions', () => {
+    const api = Signals.create();
+    const run = api.handlers('p:2');
+
+    run.onRunStart();
+    run.onRunItem({ k: 'foo', v: 123 });
+    run.onRunResult({ ok: true });
+    run.onRunEnd();
+
+    const p = api.props;
+    expect(p.probe.active.value).to.eql('p:2');
+    expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
+    expect(p.result.response.value).to.eql({ ok: true });
+    expect(p.spinning.value).to.eql(false);
+  });
 });
