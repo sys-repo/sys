@@ -1,7 +1,8 @@
 import { type t, describe, expect, it, pkg } from '../-test.ts';
+import { pkg as fsPkg } from '../pkg.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Is, Path, R, Str, Time, c } from './common.ts';
+import { D, Fs, Is, JsrUrl, Path, R, Str, Time, c } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -63,6 +64,12 @@ describe('Pkg.Dist', () => {
       expect(dist.build.runtime.includes('deno=')).to.be.true;
       expect(dist.build.runtime.includes('v8=')).to.be.true;
       expect(dist.build.runtime.includes('typescript=')).to.be.true;
+
+      const expectedPolicy = JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path);
+      expect(dist.build.hash.policy).to.eql(expectedPolicy);
+
+      const policyPath = Fs.resolve(`./${D.hashPolicy.path}`);
+      expect(await Fs.exists(policyPath)).to.eql(true);
 
       expect(Is.number(dist.build.size.total)).to.be.true;
       expect(Is.number(dist.build.size.pkg)).to.be.true;

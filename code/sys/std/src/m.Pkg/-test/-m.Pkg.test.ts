@@ -106,6 +106,29 @@ describe('Pkg', () => {
         });
       });
 
+      it('false: missing build.hash.policy', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+          },
+          entry: 'pkg/entry.js',
+          url: { base: '/' },
+          hash: {
+            digest: 'acbc',
+            parts: {
+              './index.html': 'xxxx',
+              './pkg/entry.js': 'yyyy',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
       it('true', () => {
         const dist: t.DistPkg = {
           type: 'https://jsr.io/@sample/foo',
@@ -115,6 +138,7 @@ describe('Pkg', () => {
             size: { total: 123_456, pkg: 123 },
             builder: '@sys/driver-vite@0.0.0',
             runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
           entry: 'pkg/entry.js',
           url: { base: '/' },

@@ -3,8 +3,9 @@ import type { PkgDistFsLib } from './t.ts';
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
+import { pkg as fsPkg } from '../pkg.ts';
 
-import { type t, Arr, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Str, Time } from './common.ts';
+import { type t, Arr, CompositeHash, D, Delete, Err, Fs, JsrUrl, Path, Str, Time } from './common.ts';
 import { Log } from './m.Log.ts';
 
 /**
@@ -52,6 +53,10 @@ export const Dist: PkgDistFsLib = {
       size,
       builder: Pkg.toString(args.builder ?? Pkg.unknown()) as t.StringScopedPkgNameVer,
       runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
+      hash: {
+        // Version-pinned provenance for the hash policy used here.
+        policy: JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path),
+      },
     };
 
     const dist: t.DistPkg = {

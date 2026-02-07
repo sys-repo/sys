@@ -23,9 +23,13 @@ export const PkgIs: t.PkgIsLib = {
   dist(input: any): input is t.DistPkg {
     if (!isObject(input)) return false;
     const dist = input as t.DistPkg;
+    if (typeof dist.type !== 'string') return false;
     if (!PkgIs.pkg(dist.pkg)) return false;
+    if (!isObject(dist.build)) return false;
+    if (!isObject(dist.build.hash)) return false;
     return (
       typeof dist.entry === 'string' &&
+      typeof dist.build.hash.policy === 'string' &&
       typeof dist.hash.digest === 'string' &&
       isObject(dist.hash.parts)
     );

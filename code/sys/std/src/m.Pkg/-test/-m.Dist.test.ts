@@ -40,6 +40,7 @@ describe('Pkg.Dist', () => {
             size: { total: 1234, pkg: 1234 },
             builder: '@scope/sample@0.0.0',
             runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
           entry: './main.js',
           url: { base: '/' },

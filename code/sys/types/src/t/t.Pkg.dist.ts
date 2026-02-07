@@ -20,6 +20,18 @@ export type DistPkg = {
     builder: t.StringPkgNameVer;
     /** URI containing the runtime versions the builder ran on. */
     runtime: t.StringUri;
+
+    /**
+     * Hashing meta-data.
+     * NB: This object is descriptive only and must not be included in hash input.
+     */
+    hash: {
+      /**
+       * Versioned URL to the hash-policy implementation
+       * (for example a JSR package source file URL).
+       */
+      policy: t.StringUri;
+    };
   };
 
   /** Path to the main JS entry point. */
