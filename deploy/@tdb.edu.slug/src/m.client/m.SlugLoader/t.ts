@@ -30,7 +30,11 @@ export type SlugClientLoaderDescriptorLib = {
     origin: t.StringUrl,
     kind: t.BundleDescriptorKind,
   ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
-  /** Build descriptor-backed client from canonical deploy profile path policy. */
+  /**
+   * Build descriptor-backed client from canonical deploy profile path policy.
+   * If `docid` is omitted, deploy policy selects the first descriptor bundle
+   * matching `kind`.
+   */
   readonly client: (
     args: SlugClientLoaderDescriptorClientArgs,
   ) => Promise<t.SlugClientResult<t.SlugClientDescriptor>>;
@@ -45,5 +49,6 @@ export type SlugClientLoaderDescriptorTarget = {
 export type SlugClientLoaderDescriptorClientArgs = {
   readonly origin: t.StringUrl;
   readonly kind: t.BundleDescriptorKind;
+  /** Optional explicit bundle selection (otherwise first matching docid is used). */
   readonly docid?: t.StringId;
 };

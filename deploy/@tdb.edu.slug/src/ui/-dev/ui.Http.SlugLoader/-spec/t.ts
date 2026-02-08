@@ -5,7 +5,6 @@ export type * from './-SPEC.Debug.tsx';
 
 export type DescriptorMode = t.BundleDescriptorKind;
 export type DescriptorParams = {
-  path: string;
   kind: DescriptorMode;
 };
 export type TreeContentParams = {

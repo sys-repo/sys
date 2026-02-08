@@ -9,7 +9,7 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
     const target = SlugLoader.Descriptor.target(kind);
     const descriptorPath = target.ok ? target.value.descriptorPath : '(unknown)';
-    e.params({ path: descriptorPath, kind });
+    e.params({ kind });
     renderDescriptorCard(e, {
       origin: e.origin,
       kind,
@@ -21,13 +21,15 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.obj({ expand: { paths: ['$', '$.value'] } });
 
     const params = e.params<Params>();
-    const path = params?.path;
     const kind = params?.kind;
-    if (!path || !kind) {
-      e.item({ k: 'error', v: 'Missing params.path or params.kind' });
-      return e.result({ ok: false, error: { message: 'Missing params.path or params.kind' } });
+    if (!kind) {
+      e.item({ k: 'error', v: 'Missing params.kind' });
+      return e.result({ ok: false, error: { message: 'Missing params.kind' } });
     }
 
+    const target = SlugLoader.Descriptor.target(kind);
+    if (!target.ok) return e.result(target);
+    const path = target.value.descriptorPath;
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'path', v: path });
     e.item({ k: 'kind', v: kind });
@@ -37,8 +39,6 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const selected = SlugLoader.Fetch.FromDescriptor.select({ descriptor: descriptor.value, kind });
     const docid = selected.ok ? selected.value.docid : undefined;
     e.item({ k: 'doc-id', v: docid ?? '(auto:none)' });
-    const target = SlugLoader.Descriptor.target(kind);
-    if (!target.ok) return e.result(target);
     const basePath = target.value.basePath;
     e.item({ k: 'base-path', v: basePath });
 
@@ -77,9 +77,6 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const playback = await client.value.Timeline.Playback.load();
     if (!playback.ok) return e.result(playback);
 
-    const bundle = await client.value.Timeline.Bundle.load();
-    if (!bundle.ok) return e.result(bundle);
-
     return e.result({
       ok: true,
       value: {
@@ -92,7 +89,7 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
         },
         assets: assets.value,
         playback: playback.value,
-        bundle: bundle.value,
+        bundle: 'skipped (manifest-only proof)',
       },
     });
   },

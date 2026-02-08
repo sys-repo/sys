@@ -58,6 +58,7 @@ async function client(
   );
   if (!descriptor.ok) return descriptor;
 
+  // Deploy policy: absent explicit docid, select the first descriptor bundle for the kind.
   const docid = args.docid ?? firstDocid(descriptor.value, args.kind);
   const selected = SlugClient.FromDescriptor.select({
     descriptor: descriptor.value,
