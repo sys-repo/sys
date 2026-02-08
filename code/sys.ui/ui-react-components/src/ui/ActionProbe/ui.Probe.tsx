@@ -1,7 +1,7 @@
 import { type t, Color, css, D, Is, Keyboard } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
-import { useProbeStyles } from './use.Styles.ts';
+import { useScopedStyles } from './use.Styles.ts';
 import { Header } from './ui.Probe.Header.tsx';
 import { Body } from './ui.Probe.Body.tsx';
 
@@ -24,7 +24,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     borderRadius = D.borderRadius,
   } = props;
 
-  const { componentAttr } = useProbeStyles(props);
+  const { componentAttr } = useScopedStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
     run: sample.run,
@@ -115,7 +115,8 @@ const wrangle = {
     return wrangle.acts(actOn).some((kind) => {
       if (kind === null) return false;
       if (kind === 'Cmd+Enter') return Keyboard.Is.command(e) && e.key === 'Enter';
-      if (kind === 'Enter') return e.key === 'Enter' && !Keyboard.Is.modified(Keyboard.modifiers(e));
+      if (kind === 'Enter')
+        return e.key === 'Enter' && !Keyboard.Is.modified(Keyboard.modifiers(e));
       return false;
     });
   },
