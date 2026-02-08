@@ -30,7 +30,10 @@ export const SlugData: React.FC<Props> = (props) => {
             treeContent: {
               ref: v.treeContentRef,
               refs: v.treeContentRefs,
-              onRefChange: (next) => (p.treeContentRef.value = next),
+              onRefChange: (next) => {
+                p.treeContentRef.value = next;
+                p.selectedPath.value = TreeHost.Data.findPathByRef(p.tree.value, next);
+              },
               onRefsChange: (next) => (p.treeContentRefs.value = next),
             },
           },

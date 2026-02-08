@@ -47,6 +47,14 @@ export type TreeDataLib = {
     tree: t.TreeHostViewNodeList | undefined,
     path: t.ObjectPath | undefined,
   ) => t.TreeHostViewNode | undefined;
+
+  /**
+   * TreeView ref lookup (pure); resolves a node path by `value.ref`.
+   */
+  readonly findPathByRef: (
+    tree: t.TreeHostViewNodeList | undefined,
+    ref: string | undefined,
+  ) => t.ObjectPath | undefined;
 };
 
 /** Minimal, structural options only. */
