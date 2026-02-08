@@ -17,6 +17,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     renderTreePlaybackAssetsCard(e, {
       refs: e.probe?.treePlayback?.refs,
       selected: e.probe?.treePlayback?.ref,
+      totalVisible: e.probe?.selectionList?.totalVisible,
       onSelect: e.probe?.treePlayback?.onRefChange,
     });
     e.hr();
@@ -39,7 +40,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     const docids = await SlugLoader.Descriptor.docids(e.origin.cdn.default, kind);
     if (!docids.ok) return e.result(docids);
-    const ids = docids.value.slice(0, 3);
+    const ids = docids.value;
     e.probe?.treePlayback?.onRefsChange?.(ids);
     const selectedDocid = selectOrFirst(e.probe?.treePlayback?.ref, ids);
     if (!selectedDocid) {

@@ -9,6 +9,7 @@ import {
   D,
   Is,
   LocalStorage,
+  Num,
   Obj,
   ObjectView,
   Signal,
@@ -21,6 +22,7 @@ type Storage = {
   theme?: t.CommonTheme;
   env?: t.HttpOriginEnv;
   descriptorKind?: DescriptorMode;
+  listTotalVisible?: number | 'all';
   treeContentRef?: string;
   treeContentRefs?: string[];
   treePlaybackRef?: string;
@@ -30,6 +32,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   descriptorKind: 'slug-tree:fs',
+  listTotalVisible: 3,
 };
 
 /**
@@ -52,6 +55,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     env: s(snap.env),
     descriptorKind: s(normalizeDescriptorMode(snap.descriptorKind)),
+    listTotalVisible: s(normalizeVisible(snap.listTotalVisible)),
     treeContentRef: s(snap.treeContentRef),
     treeContentRefs: s(snap.treeContentRefs),
     treePlaybackRef: s(snap.treePlaybackRef),
@@ -82,6 +86,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.env = p.env.value;
       d.descriptorKind = p.descriptorKind.value;
+      d.listTotalVisible = p.listTotalVisible.value;
       d.treeContentRef = p.treeContentRef.value;
       d.treeContentRefs = p.treeContentRefs.value;
       d.treePlaybackRef = p.treePlaybackRef.value;
@@ -103,6 +108,12 @@ function normalizeDescriptorMode(input: unknown): DescriptorMode {
 
 function isDescriptorMode(input: unknown): input is DescriptorMode {
   return input === 'slug-tree:fs' || input === 'slug-tree:media:seq';
+}
+
+function normalizeVisible(input: unknown): number | 'all' {
+  if (input === 'all') return 'all';
+  if (!Is.number(input)) return 3;
+  return Num.clamp(1, Num.MAX_INT, Num.round(input));
 }
 
 const Styles = {
@@ -151,6 +162,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() =>
+          `list.totalVisible: ${v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`}`
+        }
+        onClick={() =>
+          Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [5, 10, undefined])
+        }
+      />
+      <Button
+        block
+        label={() => `list.totalVisible: "all"`}
+        onClick={() => {
+          // 'all'
+          p.listTotalVisible.value = 'all';
+        }}
       />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />

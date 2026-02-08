@@ -23,10 +23,12 @@ export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
  * Helpers
  */
 function renderer(state: t.DebugSignals, opts: Options = {}) {
+  const DEFAULT_VISIBLE = 3;
+
   return ActionProbe.renderer<t.DebugSignals, TEnv>({
     state,
     style: { MarginY: 20 },
-    resolve: ({ state, probe }) => {
+    resolve({ state, probe }) {
       const v = Signal.toObject(state.props);
       const local = v.env === 'localhost';
       const origin = v.origin;
@@ -36,6 +38,9 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
           is: { local },
           origin,
           probe: {
+            selectionList: {
+              totalVisible: v.listTotalVisible ?? DEFAULT_VISIBLE,
+            },
             descriptor: {
               kind: v.descriptorKind,
               onKindChange: (next) => (state.props.descriptorKind.value = next),

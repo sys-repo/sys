@@ -7,7 +7,7 @@ type Params = {
 };
 
 export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
-  title: 'Tree + Content',
+  title: 'Tree + FileContent',
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:fs';
 
@@ -15,6 +15,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     renderTreeContentCard(e, {
       refs: e.probe?.treeContent?.refs,
       selected: e.probe?.treeContent?.ref,
+      totalVisible: e.probe?.selectionList?.totalVisible,
       onSelect: e.probe?.treeContent?.onRefChange,
     });
     e.hr();
@@ -48,7 +49,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const tree = await client.value.Tree.load();
     if (!tree.ok) return e.result(tree);
 
-    const refs = refsFromTree(tree.value.tree, 3);
+    const refs = refsFromTree(tree.value.tree);
     e.probe?.treeContent?.onRefsChange?.(refs);
     const ref = selectOrFirst(e.probe?.treeContent?.ref, refs);
     if (!ref) {

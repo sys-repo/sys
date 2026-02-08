@@ -4,6 +4,7 @@ import { renderTreeRefSelector } from './-ui.tree-ref-selector.tsx';
 type Props = {
   selected?: string;
   refs?: string[];
+  totalVisible?: number | 'all';
   onSelect?: (next: string) => void;
 };
 

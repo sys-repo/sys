@@ -1,11 +1,11 @@
-import { type t, Is } from './common.ts';
+import { type t, Is, Num } from './common.ts';
 
 export function selectOrFirst(selected: string | undefined, ids: string[]): string | undefined {
   if (selected && ids.includes(selected)) return selected;
   return ids[0];
 }
 
-export function refsFromTree(tree: t.SlugTreeItems, total = 3): string[] {
+export function refsFromTree(tree: t.SlugTreeItems, total = Num.MAX_INT): string[] {
   const refs: string[] = [];
   for (const item of tree) {
     if (refs.length >= total) break;
@@ -19,5 +19,5 @@ export function refsFromTree(tree: t.SlugTreeItems, total = 3): string[] {
     }
   }
 
-  return refs.filter((item, index, all) => all.indexOf(item) === index).slice(0, total);
+  return Array.from(new Set(refs)).slice(0, total);
 }

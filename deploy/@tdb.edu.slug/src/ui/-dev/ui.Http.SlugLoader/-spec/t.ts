@@ -18,6 +18,9 @@ export type TEnv = {
   is: { local: boolean };
   readonly origin: t.SlugUrlOrigin;
   readonly probe?: {
+    readonly selectionList?: {
+      readonly totalVisible?: number | 'all';
+    };
     readonly descriptor?: {
       readonly kind?: DescriptorMode;
       readonly onKindChange?: (next: DescriptorMode) => void;
