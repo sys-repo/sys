@@ -1,8 +1,8 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Obj, ObjectView, Spinners } from './common.ts';
+import { type t, Color, css, KeyValue, Obj, D, ObjectView, Spinners } from './common.ts';
 
 export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
-  const { debug = false, spinning = false } = props;
+  const { debug = false, spinning = false, sizeMode = D.Result.sizeMode } = props;
   const obj = props.obj;
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
@@ -35,7 +35,11 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
       hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
       bottom: {
         base: css({ position: 'relative' }),
-        inner: css({ padding: 10, Scroll: true, Absolute: 0 }),
+        inner: css({
+          padding: 10,
+          Scroll: sizeMode === 'fill' ? true : undefined,
+          Absolute: sizeMode === 'fill' ? 0 : undefined,
+        }),
       },
     },
     obj: css({}),

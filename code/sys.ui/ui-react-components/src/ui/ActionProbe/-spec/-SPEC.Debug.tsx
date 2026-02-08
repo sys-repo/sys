@@ -3,12 +3,13 @@ import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } 
 import { ActionProbe } from '../mod.ts';
 import { renderSamples } from './-u.samples.tsx';
 
+type SizeMode = t.ActionProbe.ResultProps['sizeMode'];
 type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   env?: 'localhost' | 'production';
   actOn?: StorageActOn;
-  sizeMode?: 'offset' | 'contained';
+  sizeMode?: SizeMode;
 };
 type StorageActOn = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null | StorageActOnItem[];
 type StorageActOnItem = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null;
@@ -17,7 +18,7 @@ const defaults: Storage = {
   theme: 'Dark',
   env: 'localhost',
   actOn: undefined,
-  sizeMode: 'contained',
+  sizeMode: 'fill',
 };
 
 /**
@@ -129,7 +130,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `sizeMode: ${p.sizeMode.value}`}
-        onClick={() => Signal.cycle(p.sizeMode, ['contained', 'offset'])}
+        onClick={() => Signal.cycle<SizeMode>(p.sizeMode, ['fill', 'auto'])}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

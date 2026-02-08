@@ -1,4 +1,4 @@
-import { pkg, Pkg } from '../common.ts';
+import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 export { Button } from '../Button/mod.ts';
@@ -15,7 +15,8 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   borderRadius: 6,
-  actOn: ['Cmd+Enter', 'Cmd+Click'] as const,
+  Probe: { actOn: ['Cmd+Enter', 'Cmd+Click'] as const },
+  Result: { sizeMode: 'auto' satisfies t.ActionProbe.ResultProps['sizeMode'] },
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

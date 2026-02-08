@@ -34,6 +34,7 @@ export type ActionResultProps = {
   items?: readonly t.KeyValueItem[];
   header?: { mono?: boolean };
   debug?: boolean;
+  sizeMode?: 'fill' | 'auto';
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

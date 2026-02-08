@@ -18,6 +18,7 @@ export default Spec.describe(D.displayName, async (e) => {
         items={v.result.items}
         response={v.result.response}
         obj={v.result.obj}
+        sizeMode={v.sizeMode}
       />
     );
   }
@@ -28,9 +29,8 @@ export default Spec.describe(D.displayName, async (e) => {
     update();
     function update() {
       const mode = p.sizeMode.value;
-      const width = 150;
-      if (mode === 'contained') ctx.subject.size('fill-y', width);
-      if (mode === 'offset') ctx.subject.size([width, null]);
+      if (mode === 'fill') ctx.subject.size('fill-y', 100);
+      if (mode === 'auto') ctx.subject.size([null, null]);
       debug.listen();
       ctx.redraw();
     }

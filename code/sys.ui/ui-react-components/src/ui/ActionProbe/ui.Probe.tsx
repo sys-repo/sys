@@ -20,7 +20,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     env,
     spinning = false,
     focused = false,
-    actOn = D.actOn,
+    actOn = D.Probe.actOn,
     borderRadius = D.borderRadius,
   } = props;
 
