@@ -2,7 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { css, D } from './common.ts';
-import { TreeHost } from './mod.ts';
+import { TreeHost, SlugKbDriver } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -51,6 +51,10 @@ export default Spec.describe(D.displayName, async (e) => {
       .size('fill', 80)
       .display('grid')
       .render(() => <Root />);
+
+    ctx.debug.footer.border(-0.1).render(() => {
+      return <SlugKbDriver.Dev.DriverInfo style={{}} controller={debug.controller.value} />;
+    });
   });
 
   e.it('ui:debug', (e) => {

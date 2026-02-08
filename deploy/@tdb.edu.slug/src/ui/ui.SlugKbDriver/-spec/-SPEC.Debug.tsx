@@ -1,7 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
-import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
-import { SlugData } from './-ui.SlugData.tsx';
+import { SlugActionProbe } from './-ui.ActionProbe.tsx';
 import { type t } from './common.ts';
 import {
   ActionProbe,
@@ -184,14 +183,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
       <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 15 }} />
-      <SlugData debug={debug} />
-      <hr />
-      <SlugKbDriver.Dev.DriverInfo style={{ MarginY: [10, 50] }} controller={controller} />
-      <hr />
-      <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
+      <hr style={{ marginBottom: 10, opacity: 0 }} />
+      <SlugActionProbe debug={debug} />
 
-      <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
-
+      <hr style={{ borderTopWidth: 4, opacity: 0.5, marginTop: 50 }} />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
