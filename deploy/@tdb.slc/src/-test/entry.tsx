@@ -11,7 +11,7 @@ import { useKeyboard } from '../ui/use/use.Keyboard.ts';
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register(new URL('sw.js', import.meta.url), { type: 'module' })
+      .register(new URL('../sw.js', import.meta.url), { type: 'module' })
       .then((reg) =>
         console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
       )
