@@ -7,7 +7,7 @@ type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   env?: 'localhost' | 'production';
-  actOn?: 'Enter' | 'Cmd+Enter' | null;
+  actOn?: t.ActionProbe.ActOn;
 };
 const defaults: Storage = {
   debug: false,
@@ -107,7 +107,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `actOn: ${wrangle.actOnLabel(v.actOn)} ← when focused`}
-        onClick={() => Signal.cycle<Storage['actOn']>(p.actOn, ['Enter', 'Cmd+Enter', null])}
+        onClick={() =>
+          Signal.cycle<Storage['actOn']>(p.actOn, [
+            'Enter',
+            'Cmd+Enter',
+            'Cmd+Click',
+            ['Cmd+Enter', 'Cmd+Click'],
+            null,
+          ])
+        }
       />
 
       <hr />

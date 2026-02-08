@@ -72,17 +72,20 @@ const wrangle = {
     if (actOn == null) return undefined;
     const values = Is.array(actOn) ? actOn : [actOn];
     const labels = values
-      .filter((value): value is 'Enter' | 'Cmd+Enter' => value !== null)
-      .map((value) => (value === 'Cmd+Enter' ? wrangle.commandLabel() : 'Enter'));
+      .filter((value): value is 'Enter' | 'Cmd+Enter' | 'Cmd+Click' => value !== null)
+      .map((value) => {
+        if (value === 'Cmd+Enter') return wrangle.commandLabel('Enter');
+        if (value === 'Cmd+Click') return wrangle.commandLabel('Click');
+        return 'Enter';
+      });
     if (labels.length === 0) return undefined;
     if (labels.length === 1) return `Run on ${labels[0]}`;
     return `Run on ${labels.join(' or ')}`;
   },
 
-  commandLabel() {
+  commandLabel(kind: 'Enter' | 'Click') {
     const ua = UserAgent.current;
-    const cmd =
-      ua.is.macOS || ua.is.iOS || ua.is.iPad || ua.is.iPhone ? 'Cmd' : 'Ctrl';
-    return `${cmd}+Enter`;
+    const cmd = ua.is.macOS || ua.is.iOS || ua.is.iPad || ua.is.iPhone ? 'Cmd' : 'Ctrl';
+    return `${cmd}+${kind}`;
   },
 } as const;

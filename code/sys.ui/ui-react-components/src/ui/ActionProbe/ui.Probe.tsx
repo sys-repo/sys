@@ -69,6 +69,14 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         e.preventDefault();
         run();
       }}
+      onClick={(e) => {
+        if (!wrangle.shouldActOnClick(e, actOn)) return;
+        if (!canRun || spinning) return;
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('[role="button"]')) return;
+        e.preventDefault();
+        run();
+      }}
       onDoubleClick={(e) => {
         if (!canRun || spinning) return;
         const target = e.target as HTMLElement | null;
@@ -95,16 +103,30 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
  * Helpers:
  */
 const wrangle = {
+  acts(actOn: t.ActionProbe.ActOn) {
+    if (actOn === null) return [];
+    return Is.array(actOn) ? actOn : [actOn];
+  },
+
   shouldActOnKeydown(
     e: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey'>,
     actOn: t.ActionProbe.ActOn,
   ) {
-    if (actOn === null) return false;
-    const acts = Is.array(actOn) ? actOn : [actOn];
-    return acts.some((kind) => {
+    return wrangle.acts(actOn).some((kind) => {
       if (kind === null) return false;
       if (kind === 'Cmd+Enter') return Keyboard.Is.command(e) && e.key === 'Enter';
       if (kind === 'Enter') return e.key === 'Enter' && !Keyboard.Is.modified(Keyboard.modifiers(e));
+      return false;
+    });
+  },
+
+  shouldActOnClick(
+    e: Pick<MouseEvent, 'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey'>,
+    actOn: t.ActionProbe.ActOn,
+  ) {
+    return wrangle.acts(actOn).some((kind) => {
+      if (kind === null) return false;
+      if (kind === 'Cmd+Click') return Keyboard.Is.command(e);
       return false;
     });
   },

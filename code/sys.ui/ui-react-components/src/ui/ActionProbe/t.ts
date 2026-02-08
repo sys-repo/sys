@@ -32,9 +32,10 @@ export namespace ActionProbe {
    */
   export type ActOn =
     | 'Cmd+Enter'
+    | 'Cmd+Click'
     | 'Enter'
     | null
-    | readonly ('Cmd+Enter' | 'Enter' | null)[];
+    | readonly ('Cmd+Enter' | 'Cmd+Click' | 'Enter' | null)[];
   export type ProbeProps<TEnv extends O = O, TParams extends O = O> = ActionProbeProps<
     TEnv,
     TParams
