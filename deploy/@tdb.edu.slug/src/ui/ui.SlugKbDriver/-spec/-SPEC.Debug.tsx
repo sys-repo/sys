@@ -154,7 +154,8 @@ export async function createDebugSignals() {
 
         const content = await client.value.FileContent.get(hash);
         if (req !== contentReq) return;
-        if (!content.ok) return fail(content.error?.message ?? `Failed to load content for ref: ${ref}`);
+        if (!content.ok)
+          return fail(content.error?.message ?? `Failed to load content for ref: ${ref}`);
 
         const data: ContentData = {
           docid: client.value.docid,
@@ -199,7 +200,8 @@ export async function createDebugSignals() {
     const tree = p.tree.value;
     const path = p.selectedPath.value;
     const node = TreeHost.Data.findViewNode(tree, path);
-    const ref = node?.value && 'ref' in node.value && Is.str(node.value.ref) ? node.value.ref : undefined;
+    const ref =
+      node?.value && 'ref' in node.value && Is.str(node.value.ref) ? node.value.ref : undefined;
     if (p.treeContentRef.value === ref) return;
     p.treeContentRef.value = ref;
     if (ref) action.focus('tree-content');
@@ -213,11 +215,7 @@ function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): stri
   return entry?.hash;
 }
 
-function buildResultItems(
-  data: ContentData,
-  origin: string,
-  baseUrl: string,
-): t.KeyValueItem[] {
+function buildResultItems(data: ContentData, origin: string, baseUrl: string): t.KeyValueItem[] {
   const frontmatter = data.content.frontmatter;
   return [
     { k: 'origin', v: origin },
