@@ -56,6 +56,7 @@ export namespace ActionProbe {
     readonly params: (value: TParams) => ProbeRenderArgs<TEnv, TParams>;
     element(node: t.ReactNode): ProbeRenderArgs<TEnv, TParams>;
     item(item: t.KeyValueItem): ProbeRenderArgs<TEnv, TParams>;
+    hr(): ProbeRenderArgs<TEnv, TParams>;
   };
 
   export type ProbeRun<TEnv extends O = O, TParams extends O = O> = (

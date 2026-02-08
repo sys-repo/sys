@@ -17,7 +17,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     e.element(<div className={styles.base.class}>{Str.Lorem.words(12)}</div>);
     e.item({ k: 'label-1', v: label });
     e.item({ k: 'label-2', v: '🐷' });
-    e.item({ kind: 'hr' });
+    e.hr();
     e.item({ k: 'delay(ms)', v: delay });
     e.element(`Hello ${Str.Lorem.words(8).toLowerCase()}`);
     e.item({ k: 'the last', v: 'word 👋' });

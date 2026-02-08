@@ -54,6 +54,9 @@ export function useProbeRenderModel<TEnv extends EnvObject, TParams extends Para
         currentItems.push(item);
         return e;
       },
+      hr() {
+        return e.item({ kind: 'hr' });
+      },
     };
 
     sample.render(e);

@@ -50,7 +50,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'basePath', v: target.value.basePath });
     e.item({ k: 'docid', v: client.value.docid });
-    e.item({ kind: 'hr' });
+    e.hr();
     e.item({ k: 'descriptor: loaded', v: 'yes' });
     e.item({ k: 'assets', v: assets.value.assets.length });
     e.item({ k: 'playback: beats', v: playback.value.beats.length });

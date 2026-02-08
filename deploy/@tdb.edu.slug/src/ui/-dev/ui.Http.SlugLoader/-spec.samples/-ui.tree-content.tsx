@@ -16,8 +16,8 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       selected: e.probe?.treeContent?.ref,
       onSelect: e.probe?.treeContent?.onRefChange,
     });
+    e.hr();
     e.item({ k: 'kind', v: kind });
-    e.item({ kind: 'hr' });
   },
 
   async run(e) {
@@ -75,7 +75,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'ref', v: ref });
     e.item({ k: 'hash', v: Str.ellipsize(hash, [20, 5], '..') });
     e.item({ k: 'content-type', v: content.value.contentType });
-    e.item({ kind: 'hr' });
+    e.hr();
     e.item({ k: 'content/frontmatter:', v: frontmatter ? 'yes' : 'no' });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
     e.item({ k: 'refs: loaded', v: refs.length });

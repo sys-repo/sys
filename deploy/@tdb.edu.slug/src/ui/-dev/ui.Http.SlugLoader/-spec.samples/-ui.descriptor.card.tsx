@@ -21,7 +21,7 @@ export function renderDescriptorCard(
   );
 
   e.element(<KindSelector origin={props.origin} selected={kind} onChange={props.onKindChange} />);
-  e.item({ kind: 'hr' });
+  e.hr();
   e.item({ k: 'kind', v: kind });
 }
 
