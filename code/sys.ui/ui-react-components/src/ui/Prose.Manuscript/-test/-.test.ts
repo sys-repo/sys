@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Prose } from '../mod.ts';
-import { Manuscript } from '../ui.Manscript.tsx';
+import { Manuscript } from '../ui.tsx';
 
 describe('Prose', () => {
   it('API', async () => {

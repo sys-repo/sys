@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
 import { useScopedStyles } from './use.Styles.ts';
 
-type P = t.Prose.Manuscript.Props;
+type P = t.ProseManuscript.Props;
 
 /**
  * Component:
@@ -19,7 +19,6 @@ export const Manuscript: React.FC<P> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      // display: 'grid',
       padding: 10,
     }),
   };
@@ -28,7 +27,8 @@ export const Manuscript: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class} data-component={componentAttr}>
       <div>{`🐷 Manuscript`}</div>
       <div>
-        <h1>H1 Title</h1>
+        <h1>Heading-1</h1>
+        <h2>Heading-2</h2>
         {Str.Lorem.words(20)}
         <code>foo.bar</code>
         {Str.Lorem.words(10)}

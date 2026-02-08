@@ -28,11 +28,13 @@ export const SpecsComponents = {
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
-  [`${ns}: Prose.Manuscript`]: () => import('../ui/Prose/-spec/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-spec/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
+
+  [`${ns}: Prose`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'), // TEMP 🐷
+  [`${ns}: Prose.Manuscript`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'),
 
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
   [`${ns}: Layout.RectGrid`]: () => import('../ui/Layout.RectGrid/-spec/-SPEC.tsx'),
