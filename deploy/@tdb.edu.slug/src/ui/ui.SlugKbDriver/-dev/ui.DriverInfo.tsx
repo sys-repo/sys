@@ -34,9 +34,9 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   const items: t.KeyValueItem[] = [{ kind: 'title', v: title }];
   const add = (k: string, v: t.ReactNode) => items.push({ k, v, mono });
 
-  add('type', 'EffectController');
+  add('controller', 'EffectController');
   add('base-url', controller?.props.baseUrl ?? '-');
-  add('selected-path', path);
+  add('selected-path', Str.ellipsize(path, [15, 15], ' .. '));
 
   return (
     <div className={css(styles.base, props.style).class}>
