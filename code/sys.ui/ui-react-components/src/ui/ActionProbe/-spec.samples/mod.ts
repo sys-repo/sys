@@ -2,7 +2,7 @@
  * @module
  */
 import { type t } from '../common.ts';
-import { FooSample as Foo } from './u.foo.tsx';
+import { FooSample as Foo } from './u.FooSample.tsx';
 
 export const Sample = {
   Foo,
