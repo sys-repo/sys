@@ -28,6 +28,7 @@ export const Manuscript: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class} data-component={componentAttr}>
       <div>{`🐷 Manuscript`}</div>
       <div>
+        <h1>H1 Title</h1>
         {Str.Lorem.words(20)}
         <code>foo.bar</code>
         {Str.Lorem.words(10)}

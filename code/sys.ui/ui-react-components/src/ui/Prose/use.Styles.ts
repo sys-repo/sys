@@ -37,6 +37,10 @@ export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
     border: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
   });
 
+  rule('h1', {
+    color: 'red',
+  });
+
   return {
     sheet,
     dispose: () => life.dispose(),
