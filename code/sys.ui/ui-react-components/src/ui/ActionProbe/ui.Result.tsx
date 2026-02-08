@@ -27,7 +27,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         display: 'grid',
         gridTemplateRows: hasItems ? `auto auto 1fr` : '1fr',
         pointerEvents: spinning ? 'none' : 'auto',
-        filter: `blur(${spinning ? 6 : 0}px) grayscale(${spinning ? 1 : 0})`,
+        filter: `blur(${spinning ? 6 : 0}px) grayscale(${spinning ? 100 : 0}%)`,
         opacity: spinning ? 0.4 : 1,
         transition: 'opacity 100ms ease',
       }),

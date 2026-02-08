@@ -6,13 +6,14 @@ type HeaderProps = {
   canRun: boolean;
   spinning: boolean;
   focused?: boolean;
+  actOn?: t.ActionProbe.ActOn;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onRun: () => void;
 };
 
 export const Header: React.FC<HeaderProps> = (props) => {
-  const { title, canRun, spinning, focused = false, onRun } = props;
+  const { title, canRun, spinning, focused = false, actOn, onRun } = props;
 
   /**
    * Render:
@@ -43,6 +44,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
           canRun={canRun}
           spinning={spinning}
           focused={focused}
+          actOn={actOn}
           onRun={onRun}
           theme={theme.name}
         />

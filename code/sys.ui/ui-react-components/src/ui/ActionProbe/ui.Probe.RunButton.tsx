@@ -1,9 +1,10 @@
-import { type t, Button, Color, css, Icons, Spinners } from './common.ts';
+import { type t, Button, Color, css, Icons, Is, Spinners, UserAgent } from './common.ts';
 
 export type RunButtonProps = {
   canRun: boolean;
   spinning: boolean;
   focused?: boolean;
+  actOn?: t.ActionProbe.ActOn;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -16,7 +17,7 @@ export type RunButtonProps = {
  * Component:
  */
 export const RunButton: React.FC<RunButtonProps> = (props) => {
-  const { canRun, onRun, spinning, focused = false, debug = false } = props;
+  const { canRun, onRun, spinning, focused = false, actOn, debug = false } = props;
 
   /**
    * Render:
@@ -50,11 +51,38 @@ export const RunButton: React.FC<RunButtonProps> = (props) => {
     </div>
   );
 
+  const tooltip = wrangle.tooltip(actOn);
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button enabled={canRun && !spinning} disabledOpacity={1} onClick={onRun}>
+      <Button
+        enabled={canRun && !spinning}
+        disabledOpacity={1}
+        tooltip={tooltip}
+        onClick={onRun}
+      >
         {elBody}
       </Button>
     </div>
   );
 };
+
+const wrangle = {
+  tooltip(actOn?: t.ActionProbe.ActOn) {
+    if (actOn == null) return undefined;
+    const values = Is.array(actOn) ? actOn : [actOn];
+    const labels = values
+      .filter((value): value is 'Enter' | 'Cmd+Enter' => value !== null)
+      .map((value) => (value === 'Cmd+Enter' ? wrangle.commandLabel() : 'Enter'));
+    if (labels.length === 0) return undefined;
+    if (labels.length === 1) return `Run on ${labels[0]}`;
+    return `Run on ${labels.join(' or ')}`;
+  },
+
+  commandLabel() {
+    const ua = UserAgent.current;
+    const cmd =
+      ua.is.macOS || ua.is.iOS || ua.is.iPad || ua.is.iPhone ? 'Cmd' : 'Ctrl';
+    return `${cmd}+Enter`;
+  },
+} as const;
