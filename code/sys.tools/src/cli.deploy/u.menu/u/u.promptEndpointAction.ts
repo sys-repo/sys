@@ -38,34 +38,28 @@ export async function promptEndpointAction(args: {
     : '';
   const stageSizeText = stageSize ? ` ${c.gray(c.dim(`| ${stageSize}`))}` : '';
   const stageMeta = `${stageAgeText}${stageSizeText}`;
-  const stageLabel = pushedOk
-    ? 'staged ✔'
-    : hasStageMeta
-      ? 'staged (rebuild)'
-      : 'stage (build)';
+  const stageLabel = pushedOk ? 'staged ✔' : hasStageMeta ? 'staged (rebuild)' : 'stage (build)';
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
   const pushElapsed = args.pushElapsed;
   const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const shardPart = pushedOk && pushShards
-    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
-    : '';
+  const shardPart =
+    pushedOk && pushShards ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}` : '';
   const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
-  const elapsedPart = pushedOk && pushElapsed
-    ? `${pushElapsed}${shardPart}${bytesPart}`
-    : undefined;
-  const pushElapsedMeta =
-    pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
+  const elapsedPart =
+    pushedOk && pushElapsed ? `${pushElapsed}${shardPart}${bytesPart}` : undefined;
+  const pushElapsedMeta = pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
   const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
   const pushPrefix = `  ${hashPrefix}  pushed ✔`;
   const pushName = pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
+  const hashIndent = ' '.repeat(`  ${hashPrefix}  `.length);
+  const stagePushName = `  ${c.dim(c.gray('-'.repeat(6)))}  stage + push`;
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,
     options: [
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
       ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
-      ...(checkOk && showPush
-        ? [{ name: '  stage + push', value: 'stage-push' as const }]
-        : []),
+      ...(checkOk && showPush ? [{ name: stagePushName, value: 'stage-push' as const }] : []),
+      ...(checkOk ? [{ name: '  serve', value: 'serve' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },

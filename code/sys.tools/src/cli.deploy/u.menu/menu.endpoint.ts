@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time, Url } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { startServing } from '../../cli.serve/cmd.serve/mod.ts';
 
 import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
@@ -265,6 +266,23 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       return res.ok;
     };
 
+    const runServeAction = async (): Promise<boolean> => {
+      const staged = await runStageAction();
+      if (!staged) return false;
+
+      const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
+      const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
+      if (!freshYaml) return false;
+
+      const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
+      const location: t.ServeTool.LocationYaml.Location = {
+        name: key,
+        dir: resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel }),
+      };
+      await startServing(cwd, location, { host: 'local' });
+      return true;
+    };
+
     if (picked === 'push') {
       await runPushAction();
       continue;
@@ -278,6 +296,11 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     if (picked === 'stage-push') {
       const staged = await runStageAction();
       if (staged) await runPushAction();
+      continue;
+    }
+
+    if (picked === 'serve') {
+      await runServeAction();
       continue;
     }
 

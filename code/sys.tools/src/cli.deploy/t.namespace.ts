@@ -147,6 +147,7 @@ export namespace DeployTool {
         | 'stage'
         | 'push'
         | 'stage-push'
+        | 'serve'
         | 'edit'
         | 'fix'
         | 'rename'
