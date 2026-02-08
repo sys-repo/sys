@@ -117,6 +117,19 @@ export async function createDebugSignals() {
     controller.value.next({ tree, selectedPath });
   });
 
+  /**
+   * Keep probe selection in-sync with TreeHost selection.
+   */
+  Signal.effect(() => {
+    const tree = p.tree.value;
+    const path = p.selectedPath.value;
+    const node = TreeHost.Data.findViewNode(tree, path);
+    const ref = node?.value && 'ref' in node.value && Is.str(node.value.ref) ? node.value.ref : undefined;
+    if (p.treeContentRef.value === ref) return;
+    p.treeContentRef.value = ref;
+    if (ref) action.focus('tree-content');
+  });
+
   return api;
 }
 
