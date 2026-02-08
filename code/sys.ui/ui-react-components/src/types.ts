@@ -38,6 +38,7 @@ export type * from './ui/Player.Video.Signals/t.ts';
 export type * from './ui/Player.YouTube/t.ts';
 export type * from './ui/Player/t.ts';
 export type * from './ui/Preload/t.ts';
+export type * from './ui/Prose/t.ts';
 export type * from './ui/Sheet/t.ts';
 export type * from './ui/Slider/t.ts';
 export type * from './ui/Spinners.Bar/t.ts';
