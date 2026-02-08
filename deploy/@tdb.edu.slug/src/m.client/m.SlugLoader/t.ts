@@ -23,6 +23,10 @@ export type SlugClientLoader = {
 };
 
 export type SlugClientLoaderDescriptorLib = {
+  /** Deploy-supported descriptor kinds. */
+  readonly kinds: () => t.BundleDescriptorKind[];
+  /** Discover available kinds from deployed descriptor docs (best-effort). */
+  readonly kindsFromDist: (origin: t.StringUrl) => Promise<t.SlugClientResult<t.BundleDescriptorKind[]>>;
   /** Resolve deploy profile path/base policy for a descriptor kind. */
   readonly target: (kind: t.BundleDescriptorKind) => t.SlugClientResult<t.SlugClientLoaderDescriptorTarget>;
   /** Load descriptor document from canonical descriptor path. */
@@ -30,6 +34,11 @@ export type SlugClientLoaderDescriptorLib = {
     origin: t.StringUrl,
     kind: t.BundleDescriptorKind,
   ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
+  /** Load descriptor and list matching docids for the kind. */
+  readonly docids: (
+    origin: t.StringUrl,
+    kind: t.BundleDescriptorKind,
+  ) => Promise<t.SlugClientResult<t.StringId[]>>;
   /**
    * Build descriptor-backed client from canonical deploy profile path policy.
    * If `docid` is omitted, deploy policy selects the first descriptor bundle

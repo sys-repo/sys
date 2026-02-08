@@ -1,4 +1,5 @@
 import React from 'react';
+import { Dev } from '../../-dev/mod.ts';
 import { SelectedPath, LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
 import {
   Button,
@@ -6,19 +7,21 @@ import {
   css,
   D,
   EffectController,
+  Is,
   LocalStorage,
   Obj,
   ObjectView,
   Signal,
-  SlugClient,
   SlugKbDriver,
   type t,
   TreeHost,
-  Url,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
+  load?: t.SampleLoadAction;
+  env?: t.HttpOriginEnv;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
@@ -41,14 +44,16 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const baseUrl = LoadSample.SAMPLES.baseUrl;
-  const controller = SlugKbDriver.Controller.create({ baseUrl });
+  const defaultBaseUrl = LoadSample.SAMPLES.baseUrl;
+  const controller = s(SlugKbDriver.Controller.create({ baseUrl: defaultBaseUrl }));
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     tree: s<P['tree']>(undefined),
     selectedPath: s(snap.selectedPath),
+    env: s(snap.env),
+    origin: s<t.SlugUrlOrigin | undefined>(),
     //
     load: s(snap.load),
   };
@@ -62,6 +67,7 @@ export async function createDebugSignals() {
 
   function listen() {
     Signal.listen(props, true);
+    Signal.listen({ controller }, true);
   }
 
   function reset() {
@@ -74,10 +80,28 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
       d.load = p.load.value;
+      d.env = p.env.value;
     });
   });
 
-  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
+  Signal.effect(() => {
+    if (Is.localhost()) return;
+    if (p.env.value === 'localhost') p.env.value = 'production';
+  });
+
+  Signal.effect(() => {
+    const baseUrl = p.origin.value?.app ?? defaultBaseUrl;
+    const prev = controller.value;
+    if (prev.props.baseUrl === baseUrl) return;
+    const next = SlugKbDriver.Controller.create({ baseUrl });
+    controller.value = next;
+    prev.dispose();
+  });
+
+  const load = () => {
+    const baseUrl = controller.value.props.baseUrl;
+    void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
+  };
   Signal.effect(load);
 
   /**
@@ -85,10 +109,9 @@ export async function createDebugSignals() {
    * Feeds reactive harness inputs into the controller under test.
    */
   Signal.effect(() => {
-    controller.next({
-      tree: p.tree.value,
-      selectedPath: p.selectedPath.value,
-    });
+    const tree = p.tree.value;
+    const selectedPath = p.selectedPath.value;
+    controller.value.next({ tree, selectedPath });
   });
 
   return api;
@@ -99,11 +122,11 @@ export async function createDebugSignals() {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const controller = debug.controller;
+  const controller = debug.controller.value;
   const p = debug.props;
   const v = Signal.toObject(p);
-  Signal.useRedrawEffect(debug.listen);
 
+  Signal.useRedrawEffect(debug.listen);
   const state = EffectController.useEffectController(controller);
 
   /**
@@ -116,7 +139,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <SlugKbDriver.Dev.DriverInfo style={{ marginBottom: 15 }} controller={controller} />
+      <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 10 }} />
+      <hr />
+      <SlugKbDriver.Dev.DriverInfo style={{ MarginY: [10, 50] }} controller={controller} />
 
       <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
       <LoadSample.UI

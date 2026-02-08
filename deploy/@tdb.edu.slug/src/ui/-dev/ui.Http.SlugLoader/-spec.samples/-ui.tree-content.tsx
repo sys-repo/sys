@@ -1,5 +1,6 @@
 import { type t, Obj, Is, SlugLoader, Str } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree-content.card.tsx';
+import { refsFromTree, selectOrFirst } from './-u.selection.ts';
 
 type Params = {
   kind: t.BundleDescriptorKind;
@@ -47,9 +48,9 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const tree = await client.value.Tree.load();
     if (!tree.ok) return e.result(tree);
 
-    const refs = findRefs(tree.value.tree, 3);
+    const refs = refsFromTree(tree.value.tree, 3);
     e.probe?.treeContent?.onRefsChange?.(refs);
-    const ref = resolveRef(e.probe?.treeContent?.ref, refs);
+    const ref = selectOrFirst(e.probe?.treeContent?.ref, refs);
     if (!ref) {
       return e.result({
         ok: false,
@@ -95,27 +96,6 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     });
   },
 };
-
-function findRefs(tree: readonly t.SlugTreeItem[], total = 3): string[] {
-  const refs: string[] = [];
-  for (const item of tree) {
-    if (refs.length >= total) break;
-    const ref = (item as { ref?: unknown }).ref;
-    if (typeof ref === 'string' && ref.length > 0) refs.push(ref);
-
-    const slugs = (item as { slugs?: readonly t.SlugTreeItem[] }).slugs;
-    if (Array.isArray(slugs) && refs.length < total) {
-      const remaining = total - refs.length;
-      refs.push(...findRefs(slugs, remaining));
-    }
-  }
-  return refs.filter((item, index, all) => all.indexOf(item) === index).slice(0, total);
-}
-
-function resolveRef(selected: string | undefined, refs: string[]): string | undefined {
-  if (selected && refs.includes(selected)) return selected;
-  return refs[0];
-}
 
 function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
   const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);

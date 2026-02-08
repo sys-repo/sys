@@ -1,5 +1,6 @@
 import { type t, SlugLoader } from './common.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree-playback-assets.card.tsx';
+import { selectOrFirst } from './-u.selection.ts';
 
 type Params = {
   kind: t.BundleDescriptorKind;
@@ -36,12 +37,11 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       });
     }
 
-    const descriptor = await SlugLoader.Descriptor.load(e.origin.cdn.default, kind);
-    if (!descriptor.ok) return e.result(descriptor);
-
-    const ids = findDocids(descriptor.value, kind, 3);
+    const docids = await SlugLoader.Descriptor.docids(e.origin.cdn.default, kind);
+    if (!docids.ok) return e.result(docids);
+    const ids = docids.value.slice(0, 3);
     e.probe?.treePlayback?.onRefsChange?.(ids);
-    const selectedDocid = resolveId(e.probe?.treePlayback?.ref, ids);
+    const selectedDocid = selectOrFirst(e.probe?.treePlayback?.ref, ids);
     if (!selectedDocid) {
       return e.result({
         ok: false,
@@ -80,27 +80,10 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       value: {
         kind,
         docid: client.value.docid,
-        descriptor: { bundles: descriptor.value.bundles.length },
+        descriptor: { docids: ids.length },
         assets: assets.value,
         playback: playback.value,
       },
     });
   },
 };
-
-function findDocids(
-  descriptor: t.BundleDescriptorDoc,
-  kind: t.BundleDescriptorKind,
-  total = 3,
-): string[] {
-  const ids = descriptor.bundles
-    .filter((item) => item.kind === kind)
-    .map((item) => item.docid)
-    .filter((item, index, all) => all.indexOf(item) === index);
-  return ids.slice(0, total);
-}
-
-function resolveId(selected: string | undefined, ids: string[]): string | undefined {
-  if (selected && ids.includes(selected)) return selected;
-  return ids[0];
-}

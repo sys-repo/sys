@@ -62,25 +62,15 @@ function isDescriptorMode(input: string): input is t.DescriptorMode {
 }
 
 async function loadItems(origin: string): Promise<t.BulletList.Item[]> {
-  const kinds: t.BundleDescriptorKind[] = ['slug-tree:fs', 'slug-tree:media:seq'];
-  const list = await Promise.all(
-    kinds.map(async (kind) => {
-      const res = await SlugLoader.Descriptor.load(origin, kind);
-      if (!res.ok) return [];
-      return res.value.bundles.map((bundle) => bundle.kind);
-    }),
-  );
-
-  const ids = [...new Set(list.flat())];
-  if (ids.length === 0) return fallbackItems();
-  return ids.map((id) => ({ id, label: labelForKind(id) }));
+  const discovered = await SlugLoader.Descriptor.kindsFromDist(origin);
+  const ids = discovered.ok ? discovered.value : [];
+  const fallback = SlugLoader.Descriptor.kinds();
+  const selected = ids.length > 0 ? ids : fallback;
+  return selected.map((id) => ({ id, label: labelForKind(id) }));
 }
 
 function fallbackItems(): t.BulletList.Item[] {
-  return [
-    { id: 'slug-tree:fs', label: labelForKind('slug-tree:fs') },
-    { id: 'slug-tree:media:seq', label: labelForKind('slug-tree:media:seq') },
-  ];
+  return SlugLoader.Descriptor.kinds().map((id) => ({ id, label: labelForKind(id) }));
 }
 
 function labelForKind(kind: t.BundleDescriptorKind): string {

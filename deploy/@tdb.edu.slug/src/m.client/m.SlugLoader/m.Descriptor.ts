@@ -1,33 +1,44 @@
 import { type t, SlugClient, Url } from './common.ts';
 
 export const Descriptor: t.SlugClientLoaderDescriptorLib = {
+  kinds,
+  kindsFromDist,
   target,
   load,
+  docids,
   client,
 };
 
-function target(kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugClientLoaderDescriptorTarget> {
-  if (kind === 'slug-tree:fs') {
-    return {
-      ok: true,
-      value: {
-        kind,
-        descriptorPath: 'kb/-manifests',
-        basePath: 'kb/-manifests',
-      },
-    };
-  }
+const TARGETS: Record<t.BundleDescriptorKind, t.SlugClientLoaderDescriptorTarget> = {
+  'slug-tree:fs': {
+    kind: 'slug-tree:fs',
+    descriptorPath: 'kb/-manifests',
+    basePath: 'kb/-manifests',
+  },
+  'slug-tree:media:seq': {
+    kind: 'slug-tree:media:seq',
+    descriptorPath: 'program/-manifests',
+    basePath: 'program',
+  },
+};
 
-  if (kind === 'slug-tree:media:seq') {
-    return {
-      ok: true,
-      value: {
-        kind,
-        descriptorPath: 'program/-manifests',
-        basePath: 'program',
-      },
-    };
-  }
+function kinds(): t.BundleDescriptorKind[] {
+  return Object.keys(TARGETS) as t.BundleDescriptorKind[];
+}
+
+async function kindsFromDist(
+  origin: t.StringUrl,
+): Promise<t.SlugClientResult<t.BundleDescriptorKind[]>> {
+  const loaded = await Promise.all(kinds().map(async (kind) => ({ kind, result: await load(origin, kind) })));
+  const value = loaded
+    .flatMap(({ kind, result }) => (result.ok ? result.value.bundles.map((item) => item.kind) : [kind]))
+    .filter((item, index, all) => all.indexOf(item) === index);
+  return { ok: true, value };
+}
+
+function target(kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugClientLoaderDescriptorTarget> {
+  const value = TARGETS[kind];
+  if (value) return { ok: true, value };
 
   return {
     ok: false,
@@ -45,6 +56,21 @@ async function load(
   const resolved = target(kind);
   if (!resolved.ok) return resolved;
   return SlugClient.FromEndpoint.Descriptor.load(origin, resolved.value.descriptorPath);
+}
+
+async function docids(
+  origin: t.StringUrl,
+  kind: t.BundleDescriptorKind,
+): Promise<t.SlugClientResult<t.StringId[]>> {
+  const descriptor = await load(origin, kind);
+  if (!descriptor.ok) return descriptor;
+
+  const value = descriptor.value.bundles
+    .filter((item) => item.kind === kind)
+    .map((item) => item.docid)
+    .filter((item, index, all) => all.indexOf(item) === index);
+
+  return { ok: true, value };
 }
 
 async function client(
