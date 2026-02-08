@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Obj, ObjectView, Spinners } from './common.ts';
+import { type t, Color, css, Obj, ObjectView, Spinners, KeyValue } from './common.ts';
 
 export type FileContentTreePanelProps = {
   data?: t.FileContentData;
@@ -31,6 +31,11 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
       filter: loading ? `blur(4px) grayscale(100%)` : undefined,
       opacity: loading ? 0.2 : 1,
       transition: 'opacity 100ms ease',
+
+      display: 'grid',
+      gridAutoFlow: 'row',
+      gridAutoRows: 'min-content',
+      rowGap: 10,
     }),
     spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
   };
@@ -51,6 +56,13 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
       <div className={styles.body.class}>
         <div>{`🐷 FileContentTreePanel`}</div>
         <ObjectView name={'tree'} data={data} expand={0} theme={theme.name} />
+        <KeyValue.UI
+          theme={theme.name}
+          items={[
+            { kind: 'title', v: 'FrontMatter' },
+            ...KeyValue.fromObject(props.data?.content?.frontmatter),
+          ]}
+        />
       </div>
     </div>
   );

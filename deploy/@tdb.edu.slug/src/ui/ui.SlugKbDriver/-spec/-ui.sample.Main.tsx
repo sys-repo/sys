@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Obj, ObjectView, Spinners, Prose } from './common.ts';
+import { type t, Color, css, Obj, ObjectView, Prose, Spinners } from './common.ts';
 
 export type SampleFileContentProps = {
   data?: t.FileContentData;
@@ -54,9 +54,8 @@ export const SampleFileContent: React.FC<SampleFileContentProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {elSpinner}
       <div className={styles.body.class}>
-        <div>{`🐷 SampleFileContent`}</div>
-        <ObjectView name={'data'} data={data} expand={1} theme={theme.name} />
-
+        {/* <div>{`🐷 SampleFileContent`}</div> */}
+        <ObjectView name={'data'} data={data} expand={0} theme={theme.name} />
         <Prose.Manuscript.UI theme={theme.name} />
       </div>
     </div>

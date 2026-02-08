@@ -1,8 +1,8 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
-import type * as tSlugLoader from '../../-dev/ui.Http.SlugLoader/-spec/t.ts';
 import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import { SlugData } from './-ui.SlugData.tsx';
+import { type t } from './common.ts';
 import {
   ActionProbe,
   Button,
@@ -15,14 +15,13 @@ import {
   Obj,
   ObjectView,
   Signal,
-  SlugLoader,
   SlugKbDriver,
-  type t,
+  SlugLoader,
   TreeHost,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
-export type ContentData = tSlugLoader.FileContentData;
+export type ContentData = t.FileContentData;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
   env?: t.HttpOriginEnv;
   treeContentRef?: string;

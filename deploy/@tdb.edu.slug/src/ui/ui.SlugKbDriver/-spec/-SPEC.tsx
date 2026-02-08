@@ -1,9 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { SampleFileContent } from '../../-dev/ui.Http.SlugLoader/-spec/-ui.sample.FileContent.tsx';
-import { FileContentTreePanel } from '../../-dev/ui.Http.SlugLoader/-spec/-ui.sample.FileContent.TreePanel.tsx';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
-import { css, D } from '../common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { css, D, FileContentTreePanel, SampleFileContent } from './common.ts';
 import { TreeHost } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -20,6 +18,14 @@ export default Spec.describe(D.displayName, async (e) => {
       back: css({ Absolute: [-35, null, null, -35] }),
     };
 
+    /** Slot content. */
+    const tree = showFileTreePanel && (
+      <FileContentTreePanel data={data} loading={loading} theme={v.theme} debug={v.debug} />
+    );
+    const main = (data || loading) && (
+      <SampleFileContent data={data} loading={loading} theme={v.theme} debug={v.debug} />
+    );
+
     return (
       <div className={styles.base.class}>
         <BackButton
@@ -33,24 +39,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          slots={{
-            tree: showFileTreePanel ? (
-              <FileContentTreePanel
-                data={data}
-                loading={loading}
-                theme={v.theme}
-                debug={v.debug}
-              />
-            ) : undefined,
-            main: data || loading ? (
-              <SampleFileContent
-                data={data}
-                loading={loading}
-                theme={v.theme}
-                debug={v.debug}
-              />
-            ) : undefined,
-          }}
+          slots={{ tree, main }}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={() => undefined}
         />
