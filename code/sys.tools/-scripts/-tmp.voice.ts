@@ -2,7 +2,10 @@ import { Env } from '@sys/fs';
 import { c, Fs, Is } from '../src/common.ts';
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 
-const m = await Env.load();
+const env = await Env.load();
+
+// https://elevenlabs.io/app/developers/api-keys
+const ELEVEN_LABS_API_KEY = env.get('ELEVEN_LABS_API_KEY');
 const FALLBACK_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
 
 const D = {
@@ -16,7 +19,6 @@ const D = {
     speed: 0.97,
   },
   applyTextNormalization: 'auto',
-
 } as const;
 
 export async function runVoice() {
@@ -29,12 +31,12 @@ export async function runVoice() {
   const text = script.trim();
   if (Is.blank(text)) throw new Error(`Voice script is empty: ${path}`);
 
-  const apiKey = m.get('ELEVEN_LABS_API_KEY');
+  const apiKey = ELEVEN_LABS_API_KEY;
   if (Is.blank(apiKey)) throw new Error('Missing ELEVEN_LABS_API_KEY in environment');
 
   const elevenlabs = new ElevenLabsClient({ apiKey });
   const voice = await resolveVoice(elevenlabs);
-  const outputFormat = m.get('ELEVEN_LABS_OUTPUT_FORMAT')?.trim() || D.outputFormat;
+  const outputFormat = env.get('ELEVEN_LABS_OUTPUT_FORMAT')?.trim() || D.outputFormat;
   const outputExt = extFromOutputFormat(outputFormat);
 
   console.info();
@@ -64,7 +66,7 @@ export async function runVoice() {
 }
 
 async function resolveVoice(elevenlabs: ElevenLabsClient) {
-  const preferredVoiceId = m.get('ELEVEN_LABS_VOICE_ID')?.trim();
+  const preferredVoiceId = env.get('ELEVEN_LABS_VOICE_ID')?.trim();
   if (!Is.blank(preferredVoiceId)) {
     const match = await elevenlabs.voices.get(preferredVoiceId);
     return {
