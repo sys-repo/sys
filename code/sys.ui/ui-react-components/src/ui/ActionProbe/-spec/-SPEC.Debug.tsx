@@ -8,6 +8,7 @@ type Storage = {
   theme?: t.CommonTheme;
   env?: 'localhost' | 'production';
   actOn?: StorageActOn;
+  sizeMode?: 'offset' | 'contained';
 };
 type StorageActOn = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null | StorageActOnItem[];
 type StorageActOnItem = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null;
@@ -16,6 +17,7 @@ const defaults: Storage = {
   theme: 'Dark',
   env: 'localhost',
   actOn: undefined,
+  sizeMode: 'contained',
 };
 
 /**
@@ -37,6 +39,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    sizeMode: s(snap.sizeMode),
     actOn: s<Storage['actOn']>(snap.actOn),
     ...action.props,
   };
@@ -63,6 +66,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.env = p.env.value;
       d.actOn = p.actOn.value;
+      d.sizeMode = p.sizeMode.value;
     });
   });
 
@@ -108,7 +112,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `actOn: ${wrangle.actOnLabel(v.actOn)} ← when focused`}
+        label={() => `actOn: ${wrangle.actOnLabel(v.actOn)}`}
         onClick={() =>
           Signal.cycle<Storage['actOn']>(p.actOn, [
             'Enter',
@@ -122,6 +126,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={() => `sizeMode: ${p.sizeMode.value}`}
+        onClick={() => Signal.cycle(p.sizeMode, ['contained', 'offset'])}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
 

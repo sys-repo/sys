@@ -11,6 +11,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
     return (
       <ActionProbe.Result
+        style={{ width: 420 }}
         debug={v.debug}
         theme={v.theme}
         spinning={v.spinning}
@@ -26,6 +27,10 @@ export default Spec.describe(D.displayName, async (e) => {
 
     update();
     function update() {
+      const mode = p.sizeMode.value;
+      const width = 150;
+      if (mode === 'contained') ctx.subject.size('fill-y', width);
+      if (mode === 'offset') ctx.subject.size([width, null]);
       debug.listen();
       ctx.redraw();
     }
@@ -34,10 +39,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.debug.width(420);
-    ctx.subject
-      .size([420, 500])
-      .display('grid')
-      .render(() => <Root />);
+    ctx.subject.display('grid').render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {
