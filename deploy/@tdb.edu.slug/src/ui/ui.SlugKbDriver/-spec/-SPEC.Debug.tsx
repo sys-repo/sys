@@ -1,7 +1,9 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
 import { SelectedPath, LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
+import { SlugData } from './-ui.SlugData.tsx';
 import {
+  ActionProbe,
   Button,
   Color,
   css,
@@ -21,6 +23,8 @@ type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
   load?: t.SampleLoadAction;
   env?: t.HttpOriginEnv;
+  treeContentRef?: string;
+  treeContentRefs?: string[];
 };
 const defaults: Storage = {
   debug: false,
@@ -46,6 +50,7 @@ export async function createDebugSignals() {
 
   const defaultBaseUrl = LoadSample.SAMPLES.baseUrl;
   const controller = s(SlugKbDriver.Controller.create({ baseUrl: defaultBaseUrl }));
+  const action = ActionProbe.Signals.create();
 
   const props = {
     debug: s(snap.debug),
@@ -56,11 +61,15 @@ export async function createDebugSignals() {
     origin: s<t.SlugUrlOrigin | undefined>(),
     //
     load: s(snap.load),
+    treeContentRef: s(snap.treeContentRef),
+    treeContentRefs: s(snap.treeContentRefs),
+    ...action.props,
   };
   const p = props;
   const api = {
     props,
     controller,
+    action,
     listen,
     reset,
   };
@@ -72,6 +81,7 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    action.reset();
   }
 
   Signal.effect(() => {
@@ -81,6 +91,8 @@ export async function createDebugSignals() {
       d.selectedPath = p.selectedPath.value;
       d.load = p.load.value;
       d.env = p.env.value;
+      d.treeContentRef = p.treeContentRef.value;
+      d.treeContentRefs = p.treeContentRefs.value;
     });
   });
 
@@ -140,6 +152,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 10 }} />
+      <SlugData debug={debug} />
       <hr />
       <SlugKbDriver.Dev.DriverInfo style={{ MarginY: [10, 50] }} controller={controller} />
 
@@ -162,6 +175,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={() => '(clear probe.ref)'}
+        enabled={!!v.treeContentRef}
+        onClick={() => {
+          p.treeContentRef.value = undefined;
+          debug.action.focus('tree-content');
+        }}
+      />
       <Button block label={() => '(reset)'} onClick={debug.reset} />
 
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
