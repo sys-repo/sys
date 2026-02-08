@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
 import { useScopedStyles } from './use.Styles.ts';
 
-type P = t.Prose.ManuscriptProps;
+type P = t.Prose.Manuscript.Props;
 
 /**
  * Component:

@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Prose.UI debug={v.debug} theme={v.theme} />;
+    return <Prose.Manuscript.UI debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {

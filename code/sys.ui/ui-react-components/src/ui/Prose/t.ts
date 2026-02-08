@@ -5,12 +5,14 @@ import type { t } from './common.ts';
  */
 export namespace Prose {
   export type Lib = {
-    readonly UI: t.FC<ManuscriptProps>;
-    readonly Manuscript: t.FC<ManuscriptProps>; // ← alias to default
+    readonly Manuscript: { readonly UI: t.FC<Manuscript.Props> };
   };
-  export type ManuscriptProps = {
-    debug?: boolean;
-    theme?: t.CommonTheme;
-    style?: t.CssInput;
-  };
+
+  export namespace Manuscript {
+    export type Props = {
+      debug?: boolean;
+      theme?: t.CommonTheme;
+      style?: t.CssInput;
+    };
+  }
 }
