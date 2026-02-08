@@ -36,6 +36,9 @@ export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject
           onRunItem?.(item);
           return e;
         },
+        hr() {
+          return e.item({ kind: 'hr' });
+        },
         result(value) {
           onRunResult?.(value, obj);
         },

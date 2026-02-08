@@ -69,6 +69,7 @@ export namespace ActionProbe {
     readonly params: <T = TParams>() => Readonly<T> | undefined;
     obj(input: ProbeRunObjectConfig): ProbeRunArgs<TEnv, TParams>;
     item(item: t.KeyValueItem): ProbeRunArgs<TEnv, TParams>;
+    hr(): ProbeRunArgs<TEnv, TParams>;
     readonly result: (value: unknown) => void;
   };
 }

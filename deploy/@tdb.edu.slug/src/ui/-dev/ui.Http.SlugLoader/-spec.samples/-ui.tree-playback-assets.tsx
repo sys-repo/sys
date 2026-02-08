@@ -13,6 +13,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
 
     e.params({ kind });
     e.element(<div>Loads media descriptor, assets, and playback manifests for one docid.</div>);
+    e.hr();
     e.item({ k: 'kind', v: kind });
     e.item({ k: 'path', v: descriptorPath });
   },
