@@ -70,7 +70,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
       obj={v.result.obj}
       debug={v.debug}
       theme={v.theme}
-      style={{ marginTop: 10, marginBottom: 10, minHeight: 360 }}
+      style={{ marginTop: 10, marginBottom: 10 }}
     />
   );
 
