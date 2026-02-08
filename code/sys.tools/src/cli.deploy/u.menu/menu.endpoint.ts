@@ -137,8 +137,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       continue;
     }
 
-    if (picked === 'push') {
-      if (!showPush) continue;
+    const runPushAction = async (): Promise<boolean> => {
+      if (!showPush) return false;
 
       if (!canPush) {
         const hint = String(capability.hint ?? '').trim();
@@ -147,10 +147,10 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           .line(c.gray(c.dim(`reason: ${String(capability.reason ?? 'probe-failed')}`)));
         if (hint) b.line(c.gray(hint));
         console.info(String(b));
-        continue;
+        return false;
       }
 
-      if (!provider) continue;
+      if (!provider) return false;
 
       const plan = await resolvePushTargets({ cwd, yaml });
       const targets = plan.targets;
@@ -159,7 +159,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           .line(c.yellow('Push skipped'))
           .line(c.gray(c.dim('No deploy targets (missing provider.shards.siteIds).')));
         console.info(String(b));
-        continue;
+        return false;
       }
 
       const pushStarted = Time.now.timestamp;
@@ -233,16 +233,16 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         console.info();
       }
 
-      continue;
-    }
+      return okCount === targets.length && targets.length > 0;
+    };
 
-    if (picked === 'stage') {
+    const runStageAction = async (): Promise<boolean> => {
       // Re-read YAML at the moment of staging to capture edits made while menu is open.
       const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
       const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
-      if (!freshYaml) continue;
+      if (!freshYaml) return false;
       const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
-      if (!resolved.ok) continue;
+      if (!resolved.ok) return false;
 
       const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
       const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
@@ -262,6 +262,22 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       });
 
       ranOk = res.ok;
+      return res.ok;
+    };
+
+    if (picked === 'push') {
+      await runPushAction();
+      continue;
+    }
+
+    if (picked === 'stage') {
+      await runStageAction();
+      continue;
+    }
+
+    if (picked === 'stage-push') {
+      const staged = await runStageAction();
+      if (staged) await runPushAction();
       continue;
     }
 

@@ -63,6 +63,9 @@ export async function promptEndpointAction(args: {
     options: [
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
       ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
+      ...(checkOk && showPush
+        ? [{ name: '  stage + push', value: 'stage-push' as const }]
+        : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },

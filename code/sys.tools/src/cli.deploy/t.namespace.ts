@@ -143,7 +143,15 @@ export namespace DeployTool {
     }
 
     export namespace Menu {
-      export type Action = 'stage' | 'push' | 'edit' | 'fix' | 'rename' | 'delete' | 'back';
+      export type Action =
+        | 'stage'
+        | 'push'
+        | 'stage-push'
+        | 'edit'
+        | 'fix'
+        | 'rename'
+        | 'delete'
+        | 'back';
       export type Option = { readonly name: string; readonly value: Action };
     }
   }
