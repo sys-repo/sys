@@ -14,7 +14,8 @@ export function renderTreeContentCard<TParams extends Record<string, unknown>>(
 ) {
   e.element(
     <div>
-      Loads tree, resolves one <code>ref</code>, then loads indexed file-content by hash.
+      Loads tree, resolves one <code>ref</code>, then loads indexed file-content by hash. Flattened
+      <code>docid</code>'s from <code>slug-tree</code>.
     </div>,
   );
 

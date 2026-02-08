@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
-import { SelectedPath, LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
+import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import { SlugData } from './-ui.SlugData.tsx';
 import {
   ActionProbe,
@@ -21,7 +21,6 @@ import {
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
-  load?: t.SampleLoadAction;
   env?: t.HttpOriginEnv;
   treeContentRef?: string;
   treeContentRefs?: string[];
@@ -29,7 +28,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  load: 'esm:import',
+  env: 'production',
 };
 
 /**
@@ -37,9 +36,6 @@ const defaults: Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
-
-const docid = 'kb';
-
 /**
  * Signals:
  */
@@ -48,7 +44,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const defaultBaseUrl = LoadSample.SAMPLES.baseUrl;
+  const defaultBaseUrl: t.StringUrl = 'https://slc.db.team/';
   const controller = s(SlugKbDriver.Controller.create({ baseUrl: defaultBaseUrl }));
   const action = ActionProbe.Signals.create();
 
@@ -60,7 +56,6 @@ export async function createDebugSignals() {
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
     //
-    load: s(snap.load),
     treeContentRef: s(snap.treeContentRef),
     treeContentRefs: s(snap.treeContentRefs),
     ...action.props,
@@ -81,6 +76,9 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    const env = p.env.value ?? 'production';
+    p.env.value = env;
+    p.origin.value = Dev.SlugOrigin.Default.spec[env];
     action.reset();
   }
 
@@ -89,7 +87,6 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
-      d.load = p.load.value;
       d.env = p.env.value;
       d.treeContentRef = p.treeContentRef.value;
       d.treeContentRefs = p.treeContentRefs.value;
@@ -109,12 +106,6 @@ export async function createDebugSignals() {
     controller.value = next;
     prev.dispose();
   });
-
-  const load = () => {
-    const baseUrl = controller.value.props.baseUrl;
-    void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
-  };
-  Signal.effect(load);
 
   /**
    * Bridge (dev harness): Signals → EffectController
@@ -155,13 +146,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SlugData debug={debug} />
       <hr />
       <SlugKbDriver.Dev.DriverInfo style={{ MarginY: [10, 50] }} controller={controller} />
-
-      <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
-      <LoadSample.UI
-        signal={p.load}
-        style={{ MarginY: 15 }}
-        url={{ base: controller.props.baseUrl, docid }}
-      />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
@@ -175,6 +159,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={() => '(clear tree)'}
+        enabled={!!v.tree}
+        onClick={() => {
+          p.tree.value = undefined;
+          p.selectedPath.value = undefined;
+          p.treeContentRefs.value = undefined;
+          p.treeContentRef.value = undefined;
+        }}
+      />
       <Button
         block
         label={() => '(clear probe.ref)'}

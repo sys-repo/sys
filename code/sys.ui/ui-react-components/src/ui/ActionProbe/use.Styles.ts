@@ -15,7 +15,7 @@ export const useProbeStyles = (props: { theme?: t.CommonTheme }) => {
       color: Color.alpha(theme.fg, 0.8),
       fontFamily: 'monospace',
       fontWeight: 600,
-      fontSize: '0.95em',
+      fontSize: '0.85em',
       lineHeight: 1,
       Padding: [2, 4],
       borderRadius: 4,

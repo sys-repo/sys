@@ -1,8 +1,8 @@
 import React from 'react';
 import { Sample } from '../../-dev/ui.Http.SlugLoader/-spec.samples/mod.ts';
-import { ActionProbe, Signal } from './mod.ts';
+import { ActionProbe, Is, Signal, TreeHost } from './mod.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { t, css } from './common.ts';
+import { t } from './common.ts';
 
 type Props = {
   debug: DebugSignals;
@@ -42,12 +42,13 @@ export const SlugData: React.FC<Props> = (props) => {
         onRunStart={handlers.onRunStart}
         onRunEnd={handlers.onRunEnd}
         onRunItem={handlers.onRunItem}
-        onRunResult={(value, obj) =>
+        onRunResult={(value, obj) => {
+          syncLoadedTree(value, p.tree);
           handlers.onRunResult(value, {
             ...(obj ?? {}),
             expand: { paths: ['$'] },
-          })
-        }
+          });
+        }}
         theme={v.theme}
         style={{ marginTop: 30 }}
       />
@@ -67,3 +68,23 @@ export const SlugData: React.FC<Props> = (props) => {
     </>
   );
 };
+
+function syncLoadedTree(
+  value: unknown,
+  tree: t.Signal<t.TreeHostViewNodeList | undefined>,
+) {
+  if (!Is.object(value)) return;
+  const result = value as { ok?: unknown; value?: unknown };
+  if (result.ok !== true) return;
+  if (!Is.object(result.value)) return;
+  const payload = result.value as { tree?: unknown };
+  const loaded = payload.tree;
+  if (!isSlugTreeDoc(loaded)) return;
+  tree.value = TreeHost.Data.fromSlugTree(loaded);
+}
+
+function isSlugTreeDoc(input: unknown): input is t.SlugTreeDoc {
+  if (!Is.object(input)) return false;
+  const doc = input as { tree?: unknown };
+  return Is.array(doc.tree);
+}
