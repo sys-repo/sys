@@ -40,6 +40,7 @@ export type * from './ui/Player.YouTube/t.ts';
 export type * from './ui/Player/t.ts';
 export type * from './ui/Preload/t.ts';
 export type * from './ui/Prose.Manuscript/t.ts';
+export type * from './ui/Prose.Markdown/t.ts';
 export type * from './ui/Prose.Measure/t.ts';
 export type * from './ui/Prose/t.ts';
 export type * from './ui/Sheet/t.ts';

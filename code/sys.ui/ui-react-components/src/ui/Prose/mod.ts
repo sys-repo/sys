@@ -10,8 +10,10 @@
 import type { t } from './common.ts';
 import { ProseManuscript as Manuscript } from '../Prose.Manuscript/mod.ts';
 import { ProseMeasure as Measure } from '../Prose.Measure/mod.ts';
+import { ProseMarkdown as Markdown } from '../Prose.Markdown/mod.ts';
 
 export const Prose: t.Prose.Lib = {
   Measure,
   Manuscript,
+  Markdown,
 };

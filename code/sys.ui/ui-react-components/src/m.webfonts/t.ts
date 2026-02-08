@@ -8,9 +8,7 @@ export namespace Fonts {
     readonly ETBook: Bundle;
   };
 
-  /**
-   * A web-font configuration bundle.
-   */
+  /** A web-font configuration bundle. */
   export type Bundle = {
     readonly dir: t.StringDir;
     readonly config: t.WebFontConfig;

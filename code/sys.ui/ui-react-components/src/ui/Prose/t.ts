@@ -7,6 +7,7 @@ export namespace Prose {
   export type Lib = {
     readonly Measure: t.ProseMeasure.Lib;
     readonly Manuscript: t.ProseManuscript.Lib;
+    readonly Markdown: t.ProseMarkdown.Lib;
   };
 
   /** Define a CSS rule within a curried component-attr class scope. */

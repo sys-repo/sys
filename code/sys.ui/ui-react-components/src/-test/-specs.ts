@@ -35,6 +35,7 @@ export const SpecsComponents = {
 
   [`${ns}: Prose.Measure`]: () => import('../ui/Prose.Measure/-spec/-SPEC.tsx'),
   [`${ns}: Prose.Manuscript`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'),
+  [`${ns}: Prose.Markdown`]: () => import('../ui/Prose.Markdown/-spec/-SPEC.tsx'),
 
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
   [`${ns}: Layout.RectGrid`]: () => import('../ui/Layout.RectGrid/-spec/-SPEC.tsx'),
