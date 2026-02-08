@@ -125,6 +125,6 @@ function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): stri
 function totalKeys(input: unknown) {
   if (!Is.object(input)) return 0;
   const keys: string[] = [];
-  Obj.walk(input, (e) => {});
+  Obj.walk(input, (e) => keys.push(String(e.key)));
   return keys.length;
 }
