@@ -8,6 +8,6 @@ import { useFont } from './u.hook.ts';
 
 export { ETBook };
 export const WebFonts: t.WebFonts.Lib = {
-  ETBook,
   useFont,
+  ETBook,
 };
