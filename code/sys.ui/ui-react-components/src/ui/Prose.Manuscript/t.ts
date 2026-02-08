@@ -6,8 +6,6 @@ import type { t } from './common.ts';
 export namespace ProseManuscript {
   export type Lib = { readonly UI: t.FC<Props> };
 
-  export type ScopedCssRule = (selector: string, css: t.CssValue) => void;
-
   export type Props = {
     debug?: boolean;
     theme?: t.CommonTheme;

@@ -12,8 +12,7 @@ export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
   const theme = Color.theme(props.theme);
   const sheet = Style.Dom.stylesheet();
   const scope = `[data-component="${D.componentAttr}"]`;
-  const rule: t.ProseManuscript.ScopedCssRule = (selector, css) =>
-    sheet.rule(`${scope} ${selector}`, css);
+  const rule: t.Prose.ScopedCssRule = (selector, css) => sheet.rule(`${scope} ${selector}`, css);
 
   code({ rule, theme });
   headings({ rule, theme });

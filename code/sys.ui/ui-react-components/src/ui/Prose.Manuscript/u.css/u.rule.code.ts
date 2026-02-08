@@ -1,6 +1,6 @@
 import { type t, Color } from './common.ts';
 
-export function code(args: { rule: t.ProseManuscript.ScopedCssRule; theme: t.ColorTheme }) {
+export function code(args: { rule: t.Prose.ScopedCssRule; theme: t.ColorTheme }) {
   const { rule, theme } = args;
   rule('code', {
     backgroundColor: Color.alpha(theme.fg, 0.03),

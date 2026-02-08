@@ -33,7 +33,6 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
-  [`${ns}: Prose`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'), // TEMP 🐷
   [`${ns}: Prose.Manuscript`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'),
 
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
