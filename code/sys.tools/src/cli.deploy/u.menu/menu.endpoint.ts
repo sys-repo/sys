@@ -96,8 +96,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           : undefined
         : undefined;
 
-    // "can push" is about capability + having *some* staging root configured ('.' counts).
-    const canPush = capability.show && capability.enabled && !!stagingRootRel;
+    const showPush = capability.show;
+    const showStagePush = check.ok && !!provider && provider.kind !== 'noop';
 
     const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel });
     console.info(renderEndpointScreen({ table: table.text, check }));
@@ -115,11 +115,11 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       console.info(String(s));
     }
 
-    const showPush = capability.show;
     const picked = await promptEndpointAction({
       checkOk: check.ok,
       ranOk,
       showPush,
+      showStagePush,
       showServe: hasStagedOutput,
       pushedOk,
       pushElapsed,
@@ -141,21 +141,32 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     }
 
     const runPushAction = async (): Promise<boolean> => {
-      if (!showPush) return false;
+      const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
+      const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
+      const freshCapability = await pushCapabilityOf({
+        cwd,
+        yamlPath: yamlRel,
+        checkOk: freshCheck.ok,
+      });
+      const freshProvider = freshYaml?.provider;
+      const freshStagingRootRel = String(freshYaml?.staging?.dir ?? '').trim() || '.';
+      const freshCanPush = freshCapability.show && freshCapability.enabled && !!freshStagingRootRel;
 
-      if (!canPush) {
-        const hint = String(capability.hint ?? '').trim();
+      if (!freshCapability.show) return false;
+
+      if (!freshCanPush) {
+        const hint = String(freshCapability.hint ?? '').trim();
         const b = Str.builder()
           .line(c.yellow('Push unavailable'))
-          .line(c.gray(c.dim(`reason: ${String(capability.reason ?? 'probe-failed')}`)));
+          .line(c.gray(c.dim(`reason: ${String(freshCapability.reason ?? 'probe-failed')}`)));
         if (hint) b.line(c.gray(hint));
         console.info(String(b));
         return false;
       }
 
-      if (!provider) return false;
+      if (!freshProvider || !freshYaml) return false;
 
-      const plan = await resolvePushTargets({ cwd, yaml });
+      const plan = await resolvePushTargets({ cwd, yaml: freshYaml });
       const targets = plan.targets;
       if (!targets.length) {
         const b = Str.builder()
@@ -195,8 +206,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           const hint = String(res.hint ?? '').trim();
           const b = Str.builder()
             .line(c.red('Push failed'))
-            .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
-            .line(c.gray(c.dim(`staging root: ${stagingRootRel || '.'}`)))
+            .line(c.gray(c.dim(`provider: ${String(freshProvider.kind)}`)))
+            .line(c.gray(c.dim(`staging root: ${freshStagingRootRel || '.'}`)))
             .line(c.gray(c.dim(`mapping.staging: ${mappingStagingRel || '(none)'}`)))
             .blank();
 
