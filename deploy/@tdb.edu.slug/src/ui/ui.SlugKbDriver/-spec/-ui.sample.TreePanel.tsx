@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Obj, ObjectView, Spinners, KeyValue } from './common.ts';
+import { type t, Color, css, Spinners, KeyValue } from './common.ts';
 
 export type FileContentTreePanelProps = {
   data?: t.FileContentData;
@@ -38,14 +38,9 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
       rowGap: 10,
     }),
     spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
-    obj: css({}),
+    empty: css({ opacity: 0.45 }),
   };
-  const data = Obj.truncateStrings({
-    ref: props.data?.ref,
-    hash: props.data?.hash,
-    treeItems: props.data?.tree.tree.length,
-    contentEntries: props.data?.contentIndex.entries.length,
-  });
+  const data = props.data;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -55,29 +50,21 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
         </div>
       )}
       <div className={styles.body.class}>
-        <ObjectView name={'data'} data={data} expand={0} theme={theme.name} style={styles.obj} />
-        <ObjectView
-          style={styles.obj}
-          name={'data.content'}
-          data={Obj.truncateStrings(props.data?.content, 10)}
-          expand={0}
-          theme={theme.name}
-        />
-        <ObjectView
-          name={'data.content.fontmatter'}
-          data={Obj.truncateStrings(props.data?.content.frontmatter, 10)}
-          expand={1}
-          theme={theme.name}
-          style={styles.obj}
-        />
-
-        <KeyValue.UI
-          theme={theme.name}
-          items={[
-            { kind: 'title', v: 'FrontMatter' },
-            ...KeyValue.fromObject(props.data?.content?.frontmatter, 10),
-          ]}
-        />
+        {!loading && !data && <div className={styles.empty.class}>{'No article selected'}</div>}
+        {data && (
+          <KeyValue.UI
+            theme={theme.name}
+            items={[
+              { kind: 'title', v: 'File Content' },
+              { k: 'ref', v: data.ref },
+              { k: 'hash', v: data.hash },
+              { k: 'tree:items', v: data.tree.tree.length },
+              { k: 'content-index:entries', v: data.contentIndex.entries.length },
+              { kind: 'title', v: 'FrontMatter' },
+              ...KeyValue.fromObject(data.content.frontmatter),
+            ]}
+          />
+        )}
       </div>
     </div>
   );
