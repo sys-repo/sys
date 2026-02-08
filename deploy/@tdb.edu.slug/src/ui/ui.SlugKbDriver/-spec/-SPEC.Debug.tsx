@@ -242,6 +242,16 @@ function totalKeys(input: unknown) {
   return keys.length;
 }
 
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
 /**
  * Component:
  */
@@ -264,7 +274,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 10 }} />
+      <div className={Styles.title.class}>{D.name}</div>
+      <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 15 }} />
       <SlugData debug={debug} />
       <hr />
       <SlugKbDriver.Dev.DriverInfo style={{ MarginY: [10, 50] }} controller={controller} />
