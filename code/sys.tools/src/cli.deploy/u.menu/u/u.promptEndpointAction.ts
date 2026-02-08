@@ -10,6 +10,7 @@ export async function promptEndpointAction(args: {
   checkOk: boolean;
   ranOk: boolean;
   showPush: boolean;
+  showServe: boolean;
   pushedOk: boolean;
   pushElapsed?: string;
   pushShards?: number;
@@ -24,6 +25,7 @@ export async function promptEndpointAction(args: {
     checkOk,
     ranOk,
     showPush,
+    showServe,
     pushedOk,
     hashPrefix,
     stageAge,
@@ -59,7 +61,7 @@ export async function promptEndpointAction(args: {
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
       ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
       ...(checkOk && showPush ? [{ name: stagePushName, value: 'stage-push' as const }] : []),
-      ...(checkOk ? [{ name: '  serve', value: 'serve' as const }] : []),
+      ...(showServe ? [{ name: '  serve', value: 'serve' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },

@@ -88,6 +88,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const stageSizeTotal = dist?.build?.size?.total;
     const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
     const hasStageMeta = !!(stageAge || stageSize);
+    const hasStagedOutput = !!digest;
     const pushUrl =
       provider?.kind === 'orbiter'
         ? String(provider.domain ?? '').trim()
@@ -119,6 +120,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       checkOk: check.ok,
       ranOk,
       showPush,
+      showServe: hasStagedOutput,
       pushedOk,
       pushElapsed,
       pushShards,
@@ -267,17 +269,24 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     };
 
     const runServeAction = async (): Promise<boolean> => {
-      const staged = await runStageAction();
-      if (!staged) return false;
-
       const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
       const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
       if (!freshYaml) return false;
 
       const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
+      const freshStagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel });
+      const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
+      if (!freshDist?.hash?.digest) {
+        const b = Str.builder()
+          .line(c.yellow('Serve unavailable'))
+          .line(c.gray(c.dim('reason: no-staging-output')))
+          .line(c.gray('Run stage first, then serve.'));
+        console.info(String(b));
+        return false;
+      }
       const location: t.ServeTool.LocationYaml.Location = {
         name: key,
-        dir: resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel }),
+        dir: freshStagingRootAbs,
       };
       await startServing(cwd, location, { host: 'local' });
       return true;
