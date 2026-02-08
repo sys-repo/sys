@@ -8,6 +8,8 @@ export namespace Prose {
     readonly Manuscript: { readonly UI: t.FC<Manuscript.Props> };
   };
 
+  export type ScopedCssRule = (selector: string, css: t.CssValue) => void;
+
   export namespace Manuscript {
     export type Props = {
       debug?: boolean;
