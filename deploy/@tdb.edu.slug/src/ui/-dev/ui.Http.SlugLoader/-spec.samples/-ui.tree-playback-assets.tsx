@@ -7,7 +7,7 @@ type Params = {
 };
 
 export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
-  title: 'Fetch ← (Tree + (Playback + Assets))',
+  title: 'ƒ • Fetch ← (Tree + (Playback + Assets))',
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:media:seq';
     const target = SlugLoader.Descriptor.target(kind);
