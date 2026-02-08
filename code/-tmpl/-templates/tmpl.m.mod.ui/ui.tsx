@@ -1,7 +1,9 @@
 import { type t, Color, css, D, KeyValue } from './common.ts';
+import { useScopedStyles } from './use.Styles.ts';
 
 export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   const { debug = false } = props;
+  const { componentAttr } = useScopedStyles(props); // ← 🐷 delete if not using CSS scoped styles.
 
   /**
    * Render:
@@ -16,7 +18,7 @@ export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={componentAttr}>
       <KeyValue.UI
         theme={theme.name}
         items={[
