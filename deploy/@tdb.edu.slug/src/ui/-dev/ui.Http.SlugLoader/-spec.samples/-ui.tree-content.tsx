@@ -1,4 +1,4 @@
-import { type t, SlugLoader, Str } from './common.ts';
+import { type t, Obj, Is, SlugLoader, Str } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree-content.card.tsx';
 
 type Params = {
@@ -76,11 +76,11 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'hash', v: Str.ellipsize(hash, [20, 5], '..') });
     e.item({ k: 'content-type', v: content.value.contentType });
     e.hr();
-    e.item({ k: 'content/frontmatter:', v: frontmatter ? 'yes' : 'no' });
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
     e.item({ k: 'refs: loaded', v: refs.length });
     e.item({ k: 'tree: items', v: tree.value.tree.length });
     e.item({ k: 'content-index: entries', v: index.value.entries.length });
+    e.item({ k: 'content-frontmatter', v: totalKeys(frontmatter) });
 
     return e.result({
       ok: true,
@@ -120,4 +120,11 @@ function resolveRef(selected: string | undefined, refs: string[]): string | unde
 function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
   const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);
   return entry?.hash;
+}
+
+function totalKeys(input: unknown) {
+  if (!Is.object(input)) return 0;
+  const keys: string[] = [];
+  Obj.walk(input, (e) => {});
+  return keys.length;
 }

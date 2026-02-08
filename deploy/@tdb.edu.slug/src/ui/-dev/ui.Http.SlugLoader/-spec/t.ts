@@ -28,5 +28,11 @@ export type TEnv = {
       readonly onRefChange?: (next: string) => void;
       readonly onRefsChange?: (next: string[]) => void;
     };
+    readonly treePlayback?: {
+      readonly refs?: string[];
+      readonly ref?: string;
+      readonly onRefChange?: (next: string) => void;
+      readonly onRefsChange?: (next: string[]) => void;
+    };
   };
 };

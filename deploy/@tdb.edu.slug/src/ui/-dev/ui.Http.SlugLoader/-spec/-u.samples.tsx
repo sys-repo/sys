@@ -46,6 +46,12 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
               onRefChange: (next) => (state.props.treeContentRef.value = next),
               onRefsChange: (next) => (state.props.treeContentRefs.value = next),
             },
+            treePlayback: {
+              ref: v.treePlaybackRef,
+              refs: v.treePlaybackRefs,
+              onRefChange: (next) => (state.props.treePlaybackRef.value = next),
+              onRefsChange: (next) => (state.props.treePlaybackRefs.value = next),
+            },
           },
         },
         spinning: v.spinning && v.probe.active === probe,

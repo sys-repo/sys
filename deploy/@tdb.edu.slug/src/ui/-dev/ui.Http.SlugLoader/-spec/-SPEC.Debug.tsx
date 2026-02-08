@@ -23,6 +23,8 @@ type Storage = {
   descriptorKind?: DescriptorMode;
   treeContentRef?: string;
   treeContentRefs?: string[];
+  treePlaybackRef?: string;
+  treePlaybackRefs?: string[];
 };
 const defaults: Storage = {
   debug: false,
@@ -52,6 +54,8 @@ export async function createDebugSignals() {
     descriptorKind: s(normalizeDescriptorMode(snap.descriptorKind)),
     treeContentRef: s(snap.treeContentRef),
     treeContentRefs: s(snap.treeContentRefs),
+    treePlaybackRef: s(snap.treePlaybackRef),
+    treePlaybackRefs: s(snap.treePlaybackRefs),
     origin: s<t.SlugUrlOrigin | undefined>(),
     ...action.props,
   };
@@ -80,6 +84,8 @@ export async function createDebugSignals() {
       d.descriptorKind = p.descriptorKind.value;
       d.treeContentRef = p.treeContentRef.value;
       d.treeContentRefs = p.treeContentRefs.value;
+      d.treePlaybackRef = p.treePlaybackRef.value;
+      d.treePlaybackRefs = p.treePlaybackRefs.value;
     });
   });
 
