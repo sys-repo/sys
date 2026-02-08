@@ -13,6 +13,7 @@ export {
   KeyValue,
   ObjectView,
   Player,
+  Prose,
   Sheet,
   Spinners,
   SplitPane,
