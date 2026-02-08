@@ -10,8 +10,8 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'ƒ • Fetch ← (Tree + FileContent)',
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:fs';
-
     e.params({ kind });
+
     renderTreeContentCard(e, {
       refs: e.probe?.treeContent?.refs,
       selected: e.probe?.treeContent?.ref,
@@ -23,7 +23,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   },
 
   async run(e) {
-    e.obj({ expand: { paths: ['$', '$.value'] } });
+    e.obj({ expand: { paths: ['$'] } });
 
     const params = e.params<Params>();
     const kind = params?.kind;
@@ -94,6 +94,9 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
         content: content.value,
         contentIndex: index.value,
       },
+      'value:tree': tree.value,
+      'value:content:index': index.value,
+      [`value:content:${last(hash, 5)}`]: content.value,
     });
   },
 };
@@ -108,4 +111,8 @@ function totalKeys(input: unknown) {
   const keys: string[] = [];
   Obj.walk(input, (e) => keys.push(String(e.key)));
   return keys.length;
+}
+
+function last(input: string, count: number): string {
+  return input.slice(Math.max(0, input.length - count));
 }

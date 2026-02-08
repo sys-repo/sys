@@ -178,21 +178,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() =>
-          `list.totalVisible: ${v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`}`
-        }
-        onClick={() =>
-          Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [5, 10, undefined])
-        }
+        label={() => {
+          return `list.totalVisible: ${v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`}`;
+        }}
+        onClick={() => {
+          Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [5, 10, undefined]);
+        }}
       />
       <Button
         block
         label={() => `list.totalVisible: "all"`}
-        onClick={() => {
-          // 'all'
-          p.listTotalVisible.value = 'all';
-        }}
+        onClick={() => (p.listTotalVisible.value = 'all')}
       />
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

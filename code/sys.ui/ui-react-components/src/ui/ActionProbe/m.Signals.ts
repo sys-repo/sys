@@ -88,7 +88,11 @@ export const Signals: t.ActionProbeSignalsLib = {
       end() {
         const hasTitle = props.result.items.value.some((item) => item.kind === 'title');
         if (runTitle && !hasTitle) {
-          props.result.items.value = [{ kind: 'title', v: runTitle }, ...props.result.items.value];
+          props.result.items.value = [
+            { kind: 'title', v: runTitle },
+            { kind: 'hr' },
+            ...props.result.items.value,
+          ];
         }
         runTitle = undefined;
         props.spinning.value = false;
