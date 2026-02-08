@@ -33,6 +33,7 @@ function renderer(state: DebugSignals, opts: Options = {}) {
         env: { is: { local } },
         spinning: v.spinning && v.probe.active === probe,
         focused: v.probe.focused === probe,
+        actOn: v.actOn,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
         ...state.action.handlers(probe),

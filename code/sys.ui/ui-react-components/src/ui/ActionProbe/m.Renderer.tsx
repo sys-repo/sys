@@ -25,6 +25,7 @@ export const Renderer: t.ActionProbeRendererLib = {
             env={resolved.env}
             spinning={resolved.spinning}
             focused={resolved.focused}
+            actOn={resolved.actOn}
             theme={resolved.theme}
             debug={resolved.debug}
             onRunStart={resolved.onRunStart}

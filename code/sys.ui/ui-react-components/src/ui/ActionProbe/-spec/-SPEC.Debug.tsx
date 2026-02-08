@@ -7,11 +7,13 @@ type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   env?: 'localhost' | 'production';
+  actOn?: 'Enter' | 'Cmd+Enter' | null;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   env: 'localhost',
+  actOn: undefined,
 };
 
 /**
@@ -33,6 +35,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    actOn: s<Storage['actOn']>(snap.actOn),
     ...action.props,
   };
   const p = props;
@@ -57,6 +60,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
+      d.actOn = p.actOn.value;
     });
   });
 
@@ -100,6 +104,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `actOn: ${wrangle.actOnLabel(v.actOn)} ← when focused`}
+        onClick={() => Signal.cycle<Storage['actOn']>(p.actOn, ['Enter', 'Cmd+Enter', null])}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
@@ -115,3 +124,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+const wrangle = {
+  actOnLabel(value: Storage['actOn']) {
+    if (value === undefined) return '(default: Enter)';
+    if (value === null) return '(none)';
+    return value;
+  },
+} as const;

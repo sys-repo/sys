@@ -1,4 +1,4 @@
-import { type t, Color, css, D, Keyboard } from './common.ts';
+import { type t, Color, css, D, Is, Keyboard } from './common.ts';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
 import { useProbeStyles } from './use.Styles.ts';
@@ -20,6 +20,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     env,
     spinning = false,
     focused = false,
+    actOn = D.actOn,
     borderRadius = D.borderRadius,
   } = props;
 
@@ -63,7 +64,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       onFocus={props.onFocus}
       onBlur={props.onBlur}
       onKeyDown={(e) => {
-        if (!Keyboard.Is.command(e) || e.key !== 'Enter') return;
+        if (!wrangle.shouldActOnKeydown(e, actOn)) return;
         if (!canRun || spinning) return;
         e.preventDefault();
         run();
@@ -88,3 +89,22 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  shouldActOnKeydown(
+    e: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey'>,
+    actOn: t.ActionProbe.ActOn,
+  ) {
+    if (actOn === null) return false;
+    const acts = Is.array(actOn) ? actOn : [actOn];
+    return acts.some((kind) => {
+      if (kind === null) return false;
+      if (kind === 'Cmd+Enter') return Keyboard.Is.command(e) && e.key === 'Enter';
+      if (kind === 'Enter') return e.key === 'Enter' && !Keyboard.Is.modified(Keyboard.modifiers(e));
+      return false;
+    });
+  },
+} as const;

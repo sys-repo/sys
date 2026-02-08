@@ -43,6 +43,7 @@ export type ActionProbeRendererResolvedProps<TEnv extends Record<string, unknown
   readonly env: TEnv;
   readonly spinning?: boolean;
   readonly focused?: boolean;
+  readonly actOn?: t.ActionProbe.ActOn;
   readonly theme?: t.CommonTheme;
   readonly debug?: boolean;
   readonly onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;

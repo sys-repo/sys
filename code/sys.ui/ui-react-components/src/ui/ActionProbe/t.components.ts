@@ -10,6 +10,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   env: TEnv;
   spinning?: boolean;
   focused?: boolean;
+  actOn?: t.ActionProbe.ActOn;
   borderRadius?: t.Pixels;
   onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
   onRunEnd?: () => void;
