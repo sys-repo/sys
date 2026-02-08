@@ -38,6 +38,7 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
       rowGap: 10,
     }),
     spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
+    obj: css({}),
   };
   const data = Obj.truncateStrings({
     ref: props.data?.ref,
@@ -54,13 +55,27 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
         </div>
       )}
       <div className={styles.body.class}>
-        <div>{`🐷 FileContentTreePanel`}</div>
-        <ObjectView name={'tree'} data={data} expand={0} theme={theme.name} />
+        <ObjectView name={'data'} data={data} expand={0} theme={theme.name} style={styles.obj} />
+        <ObjectView
+          style={styles.obj}
+          name={'data.content'}
+          data={Obj.truncateStrings(props.data?.content, 10)}
+          expand={0}
+          theme={theme.name}
+        />
+        <ObjectView
+          name={'data.content.fontmatter'}
+          data={Obj.truncateStrings(props.data?.content.frontmatter, 10)}
+          expand={1}
+          theme={theme.name}
+          style={styles.obj}
+        />
+
         <KeyValue.UI
           theme={theme.name}
           items={[
             { kind: 'title', v: 'FrontMatter' },
-            ...KeyValue.fromObject(props.data?.content?.frontmatter),
+            ...KeyValue.fromObject(props.data?.content?.frontmatter, 10),
           ]}
         />
       </div>
