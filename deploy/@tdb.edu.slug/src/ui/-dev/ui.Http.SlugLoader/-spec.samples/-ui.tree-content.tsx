@@ -82,7 +82,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'refs: loaded', v: refs.length });
     e.item({ k: 'tree: items', v: tree.value.tree.length });
     e.item({ k: 'content-index: entries', v: index.value.entries.length });
-    e.item({ k: 'content-frontmatter', v: totalKeys(frontmatter) });
+    e.item({ k: 'content-frontmatter: entries', v: totalKeys(frontmatter) });
 
     return e.result({
       ok: true,
