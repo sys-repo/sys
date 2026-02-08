@@ -15,6 +15,7 @@ export const SlugData: React.FC<Props> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
   const local = v.env === 'localhost';
+  const hasTree = !!v.tree;
   const loading = v.spinning && v.probe.active === probeId;
   if (!v.origin) return null;
 
@@ -29,9 +30,10 @@ export const SlugData: React.FC<Props> = (props) => {
           probe: {
             selectionList: { totalVisible: 5 },
             treeContent: {
-              ref: v.treeContentRef,
-              refs: v.treeContentRefs,
+              ref: hasTree ? v.treeContentRef : undefined,
+              refs: hasTree ? v.treeContentRefs : undefined,
               onRefChange: (next) => {
+                if (!hasTree) return;
                 p.treeContentRef.value = next;
                 const path = TreeHost.Data.findPathByRef(p.tree.value, next);
                 if (path) p.selectedPath.value = path;

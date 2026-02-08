@@ -22,8 +22,6 @@ import {
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
   env?: t.HttpOriginEnv;
-  treeContentRef?: string;
-  treeContentRefs?: string[];
 };
 const defaults: Storage = {
   debug: false,
@@ -55,8 +53,8 @@ export async function createDebugSignals() {
     selectedPath: s(snap.selectedPath),
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
-    treeContentRef: s(snap.treeContentRef),
-    treeContentRefs: s(snap.treeContentRefs),
+    treeContentRef: s<string | undefined>(undefined),
+    treeContentRefs: s<string[] | undefined>(undefined),
     ...action.props,
   };
   const p = props;
@@ -87,8 +85,6 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
       d.env = p.env.value;
-      d.treeContentRef = p.treeContentRef.value;
-      d.treeContentRefs = p.treeContentRefs.value;
     });
   });
 
@@ -114,6 +110,13 @@ export async function createDebugSignals() {
     if (p.tree.value) return;
     if (!p.selectedPath.value) return;
     p.selectedPath.value = undefined;
+  });
+
+  Signal.effect(() => {
+    if (p.tree.value) return;
+    if (!p.treeContentRef.value && !p.treeContentRefs.value) return;
+    p.treeContentRef.value = undefined;
+    p.treeContentRefs.value = undefined;
   });
 
   /**
