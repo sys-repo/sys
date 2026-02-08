@@ -96,7 +96,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       },
       'value:tree': tree.value,
       'value:content:index': index.value,
-      [`value:content:${last(hash, 5)}`]: content.value,
+      [`value:content:ref:${last(ref, 5)}`]: content.value,
     });
   },
 };
