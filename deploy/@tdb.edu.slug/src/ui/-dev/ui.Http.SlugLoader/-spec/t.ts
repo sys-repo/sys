@@ -13,6 +13,14 @@ export type TreeContentParams = {
   manifestsDir: string;
   contentDir: string;
 };
+export type FileContentData = Readonly<{
+  docid: string;
+  ref: string;
+  hash: string;
+  tree: t.SlugTreeDoc;
+  content: t.SlugFileContentDoc;
+  contentIndex: t.SlugFileContentIndex;
+}>;
 
 export type TEnv = {
   is: { local: boolean };

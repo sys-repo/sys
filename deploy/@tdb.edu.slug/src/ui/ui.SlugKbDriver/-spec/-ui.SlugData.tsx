@@ -15,6 +15,7 @@ export const SlugData: React.FC<Props> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
   const local = v.env === 'localhost';
+  const loading = v.spinning && v.probe.active === probeId;
   if (!v.origin) return null;
 
   return (
@@ -38,7 +39,7 @@ export const SlugData: React.FC<Props> = (props) => {
             },
           },
         }}
-        spinning={v.spinning && v.probe.active === probeId}
+        spinning={loading}
         focused={v.probe.focused === probeId}
         onFocus={() => debug.action.focus(probeId)}
         onBlur={() => debug.action.blur(probeId)}
@@ -56,7 +57,7 @@ export const SlugData: React.FC<Props> = (props) => {
         style={{ marginTop: 30 }}
       />
       <ActionProbe.Result
-        spinning={v.spinning}
+        spinning={loading}
         items={v.result.items}
         response={v.result.response}
         obj={v.result.obj}
@@ -65,17 +66,14 @@ export const SlugData: React.FC<Props> = (props) => {
         style={{
           marginTop: 10,
           marginBottom: 10,
-          minHeight: 400,
+          minHeight: 360,
         }}
       />
     </>
   );
 };
 
-function syncLoadedTree(
-  value: unknown,
-  tree: t.Signal<t.TreeHostViewNodeList | undefined>,
-) {
+function syncLoadedTree(value: unknown, tree: t.Signal<t.TreeHostViewNodeList | undefined>) {
   if (!Is.object(value)) return;
   const result = value as { ok?: unknown; value?: unknown };
   if (result.ok !== true) return;

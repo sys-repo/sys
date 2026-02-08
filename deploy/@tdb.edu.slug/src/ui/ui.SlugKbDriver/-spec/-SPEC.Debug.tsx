@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
+import type * as tSlugLoader from '../../-dev/ui.Http.SlugLoader/-spec/t.ts';
 import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import { SlugData } from './-ui.SlugData.tsx';
 import {
@@ -14,12 +15,14 @@ import {
   Obj,
   ObjectView,
   Signal,
+  SlugLoader,
   SlugKbDriver,
   type t,
   TreeHost,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
+export type ContentData = tSlugLoader.FileContentData;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
   env?: t.HttpOriginEnv;
   treeContentRef?: string;
@@ -56,6 +59,9 @@ export async function createDebugSignals() {
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
     //
+    contentData: s<ContentData | undefined>(),
+    contentStatus: s<'idle' | 'loading' | 'ready' | 'error'>('idle'),
+    contentError: s<string | undefined>(),
     treeContentRef: s(snap.treeContentRef),
     treeContentRefs: s(snap.treeContentRefs),
     ...action.props,
@@ -107,6 +113,75 @@ export async function createDebugSignals() {
     prev.dispose();
   });
 
+  let contentReq = 0;
+  Signal.effect(() => {
+    const origin = p.origin.value?.cdn.default;
+    const ref = p.treeContentRef.value;
+    if (!origin || !ref) {
+      contentReq++;
+      p.contentData.value = undefined;
+      p.contentStatus.value = 'idle';
+      p.contentError.value = undefined;
+      p.result.items.value = [];
+      p.result.response.value = {};
+      p.result.obj.value = { expand: { paths: ['$'] } };
+      action.end();
+      return;
+    }
+
+    const req = ++contentReq;
+    action.start('tree-content', 'Tree + FileContent');
+    p.contentStatus.value = 'loading';
+    p.contentError.value = undefined;
+
+    void (async () => {
+      try {
+        const kind: t.BundleDescriptorKind = 'slug-tree:fs';
+        const client = await SlugLoader.Descriptor.client({ origin, kind });
+        if (req !== contentReq) return;
+        if (!client.ok) return fail(client.error?.message ?? 'Failed to create slug client.');
+
+        const tree = await client.value.Tree.load();
+        if (req !== contentReq) return;
+        if (!tree.ok) return fail(tree.error?.message ?? 'Failed to load slug-tree.');
+
+        const index = await client.value.FileContent.index();
+        if (req !== contentReq) return;
+        if (!index.ok) return fail(index.error?.message ?? 'Failed to load content index.');
+
+        const hash = findHash(index.value.entries, ref);
+        if (!hash) return fail(`No content hash found for ref: ${ref}`);
+
+        const content = await client.value.FileContent.get(hash);
+        if (req !== contentReq) return;
+        if (!content.ok) return fail(content.error?.message ?? `Failed to load content for ref: ${ref}`);
+
+        const data: ContentData = {
+          docid: client.value.docid,
+          ref,
+          hash,
+          tree: tree.value,
+          content: content.value,
+          contentIndex: index.value,
+        };
+        p.contentData.value = data;
+        p.contentStatus.value = 'ready';
+        p.result.items.value = buildResultItems(data, origin, client.value.baseUrl);
+        action.result({ ok: true, value: data }, { expand: { paths: ['$'] } });
+      } finally {
+        if (req === contentReq) action.end();
+      }
+
+      function fail(message: string) {
+        p.contentData.value = undefined;
+        p.contentStatus.value = 'error';
+        p.contentError.value = message;
+        p.result.items.value = [];
+        action.result({ ok: false, error: message }, { expand: { paths: ['$'] } });
+      }
+    })();
+  });
+
   /**
    * Bridge (dev harness): Signals → EffectController
    * Feeds reactive harness inputs into the controller under test.
@@ -131,6 +206,40 @@ export async function createDebugSignals() {
   });
 
   return api;
+}
+
+function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
+  const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);
+  return entry?.hash;
+}
+
+function buildResultItems(
+  data: ContentData,
+  origin: string,
+  baseUrl: string,
+): t.KeyValueItem[] {
+  const frontmatter = data.content.frontmatter;
+  return [
+    { k: 'origin', v: origin },
+    { k: 'base-url', v: baseUrl },
+    { k: 'doc-id', v: data.docid },
+    { k: 'ref', v: data.ref },
+    { k: 'hash', v: data.hash },
+    { k: 'content-type', v: data.content.contentType },
+    { kind: 'hr' },
+    { k: 'title', v: frontmatter?.title ?? '(none)' },
+    { k: 'refs: loaded', v: data.contentIndex.entries.length },
+    { k: 'tree: items', v: data.tree.tree.length },
+    { k: 'content-index: entries', v: data.contentIndex.entries.length },
+    { k: 'content-frontmatter: entries', v: totalKeys(frontmatter) },
+  ];
+}
+
+function totalKeys(input: unknown) {
+  if (!Is.object(input)) return 0;
+  const keys: string[] = [];
+  Obj.walk(input, (e) => keys.push(String(e.key)));
+  return keys.length;
 }
 
 /**

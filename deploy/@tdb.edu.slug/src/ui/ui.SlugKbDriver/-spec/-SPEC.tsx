@@ -1,4 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { SampleFileContent } from '../../-dev/ui.Http.SlugLoader/-spec/-ui.sample.FileContent.tsx';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { css, D } from '../common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -10,6 +11,8 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const data = v.contentData;
+    const loading = v.spinning && v.probe.active === 'tree-content';
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
@@ -28,7 +31,16 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          slots={{}}
+          slots={{
+            main: data || loading ? (
+              <SampleFileContent
+                data={data}
+                loading={loading}
+                theme={v.theme}
+                debug={v.debug}
+              />
+            ) : undefined,
+          }}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={() => undefined}
         />
