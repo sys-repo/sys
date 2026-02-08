@@ -31,6 +31,7 @@ type Storage = {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  env: 'localhost',
   descriptorKind: 'slug-tree:fs',
   listTotalVisible: 3,
 };
@@ -77,7 +78,14 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    bootstrapOrigin();
     action.reset();
+  }
+
+  function bootstrapOrigin() {
+    const env = normalizeEnv(p.env.value);
+    if (p.env.value !== env) p.env.value = env;
+    p.origin.value = Dev.SlugOrigin.Default.spec[env];
   }
 
   Signal.effect(() => {
@@ -99,6 +107,7 @@ export async function createDebugSignals() {
     if (p.env.value === 'localhost') p.env.value = 'production';
   });
 
+  bootstrapOrigin();
   return api;
 }
 
@@ -114,6 +123,10 @@ function normalizeVisible(input: unknown): number | 'all' {
   if (input === 'all') return 'all';
   if (!Is.number(input)) return 3;
   return Num.clamp(1, Num.MAX_INT, Num.round(input));
+}
+
+function normalizeEnv(input: unknown): t.HttpOriginEnv {
+  return input === 'production' ? 'production' : 'localhost';
 }
 
 const Styles = {
