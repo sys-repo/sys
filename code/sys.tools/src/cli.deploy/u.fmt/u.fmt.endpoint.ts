@@ -114,11 +114,18 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       type Group = {
         readonly mode: string;
         readonly srcNames: readonly string[];
-        readonly dsts: readonly { readonly path: string; readonly hash: string }[];
+        readonly dsts: readonly {
+          readonly path: string;
+          readonly hash: string;
+          readonly sizeLabel: string;
+        }[];
       };
 
       const groups: Group[] = [];
-      const byMode = new Map<string, { srcNames: string[]; dsts: Array<{ path: string; hash: string }> }>();
+      const byMode = new Map<
+        string,
+        { srcNames: string[]; dsts: Array<{ path: string; hash: string; sizeLabel: string }> }
+      >();
 
       for (const m of mappings) {
         const mode = String(m.mode ?? '');
@@ -127,7 +134,9 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
         const targetAbs = Fs.join(stagingRootAbs, dstRaw || '.');
         const dist = (await Pkg.Dist.load(targetAbs)).dist;
         const hash = hashSuffix(dist?.hash?.digest);
-        const dst = { path: dstRaw, hash };
+        const size = dist?.build?.size?.total;
+        const sizeLabel = Is.num(size) && size > 0 ? c.dim(c.gray(` | ${Str.bytes(size)}`)) : '';
+        const dst = { path: dstRaw, hash, sizeLabel };
 
         const hit = byMode.get(mode);
         if (hit) {
@@ -153,9 +162,9 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
         const maxDstPathLen = g.dsts.reduce((acc, d) => Math.max(acc, d.path.length), 0);
         const dstLines = g.dsts.map((d) => {
           const path = c.white(d.path);
-          if (!d.hash) return path;
+          if (!d.hash) return `${path}${d.sizeLabel}`;
           const pad = ' '.repeat(Math.max(1, maxDstPathLen - d.path.length + 1));
-          return `${path}${pad}${d.hash}`;
+          return `${path}${pad}${d.hash}${d.sizeLabel}`;
         });
         return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };

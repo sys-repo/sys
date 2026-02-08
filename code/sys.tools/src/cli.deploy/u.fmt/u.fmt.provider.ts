@@ -25,10 +25,7 @@ function fmtProviderOrbiter(p: t.DeployTool.Config.Provider.Orbiter): t.Provider
   const siteId = String(p.siteId ?? '');
 
   const shortId = siteId ? Str.ellipsize(siteId, [3, 4], '..') : '-';
-  const shortIdFmt =
-    siteId && shortId.includes('..')
-      ? `${c.gray(shortId.slice(0, -4))}${c.white(shortId.slice(-4))}`
-      : c.gray(shortId);
+  const shortIdFmt = c.dim(c.gray(shortId));
   const value = `${c.cyan('orbiter')} siteId:${shortIdFmt}`.trimEnd();
 
   return { label: 'provider', value };
