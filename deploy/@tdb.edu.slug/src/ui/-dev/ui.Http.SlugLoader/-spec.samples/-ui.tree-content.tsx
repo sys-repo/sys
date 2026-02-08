@@ -7,7 +7,7 @@ type Params = {
 };
 
 export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
-  title: 'Tree + FileContent',
+  title: 'Fetch ← (Tree + FileContent)',
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:fs';
 

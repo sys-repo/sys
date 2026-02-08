@@ -4,7 +4,7 @@ import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
 type Params = t.DescriptorParams;
 
 export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
-  title: 'Descriptor',
+  title: 'Fetch ← Descriptor',
   render(e) {
     const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
     const target = SlugLoader.Descriptor.target(kind);
