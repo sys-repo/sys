@@ -15,7 +15,9 @@ export async function push(args: {
     if (!domain) return { ok: false, reason: 'failed', hint: 'Missing provider.domain' };
     if (!buildDir) return { ok: false, reason: 'failed', hint: 'Missing buildDir' };
 
-    const out = await OrbiterCli.run(buildDir, [
+    const tokenFile = getOrbiterTokenFile();
+    const localConfig = getOrbiterLocalConfigFile(buildDir);
+    const argv = [
       'deploy',
       '--siteId',
       siteId,
@@ -23,7 +25,12 @@ export async function push(args: {
       'echo "no-op"',
       '--buildDir',
       '.',
-    ]);
+    ];
+    const out = await OrbiterCli.run(buildDir, argv, {
+      allowRead: tokenFile ? [tokenFile] : [],
+      allowWrite: [tokenFile, localConfig].filter((value): value is string => Boolean(value)),
+      allowRun: ['/bin/sh'],
+    });
 
     if (!out.success || containsError(out.text.stderr)) {
       const code = String(out.code ?? '');
@@ -44,6 +51,22 @@ export async function push(args: {
 /**
  * Helpers:
  */
+function getOrbiterTokenFile(): string | undefined {
+  try {
+    const home = Deno.env.get('HOME')?.trim();
+    if (!home) return undefined;
+    return `${home}/.orbiter.json`;
+  } catch {
+    return undefined;
+  }
+}
+
+function getOrbiterLocalConfigFile(buildDir: string): string | undefined {
+  const dir = buildDir.trim();
+  if (!dir) return undefined;
+  return `${dir}/orbiter.json`;
+}
+
 function containsError(stderr = ''): boolean {
   const log = Cli.stripAnsi(stderr);
   if (!log) return false;
