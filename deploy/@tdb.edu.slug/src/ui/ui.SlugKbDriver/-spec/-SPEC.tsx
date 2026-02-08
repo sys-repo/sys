@@ -1,5 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { SampleFileContent } from '../../-dev/ui.Http.SlugLoader/-spec/-ui.sample.FileContent.tsx';
+import { FileContentTreePanel } from '../../-dev/ui.Http.SlugLoader/-spec/-ui.sample.FileContent.TreePanel.tsx';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { css, D } from '../common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -13,6 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
     const data = v.contentData;
     const loading = v.spinning && v.probe.active === 'tree-content';
+    const showFileTreePanel = !!data || loading;
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
@@ -32,6 +34,14 @@ export default Spec.describe(D.displayName, async (e) => {
           tree={v.tree}
           selectedPath={v.selectedPath}
           slots={{
+            tree: showFileTreePanel ? (
+              <FileContentTreePanel
+                data={data}
+                loading={loading}
+                theme={v.theme}
+                debug={v.debug}
+              />
+            ) : undefined,
             main: data || loading ? (
               <SampleFileContent
                 data={data}
