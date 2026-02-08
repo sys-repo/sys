@@ -1,8 +1,8 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 
+export { ETBook, useFontBundle } from '../../m.webfonts/mod.ts';
 export * from '../common.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
-export { WebFonts, ETBook } from '../../m.webfonts/mod.ts';
 
 /**
  * Constants:

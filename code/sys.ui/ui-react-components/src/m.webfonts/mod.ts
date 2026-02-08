@@ -4,10 +4,9 @@
  */
 import type { t } from './common.ts';
 import { ETBook } from './u.family.et-book.ts';
-import { useFont } from './u.hook.ts';
+export { useFontBundle } from './u.hook.ts';
 
 export { ETBook };
-export const WebFonts: t.WebFonts.Lib = {
-  useFont,
+export const Fonts: t.Fonts.Lib = {
   ETBook,
 };

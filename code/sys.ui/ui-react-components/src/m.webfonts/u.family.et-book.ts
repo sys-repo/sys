@@ -16,7 +16,7 @@ const config = WebFont.def({
   },
 });
 
-export const ETBook: t.WebFonts.Bundle = {
+export const ETBook: t.Fonts.Bundle = {
   dir,
   config,
 };

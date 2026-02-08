@@ -3,10 +3,9 @@ import type { t } from './common.ts';
 /**
  * Index of commonly reused web-font bundles.
  */
-export namespace WebFonts {
+export namespace Fonts {
   export type Lib = {
     readonly ETBook: Bundle;
-    readonly useFont: Hook;
   };
 
   /**
