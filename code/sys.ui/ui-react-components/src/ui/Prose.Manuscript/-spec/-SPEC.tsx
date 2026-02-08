@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { type t, D } from './common.ts';
-import { Prose } from '../mod.ts';
+import { ProseManuscript } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Prose.Manuscript.UI debug={v.debug} theme={v.theme} />;
+    return <ProseManuscript.UI debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {

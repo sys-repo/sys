@@ -1,6 +1,6 @@
 /**
  * @module
- * A pure, typographic "prose" surface for rendering long-form authored text.
+ * Defines the typographic contract for authored prose, including hierarchy and rhythm.
  */
 import type { t } from './common.ts';
 import { Manuscript as UI } from './ui.tsx';
