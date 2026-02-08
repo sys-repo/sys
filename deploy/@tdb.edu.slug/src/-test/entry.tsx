@@ -38,7 +38,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr(e) {
-        if (e.next?.endsWith('.SlugPlayback')) return true;
+        if (e.prev?.endsWith('.TreeHost')) return true;
         if (e.next?.endsWith('.dev: Http.SlugOrigin')) return true;
       },
     });
