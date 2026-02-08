@@ -7,8 +7,10 @@ type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   env?: 'localhost' | 'production';
-  actOn?: t.ActionProbe.ActOn;
+  actOn?: StorageActOn;
 };
+type StorageActOn = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null | StorageActOnItem[];
+type StorageActOnItem = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
