@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export namespace Prose {
   export type Lib = {
+    readonly Measure: t.ProseMeasure.Lib;
     readonly Manuscript: t.ProseManuscript.Lib;
   };
 

@@ -1,6 +1,6 @@
 import { type t, Color, css, D } from './common.ts';
 
-export const ProseMeasure: t.FC<t.ProseMeasure.Props> = (props) => {
+export const Measure: t.FC<t.ProseMeasure.Props> = (props) => {
   const { debug = false } = props;
 
   /**
