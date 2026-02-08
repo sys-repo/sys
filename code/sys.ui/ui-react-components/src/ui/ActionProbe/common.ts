@@ -15,7 +15,7 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   borderRadius: 6,
-  actOn: 'Enter',
+  actOn: ['Cmd+Enter', 'Cmd+Click'] as const,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

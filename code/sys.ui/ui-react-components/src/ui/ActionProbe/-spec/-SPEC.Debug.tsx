@@ -135,8 +135,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
 const wrangle = {
   actOnLabel(value: Storage['actOn']) {
-    if (value === undefined) return '(default: Enter)';
+    if (value === undefined) return '(default: Cmd+Enter,Cmd+Click)';
     if (value === null) return '(none)';
-    return value;
+    return Array.isArray(value) ? value.join(',') : value;
   },
 } as const;
