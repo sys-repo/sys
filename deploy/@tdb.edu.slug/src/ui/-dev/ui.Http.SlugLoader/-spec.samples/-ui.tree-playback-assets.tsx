@@ -26,7 +26,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   },
 
   async run(e) {
-    e.obj({ expand: { paths: ['$', '$.value'] } });
+    e.obj({ expand: { paths: ['$'] } });
 
     const params = e.params<Params>();
     const kind = params?.kind;
@@ -85,6 +85,13 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
         assets: assets.value,
         playback: playback.value,
       },
+      'value:descriptor': { docids: ids.length },
+      [`value:assets:docid:${last(client.value.docid, 5)}`]: assets.value.assets,
+      [`value:playback:docid:${last(client.value.docid, 5)}`]: playback.value,
     });
   },
 };
+
+function last(input: string, count: number): string {
+  return input.slice(Math.max(0, input.length - count));
+}
