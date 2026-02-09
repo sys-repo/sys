@@ -27,7 +27,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  env: 'production',
+  env: Is.localhost() ? 'localhost' : 'production',
 };
 
 /**
