@@ -1,37 +1,15 @@
 import { type t, ActionProbe, Signal } from './common.ts';
 
-type RefState = {
-  readonly ref: t.Signal<string | undefined>;
-  readonly refs: t.Signal<string[] | undefined>;
-};
-
-type Props = t.ActionProbeSignalProps & {
-  readonly selectionList: {
-    readonly totalVisible: t.Signal<number | 'all' | undefined>;
-  };
-  readonly treeContent: RefState;
-  readonly treePlayback: RefState;
-};
-
-type CreateDefaults = {
-  readonly totalVisible?: number | 'all';
-  readonly treeContent?: { readonly ref?: string; readonly refs?: string[] };
-  readonly treePlayback?: { readonly ref?: string; readonly refs?: string[] };
-  readonly action?: Partial<t.ActionProbeSignalsState>;
-};
-
-export type DataCardSignals = t.ActionProbeSignals & {
-  readonly props: Props;
-};
-
 /**
  * Data-card signal helper.
  * Wraps ActionProbe signals with card-selection state.
  */
-export function createSignals(input: CreateDefaults = {}): DataCardSignals {
+export function createSignals(
+  input: t.DataCardSignalsDefaults = {},
+): t.DataCardSignals {
   const action = ActionProbe.Signals.create(input.action);
   const s = Signal.create;
-  const props: Props = {
+  const props: t.DataCardSignalsProps = {
     ...action.props,
     selectionList: { totalVisible: s(input.totalVisible ?? 5) },
     treeContent: {
@@ -44,7 +22,7 @@ export function createSignals(input: CreateDefaults = {}): DataCardSignals {
     },
   };
 
-  const api: DataCardSignals = {
+  const api: t.DataCardSignals = {
     get props() {
       return props;
     },
