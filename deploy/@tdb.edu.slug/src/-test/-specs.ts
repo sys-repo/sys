@@ -14,9 +14,9 @@ export const Specs = {
   [`${ns}: ui.TreeHost`]: () => import('../ui/ui.TreeHost/-spec/-SPEC.tsx'),
 
   [`${ns}: 🐷 LEGACY: ui.driver.SlugKB`]: () =>
-    import('../ui/ui.SlugKbDriver__Legacy/-spec/-SPEC.tsx'),
+    import('../ui/ui.__Legacy__SlugKbDriver/-spec/-SPEC.tsx'),
   [`${ns}: 🐷 LEGACY: ui.driver.SlugPlayback`]: () =>
-    import('../ui/ui.SlugPlaybackDriver__Legacy/-spec/-SPEC.tsx'),
+    import('../ui/ui.__Legacy__SlugPlaybackDriver/-spec/-SPEC.tsx'),
   [`${ns}.driver: ui.TreeContentDriver`]: () =>
     import('../ui/ui.TreeContentDriver/-spec/-SPEC.tsx'),
 
