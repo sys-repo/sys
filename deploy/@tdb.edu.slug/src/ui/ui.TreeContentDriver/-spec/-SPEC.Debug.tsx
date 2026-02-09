@@ -1,8 +1,8 @@
 import React from 'react';
-import { DataCards } from './-ui.DataCards.tsx';
+import { DataCards as HttpDataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { DataCards as DebugCards } from './-ui.DataCards.tsx';
 import {
   type t,
-  ActionProbe,
   Button,
   Color,
   css,
@@ -40,7 +40,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const card = ActionProbe.Signals.create();
+  const card = HttpDataCards.createSignals({ totalVisible: 5 });
 
   const props = {
     debug: s(snap.debug),
@@ -67,6 +67,7 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.env.value = defaults.env;
     p.cardKind.value = defaults.cardKind;
+    card.reset();
     syncOrigin();
   }
 
@@ -126,7 +127,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ MarginY: [15, 30] }}
       />
 
-      <DataCards debug={debug} />
+      <DebugCards debug={debug} />
 
       <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
       <Button

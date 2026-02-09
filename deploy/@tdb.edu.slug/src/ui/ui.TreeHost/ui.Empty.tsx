@@ -24,6 +24,7 @@ export const Empty: React.FC<EmptyProps> = (props) => {
       fontSize: 13,
       display: 'grid',
       placeItems: 'center',
+      userSelect: 'none',
     }),
     body: css({ padding: 30 }),
   };

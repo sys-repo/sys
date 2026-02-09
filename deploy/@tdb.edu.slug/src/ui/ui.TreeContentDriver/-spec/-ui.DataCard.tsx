@@ -40,10 +40,18 @@ export const DataCard: React.FC<DataCardProps> = (props) => {
         is: { local },
         origin: v.origin,
         probe: {
-          selectionList: { totalVisible: 5 },
+          selectionList: { totalVisible: c.selectionList.totalVisible },
           treeContent: {
-            onRefChange: () => {},
-            onRefsChange: () => {},
+            ref: c.treeContent.ref,
+            refs: c.treeContent.refs,
+            onRefChange: (next) => (card.props.treeContent.ref.value = next),
+            onRefsChange: (next) => (card.props.treeContent.refs.value = next),
+          },
+          treePlayback: {
+            ref: c.treePlayback.ref,
+            refs: c.treePlayback.refs,
+            onRefChange: (next) => (card.props.treePlayback.ref.value = next),
+            onRefsChange: (next) => (card.props.treePlayback.refs.value = next),
           },
         },
       }}
