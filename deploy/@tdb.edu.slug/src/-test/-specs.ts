@@ -16,7 +16,7 @@ export const Specs = {
   [`${ns}: 🐷 LEGACY: ui.driver.SlugKB`]: () =>
     import('../ui/ui.SlugKbDriver__Legacy/-spec/-SPEC.tsx'),
   [`${ns}: 🐷 LEGACY: ui.driver.SlugPlayback`]: () =>
-    import('../ui/ui.SlugPlaybackDriver/-spec/-SPEC.tsx'),
+    import('../ui/ui.SlugPlaybackDriver__Legacy/-spec/-SPEC.tsx'),
   [`${ns}.driver: ui.TreeContentDriver`]: () =>
     import('../ui/ui.TreeContentDriver/-spec/-SPEC.tsx'),
 
