@@ -13,6 +13,14 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
   const path = (props.path ?? []) as t.ObjectPath;
   const pathKey = Obj.Path.encode(path);
   const view = React.useMemo(() => Data.viewAt(rootList, path), [rootList, pathKey]);
+  const selectedNode = React.useMemo(
+    () => Data.find(rootList, ({ node }) => node.key === pathKey),
+    [rootList, pathKey],
+  );
+  const selectedLeaf = selectedNode && !Data.hasChildren(selectedNode) ? selectedNode : undefined;
+  const leaf = selectedLeaf
+    ? props.renderLeaf?.({ root: rootList, path, node: selectedLeaf })
+    : undefined;
 
   // Determine slide direction from path depth delta.
   const prevPathRef = React.useRef<t.ObjectPath>(path);
@@ -48,7 +56,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         duration={props.slideDuration}
         offset={props.slideOffset}
       >
-        {renderItems(props, view)}
+        {leaf ?? renderItems(props, view)}
       </SlideDeck>
       {spinning && <Spinning theme={theme.name} style={styles.spinning} />}
     </div>

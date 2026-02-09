@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
-import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str } from './common.ts';
 import { IndexTreeView } from '../mod.ts';
-import { SAMPLE_YAML } from './-yaml.ts';
+import { SAMPLE_YAML } from './-u.yaml.ts';
 
 type P = t.IndexTreeViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron' | 'indentSize' | 'spinning'> & {
   yaml?: string;
+  renderLeaf?: boolean;
 };
 const defaults: Storage = {
   theme: 'Dark',
@@ -15,6 +16,7 @@ const defaults: Storage = {
   showChevron: D.showChevron,
   indentSize: D.indentSize,
   spinning: false,
+  renderLeaf: false,
   yaml: SAMPLE_YAML,
   path: undefined,
 };
@@ -42,6 +44,7 @@ export function createDebugSignals() {
     showChevron: s(snap.showChevron),
     indentSize: s(snap.indentSize),
     spinning: s(snap.spinning),
+    renderLeaf: s(snap.renderLeaf ?? defaults.renderLeaf),
   };
   const p = props;
   const api = {
@@ -64,6 +67,7 @@ export function createDebugSignals() {
       d.showChevron = p.showChevron.value;
       d.indentSize = p.indentSize.value;
       d.spinning = p.spinning.value;
+      d.renderLeaf = p.renderLeaf.value;
     });
   });
 
@@ -119,6 +123,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        enabled={() => !p.renderLeaf.value}
         label={() => `showChevron: ${p.showChevron.value}`}
         onClick={() => {
           type T = t.IndexTreeViewChevronMode;
@@ -149,6 +154,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `renderLeaf (element): ${p.renderLeaf.value}`}
+        onClick={() => Signal.toggle(p.renderLeaf)}
       />
       <Button
         block

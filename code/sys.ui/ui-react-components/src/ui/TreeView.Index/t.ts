@@ -21,6 +21,7 @@ export type IndexTreeViewLib = {
 export type IndexTreeViewProps = {
   root?: t.TreeViewNode | t.TreeViewNodeList;
   path?: t.ObjectPath;
+  renderLeaf?: IndexTreeViewLeafRenderer;
 
   /** Slide/fade animation duration in milliseconds. */
   slideDuration?: t.Msecs;
@@ -43,6 +44,13 @@ export type IndexTreeViewProps = {
   onPressDown?: t.IndexTreeViewPointerHandler;
   onPressUp?: t.IndexTreeViewPointerHandler;
   onNodeSelect?: t.IndexTreeViewNodeSelectHandler;
+};
+
+export type IndexTreeViewLeafRenderer = (e: IndexTreeViewLeafRendererArgs) => t.ReactNode;
+export type IndexTreeViewLeafRendererArgs = {
+  readonly root: t.TreeViewNodeList;
+  readonly path: t.ObjectPath;
+  readonly node: t.TreeViewNode;
 };
 
 export type IndexTreeViewPointerHandler = (e: IndexTreeViewPointer) => void;

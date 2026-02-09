@@ -1,8 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Button } from '../../Button/mod.ts';
-import { D, Icons } from '../common.ts';
 import { IndexTreeView } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { LeafPanel } from './-ui.LeafPanel.tsx';
+import { D, Icons } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -29,16 +30,21 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             style={{ width }}
-            showChevron={v.showChevron}
+            showChevron={v.renderLeaf ? 'always' : v.showChevron}
             indentSize={v.indentSize}
             spinning={v.spinning}
             //
             root={debug.root}
             path={v.path}
+            renderLeaf={v.renderLeaf ? (e) => <LeafPanel theme={v.theme} args={e} /> : undefined}
             //
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
             onPressDown={(e) => {
               console.info(`⚡️ onPressDown:`, e);
+              if (v.renderLeaf) {
+                p.path.value = e.node.path;
+                return;
+              }
               if (e.hasChildren) p.path.value = e.node.path;
             }}
             onPressUp={(e) => {
