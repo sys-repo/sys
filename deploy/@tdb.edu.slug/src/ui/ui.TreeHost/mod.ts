@@ -25,7 +25,6 @@
  * and recursion are defined.
  */
 import { type t } from './common.ts';
-import { Controller } from './m.Controller.ts';
 import { Data } from './m.Data.ts';
 import { TreeHost as UI } from './ui.tsx';
 
@@ -33,5 +32,4 @@ import { TreeHost as UI } from './ui.tsx';
 export const TreeHost: t.TreeHostLib = {
   UI,
   Data,
-  Controller,
 };
