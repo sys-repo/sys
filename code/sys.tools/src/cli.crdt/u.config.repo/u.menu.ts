@@ -97,7 +97,7 @@ function buildSyncMenuOptions(
     return { name: label, value: entry.endpoint } as const;
   });
 
-  const options = [{ name: addLabel, value: 'add' }, ...syncRows];
+  const options: Array<{ name: string; value: string }> = [];
   const hasEndpoints = endpoints.length > 0;
 
   if (hasEndpoints && Is.func(actions.onStartDaemon)) {
@@ -114,6 +114,7 @@ function buildSyncMenuOptions(
     });
   }
 
+  options.push({ name: addLabel, value: 'add' }, ...syncRows);
   options.push({ name: c.gray(c.dim('← back')), value: 'back' });
   return options;
 }

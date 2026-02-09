@@ -227,22 +227,28 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
         pushBytes = bytesTotal || undefined;
         const stats = plan.stats;
+        const skippedTotal = (skipped ?? 0) + (stats.skippedShards ?? 0);
+        const isCleanPush = stats.total > 0 && skippedTotal === 0;
         const table = Cli.table();
-        table.push([c.gray('  targets'), stats.total, c.italic(c.gray('total push targets'))]);
+        const totalTargets =
+          stats.total > 0 ? (isCleanPush ? c.green(String(stats.total)) : c.yellow(String(stats.total))) : stats.total;
+        table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
         table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
         table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
         if (stats.base) {
           table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
         }
-        if (skipped) table.push([c.yellow('  skipped'), skipped, c.italic(c.gray('up-to-date'))]);
+        if (skipped) table.push([c.yellow('  skipped'), c.yellow(String(skipped)), c.italic(c.gray('up-to-date'))]);
         if (stats.skippedShards) {
           table.push([
             c.yellow('  skipped'),
-            stats.skippedShards,
+            c.yellow(String(stats.skippedShards)),
             c.italic(c.gray('missing shard output')),
           ]);
         }
-        console.info(c.green('\nPushed'));
+        const reportHash = c.gray(c.dim(`#${hashSuffix ?? '00000'}`));
+        const reportTitle = c.white(`\nPush Report ${reportHash}`);
+        console.info(reportTitle);
         console.info(Str.trimEdgeNewlines(String(table)));
         console.info();
       }
