@@ -231,14 +231,23 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         const isCleanPush = stats.total > 0 && skippedTotal === 0;
         const table = Cli.table();
         const totalTargets =
-          stats.total > 0 ? (isCleanPush ? c.green(String(stats.total)) : c.yellow(String(stats.total))) : stats.total;
+          stats.total > 0
+            ? isCleanPush
+              ? c.green(String(stats.total))
+              : c.yellow(String(stats.total))
+            : stats.total;
         table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
         table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
         table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
         if (stats.base) {
           table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
         }
-        if (skipped) table.push([c.yellow('  skipped'), c.yellow(String(skipped)), c.italic(c.gray('up-to-date'))]);
+        if (skipped)
+          table.push([
+            c.yellow('  skipped'),
+            c.yellow(String(skipped)),
+            c.italic(c.gray('up-to-date')),
+          ]);
         if (stats.skippedShards) {
           table.push([
             c.yellow('  skipped'),
@@ -246,8 +255,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
             c.italic(c.gray('missing shard output')),
           ]);
         }
-        const reportHash = c.gray(c.dim(`#${hashSuffix ?? '00000'}`));
-        const reportTitle = c.white(`\nPush Report ${reportHash}`);
+        const reportHash = `#${hashSuffix ?? '00000'}`;
+        const reportSuffix = c.gray(c.dim(`for ${reportHash}`));
+        const reportTitle = c.white(`\nPush Report ${reportSuffix}`);
         console.info(reportTitle);
         console.info(Str.trimEdgeNewlines(String(table)));
         console.info();
@@ -291,7 +301,10 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       if (!freshYaml) return false;
 
       const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
-      const freshStagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel });
+      const freshStagingRootAbs = resolvePushStagingDir({
+        cwd,
+        stagingRootRel: freshStagingRootRel,
+      });
       const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
       if (!freshDist?.hash?.digest) {
         const b = Str.builder()
