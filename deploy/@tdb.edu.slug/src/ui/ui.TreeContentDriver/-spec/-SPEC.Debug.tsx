@@ -59,6 +59,7 @@ export async function createDebugSignals() {
 
   function listen() {
     Signal.listen(props, true);
+    Signal.listen(card.props, true);
   }
 
   function reset() {
