@@ -4,3 +4,8 @@
  * Owns tree selection + external load synchronization state.
  */
 import type { t } from './common.ts';
+import { Controller as Factory } from './m.Controller.ts';
+
+export const Controller: t.TreeEffectController.Lib = {
+  ...Factory,
+};

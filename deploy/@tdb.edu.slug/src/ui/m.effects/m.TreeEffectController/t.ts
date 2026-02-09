@@ -10,7 +10,10 @@ export type TreeEffectController = t.EffectController<
   TreeEffectController.State,
   TreeEffectController.Patch,
   TreeEffectController.Props
->;
+> & {
+  input(next: TreeEffectController.Input): void;
+  view(): TreeEffectController.View;
+};
 
 export namespace TreeEffectController {
   /** Factory surface. */
