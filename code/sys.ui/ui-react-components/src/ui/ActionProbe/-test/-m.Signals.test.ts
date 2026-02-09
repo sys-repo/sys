@@ -105,6 +105,7 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.result.items.value).to.eql([
       { kind: 'title', v: 'My Probe' },
+      { kind: 'hr' },
       { k: 'foo', v: 123 },
     ]);
   });
