@@ -17,10 +17,12 @@ export const Specs = {
     import('../ui/ui.__Legacy__SlugKbDriver/-spec/-SPEC.tsx'),
   [`${ns}: 🐷 _OLD_: ui.driver.SlugPlayback`]: () =>
     import('../ui/ui.__Legacy__SlugPlaybackDriver/-spec/-SPEC.tsx'),
-  [`${ns}.driver: ui.TreeContentDriver`]: () =>
-    import('../ui/ui.TreeContentDriver/-spec/-SPEC.tsx'),
+
+  [`${ns}: ui.TreeContentDriver`]: () => import('../ui/ui.TreeContentDriver/-spec/-SPEC.tsx'),
+  [`${ns}: ui.Tmpl.TreeDriver ← (template)`]: () =>
+    import('../ui/ui.Tmpl.TreeDriver/-spec/-SPEC.tsx'),
 
   [`${ns}.dev: Http.SlugOrigin`]: () => import('../ui/-dev/ui.Http.SlugOrigin/-spec/-SPEC.tsx'),
   [`${ns}.dev: Http.SlugLoader ← (data cards)`]: () =>
-    import('../ui/-dev/ui.Http.SlugLoader/-spec/-SPEC.tsx'),
+    import('../ui/-dev/ui.Http.DataCards/-spec/-SPEC.tsx'),
 } as t.SpecImports;

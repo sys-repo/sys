@@ -10,6 +10,7 @@ export type * from './ui/m.effects/t.ts';
 export type * from './ui/-dev/t.ts';
 export type * from './ui/ui.SlugSheet/t.ts';
 export type * from './ui/ui.SlugSheetStack/t.ts';
+export type * from './ui/ui.Tmpl.TreeDriver/t.ts';
 export type * from './ui/ui.TreeContentDriver/t.ts';
 export type * from './ui/ui.TreeHost/t.ts';
 
