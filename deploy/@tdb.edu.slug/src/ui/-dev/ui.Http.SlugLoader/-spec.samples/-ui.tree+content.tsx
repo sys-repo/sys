@@ -1,5 +1,5 @@
 import { type t, Obj, Is, SlugLoader, Str } from './common.ts';
-import { renderTreeContentCard } from './-ui.tree-content.card.tsx';
+import { renderTreeContentCard } from './-ui.tree+content.card.tsx';
 import { refsFromTree, selectOrFirst } from './-u.selection.ts';
 
 type Params = {

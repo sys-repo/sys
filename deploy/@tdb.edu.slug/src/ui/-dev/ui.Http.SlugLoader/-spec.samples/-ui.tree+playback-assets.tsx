@@ -1,5 +1,5 @@
 import { type t, SlugLoader } from './common.ts';
-import { renderTreePlaybackAssetsCard } from './-ui.tree-playback-assets.card.tsx';
+import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
 import { selectOrFirst } from './-u.selection.ts';
 
 type Params = {
