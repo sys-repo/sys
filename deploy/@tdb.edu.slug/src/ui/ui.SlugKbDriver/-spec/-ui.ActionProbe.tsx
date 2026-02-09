@@ -41,8 +41,6 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
             onRefChange(next) {
               if (!hasTree) return;
               p.treeContentRef.value = next;
-              const path = TreeHost.Data.findPathByRef(p.tree.value, next);
-              if (path) p.selectedPath.value = path;
             },
             onRefsChange: (next) => (p.treeContentRefs.value = next),
           },

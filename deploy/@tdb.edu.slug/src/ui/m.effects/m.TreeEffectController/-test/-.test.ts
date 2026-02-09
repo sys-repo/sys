@@ -1,10 +1,10 @@
 import { describe, expect, it } from '../../../../-test.ts';
-import { Controller } from '../mod.ts';
+import { TreeEffectController } from '../mod.ts';
 import { type t } from '../common.ts';
 
 describe('TreeEffectController', () => {
   it('creates controller with input/view methods', () => {
-    const ctrl = Controller.create();
+    const ctrl = TreeEffectController.create();
     expect(ctrl.id).to.include('tree-effect-');
     expect(typeof ctrl.input).to.eql('function');
     expect(typeof ctrl.view).to.eql('function');
@@ -12,7 +12,7 @@ describe('TreeEffectController', () => {
   });
 
   it('tree.set + path.request resolves selected ref', () => {
-    const ctrl = Controller.create();
+    const ctrl = TreeEffectController.create();
     const tree = sampleTree();
     ctrl.input({ type: 'tree.set', tree });
     ctrl.input({ type: 'path.request', path: ['a', 'b'] });
@@ -25,7 +25,7 @@ describe('TreeEffectController', () => {
   });
 
   it('ref.request resolves selected path', () => {
-    const ctrl = Controller.create();
+    const ctrl = TreeEffectController.create();
     const tree = sampleTree();
     ctrl.input({ type: 'tree.set', tree });
     ctrl.input({ type: 'ref.request', ref: 'ref-a' });
@@ -38,7 +38,7 @@ describe('TreeEffectController', () => {
   });
 
   it('tree.clear and reset enforce empty invariant', () => {
-    const ctrl = Controller.create();
+    const ctrl = TreeEffectController.create();
     ctrl.input({ type: 'tree.set', tree: sampleTree() });
     ctrl.input({ type: 'ref.request', ref: 'ref-a' });
     ctrl.input({ type: 'content.set', data: { foo: 1 } });

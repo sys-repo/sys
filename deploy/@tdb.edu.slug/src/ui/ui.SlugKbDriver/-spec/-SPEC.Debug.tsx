@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
+import { TreeEffectController } from '../../m.effects/m.TreeEffectController/mod.ts';
 import { SlugActionProbe } from './-ui.ActionProbe.tsx';
 import { type t } from './common.ts';
 import {
@@ -15,7 +16,6 @@ import {
   ObjectView,
   Signal,
   SlugKbDriver,
-  TreeHost,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
@@ -43,6 +43,7 @@ export async function createDebugSignals() {
 
   const defaultBaseUrl: t.StringUrl = 'https://slc.db.team/';
   const controller = s(SlugKbDriver.Controller.create({ baseUrl: defaultBaseUrl }));
+  const treeEffect = s(TreeEffectController.create());
   const action = ActionProbe.Signals.create();
 
   const props = {
@@ -60,6 +61,7 @@ export async function createDebugSignals() {
   const api = {
     props,
     controller,
+    treeEffect,
     action,
     listen,
     reset,
@@ -68,6 +70,7 @@ export async function createDebugSignals() {
   function listen() {
     Signal.listen(props, true);
     Signal.listen({ controller }, true);
+    Signal.listen({ treeEffect }, true);
   }
 
   function reset() {
@@ -75,6 +78,7 @@ export async function createDebugSignals() {
     const env = p.env.value ?? 'production';
     p.env.value = env;
     p.origin.value = Dev.SlugOrigin.Default.spec[env];
+    treeEffect.value.input({ type: 'reset' });
     action.reset();
   }
 
@@ -101,16 +105,6 @@ export async function createDebugSignals() {
     prev.dispose();
   });
 
-  /**
-   * Baseline invariant: no tree => no selected path.
-   * Prevents stale persisted path from enabling Back before tree is loaded.
-   */
-  Signal.effect(() => {
-    if (p.tree.value) return;
-    if (!p.selectedPath.value) return;
-    p.selectedPath.value = undefined;
-  });
-
   Signal.effect(() => {
     if (p.tree.value) return;
     if (!p.treeContentRef.value && !p.treeContentRefs.value) return;
@@ -118,32 +112,35 @@ export async function createDebugSignals() {
     p.treeContentRefs.value = undefined;
   });
 
-  /**
-   * Bridge (dev harness): Signals → EffectController
-   * Feeds reactive harness inputs into the controller under test.
-   */
   Signal.effect(() => {
     const tree = p.tree.value;
-    const selectedPath = p.selectedPath.value;
-    controller.value.next({ tree, selectedPath });
+    if (tree) treeEffect.value.input({ type: 'tree.set', tree });
+    else treeEffect.value.input({ type: 'tree.clear' });
   });
 
   Signal.effect(() => {
-    const node = TreeHost.Data.findViewNode(p.tree.value, p.selectedPath.value);
-    const ref =
-      node?.value && 'ref' in node.value && Is.str(node.value.ref) ? node.value.ref : undefined;
-    if (!ref) return;
-    if (p.treeContentRef.value === ref) return;
-    p.treeContentRef.value = ref;
+    treeEffect.value.input({ type: 'path.request', path: p.selectedPath.value });
   });
 
   Signal.effect(() => {
-    if (!p.tree.value || !p.treeContentRef.value) return;
-    const current = TreeHost.Data.findViewNode(p.tree.value, p.selectedPath.value);
-    if (current) return;
-    const next = TreeHost.Data.findPathByRef(p.tree.value, p.treeContentRef.value);
-    if (!next) return;
-    p.selectedPath.value = next;
+    treeEffect.value.input({ type: 'ref.request', ref: p.treeContentRef.value });
+  });
+
+  Signal.effect(() => {
+    const rev = treeEffect.value.rev;
+    const state = treeEffect.value.current();
+    const nextPath = state.selectedPath;
+    const nextRef = state.selectedRef;
+    if (!Obj.Path.eql(nextPath, p.selectedPath.value)) p.selectedPath.value = nextPath;
+    if (nextRef !== p.treeContentRef.value) p.treeContentRef.value = nextRef;
+  });
+
+  Signal.effect(() => {
+    const state = treeEffect.value.current();
+    controller.value.next({
+      tree: state.tree,
+      selectedPath: state.selectedPath,
+    });
   });
 
   return api;

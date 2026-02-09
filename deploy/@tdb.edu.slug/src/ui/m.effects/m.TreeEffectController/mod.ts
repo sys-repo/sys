@@ -6,6 +6,6 @@
 import type { t } from './common.ts';
 import { Controller as Factory } from './m.Controller.ts';
 
-export const Controller: t.TreeEffectController.Lib = {
+export const TreeEffectController: t.TreeEffectController.Lib = {
   ...Factory,
 };

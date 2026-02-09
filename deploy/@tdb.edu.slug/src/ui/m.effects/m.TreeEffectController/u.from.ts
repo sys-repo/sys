@@ -1,6 +1,6 @@
-import { type t, EffectController, Immutable, Is, Obj, slug } from './common.ts';
 import { TreeData } from '../../m.data/mod.ts';
-import { normalizeState, toView } from './u.ts';
+import { type t, Is, Obj } from './common.ts';
+import { normalizeState } from './u.ts';
 
 export function fromTreeSet(
   current: t.TreeEffectController.State,
