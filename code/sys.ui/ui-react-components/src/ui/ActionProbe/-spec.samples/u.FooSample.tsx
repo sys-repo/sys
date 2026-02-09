@@ -21,7 +21,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     e.item({ k: 'label-1', v: label });
     e.item({ k: 'label-2', v: '🐷' });
     e.hr();
-    e.item({ k: 'delay(ms)', v: delay });
+    e.item({ k: 'delay', v: `${delay.toLocaleString()} ms` });
     e.element(`Hello ${Str.Lorem.words(8).toLowerCase()}`);
     e.item({ k: 'the last', v: 'word 👋' });
   },
