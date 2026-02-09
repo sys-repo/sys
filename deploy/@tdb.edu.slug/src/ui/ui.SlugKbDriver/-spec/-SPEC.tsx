@@ -2,7 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { css, D, FileContentTreePanel, SampleFileContent } from './common.ts';
-import { TreeHost, SlugKbDriver } from './mod.ts';
+import { SlugKbDriver, TreeHost } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -15,19 +15,11 @@ export default Spec.describe(D.displayName, async (e) => {
     const showContent = isLeaf && (v.contentLoading || !!v.contentData);
     const slots = showContent
       ? {
-          aux: (
-            <FileContentTreePanel
-              theme={v.theme}
-              loading={v.contentLoading}
-              data={v.contentData}
-            />
+          treeLeaf: () => (
+            <FileContentTreePanel theme={v.theme} loading={v.contentLoading} data={v.contentData} />
           ),
           main: (
-            <SampleFileContent
-              theme={v.theme}
-              loading={v.contentLoading}
-              data={v.contentData}
-            />
+            <SampleFileContent theme={v.theme} loading={v.contentLoading} data={v.contentData} />
           ),
         }
       : undefined;
