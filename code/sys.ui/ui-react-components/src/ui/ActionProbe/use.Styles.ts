@@ -31,7 +31,7 @@ export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
     fontFamily: 'monospace',
     fontWeight: 600,
     fontSize: '0.85em',
-    lineHeight: 1,
+    lineHeight: 1.9,
     Padding: [2, 4],
     borderRadius: 4,
     border: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
