@@ -17,6 +17,7 @@ export async function main() {
     'code/sys.tools',
     'code/-tmpl',
     'deploy/@tdb.edu.slug',
+    'deploy/@tdb.slc.std',
   ];
   const paths = Paths.modules.filter((path) => incl.some((item) => path.startsWith(item)));
   let yaml = tmpl.header;
