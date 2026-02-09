@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * TreeEffectController - orchestration surface above TreeHost.
  * Owns tree selection + external load synchronization state.
@@ -64,10 +66,7 @@ export namespace TreeEffectController {
    */
   export type View = {
     readonly treeHost: Pick<t.TreeHostProps, 'tree' | 'selectedPath'>;
-    readonly selection: {
-      readonly path?: t.ObjectPath;
-      readonly ref?: string;
-    };
+    readonly selection: { readonly path?: t.ObjectPath; readonly ref?: string };
     readonly loading: Loading;
     readonly content?: Content;
   };
@@ -81,5 +80,5 @@ export namespace TreeEffectController {
    * Controller payload that can drive the `main` slot.
    * Kept intentionally generic; concrete adapters can narrow this.
    */
-  export type Content = Readonly<Record<string, unknown>>;
+  export type Content = Readonly<O>;
 }
