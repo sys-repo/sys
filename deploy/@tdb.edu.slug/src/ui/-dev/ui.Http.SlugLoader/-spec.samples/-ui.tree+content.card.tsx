@@ -1,4 +1,3 @@
-import { refsFromTree } from './-u.selection.ts';
 import { renderTreeRefSelector } from './-ui.tree+ref-selector.tsx';
 import { type t, Color, css } from './common.ts';
 
@@ -13,6 +12,7 @@ export function renderTreeContentCard<TParams extends Record<string, unknown>>(
   e: t.ActionProbe.ProbeRenderArgs<t.TEnv, TParams>,
   props: Props,
 ) {
+  const refs = props.refs ?? [];
   const styles = {
     base: css({
       position: 'relative',
@@ -29,7 +29,7 @@ export function renderTreeContentCard<TParams extends Record<string, unknown>>(
         Loads tree, resolves one <code>ref</code>, then loads indexed file-content by hash.
         Flattened <code>docid</code>'s from the <code>slug-tree</code>.
       </div>
-      {(props.refs ?? []).length > 0 && (
+      {refs.length > 0 && (
         <div>
           Tree <code>refs</code>:
         </div>
