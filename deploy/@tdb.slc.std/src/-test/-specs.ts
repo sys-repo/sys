@@ -9,5 +9,6 @@ export const ns = 'sys.🐷';
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
+  'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
 } as t.SpecImports;
