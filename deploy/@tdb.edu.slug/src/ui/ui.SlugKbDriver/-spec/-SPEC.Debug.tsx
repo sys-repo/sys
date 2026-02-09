@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
-import { TreeEffectController } from '../../m.effects/m.TreeEffectController/mod.ts';
+import { TreeEffectController } from '../../m.effects/mod.ts';
 import { SlugActionProbe } from './-ui.ActionProbe.tsx';
 import { type t } from './common.ts';
 import {

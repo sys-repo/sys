@@ -2,7 +2,7 @@ import { type t, EffectController, Immutable, slug } from './common.ts';
 import { reduceInput } from './u.reduce.ts';
 import { normalizeState, toView } from './u.ts';
 
-export const Controller: t.TreeEffectController.Lib = {
+export const TreeEffectController: t.TreeEffectController.Lib = {
   create(props = {}) {
     const id = `tree-effect-${slug()}`;
     const ref = Immutable.clonerRef<t.TreeEffectController.State>(

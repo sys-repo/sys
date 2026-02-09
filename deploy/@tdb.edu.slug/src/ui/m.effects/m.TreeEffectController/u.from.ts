@@ -52,7 +52,7 @@ export function fromRefRequest(
   ref?: string,
 ): t.TreeEffectController.Patch {
   const tree = current.tree;
-  if (!tree || !Is.str(ref) || ref.length === 0) {
+  if (!tree) {
     return normalizeState({
       selectedPath: undefined,
       selectedRef: undefined,
@@ -61,7 +61,25 @@ export function fromRefRequest(
     });
   }
 
+  if (!Is.str(ref) || ref.length === 0) {
+    return normalizeState({
+      selectedPath: current.selectedPath,
+      selectedRef: refFromPath(tree, current.selectedPath),
+      content: undefined,
+      loading: { ...current.loading, content: false },
+    });
+  }
+
   const selectedPath = TreeData.findPathByRef(tree, ref);
+  if (!selectedPath) {
+    return normalizeState({
+      selectedPath: current.selectedPath,
+      selectedRef: refFromPath(tree, current.selectedPath),
+      content: current.content,
+      loading: { ...current.loading, content: false },
+    });
+  }
+
   const selectedRef = refFromPath(tree, selectedPath);
   const changed =
     !Obj.Path.eql(selectedPath, current.selectedPath) || selectedRef !== current.selectedRef;

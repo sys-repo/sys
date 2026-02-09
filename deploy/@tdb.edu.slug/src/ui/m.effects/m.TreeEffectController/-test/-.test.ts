@@ -37,6 +37,19 @@ describe('TreeEffectController', () => {
     ctrl.dispose();
   });
 
+  it('does not clear selectedPath when ref is cleared', () => {
+    const ctrl = TreeEffectController.create();
+    const tree = sampleTree();
+    ctrl.input({ type: 'tree.set', tree });
+    ctrl.input({ type: 'path.request', path: ['a', 'b'] });
+    ctrl.input({ type: 'ref.request', ref: undefined });
+
+    const state = ctrl.current();
+    expect(state.selectedPath).to.eql(['a', 'b']);
+    expect(state.selectedRef).to.eql('ref-b');
+    ctrl.dispose();
+  });
+
   it('tree.clear and reset enforce empty invariant', () => {
     const ctrl = TreeEffectController.create();
     ctrl.input({ type: 'tree.set', tree: sampleTree() });
