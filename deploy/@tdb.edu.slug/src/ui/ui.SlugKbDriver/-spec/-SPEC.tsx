@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { css, D, FileContentTreePanel, SampleFileContent } from './common.ts';
+import { type t, css, D, FileContentTreePanel, SampleFileContent, LogoCanvas } from './common.ts';
 import { SlugKbDriver, TreeHost } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -10,19 +10,24 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+
     const node = TreeHost.Data.findViewNode(v.tree, v.selectedPath);
     const isLeaf = !!node && (node.children?.length ?? 0) === 0;
     const showContent = isLeaf && (v.contentLoading || !!v.contentData);
-    const slots = showContent
-      ? {
-          treeLeaf: () => (
-            <FileContentTreePanel theme={v.theme} loading={v.contentLoading} data={v.contentData} />
-          ),
-          main: (
-            <SampleFileContent theme={v.theme} loading={v.contentLoading} data={v.contentData} />
-          ),
-        }
-      : undefined;
+    const slots: t.TreeHostSlots = {
+      main: <SampleFileContent theme={v.theme} loading={v.contentLoading} data={v.contentData} />,
+      treeLeaf() {
+        return (
+          <FileContentTreePanel
+            //
+            theme={v.theme}
+            loading={v.contentLoading}
+            data={v.contentData}
+          />
+        );
+      },
+      aux: <LogoCanvas theme={v.theme} style={{ margin: 20 }} />,
+    };
 
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
@@ -42,7 +47,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          slots={slots}
+          slots={showContent ? slots : undefined}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={() => undefined}
         />
