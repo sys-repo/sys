@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sample } from '../../-dev/ui.Http.SlugLoader/-spec.samples/mod.ts';
+import { Sample } from '../../-dev/ui.Http.DataCards/-spec.samples/mod.ts';
 import { type t, css } from './common.ts';
 import { ActionProbe, Is, Signal, TreeHost } from './mod.ts';
 

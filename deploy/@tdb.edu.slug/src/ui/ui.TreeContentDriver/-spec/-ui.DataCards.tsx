@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardKindsList } from '../../-dev/ui.Http.SlugLoader/mod.ts';
+import { CardKindsList } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { DataCard } from './-ui.DataCard.tsx';
 import { type t, Color, css, Signal } from './common.ts';
 

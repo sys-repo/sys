@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataCards } from '../../-dev/ui.Http.SlugLoader/mod.ts';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { type t, ActionProbe, Color, css, Signal } from './common.ts';
 
 /**
