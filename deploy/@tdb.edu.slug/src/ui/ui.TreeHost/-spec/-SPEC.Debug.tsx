@@ -1,7 +1,10 @@
 import React from 'react';
-import { Foo } from '../../-test.ui.ts';
+import { SAMPLES, Foo } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
+import { SlugTree } from '../../../m.slug.compiler/m.slug.SlugTree/mod.ts';
+
+LoadSample.SAMPLES;
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
@@ -111,7 +114,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
-  const selectedPath = v.selectedPath ?? [];
 
   Signal.useRedrawEffect(debug.listen);
 
@@ -155,15 +157,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <LoadSample.UI
-        theme={theme.name}
-        signal={p.load}
-        style={{ MarginY: 15 }}
-        url={{
-          base: LoadSample.SAMPLES.baseUrl,
-          docid: LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid,
+      <Button
+        block
+        label={() => `tree: ${totalRefKeys(p.tree.value)} nodes`}
+        onClick={() => {
+          const data = SAMPLES.SlugTree['slug-tree.gHcQi:'].embedded;
+          p.tree.value = TreeHost.Data.fromSlugTree(data);
         }}
       />
+      <Button block label={() => `tree: (clear)`} onClick={() => (p.tree.value = undefined)} />
+
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
@@ -192,3 +195,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+function totalRefKeys(obj?: object) {
+  if (!obj) return 0;
+  const keys: (string | number)[] = [];
+  Obj.walk(obj, (e) => {
+    if (e.key === 'ref') keys.push(e.key);
+  });
+  return keys.length;
+}
