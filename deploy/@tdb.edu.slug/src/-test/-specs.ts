@@ -13,7 +13,8 @@ export const Specs = {
   [`${ns}: ui.SlugSheetStack`]: () => import('../ui/ui.SlugSheetStack/-spec/-SPEC.tsx'),
   [`${ns}: ui.TreeHost`]: () => import('../ui/ui.TreeHost/-spec/-SPEC.tsx'),
 
-  [`${ns}: 🐷 LEGACY: ui.driver.SlugKB`]: () => import('../ui/ui.SlugKbDriver/-spec/-SPEC.tsx'),
+  [`${ns}: 🐷 LEGACY: ui.driver.SlugKB`]: () =>
+    import('../ui/ui.SlugKbDriver__Legacy/-spec/-SPEC.tsx'),
   [`${ns}: 🐷 LEGACY: ui.driver.SlugPlayback`]: () =>
     import('../ui/ui.SlugPlaybackDriver/-spec/-SPEC.tsx'),
   [`${ns}.driver: ui.TreeContentDriver`]: () =>
