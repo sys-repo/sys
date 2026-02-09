@@ -29,7 +29,7 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  async function makeRootDev() {
+  async function renderDev() {
     /**
      * DevHarness:
      */
@@ -52,7 +52,7 @@ export async function main() {
     root.render(<React.StrictMode>{app}</React.StrictMode>);
   }
 
-  async function makeSplash() {
+  async function renderSplash() {
     /**
      * Entry/Splash:
      */
@@ -69,10 +69,9 @@ export async function main() {
   }
 
   if (isDev) {
-    return void makeRootDev();
+    return void renderDev();
   } else {
-    return void makeRootDev();
-    return void makeSplash();
+    return void renderDev();
   }
 }
 

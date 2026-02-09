@@ -9,12 +9,8 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register(new URL('../sw.js', import.meta.url), { type: 'module' })
-      .then((reg) =>
-        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
-      )
-      .catch((err) =>
-        console.error(`💥 [main] ServiceWorker registration failed:`, err),
-      );
+      .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
 }
 
@@ -33,7 +29,7 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  if (isDev) {
+  async function renderDev() {
     /**
      * DevHarness:
      */
@@ -51,10 +47,12 @@ export async function main() {
 
     const app = <App />;
     root.render(<React.StrictMode>{app}</React.StrictMode>);
-  } else {
-    /**
-     * Entry/Splash:
-     */
+  }
+
+  /**
+   * Entry/Splash:
+   */
+  async function renderSplash() {
     const { useKeyboard } = await import('@sys/ui-react-devharness');
     const { Splash } = await import('./ui.Splash.tsx');
 
@@ -65,6 +63,12 @@ export async function main() {
 
     const app = <App />;
     root.render(<React.StrictMode>{app}</React.StrictMode>);
+  }
+
+  if (isDev) {
+    return void renderDev();
+  } else {
+    return void renderDev();
   }
 }
 
