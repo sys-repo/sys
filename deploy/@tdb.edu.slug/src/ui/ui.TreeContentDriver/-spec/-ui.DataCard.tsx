@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sample } from '../../-dev/ui.Http.SlugLoader/mod.ts';
+import { DataCards } from '../../-dev/ui.Http.SlugLoader/mod.ts';
 import { type t, ActionProbe, Color, css, Signal } from './common.ts';
 
 /**
@@ -20,7 +20,8 @@ export const DataCard: React.FC<DataCardProps> = (props) => {
   const handlers = card.handlers(probeId);
   const local = v.env === 'localhost';
   const loading = c.spinning && c.probe.active === probeId;
-  const sample = kind === 'playback-content' ? Sample.TreePlaybackAssets : Sample.TreeContent;
+  const sample =
+    kind === 'playback-content' ? DataCards.Card.TreePlaybackAssets : DataCards.Card.TreeContent;
   if (!v.origin) return null;
 
   /**

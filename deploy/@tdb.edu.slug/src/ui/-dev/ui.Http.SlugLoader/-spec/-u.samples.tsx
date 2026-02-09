@@ -1,5 +1,5 @@
-import { Sample } from '../-spec.samples/mod.ts';
 import { type t, ActionProbe, Signal } from './common.ts';
+import { DataCards } from '../mod.ts';
 
 type Options = { theme?: t.CommonTheme };
 type TEnv = {
@@ -13,9 +13,10 @@ type TEnv = {
  */
 export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
   const { items, push } = renderer(debug, opts);
-  push(Sample.Descriptor);
-  push(Sample.TreeContent);
-  push(Sample.TreePlaybackAssets);
+  const Card = DataCards.Card;
+  push(Card.Descriptor);
+  push(Card.TreeContent);
+  push(Card.TreePlaybackAssets);
   return items;
 }
 
