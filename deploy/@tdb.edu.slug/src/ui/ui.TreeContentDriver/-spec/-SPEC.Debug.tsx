@@ -1,12 +1,24 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Button, ObjectView } from './common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  Dev,
+  Is,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from './common.ts';
 
 type P = t.TreeContentDriver.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  env: Is.localhost() ? 'localhost' : 'production',
 };
 
 /**
@@ -26,6 +38,8 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    env: s(snap.env),
+    origin: s<t.SlugUrlOrigin | undefined>(),
   };
   const p = props;
   const api = {
@@ -40,12 +54,20 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    syncOrigin();
+  }
+
+  function syncOrigin() {
+    const env = p.env.value ?? defaults.env!;
+    p.origin.value = Dev.SlugOrigin.Default.spec[env];
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.env = p.env.value;
+      syncOrigin();
     });
   });
 
@@ -83,14 +105,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+      <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 15 }} />
 
+      <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
-      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
