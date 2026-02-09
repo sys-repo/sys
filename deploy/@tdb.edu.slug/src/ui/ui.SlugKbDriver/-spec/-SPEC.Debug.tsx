@@ -15,7 +15,9 @@ import {
   Obj,
   ObjectView,
   Signal,
+  SlugLoader,
   SlugKbDriver,
+  TreeHost,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
@@ -55,6 +57,9 @@ export async function createDebugSignals() {
     origin: s<t.SlugUrlOrigin | undefined>(),
     treeContentRef: s<string | undefined>(undefined),
     treeContentRefs: s<string[] | undefined>(undefined),
+    contentData: s<t.FileContentData | undefined>(undefined),
+    contentLoading: s(false),
+    contentKey: s<string | undefined>(undefined),
     ...action.props,
   };
   const p = props;
@@ -78,6 +83,9 @@ export async function createDebugSignals() {
     const env = p.env.value ?? 'production';
     p.env.value = env;
     p.origin.value = Dev.SlugOrigin.Default.spec[env];
+    p.contentData.value = undefined;
+    p.contentKey.value = undefined;
+    p.contentLoading.value = false;
     treeEffect.value.input({ type: 'reset' });
     action.reset();
   }
@@ -110,6 +118,9 @@ export async function createDebugSignals() {
     if (!p.treeContentRef.value && !p.treeContentRefs.value) return;
     p.treeContentRef.value = undefined;
     p.treeContentRefs.value = undefined;
+    p.contentData.value = undefined;
+    p.contentKey.value = undefined;
+    p.contentLoading.value = false;
   });
 
   Signal.effect(() => {
@@ -141,6 +152,49 @@ export async function createDebugSignals() {
       tree: state.tree,
       selectedPath: state.selectedPath,
     });
+  });
+
+  let requestId = 0;
+  Signal.effect(() => {
+    const origin = p.origin.value?.cdn.default;
+    const tree = p.tree.value;
+    const selectedPath = p.selectedPath.value;
+    const selectedRef = treeEffect.value.current().selectedRef;
+    const node = TreeHost.Data.findViewNode(tree, selectedPath);
+    const isLeaf = !!node && (node.children?.length ?? 0) === 0;
+    const key = origin && selectedRef && isLeaf ? `${origin}:${selectedRef}` : undefined;
+    const loadOrigin = origin;
+    const loadRef = selectedRef;
+
+    if (!key || !loadOrigin || !loadRef) {
+      p.contentData.value = undefined;
+      p.contentKey.value = undefined;
+      p.contentLoading.value = false;
+      treeEffect.value.input({ type: 'content.clear' });
+      return;
+    }
+    if (p.contentKey.value === key && p.contentData.value) return;
+
+    p.contentKey.value = key;
+    p.contentData.value = undefined;
+    p.contentLoading.value = true;
+    treeEffect.value.input({ type: 'content.loading', ref: selectedRef });
+
+    const thisRequest = ++requestId;
+    void loadContentFile(loadOrigin, loadRef)
+      .then((data) => {
+        if (thisRequest !== requestId) return;
+        p.contentLoading.value = false;
+        p.contentData.value = data;
+        if (data) treeEffect.value.input({ type: 'content.set', data });
+        else treeEffect.value.input({ type: 'content.clear' });
+      })
+      .catch(() => {
+        if (thisRequest !== requestId) return;
+        p.contentLoading.value = false;
+        p.contentData.value = undefined;
+        treeEffect.value.input({ type: 'content.clear' });
+      });
   });
 
   return api;
@@ -199,6 +253,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.selectedPath.value = undefined;
           p.treeContentRefs.value = undefined;
           p.treeContentRef.value = undefined;
+          p.contentData.value = undefined;
+          p.contentKey.value = undefined;
+          p.contentLoading.value = false;
         }}
       />
       <Button
@@ -217,3 +274,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+async function loadContentFile(origin: string, ref: string): Promise<t.FileContentData | undefined> {
+  const kind: t.BundleDescriptorKind = 'slug-tree:fs';
+  const client = await SlugLoader.Descriptor.client({ origin, kind });
+  if (!client.ok) return undefined;
+
+  const tree = await client.value.Tree.load();
+  if (!tree.ok) return undefined;
+
+  const index = await client.value.FileContent.index();
+  if (!index.ok) return undefined;
+
+  const hash = findHash(index.value.entries, ref);
+  if (!hash) return undefined;
+
+  const content = await client.value.FileContent.get(hash);
+  if (!content.ok) return undefined;
+
+  return {
+    docid: client.value.docid,
+    ref,
+    hash,
+    tree: tree.value,
+    content: content.value,
+    contentIndex: index.value,
+  };
+}
+
+function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
+  const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);
+  return entry?.hash;
+}

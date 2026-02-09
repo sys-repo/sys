@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { css, D } from './common.ts';
+import { css, D, FileContentTreePanel, SampleFileContent } from './common.ts';
 import { TreeHost, SlugKbDriver } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -10,6 +10,28 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const node = TreeHost.Data.findViewNode(v.tree, v.selectedPath);
+    const isLeaf = !!node && (node.children?.length ?? 0) === 0;
+    const showContent = isLeaf && (v.contentLoading || !!v.contentData);
+    const slots = showContent
+      ? {
+          tree: (
+            <FileContentTreePanel
+              theme={v.theme}
+              loading={v.contentLoading}
+              data={v.contentData}
+            />
+          ),
+          main: (
+            <SampleFileContent
+              theme={v.theme}
+              loading={v.contentLoading}
+              data={v.contentData}
+            />
+          ),
+        }
+      : undefined;
+
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
@@ -28,6 +50,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
+          slots={slots}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={() => undefined}
         />

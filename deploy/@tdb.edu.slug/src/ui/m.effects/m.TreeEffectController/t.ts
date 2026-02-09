@@ -15,7 +15,7 @@ export type TreeEffectController = t.EffectController<
   view(): TreeEffectController.View;
 };
 
-export namespace TreeEffectController {
+export declare namespace TreeEffectController {
   /** Factory surface. */
   export type Lib = {
     create(props?: TreeEffectController.Props): TreeEffectController;
