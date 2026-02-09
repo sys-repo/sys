@@ -40,20 +40,20 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const action = ActionProbe.Signals.create();
+  const card = ActionProbe.Signals.create();
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
-    cardKind: s(snap.cardKind),
     origin: s<t.SlugUrlOrigin | undefined>(),
-    ...action.props,
+    cardKind: s(snap.cardKind),
+    card,
   };
   const p = props;
   const api = {
     props,
-    action,
+    card,
     listen,
     reset,
   };

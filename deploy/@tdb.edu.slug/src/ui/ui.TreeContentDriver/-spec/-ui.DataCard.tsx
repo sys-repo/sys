@@ -13,11 +13,13 @@ export type DataCardProps = {
 export const DataCard: React.FC<DataCardProps> = (props) => {
   const { debug, kind } = props;
   const v = Signal.toObject(debug.props);
+  const card = debug.card;
+  const c = Signal.toObject(card.props);
 
   const probeId = kind;
-  const handlers = debug.action.handlers(probeId);
+  const handlers = card.handlers(probeId);
   const local = v.env === 'localhost';
-  const loading = v.spinning && v.probe.active === probeId;
+  const loading = c.spinning && c.probe.active === probeId;
   const sample = kind === 'playback-content' ? Sample.TreePlaybackAssets : Sample.TreeContent;
   if (!v.origin) return null;
 
@@ -45,9 +47,9 @@ export const DataCard: React.FC<DataCardProps> = (props) => {
         },
       }}
       spinning={loading}
-      focused={v.probe.focused === probeId}
-      onFocus={() => debug.action.focus(probeId)}
-      onBlur={() => debug.action.blur(probeId)}
+      focused={c.probe.focused === probeId}
+      onFocus={() => card.focus(probeId)}
+      onBlur={() => card.blur(probeId)}
       onRunStart={handlers.onRunStart}
       onRunEnd={handlers.onRunEnd}
       onRunItem={handlers.onRunItem}
@@ -58,9 +60,9 @@ export const DataCard: React.FC<DataCardProps> = (props) => {
   const elResult = (
     <ActionProbe.Result
       spinning={loading}
-      items={v.result.items}
-      response={v.result.response}
-      obj={v.result.obj}
+      items={c.result.items}
+      response={c.result.response}
+      obj={c.result.obj}
       debug={v.debug}
       theme={v.theme}
       style={{ marginTop: 10, marginBottom: 10 }}
