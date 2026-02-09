@@ -27,11 +27,10 @@ export function renderTreeContentCard<TParams extends Record<string, unknown>>(
     <div className={css(styles.base).class}>
       <div>
         Loads tree, resolves one <code>ref</code>, then loads indexed file-content by hash.
-        Flattened <code>docid</code>'s from the <code>slug-tree</code>.
       </div>
       {refs.length > 0 && (
         <div>
-          Tree <code>refs</code>:
+          Tree <code>ref/docid</code>'s:
         </div>
       )}
     </div>,
