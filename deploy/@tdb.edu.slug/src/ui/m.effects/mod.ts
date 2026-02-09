@@ -5,4 +5,5 @@
  */
 export * from './m.attach.playback/mod.ts';
 export * from './m.attach.slug/mod.ts';
+export * from './m.TreeContentController/mod.ts';
 export * from './m.TreeSelectionController/mod.ts';

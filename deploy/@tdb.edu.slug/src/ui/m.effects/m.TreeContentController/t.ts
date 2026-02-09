@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -31,30 +31,32 @@ export declare namespace TreeContentController {
   /** Controller input events. */
   export type Input =
     | { readonly type: 'reset' }
-    | { readonly type: 'origin.set'; readonly origin?: t.StringUrl }
-    | {
-      readonly type: 'selection.set';
-      readonly path?: t.ObjectPath;
-      readonly ref?: string;
-      readonly isLeaf?: boolean;
-    }
-    | { readonly type: 'load.start'; readonly key: string }
-    | { readonly type: 'load.success'; readonly key: string; readonly data: Content }
-    | { readonly type: 'load.error'; readonly key: string; readonly message: string }
-    | { readonly type: 'load.clear' };
+    | { readonly type: 'selection.changed'; readonly key?: string }
+    | { readonly type: 'load.start'; readonly request: Request }
+    | { readonly type: 'load.cancel'; readonly requestId: string }
+    | { readonly type: 'load.succeed'; readonly request: Request; readonly data: Content }
+    | { readonly type: 'load.fail'; readonly request: Request; readonly message: string };
 
-  /** Controller state. */
-  export type State = {
-    readonly origin?: t.StringUrl;
-    readonly contentKey?: string;
-    readonly loadedKey?: string;
-    readonly contentLoading?: boolean;
-    readonly contentData?: Content;
-    readonly contentError?: { readonly message: string };
+  export type Phase = 'idle' | 'loading' | 'ready' | 'error';
+
+  /** Request token used to gate stale async responses. */
+  export type Request = {
+    readonly id: string;
+    readonly key: string;
   };
 
-  /** UI projection for adapters. */
+  /** Controller-owned content lifecycle state. */
+  export type State = {
+    readonly phase: Phase;
+    readonly key?: string;
+    readonly request?: Request;
+    readonly data?: Content;
+    readonly error?: { readonly message: string };
+  };
+
+  /** UI projection for adapter/render layers. */
   export type View = {
+    readonly phase: Phase;
     readonly loading: boolean;
     readonly key?: string;
     readonly data?: Content;
