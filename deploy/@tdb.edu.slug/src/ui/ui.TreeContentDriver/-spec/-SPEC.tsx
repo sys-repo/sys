@@ -1,16 +1,11 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
-import { TreeContentDriver } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { SpecRoot } from './-SPEC.Root.tsx';
+import { D } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
-
-  function Root() {
-    const v = Signal.toObject(p);
-    return <TreeContentDriver.UI debug={v.debug} theme={v.theme} />;
-  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -27,7 +22,7 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render(() => <Root />);
+      .render(() => <SpecRoot debug={debug} />);
   });
 
   e.it('ui:debug', (e) => {

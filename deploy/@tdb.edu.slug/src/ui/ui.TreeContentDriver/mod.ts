@@ -14,6 +14,5 @@
  * - no mixed state ownership (controller-owned fields are read-only here)
  */
 import type { t } from './common.ts';
-import { TreeContentDriver as UI } from './ui.tsx';
 
-export const TreeContentDriver: t.TreeContentDriver.Lib = { UI };
+export const TreeContentDriver: t.TreeContentDriver.Lib = {};

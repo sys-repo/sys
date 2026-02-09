@@ -13,8 +13,7 @@ import {
   Signal,
 } from './common.ts';
 
-type P = t.TreeContentDriver.Props;
-type Storage = Pick<P, 'debug' | 'theme'> & { env?: t.HttpOriginEnv };
+type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
