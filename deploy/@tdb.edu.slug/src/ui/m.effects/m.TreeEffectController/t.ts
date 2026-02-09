@@ -1,17 +1,16 @@
 import type { t } from './common.ts';
 
-type O = Record<string, unknown>;
-
 /**
- * TreeEffectController - orchestration surface above TreeHost.
- * Owns tree selection + external load synchronization state.
+ * TreeEffectController.
+ * Owns tree + selection invariants for TreeHost.
  */
 export type TreeEffectController = t.EffectController<
   TreeEffectController.State,
   TreeEffectController.Patch,
   TreeEffectController.Props
 > & {
-  input(next: TreeEffectController.Input): void;
+  /** Canonical controller intent entrypoint. */
+  intent(next: TreeEffectController.Input): void;
   view(): TreeEffectController.View;
 };
 
@@ -28,22 +27,17 @@ export declare namespace TreeEffectController {
 
   export type Patch = Partial<State>;
 
-  /**
-   * Controller input events.
-   */
+  /** Controller input events. */
   export type Input =
     | { readonly type: 'reset' }
     | { readonly type: 'tree.clear' }
     | { readonly type: 'tree.set'; readonly tree: t.TreeHostViewNodeList }
     | { readonly type: 'path.request'; readonly path?: t.ObjectPath }
-    | { readonly type: 'ref.request'; readonly ref?: string }
-    | { readonly type: 'content.loading'; readonly ref?: string }
-    | { readonly type: 'content.clear' }
-    | { readonly type: 'content.set'; readonly data: Content };
+    | { readonly type: 'ref.request'; readonly ref?: string };
 
   /**
    * Controller state.
-   * Invariant: no tree => no selected path/ref/content.
+   * Invariant: no tree => no selected path/ref.
    */
   export type State = {
     /** TreeHost view tree model. */
@@ -53,15 +47,6 @@ export declare namespace TreeEffectController {
     readonly selectedPath?: t.ObjectPath;
     /** Selection identity projected from tree/ref sync. */
     readonly selectedRef?: string;
-
-    /** Current main-content payload (loader-owned domain data). */
-    readonly content?: Content;
-
-    /** Loading flags for external orchestration. */
-    readonly loading?: Loading;
-
-    /** Terminal error, if any. */
-    readonly error?: { readonly message: string };
   };
 
   /**
@@ -70,18 +55,5 @@ export declare namespace TreeEffectController {
   export type View = {
     readonly treeHost: Pick<t.TreeHostProps, 'tree' | 'selectedPath'>;
     readonly selection: { readonly path?: t.ObjectPath; readonly ref?: string };
-    readonly loading: Loading;
-    readonly content?: Content;
   };
-
-  export type Loading = {
-    readonly tree?: boolean;
-    readonly content?: boolean;
-  };
-
-  /**
-   * Controller payload that can drive the `main` slot.
-   * Kept intentionally generic; concrete adapters can narrow this.
-   */
-  export type Content = Readonly<O>;
 }

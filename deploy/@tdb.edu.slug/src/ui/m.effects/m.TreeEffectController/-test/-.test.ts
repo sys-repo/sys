@@ -3,10 +3,10 @@ import { TreeEffectController } from '../mod.ts';
 import { type t } from '../common.ts';
 
 describe('TreeEffectController', () => {
-  it('creates controller with input/view methods', () => {
+  it('creates controller with intent/view methods', () => {
     const ctrl = TreeEffectController.create();
     expect(ctrl.id).to.include('tree-effect-');
-    expect(typeof ctrl.input).to.eql('function');
+    expect(typeof ctrl.intent).to.eql('function');
     expect(typeof ctrl.view).to.eql('function');
     ctrl.dispose();
   });
@@ -14,8 +14,8 @@ describe('TreeEffectController', () => {
   it('tree.set + path.request resolves selected ref', () => {
     const ctrl = TreeEffectController.create();
     const tree = sampleTree();
-    ctrl.input({ type: 'tree.set', tree });
-    ctrl.input({ type: 'path.request', path: ['a', 'b'] });
+    ctrl.intent({ type: 'tree.set', tree });
+    ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
 
     const state = ctrl.current();
     expect(state.selectedPath).to.eql(['a', 'b']);
@@ -27,8 +27,8 @@ describe('TreeEffectController', () => {
   it('ref.request resolves selected path', () => {
     const ctrl = TreeEffectController.create();
     const tree = sampleTree();
-    ctrl.input({ type: 'tree.set', tree });
-    ctrl.input({ type: 'ref.request', ref: 'ref-a' });
+    ctrl.intent({ type: 'tree.set', tree });
+    ctrl.intent({ type: 'ref.request', ref: 'ref-a' });
 
     const state = ctrl.current();
     expect(state.selectedPath).to.eql(['a']);
@@ -40,9 +40,9 @@ describe('TreeEffectController', () => {
   it('does not clear selectedPath when ref is cleared', () => {
     const ctrl = TreeEffectController.create();
     const tree = sampleTree();
-    ctrl.input({ type: 'tree.set', tree });
-    ctrl.input({ type: 'path.request', path: ['a', 'b'] });
-    ctrl.input({ type: 'ref.request', ref: undefined });
+    ctrl.intent({ type: 'tree.set', tree });
+    ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
+    ctrl.intent({ type: 'ref.request', ref: undefined });
 
     const state = ctrl.current();
     expect(state.selectedPath).to.eql(['a', 'b']);
@@ -52,24 +52,21 @@ describe('TreeEffectController', () => {
 
   it('tree.clear and reset enforce empty invariant', () => {
     const ctrl = TreeEffectController.create();
-    ctrl.input({ type: 'tree.set', tree: sampleTree() });
-    ctrl.input({ type: 'ref.request', ref: 'ref-a' });
-    ctrl.input({ type: 'content.set', data: { foo: 1 } });
+    ctrl.intent({ type: 'tree.set', tree: sampleTree() });
+    ctrl.intent({ type: 'ref.request', ref: 'ref-a' });
 
-    ctrl.input({ type: 'tree.clear' });
+    ctrl.intent({ type: 'tree.clear' });
     let state = ctrl.current();
     expect(state.tree).to.eql(undefined);
     expect(state.selectedPath).to.eql(undefined);
     expect(state.selectedRef).to.eql(undefined);
-    expect(state.content).to.eql(undefined);
 
-    ctrl.input({ type: 'tree.set', tree: sampleTree() });
-    ctrl.input({ type: 'reset' });
+    ctrl.intent({ type: 'tree.set', tree: sampleTree() });
+    ctrl.intent({ type: 'reset' });
     state = ctrl.current();
     expect(state.tree).to.eql(undefined);
     expect(state.selectedPath).to.eql(undefined);
     expect(state.selectedRef).to.eql(undefined);
-    expect(state.content).to.eql(undefined);
     ctrl.dispose();
   });
 });

@@ -15,11 +15,12 @@ export const TreeEffectController: t.TreeEffectController.Lib = {
     >({ id, ref, props });
 
     const api = controller as t.TreeEffectController;
-    api.input = (next) => {
+    const intent: t.TreeEffectController['intent'] = (next) => {
       const patch = reduceInput(api.current(), next);
       if (!patch) return;
       api.next(patch);
     };
+    api.intent = intent;
     api.view = () => toView(api.current());
 
     return api;

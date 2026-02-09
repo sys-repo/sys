@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sample } from '../../-dev/ui.Http.DataCards/-spec.samples/mod.ts';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { type t, css } from './common.ts';
 import { ActionProbe, Is, Signal, TreeHost } from './mod.ts';
 
@@ -28,7 +28,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
   const elCard = (
     <ActionProbe.Probe
       theme={v.theme}
-      sample={Sample.TreeContent}
+      sample={DataCards.Card.TreeContent}
       env={{
         is: { local },
         origin: v.origin,
@@ -37,10 +37,10 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
           treeContent: {
             ref: v.treeContentRef,
             refs: v.treeContentRefs,
-            onRefChange(next) {
+            onRefChange(next: string) {
               p.treeContentRef.value = next;
             },
-            onRefsChange: (next) => (p.treeContentRefs.value = next),
+            onRefsChange: (next: string[]) => (p.treeContentRefs.value = next),
           },
         },
       }}

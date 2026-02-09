@@ -1,6 +1,6 @@
 /**
  * @module
- * TreeEffectController - orchestration surface above TreeHost.
- * Owns tree selection + external load synchronization state.
+ * TreeEffectController.
+ * Owns tree + selection invariants above TreeHost.
  */
 export { TreeEffectController } from './m.Controller.ts';

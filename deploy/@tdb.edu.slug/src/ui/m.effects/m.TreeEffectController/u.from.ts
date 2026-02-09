@@ -1,5 +1,5 @@
 import { TreeData } from '../../m.data/mod.ts';
-import { type t, Is, Obj } from './common.ts';
+import { type t, Is } from './common.ts';
 import { normalizeState } from './u.ts';
 
 export function fromTreeSet(
@@ -10,20 +10,11 @@ export function fromTreeSet(
   const pathFromPath = TreeData.findViewNode(tree, current.selectedPath)?.path;
   const selectedPath = pathFromRef ?? pathFromPath;
   const selectedRef = refFromPath(tree, selectedPath);
-  const selectionChanged =
-    !Obj.Path.eql(selectedPath, current.selectedPath) || selectedRef !== current.selectedRef;
 
   return normalizeState({
     tree,
     selectedPath,
     selectedRef,
-    content: selectionChanged ? undefined : current.content,
-    loading: {
-      ...current.loading,
-      tree: false,
-      content: selectionChanged ? false : current.loading?.content,
-    },
-    error: undefined,
   });
 }
 
@@ -32,18 +23,13 @@ export function fromPathRequest(
   path?: t.ObjectPath,
 ): t.TreeEffectController.Patch {
   const tree = current.tree;
-  if (!tree)
-    return normalizeState({ selectedPath: undefined, selectedRef: undefined, content: undefined });
+  if (!tree) return normalizeState({ selectedPath: undefined, selectedRef: undefined });
 
   const selectedPath = TreeData.findViewNode(tree, path)?.path;
   const selectedRef = refFromPath(tree, selectedPath);
-  const changed =
-    !Obj.Path.eql(selectedPath, current.selectedPath) || selectedRef !== current.selectedRef;
   return normalizeState({
     selectedPath,
     selectedRef,
-    content: changed ? undefined : current.content,
-    loading: { ...current.loading, content: changed ? false : current.loading?.content },
   });
 }
 
@@ -56,8 +42,6 @@ export function fromRefRequest(
     return normalizeState({
       selectedPath: undefined,
       selectedRef: undefined,
-      content: undefined,
-      loading: { ...current.loading, content: false },
     });
   }
 
@@ -65,8 +49,6 @@ export function fromRefRequest(
     return normalizeState({
       selectedPath: current.selectedPath,
       selectedRef: refFromPath(tree, current.selectedPath),
-      content: undefined,
-      loading: { ...current.loading, content: false },
     });
   }
 
@@ -75,19 +57,13 @@ export function fromRefRequest(
     return normalizeState({
       selectedPath: current.selectedPath,
       selectedRef: refFromPath(tree, current.selectedPath),
-      content: current.content,
-      loading: { ...current.loading, content: false },
     });
   }
 
   const selectedRef = refFromPath(tree, selectedPath);
-  const changed =
-    !Obj.Path.eql(selectedPath, current.selectedPath) || selectedRef !== current.selectedRef;
   return normalizeState({
     selectedPath,
     selectedRef,
-    content: changed ? undefined : current.content,
-    loading: { ...current.loading, content: changed ? false : current.loading?.content },
   });
 }
 

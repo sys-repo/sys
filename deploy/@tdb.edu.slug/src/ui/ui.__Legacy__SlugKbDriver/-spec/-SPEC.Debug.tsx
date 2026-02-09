@@ -86,7 +86,7 @@ export async function createDebugSignals() {
     p.contentData.value = undefined;
     p.contentKey.value = undefined;
     p.contentLoading.value = false;
-    treeEffect.value.input({ type: 'reset' });
+    treeEffect.value.intent({ type: 'reset' });
     action.reset();
   }
 
@@ -115,16 +115,16 @@ export async function createDebugSignals() {
 
   Signal.effect(() => {
     const tree = p.tree.value;
-    if (tree) treeEffect.value.input({ type: 'tree.set', tree });
-    else treeEffect.value.input({ type: 'tree.clear' });
+    if (tree) treeEffect.value.intent({ type: 'tree.set', tree });
+    else treeEffect.value.intent({ type: 'tree.clear' });
   });
 
   Signal.effect(() => {
-    treeEffect.value.input({ type: 'path.request', path: p.selectedPath.value });
+    treeEffect.value.intent({ type: 'path.request', path: p.selectedPath.value });
   });
 
   Signal.effect(() => {
-    treeEffect.value.input({ type: 'ref.request', ref: p.treeContentRef.value });
+    treeEffect.value.intent({ type: 'ref.request', ref: p.treeContentRef.value });
   });
 
   Signal.effect(() => {
@@ -160,7 +160,6 @@ export async function createDebugSignals() {
       p.contentData.value = undefined;
       p.contentKey.value = undefined;
       p.contentLoading.value = false;
-      treeEffect.value.input({ type: 'content.clear' });
       return;
     }
     if (p.contentKey.value === key && p.contentData.value) return;
@@ -168,7 +167,6 @@ export async function createDebugSignals() {
     p.contentKey.value = key;
     p.contentData.value = undefined;
     p.contentLoading.value = true;
-    treeEffect.value.input({ type: 'content.loading', ref: selectedRef });
 
     const thisRequest = ++requestId;
     void loadContentFile(loadOrigin, loadRef)
@@ -176,14 +174,11 @@ export async function createDebugSignals() {
         if (thisRequest !== requestId) return;
         p.contentLoading.value = false;
         p.contentData.value = data;
-        if (data) treeEffect.value.input({ type: 'content.set', data });
-        else treeEffect.value.input({ type: 'content.clear' });
       })
       .catch(() => {
         if (thisRequest !== requestId) return;
         p.contentLoading.value = false;
         p.contentData.value = undefined;
-        treeEffect.value.input({ type: 'content.clear' });
       });
   });
 

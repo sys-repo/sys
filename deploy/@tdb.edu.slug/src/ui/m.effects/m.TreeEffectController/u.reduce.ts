@@ -13,9 +13,6 @@ export function reduceInput(
         tree: undefined,
         selectedPath: undefined,
         selectedRef: undefined,
-        content: undefined,
-        loading: { ...current.loading, tree: false, content: false },
-        error: undefined,
       });
 
     case 'tree.set':
@@ -26,24 +23,6 @@ export function reduceInput(
 
     case 'ref.request':
       return fromRefRequest(current, input.ref);
-
-    case 'content.loading':
-      return normalizeState({
-        selectedRef: input.ref ?? current.selectedRef,
-        loading: { ...current.loading, content: true },
-      });
-
-    case 'content.clear':
-      return normalizeState({
-        content: undefined,
-        loading: { ...current.loading, content: false },
-      });
-
-    case 'content.set':
-      return normalizeState({
-        content: input.data,
-        loading: { ...current.loading, content: false },
-      });
 
     default:
       return undefined;
