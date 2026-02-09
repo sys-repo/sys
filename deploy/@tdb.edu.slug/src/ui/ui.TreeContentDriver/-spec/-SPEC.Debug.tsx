@@ -1,6 +1,8 @@
 import React from 'react';
+import { DataCards } from './-ui.DataCards.tsx';
 import {
   type t,
+  ActionProbe,
   Button,
   Color,
   css,
@@ -8,16 +10,21 @@ import {
   Dev,
   Is,
   LocalStorage,
-  Obj,
   ObjectView,
   Signal,
 } from './common.ts';
 
-type Storage = { debug?: boolean; theme?: t.CommonTheme; env?: t.HttpOriginEnv };
+type Storage = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  env?: t.HttpOriginEnv;
+  cardKind?: t.DataCardKind;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   env: Is.localhost() ? 'localhost' : 'production',
+  cardKind: 'file-content',
 };
 
 /**
@@ -33,16 +40,20 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const action = ActionProbe.Signals.create();
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    cardKind: s(snap.cardKind),
     origin: s<t.SlugUrlOrigin | undefined>(),
+    ...action.props,
   };
   const p = props;
   const api = {
     props,
+    action,
     listen,
     reset,
   };
@@ -52,7 +63,10 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug;
+    p.theme.value = defaults.theme;
+    p.env.value = defaults.env;
+    p.cardKind.value = defaults.cardKind;
     syncOrigin();
   }
 
@@ -66,10 +80,12 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
-      syncOrigin();
+      d.cardKind = p.cardKind.value;
     });
   });
 
+  Signal.effect(syncOrigin);
+  syncOrigin();
   return api;
 }
 
@@ -98,13 +114,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Dev.SlugOrigin.UI debug={v.debug} env={p.env} origin={p.origin} style={{ marginTop: 15 }} />
+      <Dev.SlugOrigin.UI
+        debug={v.debug}
+        env={p.env}
+        origin={p.origin}
+        style={{ MarginY: [15, 30] }}
+      />
+
+      <DataCards debug={debug} />
 
       <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
       <Button

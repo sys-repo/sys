@@ -1,22 +1,22 @@
 import React from 'react';
-import { type t, BulletList, Color, css } from './common.ts';
+import { type t, BulletList, Color, css, Arr } from '../common.ts';
+import { DataCardKindKinds as Kinds } from '../t.ts';
 
 export type CardKindsListProps = {
-  selected?: DataCardKind;
+  selected?: t.DataCardKind;
+  kinds?: t.DataCardKind[];
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onKindSelect?: t.BulletList.OnSelectHandler<DataCardKind>;
+  onKindSelect?: t.BulletList.OnSelectHandler<t.DataCardKind>;
 };
-
-const Kinds = ['file-content', 'playback-content'] as const;
-export type DataCardKind = (typeof Kinds)[number];
 
 /**
  * Component:
  */
 export const UI: React.FC<CardKindsListProps> = (props) => {
   const { debug = false } = props;
+  const kinds = Arr.uniq(props.kinds ?? Kinds);
 
   /**
    * Render:
@@ -35,7 +35,7 @@ export const UI: React.FC<CardKindsListProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <BulletList.UI
         theme={theme.name}
-        items={Kinds.map((id) => ({ id, label: `kind: ${id}` }))}
+        items={kinds.map((id) => ({ id, label: `kind: ${id}` }))}
         selected={props.selected}
         onSelect={props.onKindSelect}
       />

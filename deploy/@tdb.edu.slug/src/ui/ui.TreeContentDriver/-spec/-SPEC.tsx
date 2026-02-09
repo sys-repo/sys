@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { SpecRoot } from './-SPEC.Root.tsx';
+import { SpecRoot } from './-SPEC.ui.Root.tsx';
 import { D } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {

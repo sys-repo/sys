@@ -1,6 +1,7 @@
 import { type t } from './common.ts';
 
 /** Type re-exports. */
+export type * from './ui.Http.SlugLoader/t.ts';
 export type * from './ui.Http.SlugOrigin/t.ts';
 
 /**
