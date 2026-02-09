@@ -48,7 +48,6 @@ export async function createDebugSignals() {
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
     cardKind: s(snap.cardKind),
-    card,
   };
   const p = props;
   const api = {

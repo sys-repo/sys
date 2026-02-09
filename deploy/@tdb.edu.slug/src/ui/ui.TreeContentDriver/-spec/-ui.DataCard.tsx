@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { type t, ActionProbe, Color, css, Signal } from './common.ts';
+import { type t, ActionProbe, css, Signal } from './common.ts';
 
 /**
  * Single data-card.
@@ -27,7 +27,6 @@ export const DataCard: React.FC<DataCardProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(v.theme);
   const styles = {
     base: css({}),
   };
