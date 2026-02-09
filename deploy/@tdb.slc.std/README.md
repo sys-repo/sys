@@ -1,7 +1,9 @@
 # @tdb/slc-std
-Social Lean Canvas standard libs.
+Social Lean Canvas standard libraries.
+
+- [tdb.slc.std](https://slc.db.team/tdb.slc.std/)
 
 ### Example
 ```ts
-import { pkg } from 'jsr:@tdb/slc-std';
+import { LogoCanvas } from 'jsr:@tdb/slc-std/ui';
 ```
