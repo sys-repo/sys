@@ -11,7 +11,7 @@ export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: Color.ruby(0),
       color: theme.fg,
       padding: 10,
     }),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Spinners, KeyValue } from './common.ts';
+import { type t, Obj, Str, Color, css, Spinners, KeyValue, ObjectView } from './common.ts';
 
 export type FileContentTreePanelProps = {
   data?: t.FileContentData;
@@ -55,6 +55,7 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
     </div>
   );
 
+  const frontmatter = data?.content?.frontmatter;
   const elData = data && (
     <div className={styles.rowFlow.class}>
       <KeyValue.UI
@@ -62,17 +63,14 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
         items={[
           { kind: 'title', v: 'File Content' },
           { k: 'ref', v: data.ref },
-          { k: 'hash', v: data.hash },
+          { k: 'hash', v: Str.ellipsize(data.hash, [15, 5], ' .. ') },
           { k: 'tree:items', v: data.tree.tree.length },
           { k: 'content-index:entries', v: data.contentIndex.entries.length },
         ]}
       />
       <KeyValue.UI
         theme={theme.name}
-        items={[
-          { kind: 'title', v: 'FontMatter' },
-          ...KeyValue.fromObject(data.content.frontmatter),
-        ]}
+        items={[{ kind: 'title', v: 'FrontMatter' }, ...KeyValue.fromObject(frontmatter)]}
       />
     </div>
   );
@@ -81,20 +79,11 @@ export const FileContentTreePanel: React.FC<FileContentTreePanelProps> = (props)
     <div className={css(styles.body, styles.rowFlow).class}>
       {!loading && !data && <div className={styles.empty.class}>{'Nothing to display.'}</div>}
       {!loading && elData}
-      {/* {data && (
-        <KeyValue.UI
-          theme={theme.name}
-          items={[
-            { kind: 'title', v: 'File Content' },
-            { k: 'ref', v: data.ref },
-            { k: 'hash', v: data.hash },
-            { k: 'tree:items', v: data.tree.tree.length },
-            { k: 'content-index:entries', v: data.contentIndex.entries.length },
-            { kind: 'title', v: 'FrontMatter' },
-            ...KeyValue.fromObject(data.content.frontmatter),
-          ]}
-        />
-      )} */}
+      <ObjectView
+        theme={theme.name}
+        name={'frontmatter'}
+        data={Obj.truncateStrings(frontmatter, 20)}
+      />
     </div>
   );
 

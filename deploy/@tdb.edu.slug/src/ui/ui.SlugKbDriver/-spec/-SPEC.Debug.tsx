@@ -228,12 +228,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SlugActionProbe debug={debug} />
 
       <hr style={{ borderTopWidth: 4, opacity: 0.5, marginTop: 50 }} />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
         label={() => '(clear tree)'}
@@ -258,14 +258,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
       <Button block label={() => '(reset)'} onClick={debug.reset} />
-
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView name={'state'} data={state} expand={0} style={{ marginTop: 6 }} />
     </div>
   );
 };
 
-async function loadContentFile(origin: string, ref: string): Promise<t.FileContentData | undefined> {
+async function loadContentFile(
+  origin: string,
+  ref: string,
+): Promise<t.FileContentData | undefined> {
   const kind: t.BundleDescriptorKind = 'slug-tree:fs';
   const client = await SlugLoader.Descriptor.client({ origin, kind });
   if (!client.ok) return undefined;

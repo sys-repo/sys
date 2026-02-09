@@ -11,7 +11,6 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:fs';
     e.params({ kind });
-
     renderTreeContentCard(e, {
       refs: e.probe?.treeContent?.refs,
       selected: e.probe?.treeContent?.ref,
