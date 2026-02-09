@@ -81,6 +81,7 @@
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
+    "deploy/@tdb.slc.std",
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 
