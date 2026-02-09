@@ -1,9 +1,10 @@
-import { type t, Color, css, D, Is, Keyboard } from './common.ts';
+import { useState } from 'react';
+import { type t, Color, css, D, Is, Keyboard, usePointer } from './common.ts';
+import { Body } from './ui.Probe.Body.tsx';
+import { Header } from './ui.Probe.Header.tsx';
 import { useProbeRenderModel } from './use.RenderModel.ts';
 import { useProbeRun } from './use.Run.ts';
 import { useScopedStyles } from './use.Styles.ts';
-import { Header } from './ui.Probe.Header.tsx';
-import { Body } from './ui.Probe.Body.tsx';
 
 type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
@@ -24,6 +25,10 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     borderRadius = D.borderRadius,
   } = props;
 
+  const [isActOnClickDown, setActOnClickDown] = useState(false);
+  const pointer = usePointer((e) => {
+    setActOnClickDown(wrangle.shouldActOnPointerDown(e, actOn));
+  });
   const { componentAttr } = useScopedStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
@@ -51,6 +56,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       ':focus': { outline: 'none' },
       ':focus-visible': { outline: 'none' },
       transition: 'box-shadow 40ms ease',
+      transform: isActOnClickDown ? 'translateY(1px)' : 'translateY(0)',
     }),
     header: css({ borderBottom: `dashed 1px ${Color.alpha(theme.fg, 0.2)}` }),
     body: css({}),
@@ -58,6 +64,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
 
   return (
     <div
+      {...pointer.handlers}
       data-component={componentAttr}
       className={css(styles.base, props.style).class}
       tabIndex={0}
@@ -128,6 +135,18 @@ const wrangle = {
     return wrangle.acts(actOn).some((kind) => {
       if (kind === null) return false;
       if (kind === 'Cmd+Click') return Keyboard.Is.command(e);
+      return false;
+    });
+  },
+
+  shouldActOnPointerDown(
+    e: Pick<t.PointerEventsArg, 'is' | 'modifiers'>,
+    actOn: t.ActionProbe.ActOn,
+  ) {
+    if (!e.is.down) return false;
+    return wrangle.acts(actOn).some((kind) => {
+      if (kind === null) return false;
+      if (kind === 'Cmd+Click') return Keyboard.Is.command(e.modifiers);
       return false;
     });
   },
