@@ -34,14 +34,23 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({ color: theme.fg, minHeight: 0, height: '100%', display: 'grid' }),
     spinning: css({ Absolute: 0 }),
     body: css({
       minWidth: minWidth ?? D.minWidth,
+      minHeight: 0,
+      height: '100%',
+      display: 'grid',
       pointerEvents: spinning ? 'none' : 'auto',
       filter: `blur(${spinning ? 0.8 : 0}px)`,
       opacity: spinning ? 0.06 : 1,
       transition: 'opacity 120ms ease',
+    }),
+    leafViewport: css({
+      minHeight: 0,
+      height: '100%',
+      display: 'grid',
+      gridTemplateRows: 'minmax(0, 1fr)',
     }),
   };
 
@@ -56,7 +65,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         duration={props.slideDuration}
         offset={props.slideOffset}
       >
-        {leaf ?? renderItems(props, view)}
+        {leaf ? <div className={styles.leafViewport.class}>{leaf}</div> : renderItems(props, view)}
       </SlideDeck>
       {spinning && <Spinning theme={theme.name} style={styles.spinning} />}
     </div>
