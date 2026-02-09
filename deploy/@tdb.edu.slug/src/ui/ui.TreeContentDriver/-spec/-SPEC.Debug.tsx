@@ -1,6 +1,5 @@
 import React from 'react';
-import { DataCards as HttpDataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { DataCards as DebugCards } from './-ui.DataCards.tsx';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import {
   type t,
   Button,
@@ -40,7 +39,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const card = HttpDataCards.createSignals({ totalVisible: 5 });
+  const card = DataCards.createSignals({ totalVisible: 5 });
 
   const props = {
     debug: s(snap.debug),
@@ -117,6 +116,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
+  const cards = DataCards.createPanel({
+    signals: debug.card,
+    origin: v.origin,
+    env: v.env,
+    theme: v.theme,
+    debug: v.debug,
+    kind: v.cardKind,
+    kinds: ['file-content', 'playback-content'],
+    onKindSelect: (kind) => (p.cardKind.value = kind),
+    style: props.style,
+  });
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -127,7 +138,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ MarginY: [15, 30] }}
       />
 
-      <DebugCards debug={debug} />
+      {cards}
 
       <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
       <Button

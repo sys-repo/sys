@@ -33,3 +33,16 @@ export type DataCardSignalsDefaults = {
 export type DataCardSignals = t.ActionProbeSignals & {
   readonly props: DataCardSignalsProps;
 };
+
+/** Render args for `createPanel(args)`. */
+export type DataCardPanelArgs = {
+  readonly signals: DataCardSignals;
+  readonly kind?: DataCardKind;
+  readonly kinds?: DataCardKind[];
+  readonly env?: t.HttpOriginEnv;
+  readonly origin?: t.SlugUrlOrigin;
+  readonly theme?: t.CommonTheme;
+  readonly debug?: boolean;
+  readonly style?: t.CssInput;
+  readonly onKindSelect?: (kind: DataCardKind) => void;
+};
