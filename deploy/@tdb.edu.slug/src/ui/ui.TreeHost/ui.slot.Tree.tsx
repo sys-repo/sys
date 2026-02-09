@@ -31,6 +31,12 @@ export const Tree: React.FC<P> = (props) => {
       minWidth={0}
       path={props.selectedPath}
       showChevron={'always'}
+      renderLeaf={(e) => {
+        const path = e.path ?? [];
+        const node = TreeData.findViewNode(tree, path);
+        if (!node) return null;
+        return slots.treeLeaf?.({ tree, path, node });
+      }}
       onNodeSelect={(e) => {
         if (!tree) return;
         const path = e.path ?? [];

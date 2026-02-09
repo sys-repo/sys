@@ -41,6 +41,7 @@ export type TreeHostProps = {
 /** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
   tree?: t.ReactNode;
+  treeLeaf?: TreeHostTreeLeafRenderer;
   main?: t.ReactNode;
   aux?: t.ReactNode;
   empty?: (slot: TreeHostSlot) => t.ReactNode;
@@ -68,4 +69,11 @@ export type TreeHostNodeSelect = {
   readonly path: t.ObjectPath;
   readonly node: t.TreeHostViewNode;
   readonly is: { readonly leaf: boolean };
+};
+
+export type TreeHostTreeLeafRenderer = (e: TreeHostTreeLeafRenderArgs) => t.ReactNode;
+export type TreeHostTreeLeafRenderArgs = {
+  readonly tree: t.TreeHostViewNodeList;
+  readonly path: t.ObjectPath;
+  readonly node: t.TreeHostViewNode;
 };
