@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export function normalizeState(input: t.TreeEffectController.Patch): t.TreeEffectController.Patch {
+export function normalizeState(input: t.TreeSelectionController.Patch): t.TreeSelectionController.Patch {
   if ('tree' in input && !input.tree) {
     return {
       ...input,
@@ -12,7 +12,7 @@ export function normalizeState(input: t.TreeEffectController.Patch): t.TreeEffec
 
   return input;
 }
-export function toView(state: t.TreeEffectController.State): t.TreeEffectController.View {
+export function toView(state: t.TreeSelectionController.State): t.TreeSelectionController.View {
   return {
     treeHost: {
       tree: state.tree,

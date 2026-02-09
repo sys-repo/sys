@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dev } from '../../-dev/mod.ts';
-import { TreeEffectController } from '../../m.effects/mod.ts';
+import { TreeSelectionController } from '../../m.effects/mod.ts';
 import { SlugActionProbe } from './-ui.ActionProbe.tsx';
 import { type t } from './common.ts';
 import {
@@ -45,7 +45,7 @@ export async function createDebugSignals() {
 
   const defaultBaseUrl: t.StringUrl = 'https://slc.db.team/';
   const controller = s(SlugKbDriver.Controller.create({ baseUrl: defaultBaseUrl }));
-  const treeEffect = s(TreeEffectController.create());
+  const treeEffect = s(TreeSelectionController.create());
   const action = ActionProbe.Signals.create();
 
   const props = {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from '../../../../-test.ts';
-import { TreeEffectController } from '../mod.ts';
+import { TreeSelectionController } from '../mod.ts';
 import { type t } from '../common.ts';
 
-describe('TreeEffectController', () => {
+describe('TreeSelectionController', () => {
   it('creates controller with intent/view methods', () => {
-    const ctrl = TreeEffectController.create();
+    const ctrl = TreeSelectionController.create();
     expect(ctrl.id).to.include('tree-effect-');
     expect(typeof ctrl.intent).to.eql('function');
     expect(typeof ctrl.view).to.eql('function');
@@ -12,7 +12,7 @@ describe('TreeEffectController', () => {
   });
 
   it('tree.set + path.request resolves selected ref', () => {
-    const ctrl = TreeEffectController.create();
+    const ctrl = TreeSelectionController.create();
     const tree = sampleTree();
     ctrl.intent({ type: 'tree.set', tree });
     ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
@@ -25,7 +25,7 @@ describe('TreeEffectController', () => {
   });
 
   it('ref.request resolves selected path', () => {
-    const ctrl = TreeEffectController.create();
+    const ctrl = TreeSelectionController.create();
     const tree = sampleTree();
     ctrl.intent({ type: 'tree.set', tree });
     ctrl.intent({ type: 'ref.request', ref: 'ref-a' });
@@ -38,7 +38,7 @@ describe('TreeEffectController', () => {
   });
 
   it('does not clear selectedPath when ref is cleared', () => {
-    const ctrl = TreeEffectController.create();
+    const ctrl = TreeSelectionController.create();
     const tree = sampleTree();
     ctrl.intent({ type: 'tree.set', tree });
     ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
@@ -51,7 +51,7 @@ describe('TreeEffectController', () => {
   });
 
   it('tree.clear and reset enforce empty invariant', () => {
-    const ctrl = TreeEffectController.create();
+    const ctrl = TreeSelectionController.create();
     ctrl.intent({ type: 'tree.set', tree: sampleTree() });
     ctrl.intent({ type: 'ref.request', ref: 'ref-a' });
 

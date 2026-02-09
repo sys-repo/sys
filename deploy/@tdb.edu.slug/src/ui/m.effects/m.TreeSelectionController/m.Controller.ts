@@ -2,20 +2,20 @@ import { type t, EffectController, Immutable, slug } from './common.ts';
 import { reduceInput } from './u.reduce.ts';
 import { normalizeState, toView } from './u.ts';
 
-export const TreeEffectController: t.TreeEffectController.Lib = {
+export const TreeSelectionController: t.TreeSelectionController.Lib = {
   create(props = {}) {
     const id = `tree-effect-${slug()}`;
-    const ref = Immutable.clonerRef<t.TreeEffectController.State>(
+    const ref = Immutable.clonerRef<t.TreeSelectionController.State>(
       normalizeState(props.initial ?? {}),
     );
     const controller = EffectController.create<
-      t.TreeEffectController.State,
-      t.TreeEffectController.Patch,
-      t.TreeEffectController.Props
+      t.TreeSelectionController.State,
+      t.TreeSelectionController.Patch,
+      t.TreeSelectionController.Props
     >({ id, ref, props });
 
-    const api = controller as t.TreeEffectController;
-    const intent: t.TreeEffectController['intent'] = (next) => {
+    const api = controller as t.TreeSelectionController;
+    const intent: t.TreeSelectionController['intent'] = (next) => {
       const patch = reduceInput(api.current(), next);
       if (!patch) return;
       api.next(patch);

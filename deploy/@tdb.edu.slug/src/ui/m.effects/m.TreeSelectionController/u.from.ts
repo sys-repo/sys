@@ -3,9 +3,9 @@ import { type t, Is } from './common.ts';
 import { normalizeState } from './u.ts';
 
 export function fromTreeSet(
-  current: t.TreeEffectController.State,
+  current: t.TreeSelectionController.State,
   tree: t.TreeHostViewNodeList,
-): t.TreeEffectController.Patch {
+): t.TreeSelectionController.Patch {
   const pathFromRef = TreeData.findPathByRef(tree, current.selectedRef);
   const pathFromPath = TreeData.findViewNode(tree, current.selectedPath)?.path;
   const selectedPath = pathFromRef ?? pathFromPath;
@@ -19,9 +19,9 @@ export function fromTreeSet(
 }
 
 export function fromPathRequest(
-  current: t.TreeEffectController.State,
+  current: t.TreeSelectionController.State,
   path?: t.ObjectPath,
-): t.TreeEffectController.Patch {
+): t.TreeSelectionController.Patch {
   const tree = current.tree;
   if (!tree) return normalizeState({ selectedPath: undefined, selectedRef: undefined });
 
@@ -34,9 +34,9 @@ export function fromPathRequest(
 }
 
 export function fromRefRequest(
-  current: t.TreeEffectController.State,
+  current: t.TreeSelectionController.State,
   ref?: string,
-): t.TreeEffectController.Patch {
+): t.TreeSelectionController.Patch {
   const tree = current.tree;
   if (!tree) {
     return normalizeState({

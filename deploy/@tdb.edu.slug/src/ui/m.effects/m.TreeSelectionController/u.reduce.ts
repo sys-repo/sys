@@ -3,9 +3,9 @@ import { fromPathRequest, fromRefRequest, fromTreeSet } from './u.from.ts';
 import { normalizeState } from './u.ts';
 
 export function reduceInput(
-  current: t.TreeEffectController.State,
-  input: t.TreeEffectController.Input,
-): t.TreeEffectController.Patch | undefined {
+  current: t.TreeSelectionController.State,
+  input: t.TreeSelectionController.Input,
+): t.TreeSelectionController.Patch | undefined {
   switch (input.type) {
     case 'reset':
     case 'tree.clear':

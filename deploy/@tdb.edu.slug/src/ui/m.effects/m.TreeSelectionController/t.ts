@@ -1,23 +1,23 @@
 import type { t } from './common.ts';
 
 /**
- * TreeEffectController.
+ * TreeSelectionController.
  * Owns tree + selection invariants for TreeHost.
  */
-export type TreeEffectController = t.EffectController<
-  TreeEffectController.State,
-  TreeEffectController.Patch,
-  TreeEffectController.Props
+export type TreeSelectionController = t.EffectController<
+  TreeSelectionController.State,
+  TreeSelectionController.Patch,
+  TreeSelectionController.Props
 > & {
   /** Canonical controller intent entrypoint. */
-  intent(next: TreeEffectController.Input): void;
-  view(): TreeEffectController.View;
+  intent(next: TreeSelectionController.Input): void;
+  view(): TreeSelectionController.View;
 };
 
-export declare namespace TreeEffectController {
+export declare namespace TreeSelectionController {
   /** Factory surface. */
   export type Lib = {
-    create(props?: TreeEffectController.Props): TreeEffectController;
+    create(props?: TreeSelectionController.Props): TreeSelectionController;
   };
 
   /** Static config properties of the controller. */
