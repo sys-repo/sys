@@ -15,7 +15,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const showContent = isLeaf && (v.contentLoading || !!v.contentData);
     const slots = showContent
       ? {
-          tree: (
+          aux: (
             <FileContentTreePanel
               theme={v.theme}
               loading={v.contentLoading}
