@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type t, Color, css, D, Is, Keyboard, usePointer } from './common.ts';
+import { type t, Color, css, D, Is, Keyboard } from './common.ts';
 import { Body } from './ui.Probe.Body.tsx';
 import { Header } from './ui.Probe.Header.tsx';
 import { useProbeRenderModel } from './use.RenderModel.ts';
@@ -26,9 +26,6 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   } = props;
 
   const [isActOnClickDown, setActOnClickDown] = useState(false);
-  const pointer = usePointer((e) => {
-    setActOnClickDown(wrangle.shouldActOnPointerDown(e, actOn));
-  });
   const { componentAttr } = useScopedStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
@@ -64,12 +61,17 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
 
   return (
     <div
-      {...pointer.handlers}
       data-component={componentAttr}
       className={css(styles.base, props.style).class}
       tabIndex={0}
       onFocus={props.onFocus}
-      onBlur={props.onBlur}
+      onBlur={() => {
+        setActOnClickDown(false);
+        props.onBlur?.();
+      }}
+      onMouseDown={(e) => setActOnClickDown(wrangle.shouldActOnClick(e, actOn))}
+      onMouseUp={() => setActOnClickDown(false)}
+      onMouseLeave={() => setActOnClickDown(false)}
       onKeyDown={(e) => {
         if (!wrangle.shouldActOnKeydown(e, actOn)) return;
         if (!canRun || spinning) return;
@@ -139,15 +141,4 @@ const wrangle = {
     });
   },
 
-  shouldActOnPointerDown(
-    e: Pick<t.PointerEventsArg, 'is' | 'modifiers'>,
-    actOn: t.ActionProbe.ActOn,
-  ) {
-    if (!e.is.down) return false;
-    return wrangle.acts(actOn).some((kind) => {
-      if (kind === null) return false;
-      if (kind === 'Cmd+Click') return Keyboard.Is.command(e.modifiers);
-      return false;
-    });
-  },
 } as const;
