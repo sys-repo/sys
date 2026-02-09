@@ -15,7 +15,6 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
   const local = v.env === 'localhost';
-  const hasTree = !!v.tree;
   const loading = v.spinning && v.probe.active === probeId;
   if (!v.origin) return null;
 
@@ -36,10 +35,9 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
         probe: {
           selectionList: { totalVisible: 5 },
           treeContent: {
-            ref: hasTree ? v.treeContentRef : undefined,
-            refs: hasTree ? v.treeContentRefs : undefined,
+            ref: v.treeContentRef,
+            refs: v.treeContentRefs,
             onRefChange(next) {
-              if (!hasTree) return;
               p.treeContentRef.value = next;
             },
             onRefsChange: (next) => (p.treeContentRefs.value = next),

@@ -114,16 +114,6 @@ export async function createDebugSignals() {
   });
 
   Signal.effect(() => {
-    if (p.tree.value) return;
-    if (!p.treeContentRef.value && !p.treeContentRefs.value) return;
-    p.treeContentRef.value = undefined;
-    p.treeContentRefs.value = undefined;
-    p.contentData.value = undefined;
-    p.contentKey.value = undefined;
-    p.contentLoading.value = false;
-  });
-
-  Signal.effect(() => {
     const tree = p.tree.value;
     if (tree) treeEffect.value.input({ type: 'tree.set', tree });
     else treeEffect.value.input({ type: 'tree.clear' });
