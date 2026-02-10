@@ -90,7 +90,7 @@ export const Signals: t.ActionProbeSignalsLib = {
         if (runTitle && !hasTitle) {
           props.result.items.value = [
             { kind: 'title', v: runTitle },
-            { kind: 'hr' },
+            { kind: 'hr', thickness: 2 },
             ...props.result.items.value,
           ];
         }
