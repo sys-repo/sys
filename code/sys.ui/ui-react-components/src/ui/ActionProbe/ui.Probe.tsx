@@ -45,7 +45,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   const styles = {
     base: css({
       color: theme.fg,
-      backgroundColor: Color.alpha(theme.fg, 0.03),
+      backgroundColor: focused ? theme.bg : Color.alpha(theme.fg, 0.03),
       outline: 'none',
       border: `dashed 1px ${Color.alpha(theme.fg, focused ? 0.6 : 0.25)}`,
       borderRadius,
