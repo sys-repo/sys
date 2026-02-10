@@ -37,14 +37,33 @@ describe('TreeContentDriver data-card orchestrator', () => {
     expect(orchestrator.api.selection.current().selectedRef).to.eql('ref-b');
     orchestrator.api.dispose();
   });
+
+  it('playback: first card selection after back triggers selection update', async () => {
+    const orchestrator = setup({ kind: 'playback-content' });
+    const { card } = orchestrator;
+
+    card.props.treePlayback.refs.value = ['doc-1', 'doc-2', 'doc-3'];
+    await Schedule.micro();
+    card.props.treePlayback.ref.value = 'doc-1';
+    await Schedule.micro();
+
+    orchestrator.api.selection.intent({ type: 'path.request', path: ['program'] });
+    await Schedule.micro();
+    card.props.treePlayback.ref.value = 'doc-2';
+    await Schedule.micro();
+
+    expect(orchestrator.api.selection.current().selectedPath).to.eql(['program', '2']);
+    expect(orchestrator.api.selection.current().selectedRef).to.eql('doc-2');
+    orchestrator.api.dispose();
+  });
 });
 
-function setup() {
+function setup(args: { kind?: t.DataCardKind } = {}) {
   const s = Signal.create;
   const card = DataCards.createSignals({ totalVisible: 5 });
   const props = {
     origin: s<t.SlugUrlOrigin | undefined>(undefined),
-    cardKind: s<t.DataCardKind | undefined>('file-content'),
+    cardKind: s<t.DataCardKind | undefined>(args.kind ?? 'file-content'),
   };
   const api = createOrchestrator({ props, card });
   return { api, card };
