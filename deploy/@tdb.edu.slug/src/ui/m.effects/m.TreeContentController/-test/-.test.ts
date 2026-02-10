@@ -55,6 +55,13 @@ describe('TreeContentController', () => {
       ctrl.dispose();
     });
 
+    it('throws when ref is provided without initial seed', () => {
+      const ref = Immutable.clonerRef<t.TreeContentController.State>({ phase: 'idle' });
+      expect(() => TreeContentController.create({ ref } as never)).to.throw(
+        'TreeContentController.create: initial is required when ref is provided.',
+      );
+    });
+
     it('reset restores the creation seed from initial object input', () => {
       const ctrl = TreeContentController.create({
         initial: { phase: 'ready', key: 'seed-key', data: { title: 'seed' } },
