@@ -3,8 +3,9 @@ export * from '../common.ts';
 
 type P = t.TreeHostProps;
 
-export { TreeView } from '../TreeView/mod.ts';
+export { Spinners } from '../Spinners/mod.ts';
 export { Data as TreeData } from '../TreeView.Index.Data/mod.ts';
+export { TreeView } from '../TreeView/mod.ts';
 
 /**
  * Constants:

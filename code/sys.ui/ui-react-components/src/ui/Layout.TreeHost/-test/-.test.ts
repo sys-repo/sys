@@ -10,4 +10,3 @@ describe('Layout.TreeHost', () => {
     expect(TreeHost.Data).to.equal(Data);
   });
 });
-
