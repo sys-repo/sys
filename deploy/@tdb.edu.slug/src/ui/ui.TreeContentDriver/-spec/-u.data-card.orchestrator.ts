@@ -19,6 +19,8 @@ export function createOrchestrator(args: {
   let lastFileRef: string | undefined = card.treeContent.ref.value;
   let lastPlaybackRef: string | undefined = card.treePlayback.ref.value;
   let lastPlaybackRefs: string[] | undefined = card.treePlayback.refs.value;
+  let suppressFileRefEffect = false;
+  let suppressPlaybackRefEffect = false;
 
   const orchestrator = TreeContentDriver.createOrchestrator({
     load: (input) =>
@@ -30,13 +32,15 @@ export function createOrchestrator(args: {
       const kind = args.props.cardKind.value ?? 'file-content';
       if (kind === 'playback-content') {
         if (card.treePlayback.ref.value === ref) return;
-        card.treePlayback.ref.value = ref;
+        suppressPlaybackRefEffect = true;
         lastPlaybackRef = ref;
+        card.treePlayback.ref.value = ref;
         return;
       }
       if (card.treeContent.ref.value === ref) return;
-      card.treeContent.ref.value = ref;
+      suppressFileRefEffect = true;
       lastFileRef = ref;
+      card.treeContent.ref.value = ref;
     },
   });
 
@@ -58,7 +62,15 @@ export function createOrchestrator(args: {
     if (args.props.cardKind.value !== 'file-content') return;
     if (card.spinning.value) return;
     const ref = card.treeContent.ref.value;
-    if (ref === lastFileRef) return;
+    if (ref === lastFileRef) {
+      if (suppressFileRefEffect) suppressFileRefEffect = false;
+      return;
+    }
+    if (suppressFileRefEffect) {
+      suppressFileRefEffect = false;
+      lastFileRef = ref;
+      return;
+    }
     lastFileRef = ref;
     if (Is.str(ref) && ref.length > 0) {
       orchestrator.intent({ type: 'ref.request', ref });
@@ -88,7 +100,15 @@ export function createOrchestrator(args: {
     if (args.props.cardKind.value !== 'playback-content') return;
     if (card.spinning.value) return;
     const ref = card.treePlayback.ref.value;
-    if (ref === lastPlaybackRef) return;
+    if (ref === lastPlaybackRef) {
+      if (suppressPlaybackRefEffect) suppressPlaybackRefEffect = false;
+      return;
+    }
+    if (suppressPlaybackRefEffect) {
+      suppressPlaybackRefEffect = false;
+      lastPlaybackRef = ref;
+      return;
+    }
     lastPlaybackRef = ref;
     if (Is.str(ref) && ref.length > 0) {
       orchestrator.intent({ type: 'ref.request', ref });
