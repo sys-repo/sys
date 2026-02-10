@@ -1,6 +1,8 @@
 import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { createOrchestrator } from './-u.data-card.orchestrator.ts';
+import { createDataCards } from './-u.data-cards.ts';
+import { useEffectControllers } from './-use.EffectControllers.ts';
 import {
   type t,
   Button,
@@ -110,7 +112,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+
   Signal.useRedrawEffect(debug.listen);
+  const { selection, content } = useEffectControllers(debug);
 
   /**
    * Render:
@@ -119,27 +123,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({ color: theme.fg }),
   };
-
-  const cards = DataCards.createPanel({
-    signals: debug.card,
-    origin: v.origin,
-    env: v.env,
-    theme: v.theme,
-    debug: v.debug,
-    kind: v.cardKind,
-    kinds: ['file-content', 'playback-content'],
-    onKindSelect: (kind) => {
-      if (p.cardKind.value === kind) return;
-      p.cardKind.value = kind;
-      debug.card.reset();
-      debug.orchestrator.reset();
-      debug.card.props.treeContent.ref.value = undefined;
-      debug.card.props.treeContent.refs.value = undefined;
-      debug.card.props.treePlayback.ref.value = undefined;
-      debug.card.props.treePlayback.refs.value = undefined;
-    },
-    style: props.style,
-  });
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -151,7 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ MarginY: [15, 30] }}
       />
 
-      {cards}
+      {createDataCards(debug)}
 
       <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
       <Button
@@ -162,6 +145,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'orchestrator:content'}
+        data={content}
+        style={{ marginTop: 5 }}
+        expand={0}
+      />
+      <ObjectView
+        name={'orchestrator:selection'}
+        data={selection}
+        style={{ marginTop: 5 }}
+        expand={0}
+      />
     </div>
   );
 };
