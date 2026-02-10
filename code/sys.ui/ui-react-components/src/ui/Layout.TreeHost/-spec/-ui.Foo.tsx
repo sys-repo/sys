@@ -19,6 +19,7 @@ export const Foo: React.FC<FooProps> = (props) => {
       minWidth: 0,
       minHeight: 0,
       Padding: props.padding ?? 4,
+      userSelect: 'none',
       display: 'grid',
     }),
     body: css({

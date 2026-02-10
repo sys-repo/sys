@@ -59,7 +59,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
       {slotButton('aux')}
       <Button
         block
-        label={() => `(reset)`}
+        label={() => `(clear)`}
         onClick={() => Signal.walk(p.slots, (e) => e.mutate(undefined))}
       />
     </div>
