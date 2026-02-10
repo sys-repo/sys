@@ -128,7 +128,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
     debug: v.debug,
     kind: v.cardKind,
     kinds: ['file-content', 'playback-content'],
-    onKindSelect: (kind) => (p.cardKind.value = kind),
+    onKindSelect: (kind) => {
+      if (p.cardKind.value === kind) return;
+      p.cardKind.value = kind;
+      debug.orchestrator.reset();
+      debug.card.props.treeContent.ref.value = undefined;
+      debug.card.props.treeContent.refs.value = undefined;
+      debug.card.props.treePlayback.ref.value = undefined;
+      debug.card.props.treePlayback.refs.value = undefined;
+    },
     style: props.style,
   });
 
