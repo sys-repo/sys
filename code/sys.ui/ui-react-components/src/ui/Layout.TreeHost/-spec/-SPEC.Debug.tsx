@@ -1,10 +1,10 @@
 import React from 'react';
-import { type t, BulletList, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
-import { SelectedPath, TreeHost } from './mod.ts';
 import { SAMPLE_TREE_1, SAMPLE_TREE_2 } from './-u.sample.data.ts';
-import { Foo } from './-ui.Foo.tsx';
+import { PropSlots } from './-ui.prop.slots.tsx';
 import { PropSpinner } from './-ui.prop.spinner.tsx';
+import { SelectedPath, TreeHost } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner'> & {
@@ -25,11 +25,6 @@ export function createDebugSignals() {
   const snap = store.current;
 
   type S = t.TreeHostSlots;
-  const slots = {
-    tree: s<S['tree']>(),
-    main: s<S['main']>(),
-    aux: s<S['aux']>(),
-  };
 
   const props = {
     debug: s(snap.debug),
@@ -37,7 +32,11 @@ export function createDebugSignals() {
     tree: s<P['tree']>(SAMPLE_TREE_1),
     selectedPath: s(snap.selectedPath),
     spinner: s(snap.spinner),
-    slots,
+    slots: {
+      tree: s<S['tree']>(),
+      main: s<S['main']>(),
+      aux: s<S['aux']>(),
+    },
     customEmpty: s(snap.customEmpty),
   };
 
@@ -113,6 +112,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
       <hr />
+      <PropSlots debug={debug} />
+
+      <hr />
       <Button
         block
         label={() => `slot: empty ${p.customEmpty.value ? '🐚' : ''}`}
@@ -126,9 +128,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-function spinnerSelection(value: P['spinner']) {
-  const current = JSON.stringify(value ?? null);
-  const hit = SPINNER_OPTIONS.find((item) => JSON.stringify(item.value ?? null) === current);
-  return hit?.id;
-}
