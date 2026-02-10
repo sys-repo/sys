@@ -6,8 +6,9 @@ export const TreeContentController: t.TreeContentController.Lib = {
   create(props) {
     const id = `${D.idPrefix}${slug()}`;
     const cfg: t.TreeContentController.Props = props ?? {};
-    const initial = initialState(cfg.initial ?? {});
-    const ref = cfg.ref ?? Immutable.clonerRef<t.TreeContentController.State>(initial);
+    const input = typeof cfg.initial === 'function' ? cfg.initial() : cfg.initial;
+    const seed = initialState(input ?? {});
+    const ref = cfg.ref ?? Immutable.clonerRef<t.TreeContentController.State>(seed);
 
     const controller = EffectController.create<
       t.TreeContentController.State,
@@ -18,7 +19,7 @@ export const TreeContentController: t.TreeContentController.Lib = {
     const api = controller as t.TreeContentController;
     api.view = () => toView(api.current());
     api.intent = (next) => {
-      const patch = reduceInput(api.current(), next);
+      const patch = reduceInput(api.current(), next, seed);
       if (!patch) return;
       api.next(patch);
     };

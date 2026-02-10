@@ -11,10 +11,11 @@ import { initialState } from './u.ts';
 export function reduceInput(
   current: t.TreeContentController.State,
   input: t.TreeContentController.Input,
+  seed?: t.TreeContentController.Patch,
 ): t.TreeContentController.Patch | undefined {
   switch (input.type) {
     case 'reset':
-      return initialState();
+      return initialState(seed);
 
     case 'selection.changed':
       return fromSelectionChanged(input.key);

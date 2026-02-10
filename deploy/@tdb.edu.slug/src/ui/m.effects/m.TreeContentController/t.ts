@@ -23,14 +23,17 @@ export declare namespace TreeContentController {
 
   /** Factory args: choose local initial or injected ref. */
   export type CreateProps =
-    | { readonly initial?: Partial<State>; readonly ref?: never }
+    | { readonly initial?: InitialInput; readonly ref?: never }
     | { readonly ref: Ref; readonly initial?: never };
 
   /** Static controller config. */
   export type Props = {
-    readonly initial?: Partial<State>;
+    readonly initial?: InitialInput;
     readonly ref?: Ref;
   };
+
+  /** Initial seed input for controller creation. */
+  export type InitialInput = Partial<State> | (() => Partial<State>);
 
   /** Minimal EffectRef-compatible store surface for controller state. */
   export type Ref = {

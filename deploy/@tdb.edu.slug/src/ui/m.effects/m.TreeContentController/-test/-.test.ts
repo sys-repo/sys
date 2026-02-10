@@ -54,6 +54,38 @@ describe('TreeContentController', () => {
       expect(state.data).to.eql({ title: 'A' });
       ctrl.dispose();
     });
+
+    it('reset restores the creation seed from initial object input', () => {
+      const ctrl = TreeContentController.create({
+        initial: { phase: 'ready', key: 'seed-key', data: { title: 'seed' } },
+      });
+      ctrl.intent({ type: 'load.start', request: req('r1', 'live-key') });
+      ctrl.intent({ type: 'reset' });
+
+      const state = ctrl.current();
+      expect(state.phase).to.eql('ready');
+      expect(state.key).to.eql('seed-key');
+      expect(state.request).to.eql(undefined);
+      expect(state.data).to.eql({ title: 'seed' });
+      expect(state.error).to.eql(undefined);
+      ctrl.dispose();
+    });
+
+    it('reset restores the creation seed from initial factory input', () => {
+      const ctrl = TreeContentController.create({
+        initial: () => ({ phase: 'ready', key: 'factory-key', data: { title: 'factory' } }),
+      });
+      ctrl.intent({ type: 'load.start', request: req('r1', 'live-key') });
+      ctrl.intent({ type: 'reset' });
+
+      const state = ctrl.current();
+      expect(state.phase).to.eql('ready');
+      expect(state.key).to.eql('factory-key');
+      expect(state.request).to.eql(undefined);
+      expect(state.data).to.eql({ title: 'factory' });
+      expect(state.error).to.eql(undefined);
+      ctrl.dispose();
+    });
   });
 
   describe('request token gating (stale/race safety)', () => {
