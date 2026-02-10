@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, EffectController, Immutable, Player } from '../common.ts';
+import { type t, Effect, Immutable, Player } from '../common.ts';
 import { attachPlaybackDriverEffect } from './mod.ts';
 import type { PlaybackEffectAdapter, SlugPlaybackRuntimeState } from './t.ts';
 
@@ -12,7 +12,7 @@ describe('controller: attachPlaybackDriverEffect', () => {
 
   const createFixture = (): Fixture => {
     const ref = Immutable.clonerRef<State>({});
-    const controller = EffectController.create({ ref });
+    const controller = Effect.Controller.create({ ref });
     const adapter: PlaybackEffectAdapter = {
       disposed: controller.disposed,
       dispose$: controller.dispose$,

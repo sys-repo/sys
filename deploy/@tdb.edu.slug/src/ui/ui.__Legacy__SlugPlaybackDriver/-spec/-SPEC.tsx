@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
-import { css, D, EffectController, Player } from '../common.ts';
+import { css, D, Effect, Player } from '../common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { TreeHost } from './mod.ts';
 
@@ -10,7 +10,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    const state = EffectController.useEffectController(debug.controller);
+    const state = Effect.useEffectController(debug.controller);
     const decks = state?.playback?.decks;
     const activeDeck = state?.playback?.snapshot?.state.decks.active;
 

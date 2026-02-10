@@ -1,4 +1,4 @@
-import { type t, EffectController, Immutable, slug } from './common.ts';
+import { type t, Effect, Immutable, slug } from './common.ts';
 import { reduceInput } from './u.reduce.ts';
 import { normalizeState, toView } from './u.ts';
 
@@ -14,7 +14,7 @@ export const TreeSelectionController: t.TreeSelectionController.Lib = {
       ...(input ?? {}),
     });
     const ref = Immutable.clonerRef<t.TreeSelectionController.State>(seed);
-    const controller = EffectController.create<
+    const controller = Effect.Controller.create<
       t.TreeSelectionController.State,
       t.TreeSelectionController.Patch,
       t.TreeSelectionController.Props

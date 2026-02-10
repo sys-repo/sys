@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, EffectController, Immutable, Schedule } from '../common.ts';
+import { type t, Effect, Immutable, Schedule } from '../common.ts';
 import { attachSlugLoaderEffect } from './mod.ts';
 import type { SlugEffectAdapter, SlugPlaybackSlugState } from './t.ts';
 
@@ -14,13 +14,14 @@ describe('controller: attachSlugLoaderEffect', () => {
 
   const createFixture = (): Fixture => {
     const ref = Immutable.clonerRef<State>({});
-    const controller = EffectController.create({ ref });
+    const controller = Effect.Controller.create({ ref });
     const adapter: SlugEffectAdapter = {
       disposed: controller.disposed,
       dispose$: controller.dispose$,
       current: () => controller.current().slug,
       onChange: (fn) => controller.onChange((state) => fn(state.slug)),
-      next: (patch) => controller.next({ slug: { ...(controller.current().slug ?? {}), ...patch } }),
+      next: (patch) =>
+        controller.next({ slug: { ...(controller.current().slug ?? {}), ...patch } }),
     };
     let bundle: t.TimecodePlaybackDriver.Wire.Bundle | undefined;
     const setBundle = (next: t.TimecodePlaybackDriver.Wire.Bundle | undefined) => {
@@ -93,7 +94,9 @@ describe('controller: attachSlugLoaderEffect', () => {
     expect(calls).to.eql(['slug:ref-a']);
 
     const pathInline: t.ObjectPath = ['root', 'inline'];
-    controller.next({ slug: { ...(controller.current().slug ?? {}), tree, selectedPath: pathInline } });
+    controller.next({
+      slug: { ...(controller.current().slug ?? {}), tree, selectedPath: pathInline },
+    });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
@@ -236,7 +239,9 @@ describe('controller: attachSlugLoaderEffect', () => {
     await Schedule.micro();
 
     const pathInline: t.ObjectPath = ['root', 'inline'];
-    controller.next({ slug: { ...(controller.current().slug ?? {}), tree, selectedPath: pathInline } });
+    controller.next({
+      slug: { ...(controller.current().slug ?? {}), tree, selectedPath: pathInline },
+    });
     await Schedule.micro();
 
     const state = controller.current();

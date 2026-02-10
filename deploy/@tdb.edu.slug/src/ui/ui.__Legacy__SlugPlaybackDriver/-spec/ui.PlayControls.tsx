@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, EffectController, PlaybackDriver, Player } from '../common.ts';
+import { type t, Effect, PlaybackDriver, Player } from '../common.ts';
 
 type PlayControlsProps = {
   controller?: t.SlugPlaybackController;
@@ -16,7 +16,7 @@ export const PlayControls: React.FC<PlayControlsProps> = (props) => {
   /**
    * Hooks:
    */
-  const state = EffectController.useEffectController(controller);
+  const state = Effect.useEffectController(controller);
   const controls = PlaybackDriver.Util.usePlayControlsProps({
     controller: state?.playback?.timeline,
     snapshot: state?.playback?.snapshot,

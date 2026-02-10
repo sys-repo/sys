@@ -1,4 +1,4 @@
-import { type t, EffectController, Immutable, slug } from '../common.ts';
+import { type t, Effect, Immutable, slug } from '../common.ts';
 
 type State = t.SlugKbState;
 type Patch = t.SlugKbPatch;
@@ -11,7 +11,7 @@ export const Controller: t.SlugKbControllerLib = {
   create(props) {
     const id = `slug-kb-${slug()}`;
     const ref = Immutable.clonerRef<State>({});
-    const controller = EffectController.create<State, Patch, Props>({ id, ref, props });
+    const controller = Effect.Controller.create<State, Patch, Props>({ id, ref, props });
 
     return controller;
   },

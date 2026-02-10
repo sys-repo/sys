@@ -6,7 +6,7 @@ import {
   Color,
   css,
   D,
-  EffectController,
+  Effect,
   LocalStorage,
   Obj,
   ObjectView,
@@ -122,7 +122,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
 
   Signal.useRedrawEffect(debug.listen);
-  const state = EffectController.useEffectController(controller);
+  const state = Effect.useEffectController(controller);
 
   /**
    * Render:

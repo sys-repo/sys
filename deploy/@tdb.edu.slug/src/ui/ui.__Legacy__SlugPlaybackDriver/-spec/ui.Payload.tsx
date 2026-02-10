@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, EffectController, ObjectView, PlaybackDriver } from '../common.ts';
+import { type t, Color, css, Effect, ObjectView, PlaybackDriver } from '../common.ts';
 
 export type PayloadProps = {
   controller?: t.SlugPlaybackController;
@@ -13,7 +13,7 @@ export type PayloadProps = {
  */
 export const Payload: React.FC<PayloadProps> = (props) => {
   const { controller, debug = false } = props;
-  const state = EffectController.useEffectController(controller);
+  const state = Effect.useEffectController(controller);
 
   const bundle = state?.playback?.bundle;
   const snapshot = state?.playback?.snapshot;

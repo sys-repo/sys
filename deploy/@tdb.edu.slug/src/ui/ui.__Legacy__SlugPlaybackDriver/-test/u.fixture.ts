@@ -1,4 +1,4 @@
-import { type t, EffectController, Immutable, Player, slug } from '../common.ts';
+import { type t, Effect, Immutable, Player, slug } from '../common.ts';
 
 /**
  * Test-only base URL used by SlugPlaybackDriver fixtures.
@@ -28,7 +28,7 @@ export function createTestController() {
   const id = `slug-playback-${slug()}`;
   const ref = Immutable.clonerRef<State>({});
   const props: Props = { baseUrl };
-  return EffectController.create({ id, ref, props });
+  return Effect.Controller.create({ id, ref, props });
 }
 
 /**

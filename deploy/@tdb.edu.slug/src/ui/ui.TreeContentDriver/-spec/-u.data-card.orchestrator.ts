@@ -1,5 +1,5 @@
 import { TreeContentDriver } from '../mod.ts';
-import { type t, Is, Signal } from './common.ts';
+import { type t, Effect, Is, Signal } from './common.ts';
 import { resolveLoader, treeFromResponse } from './-u.data-card.loaders.ts';
 
 type DataCardSignals = t.DataCardSignals;
@@ -19,8 +19,8 @@ export function createOrchestrator(args: {
   let lastFileRef: string | undefined = card.treeContent.ref.value;
   let lastPlaybackRef: string | undefined = card.treePlayback.ref.value;
   let lastPlaybackRefs: string[] | undefined = card.treePlayback.refs.value;
-  const fileRefMirror = createMirrorToken<string | undefined>();
-  const playbackRefMirror = createMirrorToken<string | undefined>();
+  const fileRefMirror = Effect.Causal.mirrorToken<string | undefined>();
+  const playbackRefMirror = Effect.Causal.mirrorToken<string | undefined>();
 
   const orchestrator = TreeContentDriver.createOrchestrator({
     load: (input) =>
@@ -136,22 +136,4 @@ function treeFromPlaybackRefs(refs?: string[]): t.TreeHostViewNodeList | undefin
       children,
     },
   ];
-}
-
-const NONE = Symbol('none');
-type Token<T> = { mark(value: T): void; consume(value: T): boolean };
-
-function createMirrorToken<T>(): Token<T> {
-  let token: T | typeof NONE = NONE;
-  return {
-    mark(value) {
-      token = value;
-    },
-    consume(value) {
-      if (token === NONE) return false;
-      if (!Object.is(token, value)) return false;
-      token = NONE;
-      return true;
-    },
-  };
 }

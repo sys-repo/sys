@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, EffectController, KeyValue, Str } from './common.ts';
+import { type t, Color, css, D, useEffectController, KeyValue, Str } from './common.ts';
 
 export type DriverInfoProps = {
   title?: string;
@@ -18,7 +18,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   /**
    * Hooks:
    */
-  const state = EffectController.useEffectController(controller);
+  const state = useEffectController(controller);
   const selectedPath = state?.selectedPath;
   const path = selectedPath ? `/${Str.trimLeadingSlashes(selectedPath?.join('/'))}` : '-';
 
