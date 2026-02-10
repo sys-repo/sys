@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { type t, Color, css, D, Is, Keyboard, Time } from './common.ts';
 import { Body } from './ui.Probe.Body.tsx';
 import { Header } from './ui.Probe.Header.tsx';
@@ -29,6 +29,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   if (!spec) throw new Error('ActionProbe.Probe requires `spec`.');
 
   const [isActOnClickDown, setActOnClickDown] = useState(false);
+  const [running, setRunning] = useState(false);
+  const runRef = useRef(false);
   const { componentAttr } = useScopedStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ spec, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
@@ -40,11 +42,26 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     onRunItem: props.onRunItem,
     onRunResult: props.onRunResult,
   });
+  const invokeRun = useCallback(async () => {
+    if (!canRun) return false;
+    if (spinning || runRef.current) return false;
+    runRef.current = true;
+    setRunning(true);
+    try {
+      await run();
+      return true;
+    } finally {
+      runRef.current = false;
+      setRunning(false);
+    }
+  }, [canRun, run, spinning]);
+
   const triggerDoubleClickPulse = async () => {
+    if (spinning || runRef.current) return;
     setActOnClickDown(true);
     await Time.wait(D.Probe.doubleClickPulse);
     setActOnClickDown(false);
-    run();
+    void invokeRun();
   };
 
   /**
@@ -83,20 +100,20 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       onMouseLeave={() => setActOnClickDown(false)}
       onKeyDown={(e) => {
         if (!wrangle.shouldActOnKeydown(e, actOn)) return;
-        if (!canRun || spinning) return;
+        if (!canRun || spinning || runRef.current) return;
         e.preventDefault();
-        run();
+        void invokeRun();
       }}
       onClick={(e) => {
         if (!wrangle.shouldActOnClick(e, actOn)) return;
-        if (!canRun || spinning) return;
+        if (!canRun || spinning || runRef.current) return;
         const target = e.target as HTMLElement | null;
         if (target?.closest('[role="button"]')) return;
         e.preventDefault();
-        run();
+        void invokeRun();
       }}
       onDoubleClick={(e) => {
-        if (!canRun || spinning) return;
+        if (!canRun || spinning || runRef.current) return;
         const target = e.target as HTMLElement | null;
         if (target?.closest('[data-part="probe-body-content"]')) return;
         if (target?.closest('[role="button"]')) return;
@@ -105,11 +122,11 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     >
       <Header
         title={spec.title}
-        canRun={canRun}
-        spinning={spinning}
+        canRun={canRun && !running}
+        spinning={spinning || running}
         focused={focused}
         actOn={actOn}
-        onRun={run}
+        onRun={() => void invokeRun()}
         style={styles.header}
       />
       <Body blocks={blocks} theme={theme.name} style={styles.body} />
