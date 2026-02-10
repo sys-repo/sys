@@ -22,6 +22,12 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
 
   const view = debug.orchestrator.selection.view();
   const loading = content.phase === 'loading';
+  const lastReady = React.useRef<t.TreeContentController.State | undefined>(undefined);
+
+  React.useEffect(() => {
+    if (content.phase !== 'ready') return;
+    lastReady.current = content;
+  }, [content]);
 
   /**
    * Render:
@@ -47,8 +53,11 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
         selectedPath={view.treeHost.selectedPath}
         slots={{
           main:
-            content.phase === 'ready' ? (
-              <div>{'Main content'}</div>
+            content.phase === 'ready' || (loading && !!lastReady.current) ? (
+              <div>
+                <div>{'Main content'}</div>
+                {loading ? <div>{'Loading content'}</div> : undefined}
+              </div>
             ) : loading ? (
               <div>{'Loading content'}</div>
             ) : undefined,
@@ -56,8 +65,18 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
           treeLeaf: (e) => {
             const node = TreeData.findViewNode(selection.tree, selection.selectedPath);
             const isSelectedLeaf = !!node && node.key === e.node.key;
-            if (!isSelectedLeaf || content.phase !== 'ready') return <div>{''}</div>;
-            return <div>{'Leaf content'}</div>;
+            if (!isSelectedLeaf) return <div>{''}</div>;
+            if (content.phase === 'ready') return <div>{'Leaf content'}</div>;
+            if (loading && !!lastReady.current) {
+              return (
+                <div>
+                  <div>{'Leaf content'}</div>
+                  <div>{'Loading content'}</div>
+                </div>
+              );
+            }
+            if (loading) return <div>{'Loading content'}</div>;
+            return <div>{''}</div>;
           },
         }}
         onPathRequest={(e) =>
