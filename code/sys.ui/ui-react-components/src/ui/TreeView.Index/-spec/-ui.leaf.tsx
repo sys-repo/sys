@@ -21,8 +21,10 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
-      display: 'grid',
+      fontSize: 14,
       padding: 8,
+      display: 'grid',
+      minHeight: 0,
     }),
     body: css({
       backgroundColor: Color.ruby(0.1),
@@ -31,12 +33,13 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
       padding: 12,
       display: 'grid',
       minHeight: 0,
+      alignSelf: 'stretch',
       alignContent: 'start',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
       rowGap: 10,
     }),
-    obj: css({ marginLeft: 6 }),
+    obj: css({ marginLeft: 20 }),
   };
 
   return (
