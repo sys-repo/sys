@@ -21,8 +21,18 @@ export const Tree: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
-    body: css({ display: 'grid' }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+      minHeight: 0,
+      gridTemplateRows: 'minmax(0, 1fr)',
+    }),
+    body: css({
+      display: 'grid',
+      minHeight: 0,
+      gridTemplateRows: 'minmax(0, 1fr)',
+    }),
   };
 
   const elEmpty = !tree

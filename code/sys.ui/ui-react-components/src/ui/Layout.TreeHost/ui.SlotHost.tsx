@@ -23,10 +23,17 @@ export const SlotHost: React.FC<SlotHostProps> = (props) => {
    */
   const theme = Color.theme(host.theme);
   const styles = {
-    base: css({ position: 'relative', display: 'grid' }),
+    base: css({
+      position: 'relative',
+      display: 'grid',
+      minHeight: 0,
+      gridTemplateRows: 'minmax(0, 1fr)',
+    }),
     spinner: css({ Absolute: 0 }),
     body: css({
       display: 'grid',
+      minHeight: 0,
+      gridTemplateRows: 'minmax(0, 1fr)',
       filter: !!spinner?.backgroundBlur ? `blur(${spinner.backgroundBlur}px)` : undefined,
       opacity: spinner ? spinner.backgroundOpacity : 1,
       transition: 'opacity 120ms ease',
