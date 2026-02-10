@@ -1,5 +1,5 @@
 import React from 'react';
-import { Foo } from './-ui.Foo.tsx';
+import { Foo } from './-ui.foobar.tsx';
 import { type t, Button, Color, css, Signal } from './common.ts';
 
 export type PropSlotsProps = {

@@ -1,6 +1,6 @@
 import { Signal } from '../../-test.ui.ts';
 import { TreeHost } from '../mod.ts';
-import { LeafPanel } from './-ui.leaf.tsx';
+import { FooLeaf } from './-ui.foobar.leaf.tsx';
 import { type t, Obj } from './common.ts';
 
 export type SpecRootProps = {
@@ -22,7 +22,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
 
   const selectedLeaf = selectedNode && !selectedNode.children?.length ? selectedNode : undefined;
   const renderLeaf = (title: string) =>
-    selectedLeaf && <LeafPanel title={title} theme={v.theme} path={path} node={selectedLeaf} />;
+    selectedLeaf && <FooLeaf title={title} theme={v.theme} path={path} node={selectedLeaf} />;
 
   const mainSlot = (v.slots.main ?? selectedLeaf) ? renderLeaf('Main Leaf Content') : undefined;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, ObjectView } from './common.ts';
 
-export type LeafPanelProps = {
+export type FooLeafProps = {
   title?: string;
   node: t.TreeHostViewNode;
   path: t.ObjectPath;
@@ -9,12 +9,13 @@ export type LeafPanelProps = {
   style?: t.CssInput;
 };
 
-export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
+export const FooLeaf: React.FC<FooLeafProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       position: 'relative',
       color: theme.fg,
+      fontSize: 14,
       display: 'grid',
       Padding: 8,
       minHeight: 0,
@@ -29,15 +30,20 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
       alignContent: 'start',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
-      rowGap: 8,
+      rowGap: 5,
     }),
-    obj: css({ marginLeft: 6, marginBottom: 10 }),
+    obj: css({
+      marginLeft: 20,
+      marginBottom: 10,
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <div>{props.title ?? `🌳 Leaf Panel`}</div>
+        <div>
+          {'🌳'} {props.title ?? `Leaf Panel`}
+        </div>
         <ObjectView
           theme={theme.name}
           name={'t.TreeHostLeaf'}
