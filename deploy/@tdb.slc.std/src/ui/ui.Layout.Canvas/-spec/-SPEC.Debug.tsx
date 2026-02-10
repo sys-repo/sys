@@ -1,17 +1,19 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  CanvasPanel,
-  css,
-  D,
-  LocalStorage,
-  ObjectView,
-  Signal,
-} from '../common.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { SampleButtons } from './-ui.buttons.tsx';
 
 type P = t.CanvasLayoutProps;
 type Storage = { borderRadius?: number } & Pick<P, 'theme' | 'debug'>;
+type ResetDefaults = Storage & Pick<P, 'panels'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  borderRadius: 30,
+};
+const resetDefaults: ResetDefaults = {
+  ...defaults,
+  panels: undefined,
+};
 
 /**
  * Types:
@@ -24,12 +26,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: false,
-    borderRadius: D.borderRadius,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -54,12 +50,17 @@ export function createDebugSignals() {
 
   const api = {
     props,
-    listen() {
-      Object.values(p)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
-    },
+    listen,
+    reset,
   };
+
+  function listen() {
+    Signal.listen(p, true);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(resetDefaults, e.path)));
+  }
 
   return api;
 }
@@ -115,6 +116,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
@@ -124,49 +126,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-/**
- * Dev Helpers:
- */
-export function SampleButtons(props: { debug: DebugSignals }) {
-  const { debug } = props;
-  const p = debug.props;
-  const styles = {
-    emoji: css({ fontSize: 32, padding: 8, display: 'grid', placeItems: 'center' }),
-  };
-
-  const elements: t.ReactNode[] = [];
-  const sampleElement = (panel: t.CanvasPanel) => {
-    return <div className={styles.emoji.class}>{`🌳 ${panel}`}</div>;
-  };
-
-  const sample = (label: string, fn?: () => t.CanvasPanelContentMap | undefined) => {
-    const btn = (
-      <Button
-        block
-        key={elements.length}
-        label={() => label}
-        onClick={() => (p.panels.value = fn?.())}
-      />
-    );
-    elements.push(btn);
-  };
-
-  sample('- panels: <all>', () => {
-    const panels: t.CanvasPanelContentMap = {};
-    CanvasPanel.all.forEach((panel) => (panels[panel] = { view: sampleElement(panel) }));
-    return panels;
-  });
-
-  sample('- panels: <partial>', () => {
-    return {
-      purpose: '👋 hello string',
-      uvp: { view: sampleElement('uvp') },
-      revenue: { view: '🐷 revenue' },
-    };
-  });
-
-  sample('(reset)', () => undefined);
-
-  return <React.Fragment>{elements}</React.Fragment>;
-}
