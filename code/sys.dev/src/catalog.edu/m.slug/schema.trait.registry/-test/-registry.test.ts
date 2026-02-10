@@ -2,7 +2,9 @@ import { describe, expect, expectTypeOf, it, Value } from '../../../-test.ts';
 import { Type as T } from '../common.ts';
 import { makeRegistry } from '../mod.ts';
 
-describe('registry.surface', () => {
+describe(
+  { name: 'registry.surface', sanitizeOps: false, sanitizeResources: false },
+  () => {
   const registry = makeRegistry([
     {
       id: 'trait-index',
@@ -77,4 +79,5 @@ describe('registry.surface', () => {
     ] as const;
     expect(() => makeRegistry(dup as any)).to.throw();
   });
-});
+  },
+);
