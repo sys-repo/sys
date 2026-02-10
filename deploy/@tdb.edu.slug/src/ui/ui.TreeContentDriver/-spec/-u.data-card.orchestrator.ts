@@ -1,6 +1,6 @@
 import { TreeContentDriver } from '../mod.ts';
 import { type t, Is, Signal } from './common.ts';
-import { resolveLoader, treeFromResponse } from './-u.loaders.ts';
+import { resolveLoader, treeFromResponse } from './-u.data-card.loaders.ts';
 
 type DataCardSignals = t.DataCardSignals;
 type PropsSignals = {
