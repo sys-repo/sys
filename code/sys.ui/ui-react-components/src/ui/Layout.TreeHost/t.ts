@@ -20,7 +20,7 @@ export type TreeHostProps = {
   slots?: t.TreeHostSlots;
   tree?: t.TreeHostViewNodeList;
   selectedPath?: t.ObjectPath;
-  spinner?: TreeHostSlot | TreeHostSlot[];
+  spinner?: TreeHostSpinner | TreeHostSpinner[];
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -50,6 +50,15 @@ export type TreeHostSlots = {
 
 /** Slot registry keys for TreeHost. */
 export type TreeHostSlot = keyof TreeHostSlots;
+export type TreeHostSpinnerSlot = Exclude<TreeHostSlot, 'empty'>;
+export type TreeHostSpinnerPosition = 'top' | 'middle' | 'bottom';
+export type TreeHostSlotSpinner = {
+  readonly slot: TreeHostSpinnerSlot;
+  readonly opacity?: number;
+  readonly backgroundBlur?: t.Pixels;
+  readonly position?: TreeHostSpinnerPosition;
+};
+export type TreeHostSpinner = TreeHostSpinnerSlot | TreeHostSlotSpinner;
 
 /**
  * Event handlers:

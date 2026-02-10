@@ -14,6 +14,9 @@ const name = 'TreeHost';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
+  spinnerOpacity: 0.1,
+  spinnerBackgroundBlur: undefined as t.Pixels | undefined,
+  spinnerPosition: 'middle' as t.TreeHostSpinnerPosition,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
