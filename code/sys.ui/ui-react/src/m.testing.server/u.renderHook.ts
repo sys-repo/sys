@@ -18,9 +18,9 @@ if (!DomMock.isPolyfilled) {
    * HappyDOM's AsyncTaskManager schedules internal timers during polyfill/import-time.
    * Deno will fail a test if a timer started "before the test" completes "during the test".
    *
-   * Drain one macrotask here so HappyDOM's initial timers complete before any test runs.
+   * Drain the async tail here so HappyDOM's initial timers complete before any test runs.
    */
-  await Schedule.macro();
+  await settleAsyncTail();
 }
 
 /**
@@ -38,3 +38,10 @@ export const act: TLModule['act'] = TL.act;
 
 export type RenderHook = TLModule['renderHook'];
 export type Act = TLModule['act'];
+
+async function settleAsyncTail() {
+  await Schedule.micro();
+  await Schedule.macro();
+  await Schedule.raf();
+  await Schedule.macro();
+}
