@@ -1,21 +1,9 @@
 import { type t } from './common.ts';
 
-/** Type re-exports. */
-export type * from './t.causal.ts';
-
 /**
  * EffectController — minimal orchestration primitive.
  */
-export type EffectControllerLib = CreateMethod & {
-  readonly Causal: EffectCausalLib;
-};
-
-/**
- * EffectController causal helpers (adapter protocol utilities).
- */
-export type EffectCausalLib = {
-  mirrorToken<T>(): t.EffectMirrorToken<T>;
-};
+export type EffectControllerLib = CreateMethod & {};
 
 /** Create: factory overloads */
 type CreateMethod = {

@@ -14,7 +14,7 @@
     "./types": "./src/types.ts",
     "./alias": "./src/-exports/-alias.ts",
     "./async": "./src/m.Async/mod.ts",
-    "./effect": "./src/m.EffectController/mod.ts",
+    "./effect": "./src/m.Effect/mod.ts",
     "./ansi/server": "./src/m.Ansi/mod.ts",
     "./args": "./src/m.Args/mod.ts",
     "./error": "./src/-exports/-err.ts",
