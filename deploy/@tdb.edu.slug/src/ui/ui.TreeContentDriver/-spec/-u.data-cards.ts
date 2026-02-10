@@ -3,7 +3,8 @@ import { type t, Signal } from './common.ts';
 
 export function createDataCards(debug: t.DebugSignals) {
   const { card, orchestrator } = debug;
-  const v = Signal.toObject(debug.props);
+  const p = debug.props;
+  const v = Signal.toObject(p);
   return DataCards.createPanel({
     signals: debug.card,
     origin: v.origin,
@@ -13,8 +14,8 @@ export function createDataCards(debug: t.DebugSignals) {
     kind: v.cardKind,
     kinds: ['file-content', 'playback-content'],
     onKindSelect(kind) {
-      if (v.cardKind === kind) return;
-      v.cardKind = kind;
+      if (p.cardKind.value === kind) return;
+      p.cardKind.value = kind;
       orchestrator.reset();
       card.reset();
       card.props.treeContent.ref.value = undefined;
