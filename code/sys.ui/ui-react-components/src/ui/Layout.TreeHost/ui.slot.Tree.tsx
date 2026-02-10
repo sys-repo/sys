@@ -22,7 +22,7 @@ export const Tree: React.FC<P> = (props) => {
   };
 
   const elEmpty = !tree && (
-    <Empty theme={theme.name} children={slots.empty?.('tree') ?? 'No tree to display'} />
+    <Empty theme={theme.name} children={slots.empty?.({ slot: 'tree' }) ?? 'No tree to display'} />
   );
 
   const elTree = tree && !slots.tree && <HostTreeView {...props} />;
