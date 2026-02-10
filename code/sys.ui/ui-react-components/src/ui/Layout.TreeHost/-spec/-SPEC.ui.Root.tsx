@@ -24,7 +24,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const renderLeaf = (title: string) =>
     selectedLeaf && <FooLeaf title={title} theme={v.theme} path={path} node={selectedLeaf} />;
 
-  const mainSlot = (v.slots.main ?? selectedLeaf) ? renderLeaf('Main Leaf Content') : undefined;
+  const mainSlot = v.slots.main ?? (selectedLeaf ? renderLeaf('Main Leaf Content') : undefined);
 
   const slots: t.TreeHostSlots = {
     ...v.slots,

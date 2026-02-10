@@ -24,3 +24,12 @@ export function toSlotSpinner(
   if (!match) return undefined;
   return { ...defaults, ...match };
 }
+
+export function toSlotNode(
+  input: t.TreeHostSlotInput | undefined,
+  args: t.TreeHostRenderSlotArgs,
+): t.ReactNode | undefined {
+  if (input === undefined) return undefined;
+  if (Is.func(input)) return input(args);
+  return input;
+}

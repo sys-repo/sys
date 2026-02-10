@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
+import { toSlotNode } from './u.slot.ts';
 
 import { Empty } from './ui.Empty.tsx';
 import { HostTreeView } from './ui.slot.Tree.TreeView.tsx';
@@ -11,6 +12,9 @@ type P = t.TreeHostProps;
  */
 export const Tree: React.FC<P> = (props) => {
   const { tree, slots = {} } = props;
+  const slotInput = slots.tree;
+  const hasSlotOverride = slotInput !== undefined;
+  const slotNode = toSlotNode(slotInput, { slot: 'tree' });
 
   /**
    * Render:
@@ -21,15 +25,16 @@ export const Tree: React.FC<P> = (props) => {
     body: css({ display: 'grid' }),
   };
 
-  const elEmpty = !tree && (
-    <Empty theme={theme.name} children={slots.empty?.({ slot: 'tree' }) ?? 'No tree to display'} />
-  );
+  const elEmpty = !tree
+    ? <Empty theme={theme.name} children={slots.empty?.({ slot: 'tree' }) ?? 'No tree to display'} />
+    : undefined;
 
-  const elTree = tree && !slots.tree && <HostTreeView {...props} />;
+  const elTree = tree && !hasSlotOverride ? <HostTreeView {...props} /> : undefined;
+  const elContent = hasSlotOverride ? slotNode : (elEmpty ?? elTree);
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{elEmpty || slots.tree || elTree}</div>
+      <div className={styles.body.class}>{elContent}</div>
     </div>
   );
 };

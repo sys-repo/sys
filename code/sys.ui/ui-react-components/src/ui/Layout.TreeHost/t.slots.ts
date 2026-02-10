@@ -2,15 +2,18 @@ import type { t } from './common.ts';
 
 export type TreeHostSpinner = TreeHostSpinnerSlot | TreeHostSlotSpinner;
 export type TreeHostSlot = 'tree' | 'treeLeaf' | 'main' | 'aux' | 'empty';
+export type TreeHostRenderSlotArgs = { readonly slot: t.TreeHostSlot };
+export type TreeHostRenderSlotHandler = (e: TreeHostRenderSlotArgs) => t.ReactNode;
+export type TreeHostSlotInput = t.ReactNode | TreeHostRenderSlotHandler;
 export type TreeHostRenderEmptyArgs = { readonly slot: t.TreeHostSlot };
 export type TreeHostRenderEmptyHandler = (e: TreeHostRenderEmptyArgs) => t.ReactNode;
 
 /** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
-  tree?: t.ReactNode;
+  tree?: TreeHostSlotInput;
   treeLeaf?: TreeHostTreeLeafRenderer;
-  main?: t.ReactNode;
-  aux?: t.ReactNode;
+  main?: TreeHostSlotInput;
+  aux?: TreeHostSlotInput;
   empty?: TreeHostRenderEmptyHandler;
 };
 
