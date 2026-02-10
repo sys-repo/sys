@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 
 type P = t.MyCtrlProps;
 type Storage = Pick<P, 'debug' | 'theme'> & { controlled?: boolean };
