@@ -1,4 +1,3 @@
-import React from 'react';
 import { Descriptor } from './-spec.cards/-ui.descriptor.tsx';
 import { TreeContent } from './-spec.cards/-ui.tree+content.tsx';
 import { TreePlaybackAssets } from './-spec.cards/-ui.tree+playback-assets.tsx';
@@ -23,13 +22,19 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
 
   if (!args.origin) return null;
 
+  const styles = {
+    base: css({
+      display: 'grid',
+      gridAutoFlow: 'row',
+      gridAutoRows: 'min-content',
+      rowGap: 15,
+    }),
+    probe: css({}),
+    result: css({}),
+  };
+
   return (
-    <div
-      className={css(
-        { display: 'grid', gridAutoFlow: 'row', gridAutoRows: 'min-content', rowGap: 15 },
-        args.style,
-      ).class}
-    >
+    <div className={css(styles.base, args.style).class}>
       <CardKindsList.UI
         debug={args.debug}
         theme={args.theme}
@@ -38,6 +43,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         onKindSelect={(e) => args.onKindSelect?.(e.id)}
       />
       <ActionProbe.Probe
+        style={styles.probe}
         debug={args.debug}
         theme={args.theme}
         sample={sample}
@@ -46,10 +52,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
           origin: args.origin,
           probe: {
             selectionList: { totalVisible: c.selectionList.totalVisible },
-            descriptor: {
-              kind: 'slug-tree:fs',
-              onKindChange: () => {},
-            },
+            descriptor: { kind: 'slug-tree:fs', onKindChange: () => {} },
             treeContent: {
               ref: c.treeContent.ref,
               refs: c.treeContent.refs,
@@ -74,13 +77,13 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         onRunResult={handlers.onRunResult}
       />
       <ActionProbe.Result
+        style={styles.result}
         spinning={loading}
         items={c.result.items}
         response={c.result.response}
         obj={c.result.obj}
         debug={args.debug}
         theme={args.theme}
-        style={{ marginTop: 10, marginBottom: 10 }}
       />
     </div>
   );

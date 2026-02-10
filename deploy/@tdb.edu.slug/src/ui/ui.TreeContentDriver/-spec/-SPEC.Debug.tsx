@@ -131,6 +131,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     onKindSelect: (kind) => {
       if (p.cardKind.value === kind) return;
       p.cardKind.value = kind;
+      debug.card.reset();
       debug.orchestrator.reset();
       debug.card.props.treeContent.ref.value = undefined;
       debug.card.props.treeContent.refs.value = undefined;
