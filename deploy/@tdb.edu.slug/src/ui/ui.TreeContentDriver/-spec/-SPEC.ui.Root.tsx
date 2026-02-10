@@ -1,7 +1,8 @@
 import React from 'react';
 import { TreeData } from '../../m.data/mod.ts';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import { type t, Color, css, Signal, useEffectController } from './common.ts';
+import { useEffectControllers } from './-use.EffectControllers.ts';
+import { type t, Color, css, Signal } from './common.ts';
 
 export type SpecRootProps = {
   debug: t.DebugSignals;
@@ -13,14 +14,11 @@ export type SpecRootProps = {
  */
 export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const { debug } = props;
+  const orchestrator = debug.orchestrator;
   const v = Signal.toObject(debug.props);
 
-  const selection =
-    useEffectController(debug.orchestrator.selection) ?? debug.orchestrator.selection.current();
-  const content =
-    useEffectController(debug.orchestrator.content) ?? debug.orchestrator.content.current();
-
-  const view = debug.orchestrator.selection.view();
+  const { selection, content } = useEffectControllers(debug);
+  const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
   const lastReady = React.useRef<t.TreeContentController.State | undefined>(undefined);
 
@@ -44,7 +42,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
         style={styles.back}
         theme={theme.name}
         selectedPath={view.treeHost.selectedPath}
-        onBack={(e) => debug.orchestrator.selection.intent({ type: 'path.request', path: e.next })}
+        onBack={(e) => orchestrator.selection.intent({ type: 'path.request', path: e.next })}
       />
       <TreeHost.UI
         debug={v.debug}
@@ -79,12 +77,10 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
             return <div>{''}</div>;
           },
         }}
-        onPathRequest={(e) =>
-          debug.orchestrator.selection.intent({ type: 'path.request', path: e.path })
-        }
+        onPathRequest={(e) => orchestrator.selection.intent({ type: 'path.request', path: e.path })}
         onNodeSelect={(e) => {
           if (!e.is.leaf) return;
-          debug.orchestrator.selection.intent({ type: 'path.request', path: e.path });
+          orchestrator.selection.intent({ type: 'path.request', path: e.path });
         }}
       />
     </div>
