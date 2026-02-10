@@ -20,6 +20,7 @@ export {
   Sheet,
   Spinners,
   SplitPane,
+  TreeHost,
   TreeView,
 } from '@sys/ui-react-components';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
