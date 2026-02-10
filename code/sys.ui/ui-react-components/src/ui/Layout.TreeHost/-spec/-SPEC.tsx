@@ -1,11 +1,11 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, css } from './common.ts';
-import { TreeHost } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { SpecRoot } from './-SPEC.ui.Root.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
+import { D, css } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
-  const debug = await createDebugSignals();
+  const debug = createDebugSignals();
   const p = debug.props;
 
   function Root() {
@@ -23,21 +23,7 @@ export default Spec.describe(D.displayName, async (e) => {
           selectedPath={v.selectedPath}
           onBack={(e) => (p.selectedPath.value = e.next)}
         />
-        <TreeHost.UI
-          debug={v.debug}
-          theme={v.theme}
-          slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
-          tree={v.tree}
-          selectedPath={v.selectedPath}
-          spinner={v.spinner}
-          onPathRequest={(e) => {
-            console.info('⚡️ onPathRequest: ', e);
-            p.selectedPath.value = e.path;
-          }}
-          onNodeSelect={(e) => {
-            console.info('⚡️ onNodeSelect: ', e);
-          }}
-        />
+        <SpecRoot debug={debug} />
       </div>
     );
   }
