@@ -37,10 +37,13 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
       display: 'grid',
       gridTemplateRows: 'minmax(0, 1fr)',
     }),
+    items: css({ position: 'relative' }),
   };
 
   const elLeaf = leaf && <div className={styles.leafViewport.class}>{leaf}</div>;
-  const elItems = !leaf && renderItems(props, effective.view);
+  const elItems = !leaf && (
+    <div className={styles.items.class}>{renderItems(props, effective.view)}</div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
