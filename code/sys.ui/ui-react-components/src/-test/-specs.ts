@@ -40,6 +40,7 @@ export const SpecsComponents = {
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
   [`${ns}: Layout.RectGrid`]: () => import('../ui/Layout.RectGrid/-spec/-SPEC.tsx'),
   [`${ns}: Layout.SplitPane`]: () => import('../ui/Layout.SplitPane/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.TreeHost`]: () => import('../ui/Layout.TreeHost/-spec/-SPEC.tsx'),
 
   [`${ns}: Http.Origin`]: () => import('../ui/Http.Origin/-spec/-SPEC.tsx'),
 
