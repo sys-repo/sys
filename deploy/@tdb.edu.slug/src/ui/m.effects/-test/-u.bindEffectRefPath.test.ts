@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Immutable, Obj } from '../common.ts';
-import { bindEffectRefPath } from '../mod.ts';
+import { bindRefPath } from '../mod.ts';
 
 type TestRoot = {
   sheet: { content?: TestState };
@@ -12,10 +12,10 @@ type TestState = {
   key?: string;
 };
 
-describe('bindEffectRefPath', () => {
+describe('bindRefPath', () => {
   it('reads current state from the bound object path', () => {
     const root = sampleRoot();
-    const ref = bindEffectRefPath<TestRoot, TestState>({
+    const ref = bindRefPath<TestRoot, TestState>({
       root,
       path: ['sheet', 'content'],
     });
@@ -25,7 +25,7 @@ describe('bindEffectRefPath', () => {
 
   it('writes through change() using Obj.Path mutation', () => {
     const root = sampleRoot();
-    const ref = bindEffectRefPath<TestRoot, TestState>({
+    const ref = bindRefPath<TestRoot, TestState>({
       root,
       path: ['sheet', 'content'],
     });
@@ -42,7 +42,7 @@ describe('bindEffectRefPath', () => {
 
   it('emits events only for bound-path changes', () => {
     const root = sampleRoot();
-    const ref = bindEffectRefPath<TestRoot, TestState>({
+    const ref = bindRefPath<TestRoot, TestState>({
       root,
       path: ['sheet', 'content'],
     });
@@ -65,7 +65,7 @@ describe('bindEffectRefPath', () => {
 
   it('initial() seeds missing path on first write', () => {
     const root = Immutable.clonerRef<TestRoot>({ sheet: {}, untouched: 0 });
-    const ref = bindEffectRefPath<TestRoot, TestState>({
+    const ref = bindRefPath<TestRoot, TestState>({
       root,
       path: ['sheet', 'content'],
       initial: () => ({ phase: 'idle' }),

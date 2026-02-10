@@ -7,3 +7,4 @@ export { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
+export { PathRef } from './m.core/m.PathRef/mod.ts';

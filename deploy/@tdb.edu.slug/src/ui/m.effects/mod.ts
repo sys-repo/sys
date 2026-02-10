@@ -7,4 +7,4 @@ export * from './m.attach.playback/mod.ts';
 export * from './m.attach.slug/mod.ts';
 export * from './m.TreeContentController/mod.ts';
 export * from './m.TreeSelectionController/mod.ts';
-export { bindEffectRefPath } from './u.bindEffectRefPath.ts';
+export { bindRefPath } from './u.bindRefPath.ts';

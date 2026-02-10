@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { TreeContentController } from '../mod.ts';
 import { type t, Immutable, Obj } from '../common.ts';
-import { bindEffectRefPath } from '../../mod.ts';
+import { bindRefPath } from '../../mod.ts';
 import { req } from './u.fixture.ts';
 
 type TestRoot = {
@@ -191,7 +191,7 @@ describe('TreeContentController', () => {
         sheet: { content: { phase: 'idle' } },
         untouched: 0,
       });
-      const ref = bindEffectRefPath<TestRoot, t.TreeContentController.State>({
+      const ref = bindRefPath<TestRoot, t.TreeContentController.State>({
         root,
         path: ['sheet', 'content'],
       });
