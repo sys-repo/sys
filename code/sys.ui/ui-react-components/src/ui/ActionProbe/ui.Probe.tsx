@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type t, Color, css, D, Is, Keyboard } from './common.ts';
+import { type t, Color, css, D, Is, Keyboard, Time } from './common.ts';
 import { Body } from './ui.Probe.Body.tsx';
 import { Header } from './ui.Probe.Header.tsx';
 import { useProbeRenderModel } from './use.RenderModel.ts';
@@ -37,6 +37,12 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     onRunItem: props.onRunItem,
     onRunResult: props.onRunResult,
   });
+  const triggerDoubleClickPulse = async () => {
+    setActOnClickDown(true);
+    await Time.wait(D.Probe.doubleClickPulse);
+    setActOnClickDown(false);
+    run();
+  };
 
   /**
    * Render
@@ -91,7 +97,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         const target = e.target as HTMLElement | null;
         if (target?.closest('[data-part="probe-body-content"]')) return;
         if (target?.closest('[role="button"]')) return;
-        run();
+        void triggerDoubleClickPulse();
       }}
     >
       <Header
@@ -140,5 +146,4 @@ const wrangle = {
       return false;
     });
   },
-
 } as const;

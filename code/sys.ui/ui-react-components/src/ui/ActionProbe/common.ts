@@ -15,7 +15,10 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   borderRadius: 6,
-  Probe: { actOn: ['Cmd+Enter', 'Cmd+Click'] as const },
+  Probe: {
+    actOn: ['Cmd+Enter', 'Cmd+Click'] as const,
+    doubleClickPulse: 50 as t.Msecs,
+  },
   Result: { sizeMode: 'auto' satisfies t.ActionProbe.ResultProps['sizeMode'] },
 } as const;
 export const DEFAULTS = D;
