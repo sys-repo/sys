@@ -15,12 +15,17 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, minHeight: 0, height: '100%', display: 'grid' }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+      minHeight: 0,
+      minWidth: 0,
+    }),
     spinning: css({ Absolute: 0 }),
     body: css({
       minWidth: minWidth ?? D.minWidth,
       minHeight: 0,
-      height: '100%',
       display: 'grid',
       pointerEvents: spinning ? 'none' : 'auto',
       filter: `blur(${spinning ? 0.8 : 0}px)`,
@@ -29,7 +34,6 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
     }),
     leafViewport: css({
       minHeight: 0,
-      height: '100%',
       display: 'grid',
       gridTemplateRows: 'minmax(0, 1fr)',
     }),
