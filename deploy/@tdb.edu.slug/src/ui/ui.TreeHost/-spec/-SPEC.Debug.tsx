@@ -1,13 +1,12 @@
 import React from 'react';
-import { SAMPLES, Foo } from '../../-test.ui.ts';
+import { Foo, SAMPLES } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
-import { SlugTree } from '../../../m.slug.compiler/m.slug.SlugTree/mod.ts';
 
 LoadSample.SAMPLES;
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner'> & {
   load?: t.SampleLoadAction;
   customEmpty?: boolean;
 };
@@ -45,6 +44,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     tree: s<P['tree']>(undefined),
     selectedPath: s(snap.selectedPath),
+    spinner: s(snap.spinner),
     slots,
     //
     load: s(snap.load),
@@ -71,6 +71,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
+      d.spinner = p.spinner.value;
       //
       d.load = p.load.value;
       d.customEmpty = p.customEmpty.value;
@@ -154,6 +155,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `spinner: ${JSON.stringify(v.spinner)}`}
+        onClick={() =>
+          Signal.cycle<P['spinner']>(p.spinner, [
+            undefined,
+            'tree',
+            'treeLeaf',
+            'main',
+            'aux',
+            ['treeLeaf', 'main'],
+          ])
+        }
       />
 
       <hr />

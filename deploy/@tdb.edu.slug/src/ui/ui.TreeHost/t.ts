@@ -20,6 +20,7 @@ export type TreeHostProps = {
   slots?: t.TreeHostSlots;
   tree?: t.TreeHostViewNodeList;
   selectedPath?: t.ObjectPath;
+  spinner?: TreeHostSlot | TreeHostSlot[];
 
   debug?: boolean;
   theme?: t.CommonTheme;

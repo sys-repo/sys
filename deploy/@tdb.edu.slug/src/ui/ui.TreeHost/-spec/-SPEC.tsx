@@ -29,6 +29,7 @@ export default Spec.describe(D.displayName, async (e) => {
           slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
           tree={v.tree}
           selectedPath={v.selectedPath}
+          spinner={v.spinner}
           onPathRequest={(e) => {
             console.info('⚡️ onPathRequest: ', e);
             p.selectedPath.value = e.path;
