@@ -1,4 +1,4 @@
-import { TreeData } from '../../m.data/mod.ts';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { type t, Is, SlugLoader } from './common.ts';
 
 type TLoad = t.TreeContentDriver.ContentLoader;
@@ -13,11 +13,7 @@ export function resolveLoader(args: ResolveLoaderArgs): TLoad {
 }
 
 export function treeFromResponse(input: unknown): t.TreeHostViewNodeList | undefined {
-  if (!Is.record(input)) return undefined;
-  const value = Is.record(input.value) ? input.value : undefined;
-  const tree = value && Is.record(value.tree) ? value.tree : undefined;
-  if (!tree || !Array.isArray(tree.tree)) return undefined;
-  return TreeData.fromSlugTree(tree as t.SlugTreeDoc);
+  return DataCards.Helpers.treeFromResponse(input);
 }
 
 /**
@@ -37,7 +33,7 @@ function fileContentLoader(origin?: t.SlugUrlOrigin): TLoad {
     const index = await client.value.FileContent.index();
     if (!index.ok) throw new Error(index.error.message);
 
-    const hash = findHash(index.value.entries, request.key);
+    const hash = DataCards.Helpers.findHash(index.value.entries, request.key);
     if (!hash) throw new Error(`No content hash found for ref: ${request.key}`);
 
     const file = await client.value.FileContent.get(hash);
@@ -78,9 +74,4 @@ function playbackContentLoader(origin?: t.SlugUrlOrigin): TLoad {
       playback: playback.value,
     };
   };
-}
-
-function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
-  const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);
-  return entry?.hash;
 }

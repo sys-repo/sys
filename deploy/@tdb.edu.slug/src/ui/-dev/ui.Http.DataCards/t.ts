@@ -46,3 +46,8 @@ export type DataCardPanelArgs = {
   readonly style?: t.CssInput;
   readonly onKindSelect?: (kind: DataCardKind) => void;
 };
+
+/** Parsed view model from a Tree+Content probe response. */
+export type DataCardTreeContentResponse = {
+  readonly tree: t.TreeHostViewNodeList;
+};

@@ -71,12 +71,8 @@ describe('TreeContentDriver.createOrchestrator', () => {
   it('reports selected ref changes through callback', async () => {
     const refs: (string | undefined)[] = [];
     const orchestrator = createOrchestrator({
-      async load({ request }) {
-        return { title: request.key };
-      },
-      onSelectedRefChange(ref) {
-        refs.push(ref);
-      },
+      load: async (e) => ({ title: e.request.key }),
+      onSelectedRefChange: (ref) => refs.push(ref),
     });
 
     orchestrator.intent({ type: 'tree.set', tree: sampleTree() });
