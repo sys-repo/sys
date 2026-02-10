@@ -106,6 +106,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const card = debug.card;
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -117,14 +118,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
   };
 
   const cards = DataCards.createPanel({
-    signals: debug.card,
+    signals: card,
     origin: v.origin,
     env: v.env,
     theme: v.theme,
     debug: v.debug,
     kind: v.cardKind,
     kinds: ['file-content', 'playback-content'],
-    onKindSelect: (kind) => (p.cardKind.value = kind),
+    onKindSelect: (kind) => {
+      if (p.cardKind.value === kind) return;
+      p.cardKind.value = kind;
+      card.reset();
+    },
   });
 
   return (
