@@ -1,11 +1,10 @@
-import { JSX } from '../../common/t.ts';
 import { type t, D, IndexTreeViewItem, Is } from './common.ts';
 import { resolveShowChevron } from './u.chevron.ts';
 
 export function renderItems(
   props: t.IndexTreeViewProps,
   view: t.TreeViewNodeView[],
-): JSX.Element[] {
+): t.JSX.Element[] {
   const { debug = false } = props;
 
   return view.map(({ node, depth }) => {
