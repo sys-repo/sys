@@ -1,9 +1,38 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { type t, Schedule, Signal } from '../common.ts';
 import { createOrchestrator } from '../-spec/-u.data-card.orchestrator.ts';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { type t, Schedule, Signal } from '../common.ts';
 
 describe('TreeContentDriver data-card orchestrator', () => {
+  it('hydrates selection tree from card result response', async () => {
+    const orchestrator = setup();
+    const { card } = orchestrator;
+
+    card.props.result.response.value = {
+      ok: true,
+      value: {
+        tree: {
+          tree: [
+            {
+              slug: 'root',
+              slugs: [
+                { slug: 'a', ref: 'ref-a' },
+                { slug: 'b', ref: 'ref-b' },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    await Schedule.micro();
+
+    const state = orchestrator.api.selection.current();
+    expect(Array.isArray(state.tree)).to.eql(true);
+    expect(state.tree?.length).to.eql(1);
+    expect(state.selectedPath).to.eql(undefined);
+    orchestrator.api.dispose();
+  });
+
   it('back to parent does not clear selection to root', async () => {
     const orchestrator = setup();
     const { card } = orchestrator;
@@ -49,6 +78,35 @@ describe('TreeContentDriver data-card orchestrator', () => {
 
     orchestrator.api.selection.intent({ type: 'path.request', path: ['program'] });
     await Schedule.micro();
+    card.props.treePlayback.ref.value = 'doc-2';
+    await Schedule.micro();
+
+    expect(orchestrator.api.selection.current().selectedPath).to.eql(['program', '2']);
+    expect(orchestrator.api.selection.current().selectedRef).to.eql('doc-2');
+    orchestrator.api.dispose();
+  });
+
+  it('file-content: card ref change still updates selection while card is spinning', async () => {
+    const orchestrator = setup();
+    const { card } = orchestrator;
+
+    orchestrator.api.intent({ type: 'tree.set', tree: sampleTree() });
+    card.props.spinning.value = true;
+    card.props.treeContent.ref.value = 'ref-b';
+    await Schedule.micro();
+
+    expect(orchestrator.api.selection.current().selectedPath).to.eql(['root', 'b']);
+    expect(orchestrator.api.selection.current().selectedRef).to.eql('ref-b');
+    orchestrator.api.dispose();
+  });
+
+  it('playback: card ref change still updates selection while card is spinning', async () => {
+    const orchestrator = setup({ kind: 'playback-content' });
+    const { card } = orchestrator;
+
+    card.props.treePlayback.refs.value = ['doc-1', 'doc-2'];
+    await Schedule.micro();
+    card.props.spinning.value = true;
     card.props.treePlayback.ref.value = 'doc-2';
     await Schedule.micro();
 

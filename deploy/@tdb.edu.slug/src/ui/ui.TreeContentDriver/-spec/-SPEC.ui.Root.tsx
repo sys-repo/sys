@@ -20,6 +20,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const { selection, content } = useEffectControllers(debug);
   const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
+  const spinner: t.TreeHostProps['spinner'] = loading ? ['treeLeaf', 'main'] : undefined;
   const lastReady = React.useRef<t.TreeContentController.State | undefined>(undefined);
 
   React.useEffect(() => {
@@ -49,6 +50,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
         theme={theme.name}
         tree={view.treeHost.tree}
         selectedPath={view.treeHost.selectedPath}
+        spinner={spinner}
         slots={{
           main:
             content.phase === 'ready' || (loading && !!lastReady.current) ? (
@@ -63,7 +65,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
           treeLeaf: (e) => {
             const node = TreeData.findViewNode(selection.tree, selection.selectedPath);
             const isSelectedLeaf = !!node && node.key === e.node.key;
-            if (!isSelectedLeaf) return <div>{''}</div>;
+            if (!isSelectedLeaf) return undefined;
             if (content.phase === 'ready') return <div>{'Leaf content'}</div>;
             if (loading && !!lastReady.current) {
               return (
@@ -74,7 +76,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
               );
             }
             if (loading) return <div>{'Loading content'}</div>;
-            return <div>{''}</div>;
+            return <div>{'Leaf selected (no content loaded)'}</div>;
           },
         }}
         onPathRequest={(e) => orchestrator.selection.intent({ type: 'path.request', path: e.path })}

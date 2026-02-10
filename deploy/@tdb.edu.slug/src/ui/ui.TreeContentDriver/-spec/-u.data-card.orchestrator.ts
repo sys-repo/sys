@@ -60,7 +60,6 @@ export function createOrchestrator(args: {
   Signal.effect(() => {
     if (orchestrator.disposed) return;
     if (args.props.cardKind.value !== 'file-content') return;
-    if (card.spinning.value) return;
     const ref = card.treeContent.ref.value;
     if (ref === lastFileRef) {
       fileRefMirror.consume(ref);
@@ -97,7 +96,6 @@ export function createOrchestrator(args: {
   Signal.effect(() => {
     if (orchestrator.disposed) return;
     if (args.props.cardKind.value !== 'playback-content') return;
-    if (card.spinning.value) return;
     const ref = card.treePlayback.ref.value;
     if (ref === lastPlaybackRef) {
       playbackRefMirror.consume(ref);
