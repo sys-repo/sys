@@ -19,8 +19,8 @@ export function createOrchestrator(args: {
   let lastFileRef: string | undefined = card.treeContent.ref.value;
   let lastPlaybackRef: string | undefined = card.treePlayback.ref.value;
   let lastPlaybackRefs: string[] | undefined = card.treePlayback.refs.value;
-  let suppressFileRefEffect = false;
-  let suppressPlaybackRefEffect = false;
+  const fileRefMirror = createMirrorToken<string | undefined>();
+  const playbackRefMirror = createMirrorToken<string | undefined>();
 
   const orchestrator = TreeContentDriver.createOrchestrator({
     load: (input) =>
@@ -32,13 +32,13 @@ export function createOrchestrator(args: {
       const kind = args.props.cardKind.value ?? 'file-content';
       if (kind === 'playback-content') {
         if (card.treePlayback.ref.value === ref) return;
-        suppressPlaybackRefEffect = true;
+        playbackRefMirror.mark(ref);
         lastPlaybackRef = ref;
         card.treePlayback.ref.value = ref;
         return;
       }
       if (card.treeContent.ref.value === ref) return;
-      suppressFileRefEffect = true;
+      fileRefMirror.mark(ref);
       lastFileRef = ref;
       card.treeContent.ref.value = ref;
     },
@@ -63,11 +63,10 @@ export function createOrchestrator(args: {
     if (card.spinning.value) return;
     const ref = card.treeContent.ref.value;
     if (ref === lastFileRef) {
-      if (suppressFileRefEffect) suppressFileRefEffect = false;
+      fileRefMirror.consume(ref);
       return;
     }
-    if (suppressFileRefEffect) {
-      suppressFileRefEffect = false;
+    if (fileRefMirror.consume(ref)) {
       lastFileRef = ref;
       return;
     }
@@ -101,11 +100,10 @@ export function createOrchestrator(args: {
     if (card.spinning.value) return;
     const ref = card.treePlayback.ref.value;
     if (ref === lastPlaybackRef) {
-      if (suppressPlaybackRefEffect) suppressPlaybackRefEffect = false;
+      playbackRefMirror.consume(ref);
       return;
     }
-    if (suppressPlaybackRefEffect) {
-      suppressPlaybackRefEffect = false;
+    if (playbackRefMirror.consume(ref)) {
       lastPlaybackRef = ref;
       return;
     }
@@ -138,4 +136,22 @@ function treeFromPlaybackRefs(refs?: string[]): t.TreeHostViewNodeList | undefin
       children,
     },
   ];
+}
+
+const NONE = Symbol('none');
+type Token<T> = { mark(value: T): void; consume(value: T): boolean };
+
+function createMirrorToken<T>(): Token<T> {
+  let token: T | typeof NONE = NONE;
+  return {
+    mark(value) {
+      token = value;
+    },
+    consume(value) {
+      if (token === NONE) return false;
+      if (!Object.is(token, value)) return false;
+      token = NONE;
+      return true;
+    },
+  };
 }
