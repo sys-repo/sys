@@ -43,7 +43,13 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div>{`🌳 Leaf Panel`}</div>
-        <ObjectView name={'t.LeafRendererArgs'} data={props.args} expand={1} style={styles.obj} />
+        <ObjectView
+          theme={theme.name}
+          name={'t.LeafRendererArgs'}
+          data={props.args}
+          expand={1}
+          style={styles.obj}
+        />
       </div>
     </div>
   );

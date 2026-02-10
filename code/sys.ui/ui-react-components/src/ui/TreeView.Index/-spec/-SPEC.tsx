@@ -2,7 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Button } from '../../Button/mod.ts';
 import { IndexTreeView } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { LeafPanel } from './-ui.LeafPanel.tsx';
+import { LeafPanel } from './-ui.leaf.tsx';
 import { D, Icons } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {

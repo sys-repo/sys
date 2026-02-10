@@ -143,23 +143,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button
-        //
-        block
-        label={() => `path: (clear)`}
-        onClick={() => (p.path.value = undefined)}
-      />
-
-      <hr />
-      <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button
         block
-        label={() => `renderLeaf (element): ${p.renderLeaf.value}`}
+        label={() => {
+          const v = p.renderLeaf.value;
+          return `renderLeaf: ${v} ${!!v ? '← element' : ''}`;
+        }}
         onClick={() => Signal.toggle(p.renderLeaf)}
       />
+      <Button block label={() => `clear path`} onClick={() => (p.path.value = undefined)} />
       <Button
         block
         label={() => `(reset)`}
