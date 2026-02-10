@@ -15,10 +15,10 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   spinner: {
-    opacity: 0.2,
-    backgroundBlur: 1 as t.Pixels | undefined,
-    position: 'middle' as t.TreeHostSpinnerPosition,
-  },
+    backgroundOpacity: 0.2,
+    backgroundBlur: 1,
+    position: 'middle',
+  } satisfies Omit<t.TreeHostSlotSpinner, 'slot'>,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

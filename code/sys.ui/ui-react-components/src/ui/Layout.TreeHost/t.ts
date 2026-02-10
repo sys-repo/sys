@@ -54,7 +54,7 @@ export type TreeHostSpinnerSlot = Exclude<TreeHostSlot, 'empty'>;
 export type TreeHostSpinnerPosition = 'top' | 'middle' | 'bottom';
 export type TreeHostSlotSpinner = {
   readonly slot: TreeHostSpinnerSlot;
-  readonly opacity?: number;
+  readonly backgroundOpacity?: number;
   readonly backgroundBlur?: t.Pixels;
   readonly position?: TreeHostSpinnerPosition;
 };

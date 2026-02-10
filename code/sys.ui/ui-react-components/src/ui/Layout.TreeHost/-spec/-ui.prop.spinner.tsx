@@ -69,7 +69,7 @@ const OPTIONS: ReadonlyArray<{ id: string; label: string; value: P['spinner'] }>
   {
     id: 'tree-top-blur',
     label: 'tree: top (blur 6)',
-    value: { slot: 'tree', position: 'top', backgroundBlur: 3, opacity: 0.3 },
+    value: { slot: 'tree', position: 'top', backgroundBlur: 3, backgroundOpacity: 0.3 },
   },
   { id: 'tree-bottom', label: 'tree: bottom', value: { slot: 'tree', position: 'bottom' } },
   { id: 'main-middle', label: 'main: middle', value: { slot: 'main', position: 'middle' } },

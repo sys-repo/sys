@@ -28,7 +28,7 @@ export const SlotHost: React.FC<SlotHostProps> = (props) => {
     body: css({
       display: 'grid',
       filter: !!spinner?.backgroundBlur ? `blur(${spinner.backgroundBlur}px)` : undefined,
-      opacity: spinner ? spinner.opacity : 1,
+      opacity: spinner ? spinner.backgroundOpacity : 1,
       transition: 'opacity 120ms ease',
     }),
   };
