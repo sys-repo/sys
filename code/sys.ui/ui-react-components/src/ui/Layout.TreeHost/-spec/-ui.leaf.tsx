@@ -16,22 +16,22 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       display: 'grid',
-      padding: 8,
+      Padding: 8,
       minHeight: 0,
     }),
     body: css({
       backgroundColor: Color.ruby(0.1),
       border: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
       borderRadius: 8,
-      padding: 12,
+      Padding: [10, 12],
       display: 'grid',
       minHeight: 0,
       alignContent: 'start',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
-      rowGap: 10,
+      rowGap: 8,
     }),
-    obj: css({ marginLeft: 6 }),
+    obj: css({ marginLeft: 6, marginBottom: 10 }),
   };
 
   return (
@@ -42,6 +42,7 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
           theme={theme.name}
           name={'t.TreeHostLeaf'}
           data={{ path: props.path, node: props.node }}
+          fontSize={11}
           expand={1}
           style={styles.obj}
         />
