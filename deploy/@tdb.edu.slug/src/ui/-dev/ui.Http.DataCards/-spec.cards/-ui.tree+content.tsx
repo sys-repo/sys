@@ -51,10 +51,18 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const refs = refsFromTree(tree.value.tree);
     e.probe?.treeContent?.onRefsChange?.(refs);
     const ref = selectOrFirst(e.probe?.treeContent?.ref, refs);
+    e.item({ k: 'refs: loaded', v: refs.length });
+    e.item({ k: 'tree: items', v: tree.value.tree.length });
+
     if (!ref) {
       return e.result({
-        ok: false,
-        error: { kind: 'schema', message: 'No ref found in slug-tree.' },
+        ok: true,
+        value: {
+          docid,
+          ref: undefined,
+          tree: tree.value,
+        },
+        'value:tree': tree.value,
       });
     }
     e.probe?.treeContent?.onRefChange?.(ref);
@@ -78,8 +86,6 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'content-type', v: content.value.contentType });
     e.hr();
     e.item({ k: 'title', v: frontmatter?.title ?? '(none)' });
-    e.item({ k: 'refs: loaded', v: refs.length });
-    e.item({ k: 'tree: items', v: tree.value.tree.length });
     e.item({ k: 'content-index: entries', v: index.value.entries.length });
     e.item({ k: 'content-frontmatter: entries', v: totalKeys(frontmatter) });
 

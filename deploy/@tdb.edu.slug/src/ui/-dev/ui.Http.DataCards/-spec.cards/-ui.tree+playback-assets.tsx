@@ -43,10 +43,15 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const ids = docids.value;
     e.probe?.treePlayback?.onRefsChange?.(ids);
     const selectedDocid = selectOrFirst(e.probe?.treePlayback?.ref, ids);
+    e.item({ k: 'ids: loaded', v: ids.length });
     if (!selectedDocid) {
       return e.result({
-        ok: false,
-        error: { kind: 'schema', message: `No descriptor docid found for kind: ${kind}` },
+        ok: true,
+        value: {
+          kind,
+          descriptor: { docids: ids.length },
+        },
+        'value:descriptor': { docids: ids.length },
       });
     }
     e.probe?.treePlayback?.onRefChange?.(selectedDocid);
@@ -69,7 +74,6 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'basePath', v: target.value.basePath });
     e.item({ k: 'docid', v: client.value.docid });
-    e.item({ k: 'ids: loaded', v: ids.length });
     e.hr();
     e.item({ k: 'descriptor: loaded', v: 'yes' });
     e.item({ k: 'assets', v: assets.value.assets.length });

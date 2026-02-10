@@ -2,7 +2,7 @@ import { type t, Is, Num } from './common.ts';
 
 export function selectOrFirst(selected: string | undefined, ids: string[]): string | undefined {
   if (selected && ids.includes(selected)) return selected;
-  return ids[0];
+  return undefined;
 }
 
 export function refsFromTree(tree: t.SlugTreeItems, total = Num.MAX_INT): string[] {
