@@ -24,12 +24,19 @@ export declare namespace TreeContentController {
   /** Factory args: choose local initial or injected ref. */
   export type CreateProps =
     | { readonly initial?: Partial<State>; readonly ref?: never }
-    | { readonly ref: t.ImmutableRef<State>; readonly initial?: never };
+    | { readonly ref: Ref; readonly initial?: never };
 
   /** Static controller config. */
   export type Props = {
     readonly initial?: Partial<State>;
-    readonly ref?: t.ImmutableRef<State>;
+    readonly ref?: Ref;
+  };
+
+  /** Minimal EffectRef-compatible store surface for controller state. */
+  export type Ref = {
+    readonly current: State;
+    change(mutator: (draft: State) => void): void;
+    events(until?: t.UntilInput): { readonly $: t.Observable<{ readonly after: State }> };
   };
 
   /** State change patch. */

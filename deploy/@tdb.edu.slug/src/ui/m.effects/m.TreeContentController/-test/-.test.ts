@@ -1,7 +1,18 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { TreeContentController } from '../mod.ts';
-import { type t, Immutable } from '../common.ts';
+import { type t, Immutable, Obj } from '../common.ts';
+import { bindEffectRefPath } from '../../mod.ts';
 import { req } from './u.fixture.ts';
+
+type TestRoot = {
+  sheet: { content?: TestState };
+  untouched: number;
+};
+
+type TestState = {
+  phase: 'idle' | 'loading' | 'ready' | 'error';
+  key?: string;
+};
 
 describe('TreeContentController', () => {
   describe('lifecycle transitions', () => {
@@ -172,6 +183,30 @@ describe('TreeContentController', () => {
       ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
       expect(ref.current.phase).to.eql('loading');
       expect(ref.current.request).to.eql(req('r1', 'key-a'));
+      ctrl.dispose();
+    });
+
+    it('accepts path-bound EffectRef over a root store', () => {
+      const root = Immutable.clonerRef<TestRoot>({
+        sheet: { content: { phase: 'idle' } },
+        untouched: 0,
+      });
+      const ref = bindEffectRefPath<TestRoot, t.TreeContentController.State>({
+        root,
+        path: ['sheet', 'content'],
+      });
+      const ctrl = TreeContentController.create({ ref });
+
+      ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
+      const leaf = Obj.Path.get<t.TreeContentController.State>(root.current, ['sheet', 'content']);
+      expect(leaf).to.eql({
+        phase: 'loading',
+        key: 'key-a',
+        request: req('r1', 'key-a'),
+        data: undefined,
+        error: undefined,
+      });
+      expect(root.current.untouched).to.eql(0);
       ctrl.dispose();
     });
   });
