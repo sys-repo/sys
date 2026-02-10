@@ -120,11 +120,13 @@ describe('TreeContentController', () => {
       let state = ctrl.current();
       expect(state.phase).to.eql('loading');
       expect(state.request?.id).to.eql('r1');
+      expect(state.key).to.eql('key-a');
 
       ctrl.intent({ type: 'load.cancel', requestId: 'r1' });
       state = ctrl.current();
       expect(state.phase).to.eql('idle');
       expect(state.request).to.eql(undefined);
+      expect(state.key).to.eql('key-a');
       ctrl.dispose();
     });
   });
