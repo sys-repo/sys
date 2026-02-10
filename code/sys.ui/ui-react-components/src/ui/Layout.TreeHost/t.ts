@@ -40,15 +40,6 @@ export type TreeHostProps = {
   onNodeSelect?: TreeHostNodeSelectHandler;
 };
 
-/** Slot registry definitions for TreeHost. */
-export type TreeHostSlots = {
-  tree?: t.ReactNode;
-  treeLeaf?: t.TreeHostTreeLeafRenderer;
-  main?: t.ReactNode;
-  aux?: t.ReactNode;
-  empty?: (slot: t.TreeHostSlot) => t.ReactNode;
-};
-
 /**
  * Event handlers:
  */
