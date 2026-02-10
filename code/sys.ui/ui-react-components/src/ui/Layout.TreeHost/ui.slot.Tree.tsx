@@ -17,11 +17,7 @@ export const Tree: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      color: theme.fg,
-      display: 'grid',
-    }),
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
     body: css({ display: 'grid' }),
   };
 

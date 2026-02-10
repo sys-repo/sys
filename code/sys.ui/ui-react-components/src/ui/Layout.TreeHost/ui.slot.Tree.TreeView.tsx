@@ -18,7 +18,6 @@ export const HostTreeView: React.FC<P> = (props) => {
     base: css({
       display: 'grid',
       minHeight: 0,
-      maxHeight: 0,
     }),
     body: css({
       Absolute: 0,
