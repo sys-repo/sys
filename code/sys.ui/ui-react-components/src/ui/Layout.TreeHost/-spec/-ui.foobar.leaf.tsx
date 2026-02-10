@@ -16,9 +16,8 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       fontSize: 14,
-      display: 'grid',
       Padding: 8,
-      minHeight: 0,
+      display: 'grid',
     }),
     body: css({
       backgroundColor: Color.ruby(0.1),
@@ -27,6 +26,7 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
       Padding: [10, 12],
       display: 'grid',
       minHeight: 0,
+      alignSelf: 'stretch',
       alignContent: 'start',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
@@ -48,7 +48,6 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
           theme={theme.name}
           name={'t.TreeHostLeaf'}
           data={{ path: props.path, node: props.node }}
-          fontSize={11}
           expand={1}
           style={styles.obj}
         />
