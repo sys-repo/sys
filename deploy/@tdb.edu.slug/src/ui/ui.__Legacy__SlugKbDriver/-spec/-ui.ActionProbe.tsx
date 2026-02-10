@@ -28,7 +28,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
   const elCard = (
     <ActionProbe.Probe
       theme={v.theme}
-      sample={DataCards.Card.TreeContent}
+      spec={DataCards.Card.TreeContent}
       env={{
         is: { local },
         origin: v.origin,

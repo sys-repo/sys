@@ -17,6 +17,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
 ) => {
   const {
     debug = false,
+    spec: specInput,
     sample,
     env,
     spinning = false,
@@ -24,15 +25,17 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     actOn = D.Probe.actOn,
     borderRadius = D.borderRadius,
   } = props;
+  const spec = specInput ?? sample;
+  if (!spec) throw new Error('ActionProbe.Probe requires `spec`.');
 
   const [isActOnClickDown, setActOnClickDown] = useState(false);
   const { componentAttr } = useScopedStyles(props);
-  const { blocks, getParams } = useProbeRenderModel({ sample, env, theme: props.theme });
+  const { blocks, getParams } = useProbeRenderModel({ spec, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
-    run: sample.run,
+    run: spec.run,
     env,
     getParams,
-    onRunStart: () => props.onRunStart?.({ title: sample.title }),
+    onRunStart: () => props.onRunStart?.({ title: spec.title }),
     onRunEnd: props.onRunEnd,
     onRunItem: props.onRunItem,
     onRunResult: props.onRunResult,
@@ -101,7 +104,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       }}
     >
       <Header
-        title={sample.title}
+        title={spec.title}
         canRun={canRun}
         spinning={spinning}
         focused={focused}

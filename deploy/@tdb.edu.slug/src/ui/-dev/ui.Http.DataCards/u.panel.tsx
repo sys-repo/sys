@@ -13,7 +13,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
   const local = args.env === 'localhost';
   const loading = c.spinning && c.probe.active === kind;
   const handlers = args.signals.handlers(kind);
-  const sample =
+  const spec =
     kind === 'descriptor'
       ? Descriptor
       : kind === 'playback-content'
@@ -46,7 +46,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         style={styles.probe}
         debug={args.debug}
         theme={args.theme}
-        sample={sample}
+        spec={spec}
         env={{
           is: { local },
           origin: args.origin,

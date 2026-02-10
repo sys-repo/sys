@@ -8,7 +8,7 @@ export const Renderer: t.ActionProbeRendererLib = {
 
     const api: t.ActionProbeRenderer<TEnv> = {
       items,
-      push(sample) {
+      push(spec) {
         const probe = String(index);
         const resolved = args.resolve({ state: args.state, index, probe });
         index++;
@@ -21,7 +21,7 @@ export const Renderer: t.ActionProbeRendererLib = {
           <Probe
             key={`probe-${probe}`}
             style={args.style}
-            sample={sample}
+            spec={spec}
             env={resolved.env}
             spinning={resolved.spinning}
             focused={resolved.focused}

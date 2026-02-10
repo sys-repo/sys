@@ -13,11 +13,11 @@ export type ActionProbeRendererFactory = <
   args: ActionProbeRendererFactoryArgs<TState, TEnv>,
 ) => ActionProbeRenderer<TEnv>;
 
-/** Immutable renderer for an ordered list of ActionProbe samples. */
+/** Immutable renderer for an ordered list of ActionProbe specs. */
 export type ActionProbeRenderer<TEnv extends Record<string, unknown>> = {
   readonly items: t.ReactNode[];
   push<TParams extends Record<string, unknown> = Record<string, unknown>>(
-    sample: t.ActionProbe.ProbeSpec<TEnv, TParams>,
+    spec: t.ActionProbe.ProbeSpec<TEnv, TParams>,
   ): ActionProbeRenderer<TEnv>;
   hr(): ActionProbeRenderer<TEnv>;
 };
@@ -31,7 +31,7 @@ export type ActionProbeRendererFactoryArgs<TState, TEnv extends Record<string, u
   ) => ActionProbeRendererResolvedProps<TEnv> | undefined;
 };
 
-/** Resolve arguments passed for each pushed probe sample. */
+/** Resolve arguments passed for each pushed probe spec. */
 export type ActionProbeRendererResolveArgs<TState> = {
   readonly state: TState;
   readonly index: t.Index;

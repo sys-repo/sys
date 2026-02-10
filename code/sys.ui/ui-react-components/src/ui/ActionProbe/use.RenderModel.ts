@@ -5,7 +5,7 @@ type EnvObject = Record<string, unknown>;
 type ParamsObject = Record<string, unknown>;
 
 type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
-  sample: t.ActionProbe.ProbeSpec<TEnv, TParams>;
+  spec: t.ActionProbe.ProbeSpec<TEnv, TParams>;
   env: TEnv;
   theme?: t.CommonTheme;
 };
@@ -13,7 +13,7 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
 export function useProbeRenderModel<TEnv extends EnvObject, TParams extends ParamsObject>(
   args: Args<TEnv, TParams>,
 ) {
-  const { sample, env, theme } = args;
+  const { spec, env, theme } = args;
   type TRenderArgs = t.ActionProbe.ProbeRenderArgs<TEnv, TParams>;
 
   /**
@@ -59,9 +59,9 @@ export function useProbeRenderModel<TEnv extends EnvObject, TParams extends Para
       },
     };
 
-    sample.render(e);
+    spec.render(e);
     setBlocks(blocks);
-  }, [sample, theme, Obj.hash(env)]);
+  }, [spec, theme, Obj.hash(env)]);
 
   return { blocks, getParams } as const;
 }
