@@ -4,10 +4,7 @@ import type { t } from './common.ts';
  * TreeContentOrchestrator.
  * Bridges selection changes into content load lifecycle intents.
  */
-export type TreeContentOrchestrator = {
-  readonly disposed: boolean;
-  dispose(): void;
-};
+export type TreeContentOrchestrator = t.Lifecycle;
 
 export declare namespace TreeContentOrchestrator {
   /** Factory surface. */
@@ -27,5 +24,6 @@ export declare namespace TreeContentOrchestrator {
     readonly content: t.TreeContentController;
     readonly load: Load;
     readonly requestId?: () => string;
+    readonly until?: t.UntilInput;
   };
 }

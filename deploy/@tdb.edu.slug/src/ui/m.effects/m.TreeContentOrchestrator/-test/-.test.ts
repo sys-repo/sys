@@ -2,9 +2,32 @@ import { describe, expect, it } from '../../../../-test.ts';
 import { TreeContentController } from '../../m.TreeContentController/mod.ts';
 import { TreeSelectionController } from '../../m.TreeSelectionController/mod.ts';
 import { TreeContentOrchestrator } from '../mod.ts';
-import { Schedule, type t } from '../common.ts';
+import { Rx, Schedule, type t } from '../common.ts';
 
 describe('TreeContentOrchestrator', () => {
+  function sampleTree(): t.TreeHostViewNodeList {
+    const a: t.TreeHostViewNode = {
+      path: ['root', 'a'],
+      key: 'root/a',
+      label: 'a',
+      value: { slug: 'a', ref: 'ref-a' },
+    };
+    const b: t.TreeHostViewNode = {
+      path: ['root', 'b'],
+      key: 'root/b',
+      label: 'b',
+      value: { slug: 'b', ref: 'ref-b' },
+    };
+    const root: t.TreeHostViewNode = {
+      path: ['root'],
+      key: 'root',
+      label: 'root',
+      value: { slug: 'root' },
+      children: [a, b],
+    };
+    return [root];
+  }
+
   it('loads content on selected ref and projects ready state', async () => {
     const selection = TreeSelectionController.create({ initial: { tree: sampleTree() } });
     const content = TreeContentController.create();
@@ -103,27 +126,70 @@ describe('TreeContentOrchestrator', () => {
     selection.dispose();
     content.dispose();
   });
-});
 
-function sampleTree(): t.TreeHostViewNodeList {
-  const a: t.TreeHostViewNode = {
-    path: ['root', 'a'],
-    key: 'root/a',
-    label: 'a',
-    value: { slug: 'a', ref: 'ref-a' },
-  };
-  const b: t.TreeHostViewNode = {
-    path: ['root', 'b'],
-    key: 'root/b',
-    label: 'b',
-    value: { slug: 'b', ref: 'ref-b' },
-  };
-  const root: t.TreeHostViewNode = {
-    path: ['root'],
-    key: 'root',
-    label: 'root',
-    value: { slug: 'root' },
-    children: [a, b],
-  };
-  return [root];
-}
+  it('dispose detaches selection subscription and prevents new loads', async () => {
+    const selection = TreeSelectionController.create({ initial: { tree: sampleTree() } });
+    const content = TreeContentController.create();
+    const requests: t.TreeContentController.Request[] = [];
+
+    const orchestrator = TreeContentOrchestrator.create({
+      selection,
+      content,
+      requestId: () => `req:${requests.length + 1}`,
+      load: async ({ request }) => {
+        requests.push(request);
+        return { title: request.key };
+      },
+    });
+
+    selection.intent({ type: 'path.request', path: ['root', 'a'] });
+    await Schedule.micro();
+    expect(requests.length).to.eql(1);
+    expect(content.current().phase).to.eql('ready');
+
+    orchestrator.dispose();
+
+    selection.intent({ type: 'path.request', path: ['root', 'b'] });
+    await Schedule.micro();
+    expect(requests.length).to.eql(1);
+    expect(content.current().key).to.eql('ref-a');
+    expect(content.current().data).to.eql({ title: 'ref-a' });
+
+    selection.dispose();
+    content.dispose();
+  });
+
+  it('until input disposes orchestrator and prevents new loads', async () => {
+    const until = Rx.lifecycle();
+    const selection = TreeSelectionController.create({ initial: { tree: sampleTree() } });
+    const content = TreeContentController.create();
+    const requests: t.TreeContentController.Request[] = [];
+
+    const orchestrator = TreeContentOrchestrator.create({
+      until,
+      selection,
+      content,
+      requestId: () => `req:${requests.length + 1}`,
+      async load({ request }) {
+        requests.push(request);
+        return { title: request.key };
+      },
+    });
+
+    selection.intent({ type: 'path.request', path: ['root', 'a'] });
+    await Schedule.micro();
+    expect(requests.length).to.eql(1);
+    expect(content.current().key).to.eql('ref-a');
+
+    until.dispose();
+    expect(orchestrator.disposed).to.eql(true);
+
+    selection.intent({ type: 'path.request', path: ['root', 'b'] });
+    await Schedule.micro();
+    expect(requests.length).to.eql(1);
+    expect(content.current().key).to.eql('ref-a');
+
+    selection.dispose();
+    content.dispose();
+  });
+});
