@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.node.ts';
+export type * from './t.slots.ts';
 
 /**
  * Split layout with main tree navigation.
@@ -20,7 +21,7 @@ export type TreeHostProps = {
   slots?: t.TreeHostSlots;
   tree?: t.TreeHostViewNodeList;
   selectedPath?: t.ObjectPath;
-  spinner?: TreeHostSpinner | TreeHostSpinner[];
+  spinner?: t.TreeHostSpinner | t.TreeHostSpinner[];
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -42,23 +43,11 @@ export type TreeHostProps = {
 /** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
   tree?: t.ReactNode;
-  treeLeaf?: TreeHostTreeLeafRenderer;
+  treeLeaf?: t.TreeHostTreeLeafRenderer;
   main?: t.ReactNode;
   aux?: t.ReactNode;
-  empty?: (slot: TreeHostSlot) => t.ReactNode;
+  empty?: (slot: t.TreeHostSlot) => t.ReactNode;
 };
-
-/** Slot registry keys for TreeHost. */
-export type TreeHostSlot = keyof TreeHostSlots;
-export type TreeHostSpinnerSlot = Exclude<TreeHostSlot, 'empty'>;
-export type TreeHostSpinnerPosition = 'top' | 'middle' | 'bottom';
-export type TreeHostSlotSpinner = {
-  readonly slot: TreeHostSpinnerSlot;
-  readonly backgroundOpacity?: number;
-  readonly backgroundBlur?: t.Pixels;
-  readonly position?: TreeHostSpinnerPosition;
-};
-export type TreeHostSpinner = TreeHostSpinnerSlot | TreeHostSlotSpinner;
 
 /**
  * Event handlers:
@@ -79,11 +68,4 @@ export type TreeHostNodeSelect = {
   readonly path: t.ObjectPath;
   readonly node: t.TreeHostViewNode;
   readonly is: { readonly leaf: boolean };
-};
-
-export type TreeHostTreeLeafRenderer = (e: TreeHostTreeLeafRenderArgs) => t.ReactNode;
-export type TreeHostTreeLeafRenderArgs = {
-  readonly tree: t.TreeHostViewNodeList;
-  readonly path: t.ObjectPath;
-  readonly node: t.TreeHostViewNode;
 };
