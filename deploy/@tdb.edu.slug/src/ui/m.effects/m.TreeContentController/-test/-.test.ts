@@ -152,6 +152,9 @@ describe('TreeContentController', () => {
   });
 
   describe('store injection policy', () => {
+    type TSheet = t.TreeContentController.State;
+    type TStore = { list: TSheet[]; map: { [key: string]: TSheet }; untouched: number };
+
     it('binds current/view to an injected immutable ref', () => {
       const ref = Immutable.clonerRef<t.TreeContentController.State>({
         phase: 'ready',
@@ -208,6 +211,52 @@ describe('TreeContentController', () => {
       });
       expect(root.current.untouched).to.eql(0);
       ctrl.dispose();
+    });
+
+    it('isolates two controllers bound to list and map leaves in one store', () => {
+      const root = Immutable.clonerRef<TStore>({
+        list: [{ phase: 'idle' }, { phase: 'idle' }],
+        map: { primary: { phase: 'idle' } },
+        untouched: 0,
+      });
+      const listRef = bindRefPath<TStore, t.TreeContentController.State>({
+        root,
+        path: ['list', 0],
+      });
+      const mapRef = bindRefPath<TStore, t.TreeContentController.State>({
+        root,
+        path: ['map', 'primary'],
+      });
+      const listCtrl = TreeContentController.create({ ref: listRef });
+      const mapCtrl = TreeContentController.create({ ref: mapRef });
+
+      listCtrl.intent({ type: 'load.start', request: req('l1', 'list-key') });
+      mapCtrl.intent({ type: 'load.start', request: req('m1', 'map-key') });
+      mapCtrl.intent({
+        type: 'load.succeed',
+        request: req('m1', 'map-key'),
+        data: { title: 'ready' },
+      });
+
+      expect(root.current.list[0]).to.eql({
+        phase: 'loading',
+        key: 'list-key',
+        request: req('l1', 'list-key'),
+        data: undefined,
+        error: undefined,
+      });
+      expect(root.current.map.primary).to.eql({
+        phase: 'ready',
+        key: 'map-key',
+        request: undefined,
+        data: { title: 'ready' },
+        error: undefined,
+      });
+      expect(root.current.list[1]).to.eql({ phase: 'idle' });
+      expect(root.current.untouched).to.eql(0);
+
+      listCtrl.dispose();
+      mapCtrl.dispose();
     });
   });
 });
