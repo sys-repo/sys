@@ -46,7 +46,7 @@
     "npm:@automerge/automerge@3.2.3": "3.2.3",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.6": "1.0.6_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_yaml@2.8.2",
-    "npm:@elevenlabs/elevenlabs-js@2.34.0": "2.34.0",
+    "npm:@elevenlabs/elevenlabs-js@2.35.0": "2.35.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@preact/signals-core@1.13.0": "1.13.0",
@@ -60,7 +60,7 @@
     "npm:@types/react@19.2.13": "19.2.13",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.3": "5.1.3_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.29.0_yaml@2.8.2",
-    "npm:ai@6.0.77": "6.0.77_zod@3.25.76",
+    "npm:ai@6.0.78": "6.0.78_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -69,12 +69,12 @@
     "npm:fake-indexeddb@6.2.5": "6.2.5",
     "npm:fast-json-patch@3.1.1": "3.1.1",
     "npm:gpt-tokenizer@3.4.0": "3.4.0",
-    "npm:happy-dom@20.5.0": "20.5.0",
+    "npm:happy-dom@20.6.0": "20.6.0",
     "npm:hash-it@7.0.2": "7.0.2",
-    "npm:hono@4.11.8": "4.11.8",
+    "npm:hono@4.11.9": "4.11.9",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
-    "npm:motion@12.33.0": "12.33.0_react@19.2.4_react-dom@19.2.4__react@19.2.4",
+    "npm:motion@12.34.0": "12.34.0_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.3": "0.6.3",
     "npm:ora@9.3.0": "9.3.0",
@@ -540,8 +540,8 @@
         "vite"
       ]
     },
-    "@elevenlabs/elevenlabs-js@2.34.0": {
-      "integrity": "sha512-McDCQFimFHN9qPZn+/zEwAoUnGhGt4zksBFOC2R2eUd4nv7fhiNL4U7PkjTAYAqOAKDkun0rPaeLKYMQvGWFxA==",
+    "@elevenlabs/elevenlabs-js@2.35.0": {
+      "integrity": "sha512-iQO8Q7nxBnMpP494ziRD4e0dtMQcqI2IVFacBbH2huOrqetg0DG+BPFLC4IHa/KLT6u6UXYq5Hc7HnxZsqmQ9w==",
       "dependencies": [
         "command-exists",
         "node-fetch",
@@ -1016,8 +1016,8 @@
         "vite"
       ]
     },
-    "ai@6.0.77_zod@3.25.76": {
-      "integrity": "sha512-tyyhrRpCRFVlivdNIFLK8cexSBB2jwTqO0z1qJQagk+UxZ+MW8h5V8xsvvb+xdKDY482Y8KAm0mr7TDnPKvvlw==",
+    "ai@6.0.78_zod@3.25.76": {
+      "integrity": "sha512-eriIX/NLWfWNDeE/OJy8wmIp9fyaH7gnxTOCPT5bp0MNkvORstp1TwRUql9au8XjXzH7o2WApqbwgxJDDV0Rbw==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.8",
@@ -1228,8 +1228,8 @@
     "emoji-regex@9.2.2": {
       "integrity": "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="
     },
-    "entities@4.5.0": {
-      "integrity": "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="
+    "entities@6.0.1": {
+      "integrity": "sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g=="
     },
     "esbuild@0.27.2": {
       "integrity": "sha512-HyNQImnsOC7X9PMNaCIeAm4ISCQXs5a5YasTXVliKv4uuBo1dKrG0A+uQS8M5eXjVMnLg3WgXaKvprHlFJQffw==",
@@ -1305,8 +1305,8 @@
         "signal-exit"
       ]
     },
-    "framer-motion@12.33.0_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
-      "integrity": "sha512-ca8d+rRPcDP5iIF+MoT3WNc0KHJMjIyFAbtVLvM9eA7joGSpeqDfiNH/kCs1t4CHi04njYvWyj0jS4QlEK/rJQ==",
+    "framer-motion@12.34.0_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
+      "integrity": "sha512-+/H49owhzkzQyxtn7nZeF4kdH++I2FWrESQ184Zbcw5cEqNHYkE5yxWxcTLSj5lNx3NWdbIRy5FHqUvetD8FWg==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -1352,8 +1352,8 @@
     "gpt-tokenizer@3.4.0": {
       "integrity": "sha512-wxFLnhIXTDjYebd9A9pGl3e31ZpSypbpIJSOswbgop5jLte/AsZVDvjlbEuVFlsqZixVKqbcoNmRlFDf6pz/UQ=="
     },
-    "happy-dom@20.5.0": {
-      "integrity": "sha512-VQe+Q5CYiGOgcCERXhcfNsbnrN92FDEKciMH/x6LppU9dd0j4aTjCTlqONFOIMcAm/5JxS3+utowbXV1OoFr+g==",
+    "happy-dom@20.6.0": {
+      "integrity": "sha512-a+Sz2bPai3rajDuE82Y4B0OxlXJ19ckUjyfWDmeCAs8ZbEbnqtwzV9d4CVhQjWIuOBTOw8rhlxNeaSCHeknXRQ==",
       "dependencies": [
         "@types/node",
         "@types/whatwg-mimetype",
@@ -1366,8 +1366,8 @@
     "hash-it@7.0.2": {
       "integrity": "sha512-LmxjXNePQBK8mFwDcWO9/lhTugWlE6OZRlC4zEwvoy0Ek8vFY09xNBVMGdKJyRQhUsIFRuUbk5izMzC5d3M7xA=="
     },
-    "hono@4.11.8": {
-      "integrity": "sha512-eVkB/CYCCei7K2WElZW9yYQFWssG0DhaDhVvr7wy5jJ22K+ck8fWW0EsLpB0sITUTvPnc97+rrbQqIr5iqiy9Q=="
+    "hono@4.11.9": {
+      "integrity": "sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ=="
     },
     "ignore@7.0.5": {
       "integrity": "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="
@@ -1469,8 +1469,8 @@
         "marked"
       ]
     },
-    "motion-dom@12.33.0": {
-      "integrity": "sha512-XRPebVypsl0UM+7v0Hr8o9UAj0S2djsQWRdHBd5iVouVpMrQqAI0C/rDAT3QaYnXnHuC5hMcwDHCboNeyYjPoQ==",
+    "motion-dom@12.34.0": {
+      "integrity": "sha512-Lql3NuEcScRDxTAO6GgUsRHBZOWI/3fnMlkMcH5NftzcN37zJta+bpbMAV9px4Nj057TuvRooMK7QrzMCgtz6Q==",
       "dependencies": [
         "motion-utils"
       ]
@@ -1478,8 +1478,8 @@
     "motion-utils@12.29.2": {
       "integrity": "sha512-G3kc34H2cX2gI63RqU+cZq+zWRRPSsNIOjpdl9TN4AQwC4sgwYPl/Q/Obf/d53nOm569T0fYK+tcoSV50BWx8A=="
     },
-    "motion@12.33.0_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
-      "integrity": "sha512-TcND7PijsrTeIA9SRVUB8TOJQ+6mJnJ5K4a9oAJZvyI0Zy47Gq5oofU+VkTxbLcvDoKXnHspQcII2mnk3TbFsQ==",
+    "motion@12.34.0_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
+      "integrity": "sha512-01Sfa/zgsD/di8zA/uFW5Eb7/SPXoGyUfy+uMRMW5Spa8j0z/UbfQewAYvPMYFCXRlyD6e5aLHh76TxeeJD+RA==",
       "dependencies": [
         "framer-motion",
         "react",
@@ -2178,7 +2178,7 @@
       "npm:@automerge/automerge-repo@2.5.1",
       "npm:@automerge/automerge@3.2.3",
       "npm:@automerge/prosemirror@0.1.0",
-      "npm:@elevenlabs/elevenlabs-js@2.34.0",
+      "npm:@elevenlabs/elevenlabs-js@2.35.0",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.0.1",
       "npm:@preact/signals-core@1.13.0",
@@ -2188,7 +2188,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.77",
+      "npm:ai@6.0.78",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
@@ -2197,7 +2197,7 @@
       "npm:fake-indexeddb@6.2.5",
       "npm:fast-json-patch@3.1.1",
       "npm:gpt-tokenizer@3.4.0",
-      "npm:happy-dom@20.5.0",
+      "npm:happy-dom@20.6.0",
       "npm:hash-it@7.0.2",
       "npm:ignore@7.0.5",
       "npm:monaco-editor@0.55.1",
@@ -2229,8 +2229,8 @@
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.13",
         "npm:@vitejs/plugin-react@5.1.3",
-        "npm:hono@4.11.8",
-        "npm:motion@12.33.0",
+        "npm:hono@4.11.9",
+        "npm:motion@12.34.0",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",
         "npm:react-icons@5.5.0",
