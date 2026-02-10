@@ -8,7 +8,7 @@ export type LoadHttpOptions = {
 };
 
 export async function loadHttp(
-  signal: t.Signal<t.TreeHostViewNodeList | undefined>,
+  signal: t.Signal<t.TreeHostProps['tree']>,
   opts: LoadHttpOptions,
 ) {
   const thisRequest = ++nonce;

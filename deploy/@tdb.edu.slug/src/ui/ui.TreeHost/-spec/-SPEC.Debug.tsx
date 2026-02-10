@@ -6,16 +6,16 @@ import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
 LoadSample.SAMPLES;
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner'> & {
+type Storage = {
+  debug?: P['debug'];
+  theme?: P['theme'];
+  selectedPath?: P['selectedPath'];
   load?: t.SampleLoadAction;
-  customEmpty?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  //
   load: 'esm:import',
-  customEmpty: false,
 };
 
 /**
@@ -44,11 +44,8 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     tree: s<P['tree']>(undefined),
     selectedPath: s(snap.selectedPath),
-    spinner: s(snap.spinner),
     slots,
-    //
     load: s(snap.load),
-    customEmpty: s(snap.customEmpty),
   };
   const p = props;
   const api = {
@@ -71,10 +68,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
-      d.spinner = p.spinner.value;
-      //
       d.load = p.load.value;
-      d.customEmpty = p.customEmpty.value;
     });
   });
 
@@ -82,18 +76,6 @@ export async function createDebugSignals() {
   const docid = LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid;
   const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
   Signal.effect(load);
-
-  /** Observe to relevant changes */
-  Signal.effect(() => {
-    const path = p.selectedPath.value;
-    const tree = p.tree.value;
-
-    console.group(`👁️`);
-    console.info('selectedPath:', path);
-    const node = TreeHost.Data.findViewNode(tree, path);
-    console.info('findViewNode(tree, path):', tree ? node : '(no tree)');
-    console.groupEnd();
-  });
 
   return api;
 }
@@ -156,20 +138,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
-        block
-        label={() => `spinner: ${JSON.stringify(v.spinner)}`}
-        onClick={() =>
-          Signal.cycle<P['spinner']>(p.spinner, [
-            undefined,
-            'tree',
-            'treeLeaf',
-            'main',
-            'aux',
-            ['treeLeaf', 'main'],
-          ])
-        }
-      />
 
       <hr />
       <Button
@@ -191,15 +159,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {slotButton('aux')}
       <Button
         block
-        label={() => `slot: empty ${p.customEmpty.value ? '🐚' : ''}`}
-        onClick={() => Signal.toggle(p.customEmpty)}
-      />
-      <Button
-        block
         label={() => `(reset)`}
         onClick={() => {
           Signal.walk(p.slots, (e) => e.mutate(undefined));
-          p.customEmpty.value = undefined;
         }}
       />
 

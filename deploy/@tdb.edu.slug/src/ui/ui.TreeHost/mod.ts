@@ -24,12 +24,11 @@
  * primitives (e.g. SlugSheet + controllers), where meaning, navigation,
  * and recursion are defined.
  */
-import { type t } from './common.ts';
+import { type t, TreeHost as LayoutTreeHost } from './common.ts';
 import { Data } from './m.Data.ts';
-import { TreeHost as UI } from './ui.tsx';
 
 /** Public TreeHost entrypoint. */
 export const TreeHost: t.TreeHostLib = {
-  UI,
+  ...LayoutTreeHost,
   Data,
 };

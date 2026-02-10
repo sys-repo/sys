@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, css } from '../common.ts';
+import { type t, D, css } from '../common.ts';
 import { TreeHost } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
@@ -26,17 +26,11 @@ export default Spec.describe(D.displayName, async (e) => {
         <TreeHost.UI
           debug={v.debug}
           theme={v.theme}
-          slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
+          slots={v.slots}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          spinner={v.spinner}
-          onPathRequest={(e) => {
-            console.info('⚡️ onPathRequest: ', e);
-            p.selectedPath.value = e.path;
-          }}
-          onNodeSelect={(e) => {
-            console.info('⚡️ onNodeSelect: ', e);
-          }}
+          onPathRequest={(e: t.TreeHostPathChange) => (p.selectedPath.value = e.path)}
+          onNodeSelect={() => undefined}
         />
       </div>
     );

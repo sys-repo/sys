@@ -11,7 +11,7 @@ export const LoadSample = {
   SAMPLES,
 
   async load(
-    tree: t.Signal<t.TreeHostViewNodeList | undefined>,
+    tree: t.Signal<t.TreeHostProps['tree']>,
     action: t.SampleLoadAction | undefined,
     opts: { baseUrl: t.StringUrl; docid: t.StringId },
   ) {
