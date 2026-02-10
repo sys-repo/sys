@@ -46,7 +46,7 @@ export function SlideDeck(props: {
    */
   const styles = {
     base: css({ display: 'grid', overflow: 'hidden', minHeight: 0 }),
-    panel: css({ gridArea: '1 / 1', minHeight: 0, alignSelf: 'stretch' }),
+    panel: css({ gridArea: '1 / 1', display: 'grid' }),
   };
 
   return (
