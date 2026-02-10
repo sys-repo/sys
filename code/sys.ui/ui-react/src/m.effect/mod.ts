@@ -4,7 +4,8 @@
  *
  * @example
  * ```
- * import { EffectController } from '@sys/ui-react/effect';
+ * import { Effect, EffectController, useEffectController } from '@sys/ui-react/effect';
  * ```
  */
+export { Effect } from './m.Effect.ts';
 export { EffectController, useEffectController } from './m.EffectController/mod.ts';
