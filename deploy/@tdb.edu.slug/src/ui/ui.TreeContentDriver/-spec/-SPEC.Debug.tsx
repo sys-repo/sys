@@ -145,18 +145,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
-        name={'orchestrator:content'}
-        data={content}
-        style={{ marginTop: 5 }}
-        expand={0}
-      />
-      <ObjectView
-        name={'orchestrator:selection'}
-        data={selection}
-        style={{ marginTop: 5 }}
-        expand={0}
-      />
+      <ObjectView name={'content'} data={content} style={{ marginTop: 5 }} expand={0} />
+      <ObjectView name={'selection'} data={selection} style={{ marginTop: 5 }} expand={0} />
     </div>
   );
 };
