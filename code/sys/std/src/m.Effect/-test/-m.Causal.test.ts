@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Effect } from '../mod.ts';
 
-describe('EffectController.Causal.mirrorToken', () => {
+describe('Effect.Causal.mirrorToken', () => {
   it('consumes matching value once', () => {
     const token = Effect.Causal.mirrorToken<string | undefined>();
     token.mark('a');
@@ -24,5 +24,23 @@ describe('EffectController.Causal.mirrorToken', () => {
 
     expect(token.consume(2)).to.eql(false);
     expect(token.consume(1)).to.eql(true);
+  });
+
+  it('keeps only the latest marked value', () => {
+    const token = Effect.Causal.mirrorToken<string>();
+    token.mark('a');
+    token.mark('b');
+
+    expect(token.consume('a')).to.eql(false);
+    expect(token.consume('b')).to.eql(true);
+  });
+
+  it('supports re-mark after consume', () => {
+    const token = Effect.Causal.mirrorToken<string>();
+    token.mark('a');
+    expect(token.consume('a')).to.eql(true);
+
+    token.mark('b');
+    expect(token.consume('b')).to.eql(true);
   });
 });
