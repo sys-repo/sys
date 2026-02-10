@@ -14,7 +14,7 @@ const name = 'TreeHost';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  spinnerOpacity: 0.1,
+  spinnerOpacity: 0.2,
   spinnerBackgroundBlur: undefined as t.Pixels | undefined,
   spinnerPosition: 'middle' as t.TreeHostSpinnerPosition,
 } as const;

@@ -5,6 +5,7 @@ type P = t.TreeHostProps;
 
 export type PropSlotsProps = {
   debug: t.DebugSignals;
+  theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
@@ -26,7 +27,7 @@ export const PropSpinner: React.FC<PropSlotsProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(v.theme);
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
     body: css({ display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)' }),
