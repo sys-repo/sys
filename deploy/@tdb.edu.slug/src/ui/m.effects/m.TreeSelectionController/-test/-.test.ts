@@ -31,6 +31,36 @@ describe('TreeSelectionController', () => {
       expect(state.selectedRef).to.eql(undefined);
       ctrl.dispose();
     });
+
+    it('reset restores seed from initial object input', () => {
+      const tree = sampleTree();
+      const ctrl = TreeSelectionController.create({
+        initial: { tree, selectedPath: ['a'], selectedRef: 'ref-a' },
+      });
+
+      ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
+      ctrl.intent({ type: 'reset' });
+      const state = ctrl.current();
+      expect(state.tree).to.eql(tree);
+      expect(state.selectedPath).to.eql(['a']);
+      expect(state.selectedRef).to.eql('ref-a');
+      ctrl.dispose();
+    });
+
+    it('reset restores seed from initial factory input', () => {
+      const tree = sampleTree();
+      const ctrl = TreeSelectionController.create({
+        initial: () => ({ tree, selectedPath: ['a'], selectedRef: 'ref-a' }),
+      });
+
+      ctrl.intent({ type: 'path.request', path: ['a', 'b'] });
+      ctrl.intent({ type: 'reset' });
+      const state = ctrl.current();
+      expect(state.tree).to.eql(tree);
+      expect(state.selectedPath).to.eql(['a']);
+      expect(state.selectedRef).to.eql('ref-a');
+      ctrl.dispose();
+    });
   });
 
   describe('selection resolution and invariants', () => {

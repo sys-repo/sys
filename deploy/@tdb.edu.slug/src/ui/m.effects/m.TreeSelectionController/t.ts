@@ -22,8 +22,11 @@ export declare namespace TreeSelectionController {
 
   /** Static config properties of the controller. */
   export type Props = {
-    readonly initial?: Partial<State>;
+    readonly initial?: InitialInput;
   };
+
+  /** Initial seed input for controller creation. */
+  export type InitialInput = Partial<State> | (() => Partial<State>);
 
   export type Patch = Partial<State>;
 

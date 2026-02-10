@@ -5,9 +5,12 @@ import { normalizeState } from './u.ts';
 export function reduceInput(
   current: t.TreeSelectionController.State,
   input: t.TreeSelectionController.Input,
+  seed?: t.TreeSelectionController.Patch,
 ): t.TreeSelectionController.Patch | undefined {
   switch (input.type) {
     case 'reset':
+      return normalizeState(seed ?? {});
+
     case 'tree.clear':
       return normalizeState({
         tree: undefined,

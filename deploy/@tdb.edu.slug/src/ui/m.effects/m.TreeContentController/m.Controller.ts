@@ -6,6 +6,9 @@ export const TreeContentController: t.TreeContentController.Lib = {
   create(props) {
     const id = `${D.idPrefix}${slug()}`;
     const cfg: t.TreeContentController.Props = props ?? {};
+    if (cfg.ref && cfg.initial === undefined) {
+      throw new Error('TreeContentController.create: initial is required when ref is provided.');
+    }
     const input = typeof cfg.initial === 'function' ? cfg.initial() : cfg.initial;
     const seed = initialState(input ?? {});
     const ref = cfg.ref ?? Immutable.clonerRef<t.TreeContentController.State>(seed);

@@ -195,7 +195,10 @@ describe('TreeContentController', () => {
         key: 'key-a',
         data: { title: 'A' },
       });
-      const ctrl = TreeContentController.create({ ref });
+      const ctrl = TreeContentController.create({
+        ref,
+        initial: { phase: 'ready', key: 'seed-key', data: { title: 'seed' } },
+      });
       expect(ctrl.current().phase).to.eql('ready');
       expect(ctrl.current().data).to.eql({ title: 'A' });
       expect(ctrl.view().phase).to.eql('ready');
@@ -216,10 +219,32 @@ describe('TreeContentController', () => {
 
     it('intent writes are applied through the injected ref', () => {
       const ref = Immutable.clonerRef<t.TreeContentController.State>({ phase: 'idle' });
-      const ctrl = TreeContentController.create({ ref });
+      const ctrl = TreeContentController.create({ ref, initial: { phase: 'idle' } });
       ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
       expect(ref.current.phase).to.eql('loading');
       expect(ref.current.request).to.eql(req('r1', 'key-a'));
+      ctrl.dispose();
+    });
+
+    it('reset uses explicit seed when ref is injected', () => {
+      const ref = Immutable.clonerRef<t.TreeContentController.State>({
+        phase: 'ready',
+        key: 'external-key',
+        data: { title: 'external' },
+      });
+      const ctrl = TreeContentController.create({
+        ref,
+        initial: { phase: 'ready', key: 'seed-key', data: { title: 'seed' } },
+      });
+      ctrl.intent({ type: 'load.start', request: req('r1', 'live-key') });
+      ctrl.intent({ type: 'reset' });
+      expect(ref.current).to.eql({
+        phase: 'ready',
+        key: 'seed-key',
+        request: undefined,
+        data: { title: 'seed' },
+        error: undefined,
+      });
       ctrl.dispose();
     });
 
@@ -232,7 +257,7 @@ describe('TreeContentController', () => {
         root,
         path: ['sheet', 'content'],
       });
-      const ctrl = TreeContentController.create({ ref });
+      const ctrl = TreeContentController.create({ ref, initial: { phase: 'idle' } });
 
       ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
       const leaf = Obj.Path.get<t.TreeContentController.State>(root.current, ['sheet', 'content']);
@@ -261,8 +286,8 @@ describe('TreeContentController', () => {
         root,
         path: ['map', 'primary'],
       });
-      const listCtrl = TreeContentController.create({ ref: listRef });
-      const mapCtrl = TreeContentController.create({ ref: mapRef });
+      const listCtrl = TreeContentController.create({ ref: listRef, initial: { phase: 'idle' } });
+      const mapCtrl = TreeContentController.create({ ref: mapRef, initial: { phase: 'idle' } });
 
       listCtrl.intent({ type: 'load.start', request: req('l1', 'list-key') });
       mapCtrl.intent({ type: 'load.start', request: req('m1', 'map-key') });

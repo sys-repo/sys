@@ -24,7 +24,7 @@ export declare namespace TreeContentController {
   /** Factory args: choose local initial or injected ref. */
   export type CreateProps =
     | { readonly initial?: InitialInput; readonly ref?: never }
-    | { readonly ref: Ref; readonly initial?: never };
+    | { readonly ref: Ref; readonly initial: InitialInput };
 
   /** Static controller config. */
   export type Props = {
