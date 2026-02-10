@@ -22,6 +22,7 @@ export type TreeHostProps = {
   tree?: t.TreeHostViewNodeList;
   selectedPath?: t.ObjectPath;
   spinner?: t.TreeHostSpinner | t.TreeHostSpinner[];
+  nav?: TreeHostNav;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -38,6 +39,16 @@ export type TreeHostProps = {
    * Provides the node and a leaf indicator.
    */
   onNodeSelect?: TreeHostNodeSelectHandler;
+};
+
+export type TreeHostNav = {
+  readonly width?: t.Pixels;
+  readonly animate?: TreeHostNavAnimate;
+};
+
+export type TreeHostNavAnimate = {
+  readonly duration?: t.Msecs;
+  readonly ease?: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
 };
 
 /**

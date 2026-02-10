@@ -7,12 +7,13 @@ import { PropSpinner } from './-ui.prop.spinner.tsx';
 import { SelectedPath, TreeHost } from './mod.ts';
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner' | 'nav'> & {
   customEmpty?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  nav: D.nav,
   customEmpty: false,
 };
 
@@ -32,6 +33,7 @@ export function createDebugSignals() {
     tree: s<P['tree']>(SAMPLE_TREE_1),
     selectedPath: s(snap.selectedPath),
     spinner: s(snap.spinner),
+    nav: s(snap.nav),
     slots: {
       tree: s<S['tree']>(),
       main: s<S['main']>(),
@@ -55,6 +57,7 @@ export function createDebugSignals() {
       d.debug = props.debug.value;
       d.selectedPath = props.selectedPath.value;
       d.spinner = props.spinner.value;
+      d.nav = props.nav.value;
       d.customEmpty = props.customEmpty.value;
     });
   });
@@ -100,6 +103,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `nav.width: ${p.nav.value?.width ?? D.nav.width}`}
+        onClick={() => {
+          const width = p.nav.value?.width ?? D.nav.width;
+          const values = [0, 10, 220, 320, 420];
+          const nextWidth = values[(values.indexOf(width) + 1) % values.length];
+          p.nav.value = { ...D.nav, ...(p.nav.value ?? {}), width: nextWidth };
+        }}
       />
       <PropSpinner debug={debug} />
 

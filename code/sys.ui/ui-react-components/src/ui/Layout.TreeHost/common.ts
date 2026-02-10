@@ -14,6 +14,10 @@ const name = 'TreeHost';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
+  nav: {
+    width: 320,
+    animate: { duration: 180, ease: 'easeInOut' },
+  } satisfies Required<t.TreeHostNav>,
   spinner: {
     backgroundOpacity: 0.2,
     backgroundBlur: 1,

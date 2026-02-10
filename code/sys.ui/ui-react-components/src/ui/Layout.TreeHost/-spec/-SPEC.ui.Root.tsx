@@ -46,6 +46,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
       theme={v.theme}
       slots={slots}
       tree={v.tree}
+      nav={v.nav}
       selectedPath={v.selectedPath}
       spinner={v.spinner}
       onPathRequest={(e) => {
