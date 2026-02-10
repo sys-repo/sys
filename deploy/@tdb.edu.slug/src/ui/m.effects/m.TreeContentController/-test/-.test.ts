@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { TreeContentController } from '../mod.ts';
+import { type t, Immutable } from '../common.ts';
 import { req } from './u.fixture.ts';
 
 describe('TreeContentController', () => {
@@ -29,6 +30,17 @@ describe('TreeContentController', () => {
       expect(state.request).to.eql(undefined);
       expect(state.data).to.eql(undefined);
       expect(state.error).to.eql(undefined);
+      ctrl.dispose();
+    });
+
+    it('initial seeds local store when ref is not provided', () => {
+      const ctrl = TreeContentController.create({
+        initial: { phase: 'ready', key: 'key-a', data: { title: 'A' } },
+      });
+      const state = ctrl.current();
+      expect(state.phase).to.eql('ready');
+      expect(state.key).to.eql('key-a');
+      expect(state.data).to.eql({ title: 'A' });
       ctrl.dispose();
     });
   });
@@ -124,6 +136,42 @@ describe('TreeContentController', () => {
       expect(view.phase).to.eql('ready');
       expect(view.loading).to.eql(false);
       expect(view.data).to.eql({ title: 'A' });
+      ctrl.dispose();
+    });
+  });
+
+  describe('store injection policy', () => {
+    it('binds current/view to an injected immutable ref', () => {
+      const ref = Immutable.clonerRef<t.TreeContentController.State>({
+        phase: 'ready',
+        key: 'key-a',
+        data: { title: 'A' },
+      });
+      const ctrl = TreeContentController.create({ ref });
+      expect(ctrl.current().phase).to.eql('ready');
+      expect(ctrl.current().data).to.eql({ title: 'A' });
+      expect(ctrl.view().phase).to.eql('ready');
+
+      ref.change((d) => {
+        Object.assign(d, {
+          phase: 'loading',
+          request: req('r1', 'key-b'),
+          key: 'key-b',
+          data: undefined,
+        });
+      });
+      expect(ctrl.current().phase).to.eql('loading');
+      expect(ctrl.current().key).to.eql('key-b');
+      expect(ctrl.view().loading).to.eql(true);
+      ctrl.dispose();
+    });
+
+    it('intent writes are applied through the injected ref', () => {
+      const ref = Immutable.clonerRef<t.TreeContentController.State>({ phase: 'idle' });
+      const ctrl = TreeContentController.create({ ref });
+      ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
+      expect(ref.current.phase).to.eql('loading');
+      expect(ref.current.request).to.eql(req('r1', 'key-a'));
       ctrl.dispose();
     });
   });

@@ -18,14 +18,21 @@ export type TreeContentController = t.EffectController<
 export declare namespace TreeContentController {
   /** Factory surface. */
   export type Lib = {
-    create(props?: Props): TreeContentController;
+    create(props?: CreateProps): TreeContentController;
   };
+
+  /** Factory args: choose local initial or injected ref. */
+  export type CreateProps =
+    | { readonly initial?: Partial<State>; readonly ref?: never }
+    | { readonly ref: t.ImmutableRef<State>; readonly initial?: never };
 
   /** Static controller config. */
   export type Props = {
     readonly initial?: Partial<State>;
+    readonly ref?: t.ImmutableRef<State>;
   };
 
+  /** State change patch. */
   export type Patch = Partial<State>;
 
   /** Controller input events. */
