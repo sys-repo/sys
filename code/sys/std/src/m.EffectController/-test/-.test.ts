@@ -5,5 +5,6 @@ describe('EffectController', () => {
   it('API', async () => {
     const m = await import('@sys/std/effect');
     expect(m.EffectController).to.equal(EffectController);
+    expect(typeof m.EffectController.Causal.mirrorToken).to.eql('function');
   });
 });

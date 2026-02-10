@@ -1,15 +1,27 @@
 import { type t } from './common.ts';
 
+/** Type re-exports. */
+export type * from './t.causal.ts';
+
 /**
  * EffectController — minimal orchestration primitive.
  */
-export type EffectControllerLib = {
-  create<State, Patch extends Partial<State> = Partial<State>, Props = undefined>(
-    args: t.EffectControllerCreateArgs<State, Patch, Props> & {
-      readonly applyPatch?: undefined;
-    },
-  ): t.EffectController<State, Patch, Props>;
+export type EffectControllerLib = CreateMethod & {
+  readonly Causal: EffectCausalLib;
+};
 
+/**
+ * EffectController causal helpers (adapter protocol utilities).
+ */
+export type EffectCausalLib = {
+  mirrorToken<T>(): t.EffectMirrorToken<T>;
+};
+
+/** Create: factory overloads */
+type CreateMethod = {
+  create<State, Patch extends Partial<State> = Partial<State>, Props = undefined>(
+    args: t.EffectControllerCreateArgs<State, Patch, Props> & { readonly applyPatch?: undefined },
+  ): t.EffectController<State, Patch, Props>;
   create<State, Patch, Props = undefined>(
     args: t.EffectControllerCreateArgs<State, Patch, Props> & {
       readonly applyPatch: (draft: State, patch: Patch) => void;
