@@ -1,5 +1,6 @@
 import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { createOrchestrator } from './-u.orchestrator.ts';
 import {
   type t,
   Button,
@@ -48,10 +49,12 @@ export async function createDebugSignals() {
     origin: s<t.SlugUrlOrigin | undefined>(),
     cardKind: s(snap.cardKind),
   };
+  const orchestrator = createOrchestrator({ props, card });
   const p = props;
   const api = {
     props,
     card,
+    orchestrator,
     listen,
     reset,
   };
@@ -67,6 +70,7 @@ export async function createDebugSignals() {
     p.env.value = defaults.env;
     p.cardKind.value = defaults.cardKind;
     card.reset();
+    orchestrator.reset();
     syncOrigin();
   }
 

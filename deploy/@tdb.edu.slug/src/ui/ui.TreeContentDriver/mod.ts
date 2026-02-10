@@ -14,5 +14,6 @@
  * - no mixed state ownership (controller-owned fields are read-only here)
  */
 import type { t } from './common.ts';
+import { createOrchestrator } from './u.orchestrator.ts';
 
-export const TreeContentDriver: t.TreeContentDriver.Lib = {};
+export const TreeContentDriver: t.TreeContentDriver.Lib = { createOrchestrator };
