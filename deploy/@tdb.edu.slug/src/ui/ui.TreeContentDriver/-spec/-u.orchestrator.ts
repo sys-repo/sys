@@ -1,6 +1,6 @@
-import { TreeData } from '../../m.data/mod.ts';
 import { TreeContentDriver } from '../mod.ts';
-import { type t, Is, Signal, SlugLoader } from './common.ts';
+import { type t, Is, Signal } from './common.ts';
+import { resolveLoader, treeFromResponse } from './-u.loaders.ts';
 
 type DataCardSignals = t.DataCardSignals;
 type PropsSignals = {
@@ -19,56 +19,11 @@ export function createOrchestrator(args: {
   let lastCardRef: string | undefined = card.treeContent.ref.value;
 
   const orchestrator = TreeContentDriver.createOrchestrator({
-    load: async ({ request }) => {
-      const kind = args.props.cardKind.value ?? 'file-content';
-      const origin = args.props.origin.value?.cdn.default;
-      if (!Is.str(origin) || origin.length === 0) throw new Error('Missing HTTP origin');
-
-      if (kind === 'playback-content') {
-        const client = await SlugLoader.Descriptor.client({
-          origin,
-          kind: 'slug-tree:media:seq',
-          docid: request.key,
-        });
-        if (!client.ok) throw new Error(client.error.message);
-
-        const assets = await client.value.Timeline.Assets.load();
-        if (!assets.ok) throw new Error(assets.error.message);
-        const playback = await client.value.Timeline.Playback.load();
-        if (!playback.ok) throw new Error(playback.error.message);
-
-        return {
-          kind,
-          docid: request.key,
-          assets: assets.value.assets,
-          playback: playback.value,
-        };
-      }
-
-      const client = await SlugLoader.Descriptor.client({
-        origin,
-        kind: 'slug-tree:fs',
-      });
-      if (!client.ok) throw new Error(client.error.message);
-
-      const index = await client.value.FileContent.index();
-      if (!index.ok) throw new Error(index.error.message);
-
-      const hash = findHash(index.value.entries, request.key);
-      if (!hash) throw new Error(`No content hash found for ref: ${request.key}`);
-
-      const file = await client.value.FileContent.get(hash);
-      if (!file.ok) throw new Error(file.error.message);
-
-      return {
-        kind,
-        docid: client.value.docid,
-        ref: request.key,
-        hash,
-        contentType: file.value.contentType,
-        content: file.value,
-      };
-    },
+    load: (input) =>
+      resolveLoader({
+        kind: args.props.cardKind.value ?? 'file-content',
+        origin: args.props.origin.value,
+      })(input),
     onSelectedRefChange(ref) {
       if (card.treeContent.ref.value === ref) return;
       card.treeContent.ref.value = ref;
@@ -104,17 +59,4 @@ export function createOrchestrator(args: {
   });
 
   return orchestrator;
-}
-
-function treeFromResponse(input: unknown): t.TreeHostViewNodeList | undefined {
-  if (!Is.record(input)) return undefined;
-  const value = Is.record(input.value) ? input.value : undefined;
-  const tree = value && Is.record(value.tree) ? value.tree : undefined;
-  if (!tree || !Array.isArray(tree.tree)) return undefined;
-  return TreeData.fromSlugTree(tree as t.SlugTreeDoc);
-}
-
-function findHash(entries: readonly t.SlugFileContentEntry[], ref: string): string | undefined {
-  const entry = entries.find((item) => item.frontmatter?.ref === ref || item.path === ref);
-  return entry?.hash;
 }
