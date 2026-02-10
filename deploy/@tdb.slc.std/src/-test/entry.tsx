@@ -37,7 +37,9 @@ export async function main() {
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: (e) => {},
+      hr(e) {
+        if (e.next?.endsWith('Layout.Canvas')) return true;
+      },
     });
 
     function App() {

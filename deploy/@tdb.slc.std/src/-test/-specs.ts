@@ -3,12 +3,13 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-export const ns = 'sys.🐷';
+export const ns = 'tdb.slc';
 
 /**
  * Specs:
  */
 export const Specs = {
-  'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
-  'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
+  [`${ns}: Logo.Canvas`]: () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
+  [`${ns}: Logo.Wordmark`]: () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
+  [`${ns}: Layout.Canvas`]: () => import('../ui/ui.Layout.Canvas/-spec/-SPEC.tsx'),
 } as t.SpecImports;
