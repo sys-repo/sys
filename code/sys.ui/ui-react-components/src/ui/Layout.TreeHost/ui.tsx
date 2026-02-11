@@ -19,13 +19,12 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: 'auto auto minmax(0, 1fr)',
     }),
-    navWrap: css({
-      minWidth: 0,
-      minHeight: 0,
-      display: 'grid',
-      overflow: 'hidden',
-    }),
-    nav: css({ minHeight: 0 }),
+    nav: {
+      track: css({ minWidth: 0, minHeight: 0, display: 'grid', overflow: 'hidden' }),
+      slide: css({ display: 'grid' }),
+      panel: css({ minHeight: 0 }),
+    },
+
     border: css({ backgroundColor: Color.alpha(theme.fg, 0.1) }),
     maing: css({}),
   };
@@ -33,14 +32,19 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <M.div
-        className={styles.navWrap.class}
+        className={styles.nav.track.class}
         initial={false}
         animate={{ width: navWidth }}
         transition={navTransition}
         style={{ pointerEvents: navVisible ? 'auto' : 'none' }}
       >
-        <M.div initial={false} animate={{ x: navVisible ? 0 : -24 }} transition={navTransition}>
-          <Nav {...props} style={styles.nav} />
+        <M.div
+          initial={false}
+          animate={{ x: navVisible ? 0 : -24 }}
+          transition={navTransition}
+          className={styles.nav.slide.class}
+        >
+          <Nav {...props} style={styles.nav.panel} />
         </M.div>
       </M.div>
       <M.div
