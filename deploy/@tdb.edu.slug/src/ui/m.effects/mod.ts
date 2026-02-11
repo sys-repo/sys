@@ -5,8 +5,8 @@
  */
 export * from './m.attach.playback/mod.ts';
 export * from './m.attach.slug/mod.ts';
-export * from './m.TreeContentController/mod.ts';
-export * from './m.TreeContentOrchestrator/mod.ts';
+export * from './m.TreeContent.Controller/mod.ts';
+export * from './m.TreeContent.Orchestrator/mod.ts';
 export * from './m.TreeSelection.CardOrchestrator/mod.ts';
 export * from './m.TreeSelection.Controller/mod.ts';
 export { bindRefPath } from './u.bindRefPath.ts';
