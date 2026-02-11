@@ -3,11 +3,12 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.BulletList.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'selected'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   selected: 'localhost',
+  columns: 1,
 };
 
 /**
@@ -28,6 +29,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     selected: s(snap.selected),
+    columns: s(snap.columns),
   };
   const p = props;
   const api = {
@@ -49,6 +51,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selected = p.selected.value;
+      d.columns = p.columns.value;
     });
   });
 
@@ -91,6 +94,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `columns: ${v.columns}`}
+        onClick={() => Signal.cycle<number>(p.columns, [1, 2, 3])}
       />
 
       <hr />

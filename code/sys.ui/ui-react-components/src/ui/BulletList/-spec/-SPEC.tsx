@@ -14,6 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         selected={v.selected}
+        columns={v.columns}
         items={[
           { id: 'localhost' },
           { id: 'production' },

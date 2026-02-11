@@ -1,10 +1,11 @@
-import { type t, Bullet, Button, Color, css, Keyboard } from './common.ts';
+import { type t, Bullet, Button, Color, css, Keyboard, Num } from './common.ts';
 
 type P = t.BulletList.Props;
 
 export const BulletList: t.FC<P> = (props) => {
   const { debug = false, selected } = props;
   const items = props.items ?? [];
+  const columns = wrangle.columns(props.columns);
 
   /**
    * Render:
@@ -16,6 +17,7 @@ export const BulletList: t.FC<P> = (props) => {
       color: theme.fg,
       lineHeight: 1.6,
       display: 'grid',
+      gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
     }),
     row: css({
       display: 'grid',
@@ -52,6 +54,12 @@ export const BulletList: t.FC<P> = (props) => {
 /**
  * Helpers:
  */
+const wrangle = {
+  columns(value: number | undefined): number {
+    return Num.clamp(1, Num.INFINITY, Math.floor(value ?? 1));
+  },
+};
+
 function isSelected(selected: t.BulletList.Selected | undefined, id: string): boolean {
   if (Array.isArray(selected)) return selected.includes(id);
   return selected === id;

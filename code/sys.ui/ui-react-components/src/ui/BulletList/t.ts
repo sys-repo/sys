@@ -19,6 +19,7 @@ export namespace BulletList {
   export type Props = {
     items: Item[];
     selected?: Selected;
+    columns?: number;
 
     debug?: boolean;
     theme?: t.CommonTheme;
