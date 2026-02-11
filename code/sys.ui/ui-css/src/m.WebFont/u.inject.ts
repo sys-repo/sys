@@ -33,15 +33,23 @@ export const inject: t.WebFontLib['inject'] = (dir, opts) => {
 
   let css = '';
   if (variable) {
-    const url = (fileForVariable ?? defaultFileForVariable)({ family, italic, dir });
-    const format = inferFormatFromUrl(url) ?? 'woff2';
-    css += fontFaceBlock({
-      family,
-      display,
-      weight: '100 900',
-      style: italic ? 'italic' : 'normal',
-      sources: buildSources({ local, url, format }),
-    });
+    const toFace = (isItalic: boolean) => {
+      const url = (fileForVariable ?? defaultFileForVariable)({ family, italic: isItalic, dir });
+      const format = inferFormatFromUrl(url) ?? 'woff2';
+      return fontFaceBlock({
+        family,
+        display,
+        weight: '100 900',
+        style: isItalic ? 'italic' : 'normal',
+        sources: buildSources({ local, url, format }),
+      });
+    };
+
+    css += toFace(false);
+    if (italic) {
+      css += '\n\n';
+      css += toFace(true);
+    }
   } else {
     for (const w of weights) {
       const urlNormal = (fileForStatic ?? defaultFileForStatic)({

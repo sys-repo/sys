@@ -171,17 +171,24 @@ describe(`useWebFont`, () => {
         expect(css.includes('url(/fonts/inter/Inter-Var.woff2) format("woff2")')).to.eql(true);
       });
 
-      it('variable italic emits italic style and weight range', () => {
+      it('variable italic emits both normal and italic faces', () => {
         const res = WebFont.inject('/fonts/inter', {
           family: 'Inter',
           variable: true,
           italic: true,
-          fileForVariable: ({ dir }) => `${dir}/Inter-VarItalic.woff2`,
+          fileForVariable: ({ dir, italic }) => {
+            return italic ? `${dir}/Inter-VarItalic.woff2` : `${dir}/Inter-Var.woff2`;
+          },
         });
         const css = (document.getElementById(res.id) as HTMLStyleElement).textContent ?? '';
 
+        const blocks = (css.match(/@font-face\s*\{/g) ?? []).length;
+        expect(blocks).to.eql(2);
+
         expect(css.includes('font-weight: 100 900;')).to.be.true;
+        expect(css.includes('font-style: normal;')).to.be.true;
         expect(css.includes('font-style: italic;')).to.be.true;
+        expect(css.includes('url(/fonts/inter/Inter-Var.woff2) format("woff2")')).to.be.true;
         expect(css.includes('url(/fonts/inter/Inter-VarItalic.woff2) format("woff2")')).to.be.true;
       });
     });

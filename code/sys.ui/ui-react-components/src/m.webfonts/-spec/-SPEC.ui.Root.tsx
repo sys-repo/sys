@@ -1,6 +1,7 @@
 import React from 'react';
 import { Signal } from '../../ui/-test.ui.ts';
 import { type t, Color, css, Fonts, useFontBundle } from './common.ts';
+import { resolveStyle } from './-ui.FontStyle.tsx';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -16,6 +17,7 @@ export const Root: React.FC<RootProps> = (props) => {
   const v = Signal.toObject(p);
   const fontName = (v.font ?? 'ETBook') as t.Fonts.FontName;
   const bundle = Fonts[fontName];
+  const style = resolveStyle(fontName, v.weight, v.italic);
 
   useFontBundle(bundle);
 
@@ -38,6 +40,8 @@ export const Root: React.FC<RootProps> = (props) => {
     }),
     sample: css({
       fontFamily: `"${bundle.config.family}"`,
+      fontWeight: style.weight,
+      fontStyle: style.italic ? 'italic' : 'normal',
       fontSize: 38,
       lineHeight: 1.15,
     }),
@@ -45,7 +49,10 @@ export const Root: React.FC<RootProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{bundle.config.family}</div>
+      <div className={styles.title.class}>
+        {bundle.config.family}
+        {` / ${style.weight}${style.italic ? ' italic' : ''}`}
+      </div>
       <div className={styles.sample.class}>{v.sampleText}</div>
     </div>
   );

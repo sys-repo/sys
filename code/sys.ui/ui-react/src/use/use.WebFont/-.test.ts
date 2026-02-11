@@ -81,22 +81,22 @@ describe(`useWebFont`, () => {
       expect(byFamily('Inter').length).to.eql(2);
     });
 
-    it('no re-injection on rerender (effect has empty deps)', () => {
+    it('re-runs for changed args and injects new family', () => {
       const { rerender } = renderHook(
-        ({ dir }) =>
+        ({ dir, family }) =>
           useWebFont(dir, {
-            family: 'Inter',
+            family,
             variable: true,
-            fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
+            fileForVariable: ({ dir }) => `${dir}/source-sans-3-var.woff2`,
           }),
-        { initialProps: { dir: '/fonts/inter' } },
+        { initialProps: { dir: '/fonts/source-sans-3', family: 'Source Sans 3' } },
       );
 
-      expect(byFamily('Inter').length).to.eql(1);
+      expect(byFamily('Source Sans 3').length).to.eql(1);
 
-      // Rerender with same props: effect should not fire again:
-      act(() => rerender({ dir: '/fonts/inter' }));
-      expect(byFamily('Inter').length).to.eql(1);
+      act(() => rerender({ dir: '/fonts/et-book', family: 'ET Book' }));
+      expect(byFamily('Source Sans 3').length).to.eql(1);
+      expect(byFamily('ET Book').length).to.eql(1);
     });
   });
 });

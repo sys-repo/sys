@@ -1,16 +1,21 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, Signal, STORAGE_KEY } from './common.ts';
+import { FontStyle } from './-ui.FontStyle.tsx';
 
 type FontName = t.Fonts.FontName;
 type Storage = {
   theme?: t.CommonTheme;
   font?: FontName;
   sampleText?: string;
+  weight?: t.FontWeight;
+  italic?: boolean;
 };
 const defaults: Storage = {
   theme: 'Dark',
   font: 'ETBook',
   sampleText: 'The quick brown fox jumps over the lazy dog.',
+  weight: 400,
+  italic: false,
 };
 
 /**
@@ -31,6 +36,8 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     font: s(snap.font),
     sampleText: s(snap.sampleText),
+    weight: s(snap.weight),
+    italic: s(snap.italic),
   };
   const p = props;
   const api = {
@@ -52,6 +59,8 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.font = p.font.value;
       d.sampleText = p.sampleText.value;
+      d.weight = p.weight.value;
+      d.italic = p.italic.value;
     });
   });
 
@@ -94,6 +103,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <FontStyle debug={debug} />
+
+      <hr />
       <Button block label={() => '(reset)'} onClick={debug.reset} />
     </div>
   );
