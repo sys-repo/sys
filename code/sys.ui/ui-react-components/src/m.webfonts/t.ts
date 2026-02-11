@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Index of commonly reused web-font bundles.
  */
 export namespace Fonts {
+  export type FontName = keyof Lib;
   export type Lib = {
     readonly ETBook: Bundle;
     readonly SourceSans3: Bundle;

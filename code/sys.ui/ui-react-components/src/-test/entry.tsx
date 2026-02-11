@@ -29,7 +29,10 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  if (isDev) {
+  /**
+   * DevHarness:
+   */
+  async function renderDev() {
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
 
@@ -38,7 +41,6 @@ export async function main() {
       hr(e) {
         if (e.next?.endsWith(': Button')) return true;
         if (e.next?.endsWith(': Bullet')) return true;
-        if (e.next?.startsWith('sys.ui.css: @container')) return true;
         if (e.next?.endsWith(': Layout.CenterColumn')) return true;
         if (e.next?.endsWith(': Http.Origin')) return true;
         if (e.next?.endsWith(': TreeView.Index')) return true;
@@ -46,6 +48,7 @@ export async function main() {
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
         if (e.next?.endsWith(': Dist')) return true;
+        if (e.next?.endsWith(': WebFonts')) return true;
       },
     });
     function App() {
@@ -58,13 +61,24 @@ export async function main() {
         <App />
       </StrictMode>,
     );
-  } else {
+  }
+
+  /**
+   * Entry/Splash:
+   */
+  async function renderSplash() {
     const { Splash } = await import('./ui.Splash.tsx');
     root.render(
       <StrictMode>
         <Splash style={{ Absolute: 0 }} />
       </StrictMode>,
     );
+  }
+
+  if (isDev) {
+    return void renderDev();
+  } else {
+    return void renderSplash();
   }
 }
 

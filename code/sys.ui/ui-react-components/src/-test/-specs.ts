@@ -72,6 +72,7 @@ export const SpecsComponents = {
  * Samples from external libs:
  */
 export const SpecsExternal = {
+  'sys.ui: WebFonts': () => import('../m.webfonts/-spec/-SPEC.tsx'),
   'sys.ui.css: @container': () => import('../-sample/-css-container/-SPEC.tsx'),
   'sys.ui.css: Scroll': () => import('../-sample/-css-Scroll/-spec/-SPEC.tsx'),
   'sys.ui.react: usePointer': () => import('../-sample/-dom-usePointer/-SPEC.tsx'),
