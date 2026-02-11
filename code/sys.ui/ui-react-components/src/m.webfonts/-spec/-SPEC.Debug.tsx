@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, Signal, STORAGE_KEY } from './common.ts';
+import { FontFamily } from './-ui.FontFamily.tsx';
 import { FontStyle } from './-ui.FontStyle.tsx';
 
 type FontName = t.Fonts.FontName;
@@ -95,14 +96,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{D.name}</div>
       <Button
         block
-        label={() => `font: ${p.font.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<FontName>(p.font, ['ETBook', 'SourceSans3'])}
-      />
-      <Button
-        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <FontFamily debug={debug} />
 
       <hr />
       <FontStyle debug={debug} />

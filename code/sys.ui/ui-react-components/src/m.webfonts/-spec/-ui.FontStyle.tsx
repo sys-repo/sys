@@ -1,4 +1,5 @@
 import React from 'react';
+import { SpecStyles } from './-u.styles.ts';
 import { type t, BulletList, Button, Color, css, Signal } from './common.ts';
 
 export type FontStyleProps = {
@@ -39,23 +40,18 @@ export const FontStyle: React.FC<FontStyleProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       display: 'grid',
       gap: 8,
       marginTop: 8,
-    }),
-    title: css({
-      fontSize: 11,
-      fontWeight: 600,
-      opacity: 0.6,
-      textTransform: 'uppercase',
-      letterSpacing: 0.6,
       color: theme.fg,
     }),
+    list: css({ marginLeft: 15 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>Font Style</div>
+      <div className={SpecStyles.title.class}>Font Style</div>
 
       <Button
         block
@@ -64,6 +60,7 @@ export const FontStyle: React.FC<FontStyleProps> = (props) => {
       />
 
       <BulletList.UI
+        style={styles.list}
         theme={theme.name}
         selected={selected}
         columns={2}
