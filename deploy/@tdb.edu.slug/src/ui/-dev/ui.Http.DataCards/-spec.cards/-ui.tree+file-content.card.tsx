@@ -1,4 +1,4 @@
-import { renderTreeRefSelector } from './-ui.tree+ref-selector.tsx';
+import { renderTreeRefSelector } from './-u.treeRefSelector.tsx';
 import { type t, Color, css } from './common.ts';
 
 type Props = {

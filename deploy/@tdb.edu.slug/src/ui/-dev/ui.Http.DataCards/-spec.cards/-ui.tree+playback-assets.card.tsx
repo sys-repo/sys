@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { renderTreeRefSelector } from './-ui.tree+ref-selector.tsx';
+import { renderTreeRefSelector } from './-u.treeRefSelector.tsx';
 
 type Props = {
   selected?: string;
