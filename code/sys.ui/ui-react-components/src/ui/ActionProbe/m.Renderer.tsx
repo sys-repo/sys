@@ -23,6 +23,7 @@ export const Renderer: t.ActionProbeRendererLib = {
             style={args.style}
             spec={spec}
             env={resolved.env}
+            runRequest={resolved.runRequest}
             spinning={resolved.spinning}
             focused={resolved.focused}
             actOn={resolved.actOn}

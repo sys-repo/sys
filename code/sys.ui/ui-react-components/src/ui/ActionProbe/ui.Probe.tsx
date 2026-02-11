@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type t, Color, css, D, Is, Keyboard, Time } from './common.ts';
 import { Body } from './ui.Probe.Body.tsx';
 import { Header } from './ui.Probe.Header.tsx';
@@ -20,6 +20,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     spec: specInput,
     sample,
     env,
+    runRequest,
     spinning = false,
     focused = false,
     actOn = D.Probe.actOn,
@@ -31,6 +32,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   const [isActOnClickDown, setActOnClickDown] = useState(false);
   const [running, setRunning] = useState(false);
   const runRef = useRef(false);
+  const runRequestRef = useRef(runRequest);
+  const didMountRef = useRef(false);
   const { componentAttr } = useScopedStyles(props);
   const { blocks, getParams } = useProbeRenderModel({ spec, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
@@ -63,6 +66,22 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     setActOnClickDown(false);
     void invokeRun();
   };
+
+  /**
+   * External run trigger:
+   * run only when token changes after mount.
+   */
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      runRequestRef.current = runRequest;
+      return;
+    }
+    if (Object.is(runRequestRef.current, runRequest)) return;
+    runRequestRef.current = runRequest;
+    if (runRequest === undefined) return;
+    void invokeRun();
+  }, [runRequest, invokeRun]);
 
   /**
    * Render

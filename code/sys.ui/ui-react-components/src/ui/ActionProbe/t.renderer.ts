@@ -41,6 +41,7 @@ export type ActionProbeRendererResolveArgs<TState> = {
 /** Computed props used to render each ActionProbe.Probe instance. */
 export type ActionProbeRendererResolvedProps<TEnv extends Record<string, unknown>> = {
   readonly env: TEnv;
+  readonly runRequest?: unknown;
   readonly spinning?: boolean;
   readonly focused?: boolean;
   readonly actOn?: t.ActionProbe.ActOn;

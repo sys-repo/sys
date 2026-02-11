@@ -19,6 +19,11 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
       : kind === 'playback-content'
         ? TreePlaybackAssets
         : TreeContent;
+  const runRequest = kind === 'playback-content'
+    ? c.treePlayback.ref
+    : kind === 'file-content'
+      ? c.treeContent.ref
+      : undefined;
 
   if (!args.origin) return null;
 
@@ -47,6 +52,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         debug={args.debug}
         theme={args.theme}
         spec={spec}
+        runRequest={runRequest}
         env={{
           is: { local },
           origin: args.origin,

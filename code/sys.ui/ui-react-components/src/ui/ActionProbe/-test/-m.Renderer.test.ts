@@ -3,7 +3,10 @@ import { type t } from '../common.ts';
 import { Renderer } from '../m.Renderer.tsx';
 
 type Env = { readonly kind: 'demo' };
-type ProbeNode = { key: string | null; props: { onRunStart?: (args?: t.ActionProbeRunStartArgs) => void } };
+type ProbeNode = {
+  key: string | null;
+  props: { onRunStart?: (args?: t.ActionProbeRunStartArgs) => void; runRequest?: unknown };
+};
 const sample: t.ActionProbe.ProbeSpec<Env> = {
   title: 'Test',
   render() {},
@@ -61,5 +64,19 @@ describe('ActionProbe.Renderer', () => {
     (api.items[0] as ProbeNode).props.onRunStart?.();
 
     expect(called).to.eql(true);
+  });
+
+  it('push: forwards runRequest token from resolved props', () => {
+    const token = Symbol('run');
+    const api = Renderer.create({
+      state: {},
+      resolve: (): t.ActionProbeRendererResolvedProps<Env> => ({
+        env: { kind: 'demo' },
+        runRequest: token,
+      }),
+    });
+
+    api.push(sample);
+    expect((api.items[0] as ProbeNode).props.runRequest).to.eql(token);
   });
 });

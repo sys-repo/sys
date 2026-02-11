@@ -10,6 +10,11 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   /** @deprecated Use `spec`. */
   sample?: t.ActionProbe.ProbeSpec<TEnv, TParams>;
   env: TEnv;
+  /**
+   * External run trigger token.
+   * When this value changes (after mount), Probe invokes `run`.
+   */
+  runRequest?: unknown;
   spinning?: boolean;
   focused?: boolean;
   actOn?: t.ActionProbe.ActOn;

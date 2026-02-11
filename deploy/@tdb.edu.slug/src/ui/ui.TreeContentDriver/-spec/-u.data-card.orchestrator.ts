@@ -53,9 +53,6 @@ export function createCardOrchestrator(args: {
     const tree = treeFromResponse(response);
     if (!tree) return;
     orchestrator.intent({ type: 'tree.set', tree });
-    orchestrator.intent({ type: 'path.request', path: undefined });
-    card.treeContent.ref.value = undefined;
-    lastFileRef = undefined;
   });
 
   Signal.effect(() => {

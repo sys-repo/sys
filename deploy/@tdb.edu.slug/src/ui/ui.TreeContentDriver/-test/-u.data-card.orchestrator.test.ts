@@ -146,6 +146,47 @@ describe('TreeContentDriver data-card orchestrator', () => {
     expect(orchestrator.api.selection.current().selectedRef).to.eql('doc-2');
     orchestrator.api.dispose();
   });
+
+  it('file-content: response re-hydrate preserves existing card ref selection', async () => {
+    const orchestrator = setup({ kind: 'file-content' });
+    const { card } = orchestrator;
+
+    card.props.result.response.value = {
+      ok: true,
+      value: {
+        tree: {
+          tree: [
+            {
+              slug: 'root',
+              slugs: [{ slug: 'a', ref: 'ref-a' }],
+            },
+          ],
+        },
+      },
+    };
+    await Schedule.micro();
+    card.props.treeContent.ref.value = 'ref-a';
+    await Schedule.micro();
+
+    card.props.result.response.value = {
+      ok: true,
+      value: {
+        tree: {
+          tree: [
+            {
+              slug: 'root',
+              slugs: [{ slug: 'a', ref: 'ref-a' }],
+            },
+          ],
+        },
+      },
+    };
+    await Schedule.micro();
+
+    expect(card.props.treeContent.ref.value).to.eql('ref-a');
+    expect(orchestrator.api.selection.current().selectedRef).to.eql('ref-a');
+    orchestrator.api.dispose();
+  });
 });
 
 function setup(args: { kind?: t.DataCardKind } = {}) {
