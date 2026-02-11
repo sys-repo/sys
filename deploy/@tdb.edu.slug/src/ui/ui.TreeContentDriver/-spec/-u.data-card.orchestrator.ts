@@ -1,5 +1,5 @@
 import { TreeContentDriver } from '../mod.ts';
-import { type t, Effect, Is, Signal } from './common.ts';
+import { type t, Arr, Effect, Is, Obj, Signal } from './common.ts';
 import { resolveLoader, treeFromResponse } from './-u.data-card.loaders.ts';
 
 type DataCardSignals = t.DataCardSignals;
@@ -18,7 +18,7 @@ export function createCardOrchestrator(args: {
   let lastResponse: unknown = undefined;
   let lastFileRef: string | undefined = card.treeContent.ref.value;
   let lastPlaybackRef: string | undefined = card.treePlayback.ref.value;
-  let lastPlaybackRefs: string[] | undefined = card.treePlayback.refs.value;
+  let lastPlaybackRefs = normalizeRefs(card.treePlayback.refs.value);
   const fileRefMirror = Effect.Causal.mirrorToken<string | undefined>();
   const playbackRefMirror = Effect.Causal.mirrorToken<string | undefined>();
 
@@ -81,8 +81,8 @@ export function createCardOrchestrator(args: {
   Signal.effect(() => {
     if (orchestrator.disposed) return;
     if (args.props.cardKind.value !== 'playback-content') return;
-    const refs = card.treePlayback.refs.value;
-    if (refs === lastPlaybackRefs) return;
+    const refs = normalizeRefs(card.treePlayback.refs.value);
+    if (Arr.equal(lastPlaybackRefs, refs)) return;
     lastPlaybackRefs = refs;
 
     const tree = treeFromPlaybackRefs(refs);
@@ -91,7 +91,6 @@ export function createCardOrchestrator(args: {
       return;
     }
     orchestrator.intent({ type: 'tree.set', tree });
-    orchestrator.intent({ type: 'path.request', path: undefined });
   });
 
   Signal.effect(() => {
@@ -120,19 +119,27 @@ export function createCardOrchestrator(args: {
 function treeFromPlaybackRefs(refs?: string[]): t.TreeHostViewNodeList | undefined {
   const list = refs?.filter((ref) => Is.str(ref) && ref.length > 0) ?? [];
   if (list.length === 0) return undefined;
-  const children: t.TreeHostViewNode[] = list.map((ref, i) => ({
-    path: ['program', String(i + 1)],
-    key: `program/${i + 1}`,
-    label: `${i + 1}. ${ref}`,
-    value: { slug: ref, ref },
-  }));
+  const children: t.TreeHostViewNode[] = list.map((ref, i) => {
+    const path = ['program', String(i + 1)] as t.ObjectPath;
+    return {
+      path,
+      key: Obj.Path.encode(path),
+      label: `${i + 1}. ${ref}`,
+      value: { slug: ref, ref },
+    };
+  });
+  const rootPath = ['program'] as t.ObjectPath;
   return [
     {
-      path: ['program'],
-      key: 'program',
+      path: rootPath,
+      key: Obj.Path.encode(rootPath),
       label: 'program',
       value: { slug: 'program' },
       children,
     },
   ];
+}
+
+function normalizeRefs(refs?: string[]) {
+  return refs?.filter((ref) => Is.str(ref) && ref.length > 0) ?? [];
 }

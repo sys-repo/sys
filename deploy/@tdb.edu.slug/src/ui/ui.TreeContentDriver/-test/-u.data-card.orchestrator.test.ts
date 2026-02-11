@@ -1,7 +1,7 @@
 import { createCardOrchestrator } from '../-spec/-u.data-card.orchestrator.ts';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Schedule, Signal } from '../common.ts';
+import { type t, Obj, Schedule, Signal } from '../common.ts';
 
 describe('TreeContentDriver data-card orchestrator', () => {
   it('hydrates selection tree from card result response', async () => {
@@ -79,6 +79,38 @@ describe('TreeContentDriver data-card orchestrator', () => {
     orchestrator.api.selection.intent({ type: 'path.request', path: ['program'] });
     await Schedule.micro();
     card.props.treePlayback.ref.value = 'doc-2';
+    await Schedule.micro();
+
+    expect(orchestrator.api.selection.current().selectedPath).to.eql(['program', '2']);
+    expect(orchestrator.api.selection.current().selectedRef).to.eql('doc-2');
+    orchestrator.api.dispose();
+  });
+
+  it('playback: tree keys are canonical encoded ObjectPath keys', async () => {
+    const orchestrator = setup({ kind: 'playback-content' });
+    const { card } = orchestrator;
+
+    card.props.treePlayback.refs.value = ['doc-1', 'doc-2'];
+    await Schedule.micro();
+
+    const tree = orchestrator.api.selection.current().tree;
+    const root = tree?.[0];
+    const child = root?.children?.[0];
+    expect(root?.key).to.eql(Obj.Path.encode(['program']));
+    expect(child?.key).to.eql(Obj.Path.encode(['program', '1']));
+    orchestrator.api.dispose();
+  });
+
+  it('playback: semantic-equal refs updates do not clear current path selection', async () => {
+    const orchestrator = setup({ kind: 'playback-content' });
+    const { card } = orchestrator;
+
+    card.props.treePlayback.refs.value = ['doc-1', 'doc-2', 'doc-3'];
+    await Schedule.micro();
+    orchestrator.api.selection.intent({ type: 'path.request', path: ['program', '2'] });
+    await Schedule.micro();
+
+    card.props.treePlayback.refs.value = ['doc-1', 'doc-2', 'doc-3'];
     await Schedule.micro();
 
     expect(orchestrator.api.selection.current().selectedPath).to.eql(['program', '2']);
