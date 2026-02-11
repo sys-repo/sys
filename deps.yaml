@@ -57,7 +57,7 @@ groups:
       subpaths: ['value', 'errors']
 
   build/tools/vite:
-    - import: npm:@vitejs/plugin-react@5.1.3
+    - import: npm:@vitejs/plugin-react@5.1.4
     - import: npm:@deno/vite-plugin@1.0.6
     - import: npm:rollup@4.57.1
     - import: npm:vite@7.3.1
@@ -70,7 +70,7 @@ groups:
   ui/react:
     - import: npm:react@19.2.4
     - import: npm:react-dom@19.2.4
-    - import: npm:@types/react@19.2.13
+    - import: npm:@types/react@19.2.14
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.2
 
@@ -89,8 +89,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.78
-    - import: npm:@ai-sdk/openai@3.0.26
+    - import: npm:ai@6.0.81
+    - import: npm:@ai-sdk/openai@3.0.27
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
@@ -112,16 +112,16 @@ deno.json:
   - group: yaml
 
   # CLI tools:
-  - import: jsr:@cliffy/keypress@1.0.0-rc.8
-  - import: jsr:@cliffy/prompt@1.0.0-rc.8
-  - import: jsr:@cliffy/table@1.0.0-rc.8
+  - import: jsr:@cliffy/keypress@1.0.0
+  - import: jsr:@cliffy/prompt@1.0.0
+  - import: jsr:@cliffy/table@1.0.0
 
   # Sundry NPM:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.3
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.6.0
+  - import: npm:happy-dom@20.6.1
   - import: npm:hash-it@7.0.2
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
