@@ -1,6 +1,6 @@
 import React from 'react';
-import { TreeData } from '../../m.data/mod.ts';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
+import { createContentSlots } from '../-spec.content/mod.ts';
 import { useEffectControllers } from './-use.EffectControllers.ts';
 import { type t, Color, css, Signal } from './common.ts';
 
@@ -24,8 +24,8 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const lastReady = React.useRef<t.TreeContentController.State | undefined>(undefined);
 
   React.useEffect(() => {
-    if (content.phase !== 'ready') return;
-    lastReady.current = content;
+    if (content.phase === 'ready') lastReady.current = content;
+    if (content.phase === 'idle') lastReady.current = undefined;
   }, [content]);
 
   /**
@@ -36,6 +36,14 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     base: css({ position: 'relative', display: 'grid' }),
     back: css({ Absolute: [-35, null, null, -35] }),
   };
+
+  const slots = createContentSlots({
+    content,
+    selection,
+    loading,
+    lastReady: lastReady.current,
+    theme: theme.name,
+  });
 
   return (
     <div className={styles.base.class}>
@@ -51,34 +59,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
         tree={view.treeHost.tree}
         selectedPath={view.treeHost.selectedPath}
         spinner={spinner}
-        slots={{
-          main:
-            content.phase === 'ready' || (loading && !!lastReady.current) ? (
-              <div>
-                <div>{'Main content'}</div>
-                {loading ? <div>{'Loading content'}</div> : undefined}
-              </div>
-            ) : loading ? (
-              <div>{'Loading content'}</div>
-            ) : undefined,
-          aux: <div>{content.phase === 'error' ? (content.error?.message ?? 'Error') : ''}</div>,
-          treeLeaf: (e) => {
-            const node = TreeData.findViewNode(selection.tree, selection.selectedPath);
-            const isSelectedLeaf = !!node && node.key === e.node.key;
-            if (!isSelectedLeaf) return undefined;
-            if (content.phase === 'ready') return <div>{'Leaf content'}</div>;
-            if (loading && !!lastReady.current) {
-              return (
-                <div>
-                  <div>{'Leaf content'}</div>
-                  <div>{'Loading content'}</div>
-                </div>
-              );
-            }
-            if (loading) return <div>{'Loading content'}</div>;
-            return <div>{'Leaf selected (no content loaded)'}</div>;
-          },
-        }}
+        slots={slots}
         onPathRequest={(e) => orchestrator.selection.intent({ type: 'path.request', path: e.path })}
         onNodeSelect={(e) => {
           if (!e.is.leaf) return;
