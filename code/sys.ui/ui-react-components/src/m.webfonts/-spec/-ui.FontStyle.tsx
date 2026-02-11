@@ -17,20 +17,6 @@ const ITALIC_WEIGHTS: Record<t.Fonts.FontName, readonly t.FontWeight[]> = {
   SourceSans3: WEIGHTS.SourceSans3,
 };
 
-export function resolveStyle(
-  font: t.Fonts.FontName,
-  weight: t.FontWeight | undefined,
-  italic: boolean | undefined,
-): { readonly weight: t.FontWeight; readonly italic: boolean } {
-  const normalWeights = WEIGHTS[font];
-  const italicWeights = ITALIC_WEIGHTS[font];
-  const requestedWeight = weight ?? normalWeights[0];
-  const nextItalic = Boolean(italic) && italicWeights.length > 0;
-  const allowed = nextItalic ? italicWeights : normalWeights;
-  const nextWeight = allowed.includes(requestedWeight) ? requestedWeight : allowed[0];
-  return { weight: nextWeight, italic: nextItalic };
-}
-
 /**
  * Component:
  */
@@ -90,3 +76,23 @@ export const FontStyle: React.FC<FontStyleProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+export function resolveStyle(
+  font: t.Fonts.FontName,
+  weight: t.FontWeight | undefined,
+  italic: boolean | undefined,
+): { readonly weight: t.FontWeight; readonly italic: boolean } {
+  const normalWeights = WEIGHTS[font];
+  const italicWeights = ITALIC_WEIGHTS[font];
+  const requestedWeight = weight ?? normalWeights[0];
+  const nextItalic = Boolean(italic) && italicWeights.length > 0;
+  const allowed = nextItalic ? italicWeights : normalWeights;
+  const nextWeight = allowed.includes(requestedWeight) ? requestedWeight : allowed[0];
+  return {
+    weight: nextWeight,
+    italic: nextItalic,
+  };
+}

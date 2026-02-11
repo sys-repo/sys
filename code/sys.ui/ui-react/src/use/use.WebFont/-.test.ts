@@ -98,6 +98,40 @@ describe(`useWebFont`, () => {
       expect(byFamily('Source Sans 3').length).to.eql(1);
       expect(byFamily('ET Book').length).to.eql(1);
     });
+
+    it('does not re-run for equivalent semantic options with new object identity', () => {
+      const originalInject = Base.inject;
+      let calls = 0;
+      (Base as { inject: typeof Base.inject }).inject = ((...args: Parameters<typeof Base.inject>) => {
+        calls++;
+        return originalInject(...args);
+      }) as typeof Base.inject;
+
+      try {
+        const { rerender } = renderHook(
+          ({ tick }) =>
+            useWebFont('/fonts/source-sans-3', {
+              family: 'Source Sans 3',
+              variable: true,
+              italic: true,
+              local: ['Source Sans 3'],
+              weights: [400, 700],
+              fileForVariable: ({ dir, italic }) => {
+                return italic ? `${dir}/source-sans-3-var-italic.woff2` : `${dir}/source-sans-3-var.woff2`;
+              },
+              // changes object identity on rerender, semantic deps are unchanged.
+              display: tick > -1 ? 'swap' : 'swap',
+            }),
+          { initialProps: { tick: 0 } },
+        );
+
+        expect(calls).to.eql(1);
+        act(() => rerender({ tick: 1 }));
+        expect(calls).to.eql(1);
+      } finally {
+        (Base as { inject: typeof Base.inject }).inject = originalInject;
+      }
+    });
   });
 });
 
