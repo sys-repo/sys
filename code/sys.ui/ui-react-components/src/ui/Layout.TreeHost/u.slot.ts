@@ -25,6 +25,17 @@ export function toSlotSpinner(
   return { ...defaults, ...match };
 }
 
+export function shouldRenderEmpty(args: {
+  props: t.TreeHostProps;
+  slot: t.TreeHostSlot;
+  hasContent: boolean;
+}) {
+  if (args.hasContent) return false;
+  const spinner = toSlotSpinner(args.props, args.slot);
+  if (spinner) return false;
+  return true;
+}
+
 export function toSlotNode(
   input: t.TreeHostSlotInput | undefined,
   args: t.TreeHostRenderSlotArgs,
