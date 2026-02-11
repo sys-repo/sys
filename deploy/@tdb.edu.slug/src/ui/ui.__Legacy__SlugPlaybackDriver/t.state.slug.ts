@@ -1,1 +1,4 @@
-export type { SlugPlaybackLoading, SlugPlaybackSlugState } from '../m.effects/m.attach.slug/t.ts';
+export type {
+  SlugPlaybackLoading,
+  SlugPlaybackSlugState,
+} from '../m.effects/m.__Legacy__.attach.slug/t.ts';

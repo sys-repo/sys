@@ -1,1 +1,1 @@
-export type { SlugPlaybackRuntimeState } from '../m.effects/m.attach.playback/t.ts';
+export type { SlugPlaybackRuntimeState } from '../m.effects/m.__Legacy__.attach.playback/t.ts';
