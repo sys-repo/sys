@@ -1,10 +1,14 @@
 /**
  * @module
- * A pure typographic surface for rendering long-form authored text.
+ * A pure typographic surface for long-form authored text.
  *
- *  ├─ Prose.Measure     Defines the reading geometry for prose, including measure, margins, and gutters.
- *  ├─ Prose.Manuscript  Defines the typographic contract for authored prose, including hierarchy and rhythm.
- *  └─ Prose.Markdown    Adapts Markdown input into prose semantics without imposing layout or typography.
+ * Namespace:
+ *  ├─ Prose.Measure     Reading geometry: measure, margins, gutters, and responsive constraints.
+ *  ├─ Prose.Manuscript  Typographic semantics: hierarchy, rhythm, and a stable set of prose roles.
+ *  └─ Prose.Markdown    Markdown adapter: maps Markdown → Manuscript roles without imposing layout or typography.
+ *
+ * Direction:
+ *  Markdown adapts into Manuscript + Measure (never the other way around).
  */
 import type { t } from './common.ts';
 import { ProseManuscript as Manuscript } from '../Prose.Manuscript/mod.ts';

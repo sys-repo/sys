@@ -1,6 +1,7 @@
 /**
  * @module
- * Defines the typographic contract for authored prose, including hierarchy and rhythm.
+ * Typographic semantics for authored prose:
+ * hierarchy, rhythm, and a stable set of prose roles.
  */
 import type { t } from './common.ts';
 import { Manuscript as UI } from './ui.tsx';

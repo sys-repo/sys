@@ -1,6 +1,10 @@
 /**
  * @module
- * Adapts Markdown input into prose semantics without imposing layout or typography.
+ * Markdown adapter:
+ * maps Markdown → Manuscript roles without imposing layout or typography.
+ *
+ * Direction:
+ * adapts into Manuscript + Measure (never the other way around).
  */
 import type { t } from './common.ts';
 import { Markdown as UI } from './ui.tsx';
