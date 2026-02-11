@@ -1,1 +1,1 @@
-export { createContentSlots } from './u.slots.tsx';
+export { createSlots } from './m.slots.tsx';

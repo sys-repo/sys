@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import { createContentSlots } from '../-spec.content/mod.ts';
+import { createSlots } from '../-spec.content/mod.ts';
 import { useEffectControllers } from './-use.EffectControllers.ts';
 import { type t, Color, css, Signal } from './common.ts';
 
@@ -37,7 +37,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     back: css({ Absolute: [-35, null, null, -35] }),
   };
 
-  const slots = createContentSlots({
+  const slots = createSlots({
     content,
     selection,
     loading,

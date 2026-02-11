@@ -3,7 +3,7 @@ import { toContentData, toFileData, toPlaybackData } from './u.data.ts';
 import { FileLeaf, FileMain } from './ui.file.tsx';
 import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
 
-export function createContentSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
+export function createSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
   const source = args.content.phase === 'ready' ? args.content : args.lastReady;
   const data = toContentData(source?.data);
   const file = toFileData(data);
