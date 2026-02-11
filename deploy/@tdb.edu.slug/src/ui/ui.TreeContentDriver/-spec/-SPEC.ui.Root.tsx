@@ -20,7 +20,9 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const { selection, content } = useEffectControllers(debug);
   const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
-  const spinner: t.TreeHostProps['spinner'] = loading ? ['treeLeaf', 'main'] : undefined;
+  const spinner: t.TreeHostProps['spinner'] = loading
+    ? { slot: 'tree', position: 'top' }
+    : undefined;
 
   /**
    * Render:

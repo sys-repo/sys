@@ -1,23 +1,27 @@
 import { type t } from './common.ts';
 
-export function fromSelectionChanged(key?: string): t.TreeContentController.Patch {
+export function fromSelectionChanged(
+  current: t.TreeContentController.State,
+  key?: string,
+): t.TreeContentController.Patch {
   return {
     phase: 'idle',
     key,
     request: undefined,
-    data: undefined,
+    data: key === undefined ? undefined : current.data,
     error: undefined,
   };
 }
 
 export function fromLoadStart(
+  current: t.TreeContentController.State,
   request: t.TreeContentController.Request,
 ): t.TreeContentController.Patch {
   return {
     phase: 'loading',
     key: request.key,
     request,
-    data: undefined,
+    data: current.data,
     error: undefined,
   };
 }

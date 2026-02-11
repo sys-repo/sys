@@ -18,10 +18,10 @@ export function reduceInput(
       return initialState(seed);
 
     case 'selection.changed':
-      return fromSelectionChanged(input.key);
+      return fromSelectionChanged(current, input.key);
 
     case 'load.start':
-      return fromLoadStart(input.request);
+      return fromLoadStart(current, input.request);
 
     case 'load.cancel':
       return fromLoadCancel(current, input.requestId);

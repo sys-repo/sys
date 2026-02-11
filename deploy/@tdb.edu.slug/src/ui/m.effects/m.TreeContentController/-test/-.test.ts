@@ -25,7 +25,7 @@ describe('TreeContentController', () => {
       ctrl.dispose();
     });
 
-    it('selection.changed resets lifecycle to idle and clears payload', () => {
+    it('selection.changed resets lifecycle and preserves payload for keyed continuity', () => {
       const ctrl = TreeContentController.create();
       ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
       ctrl.intent({
@@ -39,7 +39,45 @@ describe('TreeContentController', () => {
       expect(state.phase).to.eql('idle');
       expect(state.key).to.eql('key-b');
       expect(state.request).to.eql(undefined);
+      expect(state.data).to.eql({ title: 'A' });
+      expect(state.error).to.eql(undefined);
+      ctrl.dispose();
+    });
+
+    it('selection.changed clears payload when key is undefined', () => {
+      const ctrl = TreeContentController.create();
+      ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
+      ctrl.intent({
+        type: 'load.succeed',
+        request: req('r1', 'key-a'),
+        data: { title: 'A' },
+      });
+      ctrl.intent({ type: 'selection.changed', key: undefined });
+
+      const state = ctrl.current();
+      expect(state.phase).to.eql('idle');
+      expect(state.key).to.eql(undefined);
+      expect(state.request).to.eql(undefined);
       expect(state.data).to.eql(undefined);
+      expect(state.error).to.eql(undefined);
+      ctrl.dispose();
+    });
+
+    it('load.start keeps previous payload during active loading', () => {
+      const ctrl = TreeContentController.create();
+      ctrl.intent({ type: 'load.start', request: req('r1', 'key-a') });
+      ctrl.intent({
+        type: 'load.succeed',
+        request: req('r1', 'key-a'),
+        data: { title: 'A' },
+      });
+
+      ctrl.intent({ type: 'load.start', request: req('r2', 'key-b') });
+      const state = ctrl.current();
+      expect(state.phase).to.eql('loading');
+      expect(state.key).to.eql('key-b');
+      expect(state.request).to.eql(req('r2', 'key-b'));
+      expect(state.data).to.eql({ title: 'A' });
       expect(state.error).to.eql(undefined);
       ctrl.dispose();
     });
