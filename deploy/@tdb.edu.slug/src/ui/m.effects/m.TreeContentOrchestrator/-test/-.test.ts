@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { TreeContentController } from '../../m.TreeContentController/mod.ts';
-import { TreeSelectionController } from '../../m.TreeSelectionController/mod.ts';
-import { TreeContentOrchestrator } from '../mod.ts';
+import { TreeSelectionController } from '../../m.TreeSelection.Controller/mod.ts';
 import { Rx, Schedule, type t } from '../common.ts';
+import { TreeContentOrchestrator } from '../mod.ts';
 
 describe('TreeContentOrchestrator', () => {
   function sampleTree(): t.TreeHostViewNodeList {

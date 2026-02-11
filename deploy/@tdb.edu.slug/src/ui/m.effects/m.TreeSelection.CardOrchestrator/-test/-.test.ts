@@ -1,8 +1,8 @@
 import { DataCards } from '../../../-dev/ui.Http.DataCards/mod.ts';
 import { describe, expect, it } from '../../../../-test.ts';
-import { TreeSelectionController } from '../../m.TreeSelectionController/mod.ts';
-import { TreeSelectionCardOrchestrator } from '../mod.ts';
+import { TreeSelectionController } from '../../m.TreeSelection.Controller/mod.ts';
 import { type t, Schedule, Signal } from '../common.ts';
+import { TreeSelectionCardOrchestrator } from '../mod.ts';
 
 describe('TreeSelectionCardOrchestrator', () => {
   it('hydrates selection tree from file-card response', async () => {
