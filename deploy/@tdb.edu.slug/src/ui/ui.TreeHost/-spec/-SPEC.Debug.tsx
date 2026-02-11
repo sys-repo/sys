@@ -1,21 +1,22 @@
 import React from 'react';
-import { Foo, SAMPLES } from '../../-test.ui.ts';
+import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { Dev } from '../../-dev/mod.ts';
+import { TreeSelectionCardOrchestrator, TreeSelectionController } from '../../m.effects/mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
-import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
-
-LoadSample.SAMPLES;
+import { PropSlots } from './-ui.prop.slots.tsx';
 
 type P = t.TreeHostProps;
 type Storage = {
   debug?: P['debug'];
   theme?: P['theme'];
-  selectedPath?: P['selectedPath'];
-  load?: t.SampleLoadAction;
+  env?: t.HttpOriginEnv;
+  cardKind?: t.DataCardKind;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  load: 'esm:import',
+  env: 'localhost',
+  cardKind: 'file-content',
 };
 
 /**
@@ -30,7 +31,9 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
-  const snap = store.current;
+  const snap = { ...defaults, ...store.current };
+  const card = DataCards.createSignals({ totalVisible: 5 });
+  const selection = TreeSelectionController.create();
 
   type S = t.TreeHostSlots;
   const slots = {
@@ -42,40 +45,55 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    tree: s<P['tree']>(undefined),
-    selectedPath: s(snap.selectedPath),
     slots,
-    load: s(snap.load),
+    env: s(snap.env),
+    origin: s<t.SlugUrlOrigin | undefined>(),
+    cardKind: s(snap.cardKind),
   };
+  const cards = TreeSelectionCardOrchestrator.create({
+    selection,
+    cardKind: props.cardKind,
+    card: card.props,
+    tree: { fromResponse: DataCards.Helpers.treeFromResponse },
+  });
   const p = props;
   const api = {
     props,
+    card,
+    selection,
+    cards,
     listen,
     reset,
   };
 
   function listen() {
     Signal.listen(props, true);
+    Signal.listen(card.props, true);
   }
 
   function reset() {
     Signal.walk(props, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
-    load();
+    selection.intent({ type: 'tree.clear' });
+    selection.intent({ type: 'reset' });
+    card.reset();
+    syncOrigin();
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.selectedPath = p.selectedPath.value;
-      d.load = p.load.value;
+      d.env = p.env.value;
+      d.cardKind = p.cardKind.value;
     });
   });
 
-  const baseUrl = LoadSample.SAMPLES.baseUrl;
-  const docid = LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid;
-  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
-  Signal.effect(load);
+  function syncOrigin() {
+    const env = p.env.value ?? defaults.env!;
+    p.origin.value = Dev.SlugOrigin.Default.spec[env];
+  }
+  Signal.effect(syncOrigin);
+  syncOrigin();
 
   return api;
 }
@@ -106,33 +124,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
-    mono: css({
-      fontFamily: 'monospace',
-      fontSize: 11,
-      fontWeight: 600,
-      lineHeight: 1.2,
-    }),
   };
-
-  function slotButton(slot: keyof typeof p.slots) {
-    const current = () => p.slots[slot].value;
-    return (
-      <Button
-        block
-        label={() => `slot: ${slot} ${current() ? '🐚' : ''}`}
-        onClick={() => {
-          const el = <Foo theme={p.theme.value} label={`slot:${slot}`} />;
-          p.slots[slot].value = !!current() ? undefined : el;
-        }}
-      />
-    );
-  }
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
@@ -140,30 +136,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={() => `tree: ${totalRefKeys(p.tree.value)} nodes`}
-        onClick={() => {
-          const data = SAMPLES.SlugTree['slug-tree.gHcQi:'].embedded;
-          p.tree.value = TreeHost.Data.fromSlugTree(data);
-        }}
+      <Dev.SlugOrigin.UI
+        debug={v.debug}
+        env={p.env}
+        origin={p.origin}
+        style={{ MarginY: [10, 20] }}
       />
-      <Button block label={() => `tree: (clear)`} onClick={() => (p.tree.value = undefined)} />
+      {DataCards.createPanel({
+        signals: debug.card,
+        origin: v.origin,
+        env: v.env,
+        theme: v.theme,
+        debug: v.debug,
+        kind: v.cardKind,
+        kinds: ['file-content', 'playback-content'],
+        onKindSelect(kind) {
+          if (p.cardKind.value === kind) return;
+          p.cardKind.value = kind;
+          debug.selection.intent({ type: 'tree.clear' });
+          debug.selection.intent({ type: 'reset' });
+          debug.card.reset();
+        },
+      })}
 
       <hr />
-      <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
-
-      <hr />
-      {slotButton('tree')}
-      {slotButton('main')}
-      {slotButton('aux')}
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => {
-          Signal.walk(p.slots, (e) => e.mutate(undefined));
-        }}
-      />
+      <PropSlots debug={debug} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
@@ -172,15 +169,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers
- */
-function totalRefKeys(obj?: object) {
-  if (!obj) return 0;
-  const keys: (string | number)[] = [];
-  Obj.walk(obj, (e) => {
-    if (e.key === 'ref') keys.push(e.key);
-  });
-  return keys.length;
-}

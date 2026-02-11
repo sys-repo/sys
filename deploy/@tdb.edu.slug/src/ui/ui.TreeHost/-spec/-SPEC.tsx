@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D, css } from '../common.ts';
+import { D, css, useEffectController } from '../common.ts';
 import { TreeHost } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
@@ -10,6 +10,9 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const selection = useEffectController(debug.selection) ?? debug.selection.current();
+    const tree = selection.tree;
+    const selectedPath = selection.selectedPath;
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
@@ -20,17 +23,20 @@ export default Spec.describe(D.displayName, async (e) => {
         <BackButton
           style={styles.back}
           theme={v.theme}
-          selectedPath={v.selectedPath}
-          onBack={(e) => (p.selectedPath.value = e.next)}
+          selectedPath={selectedPath}
+          onBack={(e) => debug.selection.intent({ type: 'path.request', path: e.next })}
         />
         <TreeHost.UI
           debug={v.debug}
           theme={v.theme}
           slots={v.slots}
-          tree={v.tree}
-          selectedPath={v.selectedPath}
-          onPathRequest={(e: t.TreeHostPathChange) => (p.selectedPath.value = e.path)}
-          onNodeSelect={() => undefined}
+          tree={tree}
+          selectedPath={selectedPath}
+          onPathRequest={(e) => debug.selection.intent({ type: 'path.request', path: e.path })}
+          onNodeSelect={(e) => {
+            if (!e.is.leaf) return;
+            debug.selection.intent({ type: 'path.request', path: e.path });
+          }}
         />
       </div>
     );
