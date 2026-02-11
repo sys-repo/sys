@@ -10,7 +10,7 @@ type PropsSignals = {
 
 export type SpecOrchestrator = t.TreeContentDriver.Orchestrator;
 
-export function createOrchestrator(args: {
+export function createCardOrchestrator(args: {
   props: PropsSignals;
   card: DataCardSignals;
 }): SpecOrchestrator {
@@ -22,12 +22,13 @@ export function createOrchestrator(args: {
   const fileRefMirror = Effect.Causal.mirrorToken<string | undefined>();
   const playbackRefMirror = Effect.Causal.mirrorToken<string | undefined>();
 
-  const orchestrator = TreeContentDriver.createOrchestrator({
-    load: (input) =>
-      resolveLoader({
+  const orchestrator = TreeContentDriver.orchestrator({
+    load(input) {
+      return resolveLoader({
         kind: args.props.cardKind.value ?? 'file-content',
         origin: args.props.origin.value,
-      })(input),
+      })(input);
+    },
     onSelectedRefChange(ref) {
       const kind = args.props.cardKind.value ?? 'file-content';
       if (kind === 'playback-content') {

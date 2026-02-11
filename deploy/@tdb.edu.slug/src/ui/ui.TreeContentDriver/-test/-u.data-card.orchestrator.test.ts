@@ -1,4 +1,4 @@
-import { createOrchestrator } from '../-spec/-u.data-card.orchestrator.ts';
+import { createCardOrchestrator } from '../-spec/-u.data-card.orchestrator.ts';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Schedule, Signal } from '../common.ts';
@@ -123,7 +123,7 @@ function setup(args: { kind?: t.DataCardKind } = {}) {
     origin: s<t.SlugUrlOrigin | undefined>(undefined),
     cardKind: s<t.DataCardKind | undefined>(args.kind ?? 'file-content'),
   };
-  const api = createOrchestrator({ props, card });
+  const api = createCardOrchestrator({ props, card });
   return { api, card };
 }
 

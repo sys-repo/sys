@@ -5,7 +5,7 @@ import {
 } from '../m.effects/mod.ts';
 import { type t, Rx } from './common.ts';
 
-export const createOrchestrator: t.TreeContentDriver.Lib['createOrchestrator'] = (props) => {
+export const createOrchestrator: t.TreeContentDriver.Lib['orchestrator'] = (props) => {
   const life = Rx.lifecycle(props.until);
   const selection = props.selection ?? TreeSelectionController.create();
   const content = props.content ?? TreeContentController.create();
@@ -16,7 +16,9 @@ export const createOrchestrator: t.TreeContentDriver.Lib['createOrchestrator'] =
     load: props.load,
   });
 
-  const stopSelection = selection.onChange((state) => props.onSelectedRefChange?.(state.selectedRef));
+  const stopSelection = selection.onChange((state) =>
+    props.onSelectedRefChange?.(state.selectedRef),
+  );
   life.dispose$.subscribe(stopSelection);
   life.dispose$.subscribe(() => orchestrator.dispose());
 

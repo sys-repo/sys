@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export declare namespace TreeContentDriver {
   /** Public module surface. */
   export type Lib = {
-    readonly createOrchestrator: (props: OrchestratorProps) => Orchestrator;
+    readonly orchestrator: (props: OrchestratorProps) => Orchestrator;
   };
 
   /** Async content loader for a selected tree identity. */

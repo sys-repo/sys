@@ -17,5 +17,5 @@ import type { t } from './common.ts';
 import { createOrchestrator } from './u.orchestrator.ts';
 
 export const TreeContentDriver: t.TreeContentDriver.Lib = {
-  createOrchestrator,
+  orchestrator: createOrchestrator,
 };

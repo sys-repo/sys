@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { createOrchestrator } from './-u.data-card.orchestrator.ts';
+import { createCardOrchestrator } from './-u.data-card.orchestrator.ts';
 import { createDataCards } from './-u.data-cards.ts';
 import { useEffectControllers } from './-use.EffectControllers.ts';
 import {
@@ -51,7 +51,7 @@ export async function createDebugSignals() {
     origin: s<t.SlugUrlOrigin | undefined>(),
     cardKind: s(snap.cardKind),
   };
-  const orchestrator = createOrchestrator({ props, card });
+  const orchestrator = createCardOrchestrator({ props, card });
   const p = props;
   const api = {
     props,
