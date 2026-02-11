@@ -40,6 +40,7 @@ export const PropSpinner: React.FC<PropSlotsProps> = (props) => {
         <BulletList.UI
           theme={theme.name}
           style={{ fontSize: 12, marginLeft: 15 }}
+          columns={2}
           selected={spinnerSelection(v.spinner)}
           items={OPTIONS.map((item) => ({ id: item.id, label: item.label }))}
           onSelect={(e) => {
