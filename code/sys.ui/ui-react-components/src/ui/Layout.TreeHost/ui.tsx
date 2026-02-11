@@ -19,14 +19,12 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: 'auto auto minmax(0, 1fr)',
     }),
+    border: css({ backgroundColor: Color.alpha(theme.fg, 0.1) }),
     nav: {
       track: css({ minWidth: 0, minHeight: 0, display: 'grid', overflow: 'hidden' }),
       slide: css({ display: 'grid' }),
       panel: css({ minHeight: 0 }),
     },
-
-    border: css({ backgroundColor: Color.alpha(theme.fg, 0.1) }),
-    maing: css({}),
   };
 
   return (

@@ -21,9 +21,7 @@ export const HostTreeView: React.FC<P> = (props) => {
       gridTemplateRows: 'minmax(0, 1fr)',
     }),
     body: css({
-      display: 'grid',
-      minHeight: 0,
-      gridTemplateRows: 'minmax(0, 1fr)',
+      Absolute: 0,
       Scroll: true,
     }),
   };
