@@ -4,6 +4,7 @@
 export type * from './ui/ui.Layout.Canvas/t.ts';
 export type * from './ui/ui.Logo.Canvas/t.ts';
 export type * from './ui/ui.Logo.Wordmark/t.ts';
+export type * from './ui/ui.Video.Background/t.ts';
 
 /**
  * SLC Panels.
