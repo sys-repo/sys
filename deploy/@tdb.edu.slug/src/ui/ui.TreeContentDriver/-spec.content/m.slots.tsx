@@ -3,7 +3,9 @@ import { toContentData, toFileData, toPlaybackData } from './u.data.ts';
 import { FileLeaf, FileMain } from './ui.file.tsx';
 import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
 
-export function createSlots(args: t.ContentSlotArgs): t.TreeHostSlots {
+type A = t.ContentSlotArgs;
+
+export function createSlots(args: A): t.TreeHostSlots {
   const data = toContentData(args.content.data);
   const file = toFileData(data);
   const playback = toPlaybackData(data);
@@ -22,23 +24,13 @@ export function createSlots(args: t.ContentSlotArgs): t.TreeHostSlots {
   };
 }
 
-function renderMain(
-  args: t.ContentSlotArgs & {
-    file?: t.FileContentData;
-    playback?: t.PlaybackContentData;
-  },
-) {
+function renderMain(args: A & { file?: t.FileContentData; playback?: t.PlaybackContentData }) {
   if (args.file) return <FileMain file={args.file} theme={args.theme} />;
   if (args.playback) return <PlaybackMain playback={args.playback} theme={args.theme} />;
   return undefined;
 }
 
-function renderLeaf(
-  args: t.ContentSlotArgs & {
-    file?: t.FileContentData;
-    playback?: t.PlaybackContentData;
-  },
-) {
+function renderLeaf(args: A & { file?: t.FileContentData; playback?: t.PlaybackContentData }) {
   if (args.file) return <FileLeaf file={args.file} theme={args.theme} />;
   if (args.playback) return <PlaybackLeaf playback={args.playback} theme={args.theme} />;
   return undefined;
