@@ -24,8 +24,8 @@ export const Spinner: React.FC<SpinnerProps> = (props) => {
       color: theme.fg,
       padding: 30,
       display: 'grid',
-      justifyContent: 'center',
-      alignContent: position === 'middle' ? 'center' : position === 'top' ? 'start' : 'end',
+      justifyItems: 'center',
+      alignItems: position === 'middle' ? 'center' : position === 'top' ? 'start' : 'end',
     }),
   };
 
