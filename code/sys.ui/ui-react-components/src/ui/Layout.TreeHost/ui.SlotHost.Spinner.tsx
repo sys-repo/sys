@@ -23,6 +23,7 @@ export const Spinner: React.FC<SpinnerProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       padding: 30,
+      pointerEvents: 'none',
       display: 'grid',
       justifyItems: 'center',
       alignItems: position === 'middle' ? 'center' : position === 'top' ? 'start' : 'end',
