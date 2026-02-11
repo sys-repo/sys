@@ -1,5 +1,6 @@
 import { TreeContentDriver } from '../mod.ts';
-import { type t, Arr, Effect, Is, Obj, Signal } from './common.ts';
+import { TreeSelectionCardOrchestrator } from '../../m.effects/mod.ts';
+import { type t } from './common.ts';
 import { resolveLoader, treeFromResponse } from './-u.data-card.loaders.ts';
 
 type DataCardSignals = t.DataCardSignals;
@@ -14,14 +15,6 @@ export function createCardOrchestrator(args: {
   props: PropsSignals;
   card: DataCardSignals;
 }): SpecOrchestrator {
-  const card = args.card.props;
-  let lastResponse: unknown = undefined;
-  let lastFileRef: string | undefined = card.treeContent.ref.value;
-  let lastPlaybackRef: string | undefined = card.treePlayback.ref.value;
-  let lastPlaybackRefs = normalizeRefs(card.treePlayback.refs.value);
-  const fileRefMirror = Effect.Causal.mirrorToken<string | undefined>();
-  const playbackRefMirror = Effect.Causal.mirrorToken<string | undefined>();
-
   const orchestrator = TreeContentDriver.orchestrator({
     load(input) {
       return resolveLoader({
@@ -29,114 +22,16 @@ export function createCardOrchestrator(args: {
         origin: args.props.origin.value,
       })(input);
     },
-    onSelectedRefChange(ref) {
-      const kind = args.props.cardKind.value ?? 'file-content';
-      if (kind === 'playback-content') {
-        if (card.treePlayback.ref.value === ref) return;
-        playbackRefMirror.mark(ref);
-        lastPlaybackRef = ref;
-        card.treePlayback.ref.value = ref;
-        return;
-      }
-      if (card.treeContent.ref.value === ref) return;
-      fileRefMirror.mark(ref);
-      lastFileRef = ref;
-      card.treeContent.ref.value = ref;
+  });
+  TreeSelectionCardOrchestrator.create({
+    until: orchestrator,
+    selection: orchestrator.selection,
+    cardKind: args.props.cardKind,
+    card: args.card.props,
+    tree: {
+      fromResponse: treeFromResponse,
     },
-  });
-
-  Signal.effect(() => {
-    if (orchestrator.disposed) return;
-    const response = card.result.response.value;
-    if (response === lastResponse) return;
-    lastResponse = response;
-    const tree = treeFromResponse(response);
-    if (!tree) return;
-    orchestrator.intent({ type: 'tree.set', tree });
-  });
-
-  Signal.effect(() => {
-    if (orchestrator.disposed) return;
-    if (args.props.cardKind.value !== 'file-content') return;
-    const ref = card.treeContent.ref.value;
-    if (ref === lastFileRef) {
-      fileRefMirror.consume(ref);
-      return;
-    }
-    if (fileRefMirror.consume(ref)) {
-      lastFileRef = ref;
-      return;
-    }
-    lastFileRef = ref;
-    if (Is.str(ref) && ref.length > 0) {
-      orchestrator.intent({ type: 'ref.request', ref });
-    } else {
-      orchestrator.intent({ type: 'path.request', path: undefined });
-    }
-  });
-
-  Signal.effect(() => {
-    if (orchestrator.disposed) return;
-    if (args.props.cardKind.value !== 'playback-content') return;
-    const refs = normalizeRefs(card.treePlayback.refs.value);
-    if (Arr.equal(lastPlaybackRefs, refs)) return;
-    lastPlaybackRefs = refs;
-
-    const tree = treeFromPlaybackRefs(refs);
-    if (!tree) {
-      orchestrator.intent({ type: 'tree.clear' });
-      return;
-    }
-    orchestrator.intent({ type: 'tree.set', tree });
-  });
-
-  Signal.effect(() => {
-    if (orchestrator.disposed) return;
-    if (args.props.cardKind.value !== 'playback-content') return;
-    const ref = card.treePlayback.ref.value;
-    if (ref === lastPlaybackRef) {
-      playbackRefMirror.consume(ref);
-      return;
-    }
-    if (playbackRefMirror.consume(ref)) {
-      lastPlaybackRef = ref;
-      return;
-    }
-    lastPlaybackRef = ref;
-    if (Is.str(ref) && ref.length > 0) {
-      orchestrator.intent({ type: 'ref.request', ref });
-    } else {
-      orchestrator.intent({ type: 'path.request', path: undefined });
-    }
   });
 
   return orchestrator;
-}
-
-function treeFromPlaybackRefs(refs?: string[]): t.TreeHostViewNodeList | undefined {
-  const list = refs?.filter((ref) => Is.str(ref) && ref.length > 0) ?? [];
-  if (list.length === 0) return undefined;
-  const children: t.TreeHostViewNode[] = list.map((ref, i) => {
-    const path = ['program', String(i + 1)] as t.ObjectPath;
-    return {
-      path,
-      key: Obj.Path.encode(path),
-      label: `${i + 1}. ${ref}`,
-      value: { slug: ref, ref },
-    };
-  });
-  const rootPath = ['program'] as t.ObjectPath;
-  return [
-    {
-      path: rootPath,
-      key: Obj.Path.encode(rootPath),
-      label: 'program',
-      value: { slug: 'program' },
-      children,
-    },
-  ];
-}
-
-function normalizeRefs(refs?: string[]) {
-  return refs?.filter((ref) => Is.str(ref) && ref.length > 0) ?? [];
 }

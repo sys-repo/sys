@@ -1,5 +1,6 @@
 import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { TreeSelectionCardOrchestrator, TreeSelectionController } from '../../m.effects/mod.ts';
 import {
   type t,
   Button,
@@ -48,10 +49,19 @@ export async function createDebugSignals() {
     origin: s<t.SlugUrlOrigin | undefined>(),
     cardKind: s(snap.cardKind),
   };
+  const selection = TreeSelectionController.create();
+  TreeSelectionCardOrchestrator.create({
+    selection,
+    cardKind: props.cardKind,
+    card: card.props,
+    tree: { fromResponse: DataCards.Helpers.treeFromResponse },
+  });
+
   const p = props;
   const api = {
     props,
     card,
+    selection,
     listen,
     reset,
   };
@@ -66,6 +76,8 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.env.value = defaults.env;
     p.cardKind.value = defaults.cardKind;
+    selection.intent({ type: 'tree.clear' });
+    selection.intent({ type: 'reset' });
     card.reset();
     syncOrigin();
   }
@@ -107,6 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
   const card = debug.card;
+  const selection = debug.selection;
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -128,6 +141,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
     onKindSelect: (kind) => {
       if (p.cardKind.value === kind) return;
       p.cardKind.value = kind;
+      selection.intent({ type: 'tree.clear' });
+      selection.intent({ type: 'reset' });
       card.reset();
     },
   });
@@ -153,6 +168,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'selection'}
+        data={selection.current()}
+        expand={0}
+        style={{ marginTop: 5 }}
+      />
     </div>
   );
 };
