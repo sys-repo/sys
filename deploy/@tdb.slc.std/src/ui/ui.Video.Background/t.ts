@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type VideoBackgroundProps = {
-  video?: number | string;
+  video?: number | `vimeo/${string}`;
   playing?: boolean;
   opacity?: number;
   blur?: number;

@@ -95,7 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `video: ${p.video.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle(p.video, [D.TUBES.src, `vimeo/${D.TUBES.id}`])}
+        onClick={() => Signal.cycle(p.video, [D.TUBES.src, 'vimeo/1068502644'])}
       />
       <Button
         block

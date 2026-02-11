@@ -14,7 +14,4 @@ export const DEFAULTS = {
   blur: 0,
 } as const;
 export const D = DEFAULTS;
-
-export const STORAGE_KEY = {
-  DEV: `dev:${D.displayName}`,
-} as const;
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` } as const;
