@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export namespace Fonts {
   export type Lib = {
     readonly ETBook: Bundle;
+    readonly SourceSans3: Bundle;
   };
 
   /** A web-font configuration bundle. */
