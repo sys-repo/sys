@@ -1,5 +1,5 @@
 import { Descriptor } from './-spec.cards/-ui.descriptor.tsx';
-import { TreeContent } from './-spec.cards/-ui.tree+content.tsx';
+import { TreeContent } from './-spec.cards/-ui.tree+file-content.tsx';
 import { TreePlaybackAssets } from './-spec.cards/-ui.tree+playback-assets.tsx';
 import { type t, ActionProbe, css, Signal } from './common.ts';
 import { CardKindsList } from './ui/ui.CardKindsList.tsx';
