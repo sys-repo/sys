@@ -11,7 +11,7 @@ export type * from './ui/-dev/t.ts';
 export type * from './ui/ui.SlugSheet/t.ts';
 export type * from './ui/ui.SlugSheetStack/t.ts';
 export type * from './ui/ui.Driver.Tree.Tmpl/t.ts';
-export type * from './ui/ui.TreeContentDriver/t.ts';
+export type * from './ui/ui.Driver.TreeContent/t.ts';
 export type * from './ui/ui.TreeHost/t.ts';
 
 export type * from './ui/ui.__Legacy__SlugKbDriver/t.ts';
