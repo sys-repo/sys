@@ -1,52 +1,114 @@
 import React from 'react';
-import { type t, KeyValue, ObjectView, Obj } from './common.ts';
+import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from './common.ts';
 import { toFrontmatter } from './u.data.ts';
 
-type Args = {
-  readonly file?: t.FileContentData;
-  readonly loading: boolean;
-  readonly theme?: t.CommonTheme;
+export type FileContentProps = {
+  file?: t.FileContentData;
+  loading?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
-export function renderFileMain(args: Args) {
-  const file = args.file;
-  if (!file) return undefined;
-  const frontmatter = toFrontmatter(file.content);
+/**
+ * Component:
+ */
+export const FileMain: React.FC<FileContentProps> = (props) => {
+  const { loading = false, file } = props;
+  if (!file) return null;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = { base: css({ color: theme.fg, display: 'grid' }) };
   return (
-    <div>
+    <div className={css(styles.base, props.style).class}>
+      <Cropmarks theme={theme.name} borderOpacity={0.03}>
+        <InfoPanel {...props} style={{ margin: 15, width: 400 }} />
+      </Cropmarks>
+    </div>
+  );
+};
+
+/**
+ * Component:
+ */
+export const FileLeaf: React.FC<FileContentProps> = (props) => {
+  const { loading = false, file } = props;
+  if (!file) return null;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      padding: 20,
+      color: theme.fg,
+      display: 'grid',
+    }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <InfoPanel {...props} showObject={true} />
+    </div>
+  );
+};
+
+/**
+ * Component: Information Panel.
+ */
+type InfoPanelProps = FileContentProps & { showObject?: boolean };
+export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
+  const { loading = false, showObject = false, file } = props;
+  if (!file) return null;
+
+  const frontmatter = toFrontmatter(file.content);
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      display: 'grid',
+      gridAutoFlow: 'row',
+      gridAutoRows: 'min-content',
+      rowGap: 25,
+    }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
       <KeyValue.UI
-        theme={args.theme}
+        theme={theme.name}
         items={[
           { kind: 'title', v: 'File Content' },
           { k: 'docid', v: file.docid ?? '' },
           { k: 'ref', v: file.ref ?? '' },
           { k: 'hash', v: file.hash ?? '' },
           { k: 'content-type', v: file.contentType ?? '' },
+          ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}
       />
-      <ObjectView
-        theme={args.theme}
-        name={'frontmatter'}
-        data={Obj.truncateStrings(frontmatter, 40)}
-        expand={0}
-      />
-      {args.loading ? <div>{'Loading content'}</div> : undefined}
+      {frontmatter && (
+        <KeyValue.UI
+          theme={theme.name}
+          items={[
+            { kind: 'title', v: 'FrontMatter' },
+            ...KeyValue.fromObject(Obj.truncateStrings(frontmatter, 40)),
+          ]}
+        />
+      )}
+      {showObject && (
+        <ObjectView
+          theme={theme.name}
+          name={'frontmatter'}
+          data={Obj.truncateStrings(frontmatter, 40)}
+          expand={0}
+        />
+      )}
     </div>
   );
-}
-
-export function renderFileLeaf(args: Args) {
-  const file = args.file;
-  if (!file) return undefined;
-  return (
-    <KeyValue.UI
-      theme={args.theme}
-      items={[
-        { kind: 'title', v: 'Leaf Content' },
-        { k: 'ref', v: file.ref ?? '' },
-        { k: 'content-type', v: file.contentType ?? '' },
-        ...(args.loading ? [{ k: 'status', v: 'loading' }] : []),
-      ]}
-    />
-  );
-}
+};

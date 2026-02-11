@@ -12,8 +12,7 @@ export function toPlaybackData(data?: t.ContentData): t.PlaybackContentData | un
 
 export function toFrontmatter(content: unknown) {
   if (!Is.record(content)) return undefined;
-  const frontmatter = content.frontmatter;
-  return Is.record(frontmatter) ? frontmatter : undefined;
+  return Is.record(content.frontmatter) ? content.frontmatter : undefined;
 }
 
 export function arraySize(input: unknown): number {

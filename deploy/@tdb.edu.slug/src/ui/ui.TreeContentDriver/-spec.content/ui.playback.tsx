@@ -1,20 +1,39 @@
 import React from 'react';
-import { type t, KeyValue } from './common.ts';
+import { type t, Color, css, KeyValue } from './common.ts';
 import { arraySize } from './u.data.ts';
 
-type Args = {
-  readonly playback?: t.PlaybackContentData;
-  readonly loading: boolean;
-  readonly theme?: t.CommonTheme;
+export type PlaybackContentProps = {
+  playback?: t.PlaybackContentData;
+  loading?: boolean;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
-export function renderPlaybackMain(args: Args) {
-  const playback = args.playback;
-  if (!playback) return undefined;
+/**
+ * Component:
+ */
+export const PlaybackMain: React.FC<PlaybackContentProps> = (props) => {
+  const { debug = false, loading = false } = props;
+  const playback = props.playback;
+  if (!playback) return null;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      backgroundColor: Color.ruby(debug),
+      color: theme.fg,
+      display: 'grid',
+    }),
+  };
+
   return (
-    <div>
+    <div className={css(styles.base, props.style).class}>
       <KeyValue.UI
-        theme={args.theme}
+        theme={theme.name}
         items={[
           { kind: 'title', v: 'Playback Content' },
           { k: 'docid', v: playback.docid ?? '' },
@@ -22,23 +41,42 @@ export function renderPlaybackMain(args: Args) {
           { k: 'beats', v: arraySize((playback.playback as { beats?: unknown })?.beats) },
         ]}
       />
-      {args.loading ? <div>{'Loading content'}</div> : undefined}
+      {loading ? <div>{'Loading content'}</div> : undefined}
     </div>
   );
-}
+};
 
-export function renderPlaybackLeaf(args: Args) {
-  const playback = args.playback;
-  if (!playback) return undefined;
+/**
+ * Component:
+ */
+export const PlaybackLeaf: React.FC<PlaybackContentProps> = (props) => {
+  const { debug = false, loading = false } = props;
+  const playback = props.playback;
+  if (!playback) return null;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      backgroundColor: Color.ruby(debug),
+      color: theme.fg,
+      display: 'grid',
+    }),
+  };
+
   return (
-    <KeyValue.UI
-      theme={args.theme}
-      items={[
-        { kind: 'title', v: 'Leaf Playback' },
-        { k: 'docid', v: playback.docid ?? '' },
-        { k: 'assets', v: arraySize(playback.assets) },
-        ...(args.loading ? [{ k: 'status', v: 'loading' }] : []),
-      ]}
-    />
+    <div className={css(styles.base, props.style).class}>
+      <KeyValue.UI
+        theme={theme.name}
+        items={[
+          { kind: 'title', v: 'Leaf Playback' },
+          { k: 'docid', v: playback.docid ?? '' },
+          { k: 'assets', v: arraySize(playback.assets) },
+          ...(loading ? [{ k: 'status', v: 'loading' }] : []),
+        ]}
+      />
+    </div>
   );
-}
+};

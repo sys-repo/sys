@@ -1,8 +1,9 @@
+import React from 'react';
 import { TreeData } from '../../m.data/mod.ts';
 import { type t, Is } from './common.ts';
 import { toFileData, toPlaybackData } from './u.data.ts';
-import { renderFileLeaf, renderFileMain } from './ui.file.tsx';
-import { renderPlaybackLeaf, renderPlaybackMain } from './ui.playback.tsx';
+import { FileLeaf, FileMain } from './ui.file.tsx';
+import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
 
 export function createContentSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
   const source = args.content.phase === 'ready' ? args.content : args.lastReady;
@@ -31,10 +32,10 @@ function renderMain(
   },
 ) {
   if (args.loading && !args.file && !args.playback) return <div>{'Loading content'}</div>;
-  return (
-    renderFileMain({ file: args.file, loading: args.loading, theme: args.theme }) ??
-    renderPlaybackMain({ playback: args.playback, loading: args.loading, theme: args.theme })
-  );
+  if (args.file) return <FileMain file={args.file} loading={args.loading} theme={args.theme} />;
+  if (args.playback)
+    return <PlaybackMain playback={args.playback} loading={args.loading} theme={args.theme} />;
+  return undefined;
 }
 
 function renderLeaf(
@@ -44,10 +45,8 @@ function renderLeaf(
   },
 ) {
   if (args.loading && !args.file && !args.playback) return <div>{'Loading content'}</div>;
-  return (
-    renderFileLeaf({ file: args.file, loading: args.loading, theme: args.theme }) ??
-    renderPlaybackLeaf({ playback: args.playback, loading: args.loading, theme: args.theme }) ?? (
-      <div>{'Leaf selected (no content loaded)'}</div>
-    )
-  );
+  if (args.file) return <FileLeaf file={args.file} loading={args.loading} theme={args.theme} />;
+  if (args.playback)
+    return <PlaybackLeaf playback={args.playback} loading={args.loading} theme={args.theme} />;
+  return <div>{'Leaf selected (no content loaded)'}</div>;
 }
