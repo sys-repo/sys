@@ -20,8 +20,7 @@ import {
   TreeHost,
 } from './mod.ts';
 
-type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
+type Storage = Pick<t.TreeHostProps, 'debug' | 'theme' | 'selectedPath'> & {
   env?: t.HttpOriginEnv;
 };
 const defaults: Storage = {
@@ -51,7 +50,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    tree: s<P['tree']>(undefined),
+    tree: s<t.TreeHostViewNodeList | undefined>(undefined),
     selectedPath: s(snap.selectedPath),
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
