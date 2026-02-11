@@ -19,10 +19,8 @@ export type PlaybackContentData = {
   readonly assets: readonly t.SpecTimelineAsset[];
 };
 
-export type ContentSlotsArgs = {
+export type ContentSlotArgs = {
   readonly content: ContentState;
   readonly selection: SelectionState;
-  readonly loading: boolean;
-  readonly lastReady?: ContentState;
   readonly theme?: t.CommonTheme;
 };

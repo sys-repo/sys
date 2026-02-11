@@ -3,9 +3,8 @@ import { toContentData, toFileData, toPlaybackData } from './u.data.ts';
 import { FileLeaf, FileMain } from './ui.file.tsx';
 import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
 
-export function createSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
-  const source = args.content.phase === 'ready' ? args.content : args.lastReady;
-  const data = toContentData(source?.data);
+export function createSlots(args: t.ContentSlotArgs): t.TreeHostSlots {
+  const data = toContentData(args.content.data);
   const file = toFileData(data);
   const playback = toPlaybackData(data);
 
@@ -24,27 +23,23 @@ export function createSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
 }
 
 function renderMain(
-  args: t.ContentSlotsArgs & {
+  args: t.ContentSlotArgs & {
     file?: t.FileContentData;
     playback?: t.PlaybackContentData;
   },
 ) {
-  if (args.loading && !args.file && !args.playback) return <div>{'Loading content'}</div>;
-  if (args.file) return <FileMain file={args.file} loading={args.loading} theme={args.theme} />;
-  if (args.playback)
-    return <PlaybackMain playback={args.playback} loading={args.loading} theme={args.theme} />;
+  if (args.file) return <FileMain file={args.file} theme={args.theme} />;
+  if (args.playback) return <PlaybackMain playback={args.playback} theme={args.theme} />;
   return undefined;
 }
 
 function renderLeaf(
-  args: t.ContentSlotsArgs & {
-    readonly file?: t.FileContentData;
-    readonly playback?: t.PlaybackContentData;
+  args: t.ContentSlotArgs & {
+    file?: t.FileContentData;
+    playback?: t.PlaybackContentData;
   },
 ) {
-  if (args.loading && !args.file && !args.playback) return <div>{'Loading content'}</div>;
-  if (args.file) return <FileLeaf file={args.file} loading={args.loading} theme={args.theme} />;
-  if (args.playback)
-    return <PlaybackLeaf playback={args.playback} loading={args.loading} theme={args.theme} />;
-  return <div>{'Leaf selected (no content loaded)'}</div>;
+  if (args.file) return <FileLeaf file={args.file} theme={args.theme} />;
+  if (args.playback) return <PlaybackLeaf playback={args.playback} theme={args.theme} />;
+  return undefined;
 }

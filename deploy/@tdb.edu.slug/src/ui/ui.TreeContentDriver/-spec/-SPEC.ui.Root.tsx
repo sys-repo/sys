@@ -21,12 +21,6 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
   const spinner: t.TreeHostProps['spinner'] = loading ? ['treeLeaf', 'main'] : undefined;
-  const lastReady = React.useRef<t.TreeContentController.State | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (content.phase === 'ready') lastReady.current = content;
-    if (content.phase === 'idle') lastReady.current = undefined;
-  }, [content]);
 
   /**
    * Render:
@@ -40,8 +34,6 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const slots = createSlots({
     content,
     selection,
-    loading,
-    lastReady: lastReady.current,
     theme: theme.name,
   });
 
