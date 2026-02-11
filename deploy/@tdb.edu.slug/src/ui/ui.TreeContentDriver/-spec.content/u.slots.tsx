@@ -1,13 +1,11 @@
-import React from 'react';
-import { TreeData } from '../../m.data/mod.ts';
-import { type t, Is } from './common.ts';
-import { toFileData, toPlaybackData } from './u.data.ts';
+import { type t, TreeData } from './common.ts';
+import { toContentData, toFileData, toPlaybackData } from './u.data.ts';
 import { FileLeaf, FileMain } from './ui.file.tsx';
 import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
 
 export function createContentSlots(args: t.ContentSlotsArgs): t.TreeHostSlots {
   const source = args.content.phase === 'ready' ? args.content : args.lastReady;
-  const data = Is.record(source?.data) ? (source.data as t.ContentData) : undefined;
+  const data = toContentData(source?.data);
   const file = toFileData(data);
   const playback = toPlaybackData(data);
 

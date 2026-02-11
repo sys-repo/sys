@@ -41,11 +41,8 @@ function fileContentLoader(origin?: t.SlugUrlOrigin): TLoad {
 
     return {
       kind: 'file-content',
-      docid: client.value.docid,
-      ref: request.key,
-      hash,
-      contentType: file.value.contentType,
       content: file.value,
+      index: index.value,
     };
   };
 }
@@ -69,9 +66,8 @@ function playbackContentLoader(origin?: t.SlugUrlOrigin): TLoad {
 
     return {
       kind: 'playback-content',
-      docid: request.key,
-      assets: assets.value.assets,
       playback: playback.value,
+      assets: assets.value.assets,
     };
   };
 }

@@ -65,6 +65,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   if (!file) return null;
 
   const frontmatter = toFrontmatter(file.content);
+  const ref = file.content.frontmatter.ref;
+  const hash = file.content.hash;
+  const contentType = file.content.contentType;
 
   /**
    * Render:
@@ -85,10 +88,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
         theme={theme.name}
         items={[
           { kind: 'title', v: 'File Content' },
-          { k: 'docid', v: file.docid ?? '' },
-          { k: 'ref', v: file.ref ?? '' },
-          { k: 'hash', v: file.hash ?? '' },
-          { k: 'content-type', v: file.contentType ?? '' },
+          { k: 'ref', v: ref },
+          { k: 'hash', v: hash },
+          { k: 'content-type', v: contentType },
           ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}
       />

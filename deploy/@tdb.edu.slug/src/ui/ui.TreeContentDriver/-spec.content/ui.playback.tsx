@@ -36,9 +36,9 @@ export const PlaybackMain: React.FC<PlaybackContentProps> = (props) => {
         theme={theme.name}
         items={[
           { kind: 'title', v: 'Playback Content' },
-          { k: 'docid', v: playback.docid ?? '' },
+          { k: 'docid', v: playback.playback.docid },
           { k: 'assets', v: arraySize(playback.assets) },
-          { k: 'beats', v: arraySize((playback.playback as { beats?: unknown })?.beats) },
+          { k: 'beats', v: arraySize(playback.playback.beats) },
         ]}
       />
       {loading ? <div>{'Loading content'}</div> : undefined}
@@ -72,7 +72,7 @@ export const PlaybackLeaf: React.FC<PlaybackContentProps> = (props) => {
         theme={theme.name}
         items={[
           { kind: 'title', v: 'Leaf Playback' },
-          { k: 'docid', v: playback.docid ?? '' },
+          { k: 'docid', v: playback.playback.docid },
           { k: 'assets', v: arraySize(playback.assets) },
           ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}

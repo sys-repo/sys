@@ -5,22 +5,18 @@ export * from '../-spec/-t.ts';
 
 export type ContentState = t.TreeContentController.State;
 export type SelectionState = t.TreeSelectionController.State;
-export type ContentData = Record<string, unknown>;
+export type ContentData = FileContentData | PlaybackContentData;
 
 export type FileContentData = {
   readonly kind: 'file-content';
-  readonly docid?: string;
-  readonly ref?: string;
-  readonly hash?: string;
-  readonly contentType?: string;
-  readonly content?: unknown;
+  // readonly index: t.SlugFileContentIndex;
+  readonly content: t.SlugFileContentDoc;
 };
 
 export type PlaybackContentData = {
   readonly kind: 'playback-content';
-  readonly docid?: string;
-  readonly assets?: unknown;
-  readonly playback?: unknown;
+  readonly playback: t.SpecTimelineManifest;
+  readonly assets: readonly t.SpecTimelineAsset[];
 };
 
 export type ContentSlotsArgs = {
