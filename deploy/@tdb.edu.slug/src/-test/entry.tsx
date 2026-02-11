@@ -39,6 +39,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr(e) {
         if (e.prev?.endsWith('.TreeHost')) return true;
+        if (e.next?.endsWith('.SlugKB')) return true;
         if (e.next?.endsWith('.dev: Http.SlugOrigin')) return true;
       },
     });
