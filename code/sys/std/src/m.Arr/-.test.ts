@@ -227,6 +227,11 @@ describe('Arr (Array)', () => {
   });
 
   describe('Arr.equal (instance equality)', () => {
+    it('returns true immediately for the same array reference', () => {
+      const arr = [1, 2, 3];
+      expect(Arr.equal(arr, arr)).to.be.true;
+    });
+
     it('returns true for two empty arrays', () => {
       expect(Arr.equal([], [])).to.be.true;
     });
