@@ -31,7 +31,7 @@ export const Tab: React.FC<TabProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const color = selected ? Color.WHITE : pointer.is.over ? Color.BLUE : Color.alpha(theme.fg, 0.2);
+  const color = selected ? theme.fg : pointer.is.over ? Color.BLUE : Color.alpha(theme.fg, 0.2);
 
   const styles = {
     base: css({
