@@ -25,6 +25,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     e.element(`Hello ${Str.Lorem.words(8).toLowerCase()}`);
     e.item({ k: 'the last', v: 'word 👋' });
   },
+
   async run(e) {
     const params = e.params<Params>();
     const delay = params?.delay ?? 300;
