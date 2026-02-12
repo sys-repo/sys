@@ -20,6 +20,7 @@ export {
   Sheet,
   Spinners,
   SplitPane,
+  Tabs,
   TreeHost,
   TreeView,
 } from '@sys/ui-react-components';
