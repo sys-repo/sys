@@ -31,7 +31,7 @@ export const BarSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     const delay = params?.delay ?? 300;
     const label = params?.label ?? 'Unknown';
 
-    e.title('My runner title');
+    e.title('Barbaz Result');
 
     await Time.wait(delay);
     e.item({ k: 'latency', v: `${delay}ms` });
@@ -39,10 +39,9 @@ export const BarSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     e.obj({ expand: ['$', '$.value'] }).result({
       ok: true,
       value: {
-        label,
-        delay,
-        at: new Date().toISOString(),
-        list: Array.from({ length: 50 }).map((_, i) => `${i}-${Num.random.int(0, 1000)}`),
+        myLabel: label,
+        waitTime: delay,
+        things: Array.from({ length: 50 }).map((_, i) => `${i}-${Num.random.int(0, 1000)}`),
       },
     });
   },

@@ -12,6 +12,7 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
+    expect(p.result.byProbe.value).to.eql({});
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -29,6 +30,11 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
+    const snapshot = p.result.byProbe.value['p:1'];
+    expect(snapshot?.title).to.eql(undefined);
+    expect(snapshot?.items).to.eql([]);
+    expect(snapshot?.response).to.eql(undefined);
+    expect(snapshot?.obj).to.eql(undefined);
     expect(p.spinning.value).to.eql(true);
   });
 
@@ -55,6 +61,45 @@ describe('ActionProbe.Signals', () => {
     expect(api.props.probe.focused.value).to.eql(undefined);
   });
 
+  it('focus: clears stale payload when selected probe has no snapshot', () => {
+    const api = Signals.create();
+    const p1 = api.handlers('p:1', 'One');
+    api.handlers('p:2', 'Two');
+
+    p1.onRunStart();
+    p1.onRunItem({ k: 'a', v: 1 });
+    p1.onRunResult({ ok: 1 }, { expand: 1 });
+    p1.onRunEnd();
+
+    api.focus('p:2');
+    expect(api.props.result.title.value).to.eql('Two');
+    expect(api.props.result.items.value).to.eql([]);
+    expect(api.props.result.response.value).to.eql(undefined);
+    expect(api.props.result.obj.value).to.eql(undefined);
+  });
+
+  it('focus: projects last snapshot for the selected probe', () => {
+    const api = Signals.create();
+    const p1 = api.handlers('p:1', 'One');
+    const p2 = api.handlers('p:2', 'Two');
+
+    p1.onRunStart();
+    p1.onRunItem({ k: 'a', v: 1 });
+    p1.onRunResult({ ok: 1 }, { expand: 1 });
+    p1.onRunEnd();
+
+    p2.onRunStart();
+    p2.onRunItem({ k: 'b', v: 2 });
+    p2.onRunResult({ ok: 2 }, { expand: 2 });
+    p2.onRunEnd();
+
+    api.focus('p:1');
+    expect(api.props.result.title.value).to.eql('One');
+    expect(api.props.result.items.value).to.eql([{ k: 'a', v: 1 }]);
+    expect(api.props.result.response.value).to.eql({ ok: 1 });
+    expect(api.props.result.obj.value).to.eql({ expand: 1 });
+  });
+
   it('item/result/end: mutates execution channel', () => {
     const api = Signals.create();
     api
@@ -71,6 +116,14 @@ describe('ActionProbe.Signals', () => {
     ]);
     expect(p.result.response.value).to.eql({ ok: true });
     expect(p.result.obj.value).to.eql({ expand: 2 });
+    const snapshot = p.result.byProbe.value['p:1'];
+    expect(snapshot?.title).to.eql(undefined);
+    expect(snapshot?.items).to.eql([
+      { k: 'a', v: 1 },
+      { k: 'b', v: 2 },
+    ]);
+    expect(snapshot?.response).to.eql({ ok: true });
+    expect(snapshot?.obj).to.eql({ expand: 2 });
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -88,6 +141,7 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
+    expect(p.result.byProbe.value).to.eql({});
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -107,6 +161,11 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
     expect(p.result.response.value).to.eql({ ok: true });
     expect(p.result.obj.value).to.eql({ expand: { level: 1 } });
+    const snapshot = p.result.byProbe.value['p:2'];
+    expect(snapshot?.title).to.eql(undefined);
+    expect(snapshot?.items).to.eql([{ k: 'foo', v: 123 }]);
+    expect(snapshot?.response).to.eql({ ok: true });
+    expect(snapshot?.obj).to.eql({ expand: { level: 1 } });
     expect(p.spinning.value).to.eql(false);
   });
 
@@ -121,6 +180,12 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.result.title.value).to.eql('My Probe');
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
+    expect(p.result.byProbe.value['p:3']).to.eql({
+      title: 'My Probe',
+      items: [{ k: 'foo', v: 123 }],
+      response: undefined,
+      obj: undefined,
+    });
   });
 
   it('handlers: updates result title from run callback', () => {
@@ -132,6 +197,7 @@ describe('ActionProbe.Signals', () => {
     run.onRunEnd();
 
     expect(api.props.result.title.value).to.eql('Hello from Run');
+    expect(api.props.result.byProbe.value['p:5']?.title).to.eql('Hello from Run');
   });
 
   it('handlers: does not duplicate title when run emits explicit title item', () => {

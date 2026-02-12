@@ -36,11 +36,10 @@ function renderer(state: DebugSignals, opts: Options = {}) {
         actOn: v.actOn,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
-        ...state.action.handlers(probe),
+        ...state.action.handlers(probe, spec.title),
         onFocus: () => {
           state.action.focus(probe);
           state.action.resultVisible(true);
-          state.props.result.title.value = spec.title;
         },
         onBlur: () => state.action.blur(probe),
       };

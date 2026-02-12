@@ -15,13 +15,20 @@ export type ActionProbeSignals = {
   readonly props: ActionProbeSignalProps;
   handlers(probe: string, title?: t.ReactNode): ActionProbeRunHandlers;
   start(probe: string, title?: t.ReactNode): ActionProbeSignals;
-  focus(probe: string): ActionProbeSignals;
+  focus(probe: string, title?: t.ReactNode): ActionProbeSignals;
   blur(probe?: string): ActionProbeSignals;
   resultVisible(next: boolean | ((prev: boolean) => boolean)): ActionProbeSignals;
   item(item: t.KeyValueItem): ActionProbeSignals;
   result(value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig): ActionProbeSignals;
   end(): ActionProbeSignals;
   reset(): ActionProbeSignals;
+};
+
+export type ActionProbeResultSnapshot = {
+  title: t.ReactNode | undefined;
+  items: t.KeyValueItem[];
+  response: unknown;
+  obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
 };
 
 /** ActionProbe run-event handlers bound to a probe id. */
@@ -51,6 +58,7 @@ export type ActionProbeSignalProps = {
     readonly items: t.Signal<t.KeyValueItem[]>;
     readonly response: t.Signal<unknown>;
     readonly obj: t.Signal<t.ActionProbe.ProbeRunObjectConfig | undefined>;
+    readonly byProbe: t.Signal<Record<string, ActionProbeResultSnapshot>>;
   };
 };
 
@@ -64,5 +72,6 @@ export type ActionProbeSignalsState = {
     items: t.KeyValueItem[];
     response: unknown;
     obj: t.ActionProbe.ProbeRunObjectConfig | undefined;
+    byProbe: Record<string, ActionProbeResultSnapshot>;
   };
 };
