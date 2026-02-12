@@ -12,12 +12,13 @@ export declare namespace Tabs {
   export type Item = {
     readonly id: t.StringId;
     readonly label?: string;
-    readonly render: (e: { theme: t.CommonTheme }) => t.ReactNode;
+    readonly render: Render;
   };
 
   /**
-   * Controlled mode: provide `value` and `onChange`.
-   * Uncontrolled mode: provide `defaultValue`.
+   * Selection is props-driven.
+   * - `value` is the selected tab id.
+   * - `defaultValue` is a fallback when `value` is undefined or invalid.
    */
   export type Props = {
     items?: t.Ary<Item>;
@@ -32,4 +33,7 @@ export declare namespace Tabs {
 
   export type ChangeHandler = (e: Change) => void;
   export type Change = { readonly id: t.StringId };
+
+  export type Render = (e: RenderArgs) => t.ReactNode;
+  export type RenderArgs = { readonly theme: t.CommonTheme };
 }

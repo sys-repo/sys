@@ -16,7 +16,6 @@ export const TabStrip: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
       height: D.Tabstrip.height,
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,

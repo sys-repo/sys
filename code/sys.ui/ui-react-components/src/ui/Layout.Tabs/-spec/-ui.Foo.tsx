@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is, ObjectView } from './common.ts';
+import React from 'react';
+import { type t, Color, css, ObjectView } from './common.ts';
 
 export type FooProps = {
   tab: t.Tabs.Item;
@@ -23,7 +23,7 @@ export const Foo: React.FC<FooProps> = (props) => {
       userSelect: 'none',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 20,
+      padding: 25,
     }),
   };
 

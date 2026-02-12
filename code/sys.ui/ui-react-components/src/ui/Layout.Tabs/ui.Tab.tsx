@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D } from './common.ts';
+import { type t, Color, css, D, usePointer } from './common.ts';
 
 export type TabProps = {
   item: t.Tabs.Item;
@@ -19,38 +19,41 @@ export const Tab: React.FC<TabProps> = (props) => {
   /**
    * Hooks:
    */
-  const [isOver, setOver] = React.useState(false);
+  const pointer = usePointer({
+    onUp() {
+      if (selected) return;
+      props.onClick?.({ id });
+    },
+  });
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
-  let color = Color.alpha(theme.fg, selected ? 1 : 0.4);
-  if (isOver && !selected) color = Color.BLUE;
+  const color = selected ? Color.WHITE : pointer.is.over ? Color.BLUE : Color.alpha(theme.fg, 0.2);
 
   const styles = {
     base: css({
       height: D.Tabstrip.height,
       display: 'grid',
+      placeItems: 'center',
       minWidth: 0,
       fontSize: 14,
+      userSelect: 'none',
+      cursor: 'pointer',
+      color,
+      transform: `translateY(${!selected && pointer.is.down ? 1 : 0}px)`,
     }),
-    btn: css({ display: 'grid', width: '100%', minWidth: 0 }),
-    body: css({ display: 'grid', placeItems: 'center', color }),
+    body: css({
+      display: 'grid',
+      placeItems: 'center',
+      minWidth: 0,
+    }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <Button
-        block
-        theme={theme.name}
-        active={!selected}
-        style={styles.btn}
-        onClick={() => props.onClick?.({ id })}
-        onMouse={(e) => setOver(e.is.over)}
-      >
-        <div className={styles.body.class}>{item.label ?? item.id}</div>
-      </Button>
+    <div className={css(styles.base, props.style).class} {...pointer.handlers}>
+      <div className={styles.body.class}>{item.label ?? item.id}</div>
     </div>
   );
 };
