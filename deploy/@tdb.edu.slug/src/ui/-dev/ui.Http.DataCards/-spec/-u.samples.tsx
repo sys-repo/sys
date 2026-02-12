@@ -25,7 +25,7 @@ export function renderSamples(debug: t.DebugSignals, opts: Options = {}) {
  */
 function renderer(state: t.DebugSignals, opts: Options = {}) {
   const DEFAULT_VISIBLE = 3;
-  const actOn: t.ActionProbe.ActOn = ['Cmd+Enter', 'Cmd+Click'];
+  const actOn: t.ActionProbe.ActOn = ['Enter', 'Cmd+Click'];
 
   return ActionProbe.renderer<t.DebugSignals, TEnv>({
     state,

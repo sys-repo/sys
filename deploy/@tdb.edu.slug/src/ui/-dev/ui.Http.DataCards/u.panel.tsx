@@ -9,6 +9,7 @@ import { CardKindsList } from './ui/ui.CardKindsList.tsx';
  */
 export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
   const kind = args.kind ?? 'file-content';
+  const actOn: t.ActionProbe.ActOn = ['Enter', 'Cmd+Click'];
   const c = Signal.toObject(args.signals.props);
   const local = args.env === 'localhost';
   const loading = c.spinning && c.probe.active === kind;
@@ -51,6 +52,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         style={styles.probe}
         debug={args.debug}
         theme={args.theme}
+        actOn={actOn}
         spec={spec}
         runRequest={runRequest}
         env={{
