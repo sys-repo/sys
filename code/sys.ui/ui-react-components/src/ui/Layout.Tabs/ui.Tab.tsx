@@ -20,8 +20,9 @@ export const Tab: React.FC<TabProps> = (props) => {
    * Hooks:
    */
   const pointer = usePointer({
-    onUp() {
+    onUp(e) {
       if (selected) return;
+      if (e.type !== 'pointerup' && e.type !== 'touchend') return;
       props.onClick?.({ id });
     },
   });
@@ -40,7 +41,7 @@ export const Tab: React.FC<TabProps> = (props) => {
       minWidth: 0,
       fontSize: 14,
       userSelect: 'none',
-      cursor: 'pointer',
+      cursor: selected ? 'default' : 'pointer',
       color,
       transform: `translateY(${!selected && pointer.is.down ? 1 : 0}px)`,
     }),

@@ -30,10 +30,10 @@ export const TabStrip: React.FC<P> = (props) => {
       {items.map((item) => {
         return (
           <Tab
+            theme={theme.name}
             key={item.id}
             item={item}
             selected={item.id === props.value}
-            theme={theme.name}
             onClick={props.onChange}
           />
         );
