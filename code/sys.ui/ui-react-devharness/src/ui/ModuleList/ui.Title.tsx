@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Str } from '../common.ts';
+import { Styles } from './u.style.ts';
 
 export type TitleProps = {
   enabled?: boolean;
@@ -56,6 +57,7 @@ export const Title: React.FC<TitleProps> = (props) => {
       color: Color.BLUE,
       textDecoration: 'none',
       ':hover': { textDecoration: 'underline', color: Color.BLUE },
+      ...Styles.focus.dashedUnderline,
     }),
     linkMono: css({
       fontFamily: 'monospace',

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { type t, COLORS, Color, DEFAULTS, css, Obj } from './common.ts';
 import { HrCalc } from './u.Hr.Calc.ts';
+import { Styles } from './u.style.ts';
 
 export type ListItemProps = {
   enabled?: boolean;
@@ -88,6 +89,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
       color: selected && focused && enabled ? WHITE : enabled ? BLUE : Color.alpha(color, 0.15),
       textDecoration: 'none',
       cursor: enabled ? 'pointer' : undefined,
+      ...Styles.focus.dashedUnderline,
     }),
     linkDimmed: css({
       userSelect: 'none',
