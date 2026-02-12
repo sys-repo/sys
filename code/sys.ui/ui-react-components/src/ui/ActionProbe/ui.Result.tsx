@@ -6,6 +6,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
     debug = false,
     spinning = false,
     sizeMode = D.Result.sizeMode,
+    placeholder = D.Result.placeholder,
     resultsVisible = true,
     title,
   } = props;
@@ -17,6 +18,8 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   const hasResponse = props.response !== undefined;
   const hasResult = hasItems || hasResponse;
   const showResult = resultsVisible && hasResult;
+  const isFill = sizeMode === 'fill';
+  const titleText = title ?? placeholder;
 
   /**
    * Render:
@@ -43,7 +46,9 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
             ? `auto auto auto 1fr`
             : showResult && (hasItems || hasResponse)
               ? `auto auto 1fr`
-              : 'auto',
+              : isFill
+                ? 'auto 1fr'
+                : 'auto',
         pointerEvents: spinning ? 'none' : 'auto',
         filter: `blur(${spinning ? 6 : 0}px) grayscale(${spinning ? 100 : 0}%)`,
         opacity: spinning ? 0.4 : 1,
@@ -52,6 +57,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
       }),
       top: css({ padding: 10 }),
       hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
+      fillSpacer: css({ minHeight: 0 }),
       bottom: {
         base: css({ position: 'relative' }),
         inner: css({
@@ -95,7 +101,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         props.onResultsVisibleChange?.(!resultsVisible);
       }}
     >
-      <div className={styles.title.text.class}>{title}</div>
+      <div className={styles.title.text.class}>{titleText}</div>
       <div />
       <div data-part={'result-visibility-switch'}>
         <Switch
@@ -132,6 +138,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
           </div>
         </div>
       )}
+      {isFill && !showResult && <div className={styles.body.fillSpacer.class} />}
     </div>
   );
 

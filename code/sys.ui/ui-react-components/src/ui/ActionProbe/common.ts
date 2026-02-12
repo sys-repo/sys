@@ -20,7 +20,10 @@ export const D = {
     actOn: ['Cmd+Enter', 'Cmd+Click'] satisfies t.ActionProbe.ActOnKey[],
     doubleClickPulse: 50 as t.Msecs,
   },
-  Result: { sizeMode: 'auto' satisfies t.ActionProbe.ResultProps['sizeMode'] },
+  Result: {
+    sizeMode: 'auto' satisfies t.ActionProbe.ResultProps['sizeMode'],
+    placeholder: 'Card Output' satisfies t.ActionProbe.ResultProps['placeholder'],
+  },
   Persist: { key: ':action-card' },
 } as const;
 export const DEFAULTS = D;

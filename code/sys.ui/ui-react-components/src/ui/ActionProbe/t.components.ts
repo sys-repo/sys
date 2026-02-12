@@ -35,6 +35,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
  */
 export type ActionResultProps = {
   title?: t.ReactNode;
+  placeholder?: t.ReactNode;
   spinning?: boolean;
   resultsVisible?: boolean;
   response?: unknown;

@@ -20,7 +20,7 @@ const defaults: Storage = {
   env: 'localhost',
   actOn: undefined,
   sizeMode: 'fill',
-  resultPlaceholder: 'Select a card',
+  resultPlaceholder: D.Result.placeholder,
 };
 
 /**
