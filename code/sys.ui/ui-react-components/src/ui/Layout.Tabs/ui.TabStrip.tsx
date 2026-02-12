@@ -8,17 +8,19 @@ type P = t.Tabs.Props;
  * Component:
  */
 export const TabStrip: React.FC<P> = (props) => {
-  const { debug = false, items = [] } = props;
+  const { items = [] } = props;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const strip = props.parts?.strip;
+  const border = strip?.border ?? true;
   const styles = {
     base: css({
       color: theme.fg,
-      height: D.Tabstrip.height,
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      height: strip?.height ?? D.Tabstrip.height,
+      borderBottom: border ? `solid 1px ${Color.alpha(theme.fg, 0.1)}` : undefined,
       display: 'grid',
       alignItems: 'stretch',
       gridTemplateColumns: `repeat(${items.length || 1}, minmax(0, 1fr))`,
@@ -34,6 +36,7 @@ export const TabStrip: React.FC<P> = (props) => {
             key={item.id}
             item={item}
             selected={item.id === props.value}
+            tabStyle={props.parts?.tab}
             onClick={props.onChange}
           />
         );

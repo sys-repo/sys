@@ -1,4 +1,4 @@
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, Style } from './common.ts';
 import { TabStrip } from './ui.TabStrip.tsx';
 
 type P = t.Tabs.Props;
@@ -27,7 +27,11 @@ export const Tabs: t.FC<P> = (props) => {
       gridTemplateRows: 'auto 1fr',
     }),
     tabstrip: css({}),
-    body: css({ minHeight: 0, display: 'grid' }),
+    body: css({
+      minHeight: 0,
+      display: 'grid',
+      ...Style.toPadding(props.parts?.body?.padding),
+    }),
   };
 
   return (

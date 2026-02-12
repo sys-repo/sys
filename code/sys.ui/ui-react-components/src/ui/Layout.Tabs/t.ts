@@ -28,6 +28,8 @@ export declare namespace Tabs {
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
+    parts?: Parts;
+
     onChange?: ChangeHandler;
   };
 
@@ -36,4 +38,26 @@ export declare namespace Tabs {
 
   export type Render = (e: RenderArgs) => t.ReactNode;
   export type RenderArgs = { readonly theme: t.CommonTheme };
+
+  export type Parts = {
+    strip?: StripStyle;
+    tab?: TabStyle;
+    body?: BodyStyle;
+  };
+
+  export type StripStyle = {
+    height?: number;
+    border?: boolean;
+  };
+
+  export type TabStyle = {
+    fontSize?: number;
+    idleOpacity?: number;
+    selectedColor?: string;
+    hoverColor?: string;
+  };
+
+  export type BodyStyle = {
+    padding?: t.CssPaddingInput;
+  };
 }

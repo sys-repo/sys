@@ -1,11 +1,12 @@
 import React from 'react';
-import { type t, Color, css, D, usePointer } from './common.ts';
+import { type t, Color, css, usePointer } from './common.ts';
 
 export type TabProps = {
   item: t.Tabs.Item;
   selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  tabStyle?: t.Tabs.TabStyle;
   onClick?: t.Tabs.ChangeHandler;
 };
 
@@ -15,6 +16,7 @@ export type TabProps = {
 export const Tab: React.FC<TabProps> = (props) => {
   const { item, selected = false } = props;
   const id = item.id;
+  const tabStyle = props.tabStyle;
 
   /**
    * Hooks:
@@ -31,15 +33,21 @@ export const Tab: React.FC<TabProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const color = selected ? theme.fg : pointer.is.over ? Color.BLUE : Color.alpha(theme.fg, 0.2);
+  const idleOpacity = tabStyle?.idleOpacity ?? 0.2;
+  const selectedColor = tabStyle?.selectedColor ?? theme.fg;
+  const hoverColor = tabStyle?.hoverColor ?? Color.BLUE;
+  const color = selected
+    ? selectedColor
+    : pointer.is.over
+      ? hoverColor
+      : Color.alpha(theme.fg, idleOpacity);
 
   const styles = {
     base: css({
-      height: D.Tabstrip.height,
       display: 'grid',
       placeItems: 'center',
       minWidth: 0,
-      fontSize: 14,
+      fontSize: tabStyle?.fontSize ?? 14,
       userSelect: 'none',
       cursor: selected ? 'default' : 'pointer',
       color,
