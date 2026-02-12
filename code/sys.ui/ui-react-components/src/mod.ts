@@ -29,6 +29,7 @@ export { KeyValue } from './ui/KeyValue/mod.ts';
 export { CenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { RectGrid } from './ui/Layout.RectGrid/mod.ts';
 export { SplitPane } from './ui/Layout.SplitPane/mod.ts';
+export { Tabs } from './ui/Layout.Tabs/mod.ts';
 export { TreeHost } from './ui/Layout.TreeHost/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { PathView } from './ui/PathView/mod.ts';
