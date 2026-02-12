@@ -1,7 +1,8 @@
 import { type t, Color, css, D } from './common.ts';
+import { TabStrip } from './ui.TabStrip.tsx';
 
 export const Tabs: t.FC<t.Tabs.Props> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, items = [] } = props;
 
   /**
    * Render:
@@ -9,15 +10,21 @@ export const Tabs: t.FC<t.Tabs.Props> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(0),
+      position: 'relative',
       color: theme.fg,
-      padding: 10,
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr',
     }),
+    tabstrip: css({}),
+    body: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <TabStrip theme={theme.name} style={styles.tabstrip} />
+      <div className={styles.body.class}>
+        <div>body</div>
+      </div>
     </div>
   );
 };

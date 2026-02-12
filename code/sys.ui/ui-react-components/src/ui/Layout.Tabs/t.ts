@@ -20,13 +20,13 @@ export declare namespace Tabs {
    * Uncontrolled mode: provide `defaultValue`.
    */
   export type Props = {
-    items: t.Ary<Item>;
+    items?: t.Ary<Item>;
     value?: string;
     defaultValue?: string;
-    onChange?: (e: { id: Item['id'] }) => void;
 
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
+    onChange?: (e: { id: Item['id'] }) => void;
   };
 }
