@@ -59,5 +59,6 @@ export declare namespace Tabs {
 
   export type BodyStyle = {
     padding?: t.CssPaddingInput;
+    scroll?: boolean;
   };
 }

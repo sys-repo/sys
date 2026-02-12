@@ -1,10 +1,11 @@
 import { type t, Color, css, D, Style } from './common.ts';
 import { TabStrip } from './ui.TabStrip.tsx';
+import { Body } from './ui.Body.tsx';
 
 type P = t.Tabs.Props;
 
 export const Tabs: t.FC<P> = (props) => {
-  const { items = [] } = props;
+  const { items = [], parts = {} } = props;
   const selectedId = wrangle.selectedId(props);
   const selectedItem = items.find((item) => item.id === selectedId);
 
@@ -30,14 +31,15 @@ export const Tabs: t.FC<P> = (props) => {
     body: css({
       minHeight: 0,
       display: 'grid',
-      ...Style.toPadding(props.parts?.body?.padding),
+      overflow: parts.body?.scroll ? 'auto' : undefined,
+      ...Style.toPadding(parts.body?.padding),
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <TabStrip {...props} value={selectedId} onChange={onChange} style={styles.tabstrip} />
-      <div className={styles.body.class}>{selectedItem?.render({ theme: theme.name })}</div>
+      <Body theme={theme.name} parts={parts} item={selectedItem} />
     </div>
   );
 };

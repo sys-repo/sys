@@ -23,13 +23,18 @@ export const Foo: React.FC<FooProps> = (props) => {
       userSelect: 'none',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 25,
     }),
+  };
+
+  const name = `item:${tab.id}`;
+  const data = {
+    tab,
+    items: Array.from({ length: 50 }).map((_, i) => `item-${i + 1}`),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <ObjectView theme={theme.name} data={tab} name={'tab:item'} expand={1} />
+      <ObjectView theme={theme.name} data={data} name={name} expand={1} />
     </div>
   );
 };

@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, async (e) => {
         theme={v.theme}
         items={items}
         value={v.value}
+        parts={{ body: { padding: 20, scroll: true } }}
         onChange={(e) => {
           console.info(`⚡️ onChange:`, e);
           p.value.value = e.id;
