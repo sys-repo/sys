@@ -11,7 +11,7 @@ export function createSignals(
   const s = Signal.create;
   const props: t.DataCardSignalsProps = {
     ...action.props,
-    selectionList: { totalVisible: s(input.totalVisible ?? 5) },
+    selectionList: { totalVisible: s(input.totalVisible ?? 3) },
     treeContent: {
       ref: s(input.treeContent?.ref),
       refs: s(input.treeContent?.refs),
@@ -36,7 +36,7 @@ export function createSignals(
     end: action.end,
     reset() {
       action.reset();
-      props.selectionList.totalVisible.value = input.totalVisible ?? 5;
+      props.selectionList.totalVisible.value = input.totalVisible ?? 3;
       props.treeContent.ref.value = input.treeContent?.ref;
       props.treeContent.refs.value = input.treeContent?.refs;
       props.treePlayback.ref.value = input.treePlayback?.ref;

@@ -182,7 +182,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `list.totalVisible: ${v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`}`;
         }}
         onClick={() => {
-          Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [5, 10, undefined]);
+          Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [3, 10, undefined]);
         }}
       />
       <Button

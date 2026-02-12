@@ -32,7 +32,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = { ...defaults, ...store.current };
-  const card = DataCards.createSignals({ totalVisible: 5 });
+  const card = DataCards.createSignals({ totalVisible: 3 });
   const selection = TreeSelectionController.create();
 
   type S = t.TreeHostSlots;

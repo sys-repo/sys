@@ -34,7 +34,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
         is: { local },
         origin: v.origin,
         probe: {
-          selectionList: { totalVisible: 5 },
+          selectionList: { totalVisible: 3 },
           treeContent: {
             ref: v.treeContentRef,
             refs: v.treeContentRefs,
