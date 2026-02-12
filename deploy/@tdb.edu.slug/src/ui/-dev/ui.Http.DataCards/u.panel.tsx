@@ -36,7 +36,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
       rowGap: 15,
     }),
     probe: css({}),
-    result: css({}),
+    result: css({ marginTop: -10 }),
   };
 
   return (
