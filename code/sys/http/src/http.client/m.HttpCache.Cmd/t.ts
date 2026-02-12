@@ -132,6 +132,14 @@ export type HttpCacheCmdHandlersLib = {
    * - `all`: reports every CacheStorage key visible to this worker.
    */
   readonly info: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdInfoHandler;
+
+  /**
+   * Create the full default handler set for SW command hosting.
+   */
+  readonly all: (args: HttpCacheCmdClearHandlerArgs) => {
+    readonly clear: HttpCacheCmdClearHandler;
+    readonly info: HttpCacheCmdInfoHandler;
+  };
 };
 
 /**

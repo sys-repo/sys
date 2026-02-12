@@ -14,6 +14,7 @@ describe('Http.Cache.Cmd', () => {
       expect(CacheCmd.CONNECT).to.eql('http.cache.cmd.connect');
       expect(CacheCmd.CLEAR).to.eql('http.cache.clear');
       expect(CacheCmd.INFO).to.eql('http.cache.info');
+      expect(typeof CacheCmd.Handlers.all).to.eql('function');
     });
   });
 
@@ -207,6 +208,14 @@ describe('Http.Cache.Cmd', () => {
       } finally {
         if (original) Object.defineProperty(globalThis, 'caches', original);
       }
+    });
+  });
+
+  describe('Handlers.all', () => {
+    it('returns clear and info handlers', () => {
+      const handlers = CacheCmd.Handlers.all({ pkg: { name: 'my-pkg', version: '1.0.0' } });
+      expect(typeof handlers.clear).to.eql('function');
+      expect(typeof handlers.info).to.eql('function');
     });
   });
 

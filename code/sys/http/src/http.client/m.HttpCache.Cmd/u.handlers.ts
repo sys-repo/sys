@@ -58,4 +58,10 @@ export const Handlers: t.HttpCacheCmdHandlersLib = {
       };
     };
   },
+  all(args) {
+    return {
+      clear: Handlers.clear(args),
+      info: Handlers.info(args),
+    };
+  },
 };
