@@ -68,6 +68,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         display: 'grid',
         gridTemplateColumns: 'auto 1fr auto',
         alignItems: 'center',
+        cursor: 'pointer',
       }),
       text: css({
         fontWeight: 600,
@@ -86,15 +87,24 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   );
 
   const elTitle = (
-    <div className={styles.title.base.class}>
+    <div
+      className={styles.title.base.class}
+      onClick={(e) => {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('[data-part="result-visibility-switch"]')) return;
+        props.onResultsVisibleChange?.(!resultsVisible);
+      }}
+    >
       <div className={styles.title.text.class}>{title}</div>
       <div />
-      <Switch
-        theme={theme.name}
-        height={18}
-        value={resultsVisible}
-        onClick={() => props.onResultsVisibleChange?.(!resultsVisible)}
-      />
+      <div data-part={'result-visibility-switch'}>
+        <Switch
+          theme={theme.name}
+          height={18}
+          value={resultsVisible}
+          onClick={() => props.onResultsVisibleChange?.(!resultsVisible)}
+        />
+      </div>
     </div>
   );
 
