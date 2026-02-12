@@ -9,6 +9,7 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
   env: TEnv;
   getParams: <T = TParams>() => Readonly<T> | undefined;
   onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
+  onRunTitle?: (title: t.ReactNode) => void;
   onRunEnd?: () => void;
   onRunItem?: (item: t.KeyValueItem) => void;
   onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
@@ -17,7 +18,8 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
 export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject>(
   args: Args<TEnv, TParams>,
 ) {
-  const { run: handler, env, getParams, onRunStart, onRunEnd, onRunItem, onRunResult } = args;
+  const { run: handler, env, getParams, onRunStart, onRunTitle, onRunEnd, onRunItem, onRunResult } =
+    args;
 
   const run = React.useCallback(async () => {
     if (!handler) return;
@@ -39,6 +41,10 @@ export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject
         hr() {
           return e.item({ kind: 'hr' });
         },
+        title(next) {
+          onRunTitle?.(next);
+          return e;
+        },
         result(value) {
           onRunResult?.(value, obj);
         },
@@ -47,7 +53,7 @@ export function useProbeRun<TEnv extends EnvObject, TParams extends ParamsObject
     } finally {
       onRunEnd?.();
     }
-  }, [env, getParams, handler, onRunEnd, onRunItem, onRunResult, onRunStart]);
+  }, [env, getParams, handler, onRunEnd, onRunItem, onRunResult, onRunStart, onRunTitle]);
 
   return { run, canRun: !!handler } as const;
 }

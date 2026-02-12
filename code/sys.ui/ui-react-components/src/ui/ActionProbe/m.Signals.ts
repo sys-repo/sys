@@ -48,6 +48,9 @@ export const Signals: t.ActionProbeSignalsLib = {
           onRunStart(args) {
             api.start(probe, args?.title ?? title);
           },
+          onRunTitle(title) {
+            props.result.title.value = title;
+          },
           onRunEnd() {
             api.end();
           },

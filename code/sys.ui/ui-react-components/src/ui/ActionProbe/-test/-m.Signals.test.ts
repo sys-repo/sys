@@ -123,6 +123,17 @@ describe('ActionProbe.Signals', () => {
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
   });
 
+  it('handlers: updates result title from run callback', () => {
+    const api = Signals.create();
+    const run = api.handlers('p:5', 'My Probe');
+
+    run.onRunStart();
+    run.onRunTitle('Hello from Run');
+    run.onRunEnd();
+
+    expect(api.props.result.title.value).to.eql('Hello from Run');
+  });
+
   it('handlers: does not duplicate title when run emits explicit title item', () => {
     const api = Signals.create();
     const run = api.handlers('p:4', 'My Probe');

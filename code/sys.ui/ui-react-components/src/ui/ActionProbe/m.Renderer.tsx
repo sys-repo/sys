@@ -30,6 +30,7 @@ export const Renderer: t.ActionProbeRendererLib = {
             theme={resolved.theme}
             debug={resolved.debug}
             onRunStart={resolved.onRunStart}
+            onRunTitle={resolved.onRunTitle}
             onRunEnd={resolved.onRunEnd}
             onRunResult={resolved.onRunResult}
             onRunItem={resolved.onRunItem}

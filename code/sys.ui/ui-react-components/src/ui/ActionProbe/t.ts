@@ -72,6 +72,7 @@ export namespace ActionProbe {
     obj(input: ProbeRunObjectConfig): ProbeRunArgs<TEnv, TParams>;
     item(item: t.KeyValueItem): ProbeRunArgs<TEnv, TParams>;
     hr(): ProbeRunArgs<TEnv, TParams>;
+    title(next: t.ReactNode): ProbeRunArgs<TEnv, TParams>;
     readonly result: (value: unknown) => void;
   };
 }

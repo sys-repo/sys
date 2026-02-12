@@ -20,6 +20,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
   actOn?: t.ActionProbe.ActOn;
   borderRadius?: t.Pixels;
   onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
+  onRunTitle?: (title: t.ReactNode) => void;
   onRunEnd?: () => void;
   onRunResult?: (value: unknown, obj?: t.ActionProbe.ProbeRunObjectConfig) => void;
   onRunItem?: (item: t.KeyValueItem) => void;
