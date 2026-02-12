@@ -1,5 +1,5 @@
-import { type t, Is, Log, Rx } from './common.ts';
 import { Cmd } from '@sys/event/cmd';
+import { type t, Is, Log, Rx } from './common.ts';
 
 /**
  * HTTP cache command namespace.
