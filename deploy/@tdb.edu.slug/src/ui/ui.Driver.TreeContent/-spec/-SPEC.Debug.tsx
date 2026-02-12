@@ -42,7 +42,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const card = DataCards.createSignals({ totalVisible: 3 });
+  const card = DataCards.createSignals({ totalVisible: 3, persist: store });
 
   const props = {
     debug: s(snap.debug),

@@ -26,7 +26,9 @@ export type DataCardSignalsDefaults = {
   readonly totalVisible?: number | 'all';
   readonly treeContent?: { readonly ref?: string; readonly refs?: string[] };
   readonly treePlayback?: { readonly ref?: string; readonly refs?: string[] };
-  readonly action?: Partial<t.ActionProbeSignalsState>;
+  readonly action?: Parameters<t.ActionProbeSignalsFactory>[0];
+  readonly persist?: t.ImmutableRef<t.JsonMapU>;
+  readonly persistKey?: string;
 };
 
 /** Runtime API returned by `DataCards.createSignals`. */

@@ -1,4 +1,4 @@
-import { type t, ActionProbe, Signal } from './common.ts';
+import { type t, ActionProbe, Is, Signal } from './common.ts';
 
 /**
  * Data-card signal helper.
@@ -7,7 +7,7 @@ import { type t, ActionProbe, Signal } from './common.ts';
 export function createSignals(
   input: t.DataCardSignalsDefaults = {},
 ): t.DataCardSignals {
-  const action = ActionProbe.Signals.create(input.action);
+  const action = ActionProbe.Signals.create(wrangle.actionInput(input));
   const s = Signal.create;
   const props: t.DataCardSignalsProps = {
     ...action.props,
@@ -47,3 +47,36 @@ export function createSignals(
 
   return api;
 }
+
+const wrangle = {
+  actionInput(input: t.DataCardSignalsDefaults): Parameters<t.ActionProbeSignalsFactory>[0] {
+    const action = input.action;
+    const hasPersist = input.persist !== undefined || input.persistKey !== undefined;
+    if (!hasPersist) return action;
+
+    if (wrangle.isCreateArgs(action)) {
+      return {
+        ...action,
+        persist: input.persist ?? action.persist,
+        persistKey: input.persistKey ?? action.persistKey,
+      };
+    }
+
+    return {
+      defaults: action,
+      persist: input.persist,
+      persistKey: input.persistKey,
+    };
+  },
+
+  isCreateArgs(
+    input: unknown,
+  ): input is {
+    readonly defaults?: Partial<t.ActionProbeSignalsState>;
+    readonly persist?: t.ImmutableRef<t.JsonMapU>;
+    readonly persistKey?: string;
+  } {
+    if (!Is.object(input)) return false;
+    return 'defaults' in input || 'persist' in input || 'persistKey' in input;
+  },
+} as const;
