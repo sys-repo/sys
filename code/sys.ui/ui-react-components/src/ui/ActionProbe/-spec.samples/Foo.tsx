@@ -30,7 +30,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     const delay = params?.delay ?? 300;
     const label = params?.label ?? 'Unknown';
 
-    e.title('Title from Run');
+    e.title('Title from Foo Run');
 
     await Time.wait(delay);
     e.item({ k: 'latency', v: `${delay}ms` });

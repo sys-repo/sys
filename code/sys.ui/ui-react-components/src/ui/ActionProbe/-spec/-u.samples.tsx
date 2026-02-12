@@ -14,7 +14,7 @@ export function renderSamples(debug: DebugSignals, opts: Options = {}) {
 
   push(Sample.Foo);
   hr();
-  push(Sample.create('My Sample'));
+  push(Sample.Bar);
 
   return items;
 }

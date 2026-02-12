@@ -1,10 +1,10 @@
 /**
  * @module
  */
-import { type t } from '../common.ts';
-import { FooSample as Foo } from './u.FooSample.tsx';
+import { FooSample as Foo } from './Foo.tsx';
+import { BarSample as Bar } from './Bar.tsx';
 
 export const Sample = {
   Foo,
-  create: (title: t.ReactNode) => ({ ...Foo, title: title }),
+  Bar,
 } as const;
