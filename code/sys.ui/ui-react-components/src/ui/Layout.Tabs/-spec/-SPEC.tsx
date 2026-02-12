@@ -9,7 +9,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Tabs.UI debug={v.debug} theme={v.theme} />;
+
+    const items = Array.from({ length: v.totalTabs ?? 0 }).map((_, i) => {
+      const tab: t.Tabs.Item = {
+        id: `tab-${i}`,
+        render: () => <div>{tab.id}</div>,
+      };
+      return tab;
+    });
+
+    return <Tabs.UI debug={v.debug} theme={v.theme} items={items} />;
   }
 
   e.it('init', (e) => {

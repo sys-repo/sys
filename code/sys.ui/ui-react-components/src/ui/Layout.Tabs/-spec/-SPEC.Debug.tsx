@@ -3,10 +3,11 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
 
 type P = t.Tabs.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { totalTabs?: number };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  totalTabs: 3,
 };
 
 /**
@@ -26,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    totalTabs: s(snap.totalTabs),
   };
   const p = props;
   const api = {
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.totalTabs = p.totalTabs.value;
     });
   });
 
@@ -88,6 +91,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `totalTabs: ${p.totalTabs.value}`}
+        onClick={() => Signal.cycle(p.totalTabs, [0, 1, 2, 3, 4])}
       />
 
       <hr />

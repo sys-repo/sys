@@ -2,17 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
 import { Tab } from './ui.Tab.tsx';
 
-export type TabStripProps = {
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
+type P = t.Tabs.Props;
 
 /**
  * Component:
  */
-export const TabStrip: React.FC<TabStripProps> = (props) => {
-  const { debug = false } = props;
+export const TabStrip: React.FC<P> = (props) => {
+  const { debug = false, items = [] } = props;
 
   /**
    * Render:
@@ -22,14 +18,15 @@ export const TabStrip: React.FC<TabStripProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      display: 'grid',
+      height: D.Tabstrip.height,
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      display: 'grid',
     }),
   };
 
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 TabStrip`}</div>
-    </div>
-  );
+  const elTabs = items.map((item, i) => {
+    return <Tab key={item.id} theme={theme.name} item={item} index={i} />;
+  });
+
+  return <div className={css(styles.base, props.style).class}>{elTabs}</div>;
 };
