@@ -11,3 +11,8 @@ self.skipWaiting();
  * Start the HTTP pkg/bundle cache.
  */
 Http.Cache.pkg({ pkg });
+Http.Cache.Cmd.listen({
+  target: self,
+  silent: false,
+  ...Http.Cache.Cmd.Handlers.all({ pkg }),
+});

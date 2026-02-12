@@ -12,3 +12,8 @@ self.skipWaiting();
  */
 console.info('[-sw.ts] Http.Cache.pkg({ pkg }):', import.meta);
 Http.Cache.pkg({ pkg });
+Http.Cache.Cmd.listen({
+  target: self,
+  silent: false,
+  ...Http.Cache.Cmd.Handlers.all({ pkg }),
+});
