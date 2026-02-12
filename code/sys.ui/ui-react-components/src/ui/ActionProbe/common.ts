@@ -17,7 +17,7 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
   borderRadius: 6,
   Probe: {
-    actOn: ['Cmd+Enter', 'Cmd+Click'] satisfies t.ActionProbe.ActOnKey[],
+    actOn: ['Enter', 'Cmd+Click'] satisfies t.ActionProbe.ActOnKey[],
     doubleClickPulse: 50 as t.Msecs,
   },
   Result: {

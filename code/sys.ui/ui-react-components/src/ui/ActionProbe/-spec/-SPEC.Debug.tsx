@@ -18,7 +18,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   env: 'localhost',
-  actOn: undefined,
+  actOn: D.Probe.actOn,
   sizeMode: 'fill',
   resultPlaceholder: D.Result.placeholder,
 };

@@ -19,6 +19,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   const hasResult = hasItems || hasResponse;
   const showResult = resultsVisible && hasResult;
   const isFill = sizeMode === 'fill';
+  const hasSplit = hasItems && hasResponse;
   const titleText = title ?? placeholder;
 
   /**
@@ -41,25 +42,23 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
       base: css({
         position: 'relative',
         display: 'grid',
-        gridTemplateRows:
-          showResult && hasItems && hasResponse
-            ? `auto auto auto 1fr`
-            : showResult && (hasItems || hasResponse)
-              ? `auto auto 1fr`
-              : isFill
-                ? 'auto 1fr'
-                : 'auto',
+        gridTemplateRows: `auto ${isFill ? '1fr' : 'auto'}`,
         pointerEvents: spinning ? 'none' : 'auto',
         filter: `blur(${spinning ? 6 : 0}px) grayscale(${spinning ? 100 : 0}%)`,
         opacity: spinning ? 0.4 : 1,
         transition: 'opacity 100ms ease',
         fontSize: 11,
       }),
-      top: css({ padding: 10 }),
-      hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
-      fillSpacer: css({ minHeight: 0 }),
-      bottom: {
-        base: css({ position: 'relative' }),
+      content: {
+        base: css({ position: 'relative', minHeight: 0 }),
+        withResponse: css({
+          display: 'grid',
+          gridTemplateRows: hasItems ? 'auto 1fr' : '1fr',
+          minHeight: 0,
+        }),
+        top: css({ padding: 10 }),
+        response: css({ position: 'relative', minHeight: 0 }),
+        responseSplit: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
         inner: css({
           padding: 10,
           Scroll: sizeMode === 'fill' ? true : undefined,
@@ -117,28 +116,38 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
   const elBody = (
     <div className={styles.body.base.class}>
       {elTitle}
-      {showResult && hasItems && (
-        <div className={styles.body.top.class}>
-          <KeyValue.UI theme={theme.name} items={items} mono={props.header?.mono ?? true} />
-        </div>
-      )}
-      {showResult && hasItems && hasResponse && <div className={styles.body.hr.class} />}
-      {showResult && hasResponse && (
-        <div className={styles.body.bottom.base.class}>
-          <div className={styles.body.bottom.inner.class}>
-            <ObjectView
-              name={'action:result'}
-              data={data}
-              theme={theme.name}
-              style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
-              expand={obj?.expand ?? 5}
-              show={obj?.show}
-              sortKeys={obj?.sortKeys}
-            />
+      <div
+        className={css(
+          styles.body.content.base,
+          showResult && hasResponse ? styles.body.content.withResponse : undefined,
+        ).class}
+      >
+        {showResult && hasItems && (
+          <div className={styles.body.content.top.class}>
+            <KeyValue.UI theme={theme.name} items={items} mono={props.header?.mono ?? true} />
           </div>
-        </div>
-      )}
-      {isFill && !showResult && <div className={styles.body.fillSpacer.class} />}
+        )}
+        {showResult && hasResponse && (
+          <div
+            className={css(
+              styles.body.content.response,
+              hasSplit ? styles.body.content.responseSplit : undefined,
+            ).class}
+          >
+            <div className={styles.body.content.inner.class}>
+              <ObjectView
+                name={'action:result'}
+                data={data}
+                theme={theme.name}
+                style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
+                expand={obj?.expand ?? 5}
+                show={obj?.show}
+                sortKeys={obj?.sortKeys}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 
