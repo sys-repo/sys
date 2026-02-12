@@ -1,8 +1,5 @@
 import type { t } from './common.ts';
 
-/** Type re-exports. */
-export type * from './t.cmd.ts';
-
 /**
  * Tools for working with the browser's HTTP cache within a "service-worker" process.
  */

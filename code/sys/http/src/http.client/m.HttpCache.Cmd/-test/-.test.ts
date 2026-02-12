@@ -1,7 +1,7 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
 
-import { CacheCmd } from '../m.CacheCmd.ts';
-import { Cache } from '../mod.ts';
+import { CacheCmd } from '../m.Cmd.ts';
+import { Cache } from '../../m.HttpCache/mod.ts';
 
 describe('Http.Cache.Cmd', () => {
   describe('API', () => {
