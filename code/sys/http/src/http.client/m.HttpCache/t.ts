@@ -1,9 +1,14 @@
 import type { t } from './common.ts';
 
+/** Type re-exports. */
+export type * from './t.cmd.ts';
+
 /**
  * Tools for working with the browser's HTTP cache within a "service-worker" process.
  */
 export type HttpCacheLib = {
+  readonly Cmd: t.HttpCacheCmdLib;
+
   /**
    * Starts the permanent cache for all immutable,
    * hash-named bundle files.
