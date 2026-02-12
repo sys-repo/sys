@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Str } from '../common.ts';
 import { Styles } from './u.style.ts';
+import { CacheButton } from './ui.CacheButton.tsx';
 
 export type TitleProps = {
   enabled?: boolean;
@@ -94,6 +95,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elRight = (
     <div className={styles.right.class}>
+      <CacheButton theme={theme.name} />
       {elDist}
       {elBadge}
     </div>
