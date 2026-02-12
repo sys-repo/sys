@@ -13,13 +13,25 @@ export default Spec.describe(D.displayName, async (e) => {
 
     const items = Array.from({ length: v.totalTabs ?? 0 }).map((_, i) => {
       const tab: t.Tabs.Item = {
-        id: `tab-${i}`,
-        render: () => <Foo label={tab.id} />,
+        id: `tab-${i + 1}`,
+        label: `Tab ${i + 1}`,
+        render: () => <Foo tab={tab} theme={v.theme} />,
       };
       return tab;
     });
 
-    return <Tabs.UI debug={v.debug} theme={v.theme} items={items} />;
+    return (
+      <Tabs.UI
+        debug={v.debug}
+        theme={v.theme}
+        items={items}
+        value={v.value}
+        onChange={(e) => {
+          console.info(`⚡️ onChange:`, e);
+          p.value.value = e.id;
+        }}
+      />
+    );
   }
 
   e.it('init', (e) => {

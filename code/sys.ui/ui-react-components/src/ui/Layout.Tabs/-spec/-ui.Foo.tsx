@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import { type t, Color, css, Signal, D, Rx, Obj, Str, Is, ObjectView } from './common.ts';
 
 export type FooProps = {
-  label?: t.ReactNode;
+  tab: t.Tabs.Item;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -12,7 +12,7 @@ export type FooProps = {
  * Component:
  */
 export const Foo: React.FC<FooProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, tab } = props;
 
   /**
    * Render:
@@ -30,14 +30,15 @@ export const Foo: React.FC<FooProps> = (props) => {
       backgroundColor: Color.ruby(0.1),
       border: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
       borderRadius: 8,
-      display: 'grid',
-      placeItems: 'center',
+      padding: 20,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{props.label || `🐷 Foo`}</div>
+      <div className={styles.body.class}>
+        <ObjectView theme={theme.name} data={tab} name={'tab:item'} expand={1} />
+      </div>
     </div>
   );
 };

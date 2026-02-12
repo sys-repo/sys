@@ -3,7 +3,7 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
 
 type P = t.Tabs.Props;
-type Storage = Pick<P, 'debug' | 'theme'> & { totalTabs?: number };
+type Storage = Pick<P, 'debug' | 'theme' | 'value'> & { totalTabs?: number };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
@@ -27,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    value: s(snap.value),
     totalTabs: s(snap.totalTabs),
   };
   const p = props;
@@ -48,6 +49,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.value = p.value.value;
       d.totalTabs = p.totalTabs.value;
     });
   });

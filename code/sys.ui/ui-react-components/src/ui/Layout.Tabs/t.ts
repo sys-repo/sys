@@ -10,7 +10,7 @@ export declare namespace Tabs {
    * Single tab.
    */
   export type Item = {
-    readonly id: string;
+    readonly id: t.StringId;
     readonly label?: string;
     readonly render: (e: { theme: t.CommonTheme }) => t.ReactNode;
   };
@@ -21,12 +21,15 @@ export declare namespace Tabs {
    */
   export type Props = {
     items?: t.Ary<Item>;
-    value?: string;
-    defaultValue?: string;
+    value?: t.StringId;
+    defaultValue?: t.StringId;
 
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
-    onChange?: (e: { id: Item['id'] }) => void;
+    onChange?: ChangeHandler;
   };
+
+  export type ChangeHandler = (e: Change) => void;
+  export type Change = { readonly id: t.StringId };
 }
