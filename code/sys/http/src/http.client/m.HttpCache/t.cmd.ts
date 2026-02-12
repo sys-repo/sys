@@ -62,11 +62,36 @@ export type HttpCacheCmdClearHandler = tCmd.CmdHandler<
 >;
 
 /**
+ * Input for creating the default clear command handler.
+ */
+export type HttpCacheCmdClearHandlerArgs = {
+  /**
+   * Package descriptor used to derive pkg-scoped cache keys.
+   */
+  readonly pkg: t.Pkg;
+};
+
+/**
+ * Built-in command handler factories for HTTP cache operations.
+ */
+export type HttpCacheCmdHandlersLib = {
+  /**
+   * Create the default clear handler backed by CacheStorage.
+   *
+   * Scope rules:
+   * - `pkg` (default): deletes only this package's asset/media cache keys.
+   * - `all`: deletes every CacheStorage key visible to this worker.
+   */
+  readonly clear: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdClearHandler;
+};
+
+/**
  * Minimal event target shape used for SW command connection handshakes.
  */
 export type HttpCacheCmdListenTarget = {
   addEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
   removeEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
+  start?: () => void;
 };
 
 /**
@@ -117,6 +142,8 @@ export type HttpCacheCmdLib = {
 
   /** Canonical command name for cache clear operations. */
   readonly CLEAR: HttpCacheCmdName;
+  /** Built-in handler factories for hosting cache commands. */
+  readonly Handlers: HttpCacheCmdHandlersLib;
 
   /**
    * Create a typed command factory for the HTTP cache command set.

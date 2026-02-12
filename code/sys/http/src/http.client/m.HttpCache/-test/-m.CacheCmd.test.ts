@@ -1,7 +1,7 @@
-import { type t, describe, it, expect, Testing } from '../../../-test.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
 
-import { Cache } from '../mod.ts';
 import { CacheCmd } from '../m.CacheCmd.ts';
+import { Cache } from '../mod.ts';
 
 describe('Http.Cache.Cmd', () => {
   it('API', () => {
@@ -12,6 +12,7 @@ describe('Http.Cache.Cmd', () => {
     expect(CacheCmd.NS).to.eql('http.cache');
     expect(CacheCmd.CONNECT).to.eql('http.cache.cmd.connect');
     expect(CacheCmd.CLEAR).to.eql('http.cache.clear');
+    expect(typeof CacheCmd.Handlers.clear).to.eql('function');
   });
 
   it('make: unary command algebra', async () => {

@@ -15,12 +15,5 @@ Http.Cache.pkg({ pkg });
 Http.Cache.Cmd.listen({
   target: self,
   silent: false,
-  clear: async (_payload) => {
-    return {
-      ok: true,
-      deleted: [],
-      total: 0,
-      at: Date.now(),
-    };
-  },
+  clear: Http.Cache.Cmd.Handlers.clear({ pkg }),
 });
