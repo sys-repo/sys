@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type t, Kbd, useIsTouchSupported } from './common.ts';
+import { type t, Is, Kbd, useIsTouchSupported } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
@@ -94,8 +94,14 @@ export const usePointer: t.UsePointer = (input) => {
    */
   const releasePointerCapture = (e: React.PointerEvent) => {
     const { currentTarget, pointerId } = e;
-    if (currentTarget.hasPointerCapture(pointerId)) {
-      currentTarget.releasePointerCapture(pointerId);
+    const hasPointerCapture = (currentTarget as unknown as { hasPointerCapture?: unknown })
+      .hasPointerCapture;
+    const release = (currentTarget as unknown as { releasePointerCapture?: unknown })
+      .releasePointerCapture;
+
+    if (!Is.func(hasPointerCapture) || !Is.func(release)) return;
+    if (hasPointerCapture.call(currentTarget, pointerId)) {
+      release.call(currentTarget, pointerId);
     }
   };
 
@@ -129,7 +135,9 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const onPointerDown: React.PointerEventHandler = (e) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
+    const setPointerCapture = (e.currentTarget as unknown as { setPointerCapture?: unknown })
+      .setPointerCapture;
+    if (Is.func(setPointerCapture)) setPointerCapture.call(e.currentTarget, e.pointerId);
     down(e);
   };
 
