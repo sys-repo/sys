@@ -64,7 +64,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   }
 
   if (providerDomain) {
-    rows.push({ label: 'domain', value: c.white(`https://${providerDomain}`) });
+    rows.push({ label: 'domain', value: c.cyan(`https://${providerDomain}`) });
   }
 
   const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
