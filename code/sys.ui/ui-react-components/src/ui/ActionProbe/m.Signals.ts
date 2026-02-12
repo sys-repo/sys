@@ -1,4 +1,5 @@
-import { type t, D, Is, Signal } from './common.ts';
+import { type t, Is, Signal } from './common.ts';
+import { Persist } from './m.Signals.persist.ts';
 
 const defaults: t.ActionProbeSignalsState = {
   spinning: false,
@@ -18,8 +19,8 @@ export const Signals: t.ActionProbeSignalsLib = {
     const args = wrangle.createArgs<TPersist>(input);
     const inputDefaults = args.defaults ?? {};
     const persist = args.persist;
-    const persistSlot = wrangle.persistSlot(args.persistKey);
-    const persistedVisible = wrangle.persistedVisible(persist, persistSlot);
+    const persistSlot = Persist.slot(args.persistKey);
+    const persistedVisible = Persist.readVisible(persist, persistSlot);
 
     const initial: t.ActionProbeSignalsState = {
       spinning: inputDefaults.spinning ?? defaults.spinning,
@@ -139,7 +140,7 @@ export const Signals: t.ActionProbeSignalsLib = {
       resultVisible(next) {
         props.result.visible.value =
           typeof next === 'function' ? next(props.result.visible.value) : next;
-        wrangle.persistVisible(persist, persistSlot, props.result.visible.value);
+        Persist.writeVisible(persist, persistSlot, props.result.visible.value);
         return api;
       },
       item(item) {
@@ -171,7 +172,7 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.result.response.value = defaults.result.response;
         props.result.obj.value = defaults.result.obj;
         props.result.byProbe.value = defaults.result.byProbe;
-        wrangle.persistVisible(persist, persistSlot, defaults.result.visible);
+        Persist.writeVisible(persist, persistSlot, defaults.result.visible);
         return api;
       },
     };
@@ -193,38 +194,5 @@ const wrangle = {
   ): input is t.ActionProbeSignalsCreateArgs<TPersist> {
     if (!Is.object(input)) return false;
     return 'defaults' in input || 'persist' in input || 'persistKey' in input;
-  },
-
-  persistSlot(persistKey?: string): string {
-    const key = persistKey?.trim();
-    if (!key) return D.Persist.key;
-    return `${D.Persist.key}:${key}`;
-  },
-
-  persistedVisible<TPersist extends t.JsonMapU>(
-    persist: t.ImmutableRef<TPersist> | undefined,
-    slot: string,
-  ): boolean | undefined {
-    if (!persist) return undefined;
-    const value = persist.current[slot];
-    if (!Is.object(value) || Is.array(value)) return undefined;
-    const visible = (value as t.JsonMapU)['resultVisible'];
-    return Is.bool(visible) ? visible : undefined;
-  },
-
-  persistVisible<TPersist extends t.JsonMapU>(
-    persist: t.ImmutableRef<TPersist> | undefined,
-    slot: string,
-    visible: boolean,
-  ) {
-    if (!persist) return;
-    persist.change((d) => {
-      const json = d as unknown as t.JsonMapU;
-      const current = json[slot];
-      const next: t.JsonMapU =
-        Is.object(current) && !Is.array(current) ? { ...(current as t.JsonMapU) } : {};
-      next.resultVisible = visible;
-      json[slot] = next;
-    });
   },
 } as const;
