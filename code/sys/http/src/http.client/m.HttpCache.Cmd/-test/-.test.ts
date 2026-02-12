@@ -13,6 +13,7 @@ describe('Http.Cache.Cmd', () => {
       expect(CacheCmd.NS).to.eql('http.cache');
       expect(CacheCmd.CONNECT).to.eql('http.cache.cmd.connect');
       expect(CacheCmd.CLEAR).to.eql('http.cache.clear');
+      expect(CacheCmd.INFO).to.eql('http.cache.info');
     });
   });
 
@@ -31,6 +32,19 @@ describe('Http.Cache.Cmd', () => {
             at: 123 as t.Msecs,
           };
         },
+        'http.cache.info': (e) => {
+          const entries = e.scope === 'all' ? 5 : 2;
+          return {
+            ok: true,
+            at: 456 as t.Msecs,
+            scope: e.scope ?? 'pkg',
+            totals: { caches: 2, entries },
+            caches: [
+              { name: 'my-pkg:asset-files', kind: 'asset', entries: 1 },
+              { name: 'my-pkg:media-files', kind: 'media', entries: entries - 1 },
+            ],
+          };
+        },
       });
 
       const client = cmd.client(port2);
@@ -40,6 +54,12 @@ describe('Http.Cache.Cmd', () => {
       expect(result.deleted).to.eql(['a', 'b']);
       expect(result.total).to.eql(2);
       expect(result.at).to.eql(123);
+
+      const info = await client.send(CacheCmd.INFO, { scope: 'all' });
+      expect(info.ok).to.eql(true);
+      expect(info.scope).to.eql('all');
+      expect(info.totals.entries).to.eql(5);
+      expect(info.caches.length).to.eql(2);
 
       client.dispose();
       host.dispose();
@@ -107,6 +127,89 @@ describe('Http.Cache.Cmd', () => {
     });
   });
 
+  describe('Handlers.info', () => {
+    it('reports pkg scoped cache keys by default', async () => {
+      const original = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+      const index = {
+        'my-pkg:asset-files': ['a1', 'a2'],
+        'my-pkg:media-files': ['m1'],
+        'other:cache': ['o1', 'o2', 'o3'],
+      } as const;
+      const mock = {
+        keys: async () => Object.keys(index),
+        open: async (name: string) => {
+          const values = index[name as keyof typeof index] ?? [];
+          return {
+            keys: async () => values.map((key) => new Request(`https://example.com/${key}`)),
+          };
+        },
+        delete: async (_name: string) => true,
+      };
+      Object.defineProperty(globalThis, 'caches', {
+        value: mock,
+        configurable: true,
+        writable: true,
+      });
+
+      try {
+        const info = CacheCmd.Handlers.info({ pkg: { name: 'my-pkg', version: '1.0.0' } });
+        const result = await info({});
+
+        expect(result.ok).to.eql(true);
+        expect(result.scope).to.eql('pkg');
+        expect(result.totals.caches).to.eql(2);
+        expect(result.totals.entries).to.eql(3);
+        expect(result.caches).to.eql([
+          { name: 'my-pkg:asset-files', kind: 'asset', entries: 2 },
+          { name: 'my-pkg:media-files', kind: 'media', entries: 1 },
+        ]);
+      } finally {
+        if (original) Object.defineProperty(globalThis, 'caches', original);
+      }
+    });
+
+    it('reports all cache keys when scope is "all"', async () => {
+      const original = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+      const index = {
+        'my-pkg:asset-files': ['a1'],
+        'my-pkg:media-files': ['m1'],
+        'other:cache': ['o1', 'o2'],
+      } as const;
+      const mock = {
+        keys: async () => Object.keys(index),
+        open: async (name: string) => {
+          const values = index[name as keyof typeof index] ?? [];
+          return {
+            keys: async () => values.map((key) => new Request(`https://example.com/${key}`)),
+          };
+        },
+        delete: async (_name: string) => true,
+      };
+      Object.defineProperty(globalThis, 'caches', {
+        value: mock,
+        configurable: true,
+        writable: true,
+      });
+
+      try {
+        const info = CacheCmd.Handlers.info({ pkg: { name: 'my-pkg', version: '1.0.0' } });
+        const result = await info({ scope: 'all' });
+
+        expect(result.ok).to.eql(true);
+        expect(result.scope).to.eql('all');
+        expect(result.totals.caches).to.eql(3);
+        expect(result.totals.entries).to.eql(4);
+        expect(result.caches).to.eql([
+          { name: 'my-pkg:asset-files', kind: 'asset', entries: 1 },
+          { name: 'my-pkg:media-files', kind: 'media', entries: 1 },
+          { name: 'other:cache', kind: 'other', entries: 2 },
+        ]);
+      } finally {
+        if (original) Object.defineProperty(globalThis, 'caches', original);
+      }
+    });
+  });
+
   describe('listen', () => {
     it('hosts clear command from handshake', async () => {
       const { port1: target, port2: sender } = new MessageChannel();
@@ -118,6 +221,15 @@ describe('Http.Cache.Cmd', () => {
         clear: ({ scope }) => {
           const deleted = scope === 'all' ? ['x', 'y', 'z'] : ['x'];
           return { ok: true, deleted, total: deleted.length, at: Date.now() };
+        },
+        info: ({ scope }) => {
+          return {
+            ok: true,
+            at: Date.now(),
+            scope: scope ?? 'pkg',
+            totals: { caches: 1, entries: 1 },
+            caches: [{ name: 'my-pkg:asset-files', kind: 'asset', entries: 1 }],
+          };
         },
       });
 
@@ -131,6 +243,11 @@ describe('Http.Cache.Cmd', () => {
       expect(result.deleted).to.eql(['x', 'y', 'z']);
       expect(result.total).to.eql(3);
       expect(typeof result.at).to.eql('number');
+
+      const info = await client.send(CacheCmd.INFO, { scope: 'pkg' });
+      expect(info.ok).to.eql(true);
+      expect(info.scope).to.eql('pkg');
+      expect(info.totals.caches).to.eql(1);
 
       client.dispose();
       life.dispose();

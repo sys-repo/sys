@@ -10,7 +10,7 @@ export const listen: t.HttpCacheCmdLib['listen'] = (args) => {
   const silent = args.silent ?? true;
   const log = Log.logger('Http.Cache.Cmd');
   const hosts = new Set<t.Lifecycle>();
-  const life = Rx.lifecycle();
+  const life = Rx.lifecycle(args.until);
 
   const onMessage = (event: MessageEvent) => {
     const data = event.data as { kind?: unknown; ns?: unknown } | undefined;
@@ -22,11 +22,23 @@ export const listen: t.HttpCacheCmdLib['listen'] = (args) => {
     const ns = Is.string(data?.ns) ? data.ns : args.ns;
     if (!silent) log('connect', { kind, ns: ns ?? D.NS });
     const cmd = make({ ns });
+    const info =
+      args.info ??
+      (async () => {
+        throw new Error(`No handler registered for command "${D.INFO}".`);
+      });
+
     const host = cmd.host(endpoint, {
-      [D.CLEAR]: async (payload) => {
+      async [D.CLEAR](payload) {
         if (!silent) log('clear:start', payload);
         const result = await clear(payload);
         if (!silent) log('clear:done', { total: result.total, ok: result.ok });
+        return result;
+      },
+      async [D.INFO](payload) {
+        if (!silent) log('info:start', payload);
+        const result = await info(payload);
+        if (!silent) log('info:done', result.totals);
         return result;
       },
     });

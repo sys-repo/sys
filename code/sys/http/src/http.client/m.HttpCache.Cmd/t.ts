@@ -11,8 +11,8 @@ import type * as tCmd from '@sys/event/t';
 export type HttpCacheCmdNamespace = 'http.cache';
 export type HttpCacheCmdConnectKind = 'http.cache.cmd.connect';
 
-/** Canonical command name for clearing HTTP cache entries. */
-export type HttpCacheCmdName = 'http.cache.clear';
+/** Canonical command names for HTTP cache commands. */
+export type HttpCacheCmdName = 'http.cache.clear' | 'http.cache.info';
 
 /** Scope selector for cache clear operations. */
 export type HttpCacheCmdClearScope = 'pkg' | 'all';
@@ -30,9 +30,37 @@ export type HttpCacheCmdClearResult = {
   readonly at: t.Msecs;
 };
 
+/** Payload for the `http.cache.info` command. */
+export type HttpCacheCmdInfoPayload = {
+  readonly scope?: HttpCacheCmdClearScope;
+};
+
+/** Cache classification in info output. */
+export type HttpCacheInfoKind = 'asset' | 'media' | 'other';
+
+/** Per-cache info entry. */
+export type HttpCacheCmdInfoCache = {
+  readonly name: t.StringKey;
+  readonly kind: HttpCacheInfoKind;
+  readonly entries: number;
+};
+
+/** Result payload for the `http.cache.info` command. */
+export type HttpCacheCmdInfoResult = {
+  readonly ok: boolean;
+  readonly at: t.Msecs;
+  readonly scope: HttpCacheCmdClearScope;
+  readonly totals: {
+    readonly caches: number;
+    readonly entries: number;
+  };
+  readonly caches: readonly HttpCacheCmdInfoCache[];
+};
+
 /** Per-command request payload mapping. */
 export type HttpCacheCmdPayloadMap = {
   readonly 'http.cache.clear': HttpCacheCmdClearPayload;
+  readonly 'http.cache.info': HttpCacheCmdInfoPayload;
 };
 
 /**
@@ -40,6 +68,7 @@ export type HttpCacheCmdPayloadMap = {
  */
 export type HttpCacheCmdResultMap = {
   readonly 'http.cache.clear': HttpCacheCmdClearResult;
+  readonly 'http.cache.info': HttpCacheCmdInfoResult;
 };
 
 /**
@@ -49,6 +78,7 @@ export type HttpCacheCmdResultMap = {
  */
 export type HttpCacheCmdEventMap = {
   readonly 'http.cache.clear': never;
+  readonly 'http.cache.info': never;
 };
 
 /**
@@ -59,6 +89,16 @@ export type HttpCacheCmdClearHandler = tCmd.CmdHandler<
   HttpCacheCmdPayloadMap,
   HttpCacheCmdResultMap,
   'http.cache.clear'
+>;
+
+/**
+ * Handler for the `http.cache.info` command.
+ */
+export type HttpCacheCmdInfoHandler = tCmd.CmdHandler<
+  HttpCacheCmdName,
+  HttpCacheCmdPayloadMap,
+  HttpCacheCmdResultMap,
+  'http.cache.info'
 >;
 
 /**
@@ -83,6 +123,15 @@ export type HttpCacheCmdHandlersLib = {
    * - `all`: deletes every CacheStorage key visible to this worker.
    */
   readonly clear: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdClearHandler;
+
+  /**
+   * Create the default info handler backed by CacheStorage.
+   *
+   * Scope rules:
+   * - `pkg` (default): reports only this package's asset/media cache keys.
+   * - `all`: reports every CacheStorage key visible to this worker.
+   */
+  readonly info: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdInfoHandler;
 };
 
 /**
@@ -110,6 +159,12 @@ export type HttpCacheCmdListenArgs = {
   readonly clear: HttpCacheCmdClearHandler;
 
   /**
+   * Optional handler for `http.cache.info`.
+   * If omitted, info requests fail with a command error.
+   */
+  readonly info?: HttpCacheCmdInfoHandler;
+
+  /**
    * Optional default namespace for hosted command traffic.
    * A string `ns` from the handshake message overrides this per connection.
    */
@@ -126,6 +181,11 @@ export type HttpCacheCmdListenArgs = {
    * Defaults to `true`.
    */
   readonly silent?: boolean;
+
+  /**
+   * Optional lifecycle boundary for auto-disposing the listener.
+   */
+  readonly until?: t.UntilInput;
 };
 
 /**
@@ -141,7 +201,9 @@ export type HttpCacheCmdLib = {
   readonly CONNECT: HttpCacheCmdConnectKind;
 
   /** Canonical command name for cache clear operations. */
-  readonly CLEAR: HttpCacheCmdName;
+  readonly CLEAR: 'http.cache.clear';
+  /** Canonical command name for cache info operations. */
+  readonly INFO: 'http.cache.info';
   /** Built-in handler factories for hosting cache commands. */
   readonly Handlers: HttpCacheCmdHandlersLib;
 
