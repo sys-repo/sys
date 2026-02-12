@@ -55,6 +55,10 @@ export function useSplitDrag(args: {
       activeGutterRef.current = null;
       endDrag();
     },
+    onCancel() {
+      activeGutterRef.current = null;
+      endDrag();
+    },
   });
 
   /**

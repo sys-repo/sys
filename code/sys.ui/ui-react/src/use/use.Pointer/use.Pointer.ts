@@ -60,7 +60,7 @@ export const usePointer: t.UsePointer = (input) => {
    * General helpers:
    */
   const fire = (
-    synthetic: React.PointerEvent,
+    synthetic: t.PointerSyntheticEvent,
     trigger: t.PointerEvent,
     patch: Partial<t.PointerHookFlags>,
   ) => {
@@ -80,7 +80,7 @@ export const usePointer: t.UsePointer = (input) => {
   /**
    * Pointer-in / Pointer-out:
    */
-  const over = (inside: boolean) => (e: React.PointerEvent) => {
+  const over = (inside: boolean) => (e: t.PointerSyntheticEvent) => {
     const trigger = wrangle.pointerEvent(e);
     setOver(inside);
     inside ? args.onEnter?.(trigger) : args.onLeave?.(trigger);
@@ -88,38 +88,72 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   /**
-   * Pointer-down / Pointer-up:
+   * Pointer helpers:
    */
-  const down = (pressed: boolean) => (e: React.PointerEvent) => {
-    const trigger = wrangle.pointerEvent(e);
-    setDown(pressed);
-
-    if (pressed) e.currentTarget.setPointerCapture(e.pointerId);
-    else e.currentTarget.releasePointerCapture(e.pointerId);
-
-    if (pressed) {
-      args.onDown?.(trigger);
-      if (drag.active) drag.start();
-    } else {
-      args.onUp?.(trigger);
-      drag.cancel();
+  const releasePointerCapture = (e: React.PointerEvent) => {
+    const { currentTarget, pointerId } = e;
+    if (currentTarget.hasPointerCapture(pointerId)) {
+      currentTarget.releasePointerCapture(pointerId);
     }
+  };
 
-    fire(e, trigger, { down: pressed });
+  const down = (e: t.PointerSyntheticEvent) => {
+    const trigger = wrangle.pointerEvent(e);
+    setDown(true);
+    args.onDown?.(trigger);
+    if (drag.active) drag.start();
+    fire(e, trigger, { down: true });
+  };
+
+  const up = (e: t.PointerSyntheticEvent) => {
+    const trigger = wrangle.pointerEvent(e);
+    setDown(false);
+    args.onUp?.(trigger);
+    drag.cancel();
+    fire(e, trigger, { down: false });
+  };
+
+  const cancel = (e: t.PointerSyntheticEvent) => {
+    const trigger = wrangle.pointerEvent(e);
+    setDown(false);
+    args.onCancel?.(trigger);
+    drag.cancel();
+    fire(e, trigger, { down: false });
+  };
+
+  const onPointerDown: React.PointerEventHandler = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    down(e);
+  };
+
+  const onPointerUp: React.PointerEventHandler = (e) => {
+    releasePointerCapture(e);
+    up(e);
+  };
+
+  const onPointerCancel: React.PointerEventHandler = (e) => {
+    releasePointerCapture(e);
+    cancel(e);
+  };
+
+  const onLostPointerCapture: React.PointerEventHandler = (e) => {
+    cancel(e);
   };
 
   /**
    * HANDLERS: Touch helpers (mobile):
    */
   const onTouchStart: React.TouchEventHandler = (ev) => {
-    const e = ev as unknown as React.PointerEvent;
-    over(true)(e);
-    down(true)(e);
+    over(true)(ev);
+    down(ev);
   };
   const onTouchEnd: React.TouchEventHandler = (ev) => {
-    const e = ev as unknown as React.PointerEvent;
-    down(false)(e);
-    over(false)(e);
+    up(ev);
+    over(false)(ev);
+  };
+  const onTouchCancel: React.TouchEventHandler = (ev) => {
+    cancel(ev);
+    over(false)(ev);
   };
 
   /**
@@ -134,12 +168,12 @@ export const usePointer: t.UsePointer = (input) => {
    * Combine handlers:
    */
   const pointerHandlers: t.PointerHookMouseHandlers | t.PointerHookTouchHandlers = isTouch
-    ? { onTouchStart, onTouchEnd, onTouchCancel: onTouchEnd }
+    ? { onTouchStart, onTouchEnd, onTouchCancel }
     : {
-        onPointerDown: down(true),
-        onPointerUp: down(false),
-        onPointerCancel: down(false), //      ← ensure "up" on cancel is fired.
-        onLostPointerCapture: down(false), // ← catch any lost-capture as "up".
+        onPointerDown,
+        onPointerUp,
+        onPointerCancel,
+        onLostPointerCapture,
         onPointerEnter: over(true),
         onPointerLeave: over(false),
       };
@@ -182,11 +216,12 @@ const wrangle = {
     return input;
   },
 
-  pointerEvent(e: React.PointerEvent): t.PointerEvent {
+  pointerEvent(e: t.PointerSyntheticEvent): t.PointerEvent {
+    const point = wrangle.clientPoint(e);
     return {
       type: e.type,
       synthetic: e,
-      client: { x: e.clientX ?? -1, y: e.clientY ?? -1 },
+      client: point,
       modifiers: {
         shift: e.shiftKey,
         ctrl: e.ctrlKey,
@@ -200,5 +235,18 @@ const wrangle = {
         e.stopPropagation();
       },
     };
+  },
+
+  clientPoint(e: t.PointerSyntheticEvent): t.Point {
+    if (wrangle.isTouchEvent(e)) {
+      const touch = e.touches[0] ?? e.changedTouches[0];
+      return { x: touch?.clientX ?? -1, y: touch?.clientY ?? -1 };
+    }
+
+    return { x: e.clientX ?? -1, y: e.clientY ?? -1 };
+  },
+
+  isTouchEvent(e: t.PointerSyntheticEvent): e is React.TouchEvent {
+    return 'changedTouches' in e;
   },
 } as const;

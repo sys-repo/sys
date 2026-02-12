@@ -23,10 +23,11 @@ export const IndexTreeViewItem: React.FC<t.IndexTreeViewItemProps> = (props) => 
   const [pointerIs, setPointerIs] = React.useState<t.PointerHookFlags>();
   const pointer = usePointer((e) => {
     const wasDown = pointerIs?.down;
+    const isCommitUp = e.synthetic.type === 'pointerup' || e.synthetic.type === 'touchend';
     setPointerIs(e.is);
     props.onPointer?.(e);
     if (isActive && e.is.down) props.onPressDown?.(e);
-    if (isActive && e.is.up && wasDown) props.onPressUp?.(e);
+    if (isActive && e.is.up && wasDown && isCommitUp) props.onPressUp?.(e);
   });
 
   /**

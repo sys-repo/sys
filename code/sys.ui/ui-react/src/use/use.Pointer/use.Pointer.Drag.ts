@@ -72,14 +72,14 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   };
 
   const onTouchMove = (e: TouchEvent) => {
-    if (!active || startedRef.current) return;
+    if (!active || !startedRef.current) return;
 
     const snapshot = toTouchSnapshot(e, prevTouchRef.current);
     promoteIfMoved(snapshot.client);
     if (!is.dragging) return;
     else {
       registerMove(e, snapshot);
-      prevTouchRef.current = snapshot.movement;
+      prevTouchRef.current = snapshot.client;
     }
   };
 
