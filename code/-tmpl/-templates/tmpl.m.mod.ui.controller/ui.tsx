@@ -18,6 +18,7 @@ export const Uncontrolled: React.FC<t.MyCtrlProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div>{`🐷 ${D.displayName}`}</div>
       <KeyValue.UI
         theme={theme.name}
         items={[
