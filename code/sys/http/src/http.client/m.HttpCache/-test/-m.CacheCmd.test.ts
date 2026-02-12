@@ -10,6 +10,7 @@ describe('Http.Cache.Cmd', () => {
 
   it('constants', () => {
     expect(CacheCmd.NS).to.eql('http.cache');
+    expect(CacheCmd.CONNECT).to.eql('http.cache.cmd.connect');
     expect(CacheCmd.CLEAR).to.eql('http.cache.clear');
   });
 
@@ -39,5 +40,36 @@ describe('Http.Cache.Cmd', () => {
 
     client.dispose();
     host.dispose();
+  });
+
+  it('listen: hosts clear command from handshake', async () => {
+    const { port1: target, port2: sender } = new MessageChannel();
+    const { port1: clientEndpoint, port2: hostEndpoint } = new MessageChannel();
+
+    const life = CacheCmd.listen({
+      target,
+      silent: true,
+      clear: ({ scope }) => {
+        const deleted = scope === 'all' ? ['x', 'y', 'z'] : ['x'];
+        return { ok: true, deleted, total: deleted.length, at: Date.now() };
+      },
+    });
+
+    sender.postMessage({ kind: CacheCmd.CONNECT }, [hostEndpoint]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const client = CacheCmd.make().client(clientEndpoint);
+    const result = await client.send(CacheCmd.CLEAR, { scope: 'all' });
+
+    expect(result.ok).to.eql(true);
+    expect(result.deleted).to.eql(['x', 'y', 'z']);
+    expect(result.total).to.eql(3);
+    expect(typeof result.at).to.eql('number');
+
+    client.dispose();
+    life.dispose();
+    target.close();
+    sender.close();
+    clientEndpoint.close();
   });
 });

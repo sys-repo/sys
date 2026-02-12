@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, Is, Log, Rx } from './common.ts';
 import { Cmd } from '@sys/event/cmd';
 
 /**
@@ -10,6 +10,7 @@ import { Cmd } from '@sys/event/cmd';
  */
 export const CacheCmd: t.HttpCacheCmdLib = {
   NS: 'http.cache',
+  CONNECT: 'http.cache.cmd.connect',
   CLEAR: 'http.cache.clear',
   make(args = {}) {
     const ns = args.ns ?? CacheCmd.NS;
@@ -19,5 +20,44 @@ export const CacheCmd: t.HttpCacheCmdLib = {
       t.HttpCacheCmdResultMap,
       t.HttpCacheCmdEventMap
     >({ ns });
+  },
+  listen(args) {
+    const { target, clear } = args;
+    const kind = args.kind ?? CacheCmd.CONNECT;
+    const silent = args.silent ?? true;
+    const log = Log.logger('Http.Cache.Cmd');
+    const hosts = new Set<t.Lifecycle>();
+    const life = Rx.lifecycle();
+
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { kind?: unknown; ns?: unknown } | undefined;
+      if (data?.kind !== kind) return;
+
+      const endpoint = event.ports?.[0];
+      if (!endpoint) return;
+
+      const ns = Is.string(data?.ns) ? data.ns : args.ns;
+      if (!silent) log('connect', { kind, ns: ns ?? CacheCmd.NS });
+      const cmd = CacheCmd.make({ ns });
+      const host = cmd.host(endpoint, {
+        [CacheCmd.CLEAR]: async (payload) => {
+          if (!silent) log('clear:start', payload);
+          const result = await clear(payload);
+          if (!silent) log('clear:done', { total: result.total, ok: result.ok });
+          return result;
+        },
+      });
+      hosts.add(host);
+      host.dispose$.subscribe(() => hosts.delete(host));
+    };
+
+    target.addEventListener('message', onMessage);
+    life.dispose$.subscribe(() => {
+      target.removeEventListener('message', onMessage);
+      for (const host of hosts) host.dispose();
+      hosts.clear();
+    });
+
+    return life;
   },
 };

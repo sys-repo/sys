@@ -9,6 +9,7 @@ import type * as tCmd from '@sys/event/t';
  * unrelated command sets sharing the same transport.
  */
 export type HttpCacheCmdNamespace = 'http.cache';
+export type HttpCacheCmdConnectKind = 'http.cache.cmd.connect';
 
 /** Canonical command name for clearing HTTP cache entries. */
 export type HttpCacheCmdName = 'http.cache.clear';
@@ -51,6 +52,58 @@ export type HttpCacheCmdEventMap = {
 };
 
 /**
+ * Handler for the `http.cache.clear` command.
+ */
+export type HttpCacheCmdClearHandler = tCmd.CmdHandler<
+  HttpCacheCmdName,
+  HttpCacheCmdPayloadMap,
+  HttpCacheCmdResultMap,
+  'http.cache.clear'
+>;
+
+/**
+ * Minimal event target shape used for SW command connection handshakes.
+ */
+export type HttpCacheCmdListenTarget = {
+  addEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
+  removeEventListener(type: 'message', listener: (event: MessageEvent) => void): void;
+};
+
+/**
+ * Options for `Http.Cache.Cmd.listen(...)`.
+ */
+export type HttpCacheCmdListenArgs = {
+  /**
+   * The event target that receives command connect handshakes.
+   * Typically the service-worker global scope (`self`).
+   */
+  readonly target: HttpCacheCmdListenTarget;
+
+  /**
+   * Handler invoked when clients send `http.cache.clear`.
+   */
+  readonly clear: HttpCacheCmdClearHandler;
+
+  /**
+   * Optional default namespace for hosted command traffic.
+   * A string `ns` from the handshake message overrides this per connection.
+   */
+  readonly ns?: tCmd.CmdNamespace;
+
+  /**
+   * Optional handshake kind override.
+   * Defaults to `CacheCmd.CONNECT`.
+   */
+  readonly kind?: HttpCacheCmdConnectKind;
+
+  /**
+   * Suppress logger output from the command listener.
+   * Defaults to `true`.
+   */
+  readonly silent?: boolean;
+};
+
+/**
  * HTTP cache command namespace.
  *
  * Provides stable command identifiers and a typed command factory
@@ -59,6 +112,8 @@ export type HttpCacheCmdEventMap = {
 export type HttpCacheCmdLib = {
   /** Default namespace used when no explicit `ns` is provided to `make`. */
   readonly NS: HttpCacheCmdNamespace;
+  /** Handshake message kind for establishing command channels. */
+  readonly CONNECT: HttpCacheCmdConnectKind;
 
   /** Canonical command name for cache clear operations. */
   readonly CLEAR: HttpCacheCmdName;
@@ -77,4 +132,12 @@ export type HttpCacheCmdLib = {
     HttpCacheCmdResultMap,
     HttpCacheCmdEventMap
   >;
+
+  /**
+   * Listen for command-channel handshake messages and host clear handlers.
+   *
+   * Returns a lifecycle handle that detaches the listener and disposes all
+   * active command hosts created by this listener.
+   */
+  readonly listen: (args: HttpCacheCmdListenArgs) => t.Lifecycle;
 };
