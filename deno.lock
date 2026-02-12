@@ -35,7 +35,7 @@
     "jsr:@std/testing@1.0.17": "1.0.17",
     "jsr:@std/text@^1.0.17": "1.0.17",
     "jsr:@std/uuid@1.1.0": "1.1.0",
-    "npm:@ai-sdk/openai@3.0.27": "3.0.27_zod@3.25.76",
+    "npm:@ai-sdk/openai@3.0.28": "3.0.28_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.19.0",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.1": "2.5.1",
@@ -57,7 +57,7 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.4": "5.1.4_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.29.0_yaml@2.8.2",
-    "npm:ai@6.0.81": "6.0.81_zod@3.25.76",
+    "npm:ai@6.0.84": "6.0.84_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -253,20 +253,20 @@
     }
   },
   "npm": {
-    "@ai-sdk/gateway@3.0.41_zod@3.25.76": {
-      "integrity": "sha512-dYNhtvEomccNNGSxfSP8f4g6yPcoDHyQ6Rb7dALFE0FvvVP9UqfFWi3D2dLIz0VVKaSkiNLQAJ7lsdTVlBdRrw==",
+    "@ai-sdk/gateway@3.0.44_zod@3.25.76": {
+      "integrity": "sha512-zSKCsmSr+pSYMXQIg6eJell21gJZ6S/VTANS9bmDj2di9pew6hOld4mb57HJvnSLR2Hr+v8BSeQvEzxadR9eDQ==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.14_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
         "@vercel/oidc",
         "zod"
       ]
     },
-    "@ai-sdk/openai@3.0.27_zod@3.25.76": {
-      "integrity": "sha512-pLMxWOypwroXiK9dxNpn60/HGhWWWDEOJ3lo9vZLoxvpJNtKnLKojwVIvlW3yEjlD7ll1+jUO2uzsABNTaP5Yg==",
+    "@ai-sdk/openai@3.0.28_zod@3.25.76": {
+      "integrity": "sha512-m2Dm6fwUzMksqnPrd5f/WZ4cZ9GTZHpzsVO6jxKQwwc84gFHzAFZmUCG0C5mV7XlPOw4mwaiYV3HfLiEfphvvA==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.14_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
         "zod"
       ]
     },
@@ -279,8 +279,8 @@
         "zod"
       ]
     },
-    "@ai-sdk/provider-utils@4.0.14_zod@3.25.76": {
-      "integrity": "sha512-7bzKd9lgiDeXM7O4U4nQ8iTxguAOkg8LZGD9AfDVZYjO5cKYRwBPwVjboFcVrxncRHu0tYxZtXZtiLKpG4pEng==",
+    "@ai-sdk/provider-utils@4.0.15_zod@3.25.76": {
+      "integrity": "sha512-8XiKWbemmCbvNN0CLR9u3PQiet4gtEVIrX4zzLxnCj06AwsEDJwJVBbKrEI4t6qE8XRSIvU2irka0dcpziKW6w==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
         "@standard-schema/spec",
@@ -1010,12 +1010,12 @@
         "vite"
       ]
     },
-    "ai@6.0.81_zod@3.25.76": {
-      "integrity": "sha512-F9EEhjl2dn1VGS5tbU64ldLbqRemV9X1WHghVblpJlPCWuyYj1xpPQsj+G0TRs/SyAGnbpG1yYpl9mkwfr1H8w==",
+    "ai@6.0.84_zod@3.25.76": {
+      "integrity": "sha512-dKYjHiWDvegJARWsl8pWCaeUWb1VJOzEdP9Hh7fWBCHUTF95c2TyZcUqbR5/XwKtWVue/8T9E/k5DPT9nFkF9Q==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.14_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
         "@opentelemetry/api",
         "zod"
       ]
@@ -2165,7 +2165,7 @@
       "jsr:@std/semver@1.0.8",
       "jsr:@std/testing@1.0.17",
       "jsr:@std/uuid@1.1.0",
-      "npm:@ai-sdk/openai@3.0.27",
+      "npm:@ai-sdk/openai@3.0.28",
       "npm:@automerge/automerge-repo-network-websocket@2.5.1",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.1",
@@ -2182,7 +2182,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.81",
+      "npm:ai@6.0.84",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
