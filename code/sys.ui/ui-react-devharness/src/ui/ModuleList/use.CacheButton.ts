@@ -6,6 +6,8 @@ type O = Record<string, unknown>;
 
 export type UseCacheButton = () => {
   readonly isBusy: boolean;
+  readonly isRunning: boolean;
+  readonly isDisabled: boolean;
   readonly isDown: boolean;
   readonly isOver: boolean;
   readonly label: string;
@@ -51,10 +53,19 @@ export const useCacheButton: UseCacheButton = () => {
     return () => void (mountedRef.current = false);
   }, [fetchCount]);
 
+  const isRunning = count !== undefined;
+  const isDisabled = isBusy || !isRunning;
+
+  useEffect(() => {
+    if (isDisabled) setConfirming(false);
+  }, [isDisabled]);
+
   /**
    * Handlers:
    */
-  const handlers = useMemo(() => {
+  const handlers = useMemo<O & { readonly onClick: () => void }>(() => {
+    if (isDisabled) return { onClick: () => {} };
+
     const resetConfirm = () => setConfirming(false);
     const base = pointer.handlers as O;
     return {
@@ -76,15 +87,21 @@ export const useCacheButton: UseCacheButton = () => {
         if (typeof fn === 'function') fn(event);
       },
     };
-  }, [pointer.handlers, clear, confirming, isBusy]);
+  }, [pointer.handlers, clear, confirming, isBusy, isDisabled]);
 
-  const itemCount = count ?? '-';
-  const label = confirming ? `clear ${itemCount} items from cache` : `cache(${itemCount})`;
+  const itemCount = count ?? '?';
+  const label = !isRunning
+    ? 'cache(not-running)'
+    : confirming
+      ? `clear ${itemCount} items from cache`
+      : `cache(${itemCount})`;
 
   return {
     isBusy,
-    isDown: pointer.is.down,
-    isOver: pointer.is.over,
+    isRunning,
+    isDisabled,
+    isDown: isDisabled ? false : pointer.is.down,
+    isOver: isDisabled ? false : pointer.is.over,
     label,
     handlers,
   };

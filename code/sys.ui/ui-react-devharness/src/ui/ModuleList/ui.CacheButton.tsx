@@ -17,16 +17,17 @@ export const CacheButton: React.FC<CacheButtonProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const isHovering = button.isOver && !button.isDisabled;
   const styles = {
     base: css({
       background: 'none',
-      color: button.isOver ? Color.alpha(Color.BLUE, 1) : Color.alpha(theme.fg, 0.3),
+      color: isHovering ? Color.alpha(Color.BLUE, 1) : Color.alpha(theme.fg, 0.3),
       border: 'none',
       borderRadius: 3,
       padding: '2px 6px',
       userSelect: 'none',
-      cursor: button.isBusy ? 'default' : 'pointer',
-      opacity: button.isBusy ? 0.6 : 1,
+      cursor: button.isDisabled ? 'default' : 'pointer',
+      opacity: button.isDisabled ? 0.6 : 1,
 
       fontFamily: 'monospace',
       fontWeight: 600,
@@ -43,8 +44,8 @@ export const CacheButton: React.FC<CacheButtonProps> = (props) => {
     <button
       type={'button'}
       className={css(styles.base, props.style).class}
-      disabled={button.isBusy}
-      title={button.label}
+      disabled={button.isDisabled}
+      title={button.isDisabled ? undefined : button.label}
       {...button.handlers}
     >
       {button.label}
