@@ -6,9 +6,16 @@ export type ActionProbeSignalsLib = {
 };
 
 /** Factory that creates an ActionProbe signals instance. */
-export type ActionProbeSignalsFactory = (
-  defaults?: Partial<ActionProbeSignalsState>,
+export type ActionProbeSignalsFactory = <TPersist extends t.JsonMapU = t.JsonMapU>(
+  input?: Partial<ActionProbeSignalsState> | ActionProbeSignalsCreateArgs<TPersist>,
 ) => ActionProbeSignals;
+
+/** Optional create-time behavior for ActionProbe signals. */
+export type ActionProbeSignalsCreateArgs<TPersist extends t.JsonMapU = t.JsonMapU> = {
+  readonly defaults?: Partial<ActionProbeSignalsState>;
+  readonly persist?: t.ImmutableRef<TPersist>;
+  readonly persistKey?: string;
+};
 
 /** Mutable execution-state API for ActionProbe hosts. */
 export type ActionProbeSignals = {

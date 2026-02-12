@@ -1,26 +1,39 @@
-import { type t, Signal } from './common.ts';
+import { type t, D, Is, Signal } from './common.ts';
 
 const defaults: t.ActionProbeSignalsState = {
   spinning: false,
   probe: { active: undefined, focused: undefined },
-  result: { title: undefined, visible: true, items: [], response: undefined, obj: undefined, byProbe: {} },
+  result: {
+    title: undefined,
+    visible: true,
+    items: [],
+    response: undefined,
+    obj: undefined,
+    byProbe: {},
+  },
 };
 
 export const Signals: t.ActionProbeSignalsLib = {
-  create(input = {}) {
+  create<TPersist extends t.JsonMapU = t.JsonMapU>(input = {}) {
+    const args = wrangle.createArgs<TPersist>(input);
+    const inputDefaults = args.defaults ?? {};
+    const persist = args.persist;
+    const persistSlot = wrangle.persistSlot(args.persistKey);
+    const persistedVisible = wrangle.persistedVisible(persist, persistSlot);
+
     const initial: t.ActionProbeSignalsState = {
-      spinning: input.spinning ?? defaults.spinning,
+      spinning: inputDefaults.spinning ?? defaults.spinning,
       probe: {
-        active: input.probe?.active ?? defaults.probe.active,
-        focused: input.probe?.focused ?? defaults.probe.focused,
+        active: inputDefaults.probe?.active ?? defaults.probe.active,
+        focused: inputDefaults.probe?.focused ?? defaults.probe.focused,
       },
       result: {
-        title: input.result?.title ?? defaults.result.title,
-        visible: input.result?.visible ?? defaults.result.visible,
-        items: input.result?.items ?? defaults.result.items,
-        response: input.result?.response ?? defaults.result.response,
-        obj: input.result?.obj ?? defaults.result.obj,
-        byProbe: input.result?.byProbe ?? defaults.result.byProbe,
+        title: inputDefaults.result?.title ?? defaults.result.title,
+        visible: inputDefaults.result?.visible ?? persistedVisible ?? defaults.result.visible,
+        items: inputDefaults.result?.items ?? defaults.result.items,
+        response: inputDefaults.result?.response ?? defaults.result.response,
+        obj: inputDefaults.result?.obj ?? defaults.result.obj,
+        byProbe: inputDefaults.result?.byProbe ?? defaults.result.byProbe,
       },
     };
 
@@ -126,6 +139,7 @@ export const Signals: t.ActionProbeSignalsLib = {
       resultVisible(next) {
         props.result.visible.value =
           typeof next === 'function' ? next(props.result.visible.value) : next;
+        wrangle.persistVisible(persist, persistSlot, props.result.visible.value);
         return api;
       },
       item(item) {
@@ -157,6 +171,7 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.result.response.value = defaults.result.response;
         props.result.obj.value = defaults.result.obj;
         props.result.byProbe.value = defaults.result.byProbe;
+        wrangle.persistVisible(persist, persistSlot, defaults.result.visible);
         return api;
       },
     };
@@ -164,3 +179,52 @@ export const Signals: t.ActionProbeSignalsLib = {
     return api;
   },
 };
+
+const wrangle = {
+  createArgs<TPersist extends t.JsonMapU>(
+    input: Partial<t.ActionProbeSignalsState> | t.ActionProbeSignalsCreateArgs<TPersist>,
+  ): t.ActionProbeSignalsCreateArgs<TPersist> {
+    if (!wrangle.isCreateArgs(input)) return { defaults: input };
+    return input;
+  },
+
+  isCreateArgs<TPersist extends t.JsonMapU>(
+    input: unknown,
+  ): input is t.ActionProbeSignalsCreateArgs<TPersist> {
+    if (!Is.object(input)) return false;
+    return 'defaults' in input || 'persist' in input || 'persistKey' in input;
+  },
+
+  persistSlot(persistKey?: string): string {
+    const key = persistKey?.trim();
+    if (!key) return D.Persist.key;
+    return `${D.Persist.key}:${key}`;
+  },
+
+  persistedVisible<TPersist extends t.JsonMapU>(
+    persist: t.ImmutableRef<TPersist> | undefined,
+    slot: string,
+  ): boolean | undefined {
+    if (!persist) return undefined;
+    const value = persist.current[slot];
+    if (!Is.object(value) || Is.array(value)) return undefined;
+    const visible = (value as t.JsonMapU)['resultVisible'];
+    return Is.bool(visible) ? visible : undefined;
+  },
+
+  persistVisible<TPersist extends t.JsonMapU>(
+    persist: t.ImmutableRef<TPersist> | undefined,
+    slot: string,
+    visible: boolean,
+  ) {
+    if (!persist) return;
+    persist.change((d) => {
+      const json = d as unknown as t.JsonMapU;
+      const current = json[slot];
+      const next: t.JsonMapU =
+        Is.object(current) && !Is.array(current) ? { ...(current as t.JsonMapU) } : {};
+      next.resultVisible = visible;
+      json[slot] = next;
+    });
+  },
+} as const;

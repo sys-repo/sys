@@ -17,10 +17,11 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
   borderRadius: 6,
   Probe: {
-    actOn: ['Cmd+Enter', 'Cmd+Click'] as const,
+    actOn: ['Cmd+Enter', 'Cmd+Click'] satisfies t.ActionProbe.ActOnKey[],
     doubleClickPulse: 50 as t.Msecs,
   },
   Result: { sizeMode: 'auto' satisfies t.ActionProbe.ResultProps['sizeMode'] },
+  Persist: { key: ':action-card' },
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
