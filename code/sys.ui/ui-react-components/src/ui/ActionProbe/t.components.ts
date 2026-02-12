@@ -6,9 +6,7 @@ type O = Record<string, unknown>;
  * Component:
  */
 export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
-  spec?: t.ActionProbe.ProbeSpec<TEnv, TParams>;
-  /** @deprecated Use `spec`. */
-  sample?: t.ActionProbe.ProbeSpec<TEnv, TParams>;
+  spec: t.ActionProbe.ProbeSpec<TEnv, TParams>;
   env: TEnv;
   /**
    * External run trigger token.

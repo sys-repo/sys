@@ -17,8 +17,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
 ) => {
   const {
     debug = false,
-    spec: specInput,
-    sample,
+    spec,
     env,
     runRequest,
     spinning = false,
@@ -26,8 +25,6 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
     actOn = D.Probe.actOn,
     borderRadius = D.borderRadius,
   } = props;
-  const spec = specInput ?? sample;
-  if (!spec) throw new Error('ActionProbe.Probe requires `spec`.');
 
   const [isActOnClickDown, setActOnClickDown] = useState(false);
   const [running, setRunning] = useState(false);

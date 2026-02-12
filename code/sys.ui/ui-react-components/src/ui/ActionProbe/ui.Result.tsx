@@ -73,6 +73,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         fontWeight: 600,
         opacity: showResult ? 1 : 0.3,
         transition: `opacity 120ms ease`,
+        userSelect: 'none',
       }),
     },
     obj: css({}),
