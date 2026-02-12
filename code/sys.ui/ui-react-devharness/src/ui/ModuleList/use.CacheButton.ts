@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Http } from '@sys/http/client';
 import { usePointer } from './common.ts';
 
+type O = Record<string, unknown>;
+
 export type UseCacheButton = () => {
   readonly isBusy: boolean;
   readonly isDown: boolean;
   readonly isOver: boolean;
   readonly label: string;
-  readonly handlers: Record<string, unknown> & { readonly onClick: () => void };
+  readonly handlers: O & { readonly onClick: () => void };
 };
 
 /**
@@ -16,9 +18,17 @@ export type UseCacheButton = () => {
 export const useCacheButton: UseCacheButton = () => {
   const pointer = usePointer();
   const mountedRef = useRef(true);
+
+  /**
+   * Hooks: state
+   */
   const [isBusy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [count, setCount] = useState<number | undefined>(undefined);
 
+  /**
+   * Behavior:
+   */
   const fetchCount = useCallback(async () => {
     const result = await wrangle.info();
     if (!mountedRef.current) return;
@@ -26,7 +36,6 @@ export const useCacheButton: UseCacheButton = () => {
   }, []);
 
   const clear = useCallback(async () => {
-    if (isBusy) return;
     setBusy(true);
     try {
       await wrangle.clear();
@@ -34,26 +43,49 @@ export const useCacheButton: UseCacheButton = () => {
     } finally {
       if (mountedRef.current) setBusy(false);
     }
-  }, [fetchCount, isBusy]);
+  }, [fetchCount]);
 
   useEffect(() => {
     mountedRef.current = true;
     void fetchCount();
-    return () => {
-      mountedRef.current = false;
-    };
+    return () => void (mountedRef.current = false);
   }, [fetchCount]);
 
-  const handlers = useMemo(
-    () => ({ ...pointer.handlers, onClick: () => void clear() }),
-    [pointer.handlers, clear],
-  );
+  /**
+   * Handlers:
+   */
+  const handlers = useMemo(() => {
+    const resetConfirm = () => setConfirming(false);
+    const base = pointer.handlers as O;
+    return {
+      ...base,
+      onClick: () => {
+        if (isBusy) return;
+        if (!confirming) return void setConfirming(true);
+        setConfirming(false);
+        void clear();
+      },
+      onPointerLeave: (event: unknown) => {
+        resetConfirm();
+        const fn = base.onPointerLeave;
+        if (typeof fn === 'function') fn(event);
+      },
+      onBlur: (event: unknown) => {
+        resetConfirm();
+        const fn = base.onBlur;
+        if (typeof fn === 'function') fn(event);
+      },
+    };
+  }, [pointer.handlers, clear, confirming, isBusy]);
+
+  const itemCount = count ?? '-';
+  const label = confirming ? `clear ${itemCount} items from cache` : `cache(${itemCount})`;
 
   return {
     isBusy,
     isDown: pointer.is.down,
     isOver: pointer.is.over,
-    label: `cache(${count ?? '-'})`,
+    label,
     handlers,
   };
 };
