@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import React from 'react';
+import { type t, Color, css, D } from './common.ts';
 import { Tab } from './ui.Tab.tsx';
 
 type P = t.Tabs.Props;
@@ -21,12 +21,16 @@ export const TabStrip: React.FC<P> = (props) => {
       height: D.Tabstrip.height,
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       display: 'grid',
+      gridTemplateColumns: `repeat(${items.length || 1}, minmax(0, 1fr))`,
+      alignItems: 'stretch',
     }),
   };
 
-  const elTabs = items.map((item, i) => {
-    return <Tab key={item.id} theme={theme.name} item={item} index={i} />;
-  });
-
-  return <div className={css(styles.base, props.style).class}>{elTabs}</div>;
+  return (
+    <div className={css(styles.base, props.style).class}>
+      {items.map((item, i) => {
+        return <Tab key={item.id} theme={theme.name} item={item} index={i} />;
+      })}
+    </div>
+  );
 };

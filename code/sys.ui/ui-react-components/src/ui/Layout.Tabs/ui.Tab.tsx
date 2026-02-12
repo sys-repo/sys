@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is, Button } from './common.ts';
+import React from 'react';
+import { type t, Button, Color, css, D } from './common.ts';
 
 export type TabProps = {
   index: t.Index;
@@ -31,13 +31,16 @@ export const Tab: React.FC<TabProps> = (props) => {
       height: D.Tabstrip.height,
       display: 'grid',
       minWidth: 0,
+      fontSize: 14,
     }),
+    btn: css({ display: 'grid' }),
+    body: css({ display: 'grid', placeItems: 'center' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button theme={theme.name} onClick={handleClick}>
-        {item.label || item.id}
+      <Button theme={theme.name} onClick={handleClick} style={styles.btn}>
+        <div className={styles.body.class}>{item.label || item.id}</div>
       </Button>
     </div>
   );

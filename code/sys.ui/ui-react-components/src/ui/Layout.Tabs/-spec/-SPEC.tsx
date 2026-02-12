@@ -2,6 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { type t, D } from './common.ts';
 import { Tabs } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Foo } from './-ui.Foo.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -13,7 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const items = Array.from({ length: v.totalTabs ?? 0 }).map((_, i) => {
       const tab: t.Tabs.Item = {
         id: `tab-${i}`,
-        render: () => <div>{tab.id}</div>,
+        render: () => <Foo label={tab.id} />,
       };
       return tab;
     });

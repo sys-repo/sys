@@ -23,7 +23,7 @@ export const Tabs: t.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <TabStrip {...props} />
+      <TabStrip {...props} style={styles.tabstrip} />
       <div className={styles.body.class}>
         <div>body</div>
       </div>
