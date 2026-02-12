@@ -5,7 +5,7 @@ import { usePointer } from '../use.Pointer.ts';
 describe('usePointer', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('does not invoke onUp for pointer cancel/lost-capture', () => {
+  it('does not invoke onUp for pointer cancel/lost-capture and dedupes cancel', () => {
     const upCalls: string[] = [];
     const cancelCalls: string[] = [];
 
@@ -29,13 +29,13 @@ describe('usePointer', () => {
       act(() => handlers.onLostPointerCapture(fakePointerEvent('lostpointercapture', target)));
 
       expect(upCalls).to.eql([]);
-      expect(cancelCalls).to.eql(['pointercancel', 'lostpointercapture']);
+      expect(cancelCalls).to.eql(['pointercancel']);
     } finally {
       unmount();
     }
   });
 
-  it('releases pointer capture only when currently captured', () => {
+  it('does not release pointer capture when not captured', () => {
     const { result, unmount } = renderHook(() => usePointer());
 
     try {
@@ -50,6 +50,26 @@ describe('usePointer', () => {
 
       expect(target.calls.set).to.eql(1);
       expect(target.calls.release).to.eql(0);
+    } finally {
+      unmount();
+    }
+  });
+
+  it('releases pointer capture when currently captured', () => {
+    const { result, unmount } = renderHook(() => usePointer());
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(target.calls.set).to.eql(1);
+      expect(target.calls.release).to.eql(1);
     } finally {
       unmount();
     }

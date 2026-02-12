@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type t, Kbd, useIsTouchSupported } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
@@ -20,6 +20,7 @@ export const usePointer: t.UsePointer = (input) => {
    * Hooks:
    */
   const [isDown, setDown] = useState(false);
+  const downRef = useRef(false);
   const [isOver, setOver] = useState(false);
   const [isFocused, setFocused] = React.useState(false);
   const isTouch = useIsTouchSupported();
@@ -50,6 +51,7 @@ export const usePointer: t.UsePointer = (input) => {
    */
   useEffect(() => {
     if (!drag.is.dragging) {
+      downRef.current = false;
       setDown(false);
       drag.cancel();
       dragdrop.cancel();
@@ -98,6 +100,7 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const down = (e: t.PointerSyntheticEvent) => {
+    downRef.current = true;
     const trigger = wrangle.pointerEvent(e);
     setDown(true);
     args.onDown?.(trigger);
@@ -106,6 +109,8 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const up = (e: t.PointerSyntheticEvent) => {
+    if (!downRef.current) return;
+    downRef.current = false;
     const trigger = wrangle.pointerEvent(e);
     setDown(false);
     args.onUp?.(trigger);
@@ -114,6 +119,8 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const cancel = (e: t.PointerSyntheticEvent) => {
+    if (!downRef.current) return;
+    downRef.current = false;
     const trigger = wrangle.pointerEvent(e);
     setDown(false);
     args.onCancel?.(trigger);
@@ -197,6 +204,7 @@ export const usePointer: t.UsePointer = (input) => {
     drag: drag.pointer,
     dragdrop: dragdrop.pointer,
     reset() {
+      downRef.current = false;
       setFocused(false);
       setDown(false);
       setOver(false);
