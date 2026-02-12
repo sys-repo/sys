@@ -29,6 +29,22 @@ const defaults: Storage = {
   cardKind: 'file-content',
 };
 
+export type DebugCardPolicy = {
+  readonly defaultKind: t.DataCardKind;
+  readonly kinds: readonly t.DataCardKind[];
+  readonly allowKindSelect: boolean;
+};
+
+type CreateDebugSignalsArgs = {
+  readonly card?: Partial<DebugCardPolicy>;
+};
+
+const defaultCardPolicy: DebugCardPolicy = {
+  defaultKind: 'file-content',
+  kinds: ['file-content', 'playback-content'],
+  allowKindSelect: true,
+};
+
 /**
  * Types:
  */
@@ -38,24 +54,27 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export async function createDebugSignals(args: CreateDebugSignalsArgs = {}) {
+  const cardPolicy = normalizeCardPolicy(args.card);
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
   const card = DataCards.createSignals({ totalVisible: 3, persist: store });
+  const initialKind = wrangle.cardKind(snap.cardKind, cardPolicy);
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
     origin: s<t.SlugUrlOrigin | undefined>(),
-    cardKind: s(snap.cardKind),
+    cardKind: s(initialKind),
   };
   const orchestrator = createCardOrchestrator({ props, card });
   const p = props;
   const api = {
     props,
     card,
+    cardPolicy,
     orchestrator,
     listen,
     reset,
@@ -70,7 +89,7 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.env.value = defaults.env;
-    p.cardKind.value = defaults.cardKind;
+    p.cardKind.value = wrangle.cardKind(undefined, cardPolicy);
     card.reset();
     orchestrator.reset();
     syncOrigin();
@@ -94,6 +113,25 @@ export async function createDebugSignals() {
   syncOrigin();
   return api;
 }
+
+function normalizeCardPolicy(input: Partial<DebugCardPolicy> | undefined): DebugCardPolicy {
+  const kinds = input?.kinds?.length ? [...input.kinds] : [...defaultCardPolicy.kinds];
+  const fallback = defaultCardPolicy.defaultKind;
+  const requested = input?.defaultKind ?? fallback;
+  const defaultKind = kinds.includes(requested) ? requested : (kinds[0] ?? fallback);
+  return {
+    defaultKind,
+    kinds,
+    allowKindSelect: input?.allowKindSelect ?? defaultCardPolicy.allowKindSelect,
+  };
+}
+
+const wrangle = {
+  cardKind(input: t.DataCardKind | undefined, policy: DebugCardPolicy) {
+    const kind = input ?? policy.defaultKind;
+    return policy.kinds.includes(kind) ? kind : policy.defaultKind;
+  },
+} as const;
 
 const Styles = {
   title: css({

@@ -3,6 +3,7 @@ import { type t, Signal } from './common.ts';
 
 export function createDataCards(debug: t.DebugSignals) {
   const { card, orchestrator } = debug;
+  const cardPolicy = debug.cardPolicy;
   const p = debug.props;
   const v = Signal.toObject(p);
   return DataCards.createPanel({
@@ -11,9 +12,11 @@ export function createDataCards(debug: t.DebugSignals) {
     env: v.env,
     theme: v.theme,
     debug: v.debug,
-    kind: v.cardKind,
-    kinds: ['file-content', 'playback-content'],
+    kind: v.cardKind ?? cardPolicy.defaultKind,
+    kinds: [...cardPolicy.kinds],
+    showKindSelector: cardPolicy.allowKindSelect,
     onKindSelect(kind) {
+      if (!cardPolicy.allowKindSelect) return;
       if (p.cardKind.value === kind) return;
       p.cardKind.value = kind;
       orchestrator.reset();

@@ -41,13 +41,15 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
 
   return (
     <div className={css(styles.base, args.style).class}>
-      <CardKindsList.UI
-        debug={args.debug}
-        theme={args.theme}
-        selected={kind}
-        kinds={args.kinds}
-        onKindSelect={(e) => args.onKindSelect?.(e.id)}
-      />
+      {args.showKindSelector !== false && (
+        <CardKindsList.UI
+          debug={args.debug}
+          theme={args.theme}
+          selected={kind}
+          kinds={args.kinds}
+          onKindSelect={(e) => args.onKindSelect?.(e.id)}
+        />
+      )}
       <ActionProbe.Probe
         style={styles.probe}
         debug={args.debug}

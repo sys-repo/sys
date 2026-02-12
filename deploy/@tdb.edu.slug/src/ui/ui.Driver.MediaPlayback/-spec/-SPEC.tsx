@@ -3,7 +3,13 @@ import { HeadDebug } from './-SPEC.Debug.tsx';
 import { D, SpecRoot, createDebugSignals, makeDebugPanel } from './common.ts';
 
 export default Spec.describe(D.name, async (e) => {
-  const debug = await createDebugSignals();
+  const debug = await createDebugSignals({
+    card: {
+      defaultKind: 'playback-content',
+      kinds: ['playback-content'],
+      allowKindSelect: false,
+    },
+  });
   const p = debug.props;
 
   const DebugPanel = makeDebugPanel({
