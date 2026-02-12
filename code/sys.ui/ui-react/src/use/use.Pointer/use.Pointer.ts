@@ -21,6 +21,7 @@ export const usePointer: t.UsePointer = (input) => {
    */
   const [isDown, setDown] = useState(false);
   const downRef = useRef(false);
+  const releasingCaptureRef = useRef(false);
   const [isOver, setOver] = useState(false);
   const [isFocused, setFocused] = React.useState(false);
   const isTouch = useIsTouchSupported();
@@ -142,8 +143,13 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const onPointerUp: React.PointerEventHandler = (e) => {
-    releasePointerCapture(e);
-    up(e);
+    releasingCaptureRef.current = true;
+    try {
+      releasePointerCapture(e);
+      up(e);
+    } finally {
+      releasingCaptureRef.current = false;
+    }
   };
 
   const onPointerCancel: React.PointerEventHandler = (e) => {
@@ -152,6 +158,7 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   const onLostPointerCapture: React.PointerEventHandler = (e) => {
+    if (releasingCaptureRef.current) return;
     cancel(e);
   };
 

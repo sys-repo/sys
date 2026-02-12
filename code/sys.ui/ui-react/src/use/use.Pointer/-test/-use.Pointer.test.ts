@@ -75,6 +75,41 @@ describe('usePointer', () => {
     }
   });
 
+  it('fires onUp when release triggers lost-capture during pointerup', () => {
+    const upCalls: string[] = [];
+    const cancelCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+        onCancel: (e) => cancelCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+        onLostPointerCapture: React.PointerEventHandler;
+      };
+
+      const target = fakePointerTarget({
+        hasCapture: true,
+        onRelease() {
+          handlers.onLostPointerCapture(fakePointerEvent('lostpointercapture', target));
+        },
+      });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(upCalls).to.eql(['pointerup']);
+      expect(cancelCalls).to.eql([]);
+      expect(target.calls.release).to.eql(1);
+    } finally {
+      unmount();
+    }
+  });
+
   it('ignores stray pointerup/lost-capture when no press cycle is active', () => {
     const upCalls: string[] = [];
     const cancelCalls: string[] = [];
@@ -136,7 +171,7 @@ describe('usePointer', () => {
   });
 });
 
-function fakePointerTarget(args: { hasCapture: boolean }) {
+function fakePointerTarget(args: { hasCapture: boolean; onRelease?: () => void }) {
   const calls = { set: 0, release: 0 };
   return {
     calls,
@@ -145,6 +180,7 @@ function fakePointerTarget(args: { hasCapture: boolean }) {
     },
     releasePointerCapture() {
       calls.release += 1;
+      args.onRelease?.();
     },
     hasPointerCapture() {
       return args.hasCapture;
