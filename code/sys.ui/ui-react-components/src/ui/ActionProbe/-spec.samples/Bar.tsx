@@ -23,7 +23,7 @@ export const BarSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     e.hr();
     e.item({ k: 'delay', v: `${delay.toLocaleString()} ms` });
     e.element(`Hello ${Str.Lorem.words(8).toLowerCase()}`);
-    e.item({ k: 'the last', v: 'word 👋' });
+    e.item({ k: 'the last', v: 'bing 🥧' });
   },
   async run(e) {
     const params = e.params<Params>();
@@ -34,7 +34,7 @@ export const BarSample: t.ActionProbe.ProbeSpec<Env, Params> = {
 
     await Time.wait(delay);
     e.item({ k: 'latency', v: `${delay}ms` });
-    e.item({ k: 'bar', v: `baz 👋` });
+    e.item({ k: 'bar', v: `baz` });
     e.obj({ expand: ['$', '$.value'] }).result({
       ok: true,
       value: {
