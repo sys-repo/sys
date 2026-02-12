@@ -18,7 +18,7 @@ export type LocalStorageLib = {
 /**
  * An Immutable<T> interface over local-storage.
  */
-export type LocalStorageImmutable<T> = t.ImmutableRef<
+export type LocalStorageImmutable<T extends t.JsonMapU> = t.ImmutableRef<
   T,
   t.Rfc6902PatchOperation,
   t.ImmutableEvents<T, t.Rfc6902PatchOperation, t.ImmutableChange<T, t.Rfc6902PatchOperation>>
