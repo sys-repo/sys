@@ -11,7 +11,8 @@ type Props = {
 export const SlugActionProbe: React.FC<Props> = (props) => {
   const { debug } = props;
   const probeId = 'tree-content';
-  const handlers = debug.action.handlers(probeId);
+  const spec = DataCards.Card.TreeContent;
+  const handlers = debug.action.handlers(probeId, spec.title);
   const p = debug.props;
   const v = Signal.toObject(p);
   const local = v.env === 'localhost';
@@ -28,7 +29,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
   const elCard = (
     <ActionProbe.Probe
       theme={v.theme}
-      spec={DataCards.Card.TreeContent}
+      spec={spec}
       env={{
         is: { local },
         origin: v.origin,
@@ -46,7 +47,7 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
       }}
       spinning={loading}
       focused={v.probe.focused === probeId}
-      onFocus={() => debug.action.focus(probeId)}
+      onFocus={() => debug.action.focus(probeId, spec.title)}
       onBlur={() => debug.action.blur(probeId)}
       onRunStart={handlers.onRunStart}
       onRunEnd={handlers.onRunEnd}
@@ -60,12 +61,15 @@ export const SlugActionProbe: React.FC<Props> = (props) => {
 
   const elResult = (
     <ActionProbe.Result
+      title={v.result.title ?? spec.title}
+      resultsVisible={v.result.visible}
       spinning={loading}
       items={v.result.items}
       response={v.result.response}
       obj={v.result.obj}
       debug={v.debug}
       theme={v.theme}
+      onResultsVisibleChange={(next) => debug.action.resultVisible(next)}
       style={{ marginTop: 10, marginBottom: 10 }}
     />
   );

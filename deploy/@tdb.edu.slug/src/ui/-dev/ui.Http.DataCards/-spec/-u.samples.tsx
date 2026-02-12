@@ -30,7 +30,7 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
   return ActionProbe.renderer<t.DebugSignals, TEnv>({
     state,
     style: { MarginY: 20 },
-    resolve({ state, probe }) {
+    resolve({ state, probe, spec }) {
       const v = Signal.toObject(state.props);
       const local = v.env === 'localhost';
       const origin = v.origin;
@@ -66,8 +66,8 @@ function renderer(state: t.DebugSignals, opts: Options = {}) {
         actOn,
         theme: opts.theme ?? v.theme,
         debug: v.debug,
-        ...state.action.handlers(probe),
-        onFocus: () => state.action.focus(probe),
+        ...state.action.handlers(probe, spec.title),
+        onFocus: () => state.action.focus(probe, spec.title),
         onBlur: () => state.action.blur(probe),
       };
     },

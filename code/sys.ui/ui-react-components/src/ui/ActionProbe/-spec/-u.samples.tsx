@@ -38,7 +38,7 @@ function renderer(state: DebugSignals, opts: Options = {}) {
         debug: v.debug,
         ...state.action.handlers(probe, spec.title),
         onFocus: () => {
-          state.action.focus(probe);
+          state.action.focus(probe, spec.title);
           state.action.resultVisible(true);
         },
         onBlur: () => state.action.blur(probe),

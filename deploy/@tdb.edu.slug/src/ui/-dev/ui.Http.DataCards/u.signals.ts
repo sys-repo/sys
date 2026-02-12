@@ -30,6 +30,7 @@ export function createSignals(
     start: action.start,
     focus: action.focus,
     blur: action.blur,
+    resultVisible: action.resultVisible,
     item: action.item,
     result: action.result,
     end: action.end,

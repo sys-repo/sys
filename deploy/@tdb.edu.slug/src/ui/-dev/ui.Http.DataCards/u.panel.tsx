@@ -13,13 +13,13 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
   const c = Signal.toObject(args.signals.props);
   const local = args.env === 'localhost';
   const loading = c.spinning && c.probe.active === kind;
-  const handlers = args.signals.handlers(kind);
   const spec =
     kind === 'descriptor'
       ? Descriptor
       : kind === 'playback-content'
         ? TreePlaybackAssets
         : TreeContent;
+  const handlers = args.signals.handlers(kind, spec.title);
   const runRequest = kind === 'playback-content'
     ? c.treePlayback.ref
     : kind === 'file-content'
@@ -77,7 +77,7 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
         }}
         spinning={loading}
         focused={c.probe.focused === kind}
-        onFocus={() => args.signals.focus(kind)}
+        onFocus={() => args.signals.focus(kind, spec.title)}
         onBlur={() => args.signals.blur(kind)}
         onRunStart={handlers.onRunStart}
         onRunEnd={handlers.onRunEnd}
@@ -86,6 +86,9 @@ export function createPanel(args: t.DataCardPanelArgs): t.ReactNode {
       />
       <ActionProbe.Result
         style={styles.result}
+        title={c.result.title ?? spec.title}
+        resultsVisible={c.result.visible}
+        onResultsVisibleChange={(next) => args.signals.resultVisible(next)}
         spinning={loading}
         items={c.result.items}
         response={c.result.response}
