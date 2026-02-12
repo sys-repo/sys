@@ -12,12 +12,15 @@ export default Spec.describe(D.displayName, async (e) => {
     return (
       <ActionProbe.Result
         style={{ width: 420 }}
+        title={v.result.title}
+        resultsVisible={v.result.visible}
         debug={v.debug}
         theme={v.theme}
         spinning={v.spinning}
         items={v.result.items}
         response={v.result.response}
         obj={v.result.obj}
+        onResultsVisibleChange={(next) => debug.action.resultVisible(next)}
         sizeMode={v.sizeMode}
       />
     );

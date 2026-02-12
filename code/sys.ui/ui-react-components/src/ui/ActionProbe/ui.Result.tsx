@@ -1,20 +1,33 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Obj, D, ObjectView, Spinners } from './common.ts';
+import { type t, Switch, Color, css, KeyValue, Obj, D, ObjectView, Spinners } from './common.ts';
 
 export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
-  const { debug = false, spinning = false, sizeMode = D.Result.sizeMode } = props;
+  const {
+    debug = false,
+    spinning = false,
+    sizeMode = D.Result.sizeMode,
+    resultsVisible = true,
+    title,
+  } = props;
   const obj = props.obj;
 
   const data = Obj.truncateStrings({ ...(props.response ?? {}) });
   const items = [...(props.items ?? [])];
   const hasItems = items.length > 0;
+  const hasResponse = props.response !== undefined;
+  const hasResult = hasItems || hasResponse;
+  const showResult = resultsVisible && hasResult;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+    }),
     spinner: css({
       Absolute: 0,
       pointerEvents: 'none',
@@ -25,11 +38,17 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
       base: css({
         position: 'relative',
         display: 'grid',
-        gridTemplateRows: hasItems ? `auto auto 1fr` : '1fr',
+        gridTemplateRows:
+          showResult && hasItems && hasResponse
+            ? `auto auto auto 1fr`
+            : showResult && (hasItems || hasResponse)
+              ? `auto auto 1fr`
+              : 'auto',
         pointerEvents: spinning ? 'none' : 'auto',
         filter: `blur(${spinning ? 6 : 0}px) grayscale(${spinning ? 100 : 0}%)`,
         opacity: spinning ? 0.4 : 1,
         transition: 'opacity 100ms ease',
+        fontSize: 11,
       }),
       top: css({ padding: 10 }),
       hr: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
@@ -42,6 +61,20 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         }),
       },
     },
+    title: {
+      base: css({
+        padding: 10,
+        borderBottom: `solid 2px ${Color.alpha(theme.fg, showResult && hasItems ? 0.1 : 0)}`,
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr auto',
+        alignItems: 'center',
+      }),
+      text: css({
+        fontWeight: 600,
+        opacity: showResult ? 1 : 0.3,
+        transition: `opacity 120ms ease`,
+      }),
+    },
     obj: css({}),
   };
 
@@ -51,27 +84,43 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
     </div>
   );
 
+  const elTitle = (
+    <div className={styles.title.base.class}>
+      <div className={styles.title.text.class}>{title}</div>
+      <div />
+      <Switch
+        theme={theme.name}
+        height={18}
+        value={resultsVisible}
+        onClick={() => props.onResultsVisibleChange?.(!resultsVisible)}
+      />
+    </div>
+  );
+
   const elBody = (
     <div className={styles.body.base.class}>
-      {hasItems && (
+      {elTitle}
+      {showResult && hasItems && (
         <div className={styles.body.top.class}>
           <KeyValue.UI theme={theme.name} items={items} mono={props.header?.mono ?? true} />
         </div>
       )}
-      {hasItems && <div className={styles.body.hr.class} />}
-      <div className={styles.body.bottom.base.class}>
-        <div className={styles.body.bottom.inner.class}>
-          <ObjectView
-            name={'action:result'}
-            data={data}
-            theme={theme.name}
-            style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
-            expand={obj?.expand ?? 5}
-            show={obj?.show}
-            sortKeys={obj?.sortKeys}
-          />
+      {showResult && hasItems && hasResponse && <div className={styles.body.hr.class} />}
+      {showResult && hasResponse && (
+        <div className={styles.body.bottom.base.class}>
+          <div className={styles.body.bottom.inner.class}>
+            <ObjectView
+              name={'action:result'}
+              data={data}
+              theme={theme.name}
+              style={css(styles.obj, hasItems ? undefined : { marginTop: 0 })}
+              expand={obj?.expand ?? 5}
+              show={obj?.show}
+              sortKeys={obj?.sortKeys}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 

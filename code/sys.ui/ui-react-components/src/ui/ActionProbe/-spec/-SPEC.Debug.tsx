@@ -10,6 +10,7 @@ type Storage = {
   env?: 'localhost' | 'production';
   actOn?: StorageActOn;
   sizeMode?: SizeMode;
+  resultTitlePlaceholder?: string;
 };
 type StorageActOn = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null | StorageActOnItem[];
 type StorageActOnItem = 'Cmd+Enter' | 'Cmd+Click' | 'Enter' | null;
@@ -19,6 +20,7 @@ const defaults: Storage = {
   env: 'localhost',
   actOn: undefined,
   sizeMode: 'fill',
+  resultTitlePlaceholder: 'Select a card',
 };
 
 /**
@@ -45,6 +47,7 @@ export async function createDebugSignals() {
     ...action.props,
   };
   const p = props;
+  p.result.title.value = defaults.resultTitlePlaceholder;
   const api = {
     props,
     action,
@@ -59,6 +62,7 @@ export async function createDebugSignals() {
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     action.reset();
+    p.result.title.value = defaults.resultTitlePlaceholder;
   }
 
   Signal.effect(() => {

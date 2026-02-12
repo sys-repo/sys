@@ -7,6 +7,8 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.probe.active.value).to.eql(undefined);
     expect(p.probe.focused.value).to.eql(undefined);
+    expect(p.result.title.value).to.eql(undefined);
+    expect(p.result.visible.value).to.eql(true);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
@@ -23,10 +25,21 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.probe.active.value).to.eql('p:1');
     expect(p.probe.focused.value).to.eql('p:1');
+    expect(p.result.title.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
     expect(p.spinning.value).to.eql(true);
+  });
+
+  it('resultVisible: mutates visibility state from value or updater', () => {
+    const api = Signals.create();
+    const p = api.props;
+    expect(p.result.visible.value).to.eql(true);
+    api.resultVisible(false);
+    expect(p.result.visible.value).to.eql(false);
+    api.resultVisible((prev) => !prev);
+    expect(p.result.visible.value).to.eql(true);
   });
 
   it('focus/blur: tracks focused probe independently of active state', () => {
@@ -70,6 +83,8 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.probe.active.value).to.eql(undefined);
     expect(p.probe.focused.value).to.eql(undefined);
+    expect(p.result.title.value).to.eql(undefined);
+    expect(p.result.visible.value).to.eql(true);
     expect(p.result.items.value).to.eql([]);
     expect(p.result.response.value).to.eql(undefined);
     expect(p.result.obj.value).to.eql(undefined);
@@ -88,13 +103,14 @@ describe('ActionProbe.Signals', () => {
     const p = api.props;
     expect(p.probe.active.value).to.eql('p:2');
     expect(p.probe.focused.value).to.eql('p:2');
+    expect(p.result.title.value).to.eql(undefined);
     expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
     expect(p.result.response.value).to.eql({ ok: true });
     expect(p.result.obj.value).to.eql({ expand: { level: 1 } });
     expect(p.spinning.value).to.eql(false);
   });
 
-  it('handlers: auto-inserts title item from probe title on run end', () => {
+  it('handlers: sets result title from probe title on run start', () => {
     const api = Signals.create();
     const run = api.handlers('p:3', 'My Probe');
 
@@ -103,11 +119,8 @@ describe('ActionProbe.Signals', () => {
     run.onRunEnd();
 
     const p = api.props;
-    expect(p.result.items.value).to.eql([
-      { kind: 'title', v: 'My Probe' },
-      { kind: 'hr' },
-      { k: 'foo', v: 123 },
-    ]);
+    expect(p.result.title.value).to.eql('My Probe');
+    expect(p.result.items.value).to.eql([{ k: 'foo', v: 123 }]);
   });
 
   it('handlers: does not duplicate title when run emits explicit title item', () => {

@@ -27,15 +27,19 @@ export type ActionProbeRendererFactoryArgs<TState, TEnv extends Record<string, u
   readonly state: TState;
   readonly style?: t.CssInput;
   readonly resolve: (
-    args: ActionProbeRendererResolveArgs<TState>,
+    args: ActionProbeRendererResolveArgs<TState, TEnv>,
   ) => ActionProbeRendererResolvedProps<TEnv> | undefined;
 };
 
 /** Resolve arguments passed for each pushed probe spec. */
-export type ActionProbeRendererResolveArgs<TState> = {
+export type ActionProbeRendererResolveArgs<
+  TState,
+  TEnv extends Record<string, unknown> = Record<string, unknown>,
+> = {
   readonly state: TState;
   readonly index: t.Index;
   readonly probe: string;
+  readonly spec: t.ActionProbe.ProbeSpec<TEnv>;
 };
 
 /** Computed props used to render each ActionProbe.Probe instance. */

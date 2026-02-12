@@ -35,13 +35,16 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
  * Component:
  */
 export type ActionResultProps = {
+  title?: t.ReactNode;
   spinning?: boolean;
+  resultsVisible?: boolean;
   response?: unknown;
-  obj?: t.ActionProbe.ProbeRunObjectConfig;
   items?: readonly t.KeyValueItem[];
+  obj?: t.ActionProbe.ProbeRunObjectConfig;
   header?: { mono?: boolean };
   debug?: boolean;
   sizeMode?: 'fill' | 'auto';
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onResultsVisibleChange?: (next: boolean) => void;
 };

@@ -39,7 +39,8 @@ describe('ActionProbe.Renderer', () => {
   it('push: allows resolve guard by yielding undefined', () => {
     const api = Renderer.create({
       state: {},
-      resolve: ({ index }) => (index === 0 ? ({ env: { kind: 'demo' } } as const) : undefined),
+      resolve: ({ index }): t.ActionProbeRendererResolvedProps<Env> | undefined =>
+        index === 0 ? { env: { kind: 'demo' } } : undefined,
     });
 
     api.push(sample).push(sample);

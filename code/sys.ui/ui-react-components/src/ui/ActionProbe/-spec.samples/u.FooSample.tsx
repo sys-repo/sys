@@ -29,6 +29,7 @@ export const FooSample: t.ActionProbe.ProbeSpec<Env, Params> = {
     const params = e.params<Params>();
     const delay = params?.delay ?? 300;
     const label = params?.label ?? 'Unknown';
+
     await Time.wait(delay);
     e.item({ k: 'latency', v: `${delay}ms` });
     e.item({ k: 'foo', v: `bar 👋` });

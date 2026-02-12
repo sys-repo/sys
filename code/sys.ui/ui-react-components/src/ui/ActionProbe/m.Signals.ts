@@ -3,13 +3,11 @@ import { type t, Signal } from './common.ts';
 const defaults: t.ActionProbeSignalsState = {
   spinning: false,
   probe: { active: undefined, focused: undefined },
-  result: { items: [], response: undefined, obj: undefined },
+  result: { title: undefined, visible: true, items: [], response: undefined, obj: undefined },
 };
 
 export const Signals: t.ActionProbeSignalsLib = {
   create(input = {}) {
-    let runTitle: t.ReactNode | undefined;
-
     const initial: t.ActionProbeSignalsState = {
       spinning: input.spinning ?? defaults.spinning,
       probe: {
@@ -17,6 +15,8 @@ export const Signals: t.ActionProbeSignalsLib = {
         focused: input.probe?.focused ?? defaults.probe.focused,
       },
       result: {
+        title: input.result?.title ?? defaults.result.title,
+        visible: input.result?.visible ?? defaults.result.visible,
         items: input.result?.items ?? defaults.result.items,
         response: input.result?.response ?? defaults.result.response,
         obj: input.result?.obj ?? defaults.result.obj,
@@ -31,6 +31,8 @@ export const Signals: t.ActionProbeSignalsLib = {
         focused: s(initial.probe.focused),
       },
       result: {
+        title: s(initial.result.title),
+        visible: s(initial.result.visible),
         items: s(initial.result.items),
         response: s(initial.result.response),
         obj: s(initial.result.obj),
@@ -58,9 +60,9 @@ export const Signals: t.ActionProbeSignalsLib = {
         };
       },
       start(probe, title) {
-        runTitle = title;
         props.probe.active.value = probe;
         props.probe.focused.value = probe;
+        props.result.title.value = title;
         props.result.items.value = [];
         props.result.response.value = undefined;
         props.result.obj.value = undefined;
@@ -76,6 +78,11 @@ export const Signals: t.ActionProbeSignalsLib = {
         props.probe.focused.value = undefined;
         return api;
       },
+      resultVisible(next) {
+        props.result.visible.value =
+          typeof next === 'function' ? next(props.result.visible.value) : next;
+        return api;
+      },
       item(item) {
         props.result.items.value = [...props.result.items.value, item];
         return api;
@@ -86,23 +93,15 @@ export const Signals: t.ActionProbeSignalsLib = {
         return api;
       },
       end() {
-        const hasTitle = props.result.items.value.some((item) => item.kind === 'title');
-        if (runTitle && !hasTitle) {
-          props.result.items.value = [
-            { kind: 'title', v: runTitle },
-            { kind: 'hr' },
-            ...props.result.items.value,
-          ];
-        }
-        runTitle = undefined;
         props.spinning.value = false;
         return api;
       },
       reset() {
-        runTitle = undefined;
         props.spinning.value = defaults.spinning;
         props.probe.active.value = defaults.probe.active;
         props.probe.focused.value = defaults.probe.focused;
+        props.result.title.value = defaults.result.title;
+        props.result.visible.value = defaults.result.visible;
         props.result.items.value = defaults.result.items;
         props.result.response.value = defaults.result.response;
         props.result.obj.value = defaults.result.obj;
