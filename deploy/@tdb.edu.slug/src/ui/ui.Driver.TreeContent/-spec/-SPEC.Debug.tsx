@@ -147,6 +147,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView name={'content'} data={content} style={{ marginTop: 5 }} expand={0} />
       <ObjectView name={'selection'} data={selection} style={{ marginTop: 5 }} expand={0} />
+
+      <div style={{ height: 50 }} />
     </div>
   );
 };
