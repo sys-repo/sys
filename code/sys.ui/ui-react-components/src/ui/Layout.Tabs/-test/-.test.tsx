@@ -16,9 +16,20 @@ describe('Layout.Tabs', () => {
     ] as const;
 
     const pointerPatch = (el: HTMLElement) => {
-      (el as unknown as { setPointerCapture: (id: number) => void }).setPointerCapture = () => {};
-      (el as unknown as { releasePointerCapture: (id: number) => void }).releasePointerCapture =
-        () => {};
+      let captured = false;
+      const target = el as HTMLElement & {
+        setPointerCapture: (id: number) => void;
+        hasPointerCapture: (id: number) => boolean;
+        releasePointerCapture: (id: number) => void;
+      };
+
+      target.setPointerCapture = () => {
+        captured = true;
+      };
+      target.hasPointerCapture = () => captured;
+      target.releasePointerCapture = () => {
+        captured = false;
+      };
     };
     const pointer = (type: 'pointerdown' | 'pointerup' | 'pointercancel') =>
       new window.Event(type, { bubbles: true });
@@ -50,6 +61,15 @@ describe('Layout.Tabs', () => {
       tabB.dispatchEvent(pointer('pointerdown'));
       tabB.dispatchEvent(pointer('pointerup'));
       expect(events).to.eql(['b']);
+
+      for (let i = 0; i < 40; i++) {
+        const next = i % 2 === 0 ? tabB : selected;
+        next.dispatchEvent(pointer('pointerdown'));
+        next.dispatchEvent(pointer('pointerup'));
+      }
+
+      expect(events.length).to.equal(21);
+      expect(events.every((id) => id === 'b')).to.equal(true);
       res.dispose();
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
     });

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, usePointer } from './common.ts';
+import { type t, Color, css } from './common.ts';
+import { useTabPointer } from './use.Pointer.ts';
 
 export type TabProps = {
   item: t.Tabs.Item;
@@ -17,16 +18,9 @@ export const Tab: React.FC<TabProps> = (props) => {
   const { item, selected = false } = props;
   const id = item.id;
   const tabStyle = props.tabStyle;
-
-  /**
-   * Hooks:
-   */
-  const pointer = usePointer({
-    onUp(e) {
-      if (selected) return;
-      if (e.type !== 'pointerup' && e.type !== 'touchend') return;
-      props.onClick?.({ id });
-    },
+  const pointer = useTabPointer({
+    selected,
+    onActivate: () => props.onClick?.({ id }),
   });
 
   /**
@@ -38,7 +32,7 @@ export const Tab: React.FC<TabProps> = (props) => {
   const hoverColor = tabStyle?.hoverColor ?? Color.BLUE;
   const color = selected
     ? selectedColor
-    : pointer.is.over
+    : pointer.isOver
       ? hoverColor
       : Color.alpha(theme.fg, idleOpacity);
 
@@ -51,7 +45,7 @@ export const Tab: React.FC<TabProps> = (props) => {
       userSelect: 'none',
       cursor: selected ? 'default' : 'pointer',
       color,
-      transform: `translateY(${!selected && pointer.is.down ? 1 : 0}px)`,
+      transform: `translateY(${!selected && pointer.isDown ? 1 : 0}px)`,
     }),
     body: css({
       display: 'grid',
