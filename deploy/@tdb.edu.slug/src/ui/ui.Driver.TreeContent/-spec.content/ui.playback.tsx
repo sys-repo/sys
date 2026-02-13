@@ -52,7 +52,7 @@ export const PlaybackLeaf: React.FC<PlaybackContentProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <InfoPanel {...props} showObject={true} />
+      <InfoPanel {...props} showObject={false} />
     </div>
   );
 };
