@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { type t, useIsTouchSupported } from './common.ts';
+import { type t } from './common.ts';
 
 const MOVEMENT_THRESHOLD: t.Pixels = 3;
+type DragSessionSource = 'Unknown' | 'Mouse' | 'Touch';
+type EventLikeWithClient = Event & { clientX: number; clientY: number };
+type EventLikeWithTouches = Event & { touches: TouchList; changedTouches: TouchList };
 
 /**
  * Internal hook that tracks low-level mouse/touch movement events (aka. "drag").
@@ -13,6 +16,16 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Refs:
    */
   const startedRef = useRef(false);
+  const sessionIdRef = useRef(0);
+  const sourceRef = useRef<DragSessionSource>('Unknown');
+  const listenersRef = useRef<{
+    selectStart?: EventListener;
+    mouseMove?: EventListener;
+    mouseUp?: EventListener;
+    touchMove?: EventListener;
+    touchEnd?: EventListener;
+    touchCancel?: EventListener;
+  }>({});
   const originRef = useRef<t.Point>(undefined); // position at `start` of drag operation.
   const draggingRef = useRef(false);
   const prevTouchRef = useRef<t.Point>(undefined);
@@ -20,7 +33,6 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   /**
    * Hooks:
    */
-  const isTouch = useIsTouchSupported();
   const [pointer, setPointer] = useState<t.PointerDragSnapshot>();
   const [, setDragging] = useState(false);
   const is: t.PointerDragHook['is'] = {
@@ -37,7 +49,6 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   /**
    * Helpers:
    */
-  const onSelectStart = (e: Event) => e.preventDefault(); // NB: Prevent content around the target-element from being selected while dragging.
   const ensureOrigin = (p: t.Point) => (originRef.current ??= p);
   const movedEnough = (p: t.Point) => {
     const o = originRef.current!;
@@ -51,6 +62,10 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
     }
   };
 
+  const isActiveSession = (sessionId: number) => {
+    return startedRef.current && sessionIdRef.current === sessionId;
+  };
+
   /**
    * Handlers:
    */
@@ -62,27 +77,6 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
     props.onDrag?.(payload);
   };
 
-  const onMouseMove = (e: MouseEvent) => {
-    if (!active || !startedRef.current) return;
-
-    const snapshot = toMouseSnapshot(e);
-    promoteIfMoved(snapshot.client);
-    if (!is.dragging) return;
-    else registerMove(e, snapshot);
-  };
-
-  const onTouchMove = (e: TouchEvent) => {
-    if (!active || !startedRef.current) return;
-
-    const snapshot = toTouchSnapshot(e, prevTouchRef.current);
-    promoteIfMoved(snapshot.client);
-    if (!is.dragging) return;
-    else {
-      registerMove(e, snapshot);
-      prevTouchRef.current = snapshot.client;
-    }
-  };
-
   /**
    * Methods:
    */
@@ -90,37 +84,94 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
     startedRef.current = false;
     originRef.current = undefined;
     prevTouchRef.current = undefined;
+    sourceRef.current = 'Unknown';
     draggingRef.current = false; // ← sync
     setDragging(false); //          ← async
     setPointer(undefined);
   };
 
+  const removeListeners = () => {
+    const off = document.removeEventListener;
+    const listeners = listenersRef.current;
+    if (listeners.selectStart) off('selectstart', listeners.selectStart);
+    if (listeners.mouseMove) off('mousemove', listeners.mouseMove);
+    if (listeners.mouseUp) off('mouseup', listeners.mouseUp);
+    if (listeners.touchMove) off('touchmove', listeners.touchMove);
+    if (listeners.touchEnd) off('touchend', listeners.touchEnd);
+    if (listeners.touchCancel) off('touchcancel', listeners.touchCancel);
+    listenersRef.current = {};
+  };
+
   const start = () => {
     if (startedRef.current) return;
+
     resetState();
     startedRef.current = true;
+    sessionIdRef.current += 1;
+    const sessionId = sessionIdRef.current;
 
     const on = document.addEventListener;
+    const onSelectStart: EventListener = (e) => {
+      if (!isActiveSession(sessionId)) return;
+      e.preventDefault();
+    };
+    const onMouseMove: EventListener = (event) => {
+      if (!active || !isActiveSession(sessionId)) return;
+      if (!isMouseLikeEvent(event)) return;
+      if (sourceRef.current === 'Touch') return;
+      sourceRef.current = 'Mouse';
+
+      const snapshot = toMouseSnapshot(event);
+      promoteIfMoved(snapshot.client);
+      if (!is.dragging) return;
+      registerMove(event, snapshot);
+    };
+    const onTouchMove: EventListener = (event) => {
+      if (!active || !isActiveSession(sessionId)) return;
+      if (!isTouchLikeEvent(event)) return;
+      if (sourceRef.current === 'Mouse') return;
+      sourceRef.current = 'Touch';
+
+      const snapshot = toTouchSnapshot(event, prevTouchRef.current);
+      promoteIfMoved(snapshot.client);
+      if (!is.dragging) return;
+      registerMove(event, snapshot);
+      prevTouchRef.current = snapshot.client;
+    };
+    const onMouseUp: EventListener = () => {
+      if (!isActiveSession(sessionId)) return;
+      cancel();
+    };
+    const onTouchEnd: EventListener = () => {
+      if (!isActiveSession(sessionId)) return;
+      cancel();
+    };
+    const onTouchCancel: EventListener = () => {
+      if (!isActiveSession(sessionId)) return;
+      cancel();
+    };
+
+    listenersRef.current = {
+      selectStart: onSelectStart,
+      mouseMove: onMouseMove,
+      mouseUp: onMouseUp,
+      touchMove: onTouchMove,
+      touchEnd: onTouchEnd,
+      touchCancel: onTouchCancel,
+    };
+
     on('selectstart', onSelectStart);
-    if (isTouch) {
-      on('touchmove', onTouchMove, { passive: false }); // NB: need to be non-passive so we can call `preventDefault` if desired.
-      on('touchend', cancel);
-    } else {
-      on('mousemove', onMouseMove);
-      on('mouseup', cancel);
-    }
+    on('mousemove', onMouseMove);
+    on('mouseup', onMouseUp);
+    on('touchmove', onTouchMove, { passive: false }); // NB: non-passive required for preventDefault.
+    on('touchend', onTouchEnd);
+    on('touchcancel', onTouchCancel);
   };
 
   const cancel = () => {
     if (!startedRef.current) return;
+    removeListeners();
     resetState();
-
-    const off = document.removeEventListener;
-    off('mouseup', cancel);
-    off('mousemove', onMouseMove);
-    off('touchmove', onTouchMove);
-    off('touchend', cancel);
-    off('selectstart', onSelectStart);
   };
 
   /**
@@ -170,4 +221,14 @@ export function toModifiers(e: TouchEvent | MouseEvent | React.DragEvent): t.Key
     alt: e.altKey,
     meta: e.metaKey,
   };
+}
+
+function isMouseLikeEvent(event: Event): event is MouseEvent {
+  const e = event as Partial<EventLikeWithClient>;
+  return typeof e.clientX === 'number' && typeof e.clientY === 'number' && !isTouchLikeEvent(event);
+}
+
+function isTouchLikeEvent(event: Event): event is TouchEvent {
+  const e = event as Partial<EventLikeWithTouches>;
+  return Array.isArray(e.touches) || Array.isArray(e.changedTouches);
 }
