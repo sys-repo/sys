@@ -25,7 +25,11 @@ function toRows(refs: string[], visible: number | null): t.BulletList.Item[] {
   const head = refs.slice(0, visible);
   const last = refs[refs.length - 1];
   const items = toBulletItems(head);
-  items.push({ id: '__omitted__', label: <span>..</span>, enabled: false });
+  items.push({
+    kind: 'content',
+    key: '__omitted__',
+    render: () => <span style={{ userSelect: 'none' }}>{'..'}</span>,
+  });
   if (!head.includes(last)) {
     items.push(toBulletItem(last, refs.length - 1));
   }
