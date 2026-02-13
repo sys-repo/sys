@@ -88,7 +88,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
       <KeyValue.UI
         theme={theme.name}
         items={[
-          { kind: 'title', v: 'Playback Content' },
+          { kind: 'title', v: 'MediaPlayback Content' },
           { k: 'docid', v: playback.playback.docid },
           { k: 'assets', v: arraySize(playback.assets) },
           { k: 'beats', v: arraySize(playback.playback.beats) },
