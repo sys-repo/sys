@@ -169,6 +169,63 @@ describe('usePointer', () => {
     }
   });
 
+  it('dedupes repeated down events within the same press cycle', () => {
+    const downCalls: string[] = [];
+    const upCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onDown: (e) => downCalls.push(e.type),
+        onUp: (e) => upCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(downCalls).to.eql(['pointerdown']);
+      expect(upCalls).to.eql(['pointerup']);
+    } finally {
+      unmount();
+    }
+  });
+
+  it('ignores lost-capture after a completed pointerup cycle', () => {
+    const upCalls: string[] = [];
+    const cancelCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+        onCancel: (e) => cancelCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+        onLostPointerCapture: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+      act(() => handlers.onLostPointerCapture(fakePointerEvent('lostpointercapture', target)));
+
+      expect(upCalls).to.eql(['pointerup']);
+      expect(cancelCalls).to.eql([]);
+    } finally {
+      unmount();
+    }
+  });
+
   it('degrades predictably when pointer capture APIs are absent', () => {
     const upCalls: string[] = [];
     const { result, unmount } = renderHook(() =>
@@ -252,6 +309,39 @@ describe('usePointer', () => {
       act(() => handlers.onTouchEnd(fakeTouchEvent('touchend', { x: 2, y: 2 })));
 
       expect(upCalls).to.eql(['touchend']);
+      expect(cancelCalls).to.eql([]);
+    } finally {
+      unmount();
+      (window as Window & { ontouchstart?: unknown }).ontouchstart = prevOntouchstart;
+    }
+  });
+
+  it('ignores stray touch end/cancel without an active touch press cycle', () => {
+    const prevOntouchstart = (window as Window & { ontouchstart?: unknown }).ontouchstart;
+    (window as Window & { ontouchstart?: unknown }).ontouchstart = (() => {}) as (
+      this: GlobalEventHandlers,
+      ev: TouchEvent,
+    ) => unknown;
+
+    const upCalls: string[] = [];
+    const cancelCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+        onCancel: (e) => cancelCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onTouchEnd: React.TouchEventHandler;
+        onTouchCancel: React.TouchEventHandler;
+      };
+
+      act(() => handlers.onTouchEnd(fakeTouchEvent('touchend', { x: 1, y: 1 })));
+      act(() => handlers.onTouchCancel(fakeTouchEvent('touchcancel', { x: 2, y: 2 })));
+
+      expect(upCalls).to.eql([]);
       expect(cancelCalls).to.eql([]);
     } finally {
       unmount();

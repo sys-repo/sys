@@ -4,25 +4,49 @@ import { type t, Is, Kbd } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
+type PointerPhase = 'Idle' | 'Pressed';
+
+type PointerMachineState = {
+  readonly phase: PointerPhase;
+  readonly suppressLostCapture: boolean;
+};
+
+type PointerMachineEvent =
+  | { type: 'down'; captured: boolean }
+  | { type: 'up' }
+  | { type: 'cancel' }
+  | { type: 'lostcapture' }
+  | { type: 'release:start' }
+  | { type: 'release:end' };
+
+type PointerMachineEffect = 'capture:set' | 'capture:release' | 'down' | 'up' | 'cancel';
+
+type PointerMachineTransition = {
+  readonly state: PointerMachineState;
+  readonly effects: readonly PointerMachineEffect[];
+};
+
+type PointerCaptureCapability = {
+  readonly canSet: boolean;
+  readonly canHas: boolean;
+  readonly canRelease: boolean;
+  readonly set?: (pointerId: number) => void;
+  readonly has?: (pointerId: number) => boolean;
+  readonly release?: (pointerId: number) => void;
+};
+
 /**
  * Hook: pointer events + optional file drag/drop.
- * @example:
- *
- *   const pointer = usePointer({ onDrag, onDragdrop });
- *   <div {...pointer.handlers} />
- *
  */
 export const usePointer: t.UsePointer = (input) => {
   const args = wrangle.args(input);
   const { onDrag, onDragdrop, dropGuard } = args;
 
-  /**
-   * Hooks:
-   */
   const [isDown, setDown] = useState(false);
   const downRef = useRef(false);
   const [isOver, setOver] = useState(false);
   const [isFocused, setFocused] = React.useState(false);
+
   const machineRef = useRef<PointerMachineState>(machine.initial());
 
   const drag = usePointerDrag({ onDrag });
@@ -30,9 +54,9 @@ export const usePointer: t.UsePointer = (input) => {
 
   const flags = useCallback(
     (patch: Partial<t.PointerHookFlags> = {}) => {
-      const down = patch?.down ?? isDown;
+      const down = patch.down ?? isDown;
       return {
-        over: patch?.over ?? isOver,
+        over: patch.over ?? isOver,
         down,
         up: !down,
         dragging: drag.is.dragging,
@@ -43,12 +67,6 @@ export const usePointer: t.UsePointer = (input) => {
     [isDown, isOver, drag.is.dragging, dragdrop.is.dragging, isFocused],
   );
 
-  /**
-   * Effect:
-   *    When the low-level drag stops
-   *    (ie. mouse-up outside) reset "down".
-   *
-   */
   useEffect(() => {
     if (!drag.is.dragging) {
       machineRef.current = machine.reset(machineRef.current);
@@ -59,10 +77,28 @@ export const usePointer: t.UsePointer = (input) => {
     }
   }, [drag.is.dragging]);
 
-  /**
-   * General helpers:
-   */
-  const fire = (
+  const toEvent = (synthetic: t.PointerSyntheticEvent): t.PointerEvent => {
+    const point = wrangle.clientPoint(synthetic);
+    return {
+      type: synthetic.type,
+      synthetic,
+      client: point,
+      modifiers: {
+        shift: synthetic.shiftKey,
+        ctrl: synthetic.ctrlKey,
+        alt: synthetic.altKey,
+        meta: synthetic.metaKey,
+      },
+      preventDefault: synthetic.preventDefault.bind(synthetic),
+      stopPropagation: synthetic.stopPropagation.bind(synthetic),
+      cancel() {
+        synthetic.preventDefault();
+        synthetic.stopPropagation();
+      },
+    };
+  };
+
+  const fireAggregate = (
     synthetic: t.PointerSyntheticEvent,
     trigger: t.PointerEvent,
     patch: Partial<t.PointerHookFlags>,
@@ -91,48 +127,45 @@ export const usePointer: t.UsePointer = (input) => {
     capability?: PointerCaptureCapability,
   ) => {
     if (effects.length === 0) return;
-    const trigger = wrangle.pointerEvent(synthetic);
+    const trigger = toEvent(synthetic);
 
     effects.forEach((effect) => {
-      switch (effect) {
-        case 'capture:set': {
-          if (!wrangle.isPointerEvent(synthetic)) return;
-          capability?.setPointerCapture?.(synthetic.pointerId);
-          return;
-        }
+      if (effect === 'capture:set') {
+        if (!wrangle.isPointerEvent(synthetic)) return;
+        capability?.set?.(synthetic.pointerId);
+        return;
+      }
 
-        case 'capture:release': {
-          if (!wrangle.isPointerEvent(synthetic)) return;
-          const has = capability?.hasPointerCapture;
-          const release = capability?.releasePointerCapture;
-          if (!has || !release) return;
-          if (has(synthetic.pointerId)) release(synthetic.pointerId);
-          return;
-        }
+      if (effect === 'capture:release') {
+        if (!wrangle.isPointerEvent(synthetic)) return;
+        const has = capability?.has;
+        const release = capability?.release;
+        if (!has || !release) return;
+        if (has(synthetic.pointerId)) release(synthetic.pointerId);
+        return;
+      }
 
-        case 'down': {
-          applyDown(true);
-          args.onDown?.(trigger);
-          if (drag.active) drag.start();
-          fire(synthetic, trigger, { down: true });
-          return;
-        }
+      if (effect === 'down') {
+        applyDown(true);
+        args.onDown?.(trigger);
+        if (drag.active) drag.start();
+        fireAggregate(synthetic, trigger, { down: true });
+        return;
+      }
 
-        case 'up': {
-          applyDown(false);
-          args.onUp?.(trigger);
-          drag.cancel();
-          fire(synthetic, trigger, { down: false });
-          return;
-        }
+      if (effect === 'up') {
+        applyDown(false);
+        args.onUp?.(trigger);
+        drag.cancel();
+        fireAggregate(synthetic, trigger, { down: false });
+        return;
+      }
 
-        case 'cancel': {
-          applyDown(false);
-          args.onCancel?.(trigger);
-          drag.cancel();
-          fire(synthetic, trigger, { down: false });
-          return;
-        }
+      if (effect === 'cancel') {
+        applyDown(false);
+        args.onCancel?.(trigger);
+        drag.cancel();
+        fireAggregate(synthetic, trigger, { down: false });
       }
     });
   };
@@ -148,69 +181,52 @@ export const usePointer: t.UsePointer = (input) => {
     runEffects(transition.effects, synthetic, capability);
   };
 
-  /**
-   * Pointer-in / Pointer-out:
-   */
-  const over = (inside: boolean) => (e: t.PointerSyntheticEvent) => {
-    const trigger = wrangle.pointerEvent(e);
+  const over = (inside: boolean) => (synthetic: t.PointerSyntheticEvent) => {
+    const trigger = toEvent(synthetic);
     setOver(inside);
     inside ? args.onEnter?.(trigger) : args.onLeave?.(trigger);
-    fire(e, trigger, { over: inside, down: downRef.current });
+    fireAggregate(synthetic, trigger, { over: inside, down: downRef.current });
   };
 
-  /**
-   * HANDLERS: Pointer:
-   */
   const onPointerDown: React.PointerEventHandler = (e) => {
-    const capability = wrangle.captureCapability(e.currentTarget);
-    dispatch(wrangle.machineEvent.down(e.type, capability.canSet), e, capability);
+    const capability = wrangle.capability(e.currentTarget);
+    dispatch({ type: 'down', captured: capability.canSet }, e, capability);
   };
 
   const onPointerUp: React.PointerEventHandler = (e) => {
-    const capability = wrangle.captureCapability(e.currentTarget);
+    const capability = wrangle.capability(e.currentTarget);
     dispatch({ type: 'release:start' });
     try {
-      dispatch(wrangle.machineEvent.up(e.type), e, capability);
+      dispatch({ type: 'up' }, e, capability);
     } finally {
       dispatch({ type: 'release:end' });
     }
   };
 
   const onPointerCancel: React.PointerEventHandler = (e) => {
-    const capability = wrangle.captureCapability(e.currentTarget);
-    dispatch(wrangle.machineEvent.cancel(e.type), e, capability);
+    const capability = wrangle.capability(e.currentTarget);
+    dispatch({ type: 'cancel' }, e, capability);
   };
 
   const onLostPointerCapture: React.PointerEventHandler = (e) => {
-    dispatch({ type: 'lostpointercapture' }, e);
+    dispatch({ type: 'lostcapture' }, e);
   };
 
-  /**
-   * HANDLERS: Touch:
-   */
-  const onTouchStart: React.TouchEventHandler = (ev) => {
-    over(true)(ev);
-    dispatch(wrangle.machineEvent.down(ev.type, false), ev);
+  const onTouchStart: React.TouchEventHandler = (e) => {
+    over(true)(e);
+    dispatch({ type: 'down', captured: false }, e);
   };
 
-  const onTouchEnd: React.TouchEventHandler = (ev) => {
-    dispatch(wrangle.machineEvent.up(ev.type), ev);
-    over(false)(ev);
+  const onTouchEnd: React.TouchEventHandler = (e) => {
+    dispatch({ type: 'up' }, e);
+    over(false)(e);
   };
 
-  const onTouchCancel: React.TouchEventHandler = (ev) => {
-    dispatch(wrangle.machineEvent.cancel(ev.type), ev);
-    over(false)(ev);
+  const onTouchCancel: React.TouchEventHandler = (e) => {
+    dispatch({ type: 'cancel' }, e);
+    over(false)(e);
   };
 
-  /**
-   * HANDLERS: Focus:
-   */
-  const focused = (value: boolean): React.FormEventHandler => () => setFocused(value);
-
-  /**
-   * Combine handlers:
-   */
   const pointerHandlers: t.PointerHookMouseHandlers = {
     onPointerDown,
     onPointerUp,
@@ -226,21 +242,18 @@ export const usePointer: t.UsePointer = (input) => {
     onTouchCancel,
   };
 
-  const focusHanders: t.PointerHookFocusHandlers = {
-    onFocus: focused(true),
-    onBlur: focused(false),
+  const focusHandlers: t.PointerHookFocusHandlers = {
+    onFocus: () => setFocused(true),
+    onBlur: () => setFocused(false),
   };
 
   const handlers: t.PointerHookHandlers = {
     ...pointerHandlers,
     ...touchHandlers,
-    ...focusHanders,
+    ...focusHandlers,
     ...dragdrop.handlers,
   };
 
-  /**
-   * API:
-   */
   return {
     handlers,
     is: flags(),
@@ -256,35 +269,6 @@ export const usePointer: t.UsePointer = (input) => {
       dragdrop.cancel();
     },
   } as const;
-};
-
-type PointerMachineState = {
-  readonly phase: 'Idle' | 'Pressed' | 'PressedCaptured';
-  readonly suppressLostCapture: boolean;
-};
-
-type PointerMachineEvent =
-  | { type: 'down'; source: string; captured: boolean }
-  | { type: 'up'; source: string }
-  | { type: 'cancel'; source: string }
-  | { type: 'lostpointercapture' }
-  | { type: 'release:start' }
-  | { type: 'release:end' };
-
-type PointerMachineEffect = 'capture:set' | 'capture:release' | 'down' | 'up' | 'cancel';
-
-type PointerMachineTransition = {
-  readonly state: PointerMachineState;
-  readonly effects: readonly PointerMachineEffect[];
-};
-
-type PointerCaptureCapability = {
-  readonly canSet: boolean;
-  readonly canHas: boolean;
-  readonly canRelease: boolean;
-  readonly setPointerCapture?: (pointerId: number) => void;
-  readonly hasPointerCapture?: (pointerId: number) => boolean;
-  readonly releasePointerCapture?: (pointerId: number) => void;
 };
 
 const machine = {
@@ -310,13 +294,14 @@ const machine = {
 
     if (event.type === 'down') {
       if (state.phase !== 'Idle') return { state, effects: [] };
-      const phase = event.captured ? 'PressedCaptured' : 'Pressed';
-      const effects: PointerMachineEffect[] = event.captured ? ['capture:set', 'down'] : ['down'];
-      return { state: { ...state, phase }, effects };
+      return {
+        state: { ...state, phase: 'Pressed' },
+        effects: event.captured ? ['capture:set', 'down'] : ['down'],
+      };
     }
 
     if (event.type === 'up') {
-      if (state.phase === 'Idle') return { state, effects: [] };
+      if (state.phase !== 'Pressed') return { state, effects: [] };
       return {
         state: { ...state, phase: 'Idle' },
         effects: ['capture:release', 'up'],
@@ -324,15 +309,15 @@ const machine = {
     }
 
     if (event.type === 'cancel') {
-      if (state.phase === 'Idle') return { state, effects: [] };
+      if (state.phase !== 'Pressed') return { state, effects: [] };
       return {
         state: { ...state, phase: 'Idle' },
         effects: ['capture:release', 'cancel'],
       };
     }
 
-    if (event.type === 'lostpointercapture') {
-      if (state.phase === 'Idle') return { state, effects: [] };
+    if (event.type === 'lostcapture') {
+      if (state.phase !== 'Pressed') return { state, effects: [] };
       if (state.suppressLostCapture) return { state, effects: [] };
       return {
         state: { ...state, phase: 'Idle' },
@@ -344,9 +329,6 @@ const machine = {
   },
 } as const;
 
-/**
- * Helpers:
- */
 const wrangle = {
   args(input: unknown): t.PointerHookArgs {
     if (input == null) return {};
@@ -354,21 +336,7 @@ const wrangle = {
     return input;
   },
 
-  machineEvent: {
-    down(source: string, captured: boolean): PointerMachineEvent {
-      return { type: 'down', source, captured };
-    },
-
-    up(source: string): PointerMachineEvent {
-      return { type: 'up', source };
-    },
-
-    cancel(source: string): PointerMachineEvent {
-      return { type: 'cancel', source };
-    },
-  },
-
-  captureCapability(target: unknown): PointerCaptureCapability {
+  capability(target: unknown): PointerCaptureCapability {
     const currentTarget = target as {
       setPointerCapture?: unknown;
       hasPointerCapture?: unknown;
@@ -387,44 +355,23 @@ const wrangle = {
       canSet,
       canHas,
       canRelease,
-      setPointerCapture: canSet
+      set: canSet
         ? (pointerId: number) => {
             set.call(currentTarget, pointerId);
           }
         : undefined,
-      hasPointerCapture:
+      has:
         canHas && canRelease
           ? (pointerId: number) => {
               return has.call(currentTarget, pointerId);
             }
           : undefined,
-      releasePointerCapture:
+      release:
         canHas && canRelease
           ? (pointerId: number) => {
               release.call(currentTarget, pointerId);
             }
           : undefined,
-    };
-  },
-
-  pointerEvent(e: t.PointerSyntheticEvent): t.PointerEvent {
-    const point = wrangle.clientPoint(e);
-    return {
-      type: e.type,
-      synthetic: e,
-      client: point,
-      modifiers: {
-        shift: e.shiftKey,
-        ctrl: e.ctrlKey,
-        alt: e.altKey,
-        meta: e.metaKey,
-      },
-      preventDefault: e.preventDefault.bind(e),
-      stopPropagation: e.stopPropagation.bind(e),
-      cancel() {
-        e.preventDefault();
-        e.stopPropagation();
-      },
     };
   },
 
