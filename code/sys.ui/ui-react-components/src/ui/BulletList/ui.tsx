@@ -30,6 +30,10 @@ export const BulletList: t.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {items.map((item) => {
+        if (item.kind === 'content') {
+          return <div key={item.key}>{item.render()}</div>;
+        }
+
         const id = item.id;
         const enabled = item.enabled ?? true;
         const label = item.label ?? id;

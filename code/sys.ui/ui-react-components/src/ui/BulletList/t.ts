@@ -10,11 +10,18 @@ export namespace BulletList {
   };
   export type Selected = t.StringId | t.StringId[];
 
-  export type Item = {
+  export type SelectableItem = {
+    kind?: 'item';
     id: t.StringId;
     label?: t.ReactNode;
     enabled?: boolean;
   };
+  export type ContentItem = {
+    kind: 'content';
+    key: t.StringId;
+    render: () => t.ReactNode;
+  };
+  export type Item = SelectableItem | ContentItem;
 
   export type Props = {
     items: Item[];

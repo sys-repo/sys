@@ -19,6 +19,7 @@ export default Spec.describe(D.displayName, async (e) => {
           { id: 'localhost' },
           { id: 'production' },
           { id: 'foobar' },
+          { kind: 'content', key: 'dummy-content', render: () => <span>{'.. dummy content row ..'}</span> },
           { id: 'disabled', enabled: false },
         ]}
         onSelect={(e) => {
