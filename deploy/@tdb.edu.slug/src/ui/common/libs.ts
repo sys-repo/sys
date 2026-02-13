@@ -24,6 +24,7 @@ export {
   TreeHost,
   TreeView,
 } from '@sys/ui-react-components';
+export { Fonts, useFontBundle } from '@sys/ui-react-components/fonts';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
 export { Effect, useEffectController } from '@sys/ui-react/effect';
 export { Timecode as TimecodeState } from '@sys/ui-state/timecode';
