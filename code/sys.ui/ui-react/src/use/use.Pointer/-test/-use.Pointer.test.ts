@@ -250,6 +250,54 @@ describe('usePointer', () => {
     }
   });
 
+  it('completes press cycle when setPointerCapture throws', () => {
+    const upCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: false, throwOnSet: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(upCalls).to.eql(['pointerup']);
+    } finally {
+      unmount();
+    }
+  });
+
+  it('skips pointer capture when capture is disabled', () => {
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        capture: false,
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(target.calls.set).to.eql(0);
+      expect(target.calls.release).to.eql(0);
+    } finally {
+      unmount();
+    }
+  });
+
   it('touch cancel invokes onCancel (not onUp)', () => {
     const prevOntouchstart = (window as Window & { ontouchstart?: unknown }).ontouchstart;
     (window as Window & { ontouchstart?: unknown }).ontouchstart = (() => {}) as (
@@ -360,6 +408,7 @@ type PointerTargetLike = {
 function fakePointerTarget(args: {
   hasCapture: boolean;
   captureFollowsSet?: boolean;
+  throwOnSet?: boolean;
   onRelease?: () => void;
 }) {
   const calls = { set: 0, release: 0 };
@@ -367,6 +416,7 @@ function fakePointerTarget(args: {
   return {
     calls,
     setPointerCapture() {
+      if (args.throwOnSet) throw new Error('setPointerCapture failed');
       calls.set += 1;
       if (args.captureFollowsSet ?? true) captured = true;
     },

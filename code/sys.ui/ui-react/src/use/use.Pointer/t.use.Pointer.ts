@@ -13,6 +13,12 @@ type T = React.TouchEventHandler;
 export type UsePointer = (input?: t.PointerHookArgs | t.PointerEventsHandler) => t.PointerHook;
 /** Arguments passed to the `usePointer` hook. */
 export type PointerHookArgs = {
+  /**
+   * Pointer-capture policy for pointer events.
+   * - `true` (default): attempt set/releasePointerCapture when available.
+   * - `false`: never attempt pointer capture.
+   */
+  capture?: boolean;
   on?: PointerEventsHandler;
   onDown?: PointerEventHandler;
   onUp?: PointerEventHandler;

@@ -41,9 +41,11 @@ type PointerCaptureCapability = {
 export const usePointer: t.UsePointer = (input) => {
   const args = wrangle.args(input);
   const { onDrag, onDragdrop, dropGuard } = args;
+  const captureEnabled = args.capture ?? true;
 
   const [isDown, setDown] = useState(false);
   const downRef = useRef(false);
+  const didCaptureRef = useRef(false);
   const [isOver, setOver] = useState(false);
   const [isFocused, setFocused] = React.useState(false);
 
@@ -71,6 +73,7 @@ export const usePointer: t.UsePointer = (input) => {
     if (!drag.is.dragging) {
       machineRef.current = machine.reset(machineRef.current);
       downRef.current = false;
+      didCaptureRef.current = false;
       setDown(false);
       drag.cancel();
       dragdrop.cancel();
@@ -118,6 +121,7 @@ export const usePointer: t.UsePointer = (input) => {
 
   const applyDown = (value: boolean) => {
     downRef.current = value;
+    if (!value) didCaptureRef.current = false;
     setDown(value);
   };
 
@@ -132,16 +136,34 @@ export const usePointer: t.UsePointer = (input) => {
     effects.forEach((effect) => {
       if (effect === 'capture:set') {
         if (!wrangle.isPointerEvent(synthetic)) return;
-        capability?.set?.(synthetic.pointerId);
+        const set = capability?.set;
+        if (!set) {
+          didCaptureRef.current = false;
+          return;
+        }
+
+        try {
+          set(synthetic.pointerId);
+          didCaptureRef.current = true;
+        } catch {
+          didCaptureRef.current = false;
+        }
         return;
       }
 
       if (effect === 'capture:release') {
         if (!wrangle.isPointerEvent(synthetic)) return;
+        if (!didCaptureRef.current) return;
         const has = capability?.has;
         const release = capability?.release;
         if (!has || !release) return;
-        if (has(synthetic.pointerId)) release(synthetic.pointerId);
+        try {
+          if (has(synthetic.pointerId)) release(synthetic.pointerId);
+        } catch {
+          // Ignore capture release failures; lifecycle must still complete.
+        } finally {
+          didCaptureRef.current = false;
+        }
         return;
       }
 
@@ -190,7 +212,7 @@ export const usePointer: t.UsePointer = (input) => {
 
   const onPointerDown: React.PointerEventHandler = (e) => {
     const capability = wrangle.capability(e.currentTarget);
-    dispatch({ type: 'down', captured: capability.canSet }, e, capability);
+    dispatch({ type: 'down', captured: captureEnabled && capability.canSet }, e, capability);
   };
 
   const onPointerUp: React.PointerEventHandler = (e) => {
@@ -262,6 +284,7 @@ export const usePointer: t.UsePointer = (input) => {
     reset() {
       machineRef.current = machine.reset(machineRef.current);
       downRef.current = false;
+      didCaptureRef.current = false;
       setFocused(false);
       setDown(false);
       setOver(false);
