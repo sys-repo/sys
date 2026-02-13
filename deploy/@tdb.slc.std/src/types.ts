@@ -26,6 +26,4 @@ export type CanvasPanel =
  * Canvas panels as a {map}.
  */
 export type CanvasPanelPartialMap<T> = Partial<CanvasPanelMap<T>>;
-export type CanvasPanelMap<T> = {
-  [Panel in CanvasPanel]: T;
-};
+export type CanvasPanelMap<T> = { [Panel in CanvasPanel]: T };
