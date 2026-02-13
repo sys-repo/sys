@@ -43,7 +43,7 @@ describe('usePointer', () => {
         onPointerDown: React.PointerEventHandler;
         onPointerUp: React.PointerEventHandler;
       };
-      const target = fakePointerTarget({ hasCapture: false });
+      const target = fakePointerTarget({ hasCapture: false, captureFollowsSet: false });
 
       act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
       act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
@@ -137,6 +137,62 @@ describe('usePointer', () => {
     }
   });
 
+  it('dedupes cancel storms and ignores trailing stray events', () => {
+    const upCalls: string[] = [];
+    const cancelCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+        onCancel: (e) => cancelCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerCancel: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+        onLostPointerCapture: React.PointerEventHandler;
+      };
+      const target = fakePointerTarget({ hasCapture: true });
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerCancel(fakePointerEvent('pointercancel', target)));
+      act(() => handlers.onPointerCancel(fakePointerEvent('pointercancel', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+      act(() => handlers.onLostPointerCapture(fakePointerEvent('lostpointercapture', target)));
+
+      expect(upCalls).to.eql([]);
+      expect(cancelCalls).to.eql(['pointercancel']);
+    } finally {
+      unmount();
+    }
+  });
+
+  it('degrades predictably when pointer capture APIs are absent', () => {
+    const upCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onPointerDown: React.PointerEventHandler;
+        onPointerUp: React.PointerEventHandler;
+      };
+      const target: PointerTargetLike = {};
+
+      act(() => handlers.onPointerDown(fakePointerEvent('pointerdown', target)));
+      act(() => handlers.onPointerUp(fakePointerEvent('pointerup', target)));
+
+      expect(upCalls).to.eql(['pointerup']);
+    } finally {
+      unmount();
+    }
+  });
+
   it('touch cancel invokes onCancel (not onUp)', () => {
     const prevOntouchstart = (window as Window & { ontouchstart?: unknown }).ontouchstart;
     (window as Window & { ontouchstart?: unknown }).ontouchstart = (() => {}) as (
@@ -169,32 +225,75 @@ describe('usePointer', () => {
       (window as Window & { ontouchstart?: unknown }).ontouchstart = prevOntouchstart;
     }
   });
+
+  it('touch end invokes onUp (not onCancel)', () => {
+    const prevOntouchstart = (window as Window & { ontouchstart?: unknown }).ontouchstart;
+    (window as Window & { ontouchstart?: unknown }).ontouchstart = (() => {}) as (
+      this: GlobalEventHandlers,
+      ev: TouchEvent,
+    ) => unknown;
+
+    const upCalls: string[] = [];
+    const cancelCalls: string[] = [];
+    const { result, unmount } = renderHook(() =>
+      usePointer({
+        onUp: (e) => upCalls.push(e.type),
+        onCancel: (e) => cancelCalls.push(e.type),
+      }),
+    );
+
+    try {
+      const handlers = result.current.handlers as {
+        onTouchStart: React.TouchEventHandler;
+        onTouchEnd: React.TouchEventHandler;
+      };
+
+      act(() => handlers.onTouchStart(fakeTouchEvent('touchstart', { x: 1, y: 1 })));
+      act(() => handlers.onTouchEnd(fakeTouchEvent('touchend', { x: 2, y: 2 })));
+
+      expect(upCalls).to.eql(['touchend']);
+      expect(cancelCalls).to.eql([]);
+    } finally {
+      unmount();
+      (window as Window & { ontouchstart?: unknown }).ontouchstart = prevOntouchstart;
+    }
+  });
 });
 
-function fakePointerTarget(args: { hasCapture: boolean; onRelease?: () => void }) {
+type PointerTargetLike = {
+  setPointerCapture?: (pointerId: number) => void;
+  releasePointerCapture?: (pointerId: number) => void;
+  hasPointerCapture?: (pointerId: number) => boolean;
+  calls?: { set: number; release: number };
+};
+
+function fakePointerTarget(args: {
+  hasCapture: boolean;
+  captureFollowsSet?: boolean;
+  onRelease?: () => void;
+}) {
   const calls = { set: 0, release: 0 };
+  let captured = args.hasCapture;
   return {
     calls,
     setPointerCapture() {
       calls.set += 1;
+      if (args.captureFollowsSet ?? true) captured = true;
     },
     releasePointerCapture() {
       calls.release += 1;
+      captured = false;
       args.onRelease?.();
     },
     hasPointerCapture() {
-      return args.hasCapture;
+      return captured;
     },
-  };
+  } satisfies PointerTargetLike;
 }
 
 function fakePointerEvent(
   type: string,
-  currentTarget: {
-    setPointerCapture(pointerId: number): void;
-    releasePointerCapture(pointerId: number): void;
-    hasPointerCapture(pointerId: number): boolean;
-  },
+  currentTarget: PointerTargetLike,
 ): React.PointerEvent {
   return {
     type,
