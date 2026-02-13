@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, Color, css, ObjectView, PlaybackDriver } from './common.ts';
+import { type t, Color, css, PlaybackDriver } from './common.ts';
 
-export type PayloadProps = {
+export type TimelineInfoProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   playback?: t.SpecTimelineManifest;
@@ -13,17 +13,13 @@ export type PayloadProps = {
 /**
  * Component:
  */
-export const Payload: React.FC<PayloadProps> = (props) => {
+export const TimelineInfo: React.FC<TimelineInfoProps> = (props) => {
   const { debug = false } = props;
-
   const timeline = PlaybackDriver.Util.usePlaybackTimeline({
-    spec: props.playback ? { composition: props.playback.composition, beats: props.playback.beats } : undefined,
+    spec: props.playback
+      ? { composition: props.playback.composition, beats: props.playback.beats }
+      : undefined,
   });
-
-  const beats = timeline.experience?.beats ?? [];
-  const currentBeat = props.snapshot?.state.currentBeat;
-  const beat = currentBeat != null ? beats[currentBeat] : undefined;
-  const payload = beat?.payload;
 
   const theme = Color.theme(props.theme);
   const styles = {
@@ -32,19 +28,11 @@ export const Payload: React.FC<PayloadProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       gap: 8,
-      padding: 10,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <ObjectView
-        theme={theme.name}
-        name={'payload'}
-        data={payload}
-        expand={1}
-        style={{ marginBottom: 20 }}
-      />
       <PlaybackDriver.Dev.InfoPanel.UI
         theme={theme.name}
         experience={timeline.experience}
@@ -76,4 +64,3 @@ function toBundle(
     },
   };
 }
-

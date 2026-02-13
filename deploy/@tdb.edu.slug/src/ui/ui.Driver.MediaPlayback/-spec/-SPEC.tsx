@@ -1,6 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { HeadDebug } from './-SPEC.Debug.tsx';
-import { D, SpecRoot, createDebugSignals, makeDebugPanel } from './common.ts';
+import { SpecRoot } from './-SPEC.ui.Root.tsx';
+import { D, createDebugSignals, makeDebugPanel } from './common.ts';
 
 export default Spec.describe(D.name, async (e) => {
   const debug = await createDebugSignals({
