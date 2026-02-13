@@ -1,16 +1,15 @@
 import React from 'react';
 import {
   type t,
-  Is,
-  Obj,
   Color,
-  css,
-  ObjectView,
   Cropmarks,
-  useFontBundle,
+  css,
   Fonts,
+  Is,
+  toContentData,
+  toFileData,
+  useFontBundle,
 } from './common.ts';
-import { toContentData, toFileData } from '../../ui.Driver.TreeContent/-spec.content/u.data.ts';
 
 type O = Record<string, unknown>;
 
@@ -59,12 +58,16 @@ export const MainSlot: React.FC<MainSlotProps> = (props) => {
     }),
   };
 
+  const elBody = (
+    <div className={styles.body.class}>
+      <div className={styles.title.class}>{title || 'Untitled'}</div>
+    </div>
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks size={{ mode: 'fill' }} borderOpacity={0.03}>
-        <div className={styles.body.class}>
-          <div className={styles.title.class}>{title || 'Untitled'}</div>
-        </div>
+        {elBody}
       </Cropmarks>
     </div>
   );
