@@ -71,6 +71,7 @@ function handleSelect(
   e: t.ButtonMouseHandlerArgs,
 ): void {
   if (e.action !== 'MouseDown') return;
+  if (!e.is.enabled) return;
   onSelect?.(toSelectEvent(id, e.modifiers));
 }
 
