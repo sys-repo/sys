@@ -40,8 +40,10 @@ describe('Layout.Tabs', () => {
         <Tabs.UI items={items} value={'a'} onChange={(e) => events.push(e.id)} />,
         { strict: false },
       );
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
       const root = res.container.firstElementChild as HTMLElement;
+      if (!root) throw new Error('expected Tabs root element');
       const strip = root.firstElementChild as HTMLElement;
       const selected = strip.children.item(0) as HTMLElement;
       pointerPatch(selected);
@@ -67,8 +69,24 @@ describe('Layout.Tabs', () => {
         next.dispatchEvent(pointer('pointerdown'));
         next.dispatchEvent(pointer('pointerup'));
       }
+      const baseline = events.length;
+      expect(baseline).to.equal(21);
 
-      expect(events.length).to.equal(21);
+      let seed = 12345;
+      const rand = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 0x100000000;
+      };
+      let expectedDeterministic = 0;
+      for (let i = 0; i < 500; i++) {
+        const target = rand() < 0.5 ? tabB : selected;
+        const cancel = rand() < 0.2;
+        target.dispatchEvent(pointer('pointerdown'));
+        target.dispatchEvent(pointer(cancel ? 'pointercancel' : 'pointerup'));
+        if (!cancel && target === tabB) expectedDeterministic += 1;
+      }
+
+      expect(events.length).to.equal(baseline + expectedDeterministic);
       expect(events.every((id) => id === 'b')).to.equal(true);
       res.dispose();
       await new Promise<void>((resolve) => setTimeout(resolve, 0));

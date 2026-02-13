@@ -111,6 +111,72 @@ describe('usePointerDrag', () => {
       }
     });
   });
+
+  it('removes all listeners when drag session ends from mouseup and touchcancel', () => {
+    withPatchedDocument((ctx) => {
+      const { result, unmount } = renderHook(() => usePointerDrag({ onDrag: () => {} }));
+
+      try {
+        result.current.start();
+        expect(ctx.listeners.size).to.eql(6);
+
+        const onMouseUp = ctx.listeners.get('mouseup');
+        expect(typeof onMouseUp).to.eql('function');
+        onMouseUp?.(new window.Event('mouseup'));
+        expect(ctx.listeners.size).to.eql(0);
+
+        result.current.start();
+        expect(ctx.listeners.size).to.eql(6);
+        const onTouchCancel = ctx.listeners.get('touchcancel');
+        expect(typeof onTouchCancel).to.eql('function');
+        onTouchCancel?.(new window.Event('touchcancel'));
+        expect(ctx.listeners.size).to.eql(0);
+      } finally {
+        unmount();
+      }
+    });
+  });
+
+  it('locks input source to first move kind for a session', () => {
+    withPatchedDocument((ctx) => {
+      const calls: number[] = [];
+      const { result, unmount } = renderHook(() =>
+        usePointerDrag({
+          onDrag: (e) => calls.push(e.client.x),
+        }),
+      );
+
+      try {
+        result.current.start();
+        const touchMove = ctx.listeners.get('touchmove');
+        const mouseMove = ctx.listeners.get('mousemove');
+        expect(typeof touchMove).to.eql('function');
+        expect(typeof mouseMove).to.eql('function');
+
+        touchMove?.(fakeTouchMove({ x: 10, y: 10 }));
+        touchMove?.(fakeTouchMove({ x: 20, y: 10 }));
+        mouseMove?.(fakeMouseMove({ x: 40, y: 10 }));
+        mouseMove?.(fakeMouseMove({ x: 44, y: 10 }));
+        expect(calls).to.eql([20]);
+
+        result.current.cancel();
+        result.current.start();
+
+        const touchMove2 = ctx.listeners.get('touchmove');
+        const mouseMove2 = ctx.listeners.get('mousemove');
+        expect(typeof touchMove2).to.eql('function');
+        expect(typeof mouseMove2).to.eql('function');
+
+        mouseMove2?.(fakeMouseMove({ x: 12, y: 10 }));
+        mouseMove2?.(fakeMouseMove({ x: 16, y: 10 }));
+        touchMove2?.(fakeTouchMove({ x: 30, y: 10 }));
+        touchMove2?.(fakeTouchMove({ x: 34, y: 10 }));
+        expect(calls).to.eql([20, 16]);
+      } finally {
+        unmount();
+      }
+    });
+  });
 });
 
 function withPatchedDocument(run: (ctx: PatchCtx) => void) {
