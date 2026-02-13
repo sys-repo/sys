@@ -3,7 +3,7 @@ import { HeadObject, PayloadObject } from './-ui.Objects.tsx';
 import { PlayControls } from './-ui.PlayControls.tsx';
 import { TimelineInfo } from './-ui.TimelineInfo.tsx';
 import { toPlaybackData, usePlaybackRuntime } from './-u.playback.runtime.ts';
-import { D, type t, Button, Color, css, Player, Signal } from './common.ts';
+import { D, type t, Color, css, Signal } from './common.ts';
 import type { DebugSignals as DebugSignalsBase } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
 
 export type HeadDebugProps = {
@@ -26,8 +26,7 @@ const Styles = {
  */
 export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
-  const v = Signal.toObject(p);
+  const v = Signal.toObject(debug.props);
   const content = debug.orchestrator.content.current();
   const data = toPlaybackData(content.data);
   const playback = data?.playback;
@@ -35,7 +34,6 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
   const runtime = usePlaybackRuntime({
     playback,
     assets,
-    origin: v.origin,
   });
 
   Signal.useRedrawEffect(debug.listen);
@@ -55,17 +53,8 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
       <div>
         <div className={Styles.title.class}>{D.name}</div>
         <hr />
-        <Button
-          block
-          label={() => `kind: ${v.cardKind}`}
-          onClick={() => (p.cardKind.value = 'playback-content')}
-        />
-        <Button
-          block
-          label={() => `content: (reset)`}
-          onClick={() => debug.orchestrator.content.intent({ type: 'reset' })}
-        />
         <HeadObject
+          style={{ marginTop: 16 }}
           theme={theme.name}
           data={toHeadObjectData({
             selection: debug.orchestrator.selection.current(),
@@ -73,27 +62,13 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
             playback,
             assets,
           })}
-          style={{ marginTop: 16 }}
         />
         <PayloadObject
+          style={{ marginTop: 6 }}
           theme={theme.name}
           data={{ playback, snapshot: runtime.snapshot }}
-          style={{ marginTop: 10, marginBottom: 20 }}
         />
       </div>
-
-      <Player.Video.Decks.UI
-        decks={runtime.decks}
-        active={runtime.snapshot.state.decks.active}
-        muted={true}
-        show={'both'}
-        aspectRatio={'4/3'}
-        gap={20}
-        style={{
-          // Margin: [10, 50, 15, 50],
-          backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-        }}
-      />
 
       <TimelineInfo
         debug={v.debug}

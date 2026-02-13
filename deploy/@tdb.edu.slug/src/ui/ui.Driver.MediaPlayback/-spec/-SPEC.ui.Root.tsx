@@ -40,7 +40,6 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const runtime = usePlaybackRuntime({
     playback: media?.playback,
     assets: media?.assets,
-    origin: v.origin,
   });
   const aux = media && (
     <Player.Video.Decks.UI
@@ -79,4 +78,3 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     </div>
   );
 };
-

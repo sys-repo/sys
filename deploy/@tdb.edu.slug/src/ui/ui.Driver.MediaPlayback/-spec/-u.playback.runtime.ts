@@ -4,7 +4,6 @@ import { type t, PlaybackDriver, Player } from './common.ts';
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
   readonly assets?: readonly t.SpecTimelineAsset[];
-  readonly origin?: t.SlugUrlOrigin;
 }) {
   const timeline = PlaybackDriver.Util.usePlaybackTimeline({
     spec: args.playback
@@ -13,7 +12,7 @@ export function usePlaybackRuntime(args: {
   });
 
   const decks = React.useMemo(() => Player.Video.Decks.create(), []);
-  const bundle = toBundle(args.playback, args.assets, args.origin?.cdn.default);
+  const bundle = toBundle(args.playback, args.assets);
   const { controller, snapshot } = PlaybackDriver.useDriver({
     decks,
     init: timeline.playback ? { timeline: timeline.playback } : undefined,
@@ -48,26 +47,14 @@ export function toPlaybackData(input: unknown):
   };
 }
 
-function toHref(href: string, base: string | undefined): string {
-  if (typeof href !== 'string') return '';
-  if (href.startsWith('http://') || href.startsWith('https://')) return href;
-  if (!base) return href;
-  try {
-    return new URL(href, base).toString();
-  } catch {
-    return href;
-  }
-}
-
 function toBundle(
   playback: t.SpecTimelineManifest | undefined,
   assets: readonly t.SpecTimelineAsset[] | undefined,
-  hrefBase: string | undefined,
 ): t.SpecTimelineBundle | undefined {
   if (!playback) return undefined;
   const table = new Map<string, t.SpecTimelineAsset>();
   for (const item of assets ?? []) {
-    table.set(`${item.kind}:${item.logicalPath}`, { ...item, href: toHref(item.href, hrefBase) });
+    table.set(`${item.kind}:${item.logicalPath}`, item);
   }
   return {
     docid: playback.docid,
@@ -80,4 +67,3 @@ function toBundle(
     },
   };
 }
-
