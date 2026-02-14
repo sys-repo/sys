@@ -105,7 +105,7 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
       <div data-part={'result-visibility-switch'}>
         <Switch
           theme={theme.name}
-          height={18}
+          height={16}
           value={resultsVisible}
           onClick={() => props.onResultsVisibleChange?.(!resultsVisible)}
         />
@@ -117,10 +117,12 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
     <div className={styles.body.base.class}>
       {elTitle}
       <div
-        className={css(
-          styles.body.content.base,
-          showResult && hasResponse ? styles.body.content.withResponse : undefined,
-        ).class}
+        className={
+          css(
+            styles.body.content.base,
+            showResult && hasResponse ? styles.body.content.withResponse : undefined,
+          ).class
+        }
       >
         {showResult && hasItems && (
           <div className={styles.body.content.top.class}>
@@ -129,10 +131,12 @@ export const Result: React.FC<t.ActionProbe.ResultProps> = (props) => {
         )}
         {showResult && hasResponse && (
           <div
-            className={css(
-              styles.body.content.response,
-              hasSplit ? styles.body.content.responseSplit : undefined,
-            ).class}
+            className={
+              css(
+                styles.body.content.response,
+                hasSplit ? styles.body.content.responseSplit : undefined,
+              ).class
+            }
           >
             <div className={styles.body.content.inner.class}>
               <ObjectView
