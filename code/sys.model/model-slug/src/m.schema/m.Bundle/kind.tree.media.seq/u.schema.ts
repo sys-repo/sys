@@ -4,6 +4,20 @@ import { BundleDescriptorBaseFields } from '../u.schema.core.ts';
 
 const Dir = Type.String({ description: 'Directory name relative to base path.' });
 const Path = Type.String({ description: 'Relative file path.' });
+const ShardPolicy = Type.Object(
+  {
+    strategy: Type.Literal('prefix-range'),
+    total: Type.Number(),
+  },
+  { additionalProperties: false },
+);
+const LayoutShard = Type.Object(
+  {
+    video: Type.Optional(ShardPolicy),
+    image: Type.Optional(ShardPolicy),
+  },
+  { additionalProperties: false },
+);
 
 const LayoutMedia = Type.Object(
   {
@@ -17,6 +31,7 @@ const LayoutMedia = Type.Object(
         { additionalProperties: false },
       ),
     ),
+    shard: Type.Optional(LayoutShard),
   },
   { additionalProperties: false },
 );
@@ -40,4 +55,4 @@ export const BundleDescriptorSlugTreeMediaSeqSchema: t.TSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export { LayoutMedia, MediaFiles };
+export { LayoutMedia, MediaFiles, LayoutShard };

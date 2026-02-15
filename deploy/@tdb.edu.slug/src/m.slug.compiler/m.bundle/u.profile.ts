@@ -1,4 +1,4 @@
-import { type t, Crdt, Fs, Slug } from './common.ts';
+import { type t, Crdt, Fs, Shard, Slug } from './common.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { writeDistClientFiles } from './u.dist.client.ts';
 import { bundleSequenceFilepaths } from './u.bundle.seq.files.ts';
@@ -232,6 +232,15 @@ function buildMediaSeqDescriptor(args: {
             : {}),
         }
       : undefined;
+  const shardVideo = toDescriptorShardPolicy(args.bundle.target?.media?.video?.shard);
+  const shardImage = toDescriptorShardPolicy(args.bundle.target?.media?.image?.shard);
+  const shard =
+    shardVideo || shardImage
+      ? {
+          ...(shardVideo ? { video: shardVideo } : {}),
+          ...(shardImage ? { image: shardImage } : {}),
+        }
+      : undefined;
 
   const bundle: t.BundleDescriptor = {
     kind: 'slug-tree:media:seq',
@@ -240,6 +249,7 @@ function buildMediaSeqDescriptor(args: {
     layout: {
       manifestsDir: toRelativeDir(baseDir, manifestsDir),
       ...(mediaDirs ? { mediaDirs } : {}),
+      ...(shard ? { shard } : {}),
     },
     files: {
       assets: toRelativePath(baseDir, assetsPath),
@@ -249,6 +259,14 @@ function buildMediaSeqDescriptor(args: {
   };
 
   return { dir: descriptorDir, bundle };
+}
+
+function toDescriptorShardPolicy(
+  input?: { readonly strategy?: t.ShardStrategy; readonly total: t.ShardCount },
+): { readonly strategy: t.ShardStrategy; readonly total: t.ShardCount } | undefined {
+  if (!input) return undefined;
+  const policy = Shard.policy(input.total, input.strategy);
+  return { strategy: policy.strategy, total: policy.shards };
 }
 
 async function buildSlugTreeFsDescriptors(args: {

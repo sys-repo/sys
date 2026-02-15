@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
-import type { t } from '../common.ts';
+import { type t, Json, Shard } from '../common.ts';
 import { writeDistClientFiles } from '../u.dist.client.ts';
 
 const validBundle: t.BundleDescriptor = {
@@ -48,6 +48,52 @@ describe('BundleDescriptor', () => {
         thrown = true;
       }
       expect(thrown).to.eql(true);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('writes media-seq shard policy hints into dist.client.json', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const targetDir = Fs.join(tmpDir, 'manifests');
+      const videoPolicy = Shard.policy(64);
+      const imagePolicy = Shard.policy(16);
+      const mediaBundle: t.BundleDescriptor = {
+        kind: 'slug-tree:media:seq',
+        version: 1,
+        docid: 'slug:media',
+        layout: {
+          manifestsDir: 'manifests',
+          mediaDirs: { video: 'video', image: 'image' },
+          shard: {
+            video: { strategy: videoPolicy.strategy, total: videoPolicy.shards },
+            image: { strategy: imagePolicy.strategy, total: imagePolicy.shards },
+          },
+        },
+        files: {
+          assets: 'slug.media.assets.json',
+          playback: 'slug.media.playback.json',
+          tree: 'slug-tree.media.json',
+        },
+      };
+
+      const written = await writeDistClientFiles([{ dir: targetDir, bundle: mediaBundle }]);
+      expect(written).to.eql(1);
+
+      const path = Fs.join(targetDir, 'dist.client.json');
+      const json = (await Fs.readText(path)).data;
+      const doc = Json.parse(json) as t.BundleDescriptorDoc;
+      const bundle = doc.bundles[0];
+      if (bundle.kind !== 'slug-tree:media:seq') throw new Error('Expected media descriptor');
+      expect(bundle.layout?.shard?.video).to.eql({
+        strategy: videoPolicy.strategy,
+        total: videoPolicy.shards,
+      });
+      expect(bundle.layout?.shard?.image).to.eql({
+        strategy: imagePolicy.strategy,
+        total: imagePolicy.shards,
+      });
     } finally {
       await Fs.remove(tmpDir);
     }

@@ -13,6 +13,16 @@ export type BundleDescriptorSlugTreeMediaSeq = BundleDescriptorBase & {
       readonly video?: t.StringDir;
       readonly image?: t.StringDir;
     };
+    readonly shard?: {
+      readonly video?: {
+        readonly strategy: 'prefix-range';
+        readonly total: number;
+      };
+      readonly image?: {
+        readonly strategy: 'prefix-range';
+        readonly total: number;
+      };
+    };
   };
   readonly files?: {
     readonly assets?: t.StringPath;

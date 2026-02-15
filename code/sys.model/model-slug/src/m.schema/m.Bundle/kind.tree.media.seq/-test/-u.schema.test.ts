@@ -11,6 +11,10 @@ const valid = {
       video: 'video',
       image: 'image',
     },
+    shard: {
+      video: { strategy: 'prefix-range', total: 64 },
+      image: { strategy: 'prefix-range', total: 16 },
+    },
   },
   files: {
     assets: 'assets.json',
