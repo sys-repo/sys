@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 
@@ -33,7 +32,7 @@ const makeDist = (parts: string[]): t.DistPkg => {
 describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
     const docid = 'crdt:bundle-happy' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -311,8 +310,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
   it('returns http metadata when manifest fetch fails', async () => {
     const docid = 'crdt:bundle-http' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const dist = makeDist([
       SlugClient.Url.assetsFilename(cleaned),
@@ -354,7 +352,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
   it('returns schema info when playback manifest is invalid', async () => {
     const docid = 'crdt:bundle-schema' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -404,7 +402,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:bundle-docid' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const mismatchedAssets: t.SpecTimelineAssetsManifest = {
       docid: 'other-doc',

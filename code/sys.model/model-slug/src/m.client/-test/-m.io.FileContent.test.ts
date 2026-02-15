@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
@@ -11,7 +10,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('loads slug-file-content index (happy path)', async () => {
     const docid = 'crdt:file-index' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const index: t.SlugFileContentIndex = {
       docid: cleaned,
       entries: [
@@ -68,7 +67,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:file-init' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const index: t.SlugFileContentIndex = { docid: cleaned, entries: [] };
     let seenInit: RequestInit | undefined;
     const cleanup = stubFetch((url, init) => {
@@ -104,7 +103,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('returns http metadata when fetch fails', async () => {
     const docid = 'crdt:file-http' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
@@ -126,7 +125,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('returns schema info when index is invalid', async () => {
     const docid = 'crdt:file-schema' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
         return jsonResponse({ docid: cleaned });
@@ -147,7 +146,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:file-mismatch' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
         return jsonResponse({
@@ -173,7 +172,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
 
   it('supports layout overrides for manifests/content dirs', async () => {
     const docid = 'crdt:file-layout' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const hash = 'sha256-layout';
     const index: t.SlugFileContentIndex = { docid: cleaned, entries: [] };
     const payload: t.SlugFileContentDoc = {

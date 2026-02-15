@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugUrl } from '../../m.client.url/mod.ts';
 import { SlugClient } from '../mod.ts';
+import { SlugUrl } from '../common.ts';
 
 describe('SlugClient', () => {
   it('API', async () => {

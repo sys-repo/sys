@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
@@ -50,7 +49,7 @@ describe('SlugClient.FromDescriptor', () => {
     if (!result.ok) throw new Error('expected descriptor to resolve');
     const client = result.value;
 
-    const cleaned = cleanDocid(client.docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(client.docid);
     const seenUrls: string[] = [];
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'intro', ref: 'slug:intro' }] };
     const cleanup = stubFetch((url) => {
