@@ -60,6 +60,27 @@ describe('Shard', () => {
     });
   });
 
+  describe('Shard.meta', () => {
+    it('returns canonical metadata shape', () => {
+      const sha = '2a' + '0'.repeat(62);
+      const p = policy(64);
+      const meta = Shard.meta(p, sha);
+      expect(meta).to.eql({
+        strategy: 'prefix-range',
+        total: 64,
+        index: Shard.pick(p, sha),
+      });
+    });
+
+    it('is deterministic for the same input', () => {
+      const sha = '7f' + 'c'.repeat(62);
+      const p = policy(32);
+      const a = Shard.meta(p, sha);
+      const b = Shard.meta(p, sha);
+      expect(a).to.eql(b);
+    });
+  });
+
   describe('Shard.policy', () => {
     it('policy picker: invalid shard count', () => {
       const sha = '2a' + 'f'.repeat(62);

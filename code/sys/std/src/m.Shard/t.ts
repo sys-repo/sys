@@ -12,6 +12,13 @@ export type ShardStrategy = 'prefix-range';
 /** Lower-case, validated sha256 hex string (64 chars). */
 export type ShardSha256Hex = string & { readonly __sha256_hex: 'Sha256Hex' };
 
+/** Canonical shard metadata emitted for downstream consumers. */
+export type ShardMeta = {
+  readonly strategy: ShardStrategy;
+  readonly total: ShardCount;
+  readonly index: ShardIndex;
+};
+
 /**
  * Deterministic, provider-agnostic sharding for sha256 content IDs.
  * Pure math + validation only: given a sha256 hex string and shard count,
@@ -20,6 +27,9 @@ export type ShardSha256Hex = string & { readonly __sha256_hex: 'Sha256Hex' };
 export type ShardLib = {
   /** Deterministically select a shard index using prefix-range bucketing. */
   pick(policy: ShardPolicy, sha256Hex: string): ShardIndex;
+
+  /** Build canonical shard metadata from a policy and sha256 value. */
+  meta(policy: ShardPolicy, sha256Hex: string): ShardMeta;
 
   /**
    * Create a deterministic sharding policy.
