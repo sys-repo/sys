@@ -3,12 +3,25 @@
 ## Purpose
 Distill current mixed WIP into reproducible, no-slop execution units before any further commits.
 
+
+### Modules:
+- `@sys/model-slug` client/schema
+- `@tdb/edu-slug` SlugLoader
+- `@tdb/edu-slug` compiler/bundler profile
+- `@tdb/edu-slug` UI ui.Http.DataCards diagnostics
+- `@tdb/edu-slug` UI ui.Driver.MediaPlayback AUX consumer
+
 ## Phase 0 Status (Current Working Tree)
 
 ### Snapshot
 - Branch head: `4470ef887`
 - Uncommitted files: 21 modified + 1 untracked
 - Diff size: `489 insertions, 20 deletions`
+- Safety stash snapshot:
+  - `stash@{0}: On phil-work: wip: media-shard mixed state before clean rebuild`
+- Stash behavior note:
+  - `git stash push -u` saves tracked + untracked changes and removes them from the working tree.
+  - Use `git stash list` and `git stash show --name-only stash@{0}` for reference without applying.
 
 ### Current touched modules (mixed)
 - `@sys/model-slug` client/schema:
@@ -120,4 +133,3 @@ Interpretation:
 - No cross-domain mixed commits.
 - No UI ownership of URL canonicalization.
 - Each unit must pass local module `deno task check` and targeted `deno task test --trace-leaks ...` before commit.
-
