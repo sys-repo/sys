@@ -1,25 +1,25 @@
 import type { t } from './common.ts';
-import { cleanDocid } from './u.ts';
 import { Composition } from './m.Composition.ts';
+import { Util } from './m.Util.ts';
 
 export const SlugUrl: t.SlugUrlLib = {
   Composition,
-  Util: { cleanDocid },
+  Util,
 
   assetsFilename(docid) {
-    return `slug.${cleanDocid(docid)}.assets.json`;
+    return `slug.${Util.cleanDocid(docid)}.assets.json`;
   },
 
   treeAssetsFilename(docid) {
-    return `slug-tree.${cleanDocid(docid)}.assets.json`;
+    return `slug-tree.${Util.cleanDocid(docid)}.assets.json`;
   },
 
   playbackFilename(docid) {
-    return `slug.${cleanDocid(docid)}.playback.json`;
+    return `slug.${Util.cleanDocid(docid)}.playback.json`;
   },
 
   treeFilename(docid) {
-    return `slug-tree.${cleanDocid(docid)}.json`;
+    return `slug-tree.${Util.cleanDocid(docid)}.json`;
   },
 
   fileContentFilename(hash) {
