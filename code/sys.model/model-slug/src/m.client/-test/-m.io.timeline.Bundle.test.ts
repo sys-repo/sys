@@ -132,7 +132,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
   it('loads dist and timeline manifests from urls.manifestBase', async () => {
     const docid = 'crdt:bundle-manifest-base' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const dist = makeDist([SlugClient.Url.playbackFilename(cleaned)]);
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
@@ -178,6 +178,8 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     const docidB = 'crdt:bundle-dist-cache-b' as t.StringId;
     const cleanedA = cleanDocid(docidA);
     const cleanedB = cleanDocid(docidB);
+    const cleanedA = SlugClient.Url.Util.cleanDocid(docidA);
+    const cleanedB = SlugClient.Url.Util.cleanDocid(docidB);
 
     const distA = makeDist([SlugClient.Url.playbackFilename(cleanedA)]);
     const distB = makeDist([SlugClient.Url.playbackFilename(cleanedB)]);

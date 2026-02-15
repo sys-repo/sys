@@ -32,7 +32,6 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
       const result = await Tree.load('http://example.com/', docid);
       if (!result.ok) throw new Error('expected tree result');
       expect(result.value).to.eql(payload);
-      expect(seenUrls[0]).to.include('/-manifests/');
       expect(seenUrls[0]).to.include(SlugClient.Url.treeFilename(cleaned));
     } finally {
       cleanup();

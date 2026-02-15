@@ -5,13 +5,12 @@ import { jsonResponse, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.Tree.load (split cdn)', () => {
   it('loads manifests from urls.manifestBase', async () => {
-    const docid = 'crdt:tree-split' as t.StringId;
-    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const docid = 'tree-split' as t.StringId;
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'intro', ref: 'slug:intro' }] };
     const seen: string[] = [];
     const cleanup = stubFetch((url) => {
       seen.push(url);
-      if (url.includes(SlugClient.Url.treeFilename(cleaned))) return jsonResponse(payload);
+      if (url.includes(SlugClient.Url.treeFilename(docid))) return jsonResponse(payload);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

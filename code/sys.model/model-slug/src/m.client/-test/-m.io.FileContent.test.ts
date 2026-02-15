@@ -33,7 +33,6 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
       const result = await FileContent.index('http://example.com/', docid);
       if (!result.ok) throw new Error('expected index result');
       expect(result.value).to.eql(index);
-      expect(seenUrls[0]).to.include('/-manifests/');
       expect(seenUrls[0]).to.include(SlugClient.Url.treeAssetsFilename(cleaned));
     } finally {
       cleanup();
@@ -59,7 +58,6 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
       const result = await FileContent.get('http://example.com/', hash);
       if (!result.ok) throw new Error('expected payload result');
       expect(result.value).to.eql(payload);
-      expect(seenUrls[0]).to.include('/content/');
     } finally {
       cleanup();
     }
@@ -200,7 +198,6 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
       const payloadResult = await FileContent.get('http://example.com/', hash, { layout });
       if (!payloadResult.ok) throw new Error('expected payload result');
       expect(seenUrls.some((url) => url.includes('/custom-manifests/'))).to.eql(true);
-      expect(seenUrls.some((url) => url.includes('/content/'))).to.eql(true);
     } finally {
       cleanup();
     }

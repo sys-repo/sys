@@ -5,10 +5,9 @@ import { jsonResponse, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
   it('uses urls.manifestBase for index and urls.contentBase for content', async () => {
-    const docid = 'crdt:file-split' as t.StringId;
-    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const docid = 'file-split' as t.StringId;
     const index: t.SlugFileContentIndex = {
-      docid: cleaned,
+      docid,
       entries: [{ hash: 'hash-a', contentType: 'text/plain', frontmatter: { ref: 'crdt:a' } }],
     };
     const payload: t.SlugFileContentDoc = {
@@ -21,7 +20,7 @@ describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
     const seen: string[] = [];
     const cleanup = stubFetch((url) => {
       seen.push(url);
-      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned))) return jsonResponse(index);
+      if (url.includes(SlugClient.Url.treeAssetsFilename(docid))) return jsonResponse(index);
       if (url.includes(SlugClient.Url.fileContentFilename('hash-a'))) return jsonResponse(payload);
       throw new Error(`Unexpected fetch: ${url}`);
     });
