@@ -1,6 +1,4 @@
-import { type t, D, Http, Schema, SlugSchema } from './common.ts';
-import { SlugUrl } from './m.Url.ts';
-import { ClientUrl } from './u.url.ts';
+import { type t, D, Http, Schema, SlugSchema, SlugUrl } from './common.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const FileContent: t.SlugClientFileContentLib = {
@@ -14,9 +12,9 @@ async function index(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
   const fetch = Http.fetcher();
-  const cleanedDocid = SlugUrl.clean(docid);
-  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
-  const url = ClientUrl.manifests({
+  const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
+  const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
+  const url = SlugUrl.Composition.manifests({
     baseUrl: manifests.baseUrl,
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.treeAssetsFilename(cleanedDocid),
@@ -71,8 +69,8 @@ async function get(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
   const fetch = Http.fetcher();
-  const content = ClientUrl.contentLocation(baseUrl, options);
-  const url = ClientUrl.content({
+  const content = SlugUrl.Composition.contentLocation(baseUrl, options);
+  const url = SlugUrl.Composition.content({
     baseUrl: content.baseUrl,
     contentDir: content.contentDir,
     filename: SlugUrl.fileContentFilename(hash),

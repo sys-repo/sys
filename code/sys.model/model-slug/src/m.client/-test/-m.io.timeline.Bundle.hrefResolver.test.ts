@@ -44,7 +44,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
   };
 
   it('overrides hrefs per asset kind', async () => {
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const assetsManifest: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [

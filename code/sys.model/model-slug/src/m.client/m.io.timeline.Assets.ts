@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
-import { D, Http, SlugSchema } from './common.ts';
-import { SlugUrl } from './m.Url.ts';
-import { ClientUrl } from './u.url.ts';
+import { D, Http, SlugSchema, SlugUrl } from './common.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const Assets: t.SlugClientAssetsLib = {
@@ -14,9 +12,9 @@ async function load(
   options?: t.SlugLoadOptions,
 ): Promise<t.SlugClientResult<t.SpecTimelineAssetsManifest>> {
   const fetch = Http.fetcher();
-  const cleanedDocid = SlugUrl.clean(docid);
-  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
-  const url = ClientUrl.manifests({
+  const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
+  const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
+  const url = SlugUrl.Composition.manifests({
     baseUrl: manifests.baseUrl,
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.assetsFilename(cleanedDocid),

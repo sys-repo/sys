@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /** Client surface for slug loaders. */
 export type SlugClientLib = {
   readonly Error: t.SlugClientErrorLib;
-  readonly Url: t.SlugClientUrlLib;
+  readonly Url: t.SlugUrlLib;
   readonly FromEndpoint: t.SlugFromEndpointLib;
   readonly FromDescriptor: t.SlugClientFromDescriptorLib;
 };

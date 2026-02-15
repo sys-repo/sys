@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
 import type { t } from '../common.ts';
 import { jsonResponse, stubFetch } from './u.fixture.ts';
@@ -6,7 +7,7 @@ import { jsonResponse, stubFetch } from './u.fixture.ts';
 describe('SlugClient.FromEndpoint.Tree.load (split cdn)', () => {
   it('loads manifests from urls.manifestBase', async () => {
     const docid = 'crdt:tree-split' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'intro', ref: 'slug:intro' }] };
     const seen: string[] = [];
     const cleanup = stubFetch((url) => {

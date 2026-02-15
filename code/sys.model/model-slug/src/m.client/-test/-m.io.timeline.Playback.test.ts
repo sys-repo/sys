@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { cleanDocid } from '../../m.client.url/u.ts';
 import { Playback } from '../m.io.timeline.Playback.ts';
 import { SlugClient } from '../mod.ts';
 
@@ -13,7 +14,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('loads playback manifest (happy path)', async () => {
     const docid = 'crdt:playback-happy' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
@@ -44,7 +45,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('loads manifests from urls.manifestBase', async () => {
     const docid = 'crdt:playback-split' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
@@ -70,7 +71,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:playback-init' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
@@ -110,7 +111,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('returns http metadata when fetch fails', async () => {
     const docid = 'crdt:playback-http' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
@@ -132,7 +133,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('returns schema info when manifest is invalid', async () => {
     const docid = 'crdt:playback-schema' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return jsonResponse({
@@ -157,7 +158,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:playback-mismatch' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return jsonResponse({

@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
@@ -14,7 +15,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
 
   it('loads tree manifest (happy path)', async () => {
     const docid = 'crdt:tree-happy' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const payload: t.SlugTreeDoc = {
       tree: [
         { slug: 'intro', ref: 'slug:intro' },
@@ -41,7 +42,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
 
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:tree-init' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'one', ref: 'slug:one' }] };
     let seenInit: RequestInit | undefined;
     const cleanup = stubFetch((url, init) => {
@@ -78,7 +79,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
 
   it('returns http metadata when fetch fails', async () => {
     const docid = 'crdt:tree-http' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.treeFilename(cleaned)))
         return textResponse('Service Unavailable', {
@@ -105,7 +106,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
 
   it('returns schema info when manifest validation fails', async () => {
     const docid = 'crdt:tree-schema' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.treeFilename(cleaned))) {
         return jsonResponse({ tree: [{ slug: 123 }] });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { cleanDocid } from '../../m.client.url/u.ts';
 import { Assets } from '../m.io.timeline.Assets.ts';
 import { SlugClient } from '../mod.ts';
 
@@ -13,7 +14,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('loads assets manifest (happy path)', async () => {
     const docid = 'crdt:assets-happy' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [
@@ -48,7 +49,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('loads manifests from urls.manifestBase', async () => {
     const docid = 'crdt:assets-split' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineAssetsManifest = { docid: cleaned, assets: [] };
     const seen: string[] = [];
     const cleanup = stubFetch((url) => {
@@ -70,7 +71,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:assets-init' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const manifest: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [],
@@ -109,7 +110,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('returns http metadata when fetch fails', async () => {
     const docid = 'crdt:assets-http' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return textResponse('Service Unavailable', {
@@ -134,7 +135,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('returns http metadata when manifest is missing', async () => {
     const docid = 'crdt:assets-missing' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
@@ -156,7 +157,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('returns schema info when manifest is invalid', async () => {
     const docid = 'crdt:assets-schema' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return jsonResponse({ docid: cleaned });
@@ -177,7 +178,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:assets-mismatch' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = cleanDocid(docid);
     const cleanup = stubFetch((url) => {
       if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return jsonResponse({

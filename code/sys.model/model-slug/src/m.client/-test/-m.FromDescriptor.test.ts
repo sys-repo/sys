@@ -1,5 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
+import { cleanDocid } from '../../m.client.url/u.ts';
 import { SlugClient } from '../mod.ts';
+
 import type { t } from '../common.ts';
 import { jsonResponse, stubFetch } from './u.fixture.ts';
 
@@ -7,16 +9,8 @@ describe('SlugClient.FromDescriptor', () => {
   it('selects one bundle by kind/docid', () => {
     const descriptor: t.BundleDescriptorDoc = {
       bundles: [
-        {
-          kind: 'slug-tree:fs',
-          version: 1,
-          docid: 'kb',
-        },
-        {
-          kind: 'slug-tree:media:seq',
-          version: 1,
-          docid: 'program-docid',
-        },
+        { kind: 'slug-tree:fs', version: 1, docid: 'kb' },
+        { kind: 'slug-tree:media:seq', version: 1, docid: 'program-docid' },
       ],
     };
 
@@ -56,7 +50,7 @@ describe('SlugClient.FromDescriptor', () => {
     if (!result.ok) throw new Error('expected descriptor to resolve');
     const client = result.value;
 
-    const cleaned = SlugClient.Url.clean(client.docid);
+    const cleaned = cleanDocid(client.docid);
     const seenUrls: string[] = [];
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'intro', ref: 'slug:intro' }] };
     const cleanup = stubFetch((url) => {
@@ -100,5 +94,36 @@ describe('SlugClient.FromDescriptor', () => {
     expect(result.ok).to.eql(false);
     if (result.ok) return;
     expect(result.error.kind).to.eql('schema');
+  });
+
+  it('projects media descriptor shard layout onto client.layout', () => {
+    const descriptor: t.BundleDescriptorDoc = {
+      bundles: [
+        {
+          kind: 'slug-tree:media:seq',
+          version: 1,
+          docid: 'crdt:media-1',
+          layout: {
+            manifestsDir: 'manifests',
+            shard: {
+              video: { strategy: 'prefix-range', total: 64 },
+            },
+          },
+        },
+      ],
+    };
+
+    const result = SlugClient.FromDescriptor.make({
+      descriptor,
+      baseUrl: 'https://example.com/',
+    });
+
+    if (!result.ok) throw new Error('expected descriptor to resolve');
+    expect(result.value.layout).to.eql({
+      manifestsDir: 'manifests',
+      shard: {
+        video: { strategy: 'prefix-range', total: 64 },
+      },
+    });
   });
 });

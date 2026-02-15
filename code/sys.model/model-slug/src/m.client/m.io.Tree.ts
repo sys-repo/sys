@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
-import { SlugSchema, D, Http } from './common.ts';
-import { SlugUrl } from './m.Url.ts';
-import { ClientUrl } from './u.url.ts';
+import { SlugUrl, SlugSchema, D, Http } from './common.ts';
 
 export const Tree: t.SlugClientTreeLib = {
   load,
@@ -12,10 +10,10 @@ async function load(
   docid: t.StringId,
   options?: t.SlugTreeLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugTreeDoc>> {
-  docid = SlugUrl.clean(docid);
+  docid = SlugUrl.Util.cleanDocid(docid);
   const fetch = Http.fetcher();
-  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
-  const url = ClientUrl.manifests({
+  const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
+  const url = SlugUrl.Composition.manifests({
     baseUrl: manifests.baseUrl,
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.treeFilename(docid),

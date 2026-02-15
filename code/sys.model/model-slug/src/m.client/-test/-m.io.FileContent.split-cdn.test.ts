@@ -6,7 +6,7 @@ import { jsonResponse, stubFetch } from './u.fixture.ts';
 describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
   it('uses urls.manifestBase for index and urls.contentBase for content', async () => {
     const docid = 'crdt:file-split' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const index: t.SlugFileContentIndex = {
       docid: cleaned,
       entries: [{ hash: 'hash-a', contentType: 'text/plain', frontmatter: { ref: 'crdt:a' } }],

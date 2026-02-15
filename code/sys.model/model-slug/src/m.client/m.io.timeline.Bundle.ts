@@ -1,7 +1,6 @@
-import { type t, Is } from './common.ts';
+import { type t, Is, SlugUrl } from './common.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
 import { Playback } from './m.io.timeline.Playback.ts';
-import { SlugUrl } from './m.Url.ts';
 import { Dist } from './u.io.Dist.ts';
 
 export const Bundle: t.SlugClientTimelineBundleLib = {
@@ -17,7 +16,7 @@ async function load<P = unknown>(
   if (!distResult.ok) return { ok: false, error: distResult.error };
   const dist = distResult.value;
 
-  const cleanedDocid = SlugUrl.clean(docid);
+  const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
   const playbackKey = SlugUrl.playbackFilename(cleanedDocid);
   const assetsKey = SlugUrl.assetsFilename(cleanedDocid);
 
@@ -56,7 +55,11 @@ async function load<P = unknown>(
   };
 
   const resolveHref = (asset: t.SpecTimelineAsset) => {
-    const normalized = normalizeHref(asset.href);
+    const normalized = SlugUrl.Composition.rewriteShardHost({
+      href: normalizeHref(asset.href),
+      asset,
+      layout: opts?.layout,
+    });
     if (opts?.hrefResolver) {
       return opts.hrefResolver({
         href: normalized,

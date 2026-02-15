@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
-import { D, Http, Schema, SlugSchema } from './common.ts';
+import { D, Http, Schema, SlugSchema, SlugUrl } from './common.ts';
 import { formatSchemaReason } from './u.schema.ts';
-import { ClientUrl } from './u.url.ts';
 
 export const Descriptor: t.SlugClientDescriptorLoadLib = {
   load,
@@ -12,7 +11,7 @@ async function load(
   manifests: t.StringPath,
 ): Promise<t.SlugClientResult<t.BundleDescriptorDoc>> {
   const fetch = Http.fetcher();
-  const url = ClientUrl.descriptor({ origin, manifests, filename: 'dist.client.json' });
+  const url = SlugUrl.Composition.descriptor({ origin, manifests, filename: 'dist.client.json' });
   const req: RequestInit = { ...D.CACHE_INIT };
   req.cache = D.CACHE_INIT.cache;
 

@@ -4,8 +4,8 @@ import { SlugClient } from '../mod.ts';
 
 describe('SlugClient', () => {
   it('API', async () => {
-    const client = await import('@sys/model-slug/client');
-    expect(client.SlugClient).to.equal(SlugClient);
+    const m = await import('@sys/model-slug/client');
+    expect(m.SlugClient).to.equal(SlugClient);
     expect(SlugClient.Url).to.equal(SlugUrl);
   });
 });

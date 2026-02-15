@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { type t, Shard } from '../common.ts';
-import { rewriteShardHost } from '../u.rewriteShardHost.ts';
+import { rewriteShardHost } from '../u.shard.ts';
 
 describe('rewriteShardHost', () => {
   const hash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -54,6 +54,9 @@ describe('rewriteShardHost', () => {
   });
 });
 
+/**
+ * Fixtures
+ */
 function asset(
   input: Partial<t.SpecTimelineAsset> & Pick<t.SpecTimelineAsset, 'kind'>,
 ): t.SpecTimelineAsset {

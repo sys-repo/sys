@@ -1,9 +1,7 @@
 import { Http, PlaybackSchema } from './common.ts';
 
-import { type t, D } from './common.ts';
-import { SlugUrl } from './m.Url.ts';
+import { type t, D, SlugUrl } from './common.ts';
 import { formatSchemaReason } from './u.schema.ts';
-import { ClientUrl } from './u.url.ts';
 
 export const Playback: t.SlugClientPlaybackLib = { load };
 
@@ -13,9 +11,9 @@ async function load<P = unknown>(
   options?: t.SlugLoadOptions,
 ): Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>> {
   const fetch = Http.fetcher();
-  const cleanedDocid = SlugUrl.clean(docid);
-  const manifests = ClientUrl.manifestsLocation(baseUrl, options);
-  const url = ClientUrl.manifests({
+  const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
+  const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
+  const url = SlugUrl.Composition.manifests({
     baseUrl: manifests.baseUrl,
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.playbackFilename(cleanedDocid),

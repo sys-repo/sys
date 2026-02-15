@@ -32,7 +32,7 @@ const makeDist = (parts: string[]): t.DistPkg => {
 describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   it('skips assets when dist lacks assets entry', async () => {
     const docid = 'crdt:dist-only-playback' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
@@ -73,7 +73,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
 
   it('fetches assets when dist includes an assets entry', async () => {
     const docid = 'crdt:dist-with-assets' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -130,7 +130,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
 
   it('fails fast when dist omits playback entry', async () => {
     const docid = 'crdt:dist-missing-playback' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const dist = makeDist([SlugClient.Url.assetsFilename(cleaned)]);
 
     Dist.invalidate(baseUrl);
@@ -158,7 +158,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
 
   it('fails when dist parts use manifests/ prefix (invalid key-space)', async () => {
     const docid = 'crdt:dist-bare-keys' as t.StringId;
-    const cleaned = SlugClient.Url.clean(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
