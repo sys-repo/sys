@@ -121,11 +121,7 @@ export async function bundleSequenceFilepaths(
     const shardTotal = shardConfig?.total;
     const shard =
       shardConfig && Is.number(shardTotal)
-        ? {
-            strategy: shardStrategy,
-            total: shardTotal,
-            index: Shard.policy(shardTotal, shardStrategy).pick(hash),
-          }
+        ? Shard.meta(Shard.policy(shardTotal, shardStrategy), hash)
         : undefined;
 
     const kindDirResolved = resolveShardTemplate(kindDir, shard);

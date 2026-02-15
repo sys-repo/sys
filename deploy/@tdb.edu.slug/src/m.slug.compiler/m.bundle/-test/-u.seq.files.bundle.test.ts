@@ -25,6 +25,15 @@ async function withMockedDuration<T>(
   }
 }
 
+function expectShardMeta(args: {
+  shard: { readonly strategy: 'prefix-range'; readonly total: number; readonly index: number };
+  total: number;
+  hash: string;
+}) {
+  const expected = Shard.meta(Shard.policy(args.total), args.hash);
+  expect(args.shard).to.eql(expected);
+}
+
 describe('Lint: bundle/sequence files', () => {
   it('records asset stats.bytes when bundling', async () => {
     const tmpDir = (await Fs.makeTempDir()).absolute;
@@ -56,7 +65,7 @@ describe('Lint: bundle/sequence files', () => {
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
-        baseHref: '/base',
+        baseHref: '/sample-base',
         target: { media: { video: { dir: 'video', shard: { total: 64 } } } },
       });
 
@@ -92,11 +101,10 @@ describe('Lint: bundle/sequence files', () => {
       const asset = manifest.assets[0];
       expect(asset.kind).to.eql('video');
       expect(asset.logicalPath).to.eql('/:core/thing.mp4');
-      expect(asset.href).to.eql(`/base/video/${asset.filename}`);
+      expect(asset.href).to.eql(`/sample-base/video/${asset.filename}`);
       expect(asset.stats.bytes).to.eql(5);
-      expect(asset.shard?.strategy).to.eql('prefix-range');
-      expect(asset.shard?.total).to.eql(64);
-      expect(asset.shard?.index).to.eql(Shard.policy(64).pick(asset.hash));
+      if (!asset.shard) throw new Error('Expected shard metadata');
+      expectShardMeta({ shard: asset.shard, total: 64, hash: asset.hash });
 
       const destPath = Fs.join(tmpDir, 'video', asset.filename);
       expect(await Fs.exists(destPath)).to.eql(true);
@@ -138,11 +146,11 @@ describe('Lint: bundle/sequence files', () => {
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
-        baseHref: '/base',
+        baseHref: '/sample-base',
         target: {
           media: {
-            video: { dir: 'video/partition-<shard>', shard: { total: 64 } },
-            image: { dir: 'image/partition-<shard>', shard: { total: 16 } },
+            video: { dir: 'video/sample-partition-<shard>', shard: { total: 64 } },
+            image: { dir: 'image/sample-partition-<shard>', shard: { total: 16 } },
           },
         },
       });
@@ -178,10 +186,14 @@ describe('Lint: bundle/sequence files', () => {
       expect(video?.shard?.total).to.eql(64);
       expect(image?.shard?.total).to.eql(16);
       if (!video?.shard || !image?.shard) throw new Error('Expected shard metadata');
-      expect(video.shard.index).to.eql(Shard.policy(64).pick(video.hash));
-      expect(image.shard.index).to.eql(Shard.policy(16).pick(image.hash));
-      expect(video.href).to.eql(`/base/video/partition-${video.shard.index}/${video.filename}`);
-      expect(image.href).to.eql(`/base/image/partition-${image.shard.index}/${image.filename}`);
+      expectShardMeta({ shard: video.shard, total: 64, hash: video.hash });
+      expectShardMeta({ shard: image.shard, total: 16, hash: image.hash });
+      expect(video.href).to.eql(
+        `/sample-base/video/sample-partition-${video.shard.index}/${video.filename}`,
+      );
+      expect(image.href).to.eql(
+        `/sample-base/image/sample-partition-${image.shard.index}/${image.filename}`,
+      );
     } finally {
       await Fs.remove(tmpDir);
     }
@@ -217,10 +229,10 @@ describe('Lint: bundle/sequence files', () => {
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
-        baseHref: '/base',
+        baseHref: '/sample-base',
         target: {
           media: {
-            video: { dir: 'video/ns-<shards>/partition-<shard>', shard: { total: 64 } },
+            video: { dir: 'video/sample-ns-<shards>/sample-partition-<shard>', shard: { total: 64 } },
           },
         },
       });
@@ -247,9 +259,9 @@ describe('Lint: bundle/sequence files', () => {
 
       const asset = manifest.assets.find((a) => a.kind === 'video');
       if (!asset?.shard) throw new Error('Expected shard metadata');
-      expect(asset.shard.total).to.eql(64);
+      expectShardMeta({ shard: asset.shard, total: 64, hash: asset.hash });
       expect(asset.href).to.eql(
-        `/base/video/ns-64/partition-${asset.shard.index}/${asset.filename}`,
+        `/sample-base/video/sample-ns-64/sample-partition-${asset.shard.index}/${asset.filename}`,
       );
     } finally {
       await Fs.remove(tmpDir);
@@ -289,11 +301,11 @@ describe('Lint: bundle/sequence files', () => {
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
-        baseHref: '/base',
+        baseHref: '/sample-base',
         target: {
           media: {
-            video: { dir: 'video/partition-<shard>' },
-            image: { dir: 'image/partition-<shard>' },
+            video: { dir: 'video/sample-partition-<shard>' },
+            image: { dir: 'image/sample-partition-<shard>' },
           },
         },
       });
@@ -316,8 +328,8 @@ describe('Lint: bundle/sequence files', () => {
       expect(video?.shard).to.eql(undefined);
       expect(image?.shard).to.eql(undefined);
       if (!video || !image) throw new Error('Expected video and image assets');
-      expect(video.href).to.include('/base/video/partition-<shard>/');
-      expect(image.href).to.include('/base/image/partition-<shard>/');
+      expect(video.href).to.include('/sample-base/video/sample-partition-<shard>/');
+      expect(image.href).to.include('/sample-base/image/sample-partition-<shard>/');
     } finally {
       await Fs.remove(tmpDir);
     }
