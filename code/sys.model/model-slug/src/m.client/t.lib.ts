@@ -8,16 +8,6 @@ export type SlugClientLib = {
   readonly FromDescriptor: t.SlugClientFromDescriptorLib;
 };
 
-/** Helpers for slug URL and filename derivation. */
-export type SlugClientUrlLib = {
-  readonly clean: (docid: t.StringId) => t.StringId;
-  readonly assetsFilename: (docid: t.StringId) => string;
-  readonly treeAssetsFilename: (docid: t.StringId) => string;
-  readonly playbackFilename: (docid: t.StringId) => string;
-  readonly treeFilename: (docid: t.StringId) => string;
-  readonly fileContentFilename: (hash: string) => string;
-};
-
 /** Helpers for normalizing client errors. */
 export type SlugClientErrorLib = {
   readonly unwrap: <T>(res: t.SlugClientResult<T>) => T;

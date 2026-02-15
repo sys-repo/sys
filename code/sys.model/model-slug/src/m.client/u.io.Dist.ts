@@ -1,5 +1,5 @@
 import { type t, D, Http, Pkg } from './common.ts';
-import { ClientUrl } from './u.url.ts';
+import { ClientUrl } from '../m.client.url/mod.ts';
 
 type CacheKey = string;
 const cache = new Map<CacheKey, Promise<t.SlugClientResult<t.DistPkg>>>();
