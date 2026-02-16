@@ -91,14 +91,18 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
 
     try {
       Dist.invalidate('http://example.com/');
-      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load('http://example.com/', docid, {
-        hrefResolver: ({ href, kind }) => {
-          const path = new URL(href).pathname;
-          if (kind === 'video') return `https://video.example.com${path}`;
-          if (kind === 'image') return `https://images.example.com${path}`;
-          return href;
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(
+        'http://example.com/',
+        docid,
+        {
+          hrefResolver({ href, kind }) {
+            const path = new URL(href).pathname;
+            if (kind === 'video') return `https://video.example.com${path}`;
+            if (kind === 'image') return `https://images.example.com${path}`;
+            return href;
+          },
         },
-      });
+      );
 
       if (!result.ok) throw new Error('expected bundle result');
       const assetVideo = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/a.mp4' });

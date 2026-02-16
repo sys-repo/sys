@@ -176,8 +176,6 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   it('caches dist by manifestBase', async () => {
     const docidA = 'crdt:bundle-dist-cache-a' as t.StringId;
     const docidB = 'crdt:bundle-dist-cache-b' as t.StringId;
-    const cleanedA = cleanDocid(docidA);
-    const cleanedB = cleanDocid(docidB);
     const cleanedA = SlugClient.Url.Util.cleanDocid(docidA);
     const cleanedB = SlugClient.Url.Util.cleanDocid(docidB);
 
@@ -228,7 +226,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
   it('resolves hrefs against the provided assetBase', async () => {
     const docid = 'crdt:bundle-basehref' as t.StringId;
-    const cleaned = cleanDocid(docid);
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
