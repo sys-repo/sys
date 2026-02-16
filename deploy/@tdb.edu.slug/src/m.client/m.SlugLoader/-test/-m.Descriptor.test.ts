@@ -39,19 +39,29 @@ describe('SlugLoader.Descriptor', () => {
   });
 
   describe('factory', () => {
-    it('creates named targets with stable kind defaults', () => {
+    it('creates a single-target descriptor instance', () => {
       const descriptor = DescriptorFactory.create({
-        targets: [
-          { id: 'a', kind: 'slug-tree:fs', descriptorPath: 'a', basePath: 'a' },
-          { id: 'b', kind: 'slug-tree:fs', descriptorPath: 'b', basePath: 'b' },
-        ],
-        defaults: { 'slug-tree:fs': 'b' },
+        id: 'a',
+        kind: 'slug-tree:fs',
+        descriptorPath: 'a',
+        basePath: 'a',
       });
 
       const target = descriptor.target('slug-tree:fs');
       if (!target.ok) throw new Error(target.error.message);
-      expect(target.value.id).to.eql('b');
-      expect(descriptor.targets().map((m) => m.id)).to.eql(['a', 'b']);
+      expect(target.value.id).to.eql('a');
+      expect(descriptor.kinds()).to.eql(['slug-tree:fs']);
+    });
+
+    it('rejects mismatched kind on single-target instance', () => {
+      const descriptor = DescriptorFactory.create({
+        id: 'a',
+        kind: 'slug-tree:fs',
+        descriptorPath: 'a',
+        basePath: 'a',
+      });
+      const target = descriptor.target('slug-tree:media:seq');
+      expect(target.ok).to.eql(false);
     });
   });
 

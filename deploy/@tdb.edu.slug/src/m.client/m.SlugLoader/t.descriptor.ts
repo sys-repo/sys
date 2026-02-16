@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 export type SlugClientLoaderDescriptorLib = {
-  readonly create: (args: CreateArgs) => t.SlugClientLoaderDescriptor;
+  readonly create: (target: t.SlugClientLoaderDescriptorTarget) => t.SlugClientLoaderDescriptor;
 };
 
 export type SlugClientLoaderDescriptorTarget = {
@@ -11,12 +11,6 @@ export type SlugClientLoaderDescriptorTarget = {
   readonly basePath: t.StringPath;
 };
 
-type CreateArgs = {
-  readonly targets: readonly t.SlugClientLoaderDescriptorTarget[];
-  /** Optional explicit default target-id per kind (otherwise first declared target is used). */
-  readonly defaults?: Partial<Record<t.BundleDescriptorKind, t.StringId>>;
-};
-
 export type SlugClientLoaderDescriptor = {
   /** Deploy-supported descriptor kinds. */
   readonly kinds: () => t.BundleDescriptorKind[];
@@ -24,12 +18,7 @@ export type SlugClientLoaderDescriptor = {
   readonly kindsFromDist: (
     origin: t.StringUrl,
   ) => Promise<t.SlugClientResult<t.BundleDescriptorKind[]>>;
-
-  /** Full target inventory. */
-  readonly targets: () => readonly t.SlugClientLoaderDescriptorTarget[];
-  /** Resolve a target by ID. */
-  readonly targetById: (id: t.StringId) => t.SlugClientResult<t.SlugClientLoaderDescriptorTarget>;
-  /** Resolve default target for a kind (legacy convenience). */
+  /** Resolve deploy profile path/base policy for a descriptor kind. */
   readonly target: (
     kind: t.BundleDescriptorKind,
   ) => t.SlugClientResult<t.SlugClientLoaderDescriptorTarget>;
@@ -54,17 +43,9 @@ export type SlugClientLoaderDescriptor = {
 };
 
 export type SlugClientLoaderDescriptorClientArgs =
-  | {
-      readonly origin: t.StringUrl | t.SlugUrlOrigin;
-      readonly kind: t.BundleDescriptorKind;
-      readonly targetId?: t.StringId;
-      /** Optional explicit bundle selection (otherwise first matching docid is used). */
-      readonly docid?: t.StringId;
-    }
-  | {
-      readonly origin: t.StringUrl | t.SlugUrlOrigin;
-      readonly targetId: t.StringId;
-      readonly kind?: t.BundleDescriptorKind;
-      /** Optional explicit bundle selection (otherwise first matching docid is used). */
-      readonly docid?: t.StringId;
-    };
+  {
+    readonly origin: t.StringUrl | t.SlugUrlOrigin;
+    readonly kind: t.BundleDescriptorKind;
+    /** Optional explicit bundle selection (otherwise first matching docid is used). */
+    readonly docid?: t.StringId;
+  };
