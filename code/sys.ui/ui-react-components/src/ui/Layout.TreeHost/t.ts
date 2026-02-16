@@ -23,6 +23,7 @@ export type TreeHostProps = {
   selectedPath?: t.ObjectPath;
   spinner?: t.TreeHostSpinner | t.TreeHostSpinner[];
   nav?: TreeHostNav;
+  parts?: TreeHostParts;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -50,6 +51,21 @@ export type TreeHostNavAnimate = {
   readonly duration?: t.Msecs;
   readonly ease?: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
 };
+
+export type TreeHostParts = {
+  nav?: TreeHostPartNav;
+  main?: TreeHostPartMain;
+};
+
+export type TreeHostPartNav = {
+  background?: TreeHostPartBackground;
+};
+
+export type TreeHostPartMain = {
+  background?: TreeHostPartBackground;
+};
+
+export type TreeHostPartBackground = boolean | ((e: { theme: t.CommonTheme }) => t.StringHex);
 
 /**
  * Event handlers:
