@@ -308,6 +308,112 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     }
   });
 
+  it('rewrites production asset hosts using layout.shard policy + asset hash', async () => {
+    const docid = 'crdt:bundle-shard-rewrite-prod' as t.StringId;
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const hash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const expectedIndex = Shard.policy(64).pick(hash);
+
+    const assets: t.SpecTimelineAssetsManifest = {
+      docid: cleaned,
+      assets: [
+        {
+          kind: 'video',
+          logicalPath: '/video/main',
+          hash,
+          filename: 'main.webm',
+          href: '/main.webm',
+        },
+      ],
+    };
+
+    const playback: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const dist = makeDist([
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
+    ]);
+    const cleanup = stubFetch((url) => {
+      if (url.includes('manifests/dist.json')) return jsonResponse(dist);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const assetBase = 'https://video.cdn.example.com/sample/';
+    try {
+      Dist.invalidate(baseUrl);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        urls: { assetBase },
+        layout: { shard: { video: { strategy: 'prefix-range', total: 64 } } },
+      });
+      if (!result.ok)
+        throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+
+      const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
+      expect(rewritten?.href).to.eql(
+        `https://${expectedIndex}.video.cdn.example.com/sample/main.webm`,
+      );
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('does not rewrite shard host when assetBase host is localhost', async () => {
+    const docid = 'crdt:bundle-shard-rewrite-localhost' as t.StringId;
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const hash = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
+    const assets: t.SpecTimelineAssetsManifest = {
+      docid: cleaned,
+      assets: [
+        {
+          kind: 'video',
+          logicalPath: '/video/main',
+          filename: 'main.webm',
+          href: '/main.webm',
+          hash,
+        },
+      ],
+    };
+
+    const playback: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const dist = makeDist([
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
+    ]);
+    const cleanup = stubFetch((url) => {
+      if (url.includes('manifests/dist.json')) return jsonResponse(dist);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const assetBase = 'http://localhost:4040/staging/slc.cdn.video/';
+    try {
+      Dist.invalidate(baseUrl);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        urls: { assetBase },
+        layout: { shard: { video: { strategy: 'prefix-range', total: 64 } } },
+      });
+      if (!result.ok) throw new Error('expected bundle result');
+
+      const asset = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
+      expect(asset?.href).to.eql('http://localhost:4040/staging/slc.cdn.video/main.webm');
+    } finally {
+      cleanup();
+    }
+  });
+
   it('returns http metadata when manifest fetch fails', async () => {
     const docid = 'crdt:bundle-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);

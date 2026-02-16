@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { ShardCount, ShardStrategy } from '@sys/std/t';
 
 /**
  * Endpoint loaders:
@@ -10,6 +11,17 @@ export type SlugClientLayout = {
   readonly manifestsDir?: t.StringDir;
   /** Directory where hashed content payloads are stored relative to the base URL. */
   readonly contentDir?: t.StringDir;
+  /** Optional shard policy hints used for timeline asset URL rewriting. */
+  readonly shard?: {
+    readonly video?: SlugClientShardPolicy;
+    readonly image?: SlugClientShardPolicy;
+  };
+};
+
+/** Descriptor wire-shape policy for per-kind shard URL rewriting. */
+export type SlugClientShardPolicy = {
+  readonly strategy: ShardStrategy;
+  readonly total: ShardCount;
 };
 
 /** Common load options for slug endpoints. */

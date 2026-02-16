@@ -157,6 +157,7 @@ function descriptorLayout(descriptor: t.BundleDescriptor): t.SlugClientLayout | 
   if (descriptor.kind === 'slug-tree:media:seq') {
     return {
       manifestsDir: descriptor.layout?.manifestsDir,
+      shard: descriptor.layout?.shard,
     };
   }
 
