@@ -22,6 +22,8 @@ export type SlugClientLayout = {
 export type SlugClientShardPolicy = {
   readonly strategy: ShardStrategy;
   readonly total: ShardCount;
+  readonly host?: 'prefix-shard' | 'none';
+  readonly path?: 'preserve' | 'root-filename';
 };
 
 /** Common load options for slug endpoints. */

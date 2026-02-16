@@ -414,6 +414,131 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     }
   });
 
+  it('rewrites localhost path to local shard directory when path policy is root-filename', async () => {
+    const docid = 'crdt:bundle-shard-rewrite-localhost-root' as t.StringId;
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const hash = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd';
+    const expectedIndex = Shard.policy(64).pick(hash);
+
+    const assets: t.SpecTimelineAssetsManifest = {
+      docid: cleaned,
+      assets: [
+        {
+          kind: 'video',
+          logicalPath: '/video/main',
+          filename: 'main.webm',
+          href: '/assets/shard.46/main.webm',
+          hash,
+        },
+      ],
+    };
+
+    const playback: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const dist = makeDist([
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
+    ]);
+    const cleanup = stubFetch((url) => {
+      if (url.includes('manifests/dist.json')) return jsonResponse(dist);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const assetBase = 'http://localhost:4040/staging/slc.cdn.video/';
+    try {
+      Dist.invalidate(baseUrl);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        urls: { assetBase },
+        layout: {
+          shard: {
+            video: {
+              strategy: 'prefix-range',
+              total: 64,
+              host: 'prefix-shard',
+              path: 'root-filename',
+            },
+          },
+        },
+      });
+      if (!result.ok) throw new Error('expected bundle result');
+
+      const asset = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
+      expect(asset?.href).to.eql(
+        `http://localhost:4040/staging/slc.cdn.video/shard.${expectedIndex}/main.webm`,
+      );
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('rewrites production asset host and root-filename path from layout shard policy', async () => {
+    const docid = 'crdt:bundle-shard-rewrite-prod-root' as t.StringId;
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const hash = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+    const expectedIndex = Shard.policy(64).pick(hash);
+
+    const assets: t.SpecTimelineAssetsManifest = {
+      docid: cleaned,
+      assets: [
+        {
+          kind: 'video',
+          logicalPath: '/video/main',
+          hash,
+          filename: 'main.webm',
+          href: '/assets/shard.46/main.webm',
+        },
+      ],
+    };
+
+    const playback: t.SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [],
+    };
+
+    const dist = makeDist([
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
+    ]);
+    const cleanup = stubFetch((url) => {
+      if (url.includes('manifests/dist.json')) return jsonResponse(dist);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const assetBase = 'https://video.cdn.example.com/';
+    try {
+      Dist.invalidate(baseUrl);
+      const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        urls: { assetBase },
+        layout: {
+          shard: {
+            video: {
+              strategy: 'prefix-range',
+              total: 64,
+              host: 'prefix-shard',
+              path: 'root-filename',
+            },
+          },
+        },
+      });
+      if (!result.ok)
+        throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+
+      const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
+      expect(rewritten?.href).to.eql(`https://${expectedIndex}.video.cdn.example.com/main.webm`);
+    } finally {
+      cleanup();
+    }
+  });
+
   it('returns http metadata when manifest fetch fails', async () => {
     const docid = 'crdt:bundle-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);

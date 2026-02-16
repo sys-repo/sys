@@ -52,6 +52,59 @@ describe('rewriteShardHost', () => {
     });
     expect(href).to.eql(`https://${expected}.video.cdn.example.com/sample/path/main.webm?x=1#t=10`);
   });
+
+  it('supports policy: host=none + path=root-filename', () => {
+    const href = rewriteShardHost({
+      href: 'https://video.cdn.example.com/assets/shard.46/main.webm?x=1#t=10',
+      asset: asset({ kind: 'video', hash }),
+      layout: {
+        shard: {
+          video: {
+            ...policy,
+            host: 'none',
+            path: 'root-filename',
+          },
+        },
+      },
+    });
+    expect(href).to.eql('https://video.cdn.example.com/main.webm?x=1#t=10');
+  });
+
+  it('supports policy: host=prefix-shard + path=root-filename', () => {
+    const expected = Shard.policy(policy.total, policy.strategy).pick(hash);
+    const href = rewriteShardHost({
+      href: 'https://video.cdn.example.com/assets/shard.46/main.webm',
+      asset: asset({ kind: 'video', hash }),
+      layout: {
+        shard: {
+          video: {
+            ...policy,
+            host: 'prefix-shard',
+            path: 'root-filename',
+          },
+        },
+      },
+    });
+    expect(href).to.eql(`https://${expected}.video.cdn.example.com/main.webm`);
+  });
+
+  it('keeps localhost host and rewrites to local shard path when policy is prefix-shard+root-filename', () => {
+    const expected = Shard.policy(policy.total, policy.strategy).pick(hash);
+    const href = rewriteShardHost({
+      href: 'http://localhost:4040/staging/slc.cdn.video/assets/shard.46/main.webm',
+      asset: asset({ kind: 'video', hash }),
+      layout: {
+        shard: {
+          video: {
+            ...policy,
+            host: 'prefix-shard',
+            path: 'root-filename',
+          },
+        },
+      },
+    });
+    expect(href).to.eql(`http://localhost:4040/staging/slc.cdn.video/shard.${expected}/main.webm`);
+  });
 });
 
 /**
