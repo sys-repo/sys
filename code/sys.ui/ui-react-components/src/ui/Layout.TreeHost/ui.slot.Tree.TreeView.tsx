@@ -10,14 +10,18 @@ export const HostTreeView: React.FC<P> = (props) => {
   const { tree, slots = {} } = props;
   if (!tree) return null;
 
+  const path = props.selectedPath ?? [];
+  const selectedNode = findViewNode(tree, path);
+  const hasLeaf = !!selectedNode && !selectedNode.children?.length;
+
   /**
    * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      display: 'grid',
       minHeight: 0,
+      display: 'grid',
       gridTemplateRows: 'minmax(0, 1fr)',
     }),
     body: css({
@@ -28,6 +32,7 @@ export const HostTreeView: React.FC<P> = (props) => {
 
   const elTreeView = (
     <TreeView.Index.UI
+      style={{ Absolute: hasLeaf ? 0 : undefined }}
       theme={theme.name}
       root={tree}
       minWidth={0}

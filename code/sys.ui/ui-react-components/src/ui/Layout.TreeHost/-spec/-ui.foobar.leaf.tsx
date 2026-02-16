@@ -15,7 +15,6 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      backgroundColor: Color.ruby(0.1),
       color: theme.fg,
       fontSize: 14,
       display: 'grid',
