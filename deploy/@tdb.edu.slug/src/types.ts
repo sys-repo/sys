@@ -16,5 +16,4 @@ export type * from './ui/ui.SlugSheet/t.ts';
 export type * from './ui/ui.SlugSheetStack/t.ts';
 export type * from './ui/ui.TreeHost/t.ts';
 
-export type * from './ui/ui.__Legacy__SlugKbDriver/t.ts';
 export type * from './ui/ui.__Legacy__SlugPlaybackDriver/t.ts';

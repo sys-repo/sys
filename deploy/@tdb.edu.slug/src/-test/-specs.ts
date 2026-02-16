@@ -22,8 +22,6 @@ export const Specs = {
   [`${ns}.dev: Http.SlugLoader ← (data cards)`]: () =>
     import('../ui/-dev/ui.Http.DataCards/-spec/-SPEC.tsx'),
 
-  [`${ns}: 🐷 (LEGACY): ui.driver.SlugKB`]: () =>
-    import('../ui/ui.__Legacy__SlugKbDriver/-spec/-SPEC.tsx'),
   [`${ns}: 🐷 (LEGACY): ui.driver.SlugPlayback`]: () =>
     import('../ui/ui.__Legacy__SlugPlaybackDriver/-spec/-SPEC.tsx'),
 } as t.SpecImports;
