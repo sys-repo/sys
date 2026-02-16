@@ -72,7 +72,7 @@ describe('Layout.TreeHost', () => {
     it('applies default parts when parts are omitted', () => {
       const parts = resolveParts({ theme: 'Light' });
       expect(parts.nav.backgroundColor).to.eql(undefined);
-      expect(parts.main.backgroundColor).to.eql(undefined);
+      expect(parts.main.backgroundColor).to.eql(Color.theme('Light').bg);
     });
   });
 });
