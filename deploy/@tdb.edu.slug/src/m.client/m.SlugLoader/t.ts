@@ -9,17 +9,8 @@ export type * from './t.descriptor.ts';
  * data within a complex UI domain.
  */
 export type SlugLoaderLib = {
-  readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugClientLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: t.SlugLoaderOriginLib;
   readonly Descriptor: t.SlugLoaderDescriptorCatalog;
   readonly DescriptorFactory: t.SlugLoaderDescriptorLib;
-};
-
-/**
- * Client loader instance.
- */
-export type SlugClientLoader = {
-  /** Canonicalized origin endpoints used by the loader. */
-  readonly origin: t.SlugUrlOrigin;
 };
