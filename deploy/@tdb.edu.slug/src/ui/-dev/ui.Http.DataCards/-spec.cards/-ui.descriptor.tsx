@@ -44,7 +44,7 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'base-path', v: basePath });
 
     const client = await descriptorLoader.client({
-      origin: e.origin.cdn.default,
+      origin: e.origin,
     });
     if (!client.ok) return e.result(client);
 

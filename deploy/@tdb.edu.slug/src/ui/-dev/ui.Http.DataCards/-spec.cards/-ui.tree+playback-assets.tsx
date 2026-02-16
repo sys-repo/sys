@@ -1,5 +1,5 @@
 import { DESCRIPTOR } from '../-CONST.ts';
-import { type t } from './common.ts';
+import { type t, PlaybackDriver } from './common.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
 import { selectOrFirst } from './-u.selection.ts';
 
@@ -57,7 +57,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.probe?.treePlayback?.onRefChange?.(selectedDocid);
 
     const client = await DESCRIPTOR.media.client({
-      origin: e.origin.cdn.default,
+      origin: e.origin,
       docid: selectedDocid,
     });
     if (!client.ok) return e.result(client);
@@ -68,6 +68,11 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const playback = await client.value.Timeline.Playback.load();
     if (!playback.ok) return e.result(playback);
 
+    const firstBeatUrl = toFirstBeatVideoHref({
+      playback: playback.value,
+      assets: assets.value.assets,
+    });
+
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'basePath', v: DESCRIPTOR.TARGET.media.basePath });
     e.item({ k: 'docid', v: client.value.docid });
@@ -75,6 +80,10 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({ k: 'descriptor: loaded', v: 'yes' });
     e.item({ k: 'assets', v: assets.value.assets.length });
     e.item({ k: 'playback: beats', v: playback.value.beats.length });
+    e.item({
+      k: 'first-beat:video',
+      v: firstBeatUrl || '(none: unresolved)',
+    });
     e.item({ k: 'tree / bundle', v: 'skipped (manifest-only proof)' });
 
     return e.result({
@@ -93,6 +102,40 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   },
 };
 
+/**
+ * Helpers
+ */
+
 function last(input: string, count: number): string {
   return input.slice(Math.max(0, input.length - count));
+}
+
+function toFirstBeatVideoHref(args: {
+  playback: t.SpecTimelineManifest;
+  assets: readonly t.SpecTimelineAsset[];
+}): string | undefined {
+  const bundle = toBundle(args.playback, args.assets);
+  if (!bundle) return undefined;
+  return PlaybackDriver.Util.resolveBeatMedia(bundle)(0)?.src;
+}
+
+function toBundle(
+  playback: t.SpecTimelineManifest | undefined,
+  assets: readonly t.SpecTimelineAsset[] | undefined,
+): t.SpecTimelineBundle | undefined {
+  if (!playback) return undefined;
+  const table = new Map<string, t.SpecTimelineAsset>();
+  for (const item of assets ?? []) {
+    table.set(`${item.kind}:${item.logicalPath}`, item);
+  }
+  return {
+    docid: playback.docid,
+    spec: {
+      composition: playback.composition,
+      beats: playback.beats,
+    },
+    resolveAsset(args) {
+      return table.get(`${args.kind}:${args.logicalPath}`);
+    },
+  };
 }

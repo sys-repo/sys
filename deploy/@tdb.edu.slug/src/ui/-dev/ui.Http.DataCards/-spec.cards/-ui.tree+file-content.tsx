@@ -36,7 +36,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     }
 
     const client = await DESCRIPTOR.file.client({
-      origin: e.origin.cdn.default,
+      origin: e.origin,
     });
     if (!client.ok) return e.result(client);
 

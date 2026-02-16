@@ -23,9 +23,10 @@ function fileContentLoader(origin?: t.SlugUrlOrigin): TLoad {
   return async ({ request }) => {
     const url = origin?.cdn.default;
     if (!Is.str(url) || url.length === 0) throw new Error('Missing HTTP origin');
+    if (!origin) throw new Error('Missing HTTP origin');
 
     const client = await DESCRIPTOR.file.client({
-      origin: url,
+      origin,
     });
     if (!client.ok) throw new Error(client.error.message);
 
@@ -50,9 +51,10 @@ function playbackContentLoader(origin?: t.SlugUrlOrigin): TLoad {
   return async ({ request }) => {
     const url = origin?.cdn.default;
     if (!Is.str(url) || url.length === 0) throw new Error('Missing HTTP origin');
+    if (!origin) throw new Error('Missing HTTP origin');
 
     const client = await DESCRIPTOR.media.client({
-      origin: url,
+      origin,
       docid: request.key,
     });
     if (!client.ok) throw new Error(client.error.message);
