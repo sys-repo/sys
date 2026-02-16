@@ -1,5 +1,5 @@
-import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { type t, Is, SlugLoader } from './common.ts';
+import { DataCards, DESCRIPTOR } from '../../-dev/ui.Http.DataCards/mod.ts';
+import { type t, Is } from './common.ts';
 
 type TLoad = t.TreeContentDriver.ContentLoader;
 type ResolveLoaderArgs = {
@@ -24,9 +24,8 @@ function fileContentLoader(origin?: t.SlugUrlOrigin): TLoad {
     const url = origin?.cdn.default;
     if (!Is.str(url) || url.length === 0) throw new Error('Missing HTTP origin');
 
-    const client = await SlugLoader.Descriptor.client({
+    const client = await DESCRIPTOR.file.client({
       origin: url,
-      kind: 'slug-tree:fs',
     });
     if (!client.ok) throw new Error(client.error.message);
 
@@ -52,9 +51,8 @@ function playbackContentLoader(origin?: t.SlugUrlOrigin): TLoad {
     const url = origin?.cdn.default;
     if (!Is.str(url) || url.length === 0) throw new Error('Missing HTTP origin');
 
-    const client = await SlugLoader.Descriptor.client({
+    const client = await DESCRIPTOR.media.client({
       origin: url,
-      kind: 'slug-tree:media:seq',
       docid: request.key,
     });
     if (!client.ok) throw new Error(client.error.message);
