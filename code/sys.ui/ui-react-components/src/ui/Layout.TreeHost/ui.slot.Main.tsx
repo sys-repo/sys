@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
+import { resolveParts } from './u.parts.ts';
 import { shouldRenderEmpty, toSlotNode } from './u.slot.ts';
 import { Empty } from './ui.Empty.tsx';
 
@@ -18,6 +19,7 @@ export const Main: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const parts = resolveParts(props);
   const styles = {
     base: css({
       position: 'relative',
@@ -25,6 +27,7 @@ export const Main: React.FC<P> = (props) => {
       display: 'grid',
       minHeight: 0,
       gridTemplateRows: 'minmax(0, 1fr)',
+      backgroundColor: parts.main.backgroundColor,
     }),
     body: css({
       display: 'grid',

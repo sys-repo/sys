@@ -2,7 +2,8 @@ import { describe, expect, it } from '../../../-test.ts';
 
 import { Data } from '../m.Data.ts';
 import { TreeHost } from '../mod.ts';
-import { type t } from '../common.ts';
+import { type t, Color } from '../common.ts';
+import { resolvePartBackground, resolveParts } from '../u.parts.ts';
 import { shouldRenderEmpty } from '../u.slot.ts';
 
 describe('Layout.TreeHost', () => {
@@ -47,6 +48,31 @@ describe('Layout.TreeHost', () => {
           hasContent: false,
         }),
       ).to.eql(false);
+    });
+  });
+
+  describe('parts', () => {
+    it('returns undefined when background is false', () => {
+      expect(resolvePartBackground(false, 'Light')).to.eql(undefined);
+    });
+
+    it('uses theme background when background is true', () => {
+      expect(resolvePartBackground(true, 'Light')).to.eql(Color.theme('Light').bg);
+    });
+
+    it('uses resolver return value when background is a function', () => {
+      const color = '#ff00aa';
+      const result = resolvePartBackground(({ theme }) => {
+        expect(theme).to.eql('Dark');
+        return color;
+      }, 'Dark');
+      expect(result).to.eql(color);
+    });
+
+    it('applies default parts when parts are omitted', () => {
+      const parts = resolveParts({ theme: 'Light' });
+      expect(parts.nav.backgroundColor).to.eql(undefined);
+      expect(parts.main.backgroundColor).to.eql(undefined);
     });
   });
 });

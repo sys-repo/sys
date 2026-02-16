@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
+import { resolveParts } from './u.parts.ts';
 import { Aux } from './ui.slot.Aux.tsx';
 import { Tree } from './ui.slot.Tree.tsx';
 import { SlotHost } from './ui.SlotHost.tsx';
@@ -16,6 +17,7 @@ export const Nav: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const parts = resolveParts(props);
   const styles = {
     base: css({
       color: theme.fg,
@@ -23,6 +25,7 @@ export const Nav: React.FC<P> = (props) => {
       gridTemplateRows: 'minmax(0, 1fr) auto',
       minWidth: 0,
       minHeight: 0,
+      backgroundColor: parts.nav.backgroundColor,
     }),
   };
 

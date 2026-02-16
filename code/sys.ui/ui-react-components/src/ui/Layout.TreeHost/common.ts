@@ -18,6 +18,10 @@ export const D = {
     width: 320,
     animate: { duration: 180, ease: 'easeInOut' },
   } satisfies Required<t.TreeHostNav>,
+  parts: {
+    nav: { background: false },
+    main: { background: true },
+  } satisfies t.TreeHostParts,
   spinner: {
     backgroundOpacity: 0.2,
     backgroundBlur: 1,
