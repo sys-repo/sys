@@ -43,19 +43,19 @@ These two should not be in the shard-url unit; move or revert before commit slic
 
 ## What We Learned (Evidence)
 
-### A) Canonical rewrite seam now exists in loader layer
-- `deploy/@tdb.edu.slug/src/m.client/m.SlugLoader/m.Descriptor.ts`
-  - `withVideoShardRewrite(...)`
-  - rewrites asset hrefs based on `originMap.cdn.video` + shard policy.
+### A) Canonical rewrite seam is in `@sys/model-slug` client URL layer
+- `code/sys.model/model-slug/src/m.client.url/u.shard.ts`
+  - `rewriteShardHost(...)`
+  - applies descriptor layout shard policy (`strategy/total/host/path`).
+  - distinguishes production vs localhost behavior.
 
-### B) Bundle resolver contract was widened for deterministic rewrite
-- `code/sys.model/model-slug/src/m.client/t.io.ts`
-  - `SlugBundleHrefResolver` now receives:
-    - `hash`
-    - `filename`
-    - `shard`
-- `code/sys.model/model-slug/src/m.client/m.io.timeline.Bundle.ts`
-  - passes this metadata through to resolver.
+### B) Bundler now emits explicit shard URL policy in descriptor layout
+- `deploy/@tdb.edu.slug/src/m.slug.compiler/m.bundle/*`
+- `code/sys.model/model-slug/src/m.schema/m.Bundle/kind.tree.media.seq/*`
+- `dist.client.json` now carries:
+  - `layout.shard.video.host` (eg `prefix-shard`)
+  - `layout.shard.video.path` (eg `root-filename`)
+  - plus `strategy/total`.
 
 ### C) UI proof currently exists, but has two tiers
 1. Loader-truth diagnostics (good primary proof):
@@ -73,6 +73,15 @@ Interpretation:
 - `value:assets:*` is canonical loader output proof.
 - `finalHref` in AUX is diagnostic rendering aid, not source-of-truth.
 
+### D) Localhost/production parity is now explicit and tested
+- Production:
+  - `https://<shard>.video.<domain>/<filename>`
+- Localhost:
+  - `http://localhost.../staging/slc.cdn.video/shard.<shard>/<filename>`
+- Tests:
+  - `code/sys.model/model-slug/src/m.client.url/-test/-u.shard.test.ts`
+  - `code/sys.model/model-slug/src/m.client/-test/-m.io.timeline.Bundle.test.ts`
+
 ## Repro Commands (Phase 0)
 - `git status --short`
 - `git diff --stat`
@@ -87,47 +96,37 @@ Interpretation:
 ## Execution Plan (from clean baseline)
 
 ### Unit 1: `@sys/model-slug` client contract
-- Scope:
-  - `code/sys.model/model-slug/src/m.client/*`
-  - only required schema sync files in same package
-- Exit criteria:
-  - resolver metadata contract is typed + tested
+- Status: ✅ Completed
 - Commit:
-  - model-only
+  - `733cf9376 feat(model-slug.client): apply shard host/path URL policy for timeline assets from descriptor layout`
 
 ### Unit 2: `@tdb/edu-slug` SlugLoader rewrite seam
-- Scope:
-  - `deploy/@tdb.edu.slug/src/m.client/m.SlugLoader/*`
-- Exit criteria:
-  - loader emits canonical rewritten asset hrefs for media shard policy
-  - tests pass
-- Commit:
-  - loader-only
+- Status: ⛔ Not the final canonical seam.
+- Note:
+  - rewrite ownership was moved to `@sys/model-slug` URL layer; SlugLoader remains orchestrating IO/profile selection.
 
 ### Unit 3: compiler/bundler shard policy feed
-- Scope:
-  - `deploy/@tdb.edu.slug/src/m.slug.compiler/m.bundle/*`
-- Exit criteria:
-  - emitted profile/layout provides policy required by loader rewrite
+- Status: ✅ Completed
 - Commit:
-  - compiler-only
+  - `cee37607d feat(bundle): emit shard URL host/path policy in media-seq dist.client descriptor layout`
 
 ### Unit 4: UI diagnostics in DataCards
-- Scope:
-  - `deploy/@tdb.edu.slug/src/ui/-dev/ui.Http.DataCards/*`
-- Exit criteria:
-  - card exposes loader truth clearly (`value:assets`, rewrite diagnostics)
+- Status: ✅ Completed (URL proof surfaced)
 - Commit:
-  - diagnostics-only
+  - `246590081 fix(ui.cards): pass origin object to descriptor clients and surface first-beat video URL proof`
 
 ### Unit 5: MediaPlayback consumer AUX display
+- Status: 🟡 In progress / follow-on.
 - Scope:
-  - `deploy/@tdb.edu.slug/src/ui/ui.Driver.MediaPlayback/-spec/*`
-- Exit criteria:
-  - AUX/Debug surfaces canonical loader href + shard fields
-  - no protocol rewrite ownership transferred to UI
-- Commit:
-  - UI-consumer-only
+  - keep UI as consumer-only, no URL ownership.
+  - continue driver/head polish now that canonical URL layer is stable.
+
+## Next (Practical)
+- Continue higher-order controller composition (`ui.Driver.MediaPlayback`, `ui.Driver.FileContent`) using canonical URLs already validated at DataCards level.
+- Keep future changes split by unit:
+  - bundle/schema
+  - model-slug URL/client
+  - UI diagnostics/consumers
 
 ## Guardrails
 - No cross-domain mixed commits.
