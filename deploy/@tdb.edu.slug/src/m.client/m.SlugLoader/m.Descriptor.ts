@@ -3,26 +3,12 @@ import { TARGETS } from './m.Descriptor.TARGETS.ts';
 import { Origin } from './m.Origin.ts';
 import { withVideoShardRewrite } from './u.withVideoShardRewrite.ts';
 
-type TCreate = t.SlugClientLoaderDescriptorLib['create'];
+const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
+  type T = t.SlugLoaderDescriptor;
 
-const create: TCreate = (target) => {
-  const api: t.SlugClientLoaderDescriptor = {
-    kinds,
-    kindsFromDist,
-    target: resolveTarget,
-    load,
-    docids,
-    client,
-  };
-  return api;
+  const kinds: T['kinds'] = () => [target.kind];
 
-  function kinds(): t.BundleDescriptorKind[] {
-    return [target.kind];
-  }
-
-  function resolveTarget(
-    kind: t.BundleDescriptorKind,
-  ): t.SlugClientResult<t.SlugClientLoaderDescriptorTarget> {
+  const resolveTarget: T['target'] = (kind) => {
     if (kind === target.kind) return { ok: true, value: target };
     return {
       ok: false,
@@ -31,30 +17,24 @@ const create: TCreate = (target) => {
         message: `Descriptor kind mismatch. target.kind=${target.kind}, kind=${kind}`,
       },
     };
-  }
+  };
 
-  async function kindsFromDist(
-    origin: t.StringUrl,
-  ): Promise<t.SlugClientResult<t.BundleDescriptorKind[]>> {
+  const kindsFromDist: T['kindsFromDist'] = async (origin) => {
     const loaded = await load(origin, target.kind);
     if (!loaded.ok) return { ok: true, value: [target.kind] };
-    const kinds = loaded.value.bundles.map((item) => item.kind).filter((item, i, all) => all.indexOf(item) === i);
+    const kinds = loaded.value.bundles
+      .map((item) => item.kind)
+      .filter((item, i, all) => all.indexOf(item) === i);
     return { ok: true, value: kinds.length > 0 ? kinds : [target.kind] };
-  }
+  };
 
-  async function load(
-    origin: t.StringUrl,
-    kind: t.BundleDescriptorKind,
-  ): Promise<t.SlugClientResult<t.BundleDescriptorDoc>> {
+  const load: T['load'] = async (origin, kind) => {
     const resolved = resolveTarget(kind);
     if (!resolved.ok) return resolved;
     return SlugClient.FromEndpoint.Descriptor.load(origin, resolved.value.descriptorPath);
-  }
+  };
 
-  async function docids(
-    origin: t.StringUrl,
-    kind: t.BundleDescriptorKind,
-  ): Promise<t.SlugClientResult<t.StringId[]>> {
+  const docids: T['docids'] = async (origin, kind) => {
     const descriptor = await load(origin, kind);
     if (!descriptor.ok) return descriptor;
 
@@ -64,11 +44,9 @@ const create: TCreate = (target) => {
       .filter((item, index, all) => all.indexOf(item) === index);
 
     return { ok: true, value };
-  }
+  };
 
-  async function client(
-    args: t.SlugClientLoaderDescriptorClientArgs,
-  ): Promise<t.SlugClientResult<t.SlugClientDescriptor>> {
+  const client: T['client'] = async (args) => {
     const resolved = resolveTarget(args.kind);
     if (!resolved.ok) return resolved;
 
@@ -96,10 +74,21 @@ const create: TCreate = (target) => {
     if (!client.ok) return client;
 
     return { ok: true, value: withVideoShardRewrite(client.value, origin) };
-  }
+  };
+
+  const api: t.SlugLoaderDescriptor = {
+    kinds,
+    kindsFromDist,
+    target: resolveTarget,
+    load,
+    docids,
+    client,
+  };
+
+  return api;
 };
 
-export const DescriptorFactory: t.SlugClientLoaderDescriptorLib = {
+export const DescriptorFactory: t.SlugLoaderDescriptorLib = {
   create,
 };
 
@@ -107,16 +96,16 @@ export const DescriptorFactory: t.SlugClientLoaderDescriptorLib = {
  * Transitional compatibility surface.
  * Keeps the existing singleton API until app seams move to explicit descriptor instances.
  */
-export const Descriptor: t.SlugClientLoaderDescriptor = createComposite(TARGETS);
+export const Descriptor: t.SlugLoaderDescriptor = createComposite(TARGETS);
 
-function createComposite(targets: readonly t.SlugClientLoaderDescriptorTarget[]): t.SlugClientLoaderDescriptor {
-  const byKind = new Map<t.BundleDescriptorKind, t.SlugClientLoaderDescriptor>();
+function createComposite(targets: readonly t.SlugLoaderDescriptorTarget[]): t.SlugLoaderDescriptor {
+  const byKind = new Map<t.BundleDescriptorKind, t.SlugLoaderDescriptor>();
   for (const target of targets) {
     if (!byKind.has(target.kind)) byKind.set(target.kind, create(target));
   }
 
   const kinds = (): t.BundleDescriptorKind[] => [...byKind.keys()];
-  const resolve = (kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugClientLoaderDescriptor> => {
+  const resolve = (kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugLoaderDescriptor> => {
     const descriptor = byKind.get(kind);
     if (descriptor) return { ok: true, value: descriptor };
     return {
@@ -135,7 +124,9 @@ function createComposite(targets: readonly t.SlugClientLoaderDescriptorTarget[])
         kinds().map(async (kind) => ({ kind, result: await byKind.get(kind)!.load(origin, kind) })),
       );
       const value = loaded
-        .flatMap(({ kind, result }) => (result.ok ? result.value.bundles.map((item) => item.kind) : [kind]))
+        .flatMap(({ kind, result }) =>
+          result.ok ? result.value.bundles.map((item) => item.kind) : [kind],
+        )
         .filter((item, index, all) => all.indexOf(item) === index);
       return { ok: true, value };
     },

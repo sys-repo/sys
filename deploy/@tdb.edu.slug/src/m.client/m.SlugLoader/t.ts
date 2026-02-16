@@ -12,8 +12,8 @@ export type SlugClientLoaderLib = {
   readonly make: (origin: t.StringUrl | t.SlugUrlOrigin) => t.SlugClientLoader;
   readonly Fetch: t.SlugClientLib;
   readonly Origin: t.SlugClientLoaderOriginLib;
-  readonly Descriptor: t.SlugClientLoaderDescriptor;
-  readonly DescriptorFactory: t.SlugClientLoaderDescriptorLib;
+  readonly Descriptor: t.SlugLoaderDescriptor;
+  readonly DescriptorFactory: t.SlugLoaderDescriptorLib;
 };
 
 /**

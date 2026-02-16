@@ -1,17 +1,17 @@
 import type { t } from './common.ts';
 
-export type SlugClientLoaderDescriptorLib = {
-  readonly create: (target: t.SlugClientLoaderDescriptorTarget) => t.SlugClientLoaderDescriptor;
+export type SlugLoaderDescriptorLib = {
+  readonly create: (target: t.SlugLoaderDescriptorTarget) => t.SlugLoaderDescriptor;
 };
 
-export type SlugClientLoaderDescriptorTarget = {
+export type SlugLoaderDescriptorTarget = {
   readonly id: t.StringId;
   readonly kind: t.BundleDescriptorKind;
   readonly descriptorPath: t.StringPath;
   readonly basePath: t.StringPath;
 };
 
-export type SlugClientLoaderDescriptor = {
+export type SlugLoaderDescriptor = {
   /** Deploy-supported descriptor kinds. */
   readonly kinds: () => t.BundleDescriptorKind[];
   /** Discover available kinds from deployed descriptor docs (best-effort). */
@@ -21,7 +21,7 @@ export type SlugClientLoaderDescriptor = {
   /** Resolve deploy profile path/base policy for a descriptor kind. */
   readonly target: (
     kind: t.BundleDescriptorKind,
-  ) => t.SlugClientResult<t.SlugClientLoaderDescriptorTarget>;
+  ) => t.SlugClientResult<t.SlugLoaderDescriptorTarget>;
   /** Load descriptor document from canonical descriptor path. */
   readonly load: (
     origin: t.StringUrl,
@@ -38,14 +38,13 @@ export type SlugClientLoaderDescriptor = {
    * matching target-kind.
    */
   readonly client: (
-    args: SlugClientLoaderDescriptorClientArgs,
+    args: SlugLoaderDescriptorClientArgs,
   ) => Promise<t.SlugClientResult<t.SlugClientDescriptor>>;
 };
 
-export type SlugClientLoaderDescriptorClientArgs =
-  {
-    readonly origin: t.StringUrl | t.SlugUrlOrigin;
-    readonly kind: t.BundleDescriptorKind;
-    /** Optional explicit bundle selection (otherwise first matching docid is used). */
-    readonly docid?: t.StringId;
-  };
+type SlugLoaderDescriptorClientArgs = {
+  readonly origin: t.StringUrl | t.SlugUrlOrigin;
+  readonly kind: t.BundleDescriptorKind;
+  /** Optional explicit bundle selection (otherwise first matching docid is used). */
+  readonly docid?: t.StringId;
+};

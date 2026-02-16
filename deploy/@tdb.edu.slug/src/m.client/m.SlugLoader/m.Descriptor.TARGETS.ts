@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const TARGETS: readonly t.SlugClientLoaderDescriptorTarget[] = [
+export const TARGETS: readonly t.SlugLoaderDescriptorTarget[] = [
   {
     id: 'fs:kb-manifests',
     kind: 'slug-tree:fs',
