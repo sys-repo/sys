@@ -1,5 +1,4 @@
 import { type t, SlugClient, Url } from './common.ts';
-import { TARGETS } from './m.Descriptor.TARGETS.ts';
 import { Origin } from './m.Origin.ts';
 import { withVideoShardRewrite } from './u.withVideoShardRewrite.ts';
 
@@ -7,7 +6,6 @@ const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
   type T = t.SlugLoaderDescriptor;
 
   const kind: T['kind'] = target.kind;
-
   const resolveTarget: T['target'] = () => target;
 
   const load: T['load'] = async (origin) => {
@@ -64,72 +62,9 @@ const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
   return api;
 };
 
-export const DescriptorFactory: t.SlugLoaderDescriptorLib = {
+export const Descriptor: t.SlugLoaderDescriptorLib = {
   create,
 };
-
-/**
- * Transitional compatibility surface.
- * Keeps the existing singleton API until app seams move to explicit descriptor instances.
- */
-export const Descriptor: t.SlugLoaderDescriptorCatalog = createComposite(TARGETS);
-
-function createComposite(
-  targets: readonly t.SlugLoaderDescriptorTarget[],
-): t.SlugLoaderDescriptorCatalog {
-  const byKind = new Map<t.BundleDescriptorKind, t.SlugLoaderDescriptor>();
-  for (const target of targets) {
-    if (!byKind.has(target.kind)) byKind.set(target.kind, create(target));
-  }
-
-  const kinds = (): t.BundleDescriptorKind[] => [...byKind.keys()];
-  const resolve = (kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugLoaderDescriptor> => {
-    const descriptor = byKind.get(kind);
-    if (descriptor) return { ok: true, value: descriptor };
-    return {
-      ok: false,
-      error: {
-        kind: 'schema',
-        message: `No deploy descriptor target for kind: ${kind}`,
-      },
-    };
-  };
-
-  return {
-    kinds,
-    async kindsFromDist(origin) {
-      const loaded = await Promise.all(
-        kinds().map(async (kind) => ({ kind, result: await byKind.get(kind)!.load(origin) })),
-      );
-      const value = loaded
-        .flatMap(({ kind, result }) =>
-          result.ok ? result.value.bundles.map((item) => item.kind) : [kind],
-        )
-        .filter((item, index, all) => all.indexOf(item) === index);
-      return { ok: true, value };
-    },
-    target(kind) {
-      const descriptor = resolve(kind);
-      if (!descriptor.ok) return descriptor;
-      return { ok: true, value: descriptor.value.target() };
-    },
-    load(origin, kind) {
-      const descriptor = resolve(kind);
-      if (!descriptor.ok) return Promise.resolve(descriptor);
-      return descriptor.value.load(origin);
-    },
-    docids(origin, kind) {
-      const descriptor = resolve(kind);
-      if (!descriptor.ok) return Promise.resolve(descriptor);
-      return descriptor.value.docids(origin);
-    },
-    client(args) {
-      const descriptor = resolve(args.kind);
-      if (!descriptor.ok) return Promise.resolve(descriptor);
-      return descriptor.value.client({ origin: args.origin, docid: args.docid });
-    },
-  };
-}
 
 function firstDocid(
   descriptor: t.BundleDescriptorDoc,

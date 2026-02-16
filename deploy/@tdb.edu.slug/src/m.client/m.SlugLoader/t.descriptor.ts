@@ -39,28 +39,3 @@ export type SlugLoaderDescriptorClientArgs = {
   /** Optional explicit bundle selection (otherwise first matching docid is used). */
   docid?: t.StringId;
 };
-
-export type SlugLoaderDescriptorCatalog = {
-  readonly kinds: () => t.BundleDescriptorKind[];
-  readonly kindsFromDist: (
-    origin: t.StringUrl,
-  ) => Promise<t.SlugClientResult<t.BundleDescriptorKind[]>>;
-  readonly target: (
-    kind: t.BundleDescriptorKind,
-  ) => t.SlugClientResult<t.SlugLoaderDescriptorTarget>;
-  readonly load: (
-    origin: t.StringUrl,
-    kind: t.BundleDescriptorKind,
-  ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
-  readonly docids: (
-    origin: t.StringUrl,
-    kind: t.BundleDescriptorKind,
-  ) => Promise<t.SlugClientResult<t.StringId[]>>;
-  readonly client: (
-    args: SlugLoaderDescriptorCatalogClientArgs,
-  ) => Promise<t.SlugClientResult<t.SlugClientDescriptor>>;
-};
-
-export type SlugLoaderDescriptorCatalogClientArgs = SlugLoaderDescriptorClientArgs & {
-  kind: t.BundleDescriptorKind;
-};

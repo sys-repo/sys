@@ -11,6 +11,5 @@ export type * from './t.descriptor.ts';
 export type SlugLoaderLib = {
   readonly Fetch: t.SlugClientLib;
   readonly Origin: t.SlugLoaderOriginLib;
-  readonly Descriptor: t.SlugLoaderDescriptorCatalog;
-  readonly DescriptorFactory: t.SlugLoaderDescriptorLib;
+  readonly Descriptor: t.SlugLoaderDescriptorLib;
 };

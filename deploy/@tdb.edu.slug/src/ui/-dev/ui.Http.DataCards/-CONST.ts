@@ -1,7 +1,7 @@
 import { type t, SlugLoader } from './common.ts';
 
 type TargetMap = Record<'file' | 'media', t.SlugLoaderDescriptorTarget>;
-const create = SlugLoader.DescriptorFactory.create;
+const create = SlugLoader.Descriptor.create;
 
 const TARGET: TargetMap = {
   file: {
