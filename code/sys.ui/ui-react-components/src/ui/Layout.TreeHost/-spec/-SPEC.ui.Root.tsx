@@ -21,10 +21,14 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     : undefined;
 
   const selectedLeaf = selectedNode && !selectedNode.children?.length ? selectedNode : undefined;
-  const renderLeaf = (title: string) =>
-    selectedLeaf && <FooLeaf title={title} theme={v.theme} path={path} node={selectedLeaf} />;
+  const renderLeaf = (title: string, padding?: t.CssPaddingInput) => {
+    if (!selectedLeaf) return null;
+    return (
+      <FooLeaf title={title} theme={v.theme} path={path} node={selectedLeaf} padding={padding} />
+    );
+  };
 
-  const mainSlot = v.slots.main ?? (selectedLeaf ? renderLeaf('Main Leaf Content') : undefined);
+  const mainSlot = v.slots.main ?? (selectedLeaf ? renderLeaf('Main Leaf Content', 40) : undefined);
 
   const slots: t.TreeHostSlots = {
     ...v.slots,

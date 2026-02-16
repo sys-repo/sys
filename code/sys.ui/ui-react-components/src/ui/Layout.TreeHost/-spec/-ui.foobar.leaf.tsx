@@ -1,10 +1,11 @@
 import React from 'react';
-import { type t, Color, css, ObjectView } from './common.ts';
+import { type t, Style, Color, css, ObjectView } from './common.ts';
 
 export type FooLeafProps = {
   title?: string;
   node: t.TreeHostViewNode;
   path: t.ObjectPath;
+  padding?: t.CssPaddingInput;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -16,8 +17,8 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       fontSize: 14,
-      Padding: 8,
       display: 'grid',
+      ...Style.toPadding(props.padding ?? 8),
     }),
     body: css({
       backgroundColor: Color.ruby(0.1),
