@@ -53,8 +53,8 @@ describe('BundleProfile domain-free config (e2e)', () => {
 
     const fsDocid = 'kb' as t.StringId;
     const mediaDocid = 'slug:program' as t.StringId;
-    const fsClean = SlugClient.Url.clean(fsDocid);
-    const mediaClean = SlugClient.Url.clean(mediaDocid);
+    const fsClean = SlugClient.Url.Util.cleanDocid(fsDocid);
+    const mediaClean = SlugClient.Url.Util.cleanDocid(mediaDocid);
 
     const descriptor: t.BundleDescriptorDoc = {
       bundles: [

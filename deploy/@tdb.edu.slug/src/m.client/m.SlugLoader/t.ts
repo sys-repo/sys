@@ -56,7 +56,7 @@ export type SlugClientLoaderDescriptorTarget = {
 };
 
 export type SlugClientLoaderDescriptorClientArgs = {
-  readonly origin: t.StringUrl;
+  readonly origin: t.StringUrl | t.SlugUrlOrigin;
   readonly kind: t.BundleDescriptorKind;
   /** Optional explicit bundle selection (otherwise first matching docid is used). */
   readonly docid?: t.StringId;

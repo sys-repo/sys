@@ -1,4 +1,7 @@
 import { type t, SlugClient, Url } from './common.ts';
+import { TARGETS } from './m.Descriptor.TARGETS.ts';
+import { Origin } from './m.Origin.ts';
+import { withVideoShardRewrite } from './u.withVideoShardRewrite.ts';
 
 export const Descriptor: t.SlugClientLoaderDescriptorLib = {
   kinds,
@@ -9,19 +12,6 @@ export const Descriptor: t.SlugClientLoaderDescriptorLib = {
   client,
 };
 
-const TARGETS: Record<t.BundleDescriptorKind, t.SlugClientLoaderDescriptorTarget> = {
-  'slug-tree:fs': {
-    kind: 'slug-tree:fs',
-    descriptorPath: 'kb/-manifests',
-    basePath: 'kb/-manifests',
-  },
-  'slug-tree:media:seq': {
-    kind: 'slug-tree:media:seq',
-    descriptorPath: 'program/-manifests',
-    basePath: 'program',
-  },
-};
-
 function kinds(): t.BundleDescriptorKind[] {
   return Object.keys(TARGETS) as t.BundleDescriptorKind[];
 }
@@ -29,14 +19,20 @@ function kinds(): t.BundleDescriptorKind[] {
 async function kindsFromDist(
   origin: t.StringUrl,
 ): Promise<t.SlugClientResult<t.BundleDescriptorKind[]>> {
-  const loaded = await Promise.all(kinds().map(async (kind) => ({ kind, result: await load(origin, kind) })));
+  const loaded = await Promise.all(
+    kinds().map(async (kind) => ({ kind, result: await load(origin, kind) })),
+  );
   const value = loaded
-    .flatMap(({ kind, result }) => (result.ok ? result.value.bundles.map((item) => item.kind) : [kind]))
+    .flatMap(({ kind, result }) =>
+      result.ok ? result.value.bundles.map((item) => item.kind) : [kind],
+    )
     .filter((item, index, all) => all.indexOf(item) === index);
   return { ok: true, value };
 }
 
-function target(kind: t.BundleDescriptorKind): t.SlugClientResult<t.SlugClientLoaderDescriptorTarget> {
+function target(
+  kind: t.BundleDescriptorKind,
+): t.SlugClientResult<t.SlugClientLoaderDescriptorTarget> {
   const value = TARGETS[kind];
   if (value) return { ok: true, value };
 
@@ -76,10 +72,11 @@ async function docids(
 async function client(
   args: t.SlugClientLoaderDescriptorClientArgs,
 ): Promise<t.SlugClientResult<t.SlugClientDescriptor>> {
+  const origin = Origin.parse(args.origin);
   const resolved = target(args.kind);
   if (!resolved.ok) return resolved;
   const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
-    args.origin,
+    origin.cdn.default,
     resolved.value.descriptorPath,
   );
   if (!descriptor.ok) return descriptor;
@@ -93,12 +90,15 @@ async function client(
   });
   if (!selected.ok) return selected;
 
-  return SlugClient.FromDescriptor.make({
+  const client = SlugClient.FromDescriptor.make({
     descriptor: descriptor.value,
-    baseUrl: Url.parse(args.origin).join(resolved.value.basePath),
+    baseUrl: Url.parse(origin.cdn.default).join(resolved.value.basePath),
     kind: selected.value.kind,
     docid: selected.value.docid,
   });
+  if (!client.ok) return client;
+
+  return { ok: true, value: withVideoShardRewrite(client.value, origin) };
 }
 
 function firstDocid(
