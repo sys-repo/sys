@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../common.ts';
-import { Descriptor } from '../m.Descriptor.ts';
+import { Descriptor, DescriptorFactory } from '../m.Descriptor.ts';
 import { withVideoShardRewrite } from '../u.withVideoShardRewrite.ts';
 
 describe('SlugLoader.Descriptor', () => {
@@ -16,6 +16,7 @@ describe('SlugLoader.Descriptor', () => {
       expect(result).to.eql({
         ok: true,
         value: {
+          id: 'fs:kb-manifests',
           kind: 'slug-tree:fs',
           descriptorPath: 'kb/-manifests',
           basePath: 'kb/-manifests',
@@ -28,11 +29,29 @@ describe('SlugLoader.Descriptor', () => {
       expect(result).to.eql({
         ok: true,
         value: {
+          id: 'media:program',
           kind: 'slug-tree:media:seq',
           descriptorPath: 'program/-manifests',
           basePath: 'program',
         },
       });
+    });
+  });
+
+  describe('factory', () => {
+    it('creates named targets with stable kind defaults', () => {
+      const descriptor = DescriptorFactory.create({
+        targets: [
+          { id: 'a', kind: 'slug-tree:fs', descriptorPath: 'a', basePath: 'a' },
+          { id: 'b', kind: 'slug-tree:fs', descriptorPath: 'b', basePath: 'b' },
+        ],
+        defaults: { 'slug-tree:fs': 'b' },
+      });
+
+      const target = descriptor.target('slug-tree:fs');
+      if (!target.ok) throw new Error(target.error.message);
+      expect(target.value.id).to.eql('b');
+      expect(descriptor.targets().map((m) => m.id)).to.eql(['a', 'b']);
     });
   });
 
