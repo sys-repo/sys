@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { DESCRIPTOR } from '../-CONST.ts';
 import { type t, PlaybackDriver } from './common.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
@@ -68,10 +69,12 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const playback = await client.value.Timeline.Playback.load();
     if (!playback.ok) return e.result(playback);
 
+    /** Sample (Proof): first video URL. */
     const firstBeatUrl = toFirstBeatVideoHref({
       playback: playback.value,
       assets: assets.value.assets,
     });
+    console.info('firstBeatUrl:', firstBeatUrl);
 
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'basePath', v: DESCRIPTOR.TARGET.media.basePath });
