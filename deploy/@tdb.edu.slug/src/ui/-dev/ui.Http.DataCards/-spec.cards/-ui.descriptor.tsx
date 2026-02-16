@@ -1,3 +1,4 @@
+import { DESCRIPTOR } from '../-CONST.ts';
 import { type t, SlugLoader } from './common.ts';
 import { renderDescriptorCard } from './-ui.descriptor.card.tsx';
 
@@ -7,8 +8,8 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'ƒ • Fetch ← Descriptor',
   render(e) {
     const kind = e.probe?.descriptor?.kind ?? 'slug-tree:fs';
-    const target = SlugLoader.Descriptor.target(kind);
-    const descriptorPath = target.ok ? target.value.descriptorPath : '(unknown)';
+    const descriptor = DESCRIPTOR.resolve(kind);
+    const descriptorPath = descriptor.target().descriptorPath;
     e.params({ kind });
     renderDescriptorCard(e, {
       origin: e.origin,
@@ -27,24 +28,23 @@ export const Descriptor: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       return e.result({ ok: false, error: { message: 'Missing params.kind' } });
     }
 
-    const target = SlugLoader.Descriptor.target(kind);
-    if (!target.ok) return e.result(target);
-    const path = target.value.descriptorPath;
+    const descriptorLoader = DESCRIPTOR.resolve(kind);
+    const target = descriptorLoader.target();
+    const path = target.descriptorPath;
     e.item({ k: 'origin', v: e.origin.cdn.default });
     e.item({ k: 'path', v: path });
     e.item({ k: 'kind', v: kind });
 
-    const descriptor = await SlugLoader.Descriptor.load(e.origin.cdn.default, kind);
+    const descriptor = await descriptorLoader.load(e.origin.cdn.default);
     if (!descriptor.ok) return e.result(descriptor);
     const selected = SlugLoader.Fetch.FromDescriptor.select({ descriptor: descriptor.value, kind });
     const docid = selected.ok ? selected.value.docid : undefined;
     e.item({ k: 'doc-id', v: docid ?? '(auto:none)' });
-    const basePath = target.value.basePath;
+    const basePath = target.basePath;
     e.item({ k: 'base-path', v: basePath });
 
-    const client = await SlugLoader.Descriptor.client({
+    const client = await descriptorLoader.client({
       origin: e.origin.cdn.default,
-      kind,
     });
     if (!client.ok) return e.result(client);
 

@@ -1,4 +1,5 @@
-import { type t, SlugLoader } from './common.ts';
+import { DESCRIPTOR } from '../-CONST.ts';
+import { type t } from './common.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
 import { selectOrFirst } from './-u.selection.ts';
 
@@ -10,8 +11,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'ƒ • Fetch ← (Tree + (Playback + Assets))',
   render(e) {
     const kind: t.BundleDescriptorKind = 'slug-tree:media:seq';
-    const target = SlugLoader.Descriptor.target(kind);
-    const descriptorPath = target.ok ? target.value.descriptorPath : '(unknown)';
+    const descriptorPath = DESCRIPTOR.TARGET.media.descriptorPath;
 
     e.params({ kind });
     renderTreePlaybackAssetsCard(e, {
@@ -38,7 +38,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       });
     }
 
-    const docids = await SlugLoader.Descriptor.docids(e.origin.cdn.default, kind);
+    const docids = await DESCRIPTOR.media.docids(e.origin.cdn.default);
     if (!docids.ok) return e.result(docids);
     const ids = docids.value;
     e.probe?.treePlayback?.onRefsChange?.(ids);
@@ -56,14 +56,11 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     }
     e.probe?.treePlayback?.onRefChange?.(selectedDocid);
 
-    const client = await SlugLoader.Descriptor.client({
+    const client = await DESCRIPTOR.media.client({
       origin: e.origin.cdn.default,
-      kind,
       docid: selectedDocid,
     });
     if (!client.ok) return e.result(client);
-    const target = SlugLoader.Descriptor.target(kind);
-    if (!target.ok) return e.result(target);
 
     const assets = await client.value.Timeline.Assets.load();
     if (!assets.ok) return e.result(assets);
@@ -72,7 +69,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     if (!playback.ok) return e.result(playback);
 
     e.item({ k: 'origin', v: e.origin.cdn.default });
-    e.item({ k: 'basePath', v: target.value.basePath });
+    e.item({ k: 'basePath', v: DESCRIPTOR.TARGET.media.basePath });
     e.item({ k: 'docid', v: client.value.docid });
     e.hr();
     e.item({ k: 'descriptor: loaded', v: 'yes' });

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, BulletList, SlugLoader } from './common.ts';
+import { DESCRIPTOR } from '../-CONST.ts';
+import { type t, BulletList } from './common.ts';
 
 type Props = {
   origin: t.SlugUrlOrigin;
@@ -62,15 +63,17 @@ function isDescriptorMode(input: string): input is t.DescriptorMode {
 }
 
 async function loadItems(origin: string): Promise<t.BulletList.Item[]> {
-  const discovered = await SlugLoader.Descriptor.kindsFromDist(origin);
-  const ids = discovered.ok ? discovered.value : [];
-  const fallback = SlugLoader.Descriptor.kinds();
-  const selected = ids.length > 0 ? ids : fallback;
+  const discovered = await Promise.all([
+    DESCRIPTOR.file.load(origin),
+    DESCRIPTOR.media.load(origin),
+  ]);
+  const ids = DESCRIPTOR.KINDS.filter((_kind, index) => discovered[index]?.ok);
+  const selected = ids.length > 0 ? ids : [...DESCRIPTOR.KINDS];
   return selected.map((id) => ({ id, label: labelForKind(id) }));
 }
 
 function fallbackItems(): t.BulletList.Item[] {
-  return SlugLoader.Descriptor.kinds().map((id) => ({ id, label: labelForKind(id) }));
+  return [...DESCRIPTOR.KINDS].map((id) => ({ id, label: labelForKind(id) }));
 }
 
 function labelForKind(kind: t.BundleDescriptorKind): string {

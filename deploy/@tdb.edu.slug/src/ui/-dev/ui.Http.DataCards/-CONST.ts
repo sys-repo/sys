@@ -1,6 +1,7 @@
 import { type t, SlugLoader } from './common.ts';
 
 type TargetMap = Record<'file' | 'media', t.SlugLoaderDescriptorTarget>;
+const create = SlugLoader.DescriptorFactory.create;
 
 const TARGET: TargetMap = {
   file: {
@@ -17,7 +18,15 @@ const TARGET: TargetMap = {
   },
 };
 
+const KINDS = [TARGET.file.kind, TARGET.media.kind] as const;
 export const DESCRIPTOR = {
-  file: SlugLoader.DescriptorFactory.create(TARGET.file),
-  media: SlugLoader.DescriptorFactory.create(TARGET.media),
+  KINDS,
+  TARGET,
+
+  file: create(TARGET.file),
+  media: create(TARGET.media),
+
+  resolve(kind: t.BundleDescriptorKind) {
+    return kind === TARGET.media.kind ? DESCRIPTOR.media : DESCRIPTOR.file;
+  },
 } as const;

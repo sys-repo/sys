@@ -1,4 +1,5 @@
-import { type t, Obj, Is, SlugLoader, Str } from './common.ts';
+import { DESCRIPTOR } from '../-CONST.ts';
+import { type t, Obj, Is, Str } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree+file-content.card.tsx';
 import { refsFromTree, selectOrFirst } from './-u.selection.ts';
 
@@ -34,9 +35,8 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       });
     }
 
-    const client = await SlugLoader.Descriptor.client({
+    const client = await DESCRIPTOR.file.client({
       origin: e.origin.cdn.default,
-      kind,
     });
     if (!client.ok) return e.result(client);
 
