@@ -262,11 +262,28 @@ function buildMediaSeqDescriptor(args: {
 }
 
 function toDescriptorShardPolicy(
-  input?: { readonly strategy?: t.ShardStrategy; readonly total: t.ShardCount },
-): { readonly strategy: t.ShardStrategy; readonly total: t.ShardCount } | undefined {
+  input?: {
+    readonly strategy?: t.ShardStrategy;
+    readonly total: t.ShardCount;
+    readonly host?: 'prefix-shard' | 'none';
+    readonly path?: 'preserve' | 'root-filename';
+  },
+):
+  | {
+      readonly strategy: t.ShardStrategy;
+      readonly total: t.ShardCount;
+      readonly host?: 'prefix-shard' | 'none';
+      readonly path?: 'preserve' | 'root-filename';
+    }
+  | undefined {
   if (!input) return undefined;
   const policy = Shard.policy(input.total, input.strategy);
-  return { strategy: policy.strategy, total: policy.shards };
+  return {
+    strategy: policy.strategy,
+    total: policy.shards,
+    ...(input.host ? { host: input.host } : {}),
+    ...(input.path ? { path: input.path } : {}),
+  };
 }
 
 async function buildSlugTreeFsDescriptors(args: {

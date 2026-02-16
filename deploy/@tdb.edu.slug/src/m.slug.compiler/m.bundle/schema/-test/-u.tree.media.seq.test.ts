@@ -16,8 +16,18 @@ describe('SchemaSlugTreeMediaSeqBundle', () => {
           tree: 'slug-tree.<docid>.json',
         },
         media: {
-          video: { base: './out', hrefBase: '/assets', dir: 'video', shard: { total: 64 } },
-          image: { base: './out', hrefBase: '/assets', dir: 'image', shard: { total: 32 } },
+          video: {
+            base: './out',
+            hrefBase: '/assets',
+            dir: 'video',
+            shard: { total: 64, host: 'prefix-shard', path: 'root-filename' },
+          },
+          image: {
+            base: './out',
+            hrefBase: '/assets',
+            dir: 'image',
+            shard: { total: 32, host: 'none', path: 'preserve' },
+          },
         },
       },
       requirePlayback: true,

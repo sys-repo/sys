@@ -67,8 +67,18 @@ describe('BundleDescriptor', () => {
           manifestsDir: 'manifests',
           mediaDirs: { video: 'video', image: 'image' },
           shard: {
-            video: { strategy: videoPolicy.strategy, total: videoPolicy.shards },
-            image: { strategy: imagePolicy.strategy, total: imagePolicy.shards },
+            video: {
+              strategy: videoPolicy.strategy,
+              total: videoPolicy.shards,
+              host: 'prefix-shard',
+              path: 'root-filename',
+            },
+            image: {
+              strategy: imagePolicy.strategy,
+              total: imagePolicy.shards,
+              host: 'none',
+              path: 'preserve',
+            },
           },
         },
         files: {
@@ -89,10 +99,14 @@ describe('BundleDescriptor', () => {
       expect(bundle.layout?.shard?.video).to.eql({
         strategy: videoPolicy.strategy,
         total: videoPolicy.shards,
+        host: 'prefix-shard',
+        path: 'root-filename',
       });
       expect(bundle.layout?.shard?.image).to.eql({
         strategy: imagePolicy.strategy,
         total: imagePolicy.shards,
+        host: 'none',
+        path: 'preserve',
       });
     } finally {
       await Fs.remove(tmpDir);

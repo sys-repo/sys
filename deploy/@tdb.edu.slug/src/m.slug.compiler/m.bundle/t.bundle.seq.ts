@@ -41,6 +41,10 @@ export type SlugBundleMediaSeq = {
           readonly strategy?: t.ShardStrategy;
           /** Total number of shards. */
           readonly total: t.ShardCount;
+          /** Host rewrite policy for shard URLs (default: "none"). */
+          readonly host?: 'prefix-shard' | 'none';
+          /** Path rewrite policy for shard URLs (default: "preserve"). */
+          readonly path?: 'preserve' | 'root-filename';
         };
       };
       readonly image?: {
@@ -52,6 +56,10 @@ export type SlugBundleMediaSeq = {
           readonly strategy?: t.ShardStrategy;
           /** Total number of shards. */
           readonly total: t.ShardCount;
+          /** Host rewrite policy for shard URLs (default: "none"). */
+          readonly host?: 'prefix-shard' | 'none';
+          /** Path rewrite policy for shard URLs (default: "preserve"). */
+          readonly path?: 'preserve' | 'root-filename';
         };
       };
     };

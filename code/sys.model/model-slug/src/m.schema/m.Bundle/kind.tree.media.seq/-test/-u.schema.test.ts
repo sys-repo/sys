@@ -12,8 +12,8 @@ const valid = {
       image: 'image',
     },
     shard: {
-      video: { strategy: 'prefix-range', total: 64 },
-      image: { strategy: 'prefix-range', total: 16 },
+      video: { strategy: 'prefix-range', total: 64, host: 'prefix-shard', path: 'root-filename' },
+      image: { strategy: 'prefix-range', total: 16, host: 'none', path: 'preserve' },
     },
   },
   files: {

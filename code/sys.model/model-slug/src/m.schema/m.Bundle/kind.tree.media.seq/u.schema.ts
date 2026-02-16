@@ -8,6 +8,8 @@ const ShardPolicy = Type.Object(
   {
     strategy: Type.Literal('prefix-range'),
     total: Type.Number(),
+    host: Type.Optional(Type.Union([Type.Literal('prefix-shard'), Type.Literal('none')])),
+    path: Type.Optional(Type.Union([Type.Literal('preserve'), Type.Literal('root-filename')])),
   },
   { additionalProperties: false },
 );

@@ -17,10 +17,14 @@ export type BundleDescriptorSlugTreeMediaSeq = BundleDescriptorBase & {
       readonly video?: {
         readonly strategy: 'prefix-range';
         readonly total: number;
+        readonly host?: 'prefix-shard' | 'none';
+        readonly path?: 'preserve' | 'root-filename';
       };
       readonly image?: {
         readonly strategy: 'prefix-range';
         readonly total: number;
+        readonly host?: 'prefix-shard' | 'none';
+        readonly path?: 'preserve' | 'root-filename';
       };
     };
   };

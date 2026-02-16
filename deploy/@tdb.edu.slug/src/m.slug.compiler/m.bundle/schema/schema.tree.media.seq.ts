@@ -5,6 +5,12 @@ const MediaShard = Schema.Type.Object(
   {
     strategy: Schema.Type.Optional(Schema.Type.Literal('prefix-range')),
     total: Schema.Type.Number(),
+    host: Schema.Type.Optional(
+      Schema.Type.Union([Schema.Type.Literal('prefix-shard'), Schema.Type.Literal('none')]),
+    ),
+    path: Schema.Type.Optional(
+      Schema.Type.Union([Schema.Type.Literal('preserve'), Schema.Type.Literal('root-filename')]),
+    ),
   },
   { additionalProperties: false },
 );
