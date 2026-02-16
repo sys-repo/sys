@@ -15,8 +15,9 @@ export const Specs = {
 
   [`${ns}: ui.TreeDriver.Tmpl`]: () => import('../ui/ui.Driver.Tree.Tmpl/-spec/-SPEC.tsx'),
   [`${ns}: ui.TreeContentDriver`]: () => import('../ui/ui.Driver.TreeContent/-spec/-SPEC.tsx'),
-  [`${ns}: ui.FileContentDriver`]: () => import('../ui/ui.Driver.FileContent/-spec/-SPEC.tsx'),
-  [`${ns}: ui.MediaPlaybackDriver`]: () => import('../ui/ui.Driver.MediaPlayback/-spec/-SPEC.tsx'),
+  [`${ns}: ui. ↑ FileContentDriver`]: () => import('../ui/ui.Driver.FileContent/-spec/-SPEC.tsx'),
+  [`${ns}: ui. ↑ MediaPlaybackDriver`]: () =>
+    import('../ui/ui.Driver.MediaPlayback/-spec/-SPEC.tsx'),
 
   [`${ns}.dev: Http.SlugOrigin`]: () => import('../ui/-dev/ui.Http.SlugOrigin/-spec/-SPEC.tsx'),
   [`${ns}.dev: Http.SlugLoader ← (data cards)`]: () =>
