@@ -47,21 +47,9 @@ describe('SlugLoader.Descriptor', () => {
         basePath: 'a',
       });
 
-      const target = descriptor.target('slug-tree:fs');
-      if (!target.ok) throw new Error(target.error.message);
-      expect(target.value.id).to.eql('a');
-      expect(descriptor.kinds()).to.eql(['slug-tree:fs']);
-    });
-
-    it('rejects mismatched kind on single-target instance', () => {
-      const descriptor = DescriptorFactory.create({
-        id: 'a',
-        kind: 'slug-tree:fs',
-        descriptorPath: 'a',
-        basePath: 'a',
-      });
-      const target = descriptor.target('slug-tree:media:seq');
-      expect(target.ok).to.eql(false);
+      const target = descriptor.target();
+      expect(descriptor.kind).to.eql('slug-tree:fs');
+      expect(target.id).to.eql('a');
     });
   });
 
