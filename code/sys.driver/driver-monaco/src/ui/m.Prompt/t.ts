@@ -66,7 +66,7 @@ export declare namespace EditorPrompt {
   export type CalculateState = (args: {
     config?: Config;
     lineCount: number;
-    lineHeight?: number;
+    lineHeight: number;
   }) => State;
 
   /** Normalize prompt config into deterministic defaults. */

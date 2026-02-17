@@ -1,5 +1,4 @@
 import { describe, expect, it, MonacoFake } from '../../../-test.ts';
-import { D } from '../common.ts';
 import { normalize } from '../u.normalize.ts';
 import { resolveLineHeight } from '../u.lineHeight.ts';
 import { resolveEnterAction, state } from '../u.state.ts';
@@ -59,6 +58,7 @@ describe('Monaco.Prompt', () => {
       const res = state({
         config: { lines: { min: 1, max: 2 }, overflow: 'clamp' },
         lineCount: 8,
+        lineHeight: 10,
       });
       expect(res.scrolling).to.eql(false);
     });
@@ -94,10 +94,9 @@ describe('Monaco.Prompt', () => {
       expect(res).to.eql(30);
     });
 
-    it('falls back when Monaco option id is unavailable', () => {
+    it('throws when neither explicit lineHeight nor monaco option id is available', () => {
       const editor = MonacoFake.editor('one\ntwo');
-      const res = resolveLineHeight({ editor });
-      expect(res).to.eql(D.fallbackLineHeight);
+      expect(() => resolveLineHeight({ editor })).to.throw();
     });
   });
 });

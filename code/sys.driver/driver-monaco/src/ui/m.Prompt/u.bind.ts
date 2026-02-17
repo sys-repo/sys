@@ -7,23 +7,18 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
   const life = Rx.lifecycle(until);
   const config = normalize(args.config);
   const editor = args.editor;
-  const lineHeight = resolveLineHeight(args);
 
   let nextModel = editor.getModel() ?? undefined;
   if (!nextModel) nextModel = await Util.Editor.waitForModel(editor, life);
   if (!nextModel) throw new Error('A model could not be retrieved from the editor.');
   let model: t.Monaco.TextModel = nextModel;
 
-  let current = calculateState({
-    config,
-    lineHeight,
-    lineCount: model.getLineCount(),
-  });
+  let current = calculateState({ config, lineHeight: resolveLineHeight(args), lineCount: model.getLineCount() });
 
   const recompute = () => {
     current = calculateState({
       config,
-      lineHeight,
+      lineHeight: resolveLineHeight(args),
       lineCount: model.getLineCount(),
     });
     wrangle.applyOptions(editor, current);
@@ -49,9 +44,15 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     rebind(next);
   });
 
+  const configSub = wrangle.onDidChangeConfiguration(editor, () => {
+    if (life.disposed) return;
+    recompute();
+  });
+
   life.dispose$.subscribe(() => {
     contentSub?.dispose();
     modelSub.dispose();
+    configSub?.dispose();
   });
   rebind(model);
 
@@ -68,6 +69,13 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
 };
 
 const wrangle = {
+  onDidChangeConfiguration(editor: t.Monaco.Editor, listener: () => void) {
+    const fn = (editor as unknown as {
+      onDidChangeConfiguration?: (listener: () => void) => t.Monaco.I.IDisposable;
+    }).onDidChangeConfiguration;
+    return fn?.(listener);
+  },
+
   applyOptions(editor: t.Monaco.Editor, state: t.EditorPrompt.State) {
     const updateOptions = (editor as unknown as { updateOptions?: (options: unknown) => void })
       .updateOptions;

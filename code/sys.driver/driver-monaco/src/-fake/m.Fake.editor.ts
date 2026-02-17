@@ -5,6 +5,8 @@ type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
 type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
 type UpdateOptionsArg = Parameters<IStandalone['updateOptions']>[0];
+type OnConfigurationChange = Parameters<IStandalone['onDidChangeConfiguration']>[0];
+const EDITOR_OPTION_LINE_HEIGHT = 67 as const;
 
 /** monotonic id generator */
 let __id = 0;
@@ -102,6 +104,24 @@ export const fakeEditor: F = (input) => {
     cursorSubs.forEach((fn) => fn(evt));
   };
 
+  /**
+   * Configuration change:
+   */
+  const configSubs: OnConfigurationChange[] = [];
+  const onDidChangeConfiguration: IStandalone['onDidChangeConfiguration'] = (listener) => {
+    configSubs.push(listener);
+    return {
+      dispose() {
+        const i = configSubs.indexOf(listener);
+        if (i >= 0) configSubs.splice(i, 1);
+      },
+    };
+  };
+  const _emitDidChangeConfiguration = () => {
+    const event = {} as Parameters<OnConfigurationChange>[0];
+    for (const fn of [...configSubs]) fn(event);
+  };
+
   const setModel: IStandalone['setModel'] = (next) => {
     const old = model;
     model = next ? wrangle.model(next as any) : wrangle.model('');
@@ -115,11 +135,13 @@ export const fakeEditor: F = (input) => {
    * Editor options:
    */
   const updateOptionsCalls: UpdateOptionsArg[] = [];
-  const optionState = new Map<number, unknown>([[67, 21]]);
+  const optionState = new Map<number, unknown>([[EDITOR_OPTION_LINE_HEIGHT, 21]]);
   const updateOptions: IStandalone['updateOptions'] = (options) => {
     updateOptionsCalls.push(options);
     if (Is.num(options?.lineHeight)) {
-      optionState.set(67, options.lineHeight);
+      const current = optionState.get(EDITOR_OPTION_LINE_HEIGHT);
+      optionState.set(EDITOR_OPTION_LINE_HEIGHT, options.lineHeight);
+      if (current !== options.lineHeight) _emitDidChangeConfiguration();
     }
   };
   const getOption: IStandalone['getOption'] = ((id: number) => optionState.get(id)) as IStandalone['getOption'];
@@ -260,9 +282,11 @@ export const fakeEditor: F = (input) => {
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,
     onDidChangeModel,
+    onDidChangeConfiguration,
 
     // Test API:
     _emitDidChangeModel,
+    _emitDidChangeConfiguration,
     _getViewModel: () => ({ getHiddenAreas }),
     _getUpdateOptionsCalls: () => [...updateOptionsCalls],
     _setOption: (id, value) => optionState.set(id, value),

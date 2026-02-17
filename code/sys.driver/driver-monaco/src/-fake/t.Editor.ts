@@ -25,6 +25,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'getVisibleRanges'
     | 'onDidChangeCursorPosition'
     | 'onDidChangeModel'
+    | 'onDidChangeConfiguration'
     | 'trigger'
     | 'executeEdits'
     | 'getOption'
@@ -33,6 +34,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'revealRangeInCenterIfOutsideViewport'
   > & {
     _emitDidChangeModel: () => void;
+    _emitDidChangeConfiguration: () => void;
     _getViewModel: () => { getHiddenAreas: () => t.Monaco.I.IRange[] };
     _getUpdateOptionsCalls: () => readonly UpdateOptionsArg[];
     _setOption: (id: number, value: unknown) => void;

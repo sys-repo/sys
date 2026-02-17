@@ -8,7 +8,7 @@ export const state: t.EditorPrompt.CalculateState = (args) => {
   const clamped = lineCount >= config.lines.max;
   const overflowing = lineCount > config.lines.max;
   const scrolling = config.overflow === 'scroll' && overflowing;
-  const lineHeight = Num.clamp(1, Num.MAX_INT, Math.trunc(args.lineHeight || D.fallbackLineHeight));
+  const lineHeight = Num.clamp(1, Num.MAX_INT, Math.trunc(args.lineHeight));
   const height = visibleLines * lineHeight;
 
   return { lineCount, visibleLines, clamped, scrolling, height };

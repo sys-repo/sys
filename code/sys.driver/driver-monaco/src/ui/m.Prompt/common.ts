@@ -10,7 +10,6 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   lineCount: 1,
-  fallbackLineHeight: 21,
   enterPolicy: { enter: 'newline', modEnter: 'newline' } satisfies t.EditorPrompt.EnterPolicy,
 } as const;
 export const DEFAULTS = D;

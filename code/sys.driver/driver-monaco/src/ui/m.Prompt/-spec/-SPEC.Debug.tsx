@@ -26,10 +26,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     text: s(snap.text),
-    lineCount: s<number>(D.lineCount),
-    visibleLines: s<number>(D.lineCount),
-    scrolling: s(false),
-    height: s(D.lineCount * D.fallbackLineHeight),
+    promptState: s<t.EditorPrompt.State | undefined>(undefined),
     editor: s<t.Monaco.Editor>(),
   };
   const p = props;
@@ -47,10 +44,7 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug ?? false;
     p.theme.value = defaults.theme ?? 'Dark';
     p.text.value = defaults.text ?? '';
-    p.lineCount.value = D.lineCount;
-    p.visibleLines.value = D.lineCount;
-    p.scrolling.value = false;
-    p.height.value = D.lineCount * D.fallbackLineHeight;
+    p.promptState.value = undefined;
     p.editor.value = undefined;
   }
 

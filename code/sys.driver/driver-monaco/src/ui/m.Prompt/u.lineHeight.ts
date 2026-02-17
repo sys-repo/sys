@@ -1,4 +1,4 @@
-import { type t, D, Is, Num } from './common.ts';
+import { type t, Is, Num } from './common.ts';
 
 export const resolveLineHeight = (args: {
   editor: t.Monaco.Editor;
@@ -11,7 +11,9 @@ export const resolveLineHeight = (args: {
   const option = wrangle.fromEditorOption(args.editor, args.monaco);
   if (option !== undefined) return option;
 
-  return D.fallbackLineHeight;
+  throw new Error(
+    'Unable to resolve Monaco lineHeight. Pass bind.args.lineHeight or provide bind.args.monaco.',
+  );
 };
 
 const wrangle = {
@@ -28,4 +30,3 @@ const wrangle = {
     return wrangle.toLineHeight(getOption(id) as number | undefined);
   },
 } as const;
-

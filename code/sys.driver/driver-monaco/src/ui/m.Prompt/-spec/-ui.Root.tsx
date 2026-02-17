@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, D, MonacoEditor, Signal, EditorPrompt } from './common.ts';
+import { type t, css, MonacoEditor, Signal, EditorPrompt } from './common.ts';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -15,18 +15,15 @@ export const Root: React.FC<RootProps> = (props) => {
   const v = Signal.toObject(p);
   const bindingRef = React.useRef<t.EditorPrompt.Binding | undefined>(undefined);
   const mountIdRef = React.useRef(0);
-  const height = v.height ?? D.lineCount * D.fallbackLineHeight;
+  const style = v.promptState?.height === undefined ? props.style : css({ height: v.promptState.height }, props.style);
 
   const updateState = (state: t.EditorPrompt.State) => {
-    p.lineCount.value = state.lineCount;
-    p.visibleLines.value = state.visibleLines;
-    p.scrolling.value = state.scrolling;
-    p.height.value = state.height;
+    p.promptState.value = state;
   };
 
   return (
     <MonacoEditor
-      style={css({ height }, props.style)}
+      style={style}
       theme={v.theme}
       onMounted={(e: t.MonacoEditorReady) => {
         const mountId = ++mountIdRef.current;
@@ -47,10 +44,7 @@ export const Root: React.FC<RootProps> = (props) => {
         bindingRef.current?.dispose();
         bindingRef.current = undefined;
         p.editor.value = undefined;
-        p.lineCount.value = D.lineCount;
-        p.visibleLines.value = D.lineCount;
-        p.scrolling.value = false;
-        p.height.value = D.lineCount * D.fallbackLineHeight;
+        p.promptState.value = undefined;
       }}
       onChange={(e: t.MonacoEditorChange) => {
         p.text.value = e.content.text;

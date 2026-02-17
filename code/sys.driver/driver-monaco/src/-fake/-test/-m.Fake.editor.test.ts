@@ -285,5 +285,14 @@ describe('TestFake: Editor', () => {
       editor._setOption(id, 33);
       expect(editor.getOption(id) as number).to.eql(33);
     });
+
+    it('emits onDidChangeConfiguration when lineHeight changes', () => {
+      const editor = MonacoFake.editor('');
+      let fired = 0;
+      editor.onDidChangeConfiguration(() => fired++);
+
+      editor.updateOptions({ lineHeight: 30 });
+      expect(fired).to.eql(1);
+    });
   });
 });
