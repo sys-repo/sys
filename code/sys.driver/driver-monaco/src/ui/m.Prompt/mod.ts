@@ -4,9 +4,10 @@
 import type { t } from './common.ts';
 
 /**
- * Monaco prompt-domain API surface.
+ * Constrains Monaco into a prompt-style input
+ * (1..n visible lines with controlled enter and overflow behavior).
  *
- * `EditorPrompt` groups input-orchestration primitives
- * (single-line and bounded multiline) implemented directly on Monaco.
+ * Pure controller logic lives here;
+ * React hooks are thin lifecycle adapters only.
  */
 export const EditorPrompt: t.EditorPrompt.Lib = {};
