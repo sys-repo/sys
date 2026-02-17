@@ -5,6 +5,7 @@ import { Bus } from '../m.Event/mod.ts';
 import { EditorCrdt as Crdt } from '../ui/m.Crdt/mod.ts';
 import { EditorYaml as Yaml } from '../ui/m.Yaml/mod.ts';
 import { MonacoEditor as Editor } from '../ui/ui.MonacoEditor/mod.ts';
+import { EditorPrompt as Prompt } from '../ui/m.Prompt/mod.ts';
 
 import { EditorIs } from '../m.Is/mod.ts';
 import { Link } from './m.Link.ts';
@@ -21,6 +22,9 @@ export const Monaco: t.MonacoLib = {
   },
   get Editor() {
     return Editor;
+  },
+  get Prompt() {
+    return Prompt;
   },
   get Crdt() {
     return Crdt;

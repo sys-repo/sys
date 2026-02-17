@@ -14,6 +14,7 @@ export type * from './m.Monaco/t.ts';
 export type * from './ui/m.Crdt/t.ts';
 export type * from './ui/m.Markers.Error/t.ts';
 export type * from './ui/m.Markers.Folding/t.ts';
+export type * from './ui/m.Prompt/t.ts';
 export type * from './ui/m.Yaml/t.ts';
 export type * from './ui/ui.MonacoEditor/t.ts';
 export type * from './ui/ui.YamlEditor.Footer/t.ts';
