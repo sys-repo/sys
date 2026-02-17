@@ -31,6 +31,10 @@ export type FakeMonacoGlobal = Readonly<{
   };
 
   editor: {
+    EditorOption: {
+      readonly lineHeight: number;
+    };
+
     registerLinkOpener(opener: {
       open(uri: t.Monaco.Uri): boolean | Promise<boolean>;
     }): t.Monaco.I.IDisposable;

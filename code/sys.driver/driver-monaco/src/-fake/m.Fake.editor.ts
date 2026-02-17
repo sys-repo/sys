@@ -1,4 +1,4 @@
-import { type t, RangeUtil } from './common.ts';
+import { type t, Is, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
 type F = t.FakeMonacoLib['editor'];
@@ -115,9 +115,14 @@ export const fakeEditor: F = (input) => {
    * Editor options:
    */
   const updateOptionsCalls: UpdateOptionsArg[] = [];
+  const optionState = new Map<number, unknown>([[67, 21]]);
   const updateOptions: IStandalone['updateOptions'] = (options) => {
     updateOptionsCalls.push(options);
+    if (Is.num(options?.lineHeight)) {
+      optionState.set(67, options.lineHeight);
+    }
   };
+  const getOption: IStandalone['getOption'] = ((id: number) => optionState.get(id)) as IStandalone['getOption'];
 
   /**
    * Trigger.
@@ -246,6 +251,7 @@ export const fakeEditor: F = (input) => {
 
     // Methods:
     executeEdits,
+    getOption,
     updateOptions,
     revealPositionInCenterIfOutsideViewport,
     revealRangeInCenterIfOutsideViewport,
@@ -259,6 +265,7 @@ export const fakeEditor: F = (input) => {
     _emitDidChangeModel,
     _getViewModel: () => ({ getHiddenAreas }),
     _getUpdateOptionsCalls: () => [...updateOptionsCalls],
+    _setOption: (id, value) => optionState.set(id, value),
   };
 
   return api as t.FakeEditorFull;

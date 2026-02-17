@@ -275,5 +275,15 @@ describe('TestFake: Editor', () => {
       expect(next.length).to.eql(1);
       expect(next[0]).to.eql({ lineNumbers: 'on' });
     });
+
+    it('reads and mutates option state via getOption/_setOption', () => {
+      const monaco = MonacoFake.monaco();
+      const editor = MonacoFake.editor('');
+      const id = monaco.editor.EditorOption.lineHeight;
+
+      expect(editor.getOption(id) as number).to.eql(21);
+      editor._setOption(id, 33);
+      expect(editor.getOption(id) as number).to.eql(33);
+    });
   });
 });

@@ -27,6 +27,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'onDidChangeModel'
     | 'trigger'
     | 'executeEdits'
+    | 'getOption'
     | 'updateOptions'
     | 'revealPositionInCenterIfOutsideViewport'
     | 'revealRangeInCenterIfOutsideViewport'
@@ -34,4 +35,5 @@ export type FakeEditor = t.EditorHiddenMembers &
     _emitDidChangeModel: () => void;
     _getViewModel: () => { getHiddenAreas: () => t.Monaco.I.IRange[] };
     _getUpdateOptionsCalls: () => readonly UpdateOptionsArg[];
+    _setOption: (id: number, value: unknown) => void;
   };
