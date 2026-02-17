@@ -21,6 +21,7 @@ export const fakeEditor: F = (input) => {
 
   let position: t.Offset = { lineNumber: 1, column: 1 };
   const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
+  const keySubs: Array<(e: unknown) => void> = [];
 
   /**
    * Model change:
@@ -89,6 +90,17 @@ export const fakeEditor: F = (input) => {
       dispose() {
         const i = cursorSubs.indexOf(listener);
         if (i >= 0) cursorSubs.splice(i, 1);
+      },
+    };
+  };
+
+  const onKeyDown: IStandalone['onKeyDown'] = (listener) => {
+    const fn = listener as unknown as (e: unknown) => void;
+    keySubs.push(fn);
+    return {
+      dispose() {
+        const i = keySubs.indexOf(fn);
+        if (i >= 0) keySubs.splice(i, 1);
       },
     };
   };
@@ -245,6 +257,40 @@ export const fakeEditor: F = (input) => {
     return true;
   };
 
+  const _fireKeyDown: t.FakeEditor['_fireKeyDown'] = (args) => {
+    const key = args?.key ?? 'Enter';
+    let prevented = false;
+    const event = {
+      keyCode: key === 'Enter' ? 3 : undefined,
+      browserEvent: {
+        key,
+        ctrlKey: !!args?.ctrlKey,
+        metaKey: !!args?.metaKey,
+      },
+      preventDefault: () => {
+        prevented = true;
+      },
+      stopPropagation: () => {},
+    };
+
+    for (const fn of [...keySubs]) fn(event);
+    if (key !== 'Enter' || prevented) return;
+
+    const pos = api.getPosition();
+    if (!pos) return;
+    api.executeEdits('keyboard', [
+      {
+        range: {
+          startLineNumber: pos.lineNumber,
+          startColumn: pos.column,
+          endLineNumber: pos.lineNumber,
+          endColumn: pos.column,
+        },
+        text: '\n',
+      },
+    ]);
+  };
+
   /**
    * No-ops:
    */
@@ -281,6 +327,7 @@ export const fakeEditor: F = (input) => {
     // Handlers:
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,
+    onKeyDown,
     onDidChangeModel,
     onDidChangeConfiguration,
 
@@ -290,6 +337,7 @@ export const fakeEditor: F = (input) => {
     _getViewModel: () => ({ getHiddenAreas }),
     _getUpdateOptionsCalls: () => [...updateOptionsCalls],
     _setOption: (id, value) => optionState.set(id, value),
+    _fireKeyDown,
   };
 
   return api as t.FakeEditorFull;

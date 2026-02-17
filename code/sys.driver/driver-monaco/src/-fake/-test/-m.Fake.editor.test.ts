@@ -295,4 +295,17 @@ describe('TestFake: Editor', () => {
       expect(fired).to.eql(1);
     });
   });
+
+  describe('keyboard', () => {
+    it('fires onKeyDown listeners and applies default enter newline', () => {
+      const editor = MonacoFake.editor('one');
+      let fired = 0;
+      editor.onKeyDown(() => fired++);
+      editor.setPosition({ lineNumber: 1, column: 4 });
+
+      editor._fireKeyDown({ key: 'Enter' });
+      expect(fired).to.eql(1);
+      expect(editor.getModel()?.getValue()).to.eql('one\n');
+    });
+  });
 });

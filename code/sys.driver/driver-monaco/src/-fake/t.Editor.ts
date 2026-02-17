@@ -26,6 +26,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'onDidChangeCursorPosition'
     | 'onDidChangeModel'
     | 'onDidChangeConfiguration'
+    | 'onKeyDown'
     | 'trigger'
     | 'executeEdits'
     | 'getOption'
@@ -38,4 +39,9 @@ export type FakeEditor = t.EditorHiddenMembers &
     _getViewModel: () => { getHiddenAreas: () => t.Monaco.I.IRange[] };
     _getUpdateOptionsCalls: () => readonly UpdateOptionsArg[];
     _setOption: (id: number, value: unknown) => void;
+    _fireKeyDown: (args?: {
+      key?: string;
+      ctrlKey?: boolean;
+      metaKey?: boolean;
+    }) => void;
   };
