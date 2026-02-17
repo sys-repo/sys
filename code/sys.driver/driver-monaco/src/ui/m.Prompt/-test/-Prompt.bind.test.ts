@@ -1,4 +1,4 @@
-import { describe, expect, it, MonacoFake } from '../../../-test.ts';
+import { describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
 import { EditorPrompt } from '../mod.ts';
 
 describe('Monaco.Prompt', () => {
@@ -54,6 +54,47 @@ describe('Monaco.Prompt', () => {
       expect(over.scrollbar?.vertical).to.eql('visible');
 
       life.dispose();
+    });
+
+    it('follows editor model swaps', async () => {
+      const a = MonacoFake.model('one', { uri: 'inmemory://m/a' });
+      const b = MonacoFake.model('one\ntwo\nthree', { uri: 'inmemory://m/b' });
+      const editor = MonacoFake.editor(a);
+
+      const life = await EditorPrompt.bind({
+        editor,
+        config: { lines: { min: 1, max: 2 }, overflow: 'scroll' },
+      });
+
+      expect(life.model.uri.toString()).to.eql('inmemory://m/a');
+      expect(life.state.scrolling).to.eql(false);
+
+      editor.setModel(b);
+      expect(life.model.uri.toString()).to.eql('inmemory://m/b');
+      expect(life.state.scrolling).to.eql(true);
+
+      life.dispose();
+    });
+
+    it('stops when disposed via passed until input', async () => {
+      const model = MonacoFake.model('one');
+      const editor = MonacoFake.editor(model);
+      const until = Rx.lifecycle();
+      const states: number[] = [];
+
+      await EditorPrompt.bind(
+        {
+          editor,
+          config: { lines: { min: 1, max: 2 }, overflow: 'scroll' },
+          onStateChange: (e) => states.push(e.lineCount),
+        },
+        until,
+      );
+
+      expect(states).to.eql([1]);
+      until.dispose();
+      model.setValue('one\ntwo\nthree');
+      expect(states).to.eql([1]);
     });
   });
 });

@@ -46,6 +46,20 @@ describe('TestFake: Editor', () => {
       expect(typeof (model as any).__setLanguageId).to.eql('function');
       (model as any).__setLanguageId('typescript'); // no-op shim.
     });
+
+    it('setModel swaps active model and emits onDidChangeModel', () => {
+      const a = MonacoFake.model('alpha', { uri: 'inmemory://m/a' });
+      const b = MonacoFake.model('beta', { uri: 'inmemory://m/b' });
+      const editor = MonacoFake.editor(a);
+
+      let event: t.Monaco.I.IModelChangedEvent | undefined;
+      editor.onDidChangeModel((e) => (event = e));
+
+      editor.setModel(b);
+      expect(editor.getModel()).to.eql(b);
+      expect(event?.oldModelUrl?.toString()).to.eql('inmemory://m/a');
+      expect(event?.newModelUrl?.toString()).to.eql('inmemory://m/b');
+    });
   });
 
   describe('cursor', () => {

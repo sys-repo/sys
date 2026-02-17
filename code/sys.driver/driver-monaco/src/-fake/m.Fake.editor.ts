@@ -14,7 +14,7 @@ const newId = () => `e${(++__id).toString(36)}`;
  * Minimal `IStandaloneCodeEditor` fake.
  */
 export const fakeEditor: F = (input) => {
-  const model = wrangle.model(input);
+  let model = wrangle.model(input);
   const id = newId();
 
   let position: t.Offset = { lineNumber: 1, column: 1 };
@@ -100,6 +100,15 @@ export const fakeEditor: F = (input) => {
       source: 'keyboard',
     } as unknown as t.Monaco.I.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
+  };
+
+  const setModel: IStandalone['setModel'] = (next) => {
+    const old = model;
+    model = next ? wrangle.model(next as any) : wrangle.model('');
+    _emitDidChangeModel({
+      oldModelUrl: old.uri,
+      newModelUrl: model.uri,
+    });
   };
 
   /**
@@ -232,6 +241,7 @@ export const fakeEditor: F = (input) => {
     // Setters (Mutate):
     setHiddenAreas,
     setPosition,
+    setModel,
     trigger,
 
     // Methods:

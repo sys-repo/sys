@@ -8,9 +8,10 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
   const config = normalize(args.config);
   const editor = args.editor;
 
-  let model = editor.getModel() ?? undefined;
-  if (!model) model = await Util.Editor.waitForModel(editor, life);
-  if (!model) throw new Error('A model could not be retrieved from the editor.');
+  let nextModel = editor.getModel() ?? undefined;
+  if (!nextModel) nextModel = await Util.Editor.waitForModel(editor, life);
+  if (!nextModel) throw new Error('A model could not be retrieved from the editor.');
+  let model: t.Monaco.TextModel = nextModel;
 
   let current = calculateState({
     config,
@@ -29,17 +30,35 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     return current;
   };
 
-  const contentSub = model.onDidChangeContent(() => {
-    if (life.disposed) return;
+  let contentSub: t.Monaco.I.IDisposable | undefined;
+  const rebind = (next: t.Monaco.TextModel) => {
+    contentSub?.dispose();
+    model = next;
+    contentSub = model.onDidChangeContent(() => {
+      if (life.disposed) return;
+      recompute();
+    });
     recompute();
+  };
+
+  const modelSub = editor.onDidChangeModel(() => {
+    if (life.disposed) return;
+    const next = editor.getModel() ?? undefined;
+    if (!next) return;
+    rebind(next);
   });
 
-  life.dispose$.subscribe(() => contentSub.dispose());
-  recompute(); // Prime first state emission.
+  life.dispose$.subscribe(() => {
+    contentSub?.dispose();
+    modelSub.dispose();
+  });
+  rebind(model);
 
   return Rx.toLifecycle<t.EditorPrompt.Binding>(life, {
     config,
-    model,
+    get model() {
+      return model;
+    },
     get state() {
       return current;
     },

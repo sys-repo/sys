@@ -19,6 +19,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     t.Monaco.I.IStandaloneCodeEditor,
     | 'getId'
     | 'getModel'
+    | 'setModel'
     | 'getPosition'
     | 'setPosition'
     | 'getVisibleRanges'
