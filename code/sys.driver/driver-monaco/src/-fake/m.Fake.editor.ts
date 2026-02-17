@@ -260,16 +260,25 @@ export const fakeEditor: F = (input) => {
   const _fireKeyDown: t.FakeEditor['_fireKeyDown'] = (args) => {
     const key = args?.key ?? 'Enter';
     const code = args?.code ?? (key === 'Enter' ? 'Enter' : '');
+    const shiftKey = !!args?.shiftKey;
+    const altKey = !!args?.altKey;
+    const ctrlKey = !!args?.ctrlKey;
+    const metaKey = !!args?.metaKey;
     let prevented = false;
     const event = {
       keyCode: key === 'Enter' ? 3 : undefined,
+      code,
+      shiftKey,
+      altKey,
+      ctrlKey,
+      metaKey,
       browserEvent: {
         key,
         code,
-        shiftKey: !!args?.shiftKey,
-        altKey: !!args?.altKey,
-        ctrlKey: !!args?.ctrlKey,
-        metaKey: !!args?.metaKey,
+        shiftKey,
+        altKey,
+        ctrlKey,
+        metaKey,
       },
       preventDefault: () => {
         prevented = true;
