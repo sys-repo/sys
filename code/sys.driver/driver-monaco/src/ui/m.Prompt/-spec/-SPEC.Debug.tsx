@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from './common.ts';
+import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from './common.ts';
 
-type Storage = { debug?: boolean; theme?: t.CommonTheme };
+type Storage = { debug?: boolean; theme?: t.CommonTheme; text?: string };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  text: '',
 };
 
 /**
@@ -25,6 +25,9 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    text: s(snap.text),
+    lineCount: s<number>(D.lineCount),
+    editor: s<t.Monaco.Editor>(),
   };
   const p = props;
   const api = {
@@ -38,13 +41,18 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug ?? false;
+    p.theme.value = defaults.theme ?? 'Dark';
+    p.text.value = defaults.text ?? '';
+    p.lineCount.value = D.lineCount;
+    p.editor.value = undefined;
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.text = p.text.value;
     });
   });
 
