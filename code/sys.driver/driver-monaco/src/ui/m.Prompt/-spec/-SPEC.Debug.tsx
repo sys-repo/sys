@@ -27,6 +27,9 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     text: s(snap.text),
     lineCount: s<number>(D.lineCount),
+    visibleLines: s<number>(D.lineCount),
+    scrolling: s(false),
+    height: s(D.lineCount * D.lineHeight),
     editor: s<t.Monaco.Editor>(),
   };
   const p = props;
@@ -45,6 +48,9 @@ export async function createDebugSignals() {
     p.theme.value = defaults.theme ?? 'Dark';
     p.text.value = defaults.text ?? '';
     p.lineCount.value = D.lineCount;
+    p.visibleLines.value = D.lineCount;
+    p.scrolling.value = false;
+    p.height.value = D.lineCount * D.lineHeight;
     p.editor.value = undefined;
   }
 
