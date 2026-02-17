@@ -1,6 +1,7 @@
 import { type t, Rx, Util } from './common.ts';
+import { toEnterKeyEvent } from './u.keyboard.ts';
 import { normalize } from './u.normalize.ts';
-import { state as calculateState } from './u.state.ts';
+import { resolveEnterAction, state as calculateState } from './u.state.ts';
 
 export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
   const life = Rx.lifecycle(until);
@@ -47,9 +48,29 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     rebind(next);
   });
 
+  const keySub = wrangle.onKeyDown(editor, (event) => {
+    if (life.disposed) return;
+    const key = toEnterKeyEvent(event);
+    if (!key) return;
+
+    const action = resolveEnterAction({ config, modified: key.modified });
+    if (action === 'submit') {
+      key.preventDefault();
+      key.stopPropagation();
+      args.onSubmit?.({ editor, model, text: model.getValue(), modifiers: key.modifiers });
+      return;
+    }
+
+    if (config.overflow === 'clamp' && model.getLineCount() >= config.lines.max) {
+      key.preventDefault();
+      key.stopPropagation();
+    }
+  });
+
   life.dispose$.subscribe(() => {
     contentSub?.dispose();
     modelSub.dispose();
+    keySub?.dispose();
   });
   rebind(model);
 
@@ -66,12 +87,15 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
 };
 
 const wrangle = {
-  applyOptions(editor: t.Monaco.Editor, state: t.EditorPrompt.State) {
-    const updateOptions = (editor as unknown as { updateOptions?: (options: unknown) => void })
-      .updateOptions;
-    if (!updateOptions) return;
+  onKeyDown(
+    editor: t.Monaco.Editor,
+    listener: (e: t.Monaco.I.IKeyboardEvent) => void,
+  ) {
+    return editor.onKeyDown(listener);
+  },
 
-    updateOptions({
+  applyOptions(editor: t.Monaco.Editor, state: t.EditorPrompt.State) {
+    editor.updateOptions({
       minimap: { enabled: false },
       lineNumbers: 'off',
       scrollBeyondLastLine: false,

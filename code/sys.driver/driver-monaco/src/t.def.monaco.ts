@@ -34,6 +34,7 @@ export namespace Monaco {
     export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
     export type IModelChangedEvent = editor.IModelChangedEvent;
     export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
+    export type IKeyboardEvent = monaco.IKeyboardEvent;
     export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
     export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
     export type ICodeEditor = editor.ICodeEditor;

@@ -85,9 +85,18 @@ export declare namespace EditorPrompt {
       config?: Config;
       lineHeight: number;
       onStateChange?: (state: State) => void;
+      onSubmit?: (e: SubmitEvent) => void;
     },
     until?: t.UntilInput,
   ) => Promise<Binding>;
+
+  /** Submit event payload emitted by bind enter handling. */
+  export type SubmitEvent = {
+    readonly editor: t.Monaco.Editor;
+    readonly model: t.Monaco.TextModel;
+    readonly text: string;
+    readonly modifiers: t.KeyboardModifierFlags;
+  };
 
   /** Live prompt binding instance. */
   export type Binding = t.Lifecycle & {

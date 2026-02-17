@@ -41,6 +41,9 @@ export type FakeEditor = t.EditorHiddenMembers &
     _setOption: (id: number, value: unknown) => void;
     _fireKeyDown: (args?: {
       key?: string;
+      code?: string;
+      shiftKey?: boolean;
+      altKey?: boolean;
       ctrlKey?: boolean;
       metaKey?: boolean;
     }) => void;

@@ -1,4 +1,4 @@
-import { describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
 import { EditorPrompt } from '../mod.ts';
 
 describe('Monaco.Prompt', () => {
@@ -112,6 +112,80 @@ describe('Monaco.Prompt', () => {
 
       expect(life.state.height).to.eql(60);
       life.dispose();
+    });
+
+    it('submit policy blocks enter newline and emits submit', async () => {
+      const editor = MonacoFake.editor('one');
+      const submits: t.EditorPrompt.SubmitEvent[] = [];
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: {
+          lines: { min: 1, max: 3 },
+          enter: { enter: 'submit', modEnter: 'newline' },
+        },
+        onSubmit: (e) => submits.push(e),
+      });
+
+      editor._fireKeyDown({ key: 'Enter' });
+      expect(editor.getModel()?.getValue()).to.eql('one');
+      expect(submits.map((e) => e.text)).to.eql(['one']);
+      expect(submits[0].modifiers).to.eql({ shift: false, alt: false, ctrl: false, meta: false });
+      life.dispose();
+    });
+
+    it('mod+enter follows enter policy and allows newline when configured', async () => {
+      const editor = MonacoFake.editor('one');
+      editor.setPosition({ lineNumber: 1, column: 4 });
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: {
+          lines: { min: 1, max: 3 },
+          enter: { enter: 'submit', modEnter: 'newline' },
+        },
+      });
+
+      editor._fireKeyDown({ key: 'Enter', metaKey: true });
+      expect(editor.getModel()?.getValue()).to.eql('one\n');
+      life.dispose();
+    });
+
+    it('overflow=clamp blocks newline at max lines', async () => {
+      const editor = MonacoFake.editor('one\ntwo');
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: {
+          lines: { min: 1, max: 2 },
+          overflow: 'clamp',
+          enter: { enter: 'newline', modEnter: 'newline' },
+        },
+      });
+
+      editor._fireKeyDown({ key: 'Enter' });
+      expect(editor.getModel()?.getValue()).to.eql('one\ntwo');
+      life.dispose();
+    });
+
+    it('disposes key handling with lifecycle', async () => {
+      const editor = MonacoFake.editor('one');
+      editor.setPosition({ lineNumber: 1, column: 4 });
+      const submits: string[] = [];
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: { lines: { min: 1, max: 2 }, enter: { enter: 'submit', modEnter: 'submit' } },
+        onSubmit: (e) => submits.push(e.text),
+      });
+
+      life.dispose();
+      editor._fireKeyDown({ key: 'Enter' });
+      expect(submits).to.eql([]);
+      expect(editor.getModel()?.getValue()).to.eql('one\n');
     });
   });
 });
