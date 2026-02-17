@@ -7,3 +7,4 @@ describe('Monaco.Prompt', () => {
     expect(m.Monaco.Prompt).to.equal(EditorPrompt);
   });
 });
+

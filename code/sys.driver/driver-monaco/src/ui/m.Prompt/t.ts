@@ -8,34 +8,92 @@ import type { t } from './common.ts';
  * React hooks are thin lifecycle adapters only.
  */
 export declare namespace EditorPrompt {
-  export type Lib = {};
+  /** Prompt module public API. */
+  export type Lib = {
+    /** Lifecycle-based Monaco prompt binder. */
+    readonly bind: BindPrompt;
+  };
 
   /** Prompt behavior config for MonacoEditor. */
   export type Config = {
     /** Min/max visible line bounds. */
-    readonly lines: Lines;
+    lines: Lines;
     /** Overflow behavior at max lines. */
-    readonly overflow?: Overflow;
+    overflow?: Overflow;
     /** Enter-key behavior mapping. */
-    readonly enter?: EnterPolicy;
+    enter?: EnterPolicy;
   };
 
   /** Visible line constraints. */
   export type Lines = {
     /** Minimum visible lines. */
-    readonly min: number;
+    min: number;
     /** Maximum visible lines. */
-    readonly max: number;
+    max: number;
   };
 
   /** Overflow policy once max lines is reached. */
   export type Overflow = 'scroll' | 'clamp';
 
+  /** Enter-key action. */
+  export type EnterAction = 'submit' | 'newline';
+
   /** Enter-key action policy. */
   export type EnterPolicy = {
     /** Action for Enter. */
-    readonly enter: 'submit' | 'newline';
+    enter: EnterAction;
     /** Action for modifier+Enter. */
-    readonly modEnter: 'submit' | 'newline';
+    modEnter: EnterAction;
+  };
+
+  /** Normalized prompt config with defaults applied. */
+  export type ConfigResolved = {
+    readonly lines: Lines;
+    readonly overflow: Overflow;
+    readonly enter: EnterPolicy;
+  };
+
+  /** Prompt runtime state derived from editor content. */
+  export type State = {
+    readonly lineCount: number;
+    readonly visibleLines: number;
+    readonly clamped: boolean;
+    readonly scrolling: boolean;
+    readonly height: number;
+  };
+
+  /** Calculate prompt state from line-count and config. */
+  export type CalculateState = (args: {
+    config?: Config;
+    lineCount: number;
+    lineHeight?: number;
+  }) => State;
+
+  /** Normalize prompt config into deterministic defaults. */
+  export type NormalizeConfig = (config?: Config) => ConfigResolved;
+
+  /** Resolve Enter action from policy and modifier state. */
+  export type ResolveEnterAction = (args?: {
+    config?: Config;
+    modified?: boolean;
+  }) => EnterAction;
+
+  /** Bind prompt behavior to a Monaco editor lifecycle. */
+  export type BindPrompt = (
+    args: {
+      editor: t.Monaco.Editor;
+      config?: Config;
+      lineHeight?: number;
+      onStateChange?: (state: State) => void;
+    },
+    until?: t.UntilInput,
+  ) => Promise<Binding>;
+
+  /** Live prompt binding instance. */
+  export type Binding = t.Lifecycle & {
+    readonly config: ConfigResolved;
+    readonly model: t.Monaco.TextModel;
+    readonly state: State;
+    recompute(): State;
   };
 }
