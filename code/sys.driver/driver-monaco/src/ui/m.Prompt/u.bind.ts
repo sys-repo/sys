@@ -3,6 +3,7 @@ import { normalize } from './u.normalize.ts';
 import { state as calculateState } from './u.state.ts';
 
 export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
+  const { lineHeight } = args;
   const life = Rx.lifecycle(until);
   const config = normalize(args.config);
   const editor = args.editor;
@@ -13,15 +14,15 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
 
   let current = calculateState({
     config,
+    lineHeight,
     lineCount: model.getLineCount(),
-    lineHeight: args.lineHeight,
   });
 
   const recompute = () => {
     current = calculateState({
       config,
+      lineHeight,
       lineCount: model.getLineCount(),
-      lineHeight: args.lineHeight,
     });
     wrangle.applyOptions(editor, current);
     args.onStateChange?.(current);
@@ -64,4 +65,3 @@ const wrangle = {
     });
   },
 } as const;
-

@@ -236,4 +236,30 @@ describe('TestFake: Editor', () => {
       expect(model.getValue()).to.eql('abc');
     });
   });
+
+  describe('updateOptions', () => {
+    it('captures updateOptions calls in order', () => {
+      const editor = MonacoFake.editor('');
+
+      editor.updateOptions({ lineNumbers: 'off' });
+      editor.updateOptions({ minimap: { enabled: false } });
+
+      const calls = editor._getUpdateOptionsCalls();
+      expect(calls.length).to.eql(2);
+      expect(calls[0]).to.eql({ lineNumbers: 'off' });
+      expect(calls[1]).to.eql({ minimap: { enabled: false } });
+    });
+
+    it('returns a safe copy of captured calls', () => {
+      const editor = MonacoFake.editor('');
+      editor.updateOptions({ lineNumbers: 'on' });
+
+      const calls = editor._getUpdateOptionsCalls() as unknown[];
+      calls.push({ fake: true });
+
+      const next = editor._getUpdateOptionsCalls();
+      expect(next.length).to.eql(1);
+      expect(next[0]).to.eql({ lineNumbers: 'on' });
+    });
+  });
 });

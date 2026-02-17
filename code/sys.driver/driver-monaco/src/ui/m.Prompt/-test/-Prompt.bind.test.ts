@@ -34,6 +34,26 @@ describe('Monaco.Prompt', () => {
       model.setValue('reset');
       expect(states.length).to.eql(before);
     });
+
+    it('applies editor options and enables vertical scroll only on overflow', async () => {
+      const model = MonacoFake.model('one');
+      const editor = MonacoFake.editor(model);
+
+      const life = await EditorPrompt.bind({
+        editor,
+        config: { lines: { min: 1, max: 2 }, overflow: 'scroll' },
+      });
+
+      const first = editor._getUpdateOptionsCalls().at(-1) as any;
+      expect(first.minimap?.enabled).to.eql(false);
+      expect(first.lineNumbers).to.eql('off');
+      expect(first.scrollbar?.vertical).to.eql('hidden');
+
+      model.setValue('one\ntwo\nthree');
+      const over = editor._getUpdateOptionsCalls().at(-1) as any;
+      expect(over.scrollbar?.vertical).to.eql('visible');
+
+      life.dispose();
+    });
   });
 });
-

@@ -4,6 +4,7 @@ import { fakeModel } from './m.Fake.model.ts';
 type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
 type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
+type UpdateOptionsArg = Parameters<IStandalone['updateOptions']>[0];
 
 /** monotonic id generator */
 let __id = 0;
@@ -99,6 +100,14 @@ export const fakeEditor: F = (input) => {
       source: 'keyboard',
     } as unknown as t.Monaco.I.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
+  };
+
+  /**
+   * Editor options:
+   */
+  const updateOptionsCalls: UpdateOptionsArg[] = [];
+  const updateOptions: IStandalone['updateOptions'] = (options) => {
+    updateOptionsCalls.push(options);
   };
 
   /**
@@ -227,6 +236,7 @@ export const fakeEditor: F = (input) => {
 
     // Methods:
     executeEdits,
+    updateOptions,
     revealPositionInCenterIfOutsideViewport,
     revealRangeInCenterIfOutsideViewport,
 
@@ -238,6 +248,7 @@ export const fakeEditor: F = (input) => {
     // Test API:
     _emitDidChangeModel,
     _getViewModel: () => ({ getHiddenAreas }),
+    _getUpdateOptionsCalls: () => [...updateOptionsCalls],
   };
 
   return api as t.FakeEditorFull;

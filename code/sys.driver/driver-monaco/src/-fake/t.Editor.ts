@@ -13,6 +13,7 @@ export type CreateFakeEditor = (
  * Minimal `IStandaloneCodeEditor` fake:
  */
 export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
+type UpdateOptionsArg = Parameters<t.Monaco.I.IStandaloneCodeEditor['updateOptions']>[0];
 export type FakeEditor = t.EditorHiddenMembers &
   Pick<
     t.Monaco.I.IStandaloneCodeEditor,
@@ -25,9 +26,11 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'onDidChangeModel'
     | 'trigger'
     | 'executeEdits'
+    | 'updateOptions'
     | 'revealPositionInCenterIfOutsideViewport'
     | 'revealRangeInCenterIfOutsideViewport'
   > & {
     _emitDidChangeModel: () => void;
     _getViewModel: () => { getHiddenAreas: () => t.Monaco.I.IRange[] };
+    _getUpdateOptionsCalls: () => readonly UpdateOptionsArg[];
   };
