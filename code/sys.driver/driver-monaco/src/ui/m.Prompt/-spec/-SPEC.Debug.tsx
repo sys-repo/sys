@@ -29,7 +29,7 @@ export async function createDebugSignals() {
     lineCount: s<number>(D.lineCount),
     visibleLines: s<number>(D.lineCount),
     scrolling: s(false),
-    height: s(D.lineCount * D.lineHeight),
+    height: s(D.lineCount * D.fallbackLineHeight),
     editor: s<t.Monaco.Editor>(),
   };
   const p = props;
@@ -50,7 +50,7 @@ export async function createDebugSignals() {
     p.lineCount.value = D.lineCount;
     p.visibleLines.value = D.lineCount;
     p.scrolling.value = false;
-    p.height.value = D.lineCount * D.lineHeight;
+    p.height.value = D.lineCount * D.fallbackLineHeight;
     p.editor.value = undefined;
   }
 

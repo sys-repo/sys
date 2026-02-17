@@ -1,5 +1,7 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, MonacoFake } from '../../../-test.ts';
+import { D } from '../common.ts';
 import { normalize } from '../u.normalize.ts';
+import { resolveLineHeight } from '../u.lineHeight.ts';
 import { resolveEnterAction, state } from '../u.state.ts';
 
 describe('Monaco.Prompt', () => {
@@ -72,5 +74,30 @@ describe('Monaco.Prompt', () => {
       expect(resolveEnterAction({ config, modified: true })).to.eql('newline');
     });
   });
-});
 
+  describe('resolveLineHeight', () => {
+    it('uses explicit lineHeight override when provided', () => {
+      const monaco = MonacoFake.monaco({ cast: true });
+      const editor = MonacoFake.editor('one\ntwo');
+      editor._setOption(monaco.editor.EditorOption.lineHeight, 30);
+
+      const res = resolveLineHeight({ editor, monaco, lineHeight: 12 });
+      expect(res).to.eql(12);
+    });
+
+    it('uses Monaco resolved lineHeight option when no override is provided', () => {
+      const monaco = MonacoFake.monaco({ cast: true });
+      const editor = MonacoFake.editor('one\ntwo');
+      editor._setOption(monaco.editor.EditorOption.lineHeight, 30);
+
+      const res = resolveLineHeight({ editor, monaco });
+      expect(res).to.eql(30);
+    });
+
+    it('falls back when Monaco option id is unavailable', () => {
+      const editor = MonacoFake.editor('one\ntwo');
+      const res = resolveLineHeight({ editor });
+      expect(res).to.eql(D.fallbackLineHeight);
+    });
+  });
+});

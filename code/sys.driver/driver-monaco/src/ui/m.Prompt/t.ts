@@ -82,6 +82,7 @@ export declare namespace EditorPrompt {
   export type BindPrompt = (
     args: {
       editor: t.Monaco.Editor;
+      monaco?: t.Monaco.Monaco;
       config?: Config;
       lineHeight?: number;
       onStateChange?: (state: State) => void;

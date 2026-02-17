@@ -15,7 +15,7 @@ export const Root: React.FC<RootProps> = (props) => {
   const v = Signal.toObject(p);
   const bindingRef = React.useRef<t.EditorPrompt.Binding | undefined>(undefined);
   const mountIdRef = React.useRef(0);
-  const height = v.height ?? D.lineCount * D.lineHeight;
+  const height = v.height ?? D.lineCount * D.fallbackLineHeight;
 
   const updateState = (state: t.EditorPrompt.State) => {
     p.lineCount.value = state.lineCount;
@@ -33,6 +33,7 @@ export const Root: React.FC<RootProps> = (props) => {
         p.editor.value = e.editor;
         void EditorPrompt.bind({
           editor: e.editor,
+          monaco: e.monaco,
           onStateChange: updateState,
         }).then((binding) => {
           if (mountId !== mountIdRef.current) return binding.dispose();
@@ -49,7 +50,7 @@ export const Root: React.FC<RootProps> = (props) => {
         p.lineCount.value = D.lineCount;
         p.visibleLines.value = D.lineCount;
         p.scrolling.value = false;
-        p.height.value = D.lineCount * D.lineHeight;
+        p.height.value = D.lineCount * D.fallbackLineHeight;
       }}
       onChange={(e: t.MonacoEditorChange) => {
         p.text.value = e.content.text;

@@ -1,12 +1,13 @@
 import { type t, Rx, Util } from './common.ts';
+import { resolveLineHeight } from './u.lineHeight.ts';
 import { normalize } from './u.normalize.ts';
 import { state as calculateState } from './u.state.ts';
 
 export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
-  const { lineHeight } = args;
   const life = Rx.lifecycle(until);
   const config = normalize(args.config);
   const editor = args.editor;
+  const lineHeight = resolveLineHeight(args);
 
   let nextModel = editor.getModel() ?? undefined;
   if (!nextModel) nextModel = await Util.Editor.waitForModel(editor, life);

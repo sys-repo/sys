@@ -96,5 +96,20 @@ describe('Monaco.Prompt', () => {
       model.setValue('one\ntwo\nthree');
       expect(states).to.eql([1]);
     });
+
+    it('uses Monaco lineHeight option when provided', async () => {
+      const monaco = MonacoFake.monaco({ cast: true });
+      const editor = MonacoFake.editor('one\ntwo');
+      editor._setOption(monaco.editor.EditorOption.lineHeight, 30);
+
+      const life = await EditorPrompt.bind({
+        editor,
+        monaco,
+        config: { lines: { min: 1, max: 5 }, overflow: 'scroll' },
+      });
+
+      expect(life.state.height).to.eql(60);
+      life.dispose();
+    });
   });
 });
