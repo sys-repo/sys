@@ -27,6 +27,11 @@ const wrangle = {
     if (!Is.num(id)) return undefined;
     const getOption = (editor as unknown as { getOption?: (id: number) => unknown }).getOption;
     if (!getOption) return undefined;
-    return wrangle.toLineHeight(getOption(id) as number | undefined);
+    try {
+      const lineHeight = wrangle.toLineHeight(getOption(id) as number | undefined);
+      return lineHeight !== undefined && lineHeight > 1 ? lineHeight : undefined;
+    } catch {
+      return undefined;
+    }
   },
 } as const;

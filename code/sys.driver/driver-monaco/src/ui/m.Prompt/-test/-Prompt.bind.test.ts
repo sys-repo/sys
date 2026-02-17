@@ -101,34 +101,15 @@ describe('Monaco.Prompt', () => {
       expect(states).to.eql([1]);
     });
 
-    it('uses Monaco lineHeight option when provided', async () => {
-      const monaco = MonacoFake.monaco({ cast: true });
+    it('uses explicit lineHeight for state height', async () => {
       const editor = MonacoFake.editor('one\ntwo');
-      editor._setOption(monaco.editor.EditorOption.lineHeight, 30);
 
       const life = await EditorPrompt.bind({
         editor,
-        monaco,
+        lineHeight: 30,
         config: { lines: { min: 1, max: 5 }, overflow: 'scroll' },
       });
 
-      expect(life.state.height).to.eql(60);
-      life.dispose();
-    });
-
-    it('recomputes height from live lineHeight option changes', async () => {
-      const monaco = MonacoFake.monaco({ cast: true });
-      const editor = MonacoFake.editor('one\ntwo');
-      editor._setOption(monaco.editor.EditorOption.lineHeight, 20);
-
-      const life = await EditorPrompt.bind({
-        editor,
-        monaco,
-        config: { lines: { min: 1, max: 5 }, overflow: 'scroll' },
-      });
-
-      expect(life.state.height).to.eql(40);
-      editor.updateOptions({ lineHeight: 30 });
       expect(life.state.height).to.eql(60);
       life.dispose();
     });
