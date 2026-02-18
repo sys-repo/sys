@@ -39,7 +39,7 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
       message: 'Tools:\n',
       options: [
         opt(` Option A (clone \`-tmpl\` as new ${c.green('tool')})`, 'option-a'),
-        opt(' Option B', 'option-b'),
+        opt(' Configs', 'config'),
         opt(c.gray('(quit)'), 'exit'),
       ],
       hideDefault: true,
@@ -59,34 +59,8 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
      * Sub-Menu: B
      */
     // [tmpl:variant.option-b:start]
-    if (A === 'option-b') {
-      type WithCommand = Extract<t.__NAME__Tool.MenuCmd, 'option-ba' | 'option-bb'>;
-      let lastSelection: WithCommand | undefined;
-
-      while (true) {
-        console.info();
-        const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.MenuCmd>({
-          message: `With:`,
-          options: [
-            { name: `  Thing ${c.cyan('Ba')}`, value: 'option-ba' },
-            { name: `  Thing ${c.cyan('Bb')}`, value: 'option-bb' },
-            { name: `${c.cyan('←')} back`, value: 'back' },
-          ],
-          default: lastSelection,
-          hideDefault: true,
-        })) as t.__NAME__Tool.MenuCmd;
-
-        if (B === 'option-ba') {
-          lastSelection = B;
-        }
-
-        if (B === 'option-bb') {
-          lastSelection = B;
-        }
-
-        if (B === 'back') break;
-      }
-
+    if (A === 'config') {
+      console.info(c.gray('No config support in stateless template.'));
       continue;
     }
     // [tmpl:variant.option-b:end]

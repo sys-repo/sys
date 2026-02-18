@@ -19,9 +19,7 @@ export namespace __NAME__Tool {
     | 'option-a'
     | 'option-a:stateless'
     | 'option-a:yaml'
-    | 'option-b'
-    | 'option-ba'
-    | 'option-bb'
+    | 'config'
     | 'back'
     | 'exit';
   export type MenuOption = { readonly name: string; readonly value: MenuCmd };

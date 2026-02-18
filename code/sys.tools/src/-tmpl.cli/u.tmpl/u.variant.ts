@@ -20,7 +20,7 @@ const Inject = {
   },
   cliOptionB() {
     return `
-    if (A === 'option-b') {
+    if (A === 'config') {
       const picked = await yamlConfigsMenu(cwd);
       if (picked.kind === 'exit') return done(0);
       if (picked.kind === 'selected') {
