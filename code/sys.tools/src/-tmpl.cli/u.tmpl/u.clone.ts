@@ -12,12 +12,15 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
     source: resolveTemplateRootFromImport(import.meta.url),
   };
 
-  const name = await Cli.Input.Text.prompt('__NAME__ → MyTool');
+  const name = await Cli.Input.Text.prompt('__NAME__ → ToolName');
   const id = await Cli.Input.Text.prompt({
     message: '__ID__ → tool-id',
     default: deriveToolId(name),
     validate(value) {
-      return isValidToolId(String(value).trim()) || 'Use lowercase letters, numbers, and "-" (start with letter)';
+      return (
+        isValidToolId(String(value).trim()) ||
+        'Use lowercase letters, numbers, and "-" (start with letter)'
+      );
     },
   });
   const toolId = id.trim();
@@ -109,10 +112,7 @@ async function patchRootToolsCommand(path: t.StringPath, toolName: string) {
   await Fs.write(path, next, { force: true });
 }
 
-async function patchRootRegistry(
-  path: t.StringPath,
-  args: { toolId: string; targetName: string },
-) {
+async function patchRootRegistry(path: t.StringPath, args: { toolId: string; targetName: string }) {
   const read = await Fs.readText(path);
   if (!read.ok || read.data === undefined) return;
   const text = read.data;
