@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Process, Fs, TmplEngine } from '../../common.ts';
 import { applyTemplateVariant, makeBaseTemplateProcessor } from '../mod.ts';
-import { resolveTemplateRootFromImport } from '../u.clone.ts';
+import { registerHostTypeBarrels, resolveTemplateRootFromImport } from '../u.clone.ts';
 
 describe('tool: __NAME__/u.tmpl', () => {
   it('resolves template root from u.tmpl import path', async () => {
@@ -10,6 +10,35 @@ describe('tool: __NAME__/u.tmpl', () => {
     expect(await Fs.exists(Fs.join(root, 'm.cli.ts'))).to.eql(true);
     expect(await Fs.exists(Fs.join(root, 't.namespace.ts'))).to.eql(true);
     expect(await Fs.exists(Fs.join(root, 'common.ts'))).to.eql(true);
+  });
+
+  it('registers generated tool types in host barrels (idempotent)', async () => {
+    const tmp = await Fs.makeTempDir();
+    const host = tmp.absolute as t.StringDir;
+    const target = Fs.join(host, 'FOO_TMP') as t.StringDir;
+    const commonT = Fs.join(host, 'common/t.ts');
+    const types = Fs.join(host, 'types.ts');
+
+    try {
+      await Fs.ensureDir(Fs.dirname(commonT));
+      await Fs.write(commonT, `export type * from '../cli.video/t.ts';\n`);
+      await Fs.write(types, `export type { VideoTool } from './cli.video/t.namespace.ts';\n`);
+
+      await registerHostTypeBarrels({ targetDir: target, toolName: 'Foo' });
+      await registerHostTypeBarrels({ targetDir: target, toolName: 'Foo' });
+
+      const commonText = (await Fs.readText(commonT)).data ?? '';
+      const typesText = (await Fs.readText(types)).data ?? '';
+      const commonLine = `export type * from '../FOO_TMP/t.ts';`;
+      const typesLine = `export type { FooTool } from './FOO_TMP/t.namespace.ts';`;
+
+      expect(commonText.includes(commonLine)).to.eql(true);
+      expect(typesText.includes(typesLine)).to.eql(true);
+      expect(occurrences(commonText, commonLine)).to.eql(1);
+      expect(occurrences(typesText, typesLine)).to.eql(1);
+    } finally {
+      await Fs.remove(host);
+    }
   });
 
   it('applies yaml variant overlay to generated files', async () => {
@@ -100,3 +129,7 @@ export type * as t from './t.ts';
     await run('yaml');
   });
 });
+
+function occurrences(text: string, pattern: string): number {
+  return text.split(pattern).length - 1;
+}
