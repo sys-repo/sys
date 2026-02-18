@@ -73,13 +73,13 @@ export const ROOT_REGISTRY = [
         `.trimStart(),
       );
 
-      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo' });
-      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo' });
+      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo', toolId: 'foo' });
+      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo', toolId: 'foo' });
 
       const nsText = (await Fs.readText(rootNamespace)).data ?? '';
       const regText = (await Fs.readText(rootRegistry)).data ?? '';
       const nsLine = `| t.FooTool.Id;`;
-      const regLine = `  { id: 'Foo', aliases: undefined, load: () => import('../FOO_TMP/mod.ts') },`;
+      const regLine = `  { id: 'foo', aliases: undefined, load: () => import('../FOO_TMP/mod.ts') },`;
 
       expect(nsText.includes(nsLine)).to.eql(true);
       expect(regText.includes(regLine)).to.eql(true);
