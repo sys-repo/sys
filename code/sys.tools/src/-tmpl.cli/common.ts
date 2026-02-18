@@ -1,5 +1,5 @@
 import { __NAME__Tool } from './t.namespace.ts';
-import { type t, JsonFile } from '../common.ts';
+import { type t } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -11,10 +11,6 @@ const name = __NAME__Tool.NAME;
 export const D = {
   tool: { id, name },
   Path: {},
-  Config: {
-    filename: '-__NAME__.config.json',
-    doc: JsonFile.default<t.__NAME__Tool.Config.Doc>({ name }),
-  },
 } as const;
 
 /**

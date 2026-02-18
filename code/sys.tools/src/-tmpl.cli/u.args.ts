@@ -6,11 +6,7 @@ const ALIAS = {
   bar: ['b'],
 } as const satisfies t.ArgsAliasMap<t.__NAME__Tool.SubCmd>;
 
-export type CliParsed = t.ParsedArgs<t.__NAME__Tool.CliArgs> & {
-  readonly command?: t.__NAME__Tool.SubCmd;
-};
-
-export function parseArgs(argv: string[] = []): CliParsed {
+export function parseArgs(argv: string[] = []): t.__NAME__Tool.CliParsedArgs {
   const normalized = Args.normalizeCommand(argv, Args.toAliasLookup(ALIAS));
 
   const args = Args.parse<t.__NAME__Tool.CliArgs>(normalized, {

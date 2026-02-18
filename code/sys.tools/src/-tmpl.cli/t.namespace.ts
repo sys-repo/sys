@@ -27,11 +27,5 @@ export namespace __NAME__Tool {
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
-  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
-
-  /** Configuration file. */
-  export namespace Config {
-    export type File = t.JsonFile<Doc>;
-    export type Doc = t.JsonFileDoc & { name: string };
-  }
+  export type CliParsedArgs = t.ParsedArgs<CliArgs> & { readonly command?: SubCmd };
 }

@@ -1,6 +1,5 @@
 import { type t, c, Cli, D, done, Fs, Is, opt, TmplEngine } from './common.ts';
 import { parseArgs } from './u.args.ts';
-import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
 /**
@@ -11,12 +10,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
 
-  console.info('🐷 args', args);
-
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
-
-  /* Pre-reqs */
-  await Config.ensureFile(cwd, D.Config.filename);
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -31,10 +25,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.RunReturn> {
-  const config = await Config.get(cwd);
-  await Config.normalize(config);
-
+async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.RunReturn> {
   /** --------------------------------------------------------
    * Root Menu (Loop)
    */
@@ -43,7 +34,7 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
     const A = (await Cli.Input.Select.prompt<t.__NAME__Tool.MenuCmd>({
       message: 'Tools:\n',
       options: [
-        opt(` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, 'option-a'),
+        opt(` Option A (clone \`-tmpl\` as new ${c.green('tool')})`, 'option-a'),
         opt(' Option B', 'option-b'),
         opt(c.gray('(quit)'), 'exit'),
       ],
@@ -60,7 +51,7 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
         source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
       };
 
-      const name = await Cli.Input.Text.prompt('__NAME__ → <MyName>');
+      const name = await Cli.Input.Text.prompt('__NAME__ → MyToolName');
       const tmpl = TmplEngine.makeTmpl(dirs.source, async (e) => {
         const replaced = (e.text ?? '').replaceAll('__NAME__', name);
         e.modify(replaced);
@@ -93,12 +84,10 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
 
         if (B === 'option-ba') {
           lastSelection = B;
-          console.info('🐷 B:', B);
         }
 
         if (B === 'option-bb') {
           lastSelection = B;
-          console.info('🐷 B:', B);
         }
 
         if (B === 'back') break;
