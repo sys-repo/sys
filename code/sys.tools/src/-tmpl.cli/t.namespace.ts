@@ -29,4 +29,5 @@ export namespace __NAME__Tool {
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & { readonly command?: SubCmd };
+  // [tmpl:variant.types]
 }

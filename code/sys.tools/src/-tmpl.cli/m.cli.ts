@@ -3,6 +3,7 @@ import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptTemplateVariant } from './u.menu.ts';
 import { cloneTemplate } from './u.tmpl/mod.ts';
+// [tmpl:variant.imports]
 
 /**
  * Main entry:
@@ -13,6 +14,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
 
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  // [tmpl:variant.migrate]
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -56,6 +58,7 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
     /** --------------------------------------------------------
      * Sub-Menu: B
      */
+    // [tmpl:variant.option-b:start]
     if (A === 'option-b') {
       type WithCommand = Extract<t.__NAME__Tool.MenuCmd, 'option-ba' | 'option-bb'>;
       let lastSelection: WithCommand | undefined;
@@ -86,6 +89,7 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
 
       continue;
     }
+    // [tmpl:variant.option-b:end]
 
     if (A === 'exit') return done(0);
   }
