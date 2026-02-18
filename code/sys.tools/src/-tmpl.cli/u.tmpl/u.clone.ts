@@ -11,7 +11,7 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
     source: resolveTemplateRootFromImport(import.meta.url),
   };
 
-  const name = await Cli.Input.Text.prompt('__NAME__ → MyToolName');
+  const name = await Cli.Input.Text.prompt('__NAME__ → MyTool');
   const processFile = makeBaseTemplateProcessor({ name });
 
   await TmplEngine.makeTmpl(dirs.source, processFile).write(dirs.target);
