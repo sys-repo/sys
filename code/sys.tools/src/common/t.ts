@@ -51,3 +51,4 @@ export type * from '../cli.deploy/t.ts';
 export type * from '../cli.serve/t.ts';
 export type * from '../cli.update/t.ts';
 export type * from '../cli.video/t.ts';
+export type * from '../cli.pull/t.ts';

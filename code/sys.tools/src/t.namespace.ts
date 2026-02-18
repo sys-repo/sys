@@ -14,7 +14,8 @@ export namespace Tools {
     | t.CrdtTool.Id
     | t.DeployTool.Id
     | t.UpdateTool.Id
-    | t.VideoTool.Id;
+    | t.VideoTool.Id
+    | t.PullTool.Id;
 
   /** Command line arguments (argv). */
   /** Common flags. */
