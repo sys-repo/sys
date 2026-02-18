@@ -1,5 +1,5 @@
 import { type t, Fs, TmplEngine } from '../common.ts';
-import { replaceTemplateName } from './u.ts';
+import { deriveToolId, replaceTemplateTokens } from './u.ts';
 
 const YAML_VARIANT_DIR = '-tmpl.yaml-config';
 const Anchor = {
@@ -49,11 +49,12 @@ const Inject = {
  * - replaces "__NAME__" tokens
  * - excludes variant payload folders from base materialization
  */
-export function makeBaseTemplateProcessor(args: { name: string }): t.FileMapProcessor {
+export function makeBaseTemplateProcessor(args: { name: string; id?: string }): t.FileMapProcessor {
   const { name } = args;
+  const id = args.id ?? deriveToolId(name);
   return (e) => {
     if (e.path.startsWith(`${YAML_VARIANT_DIR}/`)) return e.skip('variant-payload');
-    if (e.text) e.modify(replaceTemplateName(e.text, name));
+    if (e.text) e.modify(replaceTemplateTokens(e.text, { name, id }));
   };
 }
 
@@ -64,19 +65,21 @@ export async function applyTemplateVariant(args: {
   dir: t.StringDir;
   variant: t.__NAME__Tool.TemplateVariant;
   name: string;
+  id?: string;
 }) {
   if (args.variant === 'stateless') return;
   await applyYamlConfigVariant(args);
 }
 
-async function applyYamlConfigVariant(args: { dir: t.StringDir; name: string }) {
+async function applyYamlConfigVariant(args: { dir: t.StringDir; name: string; id?: string }) {
+  const id = args.id ?? deriveToolId(args.name);
   const sourceDir = Fs.dirname(Fs.Path.fromFileUrl(import.meta.url));
   const overlayDir = Fs.join(sourceDir, '..', YAML_VARIANT_DIR);
   const processFile: t.FileMapProcessor = (e) => {
     if (e.target.filename.endsWith('.tmpl')) {
       e.target.rename(e.path.replace(/\.tmpl$/, ''), true);
     }
-    if (e.text) e.modify(replaceTemplateName(e.text, args.name));
+    if (e.text) e.modify(replaceTemplateTokens(e.text, { name: args.name, id }));
   };
 
   await TmplEngine.makeTmpl(overlayDir, processFile).write(args.dir, { force: true });

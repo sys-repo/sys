@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * The __NAME__ type namespace.
  */
 export namespace __NAME__Tool {
-  export const ID = '__NAME__' as const;
-  export const NAME = 'system/__NAME__:tools' as const;
+  export const ID = '__ID__' as const;
+  export const NAME = 'system/__ID__:tools' as const;
   export type Id = typeof ID;
   export type Name = typeof NAME;
 

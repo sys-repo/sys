@@ -1,5 +1,6 @@
 import { type t, Cli, Fs, TmplEngine } from '../common.ts';
 import { applyTemplateVariant, makeBaseTemplateProcessor } from './u.variant.ts';
+import { deriveToolId, isValidToolId } from './u.ts';
 
 /**
  * Clone the current template into a target directory.
@@ -12,15 +13,28 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
   };
 
   const name = await Cli.Input.Text.prompt('__NAME__ → MyTool');
-  const processFile = makeBaseTemplateProcessor({ name });
+  const id = await Cli.Input.Text.prompt({
+    message: '__ID__ → tool-id',
+    default: deriveToolId(name),
+    validate(value) {
+      return isValidToolId(String(value).trim()) || 'Use lowercase letters, numbers, and "-" (start with letter)';
+    },
+  });
+  const toolId = id.trim();
+  const processFile = makeBaseTemplateProcessor({ name, id: toolId });
 
   await TmplEngine.makeTmpl(dirs.source, processFile).write(dirs.target);
   await registerHostTypeBarrels({ targetDir: dirs.target as t.StringDir, toolName: name });
-  await registerHostRootRegistry({ targetDir: dirs.target as t.StringDir, toolName: name });
+  await registerHostRootRegistry({
+    targetDir: dirs.target as t.StringDir,
+    toolName: name,
+    toolId,
+  });
   await applyTemplateVariant({
     dir: dirs.target as t.StringDir,
     variant,
     name,
+    id: toolId,
   });
 }
 
@@ -52,12 +66,16 @@ export async function registerHostTypeBarrels(args: { targetDir: t.StringDir; to
  * Register generated tool in root command/type runtime registry when host files exist.
  * No-op outside `sys.tools/src` style layouts.
  */
-export async function registerHostRootRegistry(args: { targetDir: t.StringDir; toolName: string }) {
+export async function registerHostRootRegistry(args: {
+  targetDir: t.StringDir;
+  toolName: string;
+  toolId: string;
+}) {
   const hostDir = Fs.dirname(args.targetDir);
   const targetName = Fs.basename(args.targetDir);
   await patchRootToolsCommand(Fs.join(hostDir, 't.namespace.ts'), args.toolName);
   await patchRootRegistry(Fs.join(hostDir, 'u.root/registry.ts'), {
-    toolName: args.toolName,
+    toolId: args.toolId,
     targetName,
   });
 }
@@ -93,12 +111,12 @@ async function patchRootToolsCommand(path: t.StringPath, toolName: string) {
 
 async function patchRootRegistry(
   path: t.StringPath,
-  args: { toolName: string; targetName: string },
+  args: { toolId: string; targetName: string },
 ) {
   const read = await Fs.readText(path);
   if (!read.ok || read.data === undefined) return;
   const text = read.data;
-  const entry = `  { id: '${args.toolName}', aliases: undefined, load: () => import('../${args.targetName}/mod.ts') },`;
+  const entry = `  { id: '${args.toolId}', aliases: undefined, load: () => import('../${args.targetName}/mod.ts') },`;
   if (text.includes(entry)) return;
 
   const start = text.indexOf('export const ROOT_REGISTRY = [');

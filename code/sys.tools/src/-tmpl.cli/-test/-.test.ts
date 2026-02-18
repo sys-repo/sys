@@ -10,7 +10,7 @@ describe('tool: __NAME__', () => {
     const id: Id = D.tool.id;
     const name: Name = D.tool.name;
 
-    expect(id).to.eql('__NAME__');
-    expect(name).to.eql('system/__NAME__:tools');
+    expect(id).to.eql('__ID__');
+    expect(name).to.eql('system/__ID__:tools');
   });
 });
