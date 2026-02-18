@@ -8,7 +8,7 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
   const dirname = await Cli.Input.Text.prompt('Clone to directory (name):');
   const dirs = {
     target: Fs.join(cwd, dirname),
-    source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
+    source: resolveTemplateRootFromImport(import.meta.url),
   };
 
   const name = await Cli.Input.Text.prompt('__NAME__ → MyToolName');
@@ -20,4 +20,12 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
     variant,
     name,
   });
+}
+
+/**
+ * Resolve `-tmpl.cli` root directory from files within `-tmpl.cli/u.tmpl`.
+ */
+export function resolveTemplateRootFromImport(importMetaUrl: string): t.StringDir {
+  const sourceDir = Fs.dirname(Fs.Path.fromFileUrl(importMetaUrl));
+  return Fs.dirname(sourceDir) as t.StringDir;
 }

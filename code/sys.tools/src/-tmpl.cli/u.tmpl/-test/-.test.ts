@@ -1,8 +1,17 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Process, Fs, TmplEngine } from '../../common.ts';
 import { applyTemplateVariant, makeBaseTemplateProcessor } from '../mod.ts';
+import { resolveTemplateRootFromImport } from '../u.clone.ts';
 
 describe('tool: __NAME__/u.tmpl', () => {
+  it('resolves template root from u.tmpl import path', async () => {
+    const url = new URL('../u.clone.ts', import.meta.url).href;
+    const root = resolveTemplateRootFromImport(url);
+    expect(await Fs.exists(Fs.join(root, 'm.cli.ts'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(root, 't.namespace.ts'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(root, 'common.ts'))).to.eql(true);
+  });
+
   it('applies yaml variant overlay to generated files', async () => {
     const tmp = await Fs.makeTempDir();
     const dir = tmp.absolute as t.StringDir;
