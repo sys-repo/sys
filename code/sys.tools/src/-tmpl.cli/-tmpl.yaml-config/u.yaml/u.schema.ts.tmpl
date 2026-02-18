@@ -1,0 +1,20 @@
+import { type t, Schema } from '../common.ts';
+
+export const __NAME__YamlSchema = {
+  initial(docName = 'default'): t.__NAME__Tool.ConfigYaml.Doc {
+    return { name: docName };
+  },
+
+  validate(value: unknown) {
+    const ok = Schema.Value.Check(__NAME__YamlSchema.schema, value);
+    const errors = ok ? [] : [...Schema.Value.Errors(__NAME__YamlSchema.schema, value)];
+    return { ok, errors } as const;
+  },
+
+  schema: Schema.Type.Object(
+    {
+      name: Schema.Type.String(),
+    },
+    { additionalProperties: false },
+  ),
+} as const;

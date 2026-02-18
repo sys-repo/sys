@@ -1,9 +1,10 @@
 import { type t, Cli, Fs, TmplEngine } from './common.ts';
+import { applyTemplateVariant, makeBaseTemplateProcessor } from './u.tmpl.variant.ts';
 
 /**
  * Clone the current template into a target directory.
  */
-export async function cloneTemplate(cwd: t.StringDir, _variant: t.__NAME__Tool.TemplateVariant) {
+export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.TemplateVariant) {
   const dirname = await Cli.Input.Text.prompt('Clone to directory (name):');
   const dirs = {
     target: Fs.join(cwd, dirname),
@@ -11,11 +12,12 @@ export async function cloneTemplate(cwd: t.StringDir, _variant: t.__NAME__Tool.T
   };
 
   const name = await Cli.Input.Text.prompt('__NAME__ → MyToolName');
-  const tmpl = TmplEngine.makeTmpl(dirs.source, async (e) => {
-    const replaced = (e.text ?? '').replaceAll('__NAME__', name);
-    e.modify(replaced);
-  });
+  const processFile = makeBaseTemplateProcessor({ name });
 
-  // Placeholder: variants currently share identical generation behavior.
-  await tmpl.write(dirs.target);
+  await TmplEngine.makeTmpl(dirs.source, processFile).write(dirs.target);
+  await applyTemplateVariant({
+    dir: dirs.target as t.StringDir,
+    variant,
+    name,
+  });
 }
