@@ -2,7 +2,7 @@ import { type t, c, Cli, D, done, Fs, Is, opt } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptTemplateVariant } from './u.menu.ts';
-import { cloneTemplate } from './u.tmpl.clone.ts';
+import { cloneTemplate } from './u.tmpl/mod.ts';
 
 /**
  * Main entry:

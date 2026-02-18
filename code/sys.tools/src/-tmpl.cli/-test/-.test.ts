@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { D, Fs } from '../common.ts';
 import type { t } from '../common.ts';
-import { applyTemplateVariant } from '../u.tmpl.variant.ts';
+import { applyTemplateVariant } from '../u.tmpl/mod.ts';
 
 describe('tool: __NAME__', () => {
   it('exposes canonical tool metadata', () => {

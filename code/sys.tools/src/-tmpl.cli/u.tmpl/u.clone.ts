@@ -1,5 +1,5 @@
-import { type t, Cli, Fs, TmplEngine } from './common.ts';
-import { applyTemplateVariant, makeBaseTemplateProcessor } from './u.tmpl.variant.ts';
+import { type t, Cli, Fs, TmplEngine } from '../common.ts';
+import { applyTemplateVariant, makeBaseTemplateProcessor } from './u.variant.ts';
 
 /**
  * Clone the current template into a target directory.

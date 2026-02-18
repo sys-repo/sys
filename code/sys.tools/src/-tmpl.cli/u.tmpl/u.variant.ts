@@ -1,5 +1,6 @@
-import { type t, Fs, TmplEngine } from './common.ts';
+import { type t, Fs, TmplEngine } from '../common.ts';
 import type { FileMapProcessor } from '@sys/fs/t';
+import { replaceTemplateName } from './u.ts';
 
 const YAML_VARIANT_DIR = '-tmpl.yaml-config';
 
@@ -12,7 +13,7 @@ export function makeBaseTemplateProcessor(args: { name: string }): FileMapProces
   const { name } = args;
   return (e) => {
     if (e.path.startsWith(`${YAML_VARIANT_DIR}/`)) return e.skip('variant-payload');
-    if (e.text) e.modify(e.text.replaceAll('__NAME__', name));
+    if (e.text) e.modify(replaceTemplateName(e.text, name));
   };
 }
 
@@ -33,12 +34,12 @@ async function applyYamlConfigVariant(args: {
   name: string;
 }) {
   const sourceDir = Fs.dirname(Fs.Path.fromFileUrl(import.meta.url));
-  const overlayDir = Fs.join(sourceDir, YAML_VARIANT_DIR);
+  const overlayDir = Fs.join(sourceDir, '..', YAML_VARIANT_DIR);
   const processFile: FileMapProcessor = (e) => {
     if (e.target.filename.endsWith('.tmpl')) {
       e.target.rename(e.path.replace(/\.tmpl$/, ''), true);
     }
-    if (e.text) e.modify(e.text.replaceAll('__NAME__', args.name));
+    if (e.text) e.modify(replaceTemplateName(e.text, args.name));
   };
 
   await TmplEngine.makeTmpl(overlayDir, processFile).write(args.dir, { force: true });
