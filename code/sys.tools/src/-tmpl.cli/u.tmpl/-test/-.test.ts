@@ -1,7 +1,11 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Process, Fs, TmplEngine } from '../../common.ts';
 import { applyTemplateVariant, makeBaseTemplateProcessor } from '../mod.ts';
-import { registerHostTypeBarrels, resolveTemplateRootFromImport } from '../u.clone.ts';
+import {
+  registerHostRootRegistry,
+  registerHostTypeBarrels,
+  resolveTemplateRootFromImport,
+} from '../u.clone.ts';
 
 describe('tool: __NAME__/u.tmpl', () => {
   it('resolves template root from u.tmpl import path', async () => {
@@ -36,6 +40,51 @@ describe('tool: __NAME__/u.tmpl', () => {
       expect(typesText.includes(typesLine)).to.eql(true);
       expect(occurrences(commonText, commonLine)).to.eql(1);
       expect(occurrences(typesText, typesLine)).to.eql(1);
+    } finally {
+      await Fs.remove(host);
+    }
+  });
+
+  it('registers generated tool in root registry seams (idempotent)', async () => {
+    const tmp = await Fs.makeTempDir();
+    const host = tmp.absolute as t.StringDir;
+    const target = Fs.join(host, 'FOO_TMP') as t.StringDir;
+    const rootNamespace = Fs.join(host, 't.namespace.ts');
+    const rootRegistry = Fs.join(host, 'u.root/registry.ts');
+
+    try {
+      await Fs.ensureDir(Fs.dirname(rootRegistry));
+      await Fs.write(
+        rootNamespace,
+        `
+export namespace Tools {
+  export type Command =
+    | t.VideoTool.Id;
+}
+        `.trimStart(),
+      );
+      await Fs.write(
+        rootRegistry,
+        `
+type ToolRegistryItem = unknown;
+export const ROOT_REGISTRY = [
+  { id: 'video', aliases: undefined, load: () => import('../cli.video/mod.ts') },
+] as const satisfies readonly ToolRegistryItem[];
+        `.trimStart(),
+      );
+
+      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo' });
+      await registerHostRootRegistry({ targetDir: target, toolName: 'Foo' });
+
+      const nsText = (await Fs.readText(rootNamespace)).data ?? '';
+      const regText = (await Fs.readText(rootRegistry)).data ?? '';
+      const nsLine = `| t.FooTool.Id;`;
+      const regLine = `  { id: 'Foo', aliases: undefined, load: () => import('../FOO_TMP/mod.ts') },`;
+
+      expect(nsText.includes(nsLine)).to.eql(true);
+      expect(regText.includes(regLine)).to.eql(true);
+      expect(occurrences(nsText, nsLine)).to.eql(1);
+      expect(occurrences(regText, regLine)).to.eql(1);
     } finally {
       await Fs.remove(host);
     }

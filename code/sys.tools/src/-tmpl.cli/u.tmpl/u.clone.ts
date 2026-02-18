@@ -16,6 +16,7 @@ export async function cloneTemplate(cwd: t.StringDir, variant: t.__NAME__Tool.Te
 
   await TmplEngine.makeTmpl(dirs.source, processFile).write(dirs.target);
   await registerHostTypeBarrels({ targetDir: dirs.target as t.StringDir, toolName: name });
+  await registerHostRootRegistry({ targetDir: dirs.target as t.StringDir, toolName: name });
   await applyTemplateVariant({
     dir: dirs.target as t.StringDir,
     variant,
@@ -47,6 +48,20 @@ export async function registerHostTypeBarrels(args: { targetDir: t.StringDir; to
   await appendUniqueLine(Fs.join(hostDir, 'types.ts'), lines.types);
 }
 
+/**
+ * Register generated tool in root command/type runtime registry when host files exist.
+ * No-op outside `sys.tools/src` style layouts.
+ */
+export async function registerHostRootRegistry(args: { targetDir: t.StringDir; toolName: string }) {
+  const hostDir = Fs.dirname(args.targetDir);
+  const targetName = Fs.basename(args.targetDir);
+  await patchRootToolsCommand(Fs.join(hostDir, 't.namespace.ts'), args.toolName);
+  await patchRootRegistry(Fs.join(hostDir, 'u.root/registry.ts'), {
+    toolName: args.toolName,
+    targetName,
+  });
+}
+
 async function appendUniqueLine(path: t.StringPath, line: string) {
   const read = await Fs.readText(path);
   if (!read.ok || read.data === undefined) return;
@@ -55,5 +70,43 @@ async function appendUniqueLine(path: t.StringPath, line: string) {
   if (text.includes(line)) return;
   const trimmed = text.endsWith('\n') ? text.trimEnd() : text;
   const next = `${trimmed}\n${line}\n`;
+  await Fs.write(path, next, { force: true });
+}
+
+async function patchRootToolsCommand(path: t.StringPath, toolName: string) {
+  const read = await Fs.readText(path);
+  if (!read.ok || read.data === undefined) return;
+  const text = read.data;
+  const member = `t.${toolName}Tool.Id`;
+  if (text.includes(member)) return;
+
+  const start = text.indexOf('export type Command =');
+  if (start < 0) return;
+  const end = text.indexOf(';', start);
+  if (end < 0) return;
+
+  const block = text.slice(start, end + 1);
+  const nextBlock = block.replace(/;\s*$/, `\n    | ${member};`);
+  const next = `${text.slice(0, start)}${nextBlock}${text.slice(end + 1)}`;
+  await Fs.write(path, next, { force: true });
+}
+
+async function patchRootRegistry(
+  path: t.StringPath,
+  args: { toolName: string; targetName: string },
+) {
+  const read = await Fs.readText(path);
+  if (!read.ok || read.data === undefined) return;
+  const text = read.data;
+  const entry = `  { id: '${args.toolName}', aliases: undefined, load: () => import('../${args.targetName}/mod.ts') },`;
+  if (text.includes(entry)) return;
+
+  const start = text.indexOf('export const ROOT_REGISTRY = [');
+  const end = text.indexOf('] as const satisfies readonly ToolRegistryItem[];');
+  if (start < 0 || end < 0 || end <= start) return;
+
+  const head = text.slice(0, end).trimEnd();
+  const tail = text.slice(end);
+  const next = `${head}\n${entry}\n${tail}`;
   await Fs.write(path, next, { force: true });
 }
