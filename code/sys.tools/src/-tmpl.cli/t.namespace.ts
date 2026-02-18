@@ -11,14 +11,15 @@ export namespace __NAME__Tool {
 
   /** CLI sub-commands (first positional token). */
   export type SubCmd = 'foo' | 'bar';
+  export type TemplateVariant = 'stateless' | 'yaml';
   /** Command names. */
   export type MenuCmd =
     | 'init'
     | 'help'
     | 'option-a'
+    | 'option-a:stateless'
+    | 'option-a:yaml'
     | 'option-b'
-    | 'option-aa'
-    | 'option-ab'
     | 'option-ba'
     | 'option-bb'
     | 'back'

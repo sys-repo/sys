@@ -1,6 +1,8 @@
 import { type t, c, Cli, D, done, Fs, Is, opt, TmplEngine } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
+import { promptTemplateVariant } from './u.menu.ts';
+import { cloneTemplate } from './u.tmpl.clone.ts';
 
 /**
  * Main entry:
@@ -45,20 +47,9 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
      * Sub-Menu: A
      */
     if (A === 'option-a') {
-      const dirname = await Cli.Input.Text.prompt('Clone to directory (name):');
-      const dirs = {
-        target: Fs.join(cwd, dirname),
-        source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
-      };
-
-      const name = await Cli.Input.Text.prompt('__NAME__ → MyToolName');
-      const tmpl = TmplEngine.makeTmpl(dirs.source, async (e) => {
-        const replaced = (e.text ?? '').replaceAll('__NAME__', name);
-        e.modify(replaced);
-      });
-
-      // Write to disk.
-      await tmpl.write(dirs.target);
+      const variant = await promptTemplateVariant();
+      if (!variant) continue;
+      await cloneTemplate(cwd, variant);
       return done(0);
     }
 
