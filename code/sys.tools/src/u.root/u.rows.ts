@@ -1,5 +1,5 @@
 import { type t, c, pkg } from './common.ts';
-import { ALIAS } from './u.args.ts';
+import { ROOT_REGISTRY } from './registry.ts';
 
 export type RootRow = { readonly command: t.Tools.Command; readonly columns: string[] };
 
@@ -13,12 +13,7 @@ export function rootRows(): RootRow[] {
     rows.push({ command: tool, columns: items });
   };
 
-  add('copy', ALIAS.copy);
-  add('crdt');
-  add('serve');
-  add('deploy');
-  add('video');
-  add('update', ALIAS.update);
+  ROOT_REGISTRY.forEach((item) => add(item.id, item.aliases));
 
   return rows;
 }

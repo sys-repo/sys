@@ -1,9 +1,5 @@
 import { type t, Args, D } from './common.ts';
-
-export const ALIAS = {
-  copy: ['cp'],
-  update: ['up'],
-} as const satisfies t.ArgsAliasMap<t.Tools.Command>;
+import { ALIAS } from './registry.ts';
 
 const TOOLSET: ReadonlySet<string> = new Set(D.TOOLS);
 
