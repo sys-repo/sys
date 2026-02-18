@@ -39,7 +39,7 @@ async function run(cwd: t.StringDir, _args: t.__NAME__Tool.CliArgs): Promise<t.R
       message: 'Tools:\n',
       options: [
         opt(` Option A (clone \`-tmpl\` as new ${c.green('tool')})`, 'option-a'),
-        opt(' Configs', 'config'),
+        opt(' YAML Configs', 'config'),
         opt(c.gray('(quit)'), 'exit'),
       ],
       hideDefault: true,
