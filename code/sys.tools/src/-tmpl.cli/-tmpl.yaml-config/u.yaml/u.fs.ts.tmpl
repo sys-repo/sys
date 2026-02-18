@@ -18,8 +18,6 @@ export const __NAME__Fs = {
   initialYaml(configName: string): string {
     return Str.dedent(
       `
-      # __NAME__ config: ${configName}
-
       name: ${configName}
       `,
     ).trimStart();
