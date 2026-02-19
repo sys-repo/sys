@@ -35,5 +35,19 @@ describe('OpenTargets', () => {
       { cmd: 'open', path: '' },
       { cmd: 'open', path: 'releases' },
     ]);
+    expect(options[0].name).to.include('| 2-files');
+    expect(options[1].name).to.include('| 2-files');
+  });
+
+  it('menuOptions: renders singular file suffix when count is 1', async () => {
+    const dir = Fs.resolve(`./.tmp/test/open-targets/${slug()}`);
+    await Fs.remove(dir);
+    await Fs.ensureDir(dir);
+    await Fs.write(`${dir}/hello.txt`, 'hi');
+
+    const options = await OpenTargets.menuOptions({ name: 'test', dir });
+    expect(options).to.have.length(1);
+    expect(options[0].value).to.eql({ cmd: 'open', path: '' });
+    expect(options[0].name).to.include('| 1-file');
   });
 });
