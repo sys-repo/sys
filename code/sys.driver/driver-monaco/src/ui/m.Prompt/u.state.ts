@@ -16,5 +16,7 @@ export const state: t.EditorPrompt.CalculateState = (args) => {
 
 export const resolveEnterAction: t.EditorPrompt.ResolveEnterAction = (args) => {
   const config = normalize(args?.config);
-  return args?.modified ? config.enter.modEnter : config.enter.enter;
+  const modifiers = args?.modifiers ?? {};
+  const isModified = !!(modifiers.ctrl || modifiers.meta);
+  return isModified ? config.enter.onModifiedEnter : config.enter.onEnter;
 };

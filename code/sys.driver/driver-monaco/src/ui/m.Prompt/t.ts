@@ -41,9 +41,9 @@ export declare namespace EditorPrompt {
   /** Enter-key action policy. */
   export type EnterPolicy = {
     /** Action for Enter. */
-    enter: EnterAction;
+    onEnter: EnterAction;
     /** Action for modifier+Enter. */
-    modEnter: EnterAction;
+    onModifiedEnter: EnterAction;
   };
 
   /** Normalized prompt config with defaults applied. */
@@ -75,7 +75,7 @@ export declare namespace EditorPrompt {
   /** Resolve Enter action from policy and modifier state. */
   export type ResolveEnterAction = (args?: {
     config?: Config;
-    modified?: boolean;
+    modifiers?: Partial<t.KeyboardModifierFlags>;
   }) => EnterAction;
 
   /** Bind prompt behavior to a Monaco editor lifecycle. */

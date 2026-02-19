@@ -123,7 +123,7 @@ describe('Monaco.Prompt', () => {
         lineHeight: 21,
         config: {
           lines: { min: 1, max: 3 },
-          enter: { enter: 'submit', modEnter: 'newline' },
+          enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
         },
         onSubmit: (e) => submits.push(e),
       });
@@ -144,7 +144,7 @@ describe('Monaco.Prompt', () => {
         lineHeight: 21,
         config: {
           lines: { min: 1, max: 3 },
-          enter: { enter: 'submit', modEnter: 'newline' },
+          enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
         },
       });
 
@@ -162,7 +162,7 @@ describe('Monaco.Prompt', () => {
         config: {
           lines: { min: 1, max: 2 },
           overflow: 'clamp',
-          enter: { enter: 'newline', modEnter: 'newline' },
+          enter: { onEnter: 'newline', onModifiedEnter: 'newline' },
         },
       });
 
@@ -178,7 +178,7 @@ describe('Monaco.Prompt', () => {
       const life = await EditorPrompt.bind({
         editor,
         lineHeight: 21,
-        config: { lines: { min: 1, max: 2 }, enter: { enter: 'submit', modEnter: 'submit' } },
+        config: { lines: { min: 1, max: 2 }, enter: { onEnter: 'submit', onModifiedEnter: 'submit' } },
         onSubmit: (e) => submits.push(e.text),
       });
 

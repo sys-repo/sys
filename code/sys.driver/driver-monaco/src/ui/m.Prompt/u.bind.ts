@@ -53,7 +53,7 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     const key = toEnterKeyEvent(event);
     if (!key) return;
 
-    const action = resolveEnterAction({ config, modified: key.modified });
+    const action = resolveEnterAction({ config, modifiers: key.modifiers });
     if (action === 'submit') {
       key.preventDefault();
       key.stopPropagation();

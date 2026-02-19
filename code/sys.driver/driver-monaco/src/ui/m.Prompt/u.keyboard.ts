@@ -1,7 +1,6 @@
 import { type t } from './common.ts';
 
 export type EnterKeyEvent = {
-  readonly modified: boolean;
   readonly modifiers: t.KeyboardModifierFlags;
   preventDefault(): void;
   stopPropagation(): void;
@@ -19,7 +18,6 @@ export const toEnterKeyEvent = (event: t.Monaco.I.IKeyboardEvent): EnterKeyEvent
   } satisfies t.KeyboardModifierFlags;
 
   return {
-    modified: modifiers.ctrl || modifiers.meta,
     modifiers,
     preventDefault() {
       event.preventDefault();

@@ -9,7 +9,7 @@ describe('Monaco.Prompt', () => {
       expect(res).to.eql({
         lines: { min: 1, max: 1 },
         overflow: 'scroll',
-        enter: { enter: 'newline', modEnter: 'newline' },
+        enter: { onEnter: 'newline', onModifiedEnter: 'newline' },
       });
     });
 
@@ -67,10 +67,19 @@ describe('Monaco.Prompt', () => {
     it('maps enter and modified-enter from policy', () => {
       const config = {
         lines: { min: 1, max: 3 },
-        enter: { enter: 'submit', modEnter: 'newline' },
+        enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
       } as const;
-      expect(resolveEnterAction({ config, modified: false })).to.eql('submit');
-      expect(resolveEnterAction({ config, modified: true })).to.eql('newline');
+      expect(resolveEnterAction({ config, modifiers: {} })).to.eql('submit');
+      expect(resolveEnterAction({ config, modifiers: { meta: true } })).to.eql('newline');
+    });
+
+    it('does not treat shift/alt as modified-enter', () => {
+      const config = {
+        lines: { min: 1, max: 3 },
+        enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+      } as const;
+      expect(resolveEnterAction({ config, modifiers: { shift: true } })).to.eql('submit');
+      expect(resolveEnterAction({ config, modifiers: { alt: true } })).to.eql('submit');
     });
   });
 });
