@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, opt, Str, Time, Url, Yaml } from '../common.ts';
+import { type t, c, Cli, Fs, Open, opt, Str, Time, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { pullRemoteBundle } from './u.pull.ts';
@@ -15,6 +15,13 @@ const Fmt = {
     url = Str.trimHttpScheme(url);
     const i = url.lastIndexOf('/');
     return url.slice(0, i) + c.dim(url.slice(i));
+  },
+} as const;
+
+const ValidConfigName = {
+  hint: 'letters, numbers, ".", "_" or "-"',
+  test(value: string) {
+    return /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$/.test(value);
   },
 } as const;
 
@@ -45,6 +52,8 @@ export async function pullBundle(
     options: [
       ...optBundles,
       opt('   add: <remote>', 'bundle:add-remote'),
+      opt('config: edit', 'config:edit'),
+      opt('config: rename', 'config:rename'),
       opt(dim('← back'), 'back'),
     ],
   })) as C;
@@ -93,6 +102,39 @@ export async function pullBundle(
     const loaded = await PullFs.loadLocation(yamlPath);
     if (!loaded.ok) return done();
     return pullBundle(_cwd, yamlPath, loaded.location);
+  }
+
+  if (A === 'config:edit') {
+    const openTarget = Fs.Path.trimCwd(yamlPath, { cwd: _cwd, prefix: true });
+    Open.invokeDetached(_cwd, openTarget.length > 0 ? openTarget : yamlPath, { silent: true });
+    return pullBundle(_cwd, yamlPath, location);
+  }
+
+  if (A === 'config:rename') {
+    const current = Fs.basename(yamlPath).slice(0, -PullFs.ext.length);
+    const raw = await Cli.Input.Text.prompt({
+      message: 'Config name',
+      default: current,
+      validate(value) {
+        const next = String(value ?? '').trim();
+        if (!next) return 'Name required.';
+        if (!ValidConfigName.test(next)) return ValidConfigName.hint;
+        if (next === current) return true;
+        const path = Fs.join(Fs.dirname(yamlPath), `${next}${PullFs.ext}`);
+        return Fs.exists(path).then((exists) => (exists ? 'Name already exists.' : true));
+      },
+    });
+
+    const next = raw.trim();
+    if (next === current) return pullBundle(_cwd, yamlPath, location);
+
+    const nextPath = Fs.join(Fs.dirname(yamlPath), `${next}${PullFs.ext}`);
+    await Fs.ensureDir(Fs.dirname(nextPath));
+    await Fs.move(yamlPath, nextPath);
+
+    const loaded = await PullFs.loadLocation(nextPath);
+    if (!loaded.ok) return { kind: 'back' };
+    return pullBundle(_cwd, nextPath, loaded.location);
   }
 
   if (A.startsWith(PULL_PREFIX)) {

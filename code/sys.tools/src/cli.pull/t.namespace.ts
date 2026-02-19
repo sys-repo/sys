@@ -12,6 +12,8 @@ export namespace PullTool {
   /** Command names. */
   export type MenuCmd =
     | 'config'
+    | 'config:edit'
+    | 'config:rename'
     | 'bundle:add-remote'
     | 'bundle:pull-latest'
     | 'back'
