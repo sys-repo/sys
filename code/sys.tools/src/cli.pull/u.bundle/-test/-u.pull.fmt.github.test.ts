@@ -34,14 +34,22 @@ describe('cli.pull/u.bundle/u.pull/u.fmt.github', () => {
       },
     ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
 
-    const res = formatGithubReleaseSummary({ bundle, release, ops, hashDigest: 'abcdef12345' });
+    const res = formatGithubReleaseSummary({
+      bundle,
+      release,
+      ops,
+      hashDigest: 'abcdef12345',
+      distPath: 'releases/repo/v1.2.3/dist.json',
+      distBytes: 1234,
+    });
     const text = Cli.stripAnsi(res);
     const lines = text
       .split('\n')
       .map((line) => line.trimEnd())
       .filter((line) => line.includes('releases/repo/v1.2.3/'));
 
-    expect(lines.length).to.eql(2);
+    expect(lines.length).to.eql(3);
+    expect(lines[0]).to.include('dist.json');
     expect(lines.every((line) => line.includes(' | '))).to.eql(true);
     expect(new Set(lines.map((line) => line.indexOf('|'))).size).to.eql(1);
     expect(text).to.include('dist      #12345');

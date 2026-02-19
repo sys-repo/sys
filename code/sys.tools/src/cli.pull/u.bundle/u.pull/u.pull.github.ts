@@ -81,6 +81,8 @@ export async function pullGithubReleaseBundle(
     }
 
     const dist = await computeReleaseDist(targetRoot);
+    const distPath = Fs.join(targetRoot, 'dist.json');
+    const distBytes = (await Fs.stat(distPath))?.size ?? 0;
     spinner.succeed(
       c.gray(
         `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
@@ -92,6 +94,8 @@ export async function pullGithubReleaseBundle(
         release,
         ops,
         hashDigest: dist.hash.digest,
+        distPath,
+        distBytes,
       }),
     );
 

@@ -6,8 +6,10 @@ export function formatGithubReleaseSummary(args: {
   release: t.PullTool.GithubRelease;
   ops: readonly t.PullToolBundleResult['ops'][number][];
   hashDigest?: string;
+  distPath?: string;
+  distBytes?: number;
 }): string {
-  const { bundle, release, ops, hashDigest } = args;
+  const { bundle, release, ops, hashDigest, distPath, distBytes } = args;
   const table = Cli.table();
   const outputs = ops.filter((m) => m.ok);
   const bytes = outputs.reduce((acc, m) => acc + Number(m.bytes ?? 0), 0);
@@ -15,14 +17,24 @@ export function formatGithubReleaseSummary(args: {
   const outputRows = outputs.map((m) => {
     const path = Fs.trimCwd(m.path.target);
     const size = Number(m.bytes ?? 0);
-    return { path, size };
+    return { kind: 'asset' as const, path, size };
   });
-  const maxPathLen = outputRows.reduce((acc, m) => Math.max(acc, m.path.length), 0);
-  const outputLines = outputRows.map((m, index, all) => {
+  const rows = [
+    ...(distPath
+      ? [{ kind: 'dist' as const, path: Fs.trimCwd(distPath), size: Number(distBytes ?? 0) }]
+      : []),
+    ...outputRows,
+  ];
+  const maxPathLen = rows.reduce((acc, m) => Math.max(acc, m.path.length), 0);
+  const outputLines = rows.map((m, index, all) => {
     const branch = Fmt.Tree.branch([index, all]);
-    const parts = splitDirAndFile(m.path);
     const pad = ' '.repeat(Math.max(1, maxPathLen - m.path.length + 1));
     const sizeLabel = c.dim(c.gray(`| ${Str.bytes(m.size)}`));
+    if (m.kind === 'dist') {
+      return `${c.gray(c.dim(branch))} ${c.gray(m.path)}${pad}${sizeLabel}`;
+    }
+
+    const parts = splitDirAndFile(m.path);
     const file = parts.file ? c.cyan(parts.file) : c.cyan(m.path);
     return `${c.gray(c.dim(branch))} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
   });
@@ -30,8 +42,8 @@ export function formatGithubReleaseSummary(args: {
   table.body([
     [c.gray(' repo'), c.cyan(bundle.repo)],
     [c.gray(' release'), c.white(release.tag)],
-    [c.gray(' dist'), hash],
     [c.gray(' assets'), c.white(String(outputs.length))],
+    [c.gray(' dist'), hash],
     [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
     [c.gray(' output'), outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)'))],
   ]);
