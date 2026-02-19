@@ -58,7 +58,7 @@ describe('MIME-types', () => {
     expectTypeOf(as<FromExtMap>()).toEqualTypeOf<t.ServeTool.MimeType>();
   });
 
-  it('composes contentTypes from selected MimeGroup values (like the CLI update)', () => {
+  it('composes known MIME types from selected MimeGroup values', () => {
     const selectedGroups: readonly t.ServeTool.MimeGroup[] = ['images', 'text'];
 
     const types: t.ServeTool.MimeType[] = [];

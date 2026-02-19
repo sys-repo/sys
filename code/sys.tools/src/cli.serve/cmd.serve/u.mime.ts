@@ -1,6 +1,7 @@
 import { type t } from '../common.ts';
 
 export const Mime = {
+  fallback: 'application/octet-stream' as const,
   images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/x-icon'],
   videos: ['video/webm', 'video/mp4'],
   documents: ['application/pdf', 'application/json', 'application/yaml'],

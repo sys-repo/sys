@@ -29,17 +29,12 @@ export const ServeFs = {
       # A serve location defines:
       # - required display name
       # - directory to serve (relative to CLI cwd, or absolute)
-      # - optional contentTypes filter (omit to serve all MIME types)
       # - optional remoteBundles for pulling remote content
       #
       # Paths are resolved relative to the CLI cwd.
 
       name: ${name}
       dir: .
-
-      # contentTypes:
-      #   - image/png
-      #   - application/json
 
       # remoteBundles:
       #   - remote:
@@ -114,7 +109,6 @@ export const ServeFs = {
       location: {
         name: doc.name,
         dir: resolvedDir,
-        contentTypes: doc.contentTypes,
         remoteBundles: doc.remoteBundles,
       },
     };

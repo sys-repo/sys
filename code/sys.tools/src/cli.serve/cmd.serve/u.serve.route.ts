@@ -6,13 +6,12 @@ import { serveJsonView } from './u.serve.json.ts';
 
 export type ServeRouteArgs = {
   readonly dir: string;
-  readonly contentTypes: readonly t.ServeTool.MimeType[];
 };
 
 type Target = {
   readonly path: t.StringPath;
-  readonly mime: t.MimeType;
-  readonly is: { readonly file: boolean; readonly allowedMime: boolean };
+  readonly mime: t.ServeTool.ServedMimeType;
+  readonly is: { readonly file: boolean };
   readonly stat?: Deno.FileInfo;
 };
 
@@ -20,12 +19,11 @@ type Target = {
  * Factory for the main serve route handler.
  *
  * Pure and testable:
- *  - closed over only [dir, contentTypes]
+ *  - closed over only [dir]
  *  - all runtime deps via imports
  */
 export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
-  const { dir, contentTypes } = args;
-  const allowedMimes = new Set<t.ServeTool.MimeType>(contentTypes);
+  const { dir } = args;
 
   return async (c) => {
     const viewParam = c.req.query('view');
@@ -40,7 +38,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
      * General 404 handler
      */
     async function notFound(): Promise<string> {
-      const filter = makeFilter({ allowedMimes });
+      const filter = makeFilter();
       try {
         const tree = await Fmt.folderAsText({ dir, reqPath, filter });
         return tree;
@@ -56,22 +54,21 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     /**
      * Resolve the effective file-system target for the request:
      *  - initial path
-     *  - optional "index.html" fallback for directories (if allowed)
+     *  - optional "index.html" fallback for directories
      *  - derived MIME and flags
      */
     async function resolveTarget(path: t.StringPath): Promise<Target> {
       let stat = await Fs.stat(path);
 
-      const resolved = await resolveDirectoryIndex({ path, stat, allowedMimes });
+      const resolved = await resolveDirectoryIndex({ path, stat });
       path = resolved.path;
       stat = resolved.stat;
 
       const dotIndex = path.lastIndexOf('.');
       const ext = dotIndex === -1 ? '' : path.slice(dotIndex + 1).toLowerCase();
-      const mime = Mime.extensionMap[ext];
+      const mime = Mime.extensionMap[ext] ?? Mime.fallback;
       const is = {
         file: Boolean(stat?.isFile),
-        allowedMime: Boolean(mime && allowedMimes.has(mime as t.ServeTool.MimeType)),
       };
       return { path, stat, mime, is };
     }
@@ -81,16 +78,13 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
      * Returns a JSON response or `undefined` to continue normal handling.
      */
     async function handleJsonView(target: Target) {
-      const { stat, mime, is } = target;
+      const { stat, mime } = target;
       if (view !== 'json' || !stat) return;
 
-      // Allowed for directories, or files with allowed MIME.
-      if (!is.file || is.allowedMime) {
-        const path = { fs: target.path, req: reqPath };
-        const result = await serveJsonView({ stat, mime, path, allowedMimes });
-        const status = result.kind === 'file' ? 200 : 404;
-        return c.json(result.body, status);
-      }
+      const path = { fs: target.path, req: reqPath };
+      const result = await serveJsonView({ stat, mime, path });
+      const status = result.kind === 'file' ? 200 : 404;
+      return c.json(result.body, status);
     }
 
     const target = await resolveTarget(fsBasePath);
@@ -98,12 +92,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     if (jsonResponse) return jsonResponse;
 
     if (!target.is.file) return c.text(await notFound(), 404);
-
-    // Only allow the configured serve types.
     const { mime } = target;
-    if (!mime || !allowedMimes.has(mime as t.ServeTool.MimeType)) {
-      return c.text(await notFound(), 404);
-    }
 
     /**
      * Delegate to shared HTTP helper:
@@ -151,25 +140,21 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
 }
 
 /**
- * Resolve a directory path to an "index.html" file, if present and allowed.
+ * Resolve a directory path to an "index.html" file, if present.
  */
 async function resolveDirectoryIndex(args: {
   path: t.StringPath;
   stat?: Deno.FileInfo;
-  allowedMimes: ReadonlySet<t.ServeTool.MimeType>;
 }): Promise<{ path: t.StringPath; stat?: Deno.FileInfo }> {
-  let { path, stat, allowedMimes } = args;
+  let { path, stat } = args;
 
   if (stat && !stat.isFile) {
     const basePath = path.endsWith('/') ? path : `${path}/`;
     const indexPath = `${basePath}index.html`;
     const indexStat = await Fs.stat(indexPath);
     if (indexStat?.isFile) {
-      const indexMime = Mime.extensionMap['html'];
-      if (indexMime && allowedMimes.has(indexMime as t.ServeTool.MimeType)) {
-        path = indexPath;
-        stat = indexStat;
-      }
+      path = indexPath;
+      stat = indexStat;
     }
   }
 

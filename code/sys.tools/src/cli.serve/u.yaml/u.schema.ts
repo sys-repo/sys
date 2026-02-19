@@ -7,7 +7,7 @@ import { type t, Schema } from '../common.ts';
 export const ServeYamlSchema = {
   /**
    * Typed initial document.
-   * Minimal: just name and dir. contentTypes omitted (defaults to all MIME types at runtime).
+   * Minimal: just name and dir.
    */
   initial(name = 'My Server'): t.ServeTool.LocationYaml.Doc {
     return { name, dir: '.' };
@@ -29,7 +29,6 @@ export const ServeYamlSchema = {
     {
       name: Schema.Type.String(),
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-      contentTypes: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String())),
       remoteBundles: Schema.Type.Optional(
         Schema.Type.Array(
           Schema.Type.Object(

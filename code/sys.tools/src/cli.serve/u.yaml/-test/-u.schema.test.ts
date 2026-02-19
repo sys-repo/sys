@@ -36,14 +36,14 @@ describe('Schema: serve location', () => {
     expect(res.errors).to.eql([]);
   });
 
-  it('validate: accepts optional contentTypes', () => {
+  it('validate: rejects removed contentTypes key', () => {
     const res = ServeYamlSchema.validate({
       name: 'Test',
       dir: './dist',
       contentTypes: ['image/png', 'application/json'],
     });
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
   });
 
   it('validate: accepts optional remoteBundles', () => {

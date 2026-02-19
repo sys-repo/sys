@@ -4,16 +4,15 @@ import { makeFilter } from './u.serve.filter.ts';
 
 type Args = {
   stat: Deno.FileInfo;
-  mime: t.ServeTool.MimeType;
+  mime: t.ServeTool.ServedMimeType;
   path: { fs: t.StringPath; req: t.StringPath };
-  allowedMimes: t.ServeTool.MimeLookup;
 };
 
 /**
  * Pure async helper for the JSON "view" of the serve route.
  */
 export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonView.Result> {
-  const { stat, mime, allowedMimes } = args;
+  const { stat, mime } = args;
 
   if (stat.isFile) {
     /**
@@ -32,7 +31,7 @@ export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonView.Re
      * Folder:
      */
     const dir = Fs.basename(args.path.fs);
-    const filter = makeFilter({ allowedMimes });
+    const filter = makeFilter();
 
     type Body = t.ServeTool.JsonView.Folder['body'];
     const files: Body['files'] = [];

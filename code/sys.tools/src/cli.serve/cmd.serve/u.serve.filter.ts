@@ -1,11 +1,8 @@
 import { type t, Path } from '../common.ts';
-import { Mime } from '../cmd.serve/mod.ts';
 
 type F = (path: t.StringPath) => boolean;
 
-export function makeFilter(args: { allowedMimes: t.ServeTool.MimeLookup }): F {
-  const { allowedMimes } = args;
-
+export function makeFilter(): F {
   return (path: string) => {
     const normalized = path.replaceAll('\\', '/');
     const base = Path.basename(normalized);
@@ -27,11 +24,7 @@ export function makeFilter(args: { allowedMimes: t.ServeTool.MimeLookup }): F {
     const dotIndex = base.lastIndexOf('.');
     if (dotIndex <= 0 || dotIndex === base.length - 1) return true;
 
-    // Ensure files are on the accept list (mime).
-    const ext = base.slice(dotIndex + 1).toLowerCase();
-    const mime = Mime.extensionMap[ext];
-
-    if (!mime) return false;
-    return allowedMimes.has(mime);
+    // Keep all file extensions.
+    return true;
   };
 }

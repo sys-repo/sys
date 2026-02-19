@@ -158,7 +158,7 @@ describe('ServeFs', () => {
       });
     });
 
-    it('includes contentTypes when present', async () => {
+    it('rejects removed contentTypes key when present', async () => {
       await withTmpDir(async (tmp) => {
         const yamlPath = `${tmp}/${ServeFs.fileOf('test')}`;
         await Fs.ensureDir(`${tmp}/${ServeFs.dir}`);
@@ -168,10 +168,8 @@ describe('ServeFs', () => {
         );
 
         const res = await ServeFs.loadLocation(yamlPath);
-        expect(res.ok).to.eql(true);
-        if (res.ok) {
-          expect(res.location.contentTypes).to.eql(['image/png', 'application/json']);
-        }
+        expect(res.ok).to.eql(false);
+        if (!res.ok) expect(res.errors.length > 0).to.eql(true);
       });
     });
 

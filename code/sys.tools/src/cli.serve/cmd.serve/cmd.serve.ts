@@ -1,5 +1,4 @@
 import { type t, c, Cli, D, Http, Net, Open, Str } from '../common.ts';
-import { Mime } from './u.mime.ts';
 import { ServeMenu } from './u.prompt.ts';
 import { route } from './u.serve.route.ts';
 
@@ -16,26 +15,10 @@ export async function startServing(
   opts: Opts = {},
 ): Promise<ServeResult> {
   const { dir } = location;
-
-  // If contentTypes is undefined, allow all MIME types.
-  const contentTypes = location.contentTypes ?? (Object.values(Mime.extensionMap) as t.MimeType[]);
-
-  /**
-   * Map extensions → MIME types (subset of ServeType).
-   */
-  const mimeByExt = Mime.extensionMap;
   const app = Http.Server.create({ static: false });
 
-  // Pass the readonly MimeType[] directly to the route factory.
-  app.use('*', route({ dir, contentTypes }));
-
-  // Static middleware with restricted MIME table.
-  const allowedMimes = new Set<string>(contentTypes);
-  const staticMimes: Record<string, string> = Object.fromEntries(
-    Object.entries(mimeByExt).filter(([, mime]) => allowedMimes.has(mime)),
-  );
-
-  app.use('*', Http.Server.static({ root: dir, mimes: staticMimes }));
+  app.use('*', route({ dir }));
+  app.use('*', Http.Server.static({ root: dir }));
 
   console.info();
   const port = Net.port(opts.port ?? D.port);

@@ -26,15 +26,14 @@ export namespace ServeTool {
   /** Alternative view formats for rendering a route. */
   export type RouteView = 'json';
 
-  /** Abstract lookup for supported MIME types. */
-  export type MimeLookup = { has(mime: t.ServeTool.MimeType): boolean };
-
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & { port?: number };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /** Allowed MIME types for static asset responses. */
+  /** Known MIME types mapped from known filename extensions. */
   export type MimeType = t.MimeType;
+  /** MIME type emitted by the server (`octet-stream` fallback for unknown extensions). */
+  export type ServedMimeType = MimeType | 'application/octet-stream';
   export type MimeGroup = t.MimeGroup;
 
   /**
@@ -61,8 +60,6 @@ export namespace ServeTool {
       name: string;
       /** Directory to serve (relative to CLI cwd, or absolute). */
       dir: t.StringDir;
-      /** Optional MIME type filter. Omit to serve all types. */
-      contentTypes?: MimeType[];
       /** Optional list of remote bundles that can be pulled. */
       remoteBundles?: RemoteBundle[];
     };
@@ -87,8 +84,6 @@ export namespace ServeTool {
       readonly name: string;
       /** Resolved absolute directory to serve. */
       readonly dir: t.StringDir;
-      /** Optional MIME type filter. Undefined means all types. */
-      readonly contentTypes?: MimeType[];
       /** Optional remote bundles. */
       readonly remoteBundles?: RemoteBundle[];
     };
@@ -102,7 +97,7 @@ export namespace ServeTool {
     export type File = {
       readonly kind: 'file';
       readonly body: {
-        mime: t.ServeTool.MimeType;
+        mime: t.ServeTool.ServedMimeType;
         path: t.StringPath;
         hash: t.StringHash;
         bytes: t.NumberBytes;
