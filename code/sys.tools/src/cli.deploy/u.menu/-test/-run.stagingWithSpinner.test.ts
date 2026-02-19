@@ -76,6 +76,7 @@ describe('Staging: runStagingWithSpinner', () => {
 
       const releases = await Pkg.Dist.load(`${tmp}/stage/releases`);
       expect(releases.exists).to.eql(true);
+      expect(await Fs.exists(`${tmp}/stage/releases/index.html`)).to.eql(true);
       const hash1 = String(releases.dist?.hash?.digest ?? '').trim();
       expect(hash1).to.not.eql('');
       const root1 = await Pkg.Dist.load(`${tmp}/stage`);
@@ -95,6 +96,28 @@ describe('Staging: runStagingWithSpinner', () => {
       const root2 = await Pkg.Dist.load(`${tmp}/stage`);
       const rootHash2 = String(root2.dist?.hash?.digest ?? '').trim();
       expect(rootHash2).to.eql(rootHash1);
+    });
+  });
+
+  it('finalizer: does not overwrite custom intermediate index.html', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/stage/releases`);
+      await Fs.write(`${tmp}/stage/releases/index.html`, '<html>custom releases index</html>\n');
+
+      const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'releases/sys.app.shell' } }];
+      const result = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+      });
+      expect(result.ok).to.eql(true);
+
+      const custom = (await Fs.readText(`${tmp}/stage/releases/index.html`)).data ?? '';
+      expect(custom).to.eql('<html>custom releases index</html>\n');
+      const releases = await Pkg.Dist.load(`${tmp}/stage/releases`);
+      expect(releases.exists).to.eql(true);
     });
   });
 

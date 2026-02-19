@@ -22,6 +22,8 @@ export async function finalizeDistTree(args: Args): Promise<void> {
 
   const directories = await collectDirectories(root);
   for (const dir of directories) {
+    await ensureIndexHtml(dir, { baseDomain: args.baseDomain });
+
     await Pkg.Dist.compute({
       dir,
       pkg: args.pkg,
@@ -32,7 +34,7 @@ export async function finalizeDistTree(args: Args): Promise<void> {
     });
   }
 
-  // Root index should reflect the finalized child dist state.
+  // Re-finalize root after child dist coverage exists to avoid first/second-run drift.
   await ensureIndexHtml(root, { force: true, baseDomain: args.baseDomain });
   await Pkg.Dist.compute({
     dir: root,
