@@ -1,5 +1,4 @@
-import { type t, Fs } from './common.ts';
-import { YamlConfig } from '@sys/yaml/cli';
+import { type t, Fs, YamlConfig } from './common.ts';
 import { PullFs, PullYamlSchema } from './u.yaml/mod.ts';
 
 export type YamlConfigsMenuPick =

@@ -1,5 +1,4 @@
-import { type t, Fs, Path, pkg, Schema, Str, Yaml } from '../common.ts';
-import { YamlConfig } from '@sys/yaml/cli';
+import { type t, Fs, Path, pkg, Schema, Str, Yaml, YamlConfig } from '../common.ts';
 import { PullTool } from '../t.namespace.ts';
 import { PullYamlErrorCode, validatePullYamlText } from './u.validate.ts';
 
