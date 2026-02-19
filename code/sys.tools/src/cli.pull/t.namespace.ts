@@ -25,23 +25,21 @@ export namespace PullTool {
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   export namespace ConfigYaml {
-    export type RemoteSource = RemoteHttp;
     export type RemoteHttp = { kind: 'http'; dist: t.StringUrl };
 
-    export type RemoteBundle = {
-      remote: RemoteSource;
+    export type Bundle = RemoteHttp & {
       local: { dir: t.StringRelativeDir };
       lastUsedAt?: t.UnixTimestamp;
     };
 
     export type Doc = {
       dir: t.StringDir;
-      remoteBundles?: RemoteBundle[];
+      bundles?: Bundle[];
     };
 
     export type Location = {
       readonly dir: t.StringDir;
-      readonly remoteBundles?: RemoteBundle[];
+      readonly bundles?: Bundle[];
     };
 
     export type DirName = `-config/${string}.${Id}`;

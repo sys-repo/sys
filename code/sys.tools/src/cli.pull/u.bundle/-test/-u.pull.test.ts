@@ -12,8 +12,9 @@ describe('cli.pull/u.bundle → URL + HTML helpers', () => {
   describe('rewriteTags', () => {
     it('rewrites root index base from remote host to local mount (/foo/)', async () => {
       const baseDir = (await makeTestDir()) as t.StringDir;
-      const bundle: t.PullTool.ConfigYaml.RemoteBundle = {
-        remote: { kind: 'http', dist: 'https://example.com/dist.json' },
+      const bundle: t.PullTool.ConfigYaml.Bundle = {
+        kind: 'http',
+        dist: 'https://example.com/dist.json',
         local: { dir: 'foo' },
       };
 
@@ -64,8 +65,9 @@ describe('cli.pull/u.bundle → URL + HTML helpers', () => {
 
     it('rewrites bundle index base and asset URLs for /sys/sys/ui.components/', async () => {
       const baseDir = (await makeTestDir()) as t.StringDir;
-      const bundle: t.PullTool.ConfigYaml.RemoteBundle = {
-        remote: { kind: 'http', dist: 'https://example.com/dist.json' },
+      const bundle: t.PullTool.ConfigYaml.Bundle = {
+        kind: 'http',
+        dist: 'https://example.com/dist.json',
         local: { dir: 'sys' },
       };
 

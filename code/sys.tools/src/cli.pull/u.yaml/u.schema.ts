@@ -14,17 +14,12 @@ export const PullYamlSchema = {
   schema: Schema.Type.Object(
     {
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-      remoteBundles: Schema.Type.Optional(
+      bundles: Schema.Type.Optional(
         Schema.Type.Array(
           Schema.Type.Object(
             {
-              remote: Schema.Type.Object(
-                {
-                  kind: Schema.Type.Literal('http'),
-                  dist: Schema.Type.String(),
-                },
-                { additionalProperties: false },
-              ),
+              kind: Schema.Type.Literal('http'),
+              dist: Schema.Type.String(),
               local: Schema.Type.Object(
                 { dir: Schema.Type.String() },
                 { additionalProperties: false },

@@ -35,11 +35,11 @@ const Fmt = {
  */
 export async function pullRemoteBundle(
   baseDir: t.StringDir,
-  bundle: t.PullTool.ConfigYaml.RemoteBundle,
+  bundle: t.PullTool.ConfigYaml.Bundle,
 ): Promise<t.PullToolBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
-  const distUrl = Url.toCanonical(bundle.remote.dist);
+  const distUrl = Url.toCanonical(bundle.dist);
   if (!distUrl.ok) throw new Error(`Invalid dist.json URL: ${distUrl.href}`);
 
   // Pull `dist.json` manifest:

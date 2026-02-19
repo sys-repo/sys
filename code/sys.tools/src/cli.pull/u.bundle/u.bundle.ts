@@ -7,7 +7,7 @@ import { toDistUrl, validateDistUrl } from './u.ts';
 type C = t.PullTool.MenuCmd;
 type PullResult =
   | { readonly kind: 'back' }
-  | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.RemoteBundle };
+  | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.Bundle };
 
 const Fmt = {
   ...BaseFmt,
@@ -30,18 +30,18 @@ export async function pullBundle(
   yamlPath: t.StringPath,
   location: t.PullTool.ConfigYaml.Location,
 ): Promise<PullResult> {
-  const done = (bundle?: t.PullTool.ConfigYaml.RemoteBundle): PullResult => ({
+  const done = (bundle?: t.PullTool.ConfigYaml.Bundle): PullResult => ({
     kind: 'bundle',
     bundle,
   });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
-  const bundles = location.remoteBundles ?? [];
+  const bundles = location.bundles ?? [];
   const maxLocalDirWidth = bundles.reduce((acc, m) => Math.max(acc, m.local.dir.length), 0);
   const optBundles = bundles.map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
-    const name = `${'  pull:'} ${branch} ${localDir} ← ${Fmt.distUrl(m.remote.dist)}`;
+    const name = `${'  pull:'} ${branch} ${localDir} ← ${Fmt.distUrl(m.dist)}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
@@ -86,14 +86,15 @@ export async function pullBundle(
     });
 
     // Add the new bundle to the YAML file.
-    const newBundle: t.PullTool.ConfigYaml.RemoteBundle = {
-      remote: { kind: 'http', dist: distUrl.href },
+    const newBundle: t.PullTool.ConfigYaml.Bundle = {
+      kind: 'http',
+      dist: distUrl.href,
       local: { dir: localDir as t.StringRelativeDir },
     };
 
     await updateYamlBundles(yamlPath, (bundles) => {
       const existing = bundles.find(
-        (m) => m.remote.dist === distUrl.href && m.local.dir === localDir,
+        (m) => m.dist === distUrl.href && m.local.dir === localDir,
       );
       if (!existing) bundles.push(newBundle);
     });
@@ -147,7 +148,7 @@ export async function pullBundle(
     // Update lastUsedAt in the YAML file.
     await updateYamlBundles(yamlPath, (list) => {
       const hit = list.find(
-        (m) => m.remote.dist === bundle.remote.dist && m.local.dir === bundle.local.dir,
+        (m) => m.dist === bundle.dist && m.local.dir === bundle.local.dir,
       );
       if (hit) hit.lastUsedAt = Time.now.timestamp;
     });
@@ -163,7 +164,7 @@ export async function pullBundle(
  */
 async function updateYamlBundles(
   yamlPath: t.StringPath,
-  mutate: (bundles: t.PullTool.ConfigYaml.RemoteBundle[]) => void,
+  mutate: (bundles: t.PullTool.ConfigYaml.Bundle[]) => void,
 ) {
   const read = await Fs.readText(yamlPath);
   if (!read.ok || !read.data) return;
@@ -172,8 +173,8 @@ async function updateYamlBundles(
   if (parsed.error || !parsed.data) return;
 
   const doc = parsed.data;
-  doc.remoteBundles = doc.remoteBundles ?? [];
-  mutate(doc.remoteBundles);
+  doc.bundles = doc.bundles ?? [];
+  mutate(doc.bundles);
 
   const yaml = Yaml.stringify(doc);
   if (yaml.error || !yaml.data) return;
@@ -200,9 +201,9 @@ export async function validateSubdir(
   const target = Fs.join(location.dir, input);
   if (await Fs.exists(target)) return 'Directory already exists';
 
-  const alreadyUsed = (location.remoteBundles ?? []).find((m) => m.local.dir === input);
+  const alreadyUsed = (location.bundles ?? []).find((m) => m.local.dir === input);
   if (alreadyUsed) {
-    const url = alreadyUsed.remote.dist;
+    const url = alreadyUsed.dist;
     return `Directory name already been used by:\n  ${c.gray(c.italic(url))}`;
   }
 

@@ -3,7 +3,7 @@ import { PullFs } from '../u.fs.ts';
 import { migrate02 } from '../u.migrate.-02.ts';
 
 describe('PullMigrate/02', () => {
-  it('adds remote.kind=http for legacy remote.dist bundle entries', async () => {
+  it('adds remote.kind=http for legacy nested remote.dist entries', async () => {
     const tmp = await Fs.makeTempDir();
     const cwd = tmp.absolute;
     const path = Fs.join(cwd, PullFs.fileOf('foo'));
