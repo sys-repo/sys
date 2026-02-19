@@ -5,7 +5,9 @@ export { Env } from '@sys/fs/env';
 export { Http } from '@sys/http/server';
 export { Schema } from '@sys/schema';
 export { YamlConfig } from '@sys/yaml/cli';
+
 export * from '../common.ts';
+export type * as t from './common.t.ts';
 
 /**
  * Constants:
