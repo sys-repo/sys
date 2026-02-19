@@ -87,7 +87,7 @@ export async function pullBundle(
 
     // Add the new bundle to the YAML file.
     const newBundle: t.PullTool.ConfigYaml.RemoteBundle = {
-      remote: { dist: distUrl.href },
+      remote: { kind: 'http', dist: distUrl.href },
       local: { dir: localDir as t.StringRelativeDir },
     };
 

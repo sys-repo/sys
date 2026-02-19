@@ -25,8 +25,11 @@ export namespace PullTool {
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   export namespace ConfigYaml {
+    export type RemoteSource = RemoteHttp;
+    export type RemoteHttp = { kind: 'http'; dist: t.StringUrl };
+
     export type RemoteBundle = {
-      remote: { dist: t.StringUrl };
+      remote: RemoteSource;
       local: { dir: t.StringRelativeDir };
       lastUsedAt?: t.UnixTimestamp;
     };

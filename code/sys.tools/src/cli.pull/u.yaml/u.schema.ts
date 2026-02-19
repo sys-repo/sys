@@ -19,7 +19,10 @@ export const PullYamlSchema = {
           Schema.Type.Object(
             {
               remote: Schema.Type.Object(
-                { dist: Schema.Type.String() },
+                {
+                  kind: Schema.Type.Literal('http'),
+                  dist: Schema.Type.String(),
+                },
                 { additionalProperties: false },
               ),
               local: Schema.Type.Object(
