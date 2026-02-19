@@ -26,7 +26,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     text: s(snap.text),
-    promptState: s<t.EditorPrompt.State | undefined>(undefined),
+    state: s<t.EditorPrompt.State>(),
     editor: s<t.Monaco.Editor>(),
   };
   const p = props;
@@ -44,8 +44,8 @@ export async function createDebugSignals() {
     p.debug.value = defaults.debug ?? false;
     p.theme.value = defaults.theme ?? 'Dark';
     p.text.value = defaults.text ?? '';
-    p.promptState.value = undefined;
     p.editor.value = undefined;
+    p.state.value = undefined;
   }
 
   Signal.effect(() => {
@@ -100,7 +100,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name={'state'} data={v.state} style={{ marginTop: 6 }} expand={1} />
     </div>
   );
 };

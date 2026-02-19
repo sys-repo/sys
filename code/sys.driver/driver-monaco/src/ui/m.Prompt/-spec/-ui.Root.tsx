@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, MonacoEditor, Signal } from './common.ts';
+import { type t, css, EditorPrompt, MonacoEditor, Signal } from './common.ts';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -14,23 +14,54 @@ export const Root: React.FC<RootProps> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
 
-  /**
-   * TODO 🐷
-   * - Wire `EditorPrompt.bind` into the harness lifecycle.
-   * - Replace bootstrap `minHeight` with controller-derived height (`bind.args.lineHeight` is caller-provided).
-   */
-  const minHeight = 21;
+  const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
+  const mountIdRef = React.useRef(0);
+  const lineHeight = 21;
 
   return (
     <MonacoEditor
-      style={css({ minHeight }, props.style)}
+      style={css({ minHeight: lineHeight }, props.style)}
       theme={v.theme}
-      onMounted={(e: t.MonacoEditorReady) => {
+      onMounted={async (e: t.MonacoEditorReady) => {
+        const { editor, dispose$ } = e;
+        const mountId = ++mountIdRef.current;
         p.editor.value = e.editor;
+
+        const binding = await EditorPrompt.bind(
+          {
+            editor: e.editor,
+            lineHeight,
+            config: {
+              lines: { min: 1, max: 5 },
+              overflow: 'scroll',
+              enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+              // enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+            },
+            onStateChange: (state) => {
+              p.state.value = state;
+            },
+            onSubmit: (e) => {
+              console.info(`⚡️ onSubmit`, e);
+            },
+          },
+          dispose$,
+        );
+
+        if (mountId !== mountIdRef.current) {
+          binding.dispose();
+          return;
+        }
+
+        bindingRef.current?.dispose();
+        bindingRef.current = binding;
+        p.state.value = binding.state;
       }}
       onDispose={() => {
+        mountIdRef.current++;
+        bindingRef.current?.dispose();
+        bindingRef.current = undefined;
         p.editor.value = undefined;
-        p.promptState.value = undefined;
+        p.state.value = undefined;
       }}
       onChange={(e: t.MonacoEditorChange) => {
         p.text.value = e.content.text;
