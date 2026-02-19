@@ -5,6 +5,7 @@ export const CSS = {
 } as const;
 
 const languages: t.EditorLanguage[] = [
+  'plaintext',
   'markdown',
   'typescript',
   'javascript',

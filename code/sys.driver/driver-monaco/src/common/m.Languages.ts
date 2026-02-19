@@ -4,6 +4,7 @@ type L = t.EditorLanguage;
 
 const all: L[] = [
   // Languages:
+  'plaintext',
   'yaml',
   'markdown',
   'typescript',

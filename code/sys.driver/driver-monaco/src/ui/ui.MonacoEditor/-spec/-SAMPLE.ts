@@ -48,6 +48,11 @@ export const markdown = `
 ${Str.Lorem.toString()}
 `;
 
+export const plaintext = `
+This is plain text.
+No language semantics.
+`;
+
 export const go = `
 // Q (Compute Language)
 // example: Yao's hidden millionare:
@@ -96,6 +101,7 @@ export const SAMPLE_CODE: Partial<T> = {
   python,
   typescript,
   javascript,
+  plaintext,
   markdown,
   yaml,
   json,
