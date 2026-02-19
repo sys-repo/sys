@@ -21,6 +21,7 @@ export const Root: React.FC<RootProps> = (props) => {
   return (
     <MonacoEditor
       style={css({ minHeight: lineHeight }, props.style)}
+      language={'plaintext'}
       theme={v.theme}
       onMounted={async (e: t.MonacoEditorReady) => {
         const { editor, dispose$ } = e;
