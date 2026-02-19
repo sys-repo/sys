@@ -1,9 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import {
-  type GithubRelease,
-  resolveGithubReleaseBundle,
-} from '../u.github.release.resolve.ts';
+import { resolveGithubReleaseBundle } from '../u.github.release.resolve.ts';
 
 describe('cli.pull/u.bundle → github:release resolver', () => {
   const bundle = (
@@ -15,10 +12,11 @@ describe('cli.pull/u.bundle → github:release resolver', () => {
     ...input,
   });
 
-  const releases = (...input: GithubRelease[]) => input;
+  const releases = (...input: t.PullTool.GithubRelease[]) => input;
 
   const asset = (name: string) =>
     ({
+      id: 1,
       name,
       downloadUrl: `https://example.com/${name}` as t.StringUrl,
     }) as const;

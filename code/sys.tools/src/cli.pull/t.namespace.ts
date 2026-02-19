@@ -24,6 +24,29 @@ export namespace PullTool {
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
+  export type GithubReleaseAsset = {
+    readonly id: number;
+    readonly name: string;
+    readonly downloadUrl: t.StringUrl;
+  };
+
+  export type GithubRelease = {
+    readonly tag: string;
+    readonly draft?: boolean;
+    readonly prerelease?: boolean;
+    readonly assets: readonly GithubReleaseAsset[];
+  };
+
+  export type GithubReleaseResolved = {
+    readonly release: GithubRelease;
+    readonly asset: GithubReleaseAsset;
+    readonly distPath: t.StringPath;
+  };
+
+  export type GithubReleaseResolveResult =
+    | { readonly ok: true; readonly data: GithubReleaseResolved }
+    | { readonly ok: false; readonly error: string };
+
   export namespace ConfigYaml {
     export type Bundle = HttpBundle | GithubReleaseBundle;
     export type HttpBundle = {

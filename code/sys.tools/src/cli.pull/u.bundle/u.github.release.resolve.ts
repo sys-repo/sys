@@ -1,35 +1,13 @@
 import { type t, Is } from '../common.ts';
 
-export type GithubReleaseAsset = {
-  readonly name: string;
-  readonly downloadUrl: t.StringUrl;
-};
-
-export type GithubRelease = {
-  readonly tag: string;
-  readonly draft?: boolean;
-  readonly prerelease?: boolean;
-  readonly assets: readonly GithubReleaseAsset[];
-};
-
-export type GithubReleaseResolved = {
-  readonly release: GithubRelease;
-  readonly asset: GithubReleaseAsset;
-  readonly distPath: t.StringPath;
-};
-
-export type GithubReleaseResolveResult =
-  | { readonly ok: true; readonly data: GithubReleaseResolved }
-  | { readonly ok: false; readonly error: string };
-
 /**
  * Resolve a github:release bundle down to concrete release + asset + distPath.
  * Pure selection logic only (no network calls).
  */
 export function resolveGithubReleaseBundle(
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
-  releases: readonly GithubRelease[],
-): GithubReleaseResolveResult {
+  releases: readonly t.PullTool.GithubRelease[],
+): t.PullTool.GithubReleaseResolveResult {
   const releaseRes = selectRelease(releases, bundle.tag);
   if (!releaseRes.ok) return releaseRes;
 
@@ -47,9 +25,9 @@ export function resolveGithubReleaseBundle(
 }
 
 function selectRelease(
-  releases: readonly GithubRelease[],
+  releases: readonly t.PullTool.GithubRelease[],
   wantedTag?: string,
-): { readonly ok: true; readonly data: GithubRelease } | { readonly ok: false; readonly error: string } {
+): { readonly ok: true; readonly data: t.PullTool.GithubRelease } | { readonly ok: false; readonly error: string } {
   if (releases.length === 0) {
     return { ok: false, error: 'No releases found for repository.' };
   }
@@ -72,9 +50,9 @@ function selectRelease(
 }
 
 function selectAsset(
-  release: GithubRelease,
+  release: t.PullTool.GithubRelease,
   wantedAsset?: string,
-): { readonly ok: true; readonly data: GithubReleaseAsset } | { readonly ok: false; readonly error: string } {
+): { readonly ok: true; readonly data: t.PullTool.GithubReleaseAsset } | { readonly ok: false; readonly error: string } {
   const assets = release.assets;
   if (assets.length === 0) {
     return { ok: false, error: `Release has no assets: ${release.tag}` };

@@ -4,6 +4,7 @@ import { type t } from '../common.ts';
 export * from '../common.ts';
 export { Schema } from '@sys/schema';
 export { Http } from '@sys/http/server';
+export { Env } from '@sys/fs/env';
 
 /**
  * Constants:

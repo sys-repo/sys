@@ -1,4 +1,7 @@
-import { type t, c, Cli, Err, Http, Str, Url } from '../common.ts';
+import { type t, c, Cli, Err, Fs, Http, Pkg, Str, Url } from '../common.ts';
+import { downloadGithubAsset, listGithubReleases, loadGithubToken } from './u.github.client.ts';
+import { resolveGithubReleaseBundle } from './u.github.release.resolve.ts';
+import { assertSafeDistPath, extractArchive, mapAuthError, resolveDistFile } from './u.github.release.fs.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { createMonotonicProgress } from './u.monotonicProgress.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
@@ -115,10 +118,77 @@ async function pullHttpBundle(
 }
 
 async function pullGithubReleaseBundle(
-  _baseDir: t.StringDir,
-  _bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
+  baseDir: t.StringDir,
+  bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
 ): Promise<t.PullToolBundleResult> {
-  throw new Error(`Bundle kind not implemented yet: github:release`);
+  const spinner = Cli.spinner();
+  const targetDir = `${baseDir}/${bundle.local.dir}`;
+  const tmp = await Fs.makeTempDir({ prefix: 'pull-github-release-' });
+  const token = await loadGithubToken();
+
+  try {
+    spinner.start(Fmt.spinnerText('resolving github release...'));
+
+    const releases = await listGithubReleases({ repo: bundle.repo, token });
+    const resolved = resolveGithubReleaseBundle(bundle, releases);
+    if (!resolved.ok) throw new Error(resolved.error);
+
+    const { asset, distPath: rawDistPath } = resolved.data;
+    const distPath = assertSafeDistPath(rawDistPath);
+
+    spinner.text = Fmt.spinnerText(`downloading ${c.cyan(asset.name)}...`);
+    const bytes = await downloadGithubAsset({ url: asset.downloadUrl, token });
+
+    spinner.text = Fmt.spinnerText('extracting release asset...');
+    const archivePath = Fs.join(tmp.absolute, asset.name);
+    const extractDir = Fs.join(tmp.absolute, 'extract');
+    await Fs.write(archivePath, bytes, { force: true });
+    await extractArchive({ archivePath, outputDir: extractDir as t.StringDir });
+
+    spinner.text = Fmt.spinnerText('resolving dist path...');
+    const distFile = await resolveDistFile({
+      extractedDir: extractDir as t.StringDir,
+      distPath,
+    });
+    const bundleRoot = Fs.dirname(distFile) as t.StringDir;
+
+    spinner.text = Fmt.spinnerText('syncing local bundle...');
+    await Fs.remove(targetDir, { log: false });
+    await Fs.copy(bundleRoot, targetDir, { force: true });
+
+    const readDist = await Fs.readJson<t.DistPkg>(Fs.join(targetDir, 'dist.json'));
+    if (!readDist.ok || !readDist.data || !Pkg.Is.dist(readDist.data)) {
+      throw new Error(`Invalid dist.json in pulled release bundle.`);
+    }
+    const dist = readDist.data;
+
+    await rewriteTags(baseDir, bundle);
+
+    const size = c.dim(`(${Fmt.bundleSize(dist)})`);
+    const fullpath = Fmt.prettyPath(targetDir);
+    const path = `./${c.cyan(bundle.local.dir)} ${size}\n  ${fullpath}`;
+    spinner.succeed(c.gray(`${c.green('bundle pulled')} → ${path}`));
+
+    const source = asset.downloadUrl;
+    return {
+      ok: true,
+      dist,
+      ops: [
+        {
+          ok: true,
+          path: { source, target: targetDir },
+          bytes: bytes.byteLength,
+        },
+      ],
+    };
+  } catch (error) {
+    const auth = mapAuthError(error);
+    if (auth) throw new Error(auth);
+    throw error;
+  } finally {
+    spinner.stop();
+    await Fs.remove(tmp.absolute, { log: false });
+  }
 }
 
 /**
