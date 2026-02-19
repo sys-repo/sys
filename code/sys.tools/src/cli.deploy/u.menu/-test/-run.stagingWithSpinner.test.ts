@@ -28,7 +28,7 @@ describe('Staging: runStagingWithSpinner', () => {
     });
   });
 
-  it('trustChildDist: root dist.json reuses child hashes', async () => {
+  it('finalizer: recomputes child dist and keeps root hash truthful', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/a.txt`, 'a');
@@ -48,10 +48,53 @@ describe('Staging: runStagingWithSpinner', () => {
       const res = await runStagingWithSpinner({ cwd: tmp, mappings, stagingRoot: 'stage' });
       expect(res.ok).to.eql(true);
 
+      const child = await Pkg.Dist.load(`${tmp}/stage/child`);
+      expect(child.exists).to.eql(true);
+      expect(child.dist?.hash.parts['a.txt']).to.eql(undefined);
+
       const root = await Pkg.Dist.load(`${tmp}/stage`);
       expect(root.exists).to.eql(true);
-      expect(root.dist?.hash.parts['child/a.txt']).to.not.eql(undefined);
+      expect(root.dist?.hash.parts['child/a.txt']).to.eql(undefined);
       expect(root.dist?.hash.parts['child/.DS_Store']).to.eql(undefined);
+    });
+  });
+
+  it('finalizer: writes dist.json for intermediate directories', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+
+      const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'releases/sys.app.shell' } }];
+
+      const first = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+        clear: true,
+      });
+      expect(first.ok).to.eql(true);
+
+      const releases = await Pkg.Dist.load(`${tmp}/stage/releases`);
+      expect(releases.exists).to.eql(true);
+      const hash1 = String(releases.dist?.hash?.digest ?? '').trim();
+      expect(hash1).to.not.eql('');
+      const root1 = await Pkg.Dist.load(`${tmp}/stage`);
+      const rootHash1 = String(root1.dist?.hash?.digest ?? '').trim();
+      expect(rootHash1).to.not.eql('');
+
+      const second = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+      });
+      expect(second.ok).to.eql(true);
+
+      const releases2 = await Pkg.Dist.load(`${tmp}/stage/releases`);
+      const hash2 = String(releases2.dist?.hash?.digest ?? '').trim();
+      expect(hash2).to.eql(hash1);
+      const root2 = await Pkg.Dist.load(`${tmp}/stage`);
+      const rootHash2 = String(root2.dist?.hash?.digest ?? '').trim();
+      expect(rootHash2).to.eql(rootHash1);
     });
   });
 

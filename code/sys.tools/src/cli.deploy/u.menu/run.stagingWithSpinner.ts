@@ -1,6 +1,6 @@
 import { type t, pkg, c, Cli, Err, Path, Pkg, Str } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
-import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
+import { executeStaging, finalizeDistTree, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
@@ -55,14 +55,12 @@ export async function runStagingWithSpinner(args: {
       writeDistJson: true,
 
       async onWriteDistJson(e) {
-        const dir = e.stagingRoot;
-        // Regenerate the root dist.json for deployment
-        await Pkg.Dist.compute({
-          save: true,
-          dir,
+        // Regenerate dist metadata for the entire staging tree.
+        await finalizeDistTree({
+          dir: e.stagingRoot,
           pkg,
           builder: pkg,
-          trustChildDist: true,
+          baseDomain: args.indexBaseDomain,
           filter: (path) => !shouldExclude(Path.basename(path)),
         });
       },
