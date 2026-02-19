@@ -15,11 +15,11 @@ type Progress = { index: t.Index; total: number };
 type PullHttp = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
-) => Promise<t.PullToolBundleResult>;
+) => Promise<t.PullToolRemoteBundleResult>;
 type PullGithubRelease = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
-) => Promise<t.PullToolBundleResult>;
+) => Promise<t.PullToolRemoteBundleResult>;
 type Pullers = {
   pullHttp: PullHttp;
   pullGithubRelease: PullGithubRelease;
@@ -60,21 +60,25 @@ export async function pullRemoteBundle(
     pullHttp: pullHttpBundle,
     pullGithubRelease: pullGithubReleaseBundle,
   },
-): Promise<t.PullToolBundleResult> {
-  if (bundle.kind === 'http') return pullers.pullHttp(baseDir, bundle);
-  if (bundle.kind === 'github:release') return pullers.pullGithubRelease(baseDir, bundle);
-  const _never: never = bundle;
-  throw new Error(`Unknown bundle kind: ${String(_never)}`);
+): Promise<t.PullToolRemoteBundleResult> {
+  try {
+    if (bundle.kind === 'http') return pullers.pullHttp(baseDir, bundle);
+    if (bundle.kind === 'github:release') return pullers.pullGithubRelease(baseDir, bundle);
+    const _never: never = bundle;
+    return fail(`Unknown bundle kind: ${String(_never)}`);
+  } catch (error) {
+    return fail(errorMessage(error));
+  }
 }
 
 async function pullHttpBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
-): Promise<t.PullToolBundleResult> {
+): Promise<t.PullToolRemoteBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
   const distUrl = Url.toCanonical(bundle.dist);
-  if (!distUrl.ok) throw new Error(`Invalid dist.json URL: ${distUrl.href}`);
+  if (!distUrl.ok) return fail(`Invalid dist.json URL: ${distUrl.href}`);
 
   // Pull `dist.json` manifest:
   spinner.start(Fmt.pullingSpinnerText());
@@ -98,7 +102,9 @@ async function pullHttpBundle(
     await rewriteTags(baseDir, bundle);
 
     if (!result.ok) {
-      spinner.fail(summarizePullFailure(result));
+      const error = summarizePullFailure(result);
+      spinner.fail(error);
+      return fail(error);
     } else {
       const size = c.dim(`(${Fmt.bundleSize(dist)})`);
       const fullpath = Fmt.prettyPath(targetDir);
@@ -107,16 +113,16 @@ async function pullHttpBundle(
       spinner.succeed(msg);
     }
 
-    return {
+    return done({
       ...result,
       dist,
       get ops() {
         return result.ops;
       },
-    };
+    });
   } catch (error) {
     spinner.fail('bundle pull error');
-    throw error;
+    return fail(errorMessage(error));
   } finally {
     spinner.stop();
   }
@@ -125,18 +131,27 @@ async function pullHttpBundle(
 async function pullGithubReleaseBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
-): Promise<t.PullToolBundleResult> {
+): Promise<t.PullToolRemoteBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
   const tmp = await Fs.makeTempDir({ prefix: 'pull-github-release-' });
   const token = await loadGithubToken();
 
   try {
+    if (!token) {
+      return fail(
+        [
+          'GitHub token not found.',
+          'Set GH_TOKEN (or GITHUB_TOKEN) to pull github:release bundles.',
+        ].join('\n')
+      );
+    }
+
     spinner.start(Fmt.spinnerText('resolving github release...'));
 
     const releases = await listGithubReleases({ repo: bundle.repo, token });
     const resolved = resolveGithubReleaseBundle(bundle, releases);
-    if (!resolved.ok) throw new Error(resolved.error);
+    if (!resolved.ok) return fail(resolved.error);
 
     const { asset, distPath: rawDistPath } = resolved.data;
     const distPath = assertSafeDistPath(rawDistPath);
@@ -175,7 +190,7 @@ async function pullGithubReleaseBundle(
     spinner.succeed(c.gray(`${c.green('bundle pulled')} → ${path}`));
 
     const source = asset.downloadUrl;
-    return {
+    return done({
       ok: true,
       dist,
       ops: [
@@ -185,15 +200,27 @@ async function pullGithubReleaseBundle(
           bytes: bytes.byteLength,
         },
       ],
-    };
+    });
   } catch (error) {
     const auth = mapAuthError(error);
-    if (auth) throw new Error(auth);
-    throw error;
+    return fail(auth ?? errorMessage(error));
   } finally {
     spinner.stop();
     await Fs.remove(tmp.absolute, { log: false });
   }
+}
+
+function done(data: t.PullToolBundleResult): t.PullToolRemoteBundleResult {
+  return { ok: true, data };
+}
+
+function fail(error: string): t.PullToolRemoteBundleResult {
+  return { ok: false, error };
+}
+
+function errorMessage(error: unknown): string {
+  if (Err.Is.error(error)) return String(error.message ?? '').trim() || 'Bundle pull failed';
+  return String(error ?? '').trim() || 'Bundle pull failed';
 }
 
 /**

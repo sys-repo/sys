@@ -149,7 +149,14 @@ export async function pullBundle(
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
 
-    await pullRemoteBundle(location.dir, bundle);
+    const pulled = await pullRemoteBundle(location.dir, bundle);
+    if (!pulled.ok) {
+      const b = Str.builder()
+        .line(c.yellow('Pull failed'))
+        .line(c.gray(c.dim(pulled.error)));
+      console.info(String(b));
+      return pullBundle(_cwd, yamlPath, location);
+    }
 
     // Update lastUsedAt in the YAML file.
     await updateYamlBundles(yamlPath, (list) => {

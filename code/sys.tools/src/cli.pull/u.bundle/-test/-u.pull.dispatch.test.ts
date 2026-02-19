@@ -14,7 +14,10 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
       async pullHttp() {
         called = true;
-        return { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult;
+        return {
+          ok: true,
+          data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
+        };
       },
       async pullGithubRelease() {
         throw new Error('should not call github:release puller');
@@ -38,7 +41,10 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
       },
       async pullGithubRelease() {
         called = true;
-        return { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult;
+        return {
+          ok: true,
+          data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
+        };
       },
     });
 

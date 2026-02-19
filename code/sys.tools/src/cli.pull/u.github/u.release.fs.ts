@@ -73,10 +73,26 @@ export async function resolveDistFile(args: {
 }
 
 export function mapAuthError(error: unknown): string | undefined {
+  const status = normalizeErrorStatus(error);
   const message = normalizeErrorMessage(error);
-  if (!message) return;
+  const lower = message.toLowerCase();
 
-  if (message.includes('401') || message.includes('403') || message.toLowerCase().includes('forbidden')) {
+  if (status === 401 || status === 403) {
+    return [
+      'GitHub release access denied.',
+      'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
+    ].join('\n');
+  }
+
+  // GitHub often returns 404 for private repos without sufficient auth.
+  if (status === 404 && (lower.includes('not found') || lower.includes('releases'))) {
+    return [
+      'GitHub release repository/release not accessible.',
+      'Verify repo path and GH_TOKEN/GITHUB_TOKEN permissions.',
+    ].join('\n');
+  }
+
+  if (message.includes('401') || message.includes('403') || lower.includes('forbidden')) {
     return [
       'GitHub release access denied.',
       'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
@@ -89,4 +105,10 @@ export function mapAuthError(error: unknown): string | undefined {
 function normalizeErrorMessage(error: unknown): string {
   if (Err.Is.error(error)) return String(error.message ?? '').trim();
   return String(error ?? '').trim();
+}
+
+function normalizeErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') return;
+  const status = (error as { status?: unknown }).status;
+  return typeof status === 'number' ? status : undefined;
 }
