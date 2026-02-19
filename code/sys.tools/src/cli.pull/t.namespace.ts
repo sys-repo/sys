@@ -25,9 +25,19 @@ export namespace PullTool {
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   export namespace ConfigYaml {
-    export type RemoteHttp = { kind: 'http'; dist: t.StringUrl };
-
-    export type Bundle = RemoteHttp & {
+    export type Bundle = HttpBundle | GithubReleaseBundle;
+    export type HttpBundle = {
+      kind: 'http';
+      dist: t.StringUrl;
+      local: { dir: t.StringRelativeDir };
+      lastUsedAt?: t.UnixTimestamp;
+    };
+    export type GithubReleaseBundle = {
+      kind: 'github:release';
+      repo: string;
+      tag?: string;
+      asset?: string;
+      dist?: t.StringPath;
       local: { dir: t.StringRelativeDir };
       lastUsedAt?: t.UnixTimestamp;
     };

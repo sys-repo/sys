@@ -1,5 +1,34 @@
 import { type t, Schema } from '../common.ts';
 
+const BundleSharedSchema = {
+  local: Schema.Type.Object(
+    { dir: Schema.Type.String() },
+    { additionalProperties: false },
+  ),
+  lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
+} as const;
+
+const BundleHttpSchema = Schema.Type.Object(
+  {
+    kind: Schema.Type.Literal('http'),
+    dist: Schema.Type.String(),
+    ...BundleSharedSchema,
+  },
+  { additionalProperties: false },
+);
+
+const BundleGithubReleaseSchema = Schema.Type.Object(
+  {
+    kind: Schema.Type.Literal('github:release'),
+    repo: Schema.Type.String(),
+    tag: Schema.Type.Optional(Schema.Type.String()),
+    asset: Schema.Type.Optional(Schema.Type.String()),
+    dist: Schema.Type.Optional(Schema.Type.String()),
+    ...BundleSharedSchema,
+  },
+  { additionalProperties: false },
+);
+
 export const PullYamlSchema = {
   initial(): t.PullTool.ConfigYaml.Doc {
     return { dir: '.' };
@@ -16,18 +45,7 @@ export const PullYamlSchema = {
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
       bundles: Schema.Type.Optional(
         Schema.Type.Array(
-          Schema.Type.Object(
-            {
-              kind: Schema.Type.Literal('http'),
-              dist: Schema.Type.String(),
-              local: Schema.Type.Object(
-                { dir: Schema.Type.String() },
-                { additionalProperties: false },
-              ),
-              lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
-            },
-            { additionalProperties: false },
-          ),
+          Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema]),
         ),
       ),
     },

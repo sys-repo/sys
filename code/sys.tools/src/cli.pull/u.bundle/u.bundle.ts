@@ -25,6 +25,9 @@ const ValidConfigName = {
   },
 } as const;
 
+const toHttpDist = (bundle: t.PullTool.ConfigYaml.Bundle): t.StringUrl | undefined =>
+  bundle.kind === 'http' ? bundle.dist : undefined;
+
 export async function pullBundle(
   _cwd: t.StringDir,
   yamlPath: t.StringPath,
@@ -41,7 +44,9 @@ export async function pullBundle(
   const optBundles = bundles.map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
-    const name = `${'  pull:'} ${branch} ${localDir} ← ${Fmt.distUrl(m.dist)}`;
+    const dist = toHttpDist(m);
+    const source = dist ? Fmt.distUrl(dist) : c.gray(c.dim(m.kind));
+    const name = `${'  pull:'} ${branch} ${localDir} ← ${source}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
@@ -93,9 +98,10 @@ export async function pullBundle(
     };
 
     await updateYamlBundles(yamlPath, (bundles) => {
-      const existing = bundles.find(
-        (m) => m.dist === distUrl.href && m.local.dir === localDir,
-      );
+      const existing = bundles.find((m) => {
+        const dist = toHttpDist(m);
+        return dist === distUrl.href && m.local.dir === localDir;
+      });
       if (!existing) bundles.push(newBundle);
     });
 
@@ -148,7 +154,10 @@ export async function pullBundle(
     // Update lastUsedAt in the YAML file.
     await updateYamlBundles(yamlPath, (list) => {
       const hit = list.find(
-        (m) => m.dist === bundle.dist && m.local.dir === bundle.local.dir,
+        (m) => {
+          const dist = toHttpDist(m);
+          return dist === bundle.dist && m.local.dir === bundle.local.dir;
+        },
       );
       if (hit) hit.lastUsedAt = Time.now.timestamp;
     });
@@ -203,8 +212,9 @@ export async function validateSubdir(
 
   const alreadyUsed = (location.bundles ?? []).find((m) => m.local.dir === input);
   if (alreadyUsed) {
-    const url = alreadyUsed.dist;
-    return `Directory name already been used by:\n  ${c.gray(c.italic(url))}`;
+    const dist = toHttpDist(alreadyUsed);
+    const source = dist ? c.gray(c.italic(dist)) : c.gray(c.italic(alreadyUsed.kind));
+    return `Directory name already been used by:\n  ${source}`;
   }
 
   return true;
