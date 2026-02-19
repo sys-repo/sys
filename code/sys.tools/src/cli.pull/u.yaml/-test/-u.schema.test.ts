@@ -37,6 +37,26 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('rejects github:release repo values that are not owner/repo', () => {
+    const bad = ['owner', '/repo', 'owner/', 'owner/repo/extra'];
+
+    for (const repo of bad) {
+      const doc = {
+        dir: '.',
+        bundles: [
+          {
+            kind: 'github:release' as const,
+            repo,
+            local: { dir: 'dev' },
+          },
+        ],
+      };
+
+      const res = PullYamlSchema.validate(doc);
+      expect(res.ok).to.eql(false);
+    }
+  });
+
   it('rejects github:release without repo', () => {
     const doc = {
       dir: '.',

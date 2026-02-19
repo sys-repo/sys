@@ -20,7 +20,7 @@ const BundleHttpSchema = Schema.Type.Object(
 const BundleGithubReleaseSchema = Schema.Type.Object(
   {
     kind: Schema.Type.Literal('github:release'),
-    repo: Schema.Type.String(),
+    repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
     tag: Schema.Type.Optional(Schema.Type.String()),
     asset: Schema.Type.Optional(Schema.Type.String()),
     dist: Schema.Type.Optional(Schema.Type.String()),
