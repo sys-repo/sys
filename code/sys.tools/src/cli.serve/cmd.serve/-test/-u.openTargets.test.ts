@@ -39,6 +39,57 @@ describe('OpenTargets', () => {
     expect(options[1].name).to.include('| 2-files');
   });
 
+  it('discover: keeps only topmost candidates from nested target chain', async () => {
+    const dir = Fs.resolve(`./.tmp/test/open-targets/${slug()}`);
+    await Fs.remove(dir);
+
+    await Fs.ensureDir(`${dir}/dev`);
+    await Fs.write(`${dir}/dev/index.html`, '<html></html>');
+    await Fs.write(`${dir}/dev/dist.json`, '{}');
+
+    await Fs.ensureDir(`${dir}/dev/fonts`);
+    await Fs.write(`${dir}/dev/fonts/index.html`, '<html></html>');
+    await Fs.write(`${dir}/dev/fonts/dist.json`, '{}');
+
+    await Fs.ensureDir(`${dir}/dev/fonts/et-book`);
+    await Fs.write(`${dir}/dev/fonts/et-book/index.html`, '<html></html>');
+    await Fs.write(`${dir}/dev/fonts/et-book/dist.json`, '{}');
+
+    const targets = await OpenTargets.discover(dir);
+    const paths = targets.map((m) => m.path);
+    expect(paths).to.eql(['', 'dev']);
+  });
+
+  it('discover: ancestor filtering is segment-safe (`dev` does not hide `devtools`)', async () => {
+    const dir = Fs.resolve(`./.tmp/test/open-targets/${slug()}`);
+    await Fs.remove(dir);
+
+    await Fs.ensureDir(`${dir}/dev`);
+    await Fs.write(`${dir}/dev/index.html`, '<html></html>');
+    await Fs.write(`${dir}/dev/dist.json`, '{}');
+
+    await Fs.ensureDir(`${dir}/devtools`);
+    await Fs.write(`${dir}/devtools/index.html`, '<html></html>');
+    await Fs.write(`${dir}/devtools/dist.json`, '{}');
+
+    const targets = await OpenTargets.discover(dir);
+    const paths = targets.map((m) => m.path);
+    expect(paths).to.eql(['', 'dev', 'devtools']);
+  });
+
+  it('discover: keeps deep candidate when parent is not a candidate', async () => {
+    const dir = Fs.resolve(`./.tmp/test/open-targets/${slug()}`);
+    await Fs.remove(dir);
+
+    await Fs.ensureDir(`${dir}/a/b`);
+    await Fs.write(`${dir}/a/b/index.html`, '<html></html>');
+    await Fs.write(`${dir}/a/b/dist.json`, '{}');
+
+    const targets = await OpenTargets.discover(dir);
+    const paths = targets.map((m) => m.path);
+    expect(paths).to.eql(['', 'a/b']);
+  });
+
   it('menuOptions: renders singular file suffix when count is 1', async () => {
     const dir = Fs.resolve(`./.tmp/test/open-targets/${slug()}`);
     await Fs.remove(dir);

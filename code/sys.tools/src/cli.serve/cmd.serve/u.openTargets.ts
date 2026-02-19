@@ -45,7 +45,7 @@ export const OpenTargets = {
       .map((entry) => Path.relative(dir, entry.path).replaceAll('\\', '/'));
     const fileRelSet = new Set(fileRels);
     const countsByDir = countFilesByDir(fileRels);
-    const roots: Entry[] = [
+    const all: Entry[] = [
       { name: `${c.dim('root')}   /`, path: '', fileCount: countsByDir.get('') ?? 0 },
     ];
 
@@ -63,12 +63,11 @@ export const OpenTargets = {
       const hxshort = hx ? c.green(hx.slice(-5)) : c.gray(c.dim('-----'));
       const label = `${c.gray(c.dim(`#${hxshort} `))}${rel}`;
       const fileCount = countsByDir.get(rel) ?? 0;
-      roots.push({ name: label, path: rel, fileCount });
+      all.push({ name: label, path: rel, fileCount });
     }
 
-    const [root, ...rest] = roots;
-    rest.sort((a, b) => a.path.localeCompare(b.path));
-    return [root, ...rest];
+    const [root, ...rest] = all;
+    return [root, ...filterTopmost(rest)];
   },
 } as const;
 
@@ -86,4 +85,29 @@ function countFilesByDir(relFilePaths: readonly string[]): Map<string, number> {
   }
 
   return counts;
+}
+
+function filterTopmost(entries: readonly Entry[]): Entry[] {
+  const compare = Str.Compare.natural();
+  const ordered = [...entries].sort((a, b) => {
+    const d = pathDepth(a.path) - pathDepth(b.path);
+    return d !== 0 ? d : compare(a.path, b.path);
+  });
+
+  const keep: Entry[] = [];
+  for (const entry of ordered) {
+    const covered = keep.some((picked) => isAncestorPath(picked.path, entry.path));
+    if (!covered) keep.push(entry);
+  }
+
+  return keep;
+}
+
+function isAncestorPath(parent: string, child: string): boolean {
+  if (!parent || parent === child) return false;
+  return child.startsWith(`${parent}/`);
+}
+
+function pathDepth(path: string): number {
+  return Str.trimSlashes(path).split('/').filter(Boolean).length;
 }
