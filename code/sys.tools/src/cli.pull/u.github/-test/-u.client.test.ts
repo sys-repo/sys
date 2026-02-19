@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { parseGithubRepo } from '../u.github.client.ts';
+import { parseGithubRepo } from '../u.client.ts';
 
-describe('cli.pull/u.bundle → github client helpers', () => {
+describe('cli.pull/u.github → client helpers', () => {
   it('parses owner/repo repository names', () => {
     const repo = parseGithubRepo('foo/bar');
     expect(repo).to.eql({ owner: 'foo', repo: 'bar' });

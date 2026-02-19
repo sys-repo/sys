@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import { resolveGithubReleaseBundle } from '../u.github.release.resolve.ts';
+import { resolveGithubReleaseBundle } from '../u.release.resolve.ts';
 
-describe('cli.pull/u.bundle → github:release resolver', () => {
+describe('cli.pull/u.github → release resolver', () => {
   const bundle = (
     input: Partial<t.PullTool.ConfigYaml.GithubReleaseBundle> = {},
   ): t.PullTool.ConfigYaml.GithubReleaseBundle => ({

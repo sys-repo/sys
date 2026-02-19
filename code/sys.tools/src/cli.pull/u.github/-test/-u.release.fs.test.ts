@@ -1,8 +1,8 @@
 import { describe, expect, it, Fs } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import { assertSafeDistPath, resolveDistFile } from '../u.github.release.fs.ts';
+import { assertSafeDistPath, resolveDistFile } from '../u.release.fs.ts';
 
-describe('cli.pull/u.bundle → github release fs helpers', () => {
+describe('cli.pull/u.github → release fs helpers', () => {
   it('assertSafeDistPath rejects unsafe values', () => {
     const bad = ['', '/dist.json', '../dist.json', 'a/../dist.json'];
     for (const value of bad) {

@@ -1,7 +1,12 @@
 import { type t, c, Cli, Err, Fs, Http, Pkg, Str, Url } from '../common.ts';
-import { downloadGithubAsset, listGithubReleases, loadGithubToken } from './u.github.client.ts';
-import { resolveGithubReleaseBundle } from './u.github.release.resolve.ts';
-import { assertSafeDistPath, extractArchive, mapAuthError, resolveDistFile } from './u.github.release.fs.ts';
+import { downloadGithubAsset, listGithubReleases, loadGithubToken } from '../u.github/u.client.ts';
+import { resolveGithubReleaseBundle } from '../u.github/u.release.resolve.ts';
+import {
+  assertSafeDistPath,
+  extractArchive,
+  mapAuthError,
+  resolveDistFile,
+} from '../u.github/u.release.fs.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { createMonotonicProgress } from './u.monotonicProgress.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
