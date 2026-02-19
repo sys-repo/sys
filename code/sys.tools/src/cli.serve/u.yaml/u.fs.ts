@@ -29,18 +29,11 @@ export const ServeFs = {
       # A serve location defines:
       # - required display name
       # - directory to serve (relative to CLI cwd, or absolute)
-      # - optional remoteBundles for pulling remote content
       #
       # Paths are resolved relative to the CLI cwd.
 
       name: ${name}
       dir: .
-
-      # remoteBundles:
-      #   - remote:
-      #       dist: https://example.com/dist.json
-      #     local:
-      #       dir: bundles/example
 
       `,
     ).trimStart();
@@ -109,7 +102,6 @@ export const ServeFs = {
       location: {
         name: doc.name,
         dir: resolvedDir,
-        remoteBundles: doc.remoteBundles,
       },
     };
   },

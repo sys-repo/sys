@@ -46,7 +46,7 @@ describe('Schema: serve location', () => {
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
-  it('validate: accepts optional remoteBundles', () => {
+  it('validate: rejects removed remoteBundles key', () => {
     const res = ServeYamlSchema.validate({
       name: 'Test',
       dir: '.',
@@ -54,68 +54,6 @@ describe('Schema: serve location', () => {
         {
           remote: { dist: 'https://example.com/dist.json' },
           local: { dir: 'bundles/example' },
-        },
-      ],
-    });
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts remoteBundles with lastUsedAt', () => {
-    const res = ServeYamlSchema.validate({
-      name: 'Test',
-      dir: '.',
-      remoteBundles: [
-        {
-          remote: { dist: 'https://example.com/dist.json' },
-          local: { dir: 'bundles/example' },
-          lastUsedAt: 1706123456,
-        },
-      ],
-    });
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: rejects unknown keys inside remoteBundles', () => {
-    const res = ServeYamlSchema.validate({
-      name: 'Test',
-      dir: '.',
-      remoteBundles: [
-        {
-          remote: { dist: 'https://example.com/dist.json' },
-          local: { dir: 'bundles/example' },
-          extra: true,
-        },
-      ],
-    });
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects unknown keys inside remote', () => {
-    const res = ServeYamlSchema.validate({
-      name: 'Test',
-      dir: '.',
-      remoteBundles: [
-        {
-          remote: { dist: 'https://example.com/dist.json', extra: true },
-          local: { dir: 'bundles/example' },
-        },
-      ],
-    });
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects unknown keys inside local', () => {
-    const res = ServeYamlSchema.validate({
-      name: 'Test',
-      dir: '.',
-      remoteBundles: [
-        {
-          remote: { dist: 'https://example.com/dist.json' },
-          local: { dir: 'bundles/example', extra: true },
         },
       ],
     });

@@ -1,5 +1,5 @@
 import { withTmpDir } from './-fixtures.ts';
-import { describe, expect, Fs, it, pkg } from '../../../-test.ts';
+import { describe, expect, Fs, it, pkg, Str } from '../../../-test.ts';
 import { ServeFs } from '../mod.ts';
 
 describe('ServeFs', () => {
@@ -164,7 +164,13 @@ describe('ServeFs', () => {
         await Fs.ensureDir(`${tmp}/${ServeFs.dir}`);
         await Fs.write(
           yamlPath,
-          ['name: Test', 'dir: .', 'contentTypes:', '  - image/png', '  - application/json', ''].join('\n'),
+          Str.dedent(`
+            name: Test
+            dir: .
+            contentTypes:
+              - image/png
+              - application/json
+          `).trimStart(),
         );
 
         const res = await ServeFs.loadLocation(yamlPath);
@@ -173,29 +179,24 @@ describe('ServeFs', () => {
       });
     });
 
-    it('includes remoteBundles when present', async () => {
+    it('rejects removed remoteBundles key when present', async () => {
       await withTmpDir(async (tmp) => {
         const yamlPath = `${tmp}/${ServeFs.fileOf('test')}`;
         await Fs.ensureDir(`${tmp}/${ServeFs.dir}`);
-        const yaml = [
-          'name: Test',
-          'dir: .',
-          'remoteBundles:',
-          '  - remote:',
-          '      dist: https://example.com/dist.json',
-          '    local:',
-          '      dir: bundles/example',
-          '',
-        ].join('\n');
+        const yaml = Str.dedent(`
+          name: Test
+          dir: .
+          remoteBundles:
+            - remote:
+                dist: https://example.com/dist.json
+              local:
+                dir: bundles/example
+        `).trimStart();
         await Fs.write(yamlPath, yaml);
 
         const res = await ServeFs.loadLocation(yamlPath);
-        expect(res.ok).to.eql(true);
-        if (res.ok) {
-          expect(res.location.remoteBundles).to.have.length(1);
-          expect(res.location.remoteBundles![0].remote.dist).to.eql('https://example.com/dist.json');
-          expect(res.location.remoteBundles![0].local.dir).to.eql('bundles/example');
-        }
+        expect(res.ok).to.eql(false);
+        if (!res.ok) expect(res.errors.length > 0).to.eql(true);
       });
     });
 

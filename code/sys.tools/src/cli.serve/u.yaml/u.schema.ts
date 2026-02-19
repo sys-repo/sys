@@ -29,24 +29,6 @@ export const ServeYamlSchema = {
     {
       name: Schema.Type.String(),
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-      remoteBundles: Schema.Type.Optional(
-        Schema.Type.Array(
-          Schema.Type.Object(
-            {
-              remote: Schema.Type.Object(
-                { dist: Schema.Type.String() },
-                { additionalProperties: false },
-              ),
-              local: Schema.Type.Object(
-                { dir: Schema.Type.String() },
-                { additionalProperties: false },
-              ),
-              lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
-            },
-            { additionalProperties: false },
-          ),
-        ),
-      ),
     },
     { additionalProperties: false },
   ),

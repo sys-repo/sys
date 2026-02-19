@@ -15,10 +15,7 @@ export namespace ServeTool {
     | 'dir:remove'
     | 'serve:start/local'
     | 'serve:start/network'
-    | 'bundle'
-    | 'bundle:add-remote'
-    | 'bundle:pull-latest'
-    | 'bundle:open'
+    | 'open'
     | 'back'
     | 'exit';
   export type MenuOption = { name: string; value: Command };
@@ -41,18 +38,6 @@ export namespace ServeTool {
    */
   export namespace LocationYaml {
     /**
-     * Mapping between a remote bundle and its local mount-point.
-     */
-    export type RemoteBundle = {
-      /** Remote dist.json endpoint (source of the bundle). */
-      remote: { dist: t.StringUrl };
-      /** Local destination for the bundle, relative to location dir. */
-      local: { dir: t.StringRelativeDir };
-      /** Timestamp of last use. */
-      lastUsedAt?: t.UnixTimestamp;
-    };
-
-    /**
      * YAML document structure for a serve location.
      */
     export type Doc = {
@@ -60,8 +45,6 @@ export namespace ServeTool {
       name: string;
       /** Directory to serve (relative to CLI cwd, or absolute). */
       dir: t.StringDir;
-      /** Optional list of remote bundles that can be pulled. */
-      remoteBundles?: RemoteBundle[];
     };
 
     /**
@@ -84,8 +67,6 @@ export namespace ServeTool {
       readonly name: string;
       /** Resolved absolute directory to serve. */
       readonly dir: t.StringDir;
-      /** Optional remote bundles. */
-      readonly remoteBundles?: RemoteBundle[];
     };
   }
 

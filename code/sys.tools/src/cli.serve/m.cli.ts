@@ -6,10 +6,6 @@ import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
 import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
 
-const Imports = {
-  pull: () => import('./cmd.pull/mod.ts'),
-} as const;
-
 /**
  * Main entry:
  */
@@ -57,7 +53,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
     }
 
     while (true) {
-      const res = await serveLocationMenu({ location, port, yamlPath });
+      const res = await serveLocationMenu({ location, port });
       if (res.kind === 'back') break;
       if (res.kind === 'remove') {
         await promptRemoveLocation(yamlPath);
@@ -65,12 +61,6 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       }
       if (res.kind === 'start') {
         const result = await startServing(cwd, location, { port, host: res.host });
-        if (result.kind === 'back') continue;
-        return done(0);
-      }
-      if (res.kind === 'bundles') {
-        const m = await Imports.pull();
-        const result = await m.pullBundle(cwd, yamlPath, location);
         if (result.kind === 'back') continue;
         return done(0);
       }

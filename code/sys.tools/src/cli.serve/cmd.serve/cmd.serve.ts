@@ -1,8 +1,7 @@
 import { type t, c, Cli, D, Http, Net, Open, Str } from '../common.ts';
-import { ServeMenu } from './u.prompt.ts';
+import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
 import { route } from './u.serve.route.ts';
 
-type C = t.ServeTool.Command;
 type Opts = { port?: number; host?: 'local' | 'network' };
 type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
 
@@ -33,16 +32,17 @@ export async function startServing(
    */
   const runOpenPromptLoop = (() => {
     const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
-    const CMD_OPEN = 'bundle:open' satisfies C;
-    const PREFIX = `${CMD_OPEN}/`;
-    const BACK = 'back' satisfies C;
+    type OpenValue = OpenMenuPick | { cmd: 'back' };
     let didBack = false;
-    let lastSelection: C | undefined;
+    let lastSelection: OpenValue | undefined;
 
-    const toUrl = (value: C): t.StringUrl => {
-      const raw = String(value);
-      const subpath = raw.startsWith(PREFIX) ? raw.slice(PREFIX.length) : raw;
-      const path = Str.trimLeadingSlashes(subpath);
+    const toPath = (value: OpenValue): string => {
+      if (value.cmd !== 'open') return '';
+      return Str.trimLeadingSlashes(value.path);
+    };
+
+    const toUrl = (value: OpenValue): t.StringUrl => {
+      const path = toPath(value);
       return `${baseUrl}/${path}`;
     };
 
@@ -56,19 +56,21 @@ export async function startServing(
       }
 
       if (lastSelection) {
-        const dir = String(lastSelection).split('/').pop()!;
-        const url = `  ${baseUrl}/${dir}`;
-        str.line(`             ${c.dim(c.gray(url))}`);
+        const path = toPath(lastSelection);
+        if (path) {
+          const url = `  ${baseUrl}/${path}`;
+          str.line(`             ${c.dim(c.gray(url))}`);
+        }
       }
 
       return String(str.blank());
     }
 
     return async (): Promise<ServeResult> => {
-      const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
+      const baseMenu = await OpenTargets.menuOptions(location);
 
-      async function promptOnce(): Promise<C> {
-        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: BACK }];
+      async function promptOnce(): Promise<OpenValue> {
+        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } }];
         console.clear();
         console.info(renderHeader());
         return (await Cli.Input.Select.prompt({
@@ -76,13 +78,13 @@ export async function startServing(
           options,
           default: lastSelection,
           hideDefault: true,
-        })) as C;
+        })) as OpenValue;
       }
 
       try {
         while (true) {
           const answer = await promptOnce();
-          if (answer === BACK) {
+          if (answer.cmd === 'back') {
             didBack = true;
             break;
           }
