@@ -15,6 +15,7 @@
     "@noble/hashes": "npm:@noble/hashes@2.0.1",
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.0.1/legacy.js",
     "@noble/hashes/sha2.js": "npm:@noble/hashes@2.0.1/sha2.js",
+    "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@preact/signals-core": "npm:@preact/signals-core@1.13.0",
     "@preact/signals-react": "npm:@preact/signals-react@3.9.0",
     "@sinclair/typebox": "npm:@sinclair/typebox@0.34.48",
