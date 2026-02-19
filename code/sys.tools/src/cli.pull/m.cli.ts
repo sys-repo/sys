@@ -1,5 +1,5 @@
 import { type t, c, D, done, Fs, Is } from './common.ts';
-import { pullBundle } from './cmd.pull/mod.ts';
+import { pullBundle } from './u.bundle/mod.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';

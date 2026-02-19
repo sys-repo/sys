@@ -2,9 +2,9 @@ import { slug, describe, expect, it, Fs } from '../../../-test.ts';
 import { type t } from '../../common.ts';
 import { rewriteTags } from '../u.pull.rewriteTags.ts';
 
-describe('cli.pull/cmd.pull → URL + HTML helpers', () => {
+describe('cli.pull/u.bundle → URL + HTML helpers', () => {
   const makeTestDir = async () => {
-    const dir = Fs.resolve(`./.tmp/test/cmd.pull/${slug()}`);
+    const dir = Fs.resolve(`./.tmp/test/u.bundle/${slug()}`);
     await Fs.ensureDir(dir);
     return dir;
   };
