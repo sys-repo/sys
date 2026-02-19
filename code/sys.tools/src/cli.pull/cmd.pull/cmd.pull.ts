@@ -30,9 +30,11 @@ export async function pullBundle(
 
   const PULL_PREFIX = 'bundle:pull-latest:';
   const bundles = location.remoteBundles ?? [];
+  const maxLocalDirWidth = bundles.reduce((acc, m) => Math.max(acc, m.local.dir.length), 0);
   const optBundles = bundles.map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
-    const name = `${'  pull:'} ${branch} ${m.local.dir} ← ${Fmt.distUrl(m.remote.dist)}`;
+    const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
+    const name = `${'  pull:'} ${branch} ${localDir} ← ${Fmt.distUrl(m.remote.dist)}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
