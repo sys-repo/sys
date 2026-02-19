@@ -16,6 +16,7 @@ export async function startServing(
   const { dir } = location;
   const app = Http.Server.create({ static: false });
 
+  app.use('*', Http.Server.forceDirSlash(dir));
   app.use('*', route({ dir }));
   app.use('*', Http.Server.static({ root: dir }));
 

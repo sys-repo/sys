@@ -72,6 +72,17 @@ describe('HttpServer: serve static', () => {
     });
   });
 
+  it('308: redirects directory path to trailing slash', async () => {
+    const fs = await Testing.dir('HttpServer').create();
+    await Fs.write(Fs.join(fs.dir, 'bar/index.html'), '<h1>🌳</h1>');
+
+    const app = HttpServer.create({ static: ['/*', fs.dir] });
+    const res = await app.fetch(new Request('http://local/bar'));
+
+    expect(res.status).to.eql(308);
+    expect(res.headers.get('location')).to.eql('/bar/');
+  });
+
   it('206: Partial Content', async () => {
     /**
      * NOTE: 206/Partial-Content is used in video file streaming.
