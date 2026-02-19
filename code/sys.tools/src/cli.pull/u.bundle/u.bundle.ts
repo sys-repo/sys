@@ -1,7 +1,7 @@
 import { type t, c, Cli, Fs, Open, opt, Str, Time, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
-import { pullRemoteBundle } from './u.pull.ts';
+import { pullRemoteBundle } from './u.pull/mod.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.PullTool.MenuCmd;

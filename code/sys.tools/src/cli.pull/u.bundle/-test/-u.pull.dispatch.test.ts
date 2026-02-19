@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import { pullRemoteBundle } from '../u.pull.ts';
+import { pullRemoteBundle } from '../u.pull/mod.ts';
 
 describe('cli.pull/u.bundle → kind dispatch', () => {
   it('dispatches http bundles to the http puller', async () => {
