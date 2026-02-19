@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs } from '../../common.ts';
+import { type t, c, Cli, Fs, Pkg } from '../../common.ts';
 import {
   downloadGithubAsset,
   downloadGithubAssetById,
@@ -47,7 +47,7 @@ export async function pullGithubReleaseBundle(
       const source = asset.downloadUrl;
       const target = Fs.join(targetRoot, targetNames[index]);
       const total = assets.length;
-      const progress = total > 1 ? ` ${index + 1}/${total}` : '';
+      const progress = total > 1 ? ` ${c.white(String(index + 1))}/${total}` : '';
 
       try {
         spinner.text = Fmt.spinnerText(`downloading${progress} ${c.cyan(asset.name)}...`);
@@ -85,7 +85,15 @@ export async function pullGithubReleaseBundle(
         `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
       ),
     );
-    console.info(formatGithubReleaseSummary({ bundle, release, ops }));
+    const dist = await computeReleaseDist(targetRoot);
+    console.info(
+      formatGithubReleaseSummary({
+        bundle,
+        release,
+        ops,
+        hashDigest: dist.hash.digest,
+      }),
+    );
 
     return done({
       ok: true,
@@ -172,4 +180,10 @@ function summarizeGithubPullFailures(
   parts.push(`source: ${first.path.source}`);
   if (first.error) parts.push(first.error);
   return parts.join('\n - ');
+}
+
+export async function computeReleaseDist(dir: t.StringDir): Promise<t.DistPkg> {
+  const computed = await Pkg.Dist.compute({ dir, save: true });
+  if (computed.error) throw computed.error;
+  return computed.dist;
 }

@@ -34,7 +34,7 @@ describe('cli.pull/u.bundle/u.pull/u.fmt.github', () => {
       },
     ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
 
-    const res = formatGithubReleaseSummary({ bundle, release, ops });
+    const res = formatGithubReleaseSummary({ bundle, release, ops, hashDigest: 'abcdef12345' });
     const text = Cli.stripAnsi(res);
     const lines = text
       .split('\n')
@@ -44,5 +44,6 @@ describe('cli.pull/u.bundle/u.pull/u.fmt.github', () => {
     expect(lines.length).to.eql(2);
     expect(lines.every((line) => line.includes(' | '))).to.eql(true);
     expect(new Set(lines.map((line) => line.indexOf('|'))).size).to.eql(1);
+    expect(text).to.include('dist      #12345');
   });
 });
