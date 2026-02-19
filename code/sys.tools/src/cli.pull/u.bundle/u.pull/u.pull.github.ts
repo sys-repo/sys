@@ -80,12 +80,12 @@ export async function pullGithubReleaseBundle(
       return fail(summarizeGithubPullFailures(failed, ops.length));
     }
 
+    const dist = await computeReleaseDist(targetRoot);
     spinner.succeed(
       c.gray(
         `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
       ),
     );
-    const dist = await computeReleaseDist(targetRoot);
     console.info(
       formatGithubReleaseSummary({
         bundle,
