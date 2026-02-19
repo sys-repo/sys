@@ -1,8 +1,8 @@
 import { type t, Schema } from '../common.ts';
 
 export const PullYamlSchema = {
-  initial(name = 'default'): t.PullTool.ConfigYaml.Doc {
-    return { name, dir: '.' };
+  initial(): t.PullTool.ConfigYaml.Doc {
+    return { dir: '.' };
   },
 
   validate(value: unknown) {
@@ -13,7 +13,6 @@ export const PullYamlSchema = {
 
   schema: Schema.Type.Object(
     {
-      name: Schema.Type.String(),
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
       remoteBundles: Schema.Type.Optional(
         Schema.Type.Array(

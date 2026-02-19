@@ -32,13 +32,11 @@ export namespace PullTool {
     };
 
     export type Doc = {
-      name: string;
       dir: t.StringDir;
       remoteBundles?: RemoteBundle[];
     };
 
     export type Location = {
-      readonly name: string;
       readonly dir: t.StringDir;
       readonly remoteBundles?: RemoteBundle[];
     };

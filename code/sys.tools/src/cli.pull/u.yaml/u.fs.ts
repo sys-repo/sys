@@ -15,19 +15,18 @@ export const PullFs = {
     return `${CONFIG_DIR}/${configName}${CONFIG_EXT}`;
   },
 
-  initialYaml(configName: string): string {
+  initialYaml(): string {
     return Str.dedent(
       `
-      name: ${configName}
       dir: .
       `,
     ).trimStart();
   },
 
-  async ensureInitialYaml(path: t.StringPath, configName: string) {
+  async ensureInitialYaml(path: t.StringPath, _configName: string) {
     await Fs.ensureDir(Fs.dirname(path));
     if (await Fs.exists(path)) return;
-    await Fs.write(path, PullFs.initialYaml(configName), { force: false });
+    await Fs.write(path, PullFs.initialYaml(), { force: false });
   },
 
   async validateYaml(path: t.StringPath): Promise<t.PullTool.ConfigYaml.YamlCheck> {
@@ -65,7 +64,6 @@ export const PullFs = {
       ok: true,
       cwd,
       location: {
-        name: doc.name,
         dir: resolvedDir,
         remoteBundles: doc.remoteBundles,
       },

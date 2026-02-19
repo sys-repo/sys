@@ -38,7 +38,7 @@ export async function yamlConfigsMenu(cwd: t.StringDir): Promise<YamlConfigsMenu
         if (!ValidName.test(value)) return ValidName.hint;
         return true;
       },
-      initYaml: ({ name: configName }) => PullFs.initialYaml(configName),
+      initYaml: () => PullFs.initialYaml(),
     },
   });
 
