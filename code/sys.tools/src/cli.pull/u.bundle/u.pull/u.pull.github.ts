@@ -181,12 +181,21 @@ function formatGithubReleaseSummary(args: {
   const { bundle, release, ops } = args;
   const table = Cli.table();
   const outputs = ops.filter((m) => m.ok);
-  const outputLines = outputs.map((m, index, all) => {
-    const branch = Fmt.Tree.branch([index, all]);
-    const path = Fs.trimCwd(m.path.target);
-    return `${c.dim(branch)} ${c.cyan(path)}`;
-  });
   const bytes = outputs.reduce((acc, m) => acc + Number(m.bytes ?? 0), 0);
+  const outputRows = outputs.map((m) => {
+    const path = Fs.trimCwd(m.path.target);
+    const size = Number(m.bytes ?? 0);
+    return { path, size };
+  });
+  const maxPathLen = outputRows.reduce((acc, m) => Math.max(acc, m.path.length), 0);
+  const outputLines = outputRows.map((m, index, all) => {
+    const branch = Fmt.Tree.branch([index, all]);
+    const parts = splitDirAndFile(m.path);
+    const pad = ' '.repeat(Math.max(1, maxPathLen - m.path.length + 1));
+    const sizeLabel = c.dim(c.gray(`| ${Str.bytes(m.size)}`));
+    const file = parts.file ? c.cyan(parts.file) : c.cyan(m.path);
+    return `${c.dim(branch)} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
+  });
 
   table.body([
     [c.gray(' release'), c.white(release.tag)],
@@ -204,4 +213,15 @@ function formatGithubReleaseSummary(args: {
       .blank()
       .line(Str.trimEdgeNewlines(String(table))),
   );
+}
+
+function splitDirAndFile(path: string): { dir: string; file: string } {
+  const a = path.lastIndexOf('/');
+  const b = path.lastIndexOf('\\');
+  const i = Math.max(a, b);
+  if (i < 0) return { dir: '', file: path };
+  return {
+    dir: path.slice(0, i + 1),
+    file: path.slice(i + 1),
+  };
 }
