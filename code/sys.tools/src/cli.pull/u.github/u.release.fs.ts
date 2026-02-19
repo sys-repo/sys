@@ -81,6 +81,7 @@ export function mapAuthError(error: unknown): string | undefined {
     return [
       'GitHub release access denied.',
       'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
+      githubTokenHelpText(),
     ].join('\n');
   }
 
@@ -89,6 +90,7 @@ export function mapAuthError(error: unknown): string | undefined {
     return [
       'GitHub release repository/release not accessible.',
       'Verify repo path and GH_TOKEN/GITHUB_TOKEN permissions.',
+      githubTokenHelpText(),
     ].join('\n');
   }
 
@@ -96,6 +98,7 @@ export function mapAuthError(error: unknown): string | undefined {
     return [
       'GitHub release access denied.',
       'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
+      githubTokenHelpText(),
     ].join('\n');
   }
 
@@ -111,4 +114,12 @@ function normalizeErrorStatus(error: unknown): number | undefined {
   if (!error || typeof error !== 'object') return;
   const status = (error as { status?: unknown }).status;
   return typeof status === 'number' ? status : undefined;
+}
+
+function githubTokenHelpText() {
+  return [
+    'Required permissions:',
+    '- Fine-grained PAT: repository access + Contents: Read',
+    'Create/manage token: https://github.com/settings/personal-access-tokens',
+  ].join('\n');
 }

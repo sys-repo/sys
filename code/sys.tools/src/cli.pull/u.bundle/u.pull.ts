@@ -143,7 +143,8 @@ async function pullGithubReleaseBundle(
         [
           'GitHub token not found.',
           'Set GH_TOKEN (or GITHUB_TOKEN) to pull github:release bundles.',
-        ].join('\n')
+          githubTokenHelpText(),
+        ].join('\n'),
       );
     }
 
@@ -221,6 +222,14 @@ function fail(error: string): t.PullToolRemoteBundleResult {
 function errorMessage(error: unknown): string {
   if (Err.Is.error(error)) return String(error.message ?? '').trim() || 'Bundle pull failed';
   return String(error ?? '').trim() || 'Bundle pull failed';
+}
+
+function githubTokenHelpText() {
+  return [
+    'Required permissions:',
+    '- Fine-grained PAT: repository access + Contents: Read',
+    '- Create/manage token: https://github.com/settings/personal-access-tokens',
+  ].join('\n');
 }
 
 /**
