@@ -4,6 +4,18 @@ import { createMonotonicProgress } from './u.monotonicProgress.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
 
 type Progress = { index: t.Index; total: number };
+type PullHttp = (
+  baseDir: t.StringDir,
+  bundle: t.PullTool.ConfigYaml.HttpBundle,
+) => Promise<t.PullToolBundleResult>;
+type PullGithubRelease = (
+  baseDir: t.StringDir,
+  bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
+) => Promise<t.PullToolBundleResult>;
+type Pullers = {
+  pullHttp: PullHttp;
+  pullGithubRelease: PullGithubRelease;
+};
 
 const Fmt = {
   ...BaseFmt,
@@ -36,6 +48,20 @@ const Fmt = {
 export async function pullRemoteBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.Bundle,
+  pullers: Pullers = {
+    pullHttp: pullHttpBundle,
+    pullGithubRelease: pullGithubReleaseBundle,
+  },
+): Promise<t.PullToolBundleResult> {
+  if (bundle.kind === 'http') return pullers.pullHttp(baseDir, bundle);
+  if (bundle.kind === 'github:release') return pullers.pullGithubRelease(baseDir, bundle);
+  const _never: never = bundle;
+  throw new Error(`Unknown bundle kind: ${String(_never)}`);
+}
+
+async function pullHttpBundle(
+  baseDir: t.StringDir,
+  bundle: t.PullTool.ConfigYaml.HttpBundle,
 ): Promise<t.PullToolBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
@@ -86,6 +112,13 @@ export async function pullRemoteBundle(
   } finally {
     spinner.stop();
   }
+}
+
+async function pullGithubReleaseBundle(
+  _baseDir: t.StringDir,
+  _bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
+): Promise<t.PullToolBundleResult> {
+  throw new Error(`Bundle kind not implemented yet: github:release`);
 }
 
 /**
