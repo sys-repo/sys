@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs } from '../../common.ts';
+import { type t, c, Cli, Fs, Str } from '../../common.ts';
 import {
   downloadGithubAsset,
   downloadGithubAssetById,
@@ -84,6 +84,7 @@ export async function pullGithubReleaseBundle(
         `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
       ),
     );
+    console.info(formatGithubReleaseSummary({ bundle, release, ops }));
 
     return done({
       ok: true,
@@ -170,4 +171,37 @@ function summarizeGithubPullFailures(
   parts.push(`source: ${first.path.source}`);
   if (first.error) parts.push(first.error);
   return parts.join('\n - ');
+}
+
+function formatGithubReleaseSummary(args: {
+  bundle: t.PullTool.ConfigYaml.GithubReleaseBundle;
+  release: t.PullTool.GithubRelease;
+  ops: readonly t.PullToolBundleResult['ops'][number][];
+}): string {
+  const { bundle, release, ops } = args;
+  const table = Cli.table();
+  const outputs = ops.filter((m) => m.ok);
+  const outputLines = outputs.map((m, index, all) => {
+    const branch = Fmt.Tree.branch([index, all]);
+    const path = Fs.trimCwd(m.path.target);
+    return `${c.dim(branch)} ${c.cyan(path)}`;
+  });
+  const bytes = outputs.reduce((acc, m) => acc + Number(m.bytes ?? 0), 0);
+
+  table.body([
+    [c.gray(' release'), c.white(release.tag)],
+    [c.gray(' repo'), c.cyan(bundle.repo)],
+    [c.gray(' assets'), c.white(String(outputs.length))],
+    [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
+    [
+      c.gray(' output'),
+      outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
+    ],
+  ]);
+
+  return String(
+    Str.builder()
+      .blank()
+      .line(Str.trimEdgeNewlines(String(table))),
+  );
 }
