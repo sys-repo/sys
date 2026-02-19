@@ -11,14 +11,14 @@ export function resolveGithubReleaseBundle(
   const releaseRes = selectRelease(releases, bundle.tag);
   if (!releaseRes.ok) return releaseRes;
 
-  const assetRes = selectAsset(releaseRes.data, bundle.asset);
+  const assetRes = selectAssets(releaseRes.data, bundle.asset);
   if (!assetRes.ok) return assetRes;
 
   return {
     ok: true,
     data: {
       release: releaseRes.data,
-      asset: assetRes.data,
+      assets: assetRes.data,
       distPath: resolveDistPath(bundle),
     },
   };
@@ -49,54 +49,69 @@ function selectRelease(
   return { ok: true, data: latestStable ?? releases[0] };
 }
 
-function selectAsset(
+function selectAssets(
   release: t.PullTool.GithubRelease,
-  wantedAsset?: string,
-): { readonly ok: true; readonly data: t.PullTool.GithubReleaseAsset } | { readonly ok: false; readonly error: string } {
+  wantedAsset?: string | string[],
+): { readonly ok: true; readonly data: readonly t.PullTool.GithubReleaseAsset[] } | { readonly ok: false; readonly error: string } {
   const assets = release.assets;
   if (assets.length === 0) {
     return { ok: false, error: `Release has no assets: ${release.tag}` };
   }
 
-  const assetName = Is.str(wantedAsset) ? wantedAsset.trim() : '';
-  if (assetName) {
-    const asset = assets.find((m) => m.name === assetName);
-    if (!asset) {
+  if (Is.str(wantedAsset)) {
+    const assetName = wantedAsset.trim();
+    if (assetName) {
+      const asset = assets.find((m) => m.name === assetName);
+      if (!asset) {
+        const available = assets.map((m) => m.name).join(', ');
+        return {
+          ok: false,
+          error: `Release asset not found: ${assetName}${available ? ` (available: ${available})` : ''}`,
+        };
+      }
+      return { ok: true, data: [asset] };
+    }
+  }
+
+  if (Array.isArray(wantedAsset)) {
+    const names = wantedAsset.map((m) => String(m ?? '').trim()).filter(Boolean);
+    if (names.length === 0) {
+      return { ok: false, error: 'Release asset list is empty; add at least one asset name.' };
+    }
+
+    const selected: t.PullTool.GithubReleaseAsset[] = [];
+    const missing: string[] = [];
+
+    for (const name of names) {
+      const asset = assets.find((m) => m.name === name);
+      if (!asset) missing.push(name);
+      else selected.push(asset);
+    }
+
+    if (missing.length > 0) {
       const available = assets.map((m) => m.name).join(', ');
       return {
         ok: false,
-        error: `Release asset not found: ${assetName}${available ? ` (available: ${available})` : ''}`,
+        error: `Release assets not found: ${missing.join(', ')}${available ? ` (available: ${available})` : ''}`,
       };
     }
-    return { ok: true, data: asset };
+
+    return { ok: true, data: selected };
   }
 
-  const defaultNames = [
-    'bundle.tgz',
-    'bundle.tar.gz',
-    'bundle.zip',
-    'dist.tgz',
-    'dist.tar.gz',
-    'dist.zip',
-  ];
-  for (const name of defaultNames) {
-    const asset = assets.find((m) => m.name === name);
-    if (asset) return { ok: true, data: asset };
+  const selected = assets.filter((m) => !isGithubSourceArchive(m.name) && isSupportedArchive(m.name));
+  if (selected.length === 0) {
+    const available = assets
+      .map((m) => m.name)
+      .filter((m) => !isGithubSourceArchive(m))
+      .join(', ');
+    return {
+      ok: false,
+      error: `No supported archive assets found for ${release.tag}; set bundle.asset explicitly${available ? ` (available: ${available})` : ''}`,
+    };
   }
 
-  if (assets.length === 1) {
-    return { ok: true, data: assets[0] };
-  }
-
-  const archives = assets.filter((m) => isArchiveName(m.name));
-  if (archives.length === 1) {
-    return { ok: true, data: archives[0] };
-  }
-
-  return {
-    ok: false,
-    error: `Asset is ambiguous for release ${release.tag}; set bundle.asset explicitly.`,
-  };
+  return { ok: true, data: selected };
 }
 
 function resolveDistPath(bundle: t.PullTool.ConfigYaml.GithubReleaseBundle): t.StringPath {
@@ -104,7 +119,11 @@ function resolveDistPath(bundle: t.PullTool.ConfigYaml.GithubReleaseBundle): t.S
   return (dist || 'dist.json') as t.StringPath;
 }
 
-function isArchiveName(name: string): boolean {
+function isGithubSourceArchive(name: string): boolean {
+  return name === 'Source code (zip)' || name === 'Source code (tar.gz)';
+}
+
+function isSupportedArchive(name: string): boolean {
   const lower = name.toLowerCase();
-  return lower.endsWith('.tgz') || lower.endsWith('.tar.gz') || lower.endsWith('.zip');
+  return lower.endsWith('.zip') || lower.endsWith('.tgz') || lower.endsWith('.tar.gz');
 }

@@ -15,7 +15,7 @@ export type PullToolGithubRelease = {
 
 export type PullToolGithubReleaseResolved = {
   readonly release: PullToolGithubRelease;
-  readonly asset: PullToolGithubReleaseAsset;
+  readonly assets: readonly PullToolGithubReleaseAsset[];
   readonly distPath: t.StringPath;
 };
 

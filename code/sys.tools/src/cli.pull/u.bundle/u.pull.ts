@@ -1,5 +1,10 @@
 import { type t, c, Cli, Err, Fs, Http, Pkg, Str, Url } from '../common.ts';
-import { downloadGithubAsset, listGithubReleases, loadGithubToken } from '../u.github/u.client.ts';
+import {
+  downloadGithubAsset,
+  downloadGithubAssetById,
+  listGithubReleases,
+  loadGithubToken,
+} from '../u.github/u.client.ts';
 import { resolveGithubReleaseBundle } from '../u.github/u.release.resolve.ts';
 import {
   assertSafeDistPath,
@@ -133,7 +138,6 @@ async function pullGithubReleaseBundle(
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
 ): Promise<t.PullToolRemoteBundleResult> {
   const spinner = Cli.spinner();
-  const targetDir = `${baseDir}/${bundle.local.dir}`;
   const tmp = await Fs.makeTempDir({ prefix: 'pull-github-release-' });
   const token = await loadGithubToken();
 
@@ -154,53 +158,85 @@ async function pullGithubReleaseBundle(
     const resolved = resolveGithubReleaseBundle(bundle, releases);
     if (!resolved.ok) return fail(resolved.error);
 
-    const { asset, distPath: rawDistPath } = resolved.data;
+    const { assets, distPath: rawDistPath } = resolved.data;
     const distPath = assertSafeDistPath(rawDistPath);
+    const ops: Array<t.PullToolBundleResult['ops'][number]> = [];
+    const dists: t.DistPkg[] = [];
+    const normalizedDistPath = distPath.replaceAll('\\', '/');
+    const targetDirs = resolveGithubAssetTargetDirs(baseDir, bundle.local.dir, assets);
 
-    spinner.text = Fmt.spinnerText(`downloading ${c.cyan(asset.name)}...`);
-    const bytes = await downloadGithubAsset({ url: asset.downloadUrl, token });
+    for (const [index, asset] of assets.entries()) {
+      const targetDir = targetDirs[index];
+      const source = asset.downloadUrl;
+      const total = assets.length;
+      const progress = total > 1 ? ` ${index + 1}/${total}` : '';
 
-    spinner.text = Fmt.spinnerText('extracting release asset...');
-    const archivePath = Fs.join(tmp.absolute, asset.name);
-    const extractDir = Fs.join(tmp.absolute, 'extract');
-    await Fs.write(archivePath, bytes, { force: true });
-    await extractArchive({ archivePath, outputDir: extractDir as t.StringDir });
+      try {
+        spinner.text = Fmt.spinnerText(`downloading${progress} ${c.cyan(asset.name)}...`);
+        const bytes = await downloadGithubAssetWithFallback({
+          repo: bundle.repo,
+          assetId: asset.id,
+          url: source,
+          token,
+        });
 
-    spinner.text = Fmt.spinnerText('resolving dist path...');
-    const distFile = await resolveDistFile({
-      extractedDir: extractDir as t.StringDir,
-      distPath,
-    });
-    const bundleRoot = Fs.dirname(distFile) as t.StringDir;
+        spinner.text = Fmt.spinnerText(`extracting${progress} ${c.cyan(asset.name)}...`);
+        const assetDir = Fs.join(tmp.absolute, `asset-${index + 1}`);
+        const archivePath = Fs.join(assetDir, asset.name);
+        const extractDir = Fs.join(assetDir, 'extract');
+        await Fs.ensureDir(assetDir);
+        await Fs.write(archivePath, bytes, { force: true });
+        await extractArchive({ archivePath, outputDir: extractDir as t.StringDir });
 
-    spinner.text = Fmt.spinnerText('syncing local bundle...');
-    await Fs.remove(targetDir, { log: false });
-    await Fs.copy(bundleRoot, targetDir, { force: true });
+        spinner.text = Fmt.spinnerText(`resolving dist${progress} ${c.cyan(asset.name)}...`);
+        const distFile = await resolveDistFile({
+          extractedDir: extractDir as t.StringDir,
+          distPath,
+        });
+        const bundleRoot = Fs.dirname(distFile) as t.StringDir;
 
-    const readDist = await Fs.readJson<t.DistPkg>(Fs.join(targetDir, 'dist.json'));
-    if (!readDist.ok || !readDist.data || !Pkg.Is.dist(readDist.data)) {
-      throw new Error(`Invalid dist.json in pulled release bundle.`);
-    }
-    const dist = readDist.data;
+        spinner.text = Fmt.spinnerText(`syncing${progress} ${c.cyan(asset.name)}...`);
+        await Fs.remove(targetDir, { log: false });
+        await Fs.copy(bundleRoot, targetDir, { force: true });
 
-    await rewriteTags(baseDir, bundle);
+        const readDist = await Fs.readJson<t.DistPkg>(Fs.join(targetDir, normalizedDistPath));
+        if (!readDist.ok || !readDist.data || !Pkg.Is.dist(readDist.data)) {
+          throw new Error('Invalid dist.json in pulled release bundle.');
+        }
 
-    const size = c.dim(`(${Fmt.bundleSize(dist)})`);
-    const fullpath = Fmt.prettyPath(targetDir);
-    const path = `./${c.cyan(bundle.local.dir)} ${size}\n  ${fullpath}`;
-    spinner.succeed(c.gray(`${c.green('bundle pulled')} → ${path}`));
-
-    const source = asset.downloadUrl;
-    return done({
-      ok: true,
-      dist,
-      ops: [
-        {
+        dists.push(readDist.data);
+        ops.push({
           ok: true,
           path: { source, target: targetDir },
           bytes: bytes.byteLength,
-        },
-      ],
+        });
+      } catch (error) {
+        ops.push({
+          ok: false,
+          path: { source, target: targetDir },
+          error: errorMessage(error),
+        });
+      }
+    }
+
+    const failed = ops.filter((m) => !m.ok);
+    if (failed.length > 0) {
+      return fail(summarizeGithubPullFailures(failed, ops.length));
+    }
+    if (dists.length === 0) {
+      return fail('No release assets were pulled.');
+    }
+
+    await rewriteTags(baseDir, bundle);
+
+    const path = c.gray(`${c.green('bundle pulled')} → ${c.cyan(bundle.local.dir)} (${ops.length} assets)`);
+    spinner.succeed(path);
+
+    return done({
+      ok: true,
+      dist: dists[0],
+      dists,
+      ops,
     });
   } catch (error) {
     const auth = mapAuthError(error);
@@ -209,6 +245,59 @@ async function pullGithubReleaseBundle(
     spinner.stop();
     await Fs.remove(tmp.absolute, { log: false });
   }
+}
+
+async function downloadGithubAssetWithFallback(args: {
+  repo: string;
+  assetId: number;
+  url: t.StringUrl;
+  token: string;
+}): Promise<Uint8Array> {
+  try {
+    return await downloadGithubAssetById({
+      repo: args.repo,
+      assetId: args.assetId,
+      token: args.token,
+    });
+  } catch {
+    return await downloadGithubAsset({
+      url: args.url,
+      token: args.token,
+    });
+  }
+}
+
+function resolveGithubAssetTargetDirs(
+  baseDir: t.StringDir,
+  localDir: t.StringRelativeDir,
+  assets: readonly t.PullTool.GithubReleaseAsset[],
+): t.StringDir[] {
+  const root = `${baseDir}/${localDir}`;
+  if (assets.length <= 1) return [root as t.StringDir];
+
+  const keys = resolveAssetKeys(assets);
+  return keys.map((key) => `${root}/${key}` as t.StringDir);
+}
+
+function resolveAssetKeys(assets: readonly t.PullTool.GithubReleaseAsset[]): string[] {
+  const counts = new Map<string, number>();
+  return assets.map((asset, index) => {
+    const base = toAssetKey(asset.name, index);
+    const next = (counts.get(base) ?? 0) + 1;
+    counts.set(base, next);
+    return next === 1 ? base : `${base}-${next}`;
+  });
+}
+
+function toAssetKey(name: string, index: number): string {
+  const trimmed = String(name ?? '').trim();
+  const withoutExt = trimmed
+    .replace(/\.tar\.gz$/i, '')
+    .replace(/\.tgz$/i, '')
+    .replace(/\.zip$/i, '')
+    .replace(/\.[A-Za-z0-9]+$/g, '');
+  const safe = withoutExt.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  return safe || `asset-${index + 1}`;
 }
 
 function done(data: t.PullToolBundleResult): t.PullToolRemoteBundleResult {
@@ -319,5 +408,23 @@ function summarizePullFailure(result: t.HttpPullToDirResult): string {
   if (first.status) parts.push(`status ${first.status}`);
   if (first.error) parts.push(first.error);
 
+  return parts.join('\n - ');
+}
+
+function summarizeGithubPullFailures(
+  failed: readonly t.PullToolBundleResult['ops'][number][],
+  total: number,
+): string {
+  const first = failed[0];
+  if (!first) return 'release pull failed';
+
+  const parts: string[] = [];
+  parts.push(
+    failed.length === 1
+      ? `release pull failed (1/${total} assets)`
+      : `release pull failed (${failed.length}/${total} assets)`,
+  );
+  parts.push(`source: ${first.path.source}`);
+  if (first.error) parts.push(first.error);
   return parts.join('\n - ');
 }

@@ -22,7 +22,12 @@ const BundleGithubReleaseSchema = Schema.Type.Object(
     kind: Schema.Type.Literal('github:release'),
     repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
     tag: Schema.Type.Optional(Schema.Type.String()),
-    asset: Schema.Type.Optional(Schema.Type.String()),
+    asset: Schema.Type.Optional(
+      Schema.Type.Union([
+        Schema.Type.String(),
+        Schema.Type.Array(Schema.Type.String(), { minItems: 1 }),
+      ]),
+    ),
     dist: Schema.Type.Optional(Schema.Type.String()),
     ...BundleSharedSchema,
   },

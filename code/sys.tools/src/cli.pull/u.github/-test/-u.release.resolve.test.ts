@@ -40,6 +40,7 @@ describe('cli.pull/u.github → release resolver', () => {
     expect(res.ok).to.eql(true);
     if (!res.ok) return;
     expect(res.data.release.tag).to.eql('v1.0.0');
+    expect(res.data.assets.map((m) => m.name)).to.eql(['bundle.tgz']);
   });
 
   it('fails when the requested tag is not found', () => {
@@ -68,6 +69,48 @@ describe('cli.pull/u.github → release resolver', () => {
     expect(res.ok).to.eql(false);
     if (res.ok) return;
     expect(res.error.includes('Release asset not found')).to.eql(true);
+  });
+
+  it('supports an explicit asset array', () => {
+    const res = resolveGithubReleaseBundle(
+      bundle({ asset: ['a.tgz', 'b.zip'] }),
+      releases({
+        tag: 'v1.0.0',
+        assets: [asset('a.tgz'), asset('b.zip'), asset('c.tgz')],
+      }),
+    );
+
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(res.data.assets.map((m) => m.name)).to.eql(['a.tgz', 'b.zip']);
+  });
+
+  it('selects all release assets when bundle.asset is omitted (excluding source archives)', () => {
+    const res = resolveGithubReleaseBundle(
+      bundle(),
+      releases({
+        tag: 'v1.0.0',
+        assets: [asset('bundle.tgz'), asset('sys-app.deb'), asset('Source code (zip)')],
+      }),
+    );
+
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(res.data.assets.map((m) => m.name)).to.eql(['bundle.tgz']);
+  });
+
+  it('fails when bundle.asset is omitted and no supported archive assets exist', () => {
+    const res = resolveGithubReleaseBundle(
+      bundle(),
+      releases({
+        tag: 'v1.0.0',
+        assets: [asset('sys-app.deb'), asset('sys-app.rpm')],
+      }),
+    );
+
+    expect(res.ok).to.eql(false);
+    if (res.ok) return;
+    expect(res.error.includes('No supported archive assets found')).to.eql(true);
   });
 
   it('defaults distPath to dist.json and respects bundle.dist override', () => {

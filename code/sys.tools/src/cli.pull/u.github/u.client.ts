@@ -12,6 +12,12 @@ type OctokitLike = {
           assets: Array<{ id: number; name: string; browser_download_url: string }>;
         }>;
       }>;
+      getReleaseAsset(args: {
+        owner: string;
+        repo: string;
+        asset_id: number;
+        headers?: { accept?: string };
+      }): Promise<{ data: unknown }>;
     };
   };
 };
@@ -79,6 +85,49 @@ export async function downloadGithubAsset(args: {
   const bytes = new Uint8Array(await res.arrayBuffer());
   if (!bytes.byteLength) {
     throw new Error('GitHub asset download returned empty content.');
+  }
+  return bytes;
+}
+
+export async function downloadGithubAssetById(args: {
+  repo: string;
+  assetId: number;
+  token?: string;
+}): Promise<Uint8Array> {
+  const { repo, assetId, token } = args;
+  const repoRef = parseGithubRepo(repo);
+  const octokit = await createOctokit(token);
+  const res = await octokit.rest.repos.getReleaseAsset({
+    owner: repoRef.owner,
+    repo: repoRef.repo,
+    asset_id: assetId,
+    headers: { accept: 'application/octet-stream' },
+  });
+
+  return await bytesFromUnknown(res.data);
+}
+
+async function bytesFromUnknown(input: unknown): Promise<Uint8Array> {
+  if (input instanceof Uint8Array) return input;
+  if (input instanceof ArrayBuffer) return new Uint8Array(input);
+  if (typeof input === 'string') return bytesFromBinaryString(input);
+  if (input instanceof Blob) return new Uint8Array(await input.arrayBuffer());
+
+  if (input && typeof input === 'object') {
+    const maybe = input as { arrayBuffer?: unknown };
+    if (typeof maybe.arrayBuffer === 'function') {
+      const arrayBuffer = await (maybe as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
+      return new Uint8Array(arrayBuffer);
+    }
+  }
+
+  throw new Error('GitHub release asset API returned unsupported binary payload.');
+}
+
+function bytesFromBinaryString(input: string): Uint8Array {
+  const bytes = new Uint8Array(input.length);
+  for (let i = 0; i < input.length; i++) {
+    bytes[i] = input.charCodeAt(i) & 0xff;
   }
   return bytes;
 }

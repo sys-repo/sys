@@ -28,6 +28,19 @@ const ValidConfigName = {
 const toHttpDist = (bundle: t.PullTool.ConfigYaml.Bundle): t.StringUrl | undefined =>
   bundle.kind === 'http' ? bundle.dist : undefined;
 
+const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
+  const dist = toHttpDist(bundle);
+  if (dist) return Fmt.distUrl(dist);
+
+  if (bundle.kind === 'github:release') {
+    if (Array.isArray(bundle.asset)) return c.gray(c.dim(`github:release (${bundle.asset.length} assets)`));
+    if (typeof bundle.asset === 'string' && bundle.asset.trim()) return c.gray(c.dim(`github:release (${bundle.asset.trim()})`));
+    return c.gray(c.dim('github:release (all assets)'));
+  }
+
+  return c.gray(c.dim(bundle.kind));
+};
+
 export async function pullBundle(
   _cwd: t.StringDir,
   yamlPath: t.StringPath,
@@ -44,8 +57,7 @@ export async function pullBundle(
   const optBundles = bundles.map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
-    const dist = toHttpDist(m);
-    const source = dist ? Fmt.distUrl(dist) : c.gray(c.dim(m.kind));
+    const source = bundleSourceLabel(m);
     const name = `${'  pull:'} ${branch} ${localDir} ← ${source}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
@@ -161,10 +173,7 @@ export async function pullBundle(
     // Update lastUsedAt in the YAML file.
     await updateYamlBundles(yamlPath, (list) => {
       const hit = list.find(
-        (m) => {
-          const dist = toHttpDist(m);
-          return dist === bundle.dist && m.local.dir === bundle.local.dir;
-        },
+        (m) => isSameBundle(m, bundle),
       );
       if (hit) hit.lastUsedAt = Time.now.timestamp;
     });
@@ -173,6 +182,33 @@ export async function pullBundle(
   }
 
   return done();
+}
+
+function isSameBundle(a: t.PullTool.ConfigYaml.Bundle, b: t.PullTool.ConfigYaml.Bundle): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.local.dir !== b.local.dir) return false;
+
+  if (a.kind === 'http' && b.kind === 'http') {
+    return a.dist === b.dist;
+  }
+
+  if (a.kind === 'github:release' && b.kind === 'github:release') {
+    return a.repo === b.repo &&
+      normalizeOptional(a.tag) === normalizeOptional(b.tag) &&
+      normalizeOptional(a.dist) === normalizeOptional(b.dist) &&
+      normalizeAsset(a.asset) === normalizeAsset(b.asset);
+  }
+
+  return false;
+}
+
+function normalizeOptional(value?: string): string {
+  return String(value ?? '').trim();
+}
+
+function normalizeAsset(value?: string | string[]): string {
+  if (Array.isArray(value)) return value.map((m) => normalizeOptional(m)).join('|');
+  return normalizeOptional(value);
 }
 
 /**

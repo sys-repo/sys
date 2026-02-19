@@ -37,6 +37,23 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('accepts github:release bundle entries with asset array', () => {
+    const doc = {
+      dir: '.',
+      bundles: [
+        {
+          kind: 'github:release' as const,
+          repo: 'owner/name',
+          asset: ['bundle.tgz', 'bundle.zip'],
+          local: { dir: 'dev' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+  });
+
   it('rejects github:release repo values that are not owner/repo', () => {
     const bad = ['owner', '/repo', 'owner/', 'owner/repo/extra'];
 
