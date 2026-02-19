@@ -85,7 +85,7 @@ describe('cli.pull/u.github → release resolver', () => {
     expect(res.data.assets.map((m) => m.name)).to.eql(['a.tgz', 'b.zip']);
   });
 
-  it('selects all release assets when bundle.asset is omitted (excluding source archives)', () => {
+  it('selects all release assets when bundle.asset is omitted', () => {
     const res = resolveGithubReleaseBundle(
       bundle(),
       releases({
@@ -96,44 +96,10 @@ describe('cli.pull/u.github → release resolver', () => {
 
     expect(res.ok).to.eql(true);
     if (!res.ok) return;
-    expect(res.data.assets.map((m) => m.name)).to.eql(['bundle.tgz']);
-  });
-
-  it('fails when bundle.asset is omitted and no supported archive assets exist', () => {
-    const res = resolveGithubReleaseBundle(
-      bundle(),
-      releases({
-        tag: 'v1.0.0',
-        assets: [asset('sys-app.deb'), asset('sys-app.rpm')],
-      }),
-    );
-
-    expect(res.ok).to.eql(false);
-    if (res.ok) return;
-    expect(res.error.includes('No supported archive assets found')).to.eql(true);
-  });
-
-  it('defaults distPath to dist.json and respects bundle.dist override', () => {
-    const one = resolveGithubReleaseBundle(
-      bundle(),
-      releases({
-        tag: 'v1.0.0',
-        assets: [asset('bundle.tgz')],
-      }),
-    );
-
-    expect(one.ok).to.eql(true);
-    if (one.ok) expect(one.data.distPath).to.eql('dist.json');
-
-    const two = resolveGithubReleaseBundle(
-      bundle({ dist: 'nested/dist.json' as t.StringPath }),
-      releases({
-        tag: 'v1.0.0',
-        assets: [asset('bundle.tgz')],
-      }),
-    );
-
-    expect(two.ok).to.eql(true);
-    if (two.ok) expect(two.data.distPath).to.eql('nested/dist.json');
+    expect(res.data.assets.map((m) => m.name)).to.eql([
+      'bundle.tgz',
+      'sys-app.deb',
+      'Source code (zip)',
+    ]);
   });
 });

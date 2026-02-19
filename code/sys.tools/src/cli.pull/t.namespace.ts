@@ -48,7 +48,6 @@ export namespace PullTool {
       repo: string;
       tag?: string;
       asset?: string | string[];
-      dist?: t.StringPath;
       local: { dir: t.StringRelativeDir };
       lastUsedAt?: t.UnixTimestamp;
     };

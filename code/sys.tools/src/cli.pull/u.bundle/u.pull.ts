@@ -1,4 +1,4 @@
-import { type t, c, Cli, Err, Fs, Http, Pkg, Str, Url } from '../common.ts';
+import { type t, c, Cli, Err, Fs, Http, Str, Url } from '../common.ts';
 import {
   downloadGithubAsset,
   downloadGithubAssetById,
@@ -6,12 +6,6 @@ import {
   loadGithubToken,
 } from '../u.github/u.client.ts';
 import { resolveGithubReleaseBundle } from '../u.github/u.release.resolve.ts';
-import {
-  assertSafeDistPath,
-  extractArchive,
-  mapAuthError,
-  resolveDistFile,
-} from '../u.github/u.release.fs.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { createMonotonicProgress } from './u.monotonicProgress.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
@@ -138,7 +132,6 @@ async function pullGithubReleaseBundle(
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
 ): Promise<t.PullToolRemoteBundleResult> {
   const spinner = Cli.spinner();
-  const tmp = await Fs.makeTempDir({ prefix: 'pull-github-release-' });
   const token = await loadGithubToken();
 
   try {
@@ -158,16 +151,18 @@ async function pullGithubReleaseBundle(
     const resolved = resolveGithubReleaseBundle(bundle, releases);
     if (!resolved.ok) return fail(resolved.error);
 
-    const { assets, distPath: rawDistPath } = resolved.data;
-    const distPath = assertSafeDistPath(rawDistPath);
+    const release = resolved.data.release;
+    const assets = resolved.data.assets;
+    const releaseTagDir = toSafeTagDir(release.tag);
+    const targetRoot = Fs.join(baseDir, bundle.local.dir, releaseTagDir) as t.StringDir;
+    await Fs.ensureDir(targetRoot);
+
+    const targetNames = resolveTargetNames(assets);
     const ops: Array<t.PullToolBundleResult['ops'][number]> = [];
-    const dists: t.DistPkg[] = [];
-    const normalizedDistPath = distPath.replaceAll('\\', '/');
-    const targetDirs = resolveGithubAssetTargetDirs(baseDir, bundle.local.dir, assets);
 
     for (const [index, asset] of assets.entries()) {
-      const targetDir = targetDirs[index];
       const source = asset.downloadUrl;
+      const target = Fs.join(targetRoot, targetNames[index]);
       const total = assets.length;
       const progress = total > 1 ? ` ${index + 1}/${total}` : '';
 
@@ -180,40 +175,18 @@ async function pullGithubReleaseBundle(
           token,
         });
 
-        spinner.text = Fmt.spinnerText(`extracting${progress} ${c.cyan(asset.name)}...`);
-        const assetDir = Fs.join(tmp.absolute, `asset-${index + 1}`);
-        const archivePath = Fs.join(assetDir, asset.name);
-        const extractDir = Fs.join(assetDir, 'extract');
-        await Fs.ensureDir(assetDir);
-        await Fs.write(archivePath, bytes, { force: true });
-        await extractArchive({ archivePath, outputDir: extractDir as t.StringDir });
+        await Fs.ensureDir(Fs.dirname(target));
+        await Fs.write(target, bytes, { force: true });
 
-        spinner.text = Fmt.spinnerText(`resolving dist${progress} ${c.cyan(asset.name)}...`);
-        const distFile = await resolveDistFile({
-          extractedDir: extractDir as t.StringDir,
-          distPath,
-        });
-        const bundleRoot = Fs.dirname(distFile) as t.StringDir;
-
-        spinner.text = Fmt.spinnerText(`syncing${progress} ${c.cyan(asset.name)}...`);
-        await Fs.remove(targetDir, { log: false });
-        await Fs.copy(bundleRoot, targetDir, { force: true });
-
-        const readDist = await Fs.readJson<t.DistPkg>(Fs.join(targetDir, normalizedDistPath));
-        if (!readDist.ok || !readDist.data || !Pkg.Is.dist(readDist.data)) {
-          throw new Error('Invalid dist.json in pulled release bundle.');
-        }
-
-        dists.push(readDist.data);
         ops.push({
           ok: true,
-          path: { source, target: targetDir },
+          path: { source, target },
           bytes: bytes.byteLength,
         });
       } catch (error) {
         ops.push({
           ok: false,
-          path: { source, target: targetDir },
+          path: { source, target },
           error: errorMessage(error),
         });
       }
@@ -223,19 +196,15 @@ async function pullGithubReleaseBundle(
     if (failed.length > 0) {
       return fail(summarizeGithubPullFailures(failed, ops.length));
     }
-    if (dists.length === 0) {
-      return fail('No release assets were pulled.');
-    }
 
-    await rewriteTags(baseDir, bundle);
-
-    const path = c.gray(`${c.green('bundle pulled')} → ${c.cyan(bundle.local.dir)} (${ops.length} assets)`);
-    spinner.succeed(path);
+    spinner.succeed(
+      c.gray(
+        `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
+      ),
+    );
 
     return done({
       ok: true,
-      dist: dists[0],
-      dists,
       ops,
     });
   } catch (error) {
@@ -243,7 +212,6 @@ async function pullGithubReleaseBundle(
     return fail(auth ?? errorMessage(error));
   } finally {
     spinner.stop();
-    await Fs.remove(tmp.absolute, { log: false });
   }
 }
 
@@ -267,36 +235,40 @@ async function downloadGithubAssetWithFallback(args: {
   }
 }
 
-function resolveGithubAssetTargetDirs(
-  baseDir: t.StringDir,
-  localDir: t.StringRelativeDir,
-  assets: readonly t.PullTool.GithubReleaseAsset[],
-): t.StringDir[] {
-  const root = `${baseDir}/${localDir}`;
-  if (assets.length <= 1) return [root as t.StringDir];
-
-  const keys = resolveAssetKeys(assets);
-  return keys.map((key) => `${root}/${key}` as t.StringDir);
-}
-
-function resolveAssetKeys(assets: readonly t.PullTool.GithubReleaseAsset[]): string[] {
+function resolveTargetNames(assets: readonly t.PullTool.GithubReleaseAsset[]): string[] {
   const counts = new Map<string, number>();
   return assets.map((asset, index) => {
-    const base = toAssetKey(asset.name, index);
-    const next = (counts.get(base) ?? 0) + 1;
-    counts.set(base, next);
-    return next === 1 ? base : `${base}-${next}`;
+    const name = toSafeAssetFilename(asset.name, index);
+    const next = (counts.get(name) ?? 0) + 1;
+    counts.set(name, next);
+    return next === 1 ? name : appendFileSuffix(name, `-${next}`);
   });
 }
 
-function toAssetKey(name: string, index: number): string {
-  const trimmed = String(name ?? '').trim();
-  const withoutExt = trimmed
-    .replace(/\.tar\.gz$/i, '')
-    .replace(/\.tgz$/i, '')
-    .replace(/\.zip$/i, '')
-    .replace(/\.[A-Za-z0-9]+$/g, '');
-  const safe = withoutExt.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+function appendFileSuffix(filename: string, suffix: string): string {
+  const i = filename.lastIndexOf('.');
+  if (i <= 0) return `${filename}${suffix}`;
+  return `${filename.slice(0, i)}${suffix}${filename.slice(i)}`;
+}
+
+function toSafeTagDir(value: string): string {
+  const raw = String(value ?? '').trim();
+  const safe = raw
+    .replaceAll('/', '-')
+    .replaceAll('\\', '-')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return safe || 'release';
+}
+
+function toSafeAssetFilename(value: string, index: number): string {
+  const raw = String(value ?? '').trim();
+  const safe = raw
+    .replaceAll('/', '-')
+    .replaceAll('\\', '-')
+    .replace(/[\u0000-\u001f]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return safe || `asset-${index + 1}`;
 }
 
@@ -319,6 +291,50 @@ function githubTokenHelpText() {
     '- Fine-grained PAT: repository access + Contents: Read',
     '- Create/manage token: https://github.com/settings/personal-access-tokens',
   ].join('\n');
+}
+
+function mapAuthError(error: unknown): string | undefined {
+  const status = normalizeErrorStatus(error);
+  const message = normalizeErrorMessage(error);
+  const lower = message.toLowerCase();
+
+  if (status === 401 || status === 403) {
+    return [
+      'GitHub release access denied.',
+      'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
+      githubTokenHelpText(),
+    ].join('\n');
+  }
+
+  // GitHub often returns 404 for private repos without sufficient auth.
+  if (status === 404 && (lower.includes('not found') || lower.includes('releases') || lower.includes('asset'))) {
+    return [
+      'GitHub release repository/asset not accessible.',
+      'Verify repo path and GH_TOKEN/GITHUB_TOKEN permissions.',
+      githubTokenHelpText(),
+    ].join('\n');
+  }
+
+  if (message.includes('401') || message.includes('403') || lower.includes('forbidden')) {
+    return [
+      'GitHub release access denied.',
+      'Set GH_TOKEN (or GITHUB_TOKEN) with private-repo read permissions.',
+      githubTokenHelpText(),
+    ].join('\n');
+  }
+
+  return;
+}
+
+function normalizeErrorMessage(error: unknown): string {
+  if (Err.Is.error(error)) return String(error.message ?? '').trim();
+  return String(error ?? '').trim();
+}
+
+function normalizeErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== 'object') return;
+  const status = (error as { status?: unknown }).status;
+  return typeof status === 'number' ? status : undefined;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { type t, Is } from '../common.ts';
 
 /**
- * Resolve a github:release bundle down to concrete release + asset + distPath.
+ * Resolve a github:release bundle down to concrete release + assets.
  * Pure selection logic only (no network calls).
  */
 export function resolveGithubReleaseBundle(
@@ -19,7 +19,6 @@ export function resolveGithubReleaseBundle(
     data: {
       release: releaseRes.data,
       assets: assetRes.data,
-      distPath: resolveDistPath(bundle),
     },
   };
 }
@@ -99,31 +98,5 @@ function selectAssets(
     return { ok: true, data: selected };
   }
 
-  const selected = assets.filter((m) => !isGithubSourceArchive(m.name) && isSupportedArchive(m.name));
-  if (selected.length === 0) {
-    const available = assets
-      .map((m) => m.name)
-      .filter((m) => !isGithubSourceArchive(m))
-      .join(', ');
-    return {
-      ok: false,
-      error: `No supported archive assets found for ${release.tag}; set bundle.asset explicitly${available ? ` (available: ${available})` : ''}`,
-    };
-  }
-
-  return { ok: true, data: selected };
-}
-
-function resolveDistPath(bundle: t.PullTool.ConfigYaml.GithubReleaseBundle): t.StringPath {
-  const dist = Is.str(bundle.dist) ? bundle.dist.trim() : '';
-  return (dist || 'dist.json') as t.StringPath;
-}
-
-function isGithubSourceArchive(name: string): boolean {
-  return name === 'Source code (zip)' || name === 'Source code (tar.gz)';
-}
-
-function isSupportedArchive(name: string): boolean {
-  const lower = name.toLowerCase();
-  return lower.endsWith('.zip') || lower.endsWith('.tgz') || lower.endsWith('.tar.gz');
+  return { ok: true, data: assets };
 }

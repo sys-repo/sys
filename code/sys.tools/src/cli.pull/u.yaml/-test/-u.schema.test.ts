@@ -27,7 +27,6 @@ describe('PullYamlSchema', () => {
           repo: 'owner/name',
           tag: 'v1.2.3',
           asset: 'bundle.tgz',
-          dist: 'dist.json',
           local: { dir: 'dev' },
         },
       ],

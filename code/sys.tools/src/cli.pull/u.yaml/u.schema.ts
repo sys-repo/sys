@@ -28,7 +28,6 @@ const BundleGithubReleaseSchema = Schema.Type.Object(
         Schema.Type.Array(Schema.Type.String(), { minItems: 1 }),
       ]),
     ),
-    dist: Schema.Type.Optional(Schema.Type.String()),
     ...BundleSharedSchema,
   },
   { additionalProperties: false },

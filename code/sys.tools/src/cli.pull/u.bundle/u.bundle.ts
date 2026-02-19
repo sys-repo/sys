@@ -195,7 +195,6 @@ function isSameBundle(a: t.PullTool.ConfigYaml.Bundle, b: t.PullTool.ConfigYaml.
   if (a.kind === 'github:release' && b.kind === 'github:release') {
     return a.repo === b.repo &&
       normalizeOptional(a.tag) === normalizeOptional(b.tag) &&
-      normalizeOptional(a.dist) === normalizeOptional(b.dist) &&
       normalizeAsset(a.asset) === normalizeAsset(b.asset);
   }
 
