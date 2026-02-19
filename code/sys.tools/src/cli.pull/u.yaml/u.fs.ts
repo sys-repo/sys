@@ -1,4 +1,4 @@
-import { type t, Fs, pkg, Schema, Str, Yaml } from '../common.ts';
+import { type t, Fs, Path, pkg, Schema, Str, Yaml } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { PullTool } from '../t.namespace.ts';
 import { PullYamlErrorCode, validatePullYamlText } from './u.validate.ts';
@@ -19,6 +19,7 @@ export const PullFs = {
     return Str.dedent(
       `
       name: ${configName}
+      dir: .
       `,
     ).trimStart();
   },
@@ -51,4 +52,36 @@ export const PullFs = {
 
     return validatePullYamlText(read.data ?? '');
   },
+
+  async loadLocation(yamlPath: t.StringPath): Promise<t.PullTool.ConfigYaml.LoadResult> {
+    const checked = await PullFs.validateYaml(yamlPath);
+    if (!checked.ok) return { ok: false, errors: checked.errors };
+
+    const cwd = resolveCwdFromYamlPath(yamlPath);
+    const doc = checked.doc;
+    const resolvedDir = resolveDir(cwd, doc.dir);
+
+    return {
+      ok: true,
+      cwd,
+      location: {
+        name: doc.name,
+        dir: resolvedDir,
+        remoteBundles: doc.remoteBundles,
+      },
+    };
+  },
 } as const;
+
+function resolveCwdFromYamlPath(yamlPath: t.StringPath): t.StringDir {
+  const depth = PullFs.dir.split('/').filter(Boolean).length;
+  const parts = Array.from({ length: depth }, () => '..');
+  return Path.resolve(Fs.dirname(yamlPath), ...parts) as t.StringDir;
+}
+
+function resolveDir(cwd: t.StringDir, dir: t.StringDir): t.StringDir {
+  const raw = String(dir ?? '').trim();
+  if (!raw || raw === '.') return cwd;
+  if (raw.startsWith('/')) return raw as t.StringDir;
+  return Fs.join(cwd, Str.trimLeadingDotSlash(raw));
+}

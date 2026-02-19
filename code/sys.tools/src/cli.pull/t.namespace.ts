@@ -9,31 +9,45 @@ export namespace PullTool {
   export type Id = typeof ID;
   export type Name = typeof NAME;
 
-  /** CLI sub-commands (first positional token). */
-  export type SubCmd = 'foo' | 'bar';
-  export type TemplateVariant = 'stateless' | 'yaml';
   /** Command names. */
   export type MenuCmd =
-    | 'init'
-    | 'help'
-    | 'option-a'
-    | 'option-a:stateless'
-    | 'option-a:yaml'
     | 'config'
+    | 'bundle:add-remote'
+    | 'bundle:pull-latest'
     | 'back'
     | 'exit';
   export type MenuOption = { readonly name: string; readonly value: MenuCmd };
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
-  export type CliParsedArgs = t.ParsedArgs<CliArgs> & { readonly command?: SubCmd };
-  // [tmpl:variant.types]
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+
   export namespace ConfigYaml {
-    export type Doc = { name: string };
+    export type RemoteBundle = {
+      remote: { dist: t.StringUrl };
+      local: { dir: t.StringRelativeDir };
+      lastUsedAt?: t.UnixTimestamp;
+    };
+
+    export type Doc = {
+      name: string;
+      dir: t.StringDir;
+      remoteBundles?: RemoteBundle[];
+    };
+
+    export type Location = {
+      readonly name: string;
+      readonly dir: t.StringDir;
+      readonly remoteBundles?: RemoteBundle[];
+    };
+
     export type DirName = `-config/${string}.${Id}`;
     export type Ext = '.yaml';
     export type YamlCheck =
       | { readonly ok: true; readonly doc: Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+    export type LoadResult =
+      | { readonly ok: true; readonly cwd: t.StringDir; readonly location: Location }
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
   }
 }

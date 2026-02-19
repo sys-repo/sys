@@ -1,11 +1,9 @@
-import { type t, c, Cli, D, done, Fs, Is, opt } from './common.ts';
+import { type t, c, D, done, Fs, Is } from './common.ts';
+import { pullBundle } from './cmd.pull/mod.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptTemplateVariant } from './u.menu.ts';
-import { cloneTemplate } from './u.tmpl/mod.ts';
-// [tmpl:variant.imports]
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
-import { PullMigrate } from './u.yaml/mod.ts';
+import { PullFs, PullMigrate } from './u.yaml/mod.ts';
 
 /**
  * Main entry:
@@ -16,12 +14,11 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
 
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
-  // [tmpl:variant.migrate]
-await PullMigrate.run(cwd);
+  await PullMigrate.run(cwd);
 
   /* Run */
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd, args);
+  const res = await run(cwd);
   console.info(Fmt.signoff(toolname));
 
   /* Exit */
@@ -32,51 +29,29 @@ await PullMigrate.run(cwd);
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir, _args: t.PullTool.CliArgs): Promise<t.RunReturn> {
-  /** --------------------------------------------------------
-   * Root Menu (Loop)
-   */
+async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   while (true) {
-    console.info();
-    const A = (await Cli.Input.Select.prompt<t.PullTool.MenuCmd>({
-      message: 'Tools:\n',
-      options: [
-        opt(` Option A (clone \`-tmpl\` as new ${c.green('tool')})`, 'option-a'),
-        opt(' YAML Configs', 'config'),
-        opt(c.gray('(quit)'), 'exit'),
-      ],
-      hideDefault: true,
-    })) as t.PullTool.MenuCmd;
+    const picked = await yamlConfigsMenu(cwd);
+    if (picked.kind === 'exit') return done();
 
-    /** --------------------------------------------------------
-     * Sub-Menu: A
-     */
-    if (A === 'option-a') {
-      const variant = await promptTemplateVariant();
-      if (!variant) continue;
-      await cloneTemplate(cwd, variant);
-      return done(0);
-    }
+    const yamlPath = Fs.join(cwd, PullFs.fileOf(picked.key));
+    const loaded = await PullFs.loadLocation(yamlPath);
 
-    /** --------------------------------------------------------
-     * Sub-Menu: B
-     */
-    // [tmpl:variant.option-b:start]
-if (A === 'config') {
-      const picked = await yamlConfigsMenu(cwd);
-      if (picked.kind === 'exit') return done(0);
-      if (picked.kind === 'selected') {
-        console.info(c.gray(`config: ${picked.key}`));
-      }
+    if (!loaded.ok) {
+      console.info(c.yellow('Could not load pull configuration'));
+      console.info(c.gray(`config: ${picked.key}`));
       continue;
     }
-// [tmpl:variant.option-b:end]
 
-    if (A === 'exit') return done(0);
+    const location = loaded.location;
+    if (Fs.cwd() !== location.dir) {
+      console.info(c.gray(`directory: ${location.dir}`));
+    }
+
+    while (true) {
+      const result = await pullBundle(cwd, yamlPath, location);
+      if (result.kind === 'back') break;
+      return done(0);
+    }
   }
-
-  /** --------------------------------------------------------
-   * End
-   */
-  return done(0);
 }
