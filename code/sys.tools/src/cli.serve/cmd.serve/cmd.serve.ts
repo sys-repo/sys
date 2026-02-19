@@ -78,6 +78,7 @@ export async function startServing(
           options,
           default: lastSelection,
           hideDefault: true,
+          maxRows: 20,
         })) as OpenValue;
       }
 
