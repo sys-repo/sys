@@ -48,7 +48,7 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     rebind(next);
   });
 
-  const keySub = wrangle.onKeyDown(editor, (event) => {
+  const keySub = editor.onKeyDown((event) => {
     if (life.disposed) return;
     const key = toEnterKeyEvent(event);
     if (!key) return;
@@ -87,13 +87,6 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
 };
 
 const wrangle = {
-  onKeyDown(
-    editor: t.Monaco.Editor,
-    listener: (e: t.Monaco.I.IKeyboardEvent) => void,
-  ) {
-    return editor.onKeyDown(listener);
-  },
-
   applyOptions(editor: t.Monaco.Editor, state: t.EditorPrompt.State) {
     editor.updateOptions({
       minimap: { enabled: false },

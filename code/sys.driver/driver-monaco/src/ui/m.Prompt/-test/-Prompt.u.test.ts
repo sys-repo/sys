@@ -27,7 +27,7 @@ describe('Monaco.Prompt', () => {
       expect(res).to.eql({
         lineCount: 1,
         visibleLines: 2,
-        clamped: false,
+        atMax: false,
         scrolling: false,
         height: 20,
       });
@@ -38,7 +38,7 @@ describe('Monaco.Prompt', () => {
       expect(atMax).to.eql({
         lineCount: 4,
         visibleLines: 4,
-        clamped: true,
+        atMax: true,
         scrolling: false,
         height: 40,
       });
@@ -47,7 +47,7 @@ describe('Monaco.Prompt', () => {
       expect(over).to.eql({
         lineCount: 5,
         visibleLines: 4,
-        clamped: true,
+        atMax: true,
         scrolling: true,
         height: 40,
       });

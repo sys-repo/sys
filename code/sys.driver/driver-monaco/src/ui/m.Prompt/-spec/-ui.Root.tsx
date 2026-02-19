@@ -17,7 +17,7 @@ export const Root: React.FC<RootProps> = (props) => {
   /**
    * TODO 🐷
    * - Wire `EditorPrompt.bind` into the harness lifecycle.
-   * - Replace bootstrap `minHeight` with controller-derived height.
+   * - Replace bootstrap `minHeight` with controller-derived height (`bind.args.lineHeight` is caller-provided).
    */
   const minHeight = 21;
 

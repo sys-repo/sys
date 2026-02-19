@@ -57,7 +57,7 @@ export declare namespace EditorPrompt {
   export type State = {
     readonly lineCount: number;
     readonly visibleLines: number;
-    readonly clamped: boolean;
+    readonly atMax: boolean;
     readonly scrolling: boolean;
     readonly height: number;
   };

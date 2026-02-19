@@ -5,13 +5,13 @@ export const state: t.EditorPrompt.CalculateState = (args) => {
   const config = normalize(args.config);
   const lineCount = Num.clamp(1, Num.MAX_INT, Math.trunc(args.lineCount || D.lineCount));
   const visibleLines = Num.clamp(config.lines.min, config.lines.max, lineCount);
-  const clamped = lineCount >= config.lines.max;
+  const atMax = lineCount >= config.lines.max;
   const overflowing = lineCount > config.lines.max;
   const scrolling = config.overflow === 'scroll' && overflowing;
   const lineHeight = Num.clamp(1, Num.MAX_INT, Math.trunc(args.lineHeight));
   const height = visibleLines * lineHeight;
 
-  return { lineCount, visibleLines, clamped, scrolling, height };
+  return { lineCount, visibleLines, atMax, scrolling, height };
 };
 
 export const resolveEnterAction: t.EditorPrompt.ResolveEnterAction = (args) => {
