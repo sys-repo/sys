@@ -194,7 +194,7 @@ function formatGithubReleaseSummary(args: {
     const pad = ' '.repeat(Math.max(1, maxPathLen - m.path.length + 1));
     const sizeLabel = c.dim(c.gray(`| ${Str.bytes(m.size)}`));
     const file = parts.file ? c.cyan(parts.file) : c.cyan(m.path);
-    return `${c.dim(branch)} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
+    return `${c.gray(c.dim(branch))} ${c.gray(parts.dir)}${file}${pad}${sizeLabel}`;
   });
 
   table.body([
