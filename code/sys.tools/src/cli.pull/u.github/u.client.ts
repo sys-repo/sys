@@ -31,7 +31,7 @@ export function parseGithubRepo(value: string): GithubRepoRef {
 }
 
 export async function loadGithubToken(): Promise<string | undefined> {
-  const env = await Env.load();
+  const env = await Env.load({ search: 'upward' });
   const token = env.get('GH_TOKEN') || env.get('GITHUB_TOKEN');
   return token.trim() || undefined;
 }
