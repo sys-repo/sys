@@ -5,7 +5,7 @@ import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 
 type P = t.KeyValueProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
   layout: t.KeyValueLayout['kind'];
   layoutSpaced: t.KeyValueLayoutSpaced;
   layoutTable: t.KeyValueLayoutTable;
@@ -17,6 +17,7 @@ const defaults: Storage = {
   size: D.size,
   mono: D.mono,
   truncate: D.truncate,
+  enabled: true,
   layout: D.layout.default,
   layoutSpaced: D.layout.spaced,
   layoutTable: D.layout.table,
@@ -44,6 +45,7 @@ export function createDebugSignals() {
     size: s(snap.size),
     mono: s(snap.mono),
     truncate: s(snap.truncate),
+    enabled: s(snap.enabled ?? true),
     layout: s(snap.layout),
     layoutSpaced: {
       kind: 'spaced',
@@ -89,6 +91,7 @@ export function createDebugSignals() {
       d.size = p.size.value;
       d.mono = p.mono.value;
       d.truncate = p.truncate.value;
+      d.enabled = p.enabled.value;
       d.sample = p.sample.value;
 
       d.layout = p.layout.value;
@@ -154,11 +157,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value}`}
+        onClick={() => Signal.toggle(p.enabled)}
       />
       <Button
         block
@@ -171,11 +178,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `truncate: ${p.truncate.value}`}
         onClick={() => Signal.toggle(p.truncate)}
       />
-
       <hr />
-
       <LayoutButtons debug={debug} theme={theme.name} />
-
       <hr style={{ marginTop: 15 }} />
       <div className={Styles.title.class}>{'Items:'}</div>
       {itemsButton(undefined, '(none)')}
@@ -183,7 +187,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {itemsButton('comprehensive')}
       {itemsButton('opacity')}
       {itemsButton('links')}
-
       <hr style={{ marginTop: 25 }} />
       <Button
         block

@@ -33,6 +33,7 @@ export default Spec.describe(D.displayName, (e) => {
             size={v.size}
             mono={v.mono}
             truncate={v.truncate}
+            enabled={v.enabled}
             layout={debug.layout}
             items={v.items}
           />

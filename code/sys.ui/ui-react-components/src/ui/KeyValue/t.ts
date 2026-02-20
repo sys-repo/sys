@@ -16,6 +16,13 @@ export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixe
 export type KeyValueOpacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
 export type KeyValueLinkOpen = 'new-tab' | 'inline';
 export type KeyValueLinkDisplay = 'raw' | 'trim-http';
+export type KeyValueDefaults = {
+  /**
+   * Opacity applied to value-side cells (`v`) when `disabled` is true.
+   * Key-side styling remains unchanged by default.
+   */
+  readonly disabledOpacity?: t.Percent;
+};
 export type KeyValueLinkProps = {
   readonly href?: t.StringUri;
   readonly infer?: boolean;
@@ -46,6 +53,8 @@ export type KeyValueProps = {
   mono?: boolean;
   truncate?: boolean;
   selectable?: boolean;
+  enabled?: boolean;
+  defaults?: KeyValueDefaults;
 
   debug?: boolean;
   theme?: t.CommonTheme;

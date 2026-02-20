@@ -148,8 +148,8 @@ export function isSafeHref(input?: string): input is t.StringUri {
   return protocol === 'http:' || protocol === 'https:';
 }
 
-function mergeRel(left?: string, right?: string): string | undefined {
-  const values = `${left ?? ''} ${right ?? ''}`.trim().split(/\s+/).filter(Boolean);
+function mergeRel(left: string = '', right: string = ''): string | undefined {
+  const values = `${left} ${right}`.trim().split(/\s+/).filter(Boolean);
 
   if (values.length === 0) return;
   return [...new Set(values)].join(' ');
