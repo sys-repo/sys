@@ -55,11 +55,16 @@ export declare namespace EditorPrompt {
 
   /** Prompt runtime state derived from editor content. */
   export type State = {
-    readonly lineCount: number;
-    readonly visibleLines: number;
-    readonly atMax: boolean;
+    readonly line: StateLine;
     readonly scrolling: boolean;
     readonly height: number;
+  };
+
+  /** Line-related prompt state. */
+  export type StateLine = {
+    readonly count: number;
+    readonly visible: number;
+    readonly atMax: boolean;
   };
 
   /** Calculate prompt state from line-count and config. */

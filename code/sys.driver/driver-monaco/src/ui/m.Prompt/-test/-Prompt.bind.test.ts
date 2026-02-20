@@ -12,22 +12,22 @@ describe('Monaco.Prompt', () => {
         editor,
         lineHeight: 21,
         config: { lines: { min: 1, max: 2 }, overflow: 'scroll' },
-        onStateChange: (e) => states.push(e.lineCount),
+        onStateChange: (e) => states.push(e.line.count),
       });
 
       // Initial prime.
       expect(states).to.eql([1]);
-      expect(life.state.visibleLines).to.eql(1);
+      expect(life.state.line.visible).to.eql(1);
       expect(life.state.scrolling).to.eql(false);
 
       model.setValue('one\ntwo');
       expect(states).to.eql([1, 2]);
-      expect(life.state.visibleLines).to.eql(2);
+      expect(life.state.line.visible).to.eql(2);
       expect(life.state.scrolling).to.eql(false);
 
       model.setValue('one\ntwo\nthree');
       expect(states).to.eql([1, 2, 3]);
-      expect(life.state.visibleLines).to.eql(2);
+      expect(life.state.line.visible).to.eql(2);
       expect(life.state.scrolling).to.eql(true);
 
       const before = states.length;
@@ -94,7 +94,7 @@ describe('Monaco.Prompt', () => {
           editor,
           lineHeight: 21,
           config: { lines: { min: 1, max: 2 }, overflow: 'scroll' },
-          onStateChange: (e) => states.push(e.lineCount),
+          onStateChange: (e) => states.push(e.line.count),
         },
         until,
       );

@@ -25,9 +25,11 @@ describe('Monaco.Prompt', () => {
     it('enforces min visible lines', () => {
       const res = state({ config, lineCount: 1, lineHeight: 10 });
       expect(res).to.eql({
-        lineCount: 1,
-        visibleLines: 2,
-        atMax: false,
+        line: {
+          count: 1,
+          visible: 2,
+          atMax: false,
+        },
         scrolling: false,
         height: 20,
       });
@@ -36,18 +38,22 @@ describe('Monaco.Prompt', () => {
     it('clamps at max and enables scrolling only after overflow', () => {
       const atMax = state({ config, lineCount: 4, lineHeight: 10 });
       expect(atMax).to.eql({
-        lineCount: 4,
-        visibleLines: 4,
-        atMax: true,
+        line: {
+          count: 4,
+          visible: 4,
+          atMax: true,
+        },
         scrolling: false,
         height: 40,
       });
 
       const over = state({ config, lineCount: 5, lineHeight: 10 });
       expect(over).to.eql({
-        lineCount: 5,
-        visibleLines: 4,
-        atMax: true,
+        line: {
+          count: 5,
+          visible: 4,
+          atMax: true,
+        },
         scrolling: true,
         height: 40,
       });

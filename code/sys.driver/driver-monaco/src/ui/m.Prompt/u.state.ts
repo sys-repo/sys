@@ -11,7 +11,15 @@ export const state: t.EditorPrompt.CalculateState = (args) => {
   const lineHeight = Num.clamp(1, Num.MAX_INT, Math.trunc(args.lineHeight));
   const height = visibleLines * lineHeight;
 
-  return { lineCount, visibleLines, atMax, scrolling, height };
+  return {
+    line: {
+      count: lineCount,
+      visible: visibleLines,
+      atMax,
+    },
+    scrolling,
+    height,
+  };
 };
 
 export const resolveEnterAction: t.EditorPrompt.ResolveEnterAction = (args) => {
