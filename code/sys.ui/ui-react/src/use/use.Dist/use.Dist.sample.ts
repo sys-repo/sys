@@ -13,8 +13,6 @@ export const sample: t.DistPkg = {
     runtime: 'deno=<version>:v8=<version>:typescript=<version>',
     hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
   },
-  entry: 'pkg/-entry.CsmS4pX8.js',
-  url: { base: '/' },
   hash: {
     digest: `sha256-0000000000000000000000000000000000000000000000000000000000000000`,
     parts: {

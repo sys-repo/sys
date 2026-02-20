@@ -19,8 +19,6 @@ describe('Pkg.Dist', () => {
           builder: '@scope/sample@0.0.0',
           runtime: '<runtime-uri>',
         },
-        entry: './main.js',
-        url: { base: '/' },
         hash: { digest: 'sha256-0000', parts: { './index.html': 'sha256-0000' } },
       };
 
@@ -68,8 +66,6 @@ describe('Pkg.Dist', () => {
             runtime: '<runtime-uri>',
             hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
-          entry: './main.js',
-          url: { base: '/' },
           hash: {
             digest: 'sha256-0000',
             parts: { './index.html': 'sha256-0000', './-entry.js': 'sha256-0000' },

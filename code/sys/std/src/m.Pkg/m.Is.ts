@@ -40,7 +40,6 @@ const wrangle = {
     if (!PkgIs.pkg(dist.pkg)) return false;
     return (
       isObject(dist.build) &&
-      typeof dist.entry === 'string' &&
       typeof dist.hash.digest === 'string' &&
       isObject(dist.hash.parts)
     );

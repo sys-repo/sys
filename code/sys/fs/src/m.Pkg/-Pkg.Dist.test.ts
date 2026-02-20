@@ -37,12 +37,12 @@ describe('Pkg.Dist', () => {
   describe('Dist.compute (save)', () => {
     it('Dist.compute(): → success', async () => {
       const sample = await Sample.init();
-      const { dir, entry } = sample.path;
+      const { dir } = sample.path;
 
       const pkg = { name: 'my-package', version: '0.0.0' };
       const builder = { name: 'my-builder', version: '0.0.0' };
 
-      const res = await Pkg.Dist.compute({ dir, pkg, builder, entry });
+      const res = await Pkg.Dist.compute({ dir, pkg, builder });
       renderDist(res.dist);
 
       expect(res.exists).to.eql(true);
@@ -56,8 +56,6 @@ describe('Pkg.Dist', () => {
 
       const dist = res.dist;
       expect(dist.pkg).to.eql(pkg);
-      expect(dist.entry).to.eql(Path.normalize(entry));
-      expect(dist.url.base).to.eql('/');
 
       expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
       expect(dist.build.builder).to.eql(Pkg.toString(builder));
@@ -81,7 +79,7 @@ describe('Pkg.Dist', () => {
 
     it('Dist.compute(): applies custom filter to hash manifest (in addition to dist.json exclusion)', async () => {
       const sample = await Sample.init();
-      const { dir, entry } = sample.path;
+      const { dir } = sample.path;
 
       const pkg = { name: 'my-package', version: '0.0.0' };
       const builder = { name: 'my-builder', version: '0.0.0' };
@@ -100,7 +98,7 @@ describe('Pkg.Dist', () => {
        *   - additionally exclude "./ignore.me" (here)
        */
       const filter = (p: t.StringPath) => p !== ignoredRelPath;
-      const res = await Pkg.Dist.compute({ dir, pkg, builder, entry, filter });
+      const res = await Pkg.Dist.compute({ dir, pkg, builder, filter });
       const dist = res.dist;
 
       expect(res.exists).to.eql(true);
@@ -123,8 +121,8 @@ describe('Pkg.Dist', () => {
 
     it('Dist.compute(): excludes root dist.json regardless of key style', async () => {
       const sample = await Sample.init();
-      const { dir, entry } = sample.path;
-      const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+      const { dir } = sample.path;
+      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
       const keys = Object.keys(res.dist.hash.parts);
       expect(keys.includes('./dist.json')).to.eql(false);
       expect(keys.includes('dist.json')).to.eql(false);
@@ -132,10 +130,10 @@ describe('Pkg.Dist', () => {
 
     it('Dist.compute(): root hash is idempotent across repeated save runs', async () => {
       const sample = await Sample.init();
-      const { dir, entry } = sample.path;
+      const { dir } = sample.path;
 
-      const first = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
-      const second = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+      const first = await Pkg.Dist.compute({ dir, pkg, save: true });
+      const second = await Pkg.Dist.compute({ dir, pkg, save: true });
 
       expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
       expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
@@ -143,43 +141,31 @@ describe('Pkg.Dist', () => {
       expect(Object.keys(second.dist.hash.parts).includes('dist.json')).to.eql(false);
     });
 
-    it('custom: url/base (compiled pathing)', async () => {
-      const pkg = { name: 'my-package', version: '0.0.0' };
-      const builder = { name: 'my-builder', version: '0.0.0' };
-      const sample = await Sample.init();
-      const { dir, entry } = sample.path;
-
-      const url: t.DistPkg['url'] = { base: '/foo/' };
-      const res = await Pkg.Dist.compute({ dir, pkg, builder, url, entry });
-
-      expect(res.dist.url).to.eql(url);
-    });
-
     it('{pkg} not passed → <unknown> package', async () => {
       const sample = await Sample.init();
-      const { dir, entry } = sample.path;
-      const res = await Pkg.Dist.compute({ dir, entry });
+      const { dir } = sample.path;
+      const res = await Pkg.Dist.compute({ dir });
       expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
       expect(Pkg.Is.unknown(res.dist.build.builder)).to.eql(true);
     });
 
     it('default: does not save to file', async () => {
       const sample = await Sample.init();
-      const { dir, entry, filepath } = sample.path;
+      const { dir, filepath } = sample.path;
       const exists = () => Fs.exists(filepath);
 
       expect(await exists()).to.eql(false);
-      await Pkg.Dist.compute({ dir, pkg, entry });
+      await Pkg.Dist.compute({ dir, pkg });
       expect(await exists()).to.eql(false); // NB: never written.
     });
 
     it('{save:true} → saves to file-system', async () => {
       const sample = await Sample.init();
-      const { dir, entry, filepath } = sample.path;
+      const { dir, filepath } = sample.path;
       const exists = () => Fs.exists(filepath);
       expect(await exists()).to.eql(false);
 
-      const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
       expect(await exists()).to.eql(true);
 
       const json = (await Fs.readJson(filepath)).data;
@@ -194,7 +180,6 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include('does not exist');
       expect(res.dir).to.eql(dir);
       expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.entry).to.eql('');
       expect(res.dist.hash).to.eql({ digest: '', parts: {} }); // NB: empty.
     });
 
@@ -446,8 +431,6 @@ describe('Pkg.Dist', () => {
           builder: '@sample/legacy@0.0.1',
           runtime: '<runtime-uri>',
         },
-        entry: '',
-        url: { base: '/' },
         hash: { digest: 'sha256-deadbeef', parts: { './index.js': 'sha256-deadbeef' } },
       };
 

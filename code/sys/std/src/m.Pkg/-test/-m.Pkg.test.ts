@@ -116,8 +116,6 @@ describe('Pkg', () => {
             builder: '@sys/driver-vite@0.0.0',
             runtime: '<runtime-uri>',
           },
-          entry: 'pkg/entry.js',
-          url: { base: '/' },
           hash: {
             digest: 'acbc',
             parts: {
@@ -140,8 +138,6 @@ describe('Pkg', () => {
             runtime: '<runtime-uri>',
             hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
-          entry: 'pkg/entry.js',
-          url: { base: '/' },
           hash: {
             digest: 'acbc',
             parts: {
@@ -163,8 +159,6 @@ describe('Pkg', () => {
             builder: '@sys/driver-vite@0.0.0',
             runtime: '<runtime-uri>',
           },
-          entry: 'pkg/entry.js',
-          url: { base: '/' },
           hash: { digest: 'acbc', parts: { './pkg/entry.js': 'yyyy' } },
         };
 

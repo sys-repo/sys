@@ -73,8 +73,6 @@ export const HelloWorld: t.DistPkg = {
     runtime: 'deno=2.6.1:v8=14.2.231.17-rusty:typescript=5.9.2',
     hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
   },
-  entry: 'pkg/-entry.Bk8IHgcT.js',
-  url: { base: '/' },
   hash: {
     digest: 'sha256-ebe77955804aafe17e3a2d6e8970bac52b44e33329ca81d1a96f4f43e83abe35',
     parts: FILES_SHORT,

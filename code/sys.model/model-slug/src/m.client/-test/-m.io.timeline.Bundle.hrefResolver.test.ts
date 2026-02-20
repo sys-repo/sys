@@ -37,8 +37,6 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
         runtime: 'deno=1:v8=1:typescript=5',
         hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
       },
-      entry: '',
-      url: { base: '/' },
       hash: { digest: 'sha256-def', parts: hashParts as t.CompositeHashParts },
     };
   };

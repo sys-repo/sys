@@ -20,7 +20,7 @@ export const Dist: PkgDistFsLib = {
    * Prepare and save a "distribution package" meta-data file `pkg.json`.
    */
   async compute(args) {
-    const { entry = '', save = false, filter, trustChildDist = false } = args;
+    const { save = false, filter, trustChildDist = false } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
 
@@ -63,8 +63,6 @@ export const Dist: PkgDistFsLib = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg: args.pkg ?? Pkg.unknown(),
       build,
-      entry: wrangle.entry(entry),
-      url: args.url ?? { base: '/' },
       hash,
     };
 
@@ -261,10 +259,5 @@ const wrangle = {
   filepath(path: t.StringPath) {
     if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
     return path;
-  },
-
-  entry(input: string) {
-    input = Path.normalize(input);
-    return input === '.' ? '' : input;
   },
 } as const;

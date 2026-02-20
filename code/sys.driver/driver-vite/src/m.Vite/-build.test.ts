@@ -57,7 +57,10 @@ describe('Vite.build', () => {
     const outDir = Fs.join(paths.cwd, paths.app.outDir);
     const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
     const html = await readFile(Fs.join(outDir, 'index.html'));
-    const entry = await readFile(Fs.join(outDir, json.data?.entry ?? ''));
+    const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
+      path.startsWith('pkg/-entry.'),
+    );
+    const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
 
     return {
       res,
@@ -79,7 +82,10 @@ describe('Vite.build', () => {
     expect(res.dist).to.eql(files.json.dist);
     expect(res.dist.pkg).to.eql(pkg);
     expect(res.dist.build.size.total).to.be.greaterThan(100_000);
-    expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
+    const hashedEntry = Object.entries(res.dist.hash.parts).find(([path]) =>
+      path.startsWith('pkg/-entry.'),
+    )?.[1];
+    expect(hashedEntry?.startsWith('sha256-')).to.eql(true);
 
     expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js'); // NB: not specified in vite.json (see: sample-3).
   });
@@ -95,8 +101,8 @@ describe('Vite.build', () => {
 
     const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));
-    const entryPath = files.json.dist?.entry ?? '';
-    const nonEntryJs = js.filter((p) => p !== entryPath);
+    const entryJs = js.find((p) => p.startsWith('pkg/-entry.'));
+    const nonEntryJs = js.filter((p) => p !== entryJs);
     const chunks = nonEntryJs.filter((p) => p.startsWith('pkg/m.'));
     expect(chunks.length).to.be.greaterThan(0); // NB: assert code-splitting via dynamic import works.
   });

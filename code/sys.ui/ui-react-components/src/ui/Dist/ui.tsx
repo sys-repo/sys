@@ -33,8 +33,6 @@ export const Dist: React.FC<DistProps> = (props) => {
 
     // Core:
     items.push({ k: 'type', v: ellipsize(dist.type, [20, 12], '..') });
-    items.push({ k: 'entry', v: dist.entry });
-    items.push({ k: 'url.base', v: dist.url?.base });
     hr();
 
     // Build:
