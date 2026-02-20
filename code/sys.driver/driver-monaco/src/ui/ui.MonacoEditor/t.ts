@@ -75,8 +75,6 @@ export type MonacoEditorChange = {
 export type MonacoEditorKeyDownHandler = (e: MonacoEditorKeyDown) => void;
 /** Editor key-down event. */
 export type MonacoEditorKeyDown = {
-  readonly editor: t.Monaco.Editor;
-  readonly monaco: t.Monaco.Monaco;
   readonly event: t.Monaco.I.IKeyboardEvent;
   readonly key: string;
   readonly modifiers: t.KeyboardModifierFlags;

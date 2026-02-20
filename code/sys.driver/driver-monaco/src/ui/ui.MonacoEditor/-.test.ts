@@ -52,8 +52,6 @@ describe('MonacoEditor', () => {
         ctrl: true,
         meta: false,
       });
-      expect(res.editor).to.equal(editor);
-      expect(res.monaco).to.equal(monaco);
     });
   });
 });

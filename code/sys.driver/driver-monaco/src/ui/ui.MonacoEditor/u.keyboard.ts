@@ -15,8 +15,8 @@ export const defaultKeyBindings = (monaco?: t.Monaco.Monaco) => {
 };
 
 export const toKeyDownEvent = (
-  editor: t.Monaco.Editor,
-  monaco: t.Monaco.Monaco,
+  _editor: t.Monaco.Editor,
+  _monaco: t.Monaco.Monaco,
   event: t.Monaco.I.IKeyboardEvent,
 ): t.MonacoEditorKeyDown => {
   const key = event.browserEvent.key || event.code || '';
@@ -28,8 +28,6 @@ export const toKeyDownEvent = (
   } satisfies t.KeyboardModifierFlags;
 
   return {
-    editor,
-    monaco,
     event,
     key,
     modifiers,
