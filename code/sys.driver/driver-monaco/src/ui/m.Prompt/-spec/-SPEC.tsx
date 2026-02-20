@@ -37,7 +37,20 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.host.footer
       .padding(0)
       .border(Color.alpha(currentTheme().fg, 0.1))
-      .render(() => <Root owner={'subject:footer'} debug={debug} />);
+      .render(() => (
+        <Root
+          owner={'subject:footer'}
+          debug={debug}
+          style={{ marginLeft: 10 }}
+          contentInset={{
+            top: 10,
+            bottom: 10,
+            lineNumbers: 'off',
+            lineNumbersMinChars: 10,
+            glyphMargin: false,
+          }}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

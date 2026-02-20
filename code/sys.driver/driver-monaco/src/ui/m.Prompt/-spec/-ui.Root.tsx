@@ -5,6 +5,7 @@ export type RootProps = {
   owner: 'subject' | 'subject:footer';
   debug: t.DebugSignals;
   autoFocus?: boolean;
+  contentInset?: t.MonacoEditorContentInset;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onKeyDown?: t.MonacoEditorKeyDownHandler;
@@ -29,6 +30,7 @@ export const Root: React.FC<RootProps> = (props) => {
       theme={props.theme ?? v.theme}
       language={'plaintext'}
       autoFocus={props.autoFocus}
+      contentInset={props.contentInset}
       onKeyDown={props.onKeyDown}
       onMounted={(e) => wrangle.setEditor(p, channel, e.editor)}
       onChange={(e) => wrangle.setText(p, channel, e.content.text)}
@@ -48,11 +50,14 @@ function useBindingSample(props: RootProps) {
   const p = debug.props;
   const v = Signal.toObject(p);
   const channel = wrangle.channel(owner);
+  const insetTop = props.contentInset?.top ?? 0;
+  const insetBottom = props.contentInset?.bottom ?? 0;
+  const insetY = insetTop + insetBottom;
   if (channel === 'debug') return { height: 21 } as const;
 
   const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
   const lineHeight = 21;
-  const [height, setHeight] = React.useState(lineHeight);
+  const [height, setHeight] = React.useState(lineHeight + insetY);
 
   React.useEffect(() => {
     const editor = wrangle.editor(v, channel);
@@ -65,7 +70,7 @@ function useBindingSample(props: RootProps) {
       bindingRef.current?.dispose();
       bindingRef.current = undefined;
 
-      const updateHeight = (state: t.EditorPrompt.State) => setHeight(state.height);
+      const updateHeight = (state: t.EditorPrompt.State) => setHeight(state.height + insetY);
 
       const config: t.EditorPrompt.Config = {
         lines: { min: 1, max: v.maxLines ?? D.lines.max },
@@ -100,7 +105,7 @@ function useBindingSample(props: RootProps) {
       life.dispose();
       bindingRef.current = undefined;
     };
-  }, [channel, v.editorSubject, v.editorFooter, v.maxLines, v.overflow]);
+  }, [channel, v.editorSubject, v.editorFooter, v.maxLines, v.overflow, insetY]);
 
   return { height } as const;
 }
