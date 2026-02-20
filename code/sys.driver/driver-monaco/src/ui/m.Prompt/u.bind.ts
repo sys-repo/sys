@@ -92,6 +92,10 @@ const wrangle = {
       minimap: { enabled: false },
       lineNumbers: 'off',
       scrollBeyondLastLine: false,
+      quickSuggestions: false,
+      suggestOnTriggerCharacters: false,
+      wordBasedSuggestions: 'off',
+      parameterHints: { enabled: false },
       scrollbar: {
         vertical: state.scrolling ? 'visible' : 'hidden',
         horizontal: 'hidden',

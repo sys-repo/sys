@@ -49,6 +49,10 @@ describe('Monaco.Prompt', () => {
       const first = editor._getUpdateOptionsCalls().at(-1) as any;
       expect(first.minimap?.enabled).to.eql(false);
       expect(first.lineNumbers).to.eql('off');
+      expect(first.quickSuggestions).to.eql(false);
+      expect(first.suggestOnTriggerCharacters).to.eql(false);
+      expect(first.wordBasedSuggestions).to.eql('off');
+      expect(first.parameterHints?.enabled).to.eql(false);
       expect(first.scrollbar?.vertical).to.eql('hidden');
 
       model.setValue('one\ntwo\nthree');
