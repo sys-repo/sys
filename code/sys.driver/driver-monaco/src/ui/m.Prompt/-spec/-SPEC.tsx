@@ -1,11 +1,12 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Root } from './-ui.Root.tsx';
-import { D, Color } from './common.ts';
+import { type t, Color, D, Keyboard, Rx } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
+  let keyboardLife: t.Lifecycle | undefined;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -21,19 +22,17 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
+    keyboardLife?.dispose();
+    keyboardLife = Rx.lifecycle();
+    Keyboard.until(keyboardLife.dispose$).on('Escape', (e) => {
+      p.editorFooter.value?.focus();
+      e.handled();
+    });
+
     ctx.subject
       .size('fill-x', 100)
       .display('grid')
-      .render(() => (
-        <Root
-          owner={'subject'}
-          debug={debug}
-          autoFocus={true}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') p.editorFooter.value?.focus();
-          }}
-        />
-      ));
+      .render(() => <Root owner={'subject'} debug={debug} autoFocus={true} />);
 
     ctx.host.footer
       .padding(0)
