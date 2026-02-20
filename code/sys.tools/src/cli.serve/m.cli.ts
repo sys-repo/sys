@@ -1,4 +1,4 @@
-import { startServing } from './cmd.serve/mod.ts';
+import { startServing } from './m.server/mod.ts';
 
 import { type t, Args, c, D, done, Fs, Is } from './common.ts';
 import { Fmt } from './u.fmt.ts';

@@ -1,7 +1,7 @@
 import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time, Url } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
-import { startServing } from '../../cli.serve/cmd.serve/mod.ts';
+import { startServing } from '../../cli.serve/m.server/mod.ts';
 
 import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
