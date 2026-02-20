@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   type t,
   Button,
@@ -30,6 +29,7 @@ type Storage = Pick<
   | 'autoFocus'
   | 'fontSize'
   | 'spinning'
+  | 'contentInset'
 > & { render?: boolean };
 
 /**
@@ -51,6 +51,7 @@ const defaults: Storage = {
   spinning: D.props.spinning,
   fontSize: undefined,
   placeholder: undefined,
+  contentInset: undefined,
 };
 
 /**
@@ -77,6 +78,7 @@ export function createDebugSignals() {
     language: s(snap.language),
     placeholder: s(snap.placeholder),
     spinning: s(snap.spinning),
+    contentInset: s(snap.contentInset),
 
     defaultValue: s<P['defaultValue']>(),
     editor: s<t.Monaco.Editor>(),
@@ -104,6 +106,7 @@ export function createDebugSignals() {
       d.language = p.language.value;
       d.placeholder = p.placeholder.value;
       d.spinning = p.spinning.value;
+      d.contentInset = p.contentInset.value;
     });
   });
 
@@ -151,18 +154,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `spinning: ${p.spinning.value ?? `<undefined>)`}`}
+        label={() => `spinning: ${p.spinning.value ?? `(undefined))`}`}
         onClick={() => Signal.toggle(p.spinning)}
       />
       <Button
         block
-        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
+        label={() => `placeholder: ${p.placeholder.value ?? `(undefined)`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          return (
+            <>
+              {`contentInset: `}
+              <ObjectView name={'inset'} data={p.contentInset.value} expand={1} />
+            </>
+          );
+        }}
+        onClick={() => wrangle.cycleContentInset(p.contentInset)}
       />
 
       <hr />
@@ -205,13 +220,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `tabSize: ${p.tabSize.value ?? `<undefined> (default: ${D.props.tabSize})`}`}
+        label={() => `tabSize: ${p.tabSize.value ?? `(undefined) (default: ${D.props.tabSize})`}`}
         onClick={() => Signal.cycle(p.tabSize, [2, 4, undefined])}
       />
       <Button
         block
         label={() =>
-          `wordWrap: ${p.wordWrap.value ?? `<undefined> (default: ${D.props.wordWrap})`}`
+          `wordWrap: ${p.wordWrap.value ?? `(undefined) (default: ${D.props.wordWrap})`}`
         }
         onClick={() => Signal.toggle(p.wordWrap)}
       />
@@ -259,6 +274,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
+  cycleContentInset(target: t.Signal<t.MonacoEditorContentInset | undefined>) {
+    const idx = INSET_CYCLE_VALUES.findIndex((item) => Obj.eql(item, target.value));
+    const next =
+      INSET_CYCLE_VALUES[(idx + 1 + INSET_CYCLE_VALUES.length) % INSET_CYCLE_VALUES.length];
+    target.value = next;
+  },
+
   debug(debug: DebugSignals) {
     const p = debug.props;
     const editor = p.editor.value;
@@ -282,3 +304,31 @@ const wrangle = {
     return Signal.toObject(data);
   },
 } as const;
+
+const INSET_CYCLE_VALUES: (t.MonacoEditorContentInset | undefined)[] = [
+  undefined,
+  {
+    top: 6,
+    bottom: 6,
+    lineDecorationsWidth: 0,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    glyphMargin: false,
+  },
+  {
+    top: 10,
+    bottom: 10,
+    lineDecorationsWidth: 12,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    glyphMargin: false,
+  },
+  {
+    top: 8,
+    bottom: 8,
+    lineDecorationsWidth: 16,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    glyphMargin: false,
+  },
+];

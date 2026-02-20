@@ -25,6 +25,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         wordWrap={v.wordWrap}
         fontSize={v.fontSize}
         spinning={v.spinning}
+        contentInset={v.contentInset}
         //
         onKeyDown={(e) => {
           console.info(`⚡️ MonacoEditor.onKeyDown:`, e);

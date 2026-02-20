@@ -25,6 +25,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     wordWrapColumn = DP.wordWrapColumn,
     fontSize = DP.fontSize,
     spinning = DP.spinning,
+    contentInset,
   } = props;
   const editorTheme = Theme.toRegisteredName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
@@ -62,7 +63,19 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [tabSize, readOnly, minimap, wordWrap, fontSize]);
+  }, [
+    tabSize,
+    readOnly,
+    minimap,
+    wordWrap,
+    fontSize,
+    contentInset?.top,
+    contentInset?.bottom,
+    contentInset?.lineNumbers,
+    contentInset?.lineNumbersMinChars,
+    contentInset?.glyphMargin,
+    contentInset?.lineDecorationsWidth,
+  ]);
 
   /**
    * Effect: End-of-life.
@@ -93,6 +106,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const getModel = (editor?: t.Monaco.Editor) => editor?.getModel();
   const updateOptions = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
+    const inset = wrangle.inset(contentInset);
 
     editor.updateOptions({
       theme: editorTheme,
@@ -103,6 +117,15 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       fontSize,
       detectIndentation: false,
       insertSpaces: true,
+      padding: { top: inset.top, bottom: inset.bottom },
+      ...(inset.lineNumbers !== undefined ? { lineNumbers: inset.lineNumbers } : {}),
+      ...(inset.lineNumbersMinChars !== undefined
+        ? { lineNumbersMinChars: inset.lineNumbersMinChars }
+        : {}),
+      ...(inset.glyphMargin !== undefined ? { glyphMargin: inset.glyphMargin } : {}),
+      ...(inset.lineDecorationsWidth !== undefined
+        ? { lineDecorationsWidth: inset.lineDecorationsWidth }
+        : {}),
     });
 
     getModel(editor)?.updateOptions({
@@ -222,3 +245,16 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     </div>
   );
 };
+
+const wrangle = {
+  inset(input?: t.MonacoEditorContentInset) {
+    return {
+      top: input?.top ?? 0,
+      bottom: input?.bottom ?? 0,
+      lineNumbers: input?.lineNumbers,
+      lineNumbersMinChars: input?.lineNumbersMinChars,
+      glyphMargin: input?.glyphMargin,
+      lineDecorationsWidth: input?.lineDecorationsWidth,
+    } as const;
+  },
+} as const;
