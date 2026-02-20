@@ -123,10 +123,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      <hr />
       <Button
         block
-        label={() => `maxLines: ${p.maxLines.value}`}
-        onClick={() => Signal.cycle<number>(p.maxLines, [1, 3, 5])}
+        label={() => `max-lines: ${p.maxLines.value}`}
+        onClick={() => Signal.cycle<number>(p.maxLines, [2, 3, 5, 10])}
+      />
+      <Button
+        block
+        label={() => `single-line`}
+        onClick={() => {
+          p.maxLines.value = 1;
+          p.overflow.value = 'clamp';
+        }}
       />
 
       <hr />
