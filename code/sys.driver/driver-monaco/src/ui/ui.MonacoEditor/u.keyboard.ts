@@ -13,3 +13,31 @@ export const defaultKeyBindings = (monaco?: t.Monaco.Monaco) => {
     when: null, //    ← null == every context
   });
 };
+
+export const toKeyDownEvent = (
+  editor: t.Monaco.Editor,
+  monaco: t.Monaco.Monaco,
+  event: t.Monaco.I.IKeyboardEvent,
+): t.MonacoEditorKeyDown => {
+  const key = event.browserEvent.key || event.code || '';
+  const modifiers = {
+    shift: !!event.shiftKey,
+    alt: !!event.altKey,
+    ctrl: !!event.ctrlKey,
+    meta: !!event.metaKey,
+  } satisfies t.KeyboardModifierFlags;
+
+  return {
+    editor,
+    monaco,
+    event,
+    key,
+    modifiers,
+    preventDefault() {
+      event.preventDefault();
+    },
+    stopPropagation() {
+      event.stopPropagation();
+    },
+  };
+};

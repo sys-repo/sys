@@ -2,7 +2,7 @@ import type { OnChange, OnMount } from '@monaco-editor/react';
 import React, { useRef } from 'react';
 
 import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
-import { defaultKeyBindings } from './u.keyboard.ts';
+import { defaultKeyBindings, toKeyDownEvent } from './u.keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from '../ui.MonacoEditor.theme/mod.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
@@ -35,6 +35,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const disposeRef = useRef(Rx.subject<t.DisposeEvent>());
   const monacoRef = useRef<t.Monaco.Monaco>(undefined);
   const editorRef = useRef<t.Monaco.Editor>(undefined);
+  const keyDownSubRef = useRef<t.Monaco.I.IDisposable>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
 
   /**
@@ -68,6 +69,9 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   React.useEffect(() => {
     return () => {
+      keyDownSubRef.current?.dispose();
+      keyDownSubRef.current = undefined;
+
       const editor = editorRef.current!;
       const monaco = monacoRef.current!;
       const dispose$ = disposeRef.current;
@@ -128,6 +132,10 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     defaultLanguageConfig(monaco);
     updateOptions(editor);
     updateTextState(editor);
+    keyDownSubRef.current?.dispose();
+    keyDownSubRef.current = editor.onKeyDown((event) => {
+      props.onKeyDown?.(toKeyDownEvent(editor, monaco, event));
+    });
 
     // Alert listeners:
     const dispose$ = disposeRef.current;

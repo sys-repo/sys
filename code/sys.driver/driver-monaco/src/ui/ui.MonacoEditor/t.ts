@@ -31,6 +31,7 @@ export type MonacoEditorProps = {
   // Handlers:
   onMounted?: t.MonacoEditorMountedHandler;
   onChange?: t.MonacoEditorChangeHandler;
+  onKeyDown?: t.MonacoEditorKeyDownHandler;
   onDispose?: t.MonacoEditorDisposedHandler;
 };
 
@@ -66,4 +67,19 @@ export type MonacoEditorChange = {
   readonly monaco: t.Monaco.Monaco;
   readonly content: t.EditorContent;
   readonly selections: t.EditorSelection[];
+};
+
+/**
+ * Handler for editor key-down events.
+ */
+export type MonacoEditorKeyDownHandler = (e: MonacoEditorKeyDown) => void;
+/** Editor key-down event. */
+export type MonacoEditorKeyDown = {
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
+  readonly event: t.Monaco.I.IKeyboardEvent;
+  readonly key: string;
+  readonly modifiers: t.KeyboardModifierFlags;
+  preventDefault(): void;
+  stopPropagation(): void;
 };

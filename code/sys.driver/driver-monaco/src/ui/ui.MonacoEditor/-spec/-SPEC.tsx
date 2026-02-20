@@ -26,6 +26,9 @@ export default Spec.describe('MonacoEditor', (e) => {
         fontSize={v.fontSize}
         spinning={v.spinning}
         //
+        onKeyDown={(e) => {
+          console.info(`⚡️ MonacoEditor.onKeyDown:`, e);
+        }}
         onMounted={(e) => {
           const { editor } = e;
           console.info(`⚡️ MonacoEditor.onMounted:`, e);
