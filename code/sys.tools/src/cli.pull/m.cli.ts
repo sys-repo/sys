@@ -51,7 +51,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     while (true) {
       const result = await pullBundle(cwd, yamlPath, location);
       if (result.kind === 'back') break;
-      return done(0);
     }
   }
 }
