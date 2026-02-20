@@ -22,8 +22,8 @@ groups:
     - import: jsr:@std/dotenv@0.225.6
     - import: jsr:@std/encoding@1.0.10
     - import: jsr:@std/jsonc@1.0.2
-    - import: jsr:@std/fs@1.0.22
-    - import: jsr:@std/http@1.0.24
+    - import: jsr:@std/fs@1.0.23
+    - import: jsr:@std/http@1.0.25
       subpaths: [file-server]
     - import: jsr:@std/path@1.1.4
       subpaths: [join, windows/join, posix/join]
