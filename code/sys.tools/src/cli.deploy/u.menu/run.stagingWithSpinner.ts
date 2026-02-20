@@ -30,7 +30,8 @@ export async function runStagingWithSpinner(args: {
   const render = (): string => {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
     const lines: string[] = [];
-    lines.push(`staging (${c.white(String(done + 1))}/${total})...`);
+    const progress = Math.min(total, done + active.size);
+    lines.push(`staging (${c.white(String(progress))}/${total})...`);
 
     for (const name of names) {
       lines.push(c.gray(`  - ${c.white(name)}`));
