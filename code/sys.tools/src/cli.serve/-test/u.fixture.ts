@@ -1,4 +1,4 @@
-import { type t, slug, Fs } from '../common.ts';
+import { type t, Fs } from '../common.ts';
 
 export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
@@ -12,10 +12,8 @@ export type FixtureHonoNext = Parameters<t.HonoMiddlewareHandler>[1];
  */
 export const Fixture = {
   async makeTempDir(section = 'serve-route') {
-    const dir = `.tmp/test/${section}/${slug()}`;
-    await Fs.remove(dir);
-    await Fs.ensureDir(dir);
-    return dir;
+    const dir = await Fs.makeTempDir({ prefix: `sys.tools.serve.${section}.` });
+    return dir.absolute;
   },
 
   async writeFile(dir: string, rel: string, data: string) {
