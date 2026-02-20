@@ -2,7 +2,10 @@ import React from 'react';
 import { type t, css, D, EditorPrompt, MonacoEditor, Rx, Signal } from './common.ts';
 
 export type RootProps = {
+  owner: 'subject' | 'subject:footer';
   debug: t.DebugSignals;
+  autoFocus?: boolean;
+  theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
@@ -13,7 +16,8 @@ export const Root: React.FC<RootProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
-  const { height } = useBindingSample(debug);
+  const channel = wrangle.channel(props.owner);
+  const { height } = useBindingSample(props);
 
   /**
    * Render:
@@ -21,18 +25,18 @@ export const Root: React.FC<RootProps> = (props) => {
   return (
     <MonacoEditor
       style={css({ height }, props.style)}
-      theme={v.theme}
+      theme={props.theme ?? v.theme}
       language={'plaintext'}
-      autoFocus={true}
+      autoFocus={props.autoFocus}
       onMounted={(e) => {
-        p.editor.value = e.editor;
+        wrangle.setEditor(p, channel, e.editor);
       }}
       onChange={(e) => {
-        p.text.value = e.content.text;
+        wrangle.setText(p, channel, e.content.text);
       }}
       onDispose={() => {
-        p.editor.value = undefined;
-        p.state.value = undefined;
+        wrangle.setEditor(p, channel, undefined);
+        wrangle.setState(p, channel, undefined);
       }}
     />
   );
@@ -41,19 +45,23 @@ export const Root: React.FC<RootProps> = (props) => {
 /**
  * Binding orchestration
  */
-function useBindingSample(debug: t.DebugSignals) {
+function useBindingSample(props: RootProps) {
+  const { owner, debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const channel = wrangle.channel(owner);
+  if (channel === 'debug') return { height: 21 } as const;
 
   const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
   const lineHeight = 21;
   const [height, setHeight] = React.useState(lineHeight);
 
   React.useEffect(() => {
-    if (!v.editor) return;
+    const editor = wrangle.editor(v, channel);
+    if (!editor) return;
 
     const life = Rx.lifecycle();
-    const editor: t.Monaco.Editor = v.editor;
+    const mountedEditor: t.Monaco.Editor = editor;
 
     async function run() {
       bindingRef.current?.dispose();
@@ -69,11 +77,11 @@ function useBindingSample(debug: t.DebugSignals) {
 
       const binding = await EditorPrompt.bind(
         {
-          editor,
+          editor: mountedEditor,
           lineHeight,
           config,
           onStateChange(state) {
-            p.state.value = state;
+            wrangle.setState(p, channel, state);
             updateHeight(state);
           },
           onSubmit(e) {
@@ -85,7 +93,7 @@ function useBindingSample(debug: t.DebugSignals) {
 
       if (life.disposed) return;
       bindingRef.current = binding;
-      p.state.value = binding.state;
+      wrangle.setState(p, channel, binding.state);
       updateHeight(binding.state);
     }
 
@@ -94,7 +102,46 @@ function useBindingSample(debug: t.DebugSignals) {
       life.dispose();
       bindingRef.current = undefined;
     };
-  }, [v.editor, v.maxLines, v.overflow]);
+  }, [channel, v.editorSubject, v.editorFooter, v.maxLines, v.overflow]);
 
   return { height } as const;
 }
+
+const wrangle = {
+  channel(owner: RootProps['owner']): 'subject' | 'footer' | 'debug' {
+    if (owner === 'subject') return 'subject';
+    if (owner === 'subject:footer') return 'footer';
+    return 'debug';
+  },
+
+  editor(
+    v: ReturnType<typeof Signal.toObject<t.DebugSignals['props']>>,
+    channel: 'subject' | 'footer',
+  ) {
+    if (channel === 'subject') return v.editorSubject;
+    return v.editorFooter;
+  },
+
+  setEditor(
+    p: t.DebugSignals['props'],
+    channel: 'subject' | 'footer' | 'debug',
+    editor: t.Monaco.Editor | undefined,
+  ) {
+    if (channel === 'subject') p.editorSubject.value = editor;
+    if (channel === 'footer') p.editorFooter.value = editor;
+  },
+
+  setText(p: t.DebugSignals['props'], channel: 'subject' | 'footer' | 'debug', text: string) {
+    if (channel === 'subject') p.textSubject.value = text;
+    if (channel === 'footer') p.textFooter.value = text;
+  },
+
+  setState(
+    p: t.DebugSignals['props'],
+    channel: 'subject' | 'footer' | 'debug',
+    state: t.EditorPrompt.State | undefined,
+  ) {
+    if (channel === 'subject') p.stateSubject.value = state;
+    if (channel === 'footer') p.stateFooter.value = state;
+  },
+} as const;

@@ -4,14 +4,16 @@ import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } 
 type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  text?: string;
+  textSubject?: string;
+  textFooter?: string;
   overflow?: t.EditorPrompt.Overflow;
   maxLines?: number;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  text: '',
+  textSubject: '',
+  textFooter: '',
   overflow: D.overflow,
   maxLines: 3,
 };
@@ -33,11 +35,14 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    text: s(snap.text),
+    textSubject: s(snap.textSubject),
+    textFooter: s(snap.textFooter),
     overflow: s(snap.overflow),
     maxLines: s(snap.maxLines),
-    state: s<t.EditorPrompt.State>(),
-    editor: s<t.Monaco.Editor>(),
+    stateSubject: s<t.EditorPrompt.State>(),
+    stateFooter: s<t.EditorPrompt.State>(),
+    editorSubject: s<t.Monaco.Editor>(),
+    editorFooter: s<t.Monaco.Editor>(),
   };
   const p = props;
   const api = {
@@ -52,15 +57,18 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
-    p.editor.value = undefined;
-    p.state.value = undefined;
+    p.editorSubject.value = undefined;
+    p.editorFooter.value = undefined;
+    p.stateSubject.value = undefined;
+    p.stateFooter.value = undefined;
   }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.text = p.text.value;
+      d.textSubject = p.textSubject.value;
+      d.textFooter = p.textFooter.value;
       d.overflow = p.overflow.value;
       d.maxLines = p.maxLines.value;
     });
@@ -125,7 +133,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'state'} data={v.state} style={{ marginTop: 6 }} expand={3} />
+      <ObjectView
+        name={'state'}
+        data={{ subject: v.stateSubject, footer: v.stateFooter }}
+        style={{ marginTop: 6 }}
+        expand={1}
+      />
     </div>
   );
 };
