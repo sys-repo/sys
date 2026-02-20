@@ -64,6 +64,7 @@ export const PullFs = {
       cwd,
       location: {
         dir: resolvedDir,
+        defaults: doc.defaults,
         bundles: doc.bundles,
       },
     };

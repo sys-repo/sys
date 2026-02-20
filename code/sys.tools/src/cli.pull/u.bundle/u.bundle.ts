@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Open, opt, Str, Time, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
+import { resolveBundleForPull } from './u.defaults.ts';
 import { pullRemoteBundle } from './u.pull/mod.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
@@ -161,7 +162,8 @@ export async function pullBundle(
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
 
-    const pulled = await pullRemoteBundle(location.dir, bundle);
+    const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
+    const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
     if (!pulled.ok) {
       const b = Str.builder()
         .line(c.yellow('Pull failed'))
@@ -178,7 +180,7 @@ export async function pullBundle(
       if (hit) hit.lastUsedAt = Time.now.timestamp;
     });
 
-    return done(bundle);
+    return done(effectiveBundle);
   }
 
   return done();

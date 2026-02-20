@@ -50,6 +50,21 @@ export const PullYamlSchema = {
   schema: Schema.Type.Object(
     {
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
+      defaults: Schema.Type.Optional(
+        Schema.Type.Object(
+          {
+            local: Schema.Type.Optional(
+              Schema.Type.Object(
+                {
+                  clear: Schema.Type.Optional(Schema.Type.Boolean()),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
       bundles: Schema.Type.Optional(
         Schema.Type.Array(
           Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema]),

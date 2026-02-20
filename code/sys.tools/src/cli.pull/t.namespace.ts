@@ -36,6 +36,12 @@ export namespace PullTool {
   export type GithubReleaseResolveResult = PullToolGithubReleaseResolveResult;
 
   export namespace ConfigYaml {
+    export type Defaults = {
+      local?: {
+        clear?: boolean;
+      };
+    };
+
     export type BundleLocal = {
       dir: t.StringRelativeDir;
       clear?: boolean;
@@ -59,11 +65,13 @@ export namespace PullTool {
 
     export type Doc = {
       dir: t.StringDir;
+      defaults?: Defaults;
       bundles?: Bundle[];
     };
 
     export type Location = {
       readonly dir: t.StringDir;
+      readonly defaults?: Defaults;
       readonly bundles?: Bundle[];
     };
 

@@ -69,6 +69,27 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('accepts defaults.local.clear at root', () => {
+    const doc = {
+      dir: '.',
+      defaults: {
+        local: {
+          clear: true,
+        },
+      },
+      bundles: [
+        {
+          kind: 'http' as const,
+          dist: 'https://example.com/dist.json',
+          local: { dir: 'dev' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+  });
+
   it('rejects non-boolean local.clear values', () => {
     const doc = {
       dir: '.',
@@ -77,6 +98,27 @@ describe('PullYamlSchema', () => {
           kind: 'http' as const,
           dist: 'https://example.com/dist.json',
           local: { dir: 'dev', clear: 'yes' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(false);
+  });
+
+  it('rejects non-boolean defaults.local.clear values', () => {
+    const doc = {
+      dir: '.',
+      defaults: {
+        local: {
+          clear: 'yes',
+        },
+      },
+      bundles: [
+        {
+          kind: 'http' as const,
+          dist: 'https://example.com/dist.json',
+          local: { dir: 'dev' },
         },
       ],
     };
