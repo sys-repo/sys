@@ -4,14 +4,6 @@ import { Mime } from '../mod.ts';
 describe('MIME-types', () => {
   const as = <X>() => null as any as X;
 
-  it('maps groups to the underlying MIME lists', () => {
-    expect(Mime.groups.images).to.eql(Mime.images);
-    expect(Mime.groups.videos).to.eql(Mime.videos);
-    expect(Mime.groups.documents).to.eql(Mime.documents);
-    expect(Mime.groups.code).to.eql(Mime.code);
-    expect(Mime.groups.text).to.eql(Mime.text);
-  });
-
   it('maps file extensions to the correct MIME-type', () => {
     const map = Mime.extensionMap;
 
@@ -44,40 +36,9 @@ describe('MIME-types', () => {
     expect(map.wasm).to.equal('application/wasm');
   });
 
-  it('type-level: groups and extension maps yield valid MimeType values', () => {
-    type FromGroups =
-      | (typeof Mime.images)[number]
-      | (typeof Mime.videos)[number]
-      | (typeof Mime.documents)[number]
-      | (typeof Mime.code)[number]
-      | (typeof Mime.text)[number];
-
+  it('type-level: extension map yields valid MimeType values', () => {
     type FromExtMap = (typeof Mime.extensionMap)[string];
 
-    expectTypeOf(as<FromGroups>()).toEqualTypeOf<t.ServeTool.MimeType>();
     expectTypeOf(as<FromExtMap>()).toEqualTypeOf<t.ServeTool.MimeType>();
-  });
-
-  it('composes known MIME types from selected MimeGroup values', () => {
-    const selectedGroups: readonly t.ServeTool.MimeGroup[] = ['images', 'text'];
-
-    const types: t.ServeTool.MimeType[] = [];
-    for (const group of selectedGroups) {
-      types.push(...Mime.groups[group]);
-    }
-
-    // Expect exact concatenation of the configured groups.
-    expect(types).to.eql([
-      // images:
-      'image/png',
-      'image/jpeg',
-      'image/webp',
-      'image/svg+xml',
-      'image/x-icon',
-      // text:
-      'text/plain',
-      'text/html',
-      'text/css',
-    ] as t.ServeTool.MimeType[]);
   });
 });

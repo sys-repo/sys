@@ -31,7 +31,6 @@ export namespace ServeTool {
   export type MimeType = t.MimeType;
   /** MIME type emitted by the server (`octet-stream` fallback for unknown extensions). */
   export type ServedMimeType = MimeType | 'application/octet-stream';
-  export type MimeGroup = t.MimeGroup;
 
   /**
    * YAML-authored serve location configuration (authoritative).

@@ -2,21 +2,6 @@ import { type t } from '../common.ts';
 
 export const Mime = {
   fallback: 'application/octet-stream' as const,
-  images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/x-icon'],
-  videos: ['video/webm', 'video/mp4'],
-  documents: ['application/pdf', 'application/json', 'application/yaml'],
-  code: ['application/javascript', 'application/wasm'],
-  text: ['text/plain', 'text/html', 'text/css'],
-
-  get groups(): Record<t.ServeTool.MimeGroup, readonly t.ServeTool.MimeType[]> {
-    return {
-      images: Mime.images,
-      videos: Mime.videos,
-      documents: Mime.documents,
-      code: Mime.code,
-      text: Mime.text,
-    };
-  },
 
   get extensionMap(): Record<string, t.ServeTool.MimeType> {
     const ext: Record<t.ServeTool.MimeType, readonly string[]> = {
@@ -46,9 +31,8 @@ export const Mime = {
       'application/wasm': ['wasm'],
     };
 
-    const entries = Object.entries(ext);
     return Object.fromEntries(
-      entries.flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])),
+      Object.entries(ext).flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])),
     ) as Record<string, t.ServeTool.MimeType>;
   },
 } as const;

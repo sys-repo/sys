@@ -1,5 +1,3 @@
-export type MimeGroup = 'images' | 'videos' | 'documents' | 'code' | 'text';
-
 /**
  * Explicit allow-list of MIME types supported by the system.
  *
