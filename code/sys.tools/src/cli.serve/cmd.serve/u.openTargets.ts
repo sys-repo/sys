@@ -8,12 +8,10 @@ type Entry = {
 };
 
 export type OpenMenuPick = { cmd: 'open'; path: string };
+export type YamlLocation = t.ServeTool.LocationYaml.Location;
 
 export const OpenTargets = {
-  async menuOptions(location: t.ServeTool.LocationYaml.Location): Promise<readonly {
-    name: string;
-    value: OpenMenuPick;
-  }[]> {
+  async menuOptions(location: YamlLocation): Promise<readonly OpenMenuOption[]> {
     const roots = await OpenTargets.discover(location.dir);
     const withTreeBranches = (
       items: readonly Entry[],
@@ -32,7 +30,10 @@ export const OpenTargets = {
         const len = Cli.stripAnsi(row.base).length;
         const pad = ' '.repeat(Math.max(0, width - len));
         const name = ` ${row.base}${pad}${row.suffix}`.trimEnd();
-        return { name, value: { cmd: 'open', path: row.item.path } };
+        return {
+          name,
+          value: { cmd: 'open', path: row.item.path },
+        };
       });
     };
     return withTreeBranches(roots, 1);
@@ -58,9 +59,11 @@ export const OpenTargets = {
       const hasDist = fileRelSet.has(`${rel}/dist.json`);
       if (!hasIndex || !hasDist) continue;
 
-      const dist = (await Pkg.Dist.load(entry.path)).dist;
-      const hx = dist?.hash?.digest ?? '';
-      const hxshort = hx ? c.green(hx.slice(-5)) : c.gray(c.dim('-----'));
+      const loaded = await Pkg.Dist.load(entry.path);
+      if (!Pkg.Is.dist(loaded.dist)) continue;
+
+      const hx = loaded.dist.hash.digest;
+      const hxshort = c.green(hx.slice(-5));
       const label = `${c.gray(c.dim(`#${hxshort} `))}${rel}`;
       const fileCount = countsByDir.get(rel) ?? 0;
       all.push({ name: label, path: rel, fileCount });
@@ -87,7 +90,10 @@ function countFilesByDir(relFilePaths: readonly string[]): Map<string, number> {
   return counts;
 }
 
-function filterTopmost(entries: readonly Entry[]): Entry[] {
+/**
+ * Helpers:
+ */
+function filterTopmost(entries: Entry[]): Entry[] {
   const compare = Str.Compare.natural();
   const ordered = [...entries].sort((a, b) => {
     const d = pathDepth(a.path) - pathDepth(b.path);
