@@ -37,6 +37,8 @@ export declare namespace EditorPrompt {
 
   /** Enter-key action. */
   export type EnterAction = 'submit' | 'newline';
+  /** Submit trigger source. */
+  export type SubmitTrigger = 'enter' | 'enter:modified';
 
   /** Enter-key action policy. */
   export type EnterPolicy = {
@@ -104,6 +106,7 @@ export declare namespace EditorPrompt {
   export type SubmitEvent = {
     readonly monaco: SubmitEventMonaco;
     readonly state: State;
+    readonly trigger: SubmitTrigger;
     readonly text: string;
     readonly modifiers: t.KeyboardModifierFlags;
   };

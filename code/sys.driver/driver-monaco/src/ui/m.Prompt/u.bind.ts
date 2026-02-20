@@ -60,6 +60,7 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
       args.onSubmit?.({
         monaco: { editor, model },
         state: current,
+        trigger: key.modifiers.ctrl || key.modifiers.meta ? 'enter:modified' : 'enter',
         text: model.getValue(),
         modifiers: key.modifiers,
       });

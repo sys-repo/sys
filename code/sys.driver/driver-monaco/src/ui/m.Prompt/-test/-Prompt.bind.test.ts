@@ -138,6 +138,7 @@ describe('Monaco.Prompt', () => {
       expect(submits[0].monaco.editor).to.equal(editor);
       expect(submits[0].monaco.model).to.equal(editor.getModel());
       expect(submits[0].state).to.eql(life.state);
+      expect(submits[0].trigger).to.eql('enter');
       expect(submits[0].modifiers).to.eql({ shift: false, alt: false, ctrl: false, meta: false });
       life.dispose();
     });
@@ -157,6 +158,24 @@ describe('Monaco.Prompt', () => {
 
       editor._fireKeyDown({ key: 'Enter', metaKey: true });
       expect(editor.getModel()?.getValue()).to.eql('one\n');
+
+      const submits: t.EditorPrompt.SubmitEvent[] = [];
+      const submitLife = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: {
+          lines: { min: 1, max: 3 },
+          enter: { onEnter: 'newline', onModifiedEnter: 'submit' },
+        },
+        onSubmit: (e) => submits.push(e),
+      });
+
+      editor._fireKeyDown({ key: 'Enter', metaKey: true });
+      expect(submits.length).to.eql(1);
+      expect(submits[0].trigger).to.eql('enter:modified');
+      expect(submits[0].modifiers.meta).to.eql(true);
+
+      submitLife.dispose();
       life.dispose();
     });
 
