@@ -9,7 +9,7 @@ describe('Monaco.Prompt', () => {
       expect(res).to.eql({
         lines: { min: 1, max: 1 },
         overflow: 'scroll',
-        enter: { onEnter: 'newline', onModifiedEnter: 'newline' },
+        submitOn: 'enter:modified',
       });
     });
 
@@ -70,22 +70,22 @@ describe('Monaco.Prompt', () => {
   });
 
   describe('resolveEnterAction', () => {
-    it('maps enter and modified-enter from policy', () => {
+    it('maps enter and modified-enter from submitOn', () => {
       const config = {
         lines: { min: 1, max: 3 },
-        enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+        submitOn: 'enter',
       } as const;
       expect(resolveEnterAction({ config, modifiers: {} })).to.eql('submit');
       expect(resolveEnterAction({ config, modifiers: { meta: true } })).to.eql('newline');
     });
 
-    it('does not treat shift/alt as modified-enter', () => {
+    it('supports enter:modified as submit trigger', () => {
       const config = {
         lines: { min: 1, max: 3 },
-        enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+        submitOn: 'enter:modified',
       } as const;
-      expect(resolveEnterAction({ config, modifiers: { shift: true } })).to.eql('submit');
-      expect(resolveEnterAction({ config, modifiers: { alt: true } })).to.eql('submit');
+      expect(resolveEnterAction({ config, modifiers: {} })).to.eql('newline');
+      expect(resolveEnterAction({ config, modifiers: { meta: true } })).to.eql('submit');
     });
   });
 });

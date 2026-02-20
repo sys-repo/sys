@@ -10,10 +10,7 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   lineCount: 1,
-  enterPolicy: {
-    onEnter: 'newline',
-    onModifiedEnter: 'newline',
-  } satisfies t.EditorPrompt.EnterPolicy,
+  submitOn: 'enter:modified' satisfies t.EditorPrompt.SubmitTrigger,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

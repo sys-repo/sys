@@ -20,8 +20,8 @@ export declare namespace EditorPrompt {
     lines: Lines;
     /** Overflow behavior at max lines. */
     overflow?: Overflow;
-    /** Enter-key behavior mapping. */
-    enter?: EnterPolicy;
+    /** Which enter chord triggers submit. */
+    submitOn?: SubmitTrigger;
   };
 
   /** Visible line constraints. */
@@ -40,19 +40,11 @@ export declare namespace EditorPrompt {
   /** Submit trigger source. */
   export type SubmitTrigger = 'enter' | 'enter:modified';
 
-  /** Enter-key action policy. */
-  export type EnterPolicy = {
-    /** Action for Enter. */
-    onEnter: EnterAction;
-    /** Action for modifier+Enter. */
-    onModifiedEnter: EnterAction;
-  };
-
   /** Normalized prompt config with defaults applied. */
   export type ConfigResolved = {
     readonly lines: Lines;
     readonly overflow: Overflow;
-    readonly enter: EnterPolicy;
+    readonly submitOn: SubmitTrigger;
   };
 
   /** Prompt runtime state derived from editor content. */

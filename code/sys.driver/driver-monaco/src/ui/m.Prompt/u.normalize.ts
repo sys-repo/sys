@@ -8,10 +8,7 @@ export const normalize: t.EditorPrompt.NormalizeConfig = (config) => {
   return {
     lines: { min, max },
     overflow: config?.overflow ?? 'scroll',
-    enter: {
-      onEnter: config?.enter?.onEnter ?? D.enterPolicy.onEnter,
-      onModifiedEnter: config?.enter?.onModifiedEnter ?? D.enterPolicy.onModifiedEnter,
-    },
+    submitOn: config?.submitOn ?? D.submitOn,
   };
 };
 

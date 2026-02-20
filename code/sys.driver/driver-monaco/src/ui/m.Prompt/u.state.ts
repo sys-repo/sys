@@ -26,5 +26,8 @@ export const resolveEnterAction: t.EditorPrompt.ResolveEnterAction = (args) => {
   const config = normalize(args?.config);
   const modifiers = args?.modifiers ?? {};
   const isModified = !!(modifiers.ctrl || modifiers.meta);
-  return isModified ? config.enter.onModifiedEnter : config.enter.onEnter;
+  const shouldSubmit =
+    (config.submitOn === 'enter' && !isModified) ||
+    (config.submitOn === 'enter:modified' && isModified);
+  return shouldSubmit ? 'submit' : 'newline';
 };
