@@ -57,7 +57,12 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     if (action === 'submit') {
       key.preventDefault();
       key.stopPropagation();
-      args.onSubmit?.({ editor, model, text: model.getValue(), modifiers: key.modifiers });
+      args.onSubmit?.({
+        monaco: { editor, model },
+        state: current,
+        text: model.getValue(),
+        modifiers: key.modifiers,
+      });
       return;
     }
 

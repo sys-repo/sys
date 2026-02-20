@@ -102,10 +102,16 @@ export declare namespace EditorPrompt {
 
   /** Submit event payload emitted by bind enter handling. */
   export type SubmitEvent = {
-    readonly editor: t.Monaco.Editor;
-    readonly model: t.Monaco.TextModel;
+    readonly monaco: SubmitEventMonaco;
+    readonly state: State;
     readonly text: string;
     readonly modifiers: t.KeyboardModifierFlags;
+  };
+
+  /** Monaco handles exposed on submit. */
+  export type SubmitEventMonaco = {
+    readonly editor: t.Monaco.Editor;
+    readonly model: t.Monaco.TextModel;
   };
 
   /** Live prompt binding instance. */

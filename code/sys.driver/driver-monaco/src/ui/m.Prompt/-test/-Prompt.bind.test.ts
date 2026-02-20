@@ -135,6 +135,9 @@ describe('Monaco.Prompt', () => {
       editor._fireKeyDown({ key: 'Enter' });
       expect(editor.getModel()?.getValue()).to.eql('one');
       expect(submits.map((e) => e.text)).to.eql(['one']);
+      expect(submits[0].monaco.editor).to.equal(editor);
+      expect(submits[0].monaco.model).to.equal(editor.getModel());
+      expect(submits[0].state).to.eql(life.state);
       expect(submits[0].modifiers).to.eql({ shift: false, alt: false, ctrl: false, meta: false });
       life.dispose();
     });
