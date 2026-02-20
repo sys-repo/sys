@@ -64,7 +64,12 @@ export declare namespace EditorPrompt {
   export type StateLine = {
     readonly count: number;
     readonly visible: number;
-    readonly atMax: boolean;
+    readonly is: StateLineFlags;
+  };
+
+  /** Line-related prompt state flags. */
+  export type StateLineFlags = {
+    readonly max: boolean;
   };
 
   /** Calculate prompt state from line-count and config. */

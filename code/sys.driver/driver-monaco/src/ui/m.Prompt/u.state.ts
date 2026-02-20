@@ -15,7 +15,7 @@ export const state: t.EditorPrompt.CalculateState = (args) => {
     line: {
       count: lineCount,
       visible: visibleLines,
-      atMax,
+      is: { max: atMax },
     },
     scrolling,
     height,

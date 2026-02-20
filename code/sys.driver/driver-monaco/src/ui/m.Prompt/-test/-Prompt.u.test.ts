@@ -28,7 +28,7 @@ describe('Monaco.Prompt', () => {
         line: {
           count: 1,
           visible: 2,
-          atMax: false,
+          is: { max: false },
         },
         scrolling: false,
         height: 20,
@@ -41,7 +41,7 @@ describe('Monaco.Prompt', () => {
         line: {
           count: 4,
           visible: 4,
-          atMax: true,
+          is: { max: true },
         },
         scrolling: false,
         height: 40,
@@ -52,7 +52,7 @@ describe('Monaco.Prompt', () => {
         line: {
           count: 5,
           visible: 4,
-          atMax: true,
+          is: { max: true },
         },
         scrolling: true,
         height: 40,
