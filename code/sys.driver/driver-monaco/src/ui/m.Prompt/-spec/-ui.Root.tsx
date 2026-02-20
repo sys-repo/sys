@@ -16,11 +16,13 @@ export const Root: React.FC<RootProps> = (props) => {
 
   const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
   const mountIdRef = React.useRef(0);
+
   const lineHeight = 21;
+  const [height, setHeight] = React.useState(lineHeight);
 
   return (
     <MonacoEditor
-      style={css({ minHeight: lineHeight }, props.style)}
+      style={css({ height }, props.style)}
       language={'plaintext'}
       theme={v.theme}
       onMounted={async (e: t.MonacoEditorReady) => {
@@ -30,18 +32,18 @@ export const Root: React.FC<RootProps> = (props) => {
 
         const binding = await EditorPrompt.bind(
           {
-            editor: e.editor,
+            editor,
             lineHeight,
             config: {
               lines: { min: 1, max: 5 },
-              overflow: 'scroll',
-              enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
-              // enter: { onEnter: 'submit', onModifiedEnter: 'newline' },
+              overflow: v.overflow,
+              submitOn: 'enter:modified',
             },
-            onStateChange: (state) => {
+            onStateChange(state) {
               p.state.value = state;
+              setHeight(state.height);
             },
-            onSubmit: (e) => {
+            onSubmit(e) {
               console.info(`⚡️ onSubmit`, e);
             },
           },

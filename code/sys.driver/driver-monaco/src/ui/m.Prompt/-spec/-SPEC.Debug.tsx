@@ -1,11 +1,17 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from './common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
-type Storage = { debug?: boolean; theme?: t.CommonTheme; text?: string };
+type Storage = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  text?: string;
+  overflow?: t.EditorPrompt.Overflow;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   text: '',
+  overflow: D.overflow,
 };
 
 /**
@@ -26,6 +32,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     text: s(snap.text),
+    overflow: s(snap.overflow),
     state: s<t.EditorPrompt.State>(),
     editor: s<t.Monaco.Editor>(),
   };
@@ -41,9 +48,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    p.debug.value = defaults.debug ?? false;
-    p.theme.value = defaults.theme ?? 'Dark';
-    p.text.value = defaults.text ?? '';
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     p.editor.value = undefined;
     p.state.value = undefined;
   }
@@ -53,6 +58,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.text = p.text.value;
+      d.overflow = p.overflow.value;
     });
   });
 
@@ -95,6 +101,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `overflow: ${p.overflow.value}`}
+        onClick={() => {
+          Signal.cycle<t.EditorPrompt.Overflow>(p.overflow, ['clamp', 'scroll']);
+        }}
       />
 
       <hr />
