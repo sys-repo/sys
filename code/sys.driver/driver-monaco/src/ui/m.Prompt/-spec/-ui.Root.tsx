@@ -70,7 +70,7 @@ export const Root: React.FC<RootProps> = (props) => {
       bindingRef.current?.dispose();
       bindingRef.current = undefined;
     };
-  }, [p.editor.value, v.overflow]);
+  }, [p.editor.value, v.maxLines, v.overflow]);
 
   /**
    * Render:
