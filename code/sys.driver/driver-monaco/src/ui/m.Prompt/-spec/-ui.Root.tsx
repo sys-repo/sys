@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, EditorPrompt, MonacoEditor, Rx, Signal } from './common.ts';
+import { type t, css, EditorPrompt, MonacoEditor, Rx, Signal, D } from './common.ts';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -41,7 +41,7 @@ export const Root: React.FC<RootProps> = (props) => {
           editor: editor!,
           lineHeight,
           config: {
-            lines: { min: 1, max: 5 },
+            lines: { min: 1, max: v.maxLines ?? D.lines.max },
             overflow: v.overflow,
             submitOn: 'enter:modified',
           },

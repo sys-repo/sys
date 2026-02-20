@@ -6,12 +6,14 @@ type Storage = {
   theme?: t.CommonTheme;
   text?: string;
   overflow?: t.EditorPrompt.Overflow;
+  maxLines?: number;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   text: '',
   overflow: D.overflow,
+  maxLines: 3,
 };
 
 /**
@@ -33,6 +35,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     text: s(snap.text),
     overflow: s(snap.overflow),
+    maxLines: s(snap.maxLines),
     state: s<t.EditorPrompt.State>(),
     editor: s<t.Monaco.Editor>(),
   };
@@ -59,6 +62,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.text = p.text.value;
       d.overflow = p.overflow.value;
+      d.maxLines = p.maxLines.value;
     });
   });
 
@@ -109,6 +113,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           Signal.cycle<t.EditorPrompt.Overflow>(p.overflow, ['clamp', 'scroll']);
         }}
+      />
+
+      <Button
+        block
+        label={() => `maxLines: ${p.maxLines.value}`}
+        onClick={() => Signal.cycle<number>(p.maxLines, [1, 3, 5])}
       />
 
       <hr />
