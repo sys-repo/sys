@@ -83,16 +83,14 @@ export declare namespace EditorPrompt {
   }) => EnterAction;
 
   /** Bind prompt behavior to a Monaco editor lifecycle. */
-  export type BindPrompt = (
-    args: {
-      editor: t.Monaco.Editor;
-      config?: Config;
-      lineHeight: number;
-      onStateChange?: (state: State) => void;
-      onSubmit?: (e: SubmitEvent) => void;
-    },
-    until?: t.UntilInput,
-  ) => Promise<Binding>;
+  export type BindPrompt = (args: BindPromptArgs, until?: t.UntilInput) => Promise<Binding>;
+  export type BindPromptArgs = {
+    editor: t.Monaco.Editor;
+    config?: Config;
+    lineHeight: number;
+    onStateChange?: (state: State) => void;
+    onSubmit?: (e: SubmitEvent) => void;
+  };
 
   /** Submit event payload emitted by bind enter handling. */
   export type SubmitEvent = {
