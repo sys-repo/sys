@@ -46,20 +46,26 @@ export type IndexTreeViewProps = {
   onNodeSelect?: t.IndexTreeViewNodeSelectHandler;
 };
 
+/** Renderer callback for leaf nodes when no child branch is available. */
 export type IndexTreeViewLeafRenderer = (e: IndexTreeViewLeafRendererArgs) => t.ReactNode;
+/** Context passed to leaf renderers. */
 export type IndexTreeViewLeafRendererArgs = {
   readonly root: t.TreeViewNodeList;
   readonly path: t.ObjectPath;
   readonly node: t.TreeViewNode;
 };
 
+/** Pointer handler signature for node pointer interactions. */
 export type IndexTreeViewPointerHandler = (e: IndexTreeViewPointer) => void;
+/** Pointer event payload enriched with node context. */
 export type IndexTreeViewPointer = t.PointerEventsArg & {
   readonly node: t.TreeViewNode;
   readonly hasChildren: boolean;
 };
 
+/** Handler signature for node selection intent. */
 export type IndexTreeViewNodeSelectHandler = (e: IndexTreeViewNodeSelect) => void;
+/** Node selection payload with path and leaf-state metadata. */
 export type IndexTreeViewNodeSelect = {
   readonly path: t.ObjectPath;
   readonly node: t.TreeViewNode;

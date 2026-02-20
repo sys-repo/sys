@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 
+/** Toolbar placement options for the dist browser filter bar. */
 export type DistBrowserToolbarPlacement = 'top' | 'bottom';
 
 /**
@@ -32,8 +33,10 @@ export type DistBrowserProps = {
 
 /** A selection event  */
 export type DistBrowserSelectHandler = (e: DistBrowserSelect) => void;
+/** Selection payload containing the chosen dist file path. */
 export type DistBrowserSelect = { readonly path: t.StringPath };
 
 /** Filter handler */
 export type DistBrowserFilterHandler = (e: DistBrowserFilter) => void;
+/** Filter payload carrying the current filter text. */
 export type DistBrowserFilter = { readonly text: string };

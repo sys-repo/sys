@@ -5,6 +5,7 @@ export type * from './t.data.ts';
 
 /** HTTP origin environment (e.g. localhost, production). */
 export const HTTP_ORIGIN_ENVS = ['localhost', 'production'] as const;
+/** Supported Http.Origin environment keys. */
 export type HttpOriginEnv = (typeof HTTP_ORIGIN_ENVS)[number];
 
 /**
@@ -52,7 +53,9 @@ type CtrlArgs = {
   env?: t.Signal<t.HttpOriginEnv | undefined>;
   origin?: t.Signal<t.UrlTree | undefined>;
 };
+/** Factory signature for constructing a Http.Origin state controller. */
 export type HttpOriginControllerFactory = (args: CtrlArgs) => HttpOriginController;
+/** Controller contract exposing lifecycle hooks and derived view state. */
 export type HttpOriginController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;
   readonly listen: () => void;

@@ -1,4 +1,5 @@
 /**
+ * @module
  * Media.Timecode.PlaybackDriver
  *
  * Runtime boundary.

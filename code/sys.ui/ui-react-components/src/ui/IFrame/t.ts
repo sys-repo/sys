@@ -45,14 +45,19 @@ export type IFrameSandbox =
   | 'allow-top-navigation'
   | 'allow-top-navigation-by-user-activation';
 
+/** Browser loading strategy hint for iframe content. */
 export type IFrameLoading = 'eager' | 'lazy';
+/** Source input for iframe content (raw HTML or URL). */
 export type IFrameSrc = { html?: string; url?: t.StringUrl };
 
 /**
  * Events
  */
 export type IFrameReadyHandler = (e: IFrameReadyHandlerArgs) => void;
+/** Payload provided when the iframe element is mounted and ready. */
 export type IFrameReadyHandlerArgs = { ref: Ref };
 
+/** Handler signature fired after iframe content has loaded. */
 export type IFrameLoadedEventHandler = (e: IFrameLoadedEventHandlerArgs) => void;
+/** Payload provided to iframe load handlers. */
 export type IFrameLoadedEventHandlerArgs = { href: t.StringUrl; ref: Ref };
