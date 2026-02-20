@@ -52,7 +52,7 @@ describe('Monaco.Prompt', () => {
       expect(first.glyphMargin).to.eql(false);
       expect(first.lineDecorationsWidth).to.eql(0);
       expect(first.lineNumbersMinChars).to.eql(0);
-      expect(first.overviewRulerLanes).to.eql(0);
+      expect(first.overviewRulerLanes).to.eql(1);
       expect(first.folding).to.eql(false);
       expect(first.renderLineHighlight).to.eql('none');
       expect(first.quickSuggestions).to.eql(false);

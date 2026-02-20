@@ -100,7 +100,7 @@ const wrangle = {
       glyphMargin: false,
       lineDecorationsWidth: 0,
       lineNumbersMinChars: 0,
-      overviewRulerLanes: 0,
+      overviewRulerLanes: 1,
       folding: false,
       renderLineHighlight: 'none',
       scrollBeyondLastLine: false,
