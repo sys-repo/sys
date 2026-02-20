@@ -1,11 +1,11 @@
-import { type t, D, isObject } from './common.ts';
+import { type t, D, Is } from './common.ts';
 
 export const PkgIs: t.PkgIsLib = {
   unknown(input) {
-    if (isObject(input)) {
+    if (Is.object(input)) {
       const { name, version } = input;
-      if (typeof name !== 'string') return true;
-      if (typeof version !== 'string') return true;
+      if (!Is.str(name)) return true;
+      if (!Is.str(version)) return true;
       const UNKNOWN = D.unknown();
       return name === UNKNOWN.name && version === UNKNOWN.version;
     }
@@ -15,16 +15,16 @@ export const PkgIs: t.PkgIsLib = {
   },
 
   pkg(input: any): input is t.Pkg {
-    if (!isObject(input)) return false;
+    if (!Is.object(input)) return false;
     const pkg = input as t.Pkg;
-    return typeof pkg.name === 'string' && typeof pkg.version === 'string';
+    return Is.str(pkg.name) && Is.str(pkg.version);
   },
 
   dist(input: any): input is t.DistPkg {
     if (!wrangle.distBase(input)) return false;
     const dist = input as t.DistPkg;
-    if (!isObject(dist.build.hash)) return false;
-    return typeof dist.build.hash.policy === 'string';
+    if (!Is.object(dist.build.hash)) return false;
+    return Is.str(dist.build.hash.policy);
   },
 
   distCompat(input: any): input is t.DistPkg | t.DistPkgLegacy {
@@ -32,16 +32,15 @@ export const PkgIs: t.PkgIsLib = {
   },
 };
 
+/**
+ * Helpers:
+ */
 const wrangle = {
   distBase(input: any) {
-    if (!isObject(input)) return false;
+    if (!Is.object(input)) return false;
     const dist = input as t.DistPkg | t.DistPkgLegacy;
-    if (typeof dist.type !== 'string') return false;
+    if (!Is.str(dist.type)) return false;
     if (!PkgIs.pkg(dist.pkg)) return false;
-    return (
-      isObject(dist.build) &&
-      typeof dist.hash.digest === 'string' &&
-      isObject(dist.hash.parts)
-    );
+    return Is.object(dist.build) && Is.str(dist.hash.digest) && Is.object(dist.hash.parts);
   },
 } as const;
