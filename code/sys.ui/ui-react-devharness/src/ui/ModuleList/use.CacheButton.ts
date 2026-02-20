@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Http } from '@sys/http/client';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePointer } from './common.ts';
 
 type O = Record<string, unknown>;
@@ -122,8 +122,10 @@ const wrangle = {
   async send(name: 'http.cache.clear' | 'http.cache.info', payload: { scope: 'pkg' }) {
     if (!('serviceWorker' in navigator)) return undefined;
 
-    const reg = await navigator.serviceWorker.ready.catch(() => undefined);
-    const sw = navigator.serviceWorker.controller ?? reg?.active;
+    const ready = await wrangle.readyWithTimeout(1_500);
+    const reg = ready ?? (await navigator.serviceWorker.getRegistration().catch(() => undefined));
+
+    const sw = navigator.serviceWorker.controller ?? reg?.active ?? reg?.waiting ?? reg?.installing;
     if (!sw) return undefined;
 
     const channel = new MessageChannel();
@@ -139,5 +141,11 @@ const wrangle = {
       client.dispose();
       channel.port1.close();
     }
+  },
+
+  async readyWithTimeout(ms: number) {
+    const ready = navigator.serviceWorker.ready.then((reg) => reg).catch(() => undefined);
+    const timeout = new Promise<void>((resolve) => setTimeout(resolve, ms));
+    return await Promise.race([ready, timeout]);
   },
 } as const;
