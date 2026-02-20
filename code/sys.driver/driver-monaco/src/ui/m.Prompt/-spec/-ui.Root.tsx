@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, EditorPrompt, MonacoEditor, Signal } from './common.ts';
+import { type t, css, EditorPrompt, MonacoEditor, Rx, Signal } from './common.ts';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -15,52 +15,75 @@ export const Root: React.FC<RootProps> = (props) => {
   const v = Signal.toObject(p);
 
   const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
-  const mountIdRef = React.useRef(0);
 
+  /**
+   * State:
+   */
   const lineHeight = 21;
   const [height, setHeight] = React.useState(lineHeight);
 
+  /**
+   * Effects:
+   */
+  React.useEffect(() => {
+    const editor = p.editor.value;
+    if (!editor) return;
+
+    const life = Rx.lifecycle();
+
+    async function run() {
+      bindingRef.current?.dispose();
+      bindingRef.current = undefined;
+
+      const updateHeight = (state: t.EditorPrompt.State) => setHeight(state.height);
+      const binding = await EditorPrompt.bind(
+        {
+          editor: editor!,
+          lineHeight,
+          config: {
+            lines: { min: 1, max: 5 },
+            overflow: v.overflow,
+            submitOn: 'enter:modified',
+          },
+          onStateChange(state) {
+            p.state.value = state;
+            updateHeight(state);
+          },
+          onSubmit(e) {
+            console.info(`⚡️ onSubmit`, e);
+          },
+        },
+        life,
+      );
+
+      if (life.disposed) return;
+
+      bindingRef.current = binding;
+      p.state.value = binding.state;
+      updateHeight(binding.state);
+    }
+
+    void run();
+
+    return () => {
+      life.dispose();
+      bindingRef.current?.dispose();
+      bindingRef.current = undefined;
+    };
+  }, [p.editor.value, v.overflow]);
+
+  /**
+   * Render:
+   */
   return (
     <MonacoEditor
       style={css({ height }, props.style)}
       language={'plaintext'}
       theme={v.theme}
-      onMounted={async (e: t.MonacoEditorReady) => {
-        const { editor, dispose$ } = e;
-        const mountId = ++mountIdRef.current;
+      onMounted={(e: t.MonacoEditorReady) => {
         p.editor.value = e.editor;
-
-        const binding = await EditorPrompt.bind(
-          {
-            editor,
-            lineHeight,
-            config: {
-              lines: { min: 1, max: 5 },
-              overflow: v.overflow,
-              submitOn: 'enter:modified',
-            },
-            onStateChange(state) {
-              p.state.value = state;
-              setHeight(state.height);
-            },
-            onSubmit(e) {
-              console.info(`⚡️ onSubmit`, e);
-            },
-          },
-          dispose$,
-        );
-
-        if (mountId !== mountIdRef.current) {
-          binding.dispose();
-          return;
-        }
-
-        bindingRef.current?.dispose();
-        bindingRef.current = binding;
-        p.state.value = binding.state;
       }}
       onDispose={() => {
-        mountIdRef.current++;
         bindingRef.current?.dispose();
         bindingRef.current = undefined;
         p.editor.value = undefined;
