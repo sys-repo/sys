@@ -86,6 +86,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.item({
       k: 'first-beat:video',
       v: firstBeatUrl || '(none: unresolved)',
+      href: firstBeatUrl ? { v: { infer: true, display: 'trim-http' } } : undefined,
     });
     e.item({ k: 'tree / bundle', v: 'skipped (manifest-only proof)' });
 
