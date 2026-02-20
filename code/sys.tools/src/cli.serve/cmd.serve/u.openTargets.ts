@@ -7,8 +7,9 @@ type Entry = {
   readonly fileCount: number;
 };
 
-export type OpenMenuPick = { cmd: 'open'; path: string };
 export type YamlLocation = t.ServeTool.LocationYaml.Location;
+export type OpenMenuPick = { cmd: 'open'; path: string };
+export type OpenMenuOption = { name: string; value: OpenMenuPick };
 
 export const OpenTargets = {
   async menuOptions(location: YamlLocation): Promise<readonly OpenMenuOption[]> {
