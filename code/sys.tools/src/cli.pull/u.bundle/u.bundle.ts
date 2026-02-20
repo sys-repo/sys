@@ -34,9 +34,9 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
   if (dist) return Fmt.distUrl(dist);
 
   if (bundle.kind === 'github:release') {
-    if (Array.isArray(bundle.asset)) return c.gray(c.dim(`github:release (${bundle.asset.length} assets)`));
-    if (typeof bundle.asset === 'string' && bundle.asset.trim()) return c.gray(c.dim(`github:release (${bundle.asset.trim()})`));
-    return c.gray(c.dim('github:release (all assets)'));
+    if (Array.isArray(bundle.asset)) return c.yellow(c.italic(`github:release (${bundle.asset.length} assets)`));
+    if (typeof bundle.asset === 'string' && bundle.asset.trim()) return c.yellow(c.italic(`github:release (${bundle.asset.trim()})`));
+    return c.yellow(c.italic('github:release (all assets)'));
   }
 
   return c.gray(c.dim(bundle.kind));
