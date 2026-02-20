@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { isAnchorElement, resolveHref, toAnchorStyle } from './u.href.ts';
+import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel } from './u.href.ts';
 import { toEllipsis, toFont } from './u.ts';
 import { Anchor } from './ui.Anchor.tsx';
 
@@ -68,7 +68,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
   const content = (
     <Anchor link={link} style={styles.anchor}>
-      {props.children}
+      {toDisplayLabel(link, props.children)}
     </Anchor>
   );
 

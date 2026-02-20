@@ -9,6 +9,7 @@ type DefInput = t.KeyValueHref | undefined;
 export type ResolvedHref = {
   href: t.StringUri;
   target?: '_blank';
+  display: t.KeyValueLinkDisplay;
   rel?: string;
 };
 
@@ -57,9 +58,11 @@ export function resolveHref(input: {
   if (!isSafeHref(normalized.href)) return;
 
   const open = normalized.open ?? 'new-tab';
+  const display = normalized.display ?? 'raw';
   if (open === 'inline') {
     return {
       href: normalized.href,
+      display,
       rel: normalized.rel,
     };
   }
@@ -67,8 +70,15 @@ export function resolveHref(input: {
   return {
     href: normalized.href,
     target: '_blank',
+    display,
     rel: mergeRel(normalized.rel, 'noopener noreferrer'),
   };
+}
+
+export function toDisplayLabel(link?: ResolvedHref, children?: t.ReactNode): t.ReactNode {
+  if (!link || link.display !== 'trim-http') return children;
+  if (!(Is.string(children) || Is.number(children))) return children;
+  return Str.trimHttpScheme(String(children));
 }
 
 /**

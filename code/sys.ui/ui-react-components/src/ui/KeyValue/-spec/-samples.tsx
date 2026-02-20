@@ -79,7 +79,7 @@ function opacity(): t.KeyValueItem[] {
 
 function links(): t.KeyValueItem[] {
   return [
-    { kind: 'title', v: 'Link Variants' },
+    { kind: 'title', v: 'Link Variants', y: [0, 10] },
     {
       kind: 'row',
       k: 'href: string',
@@ -98,6 +98,13 @@ function links(): t.KeyValueItem[] {
       k: 'href: props-only',
       v: 'https://example.com/inline',
       href: { infer: true, open: 'inline' },
+      mono,
+    },
+    {
+      kind: 'row',
+      k: 'display: trim-http',
+      v: 'https://example.com/trim-me',
+      href: { infer: true, display: 'trim-http' },
       mono,
     },
     {

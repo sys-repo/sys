@@ -1,12 +1,13 @@
 import React from 'react';
 import { type t, describe, expect, it } from '../../../-test.ts';
-import { isAnchorElement, isSafeHref, resolveHref } from '../u.href.ts';
+import { isAnchorElement, isSafeHref, resolveHref, toDisplayLabel } from '../u.href.ts';
 
 describe('KeyValue/u.href', () => {
   it('string shorthand applies to value side by default', () => {
     const href = 'https://example.com';
     expect(resolveHref({ href, side: 'v', children: 'x' })).to.eql({
       href,
+      display: 'raw',
       target: '_blank',
       rel: 'noopener noreferrer',
     });
@@ -17,6 +18,7 @@ describe('KeyValue/u.href', () => {
     const href = { infer: true, open: 'inline' } satisfies t.KeyValueLinkProps;
     expect(resolveHref({ href, side: 'v', children: 'https://example.com' })).to.eql({
       href: 'https://example.com',
+      display: 'raw',
       rel: undefined,
     });
     expect(resolveHref({ href, side: 'k', children: 'https://example.com' })).to.equal(undefined);
@@ -26,11 +28,13 @@ describe('KeyValue/u.href', () => {
     const href: t.KeyValueHref = { k: true, v: 'https://example.com/value' };
     expect(resolveHref({ href, side: 'k', children: 'https://example.com/key' })).to.eql({
       href: 'https://example.com/key',
+      display: 'raw',
       target: '_blank',
       rel: 'noopener noreferrer',
     });
     expect(resolveHref({ href, side: 'v', children: 'ignored' })).to.eql({
       href: 'https://example.com/value',
+      display: 'raw',
       target: '_blank',
       rel: 'noopener noreferrer',
     });
@@ -39,6 +43,7 @@ describe('KeyValue/u.href', () => {
   it('boolean true infers from text children only', () => {
     expect(resolveHref({ href: true, side: 'v', children: 'https://example.com' })).to.eql({
       href: 'https://example.com',
+      display: 'raw',
       target: '_blank',
       rel: 'noopener noreferrer',
     });
@@ -65,5 +70,22 @@ describe('KeyValue/u.href', () => {
     expect(
       isAnchorElement(React.createElement('a', { href: 'https://example.com' }, 'x')),
     ).to.equal(true);
+  });
+
+  it('trims display label only when configured', () => {
+    const link = resolveHref({
+      href: { href: 'https://example.com/path', display: 'trim-http' },
+      side: 'v',
+      children: 'https://example.com/path',
+    });
+    expect(link).to.eql({
+      href: 'https://example.com/path',
+      display: 'trim-http',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    });
+    expect(toDisplayLabel(link, 'https://example.com/path')).to.equal('example.com/path');
+    expect(toDisplayLabel(link, 123)).to.equal('123');
+    expect(toDisplayLabel(link, ['x'])).to.eql(['x']);
   });
 });

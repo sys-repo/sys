@@ -15,10 +15,12 @@ export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixe
  */
 export type KeyValueOpacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
 export type KeyValueLinkOpen = 'new-tab' | 'inline';
+export type KeyValueLinkDisplay = 'raw' | 'trim-http';
 export type KeyValueLinkProps = {
   readonly href?: t.StringUri;
   readonly infer?: boolean;
   readonly open?: KeyValueLinkOpen;
+  readonly display?: KeyValueLinkDisplay;
   readonly rel?: string;
 };
 export type KeyValueLinkDef = boolean | t.StringUri | KeyValueLinkProps;
