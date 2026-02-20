@@ -19,7 +19,12 @@ describe('Pkg.Dist', () => {
           builder: '@scope/sample@0.0.0',
           runtime: '<runtime-uri>',
         },
-        hash: { digest: 'sha256-0000', parts: { './index.html': 'sha256-0000' } },
+        hash: {
+          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          parts: {
+            './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          },
+        },
       };
 
       expect(Pkg.Dist.Compat.legacy(legacy)).to.eql(true);
@@ -67,8 +72,11 @@ describe('Pkg.Dist', () => {
             hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
           hash: {
-            digest: 'sha256-0000',
-            parts: { './index.html': 'sha256-0000', './-entry.js': 'sha256-0000' },
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+              './-entry.js': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            },
           },
         };
       },

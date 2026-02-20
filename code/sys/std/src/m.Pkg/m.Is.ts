@@ -24,7 +24,15 @@ export const PkgIs: t.PkgIsLib = {
     if (!wrangle.distBase(input)) return false;
     const dist = input as t.DistPkg;
     if (!Is.object(dist.build.hash)) return false;
-    return Is.str(dist.build.hash.policy);
+    if (!Is.str(dist.build.hash.policy)) return false;
+    if (!is.sha256Hash(dist.hash.digest)) return false;
+
+    const values = Object.values(dist.hash.parts);
+    return values.every((value) => {
+      if (!Is.str(value)) return false;
+      const hash = value.split(':size=')[0];
+      return is.sha256Hash(hash);
+    });
   },
 
   distCompat(input: any): input is t.DistPkg | t.DistPkgLegacy {
@@ -38,9 +46,17 @@ export const PkgIs: t.PkgIsLib = {
 const wrangle = {
   distBase(input: any) {
     if (!Is.object(input)) return false;
+
     const dist = input as t.DistPkg | t.DistPkgLegacy;
     if (!Is.str(dist.type)) return false;
     if (!PkgIs.pkg(dist.pkg)) return false;
     return Is.object(dist.build) && Is.str(dist.hash.digest) && Is.object(dist.hash.parts);
+  },
+} as const;
+
+const is = {
+  sha256Hash(input: unknown): input is t.StringHash {
+    if (!Is.str(input)) return false;
+    return /^sha256-[0-9a-f]{64}$/.test(input);
   },
 } as const;

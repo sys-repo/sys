@@ -139,10 +139,10 @@ describe('Pkg', () => {
             hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
           },
           hash: {
-            digest: 'acbc',
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './index.html': 'xxxx',
-              './pkg/entry.js': 'yyyy',
+              './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+              './pkg/entry.js': 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
             },
           },
         };
@@ -159,7 +159,13 @@ describe('Pkg', () => {
             builder: '@sys/driver-vite@0.0.0',
             runtime: '<runtime-uri>',
           },
-          hash: { digest: 'acbc', parts: { './pkg/entry.js': 'yyyy' } },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js':
+                'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            },
+          },
         };
 
         const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
