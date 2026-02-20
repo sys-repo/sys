@@ -1,8 +1,11 @@
 import React from 'react';
 import { type t, css, D, EditorPrompt, MonacoEditor, Rx, Signal } from './common.ts';
 
+const OWNERS = ['subject', 'footer'] as const;
+export type OwnerKind = (typeof OWNERS)[number];
+
 export type RootProps = {
-  owner: 'subject' | 'subject:footer';
+  owner: OwnerKind;
   debug: t.DebugSignals;
   autoFocus?: boolean;
   contentInset?: t.MonacoEditorContentInset;
@@ -16,9 +19,11 @@ export type RootProps = {
  */
 export const Root: React.FC<RootProps> = (props) => {
   const { debug } = props;
+  Signal.useRedrawEffect(() => debug.listen());
   const p = debug.props;
   const v = Signal.toObject(p);
-  const channel = wrangle.channel(props.owner);
+  const channel = props.owner;
+  const defaultValue = wrangle.text(v, channel);
   const { height } = useBindingSample(props);
 
   /**
@@ -29,6 +34,7 @@ export const Root: React.FC<RootProps> = (props) => {
       style={css({ height }, props.style)}
       theme={props.theme ?? v.theme}
       language={'plaintext'}
+      defaultValue={defaultValue}
       autoFocus={props.autoFocus}
       contentInset={props.contentInset}
       onKeyDown={props.onKeyDown}
@@ -49,12 +55,10 @@ function useBindingSample(props: RootProps) {
   const { owner, debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
-  const channel = wrangle.channel(owner);
+  const channel = owner;
   const insetTop = props.contentInset?.top ?? 0;
   const insetBottom = props.contentInset?.bottom ?? 0;
   const insetY = insetTop + insetBottom;
-  if (channel === 'debug') return { height: 21 } as const;
-
   const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
   const lineHeight = 21;
   const [height, setHeight] = React.useState(lineHeight + insetY);
@@ -111,39 +115,27 @@ function useBindingSample(props: RootProps) {
 }
 
 const wrangle = {
-  channel(owner: RootProps['owner']): 'subject' | 'footer' | 'debug' {
-    if (owner === 'subject') return 'subject';
-    if (owner === 'subject:footer') return 'footer';
-    return 'debug';
-  },
-
-  editor(
-    v: ReturnType<typeof Signal.toObject<t.DebugSignals['props']>>,
-    channel: 'subject' | 'footer',
-  ) {
+  editor(v: ReturnType<typeof Signal.toObject<t.DebugSignals['props']>>, channel: OwnerKind) {
     if (channel === 'subject') return v.editorSubject;
     return v.editorFooter;
   },
 
-  setEditor(
-    p: t.DebugSignals['props'],
-    channel: 'subject' | 'footer' | 'debug',
-    editor: t.Monaco.Editor | undefined,
-  ) {
+  text(v: ReturnType<typeof Signal.toObject<t.DebugSignals['props']>>, channel: OwnerKind) {
+    if (channel === 'subject') return v.textSubject;
+    return v.textFooter;
+  },
+
+  setEditor(p: t.DebugSignals['props'], channel: OwnerKind, editor: t.Monaco.Editor | undefined) {
     if (channel === 'subject') p.editorSubject.value = editor;
     if (channel === 'footer') p.editorFooter.value = editor;
   },
 
-  setText(p: t.DebugSignals['props'], channel: 'subject' | 'footer' | 'debug', text: string) {
+  setText(p: t.DebugSignals['props'], channel: OwnerKind, text: string) {
     if (channel === 'subject') p.textSubject.value = text;
     if (channel === 'footer') p.textFooter.value = text;
   },
 
-  setState(
-    p: t.DebugSignals['props'],
-    channel: 'subject' | 'footer' | 'debug',
-    state: t.EditorPrompt.State | undefined,
-  ) {
+  setState(p: t.DebugSignals['props'], channel: OwnerKind, state: t.EditorPrompt.State | undefined) {
     if (channel === 'subject') p.stateSubject.value = state;
     if (channel === 'footer') p.stateFooter.value = state;
   },

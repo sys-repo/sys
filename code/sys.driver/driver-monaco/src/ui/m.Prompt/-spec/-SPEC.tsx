@@ -39,7 +39,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .border(Color.alpha(currentTheme().fg, 0.1))
       .render(() => (
         <Root
-          owner={'subject:footer'}
+          owner={'footer'}
           debug={debug}
           style={{ marginLeft: 10 }}
           contentInset={{

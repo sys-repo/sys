@@ -18,6 +18,7 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
     lineHeight,
     lineCount: model.getLineCount(),
   });
+  let normalizing = false;
 
   const recompute: t.EditorPrompt.Binding['recompute'] = () => {
     current = calculateState({
@@ -31,14 +32,34 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
   };
 
   let contentSub: t.Monaco.I.IDisposable | undefined;
+  const enforceSingleLine = () => {
+    if (config.lines.max !== 1) return false;
+    const text = model.getValue();
+    if (!text.includes('\n')) return false;
+
+    normalizing = true;
+    try {
+      model.setValue(wrangle.toSingleLine(text));
+    } finally {
+      normalizing = false;
+    }
+    return true;
+  };
+
   const rebind = (next: t.Monaco.TextModel) => {
     contentSub?.dispose();
     model = next;
     contentSub = model.onDidChangeContent(() => {
       if (life.disposed) return;
+      if (!normalizing) {
+        const changed = enforceSingleLine();
+        if (changed) return;
+      }
       recompute();
     });
-    recompute();
+
+    const normalized = enforceSingleLine();
+    if (!normalized) recompute();
   };
 
   const modelSub = editor.onDidChangeModel(() => {
@@ -93,6 +114,10 @@ export const bind: t.EditorPrompt.BindPrompt = async (args, until) => {
 };
 
 const wrangle = {
+  toSingleLine(text: string) {
+    return text.split('\n')[0] ?? '';
+  },
+
   applyOptions(editor: t.Monaco.Editor, state: t.EditorPrompt.State) {
     editor.updateOptions({
       minimap: { enabled: false },

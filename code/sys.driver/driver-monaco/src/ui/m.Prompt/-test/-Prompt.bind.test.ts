@@ -239,5 +239,55 @@ describe('Monaco.Prompt', () => {
       expect(submits).to.eql([]);
       expect(editor.getModel()?.getValue()).to.eql('one\n');
     });
+
+    it('normalizes initial multiline content when max-lines is single-line', async () => {
+      const editor = MonacoFake.editor('one\ntwo\nthree');
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: { lines: { min: 1, max: 1 }, overflow: 'clamp' },
+      });
+
+      expect(editor.getModel()?.getValue()).to.eql('one');
+      expect(life.state.line.count).to.eql(1);
+      expect(life.state.line.visible).to.eql(1);
+      expect(life.state.scrolling).to.eql(false);
+      life.dispose();
+    });
+
+    it('normalizes multiline content changes when max-lines is single-line', async () => {
+      const editor = MonacoFake.editor('one');
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: { lines: { min: 1, max: 1 }, overflow: 'clamp' },
+      });
+
+      editor.getModel()?.setValue('foo\nbar');
+      expect(editor.getModel()?.getValue()).to.eql('foo');
+      expect(life.state.line.count).to.eql(1);
+      expect(life.state.line.visible).to.eql(1);
+      life.dispose();
+    });
+
+    it('normalizes swapped models when max-lines is single-line', async () => {
+      const a = MonacoFake.model('one', { uri: 'inmemory://m/a' });
+      const b = MonacoFake.model('hello\nworld', { uri: 'inmemory://m/b' });
+      const editor = MonacoFake.editor(a);
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: { lines: { min: 1, max: 1 }, overflow: 'clamp' },
+      });
+
+      editor.setModel(b);
+      expect(editor.getModel()?.getValue()).to.eql('hello');
+      expect(life.model).to.equal(b);
+      expect(life.state.line.count).to.eql(1);
+      life.dispose();
+    });
   });
 });

@@ -12,7 +12,7 @@ type Storage = {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  textSubject: '',
+  textSubject: 'hello world 👋',
   textFooter: '',
   overflow: D.overflow,
   maxLines: 3,
