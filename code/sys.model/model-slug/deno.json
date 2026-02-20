@@ -1,6 +1,6 @@
 {
   "name": "@sys/model-slug",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",

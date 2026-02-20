@@ -1,6 +1,6 @@
 {
   "name": "@sys/text",
-  "version": "0.0.223",
+  "version": "0.0.224",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
