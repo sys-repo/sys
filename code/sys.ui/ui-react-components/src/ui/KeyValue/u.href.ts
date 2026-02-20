@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { type t, Is, Str, Url } from './common.ts';
+import { type t, Color, Is, Str, Url } from './common.ts';
 import { toEllipsis } from './u.ts';
 
 type Side = 'k' | 'v';
@@ -16,18 +16,28 @@ export function isAnchorElement(node?: t.ReactNode): boolean {
   return isValidElement(node) && Is.str(node.type) ? node.type === 'a' : false;
 }
 
-export function toAnchorStyle(args: { truncate?: boolean; textChild?: boolean }): t.CssProps {
-  const { truncate, textChild } = args;
+export function toAnchorStyle(args: {
+  truncate?: boolean;
+  textChild?: boolean;
+  theme: t.ColorTheme;
+}): t.CssInput {
+  const { truncate, textChild, theme } = args;
+  const base = {
+    color: 'inherit',
+    textDecorationLine: 'underline',
+    textDecorationColor: Color.alpha(theme.fg, 0.25),
+    textUnderlineOffset: '2px',
+    transition: 'text-decoration-color 120ms ease',
+    ':hover': { textDecorationColor: 'currentColor' },
+    ':focus-visible': { textDecorationColor: 'currentColor' },
+  };
+
   if (!(truncate && textChild)) {
-    return {
-      color: 'inherit',
-      textDecoration: 'underline',
-    };
+    return base;
   }
 
   return {
-    color: 'inherit',
-    textDecoration: 'underline',
+    ...base,
     display: 'block',
     minWidth: 0,
     ...toEllipsis(true),

@@ -62,7 +62,7 @@ export const Cell: React.FC<CellProps> = (props) => {
         : {}),
     }),
     asKey: css({ fontFamily: 'sans-serif' }),
-    anchor: css(toAnchorStyle({ truncate, textChild: isTextChild })),
+    anchor: css(toAnchorStyle({ truncate, textChild: isTextChild, theme })),
   };
 
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
