@@ -4,6 +4,8 @@ import { Bullet } from '../../Bullet/mod.ts';
 
 export type SampleKind = 'comprehensive' | 'simple' | 'opacity';
 
+const mono = true;
+
 /**
  * Sample data-sets:
  */
@@ -45,8 +47,8 @@ function comprehensive(): t.KeyValueItem[] {
 
     { kind: 'title', v: <Foo />, x: -15, y: [20, 8] },
     { k: 'boolean', v: true ? 'true' : 'false', mono: true },
-    { k: 'truncate', v: 'Yes', mono: true },
-    { k: 'columns.gap', v: '12 px', mono: true },
+    { k: 'truncate', v: 'Yes', mono },
+    { k: 'columns.gap', v: '12 px', mono },
 
     { kind: 'hr', x: 20, y: [20, 5], thickness: 3 },
 
@@ -60,6 +62,9 @@ function comprehensive(): t.KeyValueItem[] {
     { kind: 'hr', y: [25, 10] },
     { k: 'theme', v: 'Dark' },
     { k: 'element', v: <Foo /> },
+
+    { kind: 'hr' },
+    { k: 'link', v: 'https://fs.db.team', mono },
   ];
 }
 
