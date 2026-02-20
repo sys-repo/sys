@@ -1,13 +1,13 @@
 import { type t, D, Is, Num } from './common.ts';
 
 export const normalize: t.EditorPrompt.NormalizeConfig = (config) => {
-  const min = wrangle.toLine(config?.lines?.min, D.lineCount);
-  const maxInput = wrangle.toLine(config?.lines?.max, min);
+  const min = wrangle.toLine(config?.lines?.min, D.lines.min);
+  const maxInput = wrangle.toLine(config?.lines?.max, D.lines.max);
   const max = Num.clamp(min, Num.MAX_INT, maxInput);
 
   return {
     lines: { min, max },
-    overflow: config?.overflow ?? 'scroll',
+    overflow: config?.overflow ?? D.overflow,
     submitOn: config?.submitOn ?? D.submitOn,
   };
 };
