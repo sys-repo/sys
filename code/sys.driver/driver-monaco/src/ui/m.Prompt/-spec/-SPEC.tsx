@@ -24,7 +24,16 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size('fill-x', 100)
       .display('grid')
-      .render(() => <Root owner={'subject'} debug={debug} autoFocus={true} />);
+      .render(() => (
+        <Root
+          owner={'subject'}
+          debug={debug}
+          autoFocus={true}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') p.editorFooter.value?.focus();
+          }}
+        />
+      ));
 
     ctx.host.footer
       .padding(0)

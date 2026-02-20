@@ -7,6 +7,7 @@ export type RootProps = {
   autoFocus?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onKeyDown?: t.MonacoEditorKeyDownHandler;
 };
 
 /**
@@ -28,12 +29,9 @@ export const Root: React.FC<RootProps> = (props) => {
       theme={props.theme ?? v.theme}
       language={'plaintext'}
       autoFocus={props.autoFocus}
-      onMounted={(e) => {
-        wrangle.setEditor(p, channel, e.editor);
-      }}
-      onChange={(e) => {
-        wrangle.setText(p, channel, e.content.text);
-      }}
+      onKeyDown={props.onKeyDown}
+      onMounted={(e) => wrangle.setEditor(p, channel, e.editor)}
+      onChange={(e) => wrangle.setText(p, channel, e.content.text)}
       onDispose={() => {
         wrangle.setEditor(p, channel, undefined);
         wrangle.setState(p, channel, undefined);
