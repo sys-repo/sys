@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, EditorPrompt, MonacoEditor, Rx, Signal, D } from './common.ts';
+import { type t, css, D, EditorPrompt, MonacoEditor, Rx, Signal } from './common.ts';
 
 export type RootProps = {
   debug: t.DebugSignals;
@@ -13,38 +13,65 @@ export const Root: React.FC<RootProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
-
-  const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
+  const { height } = useBindingSample(debug);
 
   /**
-   * State:
+   * Render:
    */
+  return (
+    <MonacoEditor
+      style={css({ height }, props.style)}
+      theme={v.theme}
+      language={'plaintext'}
+      autoFocus={true}
+      onMounted={(e) => {
+        p.editor.value = e.editor;
+      }}
+      onChange={(e) => {
+        p.text.value = e.content.text;
+      }}
+      onDispose={() => {
+        p.editor.value = undefined;
+        p.state.value = undefined;
+      }}
+    />
+  );
+};
+
+/**
+ * Binding orchestration
+ */
+function useBindingSample(debug: t.DebugSignals) {
+  const p = debug.props;
+  const v = Signal.toObject(p);
+
+  const bindingRef = React.useRef<t.EditorPrompt.Binding>(undefined);
   const lineHeight = 21;
   const [height, setHeight] = React.useState(lineHeight);
 
-  /**
-   * Effects:
-   */
   React.useEffect(() => {
-    const editor = p.editor.value;
-    if (!editor) return;
+    if (!v.editor) return;
 
     const life = Rx.lifecycle();
+    const editor: t.Monaco.Editor = v.editor;
 
     async function run() {
       bindingRef.current?.dispose();
       bindingRef.current = undefined;
 
       const updateHeight = (state: t.EditorPrompt.State) => setHeight(state.height);
+
+      const config: t.EditorPrompt.Config = {
+        lines: { min: 1, max: v.maxLines ?? D.lines.max },
+        overflow: v.overflow,
+        submitOn: 'enter:modified',
+      };
+
       const binding = await EditorPrompt.bind(
         {
-          editor: editor!,
+          editor,
           lineHeight,
-          config: {
-            lines: { min: 1, max: v.maxLines ?? D.lines.max },
-            overflow: v.overflow,
-            submitOn: 'enter:modified',
-          },
+          config,
           onStateChange(state) {
             p.state.value = state;
             updateHeight(state);
@@ -57,42 +84,17 @@ export const Root: React.FC<RootProps> = (props) => {
       );
 
       if (life.disposed) return;
-
       bindingRef.current = binding;
       p.state.value = binding.state;
       updateHeight(binding.state);
     }
 
     void run();
-
     return () => {
       life.dispose();
-      bindingRef.current?.dispose();
       bindingRef.current = undefined;
     };
-  }, [p.editor.value, v.maxLines, v.overflow]);
+  }, [v.editor, v.maxLines, v.overflow]);
 
-  /**
-   * Render:
-   */
-  return (
-    <MonacoEditor
-      style={css({ height }, props.style)}
-      language={'plaintext'}
-      theme={v.theme}
-      autoFocus={true}
-      onMounted={(e: t.MonacoEditorReady) => {
-        p.editor.value = e.editor;
-      }}
-      onDispose={() => {
-        bindingRef.current?.dispose();
-        bindingRef.current = undefined;
-        p.editor.value = undefined;
-        p.state.value = undefined;
-      }}
-      onChange={(e: t.MonacoEditorChange) => {
-        p.text.value = e.content.text;
-      }}
-    />
-  );
-};
+  return { height } as const;
+}
