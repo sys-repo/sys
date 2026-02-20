@@ -53,6 +53,38 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('accepts local.clear on bundle targets', () => {
+    const doc = {
+      dir: '.',
+      bundles: [
+        {
+          kind: 'http' as const,
+          dist: 'https://example.com/dist.json',
+          local: { dir: 'dev', clear: true },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+  });
+
+  it('rejects non-boolean local.clear values', () => {
+    const doc = {
+      dir: '.',
+      bundles: [
+        {
+          kind: 'http' as const,
+          dist: 'https://example.com/dist.json',
+          local: { dir: 'dev', clear: 'yes' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(false);
+  });
+
   it('rejects github:release repo values that are not owner/repo', () => {
     const bad = ['owner', '/repo', 'owner/', 'owner/repo/extra'];
 

@@ -36,11 +36,16 @@ export namespace PullTool {
   export type GithubReleaseResolveResult = PullToolGithubReleaseResolveResult;
 
   export namespace ConfigYaml {
+    export type BundleLocal = {
+      dir: t.StringRelativeDir;
+      clear?: boolean;
+    };
+
     export type Bundle = HttpBundle | GithubReleaseBundle;
     export type HttpBundle = {
       kind: 'http';
       dist: t.StringUrl;
-      local: { dir: t.StringRelativeDir };
+      local: BundleLocal;
       lastUsedAt?: t.UnixTimestamp;
     };
     export type GithubReleaseBundle = {
@@ -48,7 +53,7 @@ export namespace PullTool {
       repo: string;
       tag?: string;
       asset?: string | string[];
-      local: { dir: t.StringRelativeDir };
+      local: BundleLocal;
       lastUsedAt?: t.UnixTimestamp;
     };
 

@@ -7,7 +7,7 @@ import {
 } from '../../u.github/u.client.ts';
 import { resolveGithubReleaseBundle } from '../../u.github/u.release.resolve.ts';
 import { Fmt } from '../../u.fmt.ts';
-import { done, errorMessage, fail, githubTokenHelpText, mapAuthError } from './common.ts';
+import { clearTargetDir, done, errorMessage, fail, githubTokenHelpText, mapAuthError } from './common.ts';
 import { formatGithubReleaseSummary } from './u.fmt.github.ts';
 
 export async function pullGithubReleaseBundle(
@@ -38,6 +38,10 @@ export async function pullGithubReleaseBundle(
     const assets = resolved.data.assets;
     const releaseTagDir = toSafeTagDir(release.tag);
     const targetRoot = Fs.join(baseDir, bundle.local.dir, releaseTagDir) as t.StringDir;
+    if (bundle.local.clear === true) {
+      spinner.text = Fmt.spinnerText('clearing local target...');
+      await clearTargetDir({ baseDir, targetDir: targetRoot });
+    }
     await Fs.ensureDir(targetRoot);
 
     const targetNames = resolveTargetNames(assets);

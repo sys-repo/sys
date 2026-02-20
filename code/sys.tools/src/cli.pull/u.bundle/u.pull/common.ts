@@ -1,4 +1,4 @@
-import { type t, Err } from '../../common.ts';
+import { type t, Err, Fs } from '../../common.ts';
 
 export function done(data: t.PullToolBundleResult): t.PullToolRemoteBundleResult {
   return { ok: true, data };
@@ -6,6 +6,24 @@ export function done(data: t.PullToolBundleResult): t.PullToolRemoteBundleResult
 
 export function fail(error: string): t.PullToolRemoteBundleResult {
   return { ok: false, error };
+}
+
+export async function clearTargetDir(args: {
+  baseDir: t.StringDir;
+  targetDir: t.StringDir;
+}): Promise<void> {
+  const base = Fs.Path.resolve(args.baseDir);
+  const target = Fs.Path.resolve(args.targetDir);
+
+  const rel = Fs.Path.relative(base, target).replaceAll('\\', '/');
+  const isInside = rel.length > 0 && rel !== '.' && rel !== '..' && !rel.startsWith('../');
+  if (!isInside) {
+    throw new Error(`Refusing to clear outside pull base: ${target}`);
+  }
+
+  if (await Fs.exists(target)) {
+    await Fs.remove(target, { log: false });
+  }
 }
 
 export function errorMessage(error: unknown): string {

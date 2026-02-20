@@ -2,7 +2,7 @@ import { type t, c, Cli, Err, Http, Str, Url } from '../../common.ts';
 import { Fmt as BaseFmt } from '../../u.fmt.ts';
 import { createMonotonicProgress } from '../u.monotonicProgress.ts';
 import { rewriteTags } from '../u.pull.rewriteTags.ts';
-import { done, errorMessage, fail } from './common.ts';
+import { clearTargetDir, done, errorMessage, fail } from './common.ts';
 
 type Progress = { index: t.Index; total: number };
 
@@ -46,6 +46,12 @@ export async function pullHttpBundle(
   const updateSpinnerText = (progress?: Progress) => Fmt.pullingSpinnerText({ dist, progress });
   const updateSpinner = (progress?: Progress) => (spinner.text = updateSpinnerText(progress));
   updateSpinner();
+
+  if (bundle.local.clear === true) {
+    spinner.text = Fmt.spinnerText('clearing local target...');
+    await clearTargetDir({ baseDir, targetDir });
+    updateSpinner();
+  }
 
   const toMonotonic = createMonotonicProgress();
   const onStream = (e: t.HttpPullEvent) => {

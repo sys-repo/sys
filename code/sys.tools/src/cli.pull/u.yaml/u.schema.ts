@@ -2,7 +2,10 @@ import { type t, Schema } from '../common.ts';
 
 const BundleSharedSchema = {
   local: Schema.Type.Object(
-    { dir: Schema.Type.String() },
+    {
+      dir: Schema.Type.String(),
+      clear: Schema.Type.Optional(Schema.Type.Boolean()),
+    },
     { additionalProperties: false },
   ),
   lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
