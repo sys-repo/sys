@@ -117,5 +117,10 @@ const sampleDist = () => ({
     runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
     hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
   },
-  hash: { digest: 'sha256-0000', parts: { './index.html': 'sha256-0000' } },
+  hash: {
+    digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+    parts: {
+      './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+    },
+  },
 });
