@@ -18,7 +18,7 @@ export type KeyValueLinkOpen = 'new-tab' | 'inline';
 export type KeyValueLinkDisplay = 'raw' | 'trim-http';
 export type KeyValueDefaults = {
   /**
-   * Opacity applied to value-side cells (`v`) when `disabled` is true.
+   * Opacity applied to value-side cells (`v`) when `enabled` is false.
    * Key-side styling remains unchanged by default.
    */
   readonly disabledOpacity?: t.Percent;
@@ -66,6 +66,8 @@ export type KeyValueProps = {
  */
 export type KeyValueItemProps = {
   item: t.KeyValueItem;
+  enabled?: boolean;
+  disabledOpacity?: t.Percent;
   mono?: boolean;
   truncate?: boolean;
   layout?: t.KeyValueLayout;

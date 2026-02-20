@@ -9,6 +9,8 @@ import { Title } from './ui.Title.tsx';
 
 export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
   const { debug = false, items = [], size = D.size, mono = D.mono, truncate = D.truncate } = props;
+  const enabled = props.enabled ?? D.enabled;
+  const disabledOpacity = props.defaults?.disabledOpacity ?? D.defaults.disabledOpacity;
   const layout = toLayout(props.layout);
   const theme = Color.theme(props.theme);
   const { fontSize, fontFamily } = toFont(props);
@@ -48,6 +50,8 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
     const args: t.KeyValueItemProps = {
       theme: theme.name,
       item,
+      enabled,
+      disabledOpacity,
       mono,
       truncate,
       layout,

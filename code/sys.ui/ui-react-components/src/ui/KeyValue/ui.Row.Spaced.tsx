@@ -41,6 +41,8 @@ export const RowSpaced: React.FC<P> = (props) => {
         theme={theme.name}
         debug={debug}
         mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
         truncate={truncate}
         size={props.size}
         href={item.href}
@@ -54,6 +56,8 @@ export const RowSpaced: React.FC<P> = (props) => {
         debug={debug}
         style={{ textAlign: truncate ? 'right' : 'left' }}
         mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
         truncate={truncate}
         userSelect={item.userSelect}
         size={props.size}

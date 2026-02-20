@@ -17,12 +17,14 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
 
+  keyOpacity: 0.5,
   size: 'sm' satisfies NonNullable<P['size']>,
   mono: false satisfies NonNullable<P['mono']>,
   truncate: true satisfies NonNullable<P['truncate']>,
-  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
+  enabled: true satisfies NonNullable<P['enabled']>,
 
-  keyOpacity: 0.5,
+  defaults: { disabledOpacity: 0.5 } satisfies NonNullable<t.KeyValueDefaults>,
+  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
 
   layout: {
     default: 'spaced' as const,

@@ -53,6 +53,8 @@ export const RowTable: React.FC<P> = (props) => {
         theme={props.theme}
         debug={debug}
         mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
         truncate={truncate}
         size={props.size}
         style={styles.key}
@@ -66,6 +68,8 @@ export const RowTable: React.FC<P> = (props) => {
         theme={props.theme}
         debug={debug}
         mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
         truncate={truncate}
         size={props.size}
         userSelect={item.userSelect}
