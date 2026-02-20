@@ -56,6 +56,7 @@ export const RowTable: React.FC<P> = (props) => {
         truncate={truncate}
         size={props.size}
         style={styles.key}
+        href={item.href}
         opacity={opacity.k}
         children={item.k}
       />
@@ -69,6 +70,7 @@ export const RowTable: React.FC<P> = (props) => {
         size={props.size}
         userSelect={item.userSelect}
         style={styles.val}
+        href={item.href}
         opacity={opacity.v}
         children={item.v}
       />

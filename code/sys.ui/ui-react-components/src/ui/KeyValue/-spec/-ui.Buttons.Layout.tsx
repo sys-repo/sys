@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../../u.ts';
-import { type t, Color, css, D, Signal } from '../common.ts';
+import { type t, Color, css, D, Signal } from './common.ts';
 
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 

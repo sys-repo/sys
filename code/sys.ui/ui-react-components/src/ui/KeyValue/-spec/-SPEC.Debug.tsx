@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t } from '../common.ts';
-import { SAMPLE, type SampleKind } from './-.SAMPLES.tsx';
+import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 
 type P = t.KeyValueProps;
@@ -182,6 +182,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {itemsButton('simple')}
       {itemsButton('comprehensive')}
       {itemsButton('opacity')}
+      {itemsButton('links')}
 
       <hr style={{ marginTop: 25 }} />
       <Button

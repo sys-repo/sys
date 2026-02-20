@@ -14,6 +14,15 @@ export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixe
  * - Object: per-side overrides (k = key, v = value).
  */
 export type KeyValueOpacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
+export type KeyValueLinkOpen = 'new-tab' | 'inline';
+export type KeyValueLinkProps = {
+  readonly href?: t.StringUri;
+  readonly infer?: boolean;
+  readonly open?: KeyValueLinkOpen;
+  readonly rel?: string;
+};
+export type KeyValueLinkDef = boolean | t.StringUri | KeyValueLinkProps;
+export type KeyValueHref = KeyValueLinkDef | { readonly k?: KeyValueLinkDef; readonly v?: KeyValueLinkDef };
 
 /**
  * Types for the KeyValue primitive.
@@ -88,6 +97,12 @@ export type KeyValueRow = {
    * - Object: per-side overrides (k = key, v = value).
    */
   readonly opacity?: KeyValueOpacity;
+  /**
+   * Optional link wrapper for row cells.
+   * - `string`/`boolean`/props object → applies to `v` (value) side by default.
+   * - `{ k, v }` → per-side configuration.
+   */
+  readonly href?: KeyValueHref;
 
   /**
    * Row-level `user-select` overrides

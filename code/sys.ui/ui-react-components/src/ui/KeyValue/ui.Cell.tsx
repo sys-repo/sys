@@ -1,12 +1,15 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
+import { isAnchorElement, resolveHref, toAnchorStyle } from './u.href.ts';
 import { toEllipsis, toFont } from './u.ts';
+import { Anchor } from './ui.Anchor.tsx';
 
 type Base = Pick<t.KeyValueProps, 'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size'>;
 export type CellProps = Base & {
   layout: t.KeyValueLayout;
   children: React.ReactNode;
   role: 'key' | 'val';
+  href?: t.KeyValueRow['href'];
   opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
   userSelect?: t.CssProps['userSelect'];
 };
@@ -17,6 +20,7 @@ export type CellProps = Base & {
 export const Cell: React.FC<CellProps> = (props) => {
   const { debug = false, role, mono, truncate, size, layout, opacity } = props;
   const isKey = role === 'key';
+  const side = isKey ? 'k' : 'v';
   const isSpaced = layout.kind === 'spaced';
 
   /**
@@ -24,6 +28,10 @@ export const Cell: React.FC<CellProps> = (props) => {
    * - Ellipsis is only meaningful for simple text/number nodes.
    */
   const isTextChild = typeof props.children === 'string' || typeof props.children === 'number';
+  const isAnchorChild = isAnchorElement(props.children);
+  const link = !isAnchorChild
+    ? resolveHref({ href: props.href, side, children: props.children })
+    : undefined;
 
   /**
    * Render:
@@ -54,8 +62,15 @@ export const Cell: React.FC<CellProps> = (props) => {
         : {}),
     }),
     asKey: css({ fontFamily: 'sans-serif' }),
+    anchor: css(toAnchorStyle({ truncate, textChild: isTextChild })),
   };
 
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
-  return <div className={className}>{props.children}</div>;
+  const content = (
+    <Anchor link={link} style={styles.anchor}>
+      {props.children}
+    </Anchor>
+  );
+
+  return <div className={className}>{content}</div>;
 };

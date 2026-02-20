@@ -43,6 +43,7 @@ export const RowSpaced: React.FC<P> = (props) => {
         mono={mono}
         truncate={truncate}
         size={props.size}
+        href={item.href}
         opacity={opacity.k}
         children={item.k}
       />
@@ -56,6 +57,7 @@ export const RowSpaced: React.FC<P> = (props) => {
         truncate={truncate}
         userSelect={item.userSelect}
         size={props.size}
+        href={item.href}
         opacity={opacity.v}
         children={item.v}
       />
