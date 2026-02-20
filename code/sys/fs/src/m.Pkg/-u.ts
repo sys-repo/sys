@@ -29,7 +29,6 @@ export const Sample = {
           await file.dist.delete();
         },
         async ensure() {
-          if (await file.dist.exists()) return;
           const { dir } = path;
           const save = true;
           await Pkg.Dist.compute({ dir, pkg, save });
@@ -37,7 +36,7 @@ export const Sample = {
       },
     } as const;
 
-    await Fs.copyDir(Sample.dir, dir);
+    await Fs.copyDir(Sample.dir, dir, { force: true, throw: true });
     return { path, file } as const;
   },
 } as const;
