@@ -80,6 +80,7 @@ export const Root: React.FC<RootProps> = (props) => {
       style={css({ height }, props.style)}
       language={'plaintext'}
       theme={v.theme}
+      autoFocus={true}
       onMounted={(e: t.MonacoEditorReady) => {
         p.editor.value = e.editor;
       }}

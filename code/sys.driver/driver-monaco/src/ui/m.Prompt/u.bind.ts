@@ -97,6 +97,12 @@ const wrangle = {
     editor.updateOptions({
       minimap: { enabled: false },
       lineNumbers: 'off',
+      glyphMargin: false,
+      lineDecorationsWidth: 0,
+      lineNumbersMinChars: 0,
+      overviewRulerLanes: 0,
+      folding: false,
+      renderLineHighlight: 'none',
       scrollBeyondLastLine: false,
       quickSuggestions: false,
       suggestOnTriggerCharacters: false,

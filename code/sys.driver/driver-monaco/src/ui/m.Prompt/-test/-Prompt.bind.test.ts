@@ -49,6 +49,12 @@ describe('Monaco.Prompt', () => {
       const first = editor._getUpdateOptionsCalls().at(-1) as any;
       expect(first.minimap?.enabled).to.eql(false);
       expect(first.lineNumbers).to.eql('off');
+      expect(first.glyphMargin).to.eql(false);
+      expect(first.lineDecorationsWidth).to.eql(0);
+      expect(first.lineNumbersMinChars).to.eql(0);
+      expect(first.overviewRulerLanes).to.eql(0);
+      expect(first.folding).to.eql(false);
+      expect(first.renderLineHighlight).to.eql('none');
       expect(first.quickSuggestions).to.eql(false);
       expect(first.suggestOnTriggerCharacters).to.eql(false);
       expect(first.wordBasedSuggestions).to.eql('off');
@@ -58,6 +64,26 @@ describe('Monaco.Prompt', () => {
       model.setValue('one\ntwo\nthree');
       const over = editor._getUpdateOptionsCalls().at(-1) as any;
       expect(over.scrollbar?.vertical).to.eql('visible');
+
+      life.dispose();
+    });
+
+    it('keeps vertical scrollbar hidden in overflow=clamp mode', async () => {
+      const model = MonacoFake.model('one');
+      const editor = MonacoFake.editor(model);
+
+      const life = await EditorPrompt.bind({
+        editor,
+        lineHeight: 21,
+        config: { lines: { min: 1, max: 2 }, overflow: 'clamp' },
+      });
+
+      const first = editor._getUpdateOptionsCalls().at(-1) as any;
+      expect(first.scrollbar?.vertical).to.eql('hidden');
+
+      model.setValue('one\ntwo\nthree');
+      const over = editor._getUpdateOptionsCalls().at(-1) as any;
+      expect(over.scrollbar?.vertical).to.eql('hidden');
 
       life.dispose();
     });
