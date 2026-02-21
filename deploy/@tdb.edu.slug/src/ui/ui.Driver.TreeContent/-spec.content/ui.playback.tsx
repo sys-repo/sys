@@ -5,7 +5,6 @@ import { arraySize } from './u.data.ts';
 export type PlaybackContentProps = {
   playback?: t.PlaybackContentData;
   position?: string;
-  payload?: unknown;
   loading?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -27,7 +26,7 @@ export const PlaybackMain: React.FC<PlaybackContentProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.03}>
-        <InfoPanel {...props} style={{ margin: 15, width: 400 }} />
+        <InfoPanel {...props} style={{ margin: 15, width: 400 }} showObject={true} />
       </Cropmarks>
     </div>
   );
@@ -98,14 +97,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
           ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}
       />
-      {props.payload !== undefined && (
-        <ObjectView
-          theme={theme.name}
-          name={'payload'}
-          data={Obj.truncateStrings(props.payload, 40)}
-          expand={0}
-        />
-      )}
       {showObject && (
         <ObjectView
           theme={theme.name}

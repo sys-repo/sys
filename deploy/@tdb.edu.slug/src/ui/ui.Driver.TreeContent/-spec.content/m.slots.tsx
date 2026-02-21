@@ -28,12 +28,7 @@ function renderMain(args: A & { file?: t.FileContentData; playback?: t.PlaybackC
   if (args.file) return <FileMain file={args.file} theme={args.theme} />;
   if (args.playback) {
     return (
-      <PlaybackMain
-        playback={args.playback}
-        position={args.playbackPosition}
-        payload={args.playbackPayload}
-        theme={args.theme}
-      />
+      <PlaybackMain playback={args.playback} position={args.playbackPosition} theme={args.theme} />
     );
   }
   return undefined;
@@ -43,12 +38,7 @@ function renderLeaf(args: A & { file?: t.FileContentData; playback?: t.PlaybackC
   if (args.file) return <FileLeaf file={args.file} theme={args.theme} />;
   if (args.playback) {
     return (
-      <PlaybackLeaf
-        playback={args.playback}
-        position={args.playbackPosition}
-        payload={args.playbackPayload}
-        theme={args.theme}
-      />
+      <PlaybackLeaf playback={args.playback} position={args.playbackPosition} theme={args.theme} />
     );
   }
   return undefined;
