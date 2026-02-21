@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, KeyValue, Player } from './common.ts';
+import { type t, Color, KeyValue, Player, css } from './common.ts';
 
 export type MediaPlaybackAuxProps = {
   runtime: t.DevPlaybackRuntime;
@@ -10,20 +10,35 @@ export type MediaPlaybackAuxProps = {
  * Component:
  */
 export const MediaPlaybackAux: React.FC<MediaPlaybackAuxProps> = (props) => {
-  const { theme, runtime } = props;
+  const { runtime } = props;
+
+  const theme = Color.theme(props.theme);
+  const styles = {
+    decks: {
+      base: css({ position: 'relative' }),
+      traceline: css({
+        Absolute: [null, 15, -1, 10],
+        backgroundColor: Color.alpha(theme.fg, 0.03),
+        height: 1,
+      }),
+    },
+  };
 
   return (
     <div>
-      <Player.Video.Decks.UI
-        decks={runtime.decks}
-        active={runtime.snapshot.state.decks.active}
-        show={'both'}
-        aspectRatio={'4/3'}
-        gap={20}
-        style={{ Margin: [10, 20, 15, 20] }}
-      />
+      <div className={styles.decks.base.class}>
+        <Player.Video.Decks.UI
+          decks={runtime.decks}
+          active={runtime.snapshot.state.decks.active}
+          show={'both'}
+          aspectRatio={'4/3'}
+          gap={20}
+          style={{ Margin: [10, 20, 10, 20] }}
+        />
+        <div className={styles.decks.traceline.class} />
+      </div>
       <KeyValue.UI
-        theme={theme}
+        theme={theme.name}
         layout={{ kind: 'table' }}
         style={{ Margin: [0, 20, 10, 20] }}
         items={[
