@@ -25,6 +25,8 @@ export type TreeHostSlots = import('@sys/ui-react-components/t').TreeHostSlots;
 
 /** Slot registry keys for TreeHost. */
 export type TreeHostSlot = import('@sys/ui-react-components/t').TreeHostSlot;
+/** Slot input (node or render handler) for standard TreeHost slots. */
+export type TreeHostSlotInput = import('@sys/ui-react-components/t').TreeHostSlotInput;
 
 /**
  * Event handlers:
@@ -37,5 +39,5 @@ export type TreeHostNodeSelectHandler = import('@sys/ui-react-components/t').Tre
  */
 export type TreeHostPathChange = import('@sys/ui-react-components/t').TreeHostPathChange;
 export type TreeHostNodeSelect = import('@sys/ui-react-components/t').TreeHostNodeSelect;
-export type TreeHostTreeLeafRenderer = import('@sys/ui-react-components/t').TreeHostTreeLeafRenderer;
-export type TreeHostTreeLeafRenderArgs = import('@sys/ui-react-components/t').TreeHostTreeLeafRenderArgs;
+export type TreeHostNavLeafRenderer = import('@sys/ui-react-components/t').TreeHostNavLeafRenderer;
+export type TreeHostNavLeafRenderArgs = import('@sys/ui-react-components/t').TreeHostNavLeafRenderArgs;

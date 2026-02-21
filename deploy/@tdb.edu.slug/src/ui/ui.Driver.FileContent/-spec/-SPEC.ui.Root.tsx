@@ -23,7 +23,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
   const spinner: t.TreeHostProps['spinner'] = loading
-    ? [{ slot: 'tree', position: 'top' }, { slot: 'main' }]
+    ? [{ slot: 'nav:tree', position: 'top' }, { slot: 'main:body' }]
     : undefined;
 
   const theme = Color.theme(v.theme);
@@ -41,8 +41,14 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const frontmatter = toFrontmatter(file?.content);
   const slots: t.TreeHostSlots = {
     ...baseSlots,
-    main: file ? <MainSlot theme={theme.name} data={content.data} frontmatter={frontmatter} /> : baseSlots.main,
-    aux: frontmatter ? <AuxSlot theme={theme.name} frontmatter={frontmatter} /> : baseSlots.aux,
+    main: {
+      ...(baseSlots.main ?? {}),
+      body: file ? <MainSlot theme={theme.name} data={content.data} frontmatter={frontmatter} /> : baseSlots.main?.body,
+    },
+    nav: {
+      ...(baseSlots.nav ?? {}),
+      footer: frontmatter ? <AuxSlot theme={theme.name} frontmatter={frontmatter} /> : baseSlots.nav?.footer,
+    },
   };
 
   return (

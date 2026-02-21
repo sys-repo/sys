@@ -11,15 +11,15 @@ export function createSlots(args: A): t.TreeHostSlots {
   const playback = toPlaybackData(data);
 
   return {
-    main: renderMain({ ...args, file, playback }),
-    aux: (
-      <div>{args.content.phase === 'error' ? (args.content.error?.message ?? 'Error') : ''}</div>
-    ),
-    treeLeaf: (e) => {
-      const node = TreeData.findViewNode(args.selection.tree, args.selection.selectedPath);
-      const isSelectedLeaf = !!node && node.key === e.node.key;
-      if (!isSelectedLeaf) return undefined;
-      return renderLeaf({ ...args, file, playback });
+    main: { body: renderMain({ ...args, file, playback }) },
+    nav: {
+      footer: <div>{args.content.phase === 'error' ? (args.content.error?.message ?? 'Error') : ''}</div>,
+      leaf: (e: t.TreeHostNavLeafRenderArgs) => {
+        const node = TreeData.findViewNode(args.selection.tree, args.selection.selectedPath);
+        const isSelectedLeaf = !!node && node.key === e.node.key;
+        if (!isSelectedLeaf) return undefined;
+        return renderLeaf({ ...args, file, playback });
+      },
     },
   };
 }

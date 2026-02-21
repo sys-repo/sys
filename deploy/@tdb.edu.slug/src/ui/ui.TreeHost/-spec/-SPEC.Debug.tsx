@@ -36,10 +36,16 @@ export async function createDebugSignals() {
   const selection = TreeSelectionController.create();
 
   type S = t.TreeHostSlots;
+  type NavSlots = NonNullable<S['nav']>;
+  type MainSlots = NonNullable<S['main']>;
   const slots = {
-    tree: s<S['tree']>(),
-    main: s<S['main']>(),
-    aux: s<S['aux']>(),
+    nav: {
+      tree: s<NavSlots['tree']>(),
+      footer: s<NavSlots['footer']>(),
+    },
+    main: {
+      body: s<MainSlots['body']>(),
+    },
   };
 
   const props = {

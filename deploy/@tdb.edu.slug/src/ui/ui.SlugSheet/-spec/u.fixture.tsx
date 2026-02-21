@@ -17,8 +17,8 @@ export function createSlots(
 
   if (type === 'TreeHost') {
     const treeSlots = {
-      main: <Foo theme={theme} label={'TreeHost:main'} />,
-      aux: <Foo theme={theme} label={'TreeHost:aux'} style={{ minHeight: 150 }} />,
+      main: { body: <Foo theme={theme} label={'TreeHost:main.body'} /> },
+      nav: { footer: <Foo theme={theme} label={'TreeHost:nav.footer'} style={{ minHeight: 150 }} /> },
     };
     const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:'].embedded);
     return { main: <TreeHost.UI tree={root} slots={treeSlots} /> };

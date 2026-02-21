@@ -31,7 +31,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
 
   const loading = content.phase === 'loading';
   const spinner: t.TreeHostProps['spinner'] = loading
-    ? [{ slot: 'tree', position: 'top' }, { slot: 'main' }]
+    ? [{ slot: 'nav:tree', position: 'top' }, { slot: 'main:body' }]
     : undefined;
 
   const theme = Color.theme(v.theme);
@@ -81,7 +81,10 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     playbackPayload,
     theme: theme.name,
   });
-  const slots: t.TreeHostSlots = { ...baseSlots, aux };
+  const slots: t.TreeHostSlots = {
+    ...baseSlots,
+    nav: { ...(baseSlots.nav ?? {}), footer: aux },
+  };
 
   return (
     <div className={styles.base.class}>

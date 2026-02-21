@@ -41,7 +41,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          slots={{ aux }}
+          slots={{ nav: { footer: aux } }}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={(e) => {
             // console.info('⚡️ onNodeSelect: ', e);

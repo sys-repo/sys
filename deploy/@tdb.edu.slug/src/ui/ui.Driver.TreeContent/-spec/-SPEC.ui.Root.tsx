@@ -21,7 +21,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const view = orchestrator.selection.view();
   const loading = content.phase === 'loading';
   const spinner: t.TreeHostProps['spinner'] = loading
-    ? [{ slot: 'tree', position: 'top' }, { slot: 'main' }]
+    ? [{ slot: 'nav:tree', position: 'top' }, { slot: 'main:body' }]
     : undefined;
 
   /**
