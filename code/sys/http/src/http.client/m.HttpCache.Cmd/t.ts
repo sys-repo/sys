@@ -36,13 +36,17 @@ export type HttpCacheCmdInfoPayload = {
 };
 
 /** Cache classification in info output. */
-export type HttpCacheInfoKind = 'asset' | 'media' | 'other';
+export type HttpCacheInfoKind = 'asset' | 'media' | 'media-range' | 'other';
 
 /** Per-cache info entry. */
 export type HttpCacheCmdInfoCache = {
   readonly name: t.StringKey;
   readonly kind: HttpCacheInfoKind;
   readonly entries: number;
+  /** Optional estimated bytes for the cache (when available). */
+  readonly bytes?: number;
+  /** Optional metadata-entry count (eg. range index rows). */
+  readonly metaEntries?: number;
 };
 
 /** Result payload for the `http.cache.info` command. */
@@ -53,8 +57,19 @@ export type HttpCacheCmdInfoResult = {
   readonly totals: {
     readonly caches: number;
     readonly entries: number;
+    /** Optional estimated bytes across returned caches. */
+    readonly bytes?: number;
   };
   readonly caches: readonly HttpCacheCmdInfoCache[];
+  /** Optional diagnostics for media range caching. */
+  readonly diagnostics?: {
+    readonly mediaRange?: {
+      readonly caches: number;
+      readonly entries: number;
+      readonly bytes: number;
+      readonly metaEntries: number;
+    };
+  };
 };
 
 /** Per-command request payload mapping. */

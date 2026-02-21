@@ -75,7 +75,11 @@ describe('Http.Cache.Cmd', () => {
         keys: async () => ['ignored:1', 'ignored:2'],
         delete: async (name: string) => {
           deleted.push(name);
-          return name.endsWith(':asset-files') || name.endsWith(':media-files');
+          return (
+            name.endsWith(':asset-files') ||
+            name.endsWith(':media-files') ||
+            name.endsWith(':media-range-files')
+          );
         },
       };
       Object.defineProperty(globalThis, 'caches', {
@@ -88,9 +92,17 @@ describe('Http.Cache.Cmd', () => {
         const clear = CacheCmd.Handlers.clear({ pkg: { name: 'my-pkg', version: '1.0.0' } });
         const result = await clear({});
 
-        expect(deleted).to.eql(['my-pkg:asset-files', 'my-pkg:media-files']);
-        expect(result.deleted).to.eql(['my-pkg:asset-files', 'my-pkg:media-files']);
-        expect(result.total).to.eql(2);
+        expect(deleted).to.eql([
+          'my-pkg:asset-files',
+          'my-pkg:media-files',
+          'my-pkg:media-range-files',
+        ]);
+        expect(result.deleted).to.eql([
+          'my-pkg:asset-files',
+          'my-pkg:media-files',
+          'my-pkg:media-range-files',
+        ]);
+        expect(result.total).to.eql(3);
         expect(result.ok).to.eql(true);
       } finally {
         if (original) Object.defineProperty(globalThis, 'caches', original);
@@ -134,14 +146,36 @@ describe('Http.Cache.Cmd', () => {
       const index = {
         'my-pkg:asset-files': ['a1', 'a2'],
         'my-pkg:media-files': ['m1'],
+        'my-pkg:media-range-files': ['r1', 'r2', '__sys_http_media_range_meta__'],
         'other:cache': ['o1', 'o2', 'o3'],
       } as const;
       const mock = {
         keys: async () => Object.keys(index),
         open: async (name: string) => {
+          if (name === 'my-pkg:media-range-files') {
+            return {
+              keys: async () =>
+                index['my-pkg:media-range-files'].map(
+                  (key) => new Request(`https://example.com/${key}`),
+                ),
+              match: async (key: string) => {
+                if (key !== '__sys_http_media_range_meta__') return undefined;
+                return new Response(
+                  JSON.stringify({
+                    entries: {
+                      'https://cdn/r1': { bytes: 11 },
+                      'https://cdn/r2': { bytes: 22 },
+                    },
+                  }),
+                  { status: 200, headers: { 'content-type': 'application/json' } },
+                );
+              },
+            };
+          }
           const values = index[name as keyof typeof index] ?? [];
           return {
             keys: async () => values.map((key) => new Request(`https://example.com/${key}`)),
+            match: async (_key: string) => undefined,
           };
         },
         delete: async (_name: string) => true,
@@ -158,11 +192,25 @@ describe('Http.Cache.Cmd', () => {
 
         expect(result.ok).to.eql(true);
         expect(result.scope).to.eql('pkg');
-        expect(result.totals.caches).to.eql(2);
-        expect(result.totals.entries).to.eql(3);
+        expect(result.totals.caches).to.eql(3);
+        expect(result.totals.entries).to.eql(5);
+        expect(result.totals.bytes).to.eql(33);
+        expect(result.diagnostics?.mediaRange).to.eql({
+          caches: 1,
+          entries: 2,
+          bytes: 33,
+          metaEntries: 2,
+        });
         expect(result.caches).to.eql([
           { name: 'my-pkg:asset-files', kind: 'asset', entries: 2 },
           { name: 'my-pkg:media-files', kind: 'media', entries: 1 },
+          {
+            name: 'my-pkg:media-range-files',
+            kind: 'media-range',
+            entries: 2,
+            bytes: 33,
+            metaEntries: 2,
+          },
         ]);
       } finally {
         if (original) Object.defineProperty(globalThis, 'caches', original);
@@ -174,14 +222,35 @@ describe('Http.Cache.Cmd', () => {
       const index = {
         'my-pkg:asset-files': ['a1'],
         'my-pkg:media-files': ['m1'],
+        'my-pkg:media-range-files': ['r1', '__sys_http_media_range_meta__'],
         'other:cache': ['o1', 'o2'],
       } as const;
       const mock = {
         keys: async () => Object.keys(index),
         open: async (name: string) => {
+          if (name === 'my-pkg:media-range-files') {
+            return {
+              keys: async () =>
+                index['my-pkg:media-range-files'].map(
+                  (key) => new Request(`https://example.com/${key}`),
+                ),
+              match: async (key: string) => {
+                if (key !== '__sys_http_media_range_meta__') return undefined;
+                return new Response(
+                  JSON.stringify({
+                    entries: {
+                      'https://cdn/r1': { bytes: 10 },
+                    },
+                  }),
+                  { status: 200, headers: { 'content-type': 'application/json' } },
+                );
+              },
+            };
+          }
           const values = index[name as keyof typeof index] ?? [];
           return {
             keys: async () => values.map((key) => new Request(`https://example.com/${key}`)),
+            match: async (_key: string) => undefined,
           };
         },
         delete: async (_name: string) => true,
@@ -198,11 +267,19 @@ describe('Http.Cache.Cmd', () => {
 
         expect(result.ok).to.eql(true);
         expect(result.scope).to.eql('all');
-        expect(result.totals.caches).to.eql(3);
-        expect(result.totals.entries).to.eql(4);
+        expect(result.totals.caches).to.eql(4);
+        expect(result.totals.entries).to.eql(5);
+        expect(result.totals.bytes).to.eql(10);
         expect(result.caches).to.eql([
           { name: 'my-pkg:asset-files', kind: 'asset', entries: 1 },
           { name: 'my-pkg:media-files', kind: 'media', entries: 1 },
+          {
+            name: 'my-pkg:media-range-files',
+            kind: 'media-range',
+            entries: 1,
+            bytes: 10,
+            metaEntries: 1,
+          },
           { name: 'other:cache', kind: 'other', entries: 2 },
         ]);
       } finally {
