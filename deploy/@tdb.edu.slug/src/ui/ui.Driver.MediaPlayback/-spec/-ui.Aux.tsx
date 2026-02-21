@@ -17,7 +17,6 @@ export const MediaPlaybackAux: React.FC<MediaPlaybackAuxProps> = (props) => {
       <Player.Video.Decks.UI
         decks={runtime.decks}
         active={runtime.snapshot.state.decks.active}
-        muted={true}
         show={'both'}
         aspectRatio={'4/3'}
         gap={20}
