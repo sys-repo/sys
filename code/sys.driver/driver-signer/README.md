@@ -1,5 +1,5 @@
 # @sys/driver-signer
-Platform signing driver primitives, intentionally UI- and workflow-free.
+Platform signing driver primitives.
 
 ### Example
 ```ts

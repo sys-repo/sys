@@ -1,6 +1,6 @@
 /**
  * @module
- * Platform signing driver primitives, intentionally UI- and workflow-free.
+ * Platform signing driver primitives.
  */
 export { pkg } from './pkg.ts';
 
