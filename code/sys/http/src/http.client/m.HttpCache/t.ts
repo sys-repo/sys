@@ -40,9 +40,17 @@ export type HttpCacheMediaMode = 'off' | 'safe-full' | 'range-window';
 /** Normalized media cache policy used internally by the SW cache runtime. */
 export type HttpCacheMediaPolicy = {
   readonly mode: HttpCacheMediaMode;
+  readonly maxChunkBytes: number;
+  readonly maxObjectBytes: number;
+  readonly maxTotalBytes: number;
+  readonly ttlMs: number;
 };
 
 /** User-supplied media cache policy (partial/optional shape). */
 export type HttpCacheMediaPolicyInput = {
   mode?: HttpCacheMediaMode;
+  maxChunkBytes?: number;
+  maxObjectBytes?: number;
+  maxTotalBytes?: number;
+  ttlMs?: number;
 };
