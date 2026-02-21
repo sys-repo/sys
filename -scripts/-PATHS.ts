@@ -69,9 +69,10 @@ export const Paths = {
      * sys.driver:
      */
     'code/sys.driver/driver-deno',
+    'code/sys.driver/driver-process',
+    'code/sys.driver/driver-signer',
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-automerge',
-    'code/sys.driver/driver-process',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
 
