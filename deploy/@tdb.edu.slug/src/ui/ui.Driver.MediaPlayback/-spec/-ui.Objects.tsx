@@ -52,7 +52,7 @@ export const PayloadObject: React.FC<PayloadObjectProps> = (props) => {
       theme={props.theme}
       name={'payload'}
       data={payload}
-      expand={1}
+      expand={0}
       style={props.style}
     />
   );
@@ -60,7 +60,9 @@ export const PayloadObject: React.FC<PayloadObjectProps> = (props) => {
 
 function usePayload(data: PayloadObjectData) {
   const timeline = PlaybackDriver.Util.usePlaybackTimeline({
-    spec: data.playback ? { composition: data.playback.composition, beats: data.playback.beats } : undefined,
+    spec: data.playback
+      ? { composition: data.playback.composition, beats: data.playback.beats }
+      : undefined,
   });
   const beats = timeline.experience?.beats ?? [];
   const currentBeat = data.snapshot?.state.currentBeat;
