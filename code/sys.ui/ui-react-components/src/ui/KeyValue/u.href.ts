@@ -25,14 +25,12 @@ export function toAnchorStyle(args: {
   const { truncate, textChild, theme } = args;
   const base = {
     color: 'inherit',
-    textDecorationLine: 'underline',
-    textDecorationColor: Color.alpha(theme.fg, 0.25),
-    textUnderlineOffset: '2px',
-    transition: 'text-decoration-color 120ms ease',
-    ':hover': { textDecorationColor: 'currentColor' },
-    ':focus-visible': { textDecorationColor: 'currentColor' },
+    textDecoration: `underline dashed ${Color.alpha(theme.fg, 0.2)}`,
+    textUnderlineOffset: '3px',
+    transition: 'text-decoration-color 100ms ease',
+    ':hover': { textDecoration: `underline solid currentColor` },
+    ':focus-visible': { textDecoration: `underline solid currentColor` },
   };
-
   if (!(truncate && textChild)) {
     return base;
   }
