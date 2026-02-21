@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { HeadDebug } from './-SPEC.Debug.tsx';
-import { SpecRoot } from './-SPEC.ui.Root.tsx';
+import { SpecRoot } from './-ui.Root.tsx';
 import { D, createDebugSignals, makeDebugPanel } from './common.ts';
 
 export default Spec.describe(D.name, async (e) => {
@@ -18,12 +18,12 @@ export default Spec.describe(D.name, async (e) => {
     headTab: {
       id: 'head:playback',
       label: 'MediaPlayback',
-      render: () => <HeadDebug debug={debug} />,
+      render: () => <HeadDebug debug={debug} runtime={p.runtime} />,
     },
   });
 
   function Root() {
-    return <SpecRoot debug={debug} />;
+    return <SpecRoot debug={debug} runtime={p.runtime} />;
   }
 
   e.it('init', (e) => {

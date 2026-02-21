@@ -1,6 +1,8 @@
 import React from 'react';
 import { type t, PlaybackDriver, Player } from './common.ts';
 
+export type DevPlaybackRuntime = ReturnType<typeof usePlaybackRuntime>;
+
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
   readonly assets?: readonly t.SpecTimelineAsset[];
@@ -19,12 +21,31 @@ export function usePlaybackRuntime(args: {
     resolveBeatMedia: bundle ? PlaybackDriver.Util.resolveBeatMedia(bundle) : () => undefined,
   });
 
+  const initKey = `${args.playback?.docid ?? ''}:${args.playback?.beats.length ?? 0}`;
+  const lastInitKeyRef = React.useRef<string>('');
+  React.useEffect(() => {
+    if (!timeline.playback) return;
+    if (!args.playback) return;
+    if (lastInitKeyRef.current === initKey) return;
+    lastInitKeyRef.current = initKey;
+    controller.init({
+      timeline: timeline.playback,
+      startBeat: 0 as t.TimecodeState.Playback.BeatIndex,
+    });
+  }, [controller, timeline.playback, args.playback, initKey]);
+
+  const firstBeatMedia = React.useMemo(() => {
+    if (!bundle) return undefined;
+    return PlaybackDriver.Util.resolveBeatMedia(bundle)(0 as t.TimecodeState.Playback.BeatIndex);
+  }, [bundle]);
+
   return {
     decks,
     controller,
     snapshot,
     timeline,
     bundle,
+    firstBeatMedia,
   } as const;
 }
 

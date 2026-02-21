@@ -2,12 +2,13 @@ import React from 'react';
 import { HeadObject, PayloadObject } from './-ui.Objects.tsx';
 import { PlayControls } from './-ui.PlayControls.tsx';
 import { TimelineInfo } from './-ui.TimelineInfo.tsx';
-import { toPlaybackData, usePlaybackRuntime } from './-u.playback.runtime.ts';
+import { toPlaybackData, type DevPlaybackRuntime } from './-u.playback.runtime.ts';
 import { D, type t, Color, css, Signal } from './common.ts';
 import type { DebugSignals as DebugSignalsBase } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
 
 export type HeadDebugProps = {
   debug: DebugSignalsBase;
+  runtime?: t.SignalOptional<DevPlaybackRuntime | undefined>;
   style?: t.CssInput;
 };
 
@@ -31,12 +32,12 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
   const data = toPlaybackData(content.data);
   const playback = data?.playback;
   const assets = data?.assets;
-  const runtime = usePlaybackRuntime({
-    playback,
-    assets,
-  });
+  const runtime = props.runtime?.value;
 
-  Signal.useRedrawEffect(debug.listen);
+  Signal.useRedrawEffect(() => {
+    debug.listen();
+    if (props.runtime) void props.runtime.value;
+  });
 
   const theme = Color.theme(v.theme);
   const styles = {
@@ -66,7 +67,7 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
         <PayloadObject
           style={{ marginTop: 6 }}
           theme={theme.name}
-          data={{ playback, snapshot: runtime.snapshot }}
+          data={{ playback, snapshot: runtime?.snapshot }}
         />
       </div>
 
@@ -75,14 +76,14 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
         theme={v.theme}
         playback={playback}
         assets={assets}
-        snapshot={runtime.snapshot}
+        snapshot={runtime?.snapshot}
         style={{ marginTop: 12 }}
       />
       <PlayControls
         theme={v.theme}
-        controller={runtime.controller}
-        snapshot={runtime.snapshot}
-        decks={runtime.decks}
+        controller={runtime?.controller}
+        snapshot={runtime?.snapshot}
+        decks={runtime?.decks}
         style={{ marginTop: 15 }}
       />
     </div>
