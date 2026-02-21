@@ -32,6 +32,15 @@ export function shouldBypassMediaCache(mode: t.HttpCacheMediaMode): boolean {
   return mode === 'off';
 }
 
+export function shouldUseRangeCacheEntry(input: {
+  meta?: { createdAt: number; lastAccessAt: number; expiresAt: number; bytes: number };
+  now: number;
+}) {
+  if (!input.meta) return { ok: false, reason: 'missing-meta' } as const;
+  if (input.meta.expiresAt <= input.now) return { ok: false, reason: 'expired' } as const;
+  return { ok: true } as const;
+}
+
 export function isRangeWindowCacheCandidate(input: RangeWindowCandidateInput) {
   if (input.status !== 206) return { ok: false, reason: `status:${input.status}` } as const;
   const contentRange = input.contentRange;
@@ -48,6 +57,7 @@ export function isRangeWindowCacheCandidate(input: RangeWindowCandidateInput) {
   const bytes = parsed.to - parsed.from + 1;
   if (bytes <= 0) return { ok: false, reason: 'empty-range' } as const;
   if (bytes > policy.maxChunkBytes) return { ok: false, reason: 'chunk-too-large' } as const;
+  if (bytes > policy.maxTotalBytes) return { ok: false, reason: 'total-budget-too-small' } as const;
   if (parsed.total > policy.maxObjectBytes) return { ok: false, reason: 'object-too-large' } as const;
 
   return { ok: true, parsed, bytes } as const;
@@ -159,8 +169,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   }
 
   /**
-   * Media strategy: placeholder for bounded chunk cache.
-   * Phase-1 keeps behavior equivalent to safe-full.
+   * Media strategy: bounded 206 range-chunk cache.
    */
   function mediaRangeWindowResponse(request: Request): Promise<Response> {
     return mediaRangeChunkResponse(request);
@@ -176,7 +185,8 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     const cached = await cache.match(key);
     if (cached) {
       const meta = wrangle.entryMeta(cached.headers);
-      if (meta && meta.expiresAt <= Date.now()) {
+      const use = shouldUseRangeCacheEntry({ meta, now: Date.now() });
+      if (!use.ok) {
         await cache.delete(key);
         await rangeMeta.remove(cache, key);
       } else {
@@ -199,7 +209,6 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     }
 
     const now = Date.now();
-    await rangeMeta.evict(cache, media, now, candidate.bytes);
     const expiresAt = now + media.ttlMs;
     const stored = wrangle.withEntryMeta(network.clone(), {
       createdAt: now,
@@ -207,15 +216,20 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
       expiresAt,
       bytes: candidate.bytes,
     });
-
-    await cache.put(key, stored);
-    await rangeMeta.upsert(cache, {
-      key,
-      bytes: candidate.bytes,
-      createdAt: now,
-      lastAccessAt: now,
-      expiresAt,
+    const cachedNow = await rangeMeta.writeWithBudget(cache, media, candidate.bytes, async () => {
+      await cache.put(key, stored);
+      await rangeMeta.upsertWithin(cache, {
+        key,
+        bytes: candidate.bytes,
+        createdAt: now,
+        lastAccessAt: now,
+        expiresAt,
+      });
     });
+    if (!cachedNow) {
+      if (!silent) console.info(`🧪 skip range cache (budget): ${request.url}`);
+      return network;
+    }
     if (!silent) {
       const parsed = candidate.parsed;
       console.info(`🧩 cached media range: ${parsed.from}-${parsed.to}/${parsed.total} • ${request.url}`);
@@ -417,6 +431,16 @@ type RangeMetaIndex = {
   entries: Record<string, RangeMetaEntry>;
 };
 
+let rangeMetaLock: Promise<void> = Promise.resolve();
+const withRangeMetaLock = async <T>(fn: () => Promise<T>): Promise<T> => {
+  const run = rangeMetaLock.then(fn, fn);
+  rangeMetaLock = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+};
+
 const rangeMeta = {
   KEY: '__sys_http_media_range_meta__',
 
@@ -442,24 +466,34 @@ const rangeMeta = {
     );
   },
 
-  async upsert(cache: Cache, entry: RangeMetaEntry): Promise<void> {
+  async upsertWithin(cache: Cache, entry: RangeMetaEntry): Promise<void> {
     const index = await rangeMeta.read(cache);
     index.entries[entry.key] = entry;
     await rangeMeta.write(cache, index);
   },
 
+  async upsert(cache: Cache, entry: RangeMetaEntry): Promise<void> {
+    await withRangeMetaLock(async () => {
+      await rangeMeta.upsertWithin(cache, entry);
+    });
+  },
+
   async remove(cache: Cache, key: string): Promise<void> {
-    const index = await rangeMeta.read(cache);
-    delete index.entries[key];
-    await rangeMeta.write(cache, index);
+    await withRangeMetaLock(async () => {
+      const index = await rangeMeta.read(cache);
+      delete index.entries[key];
+      await rangeMeta.write(cache, index);
+    });
   },
 
   async touch(cache: Cache, key: string, now: number): Promise<void> {
-    const index = await rangeMeta.read(cache);
-    const entry = index.entries[key];
-    if (!entry) return;
-    entry.lastAccessAt = now;
-    await rangeMeta.write(cache, index);
+    await withRangeMetaLock(async () => {
+      const index = await rangeMeta.read(cache);
+      const entry = index.entries[key];
+      if (!entry) return;
+      entry.lastAccessAt = now;
+      await rangeMeta.write(cache, index);
+    });
   },
 
   async evict(
@@ -468,6 +502,31 @@ const rangeMeta = {
     now: number,
     incomingBytes: number,
   ): Promise<void> {
+    await withRangeMetaLock(async () => {
+      await rangeMeta.evictWithin(cache, policy, now, incomingBytes);
+    });
+  },
+
+  async writeWithBudget(
+    cache: Cache,
+    policy: t.HttpCacheMediaPolicy,
+    incomingBytes: number,
+    writer: () => Promise<void>,
+  ): Promise<boolean> {
+    return await withRangeMetaLock(async () => {
+      const canFit = await rangeMeta.evictWithin(cache, policy, Date.now(), incomingBytes);
+      if (!canFit) return false;
+      await writer();
+      return true;
+    });
+  },
+
+  async evictWithin(
+    cache: Cache,
+    policy: t.HttpCacheMediaPolicy,
+    now: number,
+    incomingBytes: number,
+  ): Promise<boolean> {
     const index = await rangeMeta.read(cache);
     const keys = Object.keys(index.entries);
 
@@ -490,7 +549,7 @@ const rangeMeta = {
     let total = totalBytes();
     if (total + incomingBytes <= policy.maxTotalBytes) {
       await rangeMeta.write(cache, index);
-      return;
+      return true;
     }
 
     const rows = Object.values(index.entries).sort((a, b) => a.lastAccessAt - b.lastAccessAt);
@@ -501,6 +560,8 @@ const rangeMeta = {
       total -= entry.bytes;
     }
 
+    const canFit = total + incomingBytes <= policy.maxTotalBytes;
     await rangeMeta.write(cache, index);
+    return canFit;
   },
 } as const;
