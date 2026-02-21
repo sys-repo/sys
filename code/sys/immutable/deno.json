@@ -1,6 +1,6 @@
 {
   "name": "@sys/immutable",
-  "version": "0.0.76",
+  "version": "0.0.77",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset --unstable-worker-options",
