@@ -9,7 +9,7 @@ export type * from './t.node.ts';
  * Local extension keeps slug-aware Data helpers.
  */
 export type TreeHostLib = {
-  readonly UI: import('@sys/ui-react-components/t').TreeHostLib['UI'];
+  readonly UI: t.TreeHost.Lib['UI'];
   readonly Data: TreeHostDataLib;
 };
 
@@ -18,26 +18,26 @@ export type TreeHostDataLib = t.TreeDataLib & { readonly Client: t.SlugClientLib
 /**
  * Component surface (upstream).
  */
-export type TreeHostProps = import('@sys/ui-react-components/t').TreeHostProps;
+export type TreeHostProps = t.TreeHost.Props;
 
 /** Slot registry definitions for TreeHost. */
-export type TreeHostSlots = import('@sys/ui-react-components/t').TreeHostSlots;
+export type TreeHostSlots = t.TreeHost.Slots;
 
 /** Slot registry keys for TreeHost. */
-export type TreeHostSlot = import('@sys/ui-react-components/t').TreeHostSlot;
+export type TreeHostSlot = t.TreeHost.Slot;
 /** Slot input (node or render handler) for standard TreeHost slots. */
-export type TreeHostSlotInput = import('@sys/ui-react-components/t').TreeHostSlotInput;
+export type TreeHostSlotInput = t.TreeHost.SlotInput;
 
 /**
  * Event handlers:
  */
-export type TreeHostPathChangeHandler = import('@sys/ui-react-components/t').TreeHostPathChangeHandler;
-export type TreeHostNodeSelectHandler = import('@sys/ui-react-components/t').TreeHostNodeSelectHandler;
+export type TreeHostPathChangeHandler = t.TreeHost.PathChangeHandler;
+export type TreeHostNodeSelectHandler = t.TreeHost.NodeSelectHandler;
 
 /**
  * Event payloads:
  */
-export type TreeHostPathChange = import('@sys/ui-react-components/t').TreeHostPathChange;
-export type TreeHostNodeSelect = import('@sys/ui-react-components/t').TreeHostNodeSelect;
-export type TreeHostNavLeafRenderer = import('@sys/ui-react-components/t').TreeHostNavLeafRenderer;
-export type TreeHostNavLeafRenderArgs = import('@sys/ui-react-components/t').TreeHostNavLeafRenderArgs;
+export type TreeHostPathChange = t.TreeHost.PathChange;
+export type TreeHostNodeSelect = t.TreeHost.NodeSelect;
+export type TreeHostNavLeafRenderer = t.TreeHost.NavLeafRenderer;
+export type TreeHostNavLeafRenderArgs = t.TreeHost.NavLeafRenderArgs;

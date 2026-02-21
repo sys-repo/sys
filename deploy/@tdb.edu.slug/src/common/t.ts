@@ -40,6 +40,7 @@ export type {
   BulletList,
   HttpOriginEnv,
   HttpOriginSpecMap,
+  TreeHost,
   KeyValueItem,
   SheetProps,
   TimecodePlaybackDriver,
