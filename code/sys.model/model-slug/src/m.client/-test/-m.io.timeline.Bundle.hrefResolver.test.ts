@@ -26,7 +26,10 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
   const docid = 'crdt:bundle-href' as t.StringId;
   const makeDist = (parts: string[]): t.DistPkg => {
     const hashParts: Record<string, t.StringFileHashUri> = {};
-    for (const part of parts) hashParts[part] = 'sha256-abc:bytes-0';
+    for (const part of parts) {
+      hashParts[part] =
+        'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:size=0';
+    }
     return {
       type: 'https://example.com/src/types/t.Pkg.dist.ts',
       pkg: { name: 'slug-client', version: '0.0.1' },
@@ -37,7 +40,10 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
         runtime: 'deno=1:v8=1:typescript=5',
         hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
       },
-      hash: { digest: 'sha256-def', parts: hashParts as t.CompositeHashParts },
+      hash: {
+        digest: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+        parts: hashParts as t.CompositeHashParts,
+      },
     };
   };
 
