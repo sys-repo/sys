@@ -108,7 +108,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
 
   /**
    * Fetch handler: intercepts GET requests.
-   * - Media with a Range header → serve partial bytes from cached full file.
+   * - Media with a Range header → route to configured media cache strategy.
    * - Hashed build assets → cache-first lookup.
    * Other requests pass through untouched.
    */

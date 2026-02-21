@@ -134,7 +134,7 @@ export type HttpCacheCmdHandlersLib = {
    * Create the default clear handler backed by CacheStorage.
    *
    * Scope rules:
-   * - `pkg` (default): deletes only this package's asset/media cache keys.
+   * - `pkg` (default): deletes this package's asset/media/media-range cache keys.
    * - `all`: deletes every CacheStorage key visible to this worker.
    */
   readonly clear: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdClearHandler;
@@ -143,7 +143,7 @@ export type HttpCacheCmdHandlersLib = {
    * Create the default info handler backed by CacheStorage.
    *
    * Scope rules:
-   * - `pkg` (default): reports only this package's asset/media cache keys.
+   * - `pkg` (default): reports this package's asset/media/media-range cache keys.
    * - `all`: reports every CacheStorage key visible to this worker.
    */
   readonly info: (args: HttpCacheCmdClearHandlerArgs) => HttpCacheCmdInfoHandler;
