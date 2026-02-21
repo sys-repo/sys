@@ -34,7 +34,30 @@ export function usePlaybackTimeline<P = unknown>(
     // 3) Project beats onto virtual time axis (std Experience timeline).
     const experience = Timecode.Experience.toTimeline<P>(resolved, expBeats);
 
-    // 3) Map std timeline → ui-state PlaybackTimeline (beats + segments).
+    const sourceRef = (() => {
+      const count = new Map<t.StringPath, number>();
+      const index = new Map<t.StringPath, number>();
+      spec.composition.forEach((item, i) => {
+        const src = String(item.src) as t.StringPath;
+        count.set(src, (count.get(src) ?? 0) + 1);
+        if (!index.has(src)) index.set(src, i);
+      });
+      return { count, index };
+    })();
+
+    const toSegmentIndex = (beatIndex: t.Index, vTime: t.Msecs): t.Index => {
+      const byTime = Timecode.Composite.Map.toSource(resolved.segments, vTime)?.index ?? 0;
+      const byTimeSrc = String(spec.composition[byTime]?.src ?? '');
+      const logicalPath = String(spec.beats[beatIndex]?.src.logicalPath ?? '');
+      if (!logicalPath) return byTime;
+      if (byTimeSrc === logicalPath) return byTime;
+
+      const count = sourceRef.count.get(logicalPath) ?? 0;
+      if (count === 1) return sourceRef.index.get(logicalPath) ?? byTime;
+      return byTime;
+    };
+
+    // 4) Map std timeline → ui-state PlaybackTimeline (beats + segments).
     const beats: t.TimecodeState.Playback.Beat[] = experience.beats.map((b, i) => {
       const vTime = b.vTime;
       const next = experience.beats[i + 1];
@@ -43,9 +66,8 @@ export function usePlaybackTimeline<P = unknown>(
       // ui-state beat.duration is the total span to next beat (or to end).
       const duration = Math.max(0, totalSpanMs);
 
-      // Segment index derived from composite map at this beat's vTime.
-      const map = Timecode.Composite.Map.toSource(resolved.segments, vTime);
-      const segIndex = map?.index ?? 0;
+      // Segment identity: source-aware primary mapping with virtual-time fallback.
+      const segIndex = toSegmentIndex(i, vTime);
 
       return {
         index: ix(i),
@@ -59,12 +81,11 @@ export function usePlaybackTimeline<P = unknown>(
       };
     });
 
-    // Segment ranges by grouping beats by segIndex (derived via Map.toSource).
+    // Segment ranges by grouping beats by resolved segment-id.
     const ranges = new Map<number, { from: number; to: number }>();
     for (let i = 0; i < beats.length; i++) {
-      const vTime = beats[i]!.vTime;
-      const map = Timecode.Composite.Map.toSource(resolved.segments, vTime);
-      const segIndex = map?.index ?? 0;
+      const segIdValue = beats[i]!.segmentId;
+      const segIndex = Number(segIdValue.replace(/^seg:/, ''));
 
       const curr = ranges.get(segIndex);
       if (!curr) ranges.set(segIndex, { from: i, to: i + 1 });

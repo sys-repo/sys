@@ -41,6 +41,23 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
     return { composition, beats };
   };
 
+  const makeLowTimeSecondSegmentSpec = (): t.Timecode.Playback.Spec<unknown> => {
+    const srcALogical: t.StringPath = '/:video/a.webm';
+    const srcBLogical: t.StringPath = '/:video/b.webm';
+    return {
+      composition: [
+        { src: srcALogical, slice: '00:00..00:31' },
+        { src: srcBLogical, slice: '00:00..09:39' },
+      ],
+      beats: [
+        { src: { kind: 'video', logicalPath: srcALogical, time: ms(0) }, payload: {} },
+        { src: { kind: 'video', logicalPath: srcALogical, time: ms(10_000) }, payload: {} },
+        { src: { kind: 'video', logicalPath: srcALogical, time: ms(28_000) }, payload: {} },
+        { src: { kind: 'video', logicalPath: srcBLogical, time: ms(9_000) }, payload: {} },
+      ],
+    };
+  };
+
   it('returns empty projection when spec is <undefined>', () => {
     const { result, unmount } = renderHook(() =>
       PlaybackDriver.Util.usePlaybackTimeline({ spec: undefined }),
@@ -120,6 +137,27 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
     expect(playback!.segments[1]!.id).to.eql('seg:1');
     expect(playback!.segments[1]!.beat.from).to.eql(2);
     expect(playback!.segments[1]!.beat.to).to.eql(3);
+
+    unmount();
+  });
+
+  it('maps segment identity by source-ref when beat time alone is ambiguous', () => {
+    const spec = makeLowTimeSecondSegmentSpec();
+    const { result, unmount } = renderHook(() => PlaybackDriver.Util.usePlaybackTimeline({ spec }));
+    const playback = result.current.playback;
+
+    expect(playback).to.not.eql(undefined);
+    expect(playback!.segments.length).to.eql(2);
+
+    expect(playback!.beats[0]!.segmentId).to.eql('seg:0');
+    expect(playback!.beats[1]!.segmentId).to.eql('seg:0');
+    expect(playback!.beats[2]!.segmentId).to.eql('seg:0');
+    expect(playback!.beats[3]!.segmentId).to.eql('seg:1');
+
+    expect(playback!.segments[0]!.beat.from).to.eql(0);
+    expect(playback!.segments[0]!.beat.to).to.eql(3);
+    expect(playback!.segments[1]!.beat.from).to.eql(3);
+    expect(playback!.segments[1]!.beat.to).to.eql(4);
 
     unmount();
   });
