@@ -1,5 +1,5 @@
 import React from 'react';
-import { createSlots } from '../../ui.Driver.TreeContent/-spec.content/mod.ts';
+import { createSlots } from '../../ui.Driver.Tree.shared/-spec.slots.shared/mod.ts';
 import type { DebugSignals } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
 import {

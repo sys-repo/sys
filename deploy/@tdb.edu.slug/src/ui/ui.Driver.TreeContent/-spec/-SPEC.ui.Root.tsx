@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import { createSlots } from '../-spec.content/mod.ts';
+import { createSlots } from '../../ui.Driver.Tree.shared/-spec.slots.shared/mod.ts';
 import { useEffectControllers } from './-use.EffectControllers.ts';
 import { type t, Color, css, Signal } from './common.ts';
 

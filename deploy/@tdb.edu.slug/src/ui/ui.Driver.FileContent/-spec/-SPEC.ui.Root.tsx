@@ -1,7 +1,7 @@
 import React from 'react';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import { createSlots } from '../../ui.Driver.TreeContent/-spec.content/mod.ts';
-import { toContentData, toFileData, toFrontmatter } from '../../ui.Driver.TreeContent/-spec.content/u.data.ts';
+import { createSlots } from '../../ui.Driver.Tree.shared/-spec.slots.shared/mod.ts';
+import { toContentData, toFileData, toFrontmatter } from '../../ui.Driver.Tree.shared/-spec.slots.shared/u.data.ts';
 import { useEffectControllers } from '../../ui.Driver.TreeContent/-spec/-use.EffectControllers.ts';
 import { AuxSlot } from './-ui.Aux.tsx';
 import { MainSlot } from './-ui.Main.tsx';

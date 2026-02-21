@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type re-exports. */
-export * from '../-spec/-t.ts';
+export * from '../../ui.Driver.TreeContent/-spec/-t.ts';
 
 export type ContentState = t.TreeContentController.State;
 export type SelectionState = t.TreeSelectionController.State;
