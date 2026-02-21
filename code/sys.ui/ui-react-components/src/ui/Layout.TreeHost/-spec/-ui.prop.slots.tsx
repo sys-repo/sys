@@ -21,21 +21,25 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
       <Foo
         theme={p.theme.value}
         label={`slot:${slot}`}
-        padding={slot === 'aux' ? [0, 4, 4, 4] : 4}
+        padding={slot === 'nav:footer' ? [0, 4, 4, 4] : 4}
       />
     );
   }
 
-  type SlotSignalKey = keyof typeof p.slots;
-  function slotButton(slot: SlotSignalKey) {
-    const current = () => p.slots[slot].value;
+  function slotButton(args: {
+    label: string;
+    slot: t.TreeHostSlot;
+    current: () => t.TreeHostSlotInput | undefined;
+    set: (value: t.TreeHostSlotInput | undefined) => void;
+  }) {
+    const { label, slot, current, set } = args;
     return (
       <Button
         block
-        label={() => `slot: ${slot} ${current() ? '🐚' : ''}`}
+        label={() => `slot: ${label} ${current() ? '🐚' : ''}`}
         onClick={() => {
           const el = slotFoo(slot);
-          p.slots[slot].value = current() ? undefined : el;
+          set(current() ? undefined : el);
         }}
       />
     );
@@ -54,9 +58,24 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {slotButton('tree')}
-      {slotButton('main')}
-      {slotButton('aux')}
+      {slotButton({
+        label: 'nav.tree',
+        slot: 'nav:tree',
+        current: () => p.slots.nav.tree.value,
+        set: (value) => (p.slots.nav.tree.value = value),
+      })}
+      {slotButton({
+        label: 'main.body',
+        slot: 'main:body',
+        current: () => p.slots.main.body.value,
+        set: (value) => (p.slots.main.body.value = value),
+      })}
+      {slotButton({
+        label: 'nav.footer',
+        slot: 'nav:footer',
+        current: () => p.slots.nav.footer.value,
+        set: (value) => (p.slots.nav.footer.value = value),
+      })}
       <Button
         block
         label={() => `(clear)`}

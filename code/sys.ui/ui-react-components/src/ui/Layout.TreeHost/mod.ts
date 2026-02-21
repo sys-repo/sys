@@ -6,7 +6,7 @@
  * layout with named slots. It provides **no domain semantics** of its own.
  *
  * Responsibilities:
- * - Host a tree navigation surface alongside auxiliary and main content slots.
+ * - Host a tree navigation surface (`nav.tree` / `nav.footer`) alongside main content (`main.body`).
  * - Define the structural contract (layout + slots) only.
  *
  * Non-responsibilities:

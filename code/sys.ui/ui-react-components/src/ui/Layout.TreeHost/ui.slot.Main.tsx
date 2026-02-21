@@ -11,8 +11,8 @@ type P = t.TreeHostProps;
  */
 export const Main: React.FC<P> = (props) => {
   const { slots = {} } = props;
-  const slotInput = slots.main;
-  const slotNode = toSlotNode(slotInput, { slot: 'main' });
+  const slotInput = slots.main?.body;
+  const slotNode = toSlotNode(slotInput, { slot: 'main:body' });
   const hasContent = slotNode !== undefined;
 
   /**
@@ -36,8 +36,8 @@ export const Main: React.FC<P> = (props) => {
     }),
   };
 
-  const elEmpty = shouldRenderEmpty({ props, slot: 'main', hasContent })
-    ? <Empty theme={theme.name} children={slots?.empty?.({ slot: 'main' }) ?? 'No content to display'} />
+  const elEmpty = shouldRenderEmpty({ props, slot: 'main:body', hasContent })
+    ? <Empty theme={theme.name} children={slots?.empty?.({ slot: 'main:body' }) ?? 'No content to display'} />
     : undefined;
   const elContent = slotNode ?? elEmpty;
 

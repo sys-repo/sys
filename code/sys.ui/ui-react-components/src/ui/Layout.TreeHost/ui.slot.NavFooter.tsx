@@ -7,11 +7,11 @@ type P = t.TreeHostProps;
 /**
  * Component:
  */
-export const Aux: React.FC<P> = (props) => {
-  const { debug = false, slots = {} } = props;
-  const slotInput = slots.aux;
+export const NavFooter: React.FC<P> = (props) => {
+  const { slots = {} } = props;
+  const slotInput = slots.nav?.footer;
   if (slotInput === undefined) return null;
-  const slotNode = toSlotNode(slotInput, { slot: 'aux' });
+  const slotNode = toSlotNode(slotInput, { slot: 'nav:footer' });
 
   /**
    * Render:

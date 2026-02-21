@@ -12,8 +12,8 @@ type P = t.TreeHostProps;
  */
 export const Tree: React.FC<P> = (props) => {
   const { tree, slots = {} } = props;
-  const slotInput = slots.tree;
-  const slotNode = toSlotNode(slotInput, { slot: 'tree' });
+  const slotInput = slots.nav?.tree;
+  const slotNode = toSlotNode(slotInput, { slot: 'nav:tree' });
   const elTree = tree ? <HostTreeView {...props} /> : undefined;
   const elDefault = slotNode ?? elTree;
 
@@ -38,10 +38,10 @@ export const Tree: React.FC<P> = (props) => {
 
   const elEmpty = shouldRenderEmpty({
     props,
-    slot: 'tree',
+    slot: 'nav:tree',
     hasContent: elDefault !== undefined,
   })
-    ? <Empty theme={theme.name} children={slots.empty?.({ slot: 'tree' }) ?? 'No tree to display'} />
+    ? <Empty theme={theme.name} children={slots.empty?.({ slot: 'nav:tree' }) ?? 'No tree to display'} />
     : undefined;
   const elContent = elDefault ?? elEmpty;
 

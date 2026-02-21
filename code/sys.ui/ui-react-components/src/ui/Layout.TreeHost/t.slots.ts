@@ -2,8 +2,13 @@ import type { t } from './common.ts';
 
 /** Spinner input accepted by TreeHost (named slot or fully configured spinner object). */
 export type TreeHostSpinner = TreeHostSpinnerSlot | TreeHostSlotSpinner;
-/** Canonical render slot names exposed by TreeHost. */
-export type TreeHostSlot = 'tree' | 'treeLeaf' | 'main' | 'aux' | 'empty';
+/** Canonical slot target names exposed by TreeHost. */
+export type TreeHostSlot =
+  | 'nav:tree'
+  | 'nav:leaf'
+  | 'nav:footer'
+  | 'main:body'
+  | 'empty';
 /** Arguments passed to generic slot render handlers. */
 export type TreeHostRenderSlotArgs = { readonly slot: t.TreeHostSlot };
 /** Render handler shape for standard TreeHost slots. */
@@ -17,10 +22,14 @@ export type TreeHostRenderEmptyHandler = (e: TreeHostRenderEmptyArgs) => t.React
 
 /** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
-  tree?: TreeHostSlotInput;
-  treeLeaf?: TreeHostTreeLeafRenderer;
-  main?: TreeHostSlotInput;
-  aux?: TreeHostSlotInput;
+  nav?: {
+    tree?: TreeHostSlotInput;
+    leaf?: TreeHostNavLeafRenderer;
+    footer?: TreeHostSlotInput;
+  };
+  main?: {
+    body?: TreeHostSlotInput;
+  };
   empty?: TreeHostRenderEmptyHandler;
 };
 
@@ -37,11 +46,11 @@ export type TreeHostSlotSpinner = {
 };
 
 /**
- * Leaf renderer
+ * Nav leaf renderer.
  */
-export type TreeHostTreeLeafRenderer = (e: TreeHostTreeLeafRenderArgs) => t.ReactNode;
-/** Context passed to `treeLeaf` renderers. */
-export type TreeHostTreeLeafRenderArgs = {
+export type TreeHostNavLeafRenderer = (e: TreeHostNavLeafRenderArgs) => t.ReactNode;
+/** Context passed to `nav.leaf` renderers. */
+export type TreeHostNavLeafRenderArgs = {
   readonly tree: t.TreeHostViewNodeList;
   readonly path: t.ObjectPath;
   readonly node: t.TreeHostViewNode;

@@ -42,7 +42,7 @@ export const MonacoNotes: React.FC<P> = (props) => {
         selectedPath={selectedPath}
         onPathRequest={(e) => setSelectedPath(e.path)}
         slots={{
-          main: elEditor,
+          main: { body: elEditor },
         }}
       />
     </div>

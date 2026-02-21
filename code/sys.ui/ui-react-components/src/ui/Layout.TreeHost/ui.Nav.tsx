@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { resolveParts } from './u.parts.ts';
-import { Aux } from './ui.slot.Aux.tsx';
+import { NavFooter } from './ui.slot.NavFooter.tsx';
 import { Tree } from './ui.slot.Tree.tsx';
 import { SlotHost } from './ui.SlotHost.tsx';
 
@@ -30,21 +30,21 @@ export const Nav: React.FC<P> = (props) => {
   };
 
   const elTree = (
-    <SlotHost host={props} slot={'tree'}>
+    <SlotHost host={props} slot={'nav:tree'}>
       <Tree {...props} />
     </SlotHost>
   );
 
-  const elAux = slots.aux && (
-    <SlotHost host={props} slot={'aux'}>
-      <Aux {...props} />
+  const elNavFooter = slots.nav?.footer && (
+    <SlotHost host={props} slot={'nav:footer'}>
+      <NavFooter {...props} />
     </SlotHost>
   );
 
   return (
     <nav className={css(styles.base, props.style).class}>
       {elTree}
-      {elAux}
+      {elNavFooter}
     </nav>
   );
 };

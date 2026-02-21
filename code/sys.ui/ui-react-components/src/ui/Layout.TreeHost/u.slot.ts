@@ -6,7 +6,7 @@ export function toSlotSpinner(
 ): t.TreeHostSlotSpinner | undefined {
   const defaults = D.spinner;
 
-  const targetSlot: t.TreeHostSpinnerSlot = slot === 'empty' ? 'main' : slot;
+  const targetSlot: t.TreeHostSpinnerSlot = slot === 'empty' ? 'main:body' : slot;
   const input = props.spinner;
   if (!input) return undefined;
 
@@ -17,7 +17,7 @@ export function toSlotSpinner(
   });
 
   const match = normalized.findLast((item) => {
-    if (targetSlot === 'tree' && item.slot === 'treeLeaf') return true;
+    if (targetSlot === 'nav:tree' && item.slot === 'nav:leaf') return true;
     return item.slot === targetSlot;
   });
 

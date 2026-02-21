@@ -28,16 +28,20 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     );
   };
 
-  const mainSlot = v.slots.main ?? (selectedLeaf ? renderLeaf('Main Leaf Content', 40) : undefined);
+  const mainSlot =
+    v.slots.main?.body ?? (selectedLeaf ? renderLeaf('Main Leaf Content', 40) : undefined);
 
   const slots: t.TreeHostSlots = {
     ...v.slots,
     empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined,
-    main: mainSlot,
-    treeLeaf(e) {
-      const selectedKey = selectedLeaf?.key;
-      if (!selectedKey || e.node.key !== selectedKey) return undefined;
-      return renderLeaf('Tree Leaf Panel');
+    main: { ...(v.slots.main ?? {}), body: mainSlot },
+    nav: {
+      ...(v.slots.nav ?? {}),
+      leaf(e) {
+        const selectedKey = selectedLeaf?.key;
+        if (!selectedKey || e.node.key !== selectedKey) return undefined;
+        return renderLeaf('Tree Leaf Panel');
+      },
     },
   };
 

@@ -26,6 +26,8 @@ export function createDebugSignals() {
   const snap = store.current;
 
   type S = t.TreeHostSlots;
+  type NavSlots = NonNullable<S['nav']>;
+  type MainSlots = NonNullable<S['main']>;
 
   const props = {
     debug: s(snap.debug),
@@ -35,9 +37,13 @@ export function createDebugSignals() {
     spinner: s(snap.spinner),
     nav: s(snap.nav),
     slots: {
-      tree: s<S['tree']>(),
-      main: s<S['main']>(),
-      aux: s<S['aux']>(),
+      nav: {
+        tree: s<NavSlots['tree']>(),
+        footer: s<NavSlots['footer']>(),
+      },
+      main: {
+        body: s<MainSlots['body']>(),
+      },
     },
     customEmpty: s(snap.customEmpty),
   };

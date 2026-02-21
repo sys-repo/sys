@@ -51,7 +51,7 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
         animate={{ width: navVisible ? 1 : 0 }}
         transition={navTransition}
       />
-      <SlotHost host={props} slot={'main'}>
+      <SlotHost host={props} slot={'main:body'}>
         <Main {...props} />
       </SlotHost>
     </div>

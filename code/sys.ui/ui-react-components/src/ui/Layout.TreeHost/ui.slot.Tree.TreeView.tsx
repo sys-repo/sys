@@ -42,7 +42,7 @@ export const HostTreeView: React.FC<P> = (props) => {
         const path = e.path ?? [];
         const node = findViewNode(tree, path);
         if (!node) return null;
-        return slots.treeLeaf?.({ tree, path, node });
+        return slots.nav?.leaf?.({ tree, path, node });
       }}
       onNodeSelect={(e) => {
         if (!tree) return;

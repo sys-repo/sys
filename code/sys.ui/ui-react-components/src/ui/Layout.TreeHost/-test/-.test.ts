@@ -17,14 +17,14 @@ describe('Layout.TreeHost', () => {
     const base: t.TreeHostProps = { theme: 'Light' };
 
     it('renders empty when no spinner and no content', () => {
-      expect(shouldRenderEmpty({ props: base, slot: 'main', hasContent: false })).to.eql(true);
+      expect(shouldRenderEmpty({ props: base, slot: 'main:body', hasContent: false })).to.eql(true);
     });
 
     it('suppresses empty when spinner targets same slot', () => {
       expect(
         shouldRenderEmpty({
-          props: { ...base, spinner: { slot: 'main', position: 'middle' } },
-          slot: 'main',
+          props: { ...base, spinner: { slot: 'main:body', position: 'middle' } },
+          slot: 'main:body',
           hasContent: false,
         }),
       ).to.eql(false);
@@ -33,18 +33,18 @@ describe('Layout.TreeHost', () => {
     it('does not suppress empty when spinner targets a different slot', () => {
       expect(
         shouldRenderEmpty({
-          props: { ...base, spinner: { slot: 'tree', position: 'top' } },
-          slot: 'main',
+          props: { ...base, spinner: { slot: 'nav:tree', position: 'top' } },
+          slot: 'main:body',
           hasContent: false,
         }),
       ).to.eql(true);
     });
 
-    it('treats treeLeaf spinner as tree slot spinner', () => {
+    it('treats nav:leaf spinner as nav:tree slot spinner', () => {
       expect(
         shouldRenderEmpty({
-          props: { ...base, spinner: { slot: 'treeLeaf', position: 'top' } },
-          slot: 'tree',
+          props: { ...base, spinner: { slot: 'nav:leaf', position: 'top' } },
+          slot: 'nav:tree',
           hasContent: false,
         }),
       ).to.eql(false);
