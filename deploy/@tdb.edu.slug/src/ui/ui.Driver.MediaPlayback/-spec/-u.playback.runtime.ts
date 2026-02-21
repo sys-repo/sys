@@ -76,6 +76,22 @@ export function toPlaybackData(input: unknown):
   };
 }
 
+export function toCurrentPosition(
+  snapshot?: t.TimecodeState.Playback.Snapshot,
+): string | undefined {
+  const state = snapshot?.state;
+  const index = state?.currentBeat;
+  const timeline = state?.timeline;
+  if (index == null || !timeline) return undefined;
+
+  const segIndex = timeline.segments
+    .map((s) => s.beat)
+    .findIndex((beat) => beat.from <= index && index < beat.to);
+  if (segIndex < 0) return undefined;
+
+  return `segment-${segIndex + 1}:beat-${index + 1}`;
+}
+
 function toBundle(
   playback: t.SpecTimelineManifest | undefined,
   assets: readonly t.SpecTimelineAsset[] | undefined,

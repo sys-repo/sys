@@ -4,6 +4,7 @@ import { arraySize } from './u.data.ts';
 
 export type PlaybackContentProps = {
   playback?: t.PlaybackContentData;
+  position?: string;
   loading?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -92,6 +93,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
           { k: 'docid', v: playback.playback.docid },
           { k: 'assets', v: arraySize(playback.assets) },
           { k: 'beats', v: arraySize(playback.playback.beats) },
+          ...(props.position ? [{ k: 'position', v: props.position }] : []),
           ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}
       />

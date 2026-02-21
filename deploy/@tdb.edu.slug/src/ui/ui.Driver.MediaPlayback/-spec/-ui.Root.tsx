@@ -2,7 +2,7 @@ import React from 'react';
 import { createSlots } from '../../ui.Driver.TreeContent/-spec.content/mod.ts';
 import type { DebugSignals } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import { toPlaybackData, usePlaybackRuntime } from './-u.playback.runtime.ts';
+import { toCurrentPosition, toPlaybackData, usePlaybackRuntime } from './-u.playback.runtime.ts';
 import { MediaPlaybackAux } from './-ui.Aux.tsx';
 import { type t, Color, css, Signal, useEffectController } from './common.ts';
 
@@ -35,16 +35,12 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     back: css({ Absolute: [-35, null, null, -35] }),
   };
 
-  const baseSlots = createSlots({
-    content,
-    selection,
-    theme: theme.name,
-  });
   const media = toPlaybackData(content.data);
   const runtime = usePlaybackRuntime({
     playback: media?.playback,
     assets: media?.assets,
   });
+  const playbackPosition = toCurrentPosition(runtime.snapshot);
 
   React.useEffect(() => {
     if (!props.runtime) return;
@@ -55,6 +51,12 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   }, [props.runtime, runtime]);
 
   const aux = media && <MediaPlaybackAux theme={theme.name} runtime={runtime} />;
+  const baseSlots = createSlots({
+    content,
+    selection,
+    playbackPosition,
+    theme: theme.name,
+  });
   const slots: t.TreeHostSlots = { ...baseSlots, aux };
 
   return (

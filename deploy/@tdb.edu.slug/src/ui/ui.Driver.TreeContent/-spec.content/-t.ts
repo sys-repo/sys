@@ -22,5 +22,6 @@ export type PlaybackContentData = {
 export type ContentSlotArgs = {
   readonly content: ContentState;
   readonly selection: SelectionState;
+  readonly playbackPosition?: string;
   readonly theme?: t.CommonTheme;
 };

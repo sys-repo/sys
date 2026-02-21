@@ -26,12 +26,28 @@ export function createSlots(args: A): t.TreeHostSlots {
 
 function renderMain(args: A & { file?: t.FileContentData; playback?: t.PlaybackContentData }) {
   if (args.file) return <FileMain file={args.file} theme={args.theme} />;
-  if (args.playback) return <PlaybackMain playback={args.playback} theme={args.theme} />;
+  if (args.playback) {
+    return (
+      <PlaybackMain
+        playback={args.playback}
+        position={args.playbackPosition}
+        theme={args.theme}
+      />
+    );
+  }
   return undefined;
 }
 
 function renderLeaf(args: A & { file?: t.FileContentData; playback?: t.PlaybackContentData }) {
   if (args.file) return <FileLeaf file={args.file} theme={args.theme} />;
-  if (args.playback) return <PlaybackLeaf playback={args.playback} theme={args.theme} />;
+  if (args.playback) {
+    return (
+      <PlaybackLeaf
+        playback={args.playback}
+        position={args.playbackPosition}
+        theme={args.theme}
+      />
+    );
+  }
   return undefined;
 }
