@@ -17,6 +17,7 @@ export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { ButtonFlags, ObjectViewProps } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { FC } from '@sys/ui-react/t';
 export type {
   Yaml,
   YamlError,
