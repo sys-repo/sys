@@ -53,6 +53,7 @@
     "jsr:@std/testing@1.0.17": "1.0.17",
     "jsr:@std/text@^1.0.17": "1.0.17",
     "jsr:@std/uuid@1.1.0": "1.1.0",
+    "jsr:@sys/tools@*": "0.0.241",
     "jsr:@zip-js/zip-js@^2.7.52": "2.8.21",
     "npm:@ai-sdk/openai@3.0.30": "3.0.30_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.5.3": "2.5.3_ws@8.19.0",
@@ -352,6 +353,13 @@
       "dependencies": [
         "jsr:@std/bytes",
         "jsr:@std/crypto"
+      ]
+    },
+    "@sys/tools@0.0.241": {
+      "integrity": "3602982ed233726883858dd2c1f15b13d20cdc312e888ed92070b1d5dfb4d3e5",
+      "dependencies": [
+        "npm:@octokit/rest",
+        "npm:react"
       ]
     },
     "@zip-js/zip-js@2.8.21": {
