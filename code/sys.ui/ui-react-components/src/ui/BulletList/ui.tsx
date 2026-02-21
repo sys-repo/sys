@@ -22,8 +22,13 @@ export const BulletList: t.FC<P> = (props) => {
     row: css({
       display: 'grid',
       gridTemplateColumns: `auto 1fr`,
-      alignItems: 'center',
+      alignItems: 'start',
       gap: 8,
+    }),
+    bullet: css({
+      height: '1lh',
+      display: 'grid',
+      placeItems: 'center',
     }),
   };
 
@@ -45,7 +50,9 @@ export const BulletList: t.FC<P> = (props) => {
             onMouse={(e) => handleSelect(props.onSelect, id, e)}
           >
             <div className={styles.row.class}>
-              <Bullet theme={theme.name} selected={isSelected(selected, id)} />
+              <div className={styles.bullet.class}>
+                <Bullet theme={theme.name} selected={isSelected(selected, id)} />
+              </div>
               <div>{label}</div>
             </div>
           </Button>

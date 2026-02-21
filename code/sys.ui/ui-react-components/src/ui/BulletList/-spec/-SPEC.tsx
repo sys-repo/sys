@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { type t, css, D, Str } from './common.ts';
 import { BulletList } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -9,6 +9,10 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const styles = {
+      content: css({ fontStyle: 'italic', opacity: 0.3 }),
+    };
+
     return (
       <BulletList.UI
         debug={v.debug}
@@ -19,7 +23,12 @@ export default Spec.describe(D.displayName, async (e) => {
           { id: 'localhost' },
           { id: 'production' },
           { id: 'foobar' },
-          { kind: 'content', key: 'dummy-content', render: () => <span>{'.. dummy content row ..'}</span> },
+          {
+            kind: 'content',
+            key: 'dummy-content',
+            render: () => <span className={styles.content.class}>{'.. dummy content row ..'}</span>,
+          },
+          { id: 'long', label: Str.Lorem.words(10) },
           { id: 'disabled', enabled: false },
         ]}
         onSelect={(e) => {
