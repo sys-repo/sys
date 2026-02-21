@@ -15,16 +15,18 @@ import {
   Signal,
   Str,
 } from './common.ts';
+import { OriginPanel } from './-ui.Origin.tsx';
+import { ORIGIN, resolveOriginUrls, type OriginEnv } from './-u.origin.ts';
 import { Sample } from './u.loader.ts';
 import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
 import { PlayControls } from './ui.PlayControls.tsx';
 
 type P = HarnessProps;
-type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
+type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; env?: OriginEnv };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  baseUrl: D.DEV.baseUrl,
+  env: ORIGIN.DEFAULT_ENV,
 };
 
 /**
@@ -55,7 +57,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     docid: s(snap.docid),
-    baseUrl: s(snap.baseUrl),
+    env: s(snap.env),
     bundle: s<t.TimecodePlaybackDriver.Wire.Bundle>(),
     controller: s<t.TimecodePlaybackDriver.TimelineController>(),
     snapshot: s<t.TimecodeState.Playback.Snapshot>(),
@@ -69,9 +71,8 @@ export async function createDebugSignals() {
     get activeDeck() {
       return p.snapshot.value?.state.decks.active;
     },
-    get url() {
-      const url = p.baseUrl.value || D.DEV.baseUrl;
-      return url;
+    get urls() {
+      return resolveOriginUrls(p.env.value);
     },
   };
 
@@ -91,7 +92,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.docid = p.docid.value;
-      d.baseUrl = p.baseUrl.value;
+      d.env = p.env.value;
     });
   });
 
@@ -140,6 +141,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <hr />
+      <OriginPanel
+        theme={theme.name}
+        env={v.env}
+        style={{ marginBottom: 14 }}
+        onChange={(e) => (p.env.value = e.env)}
+      />
+      <hr />
       <div className={Styles.title.class}>
         <div>{'ƒ loadTimeline( dist.json )'}</div>
         <div>{'(fetch / json)'}</div>
@@ -149,7 +157,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <LoadTimelinePanel
         theme={theme.name}
         style={{ marginTop: 10, marginBottom: 20, height: 300 }}
-        baseUrl={v.baseUrl ?? ''}
+        baseUrl={debug.urls.app}
         selectedDocid={p.docid.value}
         onSelect={(e) => {
           console.info('⚡️ onSelect: LoadTimelinePanel.onSelect', e.docid);

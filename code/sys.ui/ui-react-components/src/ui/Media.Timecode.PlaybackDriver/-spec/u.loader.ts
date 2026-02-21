@@ -1,6 +1,7 @@
 import { SlugClient } from '@sys/model-slug/client';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { type t, Url } from './common.ts';
+import { type t } from './common.ts';
+import { resolveOriginUrls } from './-u.origin.ts';
 import { loadTimelineFromEndpoint } from './u.loadTimelineFromEndpoint.ts';
 
 /**
@@ -13,15 +14,8 @@ export const Sample = { load, unload } as const;
  */
 async function load(debug: DebugSignals, docid: t.StringId) {
   const p = debug.props;
-  const url = debug.url;
-
-  /**
-   * SAMPLE 🐷
-   */
-  const filename = SlugClient.Url.playbackFilename(docid);
-  const timelineUrl = Url.parse(url).join('manifests', filename);
-
-  const bundle = await loadTimelineFromEndpoint(url, docid);
+  const urls = resolveOriginUrls(p.env.value);
+  const bundle = await loadTimelineFromEndpoint(urls.app, urls.video, docid);
 
   /** Update state. */
   p.docid.value = docid;

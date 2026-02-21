@@ -60,9 +60,9 @@ function comprehensive(): t.KeyValueItem[] {
     },
 
     { kind: 'hr', y: [25, 10] },
+    { k: 'link', v: 'https://fs.db.team', mono, href: true },
     { k: 'theme', v: 'Dark' },
     { k: 'element', v: <Foo /> },
-    { k: 'link', v: 'https://fs.db.team', mono, href: true },
   ];
 }
 

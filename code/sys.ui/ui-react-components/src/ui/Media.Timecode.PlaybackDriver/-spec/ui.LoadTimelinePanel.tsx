@@ -20,8 +20,8 @@ export type LoadTimelinePanelProps = {
   readonly selectedDocid?: t.StringId;
 
   /**
-   * Fired when the user selects a dist entry that looks like a slug manifest path.
-   * (Eg. "manifests/slug.<docid>.playback.json")
+ * Fired when the user selects a dist entry that looks like a slug manifest path.
+ * (Eg. "-manifests/slug.<docid>.playback.json")
    */
   readonly onSelect?: LoadTimelinePanelSelectHandler;
 };
@@ -55,7 +55,7 @@ export const LoadTimelinePanel: React.FC<LoadTimelinePanelProps> = (props) => {
 
     (async () => {
       const http = Http.fetcher();
-      const res = await http.json(`${baseUrl}/manifests/dist.json`);
+      const res = await http.json(`${baseUrl}/-manifests/dist.json`);
       if (disposed) return;
       setDist(res.data as t.DistPkg);
     })();
@@ -118,5 +118,5 @@ const resolveSelectedPath = (dist?: t.DistPkg, docid?: t.StringId): t.StringPath
   const exact = keys.find((p) => p.endsWith(suffix));
   if (exact) return exact;
 
-  return `manifests/${suffix}`;
+  return `-manifests/${suffix}`;
 };
