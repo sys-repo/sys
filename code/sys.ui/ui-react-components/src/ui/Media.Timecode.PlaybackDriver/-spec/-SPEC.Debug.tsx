@@ -17,9 +17,9 @@ import {
 } from './common.ts';
 import { OriginPanel } from './-ui.Origin.tsx';
 import { ORIGIN, resolveOriginUrls, type OriginEnv } from './-u.origin.ts';
-import { Sample } from './u.loader.ts';
-import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
-import { PlayControls } from './ui.PlayControls.tsx';
+import { Sample } from './-u.loader.ts';
+import { LoadTimelinePanel } from './-ui.LoadTimelinePanel.tsx';
+import { PlayControls } from './-ui.PlayControls.tsx';
 
 type P = HarnessProps;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; env?: OriginEnv };

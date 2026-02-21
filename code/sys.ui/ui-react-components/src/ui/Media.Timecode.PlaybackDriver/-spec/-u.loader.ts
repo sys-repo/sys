@@ -2,7 +2,7 @@ import { SlugClient } from '@sys/model-slug/client';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 import { type t } from './common.ts';
 import { resolveOriginUrls } from './-u.origin.ts';
-import { loadTimelineFromEndpoint } from './u.loadTimelineFromEndpoint.ts';
+import { loadTimelineFromEndpoint } from './-u.loadTimelineFromEndpoint.ts';
 
 /**
  * Sample data.
