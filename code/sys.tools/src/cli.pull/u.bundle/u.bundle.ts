@@ -172,6 +172,8 @@ export async function pullBundle(
       return pullBundle(_cwd, yamlPath, location);
     }
 
+    console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
+
     // Update lastUsedAt in the YAML file.
     await updateYamlBundles(yamlPath, (list) => {
       const hit = list.find(

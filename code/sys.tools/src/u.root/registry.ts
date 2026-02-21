@@ -7,12 +7,12 @@ type ToolRegistryItem = {
 };
 
 export const ROOT_REGISTRY = [
-  { id: 'copy', aliases: ['cp'], load: () => import('../cli.clipboard/mod.ts') },
-  { id: 'crdt', aliases: undefined, load: () => import('../cli.crdt/mod.ts') },
   { id: 'pull', aliases: undefined, load: () => import('../cli.pull/mod.ts') },
   { id: 'serve', aliases: undefined, load: () => import('../cli.serve/mod.ts') },
   { id: 'deploy', aliases: undefined, load: () => import('../cli.deploy/mod.ts') },
+  { id: 'crdt', aliases: undefined, load: () => import('../cli.crdt/mod.ts') },
   { id: 'video', aliases: undefined, load: () => import('../cli.video/mod.ts') },
+  { id: 'copy', aliases: ['cp'], load: () => import('../cli.clipboard/mod.ts') },
   { id: 'update', aliases: ['up'], load: () => import('../cli.update/mod.ts') },
 ] as const satisfies readonly ToolRegistryItem[];
 

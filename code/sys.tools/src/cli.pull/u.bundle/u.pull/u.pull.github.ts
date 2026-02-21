@@ -8,7 +8,6 @@ import {
 import { resolveGithubReleaseBundle } from '../../u.github/u.release.resolve.ts';
 import { Fmt } from '../../u.fmt.ts';
 import { clearTargetDir, done, errorMessage, fail, githubTokenHelpText, mapAuthError } from './common.ts';
-import { formatGithubReleaseSummary } from './u.fmt.github.ts';
 
 export async function pullGithubReleaseBundle(
   baseDir: t.StringDir,
@@ -85,27 +84,21 @@ export async function pullGithubReleaseBundle(
     }
 
     const dist = await computeReleaseDist(targetRoot);
-    const distPath = Fs.join(targetRoot, 'dist.json');
-    const distBytes = (await Fs.stat(distPath))?.size ?? 0;
     spinner.succeed(
       c.gray(
         `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
       ),
     );
-    console.info(
-      formatGithubReleaseSummary({
-        bundle,
-        release,
-        ops,
-        hashDigest: dist.hash.digest,
-        distPath,
-        distBytes,
-      }),
-    );
 
     return done({
       ok: true,
       ops,
+      dist,
+      summary: {
+        kind: 'github:release',
+        repo: bundle.repo,
+        release: release.tag,
+      },
     });
   } catch (error) {
     const auth = mapAuthError(error);

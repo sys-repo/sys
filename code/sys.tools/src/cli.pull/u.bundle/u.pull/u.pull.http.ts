@@ -81,6 +81,7 @@ export async function pullHttpBundle(
     return done({
       ...result,
       dist,
+      summary: { kind: 'http', source: distUrl.href },
       get ops() {
         return result.ops;
       },
