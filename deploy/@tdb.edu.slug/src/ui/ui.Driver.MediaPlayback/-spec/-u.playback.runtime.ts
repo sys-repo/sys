@@ -4,6 +4,18 @@ import { type t, PlaybackDriver, Player } from './common.ts';
 export type DevPlaybackRuntime = ReturnType<typeof usePlaybackRuntime>;
 const resolveBeatMediaEmpty: t.TimecodePlaybackDriver.ResolveBeatMedia = () => undefined;
 
+export function shouldInitPlayback(args: {
+  readonly hasTimeline: boolean;
+  readonly hasPlayback: boolean;
+  readonly initToken: string;
+  readonly lastInitToken: string;
+}) {
+  if (!args.hasTimeline) return false;
+  if (!args.hasPlayback) return false;
+  if (args.lastInitToken === args.initToken) return false;
+  return true;
+}
+
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
   readonly assets?: readonly t.SpecTimelineAsset[];
@@ -30,12 +42,21 @@ export function usePlaybackRuntime(args: {
   const initToken = args.sessionKey ?? `${args.playback?.docid ?? ''}:${args.playback?.beats.length ?? 0}`;
   const lastInitTokenRef = React.useRef<string>('');
   React.useEffect(() => {
-    if (!timeline.playback) return;
-    if (!args.playback) return;
-    if (lastInitTokenRef.current === initToken) return;
+    const timelinePlayback = timeline.playback;
+    if (
+      !shouldInitPlayback({
+        hasTimeline: !!timelinePlayback,
+        hasPlayback: !!args.playback,
+        initToken,
+        lastInitToken: lastInitTokenRef.current,
+      })
+    ) {
+      return;
+    }
+    if (!timelinePlayback) return;
     lastInitTokenRef.current = initToken;
     controller.init({
-      timeline: timeline.playback,
+      timeline: timelinePlayback,
       startBeat: 0 as t.TimecodeState.Playback.BeatIndex,
     });
   }, [controller, timeline.playback, args.playback, initToken]);
