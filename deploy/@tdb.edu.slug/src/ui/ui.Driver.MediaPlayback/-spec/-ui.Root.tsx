@@ -68,9 +68,9 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
         items={[
           { kind: 'title', v: 'Media Runtime' },
           {
-            k: 'first-beat:video',
-            v: runtime.firstBeatMedia?.src ?? '(none)',
-            href: runtime.firstBeatMedia?.src
+            k: 'current:video',
+            v: runtime.currentMediaSrc ?? '(none)',
+            href: runtime.currentMediaSrc
               ? { v: { infer: true, display: 'trim-http' } }
               : undefined,
             mono: true,

@@ -34,10 +34,11 @@ export function usePlaybackRuntime(args: {
     });
   }, [controller, timeline.playback, args.playback, initKey]);
 
-  const firstBeatMedia = React.useMemo(() => {
+  const currentBeatIndex = snapshot.state.currentBeat ?? (0 as t.TimecodeState.Playback.BeatIndex);
+  const currentBeatMedia = React.useMemo(() => {
     if (!bundle) return undefined;
-    return PlaybackDriver.Util.resolveBeatMedia(bundle)(0 as t.TimecodeState.Playback.BeatIndex);
-  }, [bundle]);
+    return PlaybackDriver.Util.resolveBeatMedia(bundle)(currentBeatIndex);
+  }, [bundle, currentBeatIndex]);
 
   return {
     decks,
@@ -45,7 +46,9 @@ export function usePlaybackRuntime(args: {
     snapshot,
     timeline,
     bundle,
-    firstBeatMedia,
+    currentBeatIndex,
+    currentBeatMedia,
+    currentMediaSrc: currentBeatMedia?.src,
   } as const;
 }
 
