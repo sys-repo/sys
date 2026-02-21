@@ -8,8 +8,20 @@ export type MediaFullResponseCandidate = {
   readonly bodySize: number;
 };
 
+export function resolveMediaPolicy(
+  input: t.HttpCacheMediaPolicyInput | undefined,
+): t.HttpCacheMediaPolicy {
+  const mode = input?.mode ?? 'safe-full';
+  return { mode };
+}
+
+export function shouldBypassMediaCache(mode: t.HttpCacheMediaMode): boolean {
+  return mode === 'off';
+}
+
 export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
+  const media = resolveMediaPolicy(args.media);
 
   const CACHE_ASSETS = `${pkg.name}:asset-files`;
   const CACHE_MEDIA = `${pkg.name}:media-files`;
@@ -59,7 +71,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     const { pathname } = new URL(request.url);
 
     if (request.headers.has('Range') && MEDIA_EXT.test(pathname)) {
-      e.respondWith(rangeResponse(request));
+      e.respondWith(mediaResponse(request));
       return;
     }
     if (HASHED_ASSET.test(pathname)) {
@@ -88,12 +100,43 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   }
 
   /**
+   * Routes media requests to a configured cache strategy.
+   */
+  function mediaResponse(request: Request): Promise<Response> {
+    if (shouldBypassMediaCache(media.mode)) return mediaOffResponse(request);
+
+    switch (media.mode) {
+      case 'range-window':
+        return mediaRangeWindowResponse(request);
+      case 'safe-full':
+      default:
+        return mediaSafeFullResponse(request);
+    }
+  }
+
+  /**
+   * Media strategy: no SW media caching.
+   */
+  function mediaOffResponse(request: Request): Promise<Response> {
+    return fetch(request);
+  }
+
+  /**
+   * Media strategy: placeholder for bounded chunk cache.
+   * Phase-1 keeps behavior equivalent to safe-full.
+   */
+  function mediaRangeWindowResponse(request: Request): Promise<Response> {
+    if (!silent) console.info(`🧪 media strategy "range-window" not enabled yet, using "safe-full"`);
+    return mediaSafeFullResponse(request);
+  }
+
+  /**
    * Serves byte-range requests from a local cache.
    *    First request downloads and stores **the entire media file**.
    *    Subsequent range requests are fulfilled by slicing the cached
    *    ArrayBuffer and returning a synthetic 206 response.
    */
-  async function rangeResponse(request: Request): Promise<Response> {
+  async function mediaSafeFullResponse(request: Request): Promise<Response> {
     const range = request.headers.get('Range');
     if (!range || !range.startsWith('bytes=')) return fetch(request);
 

@@ -1,5 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { isSafeFullMediaCandidate } from '../m.Cache.pkg.ts';
+import {
+  isSafeFullMediaCandidate,
+  resolveMediaPolicy,
+  shouldBypassMediaCache,
+} from '../m.Cache.pkg.ts';
 
 describe('Http.Cache.pkg safety guards', () => {
   it('accepts a valid full 200 response candidate', () => {
@@ -60,5 +64,18 @@ describe('Http.Cache.pkg safety guards', () => {
       contentRange: 'bytes 0-999/1000',
     });
     expect(res).to.eql({ ok: true });
+  });
+});
+
+describe('Http.Cache.pkg policy routing', () => {
+  it('defaults media policy mode to safe-full', () => {
+    const res = resolveMediaPolicy(undefined);
+    expect(res).to.eql({ mode: 'safe-full' });
+  });
+
+  it('off mode bypasses media cache pipeline', () => {
+    expect(shouldBypassMediaCache('off')).to.eql(true);
+    expect(shouldBypassMediaCache('safe-full')).to.eql(false);
+    expect(shouldBypassMediaCache('range-window')).to.eql(false);
   });
 });

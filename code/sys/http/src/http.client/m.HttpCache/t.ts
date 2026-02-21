@@ -22,5 +22,27 @@ export type HttpCacheLib = {
    *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
    *   • a final extension (js, css, wasm, etc.)
    */
-  pkg(args: { pkg: t.Pkg; cacheName?: string; silent?: boolean }): Promise<void>;
+  pkg(args: HttpCachePkgArgs): Promise<void>;
+};
+
+/** Inputs for `Http.Cache.pkg(...)`. */
+export type HttpCachePkgArgs = {
+  pkg: t.Pkg;
+  cacheName?: string;
+  silent?: boolean;
+  /** Optional media cache policy (defaults to `safe-full`). */
+  media?: HttpCacheMediaPolicyInput;
+};
+
+/** Media caching strategy used for ranged video requests. */
+export type HttpCacheMediaMode = 'off' | 'safe-full' | 'range-window';
+
+/** Normalized media cache policy used internally by the SW cache runtime. */
+export type HttpCacheMediaPolicy = {
+  readonly mode: HttpCacheMediaMode;
+};
+
+/** User-supplied media cache policy (partial/optional shape). */
+export type HttpCacheMediaPolicyInput = {
+  mode?: HttpCacheMediaMode;
 };
