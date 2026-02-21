@@ -65,10 +65,13 @@ type InfoPanelProps = PlaybackContentProps & { showObject?: boolean };
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { loading = false, showObject = false, playback } = props;
   if (!playback) return null;
+  const beatIndex = parseBeatIndex(props.position);
+  const payload = beatIndex == null ? undefined : playback.playback.beats[beatIndex]?.payload;
 
   const data = {
     playback: playback.playback,
     assets: playback.assets,
+    payload,
   };
 
   /**
@@ -108,3 +111,12 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     </div>
   );
 };
+
+function parseBeatIndex(input?: string): number | undefined {
+  if (!input) return undefined;
+  const match = /^segment-(\d+):beat-(\d+)$/.exec(input.trim());
+  if (!match) return undefined;
+  const beat = Number(match[2]);
+  if (!Number.isFinite(beat) || beat < 1) return undefined;
+  return beat - 1;
+}
