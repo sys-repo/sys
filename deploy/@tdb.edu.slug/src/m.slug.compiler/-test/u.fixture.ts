@@ -27,7 +27,8 @@ export function stubFetch(handler: (url: string, init?: RequestInit) => Response
 export function makeDist(parts: string[]): t.DistPkg {
   const hashParts: Record<string, t.StringFileHashUri> = {};
   for (const part of parts) {
-    hashParts[part] = 'sha256-abc:bytes-0';
+    hashParts[part] =
+      'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:size=0';
   }
   return {
     type: 'https://example.com/src/types/t.Pkg.dist.ts',
@@ -39,6 +40,9 @@ export function makeDist(parts: string[]): t.DistPkg {
       runtime: 'deno=1:v8=1:typescript=5',
       hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
     },
-    hash: { digest: 'sha256-def', parts: hashParts as t.CompositeHashParts },
+    hash: {
+      digest: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      parts: hashParts as t.CompositeHashParts,
+    },
   };
 }
