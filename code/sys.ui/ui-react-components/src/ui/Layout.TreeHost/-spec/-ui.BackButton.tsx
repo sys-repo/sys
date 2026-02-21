@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, Icons } from './common.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 export type BackButtonProps = {
   selectedPath?: P['selectedPath'];

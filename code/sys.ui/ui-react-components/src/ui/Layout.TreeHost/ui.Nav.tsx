@@ -5,7 +5,7 @@ import { NavFooter } from './ui.slot.NavFooter.tsx';
 import { Tree } from './ui.slot.Tree.tsx';
 import { SlotHost } from './ui.SlotHost.tsx';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 /**
  * Component:

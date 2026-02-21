@@ -5,7 +5,7 @@ export type TreeHostResolvedParts = {
   readonly main: { readonly backgroundColor?: t.StringHex };
 };
 
-export function resolveParts(props: t.TreeHostProps): TreeHostResolvedParts {
+export function resolveParts(props: t.TreeHost.Props): TreeHostResolvedParts {
   const theme = Color.theme(props.theme).name;
   const nav = { ...D.parts.nav, ...props.parts?.nav };
   const main = { ...D.parts.main, ...props.parts?.main };
@@ -17,7 +17,7 @@ export function resolveParts(props: t.TreeHostProps): TreeHostResolvedParts {
 }
 
 export function resolvePartBackground(
-  input: t.TreeHostPartBackground | undefined,
+  input: t.TreeHost.PartBackground | undefined,
   theme: t.CommonTheme,
 ): t.StringHex | undefined {
   if (input === undefined || input === false) return undefined;

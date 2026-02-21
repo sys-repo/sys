@@ -5,7 +5,7 @@ import { shouldRenderEmpty, toSlotNode } from './u.slot.ts';
 import { Empty } from './ui.Empty.tsx';
 import { HostTreeView } from './ui.slot.Tree.TreeView.tsx';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 /**
  * Component:

@@ -1,7 +1,7 @@
 import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 export { Spinners } from '../Spinners/mod.ts';
 export { Data as TreeData } from '../TreeView.Index.Data/mod.ts';
@@ -17,16 +17,16 @@ export const D = {
   nav: {
     width: 320,
     animate: { duration: 180, ease: 'easeInOut' },
-  } satisfies Required<t.TreeHostNav>,
+  } satisfies Required<t.TreeHost.Nav>,
   parts: {
     nav: { background: false },
     main: { background: true },
-  } satisfies t.TreeHostParts,
+  } satisfies t.TreeHost.Parts,
   spinner: {
     backgroundOpacity: 0.2,
     backgroundBlur: 1,
     position: 'middle',
-  } satisfies Omit<t.TreeHostSlotSpinner, 'slot'>,
+  } satisfies Omit<t.TreeHost.SlotSpinner, 'slot'>,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

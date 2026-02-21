@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { toSlotNode } from './u.slot.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 /**
  * Component:

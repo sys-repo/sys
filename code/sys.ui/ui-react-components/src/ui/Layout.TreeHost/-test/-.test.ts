@@ -14,7 +14,7 @@ describe('Layout.TreeHost', () => {
   });
 
   describe('spinner', () => {
-    const base: t.TreeHostProps = { theme: 'Light' };
+    const base: t.TreeHost.Props = { theme: 'Light' };
 
     it('renders empty when no spinner and no content', () => {
       expect(shouldRenderEmpty({ props: base, slot: 'main:body', hasContent: false })).to.eql(true);

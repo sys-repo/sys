@@ -4,7 +4,7 @@ import { Nav } from './ui.Nav.tsx';
 import { Main } from './ui.slot.Main.tsx';
 import { SlotHost } from './ui.SlotHost.tsx';
 
-export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
+export const TreeHost: React.FC<t.TreeHost.Props> = (props) => {
   const theme = Color.theme(props.theme);
   const nav = { ...D.nav, ...props.nav, animate: { ...D.nav.animate, ...props.nav?.animate } };
   const navWidth = nav.width;

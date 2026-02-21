@@ -4,8 +4,8 @@ import { toSlotSpinner } from './u.slot.ts';
 import { Spinner } from './ui.SlotHost.Spinner.tsx';
 
 export type SlotHostProps = {
-  slot: t.TreeHostSlot;
-  host: t.TreeHostProps;
+  slot: t.TreeHost.Slot;
+  host: t.TreeHost.Props;
   children?: t.ReactNode;
   style?: t.CssInput;
 };

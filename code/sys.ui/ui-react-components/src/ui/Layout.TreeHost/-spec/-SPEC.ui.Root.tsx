@@ -31,7 +31,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   const mainSlot =
     v.slots.main?.body ?? (selectedLeaf ? renderLeaf('Main Leaf Content', 40) : undefined);
 
-  const slots: t.TreeHostSlots = {
+  const slots: t.TreeHost.Slots = {
     ...v.slots,
     empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined,
     main: { ...(v.slots.main ?? {}), body: mainSlot },

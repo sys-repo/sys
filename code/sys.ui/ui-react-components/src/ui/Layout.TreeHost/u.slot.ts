@@ -1,17 +1,17 @@
 import { type t, D, Is } from './common.ts';
 
 export function toSlotSpinner(
-  props: t.TreeHostProps,
-  slot: t.TreeHostSlot,
-): t.TreeHostSlotSpinner | undefined {
+  props: t.TreeHost.Props,
+  slot: t.TreeHost.Slot,
+): t.TreeHost.SlotSpinner | undefined {
   const defaults = D.spinner;
 
-  const targetSlot: t.TreeHostSpinnerSlot = slot === 'empty' ? 'main:body' : slot;
+  const targetSlot: t.TreeHost.SpinnerSlot = slot === 'empty' ? 'main:body' : slot;
   const input = props.spinner;
   if (!input) return undefined;
 
   const list = Array.isArray(input) ? input : [input];
-  const normalized = list.map((item): t.TreeHostSlotSpinner => {
+  const normalized = list.map((item): t.TreeHost.SlotSpinner => {
     if (Is.str(item)) return { slot: item };
     return item;
   });
@@ -26,8 +26,8 @@ export function toSlotSpinner(
 }
 
 export function shouldRenderEmpty(args: {
-  props: t.TreeHostProps;
-  slot: t.TreeHostSlot;
+  props: t.TreeHost.Props;
+  slot: t.TreeHost.Slot;
   hasContent: boolean;
 }) {
   if (args.hasContent) return false;
@@ -37,8 +37,8 @@ export function shouldRenderEmpty(args: {
 }
 
 export function toSlotNode(
-  input: t.TreeHostSlotInput | undefined,
-  args: t.TreeHostRenderSlotArgs,
+  input: t.TreeHost.SlotInput | undefined,
+  args: t.TreeHost.RenderSlotArgs,
 ): t.ReactNode | undefined {
   if (input === undefined) return undefined;
   if (Is.func(input)) return input(args);

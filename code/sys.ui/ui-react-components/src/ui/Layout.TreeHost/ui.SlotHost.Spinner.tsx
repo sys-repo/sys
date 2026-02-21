@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, Spinners } from './common.ts';
 
 export type SpinnerProps = {
-  config: t.TreeHostSlotSpinner;
+  config: t.TreeHost.SlotSpinner;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -10,13 +10,13 @@ export type TreeHostSlot =
   | 'main:body'
   | 'empty';
 /** Arguments passed to generic slot render handlers. */
-export type TreeHostRenderSlotArgs = { readonly slot: t.TreeHostSlot };
+export type TreeHostRenderSlotArgs = { readonly slot: t.TreeHost.Slot };
 /** Render handler shape for standard TreeHost slots. */
 export type TreeHostRenderSlotHandler = (e: TreeHostRenderSlotArgs) => t.ReactNode;
 /** Slot input can be static content or a lazy render callback. */
 export type TreeHostSlotInput = t.ReactNode | TreeHostRenderSlotHandler;
 /** Arguments passed to the empty-state renderer. */
-export type TreeHostRenderEmptyArgs = { readonly slot: t.TreeHostSlot };
+export type TreeHostRenderEmptyArgs = { readonly slot: t.TreeHost.Slot };
 /** Render handler shape for the empty slot fallback. */
 export type TreeHostRenderEmptyHandler = (e: TreeHostRenderEmptyArgs) => t.ReactNode;
 

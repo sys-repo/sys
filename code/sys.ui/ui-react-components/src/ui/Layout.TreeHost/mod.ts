@@ -29,7 +29,7 @@ import { Data } from './m.Data.ts';
 import { TreeHost as UI } from './ui.tsx';
 
 /** Public TreeHost entrypoint. */
-export const TreeHost: t.TreeHostLib = {
+export const TreeHost: t.TreeHost.Lib = {
   UI,
   Data,
 };

@@ -126,19 +126,3 @@ export declare namespace TreeHost {
     readonly is: { readonly leaf: boolean };
   };
 }
-
-/**
- */
-export type TreeHostLib = TreeHost.Lib;
-export type TreeHostDataLib = TreeHost.DataLib;
-export type TreeHostProps = TreeHost.Props;
-export type TreeHostNav = TreeHost.Nav;
-export type TreeHostNavAnimate = TreeHost.NavAnimate;
-export type TreeHostParts = TreeHost.Parts;
-export type TreeHostPartNav = TreeHost.PartNav;
-export type TreeHostPartMain = TreeHost.PartMain;
-export type TreeHostPartBackground = TreeHost.PartBackground;
-export type TreeHostPathChangeHandler = TreeHost.PathChangeHandler;
-export type TreeHostNodeSelectHandler = TreeHost.NodeSelectHandler;
-export type TreeHostPathChange = TreeHost.PathChange;
-export type TreeHostNodeSelect = TreeHost.NodeSelect;

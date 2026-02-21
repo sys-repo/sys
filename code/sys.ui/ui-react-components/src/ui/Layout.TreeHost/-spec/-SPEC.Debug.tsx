@@ -6,7 +6,7 @@ import { PropSlots } from './-ui.prop.slots.tsx';
 import { PropSpinner } from './-ui.prop.spinner.tsx';
 import { SelectedPath, TreeHost } from './mod.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner' | 'nav'> & {
   customEmpty?: boolean;
 };
@@ -25,7 +25,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  type S = t.TreeHostSlots;
+  type S = t.TreeHost.Slots;
   type NavSlots = NonNullable<S['nav']>;
   type MainSlots = NonNullable<S['main']>;
 

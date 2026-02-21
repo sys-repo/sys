@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Obj, TreeData, TreeView } from './common.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 /**
  * Component:

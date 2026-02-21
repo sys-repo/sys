@@ -16,7 +16,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
-  function slotFoo(slot: t.TreeHostSlot) {
+  function slotFoo(slot: t.TreeHost.Slot) {
     return (
       <Foo
         theme={p.theme.value}
@@ -28,9 +28,9 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
 
   function slotButton(args: {
     label: string;
-    slot: t.TreeHostSlot;
-    current: () => t.TreeHostSlotInput | undefined;
-    set: (value: t.TreeHostSlotInput | undefined) => void;
+    slot: t.TreeHost.Slot;
+    current: () => t.TreeHost.SlotInput | undefined;
+    set: (value: t.TreeHost.SlotInput | undefined) => void;
   }) {
     const { label, slot, current, set } = args;
     return (

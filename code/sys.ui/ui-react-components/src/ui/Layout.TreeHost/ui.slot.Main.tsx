@@ -4,7 +4,7 @@ import { resolveParts } from './u.parts.ts';
 import { shouldRenderEmpty, toSlotNode } from './u.slot.ts';
 import { Empty } from './ui.Empty.tsx';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 /**
  * Component:

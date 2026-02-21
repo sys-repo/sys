@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, BulletList, Color, css, Json, ObjectView, Signal } from './common.ts';
 
-type P = t.TreeHostProps;
+type P = t.TreeHost.Props;
 
 export type PropSlotsProps = {
   debug: t.DebugSignals;
