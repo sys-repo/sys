@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, KeyValue, Str } from './common.ts';
+import { type t, KeyValue } from './common.ts';
 import { Data } from './m.Data.ts';
 
 export type InfoProps = {
@@ -23,7 +23,12 @@ export const Info: React.FC<InfoProps> = (props) => {
   if (origin) {
     items.push({ kind: 'title', v: `HTTP Origin` });
     Data.flatten(origin).forEach((row) => {
-      items.push({ k: row.key, v: Str.trimHttpScheme(row.url), mono });
+      items.push({
+        k: row.key,
+        v: row.url,
+        mono,
+        href: { v: { infer: true, display: 'trim-http' } },
+      });
     });
   }
 
