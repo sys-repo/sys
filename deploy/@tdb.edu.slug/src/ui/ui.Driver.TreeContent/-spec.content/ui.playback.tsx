@@ -5,6 +5,7 @@ import { arraySize } from './u.data.ts';
 export type PlaybackContentProps = {
   playback?: t.PlaybackContentData;
   position?: string;
+  payload?: unknown;
   loading?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -97,6 +98,14 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
           ...(loading ? [{ k: 'status', v: 'loading' }] : []),
         ]}
       />
+      {props.payload !== undefined && (
+        <ObjectView
+          theme={theme.name}
+          name={'payload'}
+          data={Obj.truncateStrings(props.payload, 40)}
+          expand={0}
+        />
+      )}
       {showObject && (
         <ObjectView
           theme={theme.name}

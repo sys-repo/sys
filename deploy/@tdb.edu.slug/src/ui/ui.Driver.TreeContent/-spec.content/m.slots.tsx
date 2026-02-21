@@ -31,6 +31,7 @@ function renderMain(args: A & { file?: t.FileContentData; playback?: t.PlaybackC
       <PlaybackMain
         playback={args.playback}
         position={args.playbackPosition}
+        payload={args.playbackPayload}
         theme={args.theme}
       />
     );
@@ -45,6 +46,7 @@ function renderLeaf(args: A & { file?: t.FileContentData; playback?: t.PlaybackC
       <PlaybackLeaf
         playback={args.playback}
         position={args.playbackPosition}
+        payload={args.playbackPayload}
         theme={args.theme}
       />
     );

@@ -92,6 +92,15 @@ export function toCurrentPosition(
   return `segment-${segIndex + 1}:beat-${index + 1}`;
 }
 
+export function toCurrentPayload(args: {
+  playback?: t.SpecTimelineManifest;
+  snapshot?: t.TimecodeState.Playback.Snapshot;
+}): unknown {
+  const index = args.snapshot?.state?.currentBeat;
+  if (index == null) return undefined;
+  return args.playback?.beats[index]?.payload;
+}
+
 function toBundle(
   playback: t.SpecTimelineManifest | undefined,
   assets: readonly t.SpecTimelineAsset[] | undefined,
