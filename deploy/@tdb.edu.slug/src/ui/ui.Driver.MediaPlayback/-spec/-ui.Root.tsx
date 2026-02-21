@@ -41,9 +41,16 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   };
 
   const media = toPlaybackData(content.data);
+  const loadSessionRef = React.useRef<string>('');
+  React.useEffect(() => {
+    const id = content.request?.id;
+    if (id) loadSessionRef.current = id;
+  }, [content.request?.id]);
+
   const runtime = usePlaybackRuntime({
     playback: media?.playback,
     assets: media?.assets,
+    sessionKey: loadSessionRef.current || content.key,
   });
   const playbackPosition = toCurrentPosition(runtime.snapshot);
   const playbackPayload = toCurrentPayload({

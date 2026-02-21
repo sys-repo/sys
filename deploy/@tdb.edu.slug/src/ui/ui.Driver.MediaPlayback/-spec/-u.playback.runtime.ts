@@ -7,6 +7,7 @@ const resolveBeatMediaEmpty: t.TimecodePlaybackDriver.ResolveBeatMedia = () => u
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
   readonly assets?: readonly t.SpecTimelineAsset[];
+  readonly sessionKey?: string;
 }) {
   const timeline = PlaybackDriver.Util.usePlaybackTimeline({
     spec: args.playback
@@ -26,18 +27,18 @@ export function usePlaybackRuntime(args: {
     resolveBeatMedia,
   });
 
-  const initKey = `${args.playback?.docid ?? ''}:${args.playback?.beats.length ?? 0}`;
-  const lastInitKeyRef = React.useRef<string>('');
+  const initToken = args.sessionKey ?? `${args.playback?.docid ?? ''}:${args.playback?.beats.length ?? 0}`;
+  const lastInitTokenRef = React.useRef<string>('');
   React.useEffect(() => {
     if (!timeline.playback) return;
     if (!args.playback) return;
-    if (lastInitKeyRef.current === initKey) return;
-    lastInitKeyRef.current = initKey;
+    if (lastInitTokenRef.current === initToken) return;
+    lastInitTokenRef.current = initToken;
     controller.init({
       timeline: timeline.playback,
       startBeat: 0 as t.TimecodeState.Playback.BeatIndex,
     });
-  }, [controller, timeline.playback, args.playback, initKey]);
+  }, [controller, timeline.playback, args.playback, initToken]);
 
   const currentBeatIndex = snapshot.state.currentBeat ?? (0 as t.TimecodeState.Playback.BeatIndex);
   const currentBeatMedia = React.useMemo(() => {
