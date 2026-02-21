@@ -4,9 +4,8 @@ import { type t, PlaybackDriver } from './common.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
 import { selectOrFirst } from './-u.selection.ts';
 
-type Params = {
-  kind: t.BundleDescriptorKind;
-};
+type Params = { kind: t.BundleDescriptorKind };
+const ENSURE_IDS = ['2esGLgD5SoQkeucytmGeadm9cC7y'] as const;
 
 export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
   title: 'ƒ • Fetch ← (Tree + (Playback + Assets))',
@@ -17,6 +16,7 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     e.params({ kind });
     renderTreePlaybackAssetsCard(e, {
       refs: e.probe?.treePlayback?.refs,
+      ensureRefs: [...ENSURE_IDS],
       selected: e.probe?.treePlayback?.ref,
       totalVisible: e.probe?.selectionList?.totalVisible,
       onSelect: e.probe?.treePlayback?.onRefChange,
