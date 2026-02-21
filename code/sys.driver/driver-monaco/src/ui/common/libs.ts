@@ -13,6 +13,7 @@ export {
   ObjectView,
   PathView,
   Spinners,
+  TreeHost,
 } from '@sys/ui-react-components';
 export { Lease } from '@sys/ui-react/async';
 
