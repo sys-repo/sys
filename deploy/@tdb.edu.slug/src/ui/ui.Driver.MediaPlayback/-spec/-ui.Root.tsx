@@ -1,6 +1,6 @@
 import React from 'react';
 import { createSlots } from '../../ui.Driver.Tree.shared/-spec.slots.shared/mod.ts';
-import type { DebugSignals } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
+import type { DebugSignals } from './-u.debug.ts';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
 import {
   toCurrentPayload,
@@ -48,6 +48,17 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     assets: media?.assets,
     sessionKey,
   });
+
+  /**
+   * Project persisted mute intent (debug signal) into both video decks.
+   * Keep this bridge centralized so controls stay intent-only and runtime state stays in sync.
+   */
+  React.useEffect(() => {
+    const next = v.muted;
+    if (runtime.decks.A.props.muted.value !== next) runtime.decks.A.props.muted.value = next;
+    if (runtime.decks.B.props.muted.value !== next) runtime.decks.B.props.muted.value = next;
+  }, [runtime.decks, v.muted]);
+
   const playbackPosition = toCurrentPosition(runtime.snapshot);
   const playbackPayload = toCurrentPayload({
     playback: media?.playback,

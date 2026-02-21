@@ -4,10 +4,10 @@ import { PlayControls } from './-ui.PlayControls.tsx';
 import { TimelineInfo } from './-ui.TimelineInfo.tsx';
 import { toPlaybackData } from './-u.playback.runtime.ts';
 import { D, type t, Color, css, Signal } from './common.ts';
-import type { DebugSignals as DebugSignalsBase } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
+import type { DebugSignals } from './-u.debug.ts';
 
 export type HeadDebugProps = {
-  debug: DebugSignalsBase;
+  debug: DebugSignals;
   runtime?: t.SignalOptional<t.DevPlaybackRuntime | undefined>;
   style?: t.CssInput;
 };
@@ -84,6 +84,10 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
         controller={runtime?.controller}
         snapshot={runtime?.snapshot}
         decks={runtime?.decks}
+        muted={v.muted}
+        onMutedChange={(next) => {
+          debug.props.muted.value = next;
+        }}
         style={{ marginTop: 15 }}
       />
     </div>
