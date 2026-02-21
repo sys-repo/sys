@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, PlaybackDriver, Player } from './common.ts';
 
 export type DevPlaybackRuntime = ReturnType<typeof usePlaybackRuntime>;
+const resolveBeatMediaEmpty: t.TimecodePlaybackDriver.ResolveBeatMedia = () => undefined;
 
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
@@ -14,11 +15,15 @@ export function usePlaybackRuntime(args: {
   });
 
   const decks = React.useMemo(() => Player.Video.Decks.create(), []);
-  const bundle = toBundle(args.playback, args.assets);
+  const bundle = React.useMemo(() => toBundle(args.playback, args.assets), [args.playback, args.assets]);
+  const resolveBeatMedia = React.useMemo<t.TimecodePlaybackDriver.ResolveBeatMedia>(() => {
+    if (!bundle) return resolveBeatMediaEmpty;
+    return PlaybackDriver.Util.resolveBeatMedia(bundle);
+  }, [bundle]);
   const { controller, snapshot } = PlaybackDriver.useDriver({
     decks,
     init: timeline.playback ? { timeline: timeline.playback } : undefined,
-    resolveBeatMedia: bundle ? PlaybackDriver.Util.resolveBeatMedia(bundle) : () => undefined,
+    resolveBeatMedia,
   });
 
   const initKey = `${args.playback?.docid ?? ''}:${args.playback?.beats.length ?? 0}`;
