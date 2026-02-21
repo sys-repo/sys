@@ -1,17 +1,13 @@
 import React from 'react';
-import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
 import { createSlots } from '../../ui.Driver.TreeContent/-spec.content/mod.ts';
-import { type t, Color, css, KeyValue, Player, Signal, useEffectController } from './common.ts';
-import {
-  toPlaybackData,
-  type DevPlaybackRuntime,
-  usePlaybackRuntime,
-} from './-u.playback.runtime.ts';
 import type { DebugSignals } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
+import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
+import { toPlaybackData, usePlaybackRuntime } from './-u.playback.runtime.ts';
+import { type t, Color, css, KeyValue, Player, Signal, useEffectController } from './common.ts';
 
 export type SpecRootProps = {
   debug: DebugSignals;
-  runtime?: t.SignalOptional<DevPlaybackRuntime | undefined>;
+  runtime?: t.SignalOptional<t.DevPlaybackRuntime | undefined>;
   style?: t.CssValue;
 };
 

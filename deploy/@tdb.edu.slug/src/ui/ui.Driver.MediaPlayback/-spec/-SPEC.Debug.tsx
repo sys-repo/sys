@@ -2,13 +2,13 @@ import React from 'react';
 import { HeadObject, PayloadObject } from './-ui.Objects.tsx';
 import { PlayControls } from './-ui.PlayControls.tsx';
 import { TimelineInfo } from './-ui.TimelineInfo.tsx';
-import { toPlaybackData, type DevPlaybackRuntime } from './-u.playback.runtime.ts';
+import { toPlaybackData } from './-u.playback.runtime.ts';
 import { D, type t, Color, css, Signal } from './common.ts';
 import type { DebugSignals as DebugSignalsBase } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
 
 export type HeadDebugProps = {
   debug: DebugSignalsBase;
-  runtime?: t.SignalOptional<DevPlaybackRuntime | undefined>;
+  runtime?: t.SignalOptional<t.DevPlaybackRuntime | undefined>;
   style?: t.CssInput;
 };
 
