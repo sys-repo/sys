@@ -1,6 +1,13 @@
 declare var self: ServiceWorkerGlobalScope;
 import { type t, Str } from './common.ts';
 
+export type MediaFullResponseCandidate = {
+  readonly status: number;
+  readonly contentRange?: string | null;
+  readonly contentLength?: number;
+  readonly bodySize: number;
+};
+
 export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
 
@@ -96,9 +103,10 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
 
     // First encounter → fetch whole object and store.
     if (!full) {
-      const network = await fetch(url, { method: 'GET', mode: 'cors' });
+      const network = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-store' });
       if (!network.ok) return network;
       full = await cacheFullMedia(url, network);
+      if (!full) return fetch(request);
     }
 
     const size = Number(full.headers.get('Content-Length'));
@@ -142,10 +150,26 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
    * Read the body once, compute its length,
    * and cache a Response built from the bytes.
    */
-  async function cacheFullMedia(url: string, full: Response): Promise<Response> {
+  async function cacheFullMedia(url: string, full: Response): Promise<Response | undefined> {
     const buffer = await full.arrayBuffer(); // consume once:
     const size = buffer.byteLength;
+
     const headers = new Headers(full.headers);
+    const contentLengthRaw = Number(headers.get('Content-Length'));
+    const contentLength =
+      Number.isFinite(contentLengthRaw) && contentLengthRaw > 0 ? contentLengthRaw : undefined;
+    const check = isSafeFullMediaCandidate({
+      status: full.status,
+      contentRange: headers.get('Content-Range'),
+      contentLength,
+      bodySize: size,
+    });
+    if (!check.ok) {
+      if (!silent) {
+        console.info(`🧪 skip media cache (${check.reason}): ${url}`);
+      }
+      return undefined;
+    }
 
     // Force explicit byte length + serveable range semantics:
     headers.set('Content-Length', String(size));
@@ -165,3 +189,37 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     return stored;
   }
 };
+
+export function isSafeFullMediaCandidate(input: MediaFullResponseCandidate) {
+  if (input.status !== 200) return { ok: false, reason: `status:${input.status}` } as const;
+  if (input.bodySize <= 0) return { ok: false, reason: 'empty-body' } as const;
+  if (typeof input.contentLength === 'number' && input.contentLength !== input.bodySize) {
+    return { ok: false, reason: `length-mismatch:${input.contentLength}!=${input.bodySize}` } as const;
+  }
+
+  if (input.contentRange) {
+    const parsed = wrangle.contentRange(input.contentRange);
+    if (!parsed || parsed.from !== 0 || parsed.to + 1 !== parsed.total) {
+      return { ok: false, reason: 'partial-content-range' } as const;
+    }
+  }
+
+  return { ok: true } as const;
+}
+
+const wrangle = {
+  /**
+   * Parse RFC 9110 byte Content-Range values:
+   *   bytes <from>-<to>/<total>
+   */
+  contentRange(input: string): { from: number; to: number; total: number } | undefined {
+    const match = input.match(/^bytes\s+(\d+)-(\d+)\/(\d+)$/i);
+    if (!match) return undefined;
+    const from = Number(match[1]);
+    const to = Number(match[2]);
+    const total = Number(match[3]);
+    if (!Number.isFinite(from) || !Number.isFinite(to) || !Number.isFinite(total)) return undefined;
+    if (from < 0 || to < from || total <= 0 || to >= total) return undefined;
+    return { from, to, total };
+  },
+} as const;
