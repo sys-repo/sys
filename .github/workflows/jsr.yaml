@@ -514,6 +514,20 @@ jobs:
           echo "publish failed after 3 attempts"
           exit 1
 
+      - name: publish module → "@sys/driver-stripe"
+        run: |
+          cd code/sys.driver/driver-stripe
+          deno task test --trace-leaks
+          for i in 1 2 3; do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              echo "publish failed (attempt $i), retrying in 5s..."
+              sleep 5
+          done
+          echo "publish failed after 3 attempts"
+          exit 1
+
       - name: publish module → "@sys/crdt"
         run: |
           cd code/sys/crdt

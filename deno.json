@@ -74,6 +74,7 @@
     "code/sys.driver/driver-process",
     "code/sys.driver/driver-prosemirror",
     "code/sys.driver/driver-signer",
+    "code/sys.driver/driver-stripe",
     "code/sys.driver/driver-vite",
 
     "code/sys.tools",

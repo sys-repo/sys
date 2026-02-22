@@ -75,6 +75,7 @@ export const Paths = {
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
+    'code/sys.driver/driver-stripe',
 
     /**
      * Curated (named) entry points and
