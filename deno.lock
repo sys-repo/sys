@@ -91,7 +91,7 @@
     "npm:happy-dom@20.7.0": "20.7.0",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:he@^1.2.0": "1.2.0",
-    "npm:hono@4.12.0": "4.12.0",
+    "npm:hono@4.12.1": "4.12.1",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:katex@0.16": "0.16.28",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -1627,8 +1627,8 @@
       "integrity": "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==",
       "bin": true
     },
-    "hono@4.12.0": {
-      "integrity": "sha512-NekXntS5M94pUfiVZ8oXXK/kkri+5WpX2/Ik+LVsl+uvw+soj4roXIsPqO+XsWrAw20mOzaXOZf3Q7PfB9A/IA=="
+    "hono@4.12.1": {
+      "integrity": "sha512-hi9afu8g0lfJVLolxElAZGANCTTl6bewIdsRNhaywfP9K8BPf++F2z6OLrYGIinUwpRKzbZHMhPwvc0ZEpAwGw=="
     },
     "htmlparser2@8.0.2": {
       "integrity": "sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==",
@@ -2591,7 +2591,7 @@
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@5.1.4",
-        "npm:hono@4.12.0",
+        "npm:hono@4.12.1",
         "npm:motion@12.34.3",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",
