@@ -1,4 +1,3 @@
-import type { StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import type { t } from './common.ts';
 
 /**
@@ -6,13 +5,22 @@ import type { t } from './common.ts';
  */
 export declare namespace PaymentElement {
   export type Lib = { readonly UI: t.FC<Props> };
+  export type Config = {
+    elements?: t.StripeElementsOptionsClientSecret;
+    paymentElement?: t.StripePaymentElementOptions;
+  };
+
   export type Props = {
+    publishableKey: string;
+    clientSecret?: string;
+    config?: Config;
+
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
 
-    onReady?: (element: StripePaymentElement) => void;
-    onChange?: (event: StripePaymentElementChangeEvent) => void;
+    onReady?: (element: t.StripePaymentElement) => void;
+    onChange?: (event: t.StripePaymentElementChangeEvent) => void;
     onLoadError?: (error: Error) => void;
   };
 }

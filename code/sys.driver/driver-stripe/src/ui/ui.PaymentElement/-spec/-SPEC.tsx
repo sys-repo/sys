@@ -1,15 +1,27 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
 import { PaymentElement } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { readEnv } from './-u.env.ts';
+import { D } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
+  const env = readEnv();
 
   function Root() {
     const v = Signal.toObject(p);
-    return <PaymentElement.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <PaymentElement.UI
+        debug={v.debug}
+        theme={v.theme}
+        publishableKey={env.publishableKey}
+        clientSecret={env.clientSecret}
+        onReady={(element) => console.info(`⚡️ onReady:`, element)}
+        onChange={(event) => console.info(`⚡️ onChange:`, event)}
+        onLoadError={(error) => console.info(`⚡️ onLoadError`, error)}
+      />
+    );
   }
 
   e.it('init', (e) => {
