@@ -2,18 +2,21 @@ import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
 import { SAMPLE_TREE_1, SAMPLE_TREE_2 } from './-u.sample.data.ts';
+import { PropNavMotion } from './-ui.prop.nav.motion.tsx';
 import { PropSlots } from './-ui.prop.slots.tsx';
 import { PropSpinner } from './-ui.prop.spinner.tsx';
 import { SelectedPath, TreeHost } from './mod.ts';
 
 type P = t.TreeHost.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath' | 'spinner' | 'nav'> & {
+  navMotion?: t.TreeHost.PartNavMotion;
   customEmpty?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   nav: D.nav,
+  navMotion: D.parts.nav.motion,
   customEmpty: false,
 };
 
@@ -38,6 +41,7 @@ export function createDebugSignals() {
     selectedPath: s(snap.selectedPath),
     spinner: s(snap.spinner),
     nav: s(snap.nav),
+    parts: s<P['parts']>({ nav: { motion: snap.navMotion ?? D.parts.nav.motion } }),
     slots: {
       header: {
         body: s<HeaderSlots['body']>(),
@@ -73,6 +77,7 @@ export function createDebugSignals() {
       d.selectedPath = props.selectedPath.value;
       d.spinner = props.spinner.value;
       d.nav = props.nav.value;
+      d.navMotion = props.parts.value?.nav?.motion;
       d.customEmpty = props.customEmpty.value;
     });
   });
@@ -121,7 +126,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `nav.width: ${p.nav.value?.width ?? D.nav.width}`}
+        label={() => {
+          const motion = p.parts.value?.nav?.motion;
+          const motionLabel =
+            motion?.kind === 'preset' ? `(${motion.preset}) ` : motion?.kind === 'custom' ? '(custom) ' : '';
+          return `${motionLabel}nav.width: ${p.nav.value?.width ?? D.nav.width}`;
+        }}
         onClick={() => {
           const width = p.nav.value?.width ?? D.nav.width;
           const values = [0, 10, 220, 320, 420];
@@ -143,9 +153,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <PropSlots debug={debug} />
 
       <hr />
+      <PropNavMotion debug={debug} />
+
+      <hr />
       <Button
         block
-        label={() => `slot: empty ${p.customEmpty.value ? '🐚' : ''}`}
+        label={() => `slot: empty ${p.customEmpty.value ? '🐚 (custom)' : '(default)'}`}
         onClick={() => Signal.toggle(p.customEmpty)}
       />
 

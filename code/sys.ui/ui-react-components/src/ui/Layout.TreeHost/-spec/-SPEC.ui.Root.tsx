@@ -33,7 +33,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
 
   const slots: t.TreeHost.Slots = {
     ...v.slots,
-    empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined,
+    empty: v.customEmpty ? (e) => 'Hello Empty 🐚' : undefined,
     main: { ...(v.slots.main ?? {}), body: mainSlot },
     nav: {
       ...(v.slots.nav ?? {}),
@@ -55,6 +55,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
       slots={slots}
       tree={v.tree}
       nav={v.nav}
+      parts={v.parts}
       selectedPath={v.selectedPath}
       spinner={v.spinner}
       onPathRequest={(e) => {

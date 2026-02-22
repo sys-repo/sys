@@ -20,7 +20,7 @@ export const D = {
   } satisfies Required<t.TreeHost.Nav>,
   parts: {
     header: { background: false },
-    nav: { background: false },
+    nav: { background: false, motion: { kind: 'preset', preset: 'snappy' } },
     main: { background: true },
     footer: { background: false },
   } satisfies t.TreeHost.Parts,

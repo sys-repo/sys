@@ -100,6 +100,7 @@ export declare namespace TreeHost {
   /** Style overrides for the navigation region. */
   export type PartNav = {
     background?: PartBackground;
+    motion?: PartNavMotion;
   };
 
   /** Style overrides for the main content region. */
@@ -114,6 +115,13 @@ export declare namespace TreeHost {
 
   /** Background override input for host regions (toggle or theme-aware callback). */
   export type PartBackground = boolean | ((e: { theme: t.CommonTheme }) => t.StringHex);
+
+  /** Nav motion config (constrained presets or normalized custom physics inputs). */
+  export type PartNavMotion = t.TreeHostPartNavMotion;
+  /** Preset nav motion config. */
+  export type PartNavMotionPreset = t.TreeHostPartNavMotionPreset;
+  /** Custom nav motion config. */
+  export type PartNavMotionCustom = t.TreeHostPartNavMotionCustom;
 
   /**
    * Event handlers:
@@ -138,3 +146,21 @@ export declare namespace TreeHost {
     readonly is: { readonly leaf: boolean };
   };
 }
+
+/** Constrained nav motion input: choose a preset or provide custom spring values. */
+export type TreeHostPartNavMotion = TreeHostPartNavMotionPreset | TreeHostPartNavMotionCustom;
+
+/** Named nav motion preset for common, safe animation behaviors. */
+export type TreeHostPartNavMotionPreset = {
+  kind: 'preset';
+  preset: 'gentle' | 'snappy' | 'none';
+};
+
+/** Custom nav spring tuning input (normalized/clamped by runtime resolver). */
+export type TreeHostPartNavMotionCustom = {
+  kind: 'custom';
+  stiffness?: number;
+  damping?: number;
+  mass?: number;
+  bounce?: number;
+};

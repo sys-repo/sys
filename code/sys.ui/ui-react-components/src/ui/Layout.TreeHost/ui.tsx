@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, M } from './common.ts';
+import { type t, Color, css, D, Is, M } from './common.ts';
 import { resolveParts } from './u.parts.ts';
 import { toSlotNode } from './u.slot.ts';
 import { Nav } from './ui.Nav.tsx';
@@ -15,7 +15,7 @@ export const TreeHost: React.FC<t.TreeHost.Props> = (props) => {
   const nav = { ...D.nav, ...props.nav, animate: { ...D.nav.animate, ...props.nav?.animate } };
   const navWidth = nav.width;
   const navVisible = navWidth > 0;
-  const navTransition = { duration: nav.animate.duration / 1000, ease: nav.animate.ease } as const;
+  const navTransition = wrangle.navTransition(parts.nav.motion.transition, navWidth);
   // Resolve once so row presence derives from rendered output and renderers are not double-invoked.
   const headerNode = toSlotNode(slots.header?.body, { slot: 'header:body' });
   const footerNode = toSlotNode(slots.footer?.body, { slot: 'footer:body' });
@@ -107,3 +107,23 @@ export const TreeHost: React.FC<t.TreeHost.Props> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  navTransition(
+    transition: ReturnType<typeof resolveParts>['nav']['motion']['transition'],
+    width: number,
+  ): ReturnType<typeof resolveParts>['nav']['motion']['transition'] {
+    if (width > 0) return transition;
+    if (!('type' in transition && Is.str(transition.type) && transition.type === 'spring')) {
+      return transition;
+    }
+    return {
+      ...transition,
+      bounce: 0,
+      damping: Math.max(transition.damping, 48),
+    };
+  },
+} as const;

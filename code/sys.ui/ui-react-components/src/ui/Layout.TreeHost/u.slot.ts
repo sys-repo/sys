@@ -10,7 +10,7 @@ export function toSlotSpinner(
   const input = props.spinner;
   if (!input) return undefined;
 
-  const list = Array.isArray(input) ? input : [input];
+  const list: t.TreeHost.Spinner[] = Is.array(input) ? [...input] : [input];
   const normalized = list.map((item): t.TreeHost.SlotSpinner => {
     if (Is.str(item)) return { slot: item };
     return item;
