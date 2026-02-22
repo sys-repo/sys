@@ -8,7 +8,7 @@ import {
   toPlaybackData,
   usePlaybackRuntime,
 } from './-u.playback.runtime.ts';
-import { MediaPlaybackAux } from './-ui.Aux.tsx';
+import { NavFooter } from './-ui.NavFooter.tsx';
 import { type t, Color, css, Signal, useEffectController } from './common.ts';
 
 export type SpecRootProps = {
@@ -73,7 +73,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     };
   }, [props.runtime, runtime]);
 
-  const aux = media && <MediaPlaybackAux theme={theme.name} runtime={runtime} />;
+  const aux = media && <NavFooter theme={theme.name} runtime={runtime} />;
   const baseSlots = createSlots({
     content,
     selection,

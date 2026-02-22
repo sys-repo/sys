@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, KeyValue, Player, css } from './common.ts';
 
-export type MediaPlaybackAuxProps = {
+export type NavFooterProps = {
   runtime: t.DevPlaybackRuntime;
   theme: t.CommonTheme;
 };
@@ -9,7 +9,7 @@ export type MediaPlaybackAuxProps = {
 /**
  * Component:
  */
-export const MediaPlaybackAux: React.FC<MediaPlaybackAuxProps> = (props) => {
+export const NavFooter: React.FC<NavFooterProps> = (props) => {
   const { runtime } = props;
 
   const theme = Color.theme(props.theme);
