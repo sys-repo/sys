@@ -1,8 +1,9 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { resolveParts } from './u.parts.ts';
-import { NavHeader } from './ui.slot.NavHeader.tsx';
+import { toSlotNode } from './u.slot.ts';
 import { NavFooter } from './ui.slot.NavFooter.tsx';
+import { NavHeader } from './ui.slot.NavHeader.tsx';
 import { Tree } from './ui.slot.Tree.tsx';
 import { SlotHost } from './ui.SlotHost.tsx';
 
@@ -13,8 +14,11 @@ type P = t.TreeHost.Props;
  */
 export const Nav: React.FC<P> = (props) => {
   const { slots = {} } = props;
-  const hasHeader = slots.nav?.header !== undefined;
-  const hasFooter = slots.nav?.footer !== undefined;
+  // Resolve once so row presence derives from rendered output and renderers are not double-invoked.
+  const headerNode = toSlotNode(slots.nav?.header, { slot: 'nav:header' });
+  const footerNode = toSlotNode(slots.nav?.footer, { slot: 'nav:footer' });
+  const hasHeader = headerNode != null;
+  const hasFooter = footerNode != null;
   const rows = [
     hasHeader ? 'auto' : undefined,
     'minmax(0, 1fr)',
@@ -39,9 +43,9 @@ export const Nav: React.FC<P> = (props) => {
     }),
   };
 
-  const elNavHeader = slots.nav?.header && (
+  const elNavHeader = hasHeader && (
     <SlotHost host={props} slot={'nav:header'}>
-      <NavHeader {...props} />
+      <NavHeader theme={props.theme}>{headerNode}</NavHeader>
     </SlotHost>
   );
 
@@ -51,9 +55,9 @@ export const Nav: React.FC<P> = (props) => {
     </SlotHost>
   );
 
-  const elNavFooter = slots.nav?.footer && (
+  const elNavFooter = hasFooter && (
     <SlotHost host={props} slot={'nav:footer'}>
-      <NavFooter {...props} />
+      <NavFooter theme={props.theme}>{footerNode}</NavFooter>
     </SlotHost>
   );
 

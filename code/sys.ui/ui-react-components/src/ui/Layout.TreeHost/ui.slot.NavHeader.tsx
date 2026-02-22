@@ -1,18 +1,16 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { toSlotNode } from './u.slot.ts';
 
-type P = t.TreeHost.Props;
+export type NavHeaderProps = {
+  children?: t.ReactNode;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
 
 /**
  * Component:
  */
-export const NavHeader: React.FC<P> = (props) => {
-  const { slots = {} } = props;
-  const slotInput = slots.nav?.header;
-  if (slotInput === undefined) return null;
-  const slotNode = toSlotNode(slotInput, { slot: 'nav:header' });
-
+export const NavHeader: React.FC<NavHeaderProps> = (props) => {
   /**
    * Render:
    */
@@ -21,5 +19,5 @@ export const NavHeader: React.FC<P> = (props) => {
     base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
   };
 
-  return <div className={css(styles.base, props.style).class}>{slotNode}</div>;
+  return <div className={css(styles.base, props.style).class}>{props.children}</div>;
 };
