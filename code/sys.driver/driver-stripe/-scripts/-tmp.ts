@@ -1,16 +1,4 @@
-import { Fs } from '@sys/fs';
-import { Log } from '@sys/std/log';
-const log = Log.logger('Foobar');
+import { Env } from '@sys/fs';
+import { createPaymentIntent } from './-tmp.createPaymentIntent.ts';
 
-log('👋 Hello');
-log.sub('tmp')('🐷-tmp');
-
-// await clear('./.tmp');
-
-/**
- * Helpers:
- */
-async function clear(root: string) {
-  const paths = await Fs.glob(root, { includeDirs: true }).find('*');
-  for (const p of paths) await Fs.remove(p.path, { log: true });
-}
+// await createPaymentIntent();
