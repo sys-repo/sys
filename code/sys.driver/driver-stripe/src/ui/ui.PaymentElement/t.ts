@@ -1,3 +1,4 @@
+import type { StripePaymentElement, StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import type { t } from './common.ts';
 
 /**
@@ -9,5 +10,9 @@ export declare namespace PaymentElement {
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
+
+    onReady?: (element: StripePaymentElement) => void;
+    onChange?: (event: StripePaymentElementChangeEvent) => void;
+    onLoadError?: (error: Error) => void;
   };
 }
