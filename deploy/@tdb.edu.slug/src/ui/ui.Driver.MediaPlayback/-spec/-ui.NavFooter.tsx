@@ -13,14 +13,14 @@ export const NavFooter: React.FC<NavFooterProps> = (props) => {
   const { runtime } = props;
 
   const theme = Color.theme(props.theme);
+  const traceline = Color.alpha(theme.fg, 0.03);
   const styles = {
     decks: {
       base: css({ position: 'relative' }),
-      traceline: css({
-        Absolute: [null, 15, -1, 10],
-        backgroundColor: Color.alpha(theme.fg, 0.03),
-        height: 1,
-      }),
+      traceline: {
+        center: css({ Absolute: [50, null, -6, '50%'], width: 1, backgroundColor: traceline }),
+        bottom: css({ Absolute: [null, 15, -1, 10], height: 1, backgroundColor: traceline }),
+      },
     },
   };
 
@@ -35,7 +35,8 @@ export const NavFooter: React.FC<NavFooterProps> = (props) => {
           gap={20}
           style={{ Margin: [10, 20, 10, 20] }}
         />
-        <div className={styles.decks.traceline.class} />
+        <div className={styles.decks.traceline.center.class} />
+        <div className={styles.decks.traceline.bottom.class} />
       </div>
       <KeyValue.UI
         theme={theme.name}
