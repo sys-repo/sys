@@ -71,6 +71,8 @@
     "npm:@preact/signals-react@3.9.0": "3.9.0_react@19.2.4",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.48": "0.34.48",
+    "npm:@stripe/stripe-js@*": "8.8.0",
+    "npm:@stripe/stripe-js@8.8.0": "8.8.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:@types/ramda@0.31.1": "0.31.1",
@@ -1094,6 +1096,9 @@
     },
     "@standard-schema/spec@1.1.0": {
       "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="
+    },
+    "@stripe/stripe-js@8.8.0": {
+      "integrity": "sha512-NNYuyW8qmLjyHnpyFgs/23wUrjB8k0xN9YIZFOMLewCa/pIkIji9e9aY/EgdNryEDDRptc6TcPIHRvG1R0ClFw=="
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
