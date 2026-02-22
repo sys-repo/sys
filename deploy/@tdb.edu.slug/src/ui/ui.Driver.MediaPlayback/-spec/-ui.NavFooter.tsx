@@ -41,7 +41,7 @@ export const NavFooter: React.FC<NavFooterProps> = (props) => {
       <KeyValue.UI
         theme={theme.name}
         layout={{ kind: 'table' }}
-        style={{ Margin: [0, 20, 10, 20] }}
+        style={{ Margin: [0, 20, 15, 20] }}
         items={[
           { kind: 'title', v: 'Media Runtime' },
           {
