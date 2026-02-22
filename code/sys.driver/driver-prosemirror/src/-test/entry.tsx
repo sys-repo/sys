@@ -8,9 +8,8 @@ import { pkg } from '../pkg.ts';
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   async function registerSw() {
     try {
-      const reg = await navigator.serviceWorker.register(new URL('../sw.js', import.meta.url), {
-        type: 'module',
-      });
+      const url = new URL('../sw.js', import.meta.url);
+      const reg = await navigator.serviceWorker.register(url, { type: 'module' });
       console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`);
     } catch (err) {
       console.error(`💥 [main] ServiceWorker registration failed:`, err);
