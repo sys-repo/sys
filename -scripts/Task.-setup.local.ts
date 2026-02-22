@@ -16,12 +16,12 @@ export async function main() {
   const links = [
     {
       name: 'Codex skills',
-      source: '../-config/-canon.skills-refactor/.agents/skills',
+      source: '../-config/-canon.skills/.agents/skills',
       target: '.agents/skills',
     },
     {
       name: 'Codex metadata',
-      source: '../-config/-canon.skills-refactor/agents/openai.yaml',
+      source: '../-config/-canon.skills/agents/openai.yaml',
       target: 'agents/openai.yaml',
       optional: true,
     },
