@@ -58,7 +58,7 @@ const wrangle = {
     return [
       {
         id: 'base',
-        label: 'Base: TreeContent',
+        label: 'Base: TreeContent:',
         render: () => <CoreDebug debug={debug} />,
       },
       headTab,

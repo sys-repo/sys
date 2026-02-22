@@ -17,7 +17,7 @@ export default Spec.describe(D.name, async (e) => {
     debug,
     headTab: {
       id: 'head:playback',
-      label: 'MediaPlayback',
+      label: ':MediaPlayback',
       render: () => <HeadDebug debug={debug} runtime={p.runtime} />,
     },
   });
