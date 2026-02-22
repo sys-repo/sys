@@ -38,6 +38,7 @@ export function createDebugSignals() {
     nav: s(snap.nav),
     slots: {
       nav: {
+        header: s<NavSlots['header']>(),
         tree: s<NavSlots['tree']>(),
         footer: s<NavSlots['footer']>(),
       },

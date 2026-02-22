@@ -57,10 +57,16 @@ const OPTIONS: ReadonlyArray<{ id: string; label: string; value: P['spinner'] }>
     id: 'all-top',
     label: 'all: top',
     value: [
+      { slot: 'nav:header', position: 'top' },
       { slot: 'nav:tree', position: 'top' },
       { slot: 'main:body', position: 'top' },
       { slot: 'nav:footer', position: 'top' },
     ],
+  },
+  {
+    id: 'header-top',
+    label: 'nav.header: top',
+    value: { slot: 'nav:header', position: 'top' },
   },
   { id: 'tree-middle', label: 'nav.tree: middle', value: { slot: 'nav:tree', position: 'middle' } },
   { id: 'tree-top', label: 'nav.tree: top', value: { slot: 'nav:tree', position: 'top' } },

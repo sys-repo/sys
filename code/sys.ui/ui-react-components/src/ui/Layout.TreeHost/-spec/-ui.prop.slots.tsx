@@ -21,7 +21,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
       <Foo
         theme={p.theme.value}
         label={`slot:${slot}`}
-        padding={slot === 'nav:footer' ? [0, 4, 4, 4] : 4}
+        padding={slot === 'nav:header' ? [4, 4, 0, 4] : slot === 'nav:footer' ? [0, 4, 4, 4] : 4}
       />
     );
   }
@@ -59,22 +59,28 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {slotButton({
+        label: 'nav.header',
+        slot: 'nav:header',
+        current: () => p.slots.nav.header.value,
+        set: (value) => (p.slots.nav.header.value = value),
+      })}
+      {slotButton({
         label: 'nav.tree',
         slot: 'nav:tree',
         current: () => p.slots.nav.tree.value,
         set: (value) => (p.slots.nav.tree.value = value),
       })}
       {slotButton({
-        label: 'main.body',
-        slot: 'main:body',
-        current: () => p.slots.main.body.value,
-        set: (value) => (p.slots.main.body.value = value),
-      })}
-      {slotButton({
         label: 'nav.footer',
         slot: 'nav:footer',
         current: () => p.slots.nav.footer.value,
         set: (value) => (p.slots.nav.footer.value = value),
+      })}
+      {slotButton({
+        label: 'main.body',
+        slot: 'main:body',
+        current: () => p.slots.main.body.value,
+        set: (value) => (p.slots.main.body.value = value),
       })}
       <Button
         block

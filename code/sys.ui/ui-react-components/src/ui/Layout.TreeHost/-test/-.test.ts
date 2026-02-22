@@ -49,6 +49,16 @@ describe('Layout.TreeHost', () => {
         }),
       ).to.eql(false);
     });
+
+    it('suppresses empty when spinner targets nav:header', () => {
+      expect(
+        shouldRenderEmpty({
+          props: { ...base, spinner: { slot: 'nav:header', position: 'top' } },
+          slot: 'nav:header',
+          hasContent: false,
+        }),
+      ).to.eql(false);
+    });
   });
 
   describe('parts', () => {
