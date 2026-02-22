@@ -141,6 +141,57 @@ describe(`PlaybackDriver.driver`, () => {
     driver.dispose();
   });
 
+  it(`video:time is suppressed while intent is stop`, () => {
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+        {
+          index: ix(1),
+          vTime: ms(1000),
+          duration: ms(1000),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+      ],
+      segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(2) } }],
+      virtualDuration: ms(2000),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'stop',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    A.props.currentTime.value = 0.47 as t.Secs;
+    expect(seen).to.eql([]);
+
+    driver.dispose();
+  });
+
   it(`video:time emits even if pendingSeek misses the exact landing tick`, () => {
     const timeline: t.TimecodeState.Playback.Timeline = {
       beats: [

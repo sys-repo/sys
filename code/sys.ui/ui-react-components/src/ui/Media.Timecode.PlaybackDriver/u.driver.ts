@@ -269,6 +269,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (!state.timeline) return;
         if (timeSource !== 'video') return;
         if (pendingLoadDecks.has(deck)) return;
+        if (state.intent === 'stop') return;
 
         const vTime = mapDeckSecondToVTime(state, secs);
 
