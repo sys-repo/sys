@@ -38,6 +38,7 @@
     "@std/testing/bdd": "jsr:@std/testing@1.0.17/bdd",
     "@std/testing/time": "jsr:@std/testing@1.0.17/time",
     "@std/uuid": "jsr:@std/uuid@1.1.0",
+    "@stripe/stripe-js": "npm:@stripe/stripe-js@8.8.0",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
