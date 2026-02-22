@@ -77,7 +77,8 @@ export async function main() {
   if (isDev) {
     return void renderDev();
   } else {
-    return void renderSplash();
+    // return void renderSplash();
+    return void renderDev();
   }
 }
 
