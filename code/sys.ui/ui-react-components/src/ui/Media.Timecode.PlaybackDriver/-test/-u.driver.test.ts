@@ -369,6 +369,49 @@ describe(`PlaybackDriver.driver`, () => {
     driver.dispose();
   });
 
+  it(`video:ended is suppressed while intent is stop`, () => {
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+      ],
+      segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(1) } }],
+      virtualDuration: ms(1000),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'stop',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+    A.props.endedTick.value = 1;
+
+    expect(seen).to.eql([]);
+    driver.dispose();
+  });
+
   it(`video:time continues after non-terminal video:ended (segment rollover)`, () => {
     const timeline: t.TimecodeState.Playback.Timeline = {
       beats: [
