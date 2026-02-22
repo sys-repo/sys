@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from './common.ts';
-import { arraySize } from './u.data.ts';
+import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from '../common.ts';
+import { arraySize } from '../u.data.ts';
 
 export type PlaybackContentProps = {
   playback?: t.PlaybackContentData;

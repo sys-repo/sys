@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from './common.ts';
-import { toFrontmatter } from './u.data.ts';
+import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from '../common.ts';
+import { toFrontmatter } from '../u.data.ts';
 
 export type FileContentProps = {
   file?: t.FileContentData;

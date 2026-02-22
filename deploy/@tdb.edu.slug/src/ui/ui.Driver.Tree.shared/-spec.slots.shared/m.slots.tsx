@@ -1,7 +1,7 @@
 import { type t, TreeData } from './common.ts';
 import { toContentData, toFileData, toPlaybackData } from './u.data.ts';
-import { FileLeaf, FileMain } from './ui.file.tsx';
-import { PlaybackLeaf, PlaybackMain } from './ui.playback.tsx';
+import { FileLeaf, FileMain } from './ui.file/ui.tsx';
+import { PlaybackLeaf, PlaybackMain } from './ui.playback/ui.tsx';
 
 type A = t.ContentSlotArgs;
 
@@ -13,7 +13,9 @@ export function createSlots(args: A): t.TreeHostSlots {
   return {
     main: { body: renderMain({ ...args, file, playback }) },
     nav: {
-      footer: <div>{args.content.phase === 'error' ? (args.content.error?.message ?? 'Error') : ''}</div>,
+      footer: (
+        <div>{args.content.phase === 'error' ? (args.content.error?.message ?? 'Error') : ''}</div>
+      ),
       leaf: (e: t.TreeHostNavLeafRenderArgs) => {
         const node = TreeData.findViewNode(args.selection.tree, args.selection.selectedPath);
         const isSelectedLeaf = !!node && node.key === e.node.key;
