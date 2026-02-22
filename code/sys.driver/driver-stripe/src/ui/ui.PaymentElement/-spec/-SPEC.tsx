@@ -15,8 +15,8 @@ export default Spec.describe(D.displayName, async (e) => {
       <PaymentElement.UI
         debug={v.debug}
         theme={v.theme}
-        publishableKey={env.publishableKey}
-        clientSecret={env.clientSecret}
+        publishableKey={v.passSecrets ? env.publishableKey : undefined}
+        clientSecret={v.passSecrets ? env.clientSecret : undefined}
         onReady={(element) => console.info(`⚡️ onReady:`, element)}
         onChange={(event) => console.info(`⚡️ onChange:`, event)}
         onLoadError={(error) => console.info(`⚡️ onLoadError`, error)}

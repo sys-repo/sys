@@ -1,5 +1,5 @@
 import React from 'react';
-import type { t } from './common.ts';
+import { type t, Obj } from './common.ts';
 import { mountPaymentElement } from './u.mount.ts';
 
 export type PaymentElementHookArgs = {
@@ -89,7 +89,9 @@ export function usePaymentElement(args: PaymentElementHookArgs): PaymentElementH
  * Helpers:
  */
 const wrangle = {
-  mountKey(props: t.PaymentElement.Props): string {
+  mountKey(props: t.PaymentElement.Props) {
+    const { clientSecret, theme, config } = props;
+    return Obj.hash({ clientSecret, theme, config });
   },
 
   error(cause: unknown): Error {

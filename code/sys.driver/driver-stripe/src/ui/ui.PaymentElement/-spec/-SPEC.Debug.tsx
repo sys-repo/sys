@@ -3,10 +3,11 @@ import { readEnv } from './-u.env.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
 type P = t.PaymentElement.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { passSecrets?: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  passSecrets: true,
 };
 
 /**
@@ -26,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    passSecrets: s(snap.passSecrets),
   };
   const p = props;
   const api = {
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.passSecrets = p.passSecrets.value;
     });
   });
 
@@ -92,6 +95,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={() => `passSecrets: ${p.passSecrets.value}`}
+        onClick={() => Signal.toggle(p.passSecrets)}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
