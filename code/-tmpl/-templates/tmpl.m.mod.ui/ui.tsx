@@ -20,13 +20,6 @@ export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} data-component={componentAttr}>
       <div>{`🐷 ${D.displayName}`}</div>
-      <KeyValue.UI
-        theme={theme.name}
-        items={[
-          { kind: 'title', v: D.displayName },
-          { k: 'message', v: '👋 hello, world!' },
-        ]}
-      />
     </div>
   );
 };
