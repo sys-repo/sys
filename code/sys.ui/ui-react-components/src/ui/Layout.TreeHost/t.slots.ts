@@ -4,11 +4,13 @@ import type { t } from './common.ts';
 export type TreeHostSpinner = TreeHostSpinnerSlot | TreeHostSlotSpinner;
 /** Canonical slot target names exposed by TreeHost. */
 export type TreeHostSlot =
+  | 'header:body'
   | 'nav:header'
   | 'nav:tree'
   | 'nav:leaf'
   | 'nav:footer'
   | 'main:body'
+  | 'footer:body'
   | 'empty';
 /** Arguments passed to generic slot render handlers. */
 export type TreeHostRenderSlotArgs = { readonly slot: t.TreeHost.Slot };
@@ -23,6 +25,9 @@ export type TreeHostRenderEmptyHandler = (e: TreeHostRenderEmptyArgs) => t.React
 
 /** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
+  header?: {
+    body?: TreeHostSlotInput;
+  };
   nav?: {
     header?: TreeHostSlotInput;
     tree?: TreeHostSlotInput;
@@ -30,6 +35,9 @@ export type TreeHostSlots = {
     footer?: TreeHostSlotInput;
   };
   main?: {
+    body?: TreeHostSlotInput;
+  };
+  footer?: {
     body?: TreeHostSlotInput;
   };
   empty?: TreeHostRenderEmptyHandler;

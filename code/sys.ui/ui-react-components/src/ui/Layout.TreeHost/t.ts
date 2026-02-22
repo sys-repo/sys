@@ -86,8 +86,15 @@ export declare namespace TreeHost {
 
   /** Visual part overrides for TreeHost regions. */
   export type Parts = {
+    header?: PartHeader;
     nav?: PartNav;
     main?: PartMain;
+    footer?: PartFooter;
+  };
+
+  /** Style overrides for the header region. */
+  export type PartHeader = {
+    background?: PartBackground;
   };
 
   /** Style overrides for the navigation region. */
@@ -97,6 +104,11 @@ export declare namespace TreeHost {
 
   /** Style overrides for the main content region. */
   export type PartMain = {
+    background?: PartBackground;
+  };
+
+  /** Style overrides for the footer region. */
+  export type PartFooter = {
     background?: PartBackground;
   };
 

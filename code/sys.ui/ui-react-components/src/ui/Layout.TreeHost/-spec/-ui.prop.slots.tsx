@@ -59,6 +59,12 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {slotButton({
+        label: 'header.body',
+        slot: 'header:body',
+        current: () => p.slots.header.body.value,
+        set: (value) => (p.slots.header.body.value = value),
+      })}
+      {slotButton({
         label: 'nav.header',
         slot: 'nav:header',
         current: () => p.slots.nav.header.value,
@@ -81,6 +87,12 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
         slot: 'main:body',
         current: () => p.slots.main.body.value,
         set: (value) => (p.slots.main.body.value = value),
+      })}
+      {slotButton({
+        label: 'footer.body',
+        slot: 'footer:body',
+        current: () => p.slots.footer.body.value,
+        set: (value) => (p.slots.footer.body.value = value),
       })}
       <Button
         block

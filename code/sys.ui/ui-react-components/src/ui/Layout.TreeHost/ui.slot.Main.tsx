@@ -13,7 +13,7 @@ export const Main: React.FC<P> = (props) => {
   const { slots = {} } = props;
   const slotInput = slots.main?.body;
   const slotNode = toSlotNode(slotInput, { slot: 'main:body' });
-  const hasContent = slotNode !== undefined;
+  const hasContent = slotNode != null;
 
   /**
    * Render:
