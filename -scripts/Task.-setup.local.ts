@@ -47,25 +47,26 @@ export async function main() {
 }
 
 async function ensureLink(link: TLink) {
-  const srcExists = await Fs.exists(link.source);
+  const sourceAbs = Fs.resolve(link.source);
+  const srcExists = await Fs.exists(sourceAbs);
   if (!srcExists) {
-    const msg = `${fmtLabel(link.name)} ${c.yellow('source missing:')} ${c.gray(link.source)}`;
+    const msg = `${fmtLabel(link.name)} ${c.yellow('source missing:')} ${c.gray(sourceAbs)}`;
     if (link.optional) {
       console.info(msg, c.dim('(skipped)'));
       return;
     }
-    throw new Error(`${link.name} source does not exist: ${link.source}`);
+    throw new Error(`${link.name} source does not exist: ${sourceAbs}`);
   }
 
   const targetInfo = await lstatSafe(link.target);
   if (!targetInfo) {
     await Fs.ensureDir(Fs.dirname(link.target));
-    await Fs.ensureSymlink(link.source, link.target);
+    await Fs.ensureSymlink(sourceAbs, link.target);
     console.info(
       `${fmtLabel(link.name)} ${c.green('linked')}`,
       c.gray(link.target),
       c.dim('->'),
-      c.gray(link.source),
+      c.gray(sourceAbs),
     );
     return;
   }
@@ -76,11 +77,11 @@ async function ensureLink(link: TLink) {
     );
   }
 
-  const ok = await symlinkPointsTo(link.target, link.source);
+  const ok = await symlinkPointsTo(link.target, sourceAbs);
   if (!ok) {
     const current = await Deno.readLink(link.target).catch(() => '<unreadable>');
     throw new Error(
-      `${link.name} symlink points to a different target. Existing: ${link.target} -> ${current}. Expected -> ${link.source}`,
+      `${link.name} symlink points to a different target. Existing: ${link.target} -> ${current}. Expected -> ${sourceAbs}`,
     );
   }
 
@@ -176,4 +177,3 @@ async function resolveGitExcludePath() {
 function fmtLabel(name: string) {
   return c.bold(c.cyan(`[setup-local:${name}]`));
 }
-
