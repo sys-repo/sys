@@ -72,6 +72,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
 
   const res: t.ViteUserConfig = {
     root,
+    envDir: paths.cwd,
     publicDir,
     base: paths.app.base,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.

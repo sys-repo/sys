@@ -40,6 +40,7 @@ describe('Config.Build', () => {
       const input = config.build?.rollupOptions?.input as any;
 
       expect(config.root).to.eql(p.cwd);
+      expect(config.envDir).to.eql(p.cwd);
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
 
@@ -70,6 +71,18 @@ describe('Config.Build', () => {
       const input = config.build?.rollupOptions?.input as any;
       expect(input.main).to.eql(Fs.join(paths.cwd, 'src/-foo.html'));
       expect(input.sw).to.eql(Fs.join(paths.cwd, 'src/sw.ts'));
+      expect(config.envDir).to.eql(paths.cwd);
+    });
+
+    it('keeps env loading rooted at package cwd when app root is nested', async () => {
+      const paths = ViteConfig.paths({
+        cwd: '/pkg',
+        app: { entry: 'src/-test/index.html' },
+      });
+      const config = await ViteConfig.app({ paths });
+
+      expect(config.root).to.eql('/pkg/src/-test');
+      expect(config.envDir).to.eql('/pkg');
     });
   });
 });

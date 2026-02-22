@@ -1,11 +1,11 @@
 import { Vite } from 'jsr:@sys/driver-vite';
 import { defineConfig } from 'npm:vite';
 
-export default defineConfig(async () => {
+export default defineConfig(() => {
   const entry = './src/-test/index.html';
   const sw = './src/-test/-sw.ts';
   const paths = Vite.Config.paths({ app: { entry, sw } });
-  const app = await Vite.Config.app({
+  return Vite.Config.app({
     paths,
     visualizer: false,
     chunks(e) {
@@ -15,6 +15,4 @@ export default defineConfig(async () => {
       e.chunk('css', '@sys/ui-css');
     },
   });
-
-  return { ...app, envDir: '../..' };
 });
