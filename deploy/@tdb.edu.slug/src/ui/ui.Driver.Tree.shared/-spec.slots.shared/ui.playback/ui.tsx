@@ -112,6 +112,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   );
 };
 
+/**
+ * Helpers
+ */
 function parseBeatIndex(input?: string): number | undefined {
   if (!input) return undefined;
   const match = /^segment-(\d+):beat-(\d+)$/.exec(input.trim());
