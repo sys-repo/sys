@@ -1,6 +1,6 @@
 import { backupConfig } from './-tmp.backup-config.ts';
 import { mdFileToPdf } from './-tmp.pdf.ts';
-import { resendSample } from './-tmp.resend.ts';
+import { resendSample } from './-tmp.send-email.ts';
 
 // await resendSample();
 // await mdFileToPdf('.tmp/SUMMARY.md');
