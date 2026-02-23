@@ -28,3 +28,4 @@ Create `VITE_STRIPE_CLIENT_SECRET` locally with:
 `VITE_STRIPE_CLIENT_SECRET` in `.env` is for local component testing only. In production, create a fresh client secret server-side for each payment/session.
 
 `STRIPE_SECRET_KEY` is script-only and must never be read in browser code. The browser DevHarness should read only `VITE_*` values via `import.meta.env`.
+
