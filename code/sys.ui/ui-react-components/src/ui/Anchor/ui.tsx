@@ -1,6 +1,8 @@
 import { type t, Color, css, D } from './common.ts';
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
+  if (!props.href) return props.children;
+
   const theme = Color.theme(props.theme);
   const {
     href,

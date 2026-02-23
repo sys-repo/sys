@@ -12,6 +12,11 @@ describe('Anchor', () => {
   });
 
   describe('element', () => {
+    it('passes children through when href is undefined', () => {
+      const res = A({ href: undefined, children: 'plain text' });
+      expect(res).to.eql('plain text');
+    });
+
     it('hardens _blank links with noopener noreferrer', () => {
       const el = asElement(A({ href: 'https://example.com', target: '_blank', children: 'link' }));
       expect(el.props.target).to.eql('_blank');

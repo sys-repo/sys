@@ -1,14 +1,16 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
+import { Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download'>;
+type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download'> & { children?: string };
 const defaults: Storage = {
   theme: 'Dark',
   href: 'https://example.com',
   target: D.target,
   download: D.download,
+  children: 'https://example.com',
 };
 
 /**
@@ -30,6 +32,7 @@ export async function createDebugSignals() {
     href: s(snap.href),
     target: s(snap.target),
     download: s(snap.download === true),
+    children: s(snap.children),
   };
   const p = props;
   const api = {
@@ -52,6 +55,7 @@ export async function createDebugSignals() {
       d.href = p.href.value;
       d.target = p.target.value;
       d.download = p.download.value ? true : undefined;
+      d.children = p.children.value;
     });
   });
 
@@ -107,6 +111,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
+      <Button
+        block
+        label={() => `children: ${p.children.value ?? '(none)'}`}
+        onClick={() => {
+          Signal.cycle<string | undefined>(p.children, [
+            undefined,
+            'https://example.com',
+            'link label',
+            'plain text (passthrough)',
+          ]);
+        }}
+      />
 
       <hr />
       <Button
@@ -123,6 +139,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `download: ${p.download.value} ← default: ${D.download}`}
         onClick={() => Signal.toggle(p.download)}
       />
+
+      <hr />
+      <div className={Styles.title.class}>{'Sample States:'}</div>
+      <Samples debug={debug} theme={theme.name} />
 
       <hr />
       <div className={Styles.title.class}>{'Debug'}</div>
