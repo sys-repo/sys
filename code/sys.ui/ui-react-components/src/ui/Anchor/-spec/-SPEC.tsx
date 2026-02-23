@@ -24,6 +24,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
+    ctx.host.tracelineColor(0.05);
     ctx.subject
       .size([360, null])
       .display('grid')
