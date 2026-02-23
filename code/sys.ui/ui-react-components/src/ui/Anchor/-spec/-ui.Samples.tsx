@@ -19,7 +19,10 @@ export const Samples: React.FC<P> = (props) => {
     base: css({ color: theme.fg }),
   };
 
-  const sample = (label: string, next: { href?: string; target?: t.Anchor.Target; download?: boolean; children?: string }) => {
+  function sample(
+    label: string,
+    next: { href?: string; target?: t.Anchor.Target; download?: boolean; children?: string },
+  ) {
     return (
       <Button
         block
@@ -32,7 +35,7 @@ export const Samples: React.FC<P> = (props) => {
         }}
       />
     );
-  };
+  }
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -48,11 +51,11 @@ export const Samples: React.FC<P> = (props) => {
         download: false,
         children: 'opens in new tab',
       })}
-      {sample('sample: download', {
-        href: 'https://example.com/file.txt',
+      {sample('sample: download (/dist.json)', {
+        href: '/dist.json',
         target: undefined,
         download: true,
-        children: 'download file',
+        children: 'download dist.json',
       })}
       {sample('sample: text-only (no href)', {
         href: undefined,
