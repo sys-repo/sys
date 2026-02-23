@@ -1,4 +1,10 @@
-export type { FC, JSX, ReactNode } from 'react';
+export type {
+  FC,
+  JSX,
+  ReactNode,
+  MouseEvent as ReactMouseEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 
 /**
  * @system:
