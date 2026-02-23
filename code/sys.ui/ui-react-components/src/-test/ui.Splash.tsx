@@ -24,6 +24,12 @@ export const Splash: React.FC<SplashProps> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
+    link: css({
+      color: 'inherit',
+      textDecoration: 'none',
+      display: 'block',
+      cursor: 'pointer',
+    }),
     body: css({
       display: 'grid',
       gridAutoFlow: 'row',
@@ -31,9 +37,31 @@ export const Splash: React.FC<SplashProps> = (props) => {
       rowGap: 5,
       marginBottom: 30,
     }),
-    icon: css({ fontSize: 64, userSelect: 'none' }),
-    a: css({ fontSize: 30, color: Color.BLUE, textDecoration: 'none' }),
-    qs: css({ color: Color.alpha(theme.fg, 0.2), marginRight: 2 }),
+    title: css({
+      fontSize: 30,
+      color: Color.BLUE,
+    }),
+    titleDev: css({
+      textDecorationLine: 'underline',
+      textDecorationStyle: 'dashed',
+      textDecorationColor: Color.alpha(theme.fg, 0.2),
+      textDecorationThickness: '1px',
+      textUnderlineOffset: '5px',
+      transition: 'text-decoration-color 100ms ease, text-decoration-style 100ms ease',
+      ':hover': {
+        textDecorationStyle: 'solid',
+        textDecorationColor: 'currentColor',
+      },
+      ':focus-visible': {
+        textDecorationStyle: 'solid',
+        textDecorationColor: 'currentColor',
+      },
+    }),
+    qs: css({
+      color: Color.alpha(theme.fg, 0.2),
+      marginRight: 2,
+      textDecoration: 'none',
+    }),
     info: {
       base: css({ position: 'relative', marginLeft: 19 }),
       traceline: css({
@@ -46,22 +74,24 @@ export const Splash: React.FC<SplashProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>
-        <a href={href} className={styles.a.class}>
-          <span className={styles.qs.class}>{'?'}</span>
-          <span>{'dev'}</span>
-        </a>
-        <div className={styles.info.base.class}>
-          <div className={styles.info.traceline.class} />
-          <KeyValue.UI
-            theme={theme.name}
-            items={[
-              { k: 'pkg', v: pkg.name },
-              { k: 'version', v: pkg.version },
-            ]}
-          />
+      <a href={href} className={styles.link.class}>
+        <div className={styles.body.class}>
+          <div className={styles.title.class}>
+            <span className={styles.qs.class}>{'?'}</span>
+            <span className={styles.titleDev.class}>{'dev'}</span>
+          </div>
+          <div className={styles.info.base.class}>
+            <div className={styles.info.traceline.class} />
+            <KeyValue.UI
+              theme={theme.name}
+              items={[
+                { k: 'pkg', v: pkg.name },
+                { k: 'version', v: pkg.version },
+              ]}
+            />
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   );
 };
