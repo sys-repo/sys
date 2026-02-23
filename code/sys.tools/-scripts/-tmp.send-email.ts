@@ -7,7 +7,7 @@ import { Resend } from 'npm:resend';
  * https://resend.com/onboarding
  *
  */
-export async function resendSample() {
+export async function sendMailSample() {
   const RESEND_API_KEY = (await Env.load()).get('RESEND_API_KEY');
   const resend = new Resend(RESEND_API_KEY);
 
