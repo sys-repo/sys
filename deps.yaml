@@ -59,7 +59,7 @@ groups:
   build/tools/vite:
     - import: npm:@vitejs/plugin-react@5.1.4
     - import: npm:@deno/vite-plugin@1.0.6
-    - import: npm:rollup@4.58.0
+    - import: npm:rollup@4.59.0
     - import: npm:vite@7.3.1
     - import: npm:vite-plugin-wasm@3.5.0
     - import: npm:rollup-plugin-visualizer@7.0.0
