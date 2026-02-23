@@ -45,8 +45,8 @@ export const dev: D = async (input) => {
       .map((line) => line.trim());
     let isReady = false;
     for (const line of lines) {
-      const foundLocalUrl = local.url(line, REGEX.LOCAL_URL);
-      const foundNetworkUrl = local.url(line, REGEX.NETWORK_URL);
+      const foundLocalUrl = DevParse.url(line, REGEX.LOCAL_URL);
+      const foundNetworkUrl = DevParse.url(line, REGEX.NETWORK_URL);
       if (foundLocalUrl) resolvedLocalUrl = foundLocalUrl;
       if (!resolvedLocalUrl && foundNetworkUrl) resolvedUrl = foundNetworkUrl;
       if (REGEX.STARTED.test(line) || REGEX.DEV_RUNNING.test(line) || REGEX.LOCAL_OR_NETWORK.test(line)) {
@@ -75,7 +75,7 @@ export const dev: D = async (input) => {
   }
   await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 });
 
-  const port = local.port(resolvedUrl, requestedPort);
+  const port = DevParse.port(resolvedUrl, requestedPort);
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose });
   const listen = async () => {
     await keyboard();
@@ -105,7 +105,7 @@ export const dev: D = async (input) => {
   return api;
 };
 
-const local = {
+export const DevParse = {
   url(line: string, pattern: RegExp) {
     const match = line.match(pattern);
     if (!match) return '';

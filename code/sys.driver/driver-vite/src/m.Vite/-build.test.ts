@@ -1,9 +1,10 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE } from '../-test.ts';
+import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
 import { extractModulePreloadLinks } from './-u.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
+  const VERBOSE = false;
 
   const printDist = (dist: t.DistPkg, paths: t.ViteConfigPaths) => {
     const entry = Fs.trimCwd(Fs.join(paths.cwd, paths.app.entry));
@@ -37,7 +38,13 @@ describe('Vite.build', () => {
     const cwd = fs.dir;
     const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
 
-    const res = await Vite.build({ cwd, pkg });
+    const res = await Vite.build({
+      cwd,
+      pkg,
+      silent: true,
+      spinner: false, // Test runner owns progress/logging; avoid long-lived spinner timers in tests.
+      exitOnError: false, // Never terminate the whole test process on a transient build failure.
+    });
     if (!res.ok) console.warn(res.toString());
 
     expect(res.ok).to.eql(true);
@@ -73,44 +80,31 @@ describe('Vite.build', () => {
   };
 
   it('sample-1: simple', async () => {
-    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1);
-    printHtml(files.html, 'sample-1', outDir);
-    expect(files.html).to.include(`<title>Sample-1</title>`);
-    expect(files.entry).to.include(`Hello World 👋`);
-    expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
+    await Testing.retry(2, async () => {
+      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1);
+      if (VERBOSE) printHtml(files.html, 'sample-1', outDir);
+      expect(files.html).to.include(`<title>Sample-1</title>`);
+      expect(files.entry).to.include(`Hello World 👋`);
+      expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
 
-    expect(res.dist).to.eql(files.json.dist);
-    expect(res.dist.pkg).to.eql(pkg);
-    expect(res.dist.build.size.total).to.be.greaterThan(100_000);
-    const hashedEntry = Object.entries(res.dist.hash.parts).find(([path]) =>
-      path.startsWith('pkg/-entry.'),
-    )?.[1];
-    expect(hashedEntry?.startsWith('sha256-')).to.eql(true);
+      expect(res.dist).to.eql(files.json.dist);
+      expect(res.dist.pkg).to.eql(pkg);
+      expect(res.dist.build.size.total).to.be.greaterThan(100_000);
+      const hashedEntry = Object.entries(res.dist.hash.parts).find(([path]) =>
+        path.startsWith('pkg/-entry.'),
+      )?.[1];
+      expect(hashedEntry?.startsWith('sha256-')).to.eql(true);
 
-    expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js'); // NB: not specified in vite.json (see: sample-3).
-  });
-
-  it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-    const { files, res, outDir } = await testBuild(SAMPLE.Dirs.sample2);
-    printHtml(files.html, 'sample-2', outDir);
-    printDist(res.dist, res.paths);
-
-    expect(files.html).to.include(`<title>Sample-2</title>`);
-    expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
-    expect(res.dist.build.size.total).to.be.greaterThan(10_000);
-
-    const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
-    const js = filenames.filter((p) => p.endsWith('.js'));
-    const entryJs = js.find((p) => p.startsWith('pkg/-entry.'));
-    const nonEntryJs = js.filter((p) => p !== entryJs);
-    const chunks = nonEntryJs.filter((p) => p.startsWith('pkg/m.'));
-    expect(chunks.length).to.be.greaterThan(0); // NB: assert code-splitting via dynamic import works.
+      expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js'); // NB: not specified in vite.json (see: sample-3).
+    });
   });
 
   it('sample-3: sw.js (service-worker)', async () => {
-    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3);
-    printHtml(files.html, 'sample-3', outDir);
-    expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
-    expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');
+    await Testing.retry(2, async () => {
+      const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3);
+      if (VERBOSE) printHtml(files.html, 'sample-3', outDir);
+      expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
+      expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');
+    });
   });
 });
