@@ -30,6 +30,12 @@ const slots = {
 };
 ```
 
+Canonical “sample code” entrypoint for this composition shape (debug harness call-site):
+- `./-spec/-ui.Root.tsx`
+
+Harness spec entry (loads the demo and debug panel wiring around the root):
+- `./-spec/-SPEC.tsx`
+
 ## Future ergonomic target (not implemented yet)
 
 ```tsx
