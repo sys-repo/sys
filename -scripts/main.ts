@@ -7,7 +7,6 @@ import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
 import { main as prepCi } from './Task.-prep.ci.ts';
 import { main as prep } from './Task.-prep.ts';
-import { main as setupLocal } from './Task.-setup.local.ts';
 import { main as test } from './Task.-test.ts';
 
 type T = {
@@ -20,7 +19,6 @@ type T = {
   bump?: boolean;
   prep?: boolean;
   'prep-ci'?: boolean;
-  'setup-local'?: boolean;
 
   tmpl?: boolean;
 };
@@ -37,7 +35,6 @@ if (args.lint) await lint();
 if (args.bump) await bump();
 if (args.prep) await prep();
 if (args['prep-ci']) await prepCi();
-if (args['setup-local']) await setupLocal();
 
 // Finish up.
 Deno.exit(0);

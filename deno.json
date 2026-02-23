@@ -12,7 +12,6 @@
     "prep": "deno task prep-imports   &&   deno task prep-ci",
     "prep-imports": "deno run -P=dev ./-scripts/main.ts --prep",
     "prep-ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
-    "setup-local": "deno run -P=dev ./-scripts/main.ts --setup-local",
 
     "bump": "deno run -P=ci ./-scripts/main.ts --bump",
 
