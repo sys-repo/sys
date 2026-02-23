@@ -1,9 +1,19 @@
 import React from 'react';
-import { describe, expect, it } from '../../../-test.ts';
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  DomMock,
+  expect,
+  it,
+  TestReact,
+} from '../../../-test.ts';
 
 import { A, Anchor } from '../mod.ts';
 
 describe('Anchor', () => {
+  DomMock.init({ beforeAll, afterAll });
+
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
     expect(m.A).to.equal(A);
@@ -17,45 +27,28 @@ describe('Anchor', () => {
       expect(res).to.eql('plain text');
     });
 
-    it('hardens _blank links with noopener noreferrer', () => {
-      const el = asElement(A({ href: 'https://example.com', target: '_blank', children: 'link' }));
-      expect(el.props.target).to.eql('_blank');
-      expect(el.props.rel).to.eql('noopener noreferrer');
-    });
+    it('normalizes rel behavior across rendered anchor cases', async () => {
+      const Test: React.FC = () =>
+        React.createElement(
+          'div',
+          undefined,
+          React.createElement(A, { href: 'https://example.com/a', target: '_blank' }, 'a'),
+          React.createElement(
+            A,
+            { href: 'https://example.com/b', target: '_blank', rel: 'nofollow noopener' },
+            'b',
+          ),
+          React.createElement(A, { href: 'https://example.com/c', target: '_self', rel: 'nofollow' }, 'c'),
+        );
 
-    it('merges and dedupes caller rel for _blank links', () => {
-      const el = asElement(
-        A({
-          href: 'https://example.com',
-          target: '_blank',
-          rel: 'nofollow noopener',
-          children: 'link',
-        }),
-      );
-      expect(el.props.rel).to.eql('nofollow noopener noreferrer');
-    });
-
-    it('preserves caller rel when target is not _blank', () => {
-      const el = asElement(
-        A({
-          href: 'https://example.com',
-          target: '_self',
-          rel: 'nofollow',
-          children: 'link',
-        }),
-      );
-      expect(el.props.rel).to.eql('nofollow');
+      const res = await TestReact.render(React.createElement(Test), { strict: false });
+      const list = [...res.container.querySelectorAll('a')] as HTMLAnchorElement[];
+      expect(list.length).to.eql(3);
+      expect(list[0].getAttribute('target')).to.eql('_blank');
+      expect(list[0].getAttribute('rel')).to.eql('noopener noreferrer');
+      expect(list[1].getAttribute('rel')).to.eql('nofollow noopener noreferrer');
+      expect(list[2].getAttribute('rel')).to.eql('nofollow');
+      res.dispose();
     });
   });
 });
-
-/**
- * Helpers
- */
-function asElement(
-  node: React.ReactNode | Promise<React.ReactNode>,
-): React.ReactElement<{ target?: string; rel?: string }> {
-  expect(node instanceof Promise).to.eql(false);
-  expect(React.isValidElement(node)).to.eql(true);
-  return node as React.ReactElement<{ target?: string; rel?: string }>;
-}

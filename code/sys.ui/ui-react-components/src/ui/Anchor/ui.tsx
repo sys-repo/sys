@@ -1,8 +1,15 @@
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, usePointer } from './common.ts';
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
-  if (!props.href) return props.children;
+  const href = props.href;
+  if (!href) return props.children;
+  return <AnchorLink {...props} href={href} />;
+};
 
+type AnchorLinkProps = t.Anchor.Props & { href: string };
+
+const AnchorLink: t.FC<AnchorLinkProps> = (props) => {
+  const pointer = usePointer();
   const theme = Color.theme(props.theme);
   const { href, title, tabIndex, children, style } = props;
   const target = props.target ?? D.target;
@@ -14,6 +21,7 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
       textDecoration: `underline dashed ${Color.alpha(theme.fg, 0.2)}`,
       textUnderlineOffset: '3px',
       transition: 'text-decoration-color 100ms ease',
+      transform: `translateY(${pointer.is.down ? 1 : 0}px)`,
       ':hover': { textDecoration: 'underline solid currentColor' },
       ':focus-visible': { textDecoration: 'underline solid currentColor' },
     }),
@@ -29,6 +37,7 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
       download={download}
       tabIndex={tabIndex}
       aria-disabled={props['aria-disabled']}
+      {...pointer.handlers}
       onClick={props.onClick}
       onMouseDown={props.onMouseDown}
       onMouseUp={props.onMouseUp}
