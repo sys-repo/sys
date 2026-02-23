@@ -3,6 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
+import { SampleButtons } from './-ui.Buttons.Samples.tsx';
 
 type P = t.KeyValueProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
@@ -140,20 +141,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
-  const itemsButton = (kind?: SampleKind, label?: string) => {
-    if (!label) label = `sample: ${kind}`;
-    return (
-      <Button
-        block
-        label={label}
-        onClick={() => {
-          p.items.value = SAMPLE.items(kind);
-          p.sample.value = kind;
-        }}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -182,11 +169,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />
       <div className={Styles.title.class}>{'Items:'}</div>
-      {itemsButton(undefined, '(none)')}
-      {itemsButton('simple')}
-      {itemsButton('comprehensive')}
-      {itemsButton('opacity')}
-      {itemsButton('links')}
+      <SampleButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 25 }} />
       <Button
         block
