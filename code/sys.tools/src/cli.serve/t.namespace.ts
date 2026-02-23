@@ -16,6 +16,7 @@ export namespace ServeTool {
     | 'serve:start/local'
     | 'serve:start/network'
     | 'open'
+    | 'reload'
     | 'back'
     | 'exit';
   export type MenuOption = { name: string; value: Command };

@@ -1,4 +1,4 @@
-import { type t, c, Cli, D, Http, Net, Open, Str } from '../common.ts';
+import { type t, c, Cli, D, Fmt, Http, Net, Open, Str } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
 import { route } from './u.serve.route.ts';
 
@@ -33,9 +33,10 @@ export async function startServing(
    */
   const runOpenPromptLoop = (() => {
     const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
-    type OpenValue = OpenMenuPick | { cmd: 'back' };
+    type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
     let didBack = false;
     let lastSelection: OpenValue | undefined;
+    let notice: string | undefined;
 
     const toPath = (value: OpenValue): string => {
       if (value.cmd !== 'open') return '';
@@ -46,6 +47,8 @@ export async function startServing(
       const path = toPath(value);
       return `${baseUrl}/${path}`;
     };
+
+    const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
     function renderHeader() {
       const str = Str.builder().blank();
@@ -64,18 +67,40 @@ export async function startServing(
         }
       }
 
+      if (notice) str.line(`  ${notice}`);
+
       return String(str.blank());
     }
 
     return async (): Promise<ServeResult> => {
-      const baseMenu = await OpenTargets.menuOptions(location);
+      const loadOpenMenu = async (text: string) => {
+        const spinner = Cli.spinner(Fmt.spinnerText(text));
+        spinner.start();
+        try {
+          return await OpenTargets.menuOptions(location);
+        } finally {
+          spinner.stop();
+        }
+      };
+
+      let openMenu = await loadOpenMenu('indexing static targets...');
+
+      const hasOpenPath = (path: string) => openMenu.some((item) => item.value.path === path);
+      const syncLastSelection = () => {
+        if (!lastSelection || lastSelection.cmd !== 'open') return;
+        if (!hasOpenPath(lastSelection.path)) lastSelection = undefined;
+      };
 
       async function promptOnce(): Promise<OpenValue> {
-        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } }];
+        const options = [
+          ...openMenu,
+          { name: c.dim(c.gray('  ↻ reload')), value: { cmd: 'reload' } },
+          { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } },
+        ];
         console.clear();
         console.info(renderHeader());
         return (await Cli.Input.Select.prompt({
-          message: 'Open',
+          message: 'HTTP Static',
           options,
           default: lastSelection,
           hideDefault: true,
@@ -86,10 +111,21 @@ export async function startServing(
       try {
         while (true) {
           const answer = await promptOnce();
+          if (answer.cmd === 'reload') {
+            try {
+              openMenu = await loadOpenMenu('reloading static targets...');
+              syncLastSelection();
+              notice = undefined;
+            } catch (error) {
+              notice = c.red(`reload failed: ${errorMessage(error)}`);
+            }
+            continue;
+          }
           if (answer.cmd === 'back') {
             didBack = true;
             break;
           }
+          notice = undefined;
           lastSelection = answer;
           Open.invokeDetached(cwd, toUrl(answer));
         }
