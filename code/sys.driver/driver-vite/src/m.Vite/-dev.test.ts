@@ -70,4 +70,34 @@ describe('Vite.dev', () => {
       }
     });
   });
+
+  it('falls forward to the next port when requested port is occupied', async () => {
+    await Testing.retry(2, async () => {
+      const fs = SAMPLE.fs('Vite.dev-port-fallback');
+      await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
+
+      const cwd = fs.dir;
+      const requestedPort = Testing.randomPort();
+      const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
+      let server: t.ViteProcess | undefined;
+
+      try {
+        server = await Vite.dev({ cwd, port: requestedPort, silent: true });
+
+        const actualPort = Number(new URL(server.url).port);
+        expect(actualPort).to.not.eql(requestedPort);
+        expect(server.port).to.eql(actualPort);
+
+        await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
+        const res = await fetch(server.url);
+        const html = await res.text();
+
+        expect(res.status).to.eql(200);
+        expect(html).to.include(`@vite/client`);
+      } finally {
+        await server?.dispose();
+        blocker.close();
+      }
+    });
+  });
 });
