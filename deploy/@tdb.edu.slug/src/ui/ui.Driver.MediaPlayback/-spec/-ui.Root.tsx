@@ -1,13 +1,8 @@
 import React from 'react';
 import { createSlots } from '../../ui.Driver.Tree.shared/-spec.slots.shared/mod.ts';
+import { MediaPlaybackDriver } from '../mod.ts';
 import type { DebugSignals } from './-u.debug.ts';
 import { BackButton, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-import {
-  toCurrentPayload,
-  toCurrentPosition,
-  toPlaybackData,
-  usePlaybackRuntime,
-} from './-u.playback.runtime.ts';
 import { NavFooter } from './-ui.NavFooter.tsx';
 import { type t, Color, css, Signal, useEffectController } from './common.ts';
 
@@ -40,30 +35,16 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     back: css({ Absolute: [-35, null, null, -35] }),
   };
 
-  const media = toPlaybackData(content.data);
-  const sessionKey = content.request?.id ?? content.key;
-
-  const runtime = usePlaybackRuntime({
-    playback: media?.playback,
-    assets: media?.assets,
-    sessionKey,
+  const head = MediaPlaybackDriver.head.useHead({
+    content,
+    selection,
+    theme: theme.name,
+    muted: v.muted,
+    renderNavFooter: ({ runtime, theme }) => <NavFooter theme={theme} runtime={runtime} />,
   });
-
-  /**
-   * Project persisted mute intent (debug signal) into both video decks.
-   * Keep this bridge centralized so controls stay intent-only and runtime state stays in sync.
-   */
-  React.useEffect(() => {
-    const next = v.muted;
-    if (runtime.decks.A.props.muted.value !== next) runtime.decks.A.props.muted.value = next;
-    if (runtime.decks.B.props.muted.value !== next) runtime.decks.B.props.muted.value = next;
-  }, [runtime.decks, v.muted]);
-
-  const playbackPosition = toCurrentPosition(runtime.snapshot);
-  const playbackPayload = toCurrentPayload({
-    playback: media?.playback,
-    snapshot: runtime.snapshot,
-  });
+  const runtime = head.runtime;
+  const playbackPosition = head.derived.position;
+  const playbackPayload = head.derived.payload;
 
   React.useEffect(() => {
     if (!props.runtime) return;
@@ -73,7 +54,6 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     };
   }, [props.runtime, runtime]);
 
-  const aux = media && <NavFooter theme={theme.name} runtime={runtime} />;
   const baseSlots = createSlots({
     content,
     selection,
@@ -83,7 +63,8 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
   });
   const slots: t.TreeHostSlots = {
     ...baseSlots,
-    nav: { ...(baseSlots.nav ?? {}), footer: aux },
+    ...head.slotsPatch,
+    nav: { ...(baseSlots.nav ?? {}), ...(head.slotsPatch.nav ?? {}) },
   };
 
   return (

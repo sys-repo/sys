@@ -7,4 +7,4 @@ export type * from '../../common.t.ts';
  * Test, Spec types (internal).
  */
 export type * from './-SPEC.Debug.tsx';
-export type { DevPlaybackRuntime } from './-u.playback.runtime.ts';
+export type { DevPlaybackRuntime } from '../use.head.ts';
