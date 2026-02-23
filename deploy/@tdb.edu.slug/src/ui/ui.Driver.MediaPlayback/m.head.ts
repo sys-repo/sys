@@ -5,6 +5,9 @@ import { shouldInitPlayback, toCurrentPayload, toCurrentPosition, toPlaybackData
 export const MediaPlaybackHead: t.MediaPlaybackDriver.HeadLib = {
   useHead,
   usePlaybackRuntime,
+  should: {
+    initPlayback: shouldInitPlayback,
+  },
   toPlaybackData,
   toCurrentPosition,
   toCurrentPayload,

@@ -22,12 +22,7 @@ export declare namespace MediaPlaybackDriver {
       readonly assets?: readonly t.SpecTimelineAsset[];
       readonly sessionKey?: string;
     }) => DevPlaybackRuntime;
-    readonly shouldInitPlayback: (args: {
-      readonly hasTimeline: boolean;
-      readonly hasPlayback: boolean;
-      readonly initToken: string;
-      readonly lastInitToken: string;
-    }) => boolean;
+    readonly should: HeadShouldLib;
     readonly toPlaybackData: (input: unknown) => HeadMediaData | undefined;
     readonly toCurrentPosition: (snapshot?: t.TimecodeState.Playback.Snapshot) => string | undefined;
     readonly toCurrentPayload: (args: {
@@ -46,6 +41,15 @@ export declare namespace MediaPlaybackDriver {
       readonly theme: t.CommonTheme;
       readonly media: HeadMediaData;
     }) => t.ReactNode;
+  };
+
+  export type HeadShouldLib = {
+    readonly initPlayback: (args: {
+      readonly hasTimeline: boolean;
+      readonly hasPlayback: boolean;
+      readonly initToken: string;
+      readonly lastInitToken: string;
+    }) => boolean;
   };
 
   export type HeadMediaData = {
