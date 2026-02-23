@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useKeyboard } from '@sys/ui-react-devharness';
-import { type t, Color, css, pkg } from './common.ts';
 import { KeyValue } from '../ui/KeyValue/mod.ts';
+import { type t, Color, css, pkg } from './common.ts';
 
 export type SplashProps = {
   theme?: t.CommonTheme;
@@ -18,23 +18,13 @@ export const Splash: React.FC<SplashProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      fontFamily: 'sans-serif',
-      display: 'grid',
-      placeItems: 'center',
-    }),
-    link: css({
-      color: 'inherit',
-      textDecoration: 'none',
-      display: 'block',
-      cursor: 'pointer',
-    }),
+    base: css({ color: theme.fg, fontFamily: 'sans-serif', display: 'grid', placeItems: 'center' }),
+    link: css({ color: 'inherit', textDecoration: 'none', display: 'block', cursor: 'pointer' }),
     body: css({
       display: 'grid',
       gridAutoFlow: 'row',
       gridAutoRows: 'min-content',
-      rowGap: 5,
+      rowGap: 9,
       marginBottom: 30,
     }),
     title: css({
@@ -62,11 +52,16 @@ export const Splash: React.FC<SplashProps> = (props) => {
       marginRight: 2,
       textDecoration: 'none',
     }),
-    info: {
-      base: css({ position: 'relative', marginLeft: 19 }),
-      traceline: css({
-        Absolute: [-55, null, -80, 0],
+    info: css({ position: 'relative', marginLeft: 19 }),
+    traceline: {
+      y: css({
         width: 1,
+        Absolute: [-55, null, -80, 0],
+        backgroundColor: Color.alpha(theme.fg, 0.03),
+      }),
+      x: css({
+        height: 1,
+        Absolute: [-11.5, -30, null, -30],
         backgroundColor: Color.alpha(theme.fg, 0.03),
       }),
     },
@@ -80,8 +75,9 @@ export const Splash: React.FC<SplashProps> = (props) => {
             <span className={styles.qs.class}>{'?'}</span>
             <span className={styles.titleDev.class}>{'dev'}</span>
           </div>
-          <div className={styles.info.base.class}>
-            <div className={styles.info.traceline.class} />
+          <div className={styles.info.class}>
+            <div className={styles.traceline.y.class} />
+            <div className={styles.traceline.x.class} />
             <KeyValue.UI
               theme={theme.name}
               items={[
