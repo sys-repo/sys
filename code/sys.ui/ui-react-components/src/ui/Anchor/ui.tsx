@@ -1,13 +1,10 @@
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
-  const rel = toRel(props);
   const theme = Color.theme(props.theme);
   const {
     href,
-    target,
     title,
-    download,
     tabIndex,
     children,
     onClick,
@@ -17,6 +14,9 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
     onKeyUp,
     style,
   } = props;
+  const target = props.target ?? D.target;
+  const download = props.download ?? D.download;
+  const rel = toRel({ ...props, target });
   const styles = {
     base: css({
       color: 'inherit',

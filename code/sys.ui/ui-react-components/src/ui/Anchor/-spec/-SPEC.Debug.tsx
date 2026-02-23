@@ -3,10 +3,12 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'theme' | 'href'>;
+type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download'>;
 const defaults: Storage = {
   theme: 'Dark',
   href: 'https://example.com',
+  target: D.target,
+  download: D.download,
 };
 
 /**
@@ -26,6 +28,8 @@ export async function createDebugSignals() {
   const props = {
     theme: s(snap.theme),
     href: s(snap.href),
+    target: s(snap.target),
+    download: s(snap.download === true),
   };
   const p = props;
   const api = {
@@ -46,6 +50,8 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.href = p.href.value;
+      d.target = p.target.value;
+      d.download = p.download.value ? true : undefined;
     });
   });
 
@@ -100,6 +106,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
             '#hash',
           ]);
         }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => {
+          return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
+        }}
+        onClick={() => {
+          Signal.cycle<P['target']>(p.target, [undefined, '_blank', '_self', '_parent', '_top']);
+        }}
+      />
+      <Button
+        block
+        label={() => `download: ${p.download.value} ← default: ${D.download}`}
+        onClick={() => Signal.toggle(p.download)}
       />
 
       <hr />

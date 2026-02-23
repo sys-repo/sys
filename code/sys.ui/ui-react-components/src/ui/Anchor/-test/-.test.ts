@@ -11,34 +11,46 @@ describe('Anchor', () => {
     expect(m.Anchor.UI).to.equal(A);
   });
 
-  it('hardens _blank links with noopener noreferrer', async () => {
-    const el = asElement(Anchor.UI({ href: 'https://example.com', target: '_blank', children: 'link' }));
-    expect(el.props.target).to.eql('_blank');
-    expect(el.props.rel).to.eql('noopener noreferrer');
-  });
+  describe('element', () => {
+    it('hardens _blank links with noopener noreferrer', () => {
+      const el = asElement(A({ href: 'https://example.com', target: '_blank', children: 'link' }));
+      expect(el.props.target).to.eql('_blank');
+      expect(el.props.rel).to.eql('noopener noreferrer');
+    });
 
-  it('merges and dedupes caller rel for _blank links', () => {
-    const el = asElement(Anchor.UI({
-      href: 'https://example.com',
-      target: '_blank',
-      rel: 'nofollow noopener',
-      children: 'link',
-    }));
-    expect(el.props.rel).to.eql('nofollow noopener noreferrer');
-  });
+    it('merges and dedupes caller rel for _blank links', () => {
+      const el = asElement(
+        A({
+          href: 'https://example.com',
+          target: '_blank',
+          rel: 'nofollow noopener',
+          children: 'link',
+        }),
+      );
+      expect(el.props.rel).to.eql('nofollow noopener noreferrer');
+    });
 
-  it('preserves caller rel when target is not _blank', () => {
-    const el = asElement(Anchor.UI({
-      href: 'https://example.com',
-      target: '_self',
-      rel: 'nofollow',
-      children: 'link',
-    }));
-    expect(el.props.rel).to.eql('nofollow');
+    it('preserves caller rel when target is not _blank', () => {
+      const el = asElement(
+        A({
+          href: 'https://example.com',
+          target: '_self',
+          rel: 'nofollow',
+          children: 'link',
+        }),
+      );
+      expect(el.props.rel).to.eql('nofollow');
+    });
   });
 });
 
-function asElement(node: React.ReactNode): React.ReactElement {
+/**
+ * Helpers
+ */
+function asElement(
+  node: React.ReactNode | Promise<React.ReactNode>,
+): React.ReactElement<{ target?: string; rel?: string }> {
+  expect(node instanceof Promise).to.eql(false);
   expect(React.isValidElement(node)).to.eql(true);
-  return node as React.ReactElement;
+  return node as React.ReactElement<{ target?: string; rel?: string }>;
 }
