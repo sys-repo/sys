@@ -88,6 +88,13 @@ function links(): t.KeyValueItem[] {
     },
     {
       kind: 'row',
+      k: 'display: trim-http',
+      v: 'https://example.com/trim-me',
+      href: { infer: true, display: 'trim-http' },
+    },
+    { kind: 'hr', y: [15, 15] },
+    {
+      kind: 'row',
       k: 'href: true',
       v: 'https://example.com/infer',
       href: true,
@@ -98,13 +105,6 @@ function links(): t.KeyValueItem[] {
       k: 'href: props-only',
       v: 'https://example.com/inline',
       href: { infer: true, open: 'inline' },
-      mono,
-    },
-    {
-      kind: 'row',
-      k: 'display: trim-http',
-      v: 'https://example.com/trim-me',
-      href: { infer: true, display: 'trim-http' },
       mono,
     },
     {
@@ -124,6 +124,7 @@ function links(): t.KeyValueItem[] {
       k: 'https://example.com/key',
       v: 'href: { k: true }',
       href: { k: true },
+      mono,
     },
     {
       kind: 'row',
@@ -134,7 +135,7 @@ function links(): t.KeyValueItem[] {
         v: { href: 'https://example.com/right', open: 'inline' },
       },
     },
-    { kind: 'hr', y: [16, 8] },
+    { kind: 'hr', y: [35, 5] },
     { kind: 'title', v: 'Safety (unsafe href ignored)' },
     {
       kind: 'row',
