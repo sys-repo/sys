@@ -3,10 +3,10 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'theme' | 'href'>;
 const defaults: Storage = {
-  debug: false,
   theme: 'Dark',
+  href: 'https://example.com',
 };
 
 /**
@@ -24,8 +24,8 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   const props = {
-    debug: s(snap.debug),
     theme: s(snap.theme),
+    href: s(snap.href),
   };
   const p = props;
   const api = {
@@ -45,7 +45,7 @@ export async function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
-      d.debug = p.debug.value;
+      d.href = p.href.value;
     });
   });
 
@@ -89,9 +89,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `href: ${v.href ?? '(none)'}`}
+        onClick={() => {
+          Signal.cycle<P['href']>(p.href, [
+            undefined,
+            'https://example.com',
+            '/relative/path',
+            '#hash',
+          ]);
+        }}
+      />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <div className={Styles.title.class}>{'Debug'}</div>
+
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
