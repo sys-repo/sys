@@ -1,10 +1,12 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, A, Color, css, D } from './common.ts';
 import { isAnchorElement, resolveHref, toAnchorStyle, toDisplayLabel } from './u.href.ts';
 import { toEllipsis, toFont } from './u.ts';
-import { Anchor } from './ui.Anchor.tsx';
 
-type Base = Pick<t.KeyValueProps, 'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size' | 'enabled'>;
+type Base = Pick<
+  t.KeyValueProps,
+  'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size' | 'enabled'
+>;
 export type CellProps = Base & {
   disabledOpacity?: t.Percent;
   layout: t.KeyValueLayout;
@@ -70,14 +72,17 @@ export const Cell: React.FC<CellProps> = (props) => {
         : {}),
     }),
     asKey: css({ fontFamily: 'sans-serif' }),
-    anchor: css(toAnchorStyle({ truncate, textChild: isTextChild, theme })),
+    anchor: css(toAnchorStyle({ truncate, isTextChild })),
   };
 
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
-  const content = (
-    <Anchor link={link} style={styles.anchor}>
-      {toDisplayLabel(resolvedHref, child)}
-    </Anchor>
+  const label = toDisplayLabel(resolvedHref, child);
+  const content = link ? (
+    <A href={link.href} target={link.target} rel={link.rel} style={styles.anchor}>
+      {label}
+    </A>
+  ) : (
+    label
   );
 
   return <div className={className}>{content}</div>;

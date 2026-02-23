@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { type t, Color, Is, Str, Url } from './common.ts';
+import { type t, Is, Str, Url } from './common.ts';
 import { toEllipsis } from './u.ts';
 
 type Side = 'k' | 'v';
@@ -17,30 +17,10 @@ export function isAnchorElement(node?: t.ReactNode): boolean {
   return isValidElement(node) && Is.str(node.type) ? node.type === 'a' : false;
 }
 
-export function toAnchorStyle(args: {
-  truncate?: boolean;
-  textChild?: boolean;
-  theme: t.ColorTheme;
-}): t.CssInput {
-  const { truncate, textChild, theme } = args;
-  const base = {
-    color: 'inherit',
-    textDecoration: `underline dashed ${Color.alpha(theme.fg, 0.2)}`,
-    textUnderlineOffset: '3px',
-    transition: 'text-decoration-color 100ms ease',
-    ':hover': { textDecoration: `underline solid currentColor` },
-    ':focus-visible': { textDecoration: `underline solid currentColor` },
-  };
-  if (!(truncate && textChild)) {
-    return base;
-  }
-
-  return {
-    ...base,
-    display: 'block',
-    minWidth: 0,
-    ...toEllipsis(true),
-  };
+export function toAnchorStyle(args: { truncate?: boolean; isTextChild?: boolean }): t.CssInput {
+  const { truncate, isTextChild } = args;
+  if (!(truncate && isTextChild)) return {};
+  return { display: 'block', minWidth: 0, ...toEllipsis(true) };
 }
 
 export function resolveHref(input: {
@@ -69,7 +49,7 @@ export function resolveHref(input: {
     href: normalized.href,
     target: '_blank',
     display,
-    rel: mergeRel(normalized.rel, 'noopener noreferrer'),
+    rel: normalized.rel,
   };
 }
 
@@ -144,11 +124,4 @@ export function isSafeHref(input?: string): input is t.StringUri {
 
   const protocol = parsed.toURL().protocol.toLowerCase();
   return protocol === 'http:' || protocol === 'https:';
-}
-
-function mergeRel(left: string = '', right: string = ''): string | undefined {
-  const values = `${left} ${right}`.trim().split(/\s+/).filter(Boolean);
-
-  if (values.length === 0) return;
-  return [...new Set(values)].join(' ');
 }
