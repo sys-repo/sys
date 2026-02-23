@@ -4,4 +4,4 @@ export {
   toCurrentPosition,
   toPlaybackData,
 } from '../u.head.ts';
-export { type DevPlaybackRuntime, usePlaybackRuntime } from '../use.head.ts';
+export { type PlaybackRuntime, usePlaybackRuntime } from '../use.head.ts';

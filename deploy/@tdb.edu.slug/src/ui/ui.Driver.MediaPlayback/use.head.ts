@@ -11,21 +11,13 @@ import {
 
 type MediaData = ReturnType<typeof toPlaybackData>;
 type HeadView = t.MediaPlaybackDriver.HeadView;
+type Runtime = t.MediaPlaybackDriver.PlaybackRuntime;
 
 export function usePlaybackRuntime(args: {
   readonly playback?: t.SpecTimelineManifest;
   readonly assets?: readonly t.SpecTimelineAsset[];
   readonly sessionKey?: string;
-}): {
-  readonly decks: t.TimecodePlaybackDriver.VideoDecks;
-  readonly controller: t.TimecodePlaybackDriver.TimelineController;
-  readonly snapshot: t.TimecodeState.Playback.Snapshot;
-  readonly timeline: ReturnType<typeof PlaybackDriver.Util.usePlaybackTimeline>;
-  readonly bundle?: t.SpecTimelineBundle;
-  readonly currentBeatIndex: t.TimecodeState.Playback.BeatIndex;
-  readonly currentBeatMedia?: ReturnType<t.TimecodePlaybackDriver.ResolveBeatMedia>;
-  readonly currentMediaSrc?: string;
-} {
+}): Runtime {
   const timeline = PlaybackDriver.Util.usePlaybackTimeline({
     spec: args.playback
       ? { composition: args.playback.composition, beats: args.playback.beats }
@@ -83,7 +75,7 @@ export function usePlaybackRuntime(args: {
     currentMediaSrc: currentBeatMedia?.src,
   } as const;
 }
-export type DevPlaybackRuntime = ReturnType<typeof usePlaybackRuntime>;
+export type PlaybackRuntime = t.MediaPlaybackDriver.PlaybackRuntime;
 
 export function useHead(args: {
   readonly content: t.TreeContentController.State;
@@ -91,7 +83,7 @@ export function useHead(args: {
   readonly theme: t.CommonTheme;
   readonly muted?: boolean;
   readonly renderNavFooter?: (args: {
-    readonly runtime: DevPlaybackRuntime;
+    readonly runtime: Runtime;
     readonly theme: t.CommonTheme;
     readonly media: NonNullable<MediaData>;
   }) => React.ReactNode;

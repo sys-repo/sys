@@ -2,7 +2,7 @@ import {
   createDebugSignals as createBaseDebugSignals,
   type DebugSignals as BaseDebugSignals,
 } from '../../ui.Driver.TreeContent/-spec/-SPEC.Debug.tsx';
-import type { DevPlaybackRuntime } from './-u.playback.runtime.ts';
+import type { PlaybackRuntime } from './-u.playback.runtime.ts';
 import type { t } from './common.ts';
 import { D, LocalStorage, Signal } from './common.ts';
 
@@ -14,7 +14,7 @@ const defaults: Storage = { muted: DEFAULT_MUTED };
 
 export type DebugSignals = Omit<P, 'props'> & {
   readonly props: P['props'] & {
-    readonly runtime: t.Signal<DevPlaybackRuntime | undefined>;
+    readonly runtime: t.Signal<PlaybackRuntime | undefined>;
     readonly muted: t.Signal<boolean>;
   };
 };
@@ -26,7 +26,7 @@ export async function createDebugSignals(args?: CreateArgs): Promise<DebugSignal
   const snap = store.current;
 
   const localProps = {
-    runtime: s<DevPlaybackRuntime | undefined>(),
+    runtime: s<PlaybackRuntime | undefined>(),
     muted: s<boolean>(snap.muted ?? defaults.muted),
   };
 

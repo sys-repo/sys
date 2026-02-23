@@ -8,7 +8,7 @@ import { type t, Color, css, Signal, useEffectController } from './common.ts';
 
 export type SpecRootProps = {
   debug: DebugSignals;
-  runtime?: t.SignalOptional<t.DevPlaybackRuntime | undefined>;
+  runtime?: t.SignalOptional<t.PlaybackRuntime | undefined>;
   style?: t.CssValue;
 };
 

@@ -8,7 +8,7 @@ import type { DebugSignals } from './-u.debug.ts';
 
 export type HeadDebugProps = {
   debug: DebugSignals;
-  runtime?: t.SignalOptional<t.DevPlaybackRuntime | undefined>;
+  runtime?: t.SignalOptional<t.PlaybackRuntime | undefined>;
   style?: t.CssInput;
 };
 

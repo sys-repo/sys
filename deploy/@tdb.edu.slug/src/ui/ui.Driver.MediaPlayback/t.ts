@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type { DevPlaybackRuntime } from './use.head.ts';
 
 /**
  * MediaPlaybackDriver.
@@ -21,7 +20,7 @@ export declare namespace MediaPlaybackDriver {
       readonly playback?: t.SpecTimelineManifest;
       readonly assets?: readonly t.SpecTimelineAsset[];
       readonly sessionKey?: string;
-    }) => DevPlaybackRuntime;
+    }) => PlaybackRuntime;
     readonly should: HeadShouldLib;
     readonly toPlaybackData: (input: unknown) => HeadMediaData | undefined;
     readonly toCurrentPosition: (snapshot?: t.TimecodeState.Playback.Snapshot) => string | undefined;
@@ -37,7 +36,7 @@ export declare namespace MediaPlaybackDriver {
     readonly theme: t.CommonTheme;
     readonly muted?: boolean;
     readonly renderNavFooter?: (args: {
-      readonly runtime: DevPlaybackRuntime;
+      readonly runtime: PlaybackRuntime;
       readonly theme: t.CommonTheme;
       readonly media: HeadMediaData;
     }) => t.ReactNode;
@@ -57,10 +56,19 @@ export declare namespace MediaPlaybackDriver {
     readonly assets: readonly t.SpecTimelineAsset[];
   };
 
-  export type DevPlaybackRuntime = import('./use.head.ts').DevPlaybackRuntime;
+  export type PlaybackRuntime = {
+    readonly decks: t.TimecodePlaybackDriver.VideoDecks;
+    readonly controller: t.TimecodePlaybackDriver.TimelineController;
+    readonly snapshot: t.TimecodeState.Playback.Snapshot;
+    readonly timeline: ReturnType<typeof import('./common.ts').PlaybackDriver.Util.usePlaybackTimeline>;
+    readonly bundle?: t.SpecTimelineBundle;
+    readonly currentBeatIndex: t.TimecodeState.Playback.BeatIndex;
+    readonly currentBeatMedia?: ReturnType<t.TimecodePlaybackDriver.ResolveBeatMedia>;
+    readonly currentMediaSrc?: string;
+  };
 
   export type HeadView = {
-    readonly runtime: DevPlaybackRuntime;
+    readonly runtime: PlaybackRuntime;
     readonly derived: {
       readonly media?: HeadMediaData;
       readonly sessionKey?: string;

@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, KeyValue, Player, css } from './common.ts';
 
 export type NavFooterProps = {
-  runtime: t.DevPlaybackRuntime;
+  runtime: t.PlaybackRuntime;
   theme: t.CommonTheme;
 };
 
