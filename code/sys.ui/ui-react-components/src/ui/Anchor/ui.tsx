@@ -1,7 +1,6 @@
-import React from 'react';
-import { type t, Color, css, D, Obj } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 
-export const Uncontrolled: React.FC<t.MyCtrlProps> = (props) => {
+export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const { debug = false } = props;
 
   /**
@@ -10,7 +9,7 @@ export const Uncontrolled: React.FC<t.MyCtrlProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: Color.ruby(0),
       color: theme.fg,
       padding: 10,
     }),

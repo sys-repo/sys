@@ -55,3 +55,4 @@ export type * from './ui/TreeView.Index.Item/t.ts';
 export type * from './ui/TreeView.Index/t.ts';
 export type * from './ui/TreeView/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
+export type * from './ui/Anchor/t.ts';

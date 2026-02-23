@@ -11,6 +11,7 @@ export type * as t from './types.ts';
  * Components:
  */
 export { ActionProbe } from './ui/ActionProbe/mod.ts';
+export { A, Anchor } from './ui/Anchor/mod.ts';
 export { Bullet } from './ui/Bullet/mod.ts';
 export { BulletList } from './ui/BulletList/mod.ts';
 export { Button } from './ui/Button/mod.ts';

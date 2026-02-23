@@ -1,4 +1,4 @@
-import { type t, Color, css, D, KeyValue } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { useScopedStyles } from './use.Styles.ts';
 
 export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {

@@ -15,6 +15,7 @@ export const SpecsComponents = {
   [`${ns}: Buttons.Switch`]: () => import('../ui/Buttons.Switch/-spec/-SPEC.tsx'),
   [`${ns}: Buttons.Icons`]: () => import('../ui/Buttons.Icons/-spec/-SPEC.tsx'),
 
+  [`${ns}: Anchor`]: () => import('../ui/Anchor/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue`]: () => import('../ui/KeyValue/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
 
