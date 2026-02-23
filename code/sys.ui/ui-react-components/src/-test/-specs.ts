@@ -15,6 +15,9 @@ export const SpecsComponents = {
   [`${ns}: Buttons.Switch`]: () => import('../ui/Buttons.Switch/-spec/-SPEC.tsx'),
   [`${ns}: Buttons.Icons`]: () => import('../ui/Buttons.Icons/-spec/-SPEC.tsx'),
 
+  [`${ns}: KeyValue`]: () => import('../ui/KeyValue/-spec/-SPEC.tsx'),
+  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
+
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: BulletList`]: () => import('../ui/BulletList/-spec/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-spec/-SPEC.tsx'),
@@ -24,8 +27,6 @@ export const SpecsComponents = {
   [`${ns}: Icon.Swatches`]: () => import('../ui/Icon.Swatches/-spec/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
-  [`${ns}: KeyValue`]: () => import('../ui/KeyValue/-spec/-SPEC.tsx'),
-  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-spec/-SPEC.tsx'),
