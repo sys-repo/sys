@@ -4,18 +4,7 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   if (!props.href) return props.children;
 
   const theme = Color.theme(props.theme);
-  const {
-    href,
-    title,
-    tabIndex,
-    children,
-    onClick,
-    onMouseDown,
-    onMouseUp,
-    onKeyDown,
-    onKeyUp,
-    style,
-  } = props;
+  const { href, title, tabIndex, children, style } = props;
   const target = props.target ?? D.target;
   const download = props.download ?? D.download;
   const rel = toRel({ ...props, target });
@@ -40,11 +29,11 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
       download={download}
       tabIndex={tabIndex}
       aria-disabled={props['aria-disabled']}
-      onClick={onClick}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onKeyDown={onKeyDown}
-      onKeyUp={onKeyUp}
+      onClick={props.onClick}
+      onMouseDown={props.onMouseDown}
+      onMouseUp={props.onMouseUp}
+      onKeyDown={props.onKeyDown}
+      onKeyUp={props.onKeyUp}
     >
       {children}
     </a>
