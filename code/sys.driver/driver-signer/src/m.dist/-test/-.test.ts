@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { SignEd25519 } from '@sys/crypto/sign/ed25519';
-import { Fs } from '@sys/fs';
+import { Fs, Pkg as FsPkg } from '@sys/fs';
 import { DistSigner } from '../mod.ts';
 
 describe(`DistSigner`, () => {
@@ -51,7 +51,7 @@ describe(`DistSigner`, () => {
       const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
       const signed = await DistSigner.run({
         mode: 'sign',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         privateKey,
       });
@@ -59,7 +59,7 @@ describe(`DistSigner`, () => {
 
       const verified = await DistSigner.run({
         mode: 'verify',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         publicKey,
       });
@@ -75,7 +75,7 @@ describe(`DistSigner`, () => {
       const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
       const signed = await DistSigner.run({
         mode: 'sign',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         privateKey,
       });
@@ -84,7 +84,7 @@ describe(`DistSigner`, () => {
       await Fs.write(artifact, new TextEncoder().encode('{"v":2}\n'), { throw: true });
       const verified = await DistSigner.run({
         mode: 'verify',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         publicKey,
       });
@@ -105,7 +105,7 @@ describe(`DistSigner`, () => {
 
       const signed = await DistSigner.run({
         mode: 'sign',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         privateKey: signer.privateKey,
       });
@@ -113,7 +113,7 @@ describe(`DistSigner`, () => {
 
       const verified = await DistSigner.run({
         mode: 'verify',
-        artifact: { path: artifact, kind: 'dist.json' },
+        artifact: { path: artifact, kind: 'manifest' },
         signature: { path: signature },
         publicKey: wrong.publicKey,
       });
@@ -121,6 +121,48 @@ describe(`DistSigner`, () => {
       if (verified.ok) throw new Error('Expected verification failure with wrong public key.');
       expect(verified.code).to.eql('E_VERIFY');
       expect(verified.stage).to.eql('verify');
+    });
+  });
+
+  describe('dist.json semantics and canonicalization invariants', () => {
+    it('verify → succeeds across dist.json formatting and key-order changes', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
+      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      expect(computed.error).to.eql(undefined);
+
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(dir, 'dist.json.sig');
+      const keys = await SignEd25519.generateKeyPair();
+
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        privateKey: keys.privateKey,
+      });
+      expect(signed.ok).to.eql(true);
+
+      const loaded = await Fs.readJson<Record<string, unknown>>(artifact);
+      expect(loaded.ok).to.eql(true);
+      if (!loaded.ok || !loaded.data) throw new Error('Expected dist.json to load.');
+
+      const src = loaded.data;
+      const reordered = {
+        hash: src.hash,
+        build: src.build,
+        pkg: src.pkg,
+        type: src.type,
+      };
+      await Fs.write(artifact, `${JSON.stringify(reordered, null, 2)}\n`, { throw: true });
+
+      const verified = await DistSigner.run({
+        mode: 'verify',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        publicKey: keys.publicKey,
+      });
+      expect(verified.ok).to.eql(true);
     });
   });
 });

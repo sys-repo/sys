@@ -1,4 +1,4 @@
-import { type t, Err, Fs, SignEd25519 } from './common.ts';
+import { type t, Err, Fs, FsPkg, SignEd25519 } from './common.ts';
 import { fail, ok } from './u.result.ts';
 
 export const run: t.DistSigner.Lib['run'] = async (args) => {
@@ -7,7 +7,7 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
     mode: args.mode,
   };
 
-  const artifact = await readBytes(data, args.artifact.path, 'artifact');
+  const artifact = await readArtifactBytes(data, args.artifact);
   if (!artifact.ok) return artifact.res;
   const artifactBytes = artifact.bytes;
 
@@ -92,6 +92,74 @@ async function readBytes(
     };
   }
   return { ok: true, bytes: file.data };
+}
+
+async function readArtifactBytes(
+  data: t.Signer.ResultData,
+  artifact: t.DistSigner.Artifact,
+): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; res: t.Signer.ResultFail }> {
+  if (artifact.kind === 'dist.json') return await readDistBytes(data, artifact.path);
+  return await readBytes(data, artifact.path, 'artifact');
+}
+
+async function readDistBytes(
+  data: t.Signer.ResultData,
+  path: t.StringPath,
+): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; res: t.Signer.ResultFail }> {
+  const loaded = await FsPkg.Dist.load(path);
+
+  if (!loaded.exists || loaded.kind === 'missing') {
+    return {
+      ok: false,
+      res: fail(
+        data,
+        'read',
+        'E_READ',
+        loaded.error ?? { name: 'Error', message: `dist.json does not exist: ${path}` },
+      ),
+    };
+  }
+
+  if (!loaded.dist || loaded.kind !== 'canonical') {
+    return {
+      ok: false,
+      res: fail(
+        data,
+        'parse',
+        'E_PARSE',
+        loaded.error ?? { name: 'Error', message: `Expected a canonical dist.json: ${loaded.path}` },
+      ),
+    };
+  }
+
+  try {
+    const value = canonicalizeJson(loaded.dist);
+    const json = `${JSON.stringify(value)}\n`;
+    return { ok: true, bytes: new TextEncoder().encode(json) };
+  } catch (cause) {
+    return {
+      ok: false,
+      res: fail(
+        data,
+        'canonicalize',
+        'E_CANONICALIZE',
+        Err.std('Failed to canonicalize dist.json for signing.', { cause }),
+      ),
+    };
+  }
+}
+
+function canonicalizeJson(input: unknown): unknown {
+  if (Array.isArray(input)) return input.map(canonicalizeJson);
+  if (input === null) return null;
+  if (typeof input !== 'object') return input;
+
+  const src = input as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(src).sort()) {
+    out[key] = canonicalizeJson(src[key]);
+  }
+  return out;
 }
 
 function verifyFailed(data: t.Signer.ResultData) {
