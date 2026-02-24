@@ -34,16 +34,20 @@ export namespace DistSigner {
   export type RunArgsSign = RunArgsBase & {
     readonly mode: 'sign';
     readonly signature: Signature;
+    readonly privateKey: CryptoKey;
   };
 
   export type RunArgsVerify = RunArgsBase & {
     readonly mode: 'verify';
     readonly signature: Signature;
+    readonly publicKey: CryptoKey;
   };
 
   export type RunArgsSignVerify = RunArgsBase & {
     readonly mode: 'sign-verify';
     readonly signature: Signature;
+    readonly privateKey: CryptoKey;
+    readonly publicKey: CryptoKey;
   };
 
   export type RunArgs = RunArgsSign | RunArgsVerify | RunArgsSignVerify;
