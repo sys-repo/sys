@@ -54,11 +54,14 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
 const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
   const theme = Color.theme(props.theme);
   const { title, children, style } = props;
+  const opacity = props.disabledOpacity === false
+    ? undefined
+    : (props.disabledOpacity ?? D.disabledOpacity);
   const styles = {
     base: css({
       color: 'inherit',
       textDecoration: 'none',
-      opacity: D.opacity,
+      opacity,
       cursor: 'default',
     }),
   };

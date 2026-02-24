@@ -17,6 +17,7 @@ export declare namespace Anchor {
     download?: boolean | string;
     children?: t.ReactNode;
     enabled?: boolean;
+    disabledOpacity?: t.Percent | false;
 
     /**
      * Accessibility:

@@ -12,7 +12,7 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   enabled: true satisfies P['enabled'],
-  opacity: 0.3 as t.Percent,
+  disabledOpacity: 0.3 as t.Percent,
   target: undefined satisfies P['target'],
   download: false satisfies P['download'],
 } as const;
