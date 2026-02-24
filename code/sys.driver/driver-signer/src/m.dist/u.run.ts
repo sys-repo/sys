@@ -7,20 +7,14 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
     mode: args.mode,
   };
 
-  const artifact = await Fs.read(args.artifact.path);
-  if (!artifact.ok || !artifact.data) {
-    return fail(
-      data,
-      'read',
-      'E_READ',
-      artifact.error ?? { name: 'Error', message: 'Failed to read artifact bytes.' },
-    );
-  }
+  const artifact = await readBytes(data, args.artifact.path, 'artifact');
+  if (!artifact.ok) return artifact.res;
+  const artifactBytes = artifact.bytes;
 
   if (args.mode === 'sign') {
     try {
       const signature = await SignEd25519.sign({
-        bytes: artifact.data,
+        bytes: artifactBytes,
         privateKey: args.privateKey,
       });
       const written = await Fs.write(args.signature.path, signature);
@@ -38,26 +32,15 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
 
   if (args.mode === 'verify') {
     try {
-      const sig = await Fs.read(args.signature.path);
-      if (!sig.ok || !sig.data) {
-        return fail(
-          data,
-          'read',
-          'E_READ',
-          sig.error ?? { name: 'Error', message: 'Failed to read signature bytes.' },
-        );
-      }
+      const sig = await readBytes(data, args.signature.path, 'signature');
+      if (!sig.ok) return sig.res;
 
       const valid = await SignEd25519.verify({
-        bytes: artifact.data,
-        signature: sig.data,
+        bytes: artifactBytes,
+        signature: sig.bytes,
         publicKey: args.publicKey,
       });
-      if (!valid)
-        return fail(data, 'verify', 'E_VERIFY', {
-          name: 'Error',
-          message: 'Signature verification failed.',
-        });
+      if (!valid) return verifyFailed(data);
       return ok(data);
     } catch (cause) {
       return fail(
@@ -70,23 +53,16 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
   }
 
   try {
-    const signature = await SignEd25519.sign({
-      bytes: artifact.data,
-      privateKey: args.privateKey,
-    });
+    const signature = await SignEd25519.sign({ bytes: artifactBytes, privateKey: args.privateKey });
     const written = await Fs.write(args.signature.path, signature);
     if (written.error) return fail(data, 'write', 'E_WRITE', written.error);
 
     const valid = await SignEd25519.verify({
-      bytes: artifact.data,
+      bytes: artifactBytes,
       signature,
       publicKey: args.publicKey,
     });
-    if (!valid)
-      return fail(data, 'verify', 'E_VERIFY', {
-        name: 'Error',
-        message: 'Signature verification failed.',
-      });
+    if (!valid) return verifyFailed(data);
     return ok(data);
   } catch (cause) {
     return fail(
@@ -97,3 +73,30 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
     );
   }
 };
+
+/**
+ * Helpers
+ */
+async function readBytes(
+  data: t.Signer.ResultData,
+  path: t.StringPath,
+  label: 'artifact' | 'signature',
+): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; res: t.Signer.ResultFail }> {
+  const file = await Fs.read(path);
+  if (!file.ok || !file.data) {
+    const message =
+      label === 'artifact' ? 'Failed to read artifact bytes.' : 'Failed to read signature bytes.';
+    return {
+      ok: false,
+      res: fail(data, 'read', 'E_READ', file.error ?? { name: 'Error', message }),
+    };
+  }
+  return { ok: true, bytes: file.data };
+}
+
+function verifyFailed(data: t.Signer.ResultData) {
+  return fail(data, 'verify', 'E_VERIFY', {
+    name: 'Error',
+    message: 'Signature verification failed.',
+  });
+}

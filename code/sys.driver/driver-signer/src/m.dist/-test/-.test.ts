@@ -9,7 +9,7 @@ describe(`DistSigner`, () => {
     expect(m.DistSigner).to.equal(DistSigner);
   });
 
-  describe('phase-a skeleton behavior', () => {
+  describe('capability and error invariants', () => {
     it('capabilities: truthfully describes the content-manifest signer target', () => {
       const res = DistSigner.capabilities();
 
@@ -23,7 +23,7 @@ describe(`DistSigner`, () => {
       expect(res.timestamp).to.eql(false);
     });
 
-    it('run: returns canonical not-implemented failure result', async () => {
+    it('run: reports a canonical read failure when the artifact is missing', async () => {
       const { privateKey } = await SignEd25519.generateKeyPair();
       const res = await DistSigner.run({
         mode: 'sign',
@@ -40,7 +40,7 @@ describe(`DistSigner`, () => {
     });
   });
 
-  describe('phase-b exact-bytes sign → verify', () => {
+  describe('exact-bytes detached signature invariants', () => {
     it('sign → verify succeeds with a local test key-pair', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       const artifact = Fs.join(dir, 'dist.json');
