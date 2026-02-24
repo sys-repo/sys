@@ -90,7 +90,12 @@ export async function runSlugTreeFs(args: {
       const assetsPath = deriveAssetsPath(target.path);
       if (assetsPath && fileEntries.length > 0) {
         if (!docid) {
-          throw new Error('Slug-tree bundle docid could not be resolved from config or manifest.');
+          console.info(
+            c.yellow(
+              'warning: bundle:slug-tree:fs skipped assets index (docid unresolved for this bundle). Fix the `slug-tree:fs` config by adding `docid: <id>` at the bundle root (same level as `kind`, `source`, `target`), or rename the JSON manifest target to `slug-tree.<docid>.json`.',
+            ),
+          );
+          continue;
         }
         await writeSlugFileContentIndex({
           targetPath: assetsPath,

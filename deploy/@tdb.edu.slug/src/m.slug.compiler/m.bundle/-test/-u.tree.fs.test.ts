@@ -194,4 +194,59 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.remove(tmpDir);
     }
   });
+
+  it('skips assets index when sha256 target uses JSON manifest without resolvable docid', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(srcDir);
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'hello');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        target: {
+          manifests: 'out/kb.json',
+          dir: [{ kind: 'sha256', path: 'out/sha256' }],
+        },
+      };
+
+      const result = await runSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      expect(result?.sha256Files ?? 0).to.eql(1);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/kb.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/sha256'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/kb.assets.json'))).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('allows JSON manifest without docid when sha256 target is not configured', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(srcDir);
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'hello');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        target: {
+          manifests: 'out/kb.json',
+        },
+      };
+
+      await runSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/kb.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/kb.assets.json'))).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
 });
