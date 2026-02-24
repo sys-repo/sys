@@ -38,7 +38,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   const resolvedHref = !isAnchorChild
     ? resolveHref({ href: props.href, side, children: props.children })
     : undefined;
-  const link = enabled ? resolvedHref : undefined;
+  const link = resolvedHref;
   const child = !enabled && isAnchorChild ? toDisabledAnchor(props.children) : props.children;
 
   /**
@@ -78,7 +78,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   const className = css(styles.base, isKey && styles.asKey, props.style).class;
   const label = toDisplayLabel(resolvedHref, child);
   const content = link ? (
-    <A href={link.href} target={link.target} rel={link.rel} style={styles.anchor}>
+    <A href={link.href} enabled={enabled} target={link.target} rel={link.rel} style={styles.anchor}>
       {label}
     </A>
   ) : (
