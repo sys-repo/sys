@@ -1,6 +1,6 @@
 /**
- * Helpers for working with cryptographic functions.
  * @module
+ * Helpers for working with cryptographic functions.
  *
  * @example
  * ```ts
@@ -13,6 +13,7 @@
  * import { Pkg, Dist } from '@sys/crypto/fs/pkg';
  * ```
  */
+
 export { pkg } from './pkg.ts';
 /** Type library (barrel file). */
 export type * as t from './types.ts';

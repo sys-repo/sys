@@ -12,6 +12,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./fmt": "./src/m.Fmt/mod.ts",
-    "./hash": "./src/m.Hash/mod.ts"
+    "./hash": "./src/m.Hash/mod.ts",
+    "./sign": "./src/mod.sign.ts",
+    "./sign/ed25519": "./src/m.Sign.Ed25519/mod.ts"
   }
 }
