@@ -5,4 +5,13 @@
  */
 import type { t } from './common.ts';
 
-export const SlugBundleTransform: t.SlugBundleTransform.Lib = {};
+const derive: t.SlugBundleTransform.Lib['derive'] = async (_args) => {
+  return {
+    ok: false,
+    error: new Error('SlugBundle.Transform.derive not implemented'),
+  };
+};
+
+export const SlugBundleTransform: t.SlugBundleTransform.Lib = {
+  derive,
+};

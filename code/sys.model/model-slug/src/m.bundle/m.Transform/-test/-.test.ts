@@ -6,4 +6,8 @@ describe(`SlugBundle.Transform`, () => {
     const m = await import('@sys/model-slug/bundle');
     expect(m.SlugBundle.Transform).to.equal(SlugBundleTransform);
   });
+
+  it('exposes derive()', () => {
+    expect(typeof SlugBundleTransform.derive).to.equal('function');
+  });
 });
