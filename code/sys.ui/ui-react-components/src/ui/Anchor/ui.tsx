@@ -3,12 +3,14 @@ import { type t, Color, css, D, usePointer } from './common.ts';
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const href = props.href;
   if (!href) return props.children;
-  return <AnchorLink {...props} href={href} />;
+  const enabled = props.enabled ?? D.enabled;
+  if (!enabled) return <AnchorLinkDisabled {...props} href={href} />;
+  return <AnchorLinkEnabled {...props} href={href} />;
 };
 
 type AnchorLinkProps = t.Anchor.Props & { href: string };
 
-const AnchorLink: t.FC<AnchorLinkProps> = (props) => {
+const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
   const pointer = usePointer();
   const theme = Color.theme(props.theme);
   const { href, title, tabIndex, children, style } = props;
@@ -43,6 +45,47 @@ const AnchorLink: t.FC<AnchorLinkProps> = (props) => {
       onMouseUp={props.onMouseUp}
       onKeyDown={props.onKeyDown}
       onKeyUp={props.onKeyUp}
+    >
+      {children}
+    </a>
+  );
+};
+
+const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
+  const theme = Color.theme(props.theme);
+  const { title, children, style } = props;
+  const styles = {
+    base: css({
+      color: 'inherit',
+      textDecoration: 'none',
+      opacity: D.opacity,
+      cursor: 'default',
+    }),
+  };
+
+  const onClick = (e: t.ReactMouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const onKeyDown = (e: t.ReactKeyboardEvent<HTMLAnchorElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  return (
+    <a
+      className={css(styles.base, style).class}
+      href={undefined}
+      target={undefined}
+      rel={undefined}
+      title={title}
+      download={undefined}
+      tabIndex={-1}
+      aria-disabled={true}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
     >
       {children}
     </a>

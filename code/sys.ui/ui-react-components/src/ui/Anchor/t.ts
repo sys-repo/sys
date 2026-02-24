@@ -16,6 +16,7 @@ export declare namespace Anchor {
     title?: string;
     download?: boolean | string;
     children?: t.ReactNode;
+    enabled?: boolean;
 
     /**
      * Accessibility:

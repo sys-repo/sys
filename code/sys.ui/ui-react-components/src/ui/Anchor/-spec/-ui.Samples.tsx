@@ -9,6 +9,8 @@ export type SamplesProps = {
 };
 type P = SamplesProps;
 
+export const EXAMPLE_URL = 'https://example.com';
+
 /**
  * Component:
  */
@@ -21,7 +23,13 @@ export const Samples: React.FC<P> = (props) => {
 
   function sample(
     label: string,
-    next: { href?: string; target?: t.Anchor.Target; download?: boolean; children?: string },
+    next: {
+      href?: string;
+      enabled?: boolean;
+      target?: t.Anchor.Target;
+      download?: boolean;
+      children?: string;
+    },
   ) {
     return (
       <Button
@@ -29,6 +37,7 @@ export const Samples: React.FC<P> = (props) => {
         label={label}
         onClick={() => {
           p.href.value = next.href;
+          p.enabled.value = next.enabled ?? true;
           p.target.value = next.target;
           p.download.value = next.download ?? false;
           p.children.value = next.children;
@@ -40,31 +49,43 @@ export const Samples: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {sample('sample: default link', {
-        href: 'https://example.com',
+        href: EXAMPLE_URL,
+        enabled: true,
         target: undefined,
         download: false,
-        children: 'https://example.com',
+        children: EXAMPLE_URL,
       })}
       {sample('sample: new tab', {
-        href: 'https://example.com',
+        href: EXAMPLE_URL,
+        enabled: true,
         target: '_blank',
         download: false,
         children: 'opens in new tab',
       })}
       {sample('sample: download (/dist.json)', {
         href: '/dist.json',
+        enabled: true,
         target: undefined,
         download: true,
         children: 'download dist.json',
       })}
+      {sample('sample: disabled link', {
+        href: EXAMPLE_URL,
+        enabled: false,
+        target: '_blank',
+        download: false,
+        children: 'disabled link',
+      })}
       {sample('sample: text-only (no href)', {
         href: undefined,
+        enabled: true,
         target: undefined,
         download: false,
         children: 'plain text (passthrough)',
       })}
       {sample('sample: empty child', {
         href: undefined,
+        enabled: true,
         target: undefined,
         download: false,
         children: undefined,

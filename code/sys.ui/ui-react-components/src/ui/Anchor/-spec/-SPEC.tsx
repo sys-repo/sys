@@ -9,7 +9,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Anchor.UI theme={v.theme} href={v.href} target={v.target} download={v.download} children={v.children} />;
+    return (
+      <Anchor.UI
+        theme={v.theme}
+        href={v.href}
+        enabled={v.enabled}
+        target={v.target}
+        download={v.download}
+        children={v.children}
+      />
+    );
   }
 
   e.it('init', (e) => {

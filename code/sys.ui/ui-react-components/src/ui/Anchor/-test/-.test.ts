@@ -27,7 +27,8 @@ describe('Anchor', () => {
       expect(res).to.eql('plain text');
     });
 
-    it('normalizes rel behavior across rendered anchor cases', async () => {
+    it('normalizes rel behavior and disabled anchor semantics across rendered cases', async () => {
+      let disabledClicks = 0;
       const Test: React.FC = () =>
         React.createElement(
           'div',
@@ -39,16 +40,32 @@ describe('Anchor', () => {
             'b',
           ),
           React.createElement(A, { href: 'https://example.com/c', target: '_self', rel: 'nofollow' }, 'c'),
+          React.createElement(
+            A,
+            { href: 'https://example.com/d', enabled: false, onClick: () => disabledClicks++ },
+            'd',
+          ),
         );
 
       const res = await TestReact.render(React.createElement(Test), { strict: false });
       const list = [...res.container.querySelectorAll('a')] as HTMLAnchorElement[];
-      expect(list.length).to.eql(3);
+      expect(list.length).to.eql(4);
       expect(list[0].getAttribute('target')).to.eql('_blank');
       expect(list[0].getAttribute('rel')).to.eql('noopener noreferrer');
       expect(list[1].getAttribute('rel')).to.eql('nofollow noopener noreferrer');
       expect(list[2].getAttribute('rel')).to.eql('nofollow');
+      expect(list[3].getAttribute('href')).to.eql(null);
+      expect(list[3].getAttribute('aria-disabled')).to.eql('true');
+      expect(list[3].getAttribute('tabindex')).to.eql('-1');
+
+      const event = new window.MouseEvent('click', { bubbles: true, cancelable: true });
+      const dispatched = list[3].dispatchEvent(event);
+      expect(dispatched).to.eql(false);
+      expect(event.defaultPrevented).to.eql(true);
+      expect(disabledClicks).to.eql(0);
+
       res.dispose();
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
     });
   });
 });

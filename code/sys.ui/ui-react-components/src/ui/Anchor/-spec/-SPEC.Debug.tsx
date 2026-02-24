@@ -1,16 +1,20 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { Samples } from './-ui.Samples.tsx';
+import { Samples, EXAMPLE_URL } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download'> & { children?: string };
+type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
+  children?: string;
+};
+
 const defaults: Storage = {
   theme: 'Dark',
-  href: 'https://example.com',
+  href: EXAMPLE_URL,
+  enabled: D.enabled,
   target: D.target,
   download: D.download,
-  children: 'https://example.com',
+  children: EXAMPLE_URL,
 };
 
 /**
@@ -30,6 +34,7 @@ export async function createDebugSignals() {
   const props = {
     theme: s(snap.theme),
     href: s(snap.href),
+    enabled: s(snap.enabled ?? D.enabled),
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
@@ -53,6 +58,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.href = p.href.value;
+      d.enabled = p.enabled.value;
       d.target = p.target.value;
       d.download = p.download.value ? true : undefined;
       d.children = p.children.value;
@@ -103,13 +109,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `href: ${v.href ?? '(none)'}`}
         onClick={() => {
-          Signal.cycle<P['href']>(p.href, [
-            undefined,
-            'https://example.com',
-            '/relative/path',
-            '#hash',
-          ]);
+          Signal.cycle<P['href']>(p.href, [undefined, EXAMPLE_URL, '/relative/path', '#hash']);
         }}
+      />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
+        onClick={() => Signal.toggle(p.enabled)}
       />
       <Button
         block
@@ -117,7 +123,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           Signal.cycle<string | undefined>(p.children, [
             undefined,
-            'https://example.com',
+            EXAMPLE_URL,
             'link label',
             'plain text (passthrough)',
           ]);
