@@ -108,6 +108,6 @@ function toDisabledAnchor(node: React.ReactNode): React.ReactNode {
         e.stopPropagation();
       }
     },
-    style: { ...(props.style ?? {}), pointerEvents: 'none' },
+    style: props.style,
   });
 }
