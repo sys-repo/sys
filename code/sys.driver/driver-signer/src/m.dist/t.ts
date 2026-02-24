@@ -8,6 +8,8 @@ type O = Record<string, unknown>;
  * Implements the `content-manifest` signer target (for example `dist.json`).
  */
 export namespace DistSigner {
+  export type ManifestKind = 'dist.json' | 'manifest';
+
   /** Library: */
   export type Lib = {
     capabilities(): t.Signer.Capabilities;
@@ -16,18 +18,33 @@ export namespace DistSigner {
 
   export type Artifact = {
     readonly path: t.StringPath;
-    readonly kind?: 'dist.json' | 'manifest';
+    readonly kind?: ManifestKind;
   };
 
   export type Signature = {
     readonly path: t.StringPath;
   };
 
-  export type RunArgs = {
-    readonly mode: t.Signer.Mode;
+  export type RunArgsBase = {
     readonly artifact: Artifact;
-    readonly signature?: Signature;
     readonly identityRef?: string;
     readonly metadata?: Readonly<O>;
   };
+
+  export type RunArgsSign = RunArgsBase & {
+    readonly mode: 'sign';
+    readonly signature: Signature;
+  };
+
+  export type RunArgsVerify = RunArgsBase & {
+    readonly mode: 'verify';
+    readonly signature: Signature;
+  };
+
+  export type RunArgsSignVerify = RunArgsBase & {
+    readonly mode: 'sign-verify';
+    readonly signature: Signature;
+  };
+
+  export type RunArgs = RunArgsSign | RunArgsVerify | RunArgsSignVerify;
 }
