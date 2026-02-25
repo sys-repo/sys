@@ -1,5 +1,6 @@
-import { type t, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, SlugBundle } from './common.ts';
+import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, SlugBundle } from './common.ts';
 
+type SourceMap = Map<string, string>;
 type BundleSeqOpts = {
   facets?: t.BundleSequenceFacet[];
   outDir?: string;
@@ -7,9 +8,6 @@ type BundleSeqOpts = {
   target?: t.SlugBundleMediaSeq['target'];
   requirePlayback?: boolean;
 };
-
-type RuntimeTargetLayout = ReturnType<typeof resolveRuntimeTargetDefaults>;
-type SourceMap = Map<string, string>;
 
 /**
  * NEW transform-backed compiler media-seq bundler path (runtime adapter/materializer).
@@ -44,11 +42,8 @@ export async function bundleSequenceFilepaths_NEW(
   const derived = derive.value;
 
   await materializeTransformAssets({
-    manifests: derived.manifests.assets,
-    dir: derived.dir,
+    hints: derived.materialize?.assets,
     sources: resolvedSources,
-    imageBase: targetRuntime.imageBase,
-    videoBase: targetRuntime.videoBase,
   });
 
   await writeTransformManifests({
@@ -121,21 +116,15 @@ function makeDurationProbe(): t.SlugBundleTransform.DurationProbe {
  * Runtime materialization.
  */
 async function materializeTransformAssets(args: {
-  manifests?: t.SlugAssetsManifest;
-  dir: { readonly video: string; readonly image: string };
+  hints?: readonly t.SlugBundleTransform.AssetMaterializeHint[];
   sources: SourceMap;
-  imageBase: string;
-  videoBase: string;
 }) {
-  const assets = args.manifests?.assets ?? [];
-  for (const asset of assets) {
-    const source = args.sources.get(sourceKey(asset.kind, String(asset.logicalPath)));
+  const hints = args.hints ?? [];
+  for (const hint of hints) {
+    const source = args.sources.get(sourceKey(hint.kind, String(hint.logicalPath)));
     if (!source) continue;
-    const kindDir = asset.kind === 'image' ? args.dir.image : args.dir.video;
-    const kindDirResolved = resolveShardTemplate(kindDir, asset.shard);
-    const destBase = asset.kind === 'image' ? args.imageBase : args.videoBase;
-    const destDir = resolvePath(destBase, kindDirResolved);
-    const destPath = Fs.join(destDir, asset.filename);
+    const destPath = String(hint.destPath);
+    const destDir = Fs.dirname(destPath);
     await Fs.ensureDir(destDir);
     if (!(await Fs.exists(destPath))) await Fs.copy(source, destPath);
   }
@@ -242,34 +231,12 @@ function resolveRuntimeTargetDefaults(opts: BundleSeqOpts) {
   return { manifestsBase, manifestsDir, videoBase, imageBase, videoDir, imageDir, target };
 }
 
-/**
- * Small local utilities.
- */
-function resolveShardTemplate(
-  value: string,
-  shard?: { readonly index: number; readonly total: number },
-): string {
-  if (!value.includes('<shard>') && !value.includes('<shards>')) return value;
-  if (!shard) return value;
-  return value
-    .replaceAll('<shard>', String(shard.index))
-    .replaceAll('<shards>', String(shard.total));
-}
-
-function resolvePath(baseDir: string, subPath: string, filename?: string): string {
-  if (filename && Fs.Path.Is.absolute(filename)) return filename;
-  if (Fs.Path.Is.absolute(subPath)) {
-    return filename ? Fs.join(subPath, filename) : subPath;
-  }
-  return filename ? Fs.join(baseDir, subPath, filename) : Fs.join(baseDir, subPath);
-}
-
 function sourceKey(kind: string, logicalPath: string): string {
   return `${kind}|${logicalPath}`;
 }
 
 function resolveSourcePathFromProbe(asset: { source?: unknown }): string | undefined {
-  if (!asset.source || typeof asset.source !== 'object') return undefined;
+  if (!Is.record(asset.source)) return undefined;
   const value = (asset.source as Record<string, unknown>)['resolvedPath'];
-  return typeof value === 'string' ? value : undefined;
+  return Is.string(value) ? value : undefined;
 }

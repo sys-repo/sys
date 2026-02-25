@@ -15,16 +15,20 @@ export async function deriveBundle(
     playback?: t.SpecTimelineManifest;
     tree?: t.SlugTreeDoc;
   } = { ...base.manifests };
+  const materialize: {
+    assets?: readonly t.SlugBundleTransform.AssetMaterializeHint[];
+  } = {};
   const yamlPathStr =
     Is.array(args.yamlPath) && args.yamlPath.length > 0 ? args.yamlPath.join('/') : '';
   const rawDocid = String(args.docid) as t.StringId;
 
-  if (!isDagLike(args.dag)) return { ok: true, value: { ...base, issues, manifests } };
+  if (!isDagLike(args.dag)) return { ok: true, value: { ...base, issues, manifests, materialize } };
   const dag = args.dag as t.SlugBundleTransform.Dag.Shape;
 
   const assetsResult = await deriveAssets({ derive: args, base });
   issues.push(...assetsResult.issues);
   if (assetsResult.manifest) manifests.assets = assetsResult.manifest;
+  if (assetsResult.materialize?.assets) materialize.assets = assetsResult.materialize.assets;
 
   const playbackResult = await playbackFromDag(dag, args.yamlPath, rawDocid, {
     validate: true,
@@ -90,5 +94,5 @@ export async function deriveBundle(
     manifests.tree = treeResult.sequence;
   }
 
-  return { ok: true, value: { ...base, issues, manifests } };
+  return { ok: true, value: { ...base, issues, manifests, materialize } };
 }

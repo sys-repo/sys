@@ -3,9 +3,19 @@ import { isDagLike } from '../u/u.dag.ts';
 import { sequenceFromDag } from './u.policy.sequence.ts';
 
 type AssetIssue = t.SlugBundleTransform.Issue;
+type AssetEntryBuild = {
+  readonly asset: t.SlugAsset;
+  readonly hint: t.SlugBundleTransform.AssetMaterializeHint;
+};
+type AssetEntryBuildResult =
+  | { ok: true; value: AssetEntryBuild }
+  | { ok: false; error: Error };
 type AssetResult = {
   readonly issues: readonly AssetIssue[];
   readonly manifest?: t.SlugAssetsManifest;
+  readonly materialize?: {
+    readonly assets: readonly t.SlugBundleTransform.AssetMaterializeHint[];
+  };
 };
 
 export async function deriveAssets(args: {
@@ -24,6 +34,7 @@ export async function deriveAssets(args: {
   const docid = String(derive.docid) as t.StringId;
   const issues: AssetIssue[] = [];
   const assets: t.SlugAsset[] = [];
+  const hints: t.SlugBundleTransform.AssetMaterializeHint[] = [];
 
   const seqResult = await sequenceFromDag(
     derive.dag as t.SlugBundleTransform.Dag.Shape,
@@ -98,7 +109,8 @@ export async function deriveAssets(args: {
       continue;
     }
 
-    assets.push(asset.value);
+    assets.push(asset.value.asset);
+    hints.push(asset.value.hint);
   }
 
   if (assets.length === 0) return { issues };
@@ -118,7 +130,11 @@ export async function deriveAssets(args: {
     return { issues };
   }
 
-  return { issues, manifest: res.sequence };
+  return {
+    issues,
+    manifest: res.sequence,
+    ...(hints.length > 0 ? { materialize: { assets: hints } } : {}),
+  };
 }
 
 type MediaRef = { kind: t.SlugBundleTransform.MediaKind; logicalPath: string };
@@ -172,7 +188,7 @@ async function toAssetManifestEntry(args: {
   readonly hrefBase: string;
   readonly durationProbe?: t.SlugBundleTransform.DurationProbe;
   readonly docid: t.StringId;
-}): Promise<{ ok: true; value: t.SlugAsset } | { ok: false; error: Error }> {
+}): Promise<AssetEntryBuildResult> {
   const { item, logicalPath, target, dir, hrefBase, durationProbe, docid } = args;
   const hash = item.hash;
   if (!hash)
@@ -198,6 +214,11 @@ async function toAssetManifestEntry(args: {
   const kindDir = item.kind === 'image' ? dir.image : dir.video;
   const kindDirResolved = resolveShardTemplate(String(kindDir), shard);
   const href = item.href ?? `${hrefBase}/${kindDirResolved}/${filename}`;
+  const destBase =
+    item.kind === 'image'
+      ? String(target?.media?.image?.base ?? '')
+      : String(target?.media?.video?.base ?? '');
+  const destPath = resolvePath(destBase, kindDirResolved, filename);
 
   let duration = (item.stats as { duration?: t.Msecs } | undefined)?.duration;
   if (item.kind === 'video' && duration === undefined && durationProbe) {
@@ -215,7 +236,17 @@ async function toAssetManifestEntry(args: {
     ...(shard ? { shard } : {}),
     stats: { bytes, duration },
   };
-  return { ok: true, value };
+  return {
+    ok: true,
+    value: {
+      asset: value,
+      hint: {
+        kind: item.kind,
+        logicalPath: logicalPath as t.StringPath,
+        destPath: destPath as t.StringPath,
+      },
+    },
+  };
 }
 
 function resolveExt(item: t.SlugBundleTransform.ResolvedAsset, logicalPath: string): string {
@@ -236,6 +267,12 @@ function resolveShardTemplate(
   return value
     .replaceAll('<shard>', String(shard.index))
     .replaceAll('<shards>', String(shard.total));
+}
+
+function resolvePath(baseDir: string, subPath: string, filename?: string): string {
+  if (filename && Path.Is.absolute(filename)) return filename;
+  if (Path.Is.absolute(subPath)) return filename ? Path.join(subPath, filename) : subPath;
+  return filename ? Path.join(baseDir, subPath, filename) : Path.join(baseDir, subPath);
 }
 
 function resolveHrefBase(kindHrefBase?: string, manifestsHrefBase?: string): string {

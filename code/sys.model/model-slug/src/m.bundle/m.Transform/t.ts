@@ -82,6 +82,10 @@ export namespace SlugBundleTransform {
       readonly playback?: t.SpecTimelineManifest;
       readonly tree?: t.SlugTreeDoc;
     };
+    /** Pure materialization hints for runtime adapters (optional, no IO performed). */
+    readonly materialize?: {
+      readonly assets?: readonly AssetMaterializeHint[];
+    };
   };
 
   export type AssetResolver = (args: AssetResolverArgs) => Promise<AssetResolverResult>;
@@ -114,6 +118,13 @@ export namespace SlugBundleTransform {
     };
     /** Opaque runtime adapter state passed through to probes/materializers. */
     readonly source?: unknown;
+  };
+
+  export type AssetMaterializeHint = {
+    readonly kind: MediaKind;
+    readonly logicalPath: t.StringPath;
+    /** Destination path computed from the provided target layout (no IO performed). */
+    readonly destPath: t.StringPath;
   };
 
   export type DurationProbeArgs = {
