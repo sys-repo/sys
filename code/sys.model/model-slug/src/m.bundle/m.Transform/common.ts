@@ -1,5 +1,6 @@
-export * from '../common.ts';
 export { AliasResolver } from '@sys/std/alias';
+
+export * from '../common.ts';
 export { SlugSchema } from '../../m.schema/mod.ts';
 
 /**
