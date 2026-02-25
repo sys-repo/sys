@@ -9,7 +9,7 @@ import {
   toRawPath,
   toRelativeDir,
 } from '../u.path.ts';
-import { resolveAliasPath } from '../u.resolve.path.ts';
+import { resolveAliasPath } from '../u.path.alias.ts';
 import { cleanDocid } from '../u.docid.ts';
 import { isDagLike } from '../u.dag.ts';
 import { resolveTemplate } from '../u.template.ts';
@@ -78,7 +78,7 @@ describe('u.dag', () => {
   });
 });
 
-describe('u.resolve.path', () => {
+describe('u.path.alias', () => {
   it('hops through :index and normalizes resolved paths', () => {
     const local = AliasResolver.analyze(
       { alias: { ':index': 'crdt:index-root', ':core-videos': ':index/:assets/core' } },

@@ -1,5 +1,5 @@
 import { type t, AliasResolver, Is, Obj, Yaml } from './common.ts';
-import { resolveAliasPath } from './u.resolve.path.ts';
+import { resolveAliasPath } from './u.path.alias.ts';
 import { makeResolvers } from './u.resolve.ts';
 
 type DagNode = { id: string; doc?: { current?: string | undefined } };

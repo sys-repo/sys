@@ -1,6 +1,6 @@
 import { type t, Is, Yaml } from './common.ts';
 import { makeLenses } from './u.resolve.lens.ts';
-import { resolveAliasPath } from './u.resolve.path.ts';
+import { resolveAliasPath } from './u.path.alias.ts';
 
 type O = Record<string, unknown>;
 type DagNode = { doc?: { current?: string | undefined } };
