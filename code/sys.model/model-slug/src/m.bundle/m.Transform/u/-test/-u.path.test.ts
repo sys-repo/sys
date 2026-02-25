@@ -1,5 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { D } from '../common.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import {
   basename,
   isAbsolutePath,
@@ -9,9 +8,6 @@ import {
   toRawPath,
   toRelativeDir,
 } from '../u.path.ts';
-import { cleanDocid } from '../u.docid.ts';
-import { isDagLike } from '../u.dag.ts';
-import { resolveTemplate } from '../u.template.ts';
 
 describe('u.path', () => {
   it('joinPath preserves relative formatting segments used by policy inputs', () => {
@@ -46,33 +42,5 @@ describe('u.path', () => {
     expect(relativePath('/a', '/b/c')).to.equal('../b/c');
     expect(basename('/a/b/c.txt')).to.equal('c.txt');
     expect(basename('C:\\a\\b\\c.txt')).to.equal('c.txt');
-  });
-});
-
-describe('u.template', () => {
-  it('applies templates', () => {
-    expect(resolveTemplate(D.assetsTemplate, 'crdt:abc123')).to.equal('slug.abc123.assets.json');
-    expect(resolveTemplate('plain.json', 'abc')).to.equal('plain.json');
-  });
-});
-
-describe('u.docid', () => {
-  it('normalizes lexical docid forms for template substitution', () => {
-    expect(cleanDocid('crdt:abc123')).to.equal('abc123');
-    expect(cleanDocid(' crdt:abc123 ')).to.equal('abc123');
-    expect(cleanDocid('crdt:')).to.equal('');
-    expect(cleanDocid('CRDT:abc123')).to.equal('CRDT:abc123');
-    expect(cleanDocid('abc123')).to.equal('abc123');
-    expect(cleanDocid('  abc123  ')).to.equal('abc123');
-    expect(cleanDocid('foo:abc123')).to.equal('foo:abc123');
-  });
-});
-
-describe('u.dag', () => {
-  it('guards the minimal transform DAG boundary shape', () => {
-    expect(isDagLike({})).to.equal(false);
-    expect(isDagLike({ nodes: {} })).to.equal(false);
-    expect(isDagLike({ nodes: [] })).to.equal(true);
-    expect(isDagLike({ nodes: [{ id: 'crdt:x' }] })).to.equal(true);
   });
 });

@@ -1,16 +1,22 @@
+import { isDagLike } from '../u/u.dag.ts';
 import { type t, Is, SlugSchema } from './common.ts';
-import { isDagLike } from '../u.dag.ts';
 import { deriveAssets } from './u.policy.assets.ts';
 import { deriveMeta } from './u.policy.meta.ts';
 import { playbackFromDag } from './u.policy.playback.ts';
 import { slugTreeFromDag } from './u.policy.tree.ts';
 
-export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Promise<t.SlugBundleTransform.DeriveResult> {
+export async function deriveBundle(
+  args: t.SlugBundleTransform.DeriveArgs,
+): Promise<t.SlugBundleTransform.DeriveResult> {
   const base = deriveMeta(args);
   const issues = [...base.issues] as t.SlugBundleTransform.Issue[];
-  const manifests: { assets?: t.SlugAssetsManifest; playback?: t.SpecTimelineManifest; tree?: t.SlugTreeDoc } =
-    { ...base.manifests };
-  const yamlPathStr = Is.array(args.yamlPath) && args.yamlPath.length > 0 ? args.yamlPath.join('/') : '';
+  const manifests: {
+    assets?: t.SlugAssetsManifest;
+    playback?: t.SpecTimelineManifest;
+    tree?: t.SlugTreeDoc;
+  } = { ...base.manifests };
+  const yamlPathStr =
+    Is.array(args.yamlPath) && args.yamlPath.length > 0 ? args.yamlPath.join('/') : '';
   const rawDocid = String(args.docid) as t.StringId;
 
   if (!isDagLike(args.dag)) return { ok: true, value: { ...base, issues, manifests } };
@@ -28,7 +34,8 @@ export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Prom
   if (!playbackResult.ok) {
     const reason = playbackResult.error?.message ?? 'Unknown validation error.';
     const isNotApplicable =
-      reason.includes('does not advertise') && reason.includes('expected {of:"media-composition", as:string}');
+      reason.includes('does not advertise') &&
+      reason.includes('expected {of:"media-composition", as:string}');
     const requirePlayback = args.requirePlayback ?? false;
     if (!isNotApplicable || requirePlayback) {
       issues.push({

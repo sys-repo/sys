@@ -1,5 +1,5 @@
 import { type t, Is, Path, Shard, SlugSchema, Str } from './common.ts';
-import { isDagLike } from '../u.dag.ts';
+import { isDagLike } from '../u/u.dag.ts';
 import { sequenceFromDag } from './u.policy.sequence.ts';
 
 type AssetIssue = t.SlugBundleTransform.Issue;
@@ -19,19 +19,31 @@ export async function deriveAssets(args: {
   const facets = resolveFacets(derive.target, derive.facets);
   if (facets.length === 0) return { issues: [] };
 
-  const yamlPathStr = Is.array(derive.yamlPath) && derive.yamlPath.length > 0 ? derive.yamlPath.join('/') : '';
+  const yamlPathStr =
+    Is.array(derive.yamlPath) && derive.yamlPath.length > 0 ? derive.yamlPath.join('/') : '';
   const docid = String(derive.docid) as t.StringId;
   const issues: AssetIssue[] = [];
   const assets: t.SlugAsset[] = [];
 
-  const seqResult = await sequenceFromDag(derive.dag as t.SlugBundleTransform.Dag.Shape, derive.yamlPath, docid, {
-    validate: false,
-    trait: { of: 'media-composition' },
-  });
+  const seqResult = await sequenceFromDag(
+    derive.dag as t.SlugBundleTransform.Dag.Shape,
+    derive.yamlPath,
+    docid,
+    {
+      validate: false,
+      trait: { of: 'media-composition' },
+    },
+  );
   if (!seqResult.ok) return { issues };
 
-  const hrefBaseVideo = resolveHrefBase(derive.target?.media?.video?.hrefBase, derive.target?.manifests?.hrefBase);
-  const hrefBaseImage = resolveHrefBase(derive.target?.media?.image?.hrefBase, derive.target?.manifests?.hrefBase);
+  const hrefBaseVideo = resolveHrefBase(
+    derive.target?.media?.video?.hrefBase,
+    derive.target?.manifests?.hrefBase,
+  );
+  const hrefBaseImage = resolveHrefBase(
+    derive.target?.media?.image?.hrefBase,
+    derive.target?.manifests?.hrefBase,
+  );
 
   for (const media of walkSequenceMediaRefs(seqResult.sequence, facets)) {
     const resolved = await derive.assetResolver({
@@ -41,22 +53,26 @@ export async function deriveAssets(args: {
     });
 
     if (!resolved.ok) {
-      issues.push(toResolverIssue({
-        kind: media.kind,
-        docid,
-        logicalPath: media.logicalPath,
-        message: `Error resolving ${media.kind} path "${media.logicalPath}": ${resolved.error.message}`,
-      }));
+      issues.push(
+        toResolverIssue({
+          kind: media.kind,
+          docid,
+          logicalPath: media.logicalPath,
+          message: `Error resolving ${media.kind} path "${media.logicalPath}": ${resolved.error.message}`,
+        }),
+      );
       continue;
     }
 
     if (!resolved.value) {
-      issues.push(toResolverIssue({
-        kind: media.kind,
-        docid,
-        logicalPath: media.logicalPath,
-        message: `File does not exist at resolved path "${media.logicalPath}".`,
-      }));
+      issues.push(
+        toResolverIssue({
+          kind: media.kind,
+          docid,
+          logicalPath: media.logicalPath,
+          message: `File does not exist at resolved path "${media.logicalPath}".`,
+        }),
+      );
       continue;
     }
 
@@ -71,12 +87,14 @@ export async function deriveAssets(args: {
     });
 
     if (!asset.ok) {
-      issues.push(toResolverIssue({
-        kind: media.kind,
-        docid,
-        logicalPath: media.logicalPath,
-        message: asset.error.message,
-      }));
+      issues.push(
+        toResolverIssue({
+          kind: media.kind,
+          docid,
+          logicalPath: media.logicalPath,
+          message: asset.error.message,
+        }),
+      );
       continue;
     }
 
@@ -157,16 +175,24 @@ async function toAssetManifestEntry(args: {
 }): Promise<{ ok: true; value: t.SlugAsset } | { ok: false; error: Error }> {
   const { item, logicalPath, target, dir, hrefBase, durationProbe, docid } = args;
   const hash = item.hash;
-  if (!hash) return { ok: false, error: new Error(`Resolved ${item.kind} path "${logicalPath}" is missing "hash".`) };
+  if (!hash)
+    return {
+      ok: false,
+      error: new Error(`Resolved ${item.kind} path "${logicalPath}" is missing "hash".`),
+    };
 
   const ext = resolveExt(item, logicalPath);
   const filename = item.filename ?? `${hash}${ext}`;
 
-  const shardConfig = item.kind === 'image' ? target?.media?.image?.shard : target?.media?.video?.shard;
+  const shardConfig =
+    item.kind === 'image' ? target?.media?.image?.shard : target?.media?.video?.shard;
   const shard =
     item.shard ??
     (shardConfig && Is.number(shardConfig.total)
-      ? (Shard.meta(Shard.policy(shardConfig.total, shardConfig.strategy), hash) as t.SlugBundleTransform.ShardMeta)
+      ? (Shard.meta(
+          Shard.policy(shardConfig.total, shardConfig.strategy),
+          hash,
+        ) as t.SlugBundleTransform.ShardMeta)
       : undefined);
 
   const kindDir = item.kind === 'image' ? dir.image : dir.video;
@@ -207,7 +233,9 @@ function resolveShardTemplate(
 ): string {
   if (!value.includes('<shard>') && !value.includes('<shards>')) return value;
   if (!shard) return value;
-  return value.replaceAll('<shard>', String(shard.index)).replaceAll('<shards>', String(shard.total));
+  return value
+    .replaceAll('<shard>', String(shard.index))
+    .replaceAll('<shards>', String(shard.total));
 }
 
 function resolveHrefBase(kindHrefBase?: string, manifestsHrefBase?: string): string {

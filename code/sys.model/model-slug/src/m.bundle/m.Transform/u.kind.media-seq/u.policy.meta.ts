@@ -1,7 +1,7 @@
 import { type t, D, Shard } from './common.ts';
-import { resolvePath, toOutputFile, toRelativeDir } from '../u.path.ts';
-import { cleanDocid } from '../u.docid.ts';
-import { resolveTemplate } from '../u.template.ts';
+import { resolvePath, toOutputFile, toRelativeDir } from '../u/u.path.ts';
+import { cleanDocid } from '../u/u.docid.ts';
+import { resolveTemplate } from '../u/u.template.ts';
 
 export function deriveMeta(args: t.SlugBundleTransform.DeriveArgs): t.SlugBundleTransform.Derived {
   const docid = cleanDocid(args.docid);
@@ -26,7 +26,11 @@ export function deriveMeta(args: t.SlugBundleTransform.DeriveArgs): t.SlugBundle
 
   const files: t.SlugBundleTransform.OutputFiles = {
     assets: toOutputFile({ baseDir: manifestsBase, path: assetsPath, filename: assetsFilename }),
-    playback: toOutputFile({ baseDir: manifestsBase, path: playbackPath, filename: playbackFilename }),
+    playback: toOutputFile({
+      baseDir: manifestsBase,
+      path: playbackPath,
+      filename: playbackFilename,
+    }),
     tree: toOutputFile({ baseDir: manifestsBase, path: treePath, filename: treeFilename }),
   };
 
