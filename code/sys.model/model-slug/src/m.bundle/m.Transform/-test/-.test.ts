@@ -10,4 +10,5 @@ describe(`SlugBundle.Transform`, () => {
   it('exposes derive()', () => {
     expect(typeof SlugBundleTransform.derive).to.equal('function');
   });
+
 });

@@ -11,8 +11,8 @@ export namespace SlugBundleTransform {
   export type DagInput = unknown;
   /** Runtime-neutral doc identity at the transform boundary (raw or cleaned). */
   export type DocIdInput = t.StringId;
-  /** Local shard strategy vocabulary for transform layout metadata. */
-  export type ShardStrategy = 'prefix-range' | string;
+  /** Current supported shard strategy (kept truthful to runtime behavior). */
+  export type ShardStrategy = 'prefix-range';
   export type ShardCount = number;
 
   export type Lib = {

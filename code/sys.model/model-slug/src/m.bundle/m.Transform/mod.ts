@@ -4,11 +4,12 @@
  * Behavior-locked slug manifest derivation transforms for runtime-agnostic use.
  */
 import type { t } from './common.ts';
+import { deriveMeta } from './u.policy.meta.ts';
 
-const derive: t.SlugBundleTransform.Lib['derive'] = async (_args) => {
+const derive: t.SlugBundleTransform.Lib['derive'] = async (args) => {
   return {
-    ok: false,
-    error: new Error('SlugBundle.Transform.derive not implemented'),
+    ok: true,
+    value: deriveMeta(args),
   };
 };
 
