@@ -1,4 +1,4 @@
-import { type t, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, SlugBundle } from './common.ts';
+import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, SlugBundle } from './common.ts';
 
 type BundleSeqOpts = {
   facets?: t.BundleSequenceFacet[];
