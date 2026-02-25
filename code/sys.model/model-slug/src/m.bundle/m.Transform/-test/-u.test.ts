@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { D } from '../common.ts';
+import { AliasResolver, D } from '../common.ts';
 import {
   basename,
   isAbsolutePath,
@@ -9,6 +9,7 @@ import {
   toRawPath,
   toRelativeDir,
 } from '../u.path.ts';
+import { resolveAliasPath } from '../u.resolve.path.ts';
 import { cleanDocid } from '../u.docid.ts';
 import { resolveTemplate } from '../u.template.ts';
 
@@ -64,5 +65,23 @@ describe('u.docid', () => {
     expect(cleanDocid('abc123')).to.equal('abc123');
     expect(cleanDocid('  abc123  ')).to.equal('abc123');
     expect(cleanDocid('foo:abc123')).to.equal('foo:abc123');
+  });
+});
+
+describe('u.resolve.path', () => {
+  it('hops through :index and normalizes resolved paths', () => {
+    const local = AliasResolver.analyze(
+      { alias: { ':index': 'crdt:index-root', ':core-videos': ':index/:assets/core' } },
+      { alias: ['alias'] },
+    ).resolver;
+    const index = AliasResolver.analyze(
+      { alias: { ':assets': '~/assets' } },
+      { alias: ['alias'] },
+    ).resolver;
+
+    const res = resolveAliasPath('/:core-videos/example.webm', local, index);
+    expect(res).to.exist;
+    expect(res?.value).to.equal('~/assets/core/example.webm');
+    expect(res?.remaining).to.eql([]);
   });
 });

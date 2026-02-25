@@ -11,7 +11,8 @@ import { type t, Is, Path } from './common.ts';
 export function resolvePath(baseDir: string, subPath: string, filename?: string): string {
   if (filename && isAbsolutePath(filename)) return filename;
   if (isAbsolutePath(subPath)) return filename ? joinPath(subPath, filename) : subPath;
-  return filename ? joinPath(baseDir, subPath, filename) : joinPath(baseDir, subPath);
+  const base = baseDir === '.' ? '' : baseDir;
+  return filename ? joinPath(base, subPath, filename) : joinPath(base, subPath);
 }
 
 export function toRawPath(baseDir: string, path: string): string {
