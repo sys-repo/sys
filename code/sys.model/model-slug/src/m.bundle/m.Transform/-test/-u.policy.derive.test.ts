@@ -16,6 +16,22 @@ function makeDag(slugYaml: string): Dag {
 }
 
 describe('u.policy.derive', () => {
+  it('returns metadata-only result when dag input does not match transform DAG boundary', async () => {
+    const result = await SlugBundleTransform.derive({
+      dag: { nope: true },
+      yamlPath: ['slug'],
+      docid: 'crdt:abc123',
+    });
+
+    expect(result.ok).to.eql(true);
+    if (!result.ok) return;
+
+    expect(result.value.docid).to.eql('abc123');
+    expect(result.value.manifests).to.eql({});
+    expect(result.value.issues).to.eql([]);
+    expect(result.value.files.assets.raw).to.eql('manifests/slug.abc123.assets.json');
+  });
+
   it('derives playback + slug-tree manifests from a valid slug DAG', async () => {
     const result = await SlugBundleTransform.derive({
       dag: makeDag(SLUG_YAML_VALID_BOTH),

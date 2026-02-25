@@ -123,6 +123,61 @@ describe('u.policy.assets', () => {
     expect(images.every((d) => d.href.startsWith('/img-cdn/images/'))).to.eql(true);
   });
 
+  it('emits partial-success assets manifest while collecting resolver issues', async () => {
+    const derive = {
+      dag: makeDag(SLUG_YAML_WITH_MEDIA),
+      yamlPath,
+      docid: SLUG_ID,
+      assetResolver: async (args: { kind: string; logicalPath: string }) => {
+        if (args.logicalPath.includes('cover.png')) return { ok: false as const, error: new Error('missing cover') };
+        return {
+          ok: true as const,
+          value: {
+            kind: args.kind === 'video' ? ('video' as const) : ('image' as const),
+            logicalPath: args.logicalPath,
+            hash: args.kind === 'video' ? HASH_VIDEO : HASH_IMAGE_B,
+          },
+        };
+      },
+    };
+
+    const res = await deriveAssets({ derive, base: deriveMeta(derive) });
+    expect(res.manifest).to.exist;
+    expect(res.manifest?.assets.length).to.eql(2);
+    expect(res.issues.length).to.eql(1);
+    expect(res.issues[0].kind).to.eql('image-path:not-found');
+    expect(res.issues[0].message).to.contain('missing cover');
+  });
+
+  it('emits sequence:assets:not-exported when assembled manifest fails schema validation', async () => {
+    const derive = {
+      dag: makeDag(SLUG_YAML_VIDEO_ONLY),
+      yamlPath,
+      docid: SLUG_ID,
+      assetResolver: async () => ({
+        ok: true as const,
+        value: {
+          kind: 'video' as const,
+          logicalPath: '/:core-videos/example.webm',
+          hash: HASH_VIDEO,
+          shard: {
+            strategy: 'bad-strategy' as unknown as 'prefix-range',
+            total: 1,
+            index: 0,
+          },
+        },
+      }),
+    };
+
+    const res = await deriveAssets({ derive, base: deriveMeta(derive) });
+    expect(res.manifest).to.eql(undefined);
+    const issue = res.issues.find((d) => d.kind === 'sequence:assets:not-exported');
+    expect(issue?.severity).to.eql('error');
+    expect(issue?.path).to.eql('');
+    expect(issue?.raw).to.eql('manifests/slug.media-sequence.assets.json');
+    expect(issue?.message).to.contain('Assets manifest failed @sys/schema validation');
+  });
+
   it('emits source-like path issues for resolver miss/error and returns no manifest', async () => {
     const derive = {
       dag: makeDag(SLUG_YAML_VIDEO_ONLY),
