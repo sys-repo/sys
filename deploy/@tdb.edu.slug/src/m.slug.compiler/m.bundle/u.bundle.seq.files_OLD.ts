@@ -27,7 +27,7 @@ import {
  * - If playback cannot be generated or fails schema validation, records a
  *   dedicated lint issue with the precise reason.
  */
-export async function bundleSequenceFilepaths(
+export async function bundleSequenceFilepaths_OLD(
   dag: t.BundleSequenceDag,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,

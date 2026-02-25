@@ -1,8 +1,11 @@
 /**
  * Transitional media-seq bundler facade.
  *
- * Keep OLD and NEW paths explicit during parity-gated integration so the two
- * implementations are never interwoven in one file.
+ * `bundleSequenceFilepaths` remains pinned to OLD until the NEW path is promoted.
+ * Explicit `_OLD` / `_NEW` exports exist to support parity-gated migration work.
  */
-export { bundleSequenceFilepaths } from './u.bundle.seq.files_OLD.ts';
-export { bundleSequenceFilepathsViaTransform } from './u.bundle.seq.files_NEW.ts';
+export { bundleSequenceFilepaths_OLD } from './u.bundle.seq.files_OLD.ts';
+export { bundleSequenceFilepaths_NEW } from './u.bundle.seq.files_NEW.ts';
+
+// Stable compiler entrypoint (still OLD during this transition pass).
+export { bundleSequenceFilepaths_OLD as bundleSequenceFilepaths } from './u.bundle.seq.files_OLD.ts';
