@@ -1,8 +1,9 @@
 import { type t, Is, Obj, SlugSchema } from './common.ts';
+import { type DagLike } from './u.dag.ts';
 import { makeParser } from './u.parser.ts';
 
 export async function slugTreeFromDag(
-  dag: { nodes?: Array<{ id: string; doc?: { current?: unknown } }> } & Record<string, unknown>,
+  dag: DagLike,
   yamlPath: t.ObjectPath,
   docid: string,
   opts: { validate?: boolean; trait?: t.SlugTraitGateOptions | null; registry?: unknown } = {},

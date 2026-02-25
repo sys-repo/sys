@@ -1,9 +1,9 @@
 import { type t, Is, SlugSchema } from './common.ts';
+import { type DagLike, isDagLike } from './u.dag.ts';
+import { deriveAssets } from './u.policy.assets.ts';
 import { deriveMeta } from './u.policy.meta.ts';
 import { playbackFromDag } from './u.policy.playback.ts';
 import { slugTreeFromDag } from './u.policy.tree.ts';
-
-type DagLike = { nodes?: Array<{ id: string; doc?: { current?: unknown } }> } & Record<string, unknown>;
 
 export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Promise<t.SlugBundleTransform.DeriveResult> {
   const base = deriveMeta(args);
@@ -15,6 +15,10 @@ export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Prom
 
   if (!isDagLike(args.dag)) return { ok: true, value: { ...base, issues, manifests } };
   const dag = args.dag as DagLike;
+
+  const assetsResult = await deriveAssets({ derive: args, base });
+  issues.push(...assetsResult.issues);
+  if (assetsResult.manifest) manifests.assets = assetsResult.manifest;
 
   const playbackResult = await playbackFromDag(dag, args.yamlPath, rawDocid, {
     validate: true,
@@ -81,8 +85,3 @@ export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Prom
 
   return { ok: true, value: { ...base, issues, manifests } };
 }
-
-function isDagLike(input: unknown): input is { nodes: unknown[] } {
-  return Is.record(input) && Is.array((input as { nodes?: unknown }).nodes);
-}
-

@@ -11,6 +11,7 @@ import {
 } from '../u.path.ts';
 import { resolveAliasPath } from '../u.resolve.path.ts';
 import { cleanDocid } from '../u.docid.ts';
+import { isDagLike } from '../u.dag.ts';
 import { resolveTemplate } from '../u.template.ts';
 
 describe('u.path', () => {
@@ -65,6 +66,15 @@ describe('u.docid', () => {
     expect(cleanDocid('abc123')).to.equal('abc123');
     expect(cleanDocid('  abc123  ')).to.equal('abc123');
     expect(cleanDocid('foo:abc123')).to.equal('foo:abc123');
+  });
+});
+
+describe('u.dag', () => {
+  it('guards the minimal transform DAG boundary shape', () => {
+    expect(isDagLike({})).to.equal(false);
+    expect(isDagLike({ nodes: {} })).to.equal(false);
+    expect(isDagLike({ nodes: [] })).to.equal(true);
+    expect(isDagLike({ nodes: [{ id: 'crdt:x' }] })).to.equal(true);
   });
 });
 

@@ -33,6 +33,34 @@ describe('u.policy.derive', () => {
     expect(result.value.manifests.tree?.tree?.length).to.eql(1);
   });
 
+  it('derives assets alongside playback + slug-tree when resolver is supplied', async () => {
+    const result = await SlugBundleTransform.derive({
+      dag: makeDag(SLUG_YAML_VALID_BOTH),
+      yamlPath: [] as unknown as never,
+      docid: SLUG_ID,
+      assetResolver: async (args) => ({
+        ok: true as const,
+        value: {
+          kind: args.kind,
+          logicalPath: args.logicalPath,
+          hash:
+            args.kind === 'video'
+              ? '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+              : 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        },
+      }),
+    });
+
+    expect(result.ok).to.eql(true);
+    if (!result.ok) return;
+
+    expect(result.value.manifests.assets).to.exist;
+    expect(result.value.manifests.playback).to.exist;
+    expect(result.value.manifests.tree).to.exist;
+    expect(result.value.manifests.assets?.assets.length).to.eql(1);
+    expect(result.value.issues).to.eql([]);
+  });
+
   it('suppresses playback trait-not-applicable issue unless requirePlayback=true', async () => {
     const dag = makeDag(SLUG_YAML_TREE_ONLY);
 
@@ -112,4 +140,3 @@ data:
       - slug: Intro
         ref: crdt:intro
 `;
-
