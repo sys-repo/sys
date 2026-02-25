@@ -1,3 +1,4 @@
+import type { Graph as ImmutableGraph } from '@sys/immutable/t';
 import type { t } from './common.ts';
 
 /**
@@ -9,6 +10,22 @@ export namespace SlugBundleTransform {
   export type Facet = string;
   /** Opaque graph input supplied by a caller (for example a CRDT-derived DAG). */
   export type DagInput = unknown;
+  /**
+   * Internal DAG compatibility boundary.
+   *
+   * This transform accepts an opaque `DagInput` at the public API, then narrows at runtime to the
+   * minimum shape required by the policy modules. The shape is intentionally compatible with the
+   * canonical graph substrate (`@sys/immutable` `Graph.Dag.Result<T>`) without depending on any
+   * driver-specific graph adapter types.
+   */
+  export namespace Dag {
+    export type NodeLike = Pick<ImmutableGraph.Dag.Node<Record<string, unknown>>, 'id'> & {
+      readonly doc?: { readonly current?: unknown };
+    };
+    export type Shape = {
+      readonly nodes?: readonly NodeLike[];
+    } & Record<string, unknown>;
+  }
   /** Runtime-neutral doc identity at the transform boundary (raw or cleaned). */
   export type DocIdInput = t.StringId;
   /** Current supported shard strategy (kept truthful to runtime behavior). */

@@ -1,10 +1,9 @@
 import { type t, Is, Obj, SlugSchema } from './common.ts';
-import { type DagLike } from './u.dag.ts';
 import { makeParser } from './u.parser.ts';
 import { normalizeEditorSequenceForTypedYaml } from './u.sequence.normalize.dsl.ts';
 
 export async function sequenceFromDag(
-  dag: DagLike,
+  dag: t.SlugBundleTransform.Dag.Shape,
   yamlPath: t.ObjectPath,
   docid: string,
   opts: { validate?: boolean; trait?: t.SlugTraitGateOptions | null } = {},
@@ -15,7 +14,7 @@ export async function sequenceFromDag(
   if (!Is.record(dag) || !Is.array(dag.nodes)) {
     return fail('Slug graph is invalid (expected "dag.nodes").');
   }
-  const dagOk = dag as { nodes: Array<{ id: string; doc?: { current?: string | undefined } }> };
+  const dagOk = dag as { nodes: readonly { id: string; doc?: { current?: string | undefined } }[] };
   const parser = makeParser(yamlPath);
 
   const { ok: pathOk, node } = parser.path(dagOk, docid);

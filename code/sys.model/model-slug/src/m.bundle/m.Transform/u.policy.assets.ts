@@ -1,5 +1,5 @@
 import { type t, Is, Path, Shard, SlugSchema, Str } from './common.ts';
-import { type DagLike, isDagLike } from './u.dag.ts';
+import { isDagLike } from './u.dag.ts';
 import { sequenceFromDag } from './u.policy.sequence.ts';
 
 type AssetIssue = t.SlugBundleTransform.Issue;
@@ -24,7 +24,7 @@ export async function deriveAssets(args: {
   const issues: AssetIssue[] = [];
   const assets: t.SlugAsset[] = [];
 
-  const seqResult = await sequenceFromDag(derive.dag as DagLike, derive.yamlPath, docid, {
+  const seqResult = await sequenceFromDag(derive.dag as t.SlugBundleTransform.Dag.Shape, derive.yamlPath, docid, {
     validate: false,
     trait: { of: 'media-composition' },
   });

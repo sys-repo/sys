@@ -1,5 +1,5 @@
 import { type t, Is, SlugSchema } from './common.ts';
-import { type DagLike, isDagLike } from './u.dag.ts';
+import { isDagLike } from './u.dag.ts';
 import { deriveAssets } from './u.policy.assets.ts';
 import { deriveMeta } from './u.policy.meta.ts';
 import { playbackFromDag } from './u.policy.playback.ts';
@@ -14,7 +14,7 @@ export async function deriveBundle(args: t.SlugBundleTransform.DeriveArgs): Prom
   const rawDocid = String(args.docid) as t.StringId;
 
   if (!isDagLike(args.dag)) return { ok: true, value: { ...base, issues, manifests } };
-  const dag = args.dag as DagLike;
+  const dag = args.dag as t.SlugBundleTransform.Dag.Shape;
 
   const assetsResult = await deriveAssets({ derive: args, base });
   issues.push(...assetsResult.issues);

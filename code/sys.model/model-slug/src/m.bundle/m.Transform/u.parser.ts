@@ -2,10 +2,12 @@ import { type t, AliasResolver, Is, Obj, Yaml } from './common.ts';
 import { resolveAliasPath } from './u.path.alias.ts';
 import { makeResolvers } from './u.resolve.ts';
 
-type DagNode = { id: string; doc?: { current?: string | undefined } };
-type Dag = { nodes: DagNode[] };
+type ParserDagNode = t.SlugBundleTransform.Dag.NodeLike & {
+  readonly doc?: { readonly current?: string | undefined };
+};
+type ParserDag = { readonly nodes: readonly ParserDagNode[] };
 type ParsedNode = {
-  node: DagNode;
+  node: ParserDagNode;
   isRoot: boolean;
   slug?: Record<string, unknown> | null;
   alias?: ReturnType<typeof AliasResolver.analyze>;
@@ -14,22 +16,22 @@ type ParsedNode = {
 export function makeParser(yamlPath: t.ObjectPath) {
   const { Lens, Resolve } = makeResolvers(yamlPath);
 
-  function parseNode(node: DagNode, isRoot = false): ParsedNode {
+  function parseNode(node: ParserDagNode, isRoot = false): ParsedNode {
     const slug = Resolve.slug(node);
     const alias = slug ? AliasResolver.analyze(slug, { alias: ['alias'] }) : undefined;
     return Obj.asGetter({ node, isRoot, slug, alias });
   }
 
-  function parseRoot(dag: Dag) {
+  function parseRoot(dag: ParserDag) {
     return parseNode(dag.nodes[0], true);
   }
 
-  function findParsedNode(dag: Dag, docid: string): ParsedNode | undefined {
+  function findParsedNode(dag: ParserDag, docid: string): ParsedNode | undefined {
     const node = dag.nodes.find((d) => d.id === docid);
     return node ? parseNode(node, false) : undefined;
   }
 
-  function path(dag: Dag, docid: string) {
+  function path(dag: ParserDag, docid: string) {
     const root = parseRoot(dag);
     const node = findParsedNode(dag, docid);
     const index = resolveIndexResolver(dag, root, node);
@@ -43,7 +45,7 @@ export function makeParser(yamlPath: t.ObjectPath) {
 }
 
 function resolveIndexResolver(
-  dag: Dag,
+  dag: ParserDag,
   root: ParsedNode,
   node?: ParsedNode,
 ) {
