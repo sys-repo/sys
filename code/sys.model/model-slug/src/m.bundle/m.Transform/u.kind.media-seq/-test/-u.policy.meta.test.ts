@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import { D } from '../common.ts';
-import { SlugBundleTransform } from '../mod.ts';
+import { SlugBundleTransform } from '../../mod.ts';
 
 describe('u.policy.meta', () => {
   it('derives output metadata for media-seq targets', async () => {

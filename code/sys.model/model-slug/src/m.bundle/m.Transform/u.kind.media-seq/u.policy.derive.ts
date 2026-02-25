@@ -1,5 +1,5 @@
 import { type t, Is, SlugSchema } from './common.ts';
-import { isDagLike } from './u.dag.ts';
+import { isDagLike } from '../u.dag.ts';
 import { deriveAssets } from './u.policy.assets.ts';
 import { deriveMeta } from './u.policy.meta.ts';
 import { playbackFromDag } from './u.policy.playback.ts';

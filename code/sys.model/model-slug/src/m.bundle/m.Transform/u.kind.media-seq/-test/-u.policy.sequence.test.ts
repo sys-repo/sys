@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import { sequenceFromDag } from '../u.policy.sequence.ts';
 
 type Dag = { nodes: Array<{ id: string; doc: { current: string } }> };
@@ -120,4 +120,3 @@ data:
           text:
             body: "- Body without headline"
 `;
-

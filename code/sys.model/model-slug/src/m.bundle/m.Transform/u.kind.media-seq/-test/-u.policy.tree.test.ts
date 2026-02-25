@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import { slugTreeFromDag } from '../u.policy.tree.ts';
 
 type Dag = { nodes: Array<{ id: string; doc: { current: string } }> };

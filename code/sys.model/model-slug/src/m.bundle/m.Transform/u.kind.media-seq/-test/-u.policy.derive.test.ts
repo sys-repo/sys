@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { SlugBundleTransform } from '../mod.ts';
+import { describe, expect, it } from '../../../../-test.ts';
+import { SlugBundleTransform } from '../../mod.ts';
 
 type Dag = { nodes: Array<{ id: string; doc: { current: string } }> };
 

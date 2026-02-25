@@ -1,5 +1,5 @@
 import { type t, Is, Path, Shard, SlugSchema, Str } from './common.ts';
-import { isDagLike } from './u.dag.ts';
+import { isDagLike } from '../u.dag.ts';
 import { sequenceFromDag } from './u.policy.sequence.ts';
 
 type AssetIssue = t.SlugBundleTransform.Issue;

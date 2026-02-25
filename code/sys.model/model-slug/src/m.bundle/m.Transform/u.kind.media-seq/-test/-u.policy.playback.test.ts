@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import { playbackFromDag } from '../u.policy.playback.ts';
 
 type Dag = { nodes: Array<{ id: string; doc: { current: string } }> };
@@ -67,4 +67,3 @@ data:
   sequence:
     - video: /noop
 `;
-

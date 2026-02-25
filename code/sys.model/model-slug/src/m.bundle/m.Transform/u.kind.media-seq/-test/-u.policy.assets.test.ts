@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../../-test.ts';
 import { deriveAssets } from '../u.policy.assets.ts';
 import { deriveMeta } from '../u.policy.meta.ts';
 
