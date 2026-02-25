@@ -13,6 +13,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./capability": "./src/m.Fs.capability/mod.ts",
     "./env": "./src/m.Env/mod.ts",
     "./dir": "./src/m.Dir/mod.ts",
     "./file": "./src/-exports/-file.ts",
