@@ -174,4 +174,32 @@ describe('Path', () => {
       expect(Path.relativePosix('a/b/c')).to.eql('a/b/c');
     });
   });
+
+  describe('file URL conversions', () => {
+    it('fromFileUrl accepts string (import.meta.url)', () => {
+      const path = Path.fromFileUrl(import.meta.url);
+      expect(typeof path).to.eql('string');
+      expect(path.length > 0).to.eql(true);
+      expect(Path.basename(path)).to.eql('-.test.ts');
+    });
+
+    it('fromFileUrl accepts URL instance', () => {
+      const url = new URL(import.meta.url);
+      const a = Path.fromFileUrl(url);
+      const b = Path.fromFileUrl(import.meta.url);
+      expect(a).to.eql(b);
+    });
+
+    it('toFileUrl/fromFileUrl round-trip', () => {
+      const path = Path.resolve('.');
+      const url = Path.toFileUrl(path);
+      const roundtrip = Path.fromFileUrl(url);
+      expect(Path.normalize(roundtrip)).to.eql(Path.normalize(path));
+    });
+
+    it('supports import.meta.url dirname pattern', () => {
+      const dir = Path.dirname(Path.fromFileUrl(import.meta.url));
+      expect(Path.Is.absolute(dir)).to.eql(true);
+    });
+  });
 });
