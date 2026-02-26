@@ -31,8 +31,9 @@ export const HashFmt = {
     tbl.push([c.gray('  dir'), c.gray(dirLabel)]);
     if (opts.dist) {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));
+      const digestShort = ` ${c.green(`#${res.digest.slice(-5)}`)}`;
       const status = wrangle.distStatus(opts.dist.status);
-      tbl.push([c.gray('  dist'), `${path}${status}`]);
+      tbl.push([c.gray('  dist'), `${path}${digestShort}${status}`]);
     }
     tbl.push([c.gray('  files'), c.gray(res.fileCount.toLocaleString())]);
     tbl.push([c.gray('  bytes'), c.gray(Str.bytes(res.bytesTotal))]);

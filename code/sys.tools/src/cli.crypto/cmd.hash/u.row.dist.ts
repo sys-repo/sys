@@ -3,10 +3,13 @@ import { type t, Delete, Fs, Pkg } from '../common.ts';
 export const HashRowDist = {
   async readBefore(dir: t.StringDir): Promise<t.HashDistRowBefore> {
     const path = Fs.Path.join(dir, 'dist.json');
+    const exists = await Fs.exists(path);
+    if (!exists) return { path, exists: false, kind: 'missing' };
+
     const loaded = await Pkg.Dist.load(dir);
     const kind = wrangle.kind(loaded.kind);
     const digest = kind === 'canonical' ? loaded.dist?.hash?.digest : undefined;
-    return { path, exists: loaded.exists, kind, digest };
+    return { path, exists: true, kind, digest };
   },
 
   afterRun(args: {
