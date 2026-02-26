@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Distribution package metadata (`/dist/pkg.json`).
+ * Distribution package metadata (`/dist/dist.json`).
  */
 export type DistPkg = {
   /** Type definition. */
