@@ -23,7 +23,10 @@ export namespace CryptoTool {
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
-  export type CliParsedArgs = t.ParsedArgs<CliArgs> & { readonly command?: SubCmd };
+  export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
+    readonly command?: SubCmd;
+    readonly save?: boolean;
+  };
   export namespace ConfigYaml {
     export type Doc = { name: string };
     export type DirName = `-config/${string}.${Id}`;

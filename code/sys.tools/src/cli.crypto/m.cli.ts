@@ -32,7 +32,7 @@ export const cli: t.CryptoToolsLib['cli'] = async (cwd, argv) => {
 async function run(cwd: t.StringDir, args: t.CryptoTool.CliParsedArgs): Promise<t.RunReturn> {
   if (args.command === 'hash') {
     const target = Is.str(args._[1]) ? args._[1] : '.';
-    await hashDir(cwd, target);
+    await hashDir(cwd, target, { saveDist: args.save === true });
     return done(0);
   }
 

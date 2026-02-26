@@ -10,7 +10,7 @@ export function parseArgs(argv: string[] = []): t.CryptoTool.CliParsedArgs {
 
   const args = Args.parse<t.CryptoTool.CliArgs>(normalized, {
     alias: { h: 'help' },
-    boolean: ['help'],
+    boolean: ['help', 'save'],
   });
 
   const head = args._[0];

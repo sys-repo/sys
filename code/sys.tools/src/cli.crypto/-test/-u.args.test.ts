@@ -13,4 +13,18 @@ describe('cli.crypto args', () => {
     expect(res.command).to.eql('hash');
     expect(res._).to.eql(['hash', './foo/bar']);
   });
+
+  it('parses --save after hash command', () => {
+    const res = parseArgs(['hash', '--save', './foo/bar']);
+    expect(res.command).to.eql('hash');
+    expect(res.save).to.eql(true);
+    expect(res._).to.eql(['hash', './foo/bar']);
+  });
+
+  it('parses --save before hash command', () => {
+    const res = parseArgs(['--save', 'hash', './foo/bar']);
+    expect(res.command).to.eql('hash');
+    expect(res.save).to.eql(true);
+    expect(res._).to.eql(['hash', './foo/bar']);
+  });
 });
