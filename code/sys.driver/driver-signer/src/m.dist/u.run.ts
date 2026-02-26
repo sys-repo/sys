@@ -1,4 +1,5 @@
-import { type t, Err, Fs, FsPkg, Hash, SignEd25519 } from './common.ts';
+import { type t, Err, Fs, FsPkg, SignEd25519 } from './common.ts';
+import { successData } from './u.audit.ts';
 import { fail, ok } from './u.result.ts';
 
 export const run: t.DistSigner.Lib['run'] = async (args) => {
@@ -251,19 +252,4 @@ function signatureDescriptorPath(artifactPath: t.StringPath, signaturePath: t.St
   const sigDir = Fs.dirname(signaturePath);
   if (artifactDir === sigDir) return `./${Fs.basename(signaturePath)}`;
   return signaturePath;
-}
-
-function successData(
-  data: t.Signer.ResultData,
-  args: t.DistSigner.RunArgs,
-  artifactBytes: Uint8Array,
-  verified: boolean,
-): t.DistSigner.RunDataSuccess {
-  return {
-    ...data,
-    artifactPath: args.artifact.path,
-    signaturePath: args.signature.path,
-    artifactHash: Hash.sha256(artifactBytes) as t.StringHash,
-    verified,
-  };
 }
