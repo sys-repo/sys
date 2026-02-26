@@ -89,7 +89,7 @@ const writeMeta = async (
 };
 
 const wrangle = {
-  async hash(dir: t.StringDir, filter?: t.FsPathFilter) {
+  async hash(dir: t.StringDir, filter?: t.Fs.Path.Filter) {
     const hx = await DirHash.compute(dir, { filter });
     return hx.hash;
   },

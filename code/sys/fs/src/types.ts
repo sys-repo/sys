@@ -10,9 +10,6 @@ export type FsCopyFilterArgs = {
   target: t.StringAbsolutePath;
 };
 
-/** Filters on an absolute path. */
-export type FsPathFilter = (path: t.StringAbsolutePath) => boolean;
-
 /**
  * Library:
  */

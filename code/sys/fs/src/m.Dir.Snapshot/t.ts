@@ -17,7 +17,7 @@ export type FsDirSnapshotArgs = {
   target: t.StringDir;
 
   /** Filter function to narrow down the paths included in the snapshot. */
-  filter?: t.FsPathFilter;
+  filter?: t.Fs.Path.Filter;
 
   /** Augment the snapshot meta with a "commit" style messagae. */
   message?: string;

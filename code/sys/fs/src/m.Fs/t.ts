@@ -77,6 +77,12 @@ export namespace Fs {
     export type Instance = t.FsCapability.Instance;
   }
 
+  /** Filesystem path helper types. */
+  export namespace Path {
+    /** Filters on an absolute path. */
+    export type Filter = (path: t.StringAbsolutePath) => boolean;
+  }
+
   /**
    * Filesystem/Path type verification flags.
    */
