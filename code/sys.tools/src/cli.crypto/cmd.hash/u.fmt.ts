@@ -1,5 +1,4 @@
-import { c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
-import type * as h from './t.ts';
+import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
 
 export const HashFmt = {
   dirLabel(path: string) {
@@ -16,11 +15,11 @@ export const HashFmt = {
   },
 
   result(
-    res: h.HashRunResult,
+    res: t.HashRunResult,
     opts: {
       elapsed?: string;
       dirLabel?: string;
-      dist?: { path: string; created: boolean };
+      dist?: t.HashDistRow;
     } = {},
   ): string {
     const tbl = Cli.table([]);
@@ -32,13 +31,21 @@ export const HashFmt = {
     tbl.push([c.gray('  dir'), c.gray(dirLabel)]);
     if (opts.dist) {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));
-      const created = opts.dist.created ? ` ${c.green('(created)')}` : '';
-      tbl.push([c.gray('  dist'), `${path}${created}`]);
+      const status = wrangle.distStatus(opts.dist.status);
+      tbl.push([c.gray('  dist'), `${path}${status}`]);
     }
     tbl.push([c.gray('  files'), c.gray(res.fileCount.toLocaleString())]);
     tbl.push([c.gray('  bytes'), c.gray(Str.bytes(res.bytesTotal))]);
     tbl.push([c.gray('  elapsed'), c.gray(elapsed)]);
 
     return Str.trimEdgeNewlines(String(tbl));
+  },
+} as const;
+
+const wrangle = {
+  distStatus(status?: t.HashDistRowStatus) {
+    if (!status) return '';
+    if (status === 'created' || status === 'changed') return ` ${c.green(`(${status})`)}`;
+    return ` ${c.yellow(`(${status})`)}`;
   },
 } as const;

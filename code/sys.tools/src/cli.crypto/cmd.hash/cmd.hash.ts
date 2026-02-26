@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Time } from '../common.ts';
 import { HashFmt } from './u.fmt.ts';
 import { HashJobSchema } from './u.hash.schema.ts';
+import { HashRowDist } from './u.row.dist.ts';
 import { runHashJob } from './u.hash.ts';
 
 export async function hashCurrentDir(cwd: t.StringDir): Promise<void> {
@@ -15,8 +16,7 @@ export async function hashDir(
   const resolved = Fs.Path.resolve(cwd, targetDir);
   const dirLabel = HashFmt.dirLabel(resolved);
   const saveDist = opts.saveDist ?? false;
-  const distPath = Fs.Path.join(resolved, 'dist.json');
-  const distExistedBefore = saveDist ? await Fs.exists(distPath) : false;
+  const distBefore = await HashRowDist.readBefore(resolved);
   const job = { ...HashJobSchema.initial(resolved), saveDist };
   const startedAt = Time.now.timestamp;
   const spinner = Cli.spinner(HashFmt.spinnerText(resolved));
@@ -29,6 +29,8 @@ export async function hashDir(
   }
   const elapsed = String(Time.elapsed(startedAt));
 
+  const distRow = HashRowDist.afterRun({ before: distBefore, saveDist, digest: res.digest });
+
   console.info();
   console.info(c.green('✔ directory hashed'));
   console.info();
@@ -36,7 +38,7 @@ export async function hashDir(
     HashFmt.result(res, {
       elapsed,
       dirLabel,
-      dist: saveDist ? { path: distPath, created: !distExistedBefore } : undefined,
+      dist: distRow,
     }),
   );
   console.info();

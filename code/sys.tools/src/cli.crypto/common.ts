@@ -1,8 +1,12 @@
 import { CryptoTool } from './t.namespace.ts';
-import { type t } from '../common.ts';
 
-export * from '../common.ts';
+/** Type re-exports. */
+import * as t from './common.t.ts';
+export type { t };
+
+/** Libs: */
 export { Schema } from '@sys/schema';
+export * from '../common.ts';
 
 /**
  * Constants:

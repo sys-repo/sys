@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, D, Fs, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, D, Fs, Str } from './common.ts';
 
 export const Fmt = {
   ...Base,
