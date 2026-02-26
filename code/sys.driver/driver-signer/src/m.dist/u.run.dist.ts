@@ -49,7 +49,10 @@ async function readDistBytes(
         data,
         'parse',
         'E_PARSE',
-        loaded.error ?? { name: 'Error', message: `Expected a canonical dist.json: ${loaded.path}` },
+        loaded.error ?? {
+          name: 'Error',
+          message: `Expected a canonical dist.json: ${loaded.path}`,
+        },
       ),
     };
   }
@@ -84,7 +87,10 @@ async function writeDistSignDescriptorAndReadBytes(
         data,
         'read',
         'E_READ',
-        loaded.error ?? { name: 'Error', message: `dist.json does not exist: ${args.artifact.path}` },
+        loaded.error ?? {
+          name: 'Error',
+          message: `dist.json does not exist: ${args.artifact.path}`,
+        },
       ),
     };
   }
@@ -96,7 +102,10 @@ async function writeDistSignDescriptorAndReadBytes(
         data,
         'parse',
         'E_PARSE',
-        loaded.error ?? { name: 'Error', message: `Expected a canonical dist.json: ${loaded.path}` },
+        loaded.error ?? {
+          name: 'Error',
+          message: `Expected a canonical dist.json: ${loaded.path}`,
+        },
       ),
     };
   }
@@ -104,7 +113,7 @@ async function writeDistSignDescriptorAndReadBytes(
   try {
     const descriptor = {
       path: signatureDescriptorPath(args.artifact.path, args.signature.path),
-      scheme: 'Ed25519' as const,
+      scheme: 'Ed25519' satisfies t.DistSigner.SignScheme,
       ...(args.identityRef ? { key: args.identityRef } : {}),
     };
 
@@ -133,7 +142,14 @@ async function writeDistSignDescriptorAndReadBytes(
   }
 }
 
-function signatureDescriptorPath(artifactPath: t.StringPath, signaturePath: t.StringPath): t.StringPath {
+function signatureDescriptorPath(
+  artifactPath: t.StringPath,
+  signaturePath: t.StringPath,
+): t.StringPath {
+  // Current policy:
+  // - same dir: emit relative sidecar path (`./file.sig`)
+  // - cross-dir: preserve caller-provided path unchanged
+  // This keeps the descriptor truthful until a stricter cross-dir policy is formalized.
   const artifactDir = Fs.dirname(artifactPath);
   const sigDir = Fs.dirname(signaturePath);
   if (artifactDir === sigDir) return `./${Fs.basename(signaturePath)}`;

@@ -315,6 +315,42 @@ describe(`DistSigner`, () => {
       expect(verified.ok).to.eql(true);
     });
 
+    it('dist.json descriptor preserves caller path when signature sidecar is in a different directory', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      const sigDir = Fs.join(dir, 'signatures');
+      await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
+      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      expect(computed.error).to.eql(undefined);
+
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(sigDir, 'dist.json.sig');
+      const keys = await SignEd25519.generateKeyPair();
+
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        privateKey: keys.privateKey,
+      });
+      expect(signed.ok).to.eql(true);
+
+      const loaded = await Fs.readJson<Record<string, unknown>>(artifact);
+      expect(loaded.ok).to.eql(true);
+      if (!loaded.ok || !loaded.data) throw new Error('Expected dist.json to load.');
+      const build = loaded.data.build as Record<string, unknown>;
+      const sign = build.sign as Record<string, unknown>;
+      expect(sign.path).to.eql(signature);
+      expect(sign.scheme).to.eql('Ed25519');
+
+      const verified = await DistSigner.run({
+        mode: 'verify',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        publicKey: keys.publicKey,
+      });
+      expect(verified.ok).to.eql(true);
+    });
+
     it('prints canonical dist.json sample with detached signature descriptor and signer metadata', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });

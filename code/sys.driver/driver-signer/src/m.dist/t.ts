@@ -9,6 +9,7 @@ type O = Record<string, unknown>;
  */
 export namespace DistSigner {
   export type ManifestKind = 'dist.json' | 'manifest';
+  export type SignScheme = 'Ed25519';
   export type WriteBack = {
     /**
      * Write the detached signature descriptor into canonical `dist.json`
