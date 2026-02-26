@@ -1,4 +1,4 @@
-export { Err, Is, Obj, Try } from '@sys/std';
+export { Err, Is, Obj, Pkg, Try } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time, Timecode } from '@sys/std/time';
