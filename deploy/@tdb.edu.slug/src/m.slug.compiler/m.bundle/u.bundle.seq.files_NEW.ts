@@ -13,6 +13,7 @@ import {
 
 type SourceMap = Map<string, string>;
 type SlugPathCtx = ReturnType<t.Parser['path']>;
+type MediaDurationProbe = (path: string) => Promise<t.Msecs | undefined>;
 type BundleSeqOpts = {
   facets?: t.BundleSequenceFacet[];
   outDir?: string;
@@ -38,7 +39,8 @@ export async function bundleSequenceFilepaths_NEW(
   const pathCtx = parse.path(dag, docid);
 
   const assetResolver = makeAssetResolver({ fs, pathCtx, resolvedSources });
-  const durationProbe = makeDurationProbe();
+  const probeMediaDuration = makeMediaDurationProbe();
+  const durationProbe = makeDurationProbe(probeMediaDuration);
 
   const derive = await SlugBundle.Transform.derive({
     dag,
@@ -118,13 +120,19 @@ function makeAssetResolver(args: {
   };
 }
 
-function makeDurationProbe(): t.SlugBundleTransform.DurationProbe {
+function makeMediaDurationProbe(): MediaDurationProbe {
+  return async (path) => {
+    const result = await Ffmpeg.duration(path);
+    return result.ok ? result.msecs : undefined;
+  };
+}
+
+function makeDurationProbe(probeMediaDuration: MediaDurationProbe): t.SlugBundleTransform.DurationProbe {
   return async (args) => {
     if (args.asset.kind !== 'video') return undefined;
     const resolvedPath = resolveSourcePathFromProbe(args.asset);
     if (!resolvedPath) return undefined;
-    const result = await Ffmpeg.duration(resolvedPath);
-    return result.ok ? result.msecs : undefined;
+    return await probeMediaDuration(resolvedPath);
   };
 }
 
