@@ -5,9 +5,7 @@
  */
 import { type t } from './common.ts';
 
-export const FsCapability: {
-  readonly fromFs: (fs: t.FsLib) => t.FsCapability.Lib;
-} = {
+export const FsCapability: t.FsCapability.Lib = {
   fromFs(fs) {
     return {
       read: fs.read,

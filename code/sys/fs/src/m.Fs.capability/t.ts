@@ -1,14 +1,17 @@
 import type { t } from './common.ts';
 
 export namespace FsCapability {
+  export type Lib = {
+    readonly fromFs: (fs: t.FsLib) => Instance;
+  };
+
   /**
    * Portable filesystem/path runtime capability surface.
    *
-   * NOTE:
    * Consumers should rely on a minimal stable subset of `stat` fields.
-   * For the current compiler media-seq adapter integration, usage is constrained to `size`.
+   * Avoid platform-specific file metadata unless explicitly required and tested.
    */
-  export type Lib = {
+  export type Instance = {
     readonly read: t.FsLib['read'];
     readonly exists: t.FsLib['exists'];
     readonly copy: t.FsLib['copy'];

@@ -11,7 +11,7 @@ describe(`FS: Capability`, () => {
 
   it('fromFs', () => {
     const cap = FsCapability.fromFs(Fs);
-    expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Lib>();
+    expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Instance>();
     expect(cap.cwd).to.equal(Fs.cwd);
     expect(cap.tildeExpand).to.equal(Fs.Tilde.expand);
   });

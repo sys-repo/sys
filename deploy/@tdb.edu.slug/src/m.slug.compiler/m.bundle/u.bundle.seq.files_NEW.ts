@@ -81,7 +81,7 @@ export async function bundleSequenceFilepaths_NEW(
  * Compiler runtime adapters → Bundle.Transform.
  */
 function makeAssetResolver(args: {
-  fs: t.FsCapability.Lib;
+  fs: t.FsCapability.Instance;
   pathCtx: SlugPathCtx;
   resolvedSources: SourceMap;
 }): t.SlugBundleTransform.AssetResolver {
@@ -132,7 +132,7 @@ function makeDurationProbe(): t.SlugBundleTransform.DurationProbe {
  * Runtime materialization.
  */
 async function materializeTransformAssets(args: {
-  fs: t.FsCapability.Lib;
+  fs: t.FsCapability.Instance;
   hints?: readonly t.SlugBundleTransform.AssetMaterializeHint[];
   sources: SourceMap;
 }) {
@@ -148,7 +148,7 @@ async function materializeTransformAssets(args: {
 }
 
 async function writeTransformManifests(args: {
-  fs: t.FsCapability.Lib;
+  fs: t.FsCapability.Instance;
   files: {
     assets: { path: string };
     playback: { path: string };
@@ -200,7 +200,7 @@ function toLintIssue(issue: t.SlugBundleTransform.Issue): t.LintSequenceFilepath
 /**
  * Runtime target normalization.
  */
-function resolveRuntimeTargetDefaults(opts: BundleSeqOpts, fsCap?: t.FsCapability.Lib) {
+function resolveRuntimeTargetDefaults(opts: BundleSeqOpts, fsCap?: t.FsCapability.Instance) {
   const fs = fsCap ?? FsCapability.fromFs(Fs);
   const manifestsBase =
     opts.target?.manifests?.base ?? opts.outDir ?? fs.join(fs.cwd('terminal'), 'publish.assets');
