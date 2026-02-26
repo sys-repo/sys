@@ -7,8 +7,11 @@ export type DistPkg = {
   /** Type definition. */
   type: t.StringTypeUrl;
 
-  /** The package info. */
-  pkg: t.Pkg;
+  /**
+   * Optional package identity metadata for the content root.
+   * Omitted when the dist describes non-package folder content.
+   */
+  pkg?: t.Pkg;
 
   /** Build meta-data. */
   build: {

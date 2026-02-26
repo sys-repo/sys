@@ -191,12 +191,27 @@ describe('Pkg.Dist', () => {
       expect(Object.keys(second.dist.hash.parts).includes('dist.json.sig')).to.eql(false);
     });
 
-    it('{pkg} not passed → <unknown> package', async () => {
+    it('{pkg} not passed → omit root pkg metadata', async () => {
       const sample = await Sample.init();
       const { dir } = sample.path;
       const res = await Pkg.Dist.compute({ dir });
-      expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
+      expect(res.dist.pkg).to.eql(undefined);
       expect(Pkg.Is.unknown(res.dist.build.builder)).to.eql(true);
+    });
+
+    it('{pkg} not passed + save:true → roundtrips canonical dist with omitted pkg', async () => {
+      const sample = await Sample.init();
+      const { dir, filepath } = sample.path;
+
+      const computed = await Pkg.Dist.compute({ dir, save: true });
+      expect(computed.dist.pkg).to.eql(undefined);
+
+      const json = (await Fs.readJson<unknown>(filepath)).data as Record<string, unknown>;
+      expect(Object.prototype.hasOwnProperty.call(json, 'pkg')).to.eql(false);
+
+      const loaded = await Pkg.Dist.load(dir);
+      expect(loaded.kind).to.eql('canonical');
+      expect(loaded.dist?.pkg).to.eql(undefined);
     });
 
     it('default: does not save to file', async () => {
@@ -495,6 +510,21 @@ describe('Pkg.Dist', () => {
       expect(res.dist).to.eql(undefined);
       expect(res.legacy?.pkg).to.eql(legacy.pkg);
       expect(res.error).to.eql(undefined);
+    });
+  });
+
+  describe('Dist.Log', () => {
+    it('dist(): falls back when root pkg metadata omitted', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      const res = await Pkg.Dist.compute({ dir });
+
+      expect(res.dist.pkg).to.eql(undefined);
+
+      const text = Pkg.Dist.Log.dist(res.dist);
+      expect(text.length > 0).to.eql(true);
+      expect(text.includes('digest:')).to.eql(true);
+      expect(text.includes('builder:')).to.eql(true);
     });
   });
 

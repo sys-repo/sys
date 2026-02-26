@@ -1,4 +1,4 @@
-import { type t, Arr, c, Cli, Fs, Num, Path, Str } from './common.ts';
+import { type t, Arr, c, Cli, Fs, Num, Path, Pkg, Str } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { toModuleString } from './u.log.ts';
 
@@ -67,7 +67,8 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
     const child = (await Dist.load(Path.join(dir, Path.dirname(path)))).dist;
     if (child) {
       const branch = Cli.Fmt.Tree.branch(isLast && content.length === 0, 1);
-      const mod = toModuleString(child.pkg);
+      const childPkg = child.pkg ?? Pkg.toPkg(child.build.builder);
+      const mod = toModuleString(childPkg);
       const size = child.build.size;
       totalBytes.subpackages += size.total;
 

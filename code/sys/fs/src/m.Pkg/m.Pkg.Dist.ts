@@ -61,7 +61,7 @@ export const Dist: PkgDistFsLib = {
 
     const dist: t.DistPkg = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
-      pkg: args.pkg ?? Pkg.unknown(),
+      ...(args.pkg ? { pkg: args.pkg } : {}),
       build,
       hash,
     };

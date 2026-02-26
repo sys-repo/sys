@@ -1,5 +1,4 @@
-import { Pkg } from '@sys/std/pkg';
-import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Str, Time } from './common.ts';
+import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Pkg, Str, Time } from './common.ts';
 import { toModuleString } from './u.log.ts';
 
 /**
@@ -10,9 +9,9 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
 
   // Input:
   const outDir = options.dir ?? './dist';
-  const pkg = dist.pkg;
   const builder = dist.build.builder;
   const builderPkg = Pkg.toPkg(builder);
+  const subjectPkg = dist.pkg ?? builderPkg;
 
   // Prepare strings:
   const title = options.title === false ? '' : c.green(options.title ?? 'Production Bundle');
@@ -54,7 +53,7 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
     if (text) res += text + '\n';
   };
   if (title) line(title);
-  line(c.bold(toModuleString(pkg, dist.hash.digest.slice(-5))));
+  line(c.bold(toModuleString(subjectPkg, dist.hash.digest.slice(-5))));
   line(' ↓');
   line(table.toString());
   res = res.trim();

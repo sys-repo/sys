@@ -35,6 +35,31 @@ describe('Pkg.Dist', () => {
       expect(canonical?.build.hash.policy).to.eql(policy);
       expect(Pkg.Is.dist(canonical)).to.eql(true);
     });
+
+    it('toCanonical: preserves omitted root pkg', () => {
+      const legacy: t.DistPkgLegacy = {
+        type: 'https://jsr.io/@sample/foo',
+        build: {
+          time: 1746520471244,
+          size: { total: 1234, pkg: 1234 },
+          builder: '@scope/sample@0.0.0',
+          runtime: '<runtime-uri>',
+        },
+        hash: {
+          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          parts: {
+            './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          },
+        },
+      };
+
+      const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
+        policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
+      });
+
+      expect(canonical?.pkg).to.eql(undefined);
+      expect(Pkg.Is.dist(canonical)).to.eql(true);
+    });
   });
 
   describe('Dist.Is', () => {
