@@ -2,6 +2,7 @@ import { ensureDir, ensureSymlink, exists, ls, move, Path } from './common.ts';
 import type { FsLib } from './t.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
+import { FsCapability } from '../m.Fs.capability/mod.ts';
 import { Watch } from '../m.Watch/mod.ts';
 import { Fmt } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
@@ -42,6 +43,9 @@ export const Fs: FsLib = {
   },
   get Tilde() {
     return Tilde;
+  },
+  get Capability() {
+    return FsCapability;
   },
 
   stat,

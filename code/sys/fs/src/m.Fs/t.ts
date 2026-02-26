@@ -74,6 +74,8 @@ export type FsLib = Methods & {
  * Sub-namespace properties.
  */
 type NamespaceMembers = {
+  readonly Capability: t.FsCapability.Lib;
+
   /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 

@@ -4,12 +4,14 @@ import { describe, expect, it } from '../../-test.ts';
 import { Glob } from '../../m.Glob/mod.ts';
 import { Path } from '../common.ts';
 import { Fs } from '../mod.ts';
+import { FsCapability } from '../../m.Fs.capability/mod.ts';
 
 describe('Fs: filesystem', () => {
   it('API', () => {
     expect(Fs.glob).to.equal(Glob.create);
     expect(Fs.ls).to.equal(Glob.ls);
     expect(Fs.trimCwd).to.equal(Path.trimCwd);
+    expect(Fs.Capability).to.equal(FsCapability);
 
     expect(Fs.ensureDir).to.eql(StdFs.ensureDir);
     expect(Fs.ensureSymlink).to.eql(StdFs.ensureSymlink);
