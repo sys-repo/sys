@@ -10,6 +10,17 @@ type O = Record<string, unknown>;
 export namespace DistSigner {
   export type ManifestKind = 'dist.json' | 'manifest';
 
+  /**
+   * Success metadata for dist-manifest signer runs.
+   * NB: Operational/audit data only (not a trust root).
+   */
+  export type RunDataSuccess = t.Signer.ResultData & {
+    readonly artifactPath: t.StringPath;
+    readonly signaturePath: t.StringPath;
+    readonly artifactHash: t.StringHash;
+    readonly verified: boolean;
+  };
+
   /** Library: */
   export type Lib = {
     capabilities(): t.Signer.Capabilities;
