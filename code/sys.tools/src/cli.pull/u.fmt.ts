@@ -110,7 +110,7 @@ function formatHashPrefix(hash?: string): string {
     .trim()
     .slice(-5);
   if (!suffix) return `${c.gray(c.dim('#'))}${' '.repeat(5)}`;
-  return `${c.gray(c.dim('#'))}${c.green(suffix)}`;
+  return Base.hashSuffix(suffix, 5);
 }
 
 function formatBuiltAt(input?: number): string {

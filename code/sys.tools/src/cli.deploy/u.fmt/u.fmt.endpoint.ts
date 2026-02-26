@@ -105,7 +105,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     const hashSuffix = (digest?: string) => {
       const value = String(digest ?? '').trim();
       if (!value) return '';
-      return `${c.dim(c.gray('#'))}${c.green(value.slice(-5))}`;
+      return Fmt.hashSuffix(value);
     };
 
     if (mappings.length) {

@@ -94,7 +94,7 @@ export async function runStagingWithSpinner(args: {
     const stageAbs = Path.resolve(cwd, args.stagingRoot);
     const dist = (await Pkg.Dist.load(stageAbs)).dist;
     const hash = String(dist?.hash?.digest ?? '').trim();
-    const suffix = hash ? `${c.dim(c.gray('#'))}${c.green(hash.slice(-5))}` : '';
+    const suffix = hash ? Fmt.hashSuffix(hash) : '';
     const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
     spin.succeed(Fmt.spinnerText(status));
     return { ok: true };

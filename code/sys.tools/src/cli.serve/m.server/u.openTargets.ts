@@ -64,8 +64,7 @@ export const OpenTargets = {
       if (!Pkg.Is.dist(loaded.dist)) continue;
 
       const hx = loaded.dist.hash.digest;
-      const hxshort = c.green(hx.slice(-5));
-      const label = `${c.gray(c.dim(`#${hxshort} `))}${rel}`;
+      const label = `${Fmt.hashSuffix(hx)} ${rel}`;
       const fileCount = countsByDir.get(rel) ?? 0;
       all.push({ name: label, path: rel, fileCount });
     }
