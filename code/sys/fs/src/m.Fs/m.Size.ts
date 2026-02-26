@@ -1,9 +1,8 @@
 import { type t, exists, Str, walk } from './common.ts';
-import type { FsSizeLib } from './t.ts';
 
-export const Size: FsSizeLib = {
+export const Size: t.Fs.SizeLib = {
   async dir(path, options = {}) {
-    const res: t.FsDirSize = {
+    const res: t.Fs.DirSize = {
       path,
       exists: await exists(path),
       total: { files: 0, bytes: 0 },

@@ -3,14 +3,14 @@ import { type t, exists, Err, Json, Path } from './common.ts';
 /**
  * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
  */
-export const read: t.FsReadBinary = async (path: string) => {
+export const read: t.Fs.ReadBinary = async (path: string) => {
   return handleRead<Uint8Array>({ path, format: 'Binary' });
 };
 
 /**
  * Asynchronously reads and returns the entire contents of a text file.
  */
-export const readText: t.FsReadText = async (path: string) => {
+export const readText: t.Fs.ReadText = async (path: string) => {
   const parse = (text: string) => text;
   return handleRead<string>({ path, parse, format: 'Text' });
 };
@@ -19,7 +19,7 @@ export const readText: t.FsReadText = async (path: string) => {
  * Asynchronously reads and returns the entire contents of a file
  * as strongly-typed, parsed JSON.
  */
-export const readJson: t.FsReadJson = async <T>(path: string) => {
+export const readJson: t.Fs.ReadJson = async <T>(path: string) => {
   const parse = (text: string) => {
     const ext = Path.extname(path);
     if (text.trim().length === 0) throw Err.std('JSON file is empty.');
@@ -33,7 +33,7 @@ export const readJson: t.FsReadJson = async <T>(path: string) => {
  * Asynchronously reads and returns the entire contents of a file
  * as strongly-typed, parsed YAML.
  */
-export const readYaml: t.FsReadYaml = async <T>(path: string) => {
+export const readYaml: t.Fs.ReadYaml = async <T>(path: string) => {
   const { parse } = await import('yaml');
   return handleRead<T>({ path, parse, format: 'YAML' });
 };
@@ -49,7 +49,7 @@ export const handleRead = async <T>(args: {
 }) => {
   const { format } = args;
 
-  type R = t.FsReadResult<T>;
+  type R = t.Fs.ReadResult<T>;
   const path = Path.resolve(args.path);
   const targetExists = await exists(path);
 

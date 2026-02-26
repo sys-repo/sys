@@ -3,7 +3,7 @@ import { type t, c, exists, Path } from './common.ts';
 /**
  * Delete a directory (and it's contents).
  */
-export const remove: t.FsRemove = async (path, options = {}) => {
+export const remove: t.Fs.Remove = async (path, options = {}) => {
   const targetExists = await exists(path);
   const shortPath = Path.trimCwd(path);
 

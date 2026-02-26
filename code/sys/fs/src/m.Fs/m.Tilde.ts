@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Tilde: t.FsTildeLib = {
+export const Tilde: t.Fs.TildeLib = {
   expand(input) {
     const home = Deno.env.get('HOME');
     if (!home) return input;

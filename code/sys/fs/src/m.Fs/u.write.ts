@@ -3,7 +3,7 @@ import { type t, Json, ensureDir, Err, exists as fileExists, Path } from './comm
 /**
  * Writes a string or binary file ensuring it's parent directory exists.
  */
-export const write: t.FsWriteFile = async (path, data, options = {}) => {
+export const write: t.Fs.WriteFile = async (path, data, options = {}) => {
   const { force = true } = options;
   const errors = Err.errors();
   let canWrite = true;
@@ -43,7 +43,7 @@ export const write: t.FsWriteFile = async (path, data, options = {}) => {
 /**
  * Writes a JSON serializable value to a string of JSON to a file.
  */
-export const writeJson: t.FsWriteJson = async (path, data, options = {}) => {
+export const writeJson: t.Fs.WriteJson = async (path, data, options = {}) => {
   try {
     const json = Json.stringify(data, 2);
     return write(path, `${json}\n`, options);

@@ -6,7 +6,7 @@ import { remove } from './u.remove.ts';
 /**
  * Copy all files in a directory.
  */
-export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
+export const copyDir: t.Fs.CopyDir = async (from, to, opt = {}) => {
   const options = Wrangle.options(opt);
   const { force = false } = options;
   const errors = Err.errors();

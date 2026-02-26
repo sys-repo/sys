@@ -8,7 +8,7 @@ export { copyDir, copyFile };
 /**
  * Copy a file or directory.
  */
-export const copy: t.FsCopy = async (from, to, options) => {
+export const copy: t.Fs.Copy = async (from, to, options) => {
   return (await Is.dir(from))
     ? //
       copyDir(from, to, options)

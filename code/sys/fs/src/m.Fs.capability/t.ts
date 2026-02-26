@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 export namespace FsCapability {
   export type Lib = {
-    readonly fromFs: (fs: t.FsLib) => Instance;
+    readonly fromFs: (fs: t.Fs.Lib) => Instance;
   };
 
   /**
@@ -12,15 +12,15 @@ export namespace FsCapability {
    * Avoid platform-specific file metadata unless explicitly required and tested.
    */
   export type Instance = {
-    readonly read: t.FsLib['read'];
-    readonly exists: t.FsLib['exists'];
-    readonly copy: t.FsLib['copy'];
-    readonly write: t.FsLib['write'];
-    readonly ensureDir: t.FsLib['ensureDir'];
-    readonly stat: t.FsLib['stat'];
-    readonly dirname: t.FsLib['dirname'];
-    readonly join: t.FsLib['join'];
-    readonly cwd: t.FsLib['cwd'];
-    readonly tildeExpand: t.FsTildeLib['expand'];
+    readonly read: t.Fs.Lib['read'];
+    readonly exists: t.Fs.Lib['exists'];
+    readonly copy: t.Fs.Lib['copy'];
+    readonly write: t.Fs.Lib['write'];
+    readonly ensureDir: t.Fs.Lib['ensureDir'];
+    readonly stat: t.Fs.Lib['stat'];
+    readonly dirname: t.Fs.Lib['dirname'];
+    readonly join: t.Fs.Lib['join'];
+    readonly cwd: t.Fs.Lib['cwd'];
+    readonly tildeExpand: t.Fs.TildeLib['expand'];
   };
 }
