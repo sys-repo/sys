@@ -81,7 +81,22 @@ export async function liveCompilerProvider(args: {
   return await liveBundleProvider(args);
 }
 
+export async function canRunConfigLockedProviders(): Promise<{
+  readonly ok: boolean;
+  readonly reason?: string;
+}> {
+  try {
+    await resolveMediaSeqContext();
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, reason: message };
+  }
+}
+
 export async function canRunLiveProviders(): Promise<boolean> {
+  const config = await canRunConfigLockedProviders();
+  if (!config.ok) return false;
   return (await getCmdClient()) !== undefined;
 }
 
