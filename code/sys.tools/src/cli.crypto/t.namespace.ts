@@ -11,7 +11,6 @@ export namespace CryptoTool {
 
   /** CLI sub-commands (first positional token). */
   export type SubCmd = 'hash';
-  export type TemplateVariant = 'stateless' | 'yaml';
   /** Command names. */
   export type MenuCmd =
     | 'init'
@@ -25,7 +24,6 @@ export namespace CryptoTool {
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & { readonly command?: SubCmd };
-  // [tmpl:variant.types]
   export namespace ConfigYaml {
     export type Doc = { name: string };
     export type DirName = `-config/${string}.${Id}`;
