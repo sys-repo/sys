@@ -30,8 +30,6 @@ export type EvalRunProvider = (args: {
   outDir: t.StringDir;
 }) => Promise<EvalRunOutput>;
 
-export type MaybeEvalRunProvider = EvalRunProvider | undefined;
-
 export async function withEvalTempDirs<T>(
   fn: (args: { baselineOut: t.StringDir; candidateOut: t.StringDir }) => Promise<T>,
 ): Promise<T> {
@@ -76,18 +74,11 @@ export async function baselineSnapshotProvider(args: {
   };
 }
 
-export async function baselineLiveProvider(args: {
+export async function liveCompilerProvider(args: {
   docid: t.StringId;
   outDir: t.StringDir;
 }): Promise<EvalRunOutput> {
-  return await liveBundleProvider({ ...args, mode: 'baseline' });
-}
-
-export async function candidateLiveProvider(args: {
-  docid: t.StringId;
-  outDir: t.StringDir;
-}): Promise<EvalRunOutput> {
-  return await liveBundleProvider({ ...args, mode: 'candidate' });
+  return await liveBundleProvider(args);
 }
 
 export async function canRunLiveProviders(): Promise<boolean> {
@@ -189,10 +180,13 @@ function resolveManifestFilename(template: string, docid: string): string {
   return template.replaceAll('<docid>', docid);
 }
 
+/**
+ * Live compiler-run provider used as a parity smoke guard after the media-seq transform migration.
+ * Candidate for future deletion once this path is considered fully settled.
+ */
 async function liveBundleProvider(args: {
   docid: t.StringId;
   outDir: t.StringDir;
-  mode: 'baseline' | 'candidate';
 }): Promise<EvalRunOutput> {
   const ctx = await resolveMediaSeqContext();
   const cmd = await getCmdClient();
@@ -205,9 +199,7 @@ async function liveBundleProvider(args: {
   const dag = await buildDocumentDag(cmd, ctx.rootDocid, ctx.yamlPath);
   const docid = (`crdt:${String(args.docid).replace(/^crdt:/, '')}`) as t.Crdt.Id;
   const target = rewriteTargetBases(ctx.target, args.outDir);
-  const runner = bundleSequenceFilepaths;
-
-  const result = await runner(dag, ctx.yamlPath, docid, {
+  const result = await bundleSequenceFilepaths(dag, ctx.yamlPath, docid, {
     target,
     requirePlayback: ctx.requirePlayback,
   });
