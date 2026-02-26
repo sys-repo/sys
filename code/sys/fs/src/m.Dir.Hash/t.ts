@@ -15,7 +15,17 @@ export type DirHashLib = {
 };
 
 /** Options passed to the `Hash.Dir.compute` method. */
-export type DirHashComputeOptions = { filter?: t.Fs.Path.Filter };
+export type DirHashComputeOptions = {
+  filter?: t.Fs.Path.Filter;
+  onProgress?: (e: DirHashComputeProgressEvent) => void | Promise<void>;
+};
+
+export type DirHashComputeProgressEvent = {
+  readonly dir: t.StringDir;
+  readonly path: t.StringPath;
+  readonly current: number;
+  readonly total: number;
+};
 
 /**
  * Represents a hash of a directory.

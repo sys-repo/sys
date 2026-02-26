@@ -119,6 +119,28 @@ describe('Pkg.Dist', () => {
       expect(Object.prototype.hasOwnProperty.call(dist.hash.parts, ignoredRelPath)).to.eql(false);
     });
 
+    it('Dist.compute(): forwards onHashProgress during hashing', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      const events: t.DirHashComputeProgressEvent[] = [];
+
+      const res = await Pkg.Dist.compute({
+        dir,
+        pkg,
+        builder: { name: 'my-builder', version: '0.0.0' },
+        onHashProgress: (e) => {
+          events.push(e);
+        },
+      });
+
+      expect(res.error).to.eql(undefined);
+      expect(events.length).to.eql(Object.keys(res.dist.hash.parts).length);
+      expect(events.length).to.be.greaterThan(0);
+      expect(events[0]?.current).to.eql(1);
+      expect(events[events.length - 1]?.current).to.eql(events.length);
+      expect(events.every((e) => e.total === events.length)).to.eql(true);
+    });
+
     it('Dist.compute(): excludes root dist.json regardless of key style', async () => {
       const sample = await Sample.init();
       const { dir } = sample.path;

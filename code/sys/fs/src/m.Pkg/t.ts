@@ -59,6 +59,7 @@ export type PkgDistComputeArgs = {
   builder?: t.Pkg;
   save?: boolean;
   filter?(path: t.StringPath): boolean;
+  onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
   /**
    * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
    *

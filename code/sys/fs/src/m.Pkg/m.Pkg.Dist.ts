@@ -20,7 +20,7 @@ export const Dist: PkgDistFsLib = {
    * Prepare and save a "distribution package" meta-data file `pkg.json`.
    */
   async compute(args) {
-    const { save = false, filter, trustChildDist = false } = args;
+    const { save = false, filter, trustChildDist = false, onHashProgress } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
 
@@ -41,7 +41,7 @@ export const Dist: PkgDistFsLib = {
      * Prepare the "distribution-package" json.
      */
     const hash = exists
-      ? await wrangle.hashes(dir, { filter, trustChildDist })
+      ? await wrangle.hashes(dir, { filter, trustChildDist, onHashProgress })
       : { digest: '', parts: {} };
     const size: t.DistPkg['build']['size'] = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
@@ -168,13 +168,17 @@ export const Dist: PkgDistFsLib = {
 const wrangle = {
   async hashes(
     path: t.StringDir,
-    options: { filter?: (path: t.StringPath) => boolean; trustChildDist?: boolean } = {},
+    options: {
+      filter?: (path: t.StringPath) => boolean;
+      trustChildDist?: boolean;
+      onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>;
+    } = {},
   ) {
-    const { filter, trustChildDist = false } = options;
-    if (!trustChildDist) return await wrangle.hashesBase(path, filter);
+    const { filter, trustChildDist = false, onHashProgress } = options;
+    if (!trustChildDist) return await wrangle.hashesBase(path, filter, onHashProgress);
 
     const children = await wrangle.childDists(path);
-    if (children.length === 0) return await wrangle.hashesBase(path, filter);
+    if (children.length === 0) return await wrangle.hashesBase(path, filter, onHashProgress);
 
     const childAbs = children.map((child) => Path.join(path, child.rootRel));
     const mergedFilter = (value: string) => {
@@ -186,7 +190,7 @@ const wrangle = {
       return filter ? filter(value) : true;
     };
 
-    const res = await DirHash.compute(path, { filter: mergedFilter });
+    const res = await DirHash.compute(path, { filter: mergedFilter, onProgress: onHashProgress });
     const parts: t.DeepMutable<t.CompositeHashParts> = { ...res.hash.parts };
 
     /**
@@ -211,12 +215,16 @@ const wrangle = {
     return { digest: CompositeHash.digest(outParts), parts: outParts };
   },
 
-  async hashesBase(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
+  async hashesBase(
+    path: t.StringDir,
+    filter?: (path: t.StringPath) => boolean,
+    onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>,
+  ) {
     const mergedFilter = (value: string) => {
       if (!wrangle.includeHashPart(value)) return false;
       return filter ? filter(value) : true;
     };
-    const res = await DirHash.compute(path, { filter: mergedFilter });
+    const res = await DirHash.compute(path, { filter: mergedFilter, onProgress: onHashProgress });
     return res.hash;
   },
 
