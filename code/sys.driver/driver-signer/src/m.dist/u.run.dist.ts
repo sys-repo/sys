@@ -1,4 +1,4 @@
-import { type t, Err, Fs, FsPkg } from './common.ts';
+import { type t, Err, Fs, FsPkg, Json } from './common.ts';
 import { fail } from './u.result.ts';
 import { readBytes } from './u.run.io.ts';
 
@@ -59,7 +59,7 @@ async function readDistBytes(
 
   try {
     const value = canonicalizeJson(loaded.dist);
-    const json = `${JSON.stringify(value)}\n`;
+    const json = `${Json.stringify(value)}\n`;
     return { ok: true, bytes: new TextEncoder().encode(json) };
   } catch (cause) {
     return {
@@ -125,7 +125,7 @@ async function writeDistSignDescriptorAndReadBytes(
       },
     };
     const value = canonicalizeJson(dist);
-    const json = `${JSON.stringify(value)}\n`;
+    const json = `${Json.stringify(value)}\n`;
     const written = await Fs.write(args.artifact.path, json);
     if (written.error) return { ok: false, res: fail(data, 'write', 'E_WRITE', written.error) };
     return { ok: true, bytes: new TextEncoder().encode(json) };

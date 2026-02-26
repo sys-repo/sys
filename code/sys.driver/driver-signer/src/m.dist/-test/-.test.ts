@@ -1,7 +1,5 @@
-import { c, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { SignEd25519 } from '@sys/crypto/sign/ed25519';
-import { Fs, Pkg as FsPkg } from '@sys/fs';
-import type { t } from '../common.ts';
+import { c, describe, expect, it } from '../../-test.ts';
+import { type t, Fs, Pkg, Json, SignEd25519 } from '../common.ts';
 import { DistSigner } from '../mod.ts';
 
 describe(`DistSigner`, () => {
@@ -86,7 +84,9 @@ describe(`DistSigner`, () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       const artifact = Fs.join(dir, 'dist.json');
       const signature = Fs.join(dir, 'dist.json.sig');
-      await Fs.write(artifact, new TextEncoder().encode('{"hello":"sign-verify"}\n'), { throw: true });
+      await Fs.write(artifact, new TextEncoder().encode('{"hello":"sign-verify"}\n'), {
+        throw: true,
+      });
 
       const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
       const res = await DistSigner.run({
@@ -180,7 +180,8 @@ describe(`DistSigner`, () => {
 
       const sigRead = await Fs.read(signature);
       expect(sigRead.ok).to.eql(true);
-      if (!sigRead.ok || !sigRead.data) throw new Error('Expected detached signature sidecar to exist.');
+      if (!sigRead.ok || !sigRead.data)
+        throw new Error('Expected detached signature sidecar to exist.');
 
       const verified = await DistSigner.run({
         mode: 'verify',
@@ -212,7 +213,7 @@ describe(`DistSigner`, () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
 
-      const before = await FsPkg.Dist.compute({ dir, save: true });
+      const before = await Pkg.Dist.compute({ dir, save: true });
       expect(before.error).to.eql(undefined);
 
       const artifact = Fs.join(dir, 'dist.json');
@@ -228,7 +229,7 @@ describe(`DistSigner`, () => {
       });
       expect(signed.ok).to.eql(true);
 
-      const after = await FsPkg.Dist.compute({ dir, save: false });
+      const after = await Pkg.Dist.compute({ dir, save: false });
       expect(after.error).to.eql(undefined);
       expect(after.dist.hash.digest).to.eql(before.dist.hash.digest);
       expect(after.dist.hash.parts).to.eql(before.dist.hash.parts);
@@ -283,7 +284,7 @@ describe(`DistSigner`, () => {
     it('dist.json write-back can be explicitly disabled', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
-      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      const computed = await Pkg.Dist.compute({ dir, save: true });
       expect(computed.error).to.eql(undefined);
 
       const artifact = Fs.join(dir, 'dist.json');
@@ -319,7 +320,7 @@ describe(`DistSigner`, () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       const sigDir = Fs.join(dir, 'signatures');
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
-      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      const computed = await Pkg.Dist.compute({ dir, save: true });
       expect(computed.error).to.eql(undefined);
 
       const artifact = Fs.join(dir, 'dist.json');
@@ -354,7 +355,7 @@ describe(`DistSigner`, () => {
     it('prints canonical dist.json sample with detached signature descriptor and signer metadata', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
-      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      const computed = await Pkg.Dist.compute({ dir, save: true });
       expect(computed.error).to.eql(undefined);
 
       const artifact = Fs.join(dir, 'dist.json');
@@ -392,7 +393,7 @@ describe(`DistSigner`, () => {
       console.info(c.gray(`signature → ${signature}`));
       console.info(c.gray('dist.json  →'));
       console.info(c.italic(c.yellow(json.data)));
-      const signJson = `${JSON.stringify(sign, null, 2)}\n`;
+      const signJson = `${Json.stringify(sign, 2)}\n`;
       console.info(c.brightCyan(c.bold('\nDistSigner dist.json build.sign descriptor')));
       console.info(c.gray('build.sign →'));
       console.info(c.italic(c.yellow(signJson)));
@@ -403,7 +404,7 @@ describe(`DistSigner`, () => {
     it('verify → succeeds across dist.json formatting and key-order changes', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
-      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      const computed = await Pkg.Dist.compute({ dir, save: true });
       expect(computed.error).to.eql(undefined);
 
       const artifact = Fs.join(dir, 'dist.json');
@@ -429,7 +430,7 @@ describe(`DistSigner`, () => {
         pkg: src.pkg,
         type: src.type,
       };
-      await Fs.write(artifact, `${JSON.stringify(reordered, null, 2)}\n`, { throw: true });
+      await Fs.write(artifact, `${Json.stringify(reordered, 2)}\n`, { throw: true });
 
       const verified = await DistSigner.run({
         mode: 'verify',
