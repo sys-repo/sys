@@ -32,6 +32,24 @@ export type DistPkg = {
        */
       policy: t.StringUri;
     };
+
+    /**
+     * Detached signature descriptor.
+     * NB: Descriptive metadata only; excluded from hash input.
+     */
+    sign?: {
+      /** Path to the detached signature sidecar (typically relative to the dist root). */
+      path: t.StringPath;
+
+      /** Signature scheme identifier for the detached signature. */
+      scheme: 'Ed25519';
+
+      /**
+       * Verifier key selection hint (for example key ID or public-key fingerprint).
+       * NB: This is not a trust root.
+       */
+      key?: string;
+    };
   };
 
   /** Map of hashes of the binary contents of the package. */

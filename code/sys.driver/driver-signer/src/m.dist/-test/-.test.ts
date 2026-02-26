@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { c, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { SignEd25519 } from '@sys/crypto/sign/ed25519';
 import { Fs, Pkg as FsPkg } from '@sys/fs';
 import { DistSigner } from '../mod.ts';
@@ -121,6 +121,51 @@ describe(`DistSigner`, () => {
       if (verified.ok) throw new Error('Expected verification failure with wrong public key.');
       expect(verified.code).to.eql('E_VERIFY');
       expect(verified.stage).to.eql('verify');
+    });
+
+    it('prints detached signature sample and signer result metadata', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(dir, 'dist.json.sig');
+      const bytes = new TextEncoder().encode('{"sample":true,"v":1}\n');
+      await Fs.write(artifact, bytes, { throw: true });
+
+      const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'manifest' },
+        signature: { path: signature },
+        privateKey,
+        identityRef: 'local-test-key-print-sample',
+      });
+      expect(signed.ok).to.eql(true);
+
+      const sigRead = await Fs.read(signature);
+      expect(sigRead.ok).to.eql(true);
+      if (!sigRead.ok || !sigRead.data) throw new Error('Expected detached signature sidecar to exist.');
+
+      const verified = await DistSigner.run({
+        mode: 'verify',
+        artifact: { path: artifact, kind: 'manifest' },
+        signature: { path: signature },
+        publicKey,
+        identityRef: 'local-test-key-print-sample',
+      });
+      expect(verified.ok).to.eql(true);
+
+      const sigBytes = sigRead.data;
+      const sigHex = Array.from(sigBytes)
+        .slice(0, 16)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      console.info(c.brightCyan(c.bold('\nDistSigner detached signature sample')));
+      console.info(c.gray(`artifact  → ${artifact}`));
+      console.info(c.gray(`signature → ${signature}`));
+      console.info(c.gray(`sig bytes → ${sigBytes.length}`));
+      console.info(c.gray(`sig hex   → ${sigHex}…`));
+      console.info(c.gray('sign res  →'), signed);
+      console.info(c.gray('verify res→'), verified);
     });
   });
 
