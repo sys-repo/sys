@@ -4,10 +4,21 @@ export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
+    const direct = Cli.table([]);
+    direct.push([c.gray('  cmd'), c.white('crypto hash [dir]')]);
+    direct.push([c.gray('  dir'), c.gray('optional target directory (defaults to current dir)')]);
+    direct.push([c.gray('  --save'), c.gray('write dist.json in target directory')]);
+    direct.push([c.gray('  -h, --help'), c.gray('show help')]);
+
+    const note = `Note: flags apply to direct commands only; interactive mode collects options in the UI.`;
+
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
       .line(await Base.help(toolname))
-      .line(c.gray(c.dim('note: flags apply to direct commands only; interactive mode collects options in the UI.')))
+      .line(c.gray('direct command:'))
+      .line(String(direct))
+      .blank()
+      .line(c.gray(c.dim(note)))
       .line();
 
     return String(str);
