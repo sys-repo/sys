@@ -1,8 +1,7 @@
+import { hashCurrentDir } from './cmd.hash/mod.ts';
 import { type t, c, Cli, D, done, Fs, Is, opt } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
-import { hashCurrentDir } from './cmd.hash/mod.ts';
-// [tmpl:variant.imports]
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
 import { CryptoMigrate } from './u.yaml/mod.ts';
 
@@ -15,8 +14,7 @@ export const cli: t.CryptoToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
 
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
-  // [tmpl:variant.migrate]
-await CryptoMigrate.run(cwd);
+  await CryptoMigrate.run(cwd);
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -40,7 +38,7 @@ async function run(cwd: t.StringDir, _args: t.CryptoTool.CliArgs): Promise<t.Run
     const A = (await Cli.Input.Select.prompt<t.CryptoTool.MenuCmd>({
       message: 'Tools:\n',
       options: [
-        opt(` hash ${c.gray('current dir')} ${c.dim(`→ ${Fs.basename(cwd)}`)}`, 'hash:cwd'),
+        opt(` hash ${c.gray('current dir')} ${c.dim('→')} ${c.cyan(Fs.basename(cwd))}`, 'hash:cwd'),
         opt(' Hashing Configs', 'config'),
         opt(c.gray('(quit)'), 'exit'),
       ],
@@ -55,8 +53,7 @@ async function run(cwd: t.StringDir, _args: t.CryptoTool.CliArgs): Promise<t.Run
     /** --------------------------------------------------------
      * Sub-Menu
      */
-    // [tmpl:variant.option-b:start]
-if (A === 'config') {
+    if (A === 'config') {
       const picked = await yamlConfigsMenu(cwd);
       if (picked.kind === 'exit') return done(0);
       if (picked.kind === 'selected') {
@@ -64,7 +61,6 @@ if (A === 'config') {
       }
       continue;
     }
-// [tmpl:variant.option-b:end]
 
     if (A === 'exit') return done(0);
   }

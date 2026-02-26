@@ -14,7 +14,7 @@
  * - leave a truthful, minimal live CLI
  *
  * Clean away (items inherited from the template scaffold that are not referenced
- * by the tool's live CLI flow):
+ * by the tool's live CLI flow, ie. they've been edited):
  * - scaffold root menu options (for example clone-template demo actions)
  * - root command union members that only supported scaffold menu actions
  * - helper files that are no longer imported by the live CLI path
