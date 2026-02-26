@@ -30,6 +30,12 @@
  *   or disable `u.tmpl` runtime/tests that patch live files via `[tmpl:variant.*]`
  *   anchors; do not leave hidden test-time anchor dependencies in live CLI files.
  *
+ * Invocation-mode policy:
+ * - Direct-command flags apply to direct command execution only.
+ * - Interactive menu actions should collect options via prompts/config, and must
+ *   not implicitly inherit CLI flags unless that behavior is explicitly designed
+ *   and documented for the tool.
+ *
  * Verification (end conditions):
  * 1. No dead imports in the live CLI entry (`m.cli.ts`)
  * 2. No unreachable menu branches in the live root menu loop
