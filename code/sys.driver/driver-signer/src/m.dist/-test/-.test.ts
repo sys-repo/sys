@@ -208,6 +208,127 @@ describe(`DistSigner`, () => {
   });
 
   describe('dist.json semantics and canonicalization invariants', () => {
+    it('sign → writes detached signature descriptor into canonical dist.json and preserves Dist.compute hash', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
+
+      const before = await FsPkg.Dist.compute({ dir, save: true });
+      expect(before.error).to.eql(undefined);
+
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(dir, 'dist.json.sig');
+      const keys = await SignEd25519.generateKeyPair();
+
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        privateKey: keys.privateKey,
+        identityRef: 'kid:dist-sample-1',
+      });
+      expect(signed.ok).to.eql(true);
+
+      const after = await FsPkg.Dist.compute({ dir, save: false });
+      expect(after.error).to.eql(undefined);
+      expect(after.dist.hash.digest).to.eql(before.dist.hash.digest);
+      expect(after.dist.hash.parts).to.eql(before.dist.hash.parts);
+
+      const loaded = await Fs.readJson<Record<string, unknown>>(artifact);
+      expect(loaded.ok).to.eql(true);
+      if (!loaded.ok || !loaded.data) throw new Error('Expected dist.json to load.');
+
+      const build = loaded.data.build as Record<string, unknown>;
+      const sign = build.sign as Record<string, unknown>;
+      expect(typeof sign).to.eql('object');
+      expect(sign.path).to.eql('./dist.json.sig');
+      expect(sign.scheme).to.eql('Ed25519');
+      expect(sign.key).to.eql('kid:dist-sample-1');
+
+      const verified = await DistSigner.run({
+        mode: 'verify',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        publicKey: keys.publicKey,
+      });
+      expect(verified.ok).to.eql(true);
+
+      const signedData = runData(signed);
+      const verifiedData = runData(verified);
+      expect(verifiedData.artifactHash).to.eql(signedData.artifactHash);
+      expect(verifiedData.verified).to.eql(true);
+    });
+
+    it('generic manifest ignores dist sign descriptor write-back trigger', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      const artifact = Fs.join(dir, 'manifest.json');
+      const signature = Fs.join(dir, 'manifest.json.sig');
+      const source = '{"hello":"world"}\n';
+      await Fs.write(artifact, source, { throw: true });
+
+      const { privateKey } = await SignEd25519.generateKeyPair();
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'manifest' },
+        signature: { path: signature },
+        privateKey,
+        writeBack: { distSignDescriptor: true },
+      });
+      expect(signed.ok).to.eql(true);
+
+      const text = await Fs.readText(artifact);
+      expect(text.ok).to.eql(true);
+      expect(text.data).to.eql(source);
+    });
+
+    it('prints canonical dist.json sample with detached signature descriptor and signer metadata', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
+      const computed = await FsPkg.Dist.compute({ dir, save: true });
+      expect(computed.error).to.eql(undefined);
+
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(dir, 'dist.json.sig');
+      const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
+
+      const signed = await DistSigner.run({
+        mode: 'sign',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        privateKey,
+        identityRef: 'kid:print-sample',
+      });
+      expect(signed.ok).to.eql(true);
+
+      const verified = await DistSigner.run({
+        mode: 'verify',
+        artifact: { path: artifact, kind: 'dist.json' },
+        signature: { path: signature },
+        publicKey,
+      });
+      expect(verified.ok).to.eql(true);
+
+      const json = await Fs.readText(artifact);
+      expect(json.ok).to.eql(true);
+      if (!json.ok || !json.data) throw new Error('Expected dist.json text to load.');
+      const parsed = await Fs.readJson<Record<string, unknown>>(artifact);
+      expect(parsed.ok).to.eql(true);
+      if (!parsed.ok || !parsed.data) throw new Error('Expected dist.json object to load.');
+      const build = parsed.data.build as Record<string, unknown>;
+      const sign = build.sign as Record<string, unknown>;
+
+      console.info(c.brightCyan(c.bold('\nDistSigner canonical dist.json sample')));
+      console.info(c.gray(`artifact  → ${artifact}`));
+      console.info(c.gray(`signature → ${signature}`));
+      console.info(c.gray('dist.json  →'));
+      console.info(c.italic(c.yellow(json.data)));
+      const signJson = `${JSON.stringify(sign, null, 2)}\n`;
+      console.info(c.brightCyan(c.bold('\nDistSigner dist.json build.sign descriptor')));
+      console.info(c.gray('build.sign →'));
+      console.info(c.italic(c.yellow(signJson)));
+      console.info(c.gray('sign res   →'), signed);
+      console.info(c.gray('verify res →'), verified);
+    });
+
     it('verify → succeeds across dist.json formatting and key-order changes', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
