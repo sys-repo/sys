@@ -128,6 +128,17 @@ describe('Pkg.Dist', () => {
       expect(keys.includes('dist.json')).to.eql(false);
     });
 
+    it('Dist.compute(): excludes root dist.json.sig regardless of key style', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      await Fs.write(Fs.join(dir, 'dist.json.sig'), 'sig-v1');
+
+      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
+      const keys = Object.keys(res.dist.hash.parts);
+      expect(keys.includes('./dist.json.sig')).to.eql(false);
+      expect(keys.includes('dist.json.sig')).to.eql(false);
+    });
+
     it('Dist.compute(): root hash is idempotent across repeated save runs', async () => {
       const sample = await Sample.init();
       const { dir } = sample.path;
@@ -139,6 +150,23 @@ describe('Pkg.Dist', () => {
       expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
       expect(Object.keys(second.dist.hash.parts).includes('./dist.json')).to.eql(false);
       expect(Object.keys(second.dist.hash.parts).includes('dist.json')).to.eql(false);
+    });
+
+    it('Dist.compute(): root hash is idempotent across repeated save runs when dist.json.sig changes', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      const sig = Fs.join(dir, 'dist.json.sig');
+
+      await Fs.write(sig, 'sig-v1');
+      const first = await Pkg.Dist.compute({ dir, pkg, save: true });
+
+      await Fs.write(sig, 'sig-v2');
+      const second = await Pkg.Dist.compute({ dir, pkg, save: true });
+
+      expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
+      expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
+      expect(Object.keys(second.dist.hash.parts).includes('./dist.json.sig')).to.eql(false);
+      expect(Object.keys(second.dist.hash.parts).includes('dist.json.sig')).to.eql(false);
     });
 
     it('{pkg} not passed → <unknown> package', async () => {
@@ -191,7 +219,7 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include('path is not a directory');
     });
 
-    it('trustChildDist: reuses child content hashes without hashing child dist.json bytes', async () => {
+    it('trustChildDist: reuses child content hashes without hashing child dist metadata/signature bytes', async () => {
       const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist/');
       await Fs.remove(root);
       await Fs.ensureDir(root);
@@ -226,6 +254,8 @@ describe('Pkg.Dist', () => {
 
         const distKey = Path.join('child', 'dist.json');
         expect(rootRes.dist.hash.parts[distKey]).to.eql(undefined);
+        const distSigKey = Path.join('child', 'dist.json.sig');
+        expect(rootRes.dist.hash.parts[distSigKey]).to.eql(undefined);
 
         const verify = await Pkg.Dist.verify(root, rootRes.dist.hash);
         expect(verify.is.valid).to.eql(true);
@@ -234,7 +264,7 @@ describe('Pkg.Dist', () => {
       }
     });
 
-    it('trustChildDist: parent hash is idempotent across repeated save runs', async () => {
+    it('trustChildDist: parent hash is idempotent across repeated save runs (excluding child dist metadata/signature)', async () => {
       const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.idempotent/');
       await Fs.remove(root);
       await Fs.ensureDir(root);
@@ -270,6 +300,7 @@ describe('Pkg.Dist', () => {
         expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
         expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
         expect(Object.keys(second.dist.hash.parts).includes('child/dist.json')).to.eql(false);
+        expect(Object.keys(second.dist.hash.parts).includes('child/dist.json.sig')).to.eql(false);
 
         const verify = await Pkg.Dist.verify(root, second.dist.hash);
         expect(verify.is.valid).to.eql(true);
