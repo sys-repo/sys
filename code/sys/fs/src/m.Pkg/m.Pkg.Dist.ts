@@ -177,9 +177,8 @@ const wrangle = {
     if (children.length === 0) return await wrangle.hashesBase(path, filter);
 
     const childAbs = children.map((child) => Path.join(path, child.rootRel));
-    const excludeDistJson = (value: string) => Path.basename(value) !== 'dist.json';
     const mergedFilter = (value: string) => {
-      if (!excludeDistJson(value)) return false;
+      if (!wrangle.includeHashPart(value)) return false;
       const isChild = childAbs.some(
         (root) => value === root || value.startsWith(Path.join(root, '')),
       );
@@ -194,9 +193,10 @@ const wrangle = {
      * Merge child content hashes into the parent tree.
      *
      * NB:
-     * We intentionally do not hash child `dist.json` file bytes into the parent
-     * digest. Child `dist.json` includes volatile build metadata (for example
-     * timestamps), which would make parent hashes churn across no-op rebuilds.
+     * We intentionally do not hash child dist metadata/signature artifacts into
+     * the parent digest (`dist.json`, `dist.json.sig`). Child `dist.json`
+     * includes volatile build metadata (for example timestamps), which would
+     * make parent hashes churn across no-op rebuilds.
      */
     for (const child of children) {
       const { rootRel, dist } = child;
@@ -212,9 +212,8 @@ const wrangle = {
   },
 
   async hashesBase(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
-    const excludeDistJson = (value: string) => Path.basename(value) !== 'dist.json';
     const mergedFilter = (value: string) => {
-      if (!excludeDistJson(value)) return false;
+      if (!wrangle.includeHashPart(value)) return false;
       return filter ? filter(value) : true;
     };
     const res = await DirHash.compute(path, { filter: mergedFilter });
@@ -259,5 +258,10 @@ const wrangle = {
   filepath(path: t.StringPath) {
     if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
     return path;
+  },
+
+  includeHashPart(path: t.StringPath) {
+    const name = Path.basename(path);
+    return name !== 'dist.json' && name !== 'dist.json.sig';
   },
 } as const;
