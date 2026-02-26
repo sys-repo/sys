@@ -1,9 +1,8 @@
 import { type t, Args, Is } from './common.ts';
 
-const COMMANDS: ReadonlySet<t.CryptoTool.SubCmd> = new Set(['foo', 'bar']);
+const COMMANDS: ReadonlySet<t.CryptoTool.SubCmd> = new Set(['hash']);
 const ALIAS = {
-  foo: ['f'],
-  bar: ['b'],
+  hash: ['hx'],
 } as const satisfies t.ArgsAliasMap<t.CryptoTool.SubCmd>;
 
 export function parseArgs(argv: string[] = []): t.CryptoTool.CliParsedArgs {

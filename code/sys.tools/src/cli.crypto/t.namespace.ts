@@ -10,7 +10,7 @@ export namespace CryptoTool {
   export type Name = typeof NAME;
 
   /** CLI sub-commands (first positional token). */
-  export type SubCmd = 'foo' | 'bar';
+  export type SubCmd = 'hash';
   export type TemplateVariant = 'stateless' | 'yaml';
   /** Command names. */
   export type MenuCmd =
@@ -19,6 +19,7 @@ export namespace CryptoTool {
     | 'option-a'
     | 'option-a:stateless'
     | 'option-a:yaml'
+    | 'hash:cwd'
     | 'config'
     | 'back'
     | 'exit';
