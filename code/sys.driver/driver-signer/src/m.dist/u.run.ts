@@ -1,4 +1,4 @@
-import { type t, Err, Fs, FsPkg, SignEd25519 } from './common.ts';
+import { type t, Err, Fs, FsPkg, Hash, SignEd25519 } from './common.ts';
 import { fail, ok } from './u.result.ts';
 
 export const run: t.DistSigner.Lib['run'] = async (args) => {
@@ -19,7 +19,7 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
       });
       const written = await Fs.write(args.signature.path, signature);
       if (written.error) return fail(data, 'write', 'E_WRITE', written.error);
-      return ok(data);
+      return ok(successData(data, args, artifactBytes, false));
     } catch (cause) {
       return fail(
         data,
@@ -41,7 +41,7 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
         publicKey: args.publicKey,
       });
       if (!valid) return verifyFailed(data);
-      return ok(data);
+      return ok(successData(data, args, artifactBytes, true));
     } catch (cause) {
       return fail(
         data,
@@ -63,7 +63,7 @@ export const run: t.DistSigner.Lib['run'] = async (args) => {
       publicKey: args.publicKey,
     });
     if (!valid) return verifyFailed(data);
-    return ok(data);
+    return ok(successData(data, args, artifactBytes, true));
   } catch (cause) {
     return fail(
       data,
@@ -167,4 +167,19 @@ function verifyFailed(data: t.Signer.ResultData) {
     name: 'Error',
     message: 'Signature verification failed.',
   });
+}
+
+function successData(
+  data: t.Signer.ResultData,
+  args: t.DistSigner.RunArgs,
+  artifactBytes: Uint8Array,
+  verified: boolean,
+): t.DistSigner.RunDataSuccess {
+  return {
+    ...data,
+    artifactPath: args.artifact.path,
+    signaturePath: args.signature.path,
+    artifactHash: Hash.sha256(artifactBytes) as t.StringHash,
+    verified,
+  };
 }
