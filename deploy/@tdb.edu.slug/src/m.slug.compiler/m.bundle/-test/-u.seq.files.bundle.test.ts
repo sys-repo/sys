@@ -223,7 +223,7 @@ describe('Lint: bundle/sequence files', () => {
 
       `;
 
-      const docid = 'crdt:2x8v9oJQH1H6o2vD1dJ8jT5H1p3a' as t.Crdt.Id;
+      const docid = 'crdt:2irtwwtQNj8GVrUguPjNERrAgLMx' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -239,7 +239,6 @@ describe('Lint: bundle/sequence files', () => {
 
       const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
       expect(assetsIssue).to.eql(undefined);
-
       const clean = Crdt.Id.clean(String(docid)) ?? '';
       const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${clean}.assets.json`);
       const manifestJson = (await Fs.readText(manifestPath)).data;

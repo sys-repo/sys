@@ -1,9 +1,6 @@
 import { type t, Crdt, Fs, Is, Json } from '../common.ts';
 import { buildDocumentDag } from '../u.dag.ts';
-import {
-  bundleSequenceFilepaths,
-  bundleSequenceFilepaths_NEW,
-} from '../u.bundle.seq.files.ts';
+import { bundleSequenceFilepaths } from '../u.bundle.seq.files.ts';
 import { readBundleProfile } from '../u.profile.ts';
 import type { EvalRunOutput } from './u.normalize.ts';
 import { RepoProcess } from '../../../../../../code/sys.tools/src/cli.crdt/cmd.repo.daemon/mod.ts';
@@ -208,7 +205,7 @@ async function liveBundleProvider(args: {
   const dag = await buildDocumentDag(cmd, ctx.rootDocid, ctx.yamlPath);
   const docid = (`crdt:${String(args.docid).replace(/^crdt:/, '')}`) as t.Crdt.Id;
   const target = rewriteTargetBases(ctx.target, args.outDir);
-  const runner = args.mode === 'candidate' ? bundleSequenceFilepaths_NEW : bundleSequenceFilepaths;
+  const runner = bundleSequenceFilepaths;
 
   const result = await runner(dag, ctx.yamlPath, docid, {
     target,

@@ -206,7 +206,7 @@ async function toAssetManifestEntry(args: {
     item.shard ??
     (shardConfig && Is.number(shardConfig.total)
       ? (Shard.meta(
-          Shard.policy(shardConfig.total, shardConfig.strategy),
+          Shard.policy(shardConfig.total, shardConfig.strategy ?? 'prefix-range'),
           hash,
         ) as t.SlugBundleTransform.ShardMeta)
       : undefined);
