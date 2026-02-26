@@ -10,6 +10,14 @@ export const HashFmt = {
     return Fmt.spinnerText(`hashing ${c.cyan(HashFmt.dirLabel(dir))}`);
   },
 
+  preflightSummary(summary: t.HashPreflight) {
+    return `${summary.fileCount.toLocaleString()} ${Str.plural(summary.fileCount, 'file')}, ${Str.bytes(summary.bytesTotal)}`;
+  },
+
+  preflightWarning(summary: t.HashPreflight) {
+    return `Large target detected (estimate): ${c.cyan(HashFmt.preflightSummary(summary))}`;
+  },
+
   pathLabel(path: string) {
     return Fs.Path.trimCwd(path, { prefix: true }) || './';
   },

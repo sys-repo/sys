@@ -2,6 +2,7 @@ import { type t, c, Cli, Fs, Time } from '../common.ts';
 import { HashFmt } from './u.fmt.ts';
 import { HashJobSchema } from './u.hash.schema.ts';
 import { HashRowDist } from './u.row.dist.ts';
+import { HashPreflight } from './u.preflight.ts';
 import { runHashJob } from './u.hash.ts';
 
 export async function hashCurrentDir(cwd: t.StringDir): Promise<void> {
@@ -16,6 +17,22 @@ export async function hashDir(
   const resolved = Fs.Path.resolve(cwd, targetDir);
   const dirLabel = HashFmt.dirLabel(resolved);
   const saveDist = opts.saveDist ?? false;
+  const preflight = await HashPreflight.scan(resolved);
+  if (HashPreflight.shouldConfirm(preflight)) {
+    if (HashPreflight.isInteractive()) {
+      const ok = await HashPreflight.confirmContinue(preflight);
+      if (!ok) {
+        console.info();
+        console.info(c.gray('hash cancelled'));
+        console.info();
+        return;
+      }
+    } else {
+      console.info();
+      console.info(c.yellow(HashFmt.preflightWarning(preflight)));
+      console.info();
+    }
+  }
   const distBefore = await HashRowDist.readBefore(resolved);
   const job = { ...HashJobSchema.initial(resolved), saveDist };
   const startedAt = Time.now.timestamp;

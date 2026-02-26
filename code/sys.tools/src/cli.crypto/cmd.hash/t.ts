@@ -39,3 +39,9 @@ export type HashDistRowBefore = {
   readonly kind: 'missing' | 'canonical' | 'legacy' | 'invalid';
   readonly digest?: t.StringHash;
 };
+
+export type HashPreflight = {
+  readonly targetDir: t.StringDir;
+  readonly fileCount: number;
+  readonly bytesTotal: t.NumberBytes;
+};
