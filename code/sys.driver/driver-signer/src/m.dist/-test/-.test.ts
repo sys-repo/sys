@@ -1,9 +1,15 @@
 import { c, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { SignEd25519 } from '@sys/crypto/sign/ed25519';
 import { Fs, Pkg as FsPkg } from '@sys/fs';
+import type { t } from '../common.ts';
 import { DistSigner } from '../mod.ts';
 
 describe(`DistSigner`, () => {
+  const runData = (res: t.Signer.Result): t.DistSigner.RunDataSuccess => {
+    if (!res.ok) throw new Error('Expected success result.');
+    return res.data as t.DistSigner.RunDataSuccess;
+  };
+
   it('API', async () => {
     const m = await import('@sys/driver-signer/dist');
     expect(m.DistSigner).to.equal(DistSigner);
@@ -56,6 +62,11 @@ describe(`DistSigner`, () => {
         privateKey,
       });
       expect(signed.ok).to.eql(true);
+      const signedData = runData(signed);
+      expect(signedData.artifactPath).to.eql(artifact);
+      expect(signedData.signaturePath).to.eql(signature);
+      expect(signedData.artifactHash).to.match(/^sha256-[0-9a-f]{64}$/);
+      expect(signedData.verified).to.eql(false);
 
       const verified = await DistSigner.run({
         mode: 'verify',
@@ -64,6 +75,33 @@ describe(`DistSigner`, () => {
         publicKey,
       });
       expect(verified.ok).to.eql(true);
+      const verifiedData = runData(verified);
+      expect(verifiedData.artifactPath).to.eql(artifact);
+      expect(verifiedData.signaturePath).to.eql(signature);
+      expect(verifiedData.artifactHash).to.eql(signedData.artifactHash);
+      expect(verifiedData.verified).to.eql(true);
+    });
+
+    it('sign-verify → returns verified success metadata in one run', async () => {
+      const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
+      const artifact = Fs.join(dir, 'dist.json');
+      const signature = Fs.join(dir, 'dist.json.sig');
+      await Fs.write(artifact, new TextEncoder().encode('{"hello":"sign-verify"}\n'), { throw: true });
+
+      const { privateKey, publicKey } = await SignEd25519.generateKeyPair();
+      const res = await DistSigner.run({
+        mode: 'sign-verify',
+        artifact: { path: artifact, kind: 'manifest' },
+        signature: { path: signature },
+        privateKey,
+        publicKey,
+      });
+      expect(res.ok).to.eql(true);
+      const data = runData(res);
+      expect(data.artifactPath).to.eql(artifact);
+      expect(data.signaturePath).to.eql(signature);
+      expect(data.artifactHash).to.match(/^sha256-[0-9a-f]{64}$/);
+      expect(data.verified).to.eql(true);
     });
 
     it('verify → fails when artifact bytes are tampered', async () => {
@@ -208,6 +246,16 @@ describe(`DistSigner`, () => {
         publicKey: keys.publicKey,
       });
       expect(verified.ok).to.eql(true);
+      const signedData = runData(signed);
+      const verifiedData = runData(verified);
+      expect(signedData.artifactPath).to.eql(artifact);
+      expect(signedData.signaturePath).to.eql(signature);
+      expect(signedData.verified).to.eql(false);
+      expect(verifiedData.artifactPath).to.eql(artifact);
+      expect(verifiedData.signaturePath).to.eql(signature);
+      expect(verifiedData.verified).to.eql(true);
+      expect(verifiedData.artifactHash).to.eql(signedData.artifactHash);
+      expect(verifiedData.artifactHash).to.match(/^sha256-[0-9a-f]{64}$/);
     });
   });
 });
