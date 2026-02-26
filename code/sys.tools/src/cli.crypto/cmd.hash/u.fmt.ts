@@ -31,7 +31,7 @@ export const HashFmt = {
     tbl.push([c.gray('  dir'), c.gray(dirLabel)]);
     if (opts.dist) {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));
-      const digestShort = ` ${c.green(`#${res.digest.slice(-5)}`)}`;
+      const digestShort = ` ${Fmt.hashSuffix(res.digest)}`;
       const status = wrangle.distStatus(opts.dist.status);
       tbl.push([c.gray('  dist'), `${path}${digestShort}${status}`]);
     }

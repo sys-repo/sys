@@ -96,6 +96,15 @@ export const Fmt = {
     return c.italic(c.gray(text));
   },
 
+  /**
+   * Common compact hash suffix display.
+   * eg. "#abcde" with dim/gray "#" and green suffix.
+   */
+  hashSuffix(hash: string, suffix = 5) {
+    const tail = String(hash).slice(-Math.max(0, suffix));
+    return `${c.dim(c.gray('#'))}${c.green(tail)}`;
+  },
+
   prettyPath(path: t.StringPath, highlightLevels = 1) {
     const parts = path.split('/');
     const start = parts.slice(0, -highlightLevels);
