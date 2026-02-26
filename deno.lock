@@ -55,13 +55,13 @@
     "jsr:@std/uuid@1.1.0": "1.1.0",
     "jsr:@sys/tools@*": "0.0.241",
     "jsr:@zip-js/zip-js@^2.7.52": "2.8.21",
-    "npm:@ai-sdk/openai@3.0.30": "3.0.30_zod@3.25.76",
+    "npm:@ai-sdk/openai@3.0.34": "3.0.34_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.5.3": "2.5.3_ws@8.19.0",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.3": "2.5.3",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.3": "2.5.3",
     "npm:@automerge/automerge-repo@2.5.3": "2.5.3",
     "npm:@automerge/automerge@3.2.4": "3.2.4",
-    "npm:@automerge/prosemirror@0.1.0": "0.1.0",
+    "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@1.0.6": "1.0.6_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_yaml@2.8.2",
     "npm:@elevenlabs/elevenlabs-js@2.36.0": "2.36.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.4_react-dom@19.2.4__react@19.2.4",
@@ -80,7 +80,7 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.4": "5.1.4_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.29.0_yaml@2.8.2",
-    "npm:ai@6.0.97": "6.0.97_zod@3.25.76",
+    "npm:ai@6.0.101": "6.0.101_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -93,7 +93,7 @@
     "npm:happy-dom@20.7.0": "20.7.0",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:he@^1.2.0": "1.2.0",
-    "npm:hono@4.12.1": "4.12.1",
+    "npm:hono@4.12.2": "4.12.2",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:katex@0.16": "0.16.28",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -370,8 +370,8 @@
     }
   },
   "npm": {
-    "@ai-sdk/gateway@3.0.53_zod@3.25.76": {
-      "integrity": "sha512-QT3FEoNARMRlk8JJVR7L98exiK9C8AGfrEJVbRxBT1yIXKs/N19o/+PsjTRVsARgDJNcy9JbJp1FspKucEat0Q==",
+    "@ai-sdk/gateway@3.0.55_zod@3.25.76": {
+      "integrity": "sha512-7xMeTJnCjwRwXKVCiv4Ly4qzWvDuW3+W1WIV0X1EFu6W83d4mEhV9bFArto10MeTw40ewuDjrbrZd21mXKohkw==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
         "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
@@ -379,8 +379,8 @@
         "zod"
       ]
     },
-    "@ai-sdk/openai@3.0.30_zod@3.25.76": {
-      "integrity": "sha512-YDht3t7TDyWKP+JYZp20VuYqSjyF2brHYh47GGFDUPf2wZiqNQ263ecL+quar2bP3GZ3BeQA8f0m2B7UwLPR+g==",
+    "@ai-sdk/openai@3.0.34_zod@3.25.76": {
+      "integrity": "sha512-rnSsjV7cqIUcYdHgTcXRvN+xn0+wv/DB/U1SCxCVOKDsD9xaNgDjQTuMeJ+dUTzpH4Gn+XS0dJQELCWVIFYQVg==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
         "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
@@ -444,7 +444,7 @@
     "@automerge/automerge-repo@2.5.3": {
       "integrity": "sha512-5ppzsUlzCs6PY+GeFlquaYLnVnYPz/hWzedep37zjb15tqZju1ukPPkBzT7KGEhEAnA99l4vfhfqSVC+1GktJg==",
       "dependencies": [
-        "@automerge/automerge@3.2.4",
+        "@automerge/automerge",
         "bs58check",
         "cbor-x",
         "debug",
@@ -454,16 +454,13 @@
         "xstate"
       ]
     },
-    "@automerge/automerge@3.1.1": {
-      "integrity": "sha512-x7tZiMBLk4/SKYimVEVl1/wPntT9buGvLOWCey9ZcH8JUsB0dgm49C0S7Ojzgvflcs2hc/YjiXRPcFeFkinIgw=="
-    },
     "@automerge/automerge@3.2.4": {
       "integrity": "sha512-/IAShHSxme5d4ZK0Vs4A0P+tGaR/bSz6KtIJSCIPfwilCxsIqfRHAoNjmsXip6TGouadmbuw3WfLop6cal8pPQ=="
     },
-    "@automerge/prosemirror@0.1.0": {
-      "integrity": "sha512-1VDuVzey6/UksmenUv3pbUH+kaEhboVDpqgo3RC1bd6Tztk3ZjxJ2hBSuKaVRfl+4q4v+VysI4oHGgNhrBv5Xg==",
+    "@automerge/prosemirror@0.2.0": {
+      "integrity": "sha512-Mixxftvfs12tKi7DsStobrQxFayoLJXhEjbrnmNnaQbMzwHrUzuwac+OUvw6ujbtXaulWX+JE8hAuHFAGRDsvQ==",
       "dependencies": [
-        "@automerge/automerge@3.1.1",
+        "@automerge/automerge",
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
@@ -1217,8 +1214,8 @@
         "vite"
       ]
     },
-    "ai@6.0.97_zod@3.25.76": {
-      "integrity": "sha512-eZIAcBymwGhBwncRH/v9pillZNMeRCDkc4BwcvwXerXd7sxjVxRis3ZNCNCpP02pVH4NLs81ljm4cElC4vbNcQ==",
+    "ai@6.0.101_zod@3.25.76": {
+      "integrity": "sha512-Ur/NgbgOp1rdhyDiKDk6EOpSgd1g5ADlbcD1cjQJtQsnmhEngz3Rf8nK5JetDh0vnbLy2aEBpaQeL+zvLRWuaA==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.8",
@@ -1636,8 +1633,8 @@
       "integrity": "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==",
       "bin": true
     },
-    "hono@4.12.1": {
-      "integrity": "sha512-hi9afu8g0lfJVLolxElAZGANCTTl6bewIdsRNhaywfP9K8BPf++F2z6OLrYGIinUwpRKzbZHMhPwvc0ZEpAwGw=="
+    "hono@4.12.2": {
+      "integrity": "sha512-gJnaDHXKDayjt8ue0n8Gs0A007yKXj4Xzb8+cNjZeYsSzzwKc0Lr+OZgYwVfB0pHfUs17EPoLvrOsEaJ9mj+Tg=="
     },
     "htmlparser2@8.0.2": {
       "integrity": "sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==",
@@ -1988,8 +1985,8 @@
     "prismjs@1.30.0": {
       "integrity": "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="
     },
-    "prosemirror-changeset@2.3.1": {
-      "integrity": "sha512-j0kORIBm8ayJNl3zQvD1TTPHJX3g042et6y/KQhZhnPrruO8exkTgG8X+NRpj7kIyMMEx74Xb3DyMIBtO0IKkQ==",
+    "prosemirror-changeset@2.4.0": {
+      "integrity": "sha512-LvqH2v7Q2SF6yxatuPP2e8vSUKS/L+xAU7dPDC4RMyHMhZoGDfBC74mYuyYF4gLqOEG758wajtyhNnsTkuhvng==",
       "dependencies": [
         "prosemirror-transform"
       ]
@@ -2569,13 +2566,13 @@
       "jsr:@std/semver@1.0.8",
       "jsr:@std/testing@1.0.17",
       "jsr:@std/uuid@1.1.0",
-      "npm:@ai-sdk/openai@3.0.30",
+      "npm:@ai-sdk/openai@3.0.34",
       "npm:@automerge/automerge-repo-network-websocket@2.5.3",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.3",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.3",
       "npm:@automerge/automerge-repo@2.5.3",
       "npm:@automerge/automerge@3.2.4",
-      "npm:@automerge/prosemirror@0.1.0",
+      "npm:@automerge/prosemirror@0.2.0",
       "npm:@elevenlabs/elevenlabs-js@2.36.0",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.0.1",
@@ -2588,7 +2585,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.97",
+      "npm:ai@6.0.101",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
@@ -2629,7 +2626,7 @@
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@5.1.4",
-        "npm:hono@4.12.1",
+        "npm:hono@4.12.2",
         "npm:motion@12.34.3",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",
