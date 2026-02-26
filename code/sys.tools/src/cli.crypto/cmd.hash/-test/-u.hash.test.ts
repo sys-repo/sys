@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Fs } from '../../common.ts';
+import { type t, Fs, Pkg, pkg } from '../../common.ts';
 import { HashJobSchema, runHashJob } from '../mod.ts';
 
 describe('cli.crypto/cmd.hash', () => {
@@ -20,6 +20,7 @@ describe('cli.crypto/cmd.hash', () => {
       expect(res.targetDir).to.eql(Fs.resolve(dir));
       expect(String(res.digest).startsWith('sha256-')).to.eql(true);
       expect(res.fileCount).to.eql(2);
+      expect(res.dist.build.builder).to.eql(Pkg.toString(pkg));
 
       expect(await Fs.exists(Fs.join(dir, 'dist.json'))).to.eql(false);
     } finally {
