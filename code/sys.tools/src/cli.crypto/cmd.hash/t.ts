@@ -15,6 +15,7 @@ export type HashJobCheck =
 export type HashRunParams = {
   readonly targetDir: t.StringDir;
   readonly saveDist: boolean;
+  readonly onHashProgress?: (e: HashProgressEvent) => void | Promise<void>;
 };
 
 export type HashRunResult = {
@@ -44,4 +45,11 @@ export type HashPreflight = {
   readonly targetDir: t.StringDir;
   readonly fileCount: number;
   readonly bytesTotal: t.NumberBytes;
+};
+
+export type HashProgressEvent = {
+  readonly dir: t.StringDir;
+  readonly path: t.StringPath;
+  readonly current: number;
+  readonly total: number;
 };

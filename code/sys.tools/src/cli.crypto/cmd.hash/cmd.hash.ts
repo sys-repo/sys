@@ -14,6 +14,7 @@ export async function hashDir(
   targetDir: string,
   opts: { saveDist?: boolean } = {},
 ): Promise<void> {
+  const PROGRESS_MIN_INTERVAL_MS = 50;
   const resolved = Fs.Path.resolve(cwd, targetDir);
   const dirLabel = HashFmt.dirLabel(resolved);
   const saveDist = opts.saveDist ?? false;
@@ -38,9 +39,24 @@ export async function hashDir(
   const startedAt = Time.now.timestamp;
   const spinner = Cli.spinner(HashFmt.spinnerText(resolved));
   spinner.start();
+  let spinnerProgressCurrent = 0;
+  let spinnerProgressLastAt = 0;
+  const updateSpinnerProgress = (current: number, total: number) => {
+    const now = Time.now.timestamp;
+    const isFinal = current >= total;
+    if (!isFinal && current === spinnerProgressCurrent) return;
+    if (!isFinal && now - spinnerProgressLastAt < PROGRESS_MIN_INTERVAL_MS) return;
+    spinnerProgressCurrent = current;
+    spinnerProgressLastAt = now;
+    spinner.text = HashFmt.spinnerProgressText(resolved, current, total);
+  };
   let res: Awaited<ReturnType<typeof runHashJob>>;
   try {
-    res = await runHashJob(job);
+    res = await runHashJob(job, {
+      onHashProgress: (e) => {
+        updateSpinnerProgress(e.current, e.total);
+      },
+    });
   } finally {
     spinner.stop();
   }

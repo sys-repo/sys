@@ -10,6 +10,11 @@ export const HashFmt = {
     return Fmt.spinnerText(`hashing ${c.cyan(HashFmt.dirLabel(dir))}`);
   },
 
+  spinnerProgressText(dir: string, current: number, total: number) {
+    const progress = c.gray(`(${c.white(current.toLocaleString())} of ${total.toLocaleString()} files)`);
+    return Fmt.spinnerText(`hashing ${c.cyan(HashFmt.dirLabel(dir))} ${progress}`);
+  },
+
   preflightSummary(summary: t.HashPreflight) {
     return `${summary.fileCount.toLocaleString()} ${Str.plural(summary.fileCount, 'file')}, ${Str.bytes(summary.bytesTotal)}`;
   },
