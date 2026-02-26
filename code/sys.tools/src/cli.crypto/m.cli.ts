@@ -1,8 +1,6 @@
 import { type t, c, Cli, D, done, Fs, Is, opt } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptTemplateVariant } from './u.menu.ts';
-import { cloneTemplate } from './u.tmpl/mod.ts';
 import { hashCurrentDir } from './cmd.hash/mod.ts';
 // [tmpl:variant.imports]
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
@@ -43,8 +41,7 @@ async function run(cwd: t.StringDir, _args: t.CryptoTool.CliArgs): Promise<t.Run
       message: 'Tools:\n',
       options: [
         opt(` hash ${c.gray('current dir')} ${c.dim(`→ ${Fs.basename(cwd)}`)}`, 'hash:cwd'),
-        opt(` Option A (clone \`-tmpl\` as new ${c.green('tool')})`, 'option-a'),
-        opt(' YAML Configs', 'config'),
+        opt(' Hashing Configs', 'config'),
         opt(c.gray('(quit)'), 'exit'),
       ],
       hideDefault: true,
@@ -56,17 +53,7 @@ async function run(cwd: t.StringDir, _args: t.CryptoTool.CliArgs): Promise<t.Run
     }
 
     /** --------------------------------------------------------
-     * Sub-Menu: A
-     */
-    if (A === 'option-a') {
-      const variant = await promptTemplateVariant();
-      if (!variant) continue;
-      await cloneTemplate(cwd, variant);
-      return done(0);
-    }
-
-    /** --------------------------------------------------------
-     * Sub-Menu: B
+     * Sub-Menu
      */
     // [tmpl:variant.option-b:start]
 if (A === 'config') {

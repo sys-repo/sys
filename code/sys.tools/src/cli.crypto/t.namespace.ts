@@ -16,9 +16,6 @@ export namespace CryptoTool {
   export type MenuCmd =
     | 'init'
     | 'help'
-    | 'option-a'
-    | 'option-a:stateless'
-    | 'option-a:yaml'
     | 'hash:cwd'
     | 'config'
     | 'back'
