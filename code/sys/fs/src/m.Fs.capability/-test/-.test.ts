@@ -1,9 +1,18 @@
+import { type t } from '../common.ts';
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { XXX } from '../mod.ts';
+import { Fs } from '../../mod.ts';
+import { FsCapability } from '../mod.ts';
 
 describe(`FS: Capability`, () => {
   it('API', async () => {
     const m = await import('@sys/fs/capability');
-    expect(m.XXX).to.equal(XXX);
+    expect(m.FsCapability).to.equal(FsCapability);
+  });
+
+  it('fromFs', () => {
+    const cap = FsCapability.fromFs(Fs);
+    expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Lib>();
+    expect(cap.cwd).to.equal(Fs.cwd);
+    expect(cap.tildeExpand).to.equal(Fs.Tilde.expand);
   });
 });

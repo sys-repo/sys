@@ -1,6 +1,18 @@
-import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, SlugBundle } from './common.ts';
+import {
+  type t,
+  Ffmpeg,
+  Fs,
+  FsCapability,
+  Hash,
+  Is,
+  Json,
+  Obj,
+  Slug,
+  SlugBundle,
+} from './common.ts';
 
 type SourceMap = Map<string, string>;
+type SlugPathCtx = ReturnType<t.Parser['path']>;
 type BundleSeqOpts = {
   facets?: t.BundleSequenceFacet[];
   outDir?: string;
@@ -19,12 +31,13 @@ export async function bundleSequenceFilepaths_NEW(
   docid: t.Crdt.Id,
   opts: BundleSeqOpts = {},
 ): Promise<t.BundleSequenceResult> {
-  const targetRuntime = resolveRuntimeTargetDefaults(opts);
+  const fs = FsCapability.fromFs(Fs);
+  const targetRuntime = resolveRuntimeTargetDefaults(opts, fs);
   const resolvedSources = new Map<string, string>();
   const parse = Slug.parser(yamlPath);
   const pathCtx = parse.path(dag, docid);
 
-  const assetResolver = makeAssetResolver({ pathCtx, resolvedSources });
+  const assetResolver = makeAssetResolver({ fs, pathCtx, resolvedSources });
   const durationProbe = makeDurationProbe();
 
   const derive = await SlugBundle.Transform.derive({
@@ -42,11 +55,13 @@ export async function bundleSequenceFilepaths_NEW(
   const derived = derive.value;
 
   await materializeTransformAssets({
+    fs,
     hints: derived.materialize?.assets,
     sources: resolvedSources,
   });
 
   await writeTransformManifests({
+    fs,
     files: derived.files,
     manifests: derived.manifests,
   });
@@ -66,21 +81,22 @@ export async function bundleSequenceFilepaths_NEW(
  * Compiler runtime adapters → Bundle.Transform.
  */
 function makeAssetResolver(args: {
-  pathCtx: ReturnType<ReturnType<typeof Slug.parser>['path']>;
+  fs: t.FsCapability.Lib;
+  pathCtx: SlugPathCtx;
   resolvedSources: SourceMap;
 }): t.SlugBundleTransform.AssetResolver {
   return async (asset) => {
     try {
       if (!args.pathCtx.ok) return { ok: true, value: undefined };
       const expanded = args.pathCtx.resolve(asset.logicalPath);
-      const resolvedPath = Fs.Tilde.expand(expanded?.value ?? '');
+      const resolvedPath = args.fs.tildeExpand(expanded?.value ?? '');
       if (!resolvedPath) return { ok: true, value: undefined };
-      const exists = await Fs.exists(resolvedPath);
+      const exists = await args.fs.exists(resolvedPath);
       if (!exists) return { ok: true, value: undefined };
 
-      const bytes = (await Fs.read(resolvedPath)).data;
+      const bytes = (await args.fs.read(resolvedPath)).data;
       const hash = Hash.sha256(bytes);
-      const stat = await Fs.stat(resolvedPath);
+      const stat = await args.fs.stat(resolvedPath);
       const stats = Is.number(stat?.size) ? { bytes: stat.size } : undefined;
       args.resolvedSources.set(sourceKey(asset.kind, asset.logicalPath), resolvedPath);
 
@@ -116,6 +132,7 @@ function makeDurationProbe(): t.SlugBundleTransform.DurationProbe {
  * Runtime materialization.
  */
 async function materializeTransformAssets(args: {
+  fs: t.FsCapability.Lib;
   hints?: readonly t.SlugBundleTransform.AssetMaterializeHint[];
   sources: SourceMap;
 }) {
@@ -124,13 +141,14 @@ async function materializeTransformAssets(args: {
     const source = args.sources.get(sourceKey(hint.kind, String(hint.logicalPath)));
     if (!source) continue;
     const destPath = String(hint.destPath);
-    const destDir = Fs.dirname(destPath);
-    await Fs.ensureDir(destDir);
-    if (!(await Fs.exists(destPath))) await Fs.copy(source, destPath);
+    const destDir = args.fs.dirname(destPath);
+    await args.fs.ensureDir(destDir);
+    if (!(await args.fs.exists(destPath))) await args.fs.copy(source, destPath);
   }
 }
 
 async function writeTransformManifests(args: {
+  fs: t.FsCapability.Lib;
   files: {
     assets: { path: string };
     playback: { path: string };
@@ -143,16 +161,16 @@ async function writeTransformManifests(args: {
   };
 }) {
   if (args.manifests.assets) {
-    await Fs.ensureDir(Fs.dirname(args.files.assets.path));
-    await Fs.write(args.files.assets.path, Json.stringify(args.manifests.assets));
+    await args.fs.ensureDir(args.fs.dirname(args.files.assets.path));
+    await args.fs.write(args.files.assets.path, Json.stringify(args.manifests.assets));
   }
   if (args.manifests.playback) {
-    await Fs.ensureDir(Fs.dirname(args.files.playback.path));
-    await Fs.write(args.files.playback.path, Json.stringify(args.manifests.playback));
+    await args.fs.ensureDir(args.fs.dirname(args.files.playback.path));
+    await args.fs.write(args.files.playback.path, Json.stringify(args.manifests.playback));
   }
   if (args.manifests.tree) {
-    await Fs.ensureDir(Fs.dirname(args.files.tree.path));
-    await Fs.write(args.files.tree.path, Json.stringify(args.manifests.tree));
+    await args.fs.ensureDir(args.fs.dirname(args.files.tree.path));
+    await args.fs.write(args.files.tree.path, Json.stringify(args.manifests.tree));
   }
 }
 
@@ -182,9 +200,10 @@ function toLintIssue(issue: t.SlugBundleTransform.Issue): t.LintSequenceFilepath
 /**
  * Runtime target normalization.
  */
-function resolveRuntimeTargetDefaults(opts: BundleSeqOpts) {
+function resolveRuntimeTargetDefaults(opts: BundleSeqOpts, fsCap?: t.FsCapability.Lib) {
+  const fs = fsCap ?? FsCapability.fromFs(Fs);
   const manifestsBase =
-    opts.target?.manifests?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+    opts.target?.manifests?.base ?? opts.outDir ?? fs.join(fs.cwd('terminal'), 'publish.assets');
   const manifestsDir = opts.target?.manifests?.dir ?? 'manifests';
   const videoBase = opts.target?.media?.video?.base ?? manifestsBase;
   const imageBase = opts.target?.media?.image?.base ?? manifestsBase;
