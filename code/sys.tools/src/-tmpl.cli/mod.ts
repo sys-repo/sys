@@ -14,7 +14,7 @@
  * - leave a truthful, minimal live CLI
  *
  * Clean away (items inherited from the template scaffold that are not referenced
- * by the tool's live CLI flow, ie. they've been edited):
+ * by the tool's live CLI flow, even if they still compile):
  * - scaffold root menu options (for example clone-template demo actions)
  * - root command union members that only supported scaffold menu actions
  * - helper files that are no longer imported by the live CLI path
@@ -24,6 +24,11 @@
  * - `u.tmpl/*` template clone/runtime support
  * - `[tmpl:variant.*]` anchor comments in files patched by `u.tmpl/u.variant.ts`
  * - YAML config seams if the generated tool still uses stateful template wiring
+ *
+ * Embedded-template coupling rule:
+ * - If removing scaffold/template-clone behavior from the live tool, also remove
+ *   or disable `u.tmpl` runtime/tests that patch live files via `[tmpl:variant.*]`
+ *   anchors; do not leave hidden test-time anchor dependencies in live CLI files.
  *
  * Verification (end conditions):
  * 1. No dead imports in the live CLI entry (`m.cli.ts`)
