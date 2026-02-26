@@ -149,6 +149,104 @@ describe('Pkg', () => {
         expect(Pkg.Is.dist(dist)).to.eql(true);
       });
 
+      it('true: canonical dist with detached signature descriptor', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: {
+              path: './dist.json.sig',
+              scheme: 'Ed25519',
+              key: 'kid:sample-1',
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+              './pkg/entry.js': 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+        expect(Pkg.Is.distCompat(dist)).to.eql(true);
+      });
+
+      it('false: invalid detached signature descriptor scheme', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: './dist.json.sig', scheme: 'RSA' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js':
+                'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+        expect(Pkg.Is.distCompat(dist)).to.eql(true);
+      });
+
+      it('false: non-string detached signature descriptor path', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: 123, scheme: 'Ed25519' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js':
+                'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
+      it('false: non-string detached signature descriptor key', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: './dist.json.sig', scheme: 'Ed25519', key: 123 },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js':
+                'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
       it('distCompat: true for legacy and canonical', () => {
         const legacy: t.DistPkgLegacy = {
           type: 'https://jsr.io/@sample/foo',

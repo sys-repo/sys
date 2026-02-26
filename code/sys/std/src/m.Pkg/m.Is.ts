@@ -25,6 +25,12 @@ export const PkgIs: t.PkgIsLib = {
     const dist = input as t.DistPkg;
     if (!Is.object(dist.build.hash)) return false;
     if (!Is.str(dist.build.hash.policy)) return false;
+    if (dist.build.sign !== undefined) {
+      if (!Is.object(dist.build.sign)) return false;
+      if (!Is.str(dist.build.sign.path)) return false;
+      if (dist.build.sign.scheme !== 'Ed25519') return false;
+      if (dist.build.sign.key !== undefined && !Is.str(dist.build.sign.key)) return false;
+    }
     if (!is.sha256Hash(dist.hash.digest)) return false;
 
     const values = Object.values(dist.hash.parts);
