@@ -9,15 +9,15 @@ export async function readSlugTreeSourceFiles(args: {
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
   const files: t.SlugBundleTransform.TreeFs.SourceFile[] = [];
 
-  await walkDir(args.root);
+  await collectDir(args.root);
   return files;
 
-  async function walkDir(dir: string): Promise<void> {
-    for await (const entry of readDirLevel(dir)) {
+  async function collectDir(dir: string): Promise<void> {
+    for await (const entry of walkDirLevel(dir)) {
       if (isIgnored(entry.name, ignore)) continue;
 
       if (entry.isDirectory) {
-        await walkDir(entry.path);
+        await collectDir(entry.path);
         continue;
       }
 
@@ -41,16 +41,16 @@ export async function writeSlugTreeSourceDir(args: {
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
   let count = 0;
 
-  await copyDir(args.root, args.targetDir);
+  await copyDirRecursive(args.root, args.targetDir);
   return count;
 
-  async function copyDir(sourceDir: string, targetDir: string): Promise<void> {
-    for await (const entry of readDirLevel(sourceDir)) {
+  async function copyDirRecursive(sourceDir: string, targetDir: string): Promise<void> {
+    for await (const entry of walkDirLevel(sourceDir)) {
       if (isIgnored(entry.name, ignore)) continue;
       const target = Fs.join(targetDir, entry.name);
 
       if (entry.isDirectory) {
-        await copyDir(entry.path, target);
+        await copyDirRecursive(entry.path, target);
         continue;
       }
 
@@ -61,7 +61,8 @@ export async function writeSlugTreeSourceDir(args: {
   }
 }
 
-async function* readDirLevel(dir: string) {
+/** Internal directory traversal helpers. */
+async function* walkDirLevel(dir: string) {
   for await (const entry of Fs.walk(dir, {
     maxDepth: 1,
     includeDirs: true,
