@@ -38,6 +38,8 @@ export namespace SlugBundleTransform {
      * Runtime adapters supply environment-specific resolution/probing behavior.
      */
     readonly derive: (args: DeriveArgs) => Promise<DeriveResult>;
+    /** Pure slug-tree:fs/file-content derivation helpers. */
+    readonly TreeFs: TreeFs.Lib;
   };
 
   export type DeriveArgs = {
@@ -218,4 +220,49 @@ export namespace SlugBundleTransform {
     readonly total: number;
     readonly index: number;
   };
+
+  export namespace TreeFs {
+    export type Lib = {
+      /**
+       * Pure file-content derivation for `slug-tree:fs` bundles from in-memory source files.
+       */
+      readonly derive: (args: DeriveFileContentArgs) => Promise<DeriveFileContentResult>;
+    };
+
+    export type SourceFile = {
+      readonly path: t.StringPath;
+      readonly source: string;
+      readonly name?: string;
+    };
+
+    export type DeriveFileContentArgs = {
+      readonly files: readonly SourceFile[];
+      readonly includePath?: boolean;
+      readonly docid?: t.StringId;
+      readonly manifests?: t.StringPath | readonly t.StringPath[];
+    };
+
+    export type DeriveFileContentResult = {
+      readonly ok: true;
+      readonly value: FileContentDerived;
+    } | {
+      readonly ok: false;
+      readonly error: Error;
+    };
+
+    export type FileContentDerived = {
+      readonly docs: readonly t.SlugFileContentDoc[];
+      readonly entries: readonly t.SlugFileContentEntry[];
+      readonly sha256: readonly Sha256DocHint[];
+      readonly docid?: t.StringId;
+      readonly assetsTargets: readonly t.StringFile[];
+      readonly index?: t.SlugFileContentIndex;
+    };
+
+    export type Sha256DocHint = {
+      readonly hash: string;
+      readonly filename: t.StringFile;
+      readonly doc: t.SlugFileContentDoc;
+    };
+  }
 }

@@ -11,4 +11,8 @@ describe(`SlugBundle.Transform`, () => {
     expect(typeof SlugBundleTransform.derive).to.equal('function');
   });
 
+  it('exposes TreeFs.derive()', () => {
+    expect(typeof SlugBundleTransform.TreeFs.derive).to.equal('function');
+  });
+
 });

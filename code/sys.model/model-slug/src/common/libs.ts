@@ -1,3 +1,4 @@
+export { Hash } from '@sys/crypto/hash';
 export { Http } from '@sys/http/client';
 export { PlaybackSchema } from '@sys/model/timecode/playback';
 export { Schema, Type } from '@sys/schema';
