@@ -52,7 +52,8 @@ async function run(cwd: t.StringDir, args: t.CryptoTool.CliParsedArgs): Promise<
     })) as t.CryptoTool.MenuCmd;
 
     if (A === 'hash:cwd') {
-      await hashCurrentDir(cwd);
+      const saveDist = await Cli.Input.Confirm.prompt({ message: 'Save dist.json?', default: false });
+      await hashCurrentDir(cwd, { saveDist });
       continue;
     }
 

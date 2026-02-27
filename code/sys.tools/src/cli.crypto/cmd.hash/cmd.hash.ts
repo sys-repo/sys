@@ -5,8 +5,11 @@ import { HashRowDist } from './u.row.dist.ts';
 import { HashPreflight } from './u.preflight.ts';
 import { runHashJob } from './u.hash.ts';
 
-export async function hashCurrentDir(cwd: t.StringDir): Promise<void> {
-  await hashDir(cwd, '.');
+export async function hashCurrentDir(
+  cwd: t.StringDir,
+  opts: { saveDist?: boolean } = {},
+): Promise<void> {
+  await hashDir(cwd, '.', opts);
 }
 
 export async function hashDir(
