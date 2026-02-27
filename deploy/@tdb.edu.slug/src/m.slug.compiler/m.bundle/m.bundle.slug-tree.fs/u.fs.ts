@@ -1,7 +1,7 @@
 import { type t, c, Fs, Json, Schema, SlugBundle, SlugTree } from './common.ts';
-import { clearTargetDir, prepareTargetDir } from './u.fs.dir.ts';
-import { deriveAssetsPath, normalizeTargetDirs, normalizeTargets, toDocid } from './u.fs.target.ts';
-import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.fs.walk.ts';
+import { clearTargetDir, prepareTargetDir } from './u.dir.ts';
+import { deriveAssetsPath, normalizeTargetDirs, normalizeTargets, toDocid } from './u.target.ts';
+import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.walk.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
