@@ -3,7 +3,7 @@ import { clearTargetDir, prepareTargetDir } from './u.dir.ts';
 import { deriveAssetsPath, normalizeTargetDirs, normalizeTargets, toDocid } from './u.target.ts';
 import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.walk.ts';
 
-export async function runSlugTreeFs(args: {
+export async function bundleSlugTreeFs(args: {
   cwd: t.StringDir;
   config: t.SlugBundleFileTree;
 }): Promise<t.SlugBundleFileTreeStats | undefined> {

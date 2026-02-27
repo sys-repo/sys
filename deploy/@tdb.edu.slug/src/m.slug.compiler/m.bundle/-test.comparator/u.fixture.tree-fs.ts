@@ -1,5 +1,5 @@
 import { type t, Fs, Is, Json } from '../common.ts';
-import { runSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
+import { bundleSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
 import { readBundleProfile } from '../u.profile.ts';
 import { FIXTURE } from './u.fixture.ts';
 import type { EvalRunOutput } from './u.normalize.ts';
@@ -13,14 +13,14 @@ export async function baselineTreeFsProvider(args: {
   docid: t.StringId;
   outDir: t.StringDir;
 }): Promise<EvalRunOutput> {
-  return await runTreeFsProvider(args, runSlugTreeFs);
+  return await runTreeFsProvider(args, bundleSlugTreeFs);
 }
 
 export async function candidateTreeFsProvider(args: {
   docid: t.StringId;
   outDir: t.StringDir;
 }): Promise<EvalRunOutput> {
-  return await runTreeFsProvider(args, runSlugTreeFs);
+  return await runTreeFsProvider(args, bundleSlugTreeFs);
 }
 
 export async function canRunTreeFsProviders(): Promise<{

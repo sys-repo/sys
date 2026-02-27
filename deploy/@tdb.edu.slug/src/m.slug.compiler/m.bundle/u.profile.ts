@@ -1,7 +1,7 @@
 import { type t, Crdt, Fs, Shard, Slug } from './common.ts';
 import { bundleSequenceFilepaths } from './m.bundle.slug-tree.media-seq/mod.ts';
 import { BundleProfileSchema } from './schema/mod.ts';
-import { runSlugTreeFs } from './m.bundle.slug-tree.fs/mod.ts';
+import { bundleSlugTreeFs } from './m.bundle.slug-tree.fs/mod.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { writeDistClientFiles } from './u.dist.client.ts';
 import { collectDistDirs, writeDistFiles } from './u.dist.ts';
@@ -127,7 +127,7 @@ export async function runProfile(args: {
 
     if (bundle.kind === 'slug-tree:fs') {
       args.onProgress?.({ stage: 'slug-tree:fs' });
-      const stats = await runSlugTreeFs({
+      const stats = await bundleSlugTreeFs({
         cwd,
         config: bundle,
       });

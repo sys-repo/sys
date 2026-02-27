@@ -1,1 +1,1 @@
-export { runSlugTreeFs } from './m.run.ts';
+export { bundleSlugTreeFs } from './m.run.ts';

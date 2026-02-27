@@ -1,7 +1,7 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
 import { Json, SlugSchema } from '../common.ts';
 import { collectDistDirs, writeDistFiles } from '../u.dist.ts';
-import { runSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
+import { bundleSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
 
 describe('Lint: slug-tree:fs', () => {
   it('writes sha256 per-file export with source + path + hash', async () => {
@@ -29,7 +29,7 @@ describe('Lint: slug-tree:fs', () => {
         bundles: [{ kind: 'slug-tree:fs', ...config }],
       };
 
-      await runSlugTreeFs({
+      await bundleSlugTreeFs({
         cwd: tmpDir,
         config,
       });
@@ -152,7 +152,7 @@ describe('Lint: slug-tree:fs', () => {
         },
       };
 
-      await runSlugTreeFs({
+      await bundleSlugTreeFs({
         cwd: tmpDir,
         config,
       });
@@ -181,7 +181,7 @@ describe('Lint: slug-tree:fs', () => {
           dir: [{ kind: 'sha256', path: 'out/sha256' }],
         },
       };
-      await runSlugTreeFs({
+      await bundleSlugTreeFs({
         cwd: tmpDir,
         config,
       });
@@ -210,7 +210,7 @@ describe('Lint: slug-tree:fs', () => {
         },
       };
 
-      const result = await runSlugTreeFs({
+      const result = await bundleSlugTreeFs({
         cwd: tmpDir,
         config,
       });
@@ -238,7 +238,7 @@ describe('Lint: slug-tree:fs', () => {
         },
       };
 
-      await runSlugTreeFs({
+      await bundleSlugTreeFs({
         cwd: tmpDir,
         config,
       });
