@@ -1,1 +1,1 @@
-export * from './u.fs.ts';
+export { runSlugTreeFs } from './u.fs.ts';
