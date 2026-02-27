@@ -9,7 +9,7 @@ import {
   Obj,
   Slug,
   SlugBundle,
-} from '../common.ts';
+} from './common.ts';
 
 type SourceMap = Map<string, string>;
 type SlugPathCtx = ReturnType<t.Parser['path']>;

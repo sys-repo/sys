@@ -1,7 +1,7 @@
 import { type t, Crdt, Fs, Shard, Slug } from './common.ts';
 import { bundleSequenceFilepaths } from './m.bundle.slug-tree.media-seq/mod.ts';
 import { BundleProfileSchema } from './schema/mod.ts';
-import { runSlugTreeFs } from './u.bundle.tree.fs.ts';
+import { runSlugTreeFs } from './m.bundle.slug-tree.fs/mod.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { writeDistClientFiles } from './u.dist.client.ts';
 import { collectDistDirs, writeDistFiles } from './u.dist.ts';

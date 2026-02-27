@@ -1,5 +1,5 @@
 import { type t, Fs, Is, Json } from '../common.ts';
-import { runSlugTreeFs } from '../u.bundle.tree.fs.ts';
+import { runSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
 import { readBundleProfile } from '../u.profile.ts';
 import { FIXTURE } from './u.fixture.ts';
 import type { EvalRunOutput } from './u.normalize.ts';
@@ -66,12 +66,19 @@ async function resolveTreeFsContext(): Promise<TreeFsContext> {
 
 async function runTreeFsProvider(
   args: { docid: t.StringId; outDir: t.StringDir },
-  runner: (args: { cwd: t.StringDir; config: t.SlugBundleFileTree }) => Promise<t.SlugBundleFileTreeStats | undefined>,
+  runner: (args: {
+    cwd: t.StringDir;
+    config: t.SlugBundleFileTree;
+  }) => Promise<t.SlugBundleFileTreeStats | undefined>,
 ): Promise<EvalRunOutput> {
   const ctx = await resolveTreeFsContext();
   const config = rewriteTreeFsTarget(ctx.config, args.outDir);
   await runner({ cwd: ctx.cwd, config });
-  return await collectTreeFsArtifacts({ docid: resolveTreeFsDocid(config, args.docid), outDir: args.outDir, config });
+  return await collectTreeFsArtifacts({
+    docid: resolveTreeFsDocid(config, args.docid),
+    outDir: args.outDir,
+    config,
+  });
 }
 
 async function collectTreeFsArtifacts(args: {
@@ -155,25 +162,38 @@ function rewriteTreeFsTarget(
   const target = Is.record(cloned.target)
     ? (cloned.target as {
         manifests?: t.StringPath | readonly t.StringPath[];
-        dir?: t.StringPath | t.SlugBundleFileTreeTargetDir | readonly t.SlugBundleFileTreeTargetDir[];
+        dir?:
+          | t.StringPath
+          | t.SlugBundleFileTreeTargetDir
+          | readonly t.SlugBundleFileTreeTargetDir[];
       })
     : {};
 
   const manifests = normalizeTargets(target.manifests);
-  target.manifests = manifests.length > 0
-    ? manifests.map((path) => Fs.join(outDir, '-manifests', Fs.basename(String(path))) as t.StringPath)
-    : [Fs.join(outDir, '-manifests', `slug-tree.${resolveTreeFsDocid(config, 'tree-fs' as t.StringId)}.json`) as t.StringPath];
+  target.manifests =
+    manifests.length > 0
+      ? manifests.map(
+          (path) => Fs.join(outDir, '-manifests', Fs.basename(String(path))) as t.StringPath,
+        )
+      : [
+          Fs.join(
+            outDir,
+            '-manifests',
+            `slug-tree.${resolveTreeFsDocid(config, 'tree-fs' as t.StringId)}.json`,
+          ) as t.StringPath,
+        ];
 
   const dirs = normalizeTargetDirs(target.dir);
-  target.dir = dirs.length > 0
-    ? dirs.map((dir) => {
-        const name = Fs.basename(String(dir.path).replace(/[/\\]+$/, '')) || dir.kind;
-        return {
-          kind: dir.kind,
-          path: Fs.join(outDir, name) as t.StringDir,
-        };
-      })
-    : [{ kind: 'sha256', path: Fs.join(outDir, 'sha256') as t.StringDir }];
+  target.dir =
+    dirs.length > 0
+      ? dirs.map((dir) => {
+          const name = Fs.basename(String(dir.path).replace(/[/\\]+$/, '')) || dir.kind;
+          return {
+            kind: dir.kind,
+            path: Fs.join(outDir, name) as t.StringDir,
+          };
+        })
+      : [{ kind: 'sha256', path: Fs.join(outDir, 'sha256') as t.StringDir }];
 
   return {
     ...cloned,

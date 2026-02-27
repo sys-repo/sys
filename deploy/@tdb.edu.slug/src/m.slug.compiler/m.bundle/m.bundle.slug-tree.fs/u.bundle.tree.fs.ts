@@ -1,5 +1,4 @@
-import { SlugTree } from '../m.slug.SlugTree/mod.ts';
-import { type t, c, Fs, Json, Schema, SlugBundle } from './common.ts';
+import { type t, c, Fs, Json, Schema, SlugBundle, SlugTree } from './common.ts';
 import { clearTargetDir, prepareTargetDir } from './u.bundle.tree.fs.dir.ts';
 import {
   deriveAssetsPath,
