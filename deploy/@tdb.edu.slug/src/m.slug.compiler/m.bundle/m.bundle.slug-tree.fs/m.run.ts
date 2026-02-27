@@ -66,7 +66,7 @@ export async function runSlugTreeFs(args: {
     }
 
     if (targetDir.kind === 'sha256') {
-      fileContent = await writeSlugTreeSha256DirFromTransform({
+      fileContent = await writeSlugTreeSha256Dir({
         root,
         targetDir: targetDir.path,
         include,
@@ -127,7 +127,10 @@ export async function runSlugTreeFs(args: {
   return { files, sourceFiles, sha256Files, manifests, elapsed };
 }
 
-async function writeSlugTreeSha256DirFromTransform(args: {
+/**
+ * Helpers
+ */
+async function writeSlugTreeSha256Dir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
   include?: readonly string[];
