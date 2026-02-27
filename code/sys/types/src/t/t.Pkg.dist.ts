@@ -88,7 +88,7 @@ export type DistPkgHashIgnore = {
   /** Ignore syntax/engine identifier. */
   format: 'gitignore';
   /** Effective ordered ignore rules used during compute. */
-  rules: readonly string[];
+  rules: string[];
   /** Digest of canonical serialized rules. */
   digest: t.StringHash;
 };
