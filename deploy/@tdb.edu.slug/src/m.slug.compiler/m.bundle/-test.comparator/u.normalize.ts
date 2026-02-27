@@ -4,6 +4,7 @@ export type EvalArtifacts = {
   readonly assets?: unknown;
   readonly playback?: unknown;
   readonly tree?: unknown;
+  readonly docs?: readonly unknown[];
 };
 
 export type EvalIssue = {
@@ -33,6 +34,7 @@ export type EvalRunOutput = {
     readonly assets?: t.StringFile;
     readonly playback?: t.StringFile;
     readonly tree?: t.StringFile;
+    readonly docs?: readonly t.StringFile[];
   };
   readonly artifacts: EvalArtifacts;
   readonly result?: EvalRunResultMeta;
@@ -60,6 +62,9 @@ export function normalizeRun(output: EvalRunOutput): EvalRunOutput {
         ? { playback: canonicalize(output.artifacts.playback) }
         : {}),
       ...(output.artifacts.tree !== undefined ? { tree: canonicalize(output.artifacts.tree) } : {}),
+      ...(output.artifacts.docs !== undefined
+        ? { docs: canonicalize(output.artifacts.docs) as readonly unknown[] }
+        : {}),
     },
     ...(result ? { result } : {}),
   };
@@ -85,4 +90,3 @@ function canonicalize(input: unknown): unknown {
   }
   return input;
 }
-

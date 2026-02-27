@@ -4,13 +4,13 @@ import { type EvalRunOutput, normalizeRun } from './u.normalize.ts';
 export type ParityDiff =
   | {
       readonly kind: 'missing_file' | 'unexpected_file';
-      readonly file: 'assets' | 'playback' | 'tree';
+      readonly file: 'assets' | 'playback' | 'tree' | 'docs';
       readonly baseline?: string;
       readonly candidate?: string;
     }
   | {
       readonly kind: 'manifest_mismatch';
-      readonly file: 'assets' | 'playback' | 'tree';
+      readonly file: 'assets' | 'playback' | 'tree' | 'docs';
       readonly baseline: unknown;
       readonly candidate: unknown;
     }
@@ -28,14 +28,21 @@ export function compareRuns(args: {
   const candidate = normalizeRun(args.candidate);
   const diffs: ParityDiff[] = [];
 
-  for (const key of ['assets', 'playback', 'tree'] as const) {
+  for (const key of ['assets', 'playback', 'tree', 'docs'] as const) {
     const bFile = baseline.files[key];
     const cFile = candidate.files[key];
-    if (bFile && !cFile) {
+    if (Array.isArray(bFile) || Array.isArray(cFile)) {
+      const bCount = Array.isArray(bFile) ? bFile.length : 0;
+      const cCount = Array.isArray(cFile) ? cFile.length : 0;
+      if (bCount > 0 && cCount === 0) {
+        diffs.push({ kind: 'missing_file', file: key, baseline: String(bCount) });
+      } else if (bCount === 0 && cCount > 0) {
+        diffs.push({ kind: 'unexpected_file', file: key, candidate: String(cCount) });
+      }
+    } else if (typeof bFile === 'string' && !cFile) {
       diffs.push({ kind: 'missing_file', file: key, baseline: bFile });
       continue;
-    }
-    if (!bFile && cFile) {
+    } else if (!bFile && typeof cFile === 'string') {
       diffs.push({ kind: 'unexpected_file', file: key, candidate: cFile });
       continue;
     }
