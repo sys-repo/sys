@@ -60,20 +60,29 @@ export const dev: D = async (input) => {
   const proc = Process.spawn({ cwd, args, silent, readySignal, dispose$: input.dispose$ });
   const { dispose } = proc;
 
-  const readyAbort = new AbortController();
   try {
-    await Promise.race([
-      proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
-      Http.Client.waitFor(requestedUrl, {
-        timeout: 30_000,
-        interval: 150,
-        signal: readyAbort.signal,
-      }),
-    ]);
-  } finally {
-    readyAbort.abort();
+    const readyAbort = new AbortController();
+    try {
+      await Promise.race([
+        proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
+        Http.Client.waitFor(requestedUrl, {
+          timeout: 30_000,
+          interval: 150,
+          signal: readyAbort.signal,
+        }),
+      ]);
+    } finally {
+      readyAbort.abort();
+    }
+    await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 });
+  } catch (error) {
+    try {
+      await dispose();
+    } catch {
+      // Best effort cleanup: preserve original startup failure.
+    }
+    throw error;
   }
-  await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 });
 
   const port = DevParse.port(resolvedUrl, requestedPort);
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose });
