@@ -11,6 +11,16 @@ export type Json = string | number | boolean | null | JsonMap | Json[];
 export type JsonMap = { [property: string]: Json };
 
 /**
+ * A JSON-like value that is agnostic to readonly object/array input shapes.
+ */
+export type JsonLike = string | number | boolean | null | JsonMapLike | JsonLike[] | readonly JsonLike[];
+
+/**
+ * A JSON-like map {object} that accepts mutable or readonly index signatures.
+ */
+export type JsonMapLike = { [property: string]: JsonLike } | { readonly [property: string]: JsonLike };
+
+/**
  * A stringified JSON value.
  */
 export type JsonString = string;
@@ -24,6 +34,26 @@ export type JsonU = string | number | boolean | null | JsonMapU | JsonU[] | unde
  * An extended version of JsonMap that supports [undefined].
  */
 export type JsonMapU = { [property: string]: JsonU };
+
+/**
+ * A JSON-like value that supports [undefined] and readonly input shapes.
+ */
+export type JsonLikeU =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonMapLikeU
+  | JsonLikeU[]
+  | readonly JsonLikeU[]
+  | undefined;
+
+/**
+ * A JSON-like map that supports [undefined] and mutable/readonly index signatures.
+ */
+export type JsonMapLikeU =
+  | { [property: string]: JsonLikeU }
+  | { readonly [property: string]: JsonLikeU };
 
 /**
  * CBOR (Concise Binary Object Representation)

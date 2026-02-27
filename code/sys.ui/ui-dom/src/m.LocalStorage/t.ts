@@ -9,16 +9,16 @@ export type LocalStorageLib = {
    * around the browser's local-storage.
    * @param {string} prefix - the namespace prepended to the keys written to underlying local-storage.
    */
-  ns<T extends t.JsonMapU>(prefix: string): LocalStorage<T>;
+  ns<T extends t.JsonMapLikeU>(prefix: string): LocalStorage<T>;
 
   /** Returns an Immutable<T> representation of the local-storage. */
-  immutable<T extends t.JsonMapU>(key: string, initial: T): t.LocalStorageImmutable<T>;
+  immutable<T extends t.JsonMapLikeU>(key: string, initial: T): t.LocalStorageImmutable<T>;
 };
 
 /**
  * An Immutable<T> interface over local-storage.
  */
-export type LocalStorageImmutable<T extends t.JsonMapU> = t.ImmutableRef<
+export type LocalStorageImmutable<T extends t.JsonMapLikeU> = t.ImmutableRef<
   T,
   t.Rfc6902PatchOperation,
   t.ImmutableEvents<T, t.Rfc6902PatchOperation, t.ImmutableChange<T, t.Rfc6902PatchOperation>>
@@ -30,7 +30,7 @@ export type LocalStorageImmutable<T extends t.JsonMapU> = t.ImmutableRef<
 /**
  * A strongly typed wrapper around the browser's local-storage.
  */
-export type LocalStorage<T extends t.JsonMapU> = {
+export type LocalStorage<T extends t.JsonMapLikeU> = {
   /** A prefix for keys in the local-storage. */
   readonly namespace: string;
 
