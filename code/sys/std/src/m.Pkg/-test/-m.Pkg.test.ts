@@ -199,6 +199,60 @@ describe('Pkg', () => {
         expect(Pkg.Is.distCompat(dist)).to.eql(true);
       });
 
+      it('true: canonical dist with hash ignore policy metadata', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: {
+              policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts',
+              ignore: {
+                format: 'gitignore',
+                rules: ['dist.json', 'dist.json.sig', '.DS_Store'],
+                digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+              },
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+      });
+
+      it('false: invalid hash ignore policy metadata', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: {
+              policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts',
+              ignore: {
+                format: 'glob',
+                rules: ['dist.json'],
+                digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+              },
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
       it('false: invalid detached signature descriptor scheme', () => {
         const dist: any = {
           type: 'https://jsr.io/@sample/foo',

@@ -25,6 +25,14 @@ export const PkgIs: t.PkgIsLib = {
     const dist = input as t.DistPkg;
     if (!Is.object(dist.build.hash)) return false;
     if (!Is.str(dist.build.hash.policy)) return false;
+    if (dist.build.hash.ignore !== undefined) {
+      const ignore = dist.build.hash.ignore;
+      if (!Is.object(ignore)) return false;
+      if (ignore.format !== 'gitignore') return false;
+      if (!Array.isArray(ignore.rules)) return false;
+      if (!ignore.rules.every((rule) => Is.str(rule))) return false;
+      if (!is.sha256Hash(ignore.digest)) return false;
+    }
     if (dist.build.sign !== undefined) {
       if (!Is.object(dist.build.sign)) return false;
       if (!Is.str(dist.build.sign.path)) return false;

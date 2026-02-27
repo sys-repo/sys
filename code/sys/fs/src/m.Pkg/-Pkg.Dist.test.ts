@@ -2,7 +2,7 @@ import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { pkg as fsPkg } from '../pkg.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { D, Fs, Is, JsrUrl, Path, R, Str, Time, c } from './common.ts';
+import { D, Fs, Ignore, Is, JsrUrl, Path, R, Str, Time, c } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -29,7 +29,7 @@ describe('Pkg.Dist', () => {
       // Shares all of the base interface methods.
       for (const key of Object.keys(Base.Dist) as Array<keyof typeof Base.Dist>) {
         const value = Base.Dist[key];
-        expect(value).to.equal(Pkg.Dist[key]);
+        expect(value).to.eql(Pkg.Dist[key]);
       }
     });
   });
@@ -159,6 +159,38 @@ describe('Pkg.Dist', () => {
       const keys = Object.keys(res.dist.hash.parts);
       expect(keys.includes('./dist.json.sig')).to.eql(false);
       expect(keys.includes('dist.json.sig')).to.eql(false);
+    });
+
+    it('Dist.compute(): emits default hash ignore policy metadata', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      const res = await Pkg.Dist.compute({ dir, pkg });
+      const ignore = res.dist.build.hash.ignore;
+
+      expect(ignore?.format).to.eql('gitignore');
+      expect(ignore?.rules).to.eql(['dist.json', 'dist.json.sig']);
+      expect(ignore?.digest.startsWith('sha256-')).to.eql(true);
+      expect(ignore?.digest.length).to.eql('sha256-'.length + 64);
+    });
+
+    it('Dist.compute(): custom ignore filters files and is captured in policy metadata', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      await Fs.write(Fs.join(dir, '.DS_Store'), 'junk');
+
+      const strict = await Pkg.Dist.compute({ dir, pkg });
+      const scoped = await Pkg.Dist.compute({ dir, pkg, ignore: ['.DS_Store'] });
+
+      expect(strict.dist.hash.parts['.DS_Store']).to.not.eql(undefined);
+      expect(scoped.dist.hash.parts['.DS_Store']).to.eql(undefined);
+      expect(scoped.dist.build.hash.ignore?.rules).to.eql([
+        'dist.json',
+        'dist.json.sig',
+        '.DS_Store',
+      ]);
+      expect(
+        scoped.dist.build.hash.ignore?.digest === strict.dist.build.hash.ignore?.digest,
+      ).to.eql(false);
     });
 
     it('Dist.compute(): root hash is idempotent across repeated save runs', async () => {
@@ -427,7 +459,7 @@ describe('Pkg.Dist', () => {
           p.endsWith('sys/dev/hello.txt')
         );
       });
-      expect(childContentPath).to.not.equal(undefined);
+      expect(childContentPath).to.not.eql(undefined);
 
       // Render.
       const text = await Pkg.Dist.Log.children(root, dist);
@@ -437,11 +469,11 @@ describe('Pkg.Dist', () => {
         .split('\n')
         .map((l) => l.trim())
         .find((l) => l.includes('static content'));
-      expect(contentLine).to.not.equal(undefined);
+      expect(contentLine).to.not.eql(undefined);
 
       // Grab the last "<size>" token on the line (matches how the table prints it).
       const match = contentLine?.match(/(\d+(?:\.\d+)?\s*(?:B|KB|MB|GB))\s*$/);
-      expect(match?.[1]).to.not.equal(undefined);
+      expect(match?.[1]).to.not.eql(undefined);
 
       // Expected bytes = sum of files NOT inside the child package root(s).
       const childRoot = Path.dirname(childContentPath ?? './sys/dev/hello.txt');
@@ -578,6 +610,73 @@ describe('Pkg.Dist', () => {
          */
         hash.digest = `sha🐷-${'0'.repeat(60)}💥`;
       });
+    });
+
+    it('validate: fails when hash ignore digest is tampered', async () => {
+      const sample = await Sample.init();
+      const dir = sample.path.dir;
+
+      const computed = await Pkg.Dist.compute({ dir, pkg, ignore: ['.DS_Store'], save: true });
+      expect(computed.dist.build.hash.ignore).to.not.eql(undefined);
+
+      const path = Fs.join(dir, 'dist.json');
+      const json = (await Fs.readJson<t.DistPkg>(path)).data;
+      if (!json) throw new Error('Expected dist.json payload');
+      const tampered: t.DistPkg = {
+        ...json,
+        build: {
+          ...json.build,
+          hash: {
+            ...json.build.hash,
+            ignore: {
+              ...json.build.hash.ignore!,
+              digest: 'sha256-0000000000000000000000000000000000000000000000000000000000000000',
+            },
+          },
+        },
+      };
+      await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
+
+      const res = await Pkg.Dist.verify(dir);
+      expect(res.exists).to.eql(true);
+      expect(res.is.valid).to.eql(false);
+      expect(res.error?.message).to.include('ignore-policy digest mismatch');
+    });
+
+    it('validate: fails when hash ignore rules do not reproduce hash parts', async () => {
+      const sample = await Sample.init();
+      const dir = sample.path.dir;
+      await Fs.write(Fs.join(dir, '.DS_Store'), 'junk');
+
+      const computed = await Pkg.Dist.compute({ dir, pkg, save: true });
+      expect(computed.dist.hash.parts['.DS_Store']).to.not.eql(undefined);
+
+      const path = Fs.join(dir, 'dist.json');
+      const json = (await Fs.readJson<t.DistPkg>(path)).data;
+      if (!json) throw new Error('Expected dist.json payload');
+      const badRules = [...(json.build.hash.ignore?.rules ?? []), '.DS_Store'];
+      const digest = await Ignore.digest(badRules);
+
+      const tampered: t.DistPkg = {
+        ...json,
+        build: {
+          ...json.build,
+          hash: {
+            ...json.build.hash,
+            ignore: {
+              ...json.build.hash.ignore!,
+              rules: badRules,
+              digest,
+            },
+          },
+        },
+      };
+      await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
+
+      const res = await Pkg.Dist.verify(dir);
+      expect(res.exists).to.eql(true);
+      expect(res.is.valid).to.eql(false);
+      expect(res.error?.message).to.include('does not reproduce hash.parts');
     });
 
     it('404: target dir does not exist', async () => {

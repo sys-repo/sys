@@ -34,6 +34,12 @@ export type DistPkg = {
        * (for example a JSR package source file URL).
        */
       policy: t.StringUri;
+
+      /**
+       * Effective ignore-policy used to scope hashed files.
+       * If present, this policy must reproduce `hash.parts`.
+       */
+      ignore?: t.DistPkgHashIgnore;
     };
 
     /**
@@ -73,4 +79,16 @@ export type DistPkgLegacy = Omit<DistPkg, 'build'> & {
 export type DistPkgSize = {
   total: t.NumberBytes;
   pkg: t.NumberBytes;
+};
+
+/**
+ * Canonical ignore policy that produced `DistPkg.hash.parts`.
+ */
+export type DistPkgHashIgnore = {
+  /** Ignore syntax/engine identifier. */
+  format: 'gitignore';
+  /** Effective ordered ignore rules used during compute. */
+  rules: readonly string[];
+  /** Digest of canonical serialized rules. */
+  digest: t.StringHash;
 };

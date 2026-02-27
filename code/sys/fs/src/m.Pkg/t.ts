@@ -57,6 +57,7 @@ export type PkgDistComputeArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
   builder?: t.Pkg;
+  ignore?: string | string[];
   save?: boolean;
   filter?(path: t.StringPath): boolean;
   onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
