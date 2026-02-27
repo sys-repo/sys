@@ -11,10 +11,10 @@ import { formatParityDiffs } from './u.report.ts';
 const TREE_FS_DOCID = 'tree-fs' as const;
 
 describe('m.eval.tree-fs (config-locked parity harness)', () => {
-  it('proves zero-diff parity across isolated OLD tree-fs runs', async () => {
+  it('proves zero-diff parity across isolated baseline tree-fs runs', async () => {
     const config = await canRunTreeFsProviders();
     if (!config.ok) {
-      console.info(`Skipping tree-fs OLD parity test (${config.reason ?? 'config unavailable'}).`);
+      console.info(`Skipping tree-fs baseline parity test (${config.reason ?? 'config unavailable'}).`);
       return;
     }
 
@@ -32,10 +32,10 @@ describe('m.eval.tree-fs (config-locked parity harness)', () => {
     });
   });
 
-  it('proves zero-diff parity across OLD/NEW tree-fs runs', async () => {
+  it('proves zero-diff parity across baseline/candidate tree-fs runs', async () => {
     const config = await canRunTreeFsProviders();
     if (!config.ok) {
-      console.info(`Skipping tree-fs OLD/NEW parity test (${config.reason ?? 'config unavailable'}).`);
+      console.info(`Skipping tree-fs baseline/candidate parity test (${config.reason ?? 'config unavailable'}).`);
       return;
     }
 
