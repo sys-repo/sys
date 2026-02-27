@@ -9,7 +9,7 @@ import {
   Obj,
   Slug,
   SlugBundle,
-} from './common.ts';
+} from '../common.ts';
 
 type SourceMap = Map<string, string>;
 type SlugPathCtx = ReturnType<t.Parser['path']>;
@@ -127,7 +127,9 @@ function makeMediaDurationProbe(): MediaDurationProbe {
   };
 }
 
-function makeDurationProbe(probeMediaDuration: MediaDurationProbe): t.SlugBundleTransform.DurationProbe {
+function makeDurationProbe(
+  probeMediaDuration: MediaDurationProbe,
+): t.SlugBundleTransform.DurationProbe {
   return async (args) => {
     if (args.asset.kind !== 'video') return undefined;
     const resolvedPath = resolveSourcePathFromProbe(args.asset);

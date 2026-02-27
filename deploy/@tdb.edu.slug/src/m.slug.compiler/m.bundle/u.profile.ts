@@ -1,11 +1,11 @@
 import { type t, Crdt, Fs, Shard, Slug } from './common.ts';
+import { bundleSequenceFilepaths } from './m.bundle.slug-tree.media-seq/mod.ts';
+import { BundleProfileSchema } from './schema/mod.ts';
+import { runSlugTreeFs } from './u.bundle.tree.fs.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { writeDistClientFiles } from './u.dist.client.ts';
-import { bundleSequenceFilepaths } from './u.bundle.seq.files.ts';
 import { collectDistDirs, writeDistFiles } from './u.dist.ts';
-import { runSlugTreeFs } from './u.bundle.tree.fs.ts';
 import { validate } from './u.validate.ts';
-import { BundleProfileSchema } from './schema/mod.ts';
 
 export async function readBundleProfile(path: t.StringFile): Promise<t.BundleProfile> {
   const res = await Fs.readYaml<t.BundleProfile>(path);
@@ -261,14 +261,12 @@ function buildMediaSeqDescriptor(args: {
   return { dir: descriptorDir, bundle };
 }
 
-function toDescriptorShardPolicy(
-  input?: {
-    readonly strategy?: t.ShardStrategy;
-    readonly total: t.ShardCount;
-    readonly host?: 'prefix-shard' | 'none';
-    readonly path?: 'preserve' | 'root-filename';
-  },
-):
+function toDescriptorShardPolicy(input?: {
+  readonly strategy?: t.ShardStrategy;
+  readonly total: t.ShardCount;
+  readonly host?: 'prefix-shard' | 'none';
+  readonly path?: 'preserve' | 'root-filename';
+}):
   | {
       readonly strategy: t.ShardStrategy;
       readonly total: t.ShardCount;

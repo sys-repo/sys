@@ -1,6 +1,6 @@
 import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
 import { Crdt, Fs, Json, Shard } from '../common.ts';
-import { bundleSequenceFilepaths } from '../u.bundle.seq.files.ts';
+import { bundleSequenceFilepaths } from '../m.bundle.slug-tree.media-seq/mod.ts';
 
 async function withMockedDuration<T>(
   mock: typeof Ffmpeg.duration,
@@ -69,7 +69,9 @@ describe('Lint: bundle/sequence files', () => {
         target: { media: { video: { dir: 'video', shard: { total: 64 } } } },
       });
 
-      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      const assetsIssue = result.issues.find(
+        (item) => item.kind === 'sequence:assets:not-exported',
+      );
       expect(assetsIssue).to.eql(undefined);
 
       const manifestPath = Fs.join(
@@ -155,7 +157,9 @@ describe('Lint: bundle/sequence files', () => {
         },
       });
 
-      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      const assetsIssue = result.issues.find(
+        (item) => item.kind === 'sequence:assets:not-exported',
+      );
       expect(assetsIssue).to.eql(undefined);
 
       const manifestPath = Fs.join(
@@ -232,12 +236,17 @@ describe('Lint: bundle/sequence files', () => {
         baseHref: '/sample-base',
         target: {
           media: {
-            video: { dir: 'video/sample-ns-<shards>/sample-partition-<shard>', shard: { total: 64 } },
+            video: {
+              dir: 'video/sample-ns-<shards>/sample-partition-<shard>',
+              shard: { total: 64 },
+            },
           },
         },
       });
 
-      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      const assetsIssue = result.issues.find(
+        (item) => item.kind === 'sequence:assets:not-exported',
+      );
       expect(assetsIssue).to.eql(undefined);
       const clean = Crdt.Id.clean(String(docid)) ?? '';
       const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${clean}.assets.json`);
@@ -309,7 +318,9 @@ describe('Lint: bundle/sequence files', () => {
         },
       });
 
-      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      const assetsIssue = result.issues.find(
+        (item) => item.kind === 'sequence:assets:not-exported',
+      );
       expect(assetsIssue).to.eql(undefined);
 
       const manifestPath = Fs.join(
@@ -319,7 +330,11 @@ describe('Lint: bundle/sequence files', () => {
       );
       const manifestJson = (await Fs.readText(manifestPath)).data;
       const manifest = Json.parse(manifestJson) as {
-        readonly assets: readonly { readonly kind: t.SlugAssetKind; readonly shard?: unknown; readonly href: string }[];
+        readonly assets: readonly {
+          readonly kind: t.SlugAssetKind;
+          readonly shard?: unknown;
+          readonly href: string;
+        }[];
       };
 
       const video = manifest.assets.find((a) => a.kind === 'video');

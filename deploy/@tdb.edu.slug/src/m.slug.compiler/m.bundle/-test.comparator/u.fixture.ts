@@ -1,10 +1,10 @@
-import { type t, Crdt, Fs, Is, Json } from '../common.ts';
-import { buildDocumentDag } from '../u.dag.ts';
-import { bundleSequenceFilepaths } from '../u.bundle.seq.files.ts';
-import { readBundleProfile } from '../u.profile.ts';
-import type { EvalRunOutput } from './u.normalize.ts';
 import { RepoProcess } from '../../../../../../code/sys.tools/src/cli.crdt/cmd.repo.daemon/mod.ts';
 import { CrdtReposFs } from '../../../../../../code/sys.tools/src/cli.crdt/u.config.repo/u.fs.ts';
+import { type t, Crdt, Fs, Is, Json } from '../common.ts';
+import { bundleSequenceFilepaths } from '../m.bundle.slug-tree.media-seq/mod.ts';
+import { buildDocumentDag } from '../u.dag.ts';
+import { readBundleProfile } from '../u.profile.ts';
+import type { EvalRunOutput } from './u.normalize.ts';
 
 const HERE = decodeURIComponent(new URL('.', import.meta.url).pathname) as t.StringDir;
 const CONFIG_CWD = Fs.Path.resolve(HERE, '../../../../../../code/sys.tools/.tmp') as t.StringDir;
@@ -19,10 +19,7 @@ const CONFIG_PATH = Fs.join(
 export const FIXTURE = {
   profilePath: CONFIG_PATH as t.StringFile,
   profileCwd: CONFIG_CWD as t.StringDir,
-  docids: [
-    '2esGLgD5SoQkeucytmGeadm9cC7y',
-    '2irtwwtQNj8GVrUguPjNERrAgLMx',
-  ] as const,
+  docids: ['2esGLgD5SoQkeucytmGeadm9cC7y', '2irtwwtQNj8GVrUguPjNERrAgLMx'] as const,
 } as const;
 
 export type EvalRunProvider = (args: {
@@ -155,7 +152,8 @@ async function resolveMediaSeqContext(): Promise<MediaSeqContext> {
     (b): b is Extract<t.BundleConfig, { kind: 'slug-tree:media:seq' }> =>
       b.kind === 'slug-tree:media:seq' && b.enabled !== false,
   );
-  if (!bundle) throw new Error(`No enabled "slug-tree:media:seq" bundle found in ${FIXTURE.profilePath}`);
+  if (!bundle)
+    throw new Error(`No enabled "slug-tree:media:seq" bundle found in ${FIXTURE.profilePath}`);
 
   const target = bundle.target ?? {};
   const manifests =
@@ -170,7 +168,9 @@ async function resolveMediaSeqContext(): Promise<MediaSeqContext> {
   const manifestsBase = String(manifests.base ?? '.').trim();
   const rawRootDocid = String(bundle.crdt?.docid ?? '').trim();
   if (!rawRootDocid) throw new Error(`Missing crdt.docid in ${FIXTURE.profilePath}`);
-  const rootDocid = (rawRootDocid.startsWith('crdt:') ? rawRootDocid : `crdt:${rawRootDocid}`) as t.Crdt.Id;
+  const rootDocid = (
+    rawRootDocid.startsWith('crdt:') ? rawRootDocid : `crdt:${rawRootDocid}`
+  ) as t.Crdt.Id;
   const yamlPath = parseYamlPath(String(bundle.crdt?.path ?? ''));
   const templates = {
     assets: String(manifests.assets ?? 'slug.<docid>.assets.json'),
@@ -212,7 +212,7 @@ async function liveBundleProvider(args: {
   }
 
   const dag = await buildDocumentDag(cmd, ctx.rootDocid, ctx.yamlPath);
-  const docid = (`crdt:${String(args.docid).replace(/^crdt:/, '')}`) as t.Crdt.Id;
+  const docid = `crdt:${String(args.docid).replace(/^crdt:/, '')}` as t.Crdt.Id;
   const target = rewriteTargetBases(ctx.target, args.outDir);
   const result = await bundleSequenceFilepaths(dag, ctx.yamlPath, docid, {
     target,
@@ -256,10 +256,17 @@ function rewriteTargetBases(
 ): t.SlugBundleMediaSeq['target'] | undefined {
   const next = target ? Json.parse(Json.stringify(target)) : {};
   const obj = (Is.record(next) ? next : {}) as Record<string, unknown>;
-  const manifests = (Is.record(obj['manifests']) ? obj['manifests'] : {}) as Record<string, unknown>;
+  const manifests = (Is.record(obj['manifests']) ? obj['manifests'] : {}) as Record<
+    string,
+    unknown
+  >;
   const media = (Is.record(obj['media']) ? obj['media'] : {}) as Record<string, unknown>;
-  const video = (Is.record(media['video']) ? media['video'] : undefined) as Record<string, unknown> | undefined;
-  const image = (Is.record(media['image']) ? media['image'] : undefined) as Record<string, unknown> | undefined;
+  const video = (Is.record(media['video']) ? media['video'] : undefined) as
+    | Record<string, unknown>
+    | undefined;
+  const image = (Is.record(media['image']) ? media['image'] : undefined) as
+    | Record<string, unknown>
+    | undefined;
 
   manifests['base'] = outDir;
   if (video) video['base'] = outDir;
@@ -280,7 +287,5 @@ async function getCmdClient(): Promise<t.Crdt.Cmd.Client | undefined> {
 function parseYamlPath(input: t.StringPath): t.ObjectPath {
   const raw = String(input ?? '').trim();
   if (!raw) return [] as t.ObjectPath;
-  return raw
-    .split('/')
-    .filter((p) => p.length > 0) as t.ObjectPath;
+  return raw.split('/').filter((p) => p.length > 0) as t.ObjectPath;
 }
