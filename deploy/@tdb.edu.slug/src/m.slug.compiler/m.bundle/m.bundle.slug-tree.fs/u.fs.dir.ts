@@ -28,9 +28,15 @@ export async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean>
 
 export async function clearTargetDir(targetDir: t.StringDir): Promise<void> {
   const preserve = new Set<string>(DEFAULT_IGNORE as readonly string[]);
-  for await (const entry of Deno.readDir(targetDir)) {
+  for await (const entry of Fs.walk(targetDir, {
+    maxDepth: 1,
+    includeDirs: true,
+    includeFiles: true,
+    includeSymlinks: true,
+    followSymlinks: false,
+  })) {
+    if (entry.path === targetDir) continue;
     if (preserve.has(entry.name)) continue;
-    const target = Fs.join(targetDir, entry.name);
-    await Fs.remove(target, { log: false });
+    await Fs.remove(entry.path, { log: false });
   }
 }

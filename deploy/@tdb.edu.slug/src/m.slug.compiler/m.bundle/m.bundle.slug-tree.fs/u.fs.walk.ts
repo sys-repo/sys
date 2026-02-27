@@ -13,20 +13,19 @@ export async function readSlugTreeSourceFiles(args: {
   return files;
 
   async function walkDir(dir: string): Promise<void> {
-    for await (const entry of Deno.readDir(dir)) {
+    for await (const entry of readDirLevel(dir)) {
       if (isIgnored(entry.name, ignore)) continue;
-      const abs = Fs.join(dir, entry.name);
 
       if (entry.isDirectory) {
-        await walkDir(abs);
+        await walkDir(entry.path);
         continue;
       }
 
       if (!entry.isFile || !isIncluded(entry.name, include)) continue;
 
-      const res = await Fs.readText(abs);
+      const res = await Fs.readText(entry.path);
       const source = String(res.data ?? '');
-      const rel = Fs.Path.relative(args.root, abs) as t.StringPath;
+      const rel = Fs.Path.relative(args.root, entry.path) as t.StringPath;
       files.push({ path: rel, source, name: entry.name });
     }
   }
@@ -46,20 +45,32 @@ export async function writeSlugTreeSourceDir(args: {
   return count;
 
   async function copyDir(sourceDir: string, targetDir: string): Promise<void> {
-    for await (const entry of Deno.readDir(sourceDir)) {
+    for await (const entry of readDirLevel(sourceDir)) {
       if (isIgnored(entry.name, ignore)) continue;
-      const source = Fs.join(sourceDir, entry.name);
       const target = Fs.join(targetDir, entry.name);
 
       if (entry.isDirectory) {
-        await copyDir(source, target);
+        await copyDir(entry.path, target);
         continue;
       }
 
       if (!entry.isFile || !isIncluded(entry.name, include)) continue;
-      await Fs.copyFile(source, target, { force: true });
+      await Fs.copyFile(entry.path, target, { force: true });
       count += 1;
     }
+  }
+}
+
+async function* readDirLevel(dir: string) {
+  for await (const entry of Fs.walk(dir, {
+    maxDepth: 1,
+    includeDirs: true,
+    includeFiles: true,
+    includeSymlinks: false,
+    followSymlinks: false,
+  })) {
+    if (entry.path === dir) continue;
+    yield entry;
   }
 }
 
