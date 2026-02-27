@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 /** Type re-exports. */
-export type * from './t.bundle.seq.ts';
-export type * from './t.bundle.tree.ts';
+export type * from './m.bundle.slug-tree.fs/t.ts';
+export type * from './m.bundle.slug-tree.media-seq/t.ts';
 export type * from './t.bundle.ts';
 export type * from './t.menu.ts';
 export type * from './t.run.ts';
