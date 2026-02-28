@@ -1,11 +1,16 @@
 import { useEffect } from 'react';
 import { type t, Keyboard } from './common.ts';
 
+const D = { enabled: true } as const;
+
 /**
  * Hook: Keyboard controller.
  */
 export const useKeyboard: t.UseDevKeyboard = (options) => {
-  useEffect(() => listen(options).dispose, []);
+  useEffect(() => {
+    if (!(options?.enabled ?? D.enabled)) return;
+    return listen(options).dispose;
+  }, []);
 };
 
 /**
@@ -13,6 +18,8 @@ export const useKeyboard: t.UseDevKeyboard = (options) => {
  */
 export function listen(options: t.UseDevKeyboardOptions = {}) {
   const keyboard = Keyboard.until(options.dispose$);
+  if (!(options.enabled ?? D.enabled)) return keyboard;
+
   const dbl = keyboard.dbl();
 
   const is = {
@@ -40,7 +47,8 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
 
     if (is.dev) {
       const current = query.get('dev');
-      if (current === 'true') query.delete('dev'); // ← goto Root screen.
+      if (current === 'true')
+        query.delete('dev'); // ← goto Root screen.
       else query.set('dev', 'true'); //               ← goto DevHarness index.
       window.location.href = url.href;
     }
