@@ -5,7 +5,7 @@ export type * from './t.lib.ts';
 
 /** Frontmatter metadata for a slug content entry. */
 export type SlugFileContentFrontmatter = {
-  readonly ref: t.StringRef;
+  readonly ref?: t.StringRef;
   readonly title?: string;
   readonly [key: string]: unknown;
 };

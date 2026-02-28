@@ -33,7 +33,7 @@ describe('SlugFileContent.Is', () => {
     expect(Is.doc(doc)).to.eql(true);
   });
 
-  it('doc rejects frontmatter without ref', () => {
+  it('doc accepts frontmatter without ref', () => {
     expect(
       Is.doc({
         source: 'hello',
@@ -41,13 +41,24 @@ describe('SlugFileContent.Is', () => {
         contentType: 'text/markdown',
         frontmatter: {},
       }),
-    ).to.eql(false);
+    ).to.eql(true);
     expect(
       Is.doc({
         source: 'hello',
         hash: 'abc',
         contentType: 'text/markdown',
         frontmatter: { title: 'Nope' },
+      }),
+    ).to.eql(true);
+  });
+
+  it('doc rejects invalid frontmatter ref value', () => {
+    expect(
+      Is.doc({
+        source: 'hello',
+        hash: 'abc',
+        contentType: 'text/markdown',
+        frontmatter: { ref: '' },
       }),
     ).to.eql(false);
   });

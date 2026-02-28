@@ -19,6 +19,14 @@ describe('SlugFileContent.validate', () => {
     expect(result.ok).to.eql(true);
   });
 
+  it('accepts frontmatter without ref', () => {
+    const result = validate({
+      ...VALID_DOC,
+      frontmatter: { title: 'Hello' },
+    });
+    expect(result.ok).to.eql(true);
+  });
+
   it('rejects non-object payloads', () => {
     const result = validate('nope');
     expect(result.ok).to.eql(false);

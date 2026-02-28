@@ -36,11 +36,11 @@ export const Title = Type.String({
 
 export const Frontmatter = Type.Object(
   {
-    ref: Ref,
+    ref: Type.Optional(Ref),
     title: Type.Optional(Title),
   },
   {
     additionalProperties: true,
-    description: 'Frontmatter metadata (ref required; other keys allowed).',
+    description: 'Frontmatter metadata (ref optional; other keys allowed).',
   },
 );

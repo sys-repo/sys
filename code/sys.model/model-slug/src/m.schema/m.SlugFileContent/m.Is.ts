@@ -43,7 +43,7 @@ function isEntry(value: unknown): value is t.SlugFileContentEntry {
   if (!StdIs.record(entry.frontmatter)) return false;
 
   const ref = (entry.frontmatter as { ref?: unknown }).ref;
-  if (!StdIs.str(ref) || ref.length === 0) return false;
+  if (ref !== undefined && (!StdIs.str(ref) || ref.length === 0)) return false;
 
   if ('title' in (entry.frontmatter as object)) {
     const title = (entry.frontmatter as { title?: unknown }).title;

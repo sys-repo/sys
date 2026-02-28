@@ -62,13 +62,22 @@ describe('u.kind.tree-fs/u.policy.file-content', () => {
     expect(res.value.assetsTargets).to.eql(['out/kb.assets.json']);
   });
 
-  it('fails on missing frontmatter', async () => {
+  it('allows missing frontmatter (empty frontmatter)', async () => {
     const res = await SlugBundleTransformTreeFs.derive({
       files: [{ path: 'a.md', source: 'hello' }],
     });
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(res.value.docs[0]?.frontmatter).to.eql({});
+  });
+
+  it('fails on invalid frontmatter ref type', async () => {
+    const res = await SlugBundleTransformTreeFs.derive({
+      files: [{ path: 'a.md', source: `---\nref: [bad]\n---\nhello` }],
+    });
     expect(res.ok).to.eql(false);
     if (res.ok) return;
-    expect(res.error.message).to.contain('Missing frontmatter');
+    expect(res.error.message).to.contain('Invalid frontmatter ref');
   });
 
   it('fails on invalid frontmatter title type', async () => {

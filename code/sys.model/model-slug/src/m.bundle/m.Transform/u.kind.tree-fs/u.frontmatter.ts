@@ -3,20 +3,17 @@ import { type t, Is, Yaml } from './common.ts';
 type Frontmatter = Record<string, unknown>;
 
 export function readFrontmatter(source: string, path: string): t.SlugFileContentFrontmatter {
-  const frontmatter = parseFrontmatter(source);
-  if (!frontmatter) throw new Error(`Missing frontmatter in slug-tree source: ${path}`);
+  const frontmatter = parseFrontmatter(source) ?? {};
   const ref = frontmatter.ref;
-  if (!Is.str(ref) || ref.length === 0) {
-    throw new Error(`Missing frontmatter ref in slug-tree source: ${path}`);
+  if (ref !== undefined && (!Is.str(ref) || ref.length === 0)) {
+    throw new Error(`Invalid frontmatter ref in slug-tree source: ${path}`);
   }
   const title = frontmatter.title;
   if (title !== undefined && !Is.str(title)) {
     throw new Error(`Invalid frontmatter title in slug-tree source: ${path}`);
   }
-  const normalized = {
-    ...(frontmatter as Frontmatter),
-    ref: ref as t.StringRef,
-  };
+  const normalized = { ...(frontmatter as Frontmatter) } as Frontmatter;
+  if (Is.str(ref)) normalized.ref = ref as t.StringRef;
   return title !== undefined
     ? ({ ...normalized, title } as t.SlugFileContentFrontmatter)
     : (normalized as t.SlugFileContentFrontmatter);
