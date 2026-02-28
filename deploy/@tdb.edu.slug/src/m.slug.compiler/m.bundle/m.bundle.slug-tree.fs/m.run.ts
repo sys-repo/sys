@@ -34,7 +34,7 @@ export async function bundleSlugTreeFs(args: {
 
   const ignore = config.ignore ? [...config.ignore] : undefined;
   const docid = toDocid(config.docid);
-  const fallbackRef = (`crdt:${docid ?? 'tbd'}`) as t.StringRef;
+  const fallbackRef = 'crdt:tbd' as t.StringRef;
   const sourceReady = await checkSourceDir({
     root,
     source: String(config.source ?? '.'),
