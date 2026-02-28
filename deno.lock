@@ -55,7 +55,7 @@
     "jsr:@std/uuid@1.1.0": "1.1.0",
     "jsr:@sys/tools@*": "0.0.241",
     "jsr:@zip-js/zip-js@^2.7.52": "2.8.21",
-    "npm:@ai-sdk/openai@3.0.34": "3.0.34_zod@3.25.76",
+    "npm:@ai-sdk/openai@3.0.37": "3.0.37_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.5.3": "2.5.3_ws@8.19.0",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.3": "2.5.3",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.3": "2.5.3",
@@ -63,7 +63,7 @@
     "npm:@automerge/automerge@3.2.4": "3.2.4",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@1.0.6": "1.0.6_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_yaml@2.8.2",
-    "npm:@elevenlabs/elevenlabs-js@2.36.0": "2.36.0",
+    "npm:@elevenlabs/elevenlabs-js@2.37.0": "2.37.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@octokit/rest@22.0.1": "22.0.1_@octokit+core@7.0.6",
@@ -80,7 +80,7 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.4": "5.1.4_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.29.0_yaml@2.8.2",
-    "npm:ai@6.0.101": "6.0.101_zod@3.25.76",
+    "npm:ai@6.0.105": "6.0.105_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -93,7 +93,7 @@
     "npm:happy-dom@20.7.0": "20.7.0",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:he@^1.2.0": "1.2.0",
-    "npm:hono@4.12.2": "4.12.2",
+    "npm:hono@4.12.3": "4.12.3",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:katex@0.16": "0.16.28",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -127,7 +127,7 @@
     "npm:rollup@4.59.0": "4.59.0",
     "npm:rxjs@7.8.2": "7.8.2",
     "npm:sanitize-html@^2.13.0": "2.17.1",
-    "npm:strip-ansi@7.1.2": "7.1.2",
+    "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.9": "2.0.9",
@@ -370,20 +370,20 @@
     }
   },
   "npm": {
-    "@ai-sdk/gateway@3.0.55_zod@3.25.76": {
-      "integrity": "sha512-7xMeTJnCjwRwXKVCiv4Ly4qzWvDuW3+W1WIV0X1EFu6W83d4mEhV9bFArto10MeTw40ewuDjrbrZd21mXKohkw==",
+    "@ai-sdk/gateway@3.0.59_zod@3.25.76": {
+      "integrity": "sha512-MbtheWHgEFV/8HL1Z6E3hOAsmP73zZlNFg0F0nJAD0Adnjp4J/plqNK00Y896d+dWTw+r0OXzyov9/2wCFjH0Q==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.16_zod@3.25.76",
         "@vercel/oidc",
         "zod"
       ]
     },
-    "@ai-sdk/openai@3.0.34_zod@3.25.76": {
-      "integrity": "sha512-rnSsjV7cqIUcYdHgTcXRvN+xn0+wv/DB/U1SCxCVOKDsD9xaNgDjQTuMeJ+dUTzpH4Gn+XS0dJQELCWVIFYQVg==",
+    "@ai-sdk/openai@3.0.37_zod@3.25.76": {
+      "integrity": "sha512-bcYjT3/58i/C0DN3AnrjiGsAb0kYivZLWWUtgTjsBurHSht/LTEy+w3dw5XQe3FmZwX7Z/mUQCiA3wB/5Kf7ow==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.16_zod@3.25.76",
         "zod"
       ]
     },
@@ -396,8 +396,8 @@
         "zod"
       ]
     },
-    "@ai-sdk/provider-utils@4.0.15_zod@3.25.76": {
-      "integrity": "sha512-8XiKWbemmCbvNN0CLR9u3PQiet4gtEVIrX4zzLxnCj06AwsEDJwJVBbKrEI4t6qE8XRSIvU2irka0dcpziKW6w==",
+    "@ai-sdk/provider-utils@4.0.16_zod@3.25.76": {
+      "integrity": "sha512-kBvDqNkt5EwlzF9FujmNhhtl8FYg3e8FO8P5uneKliqfRThWemzBj+wfYr7ZCymAQhTRnwSSz1/SOqhOAwmx9g==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
         "@standard-schema/spec",
@@ -648,8 +648,8 @@
         "vite"
       ]
     },
-    "@elevenlabs/elevenlabs-js@2.36.0": {
-      "integrity": "sha512-dnhJHmozQj2xBxgEbPa3clK1G3jY8xUmij8nzNHW9GBDYg2750OwgaSCnZmlFtm53MorEspmlcSu2+fzSeldkQ==",
+    "@elevenlabs/elevenlabs-js@2.37.0": {
+      "integrity": "sha512-GngmGe97krIhOzo3ZW6CYr1oiBmka/sVPLxMK5tZ8VioCZveY1P411yIY5x8qsK12hdwhmeq73S6dtJtc3UumA==",
       "dependencies": [
         "command-exists",
         "node-fetch",
@@ -791,7 +791,7 @@
       "dependencies": [
         "string-width@5.1.2",
         "string-width-cjs@npm:string-width@4.2.3",
-        "strip-ansi@7.1.2",
+        "strip-ansi@7.2.0",
         "strip-ansi-cjs@npm:strip-ansi@6.0.1",
         "wrap-ansi@8.1.0",
         "wrap-ansi-cjs@npm:wrap-ansi@7.0.0"
@@ -1214,12 +1214,12 @@
         "vite"
       ]
     },
-    "ai@6.0.101_zod@3.25.76": {
-      "integrity": "sha512-Ur/NgbgOp1rdhyDiKDk6EOpSgd1g5ADlbcD1cjQJtQsnmhEngz3Rf8nK5JetDh0vnbLy2aEBpaQeL+zvLRWuaA==",
+    "ai@6.0.105_zod@3.25.76": {
+      "integrity": "sha512-rp+exWtZS3J0DDvZIfetpKCIg7D3cCsvBPoFN3I67IDTs9aoBZDbpecoIkmNLT+U9RBkoEial3OGHRvme23HCw==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.8",
-        "@ai-sdk/provider-utils@4.0.15_zod@3.25.76",
+        "@ai-sdk/provider-utils@4.0.16_zod@3.25.76",
         "@opentelemetry/api",
         "zod"
       ]
@@ -1354,7 +1354,7 @@
       "integrity": "sha512-k7ndgKhwoQveBL+/1tqGJYNz097I7WOvwbmmU2AR5+magtbjPWQTS1C5vzGkBC8Ym8UWRzfKUzUUqFLypY4Q+w==",
       "dependencies": [
         "string-width@7.2.0",
-        "strip-ansi@7.1.2",
+        "strip-ansi@7.2.0",
         "wrap-ansi@9.0.2"
       ]
     },
@@ -1633,8 +1633,8 @@
       "integrity": "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==",
       "bin": true
     },
-    "hono@4.12.2": {
-      "integrity": "sha512-gJnaDHXKDayjt8ue0n8Gs0A007yKXj4Xzb8+cNjZeYsSzzwKc0Lr+OZgYwVfB0pHfUs17EPoLvrOsEaJ9mj+Tg=="
+    "hono@4.12.3": {
+      "integrity": "sha512-SFsVSjp8sj5UumXOOFlkZOG6XS9SJDKw0TbwFeV+AJ8xlST8kxK5Z/5EYa111UY8732lK2S/xB653ceuaoGwpg=="
     },
     "htmlparser2@8.0.2": {
       "integrity": "sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==",
@@ -2301,7 +2301,7 @@
       "dependencies": [
         "eastasianwidth",
         "emoji-regex@9.2.2",
-        "strip-ansi@7.1.2"
+        "strip-ansi@7.2.0"
       ]
     },
     "string-width@7.2.0": {
@@ -2309,14 +2309,14 @@
       "dependencies": [
         "emoji-regex@10.6.0",
         "get-east-asian-width",
-        "strip-ansi@7.1.2"
+        "strip-ansi@7.2.0"
       ]
     },
     "string-width@8.1.1": {
       "integrity": "sha512-KpqHIdDL9KwYk22wEOg/VIqYbrnLeSApsKT/bSj6Ez7pn3CftUiLAv2Lccpq1ALcpLV9UX1Ppn92npZWu2w/aw==",
       "dependencies": [
         "get-east-asian-width",
-        "strip-ansi@7.1.2"
+        "strip-ansi@7.2.0"
       ]
     },
     "strip-ansi@6.0.1": {
@@ -2325,8 +2325,8 @@
         "ansi-regex@5.0.1"
       ]
     },
-    "strip-ansi@7.1.2": {
-      "integrity": "sha512-gmBGslpoQJtgnMAvOVqGZpEz9dyoKTCzy2nfz/n8aIFhN/jCE/rCmcxabB6jOOHV+0WNnylOxaxBQPSvcWklhA==",
+    "strip-ansi@7.2.0": {
+      "integrity": "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w==",
       "dependencies": [
         "ansi-regex@6.2.2"
       ]
@@ -2488,7 +2488,7 @@
       "dependencies": [
         "ansi-styles@6.2.3",
         "string-width@5.1.2",
-        "strip-ansi@7.1.2"
+        "strip-ansi@7.2.0"
       ]
     },
     "wrap-ansi@9.0.2": {
@@ -2496,7 +2496,7 @@
       "dependencies": [
         "ansi-styles@6.2.3",
         "string-width@7.2.0",
-        "strip-ansi@7.1.2"
+        "strip-ansi@7.2.0"
       ]
     },
     "ws@8.19.0": {
@@ -2566,14 +2566,14 @@
       "jsr:@std/semver@1.0.8",
       "jsr:@std/testing@1.0.17",
       "jsr:@std/uuid@1.1.0",
-      "npm:@ai-sdk/openai@3.0.34",
+      "npm:@ai-sdk/openai@3.0.37",
       "npm:@automerge/automerge-repo-network-websocket@2.5.3",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.3",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.3",
       "npm:@automerge/automerge-repo@2.5.3",
       "npm:@automerge/automerge@3.2.4",
       "npm:@automerge/prosemirror@0.2.0",
-      "npm:@elevenlabs/elevenlabs-js@2.36.0",
+      "npm:@elevenlabs/elevenlabs-js@2.37.0",
       "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@2.0.1",
       "npm:@octokit/rest@22.0.1",
@@ -2585,7 +2585,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.101",
+      "npm:ai@6.0.105",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
@@ -2612,7 +2612,7 @@
       "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
       "npm:rxjs@7.8.2",
-      "npm:strip-ansi@7.1.2",
+      "npm:strip-ansi@7.2.0",
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.1.1",
       "npm:ua-parser-js@2.0.9",
@@ -2626,7 +2626,7 @@
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@5.1.4",
-        "npm:hono@4.12.2",
+        "npm:hono@4.12.3",
         "npm:motion@12.34.3",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",
