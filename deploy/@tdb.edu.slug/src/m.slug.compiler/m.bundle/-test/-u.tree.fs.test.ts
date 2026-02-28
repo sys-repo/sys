@@ -252,6 +252,36 @@ describe('Lint: slug-tree:fs', () => {
     }
   });
 
+  it('uses explicit docid over manifest-derived docid for assets index', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(srcDir);
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'hello');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        docid: 'explicit-kb',
+        target: {
+          manifests: 'out/slug-tree.derived-kb.json',
+          dir: [{ kind: 'sha256', path: 'out/sha256' }],
+        },
+      };
+
+      await bundleSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      const assetsPath = Fs.join(tmpDir, 'out/slug-tree.derived-kb.assets.json');
+      const assetsRaw = (await Fs.readText(assetsPath)).data ?? '';
+      const assets = Json.parse(assetsRaw) as { docid: string };
+      expect(assets.docid).to.eql('explicit-kb');
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
   it('skips assets index when sha256 target uses JSON manifest without resolvable docid', async () => {
     const tmpDir = (await Fs.makeTempDir()).absolute;
     try {

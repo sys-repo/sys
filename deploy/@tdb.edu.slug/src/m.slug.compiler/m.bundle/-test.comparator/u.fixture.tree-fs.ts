@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Json } from '../common.ts';
+import { type t, Fs, Is, Json, SlugBundle } from '../common.ts';
 import { bundleSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
 import { readBundleProfile } from '../u.profile.ts';
 import { FIXTURE } from './u.fixture.ts';
@@ -106,7 +106,7 @@ async function collectTreeFsArtifacts(args: {
     files.tree = jsonManifest as t.StringFile;
     artifacts.tree = Json.parse((await Fs.readText(jsonManifest)).data ?? '');
 
-    const assets = deriveAssetsPath(jsonManifest as t.StringFile);
+    const assets = SlugBundle.Transform.TreeFs.deriveAssetsPath(jsonManifest as t.StringFile);
     if (assets && (await Fs.exists(assets))) {
       files.assets = assets as t.StringFile;
       artifacts.assets = Json.parse((await Fs.readText(assets)).data ?? '');
@@ -202,22 +202,12 @@ function rewriteTreeFsTarget(
 }
 
 function resolveTreeFsDocid(config: t.SlugBundleFileTree, fallback: t.StringId): t.StringId {
-  const explicit = String(config.docid ?? '').trim();
-  if (explicit) return explicit as t.StringId;
-
-  const targets = normalizeTargets(config.target?.manifests);
-  const fromTarget = targets
-    .map((path) => Fs.basename(String(path)))
-    .map((name) => /^slug-tree\.([^.]+)\.(json|ya?ml)$/i.exec(name)?.[1])
-    .find((id) => !!id);
-
-  return (fromTarget ?? String(fallback)) as t.StringId;
+  const docid = SlugBundle.Transform.TreeFs.resolveDocid(config.docid, config.target?.manifests);
+  return (docid ?? String(fallback)) as t.StringId;
 }
 
 function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {
-  if (!input) return [];
-  const list = Array.isArray(input) ? input : [input];
-  return list.map((path) => String(path).trim()).filter(Boolean) as t.StringPath[];
+  return [...SlugBundle.Transform.TreeFs.normalizeManifestTargets(input)];
 }
 
 function normalizeTargetDirs(
@@ -227,12 +217,4 @@ function normalizeTargetDirs(
   if (typeof input === 'string') return [{ kind: 'source', path: input }];
   if (Array.isArray(input)) return input.filter(Boolean) as t.SlugBundleFileTreeTargetDir[];
   return [input as t.SlugBundleFileTreeTargetDir];
-}
-
-function deriveAssetsPath(path: t.StringFile): t.StringFile | undefined {
-  const ext = Fs.extname(path).toLowerCase();
-  if (ext !== '.json') return;
-  const dir = Fs.dirname(path);
-  const base = Fs.basename(path, ext);
-  return Fs.join(dir, `${base}.assets${ext}`) as t.StringFile;
 }
