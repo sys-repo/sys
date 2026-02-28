@@ -8,10 +8,44 @@ describe('Fs.Path', () => {
     expect(Fs.Path).to.equal(Path);
     expect(Fs.Path).to.not.equal(StdPath);
     expect(Fs.join).to.eql(Path.join);
-    expect(Fs.resolve).to.eql(Path.resolve);
+    expect(Fs.resolve).to.not.equal(Path.resolve);
+    expect(Fs.resolve('foo/bar')).to.eql(Path.resolve('foo/bar'));
     expect(Fs.dirname).to.eql(Path.dirname);
     expect(Fs.basename).to.eql(Path.basename);
     expect(Fs.extname).to.eql(Path.extname);
+  });
+
+  describe('resolve', () => {
+    const originalHome = Deno.env.get('HOME') ?? undefined;
+    const restoreHome = () => {
+      if (originalHome == null) {
+        if (Deno.env.get('HOME') != null) Deno.env.delete('HOME');
+      } else {
+        Deno.env.set('HOME', originalHome);
+      }
+    };
+
+    it('keeps default resolve semantics', () => {
+      expect(Fs.resolve('~')).to.eql(Path.resolve('~'));
+      expect(Fs.resolve('foo', 'bar')).to.eql(Path.resolve('foo', 'bar'));
+    });
+
+    it('respects explicit expandTilde: false', () => {
+      Deno.env.set('HOME', '/Users/tester');
+      expect(Fs.resolve('~', { expandTilde: false })).to.eql(Path.resolve('~'));
+      restoreHome();
+    });
+
+    it('supports expandTilde: true', () => {
+      Deno.env.set('HOME', '/Users/tester');
+      expect(Fs.resolve('~', { expandTilde: true })).to.eql(Path.resolve('/Users/tester'));
+      expect(Fs.resolve('~/foo', { expandTilde: true })).to.eql(Path.resolve('/Users/tester/foo'));
+      restoreHome();
+    });
+
+    it('throws when non-option object is passed as a path segment', () => {
+      expect(() => Fs.resolve('foo', { nope: true } as any)).to.throw(TypeError);
+    });
   });
 
   it('asDir', async () => {

@@ -141,6 +141,18 @@ export namespace Fs {
     options?: { dryRun?: boolean; log?: boolean },
   ) => Promise<boolean>;
 
+  /** Options passed to `Fs.resolve`. */
+  export type ResolveOptions = {
+    /** Expand leading "~" / "~/" segments using the active HOME binding. */
+    readonly expandTilde?: boolean;
+  };
+
+  /** Resolve path segments into an absolute path with optional fs policy. */
+  export type Resolve = {
+    (...parts: readonly string[]): string;
+    (...parts: readonly [...string[], ResolveOptions]): string;
+  };
+
   /**
    * Writes a string or binary file ensuring it's parent directory exists.
    */
@@ -316,7 +328,7 @@ type StdMethods = {
   readonly join: t.PathLib['join'];
 
   /** Resolves path segments into a path. */
-  readonly resolve: typeof StdPath.resolve;
+  readonly resolve: t.Fs.Resolve;
 
   /** Return the directory path of a path. */
   readonly dirname: typeof StdPath.dirname;
