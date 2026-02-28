@@ -17,7 +17,9 @@ export const FsCapability: t.FsCapability.Lib = {
       dirname: fs.dirname,
       join: fs.join,
       cwd: fs.cwd,
-      tildeExpand: fs.Tilde.expand,
+      resolve: fs.resolve,
+      walk: fs.walk,
+      remove: fs.remove,
     };
   },
 };

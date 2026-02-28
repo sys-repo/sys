@@ -13,6 +13,9 @@ describe(`FS: Capability`, () => {
     const cap = FsCapability.fromFs(Fs);
     expectTypeOf(cap).toEqualTypeOf<t.FsCapability.Instance>();
     expect(cap.cwd).to.equal(Fs.cwd);
-    expect(cap.tildeExpand).to.equal(Fs.Tilde.expand);
+    expect(cap.resolve).to.equal(Fs.resolve);
+    expect(cap.walk).to.equal(Fs.walk);
+    expect(cap.remove).to.equal(Fs.remove);
+    expect('tildeExpand' in cap).to.equal(false);
   });
 });

@@ -21,6 +21,8 @@ export namespace FsCapability {
     readonly dirname: t.Fs.Lib['dirname'];
     readonly join: t.Fs.Lib['join'];
     readonly cwd: t.Fs.Lib['cwd'];
-    readonly tildeExpand: t.Fs.TildeLib['expand'];
+    readonly resolve: t.Fs.Lib['resolve'];
+    readonly walk: t.Fs.Lib['walk'];
+    readonly remove: t.Fs.Lib['remove'];
   };
 }
