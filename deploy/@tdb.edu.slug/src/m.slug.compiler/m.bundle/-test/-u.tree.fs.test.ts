@@ -125,6 +125,16 @@ describe('Lint: slug-tree:fs', () => {
       expect(c?.frontmatter.ref).to.eql('crdt:tbd');
       expect(c?.frontmatter.title).to.eql(undefined);
 
+      const withoutRef = {
+        source: String(a?.source ?? ''),
+        path: 'a.md',
+        hash: String(a?.hash ?? ''),
+        contentType: String(a?.contentType ?? ''),
+        frontmatter: { title: 'No Ref' },
+      };
+      const optionalRefValidation = SlugSchema.FileContent.validate(withoutRef);
+      expect(optionalRefValidation.ok).to.eql(true);
+
       expect((assets?.entries ?? []).length).to.eql(2);
       const assetHashes = new Set(
         (assets.entries ?? []).map((entry) => String((entry as { hash?: unknown }).hash ?? '')),
@@ -176,11 +186,13 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.ensureDir(Fs.join(srcDir, 'sub'));
       await Fs.write(Fs.join(srcDir, 'a.md'), 'alpha');
       await Fs.write(Fs.join(srcDir, 'sub', 'c.md'), 'charlie');
+      await Fs.write(Fs.join(srcDir, '.secret.md'), 'hidden');
+      await Fs.write(Fs.join(srcDir, 'keep.txt'), 'visible');
 
       const config: t.SlugBundleFileTree = {
         source: 'src',
         docid: 'kb',
-        ignore: ['sub/**'],
+        ignore: ['sub/**', 'a.md'],
         target: {
           manifests: 'out/slug-tree.kb.json',
           dir: [
@@ -195,8 +207,10 @@ describe('Lint: slug-tree:fs', () => {
         config,
       });
 
-      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/a.md'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/a.md'))).to.eql(false);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/source/sub/c.md'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/.secret.md'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/keep.txt'))).to.eql(true);
 
       let jsonFiles = 0;
       for await (const entry of Deno.readDir(Fs.join(tmpDir, 'out/sha256'))) {
@@ -204,7 +218,7 @@ describe('Lint: slug-tree:fs', () => {
         if (entry.name === 'dist.json') continue;
         jsonFiles += 1;
       }
-      expect(jsonFiles).to.eql(1);
+      expect(jsonFiles).to.eql(0);
     } finally {
       await Fs.remove(tmpDir);
     }
