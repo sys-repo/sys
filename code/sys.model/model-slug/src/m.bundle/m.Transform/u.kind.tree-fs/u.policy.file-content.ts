@@ -40,7 +40,7 @@ export const derive: t.SlugBundleTransform.TreeFs.Lib['derive'] = async (args) =
 };
 
 function deriveAssetsTargets(
-  manifests?: t.StringPath | readonly t.StringPath[],
+  manifests?: t.SlugBundleTransform.TreeFs.ManifestTargetsInput,
 ): readonly t.StringFile[] {
   const targets = normalizeManifestTargets(manifests);
   const derived = targets.map(deriveAssetsPath).filter((v): v is t.StringFile => !!v);

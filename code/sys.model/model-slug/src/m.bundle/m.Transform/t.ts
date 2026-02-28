@@ -227,6 +227,17 @@ export namespace SlugBundleTransform {
        * Pure file-content derivation for `slug-tree:fs` bundles from in-memory source files.
        */
       readonly derive: (args: DeriveFileContentArgs) => Promise<DeriveFileContentResult>;
+      /** Normalize manifest target input into a stable string path list. */
+      readonly normalizeManifestTargets: (
+        manifests?: ManifestTargetsInput,
+      ) => readonly t.StringPath[];
+      /** Resolve a docid from explicit input first, otherwise from manifest targets. */
+      readonly resolveDocid: (
+        explicit?: t.StringId,
+        manifests?: ManifestTargetsInput,
+      ) => t.StringId | undefined;
+      /** Derive sibling assets manifest path from a JSON slug-tree manifest path. */
+      readonly deriveAssetsPath: (path: t.StringPath) => t.StringFile | undefined;
     };
 
     export type SourceFile = {
@@ -239,8 +250,10 @@ export namespace SlugBundleTransform {
       readonly files: readonly SourceFile[];
       readonly includePath?: boolean;
       readonly docid?: t.StringId;
-      readonly manifests?: t.StringPath | readonly t.StringPath[];
+      readonly manifests?: ManifestTargetsInput;
     };
+
+    export type ManifestTargetsInput = t.StringPath | readonly t.StringPath[];
 
     export type DeriveFileContentResult = {
       readonly ok: true;
