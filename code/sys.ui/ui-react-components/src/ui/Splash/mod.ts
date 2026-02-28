@@ -1,6 +1,6 @@
 /**
  * @module
- * Canonical splash screen.
+ * Canonical app splash primitive.
  */
 import type { t } from './common.ts';
 import { Splash as UI } from './ui.tsx';

@@ -1,8 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * @module
- * Canonical splash screen.
+ * Canonical app splash primitive.
  */
 export declare namespace Splash {
   export type Lib = { readonly UI: t.FC<Props> };
