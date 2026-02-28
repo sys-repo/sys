@@ -9,7 +9,6 @@ describe('BundleProfile domain-free config (e2e)', () => {
       bundles: [
         {
           kind: 'slug-tree:fs',
-          include: ['.md'],
           docid: 'kb',
           source: '/repo/docs/slc-knowledge/venture-example-libraries',
           target: {

@@ -10,8 +10,6 @@ export type SlugBundleFileTree = {
   readonly docid?: t.StringId;
   /** Targets for generated artifacts. */
   readonly target?: SlugBundleFileTreeTarget;
-  /** File extensions to include (e.g. ".md"). */
-  readonly include?: readonly string[];
   /** Directory entries to ignore. */
   readonly ignore?: readonly string[];
   /** Sort directory entries by name. */

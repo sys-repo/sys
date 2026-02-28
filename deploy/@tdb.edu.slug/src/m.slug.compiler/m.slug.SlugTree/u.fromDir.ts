@@ -10,7 +10,6 @@ type DirEntry = {
 
 export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
   const { root, createCrdt } = args;
-  const include = (opts.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(opts.ignore ?? [])]);
   const sort = opts.sort ?? true;
   const readmeAsIndex = opts.readmeAsIndex ?? true;
@@ -24,7 +23,7 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
       continue;
     }
 
-    if (entry.isFile && isIncluded(entry.name, include)) {
+    if (entry.isFile && isMarkdown(entry.name)) {
       const node = await buildFile(entry.path, entry.name);
       if (node) items.push(node);
     }
@@ -44,7 +43,7 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
         continue;
       }
 
-      if (!entry.isFile || !isIncluded(entry.name, include)) continue;
+      if (!entry.isFile || !isMarkdown(entry.name)) continue;
       if (readmeAsIndex && isReadme(entry.name)) {
         readmePath = entry.path;
         continue;
@@ -109,9 +108,9 @@ function isReadme(name: string): boolean {
   return name.toLowerCase() === 'readme.md';
 }
 
-function isIncluded(name: string, include: readonly string[]): boolean {
+function isMarkdown(name: string): boolean {
   const ext = Fs.extname(name).toLowerCase();
-  return include.includes(ext);
+  return ext === '.md';
 }
 
 function stripExt(name: string): string {

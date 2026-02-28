@@ -31,7 +31,6 @@ export type SlugTreeFromDir = (
 
 /** Options for directory-based slug-tree creation. */
 export type SlugTreeFromDirOpts = {
-  include?: string[];
   ignore?: string[];
   sort?: boolean;
   readmeAsIndex?: boolean;

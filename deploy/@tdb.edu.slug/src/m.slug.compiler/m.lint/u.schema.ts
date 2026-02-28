@@ -1,6 +1,6 @@
 import { Schema, SlugLintFacets, Yaml, type t } from './common.ts';
 import { SchemaFacets } from './u.schema.facets.ts';
-import { formatInlineInclude, formatRootSpacing } from './u.schema.u.ts';
+import { formatRootSpacing } from './u.schema.u.ts';
 
 /**
  * Lint profile YAML schema (authoritative config).
@@ -31,7 +31,7 @@ export const LintProfileSchema = {
    */
   stringify(doc: t.SlugLintProfile): string {
     const raw = Yaml.stringify(doc).data ?? '';
-    return formatInlineInclude(formatRootSpacing(raw));
+    return formatRootSpacing(raw);
   },
 
   /**

@@ -2,10 +2,8 @@ import { type t, DEFAULT_IGNORE, Fs } from './common.ts';
 
 export async function readSlugTreeSourceFiles(args: {
   root: t.StringDir;
-  include?: readonly string[];
   ignore?: readonly string[];
 }): Promise<readonly t.SlugBundleTransform.TreeFs.SourceFile[]> {
-  const include = (args.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
   const files: t.SlugBundleTransform.TreeFs.SourceFile[] = [];
 
@@ -21,7 +19,7 @@ export async function readSlugTreeSourceFiles(args: {
         continue;
       }
 
-      if (!entry.isFile || !isIncluded(entry.name, include)) continue;
+      if (!entry.isFile || !isMarkdown(entry.name)) continue;
 
       const res = await Fs.readText(entry.path);
       const source = String(res.data ?? '');
@@ -34,10 +32,8 @@ export async function readSlugTreeSourceFiles(args: {
 export async function writeSlugTreeSourceDir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
-  include?: readonly string[];
   ignore?: readonly string[];
 }): Promise<number> {
-  const include = (args.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
   let count = 0;
 
@@ -54,7 +50,7 @@ export async function writeSlugTreeSourceDir(args: {
         continue;
       }
 
-      if (!entry.isFile || !isIncluded(entry.name, include)) continue;
+      if (!entry.isFile || !isMarkdown(entry.name)) continue;
       await Fs.copyFile(entry.path, target, { force: true });
       count += 1;
     }
@@ -80,7 +76,7 @@ function isIgnored(name: string, ignore: Set<string>): boolean {
   return ignore.has(name);
 }
 
-function isIncluded(name: string, include: readonly string[]): boolean {
+function isMarkdown(name: string): boolean {
   const ext = Fs.extname(name).toLowerCase();
-  return include.includes(ext);
+  return ext === '.md';
 }

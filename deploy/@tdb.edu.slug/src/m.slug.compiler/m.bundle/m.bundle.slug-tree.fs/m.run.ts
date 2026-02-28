@@ -32,7 +32,6 @@ export async function bundleSlugTreeFs(args: {
     return;
   }
 
-  const include = config.include ? [...config.include] : undefined;
   const ignore = config.ignore ? [...config.ignore] : undefined;
   const docid = toDocid(config.docid);
   const fallbackRef = (`crdt:${docid ?? 'tbd'}`) as t.StringRef;
@@ -46,7 +45,6 @@ export async function bundleSlugTreeFs(args: {
   const treeDoc = await SlugTree.fromDir(
     { root, createCrdt: async () => fallbackRef },
     {
-      include,
       ignore,
       sort: config.sort,
       readmeAsIndex: config.readmeAsIndex,
@@ -72,7 +70,6 @@ export async function bundleSlugTreeFs(args: {
       sourceFiles += await writeSlugTreeSourceDir({
         root,
         targetDir: targetDir.path,
-        include,
         ignore,
       });
       continue;
@@ -82,7 +79,6 @@ export async function bundleSlugTreeFs(args: {
       fileContent = await writeSlugTreeSha256Dir({
         root,
         targetDir: targetDir.path,
-        include,
         ignore,
         includePath,
         docid,
@@ -163,7 +159,6 @@ async function checkSourceDir(args: {
 async function writeSlugTreeSha256Dir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
-  include?: readonly string[];
   ignore?: readonly string[];
   includePath?: boolean;
   docid?: t.StringId;
@@ -171,7 +166,6 @@ async function writeSlugTreeSha256Dir(args: {
 }): Promise<t.SlugBundleTransform.TreeFs.FileContentDerived> {
   const files = await readSlugTreeSourceFiles({
     root: args.root,
-    include: args.include,
     ignore: args.ignore,
   });
 

@@ -47,10 +47,9 @@ describe('SchemaSlugTreeFs', () => {
     expect(ok).to.eql(true);
   });
 
-  it('accepts slug-tree shape with source + include + ignore + sort + readmeAsIndex', () => {
+  it('accepts slug-tree shape with source + ignore + sort + readmeAsIndex', () => {
     const doc = {
       source: './docs',
-      include: ['.md'],
       ignore: ['node_modules'],
       sort: true,
       readmeAsIndex: false,
@@ -58,6 +57,16 @@ describe('SchemaSlugTreeFs', () => {
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
     expect(ok).to.eql(true);
+  });
+
+  it('rejects include in slug-tree config', () => {
+    const doc = {
+      source: './docs',
+      include: ['.md'],
+      docid: 'kb',
+    };
+    const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
+    expect(ok).to.eql(false);
   });
 
   it('accepts slug-tree target.dir object', () => {
