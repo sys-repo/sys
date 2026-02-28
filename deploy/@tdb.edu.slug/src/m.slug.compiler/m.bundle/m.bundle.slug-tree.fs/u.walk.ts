@@ -1,4 +1,4 @@
-import { type t, DEFAULT_IGNORE, Ignore } from './common.ts';
+import { type t, DEFAULT_IGNORE, Fs, Ignore } from './common.ts';
 
 export async function readSlugTreeSourceFiles(args: {
   fs: t.SlugTreeFsRuntime;
@@ -14,7 +14,7 @@ export async function readSlugTreeSourceFiles(args: {
 
   async function collectDir(dir: string): Promise<void> {
     for await (const entry of walkDirLevel(fs, dir)) {
-      const relPath = fs.relativePath(args.root, entry.path) as t.StringPath;
+      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
       if (isIgnored(relPath, ignore)) continue;
 
       if (entry.isDirectory) {
@@ -22,11 +22,10 @@ export async function readSlugTreeSourceFiles(args: {
         continue;
       }
 
-      if (!entry.isFile || !isMarkdown(fs, entry.name)) continue;
+      if (!entry.isFile || !isMarkdown(entry.name)) continue;
 
-      const res = await fs.readText(entry.path);
-      const source = String(res.data ?? '');
-      const rel = fs.relativePath(args.root, entry.path) as t.StringPath;
+      const source = String((await Fs.readText(entry.path)).data ?? '');
+      const rel = Fs.Path.relative(args.root, entry.path) as t.StringPath;
       files.push({ path: rel, source, name: entry.name });
     }
   }
@@ -47,7 +46,7 @@ export async function writeSlugTreeSourceDir(args: {
 
   async function copyDirRecursive(sourceDir: string, targetDir: string): Promise<void> {
     for await (const entry of walkDirLevel(fs, sourceDir)) {
-      const relPath = fs.relativePath(args.root, entry.path) as t.StringPath;
+      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
       if (isIgnored(relPath, ignore)) continue;
       const target = fs.join(targetDir, entry.name);
 
@@ -57,7 +56,7 @@ export async function writeSlugTreeSourceDir(args: {
       }
 
       if (!entry.isFile) continue;
-      await fs.copyFile(entry.path, target, { force: true });
+      await fs.copy(entry.path, target, { force: true });
       count += 1;
     }
   }
@@ -86,7 +85,7 @@ function isIgnored(path: t.StringPath, ignore: ReturnType<typeof Ignore.create>)
   return ignore.isIgnored(path);
 }
 
-function isMarkdown(fs: t.SlugTreeFsRuntime, name: string): boolean {
-  const ext = fs.extname(name).toLowerCase();
+function isMarkdown(name: string): boolean {
+  const ext = Fs.extname(name).toLowerCase();
   return ext === '.md';
 }

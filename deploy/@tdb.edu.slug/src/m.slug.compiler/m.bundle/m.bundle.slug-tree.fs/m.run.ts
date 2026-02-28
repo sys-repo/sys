@@ -11,24 +11,24 @@ export async function bundleSlugTreeFs(args: {
 }): Promise<t.SlugBundleFileTreeStats | undefined> {
   const startedAt = Date.now();
   const { cwd, config, onWarning } = args;
-  const fs = args.fs ?? createRuntimeFs();
+  const fs = args.fs ?? FsCapability.fromFs(Fs);
   const warn = (message: string) => {
     if (onWarning) onWarning(message);
     else console.info(c.yellow(message));
   };
 
-  const source = fs.tildeExpand(String(config.source ?? '.'));
-  const root = fs.resolvePath(cwd, source || '.');
+  const source = String(config.source ?? '.');
+  const root = fs.resolve(cwd, source || '.', { expandTilde: true });
 
   const targets = SlugBundle.Transform.TreeFs.normalizeManifestTargets(config.target?.manifests).map(
     (target) => ({
       raw: target,
-      path: fs.resolvePath(cwd, fs.tildeExpand(String(target))),
+      path: fs.resolve(cwd, String(target), { expandTilde: true }),
     }),
   );
   const targetDirs = normalizeTargetDirs(config.target?.dir).map((item) => ({
     kind: item.kind,
-    path: fs.resolvePath(cwd, fs.tildeExpand(String(item.path))),
+    path: fs.resolve(cwd, String(item.path), { expandTilde: true }),
   }));
 
   if (targets.length === 0 && targetDirs.length === 0) {
@@ -98,7 +98,7 @@ export async function bundleSlugTreeFs(args: {
   }
 
   for (const target of targets) {
-    const ext = fs.extname(target.path).toLowerCase();
+    const ext = Fs.extname(target.path).toLowerCase();
     const dir = fs.dirname(target.path);
     await fs.ensureDir(dir);
 
@@ -193,18 +193,4 @@ async function writeSlugTreeSha256Dir(args: {
   }
 
   return derived.value;
-}
-
-function createRuntimeFs(): t.SlugTreeFsRuntime {
-  const cap = FsCapability.fromFs(Fs);
-  return {
-    ...cap,
-    readText: Fs.readText,
-    copyFile: Fs.copyFile,
-    walk: Fs.walk,
-    remove: Fs.remove,
-    extname: Fs.extname,
-    resolvePath: Fs.Path.resolve,
-    relativePath: Fs.Path.relative,
-  };
 }

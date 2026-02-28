@@ -12,9 +12,9 @@ export function makeAssetResolver(args: {
   return async (asset) => {
     try {
       if (!args.pathCtx.ok) return { ok: true, value: undefined };
-      const expanded = args.pathCtx.resolve(asset.logicalPath);
-      const resolvedPath = args.fs.tildeExpand(expanded?.value ?? '');
-      if (!resolvedPath) return { ok: true, value: undefined };
+      const expanded = args.pathCtx.resolve(asset.logicalPath)?.value ?? '';
+      if (!expanded) return { ok: true, value: undefined };
+      const resolvedPath = args.fs.resolve(expanded, { expandTilde: true });
       const exists = await args.fs.exists(resolvedPath);
       if (!exists) return { ok: true, value: undefined };
 
