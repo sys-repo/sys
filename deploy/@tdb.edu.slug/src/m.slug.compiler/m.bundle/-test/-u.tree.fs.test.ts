@@ -16,9 +16,9 @@ describe('Lint: slug-tree:fs', () => {
 
       const config: t.SlugBundleFileTree = {
         source: 'src',
-        docid: 'kb',
+        docid: 'sample-foobar',
         target: {
-          manifests: 'out/slug-tree.kb.json',
+          manifests: 'out/slug-tree.sample-foobar.json',
           dir: [
             { kind: 'source', path: 'out/src' },
             { kind: 'sha256', path: 'out/sha256' },
@@ -44,7 +44,7 @@ describe('Lint: slug-tree:fs', () => {
       expect(await Fs.exists(Fs.join(tmpDir, 'out/dist.json'))).to.eql(true);
 
       const outDir = Fs.join(tmpDir, 'out/sha256');
-      const assetsPath = Fs.join(tmpDir, 'out/slug-tree.kb.assets.json');
+      const assetsPath = Fs.join(tmpDir, 'out/slug-tree.sample-foobar.assets.json');
       const assetsRaw = (await Fs.readText(assetsPath)).data ?? '';
       const assets = Json.parse(assetsRaw) as {
         docid: string;
@@ -52,7 +52,7 @@ describe('Lint: slug-tree:fs', () => {
       };
       const isAssetsValid = SlugSchema.FileContent.Is.index(assets);
       expect(isAssetsValid).to.eql(true);
-      expect(assets.docid).to.eql('kb');
+      expect(assets.docid).to.eql('sample-foobar');
 
       const outputs: Array<{
         name: string;
@@ -114,13 +114,13 @@ describe('Lint: slug-tree:fs', () => {
       expect(a?.hash).to.eql(Hash.sha256(String(a?.source ?? '')));
       expect(a?.name).to.eql(`${a?.hash}.json`);
       expect(a?.contentType).to.eql('text/markdown');
-      expect(a?.frontmatter.ref).to.eql('crdt:tbd');
+      expect(a?.frontmatter.ref).to.eql('crdt:sample-foobar');
       expect(a?.frontmatter.title).to.eql(undefined);
       expect(String(c?.source ?? '')).to.contain('world');
       expect(c?.hash).to.eql(Hash.sha256(String(c?.source ?? '')));
       expect(c?.name).to.eql(`${c?.hash}.json`);
       expect(c?.contentType).to.eql('text/markdown');
-      expect(c?.frontmatter.ref).to.eql('crdt:tbd');
+      expect(c?.frontmatter.ref).to.eql('crdt:sample-foobar');
       expect(c?.frontmatter.title).to.eql(undefined);
 
       expect((assets?.entries ?? []).length).to.eql(2);

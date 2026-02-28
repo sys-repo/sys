@@ -34,6 +34,8 @@ export async function bundleSlugTreeFs(args: {
 
   const include = config.include ? [...config.include] : undefined;
   const ignore = config.ignore ? [...config.ignore] : undefined;
+  const docid = toDocid(config.docid);
+  const fallbackRef = (`crdt:${docid ?? 'tbd'}`) as t.StringRef;
   const sourceReady = await checkSourceDir({
     root,
     source: String(config.source ?? '.'),
@@ -42,7 +44,7 @@ export async function bundleSlugTreeFs(args: {
   if (!sourceReady) return;
 
   const treeDoc = await SlugTree.fromDir(
-    { root, createCrdt: async () => 'crdt:tbd' as t.StringRef },
+    { root, createCrdt: async () => fallbackRef },
     {
       include,
       ignore,
@@ -83,7 +85,7 @@ export async function bundleSlugTreeFs(args: {
         include,
         ignore,
         includePath,
-        docid: toDocid(config.docid),
+        docid,
         manifests: targets.map((t) => t.path),
       });
       sha256Files += fileContent.sha256.length;
