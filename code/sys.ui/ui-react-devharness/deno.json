@@ -16,6 +16,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./hooks": "./src/-export/-hooks.ts",
     "./-test/entry-specs": "./src/-test/-specs.ts"
   }
 }
