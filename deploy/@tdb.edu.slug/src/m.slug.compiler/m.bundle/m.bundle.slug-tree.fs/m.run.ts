@@ -1,6 +1,6 @@
 import { type t, c, Fs, Json, Schema, SlugBundle, SlugTree } from './common.ts';
 import { clearTargetDir, prepareTargetDir } from './u.dir.ts';
-import { deriveAssetsPath, normalizeTargetDirs, normalizeTargets, toDocid } from './u.target.ts';
+import { normalizeTargetDirs } from './u.target.ts';
 import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.walk.ts';
 
 export async function bundleSlugTreeFs(args: {
@@ -18,10 +18,12 @@ export async function bundleSlugTreeFs(args: {
   const source = Fs.Tilde.expand(String(config.source ?? '.'));
   const root = Fs.Path.resolve(cwd, source || '.');
 
-  const targets = normalizeTargets(config.target?.manifests).map((target) => ({
+  const targets = SlugBundle.Transform.TreeFs.normalizeManifestTargets(config.target?.manifests).map(
+    (target) => ({
     raw: target,
     path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
-  }));
+    }),
+  );
   const targetDirs = normalizeTargetDirs(config.target?.dir).map((item) => ({
     kind: item.kind,
     path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(item.path))),
@@ -33,7 +35,7 @@ export async function bundleSlugTreeFs(args: {
   }
 
   const ignore = config.ignore ? [...config.ignore] : undefined;
-  const docid = toDocid(config.docid);
+  const docid = SlugBundle.Transform.TreeFs.resolveDocid(config.docid);
   const sourceReady = await checkSourceDir({
     root,
     source: String(config.source ?? '.'),
@@ -98,7 +100,7 @@ export async function bundleSlugTreeFs(args: {
     if (ext === '.json') {
       await Fs.write(target.path, Json.stringify(treeDoc));
       manifests += 1;
-      const assetsPath = deriveAssetsPath(target.path);
+      const assetsPath = SlugBundle.Transform.TreeFs.deriveAssetsPath(target.path);
       if (assetsPath && fileContent && fileContent.entries.length > 0) {
         if (!fileContent.index) {
           warn(
