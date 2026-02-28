@@ -52,7 +52,7 @@ export async function writeSlugTreeSourceDir(args: {
         continue;
       }
 
-      if (!entry.isFile || !isMarkdown(entry.name)) continue;
+      if (!entry.isFile) continue;
       await Fs.copyFile(entry.path, target, { force: true });
       count += 1;
     }

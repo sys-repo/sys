@@ -36,8 +36,10 @@ describe('Lint: slug-tree:fs', () => {
       await writeDistFiles(collectDistDirs.fromSlugTreeFs({ cwd: tmpDir, config }));
 
       const sourceA = Fs.join(tmpDir, 'out/src/a.md');
+      const sourceB = Fs.join(tmpDir, 'out/src/b.txt');
       const sourceC = Fs.join(tmpDir, 'out/src/sub/c.md');
       expect((await Fs.readText(sourceA)).data ?? '').to.contain('hello');
+      expect((await Fs.readText(sourceB)).data ?? '').to.contain('skip');
       expect((await Fs.readText(sourceC)).data ?? '').to.contain('world');
       expect(await Fs.exists(Fs.join(tmpDir, 'out/src/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/sha256/dist.json'))).to.eql(true);
