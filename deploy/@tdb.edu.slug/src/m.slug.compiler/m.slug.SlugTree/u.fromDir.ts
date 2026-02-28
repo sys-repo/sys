@@ -1,4 +1,4 @@
-import { type t, Arr, Fs, DEFAULT_IGNORE } from './common.ts';
+import { type t, Arr, Fs, DEFAULT_IGNORE, Ignore } from './common.ts';
 import { ensureFrontmatterRef } from './u.frontmatter.ts';
 
 type DirEntry = {
@@ -10,12 +10,12 @@ type DirEntry = {
 
 export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
   const { root, createCrdt } = args;
-  const ignore = new Set([...DEFAULT_IGNORE, ...(opts.ignore ?? [])]);
+  const ignore = createIgnoreMatcher(opts.ignore);
   const sort = opts.sort ?? true;
   const readmeAsIndex = opts.readmeAsIndex ?? true;
 
   const items: t.SlugTreeItem[] = [];
-  const entries = await readDir(root, ignore, sort);
+  const entries = await readDir(root, root, ignore, sort);
   for (const entry of entries) {
     if (entry.isDirectory) {
       const node = await buildDir(entry.path, entry.name);
@@ -32,7 +32,7 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
   return { tree: items };
 
   async function buildDir(dir: string, slugName: string): Promise<t.SlugTreeItem | undefined> {
-    const entries = await readDir(dir, ignore, sort);
+    const entries = await readDir(root, dir, ignore, sort);
     const children: t.SlugTreeItem[] = [];
     let readmePath: string | undefined;
 
@@ -82,13 +82,20 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
   }
 };
 
-async function readDir(dir: string, ignore: Set<string>, sort: boolean): Promise<DirEntry[]> {
+async function readDir(
+  root: t.StringDir,
+  dir: string,
+  ignore: ReturnType<typeof Ignore.create>,
+  sort: boolean,
+): Promise<DirEntry[]> {
   const entries: DirEntry[] = [];
   for await (const entry of Deno.readDir(dir)) {
-    if (isIgnored(entry.name, ignore)) continue;
+    const path = Fs.join(dir, entry.name);
+    const rel = Fs.Path.relative(root, path) as t.StringPath;
+    if (isIgnored(rel, ignore)) continue;
     entries.push({
       name: entry.name,
-      path: Fs.join(dir, entry.name),
+      path,
       isDirectory: entry.isDirectory,
       isFile: entry.isFile,
     });
@@ -99,9 +106,13 @@ async function readDir(dir: string, ignore: Set<string>, sort: boolean): Promise
   return Arr.sortBy(withKey, 'sortKey').map(({ sortKey: _s, ...rest }) => rest);
 }
 
-function isIgnored(name: string, ignore: Set<string>): boolean {
-  if (name.startsWith('.')) return true;
-  return ignore.has(name);
+function createIgnoreMatcher(input?: readonly string[]): ReturnType<typeof Ignore.create> {
+  const rules = Ignore.normalize([...DEFAULT_IGNORE, '.*', ...(input ?? [])]);
+  return Ignore.create(rules);
+}
+
+function isIgnored(path: t.StringPath, ignore: ReturnType<typeof Ignore.create>): boolean {
+  return ignore.isIgnored(path);
 }
 
 function isReadme(name: string): boolean {

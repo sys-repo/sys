@@ -1,10 +1,10 @@
-import { type t, DEFAULT_IGNORE, Fs } from './common.ts';
+import { type t, DEFAULT_IGNORE, Fs, Ignore } from './common.ts';
 
 export async function readSlugTreeSourceFiles(args: {
   root: t.StringDir;
   ignore?: readonly string[];
 }): Promise<readonly t.SlugBundleTransform.TreeFs.SourceFile[]> {
-  const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
+  const ignore = createIgnoreMatcher(args.ignore);
   const files: t.SlugBundleTransform.TreeFs.SourceFile[] = [];
 
   await collectDir(args.root);
@@ -12,7 +12,8 @@ export async function readSlugTreeSourceFiles(args: {
 
   async function collectDir(dir: string): Promise<void> {
     for await (const entry of walkDirLevel(dir)) {
-      if (isIgnored(entry.name, ignore)) continue;
+      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
+      if (isIgnored(relPath, ignore)) continue;
 
       if (entry.isDirectory) {
         await collectDir(entry.path);
@@ -34,7 +35,7 @@ export async function writeSlugTreeSourceDir(args: {
   targetDir: t.StringDir;
   ignore?: readonly string[];
 }): Promise<number> {
-  const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
+  const ignore = createIgnoreMatcher(args.ignore);
   let count = 0;
 
   await copyDirRecursive(args.root, args.targetDir);
@@ -42,7 +43,8 @@ export async function writeSlugTreeSourceDir(args: {
 
   async function copyDirRecursive(sourceDir: string, targetDir: string): Promise<void> {
     for await (const entry of walkDirLevel(sourceDir)) {
-      if (isIgnored(entry.name, ignore)) continue;
+      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
+      if (isIgnored(relPath, ignore)) continue;
       const target = Fs.join(targetDir, entry.name);
 
       if (entry.isDirectory) {
@@ -71,9 +73,13 @@ async function* walkDirLevel(dir: string) {
   }
 }
 
-function isIgnored(name: string, ignore: Set<string>): boolean {
-  if (name.startsWith('.')) return true;
-  return ignore.has(name);
+function createIgnoreMatcher(input?: readonly string[]): ReturnType<typeof Ignore.create> {
+  const rules = Ignore.normalize([...DEFAULT_IGNORE, '.*', ...(input ?? [])]);
+  return Ignore.create(rules);
+}
+
+function isIgnored(path: t.StringPath, ignore: ReturnType<typeof Ignore.create>): boolean {
+  return ignore.isIgnored(path);
 }
 
 function isMarkdown(name: string): boolean {

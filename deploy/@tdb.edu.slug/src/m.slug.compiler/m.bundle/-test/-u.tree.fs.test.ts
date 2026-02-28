@@ -167,6 +167,47 @@ describe('Lint: slug-tree:fs', () => {
     }
   });
 
+  it('applies path-based ignore patterns to nested files', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(Fs.join(srcDir, 'sub'));
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'alpha');
+      await Fs.write(Fs.join(srcDir, 'sub', 'c.md'), 'charlie');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        docid: 'kb',
+        ignore: ['sub/**'],
+        target: {
+          manifests: 'out/slug-tree.kb.json',
+          dir: [
+            { kind: 'source', path: 'out/source' },
+            { kind: 'sha256', path: 'out/sha256' },
+          ],
+        },
+      };
+
+      await bundleSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/a.md'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/sub/c.md'))).to.eql(false);
+
+      let jsonFiles = 0;
+      for await (const entry of Deno.readDir(Fs.join(tmpDir, 'out/sha256'))) {
+        if (!entry.isFile || !entry.name.endsWith('.json')) continue;
+        if (entry.name === 'dist.json') continue;
+        jsonFiles += 1;
+      }
+      expect(jsonFiles).to.eql(1);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
   it('derives docid from manifest filename when explicit docid missing', async () => {
     const tmpDir = (await Fs.makeTempDir()).absolute;
     try {
