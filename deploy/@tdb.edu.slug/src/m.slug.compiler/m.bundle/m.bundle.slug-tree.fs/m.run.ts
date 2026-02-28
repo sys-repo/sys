@@ -1,4 +1,4 @@
-import { type t, c, Fs, Json, Schema, SlugBundle, SlugTree } from './common.ts';
+import { type t, c, Fs, FsCapability, Json, Schema, SlugBundle, SlugTree } from './common.ts';
 import { clearTargetDir, prepareTargetDir } from './u.dir.ts';
 import { normalizeTargetDirs } from './u.target.ts';
 import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.walk.ts';
@@ -7,26 +7,28 @@ export async function bundleSlugTreeFs(args: {
   cwd: t.StringDir;
   config: t.SlugBundleFileTree;
   onWarning?: (message: string) => void;
+  fs?: t.SlugTreeFsRuntime;
 }): Promise<t.SlugBundleFileTreeStats | undefined> {
   const startedAt = Date.now();
   const { cwd, config, onWarning } = args;
+  const fs = args.fs ?? createRuntimeFs();
   const warn = (message: string) => {
     if (onWarning) onWarning(message);
     else console.info(c.yellow(message));
   };
 
-  const source = Fs.Tilde.expand(String(config.source ?? '.'));
-  const root = Fs.Path.resolve(cwd, source || '.');
+  const source = fs.tildeExpand(String(config.source ?? '.'));
+  const root = fs.resolvePath(cwd, source || '.');
 
   const targets = SlugBundle.Transform.TreeFs.normalizeManifestTargets(config.target?.manifests).map(
     (target) => ({
-    raw: target,
-    path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
+      raw: target,
+      path: fs.resolvePath(cwd, fs.tildeExpand(String(target))),
     }),
   );
   const targetDirs = normalizeTargetDirs(config.target?.dir).map((item) => ({
     kind: item.kind,
-    path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(item.path))),
+    path: fs.resolvePath(cwd, fs.tildeExpand(String(item.path))),
   }));
 
   if (targets.length === 0 && targetDirs.length === 0) {
@@ -37,6 +39,7 @@ export async function bundleSlugTreeFs(args: {
   const ignore = config.ignore ? [...config.ignore] : undefined;
   const docid = SlugBundle.Transform.TreeFs.resolveDocid(config.docid);
   const sourceReady = await checkSourceDir({
+    fs,
     root,
     source: String(config.source ?? '.'),
     onWarning: warn,
@@ -63,12 +66,13 @@ export async function bundleSlugTreeFs(args: {
   let manifests = 0;
 
   for (const targetDir of targetDirs) {
-    const ok = await prepareTargetDir(targetDir.path, warn);
+    const ok = await prepareTargetDir({ fs, targetDir: targetDir.path, onWarning: warn });
     if (!ok) continue;
-    await clearTargetDir(targetDir.path);
+    await clearTargetDir({ fs, targetDir: targetDir.path });
 
     if (targetDir.kind === 'source') {
       sourceFiles += await writeSlugTreeSourceDir({
+        fs,
         root,
         targetDir: targetDir.path,
         ignore,
@@ -78,6 +82,7 @@ export async function bundleSlugTreeFs(args: {
 
     if (targetDir.kind === 'sha256') {
       fileContent = await writeSlugTreeSha256Dir({
+        fs,
         root,
         targetDir: targetDir.path,
         ignore,
@@ -93,12 +98,12 @@ export async function bundleSlugTreeFs(args: {
   }
 
   for (const target of targets) {
-    const ext = Fs.extname(target.path).toLowerCase();
-    const dir = Fs.dirname(target.path);
-    await Fs.ensureDir(dir);
+    const ext = fs.extname(target.path).toLowerCase();
+    const dir = fs.dirname(target.path);
+    await fs.ensureDir(dir);
 
     if (ext === '.json') {
-      await Fs.write(target.path, Json.stringify(treeDoc));
+      await fs.write(target.path, Json.stringify(treeDoc));
       manifests += 1;
       const assetsPath = SlugBundle.Transform.TreeFs.deriveAssetsPath(target.path);
       if (assetsPath && fileContent && fileContent.entries.length > 0) {
@@ -108,15 +113,15 @@ export async function bundleSlugTreeFs(args: {
           );
           continue;
         }
-        await Fs.ensureDir(Fs.dirname(assetsPath));
-        await Fs.write(assetsPath, Json.stringify(fileContent.index));
+        await fs.ensureDir(fs.dirname(assetsPath));
+        await fs.write(assetsPath, Json.stringify(fileContent.index));
         manifests += 1;
       }
       continue;
     }
 
     if (ext === '.yaml' || ext === '.yml') {
-      await Fs.write(target.path, SlugTree.toYaml(treeDoc));
+      await fs.write(target.path, SlugTree.toYaml(treeDoc));
       manifests += 1;
       continue;
     }
@@ -133,12 +138,13 @@ export async function bundleSlugTreeFs(args: {
  * Helpers
  */
 async function checkSourceDir(args: {
+  fs: t.SlugTreeFsRuntime;
   root: t.StringDir;
   source: string;
   onWarning: (message: string) => void;
 }): Promise<boolean> {
-  const { root, source, onWarning } = args;
-  const exists = await Fs.exists(root);
+  const { fs, root, source, onWarning } = args;
+  const exists = await fs.exists(root);
   if (!exists) {
     onWarning(
       `warning: bundle:slug-tree:fs skipped (source directory not found)\n- source:   ${source}\n- resolved: ${root}`,
@@ -146,7 +152,7 @@ async function checkSourceDir(args: {
     return false;
   }
 
-  const info = await Fs.stat(root);
+  const info = await fs.stat(root);
   if (!info || !info.isDirectory) {
     onWarning(
       `warning: bundle:slug-tree:fs skipped (source is not a directory)\n- source:   ${source}\n- resolved: ${root}`,
@@ -158,6 +164,7 @@ async function checkSourceDir(args: {
 }
 
 async function writeSlugTreeSha256Dir(args: {
+  fs: t.SlugTreeFsRuntime;
   root: t.StringDir;
   targetDir: t.StringDir;
   ignore?: readonly string[];
@@ -166,6 +173,7 @@ async function writeSlugTreeSha256Dir(args: {
   manifests?: readonly t.StringPath[];
 }): Promise<t.SlugBundleTransform.TreeFs.FileContentDerived> {
   const files = await readSlugTreeSourceFiles({
+    fs: args.fs,
     root: args.root,
     ignore: args.ignore,
   });
@@ -180,9 +188,23 @@ async function writeSlugTreeSha256Dir(args: {
   if (!derived.ok) throw derived.error;
 
   for (const item of derived.value.sha256) {
-    const outPath = Fs.join(args.targetDir, item.filename);
-    await Fs.write(outPath, Json.stringify(item.doc));
+    const outPath = args.fs.join(args.targetDir, item.filename);
+    await args.fs.write(outPath, Json.stringify(item.doc));
   }
 
   return derived.value;
+}
+
+function createRuntimeFs(): t.SlugTreeFsRuntime {
+  const cap = FsCapability.fromFs(Fs);
+  return {
+    ...cap,
+    readText: Fs.readText,
+    copyFile: Fs.copyFile,
+    walk: Fs.walk,
+    remove: Fs.remove,
+    extname: Fs.extname,
+    resolvePath: Fs.Path.resolve,
+    relativePath: Fs.Path.relative,
+  };
 }

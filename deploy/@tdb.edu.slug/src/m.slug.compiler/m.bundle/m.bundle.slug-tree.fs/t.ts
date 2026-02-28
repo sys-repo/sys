@@ -40,3 +40,43 @@ export type SlugBundleFileTreeStats = {
   readonly manifests: number;
   readonly elapsed: t.Msecs;
 };
+
+/**
+ * Runtime filesystem surface used by the compiler adapter.
+ * Starts from the portable `FsCapability.Instance` and adds the local methods
+ * still required for directory walking/materialization orchestration.
+ */
+export type SlugTreeFsRuntime = t.FsCapability.Instance & {
+  readonly readText: (path: t.StringPath) => Promise<{ readonly data?: string }>;
+  readonly copyFile: (
+    from: t.StringPath,
+    to: t.StringPath,
+    options?: { force?: boolean; throw?: boolean; log?: boolean },
+  ) => Promise<unknown>;
+  readonly walk: (
+    root: t.StringPath,
+    options?: {
+      maxDepth?: number;
+      includeDirs?: boolean;
+      includeFiles?: boolean;
+      includeSymlinks?: boolean;
+      followSymlinks?: boolean;
+      exts?: string[];
+      match?: RegExp[];
+      skip?: RegExp[];
+    },
+  ) => AsyncIterable<{
+    path: string;
+    name: string;
+    isFile: boolean;
+    isDirectory: boolean;
+    isSymlink: boolean;
+  }>;
+  readonly remove: (
+    path: string,
+    options?: { dryRun?: boolean; log?: boolean },
+  ) => Promise<boolean>;
+  readonly extname: (path: string) => string;
+  readonly resolvePath: (...parts: readonly string[]) => string;
+  readonly relativePath: (from: string, to: string) => string;
+};

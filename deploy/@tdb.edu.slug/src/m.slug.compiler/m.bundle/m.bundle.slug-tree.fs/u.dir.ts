@@ -1,21 +1,23 @@
-import { type t, c, DEFAULT_IGNORE, Fs } from './common.ts';
+import { type t, c, DEFAULT_IGNORE } from './common.ts';
 
-export async function prepareTargetDir(
-  targetDir: t.StringDir,
-  onWarning?: (message: string) => void,
-): Promise<boolean> {
+export async function prepareTargetDir(args: {
+  fs: t.SlugTreeFsRuntime;
+  targetDir: t.StringDir;
+  onWarning?: (message: string) => void;
+}): Promise<boolean> {
+  const { fs, targetDir, onWarning } = args;
   const warn = (message: string) => {
     if (onWarning) onWarning(message);
     else console.info(c.yellow(message));
   };
 
-  const exists = await Fs.exists(targetDir);
+  const exists = await fs.exists(targetDir);
   if (!exists) {
-    await Fs.ensureDir(targetDir);
+    await fs.ensureDir(targetDir);
     return true;
   }
 
-  const info = await Fs.stat(targetDir);
+  const info = await fs.stat(targetDir);
   if (!info) {
     warn(`warning: bundle:slug-tree:fs target.dir stat unavailable: ${targetDir}`);
     return false;
@@ -32,9 +34,13 @@ export async function prepareTargetDir(
   return false;
 }
 
-export async function clearTargetDir(targetDir: t.StringDir): Promise<void> {
+export async function clearTargetDir(args: {
+  fs: t.SlugTreeFsRuntime;
+  targetDir: t.StringDir;
+}): Promise<void> {
+  const { fs, targetDir } = args;
   const preserve = new Set<string>(DEFAULT_IGNORE as readonly string[]);
-  for await (const entry of Fs.walk(targetDir, {
+  for await (const entry of fs.walk(targetDir, {
     maxDepth: 1,
     includeDirs: true,
     includeFiles: true,
@@ -43,6 +49,6 @@ export async function clearTargetDir(targetDir: t.StringDir): Promise<void> {
   })) {
     if (entry.path === targetDir) continue;
     if (preserve.has(entry.name)) continue;
-    await Fs.remove(entry.path, { log: false });
+    await fs.remove(entry.path, { log: false });
   }
 }

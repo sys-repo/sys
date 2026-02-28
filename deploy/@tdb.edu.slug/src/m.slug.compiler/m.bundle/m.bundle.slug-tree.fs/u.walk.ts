@@ -1,9 +1,11 @@
-import { type t, DEFAULT_IGNORE, Fs, Ignore } from './common.ts';
+import { type t, DEFAULT_IGNORE, Ignore } from './common.ts';
 
 export async function readSlugTreeSourceFiles(args: {
+  fs: t.SlugTreeFsRuntime;
   root: t.StringDir;
   ignore?: readonly string[];
 }): Promise<readonly t.SlugBundleTransform.TreeFs.SourceFile[]> {
+  const { fs } = args;
   const ignore = createIgnoreMatcher(args.ignore);
   const files: t.SlugBundleTransform.TreeFs.SourceFile[] = [];
 
@@ -11,8 +13,8 @@ export async function readSlugTreeSourceFiles(args: {
   return files;
 
   async function collectDir(dir: string): Promise<void> {
-    for await (const entry of walkDirLevel(dir)) {
-      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
+    for await (const entry of walkDirLevel(fs, dir)) {
+      const relPath = fs.relativePath(args.root, entry.path) as t.StringPath;
       if (isIgnored(relPath, ignore)) continue;
 
       if (entry.isDirectory) {
@@ -20,21 +22,23 @@ export async function readSlugTreeSourceFiles(args: {
         continue;
       }
 
-      if (!entry.isFile || !isMarkdown(entry.name)) continue;
+      if (!entry.isFile || !isMarkdown(fs, entry.name)) continue;
 
-      const res = await Fs.readText(entry.path);
+      const res = await fs.readText(entry.path);
       const source = String(res.data ?? '');
-      const rel = Fs.Path.relative(args.root, entry.path) as t.StringPath;
+      const rel = fs.relativePath(args.root, entry.path) as t.StringPath;
       files.push({ path: rel, source, name: entry.name });
     }
   }
 }
 
 export async function writeSlugTreeSourceDir(args: {
+  fs: t.SlugTreeFsRuntime;
   root: t.StringDir;
   targetDir: t.StringDir;
   ignore?: readonly string[];
 }): Promise<number> {
+  const { fs } = args;
   const ignore = createIgnoreMatcher(args.ignore);
   let count = 0;
 
@@ -42,10 +46,10 @@ export async function writeSlugTreeSourceDir(args: {
   return count;
 
   async function copyDirRecursive(sourceDir: string, targetDir: string): Promise<void> {
-    for await (const entry of walkDirLevel(sourceDir)) {
-      const relPath = Fs.Path.relative(args.root, entry.path) as t.StringPath;
+    for await (const entry of walkDirLevel(fs, sourceDir)) {
+      const relPath = fs.relativePath(args.root, entry.path) as t.StringPath;
       if (isIgnored(relPath, ignore)) continue;
-      const target = Fs.join(targetDir, entry.name);
+      const target = fs.join(targetDir, entry.name);
 
       if (entry.isDirectory) {
         await copyDirRecursive(entry.path, target);
@@ -53,15 +57,15 @@ export async function writeSlugTreeSourceDir(args: {
       }
 
       if (!entry.isFile) continue;
-      await Fs.copyFile(entry.path, target, { force: true });
+      await fs.copyFile(entry.path, target, { force: true });
       count += 1;
     }
   }
 }
 
 /** Internal directory traversal helpers. */
-async function* walkDirLevel(dir: string) {
-  for await (const entry of Fs.walk(dir, {
+async function* walkDirLevel(fs: t.SlugTreeFsRuntime, dir: string) {
+  for await (const entry of fs.walk(dir, {
     maxDepth: 1,
     includeDirs: true,
     includeFiles: true,
@@ -82,7 +86,7 @@ function isIgnored(path: t.StringPath, ignore: ReturnType<typeof Ignore.create>)
   return ignore.isIgnored(path);
 }
 
-function isMarkdown(name: string): boolean {
-  const ext = Fs.extname(name).toLowerCase();
+function isMarkdown(fs: t.SlugTreeFsRuntime, name: string): boolean {
+  const ext = fs.extname(name).toLowerCase();
   return ext === '.md';
 }
