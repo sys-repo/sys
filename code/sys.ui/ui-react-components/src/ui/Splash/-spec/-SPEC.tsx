@@ -9,7 +9,15 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Splash.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <Splash.UI
+        debug={v.debug}
+        theme={v.theme}
+        qs={v.qs}
+        pkg={debug.pkg}
+        keyboardEnabled={v.keyboardEnabled}
+      />
+    );
   }
 
   e.it('init', (e) => {

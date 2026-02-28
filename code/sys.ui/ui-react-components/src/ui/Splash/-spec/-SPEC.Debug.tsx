@@ -1,12 +1,19 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, pkg, Signal } from './common.ts';
+
+const PkgFlags = ['not-specified', '@sys/ui-react-components', 'custom'] as const;
 
 type P = t.Splash.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'keyboardEnabled' | 'qs'> & {
+  pkg?: (typeof PkgFlags)[number];
+};
 const defaults: Storage = {
   debug: false,
-  theme: 'Dark',
+  theme: 'Light',
+  keyboardEnabled: D.keyboardEnabled,
+  pkg: '@sys/ui-react-components',
+  qs: undefined,
 };
 
 /**
@@ -26,12 +33,21 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    pkg: s(snap.pkg),
+    qs: s(snap.qs),
+    keyboardEnabled: s(snap.keyboardEnabled),
   };
   const p = props;
   const api = {
     props,
     listen,
     reset,
+    get pkg(): P['pkg'] {
+      const v = p.pkg.value;
+      if (v === 'not-specified') return;
+      if (v === '@sys/ui-react-components') return pkg;
+      if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
+    },
   };
 
   function listen() {
@@ -46,6 +62,9 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.pkg = p.pkg.value;
+      d.qs = p.qs.value;
+      d.keyboardEnabled = p.keyboardEnabled.value;
     });
   });
 
@@ -88,6 +107,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `pkg: ${p.pkg.value}`}
+        onClick={() => Signal.cycle(p.pkg, PkgFlags)}
+      />
+      <Button
+        block
+        label={() => `qs: ${p.qs.value ?? `(undefined) ← default: ${D.qs}`}`}
+        onClick={() => Signal.cycle(p.qs, [undefined, 'foo', '?bar'])}
+      />
+      <Button
+        block
+        label={() => `keyboardEnabled: ${p.keyboardEnabled.value}`}
+        onClick={() => Signal.toggle(p.keyboardEnabled)}
       />
 
       <hr />

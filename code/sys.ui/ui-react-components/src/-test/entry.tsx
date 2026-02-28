@@ -77,10 +77,10 @@ export async function main() {
    * Entry/Splash:
    */
   async function renderSplash() {
-    const { Splash } = await import('./ui.Splash.tsx');
+    const { Splash } = await import('../ui/Splash/mod.ts');
     root.render(
       <StrictMode>
-        <Splash style={{ Absolute: 0 }} />
+        <Splash.UI style={{ Absolute: 0 }} pkg={pkg} />
       </StrictMode>,
     );
   }
