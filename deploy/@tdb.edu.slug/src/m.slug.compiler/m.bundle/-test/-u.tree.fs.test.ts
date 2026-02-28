@@ -38,9 +38,9 @@ describe('Lint: slug-tree:fs', () => {
       const sourceA = Fs.join(tmpDir, 'out/src/a.md');
       const sourceB = Fs.join(tmpDir, 'out/src/b.txt');
       const sourceC = Fs.join(tmpDir, 'out/src/sub/c.md');
-      expect((await Fs.readText(sourceA)).data ?? '').to.contain('hello');
+      expect((await Fs.readText(sourceA)).data ?? '').to.eql('hello');
       expect((await Fs.readText(sourceB)).data ?? '').to.contain('skip');
-      expect((await Fs.readText(sourceC)).data ?? '').to.contain('world');
+      expect((await Fs.readText(sourceC)).data ?? '').to.eql('world');
       expect(await Fs.exists(Fs.join(tmpDir, 'out/src/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/sha256/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(tmpDir, 'out/dist.json'))).to.eql(true);
@@ -63,7 +63,7 @@ describe('Lint: slug-tree:fs', () => {
           path?: string;
           hash: string;
           contentType: string;
-          frontmatter: { ref: string; title?: string };
+          frontmatter: { ref?: string; title?: string };
         };
       }> = [];
       for await (const entry of Deno.readDir(outDir)) {
@@ -75,7 +75,7 @@ describe('Lint: slug-tree:fs', () => {
           path?: string;
           hash: string;
           contentType: string;
-          frontmatter: { ref: string; title?: string };
+          frontmatter: { ref?: string; title?: string };
         };
         const validation = SlugSchema.FileContent.validate(data);
         expect(validation.ok).to.eql(true);
@@ -97,7 +97,7 @@ describe('Lint: slug-tree:fs', () => {
           hash: string;
           name: string;
           contentType: string;
-          frontmatter: { ref: string; title?: string };
+          frontmatter: { ref?: string; title?: string };
         }
       >();
       for (const { name, data } of outputs) {
@@ -116,13 +116,13 @@ describe('Lint: slug-tree:fs', () => {
       expect(a?.hash).to.eql(Hash.sha256(String(a?.source ?? '')));
       expect(a?.name).to.eql(`${a?.hash}.json`);
       expect(a?.contentType).to.eql('text/markdown');
-      expect(a?.frontmatter.ref).to.eql('crdt:tbd');
+      expect(a?.frontmatter.ref).to.eql(undefined);
       expect(a?.frontmatter.title).to.eql(undefined);
       expect(String(c?.source ?? '')).to.contain('world');
       expect(c?.hash).to.eql(Hash.sha256(String(c?.source ?? '')));
       expect(c?.name).to.eql(`${c?.hash}.json`);
       expect(c?.contentType).to.eql('text/markdown');
-      expect(c?.frontmatter.ref).to.eql('crdt:tbd');
+      expect(c?.frontmatter.ref).to.eql(undefined);
       expect(c?.frontmatter.title).to.eql(undefined);
 
       const withoutRef = {

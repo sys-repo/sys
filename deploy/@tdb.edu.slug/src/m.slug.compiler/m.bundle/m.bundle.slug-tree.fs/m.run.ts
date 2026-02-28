@@ -34,7 +34,6 @@ export async function bundleSlugTreeFs(args: {
 
   const ignore = config.ignore ? [...config.ignore] : undefined;
   const docid = toDocid(config.docid);
-  const fallbackRef = 'crdt:tbd' as t.StringRef;
   const sourceReady = await checkSourceDir({
     root,
     source: String(config.source ?? '.'),
@@ -43,7 +42,7 @@ export async function bundleSlugTreeFs(args: {
   if (!sourceReady) return;
 
   const treeDoc = await SlugTree.fromDir(
-    { root, createCrdt: async () => fallbackRef },
+    { root },
     {
       ignore,
       sort: config.sort,

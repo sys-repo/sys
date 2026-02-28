@@ -33,6 +33,12 @@ export async function ensureFrontmatterRef(args: {
   return { ref, updated: true, text: inserted };
 }
 
+export function readFrontmatterRef(text: string): t.StringRef | undefined {
+  const parsed = parseFrontmatter(text);
+  if (!parsed.has) return;
+  return readRef(parsed.frontmatter);
+}
+
 function parseFrontmatter(text: string): FrontmatterParse {
   const lines = text.split(/\r?\n/);
   if (lines[0] !== FRONT_DELIM) {

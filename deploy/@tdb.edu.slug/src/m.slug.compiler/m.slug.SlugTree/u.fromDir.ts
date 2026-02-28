@@ -1,5 +1,5 @@
 import { type t, Arr, Fs, DEFAULT_IGNORE, Ignore } from './common.ts';
-import { ensureFrontmatterRef } from './u.frontmatter.ts';
+import { ensureFrontmatterRef, readFrontmatterRef } from './u.frontmatter.ts';
 
 type DirEntry = {
   readonly name: string;
@@ -55,30 +55,26 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
 
     if (readmePath) {
       const ref = await ensureRef(readmePath, createCrdt);
-      const node: t.SlugTreeItemRefOnly = {
-        slug: slugName,
-        ref,
-        slugs: children.length ? children : undefined,
-      };
+      const slugs = children.length ? children : undefined;
+      if (ref) {
+        const node: t.SlugTreeItemRefOnly = { ref, slug: slugName, slugs };
+        return node;
+      }
+      const node: t.SlugTreeItemInline = { slug: slugName, slugs };
       return node;
     }
 
     if (!children.length) return;
-    const node: t.SlugTreeItemInline = {
-      slug: slugName,
-      slugs: children,
-    };
+    const node: t.SlugTreeItemInline = { slug: slugName, slugs: children };
     return node;
   }
 
-  async function buildFile(
-    path: string,
-    filename: string,
-  ): Promise<t.SlugTreeItemRefOnly | undefined> {
+  async function buildFile(path: string, filename: string): Promise<t.SlugTreeItem | undefined> {
     const slug = stripExt(filename);
     if (!slug) return;
     const ref = await ensureRef(path, createCrdt);
-    return { slug, ref };
+    if (ref) return { slug, ref };
+    return { slug };
   }
 };
 
@@ -132,13 +128,26 @@ function stripExt(name: string): string {
 
 async function ensureRef(
   path: t.StringFile,
-  createCrdt: () => Promise<t.StringRef>,
-): Promise<t.StringRef> {
+  createCrdt?: () => Promise<t.StringRef | undefined | null | void>,
+): Promise<t.StringRef | undefined> {
   const current = (await Fs.readText(path)).data ?? '';
-  const res = await ensureFrontmatterRef({ text: current, createCrdt });
+  const generated = await resolveGeneratedRef(createCrdt);
+  if (!generated) return readFrontmatterRef(current);
+
+  const res = await ensureFrontmatterRef({ text: current, createCrdt: async () => generated });
   if (res.updated) {
     const next = res.text.endsWith('\n') ? res.text : `${res.text}\n`;
     await Fs.write(path, next);
   }
   return res.ref;
+}
+
+async function resolveGeneratedRef(
+  createCrdt?: () => Promise<t.StringRef | undefined | null | void>,
+): Promise<t.StringRef | undefined> {
+  if (!createCrdt) return;
+  const value = await createCrdt();
+  if (!value) return;
+  const text = String(value).trim();
+  return text.length > 0 ? (text as t.StringRef) : undefined;
 }
