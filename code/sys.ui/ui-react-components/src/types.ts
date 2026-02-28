@@ -3,6 +3,7 @@
  */
 export type * from './m.webfonts/t.ts';
 export type * from './ui/ActionProbe/t.ts';
+export type * from './ui/Anchor/t.ts';
 export type * from './ui/Bullet/t.ts';
 export type * from './ui/BulletList/t.ts';
 export type * from './ui/Button/t.ts';
@@ -49,10 +50,10 @@ export type * from './ui/Sheet/t.ts';
 export type * from './ui/Slider/t.ts';
 export type * from './ui/Spinners.Bar/t.ts';
 export type * from './ui/Spinners/t.ts';
+export type * from './ui/Splash/t.ts';
 export type * from './ui/Text.Input/t.ts';
 export type * from './ui/TreeView.Index.Data/t.ts';
 export type * from './ui/TreeView.Index.Item/t.ts';
 export type * from './ui/TreeView.Index/t.ts';
 export type * from './ui/TreeView/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
-export type * from './ui/Anchor/t.ts';

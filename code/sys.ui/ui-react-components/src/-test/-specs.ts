@@ -33,6 +33,7 @@ export const SpecsComponents = {
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-spec/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
+  [`${ns}: Splash`]: () => import('../ui/Splash/-spec/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
   [`${ns}: Prose.Measure`]: () => import('../ui/Prose.Measure/-spec/-SPEC.tsx'),
