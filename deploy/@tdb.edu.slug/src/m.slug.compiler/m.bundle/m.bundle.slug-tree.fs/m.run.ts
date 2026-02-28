@@ -6,9 +6,14 @@ import { readSlugTreeSourceFiles, writeSlugTreeSourceDir } from './u.walk.ts';
 export async function bundleSlugTreeFs(args: {
   cwd: t.StringDir;
   config: t.SlugBundleFileTree;
+  onWarning?: (message: string) => void;
 }): Promise<t.SlugBundleFileTreeStats | undefined> {
   const startedAt = Date.now();
-  const { cwd, config } = args;
+  const { cwd, config, onWarning } = args;
+  const warn = (message: string) => {
+    if (onWarning) onWarning(message);
+    else console.info(c.yellow(message));
+  };
 
   const source = Fs.Tilde.expand(String(config.source ?? '.'));
   const root = Fs.Path.resolve(cwd, source || '.');
@@ -23,12 +28,18 @@ export async function bundleSlugTreeFs(args: {
   }));
 
   if (targets.length === 0 && targetDirs.length === 0) {
-    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (no target configured)'));
+    warn('warning: bundle:slug-tree:fs skipped (no target configured)');
     return;
   }
 
   const include = config.include ? [...config.include] : undefined;
   const ignore = config.ignore ? [...config.ignore] : undefined;
+  const sourceReady = await checkSourceDir({
+    root,
+    source: String(config.source ?? '.'),
+    onWarning: warn,
+  });
+  if (!sourceReady) return;
 
   const treeDoc = await SlugTree.fromDir(
     { root, createCrdt: async () => 'crdt:tbd' as t.StringRef },
@@ -51,7 +62,7 @@ export async function bundleSlugTreeFs(args: {
   let manifests = 0;
 
   for (const targetDir of targetDirs) {
-    const ok = await prepareTargetDir(targetDir.path);
+    const ok = await prepareTargetDir(targetDir.path, warn);
     if (!ok) continue;
     await clearTargetDir(targetDir.path);
 
@@ -79,11 +90,7 @@ export async function bundleSlugTreeFs(args: {
       continue;
     }
 
-    console.info(
-      c.yellow(
-        `warning: bundle:slug-tree:fs skipped unsupported target.dir kind: ${targetDir.kind}`,
-      ),
-    );
+    warn(`warning: bundle:slug-tree:fs skipped unsupported target.dir kind: ${targetDir.kind}`);
   }
 
   for (const target of targets) {
@@ -97,10 +104,8 @@ export async function bundleSlugTreeFs(args: {
       const assetsPath = deriveAssetsPath(target.path);
       if (assetsPath && fileContent && fileContent.entries.length > 0) {
         if (!fileContent.index) {
-          console.info(
-            c.yellow(
-              'warning: bundle:slug-tree:fs skipped assets index (docid unresolved for this bundle). Fix the `slug-tree:fs` config by adding `docid: <id>` at the bundle root (same level as `kind`, `source`, `target`), or rename the JSON manifest target to `slug-tree.<docid>.json`.',
-            ),
+          warn(
+            'warning: bundle:slug-tree:fs skipped assets index (docid unresolved for this bundle). Fix the `slug-tree:fs` config by adding `docid: <id>` at the bundle root (same level as `kind`, `source`, `target`), or rename the JSON manifest target to `slug-tree.<docid>.json`.',
           );
           continue;
         }
@@ -117,9 +122,7 @@ export async function bundleSlugTreeFs(args: {
       continue;
     }
 
-    console.info(
-      c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`),
-    );
+    warn(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`);
   }
 
   const elapsed = Date.now() - startedAt;
@@ -130,6 +133,31 @@ export async function bundleSlugTreeFs(args: {
 /**
  * Helpers
  */
+async function checkSourceDir(args: {
+  root: t.StringDir;
+  source: string;
+  onWarning: (message: string) => void;
+}): Promise<boolean> {
+  const { root, source, onWarning } = args;
+  const exists = await Fs.exists(root);
+  if (!exists) {
+    onWarning(
+      `warning: bundle:slug-tree:fs skipped (source directory not found)\n- source:   ${source}\n- resolved: ${root}`,
+    );
+    return false;
+  }
+
+  const info = await Fs.stat(root);
+  if (!info || !info.isDirectory) {
+    onWarning(
+      `warning: bundle:slug-tree:fs skipped (source is not a directory)\n- source:   ${source}\n- resolved: ${root}`,
+    );
+    return false;
+  }
+
+  return true;
+}
+
 async function writeSlugTreeSha256Dir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;

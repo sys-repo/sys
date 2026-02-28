@@ -88,7 +88,7 @@ async function runOnce(args: {
 function printSummary(summary: t.BundleRunSummary) {
   const warnings = summary.warnings ?? [];
   for (const warning of warnings) {
-    console.info(c.yellow(warning));
+    printWarning(warning);
   }
 
   const table = Cli.table();
@@ -123,6 +123,25 @@ function printSummary(summary: t.BundleRunSummary) {
 
   const text = String(table);
   if (text.trim().length > 0) console.info(text, '\n');
+}
+
+function printWarning(message: string) {
+  const lines = String(message ?? '').split('\n');
+  for (const line of lines) {
+    const source = line.match(/^-\s*source:\s*(.+)$/);
+    if (source) {
+      console.info(`${c.yellow('- source:')}   ${c.gray(source[1])}`);
+      continue;
+    }
+
+    const resolved = line.match(/^-\s*resolved:\s*(.+)$/);
+    if (resolved) {
+      console.info(`${c.yellow('- resolved:')} ${c.gray(resolved[1])}`);
+      continue;
+    }
+
+    console.info(c.yellow(line));
+  }
 }
 
 function summarizeMediaIssues(docs: readonly t.BundleRunDocSummary[]) {

@@ -249,4 +249,45 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.remove(tmpDir);
     }
   });
+
+  it('skips when source directory does not exist', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const config: t.SlugBundleFileTree = {
+        source: 'missing',
+        target: { manifests: 'out/slug-tree.kb.json' },
+      };
+
+      const result = await bundleSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      expect(result).to.eql(undefined);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/slug-tree.kb.json'))).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('skips when source path is a file', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      await Fs.write(Fs.join(tmpDir, 'source.md'), '# not a directory');
+      const config: t.SlugBundleFileTree = {
+        source: 'source.md',
+        target: { manifests: 'out/slug-tree.kb.json' },
+      };
+
+      const result = await bundleSlugTreeFs({
+        cwd: tmpDir,
+        config,
+      });
+
+      expect(result).to.eql(undefined);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/slug-tree.kb.json'))).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
 });

@@ -130,6 +130,7 @@ export async function runProfile(args: {
       const stats = await bundleSlugTreeFs({
         cwd,
         config: bundle,
+        onWarning: (message) => warnings.push(message),
       });
       if (stats) {
         for (const dir of collectDistDirs.fromSlugTreeFs({ cwd, config: bundle })) {

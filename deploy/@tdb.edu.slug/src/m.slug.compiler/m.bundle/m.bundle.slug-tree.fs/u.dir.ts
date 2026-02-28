@@ -1,6 +1,14 @@
 import { type t, c, DEFAULT_IGNORE, Fs } from './common.ts';
 
-export async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean> {
+export async function prepareTargetDir(
+  targetDir: t.StringDir,
+  onWarning?: (message: string) => void,
+): Promise<boolean> {
+  const warn = (message: string) => {
+    if (onWarning) onWarning(message);
+    else console.info(c.yellow(message));
+  };
+
   const exists = await Fs.exists(targetDir);
   if (!exists) {
     await Fs.ensureDir(targetDir);
@@ -9,20 +17,18 @@ export async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean>
 
   const info = await Fs.stat(targetDir);
   if (!info) {
-    console.info(c.yellow(`warning: bundle:slug-tree:fs target.dir stat unavailable: ${targetDir}`));
+    warn(`warning: bundle:slug-tree:fs target.dir stat unavailable: ${targetDir}`);
     return false;
   }
 
   if (info.isDirectory) return true;
 
   if (info.isFile) {
-    console.info(c.yellow(`warning: bundle:slug-tree:fs target.dir is a file: ${targetDir}`));
+    warn(`warning: bundle:slug-tree:fs target.dir is a file: ${targetDir}`);
     return false;
   }
 
-  console.info(
-    c.yellow(`warning: bundle:slug-tree:fs target.dir is not a directory: ${targetDir}`),
-  );
+  warn(`warning: bundle:slug-tree:fs target.dir is not a directory: ${targetDir}`);
   return false;
 }
 
