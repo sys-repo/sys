@@ -31,6 +31,7 @@ export const MonacoNotes: React.FC<P> = (props) => {
       defaultValue={'# Notes\n'}
       language={'markdown'}
       theme={theme.name}
+      wordWrap={props.wordWrap}
     />
   );
 

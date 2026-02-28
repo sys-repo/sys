@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <MonacoNotes.UI debug={v.debug} theme={v.theme} />;
+    return <MonacoNotes.UI debug={v.debug} theme={v.theme} wordWrap={v.wordWrap} />;
   }
 
   e.it('init', (e) => {

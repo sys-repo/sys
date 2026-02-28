@@ -3,10 +3,11 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from './common.ts';
 
 type P = t.MonacoNotes.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'wordWrap'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  wordWrap: false,
 };
 
 /**
@@ -26,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    wordWrap: s(snap.wordWrap),
   };
   const p = props;
   const api = {
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.wordWrap = p.wordWrap.value;
     });
   });
 
@@ -88,6 +91,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `wordWrap: ${v.wordWrap}`}
+        onClick={() => Signal.toggle(p.wordWrap)}
       />
 
       <hr />

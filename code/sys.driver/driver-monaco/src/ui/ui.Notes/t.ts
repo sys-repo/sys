@@ -8,6 +8,7 @@ export declare namespace MonacoNotes {
   export type Props = {
     debug?: boolean;
     theme?: t.CommonTheme;
+    wordWrap?: boolean;
     style?: t.CssInput;
   };
 }
