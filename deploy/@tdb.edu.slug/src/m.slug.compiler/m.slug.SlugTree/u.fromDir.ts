@@ -112,7 +112,8 @@ function isIgnored(path: t.StringPath, ignore: ReturnType<typeof Ignore.create>)
 }
 
 function isReadme(name: string): boolean {
-  return name.toLowerCase() === 'readme.md';
+  const value = name.toLowerCase();
+  return value === 'readme.md' || value === '-readme.md';
 }
 
 function isMarkdown(name: string): boolean {
