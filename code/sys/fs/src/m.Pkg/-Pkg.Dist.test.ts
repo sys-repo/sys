@@ -169,8 +169,8 @@ describe('Pkg.Dist', () => {
 
       expect(ignore?.format).to.eql('gitignore');
       expect(ignore?.rules).to.eql(['dist.json', 'dist.json.sig']);
-      expect(ignore?.digest.startsWith('sha256-')).to.eql(true);
-      expect(ignore?.digest.length).to.eql('sha256-'.length + 64);
+      expect(ignore?.['rules:digest'].startsWith('sha256-')).to.eql(true);
+      expect(ignore?.['rules:digest'].length).to.eql('sha256-'.length + 64);
     });
 
     it('Dist.compute(): custom ignore filters files and is captured in policy metadata', async () => {
@@ -189,7 +189,8 @@ describe('Pkg.Dist', () => {
         '.DS_Store',
       ]);
       expect(
-        scoped.dist.build.hash.ignore?.digest === strict.dist.build.hash.ignore?.digest,
+        scoped.dist.build.hash.ignore?.['rules:digest'] ===
+          strict.dist.build.hash.ignore?.['rules:digest'],
       ).to.eql(false);
     });
 
@@ -630,7 +631,7 @@ describe('Pkg.Dist', () => {
             ...json.build.hash,
             ignore: {
               ...json.build.hash.ignore!,
-              digest: 'sha256-0000000000000000000000000000000000000000000000000000000000000000',
+              'rules:digest': 'sha256-0000000000000000000000000000000000000000000000000000000000000000',
             },
           },
         },
@@ -666,7 +667,7 @@ describe('Pkg.Dist', () => {
             ignore: {
               ...json.build.hash.ignore!,
               rules: badRules,
-              digest,
+              'rules:digest': digest,
             },
           },
         },

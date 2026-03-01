@@ -90,5 +90,5 @@ export type DistPkgHashIgnore = {
   /** Effective ordered ignore rules used during compute. */
   rules: string[];
   /** Digest of canonical serialized rules. */
-  digest: t.StringHash;
+  readonly "rules:digest": t.StringHash;
 };

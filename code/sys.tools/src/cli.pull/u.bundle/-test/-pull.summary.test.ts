@@ -46,8 +46,7 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './dist.json':
-                'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=1234',
+              './dist.json': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=1234`,
             },
           },
         },
@@ -112,8 +111,7 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './index.html':
-                'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400',
+              './index.html': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
             },
           },
         },
@@ -160,8 +158,7 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './index.html':
-                'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400',
+              './index.html': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
             },
           },
         },

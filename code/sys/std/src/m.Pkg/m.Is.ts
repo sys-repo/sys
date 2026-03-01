@@ -31,7 +31,7 @@ export const PkgIs: t.PkgIsLib = {
       if (ignore.format !== 'gitignore') return false;
       if (!Array.isArray(ignore.rules)) return false;
       if (!ignore.rules.every((rule) => Is.str(rule))) return false;
-      if (!is.sha256Hash(ignore.digest)) return false;
+      if (!is.sha256Hash(ignore['rules:digest'])) return false;
     }
     if (dist.build.sign !== undefined) {
       if (!Is.object(dist.build.sign)) return false;

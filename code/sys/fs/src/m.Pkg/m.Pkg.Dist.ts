@@ -60,7 +60,7 @@ export const Dist: PkgDistFsLib = {
         ignore: {
           format: 'gitignore',
           rules: [...ignore.rules],
-          digest: ignore.digest,
+          'rules:digest': ignore.digest,
         },
       },
     };
@@ -164,7 +164,7 @@ export const Dist: PkgDistFsLib = {
       const ignoreMeta = dist.build.hash.ignore;
       if (ignoreMeta) {
         const digest = await Ignore.digest(ignoreMeta.rules);
-        if (digest !== ignoreMeta.digest) {
+        if (digest !== ignoreMeta['rules:digest']) {
           errors.push(`Dist ignore-policy digest mismatch: ${distfile}`);
         } else {
           const ignore = await wrangle.ignore(ignoreMeta.rules);
