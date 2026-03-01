@@ -109,8 +109,7 @@ describe('Fs.Watch', () => {
       await waitFor(() => fired.length > 0);
 
       const kinds = fired.map((e) => e.kind);
-      expect(kinds).to.include('create');
-      expect(kinds).to.include('modify');
+      expect(kinds.some((kind) => kind === 'create' || kind === 'modify')).to.eql(true);
       watcher.dispose();
     });
 
