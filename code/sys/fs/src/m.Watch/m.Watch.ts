@@ -81,11 +81,9 @@ const wrangle = {
   withinScope(recursive: boolean, paths: t.StringPath[], subjects: t.StringPath[]) {
     // NB: the {recursive} flat does not work consistently across all OS's.
     if (recursive) return true;
-    for (const path of paths) {
-      for (const subject of subjects) {
-        if (Path.dirname(subject) !== path) return false;
-      }
-    }
-    return true;
+    return subjects.some((subject) => {
+      const parent = Path.dirname(subject);
+      return paths.some((path) => path === parent);
+    });
   },
 } as const;
