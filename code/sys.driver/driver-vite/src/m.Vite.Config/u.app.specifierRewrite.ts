@@ -12,7 +12,7 @@ type DenoInfo = {
   modules?: DenoInfoModule[];
 };
 
-export function createSpecifierBridge(
+export function createSpecifierRewrite(
   configPath: t.StringPath,
   options: { resolveSysSpecifier?: ResolveSysSpecifier; loadImports?: LoadImports } = {},
 ): t.VitePlugin {
@@ -23,7 +23,7 @@ export function createSpecifierBridge(
   );
 
   return {
-    name: 'sys:specifier-bridge',
+    name: 'sys:specifier-rewrite',
     enforce: 'pre',
     async resolveId(source) {
       if (source.startsWith('npm:')) return parseNpmSpecifier(source) ?? null;

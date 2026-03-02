@@ -3,7 +3,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 
 import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
 import { type t, Is, asArray, Delete, Path, R } from './common.ts';
-import { createSpecifierBridge } from './u.app.specifierBridge.ts';
+import { createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
@@ -52,7 +52,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   const plugins = await commonPlugins(options.plugins);
   if (ws && (options.plugins?.deno ?? true)) {
-    plugins.unshift(createSpecifierBridge(ws.file));
+    plugins.unshift(createSpecifierRewrite(ws.file));
   }
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.

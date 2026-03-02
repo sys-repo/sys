@@ -1,13 +1,13 @@
 import { describe, expect, it } from '../-test.ts';
 import {
-  createSpecifierBridge,
+  createSpecifierRewrite,
   parseDenoInfoResolved,
   parseDenoInfoRoot,
   parseNpmSpecifier,
   resolveFromImportsMap,
-} from './u.app.specifierBridge.ts';
+} from './u.app.specifierRewrite.ts';
 
-describe('ViteConfig.app specifier bridge', () => {
+describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {
     it('parses scoped and unscoped npm specifiers', () => {
       expect(parseNpmSpecifier('npm:react@19.2.4')).to.eql('react');
@@ -69,10 +69,10 @@ describe('ViteConfig.app specifier bridge', () => {
     });
   });
 
-  describe('createSpecifierBridge', () => {
+  describe('createSpecifierRewrite', () => {
     it('resolves npm specifiers without invoking deno lookup', async () => {
       let calls = 0;
-      const bridge = createSpecifierBridge('/tmp/deno.json', {
+      const bridge = createSpecifierRewrite('/tmp/deno.json', {
         async resolveSysSpecifier() {
           calls++;
           return undefined;
@@ -86,7 +86,7 @@ describe('ViteConfig.app specifier bridge', () => {
 
     it('caches @sys specifier resolution', async () => {
       let calls = 0;
-      const bridge = createSpecifierBridge('/tmp/deno.json', {
+      const bridge = createSpecifierRewrite('/tmp/deno.json', {
         async resolveSysSpecifier(_configPath, specifier) {
           calls++;
           return `jsr:${specifier}@0.0.1`;
@@ -105,7 +105,7 @@ describe('ViteConfig.app specifier bridge', () => {
       let fallbackCalls = 0;
       let loadCalls = 0;
 
-      const bridge = createSpecifierBridge('/tmp/deno.json', {
+      const bridge = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
           loadCalls++;
           return { '@sys/http/client': '/tmp/http-client.ts' };
@@ -129,7 +129,7 @@ describe('ViteConfig.app specifier bridge', () => {
     it('resolves jsr imports-map targets via deno lookup', async () => {
       let fallbackCalls = 0;
 
-      const bridge = createSpecifierBridge('/tmp/deno.json', {
+      const bridge = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
           return { '@sys/http/client': 'jsr:@sys/http@0.0.209/client' };
         },
