@@ -1,6 +1,5 @@
-import { type t, DenoFile, Fs, Is, Json, Path, Process } from './common.ts';
+import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
 
-type ResolveSysSpecifier = (configPath: t.StringPath, specifier: string) => Promise<string | undefined>;
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type DenoInfoModule = {
   specifier?: string;
@@ -14,21 +13,17 @@ type DenoInfo = {
 
 export function createSpecifierRewrite(
   configPath: t.StringPath,
-  options: { resolveSysSpecifier?: ResolveSysSpecifier; loadImports?: LoadImports } = {},
+  options: { loadImports?: LoadImports } = {},
 ): t.VitePlugin {
-  const resolveSysSpecifier = wrangle.resolveSysSpecifier(
-    configPath,
-    options.resolveSysSpecifier,
-    options.loadImports,
-  );
+  const rewriteSpecifier = wrangle.rewriteSpecifier(configPath, options.loadImports);
 
   return {
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
     async resolveId(source) {
-      if (source.startsWith('npm:')) return parseNpmSpecifier(source) ?? null;
-      if (!source.startsWith('@sys/')) return null;
-      return (await resolveSysSpecifier(source)) ?? null;
+      const rewritten = await rewriteSpecifier(source);
+      if (!rewritten || rewritten === source) return null;
+      return rewritten;
     },
   };
 }
@@ -93,12 +88,10 @@ export function resolveFromImportsMap(
 }
 
 const wrangle = {
-  resolveSysSpecifier(
+  rewriteSpecifier(
     configPath: t.StringPath,
-    resolveSysSpecifier?: ResolveSysSpecifier,
     loadImports?: LoadImports,
   ): (specifier: string) => Promise<string | undefined> {
-    const resolve = resolveSysSpecifier ?? wrangle.resolveSysSpecifierViaDenoInfo;
     const imports = (loadImports ?? wrangle.loadImports)(configPath);
     const cache = new Map<string, Promise<string | undefined>>();
 
@@ -107,15 +100,12 @@ const wrangle = {
       if (cached) return await cached;
 
       const promise = (async () => {
+        if (specifier.startsWith('npm:')) return parseNpmSpecifier(specifier);
+
         const map = await imports;
         const fromMap = resolveFromImportsMap(specifier, map);
-        if (fromMap) {
-          if (wrangle.requiresDenoResolution(fromMap)) {
-            return (await resolve(configPath, fromMap)) ?? fromMap;
-          }
-          return fromMap;
-        }
-        return await resolve(configPath, specifier);
+        if (!fromMap) return undefined;
+        return fromMap;
       })();
       cache.set(specifier, promise);
       return await promise;
@@ -163,17 +153,4 @@ const wrangle = {
     return best;
   },
 
-  async resolveSysSpecifierViaDenoInfo(configPath: t.StringPath, specifier: string) {
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: ['info', '--json', '--config', configPath, specifier],
-      silent: true,
-    });
-    if (!res.success) return undefined;
-    return parseDenoInfoResolved(res.text.stdout);
-  },
-
-  requiresDenoResolution(specifier: string) {
-    return specifier.startsWith('jsr:') || specifier.startsWith('npm:');
-  },
 } as const;
