@@ -107,6 +107,16 @@ export type ProcOutput = {
   toString(): string;
 };
 
+/**
+ * Exit status from an inherited-stdio process.
+ * NB: stdout/stderr are not captured when stdio is inherited.
+ */
+export type ProcInheritOutput = {
+  readonly code: number;
+  readonly success: boolean;
+  readonly signal: Deno.Signal | null;
+};
+
 /** Handles events on a Process. */
 export type ProcEventHandler = (e: t.ProcEvent) => void;
 

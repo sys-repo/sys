@@ -21,6 +21,14 @@ export type ProcLib = {
   invoke(config: t.ProcInvokeArgs): Promise<t.ProcOutput>;
 
   /**
+   * Execute a command with child stdio inherited from the parent terminal.
+   * Useful for interactive tools/prompts.
+   *
+   * NB: `silent` has no effect for this method.
+   */
+  inherit(config: t.ProcInvokeArgs): Promise<t.ProcInheritOutput>;
+
+  /**
    * Execute a command in a fire-and-forget manner,
    * detaching stdio and unref'ing the child so the host
    * process is free to exit immediately.

@@ -19,6 +19,19 @@
  * ```
  *
  * @example
+ * Running an interactive command with inherited terminal stdio:
+ * ```ts
+ * import { Process } from '@sys/process';
+ *
+ * await Process.inherit({ cmd: 'deno', args: ['task', 'help'] });
+ * ```
+ *
+ * Notes:
+ * - `Process.inherit` does not capture stdout/stderr.
+ * - `silent` has no effect for `inherit`.
+ * - `FORCE_COLOR` defaults to on (override by setting `env.FORCE_COLOR`).
+ *
+ * @example
  * Spawning a long-running child process (asynchronous):
  * ```ts
  * import { Process } from '@sys/process';
