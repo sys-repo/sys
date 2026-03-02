@@ -30,7 +30,7 @@ describe('Vite @sys bridge integration', () => {
         jsFiles.map(async (path) => (await Fs.readText(Fs.join(outDir, path))).data ?? ''),
       );
       expect(jsText.some((text) => text.includes('sample-bridge'))).to.eql(true);
-      expect(jsText.some((text) => text.includes('sample-bridge-rx'))).to.eql(true);
+      expect(jsText.some((text) => text.includes('sample-bridge-http'))).to.eql(true);
     });
   });
 
@@ -51,7 +51,7 @@ describe('Vite @sys bridge integration', () => {
         const text = await main.text();
         expect(main.status).to.eql(200);
         expect(text).to.include('sample-bridge');
-        expect(text).to.include('sample-bridge-rx');
+        expect(text).to.include('sample-bridge-http');
         expect(text.includes('@sys/std')).to.eql(false);
       } finally {
         await server.dispose();
