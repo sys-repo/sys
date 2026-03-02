@@ -26,9 +26,6 @@ export async function makeBundle() {
  */
 export const TemplateNames: readonly string[] = [
   ...Object.keys(Templates),
-
-  // Modules:
-  '@sys/ui-factory/tmpl',
 ] as const;
 
 /**

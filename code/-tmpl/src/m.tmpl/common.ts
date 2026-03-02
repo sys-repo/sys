@@ -18,7 +18,4 @@ export const PATHS = {
  */
 export const TemplateNames: readonly string[] = [
   ...Object.keys(Templates),
-
-  // Modules:
-  '@sys/ui-factory/tmpl',
 ] as const;

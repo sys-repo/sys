@@ -15,8 +15,6 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
   console.info(c.gray(`${c.green('Current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
 
   const root = await resolveTemplate(args);
-  if (root === '@sys/ui-factory/tmpl') return void (await runUiFactory(args));
-
   const tmplName = assertLocalTemplate(root);
   const targetDir = await resolveTargetDir(cwd, args);
   if ((await Fs.exists(targetDir)) && !args.force) {
@@ -67,10 +65,6 @@ function assertLocalTemplate(name: string): t.TemplateName {
     throw new Error(`Unknown template: "${name}".`);
   }
 
-  if (name === '@sys/ui-factory/tmpl') {
-    throw new Error(`Template "${name}" is external and not handled as a local template.`);
-  }
-
   return name as t.TemplateName;
 }
 
@@ -96,18 +90,4 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
   }
 
   return {};
-}
-
-/**
- * TODO: remove this passthrough once ui-factory is retired from @sys/tmpl template selection.
- */
-async function runUiFactory(args: CliParsedArgs) {
-  if (!args.interactive) {
-    throw new Error(
-      'Template "@sys/ui-factory/tmpl" is interactive-only from @sys/tmpl; remove --no-interactive or use @sys/ui-factory directly.',
-    );
-  }
-
-  const { cli } = await import('@sys/ui-factory/tmpl');
-  await cli({ dryRun: args.dryRun, force: args.force });
 }
