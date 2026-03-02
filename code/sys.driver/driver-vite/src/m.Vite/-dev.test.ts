@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, Fs, Http, it, SAMPLE, Testing, Time } from '../-test.ts';
+import { type t, c, describe, expect, Fs, Http, it, pkg, SAMPLE, Testing, Time } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.dev', () => {
@@ -60,9 +60,15 @@ describe('Vite.dev', () => {
         const html = await res.text();
         printHtml(html, 'Fetched HTML', cwd);
 
+        const entryUrl = `${server.url}main.tsx`;
+        const entryRes = await fetch(entryUrl, { signal });
+        const entryText = await entryRes.text();
+
         expect(res.status).to.eql(200);
         expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
         expect(html).to.include(`@vite/client`);
+        expect(entryRes.status).to.eql(200);
+        expect(entryText).to.include('sample-imports');
       } finally {
         controller.abort();
         timeout?.cancel();

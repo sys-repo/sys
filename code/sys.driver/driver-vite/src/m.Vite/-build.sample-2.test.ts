@@ -55,11 +55,16 @@ describe('Vite.build (sample-2)', () => {
     const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
     const html = await readFile(Fs.join(outDir, 'index.html'));
 
+    const files = Object.keys(json.data?.hash.parts ?? {});
+    const jsFiles = files.filter((path) => path.endsWith('.js'));
+    const jsText = await Promise.all(jsFiles.map((path) => readFile(Fs.join(outDir, path))));
+    const hasSysAliasMarker = jsText.some((text) => text.includes('🧫 @sys/std'));
+
     return {
       res,
       outDir,
       get files() {
-        return { html, json: { dist: json.data } } as const;
+        return { html, json: { dist: json.data }, hasSysAliasMarker } as const;
       },
     } as const;
   };
@@ -73,6 +78,7 @@ describe('Vite.build (sample-2)', () => {
       expect(files.html).to.include(`<title>Sample-2</title>`);
       expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
       expect(res.dist.build.size.total).to.be.greaterThan(10_000);
+      expect(files.hasSysAliasMarker).to.eql(true);
 
       const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
       const js = filenames.filter((p) => p.endsWith('.js'));
