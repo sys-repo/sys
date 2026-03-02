@@ -1,8 +1,14 @@
 import type { t } from './common.ts';
-
-import deno from '@deno/vite-plugin';
 import react from '@vitejs/plugin-react';
 import wasm from 'vite-plugin-wasm';
+
+/**
+ * Temporary local vendoring for resolver iteration.
+ * Switch back to:
+ *   import deno from '@deno/vite-plugin';
+ * after upstream fix lands.
+ */
+import deno from '../-vendor/deno.vite-plugin/src/index.ts';
 
 export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   const plugins: t.VitePluginOption[] = [];
