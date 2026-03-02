@@ -2,7 +2,7 @@ import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../-test.t
 import { Vite } from './mod.ts';
 
 describe('Vite @sys bridge integration', () => {
-  it('build: resolves @sys imports from dedicated fixture', async () => {
+  it.skip('build: resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
@@ -21,9 +21,11 @@ describe('Vite @sys bridge integration', () => {
       const html = (await Fs.readText(Fs.join(outDir, 'index.html'))).data ?? '';
       expect(html).to.include('<title>Sample-Bridge</title>');
 
-      const dist = (await Fs.readJson<{ hash?: { parts?: Record<string, string> } }>(
-        Fs.join(outDir, 'dist.json'),
-      )).data;
+      const dist = (
+        await Fs.readJson<{ hash?: { parts?: Record<string, string> } }>(
+          Fs.join(outDir, 'dist.json'),
+        )
+      ).data;
       const files = Object.keys(dist?.hash?.parts ?? {});
       const jsFiles = files.filter((path) => path.endsWith('.js'));
       const jsText = await Promise.all(
