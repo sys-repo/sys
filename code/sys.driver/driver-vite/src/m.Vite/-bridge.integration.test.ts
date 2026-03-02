@@ -2,7 +2,7 @@ import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../-test.t
 import { Vite } from './mod.ts';
 
 describe('Vite @sys bridge integration', () => {
-  it.skip('build: resolves @sys imports from dedicated fixture', async () => {
+  it('build: resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
