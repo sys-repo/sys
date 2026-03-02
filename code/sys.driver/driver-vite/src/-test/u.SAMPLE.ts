@@ -7,5 +7,6 @@ export const SAMPLE = {
     sample2: './src/-test/vite.sample-2',
     sample3: './src/-test/vite.sample-3',
     sampleBridge: './src/-test/vite.sample-bridge',
+    sampleBridgePlain: './src/-test/vite.sample-bridge-plain',
   },
 } as const;
