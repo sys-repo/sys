@@ -46,6 +46,7 @@ describe('Config.Build', () => {
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
+      expect(includesPlugin(config, 'sys:specifier-bridge')).to.be.true;
     });
 
     it('no plugins', async () => {
