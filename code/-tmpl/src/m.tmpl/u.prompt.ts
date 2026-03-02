@@ -1,4 +1,4 @@
-import { c, Cli, Fs, pkg, Str, TemplateNames } from './common.ts';
+import { type t, c, Cli, Fs, pkg, Str, TemplateNames } from './common.ts';
 
 /**
  * Select from a list of templates.
@@ -24,9 +24,9 @@ export async function selectTemplate() {
 /**
  * Retrieve the name of a directory.
  */
-export async function directoryName() {
+export async function directoryName(cwd: t.StringDir = Fs.cwd('terminal')) {
   const dirname = await Cli.Input.Text.prompt('Directory Name:');
-  return Fs.join(Fs.cwd('terminal'), dirname);
+  return Fs.join(cwd, dirname);
 }
 
 /**
