@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
 import {
   createSpecifierBridge,
+  parseDenoInfoResolved,
   parseDenoInfoRoot,
   parseNpmSpecifier,
   resolveFromImportsMap,
@@ -26,6 +27,31 @@ describe('ViteConfig.app specifier bridge', () => {
     it('returns undefined on malformed json', () => {
       expect(parseDenoInfoRoot('nope')).to.eql(undefined);
       expect(parseDenoInfoRoot('{}')).to.eql(undefined);
+    });
+  });
+
+  describe('parseDenoInfoResolved', () => {
+    it('returns local module path when available', () => {
+      const json = JSON.stringify({
+        roots: ['jsr:@sys/http@0.0.210/client'],
+        redirects: { 'jsr:@sys/http@0.0.210/client': 'https://jsr.io/@sys/http/0.0.210/client.ts' },
+        modules: [
+          {
+            specifier: 'https://jsr.io/@sys/http/0.0.210/client.ts',
+            local: '/tmp/.deno/http_client.ts',
+          },
+        ],
+      });
+      expect(parseDenoInfoResolved(json)).to.eql('/tmp/.deno/http_client.ts');
+    });
+
+    it('falls back to resolved specifier when no local path exists', () => {
+      const json = JSON.stringify({
+        roots: ['jsr:@sys/http@0.0.210/client'],
+        redirects: { 'jsr:@sys/http@0.0.210/client': 'https://jsr.io/@sys/http/0.0.210/client.ts' },
+        modules: [],
+      });
+      expect(parseDenoInfoResolved(json)).to.eql('https://jsr.io/@sys/http/0.0.210/client.ts');
     });
   });
 
@@ -82,7 +108,7 @@ describe('ViteConfig.app specifier bridge', () => {
       const bridge = createSpecifierBridge('/tmp/deno.json', {
         async loadImports() {
           loadCalls++;
-          return { '@sys/http/client': 'jsr:@sys/http@0.0.209/client' };
+          return { '@sys/http/client': '/tmp/http-client.ts' };
         },
         async resolveSysSpecifier() {
           fallbackCalls++;
@@ -94,10 +120,30 @@ describe('ViteConfig.app specifier bridge', () => {
       const a = await resolveId('@sys/http/client');
       const b = await resolveId('@sys/http/client/foo');
 
-      expect(a).to.eql('jsr:@sys/http@0.0.209/client');
-      expect(b).to.eql('jsr:@sys/http@0.0.209/client/foo');
+      expect(a).to.eql('/tmp/http-client.ts');
+      expect(b).to.eql('/tmp/http-client.ts/foo');
       expect(loadCalls).to.eql(1);
       expect(fallbackCalls).to.eql(0);
+    });
+
+    it('resolves jsr imports-map targets via deno lookup', async () => {
+      let fallbackCalls = 0;
+
+      const bridge = createSpecifierBridge('/tmp/deno.json', {
+        async loadImports() {
+          return { '@sys/http/client': 'jsr:@sys/http@0.0.209/client' };
+        },
+        async resolveSysSpecifier(_configPath, specifier) {
+          fallbackCalls++;
+          return `/tmp/deno/${specifier.replaceAll('/', '_')}.ts`;
+        },
+      });
+
+      const resolveId = bridge.resolveId as (source: string) => Promise<string | null>;
+      const result = await resolveId('@sys/http/client');
+
+      expect(result).to.eql('/tmp/deno/jsr:@sys_http@0.0.209_client.ts');
+      expect(fallbackCalls).to.eql(1);
     });
   });
 });

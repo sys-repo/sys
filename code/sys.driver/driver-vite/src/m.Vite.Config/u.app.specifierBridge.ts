@@ -2,6 +2,15 @@ import { type t, DenoFile, Fs, Is, Json, Path, Process } from './common.ts';
 
 type ResolveSysSpecifier = (configPath: t.StringPath, specifier: string) => Promise<string | undefined>;
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
+type DenoInfoModule = {
+  specifier?: string;
+  local?: string;
+};
+type DenoInfo = {
+  roots?: string[];
+  redirects?: Record<string, string>;
+  modules?: DenoInfoModule[];
+};
 
 export function createSpecifierBridge(
   configPath: t.StringPath,
@@ -54,10 +63,24 @@ export function parseNpmSpecifier(input: string): string | undefined {
 }
 
 export function parseDenoInfoRoot(input?: string): string | undefined {
-  const parsed = Json.safeParse<{ roots?: string[] }>(input);
+  const parsed = Json.safeParse<DenoInfo>(input);
   if (!parsed.ok) return undefined;
   const root = parsed.data?.roots?.[0];
   return Is.string(root) ? root : undefined;
+}
+
+export function parseDenoInfoResolved(input?: string): string | undefined {
+  const parsed = Json.safeParse<DenoInfo>(input);
+  if (!parsed.ok) return undefined;
+
+  const root = parsed.data?.roots?.[0];
+  const redirects = parsed.data?.redirects ?? {};
+  const resolved = Is.string(root) ? (redirects[root] ?? root) : undefined;
+  if (!Is.string(resolved) || !Array.isArray(parsed.data?.modules)) return resolved;
+
+  const match = parsed.data.modules.find((module) => module.specifier === resolved);
+  if (Is.string(match?.local) && match.local.length > 0) return match.local;
+  return resolved;
 }
 
 export function resolveFromImportsMap(
@@ -86,7 +109,12 @@ const wrangle = {
       const promise = (async () => {
         const map = await imports;
         const fromMap = resolveFromImportsMap(specifier, map);
-        if (fromMap) return fromMap;
+        if (fromMap) {
+          if (wrangle.requiresDenoResolution(fromMap)) {
+            return (await resolve(configPath, fromMap)) ?? fromMap;
+          }
+          return fromMap;
+        }
         return await resolve(configPath, specifier);
       })();
       cache.set(specifier, promise);
@@ -142,6 +170,10 @@ const wrangle = {
       silent: true,
     });
     if (!res.success) return undefined;
-    return parseDenoInfoRoot(res.text.stdout);
+    return parseDenoInfoResolved(res.text.stdout);
+  },
+
+  requiresDenoResolution(specifier: string) {
+    return specifier.startsWith('jsr:') || specifier.startsWith('npm:');
   },
 } as const;
