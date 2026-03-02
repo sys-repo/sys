@@ -13,13 +13,22 @@ describe('m.tmpl/m.cli', () => {
   it('interactive fallback still works', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.cli.interactive-' });
     const cwd = tmp.absolute;
-    const target = Fs.join(cwd, 'demo-workspace');
+    const target = Fs.join(cwd, 'src/m.Demo');
+    await Fs.ensureDir(Fs.join(cwd, 'src'));
+    await Fs.write(
+      Fs.join(cwd, 'deno.json'),
+      `{
+  "name": "@test/demo"
+}
+`,
+    );
+    await Fs.write(Fs.join(cwd, 'src/types.ts'), `export type * from './placeholder/t.ts';\n`);
 
     const selectTemplate = Prompt.selectTemplate;
     const directoryName = Prompt.directoryName;
     const prompt = Prompt as unknown as PromptMutable;
     try {
-      prompt.selectTemplate = async () => 'workspace';
+      prompt.selectTemplate = async () => 'm.mod';
       prompt.directoryName = async () => target;
       await cli(cwd, parseArgs([]));
     } finally {
@@ -27,7 +36,8 @@ describe('m.tmpl/m.cli', () => {
       prompt.directoryName = directoryName;
     }
 
-    expect(await Fs.exists(Fs.join(target, 'deno.json'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(target, 'mod.ts'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(cwd, 'src/types.ts'))).to.eql(true);
   });
 
   it('non-interactive pkg.deno succeeds with explicit flags', async () => {
@@ -94,7 +104,7 @@ describe('m.tmpl/m.cli', () => {
     const directoryName = Prompt.directoryName;
     const prompt = Prompt as unknown as PromptMutable;
     try {
-      prompt.selectTemplate = async () => 'workspace';
+      prompt.selectTemplate = async () => 'm.mod';
       prompt.directoryName = async () => target;
       await cli(cwd, parseArgs([]));
     } finally {

@@ -1,9 +1,0 @@
-.DS_Store
-
-.tmp
-.env
-.env.*
-
-dist
-dist.*
-node_modules

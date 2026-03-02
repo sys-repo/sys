@@ -22,16 +22,26 @@ export function logTemplate(
 export const makeWorkspace = async () => {
   const tmp = await Fs.makeTempDir({ prefix: 'workspace-' });
   const root = tmp.absolute;
-
-  const name: t.TemplateName = 'workspace';
-  const def = await Templates[name]();
-  const tmpl = await makeTmpl(name);
-
-  const result = await tmpl.write(root);
-  await def.default(root);
+  await Fs.ensureDir(Fs.join(root, '-scripts'));
+  await Fs.ensureDir(Fs.join(root, 'code'));
+  await Fs.write(
+    Fs.join(root, 'deno.json'),
+    `{
+  "workspace": []
+}
+`,
+  );
+  await Fs.write(
+    Fs.join(root, '-scripts/-PATHS.ts'),
+    `export const PATHS = {
+  modules: [
+  ],
+} as const;
+`,
+  );
 
   const ls = async () => (await Fs.glob(tmp.absolute).find('**')).map((m) => m.path);
-  return { root, tmp, ls, write: { result } } as const;
+  return { root, tmp, ls } as const;
 };
 
 /**
