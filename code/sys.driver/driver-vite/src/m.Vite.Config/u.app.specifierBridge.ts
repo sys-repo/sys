@@ -1,12 +1,17 @@
-import { type t, Is, Json, Process } from './common.ts';
+import { type t, DenoFile, Fs, Is, Json, Path, Process } from './common.ts';
 
 type ResolveSysSpecifier = (configPath: t.StringPath, specifier: string) => Promise<string | undefined>;
+type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 
 export function createSpecifierBridge(
   configPath: t.StringPath,
-  options: { resolveSysSpecifier?: ResolveSysSpecifier } = {},
+  options: { resolveSysSpecifier?: ResolveSysSpecifier; loadImports?: LoadImports } = {},
 ): t.VitePlugin {
-  const resolveSysSpecifier = wrangle.resolveSysSpecifier(configPath, options.resolveSysSpecifier);
+  const resolveSysSpecifier = wrangle.resolveSysSpecifier(
+    configPath,
+    options.resolveSysSpecifier,
+    options.loadImports,
+  );
 
   return {
     name: 'sys:specifier-bridge',
@@ -55,22 +60,79 @@ export function parseDenoInfoRoot(input?: string): string | undefined {
   return Is.string(root) ? root : undefined;
 }
 
+export function resolveFromImportsMap(
+  specifier: string,
+  imports: Record<string, string>,
+): string | undefined {
+  const match = wrangle.longestImportMatch(specifier, imports);
+  if (!match) return undefined;
+  return `${match.target}${match.suffix}`;
+}
+
 const wrangle = {
   resolveSysSpecifier(
     configPath: t.StringPath,
     resolveSysSpecifier?: ResolveSysSpecifier,
+    loadImports?: LoadImports,
   ): (specifier: string) => Promise<string | undefined> {
     const resolve = resolveSysSpecifier ?? wrangle.resolveSysSpecifierViaDenoInfo;
+    const imports = (loadImports ?? wrangle.loadImports)(configPath);
     const cache = new Map<string, Promise<string | undefined>>();
 
     return async (specifier) => {
       const cached = cache.get(specifier);
       if (cached) return await cached;
 
-      const promise = resolve(configPath, specifier);
+      const promise = (async () => {
+        const map = await imports;
+        const fromMap = resolveFromImportsMap(specifier, map);
+        if (fromMap) return fromMap;
+        return await resolve(configPath, specifier);
+      })();
       cache.set(specifier, promise);
       return await promise;
     };
+  },
+
+  async loadImports(configPath: t.StringPath): Promise<Record<string, string>> {
+    const file = await DenoFile.load(configPath);
+    if (!file.ok || !file.data) return {};
+
+    const denoImports = wrangle.toStringRecord(file.data.imports);
+    const importMapPath = file.data.importMap ? wrangle.resolveImportMapPath(file.path, file.data.importMap) : undefined;
+    if (!importMapPath) return denoImports;
+
+    const importMap = await Fs.readJson<t.DenoImportMapJson>(importMapPath);
+    if (!importMap.ok || !importMap.data) return denoImports;
+
+    const mapImports = wrangle.toStringRecord(importMap.data.imports);
+    return { ...mapImports, ...denoImports };
+  },
+
+  resolveImportMapPath(configPath: t.StringPath, importMapPath: t.StringPath) {
+    const dir = Path.dirname(configPath);
+    return Path.resolve(dir, importMapPath);
+  },
+
+  toStringRecord(input: unknown): Record<string, string> {
+    const res: Record<string, string> = {};
+    if (!input || typeof input !== 'object') return res;
+    for (const [key, value] of Object.entries(input)) {
+      if (!Is.string(value)) continue;
+      res[key] = value;
+    }
+    return res;
+  },
+
+  longestImportMatch(specifier: string, imports: Record<string, string>) {
+    let best: { target: string; suffix: string; len: number } | undefined;
+    for (const [key, target] of Object.entries(imports)) {
+      if (!Is.string(target)) continue;
+      if (!(specifier === key || specifier.startsWith(`${key}/`))) continue;
+      const candidate = { target, suffix: specifier.slice(key.length), len: key.length };
+      if (!best || candidate.len > best.len) best = candidate;
+    }
+    return best;
   },
 
   async resolveSysSpecifierViaDenoInfo(configPath: t.StringPath, specifier: string) {
