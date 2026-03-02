@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { spawn } from "node:child_process";
 import process from "node:process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -88,14 +88,40 @@ export async function resolveDeno(
   // cache directory. The `deno info` command reveals that information
   // though, so we can use that.
   const output = await new Promise<string | null>((resolve, reject) => {
-    execFile(DENO_BINARY, ["info", "--json", id], { cwd }, (error, stdout) => {
-      if (error) {
-        if (String(error).includes("Integrity check failed")) {
-          reject(error);
-        } else {
-          resolve(null);
-        }
-      } else resolve(stdout);
+    const child = spawn(DENO_BINARY, ["info", "--json", id], {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout?.setEncoding("utf8");
+    child.stdout?.on("data", (chunk) => {
+      stdout += String(chunk);
+    });
+
+    child.stderr?.setEncoding("utf8");
+    child.stderr?.on("data", (chunk) => {
+      stderr += String(chunk);
+    });
+
+    child.once("error", (error) => {
+      reject(error);
+    });
+
+    child.once("close", (code) => {
+      if (code === 0) {
+        resolve(stdout);
+        return;
+      }
+
+      if (stderr.includes("Integrity check failed")) {
+        reject(new Error(stderr || `deno info failed with exit code ${code}`));
+        return;
+      }
+
+      resolve(null);
     });
   });
 
