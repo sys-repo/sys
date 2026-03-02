@@ -11,18 +11,9 @@ export const Paths = {
     // return Paths.single; // 🐷 NARROW
     return Paths.all;
   },
-  single: [
-    'deploy/@tdb.edu.slug',
-    'code/sys.tools',
-    //
-    // 'code/sys.tools',
-    // 'code/sys.ui/ui-dom',
-    // 'code/sys.ui/ui-css',
-    // 'code/sys.ui/ui-react-components',
-    // 'code/sys.ui/ui-react',
-  ],
+  single: ['deploy/@tdb.edu.slug', 'code/sys.tools'],
   all: [
-    // types:
+    /** types: */
     'code/sys/types',
 
     /**
