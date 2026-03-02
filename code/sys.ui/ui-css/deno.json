@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-css",
-  "version": "0.0.229",
+  "version": "0.0.230",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
