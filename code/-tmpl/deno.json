@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.246",
+  "version": "0.0.247",
   "license": "MIT",
   "tasks": {
     "test": "  deno test -RWNE --allow-run --allow-ffi --allow-sys",
