@@ -1,5 +1,5 @@
 # @sys/tmpl repo starter
-Monorepo starter structure for programmatic projects managed by people and agents.
+Monorepo starting structure for programmatic projects managed by people and agents.
 
 <p>&nbsp;</p>
 
