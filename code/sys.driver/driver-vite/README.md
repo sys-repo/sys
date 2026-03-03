@@ -19,6 +19,37 @@ It's time. Good things happen collectively when everything conforms to the same 
 [-ref](https://tc39.es/ecma262/#sec-modules)
 
 
+<p>&nbsp;</p>
+
+## Resolution Model
+`@sys/driver-vite` splits resolution into two layers:
+
+#### `Policy` (`driver-vite`)
+- workspace aliases
+- import-map rewrites (for example `@sys/* → jsr:...`)
+- Vite config/plugin composition
+
+#### `Transport` (Deno adapter)
+- resolve/load of `jsr:`, `npm:`, and URL-like specifiers
+- module identity preservation across Vite/Rollup
+- relative-import chaining after resolution
+
+#### Contract
+- Policy rewrites names.
+- Transport resolves and loads modules.
+- Transport does not emit cache-hash file paths as final module IDs.
+  Those IDs are not portable and can break downstream relative resolution and TS parsing.
+
+#### Why this is explicit
+- rewrite succeeds, load fails
+- relative imports break from opaque cache IDs
+- TS syntax is parsed as plain JS when module identity is lost
+
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 
 ---
 
@@ -38,8 +69,9 @@ It's time. Good things happen collectively when everything conforms to the same 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/f76ef3f2-f4f3-40bf-9301-517e21fe5a0d)
 
 
+<p>&nbsp;</p>
 
-### Usage (Command Line)
+# Usage
 In your project (with a `deno.json`) declare entry point via `deno tasks` which point in
 to the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
 
