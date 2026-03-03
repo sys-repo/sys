@@ -9,12 +9,10 @@ Deno (standards-based, secure-by-default TypeScript runtime):
 # https://deno.com
 curl -fsSL https://deno.land/install.sh | sh
 deno --version
-deno upgrade
 
 # or
 
 brew install deno
-deno --version
 brew upgrade deno
 ```
 
