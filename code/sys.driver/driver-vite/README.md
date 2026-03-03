@@ -10,7 +10,6 @@ within a multi-module [Deno](https://docs.deno.com/) workspace.
 
 
 #### Standards
-
 Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade.
 It's time. Good things happen collectively when everything conforms to the same single common/open ideas. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
 
@@ -22,29 +21,20 @@ It's time. Good things happen collectively when everything conforms to the same 
 <p>&nbsp;</p>
 
 ## Resolution Model
-`@sys/driver-vite` splits resolution into two layers:
+`@sys/driver-vite` separates import handling into two layers so each layer has one job.
 
 #### `Policy` (`driver-vite`)
-- workspace aliases
-- import-map rewrites (for example `@sys/* → jsr:...`)
-- Vite config/plugin composition
+- rewrites workspace aliases and import-map names (for example `@sys/* → jsr:...`)
+- composes the Vite config/plugin layer
 
 #### `Transport` (Deno adapter)
-- resolve/load of `jsr:`, `npm:`, and URL-like specifiers
-- module identity preservation across Vite/Rollup
-- relative-import chaining after resolution
+- resolves and loads `jsr:`, `npm:`, and URL-like specifiers
+- preserves module identity across Vite/Rollup so relative imports continue to chain correctly
 
 #### Contract
-- Policy rewrites names.
-- Transport resolves and loads modules.
-- Transport does not emit cache-hash file paths as final module IDs.
-  Those IDs are not portable and can break downstream relative resolution and TS parsing.
-
-#### Why this is explicit
-- rewrite succeeds, load fails
-- relative imports break from opaque cache IDs
-- TS syntax is parsed as plain JS when module identity is lost
-
+- `Policy` rewrites names.
+- `Transport` resolves and loads modules.
+- Final module IDs must be stable and portable (never cache-hash paths).
 
 
 <p>&nbsp;</p>
