@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.246",
+  "version": "0.0.247",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-dev.ts --watch",
