@@ -4,7 +4,7 @@ export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const note = `Note: flags apply to direct commands only; interactive mode collects options in the UI.`;
+    const note = 'This command is a thin wrapper surface; subcommand delegation is configured separately.';
 
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))

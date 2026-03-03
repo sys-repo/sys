@@ -1,7 +1,0 @@
-import { type t } from '../common.ts';
-
-export const TmplMigrate = {
-  async run(_cwd: t.StringDir): Promise<t.YamlConfig.Migrate.DirResult> {
-    return { migrated: [], skipped: [] };
-  },
-} as const;
