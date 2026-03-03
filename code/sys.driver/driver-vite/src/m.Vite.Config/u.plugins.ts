@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 import react from '@vitejs/plugin-react';
 import wasm from 'vite-plugin-wasm';
-import deno from 'npm:@deno/vite-plugin';
+import deno from '@deno/vite-plugin';
 
 export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   const plugins: t.VitePluginOption[] = [];

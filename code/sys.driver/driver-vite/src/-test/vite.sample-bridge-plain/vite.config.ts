@@ -1,4 +1,4 @@
-import deno from 'npm:@deno/vite-plugin';
+import deno from '@deno/vite-plugin';
 import { defineConfig } from 'npm:vite';
 
 export default defineConfig({
