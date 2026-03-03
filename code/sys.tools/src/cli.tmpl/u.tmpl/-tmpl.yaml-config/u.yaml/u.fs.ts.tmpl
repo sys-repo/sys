@@ -1,0 +1,54 @@
+import { type t, Fs, pkg, Schema, Str, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
+import { TmplTool } from '../t.namespace.ts';
+import { TmplYamlErrorCode, validateTmplYamlText } from './u.validate.ts';
+
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const CONFIG_DIR = `-config/${ROOT}.${TmplTool.ID}` satisfies t.TmplTool.ConfigYaml.DirName;
+const CONFIG_EXT = '.yaml' satisfies t.TmplTool.ConfigYaml.Ext;
+
+export const TmplFs = {
+  dir: CONFIG_DIR,
+  ext: CONFIG_EXT,
+
+  fileOf(configName: string): t.StringPath {
+    return `${CONFIG_DIR}/${configName}${CONFIG_EXT}`;
+  },
+
+  initialYaml(configName: string): string {
+    return Str.dedent(
+      `
+      name: ${configName}
+      `,
+    ).trimStart();
+  },
+
+  async ensureInitialYaml(path: t.StringPath, configName: string) {
+    await Fs.ensureDir(Fs.dirname(path));
+    if (await Fs.exists(path)) return;
+    await Fs.write(path, TmplFs.initialYaml(configName), { force: false });
+  },
+
+  async validateYaml(path: t.StringPath): Promise<t.TmplTool.ConfigYaml.YamlCheck> {
+    if (!(await Fs.exists(path))) {
+      const err = Yaml.Error.synthetic({
+        message: 'Tmpl YAML file does not exist.',
+        code: TmplYamlErrorCode,
+        pos: [0, 0],
+      });
+      return { ok: false, errors: Schema.Error.fromYaml([err]) };
+    }
+
+    const read = await Fs.readText(path);
+    if (!read.ok) {
+      const err = Yaml.Error.synthetic({
+        message: 'Unable to read Tmpl YAML file.',
+        code: TmplYamlErrorCode,
+        pos: [0, 0],
+      });
+      return { ok: false, errors: Schema.Error.fromYaml([err]) };
+    }
+
+    return validateTmplYamlText(read.data ?? '');
+  },
+} as const;

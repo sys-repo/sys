@@ -14,6 +14,7 @@ export const ROOT_REGISTRY = [
   { id: 'crypto', aliases: undefined, load: () => import('../cli.crypto/mod.ts') },
   { id: 'video', aliases: undefined, load: () => import('../cli.video/mod.ts') },
   { id: 'copy', aliases: ['cp'], load: () => import('../cli.clipboard/mod.ts') },
+  { id: 'tmpl', aliases: ['template'], load: () => import('../cli.tmpl/mod.ts') },
   { id: 'update', aliases: ['up'], load: () => import('../cli.update/mod.ts') },
 ] as const satisfies readonly ToolRegistryItem[];
 
