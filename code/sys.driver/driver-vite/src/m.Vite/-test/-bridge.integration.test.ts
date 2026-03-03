@@ -1,5 +1,5 @@
-import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../-test.ts';
-import { Vite } from './mod.ts';
+import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { Vite } from '../mod.ts';
 
 describe('Vite @sys bridge integration', () => {
   it.skip('build: resolves @sys imports from dedicated fixture', async () => {

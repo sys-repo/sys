@@ -1,6 +1,6 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
+import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { extractModulePreloadLinks } from './-u.ts';
-import { Vite } from './mod.ts';
+import { Vite } from '../mod.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;

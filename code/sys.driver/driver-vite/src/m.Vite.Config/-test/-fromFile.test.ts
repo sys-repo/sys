@@ -1,6 +1,6 @@
-import { type t, c, describe, expect, it, Path, SAMPLE } from '../-test.ts';
-import { Vite } from '../mod.ts';
-import { ViteConfig } from './mod.ts';
+import { type t, c, describe, expect, it, Path, SAMPLE } from '../../-test.ts';
+import { Vite } from '../../mod.ts';
+import { ViteConfig } from '../mod.ts';
 
 describe('ViteConfig.fromFile', () => {
   const { brightCyan: cyan } = c;

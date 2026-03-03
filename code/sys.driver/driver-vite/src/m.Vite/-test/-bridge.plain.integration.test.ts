@@ -1,5 +1,5 @@
-import { describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
-import { Vite } from './mod.ts';
+import { describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { Vite } from '../mod.ts';
 
 describe('Vite @sys plain bridge integration', () => {
   it.skip('build: plain vite + deno plugin resolves import-map jsr aliases', async () => {

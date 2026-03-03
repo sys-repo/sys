@@ -1,5 +1,5 @@
-import { type t, Fs, c, describe, expect, it } from '../-test.ts';
-import { ViteConfig } from './mod.ts';
+import { type t, Fs, c, describe, expect, it } from '../../-test.ts';
+import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
   const { brightCyan: cyan } = c;

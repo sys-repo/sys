@@ -1,6 +1,6 @@
-import { type t, describe, expect, Fs, it, ROOT, Testing } from '../-test.ts';
-import { ViteConfig } from '../m.Vite.Config/mod.ts';
-import { workspace } from './mod.ts';
+import { type t, describe, expect, Fs, it, ROOT, Testing } from '../../-test.ts';
+import { ViteConfig } from '../../m.Vite.Config/mod.ts';
+import { workspace } from '../mod.ts';
 
 describe('ViteConfig.workspace', () => {
   it('API', () => {

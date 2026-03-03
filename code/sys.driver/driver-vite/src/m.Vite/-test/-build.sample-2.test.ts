@@ -1,5 +1,5 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
-import { Vite } from './mod.ts';
+import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { Vite } from '../mod.ts';
 
 describe('Vite.build (sample-2)', () => {
   const { brightCyan: cyan, bold } = c;

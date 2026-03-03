@@ -1,5 +1,5 @@
-import { c, describe, expect, it, Path } from '../-test.ts';
-import { ViteConfig } from './mod.ts';
+import { c, describe, expect, it, Path } from '../../-test.ts';
+import { ViteConfig } from '../mod.ts';
 
 describe('ViteConfig.paths', () => {
   const { brightCyan: cyan, bold } = c;

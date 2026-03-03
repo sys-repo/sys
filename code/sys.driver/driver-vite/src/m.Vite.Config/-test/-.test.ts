@@ -1,8 +1,8 @@
-import { type t, c, describe, expect, it } from '../-test.ts';
-import { Vite } from '../mod.ts';
-import { Is } from './m.Is.ts';
-import { ViteConfig } from './mod.ts';
-import { toAlias, toAliasRegex } from './u.alias.ts';
+import { type t, c, describe, expect, it } from '../../-test.ts';
+import { Vite } from '../../mod.ts';
+import { Is } from '../m.Is.ts';
+import { ViteConfig } from '../mod.ts';
+import { toAlias, toAliasRegex } from '../u.alias.ts';
 
 describe('ViteConfig', () => {
   const { brightCyan: cyan, bold } = c;

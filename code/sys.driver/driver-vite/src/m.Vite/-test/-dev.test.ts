@@ -1,5 +1,17 @@
-import { type t, c, describe, expect, Fs, Http, it, pkg, SAMPLE, Testing, Time } from '../-test.ts';
-import { Vite } from './mod.ts';
+import {
+  type t,
+  c,
+  describe,
+  expect,
+  Fs,
+  Http,
+  it,
+  pkg,
+  SAMPLE,
+  Testing,
+  Time,
+} from '../../-test.ts';
+import { Vite } from '../mod.ts';
 
 describe('Vite.dev', () => {
   const printHtml = (html: string, title: string, dir: t.StringDir) => {

@@ -1,5 +1,5 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { commonPlugins } from './u.plugins.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { commonPlugins } from '../u.plugins.ts';
 
 describe('ViteConfig: common plugins', () => {
   it('default', async () => {

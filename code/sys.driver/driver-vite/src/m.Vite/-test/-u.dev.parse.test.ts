@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { DevParse, REGEX } from './u.dev.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { DevParse, REGEX } from '../u.dev.ts';
 
 describe('Vite.dev parser invariants', () => {
   describe('DevParse.url', () => {

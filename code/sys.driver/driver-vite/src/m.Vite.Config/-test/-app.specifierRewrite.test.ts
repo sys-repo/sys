@@ -1,9 +1,9 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import {
   createSpecifierRewrite,
   parseNpmSpecifier,
   resolveFromImportsMap,
-} from './u.app.specifierRewrite.ts';
+} from '../u.app.specifierRewrite.ts';
 
 describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {
@@ -22,7 +22,9 @@ describe('ViteConfig.app specifier rewrite', () => {
         '@sys/http': 'jsr:@sys/http@0.0.209',
         '@sys/http/client': 'jsr:@sys/http@0.0.209/client',
       };
-      expect(resolveFromImportsMap('@sys/http/client', imports)).to.eql('jsr:@sys/http@0.0.209/client');
+      expect(resolveFromImportsMap('@sys/http/client', imports)).to.eql(
+        'jsr:@sys/http@0.0.209/client',
+      );
       expect(resolveFromImportsMap('@sys/http/client/foo', imports)).to.eql(
         'jsr:@sys/http@0.0.209/client/foo',
       );
