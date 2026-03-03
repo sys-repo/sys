@@ -50,6 +50,20 @@ describe('tool: Tmpl', () => {
       expect(Deno.exitCode).to.eql(9);
     });
   });
+
+  it('delegates -h passthrough to @sys/tmpl', async () => {
+    type InheritArgs = Parameters<typeof Process.inherit>[0];
+    const calls: InheritArgs[] = [];
+    await withInheritStub(async (config) => {
+      calls.push(config);
+      return { code: 0, success: true, signal: null };
+    }, async () => {
+      await cli('/tmp/tool-cwd', ['-h']);
+    });
+
+    expect(calls.length).to.eql(1);
+    expect(calls[0]?.args).to.eql(['run', '-A', 'jsr:@sys/tmpl', '-h']);
+  });
 });
 
 /**
