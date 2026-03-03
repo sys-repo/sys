@@ -56,19 +56,14 @@ git push --force origin baseline-0
 
 ## /projects
 New projects:
-- via human 🧔 (interactive cli: `deno task tmpl:project`)
-- via agent 🤖 .. `bash` ↑
+- via interactive CLI: `deno task tmpl:project`
+- via non-interactive/agent flow using `deno run ... @sys/tmpl ... --no-interactive`
 
 <p>&nbsp;</p>
 
-### via Skill
+### Agent Prompt Seed
 ```
-From within:
-
-./code/projects
-
-Set:
-- FOLDER = "foo"   ← 🐷 replace "foo" with whatever folder name you want
+From within `./code/projects`, set `FOLDER` to your target folder name.
 
 Do ONLY the following:
 
