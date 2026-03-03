@@ -1,6 +1,8 @@
 # @sys/tmpl repo starter
 Monorepo starting structure for programmatic projects managed by people and agents.
 
+Create: `deno run -A jsr:@sys/tmpl/repo`
+
 <p>&nbsp;</p>
 
 ### Prerequisites
