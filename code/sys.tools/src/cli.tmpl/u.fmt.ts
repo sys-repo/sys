@@ -4,7 +4,7 @@ export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const note = 'This command is a thin wrapper surface; subcommand delegation is configured separately.';
+    const note = 'This command delegates directly to @sys/tmpl (interactive and non-interactive flows).';
 
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))

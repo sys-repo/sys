@@ -4,9 +4,9 @@ import type { t } from './common.ts';
 export type * from './t.namespace.ts';
 
 /**
- * CLI helpers for working with Tmpl.
+ * CLI helpers for the thin `@sys/tools/tmpl` wrapper.
  */
 export type TmplToolsLib = {
-  /** Run the interactive CLI flow (prompts + spinner). */
+  /** Delegate to `@sys/tmpl` with passthrough argv/cwd semantics. */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };

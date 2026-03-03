@@ -1,7 +1,9 @@
 import { type t, Fs, Is, Process } from './common.ts';
 
 /**
- * Main entry:
+ * Main entry.
+ *
+ * Delegates all argv/cwd handling to `@sys/tmpl`.
  */
 export const cli: t.TmplToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
@@ -11,7 +13,7 @@ export const cli: t.TmplToolsLib['cli'] = async (cwd, argv) => {
 };
 
 /**
- * Execution:
+ * Execute delegated CLI process with inherited stdio.
  */
 async function run(cwd: t.StringDir, argv: string[]) {
   return await Process.inherit({

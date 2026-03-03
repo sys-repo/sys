@@ -1,6 +1,8 @@
 /**
  * @module
- * Tmpl CLI tools.
+ * Thin `@sys/tools/tmpl` wrapper.
+ *
+ * Delegates execution directly to `@sys/tmpl`.
  */
 import { Fs } from './common.ts';
 import { cli } from './m.cli.ts';
