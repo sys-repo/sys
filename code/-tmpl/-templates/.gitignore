@@ -1,1 +1,6 @@
-deno.lock
+tmpl.repo/node_modules/
+tmpl.repo/.deno/
+tmpl.repo/deno.lock
+tmpl.repo/dist/
+tmpl.repo/coverage/
+tmpl.repo/.tmp/
