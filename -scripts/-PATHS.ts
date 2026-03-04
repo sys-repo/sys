@@ -8,10 +8,16 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    // return Paths.single; // 🐷 NARROW
+    return Paths.single; // 🐷 NARROW
     return Paths.all;
   },
-  single: ['deploy/@tdb.edu.slug', 'code/sys.tools'],
+  single: [
+    //
+    // 'deploy/@tdb.edu.slug',
+    // 'code/sys.tools',
+    'code/-tmpl',
+    'code/sys.tools',
+  ],
   all: [
     /** types: */
     'code/sys/types',
