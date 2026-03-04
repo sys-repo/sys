@@ -12,6 +12,10 @@
   },
   "exports": {
     ".": "./src/mod.ts",
+    "./core": "./src/m.core.ts",
+    "./testing": "./src/m.testing.ts",
+    "./ui": "./src/m.ui.ts",
+    "./build": "./src/m.build.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts"
   }
