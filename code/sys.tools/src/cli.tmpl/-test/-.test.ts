@@ -33,15 +33,10 @@ describe('tool: Tmpl', () => {
 
     expect(calls.length).to.eql(1);
     expect(calls[0]?.cwd).to.eql('/tmp/tool-cwd');
-    expect(calls[0]?.args).to.eql([
-      'run',
-      '-A',
-      'jsr:@sys/tmpl',
-      'pkg.deno',
-      '--dir',
-      'code/ns/foo',
-      '--no-interactive',
-    ]);
+    expect(calls[0]?.args?.[0]).to.eql('run');
+    expect(calls[0]?.args?.[1]).to.eql('-A');
+    expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
+    expect(calls[0]?.args?.slice(3)).to.eql(['pkg.deno', '--dir', 'code/ns/foo', '--no-interactive']);
   });
 
   it('inside @sys monorepo delegates to @sys/tmpl (no jsr prefix)', async () => {
@@ -89,7 +84,10 @@ describe('tool: Tmpl', () => {
     });
 
     expect(calls.length).to.eql(1);
-    expect(calls[0]?.args).to.eql(['run', '-A', 'jsr:@sys/tmpl', '-h']);
+    expect(calls[0]?.args?.[0]).to.eql('run');
+    expect(calls[0]?.args?.[1]).to.eql('-A');
+    expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
+    expect(calls[0]?.args?.slice(3)).to.eql(['-h']);
   });
 
   it('falls back to jsr:@sys/tmpl when workspace root is not /sys', async () => {
@@ -108,7 +106,10 @@ describe('tool: Tmpl', () => {
     });
 
     expect(calls.length).to.eql(1);
-    expect(calls[0]?.args).to.eql(['run', '-A', 'jsr:@sys/tmpl', '-h']);
+    expect(calls[0]?.args?.[0]).to.eql('run');
+    expect(calls[0]?.args?.[1]).to.eql('-A');
+    expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
+    expect(calls[0]?.args?.slice(3)).to.eql(['-h']);
   });
 });
 
