@@ -1,4 +1,5 @@
 import { Fs } from '@sys/fs';
+import { c } from '@sys/cli';
 import type * as t from '@sys/types';
 import { PATH, assertVersion, pinTmplSpecifier } from './-prep.u.ts';
 
@@ -20,7 +21,7 @@ async function main() {
   const next = pinTmplSpecifier(cliTextRaw.data, version);
 
   if (next === cliTextRaw.data) {
-    console.info(`unchanged  ${Fs.trimCwd(path.cliTmplFile)}`);
+    console.info(`${c.cyan('unchanged')}  ${c.gray(Fs.trimCwd(path.cliTmplFile))}`);
     return;
   }
 
