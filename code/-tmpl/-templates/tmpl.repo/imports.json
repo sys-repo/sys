@@ -1,11 +1,6 @@
 {
   "imports": {
-    "@sys/preset/core": "jsr:@sys/preset@0.0.0/core",
-    "@sys/preset/testing": "jsr:@sys/preset@0.0.0/testing",
-    "@sys/preset/ui": "jsr:@sys/preset@0.0.0/ui",
-    "@sys/preset/build": "jsr:@sys/preset@0.0.0/build",
-    "@sys/preset/ext": "jsr:@sys/preset@0.0.0/ext",
+    "@sys/preset/": "jsr:@sys/preset@0.0.0/",
     "@sys/tools": "jsr:@sys/tools@0.0.254"
   }
 }
-
