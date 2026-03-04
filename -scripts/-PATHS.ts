@@ -88,6 +88,5 @@ export const Paths = {
      * higher-order bundles of system functionality:
      */
     'code/sys/crdt',
-    'code/sys/preset',
   ],
 } as const;
