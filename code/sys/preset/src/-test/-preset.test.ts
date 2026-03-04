@@ -1,7 +1,19 @@
 import { describe, it, expect } from '@sys/testing/server';
 
-describe('@sys', () => {
-  it('core → imports', async () => {
+describe('root: @sys/preset', () => {
+  it('mod.ts → imports all preset surfaces', async () => {
+    const m = await import('../mod.ts');
+    expect(m).to.exist;
+    expect('Css' in m).to.eql(true);
+    expect('Testing' in m).to.eql(true);
+    expect('Std' in m).to.eql(true);
+    expect('DriverVite' in m).to.eql(true);
+    expect('Ext' in m).to.eql(true);
+  });
+});
+
+describe('namespace: @sys', () => {
+  it('sys.core → imports', async () => {
     const m = await import('../m.core.ts');
     expect(m).to.exist;
     expect('Fs' in m).to.eql(true);
@@ -9,14 +21,14 @@ describe('@sys', () => {
     expect('Std' in m).to.eql(true);
   });
 
-  it('testing → imports', async () => {
+  it('sys.testing → imports', async () => {
     const m = await import('../m.testing.ts');
     expect(m).to.exist;
     expect('Testing' in m).to.eql(true);
     expect('Server' in m).to.eql(true);
   });
 
-  it('ui → imports', async () => {
+  it('sys.ui → imports', async () => {
     const m = await import('../m.ui.ts');
     expect(m).to.exist;
     expect('Css' in m).to.eql(true);
@@ -26,7 +38,7 @@ describe('@sys', () => {
     expect('DevHarness' in m).to.eql(true);
   });
 
-  it('build → imports', async () => {
+  it('sys.build → imports', async () => {
     const m = await import('../m.build.ts');
     expect(m).to.exist;
     expect('DriverVite' in m).to.eql(true);
@@ -34,7 +46,7 @@ describe('@sys', () => {
   });
 });
 
-describe('ext', () => {
+describe('ext (external)', () => {
   it('ext → rollup imports', async () => {
     const m = await import('../m.ext.ts');
     expect(m).to.exist;
