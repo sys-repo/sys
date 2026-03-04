@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Process } from './common.ts';
+import { type t, DenoFile, Fs, Is, Process } from './common.ts';
 
 /**
  * Main entry.
@@ -16,8 +16,42 @@ export const cli: t.TmplToolsLib['cli'] = async (cwd, argv) => {
  * Execute delegated CLI process with inherited stdio.
  */
 async function run(cwd: t.StringDir, argv: string[]) {
+  const specifier = await resolveSpecifier(cwd);
   return await Process.inherit({
     cwd,
-    args: ['run', '-A', 'jsr:@sys/tmpl', ...argv],
+    args: ['run', '-A', specifier, ...argv],
   });
+}
+
+type WorkspaceInfo = {
+  readonly exists: boolean;
+  readonly dir: t.StringDir;
+  readonly file: t.StringPath;
+  readonly children: readonly {
+    readonly pkg: { readonly name: string };
+    readonly path: { readonly dir: t.StringDir };
+  }[];
+};
+
+async function resolveSpecifier(cwd: t.StringDir): Promise<string> {
+  const nearest = await DenoFile.nearest(cwd, (e) => Array.isArray(e.file.workspace));
+  if (!nearest?.is.workspace) return 'jsr:@sys/tmpl';
+
+  const ws = await DenoFile.workspace(nearest.path, { walkup: false });
+  if (!isSystemRepo(ws)) return 'jsr:@sys/tmpl';
+  return '@sys/tmpl';
+}
+
+function isSystemRepo(ws: WorkspaceInfo): boolean {
+  if (!ws.exists) return false;
+  if (Fs.basename(ws.dir) !== 'sys') return false;
+  if (!['deno.json', 'deno.jsonc'].includes(Fs.basename(ws.file))) return false;
+
+  const names = new Set(ws.children.map((child) => child.pkg.name));
+  if (!names.has('@sys/tools') || !names.has('@sys/tmpl')) return false;
+
+  const dirs = new Set(ws.children.map((child) => child.path.dir));
+  if (!dirs.has('code/sys.tools') || !dirs.has('code/-tmpl')) return false;
+
+  return true;
 }
