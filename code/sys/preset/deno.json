@@ -14,6 +14,9 @@
     "./core": "./src/m.core.ts",
     "./testing": "./src/m.testing.ts",
     "./ui": "./src/m.ui.ts",
-    "./build": "./src/m.build.ts"
+    "./build": "./src/m.build.ts",
+    "./ext": "./src/m.ext.ts",
+    "./ext/react": "./src/m.ext.react.ts",
+    "./ext/build": "./src/m.ext.build.ts"
   }
 }
