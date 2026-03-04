@@ -69,12 +69,6 @@ export const Paths = {
     'code/sys.driver/driver-stripe',
 
     /**
-     * Curated (named) entry points and
-     * higher-order bundles of system functionality:
-     */
-    'code/sys/crdt',
-
-    /**
      * Instance (conceptually: "an app"):
      */
     'deploy/@tdb.slc.std',
@@ -88,5 +82,12 @@ export const Paths = {
     'code/-tmpl',
     'code/sys.tools',
     'code/sys.dev',
+
+    /**
+     * Curated (named) entry points and
+     * higher-order bundles of system functionality:
+     */
+    'code/sys/crdt',
+    'code/sys/preset',
   ],
 } as const;
