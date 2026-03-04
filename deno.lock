@@ -91,7 +91,7 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.4": "5.1.4_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.29.0_yaml@2.8.2",
-    "npm:ai@6.0.108": "6.0.108_zod@3.25.76",
+    "npm:ai@6.0.111": "6.0.111_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -105,7 +105,7 @@
     "npm:happy-dom@20.8.3": "20.8.3",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:he@^1.2.0": "1.2.0",
-    "npm:hono@4.12.3": "4.12.3",
+    "npm:hono@4.12.4": "4.12.4",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:katex@0.16": "0.16.28",
     "npm:marked-alert@2": "2.1.2_marked@12.0.2",
@@ -113,7 +113,7 @@
     "npm:marked-gfm-heading-id@^3.1.0": "3.2.0_marked@12.0.2",
     "npm:marked@12": "12.0.2",
     "npm:monaco-editor@0.55.1": "0.55.1",
-    "npm:motion@12.34.4": "12.34.4_react@19.2.4_react-dom@19.2.4__react@19.2.4",
+    "npm:motion@12.34.5": "12.34.5_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.3": "0.6.3",
     "npm:ora@9.3.0": "9.3.0",
@@ -130,12 +130,12 @@
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.4": "19.2.4_react@19.2.4",
     "npm:react-error-boundary@6.1.1": "6.1.1_react@19.2.4",
-    "npm:react-icons@5.5.0": "5.5.0_react@19.2.4",
+    "npm:react-icons@5.6.0": "5.6.0_react@19.2.4",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.4",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:react@19.2.4": "19.2.4",
     "npm:resend@*": "6.9.2",
-    "npm:rollup-plugin-visualizer@7.0.0": "7.0.0_rollup@4.59.0",
+    "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.59.0",
     "npm:rollup@4.59.0": "4.59.0",
     "npm:rxjs@7.8.2": "7.8.2",
     "npm:sanitize-html@^2.13.0": "2.17.1",
@@ -432,8 +432,7 @@
         "jsr:@sys/net",
         "jsr:@sys/process",
         "jsr:@sys/std",
-        "jsr:@sys/types",
-        "npm:hono"
+        "jsr:@sys/types"
       ]
     },
     "@sys/immutable@0.0.84": {
@@ -504,8 +503,8 @@
     }
   },
   "npm": {
-    "@ai-sdk/gateway@3.0.61_zod@3.25.76": {
-      "integrity": "sha512-OT6SeORuOoqfABhntMJHmInblxE2DbBYvRTynVOGl6dCDDh0cNU1lJgknyDV698eQmfb6Um/94/rImgt0ZPjDA==",
+    "@ai-sdk/gateway@3.0.63_zod@3.25.76": {
+      "integrity": "sha512-0jwdkN3elC4Q9aT2ALxjXtGGVoye15zYgof6GfvuH1a9QKx9Rj4Wi2vy6SyyLvtSA/lB786dTZgC+cGwe6vzmA==",
       "dependencies": [
         "@ai-sdk/provider@3.0.8",
         "@ai-sdk/provider-utils@4.0.17_zod@3.25.76",
@@ -1468,8 +1467,8 @@
         "vite"
       ]
     },
-    "ai@6.0.108_zod@3.25.76": {
-      "integrity": "sha512-h2xwwU9lE+tdLyII/uFcjcrw+7ciWj2S68GrwQsebjHPSfnvxwrn+sjIl+tBt419yA9rYznWXtQvHJxM1wEAAQ==",
+    "ai@6.0.111_zod@3.25.76": {
+      "integrity": "sha512-K5aikNm4JGfJkzwIr3yA/qhOYIOIvOqjCxSQjQQ7bWWqm0uuPO2/qgdXL23gYJdTLPPYfvi2TTS+bg2Yp+r2Lw==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.8",
@@ -1850,8 +1849,8 @@
         "signal-exit"
       ]
     },
-    "framer-motion@12.34.4_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
-      "integrity": "sha512-q1PwNhc1XJ3qYG7nc9+pEU5P3tnjB6Eh9vv5gGzy61nedDLB4+xk5peMCWhKM0Zn6sfhgunf/q9n0UgCoyKOBA==",
+    "framer-motion@12.34.5_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
+      "integrity": "sha512-Z2dQ+o7BsfpJI3+u0SQUNCrN+ajCKJen1blC4rCHx1Ta2EOHs+xKJegLT2aaD9iSMbU3OoX+WabQXkloUbZmJQ==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -1918,8 +1917,8 @@
       "integrity": "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==",
       "bin": true
     },
-    "hono@4.12.3": {
-      "integrity": "sha512-SFsVSjp8sj5UumXOOFlkZOG6XS9SJDKw0TbwFeV+AJ8xlST8kxK5Z/5EYa111UY8732lK2S/xB653ceuaoGwpg=="
+    "hono@4.12.4": {
+      "integrity": "sha512-ooiZW1Xy8rQ4oELQ++otI2T9DsKpV0M6c6cO6JGx4RTfav9poFFLlet9UMXHZnoM1yG0HWGlQLswBGX3RZmHtg=="
     },
     "htmlparser2@8.0.2": {
       "integrity": "sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==",
@@ -2073,8 +2072,8 @@
         "marked@14.0.0"
       ]
     },
-    "motion-dom@12.34.3": {
-      "integrity": "sha512-sYgFe+pR9aIM7o4fhs2aXtOI+oqlUd33N9Yoxcgo1Fv7M20sRkHtCmzE/VRNIcq7uNJ+qio+Xubt1FXH3pQ+eQ==",
+    "motion-dom@12.34.5": {
+      "integrity": "sha512-k33CsnxO2K3gBRMUZT+vPmc4Utlb5menKdG0RyVNLtlqRaaJPRWlE9fXl8NTtfZ5z3G8TDvqSu0MENLqSTaHZA==",
       "dependencies": [
         "motion-utils"
       ]
@@ -2082,8 +2081,8 @@
     "motion-utils@12.29.2": {
       "integrity": "sha512-G3kc34H2cX2gI63RqU+cZq+zWRRPSsNIOjpdl9TN4AQwC4sgwYPl/Q/Obf/d53nOm569T0fYK+tcoSV50BWx8A=="
     },
-    "motion@12.34.4_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
-      "integrity": "sha512-J0cuDNRymNzE0M2WY8CFcbQuprHBZwY+iqADKGLLe6kQUVP4kBQ2l7Z6gWK7Zfrt5Wgxs+kCojj4qu7I4wxBIw==",
+    "motion@12.34.5_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
+      "integrity": "sha512-N06NLJ9IeBHeielRqIvYvjPfXuRdyTxa+9++BgpGa+hY2D7TcMkI6QzV3jaRuv0aZRXgMa7cPy9YcBUBisPzAQ==",
       "dependencies": [
         "framer-motion",
         "react",
@@ -2405,8 +2404,8 @@
         "react"
       ]
     },
-    "react-icons@5.5.0_react@19.2.4": {
-      "integrity": "sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==",
+    "react-icons@5.6.0_react@19.2.4": {
+      "integrity": "sha512-RH93p5ki6LfOiIt0UtDyNg/cee+HLVR6cHHtW3wALfo+eOHTp8RnU2kRkI6E+H19zMIs03DyxUG/GfZMOGvmiA==",
       "dependencies": [
         "react"
       ]
@@ -2457,8 +2456,8 @@
       ],
       "bin": true
     },
-    "rollup-plugin-visualizer@7.0.0_rollup@4.59.0": {
-      "integrity": "sha512-loo4kmhTg7GMO0hqaUv/azvLPUT2B4jXU3gNMG35gm1mWKpOzhV6rspb/Mqmsfg7oOTdkzdmOckCIwGB5Ca1CA==",
+    "rollup-plugin-visualizer@7.0.1_rollup@4.59.0": {
+      "integrity": "sha512-UJUT4+1Ho4OcWmPYU3sYXgUqI8B8Ayfe06MX7y0qCJ1K8aGoKtR/NDd/2nZqM7ADkrzny+I99Ul7GgyoiVNAgg==",
       "dependencies": [
         "open",
         "picomatch",
@@ -2870,7 +2869,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.108",
+      "npm:ai@6.0.111",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
@@ -2911,13 +2910,13 @@
         "npm:@types/react-dom@19.2.3",
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@5.1.4",
-        "npm:hono@4.12.3",
-        "npm:motion@12.34.4",
+        "npm:hono@4.12.4",
+        "npm:motion@12.34.5",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",
-        "npm:react-icons@5.5.0",
+        "npm:react-icons@5.6.0",
         "npm:react@19.2.4",
-        "npm:rollup-plugin-visualizer@7.0.0",
+        "npm:rollup-plugin-visualizer@7.0.1",
         "npm:rollup@4.59.0",
         "npm:vite-plugin-wasm@3.5.0",
         "npm:vite@7.3.1"
