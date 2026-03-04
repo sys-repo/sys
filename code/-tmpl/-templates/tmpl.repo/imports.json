@@ -1,13 +1,12 @@
 {
   "imports": {
-    "@sys/fs": "jsr:@sys/fs@0.0.243",
-    "@sys/process": "jsr:@sys/process@0.0.225",
-    "@sys/std": "jsr:@sys/std@0.0.300",
-    "@sys/std/async": "jsr:@sys/std@0.0.300/async",
-    "@sys/std/rx": "jsr:@sys/std@0.0.300/rx",
-    "@sys/testing/server": "jsr:@sys/testing@0.0.234/server",
-    "@sys/types": "jsr:@sys/types@0.0.241",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.252",
-    "@sys/tools": "jsr:@sys/tools@0.0.253"
+    "@sys/preset/core": "jsr:@sys/preset@0.0.0/core",
+    "@sys/preset/testing": "jsr:@sys/preset@0.0.0/testing",
+    "@sys/preset/ui": "jsr:@sys/preset@0.0.0/ui",
+    "@sys/preset/build": "jsr:@sys/preset@0.0.0/build",
+    "@sys/preset/ext": "jsr:@sys/preset@0.0.0/ext",
+    "@sys/preset/ext/react": "jsr:@sys/preset@0.0.0/ext/react",
+    "@sys/preset/ext/build": "jsr:@sys/preset@0.0.0/ext/build",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.252"
   }
 }
