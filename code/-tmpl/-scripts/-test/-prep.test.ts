@@ -1,5 +1,12 @@
-import { syncByKey, syncTemplateImports, syncTemplatePackage } from '../-prep.u.ts';
-import { describe, expect, it } from '../../src/-test.ts';
+import {
+  assertImportMap,
+  readJson,
+  syncByKey,
+  syncTemplateImports,
+  syncTemplatePackage,
+  sysPackageName,
+} from '../-prep.u.ts';
+import { describe, expect, Fs, it, type t } from '../../src/-test.ts';
 
 describe('prep.u', () => {
   it('syncByKey → updates each target key deterministically', () => {
@@ -90,4 +97,59 @@ describe('prep.u', () => {
       'Missing dependency "vite" in root package.json',
     );
   });
+
+  it('parity invariant → prep sync result equals template files for all current keys', async () => {
+    const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
+    const path = {
+      tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
+      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
+      rootPackage: Fs.join(root, 'package.json'),
+      rootImports: Fs.join(root, 'deno.imports.json'),
+    } as const;
+
+    const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
+      readJson<t.Json>(path.tmplRepoImports),
+      readJson<t.PkgJsonNode>(path.tmplRepoPackage),
+      readJson<t.PkgJsonNode>(path.rootPackage),
+      readJson<t.Json>(path.rootImports),
+    ]);
+    const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
+    const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
+    const versions = await resolvePackageVersions(root, repoImports);
+
+    const syncedImports = syncTemplateImports(repoImports, rootImports, versions);
+    const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
+
+    expect(syncedImports.imports).to.eql(repoImports.imports);
+    expect(syncedPackage).to.eql(repoPackage);
+  });
 });
+
+async function resolvePackageVersions(root: string, imports: { imports: Record<string, string> }) {
+  const pkgs = [
+    ...new Set(
+      Object.keys(imports.imports)
+        .map(sysPackageName)
+        .filter((pkg): pkg is string => typeof pkg === 'string'),
+    ),
+  ];
+  const entries = await Promise.all(pkgs.map(async (pkg) => [pkg, await readPackageVersion(root, pkg)] as const));
+  return Object.fromEntries(entries);
+}
+
+async function readPackageVersion(root: string, pkg: string) {
+  const path = packageConfigPath(root, pkg);
+  const json = await readJson<t.Json>(path);
+  const version = (json as { version?: unknown }).version;
+  if (typeof version !== 'string') {
+    throw new Error(`Expected "version" string field: ${path}`);
+  }
+  return version;
+}
+
+function packageConfigPath(root: string, pkg: string): string {
+  const name = pkg.replace('@sys/', '');
+  if (name === 'tmpl') return Fs.join(root, 'code/-tmpl/deno.json');
+  if (name === 'tools') return Fs.join(root, 'code/sys.tools/deno.json');
+  return Fs.join(root, 'code/sys', name, 'deno.json');
+}
