@@ -4,15 +4,13 @@ import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
 export type VersionMeta = { version: string };
-export type Versions = { tmpl: string; preset: string; tools: string };
+export type PackageVersions = Record<string, string>;
+export type KeyValueMap = Record<string, string>;
 export type PrepPaths = {
   tmplRepoImports: string;
   tmplRepoPackage: string;
   rootPackage: string;
   rootImports: string;
-  tmplPkg: string;
-  presetPkg: string;
-  toolsPkg: string;
 };
 
 export const PATH = {
@@ -22,32 +20,25 @@ export const PATH = {
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'deno.imports.json'),
-      tmplPkg: Fs.join(root, 'code/-tmpl/deno.json'),
-      presetPkg: Fs.join(root, 'code/sys/preset/deno.json'),
-      toolsPkg: Fs.join(root, 'code/sys.tools/deno.json'),
     };
   },
 } as const;
 
-export function syncTemplateImports(input: ImportMap, versions: Versions): ImportMap {
+export function syncTemplateImports(
+  input: ImportMap,
+  authority: ImportMap,
+  packageVersions: PackageVersions,
+): ImportMap {
   const next = structuredClone(input);
-  for (const [key, value] of Object.entries(next.imports)) {
-    if (key.startsWith('@sys/preset/')) {
-      const subpath = key.replace('@sys/preset/', '');
-      next.imports[key] = `jsr:@sys/preset@${versions.preset}/${subpath}`;
-      continue;
-    }
-    if (key === '@sys/tools') {
-      next.imports[key] = `jsr:@sys/tools@${versions.tools}`;
-      continue;
-    }
-    if (key === '@sys/tmpl') {
-      next.imports[key] = `jsr:@sys/tmpl@${versions.tmpl}`;
-      continue;
-    }
-    next.imports[key] = value;
-  }
+  next.imports = syncByKey(next.imports, (key) => resolveImportValue(key, authority.imports, packageVersions));
   return next;
+}
+
+export function sysPackageName(specifier: string): string | undefined {
+  if (!specifier.startsWith('@sys/')) return;
+  const [scope, name] = specifier.split('/');
+  if (!scope || !name) return;
+  return `${scope}/${name}`;
 }
 
 export function syncTemplatePackage(input: t.PkgJsonNode, source: t.PkgJsonNode): t.PkgJsonNode {
@@ -57,13 +48,13 @@ export function syncTemplatePackage(input: t.PkgJsonNode, source: t.PkgJsonNode)
   const sync = (kind: 'dependencies' | 'devDependencies') => {
     const bag = next[kind];
     if (!bag) return;
-    for (const key of Object.keys(bag)) {
+    next[kind] = syncByKey(bag, (key) => {
       const latest = allSource[key];
       if (typeof latest !== 'string') {
         throw new Error(`Missing dependency "${key}" in root package.json`);
       }
-      bag[key] = latest;
-    }
+      return latest;
+    });
   };
 
   sync('dependencies');
@@ -101,4 +92,33 @@ export async function writeIfChanged(path: string, before: t.Json, after: t.Json
   }
   await Fs.writeJson(path, after as t.Json);
   console.info(`updated    ${Fs.trimCwd(path)}`);
+}
+
+export function syncByKey(target: KeyValueMap, resolver: (key: string, current: string) => string): KeyValueMap {
+  const next = structuredClone(target);
+  for (const [key, value] of Object.entries(next)) {
+    next[key] = resolver(key, value);
+  }
+  return next;
+}
+
+function resolveImportValue(
+  key: string,
+  authorityImports: KeyValueMap,
+  packageVersions: PackageVersions,
+): string {
+  const fromRoot = authorityImports[key];
+  if (typeof fromRoot === 'string') return fromRoot;
+
+  const pkg = sysPackageName(key);
+  if (!pkg) {
+    throw new Error(`Missing import "${key}" in root deno.imports.json`);
+  }
+
+  const version = packageVersions[pkg];
+  if (typeof version !== 'string') {
+    throw new Error(`Missing version authority for package "${pkg}"`);
+  }
+
+  return `jsr:${pkg}@${version}${key.slice(pkg.length)}`;
 }
