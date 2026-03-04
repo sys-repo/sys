@@ -8,7 +8,7 @@
     "@sys/testing/server": "jsr:@sys/testing@0.0.236/server",
     "@sys/types": "jsr:@sys/types@0.0.243",
     "@sys/tmpl": "jsr:@sys/tmpl@0.0.257",
-    "@sys/tools": "jsr:@sys/tools@0.0.258"
+    "@sys/tools": "jsr:@sys/tools@0.0.259"
   }
 }
 
