@@ -8,7 +8,7 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    return Paths.single; // 🐷 NARROW
+    // return Paths.single; // 🐷 NARROW
     return Paths.all;
   },
   single: [
