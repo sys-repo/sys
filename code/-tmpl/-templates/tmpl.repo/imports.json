@@ -5,6 +5,7 @@
     "@sys/preset/ui": "jsr:@sys/preset@0.0.0/ui",
     "@sys/preset/build": "jsr:@sys/preset@0.0.0/build",
     "@sys/preset/ext": "jsr:@sys/preset@0.0.0/ext",
-    "@sys/tools": "jsr:@sys/tools@0.0.252"
+    "@sys/tools": "jsr:@sys/tools@0.0.254"
   }
 }
+
