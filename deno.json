@@ -33,7 +33,6 @@
 
   "importMap": "deno.imports.json",
   "workspace": [
-    "code/sys/preset",
     "code/sys.model/model-slug",
     "code/sys.ui/ui-state",
     "code/sys/types",
