@@ -7,6 +7,6 @@
     "@sys/preset/ext": "jsr:@sys/preset@0.0.0/ext",
     "@sys/preset/ext/react": "jsr:@sys/preset@0.0.0/ext/react",
     "@sys/preset/ext/build": "jsr:@sys/preset@0.0.0/ext/build",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.252"
+    "@sys/tools": "jsr:@sys/tools@0.0.252"
   }
 }
