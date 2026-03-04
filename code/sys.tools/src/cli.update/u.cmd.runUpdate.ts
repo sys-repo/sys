@@ -45,8 +45,13 @@ export async function runUpdate(
 
   /** Run process: */
   const spinner = Cli.spinner(c.gray(msg)).start();
-  const out = await refreshCache(cwd);
-  spinner.stop();
+  const out = await (async () => {
+    try {
+      return await refreshCache(cwd);
+    } finally {
+      spinner.stop();
+    }
+  })();
 
   if (!out.success) {
     const msg = `Failed to refresh JSR cache for ${pkg.name}. Command: deno cache --reload jsr:@sys/tools\n${out.toString()}`;
