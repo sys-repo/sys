@@ -1,9 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import {
-  createSpecifierRewrite,
-  parseNpmSpecifier,
-  resolveFromImportsMap,
-} from '../u.app.specifierRewrite.ts';
+import { createSpecifierRewrite, parseJsrSpecifier, parseNpmSpecifier, resolveFromImportsMap } from '../u.app.specifierRewrite.ts';
 
 describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {
@@ -13,6 +9,16 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(parseNpmSpecifier('npm:@scope/pkg@1.2.3')).to.eql('@scope/pkg');
       expect(parseNpmSpecifier('npm:@scope/pkg@1.2.3/sub/path')).to.eql('@scope/pkg/sub/path');
       expect(parseNpmSpecifier('npm:')).to.eql(undefined);
+    });
+  });
+
+  describe('parseJsrSpecifier', () => {
+    it('parses scoped and unscoped jsr specifiers', () => {
+      expect(parseJsrSpecifier('jsr:@std/path@1.1.4')).to.eql('@std/path');
+      expect(parseJsrSpecifier('jsr:@std/path@1.1.4/posix')).to.eql('@std/path/posix');
+      expect(parseJsrSpecifier('jsr:yaml@2.8.2')).to.eql('yaml');
+      expect(parseJsrSpecifier('jsr:yaml@2.8.2/types')).to.eql('yaml/types');
+      expect(parseJsrSpecifier('jsr:')).to.eql(undefined);
     });
   });
 
@@ -39,15 +45,28 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(await resolveId('npm:react@19.2.4')).to.eql('react');
     });
 
-    it('rewrites aliases from import map for any scope', async () => {
+    it('passes through jsr-target import-map aliases (handled by deno plugin)', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
-          return { '@acme/http': 'jsr:@acme/http@1.2.3' };
+          return { '@acme/http': 'jsr:@sys/http@1.2.3' };
         },
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('@acme/http/client')).to.eql('jsr:@acme/http@1.2.3/client');
+      expect(await resolveId('@acme/http/client')).to.eql(null);
+    });
+
+    it('normalizes npm targets resolved from import-map aliases', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json', {
+        async loadImports() {
+          return { '@acme/ws': 'npm:@automerge/automerge-repo-network-websocket@2.5.3' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
+      expect(await resolveId('@acme/ws')).to.eql(
+        '@automerge/automerge-repo-network-websocket',
+      );
     });
 
     it('caches import-map lookups across repeated rewrites', async () => {
@@ -80,18 +99,16 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(await resolveId('@sys/missing')).to.eql(null);
     });
 
-    it('does not emit deno cache-local file paths for jsr rewrites', async () => {
+    it('returns null for jsr-target rewrites to avoid fallback fs-loads', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
-          return { '@sys/http/client': 'jsr:@sys/http@0.0.209/client' };
+          return { '@acme/http': 'jsr:@sys/http@0.0.209' };
         },
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      const res = await resolveId('@sys/http/client');
-      expect(res).to.eql('jsr:@sys/http@0.0.209/client');
-      expect(String(res).includes('/Library/Caches/deno/')).to.eql(false);
-      expect(String(res).includes('/.deno/')).to.eql(false);
+      const res = await resolveId('@acme/http/client');
+      expect(res).to.eql(null);
     });
   });
 });

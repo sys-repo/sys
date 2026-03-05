@@ -1,15 +1,6 @@
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
-type DenoInfoModule = {
-  specifier?: string;
-  local?: string;
-};
-type DenoInfo = {
-  roots?: string[];
-  redirects?: Record<string, string>;
-  modules?: DenoInfoModule[];
-};
 
 export function createSpecifierRewrite(
   configPath: t.StringPath,
@@ -29,53 +20,15 @@ export function createSpecifierRewrite(
 }
 
 export function parseNpmSpecifier(input: string): string | undefined {
-  const source = input.slice('npm:'.length);
+  const source = wrangle.stripPrefix(input, 'npm:');
   if (!source) return undefined;
-
-  const scoped = source.startsWith('@');
-  let nameWithVersion = source;
-  let subpath = '';
-
-  if (scoped) {
-    const first = source.indexOf('/');
-    const second = first >= 0 ? source.indexOf('/', first + 1) : -1;
-    if (second >= 0) {
-      nameWithVersion = source.slice(0, second);
-      subpath = source.slice(second);
-    }
-  } else {
-    const slash = source.indexOf('/');
-    if (slash >= 0) {
-      nameWithVersion = source.slice(0, slash);
-      subpath = source.slice(slash);
-    }
-  }
-
-  const at = nameWithVersion.lastIndexOf('@');
-  const pkg = at > 0 ? nameWithVersion.slice(0, at) : nameWithVersion;
-  if (!pkg) return undefined;
-  return `${pkg}${subpath}`;
+  return wrangle.parseRegistrySpecifier(source);
 }
 
-export function parseDenoInfoRoot(input?: string): string | undefined {
-  const parsed = Json.safeParse<DenoInfo>(input);
-  if (!parsed.ok) return undefined;
-  const root = parsed.data?.roots?.[0];
-  return Is.string(root) ? root : undefined;
-}
-
-export function parseDenoInfoResolved(input?: string): string | undefined {
-  const parsed = Json.safeParse<DenoInfo>(input);
-  if (!parsed.ok) return undefined;
-
-  const root = parsed.data?.roots?.[0];
-  const redirects = parsed.data?.redirects ?? {};
-  const resolved = Is.string(root) ? (redirects[root] ?? root) : undefined;
-  if (!Is.string(resolved) || !Array.isArray(parsed.data?.modules)) return resolved;
-
-  const match = parsed.data.modules.find((module) => module.specifier === resolved);
-  if (Is.string(match?.local) && match.local.length > 0) return match.local;
-  return resolved;
+export function parseJsrSpecifier(input: string): string | undefined {
+  const source = wrangle.stripPrefix(input, 'jsr:');
+  if (!source) return undefined;
+  return wrangle.parseRegistrySpecifier(source);
 }
 
 export function resolveFromImportsMap(
@@ -101,10 +54,13 @@ const wrangle = {
 
       const promise = (async () => {
         if (specifier.startsWith('npm:')) return parseNpmSpecifier(specifier);
+        if (specifier.startsWith('jsr:')) return undefined;
 
         const map = await imports;
         const fromMap = resolveFromImportsMap(specifier, map);
         if (!fromMap) return undefined;
+        if (fromMap.startsWith('npm:')) return parseNpmSpecifier(fromMap);
+        if (fromMap.startsWith('jsr:')) return undefined;
         return fromMap;
       })();
       cache.set(specifier, promise);
@@ -153,4 +109,33 @@ const wrangle = {
     return best;
   },
 
+  stripPrefix(input: string, prefix: string) {
+    return input.startsWith(prefix) ? input.slice(prefix.length) : '';
+  },
+
+  parseRegistrySpecifier(source: string): string | undefined {
+    const scoped = source.startsWith('@');
+    let nameWithVersion = source;
+    let subpath = '';
+
+    if (scoped) {
+      const first = source.indexOf('/');
+      const second = first >= 0 ? source.indexOf('/', first + 1) : -1;
+      if (second >= 0) {
+        nameWithVersion = source.slice(0, second);
+        subpath = source.slice(second);
+      }
+    } else {
+      const slash = source.indexOf('/');
+      if (slash >= 0) {
+        nameWithVersion = source.slice(0, slash);
+        subpath = source.slice(slash);
+      }
+    }
+
+    const at = nameWithVersion.lastIndexOf('@');
+    const pkg = at > 0 ? nameWithVersion.slice(0, at) : nameWithVersion;
+    if (!pkg) return undefined;
+    return `${pkg}${subpath}`;
+  },
 } as const;
