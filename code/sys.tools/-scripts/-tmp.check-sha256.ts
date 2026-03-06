@@ -7,11 +7,19 @@ export async function checkSha256(args: {
   dmgName: string;
 }) {
   const client = Http.fetcher();
-  const [localRead, remoteDist, remoteRes] = await Promise.all([
-    Fs.read(args.localDmgPath),
-    client.json<Record<string, unknown>>(args.remoteDistUrl),
-    fetch(args.remoteDmgUrl),
-  ]);
+  const spin = Cli.spinner();
+
+  spin.start(c.gray(c.italic('hashing local dmg...')));
+  const localRead = await Fs.read(args.localDmgPath);
+  spin.stop();
+
+  spin.start(c.gray(c.italic('fetching remote dist.json...')));
+  const remoteDist = await client.json<Record<string, unknown>>(args.remoteDistUrl);
+  spin.stop();
+
+  spin.start(c.gray(c.italic('fetching and hashing remote dmg...')));
+  const remoteRes = await fetch(args.remoteDmgUrl);
+  spin.stop();
   if (!localRead.ok || !localRead.data) throw new Error(`Failed to read local dmg: ${args.localDmgPath}`);
 
   if (!remoteDist.ok) throw new Error(`Failed to load dist.json: ${args.remoteDistUrl}`);
@@ -25,6 +33,7 @@ export async function checkSha256(args: {
   const remote = Hash.sha256(remoteBytes);
 
   const rows = Cli.table().padding(1);
+  rows.push([c.gray('remote dmg url'), c.white(args.remoteDmgUrl)]);
   rows.push([c.gray('dist.json expected'), c.white(expected)]);
   rows.push([c.gray('local file'), c.white(local)]);
   rows.push([c.gray('remote file'), c.white(remote)]);
