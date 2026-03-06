@@ -14,6 +14,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./dist": "./src/m.dist/mod.ts"
+    "./dist": "./src/m.dist/mod.ts",
+    "./apple": "./src/m.apple/mod.ts"
   }
 }
