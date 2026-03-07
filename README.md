@@ -27,9 +27,11 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
 
 <p>&nbsp;</p>
 
+
 [![MIT License][mit-badge]][mit-url]  
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )  
-Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.io/@sys)
+Built on, and mission-locked to modern, portable Web Standards ([WinterTC](https://wintercg.org/)) and [ESM-only](https://jsr.io/docs/publishing-packages#jsr-package-rules) distribution.  
+Runtime posture: Deno — standards-based, TypeScript-native, and secure by default.  
+Public registry: [JSR](https://jsr.io/) first, via [@sys](https://jsr.io/@sys).
 
 ---
 
@@ -264,7 +266,6 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 
 ### Runtime, Build Toolchain
-
 "Framework" agnostic. [Web standards](https://wintercg.org/).
 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
