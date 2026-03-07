@@ -4,9 +4,6 @@ on:
     branches:
       - main
       - phil-work
-  pull_request:
-    branches:
-      - main
 
 jobs:
   deno:
@@ -14,35 +11,36 @@ jobs:
     permissions:
       contents: read
     environment: dev
+    name: ${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: "build: @sys/ui-react-devharness"
+          - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
-          - name: "build: @sys/ui-react-components"
+          - name: "@sys/ui-react-components"
             path: code/sys.ui/ui-react-components
-          - name: "build: @sys/ui-factory"
+          - name: "@sys/ui-factory"
             path: code/sys.ui/ui-factory
-          - name: "build: @sys/driver-automerge"
+          - name: "@sys/driver-automerge"
             path: code/sys.driver/driver-automerge
-          - name: "build: @sys/driver-monaco"
+          - name: "@sys/driver-monaco"
             path: code/sys.driver/driver-monaco
-          - name: "build: @sys/driver-prosemirror"
+          - name: "@sys/driver-prosemirror"
             path: code/sys.driver/driver-prosemirror
-          - name: "build: @sys/driver-stripe"
+          - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "build: @tdb/slc-std"
+          - name: "@tdb/slc-std"
             path: deploy/@tdb.slc.std
-          - name: "build: @tdb/edu-slug"
+          - name: "@tdb/edu-slug"
             path: deploy/@tdb.edu.slug
-          - name: "build: @tdb/slc"
+          - name: "@tdb/slc"
             path: deploy/@tdb.slc
-          - name: "build: @tdb/slc-fs"
+          - name: "@tdb/slc-fs"
             path: deploy/@tdb.slc.fs
-          - name: "build: @sys/dev"
+          - name: "@sys/dev"
             path: code/sys.dev
-          - name: "build: @sys/crdt"
+          - name: "@sys/crdt"
             path: code/sys/crdt
     steps:
       - uses: actions/checkout@v3

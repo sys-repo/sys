@@ -19,7 +19,9 @@ export function toJsrCiPaths(paths: readonly string[]) {
 }
 
 export async function toBuildCiPaths(cwd: string, paths: readonly string[]) {
-  const results = await Promise.all(paths.map(async (path) => ({ path, hasBuild: await hasBuildTask(cwd, path) })));
+  const results = await Promise.all(
+    paths.map(async (path) => ({ path, hasBuild: await hasBuildTask(cwd, path) })),
+  );
   return results.filter((item) => item.hasBuild).map((item) => item.path);
 }
 
@@ -29,7 +31,10 @@ export async function main() {
   const buildTarget = '.github/workflows/build.yaml';
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const buildPaths = await toBuildCiPaths(cwd, Paths.modules);
-  const on = { pull_request: ['main'], push: ['main', 'phil-work'] } as const;
+  const on = {
+    // pull_request: ['main'],
+    push: ['main', 'phil-work'],
+  } as const;
   const env = {
     // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',

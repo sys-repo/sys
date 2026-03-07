@@ -15,10 +15,11 @@ describe('MonorepoCi.Build', () => {
     const yaml = await MonorepoCi.Build.text({ paths: [a, b] });
     expect(yaml.includes('name: build')).to.eql(true);
     expect(yaml.includes('build module → "${{ matrix.name }}"')).to.eql(true);
+    expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
     expect(yaml.includes(`path: ${a}`)).to.eql(true);
-    expect(yaml.includes('name: "build: @scope/alpha"')).to.eql(true);
+    expect(yaml.includes('name: "@scope/alpha"')).to.eql(true);
     expect(yaml.includes(`path: ${b}`)).to.eql(true);
-    expect(yaml.includes('name: "build: @scope/beta"')).to.eql(true);
+    expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('- main')).to.eql(true);

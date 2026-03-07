@@ -1,4 +1,5 @@
-export const BUILD_JOB_CONFIG_TEMPLATE = `    strategy:
+export const BUILD_JOB_CONFIG_TEMPLATE = `    name: \${{ matrix.name }}
+    strategy:
       fail-fast: false
       matrix:
         include:
@@ -9,5 +10,5 @@ export const BUILD_BODY_TEMPLATE = `      - name: build module → "\${{ matrix.
           cd \${{ matrix.path }}
           deno task build`;
 
-export const BUILD_MATRIX_ITEM_TEMPLATE = `- name: "build: NAME"
+export const BUILD_MATRIX_ITEM_TEMPLATE = `- name: "NAME"
   path: PATH`;
