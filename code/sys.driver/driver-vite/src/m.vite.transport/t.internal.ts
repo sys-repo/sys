@@ -1,3 +1,4 @@
+import type { t } from './common.ts';
 export type * from '../common.t.ts';
 
 export type DenoLoader = 'JSX' | 'JavaScript' | 'Json' | 'TSX' | 'TypeScript';
@@ -27,18 +28,49 @@ export type DenoResolved = DenoResolvedEsm | DenoResolvedNpm;
 
 export type DenoCache = Map<string, DenoResolved>;
 
+export type ResolveDeps = {
+  readonly invoke: t.ProcLib['invoke'];
+  readonly resolveImport: (id: string) => string;
+};
+
+export type PrefixDeps = {
+  readonly resolveDeno: (id: string, cwd: string) => Promise<DenoResolved | null>;
+  readonly resolveViteSpecifier: (
+    id: string,
+    cache: DenoCache,
+    posixRoot: string,
+    importer?: string,
+    deps?: ResolveDeps,
+  ) => Promise<string | null | undefined>;
+};
+
 export type ResolveInfoError = {
   readonly error: string;
 };
 
-export type ResolveInfoModule = {
-  readonly kind?: 'esm' | 'npm' | 'external';
-  readonly local?: string;
+export type ResolveInfoModuleEsm = {
+  readonly kind: 'esm';
+  readonly local: string;
   readonly mediaType?: DenoLoader;
-  readonly npmPackage?: string;
   readonly dependencies?: readonly DenoDependency[];
+  readonly specifier: string;
+};
+
+export type ResolveInfoModuleNpm = {
+  readonly kind: 'npm';
+  readonly npmPackage: string;
+  readonly specifier: string;
+};
+
+export type ResolveInfoModuleExternal = {
+  readonly kind: 'external';
   readonly specifier?: string;
 };
+
+export type ResolveInfoModule =
+  | ResolveInfoModuleEsm
+  | ResolveInfoModuleNpm
+  | ResolveInfoModuleExternal;
 
 export type ResolveInfo = {
   readonly roots: readonly string[];

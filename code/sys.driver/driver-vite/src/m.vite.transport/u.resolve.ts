@@ -4,7 +4,12 @@ import { loadDenoModule } from './u.load.ts';
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 
-export function createResolvePlugin(cache: t.DenoCache) {
+const depsDefault: t.ResolveDeps = {
+  invoke: Process.invoke,
+  resolveImport: (id) => import.meta.resolve(id),
+};
+
+export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
 
   return {
@@ -14,7 +19,7 @@ export function createResolvePlugin(cache: t.DenoCache) {
     },
     async resolveId(id: string, importer?: string) {
       if (isDenoSpecifier(id)) return;
-      return await resolveViteSpecifier(id, cache, root, importer);
+      return await resolveViteSpecifier(id, cache, root, importer, deps);
     },
     async load(id: string) {
       if (!isDenoSpecifier(id)) return;
@@ -27,15 +32,41 @@ function isResolveError(info: t.ResolveInfoError | t.ResolveInfoModule): info is
   return 'error' in info && typeof info.error === 'string';
 }
 
+function isResolveInfoModuleEsm(
+  info: t.ResolveInfoError | t.ResolveInfoModule,
+): info is t.ResolveInfoModuleEsm {
+  return !isResolveError(info) && info.kind === 'esm';
+}
+
+function isResolveInfoModuleNpm(
+  info: t.ResolveInfoError | t.ResolveInfoModule,
+): info is t.ResolveInfoModuleNpm {
+  return !isResolveError(info) && info.kind === 'npm';
+}
+
+function isResolveInfoModuleExternal(
+  info: t.ResolveInfoError | t.ResolveInfoModule,
+): info is t.ResolveInfoModuleExternal {
+  return !isResolveError(info) && info.kind === 'external';
+}
+
 export async function resolveDeno(id: string, cwd: string): Promise<t.DenoResolved | null> {
+  return await resolveDenoWith(id, cwd, depsDefault);
+}
+
+export async function resolveDenoWith(
+  id: string,
+  cwd: string,
+  deps: t.ResolveDeps,
+): Promise<t.DenoResolved | null> {
   if (id.startsWith('\0')) return null;
 
   if (!checkedDenoInstall) {
-    await ensureDenoInstalled(cwd);
+    await ensureDenoInstalled(cwd, deps);
     checkedDenoInstall = true;
   }
 
-  const output = await Process.invoke({
+  const output = await deps.invoke({
     cmd: DENO_BINARY,
     args: ['info', '--json', id],
     cwd,
@@ -56,25 +87,25 @@ export async function resolveDeno(id: string, cwd: string): Promise<t.DenoResolv
 
   if (mod === undefined || isResolveError(mod)) return null;
 
-  if (mod.kind === 'esm') {
+  if (isResolveInfoModuleEsm(mod)) {
     return {
-      id: mod.local ?? '',
+      id: mod.local,
       kind: mod.kind,
       loader: mod.mediaType ?? null,
       dependencies: mod.dependencies ?? [],
     };
   }
 
-  if (mod.kind === 'npm') {
+  if (isResolveInfoModuleNpm(mod)) {
     return {
-      id: mod.npmPackage ?? '',
+      id: mod.npmPackage,
       kind: mod.kind,
       loader: null,
       dependencies: [],
     };
   }
 
-  if (mod.kind === 'external') return null;
+  if (isResolveInfoModuleExternal(mod)) return null;
   throw new Error(`Unsupported: ${JSON.stringify(mod, null, 2)}`);
 }
 
@@ -83,12 +114,13 @@ export async function resolveViteSpecifier(
   cache: t.DenoCache,
   posixRoot: string,
   importer?: string,
+  deps: t.ResolveDeps = depsDefault,
 ) {
   const root = Path.normalize(posixRoot);
 
   if (!id.startsWith('.') && !id.startsWith('/')) {
     try {
-      id = import.meta.resolve(id);
+      id = deps.resolveImport(id);
     } catch {
       // Ignore unresolved import-map / module cases here.
     }
@@ -106,7 +138,7 @@ export async function resolveViteSpecifier(
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
   }
 
-  const resolved = cache.get(id) ?? await resolveDeno(id, root);
+  const resolved = cache.get(id) ?? await resolveDenoWith(id, root, deps);
   if (resolved === null) return;
   if (resolved.kind === 'npm') return null;
 
@@ -139,8 +171,8 @@ export function parseDenoSpecifier(spec: string) {
   };
 }
 
-async function ensureDenoInstalled(cwd: string) {
-  const res = await Process.invoke({
+async function ensureDenoInstalled(cwd: string, deps: t.ResolveDeps) {
+  const res = await deps.invoke({
     cmd: DENO_BINARY,
     args: ['--version'],
     cwd,

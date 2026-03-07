@@ -25,7 +25,13 @@ export type {
   DenoWorkspaceChild,
   Dep,
 } from '@sys/driver-deno/t';
-export type { ProcHandle, ProcOutput, ProcReadySignalFilter } from '@sys/process/t';
+export type {
+  ProcHandle,
+  ProcInvokeArgs,
+  ProcLib,
+  ProcOutput,
+  ProcReadySignalFilter,
+} from '@sys/process/t';
 export type { TimeDelayPromise } from '@sys/std/t';
 export type { CssValue } from '@sys/ui-css/t';
 

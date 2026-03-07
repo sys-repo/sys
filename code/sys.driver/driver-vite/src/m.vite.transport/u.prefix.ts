@@ -1,7 +1,12 @@
 import { Path, type t } from './common.ts';
 import { resolveDeno, resolveViteSpecifier } from './u.resolve.ts';
 
-export default function prefixPlugin(cache: t.DenoCache) {
+const depsDefault: t.PrefixDeps = {
+  resolveDeno,
+  resolveViteSpecifier,
+};
+
+export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = depsDefault) {
   let root = Path.cwd();
 
   return {
@@ -16,7 +21,7 @@ export default function prefixPlugin(cache: t.DenoCache) {
       importer?: string,
     ) {
       if (id.startsWith('npm:')) {
-        const resolved = await resolveDeno(id, root);
+        const resolved = await deps.resolveDeno(id, root);
         if (resolved === null) return;
 
         const actual = resolved.id.slice(0, resolved.id.indexOf('@'));
@@ -25,7 +30,7 @@ export default function prefixPlugin(cache: t.DenoCache) {
       }
 
       if (id.startsWith('http:') || id.startsWith('https:')) {
-        return await resolveViteSpecifier(id, cache, root, importer);
+        return await deps.resolveViteSpecifier(id, cache, root, importer);
       }
     },
   };
