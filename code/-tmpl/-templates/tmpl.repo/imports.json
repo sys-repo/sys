@@ -1,14 +1,15 @@
 {
   "imports": {
-    "@sys/fs": "jsr:@sys/fs@0.0.245",
-    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.1/ci",
-    "@sys/process": "jsr:@sys/process@0.0.227",
-    "@sys/std": "jsr:@sys/std@0.0.302",
-    "@sys/std/async": "jsr:@sys/std@0.0.302/async",
-    "@sys/std/rx": "jsr:@sys/std@0.0.302/rx",
-    "@sys/testing/server": "jsr:@sys/testing@0.0.236/server",
-    "@sys/types": "jsr:@sys/types@0.0.243",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.257",
-    "@sys/tools": "jsr:@sys/tools@0.0.259"
+    "@sys/fs": "jsr:@sys/fs@0.0.246",
+    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.2/ci",
+    "@sys/process": "jsr:@sys/process@0.0.228",
+    "@sys/std": "jsr:@sys/std@0.0.303",
+    "@sys/std/async": "jsr:@sys/std@0.0.303/async",
+    "@sys/std/rx": "jsr:@sys/std@0.0.303/rx",
+    "@sys/testing/server": "jsr:@sys/testing@0.0.237/server",
+    "@sys/types": "jsr:@sys/types@0.0.244",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.258",
+    "@sys/tools": "jsr:@sys/tools@0.0.260"
   }
 }
+
