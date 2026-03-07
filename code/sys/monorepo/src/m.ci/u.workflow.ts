@@ -3,6 +3,7 @@ import { type t, Str } from './common.ts';
 type WorkflowArgs = {
   readonly name: string;
   readonly permissions: t.MonorepoCi.WorkflowEntries;
+  readonly branches?: readonly string[];
   readonly env?: t.MonorepoCi.WorkflowEntries;
   readonly jobConfig?: string;
   readonly body: string;
@@ -10,6 +11,7 @@ type WorkflowArgs = {
 
 export function workflowTemplate(args: WorkflowArgs) {
   const permissions = wrangle.map(args.permissions, 6);
+  const branches = wrangle.list(args.branches?.length ? args.branches : ['main'], 6);
   const envEntries = args.env ? Object.entries(args.env) : [];
   const env = envEntries.length ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n` : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
@@ -38,8 +40,7 @@ export function workflowTemplate(args: WorkflowArgs) {
     on:
       push:
         branches:
-          - main
-          - phil-work
+        __BRANCHES__
 
     jobs:
       deno:
@@ -53,6 +54,7 @@ export function workflowTemplate(args: WorkflowArgs) {
 
         __BODY__
   `)
+    .replace(/^ {4}__BRANCHES__$/m, branches)
     .replace(/^ {4}__PERMISSIONS__$/m, permissions)
     .replace(/^ {4}__ENV__$/m, env.trimEnd())
     .replace(/^ {4}__JOB_CONFIG__$/m, jobConfig.trimEnd())
@@ -73,5 +75,9 @@ export const wrangle = {
     return Object.entries(entries)
       .map(([key, value]) => `${' '.repeat(indent)}${key}: ${value}`)
       .join('\n');
+  },
+
+  list(values: readonly string[], indent: number) {
+    return values.map((value) => `${' '.repeat(indent)}- ${value}`).join('\n');
   },
 } as const;

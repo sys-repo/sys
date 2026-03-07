@@ -19,6 +19,7 @@ export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
       contents: 'read',
       'id-token': 'write # The OIDC/ID token is used for authentication with JSR.',
     },
+    branches: args.branches,
     env: args.env,
     body: JSR_MODULES_PLACEHOLDER,
   }).replace(JSR_MODULES_PLACEHOLDER, body)}\n`;

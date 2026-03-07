@@ -23,6 +23,7 @@ export namespace MonorepoCi {
     export type TextArgs = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
+      readonly branches?: readonly string[];
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = TextArgs & { readonly target: t.StringPath };
@@ -44,6 +45,7 @@ export namespace MonorepoCi {
     export type Args = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
+      readonly branches?: readonly string[];
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = Args & { readonly target: t.StringPath };
