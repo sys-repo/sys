@@ -1,5 +1,4 @@
 import type { ManualChunksOption } from 'rollup';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
 import { type t, Is, asArray, Delete, Path, R } from './common.ts';
@@ -57,6 +56,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.
     const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
+    const { visualizer } = await import('rollup-plugin-visualizer');
     plugins.push(visualizer({ filename }));
   }
 
