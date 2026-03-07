@@ -11,7 +11,7 @@ export function createSpecifierRewrite(
   return {
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
-    async resolveId(source) {
+    async resolveId(source: string) {
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten || rewritten === source) return null;
       return rewritten;
