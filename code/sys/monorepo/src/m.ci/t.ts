@@ -6,26 +6,20 @@ import type { t } from './common.ts';
  */
 export namespace MonorepoCi {
   export type Lib = {
-    readonly Jsr: JsrLib;
+    readonly Jsr: Jsr.Lib;
   };
 
-  export type JsrLib = {
-    text(args: JsrArgs): Promise<string>;
-    write(args: JsrWriteArgs): Promise<JsrWriteResult>;
-  };
-
-  export type JsrArgs = {
-    readonly cwd?: t.StringDir;
-    readonly paths: readonly t.StringPath[];
-  };
-
-  export type JsrWriteArgs = JsrArgs & {
-    readonly target: t.StringPath;
-  };
-
-  export type JsrWriteResult = {
-    readonly target: t.StringPath;
-    readonly yaml: string;
-    readonly count: number;
-  };
+  export namespace Jsr {
+    export type Lib = {
+      text(args: TextArgs): Promise<string>;
+      write(args: WriteArgs): Promise<WriteResult>;
+    };
+    export type TextArgs = { readonly cwd?: t.StringDir; readonly paths: readonly t.StringPath[] };
+    export type WriteArgs = TextArgs & { readonly target: t.StringPath };
+    export type WriteResult = {
+      readonly target: t.StringPath;
+      readonly yaml: string;
+      readonly count: number;
+    };
+  }
 }

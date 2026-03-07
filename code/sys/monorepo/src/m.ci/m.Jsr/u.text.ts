@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 import { JSR_HEADER_TEMPLATE } from '../u.tmpl/mod.ts';
 import { loadModule, toModuleYaml } from './u.ts';
 
-export async function text(args: t.MonorepoCi.JsrArgs) {
+export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
   const modules = await Promise.all(args.paths.map((path) => loadModule(cwd, path)));
   let yaml = JSR_HEADER_TEMPLATE;
