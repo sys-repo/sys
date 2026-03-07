@@ -40,6 +40,7 @@ export const Paths = {
     'code/sys/http',
     'code/sys/yaml',
     'code/sys/schema',
+    'code/sys/monorepo',
 
     'code/sys/jsr',
     'code/sys/text',
