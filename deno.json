@@ -9,8 +9,9 @@
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
 
-    "prep": "deno task prep:imports   &&   deno task prep:ci",
+    "prep": "deno task prep:imports   &&   deno task prep:ci:deno   &&   deno task prep:ci",
     "prep:imports": "deno run -P=dev ./-scripts/main.ts --prep",
+    "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "publish:jsr": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
 

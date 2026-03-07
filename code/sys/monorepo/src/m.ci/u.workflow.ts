@@ -1,4 +1,5 @@
 import { type t, Str } from './common.ts';
+import { CI_DENO_VERSION } from './u.deno.ts';
 
 type WorkflowArgs = {
   readonly name: string;
@@ -25,7 +26,7 @@ export function workflowTemplate(args: WorkflowArgs) {
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v2.5.x
+          deno-version: ${CI_DENO_VERSION}
 
       - name: Install Dependencies
         run: deno task install
