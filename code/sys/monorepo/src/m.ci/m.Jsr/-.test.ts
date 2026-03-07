@@ -97,6 +97,25 @@ describe('MonorepoCi.Jsr', () => {
     expect(skipped.kind).to.eql('skipped');
   });
 
+  it('preserves caller order for explicit path sources', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.sync.order').create();
+    const alpha = fs.join('code/sys/alpha');
+    const tmpl = fs.join('code/-tmpl');
+
+    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@sys/alpha' });
+    await Fs.writeJson(Fs.join(tmpl, 'deno.json'), { name: '@sys/tmpl' });
+
+    const written = await MonorepoCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { paths: [alpha, tmpl] },
+      target: '.github/workflows/jsr.yaml',
+    });
+
+    expect(written.kind).to.eql('written');
+    if (written.kind !== 'written') throw new Error('expected written result');
+    expect(written.yaml.indexOf('@sys/alpha')).to.be.lessThan(written.yaml.indexOf('@sys/tmpl'));
+  });
+
   it('excludes unnamed modules during root discovery', async () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.root-filter').create();
     const root = fs.join('code/projects');

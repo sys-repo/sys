@@ -14,8 +14,7 @@ export async function resolveSourcePaths(
     );
     return results
       .filter((item) => item.include)
-      .map((item) => item.path)
-      .sort();
+      .map((item) => item.path);
   }
 
   const root = Fs.resolve(cwd, source.root);
