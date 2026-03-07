@@ -1,6 +1,7 @@
+import { ServerInfo } from '@sys/driver-automerge/ws/client';
 import React from 'react';
-import { createRepo } from '../../-test.ui.ts';
-import { ServerInfo } from '../../../m.Server.client/mod.ts';
+
+import { createUiRepo } from '../../-test.ui.repo.ts';
 import {
   type t,
   Button,
@@ -13,13 +14,13 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.SyncEnabledSwitchProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'localstorage' | 'mode'> & { noRepo?: boolean };
+type P = t.RepoSyncSwitchProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'storageKey' | 'mode'> & { noRepo?: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   noRepo: false,
-  localstorage: STORAGE_KEY.DEV.SUBJECT,
+  storageKey: STORAGE_KEY.DEV.SUBJECT,
   mode: D.mode,
 };
 
@@ -37,17 +38,17 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    localstorage: s(snap.localstorage),
+    storageKey: s(snap.storageKey),
     mode: s(snap.mode),
     noRepo: s(snap.noRepo),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,
@@ -62,13 +63,13 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.noRepo = p.noRepo.value;
-      d.localstorage = p.localstorage.value;
+      d.storageKey = p.storageKey.value;
       d.mode = p.mode.value;
     });
   });
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   return api;
@@ -99,7 +100,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
-  async function pullServerInfo(urls: string[]) {
+  async function pullServerInfo(urls: t.Ary<t.StringUrl>) {
     urls = urls.map((text) => {
       const url = new URL(text);
       const protocol = url.protocol === 'ws:' ? 'http:' : 'https:';
@@ -163,11 +164,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.localstorage.value;
+          const v = p.storageKey.value;
           return `debug: localstorage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
-          const s = p.localstorage;
+          const s = p.storageKey;
           s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
         }}
       />

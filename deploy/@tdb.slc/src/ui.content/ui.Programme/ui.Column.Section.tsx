@@ -84,7 +84,7 @@ export const Section: React.FC<P> = (props) => {
         })}
       />
       {size.toElement([4, null, null, 6])}
-      <Player.Timestamp.Elapsed.View video={video} abs={[6, 6, null, null]} />
+      <Player.Timestamp.Elapsed.UI video={video} abs={[6, 6, null, null]} />
     </>
   );
 

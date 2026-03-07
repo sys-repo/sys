@@ -1,17 +1,19 @@
 import {
   type t,
-  DomMock,
-  MonacoFake,
+  afterAll,
+  beforeAll,
   describe,
+  DomMock,
   expect,
   it,
   makeYamlErrorLinePos,
+  MonacoFake,
   renderHook,
 } from '../../../-test.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
 describe('useYamlErrorMarkers', () => {
-  DomMock.polyfill();
+  DomMock.init({ beforeAll, afterAll });
 
   it('normalizes linePos → correct marker range', () => {
     const monaco = MonacoFake.monaco({ cast: true });
@@ -20,7 +22,7 @@ describe('useYamlErrorMarkers', () => {
     const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err = makeYamlErrorLinePos('Boom', 2, 1, 3);
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
 
@@ -34,6 +36,7 @@ describe('useYamlErrorMarkers', () => {
     expect(m.endLineNumber).to.eql(2);
     expect(m.endColumn).to.eql(3);
 
+    unmount();
     spy.restore();
   });
 
@@ -52,7 +55,7 @@ describe('useYamlErrorMarkers', () => {
       linePos: [{ line: 1, col: 3 }],
     } as t.YamlError;
 
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
 
@@ -63,6 +66,7 @@ describe('useYamlErrorMarkers', () => {
     expect(m.endLineNumber).to.eql(1);
     expect(m.endColumn).to.eql(3);
 
+    unmount();
     spy.restore();
   });
 
@@ -79,7 +83,7 @@ describe('useYamlErrorMarkers', () => {
       pos: [2, 4],
     };
 
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
 
@@ -89,6 +93,7 @@ describe('useYamlErrorMarkers', () => {
     expect(m.startLineNumber).to.be.a('number');
     expect(m.endLineNumber).to.be.a('number');
 
+    unmount();
     spy.restore();
   });
 
@@ -106,13 +111,14 @@ describe('useYamlErrorMarkers', () => {
       pos: [2, 3],
     } as any;
 
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [diag, err] },
     });
 
     const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
     expect(markers.length).to.eql(2);
     expect(markers.map((m) => m.message)).to.eql(['D1', 'E1']);
+    unmount();
     spy.restore();
   });
 
@@ -123,7 +129,7 @@ describe('useYamlErrorMarkers', () => {
     const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError = { name: 'YAMLParseError', message: 'boom', pos: [0, 1] } as any;
-    const { rerender } = renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { rerender, unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
     rerender({ monaco, editor, errors: [] });
@@ -131,6 +137,7 @@ describe('useYamlErrorMarkers', () => {
     // last call should carry empty markers
     const last = spy.calls.at(-1)!;
     expect((last.args[2] as t.Monaco.I.IMarkerData[]).length).to.eql(0);
+    unmount();
     spy.restore();
   });
 
@@ -142,7 +149,7 @@ describe('useYamlErrorMarkers', () => {
 
     const err: t.YamlError = { name: 'YAMLParseError', message: 'x', pos: [0, 1] } as any;
 
-    const { rerender } = renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { rerender, unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
     const firstOwner = spy.calls[0]!.args[1];
@@ -151,6 +158,7 @@ describe('useYamlErrorMarkers', () => {
     const secondOwner = spy.calls[1]!.args[1];
 
     expect(firstOwner).to.eql(secondOwner);
+    unmount();
     spy.restore();
   });
 
@@ -161,7 +169,7 @@ describe('useYamlErrorMarkers', () => {
     const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError = { name: 'YAMLParseError', message: 'x', pos: [0, 1] } as any;
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err], enabled: false },
     });
 
@@ -173,6 +181,7 @@ describe('useYamlErrorMarkers', () => {
     expect(Array.isArray(args[2])).to.eql(true);
     expect(args[2].length).to.eql(0);
 
+    unmount();
     spy.restore();
   });
 
@@ -185,7 +194,7 @@ describe('useYamlErrorMarkers', () => {
     const d2: t.Yaml.Diagnostic = { message: 'two', range: [0, 3] };
     const d3: t.Yaml.Diagnostic = { message: 'three', range: [4, 7, 8] as any };
 
-    renderHook((p: any) => useYamlErrorMarkers(p), {
+    const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [d2, d3] },
     });
 
@@ -193,6 +202,7 @@ describe('useYamlErrorMarkers', () => {
     expect(markers.length).to.eql(2);
     expect(markers[0]!.message).to.eql('two');
     expect(markers[1]!.message).to.eql('three');
+    unmount();
     spy.restore();
   });
 });

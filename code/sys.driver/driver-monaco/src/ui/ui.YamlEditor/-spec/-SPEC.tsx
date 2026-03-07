@@ -1,12 +1,32 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Monaco } from '../../mod.ts';
-import { Crdt, D, STORAGE_KEY } from '../common.ts';
+import { Color, Crdt, D, STORAGE_KEY, css } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const repo = debug.repo;
   const p = debug.props;
+
+  function DebugFooter() {
+    const theme = Color.theme();
+    const border = `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
+    const styles = {
+      base: css({ position: 'relative', boxSizing: 'border-box' }),
+      info: css({ Padding: [15, 65], borderTop: border, borderBottom: border }),
+      switch: css({ Padding: [14, 10] }),
+    };
+    return (
+      <div className={styles.base.class}>
+        <div className={styles.info.class}>
+          <Crdt.UI.Repo.Info repo={repo} theme={theme.name} />
+        </div>
+        <div className={styles.switch.class}>
+          <Crdt.UI.Repo.SyncSwitch repo={repo} storageKey={STORAGE_KEY.DEV} theme={theme.name} />
+        </div>
+      </div>
+    );
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -23,6 +43,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         if (!v.render) return null;
+
         return (
           <Monaco.Yaml.Editor
             bus$={debug.bus$}
@@ -31,7 +52,7 @@ export default Spec.describe(D.displayName, (e) => {
             documentId={v.documentId}
             editor={v.editor}
             footer={v.footer}
-            path={v.path}
+            path={debug.path}
             diagnostics={v.diagnostics}
             debug={v.debug}
             theme={v.theme}
@@ -47,23 +68,16 @@ export default Spec.describe(D.displayName, (e) => {
                 until: e.dispose$,
               });
             }}
-            onDocumentLoaded={(e) => console.info(`⚡️ MonacoEditor.onDocumentLoaded:`, e)}
+            onDocumentLoaded={(e) => console.info(`⚡️ Monaco.Yaml.Editor.onDocumentLoaded:`, e)}
+            onCursor={(e) => console.info(`⚡️ Monaco.Yaml.Editor.onCursor:`, e)}
           />
         );
       });
 
     ctx.debug.footer
-      .border(-0.1)
+      .border(0)
       .padding(0)
-      .render(() => {
-        return (
-          <Crdt.UI.Repo.SyncEnabledSwitch
-            repo={repo}
-            localstorage={STORAGE_KEY.DEV}
-            style={{ Padding: [14, 10] }}
-          />
-        );
-      });
+      .render(() => <DebugFooter />);
   });
 
   e.it('ui:debug', (e) => {

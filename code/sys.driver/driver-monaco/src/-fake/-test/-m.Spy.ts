@@ -59,7 +59,7 @@ describe('Spy', () => {
       const none = spy.getMarkers(999);
       expect(none).to.eql([]);
 
-      // Type surface (real types) – use toEqualTypeOf with your noop matcher
+      // Type surface (real types) - use toEqualTypeOf with your noop matcher
       expectTypeOf(spy.calls).toEqualTypeOf<
         readonly { readonly args: Parameters<t.Monaco.Monaco['editor']['setModelMarkers']> }[]
       >();

@@ -10,11 +10,10 @@
 const now = new Date();
 
 import { Jsr } from '@sys/jsr';
-import { Args, D, Path, Time, Value } from '@sys/std';
+import { Args, Date as D, Path, Str, Time } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
 import { Rx } from '@sys/std/rx';
 import { Semver } from '@sys/std/semver';
-import { Str } from '@sys/text';
 import { pkg } from '../pkg.ts';
 
 console.info(`💦 import '${pkg.name}/sample-imports';`);
@@ -31,20 +30,10 @@ console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parsed:', Args.parse(['--foo', '--bar=baz', './file.txt']));
 console.info('@sys/std:IndexedDb', IndexedDb);
 console.info('@sys/text:Str', Str);
+console.info('@sys/std:Str.bytes:', Str.bytes(1234));
 console.info('@sys/text:Str.bytes', `"${Str.bytes(1337)}"`);
 console.log();
 console.info('@sys/std/jsr', Jsr);
 console.info('@sys/std/semver', Semver, Semver.parse('1.2.3'));
-console.info('@sys/std:Value.Str.bytes:', Value.Str.bytes(1234));
 
 console.groupEnd();
-
-/**
- * Namespace: @sys : driver
- */
-console.groupCollapsed('🧫 @sys/driver');
-const { DenoFile } = await import('@sys/driver-deno/runtime');
-console.info('@sys/driver-deno/runtime: DenoFile:', DenoFile);
-console.groupEnd();
-
-console.info(' ');

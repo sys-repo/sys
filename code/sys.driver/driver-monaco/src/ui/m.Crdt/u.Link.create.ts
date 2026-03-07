@@ -1,11 +1,15 @@
 import { type t, Err } from './common.ts';
 
-export const create: t.EditorCrdtLinkCreateDoc = (ctx, repo, bounds) => {
+export const create: t.EditorCrdtLinkCreateDoc = async (ctx, repo, bounds) => {
+  type R = t.EditorCrdtLinkCreateResult;
   const editor = ctx.editor;
-  const fail = (err: string) => ({ error: Err.std(err) });
+  const fail = (err: string) => ({ ok: false, error: Err.std(err) }) as R;
 
   // 1. Create the CRDT doc and form the token.
-  const doc = repo.create({});
+  const res = await repo.create({});
+  if (!res.ok) return res satisfies R;
+
+  const doc = res.doc;
   const uri = `crdt:${doc.id}`;
 
   // 2. Guard: operate only on the originating editor's current model.
@@ -25,5 +29,5 @@ export const create: t.EditorCrdtLinkCreateDoc = (ctx, repo, bounds) => {
   editor.revealPositionInCenterIfOutsideViewport?.(after);
 
   // Finish up.
-  return { doc };
+  return { ok: true, doc };
 };

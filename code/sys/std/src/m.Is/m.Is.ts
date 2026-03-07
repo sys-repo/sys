@@ -10,15 +10,25 @@ import {
   isRecord,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
-
-const { errorLike, stdError } = Err.Is;
+import { number, numeric } from './u.number.ts';
+import { string } from './u.string.ts';
+import { urlLike, urlString } from './u.url.ts';
+import { websocket } from './u.websocket.ts';
+import { browser } from './u.browser.ts';
 
 /**
  * Common flag evaluators.
  */
 export const Is: StdIsLib = {
-  errorLike,
-  stdError,
+  get error() {
+    return Err.Is.error;
+  },
+  get errorLike() {
+    return Err.Is.errorLike;
+  },
+  get stdError() {
+    return Err.Is.stdError;
+  },
 
   object: isObject,
   record: isRecord,
@@ -26,6 +36,16 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+
+  numeric,
+  number,
+  num: number,
+  string,
+  str: string,
+  urlLike,
+  urlString,
+  websocket,
+  browser,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -87,33 +107,6 @@ export const Is: StdIsLib = {
     return false;
   },
 
-  /** Determine if the value is numeric, whether it be a number or a number in a string. */
-  numeric(input?: any) {
-    if (typeof input === 'number') {
-      return Number.isFinite(input); // Ensure not: NaN, Infinity, or -Infinity.
-    }
-    if (typeof input === 'bigint') {
-      return true;
-    }
-
-    if (typeof input === 'string') {
-      const trimmed = input.trim();
-      if (trimmed === '') return false; // Empty string, not a number.
-      const num = Number(trimmed);
-      return !Number.isNaN(num) && Number.isFinite(num);
-    }
-
-    return false;
-  },
-
-  number(input?: any): input is number {
-    return typeof input === 'number' && !Number.isNaN(input);
-  },
-
-  string(input?: any): input is string {
-    return typeof input === 'string';
-  },
-
   bool(input?: any): input is boolean {
     return typeof input === 'boolean';
   },
@@ -161,24 +154,32 @@ export const Is: StdIsLib = {
   },
 
   /**
-   * Determines if currently running within a browser environment.
+   * Determine if currently running within a web-worker.
    */
-  browser() {
-    const g = globalThis;
-    return typeof g.window === 'object' && typeof g.document === 'object';
+  worker() {
+    const ctor = globalThis.constructor?.name;
+    return (
+      ctor === 'DedicatedWorkerGlobalScope' ||
+      ctor === 'SharedWorkerGlobalScope' ||
+      ctor === 'ServiceWorkerGlobalScope'
+    );
   },
 
   /**
    * Determine if the given value (or the browser is environment) is "localhost".
    */
   localhost(value) {
+    const isLocalhostHost = (host: unknown) =>
+      Is.string(host) &&
+      (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]');
+
     if (value == null) {
       if (!Is.browser()) return false;
-      return window.location.hostname === 'localhost';
+      return isLocalhostHost(window.location.hostname);
     } else {
       try {
-        if (Is.string(value)) return new URL(value).hostname === 'localhost';
-        if (Is.object(value)) return value.hostname === 'localhost';
+        if (Is.string(value)) return isLocalhostHost(new URL(value).hostname);
+        if (Is.object(value)) return isLocalhostHost(value.hostname);
       } catch (error) {
         return false;
       }

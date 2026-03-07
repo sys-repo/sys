@@ -1,0 +1,60 @@
+import type { t } from './common.ts';
+
+/**
+ * Collection of supported object-path codecs.
+ *
+ *  - `pointer`   — RFC 6901 JSON Pointer, lossless & standard-compliant.
+ *  - `dot`       — dot/bracket notation, ergonomic for developer use.
+ *  - `default`   — the canonical codec (`pointer`).
+ */
+export type ObjPathCodecLib = {
+  readonly default: t.ObjPathCodec;
+
+  /**
+   * JSON Pointer (RFC 6901) — lossless & unambiguous.
+   * - '' represents the root.
+   * - '/' separates tokens.
+   * - '~1' encodes '/', '~0' encodes '~'.
+   * - Numbers are just strings here; still decode to number indices when they look numeric.
+   */
+  readonly pointer: t.ObjPathCodec;
+
+  /**
+   * Dot/bracket — ergonomic, still round-trips typical keys.
+   * - Escapes dots and brackets in string keys with backslash.
+   * - Numbers inside brackets become number indices.
+   * - Empty path → ''.
+   */
+  readonly dot: t.ObjPathCodec;
+};
+
+/** Kind of delimiter. */
+export type ObjPathCodecKind = 'pointer' | 'dot';
+
+/**
+ * An [ObjectPath] array → string encoder/decoder.
+ * Keep codecs *pure*; any ergonomics (numeric coercion) are layered at the namespace.
+ */
+export type ObjPathCodec = {
+  readonly kind: ObjPathCodecKind | (string & {});
+  encode(path: t.ObjectPath): string;
+  decode(text: string): t.ObjectPath; // pointer.decode returns string[] by design
+};
+
+/**
+ * Options for namespace-level path encoding.
+ * - `codec`: Which codec to use for encoding (defaults to `pointer`).
+ */
+export type ObjPathEncodeOptions = {
+  codec?: ObjPathCodecKind | ObjPathCodec;
+};
+
+/** Options for namespace-level decode.
+ * - `numeric: true` coerces digit-only tokens to numbers (e.g. "0" → 0).
+ * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
+ */
+export type ObjPathDecodeOptions = {
+  codec?: ObjPathCodecKind | ObjPathCodec;
+  numeric?: boolean;
+  safe?: boolean;
+};

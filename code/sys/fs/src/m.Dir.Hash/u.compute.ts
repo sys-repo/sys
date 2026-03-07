@@ -5,7 +5,7 @@ import { type t, Err, Fs, Hash, CompositeHash } from './common.ts';
  */
 export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
   dir = Fs.resolve(dir);
-  const { filter } = wrangle.computeOptions(options);
+  const { filter, onProgress } = wrangle.computeOptions(options);
   const errors = Err.errors();
   const exists = await Fs.exists(dir);
   const builder = CompositeHash.builder();
@@ -22,7 +22,8 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
         .filter((m) => m.isFile)
         .filter((m) => (filter ? filter(m.path) : true))
         .map((m) => m.path.substring(dir.length + 1));
-      for (const path of paths) {
+      for (const [index, path] of paths.entries()) {
+        if (onProgress) await onProgress({ dir, path, current: index + 1, total: paths.length });
         const file = await Fs.read(Fs.join(dir, path));
         if (file.exists) builder.add(path, file.data);
       }
@@ -38,7 +39,7 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
  * Helpers
  */
 const wrangle = {
-  computeOptions(input?: t.DirHashComputeOptions | t.FsPathFilter) {
+  computeOptions(input?: t.DirHashComputeOptions | t.Fs.Path.Filter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

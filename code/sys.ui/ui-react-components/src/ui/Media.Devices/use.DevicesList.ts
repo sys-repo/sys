@@ -1,9 +1,11 @@
 import React from 'react';
 import { type t, logInfo, Rx, Time, Try } from './common.ts';
 import { getDevices } from './u.getDevices.ts';
+import { useBootstrapMediaPermissions } from './use.Bootstrap.ts';
 
 export const useDevicesList: t.UseMediaDevicesList = () => {
   const [items, setItems] = React.useState<MediaDeviceInfo[]>([]);
+  const refreshRef = React.useRef<() => void>(() => {});
 
   React.useEffect(() => {
     const life = Rx.abortable();
@@ -24,7 +26,7 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
       pending = true;
       const mySeq = ++seq;
 
-      const result = await Try.catch(async () => getDevices());
+      const { result } = await Try.run(async () => getDevices());
       if (life.disposed || mySeq !== seq) {
         pending = false;
         return;
@@ -54,8 +56,25 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
     navigator.mediaDevices.addEventListener('devicechange', onChange, { signal });
     void update(); // Initial populate.
 
+    // Provide a stable "refresh" function for the bootstrap hook to call.
+    refreshRef.current = () => {
+      if (life.disposed) return;
+      delayed?.cancel();
+      delayed = time.delay(50, () => void update());
+    };
+
     return life.dispose;
   }, []);
+
+  /**
+   * Hook:bootstrap:
+   *    Camera/Mic permissions
+   *    Triggers a one-time getUserMedia when devices have empty labels.
+   */
+  useBootstrapMediaPermissions({
+    items,
+    onAfterBootstrap: () => void refreshRef.current(),
+  });
 
   /**
    * API:

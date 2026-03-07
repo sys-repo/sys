@@ -6,6 +6,9 @@ type ToStringOptions = { pad?: boolean };
  * Vite/Deno workspace helpers.
  */
 export type ViteDenoWorkspace = t.DenoWorkspace & {
+  /** If defined, indicates the workspace could not be resolved. */
+  readonly error?: string;
+
   /** List of known module-aliases derived from the Deno workspace. */
   readonly aliases: t.ViteAlias[];
 

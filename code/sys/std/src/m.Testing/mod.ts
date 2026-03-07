@@ -1,6 +1,6 @@
 /**
- * Tools for writing and controlling automated tests.
  * @module
+ * Tools for writing and controlling automated tests.
  *
  * @example
  * A simple unit-test file, named: `-<Subject>.test.ts`.
@@ -21,9 +21,9 @@
  * });
  */
 export {
+  Bdd,
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,
@@ -34,10 +34,3 @@ export {
 } from './m.Bdd.ts';
 
 export { Testing } from './m.Testing.ts';
-
-/**
- * Common utility helpers.
- */
-export { Time } from '../m.DateTime/mod.ts';
-export { Path } from '../m.Path/mod.ts';
-export { slug } from '../m.Random/mod.ts';

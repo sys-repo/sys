@@ -3,8 +3,8 @@ import { type t, D, Is, logInfo, Try } from './common.ts';
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
  *
- * @param constraints – any valid getUserMedia constraints (eg { video: true, audio: true })
- * @param filter      – any CSS filter string, eg 'brightness(120%) contrast(110%)'
+ * @param constraints - any valid getUserMedia constraints (eg { video: true, audio: true })
+ * @param filter      - any CSS filter string, eg 'brightness(120%) contrast(110%)'
  *
  * The returned stream has:
  *   • filtered video track (from the canvas).
@@ -23,9 +23,11 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    */
   let raw: MediaStream;
   if (Is.constraints(streamOrConstraints)) {
-    const res = await Try.catch(() => navigator.mediaDevices.getUserMedia(streamOrConstraints));
-    if (!res.ok) throw res.error;
-    raw = res.data;
+    const { result } = await Try.run(() =>
+      navigator.mediaDevices.getUserMedia(streamOrConstraints),
+    );
+    if (!result.ok) throw result.error;
+    raw = result.data;
   } else {
     raw = streamOrConstraints;
   }
@@ -96,7 +98,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   raw.getAudioTracks().forEach((t) => filtered.addTrack(t.clone()));
 
   function onInactive() {
-    Try.catch(() => cancelAnimationFrame(rafId));
+    Try.run(() => cancelAnimationFrame(rafId));
     stopped = true;
     releaseVideo(video);
     stopTracks(raw);
@@ -151,7 +153,7 @@ async function ensureMetadata(video: HTMLVideoElement): Promise<void> {
  */
 async function safePlay(video: HTMLVideoElement): Promise<void> {
   // NB: Ignore errors; drawing from the current frame is still fine post-metadata.
-  await Try.catch(() => video.play());
+  await Try.run(() => video.play());
 }
 
 /**
@@ -159,7 +161,7 @@ async function safePlay(video: HTMLVideoElement): Promise<void> {
  */
 function stopTracks(stream: MediaStream) {
   for (const t of stream.getTracks()) {
-    Try.catch(() => t.stop());
+    Try.run(() => t.stop());
   }
 }
 
@@ -167,15 +169,15 @@ function stopTracks(stream: MediaStream) {
  * Release a video element's backing stream.
  */
 function releaseVideo(v: HTMLVideoElement & { srcObject: MediaStream | null }) {
-  Try.catch(() => v.pause?.());
-  Try.catch(() => (v.srcObject = null));
+  Try.run(() => v.pause?.());
+  Try.run(() => (v.srcObject = null));
 }
 
 /**
  * Hint GC by shrinking the canvas to 0x0.
  */
 function shrink(c: HTMLCanvasElement) {
-  Try.catch(() => {
+  Try.run(() => {
     c.width = 0;
     c.height = 0;
   });

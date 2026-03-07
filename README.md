@@ -13,22 +13,22 @@
 [ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
 
-
 # @sys
-Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new 
+Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new
 *systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
 
-- **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTG](https://wintercg.org/) standards.
+- **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTC](https://wintertc.org/) standards.
 - **Namespaces:**
   - [sys](/code/sys/) — foundational system libraries (types, schema, utilities).
   - [sys.ui](/code/sys.ui/) — declarative UI composition and factories.
+  - [sys.model](/code/sys.model/) — pure types, schemas, and deterministic normalizers for shared concepts.
   - [sys.driver](/code/sys.driver/) — thin bindings to external engines.
   - [sys.dev](/code/sys.dev/) — *programming system* layer, higher-order developer harnesses and orchestration tools.
 
 <p>&nbsp;</p>
 
-[![MIT License][mit-badge]][mit-url]  
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )  
+[![MIT License][mit-badge]][mit-url]
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )
 Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.io/@sys)
 
 ---
@@ -38,8 +38,8 @@ Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.
 <p>&nbsp;</p>
 
 
-![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
-**Sustained long range R&D**  
+![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)
+**Sustained long range R&D**
 Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.
 
 |     | repo                     | status
@@ -55,8 +55,8 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 ---
 
 # Immutable\<T\>
-General immutability pattern.  
-See full type definitions: [`@sys/types`](code/sys/types/src/types/t.Immutable.ts)
+General immutability pattern.
+See full type definitions [`@sys/types`](https://jsr.io/@sys/types/0.0.157/src/t/t.Immutable.ts) and state primitives at [`@sys/immutable`](https://jsr.io/@sys/immutable/publish).
 
 In its basic usage pattern:
 ```ts
@@ -68,7 +68,7 @@ foo.current;                       //  === { count: 123 }  ↓              ..(n
 ```
 
 
-...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).  
+...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).
 
 A broad number of diverse (and divergent) systems can be driven by this one single
 "safe" state manipulation pattern.
@@ -85,7 +85,7 @@ type Immutable<T> = {
 
 type T = { count: number }
 
-// Generator<T> over some immutability strategy 
+// Generator<T> over some immutability strategy
 // (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
 
@@ -105,12 +105,12 @@ events.$.subscribe((e) => { /* handle event stream */ });
 
 /**
  * ↑ 💦
- * 
- * Stream of Patch<T> changes optionally available, 
+ *
+ * Stream of Patch<T> changes optionally available,
  * eg. "RFC-6902 JSON patch standard".
- * 
- * The Events<T> library itself enshrines the meaning of the message stream 
- * conceptually through domain specific, pre-canned, stongly typed properties 
+ *
+ * The Events<T> library itself enshrines the meaning of the message stream
+ * conceptually through domain specific, pre-canned, stongly typed properties
  * and methods of functional filters/helpers.
  */
 
@@ -124,8 +124,8 @@ events.dispose();
 
 # (Development) Philosophy
 
->> Open System.  
-   Open Commons.  
+>> Open System.
+   Open Commons.
 
 ---
 
@@ -139,16 +139,16 @@ events.dispose();
 
 [Doug McIlroy's](https://en.wikipedia.org/wiki/Douglas_McIlroy) 4-point formulation of the [Unix Philosophy](http://www.catb.org/esr/writings/taoup/html/ch01s06.html):
 
-1. **Make each program do one thing well.**  
+1. **Make each program do one thing well.**
    To do a new job, build afresh rather than complicate old programs by adding new features.
 
-2. **Expect the output of every program to become the input to another, as yet unknown, program.**  
+2. **Expect the output of every program to become the input to another, as yet unknown, program.**
    Don’t clutter output with extraneous information. Avoid stringently columnar or binary input formats. Don’t insist on interactive input.
 
-3. **Design and build software, even operating systems, to be tried early, ideally within weeks.**  
+3. **Design and build software, even operating systems, to be tried early, ideally within weeks.**
    Don’t hesitate to throw away the clumsy parts and rebuild them.
 
-4. **Use tools in preference to unskilled help to lighten a programming task**,  
+4. **Use tools in preference to unskilled help to lighten a programming task**,
    Even if you have to detour to build the tools and expect to throw some of them out after you’ve finished using them.
 
 <p>&nbsp;</p>
@@ -164,8 +164,8 @@ events.dispose();
 <p>&nbsp;</p>
 
 
->> **"libraries not frameworks"**  
->> An orientation toward framework agnosticism (which is the choise **default** in most circumstances). 
+>> **"libraries not frameworks"**
+>> An orientation toward framework agnosticism (which is the choise **default** in most circumstances).
 >> Then levered by a simple/strict extensino pattern, (eg. "drivers") as appropriate to the module's domain, technology, and constraints.
 
 <p>&nbsp;</p>
@@ -175,6 +175,15 @@ events.dispose();
 
 >> Software entities ( ƒn:🧫 ) should be open for extension but closed for modification.
 
+<p>&nbsp;</p>
+
+["Tools amplify capability, they don't replace it."](https://farcaster.xyz/pjc/0x565fee30)
+
+- Working in small batches, solving one problem at a time
+- Iterating rapidly, with continuous testing, code review, refactoring and integration
+- Architecting highly modular designs that localise the “blast radius” of changes
+- Organising around end-to-end outcomes instead of around role or technology specialisms
+- Working with high autonomy, making timely decisions on the ground instead of sending them up the chain of command
 
 <p>&nbsp;</p>
 
@@ -196,7 +205,7 @@ events.dispose();
 
 - [video](https://www.youtube.com/watch?v=Ud8WRAdihPg) Alan Kay, "Learning and Computer Science", 1970s, [video](https://www.youtube.com/watch?v=YyIQKBzIuBY) Alan Kay, 2011, "Programming and Scaling"
 - [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf) Alan Kay, 1984, "Opening the Hood of a Word Processor"
-- [video](https://www.youtube.com/watch?v=cmi-AXKvx30&t=323s) David Clark (1960's vs. 1970/80's)  
+- [video](https://www.youtube.com/watch?v=cmi-AXKvx30&t=323s) David Clark (1960's vs. 1970/80's)
   "But what's interesting, is once the engineers got a hold, the visionaries went away ([timestamp](https://www.youtube.com/watch?v=cmi-AXKvx30&t=253s))"
 - [video](https://www.youtube.com/watch?v=-C-JoyNuQJs) Crockford (2011) - "JSON [as the] intersection of all modern programming languages ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))"
 - [video](https://youtu.be/0fpDlAEQio4?t=2641) SmallTalk (1976, 1980), only three primitive concepts. Everything is an object*, everything is a "message", be as extremely late-bound as possible. Build everything else up and out of that (aka. LISP-ey).
@@ -206,7 +215,7 @@ events.dispose();
 
 <img width="710" alt="image" src="https://user-images.githubusercontent.com/185555/230206000-abc1c9bf-8ef4-477c-9740-53fd4a4c8186.png">
 
-[Augmenting Human Intellect](https://www.dougengelbart.org/content/view/138/): A Conceptual Framework  
+[Augmenting Human Intellect](https://www.dougengelbart.org/content/view/138/): A Conceptual Framework
 1962, Douglas C. Engelbart, SRI Summary Report - [ref](https://www.dougengelbart.org/content/view/138/)
 
 <p>&nbsp;</p>
@@ -217,8 +226,8 @@ events.dispose();
 
 <p>&nbsp;</p>
 
-## Human Systems 
-(aka. the "all of us"). Diverse social/relational networks of people, across scales. "People" not "users."  
+## Human Systems
+(aka. the "all of us"). Diverse social/relational networks of people, across scales. "People" not "users."
 Initial high fidelity design emphasis on the `1:1` (dyad) and `1:3` (tradic tendencies) as graph/network primitives.
 
 <p>&nbsp;</p>
@@ -228,8 +237,8 @@ Initial high fidelity design emphasis on the `1:1` (dyad) and `1:3` (tradic tend
 
 <p>&nbsp;</p>
 
-**Identity** is not one simple reductive thing (or a "rented" database ID owned by some arbitrary vendor).  Each and every one of us inhabit many contexturally dependent and diverse identities.  Overall system design must ultimately bridge all the way to that complexity if it is to be of enduring value.    
-“I am large, I contain multitudes” - [1892, Walt Whitman](https://en.wikipedia.org/wiki/Song_of_Myself)  
+**Identity** is not one simple reductive thing (or a "rented" database ID owned by some arbitrary vendor).  Each and every one of us inhabit many contexturally dependent and diverse identities.  Overall system design must ultimately bridge all the way to that complexity if it is to be of enduring value.
+“I am large, I contain multitudes” - [1892, Walt Whitman](https://en.wikipedia.org/wiki/Song_of_Myself)
 
 
 <p>&nbsp;</p>
@@ -267,7 +276,7 @@ Adjacent libs: `@sys/std/esm`, `@sys/driver-deno` (workspace).
 
 # [MIT](LICENSE.md).
 
-To understand the legal and historical context around the MIT Licence  
+To understand the legal and historical context around the MIT Licence
 and it's enduring importance as "an open-source classic", see **Kyle E. Mitchell**'s "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>

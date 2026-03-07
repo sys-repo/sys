@@ -1,9 +1,12 @@
-import { type t, RangeUtil } from './common.ts';
+import { type t, Is, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
 type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
 type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
+type UpdateOptionsArg = Parameters<IStandalone['updateOptions']>[0];
+type OnConfigurationChange = Parameters<IStandalone['onDidChangeConfiguration']>[0];
+const EDITOR_OPTION_LINE_HEIGHT = 67 as const;
 
 /** monotonic id generator */
 let __id = 0;
@@ -13,11 +16,12 @@ const newId = () => `e${(++__id).toString(36)}`;
  * Minimal `IStandaloneCodeEditor` fake.
  */
 export const fakeEditor: F = (input) => {
-  const model = wrangle.model(input);
+  let model = wrangle.model(input);
   const id = newId();
 
   let position: t.Offset = { lineNumber: 1, column: 1 };
   const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
+  const keySubs: Array<(e: unknown) => void> = [];
 
   /**
    * Model change:
@@ -90,6 +94,17 @@ export const fakeEditor: F = (input) => {
     };
   };
 
+  const onKeyDown: IStandalone['onKeyDown'] = (listener) => {
+    const fn = listener as unknown as (e: unknown) => void;
+    keySubs.push(fn);
+    return {
+      dispose() {
+        const i = keySubs.indexOf(fn);
+        if (i >= 0) keySubs.splice(i, 1);
+      },
+    };
+  };
+
   const setPosition = (pos: t.Offset) => {
     position = pos;
     const evt = {
@@ -100,6 +115,48 @@ export const fakeEditor: F = (input) => {
     } as unknown as t.Monaco.I.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
   };
+
+  /**
+   * Configuration change:
+   */
+  const configSubs: OnConfigurationChange[] = [];
+  const onDidChangeConfiguration: IStandalone['onDidChangeConfiguration'] = (listener) => {
+    configSubs.push(listener);
+    return {
+      dispose() {
+        const i = configSubs.indexOf(listener);
+        if (i >= 0) configSubs.splice(i, 1);
+      },
+    };
+  };
+  const _emitDidChangeConfiguration = () => {
+    const event = {} as Parameters<OnConfigurationChange>[0];
+    for (const fn of [...configSubs]) fn(event);
+  };
+
+  const setModel: IStandalone['setModel'] = (next) => {
+    const old = model;
+    model = next ? wrangle.model(next as any) : wrangle.model('');
+    _emitDidChangeModel({
+      oldModelUrl: old.uri,
+      newModelUrl: model.uri,
+    });
+  };
+
+  /**
+   * Editor options:
+   */
+  const updateOptionsCalls: UpdateOptionsArg[] = [];
+  const optionState = new Map<number, unknown>([[EDITOR_OPTION_LINE_HEIGHT, 21]]);
+  const updateOptions: IStandalone['updateOptions'] = (options) => {
+    updateOptionsCalls.push(options);
+    if (Is.num(options?.lineHeight)) {
+      const current = optionState.get(EDITOR_OPTION_LINE_HEIGHT);
+      optionState.set(EDITOR_OPTION_LINE_HEIGHT, options.lineHeight);
+      if (current !== options.lineHeight) _emitDidChangeConfiguration();
+    }
+  };
+  const getOption: IStandalone['getOption'] = ((id: number) => optionState.get(id)) as IStandalone['getOption'];
 
   /**
    * Trigger.
@@ -200,6 +257,53 @@ export const fakeEditor: F = (input) => {
     return true;
   };
 
+  const _fireKeyDown: t.FakeEditor['_fireKeyDown'] = (args) => {
+    const key = args?.key ?? 'Enter';
+    const code = args?.code ?? (key === 'Enter' ? 'Enter' : '');
+    const shiftKey = !!args?.shiftKey;
+    const altKey = !!args?.altKey;
+    const ctrlKey = !!args?.ctrlKey;
+    const metaKey = !!args?.metaKey;
+    let prevented = false;
+    const event = {
+      keyCode: key === 'Enter' ? 3 : undefined,
+      code,
+      shiftKey,
+      altKey,
+      ctrlKey,
+      metaKey,
+      browserEvent: {
+        key,
+        code,
+        shiftKey,
+        altKey,
+        ctrlKey,
+        metaKey,
+      },
+      preventDefault: () => {
+        prevented = true;
+      },
+      stopPropagation: () => {},
+    };
+
+    for (const fn of [...keySubs]) fn(event);
+    if (key !== 'Enter' || prevented) return;
+
+    const pos = api.getPosition();
+    if (!pos) return;
+    api.executeEdits('keyboard', [
+      {
+        range: {
+          startLineNumber: pos.lineNumber,
+          startColumn: pos.column,
+          endLineNumber: pos.lineNumber,
+          endColumn: pos.column,
+        },
+        text: '\n',
+      },
+    ]);
+  };
+
   /**
    * No-ops:
    */
@@ -223,21 +327,30 @@ export const fakeEditor: F = (input) => {
     // Setters (Mutate):
     setHiddenAreas,
     setPosition,
+    setModel,
     trigger,
 
     // Methods:
     executeEdits,
+    getOption,
+    updateOptions,
     revealPositionInCenterIfOutsideViewport,
     revealRangeInCenterIfOutsideViewport,
 
     // Handlers:
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,
+    onKeyDown,
     onDidChangeModel,
+    onDidChangeConfiguration,
 
     // Test API:
     _emitDidChangeModel,
+    _emitDidChangeConfiguration,
     _getViewModel: () => ({ getHiddenAreas }),
+    _getUpdateOptionsCalls: () => [...updateOptionsCalls],
+    _setOption: (id, value) => optionState.set(id, value),
+    _fireKeyDown,
   };
 
   return api as t.FakeEditorFull;

@@ -26,6 +26,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
     Rx.filter((e) => e.kind === 'editor:crdt:folding'),
     Rx.auditTime(0), // ← coalesce per microtask.
     Rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
+    Rx.shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   // Model changed → emit one baseline snapshot on attach.

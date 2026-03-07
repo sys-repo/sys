@@ -1,7 +1,7 @@
-import { YamlObjectView } from '@sys/driver-monaco/dev';
+import { YamlObjectView } from '../../-dev/mod.ts';
 import React from 'react';
 
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import {
@@ -17,6 +17,7 @@ import {
   ObjectView,
   Rx,
   Signal,
+  Str,
 } from '../common.ts';
 
 type P = t.MonacoEditorProps;
@@ -34,7 +35,7 @@ const defaults: Storage = {
   logEventBus: true,
 };
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };
 
 /**
  * Types:
@@ -50,6 +51,8 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
+  const bus$ = Rx.subject<t.EditorEvent>();
 
   const props = {
     debug: s(snap.debug),
@@ -68,11 +71,10 @@ export async function createDebugSignals() {
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,
-    bus$: Rx.subject<t.EditorEvent>(),
+    bus$,
     reset,
     listen,
   };
@@ -82,7 +84,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   Signal.effect(() => {
@@ -99,6 +101,15 @@ export async function createDebugSignals() {
   api.bus$
     .pipe(Rx.filter((e) => !!p.logEventBus.value))
     .subscribe((e) => console.info(`💦 [bus]:`, e));
+
+  Signal.effect((e) => {
+    const doc = p.doc.value;
+    doc?.events(e.life).$.subscribe((e) => {
+      const p = e.patches.length;
+      const patches = `${p}-${Str.plural(p, 'patch', 'patches')}`;
+      console.info(`⚡️ Signal.effect(life):doc(${patches}):`, e);
+    });
+  });
 
   return api;
 }

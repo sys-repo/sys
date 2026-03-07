@@ -1,0 +1,17 @@
+/**
+ * Tools for working on strings of text.
+ * @module
+ *
+ * @example
+ * ```ts
+ * import { Str } from '@sys/std/value';
+ *
+ * const long = 'hello world.'.repeat(100)'
+ * const short = Str.shorten(long);
+ * const caps = Str.capitalize(short);
+ *
+ * expect(Value.Str).to.equal(Str);
+ * ```
+ */
+export { Lorem } from './m.Lorem.ts';
+export { Str, bytes, capitalize, diff, plural } from './m.Str.ts';

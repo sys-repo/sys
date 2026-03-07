@@ -7,31 +7,30 @@ import type {
 import type { t } from './common.ts';
 
 type StringDatabaseName = string;
-type StringWebsocketEndpoint = string;
 
 /**
  * API for CRDT's on IndexedDB (browser):
  */
-export type CrdtBrowserLib = t.CrdtLib & {
-  readonly kind: 'Crdt:Browser';
-  repo(args?: CrdtBrowserRepoArgs): t.CrdtRepo;
+export type CrdtWebLib = t.CrdtLib & {
+  readonly kind: 'crdt:web';
+  repo(args?: CrdtWebRepoArgs): t.CrdtRepo;
 };
 
 /** Arguments for browser `Crdt.repo` method. */
-export type CrdtBrowserRepoArgs = {
-  storage?: CrdtBrowserStorageArgInput;
-  network?: CrdtBrowserNetworkArgInput | CrdtBrowserNetworkArgInput[];
+export type CrdtWebRepoArgs = {
+  storage?: CrdtWebStorageArgInput;
+  network?: CrdtWebNetworkArgInput | CrdtWebNetworkArgInput[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
-  dispose$?: t.UntilInput;
+  until?: t.UntilInput;
 };
 
 /** Storage argument. */
-export type CrdtBrowserStorageArg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
+export type CrdtWebStorageArg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
 /** Looser input args taking specific CRDT args, and general storage interface types. */
-export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterInterface;
+export type CrdtWebStorageArgInput = CrdtWebStorageArg | StorageAdapterInterface;
 
 /** Network connection argument. */
-export type CrdtBrowserNetworkArg = { ws: StringWebsocketEndpoint };
+export type CrdtWebNetworkArg = t.CrdtWebsocketNetworkArg;
 /** Looser input args taking specific CRDT args, and general network interface types. */
-export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface | t.Falsy;
+export type CrdtWebNetworkArgInput = CrdtWebNetworkArg | NetworkAdapterInterface | t.Falsy;

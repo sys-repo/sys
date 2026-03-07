@@ -1,19 +1,23 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 import type { JSX } from 'react';
 export type { FC } from 'react';
-
-export type * from './m.Async/t.ts';
-export type * from './m.FC/t.ts';
-export type * from './m.Signal/t.ts';
-export type * from './m.Testing.Server/t.ts';
-export type * from './u/t.ts';
-export type * from './use/t.ts';
 
 /** The output of a render function. */
 export type RenderOutput = JSX.Element | null | undefined | false;
 
 /** Input types that can be passed to a render function */
 export type RenderInput = RenderOutput | string | number;
+
+/**
+ * Library:
+ */
+export type * from './m.async/t.ts';
+export type * from './m.effect/t.ts';
+export type * from './m.fc/t.ts';
+export type * from './m.signal/t.ts';
+export type * from './m.testing.server/t.ts';
+export type * from './u/t.ts';
+export type * from './use/t.ts';
+export type * from './use/use.WebFont/t.ts';

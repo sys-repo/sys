@@ -1,8 +1,8 @@
 import { pkg, Pkg } from '../common.ts';
 
 export { Crdt, DocumentId } from '@sys/driver-automerge/web/ui';
-export { Monaco } from '@sys/driver-monaco';
 export { SplitPane } from '@sys/ui-react-components';
+export { Monaco } from '../m.Monaco/mod.ts';
 export * from '../ui/common.ts';
 
 /**
@@ -15,4 +15,4 @@ export const DEFAULTS = {
   borderOpacity: 0.3,
 } as const;
 export const D = DEFAULTS;
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };

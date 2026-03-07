@@ -2,9 +2,20 @@ import { type t } from './common.ts';
 
 export const Is: t.MediaIsLib = {
   mediaStream(input?: unknown): input is MediaStream {
-    return typeof MediaStream === 'function'
-      ? input instanceof MediaStream
-      : !!input && typeof input === 'object' && 'getTracks' in input;
+    if (!input || typeof input !== 'object') return false;
+
+    const o = input as Record<string, unknown>;
+    const hasGetTracks = typeof o.getTracks === 'function';
+
+    // If MediaStream exists (eg Happy DOM / browser), accept either:
+    // - true instance
+    // - structural duck type (so unit tests don't need a DOM runtime)
+    if (typeof MediaStream === 'function') {
+      return input instanceof MediaStream || hasGetTracks;
+    }
+
+    // Non-DOM runtimes: structural fallback only.
+    return hasGetTracks;
   },
 
   constraints(input?: unknown): input is MediaStreamConstraints {

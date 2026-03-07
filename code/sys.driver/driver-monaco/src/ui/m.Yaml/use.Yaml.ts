@@ -66,7 +66,13 @@ export const useYaml: t.UseEditorYaml = (args) => {
   React.useEffect(() => {
     if (!doc || !path) return void setParser(undefined);
 
-    const parser = Yaml.syncer({ doc, path, debounce });
+    const parser = Yaml.syncer({
+      doc,
+      // ↓ Unless explicitly specified, do not save parsed YAML on the target document.
+      //   Rationale: reduces size buildup on CRDT of duplicate information.
+      path: Obj.Path.Is.path(path) ? { source: path, target: null } : path,
+      debounce,
+    });
     setParser(parser);
 
     const emit = () => {

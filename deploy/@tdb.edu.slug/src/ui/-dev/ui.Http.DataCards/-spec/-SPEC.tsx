@@ -1,0 +1,50 @@
+import { Dev, Signal, Spec } from '../../../-test.ui.ts';
+import { ActionProbe, D } from '../common.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
+  const p = debug.props;
+
+  function Root() {
+    const v = Signal.toObject(p);
+    return (
+      <ActionProbe.Result
+        title={v.result.title}
+        resultsVisible={v.result.visible}
+        debug={v.debug}
+        theme={v.theme}
+        spinning={v.spinning}
+        items={v.result.items}
+        response={v.result.response}
+        obj={v.result.obj}
+        onResultsVisibleChange={(next) => debug.action.resultVisible(next)}
+        sizeMode={'fill'}
+      />
+    );
+  }
+
+  e.it('init', (e) => {
+    const ctx = Spec.ctx(e);
+
+    update();
+    function update() {
+      debug.listen();
+      ctx.redraw();
+    }
+
+    Signal.effect(update);
+    Dev.Theme.signalEffect(ctx, p.theme, 1);
+
+    ctx.debug.width(420);
+    ctx.subject
+      .size([420, 500])
+      .display('grid')
+      .render(() => <Root />);
+  });
+
+  e.it('ui:debug', (e) => {
+    const ctx = Spec.ctx(e);
+    ctx.debug.row(<Debug debug={debug} />);
+  });
+});

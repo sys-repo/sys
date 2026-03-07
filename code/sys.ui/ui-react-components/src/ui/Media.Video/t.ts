@@ -15,8 +15,8 @@ export type MediaVideoLib = {
   /**
    * Build a MediaStream whose video is run through a CSS-filter pipeline.
    *
-   * @param constraints – any valid getUserMedia constraints (eg { video: true, audio: true })
-   * @param filter      – any CSS filter string, eg 'brightness(120%) contrast(110%)'
+   * @param constraints - any valid getUserMedia constraints (eg { video: true, audio: true })
+   * @param filter      - any CSS filter string, eg 'brightness(120%) contrast(110%)'
    *
    * The returned stream has:
    *   • filtered video track (from the canvas).

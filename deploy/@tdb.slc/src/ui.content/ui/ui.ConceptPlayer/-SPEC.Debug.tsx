@@ -16,7 +16,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
-  const video = Player.Video.signals({
+  const video = Player.Video.Signals.create({
     src: VIDEO.GroupScale.src,
     scale: (e) => e.enlargeBy(2),
     fadeMask: 10,

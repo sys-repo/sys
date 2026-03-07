@@ -25,8 +25,8 @@ export const build: B = async (input) => {
     await remove('**/.DS_Store');
   };
 
-  const computeDist = async (entry: string, save: boolean) => {
-    const res = await Pkg.Dist.compute({ dir, pkg, builder, entry, save });
+  const computeDist = async (save: boolean) => {
+    const res = await Pkg.Dist.compute({ dir, pkg, builder, save });
     return res.dist;
   };
 
@@ -69,7 +69,7 @@ export const build: B = async (input) => {
       stderr: output.text.stderr,
       stdout: output.text.stdout,
     };
-    const dist = await computeDist('', false);
+    const dist = await computeDist(false);
     const res = response({ ok: false, output, elapsed: timer.elapsed.msec, dist });
 
     console.error(message);
@@ -129,9 +129,8 @@ export const build: B = async (input) => {
   /**
    * Success:
    */
-  const entry = await wrangle.entryPath(dir);
   const elapsed = timer.elapsed.msec;
-  const dist = await computeDist(entry, true);
+  const dist = await computeDist(true);
   const res = response({ ok: true, output, elapsed, dist });
 
   spinner.stop();
@@ -142,12 +141,6 @@ export const build: B = async (input) => {
  * Helpers:
  */
 const wrangle = {
-  async entryPath(dist: t.StringDir) {
-    const paths = await Fs.glob(dist).find('pkg/-entry.*');
-    const filename = paths[0]?.name ?? '';
-    return filename ? `./pkg/${filename}` : '';
-  },
-
   cleanPath(input: t.StringPath = '') {
     return input
       .trim()

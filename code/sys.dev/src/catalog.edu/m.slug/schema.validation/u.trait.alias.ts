@@ -3,9 +3,9 @@ import { type t, Is } from '../common.ts';
 export function readTraits(slug: unknown) {
   const s = slug as any;
   const traits = Array.isArray(s?.traits) ? s.traits : [];
-  const p = s?.props;
-  const props = Is.record(p) ? (p as Record<string, unknown>) : undefined;
-  return { traits, props };
+  const d = s?.data;
+  const data = Is.record(d) ? (d as Record<string, unknown>) : undefined;
+  return { traits, data };
 }
 
 export function indexAliases(traits: any[]): t.SlugTraitAliasIndex {

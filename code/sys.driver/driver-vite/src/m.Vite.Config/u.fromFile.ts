@@ -1,22 +1,31 @@
 import { loadConfigFromFile } from 'vite';
-import { type t, Delete, Err, Path, PATHS } from './common.ts';
+import { type t, Delete, Err, Fs, Path, PATHS } from './common.ts';
 
 /**
  * Attempts to dynamically load a `vite.config.ts` module.
  */
 export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   const errors = Err.errors();
-  const configRoot = wrangle.configDir(input);
+  const { configRoot, configFile } = wrangle.configDir(input);
 
   /**
    * TODO 🐷 change configRoot to ./.tmp/sample/<vite.config.ts>
    */
+  if (configFile && !(await Fs.exists(configFile))) {
+    const root = Path.dirname(configFile);
+    errors.push(`A config file could not be found in directory: ${root}`);
+    return Delete.undefined<t.ViteConfigFromFile>({
+      exists: false,
+      paths: undefined,
+      error: errors.toError(),
+    });
+  }
 
   const command = 'build';
   const mode = 'production';
   const fromFile = await loadConfigFromFile(
     { command, mode }, // param: configEnv
-    undefined, //         param: configFile
+    configFile, //        param: configFile
     configRoot, //        param: configRoot
     undefined, //         param: logLevel
     undefined, //         param: customLogger
@@ -24,7 +33,10 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   );
 
   const exists = fromFile !== null;
-  if (!exists) errors.push(`A config file could not be found in directory: ${configRoot}`);
+  if (!exists) {
+    const root = configFile ? Path.dirname(configFile) : configRoot;
+    errors.push(`A config file could not be found in directory: ${root}`);
+  }
 
   let paths: t.ViteConfigPaths | undefined;
   if (exists) {
@@ -50,8 +62,10 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
  */
 const wrangle = {
   configDir(input?: string) {
-    if (typeof input !== 'string') return Path.cwd();
-    if (input.endsWith('vite.config.ts')) return Path.dirname(input);
-    return input;
+    if (typeof input !== 'string') return { configRoot: Path.cwd(), configFile: undefined };
+    if (input.endsWith('vite.config.ts')) {
+      return { configRoot: Path.dirname(input), configFile: input };
+    }
+    return { configRoot: input, configFile: undefined };
   },
 } as const;

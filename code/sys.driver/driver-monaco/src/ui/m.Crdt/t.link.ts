@@ -16,7 +16,7 @@ export type EditorCrdtLinkLib = Readonly<{
 export type EditorCrdtRegisterLink = (
   ctx: t.MonacoCtx,
   options?: t.EditorCrdtRegisterLinkOptions | t.EditorCrdtLinkClickHandler,
-) => t.Lifecycle;
+) => Promise<t.Lifecycle>;
 
 /** Options passed to the `Crdt.registerLink` method. */
 export type EditorCrdtRegisterLinkOptions = {
@@ -61,15 +61,12 @@ export type EditorCrdtLinkCreateDoc = (
   ctx: t.MonacoCtx,
   repo: t.CrdtRepo,
   bounds: t.EditorLinkBounds,
-) => EditorCrdtLinkCreateResult;
+) => Promise<EditorCrdtLinkCreateResult>;
 
 /**
  * Result from `EditorCrdtLink.create`.
  */
-export type EditorCrdtLinkCreateResult = {
-  doc?: t.CrdtRef;
-  error?: t.StdError;
-};
+export type EditorCrdtLinkCreateResult = t.Crdt.RefResult;
 
 /**
  * Registers a link listener on the given editor context and
@@ -79,7 +76,7 @@ export type EditorCrdtLinkEnable = (
   ctx: t.MonacoCtx,
   repo: t.CrdtRepo,
   options?: t.EditorCrdtLinkEnableOptions | t.UntilInput,
-) => t.Lifecycle;
+) => Promise<t.Lifecycle>;
 
 /** Options passed to the `Link.enable` method. */
 export type EditorCrdtLinkEnableOptions = {

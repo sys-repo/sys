@@ -1,5 +1,5 @@
 import { Wrangle } from '../m.Vite/u.wrangle.ts';
-import { type t, Args, c, DenoModule, Path, pkg, Vite, ViteLog } from './common.ts';
+import { type t, Args, c, Path, pkg, ViteLog } from './common.ts';
 
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
@@ -49,31 +49,6 @@ export const main: t.ViteEntryLib['main'] = async (input) => {
     if (info === true) api = false; // NB: don't show the API if specific "info" was requested.
 
     await ViteLog.Help.log({ pkg, dirs, api });
-    return;
-  }
-
-  if (cmd === 'backup') {
-    const { dir = '.', includeDist, force } = args;
-    console.info();
-    await Vite.backup({ dir, includeDist, force });
-    console.info();
-    return;
-  }
-
-  if (cmd === 'upgrade') {
-    const { dir = '.', force = false, dryRun } = args;
-    await DenoModule.upgrade({
-      name: pkg.name,
-      currentVersion: pkg.version,
-      targetVersion: args.version,
-      dir,
-      force,
-      dryRun,
-      async beforeUpgrade({ message }) {
-        console.info();
-        await Vite.backup({ dir, includeDist: false, message });
-      },
-    });
     return;
   }
 

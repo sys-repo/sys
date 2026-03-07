@@ -1,0 +1,96 @@
+import { type t, Is, SlugUrl } from './common.ts';
+import { Assets } from './m.io.timeline.Assets.ts';
+import { Playback } from './m.io.timeline.Playback.ts';
+import { Dist } from './u.io.Dist.ts';
+
+export const Bundle: t.SlugClientTimelineBundleLib = {
+  load,
+};
+
+async function load<P = unknown>(
+  baseUrl: t.StringUrl,
+  docid: t.StringId,
+  opts?: t.SlugTimelineBundleLoadOptions,
+): Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>> {
+  const distResult = await Dist.load(baseUrl, opts);
+  if (!distResult.ok) return { ok: false, error: distResult.error };
+  const dist = distResult.value;
+
+  const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
+  const playbackKey = SlugUrl.playbackFilename(cleanedDocid);
+  const assetsKey = SlugUrl.assetsFilename(cleanedDocid);
+
+  if (!Dist.hasPart(dist, playbackKey)) {
+    return {
+      ok: false,
+      error: {
+        kind: 'schema',
+        message: `Playback manifest not present in dist.json: ${playbackKey}`,
+      },
+    };
+  }
+
+  let assetsManifest: t.SpecTimelineAssetsManifest;
+  if (Dist.hasPart(dist, assetsKey)) {
+    const assetsResult = await Assets.load(baseUrl, docid, opts);
+    if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
+    assetsManifest = assetsResult.value;
+  } else {
+    assetsManifest = { docid: cleanedDocid, assets: [] };
+  }
+
+  const playbackResult = await Playback.load<P>(baseUrl, docid, opts);
+  if (!playbackResult.ok) return { ok: false, error: playbackResult.error };
+
+  const hrefBase = new URL(opts?.urls?.assetBase ?? baseUrl);
+  const baseOrigin = hrefBase.origin;
+  const basePath = hrefBase.pathname.replace(/\/$/, '');
+  const normalizeHref = (href: string) => {
+    const raw = href;
+    if (Is.urlString(raw)) return raw;
+    if (href.startsWith('/')) {
+      return new URL(`${basePath}${href}`, baseOrigin).toString();
+    }
+    return new URL(href, hrefBase.href).toString();
+  };
+
+  const resolveHref = (asset: t.SpecTimelineAsset) => {
+    const normalized = SlugUrl.Composition.rewriteShardHost({
+      href: normalizeHref(asset.href),
+      asset,
+      layout: opts?.layout,
+    });
+    if (opts?.hrefResolver) {
+      return opts.hrefResolver({
+        href: normalized,
+        kind: asset.kind,
+        logicalPath: asset.logicalPath,
+      });
+    }
+    return normalized;
+  };
+
+  const assetMap = new Map<string, t.SpecTimelineAsset>();
+  for (const asset of assetsManifest.assets) {
+    const normalized: t.SpecTimelineAsset = {
+      ...asset,
+      href: resolveHref(asset),
+    };
+    assetMap.set(`${asset.kind}:${asset.logicalPath}`, normalized);
+  }
+
+  const resolveAsset = (opts: t.Timecode.Playback.ResolverArgs) => {
+    return assetMap.get(`${opts.kind}:${opts.logicalPath}`);
+  };
+
+  const bundle: t.SpecTimelineBundle<P> = {
+    docid: cleanedDocid,
+    spec: {
+      composition: playbackResult.value.composition,
+      beats: playbackResult.value.beats,
+    },
+    resolveAsset,
+  };
+
+  return { ok: true, value: bundle };
+}

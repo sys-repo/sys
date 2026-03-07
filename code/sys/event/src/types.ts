@@ -1,7 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
-
-export type * from './m.Event.Filter/t.ts';
-export type * from './m.Event/t.ts';
+export type * from './m.bus/t.ts';
+export type * from './m.cmd/t.ts';

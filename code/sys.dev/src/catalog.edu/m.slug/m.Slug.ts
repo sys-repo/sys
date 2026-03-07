@@ -1,25 +1,49 @@
 /**
  * @module Slug
- * Domain schemas, trait registry, and semantic validation rules.
+ * Domain schemas and semantic validation (core only).
  * Format-agnostic; used by YAML pipelines and future data sources.
  */
 import type { t } from './common.ts';
 
-import { SlugSchema, TraitBindingSchema, TraitDefSchema } from './schema.slug/mod.ts';
-import { TraitRegistryDefault } from './schema.trait.registry/mod.ts';
-import { Traits } from './schema.traits/mod.ts';
+import { Has } from './m.Slug.Has.ts';
+import { Is } from './m.Slug.Is.ts';
+import {
+  SlugMinimalSchema,
+  SlugRefSchema,
+  SlugSchema,
+  SlugTreeItemSchema,
+  SlugTreePropsSchema,
+  SlugWithDataSchema,
+  TraitBindingSchema,
+  TraitDefSchema,
+} from './schema.slug/mod.ts';
 import { Validation } from './schema.validation/mod.ts';
+import { Tree } from './tree/mod.ts';
 
 /**
- * Semantic Slug domain tools (registry-aware validators, helpers).
+ * Semantic Slug domain tools (core only).
+ * No concrete trait schemas or default registries here.
  */
 export const Slug: t.SlugLib = {
+  Is,
+  Has,
   Validation,
-  Traits,
-  Registry: { DefaultTraits: TraitRegistryDefault },
+  Tree,
   Schema: {
-    SlugSchema,
-    TraitBindingSchema,
-    TraitDefSchema,
+    get Slug() {
+      return {
+        Union: SlugSchema,
+        Ref: SlugRefSchema,
+        Minimal: SlugMinimalSchema,
+        WithData: SlugWithDataSchema,
+        Tree: { Props: SlugTreePropsSchema, Item: SlugTreeItemSchema },
+      };
+    },
+    get Trait() {
+      return {
+        Binding: TraitBindingSchema,
+        Def: TraitDefSchema,
+      };
+    },
   },
 };

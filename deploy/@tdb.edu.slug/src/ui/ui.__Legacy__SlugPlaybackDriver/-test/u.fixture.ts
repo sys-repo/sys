@@ -1,0 +1,53 @@
+import { type t, Effect, Immutable, Player, slug } from '../common.ts';
+
+/**
+ * Test-only base URL used by SlugPlaybackDriver fixtures.
+ * Not exported by runtime modules.
+ */
+export const baseUrl: t.StringUrl = 'http://test';
+
+/**
+ * Create test VideoDecks signals.
+ */
+export function createTestDecks(): t.VideoDecks {
+  return Player.Video.Decks.create();
+}
+
+/**
+ * Create a SlugPlaybackController wired with real EffectController
+ * machinery, intended for unit tests only.
+ *
+ * - Uses Immutable.clonerRef for state
+ * - No runtime side-effects
+ * - Caller owns disposal
+ */
+export function createTestController() {
+  type State = t.SlugPlaybackState;
+  type Props = t.SlugPlaybackControllerProps;
+
+  const id = `slug-playback-${slug()}`;
+  const ref = Immutable.clonerRef<State>({});
+  const props: Props = { baseUrl };
+  return Effect.Controller.create({ id, ref, props });
+}
+
+/**
+ * Minimal playback bundle fixture.
+ *
+ * Satisfies the PlaybackDriver wire contract without providing
+ * a real timeline, beats, or media resolver.
+ *
+ * Use only for tests that do not exercise playback semantics.
+ */
+export function makeTestPlaybackBundle(docid: t.StringId): t.TimecodePlaybackDriver.Wire.Bundle {
+  const spec = {
+    composition: undefined,
+    beats: [],
+  } as unknown as t.Timecode.Playback.Spec<unknown>;
+
+  return {
+    docid,
+    spec,
+    resolveAsset: () => undefined,
+  };
+}

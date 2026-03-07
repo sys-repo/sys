@@ -1,0 +1,42 @@
+import { type t, Schema, Yaml } from '../common.ts';
+import { __NAME__YamlSchema } from './u.schema.ts';
+
+export const __NAME__YamlErrorCode: t.Yaml.Error['code'] = 'BAD_ALIAS';
+
+export function validate__NAME__YamlText(text: string): t.__NAME__Tool.ConfigYaml.YamlCheck {
+  const ast = Yaml.parseAst(text);
+
+  if (ast.errors?.length) {
+    return {
+      ok: false,
+      errors: Schema.Error.fromYaml(ast.errors),
+    };
+  }
+
+  const js = Yaml.toJS<t.__NAME__Tool.ConfigYaml.Doc>(ast);
+  if (!js.ok) {
+    return {
+      ok: false,
+      errors: Schema.Error.fromYaml(Yaml.Diagnostic.toYamlErrors([...js.errors])),
+    };
+  }
+
+  if (js.data === undefined) {
+    const err = Yaml.Error.synthetic({
+      message: 'YAML conversion produced no value.',
+      code: __NAME__YamlErrorCode,
+      pos: [0, 0],
+    });
+    return { ok: false, errors: Schema.Error.fromYaml([err]) };
+  }
+
+  const checked = __NAME__YamlSchema.validate(js.data);
+  if (!checked.ok) {
+    return {
+      ok: false,
+      errors: Schema.Error.fromSchema(ast, checked.errors),
+    };
+  }
+
+  return { ok: true, doc: js.data };
+}

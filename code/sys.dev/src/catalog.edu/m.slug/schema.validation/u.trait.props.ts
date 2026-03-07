@@ -4,14 +4,16 @@ import { indexAliases, readTraits } from './u.trait.alias.ts';
 type L = t.SlugValidationLib;
 
 /**
- * Validates alias–props consistency:
+ * Validates alias-data consistency:
  * - duplicate aliases
- * - missing props for declared aliases
- * - orphan props without matching traits
+ * - missing data for declared aliases
+ * - orphan data without matching traits
+ *
+ * Note: emits RELATIVE paths; range attachment applies basePath upstream.
  */
 export const validateAliasRules: L['validateAliasRules'] = (input) => {
   const { slug, basePath = [] } = input;
-  const { traits, props } = readTraits(slug);
+  const { traits, data } = readTraits(slug);
   if (!traits.length) return [];
 
   const { byAlias } = indexAliases(traits);
@@ -20,35 +22,35 @@ export const validateAliasRules: L['validateAliasRules'] = (input) => {
     errors.push({ kind: 'semantic', path: [...basePath, ...path], message });
   };
 
-  // 1. Duplicate alias:
+  // 1) Duplicate alias:
   for (const [as, idxs] of byAlias) {
     if (idxs.length > 1) {
-      // Mark all duplicates after the first
-      idxs.slice(1).forEach((i) => {
+      // Mark duplicates after the first occurrence.
+      for (const i of idxs.slice(1)) {
         pushError(['traits', i, 'as'], `Duplicate trait alias: "${as}"`);
-      });
+      }
     }
   }
 
-  // If no {props} object, still report missing for any alias binds:
-  if (!props) {
+  // If no {data} object, still report missing for any alias binds:
+  if (!data) {
     for (const as of byAlias.keys()) {
-      pushError(['props'], `Missing props for alias: "${as}"`);
+      pushError(['data'], `Missing data for alias: "${as}"`);
     }
     return errors;
   }
 
-  // 2. Missing props for alias:
+  // 2) Missing data for alias:
   for (const as of byAlias.keys()) {
-    if (!(as in props)) {
-      pushError(['props'], `Missing props for alias: "${as}"`);
+    if (!(as in data)) {
+      pushError(['data'], `Missing data for alias: "${as}"`);
     }
   }
 
-  // 3. Orphan props keys:
-  for (const key of Object.keys(props)) {
+  // 3) Orphan data keys:
+  for (const key of Object.keys(data)) {
     if (!byAlias.has(key)) {
-      pushError(['props', key], `Orphan props: "${key}" (no matching trait alias)`);
+      pushError(['data', key], `Orphan data: "${key}" (no matching trait alias)`);
     }
   }
 
@@ -56,38 +58,38 @@ export const validateAliasRules: L['validateAliasRules'] = (input) => {
 };
 
 /**
- * Validates prop object shapes against each trait’s schema
- * using the registered definitions.
+ * Validates per-alias instance data shape against each trait’s schema.
+ * - Looks up trait by `traits[].of`
+ * - Validates the value at `data[alias]`
+ * - Emits paths under: ['data', alias, ...schemaPath]
  */
 export function validatePropsShape(input: t.SlugValidateInput): t.Schema.ValidationError[] {
   const { slug, registry, basePath = [] } = input;
-  const { traits, props } = readTraits(slug);
-  if (!traits.length || !props) return [];
+  const { traits, data } = readTraits(slug);
+  if (!traits.length || !data) return [];
 
   const errors: t.Schema.ValidationError[] = [];
 
-  // Build alias → trait id map (only valid string ids):
+  // Build alias → trait-id map from traits[].{as,of}
   const aliasToTrait = new Map<string, string>();
-  for (const tr of traits) {
+  for (const tr of traits as Array<{ as?: unknown; of?: unknown }>) {
     const as = tr?.as;
-    const id = tr?.id;
-    if (Is.string(as) && Is.string(id)) aliasToTrait.set(as, id);
+    const of = tr?.of;
+    if (Is.string(as) && Is.string(of)) aliasToTrait.set(as, of);
   }
 
-  for (const [as, value] of Object.entries(props)) {
+  // Validate each present data bucket against its trait's schema.
+  for (const [as, value] of Object.entries(data)) {
     const traitId = aliasToTrait.get(as);
     if (!traitId) continue; // orphan handled in validateAliasRules
 
     const entry = registry.get(traitId as t.SlugTraitId);
-    if (!entry) continue; // unknown trait handled in existence validator.
+    if (!entry) continue; // unknown trait handled in existence validator
 
-    // Validate shape:
-    const iterator = Value.Errors(entry.propsSchema, value);
-    for (const e of iterator) {
-      // Normalize TypeBox's JSON Pointer (string) or array path → [ObjectPath]:
-      const segs = Obj.Path.normalize((e as any).path, { numeric: true });
-      const base = basePath ?? [];
-      const path: t.ObjectPath = [...base, 'props', as, ...segs];
+    // TypeBox validator yields iterator of errors with pointer paths.
+    for (const e of Value.Errors(entry.propsSchema, value)) {
+      const segs = Obj.Path.normalize((e as { path?: unknown }).path, { numeric: true });
+      const path: t.ObjectPath = [...basePath, 'data', as, ...segs];
       errors.push({ kind: 'semantic', path, message: e.message });
     }
   }

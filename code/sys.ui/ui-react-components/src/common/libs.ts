@@ -5,27 +5,12 @@ export { Motion as M, Motion };
 /**
  * System
  */
-export {
-  Arr,
-  Err,
-  Is,
-  isRecord,
-  JsrUrl,
-  Log,
-  Num,
-  Obj,
-  Path,
-  Pkg,
-  R,
-  slug,
-  Str,
-  Time,
-  Timestamp,
-  Try,
-  Url,
-} from '@sys/std';
+export { Delete, Err, Is, Json, JsrUrl, Log, Path, Pkg, R, slug, Try, Url } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { Time, Timecode } from '@sys/std/time';
+export { Arr, Num, Obj, Str } from '@sys/std/value';
+export { Filter } from '@sys/text/filter';
 
 export { Http } from '@sys/http/client';
 export { Color, css, Style } from '@sys/ui-css';

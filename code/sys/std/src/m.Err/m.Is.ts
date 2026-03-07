@@ -1,6 +1,10 @@
 import { type t, isRecord } from './common.ts';
 
-export const Is: t.ErrIs = {
+export const Is: t.ErrIsLib = {
+  error(input: unknown): input is Error {
+    return input instanceof Error;
+  },
+
   /**
    * Determine if the given value is "like" an error in that it
    * exposes a {message} property.

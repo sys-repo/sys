@@ -1,28 +1,10 @@
 import type { t } from '../common.ts';
 
-type ErrorGeneratorInput = unknown | Response;
+export type * from './t.lib.ts';
+export type * from './t.is.ts';
 
-/**
- * Helpers for working with errors.
- */
-export type ErrLib = {
-  /** Type guards (boolean evaluators). */
-  readonly Is: t.ErrIs;
-  /** The standard named error types. */
-  readonly Name: t.ErrNameLib;
-  /** Safe unified try/catch execution for sync, async, and thenable functions. */
-  readonly Try: t.TryLib;
-
-  /**
-   * Take unknown input and produce a standard error object.
-   */
-  std(input: ErrorGeneratorInput, options?: t.ErrStdOptions | string): t.StdError;
-
-  /**
-   * Create a new error collection builder.
-   */
-  errors(): t.ErrorCollection;
-};
+/** Input for an error generator. */
+export type ErrorGeneratorInput = unknown | Response;
 
 /**
  * The response (and/or error) from an [Err.catch] method call.
@@ -66,28 +48,6 @@ export type ErrNameLib = {
 };
 
 /**
- * Type guards (boolean evaluators).
- */
-export type ErrIs = {
-  /**
-   * Determine if the given value is "like" an error in that it
-   * exposes a {message} property.
-   */
-  errorLike(input: unknown): input is t.ErrorLike;
-
-  /**
-   * Determine if the given value conforms to the `StdError` type.
-   */
-  stdError(input: unknown): input is t.StdError;
-
-  /**
-   * Determine if the `StdError` is an aggregate of other errors,
-   * (aka. it has a [errors] array).
-   */
-  aggregate(input: unknown): input is t.StdError;
-};
-
-/**
  * ErrorCollection
  *
  * A builder that let's a number of errors be built up
@@ -106,8 +66,8 @@ export type ErrorCollection = {
   readonly is: { readonly empty: boolean };
 
   /** Add a new error. */
-  push(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
-  push(error: ErrorGeneratorInput, options?: t.ErrStdOptions | string): ErrorCollection;
+  push(error: t.ErrorGeneratorInput | t.ErrorGeneratorInput[]): ErrorCollection;
+  push(error: t.ErrorGeneratorInput, options?: t.ErrStdOptions | string): ErrorCollection;
 
   /**
    * Resolve the collection of errors to either

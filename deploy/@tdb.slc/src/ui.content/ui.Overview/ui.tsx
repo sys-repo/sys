@@ -55,7 +55,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       orientation={'Bottom:Up'}
     >
       {elBody}
-      <Player.Timestamp.Elapsed.View video={player.signals} abs={true} show={showElapsed} />
+      <Player.Timestamp.Elapsed.UI video={player.signals} abs={true} show={showElapsed} />
     </Sheet>
   );
 };

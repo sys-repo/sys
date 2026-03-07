@@ -62,3 +62,108 @@ bus$
   });
 
 ```
+
+<p>&nbsp;</p>
+
+## Cmd (Command)
+
+> *A minimal, transport-agnostic, strongly-typed command algebra for **unary** and **streaming** operations — a small, explicit boundary between semantics and transport.*
+
+`Cmd` provides **typed request/response and streaming events** over any
+`MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
+`MessageChannel`, `window.postMessage`, etc).
+
+<p>&nbsp;</p>
+
+```ts
+import { Cmd } from '@sys/event/cmd';
+
+/**
+ * Command set:
+ *   - Name:      union of command names.
+ *   - Payload:   per-name request payloads.
+ *   - Result:    per-name result payloads.
+ *   - Events:    per-name streaming event payloads (optional).
+ */
+type Name = 'ping' | 'sum';
+
+type Payload = {
+  ping: { msg: string };
+  sum: { values: number[] };
+};
+
+type Result = {
+  ping: { reply: string };
+  sum: { total: number };
+};
+
+type Events = {
+  ping: { tick: number }; // streaming events for "ping"
+  sum: never;             // unary-only
+};
+
+/**
+ * Create a typed command set.
+ */
+const cmd = Cmd.make<Name, Payload, Result, Events>();
+
+// Wire it to any MessagePort-like endpoint.
+const { port1, port2 } = new MessageChannel();
+
+// Host: runs on the "service" side.
+const host = cmd.host(port1, {
+  ping: async ({ msg }) => ({ reply: `pong: ${msg}` }),
+  sum: ({ values }) => ({ total: values.reduce((n, v) => n + v, 0) }),
+});
+
+// Client: runs on the "caller" side.
+const client = cmd.client(port2, { timeout: 5_000 });
+```
+
+<p>&nbsp;</p>
+
+### Unary: request / response
+```ts
+// Typed send:
+const res = await client.send('sum', { values: [1, 2, 3] });
+//    res: { total: number }
+
+res.total; // 6
+```
+
+<p>&nbsp;</p>
+
+### Streaming: events + terminal result
+`stream` gives you:
+
+ - `id` – request id (shared with mid-stream events)
+ - `onEvent` – subscribe to typed events
+ - `done` – promise for the final result
+ - `dispose` – cancel the stream and detach listeners
+
+```ts
+/**
+ * Start a streaming command:
+ */
+const stream = client.stream('ping', { msg: 'hello' });
+
+const events: Events['ping'][] = [];
+const sub = stream.onEvent((event) => {
+  // Per-event callback (fires as events arrive)
+  events.push(event);
+});
+
+// Async iteration over the same event stream (alternative to onEvent)
+for await (const ev of stream) {
+  // ev is typed: Events['ping']
+}
+
+// Wait for the terminal result once the stream finishes
+const final = await stream.done;
+// final: { reply: string }
+
+// cleanup:
+sub.dispose();
+client.dispose();
+host.dispose();
+```

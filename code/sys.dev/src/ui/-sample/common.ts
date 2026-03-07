@@ -15,4 +15,4 @@ export const DEFAULTS = {
   borderOpacity: 0.3,
 } as const;
 export const D = DEFAULTS;
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };

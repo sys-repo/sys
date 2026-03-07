@@ -2,6 +2,11 @@ import type { ReadonlySignal, Signal } from '@preact/signals-core';
 export { ReadonlySignal, Signal };
 
 /**
+ * Optional signal value (T | undefined).
+ */
+export type SignalOptional<T> = Signal<T | undefined>;
+
+/**
  * Minimal cross-runtime read-only signal abstraction.
  */
 export type ReadableSignal<T> = T | (() => T) | { readonly value: T };

@@ -5,10 +5,8 @@
  */
 import type { DenoModuleLib } from './t.ts';
 
-import { backup } from './u.backup.ts';
 import { upgrade } from './u.upgrade.ts';
 
 export const DenoModule: DenoModuleLib = {
   upgrade,
-  backup,
 };

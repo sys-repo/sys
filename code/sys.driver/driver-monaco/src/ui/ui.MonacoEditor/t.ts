@@ -22,6 +22,8 @@ export type MonacoEditorProps = {
   wordWrap?: boolean;
   /** Column at which to break lines when word wrap is enabled. */
   wordWrapColumn?: number;
+  /** Content inset and gutter spacing for prompt-like layouts. */
+  contentInset?: MonacoEditorContentInset;
 
   // Appearance:
   theme?: t.CommonTheme;
@@ -31,6 +33,7 @@ export type MonacoEditorProps = {
   // Handlers:
   onMounted?: t.MonacoEditorMountedHandler;
   onChange?: t.MonacoEditorChangeHandler;
+  onKeyDown?: t.MonacoEditorKeyDownHandler;
   onDispose?: t.MonacoEditorDisposedHandler;
 };
 
@@ -66,4 +69,35 @@ export type MonacoEditorChange = {
   readonly monaco: t.Monaco.Monaco;
   readonly content: t.EditorContent;
   readonly selections: t.EditorSelection[];
+};
+
+/**
+ * Handler for editor key-down events.
+ */
+export type MonacoEditorKeyDownHandler = (e: MonacoEditorKeyDown) => void;
+/** Editor key-down event. */
+export type MonacoEditorKeyDown = {
+  readonly event: t.Monaco.I.IKeyboardEvent;
+  readonly key: string;
+  readonly modifiers: t.KeyboardModifierFlags;
+  preventDefault(): void;
+  stopPropagation(): void;
+};
+
+/**
+ * Content inset options applied to Monaco editor rendering.
+ */
+export type MonacoEditorContentInset = {
+  /** Top content padding in pixels. */
+  top?: t.Pixels;
+  /** Bottom content padding in pixels. */
+  bottom?: t.Pixels;
+  /** Monaco gutter/decorations width in pixels. */
+  lineDecorationsWidth?: t.Pixels;
+  /** Toggle line numbers when using inset layouts. */
+  lineNumbers?: 'on' | 'off';
+  /** Width reserved for line numbers. */
+  lineNumbersMinChars?: number;
+  /** Toggle glyph-margin column. */
+  glyphMargin?: boolean;
 };

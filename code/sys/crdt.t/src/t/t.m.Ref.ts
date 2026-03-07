@@ -1,4 +1,3 @@
-import type { PatchOperation } from '@sys/std/t';
 import type { t } from '../common.ts';
 
 type O = Record<string, unknown>;
@@ -7,7 +6,7 @@ type O = Record<string, unknown>;
  * Default patch type for abstract CRDT refs.
  * Downstreams (e.g. Automerge) can supply their own P.
  */
-type PDefault = PatchOperation;
+type PDefault = t.Rfc6902PatchOperation;
 type RefProps = t.Lifecycle & {
   readonly id: t.StringId;
   readonly deleted: boolean;
@@ -17,7 +16,7 @@ type RefProps = t.Lifecycle & {
  * A CRDT document reference (abstract, implementation-agnostic).
  *
  * T  = document value shape
- * P  = patch operation type (defaults to RFC JSON Patch)
+ * P  = patch operation type (defaults to RFC-6902 JSON Patch)
  * EX = extra event members to merge into the event surface
  * CX = extra fields to merge into the change payload
  */
@@ -43,11 +42,11 @@ export type CrdtEvents<
   CX extends object = {},
 > = t.ImmutableEvents<T, P, CrdtChange<T, P, CX>> & EX;
 
-/** Options passed to path-filtered event helpers. */
-export type CrdtPathEventsOptions = { exact?: boolean };
-
 /** Path-filtered event stream (shape reusable by downstreams). */
 export type CrdtPathEvents<T extends O = O, P = PDefault, CX extends object = {}> = {
   readonly $: t.Observable<CrdtChange<T, P, CX>>;
   readonly match: { readonly paths: t.ObjectPath[]; readonly exact: boolean };
 };
+
+/** Fired when a CRDT document is deleted. */
+export type CrdtDeleted = { readonly id: t.StringId };

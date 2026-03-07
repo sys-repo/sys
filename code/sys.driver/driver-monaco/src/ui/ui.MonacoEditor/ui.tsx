@@ -2,9 +2,9 @@ import type { OnChange, OnMount } from '@monaco-editor/react';
 import React, { useRef } from 'react';
 
 import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
-import { defaultKeyBindings } from './u.Keyboard.ts';
+import { defaultKeyBindings, toKeyDownEvent } from './u.keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
-import { Theme } from './u.Theme.ts';
+import { Theme } from '../ui.MonacoEditor.theme/mod.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 
 /**
@@ -25,8 +25,9 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     wordWrapColumn = DP.wordWrapColumn,
     fontSize = DP.fontSize,
     spinning = DP.spinning,
+    contentInset,
   } = props;
-  const editorTheme = Theme.toName(props.theme);
+  const editorTheme = Theme.toRegisteredName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
   /**
@@ -35,6 +36,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const disposeRef = useRef(Rx.subject<t.DisposeEvent>());
   const monacoRef = useRef<t.Monaco.Monaco>(undefined);
   const editorRef = useRef<t.Monaco.Editor>(undefined);
+  const keyDownSubRef = useRef<t.Monaco.I.IDisposable>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
 
   /**
@@ -61,13 +63,28 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [tabSize, readOnly, minimap, wordWrap, fontSize]);
+  }, [
+    tabSize,
+    readOnly,
+    minimap,
+    wordWrap,
+    fontSize,
+    contentInset?.top,
+    contentInset?.bottom,
+    contentInset?.lineNumbers,
+    contentInset?.lineNumbersMinChars,
+    contentInset?.glyphMargin,
+    contentInset?.lineDecorationsWidth,
+  ]);
 
   /**
    * Effect: End-of-life.
    */
   React.useEffect(() => {
     return () => {
+      keyDownSubRef.current?.dispose();
+      keyDownSubRef.current = undefined;
+
       const editor = editorRef.current!;
       const monaco = monacoRef.current!;
       const dispose$ = disposeRef.current;
@@ -89,6 +106,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const getModel = (editor?: t.Monaco.Editor) => editor?.getModel();
   const updateOptions = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
+    const inset = wrangle.inset(contentInset);
 
     editor.updateOptions({
       theme: editorTheme,
@@ -99,6 +117,15 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       fontSize,
       detectIndentation: false,
       insertSpaces: true,
+      padding: { top: inset.top, bottom: inset.bottom },
+      ...(inset.lineNumbers !== undefined ? { lineNumbers: inset.lineNumbers } : {}),
+      ...(inset.lineNumbersMinChars !== undefined
+        ? { lineNumbersMinChars: inset.lineNumbersMinChars }
+        : {}),
+      ...(inset.glyphMargin !== undefined ? { glyphMargin: inset.glyphMargin } : {}),
+      ...(inset.lineDecorationsWidth !== undefined
+        ? { lineDecorationsWidth: inset.lineDecorationsWidth }
+        : {}),
     });
 
     getModel(editor)?.updateOptions({
@@ -128,6 +155,10 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     defaultLanguageConfig(monaco);
     updateOptions(editor);
     updateTextState(editor);
+    keyDownSubRef.current?.dispose();
+    keyDownSubRef.current = editor.onKeyDown((event) => {
+      props.onKeyDown?.(toKeyDownEvent(editor, monaco, event));
+    });
 
     // Alert listeners:
     const dispose$ = disposeRef.current;
@@ -214,3 +245,16 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     </div>
   );
 };
+
+const wrangle = {
+  inset(input?: t.MonacoEditorContentInset) {
+    return {
+      top: input?.top ?? 0,
+      bottom: input?.bottom ?? 0,
+      lineNumbers: input?.lineNumbers,
+      lineNumbersMinChars: input?.lineNumbersMinChars,
+      glyphMargin: input?.glyphMargin,
+      lineDecorationsWidth: input?.lineDecorationsWidth,
+    } as const;
+  },
+} as const;

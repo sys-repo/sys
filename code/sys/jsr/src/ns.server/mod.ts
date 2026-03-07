@@ -3,5 +3,7 @@
  * https://jsr.io/docs
  * @module
  */
+/** Server registry helpers. */
 export { Jsr } from './m.Jsr/mod.ts';
+/** Manifest helpers. */
 export { Manifest } from './m.Manifest/mod.ts';

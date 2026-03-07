@@ -1,0 +1,133 @@
+import React from 'react';
+import {
+  type t,
+  Num,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
+import { createFixture } from './u.fixture.tsx';
+
+type P = t.SlugSheetStackProps;
+type Storage = Pick<P, 'debug' | 'theme'>;
+const defaults: Storage = {
+  debug: false,
+  theme: 'Light',
+};
+
+/**
+ * Types:
+ */
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+
+/**
+ * Signals:
+ */
+export async function createDebugSignals() {
+  const s = Signal.create;
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+  const fixture = createFixture('slug root');
+
+  const props = {
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+  };
+  const p = props;
+  const api = {
+    props,
+    fixture,
+    listen,
+    reset,
+  };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
+  return api;
+}
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
+/**
+ * Component:
+ */
+export const Debug: React.FC<DebugProps> = (props) => {
+  const { debug } = props;
+  const p = debug.props;
+  const v = Signal.toObject(p);
+  const fixture = debug.fixture;
+  Signal.useRedrawEffect(debug.listen);
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme();
+  const styles = {
+    base: css({ color: theme.fg }),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Controller'}</div>
+      <Button
+        block
+        label={() => 'stack.push( sheet )'}
+        onClick={() => {
+          const total = fixture.controller.length;
+          const label = `foo-${total}`;
+          fixture.push(label);
+        }}
+      />
+      <Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
+      <Button block label={() => 'clear'} onClick={() => fixture.pop(Num.MAX_INT)} />
+
+      <hr />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'controller.stack'}
+        data={Signal.toObject(fixture.controller.stack)}
+        expand={1}
+        style={{ marginTop: 6 }}
+      />
+    </div>
+  );
+};

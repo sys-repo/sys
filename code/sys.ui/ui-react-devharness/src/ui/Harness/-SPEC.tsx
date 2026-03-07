@@ -1,6 +1,6 @@
 import React from 'react';
-import { Spec } from '../../-test.ts';
 import { Harness } from './mod.ts';
+import { Spec } from '../common.ts';
 
 export default Spec.describe('Harness', (e) => {
   e.it('init', (e) => {

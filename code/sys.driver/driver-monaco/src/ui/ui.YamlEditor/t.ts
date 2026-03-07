@@ -7,7 +7,7 @@ export type YamlEditorProps = {
   bus$?: t.EditorEventBus;
   repo?: t.CrdtRepo;
   signals?: Partial<t.YamlEditorSignals>;
-  path?: t.ObjectPath;
+  path?: t.YamlSyncArgsInput['path'];
 
   documentId?: t.YamlEditorDocumentIdProps;
   editor?: t.YamlEditorMonacoProps;
@@ -21,6 +21,7 @@ export type YamlEditorProps = {
 
   onReady?: t.EditorCrdtBindingReadyHandler;
   onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
+  onCursor?: (e: t.EditorCursor) => void;
 };
 
 /** Display settings for diagnostics (error markers).  */
@@ -59,7 +60,7 @@ export type YamlEditorMonacoProps = Pick<
   | 'spinning'
   | 'wordWrap'
   | 'wordWrapColumn'
-> & { margin?: t.CssEdgesInput };
+> & { margin?: t.CssEdgesInput; debounce?: t.Msecs };
 
 /**
  * DocumentId sub-props:
@@ -67,6 +68,6 @@ export type YamlEditorMonacoProps = Pick<
 export type YamlEditorDocumentIdProps = {
   visible?: boolean;
   readOnly?: boolean;
-  localstorage?: t.StringKey;
+  storageKey?: t.StringKey;
   urlKey?: t.StringKey;
 };

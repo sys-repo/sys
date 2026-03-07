@@ -5,8 +5,8 @@
 export type DeepReadonly<T> = T extends Primitive
   ? T
   : T extends Array<infer U>
-  ? DeepReadonlyArray<U>
-  : DeepReadonlyObject<T>;
+    ? DeepReadonlyArray<U>
+    : DeepReadonlyObject<T>;
 
 type Primitive = string | number | boolean | undefined | null;
 interface DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
@@ -20,6 +20,16 @@ type DeepReadonlyObject<T> = {
 export type DeepMutable<T> = {
   -readonly [P in keyof T]: T[P] extends object ? DeepMutable<T[P]> : T[P];
 };
+
+/**
+ * Convert ReadOnly fields to be mutable (shallow).
+ *
+ * Use when you need to temporarily attach/write to a readonly surface at a seam,
+ * while keeping the public type readonly (eg. compound component wiring).
+ *
+ * Note: This only removes readonly at the top level. For deep conversion use `DeepMutable<T>`.
+ */
+export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 /**
  * A version of <Partial> (optional) allowing an entire

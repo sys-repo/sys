@@ -3,7 +3,8 @@ import { Dom } from '../m.Dom/mod.ts';
 import { UserHas } from './mod.ts';
 
 describe('Dom.Events:', () => {
-  it('API', () => {
-    expect(Dom.UserHas).to.equal(UserHas);
+  it('API', async () => {
+    const m = await import('@sys/ui-dom/events');
+    expect(m.UserHas).to.equal(UserHas);
   });
 });

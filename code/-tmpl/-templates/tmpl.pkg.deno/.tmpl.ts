@@ -4,7 +4,7 @@ import { type t, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
  * Setup the template (after copy):
  */
 export default async function setup(dir: t.StringAbsoluteDir, options: { pkgName?: string } = {}) {
-  const pkgName = options.pkgName ?? (await Cli.Prompt.Input.prompt({ message: '@scope/name:' }));
+  const pkgName = options.pkgName ?? (await Cli.Input.Text.prompt({ message: '@scope/name:' }));
   const monorepo = await DenoFile.nearest(dir, (e) => Array.isArray(e.file.workspace));
   if (!monorepo) throw new Error(`Failed to find the host monorepo.`);
 

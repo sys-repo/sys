@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, Icons, Str } from './common.ts';
 
 export type NetworkIconsProps = {
-  enabled?: boolean;
+  enabled?: boolean | null;
   repo?: t.Crdt.Repo;
 
   debug?: boolean;
@@ -46,7 +46,7 @@ export const NetworkIcons: React.FC<NetworkIconsProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  tooltips(repo: t.Crdt.Repo, enabled: boolean) {
+  tooltips(repo: t.Crdt.Repo, enabled: boolean | null) {
     const servers = repo.sync.urls.map((url) => `• ${url}`).join('\n');
     return {
       peer: enabled ? wrangle.tooltip.peer(repo, enabled) : 'Offline',
@@ -55,7 +55,7 @@ const wrangle = {
   },
 
   tooltip: {
-    peer(repo: t.Crdt.Repo, enabled: boolean) {
+    peer(repo: t.Crdt.Repo, enabled: boolean | null) {
       const peers = repo.sync.peers;
       const total = peers.length;
       const title = `Sync Peer${Str.plural(total, '', 's')}`;

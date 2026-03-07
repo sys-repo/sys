@@ -1,8 +1,13 @@
-import { c, describe, DomMock, expect, it, slug } from '../-test.ts';
+import { beforeAll, afterAll, c, describe, DomMock, expect, it, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
-describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
-  it('(setup)', () => DomMock.polyfill());
+describe('LocalStorage', () => {
+  DomMock.init({ beforeAll, afterAll });
+
+  it('API', async () => {
+    const m = await import('@sys/ui-dom/local-storage');
+    expect(m.LocalStorage).to.equal(LocalStorage);
+  });
 
   describe('ns', () => {
     type T = { count: number; msg?: string };

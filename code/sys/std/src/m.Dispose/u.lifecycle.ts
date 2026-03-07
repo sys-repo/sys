@@ -70,6 +70,29 @@ export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: 
 };
 
 /**
+ * Extend the given object to expose the lifecycle view (no dispose).
+ */
+export const toLifecycleView: t.DisposeLib['toLifecycleView'] = <T extends t.LifecycleView>(
+  life: t.Lifecycle,
+  api: t.OmitLifecycle<T>,
+): T => {
+  const obj = api as T & t.LifecycleView;
+
+  Object.defineProperties(obj, {
+    disposed: {
+      get: () => life.disposed,
+      enumerable: true,
+    },
+    dispose$: {
+      get: () => life.dispose$,
+      enumerable: true,
+    },
+  });
+
+  return obj;
+};
+
+/**
  * Helpers
  */
 const wrangle = {

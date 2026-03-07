@@ -9,8 +9,15 @@ import type { t } from './common.ts';
 export type UseSlugStructuralDiagnostics = (args: {
   /** Current YAML editor snapshot. */
   readonly yaml?: t.EditorYaml;
+
   /** Optional path within the YAML to scope diagnostics to. */
   readonly path?: t.ObjectPath | string;
+
+  /**
+   * Trait registry used for semantic validation.
+   * If omitted, the default catalog registry is used.
+   */
+  readonly registry?: t.SlugTraitRegistry;
 }) => UseSlugStructuralDiagnosticsResult;
 
 /**
@@ -20,10 +27,13 @@ export type UseSlugStructuralDiagnostics = (args: {
 export type UseSlugStructuralDiagnosticsResult = {
   /** True when the YAML structure is valid and no diagnostics were emitted. */
   readonly ok: boolean;
+
   /** Revision number from the current editor state. */
   readonly rev: number;
+
   /** Structural parse result of the YAML segment (if successful). */
   readonly result?: t.SlugFromYamlResult;
+
   /** Normalized structural diagnostics from the YAML pipeline. */
   readonly diagnostics: t.Yaml.Diagnostic[];
 };

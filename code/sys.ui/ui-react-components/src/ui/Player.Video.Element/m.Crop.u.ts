@@ -1,14 +1,10 @@
-import { type t, Is } from './common.ts';
+import { type t, Timecode } from './common.ts';
 
 /**
  * Wrangle loose input into a plain arguments object.
  */
-export function toRange(
-  input?: t.VideoCropRange | t.VideoCropRangeTuple,
-): t.VideoCropRange | undefined {
-  if (Array.isArray(input)) return { start: input[0], end: input[1] };
-  if (Is.record(input)) return input;
-  return;
+export function toRange(input?: t.Timecode.Slice.StringInput): t.MsecSpan | undefined {
+  return Timecode.Slice.toRange(input);
 }
 
 /**

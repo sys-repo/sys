@@ -25,7 +25,7 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const [yaml, setYaml] = React.useState<t.EditorYaml>();
-  const [splitRatio, setSplitRatio] = React.useState<t.Percent>(0.3);
+  const [splitRatio, setSplitRatio] = React.useState<t.Percent>(0.3); // left pane ratio
   const size = useSizeObserver();
   const width = size.rect?.width ?? 0;
   const showMain = size.ready && width > 920;
@@ -33,21 +33,16 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Effects:
    */
-  React.useEffect(() => State.clearMain(signals), [doc?.id]); // ← Reset UI when CRDT document changes.
+  React.useEffect(() => State.clearMain(signals), [doc?.id]); // reset UI when CRDT doc changes
   Signal.useEffect(() => setYaml(signals.yaml.value));
   Signal.useEffect(() => {
-    /**
-     * Effect: Redraw Monitoring
-     * (NB: bubble notification to alert host container to refresh).
-     */
-    const doc = signals.doc.value;
-    const events = doc?.events();
-    events?.$.subscribe((e) => props.onRequestRedraw?.());
+    const d = signals.doc.value;
+    const events = d?.events();
+    events?.$.subscribe(() => props.onRequestRedraw?.());
     return events?.dispose;
   });
 
-  let hasErrors = false;
-  if (yaml?.data?.errors.length ?? 0 > 0) hasErrors = true;
+  const hasErrors = (yaml?.data?.errors.length ?? 0) > 0;
 
   /**
    * Handlers:
@@ -91,12 +86,9 @@ export const Sample: React.FC<P> = (props) => {
           yaml: signals.yaml,
         }}
         path={paths.yaml}
-        documentId={{ localstorage: STORAGE_KEY.DEV }}
+        documentId={{ storageKey: STORAGE_KEY.DEV }}
         editor={{ autoFocus: true, minimap: false }}
         onReady={(e) => {
-          /**
-           * Initialize Editor:
-           */
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           handleDocumentChanged();
 
@@ -108,9 +100,6 @@ export const Sample: React.FC<P> = (props) => {
           }
         }}
         onDocumentLoaded={(e) => {
-          /**
-           * Monitor document changes:
-           */
           const $ = e.events.path(paths.parsed).$;
           $.pipe(Rx.debounceTime(300)).subscribe(handleDocumentChanged);
           handleDocumentChanged();
@@ -119,22 +108,33 @@ export const Sample: React.FC<P> = (props) => {
     </div>
   );
 
-  const elMain = showMain && (
+  const elMain = (
     <div className={styles.right.class}>
       <MainColumn {...props} hasErrors={hasErrors} />
     </div>
   );
 
+  // Controlled value as ratios [left, right]:
+  const ratios = [splitRatio, 1 - splitRatio] as const;
+
+  // Collapse to YAML-only when the main column shouldn't render:
+  const onlyIndex: t.Index | undefined = showMain ? undefined : 0;
+
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <SplitPane
         debug={debug}
-        only={showMain ? undefined : 'A'}
-        value={splitRatio}
-        onChange={(e) => setSplitRatio(e.ratio)}
+        orientation="horizontal"
+        gutter={8}
+        value={ratios as unknown as t.Percent[]}
+        onlyIndex={onlyIndex}
+        onChange={(e) => {
+          // Keep left pane as source of truth for our scalar:
+          const nextLeft = e.ratios[0] ?? splitRatio;
+          setSplitRatio(nextLeft);
+        }}
       >
-        {elYamlEditor}
-        {elMain}
+        {[elYamlEditor, elMain]}
       </SplitPane>
     </div>
   );

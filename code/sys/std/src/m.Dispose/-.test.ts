@@ -1,6 +1,6 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { Time } from '../m.DateTime/mod.ts';
 import { Rx } from '../m.Rx/mod.ts';
+import { Time } from '../m.Time/mod.ts';
 import { Is } from '../mod.ts';
 import { Dispose } from './mod.ts';
 
@@ -446,6 +446,25 @@ describe('Disposable', () => {
       expect(api.disposed).to.eql(false);
 
       api.dispose();
+      expect(fired).to.eql(1);
+      expect(api.disposed).to.eql(true);
+    });
+  });
+
+  describe('Dispose.toLifecycleView', () => {
+    it('projects lifecycle without dispose', () => {
+      type T = t.LifecycleView & { count: number };
+      const life = Dispose.lifecycle();
+      const api = Dispose.toLifecycleView<T>(life, { count: 123 });
+
+      let fired = 0;
+      api.dispose$.subscribe(() => fired++);
+
+      expect(api.count).to.eql(123);
+      expect(api.disposed).to.eql(false);
+      expect('dispose' in api).to.eql(false);
+
+      life.dispose();
       expect(fired).to.eql(1);
       expect(api.disposed).to.eql(true);
     });

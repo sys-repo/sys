@@ -41,6 +41,13 @@ export type SemverLib = {
 
   /** Format SemVer object into a string.  */
   toString(input: t.Semver | t.StringSemver): t.StringSemver;
+
+  /**
+   * Return the greatest (latest) semver from the given list.
+   * - Invalid or undefined values are ignored.
+   * - If all values are missing/invalid -> returns undefined.
+   */
+  latest(...inputs: t.Ary<t.Semver | t.StringSemver | undefined>): t.StringSemver | undefined;
 };
 
 /** Options for the `Semver.sort` method. */

@@ -13,7 +13,7 @@ type P = DebugProps;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const video = Player.Video.signals({
+  const video = Player.Video.Signals.create({
     src: VIDEO.Trailer.src, // Rowan: "group scale",
     cornerRadius: 0,
   });

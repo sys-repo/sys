@@ -3,8 +3,9 @@ import type { PkgDistFsLib } from './t.ts';
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
+import { pkg as fsPkg } from '../pkg.ts';
 
-import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
+import { type t, Arr, CompositeHash, D, Delete, Err, Fs, Ignore, JsrUrl, Path, R, Str, Time } from './common.ts';
 import { Log } from './m.Log.ts';
 
 /**
@@ -16,12 +17,13 @@ export const Dist: PkgDistFsLib = {
   Log,
 
   /**
-   * Prepare and save a "distribution package" meta-data file `pkg.json`.
+   * Prepare and save a "distribution package" meta-data file `dist.json`.
    */
   async compute(args) {
-    const { entry = '', save = false } = args;
+    const { save = false, filter, trustChildDist = false, onHashProgress, ignore: ignoreInput } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
+    const ignore = await wrangle.ignore(ignoreInput);
 
     const exists = await Fs.exists(dir);
 
@@ -39,7 +41,9 @@ export const Dist: PkgDistFsLib = {
     /**
      * Prepare the "distribution-package" json.
      */
-    const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
+    const hash = exists
+      ? await wrangle.hashes(dir, { filter, trustChildDist, onHashProgress, ignore })
+      : { digest: '', parts: {} };
     const size: t.DistPkg['build']['size'] = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
       pkg: CompositeHash.size(hash.parts, (m) => Pkg.Dist.Is.codePath(m.path)) ?? 0,
@@ -50,14 +54,21 @@ export const Dist: PkgDistFsLib = {
       size,
       builder: Pkg.toString(args.builder ?? Pkg.unknown()) as t.StringScopedPkgNameVer,
       runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
+      hash: {
+        // Version-pinned provenance for the hash policy used here.
+        policy: JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path),
+        ignore: {
+          format: 'gitignore',
+          rules: [...ignore.rules],
+          'rules:digest': ignore.digest,
+        },
+      },
     };
 
     const dist: t.DistPkg = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
-      pkg: args.pkg ?? Pkg.unknown(),
+      ...(args.pkg ? { pkg: args.pkg } : {}),
       build,
-      entry: wrangle.entry(entry),
-      url: args.url ?? { base: '/' },
       hash,
     };
 
@@ -81,7 +92,7 @@ export const Dist: PkgDistFsLib = {
   },
 
   /**
-   * Load a `dist.json` file into a \<DistPackage\> type.
+   * Load a `dist.json` file into a <DistPackage> type.
    */
   async load(dir) {
     dir = Fs.resolve(dir);
@@ -93,16 +104,29 @@ export const Dist: PkgDistFsLib = {
       errors.push(`File at path does not exist: ${path}`);
     }
 
+    let kind: t.PkgDistLoadResponse['kind'] = exists ? 'invalid' : 'missing';
     let dist: t.DistPkg | undefined;
+    let legacy: t.DistPkgLegacy | undefined;
     if (exists) {
-      dist = (await Fs.readJson<t.DistPkg>(path)).data;
+      const loaded = (await Fs.readJson<unknown>(path)).data;
+      if (Pkg.Is.dist(loaded)) {
+        kind = 'canonical';
+        dist = loaded;
+      } else if (Pkg.Is.distCompat(loaded)) {
+        kind = 'legacy';
+        legacy = loaded;
+      } else {
+        errors.push(`The loaded file is not a valid DistPkg (canonical or legacy): ${path}`);
+      }
     }
 
     // Finish up.
     const res: t.PkgDistLoadResponse = {
       exists,
+      kind,
       path,
       dist,
+      legacy,
       error: errors.toError('Several errors occured while loading the `dist.json`'),
     };
     return res;
@@ -117,14 +141,15 @@ export const Dist: PkgDistFsLib = {
     const loaded = await Dist.load(dir);
     const { path, dist, exists } = loaded;
     if (!exists) {
-      errors.push(loaded.error);
+      errors.push(`File at path does not exist: ${path}`);
+    } else if (!dist) {
+      errors.push(`Cannot verify non-canonical dist.json (${loaded.kind}): ${path}`);
     }
 
     const res: t.PkgDistVerifyResponse = {
       exists,
       dist,
       is: { valid: undefined },
-      error: errors.toError(),
     };
 
     /**
@@ -135,9 +160,26 @@ export const Dist: PkgDistFsLib = {
       const distfile = Fs.join(dir, 'dist.json');
       const verification = await DirHash.verify(dir, hash ?? distfile);
       res.is = verification.is;
+
+      const ignoreMeta = dist.build.hash.ignore;
+      if (ignoreMeta) {
+        const digest = await Ignore.digest(ignoreMeta.rules);
+        if (digest !== ignoreMeta['rules:digest']) {
+          errors.push(`Dist ignore-policy digest mismatch: ${distfile}`);
+        } else {
+          const ignore = await wrangle.ignore(ignoreMeta.rules);
+          const replay = await wrangle.hashesBase(dir, undefined, undefined, ignore);
+          if (!R.equals(replay, dist.hash)) {
+            errors.push(`Dist ignore-policy does not reproduce hash.parts: ${distfile}`);
+          }
+        }
+      }
+
+      if (errors.length > 0) res.is.valid = false;
     }
 
     // Finish up.
+    res.error = errors.toError();
     return res;
   },
 };
@@ -146,10 +188,96 @@ export const Dist: PkgDistFsLib = {
  * Helpers
  */
 const wrangle = {
-  async hashes(path: t.StringDir) {
-    const filter = (path: string) => path !== './dist.json';
-    const res = await DirHash.compute(path, { filter });
+  async hashes(
+    path: t.StringDir,
+    options: {
+      filter?: (path: t.StringPath) => boolean;
+      trustChildDist?: boolean;
+      onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>;
+      ignore?: IgnorePolicy;
+    } = {},
+  ) {
+    const { filter, trustChildDist = false, onHashProgress, ignore } = options;
+    if (!trustChildDist) return await wrangle.hashesBase(path, filter, onHashProgress, ignore);
+
+    const children = await wrangle.childDists(path);
+    if (children.length === 0) return await wrangle.hashesBase(path, filter, onHashProgress, ignore);
+
+    const childAbs = children.map((child) => Path.join(path, child.rootRel));
+    const mergedFilter = (value: string) => {
+      if (!wrangle.includeHashPart(value)) return false;
+      if (ignore && wrangle.isIgnored(value, path, ignore)) return false;
+      const isChild = childAbs.some(
+        (root) => value === root || value.startsWith(Path.join(root, '')),
+      );
+      if (isChild) return false;
+      return filter ? filter(value) : true;
+    };
+
+    const res = await DirHash.compute(path, { filter: mergedFilter, onProgress: onHashProgress });
+    const parts: t.DeepMutable<t.CompositeHashParts> = { ...res.hash.parts };
+
+    /**
+     * Merge child content hashes into the parent tree.
+     *
+     * NB:
+     * We intentionally do not hash child dist metadata/signature artifacts into
+     * the parent digest (`dist.json`, `dist.json.sig`). Child `dist.json`
+     * includes volatile build metadata (for example timestamps), which would
+     * make parent hashes churn across no-op rebuilds.
+     */
+    for (const child of children) {
+      const { rootRel, dist } = child;
+      for (const [childPath, uri] of Object.entries(dist.hash.parts)) {
+        const rel = Str.trimLeadingDotSlash(childPath);
+        const full = Path.join(rootRel, rel);
+        parts[full] = uri;
+      }
+    }
+
+    const outParts: t.CompositeHashParts = { ...parts };
+    return { digest: CompositeHash.digest(outParts), parts: outParts };
+  },
+
+  async hashesBase(
+    path: t.StringDir,
+    filter?: (path: t.StringPath) => boolean,
+    onHashProgress?: (e: t.DirHashComputeProgressEvent) => void | Promise<void>,
+    ignore?: IgnorePolicy,
+  ) {
+    const mergedFilter = (value: string) => {
+      if (!wrangle.includeHashPart(value)) return false;
+      if (ignore && wrangle.isIgnored(value, path, ignore)) return false;
+      return filter ? filter(value) : true;
+    };
+    const res = await DirHash.compute(path, { filter: mergedFilter, onProgress: onHashProgress });
     return res.hash;
+  },
+
+  async childDists(path: t.StringDir) {
+    const glob = Fs.glob(path, { includeDirs: false });
+    const entries = await glob.find('**/dist.json');
+    const roots = entries
+      .map((entry) => Path.relative(path, entry.path))
+      .map((rel) => Str.trimLeadingDotSlash(rel))
+      .map((rel) => Path.dirname(rel))
+      .map((rel) => Str.trimSlashes(rel))
+      .filter((rel) => rel !== '.' && rel !== '');
+
+    const unique = Arr.uniq(roots).sort((a, b) => a.length - b.length);
+    const top: string[] = [];
+    for (const root of unique) {
+      if (!top.some((parent) => root === parent || root.startsWith(`${parent}/`))) {
+        top.push(root);
+      }
+    }
+
+    const children: Array<{ rootRel: string; dist: t.DistPkg }> = [];
+    for (const rootRel of top) {
+      const loaded = await Dist.load(Path.join(path, rootRel));
+      if (Pkg.Is.dist(loaded.dist)) children.push({ rootRel, dist: loaded.dist });
+    }
+    return children;
   },
 
   async bytes(dir: t.StringDir, files: t.StringFile[]) {
@@ -166,8 +294,25 @@ const wrangle = {
     return path;
   },
 
-  entry(input: string) {
-    input = Path.normalize(input);
-    return input === '.' ? '' : input;
+  includeHashPart(path: t.StringPath) {
+    const name = Path.basename(path);
+    return name !== 'dist.json' && name !== 'dist.json.sig';
+  },
+
+  async ignore(input?: string | readonly string[]) {
+    const rules = Ignore.normalize([...D.hashPolicy.ignore.rules, ...(input ? [input].flat() : [])]);
+    const digest = await Ignore.digest(rules);
+    return { rules, digest, matcher: Ignore.create(rules) };
+  },
+
+  isIgnored(path: t.StringPath, root: t.StringDir, ignore: IgnorePolicy) {
+    const r = Path.Is.absolute(path) ? root : undefined;
+    return ignore.matcher.isIgnored(path, r);
   },
 } as const;
+
+type IgnorePolicy = {
+  readonly rules: readonly string[];
+  readonly digest: t.StringHash;
+  readonly matcher: ReturnType<typeof Ignore.create>;
+};

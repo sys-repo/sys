@@ -26,7 +26,7 @@ export async function updateTypesFile(dir: t.StringAbsoluteDir) {
     return { error };
   };
 
-  // Find the nearest package root (deno.json) – optional, but keeps the behavior aligned.
+  // Find the nearest package root (deno.json) - optional, but keeps the behavior aligned.
   const denoPath = await DenoFile.Path.nearest(dir); // string | undefined
   const pkgDir = denoPath ? Fs.dirname(denoPath) : undefined;
   if (!pkgDir) return done(`Failed to find containing package (deno.json) for module at: ${dir}`);

@@ -1,20 +1,16 @@
 import type { t } from './common.ts';
+import { SlugTree } from './m.SlugTree.ts';
 
-import {
-  attachSemanticRanges,
-  semanticErrorsToDiagnostics,
-  semanticErrorsToEditorDiagnostics,
-  validateAliasRules,
-  validatePropsShape,
-  validateSlug,
-  validateSlugAgainstRegistry,
-  validateTraitExistence,
-  validateWithRanges,
-} from './mod.ts';
+import { semanticErrorsToDiagnostics, semanticErrorsToEditorDiagnostics } from './u.diagnostics.ts';
+import { attachSemanticRanges } from './u.ranges.attach.ts';
+import { validateWithRanges } from './u.ranges.validate.ts';
+import { validateTraitExistence } from './u.trait.existence.ts';
+import { validateAliasRules, validatePropsShape } from './u.trait.props.ts';
+import { validateSlug, validateSlugAgainstRegistry } from './u.traits.ts';
 
 export const Validation: t.SlugValidationLib = {
+  SlugTree,
   validateTraitExistence,
-  validateAliasRules,
   validatePropsShape,
   validateSlug,
   validateSlugAgainstRegistry,
@@ -22,4 +18,5 @@ export const Validation: t.SlugValidationLib = {
   attachSemanticRanges,
   semanticErrorsToDiagnostics,
   semanticErrorsToEditorDiagnostics,
+  validateAliasRules,
 };

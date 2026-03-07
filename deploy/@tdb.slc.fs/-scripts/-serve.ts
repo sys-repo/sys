@@ -7,7 +7,7 @@ const hash = dist?.hash.digest ?? '';
 const port = 8080;
 
 const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-const options = HttpServer.options({ port, pkg, hash });
+const options = HttpServer.options({ port, pkg, hash, dir });
 
 console.info();
 Deno.serve(options, app.fetch);

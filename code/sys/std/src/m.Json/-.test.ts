@@ -1,9 +1,49 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Json } from './mod.ts';
+import { circularReplacer } from './u.circularReplacer.ts';
 
 describe('Json', () => {
   const circular: any = { foo: 123 };
   circular.ref = circular;
+
+  it('API', () => {
+    expect(Json.circularReplacer).to.equal(circularReplacer);
+  });
+
+  describe('Json.circularReplacer', () => {
+    it('marks circular references with the default "[Circular]" tag', () => {
+      const a: any = { x: 1 };
+      a.self = a;
+      const text = JSON.stringify(a, Json.circularReplacer());
+      expect(text).to.eql('{"x":1,"self":"[Circular]"}');
+    });
+
+    it('supports a custom tag', () => {
+      const a: any = {};
+      a.loop = a;
+      const text = JSON.stringify(a, Json.circularReplacer('<loop>'));
+      expect(text).to.eql('{"loop":"<loop>"}');
+    });
+
+    it('does not affect non-circular objects', () => {
+      const obj = { a: { b: 1 } };
+      const text = JSON.stringify(obj, Json.circularReplacer());
+      expect(JSON.parse(text)).to.eql(obj);
+    });
+
+    it('handles deeply nested circular structures gracefully', () => {
+      const a: any = { name: 'root' };
+      const b: any = { parent: a };
+      const c: any = { parent: b };
+      a.child = b;
+      b.child = c;
+      c.child = a; // circular link back to root
+      const text = JSON.stringify(a, Json.circularReplacer());
+      const parsed = JSON.parse(text);
+      expect(parsed.name).to.eql('root');
+      expect(parsed.child.child.child).to.eql('[Circular]');
+    });
+  });
 
   describe('Json.stringify', () => {
     describe('complex values (multi-line, double-spaces, trailing new-line char)', () => {
@@ -33,9 +73,14 @@ describe('Json', () => {
         expect(b).to.not.eql(c);
       });
 
-      it('circular reference (safe)', () => {
+      it('circular reference (safe by default)', () => {
         const res = Json.stringify(circular, 0);
         expect(res).to.eql('{"foo":123,"ref":"[Circular]"}');
+      });
+
+      it('circular reference (custom tag)', () => {
+        const res = Json.stringify(circular, 0, '<loop>');
+        expect(res).to.eql('{"foo":123,"ref":"<loop>"}');
       });
     });
 
@@ -151,8 +196,55 @@ describe('Json', () => {
       const res = Json.safeParse(`$-FAIL`, {});
       expect(res.ok).to.eql(false);
       expect(res.data).to.eql(undefined);
-      expect(res.error?.message).to.include(`Unexpected token '$', "$-FAIL" is not valid JSON`);
-      expect(res.error?.name).to.eql('SyntaxError');
+
+      const err = res.error!;
+      expect(err.message).to.include('Failed while parsing JSON');
+      expect(err.cause?.message).to.include(`Unexpected token '$', "$-FAIL" is not valid JSON`);
+      expect(err.cause?.name).to.eql('SyntaxError');
+    });
+  });
+
+  describe('Json.parse (jsonc)', () => {
+    it('parses JSONC with comments', () => {
+      const text = `{
+        // comment
+        "foo": 123,
+        "bar": "baz"
+      }`;
+      const res = Json.parse<{ foo: number; bar: string }>(
+        text,
+        { foo: 0, bar: '' },
+        { jsonc: true },
+      );
+      expect(res?.foo).to.eql(123);
+      expect(res?.bar).to.eql('baz');
+    });
+
+    it('throws on invalid JSONC', () => {
+      const fn = () => Json.parse(`$-FAIL`, {}, { jsonc: true });
+      expect(fn).to.throw();
+    });
+  });
+
+  describe('Json.safeParse (jsonc)', () => {
+    it('parses JSONC with comments', () => {
+      const text = `{
+        // comment
+        "foo": 123
+      }`;
+      const res = Json.safeParse<{ foo: number }>(text, { foo: 0 }, { jsonc: true });
+      expect(res.ok).to.eql(true);
+      expect(res.data?.foo).to.eql(123);
+      expect(res.error).to.eql(undefined);
+    });
+
+    it('returns error on invalid JSONC', () => {
+      const res = Json.safeParse(`$-FAIL`, {}, { jsonc: true });
+      expect(res.ok).to.eql(false);
+      expect(res.data).to.eql(undefined);
+      const err = res.error!;
+      expect(err.message).to.include('Failed while parsing JSONC');
+      expect(err.cause?.name).to.eql('SyntaxError');
     });
   });
 });

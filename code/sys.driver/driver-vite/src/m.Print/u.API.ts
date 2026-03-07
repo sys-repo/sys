@@ -40,8 +40,6 @@ export const API: t.ViteLogApi = {
     push('serve', 'Serve build on HTTP server.');
     if (!minimal) {
       table.push(['', '']);
-      push('upgrade', `Upgrade to latest version.`);
-      push('backup', `Take a snapshot of the project.`);
       push('clean', `Delete temporary files.`);
     }
     push('help', `Show help.`);

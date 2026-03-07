@@ -1,4 +1,4 @@
-import type { MediaLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { AudioWaveform } from '../Media.AudioWaveform/mod.ts';
 import { Config } from '../Media.Config/mod.ts';
@@ -8,15 +8,11 @@ import { Video } from '../Media.Video/mod.ts';
 import { AspectRatio } from './m.AspectRatio.ts';
 import { Is } from './m.Is.ts';
 import { Log } from './m.Log.ts';
+import { download } from './u.download.ts';
 import { ToObject, toObject } from './u.toObject.ts';
 
-import { download } from './u.download.ts';
-
-export const Media: MediaLib = {
-  // Components:
-  UI: { AudioWaveform },
-
-  // Libs:
+export const Media: t.Media.Lib = {
+  AudioWaveform,
   Is,
   Log,
   AspectRatio,
@@ -26,7 +22,5 @@ export const Media: MediaLib = {
   Config,
   ToObject,
   toObject,
-
-  // Helpers (util):
   download,
 };

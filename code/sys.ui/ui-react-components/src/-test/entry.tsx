@@ -5,16 +5,22 @@ import { pkg } from '../common.ts';
 /**
  * Service Worker:
  */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    const devmode = import.meta.env.DEV;
-    const prefix = devmode ? `[main:dev]` : `[main]`;
-    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
-    navigator.serviceWorker
-      .register('sw.js', { type: 'module' })
-      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
-      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
-  });
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  async function registerSw() {
+    try {
+      const url = new URL('../sw.js', import.meta.url);
+      const reg = await navigator.serviceWorker.register(url, { type: 'module' });
+      console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`);
+    } catch (err) {
+      console.error(`💥 [main] ServiceWorker registration failed:`, err);
+    }
+  }
+
+  if (globalThis.document.readyState === 'complete') {
+    void registerSw();
+  } else {
+    window.addEventListener('load', registerSw, { once: true });
+  }
 }
 
 /**
@@ -32,18 +38,27 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  if (isDev) {
+  /**
+   * DevHarness:
+   */
+  async function renderDev() {
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
 
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: (e) => {
+      hr(e) {
+        if (e.next?.endsWith(': Button')) return true;
         if (e.next?.endsWith(': Bullet')) return true;
-        if (e.prev?.endsWith(': Config.Slider')) return true;
-        if (e.next?.endsWith(': Tree.Index')) return true;
+        if (e.next?.endsWith(': Anchor')) return true;
+        if (e.next?.endsWith(': Layout.CenterColumn')) return true;
+        if (e.next?.endsWith(': Http.Origin')) return true;
+        if (e.next?.endsWith(': TreeView.Index')) return true;
+        if (e.next?.endsWith(': Prose.Measure')) return true;
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
+        if (e.next?.endsWith(': Dist')) return true;
+        if (e.next?.endsWith(': WebFonts')) return true;
       },
     });
     function App() {
@@ -56,13 +71,24 @@ export async function main() {
         <App />
       </StrictMode>,
     );
-  } else {
-    const { Splash } = await import('./ui.Splash.tsx');
+  }
+
+  /**
+   * Entry/Splash:
+   */
+  async function renderSplash() {
+    const { Splash } = await import('../ui/Splash/mod.ts');
     root.render(
       <StrictMode>
-        <Splash style={{ Absolute: 0 }} />
+        <Splash.UI style={{ Absolute: 0 }} pkg={pkg} />
       </StrictMode>,
     );
+  }
+
+  if (isDev) {
+    return void renderDev();
+  } else {
+    return void renderSplash();
   }
 }
 

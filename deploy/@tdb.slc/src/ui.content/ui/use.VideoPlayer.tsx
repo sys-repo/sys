@@ -13,7 +13,7 @@ export function useVideoPlayer(
   /**
    * Refs:
    */
-  const signalsRef = React.useRef(Player.Video.signals());
+  const signalsRef = React.useRef(Player.Video.Signals.create());
   const signals = signalsRef.current;
 
   /**
@@ -46,7 +46,7 @@ export function useVideoPlayer(
   type P = { style?: t.CssInput; onEnded?: t.VideoElementProps['onEnded'] };
   function render(props: P = {}) {
     return (
-      <Player.Video.Element
+      <Player.Video.UI
         {...controller.props}
         style={props?.style}
         muted={muted}

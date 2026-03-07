@@ -8,15 +8,16 @@ import { useKeyboard } from '../ui/use/use.Keyboard.ts';
 /**
  * Service Worker:
  */
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
-    const devmode = import.meta.env.DEV;
-    const prefix = devmode ? `[main:dev]` : `[main]`;
-    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
     navigator.serviceWorker
-      .register('sw.js', { type: 'module' })
-      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
-      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
+      .register(new URL('../sw.js', import.meta.url), { type: 'module' })
+      .then((reg) =>
+        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
+      )
+      .catch((err) =>
+        console.error(`💥 [main] ServiceWorker registration failed:`, err),
+      );
   });
 }
 

@@ -1,5 +1,6 @@
+import { Fs } from '@sys/fs';
+import { describe, expect, it, slug, Testing, Time } from '../../-test.ts';
 import { Crdt } from '@sys/driver-automerge/fs';
-import { describe, expect, it, slug, Time } from '../../-test.ts';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -10,26 +11,26 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
         const { Crdt } = await import('@sys/driver-automerge/fs');
         const repo = Crdt.repo();
 
-        const a = repo.create<T>({ count: 0 });
+        const a = await repo.create<T>({ count: 0 });
 
-        a.change((d) => (d.count = 1234));
-        expect(a.current).to.eql({ count: 1234 });
+        a.doc!.change((d) => (d.count = 1234));
+        expect(a.doc!.current).to.eql({ count: 1234 });
       });
 
       it('import: with path', async () => {
         const { Crdt } = await import('@sys/driver-automerge/fs');
-        expect(Crdt.kind).to.eql('Crdt:FileSystem');
+        expect(Crdt.kind).to.eql('crdt:fs');
 
         const dir = `.tmp/test/crdt.import/${slug()}`;
         const repoA = Crdt.repo({ dir });
-        const a = repoA.create<T>({ count: 0 });
-        a.change((d) => (d.count = 1234));
+        const a = await repoA.create<T>({ count: 0 });
+        a.doc!.change((d) => (d.count = 1234));
 
         await Time.wait(500);
 
         const repoB = Crdt.repo(dir);
-        const b = (await repoB.get<T>(a.id)).doc!;
-        expect(b.current).to.eql({ count: 1234 }); // NB: read from disk.
+        const b = await repoB.get<T>(a.doc!.id);
+        expect(b.doc!.current).to.eql({ count: 1234 }); // NB: read from disk.
       });
     });
 
@@ -41,15 +42,22 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
       expect(a.id.instance).to.not.eql(b.id.instance);
 
       expect(a.id.peer).to.eql(''); // ← no network...no peer-id.
-      expect(b.id.peer.startsWith('crdt-peer-')).to.be.true;
+      expect(b.id.peer.startsWith('peer-')).to.be.true;
     });
 
     it('repo: network with <Falsy> in it', () => {
       const repo = Crdt.repo({
         network: [{ ws: 'sync.automerge.org' }, undefined, null, false, 0, ''],
       });
-      expect(repo.id.peer.startsWith('crdt-peer-')).to.be.true;
+      expect(repo.id.peer.startsWith('peer-')).to.be.true;
       expect(repo.sync.urls).to.eql(['wss://sync.automerge.org']); // NB: the <undefined> entry filtered out.
+    });
+
+    it('repo: stores (info)', () => {
+      const fs = Testing.dir('repo.stores');
+      const dir = fs.dir;
+      const repo = Crdt.repo({ dir });
+      expect(repo.stores).to.eql([{ kind: 'fs', dir: Fs.resolve(dir) }]);
     });
   });
 

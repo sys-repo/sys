@@ -40,27 +40,44 @@ describe('Http', () => {
     });
   });
 
-  describe('Http.toResponse', () => {
+  describe('Http.toJsonResponse', () => {
     type T = { count: number };
 
-    it('toResponse: data', async () => {
+    it('toJsonResponse: data', async () => {
       const obj = { count: 123 };
       const input = new Response(JSON.stringify(obj));
-      const res = await Http.toResponse<T>(input);
+      const res = await Http.toJsonResponse<T>(input);
       expect(res.ok).to.eql(true);
       expect(res.data).to.eql(obj);
       expect(res.error).to.eql(undefined);
     });
 
-    it('toResponse: error', async () => {
+    it('toJsonResponse: error', async () => {
       const input = new Response('Not Found', { status: 404, statusText: 'foo' });
-      const res = await Http.toResponse(input);
+      const res = await Http.toJsonResponse(input);
       expect(res.ok).to.eql(false);
       expect(res.data).to.eql(undefined);
       expect(res.error?.status).to.eql(404);
       expect(res.error?.statusText).to.eql('foo');
       expect(res.error?.message).to.eql('404 foo');
       expect(res.error?.headers).to.eql({ 'content-type': 'text/plain;charset=UTF-8' });
+    });
+
+    it('toJsonResponse: invalid JSON body', async () => {
+      const input = new Response('not-json', {
+        status: 200,
+        statusText: 'OK',
+        headers: { 'content-type': 'application/json' },
+      });
+      const res = await Http.toJsonResponse(input);
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(200);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.name).to.eql('HttpError');
+      expect(res.error?.message).to.eql('200 OK');
+      expect(res.error?.cause?.name).to.eql('SyntaxError');
+      expect(res.error?.headers).to.eql({ 'content-type': 'application/json' });
     });
   });
 
@@ -69,9 +86,14 @@ describe('Http', () => {
       expect(Http.toHeaders()).to.eql({});
     });
 
-    it('{HttpHeaders} record → no change', () => {
-      const headers: t.HttpHeaders = { 'content-type': 'application/json', pkg: 'name@1.2.3' };
-      expect(Http.toHeaders(headers)).to.equal(headers);
+    it('{HttpHeaders} record → normalized object copy', () => {
+      const headers: t.HttpHeaders = {
+        'content-type': 'application/json',
+        pkg: 'name@1.2.3',
+      };
+      const result = Http.toHeaders(headers);
+      expect(result).to.eql(headers);
+      expect(result).to.not.equal(headers);
     });
 
     it('from [Headers] object', () => {

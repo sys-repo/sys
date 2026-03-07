@@ -7,7 +7,7 @@ export type SampleDoc = { text?: string };
 type P = t.TextPanelProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'label' | 'path' | 'scroll'> & { padding?: t.Pixels };
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };
 
 /**
  * Types:
@@ -34,7 +34,10 @@ export function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: [{ ws: 'sync.db.team' }],
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+    ],
   });
 
   const props = {

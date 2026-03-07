@@ -1,2 +1,5 @@
-export { Args, Dispose, Err, Is, Path, Pkg, R, Str, Time, Url, isObject, isRecord } from '@sys/std';
+export { Args, Dispose, Err, Is, isObject, isRecord, Log, Path, Pkg, R, Str, Try, Url } from '@sys/std';
+export { Await } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { Time } from '@sys/std/time';
+export { Net } from '@sys/net';

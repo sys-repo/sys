@@ -70,7 +70,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
         // Teardown previous (keeps device free for next acquire)
         const allOld = [...(filtered?.getTracks() ?? []), ...(raw?.getTracks() ?? [])];
         for (const t of allOld) {
-          Try.catch(() => t.stop()); // sync; safe to fire without await
+          Try.run(() => t.stop()); // sync; safe to fire without await
         }
         await whenEnded(allOld, 600);
         await wait(40);
@@ -96,7 +96,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
         setReady(true);
 
         // Watchdog (non-recursive): only for *virtual* mics. Physical mics may unmute later.
-        await Try.catch(async () => {
+        await Try.run(async () => {
           const [track] = merged.getAudioTracks();
           if (!track) return;
 
@@ -115,11 +115,12 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
       });
     }
 
-    Try.catch(acquireOnce).then(({ error }) => {
-      if (!error) return;
-      logInfo('❌ stream error', error);
-      console.error(error);
-      if (!life.disposed) setError(Err.std(error));
+    Try.run(acquireOnce).then((runResult) => {
+      runResult.catch((error) => {
+        logInfo('❌ stream error', error);
+        console.error(error);
+        if (!life.disposed) setError(Err.std(error));
+      });
     });
 
     return () => {
@@ -135,7 +136,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
         ...(raw?.getTracks() ?? []),
       ];
       for (const t of tracks) {
-        Try.catch(() => t.stop());
+        Try.run(() => t.stop());
       }
 
       setReady(false);

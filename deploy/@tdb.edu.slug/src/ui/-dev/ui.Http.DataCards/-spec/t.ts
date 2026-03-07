@@ -1,0 +1,37 @@
+/**
+ * Dev/Spec (Internal Types).
+ */
+import type { t } from './common.ts';
+
+/** Type re-exports. */
+export type * from '../../../../common/t.ts';
+export type * from './-SPEC.Debug.tsx';
+
+export type DescriptorMode = t.BundleDescriptorKind;
+export type DescriptorParams = { kind: DescriptorMode };
+
+export type TEnv = {
+  is: { local: boolean };
+  readonly origin: t.SlugUrlOrigin;
+  readonly probe?: {
+    readonly selectionList?: {
+      readonly totalVisible?: number | 'all';
+    };
+    readonly descriptor?: {
+      readonly kind?: DescriptorMode;
+      readonly onKindChange?: (next: DescriptorMode) => void;
+    };
+    readonly treeContent?: {
+      readonly refs?: string[];
+      readonly ref?: string;
+      readonly onRefChange?: (next: string) => void;
+      readonly onRefsChange?: (next: string[]) => void;
+    };
+    readonly treePlayback?: {
+      readonly refs?: string[];
+      readonly ref?: string;
+      readonly onRefChange?: (next: string) => void;
+      readonly onRefsChange?: (next: string[]) => void;
+    };
+  };
+};

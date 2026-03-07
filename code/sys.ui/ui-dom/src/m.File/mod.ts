@@ -4,5 +4,3 @@
  */
 export { File } from './m.File.ts';
 export { FileSize } from './m.FileSize.ts';
-
-export { DEFAULTS } from './common.ts';

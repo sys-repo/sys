@@ -1,5 +1,13 @@
 import type { t } from './common.ts';
 
+/** Type re-exports. */
+export type * from './t.core.ts';
+export type * from './t.Id.ts';
+export type * from './t.Is.ts';
+export type * from './t.meta.ts';
+export type * from './t.network.ts';
+export type * from './t.Str.ts';
+
 type O = Record<string, unknown>;
 
 /**
@@ -7,19 +15,14 @@ type O = Record<string, unknown>;
  */
 export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
+  readonly Id: t.CrdtIdLib;
   readonly Url: t.CrdtUrlLib;
+  readonly Str: t.CrdtStrLib;
+  readonly Cmd: t.CrdtCmdLib;
+  readonly Worker: t.CrdtWorkerLib;
+  readonly Graph: t.CrdtGraphLib;
   whenReady(doc?: t.Crdt.Ref): Promise<void>;
-};
-
-/**
- * Boolean flag evaluators:
- */
-export type CrdtIsLib = {
-  /** Determine if the given value is a <CrdtRef> instance. */
-  ref<T extends O>(input?: unknown): input is t.CrdtRef<T>;
-
-  /** Determine if the given value is a valid CRDT document id. */
-  id(input?: unknown): input is t.DocumentId;
+  toObject: t.CrdtToObject;
 };
 
 /**

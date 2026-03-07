@@ -1,8 +1,8 @@
 /**
+ * @module
  * Tools for working with spawned child processes on modern POSIX-based systems
  * (macOS, Linux, and similar “unix-like” environments) using Deno
  * (aka. [WinterTC](https://wintertc.org/) compatible) runtimes.
- * @module
  *
  * @example
  * Running a short lived shell command (synchronous):
@@ -17,6 +17,19 @@
  * const args = ['eval', 'console.log("👋 hello world")'];
  * const res = await Process.invoke({ args });
  * ```
+ *
+ * @example
+ * Running an interactive command with inherited terminal stdio:
+ * ```ts
+ * import { Process } from '@sys/process';
+ *
+ * await Process.inherit({ cmd: 'deno', args: ['task', 'help'] });
+ * ```
+ *
+ * Notes:
+ * - `Process.inherit` does not capture stdout/stderr.
+ * - `silent` has no effect for `inherit`.
+ * - `FORCE_COLOR` defaults to on (override by setting `env.FORCE_COLOR`).
  *
  * @example
  * Spawning a long-running child process (asynchronous):
@@ -43,4 +56,5 @@ export { pkg } from './pkg.ts';
 /**
  * Library
  */
-export { Process } from './m.Process/mod.ts';
+export { Process } from './m.process/mod.ts';
+export { Open } from './m.open/mod.ts';

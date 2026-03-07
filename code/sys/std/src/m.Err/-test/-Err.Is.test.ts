@@ -2,6 +2,12 @@ import { describe, expect, it, type t } from '../../-test.ts';
 import { Err } from '../mod.ts';
 
 describe('Err.Is', () => {
+  it('Is.error', () => {
+    expect(Err.Is.error(new Error('boom'))).to.equal(true);
+    expect(Err.Is.error({ message: 'boom' })).to.equal(false);
+    expect(Err.Is.error('boom')).to.equal(false);
+  });
+
   it('Is.errorLike', () => {
     const test = (input: any, expected: boolean) => {
       expect(Err.Is.errorLike(input)).to.eql(expected);

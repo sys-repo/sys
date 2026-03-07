@@ -1,0 +1,27 @@
+{
+  "docid": "2esGLgD5SoQkeucytmGeadm9cC7y",
+  "assets": [
+    {
+      "kind": "video",
+      "logicalPath": "/:p2p-videos/p2p 4.4 improving-your-economic-model 1.webm.02.mp4.webm",
+      "hash": "sha256-3375c26abc90532bb6ed1a8bdc47b84f5a951a0b3f77ffa6a2659502afa4d0d4",
+      "filename": "sha256-3375c26abc90532bb6ed1a8bdc47b84f5a951a0b3f77ffa6a2659502afa4d0d4.webm",
+      "href": "/video/sha256-3375c26abc90532bb6ed1a8bdc47b84f5a951a0b3f77ffa6a2659502afa4d0d4.webm",
+      "stats": {
+        "bytes": 5032410,
+        "duration": 30984
+      }
+    },
+    {
+      "kind": "video",
+      "logicalPath": "/:p2p-videos/p2p 4.4 improving-your-economic-model 2.webm.02.mp4.webm",
+      "hash": "sha256-e9d0c5e3e47eb2ce908798c957ca4d385daefd3ecb8d68d35135910284f68685",
+      "filename": "sha256-e9d0c5e3e47eb2ce908798c957ca4d385daefd3ecb8d68d35135910284f68685.webm",
+      "href": "/video/sha256-e9d0c5e3e47eb2ce908798c957ca4d385daefd3ecb8d68d35135910284f68685.webm",
+      "stats": {
+        "bytes": 94851047,
+        "duration": 572607
+      }
+    }
+  ]
+}

@@ -93,7 +93,7 @@ export function createDebugSignals() {
    * Methods:
    */
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     state.change((d) => (d.count = 0));
     loadSample();
   }

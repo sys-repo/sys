@@ -1,4 +1,4 @@
-import { Time } from '../m.DateTime/mod.ts';
+import { Time } from '../m.Time/mod.ts';
 import { type t, Dispose } from './common.ts';
 import { Subject, filter, take, takeUntil } from './u.Rx.libs.ts';
 
@@ -17,8 +17,21 @@ export function withinTimeThreshold<T>(
     type R = { result: boolean; value?: T };
     const startedAt = Date.now();
     const $$ = new Subject<R>();
+
     const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
+
+    let timer: t.TimeDelayPromise | undefined;
+    const cancelTimer = () => {
+      try {
+        timer?.cancel?.();
+      } catch {
+        /* no-op */
+      }
+      timer = undefined;
+    };
+
     const done = (result: boolean, value?: T) => {
+      cancelTimer();
       $$.next({ result, value });
       $$.complete();
       dispose();
@@ -29,20 +42,19 @@ export function withinTimeThreshold<T>(
       if (elapsed < timeout) done(true, e);
     });
 
-    Time.delay(timeout, () => {
+    timer = Time.delay(timeout, () => {
       done(false);
       timeout$.next();
     });
 
+    dispose$.subscribe(() => cancelTimer());
     return $$;
   };
 
-  /**
-   * Response listener:
-   */
   const timeout$ = new Subject<void>();
   const $$ = new Subject<T>();
-  $.subscribe((e) => {
+
+  $.pipe(takeUntil(life.dispose$)).subscribe((e) => {
     const listen$ = listen(timeout).pipe(
       takeUntil(life.dispose$),
       filter((e) => !!e.result),
@@ -50,9 +62,6 @@ export function withinTimeThreshold<T>(
     listen$.subscribe((e) => $$.next(e.value!));
   });
 
-  /**
-   * API:
-   */
   return Dispose.toLifecycle<t.TimeThreshold<T>>(life, {
     $: $$.pipe(takeUntil(life.dispose$)),
     timeout$: timeout$.pipe(takeUntil(life.dispose$)),

@@ -5,7 +5,7 @@ import { useSlugSemanticDiagnostics } from './use.Slug.SemanticDiagnostics.ts';
 import { useSlugStructuralDiagnostics } from './use.Slug.StructuralDiagnostics.ts';
 
 export const useSlugDiagnostics: t.UseSlugDiagnostics = (registry, path, yaml) => {
-  const structural = useSlugStructuralDiagnostics({ yaml, path });
+  const structural = useSlugStructuralDiagnostics({ yaml, path, registry });
   const semantic = useSlugSemanticDiagnostics({ registry, path, yaml });
 
   /**

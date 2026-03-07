@@ -1,0 +1,447 @@
+import { type t, describe, expect, it, pkg } from '../../-test.ts';
+import { D } from '../common.ts';
+import { Pkg } from '../mod.ts';
+
+describe('Pkg', () => {
+  describe('Pkg.toString', () => {
+    it('INVALID', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => {
+        expect(Pkg.toString(v)).to.eql('<unknown>@0.0.0', v);
+      });
+    });
+
+    it('<undefined> → "" (empty)', () => {
+      expect(Pkg.toString()).to.eql('<unknown>@0.0.0');
+    });
+
+    it('{pkg} → "<name>@<version>"', () => {
+      const res = Pkg.toString(pkg);
+      expect(res).to.eql(`${pkg.name}@${pkg.version}`);
+    });
+
+    it('suffix param', () => {
+      const base = Pkg.toString(pkg);
+      const a = Pkg.toString(pkg, 'FooBar');
+      const b = Pkg.toString(pkg, '  ::: ns.foo.bar  ');
+      expect(a).to.eql(`${base}:FooBar`);
+      expect(b).to.eql(`${base}:ns.foo.bar`);
+    });
+
+    it('no version', () => {
+      const a = Pkg.toString(pkg, 'FooBar', { version: false });
+      const b = Pkg.toString(pkg, 'FooBar', false);
+      const c = Pkg.toString(pkg, undefined, false);
+      expect(a).to.eql('@sys/std:FooBar');
+      expect(b).to.eql('@sys/std:FooBar');
+      expect(c).to.eql('@sys/std');
+    });
+  });
+
+  describe('Pkg.fromJson', () => {
+    it('INVALID input', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => {
+        const res = Pkg.fromJson(v);
+        expect(Pkg.Is.unknown(res)).to.eql(true);
+      });
+    });
+
+    it('from import', () => {
+      const res = Pkg.fromJson({ name: 'foo', version: '1.2.0' });
+      expect(res.name).to.eql('foo');
+      expect(res.version).to.eql('1.2.0');
+    });
+
+    it('defaultName', () => {
+      const res1 = Pkg.fromJson({ name: 'foo', version: '1.2.0' }, 'my-name');
+      const res2 = Pkg.fromJson({ version: '1.2.0' }, 'my-name');
+      expect(res1.name).to.eql('foo'); // NB: the provided name in JSON is used - param value ignored.
+      expect(res2.name).to.eql('my-name');
+    });
+
+    it('defaultVersion', () => {
+      const res1 = Pkg.fromJson({ name: 'foo', version: '1.2.0' }, 'my-name', '9.0.0');
+      const res2 = Pkg.fromJson({ name: 'foo' }, 'my-name', '9.0.0');
+      expect(res1.version).to.eql('1.2.0'); // NB: the provided version in JSON is used - param value ignored.
+      expect(res2.version).to.eql('9.0.0');
+    });
+  });
+
+  describe('Pkg.Is', () => {
+    describe('Is.unknown', () => {
+      it('true (unknown)', () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.unknown(v)).to.eql(true, v);
+        });
+        expect(Pkg.Is.unknown('<unknown>@0.0.0')).to.eql(true);
+        expect(Pkg.Is.unknown({ name: '<unknown>', version: '0.0.0' })).to.eql(true);
+      });
+
+      it('false (known)', () => {
+        expect(Pkg.Is.unknown(Pkg.toString(pkg))).to.eql(false);
+      });
+    });
+
+    describe('Is.pkg', () => {
+      it('false', () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.pkg(v)).to.eql(false, v);
+        });
+      });
+
+      it('true', () => {
+        const pkg: t.Pkg = { name: 'foo', version: '1.2.3' };
+        expect(Pkg.Is.pkg(pkg)).to.eql(true);
+      });
+    });
+
+    describe('Is.dist', () => {
+      it('false', () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.dist(v)).to.eql(false, v);
+        });
+      });
+
+      it('false: missing build.hash.policy', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+          },
+          hash: {
+            digest: 'acbc',
+            parts: {
+              './index.html': 'xxxx',
+              './pkg/entry.js': 'yyyy',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
+      it('true', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': `sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+      });
+
+      it('true: canonical dist may omit root pkg', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': `sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+        expect(Pkg.Is.distCompat(dist)).to.eql(true);
+      });
+
+      it('true: canonical dist with detached signature descriptor', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: {
+              path: './dist.json.sig',
+              scheme: 'Ed25519',
+              key: 'kid:sample-1',
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': `sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+        expect(Pkg.Is.distCompat(dist)).to.eql(true);
+      });
+
+      it('true: canonical dist with hash ignore policy metadata', () => {
+        const dist: t.DistPkg = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: {
+              policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts',
+              ignore: {
+                format: 'gitignore',
+                rules: ['dist.json', 'dist.json.sig', '.DS_Store'],
+                'rules:digest': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18`,
+              },
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': `sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
+      });
+
+      it('false: invalid hash ignore policy metadata', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: {
+              policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts',
+              ignore: {
+                format: 'glob',
+                rules: ['dist.json'],
+                digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+              },
+            },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': `sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
+      it('false: invalid detached signature descriptor scheme', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: './dist.json.sig', scheme: 'RSA' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+        expect(Pkg.Is.distCompat(dist)).to.eql(true);
+      });
+
+      it('false: non-string detached signature descriptor path', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: 123, scheme: 'Ed25519' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
+      it('false: non-string detached signature descriptor key', () => {
+        const dist: any = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+            sign: { path: './dist.json.sig', scheme: 'Ed25519', key: 123 },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(false);
+      });
+
+      it('distCompat: true for legacy and canonical', () => {
+        const legacy: t.DistPkgLegacy = {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: 'foo', version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+
+        const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
+          policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
+        });
+
+        expect(Pkg.Is.distCompat(legacy)).to.eql(true);
+        expect(Pkg.Is.dist(legacy)).to.eql(false);
+        expect(Pkg.Is.distCompat(canonical)).to.eql(true);
+        expect(Pkg.Is.dist(canonical)).to.eql(true);
+      });
+
+      it('distCompat: true for legacy/canonical with omitted root pkg', () => {
+        const legacy: t.DistPkgLegacy = {
+          type: 'https://jsr.io/@sample/foo',
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: '@sys/driver-vite@0.0.0',
+            runtime: '<runtime-uri>',
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './pkg/entry.js': `sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`,
+            },
+          },
+        };
+
+        const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
+          policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
+        });
+
+        expect(Pkg.Is.distCompat(legacy)).to.eql(true);
+        expect(Pkg.Is.dist(legacy)).to.eql(false);
+        expect(canonical?.pkg).to.eql(undefined);
+        expect(Pkg.Is.distCompat(canonical)).to.eql(true);
+        expect(Pkg.Is.dist(canonical)).to.eql(true);
+      });
+    });
+  });
+
+  it('Pkg.unknown', () => {
+    const a = Pkg.unknown();
+    const b = Pkg.unknown();
+
+    expect(a).to.eql(D.unknown());
+    expect(a).to.eql(b);
+    expect(a).to.not.equal(b);
+  });
+
+  describe('Pkg.toPkg', () => {
+    it('invalid → <unknown>', () => {
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [],
+        { name: 123, version: '0.0.0' },
+        { name: 'foo', version: 123 },
+      ];
+      NON.forEach((value: any) => {
+        const res = Pkg.toPkg(value);
+        expect(res).to.eql(D.unknown());
+      });
+    });
+
+    it('strips wider object to yield clean {pkg}', () => {
+      const source = { name: 'foo', version: '0.0.0', tasks: {} };
+      const a = Pkg.toPkg(source);
+      const b = Pkg.toPkg(source);
+
+      expect(a).to.eql(b);
+      expect(a).to.not.equal(b);
+
+      expect(Object.keys(a)).to.eql(['name', 'version']);
+      expect(a.name).to.eql('foo');
+      expect(a.version).to.eql('0.0.0');
+    });
+
+    describe('parsing from string', () => {
+      it('valid', () => {
+        const res = Pkg.toPkg('  @scope/pkg@0.0.0  ');
+        expect(res.name).to.eql('@scope/pkg');
+        expect(res.version).to.eql('0.0.0');
+      });
+
+      it('invalid: → returns {UNKNOWN} version of {pkg}', () => {
+        const test = (input: string) => {
+          const res = Pkg.toPkg(input);
+          expect(res).to.eql(Pkg.unknown());
+        };
+
+        test('');
+        test('  ');
+        test('foobar');
+        test('🐷');
+
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((value: any) => test(value));
+      });
+    });
+  });
+});

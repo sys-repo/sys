@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Component:
  */
 export type CardProps = {
-  localstorage?: t.StringKey;
+  storageKey?: t.StringKey;
   textMaxLength?: number;
   //
   signals?: Partial<CardSignals>;

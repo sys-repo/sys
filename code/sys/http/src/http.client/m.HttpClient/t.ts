@@ -21,14 +21,19 @@ export type HttpClientLib = {
   /** Generator function for a new URL. */
   readonly url: t.UrlLib['parse'];
 
-  /** Convert `Headers` into a simple headers object */
+  /**
+   * Preloader for warming HTTP cache/network only.
+   */
+  readonly Preload: t.HttpPreloadLib;
+
+  /** Convert headers input into a normalized `{key: string}` headers object. */
   toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
 
   /** Convert a `Response` into an HTTP client error. */
   toError(input: Response): t.HttpError | undefined;
 
-  /** Convert a `Response` into a standard HTTP fetch response. */
-  toResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
+  /** Convert a `Response` into a standard JSON HTTP fetch response. */
+  toJsonResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
 
   /** Convert the `Blob` response to a `Uint8Array`. */
   toUint8Array(input?: Blob): Promise<Uint8Array>;
@@ -54,6 +59,8 @@ export type HttpWaitOptions = {
   readonly interval?: t.Msecs;
   /** Per-request timeout; if omitted, uses Math.max(2000, (interval ?? 150) * 2). */
   readonly requestTimeout?: t.Msecs;
+  /** Optional abort signal to stop waiting early. */
+  readonly signal?: AbortSignal;
   /** HTTP method for the probe (default: 'HEAD', falls back to 'GET' if HEAD fails). */
   readonly method?: 'HEAD' | 'GET';
   /** Extra headers to send with the probe. */

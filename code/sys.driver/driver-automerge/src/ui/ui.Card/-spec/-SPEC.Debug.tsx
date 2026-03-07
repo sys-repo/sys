@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
@@ -28,6 +28,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -38,18 +39,21 @@ export async function createDebugSignals() {
   };
 
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     store,
     repo,
+    listen,
     reset,
-    listen() {
-      Object.values(p)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
-    },
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -69,10 +73,6 @@ export async function createDebugSignals() {
     events = doc?.events();
     events?.$.subscribe(() => p.redraw.value++);
   });
-
-  function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
-  }
 
   return api;
 }

@@ -44,36 +44,6 @@ export function sanitizeForFilename(input: string): string {
 }
 
 /**
- * Tiny promise semaphore for concurrency control.
- */
-export function semaphore(max: number) {
-  let active = 0;
-  const queue: Array<() => void> = [];
-
-  const runNext = () => {
-    active -= 1;
-    const fn = queue.shift();
-    if (fn) fn();
-  };
-
-  return <T>(fn: () => Promise<T>) => {
-    return new Promise<T>((resolve, reject) => {
-      const run = async () => {
-        active++;
-        try {
-          resolve(await fn());
-        } catch (e) {
-          reject(e);
-        } finally {
-          runNext();
-        }
-      };
-      active < max ? run() : queue.push(run);
-    });
-  };
-}
-
-/**
  * Tiny async queue for events.
  * Workers call `push`, the consumer `for await ... of` drains them.
  */

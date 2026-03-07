@@ -1,4 +1,5 @@
-import 'npm:fake-indexeddb/auto';
+import 'fake-indexeddb/auto';
+
 import { Time, describe, expect, it } from '../-test.ts';
 import { IndexedDb } from './mod.ts';
 

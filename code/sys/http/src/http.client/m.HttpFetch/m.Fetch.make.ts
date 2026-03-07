@@ -7,8 +7,8 @@ type F = t.HttpFetchLib['make'];
  * Factory method:
  */
 export const makeFetch: F = (input: Parameters<F>[0]) => {
-  const options = wrangle.options(input);
-  const life = Rx.abortable(options.dispose$);
+  const createOptions = wrangle.options(input);
+  const life = Rx.abortable(createOptions.dispose$);
 
   const invokeFetch = async <T>(
     contentType: t.StringContentType,
@@ -29,13 +29,23 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     try {
       const userHeaders = toHeaders(init.headers);
       const mergedHeaders = { ...api.headers, ...userHeaders };
-      if (contentType && !userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
+      const method = (init.method ?? 'GET').toUpperCase();
+      const hasBody = !!(init as RequestInit).body;
+      const policy = createOptions.contentTypePolicy ?? 'corsSafe';
+      const shouldSetContentType =
+        policy === 'always'
+          ? true
+          : method !== 'GET' && method !== 'HEAD' && hasBody;
+      if (contentType && shouldSetContentType && !userHeaders['content-type']) {
+        mergedHeaders['content-type'] = contentType;
+      }
 
+      const { signal, dispose } = wrangle.signal(life.signal, init.signal ?? undefined);
       const fetched = await fetch(url, {
         ...init,
-        signal: life.signal,
+        signal,
         headers: mergedHeaders,
-      });
+      }).finally(dispose);
       status = fetched.status;
       statusText = fetched.statusText;
       headers = fetched.headers;
@@ -106,7 +116,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
   const api: t.HttpFetch = Rx.toLifecycle<t.HttpFetch>(life, {
     header: (name) => (api.headers as any)[name],
     get headers() {
-      return wrangle.headers(options);
+      return wrangle.headers(createOptions);
     },
 
     head(input: RequestInput, init: RequestInit = {}, options = {}) {
@@ -191,5 +201,18 @@ const wrangle = {
     }
 
     return headers;
+  },
+
+  signal(...signals: Array<AbortSignal | undefined>) {
+    const active = signals.filter((signal): signal is AbortSignal => !!signal);
+    if (active.length <= 1) return { signal: active[0], dispose: () => {} };
+
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    active.forEach((signal) => signal.addEventListener('abort', onAbort, { once: true }));
+    if (active.some((signal) => signal.aborted)) onAbort();
+
+    const dispose = () => active.forEach((signal) => signal.removeEventListener('abort', onAbort));
+    return { signal: controller.signal, dispose };
   },
 } as const;

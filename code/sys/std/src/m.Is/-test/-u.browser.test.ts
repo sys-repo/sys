@@ -1,0 +1,46 @@
+import { afterEach, beforeEach, describe, DomMock, expect, it } from '../../-test.ts';
+import { Is } from '../mod.ts';
+
+describe('Is (browser environment)', () => {
+  // NB: before/after-each intentional.
+  DomMock.init({ beforeEach, afterEach });
+
+  describe('Is.browser', () => {
+    it('Is.browser: false', () => {
+      DomMock.unpolyfill();
+      expect(Is.browser()).to.eql(false);
+    });
+
+    it('Is.browser: true', () => {
+      DomMock.polyfill();
+      expect(Is.browser()).to.eql(true);
+    });
+  });
+
+  describe('Is.localhost', () => {
+    it('Is.localhost: true', () => {
+      const url = 'http://localhost:1234';
+      DomMock.polyfill({ url });
+      expect(Is.browser()).to.eql(true);
+
+      expect(Is.localhost()).to.eql(true);
+      expect(Is.localhost(window.location)).to.eql(true);
+      expect(Is.localhost('http://localhost')).to.eql(true);
+      expect(Is.localhost(url)).to.eql(true);
+      expect(Is.localhost('http://127.0.0.1:1234')).to.eql(true);
+      expect(Is.localhost('http://[::1]:1234')).to.eql(true);
+    });
+
+    it('Is.localhost: false', () => {
+      const url = 'https://domain.com';
+      DomMock.polyfill({ url });
+
+      expect(Is.localhost()).to.eql(false);
+      expect(Is.localhost(window.location)).to.eql(false);
+      expect(Is.localhost(url)).to.eql(false);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(Is.localhost(value)).to.eql(false, value));
+    });
+  });
+});

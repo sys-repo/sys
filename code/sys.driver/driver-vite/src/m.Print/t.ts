@@ -42,7 +42,7 @@ export type ViteLogUsageApiArgs = {
 };
 
 /** Commands included in the Help log. */
-export type ViteLogApiCmd = 'dev' | 'build' | 'serve' | 'upgrade' | 'backup' | 'clean' | 'help';
+export type ViteLogApiCmd = 'dev' | 'build' | 'serve' | 'clean' | 'help';
 
 /**
  * Log bundled distribution details.

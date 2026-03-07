@@ -24,7 +24,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const rect = debug.rect.value;
 
-  Signal.useRedrawEffect(() => debug.rect.value);
+  Signal.useRedrawEffect(() => void debug.rect.value);
 
   /**
    * Render:

@@ -24,7 +24,7 @@ export function makeValidator<S extends t.TSchema, TOut = t.Static<S>>(
       if (Schema.Value.Check(schema, value)) return { ok: true as const };
 
       // Collect and normalize all validation failures.
-      // Convert RFC6901 string pointer -> ObjectPath for our canonical error shape.
+      // Convert RFC6901 string pointer → ObjectPath for our canonical error shape.
       const errors = Array.from(Schema.Value.Errors(schema, value), (e) => ({
         path: Obj.Path.decode(e.path),
         message: e.message,

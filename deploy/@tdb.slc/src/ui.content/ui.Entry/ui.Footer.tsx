@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, LogoWordmark, useMiniApp } from './common.ts';
+import { type t, Button, Color, css, LogoWordmark } from './common.ts';
 
 export type FooterProps = {
   state?: t.AppSignals;
@@ -15,8 +15,6 @@ type P = FooterProps;
 export const Footer: React.FC<P> = (props) => {
   const { state } = props;
   const p = state?.props;
-
-  const fc = useMiniApp();
 
   if (!p) return null;
 
@@ -69,11 +67,11 @@ export const Footer: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.left.class}>
         {elDist}
-        {!fc.isMiniApp && elDiv}
-        {!fc.isMiniApp && elPdfDownload}
+        {elDiv}
+        {elPdfDownload}
       </div>
       <div />
-      <div className={styles.right.class}>{!fc.isMiniApp && elLogos}</div>
+      <div className={styles.right.class}>{elLogos}</div>
     </div>
   );
 };

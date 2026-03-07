@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, css, D, M } from './common.ts';
 
-type P = t.LayoutCenterColumnProps;
+type P = t.CenterColumnLayoutProps;
 
-export const LayoutCenterColumn: React.FC<P> = (props) => {
+export const CenterColumn: React.FC<P> = (props) => {
   const { debug = false, gap = D.gap, centerWidth = D.center.width } = props;
 
   /**

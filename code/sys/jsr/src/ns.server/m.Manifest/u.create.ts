@@ -1,6 +1,7 @@
 import { Fs } from '@sys/fs';
 import { type t, Err, Fetch, Path, Pkg, Rx } from './common.ts';
 
+/** Create a manifest helper from an existing definition. */
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
   pkg = { ...pkg };
   def = { ...def };

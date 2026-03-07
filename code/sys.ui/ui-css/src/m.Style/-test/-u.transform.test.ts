@@ -4,6 +4,8 @@ import {
   FindCss,
   Obj,
   TestPrint,
+  afterAll,
+  beforeAll,
   c,
   describe,
   expect,
@@ -13,7 +15,7 @@ import {
 import { Style, css } from '../mod.ts';
 
 describe('Style.css → transform', () => {
-  DomMock.polyfill();
+  DomMock.init({ beforeAll, afterAll });
 
   const setup = () => {
     const sheet = Style.Dom.stylesheet(slug());

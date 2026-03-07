@@ -8,9 +8,11 @@ describe('Fs.Path', () => {
     expect(Fs.Path).to.equal(Path);
     expect(Fs.Path).to.not.equal(StdPath);
     expect(Fs.join).to.eql(Path.join);
-    expect(Fs.resolve).to.eql(Path.resolve);
+    expect(Fs.resolve('.')).to.eql(Path.resolve('.'));
     expect(Fs.dirname).to.eql(Path.dirname);
     expect(Fs.basename).to.eql(Path.basename);
+    expect(Fs.Path.fromFileUrl).to.equal(StdPath.fromFileUrl);
+    expect(Fs.Path.toFileUrl).to.equal(StdPath.toFileUrl);
   });
 
   it('asDir', async () => {
@@ -37,6 +39,21 @@ describe('Fs.Path', () => {
   it('Fs.Path.cwd', () => {
     expect(Fs.Path.cwd()).to.eql(Deno.cwd());
     expect(Fs.cwd()).to.eql(Fs.Path.cwd());
+  });
+
+  describe('file URL conversions', () => {
+    it('Fs.Path.fromFileUrl smoke', () => {
+      const path = Fs.Path.fromFileUrl(import.meta.url);
+      expect(Fs.Path.Is.absolute(path)).to.eql(true);
+      expect(Fs.Path.basename(path)).to.eql('-.test.ts');
+    });
+
+    it('Fs.Path.toFileUrl/Fs.Path.fromFileUrl round-trip', () => {
+      const path = Fs.Path.resolve('.');
+      const url = Fs.Path.toFileUrl(path);
+      const roundtrip = Fs.Path.fromFileUrl(url);
+      expect(Fs.Path.normalize(roundtrip)).to.eql(Fs.Path.normalize(path));
+    });
   });
 
   describe('trimCwd ← "current working directory"', () => {

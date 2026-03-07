@@ -6,6 +6,12 @@ describe('File', () => {
   const DomFile = (globalThis as unknown as { File?: typeof globalThis.File }).File;
   if (!DomFile) return; // feature-guard.
 
+  it('API', async () => {
+    const m = await import('@sys/ui-dom/file');
+    expect(m.File).to.equal(File);
+    expect(m.FileSize).to.equal(FileSize);
+  });
+
   it('File.Size', () => {
     expect(File.Size).to.equal(FileSize);
     expect(File.Size.toString).to.equal(Str.bytes);

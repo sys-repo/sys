@@ -1,5 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Str } from '../common.ts';
+import { Styles } from './u.style.ts';
+import { CacheButton } from './ui.CacheButton.tsx';
 
 export type TitleProps = {
   enabled?: boolean;
@@ -55,7 +57,15 @@ export const Title: React.FC<TitleProps> = (props) => {
     link: css({
       color: Color.BLUE,
       textDecoration: 'none',
-      ':hover': { textDecoration: 'underline' },
+      ':hover': { textDecoration: 'underline', color: Color.BLUE },
+      ...Styles.focus.dashedUnderline,
+    }),
+    linkMono: css({
+      fontFamily: 'monospace',
+      fontWeight: 600,
+      fontSize: 11,
+      letterSpacing: -0.2,
+      color: Color.alpha(theme.fg, 0.3),
     }),
   };
 
@@ -67,7 +77,11 @@ export const Title: React.FC<TitleProps> = (props) => {
   );
 
   const elDist = dist && (
-    <a className={css(styles.dist, styles.link).class} href={'./dist.json'} {...linkProps}>
+    <a
+      className={css(styles.dist, styles.link, styles.linkMono).class}
+      href={'./dist.json'}
+      {...linkProps}
+    >
       {wrangle.dist(dist)}
     </a>
   );
@@ -81,6 +95,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elRight = (
     <div className={styles.right.class}>
+      <CacheButton theme={theme.name} />
       {elDist}
       {elBadge}
     </div>
@@ -102,6 +117,6 @@ const wrangle = {
   dist(dist: t.DistPkg): string {
     const size = dist.build.size;
     const strSize = `${Str.bytes(size.total)}, /pkg: ${Str.bytes(size.pkg)}`;
-    return `dist:version:#${dist.hash.digest.slice(-5)} → ${strSize}`;
+    return `dist:#${dist.hash.digest.slice(-5)} → ${strSize}`;
   },
 } as const;

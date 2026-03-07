@@ -47,11 +47,11 @@ describe('Jsr.Fetch.Url', () => {
   describe('JsrUrl.Pkg.ref', () => {
     it('ref(pkg, contractPath, modulePath)', () => {
       const pkg = { name: '@sys/std', version: '0.0.42' };
-      const r = JsrUrl.Pkg.ref(pkg, '/src/m.Gpt/t.ts', 'src/m.Gpt/m.Token.ts');
+      const r = JsrUrl.Pkg.ref(pkg, '/src/m.gpt/t.ts', 'src/m.gpt/m.Token.ts');
 
       expect(r).to.eql({
-        contract: 'https://jsr.io/@sys/std/0.0.42/src/m.Gpt/t.ts',
-        module: 'https://jsr.io/@sys/std/0.0.42/src/m.Gpt/m.Token.ts',
+        contract: 'https://jsr.io/@sys/std/0.0.42/src/m.gpt/t.ts',
+        module: 'https://jsr.io/@sys/std/0.0.42/src/m.gpt/m.Token.ts',
       });
 
       print('JsrUrl.Pkg.ref.contract', formatUrl(r.contract, 't.ts'));

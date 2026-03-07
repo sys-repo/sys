@@ -1,335 +1,337 @@
-import { type t, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
+import { type t, afterAll, beforeAll, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
 import { UserAgent } from './common.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
 
-describe(
-  'Keyboard',
-  { sanitizeOps: false, sanitizeResources: false }, // NB: leaked timers left around by the "happy-dom" module.
-  () => {
-    it('(polyfill)', () => DomMock.polyfill());
+describe('Keyboard', () => {
+  DomMock.init({ beforeAll, afterAll });
 
-    it('API', () => {
-      expect(Keyboard).to.equal(Kbd);
+  it('API', async () => {
+    const m = await import('@sys/ui-dom/keyboard');
+    expect(m.Keyboard).to.equal(Keyboard);
+    expect(Keyboard).to.equal(Kbd);
+  });
+
+  describe('KeyListener', () => {
+    it('fires (keydown | keyup)', async () => {
+      const fired: KeyboardEvent[] = [];
+      KeyListener.keydown((e) => fired.push(e));
+      KeyListener.keyup((e) => fired.push(e));
+
+      const downEvent = DomMock.Keyboard.keydownEvent();
+      const upEvent = DomMock.Keyboard.keyupEvent();
+
+      document.dispatchEvent(downEvent);
+      document.dispatchEvent(upEvent);
+      await Time.wait(0);
+
+      expect(fired.length).to.eql(2);
+      expect(fired[0]).to.equal(downEvent);
+      expect(fired[1]).to.equal(upEvent);
     });
 
-    describe('KeyListener', () => {
-      it('fires (keydown | keyup)', async () => {
-        const fired: KeyboardEvent[] = [];
-        KeyListener.keydown((e) => fired.push(e));
-        KeyListener.keyup((e) => fired.push(e));
+    it('dispose: removes event listener', async () => {
+      /**
+       * NOTE: The removing of the event handlers (in particular when multiple handlers
+       *       are in play) is done correctly in the borser, however [happy-dom] does not behave
+       *       accurately and removes all handlers.
+       *
+       *       This test only asserts the removal of the event, but does not attempt to
+       *       simulate within [happy-dom] any further than this.
+       */
+      const fired: KeyboardEvent[] = [];
+      const keydown = KeyListener.keydown((e) => fired.push(e));
+      const keyup = KeyListener.keyup((e) => fired.push(e));
 
-        const downEvent = DomMock.Keyboard.keydownEvent();
-        const upEvent = DomMock.Keyboard.keyupEvent();
+      keydown.dispose();
+      keyup.dispose(); // NB: Keyup-2 not disposed.
 
-        document.dispatchEvent(downEvent);
-        document.dispatchEvent(upEvent);
-        await Time.wait(0);
+      const downEvent = DomMock.Keyboard.keydownEvent();
+      const upEvent = DomMock.Keyboard.keyupEvent();
 
-        expect(fired.length).to.eql(2);
-        expect(fired[0]).to.equal(downEvent);
-        expect(fired[1]).to.equal(upEvent);
-      });
+      DomMock.Keyboard.fire(downEvent);
+      DomMock.Keyboard.fire(upEvent);
 
-      it('dispose: removes event listener', async () => {
-        /**
-         * NOTE: The removing of the event handlers (in particular when multiple handlers
-         *       are in play) is done correctly in the borser, however [happy-dom] does not behave
-         *       accurately and removes all handlers.
-         *
-         *       This test only asserts the removal of the event, but does not attempt to
-         *       simulate within [happy-dom] any further than this.
-         */
-        const fired: KeyboardEvent[] = [];
-        const keydown = KeyListener.keydown((e) => fired.push(e));
-        const keyup = KeyListener.keyup((e) => fired.push(e));
+      await Time.wait(0);
+      expect(fired.length).to.eql(0);
+    });
+  });
 
-        keydown.dispose();
-        keyup.dispose(); // NB: Keyup-2 not disposed.
+  describe('Keyboard.until', () => {
+    it('until.on: stops after disposal', () => {
+      const life = Rx.disposable();
+      const until = Keyboard.until(life.dispose$);
+      const fired: t.KeyboardKeypress[] = [];
+      until.on('KeyZ', (e) => fired.push(e.event));
 
-        const downEvent = DomMock.Keyboard.keydownEvent();
-        const upEvent = DomMock.Keyboard.keyupEvent();
+      DomMock.Keyboard.fire();
+      expect(fired.length).to.eql(1);
 
-        DomMock.Keyboard.fire(downEvent);
-        DomMock.Keyboard.fire(upEvent);
+      life.dispose();
+      expect(until.disposed).to.eql(true);
 
-        await Time.wait(0);
-        expect(fired.length).to.eql(0);
-      });
+      DomMock.Keyboard.fire();
+      expect(fired.length).to.eql(1);
     });
 
-    describe('Keyboard.until', () => {
-      it('until.on: stops after disposal', () => {
-        const life = Rx.disposable();
-        const until = Keyboard.until(life.dispose$);
-        const fired: t.KeyboardKeypress[] = [];
-        until.on('KeyZ', (e) => fired.push(e.event));
+    it('until.dbl: stops after disposal', () => {
+      const life = Rx.disposable();
+      const until = Keyboard.until(life.dispose$);
+      const dbl = until.dbl();
 
-        DomMock.Keyboard.fire();
-        expect(fired.length).to.eql(1);
+      const fired: t.KeyboardKeypress[] = [];
+      dbl.on('KeyB', (e) => fired.push(e.event));
 
-        life.dispose();
-        expect(until.disposed).to.eql(true);
+      const ev = DomMock.Keyboard.keydownEvent('b');
+      DomMock.Keyboard.fire(ev);
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1);
 
-        DomMock.Keyboard.fire();
-        expect(fired.length).to.eql(1);
-      });
+      until.dispose();
+      DomMock.Keyboard.fire(ev);
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1); // No more events after dispose of [until]
+    });
+  });
 
-      it('until.dbl: stops after disposal', () => {
-        const life = Rx.disposable();
-        const until = Keyboard.until(life.dispose$);
-        const dbl = until.dbl();
+  describe('Keyboard.dbl', () => {
+    it('no match', async () => {
+      const dbl = Keyboard.dbl(10);
+      const fired: t.KeyboardKeypress[] = [];
+      dbl.on('KeyM', (e) => fired.push(e.event));
 
-        const fired: t.KeyboardKeypress[] = [];
-        dbl.on('KeyB', (e) => fired.push(e.event));
+      const ev = DomMock.Keyboard.keydownEvent('z');
+      DomMock.Keyboard.fire(ev);
+      await Time.wait(10);
+      DomMock.Keyboard.fire(ev);
 
-        const ev = DomMock.Keyboard.keydownEvent('b');
-        DomMock.Keyboard.fire(ev);
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1);
+      await Time.wait(50);
+      expect(fired.length).to.eql(0);
 
-        until.dispose();
-        DomMock.Keyboard.fire(ev);
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1); // No more events after dispose of [until]
-      });
+      dbl.dispose();
     });
 
-    describe('Keyboard.dbl', () => {
-      it('no match', async () => {
-        const dbl = Keyboard.dbl(10);
-        const fired: t.KeyboardKeypress[] = [];
-        dbl.on('KeyM', (e) => fired.push(e.event));
+    it('fires (x2)', async () => {
+      const dbl = Keyboard.dbl();
+      const fired: t.KeyboardKeypress[] = [];
+      dbl.on('KeyM', (e) => fired.push(e.event));
 
-        const ev = DomMock.Keyboard.keydownEvent('z');
-        DomMock.Keyboard.fire(ev);
-        await Time.wait(10);
-        DomMock.Keyboard.fire(ev);
+      const ev = DomMock.Keyboard.keydownEvent('m');
+      DomMock.Keyboard.fire(ev); // First keypress.
+      await Time.wait(10);
+      expect(fired.length).to.eql(0);
+      DomMock.Keyboard.fire(ev); // Second keypress.
 
-        await Time.wait(50);
-        expect(fired.length).to.eql(0);
+      await Time.wait(20);
+      expect(fired.length).to.eql(1);
+      expect(fired[0].code).to.eql('KeyM');
 
-        dbl.dispose();
-      });
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1); // NB: not increment yet.
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(2);
 
-      it('fires (x2)', async () => {
-        const dbl = Keyboard.dbl();
-        const fired: t.KeyboardKeypress[] = [];
-        dbl.on('KeyM', (e) => fired.push(e.event));
-
-        const ev = DomMock.Keyboard.keydownEvent('m');
-        DomMock.Keyboard.fire(ev); // First keypress.
-        await Time.wait(10);
-        expect(fired.length).to.eql(0);
-        DomMock.Keyboard.fire(ev); // Second keypress.
-
-        await Time.wait(20);
-        expect(fired.length).to.eql(1);
-        expect(fired[0].code).to.eql('KeyM');
-
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1); // NB: not increment yet.
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(2);
-      });
-
-      it('does not fire (outside time threshold)', async () => {
-        const dbl = Keyboard.dbl(10);
-        const fired: t.KeyboardKeypress[] = [];
-        dbl.on('KeyA', (e) => fired.push(e.event));
-
-        const ev = DomMock.Keyboard.keydownEvent('a');
-        DomMock.Keyboard.fire(ev);
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1);
-
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1);
-        await Time.wait(30);
-        DomMock.Keyboard.fire(ev); // NB: second event comes in after timeout.
-        expect(fired.length).to.eql(1); // No change.
-      });
-
-      it('disposes', () => {
-        const life = Rx.disposable();
-        const { dispose$ } = life;
-        const res1 = Keyboard.dbl(2);
-        const res2 = Keyboard.dbl(2, { dispose$ });
-
-        expect(res1.disposed).to.eql(false);
-        expect(res2.disposed).to.eql(false);
-        life.dispose();
-        expect(res1.disposed).to.eql(false);
-        expect(res2.disposed).to.eql(true);
-        res1.dispose();
-        expect(res1.disposed).to.eql(true);
-        expect(res2.disposed).to.eql(true);
-      });
-
-      it('does not fire when disposed', () => {
-        const dbl = Keyboard.dbl(30);
-        const fired: t.KeyboardKeypress[] = [];
-        dbl.on('KeyM', (e) => fired.push(e.event));
-
-        const ev = DomMock.Keyboard.keydownEvent('m');
-        DomMock.Keyboard.fire(ev);
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1);
-
-        dbl.dispose();
-        DomMock.Keyboard.fire(ev);
-        DomMock.Keyboard.fire(ev);
-        expect(fired.length).to.eql(1);
-      });
+      dbl.dispose();
     });
 
-    describe('Keyboard.Is', () => {
-      const Is = Keyboard.Is;
-      const UA = {
-        mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
-        windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        linux: 'Mozilla/5.0 (X11; Linux x86_64)',
-      } as const;
+    it('does not fire (outside time threshold)', async () => {
+      const dbl = Keyboard.dbl(10);
+      const fired: t.KeyboardKeypress[] = [];
+      dbl.on('KeyA', (e) => fired.push(e.event));
 
-      const mac = UserAgent.parse(UA.mac);
-      const windows = UserAgent.parse(UA.windows);
-      const linux = UserAgent.parse(UA.linux);
+      const ev = DomMock.Keyboard.keydownEvent('a');
+      DomMock.Keyboard.fire(ev);
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1);
 
-      it('Is.command', () => {
-        const a = Keyboard.Is.command();
-        expect(a).to.be.false;
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1);
+      await Time.wait(30);
+      DomMock.Keyboard.fire(ev); // NB: second event comes in after timeout.
+      expect(fired.length).to.eql(1); // No change.
 
-        const b = Keyboard.Is.command({ meta: true }, { ua: mac });
-        const c = Keyboard.Is.command({ ctrl: true }, { ua: windows });
-        const d = Keyboard.Is.command({ ctrl: true }, { ua: linux });
-        expect(b).to.be.true;
-        expect(c).to.be.true;
-        expect(d).to.be.true;
+      dbl.dispose();
+    });
 
-        const e = Keyboard.Is.command({ ctrl: true }, { ua: mac });
-        const f = Keyboard.Is.command({ meta: true }, { ua: windows });
-        const g = Keyboard.Is.command({ meta: true }, { ua: linux });
-        expect(e).to.be.false;
-        expect(f).to.be.false;
-        expect(g).to.be.false;
+    it('disposes', () => {
+      const life = Rx.disposable();
+      const { dispose$ } = life;
+      const res1 = Keyboard.dbl(2);
+      const res2 = Keyboard.dbl(2, { dispose$ });
 
-        // T:KeyEventLike
-        const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
-        const i = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: windows });
-        expect(h).to.be.true;
-        expect(i).to.be.false;
+      expect(res1.disposed).to.eql(false);
+      expect(res2.disposed).to.eql(false);
+      life.dispose();
+      expect(res1.disposed).to.eql(false);
+      expect(res2.disposed).to.eql(true);
+      res1.dispose();
+      expect(res1.disposed).to.eql(true);
+      expect(res2.disposed).to.eql(true);
+    });
 
-        // T:NativeKeyEventLike
-        const j = Keyboard.Is.command({ metaKey: true }, { ua: mac });
-        const k = Keyboard.Is.command({ metaKey: true }, { ua: windows });
-        const l = Keyboard.Is.command({ ctrlKey: true }, { ua: windows });
-        expect(j).to.be.true;
-        expect(k).to.be.false;
-        expect(l).to.be.true;
+    it('does not fire when disposed', () => {
+      const dbl = Keyboard.dbl(30);
+      const fired: t.KeyboardKeypress[] = [];
+      dbl.on('KeyM', (e) => fired.push(e.event));
+
+      const ev = DomMock.Keyboard.keydownEvent('m');
+      DomMock.Keyboard.fire(ev);
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1);
+
+      dbl.dispose();
+      DomMock.Keyboard.fire(ev);
+      DomMock.Keyboard.fire(ev);
+      expect(fired.length).to.eql(1);
+    });
+  });
+
+  describe('Keyboard.Is', () => {
+    const Is = Keyboard.Is;
+    const UA = {
+      mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
+      windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      linux: 'Mozilla/5.0 (X11; Linux x86_64)',
+    } as const;
+
+    const mac = UserAgent.parse(UA.mac);
+    const windows = UserAgent.parse(UA.windows);
+    const linux = UserAgent.parse(UA.linux);
+
+    it('Is.command', () => {
+      const a = Keyboard.Is.command();
+      expect(a).to.be.false;
+
+      const b = Keyboard.Is.command({ meta: true }, { ua: mac });
+      const c = Keyboard.Is.command({ ctrl: true }, { ua: windows });
+      const d = Keyboard.Is.command({ ctrl: true }, { ua: linux });
+      expect(b).to.be.true;
+      expect(c).to.be.true;
+      expect(d).to.be.true;
+
+      const e = Keyboard.Is.command({ ctrl: true }, { ua: mac });
+      const f = Keyboard.Is.command({ meta: true }, { ua: windows });
+      const g = Keyboard.Is.command({ meta: true }, { ua: linux });
+      expect(e).to.be.false;
+      expect(f).to.be.false;
+      expect(g).to.be.false;
+
+      // T:KeyEventLike
+      const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
+      const i = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: windows });
+      expect(h).to.be.true;
+      expect(i).to.be.false;
+
+      // T:NativeKeyEventLike
+      const j = Keyboard.Is.command({ metaKey: true }, { ua: mac });
+      const k = Keyboard.Is.command({ metaKey: true }, { ua: windows });
+      const l = Keyboard.Is.command({ ctrlKey: true }, { ua: windows });
+      expect(j).to.be.true;
+      expect(k).to.be.false;
+      expect(l).to.be.true;
+    });
+
+    describe('Is.modified', () => {
+      it('returns false when no modifiers or all are false', () => {
+        expect(Is.modified()).to.be.false;
+        expect(Is.modified({})).to.be.false;
+        expect(Is.modified({ meta: false, ctrl: false, alt: false, shift: false })).to.be.false;
       });
 
-      describe('Is.modified', () => {
-        it('returns false when no modifiers or all are false', () => {
-          expect(Is.modified()).to.be.false;
-          expect(Is.modified({})).to.be.false;
-          expect(Is.modified({ meta: false, ctrl: false, alt: false, shift: false })).to.be.false;
-        });
-
-        it('detects any single modifier key', () => {
-          expect(Is.modified({ meta: true })).to.be.true;
-          expect(Is.modified({ ctrl: true })).to.be.true;
-          expect(Is.modified({ alt: true })).to.be.true;
-          expect(Is.modified({ shift: true })).to.be.true;
-        });
-
-        it('detects multiple modifier keys pressed together', () => {
-          expect(Is.modified({ meta: true, shift: true })).to.be.true;
-          expect(Is.modified({ ctrl: true, alt: true })).to.be.true;
-          expect(Is.modified({ meta: true, ctrl: true, alt: true, shift: true })).to.be.true;
-        });
-
-        it('takes keyboard event as input', () => {
-          expect(Is.modified({ key: 'c', modifiers: { meta: true } })).to.be.true;
-          expect(Is.modified({ key: 'c', modifiers: { meta: false } })).to.be.false;
-        });
+      it('detects any single modifier key', () => {
+        expect(Is.modified({ meta: true })).to.be.true;
+        expect(Is.modified({ ctrl: true })).to.be.true;
+        expect(Is.modified({ alt: true })).to.be.true;
+        expect(Is.modified({ shift: true })).to.be.true;
       });
 
-      it('Is.copy (platform-independent)', () => {
-        // No event → never a copy.
-        expect(Keyboard.Is.copy()).to.be.false;
+      it('detects multiple modifier keys pressed together', () => {
+        expect(Is.modified({ meta: true, shift: true })).to.be.true;
+        expect(Is.modified({ ctrl: true, alt: true })).to.be.true;
+        expect(Is.modified({ meta: true, ctrl: true, alt: true, shift: true })).to.be.true;
+      });
 
-        // Correct "copy" shortcuts
-        const b = Keyboard.Is.copy(
-          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
-          { ua: mac },
-        );
-        const c = Keyboard.Is.copy(
-          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
-          { ua: windows },
-        );
-        const d = Keyboard.Is.copy(
-          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
-          { ua: linux },
-        );
-
-        expect(b).to.be.true;
-        expect(c).to.be.true;
-        expect(d).to.be.true;
-
-        // Mismatched modifiers or wrong key
-        const e = Keyboard.Is.copy(
-          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
-          { ua: mac },
-        );
-        const f = Keyboard.Is.copy(
-          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
-          { ua: windows },
-        );
-        const g = Keyboard.Is.copy(
-          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
-          { ua: linux },
-        );
-        const h = Keyboard.Is.copy(
-          { key: 'v', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
-          { ua: mac },
-        );
-
-        expect(e).to.be.false;
-        expect(f).to.be.false;
-        expect(g).to.be.false;
-        expect(h).to.be.false;
+      it('takes keyboard event as input', () => {
+        expect(Is.modified({ key: 'c', modifiers: { meta: true } })).to.be.true;
+        expect(Is.modified({ key: 'c', modifiers: { meta: false } })).to.be.false;
       });
     });
 
-    describe('Keyboard.modifiers', () => {
-      it('empty', () => {
-        const test = (input?: any) => {
-          const res = Kbd.modifiers(input);
-          expect(res).to.eql({ ctrl: false, meta: false, alt: false, shift: false });
-        };
-        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-        NON.forEach((v: any) => test(v));
-      });
+    it('Is.copy (platform-independent)', () => {
+      // No event → never a copy.
+      expect(Keyboard.Is.copy()).to.be.false;
 
-      it('modifiers → no change', () => {
-        const modifiers = Kbd.modifiers({ metaKey: true });
-        expect(Kbd.modifiers(modifiers)).to.eql(modifiers);
-      });
+      // Correct "copy" shortcuts
+      const b = Keyboard.Is.copy(
+        { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+        { ua: mac },
+      );
+      const c = Keyboard.Is.copy(
+        { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+        { ua: windows },
+      );
+      const d = Keyboard.Is.copy(
+        { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+        { ua: linux },
+      );
 
-      it('converts: NativeKeyEventLike', () => {
-        const a = Kbd.modifiers({ metaKey: true });
-        const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
-        const c = Kbd.modifiers({ shiftKey: true });
-        expect(a).to.eql({ ctrl: false, meta: true, alt: false, shift: false });
-        expect(b).to.eql({ ctrl: true, meta: true, alt: false, shift: false });
-        expect(c).to.eql({ ctrl: false, meta: false, alt: false, shift: true });
-      });
+      expect(b).to.be.true;
+      expect(c).to.be.true;
+      expect(d).to.be.true;
 
-      it('converts: KeyEventLike', () => {
-        type K = t.KeyEventLike;
-        const ev: K = { key: 'c', modifiers: Kbd.modifiers({ metaKey: true }) };
-        expect(Kbd.modifiers(ev)).to.eql(ev.modifiers);
-      });
+      // Mismatched modifiers or wrong key
+      const e = Keyboard.Is.copy(
+        { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+        { ua: mac },
+      );
+      const f = Keyboard.Is.copy(
+        { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+        { ua: windows },
+      );
+      const g = Keyboard.Is.copy(
+        { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+        { ua: linux },
+      );
+      const h = Keyboard.Is.copy(
+        { key: 'v', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+        { ua: mac },
+      );
+
+      expect(e).to.be.false;
+      expect(f).to.be.false;
+      expect(g).to.be.false;
+      expect(h).to.be.false;
     });
-  },
-);
+  });
+
+  describe('Keyboard.modifiers', () => {
+    it('empty', () => {
+      const test = (input?: any) => {
+        const res = Kbd.modifiers(input);
+        expect(res).to.eql({ ctrl: false, meta: false, alt: false, shift: false });
+      };
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => test(v));
+    });
+
+    it('modifiers → no change', () => {
+      const modifiers = Kbd.modifiers({ metaKey: true });
+      expect(Kbd.modifiers(modifiers)).to.eql(modifiers);
+    });
+
+    it('converts: NativeKeyEventLike', () => {
+      const a = Kbd.modifiers({ metaKey: true });
+      const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
+      const c = Kbd.modifiers({ shiftKey: true });
+      expect(a).to.eql({ ctrl: false, meta: true, alt: false, shift: false });
+      expect(b).to.eql({ ctrl: true, meta: true, alt: false, shift: false });
+      expect(c).to.eql({ ctrl: false, meta: false, alt: false, shift: true });
+    });
+
+    it('converts: KeyEventLike', () => {
+      type K = t.KeyEventLike;
+      const ev: K = { key: 'c', modifiers: Kbd.modifiers({ metaKey: true }) };
+      expect(Kbd.modifiers(ev)).to.eql(ev.modifiers);
+    });
+  });
+});

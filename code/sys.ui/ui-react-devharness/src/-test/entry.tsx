@@ -26,7 +26,7 @@ export async function main() {
      *    never gets sent in the normal usage payload.
      */
     const { render, useKeyboard } = await import('../mod.ts');
-    const { ModuleSpecs, SampleSpecs } = await import('./entry.Specs.ts');
+    const { ModuleSpecs, SampleSpecs } = await import('./-specs.ts');
 
     // Dynamic "runnable specifications" Library:
     const Specs = {

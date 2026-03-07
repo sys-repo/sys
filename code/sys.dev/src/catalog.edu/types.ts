@@ -1,20 +1,24 @@
 /**
  * @module Catalog-Types
  */
-import type { t } from './common.ts';
-
-/**
- * Library:
- */
-export type * from './m.slug/t.ts';
-export type * from './m.yaml/t.ts';
-export type * from './ui/-dev/t.ts';
-export type * from './ui/ui.CrdtLayout/t.ts';
-export type * from './ui/ui.VideoRecorder/t.ts';
-export type * from './ui/use.Slug/t.ts';
 
 /** Catalog Id union. */
 export type CatalogId = 'VideoRecorder:view';
 
 /** Catalog Slot union. */
 export type CatalogSlot = never;
+
+/**
+ * Library:
+ */
+export type * from './m.slug.traits/t.ts';
+export type * from './m.slug/t.ts';
+export type * from './m.yaml/t.ts';
+
+export type * from './ui/-dev/t.ts';
+export type * from './ui/ui.VideoRecorder/t.ts';
+export type * from './ui/use.Slug/t.ts';
+
+export type * from './ui/-sample.editor-1/t.ts';
+export type * from './ui/-sample.editor-2/t.ts';
+export type * from './ui/-sample.tmp/t.ts';

@@ -1,5 +1,8 @@
-import { type t, A, Bus, Obj, Rx, Schedule, Util } from './common.ts';
+import { type t, A, Bus, Log, Obj, Rx, Schedule, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
+
+const DEBUG_LOG = false;
+const logInfo = Log.logger('crdt: u.bind', { enabled: DEBUG_LOG });
 
 /**
  * Bind a Monaco text-model to a CRDT document reference.
@@ -79,6 +82,10 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
     if (current === target) return; // NB: already in sync (no-op).
 
     const splices = diffToSplices(current, target);
+    if (DEBUG_LOG) {
+      const span = splices.reduce((n, s) => n + s.delCount + s.insertText.length, 0);
+      logInfo('[CRDT→Monaco]', { patches: e.patches.length, splices: splices.length, span, path });
+    }
 
     _isPulling = true;
     try {
@@ -137,6 +144,8 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
           const maxIdx = draft.length;
           const idx = Math.max(0, Math.min(s.index, maxIdx));
           const maxDel = Math.max(0, Math.min(s.delCount, maxIdx - idx));
+
+          logInfo('splice:', path, idx, maxDel, `insertText:${s.insertText.length} chars`);
           A.splice(d, path as any, idx, maxDel, s.insertText);
         }
       });

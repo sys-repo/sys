@@ -48,7 +48,7 @@ export function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   Signal.effect(() => {
@@ -112,8 +112,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {setSize('<undefined>', undefined)}
       {setSize('center', { mode: 'center' })}
       {setSize('fill', { mode: 'fill', x: true, y: true, margin: [40, 40, 40, 40] })}
-      {setSize('percent: 70% both', { mode: 'percent', width: 70, height: 70, margin: 40 })}
-      {setSize('percent: 55% width', { mode: 'percent', width: 55, margin: [40, 40, 40, 40] })}
+      {setSize('percent: 55% width', { mode: 'percent', width: 55, margin: 40 })}
+      {setSize('percent: 70% width/height (both)', {
+        mode: 'percent',
+        width: 70,
+        height: 70,
+        margin: 40,
+      })}
+      {setSize('percent: width 90%, max 75%, AR 16/9', {
+        mode: 'percent',
+        width: 90,
+        maxWidth: 75,
+        aspectRatio: '16/9',
+        margin: 40,
+      })}
+      {setSize('percent: height 90%, max 60%, AR 4/3', {
+        mode: 'percent',
+        height: 90,
+        maxHeight: 60,
+        aspectRatio: '4/3',
+        margin: 40,
+      })}
 
       {!!p.size.value?.mode && <hr />}
       {p.size.value?.mode === 'center' && <DebugCenter debug={debug} />}

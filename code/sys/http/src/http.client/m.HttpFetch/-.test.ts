@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../../-test.ts';
+import { Time, Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
 
 import { type t, Rx } from './common.ts';
@@ -62,7 +62,7 @@ describe('Http.Fetch', () => {
   describe('fetch: success', () => {
     it('200: json', async () => {
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('application/json');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.json({ foo: 123 });
       });
       const url = server.url.toString();
@@ -84,7 +84,7 @@ describe('Http.Fetch', () => {
     it('200: text', async () => {
       const text = 'foo-👋';
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('text/plain');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.text(text);
       });
       const url = server.url.toString();
@@ -104,7 +104,7 @@ describe('Http.Fetch', () => {
     it('200: blob (binary)', async () => {
       const dataIn = new Uint8Array([1, 2, 3]);
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.blob(dataIn);
       });
       const url = server.url.toString();
@@ -234,8 +234,8 @@ describe('Http.Fetch', () => {
       const server = Testing.Http.server((req) => {
         // ↓ 1-byte probe should keep our Range header.
         expect(req.headers.get('range')).to.eql('bytes=0-0');
-        // ↓ blob() still injects its default content-type.
-        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        // ↓ default contentTypePolicy=corsSafe does not set content-type for GET without body.
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.blob(new Uint8Array([0]));
       });
 
@@ -255,6 +255,32 @@ describe('Http.Fetch', () => {
       await fetch.text(server.url.toString(), {
         headers: { 'content-type': 'application/x-demo' },
       });
+
+      await server.dispose();
+    });
+
+    it('corsSafe sets content-type for body requests', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('POST');
+        expect(req.headers.get('content-type')).to.eql('application/json');
+        return Testing.Http.json({ ok: true });
+      });
+
+      const fetch = Fetch.make();
+      await fetch.json(server.url.toString(), { method: 'POST', body: '{}' });
+
+      await server.dispose();
+    });
+
+    it('{ contentTypePolicy: always } sets content-type for GET requests', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('GET');
+        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        return Testing.Http.blob(new Uint8Array([1]));
+      });
+
+      const fetch = Fetch.make({ contentTypePolicy: 'always' });
+      await fetch.blob(server.url.toString());
 
       await server.dispose();
     });
@@ -381,6 +407,61 @@ describe('Http.Fetch', () => {
       expect(error?.cause?.message).to.include('Fetch operation disposed before completing');
 
       expect(fetch.disposed).to.eql(true);
+      await server.dispose();
+    });
+
+    it('init.signal aborts request', async () => {
+      const server = Testing.Http.server(
+        () =>
+          new Promise((resolve) => Time.delay(250, () => resolve(Testing.Http.json({ foo: 123 })))),
+      );
+
+      const fetch = Fetch.make();
+      const ctrl = new AbortController();
+      const promise = fetch.json(server.url.toString(), { signal: ctrl.signal });
+      ctrl.abort();
+      const res = await promise;
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(520);
+      expect(fetch.disposed).to.eql(false);
+      expect(res.error?.name).to.eql('HttpError');
+      await server.dispose();
+    });
+
+    it('lifecycle aborts even when init.signal is provided', async () => {
+      const life = Rx.disposable();
+      const server = Testing.Http.server(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve(Testing.Http.json({ foo: 123 })), 250);
+          }),
+      );
+
+      const fetch = Fetch.make(life.dispose$);
+      const ctrl = new AbortController();
+      const promise = fetch.json(server.url.toString(), { signal: ctrl.signal });
+      life.dispose();
+      const res = await promise;
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(499);
+      expect(fetch.disposed).to.eql(true);
+      expect(res.error?.name).to.eql('HttpError');
+      await server.dispose();
+    });
+
+    it('pre-aborted init.signal fails immediately', async () => {
+      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
+      const fetch = Fetch.make();
+      const ctrl = new AbortController();
+      ctrl.abort();
+
+      const res = await fetch.json(server.url.toString(), { signal: ctrl.signal });
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(520);
+      expect(res.error?.name).to.eql('HttpError');
+
       await server.dispose();
     });
 

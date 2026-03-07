@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { type t, Color, css, D, DocumentId, ObjectView, Repo, Str } from './common.ts';
+import { type t, Color, css, D, DocumentId, Obj, ObjectView, Repo, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 
 type O = Record<string, unknown>;
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, headerStyle = {}, localstorage, repo } = props;
+  const { debug = false, headerStyle = {}, storageKey: localstorage, repo } = props;
 
   /**
    * Hooks:
@@ -53,6 +53,17 @@ export const Card: React.FC<P> = (props) => {
       gridTemplateRows: `auto 1fr auto`,
     }),
     header: css({ marginTop: headerStyle.topOffset }),
+
+    body: {
+      base: css({
+        position: 'relative',
+      }),
+      inner: css({
+        Absolute: 0,
+        Scroll: true,
+        backgroundColor: Color.ruby(0.05),
+      }),
+    },
     objectDoc: css({
       opacity: current === undefined || !head ? 0.25 : 1,
       Margin: 30,
@@ -75,10 +86,10 @@ export const Card: React.FC<P> = (props) => {
 
   const elFooter = (
     <div className={styles.footer.class}>
-      <Repo.SyncEnabledSwitch
+      <Repo.SyncSwitch
         theme={theme.name}
         repo={repo}
-        localstorage={localstorage}
+        storageKey={localstorage}
         onChange={(e) => {}}
       />
       <div />
@@ -103,9 +114,9 @@ export const Card: React.FC<P> = (props) => {
   const elDoc = (
     <ObjectView
       name={'Doc:T'}
-      data={wrangle.data(props, docSignal?.value)}
+      data={Obj.truncateStrings(wrangle.data(props, docSignal?.value))}
       expand={1}
-      fontSize={28}
+      fontSize={16}
       theme={theme.name}
       style={styles.objectDoc}
     />
@@ -121,7 +132,9 @@ export const Card: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elDocumentId}
-      {elDoc}
+      <div className={styles.body.base.class}>
+        <div className={styles.body.inner.class}>{elDoc}</div>
+      </div>
       {elFooter}
     </div>
   );
@@ -137,7 +150,7 @@ const wrangle = {
 
     const { textMaxLength = 16 } = props;
     let text = (current?.text ?? '') as string;
-    if (text) text = Str.shorten(text, textMaxLength);
+    if (text) text = Str.truncate(text, textMaxLength);
 
     return { ...current, text };
   },

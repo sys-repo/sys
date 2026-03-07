@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for working with HTTP.
+ * Tools for working with HTTP on the server.
  */
 export { pkg } from './pkg.ts';
 /** Module types. */

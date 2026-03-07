@@ -1,0 +1,14 @@
+{
+  "imports": {
+    "@sys/fs": "jsr:@sys/fs@0.0.245",
+    "@sys/process": "jsr:@sys/process@0.0.227",
+    "@sys/std": "jsr:@sys/std@0.0.302",
+    "@sys/std/async": "jsr:@sys/std@0.0.302/async",
+    "@sys/std/rx": "jsr:@sys/std@0.0.302/rx",
+    "@sys/testing/server": "jsr:@sys/testing@0.0.236/server",
+    "@sys/types": "jsr:@sys/types@0.0.243",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.257",
+    "@sys/tools": "jsr:@sys/tools@0.0.259"
+  }
+}
+

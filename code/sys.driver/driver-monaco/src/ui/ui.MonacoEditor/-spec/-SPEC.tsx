@@ -1,6 +1,4 @@
-import { Monaco } from '@sys/driver-monaco';
-import { Color, Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
-
+import { Color, Dev, Monaco, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -27,7 +25,11 @@ export default Spec.describe('MonacoEditor', (e) => {
         wordWrap={v.wordWrap}
         fontSize={v.fontSize}
         spinning={v.spinning}
+        contentInset={v.contentInset}
         //
+        onKeyDown={(e) => {
+          console.info(`⚡️ MonacoEditor.onKeyDown:`, e);
+        }}
         onMounted={(e) => {
           const { editor } = e;
           console.info(`⚡️ MonacoEditor.onMounted:`, e);

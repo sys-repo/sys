@@ -69,5 +69,5 @@ export type JsrManifestPullResponse = {
 export type JsrManifestPullOptions = {
   dispose$?: t.UntilObservable;
   write?: t.StringDir;
-  filter?: t.FsPathFilter;
+  filter?: t.Fs.Path.Filter;
 };

@@ -15,7 +15,7 @@ export async function prompt() {
   /**
    * 1) Prompt: target folder:
    */
-  const dirname = await Cli.Prompt.Input.prompt({
+  const dirname = await Cli.Input.Text.prompt({
     message: 'Write to folder',
     default: 'catalog',
     validate: (v: string) =>
@@ -31,7 +31,7 @@ export async function prompt() {
     { name: 'react/catalog: single file', bundleRoot: 'react.catalog.singlefile' },
   ] as const satisfies readonly Choice[];
 
-  const chosen = await Cli.Prompt.Select.prompt<(typeof TEMPLATE_CHOICES)[number]>({
+  const chosen = await Cli.Input.Select.prompt<(typeof TEMPLATE_CHOICES)[number]>({
     message: 'Choose Template',
     options: TEMPLATE_CHOICES.map((x) => ({ name: `- ${x.name}`, value: x })),
   });

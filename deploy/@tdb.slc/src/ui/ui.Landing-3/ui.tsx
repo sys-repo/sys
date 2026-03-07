@@ -5,7 +5,6 @@ import {
   Color,
   css,
   useControllers,
-  useMiniApp,
   useScreensize,
   VideoBackground,
 } from './common.ts';
@@ -28,7 +27,6 @@ export const Landing: React.FC<P> = (props) => {
    * Hooks:
    */
   useControllers(state);
-  useMiniApp();
 
   if (!p) return;
   const bg = p.background;

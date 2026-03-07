@@ -6,11 +6,8 @@
  * ```ts
  * import { Dir } from '@sys/fs';
  *
- * const source = './path/to/input-dir';
- * const target = './path/to/output-dir';
- *
- * const snapshot = await Dir.snapshot({ source, target });
- * console.log(snapshot);
+ * const hash = await Dir.Hash.compute('./path/to/input-dir');
+ * console.log(hash.hash.digest);
  * ```
  */
 export { Dir } from './m.Dir.ts';

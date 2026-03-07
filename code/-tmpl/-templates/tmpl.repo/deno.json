@@ -1,0 +1,28 @@
+{
+  "tasks": {
+    "ci": "deno task check && deno task test",
+    "check": "deno check",
+    "test": "deno test -P=unit ./-scripts ./code",
+    "tmpl": "deno run -P=integration ./-scripts/tmpl.ts",
+    "tmpl:project": "deno run -P=integration ./-scripts/tmpl.ts pkg.deno",
+
+    "outdated": "deno outdated",
+    "upgrade": "deno update --latest",
+    "tmp": "deno run -A ./-scripts/tmp.ts"
+  },
+
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["npm:@types/react", "npm:@types/react-dom"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "nodeModulesDir": "auto",
+  "importMap": "imports.json",
+  "permissions": {
+    "unit": { "read": true, "write": true, "env": true },
+    "integration": { "read": true, "write": true, "run": true, "env": true, "net": true }
+  },
+  "workspace": []
+}

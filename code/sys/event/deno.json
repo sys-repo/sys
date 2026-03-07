@@ -1,6 +1,6 @@
 {
   "name": "@sys/event",
-  "version": "0.0.8",
+  "version": "0.0.99",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -12,6 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./bus": "./src/m.Event/mod.ts"
+    "./bus": "./src/-exports/-bus.ts",
+    "./cmd": "./src/-exports/-cmd.ts"
   }
 }

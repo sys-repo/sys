@@ -1,0 +1,6 @@
+{
+  // --- Deno -------------------------------------------------
+  "deno.enable": true,
+  "deno.lint": false,
+  "deno.enablePaths": ["src", "-scripts"]
+}

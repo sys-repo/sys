@@ -31,7 +31,7 @@ export const Data: t.FileMapDataLib = {
       throw new Error(`Content-type "${mime}" not supported`);
     }
     if (typeof input === 'string' && input.startsWith('data:')) {
-      // Already a data URI – don't double-encode.
+      // Already a data URI - don't double-encode.
       return input;
     }
     const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;

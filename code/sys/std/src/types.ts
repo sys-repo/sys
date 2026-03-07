@@ -1,27 +1,31 @@
 /**
- * @module
- * @types Type-library module (standard lib)
+ * @module types
  */
-export type * from '@sys/types/t';
-
+export type * from './m.Alias/t.ts';
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
-export type * from './m.Async.Promise/t.ts';
+export type * from './m.Arr/t.ts';
+export type * from './m.Async.Await/t.ts';
 export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
-export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
+export type * from './m.Effect/t.ts';
+export type * from './m.EffectController/t.ts';
 export type * from './m.Err/t.ts';
 export type * from './m.Esm/t.ts';
 export type * from './m.Fn/t.ts';
 export type * from './m.History/t.ts';
 export type * from './m.Ignore/t.ts';
-export type * from './m.Immutable/t.ts';
 export type * from './m.IndexedDb/t.ts';
 export type * from './m.Is/t.ts';
 export type * from './m.Json/t.ts';
+export type * from './m.Lazy/t.ts';
 export type * from './m.Log/t.ts';
+export type * from './m.Num/t.ts';
+export type * from './m.Obj.Lens/t.ts';
+export type * from './m.Obj.Path/t.ts';
+export type * from './m.Obj/t.ts';
 export type * from './m.Path/t.ts';
 export type * from './m.Pkg/t.ts';
 export type * from './m.Random/t.ts';
@@ -29,15 +33,15 @@ export type * from './m.Regex/t.ts';
 export type * from './m.Rx/t.ts';
 export type * from './m.Semver.Server/t.ts';
 export type * from './m.Semver/t.ts';
+export type * from './m.Shard/t.ts';
 export type * from './m.Signal/t.ts';
+export type * from './m.Str/t.ts';
+export type * from './m.Testing.DomMock/t.ts';
 export type * from './m.Testing.Server/t.ts';
 export type * from './m.Testing/t.ts';
+export type * from './m.Time.Date/t.ts';
+export type * from './m.Time/t.ts';
+export type * from './m.Timecode/t.ts';
 export type * from './m.Try/t.ts';
 export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
-export type * from './m.Value.Arr/t.ts';
-export type * from './m.Value.Num/t.ts';
-export type * from './m.Value.Obj.Path/t.ts';
-export type * from './m.Value.Obj/t.ts';
-export type * from './m.Value.Str/t.ts';
-export type * from './m.Value/t.ts';

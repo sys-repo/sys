@@ -4,7 +4,7 @@ import { Fs } from '../mod.ts';
 describe('Fs: tree walking helpers', () => {
   describe('Fs.walkUp', () => {
     it('starts at dir', async () => {
-      const fired: t.FsWalkUpCallbackArgs[] = [];
+      const fired: t.Fs.WalkUpCallbackArgs[] = [];
       await Fs.walkUp('./deno.json', (e) => fired.push(e));
 
       expect(fired.length).to.greaterThan(3);
@@ -16,7 +16,7 @@ describe('Fs: tree walking helpers', () => {
     });
 
     it('walks up and stops before end', async () => {
-      const fired: t.FsWalkUpCallbackArgs[] = [];
+      const fired: t.Fs.WalkUpCallbackArgs[] = [];
       await Fs.walkUp('./deno.json', (e) => {
         fired.push(e);
         if (fired.length > 1) e.stop();
@@ -25,8 +25,8 @@ describe('Fs: tree walking helpers', () => {
     });
 
     it('retrieves files from callback', async () => {
-      const fired: t.FsWalkUpCallbackArgs[] = [];
-      const files: t.FsWalkFile[] = [];
+      const fired: t.Fs.WalkUpCallbackArgs[] = [];
+      const files: t.Fs.WalkFile[] = [];
       await Fs.walkUp('./deno.json', async (e) => {
         fired.push(e);
         files.push(...(await e.files()));

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { semanticErrorsToDiagnostics } from '../mod.ts';
+import { semanticErrorsToDiagnostics } from '../u.diagnostics.ts';
 
-describe('schema.validation / semanticErrorsToDiagnostics (YAML adapter)', () => {
+describe('schema.validation: semanticErrorsToDiagnostics (YAML adapter)', () => {
   it('[] → []', () => {
     const out = semanticErrorsToDiagnostics([]);
     expect(out).to.eql([]);

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-type M = React.MouseEventHandler;
+type M = React.PointerEventHandler;
 type T = React.TouchEventHandler;
 
 /**
@@ -13,9 +13,16 @@ type T = React.TouchEventHandler;
 export type UsePointer = (input?: t.PointerHookArgs | t.PointerEventsHandler) => t.PointerHook;
 /** Arguments passed to the `usePointer` hook. */
 export type PointerHookArgs = {
+  /**
+   * Pointer-capture policy for pointer events.
+   * - `true` (default): attempt set/releasePointerCapture when available.
+   * - `false`: never attempt pointer capture.
+   */
+  capture?: boolean;
   on?: PointerEventsHandler;
   onDown?: PointerEventHandler;
   onUp?: PointerEventHandler;
+  onCancel?: PointerEventHandler;
   onEnter?: PointerEventHandler;
   onLeave?: PointerEventHandler;
   onDrag?: t.UsePointerDragHandler;
@@ -79,10 +86,11 @@ export type PointerHookFocusHandlers = {
  * Individual pointer event:
  */
 export type PointerEventHandler = (e: PointerEvent) => void;
+export type PointerSyntheticEvent = React.PointerEvent | React.TouchEvent;
 /** Information about a specific pointer (mouse/touch) event. */
 export type PointerEvent = PointerEventCancelMethods & {
-  readonly type: React.PointerEvent['type'];
-  readonly synthetic: React.PointerEvent;
+  readonly type: PointerSyntheticEvent['type'];
+  readonly synthetic: PointerSyntheticEvent;
   readonly modifiers: t.KeyboardModifierFlags;
   readonly client: t.Point;
 };

@@ -1,10 +1,11 @@
-import { type t, HttpServer, Pkg, pkg } from './common.ts';
+import { type t, Fs, HttpServer, Pkg, pkg } from './common.ts';
 
 /**
  * Run a local HTTP server from entry command-args.
  */
 export async function start(args: t.HttpServeArgs) {
-  const { port = 8080, dir = 'dist' } = args;
+  const { port = 8080 } = args;
+  const dir = Fs.resolve(args.dir ?? '.');
 
   const dist = (await Pkg.Dist.load(dir)).dist;
   const hash = dist?.hash.digest ?? '';

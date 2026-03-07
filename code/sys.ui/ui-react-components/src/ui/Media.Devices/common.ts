@@ -6,7 +6,7 @@ export { Button } from '../Button/mod.ts';
 export { Spinners } from '../Spinners/mod.ts';
 
 const name = 'Media.Device';
-export const logInfo = Log.category(name);
+export const logInfo = Log.logger(name);
 
 /**
  * Constants:

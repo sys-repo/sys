@@ -1,7 +1,6 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
-export type * from './m.Diff/t.ts';
-export type * from './m.Fuzzy/t.ts';
-export type * from './m.Gpt/t.ts';
+export type * from './m.diff/t.ts';
+export type * from './m.filter/t.ts';
+export type * from './m.gpt/t.ts';

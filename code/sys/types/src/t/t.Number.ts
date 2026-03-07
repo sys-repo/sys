@@ -7,8 +7,14 @@ export type PortNumber = number;
 /** A number representing screen pixels. */
 export type Pixels = number;
 
+/** /** Monotonic counter (non-decreasing; each update must be >= previous). */
+export type NumberMonotonic = number;
+
 /** Number representing a percentage: 0..1 ← (0=0%, 1=100%). */
 export type Percent = number;
+
+/** Number representing an opacity percentage: 0..1 ← (0=0%, 1=100%). */
+export type PercentOpacity = Percent;
 
 /** A pixel OR a percentage number: 0..1 = percent, >1 = pixels. */
 export type PixelOrPercent = Pixels | Percent; //

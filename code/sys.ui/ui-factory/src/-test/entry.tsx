@@ -5,16 +5,22 @@ import { pkg } from '../pkg.ts';
 /**
  * Service Worker:
  */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    const devmode = import.meta.env.DEV;
-    const prefix = devmode ? `[main:dev]` : `[main]`;
-    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
-    navigator.serviceWorker
-      .register('sw.js', { type: 'module' })
-      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
-      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
-  });
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  async function registerSw() {
+    try {
+      const url = new URL('../sw.js', import.meta.url);
+      const reg = await navigator.serviceWorker.register(url, { type: 'module' });
+      console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`);
+    } catch (err) {
+      console.error(`💥 [main] ServiceWorker registration failed:`, err);
+    }
+  }
+
+  if (globalThis.document.readyState === 'complete') {
+    void registerSw();
+  } else {
+    window.addEventListener('load', registerSw, { once: true });
+  }
 }
 
 /**

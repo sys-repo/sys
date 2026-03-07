@@ -1,6 +1,6 @@
 import { Http } from '@sys/http/client';
 import { useEffect, useRef, useState } from 'react';
-import { type t, Err } from '../common.ts';
+import { type t, Err, Pkg } from '../common.ts';
 
 /**
  * Hook: Load the `dist.json` file from the server (if avilable).
@@ -63,7 +63,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
     toString() {
       const json = api.json;
       if (!json) return '(not found)';
-      const { name, version } = json.pkg;
+      const { name, version } = json.pkg ?? Pkg.toPkg(json.build.builder);
       const hx = json.hash.digest.slice(-5);
       return `${name}@${version}-${hx}`;
     },

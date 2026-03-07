@@ -57,9 +57,22 @@ export type PkgDistComputeArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
   builder?: t.Pkg;
-  entry?: string;
-  url?: t.DistPkg['url'];
+  ignore?: string | string[];
   save?: boolean;
+  filter?(path: t.StringPath): boolean;
+  onHashProgress?(e: t.DirHashComputeProgressEvent): void | Promise<void>;
+  /**
+   * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
+   *
+   * Behavior:
+   * - Child content hash parts are merged into the parent hash tree.
+   * - Child `dist.json` file bytes are intentionally NOT included in the parent hash.
+   *
+   * Rationale:
+   * - Keeps parent digest content-stable across rebuilds where only child metadata
+   *   (for example `build.time`) changes.
+   */
+  trustChildDist?: boolean;
 };
 
 /**
@@ -78,7 +91,9 @@ export type PkgDistComputeResponse = {
 export type PkgDistLoadResponse = {
   exists: boolean;
   path: t.StringPath;
+  kind: 'canonical' | 'legacy' | 'invalid' | 'missing';
   dist?: t.DistPkg;
+  legacy?: t.DistPkgLegacy;
   error?: t.StdError;
 };
 

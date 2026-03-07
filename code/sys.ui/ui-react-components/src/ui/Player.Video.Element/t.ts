@@ -1,13 +1,15 @@
 import type { t } from './common.ts';
 
-export type * from './t.Crop.ts';
-export type * from './t.Elapsed.ts';
+export type * from './t.crop.ts';
+export type * from './t.elapsed.ts';
+export type * from './t.events.ts';
 export type * from './t.stateful.ts';
 
-/**
- * https://html.spec.whatwg.org/multipage/media.html#ready-states
- */
+/** https://html.spec.whatwg.org/multipage/media.html#ready-states */
 export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
+
+/** Imperative handle exposing safe access to the underlying <video> element. */
+export type VideoElementHandle = Readonly<{ get(): HTMLVideoElement | null }>;
 
 /**
  * Component:
@@ -16,19 +18,23 @@ export type VideoElementProps = {
   src?: string;
   poster?: string;
   loop?: boolean;
-  aspectRatio?: string; // e.g. "16/9"
+  aspectRatio?: string | number; // e.g. "16/9"
   cornerRadius?: t.Pixels;
   scale?: t.Percent | t.VideoPlayerScale;
   fadeMask?: t.VideoPlayerFadeMask;
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
-  crop?: t.VideoCropRange | t.VideoCropRangeTuple;
+  slice?: t.Timecode.Slice.StringInput;
 
   buffering?: boolean;
   buffered?: t.Secs;
 
   // Apperance:
+  controls?: Pick<
+    t.PlayerControlsProps,
+    'maskOpacity' | 'maskHeight' | 'background' | 'padding' | 'margin'
+  >;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -43,6 +49,14 @@ export type VideoElementProps = {
    */
   playing?: boolean;
   autoPlay?: boolean;
+
+  /**
+   * User interaction affordances.
+   * These control whether user gestures emit playback intent.
+   */
+  interaction?: {
+    clickToPlay?: boolean;
+  };
 
   /**
    * Mute control:

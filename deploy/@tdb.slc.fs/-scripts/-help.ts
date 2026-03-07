@@ -11,7 +11,10 @@ export async function logHelp(rootDir: t.StringDir) {
   console.info();
   console.info(Pkg.Dist.Log.dist(dist));
   if (children) console.info(children);
+
   console.info();
+  const URL = 'https://fs.socialleancanvas.com';
+  console.info(c.gray(`${URL}`));
 }
 
 /**

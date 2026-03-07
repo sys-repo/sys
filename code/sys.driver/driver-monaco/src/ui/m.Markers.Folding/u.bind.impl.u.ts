@@ -1,4 +1,4 @@
-import { type t, A, Bus, D, RangeUtil } from './common.ts';
+import { type t, A, Bus, D, Is, RangeUtil } from './common.ts';
 
 type IRange = t.Monaco.I.IRange;
 type TextModel = t.Monaco.TextModel;
@@ -6,9 +6,12 @@ type OffsetLike = { start: number; end: number };
 
 /** Clamp an offset to model bounds. */
 export function clampOffset(model: TextModel, pos: number): number {
-  if (model.isDisposed()) return 0;
+  const isDisposed = Is.func(model.isDisposed) ? model.isDisposed() : false;
+  if (isDisposed) return 0;
+
   const max = model.getValueLength();
-  const n = (pos | 0) as number;
+  const n = Number.isFinite(pos) ? Math.trunc(pos) : 0;
+
   return n < 0 ? 0 : n > max ? max : n;
 }
 
@@ -66,8 +69,8 @@ export function readStoredOffsets(doc: t.CrdtRef, path: t.ObjectPath): t.FoldOff
 
 /** Compute 0-based parent line indices to fold from offsets. */
 export function parentLinesFromOffsets(model: TextModel, offsets: t.FoldOffset[]) {
-  const pos = (start: number) => Math.max(1, line(start) - 1);
   const line = (start: number) => model.getPositionAt(clampOffset(model, start)).lineNumber;
+  const pos = (start: number) => Math.max(0, line(start) - 1);
   const lines = offsets.map((e) => pos(e.start));
   return Array.from(new Set(lines)).sort((a, b) => a - b);
 }

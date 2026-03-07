@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { LayoutCenterColumn } from './ui.tsx';
+export { CenterColumn } from './ui.tsx';

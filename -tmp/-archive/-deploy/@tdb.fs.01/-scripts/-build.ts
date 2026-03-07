@@ -1,0 +1,72 @@
+import { buildAndCopyAll, copyPublic } from './-build.u.ts';
+import { Fs, pkg, Pkg, TmplEngine } from './common.ts';
+
+/**
+ * Ensure clean `dist` folder.
+ */
+await Fs.remove('./dist');
+await Fs.ensureDir('./dist');
+
+/**
+ * Pull in modules:
+ */
+const build = true;
+const concurrency = 4;
+
+console.info();
+await buildAndCopyAll(
+  [
+    ['../../code/sys.ui/ui-react-components', 'sys/ui.components', { build }],
+    ['../../code/sys.ui/ui-factory', 'sys/ui.factory', { build }],
+    ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
+    ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
+    ['../../code/sys.driver/driver-prosemirror', 'sys/driver.prosemirror', { build }],
+    ['../../code/sys.dev', 'sys/dev', { build }],
+  ],
+  { concurrency },
+);
+
+await copyPublic('public', 'dist');
+
+// Write entry HTML.
+const tmpl = TmplEngine.makeTmpl('src/-tmpl');
+await tmpl.write('dist');
+
+/**
+ * Ensure shipped unit contains verbatim static assets.
+ * Contract:
+ *   - Anything under /static ships
+ *   - Except /static/.tmp (explicit scratch, never shipped)
+ */
+try {
+  await Fs.copy('static', 'dist/static', { force: true });
+  await Fs.remove('dist/static/.tmp');
+} catch (err) {
+  if (!(err instanceof Deno.errors.NotFound)) throw err;
+}
+
+/**
+ * Calculate [PkgDist].
+ */
+await Fs.remove('dist/dist.json');
+const filter = (path: string) => {
+  // Safety net: ensure /.tmp never influences the hash even if it somehow exists.
+  if (path === './static/.tmp') return false;
+  if (path.startsWith('./static/.tmp/')) return false;
+  return true;
+};
+const dist = (await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg, filter })).dist;
+
+/**
+ * Write version-hash into root HTML.
+ */
+await TmplEngine.File.update(Fs.join('dist/index.html'), (line) => {
+  if (line.text.includes('<a href="./dist.json">')) {
+    const hash = dist.hash.digest ?? '00000';
+    const hx = `#${hash.slice(-5)}`;
+    line.modify(line.text.replace(/dist\.json\<\/a>/, `dist.json (${hx})</a>`));
+  }
+});
+
+// Finish.
+Deno.exit(0);

@@ -4,6 +4,7 @@ type L = t.SlugValidationLib;
 
 /**
  * Returns semantic errors for unknown or missing traits.
+ * Uses `traits[].of` and reports at ['traits', i, 'of'].
  */
 export const validateTraitExistence: L['validateTraitExistence'] = (input) => {
   const { slug, registry, basePath = [] } = input;
@@ -15,14 +16,14 @@ export const validateTraitExistence: L['validateTraitExistence'] = (input) => {
   const errors: t.Schema.ValidationError[] = [];
 
   for (const [i, trait] of traits.entries()) {
-    const id = trait?.id;
-    if (typeof id !== 'string') continue;
+    const of = trait?.of;
+    if (typeof of !== 'string') continue;
 
-    if (!registry.get(id as t.SlugTraitId)) {
+    if (!registry.get(of as t.SlugTraitId)) {
       errors.push({
         kind: 'semantic',
-        path: [...(basePath as t.ObjectPath), 'traits', i, 'id'],
-        message: `Unknown trait id: "${id}"`,
+        path: [...(basePath as t.ObjectPath), 'traits', i, 'of'],
+        message: `Unknown trait id: "${of}"`,
       });
     }
   }

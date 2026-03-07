@@ -2,9 +2,14 @@ import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Try } from './mod.ts';
 
 describe('Try', () => {
-  describe('Try.catch (sync)', () => {
+  /**
+   * Sync: Try.run(() => T) → TryRunResult<T>
+   */
+  describe('Try.run (sync)', () => {
     it('returns {ok:true,data} for successful sync thunks', () => {
-      const r = Try.catch(() => 42);
+      const runResult = Try.run(() => 42);
+      const r = runResult.result;
+
       expect(r.ok).to.eql(true);
       if (r.ok) {
         expect(r.data).to.eql(42);
@@ -14,9 +19,14 @@ describe('Try', () => {
 
     it('returns {ok:false,error} for thrown sync errors (Error)', () => {
       const err = new Error('boom');
-      const r = Try.catch(() => {
+
+      const fail = (): number => {
         throw err;
-      });
+      };
+
+      const runResult = Try.run(fail);
+      const r = runResult.result;
+
       expect(r.ok).to.eql(false);
       if (!r.ok) {
         expect(r.error).to.be.instanceOf(Error);
@@ -25,9 +35,13 @@ describe('Try', () => {
     });
 
     it('returns {ok:false,error} for thrown non-Error values (coerced)', () => {
-      const r = Try.catch(() => {
+      const fail = (): number => {
         throw 'boom';
-      }); // string cause
+      }; // string cause
+
+      const runResult = Try.run(fail);
+      const r = runResult.result;
+
       expect(r.ok).to.eql(false);
       if (!r.ok) {
         expect(r.error).to.be.instanceOf(Error);
@@ -35,15 +49,30 @@ describe('Try', () => {
       }
     });
 
-    it('typing: sync overload yields TryResult<T> (no Promise)', () => {
-      const r = Try.catch(() => 123);
-      expectTypeOf(r).toEqualTypeOf<t.TryResult<number>>();
+    it('preserves undefined data for sync success', () => {
+      const fn = (): undefined => undefined;
+      const runResult = Try.run(fn);
+      const r = runResult.result;
+
+      expect(r.ok).to.eql(true);
+      if (r.ok) expect(r.data).to.eql(undefined);
+    });
+
+    it('typing: run(sync) returns TryRunResult<T>', () => {
+      const runResult = Try.run(() => 123);
+      expectTypeOf(runResult).toEqualTypeOf<t.TryRunResult<number>>();
+      expectTypeOf(runResult.result).toEqualTypeOf<t.TryResult<number>>();
     });
   });
 
-  describe('Try.catch (async)', () => {
-    it('returns Promise<{ok:true,data}> for successful async thunks', async () => {
-      const r = await Try.catch(async () => 7);
+  /**
+   * Async: Try.run(async () => T) → Promise<TryRunResult<T>>
+   */
+  describe('Try.run (async)', () => {
+    it('wraps successful async thunks', async () => {
+      const runResult = await Try.run(async () => 7);
+      const r = runResult.result;
+
       expect(r.ok).to.eql(true);
       if (r.ok) {
         expect(r.data).to.eql(7);
@@ -51,11 +80,14 @@ describe('Try', () => {
       }
     });
 
-    it('returns Promise<{ok:false,error}> for rejected async thunks (Error)', async () => {
+    it('wraps thrown async errors (Error) as TryFail', async () => {
       const err = new Error('nope');
-      const r = await Try.catch(async () => {
+
+      const runResult = await Try.run(async () => {
         throw err;
       });
+      const r = runResult.result;
+
       expect(r.ok).to.eql(false);
       if (!r.ok) {
         expect(r.error).to.be.instanceOf(Error);
@@ -63,10 +95,12 @@ describe('Try', () => {
       }
     });
 
-    it('returns Promise<{ok:false,error}> for rejected async thunks (non-Error)', async () => {
-      const r = await Try.catch(async () => {
+    it('wraps thrown async errors (non-Error) as coerced Error', async () => {
+      const runResult = await Try.run(async () => {
         throw 123;
       });
+      const r = runResult.result;
+
       expect(r.ok).to.eql(false);
       if (!r.ok) {
         expect(r.error).to.be.instanceOf(Error);
@@ -74,42 +108,150 @@ describe('Try', () => {
       }
     });
 
-    it('typing: async overload yields Promise<TryResult<T>>', () => {
-      const r = Try.catch(async () => 'x');
-      expectTypeOf(r).toEqualTypeOf<Promise<t.TryResult<string>>>();
+    it('typing: run(async) returns Promise<TryRunResult<T>>', () => {
+      // Use assignment instead of expectTypeOf to avoid generic constraint weirdness.
+      const _r: Promise<t.TryRunResult<string>> = Try.run(async () => 'x');
+      void _r;
     });
   });
 
-  describe('Try.catch (thenables)', () => {
-    it('treats thenable objects as promises (resolve)', async () => {
-      const thenable = { then: (res: (v: number) => void) => res(99) };
-      const r = await Try.catch(() => thenable);
+  /**
+   * Handler: TryRunResult<T>.catch(handler) – sync cases.
+   */
+  describe('Try.run.catch handler (sync)', () => {
+    it('does not invoke catch handler on success', () => {
+      let caught: Error | undefined;
+
+      const runResult = Try.run(() => 1);
+      const r = runResult.catch((err: Error) => {
+        caught = err;
+      });
+
       expect(r.ok).to.eql(true);
-      if (r.ok) expect(r.data).to.eql(99);
+      if (r.ok) expect(r.data).to.eql(1);
+      expect(caught).to.eql(undefined);
     });
 
-    it('treats thenable objects as promises (reject)', async () => {
-      const thenable = { then: (_: unknown, rej: (e: unknown) => void) => rej('bad') };
-      const r = await Try.catch(() => thenable);
+    it('invokes catch handler on failure and returns the same TryResult', () => {
+      const err = new Error('fail');
+      let caught: Error | undefined;
+
+      const fail = (): number => {
+        throw err;
+      };
+
+      const runResult = Try.run(fail);
+      const r = runResult.catch((e: Error) => {
+        caught = e;
+      });
+
       expect(r.ok).to.eql(false);
       if (!r.ok) {
         expect(r.error).to.be.instanceOf(Error);
-        expect(r.error.message).to.eql('bad');
+        expect(r.error.message).to.eql('fail');
       }
+
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught && caught.message).to.eql('fail');
+    });
+
+    it('catch handler sees coerced Error for non-Error throws', () => {
+      let caught: Error | undefined;
+
+      const fail = (): number => {
+        throw 123;
+      };
+
+      const runResult = Try.run(fail);
+      const r = runResult.catch((e: Error) => {
+        caught = e;
+      });
+
+      expect(r.ok).to.eql(false);
+      if (!r.ok) {
+        expect(r.error).to.be.instanceOf(Error);
+        expect(r.error.message).to.eql('123');
+      }
+
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught && caught.message).to.eql('123');
+    });
+
+    it('typing: catch(sync) returns TryResult<T>', () => {
+      const runResult = Try.run(() => 'x');
+      const r = runResult.catch((_e: Error) => {
+        // no-op
+      });
+      expectTypeOf(r).toEqualTypeOf<t.TryResult<string>>();
     });
   });
 
-  describe('Try.catch (edge cases)', () => {
-    it('preserves undefined data for sync success', () => {
-      const r = Try.catch(() => undefined);
+  /**
+   * Handler: TryRunResult<T>.catch(handler) – async cases.
+   */
+  describe('Try.run.catch handler (async)', () => {
+    it('does not invoke catch handler on async success', async () => {
+      let caught: Error | undefined;
+
+      const runResult = await Try.run(async () => 1);
+      const r = runResult.catch((err: Error) => {
+        caught = err;
+      });
+
       expect(r.ok).to.eql(true);
-      if (r.ok) expect(r.data).to.eql(undefined);
+      if (r.ok) expect(r.data).to.eql(1);
+      expect(caught).to.eql(undefined);
     });
 
-    it('handles async functions that return a native Promise', async () => {
-      const r = await Try.catch(() => Promise.resolve('ok'));
-      expect(r.ok).to.eql(true);
-      if (r.ok) expect(r.data).to.eql('ok');
+    it('invokes catch handler on async failure and returns the same TryResult', async () => {
+      const err = new Error('fail');
+      let caught: Error | undefined;
+
+      const runResult = await Try.run(async () => {
+        throw err;
+      });
+      const r = runResult.catch((e: Error) => {
+        caught = e;
+      });
+
+      expect(r.ok).to.eql(false);
+      if (!r.ok) {
+        expect(r.error).to.be.instanceOf(Error);
+        expect(r.error.message).to.eql('fail');
+      }
+
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught && caught.message).to.eql('fail');
+    });
+
+    it('catch handler sees coerced Error for non-Error async throws', async () => {
+      let caught: Error | undefined;
+
+      const runResult = await Try.run(async () => {
+        throw 123;
+      });
+      const r = runResult.catch((e: Error) => {
+        caught = e;
+      });
+
+      expect(r.ok).to.eql(false);
+      if (!r.ok) {
+        expect(r.error).to.be.instanceOf(Error);
+        expect(r.error.message).to.eql('123');
+      }
+
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught && caught.message).to.eql('123');
+    });
+
+    it('typing: catch(async) still returns TryResult<T>', async () => {
+      const runResult = await Try.run(async () => 'x');
+      const r = runResult.catch((_e: Error) => {
+        // no-op
+      });
+
+      const _r: t.TryResult<string> = r;
+      void _r;
     });
   });
 });

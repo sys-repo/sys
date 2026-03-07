@@ -1,0 +1,246 @@
+import { type t, expectError, describe, expect, it } from '../../-test.ts';
+import { slug } from '../../m.Random/mod.ts';
+import { Testing } from '../../m.Testing.Server/mod.ts';
+import { Dist, Pkg } from '../mod.ts';
+
+describe('Pkg.Dist', () => {
+  it('API', () => {
+    expect(Pkg.Dist).to.equal(Dist);
+  });
+
+  describe('Dist.Compat', () => {
+    it('toCanonical: legacy requires explicit policy', () => {
+      const legacy: t.DistPkgLegacy = {
+        type: 'https://jsr.io/@sample/foo',
+        pkg: { name: '@ns/foo', version: '1.2.3' },
+        build: {
+          time: 1746520471244,
+          size: { total: 1234, pkg: 1234 },
+          builder: '@scope/sample@0.0.0',
+          runtime: '<runtime-uri>',
+        },
+        hash: {
+          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          parts: {
+            './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          },
+        },
+      };
+
+      expect(Pkg.Dist.Compat.legacy(legacy)).to.eql(true);
+      expect(Pkg.Dist.Compat.toCanonical(legacy)).to.eql(undefined);
+
+      const policy = 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts';
+      const canonical = Pkg.Dist.Compat.toCanonical(legacy, { policy });
+      expect(canonical?.build.hash.policy).to.eql(policy);
+      expect(Pkg.Is.dist(canonical)).to.eql(true);
+    });
+
+    it('toCanonical: preserves omitted root pkg', () => {
+      const legacy: t.DistPkgLegacy = {
+        type: 'https://jsr.io/@sample/foo',
+        build: {
+          time: 1746520471244,
+          size: { total: 1234, pkg: 1234 },
+          builder: '@scope/sample@0.0.0',
+          runtime: '<runtime-uri>',
+        },
+        hash: {
+          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          parts: {
+            './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+          },
+        },
+      };
+
+      const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
+        policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
+      });
+
+      expect(canonical?.pkg).to.eql(undefined);
+      expect(Pkg.Is.dist(canonical)).to.eql(true);
+    });
+  });
+
+  describe('Dist.Is', () => {
+    it('Is.codePath: true', () => {
+      const test = (path: string, expected: boolean) => {
+        expect(Pkg.Dist.Is.codePath(path)).to.eql(expected);
+      };
+
+      test('pkg', false);
+      test('pkg/', true);
+      test('/pkg/', true);
+      test('/pkg/foo', true);
+      test('/pkg/foo/pkg/bar', true);
+      test('/pkg/bar', true);
+
+      test('', false);
+      test('foo', false);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
+    });
+  });
+
+  describe('Dist.fetch', () => {
+    const SAMPLE = {
+      dist(): t.DistPkg {
+        return {
+          type: 'https://jsr.io/@sample/foo',
+          pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
+          build: {
+            time: 1746520471244,
+            size: { total: 1234, pkg: 1234 },
+            builder: '@scope/sample@0.0.0',
+            runtime: '<runtime-uri>',
+            hash: { policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' },
+          },
+          hash: {
+            digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            parts: {
+              './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+              './-entry.js': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
+            },
+          },
+        };
+      },
+    };
+
+    const testSetup = () => {
+      const dist = SAMPLE.dist();
+      const server = Testing.Http.server((req) => {
+        const url = new URL(req.url);
+        if (url.pathname === '/dist.json') return Testing.Http.json(dist);
+        return new Response('Not found', { status: 404 });
+      });
+      const origin = server.url.toURL().origin;
+      return { server, dist, origin };
+    };
+
+    describe('construct from URL', () => {
+      it('200: success', async () => {
+        const { server, dist } = testSetup();
+        const href = server.url.href + 'dist.json';
+        const res = await Pkg.Dist.fetch(href);
+        await server.dispose();
+
+        expect(res.status).to.eql(200);
+        expect(res.dist).to.eql(dist);
+        expect(res.error).to.eql(undefined);
+        expect(res.href).to.eql(href);
+      });
+
+      it('throw: invalid-url', async () => {
+        const href = 'http://:invalid';
+        await expectError(() => Pkg.Dist.fetch(href), `Failed to parse DistPkg url "${href}"`);
+      });
+    });
+
+    it('200: fetches ./dist.json', async () => {
+      const { server, origin, dist } = testSetup();
+      const res = await Pkg.Dist.fetch({ origin });
+      await server.dispose();
+
+      expect(res.ok).to.eql(true);
+      expect(res.status).to.eql(200);
+      expect(res.dist).to.eql(dist);
+      expect(res.error).to.eql(undefined);
+      expect(res.href).to.eql(server.url.href + 'dist.json'); // ← default URL path.
+    });
+
+    it('404: not found', async () => {
+      const { server, origin } = testSetup();
+      const res = await Pkg.Dist.fetch({ origin, pathname: 'foo.json' });
+      await server.dispose();
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(404);
+      expect(res.dist).to.eql(undefined);
+      expect(res.error?.message).to.include('Failed while loading');
+      expect(res.error?.message).to.include('/foo.json');
+    });
+
+    it('href on {response}', async () => {
+      const { server, origin } = testSetup();
+      const pathname = 'foo/bar/dist.json';
+      const a = await Pkg.Dist.fetch({ origin });
+      const b = await Pkg.Dist.fetch({ origin, pathname });
+      await server.dispose();
+
+      expect(a.status).to.eql(200);
+      expect(b.status).to.eql(404);
+
+      expect(a.href).to.eql(server.url.href + `dist.json`);
+      expect(b.href).to.eql(server.url.href + pathname);
+    });
+  });
+
+  describe('Dist.Part', () => {
+    it('API', () => {
+      expect(Pkg.Dist.Part).to.equal(Dist.Part);
+    });
+
+    it('parse: sha256 only', () => {
+      const value = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash: value });
+    });
+
+    it('parse: sha256 + size', () => {
+      const hash = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const value = `${hash}:size=530`;
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash, size: 530 });
+    });
+
+    it('parse: tolerates whitespace', () => {
+      const hash = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const value = `  ${hash}:size=530  `;
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash, size: 530 });
+    });
+
+    it('hash', () => {
+      const hash = 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      expect(Pkg.Dist.Part.hash(hash)).to.eql(hash);
+      expect(Pkg.Dist.Part.hash(`${hash}:size=12`)).to.eql(hash);
+    });
+
+    it('size', () => {
+      const hash = 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+      expect(Pkg.Dist.Part.size(hash)).to.eql(undefined);
+      expect(Pkg.Dist.Part.size(`${hash}:size=12`)).to.eql(12);
+    });
+
+    it('parse: rejects invalid shapes', () => {
+      const BAD: readonly unknown[] = [
+        '',
+        'sha256-',
+        'sha256-xyz',
+        'sha256-1234:size=',
+        'sha256-1234:size=foo',
+        'md5-1234',
+        'sha256-1234:size=-1',
+        'sha256-1234:size=12kb',
+        'sha256-1234:SIZE=12', // (case-sensitive field name by design)
+      ];
+
+      BAD.forEach((value) => {
+        expect(Pkg.Dist.Part.parse(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.hash(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.size(value)).to.eql(undefined);
+      });
+    });
+
+    it('parse: ignores non-strings', () => {
+      const NON: readonly unknown[] = [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []];
+
+      NON.forEach((value) => {
+        expect(Pkg.Dist.Part.parse(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.hash(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.size(value)).to.eql(undefined);
+      });
+    });
+  });
+});

@@ -1,6 +1,6 @@
 /**
- * CRDTs that work on a local/native file-system.
  * @module
+ * CRDTs that work on a local/native file-system.
  */
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
@@ -8,12 +8,18 @@ import {
   type t,
   Arr,
   AutomergeRepo,
+  CrdtCmd,
+  CrdtGraph,
+  CrdtId,
   CrdtIs,
   CrdtUrl,
+  CrdtWorker,
   createPeerId,
   Is,
+  toObject,
   toRepo,
   whenReady,
+  CrdtStr,
 } from './common.ts';
 
 type Args = t.CrdtFsRepoArgs;
@@ -27,19 +33,30 @@ export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
  * Library:
  */
 export const Crdt: t.CrdtFilesystemLib = {
-  kind: 'Crdt:FileSystem',
+  kind: 'crdt:fs',
   repo(input) {
     const args = wrangle.dir(input);
-    const { sharePolicy = async () => true, denylist, dispose$ } = args;
+    const dir = args.dir ?? '';
+    const { sharePolicy = async () => true, denylist, until } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
     const peerId = createPeerId();
     const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
-    return toRepo(base, { peerId, dispose$ });
+    return toRepo(base, {
+      peerId,
+      until,
+      stores: [{ kind: 'fs', dir }],
+    });
   },
+  Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
+  Str: CrdtStr,
+  Cmd: CrdtCmd,
+  Worker: CrdtWorker,
+  Graph: CrdtGraph,
   whenReady,
+  toObject,
 };
 
 /**
@@ -53,7 +70,7 @@ const wrangle = {
   },
 
   storage(args?: Args): NodeFSStorageAdapter | undefined {
-    const dir = args?.dir;
+    const dir = wrangle.dir(args).dir;
     return dir ? new NodeFSStorageAdapter(dir) : undefined;
   },
 

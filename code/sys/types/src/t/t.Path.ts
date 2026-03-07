@@ -1,6 +1,15 @@
 import type { t } from './common.ts';
 
 /**
+ * A "path-like" input that can be either:
+ *  - a structured {@link ObjectPath} array, or
+ *  - a string form (e.g. JSON Pointer or dot notation).
+ *
+ * Used in APIs that accept both raw arrays and encoded path strings.
+ */
+export type PathLike = t.ObjectPath | string;
+
+/**
  * Represent an array of path parts,
  * eg: "foo.bar" → ['foo', 'bar']
  */

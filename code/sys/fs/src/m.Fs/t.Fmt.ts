@@ -23,4 +23,6 @@ export type FsTreeOptions = {
   readonly maxDepth?: NumberDepth;
   /** Indent from the left */
   readonly indent?: number;
+  /** Dynamically exclude a path from the result set. */
+  filter?(path: t.StringPath): boolean;
 };

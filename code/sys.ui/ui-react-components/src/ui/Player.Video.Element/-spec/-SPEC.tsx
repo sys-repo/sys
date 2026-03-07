@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Color, css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
+import { InfoPanel } from '../-dev/mod.ts';
+import { Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { D } from '../common.ts';
+import { type t, D } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -15,10 +16,11 @@ export default Spec.describe(D.displayName, (e) => {
     const log = (...parts: any) => {
       if (v.debug) console.info(...parts);
     };
+
     return (
       <VideoElement
         style={{ width: v.width }}
-        src={v.src}
+        src={debug.src}
         debug={v.debug}
         theme={v.theme}
         muted={v.muted}
@@ -27,22 +29,24 @@ export default Spec.describe(D.displayName, (e) => {
         aspectRatio={v.aspectRatio}
         scale={v.scale}
         fadeMask={v.fadeMask}
-        crop={v.crop}
+        slice={v.slice}
+        controls={v.controls}
+        interaction={v.interaction}
         //
         playing={v.playing}
         autoPlay={v.autoPlay}
         //
-        onPlayingChange={(e) => {
+        onPlayingChange={(e: t.VideoOnPlayingChangeArgs) => {
           log(`⚡️ onPlayingChange:`, e);
           p.playing.value = e.playing;
         }}
-        onMutedChange={(e) => {
+        onMutedChange={(e: t.VideoOnMutedChangeArgs) => {
           log(`⚡️ onMutedChange:`, e);
           p.muted.value = e.muted;
         }}
-        onBufferingChange={(e) => log(`⚡️ onBufferingChange:`, e)}
-        onBufferedChange={(e) => log(`⚡️ onBufferedChange:`, e)}
-        onEnded={(e) => log('⚡️ onEnded:', e)}
+        onBufferingChange={(e: t.VideoOnBufferingChangeArgs) => log(`⚡️ onBufferingChange:`, e)}
+        onBufferedChange={(e: t.VideoOnBufferedChangeArgs) => log(`⚡️ onBufferedChange:`, e)}
+        onEnded={(e: t.VideoOnEndedArgs) => log('⚡️ onEnded:', e)}
       />
     );
   }
@@ -64,38 +68,45 @@ export default Spec.describe(D.displayName, (e) => {
   }
 
   function Root(props: { children?: React.ReactNode }) {
-    const src = useFileSize(p.src.value);
-    const size = Str.bytes(src.bytes);
+    const src = useFileSize(debug.src);
 
     const theme = Color.theme('Dark');
     const styles = {
-      base: css({
-        Absolute: [null, 0, -25, 0],
-        PaddingX: 12,
-        fontSize: 10,
-        fontFamily: 'monospace',
-        color: Color.alpha(theme.fg, 0.5),
+      size: {
+        base: css({
+          Absolute: [-25, 0, null, 0],
+          PaddingX: 12,
+          color: Color.alpha(theme.fg, 0.5),
+          fontSize: 10,
+          fontFamily: 'monospace',
 
-        display: 'grid',
-        gridAutoFlow: 'column', //          ← Lay items out in columns.
-        gridAutoColumns: 'max-content', //  ← Size each implicit column to its content.
-        justifyContent: 'start', //         ← Align the whole grid to the left.
-        justifyItems: 'start',
-        columnGap: 5,
-      }),
-      size: css({ color: theme.fg }),
+          display: 'grid',
+          gridAutoFlow: 'column',
+          gridAutoColumns: 'max-content',
+          justifyContent: 'start',
+          justifyItems: 'start',
+          columnGap: 5,
+        }),
+        label: css({}),
+      },
+      infoPanel: {
+        base: css({ Absolute: [null, 20, -30, 20] }),
+        inner: css({ Absolute: [0, 0, null, 0], display: 'grid' }),
+      },
     };
 
-    const elSizeLabel = (
-      <>
-        <span>{'network/file-size:'}</span>
-        <span className={styles.size.class}>{size}</span>
-      </>
+    const elInfoPanel = p.infoPanel.value && (
+      <div className={styles.infoPanel.base.class}>
+        <div className={styles.infoPanel.inner.class}>
+          <InfoPanel theme={theme.name} src={debug.src} bytes={src.bytes} />
+        </div>
+      </div>
     );
+
     return (
       <>
-        {src.bytes > 0 && <div className={styles.base.class}>{elSizeLabel}</div>}
         {props.children}
+        {elInfoPanel}
       </>
     );
   }

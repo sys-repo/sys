@@ -1,5 +1,9 @@
 import {
   act,
+  beforeAll,
+  afterAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -15,7 +19,7 @@ import { __test as TD } from '../use.Slug.Diagnostics.ts';
 import { makeEditorYamlFromText } from './-u.ts';
 
 describe('useSlugDiagnostics', () => {
-  DomMock.polyfill();
+  DomMock.init({ beforeAll, afterAll });
 
   /**
    * Minimal Slug registry stub.
@@ -111,12 +115,13 @@ describe('useSlugDiagnostics', () => {
         args: [registry, undefined, makeEditorYamlFromText(validYamlText, 1)],
       };
 
-      const { result } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
+      const { result, unmount } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
         initialProps: initial,
       });
 
       expectTypeOf(result.current).toEqualTypeOf<t.UseSlugDiagnosticsResult>();
       expectTypeOf(result.current.diagnostics).toEqualTypeOf<readonly t.Yaml.Diagnostic[]>();
+      unmount();
     });
 
     it('rev stable when diagnostics unchanged; bumps when diagnostics change', () => {
@@ -124,15 +129,18 @@ describe('useSlugDiagnostics', () => {
         args: [registry, undefined, makeEditorYamlFromText(validYamlText, 1)],
       };
 
-      const { result, rerender } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
-        initialProps: initial,
-      });
+      const { result, rerender, unmount } = renderHook(
+        (p: Props) => useSlugDiagnostics(...p.args),
+        {
+          initialProps: initial,
+        },
+      );
 
       const rev0 = result.current.rev;
       const diag0 = result.current.diagnostics;
       const key0 = TD.toKey(diag0);
 
-      // Same content, new container rev -> NO key change
+      // Same content, new container rev → NO key change
       act(() => {
         rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 2)] });
       });
@@ -145,7 +153,7 @@ describe('useSlugDiagnostics', () => {
       expect(diag1).to.equal(diag0); // referentially stable when key unchanged
       expect(key1).to.eql(key0);
 
-      // Switch to invalid YAML -> diagnostics change -> key changes -> rev bumps
+      // Switch to invalid YAML → diagnostics change → key changes → rev bumps
       act(() => {
         rerender({ args: [registry, undefined, makeEditorYamlFromText(invalidYamlText, 3)] });
       });
@@ -159,7 +167,7 @@ describe('useSlugDiagnostics', () => {
       expect(key2).not.to.eql(key0); // content signature changed
       expect(diag2.length).to.be.greaterThan(0); // there are parse diagnostics
 
-      // Back to valid YAML -> key returns to baseline signature
+      // Back to valid YAML → key returns to baseline signature
       act(() => {
         rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 4)] });
       });
@@ -171,6 +179,7 @@ describe('useSlugDiagnostics', () => {
       expect(rev3).to.be.greaterThan(rev2);
       expect(key3).to.eql(key0); // back to baseline content signature
       expect(diag3.length).to.eql(diag0.length); // counts match baseline (may be > 0)
+      unmount();
     });
   });
 });

@@ -18,8 +18,8 @@ export const FileHashUri: FileHashUriLib = {
   fromUri(input: string) {
     if (typeof input !== 'string') return { hash: '' };
 
-    // –^ group 1: "sha1-…" or "sha256-…"
-    //          group 2: digits after ":size="
+    // - group 1: "sha1-…" or "sha256-…"
+    // - group 2: digits after ":size="
     const RE = /^((?:sha1|sha256)-[A-Fa-f0-9]+)(?::size=(\d+))?$/;
     const m = RE.exec(input);
     if (!m) return { hash: '' };

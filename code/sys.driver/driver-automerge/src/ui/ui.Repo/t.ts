@@ -1,21 +1,33 @@
 import type { t } from './common.ts';
 
+export type * from './t.info.ts';
+export type * from './t.switch.ts';
+
 /**
- * Library: repository UI tools.
+ * UI tools for representing the CRDT repository.
  */
-export type RepoLib = {
-  readonly SyncEnabledSwitch: React.FC<t.SyncEnabledSwitchProps>;
+export type RepoInfoLib = {
+  readonly Info: t.FC<t.RepoInfoProps>;
+  readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
+  readonly StatusBullet: t.FC<t.RepoStatusBulletProps>;
 };
 
 /**
- * <Component>:
+ * Consolidated, derived connection state for the Repo <Info> panel.
  */
-export type SyncEnabledSwitchProps = {
-  repo?: t.CrdtRepo;
-  debug?: boolean;
-  localstorage?: t.StringKey;
-  mode?: 'default' | 'switch-only' | 'switch + network-icons';
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onChange?: (e: { enabled: boolean }) => void;
+export type RepoInfoStatus = {
+  /** High-level connection state derived from syncEnabled + peers:
+   *  - 'offline'    → sync disabled
+   *  - 'connecting' → sync enabled but no peers yet
+   *  - 'online'     → sync enabled and at least one peer online
+   */
+  readonly status: 'offline' | 'connecting' | 'online';
+  /** True once the repo has emitted its initial props/snapshot. */
+  readonly ready: boolean;
+  /** Whether sync is currently enabled for this repo. */
+  readonly syncEnabled: boolean;
+  /** True when at least one sync peer is connected. */
+  readonly hasPeers: boolean;
+  /** True when the repo is configured with at least one sync server URL. */
+  readonly hasServers: boolean;
 };

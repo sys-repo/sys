@@ -18,7 +18,7 @@ describe('History', () => {
       const h = History.stack();
       h.push('alpha');
       h.push('beta');
-      h.push('alpha'); // duplicate – moves to head
+      h.push('alpha'); // duplicate - moves to head
       expect(h.items).to.eql(['alpha', 'beta']);
     });
 

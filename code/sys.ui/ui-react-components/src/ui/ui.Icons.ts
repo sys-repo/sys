@@ -1,4 +1,6 @@
-import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react-icons/lu';
+import { FaLink, FaRegFileLines } from 'react-icons/fa6';
+import { LiaCertificateSolid } from 'react-icons/lia';
+import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash, LuDna } from 'react-icons/lu';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -12,6 +14,7 @@ import {
   MdFace,
   MdMic,
   MdMicOff,
+  MdPlayArrow,
   MdSettings,
 } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
@@ -20,9 +23,10 @@ import { Icon } from './Icon/mod.ts';
 const icon = Icon.renderer;
 
 /**
- * Icon collection:
+ * Icon Collection:
  */
 export const Icons = {
+  Play: icon(MdPlayArrow),
   Close: icon(MdClose),
   Face: icon(MdFace),
   Object: icon(VscSymbolClass),
@@ -44,4 +48,8 @@ export const Icons = {
     Minus: icon(LuCopyMinus),
   },
   Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
+  Certificate: icon(LiaCertificateSolid),
+  Link: icon(FaLink),
+  Dna: icon(LuDna),
+  File: icon(FaRegFileLines),
 } as const;

@@ -1,4 +1,5 @@
 import {
+  compare,
   equals,
   greaterThan as gt,
   greaterOrEqual as gte,
@@ -23,6 +24,8 @@ type SemversFail = { ok: false };
 type SemverRange = SemverRangeOK | SemverRangeFail;
 type SemverRangeOK = { ok: true; version: t.Semver; range: t.SemverRange };
 type SemverRangeFail = { ok: false };
+
+export { compare };
 
 export const eql: L['eql'] = (a, b) => {
   const ver = wrangle.semvers(a, b);

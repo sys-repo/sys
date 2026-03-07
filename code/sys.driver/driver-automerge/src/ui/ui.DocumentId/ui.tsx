@@ -49,7 +49,7 @@ export const View: React.FC<P> = (props) => {
   const readOnly = controller.props.readOnly;
 
   let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
-  let showAction = showActionD || !textbox;
+  let showAction = (showActionD || !textbox) && !readOnly;
 
   /**
    * Effect: (mounted).
@@ -202,10 +202,10 @@ export const View: React.FC<P> = (props) => {
           theme={theme.name}
           style={styles.textbox}
           inputStyle={{
-            opacity: !!transient.message ? 0.1 : 1,
+            opacity: readOnly ? 0.3 : !!transient.message ? 0.1 : 1,
             blur: !!transient.message ? 8 : 0,
           }}
-          border={{ mode: 'underline', defaultColor: 0 }}
+          border={{ mode: 'line:bottom', defaultColor: 0 }}
           background={0}
           autoFocus={!readOnly && autoFocus}
           //
@@ -215,6 +215,14 @@ export const View: React.FC<P> = (props) => {
           onFocusChange={(e) => {
             if (readOnly) setFocused(false);
             else setFocused(e.focused);
+          }}
+          onPaste={(e) => {
+            /**
+             * Clean pasted string:
+             */
+            let text = e.text.trim();
+            if (text.startsWith('crdt:')) text = text.replace(/^crdt\:/, '');
+            e.modify(text);
           }}
         />
       </div>

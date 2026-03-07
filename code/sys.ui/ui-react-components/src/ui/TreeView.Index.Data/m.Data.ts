@@ -1,0 +1,100 @@
+import type { t } from './common.ts';
+
+import { Is } from './m.Is.ts';
+import { Yaml } from './m.Yaml.ts';
+import { lastSeg, toPathParts } from './u.ts';
+
+type D = t.IndexTreeViewDataLib;
+
+/**
+ * Coerce a `root` into a `TreeViewNodeList`.
+ */
+const toList: D['toList'] = (root) => {
+  if (!root) return [];
+  if (Is.list(root)) return root; // ← narrowed to TreeViewNodeList.
+  return root.children ?? [root]; // ← narrowed to TreeViewNode.
+};
+
+/**
+ * Determine if the node is bearing child nodes.
+ */
+export const hasChildren: D['hasChildren'] = (n) => !!(n.children && n.children.length > 0);
+
+/**
+ * Get children at a path ('', 'a/b/c', or ['a','b','c']).
+ * Path segments match either the literal segment or an `id` override from `meta.id`.
+ */
+const at: D['at'] = (root, path) => {
+  const parts = toPathParts(path);
+  if (parts.length === 0) return root;
+
+  let list: t.TreeViewNodeList = root;
+  for (const seg of parts) {
+    const next = list.find((n) => {
+      const tail = lastSeg(n.key);
+      const id = typeof n.meta?.id === 'string' ? (n.meta.id as string) : undefined;
+      return seg === tail || (id && seg === id);
+    });
+    if (!next || !next.children) return [];
+    list = next.children;
+  }
+  return list;
+};
+
+/**
+ * Get a flat list of nodes to render at the given path, with depth info.
+ * Nodes with `self.inline: true` have their children expanded in-place.
+ */
+const viewAt: D['viewAt'] = (root, path) => {
+  const list = at(root, path);
+  const result: t.TreeViewNodeView[] = [];
+
+  const expand = (nodes: t.TreeViewNodeList, depth: number): void => {
+    for (const node of nodes) {
+      result.push({ node, depth });
+      if (node.self?.inline && node.children) {
+        expand(node.children, depth + 1);
+      }
+    }
+  };
+
+  expand(list, 0);
+  return result;
+};
+
+/**
+ * Find a node by exact `key` (full path) or by predicate.
+ */
+export const find: D['find'] = (root, keyOr) => {
+  const pred =
+    typeof keyOr === 'string' ? ({ node }: { node: t.TreeViewNode }) => node.key === keyOr : keyOr;
+
+  const visit = (
+    list: t.TreeViewNodeList,
+    parents: readonly t.TreeViewNode[],
+  ): t.TreeViewNode | undefined => {
+    for (const node of list) {
+      if (pred({ node, parents })) return node;
+      if (node.children) {
+        const hit = visit(node.children, [...parents, node]);
+        if (hit) return hit;
+      }
+    }
+    return undefined;
+  };
+
+  return visit(root, []);
+};
+
+/**
+ * API:
+ */
+export const Data: t.IndexTreeViewDataLib = {
+  Is,
+  Yaml,
+  at,
+  viewAt,
+  find,
+  toList,
+  hasChildren,
+};

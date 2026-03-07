@@ -1,16 +1,17 @@
 {
   "name": "@sys/process",
-  "version": "0.0.136",
+  "version": "0.0.227",
   "license": "MIT",
   "tasks": {
+    "test": "deno test -P=testset",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./scripts/-clean.ts",
-    "test": "deno test -P=testset"
+    "check": "deno check src/*",
+    "clean": "deno run -P=clean ./scripts/-clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./process": "./src/m.Process/mod.ts"
+    "./process": "./src/m.process/mod.ts"
   }
 }

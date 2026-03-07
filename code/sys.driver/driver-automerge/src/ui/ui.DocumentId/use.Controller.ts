@@ -146,7 +146,8 @@ function useInternal(args: Args = {}): Hook {
     if (e.action === 'Create' && enabled) {
       await repo.whenReady();
 
-      const doc = repo.create(args.initial ?? {});
+      const { doc, error } = await repo.create(args.initial ?? {});
+      if (error) throw error;
       p.doc.value = doc;
       p.textbox.value = doc.id;
       p.spinning.value = false;

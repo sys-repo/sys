@@ -72,7 +72,7 @@ describe('Tmpl.Log', () => {
       indent: 4,
     });
 
-    // The action cell is prefixed with spaces – assert at least one line starts with 4 spaces
+    // The action cell is prefixed with spaces - assert at least one line starts with 4 spaces
     const noAnsi = stripAnsi(out);
     expect(noAnsi.split('\n').some((l) => /^ {4}\S/.test(l))).to.eql(true);
 

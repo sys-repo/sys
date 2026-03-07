@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Boolean flag evaluators.
+ * Boolean type guard evaluators.
  */
 export type StdIsLib = {
   /**
@@ -43,14 +43,18 @@ export type StdIsLib = {
   observable<T = unknown>(input?: any): input is t.Observable<T>;
 
   /**
+   * Determine if the given value is an Error instance.
+   */
+  error: t.ErrIsLib['error'];
+  /**
    * Determine if the value is like an Error object.
    */
-  errorLike: t.ErrIs['errorLike'];
+  errorLike: t.ErrIsLib['errorLike'];
 
   /**
    * Determine if the given value conforms to the [StdError] type.
    */
-  stdError: t.ErrIs['stdError'];
+  stdError: t.ErrIsLib['stdError'];
 
   /**
    * Determine if the value is a number.
@@ -88,8 +92,16 @@ export type StdIsLib = {
   /** Determine if the HTTP status code is within the 200 range.  */
   statusOK(status: number): boolean;
 
-  /** Determines if currently running within a browser environment. */
+  /**
+   * True if running inside *any* browser JS runtime:
+   * window, iframe, or any Web Worker.
+   */
   browser(): boolean;
+
+  /**
+   * True if running inside a Web Worker (Dedicated/Shared/Service).
+   */
+  worker(): boolean;
 
   /** Determine if the given input is typeof {object} and not Null. */
   object(input?: unknown): input is object;
@@ -121,22 +133,24 @@ export type StdIsLib = {
   func(input?: unknown): input is Function;
 
   /**
-   * Determine if the value is a string.
-   * typeof === 'string'
-   */
-  string(input?: unknown): input is string;
-
-  /**
    * Determine if the value is a boolean.
    * typeof === 'boolean'
    */
   bool(input?: unknown): input is boolean;
 
   /**
+   * Determine if the value is a string.
+   * typeof === 'string'
+   */
+  string(input?: unknown): input is string;
+  str(input?: unknown): input is string;
+
+  /**
    * Determine if the value is a number.
    * typeof === 'number'
    */
   number(input?: unknown): input is number;
+  num(input?: unknown): input is number;
 
   /**
    * Determine if the value is an array.
@@ -167,4 +181,27 @@ export type StdIsLib = {
    * Determine if the value conforms to an `Until`:
    */
   until(input?: unknown): input is t.Until;
+
+  /**
+   * True if the value structurally matches a WebSocket.
+   */
+  websocket(input?: unknown): input is WebSocket;
+
+  /**
+   * Determine if the given value is structurally URL-like.
+   *
+   * Matches:
+   *  - `URL` instances
+   *  - any `{ href: string }`
+   *  - any `{ toURL(): URL }`
+   */
+  urlLike(input?: unknown): input is t.UrlLike;
+
+  /**
+   * True if the input is a valid http/https URL string.
+   *
+   * Only absolute http/https URLs are treated as URL strings;
+   * everything else (relative, malformed, non-string) returns false.
+   */
+  urlString(input: unknown): input is t.StringUrl;
 };

@@ -10,6 +10,7 @@ export type EditorLanguage = EditorContent['language'];
  */
 export type EditorContent =
   | EditorContentYaml
+  | EditorContentPlaintext
   | EditorContentTypescript
   | EditorContentJavascript
   | EditorContentMarkdown
@@ -23,6 +24,8 @@ type Common = { readonly text: string };
 
 /** Editor content: YAML. */
 export type EditorContentYaml = Common & { language: 'yaml'; parsed?: t.Json };
+/** Editor content: plaintext. */
+export type EditorContentPlaintext = Common & { language: 'plaintext' };
 /** Editor content: Typescript. */
 export type EditorContentTypescript = Common & { language: 'typescript' };
 /** Editor content: Javascript. */

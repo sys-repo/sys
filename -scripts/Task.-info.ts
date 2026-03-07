@@ -48,17 +48,16 @@ export async function main() {
     const baseDir = Fs.join(import.meta.dirname ?? '', '..');
     const files = await Fs.glob(baseDir).find(pattern, { exclude });
 
-    console.info(`System: ${c.green(`@sys     →`)} ${c.gray(`https://jsr.io/@sys`)}`);
+    console.info(`${c.bold('System')}: ${c.green(`@sys     →`)} ${c.gray(`https://jsr.io/@sys`)}`);
     console.info(`        ${c.green(`repo     →`)} ${c.gray(`https://github.com/sys-repo/sys`)}`);
     console.info();
 
-    console.info('🧫');
     console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
     console.info('    typescript  ', c.green(Deno.version.typescript));
     console.info('            v8  ', c.green(Deno.version.v8));
 
     console.info(c.bold('  ↓'));
-    console.info(c.yellow('  System'));
+    console.info(c.yellow('  Monorepo'));
     console.info(c.dim('  pattern.code  '), c.dim(pattern));
     console.info('         files  ', c.yellow(files.length.toLocaleString()));
     if (options.lines) {

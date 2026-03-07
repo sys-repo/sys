@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dom",
-  "version": "0.0.147",
+  "version": "0.0.238",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -11,9 +11,11 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./file": "./src/m.File/mod.ts",
-    "./keyboard": "./src/m.Keyboard/mod.ts",
-    "./local-storage": "./src/m.LocalStorage/mod.ts",
-    "./user-agent": "./src/m.UserAgent/mod.ts"
+    "./events": "./src/-exports/-events.ts",
+    "./file": "./src/-exports/-file.ts",
+    "./keyboard": "./src/-exports/-keyboard.ts",
+    "./local-storage": "./src/-exports/-local-storage.ts",
+    "./url": "./src/-exports/-url.ts",
+    "./user-agent": "./src/-exports/-user-agent.ts"
   }
 }

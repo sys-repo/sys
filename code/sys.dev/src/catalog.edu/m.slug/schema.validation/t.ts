@@ -1,9 +1,12 @@
 import type { t } from '../common.ts';
+export type * from './t.tree.ts';
 
 /**
- * Functions for validating slug YAML (semantic layer).
+ * Functions for validating slugs (semantic layer).
  */
 export type SlugValidationLib = {
+  readonly SlugTree: t.SlugTreeValidationLib;
+
   validateTraitExistence: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
   validateAliasRules: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
   validatePropsShape: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
@@ -37,9 +40,9 @@ export type SlugValidationLib = {
 export type SlugSemanticKeyword =
   | 'semantic/duplicate-alias'
   | 'semantic/unknown-trait'
-  | 'semantic/missing-props'
-  | 'semantic/orphan-props'
-  | 'semantic/invalid-props';
+  | 'semantic/missing-data'
+  | 'semantic/orphan-data'
+  | 'semantic/invalid-data';
 
 /**
  * Input to the semantic validator.
@@ -62,6 +65,6 @@ export type SlugValidateResult = {
 };
 
 export type SlugTraitAliasIndex = {
-  readonly byAlias: Map<string, number[]>; // alias -> indices
+  readonly byAlias: Map<string, number[]>; // alias → indices
   readonly aliases: string[];
 };

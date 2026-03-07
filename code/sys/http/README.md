@@ -10,7 +10,7 @@ deno run -RNE jsr:@sys/http/serve
 
 # ↑ default options:
 #   --port=8080
-#   --dir=dist
+#   --dir=dist  # ← default is "."
 ```
 
 
@@ -41,7 +41,7 @@ import { Http } from 'jsr:@sys/http/client';
 const { dispose$, dispose } = rx.disposable();
 
 // Dispose aborts all in-progress operations.
-const fetch = Http.fetcher({ dispose$ });  
+const fetch = Http.fetcher({ dispose$ });
 const fetch = Http.fetcher(dispose$);       // (alternative)
 
 // Dispose aborts the specific fetch operation.

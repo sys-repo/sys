@@ -12,6 +12,20 @@ describe('HttpPull.stream', () => {
     return { promise, resolve, reject };
   };
 
+  /**
+   * CI can expose servers as "http://0.0.0.0:<port>/..." which is a listen address,
+   * not a reliable client target. Normalize such URLs to "127.0.0.1".
+   */
+  const toLocalhost = (input: string) => {
+    try {
+      const u = new URL(input);
+      if (u.hostname === '0.0.0.0') u.hostname = '127.0.0.1';
+      return u.toString();
+    } catch {
+      return input.replace('://0.0.0.0:', '://127.0.0.1:');
+    }
+  };
+
   it('emits start + done for each URL; done order reflects completion, not input', async () => {
     // Slow/fast endpoints:
     const server = Testing.Http.server((req) => {
@@ -25,12 +39,13 @@ describe('HttpPull.stream', () => {
     });
 
     try {
-      const slow = server.url.join('path', 'sample', 'slow.txt');
-      const fast = server.url.join('path', 'sample', 'fast.txt');
+      const slow = toLocalhost(server.url.join('path', 'sample', 'slow.txt'));
+      const fast = toLocalhost(server.url.join('path', 'sample', 'fast.txt'));
       const outDir = await mkTmpDir();
 
-      const events: any[] = [];
-      for await (const ev of HttpPull.stream([slow, fast], outDir, { concurrency: 2 })) {
+      const stream = HttpPull.stream([slow, fast], outDir, { concurrency: 2 });
+      const events: t.HttpPullEvent[] = [];
+      for await (const ev of stream) {
         events.push(ev);
       }
 
@@ -58,6 +73,14 @@ describe('HttpPull.stream', () => {
       expect(tb.ok).to.eql(true);
       expect(ta.data).to.eql('FAST');
       expect(tb.data).to.eql('SLOW');
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
+
+      const sources = result.ops.map((r) => r.path.source).sort();
+      expect(sources[0].endsWith('/fast.txt')).to.eql(true);
+      expect(sources[1].endsWith('/slow.txt')).to.eql(true);
     } finally {
       await server.dispose();
     }
@@ -65,11 +88,13 @@ describe('HttpPull.stream', () => {
 
   it('emits start + error on HTTP 404; no file is written', async () => {
     const server = Testing.Http.server(() => Testing.Http.error(404, 'NF'));
-    const url = server.url.join('path', 'sample', 'missing.txt');
+    const url = toLocalhost(server.url.join('path', 'sample', 'missing.txt'));
     const outDir = await mkTmpDir();
 
-    const events: any[] = [];
-    for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+    const stream = HttpPull.stream([url], outDir);
+
+    const events: t.HttpPullEvent[] = [];
+    for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
     const errs = events.filter((e) => e.kind === 'error');
@@ -82,6 +107,15 @@ describe('HttpPull.stream', () => {
     expect(err.status).to.eql(404);
     expect(await Fs.exists(err.path.target)).to.eql(false);
 
+    const result = await stream.done;
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(1);
+
+    const op = result.ops[0];
+    expect(op.ok).to.eql(false);
+    expect(op.status).to.eql(404);
+    expect(await Fs.exists(op.path.target)).to.eql(false);
+
     await server.dispose();
   });
 
@@ -89,8 +123,10 @@ describe('HttpPull.stream', () => {
     const outDir = await mkTmpDir();
     const bad = '::::bad::::';
 
-    const events: any[] = [];
-    for await (const ev of HttpPull.stream([bad], outDir)) events.push(ev);
+    const stream = HttpPull.stream([bad], outDir);
+
+    const events: t.HttpPullEvent[] = [];
+    for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
     const errs = events.filter((e) => e.kind === 'error');
@@ -106,35 +142,142 @@ describe('HttpPull.stream', () => {
     const base = Path.basename(rec.path.target);
     expect(base.includes('/')).to.eql(false);
     expect(await Fs.exists(rec.path.target)).to.eql(false);
+
+    const result = await stream.done;
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(1);
+
+    const op = result.ops[0];
+    expect(op.ok).to.eql(false);
+    expect(op.error).to.eql('Invalid URL');
+    expect(await Fs.exists(op.path.target)).to.eql(false);
   });
 
   it('cancels via `until` (no done/error)', async () => {
     // Server that never responds; requests hang until aborted.
     const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-    const a = server.url.join('x', 'a.txt');
-    const b = server.url.join('x', 'b.txt');
+    const a = toLocalhost(server.url.join('x', 'a.txt'));
+    const b = toLocalhost(server.url.join('x', 'b.txt'));
     const outDir = await mkTmpDir();
 
     const until = Rx.disposable();
     const events: t.HttpPullEvent[] = [];
-    const iter = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
+
+    const stream = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
     queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
 
-    for await (const ev of iter) events.push(ev);
+    for await (const ev of stream) events.push(ev);
 
     // Cancellation is quiet: no 'done' and no 'error'
     expect(events.some((e) => e.kind === 'done')).to.eql(false);
     expect(events.some((e) => e.kind === 'error')).to.eql(false);
 
+    const result = await stream.done;
+    expect(result.ok).to.eql(true); // empty ops → trivially true
+    expect(result.ops).to.have.length(0);
+
     await server.dispose();
+  });
+
+  describe('retry', () => {
+    it('retries on transient HTTP 503 and eventually succeeds', async () => {
+      let count = 0;
+
+      // Server: first request → 503, second → 200 OK.
+      const server = Testing.Http.server((req) => {
+        count++;
+        if (count === 1) {
+          return Testing.Http.error(503, 'TEMP');
+        }
+        return Testing.Http.text(req, 'OK');
+      });
+
+      try {
+        const url = toLocalhost(server.url.join('p', 'file.txt'));
+        const outDir = await mkTmpDir();
+
+        const stream = HttpPull.stream([url], outDir);
+
+        const events: t.HttpPullEvent[] = [];
+        for await (const ev of stream) events.push(ev);
+
+        const starts = events.filter((e) => e.kind === 'start');
+        const dones = events.filter((e) => e.kind === 'done');
+        const errors = events.filter((e) => e.kind === 'error');
+
+        // No terminal error; done event present.
+        expect(starts).to.have.length(1);
+        expect(errors).to.have.length(0);
+        expect(dones).to.have.length(1);
+
+        const record = dones[0].record;
+        expect(record.ok).to.eql(true);
+
+        const text = await Fs.readText(record.path.target);
+        expect(text.ok).to.eql(true);
+        expect(text.data).to.eql('OK');
+
+        const result = await stream.done;
+        expect(result.ok).to.eql(true);
+        expect(result.ops).to.have.length(1);
+
+        const op = result.ops[0];
+        expect(op.ok).to.eql(true);
+        expect(op.status).to.eql(200);
+        expect(await Fs.exists(op.path.target)).to.eql(true);
+      } finally {
+        await server.dispose();
+      }
+    });
+
+    it('fails after max retries on repeated 503', async () => {
+      // Always fail with 503.
+      const server = Testing.Http.server(() => Testing.Http.error(503, 'TEMP'));
+
+      try {
+        const url = toLocalhost(server.url.join('p', 'never.txt'));
+        const outDir = await mkTmpDir();
+
+        const stream = HttpPull.stream([url], outDir);
+
+        const events: t.HttpPullEvent[] = [];
+        for await (const ev of stream) events.push(ev);
+
+        const starts = events.filter((e) => e.kind === 'start');
+        const dones = events.filter((e) => e.kind === 'done');
+        const errors = events.filter((e) => e.kind === 'error');
+
+        expect(starts).to.have.length(1);
+        expect(dones).to.have.length(0);
+        expect(errors).to.have.length(1);
+
+        const rec = errors[0].record;
+        expect(rec.ok).to.eql(false);
+        expect(rec.status).to.eql(503);
+
+        // Should not write a file.
+        expect(await Fs.exists(rec.path.target)).to.eql(false);
+
+        const result = await stream.done;
+        expect(result.ok).to.eql(false);
+        expect(result.ops).to.have.length(1);
+
+        const op = result.ops[0];
+        expect(op.ok).to.eql(false);
+        expect(op.status).to.eql(503);
+        expect(await Fs.exists(op.path.target)).to.eql(false);
+      } finally {
+        await server.dispose();
+      }
+    });
   });
 
   describe('stream.events() - observable', () => {
     it('emits start/done and completes (observable)', async () => {
       // Keep server simple; start events may be missed by late subscription.
       const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
-      const a = server.url.join('p', 'a.txt');
-      const b = server.url.join('p', 'b.txt');
+      const a = toLocalhost(server.url.join('p', 'a.txt'));
+      const b = toLocalhost(server.url.join('p', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
@@ -160,14 +303,18 @@ describe('HttpPull.stream', () => {
       expect(errors.length).to.eql(0);
       expect(starts.length).to.be.gte(0).and.lte(2);
 
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
+
       await server.dispose();
     });
 
     it('cancel(reason) → completes observable quietly (no done/error)', async () => {
       // Never-responding server; stream should end quietly on cancel.
       const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-      const a = server.url.join('x', 'a.txt');
-      const b = server.url.join('x', 'b.txt');
+      const a = toLocalhost(server.url.join('x', 'a.txt'));
+      const b = toLocalhost(server.url.join('x', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
@@ -189,13 +336,17 @@ describe('HttpPull.stream', () => {
       expect(events.some((e) => e.kind === 'done')).to.eql(false);
       expect(events.some((e) => e.kind === 'error')).to.eql(false);
 
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(0);
+
       await server.dispose();
     });
 
     it('events(until) has independent lifetime from iterator (observable completes; iterator continues)', async () => {
       const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
-      const a = server.url.join('p', 'a.txt');
-      const b = server.url.join('p', 'b.txt');
+      const a = toLocalhost(server.url.join('p', 'a.txt'));
+      const b = toLocalhost(server.url.join('p', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
@@ -233,6 +384,10 @@ describe('HttpPull.stream', () => {
       expect(obsEvents.length).to.be.gte(0); // may be 0 or a few 'start' depending on timing
       expect(iterStarts).to.eql(2);
       expect(iterDones).to.eql(2);
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
 
       await server.dispose();
     });

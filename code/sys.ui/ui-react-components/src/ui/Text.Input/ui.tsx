@@ -3,9 +3,10 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { css, D, Style, type t, UserAgent } from './common.ts';
 import { useBorderStyles } from './use.BorderStyles.ts';
 import { useEvents } from './use.Events.ts';
+import { pasteHandler } from './u.pasteHandler.ts';
 
-type H = HTMLInputElement;
 type P = t.TextInputProps;
+type H = HTMLInputElement;
 const isFirefox = UserAgent.current.is.firefox;
 
 export const TextInput: React.FC<P> = (props) => {
@@ -31,9 +32,8 @@ export const TextInput: React.FC<P> = (props) => {
    * Hooks:
    */
   const events = useEvents(props);
-  const { border, borderRadius, theme } = useBorderStyles(props);
   const { focused } = events;
-
+  const { border, borderRadius, theme } = useBorderStyles(props);
   const [ready, setReady] = React.useState(false);
 
   /**
@@ -144,6 +144,7 @@ export const TextInput: React.FC<P> = (props) => {
         spellCheck={props.spellCheck ?? D.spellCheck}
         //
         {...events.handlers}
+        onPaste={pasteHandler(props, { focused, selectionRef })}
         onChange={handleChange}
       />
       {suffix && <div className={styles.edge.class}>{suffix}</div>}

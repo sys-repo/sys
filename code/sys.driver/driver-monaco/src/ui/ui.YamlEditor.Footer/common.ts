@@ -11,4 +11,4 @@ export const DEFAULTS = {
   visible: true,
 } as const;
 export const D = DEFAULTS;
-export const STORAGE_KEY = { DEV: `dev:${D.name}` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

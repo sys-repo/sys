@@ -2,6 +2,7 @@ import type * as ramda from 'ramda';
 export type * from '../types.ts';
 
 type R = typeof ramda;
+export type * from '@sys/types';
 
 /**
  * Subset of common ramda helpers.

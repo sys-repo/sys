@@ -8,13 +8,13 @@ export { walk };
  * @param startAt - The initial directory path to start walking from.
  * @param onVisit - A function to execute at each directory level.
  */
-export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
+export const walkUp: t.Fs.WalkUp = async (startAt, onVisit) => {
   const stat = await Deno.stat(startAt);
   const startDir = stat.isDirectory ? startAt : Path.dirname(startAt);
   let dir = Path.absolute(startDir).replace(/[/\\]+$/, ''); // Normalize the path to remove any trailing slashes.
   let isStopped = false;
 
-  const toFile = ({ name, isSymlink }: WalkEntry): t.FsWalkFile => {
+  const toFile = ({ name, isSymlink }: WalkEntry): t.Fs.WalkFile => {
     return {
       path: Path.join(dir, name),
       dir,
@@ -23,8 +23,8 @@ export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
     };
   };
 
-  const toPayload = (path: string): t.FsWalkUpCallbackArgs => {
-    let _files: t.FsWalkFile[] | undefined;
+  const toPayload = (path: string): t.Fs.WalkUpCallbackArgs => {
+    let _files: t.Fs.WalkFile[] | undefined;
     return {
       stop: () => (isStopped = true),
       async files() {

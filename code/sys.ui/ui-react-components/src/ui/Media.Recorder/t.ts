@@ -1,16 +1,18 @@
 import type { t } from './common.ts';
 
-export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
+/** Status flags for the current state of the recorder. */
+export type MediaRecorderState = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
 
 /**
- * Library: Media recordeing tools.
+ * Library: Media recording tools.
  */
 export type MediaRecorderLib = {
-  readonly createRecorder: t.CreateMediaRecorder;
   readonly UI: {
     readonly Files: React.FC<t.MediaRecorderFilesProps>;
     readonly useRecorder: t.UseMediaRecorder;
   };
+  createRecorder: t.CreateMediaRecorder;
+  captureInfo(stream?: MediaStream): t.MediaRecorderCapture;
 };
 
 /**
@@ -35,18 +37,19 @@ export type MediaRecorderOptions = {
   mimeType?: string;
   videoBitsPerSecond?: number;
   audioBitsPerSecond?: number;
-  onStatusChange?: t.MediaRecorderStatusChangeHandler;
+  onStatusChange?: t.MediaRecorderStatusHandler;
 };
 
-/** Callbacks for actino changes */
-export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) => void;
-export type MediaRecorderStatusChange = {
-  readonly status: t.MediaRecorderStatus;
+/** Callbacks for status changes */
+export type MediaRecorderStatusHandler = (e: MediaRecorderStatus) => void;
+export type MediaRecorderStatus = {
+  readonly state: t.MediaRecorderState;
   readonly elapsed: t.Msecs;
   readonly is: t.MediaRecorderHook['is'];
   readonly bytes: t.MediaRecorderHook['bytes'];
   readonly bitrate: t.MediaRecorderBitrate;
   readonly capture: t.MediaRecorderCapture;
+  readonly mimeType: string;
 };
 
 /**
@@ -61,7 +64,7 @@ export type CreateMediaRecorder = (
  * UseMediaRecorder hook API:
  */
 export type MediaRecorderHook = {
-  readonly status: t.MediaRecorderStatus;
+  readonly state: t.MediaRecorderState;
   readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
   readonly bytes: t.NumberBytes;
@@ -103,10 +106,26 @@ export type MediaRecorderBitrate = {
   readonly audio: number;
 };
 
-/** Capture settings for a MediaStream video track. */
+/** Realized settings of the stream's primary video track. */
 export type MediaRecorderCapture = {
   readonly width?: number;
   readonly height?: number;
   readonly frameRate?: number;
   readonly aspectRatio?: number;
+
+  /** Track/device context (when available). */
+  readonly deviceId?: string;
+  readonly facingMode?: 'user' | 'environment' | 'left' | 'right' | string;
+  readonly resizeMode?: 'none' | 'crop-and-scale' | string;
+
+  /** Screen-capture specific (present on display tracks). */
+  readonly displaySurface?: 'application' | 'browser' | 'monitor' | 'window' | string;
+  readonly logicalSurface?: boolean;
+  readonly cursor?: 'always' | 'motion' | 'never' | string;
+
+  /** Grouping hint from UA (same physical device cluster). */
+  readonly groupId?: string;
+
+  /** From MediaStreamTrack (not part of getSettings but useful signal). */
+  readonly contentHint?: string;
 };

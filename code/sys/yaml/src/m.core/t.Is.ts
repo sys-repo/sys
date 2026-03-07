@@ -23,8 +23,22 @@ export type YamlIsLib = {
    * - Used for schema, semantic, or parser-normalized errors.
    */
   diagnostic(input?: unknown): input is t.YamlDiagnostic;
-
   /** Array variants for convenience. */
   parseErrorArray(input?: unknown): input is t.YamlError[];
   diagnosticArray(input?: unknown): input is t.YamlDiagnostic[];
+
+  /** True if the node is a YAML Scalar in the AST. */
+  scalar(input?: unknown): input is t.Yaml.Scalar;
+
+  /** True if the node is a YAML mapping (Map) in the AST. */
+  map(input?: unknown): input is t.Yaml.Map;
+
+  /** True if the node is a YAML sequence (Seq) in the AST. */
+  seq(input?: unknown): input is t.Yaml.Seq;
+
+  /** True if the node is a YAML pair (key/value entry) in the AST. */
+  pair(input?: unknown): input is t.Yaml.Pair;
+
+  /** True if the node is a YAML alias node in the AST. */
+  alias(input?: unknown): input is t.Yaml.Alias;
 };

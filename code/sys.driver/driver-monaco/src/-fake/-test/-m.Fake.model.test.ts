@@ -36,6 +36,16 @@ describe('TestFake: Model', () => {
       });
     });
 
+    describe('lifecycle', () => {
+      it('isDisposed', () => {
+        const model = MonacoFake.model('');
+        expect(model.isDisposed()).to.eql(false);
+        model.dispose();
+        model.dispose();
+        expect(model.isDisposed()).to.eql(true);
+      });
+    });
+
     describe('get/set value', () => {
       it('returns and mutates text via getValue / setValue', () => {
         const model = MonacoFake.model('foo');
@@ -170,6 +180,7 @@ describe('TestFake: Model', () => {
         expect(m.getPositionAt(off + 1)).to.include({ lineNumber: 3, column: 4 }); // '3'
       });
     });
+
     describe('getValueLength', () => {
       it('returns the total character count (including newlines)', () => {
         const src = 'a\nbc\n1234';

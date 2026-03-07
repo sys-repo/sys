@@ -3,7 +3,7 @@ import { type t } from '../common.ts';
 /**
  * Factory: local-storage namespace.
  */
-export function ns<T extends t.JsonMapU>(namespace: string): t.LocalStorage<T> {
+export function ns<T extends t.JsonMapLikeU>(namespace: string): t.LocalStorage<T> {
   namespace = namespace.replace(/\/+$/, '').trim();
   const toKey = (name: keyof T) => (namespace ? `${namespace}/${String(name)}` : String(name));
 
@@ -34,7 +34,7 @@ export function ns<T extends t.JsonMapU>(namespace: string): t.LocalStorage<T> {
       const obj = {} as T;
       Object.keys(initial).forEach((key) => {
         Object.defineProperty(obj, key, {
-          get: () => local.get(key, initial[key] as any),
+          get: () => local.get(key, initial[key as keyof T]),
           set: (value) => local.put(key, value),
           enumerable: true,
         });

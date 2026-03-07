@@ -1,9 +1,10 @@
 import React from 'react';
-import { type t, Color, css, Media, Obj, ObjectView } from '../common.ts';
+import { type t, Crdt, Media, Obj } from '../common.ts';
 
-export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
+type Base = Pick<t.CrdtView.ObjectViewProps, 'expand' | 'name' | 'lenses'>;
+export type SignalsObjectViewProps = Base & {
   signals?: t.VideoRecorderViewSignals;
-  debug?: boolean;
+  doc?: t.Crdt.Ref;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -12,39 +13,32 @@ export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> 
  * Component:
  */
 export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
-  const { debug = false, signals, name = 'signals' } = props;
+  const { signals, doc, name = 'signals', expand = 1 } = props;
   const stream = signals?.stream.value;
+
   const field = {
     camera: mediaField('camera:device', signals?.camera?.value),
     audio: mediaField('audio:device', signals?.audio?.value),
+    doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
+    stream: `media:stream`,
   };
-
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
+  const data = {
+    [field.doc]: Obj.truncateStrings(doc?.current),
+    [field.camera.label]: field.camera.value,
+    [field.audio.label]: field.audio.value,
+    [field.stream]: Info.stream(stream),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <ObjectView
-        theme={theme.name}
-        name={name}
-        data={{
-          [field.camera.label]: field.camera.value,
-          [field.audio.label]: field.audio.value,
-          stream: Info.stream(stream),
-        }}
-        style={{ marginTop: 5 }}
-        expand={1}
-      />
-    </div>
+    <Crdt.UI.Dev.ObjectView
+      name={name}
+      doc={doc}
+      append={data}
+      expand={expand}
+      lenses={props.lenses}
+      style={props.style}
+      theme={props.theme}
+    />
   );
 };
 
@@ -54,7 +48,7 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
 function mediaField(labelPrefix?: string, info?: MediaDeviceInfo) {
   let label = `${labelPrefix}`;
   if (info?.deviceId) label = `${label}:#${info.deviceId.slice(0, 4)}`;
-  return { label, value: Obj.trimStringsDeep(Media.toObject(info), 15) };
+  return { label, value: Obj.truncateStrings(Media.toObject(info), 15) };
 }
 
 const Info = {

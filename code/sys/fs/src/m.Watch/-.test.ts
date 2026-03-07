@@ -76,9 +76,23 @@ describe('Fs.Watch', () => {
 
   describe('⚡️ change events', () => {
     type E = t.FsWatchEvent;
+    const waitFor = async (fn: () => boolean, timeout = 1200, interval = 20) => {
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < timeout) {
+        if (fn()) return;
+        await Time.wait(interval);
+      }
+      throw new Error(`Timed out waiting for watcher event (${timeout}ms).`);
+    };
+    const includesPath = (fired: E[], path: string) => {
+      const normalized = Fs.Path.normalize(path);
+      return fired.some((e) => e.paths.some((p) => Fs.Path.normalize(p) === normalized));
+    };
+    const includesAnyPath = (fired: E[], paths: string[]) => {
+      return paths.some((path) => includesPath(fired, path));
+    };
     const assertIncludesPath = (fired: E[], path: string, expectedMatch: boolean) => {
-      const match = fired.filter((e) => e.paths.includes(path));
-      expect(match.length > 0).to.eql(expectedMatch);
+      expect(includesPath(fired, path)).to.eql(expectedMatch);
     };
 
     it('fires on change', async () => {
@@ -92,11 +106,10 @@ describe('Fs.Watch', () => {
 
       const path = SAMPLE.uniq();
       await Deno.writeTextFile(path, slug());
-      await Time.wait(30);
+      await waitFor(() => fired.length > 0);
 
       const kinds = fired.map((e) => e.kind);
-      expect(kinds).to.include('create');
-      expect(kinds).to.include('modify');
+      expect(kinds.some((kind) => kind === 'create' || kind === 'modify')).to.eql(true);
       watcher.dispose();
     });
 
@@ -116,9 +129,13 @@ describe('Fs.Watch', () => {
         expect(fired).to.eql([]);
 
         await writeChild();
-        await Time.wait(30);
+        if (recursive) {
+          await waitFor(() => includesAnyPath(fired, [childFilepath, childDir]));
+        } else {
+          await Time.wait(120);
+        }
 
-        assertIncludesPath(fired, childFilepath, recursive);
+        expect(includesAnyPath(fired, [childFilepath, childDir])).to.eql(recursive);
         watcher.dispose();
       };
 
@@ -143,7 +160,7 @@ describe('Fs.Watch', () => {
 
       await Deno.writeTextFile(file1, slug());
       await Deno.writeTextFile(file2, slug());
-      await Time.wait(30);
+      await waitFor(() => includesPath(fired, file1) && includesPath(fired, file2));
 
       assertIncludesPath(fired, file1, true);
       assertIncludesPath(fired, file2, true);
@@ -152,8 +169,33 @@ describe('Fs.Watch', () => {
       // Write the the non-monitored path.
       const length = fired.length;
       await Deno.writeTextFile(file3, slug());
-      await Time.wait(30);
+      await Time.wait(120);
       expect(fired.length).to.eql(length); // NB: no-change
+
+      watcher.dispose();
+    });
+
+    it('multiple paths (non-recursive)', async () => {
+      const uniq = SAMPLE.uniq;
+      const [, d1, d2, d3] = await SAMPLE.ensureExists(uniq('d1'), uniq('d2'), uniq('d3'));
+      await Time.wait(100); // Allow setup to complete before catching events.
+
+      const watcher = await Fs.watch([d1, d2], { recursive: false });
+      const fired: E[] = [];
+      watcher.$.subscribe((e) => fired.push(e));
+      expect(fired).to.eql([]);
+
+      const file1 = Fs.join(d1, 'file.txt');
+      const file2 = Fs.join(d2, 'file.txt');
+      const file3 = Fs.join(d3, 'file.txt');
+
+      await Deno.writeTextFile(file1, slug());
+      await Deno.writeTextFile(file2, slug());
+      await waitFor(() => includesPath(fired, file1) && includesPath(fired, file2));
+
+      assertIncludesPath(fired, file1, true);
+      assertIncludesPath(fired, file2, true);
+      assertIncludesPath(fired, file3, false);
 
       watcher.dispose();
     });

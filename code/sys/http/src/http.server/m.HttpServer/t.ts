@@ -15,6 +15,7 @@ export type HttpServerLib = {
   readonly Hono: typeof Hono;
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;
+  forceDirSlash(root: string, strip?: string): t.HonoMiddlewareHandler;
   create(options?: t.HttpServerCreateOptions): HonoApp;
   options(args?: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;

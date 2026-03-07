@@ -7,11 +7,21 @@ export type EnvLib = Readonly<{
   Is: t.EnvIsLib;
 
   /** Creates a reader for accessing env-vars. */
-  load(): Promise<Env>;
+  load(options?: EnvLoadOptions): Promise<Env>;
 
   /** Initializes for known environments (eg. "VSCode"). */
-  init(): Promise<void>;
+  init(opts?: { silent?: boolean }): Promise<void>;
 }>;
+
+export type EnvLoadOptions = {
+  /** Base directory for loading `.env` files (defaults to current working directory). */
+  cwd?: t.StringDir;
+
+  /** `.env` file lookup strategy. */
+  search?: EnvLoadSearch;
+};
+
+export type EnvLoadSearch = 'cwd' | 'upward';
 
 /**
  * Reads env-vars from either a [.env] file if present or

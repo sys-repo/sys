@@ -1,0 +1,54 @@
+import { type t, Fs, pkg, Schema, Str, Yaml } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
+import { __NAME__Tool } from '../t.namespace.ts';
+import { __NAME__YamlErrorCode, validate__NAME__YamlText } from './u.validate.ts';
+
+const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
+const CONFIG_DIR = `-config/${ROOT}.${__NAME__Tool.ID}` satisfies t.__NAME__Tool.ConfigYaml.DirName;
+const CONFIG_EXT = '.yaml' satisfies t.__NAME__Tool.ConfigYaml.Ext;
+
+export const __NAME__Fs = {
+  dir: CONFIG_DIR,
+  ext: CONFIG_EXT,
+
+  fileOf(configName: string): t.StringPath {
+    return `${CONFIG_DIR}/${configName}${CONFIG_EXT}`;
+  },
+
+  initialYaml(configName: string): string {
+    return Str.dedent(
+      `
+      name: ${configName}
+      `,
+    ).trimStart();
+  },
+
+  async ensureInitialYaml(path: t.StringPath, configName: string) {
+    await Fs.ensureDir(Fs.dirname(path));
+    if (await Fs.exists(path)) return;
+    await Fs.write(path, __NAME__Fs.initialYaml(configName), { force: false });
+  },
+
+  async validateYaml(path: t.StringPath): Promise<t.__NAME__Tool.ConfigYaml.YamlCheck> {
+    if (!(await Fs.exists(path))) {
+      const err = Yaml.Error.synthetic({
+        message: '__NAME__ YAML file does not exist.',
+        code: __NAME__YamlErrorCode,
+        pos: [0, 0],
+      });
+      return { ok: false, errors: Schema.Error.fromYaml([err]) };
+    }
+
+    const read = await Fs.readText(path);
+    if (!read.ok) {
+      const err = Yaml.Error.synthetic({
+        message: 'Unable to read __NAME__ YAML file.',
+        code: __NAME__YamlErrorCode,
+        pos: [0, 0],
+      });
+      return { ok: false, errors: Schema.Error.fromYaml([err]) };
+    }
+
+    return validate__NAME__YamlText(read.data ?? '');
+  },
+} as const;

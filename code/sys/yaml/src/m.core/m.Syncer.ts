@@ -1,6 +1,7 @@
 import { YAMLError } from 'yaml';
 import { type t, Arr, Immutable, Is, Obj, Rx } from './common.ts';
 import { parseAst } from './u.parse.ts';
+import { toJS } from './u.toJS.ts';
 
 type S = t.YamlLib['syncer'];
 type O = Record<string, unknown>;
@@ -41,10 +42,13 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     text: { before: '', after: '' },
     errors: [],
   };
+  let _emitted = false;
+
   const emitChange = (e: Omit<TResult, 'rev' | 'ok'>) => {
     rev += 1;
     _current = { ...e, ok: isOk(e), rev } satisfies TResult;
     $$.next(_current);
+    _emitted = true;
   };
 
   /**
@@ -82,6 +86,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     const after = sourceInput;
     _before = after;
 
+    if (_emitted && after === before) return;
+
     errors.clear();
     addPathErrors(); // Re-assert structural errors every time.
 
@@ -97,7 +103,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     if (ast.errors.length > 0) ast.errors.forEach((err) => errors.add(err));
 
     let ops: t.ObjDiffOp[] = [];
-    const value = ast.errors.length === 0 ? (ast.toJS() as t.YamlValue<T>) : undefined;
+    const value = ast.errors.length === 0 ? (toJS(ast).data as t.YamlValue<T>) : undefined;
 
     const targetPath = path.target ?? [];
     if (ast.errors.length === 0 && targetPath.length > 0) {
@@ -107,6 +113,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
           if (Is.record(value) && Is.record(targetValue)) {
+            // `diff` mutates targetValue in place; record ops for observers:
             const diff = Obj.Path.Mutate.diff(value, targetValue);
             ops.push(...diff.ops);
           } else {

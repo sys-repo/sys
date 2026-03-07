@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DocumentId } from '@sys/driver-automerge/web/ui';
-import { Monaco } from '@sys/driver-monaco';
+import { Monaco } from '../../../m.Monaco/mod.ts';
 
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
@@ -27,7 +27,7 @@ export default Spec.describe(D.displayName, async (e) => {
           repo,
           signals: { doc },
           initial: { text: '' },
-          localstorage: STORAGE_KEY.DEV,
+          storageKey: STORAGE_KEY.DEV,
         }}
         {...props}
       />
@@ -94,8 +94,16 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
     const bus$ = debug.bus$;
-
-    const yaml = Monaco.Yaml.useYaml({ bus$, monaco, editor, doc, path, errorMarkers: true });
+    const debounce = v.debounce ? 40 : 0;
+    const yaml = Monaco.Yaml.useYaml({
+      bus$,
+      monaco,
+      editor,
+      doc,
+      path,
+      debounce,
+      errorMarkers: true,
+    });
     if (yaml.current?.cursor.path.length === 0) return null;
 
     return (
@@ -137,9 +145,9 @@ export default Spec.describe(D.displayName, async (e) => {
       .padding(0)
       .render(() => {
         return (
-          <Crdt.UI.Repo.SyncEnabledSwitch
+          <Crdt.UI.Repo.SyncSwitch
             repo={repo}
-            localstorage={STORAGE_KEY.DEV}
+            storageKey={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />
         );

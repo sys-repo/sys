@@ -17,10 +17,11 @@ export type MonacoCtx = {
  * Code editor library:
  */
 export type MonacoLib = {
+  readonly Is: t.EditorIsLib;
   readonly Bus: t.EditorBusLib;
   readonly Editor: React.FC<t.MonacoEditorProps>;
-  readonly Is: t.EditorIsLib;
   readonly Crdt: t.EditorCrdtLib;
+  readonly Prompt: t.EditorPrompt.Lib;
   readonly Yaml: t.EditorYamlLib;
   readonly Link: t.EditorLinkLib;
   readonly Error: t.EditorErrorLib;

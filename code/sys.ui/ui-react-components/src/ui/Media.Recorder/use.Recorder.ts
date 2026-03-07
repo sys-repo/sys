@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type t, Is, logInfo } from './common.ts';
+import { captureInfo } from './u.captureInfo.ts';
 import { createMediaRecorder } from './u.createMediaRecorder.ts';
 import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 
@@ -14,12 +15,16 @@ import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const { onStatusChange } = options;
 
+  /**
+   * Refs:
+   */
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>(undefined);
   const optionsRef = useRef<t.MediaRecorderOptions>(options);
+  const onStatusChangeRef = useRef<t.MediaRecorderStatusHandler>(undefined);
   const stopResolversRef = useRef<((e: t.MediaRecorderHookStopped) => void)[]>([]);
 
-  const [status, setStatus] = useState<t.MediaRecorderStatus>('Idle');
+  const [state, setState] = useState<t.MediaRecorderState>('Idle');
   const [bytes, setBytes] = useState(0);
   const [blob, setBlob] = useState<Blob>();
   const timer = useElapsedTimer();
@@ -33,22 +38,23 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
    * Effects: Keep refs in-sync.
    */
   useEffect(() => void (optionsRef.current = options), [options]);
+  useEffect(() => void (onStatusChangeRef.current = onStatusChange), [onStatusChange]);
 
   /**
    * Effect: fire status events.
    */
   useEffect(() => {
-    if (!onStatusChange) return;
-    const is = wrangle.is(status);
-    onStatusChange({
-      status,
+    const cb = onStatusChangeRef.current;
+    cb?.({
+      state,
       elapsed: timer.elapsed,
-      is: wrangle.is(status),
+      is: wrangle.is(state),
       bytes: is.started ? bytes : (blob?.size ?? 0),
       bitrate: { video: vbpsRef.current, audio: abpsRef.current },
       capture: captureRef.current,
+      mimeType: recorderRef.current?.mimeType ?? '',
     });
-  }, [onStatusChange, status, bytes, blob, timer.elapsed]);
+  }, [state, bytes, blob, timer.elapsed]);
 
   /**
    * Helper: Recorder API.
@@ -59,15 +65,15 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     const opts = optionsRef.current;
     const recorder = (recorderRef.current = createMediaRecorder(stream, opts));
 
-    logInfo('✨ created MediaRecorder');
-    logInfo(`- bitrate:video: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
-    logInfo(`- bitrate:audio: ${recorder.audioBitsPerSecond / 1_000} kbps`);
-    logInfo('- stream:capture', wrangle.capture(stream));
-
     const toBitrate = (v: number, defaultValue: number = 0) => (Is.number(v) ? v : defaultValue);
     vbpsRef.current = toBitrate(recorder.videoBitsPerSecond, opts.videoBitsPerSecond);
     abpsRef.current = toBitrate(recorder.audioBitsPerSecond, opts.audioBitsPerSecond);
-    captureRef.current = wrangle.capture(stream);
+    captureRef.current = captureInfo(stream);
+
+    logInfo('✨ created MediaRecorder');
+    logInfo(`- bitrate:video: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
+    logInfo(`- bitrate:audio: ${recorder.audioBitsPerSecond / 1_000} kbps`);
+    logInfo('- stream:capture', captureRef.current);
 
     recorder.ondataavailable = (e) => {
       const bytes = e.data.size;
@@ -96,7 +102,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
    * API Methods:
    */
   const start = () => {
-    if (!stream || status === 'Recording') return api;
+    if (!stream || state === 'Recording') return api;
     if (!recorderRef.current) init();
 
     timer.reset(); // fresh run
@@ -104,14 +110,14 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
 
     setBytes(0);
     recorderRef.current!.start(250);
-    setStatus('Recording');
+    setState('Recording');
   };
 
   const pause = () => {
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.pause();
       timer.end(true); // accumulate elapsed up to pause; stop ticking
-      setStatus('Paused');
+      setState('Paused');
     }
   };
 
@@ -119,46 +125,48 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     if (recorderRef.current?.state === 'paused') {
       recorderRef.current.resume();
       timer.begin();
-      setStatus('Recording');
+      setState('Recording');
     }
   };
 
   const stop = () => {
     type R = t.MediaRecorderHookStopped;
-    if (!recorderRef.current || status === 'Idle') {
+    if (!recorderRef.current || state === 'Idle') {
       return Promise.resolve<R>({ blob: undefined, bytes: 0 });
     } else {
       return new Promise<R>((resolve) => {
         stopResolversRef.current.push(resolve);
         recorderRef.current?.stop();
         timer.end(true); // ← accumulate: fold in any remaining active segment.
-        setStatus('Stopped');
+        setState('Stopped');
       });
     }
   };
 
   const reset = async () => {
     if (recorderRef.current) await stop();
+    timer.reset();
 
+    // Refs:
     chunksRef.current = [];
     stopResolversRef.current = [];
     recorderRef.current = undefined;
-    setStatus('Idle');
-    setBlob(undefined);
-    setBytes(0);
     vbpsRef.current = 0;
     abpsRef.current = 0;
     captureRef.current = {};
 
-    timer.reset();
+    // State:
+    setState('Idle');
+    setBlob(undefined);
+    setBytes(0);
   };
 
   /**
    * Public API:
    */
-  const is = wrangle.is(status);
+  const is = wrangle.is(state);
   const api: t.MediaRecorderHook = {
-    status,
+    state,
     is,
     get bytes() {
       if (is.started) return bytes;
@@ -187,23 +195,13 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
  * Helpers:
  */
 const wrangle = {
-  is(status: t.MediaRecorderStatus): t.MediaRecorderHookFlags {
+  is(status: t.MediaRecorderState): t.MediaRecorderHookFlags {
     return {
       idle: status === 'Idle',
       recording: status === 'Recording',
       paused: status === 'Paused',
       started: status === 'Paused' || status === 'Recording',
       stopped: status === 'Stopped',
-    };
-  },
-
-  capture(stream: MediaStream): t.MediaRecorderCapture {
-    const s = stream.getVideoTracks?.()[0]?.getSettings?.() ?? {};
-    return {
-      width: s.width,
-      height: s.height,
-      frameRate: s.frameRate,
-      aspectRatio: s.aspectRatio,
     };
   },
 } as const;

@@ -1,8 +1,9 @@
-import React from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { useScopedStyles } from './use.Styles.ts';
 
-export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
+export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   const { debug = false } = props;
+  const { componentAttr } = useScopedStyles(props); // ← 🐷 delete if not using CSS scoped styles.
 
   /**
    * Render:
@@ -10,14 +11,14 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: Color.ruby(0),
       color: theme.fg,
       padding: 10,
     }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={componentAttr}>
       <div>{`🐷 ${D.displayName}`}</div>
     </div>
   );

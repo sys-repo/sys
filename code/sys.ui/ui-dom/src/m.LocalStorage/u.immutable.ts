@@ -3,14 +3,15 @@ import { type t, Immutable, Is, Obj, pkg } from '../common.ts';
 const REGISTRY_KEY = Symbol.for(`${pkg.name}:localStorageImmutable`);
 const global = globalThis as any;
 
-type Registry = Map<string, R>;
-type R = t.LocalStorageImmutable<any>;
-const registry: Registry = global[REGISTRY_KEY] ?? (global[REGISTRY_KEY] = new Map<string, R>());
+type RegistryItem = t.LocalStorageImmutable<t.JsonMapLikeU>;
+type Registry = Map<string, RegistryItem>;
+const registry: Registry =
+  global[REGISTRY_KEY] ?? (global[REGISTRY_KEY] = new Map<string, RegistryItem>());
 
 /**
  * Factory: Immutable<T> interface to local-storage.
  */
-export function immutable<T extends t.JsonMapU>(
+export function immutable<T extends t.JsonMapLikeU>(
   key: string,
   initial: T,
 ): t.LocalStorageImmutable<T> {

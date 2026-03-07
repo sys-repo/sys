@@ -1,7 +1,9 @@
 import type { ManualChunksOption } from 'rollup';
-import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { visualizer } from 'rollup-plugin-visualizer';
 
-import { type t, asArray, Path, R, Delete } from './common.ts';
+import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { type t, Is, asArray, Delete, Path, R } from './common.ts';
+import { createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
@@ -33,11 +35,34 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     options.chunks(chunker);
   }
 
-  /**
-   * Config.
-   */
   const format = 'es';
+  const output: t.Rollup.OutputOptions = {
+    format,
+    manualChunks,
+    chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
+    assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
+    entryFileNames(chunkInfo) {
+      if (chunkInfo.name === 'sw') return 'sw.js';
+      return 'pkg/-entry.[hash].js';
+    },
+  };
+
+  /**
+   * Plugins
+   */
   const plugins = await commonPlugins(options.plugins);
+  if (ws && (options.plugins?.deno ?? true)) {
+    plugins.unshift(createSpecifierRewrite(ws.file));
+  }
+  if (Boolean(options.visualizer)) {
+    // NB: the visualizer must be added last.
+    const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
+    plugins.push(visualizer({ filename }));
+  }
+
+  /**
+   * Config:
+   */
   const build: t.ViteBuildEnvironmentOptions = {
     target: 'esnext',
     minify,
@@ -45,25 +70,21 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     outDir,
     rollupOptions: {
       input: Delete.undefined<{}>({ main, sw }),
-      output: {
-        format,
-        manualChunks,
-        chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
-        assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
-        entryFileNames(chunkInfo) {
-          if (chunkInfo.name === 'sw') return 'sw.js';
-          return 'pkg/-entry.[hash].js';
-        },
-      },
+      output,
     },
   };
 
   const res: t.ViteUserConfig = {
     root,
+    envDir: paths.cwd,
     publicDir,
     base: paths.app.base,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
-    worker: { format },
+    worker: {
+      format,
+      plugins: () => plugins,
+      rollupOptions: { output },
+    },
     get build() {
       return build;
     },
@@ -103,7 +124,6 @@ const wrangle = {
 
   path(envKey: string) {
     const path = Deno.env.get(envKey) ?? '';
-    // if (!path) throw new Error(`Path at env-key "${envKey}" not found`);
     return path ? Path.resolve(path) : '';
   },
 } as const;

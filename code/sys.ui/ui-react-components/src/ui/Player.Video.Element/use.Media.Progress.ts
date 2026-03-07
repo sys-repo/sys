@@ -1,61 +1,58 @@
 import { useEffect, useMemo, useState } from 'react';
-import { type t, Rx } from './common.ts';
+import { type t } from './common.ts';
 import { Crop } from './m.Crop.ts';
+import { useLatestRef } from './use.LatestRef.ts';
+import { useMediaProgressEvents } from './use.Media.ProgressEvents.ts';
 
 export function useMediaProgress(
   videoRef: React.RefObject<HTMLVideoElement | null>,
-  props: Pick<t.VideoElementProps, 'src' | 'crop' | 'onTimeUpdate' | 'onDurationChange'>,
+  props: Pick<t.VideoElementProps, 'src' | 'slice' | 'onTimeUpdate' | 'onDurationChange'>,
 ) {
-  const { src, crop, onTimeUpdate, onDurationChange } = props;
+  const { src, slice, onTimeUpdate, onDurationChange } = props;
 
   /**
-   * Hooks:
+   * State:
    */
   const [currentTimeFull, setCurrentTimeFull] = useState(0);
   const [durationFull, setDurationFull] = useState(0);
-  const lens = useMemo<t.VideoCropLens>(() => {
-    return Crop.lens(crop, durationFull);
-  }, [crop, durationFull]);
 
   /**
-   * Effect: Reset when the `src` or `crop` changes.
+   * Callback refs:
+   * Avoid effect re-runs caused by changing function identities.
+   */
+  const onTimeUpdateRef = useLatestRef(onTimeUpdate);
+  const onDurationChangeRef = useLatestRef(onDurationChange);
+
+  /**
+   * Lens (UI-facing; stable projection).
+   */
+  const lens = useMemo<t.VideoCropLens>(() => {
+    return Crop.lens(slice, durationFull);
+  }, [slice, durationFull]);
+
+  /**
+   * Effect: reset on source or slice change.
    */
   useEffect(() => {
     setCurrentTimeFull(0);
     setDurationFull(0);
-    onTimeUpdate?.({ secs: 0 });
-    onDurationChange?.({ secs: 0 });
-  }, [src, crop]);
+    onTimeUpdateRef.current?.({ secs: 0 });
+    onDurationChangeRef.current?.({ secs: 0 });
+  }, [src, slice]);
 
   /**
-   * Effect: listeners:
+   * Effect: media listeners.
+   * NOTE: Lens is rebuilt per-tick; not a dependency.
    */
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const fullDuration = Number.isFinite(el.duration) ? el.duration : 0;
-      const nextLens = Crop.lens(crop, fullDuration); // NB: rebuild with fresh duration; memo/state may still be stale this tick.
-
-      setDurationFull(fullDuration);
-      onDurationChange?.({ secs: nextLens.duration.cropped });
-
-      const secsFull = Math.max(0, Math.min(el.currentTime, fullDuration));
-      const secsCropped = nextLens.toCropped(secsFull);
-
-      setCurrentTimeFull(secsFull);
-      onTimeUpdate?.({ secs: secsCropped });
-    };
-
-    const { dispose, signal } = Rx.abortable();
-    el.addEventListener('loadedmetadata', update, { signal });
-    el.addEventListener('durationchange', update, { signal });
-    el.addEventListener('timeupdate', update, { signal });
-
-    update();
-    return dispose;
-  }, [videoRef, src, crop, lens, onTimeUpdate, onDurationChange]);
+  useMediaProgressEvents({
+    videoRef,
+    src,
+    slice,
+    onTimeUpdateRef,
+    onDurationChangeRef,
+    setCurrentTimeFull,
+    setDurationFull,
+  });
 
   /**
    * API:
@@ -64,6 +61,9 @@ export function useMediaProgress(
     lens,
     currentTime: lens.toCropped(currentTimeFull),
     duration: lens.duration.cropped,
-    full: { currentTime: currentTimeFull, duration: durationFull },
+    full: {
+      currentTime: currentTimeFull,
+      duration: durationFull,
+    },
   } as const;
 }

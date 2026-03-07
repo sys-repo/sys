@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { type t, Path, Cli } from './common.ts';
 import { cwd } from './u.cwd.ts';
 import { walk } from './u.walk.ts';
 
@@ -11,8 +11,12 @@ type Node = {
 export const Fmt: t.FsFmtLib = {
   tree(paths, opt = {}) {
     const options = wrangle.options(opt);
+    const rels = [...paths]
+      .filter(Boolean)
+      .map(normalizeRel)
+      .filter((path) => (options.filter ? options.filter(path) : true))
+      .sort();
 
-    const rels = [...paths].filter(Boolean).map(normalizeRel).sort();
     const root: Node = { name: '', files: [], dirs: new Map() };
     for (const p of rels) insert(root, p.split('/'));
 
@@ -71,16 +75,15 @@ function visit(
 
   dirNames.forEach((d, i) => {
     const isLast = i === dirNames.length - 1 && fileNames.length === 0;
-    const branch = isLast ? '└─ ' : '├─ ';
-    out.push(`${pad}${prefix}${branch}${d}/`);
+    const branch = Cli.Fmt.Tree.branch(isLast);
+    out.push(`${pad}${prefix}${branch} ${d}/`);
     const nextPrefix = prefix + (isLast ? '   ' : '│  ');
     visit(node.dirs.get(d)!, nextPrefix, depth + 1, opt, out, pad);
   });
 
-  fileNames.forEach((f, i) => {
-    const isLast = i === fileNames.length - 1;
-    const branch = isLast ? '└─ ' : '├─ ';
-    out.push(`${pad}${prefix}${branch}${f}`);
+  fileNames.forEach((f, i, total) => {
+    const branch = Cli.Fmt.Tree.branch([i, total]);
+    out.push(`${pad}${prefix}${branch} ${f}`);
   });
 }
 

@@ -95,8 +95,8 @@ const wrangle = {
 
   /**
    * Border width per edge (px).
-   * – If that edge’s margin > 0 → 1 px (current behaviour)
-   * – If the margin is 0        → 0 px (removes the "ghost" pixel)
+   * - If that edge’s margin > 0 → 1 px (current behaviour)
+   * - If the margin is 0        → 0 px (removes the "ghost" pixel)
    */
   borderWidth(props: P) {
     const { borderWidth = 1 } = props;
@@ -121,6 +121,10 @@ const wrangle = {
     if (hasW) out['--pct-w'] = String(size.width);
     if (hasH) out['--pct-h'] = String(size.height);
 
+    if (Is.number(size.maxWidth)) out['--pct-w-max'] = String(size.maxWidth);
+    if (Is.number(size.maxHeight)) out['--pct-h-max'] = String(size.maxHeight);
+
+    // Revert to the simpler, readable rule:
     out.containerType = hasH ? 'size' : 'inline-size';
     return out;
   },
@@ -131,15 +135,13 @@ const wrangle = {
     const hasW = Is.number(size.width);
     const hasH = Is.number(size.height);
     const hasAR = size.aspectRatio != null;
-
     const css: t.CssProps = { placeSelf: 'center' };
-    if (hasW) css.inlineSize = 'calc(var(--pct-w) * 1cqi)';
-    if (hasH) css.blockSize = 'calc(var(--pct-h) * 1cqb)';
 
-    // Only attach aspectRatio when available values are present:
-    // - With width only   →  compute height from aspect-ratio
-    // - With height only  →  compute width from aspect-ratio
-    // - With both axes    →  explicit sizes win; ignore aspect-ratio
+    // Simple targets (include optional max caps blended into the target)
+    if (hasW) css.inlineSize = 'calc(min(var(--pct-w), var(--pct-w-max, 100)) * 1cqi)';
+    if (hasH) css.blockSize = 'calc(min(var(--pct-h), var(--pct-h-max, 100)) * 1cqb)';
+
+    // Aspect ratio only when a single axis is provided (unchanged)
     if (hasAR && !(hasW && hasH)) {
       css.aspectRatio = String(size.aspectRatio);
     }

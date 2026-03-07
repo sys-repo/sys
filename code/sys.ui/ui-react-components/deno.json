@@ -1,15 +1,14 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.106",
+  "version": "0.0.198",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "test": "deno test -P=testset",
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
+    "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
-    "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",
-    "backup": "deno run -P=build ./-scripts/-main.ts --cmd=backup",
     "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
@@ -18,7 +17,9 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./specs": "./src/-test/-specs.ts",
-    "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts"
+    "./fonts": "./src/m.webfonts/mod.ts",
+    "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts",
+    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts"
   },
   "license": "MIT"
 }

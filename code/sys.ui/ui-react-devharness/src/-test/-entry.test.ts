@@ -1,7 +1,6 @@
-import { DomMock } from '@sys/testing/server';
-import { describe, expect, it } from '../-test.ts';
+import { DomMock, afterAll, beforeAll, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
-import { Specs } from './entry.Specs.ts';
+import { Specs } from './-specs.ts';
 
 /**
  * Sample of testing the visual UI specs headlessly on the server.
@@ -11,8 +10,9 @@ import { Specs } from './entry.Specs.ts';
  *    assertions within the visual specs, to be included and monitored
  *    within the CI pipeline.
  */
-describe('visual specs', { sanitizeOps: false, sanitizeResources: false }, () => {
-  DomMock.polyfill();
+describe('visual specs', () => {
+  DomMock.init({ beforeAll, afterAll });
+
   it('run', async () => {
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(true);

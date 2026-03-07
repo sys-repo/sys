@@ -1,6 +1,6 @@
 /**
- * Tools for working with Observables (via `rxjs`).
  * @module
+ * Tools for working with Observables (via `rxjs`).
  *
  * @example
  * ```ts

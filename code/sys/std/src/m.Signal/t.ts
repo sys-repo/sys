@@ -1,12 +1,10 @@
 import type Preact from '@preact/signals-core';
 import type { t } from './common.ts';
 
+export type * from './t.effect.ts';
 export type * from './t.walk.ts';
 
 type O = Record<string, unknown>;
-
-/** Callback passed into a signal effect. */
-export type SignalEffectFn = () => void | (() => void);
 
 /**
  * Reactive Signals.
@@ -22,7 +20,7 @@ export type SignalLib = {
   create: typeof Preact.signal;
 
   /** Create an effect to run arbitrary code in response to signal changes. */
-  effect: typeof Preact.effect;
+  effect: t.SignalEffectListener;
 
   /** Combine multiple value updates into one "commit" at the end of the provided callback. */
   batch: typeof Preact.batch;
@@ -43,6 +41,7 @@ export type SignalLib = {
    * - Replaces each `Signal<X>` with its current `.value`.
    * - Traverses arrays and plain objects recursively.
    * - Skips accessors by default (avoids invoking getters).
+   * - Function handling defaults to stringifying; set `func` to control behavior.
    * - Guards against cycles and deep recursion.
    *
    * Intended for debug/inspection: produces a safe, non-reentrant
@@ -65,7 +64,7 @@ export type SignalValueHelpersLib = {
   toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
-  cycle<T>(signal: t.Signal<T | undefined>, values: T[], forceValue?: T): T;
+  cycle<T>(signal: t.Signal<T | undefined>, values: t.Ary<T>, forceValue?: T): T;
 
   /**
    * Read the current value from a readable signal abstraction.
@@ -104,4 +103,14 @@ export type SignalToObjectOptions = {
   depth?: number;
   /** Include accessor (getter) properties. Default: false (skip). */
   includeGetters?: boolean;
+  /**
+   * Function handling mode.
+   * - "strip": omit functions
+   * - "include": keep functions as-is
+   * - "stringify": replace with "[function]"
+   * - true: alias for "include"
+   * - false: alias for "strip"
+   * Default: "stringify"
+   */
+  func?: 'strip' | 'include' | 'stringify' | boolean;
 };

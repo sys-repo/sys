@@ -24,11 +24,17 @@ export type StringUrl = string;
 /** String URL that references a canonical type-definition on the web. */
 export type StringTypeUrl = string;
 
+/** String that represents a MIME media type (e.g. "text/plain", "application/json"). */
+export type StringMimeType = string;
+
 /** String that represents a URL route (eg: '/foo/:bar') */
 export type StringUrlRoute = string;
 
 /** String that represents a unique identifier. */
 export type StringId = string;
+
+/** String that represents a reference to something else (URL, hash, or URN etc). */
+export type StringRef = string;
 
 /** String that represents a key into a field/map/object. */
 export type StringKey = string;
@@ -38,6 +44,12 @@ export type StringSemver = string;
 
 /** String that represents a <name> of something. */
 export type StringName = string;
+
+/** String that represents a URL hostname. */
+export type StringHostname = string;
+
+/** String contains a regular-expression */
+export type StringReg = string;
 
 /** String that represents a `tx` (transaction identifier). */
 export type StringTx = string;
@@ -100,3 +112,9 @@ export type StringHttpDate = string;
  *    npm:rxjs@7
  */
 export type StringModuleSpecifier = string;
+
+/**
+ * CRDT document reference for this layout's config/state.
+ * Accepts "crdt:create" | "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
+ */
+export type StringCrdtRef = string;

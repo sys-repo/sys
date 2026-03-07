@@ -4,6 +4,7 @@ import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 import { type t, Color, Crdt, Cropmarks, css, D } from './common.ts';
 import { Id } from './ui.Id.tsx';
 import { NotReady } from './ui.NotReady.tsx';
+import { normalizeSourcePath } from './u.ts';
 
 type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & {
   ready: boolean;
@@ -14,13 +15,14 @@ type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & {
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { debug = false, ready, repo, signals, path, editor = {} } = props;
+  const { debug = false, ready, repo, signals, editor = {} } = props;
   const doc = signals.doc.value;
+  const path = normalizeSourcePath(props.path);
 
   const DOC = {
     visible: props.documentId?.visible ?? D.documentId.visible,
     readOnly: props.documentId?.readOnly ?? D.documentId.readOnly,
-    localstorage: props.documentId?.localstorage,
+    storageKey: props.documentId?.storageKey,
     urlKey: props.documentId?.urlKey,
   } as const;
 
@@ -61,7 +63,7 @@ export const Body: React.FC<P> = (props) => {
           repo,
           signals: { doc: signals.doc },
           initial: {},
-          storageKey: DOC.localstorage,
+          storageKey: DOC.storageKey,
           urlKey: DOC.urlKey,
           readOnly: DOC.readOnly,
         }}

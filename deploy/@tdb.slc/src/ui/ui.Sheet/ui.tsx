@@ -16,8 +16,8 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
   delete inherit.children;
 
   return (
-    <SheetBase.View {...inherit} style={props.style}>
+    <SheetBase.UI {...inherit} style={props.style}>
       <div className={styles.body.class}>{props.children}</div>
-    </SheetBase.View>
+    </SheetBase.UI>
   );
 };

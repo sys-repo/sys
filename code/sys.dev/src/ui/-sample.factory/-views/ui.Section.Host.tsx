@@ -1,4 +1,4 @@
-import { Button, Tree } from '@sys/ui-react-components';
+import { Button, TreeView } from '@sys/ui-react-components';
 import React from 'react';
 import { type t, Color, Cropmarks, css, Icons } from '../common.ts';
 
@@ -88,7 +88,7 @@ export const IndexTree: React.FC<IndexTreeProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elBackButton}
-      <Tree.Index.View
+      <TreeView.Index.UI
         theme={theme.name}
         root={root}
         path={path}
@@ -109,7 +109,7 @@ export const IndexTree: React.FC<IndexTreeProps> = (props) => {
 const wrangle = {
   root(input?: O) {
     try {
-      return Tree.Index.Data.Yaml.from(input ?? {});
+      return TreeView.Index.Data.Yaml.from(input ?? {});
     } catch (error) {
       return undefined;
     }

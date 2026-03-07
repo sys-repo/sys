@@ -1,15 +1,20 @@
-import { type t, Num } from './common.ts';
+import { type t, Num, Rx } from './common.ts';
 import { makePosition } from './u.ts';
 
 /**
  * Minimal `ITextModel` mock.
  */
 export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
+  const life = Rx.lifecycle();
+
   // Normalize newlines once so offset/position math is deterministic.
   let text = src.replace(/\r\n/g, '\n');
   let version = 1;
   let language: t.EditorLanguage = 'UNKNOWN';
 
+  /**
+   * URI:
+   */
   const uri: t.Monaco.Uri =
     typeof options.uri === 'string'
       ? ({ toString: () => options.uri } as t.Monaco.Uri)
@@ -167,6 +172,10 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     /* Events: */
     onDidChangeContent,
     onDidChangeLanguage,
+
+    /* Lifecycle: */
+    isDisposed: () => life.disposed,
+    dispose: () => life.dispose(),
 
     /** Testing API: */
     __setLanguageId,

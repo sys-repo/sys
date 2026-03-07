@@ -1,13 +1,13 @@
 /**
- * An animated sliding "sheet" content container.
  * @module
+ * An animated sliding "sheet" content container.
  */
-import type { SheetLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { Signals } from './m.Signals.ts';
-import { Sheet as View } from './ui.tsx';
+import { Sheet as UI } from './ui.tsx';
 
-export const Sheet: SheetLib = {
-  View,
+export const Sheet: t.SheetLib = {
+  UI,
   Signals,
 };

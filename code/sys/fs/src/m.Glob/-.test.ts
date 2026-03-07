@@ -1,4 +1,4 @@
-import { type t, describe, expect, Ignore, it } from '../-test.ts';
+import { type t, describe, expect, Ignore, it, sampleDir } from '../-test.ts';
 import { Fs } from '../m.Fs/mod.ts';
 import { Path } from './common.ts';
 import { Glob } from './mod.ts';
@@ -15,6 +15,24 @@ export const assertPathDepth = (depth: number, dir: t.StringDir, paths: t.String
   });
 };
 
+const sampleTree = async (name: string) => {
+  const fs = sampleDir(name);
+  const dir = fs.dir;
+  await Fs.remove(dir);
+  await Fs.ensureDir(fs.join('a/b'));
+  await Fs.ensureDir(fs.join('c'));
+  await Fs.ensureDir(fs.join('m.Glob'));
+  await Fs.write(fs.join('a/file.txt'), 'a');
+  await Fs.write(fs.join('a/b/deep.txt'), 'b');
+  await Fs.write(fs.join('c/other.md'), 'c');
+  await Fs.write(fs.join('m.Glob/x.txt'), 'x');
+  return {
+    dir,
+    file: fs.join('a/file.txt'),
+    deep: fs.join('a/b/deep.txt'),
+  } as const;
+};
+
 describe('Glob', () => {
   it('API', () => {
     expect(Fs.ls).to.equal(Glob.ls);
@@ -29,22 +47,23 @@ describe('Glob', () => {
 
   describe('find: file pattern matching', () => {
     it('glob.find("**") ← default params', async () => {
-      const base = Fs.resolve();
+      const { dir, file } = await sampleTree('Glob.find.default');
+      const base = Fs.resolve(dir);
       const glob = Fs.glob(base);
       expect(glob.base).to.eql(base);
 
       const matches = await glob.find('**');
-      expect(matches.length).to.be.greaterThan(10);
+      expect(matches.length).to.be.greaterThan(3);
       expect(matches.some((m) => m.isDirectory === true)).to.be.true; // NB: includes directories by default.
       expect(matches.every((m) => Path.Is.absolute(m.path))).to.be.true;
 
-      const self = matches.find((item) => item.path === import.meta.filename);
+      const self = matches.find((item) => item.path === file);
       expect(self?.isFile).to.eql(true);
-      expect(self?.name).to.eql(Fs.Path.basename(import.meta.filename ?? ''));
+      expect(self?.name).to.eql(Fs.Path.basename(file));
     });
 
     it('option: { includeDirs: false }', async () => {
-      const dir = Fs.resolve('src');
+      const { dir } = await sampleTree('Glob.find.includeDirs');
       const glob = Fs.glob(dir);
       const a = await glob.find('**', {});
       const b = await glob.find('**', { includeDirs: false });
@@ -55,7 +74,7 @@ describe('Glob', () => {
     });
 
     it('option: { trimCwd:true }', async () => {
-      const dir = Fs.resolve('src');
+      const { dir } = await sampleTree('Glob.find.trimCwd');
       const glob = Fs.glob(dir);
       const a = await glob.find('**');
       const b = await glob.find('**', { trimCwd: true });
@@ -71,9 +90,8 @@ describe('Glob', () => {
     });
 
     describe('options: {depth}', () => {
-      const dir = Fs.resolve('src');
-
       const test = async (depth: number) => {
+        const { dir } = await sampleTree('Glob.find.depth');
         const glob = Fs.glob(dir);
         const paths = await glob.find('**', { depth });
         assertWalkEntryDepth(depth, dir, paths);
@@ -98,14 +116,14 @@ describe('Glob', () => {
 
   describe('Glob.ls ← (alias: Fs.ls)', () => {
     it('list paths (default: no directories)', async () => {
-      const dir = Fs.resolve('src');
+      const { dir } = await sampleTree('Glob.ls.default');
       const glob = await Fs.glob(dir, { includeDirs: false }).find('**');
       const ls = await Fs.ls(dir);
       expect(ls).to.eql(glob.map((m) => m.path));
     });
 
     it('option: { includeDirs:true } ← override default', async () => {
-      const dir = Fs.resolve('src');
+      const { dir } = await sampleTree('Glob.ls.includeDirs');
       const includeDirs = true;
       const glob = await Fs.glob(dir, { includeDirs }).find('**');
       const ls = await Fs.ls(dir, { includeDirs });
@@ -113,7 +131,7 @@ describe('Glob', () => {
     });
 
     it('option: { trimCwd:true }', async () => {
-      const dir = Fs.resolve('src');
+      const { dir } = await sampleTree('Glob.ls.trimCwd');
       const a = await Fs.ls(dir);
       const b = await Fs.ls(dir, { trimCwd: true });
       expect(a.every((p) => Path.Is.absolute(p))).to.be.true;
@@ -121,8 +139,7 @@ describe('Glob', () => {
     });
 
     it('path to file → [] empty array', async () => {
-      const dir = Fs.resolve('src');
-      const file = Fs.resolve('deno.json');
+      const { dir, file } = await sampleTree('Glob.ls.file');
       expect(await Fs.exists(file)).to.eql(true);
       expect(await Fs.ls(file)).to.eql([]);
     });
@@ -133,8 +150,8 @@ describe('Glob', () => {
     });
 
     it('depth', async () => {
-      const dir = Fs.resolve('src');
       const test = async (depth: number) => {
+        const { dir } = await sampleTree('Glob.ls.depth');
         assertPathDepth(depth, dir, await Fs.ls(dir, { depth }));
       };
       await test(-1);

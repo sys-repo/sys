@@ -12,7 +12,6 @@ export const Sample = {
     const dir = (await Fs.makeTempDir({ prefix })).absolute;
     const path = {
       dir,
-      entry: './pkg/-entry.BEgRUrsO.js',
       get filepath() {
         return Fs.join(dir, 'dist.json');
       },
@@ -30,15 +29,14 @@ export const Sample = {
           await file.dist.delete();
         },
         async ensure() {
-          if (await file.dist.exists()) return;
-          const { dir, entry } = path;
+          const { dir } = path;
           const save = true;
-          await Pkg.Dist.compute({ dir, pkg, entry, save });
+          await Pkg.Dist.compute({ dir, pkg, save });
         },
       },
     } as const;
 
-    await Fs.copyDir(Sample.dir, dir);
+    await Fs.copyDir(Sample.dir, dir, { force: true, throw: true });
     return { path, file } as const;
   },
 } as const;

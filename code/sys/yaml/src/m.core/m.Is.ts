@@ -1,20 +1,15 @@
-import { YAMLError } from 'yaml';
+import { YAMLError, isAlias, isMap, isPair, isScalar, isSeq } from 'yaml';
 import { type t, ERR } from './common.ts';
 
-export const Is: t.YamlIsLib = {
-  parseError(input?: unknown): input is t.YamlError {
-    if (input == null) return false;
-    if (input instanceof YAMLError) return true;
-
-    const e = input as any;
-    if (typeof e === 'object') {
-      if ('pos' in e) return Is.posTuple((e as any).pos);
-      if (e?.name === ERR.PARSE) return true;
-      if (e?.cause?.name === ERR.PARSE) return true;
-    }
-
-    return false;
-  },
+export const YamlIs: t.YamlIsLib = {
+  /**
+   * Value types:
+   */
+  scalar: (input: unknown): input is t.Yaml.Scalar => isScalar(input),
+  map: (input: unknown): input is t.Yaml.Map => isMap(input),
+  seq: (input: unknown): input is t.Yaml.Seq => isSeq(input),
+  pair: (input: unknown): input is t.Yaml.Pair => isPair(input),
+  alias: (input: unknown): input is t.Yaml.Alias => isAlias(input),
 
   posTuple(pos: unknown): pos is [number, number] {
     return (
@@ -27,6 +22,26 @@ export const Is: t.YamlIsLib = {
     );
   },
 
+  /**
+   * Parsing:
+   */
+  parseError(input?: unknown): input is t.YamlError {
+    if (input == null) return false;
+    if (input instanceof YAMLError) return true;
+
+    const e = input as any;
+    if (typeof e === 'object') {
+      if ('pos' in e) return YamlIs.posTuple((e as any).pos);
+      if (e?.name === ERR.PARSE) return true;
+      if (e?.cause?.name === ERR.PARSE) return true;
+    }
+
+    return false;
+  },
+
+  /**
+   * Errors:
+   */
   diagnostic(input?: unknown): input is t.YamlDiagnostic {
     const d = input as t.YamlDiagnostic;
     if (!d || typeof d.message !== 'string') return false;
@@ -57,10 +72,10 @@ export const Is: t.YamlIsLib = {
    * Array variants:
    */
   parseErrorArray(input?: unknown): input is t.YamlError[] {
-    return Array.isArray(input) && input.every((v) => Is.parseError(v));
+    return Array.isArray(input) && input.every((v) => YamlIs.parseError(v));
   },
 
   diagnosticArray(input?: unknown): input is t.YamlDiagnostic[] {
-    return Array.isArray(input) && input.every((v) => Is.diagnostic(v));
+    return Array.isArray(input) && input.every((v) => YamlIs.diagnostic(v));
   },
 };

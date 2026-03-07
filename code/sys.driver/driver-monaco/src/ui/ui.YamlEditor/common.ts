@@ -1,7 +1,7 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
 export { Crdt } from '@sys/driver-automerge/web/ui';
-export { Monaco } from '@sys/driver-monaco';
+export { Monaco } from '../../m.Monaco/mod.ts';
 
 export * from '../common.ts';
 export { YamlEditorFooter } from '../ui.YamlEditor.Footer/mod.ts';
@@ -21,6 +21,7 @@ export const DEFAULTS = {
   documentId,
   footer,
   diagnostics: 'syntax' satisfies t.YamlEditorDiagnostics,
+  debounce: 40,
 } as const;
 export const D = DEFAULTS;
-export const STORAGE_KEY = { DEV: `dev:${D.name}` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

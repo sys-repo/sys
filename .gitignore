@@ -2,17 +2,23 @@
 
 .bin
 .tmp
+.tmp.*
+.tmp-*
 .env
 .env.*
 .swc
+.data
 
 dist
 dist.*
 node_modules
 
-vite.config.ts.timestamp-*
-**/.vitepress/cache/
-**/.vitepress/dist/
-
 # Deployment config from https://docs.orbiter.host/cli
 orbiter.json
+
+# @sys/tools:
+-config
+
+# Codex (local agent state):
+.claude/
+.codex/

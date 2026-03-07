@@ -452,4 +452,60 @@ describe('Semver', () => {
       });
     });
   });
+
+  describe('Semver.latest', () => {
+    it('returns undefined for no inputs', () => {
+      const res = Semver.latest();
+      expect(res).to.eql(undefined);
+    });
+
+    it('returns undefined when all inputs are undefined', () => {
+      const res = Semver.latest(undefined, undefined);
+      expect(res).to.eql(undefined);
+    });
+
+    it('returns the only valid value when mixed with undefined', () => {
+      const res = Semver.latest(undefined, '1.2.3', undefined);
+      expect(res).to.eql('1.2.3');
+    });
+
+    it('ignores invalid semver strings', () => {
+      const res = Semver.latest('not-a-version', '1.0.0', 'also-bad');
+      expect(res).to.eql('1.0.0');
+    });
+
+    it('returns the greatest version from plain strings', () => {
+      const res = Semver.latest('0.1.0', '0.3.0', '0.2.5');
+      expect(res).to.eql('0.3.0');
+    });
+
+    it('handles a mix of string and SemVer objects', () => {
+      const v100 = Semver.parse('1.0.0').version;
+      const v105 = Semver.parse('1.0.5').version;
+
+      const res = Semver.latest('0.9.0', v100, v105);
+      expect(res).to.eql('1.0.5');
+    });
+
+    it('returns the version when all are equal', () => {
+      const res = Semver.latest('1.0.0', '1.0.0', '1.0.0');
+      expect(res).to.eql('1.0.0');
+    });
+
+    it('respects proper semver ordering including prerelease tags', () => {
+      const res = Semver.latest('1.0.0-alpha.1', '1.0.0-alpha.10', '1.0.0-beta.1', '1.0.0');
+      expect(res).to.eql('1.0.0');
+    });
+
+    it('orders prerelease versions correctly when there is no final release', () => {
+      const res = Semver.latest('1.0.0-alpha.1', '1.0.0-alpha.10', '1.0.0-beta.1');
+      expect(res).to.eql('1.0.0-beta.1');
+    });
+
+    it('handles modifier prefixes via Is.valid/parse (eg "^" and "~")', () => {
+      const res = Semver.latest('^1.2.3', '^1.3.0', '~1.2.9');
+      // Under the hood we compare 1.2.3, 1.3.0, 1.2.9; the winning *original* value is "^1.3.0".
+      expect(res).to.eql('^1.3.0');
+    });
+  });
 });

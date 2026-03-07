@@ -46,6 +46,20 @@ describe('TestFake: Editor', () => {
       expect(typeof (model as any).__setLanguageId).to.eql('function');
       (model as any).__setLanguageId('typescript'); // no-op shim.
     });
+
+    it('setModel swaps active model and emits onDidChangeModel', () => {
+      const a = MonacoFake.model('alpha', { uri: 'inmemory://m/a' });
+      const b = MonacoFake.model('beta', { uri: 'inmemory://m/b' });
+      const editor = MonacoFake.editor(a);
+
+      let event: t.Monaco.I.IModelChangedEvent | undefined;
+      editor.onDidChangeModel((e) => (event = e));
+
+      editor.setModel(b);
+      expect(editor.getModel()).to.eql(b);
+      expect(event?.oldModelUrl?.toString()).to.eql('inmemory://m/a');
+      expect(event?.newModelUrl?.toString()).to.eql('inmemory://m/b');
+    });
   });
 
   describe('cursor', () => {
@@ -234,6 +248,64 @@ describe('TestFake: Editor', () => {
       const ok = editor.executeEdits('test', []);
       expect(ok).to.eql(true);
       expect(model.getValue()).to.eql('abc');
+    });
+  });
+
+  describe('updateOptions', () => {
+    it('captures updateOptions calls in order', () => {
+      const editor = MonacoFake.editor('');
+
+      editor.updateOptions({ lineNumbers: 'off' });
+      editor.updateOptions({ minimap: { enabled: false } });
+
+      const calls = editor._getUpdateOptionsCalls();
+      expect(calls.length).to.eql(2);
+      expect(calls[0]).to.eql({ lineNumbers: 'off' });
+      expect(calls[1]).to.eql({ minimap: { enabled: false } });
+    });
+
+    it('returns a safe copy of captured calls', () => {
+      const editor = MonacoFake.editor('');
+      editor.updateOptions({ lineNumbers: 'on' });
+
+      const calls = editor._getUpdateOptionsCalls() as unknown[];
+      calls.push({ fake: true });
+
+      const next = editor._getUpdateOptionsCalls();
+      expect(next.length).to.eql(1);
+      expect(next[0]).to.eql({ lineNumbers: 'on' });
+    });
+
+    it('reads and mutates option state via getOption/_setOption', () => {
+      const monaco = MonacoFake.monaco();
+      const editor = MonacoFake.editor('');
+      const id = monaco.editor.EditorOption.lineHeight;
+
+      expect(editor.getOption(id) as number).to.eql(21);
+      editor._setOption(id, 33);
+      expect(editor.getOption(id) as number).to.eql(33);
+    });
+
+    it('emits onDidChangeConfiguration when lineHeight changes', () => {
+      const editor = MonacoFake.editor('');
+      let fired = 0;
+      editor.onDidChangeConfiguration(() => fired++);
+
+      editor.updateOptions({ lineHeight: 30 });
+      expect(fired).to.eql(1);
+    });
+  });
+
+  describe('keyboard', () => {
+    it('fires onKeyDown listeners and applies default enter newline', () => {
+      const editor = MonacoFake.editor('one');
+      let fired = 0;
+      editor.onKeyDown(() => fired++);
+      editor.setPosition({ lineNumber: 1, column: 4 });
+
+      editor._fireKeyDown({ key: 'Enter' });
+      expect(fired).to.eql(1);
+      expect(editor.getModel()?.getValue()).to.eql('one\n');
     });
   });
 });

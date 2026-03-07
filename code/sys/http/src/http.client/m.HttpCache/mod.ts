@@ -1,5 +1,9 @@
 /**
  * @module
+ * HTTP cache tools for service-worker environments.
+ *
+ * Exposes:
+ * - `Cache` runtime helpers for package/media cache behavior.
+ * - `CacheCmd` command boundary for transport-agnostic cache control.
  */
-import type { t } from './common.ts';
 export { Cache } from './m.Cache.ts';

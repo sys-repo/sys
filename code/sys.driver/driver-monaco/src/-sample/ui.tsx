@@ -25,7 +25,7 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const [yaml, setYaml] = React.useState<t.EditorYaml>();
-  const [splitRatio, setSplitRatio] = React.useState<t.Percent>(0.3);
+  const [splitRatio, setSplitRatio] = React.useState<t.Percent[]>([0.3]);
   const size = useSizeObserver();
   const width = size.rect?.width ?? 0;
   const showMain = size.ready && width > 920;
@@ -91,7 +91,7 @@ export const Sample: React.FC<P> = (props) => {
           yaml: signals.yaml,
         }}
         path={paths.yaml}
-        documentId={{ localstorage: STORAGE_KEY.DEV }}
+        documentId={{ storageKey: STORAGE_KEY.DEV }}
         editor={{ autoFocus: true, minimap: false }}
         onReady={(e) => {
           /**
@@ -129,9 +129,9 @@ export const Sample: React.FC<P> = (props) => {
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <SplitPane
         debug={debug}
-        only={showMain ? undefined : 'A'}
+        onlyIndex={showMain ? undefined : 0}
         value={splitRatio}
-        onChange={(e) => setSplitRatio(e.ratio)}
+        onChange={(e) => setSplitRatio(e.ratios)}
       >
         {elYamlEditor}
         {elMain}

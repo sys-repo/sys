@@ -1,10 +1,7 @@
 /**
- * Tools for working with the standard system
- * `{pkg}` package meta-data structure.
  * @module
+ * Tools for working with the standard system `{pkg}` metadata and
+ * its compiled distribution packages (`dist.json` metadata + hash manifests).
  */
-import { Dist } from './m.Dist.ts';
-import { Pkg } from './m.Pkg.ts';
-
-export { Dist, Pkg };
-export default Pkg;
+export { Dist } from './m.Dist.ts';
+export { Pkg } from './m.Pkg.ts';

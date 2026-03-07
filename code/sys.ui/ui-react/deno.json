@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.154",
+  "version": "0.0.246",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -11,9 +11,11 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fc": "./src/m.FC/mod.ts",
-    "./async": "./src/m.Async/mod.ts",
-    "./testing/server": "./src/m.Testing.Server/mod.ts",
+    "./fc": "./src/m.fc/mod.ts",
+    "./async": "./src/m.async/mod.ts",
+    "./effect": "./src/m.effect/mod.ts",
+    "./signal": "./src/m.signal/mod.ts",
+    "./testing/server": "./src/m.testing.server/mod.ts",
     "./use": "./src/use/mod.ts"
   }
 }

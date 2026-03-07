@@ -44,9 +44,17 @@ const wrangle = {
 
 async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
   const trimPath = (path: t.StringPath) => path.slice(root.length + 1);
+  const resolveDenofile = async (subpath: t.StringPath) => {
+    const json = Fs.join(root, subpath, 'deno.json');
+    if (await Fs.exists(json)) return json;
+    const jsonc = Fs.join(root, subpath, 'deno.jsonc');
+    if (await Fs.exists(jsonc)) return jsonc;
+    return json;
+  };
+
   const promises = subpaths
-    .map((subpath) => Fs.join(root, subpath, 'deno.json'))
-    .map((path) => load(path));
+    .map((subpath) => resolveDenofile(subpath))
+    .map(async (path) => load(await path));
 
   const toChild = (path: t.StringPath, denofile: t.DenoFileJson): t.DenoWorkspaceChild => {
     const dir = Fs.dirname(path);

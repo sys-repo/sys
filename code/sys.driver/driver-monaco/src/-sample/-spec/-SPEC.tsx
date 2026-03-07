@@ -47,9 +47,9 @@ export default Spec.describe(D.displayName, async (e) => {
       .padding(0)
       .render(() => {
         return (
-          <Crdt.UI.Repo.SyncEnabledSwitch
+          <Crdt.UI.Repo.SyncSwitch
             repo={repo}
-            localstorage={STORAGE_KEY.DEV}
+            storageKey={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />
         );

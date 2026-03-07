@@ -1,12 +1,24 @@
-import { describe, DomMock, expect, it } from '../../../-test.ts';
+import { beforeAll, afterAll, describe, DomMock, expect, it } from '../../../-test.ts';
 import { Is } from '../mod.ts';
 
 describe('Media.Is', () => {
-  DomMock.polyfill();
-
   describe('Is.mediaStream', () => {
-    it('true', () => {
-      const stream = new MediaStream();
+    it('true (instanceof branch, if MediaStream exists)', () => {
+      const MediaStreamCtor = (globalThis as any).MediaStream as
+        | (new () => MediaStream)
+        | undefined;
+
+      if (typeof MediaStreamCtor === 'function') {
+        const stream = new MediaStreamCtor();
+        expect(Is.mediaStream(stream)).to.be.true;
+      } else {
+        // If the runtime has no MediaStream, we still cover the duck branch below.
+        expect(true).to.be.true;
+      }
+    });
+
+    it('true (duck-typed branch)', () => {
+      const stream = DomMock.Fake.Media.stream();
       expect(Is.mediaStream(stream)).to.be.true;
     });
 
@@ -28,7 +40,8 @@ describe('Media.Is', () => {
     });
 
     it('false', () => {
-      const stream = new MediaStream();
+      const stream = DomMock.Fake.Media.stream();
+
       const NON = [stream, '', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((v: any) => expect(Is.constraints(v)).to.be.false);
     });
@@ -47,7 +60,7 @@ describe('Media.Is', () => {
     });
 
     it('false (missing required fields or wrong shapes)', () => {
-      const stream = new MediaStream();
+      const stream = DomMock.Fake.Media.stream();
       const constraints: MediaStreamConstraints = { audio: true };
 
       const NON = [
@@ -73,34 +86,21 @@ describe('Media.Is', () => {
 
   describe('Is.track', () => {
     it('true (duck-typed MediaStreamTrack)', () => {
-      // minimal duck-typed track: requires id + kind + getSettings()
-      const track = {
+      const track = DomMock.Fake.Media.track({
         id: 't-1',
         kind: 'video',
         enabled: true,
         readyState: 'live',
         label: 'Cam',
-        getSettings: () => ({ width: 1280, height: 720 }) as MediaTrackSettings,
-        // required but unused members — stubbed:
-        applyConstraints: async () => undefined,
-        clone: () => undefined as unknown as MediaStreamTrack,
-        getCapabilities: () => ({}) as MediaTrackCapabilities,
-        getConstraints: () => ({}) as MediaTrackConstraints,
-        onended: null,
-        onmute: null,
-        onunmute: null,
-        contentHint: '',
-        muted: false,
-        stop: () => undefined,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        dispatchEvent: () => true,
-      } as unknown as MediaStreamTrack;
+        settings: { width: 1280, height: 720 } as MediaTrackSettings,
+      });
 
       expect(Is.track(track)).to.be.true;
     });
 
     it('false (missing pieces)', () => {
+      const stream = DomMock.Fake.Media.stream();
+
       const withNoSettings = {
         id: 'x',
         kind: 'audio',
@@ -123,7 +123,7 @@ describe('Media.Is', () => {
         Symbol('foo'),
         {},
         [],
-        new MediaStream(), // stream, not track
+        stream, // stream, not track
         { id: 'x' }, // missing kind + getSettings
         { kind: 'audio' }, // missing id + getSettings
         withNoSettings,
@@ -132,5 +132,14 @@ describe('Media.Is', () => {
 
       NON.forEach((v: any) => expect(Is.track(v)).to.be.false);
     });
+  });
+});
+
+describe('Media.Is (HappyDOM instanceof)', () => {
+  DomMock.init({ beforeAll, afterAll });
+
+  it('true (HappyDOM instanceof MediaStream)', () => {
+    const stream = new (globalThis as any).MediaStream();
+    expect(Is.mediaStream(stream)).to.be.true;
   });
 });

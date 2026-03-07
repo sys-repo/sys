@@ -1,8 +1,7 @@
-import { type t, describe, DomMock, expect, expectTypeOf, it } from '../../../-test.ts';
+import { type t, describe, expect, expectTypeOf, it, DomMock } from '../../../-test.ts';
 import { Media } from '../mod.ts';
 
 describe('Media.toObject', () => {
-  DomMock.polyfill();
   const long = (n: number) => 'x'.repeat(n);
 
   it('device: routed (Media.toObject) → DeviceObject', () => {
@@ -34,37 +33,21 @@ describe('Media.toObject', () => {
   });
 
   it('track: routed (Media.toObject) → TrackObject (with compact settings)', () => {
-    // Duck-typed track (guard requires: id, kind, getSettings):
-    const fakeTrack: MediaStreamTrack = {
+    const fakeTrack = DomMock.Fake.Media.track({
       id: 'track-1',
       kind: 'video',
       enabled: true,
       readyState: 'live',
       label: long(80),
-      getSettings: () =>
-        ({
-          deviceId: 'dev-cam',
-          width: 1920,
-          height: 1080,
-          frameRate: 30,
-          aspectRatio: 16 / 9,
-          facingMode: 'user',
-        }) as MediaTrackSettings,
-      // Stubs to satisfy the interface (not used by the unit):
-      applyConstraints: async () => undefined,
-      clone: () => fakeTrack,
-      getCapabilities: () => ({}) as MediaTrackCapabilities,
-      getConstraints: () => ({}) as MediaTrackConstraints,
-      onended: null,
-      onmute: null,
-      onunmute: null,
-      contentHint: '',
-      muted: false,
-      stop: () => undefined,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      dispatchEvent: () => true,
-    } as unknown as MediaStreamTrack;
+      settings: {
+        deviceId: 'dev-cam',
+        width: 1920,
+        height: 1080,
+        frameRate: 30,
+        aspectRatio: 16 / 9,
+        facingMode: 'user',
+      } as MediaTrackSettings,
+    });
 
     const obj = Media.toObject(fakeTrack);
     expect(obj).to.be.ok;
@@ -90,41 +73,27 @@ describe('Media.toObject', () => {
   });
 
   it('track: settings omitted when empty', () => {
-    const bareTrack: MediaStreamTrack = {
+    const bareTrack = DomMock.Fake.Media.track({
       id: 't0',
       kind: 'audio',
       enabled: false,
       readyState: 'ended',
       label: '',
-      getSettings: () => ({}) as MediaTrackSettings,
-      // Stubs:
-      applyConstraints: async () => undefined,
-      clone: () => bareTrack,
-      getCapabilities: () => ({}) as MediaTrackCapabilities,
-      getConstraints: () => ({}) as MediaTrackConstraints,
-      onended: null,
-      onmute: null,
-      onunmute: null,
-      contentHint: '',
-      muted: false,
-      stop: () => undefined,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      dispatchEvent: () => true,
-    } as unknown as MediaStreamTrack;
+      settings: {} as MediaTrackSettings,
+    });
 
     const obj = Media.toObject(bareTrack);
     expect(obj?.settings).to.equal(undefined);
   });
 
   it('stream: routed (Media.toObject) → StreamObject', () => {
-    // Real stream from DOM mock. Tracks not required for routing.
-    const stream = new MediaStream();
+    // Duck-typed stream to avoid HappyDOM AsyncTaskManager timers.
+    const stream = DomMock.Fake.Media.stream({ id: 'stream-1', active: true });
 
     const obj = Media.toObject(stream);
     expect(obj).to.be.ok;
-    expect(obj?.id).to.be.a('string');
-    expect(obj?.active).to.be.a('boolean');
+    expect(obj?.id).to.equal('stream-1');
+    expect(obj?.active).to.equal(true);
     expect(obj?.audio.count).to.equal(0);
     expect(obj?.video.count).to.equal(0);
     expect(obj?.audio.tracks).to.eql([]);
@@ -158,7 +127,8 @@ describe('Media.toObject', () => {
   });
 
   it('type overloads: return types align with inputs', () => {
-    const stream = new MediaStream();
+    const stream = DomMock.Fake.Media.stream({ id: 's0', active: false });
+
     const d = Media.toObject({
       deviceId: 'd',
       kind: 'audioinput',
@@ -170,27 +140,16 @@ describe('Media.toObject', () => {
     const s = Media.toObject(stream);
     expectTypeOf(s as t.StreamObject | undefined).toEqualTypeOf<t.StreamObject | undefined>();
 
-    const tr = Media.toObject({
-      id: 't',
-      kind: 'audio',
-      enabled: true,
-      readyState: 'live',
-      label: '',
-      getSettings: () => ({}) as MediaTrackSettings,
-      applyConstraints: async () => undefined,
-      clone: () => undefined as unknown as MediaStreamTrack,
-      getCapabilities: () => ({}) as MediaTrackCapabilities,
-      getConstraints: () => ({}) as MediaTrackConstraints,
-      onended: null,
-      onmute: null,
-      onunmute: null,
-      contentHint: '',
-      muted: false,
-      stop: () => undefined,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      dispatchEvent: () => true,
-    } as unknown as MediaStreamTrack);
+    const tr = Media.toObject(
+      DomMock.Fake.Media.track({
+        id: 't',
+        kind: 'audio',
+        enabled: true,
+        readyState: 'live',
+        label: '',
+        settings: {} as MediaTrackSettings,
+      }),
+    );
 
     expectTypeOf(tr as t.TrackObject | undefined).toEqualTypeOf<t.TrackObject | undefined>();
   });

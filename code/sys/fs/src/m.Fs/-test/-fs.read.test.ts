@@ -2,7 +2,7 @@ import { type t, describe, Err, expect, it } from '../../-test.ts';
 import { Fs } from '../mod.ts';
 
 describe('Fs: read from the file-system operations', () => {
-  const assertSuccess = (res: t.FsReadResult<unknown>, path: string) => {
+  const assertSuccess = (res: t.Fs.ReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(true);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));
@@ -10,7 +10,7 @@ describe('Fs: read from the file-system operations', () => {
     expect(res.errorReason).to.eql(undefined);
   };
 
-  const assertNotFound = (res: t.FsReadResult<unknown>, path: string) => {
+  const assertNotFound = (res: t.Fs.ReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(false);
     expect(res.path).to.eql(Fs.resolve(path));
@@ -20,14 +20,14 @@ describe('Fs: read from the file-system operations', () => {
     expect(Err.Is.stdError(res.error)).to.eql(true);
   };
 
-  const assertParseError = (res: t.FsReadResult<unknown>, path: string) => {
+  const assertParseError = (res: t.Fs.ReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));
     expect(res.errorReason).to.eql('ParseError');
   };
 
-  const assertDecodingError = (res: t.FsReadResult<unknown>, path: string) => {
+  const assertDecodingError = (res: t.Fs.ReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));
@@ -65,6 +65,13 @@ describe('Fs: read from the file-system operations', () => {
       expect(res.data?.name).to.eql('@sys/fs');
     });
 
+    it('success: jsonc', async () => {
+      const path = './src/-test/-sample-files/foo.jsonc';
+      const res = await Fs.readJson<{ foo: number }>(path);
+      assertSuccess(res, path);
+      expect(res.data?.foo).to.eql(123);
+    });
+
     it('fail: does not exist', async () => {
       const path = '404.json';
       const res = await Fs.readJson(path);
@@ -78,6 +85,20 @@ describe('Fs: read from the file-system operations', () => {
       assertParseError(res, path);
       expect(res.error?.name).to.eql('SyntaxError');
       expect(res.error?.message).to.include('Unexpected token');
+    });
+
+    it('fail: JSON empty', async () => {
+      const path = './src/-test/-sample-files/empty.json';
+      const res = await Fs.readJson(path);
+      assertParseError(res, path);
+      expect(res.error?.message).to.include('JSON file is empty');
+    });
+
+    it('fail: JSONC empty', async () => {
+      const path = './src/-test/-sample-files/empty.jsonc';
+      const res = await Fs.readJson(path);
+      assertParseError(res, path);
+      expect(res.error?.message).to.include('JSON file is empty');
     });
 
     it('fail: not a text document', async () => {

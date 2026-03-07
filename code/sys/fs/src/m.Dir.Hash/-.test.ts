@@ -60,6 +60,26 @@ describe('Dir.Hash', () => {
       expect(a).to.eql(b);
     });
 
+    it('compute → progress callback reports current/total for hashed files', async () => {
+      const sample = await Sample.init();
+      const dir = sample.dir;
+      const seen: t.DirHashComputeProgressEvent[] = [];
+
+      const res = await DirHash.compute(dir, {
+        onProgress: (e) => {
+          seen.push(e);
+        },
+      });
+
+      expect(res.error).to.eql(undefined);
+      expect(seen.length).to.eql(Object.keys(res.hash.parts).length);
+      expect(seen.length).to.be.greaterThan(0);
+      expect(seen[0]?.current).to.eql(1);
+      expect(seen[0]?.total).to.eql(seen.length);
+      expect(seen[seen.length - 1]?.current).to.eql(seen.length);
+      expect(seen.every((e) => e.total === seen.length)).to.eql(true);
+    });
+
     describe('errors', () => {
       it('error: directory does not exist', async () => {
         const dir = Fs.resolve('./NO_EXIST');

@@ -55,7 +55,7 @@ export function createDebugSignals() {
   });
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   return api;
@@ -95,8 +95,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const out = !Is.array(v)
             ? '<undefined>'
             : v.length === 0
-            ? '[ ] ← empty'
-            : v.map((m) => m.id).join(', ');
+              ? '[ ] ← empty'
+              : v.map((m) => m.id).join(', ');
           return `${prefix} ${out}`.trim();
         }}
         onClick={() => (p.errors.value = errors as unknown as t.Json)}

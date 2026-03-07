@@ -48,6 +48,10 @@ export default Spec.describe(D.displayName, (e) => {
             console.info(`⚡️ onChange:`, e);
             p.value.value = e.value;
           }}
+          onPaste={(e) => {
+            console.info(`⚡️ onPaste:`, e);
+            // e.modify('hello');
+          }}
         />
       ));
   });

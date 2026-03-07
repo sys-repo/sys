@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
-import { fromYamlError, fromYamlErrors } from './u.diag.from.ts';
-import { toYamlError, toYamlErrors } from './u.diag.to.ts';
+import { fromYamlError, fromYamlErrors, toYamlError, toYamlErrors } from './u.diag.ts';
 
 export const Diagnostic: t.YamlDiagnosticLib = {
   fromYamlError,

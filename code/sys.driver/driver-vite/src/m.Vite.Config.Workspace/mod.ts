@@ -18,13 +18,17 @@ export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
   const { walkup = true, filter } = options;
   const base = await DenoFile.workspace(options.denofile, { walkup });
   const aliases = await wrangle.aliases(Path.dirname(base.file), base.children, filter);
+  const error = base.exists
+    ? undefined
+    : `Workspace not found${walkup ? '' : ' (walkup=false)'}.`;
 
   const api: t.ViteDenoWorkspace = {
     ...base,
     filter,
     aliases,
+    error,
     toAliasMap() {
-      return aliases.reduce((acc: any, alias) => {
+      return aliases.reduce<Record<string, t.StringPath>>((acc, alias) => {
         acc[String(alias.find)] = alias.replacement;
         return acc;
       }, {});

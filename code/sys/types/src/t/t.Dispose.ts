@@ -99,6 +99,12 @@ export type DisposeError = { name: 'DisposeError'; message: string; cause?: t.St
 export type Lifecycle = Disposable & { readonly disposed: boolean };
 export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
 
+/**
+ * Read-only lifecycle projection.
+ * Provides disposal state and signal without disposal authority.
+ */
+export type LifecycleView = Pick<t.Lifecycle, 'disposed' | 'dispose$'>;
+
 /** Minimal contract for disposable objects (subset of Lifecycle). */
 export type LifeLike = { readonly disposed: boolean };
 

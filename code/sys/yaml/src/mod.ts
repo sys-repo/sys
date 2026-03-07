@@ -9,4 +9,4 @@ export type * as t from './types.ts';
 /**
  * Library (core):
  */
-export * from './m.core/mod.ts';
+export { Yaml } from './-exports/-core.ts';

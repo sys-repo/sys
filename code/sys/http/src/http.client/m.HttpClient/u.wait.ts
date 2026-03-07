@@ -30,6 +30,7 @@ export function defaultHttpReady(res: Response): boolean {
 export const waitFor: t.HttpClientLib['waitFor'] = async (url, opts = {}) => {
   const { timeout = 30_000, interval = 150 } = opts;
   const reqTimeout = opts.requestTimeout ?? Math.max(2000, interval * 2);
+  const signal = opts.signal;
   const method = opts.method ?? 'HEAD';
   const headers = opts.headers ?? {};
   const redirect = opts.redirect ?? 'manual';
@@ -40,8 +41,9 @@ export const waitFor: t.HttpClientLib['waitFor'] = async (url, opts = {}) => {
   const started = Date.now();
 
   async function attempt(): Promise<t.HttpWaitResult | undefined> {
+    if (signal?.aborted) throw new Error('Http.waitFor: aborted');
     try {
-      const r = await attemptOnce({ url, method, headers, redirect, reqTimeout, predicate });
+      const r = await attemptOnce({ url, method, headers, redirect, reqTimeout, predicate, signal });
       lastStatus = r.status;
       if (r.ok) return { url, attempts, elapsed: Date.now() - started, lastStatus };
     } catch {
@@ -51,10 +53,11 @@ export const waitFor: t.HttpClientLib['waitFor'] = async (url, opts = {}) => {
   }
 
   while (Date.now() - started < timeout) {
+    if (signal?.aborted) throw new Error('Http.waitFor: aborted');
     attempts += 1;
     const result = await attempt();
     if (result) return result;
-    await Time.wait(interval);
+    await Time.wait(interval, { signal });
   }
 
   throw new Error(wrangle.timeoutError(url, started, attempts, lastStatus));
@@ -70,13 +73,14 @@ type AttemptArgs = {
   redirect: RequestRedirect;
   reqTimeout: t.Msecs;
   predicate: (res: Response) => boolean;
+  signal?: AbortSignal;
 };
 
 async function attemptOnce(args: AttemptArgs): Promise<{ ok: boolean; status?: number }> {
-  const { url, method, headers, redirect, reqTimeout, predicate } = args;
+  const { url, method, headers, redirect, reqTimeout, predicate, signal } = args;
 
   // HEAD (or GET if requested):
-  const res = await fetchWithTimeout({ url, method, headers, redirect, reqTimeout });
+  const res = await fetchWithTimeout({ url, method, headers, redirect, reqTimeout, signal });
   let status = res.status;
 
   if (predicate(res)) {
@@ -88,7 +92,7 @@ async function attemptOnce(args: AttemptArgs): Promise<{ ok: boolean; status?: n
 
   // Fallback HEAD → GET if needed:
   if (method === 'HEAD') {
-    const res2 = await fetchWithTimeout({ url, method: 'GET', headers, redirect, reqTimeout });
+    const res2 = await fetchWithTimeout({ url, method: 'GET', headers, redirect, reqTimeout, signal });
     status = res2.status;
     const ok = predicate(res2);
     await closeBody(res2);
@@ -107,10 +111,13 @@ type FetchArgs = {
   headers: Readonly<Record<string, string>>;
   redirect: RequestRedirect;
   reqTimeout: t.Msecs;
+  signal?: AbortSignal;
 };
 
 async function fetchWithTimeout(a: FetchArgs): Promise<Response> {
   const ctrl = new AbortController();
+  const onAbort = () => ctrl.abort();
+  a.signal?.addEventListener('abort', onAbort, { once: true });
   const to = setTimeout(() => ctrl.abort(), a.reqTimeout);
   try {
     return await fetch(a.url, {
@@ -121,6 +128,7 @@ async function fetchWithTimeout(a: FetchArgs): Promise<Response> {
     });
   } finally {
     clearTimeout(to);
+    a.signal?.removeEventListener('abort', onAbort);
   }
 }
 

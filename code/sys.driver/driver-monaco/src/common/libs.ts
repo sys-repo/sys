@@ -1,6 +1,7 @@
 /**
  * @system core
  */
+export { Immutable } from '@sys/immutable/rfc6902';
 export { Schema, Type } from '@sys/schema';
 export {
   Arr,
@@ -9,18 +10,19 @@ export {
   Err,
   Fn,
   Is,
+  Log,
   Num,
   Obj,
   Pkg,
   R,
   Str,
-  Time,
+  Try,
   Url,
   slug,
 } from '@sys/std';
 export { Schedule, singleton } from '@sys/std/async';
-export { Immutable } from '@sys/std/immutable';
 export { Rx } from '@sys/std/rx';
+export { Time, Timecode } from '@sys/std/time';
 export { Yaml } from '@sys/yaml';
 
 /**

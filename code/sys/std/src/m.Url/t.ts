@@ -6,10 +6,22 @@ import type { t } from './common.ts';
 export type UrlLib = {
   /** Generator function for a new URL helpers instance. */
   parse(base: t.StringUrl | Deno.NetAddr | undefined): t.HttpUrl;
+
+  /**
+   * Return the canonical (origin + pathname) form of a URL.
+   * Removes query string and hash fragment.
+   */
+  toCanonical(input?: string | URL | t.HttpUrl): t.HttpUrl;
+
+  /**
+   * Normalize a URL string for stable comparisons.
+   * Trims whitespace, removes query/hash, and trims trailing slashes.
+   */
+  normalize(input?: string | URL | t.HttpUrl): t.StringUrl;
 };
 
 /**
- * Represents a URL endpoint of an HTTP service.
+ * Represents a URL endpoint of an HTTP resource.
  */
 export type HttpUrl = {
   /** Flag indicating if the parse was OK - false if there is an error. */
@@ -22,7 +34,7 @@ export type HttpUrl = {
   readonly raw: string;
 
   /** The URL href. */
-  readonly href: string;
+  readonly href: t.StringUrl;
 
   /** Join parts of a URL path. */
   join(...parts: string[]): string;

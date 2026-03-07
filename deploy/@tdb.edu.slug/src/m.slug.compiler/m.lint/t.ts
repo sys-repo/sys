@@ -1,0 +1,43 @@
+import type { t } from './common.ts';
+
+/** Type re-exports. */
+export type * from './t.files.ts';
+export type * from './t.lint.ts';
+
+/**
+ * Distinct structural checks the linter can perform.
+ * Runtime tuple is the source of truth; `LintFacet` derives from it.
+ */
+export const SlugLintFacets = [
+  'aliases',
+  'media:seq:schema',
+  'media:seq:file:video',
+  'media:seq:file:image',
+] as const;
+export type SlugLintFacet = (typeof SlugLintFacets)[number];
+
+/**
+ * Linter configuration.
+ */
+
+export type LintAggregateResult<I extends t.LintIssue = t.LintIssue> = {
+  readonly ok: boolean;
+  readonly issues: readonly I[];
+  readonly facets: readonly string[];
+};
+
+export type SlugLintIssue<K extends string = string> = t.LintIssue<K> & {
+  readonly doc: { readonly id: t.StringId };
+};
+
+export type SlugLintResult<K extends string = string> = {
+  readonly ok: boolean;
+  readonly issues: readonly SlugLintIssue<K>[];
+  readonly facets: readonly SlugLintFacet[];
+};
+
+/** YAML-authored lint profile document. */
+export type SlugLintProfile = {
+  /** Lint facets to run. */
+  readonly facets?: readonly SlugLintFacet[];
+};

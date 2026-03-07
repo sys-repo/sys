@@ -116,6 +116,41 @@ export type SchedulerLib = {
     queue?: ScheduleQueueConfig,
     until?: t.UntilInput,
   ): t.Lifecycle;
+
+  /**
+   * Advance one full asynchronous turn.
+   *
+   * Semantics:
+   * - Performs a macrotask hop, then a microtask hop.
+   * - This mirrors how MessagePort deliveries land: tasks (macro) first,
+   *   followed by any queued microtasks scheduled by those handlers.
+   *
+   * Notes:
+   * - Equivalent to: `await macro(); await micro();`
+   * - Does not use timers (no real-time delay) or requestAnimationFrame
+   *   (no frame alignment); it only advances the task + microtask queues.
+   */
+  tick(): Promise<void>;
+
+  /**
+   * Repeatedly advance asynchronous turns until a predicate succeeds.
+   *
+   * Semantics:
+   * - Calls `tick()` in a loop until `pred()` returns true or the timeout elapses.
+   * - Each cycle advances a full async-turn (macro → micro), ensuring that
+   *   all queued MessagePort deliveries and associated microtasks have been
+   *   flushed before re-checking the predicate.
+   *
+   * Use cases:
+   * - Worker → main thread wire propagation.
+   * - Awaiting eventual consistency without relying on timers.
+   *
+   * @param pred       A synchronous check for the desired condition.
+   * @param timeoutMs  Maximum time to wait before erroring (default: 1500ms).
+   *
+   * @throws Error     If the deadline is exceeded.
+   */
+  waitFor(pred: () => boolean, timeoutMs?: number): Promise<void>;
 };
 
 /** Options for `Schedule.queue` execution. */

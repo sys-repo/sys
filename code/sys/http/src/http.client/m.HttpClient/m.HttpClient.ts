@@ -2,22 +2,24 @@ import { Cache } from '../m.HttpCache/mod.ts';
 import { Fetch } from '../m.HttpFetch/mod.ts';
 
 import { type t, Url } from './common.ts';
-import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
+import { toError, toHeaders, toJsonResponse, toUint8Array } from './u.ts';
 import { isAlive, waitFor } from './u.wait.ts';
+import { Preload } from '../m.HttpPreload/mod.ts';
 
 /**
  * Http fetch helper.
  */
 export const HttpClient: t.HttpClientLib = {
-  Fetch,
-  Cache,
   Url,
+  Fetch,
+  Preload,
+  Cache,
 
   fetcher: Fetch.make,
   url: Url.parse,
 
   toHeaders,
-  toResponse,
+  toJsonResponse,
   toError,
   toUint8Array,
 

@@ -1,4 +1,15 @@
-export { act, renderHook } from '@testing-library/react';
+export {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  expectTypeOf,
+  it,
+  Testing,
+} from '@sys/testing/server';
 
-export { DomMock, Testing, describe, expect, expectTypeOf, it } from '@sys/testing/server';
 export * from './common.ts';
+export { act, renderHook } from './m.testing.server/u.renderHook.ts';

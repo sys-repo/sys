@@ -27,7 +27,7 @@ export function createDebugSignals() {
   const localstore = LocalStorage.immutable<L>(STORAGE_KEY, initial);
 
   type R = {
-    status: t.MediaRecorderStatus;
+    state: t.MediaRecorderState;
     is: t.MediaRecorderHookFlags;
     bytes: number;
     blob?: Blob;
@@ -98,9 +98,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   Signal.useRedrawEffect(() => debug.listen());
   React.useEffect(() => {
-    const { status, is, bytes, blob } = recorder;
-    p.recorder.value = { status, is, bytes, blob };
-  }, [recorder.status, recorder.bytes]);
+    const { state, is, bytes, blob } = recorder;
+    p.recorder.value = { state, is, bytes, blob };
+  }, [recorder.state, recorder.bytes]);
 
   /**
    * Render:

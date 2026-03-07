@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 import type * as monaco from 'monaco-editor';
 import type { editor } from 'monaco-editor';
 
@@ -16,6 +18,8 @@ export namespace Monaco {
   export type Position = monaco.Position;
   export type Range = monaco.Range;
   export type CancellationToken = monaco.CancellationToken;
+  export type LinePos = t.LinePos;
+  export type Cursor = t.EditorCursor;
 
   /** Nested namespace for all the I-prefixed interfaces */
   export namespace I {
@@ -30,15 +34,17 @@ export namespace Monaco {
     export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
     export type IModelChangedEvent = editor.IModelChangedEvent;
     export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
+    export type IKeyboardEvent = monaco.IKeyboardEvent;
     export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
     export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
     export type ICodeEditor = editor.ICodeEditor;
     export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
+    export type IStandaloneThemeData = editor.IStandaloneThemeData;
     export type IMarkerData = editor.IMarkerData;
     export type IEditorDecorationsCollection = editor.IEditorDecorationsCollection;
   }
 
-  // Languages:
+  /** Languages: */
   export namespace Lang {
     export type CompletionContext = monaco.languages.CompletionContext;
     export type CompletionList = monaco.languages.CompletionList;

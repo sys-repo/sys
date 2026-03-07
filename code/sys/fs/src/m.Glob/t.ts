@@ -32,7 +32,7 @@ export type Glob = {
 
 /** Options for a glob operation.  */
 export type GlobOptions = {
-  exclude?: string[];
+  exclude?: t.Ary<string>;
   includeDirs?: boolean;
   trimCwd?: boolean;
   depth?: number;

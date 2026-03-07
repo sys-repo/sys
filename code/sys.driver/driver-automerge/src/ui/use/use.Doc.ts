@@ -39,7 +39,7 @@ export const useDoc: t.UseCrdtDoc = <T extends O = O>(
     let attempt = 0;
 
     const fetch = () => {
-      repo.get<T>(id).then(({ doc, error }) => {
+      repo.get<T>(id).then(({ ok, doc, error }) => {
         if (life.disposed) return;
 
         if (error) {

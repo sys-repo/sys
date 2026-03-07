@@ -17,7 +17,7 @@
  * ```ts
  * import { render } from '@sys/ui-react-devharness'
  * import { createRoot } from 'react-dom/client';
- * import { SampleSpecs } from './src/-test/entry.Specs.ts';
+ * import { SampleSpecs } from './src/-test/-specs.ts';
  *
  * const root = createRoot(document.getElementById('root')!);
  * const el = await render(Pkg, Specs, { hr: 2 });
@@ -28,7 +28,7 @@
  *
  * ```ts
  * import { Dev } from '@sys/ui-react-devharness'
- * import { SampleSpecs } from './src/-test/entry.Specs.ts';
+ * import { SampleSpecs } from './src/-test/-specs.ts';
  *
  * const el = <Dev.Harness specs={SampleSpecs} />
  * ```

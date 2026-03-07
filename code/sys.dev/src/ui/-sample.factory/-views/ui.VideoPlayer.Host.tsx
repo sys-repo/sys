@@ -20,7 +20,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
   /**
    * Refs:
    */
-  const videoSignalsRef = React.useRef(Player.Video.signals());
+  const videoSignalsRef = React.useRef(Player.Video.Signals.create());
   const videoSignals = videoSignalsRef.current;
   const videoController = Player.Video.useSignals(videoSignals, { log: true });
 
@@ -39,7 +39,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
 
     const p = videoSignals.props;
     p.src.value = data.src;
-    p.crop.value = data?.crop;
+    p.slice.value = data?.slice;
     p.cornerRadius.value = data?.cornerRadius;
     p.muted.value = data?.muted ?? false;
     p.jumpTo.value = Is.record(data?.jumpTo) ? data?.jumpTo : undefined;
@@ -55,9 +55,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
     empty: css({ userSelect: 'none' }),
   };
 
-  const elVideo = showVideo && (
-    <Player.Video.Element style={{ width }} {...videoController.props} />
-  );
+  const elVideo = showVideo && <Player.Video.UI style={{ width }} {...videoController.props} />;
   const elEmpty = <div className={styles.empty.class}>{'Nothing to display.'}</div>;
 
   return (

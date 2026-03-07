@@ -1,4 +1,4 @@
-import { type t, A, Bus, D, Rx, Schedule } from './common.ts';
+import { A, Bus, D, Rx, Schedule, type t } from './common.ts';
 import {
   clampOffsetSE,
   equalOffsets,
@@ -24,6 +24,7 @@ export function impl(args: {
 }) {
   const { bus$, model, path, editor, doc, life } = args;
   const observer = observe({ editor, bus$ }, life);
+  const isValidFold = (o: t.FoldOffset) => o.end > o.start;
 
   // Guards:
   let readyForEditorWrites = false; //  ← UI→CRDT allowed after initial seed.
@@ -48,13 +49,27 @@ export function impl(args: {
       const before = rangesToOffsets(model, areasBefore);
       const after = rangesToOffsets(model, getHiddenAreas(editor));
       emitMarks('crdt', before, after);
+
+      // If Monaco didn't land the desired set, repair via public commands only.
+      if (!equalOffsets(after, nextOffsets)) {
+        // Avoid a needless reset if we're already fully unfolded and target is empty.
+        if (nextOffsets.length === 0 && after.length === 0) return;
+
+        editor.trigger('monaco.hidden', 'editor.unfoldAll', undefined);
+
+        const parents = parentLinesFromOffsets(model, nextOffsets);
+        if (parents.length > 0) {
+          editor.trigger('monaco.hidden', 'editor.fold', { selectionLines: parents });
+        }
+
+        const corrected = rangesToOffsets(model, getHiddenAreas(editor));
+        emitMarks('crdt', after, corrected);
+      }
     };
 
     if (nextOffsets.length === 0) {
-      // No marks:
       trigger('editor.unfoldAll');
     } else {
-      // Has code-folded marks:
       trigger('editor.fold', parentLinesFromOffsets(model, nextOffsets));
     }
   }
@@ -101,12 +116,12 @@ export function impl(args: {
       return; // Path is missing / unsafe to read right now.
     }
 
+    // In syncFromCRDT():
     const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
-    const nextOffsets = marks.map((m) => clampOffsetSE(model, m));
-
-    // Compare to current by offsets (derived from hidden areas).
-    const currentMarkRanges = toMarkRanges(model, getHiddenAreas(editor));
-    const currentOffsets = currentMarkRanges.map((r) => clampOffsetSE(model, r));
+    const nextOffsets = marks.map((m) => clampOffsetSE(model, m)).filter(isValidFold);
+    const currentOffsets = toMarkRanges(model, getHiddenAreas(editor))
+      .map((r) => clampOffsetSE(model, r))
+      .filter(isValidFold);
 
     // Fire initial <ready> event.
     if (!initialFired) fireInitial(marks);
@@ -143,16 +158,11 @@ export function impl(args: {
     .path(path)
     .$.pipe(Rx.takeUntil(life.dispose$))
     .subscribe((e) => {
-      const hasMarksPatch = e.patches.some((p) => Array.isArray((p as any).marks));
-      if (!hasMarksPatch) return;
-
       if (skipNextPatch > 0) {
         skipNextPatch -= 1;
         return; // echo of our last write
       }
-
-      // Coalesce to the next microtask and tie to lifecycle.
-      Schedule.queue(syncFromCRDT, 'micro', life);
+      Schedule.queue(syncFromCRDT, 'micro', life); // Coalesce to the next microtask and tie to lifecycle.
     });
 
   // Editor → CRDT: persist hidden areas iff they differ from stored marks.
@@ -160,8 +170,14 @@ export function impl(args: {
     if (!readyForEditorWrites) return;
     if (docUpdatingEditor) return;
 
-    const currentOffsets = toMarkRanges(model, e.areas).map((r) => clampOffsetSE(model, r));
-    const storedOffsets = readStoredOffsets(doc, path).map((o) => clampOffsetSE(model, o));
+    const currentOffsets = toMarkRanges(model, e.areas)
+      .map((r) => clampOffsetSE(model, r))
+      .filter(isValidFold);
+
+    const storedOffsets = readStoredOffsets(doc, path)
+      .map((o) => clampOffsetSE(model, o))
+      .filter(isValidFold);
+
     if (equalOffsets(storedOffsets, currentOffsets)) return;
 
     skipNextPatch += 1;
@@ -174,7 +190,6 @@ export function impl(args: {
       }
     });
 
-    // Emit as ranges:
     emitMarks('editor', storedOffsets, currentOffsets);
   });
 }

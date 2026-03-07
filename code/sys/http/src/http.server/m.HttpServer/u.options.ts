@@ -1,5 +1,5 @@
 import { type t, Net } from './common.ts';
-import { print } from './u.log.ts';
+import { print } from './u.print.ts';
 
 type F = t.HttpServerLib['options'];
 

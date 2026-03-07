@@ -1,9 +1,8 @@
 import React from 'react';
-import { RecorderControls } from './-dev/ui.tmp.RecorderControls.tsx';
 
 import { type t, Color, css, Media } from './common.ts';
-import { edgeBorder } from './u.ts';
 import { ConfigDevices } from './ui.Config.Devices.tsx';
+import { Footer } from './ui.Config.Footer.tsx';
 
 type P = t.VideoRecorderViewProps;
 
@@ -20,13 +19,11 @@ export const Config: React.FC<P> = (props) => {
   const styles = {
     base: css({
       color: theme.fg,
-      borderLeft: edgeBorder(theme),
-      width: 340,
       display: 'grid',
       gridTemplateRows: '1fr auto',
     }),
     body: css({ boxSizing: 'border-box', padding: 10, paddingTop: 20 }),
-    footer: css({ borderTop: edgeBorder(theme) }),
+    footer: css({}),
     hr: css({ border: 'none', borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`, MarginY: 20 }),
     mediaList: css({ marginRight: 10 }),
     waveform: css({
@@ -56,7 +53,7 @@ export const Config: React.FC<P> = (props) => {
       />
 
       <div className={styles.waveform.class}>
-        <Media.UI.AudioWaveform
+        <Media.AudioWaveform.UI
           debug={debug}
           theme={theme.name}
           stream={signals?.stream.value}
@@ -66,16 +63,10 @@ export const Config: React.FC<P> = (props) => {
     </div>
   );
 
-  const elFooter = (
-    <div className={styles.footer.class}>
-      <RecorderControls theme={theme.name} stream={signals?.stream.value} />
-    </div>
-  );
-
   return (
     <div className={css(styles.base, props.style).class}>
       {elBody}
-      {elFooter}
+      <Footer {...props} />
     </div>
   );
 };

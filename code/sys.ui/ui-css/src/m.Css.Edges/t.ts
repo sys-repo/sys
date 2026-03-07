@@ -71,11 +71,12 @@ export type CssPaddingInput = CssEdgesInput;
  * Value representing an edge (eg. "left" or "right").
  */
 export type CssEdgeInput = N;
+export type CssEdgesQuad = [N, N, N, N];
 
 /**
  * Loose input for edges around a 4-sided entity.
  */
-export type CssEdgesInput = N | [N] | [N, N] | [N, N, N, N];
+export type CssEdgesInput = N | [N] | [N, N] | CssEdgesQuad;
 
 /**
  * Loose inputs for a value representing a single-dimension (X/Y)

@@ -14,16 +14,18 @@
     "prep-ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
 
     "bump": "deno run -P=ci ./-scripts/main.ts --bump",
+
     "tmpl": "deno run -P=build @sys/tmpl",
-    "cp": "deno run -P=clean ./-scripts/Task.-copy.ts",
+    "cp": "  deno run -P=ci @sys/tools/cp",
+    "crdt": "  deno run -P=ci @sys/tools/crdt",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
 
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker"],
-    "types": ["vite/client", "@types/react"],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -31,13 +33,17 @@
 
   "importMap": "deno.imports.json",
   "workspace": [
+    "code/sys.model/model-slug",
+    "code/sys.ui/ui-state",
     "code/sys/types",
     "code/sys/std",
     "code/sys/color",
 
     "code/sys/testing",
     "code/sys/event",
+    "code/sys/immutable",
     "code/sys/jsr",
+    "code/sys/net",
     "code/sys/fs",
     "code/sys/cli",
     "code/sys/process",
@@ -48,9 +54,11 @@
     "code/sys/http",
     "code/sys/text",
     "code/sys/tmpl-engine",
-    "code/sys/cmd",
     "code/sys/schema",
     "code/sys/yaml",
+
+    "code/sys.model/model",
+    "code/sys.model/model-slug",
 
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-dom",
@@ -58,22 +66,24 @@
     "code/sys.ui/ui-react",
     "code/sys.ui/ui-react-devharness",
     "code/sys.ui/ui-react-components",
+    "code/sys.ui/ui-state",
 
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
-    "code/sys.driver/driver-farcaster",
-    "code/sys.driver/driver-mastra",
     "code/sys.driver/driver-monaco",
-    "code/sys.driver/driver-peerjs",
+    "code/sys.driver/driver-process",
     "code/sys.driver/driver-prosemirror",
+    "code/sys.driver/driver-signer",
+    "code/sys.driver/driver-stripe",
     "code/sys.driver/driver-vite",
 
-    "code/sys/tools",
+    "code/sys.tools",
     "code/sys.dev",
 
-    "deploy/@tdb.fs",
+    "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
+    "deploy/@tdb.slc.std",
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 

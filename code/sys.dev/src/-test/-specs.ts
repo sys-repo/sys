@@ -4,15 +4,13 @@
  */
 import type { t } from './common.ts';
 export const ns = 'sys.dev';
-const edu = `${ns}: catalog.edu`;
+
+import { Specs as Edu } from '../catalog.edu/-test/-specs.ts';
 
 /**
  * Specs:
  */
 export const Specs = {
-  [`${edu}: -sample`]: () => import('../catalog.edu/ui/-sample/-spec/-SPEC.tsx'),
-  [`${edu}: VideoRecorder`]: () => import('../catalog.edu/ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
-  [`${edu}: Layout → Crdt.Layout`]: () => import('../catalog.edu/ui/ui.CrdtLayout/-spec/-SPEC.tsx'),
-  [`${ns}: catalog.harness`]: () => import('../catalog.harness/-spec/-SPEC.tsx'),
+  ...Edu,
   [`${ns}: -sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;

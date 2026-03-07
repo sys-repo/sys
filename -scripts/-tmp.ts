@@ -1,1 +1,1 @@
-console.info('🐷 tmp');
+console.log('🐷-tmp');

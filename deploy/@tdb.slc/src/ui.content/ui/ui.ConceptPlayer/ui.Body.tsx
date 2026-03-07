@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, LayoutCenterColumn } from './common.ts';
+import { type t, CenterColumn, Color, css, D } from './common.ts';
 import { Column } from './ui.Column.tsx';
 import { Content } from './ui.Content.tsx';
 
@@ -57,7 +57,7 @@ export const Body: React.FC<P> = (props) => {
   );
 
   const elGrid = (
-    <LayoutCenterColumn
+    <CenterColumn
       style={{ Absolute: 0 }}
       align={align}
       centerWidth={columnWidth}

@@ -1,6 +1,6 @@
 {
   "name": "@sys/schema",
-  "version": "0.0.44",
+  "version": "0.0.137",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -12,10 +12,9 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./t/primitives": "./src/t.typebox.primitives.ts",
     "./types": "./src/types.ts",
-    "./std": "./src/m.std/core/mod.ts",
-    "./std/ui": "./src/m.std/ui/mod.ts",
-    "./testing": "./src/m.testing/mod.ts"
+    "./primitives/t": "./src/t.typebox.primitives.ts",
+    "./recipe": "./src/-exports/-core.recipe.ts",
+    "./testing": "./src/-exports/-testing.ts"
   }
 }

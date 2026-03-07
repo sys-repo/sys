@@ -5,16 +5,22 @@ import { pkg } from '../pkg.ts';
 /**
  * Service Worker:
  */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    const devmode = import.meta.env.DEV;
-    const prefix = devmode ? `[main:dev]` : `[main]`;
-    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
-    navigator.serviceWorker
-      .register('sw.js', { type: 'module' })
-      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
-      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
-  });
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  async function registerSw() {
+    try {
+      const url = new URL('../sw.js', import.meta.url);
+      const reg = await navigator.serviceWorker.register(url, { type: 'module' });
+      console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`);
+    } catch (err) {
+      console.error(`💥 [main] ServiceWorker registration failed:`, err);
+    }
+  }
+
+  if (globalThis.document.readyState === 'complete') {
+    void registerSw();
+  } else {
+    window.addEventListener('load', registerSw, { once: true });
+  }
 }
 
 /**
@@ -32,10 +38,10 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  if (isDev) {
-    /**
-     * DevHarness:
-     */
+  /**
+   * DevHarness:
+   */
+  async function renderDev() {
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
@@ -50,10 +56,12 @@ export async function main() {
 
     const app = <App />;
     root.render(<React.StrictMode>{app}</React.StrictMode>);
-  } else {
-    /**
-     * Entry/Splash:
-     */
+  }
+
+  /**
+   * Entry/Splash:
+   */
+  async function renderSplash() {
     const { useKeyboard } = await import('@sys/ui-react-devharness');
     const { Splash } = await import('./ui.Splash.tsx');
 
@@ -64,6 +72,12 @@ export async function main() {
 
     const app = <App />;
     root.render(<React.StrictMode>{app}</React.StrictMode>);
+  }
+
+  if (isDev) {
+    return void renderDev();
+  } else {
+    return void renderSplash();
   }
 }
 

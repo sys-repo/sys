@@ -1,4 +1,5 @@
 /**
- * Headless clickable "button" component.
  * @module
- */ export { Button } from './ui.tsx';
+ * Headless clickable "button" component.
+ */
+export { Button } from './ui.tsx';

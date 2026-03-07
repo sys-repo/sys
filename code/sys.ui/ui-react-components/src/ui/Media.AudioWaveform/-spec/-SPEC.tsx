@@ -20,7 +20,7 @@ export default Spec.describe('Audio', (e) => {
       .display('grid')
       .render(() => {
         return (
-          <AudioWaveform
+          <AudioWaveform.UI
             //
             debug={p.debug.value}
             theme={p.theme.value}

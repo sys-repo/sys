@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.YamlEditorFooterProps;
@@ -45,6 +45,7 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -60,7 +61,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: createRepo(),
+    repo,
     listen() {
       Signal.listen(props, true);
     },

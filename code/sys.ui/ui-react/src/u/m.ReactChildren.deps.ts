@@ -61,9 +61,9 @@ function getExplicitKey(key: React.Key | null): string | undefined {
   while (i < length) {
     const code = key.charCodeAt(i);
     const isAlnum =
-      (code >= 48 && code <= 57) || // 0–9
-      (code >= 65 && code <= 90) || // A–Z
-      (code >= 97 && code <= 122); // a–z
+      (code >= 48 && code <= 57) || //  0-9
+      (code >= 65 && code <= 90) || //  A-Z
+      (code >= 97 && code <= 122); //   a-z
     if (isAlnum) break;
     i++;
   }

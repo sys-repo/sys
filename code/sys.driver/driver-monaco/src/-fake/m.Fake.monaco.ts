@@ -2,6 +2,7 @@ import { type t, Severity } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
 type TextModel = t.Monaco.TextModel;
+const EDITOR_OPTION_LINE_HEIGHT = 67 as const;
 
 /**
  * Minimal `Monaco` global mock.
@@ -43,6 +44,8 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
   };
 
   const editor = {
+    EditorOption: { lineHeight: EDITOR_OPTION_LINE_HEIGHT },
+
     setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]) {
       markerStore.set(markerKey(model, owner), markers ?? []);
     },

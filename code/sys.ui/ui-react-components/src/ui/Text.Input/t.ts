@@ -61,13 +61,15 @@ export type TextInputProps = {
   onFocus?: t.TextInputFocusHandler;
   /** Fires when the textbox loses focus. */
   onBlur?: t.TextInputFocusHandler;
+  /** Fires when the textbox is pasted into (before the browser mutates the value). */
+  onPaste?: t.TextInputPasteHandler;
 };
 
 /**
  * Border configuration for a textbox input.
  */
 export type TextInputBorder = {
-  mode: 'underline' | 'outline' | 'none';
+  mode: 'line:top' | 'line:bottom' | 'outline' | 'none';
   defaultColor: Color;
   focusColor: Color;
 };
@@ -85,14 +87,17 @@ type BaseArgs<E> = {
 
 /** General change events. */
 export type TextInputChangeHandler = (e: TextInputChangeArgs) => void;
+/** Change event payload carrying the current textbox value and synthetic event. */
 export type TextInputChangeArgs = BaseArgs<React.ChangeEvent<HTMLInputElement>>;
 
 /** Focus events. */
 export type TextInputFocusHandler = (e: TextInputFocusArgs) => void;
+/** Focus/blur payload carrying value and focus state. */
 export type TextInputFocusArgs = BaseArgs<React.FocusEvent<HTMLInputElement>>;
 
 /** Keyboard events. */
 export type TextInputKeyHandler = (e: TextInputKeyArgs) => void;
+/** Keyboard payload with key metadata, modifiers, and repeat state. */
 export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> & {
   readonly input: HTMLInputElement;
   readonly key: string; //  ← HINT: typically use this one over `code`.
@@ -103,6 +108,25 @@ export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> &
 
 /** Fires when the textbox is mounted and ready. */
 export type TextInputReadyHandler = (e: TextInputReadyArgs) => void;
+/** Ready payload exposing the mounted input element. */
 export type TextInputReadyArgs = {
   readonly input: HTMLInputElement;
+};
+
+/** Fires when the textbox is pasted into. */
+export type TextInputPasteHandler = (e: TextInputPasteArgs) => void;
+/** Paste payload with clipboard text and mutation/cancel controls. */
+export type TextInputPasteArgs = {
+  /** Plain text from the clipboard. */
+  readonly text: string;
+  /**
+   * Replace the text that will be inserted.
+   * Call multiple times to refine; the last call wins.
+   */
+  modify(replacement: string): void;
+  /**
+   * Cancel this paste operation completely.
+   * Prevents default browser behaviour and stops propagation.
+   */
+  cancel(): void;
 };

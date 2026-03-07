@@ -5,14 +5,13 @@
 Runtime type definition builder for:
 - Runtime reflection via **JSONSchema**.
 - Static type checking via **Typescript** types (zero drift from the JSONSchema).
-- **JSR-safe** bundle export strategy (avoids the "no slow types" constraint).
+- **JSR-safe** bundle export strategy (safely avoids "no slow types" constraint registry errors).
 - [Standard Schema](https://standardschema.dev) specification implementation.
 
 
 ### Refs:
 - [standardschema.dev](https://standardschema.dev)
 - [json-schema.org](https://json-schema.org)
-- [github.com/sinclairzx81/typebox](https://github.com/sinclairzx81/typebox)
 
 
 
@@ -43,7 +42,7 @@ const isValid = Value.Check(T, { id: 0 });            // ← true
 Value.Assert(T, { foo: 'fail' });                     // ← throws
 
 // Rollup of runtime pipeline steps into "safe parse":
-const result = Schema.try(() => Value.Parse(SampleSchema, value)); 
+const result = Schema.try(() => Value.Parse(SampleSchema, value));
 // ↑ valid: { id: 123, name: 'foo' }
 
 ```

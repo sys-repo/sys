@@ -1,33 +1,79 @@
 import { type t, Type as T } from './common.ts';
-import { TraitBindingSchema } from './schema.trait.ts';
+import { SLUG } from './schema.slug.u.ts';
 
 /**
- * Slug core (v0): stable identity + trait bindings.
- * - `props` keyed by alias; semantic validation enforces per-trait shapes (next slice).
+ * Shared (reused) fields across slug variants.
  */
-export const SlugSchema: t.TObject<{
-  id: t.TString;
-  traits: t.TArray<typeof TraitBindingSchema>;
-  props: t.TOptional<t.TRecord<t.TString, t.TUnknown>>;
-}> = T.Object(
-  {
-    id: T.String({
-      description: `Stable slug identifier. Must start with a lowercase letter or number; may contain lowercase letters, numbers, hyphens, and periods (e.g. "video.player-01").`,
-      pattern: '^[a-z0-9][a-z0-9.-]*$',
-    }),
+const SHARED = {
+  id: T.Optional(SLUG.ID),
+  description: T.Optional(SLUG.DESCRIPTION),
+} as const;
 
-    traits: T.Array(TraitBindingSchema, {
-      description: `Array of trait bindings applied to this slug. Each binding defines a trait ID and alias used in \`props\`.`,
-    }),
-
-    props: T.Optional(
-      T.Record(T.String(), T.Unknown(), {
-        description: `Properties keyed by trait alias. Each entry’s value is validated semantically according to the corresponding trait’s schema.`,
-      }),
-    ),
-  },
+/**
+ * Slug (ref):
+ * - Disjoint branch: optional id/description, plus optional ref.
+ * - May NOT coexist with traits or data.
+ */
+export const SlugRefSchemaInternal = T.Object(
+  { ...SHARED, ref: T.Optional(SLUG.REF) },
   {
+    $id: 'slug.ref',
     additionalProperties: false,
-    description: `Slug core schema (v0). Provides stable identity, trait bindings, and associated props keyed by alias.`,
+    description: `Slug (ref): pointer-only form; cannot contain traits or data.`,
   },
 );
+
+/**
+ * Slug (minimal):
+ * - Optional id/description.
+ * - Optional traits.
+ * - NO data field.
+ */
+export const SlugMinimalSchemaInternal = T.Object(
+  { ...SHARED, traits: T.Optional(SLUG.TRAITS) },
+  {
+    $id: 'slug.minimal',
+    additionalProperties: false,
+    description: `Slug (minimal): optional id/description and optional traits, with no data.`,
+  },
+);
+
+/**
+ * Slug (rich):
+ * - Optional id/description.
+ * - REQUIRED traits.
+ * - REQUIRED data record keyed by trait alias.
+ */
+export const SlugWithDataSchemaInternal = T.Object(
+  { ...SHARED, traits: SLUG.TRAITS, data: SLUG.DATA },
+  {
+    $id: 'slug.with-data',
+    additionalProperties: false,
+    description: `Slug (rich): optional id/description, required traits, and corresponding data.`,
+  },
+);
+
+/**
+ * Public schema: disjoint union of all valid slug variants.
+ *
+ * Rules:
+ * • The "ref" variant cannot coexist with traits/data.
+ * • The "inline" variants (minimal/rich) cannot include a ref.
+ */
+export const SlugSchemaInternal = T.Union(
+  [SlugRefSchemaInternal, SlugMinimalSchemaInternal, SlugWithDataSchemaInternal],
+  {
+    $id: 'slug',
+    title: 'Slug',
+    description: `Slug core schema (v0): either a reference to another entity, or an inline definition with optional traits and data.`,
+  },
+);
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const SlugSchema: t.TSchema = SlugSchemaInternal;
+// Variants:
+export const SlugRefSchema: t.TSchema = SlugRefSchemaInternal;
+export const SlugMinimalSchema: t.TSchema = SlugMinimalSchemaInternal;
+export const SlugWithDataSchema: t.TSchema = SlugWithDataSchemaInternal;

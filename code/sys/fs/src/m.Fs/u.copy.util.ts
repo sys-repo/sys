@@ -4,7 +4,7 @@ import { type t, Path } from './common.ts';
  * Helpers
  */
 export const Wrangle = {
-  options(input?: t.FsCopyOptions | t.FsCopyFilter): t.FsCopyOptions {
+  options(input?: t.Fs.CopyOptions | t.FsCopyFilter): t.Fs.CopyOptions {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

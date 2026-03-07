@@ -19,16 +19,16 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
   const { debug = false, recorder } = props;
 
   if (!recorder) return <div>{'`recorder` prop not specified'}</div>;
-  const { status, is } = recorder;
-  const canStart = !is.recording && status !== 'Paused';
+  const { state, is } = recorder;
+  const canStart = !is.recording && state !== 'Paused';
   const hrefHookSource = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
 
   /**
    * Render:
    */
   let BulletIcon = Icons.Face;
-  if (status === 'Recording') BulletIcon = Icons.Recording;
-  if (status === 'Paused') BulletIcon = Icons.Paused;
+  if (state === 'Recording') BulletIcon = Icons.Recording;
+  if (state === 'Paused') BulletIcon = Icons.Paused;
 
   const theme = Color.theme(props.theme);
   const dim = Color.alpha(theme.fg, 0.3);

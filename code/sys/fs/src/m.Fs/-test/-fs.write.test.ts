@@ -159,21 +159,32 @@ describe('Fs: write to the file-system operations', () => {
       await assertJsonFile(path, data);
     });
 
-    describe('error (while serializing)', () => {
+    describe('circular references (no serialization error)', () => {
       const circular: any = { foo: { bar: 123 } };
-      circular.foo['zoo'] = circular.foo; // NB: setup circular-reference to cause error.
+      circular.foo['zoo'] = circular.foo; // setup circular-reference
 
-      it('error: (default)', async () => {
+      it('does not error (default)', async () => {
         const path = getPath();
         const res = await Fs.writeJson(path, circular);
-        expect(res.error?.message).to.include('Failed while serializing JSON to save to file');
-        expect(res.error?.cause?.message).to.include('Converting circular structure to JSON');
+
+        // Previously this path produced a serialization error.
+        // With Json.stringify (circular-safe), it should succeed.
+        expect(res.error).to.eql(undefined);
       });
 
-      it('error: throw', async () => {
+      it('does not throw when { throw: true }', async () => {
         const path = getPath();
-        const fn = () => Fs.writeJson(path, circular, { throw: true });
-        await expectError(fn, 'Failed while serializing JSON to save to file');
+
+        let thrown: unknown;
+        try {
+          await Fs.writeJson(path, circular, { throw: true });
+        } catch (err) {
+          thrown = err;
+        }
+
+        // Even with "throw: true", circular structures should be handled
+        // by Json.stringify, so nothing is thrown here.
+        expect(thrown).to.eql(undefined);
       });
     });
   });

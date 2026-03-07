@@ -1,4 +1,7 @@
 /**
  * @module
  */
-export { MyComponent } from './ui.tsx';
+import type { t } from './common.ts';
+import { MyComponent as UI } from './ui.tsx';
+
+export const MyComponent: t.MyComponent.Lib = { UI };

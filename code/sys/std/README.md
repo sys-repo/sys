@@ -1,5 +1,5 @@
-# Standard Lib.
-Standard system libraries.  
+# Standard Lib
+Standard system libraries.
 Common low(ish)-level utility functions and helpers.
 
 ```ts
@@ -35,7 +35,6 @@ export { Arr, Err, Is, Num, Obj, Pkg, Str, Time } from 'jsr:@sys/std';
 import { Args, Dispose, Path, Schedule, Signal } from 'jsr:@sys/std';
 
 import { DateTime, Time } from 'jsr:@sys/std/date';
-import { Immutable } from 'jsr:@sys/std/immutable';
 import { Rx } from 'jsr:@sys/std/rx'; // event streams.
 
 // Unit-testing:

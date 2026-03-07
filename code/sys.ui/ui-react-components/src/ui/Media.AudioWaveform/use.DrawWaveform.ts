@@ -1,35 +1,26 @@
 import React from 'react';
-import { Color } from './common.ts';
+import { type t, Color } from './common.ts';
 
-type Props = {
-  lineColor?: string | number;
-  lineWidth?: number;
-};
-
-type Args = {
-  canvasRef?: React.RefObject<HTMLCanvasElement | null>;
-  audioData?: Uint8Array;
-} & Props;
+type Hook = t.MediaAudioWaveformLib['useDrawWaveform'];
 
 /**
  * Renders an oscilloscope waveform visualization to a <canvas>.
  *
  * Sample:
  *    https://www.twilio.com/blog/audio-visualisation-web-audio-api--react
- *
  */
-export function useDrawWaveform(args: Args) {
+export const useDrawWaveform: Hook = (args) => {
   React.useEffect(() => {
     const { audioData, lineColor, lineWidth } = args;
     const canvas = args.canvasRef?.current;
     if (canvas && audioData) draw({ canvas, audioData, lineColor, lineWidth });
   });
-}
+};
 
 /**
  * [Helpers]
  */
-const draw = (args: { canvas: HTMLCanvasElement; audioData: Uint8Array } & Props) => {
+const draw = (args: { canvas: HTMLCanvasElement; audioData: Uint8Array } & t.DrawWaveformProps) => {
   const { canvas, audioData } = args;
   const lineColor = args.lineColor ?? -0.6;
   const lineWidth = args.lineWidth ?? 3;

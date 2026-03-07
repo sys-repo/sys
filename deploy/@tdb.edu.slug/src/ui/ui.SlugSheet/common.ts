@@ -1,0 +1,17 @@
+import { type t, pkg, Pkg } from '../common.ts';
+
+export * from '../common.ts';
+
+type P = t.SlugSheetProps;
+
+/**
+ * Constants:
+ */
+const name = 'SlugSheet';
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  index: 0,
+} as const;
+export const DEFAULTS = D;
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

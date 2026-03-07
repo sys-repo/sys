@@ -1,16 +1,8 @@
-import type * as Y from 'yaml';
-
 /**
  * Primitive scalar values representable in YAML.
  * Mirrors the JSON scalar domain plus null.
  */
 export type YamlPrimitive = null | string | number | boolean;
-
-/**
- * Parsed YAML Abstract Syntax Tree (AST).
- * Uses the upstream YAML library's typed document representation.
- */
-export type YamlAst = Y.Document.Parsed;
 
 /**
  * Composite (container) node: either a mapping (object) or a sequence (array).

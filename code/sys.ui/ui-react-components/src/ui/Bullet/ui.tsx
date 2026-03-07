@@ -4,7 +4,7 @@ import { type t, Color, css, D } from './common.ts';
 type P = t.BulletProps;
 
 export const Bullet: React.FC<P> = (props) => {
-  const {} = props;
+  const { colorTransition = 0 } = props;
   const Size = props.size ?? D.size;
 
   /**
@@ -22,8 +22,9 @@ export const Bullet: React.FC<P> = (props) => {
     }),
     body: css({
       borderRadius: '50%',
-      backgroundColor,
       border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
+      backgroundColor,
+      transition: colorTransition ? `background-color ${colorTransition}ms ease` : undefined,
     }),
   };
 
@@ -40,8 +41,8 @@ export const Bullet: React.FC<P> = (props) => {
 const wrangle = {
   backgroundColor(props: P, theme: t.ColorTheme) {
     const { selected = D.selected, filled = D.filled } = props;
-    if (selected) return Color.BLUE;
-    if (filled) return Color.alpha(theme.fg, 0.16);
+    if (selected) return props.selectedColor ?? Color.BLUE;
+    if (filled) return props.filledColor ?? Color.alpha(theme.fg, 0.16);
     return theme.bg;
   },
 } as const;

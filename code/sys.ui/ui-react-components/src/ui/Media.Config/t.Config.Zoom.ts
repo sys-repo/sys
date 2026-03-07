@@ -13,13 +13,13 @@ export type MediaZoomLib = {
   values(keys: (keyof t.MediaZoomValues)[]): Partial<t.MediaZoomValues>;
 
   /**
-   * 0–100 → 0–1
+   * 0-100 → 0-1
    * e.g. 50 → 0.5
    */
   toRatio(input?: Partial<t.MediaZoomValues>): t.MediaZoomValues;
 
   /**
-   * 0–1 → 0–100
+   * 0-1 → 0-100
    * e.g. 0.5 → 50
    */
   fromRatio(ratio?: Partial<t.MediaZoomValues>): t.MediaZoomValues;

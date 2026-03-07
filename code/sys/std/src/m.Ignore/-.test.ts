@@ -57,6 +57,57 @@ describe('Ignore', () => {
     });
   });
 
+  describe('canonical policy helpers', () => {
+    it('normalize: equivalent inputs produce same ordered rules', () => {
+      const a = Ignore.normalize(`
+        # comment
+        dist
+        .env
+        !keep.env
+
+      `);
+      const b = Ignore.normalize(['  ', '# comment', 'dist', '.env', '!keep.env', '', '\n']);
+      expect(a).to.eql(['dist', '.env', '!keep.env']);
+      expect(a).to.eql(b);
+    });
+
+    it('serialize: canonical text is deterministic and trailing newline stable', () => {
+      const a = Ignore.serialize(`dist\n.env\n!keep.env`);
+      const b = Ignore.serialize(['dist', '.env', '!keep.env']);
+      const c = Ignore.serialize(['  dist  ', '.env', '', '   ', '!keep.env']);
+
+      expect(a).to.eql('dist\n.env\n!keep.env\n');
+      expect(a).to.eql(b);
+      expect(a).to.eql(c);
+    });
+
+    it('serialize: empty-like input canonicalizes to "\\n"', () => {
+      expect(Ignore.serialize('')).to.eql('\n');
+      expect(Ignore.serialize(['', '  ', '\n'])).to.eql('\n');
+    });
+
+    it('digest: equivalent inputs produce same hash', async () => {
+      const a = await Ignore.digest(`
+        # comment
+        dist
+        .env
+        !keep.env
+      `);
+      const b = await Ignore.digest(['dist', '.env', '!keep.env']);
+      expect(a).to.eql(b);
+      expect(a.startsWith('sha256-')).to.eql(true);
+      expect(a.length).to.eql('sha256-'.length + 64);
+    });
+
+    it('digest: order/content changes produce different hashes', async () => {
+      const a = await Ignore.digest(['dist', '.env', '!keep.env']);
+      const b = await Ignore.digest(['.env', 'dist', '!keep.env']); // order change.
+      const c = await Ignore.digest(['dist', '.env']); // content change.
+      expect(a === b).to.eql(false);
+      expect(a === c).to.eql(false);
+    });
+  });
+
   describe('pattern rules', () => {
     it('is negative (negation)', () => {
       const test = (input: P, expected: boolean) => {
