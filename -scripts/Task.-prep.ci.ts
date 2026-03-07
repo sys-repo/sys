@@ -1,48 +1,26 @@
+import { MonorepoCi } from '@sys/monorepo/ci';
 import { Paths } from './-PATHS.ts';
-import { DenoFile, Fs, c } from './common.ts';
+import { c } from './common.ts';
 
-export async function main() {
-  const tmpl = {
-    header: (await Fs.readText('.github/-tmpl/jsr.header.yaml')).data!,
-    module: (await Fs.readText('.github/-tmpl/jsr.module.yaml')).data!,
-  };
+export const JsrCiIncludePrefixes = [
+  'code/sys/',
+  'code/sys.ui/',
+  'code/sys.driver/',
+  'code/sys.model/',
+  'code/sys.dev',
+  'code/sys.tools',
+  'code/-tmpl',
+  'deploy/@tdb.edu.slug',
+  'deploy/@tdb.slc.std',
+] as const;
 
-  const incl = [
-    //
-    'code/sys/',
-    'code/sys.ui/',
-    'code/sys.driver/',
-    'code/sys.model/',
-    'code/sys.dev',
-    'code/sys.tools',
-    'code/-tmpl',
-    'deploy/@tdb.edu.slug',
-    'deploy/@tdb.slc.std',
-  ];
-  const paths = Paths.modules.filter((path) => incl.some((item) => path.startsWith(item)));
-  let yaml = tmpl.header;
-
-  for (const path of paths) {
-    const denofile = await DenoFile.load(path);
-    const name = denofile.data?.name!;
-    let module = tmpl.module.replace(/NAME/, name).replace(/PATH/, path);
-    module = indent(module, 6);
-    yaml += `\n\n${module}`;
-  }
-
-  yaml += '\n';
-  const target = '.github/workflows/jsr.yaml';
-  await Fs.write(target, yaml);
-  console.info(`${c.green('Updated file:')} ${c.gray(target)}\n`);
+export function toJsrCiPaths(paths: readonly string[]) {
+  return paths.filter((path) => JsrCiIncludePrefixes.some((item) => path.startsWith(item)));
 }
 
-/**
- * Helpers
- */
-function indent(text: string, indent: number) {
-  return text
-    .split('\n')
-    .map((line) => `${' '.repeat(indent)}${line}`)
-    .filter((line) => (!line.trim() ? line.trim() : line))
-    .join('\n');
+export async function main() {
+  const target = '.github/workflows/jsr.yaml';
+  const paths = toJsrCiPaths(Paths.modules);
+  await MonorepoCi.Jsr.write({ cwd: Deno.cwd(), paths, target });
+  console.info(`${c.green('Updated file:')} ${c.gray(target)}\n`);
 }
