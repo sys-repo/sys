@@ -13,9 +13,12 @@ export function workflowTemplate(args: WorkflowArgs) {
   const permissions = wrangle.map(args.permissions, 6);
   const on = wrangle.on(args.on);
   const envEntries = args.env ? Object.entries(args.env) : [];
-  const env = envEntries.length ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n` : '';
+  const env = envEntries.length
+    ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n`
+    : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
-  const steps = Str.dedent(`
+  const steps = Str.dedent(
+    `
     steps:
       - uses: actions/checkout@v3
 
@@ -24,7 +27,10 @@ export function workflowTemplate(args: WorkflowArgs) {
         with:
           deno-version: v2.5.x
 
-      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
+      - name: Install Dependencies
+        run: deno task install
+
+      - name: Task Help
         run: deno task help
 
       - name: Deno Info
@@ -32,9 +38,11 @@ export function workflowTemplate(args: WorkflowArgs) {
 
       - name: System Info
         run: deno task help
-  `).trim();
+  `,
+  ).trim();
 
-  return Str.dedent(`
+  return Str.dedent(
+    `
     name: ${args.name}
 
     __ON__
@@ -50,7 +58,8 @@ export function workflowTemplate(args: WorkflowArgs) {
         __STEPS__
 
         __BODY__
-  `)
+  `,
+  )
     .replace(/^\s*__ON__$/m, on)
     .replace(/^\s*__PERMISSIONS__$/m, permissions)
     .replace(/^\s*__ENV__$/m, env.trimEnd())

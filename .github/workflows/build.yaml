@@ -48,7 +48,9 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v2.5.x
-      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
+      - name: Install Dependencies
+        run: deno task install
+      - name: Task Help
         run: deno task help
       - name: Deno Info
         run: deno info && deno --version
