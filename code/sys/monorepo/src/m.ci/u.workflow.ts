@@ -3,7 +3,7 @@ import { type t, Str } from './common.ts';
 type WorkflowArgs = {
   readonly name: string;
   readonly permissions: t.MonorepoCi.WorkflowEntries;
-  readonly branches?: readonly string[];
+  readonly on?: t.MonorepoCi.WorkflowOn;
   readonly env?: t.MonorepoCi.WorkflowEntries;
   readonly jobConfig?: string;
   readonly body: string;
@@ -11,7 +11,7 @@ type WorkflowArgs = {
 
 export function workflowTemplate(args: WorkflowArgs) {
   const permissions = wrangle.map(args.permissions, 6);
-  const branches = wrangle.list(args.branches?.length ? args.branches : ['main'], 6);
+  const on = wrangle.on(args.on);
   const envEntries = args.env ? Object.entries(args.env) : [];
   const env = envEntries.length ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n` : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
@@ -37,10 +37,7 @@ export function workflowTemplate(args: WorkflowArgs) {
   return Str.dedent(`
     name: ${args.name}
 
-    on:
-      push:
-        branches:
-        __BRANCHES__
+    __ON__
 
     jobs:
       deno:
@@ -54,12 +51,12 @@ export function workflowTemplate(args: WorkflowArgs) {
 
         __BODY__
   `)
-    .replace(/^ {4}__BRANCHES__$/m, branches)
-    .replace(/^ {4}__PERMISSIONS__$/m, permissions)
-    .replace(/^ {4}__ENV__$/m, env.trimEnd())
-    .replace(/^ {4}__JOB_CONFIG__$/m, jobConfig.trimEnd())
-    .replace(/^ {4}__STEPS__$/m, wrangle.indent(steps, 4))
-    .replace(/^ {4}__BODY__$/m, args.body);
+    .replace(/^\s*__ON__$/m, on)
+    .replace(/^\s*__PERMISSIONS__$/m, permissions)
+    .replace(/^\s*__ENV__$/m, env.trimEnd())
+    .replace(/^\s*__JOB_CONFIG__$/m, jobConfig.trimEnd())
+    .replace(/^\s*__STEPS__$/m, wrangle.indent(steps, 4))
+    .replace(/^\s*__BODY__$/m, args.body);
 }
 
 export const wrangle = {
@@ -79,5 +76,17 @@ export const wrangle = {
 
   list(values: readonly string[], indent: number) {
     return values.map((value) => `${' '.repeat(indent)}- ${value}`).join('\n');
+  },
+
+  on(value?: t.MonorepoCi.WorkflowOn) {
+    const on = value ?? { push: ['main'] as const };
+    const lines = ['on:'];
+    if (on.push?.length) {
+      lines.push('  push:', '    branches:', wrangle.list(on.push, 6));
+    }
+    if (on.pull_request?.length) {
+      lines.push('  pull_request:', '    branches:', wrangle.list(on.pull_request, 6));
+    }
+    return lines.join('\n');
   },
 } as const;

@@ -29,14 +29,14 @@ export async function main() {
   const buildTarget = '.github/workflows/build.yaml';
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const buildPaths = await toBuildCiPaths(cwd, Paths.modules);
-  const branches = ['main', 'phil-work'] as const;
+  const on = { pull_request: ['main'], push: ['main', 'phil-work'] } as const;
   const env = {
     // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  await MonorepoCi.Jsr.write({ branches, cwd, env, paths: jsrPaths, target: jsrTarget });
-  await MonorepoCi.Build.write({ branches, cwd, env, paths: buildPaths, target: buildTarget });
+  await MonorepoCi.Jsr.write({ cwd, env, on, paths: jsrPaths, target: jsrTarget });
+  await MonorepoCi.Build.write({ cwd, env, on, paths: buildPaths, target: buildTarget });
 
   console.info(`${c.green('Updated file:')} ${c.gray(jsrTarget)}`);
   console.info(`${c.green('Updated file:')} ${c.gray(buildTarget)}\n`);

@@ -1,10 +1,12 @@
 name: ci
-
 on:
   push:
     branches:
       - main
       - phil-work
+  pull_request:
+    branches:
+      - main
 
 jobs:
   deno:
@@ -13,8 +15,6 @@ jobs:
       contents: read
       id-token: write # The OIDC/ID token is used for authentication with JSR.
     environment: dev
-
-
     steps:
       - uses: actions/checkout@v3
       - name: 'Install ESM Runtime: Deno 2.x'
@@ -27,7 +27,6 @@ jobs:
         run: deno info && deno --version
       - name: System Info
         run: deno task help
-
       - name: publish module → "@sys/types"
         run: |
           cd code/sys/types

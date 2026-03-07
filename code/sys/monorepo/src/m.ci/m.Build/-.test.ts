@@ -20,6 +20,9 @@ describe('MonorepoCi.Build', () => {
     expect(yaml.includes(`path: ${b}`)).to.eql(true);
     expect(yaml.includes('name: "build: @scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
+    expect(yaml.includes('push:')).to.eql(true);
+    expect(yaml.includes('- main')).to.eql(true);
+    expect(yaml.includes('pull_request:')).to.eql(false);
   });
 
   it('writes YAML to disk', async () => {
@@ -35,5 +38,20 @@ describe('MonorepoCi.Build', () => {
     expect(await Fs.exists(target)).to.eql(true);
     const text = (await Fs.readText(target)).data ?? '';
     expect(text).to.eql(res.yaml);
+  });
+
+  it('renders explicit push and pull request triggers', async () => {
+    const fs = await Testing.dir('MonorepoCi.Build.on').create();
+    const moduleDir = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', tasks: { build: 'deno task help' } });
+    const yaml = await MonorepoCi.Build.text({
+      on: { pull_request: ['main'], push: ['main', 'phil-work'] },
+      paths: [moduleDir],
+    });
+
+    expect(yaml.includes('push:')).to.eql(true);
+    expect(yaml.includes('pull_request:')).to.eql(true);
+    expect(yaml.includes('- phil-work')).to.eql(true);
   });
 });

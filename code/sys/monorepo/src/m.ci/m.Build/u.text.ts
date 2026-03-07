@@ -12,7 +12,7 @@ export async function text(args: t.MonorepoCi.Build.Args) {
   return `${workflowTemplate({
     name: 'build',
     permissions: { contents: 'read' },
-    branches: args.branches,
+    on: args.on,
     env: args.env,
     jobConfig: BUILD_JOB_CONFIG_TEMPLATE.replace('__MATRIX_ITEMS__', items),
     body: BUILD_BODY_TEMPLATE,

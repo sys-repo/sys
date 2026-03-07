@@ -6,6 +6,10 @@ import type { t } from './common.ts';
  */
 export namespace MonorepoCi {
   export type WorkflowEntries = Readonly<Record<string, string>>;
+  export type WorkflowOn = Readonly<{
+    push?: readonly string[];
+    pull_request?: readonly string[];
+  }>;
 
   export type Lib = {
     readonly Jsr: Jsr.Lib;
@@ -23,7 +27,7 @@ export namespace MonorepoCi {
     export type TextArgs = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
-      readonly branches?: readonly string[];
+      readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = TextArgs & { readonly target: t.StringPath };
@@ -45,7 +49,7 @@ export namespace MonorepoCi {
     export type Args = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
-      readonly branches?: readonly string[];
+      readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = Args & { readonly target: t.StringPath };
