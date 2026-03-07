@@ -85,7 +85,7 @@ export async function main(options: Options = {}) {
     await Deno.writeTextFile(child.path, json);
   }
 
-  const prepare = await import('./Task.-prep.ts');
+  const prepare = await import('./task.prep.ts');
   await prepare.main();
 
   return true;

@@ -1,13 +1,13 @@
 import { Cli } from './u.ts';
 
-import { main as bump } from './Task.-bump.ts';
-import { main as clean } from './Task.-clean.ts';
-import { main as dry } from './Task.-dry.ts';
-import { main as info } from './Task.-info.ts';
-import { main as lint } from './Task.-lint.ts';
-import { main as prepCi } from './Task.-prep.ci.ts';
-import { main as prep } from './Task.-prep.ts';
-import { main as test } from './Task.-test.ts';
+import { main as bump } from './task.bump.ts';
+import { main as clean } from './task.clean.ts';
+import { main as dry } from './task.dry.ts';
+import { main as info } from './task.info.ts';
+import { main as lint } from './task.lint.ts';
+import { main as prepCi } from './task.prep.ci.ts';
+import { main as prep } from './task.prep.ts';
+import { main as test } from './task.test.ts';
 
 type T = {
   dry?: boolean;
