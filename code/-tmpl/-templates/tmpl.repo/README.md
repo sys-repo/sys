@@ -37,7 +37,7 @@ Core baseline tasks from `deno.json`:
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)
-- `deno task tmpl:project` → launches `@sys/tmpl` narrowed to `pkg.deno`
+- `deno task tmpl:project` → launches `@sys/tmpl` narrowed to `pkg`
 
 
 <p>&nbsp;</p>

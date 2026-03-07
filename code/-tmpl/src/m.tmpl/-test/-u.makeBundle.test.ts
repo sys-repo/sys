@@ -1,4 +1,5 @@
 import { describe, expect, expectError, Fs, it } from '../../-test.ts';
+import { json } from '../-bundle.ts';
 import { assertTemplateSourceClean, isAllowedTemplateBundlePath } from '../u.makeBundle.ts';
 
 describe('m.tmpl/u.makeBundle', () => {
@@ -25,5 +26,10 @@ describe('m.tmpl/u.makeBundle', () => {
       () => assertTemplateSourceClean(root),
       'Template source contains forbidden generated directories',
     );
+  });
+
+  it('bundles the internal package scaffold under the public pkg root', () => {
+    expect(Object.keys(json).some((key) => key.startsWith('pkg/'))).to.eql(true);
+    expect(Object.keys(json).some((key) => key.startsWith('pkg.deno/'))).to.eql(false);
   });
 });

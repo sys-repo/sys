@@ -1,14 +1,14 @@
 import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
-describe('Template: pkg.deno', () => {
+describe('Template: pkg', () => {
   it('run', async () => {
     /**
      * Template setup:
      */
     const ns = 'ns';
     const test = await makeWorkspace();
-    const name: t.TemplateName = 'pkg.deno';
+    const name: t.TemplateName = 'pkg';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
 
@@ -22,8 +22,8 @@ describe('Template: pkg.deno', () => {
     await def.default(dirA, { pkgName: '@my-scope/foo-1' });
     await def.default(dirB, { pkgName: '@my-scope/foo-2' });
 
-    logTemplate('pkg.deno', resA, { titleSuffix: '| foo-1' });
-    logTemplate('pkg.deno', resB, { titleSuffix: '| foo-2' });
+    logTemplate('pkg', resA, { titleSuffix: '| foo-1' });
+    logTemplate('pkg', resB, { titleSuffix: '| foo-2' });
 
     const ls = await test.ls();
     const includes = (endsWith: t.StringPath) => !!ls.find((p) => p.endsWith(endsWith));

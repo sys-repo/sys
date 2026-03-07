@@ -40,12 +40,12 @@ describe('m.tmpl/m.cli', () => {
     expect(await Fs.exists(Fs.join(cwd, 'src/types.ts'))).to.eql(true);
   });
 
-  it('non-interactive pkg.deno succeeds with explicit flags', async () => {
+  it('non-interactive pkg succeeds with explicit flags', async () => {
     const test = await makeWorkspace();
     const cwd = test.root;
     const relTarget = 'code/ns/agent-driven';
     const args = parseArgs([
-      'pkg.deno',
+      'pkg',
       '--dir',
       relTarget,
       '--pkgName',
@@ -76,7 +76,7 @@ describe('m.tmpl/m.cli', () => {
   it('non-interactive fails when --dir missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg.deno', '--pkgName', '@my-scope/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--no-interactive'])),
       'Missing required flag: --dir',
     );
   });
@@ -84,7 +84,7 @@ describe('m.tmpl/m.cli', () => {
   it('non-interactive fails when required template params are missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg.deno', '--dir', 'code/ns/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--no-interactive'])),
       'requires --pkgName',
     );
 

@@ -3,7 +3,7 @@ import { Args } from '@sys/std';
 import { Process } from '@sys/process';
 
 const argv = [...Deno.args];
-const PKG_TMPL = 'pkg.deno';
+const PKG_TMPL = 'pkg';
 const template = Args.parse(argv)._[0] ?? '';
 const cwd = await Fs.realPath(Fs.cwd());
 const repoRootPath = import.meta.dirname ? Fs.join(import.meta.dirname, '..') : Fs.resolve('.');

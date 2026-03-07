@@ -45,7 +45,7 @@ export const makeWorkspace = async () => {
 };
 
 /**
- * Create a monorepo and run pkg.deno to scaffold a package inside it.
+ * Create a monorepo and run pkg to scaffold a package inside it.
  */
 export const makeWorkspaceWithPkg = async (
   ns = 'ns',
@@ -53,8 +53,8 @@ export const makeWorkspaceWithPkg = async (
   pkgName = '@my-scope/foo',
 ) => {
   const test = await makeWorkspace();
-  const def = await Templates['pkg.deno']();
-  const tmpl = await makeTmpl('pkg.deno');
+  const def = await Templates.pkg();
+  const tmpl = await makeTmpl('pkg');
   const pkgDir = Fs.join(test.root, 'code', ns, name);
 
   const res = await tmpl.write(pkgDir, { force: true });

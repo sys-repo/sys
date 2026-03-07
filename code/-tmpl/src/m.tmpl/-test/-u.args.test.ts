@@ -4,7 +4,7 @@ import { parseArgs } from '../u.args.ts';
 describe('m.tmpl/u.args', () => {
   it('parses positional template and generic flags', () => {
     const res = parseArgs([
-      'pkg.deno',
+      'pkg',
       '--dir',
       './code/ns/foo',
       '--dryRun',
@@ -13,13 +13,13 @@ describe('m.tmpl/u.args', () => {
       '@my-scope/foo',
     ]);
 
-    expect(res.tmpl).to.eql('pkg.deno');
+    expect(res.tmpl).to.eql('pkg');
     expect(res.dir).to.eql('./code/ns/foo');
     expect(res.dryRun).to.eql(true);
     expect(res.force).to.eql(true);
     expect(res.pkgName).to.eql('@my-scope/foo');
     expect(res.interactive).to.eql(true);
-    expect(res._).to.eql(['pkg.deno']);
+    expect(res._).to.eql(['pkg']);
   });
 
   it('parses --no-interactive and template name flags', () => {
