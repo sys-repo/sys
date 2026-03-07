@@ -7,5 +7,6 @@ describe(`@sys/monorepo/ci`, () => {
     const m = await import('@sys/monorepo');
     expect(m.Monorepo).to.equal(Monorepo);
     expect(m.Monorepo.Ci).to.equal(MonorepoCi);
+    expect(m.Monorepo.Ci.Jsr).to.equal(MonorepoCi.Jsr);
   });
 });
