@@ -1,4 +1,4 @@
-import { Wrangle } from '../m.Vite/u.wrangle.ts';
+import { Wrangle } from '../m.vite/u.wrangle.ts';
 import { type t, Args, c, Path, pkg, ViteLog } from './common.ts';
 
 import { build } from './u.build.ts';
