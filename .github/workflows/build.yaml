@@ -12,12 +12,7 @@ jobs:
     permissions:
       contents: read
     environment: dev
-    env:
-      TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
-      DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-      PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
-      PRIVY_APP_SECRET: ${{ vars.PRIVY_APP_SECRET }}
+
     strategy:
       fail-fast: false
       matrix:

@@ -30,11 +30,8 @@ export async function main() {
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const buildPaths = await toBuildCiPaths(cwd, Paths.modules);
   const env = {
-    TEST_SAMPLE: '${{ vars.TEST_SAMPLE }}',
-    DENO_SUBHOSTING_ACCESS_TOKEN: '${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
-    DENO_SUBHOSTING_DEPLOY_ORG_ID: '${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
-    PRIVY_APP_ID: '${{ vars.PRIVY_APP_ID }}',
-    PRIVY_APP_SECRET: '${{ vars.PRIVY_APP_SECRET }}',
+    // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
+    // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
   await MonorepoCi.Jsr.write({ cwd, env, paths: jsrPaths, target: jsrTarget });

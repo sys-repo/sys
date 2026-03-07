@@ -10,7 +10,8 @@ type WorkflowArgs = {
 
 export function workflowTemplate(args: WorkflowArgs) {
   const permissions = wrangle.map(args.permissions, 6);
-  const env = args.env ? `    env:\n${wrangle.map(args.env, 6)}\n` : '';
+  const envEntries = args.env ? Object.entries(args.env) : [];
+  const env = envEntries.length ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n` : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
   const steps = Str.dedent(`
     steps:
