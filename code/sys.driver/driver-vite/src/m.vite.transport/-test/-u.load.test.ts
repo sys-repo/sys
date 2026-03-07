@@ -2,6 +2,7 @@ import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { loadDenoModule, mediaTypeToLoader, parseDenoSpecifier } from '../u.load.ts';
 import { toDenoSpecifier } from '../u.resolve.ts';
 
+describe('ViteTransport.load', () => {
   it('maps deno media types to esbuild loaders', () => {
     expect(mediaTypeToLoader('JSX')).to.eql('jsx');
     expect(mediaTypeToLoader('JavaScript')).to.eql('js');
@@ -33,6 +34,9 @@ import { toDenoSpecifier } from '../u.resolve.ts';
     expect(res).to.eql('export default {"ok":true}');
   });
 
+});
+
+describe('ViteTransport.load (esbuild)', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('transforms typescript content via esbuild', async () => {
     const fs = await Testing.dir('ViteTransport.load.ts').create();
     const path = Fs.join(fs.dir, 'mod.ts');
