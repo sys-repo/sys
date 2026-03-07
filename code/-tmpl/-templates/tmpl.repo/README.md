@@ -31,6 +31,7 @@ Core baseline tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type/lint gate for the starter shell
+- `deno task prep` → regenerates GitHub workflows for discovered project modules under `./code/projects`
 - `deno task test` → runs all unit tests within the mono-repo with permissions `-P=unit`
 - `deno task outdated` → reports dependency updates
 - `deno task upgrade` → upgrades dependencies to latest
@@ -58,6 +59,7 @@ git push --force origin baseline-0
 New projects:
 - via interactive CLI: `deno task tmpl:project`
 - via non-interactive/agent flow using `deno run ... @sys/tmpl ... --no-interactive`
+- after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>
 

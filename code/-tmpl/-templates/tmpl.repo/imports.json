@@ -1,6 +1,7 @@
 {
   "imports": {
     "@sys/fs": "jsr:@sys/fs@0.0.245",
+    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.1/ci",
     "@sys/process": "jsr:@sys/process@0.0.227",
     "@sys/std": "jsr:@sys/std@0.0.302",
     "@sys/std/async": "jsr:@sys/std@0.0.302/async",
@@ -11,4 +12,3 @@
     "@sys/tools": "jsr:@sys/tools@0.0.259"
   }
 }
-

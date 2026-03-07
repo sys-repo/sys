@@ -3,8 +3,9 @@
     "ci": "deno task check && deno task test",
     "check": "deno check",
     "test": "deno test -P=unit ./-scripts ./code",
-    "tmpl": "deno run -P=integration ./-scripts/tmpl.ts",
-    "tmpl:project": "deno run -P=integration ./-scripts/tmpl.ts pkg",
+    "prep": "deno run -P=unit ./-scripts/task.prep.ts",
+    "tmpl": "deno run -P=integration ./-scripts/task.tmpl.ts",
+    "tmpl:project": "deno run -P=integration ./-scripts/task.tmpl.ts pkg",
 
     "outdated": "deno outdated",
     "upgrade": "deno update --latest",

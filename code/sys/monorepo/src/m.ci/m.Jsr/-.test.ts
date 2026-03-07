@@ -1,6 +1,4 @@
-import { Fs } from '@sys/fs';
-
-import { describe, expect, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { MonorepoCi } from '../mod.ts';
 
 describe('MonorepoCi.Jsr', () => {
@@ -45,12 +43,12 @@ describe('MonorepoCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
     const yaml = await MonorepoCi.Jsr.text({
-      on: { pull_request: ['main'], push: ['main', 'phil-work'] },
+      on: { pull_request: ['main'], push: ['main', 'sample-branch'] },
       paths: [moduleDir],
     });
 
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(true);
-    expect(yaml.includes('- phil-work')).to.eql(true);
+    expect(yaml.includes('- sample-branch')).to.eql(true);
   });
 });

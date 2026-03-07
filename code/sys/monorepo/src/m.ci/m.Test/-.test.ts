@@ -1,6 +1,4 @@
-import { Fs } from '@sys/fs';
-
-import { describe, expect, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { MonorepoCi } from '../mod.ts';
 
 describe('MonorepoCi.Test', () => {
@@ -9,8 +7,14 @@ describe('MonorepoCi.Test', () => {
     const a = fs.join('code/sys/alpha');
     const b = fs.join('code/sys/beta');
 
-    await Fs.writeJson(Fs.join(a, 'deno.json'), { name: '@scope/alpha', tasks: { test: 'deno task help' } });
-    await Fs.writeJson(Fs.join(b, 'deno.json'), { name: '@scope/beta', tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(a, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { test: 'deno task help' },
+    });
+    await Fs.writeJson(Fs.join(b, 'deno.json'), {
+      name: '@scope/beta',
+      tasks: { test: 'deno task help' },
+    });
 
     const yaml = await MonorepoCi.Test.text({ paths: [a, b] });
     expect(yaml.includes('name: test')).to.eql(true);
@@ -32,7 +36,10 @@ describe('MonorepoCi.Test', () => {
     const moduleDir = fs.join('code/sys/alpha');
     const target = fs.join('.github/workflows/test.yaml');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { test: 'deno task help' },
+    });
     const res = await MonorepoCi.Test.write({ paths: [moduleDir], target });
 
     expect(res.target).to.eql(target);
@@ -46,14 +53,27 @@ describe('MonorepoCi.Test', () => {
     const fs = await Testing.dir('MonorepoCi.Test.on').create();
     const moduleDir = fs.join('code/sys/alpha');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { test: 'deno task help' },
+    });
     const yaml = await MonorepoCi.Test.text({
-      on: { pull_request: ['main'], push: ['main', 'phil-work'] },
+      on: { pull_request: ['main'], push: ['main', 'sample-branch'] },
       paths: [moduleDir],
     });
 
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(true);
-    expect(yaml.includes('- phil-work')).to.eql(true);
+    expect(yaml.includes('- sample-branch')).to.eql(true);
+  });
+
+  it('falls back to the module path when name is missing', async () => {
+    const fs = await Testing.dir('MonorepoCi.Test.path-fallback').create();
+    const moduleDir = fs.join('code/projects/demo');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task help' } });
+    const yaml = await MonorepoCi.Test.text({ paths: [moduleDir] });
+
+    expect(yaml.includes(`name: "${moduleDir}"`)).to.eql(true);
   });
 });

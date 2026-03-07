@@ -1,19 +1,22 @@
-import { type t, DenoFile, Err, Fs, Is } from '../common.ts';
+import { type t, Err, Fs, Is, Json } from '../common.ts';
 import { BUILD_MATRIX_ITEM_TEMPLATE } from './u.tmpl.ts';
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
-  const resolved = Fs.resolve(cwd, path);
-  const file = await DenoFile.load(resolved);
-  if (!file.ok) {
-    throw Err.std(`Failed to load module deno.json: ${resolved}`, { cause: file.error });
-  }
+  const resolved = Fs.join(Fs.resolve(cwd, path), 'deno.json');
+  const file = await loadJson(resolved);
 
-  const name = file.data?.name;
-  if (!Is.str(name) || !name) throw new Error(`Module deno.json is missing "name": ${file.path}`);
-
-  return { path, name } as const;
+  const name = file.name;
+  return { path, name: Is.str(name) && name ? name : path } as const;
 }
 
 export function toMatrixItemYaml(module: { path: t.StringPath; name: string }) {
   return BUILD_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+}
+
+async function loadJson(path: string) {
+  try {
+    return Json.parse(await Deno.readTextFile(path)) as { name?: unknown };
+  } catch (cause) {
+    throw Err.std(`Failed to load module deno.json: ${path}`, { cause });
+  }
 }

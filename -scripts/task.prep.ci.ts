@@ -42,7 +42,7 @@ export async function main() {
   const testPaths = await toTestCiPaths(cwd, Paths.modules);
   const on = {
     // pull_request: ['main'],
-    push: ['main', 'phil-work'],
+    push: ['main', 'sample-branch'],
   } as const;
   const env = {
     // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
