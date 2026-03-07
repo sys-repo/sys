@@ -1,4 +1,13 @@
-export const BUILD_HEADER_TEMPLATE = `name: build
+type WorkflowArgs = {
+  readonly name: string;
+  readonly permissions: string;
+  readonly jobConfig?: string;
+  readonly body: string;
+};
+
+export function workflowTemplate(args: WorkflowArgs) {
+  const jobConfig = args.jobConfig ? `\n${args.jobConfig}` : '';
+  return `name: ${args.name}
 
 on:
   push:
@@ -10,19 +19,14 @@ jobs:
   deno:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+${args.permissions}
     environment: dev
     env:
       TEST_SAMPLE: \${{ vars.TEST_SAMPLE }}
       DENO_SUBHOSTING_ACCESS_TOKEN: \${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
       DENO_SUBHOSTING_DEPLOY_ORG_ID: \${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
       PRIVY_APP_ID: \${{ vars.PRIVY_APP_ID }}
-      PRIVY_APP_SECRET: \${{ secrets.PRIVY_APP_SECRET }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-__MATRIX_ITEMS__
+      PRIVY_APP_SECRET: \${{ secrets.PRIVY_APP_SECRET }}${jobConfig}
 
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +45,15 @@ __MATRIX_ITEMS__
       - name: System Info
         run: deno task help
 
-      - name: build module → "\${{ matrix.name }}"
-        run: |
-          cd \${{ matrix.path }}
-          deno task build`;
+${args.body}`;
+}
+
+export const wrangle = {
+  indent(text: string, indent: number) {
+    return text
+      .split('\n')
+      .map((line) => `${' '.repeat(indent)}${line}`)
+      .filter((line) => (!line.trim() ? line.trim() : line))
+      .join('\n');
+  },
+} as const;

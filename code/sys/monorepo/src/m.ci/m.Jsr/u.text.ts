@@ -1,26 +1,17 @@
 import type { t } from '../common.ts';
-import { JSR_HEADER_TEMPLATE } from '../u.tmpl/mod.ts';
+import { JSR_TEMPLATE } from './u.tmpl.ts';
 import { loadModule, toModuleYaml } from './u.ts';
+import { wrangle } from '../u.workflow.ts';
 
 export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
   const modules = await Promise.all(args.paths.map((path) => loadModule(cwd, path)));
-  let yaml = JSR_HEADER_TEMPLATE;
+  let body = '';
 
   for (const module of modules) {
     const item = wrangle.indent(toModuleYaml(module), 6);
-    yaml += `\n\n${item}`;
+    body += `${body ? '\n\n' : ''}${item}`;
   }
 
-  return `${yaml}\n`;
+  return `${JSR_TEMPLATE.replace(wrangle.indent(toModuleYaml({ path: 'PATH', name: 'NAME' }), 6), body)}\n`;
 }
-
-const wrangle = {
-  indent(text: string, indent: number) {
-    return text
-      .split('\n')
-      .map((line) => `${' '.repeat(indent)}${line}`)
-      .filter((line) => (!line.trim() ? line.trim() : line))
-      .join('\n');
-  },
-} as const;

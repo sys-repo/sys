@@ -1,5 +1,5 @@
 import { type t, DenoFile, Err, Fs, Is } from '../common.ts';
-import { BUILD_MATRIX_ITEM_TEMPLATE } from '../u.tmpl/mod.ts';
+import { BUILD_MATRIX_ITEM_TEMPLATE } from './u.tmpl.ts';
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
   const resolved = Fs.resolve(cwd, path);
