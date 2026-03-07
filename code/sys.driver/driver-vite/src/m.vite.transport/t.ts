@@ -7,5 +7,8 @@ import type { t } from './common.ts';
  * other Deno-native module identities inside the Vite/Rollup pipeline.
  */
 export namespace ViteTransport {
-  export type Lib = {};
+  export type Lib = {
+    /** Produce the Vite plugin for Deno-native module transport. */
+    readonly denoPlugin: () => t.VitePluginOption;
+  };
 }
