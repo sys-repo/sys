@@ -1,6 +1,6 @@
 {
   "name": "@sys/monorepo",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./ci": "./src/m.ci/mod.ts"
   }
 }
