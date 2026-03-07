@@ -9,7 +9,7 @@ export type DenoModuleLib = {
    * Perform an upgrade to the latest version of the module in the registry.
    * Relies on the module exposing a "/init" ESM entry point, eg:
    */
-  upgrade(args: t.DenoModuleUpgradeArgs): Promise<DenoModuleUpgrade>;
+  upgrade(args: DenoModuleUpgradeArgs): Promise<DenoModuleUpgrade>;
 };
 
 /** Arguments for the `DenoModule.upgrade` method. */

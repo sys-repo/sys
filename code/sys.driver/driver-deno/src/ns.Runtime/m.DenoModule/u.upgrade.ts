@@ -1,13 +1,14 @@
 import { type t, c, Cli, Jsr, Process, Semver, stripAnsi } from './common.ts';
+import type { DenoModuleLib, DenoModuleUpgrade } from './t.ts';
 
-export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
+export const upgrade: DenoModuleLib['upgrade'] = async (args) => {
   const { force = false, dryRun = false } = args;
 
   let changed = false;
   const done = () => {
     const from = Semver.toString(semver.current);
     const to = Semver.toString(targetVersion);
-    const res: t.DenoModuleUpgrade = { version: { from, to }, changed, dryRun };
+    const res: DenoModuleUpgrade = { version: { from, to }, changed, dryRun };
     return res;
   };
 

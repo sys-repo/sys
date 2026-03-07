@@ -1,13 +1,8 @@
 /**
- * Tools for working with the Deno cloud.
  * @module
- *
- * @example
- * ```ts
- * import { DenoCloud } from '@sys/driver-deno/cloud/server';
- * import { DenoFile } from '@sys/driver-deno/runtime';
- * ```
+ * Tools for working with Deno: standards-based, secure-by-default TypeScript runtime.
  */
 export { pkg } from './pkg.ts';
+
 /** Type library (barrel file). */
 export type * as t from './types.ts';
