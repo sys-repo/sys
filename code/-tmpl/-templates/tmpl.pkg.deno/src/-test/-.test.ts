@@ -1,4 +1,4 @@
-import { type t, describe, it, expect, Pkg, pkg } from './-test.ts';
+import { type t, describe, it, expect, Pkg, pkg } from '../-test.ts';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
   it('exists', () => {
