@@ -14,6 +14,7 @@ export namespace MonorepoCi {
   export type Lib = {
     readonly Jsr: Jsr.Lib;
     readonly Build: Build.Lib;
+    readonly Test: Test.Lib;
   };
 
   /**
@@ -42,6 +43,28 @@ export namespace MonorepoCi {
    * Build workflow generation for modules with a `deno task build` surface.
    */
   export namespace Build {
+    export type Lib = {
+      text(args: Args): Promise<string>;
+      write(args: WriteArgs): Promise<WriteResult>;
+    };
+    export type Args = {
+      readonly cwd?: t.StringDir;
+      readonly paths: readonly t.StringPath[];
+      readonly on?: WorkflowOn;
+      readonly env?: WorkflowEntries;
+    };
+    export type WriteArgs = Args & { readonly target: t.StringPath };
+    export type WriteResult = {
+      readonly target: t.StringPath;
+      readonly yaml: string;
+      readonly count: number;
+    };
+  }
+
+  /**
+   * Test workflow generation for modules with a `deno task test` surface.
+   */
+  export namespace Test {
     export type Lib = {
       text(args: Args): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;

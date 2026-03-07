@@ -9,5 +9,6 @@ describe(`@sys/monorepo/ci`, () => {
     expect(m.Monorepo.Ci).to.equal(MonorepoCi);
     expect(m.Monorepo.Ci.Jsr).to.equal(MonorepoCi.Jsr);
     expect(m.Monorepo.Ci.Build).to.equal(MonorepoCi.Build);
+    expect(m.Monorepo.Ci.Test).to.equal(MonorepoCi.Test);
   });
 });

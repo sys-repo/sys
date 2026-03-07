@@ -20,17 +20,26 @@ export function toJsrCiPaths(paths: readonly string[]) {
 
 export async function toBuildCiPaths(cwd: string, paths: readonly string[]) {
   const results = await Promise.all(
-    paths.map(async (path) => ({ path, hasBuild: await hasBuildTask(cwd, path) })),
+    paths.map(async (path) => ({ path, hasTask: await hasTask(cwd, path, 'build') })),
   );
-  return results.filter((item) => item.hasBuild).map((item) => item.path);
+  return results.filter((item) => item.hasTask).map((item) => item.path);
+}
+
+export async function toTestCiPaths(cwd: string, paths: readonly string[]) {
+  const results = await Promise.all(
+    paths.map(async (path) => ({ path, hasTask: await hasTask(cwd, path, 'test') })),
+  );
+  return results.filter((item) => item.hasTask).map((item) => item.path);
 }
 
 export async function main() {
   const cwd = Deno.cwd();
   const jsrTarget = '.github/workflows/jsr.yaml';
   const buildTarget = '.github/workflows/build.yaml';
+  const testTarget = '.github/workflows/test.yaml';
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const buildPaths = await toBuildCiPaths(cwd, Paths.modules);
+  const testPaths = await toTestCiPaths(cwd, Paths.modules);
   const on = {
     // pull_request: ['main'],
     push: ['main', 'phil-work'],
@@ -42,13 +51,15 @@ export async function main() {
 
   await MonorepoCi.Jsr.write({ cwd, env, on, paths: jsrPaths, target: jsrTarget });
   await MonorepoCi.Build.write({ cwd, env, on, paths: buildPaths, target: buildTarget });
+  await MonorepoCi.Test.write({ cwd, env, on, paths: testPaths, target: testTarget });
 
   console.info(`${c.green('Updated file:')} ${c.gray(jsrTarget)}`);
-  console.info(`${c.green('Updated file:')} ${c.gray(buildTarget)}\n`);
+  console.info(`${c.green('Updated file:')} ${c.gray(buildTarget)}`);
+  console.info(`${c.green('Updated file:')} ${c.gray(testTarget)}\n`);
 }
 
-async function hasBuildTask(cwd: string, path: string) {
+async function hasTask(cwd: string, path: string, key: 'build' | 'test') {
   const denofile = await DenoFile.load(Fs.resolve(cwd, path));
   if (!denofile.ok) return false;
-  return typeof denofile.data?.tasks?.build === 'string' && !!denofile.data?.tasks?.build;
+  return typeof denofile.data?.tasks?.[key] === 'string' && !!denofile.data?.tasks?.[key];
 }
