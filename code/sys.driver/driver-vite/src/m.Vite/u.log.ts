@@ -1,4 +1,4 @@
-import { ViteLog } from '../m.Print/mod.ts';
+import { ViteLog } from '../m.fmt/mod.ts';
 import { type t, Path, c } from './common.ts';
 
 type BuildArgs = t.ViteLogBundleArgs & {
@@ -84,13 +84,13 @@ ${c.brightGreen(c.bold('Info'))}
 ${hr}
 ${ws?.toString() || ''}
 
-${Log.Info.toString({ pkg, dist, url, pad })}      
+${Log.Info.toString({ pkg, dist, url, pad })}
          ${c.green('↓')}
          ${c.green('input')}    ${Path.trimCwd(input)}
          ${c.white('output')}   ${Path.trimCwd(outDir)} ${digest}
 
 
-${c.green(c.bold('Options'))}: 
+${c.green(c.bold('Options'))}:
 ${hr}
  Quit   ${key('ctrl + c')}
  Clear  ${key('k')}
