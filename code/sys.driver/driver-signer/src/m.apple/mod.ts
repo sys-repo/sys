@@ -8,5 +8,5 @@ import { run } from './u.run.ts';
 
 export const AppleSigner: t.AppleSigner.Lib = {
   capabilities,
-  run: (input) => run(input),
+  run,
 };
