@@ -166,5 +166,101 @@ describe('ViteTransport.resolve', () => {
       const res = await resolveViteSpecifier('./child.ts', cache, fs.dir, importer);
       expect(res).to.eql(child);
     });
+
+    it('matches raw dependency specifiers before import-meta normalization', async () => {
+      const parentResolved = '/tmp/cache/std-path-join.ts';
+      const childResolved = '/tmp/cache/std-internal-os.ts';
+      const importer = toDenoSpecifier('TypeScript', 'jsr:@std/path/join', parentResolved);
+      const cache = new Map<string, t.DenoResolved>([
+        [
+          parentResolved,
+          {
+            id: parentResolved,
+            kind: 'esm',
+            loader: 'TypeScript',
+            dependencies: [
+              {
+                specifier: 'jsr:@std/internal@^1.0.12/os',
+                resolvedSpecifier: 'jsr:@std/internal@^1.0.12/os',
+              },
+            ],
+          },
+        ],
+        [
+          'jsr:@std/internal@^1.0.12/os',
+          {
+            id: childResolved,
+            kind: 'esm',
+            loader: 'TypeScript',
+            dependencies: [],
+          },
+        ],
+      ]);
+
+      const res = await resolveViteSpecifier(
+        'jsr:@std/internal@^1.0.12/os',
+        cache,
+        '/tmp/project',
+        importer,
+        {
+          async invoke() {
+            throw new Error('invoke should not be called for cached dependency match');
+          },
+          resolveImport() {
+            return 'https://jsr.io/@std/internal/1.0.12/os.ts';
+          },
+        },
+      );
+
+      expect(res).to.eql(
+        toDenoSpecifier('TypeScript', 'jsr:@std/internal@^1.0.12/os', childResolved),
+      );
+    });
+
+    it('falls back to the raw specifier when dependency code specifier is absent', async () => {
+      const json = JSON.stringify({
+        roots: ['jsr:@std/path/join'],
+        redirects: {
+          'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',
+        },
+        modules: [
+          {
+            kind: 'esm',
+            local: '/tmp/cache/std-path-join.ts',
+            mediaType: 'TypeScript',
+            specifier: 'https://jsr.io/@std/path/1.1.4/join.ts',
+            dependencies: [
+              {
+                specifier: 'jsr:@std/internal@^1.0.12/os',
+              },
+            ],
+          },
+        ],
+      });
+
+      const res = await resolveDenoWith('jsr:@std/path/join', '/tmp', {
+        async invoke(input: t.ProcInvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          return procOutput({ success: true, stdout: json });
+        },
+        resolveImport(id) {
+          return id;
+        },
+      });
+
+      expect(res).to.eql({
+        id: '/tmp/cache/std-path-join.ts',
+        kind: 'esm',
+        loader: 'TypeScript',
+        dependencies: [
+          {
+            specifier: 'jsr:@std/internal@^1.0.12/os',
+            resolvedSpecifier: 'jsr:@std/internal@^1.0.12/os',
+          },
+        ],
+      });
+    });
   });
 });

@@ -5,8 +5,8 @@ export type DenoLoader = 'JSX' | 'JavaScript' | 'Json' | 'TSX' | 'TypeScript';
 
 export type ResolveInfoDependency = {
   readonly specifier: string;
-  readonly code: {
-    readonly specifier: string;
+  readonly code?: {
+    readonly specifier?: string;
   };
 };
 

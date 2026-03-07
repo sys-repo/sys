@@ -1,0 +1,8 @@
+import { Vite } from 'jsr:@sys/driver-vite';
+import { defineConfig } from 'npm:vite';
+
+export default defineConfig(() =>
+  Vite.Config.app({
+    paths: Vite.Config.paths({ app: { entry: './index.html' } }),
+  }),
+);

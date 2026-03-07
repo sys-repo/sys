@@ -55,7 +55,7 @@ function normalizeDependencies(
 ): readonly t.DenoDependency[] {
   return (dependencies ?? []).map((dependency) => ({
     specifier: dependency.specifier,
-    resolvedSpecifier: dependency.code.specifier,
+    resolvedSpecifier: dependency.code?.specifier ?? dependency.specifier,
   }));
 }
 
@@ -126,10 +126,12 @@ export async function resolveViteSpecifier(
   deps: t.ResolveDeps = depsDefault,
 ) {
   const root = Path.normalize(posixRoot);
+  const sourceId = id;
+  let normalizedId = id;
 
   if (!id.startsWith('.') && !id.startsWith('/')) {
     try {
-      id = deps.resolveImport(id);
+      normalizedId = deps.resolveImport(id);
     } catch {
       // Ignore unresolved import-map / module cases here.
     }
@@ -140,11 +142,15 @@ export async function resolveViteSpecifier(
     const cached = cache.get(parent);
     if (cached === undefined) return;
 
-    const found = cached.dependencies.find((dep) => dep.specifier === id);
+    const found = cached.dependencies.find((dep) => {
+      return dep.specifier === sourceId || dep.resolvedSpecifier === normalizedId;
+    });
     if (found === undefined) return;
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
+  } else {
+    id = normalizedId;
   }
 
   const resolved = cache.get(id) ?? await resolveDenoWith(id, root, deps);
