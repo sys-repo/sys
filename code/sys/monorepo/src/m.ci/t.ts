@@ -5,6 +5,8 @@ import type { t } from './common.ts';
  * Continuous-integration module surface for monorepo tooling.
  */
 export namespace MonorepoCi {
+  export type WorkflowEntries = Readonly<Record<string, string>>;
+
   export type Lib = {
     readonly Jsr: Jsr.Lib;
     readonly Build: Build.Lib;
@@ -18,7 +20,11 @@ export namespace MonorepoCi {
       text(args: TextArgs): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
     };
-    export type TextArgs = { readonly cwd?: t.StringDir; readonly paths: readonly t.StringPath[] };
+    export type TextArgs = {
+      readonly cwd?: t.StringDir;
+      readonly paths: readonly t.StringPath[];
+      readonly env?: WorkflowEntries;
+    };
     export type WriteArgs = TextArgs & { readonly target: t.StringPath };
     export type WriteResult = {
       readonly target: t.StringPath;
@@ -35,7 +41,11 @@ export namespace MonorepoCi {
       text(args: Args): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
     };
-    export type Args = { readonly cwd?: t.StringDir; readonly paths: readonly t.StringPath[] };
+    export type Args = {
+      readonly cwd?: t.StringDir;
+      readonly paths: readonly t.StringPath[];
+      readonly env?: WorkflowEntries;
+    };
     export type WriteArgs = Args & { readonly target: t.StringPath };
     export type WriteResult = {
       readonly target: t.StringPath;

@@ -1,6 +1,6 @@
 import { MonorepoCi } from '@sys/monorepo/ci';
 import { Paths } from './-PATHS.ts';
-import { c } from './common.ts';
+import { c, DenoFile, Fs } from './common.ts';
 
 export const JsrCiIncludePrefixes = [
   'code/sys/',
@@ -18,9 +18,34 @@ export function toJsrCiPaths(paths: readonly string[]) {
   return paths.filter((path) => JsrCiIncludePrefixes.some((item) => path.startsWith(item)));
 }
 
+export async function toBuildCiPaths(cwd: string, paths: readonly string[]) {
+  const results = await Promise.all(paths.map(async (path) => ({ path, hasBuild: await hasBuildTask(cwd, path) })));
+  return results.filter((item) => item.hasBuild).map((item) => item.path);
+}
+
 export async function main() {
-  const target = '.github/workflows/jsr.yaml';
-  const paths = toJsrCiPaths(Paths.modules);
-  await MonorepoCi.Jsr.write({ cwd: Deno.cwd(), paths, target });
-  console.info(`${c.green('Updated file:')} ${c.gray(target)}\n`);
+  const cwd = Deno.cwd();
+  const jsrTarget = '.github/workflows/jsr.yaml';
+  const buildTarget = '.github/workflows/build.yaml';
+  const jsrPaths = toJsrCiPaths(Paths.modules);
+  const buildPaths = await toBuildCiPaths(cwd, Paths.modules);
+  const env = {
+    TEST_SAMPLE: '${{ vars.TEST_SAMPLE }}',
+    DENO_SUBHOSTING_ACCESS_TOKEN: '${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
+    DENO_SUBHOSTING_DEPLOY_ORG_ID: '${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
+    PRIVY_APP_ID: '${{ vars.PRIVY_APP_ID }}',
+    PRIVY_APP_SECRET: '${{ vars.PRIVY_APP_SECRET }}',
+  } as const;
+
+  await MonorepoCi.Jsr.write({ cwd, env, paths: jsrPaths, target: jsrTarget });
+  await MonorepoCi.Build.write({ cwd, env, paths: buildPaths, target: buildTarget });
+
+  console.info(`${c.green('Updated file:')} ${c.gray(jsrTarget)}`);
+  console.info(`${c.green('Updated file:')} ${c.gray(buildTarget)}\n`);
+}
+
+async function hasBuildTask(cwd: string, path: string) {
+  const denofile = await DenoFile.load(Fs.resolve(cwd, path));
+  if (!denofile.ok) return false;
+  return typeof denofile.data?.tasks?.build === 'string' && !!denofile.data?.tasks?.build;
 }

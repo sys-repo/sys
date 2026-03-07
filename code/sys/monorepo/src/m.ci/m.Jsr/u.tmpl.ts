@@ -1,15 +1,6 @@
-import { workflowTemplate } from '../u.workflow.ts';
+export const JSR_MODULES_PLACEHOLDER = '__MODULES__';
 
-export const JSR_TEMPLATE = workflowTemplate({
-  name: 'ci',
-  permissions: [
-    '      contents: read',
-    '      id-token: write # The OIDC/ID token is used for authentication with JSR.',
-  ].join('\n'),
-  body: `__MODULES__`,
-});
-
-export const JSR_MODULE_TEMPLATE = `- name: publish module → "NAME"
+export const JSR_BODY_TEMPLATE = `- name: publish module → "NAME"
   run: |
     cd PATH
     deno task test --trace-leaks

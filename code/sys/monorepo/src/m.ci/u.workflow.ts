@@ -2,13 +2,35 @@ import { type t, Str } from './common.ts';
 
 type WorkflowArgs = {
   readonly name: string;
-  readonly permissions: string;
+  readonly permissions: t.MonorepoCi.WorkflowEntries;
+  readonly env?: t.MonorepoCi.WorkflowEntries;
   readonly jobConfig?: string;
   readonly body: string;
 };
 
 export function workflowTemplate(args: WorkflowArgs) {
-  const jobConfig = args.jobConfig ? `\n${args.jobConfig}` : '';
+  const permissions = wrangle.map(args.permissions, 6);
+  const env = args.env ? `    env:\n${wrangle.map(args.env, 6)}\n` : '';
+  const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
+  const steps = Str.dedent(`
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.5.x
+
+      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
+        run: deno task help
+
+      - name: Deno Info
+        run: deno info && deno --version
+
+      - name: System Info
+        run: deno task help
+  `).trim();
+
   return Str.dedent(`
     name: ${args.name}
 
@@ -22,34 +44,19 @@ export function workflowTemplate(args: WorkflowArgs) {
       deno:
         runs-on: ubuntu-latest
         permissions:
-    ${args.permissions}
+        __PERMISSIONS__
         environment: dev
-        env:
-          TEST_SAMPLE: \${{ vars.TEST_SAMPLE }}
-          DENO_SUBHOSTING_ACCESS_TOKEN: \${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-          DENO_SUBHOSTING_DEPLOY_ORG_ID: \${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-          PRIVY_APP_ID: \${{ vars.PRIVY_APP_ID }}
-          PRIVY_APP_SECRET: \${{ vars.PRIVY_APP_SECRET }}${jobConfig}
+        __ENV__
+        __JOB_CONFIG__
+        __STEPS__
 
-        steps:
-          - uses: actions/checkout@v3
-
-          - name: 'Install ESM Runtime: Deno 2.x'
-            uses: denoland/setup-deno@v1
-            with:
-              deno-version: v2.5.x
-
-          - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
-            run: deno task help
-
-          - name: Deno Info
-            run: deno info && deno --version
-
-          - name: System Info
-            run: deno task help
-
-    ${args.body}
-  `);
+        __BODY__
+  `)
+    .replace(/^ {4}__PERMISSIONS__$/m, permissions)
+    .replace(/^ {4}__ENV__$/m, env.trimEnd())
+    .replace(/^ {4}__JOB_CONFIG__$/m, jobConfig.trimEnd())
+    .replace(/^ {4}__STEPS__$/m, wrangle.indent(steps, 4))
+    .replace(/^ {4}__BODY__$/m, args.body);
 }
 
 export const wrangle = {
@@ -58,6 +65,12 @@ export const wrangle = {
       .split('\n')
       .map((line) => `${' '.repeat(indent)}${line}`)
       .filter((line) => (!line.trim() ? line.trim() : line))
+      .join('\n');
+  },
+
+  map(entries: Readonly<Record<string, string>>, indent: number) {
+    return Object.entries(entries)
+      .map(([key, value]) => `${' '.repeat(indent)}${key}: ${value}`)
       .join('\n');
   },
 } as const;

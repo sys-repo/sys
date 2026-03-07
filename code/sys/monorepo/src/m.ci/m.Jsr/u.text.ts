@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
-import { JSR_TEMPLATE } from './u.tmpl.ts';
+import { workflowTemplate, wrangle } from '../u.workflow.ts';
 import { loadModule, toModuleYaml } from './u.ts';
-import { wrangle } from '../u.workflow.ts';
+import { JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';
 
 export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
@@ -13,5 +13,13 @@ export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
     body += `${body ? '\n\n' : ''}${item}`;
   }
 
-  return `${JSR_TEMPLATE.replace('__MODULES__', body)}\n`;
+  return `${workflowTemplate({
+    name: 'ci',
+    permissions: {
+      contents: 'read',
+      'id-token': 'write # The OIDC/ID token is used for authentication with JSR.',
+    },
+    env: args.env,
+    body: JSR_MODULES_PLACEHOLDER,
+  }).replace(JSR_MODULES_PLACEHOLDER, body)}\n`;
 }

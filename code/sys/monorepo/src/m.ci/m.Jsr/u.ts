@@ -1,5 +1,5 @@
 import { type t, DenoFile, Err, Fs, Is } from '../common.ts';
-import { JSR_MODULE_TEMPLATE } from './u.tmpl.ts';
+import { JSR_BODY_TEMPLATE } from './u.tmpl.ts';
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
   const resolved = Fs.resolve(cwd, path);
@@ -15,5 +15,5 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
 }
 
 export function toModuleYaml(module: { path: t.StringPath; name: string }) {
-  return JSR_MODULE_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+  return JSR_BODY_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
 }
