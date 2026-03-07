@@ -4,7 +4,7 @@ import { logTemplate, makeWorkspaceWithPkg } from './u.ts';
 describe('Template: m.mod', () => {
   it('run', async () => {
     /**
-     * Workspace + pkg scaffold (pkg.deno already applied):
+     * Workspace + pkg scaffold (pkg already applied):
      */
     const test = await makeWorkspaceWithPkg('ns', 'my-module', '@my-scope/foo');
     const srcDir = Fs.join(test.pkgDir, 'src');

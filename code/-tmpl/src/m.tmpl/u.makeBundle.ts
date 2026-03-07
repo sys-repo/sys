@@ -1,4 +1,5 @@
 import { type t, Fs, PATHS, Templates, TmplEngine } from './common.ts';
+import { TemplateSourceRoots } from '../m.Templates.ts';
 
 const PREFIX = 'tmpl.';
 
@@ -19,7 +20,7 @@ export async function makeBundle() {
   const res = await TmplEngine.bundle(src, {
     targetFile,
     filter,
-    beforeWrite: (e) => e.modify(stripPrefix(e.fileMap)),
+    beforeWrite: (e) => e.modify(toPublicTemplateRoots(e.fileMap)),
   });
 
   console.info(TmplEngine.Log.bundled(res));
@@ -43,8 +44,8 @@ export async function assertTemplateSourceClean(sourceRoot: t.StringDir) {
   const root = Fs.resolve(sourceRoot);
   const offenders: string[] = [];
 
-  for (const name of TemplateNames) {
-    const templateRoot = Fs.join(root, `${PREFIX}${name}`);
+  for (const sourceName of Object.values(TemplateSourceRoots)) {
+    const templateRoot = Fs.join(root, `${PREFIX}${sourceName}`);
     for (const segment of FORBIDDEN_SEGMENTS) {
       const dir = Fs.join(templateRoot, segment);
       if (await Fs.exists(dir)) offenders.push(dir);
@@ -62,12 +63,21 @@ export async function assertTemplateSourceClean(sourceRoot: t.StringDir) {
   }
 }
 
-function stripPrefix(fileMap: t.FileMap) {
+function toPublicTemplateRoots(fileMap: t.FileMap) {
   return Object.entries(fileMap).reduce((acc, [key, value]) => {
     if (key.startsWith(PREFIX)) key = key.slice(PREFIX.length);
+    key = toPublicTemplateRoot(key);
     acc[key] = value;
     return acc;
   }, {} as t.FileMap);
+}
+
+function toPublicTemplateRoot(path: string) {
+  for (const [templateName, sourceRoot] of Object.entries(TemplateSourceRoots)) {
+    if (path === sourceRoot) return templateName;
+    if (path.startsWith(`${sourceRoot}/`)) return `${templateName}${path.slice(sourceRoot.length)}`;
+  }
+  return path;
 }
 
 function normalizePath(path: string) {

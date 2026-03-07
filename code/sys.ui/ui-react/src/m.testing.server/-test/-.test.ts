@@ -2,7 +2,7 @@ import { act, renderHook } from '../u.renderHook.ts';
 import { describe, expect, it } from '../../-test.ts';
 import { DomMock, Testing, TestReact } from '../mod.ts';
 
-describe('React Testing (Server)', () => {
+describe('React Testing (Server)', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('API', async () => {
     const m = await import('@sys/ui-react/testing/server');
     expect(m.TestReact).to.equal(TestReact);

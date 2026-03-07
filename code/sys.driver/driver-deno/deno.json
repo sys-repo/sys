@@ -1,10 +1,10 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.248",
+  "version": "0.0.249",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev ./-scripts/-dev.ts --watch",
     "test": "deno test -P=testset",
+    "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-clean.ts"
   },
@@ -12,8 +12,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./cloud/client": "./src/ns.Cloud/ns.client/mod.ts",
-    "./cloud/server": "./src/ns.Cloud/ns.server/mod.ts",
     "./runtime": "./src/ns.Runtime/mod.ts"
   }
 }

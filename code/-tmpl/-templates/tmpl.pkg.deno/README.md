@@ -1,6 +1,6 @@
 # Module
 
-### Example
+### Usage
 ```ts
 import { pkg } from 'jsr:@sys/🐷';
 ```

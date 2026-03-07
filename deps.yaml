@@ -103,6 +103,7 @@ groups:
 deno.json:
   - group: std/deno
   - group: std/testing
+  - group: build/tools/vite
   - group: crypto
   - group: schema
   - group: ai

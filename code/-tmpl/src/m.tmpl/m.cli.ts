@@ -75,7 +75,7 @@ async function resolveTargetDir(cwd: t.StringDir, args: CliParsedArgs): Promise<
 }
 
 function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): SetupOptions {
-  if (tmplName === 'pkg.deno') {
+  if (tmplName === 'pkg') {
     if (!Is.str(args.pkgName) && !args.interactive) {
       throw new Error(`Template "${tmplName}" requires --pkgName in --no-interactive mode.`);
     }
