@@ -14,7 +14,7 @@ export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   }
 
   return `${workflowTemplate({
-    name: 'ci',
+    name: 'jsr',
     permissions: {
       contents: 'read',
       'id-token': 'write # The OIDC/ID token is used for authentication with JSR.',

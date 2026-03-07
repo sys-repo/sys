@@ -1,4 +1,4 @@
-name: ci
+name: jsr
 on:
   push:
     branches:

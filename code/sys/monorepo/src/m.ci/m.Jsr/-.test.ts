@@ -13,7 +13,7 @@ describe('MonorepoCi.Jsr', () => {
     await Fs.writeJson(Fs.join(b, 'deno.json'), { name: '@scope/beta' });
 
     const yaml = await MonorepoCi.Jsr.text({ paths: [a, b] });
-    expect(yaml.includes('name: ci')).to.eql(true);
+    expect(yaml.includes('name: jsr')).to.eql(true);
     expect(yaml.includes('publish module → "@scope/alpha"')).to.eql(true);
     expect(yaml.includes('publish module → "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
