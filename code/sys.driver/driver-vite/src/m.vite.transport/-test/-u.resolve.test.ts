@@ -151,7 +151,7 @@ describe('ViteTransport.resolve', () => {
           dependencies: [
             {
               specifier: './child.ts',
-              code: { specifier: Path.toFileUrl(child).href },
+              resolvedSpecifier: Path.toFileUrl(child).href,
             },
           ],
         },

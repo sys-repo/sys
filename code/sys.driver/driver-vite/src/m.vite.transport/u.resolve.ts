@@ -50,6 +50,15 @@ function isResolveInfoModuleExternal(
   return !isResolveError(info) && info.kind === 'external';
 }
 
+function normalizeDependencies(
+  dependencies: readonly t.ResolveInfoDependency[] | undefined,
+): readonly t.DenoDependency[] {
+  return (dependencies ?? []).map((dependency) => ({
+    specifier: dependency.specifier,
+    resolvedSpecifier: dependency.code.specifier,
+  }));
+}
+
 export async function resolveDeno(id: string, cwd: string): Promise<t.DenoResolved | null> {
   return await resolveDenoWith(id, cwd, depsDefault);
 }
@@ -92,7 +101,7 @@ export async function resolveDenoWith(
       id: mod.local,
       kind: mod.kind,
       loader: mod.mediaType ?? null,
-      dependencies: mod.dependencies ?? [],
+      dependencies: normalizeDependencies(mod.dependencies),
     };
   }
 
@@ -134,7 +143,7 @@ export async function resolveViteSpecifier(
     const found = cached.dependencies.find((dep) => dep.specifier === id);
     if (found === undefined) return;
 
-    id = found.code.specifier;
+    id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
   }
 

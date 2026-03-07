@@ -3,11 +3,16 @@ export type * from '../common.t.ts';
 
 export type DenoLoader = 'JSX' | 'JavaScript' | 'Json' | 'TSX' | 'TypeScript';
 
-export type DenoDependency = {
+export type ResolveInfoDependency = {
   readonly specifier: string;
   readonly code: {
     readonly specifier: string;
   };
+};
+
+export type DenoDependency = {
+  readonly specifier: string;
+  readonly resolvedSpecifier: string;
 };
 
 export type DenoResolvedEsm = {
@@ -52,7 +57,7 @@ export type ResolveInfoModuleEsm = {
   readonly kind: 'esm';
   readonly local: string;
   readonly mediaType?: DenoLoader;
-  readonly dependencies?: readonly DenoDependency[];
+  readonly dependencies?: readonly ResolveInfoDependency[];
   readonly specifier: string;
 };
 
