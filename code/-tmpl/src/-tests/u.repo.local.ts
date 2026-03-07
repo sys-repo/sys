@@ -55,7 +55,7 @@ async function loadLocalAuthorities() {
 }
 
 async function buildLocalAuthorities() {
-  const rootImportMap = await readImportMap(Fs.join(SYS_ROOT, 'deno.imports.json'));
+  const rootImportMap = await readImportMap(Fs.join(SYS_ROOT, 'imports.json'));
   const rootDeno = await readJson<WorkspaceDeno>(Fs.join(SYS_ROOT, 'deno.json'));
   const localImports: Record<string, string> = { ...rootImportMap.imports };
 

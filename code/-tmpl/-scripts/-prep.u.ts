@@ -19,7 +19,7 @@ export const PATH = {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
-      rootImports: Fs.join(root, 'deno.imports.json'),
+      rootImports: Fs.join(root, 'imports.json'),
     };
   },
 } as const;
@@ -112,7 +112,7 @@ function resolveImportValue(
 
   const pkg = sysPackageName(key);
   if (!pkg) {
-    throw new Error(`Missing import "${key}" in root deno.imports.json`);
+    throw new Error(`Missing import "${key}" in root imports.json`);
   }
 
   const version = packageVersions[pkg];

@@ -34,7 +34,7 @@
   },
   "nodeModulesDir": "auto",
 
-  "importMap": "deno.imports.json",
+  "importMap": "imports.json",
   "workspace": [
     "code/sys/monorepo",
     "code/sys.model/model-slug",

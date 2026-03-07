@@ -2,7 +2,7 @@
   // --- Deno -------------------------------------------------
   "deno.enable": false,
   "deno.lint": false,
-  "deno.importMap": "deno.imports.json",
+  "deno.importMap": "imports.json",
   "deno.enablePaths": ["code", "deploy", "-scripts"],
   "deno.disablePaths": ["node_modules", "**/dist", "**/.vite", "**/coverage", "-tmp", "-tmp/**"],
 

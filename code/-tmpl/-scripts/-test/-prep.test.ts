@@ -53,12 +53,12 @@ describe('prep.u', () => {
     expect(res.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.3.7');
   });
 
-  it('syncTemplateImports → throws when a required import key is missing in root deno.imports.json', () => {
+  it('syncTemplateImports → throws when a required import key is missing in root imports.json', () => {
     const input = { imports: { foo: 'jsr:@foo/bar@0.0.0' } };
     const authority = { imports: {} };
 
     expect(() => syncTemplateImports(input, authority, {})).to.throw(
-      'Missing import "foo" in root deno.imports.json',
+      'Missing import "foo" in root imports.json',
     );
   });
 
@@ -104,7 +104,7 @@ describe('prep.u', () => {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
-      rootImports: Fs.join(root, 'deno.imports.json'),
+      rootImports: Fs.join(root, 'imports.json'),
     } as const;
 
     const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
