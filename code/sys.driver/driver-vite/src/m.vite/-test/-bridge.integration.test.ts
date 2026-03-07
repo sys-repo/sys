@@ -3,10 +3,9 @@ import { Vite } from '../mod.ts';
 
 describe('Vite @sys bridge integration', () => {
   it.skip('build: resolves @sys imports from dedicated fixture', async () => {
-    // Remaining repro marker on the owned transport boundary:
-    // build path still fails on remote-package relative resolution
-    // (`Could not resolve "../http.client/mod.ts"` from a remote cache id).
-    // Keep skipped until that build-only resolution class is fixed.
+    // This fixture still imports the published `jsr:@sys/driver-vite`, not the local
+    // source module. Keep it skipped until the published package catches up or the
+    // fixture is explicitly rebound to local driver-vite sources for owned-boundary testing.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
