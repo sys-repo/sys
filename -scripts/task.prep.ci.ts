@@ -25,14 +25,35 @@ export async function main() {
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const on = {
     // pull_request: ['main'],
-    push: ['main', 'sample-branch'],
+    push: { branches: ['main', 'phil-work'] },
   } as const;
   const env = {
     // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  await Ci.Jsr.sync({ cwd, env, log: true, on, source: { paths: jsrPaths }, target: jsrTarget });
-  await Ci.Build.sync({ cwd, env, log: true, on, source: { paths: Paths.modules }, target: buildTarget });
-  await Ci.Test.sync({ cwd, env, log: true, on, source: { paths: Paths.modules }, target: testTarget });
+  await Ci.Jsr.sync({
+    cwd,
+    env,
+    log: true,
+    on: { push: { tags: ['jsr-publish'] }, workflow_dispatch: true },
+    source: { paths: jsrPaths },
+    target: jsrTarget,
+  });
+  await Ci.Build.sync({
+    cwd,
+    env,
+    log: true,
+    on,
+    source: { paths: Paths.modules },
+    target: buildTarget,
+  });
+  await Ci.Test.sync({
+    cwd,
+    env,
+    log: true,
+    on,
+    source: { paths: Paths.modules },
+    target: testTarget,
+  });
 }

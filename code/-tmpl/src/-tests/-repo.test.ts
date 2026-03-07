@@ -3,7 +3,6 @@ import { logTemplate, makeWorkspace } from './u.ts';
 
 // Integration test override: point generated temp repos at the current local source modules.
 const LOCAL_MONOREPO_CI = toLocalPath('../../../sys/monorepo/src/m.ci/mod.ts');
-const LOCAL_DRIVER_DENO_RUNTIME = toLocalPath('../../../sys.driver/driver-deno/src/ns.Runtime/mod.ts');
 
 describe('Template: repo', () => {
   it('run', async () => {
@@ -33,7 +32,7 @@ describe('Template: repo', () => {
     expect(includes('/README.md')).to.be.true;
     expect(includes('/code/projects/mod.ts')).to.be.true;
     expect(includes('/-scripts/task.prep.ts')).to.be.true;
-    expect(includes('/-scripts/tmpl.ts')).to.be.true;
+    expect(includes('/-scripts/task.tmpl.ts')).to.be.true;
     expect(includes('/.github/workflows/ci.yaml')).to.be.false;
     expect(includes('/.tmpl.ts')).to.be.false;
   });
@@ -108,7 +107,6 @@ async function rewriteMonorepoImport(root: string) {
   const json = (await Fs.readJson(path)).data as { imports?: Record<string, string> };
   json.imports ??= {};
   json.imports['@sys/monorepo/ci'] = LOCAL_MONOREPO_CI;
-  json.imports['@sys/driver-deno/runtime'] = LOCAL_DRIVER_DENO_RUNTIME;
   await Fs.writeJson(path, json);
 }
 

@@ -43,13 +43,32 @@ describe('MonorepoCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
     const yaml = await MonorepoCi.Jsr.text({
-      on: { pull_request: ['main'], push: ['main', 'sample-branch'] },
+      on: {
+        pull_request: { branches: ['main'] },
+        push: { branches: ['main', 'sample-branch'] },
+      },
       paths: [moduleDir],
     });
 
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(true);
     expect(yaml.includes('- sample-branch')).to.eql(true);
+  });
+
+  it('renders tag-triggered publish workflows with workflow dispatch', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.tags').create();
+    const moduleDir = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    const yaml = await MonorepoCi.Jsr.text({
+      on: { push: { tags: ['jsr-publish'] }, workflow_dispatch: true },
+      paths: [moduleDir],
+    });
+
+    expect(yaml.includes('tags:')).to.eql(true);
+    expect(yaml.includes('- jsr-publish')).to.eql(true);
+    expect(yaml.includes('workflow_dispatch:')).to.eql(true);
+    expect(yaml.includes('reusable trigger only')).to.eql(true);
   });
 
   it('syncs from explicit paths and removes the workflow when no modules remain', async () => {

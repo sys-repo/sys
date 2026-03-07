@@ -58,7 +58,10 @@ describe('MonorepoCi.Test', () => {
       tasks: { test: 'deno task help' },
     });
     const yaml = await MonorepoCi.Test.text({
-      on: { pull_request: ['main'], push: ['main', 'sample-branch'] },
+      on: {
+        pull_request: { branches: ['main'] },
+        push: { branches: ['main', 'sample-branch'] },
+      },
       paths: [moduleDir],
     });
 
@@ -97,5 +100,26 @@ describe('MonorepoCi.Test', () => {
 
     const skipped = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(skipped.kind).to.eql('skipped');
+  });
+
+  it('filters explicit path sources by test task presence', async () => {
+    const fs = await Testing.dir('MonorepoCi.Test.sync.paths').create();
+    const testDir = fs.join('code/projects/testable');
+    const buildDir = fs.join('code/projects/build-only');
+
+    await Fs.writeJson(Fs.join(testDir, 'deno.json'), { tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(buildDir, 'deno.json'), { tasks: { build: 'deno task help' } });
+
+    const written = await MonorepoCi.Test.sync({
+      cwd: fs.dir,
+      source: { paths: [buildDir, testDir] },
+      target: '.github/workflows/test.yaml',
+    });
+
+    expect(written.kind).to.eql('written');
+    if (written.kind !== 'written') throw new Error('expected written result');
+    expect(written.count).to.eql(1);
+    expect(written.yaml.includes(testDir)).to.eql(true);
+    expect(written.yaml.includes(buildDir)).to.eql(false);
   });
 });

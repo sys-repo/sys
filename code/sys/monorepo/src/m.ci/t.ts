@@ -105,7 +105,13 @@ export namespace MonorepoCi {
   }
 
   export type WorkflowEntries = Readonly<Record<string, string>>;
-  export type WorkflowOn = Readonly<{ push?: readonly string[]; pull_request?: readonly string[] }>;
+  export type WorkflowBranches = Readonly<{ branches?: readonly string[] }>;
+  export type WorkflowPush = Readonly<{ branches?: readonly string[]; tags?: readonly string[] }>;
+  export type WorkflowOn = Readonly<{
+    push?: WorkflowPush;
+    pull_request?: WorkflowBranches;
+    workflow_dispatch?: boolean;
+  }>;
   export type SourceRoot = { readonly root: t.StringPath };
   export type SourcePaths = { readonly paths: readonly t.StringPath[] };
   export type Source = SourceRoot | SourcePaths;

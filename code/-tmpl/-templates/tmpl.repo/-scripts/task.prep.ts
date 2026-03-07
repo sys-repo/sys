@@ -7,7 +7,10 @@ const PATHS = {
 } as const;
 
 export async function main(cwd = Deno.cwd()) {
-  const on = { pull_request: ['main'], push: ['main'] } as const;
+  const on = {
+    pull_request: { branches: ['main'] },
+    push: { branches: ['main'] },
+  } as const;
   await Ci.Build.sync({ cwd, log: true, source: { root: PATHS.projects }, target: PATHS.build, on });
   await Ci.Test.sync({ cwd, log: true, source: { root: PATHS.projects }, target: PATHS.test, on });
 }

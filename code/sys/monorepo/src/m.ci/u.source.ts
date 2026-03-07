@@ -1,11 +1,16 @@
-import { c, type t, Fs, Json, Path } from './common.ts';
+import { type t, Fs, Json, Path } from './common.ts';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
   source: t.MonorepoCi.Source,
   options: { task?: "build" | "test"; named?: boolean },
 ) {
-  if ('paths' in source) return [...source.paths];
+  if ('paths' in source) {
+    const results = await Promise.all(
+      source.paths.map(async (path) => ({ include: await shouldInclude(cwd, path, options), path })),
+    );
+    return results.filter((item) => item.include).map((item) => item.path).sort();
+  }
 
   const root = Fs.resolve(cwd, source.root);
   if (!(await Fs.exists(root))) return [];
@@ -37,19 +42,18 @@ export function logSyncResult(
 ) {
   if (!options.log) return;
 
-  const label = c.gray(result.target);
+  const label = result.target;
   if (result.kind === 'written') {
-    const count = c.white(`${result.count}`);
-    console.info(`${c.green('Updated file:')} ${label} ${c.gray(`(${count} ${subject} module(s))`)}`);
+    console.info(`Updated file: ${label} (${result.count} ${subject} module(s))`);
     return;
   }
 
   if (result.kind === 'removed') {
-    console.info(`${c.yellow('Removed file:')} ${label}`);
+    console.info(`Removed file: ${label}`);
     return;
   }
 
-  console.info(`${c.gray('Skipped file:')} ${label}`);
+  console.info(`Skipped file: ${label}`);
 }
 
 function hasTask(value: unknown, key: 'build' | 'test') {
@@ -62,6 +66,20 @@ function hasName(value: unknown) {
   if (!value || typeof value !== 'object') return false;
   const name = (value as { name?: unknown }).name;
   return typeof name === 'string' && !!name;
+}
+
+async function shouldInclude(
+  cwd: t.StringDir,
+  path: t.StringPath,
+  options: { task?: 'build' | 'test'; named?: boolean },
+) {
+  const filepath = Fs.join(Fs.resolve(cwd, path), 'deno.json');
+  if (!(await Fs.exists(filepath))) return false;
+  const data = await loadJson(filepath);
+  if (!data) return false;
+  if (options.task && !hasTask(data, options.task)) return false;
+  if (options.named && !hasName(data)) return false;
+  return true;
 }
 
 async function loadJson(path: string) {
