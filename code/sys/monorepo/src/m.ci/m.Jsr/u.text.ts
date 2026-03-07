@@ -13,5 +13,5 @@ export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
     body += `${body ? '\n\n' : ''}${item}`;
   }
 
-  return `${JSR_TEMPLATE.replace(wrangle.indent(toModuleYaml({ path: 'PATH', name: 'NAME' }), 6), body)}\n`;
+  return `${JSR_TEMPLATE.replace('__MODULES__', body)}\n`;
 }
