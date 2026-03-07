@@ -36,7 +36,7 @@ export async function main() {
     cwd,
     env,
     log: true,
-    on: { push: { tags: ['jsr-publish'] }, workflow_dispatch: true },
+    on: { push: { tags: ['jsr-publish', 'jsr-publish-main'] }, workflow_dispatch: true },
     source: { paths: jsrPaths },
     target: jsrTarget,
   });

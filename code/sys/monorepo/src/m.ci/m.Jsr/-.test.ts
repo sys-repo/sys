@@ -61,14 +61,17 @@ describe('MonorepoCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
     const yaml = await MonorepoCi.Jsr.text({
-      on: { push: { tags: ['jsr-publish'] }, workflow_dispatch: true },
+      on: { push: { tags: ['jsr-publish', 'jsr-publish-main'] }, workflow_dispatch: true },
       paths: [moduleDir],
     });
 
     expect(yaml.includes('tags:')).to.eql(true);
     expect(yaml.includes('- jsr-publish')).to.eql(true);
+    expect(yaml.includes('- jsr-publish-main')).to.eql(true);
     expect(yaml.includes('workflow_dispatch:')).to.eql(true);
-    expect(yaml.includes('reusable trigger only')).to.eql(true);
+    expect(yaml.includes('branch-capable publish trigger')).to.eql(true);
+    expect(yaml.includes('strict main-only publish trigger')).to.eql(true);
+    expect(yaml.includes(`if: github.ref_name == 'jsr-publish-main'`)).to.eql(true);
   });
 
   it('syncs from explicit paths and removes the workflow when no modules remain', async () => {

@@ -3,8 +3,9 @@ import { workflowTemplate, wrangle } from '../u.workflow.ts';
 import { loadModule, toModuleYaml } from './u.ts';
 import { JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';
 
-const JSR_GUARD_STEP = `
-- name: Validate publish commit is on main
+const JSR_MAIN_GUARD_STEP = `
+- name: Validate main-only publish commit
+  if: github.ref_name == 'jsr-publish-main'
   run: |
     git fetch origin main:refs/remotes/origin/main
     git merge-base --is-ancestor HEAD refs/remotes/origin/main
@@ -13,7 +14,7 @@ const JSR_GUARD_STEP = `
 export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
   const modules = await Promise.all(args.paths.map((path) => loadModule(cwd, path)));
-  let body = wrangle.indent(JSR_GUARD_STEP.trim(), 6);
+  let body = wrangle.indent(JSR_MAIN_GUARD_STEP.trim(), 6);
 
   for (const module of modules) {
     const item = wrangle.indent(toModuleYaml(module), 6);
@@ -33,7 +34,8 @@ export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
 
   return `${[
     '# Publish trigger workflow.',
-    '# The `jsr-publish` tag is a reusable trigger only and is intentionally overwritten.',
+    '# The `jsr-publish` tag refreshes a branch-capable publish trigger.',
+    '# The `jsr-publish-main` tag refreshes a strict main-only publish trigger.',
     '# Package versions remain the provenance/release identity.',
     workflow,
   ].join('\n')}\n`;
