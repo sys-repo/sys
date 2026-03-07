@@ -3,9 +3,10 @@ import { Vite } from '../mod.ts';
 
 describe('Vite @sys plain bridge integration', () => {
   it.skip('build: plain vite + deno plugin resolves import-map jsr aliases', async () => {
-    // Repro marker: plain vite + deno plugin load-fallback attempts fs-read on canonical `jsr:...`
-    // specifiers instead of resolving via deno-aware pipeline.
-    // Keep skipped until vendored resolver/load path handles canonical jsr ids end-to-end.
+    // Upstream-plugin repro marker, not an owned transport guard:
+    // plain vite + upstream `@deno/vite-plugin` currently fails while loading
+    // config because its resolver imports `esbuild` outside the local import map.
+    // Keep skipped unless this suite is migrated to the owned transport adapter.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.plain.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridgePlain, fs.dir);

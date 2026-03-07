@@ -3,9 +3,10 @@ import { Vite } from '../mod.ts';
 
 describe('Vite @sys bridge integration', () => {
   it.skip('build: resolves @sys imports from dedicated fixture', async () => {
-    // Repro marker: build path currently fails on JSR cache-hash relative resolution
-    // (`Could not resolve "../http.client/mod.ts"` from cache id).
-    // Keep skipped until resolver/load ownership is fixed.
+    // Remaining repro marker on the owned transport boundary:
+    // build path still fails on remote-package relative resolution
+    // (`Could not resolve "../http.client/mod.ts"` from a remote cache id).
+    // Keep skipped until that build-only resolution class is fixed.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
@@ -39,9 +40,9 @@ describe('Vite @sys bridge integration', () => {
     });
   });
 
-  it.skip('dev: serves transformed module with @sys imports', async () => {
-    // Repro marker: same resolver pipeline class as build path.
-    // Keep skipped while the build marker is unresolved.
+  it('dev: serves transformed module with @sys imports', async () => {
+    // Owned transport boundary guard:
+    // dev path serves transformed modules without leaking raw @sys aliases.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.dev');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);

@@ -69,10 +69,10 @@ describe('Vite.build (sample-2)', () => {
     } as const;
   };
 
-  it.skip('monorepo imports | Module-B  ←  Module-A', async () => {
-    // Repro marker: JSR cache-hash module id is parsed as plain JS by rollup/vite load-fallback,
-    // which fails on `export type * ...` in remote package sources.
-    // Keep skipped until vendored resolver/load path keeps canonical ids and TS handling intact.
+  it('monorepo imports | Module-B  ←  Module-A', async () => {
+    // Owned transport boundary guard:
+    // remote package sources must keep canonical ids and TS handling intact
+    // through rollup/vite build for monorepo-style module composition.
     await Testing.retry(2, async () => {
       const { files, res, outDir } = await testBuild(SAMPLE.Dirs.sample2);
       if (VERBOSE) printHtml(files.html, 'sample-2', outDir);
