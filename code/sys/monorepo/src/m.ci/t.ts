@@ -5,12 +5,6 @@ import type { t } from './common.ts';
  * Continuous-integration module surface for monorepo tooling.
  */
 export namespace MonorepoCi {
-  export type WorkflowEntries = Readonly<Record<string, string>>;
-  export type WorkflowOn = Readonly<{
-    push?: readonly string[];
-    pull_request?: readonly string[];
-  }>;
-
   export type Lib = {
     readonly Jsr: Jsr.Lib;
     readonly Build: Build.Lib;
@@ -24,6 +18,7 @@ export namespace MonorepoCi {
     export type Lib = {
       text(args: TextArgs): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
+      sync(args: SyncArgs): Promise<SyncResult>;
     };
     export type TextArgs = {
       readonly cwd?: t.StringDir;
@@ -32,6 +27,14 @@ export namespace MonorepoCi {
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = TextArgs & { readonly target: t.StringPath };
+    export type SyncArgs = {
+      readonly cwd?: t.StringDir;
+      readonly source: Source;
+      readonly target: t.StringPath;
+      readonly on?: WorkflowOn;
+      readonly env?: WorkflowEntries;
+      readonly log?: boolean;
+    };
     export type WriteResult = {
       readonly target: t.StringPath;
       readonly yaml: string;
@@ -46,6 +49,7 @@ export namespace MonorepoCi {
     export type Lib = {
       text(args: Args): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
+      sync(args: SyncArgs): Promise<SyncResult>;
     };
     export type Args = {
       readonly cwd?: t.StringDir;
@@ -54,6 +58,14 @@ export namespace MonorepoCi {
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = Args & { readonly target: t.StringPath };
+    export type SyncArgs = {
+      readonly cwd?: t.StringDir;
+      readonly source: Source;
+      readonly target: t.StringPath;
+      readonly on?: WorkflowOn;
+      readonly env?: WorkflowEntries;
+      readonly log?: boolean;
+    };
     export type WriteResult = {
       readonly target: t.StringPath;
       readonly yaml: string;
@@ -68,6 +80,7 @@ export namespace MonorepoCi {
     export type Lib = {
       text(args: Args): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
+      sync(args: SyncArgs): Promise<SyncResult>;
     };
     export type Args = {
       readonly cwd?: t.StringDir;
@@ -76,10 +89,41 @@ export namespace MonorepoCi {
       readonly env?: WorkflowEntries;
     };
     export type WriteArgs = Args & { readonly target: t.StringPath };
+    export type SyncArgs = {
+      readonly cwd?: t.StringDir;
+      readonly source: Source;
+      readonly target: t.StringPath;
+      readonly on?: WorkflowOn;
+      readonly env?: WorkflowEntries;
+      readonly log?: boolean;
+    };
     export type WriteResult = {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
     };
   }
+
+  export type WorkflowEntries = Readonly<Record<string, string>>;
+  export type WorkflowOn = Readonly<{ push?: readonly string[]; pull_request?: readonly string[] }>;
+  export type SourceRoot = { readonly root: t.StringPath };
+  export type SourcePaths = { readonly paths: readonly t.StringPath[] };
+  export type Source = SourceRoot | SourcePaths;
+  export type SyncResult =
+    | {
+        readonly kind: 'written';
+        readonly target: t.StringPath;
+        readonly yaml: string;
+        readonly count: number;
+      }
+    | {
+        readonly kind: 'removed';
+        readonly target: t.StringPath;
+        readonly count: 0;
+      }
+    | {
+        readonly kind: 'skipped';
+        readonly target: t.StringPath;
+        readonly count: 0;
+      };
 }

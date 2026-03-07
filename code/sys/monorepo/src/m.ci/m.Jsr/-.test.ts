@@ -51,4 +51,47 @@ describe('MonorepoCi.Jsr', () => {
     expect(yaml.includes('pull_request:')).to.eql(true);
     expect(yaml.includes('- sample-branch')).to.eql(true);
   });
+
+  it('syncs from explicit paths and removes the workflow when no modules remain', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.sync').create();
+    const moduleDir = fs.join('code/sys/alpha');
+    const target = '.github/workflows/jsr.yaml';
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    const written = await MonorepoCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
+    expect(written.kind).to.eql('written');
+    expect(written.count).to.eql(1);
+    expect(await Fs.exists(fs.join(target))).to.eql(true);
+
+    const removed = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
+    expect(removed.kind).to.eql('removed');
+    expect(await Fs.exists(fs.join(target))).to.eql(false);
+
+    const skipped = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
+    expect(skipped.kind).to.eql('skipped');
+  });
+
+  it('excludes unnamed modules during root discovery', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.root-filter').create();
+    const root = fs.join('code/projects');
+
+    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
+
+    const written = await MonorepoCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { root },
+      target: '.github/workflows/jsr.yaml',
+    });
+
+    expect(written.kind).to.eql('written');
+    if (written.kind !== 'written') throw new Error('expected written result');
+    expect(written.count).to.eql(1);
+    expect(written.yaml.includes('@scope/alpha')).to.eql(true);
+    expect(written.yaml.includes('beta')).to.eql(false);
+  });
 });

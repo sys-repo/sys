@@ -76,4 +76,26 @@ describe('MonorepoCi.Test', () => {
 
     expect(yaml.includes(`name: "${moduleDir}"`)).to.eql(true);
   });
+
+  it('syncs from a source root and removes the workflow when no test modules exist', async () => {
+    const fs = await Testing.dir('MonorepoCi.Test.sync').create();
+    const root = fs.join('code/projects');
+    const target = '.github/workflows/test.yaml';
+
+    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
+
+    const written = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    expect(written.kind).to.eql('written');
+    expect(written.count).to.eql(1);
+    expect(await Fs.exists(fs.join(target))).to.eql(true);
+
+    await Fs.remove(Fs.join(root, 'alpha'));
+    const removed = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    expect(removed.kind).to.eql('removed');
+    expect(await Fs.exists(fs.join(target))).to.eql(false);
+
+    const skipped = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    expect(skipped.kind).to.eql('skipped');
+  });
 });
