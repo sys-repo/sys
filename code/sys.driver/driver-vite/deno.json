@@ -10,6 +10,7 @@
     "help": "deno run -P=dev ./-scripts/-main.ts --cmd=help    --dir=./.tmp/sample",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
+  "nodeModulesDir": "auto",
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
