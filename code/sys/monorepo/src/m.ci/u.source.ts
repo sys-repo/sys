@@ -1,15 +1,21 @@
-import { type t, Fs, Json, Path } from './common.ts';
+import { c, type t, Fs, Json, Path } from './common.ts';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
   source: t.MonorepoCi.Source,
-  options: { task?: "build" | "test"; named?: boolean },
+  options: { task?: 'build' | 'test'; named?: boolean },
 ) {
   if ('paths' in source) {
     const results = await Promise.all(
-      source.paths.map(async (path) => ({ include: await shouldInclude(cwd, path, options), path })),
+      source.paths.map(async (path) => ({
+        include: await shouldInclude(cwd, path, options),
+        path,
+      })),
     );
-    return results.filter((item) => item.include).map((item) => item.path).sort();
+    return results
+      .filter((item) => item.include)
+      .map((item) => item.path)
+      .sort();
   }
 
   const root = Fs.resolve(cwd, source.root);
@@ -42,18 +48,20 @@ export function logSyncResult(
 ) {
   if (!options.log) return;
 
-  const label = result.target;
+  const label = Fs.trimCwd(result.target);
   if (result.kind === 'written') {
-    console.info(`Updated file: ${label} (${result.count} ${subject} module(s))`);
+    console.info(
+      `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`,
+    );
     return;
   }
 
   if (result.kind === 'removed') {
-    console.info(`Removed file: ${label}`);
+    console.info(`${c.cyan('Removed file:')} ${c.gray(label)}`);
     return;
   }
 
-  console.info(`Skipped file: ${label}`);
+  console.info(`${c.cyan('Skipped file:')} ${c.gray(label)}`);
 }
 
 function hasTask(value: unknown, key: 'build' | 'test') {
