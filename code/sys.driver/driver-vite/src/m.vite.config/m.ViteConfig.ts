@@ -1,6 +1,6 @@
 import type { ViteConfigLib } from './t.ts';
 
-import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { Is } from './m.Is.ts';
 import { toAlias as alias } from './u.alias.ts';
 import { app } from './u.app.ts';

@@ -1,6 +1,6 @@
 import type { ManualChunksOption, PreRenderedChunk } from 'rollup';
 
-import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { type t, Is, asArray, Delete, Path, R } from './common.ts';
 import { createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';

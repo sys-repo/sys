@@ -1,4 +1,4 @@
-import { Log as Workspace } from '../m.Vite.Config.Workspace/u.log.ts';
+import { Log as Workspace } from '../m.vite.config.workspace/u.log.ts';
 
 /**
  * Logging helpers.
