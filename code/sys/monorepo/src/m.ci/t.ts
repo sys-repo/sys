@@ -7,6 +7,7 @@ import type { t } from './common.ts';
 export namespace MonorepoCi {
   export type Lib = {
     readonly Jsr: Jsr.Lib;
+    readonly Build: Build.Lib;
   };
 
   /**
