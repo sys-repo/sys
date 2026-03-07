@@ -27,8 +27,8 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
 
 <p>&nbsp;</p>
 
-[![MIT License][mit-badge]][mit-url]
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )
+[![MIT License][mit-badge]][mit-url]  
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )  
 Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.io/@sys)
 
 ---
@@ -38,9 +38,10 @@ Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.
 <p>&nbsp;</p>
 
 
-![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)
+![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**
-Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.
+Architecture, API's, and other conceptual primmitives will change  
+(almost certainly radically 🐷) prior to any `1.x`.
 
 |     | repo                     | status
 | --- | :---                     | :---
