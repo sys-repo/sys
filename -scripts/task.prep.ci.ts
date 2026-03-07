@@ -1,4 +1,4 @@
-import { MonorepoCi } from '@sys/monorepo/ci';
+import { MonorepoCi as Ci } from '@sys/monorepo/ci';
 import { Paths } from './-PATHS.ts';
 import { c, DenoFile, Fs } from './common.ts';
 
@@ -49,9 +49,9 @@ export async function main() {
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  await MonorepoCi.Jsr.write({ cwd, env, on, paths: jsrPaths, target: jsrTarget });
-  await MonorepoCi.Build.write({ cwd, env, on, paths: buildPaths, target: buildTarget });
-  await MonorepoCi.Test.write({ cwd, env, on, paths: testPaths, target: testTarget });
+  await Ci.Jsr.write({ cwd, env, on, paths: jsrPaths, target: jsrTarget });
+  await Ci.Build.write({ cwd, env, on, paths: buildPaths, target: buildTarget });
+  await Ci.Test.write({ cwd, env, on, paths: testPaths, target: testTarget });
 
   console.info(`${c.green('Updated file:')} ${c.gray(jsrTarget)}`);
   console.info(`${c.green('Updated file:')} ${c.gray(buildTarget)}`);
