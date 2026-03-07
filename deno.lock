@@ -108,6 +108,7 @@
     "npm:happy-dom@20.8.3": "20.8.3",
     "npm:hash-it@7.0.2": "7.0.2",
     "npm:he@^1.2.0": "1.2.0",
+    "npm:hono@4.12.3": "4.12.3",
     "npm:hono@4.12.5": "4.12.5",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:katex@0.16": "0.16.28",
@@ -422,7 +423,8 @@
         "jsr:@sys/fs",
         "jsr:@sys/immutable",
         "jsr:@sys/std",
-        "jsr:@sys/types"
+        "jsr:@sys/types",
+        "npm:yaml"
       ]
     },
     "@sys/http@0.0.210": {
@@ -436,7 +438,8 @@
         "jsr:@sys/net",
         "jsr:@sys/process",
         "jsr:@sys/std",
-        "jsr:@sys/types"
+        "jsr:@sys/types",
+        "npm:hono@4.12.3"
       ]
     },
     "@sys/immutable@0.0.84": {
@@ -1920,6 +1923,9 @@
     "he@1.2.0": {
       "integrity": "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==",
       "bin": true
+    },
+    "hono@4.12.3": {
+      "integrity": "sha512-SFsVSjp8sj5UumXOOFlkZOG6XS9SJDKw0TbwFeV+AJ8xlST8kxK5Z/5EYa111UY8732lK2S/xB653ceuaoGwpg=="
     },
     "hono@4.12.5": {
       "integrity": "sha512-3qq+FUBtlTHhtYxbxheZgY8NIFnkkC/MR8u5TTsr7YZ3wixryQ3cCwn3iZbg8p8B88iDBBAYSfZDS75t8MN7Vg=="
