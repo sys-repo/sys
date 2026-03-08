@@ -5,7 +5,7 @@ import { Vite } from '../mod.ts';
 const LOCAL_BRIDGE_DIR = Fs.Path.resolve('./src/-test/vite.sample-bridge');
 
 describe('Vite @sys bridge integration', () => {
-  it.skip('build: resolves @sys imports from dedicated fixture', async () => {
+  it('build: resolves @sys imports from dedicated fixture', async () => {
     // This local bridge fixture now targets the workspace source directly.
     // Restore the build guard after validating the split local/published lanes.
     await Testing.retry(2, async () => {
