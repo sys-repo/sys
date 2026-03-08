@@ -10,7 +10,7 @@ describe('Vite published external smoke (ui-baseline)', () => {
         entry: './index.static.html',
       });
 
-      assertUiBaselineBuild(build.ok, files);
+      assertUiBaselineBuildStatic(build.ok, files);
     });
   });
 
@@ -22,12 +22,26 @@ describe('Vite published external smoke (ui-baseline)', () => {
         entry: './index.dynamic.html',
       });
 
-      assertUiBaselineBuild(build.ok, files);
+      assertUiBaselineBuildDynamic(build.ok, files);
     });
   });
 });
 
-function assertUiBaselineBuild(
+function assertUiBaselineBuildStatic(
+  ok: boolean,
+  files: {
+    html: string;
+    js: readonly { filename: string; text: string }[];
+  },
+) {
+  expect(ok).to.eql(true);
+  expect(files.html).to.include('<title>Sample-UI-Baseline</title>');
+
+  expect(files.js.length > 0).to.eql(true);
+  expect(files.js.some((file) => file.text.length > 0)).to.eql(true);
+}
+
+function assertUiBaselineBuildDynamic(
   ok: boolean,
   files: {
     html: string;
