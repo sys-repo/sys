@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.251"
+  }
+}

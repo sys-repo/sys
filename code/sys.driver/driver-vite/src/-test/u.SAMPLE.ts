@@ -9,6 +9,7 @@ export const SAMPLE = {
     sampleStdPath: './src/-test/vite.sample-std-path',
     sampleBridge: './src/-test/vite.sample-bridge',
     sampleBridgePublished: './src/-test/vite.sample-bridge-published',
+    sampleUiBaselinePublished: './src/-test/vite.sample-ui-baseline-published',
     sampleBridgePlain: './src/-test/vite.sample-bridge-plain',
   },
 } as const;
