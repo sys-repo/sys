@@ -1,13 +1,30 @@
-import { DenoFile, Fs, ROOT } from '../../-test.ts';
+import { DenoFile, Fs, Is, Json, Process, ROOT } from '../../-test.ts';
 
-const LOCAL_DRIVER_VITE_DIR = Fs.Path.resolve('./src');
+
+const LOCAL_BRIDGE_ENTRY = Fs.Path.resolve('./src/-test/vite.sample-bridge/vite.config.ts');
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
-const IMPORT = /(?:from|import\()\s*['"]([^'"]+)['"]/g;
+const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const VALID_PACKAGE_SPECIFIER = /^(@[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)(\/.*)?$/;
+
+type DenoInfo = {
+  readonly modules?: readonly {
+    readonly dependencies?: readonly {
+      readonly specifier?: string;
+    }[];
+  }[];
+};
+
+type RootPackageVersions = Readonly<Record<string, string>>;
+type RootImportMap = Readonly<Record<string, string>>;
+type BridgeAuthority = {
+  readonly packageVersions: RootPackageVersions;
+  readonly imports: RootImportMap;
+};
 
 function sysPackageName(specifier: string) {
   return specifier.split('/').slice(0, 2).join('/');
 }
+
 
 function npmPackageName(specifier: string) {
   return specifier.startsWith('@')
@@ -15,7 +32,42 @@ function npmPackageName(specifier: string) {
     : specifier.split('/')[0];
 }
 
-async function localDriverViteImports() {
+async function rootPackageVersions(): Promise<RootPackageVersions> {
+  const rootPkg = (await Fs.readJson<{
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  }>(ROOT.resolve('package.json'))).data ?? {};
+  return {
+    ...(rootPkg.dependencies ?? {}),
+    ...(rootPkg.devDependencies ?? {}),
+  };
+}
+
+function isRelevantPackageSpecifier(specifier: string) {
+  if (specifier.startsWith('.')) return false;
+  if (specifier.startsWith('/')) return false;
+  if (specifier.startsWith('file:')) return false;
+  if (specifier.startsWith('http:')) return false;
+  if (specifier.startsWith('https:')) return false;
+  if (specifier.startsWith('npm:')) return false;
+  if (specifier.startsWith('jsr:')) return false;
+  if (!VALID_PACKAGE_SPECIFIER.test(specifier)) return false;
+  if (specifier.startsWith('@sys/driver-vite')) return false;
+  return true;
+}
+
+async function rootImportMap(): Promise<RootImportMap> {
+  return (await Fs.readJson<{ imports?: Record<string, string> }>(ROOT.resolve('imports.json'))).data?.imports ?? {};
+}
+
+async function rootAuthority(): Promise<BridgeAuthority> {
+  return {
+    imports: await rootImportMap(),
+    packageVersions: await rootPackageVersions(),
+  };
+}
+
+async function localDriverViteImports(): Promise<Record<string, string>> {
   const ws = await DenoFile.workspace(ROOT.denofile.path, { walkup: false });
   const driverVite = ws.children.find((child) => child.pkg.name === '@sys/driver-vite');
   if (!driverVite) {
@@ -36,95 +88,109 @@ async function localDriverViteImports() {
   );
 }
 
-async function publishedDriverViteImports() {
-  const paths = (await Fs.glob(LOCAL_DRIVER_VITE_DIR).find('**/*.ts')).filter(
-    (path) => !path.path.includes('/.tmp/') && !path.path.includes('/node_modules/'),
-  );
-  const sysSpecifiers = new Set<string>();
-  const npmSpecifiers = new Set<string>();
-  const packageJsonPath = ROOT.resolve('package.json');
-  const packageJson = (
-    await Fs.readJson<{
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-    }>(packageJsonPath)
-  ).data;
-  const npmVersions = {
-    ...(packageJson?.dependencies ?? {}),
-    ...(packageJson?.devDependencies ?? {}),
-  };
+async function reachablePackageSpecifiers(): Promise<readonly string[]> {
+  const output = await Process.invoke({
+    cmd: DENO_BINARY,
+    args: ['info', '--json', LOCAL_BRIDGE_ENTRY],
+    cwd: ROOT.dir,
+    silent: true,
+  });
+  if (!output.success) {
+    throw new Error(output.text.stderr || output.text.stdout || output.toString());
+  }
 
-  for (const path of paths) {
-    const text = (await Fs.readText(path.path)).data ?? '';
-    for (const match of text.matchAll(IMPORT)) {
-      const specifier = match[1];
-      if (
-        specifier.startsWith('.') ||
-        specifier.startsWith('npm:') ||
-        specifier.startsWith('jsr:') ||
-        specifier.startsWith('http:') ||
-        specifier.startsWith('https:') ||
-        !VALID_PACKAGE_SPECIFIER.test(specifier)
-      ) {
-        continue;
+  const parsed = Json.safeParse<DenoInfo>(output.text.stdout);
+  if (!parsed.ok || !parsed.data) {
+    throw new Error('Failed to parse local driver-vite dependency graph');
+  }
+
+  const specifiers = new Set<string>();
+  for (const mod of parsed.data.modules ?? []) {
+    for (const dep of mod.dependencies ?? []) {
+      const specifier = dep.specifier;
+      if (Is.str(specifier) && isRelevantPackageSpecifier(specifier)) {
+        specifiers.add(specifier);
       }
-      if (specifier.startsWith('@sys/driver-vite')) continue;
-      if (specifier.startsWith('@sys/')) {
-        sysSpecifiers.add(specifier);
-        continue;
-      }
-      npmSpecifiers.add(specifier);
     }
   }
 
-  const sysEntries = await Promise.all(
-    [...sysSpecifiers].sort().map(async (specifier) => {
-      const pkgName = sysPackageName(specifier);
-      const version = await DenoFile.workspaceVersion(pkgName, ROOT.denofile.path, { walkup: false });
-      if (typeof version !== 'string') {
-        throw new Error(`Missing workspace version authority for package "${pkgName}"`);
-      }
-      const suffix = specifier.slice(pkgName.length);
-      return [specifier, `jsr:${pkgName}@${version}${suffix}`] as const;
-    }),
-  );
+  return [...specifiers].sort();
+}
 
-  const npmEntries = [...npmSpecifiers].sort().map((specifier) => {
+async function resolveBridgeImport(
+  specifier: string,
+  authority: BridgeAuthority,
+): Promise<readonly [string, string]> {
+  const mapped = authority.imports[specifier];
+  if (Is.str(mapped)) return [specifier, mapped] as const;
+
+  if (!specifier.startsWith('@sys/')) {
     const pkgName = npmPackageName(specifier);
-    const version = npmVersions[pkgName];
-    if (typeof version !== 'string') {
-      throw new Error(`Missing package.json version authority for package "${pkgName}"`);
+    const version = authority.packageVersions[pkgName];
+    if (Is.str(version)) {
+      const suffix = specifier.slice(pkgName.length);
+      return [specifier, `npm:${pkgName}@${version}${suffix}`] as const;
     }
-    const suffix = specifier.slice(pkgName.length);
-    return [specifier, `npm:${pkgName}@${version}${suffix}`] as const;
-  });
+    throw new Error(`Missing root import-map authority for package "${specifier}"`);
+  }
 
-  return Object.fromEntries([...sysEntries, ...npmEntries]);
+  const pkgName = sysPackageName(specifier);
+  const version = await DenoFile.workspaceVersion(pkgName, ROOT.denofile.path, { walkup: false });
+  if (!Is.str(version)) {
+    throw new Error(`Missing workspace version authority for package "${pkgName}"`);
+  }
+  const suffix = specifier.slice(pkgName.length);
+  return [specifier, `jsr:${pkgName}@${version}${suffix}`] as const;
+}
+
+async function localBridgeImports(authority: BridgeAuthority): Promise<Record<string, string>> {
+  const entries = await Promise.all(
+    (await reachablePackageSpecifiers()).map(async (specifier) => resolveBridgeImport(specifier, authority)),
+  );
+  return Object.fromEntries(entries);
 }
 
 export async function writeLocalBridgeImports(dir: string) {
   const importsPath = Fs.join(dir, 'imports.json');
-  const fixtureImports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data;
+  const packagePath = Fs.join(dir, 'package.json');
+  const fixtureImports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+  const authority = await rootAuthority();
   const localImports = await localDriverViteImports();
-  const publishedImports = await publishedDriverViteImports();
-  const original = (await Fs.readText(importsPath)).data ?? '';
+  const bridgeImports = await localBridgeImports(authority);
+  const originalImports = (await Fs.readText(importsPath)).data ?? '';
+  const originalPackage = (await Fs.readText(packagePath)).data ?? '';
+  const dependencies = Object.fromEntries(
+    Object.keys(bridgeImports)
+      .filter((specifier) => !specifier.startsWith('@sys/'))
+      .map((specifier) => {
+        const pkgName = npmPackageName(specifier);
+        return [pkgName, authority.packageVersions[pkgName]] as const;
+      })
+      .filter((entry): entry is readonly [string, string] => Is.str(entry[1])),
+  );
 
   await Fs.write(
     importsPath,
-    JSON.stringify(
+    Json.stringify(
       {
         imports: {
-          ...publishedImports,
+          ...bridgeImports,
           ...localImports,
-          ...(fixtureImports?.imports ?? {}),
+          ...fixtureImports,
         },
       },
-      null,
       2,
     ) + '\n',
   );
 
+  await Fs.write(
+    packagePath,
+    Json.stringify({ name: '@sys/driver-vite-bridge-local', private: true, dependencies }, 2) + '\n',
+  );
+
   return async () => {
-    await Fs.write(importsPath, original);
+    await Fs.write(importsPath, originalImports);
+    if (originalPackage.trim().length > 0) await Fs.write(packagePath, originalPackage);
+    else await Fs.remove(packagePath, { log: false });
   };
 }
