@@ -25,9 +25,11 @@ describe('Vite published external smoke (baseline)', () => {
       const dist = (await Fs.readJson<t.DistPkg>(distFilename)).data;
       const files = Object.keys(dist?.hash?.parts ?? {});
       const jsFiles = files.filter((path) => path.endsWith('.js'));
+
       const jsText = await Promise.all(
         jsFiles.map(async (path) => (await Fs.readText(Fs.join(outDir, path))).data ?? ''),
       );
+
       expect(jsText.some((text) => text.includes('sample-bridge'))).to.eql(true);
       expect(jsText.some((text) => text.includes('sample-bridge-http'))).to.eql(true);
     });
