@@ -128,8 +128,15 @@ export async function resolveViteSpecifier(
   const sourceId = id;
 
   if (importer && isDenoSpecifier(importer)) {
-    const { resolved: parent } = parseDenoSpecifier(importer);
-    const cached = cache.get(parent);
+    const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
+    let cached = cache.get(parent);
+    if (cached === undefined) {
+      cached = await resolveDenoWith(parentId, root, deps) ?? undefined;
+      if (cached) {
+        cache.set(cached.id, cached);
+        cache.set(parent, cached);
+      }
+    }
     if (cached === undefined) return;
 
     const found = cached.dependencies.find((dep) => {

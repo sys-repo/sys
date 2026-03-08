@@ -3,10 +3,9 @@ import { Vite } from '../mod.ts';
 
 describe('Vite @sys bridge integration', () => {
   it.skip('build: resolves @sys imports from dedicated fixture', async () => {
-    // Published package is now current, but build still fails on remote-package
-    // relative import resolution:
-    //   Could not resolve "../http.client/mod.ts" from a remote cache-backed id.
-    // Keep this skipped until that published build-path resolver gap is fixed.
+    // The current published package still lacks the cold-cache remote-relative
+    // import fix added in local transport resolution.
+    // Restore this published build guard after the next driver-vite release.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
