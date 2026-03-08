@@ -6,5 +6,6 @@
  * to remote resolution.
  */
 import './-baseline.ts';
+import './-repo-generated.ts';
 import './-ui-baseline.ts';
 import './-ui-components.ts';
