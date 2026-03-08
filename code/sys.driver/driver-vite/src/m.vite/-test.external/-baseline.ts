@@ -1,10 +1,7 @@
-import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { type t, describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 
-describe('Vite published bridge release smoke', () => {
-  // This suite validates the released package on JSR.
-  // Run it via `deno task smoke:published` only after the pinned driver-vite
-  // version is visible to remote resolution.
+describe('Vite published external smoke (baseline)', () => {
   it('build: published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.published.build');
@@ -24,11 +21,8 @@ describe('Vite published bridge release smoke', () => {
       const html = (await Fs.readText(Fs.join(outDir, 'index.html'))).data ?? '';
       expect(html).to.include('<title>Sample-Bridge</title>');
 
-      const dist = (
-        await Fs.readJson<{ hash?: { parts?: Record<string, string> } }>(
-          Fs.join(outDir, 'dist.json'),
-        )
-      ).data;
+      const distFilename = Fs.join(outDir, 'dist.json');
+      const dist = (await Fs.readJson<t.DistPkg>(distFilename)).data;
       const files = Object.keys(dist?.hash?.parts ?? {});
       const jsFiles = files.filter((path) => path.endsWith('.js'));
       const jsText = await Promise.all(
@@ -46,6 +40,7 @@ describe('Vite published bridge release smoke', () => {
       await Fs.copy(SAMPLE.Dirs.sampleBridgePublished, fs.dir);
 
       const server = await Vite.dev({ cwd: fs.dir, port, silent: true });
+
       try {
         await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
 

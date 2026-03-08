@@ -38,7 +38,7 @@ It's time. Good things happen collectively when everything conforms to the same 
 
 #### Validation
 - `deno task test` is the default local source-of-truth lane.
-- `deno task smoke:published` is a post-release smoke against the published JSR package.
+- `deno task test:external` is the external-consumer lane. Run it post-release against published JSR packages.
 
 
 <p>&nbsp;</p>
@@ -164,7 +164,7 @@ For direct examples, see:
 ## Tasks
 
 - `deno task test` → local driver and local bridge integration
-- `deno task smoke:published` → post-release smoke for the pinned published package
+- `deno task test:external` → external-consumer smoke for the pinned published package lane
 - `deno task check` → module typecheck
 - `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
 - `deno task clean` → remove generated temp state and sample fixture build artifacts
