@@ -13,7 +13,7 @@ const targetCwd = template === PKG_TMPL && cwd === repoRoot ? projectsDir : cwd;
 
 const { code } = await Process.inherit({
   cmd: 'deno',
-  args: ['run', '-P=integration', '@sys/tmpl', ...argv],
+  args: ['run', '-P=tmpl', '@sys/tmpl', ...argv],
   cwd: targetCwd,
   env: { INIT_CWD: targetCwd, FORCE_COLOR: '1' },
 });

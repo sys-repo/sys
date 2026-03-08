@@ -32,7 +32,7 @@ Core baseline tasks from `deno.json`:
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type/lint gate for the starter shell
 - `deno task prep` → regenerates GitHub workflows for discovered project modules under `./code/projects`
-- `deno task test` → runs all unit tests within the mono-repo with permissions `-P=unit`
+- `deno task test` → runs all unit tests within the mono-repo with permissions `-P=test`
 - `deno task outdated` → reports dependency updates
 - `deno task upgrade` → upgrades dependencies to latest
 
