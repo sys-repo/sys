@@ -1,37 +1,19 @@
-import { type t, describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { type t, describe, expect, Fs, Http, it, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
+import { buildSample } from './u.fixture.ts';
 
 describe('Vite published external smoke (baseline)', () => {
   it('build: published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
-      const fs = SAMPLE.fs('Vite.bridge.published.build');
-      await Fs.copy(SAMPLE.Dirs.sampleBridgePublished, fs.dir);
-
-      const res = await Vite.build({
-        cwd: fs.dir,
-        pkg,
-        silent: true,
-        spinner: false,
-        exitOnError: false,
-      });
-
-      expect(res.ok).to.eql(true);
-
-      const outDir = Fs.join(res.paths.cwd, res.paths.app.outDir);
-      const html = (await Fs.readText(Fs.join(outDir, 'index.html'))).data ?? '';
-      expect(html).to.include('<title>Sample-Bridge</title>');
-
-      const distFilename = Fs.join(outDir, 'dist.json');
-      const dist = (await Fs.readJson<t.DistPkg>(distFilename)).data;
-      const files = Object.keys(dist?.hash?.parts ?? {});
-      const jsFiles = files.filter((path) => path.endsWith('.js'));
-
-      const jsText = await Promise.all(
-        jsFiles.map(async (path) => (await Fs.readText(Fs.join(outDir, path))).data ?? ''),
+      const { build, files } = await buildSample(
+        'Vite.bridge.published.build',
+        SAMPLE.Dirs.sampleBridgePublished,
       );
 
-      expect(jsText.some((text) => text.includes('sample-bridge'))).to.eql(true);
-      expect(jsText.some((text) => text.includes('sample-bridge-http'))).to.eql(true);
+      expect(build.ok).to.eql(true);
+      expect(files.html).to.include('<title>Sample-Bridge</title>');
+      expect(files.js.some((file) => file.text.includes('sample-bridge'))).to.eql(true);
+      expect(files.js.some((file) => file.text.includes('sample-bridge-http'))).to.eql(true);
     });
   });
 
