@@ -5,5 +5,5 @@
  * `/sys` workspace and should be run only after the pinned release is visible
  * to remote resolution.
  */
-// import './-baseline.ts';
+import './-baseline.ts';
 import './-ui-baseline.ts';
