@@ -1,11 +1,11 @@
-import { describe, expect, Fs, it, Testing } from '../../src/-test.ts';
+import { describe, expect, Fs, it } from '../../src/-test.ts';
 import { syncTransportLoaderImport } from '../task.prep.ts';
 
 describe('driver-vite prep', () => {
   it('syncs the transport loader import from root deps.yaml', async () => {
-    const fs = await Testing.dir('driver-vite.prep').create();
-    const depsPath = Fs.join(fs.dir, 'deps.yaml');
-    const targetPath = Fs.join(fs.dir, 'u.load.ts');
+    const fs = await Fs.makeTempDir({ prefix: 'driver-vite.prep.' });
+    const depsPath = Fs.join(fs.absolute, 'deps.yaml');
+    const targetPath = Fs.join(fs.absolute, 'u.load.ts');
 
     await Fs.write(
       depsPath,
@@ -29,5 +29,7 @@ describe('driver-vite prep', () => {
     const text = (await Fs.readText(targetPath)).data ?? '';
     expect(text).to.include("from 'npm:esbuild@0.27.3'");
     expect(text).to.not.include("from 'npm:esbuild@0.27.2'");
+
+    await Fs.remove(fs.absolute);
   });
 });

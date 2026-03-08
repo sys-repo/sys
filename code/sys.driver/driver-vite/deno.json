@@ -7,7 +7,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno test --node-modules-dir=auto -P=testset",
-    "clean": "deno run -P=clean ./-scripts/task.main.ts --cmd=clean",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help    --dir=./.tmp/sample",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
