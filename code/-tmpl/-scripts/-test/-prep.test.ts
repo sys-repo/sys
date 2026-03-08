@@ -53,6 +53,45 @@ describe('prep.u', () => {
     expect(res.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.3.7');
   });
 
+  it('syncTemplateImports → preserves required driver-vite and ui subpath imports for generated repos', () => {
+    const input = {
+      imports: {
+        '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.0',
+        '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.0/main',
+        '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
+        '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
+        '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.0',
+        '@sys/ui-react': 'jsr:@sys/ui-react@0.0.0',
+        '@sys/ui-react-components': 'jsr:@sys/ui-react-components@0.0.0',
+        '@sys/ui-react-devharness': 'jsr:@sys/ui-react-devharness@0.0.0',
+      },
+    };
+    const authority = {
+      imports: {
+        '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.297',
+        '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.297/main',
+      },
+    };
+    const versions = {
+      '@sys/http': '0.0.210',
+      '@sys/ui-css': '0.0.231',
+      '@sys/ui-dom': '0.0.237',
+      '@sys/ui-react': '0.0.245',
+      '@sys/ui-react-components': '0.0.197',
+      '@sys/ui-react-devharness': '0.0.242',
+    };
+
+    const res = syncTemplateImports(input, authority, versions);
+    expect(res.imports['@sys/driver-vite']).to.eql('jsr:@sys/driver-vite@0.0.297');
+    expect(res.imports['@sys/driver-vite/main']).to.eql('jsr:@sys/driver-vite@0.0.297/main');
+    expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
+    expect(res.imports['@sys/ui-css']).to.eql('jsr:@sys/ui-css@0.0.231');
+    expect(res.imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
+    expect(res.imports['@sys/ui-react']).to.eql('jsr:@sys/ui-react@0.0.245');
+    expect(res.imports['@sys/ui-react-components']).to.eql('jsr:@sys/ui-react-components@0.0.197');
+    expect(res.imports['@sys/ui-react-devharness']).to.eql('jsr:@sys/ui-react-devharness@0.0.242');
+  });
+
   it('syncTemplateImports → throws when a required import key is missing in root imports.json', () => {
     const input = { imports: { foo: 'jsr:@foo/bar@0.0.0' } };
     const authority = { imports: {} };

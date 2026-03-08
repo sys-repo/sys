@@ -1,5 +1,5 @@
-import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
+import { Vite } from '@sys/driver-vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   const entry = './src/-test/index.html';
