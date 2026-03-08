@@ -32,6 +32,23 @@ function npmPackageName(specifier: string) {
     : specifier.split('/')[0];
 }
 
+function npmDependency(specifier: string): readonly [string, string] | undefined {
+  if (!specifier.startsWith('npm:')) return;
+
+  const value = specifier.slice(4).replace(/^\//, '');
+  if (value.startsWith('@')) {
+    const slash = value.indexOf('/');
+    if (slash === -1) return;
+    const at = value.indexOf('@', slash + 1);
+    if (at === -1) return;
+    return [value.slice(0, at), value.slice(at + 1).split('/')[0]] as const;
+  }
+
+  const at = value.indexOf('@');
+  if (at === -1) return;
+  return [value.slice(0, at), value.slice(at + 1).split('/')[0]] as const;
+}
+
 async function rootPackageVersions(): Promise<RootPackageVersions> {
   const rootPkg = (await Fs.readJson<{
     dependencies?: Record<string, string>;
@@ -160,13 +177,9 @@ export async function writeLocalBridgeImports(dir: string) {
   const originalImports = (await Fs.readText(importsPath)).data ?? '';
   const originalPackage = (await Fs.readText(packagePath)).data ?? '';
   const dependencies = Object.fromEntries(
-    Object.keys(bridgeImports)
-      .filter((specifier) => !specifier.startsWith('@sys/'))
-      .map((specifier) => {
-        const pkgName = npmPackageName(specifier);
-        return [pkgName, authority.packageVersions[pkgName]] as const;
-      })
-      .filter((entry): entry is readonly [string, string] => Is.str(entry[1])),
+    Object.values(bridgeImports)
+      .map((target) => npmDependency(target))
+      .filter((entry): entry is readonly [string, string] => Array.isArray(entry)),
   );
 
   await Fs.write(

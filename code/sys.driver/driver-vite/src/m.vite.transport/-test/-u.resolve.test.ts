@@ -274,7 +274,7 @@ describe('ViteTransport.resolve', () => {
               loader: 'TypeScript',
               dependencies: [
                 {
-                  specifier: '@noble/hashes/legacy.js',
+                  specifier: 'npm:@noble/hashes@2.0.1/legacy.js',
                   resolvedSpecifier: 'npm:@noble/hashes@2.0.1/legacy.js',
                 },
               ],
@@ -328,7 +328,7 @@ describe('ViteTransport.resolve', () => {
           {
             async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
               expect(id).to.eql('@noble/hashes/legacy.js');
-              expect(_importer).to.eql(Path.join(Path.cwd(), '__sys_driver_vite_resolve__.ts'));
+              expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
               expect(options?.skipSelf).to.eql(true);
               return undefined;
             },
@@ -376,7 +376,7 @@ describe('ViteTransport.resolve', () => {
           {
             async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
               expect(id).to.eql('@noble/hashes/legacy.js');
-              expect(_importer).to.eql(Path.join(Path.cwd(), '__sys_driver_vite_resolve__.ts'));
+              expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
               expect(options?.skipSelf).to.eql(true);
               return { id: '/tmp/node_modules/@noble/hashes/legacy.js' };
             },

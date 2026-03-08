@@ -1,16 +1,12 @@
 import { Vite } from 'jsr:@sys/driver-vite@0.0.294';
 import { defineConfig } from 'npm:vite';
 
-const cwd = import.meta.dirname ?? '.';
-const paths = Vite.Config.paths({
-  cwd,
-  app: { entry: 'index.html' },
-});
+const workspace = `${import.meta.dirname ?? '.'}/deno.json`;
 
 export default defineConfig(() =>
   Vite.Config.app({
-    paths,
+    paths: Vite.Config.paths({ app: { entry: './index.html' } }),
     plugins: { react: false },
-    workspace: `${cwd}/deno.json`,
+    workspace,
   })
 );

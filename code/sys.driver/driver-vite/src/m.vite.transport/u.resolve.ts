@@ -11,11 +11,13 @@ const depsDefault: t.ResolveDeps = {
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
+  let packageResolveImporter = Path.join(root, 'package.json');
 
   return {
     name: 'deno',
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
+      packageResolveImporter = Path.join(root, 'package.json');
     },
     async resolveId(
       this: {
@@ -31,7 +33,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (isDenoSpecifier(id)) return;
       const resolved = await resolveViteSpecifier(id, cache, root, importer, deps);
       if (typeof resolved === 'string' && isBarePackageId(resolved)) {
-        const delegated = await this.resolve(resolved, Path.join(root, '__sys_driver_vite_resolve__.ts'), {
+        const delegated = await this.resolve(resolved, packageResolveImporter, {
           skipSelf: true,
         });
         return delegated;
@@ -40,7 +42,9 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
     },
     async load(id: string) {
       if (!isDenoSpecifier(id)) return;
-      return await loadDenoModule(id);
+      const { resolved } = parseDenoSpecifier(id);
+      const cached = cache.get(resolved);
+      return await loadDenoModule(id, cached?.dependencies ?? []);
     },
   };
 }
@@ -158,7 +162,9 @@ export async function resolveViteSpecifier(
     if (cached === undefined) return;
 
     const found = cached.dependencies.find((dep) => {
-      return dep.specifier === sourceId || dep.resolvedSpecifier === sourceId;
+      if (dep.specifier === sourceId || dep.resolvedSpecifier === sourceId) return true;
+      if (dep.specifier.startsWith('npm:')) return toViteNpmSpecifier(dep.specifier) === sourceId;
+      return false;
     });
     if (found === undefined) return;
 
