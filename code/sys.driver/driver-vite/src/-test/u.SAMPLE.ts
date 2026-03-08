@@ -11,5 +11,6 @@ export const SAMPLE = {
     sampleBridgePlain: './src/-test/vite.sample-bridge-plain',
     samplePublishedBaseline: './src/-test/vite.sample-published-baseline',
     samplePublishedUiBaseline: './src/-test/vite.sample-published-ui-baseline',
+    samplePublishedUiComponents: './src/-test/vite.sample-published-ui-components',
   },
 } as const;
