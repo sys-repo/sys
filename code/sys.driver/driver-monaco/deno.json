@@ -3,14 +3,14 @@
   "version": "0.0.159",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
     "test": "deno test -P=testset",
-    "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
+    "build": "deno run -P=build ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=serve ./-scripts/task.main.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
+    "help": "deno run -P=dev   ./-scripts/task.main.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {

@@ -9,7 +9,7 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "prep": "deno run -RWE ./-scripts/task.prep.ts && deno run -RWE ./src/-tmpl/bundle/mod.ts",
     "tmpl": "deno run -P=ci ./src/-tmpl.cli/mod.ts",
-    "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
+    "help": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=help",
     "tmp": "deno run -P=ci ./-scripts/task.tmp.ts"
   },
   "exports": {
