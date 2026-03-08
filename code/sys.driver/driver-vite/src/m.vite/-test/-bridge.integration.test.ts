@@ -3,9 +3,10 @@ import { Vite } from '../mod.ts';
 
 describe('Vite @sys bridge integration', () => {
   it.skip('build: resolves @sys imports from dedicated fixture', async () => {
-    // This fixture still imports the published `jsr:@sys/driver-vite`, not the local
-    // source module. Keep it skipped until the published package catches up or the
-    // fixture is explicitly rebound to local driver-vite sources for owned-boundary testing.
+    // Published package is now current, but build still fails on remote-package
+    // relative import resolution:
+    //   Could not resolve "../http.client/mod.ts" from a remote cache-backed id.
+    // Keep this skipped until that published build-path resolver gap is fixed.
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.build');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
@@ -39,11 +40,7 @@ describe('Vite @sys bridge integration', () => {
     });
   });
 
-  it.skip('dev: serves transformed module with @sys imports', async () => {
-    // Published-package gate:
-    // this fixture imports `jsr:@sys/driver-vite`, so CI still exercises the
-    // last published package rather than the local source adapter.
-    // Restore this guard after the next driver-vite publish lands.
+  it('dev: serves transformed module with @sys imports', async () => {
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.dev');
       await Fs.copy(SAMPLE.Dirs.sampleBridge, fs.dir);
