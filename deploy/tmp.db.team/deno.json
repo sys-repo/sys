@@ -7,7 +7,7 @@
     "deploy": "deno task check && deployctl deploy --prod --project=tdb-tmp --org=tdb",
     "ls": "deployctl deployments list",
     "prod": "deployctl deployments redeploy --prod",
-    "prep": "deno run -RW --allow-env ./scripts/-prep.ts"
+    "stage": "deno run -RW --allow-env ./scripts/task.stage.ts"
   },
   "exports": {},
   "deploy": {

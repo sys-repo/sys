@@ -30,5 +30,15 @@ table.push([c.green('To'), exists.label(exists.to), c.gray(to)]);
 console.info();
 console.info(c.gray(table.toString()));
 
+if (!exists.from) {
+  throw new Error(
+    [
+      'Stage source is missing.',
+      `Build '@sys/ui-react-devharness' first, then re-run 'deno task stage'.`,
+      `Missing path: ${from}`,
+    ].join(' '),
+  );
+}
+
 await Fs.copy(from, to, { force: true, throw: true });
 console.info();
