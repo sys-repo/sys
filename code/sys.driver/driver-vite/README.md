@@ -101,7 +101,7 @@ Define explicit app paths, then hand the rest of the baseline config assembly to
 `Vite.Config.app(...)`.
 
 ```ts
-import { Vite } from '@sys/driver-vite';
+import { Vite } from 'jsr:@sys/driver-vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
@@ -125,7 +125,7 @@ export default defineConfig(() => {
 You can still constrain workspace visibility and customize bundle behavior:
 
 ```ts
-import { Vite } from '@sys/driver-vite';
+import { Vite } from 'jsr:@sys/driver-vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig(async () => {

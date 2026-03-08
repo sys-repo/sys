@@ -28,12 +28,10 @@ export const Wrangle = {
     const delta = Path.relative(paths.cwd, rootDir);
     if (delta) {
       /**
-       * HACK:
-       *    There is a delta between the response {paths} current-working-directory (CWD)
-       *    and the actual CWD. Adjust the relevant subpaths to account for this.
-       * NB:
-       *    One scenario where this happens happen when testing within the mono-repo and
-       *    simulating operating in a root CWD, but actually building into ".tmp/sample/"
+       * When config discovery is performed from a copied fixture or nested temp root,
+       * the resolved config paths can be rooted at a different CWD than the caller.
+       * Adjust the application entry/output subpaths to preserve the caller-relative
+       * build layout.
        */
       const entry = Path.normalize(Path.join(delta, paths.app.entry));
       const outDir = Path.normalize(Path.join(delta, paths.app.outDir));
