@@ -31,8 +31,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (isDenoSpecifier(id)) return;
       const resolved = await resolveViteSpecifier(id, cache, root, importer, deps);
       if (typeof resolved === 'string' && isBarePackageId(resolved)) {
-        const delegated = await this.resolve(resolved, undefined, { skipSelf: true });
-        return delegated ?? resolved;
+        const delegated = await this.resolve(resolved, Path.join(root, '__sys_driver_vite_resolve__.ts'), {
+          skipSelf: true,
+        });
+        return delegated;
       }
       return resolved;
     },

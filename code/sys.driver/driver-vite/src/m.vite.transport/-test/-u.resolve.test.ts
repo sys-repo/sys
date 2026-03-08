@@ -292,6 +292,54 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql('@noble/hashes/legacy.js');
       });
 
+      it('falls through when vite cannot resolve delegated bare npm package ids', async () => {
+        const parentResolved = '/tmp/cache/hash-parent.ts';
+        const importer = toDenoSpecifier(
+          'TypeScript',
+          'https://jsr.io/@sys/crypto/0.0.221/src/m.Hash/u.hash.ts',
+          parentResolved,
+        );
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            {
+              id: parentResolved,
+              kind: 'esm',
+              loader: 'TypeScript',
+              dependencies: [
+                {
+                  specifier: '@noble/hashes/legacy.js',
+                  resolvedSpecifier: 'npm:@noble/hashes@2.0.1/legacy.js',
+                },
+              ],
+            },
+          ],
+        ]);
+        const plugin = createResolvePlugin(cache, {
+          async invoke(input: t.ProcInvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+            throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+          },
+        });
+
+        const res = await plugin.resolveId.call(
+          {
+            async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
+              expect(id).to.eql('@noble/hashes/legacy.js');
+              expect(_importer).to.eql(Path.join(Path.cwd(), '__sys_driver_vite_resolve__.ts'));
+              expect(options?.skipSelf).to.eql(true);
+              return undefined;
+            },
+          },
+          '@noble/hashes/legacy.js',
+          importer,
+        );
+
+        expect(res).to.eql(undefined);
+      });
+
       it('delegates bare npm package ids back into vite resolution', async () => {
         const parentResolved = '/tmp/cache/hash-parent.ts';
         const importer = toDenoSpecifier(
@@ -328,6 +376,7 @@ describe('ViteTransport.resolve', () => {
           {
             async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
               expect(id).to.eql('@noble/hashes/legacy.js');
+              expect(_importer).to.eql(Path.join(Path.cwd(), '__sys_driver_vite_resolve__.ts'));
               expect(options?.skipSelf).to.eql(true);
               return { id: '/tmp/node_modules/@noble/hashes/legacy.js' };
             },

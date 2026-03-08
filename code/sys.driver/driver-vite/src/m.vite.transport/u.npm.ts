@@ -1,5 +1,5 @@
 export function toViteNpmSpecifier(specifier: string): string {
-  const value = specifier.startsWith('npm:') ? specifier.slice(4) : specifier;
+  const value = specifier.startsWith('npm:') ? specifier.slice(4).replace(/^\//, '') : specifier;
 
   if (value.startsWith('@')) {
     const slash = value.indexOf('/');

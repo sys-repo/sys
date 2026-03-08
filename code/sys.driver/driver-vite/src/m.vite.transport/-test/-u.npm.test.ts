@@ -21,6 +21,13 @@ describe('ViteTransport.npm', () => {
       );
     });
 
+
+    it('normalizes npm slash-prefixed scoped subpaths from deno info output', () => {
+      expect(toViteNpmSpecifier('npm:/@noble/hashes@2.0.1/legacy.js')).to.eql(
+        '@noble/hashes/legacy.js',
+      );
+    });
+
     it('leaves already-normalized package ids unchanged', () => {
       expect(toViteNpmSpecifier('@noble/hashes/legacy.js')).to.eql('@noble/hashes/legacy.js');
     });
