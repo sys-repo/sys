@@ -6,7 +6,7 @@
     "test": "deno test -P=testset",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean ./scripts/-clean.ts"
+    "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
