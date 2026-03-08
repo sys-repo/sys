@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "@sys/http/client": "jsr:@sys/http@0.0.210/client"
-  }
-}
