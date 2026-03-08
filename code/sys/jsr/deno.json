@@ -1,6 +1,6 @@
 {
   "name": "@sys/jsr",
-  "version": "0.0.210",
+  "version": "0.0.211",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",

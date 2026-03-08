@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.252",
+  "version": "0.0.253",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
