@@ -7,7 +7,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno test --node-modules-dir=auto -P=testset",
-    "test:published": "deno task test --trace-leaks ./src/m.vite/-test/-bridge.published.integration.test.ts",
+    "smoke:published": "deno task test --trace-leaks ./src/m.vite/-test/-bridge.published.integration.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help    --dir=./.tmp/sample",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"

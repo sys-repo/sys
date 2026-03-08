@@ -2,6 +2,9 @@ import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-tes
 import { Vite } from '../mod.ts';
 
 describe('Vite published bridge release smoke', () => {
+  // This suite validates the released package on JSR.
+  // Run it via `deno task smoke:published` only after the pinned driver-vite
+  // version is visible to remote resolution.
   it('build: published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.bridge.published.build');
