@@ -1,6 +1,6 @@
 import { Is, Json, Path, Process, type t } from './common.ts';
 import { loadDenoModule } from './u.load.ts';
-import { toViteNpmSpecifier } from './u.npm.ts';
+import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -17,9 +17,24 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
     },
-    async resolveId(id: string, importer?: string) {
+    async resolveId(
+      this: {
+        resolve: (
+          id: string,
+          importer?: string,
+          options?: { readonly skipSelf?: boolean },
+        ) => Promise<unknown>;
+      },
+      id: string,
+      importer?: string,
+    ) {
       if (isDenoSpecifier(id)) return;
-      return await resolveViteSpecifier(id, cache, root, importer, deps);
+      const resolved = await resolveViteSpecifier(id, cache, root, importer, deps);
+      if (typeof resolved === 'string' && isBarePackageId(resolved)) {
+        const delegated = await this.resolve(resolved, undefined, { skipSelf: true });
+        return delegated ?? resolved;
+      }
+      return resolved;
     },
     async load(id: string) {
       if (!isDenoSpecifier(id)) return;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { toViteNpmSpecifier } from '../u.npm.ts';
+import { isBarePackageId, toViteNpmSpecifier } from '../u.npm.ts';
 
 describe('ViteTransport.npm', () => {
   describe('specifier normalization', () => {
@@ -23,6 +23,20 @@ describe('ViteTransport.npm', () => {
 
     it('leaves already-normalized package ids unchanged', () => {
       expect(toViteNpmSpecifier('@noble/hashes/legacy.js')).to.eql('@noble/hashes/legacy.js');
+    });
+  });
+
+  describe('package id detection', () => {
+    it('identifies bare package ids', () => {
+      expect(isBarePackageId('@noble/hashes/legacy.js')).to.eql(true);
+      expect(isBarePackageId('react')).to.eql(true);
+    });
+
+    it('rejects file and encoded ids', () => {
+      expect(isBarePackageId('./local.ts')).to.eql(false);
+      expect(isBarePackageId('/tmp/local.ts')).to.eql(false);
+      expect(isBarePackageId('file:///tmp/local.ts')).to.eql(false);
+      expect(isBarePackageId('\0deno::TypeScript::id::/tmp/local.ts')).to.eql(false);
     });
   });
 });

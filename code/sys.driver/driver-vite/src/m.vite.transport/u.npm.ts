@@ -15,3 +15,13 @@ export function toViteNpmSpecifier(specifier: string): string {
   const slash = value.indexOf('/', at + 1);
   return slash === -1 ? value.slice(0, at) : value.slice(0, at) + value.slice(slash);
 }
+
+export function isBarePackageId(id: string): boolean {
+  if (id.startsWith('.')) return false;
+  if (id.startsWith('/')) return false;
+  if (id.startsWith('\0')) return false;
+  if (id.startsWith('file:')) return false;
+  if (id.startsWith('http:')) return false;
+  if (id.startsWith('https:')) return false;
+  return true;
+}
