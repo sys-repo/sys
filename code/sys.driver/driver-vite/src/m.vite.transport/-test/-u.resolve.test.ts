@@ -55,9 +55,6 @@ describe('ViteTransport.resolve', () => {
 
           return procOutput({ success: false, stderr: 'Module not found' });
         },
-        resolveImport(id) {
-          return id;
-        },
       });
 
       expect(res).to.eql(null);
@@ -72,9 +69,6 @@ describe('ViteTransport.resolve', () => {
             }
 
             return procOutput({ success: false, stderr: 'Integrity check failed' });
-          },
-          resolveImport(id) {
-            return id;
           },
         });
         throw new Error('Expected integrity-check failure');
@@ -167,7 +161,7 @@ describe('ViteTransport.resolve', () => {
       expect(res).to.eql(child);
     });
 
-    it('matches raw dependency specifiers before import-meta normalization', async () => {
+    it('matches raw dependency specifiers without canonical rewrite', async () => {
       const parentResolved = '/tmp/cache/std-path-join.ts';
       const childResolved = '/tmp/cache/std-internal-os.ts';
       const importer = toDenoSpecifier('TypeScript', 'jsr:@std/path/join', parentResolved);
@@ -206,9 +200,6 @@ describe('ViteTransport.resolve', () => {
           async invoke() {
             throw new Error('invoke should not be called for cached dependency match');
           },
-          resolveImport() {
-            return 'https://jsr.io/@std/internal/1.0.12/os.ts';
-          },
         },
       );
 
@@ -244,9 +235,6 @@ describe('ViteTransport.resolve', () => {
             return procOutput({ success: true, stdout: 'deno 2.x' });
           }
           return procOutput({ success: true, stdout: json });
-        },
-        resolveImport(id) {
-          return id;
         },
       });
 

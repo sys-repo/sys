@@ -35,7 +35,6 @@ export type DenoCache = Map<string, DenoResolved>;
 
 export type ResolveDeps = {
   readonly invoke: t.ProcLib['invoke'];
-  readonly resolveImport: (id: string) => string;
 };
 
 export type PrefixDeps = {

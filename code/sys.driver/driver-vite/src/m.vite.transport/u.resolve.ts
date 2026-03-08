@@ -6,7 +6,6 @@ const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 
 const depsDefault: t.ResolveDeps = {
   invoke: Process.invoke,
-  resolveImport: (id) => import.meta.resolve(id),
 };
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
@@ -127,15 +126,6 @@ export async function resolveViteSpecifier(
 ) {
   const root = Path.normalize(posixRoot);
   const sourceId = id;
-  let normalizedId = id;
-
-  if (!id.startsWith('.') && !id.startsWith('/')) {
-    try {
-      normalizedId = deps.resolveImport(id);
-    } catch {
-      // Ignore unresolved import-map / module cases here.
-    }
-  }
 
   if (importer && isDenoSpecifier(importer)) {
     const { resolved: parent } = parseDenoSpecifier(importer);
@@ -143,14 +133,12 @@ export async function resolveViteSpecifier(
     if (cached === undefined) return;
 
     const found = cached.dependencies.find((dep) => {
-      return dep.specifier === sourceId || dep.resolvedSpecifier === normalizedId;
+      return dep.specifier === sourceId || dep.resolvedSpecifier === sourceId;
     });
     if (found === undefined) return;
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
-  } else {
-    id = normalizedId;
   }
 
   const resolved = cache.get(id) ?? await resolveDenoWith(id, root, deps);

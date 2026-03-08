@@ -1,5 +1,5 @@
 import { Fs, Path } from './common.ts';
-import { transform } from 'npm:esbuild';
+import { transform } from 'npm:esbuild@0.27.2';
 
 export type DenoLoadResult =
   | string
