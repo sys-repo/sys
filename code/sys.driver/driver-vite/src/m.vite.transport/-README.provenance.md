@@ -28,5 +28,7 @@ This module internalizes the Deno-aware Vite transport previously provided by
 ----
 
 ### Local Divergence
-- none yet; this module is currently intended to stay mechanically aligned with
-  upstream source
+- transport is internalized and owned locally by `@sys/driver-vite`
+- local behavior extends upstream to cover:
+  - workspace/import-map policy handoff
+  - JSR and npm transport normalization needed by `@sys` fixtures and consumers

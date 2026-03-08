@@ -36,6 +36,10 @@ It's time. Good things happen collectively when everything conforms to the same 
 - `Transport` resolves and loads modules.
 - Final module IDs must be stable and portable (never cache-hash paths).
 
+#### Validation
+- `deno task test` is the default local source-of-truth lane.
+- `deno task smoke:published` is a post-release smoke against the published JSR package.
+
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -132,3 +136,13 @@ export default defineConfig(() => {
 ```
 
 See [basic](./vite.config.-sample.simple.ts) and [custom](./vite.config.-sample.custom.ts) `vite.config.ts` sample files.
+
+
+<p>&nbsp;</p>
+
+## Tasks
+
+- `deno task test` → local driver and local bridge integration
+- `deno task smoke:published` → post-release smoke for the pinned published package
+- `deno task check` → module typecheck
+- `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
