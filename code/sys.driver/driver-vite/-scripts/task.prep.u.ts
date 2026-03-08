@@ -13,3 +13,15 @@ export async function rewriteImport(args: {
   if (text === next) return;
   await Fs.write(path, next);
 }
+
+export async function rewriteJson<T>(args: {
+  targetPath: string;
+  update: (current: T) => T;
+}) {
+  const { targetPath, update } = args;
+  const path = Path.resolve(targetPath);
+  const current = (await Fs.readJson<T>(path)).data;
+  if (typeof current === 'undefined') return;
+  const next = update(current);
+  await Fs.write(path, JSON.stringify(next, null, 2) + '\n');
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@tmp/vite.sample-bridge-published",
+  "version": "0.0.0",
+  "workspace": [],
+  "importMap": "imports.json"
+}

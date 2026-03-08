@@ -1,4 +1,4 @@
-import { Vite } from '@sys/driver-vite';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.294';
 import { defineConfig } from 'npm:vite';
 
 const cwd = import.meta.dirname ?? '.';
