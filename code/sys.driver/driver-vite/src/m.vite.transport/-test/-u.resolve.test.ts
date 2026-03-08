@@ -256,6 +256,40 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
       });
+
+      it('converts cached npm dependency subpaths to vite package ids', async () => {
+        const parentResolved = '/tmp/cache/hash-parent.ts';
+        const importer = toDenoSpecifier(
+          'TypeScript',
+          'https://jsr.io/@sys/crypto/0.0.221/src/m.Hash/u.hash.ts',
+          parentResolved,
+        );
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            {
+              id: parentResolved,
+              kind: 'esm',
+              loader: 'TypeScript',
+              dependencies: [
+                {
+                  specifier: '@noble/hashes/legacy.js',
+                  resolvedSpecifier: 'npm:@noble/hashes@2.0.1/legacy.js',
+                },
+              ],
+            },
+          ],
+        ]);
+
+        const res = await resolveViteSpecifier(
+          '@noble/hashes/legacy.js',
+          cache,
+          '/tmp/project',
+          importer,
+        );
+
+        expect(res).to.eql('@noble/hashes/legacy.js');
+      });
     });
 
     describe('deno info normalization', () => {

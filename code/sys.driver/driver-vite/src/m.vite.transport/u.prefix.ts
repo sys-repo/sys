@@ -1,4 +1,5 @@
 import { Path, type t } from './common.ts';
+import { toViteNpmSpecifier } from './u.npm.ts';
 import { resolveDeno, resolveViteSpecifier } from './u.resolve.ts';
 
 const depsDefault: t.PrefixDeps = {
@@ -24,7 +25,7 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
         const resolved = await deps.resolveDeno(id, root);
         if (resolved === null) return;
 
-        const actual = resolved.id.slice(0, resolved.id.indexOf('@'));
+        const actual = toViteNpmSpecifier(`npm:${resolved.id}`);
         const result = await this.resolve(actual);
         return result ?? actual;
       }

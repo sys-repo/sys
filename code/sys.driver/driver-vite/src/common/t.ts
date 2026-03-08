@@ -19,6 +19,7 @@ export type * from '@sys/types';
 
 export type {
   DenoFileJson,
+  DenoFileLib,
   DenoFilePath,
   DenoImportMapJson,
   DenoWorkspace,

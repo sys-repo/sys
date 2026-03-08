@@ -1,5 +1,6 @@
 import { Is, Json, Path, Process, type t } from './common.ts';
 import { loadDenoModule } from './u.load.ts';
+import { toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -146,6 +147,7 @@ export async function resolveViteSpecifier(
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
+    if (id.startsWith('npm:')) return toViteNpmSpecifier(id);
   }
 
   const resolved = cache.get(id) ?? await resolveDenoWith(id, root, deps);
