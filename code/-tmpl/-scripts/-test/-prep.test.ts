@@ -1,12 +1,12 @@
 import {
   assertImportMap,
   readJson,
+  resolvePackageVersions,
   syncByKey,
   syncTemplateImports,
   syncTemplatePackage,
-  sysPackageName,
 } from '../-prep.u.ts';
-import { describe, expect, Fs, it, type t } from '../../src/-test.ts';
+import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
 
 describe('prep.u', () => {
   it('syncByKey → updates each target key deterministically', () => {
@@ -98,6 +98,53 @@ describe('prep.u', () => {
     );
   });
 
+  it('resolvePackageVersions → reads versions from workspace authority', async () => {
+    const imports = {
+      imports: {
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+      },
+    };
+    const calls: Array<{ name: string; src?: string }> = [];
+    const denoFile = {
+      workspaceVersion(name: string, src?: string) {
+        calls.push({ name, src });
+        if (name === '@sys/fs') return Promise.resolve('0.0.243');
+        if (name === '@sys/tmpl') return Promise.resolve('0.0.259');
+        return Promise.resolve(undefined);
+      },
+    };
+
+    const res = await resolvePackageVersions('/tmp/deno.json', imports, denoFile);
+
+    expect(res).to.eql({
+      '@sys/fs': '0.0.243',
+      '@sys/tmpl': '0.0.259',
+    });
+    expect(calls).to.eql([
+      { name: '@sys/fs', src: '/tmp/deno.json' },
+      { name: '@sys/tmpl', src: '/tmp/deno.json' },
+    ]);
+  });
+
+  it('resolvePackageVersions → throws when workspace authority is missing', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    try {
+      await resolvePackageVersions('/tmp/deno.json', imports, denoFile);
+      throw new Error('Expected resolvePackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql(
+        'Missing workspace version authority for package "@sys/fs": /tmp/deno.json',
+      );
+    }
+  });
+
   it('parity invariant → prep sync result equals template files for all current keys', async () => {
     const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
     const path = {
@@ -105,6 +152,7 @@ describe('prep.u', () => {
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'imports.json'),
+      rootDenoJson: Fs.join(root, 'deno.json'),
     } as const;
 
     const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
@@ -115,7 +163,7 @@ describe('prep.u', () => {
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
     const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
-    const versions = await resolvePackageVersions(root, repoImports);
+    const versions = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
 
     const syncedImports = syncTemplateImports(repoImports, rootImports, versions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
@@ -124,32 +172,3 @@ describe('prep.u', () => {
     expect(syncedPackage).to.eql(repoPackage);
   });
 });
-
-async function resolvePackageVersions(root: string, imports: { imports: Record<string, string> }) {
-  const pkgs = [
-    ...new Set(
-      Object.keys(imports.imports)
-        .map(sysPackageName)
-        .filter((pkg): pkg is string => typeof pkg === 'string'),
-    ),
-  ];
-  const entries = await Promise.all(pkgs.map(async (pkg) => [pkg, await readPackageVersion(root, pkg)] as const));
-  return Object.fromEntries(entries);
-}
-
-async function readPackageVersion(root: string, pkg: string) {
-  const path = packageConfigPath(root, pkg);
-  const json = await readJson<t.Json>(path);
-  const version = (json as { version?: unknown }).version;
-  if (typeof version !== 'string') {
-    throw new Error(`Expected "version" string field: ${path}`);
-  }
-  return version;
-}
-
-function packageConfigPath(root: string, pkg: string): string {
-  const name = pkg.replace('@sys/', '');
-  if (name === 'tmpl') return Fs.join(root, 'code/-tmpl/deno.json');
-  if (name === 'tools') return Fs.join(root, 'code/sys.tools/deno.json');
-  return Fs.join(root, 'code/sys', name, 'deno.json');
-}

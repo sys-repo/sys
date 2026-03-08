@@ -1,13 +1,13 @@
 import { Fs } from '@sys/fs';
 import type * as t from '@sys/types';
-import type { DenoFile } from '@sys/driver-deno/runtime';
+import type * as dt from '@sys/driver-deno/t';
 
 export type PrepPaths = {
   rootDenoJson: string;
   cliTmplFile: string;
 };
 
-export type DenoFileVersionLib = Pick<typeof DenoFile, 'workspaceVersion'>;
+export type DenoFileVersionLib = Pick<dt.DenoFileLib, 'workspaceVersion'>;
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {

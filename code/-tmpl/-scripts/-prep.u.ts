@@ -1,9 +1,9 @@
+import type { DenoFileLib } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
-import { Json } from '@sys/std';
+import { Is, Json } from '@sys/std';
 import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
-export type VersionMeta = { version: string };
 export type PackageVersions = Record<string, string>;
 export type KeyValueMap = Record<string, string>;
 export type PrepPaths = {
@@ -11,7 +11,10 @@ export type PrepPaths = {
   tmplRepoPackage: string;
   rootPackage: string;
   rootImports: string;
+  rootDenoJson: string;
 };
+
+export type DenoFileVersionLib = Pick<DenoFileLib, 'workspaceVersion'>;
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {
@@ -20,6 +23,7 @@ export const PATH = {
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'imports.json'),
+      rootDenoJson: Fs.join(root, 'deno.json'),
     };
   },
 } as const;
@@ -30,7 +34,9 @@ export function syncTemplateImports(
   packageVersions: PackageVersions,
 ): ImportMap {
   const next = structuredClone(input);
-  next.imports = syncByKey(next.imports, (key) => resolveImportValue(key, authority.imports, packageVersions));
+  next.imports = syncByKey(next.imports, (key) =>
+    resolveImportValue(key, authority.imports, packageVersions),
+  );
   return next;
 }
 
@@ -76,14 +82,6 @@ export function assertImportMap(input: t.Json, source: string): ImportMap {
   return { imports: map.imports as Record<string, string> };
 }
 
-export function assertVersionMeta(input: t.Json, source: string): VersionMeta {
-  const version = (input as { version?: unknown }).version;
-  if (typeof version !== 'string') {
-    throw new Error(`Expected "version" string field: ${source}`);
-  }
-  return { version };
-}
-
 export async function writeIfChanged(path: string, before: t.Json, after: t.Json) {
   const unchanged = Json.stringify(before) === Json.stringify(after);
   if (unchanged) {
@@ -94,12 +92,42 @@ export async function writeIfChanged(path: string, before: t.Json, after: t.Json
   console.info(`updated    ${Fs.trimCwd(path)}`);
 }
 
-export function syncByKey(target: KeyValueMap, resolver: (key: string, current: string) => string): KeyValueMap {
+export function syncByKey(
+  target: KeyValueMap,
+  resolver: (key: string, current: string) => string,
+): KeyValueMap {
   const next = structuredClone(target);
   for (const [key, value] of Object.entries(next)) {
     next[key] = resolver(key, value);
   }
   return next;
+}
+
+export async function resolvePackageVersions(
+  rootDenoJson: string,
+  imports: ImportMap,
+  denoFile: DenoFileVersionLib,
+): Promise<PackageVersions> {
+  const pkgs = [
+    ...new Set(
+      Object.keys(imports.imports)
+        .map(sysPackageName)
+        .filter((pkg): pkg is string => Is.str(pkg)),
+    ),
+  ];
+
+  const entries = await Promise.all(
+    pkgs.map(async (pkg) => {
+      const version = await denoFile.workspaceVersion(pkg, rootDenoJson, { walkup: false });
+      if (!Is.str(version)) {
+        const err = `Missing workspace version authority for package "${pkg}": ${rootDenoJson}`;
+        throw new Error(err);
+      }
+      return [pkg, version] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries);
 }
 
 function resolveImportValue(
