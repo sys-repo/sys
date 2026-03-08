@@ -16,6 +16,68 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/types"
+            path: code/sys/types
+          - name: "@sys/std"
+            path: code/sys/std
+          - name: "@sys/crdt-t"
+            path: code/sys/crdt.t
+          - name: "@sys/color"
+            path: code/sys/color
+          - name: "@sys/cli"
+            path: code/sys/cli
+          - name: "@sys/crypto"
+            path: code/sys/crypto
+          - name: "@sys/immutable"
+            path: code/sys/immutable
+          - name: "@sys/fs"
+            path: code/sys/fs
+          - name: "@sys/testing"
+            path: code/sys/testing
+          - name: "@sys/process"
+            path: code/sys/process
+          - name: "@sys/net"
+            path: code/sys/net
+          - name: "@sys/event"
+            path: code/sys/event
+          - name: "@sys/http"
+            path: code/sys/http
+          - name: "@sys/yaml"
+            path: code/sys/yaml
+          - name: "@sys/schema"
+            path: code/sys/schema
+          - name: "@sys/monorepo"
+            path: code/sys/monorepo
+          - name: "@sys/jsr"
+            path: code/sys/jsr
+          - name: "@sys/text"
+            path: code/sys/text
+          - name: "@sys/tmpl-engine"
+            path: code/sys/tmpl-engine
+          - name: "@sys/model"
+            path: code/sys.model/model
+          - name: "@sys/model-slug"
+            path: code/sys.model/model-slug
+          - name: "@sys/ui-state"
+            path: code/sys.ui/ui-state
+          - name: "@sys/ui-css"
+            path: code/sys.ui/ui-css
+          - name: "@sys/ui-dom"
+            path: code/sys.ui/ui-dom
+          - name: "@sys/ui-react"
+            path: code/sys.ui/ui-react
+          - name: "@sys/ui-react-devharness"
+            path: code/sys.ui/ui-react-devharness
+          - name: "@sys/ui-react-components"
+            path: code/sys.ui/ui-react-components
+          - name: "@sys/ui-factory"
+            path: code/sys.ui/ui-factory
+          - name: "@sys/driver-deno"
+            path: code/sys.driver/driver-deno
+          - name: "@sys/driver-process"
+            path: code/sys.driver/driver-process
+          - name: "@sys/driver-signer"
+            path: code/sys.driver/driver-signer
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
           - name: "@sys/driver-automerge"

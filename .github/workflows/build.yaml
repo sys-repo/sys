@@ -16,6 +16,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/ui-react-devharness"
+            path: code/sys.ui/ui-react-devharness
+          - name: "@sys/ui-react-components"
+            path: code/sys.ui/ui-react-components
+          - name: "@sys/ui-factory"
+            path: code/sys.ui/ui-factory
           - name: "@sys/driver-automerge"
             path: code/sys.driver/driver-automerge
           - name: "@sys/driver-monaco"
