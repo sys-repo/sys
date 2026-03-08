@@ -1,7 +1,7 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 
-describe('Vite.build (sample-2)', () => {
+describe('Vite.build (workspace composition)', () => {
   const { brightCyan: cyan, bold } = c;
   const VERBOSE = false;
 
@@ -69,13 +69,13 @@ describe('Vite.build (sample-2)', () => {
     } as const;
   };
 
-  it('monorepo imports | Module-B  ←  Module-A', async () => {
+  it('monorepo imports → split bundled workspace modules', async () => {
     // Owned transport boundary guard:
     // remote package sources must keep canonical ids and TS handling intact
     // through rollup/vite build for monorepo-style module composition.
     await Testing.retry(2, async () => {
       const { files, res, outDir } = await testBuild(SAMPLE.Dirs.sample2);
-      if (VERBOSE) printHtml(files.html, 'sample-2', outDir);
+      if (VERBOSE) printHtml(files.html, 'workspace composition', outDir);
       if (VERBOSE) printDist(res.dist, res.paths);
 
       expect(files.html).to.include(`<title>Sample-2</title>`);
