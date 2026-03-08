@@ -8,7 +8,7 @@
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },

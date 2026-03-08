@@ -23,14 +23,10 @@ export type ViteEntryLib = {
  * ARGV (Command Line Arguments)
  */
 export type ViteEntryArgs =
-  | ViteEntryArgsClean
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
   | ViteEntryArgsHelp;
-
-/** The `clean` command. */
-export type ViteEntryArgsClean = { cmd: 'clean'; dir?: P };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; dir?: P; entry?: P; open?: boolean };
