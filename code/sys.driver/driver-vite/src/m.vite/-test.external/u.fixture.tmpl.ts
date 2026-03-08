@@ -1,6 +1,6 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
 import { Fs, type t } from '../../-test.ts';
-import { runTask, type TaskRun } from './u.fixture.ts';
+import { runTask, type TaskRun } from './u.fixture.task.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
