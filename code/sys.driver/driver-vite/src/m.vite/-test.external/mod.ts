@@ -1,11 +1,14 @@
 /**
- * External release-smoke lane for `driver-vite`.
+ * External smoke lane for `driver-vite`.
  *
- * These checks validate published JSR package behavior from outside the local
- * `/sys` workspace and should be run only after the pinned release is visible
- * to remote resolution.
+ * These checks validate published package behavior from outside the local
+ * `/sys` workspace. Keep scenarios here explicit and additive.
+ *
+ * Next candidate:
+ * - `-repo-generated.ts` for `tmpl.repo → tmpl:project → foo build`
  */
 import './-baseline.ts';
-import './-repo-generated.ts';
 import './-ui-baseline.ts';
 import './-ui-components.ts';
+
+// import './-repo-generated.ts';
