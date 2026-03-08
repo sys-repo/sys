@@ -1,7 +1,4 @@
-async function main() {
-  const { Button } = await import('@sys/ui-react-components');
-  const { useKeyboard } = await import('@sys/ui-react-devharness');
-  console.info(Button, useKeyboard);
-}
+import { Button } from '@sys/ui-react-components';
+import { useKeyboard } from '@sys/ui-react-devharness';
 
-await main();
+console.info(Button, useKeyboard);

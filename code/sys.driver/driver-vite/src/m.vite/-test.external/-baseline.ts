@@ -19,17 +19,17 @@ describe('Vite published external smoke (baseline)', () => {
 
   it('dev: published driver-vite serves transformed module with @sys imports', async () => {
     await Testing.retry(2, async () => {
-      const { dev, html, main } = await devSample({
+      const { dev, html, entry } = await devSample({
         sampleName: 'Vite.bridge.published.dev',
         sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
       });
 
       try {
         expect(html.status).to.eql(200);
-        expect(main.status).to.eql(200);
-        expect(main.text).to.include('sample-bridge');
-        expect(main.text).to.include('sample-bridge-http');
-        expect(main.text.includes('@sys/std')).to.eql(false);
+        expect(entry.status).to.eql(200);
+        expect(entry.text).to.include('sample-bridge');
+        expect(entry.text).to.include('sample-bridge-http');
+        expect(entry.text.includes('@sys/std')).to.eql(false);
       } finally {
         await dev.dispose();
       }
