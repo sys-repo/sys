@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.295",
+  "version": "0.0.296",
   "license": "MIT",
   "tasks": {
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
