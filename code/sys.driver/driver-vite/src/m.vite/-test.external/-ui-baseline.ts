@@ -6,7 +6,7 @@ describe('Vite published external smoke (ui-baseline)', () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample(
         'Vite.ui-react.published.build',
-        SAMPLE.Dirs.sampleUiBaselinePublished,
+        SAMPLE.Dirs.samplePublishedUiBaseline,
       );
 
       expect(build.ok).to.eql(true);

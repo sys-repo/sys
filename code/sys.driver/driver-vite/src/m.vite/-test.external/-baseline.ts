@@ -7,7 +7,7 @@ describe('Vite published external smoke (baseline)', () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample(
         'Vite.bridge.published.build',
-        SAMPLE.Dirs.sampleBridgePublished,
+        SAMPLE.Dirs.samplePublishedBaseline,
       );
 
       expect(build.ok).to.eql(true);
@@ -21,7 +21,7 @@ describe('Vite published external smoke (baseline)', () => {
     await Testing.retry(2, async () => {
       const port = Testing.randomPort();
       const fs = SAMPLE.fs('Vite.bridge.published.dev');
-      await Fs.copy(SAMPLE.Dirs.sampleBridgePublished, fs.dir);
+      await Fs.copy(SAMPLE.Dirs.samplePublishedBaseline, fs.dir);
 
       const server = await Vite.dev({ cwd: fs.dir, port, silent: true });
 
