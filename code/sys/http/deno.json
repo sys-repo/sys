@@ -4,10 +4,10 @@
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "test": "deno test -P=testset",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/-exports/-http.ts",

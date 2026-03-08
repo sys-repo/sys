@@ -10,7 +10,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

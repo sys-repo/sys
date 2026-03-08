@@ -9,9 +9,9 @@
     "serve": "deno run -P=serve  ./-scripts/-vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=help ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -A ./-scripts/-tmp.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "snap": "deno run -A ./-scripts/-snapshot.ts"
   },
   "compilerOptions": {
