@@ -1,3 +1,6 @@
+/**
+ * Variant: Dynamic imports
+ */
 async function main() {
   const { Dom, Keyboard } = await import('@sys/ui-dom');
   const { UserAgent } = await import('@sys/ui-dom/user-agent');

@@ -5,10 +5,10 @@ import { buildSample } from './u.fixture.ts';
 describe('Vite published external smoke (baseline)', () => {
   it('build: published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
-      const { build, files } = await buildSample(
-        'Vite.bridge.published.build',
-        SAMPLE.Dirs.samplePublishedBaseline,
-      );
+      const { build, files } = await buildSample({
+        sampleName: 'Vite.bridge.published.build',
+        sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
+      });
 
       expect(build.ok).to.eql(true);
       expect(files.html).to.include('<title>Sample-Bridge</title>');
