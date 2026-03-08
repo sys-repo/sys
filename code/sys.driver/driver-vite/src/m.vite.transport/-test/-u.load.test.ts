@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it } from '../../-test.ts';
 import { loadDenoModule, mediaTypeToLoader, parseDenoSpecifier } from '../u.load.ts';
 import { toDenoSpecifier } from '../u.resolve.ts';
 
@@ -20,21 +20,25 @@ describe('ViteTransport.load', () => {
 
   describe('direct loads', () => {
     it('passes through javascript content', async () => {
-      const fs = await Testing.dir('ViteTransport.load.js').create();
-      const path = Fs.join(fs.dir, 'mod.js');
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.js.' });
+      const path = Fs.join(fs.absolute, 'mod.js');
       await Fs.write(path, 'export const ok = true;');
 
       const res = await loadDenoModule(toDenoSpecifier('JavaScript', './mod.js', path));
       expect(res).to.eql('export const ok = true;');
+
+      await Fs.remove(fs.absolute);
     });
 
     it('wraps json as a default export', async () => {
-      const fs = await Testing.dir('ViteTransport.load.json').create();
-      const path = Fs.join(fs.dir, 'mod.json');
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.json.' });
+      const path = Fs.join(fs.absolute, 'mod.json');
       await Fs.write(path, '{"ok":true}');
 
       const res = await loadDenoModule(toDenoSpecifier('Json', './mod.json', path));
       expect(res).to.eql('export default {"ok":true}');
+
+      await Fs.remove(fs.absolute);
     });
   });
 });
@@ -42,8 +46,8 @@ describe('ViteTransport.load', () => {
 describe('ViteTransport.load (esbuild)', { sanitizeOps: false, sanitizeResources: false }, () => {
   describe('transforms', () => {
     it('transforms typescript content via esbuild', async () => {
-      const fs = await Testing.dir('ViteTransport.load.ts').create();
-      const path = Fs.join(fs.dir, 'mod.ts');
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.ts.' });
+      const path = Fs.join(fs.absolute, 'mod.ts');
       await Fs.write(path, 'export const value: number = 1;');
 
       const res = await loadDenoModule(toDenoSpecifier('TypeScript', './mod.ts', path));
@@ -51,6 +55,8 @@ describe('ViteTransport.load (esbuild)', { sanitizeOps: false, sanitizeResources
       if (typeof res === 'string') throw new Error('Expected transform result object');
       expect(res.code.includes('const value = 1')).to.eql(true);
       expect(res.map).to.eql(null);
+
+      await Fs.remove(fs.absolute);
     });
   });
 });

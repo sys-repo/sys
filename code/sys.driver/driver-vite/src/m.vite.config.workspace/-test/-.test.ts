@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, ROOT, Testing } from '../../-test.ts';
+import { type t, describe, expect, Fs, it, ROOT } from '../../-test.ts';
 import { ViteConfig } from '../../m.vite.config/mod.ts';
 import { workspace } from '../mod.ts';
 
@@ -44,8 +44,8 @@ describe('ViteConfig.workspace', () => {
     });
 
     it('loads from jsonc workspace file', async () => {
-      const fs = await Testing.dir('ViteConfig.workspace.jsonc').create();
-      const root = fs.dir;
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.workspace.jsonc.' });
+      const root = fs.absolute;
       const childDir = Fs.join(root, 'pkg-a');
       const childSrc = Fs.join(childDir, 'src');
 
@@ -79,6 +79,8 @@ describe('ViteConfig.workspace', () => {
       const match = ws.aliases.find((item) => item.find === '@sys/pkg-a/mod');
       expect(ws.exists).to.eql(true);
       expect(match?.replacement).to.eql(Fs.join(childDir, 'src/mod.ts'));
+
+      await Fs.remove(root);
     });
 
     it('all files exist', async () => {

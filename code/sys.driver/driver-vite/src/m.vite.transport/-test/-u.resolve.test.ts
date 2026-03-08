@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Path, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Path } from '../../-test.ts';
 import { type t } from '../common.ts';
 import {
   isDenoSpecifier,
@@ -116,8 +116,8 @@ describe('ViteTransport.resolve', () => {
 
     describe('importer dependency graphs', () => {
       it('resolves file-url dependencies from deno importer cache', async () => {
-        const fs = await Testing.dir('ViteTransport.resolve.file-url').create();
-        const child = Fs.join(fs.dir, 'child.ts');
+        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.resolve.file-url.' });
+        const child = Fs.join(fs.absolute, 'child.ts');
         await Fs.write(child, 'export const ok = true;');
 
         const parentResolved = '/tmp/cache/parent.ts';
@@ -139,8 +139,10 @@ describe('ViteTransport.resolve', () => {
           ],
         ]);
 
-        const res = await resolveViteSpecifier('./child.ts', cache, fs.dir, importer);
+        const res = await resolveViteSpecifier('./child.ts', cache, fs.absolute, importer);
         expect(res).to.eql(child);
+
+        await Fs.remove(fs.absolute);
       });
 
       it('matches raw dependency specifiers without canonical rewrite', async () => {
