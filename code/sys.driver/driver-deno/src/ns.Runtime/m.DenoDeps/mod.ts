@@ -8,6 +8,7 @@
 import type { DepsLib } from './t.ts';
 
 import { Fmt } from './m.Fmt.ts';
+import { findImport } from './u.findImport.ts';
 import { from } from './u.from.ts';
 import { toDep } from './u.toDep.ts';
 import { toJson } from './u.toJson.ts';
@@ -19,4 +20,5 @@ export const DenoDeps: DepsLib = {
   toJson,
   toYaml,
   toDep,
+  findImport,
 };
