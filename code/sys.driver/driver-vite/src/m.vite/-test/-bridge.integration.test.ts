@@ -45,9 +45,11 @@ describe('Vite @sys bridge integration', () => {
 
   it('dev: serves transformed module with @sys imports', async () => {
     await Testing.retry(2, async () => {
+      const port = Testing.randomPort();
       const restore = await writeLocalBridgeImports(LOCAL_BRIDGE_DIR);
-      const server = await Vite.dev({ cwd: LOCAL_BRIDGE_DIR, port: Testing.randomPort(), silent: true });
+      let server: Awaited<ReturnType<typeof Vite.dev>> | undefined;
       try {
+        server = await Vite.dev({ cwd: LOCAL_BRIDGE_DIR, port, silent: true });
         await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
 
         const html = await fetch(server.url);
@@ -61,7 +63,7 @@ describe('Vite @sys bridge integration', () => {
         expect(text).to.include('sample-bridge-http');
         expect(text.includes('@sys/std')).to.eql(false);
       } finally {
-        await server.dispose();
+        if (server) await server.dispose();
         await restore();
       }
     });
