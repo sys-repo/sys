@@ -66,6 +66,6 @@ const wrangle = {
     if (input.endsWith('vite.config.ts')) {
       return { configRoot: Path.dirname(input), configFile: input };
     }
-    return { configRoot: input, configFile: undefined };
+    return { configRoot: input, configFile: Path.join(input, 'vite.config.ts') };
   },
 } as const;

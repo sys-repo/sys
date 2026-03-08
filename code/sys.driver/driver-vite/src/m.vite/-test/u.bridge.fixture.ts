@@ -20,6 +20,7 @@ type BridgeAuthority = {
   readonly packageVersions: RootPackageVersions;
   readonly imports: RootImportMap;
 };
+type WorkspaceAuthority = Awaited<ReturnType<typeof DenoFile.workspace>>;
 
 function sysPackageName(specifier: string) {
   return specifier.split('/').slice(0, 2).join('/');
@@ -32,21 +33,8 @@ function npmPackageName(specifier: string) {
     : specifier.split('/')[0];
 }
 
-function npmDependency(specifier: string): readonly [string, string] | undefined {
-  if (!specifier.startsWith('npm:')) return;
-
-  const value = specifier.slice(4).replace(/^\//, '');
-  if (value.startsWith('@')) {
-    const slash = value.indexOf('/');
-    if (slash === -1) return;
-    const at = value.indexOf('@', slash + 1);
-    if (at === -1) return;
-    return [value.slice(0, at), value.slice(at + 1).split('/')[0]] as const;
-  }
-
-  const at = value.indexOf('@');
-  if (at === -1) return;
-  return [value.slice(0, at), value.slice(at + 1).split('/')[0]] as const;
+function isBarePackageSpecifier(specifier: string) {
+  return npmPackageName(specifier) === specifier;
 }
 
 async function rootPackageVersions(): Promise<RootPackageVersions> {
@@ -84,25 +72,35 @@ async function rootAuthority(): Promise<BridgeAuthority> {
   };
 }
 
-async function localDriverViteImports(): Promise<Record<string, string>> {
-  const ws = await DenoFile.workspace(ROOT.denofile.path, { walkup: false });
-  const driverVite = ws.children.find((child) => child.pkg.name === '@sys/driver-vite');
-  if (!driverVite) {
-    throw new Error('Missing workspace package authority for @sys/driver-vite');
-  }
+function exportKey(specifier: string, pkgName: string) {
+  return specifier === pkgName ? '.' : `.${specifier.slice(pkgName.length)}`;
+}
 
-  const exports = driverVite.denofile.exports ?? {};
-  const dir = ROOT.resolve(driverVite.path.dir);
-  return Object.fromEntries(
-    LOCAL_DRIVER_VITE_IMPORTS.map((specifier) => {
-      const key = specifier === '@sys/driver-vite' ? '.' : `.${specifier.slice('@sys/driver-vite'.length)}`;
-      const target = exports[key];
-      if (!target) {
-        throw new Error(`Missing export "${key}" for ${specifier}`);
-      }
-      return [specifier, Fs.Path.toFileUrl(Fs.join(dir, target)).href] as const;
-    }),
-  );
+function workspacePackageImport(
+  ws: WorkspaceAuthority,
+  specifier: string,
+): readonly [string, string] | undefined {
+  const pkgName = sysPackageName(specifier);
+  const child = ws.children.find((entry) => entry.pkg.name === pkgName);
+  if (!child) return undefined;
+
+  const key = exportKey(specifier, pkgName);
+  const exports = child.denofile.exports ?? {};
+  const target = exports[key];
+  if (!Is.str(target)) return undefined;
+  const dir = ROOT.resolve(child.path.dir);
+  return [specifier, Fs.Path.toFileUrl(Fs.join(dir, target)).href] as const;
+}
+
+async function localDriverViteImports(ws: WorkspaceAuthority): Promise<Record<string, string>> {
+  const entries = LOCAL_DRIVER_VITE_IMPORTS.map((specifier) => {
+    const entry = workspacePackageImport(ws, specifier);
+    if (!entry) {
+      throw new Error(`Missing workspace export authority for ${specifier}`);
+    }
+    return entry;
+  });
+  return Object.fromEntries(entries);
 }
 
 async function reachablePackageSpecifiers(): Promise<readonly string[]> {
@@ -135,6 +133,7 @@ async function reachablePackageSpecifiers(): Promise<readonly string[]> {
 }
 
 async function resolveBridgeImport(
+  ws: WorkspaceAuthority,
   specifier: string,
   authority: BridgeAuthority,
 ): Promise<readonly [string, string]> {
@@ -151,6 +150,9 @@ async function resolveBridgeImport(
     throw new Error(`Missing root import-map authority for package "${specifier}"`);
   }
 
+  const local = workspacePackageImport(ws, specifier);
+  if (local) return local;
+
   const pkgName = sysPackageName(specifier);
   const version = await DenoFile.workspaceVersion(pkgName, ROOT.denofile.path, { walkup: false });
   if (!Is.str(version)) {
@@ -160,27 +162,26 @@ async function resolveBridgeImport(
   return [specifier, `jsr:${pkgName}@${version}${suffix}`] as const;
 }
 
-async function localBridgeImports(authority: BridgeAuthority): Promise<Record<string, string>> {
+async function localBridgeImports(
+  ws: WorkspaceAuthority,
+  authority: BridgeAuthority,
+): Promise<Record<string, string>> {
   const entries = await Promise.all(
-    (await reachablePackageSpecifiers()).map(async (specifier) => resolveBridgeImport(specifier, authority)),
+    (await reachablePackageSpecifiers()).map(async (specifier) =>
+      resolveBridgeImport(ws, specifier, authority)
+    ),
   );
   return Object.fromEntries(entries);
 }
 
 export async function writeLocalBridgeImports(dir: string) {
   const importsPath = Fs.join(dir, 'imports.json');
-  const packagePath = Fs.join(dir, 'package.json');
   const fixtureImports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+  const ws = await DenoFile.workspace(ROOT.denofile.path, { walkup: false });
   const authority = await rootAuthority();
-  const localImports = await localDriverViteImports();
-  const bridgeImports = await localBridgeImports(authority);
+  const localImports = await localDriverViteImports(ws);
+  const bridgeImports = await localBridgeImports(ws, authority);
   const originalImports = (await Fs.readText(importsPath)).data ?? '';
-  const originalPackage = (await Fs.readText(packagePath)).data ?? '';
-  const dependencies = Object.fromEntries(
-    Object.values(bridgeImports)
-      .map((target) => npmDependency(target))
-      .filter((entry): entry is readonly [string, string] => Array.isArray(entry)),
-  );
 
   await Fs.write(
     importsPath,
@@ -196,14 +197,7 @@ export async function writeLocalBridgeImports(dir: string) {
     ) + '\n',
   );
 
-  await Fs.write(
-    packagePath,
-    Json.stringify({ name: '@sys/driver-vite-bridge-local', private: true, dependencies }, 2) + '\n',
-  );
-
   return async () => {
     await Fs.write(importsPath, originalImports);
-    if (originalPackage.trim().length > 0) await Fs.write(packagePath, originalPackage);
-    else await Fs.remove(packagePath, { log: false });
   };
 }

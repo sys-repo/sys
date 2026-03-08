@@ -37,6 +37,8 @@ export type ViteLib = {
 export type ViteBuildArgs = {
   /** Override the current-working-directory path */
   cwd?: t.StringAbsoluteDir;
+  /** Explicit path authority, bypassing config file discovery when known. */
+  paths?: t.ViteConfigPaths;
   /** Consuming module being built. */
   pkg?: t.Pkg;
   /** Supress all log output. */
@@ -52,6 +54,8 @@ export type ViteBuildArgs = {
  */
 export type ViteDevArgs = {
   cwd?: t.StringAbsoluteDir;
+  /** Explicit path authority, bypassing config file discovery when known. */
+  paths?: t.ViteConfigPaths;
   port?: number;
   pkg?: t.Pkg; // Consumer module.
   silent?: boolean;

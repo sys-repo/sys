@@ -1,18 +1,18 @@
-import { describe, expect, Fs, Http, it, pkg, Testing } from '../../-test.ts';
-import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
+import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
-
-const LOCAL_BRIDGE_DIR = Fs.Path.resolve('./src/-test/vite.sample-bridge');
+import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
 
 describe('Vite @sys bridge integration', () => {
   it('build: resolves @sys imports from dedicated fixture', async () => {
-    // This local bridge fixture now targets the workspace source directly.
-    // Restore the build guard after validating the split local/published lanes.
     await Testing.retry(2, async () => {
-      const restore = await writeLocalBridgeImports(LOCAL_BRIDGE_DIR);
+      const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.build.' });
+      const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
+      await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
+      const restore = await writeLocalBridgeImports(dir);
+      const paths = Vite.Config.paths({ cwd: dir, app: { entry: './index.html' } });
       try {
         const res = await Vite.build({
-          cwd: LOCAL_BRIDGE_DIR,
+          paths,
           pkg,
           silent: true,
           spinner: false,
@@ -39,6 +39,7 @@ describe('Vite @sys bridge integration', () => {
         expect(jsText.some((text) => text.includes('sample-bridge-http'))).to.eql(true);
       } finally {
         await restore();
+        await Fs.remove(fs.absolute, { log: false });
       }
     });
   });
@@ -46,10 +47,14 @@ describe('Vite @sys bridge integration', () => {
   it('dev: serves transformed module with @sys imports', async () => {
     await Testing.retry(2, async () => {
       const port = Testing.randomPort();
-      const restore = await writeLocalBridgeImports(LOCAL_BRIDGE_DIR);
+      const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.dev.' });
+      const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
+      await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
+      const restore = await writeLocalBridgeImports(dir);
+      const paths = Vite.Config.paths({ cwd: dir, app: { entry: './index.html' } });
       let server: Awaited<ReturnType<typeof Vite.dev>> | undefined;
       try {
-        server = await Vite.dev({ cwd: LOCAL_BRIDGE_DIR, port, silent: true });
+        server = await Vite.dev({ paths, port, silent: true });
         await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
 
         const html = await fetch(server.url);
@@ -65,6 +70,7 @@ describe('Vite @sys bridge integration', () => {
       } finally {
         if (server) await server.dispose();
         await restore();
+        await Fs.remove(fs.absolute, { log: false });
       }
     });
   });

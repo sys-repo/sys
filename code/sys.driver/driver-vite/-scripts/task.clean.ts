@@ -11,3 +11,5 @@ await Fs.remove('./.tmp', { log });
 await Fs.remove('./-scripts/.tmp', { log });
 await remove('src/**/.tmp');
 await remove('src/**/deno.lock');
+await remove('src/-test/**/node_modules');
+await remove('src/-test/**/dist');

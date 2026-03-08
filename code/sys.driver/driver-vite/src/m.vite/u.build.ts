@@ -8,7 +8,7 @@ type B = t.ViteLib['build'];
  */
 export const build: B = async (input) => {
   const timer = Time.timer();
-  const paths = await Wrangle.pathsFromConfigfile(input.cwd);
+  const paths = input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd));
   const { pkg, silent = false, spinner: useSpinner = true, exitOnError = true } = input;
   const { cmd, args } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);

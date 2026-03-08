@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, it, Path, SAMPLE } from '../../-test.ts';
+import { type t, c, describe, expect, Fs, it, Path, SAMPLE } from '../../-test.ts';
 import { Vite } from '../../mod.ts';
 import { ViteConfig } from '../mod.ts';
 
@@ -44,6 +44,22 @@ describe('ViteConfig.fromFile', () => {
 
     await test('src/-test/vite.sample-config/simple/vite.config.ts');
     await test('src/-test/vite.sample-config/custom/vite.config.ts');
+  });
+
+  it('loads copied fixture from external temp directory', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.fromFile.external.' });
+    try {
+      const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
+      await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
+      const res = await ViteConfig.fromFile(dir);
+      expect(res.exists).to.eql(true);
+      expect(res.error).to.eql(undefined);
+      expect(ViteConfig.Is.paths(res.paths)).to.eql(true);
+      expect(res.paths?.cwd).to.eql(dir);
+      expect(res.paths?.app.entry).to.eql('index.html');
+    } finally {
+      await Fs.remove(fs.absolute, { log: false });
+    }
   });
 
   it('fail: not found', async () => {

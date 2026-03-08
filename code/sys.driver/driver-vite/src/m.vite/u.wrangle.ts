@@ -5,7 +5,7 @@ import { type t, Path, ViteConfig } from './common.ts';
  */
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
-    const config = Path.join(paths.cwd, 'vite.config.ts');
+    const config = 'vite.config.ts';
     const cmd = `deno run -A --node-modules-dir npm:vite ${arg} --config=${config}`;
     const args = cmd.split(' ').slice(1);
     return { cmd, args } as const;
