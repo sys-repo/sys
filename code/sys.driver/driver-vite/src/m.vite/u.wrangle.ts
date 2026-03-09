@@ -66,9 +66,10 @@ const wrangle = {
     const allowSysCommon = '--allow-sys=osRelease,homedir,uid,gid';
     const common = ['--allow-env', '--allow-ffi', '--allow-read', allowSysCommon, allowRun, allowWrite];
     const allowNetDev = '--allow-net=localhost,127.0.0.1,0.0.0.0';
+    const allowSysDev = '--allow-sys=osRelease,homedir,uid,gid,networkInterfaces';
 
     if (cmd === 'build') return common;
-    if (cmd === 'dev') return [...common, allowNetDev, '--allow-sys=networkInterfaces'];
+    if (cmd === 'dev') return ['--allow-env', '--allow-ffi', '--allow-read', allowSysDev, allowRun, allowWrite, allowNetDev];
     return common;
   },
 

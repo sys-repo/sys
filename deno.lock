@@ -63,6 +63,7 @@
     "jsr:@sys/crypto@^0.0.228": "0.0.228",
     "jsr:@sys/driver-deno@^0.0.251": "0.0.251",
     "jsr:@sys/driver-vite@0.0.295": "0.0.295",
+    "jsr:@sys/driver-vite@0.0.297": "0.0.297",
     "jsr:@sys/event@^0.0.102": "0.0.102",
     "jsr:@sys/event@^0.0.95": "0.0.95",
     "jsr:@sys/fs@^0.0.241": "0.0.241",
@@ -484,6 +485,16 @@
         "npm:esbuild@0.27.3",
         "npm:rollup",
         "npm:rollup-plugin-visualizer",
+        "npm:vite-plugin-wasm",
+        "npm:vite@7.3.1"
+      ]
+    },
+    "@sys/driver-vite@0.0.297": {
+      "integrity": "b55045fb7ed6a845b0ec8372e5b12e06e0d39bfbfa616b12bcab4376f6801333",
+      "dependencies": [
+        "npm:@vitejs/plugin-react",
+        "npm:esbuild@0.27.3",
+        "npm:rollup",
         "npm:vite-plugin-wasm",
         "npm:vite@7.3.1"
       ]
