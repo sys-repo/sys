@@ -26,7 +26,7 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
    * React:
    */
   if (options.react ?? true) {
-    const exclude = [/(\.|^)worker\.tsx?$/];
+    const exclude = [/node_modules/, /(\.|^)worker\.tsx?$/];
     plugins.push(react({ exclude }));
   }
 
