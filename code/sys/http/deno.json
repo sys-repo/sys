@@ -1,6 +1,6 @@
 {
   "name": "@sys/http",
-  "version": "0.0.219",
+  "version": "0.0.220",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -18,8 +18,19 @@
     "./serve": "./src/-serve/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true, "net": true },
-    "serve": { "read": true, "net": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
+    "serve": {
+      "read": true,
+      "net": true
+    }
   }
 }

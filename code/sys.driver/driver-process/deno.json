@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-process",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -17,7 +17,14 @@
     "./git": "./src/-exports/-git.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

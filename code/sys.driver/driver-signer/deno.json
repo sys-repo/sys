@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-signer",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -18,7 +18,14 @@
     "./apple": "./src/m.apple/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

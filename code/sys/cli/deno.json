@@ -1,6 +1,6 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.230",
+  "version": "0.0.231",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -15,7 +15,14 @@
     "./fmt": "./src/m.core/m.Fmt.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

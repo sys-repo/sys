@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.251",
+  "version": "0.0.252",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -19,7 +19,14 @@
     "./use": "./src/use/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

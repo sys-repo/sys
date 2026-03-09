@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-factory",
-  "version": "0.0.165",
+  "version": "0.0.166",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/-test/index.html",
@@ -28,9 +28,20 @@
     "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true },
-    "tmpl": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "dev": {
       "read": true,
       "write": true,
@@ -38,7 +49,17 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     }
   }
 }

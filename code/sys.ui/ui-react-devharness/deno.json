@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.248",
+  "version": "0.0.249",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
@@ -20,8 +20,15 @@
     "./-test/entry-specs": "./src/-test/-specs.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "dev": {
       "read": true,
       "write": true,
@@ -29,7 +36,17 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     }
   }
 }

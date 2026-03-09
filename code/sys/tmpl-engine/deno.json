@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl-engine",
-  "version": "0.0.246",
+  "version": "0.0.247",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -13,7 +13,14 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

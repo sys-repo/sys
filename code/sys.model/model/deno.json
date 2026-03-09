@@ -1,6 +1,6 @@
 {
   "name": "@sys/model",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -17,7 +17,14 @@
     "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }
