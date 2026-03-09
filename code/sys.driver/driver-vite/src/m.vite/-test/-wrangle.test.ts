@@ -25,7 +25,7 @@ describe('Vite.Wrangle', () => {
     expect(allowWrite).to.include('node_modules/.vite');
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.not.include('--allow-net');
-    expect(res.args).to.include('--allow-sys=osRelease,homedir');
+    expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
     expect(res.args).to.not.include('--allow-run');
@@ -33,7 +33,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
   });
 
-  it('dev: adds only deno, esbuild, homedir, osRelease, and networkInterfaces exceptions', async () => {
+  it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
     const paths = {
       cwd: '/tmp/demo',
       app: {
@@ -50,7 +50,7 @@ describe('Vite.Wrangle', () => {
     expect(allowWrite).to.include('node_modules/.vite');
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0');
-    expect(res.args).to.include('--allow-sys=osRelease,homedir');
+    expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
     expect(res.args).to.include('--allow-sys=networkInterfaces');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(2);
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
