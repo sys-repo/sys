@@ -14,6 +14,30 @@ export async function runTask(cwd: string, task: string, extraArgs: readonly str
   return runDeno(cwd, cmd);
 }
 
+export async function runCommand(
+  cwd: string,
+  cmd: string,
+  args: readonly string[],
+): Promise<TaskRun> {
+  const env = minimalTaskEnv();
+  const output = await Process.invoke({
+    cmd,
+    args: [...args],
+    cwd,
+    env,
+    silent: true,
+  });
+
+  return {
+    cwd,
+    cmd: [cmd, ...args],
+    ok: output.success,
+    code: output.code,
+    stdout: output.text.stdout,
+    stderr: output.text.stderr,
+  };
+}
+
 export async function runDeno(cwd: string, cmd: readonly string[]): Promise<TaskRun> {
   const env = minimalTaskEnv();
   const output = await Process.invoke({
