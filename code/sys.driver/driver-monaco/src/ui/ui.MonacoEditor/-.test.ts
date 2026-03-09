@@ -1,4 +1,15 @@
-import { Is, Schedule, describe, expect, it, renderHook, DomMock, MonacoFake } from '../../-test.ts';
+import {
+  Is,
+  Schedule,
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  renderHook,
+  DomMock,
+  MonacoFake,
+} from '../../-test.ts';
 import { type t } from './common.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 import { toKeyDownEvent } from './u.keyboard.ts';
@@ -32,6 +43,8 @@ const local = {
 } as const;
 
 describe('MonacoEditor', () => {
+  DomMock.init({ beforeAll, afterAll });
+
   describe('hook: useMonacoEditorModule', () => {
     it('throws on non-browser environment', async () => {
       const restoreGlobals = local.snapshotGlobals();
@@ -53,6 +66,8 @@ describe('MonacoEditor', () => {
         if (unmount) unmount();
       } finally {
         restoreGlobals();
+        DomMock.polyfill();
+        await local.drainDomTails();
       }
     });
   });
