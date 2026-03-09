@@ -11,6 +11,8 @@ import {
 import { procOutput } from './u.fixture.ts';
 
 describe('ViteTransport.resolve', () => {
+  type PluginResolve = NonNullable<t.Rollup.PluginContext['resolve']>;
+
   describe('specifier encoding', () => {
     it('identifies deno-prefixed module ids', () => {
       expect(isDenoSpecifier('\0deno::TypeScript::id::/tmp/mod.ts')).to.eql(true);
@@ -394,21 +396,26 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
+        const context = {
+          async resolve(
+            id: string,
+            _importer?: string,
+            options?: Parameters<PluginResolve>[2],
+          ): Promise<null> {
+            expect(id).to.eql('@noble/hashes/legacy.js');
+            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(options?.skipSelf).to.eql(true);
+            return null;
+          },
+        } as unknown as t.Rollup.PluginContext;
 
         const res = await plugin.resolveId.call(
-          {
-            async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
-              expect(id).to.eql('@noble/hashes/legacy.js');
-              expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
-              expect(options?.skipSelf).to.eql(true);
-              return undefined;
-            },
-          },
+          context,
           '@noble/hashes/legacy.js',
           importer,
         );
 
-        expect(res).to.eql(undefined);
+        expect(res).to.eql(null);
       });
 
       it('delegates bare npm package ids back into vite resolution', async () => {
@@ -442,21 +449,42 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
+        const context = {
+          async resolve(
+            id: string,
+            _importer?: string,
+            options?: Parameters<PluginResolve>[2],
+          ): Promise<t.Rollup.ResolvedId> {
+            expect(id).to.eql('@noble/hashes/legacy.js');
+            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(options?.skipSelf).to.eql(true);
+            return {
+              id: '/tmp/node_modules/@noble/hashes/legacy.js',
+              external: false,
+              resolvedBy: 'test',
+              attributes: {},
+              meta: {},
+              moduleSideEffects: true,
+              syntheticNamedExports: false,
+            };
+          },
+        } as unknown as t.Rollup.PluginContext;
 
         const res = await plugin.resolveId.call(
-          {
-            async resolve(id: string, _importer?: string, options?: { readonly skipSelf?: boolean }) {
-              expect(id).to.eql('@noble/hashes/legacy.js');
-              expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
-              expect(options?.skipSelf).to.eql(true);
-              return { id: '/tmp/node_modules/@noble/hashes/legacy.js' };
-            },
-          },
+          context,
           '@noble/hashes/legacy.js',
           importer,
         );
 
-        expect(res).to.eql({ id: '/tmp/node_modules/@noble/hashes/legacy.js' });
+        expect(res).to.eql({
+          id: '/tmp/node_modules/@noble/hashes/legacy.js',
+          external: false,
+          resolvedBy: 'test',
+          attributes: {},
+          meta: {},
+          moduleSideEffects: true,
+          syntheticNamedExports: false,
+        });
       });
 
     });
