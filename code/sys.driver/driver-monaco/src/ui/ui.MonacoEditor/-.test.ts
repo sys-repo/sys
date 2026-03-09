@@ -1,15 +1,42 @@
-import { Is, describe, expect, it, renderHook, DomMock, MonacoFake } from '../../-test.ts';
+import { Is, Schedule, describe, expect, it, renderHook, DomMock, MonacoFake } from '../../-test.ts';
 import { type t } from './common.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 import { toKeyDownEvent } from './u.keyboard.ts';
 
+const local = {
+  snapshotGlobals() {
+    const state = {
+      window: (globalThis as any).window,
+      document: (globalThis as any).document,
+      MediaStream: (globalThis as any).MediaStream,
+      MediaStreamTrack: (globalThis as any).MediaStreamTrack,
+      HTMLElement: (globalThis as any).HTMLElement,
+      self: (globalThis as any).self,
+      __SYS_BROWSER_MOCK__: (globalThis as any).__SYS_BROWSER_MOCK__,
+    } as const;
+
+    return () => {
+      for (const [key, value] of Object.entries(state)) {
+        if (value === undefined) delete (globalThis as any)[key];
+        else (globalThis as any)[key] = value;
+      }
+    };
+  },
+
+  async drainDomTails() {
+    await Schedule.micro();
+    await Schedule.macro();
+    await Schedule.raf();
+    await Schedule.macro();
+  },
+} as const;
+
 describe('MonacoEditor', () => {
   describe('hook: useMonacoEditorModule', () => {
-    it('throws on non-browser environment', () => {
+    it('throws on non-browser environment', async () => {
+      const restoreGlobals = local.snapshotGlobals();
       DomMock.unpolyfill();
-
-      const origWindow = (globalThis as any).window;
-      const origDocument = (globalThis as any).document;
+      await local.drainDomTails();
 
       // Simulate server/test env (no DOM):
       delete (globalThis as any).window;
@@ -25,9 +52,7 @@ describe('MonacoEditor', () => {
         expect(fn).to.throw();
         if (unmount) unmount();
       } finally {
-        // Restore for other tests:
-        (globalThis as any).window = origWindow;
-        (globalThis as any).document = origDocument;
+        restoreGlobals();
       }
     });
   });
