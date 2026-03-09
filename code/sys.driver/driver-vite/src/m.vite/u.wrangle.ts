@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { type t, Path, ViteConfig } from './common.ts';
+import { type t, Fs, Path, ViteConfig } from './common.ts';
 
 /**
  * Helpers
@@ -8,7 +8,7 @@ export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
     const config = 'vite.config.ts';
     const env = wrangle.env();
-    const args = wrangle.args(paths, arg, config, env);
+    const args = await wrangle.args(paths, arg, config, env);
     const cmd = ['deno', ...args].join(' ');
     return { cmd, args, env } as const;
   },
@@ -46,9 +46,9 @@ export const Wrangle = {
 } as const;
 
 const wrangle = {
-  args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
+  async args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
-    const permissions = wrangle.permissions(paths, cmd ?? '', env);
+    const permissions = await wrangle.permissions(paths, cmd ?? '', env);
     return [
       'run',
       ...permissions,
@@ -60,9 +60,9 @@ const wrangle = {
     ].filter(Boolean);
   },
 
-  permissions(paths: t.ViteConfigPaths, cmd: string, env: Record<string, string>) {
+  async permissions(paths: t.ViteConfigPaths, cmd: string, env: Record<string, string>) {
     const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
-    const allowWrite = `--allow-write=${paths.cwd},${wrangle.viteCacheDir()}`;
+    const allowWrite = `--allow-write=${(await wrangle.writeRoots(paths)).join(',')}`;
     const common = ['--allow-env', '--allow-ffi', '--allow-read', allowRun, allowWrite];
     const allowNetDev = '--allow-net=localhost,127.0.0.1,0.0.0.0';
 
@@ -82,6 +82,20 @@ const wrangle = {
     const esbuildMain = require.resolve('esbuild');
     const [nodeModulesDir] = esbuildMain.split(/[\\/]\.deno[\\/]/);
     return Path.join(nodeModulesDir, '.vite');
+  },
+
+  async writeRoots(paths: t.ViteConfigPaths) {
+    const roots = [paths.cwd, wrangle.viteCacheDir()];
+    const canonical = await Promise.all(roots.map((path) => wrangle.tryRealPath(path)));
+    return [...new Set([...roots, ...canonical.filter(Boolean)])];
+  },
+
+  async tryRealPath(path: string) {
+    try {
+      return await Fs.realPath(path);
+    } catch {
+      return '';
+    }
   },
 
   esbuildBinaryPath() {
