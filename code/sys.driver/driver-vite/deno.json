@@ -9,6 +9,7 @@
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno test --node-modules-dir=auto -P=test",
     "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "probe": "deno task test --trace-leaks ./src/m.vite/-test.external/-package-json.probe.ts",
     "smoke": "deno task prep && deno task test:external",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help    --dir=./.tmp/sample",
@@ -35,15 +36,7 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     },
     "dev": {
@@ -54,15 +47,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
