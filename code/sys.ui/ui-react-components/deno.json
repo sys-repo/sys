@@ -1,15 +1,16 @@
 {
   "name": "@sys/ui-react-components",
   "version": "0.0.203",
+  "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno run -P=build ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
-    "test": "deno test -P=testset",
-    "serve": "deno run -P=serve ./-scripts/task.main.ts --cmd=serve",
+    "test": "deno test -P=test",
+    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/-test/index.html",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev   ./-scripts/task.main.ts --cmd=help",
+    "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -21,5 +22,17 @@
     "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts",
     "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts"
   },
-  "license": "MIT"
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    }
+  }
 }
