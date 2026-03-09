@@ -1,3 +1,4 @@
+import type { PluginContext } from 'rollup';
 import { describe, expect, it } from '../../-test.ts';
 import prefixPlugin from '../u.prefix.ts';
 
@@ -27,12 +28,10 @@ describe('ViteTransport.prefix', () => {
       });
 
       const res = await plugin.resolveId.call(
-        {
-          async resolve(id: string) {
-            expect(id).to.eql('react');
-            return undefined;
-          },
-        },
+        wrangle.context(async (id: string) => {
+          expect(id).to.eql('react');
+          return null;
+        }),
         'npm:react@19.2.0',
       );
 
@@ -55,12 +54,10 @@ describe('ViteTransport.prefix', () => {
       });
 
       const res = await plugin.resolveId.call(
-        {
-          async resolve(id: string) {
-            expect(id).to.eql('@noble/hashes/legacy.js');
-            return undefined;
-          },
-        },
+        wrangle.context(async (id: string) => {
+          expect(id).to.eql('@noble/hashes/legacy.js');
+          return null;
+        }),
         'npm:@noble/hashes@2.0.1/legacy.js',
       );
 
@@ -83,12 +80,10 @@ describe('ViteTransport.prefix', () => {
       });
 
       const res = await plugin.resolveId.call(
-        {
-          async resolve(id: string) {
-            expect(id).to.eql('@noble/hashes/legacy.js');
-            return undefined;
-          },
-        },
+        wrangle.context(async (id: string) => {
+          expect(id).to.eql('@noble/hashes/legacy.js');
+          return null;
+        }),
         'npm:@noble/hashes@2.0.1/legacy.js',
       );
 
@@ -106,7 +101,7 @@ describe('ViteTransport.prefix', () => {
       });
 
       const res = await plugin.resolveId.call(
-        { async resolve() {} },
+        wrangle.context(async () => null),
         'https://example.com/mod.ts',
         '/tmp/importer.ts',
       );
@@ -124,8 +119,14 @@ describe('ViteTransport.prefix', () => {
         },
       });
 
-      const res = await plugin.resolveId.call({ async resolve() {} }, './local.ts');
+      const res = await plugin.resolveId.call(wrangle.context(async () => null), './local.ts');
       expect(res).to.eql(undefined);
     });
   });
 });
+
+const wrangle = {
+  context(resolve: PluginContext['resolve']) {
+    return { resolve } as PluginContext;
+  },
+} as const;

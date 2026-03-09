@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { PluginContext, ResolveIdResult } from 'rollup';
 import { Path, type t } from './common.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { resolveDeno, resolveViteSpecifier } from './u.resolve.ts';
@@ -20,16 +21,16 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
       packagePath = await wrangle.packagePath(root);
     },
     async resolveId(
-      this: {
-        resolve: (
-          id: string,
-          importer?: string,
-          options?: { readonly skipSelf?: boolean },
-        ) => Promise<unknown>;
-      },
+      this: PluginContext,
       id: string,
       importer?: string,
-    ) {
+      _options?: {
+        attributes: Record<string, string>;
+        custom?: unknown;
+        ssr?: boolean;
+        isEntry: boolean;
+      },
+    ): Promise<ResolveIdResult> {
       if (id.startsWith('npm:')) {
         const resolved = await deps.resolveDeno(id, root);
         if (resolved === null) return;
@@ -45,7 +46,7 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
         return await deps.resolveViteSpecifier(id, cache, root, importer);
       }
     },
-  };
+  } satisfies t.VitePlugin;
 }
 
 const wrangle = {
