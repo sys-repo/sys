@@ -35,7 +35,7 @@ export const dev: D = async (input) => {
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
   let resolvedLocalUrl = '';
-  const { args } = await Wrangle.command(paths, `dev --port=${requestedPort} --host`);
+  const { args, env } = await Wrangle.command(paths, `dev --port=${requestedPort} --host`);
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
@@ -60,6 +60,7 @@ export const dev: D = async (input) => {
   const proc = Process.spawn({
     cwd,
     args,
+    env,
     silent,
     readySignal,
     dispose$: input.dispose$,

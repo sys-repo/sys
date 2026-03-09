@@ -10,7 +10,7 @@ export const build: B = async (input) => {
   const timer = Time.timer();
   const paths = input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd));
   const { pkg, silent = false, spinner: useSpinner = true, exitOnError = true } = input;
-  const { cmd, args } = await Wrangle.command(paths, 'build');
+  const { cmd, args, env } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);
   const cwd = paths.cwd;
 
@@ -101,7 +101,7 @@ export const build: B = async (input) => {
   /**
    * Run vite (CLI):
    */
-  const output = await Process.invoke({ cwd, args, silent: true });
+  const output = await Process.invoke({ cwd, args, env, silent: true });
   const ok = output.success;
 
   if (!ok) {
