@@ -5,7 +5,7 @@
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
@@ -16,5 +16,10 @@
     "./client": "./src/-exports/-http.client.ts",
     "./server": "./src/-exports/-http.server.ts",
     "./serve": "./src/-serve/mod.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true, "net": true },
+    "serve": { "read": true, "net": true }
   }
 }

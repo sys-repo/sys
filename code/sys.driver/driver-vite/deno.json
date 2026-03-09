@@ -7,7 +7,7 @@
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
-    "test": "deno test --node-modules-dir=auto -P=testset",
+    "test": "deno test --node-modules-dir=auto -P=test",
     "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
     "smoke": "deno task prep && deno task test:external",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -21,5 +21,18 @@
     "./entry": "./src/-entry/mod.ts",
     "./main": "./src/-entry/-main.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true, "net": true, "run": true, "ffi": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    }
   }
 }

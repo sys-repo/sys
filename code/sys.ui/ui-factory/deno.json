@@ -4,15 +4,15 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno test -P=testset",
-    "build": "deno run -P=build ./-scripts/task.vite.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno run -P=serve ./-scripts/task.vite.ts --cmd=serve",
+    "test": "deno test -P=test",
+    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=help",
-    "tmpl": "deno run -P=build ./src/m.tmpl/mod.ts",
-    "prep": "deno run -P=build ./src/m.tmpl/mod.ts --bundle",
+    "tmpl": "deno run -P=tmpl ./src/m.tmpl/mod.ts",
+    "prep": "deno run -P=tmpl ./src/m.tmpl/mod.ts --bundle",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -26,5 +26,19 @@
     "./components/react": "./src/ui/mod.ts",
     "./sample/catalog": "./src/-test/-sample/catalog.ts",
     "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true },
+    "tmpl": { "read": true, "write": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    }
   }
 }
