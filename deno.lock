@@ -76,6 +76,7 @@
     "jsr:@sys/net@^0.0.77": "0.0.77",
     "jsr:@sys/process@^0.0.223": "0.0.223",
     "jsr:@sys/process@^0.0.230": "0.0.230",
+    "jsr:@sys/std@0.0.298": "0.0.298",
     "jsr:@sys/std@^0.0.298": "0.0.298",
     "jsr:@sys/std@^0.0.305": "0.0.305",
     "jsr:@sys/tmpl-engine@^0.0.244": "0.0.244",
@@ -628,6 +629,7 @@
         "jsr:@std/semver",
         "jsr:@std/testing",
         "jsr:@sys/types@^0.0.239",
+        "npm:@preact/signals-core@1.13.0",
         "npm:chai",
         "npm:date-fns",
         "npm:fast-json-patch",
@@ -683,6 +685,7 @@
         "jsr:@std/semver",
         "jsr:@std/testing",
         "jsr:@sys/types@^0.0.239",
+        "npm:@preact/signals-core@1.13.0",
         "npm:fast-json-patch",
         "npm:rxjs",
         "npm:ts-essentials"

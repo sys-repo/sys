@@ -73,7 +73,7 @@ function resolvedImportSpecifier(dependency: t.DenoDependency) {
     return toBrowserDenoSpecifier(dependency.loader, specifier, localPath);
   }
   if (specifier.startsWith('file://')) return Path.fromFileUrl(specifier);
-  if (specifier.startsWith('npm:')) return toViteNpmSpecifier(specifier);
+  if (specifier.startsWith('npm:')) return specifier;
   return specifier;
 }
 

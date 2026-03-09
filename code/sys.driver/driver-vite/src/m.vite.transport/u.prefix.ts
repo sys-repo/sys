@@ -25,7 +25,7 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
         const resolved = await deps.resolveDeno(id, root);
         if (resolved === null) return;
 
-        const actual = toViteNpmSpecifier(`npm:${resolved.id}`);
+        const actual = toViteNpmSpecifier(id);
         const result = await this.resolve(actual);
         return result ?? actual;
       }

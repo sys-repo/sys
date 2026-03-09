@@ -11,13 +11,11 @@ const depsDefault: t.ResolveDeps = {
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
-  let packageResolveImporter = Path.join(root, 'package.json');
 
   return {
     name: 'deno',
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
-      packageResolveImporter = Path.join(root, 'package.json');
     },
     async resolveId(
       this: {
@@ -34,10 +32,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       const resolvedImporter = importer ? unwrapViteId(importer) : importer;
       if (isDenoSpecifier(resolvedId)) return resolvedId;
       const resolved = await resolveViteSpecifier(resolvedId, cache, root, resolvedImporter, deps);
-      if (typeof resolved === 'string' && isBarePackageId(resolved)) {
-        const delegated = await this.resolve(resolved, packageResolveImporter, {
-          skipSelf: true,
-        });
+      if (Is.str(resolved) && isBarePackageId(resolved)) {
+        const skipSelf = true;
+        const packagePath = Path.join(Path.cwd(), 'package.json');
+        const delegated = await this.resolve(resolved, packagePath, { skipSelf });
         return delegated;
       }
       return resolved;
@@ -63,8 +61,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
   };
 }
 
-function isResolveError(info: t.ResolveInfoError | t.ResolveInfoModule): info is t.ResolveInfoError {
-  return 'error' in info && typeof info.error === 'string';
+function isResolveError(
+  info: t.ResolveInfoError | t.ResolveInfoModule,
+): info is t.ResolveInfoError {
+  return 'error' in info && Is.str(info.error);
 }
 
 function isResolveInfoModuleEsm(
@@ -184,7 +184,7 @@ export async function resolveViteSpecifier(
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
     let cached = cache.get(parent);
     if (cached === undefined) {
-      cached = await resolveDenoWith(parentId, root, deps) ?? undefined;
+      cached = (await resolveDenoWith(parentId, root, deps)) ?? undefined;
       if (cached) {
         cache.set(cached.id, cached);
         cache.set(parent, cached);
@@ -204,7 +204,7 @@ export async function resolveViteSpecifier(
     if (id.startsWith('npm:')) return toViteNpmSpecifier(id);
     if (found.localPath && found.loader && isRemoteLike(id)) {
       const existing = cache.get(found.localPath);
-      const hydrated = existing ?? await resolveDenoWith(id, root, deps);
+      const hydrated = existing ?? (await resolveDenoWith(id, root, deps));
       if (hydrated?.kind === 'esm') {
         cache.set(hydrated.id, hydrated);
         cache.set(id, hydrated);
@@ -221,7 +221,7 @@ export async function resolveViteSpecifier(
     }
   }
 
-  const resolved = cache.get(id) ?? await resolveDenoWith(id, root, deps);
+  const resolved = cache.get(id) ?? (await resolveDenoWith(id, root, deps));
   if (resolved === null) return;
   if (resolved.kind === 'npm') return null;
 
@@ -229,7 +229,8 @@ export async function resolveViteSpecifier(
 
   if (
     resolved.loader === null ||
-    (resolved.id.startsWith(Path.resolve(root)) && !Path.relative(root, resolved.id).startsWith('.'))
+    (resolved.id.startsWith(Path.resolve(root)) &&
+      !Path.relative(root, resolved.id).startsWith('.'))
   ) {
     return resolved.id;
   }

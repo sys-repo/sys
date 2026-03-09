@@ -45,6 +45,17 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(await resolveId('npm:react@19.2.4')).to.eql('react');
     });
 
+    it('does not rewrite npm specifiers for deno-owned importers', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json');
+      const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
+      expect(
+        await resolveId(
+          'npm:@preact/signals-core@1.13.0',
+          '\0deno::TypeScript::https://jsr.io/@sys/std/0.0.298/src/m.Signal/m.Is.ts::/tmp/cache/m.Is.ts',
+        ),
+      ).to.eql(null);
+    });
+
     it('passes through jsr-target import-map aliases (handled by deno plugin)', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {

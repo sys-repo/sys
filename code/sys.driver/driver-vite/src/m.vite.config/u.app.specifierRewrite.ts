@@ -11,7 +11,8 @@ export function createSpecifierRewrite(
   return {
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
-    async resolveId(source: string) {
+    async resolveId(source: string, importer?: string) {
+      if (wrangle.isDenoImporter(importer)) return null;
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten || rewritten === source) return null;
       return rewritten;
@@ -111,6 +112,11 @@ const wrangle = {
 
   stripPrefix(input: string, prefix: string) {
     return input.startsWith(prefix) ? input.slice(prefix.length) : '';
+  },
+
+  isDenoImporter(importer?: string) {
+    if (!importer) return false;
+    return importer.startsWith('\0deno::') || importer.startsWith('/@id/__x00__deno::');
   },
 
   parseRegistrySpecifier(source: string): string | undefined {

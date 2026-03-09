@@ -458,6 +458,7 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql({ id: '/tmp/node_modules/@noble/hashes/legacy.js' });
       });
+
     });
 
     describe('deno info normalization', () => {

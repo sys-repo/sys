@@ -67,6 +67,34 @@ describe('ViteTransport.prefix', () => {
       expect(res).to.eql('@noble/hashes/legacy.js');
     });
 
+    it('preserves npm subpaths even when deno info reports only the package root', async () => {
+      const plugin = prefixPlugin(new Map(), {
+        async resolveDeno() {
+          return {
+            id: '@noble/hashes@2.0.1',
+            kind: 'npm',
+            loader: null,
+            dependencies: [],
+          };
+        },
+        async resolveViteSpecifier() {
+          return undefined;
+        },
+      });
+
+      const res = await plugin.resolveId.call(
+        {
+          async resolve(id: string) {
+            expect(id).to.eql('@noble/hashes/legacy.js');
+            return undefined;
+          },
+        },
+        'npm:@noble/hashes@2.0.1/legacy.js',
+      );
+
+      expect(res).to.eql('@noble/hashes/legacy.js');
+    });
+
     it('delegates http imports to resolveViteSpecifier', async () => {
       const plugin = prefixPlugin(new Map(), {
         async resolveDeno() {
