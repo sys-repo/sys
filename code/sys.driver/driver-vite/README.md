@@ -36,6 +36,30 @@ It's time. Good things happen collectively when everything conforms to the same 
 - `Transport` resolves and loads modules.
 - Final module IDs must be stable and portable (never cache-hash paths).
 
+#### Validation
+- `deno task test` is the default local source-of-truth lane.
+- `deno task test:external` is the external-consumer lane. Run it post-release against published JSR packages.
+
+#### Security Posture
+`@sys/driver-vite` intentionally constrains the child `deno run npm:vite ...` process instead of
+defaulting to broad toolchain permissions.
+
+Current posture:
+- no child `-A`
+- `run` is scoped to the resolved native `esbuild` binary and the active `deno` executable only
+- `write` is scoped to the executing project root and the shared Vite cache roots, including canonical filesystem paths where required
+- `build` runs without child network permission
+- `dev` network is limited to `localhost`, `127.0.0.1`, and `0.0.0.0`
+- `dev` system access is limited to `networkInterfaces`
+
+Current limit:
+- child `env` remains broad because Vite 7 enumerates `process.env` in its Node config path; this prevents a stable name-scoped env allow-list in Deno today
+
+Validation lanes:
+- `src/m.vite/-test/-wrangle.test.ts` locks the permission-shaping contract
+- `src/m.vite/-test/-build.test.ts` and `src/m.vite/-test/-dev.test.ts` validate local runtime behavior
+- `deno task test:external` validates published/external consumer behavior
+
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -93,42 +117,74 @@ Usage: deno task [COMMAND]
 
 ## Configuration
 
-Within the `vite.config.ts` file in the root of your module folder:
+Define explicit app paths, then hand the rest of the baseline config assembly to
+`Vite.Config.app(...)`.
 
 ```ts
-import { Vite } from '@sys/driver-vite';
+import { Vite } from 'jsr:@sys/driver-vite';
 import { defineConfig } from 'vite';
-import reactPlugin from '@vitejs/plugin-react';
 
 export default defineConfig(() => {
-  const workspace = Vite.Plugin.workspace();
-  return { plugins: [reactPlugin(), workspace] };
-});
-```
-
-Optionally, you can filter the workspace modules that are exposed
-to the Vite bundle:
-
-```ts
-export default defineConfig(() => {
-  const workspace = Vite.Plugin.workspace({ filter: (e) => e.subpath.startsWith('/client') });
-  return { plugins: [reactPlugin(), workspace] };
-});
-```
-
-Along with the option to manulate the configuration further after the initial
-baseline settings have initialized, using the `mutate` plugin callback.
-
-```ts
-export default defineConfig(() => {
-  const workspace = Vite.Plugin.workspace({
-    mutate(e) {
-      console.info(c.dim(`\n👋 (callback inside plugin)`));
-      if (e.ws) console.info(e.ws.toString({ pad: true }));
+  const paths = Vite.Config.paths({
+    app: {
+      entry: 'src/-test/index.html',
+      outDir: 'dist',
     },
   });
-  return { plugins: [reactPlugin(), workspace] };
+
+  return Vite.Config.app({ paths });
 });
 ```
 
-See [basic](./vite.config.-sample.simple.ts) and [custom](./vite.config.-sample.custom.ts) `vite.config.ts` sample files.
+`Vite.Config.app(...)` composes the default application bundle shape:
+- workspace-aware aliasing
+- import-map and Deno transport handling
+- React / WASM plugin defaults
+- production bundle output layout
+
+You can still constrain workspace visibility and customize bundle behavior:
+
+```ts
+import { Vite } from 'jsr:@sys/driver-vite';
+import { defineConfig } from 'vite';
+
+export default defineConfig(async () => {
+  const paths = Vite.Config.paths({
+    app: {
+      entry: 'src/-test/index.html',
+      outDir: 'dist',
+    },
+  });
+
+  return Vite.Config.app({
+    paths,
+    filter(e) {
+      if (e.subpath.startsWith('/client')) return true;
+      if (e.pkg === '@sys/std') return true;
+      return false;
+    },
+    chunks(e) {
+      e.chunk('react', 'react');
+      e.chunk('react.dom', 'react-dom');
+      e.chunk('sys', ['@sys/std']);
+    },
+    minify: true,
+    plugins: { react: true, wasm: true, deno: true },
+  });
+});
+```
+
+For direct examples, see:
+- [`src/-test/vite.sample-config/simple/vite.config.ts`](./src/-test/vite.sample-config/simple/vite.config.ts)
+- [`src/-test/vite.sample-config/custom/vite.config.ts`](./src/-test/vite.sample-config/custom/vite.config.ts)
+
+
+<p>&nbsp;</p>
+
+## Tasks
+
+- `deno task test` → local driver and local bridge integration
+- `deno task test:external` → external-consumer smoke for the pinned published package lane
+- `deno task check` → module typecheck
+- `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
+- `deno task clean` → remove generated temp state and sample fixture build artifacts

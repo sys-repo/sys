@@ -6,7 +6,11 @@ export const SAMPLE = {
     sample1: './src/-test/vite.sample-1',
     sample2: './src/-test/vite.sample-2',
     sample3: './src/-test/vite.sample-3',
+    sampleStdPath: './src/-test/vite.sample-std-path',
     sampleBridge: './src/-test/vite.sample-bridge',
     sampleBridgePlain: './src/-test/vite.sample-bridge-plain',
+    samplePublishedBaseline: './src/-test/vite.sample-published-baseline',
+    samplePublishedUiBaseline: './src/-test/vite.sample-published-ui-baseline',
+    samplePublishedUiComponents: './src/-test/vite.sample-published-ui-components',
   },
 } as const;

@@ -57,6 +57,7 @@ groups:
       subpaths: ['value', 'errors']
 
   build/tools/vite:
+    - import: npm:esbuild@0.27.3
     - import: npm:@vitejs/plugin-react@5.1.4
     - import: npm:@deno/vite-plugin@1.0.6
     - import: npm:rollup@4.59.0
@@ -89,12 +90,12 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.111
-    - import: npm:@ai-sdk/openai@3.0.39
+    - import: npm:ai@6.0.116
+    - import: npm:@ai-sdk/openai@3.0.41
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@elevenlabs/elevenlabs-js@2.37.0
+    - import: npm:@elevenlabs/elevenlabs-js@2.38.1
 
   yaml:
     - import: npm:yaml@2.8.2
@@ -126,7 +127,7 @@ deno.json:
   - import: npm:hash-it@7.0.2
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
-  - import: npm:@preact/signals-core@1.13.0
+  - import: npm:@preact/signals-core@1.14.0
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
   - import: npm:@types/ramda@0.31.1
@@ -151,7 +152,7 @@ deno.json:
   - import: npm:react-error-boundary@6.1.1
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
-  - import: npm:@preact/signals-react@3.9.0
+  - import: npm:@preact/signals-react@3.9.1
 
 package.json:
   - group: build/tools/vite
@@ -162,5 +163,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.6.0
-  - import: npm:motion@12.34.5
-  - import: npm:hono@4.12.4
+  - import: npm:motion@12.35.1
+  - import: npm:hono@4.12.5

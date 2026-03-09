@@ -17,11 +17,7 @@
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
 
     "bump": "deno run -P=ci ./-scripts/main.ts --bump",
-
-    "tmpl": "deno run -P=build @sys/tmpl",
-    "cp": "  deno run -P=ci @sys/tools/cp",
-    "crdt": "  deno run -P=ci @sys/tools/crdt",
-
+    "tmpl": "deno run -P=tmpl @sys/tmpl",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
 
@@ -34,7 +30,7 @@
   },
   "nodeModulesDir": "auto",
 
-  "importMap": "deno.imports.json",
+  "importMap": "imports.json",
   "workspace": [
     "code/sys/monorepo",
     "code/sys.model/model-slug",
@@ -99,52 +95,11 @@
     }
   },
 
-  "test": { "permissions": "testset" },
+  "test": { "permissions": "ci" },
   "permissions": {
-    "dev": {
-      "read": true,
-      "write": true,
-      "net": true,
-      "env": true,
-      "ffi": true,
-      "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
-    },
-    "build": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "ffi": true,
-      "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
-    },
-    "testset": {
-      "read": true,
-      "write": true,
-      "net": true,
-      "env": true,
-      "ffi": true,
-      "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir"] }
-    },
-    "serve": {
-      "read": true,
-      "write": true,
-      "net": true,
-      "env": true,
-      "ffi": true,
-      "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
-    },
-    "clean": { "read": true, "write": true, "env": true, "run": true, "ffi": true, "sys": true },
-    "ci": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": true,
-      "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
-    }
+    "dev": { "read": true, "write": true, "run": true, "env": true },
+    "tmpl": { "read": true, "write": true, "run": true, "env": true },
+    "clean": { "read": true, "write": true, "run": true },
+    "ci": { "read": true, "write": true, "run": true, "env": true }
   }
 }

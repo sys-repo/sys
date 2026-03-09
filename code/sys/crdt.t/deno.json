@@ -1,9 +1,9 @@
 {
   "name": "@sys/crdt-t",
-  "version": "0.0.105",
+  "version": "0.0.111",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*"
   },
@@ -11,5 +11,12 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

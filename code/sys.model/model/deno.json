@@ -1,13 +1,13 @@
 {
   "name": "@sys/model",
-  "version": "0.0.36",
+  "version": "0.0.42",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -15,5 +15,16 @@
     "./types": "./src/types.ts",
     "./timecode/playback": "./src/m.timecode.playback/mod.ts",
     "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

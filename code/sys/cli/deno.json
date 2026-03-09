@@ -1,11 +1,11 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.226",
+  "version": "0.0.232",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./scripts/-clean.ts",
-    "test": "deno test -P=testset"
+    "clean": "deno run -P=clean ./scripts/task.clean.ts",
+    "test": "deno test -P=test"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -13,5 +13,16 @@
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
     "./fmt": "./src/m.core/m.Fmt.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

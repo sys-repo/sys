@@ -1,12 +1,12 @@
 import {
   assertImportMap,
   readJson,
+  resolvePackageVersions,
   syncByKey,
   syncTemplateImports,
   syncTemplatePackage,
-  sysPackageName,
 } from '../-prep.u.ts';
-import { describe, expect, Fs, it, type t } from '../../src/-test.ts';
+import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
 
 describe('prep.u', () => {
   it('syncByKey → updates each target key deterministically', () => {
@@ -53,12 +53,51 @@ describe('prep.u', () => {
     expect(res.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.3.7');
   });
 
-  it('syncTemplateImports → throws when a required import key is missing in root deno.imports.json', () => {
+  it('syncTemplateImports → preserves required driver-vite and ui subpath imports for generated repos', () => {
+    const input = {
+      imports: {
+        '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.0',
+        '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.0/main',
+        '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
+        '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
+        '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.0',
+        '@sys/ui-react': 'jsr:@sys/ui-react@0.0.0',
+        '@sys/ui-react-components': 'jsr:@sys/ui-react-components@0.0.0',
+        '@sys/ui-react-devharness': 'jsr:@sys/ui-react-devharness@0.0.0',
+      },
+    };
+    const authority = {
+      imports: {
+        '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.297',
+        '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.297/main',
+      },
+    };
+    const versions = {
+      '@sys/http': '0.0.210',
+      '@sys/ui-css': '0.0.231',
+      '@sys/ui-dom': '0.0.237',
+      '@sys/ui-react': '0.0.245',
+      '@sys/ui-react-components': '0.0.197',
+      '@sys/ui-react-devharness': '0.0.242',
+    };
+
+    const res = syncTemplateImports(input, authority, versions);
+    expect(res.imports['@sys/driver-vite']).to.eql('jsr:@sys/driver-vite@0.0.297');
+    expect(res.imports['@sys/driver-vite/main']).to.eql('jsr:@sys/driver-vite@0.0.297/main');
+    expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
+    expect(res.imports['@sys/ui-css']).to.eql('jsr:@sys/ui-css@0.0.231');
+    expect(res.imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
+    expect(res.imports['@sys/ui-react']).to.eql('jsr:@sys/ui-react@0.0.245');
+    expect(res.imports['@sys/ui-react-components']).to.eql('jsr:@sys/ui-react-components@0.0.197');
+    expect(res.imports['@sys/ui-react-devharness']).to.eql('jsr:@sys/ui-react-devharness@0.0.242');
+  });
+
+  it('syncTemplateImports → throws when a required import key is missing in root imports.json', () => {
     const input = { imports: { foo: 'jsr:@foo/bar@0.0.0' } };
     const authority = { imports: {} };
 
     expect(() => syncTemplateImports(input, authority, {})).to.throw(
-      'Missing import "foo" in root deno.imports.json',
+      'Missing import "foo" in root imports.json',
     );
   });
 
@@ -98,13 +137,61 @@ describe('prep.u', () => {
     );
   });
 
+  it('resolvePackageVersions → reads versions from workspace authority', async () => {
+    const imports = {
+      imports: {
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+      },
+    };
+    const calls: Array<{ name: string; src?: string }> = [];
+    const denoFile = {
+      workspaceVersion(name: string, src?: string) {
+        calls.push({ name, src });
+        if (name === '@sys/fs') return Promise.resolve('0.0.243');
+        if (name === '@sys/tmpl') return Promise.resolve('0.0.259');
+        return Promise.resolve(undefined);
+      },
+    };
+
+    const res = await resolvePackageVersions('/tmp/deno.json', imports, denoFile);
+
+    expect(res).to.eql({
+      '@sys/fs': '0.0.243',
+      '@sys/tmpl': '0.0.259',
+    });
+    expect(calls).to.eql([
+      { name: '@sys/fs', src: '/tmp/deno.json' },
+      { name: '@sys/tmpl', src: '/tmp/deno.json' },
+    ]);
+  });
+
+  it('resolvePackageVersions → throws when workspace authority is missing', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    try {
+      await resolvePackageVersions('/tmp/deno.json', imports, denoFile);
+      throw new Error('Expected resolvePackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql(
+        'Missing workspace version authority for package "@sys/fs": /tmp/deno.json',
+      );
+    }
+  });
+
   it('parity invariant → prep sync result equals template files for all current keys', async () => {
     const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
     const path = {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
       rootPackage: Fs.join(root, 'package.json'),
-      rootImports: Fs.join(root, 'deno.imports.json'),
+      rootImports: Fs.join(root, 'imports.json'),
+      rootDenoJson: Fs.join(root, 'deno.json'),
     } as const;
 
     const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
@@ -115,7 +202,7 @@ describe('prep.u', () => {
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
     const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
-    const versions = await resolvePackageVersions(root, repoImports);
+    const versions = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
 
     const syncedImports = syncTemplateImports(repoImports, rootImports, versions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
@@ -124,32 +211,3 @@ describe('prep.u', () => {
     expect(syncedPackage).to.eql(repoPackage);
   });
 });
-
-async function resolvePackageVersions(root: string, imports: { imports: Record<string, string> }) {
-  const pkgs = [
-    ...new Set(
-      Object.keys(imports.imports)
-        .map(sysPackageName)
-        .filter((pkg): pkg is string => typeof pkg === 'string'),
-    ),
-  ];
-  const entries = await Promise.all(pkgs.map(async (pkg) => [pkg, await readPackageVersion(root, pkg)] as const));
-  return Object.fromEntries(entries);
-}
-
-async function readPackageVersion(root: string, pkg: string) {
-  const path = packageConfigPath(root, pkg);
-  const json = await readJson<t.Json>(path);
-  const version = (json as { version?: unknown }).version;
-  if (typeof version !== 'string') {
-    throw new Error(`Expected "version" string field: ${path}`);
-  }
-  return version;
-}
-
-function packageConfigPath(root: string, pkg: string): string {
-  const name = pkg.replace('@sys/', '');
-  if (name === 'tmpl') return Fs.join(root, 'code/-tmpl/deno.json');
-  if (name === 'tools') return Fs.join(root, 'code/sys.tools/deno.json');
-  return Fs.join(root, 'code/sys', name, 'deno.json');
-}

@@ -32,7 +32,6 @@ describe('Template: pkg', () => {
      * Assertions:
      */
     expect(includes('/ns/foo-1/deno.json')).to.be.true;
-    expect(includes('/ns/foo-1/-deno.json')).to.be.false; // renamed.
 
     // Text replacements:
     {

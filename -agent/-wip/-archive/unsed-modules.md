@@ -2,7 +2,7 @@
 
 Scan scope:
 - Included: `*.[tj]s`, `*.[tj]sx`, `*.mjs`, `*.cjs`, `*.d.ts`
-- Excluded: `node_modules`, `.tmp`, `-tmp`, `dist`, `pkg`, `build`, `deno.imports.json`, `deno.lock`, `package.json`
+- Excluded: `node_modules`, `.tmp`, `-tmp`, `dist`, `pkg`, `build`, `imports.json`, `deno.lock`, `package.json`
 
 No match:
 - `jsr:@std/uuid`

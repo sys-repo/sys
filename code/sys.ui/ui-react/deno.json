@@ -1,11 +1,11 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.247",
+  "version": "0.0.253",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./scripts/-clean.ts"
+    "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -17,5 +17,16 @@
     "./signal": "./src/m.signal/mod.ts",
     "./testing/server": "./src/m.testing.server/mod.ts",
     "./use": "./src/use/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

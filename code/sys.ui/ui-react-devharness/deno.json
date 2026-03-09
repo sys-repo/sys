@@ -1,16 +1,16 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.244",
+  "version": "0.0.250",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
-    "test": "deno test -P=testset",
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
-    "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "help": "deno run -P=dev   ./-scripts/task.main.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -18,5 +18,35 @@
     "./types": "./src/types.ts",
     "./hooks": "./src/-export/-hooks.ts",
     "./-test/entry-specs": "./src/-test/-specs.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
   }
 }

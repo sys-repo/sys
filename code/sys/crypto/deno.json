@@ -1,11 +1,11 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.226",
+  "version": "0.0.232",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./scripts/-clean.ts",
-    "test": "deno test -P=testset"
+    "clean": "deno run -P=clean ./scripts/task.clean.ts",
+    "test": "deno test -P=test"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -15,5 +15,16 @@
     "./hash": "./src/m.Hash/mod.ts",
     "./sign": "./src/mod.sign.ts",
     "./sign/ed25519": "./src/m.Sign.Ed25519/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

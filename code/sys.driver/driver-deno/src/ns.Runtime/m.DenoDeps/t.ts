@@ -30,6 +30,9 @@ export type DepsLib = {
       subpaths?: t.StringDir[];
     },
   ): t.Dep;
+
+  /** Find the canonical import specifier for a versionless dependency stem. */
+  findImport(deps: t.Dep[] | undefined, input: t.StringModuleSpecifier): t.StringModuleSpecifier | undefined;
 };
 
 /** A response object from a `DenoDeps` constructor function. */

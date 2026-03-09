@@ -1,17 +1,28 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.249",
+  "version": "0.0.255",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./runtime": "./src/ns.Runtime/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

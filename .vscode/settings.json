@@ -2,19 +2,23 @@
   // --- Deno -------------------------------------------------
   "deno.enable": false,
   "deno.lint": false,
-  "deno.importMap": "deno.imports.json",
-  "deno.unstable": true,
+  "deno.importMap": "imports.json",
   "deno.enablePaths": ["code", "deploy", "-scripts"],
   "deno.disablePaths": ["node_modules", "**/dist", "**/.vite", "**/coverage", "-tmp", "-tmp/**"],
 
-  "deno.enablePathsRefactor": false, // NB: Deno LSP is too slow to make this useful.
-
-  // --- Editor QoL -------------------------------------------
+  // --- Editor (quality of life) -------------------------------------------
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestionsDelay": 0,
 
-  // --- File System hygiene ----------------------------------
+  // --- Formatting ----------------------------------
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null,
+    "files.trimTrailingWhitespace": false
+  },
+
+  // --- File-system Hygiene ----------------------------------
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,
@@ -22,10 +26,11 @@
     "**/coverage/**": true
   },
   "search.exclude": {
+    "-tmp": true,
+    "**/.tmp": true,
     "**/node_modules": true,
     "**/dist": true,
     "**/.vite": true,
-    "**/coverage": true,
-    "-tmp": true
+    "**/coverage": true
   }
 }

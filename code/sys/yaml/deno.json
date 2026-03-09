@@ -1,14 +1,25 @@
 {
   "name": "@sys/yaml",
-  "version": "0.0.96",
+  "version": "0.0.102",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts",
-    "sample-cli": "deno run -P=testset ./-scripts/-sample-cli.ts",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "sample-cli": "deno run -P=test ./-scripts/task.sample-cli.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   },
   "exports": {
     ".": "./src/mod.ts",

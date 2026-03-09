@@ -1,15 +1,30 @@
 {
   "imports": {
-    "@sys/fs": "jsr:@sys/fs@0.0.246",
-    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.2/ci",
-    "@sys/process": "jsr:@sys/process@0.0.228",
-    "@sys/std": "jsr:@sys/std@0.0.303",
-    "@sys/std/async": "jsr:@sys/std@0.0.303/async",
-    "@sys/std/rx": "jsr:@sys/std@0.0.303/rx",
-    "@sys/testing/server": "jsr:@sys/testing@0.0.237/server",
-    "@sys/types": "jsr:@sys/types@0.0.244",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.258",
-    "@sys/tools": "jsr:@sys/tools@0.0.260"
+    "@sys/color/t": "jsr:@sys/color@0.0.204/t",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.302",
+    "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.302/main",
+    "@sys/fs": "jsr:@sys/fs@0.0.252",
+    "@sys/http/client": "jsr:@sys/http@0.0.221/client",
+    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.8/ci",
+    "@sys/process": "jsr:@sys/process@0.0.234",
+    "@sys/std": "jsr:@sys/std@0.0.309",
+    "@sys/std/async": "jsr:@sys/std@0.0.309/async",
+    "@sys/std/log": "jsr:@sys/std@0.0.309/log",
+    "@sys/std/rx": "jsr:@sys/std@0.0.309/rx",
+    "@sys/std/testing": "jsr:@sys/std@0.0.309/testing",
+    "@sys/testing/server": "jsr:@sys/testing@0.0.243/server",
+    "@sys/testing/t": "jsr:@sys/testing@0.0.243/t",
+    "@sys/types": "jsr:@sys/types@0.0.250",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.264",
+    "@sys/tools": "jsr:@sys/tools@0.0.266",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.239",
+    "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.239/t",
+    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.245",
+    "@sys/ui-dom/t": "jsr:@sys/ui-dom@0.0.245/t",
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.253",
+    "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.205",
+    "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.250",
+    "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.250/t"
   }
 }
 

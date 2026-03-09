@@ -5,6 +5,7 @@ import { Path } from './m.DenoFile.Path.ts';
 import { load } from './u.load.ts';
 import { nearest } from './u.nearest.ts';
 import { workspace } from './u.workspace.ts';
+import { workspaceVersion } from './u.workspaceVersion.ts';
 
 export const DenoFile: DenoFileLib = {
   Is,
@@ -12,4 +13,5 @@ export const DenoFile: DenoFileLib = {
   load,
   nearest,
   workspace,
+  workspaceVersion,
 };

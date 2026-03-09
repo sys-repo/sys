@@ -9,11 +9,6 @@ export default async function setup(dir: t.StringAbsoluteDir, options: { pkgName
   if (!monorepo) throw new Error(`Failed to find the host monorepo.`);
 
   /**
-   * Clean up filenames:
-   */
-  await Fs.move(Fs.join(dir, '-deno.json'), Fs.join(dir, 'deno.json'));
-
-  /**
    * Update files within template:
    */
   const glob = Fs.glob(dir);

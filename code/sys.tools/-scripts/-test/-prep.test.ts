@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../src/-test.ts';
-import { assertVersion, pinTmplSpecifier } from '../-prep.u.ts';
+import { pinTmplSpecifier, resolveTmplVersion, type DenoFileVersionLib } from '../-prep.u.ts';
 
 describe('scripts/-prep', () => {
   it('pins TMPL_JSR_SPECIFIER to the target @sys/tmpl version', () => {
@@ -19,9 +19,32 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     expect(res).to.eql(source);
   });
 
-  it('assertVersion reads version from deno.json-like data', () => {
-    const version = assertVersion({ version: '0.0.256' }, '/tmp/deno.json');
+  it('resolveTmplVersion reads version from workspace authority', async () => {
+    const stub: DenoFileVersionLib = {
+      workspaceVersion(name, src) {
+        expect(name).to.eql('@sys/tmpl');
+        expect(src).to.eql('/tmp/deno.json');
+        return Promise.resolve('0.0.256');
+      },
+    };
+
+    const version = await resolveTmplVersion('/tmp/deno.json', stub);
     expect(version).to.eql('0.0.256');
+  });
+
+  it('resolveTmplVersion throws when workspace authority is missing', async () => {
+    const stub: DenoFileVersionLib = {
+      workspaceVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    try {
+      await resolveTmplVersion('/tmp/deno.json', stub);
+      throw new Error('Expected resolveTmplVersion to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql('Missing workspace version for package "@sys/tmpl": /tmp/deno.json');
+    }
   });
 
   it('pinTmplSpecifier throws when marker constant is missing', () => {

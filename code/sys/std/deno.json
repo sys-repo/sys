@@ -1,9 +1,9 @@
 {
   "name": "@sys/std",
-  "version": "0.0.303",
+  "version": "0.0.309",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "prep": "deno task build:rx",
@@ -37,5 +37,13 @@
     "./timecode": "./src/-exports/-time.timecode.ts",
     "./url": "./src/-exports/-url.ts",
     "./value": "./src/-exports/-value.ts"
+  },
+  "permissions": {
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }

@@ -1,13 +1,13 @@
 {
   "name": "@sys/immutable",
-  "version": "0.0.89",
+  "version": "0.0.95",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset --unstable-worker-options",
+    "test": "deno test -P=test --unstable-worker-options",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean ./-scripts/-clean.ts",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -17,5 +17,16 @@
     "./graph": "./src/-exports/-graph.ts",
     "./rfc6902": "./src/-exports/-rfc6902.ts",
     "./url": "./src/-exports/-url.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Wrangle } from '../m.Vite/u.wrangle.ts';
+import { Wrangle } from '../m.vite/u.wrangle.ts';
 import { type t, Args, c, Path, pkg, ViteLog } from './common.ts';
 
 import { build } from './u.build.ts';
@@ -28,12 +28,6 @@ export const main: t.ViteEntryLib['main'] = async (input) => {
     if (!args.silent) ViteLog.API.log({ cmd: 'serve' });
     console.info();
     await serve(args);
-    return;
-  }
-
-  if (args.cmd === 'clean') {
-    const { clean } = await import('./u.clean.ts');
-    await clean(args);
     return;
   }
 

@@ -283,5 +283,22 @@ describe('DenoFile', () => {
         expect(modules.items).to.eql([]);
       });
     });
+
+    describe('workspaceVersion', () => {
+      it('returns the package version for a named workspace child', async () => {
+        const ws = await DenoFile.workspace(rootPath);
+        const child = ws.children.find((m) => m.pkg.name === '@sys/tmpl');
+        const res = await DenoFile.workspaceVersion('@sys/tmpl', rootPath);
+
+        expect(child).to.exist;
+        expect(typeof child?.pkg.version).to.eql('string');
+        expect(res).to.eql(child?.pkg.version);
+      });
+
+      it('returns undefined when the package is not present in the workspace', async () => {
+        const res = await DenoFile.workspaceVersion('@sys/404', rootPath);
+        expect(res).to.eql(undefined);
+      });
+    });
   });
 });

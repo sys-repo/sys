@@ -1,0 +1,35 @@
+import type { t } from './common.ts';
+import react from '@vitejs/plugin-react';
+import wasm from 'vite-plugin-wasm';
+import { ViteTransport } from '../m.vite.transport/mod.ts';
+
+export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
+  const plugins: t.VitePluginOption[] = [];
+
+  /**
+   * The official Deno vite-plugin:
+   */
+  if (options.deno ?? true) {
+    plugins.push(ViteTransport.denoPlugin());
+  }
+
+  /**
+   * WASM support:
+   */
+  if (options.wasm ?? true) {
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
+    plugins.push(wasm());
+  }
+
+  /**
+   * React:
+   */
+  if (options.react ?? true) {
+    const exclude = [/node_modules/, /(\.|^)worker\.tsx?$/];
+    plugins.push(react({ exclude }));
+  }
+
+  // Finish up.
+  return plugins;
+}

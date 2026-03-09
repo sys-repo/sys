@@ -1,19 +1,41 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.258",
+  "version": "0.0.264",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RWNE --allow-run --allow-ffi --allow-sys",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "tmpl": "deno run -RWE ./src/mod.ts",
-    "prep": "deno task clean && deno run -RWE ./-scripts/-prep.ts && deno run -RWE ./src/mod.ts --bundle",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmpl": "deno run -P=tmpl ./src/mod.ts",
+    "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts && deno run -P=prep ./src/mod.ts --bundle",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true
+    },
+    "prep": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": true
+    }
   }
 }

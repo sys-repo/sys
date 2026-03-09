@@ -1,9 +1,0 @@
-{
-  "name": "@tmp/vite.sample-bridge-plain",
-  "version": "0.0.0",
-  "exports": {
-    ".": "./main.ts"
-  },
-  "workspace": [],
-  "importMap": "imports.json"
-}

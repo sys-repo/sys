@@ -2,10 +2,10 @@
   "tasks": {
     "ci": "deno task check && deno task test",
     "check": "deno check",
-    "test": "deno test -P=unit ./-scripts ./code",
-    "prep": "deno run -P=unit ./-scripts/task.prep.ts",
-    "tmpl": "deno run -P=integration ./-scripts/task.tmpl.ts",
-    "tmpl:project": "deno run -P=integration ./-scripts/task.tmpl.ts pkg",
+    "test": "deno test -P=test ./-scripts ./code",
+    "prep": "deno run -P=test ./-scripts/task.prep.ts",
+    "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
+    "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
 
     "outdated": "deno outdated",
     "upgrade": "deno update --latest",
@@ -22,8 +22,8 @@
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "permissions": {
-    "unit": { "read": true, "write": true, "env": true },
-    "integration": { "read": true, "write": true, "run": true, "env": true, "net": true }
+    "test": { "read": true, "write": true, "env": true },
+    "tmpl": { "read": true, "write": true, "run": true, "env": true }
   },
   "workspace": []
 }

@@ -49,6 +49,41 @@ describe('DenoDeps', () => {
     });
   });
 
+  describe('DenoDeps.findImport', () => {
+    it('returns the canonical npm import for a versionless stem', async () => {
+      const { data, error } = await DenoDeps.from(`
+        deno.json:
+          - import: npm:esbuild@0.27.3
+      `);
+      expect(error).to.eql(undefined);
+
+      const res = DenoDeps.findImport(data?.deps, 'npm:esbuild');
+      expect(res).to.eql('npm:esbuild@0.27.3');
+    });
+
+    it('returns the canonical jsr import for a versionless stem', async () => {
+      const { data, error } = await DenoDeps.from(`
+        deno.json:
+          - import: jsr:@sys/http@0.0.216
+      `);
+      expect(error).to.eql(undefined);
+
+      const res = DenoDeps.findImport(data?.deps, 'jsr:@sys/http');
+      expect(res).to.eql('jsr:@sys/http@0.0.216');
+    });
+
+    it('returns undefined when no matching import exists', async () => {
+      const { data, error } = await DenoDeps.from(`
+        deno.json:
+          - import: npm:vite@7.3.1
+      `);
+      expect(error).to.eql(undefined);
+
+      const res = DenoDeps.findImport(data?.deps, 'npm:esbuild');
+      expect(res).to.eql(undefined);
+    });
+  });
+
   describe('DenoDeps.from (YAML)', () => {
     it('input: path (string → file.yaml)', async () => {
       const path = SAMPLE.path;

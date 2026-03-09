@@ -26,6 +26,11 @@ export type DenoFileLib = {
   workspace(src?: t.StringPath, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
 
   /**
+   * Resolve the current version for a package within a Deno workspace.
+   */
+  workspaceVersion(name: t.StringPkgName, src?: t.StringPath, options?: { walkup?: boolean }): Promise<t.StringSemver | undefined>;
+
+  /**
    * Walks up from the starting path looking for the nearest
    * ancestor `deno.json` / `deno.jsonc` file.
    */

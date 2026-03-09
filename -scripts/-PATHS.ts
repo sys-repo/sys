@@ -12,11 +12,12 @@ export const Paths = {
     return Paths.all;
   },
   single: [
+    'code/sys.driver/driver-vite',
     //
     // 'deploy/@tdb.edu.slug',
     // 'code/sys.tools',
-    'code/-tmpl',
-    'code/sys.tools',
+    // 'code/-tmpl',
+    // 'code/sys.tools',
   ],
   all: [
     /** types: */

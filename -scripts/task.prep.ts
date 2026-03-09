@@ -1,5 +1,6 @@
 import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, TmplEngine } from './common.ts';
 const i = c.italic;
+const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type TCtx = { pkg: t.Pkg };
 
@@ -15,7 +16,7 @@ async function processDeps() {
 
   const PATH = {
     package: './package.json',
-    deno: './deno.imports.json',
+    deno: './imports.json',
   } as const;
 
   /**
@@ -87,13 +88,29 @@ async function updatePackages() {
 async function prepSubmodules() {
   const ws = await DenoFile.workspace();
   for (const item of ws.children) {
+    if (item.path.dir === Fs.resolve(TMPL_MODULE_PATH)) continue;
     const tasks = item.denofile.tasks;
     if (tasks) {
-      const sh = Process.sh(item.path.dir);
-      if (tasks.prep) await sh.run('deno task prep');
-      if (tasks.init) await sh.run('deno task init');
+      if (tasks.prep) await runTaskOrThrow(item.path.dir, 'deno task prep');
+      if (tasks.init) await runTaskOrThrow(item.path.dir, 'deno task init');
     }
   }
+}
+
+/**
+ * The template bundle is a critical generated artifact consumed across the repo.
+ * Root prep owns this explicitly rather than relying on generic workspace traversal.
+ */
+async function prepTmplModule() {
+  await runTaskOrThrow(TMPL_MODULE_PATH, 'deno task prep');
+}
+
+async function runTaskOrThrow(path: string, command: string) {
+  const parts = command.trim().split(/\s+/);
+  const [cmd, ...args] = parts;
+  const res = await Process.inherit({ cmd, args, cwd: path });
+  if (res.success) return;
+  throw new Error(`Failed in ${path}: ${command}`);
 }
 
 /**
@@ -104,4 +121,5 @@ export async function main() {
   await processDeps();
   await updatePackages();
   await prepSubmodules();
+  await prepTmplModule();
 }
