@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.297",
+  "version": "0.0.298",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -31,7 +31,9 @@
       "net": true,
       "run": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] }
+      "sys": {
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+      }
     },
     "dev": {
       "read": true,
@@ -40,7 +42,9 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] }
+      "sys": {
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+      }
     }
   }
 }
