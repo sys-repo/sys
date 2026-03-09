@@ -68,6 +68,27 @@ describe('Fs: write to the file-system operations', () => {
 
       await Promise.all(wait);
     });
+
+    it('retries transient directory-not-empty failures', async () => {
+      const sample = await testSetup();
+      const original = Deno.remove;
+      let attempts = 0;
+
+      Deno.remove = (async (path: string | URL, options?: Deno.RemoveOptions) => {
+        attempts++;
+        if (attempts < 3) throw new Error('Directory not empty (os error 66)');
+        return await original(path, options);
+      }) as typeof Deno.remove;
+
+      try {
+        const res = await Fs.remove(sample.path.dir);
+        expect(res).to.eql(true);
+        expect(attempts).to.eql(3);
+        expect(await sample.dirExists()).to.eql(false);
+      } finally {
+        Deno.remove = original;
+      }
+    });
   });
 
   describe('Fs.write', () => {

@@ -19,7 +19,7 @@ export const remove: t.Fs.Remove = async (path, options = {}) => {
 
   if (!targetExists) return false;
   try {
-    await Deno.remove(path, { recursive: true });
+    await wrangle.remove(path);
     if (options.log) console.info(`${c.cyan('deleted')} ${c.gray(shortPath)}`);
     return true;
   } catch (error: any) {
@@ -30,3 +30,29 @@ export const remove: t.Fs.Remove = async (path, options = {}) => {
     }
   }
 };
+
+const wrangle = {
+  async remove(path: string) {
+    const attempts = 4;
+
+    for (let i = 0; i < attempts; i++) {
+      try {
+        await Deno.remove(path, { recursive: true });
+        return;
+      } catch (error) {
+        if (!wrangle.isRetryable(error) || i === attempts - 1) throw error;
+        await wrangle.sleep(25 * (i + 1));
+      }
+    }
+  },
+
+  isRetryable(error: unknown) {
+    if (!(error instanceof Error)) return false;
+    const text = error.message.toLowerCase();
+    return text.includes('directory not empty') || text.includes('resource busy');
+  },
+
+  sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  },
+} as const;
