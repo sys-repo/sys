@@ -107,12 +107,18 @@ const wrangle = {
   },
 
   esbuildPackage() {
-    const arch = Deno.build.arch === 'aarch64' ? 'arm64' : Deno.build.arch;
+    const arch = wrangle.normalizeEsbuildArch(Deno.build.arch);
     const key = `${Deno.build.os}/${arch}`;
     const pkg = ESBUILD_PACKAGES[key as keyof typeof ESBUILD_PACKAGES];
     if (!pkg) throw new Error(`Unsupported esbuild platform: ${key}`);
     const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
     return { pkg, subpath } as const;
+  },
+
+  normalizeEsbuildArch(arch: string) {
+    if (arch === 'aarch64') return 'arm64';
+    if (arch === 'x86_64') return 'x64';
+    return arch;
   },
 } as const;
 
