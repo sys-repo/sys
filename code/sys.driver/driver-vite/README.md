@@ -40,6 +40,26 @@ It's time. Good things happen collectively when everything conforms to the same 
 - `deno task test` is the default local source-of-truth lane.
 - `deno task test:external` is the external-consumer lane. Run it post-release against published JSR packages.
 
+#### Security Posture
+`@sys/driver-vite` intentionally constrains the child `deno run npm:vite ...` process instead of
+defaulting to broad toolchain permissions.
+
+Current posture:
+- no child `-A`
+- `run` is scoped to the resolved native `esbuild` binary and the active `deno` executable only
+- `write` is scoped to the executing project `cwd` plus the shared Vite cache under `node_modules/.vite`
+- `build` runs without child network permission
+- `dev` network is limited to `localhost`, `127.0.0.1`, and `0.0.0.0`
+- `dev` system access is limited to `networkInterfaces`
+
+Current limit:
+- child `env` remains broad because Vite 7 enumerates `process.env` in its Node config path; this prevents a stable name-scoped env allow-list in Deno today
+
+Validation lanes:
+- `src/m.vite/-test/-wrangle.test.ts` locks the permission-shaping contract
+- `src/m.vite/-test/-build.test.ts` and `src/m.vite/-test/-dev.test.ts` validate local runtime behavior
+- `deno task test:external` validates published/external consumer behavior
+
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
