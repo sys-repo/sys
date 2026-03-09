@@ -4,30 +4,17 @@ import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
-
-const depsDefault: t.ResolveDeps = {
-  invoke: Process.invoke,
-};
+const depsDefault: t.ResolveDeps = { invoke: Process.invoke };
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
 
-  return {
+  const plugin = {
     name: 'deno',
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
     },
-    async resolveId(
-      this: {
-        resolve: (
-          id: string,
-          importer?: string,
-          options?: { readonly skipSelf?: boolean },
-        ) => Promise<unknown>;
-      },
-      id: string,
-      importer?: string,
-    ) {
+    async resolveId(id: string, importer?: string) {
       const resolvedId = unwrapViteId(id);
       const resolvedImporter = importer ? unwrapViteId(importer) : importer;
       if (isDenoSpecifier(resolvedId)) return resolvedId;
@@ -58,9 +45,14 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
 
       return;
     },
-  };
+  } satisfies t.VitePlugin;
+
+  return plugin;
 }
 
+/**
+ * Helpers:
+ */
 function isResolveError(
   info: t.ResolveInfoError | t.ResolveInfoModule,
 ): info is t.ResolveInfoError {

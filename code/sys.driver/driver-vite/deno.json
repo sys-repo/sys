@@ -3,6 +3,7 @@
   "version": "0.0.297",
   "license": "MIT",
   "tasks": {
+    "ci": "deno task check && deno task test && deno task test:external && deno task clean",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
