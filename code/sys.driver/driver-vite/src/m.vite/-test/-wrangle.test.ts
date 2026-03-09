@@ -23,6 +23,7 @@ describe('Vite.Wrangle', () => {
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include('/tmp/demo');
     expect(allowWrite).to.include('node_modules/.vite');
+    expect(res.args).to.include('--allow-env');
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
     expect(res.args).to.not.include('--allow-run');
     expect(res.args).to.not.include('-A');
@@ -44,6 +45,7 @@ describe('Vite.Wrangle', () => {
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include('/tmp/demo');
     expect(allowWrite).to.include('node_modules/.vite');
+    expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-sys=networkInterfaces');
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);

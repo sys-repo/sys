@@ -63,14 +63,7 @@ const wrangle = {
   permissions(paths: t.ViteConfigPaths, cmd: string, env: Record<string, string>) {
     const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
     const allowWrite = `--allow-write=${paths.cwd},${wrangle.viteCacheDir()}`;
-    const common = [
-      '--allow-read',
-      allowWrite,
-      '--allow-env',
-      '--allow-net',
-      allowRun,
-      '--allow-ffi',
-    ];
+    const common = ['--allow-env', '--allow-ffi', '--allow-net', '--allow-read', allowRun, allowWrite];
 
     if (cmd === 'build') return common;
     if (cmd === 'dev') return [...common, '--allow-sys=networkInterfaces'];
