@@ -33,7 +33,10 @@ describe('ViteTransport.load', () => {
     it('rewrites npm subpath imports to resolved file paths', async () => {
       const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.npm-subpath.' });
       const path = Fs.join(fs.absolute, 'mod.js');
-      const depPath = Fs.join(fs.absolute, 'node_modules/.deno/@noble+hashes@2.0.1/node_modules/@noble/hashes/legacy.js');
+      const depPath = Fs.join(
+        fs.absolute,
+        'node_modules/.deno/@noble+hashes@2.0.1/node_modules/@noble/hashes/legacy.js',
+      );
       await Fs.write(path, "export { h32 } from '@noble/hashes/legacy.js';");
 
       const res = await loadDenoModule(toDenoSpecifier('JavaScript', './mod.js', path), [

@@ -27,7 +27,7 @@ export async function loadDenoModule(
   });
 
   const map = result.map === '' ? null : result.map;
-  return { code: result.code, map };
+  return { code: rewriteResolvedImports(result.code, dependencies), map };
 }
 
 export function mediaTypeToLoader(media: string) {
