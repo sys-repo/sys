@@ -6,8 +6,8 @@ import { type t, Path, ViteConfig } from './common.ts';
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
     const config = 'vite.config.ts';
-    const cmd = `deno run -A --node-modules-dir npm:vite ${arg} --config=${config}`;
-    const args = cmd.split(' ').slice(1);
+    const args = wrangle.args(arg, config);
+    const cmd = ['deno', ...args].join(' ');
     return { cmd, args } as const;
   },
 
@@ -40,5 +40,36 @@ export const Wrangle = {
     }
 
     return paths;
+  },
+} as const;
+
+const wrangle = {
+  args(arg: string, config: string) {
+    const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
+    const permissions = wrangle.permissions(cmd ?? '');
+    return [
+      'run',
+      ...permissions,
+      '--node-modules-dir',
+      'npm:vite',
+      cmd,
+      ...rest,
+      `--config=${config}`,
+    ].filter(Boolean);
+  },
+
+  permissions(cmd: string) {
+    const common = [
+      '--allow-read',
+      '--allow-write',
+      '--allow-env',
+      '--allow-net',
+      '--allow-run',
+      '--allow-ffi',
+    ];
+
+    if (cmd === 'build') return common;
+    if (cmd === 'dev') return [...common, '--allow-sys=networkInterfaces'];
+    return common;
   },
 } as const;
