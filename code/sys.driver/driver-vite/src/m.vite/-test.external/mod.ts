@@ -6,7 +6,6 @@
  */
 import './-baseline.ts';
 import './-repo-generated.ts';
+import './-repo-generated.workspace.ts';
 import './-ui-baseline.ts';
 import './-ui-components.ts';
-
-// import './-repo-generated.workspace.ts';
