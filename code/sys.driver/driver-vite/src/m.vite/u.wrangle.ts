@@ -8,7 +8,7 @@ export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
     const config = 'vite.config.ts';
     const env = wrangle.env();
-    const args = wrangle.args(arg, config, env);
+    const args = wrangle.args(paths, arg, config, env);
     const cmd = ['deno', ...args].join(' ');
     return { cmd, args, env } as const;
   },
@@ -46,9 +46,9 @@ export const Wrangle = {
 } as const;
 
 const wrangle = {
-  args(arg: string, config: string, env: Record<string, string>) {
+  args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
-    const permissions = wrangle.permissions(cmd ?? '', env);
+    const permissions = wrangle.permissions(paths, cmd ?? '', env);
     return [
       'run',
       ...permissions,
@@ -60,11 +60,12 @@ const wrangle = {
     ].filter(Boolean);
   },
 
-  permissions(cmd: string, env: Record<string, string>) {
+  permissions(paths: t.ViteConfigPaths, cmd: string, env: Record<string, string>) {
     const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
+    const allowWrite = `--allow-write=${paths.cwd},${wrangle.viteCacheDir()}`;
     const common = [
       '--allow-read',
-      '--allow-write',
+      allowWrite,
       '--allow-env',
       '--allow-net',
       allowRun,
@@ -72,9 +73,7 @@ const wrangle = {
     ];
 
     if (cmd === 'build') return common;
-    if (cmd === 'dev') {
-      return [...common, '--allow-sys=networkInterfaces'];
-    }
+    if (cmd === 'dev') return [...common, '--allow-sys=networkInterfaces'];
     return common;
   },
 
@@ -82,6 +81,13 @@ const wrangle = {
     return {
       ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(),
     } as const;
+  },
+
+  viteCacheDir() {
+    const require = createRequire(import.meta.url);
+    const esbuildMain = require.resolve('esbuild');
+    const [nodeModulesDir] = esbuildMain.split(/[\\/]\.deno[\\/]/);
+    return Path.join(nodeModulesDir, '.vite');
   },
 
   esbuildBinaryPath() {
