@@ -7,7 +7,7 @@ import { type t, Fs, Path, ViteConfig } from './common.ts';
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
     const config = 'vite.config.ts';
-    const env = wrangle.env();
+    const env = wrangle.env(paths.cwd);
     const args = await wrangle.args(paths, arg, config, env);
     const cmd = ['deno', ...args].join(' ');
     return { cmd, args, env } as const;
@@ -43,6 +43,10 @@ export const Wrangle = {
 
     return paths;
   },
+
+  packageAnchor(start: string) {
+    return wrangle.packageAnchor(start);
+  },
 } as const;
 
 const wrangle = {
@@ -73,21 +77,21 @@ const wrangle = {
     return common;
   },
 
-  env() {
+  env(cwd: string) {
     return {
-      ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(),
+      ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(cwd),
     } as const;
   },
 
-  viteCacheDir() {
-    const require = createRequire(import.meta.url);
+  viteCacheDir(cwd: string) {
+    const require = wrangle.esbuildRequire(cwd);
     const esbuildMain = require.resolve('esbuild');
     const [nodeModulesDir] = esbuildMain.split(/[\\/]\.deno[\\/]/);
     return Path.join(nodeModulesDir, '.vite');
   },
 
   async writeRoots(paths: t.ViteConfigPaths) {
-    const roots = [paths.cwd, wrangle.viteCacheDir()];
+    const roots = [paths.cwd, wrangle.viteCacheDir(paths.cwd)];
     const canonical = await Promise.all(roots.map((path) => wrangle.tryRealPath(path)));
     return [...new Set([...roots, ...canonical.filter(Boolean)])];
   },
@@ -100,12 +104,51 @@ const wrangle = {
     }
   },
 
-  esbuildBinaryPath() {
-    const require = createRequire(import.meta.url);
+  esbuildBinaryPath(cwd: string) {
+    const require = wrangle.esbuildRequire(cwd);
     const { pkg, subpath } = wrangle.esbuildPackage();
     const esbuildMain = require.resolve('esbuild');
     const denoNodeModules = Path.dirname(Path.dirname(Path.dirname(esbuildMain)));
     return Path.join(denoNodeModules, pkg, subpath);
+  },
+
+  requireFrom(start: string) {
+    return createRequire(wrangle.packageAnchor(start));
+  },
+
+  moduleRequire() {
+    if (!import.meta.url.startsWith('file:')) return null;
+    return createRequire(import.meta.url);
+  },
+
+  esbuildRequire(cwd: string) {
+    const consumer = wrangle.requireFrom(cwd);
+    try {
+      consumer.resolve('esbuild');
+      return consumer;
+    } catch {
+      const local = wrangle.moduleRequire();
+      if (local) return local;
+      throw new Error(`Failed to resolve "esbuild" from consumer package boundary: ${cwd}`);
+    }
+  },
+
+  packageAnchor(start: string) {
+    let current = Path.resolve(start);
+
+    while (true) {
+      const path = Path.join(current, 'package.json');
+      try {
+        const stat = Deno.statSync(path);
+        if (stat.isFile) return path;
+      } catch {
+        // Keep climbing until we find the consumer package boundary.
+      }
+
+      const parent = Path.dirname(current);
+      if (parent === current) return Path.join(Path.resolve(start), 'package.json');
+      current = parent;
+    }
   },
 
   esbuildPackage() {
