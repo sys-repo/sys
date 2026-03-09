@@ -30,7 +30,7 @@
   "permissions": {
     "clean": { "read": true, "write": true },
     "test": { "read": true, "write": true, "env": true },
-    "tmpl": { "read": true, "write": true },
+    "tmpl": { "read": true, "write": true, "env": true },
     "dev": {
       "read": true,
       "write": true,
