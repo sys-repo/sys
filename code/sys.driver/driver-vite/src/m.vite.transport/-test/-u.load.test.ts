@@ -48,6 +48,28 @@ describe('ViteTransport.load', () => {
       await Fs.remove(fs.absolute);
     });
 
+    it('rewrites remote deno children to wrapped browser ids', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.remote.' });
+      const path = Fs.join(fs.absolute, 'mod.js');
+      const child = '/tmp/deno-cache/child.ts';
+      await Fs.write(path, "export { value } from 'https://jsr.io/@std/path/1.1.4/value.ts';");
+
+      const res = await loadDenoModule(toDenoSpecifier('JavaScript', './mod.js', path), [
+        {
+          specifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+          resolvedSpecifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+          localPath: child,
+          loader: 'TypeScript',
+        },
+      ]);
+
+      expect(res).to.eql(
+        "export { value } from '/@id/__x00__deno::TypeScript::https://jsr.io/@std/path/1.1.4/value.ts::/tmp/deno-cache/child.ts';",
+      );
+
+      await Fs.remove(fs.absolute);
+    });
+
     it('wraps json as a default export', async () => {
       const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.json.' });
       const path = Fs.join(fs.absolute, 'mod.json');

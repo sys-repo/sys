@@ -258,6 +258,77 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
       });
 
+      it('hydrates remote child graphs before returning wrapped deno ids', async () => {
+        const parentResolved = '/tmp/cache/std-path.ts';
+        const childId = 'https://jsr.io/@std/path/1.1.4/windows/basename.ts';
+        const childResolved = '/tmp/cache/windows-basename.ts';
+        const importer = toDenoSpecifier('TypeScript', '@std/path', parentResolved);
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            {
+              id: parentResolved,
+              kind: 'esm',
+              loader: 'TypeScript',
+              dependencies: [
+                {
+                  specifier: './windows/basename.ts',
+                  resolvedSpecifier: childId,
+                  localPath: childResolved,
+                  loader: 'TypeScript',
+                },
+              ],
+            },
+          ],
+        ]);
+
+        const res = await resolveViteSpecifier(
+          './windows/basename.ts',
+          cache,
+          '/tmp/project',
+          importer,
+          {
+            async invoke(input: t.ProcInvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+
+              if (input.args[input.args.length - 1] === childId) {
+                return procOutput({
+                  success: true,
+                  stdout: JSON.stringify({
+                    roots: [childId],
+                    modules: [
+                      {
+                        kind: 'esm',
+                        local: childResolved,
+                        mediaType: 'TypeScript',
+                        specifier: childId,
+                        dependencies: [
+                          {
+                            specifier: './from_file_url.ts',
+                            code: {
+                              specifier: 'https://jsr.io/@std/path/1.1.4/windows/from_file_url.ts',
+                            },
+                          },
+                        ],
+                      },
+                    ],
+                  }),
+                });
+              }
+
+              throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+            },
+          },
+        );
+
+        expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
+        expect(cache.get(childResolved)?.kind).to.eql('esm');
+        if (cache.get(childResolved)?.kind !== 'esm') throw new Error('Expected hydrated child graph');
+        expect(cache.get(childResolved)?.dependencies.length).to.eql(1);
+      });
+
       it('converts cached npm dependency subpaths to vite package ids', async () => {
         const parentResolved = '/tmp/cache/hash-parent.ts';
         const importer = toDenoSpecifier(

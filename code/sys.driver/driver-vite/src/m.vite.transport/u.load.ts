@@ -52,7 +52,7 @@ function rewriteResolvedImports(
   dependencies: readonly t.DenoDependency[],
 ): string {
   return dependencies.reduce((next, dependency) => {
-    const target = resolvedImportSpecifier(dependency.resolvedSpecifier);
+    const target = resolvedImportSpecifier(dependency);
     if (target === dependency.specifier) return next;
 
     const sources = new Set<string>([dependency.specifier]);
@@ -67,10 +67,27 @@ function rewriteResolvedImports(
   }, content);
 }
 
-function resolvedImportSpecifier(specifier: string) {
+function resolvedImportSpecifier(dependency: t.DenoDependency) {
+  const { resolvedSpecifier: specifier, localPath } = dependency;
+  if (localPath && dependency.loader && isRemoteLike(specifier)) {
+    return toBrowserDenoSpecifier(dependency.loader, specifier, localPath);
+  }
   if (specifier.startsWith('file://')) return Path.fromFileUrl(specifier);
   if (specifier.startsWith('npm:')) return toViteNpmSpecifier(specifier);
   return specifier;
+}
+
+function isRemoteLike(specifier: string) {
+  return (
+    specifier.startsWith('http://') ||
+    specifier.startsWith('https://') ||
+    specifier.startsWith('jsr:')
+  );
+}
+
+function toBrowserDenoSpecifier(loader: t.DenoLoader, id: string, resolved: string) {
+  const specifier = `\0deno::${loader}::${id}::${Path.normalize(resolved)}`;
+  return `/@id/${specifier.replace('\0', '__x00__')}`;
 }
 
 function rewriteImportSpecifier(content: string, source: string, target: string) {
