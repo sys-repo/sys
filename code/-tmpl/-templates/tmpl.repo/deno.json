@@ -23,7 +23,7 @@
   "importMap": "imports.json",
   "permissions": {
     "test": { "read": true, "write": true, "env": true },
-    "tmpl": { "read": true, "write": true, "run": true, "env": true, "net": true }
+    "tmpl": { "read": true, "write": true, "run": true, "env": true }
   },
   "workspace": []
 }
