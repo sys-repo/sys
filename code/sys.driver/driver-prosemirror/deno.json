@@ -28,7 +28,7 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir"] }
     }
   }
 }
