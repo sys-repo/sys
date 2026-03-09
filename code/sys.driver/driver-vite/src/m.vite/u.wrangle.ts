@@ -107,6 +107,12 @@ const wrangle = {
   esbuildBinaryPath(cwd: string) {
     const require = wrangle.esbuildRequire(cwd);
     const { pkg, subpath } = wrangle.esbuildPackage();
+    try {
+      return require.resolve(`${pkg}/${subpath}`);
+    } catch {
+      // Fall back to the Deno npm layout when the platform package is not linked directly.
+    }
+
     const esbuildMain = require.resolve('esbuild');
     const denoNodeModules = Path.dirname(Path.dirname(Path.dirname(esbuildMain)));
     return Path.join(denoNodeModules, pkg, subpath);
