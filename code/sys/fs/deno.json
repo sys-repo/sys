@@ -4,7 +4,7 @@
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -P=clean ./-scripts/task.tmp.ts"
@@ -21,5 +21,9 @@
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./watch": "./src/m.Watch/mod.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true }
   }
 }

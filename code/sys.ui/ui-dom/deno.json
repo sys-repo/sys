@@ -3,7 +3,7 @@
   "version": "0.0.243",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
@@ -17,5 +17,9 @@
     "./local-storage": "./src/-exports/-local-storage.ts",
     "./url": "./src/-exports/-url.ts",
     "./user-agent": "./src/-exports/-user-agent.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true }
   }
 }

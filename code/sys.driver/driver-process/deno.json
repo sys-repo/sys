@@ -3,7 +3,7 @@
   "version": "0.0.43",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -15,5 +15,9 @@
     "./types": "./src/types.ts",
     "./ffmpeg": "./src/-exports/-ffmpeg.ts",
     "./git": "./src/-exports/-git.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true }
   }
 }

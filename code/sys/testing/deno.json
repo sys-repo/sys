@@ -3,7 +3,7 @@
   "version": "0.0.241",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=testset",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
@@ -13,5 +13,9 @@
     "./types": "./src/types.ts",
     "./spec": "./src/ns.client/m.Spec/mod.ts",
     "./server": "./src/ns.server/mod.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true, "net": true }
   }
 }

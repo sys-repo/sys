@@ -5,11 +5,15 @@
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./scripts/task.clean.ts",
-    "test": "deno test -P=testset"
+    "test": "deno test -P=test"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true }
   }
 }

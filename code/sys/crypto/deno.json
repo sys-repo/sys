@@ -5,7 +5,7 @@
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./scripts/task.clean.ts",
-    "test": "deno test -P=testset"
+    "test": "deno test -P=test"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -15,5 +15,9 @@
     "./hash": "./src/m.Hash/mod.ts",
     "./sign": "./src/mod.sign.ts",
     "./sign/ed25519": "./src/m.Sign.Ed25519/mod.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true }
   }
 }
