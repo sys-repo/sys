@@ -4,9 +4,9 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno test -P=testset",
-    "build": "deno run -P=build ./-scripts/task.vite.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno run -P=serve ./-scripts/task.vite.ts --cmd=serve",
+    "test": "deno test -P=test",
+    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -17,5 +17,18 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    }
   }
 }

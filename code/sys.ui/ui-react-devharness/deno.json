@@ -4,9 +4,9 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno run -P=build ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno run -P=serve ./-scripts/task.main.ts --cmd=serve",
-    "test": "deno test -P=testset",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
+    "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev   ./-scripts/task.main.ts --cmd=help",
@@ -18,5 +18,18 @@
     "./types": "./src/types.ts",
     "./hooks": "./src/-export/-hooks.ts",
     "./-test/entry-specs": "./src/-test/-specs.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true },
+    "test": { "read": true, "write": true, "env": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    }
   }
 }
