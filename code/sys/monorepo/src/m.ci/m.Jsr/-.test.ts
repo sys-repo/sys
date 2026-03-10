@@ -7,8 +7,8 @@ describe('MonorepoCi.Jsr', () => {
     const a = fs.join('code/sys/alpha');
     const b = fs.join('code/sys/beta');
 
-    await Fs.writeJson(Fs.join(a, 'deno.json'), { name: '@scope/alpha' });
-    await Fs.writeJson(Fs.join(b, 'deno.json'), { name: '@scope/beta' });
+    await Fs.writeJson(Fs.join(a, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(b, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
 
     const yaml = await MonorepoCi.Jsr.text({ paths: [a, b] });
     expect(yaml.includes('name: jsr')).to.eql(true);
@@ -27,7 +27,7 @@ describe('MonorepoCi.Jsr', () => {
     const moduleDir = fs.join('code/sys/alpha');
     const target = fs.join('.github/workflows/jsr.yaml');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     const res = await MonorepoCi.Jsr.write({ paths: [moduleDir], target });
 
     expect(res.target).to.eql(target);
@@ -41,7 +41,7 @@ describe('MonorepoCi.Jsr', () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.on').create();
     const moduleDir = fs.join('code/sys/alpha');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     const yaml = await MonorepoCi.Jsr.text({
       on: {
         pull_request: { branches: ['main'] },
@@ -59,7 +59,7 @@ describe('MonorepoCi.Jsr', () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.tags').create();
     const moduleDir = fs.join('code/sys/alpha');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     const yaml = await MonorepoCi.Jsr.text({
       on: { push: { tags: ['jsr-publish', 'jsr-publish-main'] }, workflow_dispatch: true },
       paths: [moduleDir],
@@ -79,7 +79,7 @@ describe('MonorepoCi.Jsr', () => {
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/jsr.yaml';
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     const written = await MonorepoCi.Jsr.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
@@ -102,8 +102,8 @@ describe('MonorepoCi.Jsr', () => {
     const alpha = fs.join('code/sys/alpha');
     const tmpl = fs.join('code/-tmpl');
 
-    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@sys/alpha' });
-    await Fs.writeJson(Fs.join(tmpl, 'deno.json'), { name: '@sys/tmpl' });
+    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@sys/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(tmpl, 'deno.json'), { name: '@sys/tmpl', version: '1.0.0' });
 
     const written = await MonorepoCi.Jsr.sync({
       cwd: fs.dir,
@@ -120,7 +120,7 @@ describe('MonorepoCi.Jsr', () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.root-filter').create();
     const root = fs.join('code/projects');
 
-    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { name: '@scope/alpha' });
+    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
 
     const written = await MonorepoCi.Jsr.sync({

@@ -15,6 +15,8 @@ export namespace MonorepoCi {
    * JSR publish workflow generation.
    */
   export namespace Jsr {
+    export type VersionFilter = 'all' | 'ahead';
+
     export type Lib = {
       text(args: TextArgs): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
@@ -23,6 +25,7 @@ export namespace MonorepoCi {
     export type TextArgs = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
+      readonly versionFilter?: VersionFilter;
       readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
     };
@@ -31,6 +34,7 @@ export namespace MonorepoCi {
       readonly cwd?: t.StringDir;
       readonly source: Source;
       readonly target: t.StringPath;
+      readonly versionFilter?: VersionFilter;
       readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
       readonly log?: boolean;
