@@ -1,4 +1,4 @@
-import { DenoFile, Err, Fs, Is, type t } from '../common.ts';
+import { Err, Fs, Is, type t } from '../common.ts';
 import { JSR_BODY_TEMPLATE } from './u.tmpl.ts';
 
 export type Module = {
@@ -7,9 +7,14 @@ export type Module = {
   readonly version: t.StringSemver;
 };
 
+type DenoJson = {
+  readonly name?: string;
+  readonly version?: string;
+};
+
 export async function loadModule(cwd: t.StringDir, path: t.StringPath): Promise<Module> {
   const resolved = Fs.join(Fs.resolve(cwd, path), 'deno.json');
-  const res = await DenoFile.load(resolved);
+  const res = await Fs.readJson<DenoJson>(resolved);
   const file = res.data;
   if (!res.ok || !file) {
     const cause = res.error;
