@@ -20,6 +20,8 @@ export type TestingServerLib = t.TestingHttpLib & {
 export type TestingDirOptions = {
   /** Flag indicating if the directory should be made "unique" with a generated slug. */
   slug?: boolean;
+  /** Directory location policy for test files. */
+  location?: 'os-temp' | 'local-temp';
 };
 
 /**

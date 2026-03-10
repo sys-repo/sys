@@ -2,9 +2,17 @@ import { type t, describe, it, expect } from '../../-test.ts';
 import { Testing, Path, Fs } from './mod.ts';
 
 describe('Testing.dir', () => {
-  it('create: slug (default)', async () => {
+  it('create: os-temp (default)', async () => {
     const a = Testing.dir('foo');
-    const b = Testing.dir('foo', { slug: false });
+    expect(() => a.dir).to.throw();
+    const created = await a.create();
+    expect(created.dir).to.not.eql('');
+    expect(created.dir.includes('/.tmp/test/foo')).to.eql(false);
+  });
+
+  it('create: local-temp', () => {
+    const a = Testing.dir('foo', { location: 'local-temp' });
+    const b = Testing.dir('foo', { location: 'local-temp', slug: false });
     expect(a.dir).to.include('.tmp/test/foo/');
     expect(b.dir).to.include('.tmp/test/foo');
   });
@@ -28,28 +36,27 @@ describe('Testing.dir', () => {
   });
 
   describe('join', () => {
-    it('root', () => {
-      const fs = Testing.dir('foo');
+    it('root', async () => {
+      const fs = await Testing.dir('foo').create();
       expect(fs.join()).to.eql(fs.dir);
     });
 
-    it('sub-path', () => {
-      const fs = Testing.dir('foo');
+    it('sub-path', async () => {
+      const fs = await Testing.dir('foo').create();
       expect(fs.join('foo', 'bar/zoo')).to.eql(Path.join(fs.dir, 'foo/bar/zoo'));
     });
   });
 
   describe('ls', () => {
     it('empty', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo').create();
       expect(await fs.ls()).to.eql([]);
       expect(await fs.ls(true)).to.eql([]);
-      await fs.create();
       expect(await fs.ls()).to.eql([]);
     });
 
     it('paths (absolute)', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo').create();
       await Fs.writeJson(Path.join(fs.dir, 'foo.json'), { foo: 123 });
       await Fs.writeJson(Path.join(fs.dir, 'foo/bar.json'), { foo: 456 });
 
@@ -60,7 +67,7 @@ describe('Testing.dir', () => {
     });
 
     it('paths (relative) ← root directory trimmed', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo').create();
       await Fs.writeJson(Path.join(fs.dir, 'foo.json'), { foo: 123 });
       await Fs.writeJson(Path.join(fs.dir, 'foo/bar.json'), { foo: 456 });
 
