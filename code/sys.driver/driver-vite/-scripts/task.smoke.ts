@@ -102,12 +102,14 @@ export function releaseGuideLines(args: {
     row('Fix', '', { color: 'white' }),
     row('', `  cd ${args.repoRoot}`, { color: 'cyan' }),
     row('', `  ${args.publishTask}`, { color: 'cyan' }),
+    row('', '', { color: 'white' }),
     row('Wait', `GitHub Actions → jsr → publish module → "${args.pkgName}"`, {
       color: 'white',
     }),
     row('Retry', '', { color: 'white' }),
     row('', `  cd ${args.moduleDir}`, { color: 'cyan' }),
     row('', '  deno task smoke', { color: 'cyan' }),
+    row('', '', { color: 'white' }),
     `${indent()}${c.bold(c.red(LINE))}`,
     '',
   ];
@@ -129,6 +131,7 @@ export function registryErrorLines(args: {
     row('Fix', '', { color: 'white' }),
     row('', `  cd ${args.repoRoot}`, { color: 'cyan' }),
     row('', `  ${args.publishTask}`, { color: 'cyan' }),
+    row('', '', { color: 'white' }),
     row('Try', 'Re-run once. If the version is still missing, publish it from the repo root.', {
       color: 'white',
     }),
