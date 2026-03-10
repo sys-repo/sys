@@ -49,6 +49,29 @@ describe('MonorepoCi.Test', () => {
     expect(text).to.eql(res.yaml);
   });
 
+  it('returns unchanged when the rendered workflow already matches disk', async () => {
+    const fs = await Testing.dir('MonorepoCi.Test.sync.unchanged').create();
+    const moduleDir = fs.join('code/sys/alpha');
+    const target = '.github/workflows/test.yaml';
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { test: 'deno task help' },
+    });
+
+    const first = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    expect(first.kind).to.eql('written');
+
+    const second = await MonorepoCi.Test.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
+    expect(second.kind).to.eql('unchanged');
+    expect(second.target).to.eql(fs.join(target));
+    expect(second.count).to.eql(1);
+  });
+
   it('renders explicit push and pull request triggers', async () => {
     const fs = await Testing.dir('MonorepoCi.Test.on').create();
     const moduleDir = fs.join('code/sys/alpha');

@@ -37,6 +37,26 @@ describe('MonorepoCi.Jsr', () => {
     expect(text).to.eql(res.yaml);
   });
 
+  it('returns unchanged when the rendered workflow already matches disk', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.sync.unchanged').create();
+    const moduleDir = fs.join('code/sys/alpha');
+    const target = '.github/workflows/jsr.yaml';
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+
+    const first = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    expect(first.kind).to.eql('written');
+
+    const second = await MonorepoCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
+    expect(second.kind).to.eql('unchanged');
+    expect(second.target).to.eql(fs.join(target));
+    expect(second.count).to.eql(1);
+  });
+
   it('renders explicit push and pull request triggers', async () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.on').create();
     const moduleDir = fs.join('code/sys/alpha');

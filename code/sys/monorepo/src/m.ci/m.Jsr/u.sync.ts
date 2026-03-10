@@ -25,7 +25,9 @@ export async function sync(args: t.MonorepoCi.Jsr.SyncArgs): Promise<t.MonorepoC
     paths,
     target: args.target,
   });
-  const result: t.MonorepoCi.SyncResult = { kind: 'written', ...res };
+  const result: t.MonorepoCi.SyncResult = res.changed
+    ? { kind: 'written', target: res.target, yaml: res.yaml, count: res.count }
+    : { kind: 'unchanged', target: res.target, count: res.count };
   logSyncResult('jsr', result, { log: args.log });
   return result;
 }

@@ -43,6 +43,7 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
@@ -74,6 +75,7 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
@@ -105,6 +107,7 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
@@ -137,6 +140,11 @@ export namespace MonorepoCi {
         readonly kind: 'removed';
         readonly target: t.StringPath;
         readonly count: 0;
+      }
+    | {
+        readonly kind: 'unchanged';
+        readonly target: t.StringPath;
+        readonly count: number;
       }
     | {
         readonly kind: 'skipped';

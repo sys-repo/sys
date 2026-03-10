@@ -15,7 +15,9 @@ export async function sync(args: t.MonorepoCi.Test.SyncArgs): Promise<t.Monorepo
   }
 
   const res = await write({ cwd, env: args.env, on: args.on, paths, target: args.target });
-  const result: t.MonorepoCi.SyncResult = { kind: 'written', ...res };
+  const result: t.MonorepoCi.SyncResult = res.changed
+    ? { kind: 'written', target: res.target, yaml: res.yaml, count: res.count }
+    : { kind: 'unchanged', target: res.target, count: res.count };
   logSyncResult('test', result, { log: args.log });
   return result;
 }
