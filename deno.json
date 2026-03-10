@@ -8,9 +8,11 @@
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
     "prep": "deno task prep:imports   &&   deno task prep:ci:deno   &&   deno task prep:ci",
+    "prep:ahead": "deno task prep:imports   &&   deno task prep:ci:deno   &&   deno task prep:ci:ahead",
     "prep:imports": "deno run -P=dev ./-scripts/main.ts --prep",
     "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
+    "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",
     "publish:jsr": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "bump": "deno run -P=test ./-scripts/main.ts --bump",
@@ -88,7 +90,7 @@
   "test": { "permissions": "test" },
   "permissions": {
     "test": { "read": true, "write": true, "run": true, "env": true },
-    "dev": { "read": true, "write": true, "run": true, "env": true },
+    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
     "tmpl": { "read": true, "write": true, "run": true, "env": true },
     "clean": { "read": true, "write": true, "run": true, "env": true }
   }
