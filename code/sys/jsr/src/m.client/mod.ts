@@ -1,8 +1,9 @@
 /**
+ * @module
  * Tools for working with the JSR module registry (on the client).
  * https://jsr.io/docs
- * @module
  */
+
 /** JSR package metadata. */
 export { pkg } from '../pkg.ts';
 

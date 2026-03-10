@@ -5,7 +5,7 @@
  */
 import type { JsrServerLib } from './t.ts';
 
-import { Jsr as Base } from '../../ns.client/m.Jsr/mod.ts';
+import { Jsr as Base } from '../../m.client/m.Jsr/mod.ts';
 import { Manifest } from '../m.Manifest/mod.ts';
 
 /** Server-side registry helper. */

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Jsr } from './mod.ts';
 
-import { Jsr as Client } from '../../ns.client/m.Jsr/mod.ts';
+import { Jsr as Client } from '../../m.client/m.Jsr/mod.ts';
 import { Manifest } from '../mod.ts';
 
 describe('Jsr (server)', () => {

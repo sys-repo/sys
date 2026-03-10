@@ -5,11 +5,11 @@
 export type { JsrUrlLib, JsrUrlPkgLib } from '@sys/std/t';
 
 /** Client fetch helper types. */
-export type * from './ns.client/m.Fetch/t.ts';
+export type * from './m.client/m.Fetch/t.ts';
 /** Client registry helper types. */
-export type * from './ns.client/m.Jsr/t.ts';
+export type * from './m.client/m.Jsr/t.ts';
 
 /** Server registry helper types. */
-export type * from './ns.server/m.Jsr/t.ts';
+export type * from './m.server/m.Jsr/t.ts';
 /** Manifest helper types. */
-export type * from './ns.server/m.Manifest/t.ts';
+export type * from './m.server/m.Manifest/t.ts';
