@@ -1,4 +1,4 @@
-import { c, DenoFile, Err, Is, Process, pkg } from './common.ts';
+import { c, DenoFile, Err, Fs, Is, pkg, Process } from './common.ts';
 
 const LINE = '━'.repeat(84);
 const RETRY_DELAYS = [0, 500, 1_000, 2_000] as const;
@@ -13,19 +13,23 @@ export async function main() {
   const publishTask = await recommendedPublishTask(ws.dir);
   const published = await hasPublishedVersion(pkg.name, pkg.version);
   if (published.error) {
-    printLines(registryErrorLines({ repoRoot: ws.dir, message: published.error.message, publishTask }));
+    printLines(
+      registryErrorLines({ repoRoot: ws.dir, message: published.error.message, publishTask }),
+    );
     Deno.exit(1);
   }
 
   if (!published.data) {
-    printLines(releaseGuideLines({
-      repoRoot: ws.dir,
-      moduleDir: Deno.cwd(),
-      pkgName: pkg.name,
-      version: pkg.version,
-      latest: published.latest,
-      publishTask,
-    }));
+    printLines(
+      releaseGuideLines({
+        repoRoot: ws.dir,
+        moduleDir: Fs.cwd(),
+        pkgName: pkg.name,
+        version: pkg.version,
+        latest: published.latest,
+        publishTask,
+      }),
+    );
     Deno.exit(1);
   }
 
@@ -86,38 +90,49 @@ export function releaseGuideLines(args: {
 
   return [
     '',
-    c.bold(c.red('SMOKE BLOCKED')),
-    c.bold(c.red(LINE)),
+    `${indent()}${c.bold(c.red('SMOKE BLOCKED'))}`,
+    `${indent()}${c.bold(c.red(LINE))}`,
     row('What', `${args.pkgName}@${args.version} is not yet visible via JSR package metadata`, {
-      valueColor: 'white',
+      color: 'white',
     }),
     row('Why', 'External smoke validates the published package metadata, not the local checkout', {
-      valueColor: 'white',
+      color: 'white',
     }),
-    row('JSR', `Latest published version seen: ${latest}`, { valueColor: 'white' }),
-    row('Fix', `  cd ${args.repoRoot}`, { valueColor: 'cyan' }),
-    row('', `  ${args.publishTask}`, { valueColor: 'cyan' }),
-    row('Wait', `GitHub Actions -> jsr -> publish module → "${args.pkgName}"`, { valueColor: 'white' }),
-    row('Retry', `  cd ${args.moduleDir}`, { valueColor: 'cyan' }),
-    row('', '  deno task smoke', { valueColor: 'cyan' }),
-    c.bold(c.red(LINE)),
+    row('JSR', `Latest published version seen: ${latest}`, { color: 'white' }),
+    row('Fix', '', { color: 'white' }),
+    row('', `  cd ${args.repoRoot}`, { color: 'cyan' }),
+    row('', `  ${args.publishTask}`, { color: 'cyan' }),
+    row('Wait', `GitHub Actions → jsr → publish module → "${args.pkgName}"`, {
+      color: 'white',
+    }),
+    row('Retry', '', { color: 'white' }),
+    row('', `  cd ${args.moduleDir}`, { color: 'cyan' }),
+    row('', '  deno task smoke', { color: 'cyan' }),
+    `${indent()}${c.bold(c.red(LINE))}`,
     '',
   ];
 }
 
-export function registryErrorLines(args: { repoRoot: string; message: string; publishTask: string }) {
+export function registryErrorLines(args: {
+  repoRoot: string;
+  message: string;
+  publishTask: string;
+}) {
   return [
     '',
-    c.bold(c.yellow('SMOKE PREFLIGHT FAILED')),
-    c.bold(c.yellow(LINE)),
-    row('What', `Unable to verify JSR metadata for ${pkg.name}@${pkg.version}`, { valueColor: 'white' }),
-    row('Error', args.message, { valueColor: 'white' }),
-    row('Fix', `  cd ${args.repoRoot}`, { valueColor: 'cyan' }),
-    row('', `  ${args.publishTask}`, { valueColor: 'cyan' }),
-    row('Try', 'Re-run once. If the version is still missing, publish it from the repo root.', {
-      valueColor: 'white',
+    `${indent()}${c.bold(c.yellow('SMOKE PREFLIGHT FAILED'))}`,
+    `${indent()}${c.bold(c.yellow(LINE))}`,
+    row('What', `Unable to verify JSR metadata for ${pkg.name}@${pkg.version}`, {
+      color: 'white',
     }),
-    c.bold(c.yellow(LINE)),
+    row('Error', args.message, { color: 'white' }),
+    row('Fix', '', { color: 'white' }),
+    row('', `  cd ${args.repoRoot}`, { color: 'cyan' }),
+    row('', `  ${args.publishTask}`, { color: 'cyan' }),
+    row('Try', 'Re-run once. If the version is still missing, publish it from the repo root.', {
+      color: 'white',
+    }),
+    `${indent()}${c.bold(c.yellow(LINE))}`,
     '',
   ];
 }
@@ -138,14 +153,18 @@ async function currentBranch(repoRoot: string) {
   return res.text.stdout.trim();
 }
 
-function row(label: string, value: string, options: { valueColor?: 'white' | 'cyan' } = {}) {
-  const head = c.gray(c.bold(label.padEnd(5)));
-  const valueText = colorValue(value, options.valueColor ?? 'white');
-  return `${head} ${c.gray('│')} ${valueText}`;
+function row(label: string, value: string, options: { color?: 'white' | 'cyan' } = {}) {
+  const head = c.gray(label.padEnd(5));
+  const valueText = colorValue(value, options.color ?? 'white');
+  return `${indent()}${head} ${c.gray('│')} ${valueText}`;
 }
 
 function colorValue(value: string, color: 'white' | 'cyan') {
   return color === 'cyan' ? c.cyan(value) : c.white(value);
+}
+
+function indent() {
+  return ' ';
 }
 
 function sleep(msec: number) {

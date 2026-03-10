@@ -15,11 +15,13 @@ describe('driver-vite smoke guidance', () => {
     );
 
     expect(text.includes('SMOKE BLOCKED')).to.eql(true);
-    expect(text.includes('What  │ @sys/driver-vite@0.0.303 is not yet visible via JSR package metadata')).to.eql(true);
-    expect(text.includes('Fix   │   cd /repo')).to.eql(true);
-    expect(text.includes('      │   deno task publish:jsr')).to.eql(true);
-    expect(text.includes('Retry │   cd /repo/code/sys.driver/driver-vite')).to.eql(true);
-    expect(text.includes('      │   deno task smoke')).to.eql(true);
+    expect(text.includes(' What  │ @sys/driver-vite@0.0.303 is not yet visible via JSR package metadata')).to.eql(true);
+    expect(text.includes(' Fix   │ ')).to.eql(true);
+    expect(text.includes('       │   cd /repo')).to.eql(true);
+    expect(text.includes('       │   deno task publish:jsr')).to.eql(true);
+    expect(text.includes(' Retry │ ')).to.eql(true);
+    expect(text.includes('       │   cd /repo/code/sys.driver/driver-vite')).to.eql(true);
+    expect(text.includes('       │   deno task smoke')).to.eql(true);
   });
 
   it('renders a branch-specific release block off main', () => {
@@ -34,7 +36,7 @@ describe('driver-vite smoke guidance', () => {
       }).join('\n'),
     );
 
-    expect(text.includes('      │   deno task publish:jsr:branch')).to.eql(true);
+    expect(text.includes('       │   deno task publish:jsr:branch')).to.eql(true);
   });
 
   it('renders a fallback preflight block when jsr metadata is unreachable', () => {
@@ -47,8 +49,9 @@ describe('driver-vite smoke guidance', () => {
     );
 
     expect(text.includes('SMOKE PREFLIGHT FAILED')).to.eql(true);
-    expect(text.includes('Fix   │   cd /repo')).to.eql(true);
-    expect(text.includes('      │   deno task publish:jsr:branch')).to.eql(true);
-    expect(text.includes('Error │ dns error')).to.eql(true);
+    expect(text.includes(' Fix   │ ')).to.eql(true);
+    expect(text.includes('       │   cd /repo')).to.eql(true);
+    expect(text.includes('       │   deno task publish:jsr:branch')).to.eql(true);
+    expect(text.includes(' Error │ dns error')).to.eql(true);
   });
 });
