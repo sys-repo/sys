@@ -38,9 +38,10 @@ It's time. Good things happen collectively when everything conforms to the same 
 
 #### Validation
 - `deno task test` is the default local source-of-truth lane.
-- `deno task test:external` is the external-consumer lane. Run it post-release against published JSR packages.
+- `deno task smoke` is the guarded external-consumer lane. Run it post-release against published JSR packages.
+- `deno task test:external` runs the raw external suite directly.
 
-#### Security Posture
+### Security Posture
 `@sys/driver-vite` intentionally constrains the child `deno run npm:vite ...` process instead of
 defaulting to broad toolchain permissions.
 
@@ -58,7 +59,8 @@ Current limit:
 Validation lanes:
 - `src/m.vite/-test/-wrangle.test.ts` locks the permission-shaping contract
 - `src/m.vite/-test/-build.test.ts` and `src/m.vite/-test/-dev.test.ts` validate local runtime behavior
-- `deno task test:external` validates published/external consumer behavior
+- `deno task smoke` validates published/external consumer behavior with JSR metadata preflight and fixture prep
+- `deno task test:external` runs the raw published/external suite directly
 
 
 <p>&nbsp;</p>
@@ -184,7 +186,8 @@ For direct examples, see:
 ## Tasks
 
 - `deno task test` → local driver and local bridge integration
-- `deno task test:external` → external-consumer smoke for the pinned published package lane
+- `deno task smoke` → guarded external-consumer smoke for the pinned published package lane
+- `deno task test:external` → raw external-consumer suite
 - `deno task check` → module typecheck
 - `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
 - `deno task clean` → remove generated temp state and sample fixture build artifacts
