@@ -1,6 +1,5 @@
 import { c, DenoFile, Err, Is, Process, pkg } from './common.ts';
 
-const ROOT_TASK = 'deno task publish:jsr:main';
 const LINE = '━'.repeat(84);
 
 type JsrMeta = {
@@ -10,9 +9,10 @@ type JsrMeta = {
 
 export async function main() {
   const ws = await DenoFile.workspace();
+  const publishTask = await recommendedPublishTask(ws.dir);
   const published = await hasPublishedVersion(pkg.name, pkg.version);
   if (published.error) {
-    printLines(registryErrorLines({ repoRoot: ws.dir, message: published.error.message }));
+    printLines(registryErrorLines({ repoRoot: ws.dir, message: published.error.message, publishTask }));
     Deno.exit(1);
   }
 
@@ -23,6 +23,7 @@ export async function main() {
       pkgName: pkg.name,
       version: pkg.version,
       latest: published.latest,
+      publishTask,
     }));
     Deno.exit(1);
   }
@@ -68,6 +69,7 @@ export function releaseGuideLines(args: {
   pkgName: string;
   version: string;
   latest?: string;
+  publishTask: string;
 }) {
   const latest = args.latest ? `${args.latest}` : 'unknown';
 
@@ -75,36 +77,62 @@ export function releaseGuideLines(args: {
     '',
     c.bold(c.red('SMOKE BLOCKED')),
     c.bold(c.red(LINE)),
-    row('WHAT', `${args.pkgName}@${args.version} is not published on JSR`),
-    row('WHY', 'External smoke validates the published package, not the local checkout'),
-    row('JSR', `Latest published version seen: ${latest}`),
-    row('FIX', `cd ${args.repoRoot}`),
-    row('RUN', ROOT_TASK),
-    row('WAIT', `GitHub Actions -> jsr -> publish module → "${args.pkgName}"`),
-    row('RETRY', `cd ${args.moduleDir} && deno task smoke`),
+    row('What', `${args.pkgName}@${args.version} is not published on JSR`, { valueColor: 'white' }),
+    row('Why', 'External smoke validates the published package, not the local checkout', {
+      valueColor: 'white',
+    }),
+    row('JSR', `Latest published version seen: ${latest}`, { valueColor: 'white' }),
+    row('Fix', `  cd ${args.repoRoot}`, { valueColor: 'cyan' }),
+    row('', `  ${args.publishTask}`, { valueColor: 'cyan' }),
+    row('Wait', `GitHub Actions -> jsr -> publish module → "${args.pkgName}"`, { valueColor: 'white' }),
+    row('Retry', `  cd ${args.moduleDir}`, { valueColor: 'cyan' }),
+    row('', '  deno task smoke', { valueColor: 'cyan' }),
     c.bold(c.red(LINE)),
     '',
   ];
 }
 
-export function registryErrorLines(args: { repoRoot: string; message: string }) {
+export function registryErrorLines(args: { repoRoot: string; message: string; publishTask: string }) {
   return [
     '',
     c.bold(c.yellow('SMOKE PREFLIGHT FAILED')),
     c.bold(c.yellow(LINE)),
-    row('WHAT', `Unable to verify JSR metadata for ${pkg.name}@${pkg.version}`),
-    row('ERROR', args.message),
-    row('FIX', `cd ${args.repoRoot}`),
-    row('RUN', ROOT_TASK),
-    row('TRY', 'Re-run once. If the version is still missing, publish it from the repo root.'),
+    row('What', `Unable to verify JSR metadata for ${pkg.name}@${pkg.version}`, { valueColor: 'white' }),
+    row('Error', args.message, { valueColor: 'white' }),
+    row('Fix', `  cd ${args.repoRoot}`, { valueColor: 'cyan' }),
+    row('', `  ${args.publishTask}`, { valueColor: 'cyan' }),
+    row('Try', 'Re-run once. If the version is still missing, publish it from the repo root.', {
+      valueColor: 'white',
+    }),
     c.bold(c.yellow(LINE)),
     '',
   ];
 }
 
-function row(label: string, value: string) {
-  const head = c.bold(label.padEnd(5));
-  return `${head} ${c.gray('│')} ${value}`;
+async function recommendedPublishTask(repoRoot: string) {
+  const branch = await currentBranch(repoRoot);
+  return branch === 'main' ? 'deno task publish:jsr' : 'deno task publish:jsr:branch';
+}
+
+async function currentBranch(repoRoot: string) {
+  const res = await Process.invoke({
+    cmd: 'git',
+    args: ['branch', '--show-current'],
+    cwd: repoRoot,
+    silent: true,
+  });
+  if (!res.success) return '';
+  return res.text.stdout.trim();
+}
+
+function row(label: string, value: string, options: { valueColor?: 'white' | 'cyan' } = {}) {
+  const head = c.gray(c.bold(label.padEnd(5)));
+  const valueText = colorValue(value, options.valueColor ?? 'white');
+  return `${head} ${c.gray('│')} ${valueText}`;
+}
+
+function colorValue(value: string, color: 'white' | 'cyan') {
+  return color === 'cyan' ? c.cyan(value) : c.white(value);
 }
 
 function printLines(lines: readonly string[]) {

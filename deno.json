@@ -13,8 +13,9 @@
     "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",
-    "publish:jsr": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
+    "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
+    "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
     "bump": "deno run -P=test ./-scripts/main.ts --bump",
     "tmpl": "deno run -P=tmpl @sys/tmpl",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
