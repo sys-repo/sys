@@ -17,25 +17,9 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "tmpl": {
-      "read": true,
-      "write": true
-    },
-    "prep": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "run": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "tmpl": { "read": true, "write": true },
+    "prep": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "run": true }
   }
 }

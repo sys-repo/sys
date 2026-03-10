@@ -7,14 +7,11 @@
     "test": "deno test -P=test",
     "build": "deno run -P=dev ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno run -P=dev ./-scripts/-main.ts --cmd=serve",
-
     "d-ipfs-staging": "orbiter deploy --config=orbiter-slc.db.team.json",
     "d-ipfs-prod": "orbiter deploy --config=orbiter-socialleancanvas.com.json",
-
     "deploy": "deno task deploy-staging",
     "deploy-staging": "deno task test && deno task build && deno task d-ipfs-staging && deno task help --info",
     "deploy-prod": "deno task test && deno task build && deno task d-ipfs-prod && deno task help --info",
-
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
     "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
@@ -28,7 +25,7 @@
     "./specs": "./src/-test/-specs.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true },
+    "clean": { "read": true, "write": true, "env": true },
     "test": { "read": true, "write": true, "env": true },
     "dev": {
       "read": true,
@@ -37,7 +34,17 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     }
   }
 }

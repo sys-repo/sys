@@ -26,15 +26,8 @@
     "./am/web/ui": "./src/-export.am/m.web.ui.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
     "dev": {
       "read": true,
       "write": true,
