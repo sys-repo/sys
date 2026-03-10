@@ -16,7 +16,7 @@
     "@sys/testing/t": "jsr:@sys/testing@0.0.243/t",
     "@sys/types": "jsr:@sys/types@0.0.250",
     "@sys/tmpl": "jsr:@sys/tmpl@0.0.264",
-    "@sys/tools": "jsr:@sys/tools@0.0.266",
+    "@sys/tools": "jsr:@sys/tools@0.0.267",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.239",
     "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.239/t",
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.245",
