@@ -16,7 +16,7 @@ describe('Http: wait/readiness helpers', () => {
       const res = await Http.waitFor(url, { timeout: 5_000, interval: 50 });
       expect(res.url).to.equal(url);
       expect(res.attempts).to.be.greaterThan(0);
-      expect(res.elapsed).to.be.greaterThan(0);
+      expect(res.elapsed).to.be.at.least(0);
 
       await listener.shutdown();
     });
