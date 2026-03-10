@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { PluginContext, ResolvedId } from 'rollup';
 import { describe, expect, it } from '../../-test.ts';
 import prefixPlugin from '../u.prefix.ts';
 
@@ -36,6 +36,48 @@ describe('ViteTransport.prefix', () => {
       );
 
       expect(res).to.eql('react');
+    });
+
+    it('prefers vite resolution for dual-package npm imports', async () => {
+      const plugin = prefixPlugin(new Map(), {
+        async resolveDeno() {
+          return {
+            id: 'tinycolor2@1.6.0',
+            kind: 'npm',
+            loader: null,
+            dependencies: [],
+          };
+        },
+        async resolveViteSpecifier() {
+          return undefined;
+        },
+      });
+
+      const res = await plugin.resolveId.call(
+        wrangle.context(async (id: string): Promise<ResolvedId | null> => {
+          expect(id).to.eql('tinycolor2');
+          return {
+            id: '/virtual/tinycolor2/esm/tinycolor.js',
+            external: false,
+            resolvedBy: 'test',
+            attributes: {},
+            meta: {},
+            moduleSideEffects: true,
+            syntheticNamedExports: false,
+          };
+        }),
+        'npm:tinycolor2@1.6.0',
+      );
+
+      expect(res).to.eql({
+        id: '/virtual/tinycolor2/esm/tinycolor.js',
+        external: false,
+        resolvedBy: 'test',
+        attributes: {},
+        meta: {},
+        moduleSideEffects: true,
+        syntheticNamedExports: false,
+      });
     });
 
     it('preserves scoped npm subpaths when stripping versions', async () => {
