@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
+import { Jsr } from '@sys/jsr';
 import { MonorepoCi } from '../mod.ts';
 
 describe('MonorepoCi.Jsr', () => {
@@ -120,7 +121,10 @@ describe('MonorepoCi.Jsr', () => {
     const fs = await Testing.dir('MonorepoCi.Jsr.root-filter').create();
     const root = fs.join('code/projects');
 
-    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), {
+      name: '@scope/alpha',
+      version: '1.0.0',
+    });
     await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
 
     const written = await MonorepoCi.Jsr.sync({
@@ -135,4 +139,90 @@ describe('MonorepoCi.Jsr', () => {
     expect(written.yaml.includes('@scope/alpha')).to.eql(true);
     expect(written.yaml.includes('beta')).to.eql(false);
   });
+
+  it('versionFilter: ahead → includes only unpublished or ahead packages', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.ahead').create();
+    const alpha = fs.join('code/sys/alpha');
+    const beta = fs.join('code/sys/beta');
+    const gamma = fs.join('code/sys/gamma');
+
+    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.2.0' });
+    await Fs.writeJson(Fs.join(beta, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
+    await Fs.writeJson(Fs.join(gamma, 'deno.json'), { name: '@scope/gamma', version: '1.0.0' });
+
+    await withPkgVersions(
+      {
+        '@scope/alpha': versions('@scope/alpha', '1.1.0'),
+        '@scope/beta': versions('@scope/beta', '1.0.0', { '1.0.0': {} }),
+        '@scope/gamma': unpublished(),
+      },
+      async () => {
+        const yaml = await MonorepoCi.Jsr.text({
+          paths: [alpha, beta, gamma],
+          versionFilter: 'ahead',
+        });
+
+        expect(yaml.includes('@scope/alpha')).to.eql(true);
+        expect(yaml.includes('@scope/beta')).to.eql(false);
+        expect(yaml.includes('@scope/gamma')).to.eql(true);
+        expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/gamma')).to.eql(true);
+      },
+    );
+  });
+
+  it('versionFilter: ahead → throws when local version is behind JSR latest', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.ahead.behind').create();
+    const alpha = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+
+    await withPkgVersions({ '@scope/alpha': versions('@scope/alpha', '1.1.0') }, async () => {
+      await expectError(
+        async () => await MonorepoCi.Jsr.text({ paths: [alpha], versionFilter: 'ahead' }),
+        'Local version is behind JSR latest',
+      );
+    });
+  });
 });
+
+function unpublished(): VersionsResponse {
+  return {
+    ...responseBase(),
+    ok: true,
+    data: undefined,
+    error: undefined,
+  } as unknown as VersionsResponse;
+}
+
+function versions(
+  pkgName: string,
+  latest: string,
+  published: Record<string, { yanked?: boolean }> = {},
+): VersionsResponse {
+  const [scope, name] = pkgName.slice(1).split('/');
+  return {
+    ...responseBase(),
+    ok: true,
+    data: { scope, name, latest, versions: published },
+    error: undefined,
+  } as VersionsResponse;
+}
+
+async function withPkgVersions(map: Record<string, VersionsResponse>, fn: () => Promise<void>) {
+  const original = Jsr.Fetch.Pkg.versions;
+  Jsr.Fetch.Pkg.versions = async (name) => map[name] ?? unpublished();
+  try {
+    await fn();
+  } finally {
+    Jsr.Fetch.Pkg.versions = original;
+  }
+}
+
+function responseBase() {
+  return {
+    status: 200,
+    statusText: 'OK',
+    url: 'https://jsr.io',
+    headers: new Headers(),
+  } as const;
+}
