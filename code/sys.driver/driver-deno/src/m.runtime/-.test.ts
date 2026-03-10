@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { DenoFile, DenoDeps } from './mod.ts';
+import { DenoDeps, DenoFile } from './mod.ts';
 
 describe('@sys/driver-deno/runtime', () => {
   it('API', async () => {
