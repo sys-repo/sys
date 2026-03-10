@@ -1,17 +1,17 @@
 import { type t, Err, Fetch, JsrUrl } from './common.ts';
-import type { JsrFetchPkgLib } from './t.ts';
+import type { JsrFetch } from './t.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: JsrFetchPkgLib = {
+export const Pkg: JsrFetch.PkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
   async versions(name, options = {}) {
     const url = JsrUrl.Pkg.metadata(name);
     const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<t.JsrPkgMetaVersions>(url);
+    const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url);
     const data = res.data
       ? {
           ...res.data,
@@ -27,7 +27,7 @@ export const Pkg: JsrFetchPkgLib = {
         return res.headers;
       },
       data,
-    } as t.JsrFetchPkgVersionsResponse;
+    } as t.JsrFetch.PkgVersionsResponse;
   },
 
   /**
@@ -37,11 +37,11 @@ export const Pkg: JsrFetchPkgLib = {
     const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
     const url = JsrUrl.Pkg.version(name, version);
     const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<t.JsrPkgVersionInfo>(url);
+    const res = await fetch.json<t.JsrFetch.PkgVersionInfo>(url);
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
-    const data: t.JsrPkgVersionInfo = {
+    const data: t.JsrFetch.PkgVersionInfo = {
       ...res.data,
       pkg,
 
@@ -72,7 +72,7 @@ export const Pkg: JsrFetchPkgLib = {
    * https://jsr.io/docs/api#modules
    */
   file(name, version, opt = {}) {
-    const api: t.JsrPkgFileFetcher = {
+    const api: t.JsrFetch.PkgFileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
         const { checksum } = options;

@@ -7,7 +7,7 @@ export type JsrManifestLib = {
   /**
    * Create a new manifest instance from the given fetched definition.
    */
-  create(pkg: t.Pkg, def: t.JsrPkgManifest): t.JsrManifest;
+  create(pkg: t.Pkg, def: t.JsrFetch.PkgManifest): t.JsrManifest;
 
   /**
    * Create the manifest by fetching the definition from origin.
@@ -15,7 +15,7 @@ export type JsrManifestLib = {
   fetch(
     name: t.StringPkgName,
     version?: t.StringSemver,
-    options?: t.JsrFetchPkgOptions,
+    options?: t.JsrFetch.PkgOptions,
   ): Promise<t.JsrManifestFetchResponse>;
 };
 
@@ -24,7 +24,7 @@ export type JsrManifestLib = {
  */
 export type JsrManifest = {
   readonly pkg: t.Pkg;
-  readonly def: t.JsrPkgManifest;
+  readonly def: t.JsrFetch.PkgManifest;
   readonly paths: t.StringPath[];
   pull(options?: t.JsrManifestPullOptions | t.StringDir): Promise<t.JsrManifestPullResponse>;
 };
@@ -56,7 +56,7 @@ export type JsrManifestFetchFail = FetchCommon & {
  */
 export type JsrManifestPullResponse = {
   ok: boolean;
-  files: t.JsrFetchPkgFileResponse[];
+  files: t.JsrFetch.PkgFileResponse[];
   error?: t.StdError;
   written?: {
     absolute: t.StringDir;

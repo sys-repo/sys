@@ -18,7 +18,7 @@ import { Fetch } from './mod.ts';
 describe('Jsr.Fetch.Pkg.file', () => {
   const { name, version } = SAMPLE.pkg;
 
-  const print = (res: t.JsrFetchPkgFileResponse, checksum: t.StringHash) => {
+  const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
     const hx = Hash.sha256(res.data);
     const table = Cli.table([]);
 
