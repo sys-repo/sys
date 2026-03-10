@@ -53,9 +53,8 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
       expect(repo.sync.urls).to.eql(['wss://sync.automerge.org']); // NB: the <undefined> entry filtered out.
     });
 
-    it('repo: stores (info)', () => {
-      const fs = Testing.dir('repo.stores');
-      const dir = fs.dir;
+    it('repo: stores (info)', async () => {
+      const dir = (await Testing.dir('repo.stores').create()).dir;
       const repo = Crdt.repo({ dir });
       expect(repo.stores).to.eql([{ kind: 'fs', dir: Fs.resolve(dir) }]);
     });
