@@ -1,5 +1,4 @@
-import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
-import { Jsr } from '@sys/jsr';
+import { type t, describe, expect, expectError, Fs, it, Jsr, Testing } from '../../-test.ts';
 import { MonorepoCi } from '../mod.ts';
 
 describe('MonorepoCi.Jsr', () => {
@@ -185,6 +184,7 @@ describe('MonorepoCi.Jsr', () => {
   });
 });
 
+type VersionsResponse = t.JsrFetch.PkgVersionsResponse;
 function unpublished(): VersionsResponse {
   return {
     ...responseBase(),
