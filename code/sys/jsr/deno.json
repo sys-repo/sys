@@ -9,7 +9,7 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
-    ".": "./src/ns.client/mod.ts",
+    ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./client": "./src/m.client/mod.ts",
