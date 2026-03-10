@@ -54,10 +54,10 @@ jobs:
             path: code/sys/yaml
           - name: "@sys/schema"
             path: code/sys/schema
-          - name: "@sys/monorepo"
-            path: code/sys/monorepo
           - name: "@sys/jsr"
             path: code/sys/jsr
+          - name: "@sys/monorepo"
+            path: code/sys/monorepo
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/tmpl-engine"

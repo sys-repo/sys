@@ -307,9 +307,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/monorepo"
+      - name: publish module → "@sys/jsr"
         run: |
-          cd code/sys/monorepo
+          cd code/sys/jsr
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -325,9 +325,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/jsr"
+      - name: publish module → "@sys/monorepo"
         run: |
-          cd code/sys/jsr
+          cd code/sys/monorepo
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do

@@ -41,9 +41,9 @@ export const Paths = {
     'code/sys/http',
     'code/sys/yaml',
     'code/sys/schema',
+    'code/sys/jsr',
     'code/sys/monorepo',
 
-    'code/sys/jsr',
     'code/sys/text',
     'code/sys/tmpl-engine',
 
