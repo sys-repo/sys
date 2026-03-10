@@ -13,14 +13,6 @@ const black = () => create('black');
 const white = () => create('white');
 
 /**
- * Mixes two colors.
- * https://github.com/bgrins/TinyColor#color-utilities
- */
-export function mix(color1: ColorInput, color2: ColorInput, amount?: number) {
-  return tinycolor.mix(color1, color2, amount);
-}
-
-/**
  * Takes a value of various types and converts it into a color.
  */
 export function format(value: string | number | boolean | undefined): string | undefined {
