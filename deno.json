@@ -2,9 +2,9 @@
   "tasks": {
     "install": "deno install --reload",
     "help": "deno run -P=dev ./-scripts/main.ts --info",
-    "ci": "deno run -P=ci ./-scripts/main.ts --dry --test --info",
-    "test": "deno run -P=ci ./-scripts/main.ts --test",
-    "dry": "deno run -P=ci ./-scripts/main.ts --dry",
+    "ci": "deno run -P=test ./-scripts/main.ts --dry --test --info",
+    "test": "deno run -P=test ./-scripts/main.ts --test",
+    "dry": "deno run -P=test ./-scripts/main.ts --dry",
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
     "prep": "deno task prep:imports   &&   deno task prep:ci:deno   &&   deno task prep:ci",
@@ -13,23 +13,14 @@
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "publish:jsr": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
-    "bump": "deno run -P=ci ./-scripts/main.ts --bump",
+    "bump": "deno run -P=test ./-scripts/main.ts --bump",
     "tmpl": "deno run -P=tmpl @sys/tmpl",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "@types/react"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -91,19 +82,14 @@
   ],
   "lint": {
     "rules": {
-      "exclude": [
-        "no-explicit-any",
-        "no-slow-types"
-      ]
+      "exclude": ["no-explicit-any", "no-slow-types"]
     }
   },
-  "test": {
-    "permissions": "ci"
-  },
+  "test": { "permissions": "test" },
   "permissions": {
+    "test": { "read": true, "write": true, "run": true, "env": true },
     "dev": { "read": true, "write": true, "run": true, "env": true },
     "tmpl": { "read": true, "write": true, "run": true, "env": true },
-    "clean": { "read": true, "write": true, "run": true, "env": true },
-    "ci": { "read": true, "write": true, "run": true, "env": true }
+    "clean": { "read": true, "write": true, "run": true, "env": true }
   }
 }
