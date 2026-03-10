@@ -1,6 +1,7 @@
 import { c, DenoFile, Err, Is, Process, pkg } from './common.ts';
 
 const LINE = '━'.repeat(84);
+const RETRY_DELAYS = [0, 500, 1_000, 2_000] as const;
 
 type JsrMeta = {
   readonly latest?: string;
@@ -34,26 +35,36 @@ export async function main() {
 
 async function hasPublishedVersion(name: string, version: string) {
   const url = `https://jsr.io/${name}/meta.json`;
+  let latest = '';
+  let lastError: Error | undefined;
 
-  try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      const cause = new Error(`GET ${url} -> ${res.status} ${res.statusText}`);
-      return { ok: false as const, data: false, latest: '', error: Err.std(cause) };
+  for (const delay of RETRY_DELAYS) {
+    if (delay > 0) await sleep(delay);
+
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) {
+        lastError = new Error(`GET ${url} -> ${res.status} ${res.statusText}`);
+        continue;
+      }
+
+      const json = (await res.json()) as JsrMeta;
+      latest = Is.string(json.latest) ? json.latest : '';
+      const versions = json.versions ?? {};
+      const current = versions[version];
+      if (current && current.yanked !== true) {
+        return { ok: true as const, data: true, latest, error: undefined };
+      }
+    } catch (error) {
+      lastError = Err.normalize(error);
     }
-
-    const json = (await res.json()) as JsrMeta;
-    const versions = json.versions ?? {};
-    const current = versions[version];
-    return {
-      ok: true as const,
-      data: Boolean(current && current.yanked !== true),
-      latest: Is.string(json.latest) ? json.latest : '',
-      error: undefined,
-    };
-  } catch (error) {
-    return { ok: false as const, data: false, latest: '', error: Err.std(Err.normalize(error)) };
   }
+
+  if (lastError) {
+    return { ok: false as const, data: false, latest, error: Err.std(lastError) };
+  }
+
+  return { ok: true as const, data: false, latest, error: undefined };
 }
 
 async function runTask(task: string) {
@@ -77,8 +88,10 @@ export function releaseGuideLines(args: {
     '',
     c.bold(c.red('SMOKE BLOCKED')),
     c.bold(c.red(LINE)),
-    row('What', `${args.pkgName}@${args.version} is not published on JSR`, { valueColor: 'white' }),
-    row('Why', 'External smoke validates the published package, not the local checkout', {
+    row('What', `${args.pkgName}@${args.version} is not yet visible via JSR package metadata`, {
+      valueColor: 'white',
+    }),
+    row('Why', 'External smoke validates the published package metadata, not the local checkout', {
       valueColor: 'white',
     }),
     row('JSR', `Latest published version seen: ${latest}`, { valueColor: 'white' }),
@@ -133,6 +146,10 @@ function row(label: string, value: string, options: { valueColor?: 'white' | 'cy
 
 function colorValue(value: string, color: 'white' | 'cyan') {
   return color === 'cyan' ? c.cyan(value) : c.white(value);
+}
+
+function sleep(msec: number) {
+  return new Promise((resolve) => setTimeout(resolve, msec));
 }
 
 function printLines(lines: readonly string[]) {

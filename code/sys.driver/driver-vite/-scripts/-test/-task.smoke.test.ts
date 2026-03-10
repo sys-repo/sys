@@ -15,7 +15,7 @@ describe('driver-vite smoke guidance', () => {
     );
 
     expect(text.includes('SMOKE BLOCKED')).to.eql(true);
-    expect(text.includes('What  │ @sys/driver-vite@0.0.303 is not published on JSR')).to.eql(true);
+    expect(text.includes('What  │ @sys/driver-vite@0.0.303 is not yet visible via JSR package metadata')).to.eql(true);
     expect(text.includes('Fix   │   cd /repo')).to.eql(true);
     expect(text.includes('      │   deno task publish:jsr')).to.eql(true);
     expect(text.includes('Retry │   cd /repo/code/sys.driver/driver-vite')).to.eql(true);
