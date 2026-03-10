@@ -11,7 +11,7 @@ export const Pkg: JsrFetch.PkgLib = {
   async versions(name, options = {}) {
     const url = JsrUrl.Pkg.metadata(name);
     const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url);
+    const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url, { cache: 'no-store' });
     const data = res.data
       ? {
           ...res.data,
@@ -37,7 +37,7 @@ export const Pkg: JsrFetch.PkgLib = {
     const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
     const url = JsrUrl.Pkg.version(name, version);
     const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<t.JsrFetch.PkgVersionInfo>(url);
+    const res = await fetch.json<t.JsrFetch.PkgVersionInfo>(url, { cache: 'no-store' });
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
