@@ -19,7 +19,8 @@ export async function buildSample(args: {
   entry?: string;
 }): Promise<BuiltSample> {
   const { sampleName, sampleDir, entry } = args;
-  const fs = SAMPLE.fs(sampleName);
+  const fs = await SAMPLE.fs(sampleName).create();
+  await Fs.remove(fs.dir);
   await Fs.copy(sampleDir, fs.dir);
 
   if (entry && entry !== './index.html') {
