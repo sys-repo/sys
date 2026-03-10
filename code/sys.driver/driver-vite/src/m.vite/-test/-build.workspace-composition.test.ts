@@ -31,42 +31,47 @@ describe('Vite.build (workspace composition)', () => {
   };
 
   const testBuild = async (sample: t.StringDir) => {
-    const fs = SAMPLE.fs('Vite.build');
-    await Fs.copy(sample, fs.dir);
+    const cwd = Fs.resolve('./.tmp/test/Vite.build.workspace-composition/fixture');
+    await Fs.remove(Fs.dirname(cwd), { log: false });
+    await Fs.ensureDir(Fs.dirname(cwd));
+    await Fs.copy(sample, cwd);
 
-    const cwd = fs.dir;
-    const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+    try {
+      const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
 
-    const res = await Vite.build({
-      cwd,
-      pkg,
-      silent: true,
-      spinner: false,
-      exitOnError: false,
-    });
-    if (!res.ok) console.warn(res.toString());
+      const res = await Vite.build({
+        cwd,
+        pkg,
+        silent: true,
+        spinner: false,
+        exitOnError: false,
+      });
+      if (!res.ok) console.warn(res.toString());
 
-    expect(res.ok).to.eql(true);
-    expect(res.paths).to.eql(fromFile.paths);
+      expect(res.ok).to.eql(true);
+      expect(res.paths).to.eql(fromFile.paths);
 
-    const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
-    const { paths } = res;
-    const outDir = Fs.join(paths.cwd, paths.app.outDir);
-    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
-    const html = await readFile(Fs.join(outDir, 'index.html'));
+      const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
+      const { paths } = res;
+      const outDir = Fs.join(paths.cwd, paths.app.outDir);
+      const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+      const html = await readFile(Fs.join(outDir, 'index.html'));
 
-    const files = Object.keys(json.data?.hash.parts ?? {});
-    const jsFiles = files.filter((path) => path.endsWith('.js'));
-    const jsText = await Promise.all(jsFiles.map((path) => readFile(Fs.join(outDir, path))));
-    const hasSysAliasMarker = jsText.some((text) => text.includes('🧫 @sys/std'));
+      const files = Object.keys(json.data?.hash.parts ?? {});
+      const jsFiles = files.filter((path) => path.endsWith('.js'));
+      const jsText = await Promise.all(jsFiles.map((path) => readFile(Fs.join(outDir, path))));
+      const hasSysAliasMarker = jsText.some((text) => text.includes('🧫 @sys/std'));
 
-    return {
-      res,
-      outDir,
-      get files() {
-        return { html, json: { dist: json.data }, hasSysAliasMarker } as const;
-      },
-    } as const;
+      return {
+        res,
+        outDir,
+        get files() {
+          return { html, json: { dist: json.data }, hasSysAliasMarker } as const;
+        },
+      } as const;
+    } finally {
+      await Fs.remove(Fs.dirname(cwd), { log: false });
+    }
   };
 
   it('monorepo imports → split bundled workspace modules', async () => {

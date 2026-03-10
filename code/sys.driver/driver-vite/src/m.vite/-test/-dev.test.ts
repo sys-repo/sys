@@ -11,6 +11,7 @@ import {
   Testing,
   Time,
 } from '../../-test.ts';
+import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 
 describe('Vite.dev', () => {
@@ -39,10 +40,10 @@ describe('Vite.dev', () => {
    */
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(2, async () => {
-      const fs = SAMPLE.fs('Vite.dev');
-      await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
-
-      const cwd = fs.dir;
+      const fs = await SAMPLE.fs('Vite.dev').create();
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      const restore = await writeLocalFixtureImports(cwd);
       const port = Testing.randomPort();
       let server: t.ViteProcess | undefined;
       let timeout: t.TimeDelayPromise | undefined;
@@ -85,16 +86,17 @@ describe('Vite.dev', () => {
         controller.abort();
         timeout?.cancel();
         await server?.dispose();
+        await restore();
       }
     });
   });
 
   it('falls forward to the next port when requested port is occupied', async () => {
     await Testing.retry(2, async () => {
-      const fs = SAMPLE.fs('Vite.dev-port-fallback');
-      await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
-
-      const cwd = fs.dir;
+      const fs = await SAMPLE.fs('Vite.dev-port-fallback').create();
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      const restore = await writeLocalFixtureImports(cwd);
       const requestedPort = Testing.randomPort();
       const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
       let server: t.ViteProcess | undefined;
@@ -115,6 +117,7 @@ describe('Vite.dev', () => {
       } finally {
         await server?.dispose();
         blocker.close();
+        await restore();
       }
     });
   });
