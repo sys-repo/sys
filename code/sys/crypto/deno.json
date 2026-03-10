@@ -1,6 +1,6 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.232",
+  "version": "0.0.233",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -17,7 +17,15 @@
     "./sign/ed25519": "./src/m.Sign.Ed25519/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-fs",
-  "version": "0.0.152",
+  "version": "0.0.153",
   "license": "MIT",
   "tasks": {
     "test": "echo no-op",
@@ -19,9 +19,23 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "build": { "read": true, "write": true, "env": true },
-    "serve": { "read": true, "net": true },
-    "clean": { "read": true, "write": true, "env": true },
-    "dev": { "read": true, "env": true }
+    "build": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "serve": {
+      "read": true,
+      "net": true
+    },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "env": true
+    }
   }
 }

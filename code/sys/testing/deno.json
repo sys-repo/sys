@@ -1,6 +1,6 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.243",
+  "version": "0.0.244",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -15,7 +15,16 @@
     "./server": "./src/ns.server/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@sys/net",
-  "version": "0.0.81",
+  "version": "0.0.82",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -15,7 +15,16 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }

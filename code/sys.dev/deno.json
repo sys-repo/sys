@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.143",
+  "version": "0.0.144",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/task.vite.ts --cmd=dev   --in=./src/-test/index.html",
@@ -29,8 +29,16 @@
     "./catalog.edu/t": "./src/catalog.edu/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "dev": {
       "read": true,
       "write": true,

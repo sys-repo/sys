@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.302",
+  "version": "0.0.303",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -23,7 +23,11 @@
     "./sample-imports": "./src/-test/-sample-imports.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "test": {
       "read": true,
       "write": true,

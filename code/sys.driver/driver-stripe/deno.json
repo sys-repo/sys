@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-stripe",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/-test/index.html",
@@ -20,8 +20,16 @@
     "./ui": "./src/ui/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "dev": {
       "read": true,
       "write": true,

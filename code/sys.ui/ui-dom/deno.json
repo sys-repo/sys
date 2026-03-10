@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dom",
-  "version": "0.0.245",
+  "version": "0.0.246",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -19,7 +19,15 @@
     "./user-agent": "./src/-exports/-user-agent.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

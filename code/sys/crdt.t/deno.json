@@ -1,6 +1,6 @@
 {
   "name": "@sys/crdt-t",
-  "version": "0.0.111",
+  "version": "0.0.112",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -13,6 +13,10 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "test": { "read": true, "write": true, "env": true }
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

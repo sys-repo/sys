@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.201",
+  "version": "0.0.202",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
@@ -26,9 +26,22 @@
     "./ws/client": "./src/-exports/-ws.client.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true },
-    "ws": { "read": true, "write": true, "net": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
+    "ws": {
+      "read": true,
+      "write": true,
+      "net": true
+    },
     "dev": {
       "read": true,
       "write": true,
