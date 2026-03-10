@@ -4,6 +4,14 @@ on:
     branches:
       - main
       - phil-work
+    paths-ignore:
+      - .github/workflows/jsr.yaml
+  pull_request:
+    branches:
+      - main
+      - phil-work
+    paths-ignore:
+      - .github/workflows/jsr.yaml
 
 jobs:
   deno:

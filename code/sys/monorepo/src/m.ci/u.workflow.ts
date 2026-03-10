@@ -95,9 +95,15 @@ export const wrangle = {
       lines.push('  push:');
       if (on.push?.branches?.length) lines.push('    branches:', wrangle.list(on.push.branches, 6));
       if (on.push?.tags?.length) lines.push('    tags:', wrangle.list(on.push.tags, 6));
+      if (on.push?.paths_ignore?.length) {
+        lines.push('    paths-ignore:', wrangle.list(on.push.paths_ignore, 6));
+      }
     }
     if (on.pull_request?.branches?.length) {
       lines.push('  pull_request:', '    branches:', wrangle.list(on.pull_request.branches, 6));
+      if (on.pull_request?.paths_ignore?.length) {
+        lines.push('    paths-ignore:', wrangle.list(on.pull_request.paths_ignore, 6));
+      }
     }
     if (on.workflow_dispatch) lines.push('  workflow_dispatch:');
     return lines.join('\n');

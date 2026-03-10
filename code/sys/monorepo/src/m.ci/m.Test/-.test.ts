@@ -59,8 +59,11 @@ describe('MonorepoCi.Test', () => {
     });
     const yaml = await MonorepoCi.Test.text({
       on: {
-        pull_request: { branches: ['main'] },
-        push: { branches: ['main', 'sample-branch'] },
+        pull_request: { branches: ['main'], paths_ignore: ['.github/workflows/jsr.yaml'] },
+        push: {
+          branches: ['main', 'sample-branch'],
+          paths_ignore: ['.github/workflows/jsr.yaml'],
+        },
       },
       paths: [moduleDir],
     });
@@ -68,6 +71,8 @@ describe('MonorepoCi.Test', () => {
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(true);
     expect(yaml.includes('- sample-branch')).to.eql(true);
+    expect(yaml.includes('paths-ignore:')).to.eql(true);
+    expect(yaml.includes('.github/workflows/jsr.yaml')).to.eql(true);
   });
 
   it('falls back to the module path when name is missing', async () => {
