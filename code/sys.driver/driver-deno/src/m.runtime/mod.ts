@@ -1,6 +1,6 @@
 /**
- * Deno runtime specific tools.
  * @module
+ * Deno runtime specific tools.
  *
  * @example
  * ```ts
