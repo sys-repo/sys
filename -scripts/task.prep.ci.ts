@@ -30,10 +30,6 @@ export async function main(options: Options = {}) {
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const versionFilter = options.versionFilter ?? 'all';
   const on = {
-    pull_request: {
-      branches: ['main', 'phil-work'],
-      paths_ignore: ['.github/workflows/jsr.yaml'],
-    },
     push: {
       branches: ['main', 'phil-work'],
       paths_ignore: ['.github/workflows/jsr.yaml'],
