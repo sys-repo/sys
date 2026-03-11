@@ -59,7 +59,32 @@ describe('Config.Build', () => {
 
       expect(config.resolve?.alias).to.eql(undefined);
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
-      expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(true);
+      expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+    });
+
+    it('does not mount npm prewarm when local deno.json uses manual node-modules mode', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.app.manual-node-modules.' });
+      try {
+        await Fs.write(
+          Fs.join(fs.absolute, 'deno.json'),
+          JSON.stringify({
+            name: '@tmp/manual',
+            version: '0.0.0',
+            nodeModulesDir: 'manual',
+            importMap: 'imports.json',
+          }, null, 2),
+        );
+        await Fs.write(Fs.join(fs.absolute, 'imports.json'), JSON.stringify({ imports: {} }, null, 2));
+
+        const paths = ViteConfig.paths({ cwd: fs.absolute });
+        const config = await ViteConfig.app({ workspace: false, paths });
+
+        expect(config.resolve?.alias).to.eql(undefined);
+        expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
+        expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+      } finally {
+        await Fs.remove(fs.absolute);
+      }
     });
 
     it('does not mount deno plugins when no local deno.json exists', async () => {

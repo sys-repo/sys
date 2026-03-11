@@ -1,7 +1,7 @@
 import type { ManualChunksOption, PreRenderedChunk } from 'rollup';
 
 import { workspace } from '../m.vite.config.workspace/mod.ts';
-import { type t, Fs, Is, asArray, Delete, Path, R } from './common.ts';
+import { type t, DenoFile, Fs, Is, asArray, Delete, Path, R } from './common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
@@ -14,6 +14,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const paths = formatPaths(options.paths);
   const ws = await wrangle.workspace(options);
   const denoConfig = await wrangle.denoConfig(paths.cwd, ws);
+  const npmPrewarm = denoConfig ? await wrangle.canPrewarmNpm(denoConfig) : false;
 
   const main = Path.join(paths.cwd, paths.app.entry);
   const sw = paths.app.sw ? Path.join(paths.cwd, paths.app.sw) : undefined;
@@ -52,7 +53,8 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   const plugins = await commonPlugins(options.plugins);
   if (denoConfig && (options.plugins?.deno ?? true)) {
-    plugins.unshift(createNpmPrewarm(denoConfig), createSpecifierRewrite(denoConfig));
+    plugins.unshift(createSpecifierRewrite(denoConfig));
+    if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
   }
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.
@@ -128,6 +130,12 @@ const wrangle = {
 
     const local = Path.join(cwd, 'deno.json');
     return (await Fs.exists(local)) ? local : undefined;
+  },
+
+  async canPrewarmNpm(configPath: string) {
+    const file = await DenoFile.load(configPath);
+    const nodeModulesDir = (file.data as { nodeModulesDir?: unknown } | undefined)?.nodeModulesDir;
+    return nodeModulesDir === 'auto';
   },
 
   path(envKey: string) {
