@@ -5,10 +5,12 @@ import type { t } from './common.ts';
  * (apple/windows/linux/content) stay consistent and truthful.
  */
 export namespace Signer {
+  /** Canonical signer target identifiers. */
   export type Target = 'content-manifest' | 'apple' | 'windows' | 'linux';
+  /** Canonical signer operation modes. */
   export type Mode = 'sign' | 'verify' | 'sign-verify';
 
-  /** Library: */
+  /** Shared signer namespace surface. */
   export type Lib = {};
 
   /**
@@ -60,6 +62,7 @@ export namespace Signer {
     readonly timestamp: boolean;
   };
 
+  /** Common success metadata shared by signer drivers. */
   export type ResultData = {
     /** Signer target that produced the result. */
     readonly target: Target;
@@ -67,6 +70,7 @@ export namespace Signer {
     readonly mode: Mode;
   };
 
+  /** Successful signer result. */
   export type ResultOk = {
     /** Success discriminator. */
     readonly ok: true;
@@ -76,6 +80,7 @@ export namespace Signer {
     readonly error: undefined;
   };
 
+  /** Failed signer result. */
   export type ResultFail = {
     /** Failure discriminator. */
     readonly ok: false;
@@ -89,5 +94,6 @@ export namespace Signer {
     readonly stage: Stage;
   };
 
+  /** Signer result union. */
   export type Result = ResultOk | ResultFail;
 }
