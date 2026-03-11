@@ -6,19 +6,21 @@ import {
   DomMock,
   expect,
   it,
+  Schedule,
   MonacoFake,
   renderHook,
   Rx,
-  Time,
 } from '../../../-test.ts';
-import { type t, Bus, Crdt } from '../common.ts';
+import { type t, Bus, Immutable } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
-const settle = async (ms = 0) => {
-  await Time.wait(ms);
-  await Time.wait(0); // extra tick (micro/macro alignment)
+const settle = async () => {
+  await Schedule.micro();
+  await Schedule.macro();
+  await Schedule.raf();
+  await Schedule.macro();
 };
 
 describe('Monaco.Yaml', () => {
@@ -39,12 +41,10 @@ describe('Monaco.Yaml', () => {
       const model = MonacoFake.model('foo: bar', { language: 'yaml' });
       const editor = MonacoFake.editor(model);
 
-      type T = { foo?: string };
-      const repo = await Crdt.repo().whenReady();
-      const doc = (await repo.create<T>({ foo: 'bar' })).doc!;
+      const doc = Immutable.clonerRef({ text: 'foo: bar' });
 
       const { result, unmount } = renderHook(() =>
-        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco }),
+        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 }),
       );
 
       const life = Rx.disposable();
@@ -56,7 +56,7 @@ describe('Monaco.Yaml', () => {
         Bus.ping(bus$, ['yaml'], nonce);
       });
 
-      await Time.wait(10);
+      await settle();
 
       const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
       const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
@@ -70,9 +70,7 @@ describe('Monaco.Yaml', () => {
       life.dispose();
       unmount();
 
-      await settle(); //      let hook cleanup run
-      await repo.dispose();
-      await settle(100); //   let AM throttle timer clear
+      await settle();
     });
   });
 });
