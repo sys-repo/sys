@@ -74,10 +74,10 @@ async function mainCheckoutGuard() {
     row('', '  2. Stash the changes, run publish, then pop the stash', { color: 'cyan' }),
     row('', '  3. Publish from a clean worktree already on main', { color: 'cyan' }),
     row('', '', { color: 'white' }),
-    row('', '  or', { color: 'white' }),
-    row('', '', { color: 'white' }),
-    row('', '  deno task publish:jsr:branch', { color: 'cyan' }),
     row('Retry', '  deno task publish:jsr', { color: 'cyan' }),
+    row('', '', { color: 'white' }),
+    row('', '  or to publish from this branch (override)', { color: 'white' }),
+    row('', '  deno task publish:jsr:branch', { color: 'cyan' }),
     `${indent()}${c.bold(c.yellow(LINE))}`,
     '',
   ] as const;
