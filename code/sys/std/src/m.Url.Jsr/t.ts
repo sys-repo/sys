@@ -4,7 +4,9 @@ import type { t } from './common.ts';
  * Standard URL generators for the JSR registry.
  */
 export type JsrUrlLib = {
+  /** Registry origin. */
   readonly origin: t.StringUrl;
+  /** Package-scoped URL helpers. */
   readonly Pkg: t.JsrUrlPkgLib;
 };
 

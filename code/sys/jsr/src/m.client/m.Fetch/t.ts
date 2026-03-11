@@ -5,7 +5,9 @@ import type { t } from './common.ts';
  */
 export namespace JsrFetch {
   export type Lib = {
+    /** Package-scoped fetch helpers. */
     readonly Pkg: PkgLib;
+    /** JSR registry URL helpers. */
     readonly Url: t.JsrUrlLib;
   };
 
@@ -38,7 +40,10 @@ export namespace JsrFetch {
   };
 
   /** Options for the `Jsr.Fetch.<fetch-method>` methods */
-  export type PkgOptions = { dispose$?: t.UntilObservable };
+  export type PkgOptions = {
+    /** Cancels the underlying request when the observable emits. */
+    dispose$?: t.UntilObservable;
+  };
 
   /** Options for the `Jsr.Fetch.<fetch-method>` methods that perform hash checksums on the fetched content. */
   export type PkgChecksumOptions = PkgOptions & { checksum?: t.StringHash };
@@ -57,24 +62,36 @@ export namespace JsrFetch {
    * https://jsr.io/docs/api#package-metadata
    */
   export type PkgMetaVersions = {
+    /** Package scope without the leading `@`. */
     scope: string;
+    /** Package name within the scope. */
     name: string;
+    /** Latest published version reported by JSR. */
     latest: t.StringSemver;
+    /** Published versions keyed by version string. */
     versions: { [version: string]: PkgMetaVersion };
   };
 
   /** Version details about a specific package version. */
-  export type PkgMetaVersion = { yanked?: boolean };
+  export type PkgMetaVersion = {
+    /** True when the version has been yanked from normal resolution. */
+    yanked?: boolean;
+  };
 
   /**
    * Meta-data about a specific published package version.
    * https://jsr.io/docs/api#package-version-metadata
    */
   export type PkgVersionInfo = {
+    /** The package identity that was requested. */
     pkg: t.Pkg;
+    /** Source-file manifest keyed by package-relative path. */
     manifest?: PkgManifest;
+    /** Export map returned by JSR. */
     exports?: { [key: string]: string };
+    /** Opaque module-graph payload returned by JSR. */
     moduleGraph1?: unknown;
+    /** Opaque module-graph payload returned by JSR. */
     moduleGraph2?: unknown;
   };
 
@@ -82,13 +99,21 @@ export namespace JsrFetch {
    * The manifest of the source code file-structure (.ts files) within the package.
    */
   export type PkgManifest = { [path: string]: PkgManifestFile };
-  export type PkgManifestFile = { readonly size: number; readonly checksum: string };
+  /** Meta-data for a single manifest entry. */
+  export type PkgManifestFile = {
+    /** File size in bytes. */
+    readonly size: number;
+    /** Content checksum published by JSR for integrity checks. */
+    readonly checksum: string;
+  };
 
   /**
    * File fetching.
    */
   export type PkgFileFetcher = {
+    /** The package/version this fetcher is bound to. */
     pkg: t.Pkg;
+    /** Retrieve text content for a package-relative path. */
     text(path: t.StringPath, options?: PkgChecksumOptions): Promise<PkgFileResponse>;
   };
 }
