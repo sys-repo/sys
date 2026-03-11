@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Network fetching helpers against the "jsr.io" end-point.
  */
 export namespace JsrFetch {
+  /** JSR fetch helper library surface. */
   export type Lib = {
     /** Package-scoped fetch helpers. */
     readonly Pkg: PkgLib;
@@ -118,16 +119,29 @@ export namespace JsrFetch {
   };
 }
 
+/** Alias for the JSR fetch helper library surface. */
 export type JsrFetchLib = JsrFetch.Lib;
+/** Alias for the package-scoped JSR fetch helpers. */
 export type JsrFetchPkgLib = JsrFetch.PkgLib;
+/** Alias for common JSR fetch options. */
 export type JsrFetchPkgOptions = JsrFetch.PkgOptions;
+/** Alias for checksum-aware JSR fetch options. */
 export type JsrFetchPkgChecksumOptions = JsrFetch.PkgChecksumOptions;
+/** Alias for package version-list responses. */
 export type JsrFetchPkgVersionsResponse = JsrFetch.PkgVersionsResponse;
+/** Alias for package version metadata responses. */
 export type JsrFetchPkgInfoResponse = JsrFetch.PkgInfoResponse;
+/** Alias for package file text responses. */
 export type JsrFetchPkgFileResponse = JsrFetch.PkgFileResponse;
+/** Alias for top-level JSR package metadata. */
 export type JsrPkgMetaVersions = JsrFetch.PkgMetaVersions;
+/** Alias for per-version JSR package metadata. */
 export type JsrPkgMetaVersion = JsrFetch.PkgMetaVersion;
+/** Alias for JSR package version metadata. */
 export type JsrPkgVersionInfo = JsrFetch.PkgVersionInfo;
+/** Alias for the JSR package file manifest. */
 export type JsrPkgManifest = JsrFetch.PkgManifest;
+/** Alias for a single JSR package manifest entry. */
 export type JsrPkgManifestFile = JsrFetch.PkgManifestFile;
+/** Alias for the bound JSR package file fetcher. */
 export type JsrPkgFileFetcher = JsrFetch.PkgFileFetcher;
