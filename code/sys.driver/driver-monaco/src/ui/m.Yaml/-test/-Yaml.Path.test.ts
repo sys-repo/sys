@@ -36,29 +36,33 @@ describe('Monaco.Yaml', () => {
         const ob = EditorYaml.Path.observe({ editor });
 
         const fired: t.EventYamlCursor[] = [];
-        ob.$.subscribe((e) => fired.push(e));
+        const sub = ob.$.subscribe((e) => fired.push(e));
+        try {
+          // Caret inside the "👋" scalar.
+          editor.setPosition({ lineNumber: 1, column: 6 }); // "👋"
+          expect(ob.current?.path).to.eql(['foo']);
 
-        // Caret inside the "👋" scalar.
-        editor.setPosition({ lineNumber: 1, column: 6 }); // "👋"
-        expect(ob.current?.path).to.eql(['foo']);
+          await Schedule.macro();
+          expect(fired.at(-1)?.path).to.eql(['foo']);
+          expect(fired.at(-1)?.position).to.eql({ lineNumber: 1, column: 6 });
+          expect(fired.at(-1)?.offset).to.eql(6);
 
-        await Schedule.macro();
-        expect(fired.at(-1)?.path).to.eql(['foo']);
-        expect(fired.at(-1)?.position).to.eql({ lineNumber: 1, column: 6 });
-        expect(fired.at(-1)?.offset).to.eql(6);
+          // Caret on "m" of "msg".
+          editor.setPosition({ lineNumber: 3, column: 5 }); // Two-space indent + "m".
+          expect(ob.current?.path).to.eql(['bar', 'msg']);
 
-        // Caret on "m" of "msg".
-        editor.setPosition({ lineNumber: 3, column: 5 }); // Two-space indent + "m".
-        expect(ob.current?.path).to.eql(['bar', 'msg']);
+          // Caret on "c" of "count".
+          editor.setPosition({ lineNumber: 4, column: 5 });
+          expect(ob.current?.path).to.eql(['bar', 'count']);
 
-        // Caret on "c" of "count".
-        editor.setPosition({ lineNumber: 4, column: 5 });
-        expect(ob.current?.path).to.eql(['bar', 'count']);
-
-        // Mutate buffer → re-parse; caret in new root key "baz".
-        model.setValue(`${yaml}baz: 42`);
-        editor.setPosition({ lineNumber: 5, column: 3 }); // "b" in "baz".
-        expect(ob.current?.path).to.eql(['baz']);
+          // Mutate buffer → re-parse; caret in new root key "baz".
+          model.setValue(`${yaml}baz: 42`);
+          editor.setPosition({ lineNumber: 5, column: 3 }); // "b" in "baz".
+          expect(ob.current?.path).to.eql(['baz']);
+        } finally {
+          sub.unsubscribe();
+          ob.dispose();
+        }
       });
 
       it('only tracks YAML (reset on other languages)', async () => {
@@ -68,22 +72,26 @@ describe('Monaco.Yaml', () => {
         const ob = EditorYaml.Path.observe({ editor });
 
         const fired: t.EventYamlCursor[] = [];
-        ob.$.subscribe((e) => fired.push(e));
+        const sub = ob.$.subscribe((e) => fired.push(e));
+        try {
+          editor.setPosition({ lineNumber: 1, column: 6 });
 
-        editor.setPosition({ lineNumber: 1, column: 6 });
+          await Schedule.macro();
+          expect(ob.current?.path).to.eql(['foo']);
+          expect(fired.length).to.eql(2);
 
-        await Schedule.macro();
-        expect(ob.current?.path).to.eql(['foo']);
-        expect(fired.length).to.eql(2);
+          model.__setLanguageId('typescript');
+          expect(ob.current.path).to.eql([]);
 
-        model.__setLanguageId('typescript');
-        expect(ob.current.path).to.eql([]);
-
-        await Schedule.macro();
-        expect(fired.length).to.eql(3);
-        expect(fired.at(-1)?.path).to.eql([]);
-        expect(fired.at(-1)?.position).to.eql(undefined);
-        expect(fired.at(-1)?.offset).to.eql(undefined);
+          await Schedule.macro();
+          expect(fired.length).to.eql(3);
+          expect(fired.at(-1)?.path).to.eql([]);
+          expect(fired.at(-1)?.position).to.eql(undefined);
+          expect(fired.at(-1)?.offset).to.eql(undefined);
+        } finally {
+          sub.unsubscribe();
+          ob.dispose();
+        }
       });
 
       describe('caret bias edge-cases', () => {
@@ -92,14 +100,17 @@ describe('Monaco.Yaml', () => {
           const model = MonacoFake.model(yaml, { language: 'yaml' });
           const editor = MonacoFake.editor(model);
           const ob = EditorYaml.Path.observe({ editor });
+          try {
+            // Caret on the “f” of the root key “foo:” (line-2, col-1 because of leading blank line).
+            editor.setPosition({ lineNumber: 2, column: 1 });
+            expect(ob.current?.path).to.eql(['foo']);
 
-          // Caret on the “f” of the root key “foo:” (line-2, col-1 because of leading blank line).
-          editor.setPosition({ lineNumber: 2, column: 1 });
-          expect(ob.current?.path).to.eql(['foo']);
-
-          // Caret on the “b” of the root key “bar:” (line-3, col-1).
-          editor.setPosition({ lineNumber: 3, column: 1 });
-          expect(ob.current?.path).to.eql(['bar']);
+            // Caret on the “b” of the root key “bar:” (line-3, col-1).
+            editor.setPosition({ lineNumber: 3, column: 1 });
+            expect(ob.current?.path).to.eql(['bar']);
+          } finally {
+            ob.dispose();
+          }
         });
 
         it('does not include the first child when caret is on a root key after a blank line', () => {
@@ -107,14 +118,17 @@ describe('Monaco.Yaml', () => {
           const model = MonacoFake.model(yaml, { language: 'yaml' });
           const editor = MonacoFake.editor(model);
           const ob = EditorYaml.Path.observe({ editor });
+          try {
+            // Caret on “v” of “video:” (line-4, col-1).
+            editor.setPosition({ lineNumber: 4, column: 1 });
+            expect(ob.current?.path).to.eql(['video']);
 
-          // Caret on “v” of “video:” (line-4, col-1).
-          editor.setPosition({ lineNumber: 4, column: 1 });
-          expect(ob.current?.path).to.eql(['video']);
-
-          // Move caret into the “s” of “src” (line-5, two-space indent + “s”).
-          editor.setPosition({ lineNumber: 5, column: 3 });
-          expect(ob.current?.path).to.eql(['video', 'src']);
+            // Move caret into the “s” of “src” (line-5, two-space indent + “s”).
+            editor.setPosition({ lineNumber: 5, column: 3 });
+            expect(ob.current?.path).to.eql(['video', 'src']);
+          } finally {
+            ob.dispose();
+          }
         });
       });
     });
@@ -229,7 +243,7 @@ describe('Monaco.Yaml', () => {
         EditorYaml.Path.observe({ editor, bus$ }, life);
 
         const events: t.EditorEvent[] = [];
-        bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+        const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
 
         const nonce = 'nonce-123';
         bus$.next({
@@ -248,6 +262,7 @@ describe('Monaco.Yaml', () => {
         expect(pong.states).to.eql(['cursor']);
         expect(pong.at).to.be.a('number');
 
+        sub.unsubscribe();
         life.dispose();
       });
     });
