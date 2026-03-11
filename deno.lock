@@ -100,6 +100,7 @@
     "jsr:@sys/types@^0.0.248": "0.0.248",
     "jsr:@sys/ui-css@^0.0.235": "0.0.235",
     "jsr:@sys/ui-css@^0.0.237": "0.0.237",
+    "jsr:@sys/ui-dom@^0.0.247": "0.0.247",
     "jsr:@zip-js/zip-js@^2.7.52": "2.8.21",
     "npm:@ai-sdk/openai@3.0.41": "3.0.41_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.5.3": "2.5.3_ws@8.19.0",
@@ -914,11 +915,21 @@
         "npm:@types/react"
       ]
     },
+    "@sys/ui-dom@0.0.247": {
+      "integrity": "3ac0158be5c13e81051ec65c24b4de5b52913c2e40e7093a2c79463e0263cca0",
+      "dependencies": [
+        "npm:ua-parser-js"
+      ]
+    },
     "@sys/ui-react-devharness@0.0.252": {
       "integrity": "56c6cf18f95bc8d8ea3a5b146e21a4f09604729db71e7f1c35e8e7a63c521401",
       "dependencies": [
+        "jsr:@sys/ui-dom",
         "npm:@types/react",
-        "npm:react"
+        "npm:react",
+        "npm:react-error-boundary",
+        "npm:react-icons",
+        "npm:react-spinners"
       ]
     },
     "@zip-js/zip-js@2.8.21": {
