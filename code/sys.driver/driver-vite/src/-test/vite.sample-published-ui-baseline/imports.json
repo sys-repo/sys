@@ -1,5 +1,8 @@
 {
   "imports": {
+    "react": "npm:react@19.2.4",
+    "react-dom": "npm:react-dom@19.2.4",
+    "@sys/std": "jsr:@sys/std@0.0.298",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.241",
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.248",
     "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.248/local-storage",
