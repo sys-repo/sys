@@ -93,7 +93,7 @@ describe(`useWebFont`, () => {
     });
 
     it('re-runs for changed args and injects new family', () => {
-      const { rerender } = renderHook(
+      const { rerender, unmount } = renderHook(
         ({ dir, family }) =>
           useWebFont(dir, {
             family,
@@ -102,12 +102,15 @@ describe(`useWebFont`, () => {
           }),
         { initialProps: { dir: '/fonts/source-sans-3', family: 'Source Sans 3' } },
       );
+      try {
+        expect(byFamily('Source Sans 3').length).to.eql(1);
 
-      expect(byFamily('Source Sans 3').length).to.eql(1);
-
-      act(() => rerender({ dir: '/fonts/et-book', family: 'ET Book' }));
-      expect(byFamily('Source Sans 3').length).to.eql(1);
-      expect(byFamily('ET Book').length).to.eql(1);
+        act(() => rerender({ dir: '/fonts/et-book', family: 'ET Book' }));
+        expect(byFamily('Source Sans 3').length).to.eql(1);
+        expect(byFamily('ET Book').length).to.eql(1);
+      } finally {
+        act(() => unmount());
+      }
     });
 
     it('does not re-run for equivalent semantic options with new object identity', () => {
@@ -119,7 +122,7 @@ describe(`useWebFont`, () => {
       }) as typeof Base.inject;
 
       try {
-        const { rerender } = renderHook(
+        const { rerender, unmount } = renderHook(
           ({ tick }) =>
             useWebFont('/fonts/source-sans-3', {
               family: 'Source Sans 3',
@@ -136,9 +139,13 @@ describe(`useWebFont`, () => {
           { initialProps: { tick: 0 } },
         );
 
-        expect(calls).to.eql(1);
-        act(() => rerender({ tick: 1 }));
-        expect(calls).to.eql(1);
+        try {
+          expect(calls).to.eql(1);
+          act(() => rerender({ tick: 1 }));
+          expect(calls).to.eql(1);
+        } finally {
+          act(() => unmount());
+        }
       } finally {
         (Base as { inject: typeof Base.inject }).inject = originalInject;
       }

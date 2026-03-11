@@ -35,50 +35,60 @@ describe('useVirtualTimeline', () => {
   });
 
   it('returns resolved timeline + rev (mount → rev increments once)', async () => {
-    const { result } = renderHook(() => useVirtualTimeline(undefined));
-    await Promise.resolve(); // flush effect
-    expect(result.current.rev).to.eql(1);
-    expect(result.current.is.valid).to.eql(true);
-    expect(result.current.is.empty).to.eql(true);
-    expect(result.current.total).to.eql(0);
-    expect(result.current.segments.length).to.eql(0);
+    const { result, unmount } = renderHook(() => useVirtualTimeline(undefined));
+    try {
+      await Promise.resolve(); // flush effect
+      expect(result.current.rev).to.eql(1);
+      expect(result.current.is.valid).to.eql(true);
+      expect(result.current.is.empty).to.eql(true);
+      expect(result.current.total).to.eql(0);
+      expect(result.current.segments.length).to.eql(0);
+    } finally {
+      act(() => unmount());
+    }
   });
 
   it('rev does not change when resolution is identical', async () => {
-    const { result, rerender } = renderHook(
+    const { result, rerender, unmount } = renderHook(
       (spec?: t.TimecodeCompositionSpec) =>
         // Cast sentinels to the expected type for the hook (test-only).
         useVirtualTimeline(spec),
       { initialProps: 'A' as unknown as t.TimecodeCompositionSpec },
     );
+    try {
+      await Promise.resolve();
+      const rev1 = result.current.rev;
+      const total1 = result.current.total;
+      const len1 = result.current.segments.length;
 
-    await Promise.resolve();
-    const rev1 = result.current.rev;
-    const total1 = result.current.total;
-    const len1 = result.current.segments.length;
+      act(() => rerender('A' as unknown as t.TimecodeCompositionSpec));
+      await Promise.resolve();
 
-    act(() => rerender('A' as unknown as t.TimecodeCompositionSpec));
-    await Promise.resolve();
-
-    expect(result.current.rev).to.eql(rev1);
-    expect(result.current.total).to.eql(total1);
-    expect(result.current.segments.length).to.eql(len1);
+      expect(result.current.rev).to.eql(rev1);
+      expect(result.current.total).to.eql(total1);
+      expect(result.current.segments.length).to.eql(len1);
+    } finally {
+      act(() => unmount());
+    }
   });
 
   it('rev increments when the resolved timeline changes', async () => {
-    const { result, rerender } = renderHook(
+    const { result, rerender, unmount } = renderHook(
       (spec?: t.TimecodeCompositionSpec) => useVirtualTimeline(spec),
       { initialProps: 'A' as unknown as t.TimecodeCompositionSpec },
     );
+    try {
+      await Promise.resolve();
+      const revA = result.current.rev;
 
-    await Promise.resolve();
-    const revA = result.current.rev;
+      act(() => rerender('B' as unknown as t.TimecodeCompositionSpec));
+      await Promise.resolve();
 
-    act(() => rerender('B' as unknown as t.TimecodeCompositionSpec));
-    await Promise.resolve();
-
-    expect(result.current.rev).to.eql(revA + 1);
-    expect(result.current.total).to.eql(2_000);
-    expect(result.current.segments.length).to.eql(2);
+      expect(result.current.rev).to.eql(revA + 1);
+      expect(result.current.total).to.eql(2_000);
+      expect(result.current.segments.length).to.eql(2);
+    } finally {
+      act(() => unmount());
+    }
   });
 });
