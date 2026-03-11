@@ -51,7 +51,7 @@ export function logSyncResult(
   }
 
   if (result.kind === 'unchanged') {
-    const msg = `${c.cyan('Unchanged file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`;
+    const msg = `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`;
     console.info(msg);
     return;
   }
