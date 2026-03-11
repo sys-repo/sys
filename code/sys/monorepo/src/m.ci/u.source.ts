@@ -61,7 +61,7 @@ export function logSyncResult(
     return;
   }
 
-  console.info(`${c.cyan('Skipped file:')} ${c.gray(label)}`);
+  console.info(`${c.gray('Skipped file:')} ${c.gray(label)}`);
 }
 
 function hasTask(value: unknown, key: 'build' | 'test') {
