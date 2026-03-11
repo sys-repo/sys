@@ -1,8 +1,8 @@
 {
   "imports": {
     "@sys/color/t": "jsr:@sys/color@0.0.206/t",
-    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.307",
-    "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.307/main",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.308",
+    "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.308/main",
     "@sys/fs": "jsr:@sys/fs@0.0.254",
     "@sys/http/client": "jsr:@sys/http@0.0.223/client",
     "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.10/ci",
@@ -19,8 +19,8 @@
     "@sys/tools": "jsr:@sys/tools@0.0.269",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.241",
     "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.241/t",
-    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.247",
-    "@sys/ui-dom/t": "jsr:@sys/ui-dom@0.0.247/t",
+    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.248",
+    "@sys/ui-dom/t": "jsr:@sys/ui-dom@0.0.248/t",
     "@sys/ui-react": "jsr:@sys/ui-react@0.0.255",
     "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.207",
     "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.252",
