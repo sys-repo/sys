@@ -8,6 +8,9 @@ export function isTransformed(input: any): input is t.CssTransformed {
 
 export const isZero: t.StyleLib['isZero'] = (value) => {
   if (value === 0) return true;
-  if (typeof value === 'string' && value.startsWith('0')) return true;
+  if (typeof value === 'string') {
+    value = value.trim();
+    return /^0(?:\.0+)?(?:[a-z%]+)?$/i.test(value);
+  }
   return false;
 };

@@ -5,6 +5,7 @@ export const toString: t.StyleLib['toString'] = (style) => {
   if (!isRecord(style)) return '';
   return Object.entries(style)
     .filter(([prop]) => !CssPseudoClass.isClass(prop))
+    .filter(([, value]) => value !== undefined && value !== null)
     .map(([prop, value]) => `${Str.camelToKebab(prop)}: ${formatValue(prop, value)};`)
     .join(' ');
 };
