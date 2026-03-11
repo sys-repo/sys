@@ -27,58 +27,69 @@ describe(`useWebFont`, () => {
     beforeEach(() => resetHead());
 
     it('injects a single <style> on mount', () => {
-      renderHook(() =>
+      const hook = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      const styles = byFamily('Inter');
-      expect(styles.length).to.eql(1);
-      const css = styles[0].textContent ?? '';
-      expect(css.includes('font-family: Inter')).to.eql(true);
-      expect(css.includes('font-weight: 100 900;')).to.eql(true);
-      expect(css.includes('url(/fonts/inter/Inter-Var.woff2)')).to.eql(true);
+      try {
+        const styles = byFamily('Inter');
+        expect(styles.length).to.eql(1);
+        const css = styles[0].textContent ?? '';
+        expect(css.includes('font-family: Inter')).to.eql(true);
+        expect(css.includes('font-weight: 100 900;')).to.eql(true);
+        expect(css.includes('url(/fonts/inter/Inter-Var.woff2)')).to.eql(true);
+      } finally {
+        act(() => hook.unmount());
+      }
     });
 
     it('idempotent across multiple mounts with the same args', () => {
-      renderHook(() =>
+      const a = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-      renderHook(() =>
+      const b = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      expect(byFamily('Inter').length).to.eql(1);
+      try {
+        expect(byFamily('Inter').length).to.eql(1);
+      } finally {
+        act(() => a.unmount());
+        act(() => b.unmount());
+      }
     });
 
     it('different key (dir) yields a second <style> (delegated key semantics)', () => {
-      renderHook(() =>
+      const a = renderHook(() =>
         useWebFont('/fonts/a', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-      renderHook(() =>
+      const b = renderHook(() =>
         useWebFont('/fonts/b', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      expect(byFamily('Inter').length).to.eql(2);
+      try {
+        expect(byFamily('Inter').length).to.eql(2);
+      } finally {
+        act(() => a.unmount());
+        act(() => b.unmount());
+      }
     });
 
     it('re-runs for changed args and injects new family', () => {
