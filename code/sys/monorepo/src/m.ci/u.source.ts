@@ -1,4 +1,4 @@
-import { c, Fs, Json, Path, type t } from './common.ts';
+import { c, Fs, Json, Path, Str, type t } from './common.ts';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
@@ -44,14 +44,15 @@ export function logSyncResult(
   if (!options.log) return;
 
   const label = Fs.trimCwd(result.target);
+  const count = `${result.count} ${subject} ${Str.plural(result.count, 'module')}`;
   if (result.kind === 'written') {
-    const msg = `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`;
+    const msg = `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
     console.info(msg);
     return;
   }
 
   if (result.kind === 'unchanged') {
-    const msg = `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`;
+    const msg = `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
     console.info(msg);
     return;
   }
