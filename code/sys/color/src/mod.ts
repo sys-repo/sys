@@ -1,6 +1,6 @@
 /**
- * Tools for working with color values.
  * @module
+ * Tools for working with color values.
  */
 export { pkg } from './pkg.ts';
 

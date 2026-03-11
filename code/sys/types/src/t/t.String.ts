@@ -1,6 +1,6 @@
 /**
- * Descriptive type alias only; no runtime validation.
  * @module
+ * Descriptive type alias only; no runtime validation.
  */
 
 /** A string that represents a MIME type (aka "Content-Type" header). */

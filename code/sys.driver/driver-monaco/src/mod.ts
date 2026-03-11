@@ -1,6 +1,6 @@
 /**
- * UI module wrapping the Monaco code editor.
  * @module
+ * UI module wrapping the Monaco code editor.
  */
 export { pkg } from './pkg.ts';
 

@@ -1,6 +1,6 @@
 /**
- * Content library
  * @module
+ * Content library
  */
 import { type t, isRecord } from './common.ts';
 

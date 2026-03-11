@@ -1,5 +1,5 @@
 /**
- * Tools for working with a `deno.json` file.
  * @module
+ * Tools for working with a `deno.json` file.
  */
 export { DenoFile } from './m.DenoFile.ts';

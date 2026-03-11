@@ -1,6 +1,6 @@
 /**
- * Edge value formatting tools.
  * @module
+ * Edge value formatting tools.
  */
 import type { CssEdgesLib } from './t.ts';
 

@@ -10,6 +10,7 @@
 // on npm.
 
 /**
+ * @module
  * String formatters and utilities for dealing with ANSI color codes.
  *
  * > [!IMPORTANT]
@@ -55,7 +56,6 @@
  * }));
  * ```
  *
- * @module
  */
 
 // deno-lint-ignore no-explicit-any

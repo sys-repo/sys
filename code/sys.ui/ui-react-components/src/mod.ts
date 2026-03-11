@@ -1,6 +1,6 @@
 /**
- * Library of common `<React>` components.
  * @module
+ * Library of common `<React>` components.
  */
 export { pkg } from './pkg.ts';
 

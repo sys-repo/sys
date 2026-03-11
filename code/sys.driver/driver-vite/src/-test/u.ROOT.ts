@@ -1,6 +1,6 @@
 /**
- * Testing tools related to the root mono-repo.
  * @module
+ * Testing tools related to the root mono-repo.
  */
 import { default as denofile } from '../../../../../deno.json' with { type: 'json' };
 import { Path } from './common.ts';

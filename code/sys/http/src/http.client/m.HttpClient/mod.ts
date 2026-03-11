@@ -1,6 +1,6 @@
 /**
- * Tools for working with HTTP.
  * @module
+ * Tools for working with HTTP.
  *
  *  - Standards body: Internet Engineering Task Force (IETF)
  *  - HTTP Working Group (HTTP-WG).

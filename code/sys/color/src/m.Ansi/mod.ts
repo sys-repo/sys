@@ -1,6 +1,6 @@
 /**
- * ANSI Color formatting tools for the terminal.
  * @module
+ * ANSI Color formatting tools for the terminal.
  */
 import type { AnsiColorLib } from './t.ts';
 
