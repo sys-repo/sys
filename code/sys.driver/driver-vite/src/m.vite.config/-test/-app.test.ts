@@ -54,6 +54,28 @@ describe('Config.Build', () => {
       expect(config.plugins).to.eql([]);
     });
 
+    it('supports app config without a workspace', async () => {
+      const config = await ViteConfig.app({ workspace: false });
+
+      expect(config.resolve?.alias).to.eql(undefined);
+      expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
+      expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(true);
+    });
+
+    it('does not mount deno plugins when no local deno.json exists', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.app.no-deno.' });
+      try {
+        const paths = ViteConfig.paths({ cwd: fs.absolute });
+        const config = await ViteConfig.app({ workspace: false, paths });
+
+        expect(config.resolve?.alias).to.eql(undefined);
+        expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(false);
+        expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+      } finally {
+        await Fs.remove(fs.absolute);
+      }
+    });
+
     it('custom paths', async () => {
       const paths = ViteConfig.paths({
         cwd: ' /foo/ ', // NB: absolute path (trimmed internally).

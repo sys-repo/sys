@@ -1,5 +1,11 @@
 import { describe, expect, it } from '../../-test.ts';
-import { createSpecifierRewrite, parseJsrSpecifier, parseNpmSpecifier, resolveFromImportsMap } from '../u.app.specifierRewrite.ts';
+import {
+  createNpmPrewarm,
+  createSpecifierRewrite,
+  parseJsrSpecifier,
+  parseNpmSpecifier,
+  resolveFromImportsMap,
+} from '../u.app.specifierRewrite.ts';
 
 describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {
@@ -35,6 +41,19 @@ describe('ViteConfig.app specifier rewrite', () => {
         'jsr:@sys/http@0.0.209/client/foo',
       );
       expect(resolveFromImportsMap('@sys/unknown', imports)).to.eql(undefined);
+    });
+
+    it('resolves trailing-slash import-map prefixes', () => {
+      const imports = {
+        '@sys/ui-dom/': 'jsr:@sys/ui-dom@0.0.246/',
+      };
+
+      expect(resolveFromImportsMap('@sys/ui-dom/local-storage', imports)).to.eql(
+        'jsr:@sys/ui-dom@0.0.246/local-storage',
+      );
+      expect(resolveFromImportsMap('@sys/ui-dom/user-agent', imports)).to.eql(
+        'jsr:@sys/ui-dom@0.0.246/user-agent',
+      );
     });
   });
 
@@ -120,6 +139,30 @@ describe('ViteConfig.app specifier rewrite', () => {
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
       const res = await resolveId('@acme/http/client');
       expect(res).to.eql(null);
+    });
+  });
+
+  describe('createNpmPrewarm', () => {
+    it('warms npm targets declared in the import map', async () => {
+      const warmed: string[] = [];
+      const plugin = createNpmPrewarm('/tmp/project/deno.json', {
+        async loadImports() {
+          return {
+            react: 'npm:react@19.2.4',
+            'react-dom/': 'npm:react-dom@19.2.4/',
+            '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.246',
+          };
+        },
+        async warmNpm(specifier) {
+          warmed.push(specifier);
+        },
+      });
+
+      const buildStart = plugin.buildStart as () => Promise<void>;
+      await buildStart();
+      await buildStart();
+
+      expect(warmed).to.eql(['npm:react@19.2.4', 'npm:react-dom@19.2.4']);
     });
   });
 });

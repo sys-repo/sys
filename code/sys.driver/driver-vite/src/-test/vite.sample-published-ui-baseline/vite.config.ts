@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() =>
   Vite.Config.app({
+    workspace: false,
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');

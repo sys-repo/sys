@@ -1,0 +1,7 @@
+{
+  "name": "@tmp/vite.sample-published-ui-baseline",
+  "version": "0.0.0",
+  "workspace": [],
+  "nodeModulesDir": "auto",
+  "importMap": "imports.json"
+}

@@ -133,10 +133,7 @@ describe('ViteTransport.resolve', () => {
               kind: 'esm',
               loader: 'TypeScript',
               dependencies: [
-                {
-                  specifier: './child.ts',
-                  resolvedSpecifier: Path.toFileUrl(child).href,
-                },
+                { specifier: './child.ts', resolvedSpecifier: Path.toFileUrl(child).href },
               ],
             },
           ],
@@ -169,12 +166,7 @@ describe('ViteTransport.resolve', () => {
           ],
           [
             'jsr:@std/internal@^1.0.12/os',
-            {
-              id: childResolved,
-              kind: 'esm',
-              loader: 'TypeScript',
-              dependencies: [],
-            },
+            { id: childResolved, kind: 'esm', loader: 'TypeScript', dependencies: [] },
           ],
         ]);
 
@@ -260,6 +252,72 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
       });
 
+      it('re-hydrates remote parent graphs when cached importer has no dependencies', async () => {
+        const parentId =
+          'https://jsr.io/@sys/ui-react-devharness/0.0.251/src/ui.use/use.SizeObserver.ts';
+        const parentResolved = '/tmp/cache/use.SizeObserver.ts';
+        const importer = toDenoSpecifier('TypeScript', parentId, parentResolved);
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            { id: parentResolved, kind: 'esm', loader: 'TypeScript', dependencies: [] },
+          ],
+        ]);
+
+        let npmInfoCalls = 0;
+
+        const res = await resolveViteSpecifier('react', cache, '/tmp/project', importer, {
+          async invoke(input: t.ProcInvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+
+            if (input.args[input.args.length - 1] === parentId) {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: [parentId],
+                  modules: [
+                    {
+                      kind: 'esm',
+                      local: parentResolved,
+                      mediaType: 'TypeScript',
+                      specifier: parentId,
+                      dependencies: [
+                        { specifier: 'react', code: { specifier: 'npm:react@19.2.4' } },
+                      ],
+                    },
+                  ],
+                }),
+              });
+            }
+
+            if (input.args[input.args.length - 1] === 'npm:react@19.2.4') {
+              npmInfoCalls++;
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:react@19.2.4'],
+                  modules: [
+                    { kind: 'npm', specifier: 'npm:/react@19.2.4', npmPackage: 'react@19.2.4' },
+                  ],
+                  redirects: { 'npm:react@19.2.4': 'npm:/react@19.2.4' },
+                }),
+              });
+            }
+
+            throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+          },
+        });
+
+        expect(res).to.eql('react');
+        expect(cache.get(parentResolved)?.kind).to.eql('esm');
+        if (cache.get(parentResolved)?.kind !== 'esm')
+          throw new Error('Expected hydrated parent graph');
+        expect(cache.get(parentResolved)?.dependencies.length).to.eql(1);
+        expect(npmInfoCalls).to.eql(1);
+      });
+
       it('hydrates remote child graphs before returning wrapped deno ids', async () => {
         const parentResolved = '/tmp/cache/std-path.ts';
         const childId = 'https://jsr.io/@std/path/1.1.4/windows/basename.ts';
@@ -327,7 +385,8 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
         expect(cache.get(childResolved)?.kind).to.eql('esm');
-        if (cache.get(childResolved)?.kind !== 'esm') throw new Error('Expected hydrated child graph');
+        if (cache.get(childResolved)?.kind !== 'esm')
+          throw new Error('Expected hydrated child graph');
         expect(cache.get(childResolved)?.dependencies.length).to.eql(1);
       });
 
@@ -354,15 +413,43 @@ describe('ViteTransport.resolve', () => {
             },
           ],
         ]);
+        let npmInfoCalls = 0;
 
         const res = await resolveViteSpecifier(
           '@noble/hashes/legacy.js',
           cache,
           '/tmp/project',
           importer,
+          {
+            async invoke(input: t.ProcInvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+
+              if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+                npmInfoCalls++;
+                return procOutput({
+                  success: true,
+                  stdout: JSON.stringify({
+                    roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                    modules: [
+                      {
+                        kind: 'npm',
+                        specifier: 'npm:@noble/hashes@2.0.1/legacy.js',
+                        npmPackage: '@noble/hashes',
+                      },
+                    ],
+                  }),
+                });
+              }
+
+              throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+            },
+          },
         );
 
         expect(res).to.eql('@noble/hashes/legacy.js');
+        expect(npmInfoCalls).to.eql(1);
       });
 
       it('falls through when vite cannot resolve delegated bare npm package ids', async () => {
@@ -393,6 +480,24 @@ describe('ViteTransport.resolve', () => {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
+            if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/@noble/hashes@2.0.1/legacy.js',
+                      npmPackage: '@noble/hashes@2.0.1',
+                    },
+                  ],
+                  redirects: {
+                    'npm:@noble/hashes@2.0.1/legacy.js': 'npm:/@noble/hashes@2.0.1/legacy.js',
+                  },
+                }),
+              });
+            }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
@@ -409,11 +514,7 @@ describe('ViteTransport.resolve', () => {
           },
         } as unknown as t.Rollup.PluginContext;
 
-        const res = await plugin.resolveId.call(
-          context,
-          '@noble/hashes/legacy.js',
-          importer,
-        );
+        const res = await plugin.resolveId.call(context, '@noble/hashes/legacy.js', importer);
 
         expect(res).to.eql(null);
       });
@@ -446,6 +547,24 @@ describe('ViteTransport.resolve', () => {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
+            if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/@noble/hashes@2.0.1/legacy.js',
+                      npmPackage: '@noble/hashes@2.0.1',
+                    },
+                  ],
+                  redirects: {
+                    'npm:@noble/hashes@2.0.1/legacy.js': 'npm:/@noble/hashes@2.0.1/legacy.js',
+                  },
+                }),
+              });
+            }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
@@ -470,11 +589,7 @@ describe('ViteTransport.resolve', () => {
           },
         } as unknown as t.Rollup.PluginContext;
 
-        const res = await plugin.resolveId.call(
-          context,
-          '@noble/hashes/legacy.js',
-          importer,
-        );
+        const res = await plugin.resolveId.call(context, '@noble/hashes/legacy.js', importer);
 
         expect(res).to.eql({
           id: '/tmp/node_modules/@noble/hashes/legacy.js',
@@ -486,7 +601,6 @@ describe('ViteTransport.resolve', () => {
           syntheticNamedExports: false,
         });
       });
-
     });
 
     describe('deno info normalization', () => {

@@ -175,8 +175,8 @@ export async function resolveViteSpecifier(
   if (importer && isDenoSpecifier(importer)) {
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
     let cached = cache.get(parent);
-    if (cached === undefined) {
-      cached = (await resolveDenoWith(parentId, root, deps)) ?? undefined;
+    if (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))) {
+      cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
       if (cached) {
         cache.set(cached.id, cached);
         cache.set(parent, cached);
@@ -193,7 +193,10 @@ export async function resolveViteSpecifier(
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
-    if (id.startsWith('npm:')) return toViteNpmSpecifier(id);
+    if (id.startsWith('npm:')) {
+      await resolveDenoWith(id, root, deps);
+      return toViteNpmSpecifier(id);
+    }
     if (found.localPath && found.loader && isRemoteLike(id)) {
       const existing = cache.get(found.localPath);
       const hydrated = existing ?? (await resolveDenoWith(id, root, deps));
