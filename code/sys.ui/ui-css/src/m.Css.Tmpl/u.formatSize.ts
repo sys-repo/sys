@@ -1,11 +1,11 @@
-import type { t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { mergeAndReplace } from './u.ts';
 
 export function formatSize(key: string, input: unknown, target: t.CssProps) {
   type V = string | number | undefined;
   const format = (input: any): V => {
-    if (!(typeof input === 'number' || typeof input === 'string')) return;
-    if (typeof input === 'string' && !input.trim()) return;
+    if (!(Is.num(input) || Is.str(input))) return;
+    if (Is.str(input) && !input.trim()) return;
     return input;
   };
   if (Array.isArray(input)) {

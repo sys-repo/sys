@@ -1,4 +1,4 @@
-import { type t, CssDom, CssTmpl, Obj, toString } from './common.ts';
+import { type t, CssDom, CssTmpl, Is, Obj, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
 import { createTransformContainer } from './u.transform.container.ts';
 
@@ -75,7 +75,7 @@ const wrangle = {
     if (Array.isArray(input)) {
       return input.reduce((acc, next) => ({ ...acc, ...wrangle.input(next) }), {} as O);
     } else {
-      if (typeof input !== 'object') return {};
+      if (!Is.object(input)) return {};
       if (isTransformed(input)) return input.style;
       return input;
     }
@@ -91,8 +91,8 @@ const wrangle = {
     if (args.length === 1) return done(args[0]);
     if (args.length === 2) {
       const [p1, p2] = args;
-      if (typeof p2 === 'object') return done(p1, undefined, p2);
-      if (typeof p2 === 'string') return done(p2, p1);
+      if (Is.object(p2)) return done(p1, undefined, p2);
+      if (Is.str(p2)) return done(p2, p1);
     }
     if (args.length === 3) {
       const [p1, p2, p3] = args;

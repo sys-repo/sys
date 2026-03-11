@@ -1,4 +1,4 @@
-import { type t, DEFAULT, isRecord, Str } from './common.ts';
+import { type t, DEFAULT, Is, isRecord, Str } from './common.ts';
 import { CssPseudoClass } from './m.CssPseudoClass.ts';
 
 export const toString: t.StyleLib['toString'] = (style) => {
@@ -14,7 +14,7 @@ export const toString: t.StyleLib['toString'] = (style) => {
  * Helpers
  */
 function formatValue(prop: string, value: unknown) {
-  if (typeof value === 'string') return value.trim();
+  if (Is.str(value)) return value.trim();
   const unit = DEFAULT.pixelProps.has(prop) ? 'px' : '';
   return `${value}${unit}`.trim();
 }

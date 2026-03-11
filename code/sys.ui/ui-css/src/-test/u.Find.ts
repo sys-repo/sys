@@ -1,3 +1,5 @@
+import { Is } from '../common.ts';
+
 /**
  * Helpers for querying the DOM of CSS rules.
  */
@@ -20,7 +22,7 @@ export const FindCss = {
         if (
           'cssRules' in rule &&
           rule.cssRules &&
-          typeof rule.cssText === 'string' &&
+          Is.str(rule.cssText) &&
           rule.cssText.trim().startsWith('@')
         ) {
           // Recursively search its nested rules.
