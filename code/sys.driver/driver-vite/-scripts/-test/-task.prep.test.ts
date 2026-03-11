@@ -1,7 +1,8 @@
 import type * as dt from '@sys/driver-deno/t';
 import { describe, expect, Fs, it } from '../../src/-test.ts';
+import { SAMPLE } from '../../src/-test/u.SAMPLE.ts';
 import { syncPublishedFixture, syncPublishedFixtureImport, syncPublishedFixtureImports } from '../task.prep.u.published.ts';
-import { syncTransportLoaderImport } from '../task.prep.ts';
+import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport } from '../task.prep.ts';
 
 describe('driver-vite prep', () => {
   it('syncs the transport loader import from root deps.yaml', async () => {
@@ -134,5 +135,13 @@ describe('driver-vite prep', () => {
     expect(imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
 
     await Fs.remove(fs.absolute);
+  });
+
+  it('covers every published sample fixture in prep', () => {
+    expect(PUBLISHED_FIXTURE_DIRS).to.eql([
+      SAMPLE.Dirs.samplePublishedBaseline,
+      SAMPLE.Dirs.samplePublishedUiBaseline,
+      SAMPLE.Dirs.samplePublishedUiComponents,
+    ]);
   });
 });

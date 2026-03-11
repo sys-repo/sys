@@ -4,6 +4,11 @@ import { syncPublishedFixture } from './task.prep.u.published.ts';
 
 const SPECIFIER = 'npm:esbuild';
 const PATTERN = /from 'npm:esbuild@[^']+'/;
+export const PUBLISHED_FIXTURE_DIRS = [
+  './src/-test/vite.sample-published-baseline',
+  './src/-test/vite.sample-published-ui-baseline',
+  './src/-test/vite.sample-published-ui-components',
+] as const;
 
 export async function syncTransportLoaderImport(args: { depsPath: string; targetPath: string }) {
   const { depsPath, targetPath } = args;
@@ -31,12 +36,7 @@ export async function main() {
     targetPath: './src/m.vite.transport/u.load.ts',
   });
 
-  const publishedFixtures = [
-    './src/-test/vite.sample-published-baseline',
-    './src/-test/vite.sample-published-ui-baseline',
-  ] as const;
-
-  for (const dir of publishedFixtures) {
+  for (const dir of PUBLISHED_FIXTURE_DIRS) {
     await syncPublishedFixture({
       rootDenoJson: ws.file,
       dir,
