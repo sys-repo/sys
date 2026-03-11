@@ -1,6 +1,6 @@
 {
   "name": "@sys/jsr",
-  "version": "0.0.217",
+  "version": "0.0.218",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -16,7 +16,16 @@
     "./server": "./src/m.server/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }
