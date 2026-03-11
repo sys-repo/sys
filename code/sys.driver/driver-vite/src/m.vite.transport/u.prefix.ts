@@ -2,6 +2,7 @@ import type { PluginContext, ResolveIdResult } from 'rollup';
 import { Path, type t } from './common.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { resolveDeno, resolveViteSpecifier } from './u.resolve.ts';
+type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 const depsDefault: t.PrefixDeps = {
   resolveDeno,
@@ -21,19 +22,14 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
       this: PluginContext,
       id: string,
       importer?: string,
-      _options?: {
-        attributes: Record<string, string>;
-        custom?: unknown;
-        ssr?: boolean;
-        isEntry: boolean;
-      },
+      options?: ResolveOptions,
     ): Promise<ResolveIdResult> {
       if (id.startsWith('npm:')) {
         const resolved = await deps.resolveDeno(id, root);
         if (resolved === null) return;
 
         const actual = toViteNpmSpecifier(id);
-        const result = await this.resolve(actual, importer, { skipSelf: true });
+        const result = await this.resolve(actual, importer, { ...options, skipSelf: true });
         return result ?? actual;
       }
 

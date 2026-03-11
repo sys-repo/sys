@@ -1,10 +1,12 @@
 import { Is, Json, Path, Process, type t } from './common.ts';
+import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
 import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const depsDefault: t.ResolveDeps = { invoke: Process.invoke };
+type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
@@ -14,15 +16,19 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
     },
-    async resolveId(id: string, importer?: string) {
+    async resolveId(
+      id: string,
+      importer?: string,
+      options?: ResolveOptions,
+    ) {
       const resolvedId = unwrapViteId(id);
       const resolvedImporter = importer ? unwrapViteId(importer) : importer;
       if (isDenoSpecifier(resolvedId)) return resolvedId;
       const resolved = await resolveViteSpecifier(resolvedId, cache, root, resolvedImporter, deps);
       if (Is.str(resolved) && isBarePackageId(resolved)) {
         const skipSelf = true;
-        const packagePath = Path.join(Path.cwd(), 'package.json');
-        const delegated = await this.resolve(resolved, packagePath, { skipSelf });
+        const importerForResolve = Path.join(root, 'deno.json');
+        const delegated = await this.resolve(resolved, importerForResolve, { ...options, skipSelf });
         return delegated;
       }
       return resolved;

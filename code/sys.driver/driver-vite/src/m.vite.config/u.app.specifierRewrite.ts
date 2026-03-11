@@ -1,8 +1,10 @@
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
+import type { PluginContext } from 'rollup';
 import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type WarmNpm = (specifier: string, cwd: string) => Promise<void>;
+type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createSpecifierRewrite(
   configPath: t.StringPath,
@@ -15,16 +17,18 @@ export function createSpecifierRewrite(
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
     async resolveId(
-      this: { resolve?: (id: string, importer?: string, options?: { skipSelf?: boolean }) => Promise<{ id: string } | null> } | undefined,
+      this: PluginContext,
       source: string,
       importer?: string,
+      options?: ResolveOptions,
     ) {
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten) return null;
       const importerForResolve = wrangle.isDenoImporter(importer) ? resolutionImporter : importer;
+      const ctx = this as PluginContext | undefined;
 
-      const resolved = this?.resolve
-        ? await this.resolve(rewritten, importerForResolve, { skipSelf: true })
+      const resolved = ctx?.resolve
+        ? await ctx.resolve(rewritten, importerForResolve, { ...options, skipSelf: true })
         : null;
       if (resolved?.id) return resolved.id;
       if (isBarePackageId(rewritten)) return null;
@@ -96,11 +100,16 @@ const wrangle = {
       const promise = (async () => {
         if (specifier.startsWith('npm:')) return parseNpmSpecifier(specifier);
         if (specifier.startsWith('jsr:')) return undefined;
+        const bare = isBarePackageId(specifier);
 
         const map = await imports;
         const fromMap = resolveFromImportsMap(specifier, map);
         if (!fromMap) return undefined;
-        if (fromMap.startsWith('npm:')) return parseNpmSpecifier(fromMap);
+        if (fromMap.startsWith('npm:')) {
+          const rewritten = parseNpmSpecifier(fromMap);
+          if (bare && rewritten === specifier) return undefined;
+          return rewritten;
+        }
         if (fromMap.startsWith('jsr:')) return undefined;
         return fromMap;
       })();

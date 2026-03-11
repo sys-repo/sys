@@ -501,6 +501,7 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
+        plugin.configResolved?.({ root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
@@ -508,7 +509,7 @@ describe('ViteTransport.resolve', () => {
             options?: Parameters<PluginResolve>[2],
           ): Promise<null> {
             expect(id).to.eql('@noble/hashes/legacy.js');
-            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(_importer).to.eql('/tmp/project/deno.json');
             expect(options?.skipSelf).to.eql(true);
             return null;
           },
@@ -568,6 +569,7 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
+        plugin.configResolved?.({ root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
@@ -575,7 +577,7 @@ describe('ViteTransport.resolve', () => {
             options?: Parameters<PluginResolve>[2],
           ): Promise<t.Rollup.ResolvedId> {
             expect(id).to.eql('@noble/hashes/legacy.js');
-            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(_importer).to.eql('/tmp/project/deno.json');
             expect(options?.skipSelf).to.eql(true);
             return {
               id: '/tmp/node_modules/@noble/hashes/legacy.js',

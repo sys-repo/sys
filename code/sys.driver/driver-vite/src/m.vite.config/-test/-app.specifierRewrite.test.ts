@@ -91,31 +91,20 @@ describe('ViteConfig.app specifier rewrite', () => {
       ).to.eql(null);
     });
 
-    it('delegates normalized bare npm ids through vite resolution', async () => {
+    it('treats same-name bare npm import-map targets as pass-through', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
           return { react: 'npm:react@19.2.4' };
         },
       });
 
-      const resolveId = rewrite.resolveId as (
-        this: { resolve(id: string, importer?: string, options?: { skipSelf?: boolean }): Promise<{ id: string } | null> },
-        source: string,
-        importer?: string,
-      ) => Promise<string | null>;
-
-      const res = await resolveId.call(
-        {
-          async resolve(id) {
-            expect(id).to.eql('react');
-            return { id: '/tmp/project/node_modules/react/index.mjs' };
-          },
-        },
+      const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
+      const res = await resolveId(
         'react',
         '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
       );
 
-      expect(res).to.eql('/tmp/project/node_modules/react/index.mjs');
+      expect(res).to.eql(null);
     });
 
     it('returns null when a normalized bare npm id is still unresolved', async () => {
@@ -148,7 +137,7 @@ describe('ViteConfig.app specifier rewrite', () => {
     it('resolves remote deno importer npm ids from the project config location', async () => {
       const rewrite = createSpecifierRewrite('/tmp/project/deno.json', {
         async loadImports() {
-          return { react: 'npm:react@19.2.4' };
+          return { '@acme/react': 'npm:react@19.2.4' };
         },
       });
 
@@ -169,7 +158,7 @@ describe('ViteConfig.app specifier rewrite', () => {
             return { id: '/tmp/project/node_modules/react/index.mjs' };
           },
         },
-        'react',
+        '@acme/react',
         importer,
       );
 
