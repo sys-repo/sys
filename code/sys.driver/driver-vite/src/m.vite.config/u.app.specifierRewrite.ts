@@ -1,4 +1,5 @@
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
+import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type WarmNpm = (specifier: string, cwd: string) => Promise<void>;
@@ -25,7 +26,9 @@ export function createSpecifierRewrite(
       const resolved = this?.resolve
         ? await this.resolve(rewritten, importerForResolve, { skipSelf: true })
         : null;
-      return resolved?.id ?? rewritten;
+      if (resolved?.id) return resolved.id;
+      if (isBarePackageId(rewritten)) return null;
+      return rewritten;
     },
   };
 }
