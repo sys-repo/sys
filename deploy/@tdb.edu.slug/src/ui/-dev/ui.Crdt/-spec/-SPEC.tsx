@@ -2,9 +2,12 @@ import { Dev, Signal, Spec } from '../../../-test.ui.ts';
 import { type t, D } from './common.ts';
 import { DevCrdt } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { RepoFooter } from './-u.repo.footer.tsx';
+import { createDevRepo } from './-u.repo.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
+  const repo = createDevRepo();
   const p = debug.props;
 
   function Root() {
@@ -28,6 +31,11 @@ export default Spec.describe(D.displayName, async (e) => {
       .size([360, null])
       .display('grid')
       .render(() => <Root />);
+
+    ctx.debug.footer
+      .border(0)
+      .padding(0)
+      .render(() => <RepoFooter repo={repo} />);
   });
 
   e.it('ui:debug', (e) => {
