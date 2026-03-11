@@ -2,7 +2,7 @@
   "imports": {
     "@preact/signals-react": "npm:@preact/signals-react@3.9.1",
     "@std/path": "jsr:@std/path@1.1.4",
-    "@sys/std": "jsr:@sys/std@0.0.298",
+    "@sys/std": "jsr:@sys/std@0.0.311",
     "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.207",
     "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.252",
     "motion/react": "npm:motion@12.35.1/react",
