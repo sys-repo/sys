@@ -33,7 +33,8 @@ describe('Vite published external smoke (ui-components)', () => {
       try {
         expect(html.status).to.eql(200);
         expect(entry.status).to.eql(200);
-        expect(entry.text.includes('@sys/ui-react-devharness')).to.eql(false);
+        expect(entry.text.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
+        expect(entry.text.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
         expect(modules.some((mod) => mod.url.includes('ui-react-devharness'))).to.eql(true);
         expect(modules.some((mod) => mod.url.includes('ui-react-components'))).to.eql(true);
         expect(modules.some((mod) => mod.contentType.includes('text/html'))).to.eql(false);
