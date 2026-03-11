@@ -8,6 +8,7 @@ export function createSpecifierRewrite(
   options: { loadImports?: LoadImports } = {},
 ): t.VitePlugin {
   const rewriteSpecifier = wrangle.rewriteSpecifier(configPath, options.loadImports);
+  const resolutionImporter = wrangle.resolutionImporter(configPath);
 
   return {
     name: 'sys:specifier-rewrite',
@@ -19,9 +20,10 @@ export function createSpecifierRewrite(
     ) {
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten) return null;
+      const importerForResolve = wrangle.isDenoImporter(importer) ? resolutionImporter : importer;
 
       const resolved = this?.resolve
-        ? await this.resolve(rewritten, importer, { skipSelf: true })
+        ? await this.resolve(rewritten, importerForResolve, { skipSelf: true })
         : null;
       return resolved?.id ?? rewritten;
     },
@@ -124,6 +126,10 @@ const wrangle = {
     return Path.resolve(dir, importMapPath);
   },
 
+  resolutionImporter(configPath: t.StringPath) {
+    return Path.resolve(configPath);
+  },
+
   toStringRecord(input: unknown): Record<string, string> {
     const res: Record<string, string> = {};
     if (!input || typeof input !== 'object') return res;
@@ -155,6 +161,11 @@ const wrangle = {
   toNpmWarmSpecifier(target: string): string | undefined {
     if (!target.startsWith('npm:')) return undefined;
     return target.endsWith('/') ? target.slice(0, -1) : target;
+  },
+
+  isDenoImporter(importer?: string) {
+    if (!importer) return false;
+    return importer.startsWith('\0deno::') || importer.startsWith('/@id/__x00__deno::');
   },
   parseRegistrySpecifier(source: string): string | undefined {
     const scoped = source.startsWith('@');

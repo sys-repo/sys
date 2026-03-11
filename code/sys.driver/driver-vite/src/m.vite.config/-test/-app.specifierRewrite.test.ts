@@ -118,6 +118,38 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(res).to.eql('/tmp/project/node_modules/ua-parser-js/index.mjs');
     });
 
+    it('resolves remote deno importer npm ids from the project config location', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/project/deno.json', {
+        async loadImports() {
+          return { 'ua-parser-js': 'npm:ua-parser-js@2.0.9' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (
+        this: { resolve(id: string, importer?: string, options?: { skipSelf?: boolean }): Promise<{ id: string } | null> },
+        source: string,
+        importer?: string,
+      ) => Promise<string | null>;
+
+      const importer = '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts';
+      let seenImporter = '';
+
+      const res = await resolveId.call(
+        {
+          async resolve(id, from) {
+            expect(id).to.eql('ua-parser-js');
+            seenImporter = from ?? '';
+            return { id: '/tmp/project/node_modules/ua-parser-js/index.mjs' };
+          },
+        },
+        'ua-parser-js',
+        importer,
+      );
+
+      expect(seenImporter).to.eql('/tmp/project/deno.json');
+      expect(res).to.eql('/tmp/project/node_modules/ua-parser-js/index.mjs');
+    });
+
     it('passes through jsr-target import-map aliases (handled by deno plugin)', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json', {
         async loadImports() {
