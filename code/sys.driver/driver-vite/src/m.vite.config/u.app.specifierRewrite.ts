@@ -12,11 +12,18 @@ export function createSpecifierRewrite(
   return {
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
-    async resolveId(source: string, importer?: string) {
-      if (wrangle.isDenoImporter(importer)) return null;
+    async resolveId(
+      this: { resolve?: (id: string, importer?: string, options?: { skipSelf?: boolean }) => Promise<{ id: string } | null> } | undefined,
+      source: string,
+      importer?: string,
+    ) {
       const rewritten = await rewriteSpecifier(source);
-      if (!rewritten || rewritten === source) return null;
-      return rewritten;
+      if (!rewritten) return null;
+
+      const resolved = this?.resolve
+        ? await this.resolve(rewritten, importer, { skipSelf: true })
+        : null;
+      return resolved?.id ?? rewritten;
     },
   };
 }
@@ -149,12 +156,6 @@ const wrangle = {
     if (!target.startsWith('npm:')) return undefined;
     return target.endsWith('/') ? target.slice(0, -1) : target;
   },
-
-  isDenoImporter(importer?: string) {
-    if (!importer) return false;
-    return importer.startsWith('\0deno::') || importer.startsWith('/@id/__x00__deno::');
-  },
-
   parseRegistrySpecifier(source: string): string | undefined {
     const scoped = source.startsWith('@');
     let nameWithVersion = source;

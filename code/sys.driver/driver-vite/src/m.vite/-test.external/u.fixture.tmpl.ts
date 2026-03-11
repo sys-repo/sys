@@ -22,13 +22,11 @@ type GeneratedWorkspaceRepo = {
 
 export async function buildGeneratedRepo(args: {
   sampleName: string;
-  repoTemplateDir: t.StringDir;
 }): Promise<GeneratedRepo> {
-  const { sampleName, repoTemplateDir } = args;
+  const { sampleName } = args;
   const fs = await Fs.makeTempDir({ prefix: `${sampleName}.` });
   const rootDir = Fs.join(fs.absolute, 'repo');
-  const copy = await Fs.copy(repoTemplateDir, rootDir);
-  if (copy.error) throw copy.error;
+  await writeRepoTemplate(fs.absolute, 'repo');
 
   const projectsDir = Fs.join(rootDir, 'code', 'projects');
   const fooDir = Fs.join(projectsDir, 'foo');
@@ -50,13 +48,11 @@ export async function buildGeneratedRepo(args: {
 
 export async function buildGeneratedWorkspaceRepo(args: {
   sampleName: string;
-  repoTemplateDir: t.StringDir;
 }): Promise<GeneratedWorkspaceRepo> {
-  const { sampleName, repoTemplateDir } = args;
+  const { sampleName } = args;
   const fs = await Fs.makeTempDir({ prefix: `${sampleName}.` });
   const rootDir = Fs.join(fs.absolute, 'repo');
-  const copy = await Fs.copy(repoTemplateDir, rootDir);
-  if (copy.error) throw copy.error;
+  await writeRepoTemplate(fs.absolute, 'repo');
 
   const projectsDir = Fs.join(rootDir, 'code', 'projects');
   const fooDir = Fs.join(projectsDir, 'foo');
@@ -108,6 +104,18 @@ async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<Ta
     const stderr = error instanceof Error ? (error.stack ?? error.message) : String(error);
     return { cwd, cmd, ok: false, code: 1, stdout: '', stderr };
   }
+}
+
+async function writeRepoTemplate(cwd: string, dir: string) {
+  await tmpl(cwd, {
+    _: ['repo'],
+    tmpl: 'repo',
+    interactive: false,
+    bundle: false,
+    dryRun: false,
+    force: false,
+    dir,
+  });
 }
 
 async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskRun> {

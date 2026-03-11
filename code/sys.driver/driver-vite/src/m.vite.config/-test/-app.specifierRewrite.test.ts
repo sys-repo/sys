@@ -64,7 +64,7 @@ describe('ViteConfig.app specifier rewrite', () => {
       expect(await resolveId('npm:react@19.2.4')).to.eql('react');
     });
 
-    it('does not rewrite npm specifiers for deno-owned importers', async () => {
+    it('rewrites npm specifiers for deno-owned importers', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json');
       const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
       expect(
@@ -72,7 +72,50 @@ describe('ViteConfig.app specifier rewrite', () => {
           'npm:@preact/signals-core@1.13.0',
           '\0deno::TypeScript::https://jsr.io/@sys/std/0.0.298/src/m.Signal/m.Is.ts::/tmp/cache/m.Is.ts',
         ),
-      ).to.eql(null);
+      ).to.eql('@preact/signals-core');
+    });
+
+    it('rewrites npm targets from import-map aliases for deno-owned importers', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json', {
+        async loadImports() {
+          return { 'ua-parser-js': 'npm:ua-parser-js@2.0.9' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
+      expect(
+        await resolveId(
+          'ua-parser-js',
+          '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
+        ),
+      ).to.eql('ua-parser-js');
+    });
+
+    it('delegates normalized bare npm ids through vite resolution', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json', {
+        async loadImports() {
+          return { 'ua-parser-js': 'npm:ua-parser-js@2.0.9' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (
+        this: { resolve(id: string, importer?: string, options?: { skipSelf?: boolean }): Promise<{ id: string } | null> },
+        source: string,
+        importer?: string,
+      ) => Promise<string | null>;
+
+      const res = await resolveId.call(
+        {
+          async resolve(id) {
+            expect(id).to.eql('ua-parser-js');
+            return { id: '/tmp/project/node_modules/ua-parser-js/index.mjs' };
+          },
+        },
+        'ua-parser-js',
+        '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
+      );
+
+      expect(res).to.eql('/tmp/project/node_modules/ua-parser-js/index.mjs');
     });
 
     it('passes through jsr-target import-map aliases (handled by deno plugin)', async () => {
