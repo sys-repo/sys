@@ -49,14 +49,20 @@ export namespace AppleSigner {
     | 'E_INTERNAL';
 
   export type NotaryAuth = {
+    /** App Store Connect API key identifier. */
     readonly keyId: string;
+    /** App Store Connect issuer identifier. */
     readonly issuerId: string;
+    /** Path to the `.p8` private key file used for notarization. */
     readonly keyP8Path: t.StringPath;
   };
 
   export type RunInputBase = {
+    /** Requested Apple signer workflow. */
     readonly mode: Mode;
+    /** Path to the `.app` or `.dmg` artifact. */
     readonly artifactPath: t.StringPath;
+    /** Artifact kind used to shape signing commands. */
     readonly artifactKind: ArtifactKind;
     /** Exact codesign identity string. */
     readonly identity: string;
@@ -80,27 +86,43 @@ export namespace AppleSigner {
   export type RunInput = RunInputSignOnly | RunInputSignVerify | RunInputSignNotarizeVerify;
 
   export type RunData = {
+    /** Signer target that produced the result. */
     readonly target: Target;
+    /** Requested Apple signer workflow. */
     readonly mode: Mode;
+    /** Path to the processed artifact. */
     readonly artifactPath: t.StringPath;
+    /** Artifact kind that was processed. */
     readonly artifactKind: ArtifactKind;
+    /** Signing completed successfully. */
     readonly signed: boolean;
+    /** Verification completed successfully. */
     readonly verified: boolean;
+    /** Notarization completed successfully. */
     readonly notarized: boolean;
+    /** Stapling completed successfully. */
     readonly stapled: boolean;
   };
 
   export type ResultOk = {
+    /** Success discriminator. */
     readonly ok: true;
+    /** Success payload. */
     readonly data: RunData;
+    /** Success case never includes an error. */
     readonly error: undefined;
   };
 
   export type ResultFail = {
+    /** Failure discriminator. */
     readonly ok: false;
+    /** Partial run context captured before failure. */
     readonly data?: Partial<RunData>;
+    /** Failure details. */
     readonly error: t.StdError;
+    /** Stable machine-readable failure code. */
     readonly code: ErrorCode;
+    /** Lifecycle stage where the failure occurred. */
     readonly stage: Stage;
   };
 

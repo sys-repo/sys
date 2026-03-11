@@ -42,32 +42,50 @@ export namespace Signer {
    * Truthful capability declaration for a signer target.
    */
   export type Capabilities = {
+    /** Signer target implemented by the driver. */
     readonly target: Target;
+    /** Driver can produce signatures. */
     readonly sign: boolean;
+    /** Driver can verify signatures. */
     readonly verify: boolean;
+    /** Driver supports detached signature files. */
     readonly detachedSignature: boolean;
+    /** Driver supports signatures embedded in the artifact. */
     readonly embeddedSignature: boolean;
+    /** Driver supports notarization. */
     readonly notarize: boolean;
+    /** Driver supports stapling notarization tickets. */
     readonly staple: boolean;
+    /** Driver supports trusted timestamping. */
     readonly timestamp: boolean;
   };
 
   export type ResultData = {
+    /** Signer target that produced the result. */
     readonly target: Target;
+    /** Requested operation mode. */
     readonly mode: Mode;
   };
 
   export type ResultOk = {
+    /** Success discriminator. */
     readonly ok: true;
+    /** Success payload. */
     readonly data: ResultData;
+    /** Success case never includes an error. */
     readonly error: undefined;
   };
 
   export type ResultFail = {
+    /** Failure discriminator. */
     readonly ok: false;
+    /** Partial result context captured before failure. */
     readonly data?: Partial<ResultData>;
+    /** Failure details. */
     readonly error: t.StdError;
+    /** Stable machine-readable failure code. */
     readonly code: ErrorCode;
+    /** Lifecycle stage where the failure occurred. */
     readonly stage: Stage;
   };
 

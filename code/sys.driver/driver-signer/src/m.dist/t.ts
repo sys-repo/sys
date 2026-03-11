@@ -41,18 +41,25 @@ export namespace DistSigner {
   };
 
   export type Artifact = {
+    /** Manifest file to sign or verify. */
     readonly path: t.StringPath;
+    /** Optional manifest kind hint used for canonicalization/write-back rules. */
     readonly kind?: ManifestKind;
   };
 
   export type Signature = {
+    /** Detached signature file path. */
     readonly path: t.StringPath;
   };
 
   export type RunArgsBase = {
+    /** Artifact input. */
     readonly artifact: Artifact;
+    /** Optional identifier recorded in detached signature metadata. */
     readonly identityRef?: string;
+    /** Optional metadata merged into detached signature output. */
     readonly metadata?: Readonly<O>;
+    /** Controls manifest write-back after signing. */
     readonly writeBack?: WriteBack;
   };
 
