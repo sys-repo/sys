@@ -1,11 +1,12 @@
 import type { PluginContext, ResolveIdResult } from 'rollup';
 import { Path, type t } from './common.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
-import { resolveDeno, resolveViteSpecifier } from './u.resolve.ts';
+import { resolveDeno, resolveNpmPath, resolveViteSpecifier } from './u.resolve.ts';
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 const depsDefault: t.PrefixDeps = {
   resolveDeno,
+  resolveNpmPath,
   resolveViteSpecifier,
 };
 
@@ -30,7 +31,10 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
 
         const actual = toViteNpmSpecifier(id);
         const result = await this.resolve(actual, importer, { ...options, skipSelf: true });
-        return result ?? actual;
+        if (result) return result;
+
+        const fallback = await deps.resolveNpmPath(actual, root);
+        return fallback ?? actual;
       }
 
       if (id.startsWith('http:') || id.startsWith('https:')) {

@@ -5,7 +5,7 @@ import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
-const depsDefault: t.ResolveDeps = { invoke: Process.invoke };
+const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath };
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
@@ -29,7 +29,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
         const skipSelf = true;
         const importerForResolve = Path.join(root, 'deno.json');
         const delegated = await this.resolve(resolved, importerForResolve, { ...options, skipSelf });
-        return delegated;
+        if (delegated) return delegated;
+
+        const fallback = await (deps.resolveNpmPath?.(resolved, root) ?? resolveNpmPath(resolved, root));
+        return fallback ?? null;
       }
       return resolved;
     },
@@ -38,7 +41,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (isDenoSpecifier(resolvedId)) {
         const parsed = parseDenoSpecifier(resolvedId);
         let cached = cache.get(parsed.resolved);
-        if (cached?.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parsed.id)) {
+        if ((cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) && isRemoteLike(parsed.id)) {
           const hydrated = await resolveDenoWith(parsed.id, root, deps);
           if (hydrated?.kind === 'esm') {
             cache.set(hydrated.id, hydrated);
@@ -111,6 +114,10 @@ function normalizeDependencies(
 
 export async function resolveDeno(id: string, cwd: string): Promise<t.DenoResolved | null> {
   return await resolveDenoWith(id, cwd, depsDefault);
+}
+
+export async function resolveNpmPath(id: string, cwd: string): Promise<string | null> {
+  return await resolveNpmPathWith(id, cwd, depsDefault);
 }
 
 export async function resolveDenoWith(
@@ -237,6 +244,24 @@ export async function resolveViteSpecifier(
   }
 
   return toDenoSpecifier(resolved.loader, id, resolved.id);
+}
+
+export async function resolveNpmPathWith(
+  id: string,
+  cwd: string,
+  deps: t.ResolveDeps,
+): Promise<string | null> {
+  const output = await deps.invoke({
+    cmd: DENO_BINARY,
+    args: ['eval', 'console.log(import.meta.resolve(Deno.args[0]))', id],
+    cwd,
+    silent: true,
+  });
+  if (!output.success) return null;
+
+  const value = output.text.stdout.trim();
+  if (!value.startsWith('file://')) return null;
+  return Path.fromFileUrl(value);
 }
 
 export function isDenoSpecifier(str: string) {

@@ -22,6 +22,9 @@ describe('ViteTransport.prefix', () => {
             dependencies: [],
           };
         },
+        async resolveNpmPath() {
+          return null;
+        },
         async resolveViteSpecifier() {
           return undefined;
         },
@@ -47,6 +50,9 @@ describe('ViteTransport.prefix', () => {
             loader: null,
             dependencies: [],
           };
+        },
+        async resolveNpmPath() {
+          throw new Error('resolveNpmPath should not be used when vite resolves first');
         },
         async resolveViteSpecifier() {
           return undefined;
@@ -90,6 +96,9 @@ describe('ViteTransport.prefix', () => {
             dependencies: [],
           };
         },
+        async resolveNpmPath() {
+          return null;
+        },
         async resolveViteSpecifier() {
           return undefined;
         },
@@ -116,6 +125,9 @@ describe('ViteTransport.prefix', () => {
             dependencies: [],
           };
         },
+        async resolveNpmPath() {
+          return null;
+        },
         async resolveViteSpecifier() {
           return undefined;
         },
@@ -137,6 +149,9 @@ describe('ViteTransport.prefix', () => {
         async resolveDeno() {
           return null;
         },
+        async resolveNpmPath() {
+          return null;
+        },
         async resolveViteSpecifier(id) {
           return `${id}?resolved`;
         },
@@ -156,6 +171,9 @@ describe('ViteTransport.prefix', () => {
         async resolveDeno() {
           return null;
         },
+        async resolveNpmPath() {
+          return null;
+        },
         async resolveViteSpecifier() {
           return undefined;
         },
@@ -163,6 +181,38 @@ describe('ViteTransport.prefix', () => {
 
       const res = await plugin.resolveId.call(wrangle.context(async () => null), './local.ts');
       expect(res).to.eql(undefined);
+    });
+
+    it('falls back to a deno-resolved npm file path when vite resolution fails', async () => {
+      const plugin = prefixPlugin(new Map(), {
+        async resolveDeno() {
+          return {
+            id: 'react@19.2.4',
+            kind: 'npm',
+            loader: null,
+            dependencies: [],
+          };
+        },
+        async resolveNpmPath(id, cwd) {
+          expect(id).to.eql('react');
+          expect(cwd).to.eql('/tmp/project');
+          return '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js';
+        },
+        async resolveViteSpecifier() {
+          return undefined;
+        },
+      });
+      plugin.configResolved?.call({} as PluginContext, { root: '/tmp/project' });
+
+      const res = await plugin.resolveId.call(
+        wrangle.context(async (id: string) => {
+          expect(id).to.eql('react');
+          return null;
+        }),
+        'npm:react@19.2.4',
+      );
+
+      expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
     });
   });
 });

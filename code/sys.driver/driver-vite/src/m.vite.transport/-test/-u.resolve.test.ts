@@ -501,6 +501,9 @@ describe('ViteTransport.resolve', () => {
             }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
+          async resolveNpmPath() {
+            return null;
+          },
         });
         plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
@@ -569,6 +572,9 @@ describe('ViteTransport.resolve', () => {
             }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
+          async resolveNpmPath() {
+            return null;
+          },
         });
         plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
@@ -603,6 +609,135 @@ describe('ViteTransport.resolve', () => {
           moduleSideEffects: true,
           syntheticNamedExports: false,
         });
+      });
+
+      it('falls back to a deno-resolved npm file path for remote bare package ids', async () => {
+        const parentResolved = '/tmp/cache/useRubberband.ts';
+        const importer = toDenoSpecifier(
+          'TypeScript',
+          'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.Rubberband.ts',
+          parentResolved,
+        );
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            {
+              id: parentResolved,
+              kind: 'esm',
+              loader: 'TypeScript',
+              dependencies: [
+                {
+                  specifier: 'react',
+                  resolvedSpecifier: 'npm:react@19.2.4',
+                },
+              ],
+            },
+          ],
+        ]);
+        const plugin = createResolvePlugin(cache, {
+          async invoke(input: t.ProcInvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+            if (input.args[input.args.length - 1] === 'npm:react@19.2.4') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:react@19.2.4'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/react@19.2.4',
+                      npmPackage: 'react@19.2.4',
+                    },
+                  ],
+                  redirects: {
+                    'npm:react@19.2.4': 'npm:/react@19.2.4',
+                  },
+                }),
+              });
+            }
+            throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+          },
+          async resolveNpmPath(id: string, cwd: string) {
+            expect(id).to.eql('react');
+            expect(cwd).to.eql('/tmp/project');
+            return '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js';
+          },
+        });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
+        const context = {
+          async resolve(
+            id: string,
+            _importer?: string,
+            options?: Parameters<PluginResolve>[2],
+          ): Promise<null> {
+            expect(id).to.eql('react');
+            expect(_importer).to.eql('/tmp/project/deno.json');
+            expect(options?.skipSelf).to.eql(true);
+            return null;
+          },
+        } as unknown as t.Rollup.PluginContext;
+
+        const res = await plugin.resolveId.call(context, 'react', importer);
+
+        expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
+      });
+    });
+
+    describe('plugin load hydration', () => {
+      it('hydrates remote module dependencies when load sees a cold cache entry', async () => {
+        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.resolve.load.' });
+        try {
+          const root = fs.absolute;
+          const remoteId = 'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.SizeObserver.js';
+          const remoteResolved = Fs.join(fs.absolute, 'cache/use.SizeObserver.js');
+          await Fs.ensureDir(Fs.join(fs.absolute, 'cache'));
+          await Fs.write(remoteResolved, `import { useEffect } from 'react';\nexport const ok = useEffect;\n`);
+          const denoId = toDenoSpecifier('JavaScript', remoteId, remoteResolved);
+          const cache = new Map<string, t.DenoResolved>();
+          const plugin = createResolvePlugin(cache, {
+            async invoke(input: t.ProcInvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+              if (input.args[input.args.length - 1] === remoteId) {
+                return procOutput({
+                  success: true,
+                  stdout: JSON.stringify({
+                    roots: [remoteId],
+                    modules: [
+                      {
+                        kind: 'esm',
+                        local: remoteResolved,
+                        mediaType: 'JavaScript',
+                        specifier: remoteId,
+                        dependencies: [
+                          { specifier: 'react', code: { specifier: 'npm:react@19.2.4' } },
+                        ],
+                      },
+                    ],
+                  }),
+                });
+              }
+              throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+            },
+          });
+          plugin.configResolved?.call({} as unknown as t.Rollup.PluginContext, { root });
+          cache.set(remoteResolved, {
+            id: remoteResolved,
+            kind: 'esm',
+            loader: 'JavaScript',
+            dependencies: [],
+          });
+
+          const result = await plugin.load.call({} as t.Rollup.PluginContext, denoId);
+          const text = typeof result === 'string' ? result : result?.code ?? '';
+
+          expect(text.includes('npm:react@19.2.4')).to.eql(true);
+        } finally {
+          await Fs.remove(fs.absolute);
+        }
       });
     });
 

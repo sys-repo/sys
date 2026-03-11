@@ -914,6 +914,13 @@
         "npm:@types/react"
       ]
     },
+    "@sys/ui-react-devharness@0.0.252": {
+      "integrity": "56c6cf18f95bc8d8ea3a5b146e21a4f09604729db71e7f1c35e8e7a63c521401",
+      "dependencies": [
+        "npm:@types/react",
+        "npm:react"
+      ]
+    },
     "@zip-js/zip-js@2.8.21": {
       "integrity": "0787af769e7ed64f0728beba0dd7b52a57d26f202c08c54f0200a48d1c38845d"
     }
