@@ -1,10 +1,10 @@
 {
   "imports": {
-    "@sys/ui-css": "jsr:@sys/ui-css@0.0.240",
-    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.246",
-    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.246/local-storage",
-    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.246/user-agent",
-    "@sys/ui-react": "jsr:@sys/ui-react@0.0.254",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.241",
+    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.247",
+    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.247/local-storage",
+    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.247/user-agent",
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.255",
     "ua-parser-js": "npm:ua-parser-js@2.0.9"
   }
 }
