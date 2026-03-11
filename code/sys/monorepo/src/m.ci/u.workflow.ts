@@ -21,10 +21,10 @@ export function workflowTemplate(args: WorkflowArgs) {
   const steps = Str.dedent(
     `
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: 'Install ESM Runtime: Deno 2.x'
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${CI_DENO_VERSION}
 
