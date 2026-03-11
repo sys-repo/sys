@@ -72,13 +72,16 @@ const wrangle = {
  * If one doesn't exist, we create one and append it to the <head>.
  */
 function getOrCreateDomStyleSheet(id: string): CSSStyleSheet {
-  const doc = globalThis.document;
-  if (!doc) {
+  if (typeof document === 'undefined') {
     return {} as CSSStyleSheet; // Dummy (safe on server).
   } else {
-    const el = doc.createElement('style');
+    const selector = `style[data-controller="${id}"]`;
+    const existing = document.head.querySelector(selector) as HTMLStyleElement | null;
+    if (existing?.sheet) return existing.sheet;
+
+    const el = document.createElement('style');
     el.setAttribute('data-controller', id);
-    doc.head.appendChild(el);
+    document.head.appendChild(el);
     return el.sheet as CSSStyleSheet;
   }
 }
