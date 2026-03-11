@@ -12,6 +12,7 @@ import { procOutput } from './u.fixture.ts';
 
 describe('ViteTransport.resolve', () => {
   type PluginResolve = NonNullable<t.Rollup.PluginContext['resolve']>;
+  const pluginContext = {} as unknown as t.Rollup.PluginContext;
 
   describe('specifier encoding', () => {
     it('identifies deno-prefixed module ids', () => {
@@ -501,7 +502,7 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
-        plugin.configResolved?.({ root: '/tmp/project' });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
@@ -569,7 +570,7 @@ describe('ViteTransport.resolve', () => {
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
         });
-        plugin.configResolved?.({ root: '/tmp/project' });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
