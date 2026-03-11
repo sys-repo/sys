@@ -11,16 +11,8 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true }
   },
   "exports": {
     ".": "./src/mod.ts",

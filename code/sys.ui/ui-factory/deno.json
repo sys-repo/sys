@@ -28,39 +28,9 @@
     "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "tmpl": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "dev": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true,
-      "ffi": true,
-      "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
-      }
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
+    "tmpl": { "read": true, "write": true, "env": true },
+    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true, "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] } }
   }
 }

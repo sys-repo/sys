@@ -13,10 +13,6 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    }
+    "test": { "read": true, "write": true, "env": true }
   }
 }

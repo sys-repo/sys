@@ -18,20 +18,8 @@
     "./serve": "./src/-serve/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true
-    },
-    "serve": {
-      "read": true,
-      "net": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true },
+    "serve": { "read": true, "net": true }
   }
 }

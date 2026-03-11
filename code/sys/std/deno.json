@@ -39,11 +39,6 @@
     "./value": "./src/-exports/-value.ts"
   },
   "permissions": {
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true
-    }
+    "test": { "read": true, "write": true, "env": true, "net": true }
   }
 }

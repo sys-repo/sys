@@ -19,23 +19,9 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "build": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "serve": {
-      "read": true,
-      "net": true
-    },
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "dev": {
-      "read": true,
-      "env": true
-    }
+    "build": { "read": true, "write": true, "env": true },
+    "serve": { "read": true, "net": true },
+    "clean": { "read": true, "write": true, "env": true },
+    "dev": { "read": true, "env": true }
   }
 }

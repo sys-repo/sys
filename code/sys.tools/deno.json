@@ -27,24 +27,8 @@
     "./env": "./src/-exports/-env.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true,
-      "net": true,
-      "run": true
-    },
-    "dev": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true
-    }
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
+    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true }
   }
 }
