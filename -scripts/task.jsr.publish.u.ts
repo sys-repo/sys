@@ -13,19 +13,21 @@ export async function pushTriggerTag(args: PublishTriggerArgs) {
   console.info(c.gray(`refreshing reusable trigger tag: ${c.bold(args.tag)}`));
   console.info();
 
+  const current = await currentBranch();
+
   if (args.mainOnly) {
-    const guard = await mainCheckoutGuard();
+    const guard = mainBranchGuard(current);
     if (guard) {
       printLines(guard);
       Deno.exit(1);
     }
-    await runGit(['checkout', 'main']);
-    await runGit(['pull', '--ff-only', 'origin', 'main']);
+    await runGit(['fetch', 'origin', 'main:refs/remotes/origin/main']);
   }
 
   await runGit(['tag', '-d', args.tag], { allowFailure: true });
   await runGit(['push', 'origin', `:refs/tags/${args.tag}`], { allowFailure: true });
-  await runGit(['tag', '-a', args.tag, '-m', `Trigger JSR publish: ${args.tag}`]);
+  const target = args.mainOnly ? 'refs/remotes/origin/main' : 'HEAD';
+  await runGit(['tag', '-a', args.tag, target, '-m', `Trigger JSR publish: ${args.tag}`]);
   await runGit(['push', 'origin', args.tag]);
 
   console.info();
@@ -43,41 +45,47 @@ async function runGit(args: string[], options: { allowFailure?: boolean } = {}) 
   throw new Error(`Git command failed: git ${args.join(' ')}`);
 }
 
-async function mainCheckoutGuard() {
-  const branch = await currentBranch();
-  const dirty = await worktreeStatus();
-  if (branch === 'main' || dirty.length === 0) return;
-
-  const files = dirty.slice(0, 5).map((line) => `  - ${line}`);
-  const remaining = dirty.length - files.length;
+function mainBranchGuard(branch: string) {
+  if (branch === 'main') return;
 
   return [
     '',
     `${indent()}${c.bold(c.yellow('JSR PUBLISH BLOCKED'))}`,
     `${indent()}${c.bold(c.yellow(LINE))}`,
-    row(
-      'What',
-      `publish:jsr:main needs to switch from ${branch || '(unknown branch)'} to main`,
-      { color: 'white' },
-    ),
+    richRow('What', [
+      c.cyan('publish:jsr'),
+      c.white(' targets '),
+      c.magenta('main'),
+      c.white('-only publish while you are on '),
+      c.cyan(branch || '(unknown branch)'),
+      c.white(' branch'),
+    ]),
     row(
       'Why',
-      'Git will not checkout main because local changes would be overwritten by the branch switch',
+      'Strict publish is reserved for the mainline release path.',
       { color: 'white' },
     ),
-    row('Files', '', { color: 'white' }),
-    ...files.map((value) => row('', value, { color: 'gray' })),
-    ...(remaining > 0 ? [row('', `  - ...and ${String(remaining)} more`, { color: 'gray' })] : []),
     row('', '', { color: 'white' }),
     row('Fix', 'Choose one before re-running publish:', { color: 'white' }),
-    row('', '  1. Commit the changes on the current branch', { color: 'cyan' }),
-    row('', '  2. Stash the changes, run publish, then pop the stash', { color: 'cyan' }),
-    row('', '  3. Publish from a clean worktree already on main', { color: 'cyan' }),
+    richRow('', [
+      c.white('  1. Use '),
+      c.cyan('deno task publish:jsr:branch'),
+      c.white(' for the current branch'),
+    ]),
+    richRow('', [
+      c.white('  2. Switch to '),
+      c.magenta('main'),
+      c.white(' if you intend the strict '),
+      c.magenta('main'),
+      c.white(' publish path'),
+    ]),
     row('', '', { color: 'white' }),
     row('Retry', '  deno task publish:jsr', { color: 'cyan' }),
-    row('', '', { color: 'white' }),
-    row('', '  or to publish from this branch (override)', { color: 'white' }),
-    row('', '  deno task publish:jsr:branch', { color: 'cyan' }),
+    row('', '  or', { color: 'gray' }),
+    richRow('', [
+      c.cyan('  deno task publish:jsr:branch'),
+      c.gray(' (branch override)'),
+    ]),
     `${indent()}${c.bold(c.yellow(LINE))}`,
     '',
   ] as const;
@@ -93,16 +101,6 @@ async function currentBranch() {
   return res.text.stdout.trim();
 }
 
-async function worktreeStatus() {
-  const res = await Process.invoke({
-    cmd: 'git',
-    args: ['status', '--short'],
-    silent: true,
-  });
-  if (!res.success) return [] as string[];
-  return res.text.stdout.split('\n').map((line) => line.trim()).filter(Boolean);
-}
-
 function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' } = {}) {
   const head = c.gray(label.padEnd(5));
   const text = options.color === 'cyan'
@@ -111,6 +109,11 @@ function row(label: string, value: string, options: { color?: 'white' | 'cyan' |
     ? c.gray(value)
     : c.white(value);
   return `${indent()}${head} ${c.gray('│')} ${text}`;
+}
+
+function richRow(label: string, parts: readonly string[]) {
+  const head = c.gray(label.padEnd(5));
+  return `${indent()}${head} ${c.gray('│')} ${parts.join('')}`;
 }
 
 function indent() {
