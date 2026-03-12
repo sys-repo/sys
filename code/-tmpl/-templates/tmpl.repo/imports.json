@@ -3,7 +3,7 @@
     "@sys/color/t": "jsr:@sys/color@0.0.208/t",
     "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.314",
     "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.314/main",
-    "@sys/fs": "jsr:@sys/fs@0.0.256",
+    "@sys/fs": "jsr:@sys/fs@0.0.257",
     "@sys/http/client": "jsr:@sys/http@0.0.225/client",
     "@sys/monorepo": "jsr:@sys/monorepo@0.0.15",
     "@sys/process": "jsr:@sys/process@0.0.238",
