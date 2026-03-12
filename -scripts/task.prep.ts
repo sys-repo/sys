@@ -1,8 +1,7 @@
-import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, TmplEngine } from './common.ts';
+import { Monorepo } from '@sys/monorepo';
+import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
-
-type TCtx = { pkg: t.Pkg };
 
 /**
  * Proecss the dependencies into a`deno.json` and `package.json` files.
@@ -42,52 +41,13 @@ async function processDeps() {
 /**
  * Write all {pkg}.ts files with name/version values synced
  * to their corresponding current `deno.json` file values.
- *
- * Deferred lift:
- *
- * await Monorepo.Pkg.sync({
- *   cwd: Deno.cwd(),
- *   log: true,
- *   source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
- * });
  */
 async function updatePackages() {
-  const errors = Err.errors();
-  const ws = await DenoFile.workspace();
-
-  const tmplDir = Fs.toDir('./code/-tmpl/-templates/tmpl.pkg/');
-  if (!(await tmplDir.exists())) {
-    throw new Error(`The pkg template could not be found. Path: ${tmplDir.absolute}`);
-  }
-  const tmpl = TmplEngine.makeTmpl(tmplDir.absolute, async (e) => {
-    const ctx = e.ctx as TCtx;
-
-    const pkg = ctx.pkg;
-    if (typeof pkg !== 'object') {
-      const err = `[UpdatePackages] Template expected a {pkg} on the context. Template target: ${e.target.relative}`;
-      errors.push(err);
-      return;
-    }
-
-    if (e.text && e.target.filename === 'pkg.ts') {
-      const text = e.text.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
-      e.modify(text);
-    }
+  await Monorepo.Pkg.sync({
+    cwd: Deno.cwd(),
+    source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
+    log: true,
   });
-
-  for (const item of ws.children) {
-    const targetDir = Fs.join(item.path.dir, 'src');
-    const exists = await Fs.exists(Fs.join(targetDir, 'pkg.ts'));
-    if (exists) {
-      const pkg = item.pkg;
-      const ctx: TCtx = { pkg };
-      await tmpl.write(targetDir, { ctx });
-    }
-  }
-
-  const error = errors.toError();
-  if (error) console.error(error);
-  return { error };
 }
 
 /**

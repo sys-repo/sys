@@ -11,7 +11,7 @@ export declare namespace MonorepoPkg {
 
   /** Include globs that match package `deno.json` files. */
   export type Source = {
-    readonly include: readonly t.StringGlob[];
+    readonly include: readonly t.StringPath[];
   };
 
   /** Arguments for syncing generated package metadata files. */
@@ -47,8 +47,7 @@ export declare namespace MonorepoPkg {
           | 'missing-deno-json'
           | 'missing-name'
           | 'missing-version'
-          | 'missing-target-files'
-          | 'unsupported-package-shape';
+          | 'missing-target-files';
       };
 
   /** Aggregated package metadata sync result. */
@@ -57,6 +56,7 @@ export declare namespace MonorepoPkg {
     readonly written: number;
     readonly unchanged: number;
     readonly skipped: number;
+    readonly touched: readonly t.StringPath[];
     readonly packages: readonly PackageResult[];
   };
 }
