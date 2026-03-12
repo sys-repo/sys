@@ -36,15 +36,7 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     },
     "dev": {
@@ -55,15 +47,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
