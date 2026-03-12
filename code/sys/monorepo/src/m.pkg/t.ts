@@ -9,29 +9,15 @@ export declare namespace MonorepoPkg {
     sync(args: SyncArgs): Promise<SyncResult>;
   };
 
-  /** Discover packages from a root directory. */
-  export type SourceRoot = {
-    readonly root: t.StringPath;
-  };
-
-  /** Sync an explicit package path list. */
-  export type SourcePaths = {
-    readonly paths: readonly t.StringPath[];
-  };
-
-  /** Package discovery source. */
-  export type Source = SourceRoot | SourcePaths;
-
-  /** Generated metadata files to keep aligned per package. */
-  export type Target = {
-    readonly files: readonly t.StringPath[];
+  /** Include globs that match package `deno.json` files. */
+  export type Source = {
+    readonly include: readonly t.StringGlob[];
   };
 
   /** Arguments for syncing generated package metadata files. */
   export type SyncArgs = {
     readonly cwd?: t.StringDir;
     readonly source: Source;
-    readonly target: Target;
     readonly log?: boolean;
   };
 

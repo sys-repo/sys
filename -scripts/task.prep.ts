@@ -42,6 +42,14 @@ async function processDeps() {
 /**
  * Write all {pkg}.ts files with name/version values synced
  * to their corresponding current `deno.json` file values.
+ *
+ * Deferred lift:
+ *
+ * await Monorepo.Pkg.sync({
+ *   cwd: Deno.cwd(),
+ *   log: true,
+ *   source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
+ * });
  */
 async function updatePackages() {
   const errors = Err.errors();
