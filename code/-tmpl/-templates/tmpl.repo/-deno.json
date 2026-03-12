@@ -9,6 +9,7 @@
     "install": "deno install --reload",
     "upgrade": "deno update --latest",
     "outdated": "deno outdated",
+    "info": "deno run -P=test ./-scripts/task.info.ts",
     "tmp": "deno run -A ./-scripts/tmp.ts"
   },
   "compilerOptions": {
