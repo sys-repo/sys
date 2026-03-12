@@ -9,7 +9,7 @@ It standardizes essential I/O and workspace setup operations across the sys runt
 - `Fs` — Core file and directory operations.
 - `Path` — Path utilities.
 - `FileMap` — Declarative file-tree representation.
-- `JsonFile` —
+- `JsonFile` — Immutable JSON-on-disk file wrapper with typed load/save helpers.
 - `Watch` — Directory watching.
 - `Env` — Environment initialization and `.env` loading helpers.
 
