@@ -42,7 +42,7 @@ export const API: t.ViteLogApi = {
       table.push(['', '']);
       push('clean', `Delete temporary files.`);
     }
-    push('help', `Show help.`);
+    push('info', `Show info.`);
 
     const COMMAND = `[${c.bold('COMMAND')}]`;
     console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : COMMAND}`)}`));

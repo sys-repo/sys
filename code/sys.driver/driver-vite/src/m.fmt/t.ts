@@ -42,7 +42,7 @@ export type ViteLogUsageApiArgs = {
 };
 
 /** Commands included in the Help log. */
-export type ViteLogApiCmd = 'dev' | 'build' | 'serve' | 'clean' | 'help';
+export type ViteLogApiCmd = 'dev' | 'build' | 'serve' | 'clean' | 'info';
 
 /**
  * Log bundled distribution details.
@@ -86,13 +86,13 @@ export type ViteLogDevArgs = {
 };
 
 /**
- * Help output.
+ * Info output.
  */
 export type ViteLogHelpLib = {
   log(args: t.ViteLogHelpArgs): Promise<void>;
 };
 
-/** Arguments passed to `VitLog.help()` method. */
+/** Arguments passed to the info log method. */
 export type ViteLogHelpArgs = {
   dirs: t.ViteBundleIO;
   pkg?: t.Pkg;

@@ -11,7 +11,7 @@
     "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help    --dir=./.tmp/sample",
+    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
