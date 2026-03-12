@@ -1,5 +1,6 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { UserAgent } from './mod.ts';
+import { parseUserAgent } from './u.parse.ts';
 
 describe('UserAgent', () => {
   it('API', async () => {
@@ -34,11 +35,11 @@ describe('UserAgent', () => {
     },
   } as const;
 
-  it('parses string', () => {
-    const res = UserAgent.parse(EXAMPLE.apple.macos);
+  it('parses current shape', () => {
+    const res = parseUserAgent(EXAMPLE.apple.macos);
     expect(res.os.name).to.eql('macOS');
-    expect(res.browser.name).to.eql('Chrome');
-    expect(res.device.vendor).to.eql('Apple');
+    expect(res.is.macOS).to.eql(true);
+    expect(res.is.apple).to.eql(true);
   });
 
   it('navigator.userAgent ← "Deno"', () => {
@@ -49,14 +50,15 @@ describe('UserAgent', () => {
   describe('current (cache)', () => {
     it('UserAgent.current (lazy evaluation → cached)', () => {
       const res = UserAgent.current;
-      expect(res).to.not.equal(UserAgent.parse(navigator.userAgent));
+      expect(res).to.not.equal(parseUserAgent(navigator.userAgent));
       expect(res).to.equal(UserAgent.current); // NB: same instance, lazily parsed.
     });
   });
 
   describe('flags', () => {
     const assertIs = (res: t.UserAgent, expectedIs: Partial<t.UserAgentFlags>) => {
-      UserAgent.flags.forEach((key) => {
+      const flags = ['apple', 'macOS', 'iOS', 'iPad', 'iPhone', 'chromium', 'firefox'] as const;
+      flags.forEach((key) => {
         const expected = (expectedIs as any)[key] ?? false;
         const actual = (res.is as any)[key];
         expect(actual).to.eql(expected, `key:"${key}" should be ${expected}`);
@@ -64,84 +66,72 @@ describe('UserAgent', () => {
     };
 
     it('is: apple/macos', () => {
-      const ua = UserAgent.parse(EXAMPLE.apple.macos);
-      expect(ua.os.kind === 'macOS').to.be.true;
-      assertIs(ua, { macOS: true });
+      const ua = parseUserAgent(EXAMPLE.apple.macos);
+      expect(ua.os.name).to.eql('macOS');
+      assertIs(ua, { apple: true, macOS: true, chromium: true });
     });
 
     it('is: apple/iphone', () => {
       const test = (input: string) => {
-        const ua = UserAgent.parse(input);
-        expect(ua.os.kind === 'iOS').to.be.true;
-        assertIs(ua, { macOS: false, iOS: true, iPhone: true, mobile: true });
+        const ua = parseUserAgent(input);
+        expect(ua.os.name).to.eql('iOS');
+        assertIs(ua, { apple: true, macOS: false, iOS: true, iPhone: true });
       };
       test(EXAMPLE.apple.iphone);
     });
 
     it('is: apple/ipad', () => {
-      const test = (input: string) => {
-        const ua = UserAgent.parse(input);
-        expect(ua.os.kind === 'iOS').to.be.true;
-        assertIs(ua, { macOS: false, iOS: true, iPad: true, tablet: true });
+      const test = (input: string, expectedIs: Partial<t.UserAgentFlags>) => {
+        const ua = parseUserAgent(input);
+        expect(ua.os.name).to.eql('iOS');
+        assertIs(ua, { apple: true, macOS: false, iOS: true, iPad: true, ...expectedIs });
       };
-      test(EXAMPLE.apple.ipadFirefox);
-      test(EXAMPLE.apple.ipadSafari);
+      test(EXAMPLE.apple.ipadFirefox, { firefox: true });
+      test(EXAMPLE.apple.ipadSafari, {});
     });
 
     it('is: posix/linux', () => {
-      const ua = UserAgent.parse(EXAMPLE.posix.linux);
-      expect(ua.os.kind === 'posix').to.be.true;
-      assertIs(ua, { posix: true });
+      const ua = parseUserAgent(EXAMPLE.posix.linux);
+      expect(ua.os.name).to.eql('Linux');
+      assertIs(ua, { chromium: true });
     });
 
     it('is: posix/ubuntu', () => {
-      const ua = UserAgent.parse(EXAMPLE.posix.ubuntu);
-      expect(ua.os.kind === 'posix').to.be.true;
-      assertIs(ua, { posix: true });
+      const ua = parseUserAgent(EXAMPLE.posix.ubuntu);
+      expect(ua.os.name).to.eql('Ubuntu');
+      assertIs(ua, { chromium: true });
     });
 
     it('is: android/mobile', () => {
-      const test = (input: string) => {
-        const ua = UserAgent.parse(input);
-        expect(ua.os.kind === 'android').to.be.true;
-        assertIs(ua, { android: true, mobile: true });
+      const test = (input: string, expectedIs: Partial<t.UserAgentFlags>) => {
+        const ua = parseUserAgent(input);
+        expect(ua.os.name).to.eql('Android');
+        assertIs(ua, expectedIs);
       };
-      test(EXAMPLE.android.chrome);
-      test(EXAMPLE.android.firefox);
-    });
-
-    it('is: android/tablet', () => {
-      const test = (input: string) => {
-        const ua = UserAgent.parse(input);
-        expect(ua.os.kind === 'android').to.be.true;
-        assertIs(ua, { android: true, tablet: true });
-      };
-      test(EXAMPLE.android.tablet);
+      test(EXAMPLE.android.chrome, {});
+      test(EXAMPLE.android.firefox, { firefox: true });
     });
 
     it('is: windows', () => {
-      const ua = UserAgent.parse(EXAMPLE.windows.windows10);
-      expect(ua.os.kind === 'windows').to.be.true;
-      assertIs(ua, { windows: true });
+      const ua = parseUserAgent(EXAMPLE.windows.windows10);
+      expect(ua.os.name).to.eql('Windows');
+      assertIs(ua, { chromium: true });
     });
 
     it('is: chromium (variants)', () => {
-      const a = UserAgent.parse(EXAMPLE.windows.windows10);
-      const b = UserAgent.parse(EXAMPLE.apple.macos);
-      const c = UserAgent.parse(EXAMPLE.posix.ubuntu);
-      const d = UserAgent.parse(EXAMPLE.apple.ipadSafari);
-      [a, b, c].forEach((ua) => {
-        expect(ua.engine.name).to.eql('Blink');
-        expect(ua.is.chromium).to.eql(true);
-      });
+      const a = parseUserAgent(EXAMPLE.windows.windows10);
+      const b = parseUserAgent(EXAMPLE.apple.macos);
+      const c = parseUserAgent(EXAMPLE.posix.ubuntu);
+      const d = parseUserAgent(EXAMPLE.apple.ipadSafari);
+      [a, b, c].forEach((ua) => expect(ua.is.chromium).to.eql(true));
       expect(d.is.chromium).to.eql(false);
     });
 
     it('is: firefox', () => {
-      const a = UserAgent.parse(EXAMPLE.windows.firefox);
-      const b = UserAgent.parse(EXAMPLE.apple.firefox);
-      const c = UserAgent.parse(EXAMPLE.posix.firefox);
-      const d = UserAgent.parse(EXAMPLE.apple.macos);
+      const a = parseUserAgent(EXAMPLE.windows.firefox);
+      const b = parseUserAgent(EXAMPLE.apple.firefox);
+      const c = parseUserAgent(EXAMPLE.posix.firefox);
+      const d = parseUserAgent(EXAMPLE.apple.macos);
       [a, b, c].forEach((ua) => expect(ua.is.firefox).to.eql(true));
       expect(d.is.firefox).to.eql(false);
     });

@@ -7,10 +7,9 @@ export const Is: t.KeyboardIsLib = {
     if (!modifiers) return false;
 
     const ua = options.ua ?? UserAgent.current;
-    const cmd =
-      ua.is.macOS || ua.is.iOS || ua.is.iPad || ua.is.iPhone
-        ? modifiers.meta //   ⌘ on Apple devices
-        : modifiers.ctrl; //  Ctrl everywhere else.
+    const cmd = ua.is.apple
+      ? modifiers.meta //   ⌘ on Apple devices
+      : modifiers.ctrl; //  Ctrl everywhere else.
 
     return cmd ?? false;
   },
