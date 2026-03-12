@@ -63,18 +63,3 @@ New projects:
 
 <p>&nbsp;</p>
 
-### Agent Prompt Seed
-```
-From within `./code/projects`, set `FOLDER` to your target folder name.
-
-Do ONLY the following:
-
-1) Create a new folder: `${FOLDER}/`
-2) Inside `${FOLDER}/`, add:
-   - `main.ts` (minimal; should run without args)
-   - `deno.json` with a single task: `dev` (runs `deno run -A main.ts`)
-   - Do NOT set `name` (this is a simple runnable folder, not a package → avoids the `exports` warning)
-3) Update the monorepo root `deno.json` to include/register `${FOLDER}/` (add the appropriate reference so tooling/tasks can see it).
-
-No other files, no refactors, no extra changes.
-```
