@@ -31,6 +31,8 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.not.include('--allow-run');
     expect(res.args).to.not.include('-A');
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
+    expect(res.args).to.include('npm:vite@7.3.1');
+    expect(res.env.ESBUILD_BINARY_PATH).to.include('esbuild@0.27.3');
   });
 
   it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
@@ -54,6 +56,8 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
+    expect(res.args).to.include('npm:vite@7.3.1');
+    expect(res.env.ESBUILD_BINARY_PATH).to.include('esbuild@0.27.3');
   });
 
   it('anchors npm resolution at the nearest consumer package boundary', () => {

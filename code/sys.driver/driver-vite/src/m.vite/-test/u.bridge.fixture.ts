@@ -137,6 +137,23 @@ async function localDriverViteImports(ws: WorkspaceAuthority): Promise<Record<st
   return Object.fromEntries(entries);
 }
 
+function rewriteDriverViteConfigImports(source: string, imports: Record<string, string>) {
+  let next = source;
+
+  for (const specifier of LOCAL_DRIVER_VITE_IMPORTS) {
+    const target = imports[specifier];
+    if (!Is.str(target)) continue;
+    const pattern = new RegExp(`(['"])${escapeRegExp(specifier)}\\1`, 'g');
+    next = next.replace(pattern, (match, quote: string) => `${quote}${target}${quote}`);
+  }
+
+  return next;
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function reachablePackageSpecifiers(entry: string): Promise<readonly string[]> {
   const output = await Process.invoke({
     cmd: DENO_BINARY,
@@ -260,6 +277,18 @@ function localPackageDependencies(
   return Object.fromEntries(entries);
 }
 
+function localToolchainDependencies(authority: BridgeAuthority) {
+  const names = ['esbuild'] as const;
+  const entries = names.map((name) => {
+    const version = authority.packageVersions[name];
+    if (!Is.str(version)) {
+      throw new Error(`Missing root package version authority for package "${name}"`);
+    }
+    return [name, version] as const;
+  });
+  return Object.fromEntries(entries);
+}
+
 function defaultDenoJson(dir: string) {
   return Json.stringify(
     {
@@ -284,9 +313,11 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   const importsPath = Fs.join(dir, 'imports.json');
   const denoJsonPath = Fs.join(dir, 'deno.json');
   const packageJsonPath = Fs.join(dir, 'package.json');
+  const configPath = Fs.join(dir, config);
   const originalImports = (await Fs.readText(importsPath)).data ?? '';
   const originalDenoJson = (await Fs.readText(denoJsonPath)).data ?? '';
   const originalPackageJson = (await Fs.readText(packageJsonPath)).data ?? '';
+  const originalConfig = (await Fs.readText(configPath)).data ?? '';
   const hadImports = await Fs.exists(importsPath);
   const hadDenoJson = await Fs.exists(denoJsonPath);
   const hadPackageJson = await Fs.exists(packageJsonPath);
@@ -304,6 +335,7 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   const sourceSpecifiers = await localSourceImports(ws, authority, dir);
   const sourceImports = await localSourceImportMap(ws, authority, dir);
   const sourceDependencies = localPackageDependencies(sourceSpecifiers, authority);
+  const toolchainDependencies = localToolchainDependencies(authority);
   const fixturePackage = (await Fs.readJson<PackageJson>(packageJsonPath)).data ?? {};
 
   await Fs.write(
@@ -329,15 +361,18 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
           {
             ...fixturePackage,
             dependencies: {
-              ...sourceDependencies,
-              ...(fixturePackage.dependencies ?? {}),
-            },
+            ...sourceDependencies,
+            ...toolchainDependencies,
+            ...(fixturePackage.dependencies ?? {}),
           },
-          2,
-        ) + '\n'
-        : defaultPackageJson(sourceDependencies),
+        },
+        2,
+      ) + '\n'
+        : defaultPackageJson({ ...sourceDependencies, ...toolchainDependencies }),
     );
   }
+
+  await Fs.write(configPath, rewriteDriverViteConfigImports(originalConfig, localImports));
 
   return async () => {
     if (hadImports) await Fs.write(importsPath, originalImports);
@@ -348,6 +383,8 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
 
     if (hadPackageJson) await Fs.write(packageJsonPath, originalPackageJson);
     else await Fs.remove(packageJsonPath, { log: false });
+
+    await Fs.write(configPath, originalConfig);
   };
 }
 

@@ -53,11 +53,12 @@ const wrangle = {
   async args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
     const permissions = await wrangle.permissions(paths, cmd ?? '', env);
+    const vite = await wrangle.viteSpecifier();
     return [
       'run',
       ...permissions,
       '--node-modules-dir',
-      'npm:vite',
+      vite,
       cmd,
       ...rest,
       `--config=${config}`,
@@ -81,6 +82,14 @@ const wrangle = {
     return {
       ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(cwd),
     } as const;
+  },
+
+  async viteSpecifier() {
+    const anchor = wrangle.packageAnchor(Path.dirname(Path.fromFileUrl(import.meta.url)));
+    const pkg = (await Fs.readJson<{ dependencies?: Record<string, string> }>(anchor)).data ?? {};
+    const version = pkg.dependencies?.vite;
+    if (!version) throw new Error(`Missing "vite" dependency in package authority: ${anchor}`);
+    return `npm:vite@${version}`;
   },
 
   viteCacheDir(cwd: string) {
