@@ -9,7 +9,7 @@
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev   ./-scripts/task.main.ts --cmd=help",
+    "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {

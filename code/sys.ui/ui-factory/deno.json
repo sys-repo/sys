@@ -10,7 +10,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=help",
+    "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
     "tmpl": "deno run -P=tmpl ./src/m.tmpl/mod.ts",
     "prep": "deno run -P=tmpl ./src/m.tmpl/mod.ts --bundle",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"

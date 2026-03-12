@@ -15,7 +15,7 @@ describe('Repo: -scripts', () => {
     const path = 'code/projects/demo';
 
     await Fs.writeJson(Fs.join(projectDir, 'deno.json'), {
-      tasks: { build: 'deno task help', test: 'deno task help' },
+      tasks: { build: 'deno task info', test: 'deno task info' },
     });
 
     await main(root);

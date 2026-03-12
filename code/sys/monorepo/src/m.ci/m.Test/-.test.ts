@@ -9,11 +9,11 @@ describe('MonorepoCi.Test', () => {
 
     await Fs.writeJson(Fs.join(a, 'deno.json'), {
       name: '@scope/alpha',
-      tasks: { test: 'deno task help' },
+      tasks: { test: 'deno task info' },
     });
     await Fs.writeJson(Fs.join(b, 'deno.json'), {
       name: '@scope/beta',
-      tasks: { test: 'deno task help' },
+      tasks: { test: 'deno task info' },
     });
 
     const yaml = await MonorepoCi.Test.text({ paths: [a, b] });
@@ -38,7 +38,7 @@ describe('MonorepoCi.Test', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
       name: '@scope/alpha',
-      tasks: { test: 'deno task help' },
+      tasks: { test: 'deno task info' },
     });
     const res = await MonorepoCi.Test.write({ paths: [moduleDir], target });
 
@@ -56,7 +56,7 @@ describe('MonorepoCi.Test', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
       name: '@scope/alpha',
-      tasks: { test: 'deno task help' },
+      tasks: { test: 'deno task info' },
     });
 
     const first = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
@@ -78,7 +78,7 @@ describe('MonorepoCi.Test', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
       name: '@scope/alpha',
-      tasks: { test: 'deno task help' },
+      tasks: { test: 'deno task info' },
     });
     const yaml = await MonorepoCi.Test.text({
       on: {
@@ -102,7 +102,7 @@ describe('MonorepoCi.Test', () => {
     const fs = await Testing.dir('MonorepoCi.Test.path-fallback').create();
     const moduleDir = fs.join('code/projects/demo');
 
-    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task help' } });
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task info' } });
     const yaml = await MonorepoCi.Test.text({ paths: [moduleDir] });
 
     expect(yaml.includes(`name: "${moduleDir}"`)).to.eql(true);
@@ -113,8 +113,8 @@ describe('MonorepoCi.Test', () => {
     const root = fs.join('code/projects');
     const target = '.github/workflows/test.yaml';
 
-    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { tasks: { test: 'deno task help' } });
-    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
+    await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { tasks: { test: 'deno task info' } });
+    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task info' } });
 
     const written = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(written.kind).to.eql('written');
@@ -135,8 +135,8 @@ describe('MonorepoCi.Test', () => {
     const testDir = fs.join('code/projects/testable');
     const buildDir = fs.join('code/projects/build-only');
 
-    await Fs.writeJson(Fs.join(testDir, 'deno.json'), { tasks: { test: 'deno task help' } });
-    await Fs.writeJson(Fs.join(buildDir, 'deno.json'), { tasks: { build: 'deno task help' } });
+    await Fs.writeJson(Fs.join(testDir, 'deno.json'), { tasks: { test: 'deno task info' } });
+    await Fs.writeJson(Fs.join(buildDir, 'deno.json'), { tasks: { build: 'deno task info' } });
 
     const written = await MonorepoCi.Test.sync({
       cwd: fs.dir,

@@ -144,7 +144,7 @@ describe('MonorepoCi.Jsr', () => {
       name: '@scope/alpha',
       version: '1.0.0',
     });
-    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task help' } });
+    await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task info' } });
 
     const written = await MonorepoCi.Jsr.sync({
       cwd: fs.dir,
