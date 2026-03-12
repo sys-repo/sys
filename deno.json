@@ -1,7 +1,7 @@
 {
   "tasks": {
     "install": "deno install --reload",
-    "help": "deno run -P=dev ./-scripts/main.ts --info",
+    "info": "deno run -P=dev ./-scripts/main.ts --info",
     "ci": "deno run -P=test ./-scripts/main.ts --dry --test --info",
     "test": "deno run -P=test ./-scripts/main.ts --test",
     "dry": "deno run -P=test ./-scripts/main.ts --dry",

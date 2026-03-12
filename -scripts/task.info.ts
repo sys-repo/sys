@@ -31,9 +31,24 @@ export async function main() {
     } as const;
   }
 
-  /**
-   * Lookup stats about the mono-repo.
-   */
+  // Deferred lift:
+  //
+  // const stats = await Monorepo.Info.stats({
+  //   cwd: Deno.cwd(),
+  //   source: {
+  //     include: ['code/**/*.{ts,tsx}'],
+  //     exclude: [
+  //       '**/node_modules/**',
+  //       '**/_archive/**',
+  //       '**/.tmp/**',
+  //       '**/spikes/**',
+  //       '**/compiler/**',
+  //       '**/compiler.samples/**',
+  //       '**/dist/**',
+  //     ],
+  //   },
+  //   totals: { lines: true },
+  // });
   async function info(options: { lines?: boolean } = {}) {
     const exclude = [
       '**/node_modules/**',
@@ -47,10 +62,6 @@ export async function main() {
     const pattern = 'code/**/*.{ts,tsx}';
     const baseDir = Fs.join(import.meta.dirname ?? '', '..');
     const files = await Fs.glob(baseDir).find(pattern, { exclude });
-
-    console.info(`${c.bold('System')}: ${c.green(`@sys     →`)} ${c.gray(`https://jsr.io/@sys`)}`);
-    console.info(`        ${c.green(`repo     →`)} ${c.gray(`https://github.com/sys-repo/sys`)}`);
-    console.info();
 
     console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
     console.info('    typescript  ', c.green(Deno.version.typescript));
