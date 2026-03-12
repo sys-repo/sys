@@ -16,7 +16,7 @@ let _current: t.UserAgent | undefined; // NB: singleton reference.
  */
 export const UserAgent: UserAgentLib = {
   /**
-   * Parse the browser user-agent string.
+   * Lazily parse and cache the current browser user-agent string.
    */
   get current() {
     if (_current) return _current;

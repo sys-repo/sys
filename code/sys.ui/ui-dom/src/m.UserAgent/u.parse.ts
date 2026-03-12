@@ -1,4 +1,5 @@
-import { Bowser, type t } from './common.ts';
+import Bowser from 'bowser';
+import type { t } from './common.ts';
 
 /**
  * Bowser-backed user-agent adapter that keeps the public `@sys/ui-dom/user-agent`
