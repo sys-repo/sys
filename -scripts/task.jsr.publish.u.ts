@@ -56,36 +56,28 @@ function mainBranchGuard(branch: string) {
       c.cyan('publish:jsr'),
       c.white(' targets '),
       c.magenta('main'),
-      c.white('-only publish while you are on '),
+      c.white('-only publish while you are on branch '),
       c.cyan(branch || '(unknown branch)'),
-      c.white(' branch'),
     ]),
-    row(
-      'Why',
-      'Strict publish is reserved for the mainline release path.',
-      { color: 'white' },
-    ),
+    row('Why', 'Strict publish is reserved for the mainline release path.', { color: 'white' }),
     row('', '', { color: 'white' }),
     row('Fix', 'Choose one before re-running publish:', { color: 'white' }),
     richRow('', [
-      c.white('  1. Use '),
-      c.cyan('deno task publish:jsr:branch'),
-      c.white(' for the current branch'),
-    ]),
-    richRow('', [
-      c.white('  2. Switch to '),
+      c.white('  1. Switch to '),
       c.magenta('main'),
       c.white(' if you intend the strict '),
       c.magenta('main'),
       c.white(' publish path'),
     ]),
+    richRow('', [
+      c.white('  2. Use '),
+      c.cyan('deno task publish:jsr:branch'),
+      c.white(' for the current branch (override)'),
+    ]),
     row('', '', { color: 'white' }),
     row('Retry', '  deno task publish:jsr', { color: 'cyan' }),
     row('', '  or', { color: 'gray' }),
-    richRow('', [
-      c.cyan('  deno task publish:jsr:branch'),
-      c.gray(' (branch override)'),
-    ]),
+    richRow('', [c.cyan('  deno task publish:jsr:branch'), c.gray(' (override)')]),
     `${indent()}${c.bold(c.yellow(LINE))}`,
     '',
   ] as const;
@@ -103,11 +95,12 @@ async function currentBranch() {
 
 function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' } = {}) {
   const head = c.gray(label.padEnd(5));
-  const text = options.color === 'cyan'
-    ? c.cyan(value)
-    : options.color === 'gray'
-    ? c.gray(value)
-    : c.white(value);
+  const text =
+    options.color === 'cyan'
+      ? c.cyan(value)
+      : options.color === 'gray'
+        ? c.gray(value)
+        : c.white(value);
   return `${indent()}${head} ${c.gray('│')} ${text}`;
 }
 
