@@ -6,8 +6,9 @@
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
     "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
     "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
-    "outdated": "deno outdated",
+    "install": "deno install --reload",
     "upgrade": "deno update --latest",
+    "outdated": "deno outdated",
     "tmp": "deno run -A ./-scripts/tmp.ts"
   },
   "compilerOptions": {
