@@ -5,7 +5,7 @@
     "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.314/main",
     "@sys/fs": "jsr:@sys/fs@0.0.256",
     "@sys/http/client": "jsr:@sys/http@0.0.225/client",
-    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.12/ci",
+    "@sys/monorepo/ci": "jsr:@sys/monorepo@0.0.14/ci",
     "@sys/process": "jsr:@sys/process@0.0.238",
     "@sys/std": "jsr:@sys/std@0.0.313",
     "@sys/std/async": "jsr:@sys/std@0.0.313/async",
