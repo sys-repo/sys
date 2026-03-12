@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, Fs, it, Testing } from '../-test.ts';
+import { describe, expect, Fs, it, Testing } from '../-test.ts';
 import { MonorepoPkg } from './mod.ts';
 import { renderPkg } from './u.render.ts';
 
@@ -11,11 +11,23 @@ describe(`Monorepo.Pkg`, () => {
   it('discovers package roots from explicit deno.json include globs', async () => {
     const fs = await Testing.dir('MonorepoPkg.sync.discovery').create();
 
-    await Fs.writeJson(fs.join('code/projects/a/deno.json'), { name: '@scope/a', version: '1.0.0' });
-    await Fs.write(fs.join('code/projects/a/src/pkg.ts'), renderPkg({ name: '@scope/a', version: '1.0.0' }));
+    await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
+      name: '@scope/a',
+      version: '1.0.0',
+    });
+    await Fs.write(
+      fs.join('code/projects/a/src/pkg.ts'),
+      renderPkg({ name: '@scope/a', version: '1.0.0' }),
+    );
 
-    await Fs.writeJson(fs.join('deploy/app/deno.json'), { name: '@scope/deploy', version: '2.0.0' });
-    await Fs.write(fs.join('deploy/app/src/pkg.ts'), renderPkg({ name: '@scope/deploy', version: '2.0.0' }));
+    await Fs.writeJson(fs.join('deploy/app/deno.json'), {
+      name: '@scope/deploy',
+      version: '2.0.0',
+    });
+    await Fs.write(
+      fs.join('deploy/app/src/pkg.ts'),
+      renderPkg({ name: '@scope/deploy', version: '2.0.0' }),
+    );
 
     const result = await MonorepoPkg.sync({
       cwd: fs.dir,
@@ -33,8 +45,14 @@ describe(`Monorepo.Pkg`, () => {
   it('ignores temp and fixture deno.json matches during discovery', async () => {
     const fs = await Testing.dir('MonorepoPkg.sync.discovery.exclude').create();
 
-    await Fs.writeJson(fs.join('code/projects/a/deno.json'), { name: '@scope/a', version: '1.0.0' });
-    await Fs.write(fs.join('code/projects/a/src/pkg.ts'), renderPkg({ name: '@scope/a', version: '1.0.0' }));
+    await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
+      name: '@scope/a',
+      version: '1.0.0',
+    });
+    await Fs.write(
+      fs.join('code/projects/a/src/pkg.ts'),
+      renderPkg({ name: '@scope/a', version: '1.0.0' }),
+    );
 
     await Fs.writeJson(fs.join('code/projects/a/.tmp/foo/deno.json'), {
       name: '@scope/tmp',
@@ -59,7 +77,10 @@ describe(`Monorepo.Pkg`, () => {
     const dir = fs.join('code/projects/a');
     const text = renderPkg({ name: '@scope/a', version: '1.0.0' });
 
-    await Fs.writeJson(fs.join('code/projects/a/deno.json'), { name: '@scope/a', version: '1.0.0' });
+    await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
+      name: '@scope/a',
+      version: '1.0.0',
+    });
     await Fs.write(fs.join('code/projects/a/pkg.ts'), text);
     await Fs.write(fs.join('code/projects/a/src/pkg.ts'), text);
 
@@ -85,8 +106,14 @@ describe(`Monorepo.Pkg`, () => {
     const fs = await Testing.dir('MonorepoPkg.sync.written').create();
     const dir = fs.join('code/projects/a');
 
-    await Fs.writeJson(fs.join('code/projects/a/deno.json'), { name: '@scope/a', version: '1.2.3' });
-    await Fs.write(fs.join('code/projects/a/src/pkg.ts'), renderPkg({ name: '@scope/a', version: '0.0.1' }));
+    await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
+      name: '@scope/a',
+      version: '1.2.3',
+    });
+    await Fs.write(
+      fs.join('code/projects/a/src/pkg.ts'),
+      renderPkg({ name: '@scope/a', version: '0.0.1' }),
+    );
 
     const result = await MonorepoPkg.sync({
       cwd: fs.dir,
@@ -115,7 +142,9 @@ describe(`Monorepo.Pkg`, () => {
     await Fs.writeJson(fs.join('code/projects/missing-name/deno.json'), { version: '1.0.0' });
     await Fs.write(fs.join('code/projects/missing-name/src/pkg.ts'), 'stale');
 
-    await Fs.writeJson(fs.join('code/projects/missing-version/deno.json'), { name: '@scope/missing-version' });
+    await Fs.writeJson(fs.join('code/projects/missing-version/deno.json'), {
+      name: '@scope/missing-version',
+    });
     await Fs.write(fs.join('code/projects/missing-version/src/pkg.ts'), 'stale');
 
     const result = await MonorepoPkg.sync({
@@ -149,7 +178,10 @@ describe(`Monorepo.Pkg`, () => {
     const fs = await Testing.dir('MonorepoPkg.sync.no-targets').create();
     const dir = fs.join('code/projects/a');
 
-    await Fs.writeJson(fs.join('code/projects/a/deno.json'), { name: '@scope/a', version: '1.0.0' });
+    await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
+      name: '@scope/a',
+      version: '1.0.0',
+    });
 
     const result = await MonorepoPkg.sync({
       cwd: fs.dir,
@@ -171,7 +203,10 @@ describe(`Monorepo.Pkg`, () => {
     const fs = await Testing.dir('MonorepoPkg.sync.partial-targets').create();
     const dir = fs.join('deploy/app');
 
-    await Fs.writeJson(fs.join('deploy/app/deno.json'), { name: '@scope/deploy', version: '3.0.0' });
+    await Fs.writeJson(fs.join('deploy/app/deno.json'), {
+      name: '@scope/deploy',
+      version: '3.0.0',
+    });
     await Fs.write(fs.join('deploy/app/pkg.ts'), 'stale');
 
     const result = await MonorepoPkg.sync({

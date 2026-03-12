@@ -7,5 +7,6 @@ export namespace Monorepo {
   export type Lib = {
     readonly Ci: t.MonorepoCi.Lib;
     readonly Pkg: t.MonorepoPkg.Lib;
+    readonly Info: t.MonorepoInfo.Lib;
   };
 }
