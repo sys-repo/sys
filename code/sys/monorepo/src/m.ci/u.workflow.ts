@@ -31,14 +31,11 @@ export function workflowTemplate(args: WorkflowArgs) {
       - name: Install Dependencies
         run: deno task install
 
-      - name: Task Help
-        run: deno task help
+      - name: Monorepo Info
+        run: deno task info
 
       - name: Deno Info
         run: deno info && deno --version
-
-      - name: System Info
-        run: deno task help
   `,
   ).trim();
 
