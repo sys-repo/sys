@@ -19,6 +19,11 @@ export async function stats(args: t.MonorepoInfo.StatsArgs): Promise<t.MonorepoI
   }
 
   return {
+    runtime: {
+      deno: Deno.version.deno,
+      typescript: Deno.version.typescript,
+      v8: Deno.version.v8,
+    },
     source: { include, exclude },
     files: paths.size,
     ...(args.totals?.lines ? { lines: await countLines([...paths]) } : {}),

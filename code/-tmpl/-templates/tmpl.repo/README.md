@@ -26,12 +26,13 @@ git lfs install
 <p>&nbsp;</p>
 
 
-## Starter Tasks
-Core baseline tasks from `deno.json`:
+## Tasks
+Core tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
-- `deno task check` → type/lint gate for the starter shell
-- `deno task prep` → regenerates GitHub workflows for discovered project modules under `./code/projects`
+- `deno task check` → type-checks the repo
+- `deno task info` → prints Deno runtime and monorepo source stats
+- `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
 - `deno task test` → runs all unit tests within the mono-repo with permissions `-P=test`
 - `deno task outdated` → reports dependency updates
 - `deno task upgrade` → upgrades dependencies to latest
@@ -62,4 +63,3 @@ New projects:
 - after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>
-

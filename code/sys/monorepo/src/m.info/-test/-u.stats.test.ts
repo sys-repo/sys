@@ -14,6 +14,9 @@ describe(`Monorepo.Info.stats`, () => {
       source: { include: ['code/**/*.{ts,tsx}'] },
     });
 
+    expect(result.runtime.deno).to.eql(Deno.version.deno);
+    expect(result.runtime.typescript).to.eql(Deno.version.typescript);
+    expect(result.runtime.v8).to.eql(Deno.version.v8);
     expect(result.files).to.eql(2);
     expect(result.lines).to.eql(undefined);
     expect(result.source).to.eql({ include: ['code/**/*.{ts,tsx}'], exclude: [] });

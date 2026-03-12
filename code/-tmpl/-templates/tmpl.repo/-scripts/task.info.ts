@@ -1,5 +1,4 @@
 import { Monorepo } from '@sys/monorepo';
-import { c } from './common.ts';
 
 export async function main(cwd = Deno.cwd()) {
   const stats = await Monorepo.Info.stats({
@@ -11,6 +10,9 @@ export async function main(cwd = Deno.cwd()) {
     totals: { lines: true },
   });
 
+  console.info();
+  console.info(Monorepo.Info.fmt(stats));
+  console.info();
 }
 
 if (import.meta.main) await main();

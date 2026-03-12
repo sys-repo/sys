@@ -7,6 +7,7 @@ export declare namespace MonorepoInfo {
   /** Source statistics surface. */
   export type Lib = {
     stats(args: StatsArgs): Promise<StatsResult>;
+    fmt(stats: StatsResult): string;
   };
 
   /** Include and exclude globs for source discovery. */
@@ -27,8 +28,16 @@ export declare namespace MonorepoInfo {
     readonly totals?: Totals;
   };
 
+  /** Runtime versions included in the stats result. */
+  export type Runtime = {
+    readonly deno: string;
+    readonly typescript: string;
+    readonly v8: string;
+  };
+
   /** Aggregate source statistics result. */
   export type StatsResult = {
+    readonly runtime: Runtime;
     readonly source: {
       readonly include: readonly t.StringPath[];
       readonly exclude: readonly t.StringPath[];
