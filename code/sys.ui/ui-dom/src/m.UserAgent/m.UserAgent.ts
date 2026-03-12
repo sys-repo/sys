@@ -1,7 +1,7 @@
 import type { UserAgentLib } from './t.ts';
 import { parseUserAgent } from './u.parse.ts';
 
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 let _current: t.UserAgent | undefined; // NB: singleton reference.
 const kinds: t.UserAgentOSKind[] = ['macOS', 'iOS', 'windows', 'posix'];

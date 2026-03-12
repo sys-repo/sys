@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Minimal local user-agent parser used to keep `@sys/ui-dom/user-agent`
@@ -138,11 +138,13 @@ const wrangle = {
     const firefox = browserName === 'Firefox';
     const chromium = ['Chrome', 'Edge'].includes(browserName);
     if (firefox) {
-      const version = wrangle.version(input, /rv:([0-9.]+)/i) || wrangle.version(input, /Gecko\/([0-9.]+)/i);
+      const version =
+        wrangle.version(input, /rv:([0-9.]+)/i) || wrangle.version(input, /Gecko\/([0-9.]+)/i);
       return { name: 'Gecko', version };
     }
     if (chromium) return { name: 'Blink', version: '' };
-    if (browserName === 'Safari') return { name: 'WebKit', version: wrangle.version(input, /AppleWebKit\/([0-9.]+)/i) };
+    if (browserName === 'Safari')
+      return { name: 'WebKit', version: wrangle.version(input, /AppleWebKit\/([0-9.]+)/i) };
     return { name: '', version: '' };
   },
 
@@ -152,16 +154,8 @@ const wrangle = {
     const mac = /Macintosh/i.test(input);
     const samsung = input.match(/\b(SM-[A-Z0-9]+)\b/i)?.[1] ?? '';
     const lg = input.match(/\b(LG-[A-Z0-9]+)\b/i)?.[1] ?? '';
-    const vendor =
-      iPad || iPhone || mac ? 'Apple'
-      : samsung ? 'Samsung'
-      : lg ? 'LG'
-      : '';
-    const model =
-      iPad ? 'iPad'
-      : iPhone ? 'iPhone'
-      : mac ? 'Mac'
-      : samsung || lg;
+    const vendor = iPad || iPhone || mac ? 'Apple' : samsung ? 'Samsung' : lg ? 'LG' : '';
+    const model = iPad ? 'iPad' : iPhone ? 'iPhone' : mac ? 'Mac' : samsung || lg;
 
     let type = '';
     if (iPad) type = 'tablet';
