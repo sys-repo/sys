@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-css",
-  "version": "0.0.242",
+  "version": "0.0.243",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -13,7 +13,15 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

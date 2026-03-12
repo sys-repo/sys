@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.267",
+  "version": "0.0.268",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -17,9 +17,25 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "tmpl": { "read": true, "write": true },
-    "prep": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "run": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true
+    },
+    "prep": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": true
+    }
   }
 }

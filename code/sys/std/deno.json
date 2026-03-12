@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.312",
+  "version": "0.0.313",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -39,6 +39,11 @@
     "./value": "./src/-exports/-value.ts"
   },
   "permissions": {
-    "test": { "read": true, "write": true, "env": true, "net": true }
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
   }
 }

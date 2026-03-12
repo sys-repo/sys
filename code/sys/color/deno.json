@@ -1,6 +1,6 @@
 {
   "name": "@sys/color",
-  "version": "0.0.207",
+  "version": "0.0.208",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -15,7 +15,15 @@
     "./ansi": "./src/m.Ansi/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-state",
-  "version": "0.0.59",
+  "version": "0.0.60",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -16,7 +16,15 @@
     "./timecode": "./src/-exports/-timecode.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

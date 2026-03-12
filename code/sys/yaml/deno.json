@@ -1,6 +1,6 @@
 {
   "name": "@sys/yaml",
-  "version": "0.0.105",
+  "version": "0.0.106",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -11,8 +11,16 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   },
   "exports": {
     ".": "./src/mod.ts",

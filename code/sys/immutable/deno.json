@@ -1,6 +1,6 @@
 {
   "name": "@sys/immutable",
-  "version": "0.0.98",
+  "version": "0.0.99",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test --unstable-worker-options",
@@ -19,7 +19,15 @@
     "./url": "./src/-exports/-url.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@sys/text",
-  "version": "0.0.247",
+  "version": "0.0.248",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -16,7 +16,15 @@
     "./gpt": "./src/-exports/-gpt.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }
