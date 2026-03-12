@@ -11,7 +11,6 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "help": "deno run -P=dev ./-scripts/task.vite.ts --cmd=help",
-
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -29,9 +28,7 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname"]
-      }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     }
   }
 }
