@@ -140,28 +140,26 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-
-        // Both views see the same current snapshot (producer is shared)
-        expect(ob1.current).to.eql(ob2.current);
-
         const fired1: t.EventYamlCursor[] = [];
         const fired2: t.EventYamlCursor[] = [];
-
-        // Ignore the producer’s initial snapshot emission
         const sub1 = ob1.$.pipe(Rx.skip(1)).subscribe((e) => fired1.push(e));
         const sub2 = ob2.$.pipe(Rx.skip(1)).subscribe((e) => fired2.push(e));
+        try {
+          // Both views see the same current snapshot (producer is shared)
+          expect(ob1.current).to.eql(ob2.current);
 
-        editor.setPosition({ lineNumber: 1, column: 6 });
+          editor.setPosition({ lineNumber: 1, column: 6 });
 
-        await Schedule.macro();
-        expect(fired1.length).to.eql(1);
-        expect(fired2.length).to.eql(1);
-        expect(fired1[0]).to.eql(fired2[0]);
-
-        sub1.unsubscribe();
-        sub2.unsubscribe();
-        ob1.dispose();
-        ob2.dispose();
+          await Schedule.macro();
+          expect(fired1.length).to.eql(1);
+          expect(fired2.length).to.eql(1);
+          expect(fired1[0]).to.eql(fired2[0]);
+        } finally {
+          sub1.unsubscribe();
+          sub2.unsubscribe();
+          ob1.dispose();
+          ob2.dispose();
+        }
       });
 
       it('increments/decrements refCount; disposes only when last consumer ends', async () => {
@@ -170,38 +168,44 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-
-        // Dispose first consumer: producer remains alive
-        ob1.dispose();
-        expect(ob1.disposed).to.eql(true);
-        expect(ob2.disposed).to.eql(false);
-
         const fired: t.EventYamlCursor[] = [];
-        const sub = ob2.$.pipe(Rx.skip(1)).subscribe((e) => fired.push(e));
+        let ob3: ReturnType<typeof EditorYaml.Path.observe> | undefined;
+        let sub: ReturnType<typeof ob2.$.subscribe> | undefined;
+        let sub3: ReturnType<typeof ob2.$.subscribe> | undefined;
+        try {
+          // Dispose first consumer: producer remains alive
+          ob1.dispose();
+          expect(ob1.disposed).to.eql(true);
+          expect(ob2.disposed).to.eql(false);
 
-        expect(editor.getPosition()).to.eql({ lineNumber: 1, column: 1 }); // NB: sanity check
-        editor.setPosition({ lineNumber: 1, column: 6 });
-        expect(editor.getPosition()).to.eql({ lineNumber: 1, column: 6 }); // NB: sanity check
+          sub = ob2.$.pipe(Rx.skip(1)).subscribe((e) => fired.push(e));
 
-        await Schedule.macro();
-        expect(fired.length).to.eql(1);
-        sub.unsubscribe();
+          expect(editor.getPosition()).to.eql({ lineNumber: 1, column: 1 }); // NB: sanity check
+          editor.setPosition({ lineNumber: 1, column: 6 });
+          expect(editor.getPosition()).to.eql({ lineNumber: 1, column: 6 }); // NB: sanity check
 
-        // Disposing last consumer tears down the producer:
-        ob2.dispose();
-        expect(ob2.disposed).to.eql(true);
+          await Schedule.macro();
+          expect(fired.length).to.eql(1);
 
-        // New observe creates a fresh producer again:
-        const ob3 = EditorYaml.Path.observe({ editor });
-        const again: t.EventYamlCursor[] = [];
-        const sub3 = ob3.$.pipe(Rx.skip(1)).subscribe((e) => again.push(e));
+          // Disposing last consumer tears down the producer:
+          ob2.dispose();
+          expect(ob2.disposed).to.eql(true);
 
-        editor.setPosition({ lineNumber: 1, column: 7 });
-        await Schedule.macro();
-        expect(again.length).to.eql(1);
+          // New observe creates a fresh producer again:
+          ob3 = EditorYaml.Path.observe({ editor });
+          const again: t.EventYamlCursor[] = [];
+          sub3 = ob3.$.pipe(Rx.skip(1)).subscribe((e) => again.push(e));
 
-        sub3.unsubscribe();
-        ob3.dispose();
+          editor.setPosition({ lineNumber: 1, column: 7 });
+          await Schedule.macro();
+          expect(again.length).to.eql(1);
+        } finally {
+          sub?.unsubscribe();
+          sub3?.unsubscribe();
+          ob3?.dispose();
+          ob2.dispose();
+          ob1.dispose();
+        }
       });
 
       it('disposes producer once refCount reaches zero (stream completes)', async () => {
@@ -218,17 +222,19 @@ describe('Monaco.Yaml', () => {
           next: (e) => fired.push(e),
           complete: () => (completed = true),
         });
+        try {
+          editor.setPosition({ lineNumber: 1, column: 6 });
+          await Schedule.macro();
+          expect(fired.length).to.eql(1);
 
-        editor.setPosition({ lineNumber: 1, column: 6 });
-        await Schedule.macro();
-        expect(fired.length).to.eql(1);
-
-        // Disposing the last consumer should complete the stream
-        ob.dispose();
-        if (!completed) await Schedule.macro();
-        expect(completed).to.eql(true);
-
-        sub.unsubscribe();
+          // Disposing the last consumer should complete the stream
+          ob.dispose();
+          if (!completed) await Schedule.macro();
+          expect(completed).to.eql(true);
+        } finally {
+          sub.unsubscribe();
+          ob.dispose();
+        }
       });
     });
 
@@ -244,26 +250,27 @@ describe('Monaco.Yaml', () => {
 
         const events: t.EditorEvent[] = [];
         const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+        try {
+          const nonce = 'nonce-123';
+          bus$.next({
+            kind: 'editor:ping',
+            request: ['cursor'],
+            nonce,
+          } satisfies t.EventEditorPing);
 
-        const nonce = 'nonce-123';
-        bus$.next({
-          kind: 'editor:ping',
-          request: ['cursor'],
-          nonce,
-        } satisfies t.EventEditorPing);
+          await Schedule.macro();
+          const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EventYamlCursor;
+          const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
 
-        await Schedule.macro();
-        const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EventYamlCursor;
-        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
-
-        expect(cursor).to.exist;
-        expect(pong).to.exist;
-        expect(pong.nonce).to.equal(nonce);
-        expect(pong.states).to.eql(['cursor']);
-        expect(pong.at).to.be.a('number');
-
-        sub.unsubscribe();
-        life.dispose();
+          expect(cursor).to.exist;
+          expect(pong).to.exist;
+          expect(pong.nonce).to.equal(nonce);
+          expect(pong.states).to.eql(['cursor']);
+          expect(pong.at).to.be.a('number');
+        } finally {
+          sub.unsubscribe();
+          life.dispose();
+        }
       });
     });
   });
