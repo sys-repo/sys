@@ -12,21 +12,12 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "npm:@types/react",
-      "npm:@types/react-dom"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["npm:@types/react", "npm:@types/react-dom"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
+  "fmt": { "singleQuote": true, "trailingCommas": "always", "lineWidth": 100 },
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "permissions": {
