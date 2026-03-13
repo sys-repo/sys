@@ -27,7 +27,7 @@ export async function devSample(args: {
 }): Promise<DevSample> {
   const { sampleName, sampleDir, cwd } = args;
   const port = Testing.randomPort();
-  const fs = sampleName ? await SAMPLE.fs(sampleName).create() : undefined;
+  const fs = sampleName ? await SAMPLE.fs(sampleName) : undefined;
   const dir = cwd ?? fs?.dir;
   if (!dir) throw new Error('Expected either "cwd" or "sampleName"');
   if (fs && sampleDir) {

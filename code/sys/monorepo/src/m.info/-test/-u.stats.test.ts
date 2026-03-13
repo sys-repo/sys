@@ -3,7 +3,7 @@ import { MonorepoInfo } from '../mod.ts';
 
 describe(`Monorepo.Info.stats`, () => {
   it('counts files from explicit include globs', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.files').create();
+    const fs = await Testing.dir('MonorepoInfo.stats.files');
 
     await Fs.write(fs.join('code/a.ts'), 'export const a = 1;\n');
     await Fs.write(fs.join('code/b.tsx'), 'export const b = 2;\n');
@@ -23,7 +23,7 @@ describe(`Monorepo.Info.stats`, () => {
   });
 
   it('applies exclude globs during discovery', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.exclude').create();
+    const fs = await Testing.dir('MonorepoInfo.stats.exclude');
 
     await Fs.write(fs.join('code/src/a.ts'), 'export const a = 1;\n');
     await Fs.write(fs.join('code/.tmp/b.ts'), 'export const b = 2;\n');
@@ -45,7 +45,7 @@ describe(`Monorepo.Info.stats`, () => {
   });
 
   it('computes line totals when requested', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.lines').create();
+    const fs = await Testing.dir('MonorepoInfo.stats.lines');
 
     await Fs.write(fs.join('code/a.ts'), 'a\nb\n');
     await Fs.write(fs.join('code/b.tsx'), 'c\n');

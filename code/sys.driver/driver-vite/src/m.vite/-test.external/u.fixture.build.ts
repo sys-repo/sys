@@ -19,7 +19,7 @@ export async function buildSample(args: {
   entry?: string;
 }): Promise<BuiltSample> {
   const { sampleName, sampleDir, entry } = args;
-  const fs = await SAMPLE.fs(sampleName).create();
+  const fs = await SAMPLE.fs(sampleName);
   await Fs.remove(fs.dir);
   await Fs.copy(sampleDir, fs.dir);
 

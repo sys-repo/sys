@@ -54,7 +54,7 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
     });
 
     it('repo: stores (info)', async () => {
-      const dir = (await Testing.dir('repo.stores').create()).dir;
+      const dir = (await Testing.dir('repo.stores')).dir;
       const repo = Crdt.repo({ dir });
       expect(repo.stores).to.eql([{ kind: 'fs', dir: Fs.resolve(dir) }]);
     });

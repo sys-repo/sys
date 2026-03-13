@@ -7,7 +7,7 @@ describe('Tmpl.File', () => {
     /**
      * Helpers:
      */
-    const getDir = () => Testing.dir('Tmpl.File.update').create();
+    const getDir = () => Testing.dir('Tmpl.File.update');
     const getFile = async (options: { dir?: TestingDir } = {}) => {
       const dir = options.dir ?? (await getDir());
       const path = dir.join(`file-${slug()}.txt`);

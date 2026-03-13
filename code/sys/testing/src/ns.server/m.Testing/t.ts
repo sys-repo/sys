@@ -7,7 +7,7 @@ export type TestingServerLib = t.TestingHttpLib & {
   /**
    * Generates a new test directory on the file-system.
    */
-  dir(dirname: string, options?: t.TestingDirOptions): t.TestingDir;
+  dir(dirname: string, options?: t.TestingDirOptions): Promise<t.TestingDir>;
 
   /**
    * Connects to a hostname (default is "127.0.0.1") and port on a named
@@ -30,9 +30,6 @@ export type TestingDirOptions = {
 export type TestingDir = {
   /** The path to the test directory. */
   readonly dir: t.StringAbsoluteDir;
-
-  /** Ensures the test directory exists. */
-  create(): Promise<TestingDir>;
 
   /** Checks if the root directory, or a sub-path within it, exists. */
   exists(...path: t.StringPath[]): Promise<boolean>;

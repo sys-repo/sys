@@ -9,7 +9,7 @@ describe('Repo: -scripts', () => {
   });
 
   it('prep: generates project test/build workflows from code/projects modules', async () => {
-    const fs = await Testing.dir('tmpl.repo.prep').create();
+    const fs = await Testing.dir('tmpl.repo.prep');
     const root = fs.dir;
     const projectDir = Fs.join(root, 'code/projects/demo');
     const path = 'code/projects/demo';

@@ -9,7 +9,7 @@ describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, 
    */
   it('repo → persistence', async () => {
     type T = { msg?: string };
-    const fs = await Testing.dir('crdt.fs').create();
+    const fs = await Testing.dir('crdt.fs');
     const repoA = new Repo({ storage: new NodeFSStorageAdapter(fs.dir) });
 
     // Create initial doc:

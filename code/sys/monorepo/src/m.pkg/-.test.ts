@@ -9,7 +9,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('discovers package roots from explicit deno.json include globs', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.discovery').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.discovery');
 
     await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
       name: '@scope/a',
@@ -43,7 +43,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('ignores temp and fixture deno.json matches during discovery', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.discovery.exclude').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.discovery.exclude');
 
     await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
       name: '@scope/a',
@@ -73,7 +73,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('returns unchanged when existing canonical targets already match deno.json', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.unchanged').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.unchanged');
     const dir = fs.join('code/projects/a');
     const text = renderPkg({ name: '@scope/a', version: '1.0.0' });
 
@@ -103,7 +103,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('writes stale canonical targets from deno.json values', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.written').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.written');
     const dir = fs.join('code/projects/a');
 
     await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
@@ -135,7 +135,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('skips packages with missing name or version', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.missing-meta').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.missing-meta');
     const missingName = fs.join('code/projects/missing-name');
     const missingVersion = fs.join('code/projects/missing-version');
 
@@ -175,7 +175,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('skips when no canonical target files exist', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.no-targets').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.no-targets');
     const dir = fs.join('code/projects/a');
 
     await Fs.writeJson(fs.join('code/projects/a/deno.json'), {
@@ -200,7 +200,7 @@ describe(`Monorepo.Pkg`, () => {
   });
 
   it('syncs whichever canonical target files already exist', async () => {
-    const fs = await Testing.dir('MonorepoPkg.sync.partial-targets').create();
+    const fs = await Testing.dir('MonorepoPkg.sync.partial-targets');
     const dir = fs.join('deploy/app');
 
     await Fs.writeJson(fs.join('deploy/app/deno.json'), {

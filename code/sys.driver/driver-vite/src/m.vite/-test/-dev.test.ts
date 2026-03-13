@@ -40,7 +40,7 @@ describe('Vite.dev', () => {
    */
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(2, async () => {
-      const fs = await SAMPLE.fs('Vite.dev').create();
+      const fs = await SAMPLE.fs('Vite.dev');
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       const restore = await writeLocalFixtureImports(cwd);
@@ -93,7 +93,7 @@ describe('Vite.dev', () => {
 
   it('falls forward to the next port when requested port is occupied', async () => {
     await Testing.retry(2, async () => {
-      const fs = await SAMPLE.fs('Vite.dev-port-fallback').create();
+      const fs = await SAMPLE.fs('Vite.dev-port-fallback');
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       const restore = await writeLocalFixtureImports(cwd);

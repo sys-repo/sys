@@ -33,7 +33,7 @@ describe('Vite.build', () => {
   };
 
   const testBuild = async (sample: t.StringDir) => {
-    const fs = await SAMPLE.fs('Vite.build').create();
+    const fs = await SAMPLE.fs('Vite.build');
     const cwd = fs.join('fixture');
     await Fs.copy(sample, cwd);
     const restore = await writeLocalFixtureImports(cwd);

@@ -6,7 +6,7 @@ describe('Vite.build (transitive jsr)', () => {
   describe('@std/path', () => {
     it('resolves transitive jsr dependencies from remote deno modules', async () => {
       await Testing.retry(2, async () => {
-        const fs = await SAMPLE.fs('Vite.build.std-path').create();
+        const fs = await SAMPLE.fs('Vite.build.std-path');
         const cwd = fs.join('fixture');
         await Fs.copy(SAMPLE.Dirs.sampleStdPath, cwd);
         const restore = await writeLocalFixtureImports(cwd);

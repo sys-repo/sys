@@ -39,7 +39,7 @@ describe('DenoFile', () => {
     });
 
     it('supports deno.jsonc', async () => {
-      const fs = await Testing.dir('DenoFile.load.jsonc').create();
+      const fs = await Testing.dir('DenoFile.load.jsonc');
       const jsonc = `{
         // comment
         "name": "jsonc-module",
@@ -76,7 +76,7 @@ describe('DenoFile', () => {
   });
 
   describe('DenoFile.nearest (ancestor)', () => {
-    const getDir = () => Testing.dir('DenoFile.nearest').create();
+    const getDir = () => Testing.dir('DenoFile.nearest');
     const setup = async (options: { fs?: TestingDir } = {}) => {
       const fs = options.fs || (await getDir());
       const version = '0.0.0';
@@ -154,7 +154,7 @@ describe('DenoFile', () => {
       });
 
       it('finds deno.jsonc when deno.json is missing', async () => {
-        const fs = await Testing.dir('DenoFile.nearest.jsonc').create();
+        const fs = await Testing.dir('DenoFile.nearest.jsonc');
         await Fs.write(
           fs.join('deno.jsonc'),
           `{
@@ -221,7 +221,7 @@ describe('DenoFile', () => {
       });
 
       it('from path: jsonc', async () => {
-        const fs = await Testing.dir('DenoFile.workspace.jsonc').create();
+        const fs = await Testing.dir('DenoFile.workspace.jsonc');
         await Fs.write(
           fs.join('deno.jsonc'),
           `{

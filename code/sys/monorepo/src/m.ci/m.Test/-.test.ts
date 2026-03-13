@@ -3,7 +3,7 @@ import { MonorepoCi } from '../mod.ts';
 
 describe('MonorepoCi.Test', () => {
   it('builds matrix YAML from ordered module paths', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.text').create();
+    const fs = await Testing.dir('MonorepoCi.Test.text');
     const a = fs.join('code/sys/alpha');
     const b = fs.join('code/sys/beta');
 
@@ -32,7 +32,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('writes YAML to disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.write').create();
+    const fs = await Testing.dir('MonorepoCi.Test.write');
     const moduleDir = fs.join('code/sys/alpha');
     const target = fs.join('.github/workflows/test.yaml');
 
@@ -50,7 +50,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('returns unchanged when the rendered workflow already matches disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync.unchanged').create();
+    const fs = await Testing.dir('MonorepoCi.Test.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/test.yaml';
 
@@ -73,7 +73,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('renders explicit push and pull request triggers', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.on').create();
+    const fs = await Testing.dir('MonorepoCi.Test.on');
     const moduleDir = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
@@ -99,7 +99,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('falls back to the module path when name is missing', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.path-fallback').create();
+    const fs = await Testing.dir('MonorepoCi.Test.path-fallback');
     const moduleDir = fs.join('code/projects/demo');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task info' } });
@@ -109,7 +109,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('syncs from a source root and removes the workflow when no test modules exist', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync').create();
+    const fs = await Testing.dir('MonorepoCi.Test.sync');
     const root = fs.join('code/projects');
     const target = '.github/workflows/test.yaml';
 
@@ -131,7 +131,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('filters explicit path sources by test task presence', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync.paths').create();
+    const fs = await Testing.dir('MonorepoCi.Test.sync.paths');
     const testDir = fs.join('code/projects/testable');
     const buildDir = fs.join('code/projects/build-only');
 
