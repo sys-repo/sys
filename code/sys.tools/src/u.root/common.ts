@@ -1,11 +1,11 @@
-import type { t } from './common.ts';
+export type * as t from './common.t.ts';
+
+export { pkg } from '../pkg.ts';
+export { Args, c, Cli } from '@sys/cli';
+export { Is, Str } from '@sys/std';
+
 import { TOOL_IDS } from './common.tools.ts';
 
-export * from '../common.ts';
-
-/**
- * Root tool commands (canonical).
- */
 export const D = {
-  TOOLS: TOOL_IDS satisfies readonly t.Tools.Command[],
+  TOOLS: TOOL_IDS,
 } as const;

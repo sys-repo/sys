@@ -1,12 +1,28 @@
-import { type t, c, Fmt, Str } from './common.ts';
+import { type t, c, Cli, pkg, Str } from './common.ts';
 import { rootRows } from './u.rows.ts';
 
-export async function printRootHelp(args: t.Tools.CliRootParsedArgs) {
-  const s = await Fmt.help(' system:tools', (e) => {
-    rootRows().forEach((row) => e.row(...row.columns));
+export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
+  const table = Cli.table([]);
+  const rows = rootRows();
+  const helpRows = [pkg.name, ...rows.map((row) => row.command)] as const;
+
+  table.push([
+    ` ${c.dim(Cli.Fmt.Tree.branch([0, helpRows]))} ${c.bold(c.white(pkg.name))}`,
+    c.cyan(pkg.version),
+  ]);
+  rows.forEach((row, index) => {
+    const branch = Cli.Fmt.Tree.branch([index + 1, helpRows]);
+    table.push([` ${c.dim(branch)} ${row.columns[0]}`, ...row.columns.slice(1)]);
   });
 
-  console.info(s);
+  const text = Str.builder()
+    .line()
+    .line(c.gray(`${c.green(' system:tools')} `))
+    .line(Str.trimEdgeNewlines(table.toString()))
+    .line()
+    .toString();
+
+  console.info(text);
 
   if (args.help) {
     const cmd = 'deno run -A jsr:@sys/tools';
