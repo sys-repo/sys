@@ -57,7 +57,7 @@ groups:
       subpaths: ['value', 'errors']
 
   build/tools/vite:
-    - import: npm:esbuild@0.27.3
+    - import: npm:esbuild@0.27.4
     - import: npm:@vitejs/plugin-react@5.1.4
     - import: npm:@deno/vite-plugin@1.0.6
     - import: npm:rollup@4.59.0
@@ -95,7 +95,7 @@ groups:
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@elevenlabs/elevenlabs-js@2.38.1
+    - import: npm:@elevenlabs/elevenlabs-js@2.39.0
 
   yaml:
     - import: npm:yaml@2.8.2
@@ -123,7 +123,7 @@ deno.json:
   - import: npm:date-fns@4
   - import: npm:diff@8.0.3
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.8.3
+  - import: npm:happy-dom@20.8.4
   - import: npm:hash-it@7.0.2
   - import: npm:hono@4.12.7
     subpaths: [cors, deno, types]
@@ -165,5 +165,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.6.0
-  - import: npm:motion@12.35.2
+  - import: npm:motion@12.36.0
   - import: npm:hono@4.12.5
