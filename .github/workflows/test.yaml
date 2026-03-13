@@ -111,7 +111,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.4
+          deno-version: v2.7.5
       - name: Install Dependencies
         run: deno task install
       - name: Monorepo Info
