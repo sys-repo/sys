@@ -1,5 +1,17 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Wrangle } from '../u.wrangle.ts';
+import { Fs, ROOT } from '../../-test.ts';
+
+async function rootVersions() {
+  const pkg = (await Fs.readJson<{
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  }>(ROOT.resolve('package.json'))).data ?? {};
+  return {
+    vite: pkg.dependencies?.vite ?? pkg.devDependencies?.vite ?? '',
+    esbuild: pkg.dependencies?.esbuild ?? pkg.devDependencies?.esbuild ?? '',
+  } as const;
+}
 
 describe('Vite.Wrangle', () => {
   it('build: scopes child run permission to esbuild and deno only', async () => {
@@ -12,6 +24,7 @@ describe('Vite.Wrangle', () => {
       },
     } as const;
 
+    const versions = await rootVersions();
     const res = await Wrangle.command(paths, 'build');
 
     expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/.deno/esbuild@');
@@ -31,8 +44,8 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.not.include('--allow-run');
     expect(res.args).to.not.include('-A');
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
-    expect(res.args).to.include('npm:vite@7.3.1');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('esbuild@0.27.3');
+    expect(res.args).to.include(`npm:vite@${versions.vite}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`esbuild@${versions.esbuild}`);
   });
 
   it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
@@ -45,6 +58,7 @@ describe('Vite.Wrangle', () => {
       },
     } as const;
 
+    const versions = await rootVersions();
     const res = await Wrangle.command(paths, 'dev --port=1234 --host');
 
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
@@ -56,8 +70,8 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
-    expect(res.args).to.include('npm:vite@7.3.1');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('esbuild@0.27.3');
+    expect(res.args).to.include(`npm:vite@${versions.vite}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`esbuild@${versions.esbuild}`);
   });
 
   it('anchors npm resolution at the nearest consumer package boundary', () => {
