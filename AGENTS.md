@@ -1,31 +1,6 @@
 # AGENTS.md (system repo root)
-Before any action:
-- Before any action that modifies code, structure, or public API, ensure `AGENTS.md`
-  constraints are in scope.
-- Apply those instructions verbatim
-- This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
-
-- When a clear question is posed, or when a prompt ends with the character "?":
-  - Respond in **plan mode only** (analysis / proposal / steps)
-  - Treat the response as **read-only**:
-    - Allowed:
-      - Reasoning, analysis, and explanation
-      - Reading, ingesting, parsing, or summarising existing files or content
-      - Read-only tool usage that does not modify state
-    - Forbidden:
-      - Writing, editing, deleting, or generating files
-      - Executing commands that cause side effects
-      - Modifying code, configuration, or data
-  - Do NOT make changes unless explicitly instructed
-  - If the question explicitly ends with the word **"go"**:
-    - This **overrides the read-only constraints above**
-    - Treat it as an execution command
-    - Side effects, writes, and mutations are allowed
-    - Proceed normally
-
-- After completing any change (code, config, docs, or structure),
-  always provide a Git commit message summarizing the change, using
-  the Conventional Commits format.
+This file adds `sys`-local constraints only.
+All broader behavior is governed by root `AGENTS.md` and canonical canon.
 
 
 ====================================================================================================
@@ -72,5 +47,3 @@ If the human explicitly indicates that work is scoped to a specific domain:
 
 Do NOT infer scope.
 Do NOT activate scoped canon unless explicitly instructed.
-
-Go
