@@ -1,14 +1,14 @@
 import {
   Is,
-  Schedule,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   expect,
   it,
   renderHook,
   DomMock,
   MonacoFake,
+  settle,
 } from '../../-test.ts';
 import { type t } from './common.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
@@ -35,15 +35,12 @@ const local = {
   },
 
   async drainDomTails() {
-    await Schedule.micro();
-    await Schedule.macro();
-    await Schedule.raf();
-    await Schedule.macro();
+    await settle();
   },
 } as const;
 
 describe('MonacoEditor', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   describe('hook: useMonacoEditorModule', () => {
     it('throws on non-browser environment', async () => {

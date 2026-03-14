@@ -1,7 +1,7 @@
 import {
   type t,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -13,7 +13,7 @@ import {
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
 describe('useYamlErrorMarkers', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('normalizes linePos → correct marker range', () => {
     const monaco = MonacoFake.monaco({ cast: true });
@@ -25,19 +25,20 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
-
-    expect(spy.calls.length).to.eql(1);
-    const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
-    expect(markers.length).to.eql(1);
-    const m = markers[0]!;
-    expect(m.message).to.eql('Boom');
-    expect(m.startLineNumber).to.eql(2);
-    expect(m.startColumn).to.eql(1);
-    expect(m.endLineNumber).to.eql(2);
-    expect(m.endColumn).to.eql(3);
-
-    unmount();
-    spy.restore();
+    try {
+      expect(spy.calls.length).to.eql(1);
+      const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
+      expect(markers.length).to.eql(1);
+      const m = markers[0]!;
+      expect(m.message).to.eql('Boom');
+      expect(m.startLineNumber).to.eql(2);
+      expect(m.startColumn).to.eql(1);
+      expect(m.endLineNumber).to.eql(2);
+      expect(m.endColumn).to.eql(3);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('normalizes single linePos → zero-length marker (start==end)', () => {
@@ -58,16 +59,17 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
-
-    expect(spy.calls.length).to.eql(1);
-    const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
-    expect(m.startLineNumber).to.eql(1);
-    expect(m.startColumn).to.eql(3);
-    expect(m.endLineNumber).to.eql(1);
-    expect(m.endColumn).to.eql(3);
-
-    unmount();
-    spy.restore();
+    try {
+      expect(spy.calls.length).to.eql(1);
+      const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
+      expect(m.startLineNumber).to.eql(1);
+      expect(m.startColumn).to.eql(3);
+      expect(m.endLineNumber).to.eql(1);
+      expect(m.endColumn).to.eql(3);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('falls back to character offsets when no linePos', () => {
@@ -86,15 +88,16 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
-
-    expect(spy.calls.length).to.eql(1);
-    const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
-    expect(m.message).to.eql('Bad indentation');
-    expect(m.startLineNumber).to.be.a('number');
-    expect(m.endLineNumber).to.be.a('number');
-
-    unmount();
-    spy.restore();
+    try {
+      expect(spy.calls.length).to.eql(1);
+      const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
+      expect(m.message).to.eql('Bad indentation');
+      expect(m.startLineNumber).to.be.a('number');
+      expect(m.endLineNumber).to.be.a('number');
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('accepts mixed inputs (Diagnostic | YAMLError)', () => {
@@ -114,12 +117,14 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [diag, err] },
     });
-
-    const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
-    expect(markers.length).to.eql(2);
-    expect(markers.map((m) => m.message)).to.eql(['D1', 'E1']);
-    unmount();
-    spy.restore();
+    try {
+      const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
+      expect(markers.length).to.eql(2);
+      expect(markers.map((m) => m.message)).to.eql(['D1', 'E1']);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('clears markers when errors empty', () => {
@@ -132,13 +137,16 @@ describe('useYamlErrorMarkers', () => {
     const { rerender, unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
-    rerender({ monaco, editor, errors: [] });
+    try {
+      rerender({ monaco, editor, errors: [] });
 
-    // last call should carry empty markers
-    const last = spy.calls.at(-1)!;
-    expect((last.args[2] as t.Monaco.I.IMarkerData[]).length).to.eql(0);
-    unmount();
-    spy.restore();
+      // last call should carry empty markers
+      const last = spy.calls.at(-1)!;
+      expect((last.args[2] as t.Monaco.I.IMarkerData[]).length).to.eql(0);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('keeps a stable owner across renders', () => {
@@ -152,14 +160,17 @@ describe('useYamlErrorMarkers', () => {
     const { rerender, unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
-    const firstOwner = spy.calls[0]!.args[1];
+    try {
+      const firstOwner = spy.calls[0]!.args[1];
 
-    rerender({ monaco, editor, errors: [err] });
-    const secondOwner = spy.calls[1]!.args[1];
+      rerender({ monaco, editor, errors: [err] });
+      const secondOwner = spy.calls[1]!.args[1];
 
-    expect(firstOwner).to.eql(secondOwner);
-    unmount();
-    spy.restore();
+      expect(firstOwner).to.eql(secondOwner);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('clears markers when enabled=false', () => {
@@ -172,17 +183,18 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err], enabled: false },
     });
+    try {
+      // Clears existing markers on mount:
+      expect(spy.calls.length).to.eql(1);
 
-    // Clears existing markers on mount:
-    expect(spy.calls.length).to.eql(1);
-
-    // Ensures markers array is empty:
-    const args = spy.calls[0].args; // [model, owner, markers]
-    expect(Array.isArray(args[2])).to.eql(true);
-    expect(args[2].length).to.eql(0);
-
-    unmount();
-    spy.restore();
+      // Ensures markers array is empty:
+      const args = spy.calls[0].args; // [model, owner, markers]
+      expect(Array.isArray(args[2])).to.eql(true);
+      expect(args[2].length).to.eql(0);
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 
   it('handles diagnostic range as [start,end] or [start,valueEnd,nodeEnd]', () => {
@@ -197,12 +209,14 @@ describe('useYamlErrorMarkers', () => {
     const { unmount } = renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [d2, d3] },
     });
-
-    const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
-    expect(markers.length).to.eql(2);
-    expect(markers[0]!.message).to.eql('two');
-    expect(markers[1]!.message).to.eql('three');
-    unmount();
-    spy.restore();
+    try {
+      const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
+      expect(markers.length).to.eql(2);
+      expect(markers[0]!.message).to.eql('two');
+      expect(markers[1]!.message).to.eql('three');
+    } finally {
+      unmount();
+      spy.restore();
+    }
   });
 });

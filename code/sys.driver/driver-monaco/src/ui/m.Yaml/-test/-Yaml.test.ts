@@ -1,30 +1,23 @@
 import {
   act,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
   it,
-  Schedule,
   MonacoFake,
   renderHook,
   Rx,
+  settle,
 } from '../../../-test.ts';
 import { type t, Bus, Immutable } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
-const settle = async () => {
-  await Schedule.micro();
-  await Schedule.macro();
-  await Schedule.raf();
-  await Schedule.macro();
-};
-
 describe('Monaco.Yaml', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
@@ -49,28 +42,29 @@ describe('Monaco.Yaml', () => {
 
       const life = Rx.disposable();
       const events: t.EditorEvent[] = [];
-      bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+      const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+      try {
+        const nonce = 'nonce-123';
+        act(() => {
+          Bus.ping(bus$, ['yaml'], nonce);
+        });
 
-      const nonce = 'nonce-123';
-      act(() => {
-        Bus.ping(bus$, ['yaml'], nonce);
-      });
+        await settle();
 
-      await settle();
+        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
+        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
 
-      const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
-      const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
-
-      expect(yaml).to.exist;
-      expect(pong).to.exist;
-      expect(pong.nonce).to.equal(nonce);
-      expect(pong.states).to.eql(['yaml']);
-      expect(pong.at).to.be.a('number');
-
-      life.dispose();
-      unmount();
-
-      await settle();
+        expect(yaml).to.exist;
+        expect(pong).to.exist;
+        expect(pong.nonce).to.equal(nonce);
+        expect(pong.states).to.eql(['yaml']);
+        expect(pong.at).to.be.a('number');
+      } finally {
+        sub.unsubscribe();
+        life.dispose();
+        unmount();
+        await settle();
+      }
     });
   });
 });

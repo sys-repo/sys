@@ -1,5 +1,5 @@
 import YAML from 'yaml';
-import type { t } from './common.ts';
+import { Schedule, type t } from './common.ts';
 
 type LinePos = { line: number; col: number };
 
@@ -35,4 +35,14 @@ export function makeYamlErrorLinePos(
       { line, col: endCol },
     ],
   };
+}
+
+/**
+ * Drain the common micro/macro/raf tails used by Monaco hook tests.
+ */
+export async function settle() {
+  await Schedule.micro();
+  await Schedule.macro();
+  await Schedule.raf();
+  await Schedule.macro();
 }
