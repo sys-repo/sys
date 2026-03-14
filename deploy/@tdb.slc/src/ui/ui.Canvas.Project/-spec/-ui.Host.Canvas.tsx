@@ -31,7 +31,7 @@ export const HostCanvas: React.FC<HostCanvasProps> = (props) => {
     }),
     canvas: css({
       backgroundColor: theme.bg,
-      boxShadow: `0 0 65px 5px ${Color.format(-0.08)}`,
+      boxShadow: `0 0 65px 5px ${Color.toGrayAlpha(-0.08)}`,
     }),
   };
 
