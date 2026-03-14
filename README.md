@@ -6,11 +6,13 @@
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
 [mit-url]: https://opensource.org/licenses/MIT
 
+[![test](https://github.com/sys-repo/sys/actions/workflows/test.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/test.yaml)
+[![build](https://github.com/sys-repo/sys/actions/workflows/build.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/build.yaml)
+[![publish](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)
+
 [jsr-badge]: https://jsr.io/badges/@sys?style=flat
 [jsr-url]: https://jsr.io/@sys
 
-[ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
-[ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
 
 
