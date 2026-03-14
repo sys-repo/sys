@@ -75,20 +75,6 @@ export type ViteProcess = t.LifecycleAsync & {
 };
 
 /**
- * Function that mutates a configuration upon callback.
- */
-export type ViteConfigMutate = (e: t.ViteConfigMutateArgs) => void;
-
-/**
- * Arguments passed to the configuration mutation callback.
- */
-export type ViteConfigMutateArgs = {
-  readonly config: t.ViteUserConfig;
-  readonly env: t.ViteConfigEnv;
-  readonly ws?: t.ViteDenoWorkspace;
-};
-
-/**
  * Response from a vite command (such as `build`).
  */
 export type ViteBuildResponse = {

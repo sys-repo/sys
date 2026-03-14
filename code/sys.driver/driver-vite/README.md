@@ -96,7 +96,7 @@ jsr:@sys/driver-vite@<version>/main --cmd=serve
 # (etc)...
 ```
 
-Call up "Help" to see available commands → `deno task help`:
+Call up "Info" to see available commands → `deno task info`:
 
 ```bash
 Usage: deno task [COMMAND]
@@ -105,7 +105,7 @@ Usage: deno task [COMMAND]
   deno task build     Transpile to production bundle.
   deno task serve     Run a local HTTP server over the production bundle.
   deno task clean     Delete temporary files.
-  deno task help      Show help.
+  deno task info      Show info.
 ```
 
 
@@ -141,6 +141,10 @@ export default defineConfig(() => {
 - React / WASM plugin defaults
 - production bundle output layout
 
+It also preserves two explicit extension paths:
+- `vitePlugins` for caller-supplied Vite plugins appended after the driver/common plugin set
+- normal outer `defineConfig(...)` composition for any broader raw Vite config shaping
+
 You can still constrain workspace visibility and customize bundle behavior:
 
 ```ts
@@ -169,6 +173,11 @@ export default defineConfig(async () => {
     },
     minify: true,
     plugins: { react: true, wasm: true, deno: true },
+    vitePlugins: [
+      {
+        name: 'custom:example',
+      },
+    ],
   });
 });
 ```

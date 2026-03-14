@@ -58,7 +58,7 @@ export type ViteConfigCommonPlugins = {
   /** Flag indicating if the official `deno-vite` plugin should be included. */
   deno?: boolean;
 
-  /** Flag indicating if the "react+swc" plugin should be included. */
+  /** Flag indicating if the React plugin should be included. */
   react?: boolean;
 
   /** Flag indicating if the "wasm" plugin should be included. */
