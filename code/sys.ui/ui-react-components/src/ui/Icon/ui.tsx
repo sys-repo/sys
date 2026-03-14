@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Style, css } from './common.ts';
+import { type t, Color, Is, Style, css } from './common.ts';
 
 type P = t.IconViewProps;
 
@@ -43,7 +43,8 @@ export const IconView: React.FC<P> = (props) => {
  */
 const wrangle = {
   color(props: P) {
-    return props.color ? Color.format(props.color) : undefined;
+    if (props.color == null) return undefined;
+    return Is.str(props.color) ? props.color : Color.toGrayAlpha(props.color);
   },
 
   transform(props: P) {
