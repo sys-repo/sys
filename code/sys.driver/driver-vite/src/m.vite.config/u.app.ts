@@ -56,6 +56,9 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
   }
+  if (options.vitePlugins?.length) {
+    plugins.push(...options.vitePlugins);
+  }
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.
     const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';

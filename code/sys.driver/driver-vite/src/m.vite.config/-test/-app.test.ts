@@ -54,6 +54,38 @@ describe('Config.Build', () => {
       expect(config.plugins).to.eql([]);
     });
 
+    it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
+      const customA: t.VitePlugin = { name: 'custom:a' };
+      const customB: t.VitePlugin = { name: 'custom:b' };
+      const config = await ViteConfig.app({ vitePlugins: [customA, customB] });
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      const specifierRewrite = names.indexOf('sys:specifier-rewrite');
+      const customAIndex = names.indexOf('custom:a');
+      const customBIndex = names.indexOf('custom:b');
+      const reactIndex = names.findIndex((name) => name.includes('react'));
+
+      expect(customAIndex > -1).to.eql(true);
+      expect(customBIndex > -1).to.eql(true);
+      expect(specifierRewrite > -1).to.eql(true);
+      expect(reactIndex > -1).to.eql(true);
+      expect(customAIndex > specifierRewrite).to.eql(true);
+      expect(customAIndex > reactIndex).to.eql(true);
+      expect(customBIndex > customAIndex).to.eql(true);
+    });
+
+    it('keeps visualizer last after caller-supplied vite plugins', async () => {
+      const custom: t.VitePlugin = { name: 'custom:a' };
+      const config = await ViteConfig.app({
+        vitePlugins: [custom],
+        visualizer: true,
+      });
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      expect(names.at(-2)).to.eql('custom:a');
+      expect(names.at(-1)).to.eql('visualizer');
+    });
+
     it('supports app config without a workspace', async () => {
       const config = await ViteConfig.app({ workspace: false });
 
