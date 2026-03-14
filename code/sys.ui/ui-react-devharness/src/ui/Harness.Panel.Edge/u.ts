@@ -1,8 +1,10 @@
-import { Color, type t } from '../common.ts';
+import { Color, Is, type t } from '../common.ts';
 
 export const Wrangle = {
   borderStyle(props?: t.DevRenderPropsEdge) {
     const color = props?.border?.color;
-    return color === undefined ? undefined : `solid 1px ${Color.format(color)}`;
+    if (color === undefined) return undefined;
+    const value = Is.str(color) ? color : Color.toGrayAlpha(color);
+    return `solid 1px ${value}`;
   },
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Color, css, DEFAULTS, R, Time, useCurrentState, type t } from '../common.ts';
+import { Color, css, DEFAULTS, Is, R, Time, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { BarSpinner } from '../Spinners/mod.ts';
 import { HostBackground } from './Host.Background.tsx';
@@ -45,20 +45,20 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   const cropmark = wrangle.cropmark(renderProps);
   const backgroundColor =
     host?.backgroundColor === undefined
-      ? Color.format(DEFAULT.backgroundColor)
-      : Color.format(host.backgroundColor);
+      ? wrangle.color(DEFAULT.backgroundColor)
+      : wrangle.color(host.backgroundColor);
   const color =
     host?.color === undefined
       ? //
-        Color.format(DEFAULT.color)
-      : Color.format(host.color);
+        wrangle.color(DEFAULT.color)
+      : wrangle.color(host.color);
 
   const styles = {
     base: css({
       position: 'relative',
       backgroundColor,
       color,
-      borderRight: `solid 1px ${Color.format(-0.1)}`,
+      borderRight: `solid 1px ${Color.toGrayAlpha(-0.1)}`,
     }),
     body: css({ Absolute: 0, display: 'grid', gridTemplateRows: 'auto 1fr auto' }),
     main: css({ position: 'relative', display: 'grid', overflow: 'hidden' }),
@@ -139,6 +139,10 @@ const wrangle = {
       if (R.equals(Wrangle.fillMargin(size), [0, 0, 0, 0])) return undefined;
     }
 
-    return `solid 1px ${Color.format(host?.tracelineColor ?? DEFAULT.tracelineColor)}`;
+    return `solid 1px ${wrangle.color(host?.tracelineColor ?? DEFAULT.tracelineColor)}`;
+  },
+  color(value?: string | number) {
+    if (value === undefined) return undefined;
+    return Is.str(value) ? value : Color.toGrayAlpha(value);
   },
 } as const;

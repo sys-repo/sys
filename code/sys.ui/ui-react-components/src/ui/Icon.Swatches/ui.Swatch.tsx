@@ -40,7 +40,7 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
     base: css({
       position: 'relative',
       borderRadius,
-      boxShadow: `0 2px ${isDown ? 10 : 25}px 0 ${Color.format(selected ? -0.35 : -0.2)}`,
+      boxShadow: `0 2px ${isDown ? 10 : 25}px 0 ${Color.toGrayAlpha(selected ? -0.35 : -0.2)}`,
       transform: `translateY(${isDown ? 1 : 0}px)`,
       userSelect: 'none',
       display: 'grid',

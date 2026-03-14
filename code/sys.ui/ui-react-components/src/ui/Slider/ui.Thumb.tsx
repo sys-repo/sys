@@ -40,7 +40,7 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
       backgroundColor: Is.string(thumb.color) ? thumb.color : Color.alpha(Color.WHITE, thumb.color),
       border: `solid 1px ${Color.alpha(Color.DARK, thumb.border)}`,
       boxSizing: 'border-box',
-      boxShadow: `0 1px 5px 0 ${Color.format(-0.1)}`,
+      boxShadow: `0 1px 5px 0 ${Color.toGrayAlpha(-0.1)}`,
     }),
   };
 

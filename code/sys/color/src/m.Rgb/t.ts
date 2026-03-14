@@ -11,11 +11,6 @@ export type StringRgba = string;
  */
 export type ColorLib = t.ColorConstants & {
   /**
-   * Takes a value of various types and converts it into a color.
-   */
-  format(value?: string | number | boolean): string | undefined;
-
-  /**
    * Converts a color to an alpha RGB value.
    * @param: alpha: 0..1
    */
@@ -39,6 +34,11 @@ export type ColorLib = t.ColorConstants & {
    * Convert the given color into a hex.
    */
   toHex(color: string): t.StringHex;
+
+  /**
+   * Convert a number in the range [-1, 1] to transparent/black/white RGBA.
+   */
+  toGrayAlpha(value: number): t.StringRgba;
 
   /** ColorThemeLib */
   readonly Theme: ColorThemeLib;

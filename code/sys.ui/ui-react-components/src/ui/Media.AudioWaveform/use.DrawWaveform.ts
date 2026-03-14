@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color } from './common.ts';
+import { type t, Color, Is } from './common.ts';
 
 type Hook = t.MediaAudioWaveformLib['useDrawWaveform'];
 
@@ -33,7 +33,7 @@ const draw = (args: { canvas: HTMLCanvasElement; audioData: Uint8Array } & t.Dra
   if (ctx) {
     ctx.clearRect(0, 0, width, height);
     ctx.lineWidth = args.lineWidth ?? 1;
-    ctx.strokeStyle = Color.format(lineColor) as string;
+    ctx.strokeStyle = Is.num(lineColor) ? Color.toGrayAlpha(lineColor) : lineColor;
     ctx.lineWidth = lineWidth;
     ctx.lineCap = 'round'; // NB: smooth corners.
     ctx.lineJoin = 'round';

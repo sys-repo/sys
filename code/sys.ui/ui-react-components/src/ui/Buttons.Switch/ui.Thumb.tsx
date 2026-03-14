@@ -19,7 +19,7 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
   const { isEnabled, isLoaded, value: on } = parent;
   const thumb = toThumb(parent.theme, props.thumb, parent);
 
-  const themeColor = Color.format(
+  const themeColor = wrangle.color(
     isEnabled ? (on ? thumb.color.on : thumb.color.off) : thumb.color.disabled,
   );
 
@@ -75,3 +75,9 @@ function toThumb(
   const res = R.mergeDeepRight(defaultThumb, thumb) as t.SwitchThumb;
   return R.clone(res);
 }
+
+const wrangle = {
+  color(value: string | number) {
+    return Is.string(value) ? value : Color.toGrayAlpha(value);
+  },
+} as const;
