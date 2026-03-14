@@ -1,4 +1,4 @@
-import { Color, css, R, type t } from './common.ts';
+import { Color, css, Is, R, type t } from './common.ts';
 import { SwitchTheme } from './u.theme.ts';
 
 export type SwitchThumbProps = {
@@ -78,6 +78,6 @@ function toThumb(
 
 const wrangle = {
   color(value: string | number) {
-    return Is.string(value) ? value : Color.toGrayAlpha(value);
+    return Is.str(value) ? value : Color.toGrayAlpha(value);
   },
 } as const;
