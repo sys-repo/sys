@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 import { capabilities } from './u.capabilities.ts';
 import { run } from './u.run.ts';
 
+/** Apple signer runtime surface. */
 export const AppleSigner: t.AppleSigner.Lib = {
   capabilities,
   run,

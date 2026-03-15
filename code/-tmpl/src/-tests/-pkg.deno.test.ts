@@ -49,9 +49,8 @@ describe('Template: pkg', () => {
       const path = `${test.root}/deno.json`;
       const workspaceDeno = (await Fs.readText(path)).data!;
       expect(workspaceDeno).to.include(`"workspace": [`);
-      expect(workspaceDeno).to.not.include(`"workspace": []`); // inserts between array braces.
-      expect(workspaceDeno).to.include(`"code/ns/foo-1"`);
-      expect(workspaceDeno).to.include(`"code/ns/foo-2",`);
+      const json = (await Fs.readJson<{ workspace?: string[] }>(path)).data!;
+      expect(json.workspace).to.eql(['code/ns/foo-1', 'code/ns/foo-2']);
     }
   });
 });

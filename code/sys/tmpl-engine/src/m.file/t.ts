@@ -11,6 +11,14 @@ export type TmplFileLib = {
     path: P,
     modify?: t.TmplLineUpdate,
   ): Promise<P extends t.StringPath[] ? TmplFileUpdateResponse[] : TmplFileUpdateResponse>;
+
+  /**
+   * Update a JSON file in-place using structured mutation.
+   */
+  updateJson<T extends t.Json>(
+    path: t.StringPath,
+    modify?: TmplJsonUpdate<T>,
+  ): Promise<TmplJsonFileUpdateResponse<T>>;
 };
 
 /** Response from the `Tmpl.File.update` method. */
@@ -34,6 +42,7 @@ export type TmplFileChange = {
  * Handler for updating a single line within a text file.
  */
 export type TmplLineUpdate = (e: TmplLineUpdateArgs) => t.IgnoredResult;
+export type TmplJsonUpdate<T extends t.Json> = (data: T) => t.IgnoredResult;
 export type TmplLineUpdateArgs = {
   /** Metadata about the file the line is within. */
   readonly file: {
@@ -55,4 +64,13 @@ export type TmplLineUpdateArgs = {
   insert(text: string, position?: 'before' | 'after'): void;
   /** Removes the line. */
   delete(): void;
+};
+
+/** Response from the `Tmpl.File.updateJson` method. */
+export type TmplJsonFileUpdateResponse<T extends t.Json> = {
+  readonly changed: boolean;
+  readonly before: string;
+  readonly after: string;
+  readonly data: { readonly before: T; readonly after: T };
+  readonly error?: t.StdError;
 };

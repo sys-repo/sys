@@ -27,10 +27,11 @@ export async function devSample(args: {
 }): Promise<DevSample> {
   const { sampleName, sampleDir, cwd } = args;
   const port = Testing.randomPort();
-  const fs = sampleName ? SAMPLE.fs(sampleName) : undefined;
+  const fs = sampleName ? await SAMPLE.fs(sampleName) : undefined;
   const dir = cwd ?? fs?.dir;
   if (!dir) throw new Error('Expected either "cwd" or "sampleName"');
   if (fs && sampleDir) {
+    await Fs.remove(fs.dir);
     await Fs.copy(sampleDir, fs.dir);
   }
 

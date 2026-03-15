@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.266",
+  "version": "0.0.276",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -29,7 +29,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

@@ -1,7 +1,7 @@
 import {
   act,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -9,20 +9,15 @@ import {
   MonacoFake,
   renderHook,
   Rx,
-  Time,
+  settle,
 } from '../../../-test.ts';
-import { type t, Bus, Crdt } from '../common.ts';
+import { type t, Bus, Immutable } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
-const settle = async (ms = 0) => {
-  await Time.wait(ms);
-  await Time.wait(0); // extra tick (micro/macro alignment)
-};
-
 describe('Monaco.Yaml', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
@@ -39,40 +34,37 @@ describe('Monaco.Yaml', () => {
       const model = MonacoFake.model('foo: bar', { language: 'yaml' });
       const editor = MonacoFake.editor(model);
 
-      type T = { foo?: string };
-      const repo = await Crdt.repo().whenReady();
-      const doc = (await repo.create<T>({ foo: 'bar' })).doc!;
+      const doc = Immutable.clonerRef({ text: 'foo: bar' });
 
       const { result, unmount } = renderHook(() =>
-        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco }),
+        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 }),
       );
 
       const life = Rx.disposable();
       const events: t.EditorEvent[] = [];
-      bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+      const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+      try {
+        const nonce = 'nonce-123';
+        act(() => {
+          Bus.ping(bus$, ['yaml'], nonce);
+        });
 
-      const nonce = 'nonce-123';
-      act(() => {
-        Bus.ping(bus$, ['yaml'], nonce);
-      });
+        await settle();
 
-      await Time.wait(10);
+        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
+        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
 
-      const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
-      const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
-
-      expect(yaml).to.exist;
-      expect(pong).to.exist;
-      expect(pong.nonce).to.equal(nonce);
-      expect(pong.states).to.eql(['yaml']);
-      expect(pong.at).to.be.a('number');
-
-      life.dispose();
-      unmount();
-
-      await settle(); //      let hook cleanup run
-      await repo.dispose();
-      await settle(100); //   let AM throttle timer clear
+        expect(yaml).to.exist;
+        expect(pong).to.exist;
+        expect(pong.nonce).to.equal(nonce);
+        expect(pong.states).to.eql(['yaml']);
+        expect(pong.at).to.be.a('number');
+      } finally {
+        sub.unsubscribe();
+        life.dispose();
+        unmount();
+        await settle();
+      }
     });
   });
 });

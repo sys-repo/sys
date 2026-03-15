@@ -1,15 +1,15 @@
 import { type t, c, pkg } from './common.ts';
 import { ROOT_REGISTRY } from './registry.ts';
 
-export type RootRow = { readonly command: t.Tools.Command; readonly columns: string[] };
+export type RootRow = { readonly command: t.Root.Command; readonly columns: string[] };
 
 export function rootRows(): RootRow[] {
-  const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name} `)) + tool;
+  const fmt = (tool: t.Root.Command) => c.gray(c.dim(`${pkg.name} `)) + tool;
   const rows: RootRow[] = [];
 
-  const add = (tool: t.Tools.Command, alias?: readonly string[]) => {
+  const add = (tool: t.Root.Command, alias?: readonly string[]) => {
     const items = [fmt(tool)];
-    if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(' '))})`));
+    if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(', '))})`));
     rows.push({ command: tool, columns: items });
   };
 

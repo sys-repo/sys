@@ -27,62 +27,73 @@ describe(`useWebFont`, () => {
     beforeEach(() => resetHead());
 
     it('injects a single <style> on mount', () => {
-      renderHook(() =>
+      const hook = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      const styles = byFamily('Inter');
-      expect(styles.length).to.eql(1);
-      const css = styles[0].textContent ?? '';
-      expect(css.includes('font-family: Inter')).to.eql(true);
-      expect(css.includes('font-weight: 100 900;')).to.eql(true);
-      expect(css.includes('url(/fonts/inter/Inter-Var.woff2)')).to.eql(true);
+      try {
+        const styles = byFamily('Inter');
+        expect(styles.length).to.eql(1);
+        const css = styles[0].textContent ?? '';
+        expect(css.includes('font-family: Inter')).to.eql(true);
+        expect(css.includes('font-weight: 100 900;')).to.eql(true);
+        expect(css.includes('url(/fonts/inter/Inter-Var.woff2)')).to.eql(true);
+      } finally {
+        act(() => hook.unmount());
+      }
     });
 
     it('idempotent across multiple mounts with the same args', () => {
-      renderHook(() =>
+      const a = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-      renderHook(() =>
+      const b = renderHook(() =>
         useWebFont('/fonts/inter', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      expect(byFamily('Inter').length).to.eql(1);
+      try {
+        expect(byFamily('Inter').length).to.eql(1);
+      } finally {
+        act(() => a.unmount());
+        act(() => b.unmount());
+      }
     });
 
     it('different key (dir) yields a second <style> (delegated key semantics)', () => {
-      renderHook(() =>
+      const a = renderHook(() =>
         useWebFont('/fonts/a', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-      renderHook(() =>
+      const b = renderHook(() =>
         useWebFont('/fonts/b', {
           family: 'Inter',
           variable: true,
           fileForVariable: ({ dir }) => `${dir}/Inter-Var.woff2`,
         }),
       );
-
-      expect(byFamily('Inter').length).to.eql(2);
+      try {
+        expect(byFamily('Inter').length).to.eql(2);
+      } finally {
+        act(() => a.unmount());
+        act(() => b.unmount());
+      }
     });
 
     it('re-runs for changed args and injects new family', () => {
-      const { rerender } = renderHook(
+      const { rerender, unmount } = renderHook(
         ({ dir, family }) =>
           useWebFont(dir, {
             family,
@@ -91,12 +102,15 @@ describe(`useWebFont`, () => {
           }),
         { initialProps: { dir: '/fonts/source-sans-3', family: 'Source Sans 3' } },
       );
+      try {
+        expect(byFamily('Source Sans 3').length).to.eql(1);
 
-      expect(byFamily('Source Sans 3').length).to.eql(1);
-
-      act(() => rerender({ dir: '/fonts/et-book', family: 'ET Book' }));
-      expect(byFamily('Source Sans 3').length).to.eql(1);
-      expect(byFamily('ET Book').length).to.eql(1);
+        act(() => rerender({ dir: '/fonts/et-book', family: 'ET Book' }));
+        expect(byFamily('Source Sans 3').length).to.eql(1);
+        expect(byFamily('ET Book').length).to.eql(1);
+      } finally {
+        act(() => unmount());
+      }
     });
 
     it('does not re-run for equivalent semantic options with new object identity', () => {
@@ -108,7 +122,7 @@ describe(`useWebFont`, () => {
       }) as typeof Base.inject;
 
       try {
-        const { rerender } = renderHook(
+        const { rerender, unmount } = renderHook(
           ({ tick }) =>
             useWebFont('/fonts/source-sans-3', {
               family: 'Source Sans 3',
@@ -125,9 +139,13 @@ describe(`useWebFont`, () => {
           { initialProps: { tick: 0 } },
         );
 
-        expect(calls).to.eql(1);
-        act(() => rerender({ tick: 1 }));
-        expect(calls).to.eql(1);
+        try {
+          expect(calls).to.eql(1);
+          act(() => rerender({ tick: 1 }));
+          expect(calls).to.eql(1);
+        } finally {
+          act(() => unmount());
+        }
       } finally {
         (Base as { inject: typeof Base.inject }).inject = originalInject;
       }

@@ -5,10 +5,12 @@ import type { t } from './common.ts';
  * (apple/windows/linux/content) stay consistent and truthful.
  */
 export namespace Signer {
+  /** Canonical signer target identifiers. */
   export type Target = 'content-manifest' | 'apple' | 'windows' | 'linux';
+  /** Canonical signer operation modes. */
   export type Mode = 'sign' | 'verify' | 'sign-verify';
 
-  /** Library: */
+  /** Shared signer namespace surface. */
   export type Lib = {};
 
   /**
@@ -42,34 +44,56 @@ export namespace Signer {
    * Truthful capability declaration for a signer target.
    */
   export type Capabilities = {
+    /** Signer target implemented by the driver. */
     readonly target: Target;
+    /** Driver can produce signatures. */
     readonly sign: boolean;
+    /** Driver can verify signatures. */
     readonly verify: boolean;
+    /** Driver supports detached signature files. */
     readonly detachedSignature: boolean;
+    /** Driver supports signatures embedded in the artifact. */
     readonly embeddedSignature: boolean;
+    /** Driver supports notarization. */
     readonly notarize: boolean;
+    /** Driver supports stapling notarization tickets. */
     readonly staple: boolean;
+    /** Driver supports trusted timestamping. */
     readonly timestamp: boolean;
   };
 
+  /** Common success metadata shared by signer drivers. */
   export type ResultData = {
+    /** Signer target that produced the result. */
     readonly target: Target;
+    /** Requested operation mode. */
     readonly mode: Mode;
   };
 
+  /** Successful signer result. */
   export type ResultOk = {
+    /** Success discriminator. */
     readonly ok: true;
+    /** Success payload. */
     readonly data: ResultData;
+    /** Success case never includes an error. */
     readonly error: undefined;
   };
 
+  /** Failed signer result. */
   export type ResultFail = {
+    /** Failure discriminator. */
     readonly ok: false;
+    /** Partial result context captured before failure. */
     readonly data?: Partial<ResultData>;
+    /** Failure details. */
     readonly error: t.StdError;
+    /** Stable machine-readable failure code. */
     readonly code: ErrorCode;
+    /** Lifecycle stage where the failure occurred. */
     readonly stage: Stage;
   };
 
+  /** Signer result union. */
   export type Result = ResultOk | ResultFail;
 }

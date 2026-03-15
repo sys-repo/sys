@@ -5,8 +5,8 @@ export const toArray: t.CssEdgesLib['toArray'] = (input, defaultValue) => {
   const arr = wrangle.asArray(input, defaultValue).map((value) => {
     if (value === undefined) return DEF;
     if (value === null) return null;
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string' && value) return value;
+    if (Is.num(value)) return value;
+    if (Is.str(value) && value) return value;
     return DEF;
   });
 
@@ -42,7 +42,7 @@ export const toArrayY: t.CssEdgesLib['toArrayY'] = (input, defaultValue) => {
 const wrangle = {
   defaultValue(value?: t.CssEdgeDefault) {
     if (value === undefined || value === null) return null;
-    if (typeof value === 'number' || typeof value === 'string') return value;
+    if (Is.num(value) || Is.str(value)) return value;
     return null;
   },
 
@@ -54,7 +54,7 @@ const wrangle = {
   asNumber(value: any) {
     if (Is.blank(value)) return value;
 
-    value = typeof value === 'string' ? value.trim() : value;
+    value = Is.str(value) ? value.trim() : value;
     const num = parseFloat(value);
     if (num === undefined) return value;
     if (num.toString().length !== value.toString().length) return value;

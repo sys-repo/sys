@@ -54,6 +54,85 @@ describe('Config.Build', () => {
       expect(config.plugins).to.eql([]);
     });
 
+    it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
+      const customA: t.VitePlugin = { name: 'custom:a' };
+      const customB: t.VitePlugin = { name: 'custom:b' };
+      const config = await ViteConfig.app({ vitePlugins: [customA, customB] });
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      const specifierRewrite = names.indexOf('sys:specifier-rewrite');
+      const customAIndex = names.indexOf('custom:a');
+      const customBIndex = names.indexOf('custom:b');
+      const reactIndex = names.findIndex((name) => name.includes('react'));
+
+      expect(customAIndex > -1).to.eql(true);
+      expect(customBIndex > -1).to.eql(true);
+      expect(specifierRewrite > -1).to.eql(true);
+      expect(reactIndex > -1).to.eql(true);
+      expect(customAIndex > specifierRewrite).to.eql(true);
+      expect(customAIndex > reactIndex).to.eql(true);
+      expect(customBIndex > customAIndex).to.eql(true);
+    });
+
+    it('keeps visualizer last after caller-supplied vite plugins', async () => {
+      const custom: t.VitePlugin = { name: 'custom:a' };
+      const config = await ViteConfig.app({
+        vitePlugins: [custom],
+        visualizer: true,
+      });
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      expect(names.at(-2)).to.eql('custom:a');
+      expect(names.at(-1)).to.eql('visualizer');
+    });
+
+    it('supports app config without a workspace', async () => {
+      const config = await ViteConfig.app({ workspace: false });
+
+      expect(config.resolve?.alias).to.eql(undefined);
+      expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
+      expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+    });
+
+    it('does not mount npm prewarm when local deno.json uses manual node-modules mode', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.app.manual-node-modules.' });
+      try {
+        await Fs.write(
+          Fs.join(fs.absolute, 'deno.json'),
+          JSON.stringify({
+            name: '@tmp/manual',
+            version: '0.0.0',
+            nodeModulesDir: 'manual',
+            importMap: 'imports.json',
+          }, null, 2),
+        );
+        await Fs.write(Fs.join(fs.absolute, 'imports.json'), JSON.stringify({ imports: {} }, null, 2));
+
+        const paths = ViteConfig.paths({ cwd: fs.absolute });
+        const config = await ViteConfig.app({ workspace: false, paths });
+
+        expect(config.resolve?.alias).to.eql(undefined);
+        expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
+        expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+      } finally {
+        await Fs.remove(fs.absolute);
+      }
+    });
+
+    it('does not mount deno plugins when no local deno.json exists', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.app.no-deno.' });
+      try {
+        const paths = ViteConfig.paths({ cwd: fs.absolute });
+        const config = await ViteConfig.app({ workspace: false, paths });
+
+        expect(config.resolve?.alias).to.eql(undefined);
+        expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(false);
+        expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+      } finally {
+        await Fs.remove(fs.absolute);
+      }
+    });
+
     it('custom paths', async () => {
       const paths = ViteConfig.paths({
         cwd: ' /foo/ ', // NB: absolute path (trimmed internally).

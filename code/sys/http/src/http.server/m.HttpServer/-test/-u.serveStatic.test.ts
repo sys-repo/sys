@@ -13,7 +13,7 @@ describe('HttpServer: serve static', () => {
   it('200: simple JSON', async () => {
     type T = { count: number; msg?: string };
     const foo: T = { msg: 'hello', count: 123 };
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     const filename = 'foo.json';
     await Fs.writeJson(Fs.join(fs.dir, filename), foo);
 
@@ -33,7 +33,7 @@ describe('HttpServer: serve static', () => {
 
   it('200/404: HTML/Blob(Binary)/404', async () => {
     const data = sampleBinary();
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     await Fs.write(Fs.join(fs.dir, 'bar/foo.bin'), data);
     await Fs.write(Fs.join(fs.dir, 'index.html'), '<h1>🐷</h1>');
     await Fs.write(Fs.join(fs.dir, 'bar/index.html'), '<h1>🌳</h1>');
@@ -73,7 +73,7 @@ describe('HttpServer: serve static', () => {
   });
 
   it('308: redirects directory path to trailing slash', async () => {
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     await Fs.write(Fs.join(fs.dir, 'bar/index.html'), '<h1>🌳</h1>');
 
     const app = HttpServer.create({ static: ['/*', fs.dir] });
@@ -88,7 +88,7 @@ describe('HttpServer: serve static', () => {
      * NOTE: 206/Partial-Content is used in video file streaming.
      */
     const data = sampleBinary(500);
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     const filename = 'foo.bin';
     await Fs.write(Fs.join(fs.dir, filename), data);
 
@@ -112,7 +112,7 @@ describe('HttpServer: serve static', () => {
   });
 
   it('304: ETag short-circuit', async () => {
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     const filename = 'etag.json';
     await Fs.writeJson(Fs.join(fs.dir, filename), { ok: true });
 
@@ -135,7 +135,7 @@ describe('HttpServer: serve static', () => {
 
   it('ETag changes after file rewrite', async () => {
     type T = { ok: boolean };
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     const filename = 'etag-change.json';
     const path = Fs.join(fs.dir, filename);
     await Fs.writeJson(path, { ok: true });
@@ -176,7 +176,7 @@ describe('HttpServer: serve static', () => {
   it('ETag changes after JSON rewrite without waiting', async () => {
     type T = { ok: boolean };
 
-    const fs = await Testing.dir('HttpServer').create();
+    const fs = await Testing.dir('HttpServer');
     const filename = 'etag-change-fast.json';
     const path = Fs.join(fs.dir, filename);
     await Fs.writeJson(path, { ok: true });

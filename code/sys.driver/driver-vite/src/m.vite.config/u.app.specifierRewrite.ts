@@ -1,21 +1,65 @@
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
+import type { PluginContext } from 'rollup';
+import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
+type WarmNpm = (specifier: string, cwd: string) => Promise<void>;
+type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createSpecifierRewrite(
   configPath: t.StringPath,
   options: { loadImports?: LoadImports } = {},
 ): t.VitePlugin {
   const rewriteSpecifier = wrangle.rewriteSpecifier(configPath, options.loadImports);
+  const resolutionImporter = wrangle.resolutionImporter(configPath);
 
   return {
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
-    async resolveId(source: string, importer?: string) {
-      if (wrangle.isDenoImporter(importer)) return null;
+    async resolveId(
+      this: PluginContext,
+      source: string,
+      importer?: string,
+      options?: ResolveOptions,
+    ) {
       const rewritten = await rewriteSpecifier(source);
-      if (!rewritten || rewritten === source) return null;
+      if (!rewritten) return null;
+      const importerForResolve = wrangle.isDenoImporter(importer) ? resolutionImporter : importer;
+      const ctx = this as PluginContext | undefined;
+
+      const resolved = ctx?.resolve
+        ? await ctx.resolve(rewritten, importerForResolve, { ...options, skipSelf: true })
+        : null;
+      if (resolved?.id) return resolved.id;
+      if (isBarePackageId(rewritten)) return null;
       return rewritten;
+    },
+  };
+}
+
+export function createNpmPrewarm(
+  configPath: t.StringPath,
+  options: { loadImports?: LoadImports; warmNpm?: WarmNpm } = {},
+): t.VitePlugin {
+  const loadImports = options.loadImports ?? wrangle.loadImports;
+  const warmNpm = options.warmNpm ?? wrangle.warmNpm;
+  let warmed = false;
+
+  return {
+    name: 'sys:npm-prewarm',
+    async buildStart() {
+      if (warmed) return;
+      warmed = true;
+
+      const imports = await loadImports(configPath);
+      const cwd = Path.dirname(configPath);
+      const specifiers = Object.values(imports)
+        .map((target) => wrangle.toNpmWarmSpecifier(target))
+        .filter((value): value is string => Boolean(value));
+
+      for (const specifier of new Set(specifiers)) {
+        await warmNpm(specifier, cwd);
+      }
     },
   };
 }
@@ -56,11 +100,16 @@ const wrangle = {
       const promise = (async () => {
         if (specifier.startsWith('npm:')) return parseNpmSpecifier(specifier);
         if (specifier.startsWith('jsr:')) return undefined;
+        const bare = isBarePackageId(specifier);
 
         const map = await imports;
         const fromMap = resolveFromImportsMap(specifier, map);
         if (!fromMap) return undefined;
-        if (fromMap.startsWith('npm:')) return parseNpmSpecifier(fromMap);
+        if (fromMap.startsWith('npm:')) {
+          const rewritten = parseNpmSpecifier(fromMap);
+          if (bare && rewritten === specifier) return undefined;
+          return rewritten;
+        }
         if (fromMap.startsWith('jsr:')) return undefined;
         return fromMap;
       })();
@@ -89,6 +138,10 @@ const wrangle = {
     return Path.resolve(dir, importMapPath);
   },
 
+  resolutionImporter(configPath: t.StringPath) {
+    return Path.resolve(configPath);
+  },
+
   toStringRecord(input: unknown): Record<string, string> {
     const res: Record<string, string> = {};
     if (!input || typeof input !== 'object') return res;
@@ -103,7 +156,10 @@ const wrangle = {
     let best: { target: string; suffix: string; len: number } | undefined;
     for (const [key, target] of Object.entries(imports)) {
       if (!Is.string(target)) continue;
-      if (!(specifier === key || specifier.startsWith(`${key}/`))) continue;
+      const matches = key.endsWith('/')
+        ? specifier.startsWith(key)
+        : (specifier === key || specifier.startsWith(`${key}/`));
+      if (!matches) continue;
       const candidate = { target, suffix: specifier.slice(key.length), len: key.length };
       if (!best || candidate.len > best.len) best = candidate;
     }
@@ -114,11 +170,15 @@ const wrangle = {
     return input.startsWith(prefix) ? input.slice(prefix.length) : '';
   },
 
+  toNpmWarmSpecifier(target: string): string | undefined {
+    if (!target.startsWith('npm:')) return undefined;
+    return target.endsWith('/') ? target.slice(0, -1) : target;
+  },
+
   isDenoImporter(importer?: string) {
     if (!importer) return false;
     return importer.startsWith('\0deno::') || importer.startsWith('/@id/__x00__deno::');
   },
-
   parseRegistrySpecifier(source: string): string | undefined {
     const scoped = source.startsWith('@');
     let nameWithVersion = source;
@@ -143,5 +203,19 @@ const wrangle = {
     const pkg = at > 0 ? nameWithVersion.slice(0, at) : nameWithVersion;
     if (!pkg) return undefined;
     return `${pkg}${subpath}`;
+  },
+
+  async warmNpm(specifier: string, cwd: string) {
+    const cmd = new Deno.Command(Deno.execPath(), {
+      args: ['info', '--json', specifier],
+      cwd,
+      stdout: 'null',
+      stderr: 'piped',
+    });
+    const output = await cmd.output();
+    if (output.success) return;
+
+    const stderr = new TextDecoder().decode(output.stderr).trim();
+    throw new Error(stderr || `Failed to warm npm specifier: ${specifier}`);
   },
 } as const;

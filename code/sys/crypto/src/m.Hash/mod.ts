@@ -1,6 +1,6 @@
 /**
- * Tools for working with cryptographic hashes.
  * @module
+ * Tools for working with cryptographic hashes.
  *
  * ---
  *

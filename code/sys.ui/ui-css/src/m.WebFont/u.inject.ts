@@ -27,7 +27,7 @@ export const inject: t.WebFontLib['inject'] = (dir, opts) => {
   const key = `${D.attr.key}:${family}:${dir}:${variable ? 'var' : 'static'}:${italic ? 'i' : 'n'}/${weights.join(',')}`;
   const id = `${D.attr.id}-${slugify(key)}`;
 
-  const doc = typeof document !== 'undefined' ? document : undefined;
+  const doc = globalThis.document;
   if (!doc?.head) return { id, injected: false };
   if (doc.getElementById(id)) return { id, injected: false };
 

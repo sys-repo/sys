@@ -1,6 +1,6 @@
 /**
- * Commonly used React types.
  * @module
+ * Commonly used React types.
  */
 import type { FC } from 'react';
 

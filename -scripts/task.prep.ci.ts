@@ -1,5 +1,10 @@
 import { MonorepoCi as Ci } from '@sys/monorepo/ci';
+import type { MonorepoCi } from '@sys/monorepo/t';
 import { Paths } from './-PATHS.ts';
+
+type Options = {
+  versionFilter?: MonorepoCi.Jsr.VersionFilter;
+};
 
 export const JsrIncludePrefixes = [
   'code/sys/',
@@ -17,15 +22,18 @@ export function toJsrCiPaths(paths: readonly string[]) {
   return paths.filter((path) => JsrIncludePrefixes.some((item) => path.startsWith(item)));
 }
 
-export async function main() {
+export async function main(options: Options = {}) {
   const cwd = Deno.cwd();
   const jsrTarget = '.github/workflows/jsr.yaml';
   const buildTarget = '.github/workflows/build.yaml';
   const testTarget = '.github/workflows/test.yaml';
   const jsrPaths = toJsrCiPaths(Paths.modules);
+  const versionFilter = options.versionFilter ?? 'all';
   const on = {
-    // pull_request: ['main'],
-    push: { branches: ['main', 'phil-work'] },
+    push: {
+      branches: ['main', 'phil-work'],
+      paths_ignore: ['.github/workflows/jsr.yaml'],
+    },
   } as const;
   const env = {
     // SAMPLE_VAR: '${{ vars.SAMPLE_VAR }}',
@@ -39,6 +47,7 @@ export async function main() {
     on: { push: { tags: ['jsr-publish', 'jsr-publish-main'] }, workflow_dispatch: true },
     source: { paths: jsrPaths },
     target: jsrTarget,
+    versionFilter,
   });
   await Ci.Build.sync({
     cwd,

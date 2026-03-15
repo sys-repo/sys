@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - phil-work
+    paths-ignore:
+      - .github/workflows/jsr.yaml
 
 jobs:
   deno:
@@ -46,10 +48,10 @@ jobs:
             path: code/sys/yaml
           - name: "@sys/schema"
             path: code/sys/schema
-          - name: "@sys/monorepo"
-            path: code/sys/monorepo
           - name: "@sys/jsr"
             path: code/sys/jsr
+          - name: "@sys/monorepo"
+            path: code/sys/monorepo
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/tmpl-engine"
@@ -105,19 +107,17 @@ jobs:
           - name: "@sys/crdt"
             path: code/sys/crdt
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.4
+          deno-version: v2.7.5
       - name: Install Dependencies
         run: deno task install
-      - name: Task Help
-        run: deno task help
+      - name: Monorepo Info
+        run: deno task info
       - name: Deno Info
         run: deno info && deno --version
-      - name: System Info
-        run: deno task help
       - name: test module → "${{ matrix.name }}"
         run: |
           cd ${{ matrix.path }}

@@ -44,7 +44,7 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
         Size: 18,
         margin: 5,
         backgroundColor: Color.alpha(COLORS.MAGENTA, 0.2),
-        border: `dashed 1px ${Color.format(-0.3)}`,
+        border: `dashed 1px ${Color.toGrayAlpha(-0.3)}`,
         borderRadius: 3,
       }),
     },

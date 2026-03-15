@@ -1,4 +1,4 @@
-import { type t, Color } from './common.ts';
+import { type t, Color, Is } from './common.ts';
 
 /**
  * Converts into to a box-shadow.
@@ -8,7 +8,7 @@ export const toShadow: t.CssToShadow = (input) => {
   const { blur } = input;
   const x = input.x ? `${input.x}px` : '0';
   const y = input.y ? `${input.y}px` : '0';
-  const col = Color.format(input.color);
+  const col = Is.num(input.color) ? Color.toGrayAlpha(input.color) : input.color;
   const inset = input.inner ? 'inset ' : '';
   return `${inset}${x} ${y} ${blur}px 0 ${col}`;
 };

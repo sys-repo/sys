@@ -1,6 +1,6 @@
 {
   "name": "@sys/crdt",
-  "version": "0.0.128",
+  "version": "0.0.137",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/-test/index.html",
@@ -10,7 +10,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=help",
+    "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -28,7 +28,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

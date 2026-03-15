@@ -72,6 +72,29 @@ describe('Style: CSS ClassName', () => {
       test('foobar');
       test('foobar', 'my-class-prefix');
     });
+
+    it('reuses a preexisting <style> element in the DOM', () => {
+      const instance = slug();
+      const id = getStylesheetId(instance);
+      const selector = `style[data-controller="${id}"]`;
+
+      const before = document.head.querySelectorAll(selector).length;
+      const el = document.createElement('style');
+      el.setAttribute('data-controller', id);
+      document.head.appendChild(el);
+
+      const existing = document.head.querySelector(selector);
+      expect(existing).to.equal(el);
+
+      const sheet = CssDom.stylesheet({ instance });
+      sheet.rule('.preexisting-style-target', { color: 'red' });
+      const after = document.head.querySelectorAll(selector).length;
+
+      expect(after).to.eql(before + 1);
+      expect(document.head.querySelector(selector)).to.equal(el);
+      expect(el.sheet?.cssRules.length).to.eql(1);
+      expect(el.sheet?.cssRules[0]?.cssText).to.eql('.preexisting-style-target { color: red; }');
+    });
   });
 
   describe('.classes(): prefixed class/style DOM insertion', () => {

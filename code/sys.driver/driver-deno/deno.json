@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.255",
+  "version": "0.0.263",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -12,12 +12,13 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./runtime": "./src/ns.Runtime/mod.ts"
+    "./runtime": "./src/m.runtime/mod.ts"
   },
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

@@ -32,7 +32,7 @@ export const MySample: React.FC<MySampleProps> = (props) => {
     }),
     body: css({
       position: 'relative',
-      border: `dashed 1px ${Color.format(-0.4)}`,
+      border: `dashed 1px ${Color.toGrayAlpha(-0.4)}`,
       boxSizing: 'border-box',
       padding: 15,
       minWidth: 320,

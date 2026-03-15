@@ -21,24 +21,21 @@ export function workflowTemplate(args: WorkflowArgs) {
   const steps = Str.dedent(
     `
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: 'Install ESM Runtime: Deno 2.x'
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${CI_DENO_VERSION}
 
       - name: Install Dependencies
         run: deno task install
 
-      - name: Task Help
-        run: deno task help
+      - name: Monorepo Info
+        run: deno task info
 
       - name: Deno Info
         run: deno info && deno --version
-
-      - name: System Info
-        run: deno task help
   `,
   ).trim();
 
@@ -95,9 +92,15 @@ export const wrangle = {
       lines.push('  push:');
       if (on.push?.branches?.length) lines.push('    branches:', wrangle.list(on.push.branches, 6));
       if (on.push?.tags?.length) lines.push('    tags:', wrangle.list(on.push.tags, 6));
+      if (on.push?.paths_ignore?.length) {
+        lines.push('    paths-ignore:', wrangle.list(on.push.paths_ignore, 6));
+      }
     }
     if (on.pull_request?.branches?.length) {
       lines.push('  pull_request:', '    branches:', wrangle.list(on.pull_request.branches, 6));
+      if (on.pull_request?.paths_ignore?.length) {
+        lines.push('    paths-ignore:', wrangle.list(on.pull_request.paths_ignore, 6));
+      }
     }
     if (on.workflow_dispatch) lines.push('  workflow_dispatch:');
     return lines.join('\n');

@@ -47,17 +47,22 @@ export const Wrangle = {
   packageAnchor(start: string) {
     return wrangle.packageAnchor(start);
   },
+
+  async viteSpecifier(start: string, moduleUrl = import.meta.url) {
+    return await wrangle.viteSpecifier(start, moduleUrl);
+  },
 } as const;
 
 const wrangle = {
   async args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
     const permissions = await wrangle.permissions(paths, cmd ?? '', env);
+    const vite = await wrangle.viteSpecifier(paths.cwd);
     return [
       'run',
       ...permissions,
       '--node-modules-dir',
-      'npm:vite',
+      vite,
       cmd,
       ...rest,
       `--config=${config}`,
@@ -81,6 +86,45 @@ const wrangle = {
     return {
       ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(cwd),
     } as const;
+  },
+
+  async viteSpecifier(start: string, moduleUrl = import.meta.url) {
+    const anchors = wrangle.vitePackageAnchors(start, moduleUrl);
+
+    let lastMissing = '';
+    for (const anchor of anchors) {
+      const version = await wrangle.viteVersionFromPackage(anchor);
+      if (version) return `npm:vite@${version}`;
+      lastMissing = anchor;
+    }
+
+    if (!lastMissing) {
+      throw new Error(`Missing "vite" dependency in package authority: ${start}`);
+    }
+
+    throw new Error(`Missing "vite" dependency in package authority: ${lastMissing}`);
+  },
+
+  async viteVersionFromPackage(anchor: string) {
+    const pkg = (await Fs.readJson<{ dependencies?: Record<string, string>; devDependencies?: Record<string, string> }>(
+      anchor,
+    )).data ?? {};
+    return pkg.dependencies?.vite ?? pkg.devDependencies?.vite ?? '';
+  },
+
+  vitePackageAnchors(start: string, moduleUrl = import.meta.url) {
+    const anchors = [wrangle.packageAnchor(start)];
+    const moduleStart = wrangle.moduleStart(moduleUrl);
+    if (moduleStart) {
+      const moduleAnchor = wrangle.packageAnchor(moduleStart);
+      if (!anchors.includes(moduleAnchor)) anchors.push(moduleAnchor);
+    }
+    return anchors;
+  },
+
+  moduleStart(moduleUrl = import.meta.url) {
+    if (!moduleUrl.startsWith('file:')) return '';
+    return Path.dirname(Path.fromFileUrl(moduleUrl));
   },
 
   viteCacheDir(cwd: string) {

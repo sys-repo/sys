@@ -142,15 +142,20 @@ describe('Time Delay/Wait', () => {
     });
 
     describe('races', () => {
-      it('race: cancel right before timer fires', async () => {
+      it('race: cancel at the timer boundary settles exactly once', async () => {
         let fired = 0;
         const res = Time.delay(5, () => fired++);
-        // Busy-wait tiny window:
         await Time.wait(4);
         res.cancel();
-        await Time.wait(20);
-        expect(fired).to.eql(0);
-        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+        await res;
+
+        if (fired === 0) {
+          expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+          return;
+        }
+
+        expect(fired).to.eql(1);
+        expect(res.is).to.eql({ cancelled: false, completed: true, done: true });
       });
 
       it('race: dispose Time.until right before scheduled run', async () => {

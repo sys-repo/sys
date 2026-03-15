@@ -1,6 +1,6 @@
 /**
- * A promise based wrapper into the IndexedDB API.
  * @module
+ * A promise based wrapper into the IndexedDB API.
  *
  *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
  *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB

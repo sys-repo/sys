@@ -1,9 +1,4 @@
-import type { t } from '../common.ts';
-
-/**
- * A string representing a user-agent.
- */
-export type UserAgentString = string;
+import type { t } from './common.ts';
 
 /**
  * Library for working with user-agent strings.
@@ -11,37 +6,10 @@ export type UserAgentString = string;
  */
 export type UserAgentLib = {
   /**
-   * An object containing information about operating system kinds.
-   */
-  readonly os: {
-    /**
-     * Enumeration representing the supported operating systems.
-     * Possible values include 'Windows', 'macOS', 'Linux', 'Android', 'iOS', etc.
-     */
-    kinds: t.UserAgentOSKind[];
-  };
-
-  /**
-   * An array of user-agent flags.
-   * These flags represent specific characteristics or capabilities of the user-agent,
-   * such as 'Mobile', 'Tablet', 'Desktop', 'Bot', etc.
-   */
-  readonly flags: t.UserAgentFlag[];
-
-  /**
    * An object containing detailed information about the current user-agent.
-   * Includes parsed details like browser name and version, operating system and version,
-   * device type, engine (e.g., WebKit, Gecko, Blink), and additional flags or features.
+   * Includes the reduced semantic data that the app consumes.
    */
   readonly current: t.UserAgent;
-
-  /**
-   * Convert a browser user-agent string into a structured object.
-   * Example:
-   *
-   *    const ua = UserAgent.parse(navigator.userAgent);
-   */
-  parse(input: t.UserAgentString): t.UserAgent;
 };
 
 /**
@@ -54,73 +22,26 @@ export type UserAgentLib = {
  *     vendor, and/or version of the requesting user agent."
  */
 export type UserAgent = {
-  readonly browser: UserAgentBrowser;
-  readonly engine: UserAgentEngine;
   readonly os: UserAgentOS;
-  readonly device: UserAgentDevice;
   readonly is: UserAgentFlags;
 };
-
-/**
- * The kind of operating-system the user-agent is from.
- */
-export type UserAgentOSKind = 'macOS' | 'iOS' | 'windows' | 'posix' | 'android' | 'UNKNOWN';
-
-/**
- * A single user-agent flag.
- */
-export type UserAgentFlag = keyof UserAgentFlags;
 
 /**
  * Flags (boolean) values derived from the user-agent string.
  */
 export type UserAgentFlags = {
+  readonly apple: boolean;
   readonly macOS: boolean;
   readonly iOS: boolean;
   readonly iPad: boolean;
   readonly iPhone: boolean;
-  readonly posix: boolean;
-  readonly android: boolean;
-  readonly windows: boolean;
-  readonly mobile: boolean;
-  readonly tablet: boolean;
-
-  // Main browser types:
   readonly chromium: boolean;
   readonly firefox: boolean;
-};
-
-/**
- * The browser the user-agent string represents.
- */
-export type UserAgentBrowser = {
-  readonly name: string;
-  readonly version: string;
-  readonly major: string;
-};
-
-/**
- * Details about the user-agent's rendering engine.
- */
-export type UserAgentEngine = {
-  readonly name: string;
-  readonly version: string;
 };
 
 /**
  * Details about the user-agent's operating system.
  */
 export type UserAgentOS = {
-  readonly kind: UserAgentOSKind;
   readonly name: string;
-  readonly version: string;
-};
-
-/**
- * Details about the device the user-agent is running on.
- */
-export type UserAgentDevice = {
-  readonly vendor: string;
-  readonly model: string;
-  readonly type: string;
 };

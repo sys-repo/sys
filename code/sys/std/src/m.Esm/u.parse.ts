@@ -1,6 +1,6 @@
 /**
- * Tools for evaluating boolean flags on JSR related data.
  * @module
+ * Tools for evaluating boolean flags on JSR related data.
  */
 import { type t, Err } from './common.ts';
 import { toString } from './u.toString.ts';

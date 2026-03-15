@@ -12,6 +12,9 @@ export const Paths = {
     return Paths.all;
   },
   single: [
+    'code/sys/jsr',
+    'code/sys.ui/ui-dom',
+    'code/sys.driver/driver-signer',
     'code/sys.driver/driver-vite',
     //
     // 'deploy/@tdb.edu.slug',
@@ -41,9 +44,9 @@ export const Paths = {
     'code/sys/http',
     'code/sys/yaml',
     'code/sys/schema',
+    'code/sys/jsr',
     'code/sys/monorepo',
 
-    'code/sys/jsr',
     'code/sys/text',
     'code/sys/tmpl-engine',
 

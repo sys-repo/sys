@@ -1,5 +1,6 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { extractModulePreloadLinks } from './-u.ts';
+import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 
 describe('Vite.build', () => {
@@ -32,51 +33,56 @@ describe('Vite.build', () => {
   };
 
   const testBuild = async (sample: t.StringDir) => {
-    const fs = SAMPLE.fs('Vite.build');
-    await Fs.copy(sample, fs.dir);
+    const fs = await SAMPLE.fs('Vite.build');
+    const cwd = fs.join('fixture');
+    await Fs.copy(sample, cwd);
+    const restore = await writeLocalFixtureImports(cwd);
 
-    const cwd = fs.dir;
-    const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+    try {
+      const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
 
-    const res = await Vite.build({
-      cwd,
-      pkg,
-      silent: true,
-      spinner: false, // Test runner owns progress/logging; avoid long-lived spinner timers in tests.
-      exitOnError: false, // Never terminate the whole test process on a transient build failure.
-    });
-    if (!res.ok) console.warn(res.toString());
+      const res = await Vite.build({
+        cwd,
+        pkg,
+        silent: true,
+        spinner: false, // Test runner owns progress/logging; avoid long-lived spinner timers in tests.
+        exitOnError: false, // Never terminate the whole test process on a transient build failure.
+      });
+      if (!res.ok) console.warn(res.toString());
 
-    expect(res.ok).to.eql(true);
-    expect(res.cmd.input).to.include('deno run');
-    expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
-    expect(res.elapsed).to.be.greaterThan(0);
-    expect(res.paths).to.eql(fromFile.paths);
+      expect(res.ok).to.eql(true);
+      expect(res.cmd.input).to.include('deno run');
+      expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
+      expect(res.elapsed).to.be.greaterThan(0);
+      expect(res.paths).to.eql(fromFile.paths);
 
-    // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
-    const keys = Object.keys(res.dist.hash.parts);
-    const hasPkg = keys.some((key) => key.startsWith('pkg/-pkg.json'));
-    expect(hasPkg).to.eql(true);
+      // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
+      const keys = Object.keys(res.dist.hash.parts);
+      const hasPkg = keys.some((key) => key.startsWith('pkg/-pkg.json'));
+      expect(hasPkg).to.eql(true);
 
-    // Load file outputs.
-    const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
-    const { paths } = res;
-    const outDir = Fs.join(paths.cwd, paths.app.outDir);
-    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
-    const html = await readFile(Fs.join(outDir, 'index.html'));
-    const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
-      path.startsWith('pkg/-entry.'),
-    );
-    const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
+      // Load file outputs.
+      const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
+      const { paths } = res;
+      const outDir = Fs.join(paths.cwd, paths.app.outDir);
+      const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+      const html = await readFile(Fs.join(outDir, 'index.html'));
+      const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
+        path.startsWith('pkg/-entry.'),
+      );
+      const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
 
-    return {
-      res,
-      paths,
-      outDir,
-      get files() {
-        return { html, entry, json: { dist: json.data } } as const;
-      },
-    } as const;
+      return {
+        res,
+        paths,
+        outDir,
+        get files() {
+          return { html, entry, json: { dist: json.data } } as const;
+        },
+      } as const;
+    } finally {
+      await restore();
+    }
   };
 
   it('sample-1: simple', async () => {

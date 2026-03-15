@@ -11,6 +11,12 @@ import { PlaybackDriver } from '../mod.ts';
 describe(`PlaybackDriver.driver`, () => {
   const ms = (n: number): t.Msecs => n;
   const ix = (n: number): t.TimecodeState.Playback.BeatIndex => n;
+  type CreateArgs = Parameters<typeof PlaybackDriver.create>[0];
+  const createDriver = (args: CreateArgs) =>
+    PlaybackDriver.create({
+      ...args,
+      schedule: args.schedule ?? makeDeterministicSchedule().schedule,
+    });
 
   it(`cmd:deck:seek maps vTime → seconds excluding pauses and does not force play`, async () => {
     const timeline: t.TimecodeState.Playback.Timeline = {
@@ -55,7 +61,7 @@ describe(`PlaybackDriver.driver`, () => {
     const inputs: readonly t.TimecodeState.Playback.Input[] = [];
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -120,7 +126,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -178,7 +184,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -222,7 +228,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -253,7 +259,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -274,7 +280,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -300,7 +306,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -349,7 +355,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -399,7 +405,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -453,7 +459,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -497,7 +503,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -552,7 +558,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const { schedule } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -612,7 +618,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -712,7 +718,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -790,7 +796,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -854,7 +860,7 @@ describe(`PlaybackDriver.driver`, () => {
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -929,7 +935,7 @@ describe(`PlaybackDriver.driver`, () => {
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -993,7 +999,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -1060,7 +1066,7 @@ describe(`PlaybackDriver.driver`, () => {
     const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = PlaybackDriver.create({
+    const driver = createDriver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({
         src: `src:${beat}`,

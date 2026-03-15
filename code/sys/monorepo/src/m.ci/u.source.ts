@@ -1,4 +1,4 @@
-import { c, type t, Fs, Json, Path } from './common.ts';
+import { c, Fs, Json, Path, Str, type t } from './common.ts';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
@@ -6,15 +6,11 @@ export async function resolveSourcePaths(
   options: { task?: 'build' | 'test'; named?: boolean },
 ) {
   if ('paths' in source) {
+    const include = (path: string) => shouldInclude(cwd, path, options);
     const results = await Promise.all(
-      source.paths.map(async (path) => ({
-        include: await shouldInclude(cwd, path, options),
-        path,
-      })),
+      source.paths.map(async (path) => ({ path, include: await include(path) })),
     );
-    return results
-      .filter((item) => item.include)
-      .map((item) => item.path);
+    return results.filter((item) => item.include).map((item) => item.path);
   }
 
   const root = Fs.resolve(cwd, source.root);
@@ -48,10 +44,16 @@ export function logSyncResult(
   if (!options.log) return;
 
   const label = Fs.trimCwd(result.target);
+  const count = `${result.count} ${subject} ${Str.plural(result.count, 'module')}`;
   if (result.kind === 'written') {
-    console.info(
-      `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${result.count} ${subject} module(s))`)}`,
-    );
+    const msg = `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
+    console.info(msg);
+    return;
+  }
+
+  if (result.kind === 'unchanged') {
+    const msg = `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
+    console.info(msg);
     return;
   }
 
@@ -60,7 +62,7 @@ export function logSyncResult(
     return;
   }
 
-  console.info(`${c.cyan('Skipped file:')} ${c.gray(label)}`);
+  console.info(`${c.gray('Skipped file:')} ${c.gray(label)}`);
 }
 
 function hasTask(value: unknown, key: 'build' | 'test') {
@@ -90,7 +92,7 @@ async function shouldInclude(
 }
 
 async function loadJson(path: string) {
-  return Json.parse(await Deno.readTextFile(path));
+  return Json.parse((await Fs.readText(path)).data ?? '');
 }
 
 function toRelative(cwd: string, path: string) {

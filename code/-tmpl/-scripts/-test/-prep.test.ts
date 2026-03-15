@@ -188,7 +188,7 @@ describe('prep.u', () => {
     const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
     const path = {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
-      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
+      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'imports.json'),
       rootDenoJson: Fs.join(root, 'deno.json'),

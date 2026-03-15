@@ -1,5 +1,13 @@
 /**
  * @module types
+ *
+ * Public package type surface.
+ *
+ * Boundary note:
+ * - Root launcher cold-start code intentionally uses
+ *   `/Users/phil/code/org.sys/sys/code/sys.tools/src/u.root/common.t.ts`
+ *   instead of this barrel to avoid pulling the package-wide type surface into
+ *   startup-only paths.
  */
 
 /** Public namespaces. */

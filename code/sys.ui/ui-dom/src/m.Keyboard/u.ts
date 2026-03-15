@@ -59,9 +59,9 @@ export const Util = {
   },
 
   toFlags(e: KeyboardEvent): t.KeyboardKeyFlags {
-    const os = UserAgent.current.os;
-    const mac = os.name === 'Mac OS';
-    const windows = os.name === 'Windows';
+    const ua = UserAgent.current;
+    const mac = ua.is.apple;
+    const windows = ua.os.name === 'Windows';
     const clipboardModifier = mac ? e.metaKey : e.ctrlKey;
     return {
       os: { mac, windows },

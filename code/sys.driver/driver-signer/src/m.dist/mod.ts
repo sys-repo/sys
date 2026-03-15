@@ -8,6 +8,7 @@ import type { t } from './common.ts';
 import { capabilities } from './u.capabilities.ts';
 import { run } from './u.run.ts';
 
+/** Dist signer runtime surface. */
 export const DistSigner: t.DistSigner.Lib = {
   capabilities,
   run,

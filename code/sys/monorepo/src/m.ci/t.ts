@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * @module
  * Continuous-integration module surface for monorepo tooling.
  */
 export namespace MonorepoCi {
@@ -15,6 +14,8 @@ export namespace MonorepoCi {
    * JSR publish workflow generation.
    */
   export namespace Jsr {
+    export type VersionFilter = 'all' | 'ahead';
+
     export type Lib = {
       text(args: TextArgs): Promise<string>;
       write(args: WriteArgs): Promise<WriteResult>;
@@ -23,6 +24,7 @@ export namespace MonorepoCi {
     export type TextArgs = {
       readonly cwd?: t.StringDir;
       readonly paths: readonly t.StringPath[];
+      readonly versionFilter?: VersionFilter;
       readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
     };
@@ -31,6 +33,7 @@ export namespace MonorepoCi {
       readonly cwd?: t.StringDir;
       readonly source: Source;
       readonly target: t.StringPath;
+      readonly versionFilter?: VersionFilter;
       readonly on?: WorkflowOn;
       readonly env?: WorkflowEntries;
       readonly log?: boolean;
@@ -39,6 +42,7 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
@@ -70,6 +74,7 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
@@ -101,12 +106,20 @@ export namespace MonorepoCi {
       readonly target: t.StringPath;
       readonly yaml: string;
       readonly count: number;
+      readonly changed: boolean;
     };
   }
 
   export type WorkflowEntries = Readonly<Record<string, string>>;
-  export type WorkflowBranches = Readonly<{ branches?: readonly string[] }>;
-  export type WorkflowPush = Readonly<{ branches?: readonly string[]; tags?: readonly string[] }>;
+  export type WorkflowBranches = Readonly<{
+    branches?: readonly string[];
+    paths_ignore?: readonly string[];
+  }>;
+  export type WorkflowPush = Readonly<{
+    branches?: readonly string[];
+    tags?: readonly string[];
+    paths_ignore?: readonly string[];
+  }>;
   export type WorkflowOn = Readonly<{
     push?: WorkflowPush;
     pull_request?: WorkflowBranches;
@@ -126,6 +139,11 @@ export namespace MonorepoCi {
         readonly kind: 'removed';
         readonly target: t.StringPath;
         readonly count: 0;
+      }
+    | {
+        readonly kind: 'unchanged';
+        readonly target: t.StringPath;
+        readonly count: number;
       }
     | {
         readonly kind: 'skipped';

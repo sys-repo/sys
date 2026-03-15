@@ -85,7 +85,7 @@ const wrangle = {
 
   commandLabel(kind: 'Enter' | 'Click') {
     const ua = UserAgent.current;
-    const cmd = ua.is.macOS || ua.is.iOS || ua.is.iPad || ua.is.iPhone ? 'Cmd' : 'Ctrl';
+    const cmd = ua.is.apple ? 'Cmd' : 'Ctrl';
     return `${cmd}+${kind}`;
   },
 } as const;

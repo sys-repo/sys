@@ -39,6 +39,13 @@ export type ViteConfigAppOptions = {
   plugins?: t.ViteConfigCommonPlugins;
 
   /**
+   * Additional caller-supplied Vite plugins.
+   * These are appended after the driver/common plugin set and before any terminal plugins
+   * managed by the driver (for example the visualizer).
+   */
+  vitePlugins?: t.VitePluginOption[];
+
+  /**
    * Flag indicating if the `rollup-plugin-visualizer` should be applied to the bundle.
    * Out to (default) `dist/stats.html` or the path provided.
    */

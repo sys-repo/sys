@@ -1,24 +1,25 @@
 {
   "name": "@sys/jsr",
-  "version": "0.0.213",
+  "version": "0.0.225",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./scripts/task.clean.ts",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "test": "deno test -P=test",
-    "tmp": "deno run -P=clean ./scripts/task.tmp.ts"
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
-    ".": "./src/ns.client/mod.ts",
+    ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/ns.client/mod.ts",
-    "./server": "./src/ns.server/mod.ts"
+    "./client": "./src/m.client/mod.ts",
+    "./server": "./src/m.server/mod.ts"
   },
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

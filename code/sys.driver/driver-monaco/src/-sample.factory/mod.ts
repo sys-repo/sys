@@ -1,6 +1,6 @@
 /**
- * Isolated factory (samples).
  * @module
+ * Isolated factory (samples).
  */
 import type { t } from './common.ts';
 

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, Rx, Time } from '../../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx, Schedule, Time } from '../../../-test.ts';
 import { Bus } from '../common.ts';
 import { EditorFolding } from '../mod.ts';
 import { parentLinesFromOffsets } from '../u.bind.impl.u.ts';
@@ -47,7 +47,7 @@ describe('Monaco.Folding', () => {
         const ob = EditorFolding.observe({ editor, bus$ });
 
         const fired: t.EventCrdtFolding[] = [];
-        ob.$.subscribe((e) => fired.push(e));
+        const sub = ob.$.subscribe((e) => fired.push(e));
 
         const fold: t.Monaco.I.IRange = {
           startLineNumber: 2,
@@ -55,21 +55,22 @@ describe('Monaco.Folding', () => {
           endLineNumber: 3,
           endColumn: 1,
         };
+        try {
+          // Fold lines 2-3:
+          editor.setHiddenAreas([fold]);
+          await Schedule.waitFor(() => fired.length === 1);
+          expect(ob.areas).to.eql([fold]);
+          expect(fired.at(-1)?.areas).to.eql([fold]);
 
-        // Fold lines 2-3:
-        editor.setHiddenAreas([fold]);
-        await Time.wait(10);
-        expect(ob.areas).to.eql([fold]);
-        expect(fired.length).to.eql(1);
-        expect(fired.at(-1)?.areas).to.eql([fold]);
-
-        // Unfold everything:
-        editor.setHiddenAreas([]);
-        await Time.wait(10);
-        expect(ob.areas).to.eql([]);
-
-        expect(fired.length).to.eql(2);
-        expect(fired.at(-1)?.areas).to.eql([]);
+          // Unfold everything:
+          editor.setHiddenAreas([]);
+          await Schedule.waitFor(() => fired.length === 2);
+          expect(ob.areas).to.eql([]);
+          expect(fired.at(-1)?.areas).to.eql([]);
+        } finally {
+          sub.unsubscribe();
+          ob.dispose();
+        }
       });
 
       it('observer stops updating after dispose', () => {
@@ -94,19 +95,26 @@ describe('Monaco.Folding', () => {
         const bus$ = Bus.make();
 
         const a = EditorFolding.observe({ editor });
-        EditorFolding.observe({ editor, bus$ });
+        const b = EditorFolding.observe({ editor, bus$ });
 
         const seenA: any[] = [];
         const seenBus: any[] = [];
-        a.$.subscribe((e) => seenA.push(e));
-        bus$.subscribe((e) => seenBus.push(e));
+        const subA = a.$.subscribe((e) => seenA.push(e));
+        const subBus = bus$.subscribe((e) => seenBus.push(e));
 
         const fold = { startLineNumber: 2, startColumn: 1, endLineNumber: 3, endColumn: 1 };
-        editor.setHiddenAreas([fold]);
+        try {
+          editor.setHiddenAreas([fold]);
 
-        await Time.wait(10);
-        expect(seenA.length).to.eql(1);
-        expect(seenBus.length).to.eql(1);
+          await Schedule.waitFor(() => seenA.length === 1 && seenBus.length === 1);
+          expect(seenA.length).to.eql(1);
+          expect(seenBus.length).to.eql(1);
+        } finally {
+          subA.unsubscribe();
+          subBus.unsubscribe();
+          a.dispose();
+          b.dispose();
+        }
       });
     });
   });
@@ -116,21 +124,24 @@ describe('Monaco.Folding', () => {
       const src = 'a\nb\nc\nd';
       const editor = MonacoFake.editor(src);
       const ob = EditorFolding.observe({ editor });
+      try {
+        // Initial state → no folds:
+        expect(ob.areas).to.eql([]);
 
-      // Initial state → no folds:
-      expect(ob.areas).to.eql([]);
+        // Fold lines 2-3 (inclusive):
+        EditorFolding.fold(editor, 2, 3);
 
-      // Fold lines 2-3 (inclusive):
-      EditorFolding.fold(editor, 2, 3);
-
-      expect(ob.areas).to.eql([
-        {
-          startLineNumber: 2,
-          startColumn: 1,
-          endLineNumber: 3,
-          endColumn: 1,
-        },
-      ]);
+        expect(ob.areas).to.eql([
+          {
+            startLineNumber: 2,
+            startColumn: 1,
+            endLineNumber: 3,
+            endColumn: 1,
+          },
+        ]);
+      } finally {
+        ob.dispose();
+      }
     });
 
     it('no further updates after observer is disposed', () => {
@@ -173,12 +184,15 @@ describe('Monaco.Folding', () => {
     it('notifies live observers', () => {
       const editor = MonacoFake.editor('x\ny\nz');
       const ob = EditorFolding.observe({ editor });
+      try {
+        EditorFolding.fold(editor, 2, 3); //  ← hide "y", "z".
+        expect(ob.areas).to.have.length(1);
 
-      EditorFolding.fold(editor, 2, 3); //  ← hide "y", "z".
-      expect(ob.areas).to.have.length(1);
-
-      EditorFolding.clear(editor); //            ← clear folds.
-      expect(ob.areas).to.eql([]);
+        EditorFolding.clear(editor); //            ← clear folds.
+        expect(ob.areas).to.eql([]);
+      } finally {
+        ob.dispose();
+      }
     });
   });
 

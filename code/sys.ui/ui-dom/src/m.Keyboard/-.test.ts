@@ -1,5 +1,4 @@
 import { type t, afterAll, beforeAll, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
-import { UserAgent } from './common.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
 
@@ -188,15 +187,42 @@ describe('Keyboard', () => {
 
   describe('Keyboard.Is', () => {
     const Is = Keyboard.Is;
-    const UA = {
-      mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
-      windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      linux: 'Mozilla/5.0 (X11; Linux x86_64)',
-    } as const;
-
-    const mac = UserAgent.parse(UA.mac);
-    const windows = UserAgent.parse(UA.windows);
-    const linux = UserAgent.parse(UA.linux);
+    const mac: t.UserAgent = {
+      os: { name: 'macOS' },
+      is: {
+        apple: true,
+        macOS: true,
+        iOS: false,
+        iPad: false,
+        iPhone: false,
+        chromium: true,
+        firefox: false,
+      },
+    };
+    const windows: t.UserAgent = {
+      os: { name: 'Windows' },
+      is: {
+        apple: false,
+        macOS: false,
+        iOS: false,
+        iPad: false,
+        iPhone: false,
+        chromium: true,
+        firefox: false,
+      },
+    };
+    const linux: t.UserAgent = {
+      os: { name: 'Linux' },
+      is: {
+        apple: false,
+        macOS: false,
+        iOS: false,
+        iPad: false,
+        iPhone: false,
+        chromium: true,
+        firefox: false,
+      },
+    };
 
     it('Is.command', () => {
       const a = Keyboard.Is.command();

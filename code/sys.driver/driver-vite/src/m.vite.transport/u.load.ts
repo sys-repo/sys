@@ -1,5 +1,5 @@
 import { Fs, Path, type t } from './common.ts';
-import { transform } from 'npm:esbuild@0.27.3';
+import { transform } from 'npm:esbuild@0.27.4';
 import { toViteNpmSpecifier } from './u.npm.ts';
 
 export type DenoLoadResult =

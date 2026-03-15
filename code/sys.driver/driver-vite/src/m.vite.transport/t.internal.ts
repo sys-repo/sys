@@ -37,10 +37,12 @@ export type DenoCache = Map<string, DenoResolved>;
 
 export type ResolveDeps = {
   readonly invoke: t.ProcLib['invoke'];
+  readonly resolveNpmPath?: (id: string, cwd: string) => Promise<string | null>;
 };
 
 export type PrefixDeps = {
   readonly resolveDeno: (id: string, cwd: string) => Promise<DenoResolved | null>;
+  readonly resolveNpmPath: (id: string, cwd: string) => Promise<string | null>;
   readonly resolveViteSpecifier: (
     id: string,
     cache: DenoCache,

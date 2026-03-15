@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, pkg, useRenderer, type t } from '../common.ts';
+import { Color, css, Is, pkg, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
 export type HostComponentProps = {
@@ -29,8 +29,8 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
     body: css({
       position: 'relative',
       display: component?.display,
-      color: Color.format(component?.color),
-      backgroundColor: Color.format(component?.backgroundColor),
+      color: wrangle.color(component?.color),
+      backgroundColor: wrangle.color(component?.backgroundColor),
       width,
       height,
     }),
@@ -48,3 +48,10 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
 
   return <div className={css(styles.base, props.style).class}>{elBody}</div>;
 };
+
+const wrangle = {
+  color(value?: string | number) {
+    if (value === undefined) return undefined;
+    return Is.str(value) ? value : Color.toGrayAlpha(value);
+  },
+} as const;

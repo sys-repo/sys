@@ -206,7 +206,7 @@ const ComponentSample = (props: P = {}) => {
     }),
     inner: css({
       Padding: [5, 10],
-      border: `dashed 1px ${Color.format(-0.25)}`,
+      border: `dashed 1px ${Color.toGrayAlpha(-0.25)}`,
       borderRadius: 5,
     }),
   };

@@ -26,12 +26,13 @@ git lfs install
 <p>&nbsp;</p>
 
 
-## Starter Tasks
-Core baseline tasks from `deno.json`:
+## Tasks
+Core tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
-- `deno task check` → type/lint gate for the starter shell
-- `deno task prep` → regenerates GitHub workflows for discovered project modules under `./code/projects`
+- `deno task check` → type-checks the repo
+- `deno task info` → prints Deno runtime and monorepo source stats
+- `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
 - `deno task test` → runs all unit tests within the mono-repo with permissions `-P=test`
 - `deno task outdated` → reports dependency updates
 - `deno task upgrade` → upgrades dependencies to latest
@@ -62,19 +63,3 @@ New projects:
 - after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>
-
-### Agent Prompt Seed
-```
-From within `./code/projects`, set `FOLDER` to your target folder name.
-
-Do ONLY the following:
-
-1) Create a new folder: `${FOLDER}/`
-2) Inside `${FOLDER}/`, add:
-   - `main.ts` (minimal; should run without args)
-   - `deno.json` with a single task: `dev` (runs `deno run -A main.ts`)
-   - Do NOT set `name` (this is a simple runnable folder, not a package → avoids the `exports` warning)
-3) Update the monorepo root `deno.json` to include/register `${FOLDER}/` (add the appropriate reference so tooling/tasks can see it).
-
-No other files, no refactors, no extra changes.
-```

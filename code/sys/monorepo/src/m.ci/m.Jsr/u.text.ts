@@ -1,6 +1,7 @@
 import type { t } from '../common.ts';
 import { workflowTemplate, wrangle } from '../u.workflow.ts';
-import { loadModule, toModuleYaml } from './u.ts';
+import { filterModules } from './u.filter.ts';
+import { toModuleYaml } from './u.ts';
 import { JSR_MODULES_PLACEHOLDER } from './u.tmpl.ts';
 
 const JSR_MAIN_GUARD_STEP = `
@@ -13,7 +14,7 @@ const JSR_MAIN_GUARD_STEP = `
 
 export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
-  const modules = await Promise.all(args.paths.map((path) => loadModule(cwd, path)));
+  const modules = await filterModules(cwd, args.paths, args.versionFilter);
   let body = wrangle.indent(JSR_MAIN_GUARD_STEP.trim(), 6);
 
   for (const module of modules) {
