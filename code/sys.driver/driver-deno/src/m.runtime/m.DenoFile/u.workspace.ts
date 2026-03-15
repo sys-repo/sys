@@ -1,4 +1,4 @@
-import { type t, Esm, Fs } from './common.ts';
+import { type t, Esm, Fs, Is } from './common.ts';
 import { Path } from './m.DenoFile.Path.ts';
 import { load } from './u.load.ts';
 
@@ -37,7 +37,7 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
  */
 const wrangle = {
   async workspaceSource(src?: t.StringPath, walkup?: boolean) {
-    if (typeof src === 'string') return src;
+    if (Is.str(src)) return src;
     return !walkup ? undefined : Path.nearest('.', (e) => Array.isArray(e.file.workspace));
   },
 } as const;

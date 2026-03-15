@@ -1,4 +1,4 @@
-import { type t, Delete, Yaml, isEmptyRecord } from './common.ts';
+import { type t, Delete, Is, Yaml, isEmptyRecord } from './common.ts';
 
 type R = Required<t.YamlDeps>;
 
@@ -16,7 +16,7 @@ export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
     const o = obj as R;
     pushDep(o[target], dep);
 
-    if (typeof options.groupBy === 'function') {
+    if (Is.func(options.groupBy)) {
       type Args = t.DepsCategorizeByGroupArgs;
       const group: Args['group'] = (groupName, options = {}) => {
         groupName = (groupName || '').trim();
@@ -63,7 +63,7 @@ export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
  */
 function dedupeGroups(obj: t.YamlDeps, target: t.DepTargetFile) {
   const o = obj as R;
-  const groups = o[target]?.filter((m) => typeof m.group === 'string');
+  const groups = o[target]?.filter((m) => Is.str(m.group));
   groups.forEach((m) => {
     const group = o.groups[m.group!].filter((m) => !!m.import);
     const imports = group.filter((m) => !!m.import).map((m) => m.import!);

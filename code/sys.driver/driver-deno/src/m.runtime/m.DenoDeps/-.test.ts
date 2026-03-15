@@ -1,4 +1,4 @@
-import { type t, c, describe, Esm, expect, Fs, it, stripAnsi, Testing, Yaml } from '../../-test.ts';
+import { type t, c, describe, Esm, expect, Fs, Is, it, stripAnsi, Testing, Yaml } from '../../-test.ts';
 import { Fmt } from './m.Fmt.ts';
 import { DenoDeps } from './mod.ts';
 import { DenoFile } from '../m.DenoFile/mod.ts';
@@ -10,7 +10,7 @@ describe('DenoDeps', () => {
 
   it('API', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
-    expect(typeof DenoDeps.apply).to.eql('function');
+    expect(Is.func(DenoDeps.apply)).to.eql(true);
   });
 
   describe('DenoDeps.Fmt', () => {

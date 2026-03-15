@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, c, describe, expect, Fs, it, pkg, slug, Testing } from '../../-test.ts';
+import { type t, c, describe, expect, Fs, Is, it, pkg, slug, Testing } from '../../-test.ts';
 import { DenoFile } from './mod.ts';
 
 describe('DenoFile', () => {
@@ -112,7 +112,7 @@ describe('DenoFile', () => {
         shouldStop?: t.DenoFileNearestStop,
       ) => {
         start = fs.join(start);
-        if (typeof expected === 'string') expected = fs.join(expected);
+        if (Is.str(expected)) expected = fs.join(expected);
         const res = await DenoFile.nearest(start, shouldStop);
 
         if (expected === undefined) {
@@ -140,7 +140,7 @@ describe('DenoFile', () => {
         const fs = await setup();
         const test = async (start: t.StringPath, expected?: t.StringPath) => {
           start = fs.join(start);
-          if (typeof expected === 'string') expected = fs.join(expected);
+          if (Is.str(expected)) expected = fs.join(expected);
           const res = await DenoFile.Path.nearest(start);
           expect(res).to.eql(expected);
         };
@@ -177,7 +177,7 @@ describe('DenoFile', () => {
           shouldStop?: t.DenoFileNearestStop,
         ) => {
           start = fs.join(start);
-          if (typeof expected === 'string') expected = fs.join(expected);
+          if (Is.str(expected)) expected = fs.join(expected);
           const res = await DenoFile.Path.nearest(start, shouldStop);
           expect(res).to.eql(expected);
         };
@@ -291,7 +291,7 @@ describe('DenoFile', () => {
         const res = await DenoFile.workspaceVersion('@sys/tmpl', rootPath);
 
         expect(child).to.exist;
-        expect(typeof child?.pkg.version).to.eql('string');
+        expect(Is.str(child?.pkg.version)).to.eql(true);
         expect(res).to.eql(child?.pkg.version);
       });
 

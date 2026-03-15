@@ -1,4 +1,4 @@
-import { type t, Fs } from './common.ts';
+import { type t, Fs, Is } from './common.ts';
 import { load } from './u.load.ts';
 
 export const Path: t.DenoFileLib['Path'] = {
@@ -7,7 +7,7 @@ export const Path: t.DenoFileLib['Path'] = {
     const filenames = ['deno.json', 'deno.jsonc'];
 
     const shouldStop = async (path: string): Promise<boolean> => {
-      if (typeof fnStop !== 'function') return true;
+      if (!Is.func(fnStop)) return true;
       const file = (await load(path)).data ?? {};
       return Boolean(await fnStop({ path, file }));
     };

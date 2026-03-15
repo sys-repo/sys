@@ -1,4 +1,4 @@
-import { type t, Yaml, Err, Esm, Fs, Semver } from './common.ts';
+import { type t, Yaml, Err, Esm, Fs, Is, Semver } from './common.ts';
 import { toYaml } from './u.toYaml.ts';
 
 /**
@@ -37,7 +37,7 @@ export const from: t.DepsLib['from'] = async (input) => {
     return fail('Failed to load YAML');
   }
 
-  const groups = typeof yaml.groups === 'object' ? yaml.groups : {};
+  const groups = Is.object(yaml.groups) ? yaml.groups : {};
 
   /**
    * Deserialize and map into data-structure.
@@ -50,7 +50,7 @@ export const from: t.DepsLib['from'] = async (input) => {
     subpaths?: t.StringDir[],
     nameAlias?: string,
   ): t.Dep | undefined => {
-    if (typeof item?.group === 'string') {
+    if (Is.str(item?.group)) {
       const group = groups[item.group];
       if (Array.isArray(group)) {
         group.forEach((m) => {
@@ -60,7 +60,7 @@ export const from: t.DepsLib['from'] = async (input) => {
       }
     }
 
-    if (typeof item?.import !== 'string') return;
+    if (!Is.str(item?.import)) return;
 
     const module = Esm.parse(item.import, nameAlias);
     if (module.error) errors.push(`${module.error.message} ("${module.input}")`);

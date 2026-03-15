@@ -1,10 +1,10 @@
-import { type t, Esm } from './common.ts';
+import { type t, Esm, Is } from './common.ts';
 
 export const toDep: t.DepsLib['toDep'] = (input, options = {}) => {
   const { dev } = options;
   const subpaths = wrangle.subpaths(options.subpaths);
   const target = wrangle.target(options.target).toSorted();
-  const module = typeof input === 'string' ? Esm.parse(input) : Esm.parse(input.toString());
+  const module = Is.str(input) ? Esm.parse(input) : Esm.parse(input.toString());
   const res: t.Dep = { module, target, dev, subpaths };
   return res;
 };
@@ -15,7 +15,7 @@ export const toDep: t.DepsLib['toDep'] = (input, options = {}) => {
 const wrangle = {
   target(input?: t.DepTargetFile | t.DepTargetFile[]): t.DepTargetFile[] {
     if (!input) return ['deno.json'];
-    if (typeof input === 'string') return [input];
+    if (Is.str(input)) return [input];
     return input;
   },
 
