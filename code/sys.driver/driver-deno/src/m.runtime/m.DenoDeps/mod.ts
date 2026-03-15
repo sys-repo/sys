@@ -1,9 +1,9 @@
 /**
  * @module
- * Tools for working with the dependency/imports of a Deno monorepo.
+ * Tools for working with dependency/import sets in a Deno monorepo.
  *
- * Place a single `imports.yaml` file in the root of the monorepo and
- * use this to auto-prepare `deno.json` and/or `package.json` files.
+ * Supports YAML-based dependency sets and conversion to `deno.json` and
+ * `package.json` dependency surfaces.
  */
 import type { DepsLib } from './t.ts';
 
