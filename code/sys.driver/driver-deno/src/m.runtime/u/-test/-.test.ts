@@ -34,10 +34,13 @@ describe('m.runtime/u', () => {
         importMap: './config/imports.json',
         tasks: { dev: 'deno task dev' },
       });
+      await Fs.writeJson(importMapPath, { scopes: { '/foo': { bar: 'baz' } } });
 
       const res = await applyDenoImports(denoPath, [dep]);
       const file = await DenoFile.load(denoPath);
-      const importMap = await Fs.readJson<{ imports?: Record<string, string> }>(importMapPath);
+
+      type T = { imports?: Record<string, string>; scopes?: Record<string, unknown> };
+      const importMap = await Fs.readJson<T>(importMapPath);
 
       expect(res.kind).to.eql('importMap');
       expect(res.targetPath).to.eql(importMapPath);
@@ -45,9 +48,8 @@ describe('m.runtime/u', () => {
       expect(file.data?.tasks).to.eql({ dev: 'deno task dev' });
       expect(file.data?.imports).to.eql(undefined);
       expect(importMap.data).to.eql({
-        imports: {
-          '@std/path': 'jsr:@std/path@1.0.8',
-        },
+        imports: { '@std/path': 'jsr:@std/path@1.0.8' },
+        scopes: { '/foo': { bar: 'baz' } },
       });
     });
 
@@ -72,6 +74,56 @@ describe('m.runtime/u', () => {
       expect(importMap.data).to.eql({
         imports: {
           '@std/path': 'jsr:@std/path@1.0.8',
+        },
+      });
+    });
+
+    it('clears inline imports when no deno imports remain', async () => {
+      const fs = await Testing.dir('m.runtime.u.applyDenoImports.clearInline');
+      const denoPath = fs.join('deno.json');
+
+      await Fs.writeJson(denoPath, {
+        name: 'inline-clear-app',
+        tasks: { dev: 'deno task dev' },
+        imports: { stale: 'jsr:@std/fmt@1.0.0' },
+      });
+
+      const res = await applyDenoImports(denoPath, []);
+      const file = await DenoFile.load(denoPath);
+
+      expect(res.kind).to.eql('imports');
+      expect(res.imports).to.eql({});
+      expect(file.data?.tasks).to.eql({ dev: 'deno task dev' });
+      expect(file.data?.imports).to.eql(undefined);
+    });
+
+    it('clears importMap imports when no deno imports remain and preserves other keys', async () => {
+      const fs = await Testing.dir('m.runtime.u.applyDenoImports.clearImportMap');
+      const denoPath = fs.join('deno.json');
+      const importMapPath = fs.join('imports.json');
+
+      await Fs.writeJson(denoPath, {
+        name: 'import-map-clear-app',
+        importMap: './imports.json',
+      });
+      await Fs.writeJson(importMapPath, {
+        imports: { stale: 'jsr:@std/fmt@1.0.0' },
+        scopes: { '/foo': { bar: 'baz' } },
+      });
+
+      const res = await applyDenoImports(denoPath, []);
+      const file = await DenoFile.load(denoPath);
+      const importMap = await Fs.readJson<{
+        imports?: Record<string, string>;
+        scopes?: Record<string, unknown>;
+      }>(importMapPath);
+
+      expect(res.kind).to.eql('importMap');
+      expect(res.imports).to.eql({});
+      expect(file.data?.imports).to.eql(undefined);
+      expect(importMap.data).to.eql({
+        scopes: {
+          '/foo': { bar: 'baz' },
         },
       });
     });

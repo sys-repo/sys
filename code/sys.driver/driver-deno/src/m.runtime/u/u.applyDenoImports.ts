@@ -1,4 +1,4 @@
-import { type t, Fs, Obj, Path } from '../common.ts';
+import { type t, Fs, Is, Obj, Path, isEmptyRecord } from '../common.ts';
 import { DenoDeps } from '../m.DenoDeps/mod.ts';
 import { DenoFile } from '../m.DenoFile/mod.ts';
 import type { DenoImports } from './t.ts';
@@ -23,13 +23,22 @@ export async function applyDenoImports(
   const denoFilePath = res.path;
   const denoJson = { ...res.data };
   const imports = Obj.sortKeys(DenoDeps.toJson('deno.json', deps).imports ?? {});
+  const hasImports = !isEmptyRecord(imports);
 
   if (typeof denoJson.importMap === 'string' && denoJson.importMap.length > 0) {
     const targetPath = Path.resolve(Fs.dirname(denoFilePath), denoJson.importMap);
+    const currentImportMap = await Fs.readJson<t.Json>(targetPath);
+    const nextImportMap: Record<string, t.Json> =
+      currentImportMap.ok && Is.record<Record<string, t.Json>>(currentImportMap.data)
+        ? { ...currentImportMap.data }
+        : {};
+
     delete denoJson.imports;
+    if (hasImports) nextImportMap.imports = imports;
+    else delete nextImportMap.imports;
 
     await Fs.writeJson(denoFilePath, denoJson);
-    await Fs.writeJson(targetPath, { imports });
+    await Fs.writeJson(targetPath, nextImportMap as t.Json);
 
     return {
       kind: 'importMap',
@@ -39,7 +48,8 @@ export async function applyDenoImports(
     };
   }
 
-  denoJson.imports = imports;
+  if (hasImports) denoJson.imports = imports;
+  else delete denoJson.imports;
   await Fs.writeJson(denoFilePath, denoJson);
 
   return {
