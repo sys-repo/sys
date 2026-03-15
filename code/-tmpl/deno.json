@@ -24,7 +24,8 @@
     },
     "tmpl": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "prep": {
       "read": true,
