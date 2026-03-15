@@ -12,9 +12,9 @@ export const Paths = {
     return Paths.all;
   },
   single: [
-    'code/sys/jsr',
-    'code/sys.ui/ui-dom',
-    'code/sys.driver/driver-signer',
+    // 'code/sys/jsr',
+    // 'code/sys.ui/ui-dom',
+    // 'code/sys.driver/driver-signer',
     'code/sys.driver/driver-vite',
     //
     // 'deploy/@tdb.edu.slug',
