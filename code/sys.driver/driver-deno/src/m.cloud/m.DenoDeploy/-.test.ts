@@ -1,8 +1,9 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, Is, it } from '../../-test.ts';
 import { DenoDeploy } from './mod.ts';
 
 describe('DenoDeploy', () => {
   it('API', () => {
-    expect(DenoDeploy).to.eql({});
+    expect(Is.func(DenoDeploy.stage)).to.eql(true);
+    expect(Is.func(DenoDeploy.deploy)).to.eql(true);
   });
 });
