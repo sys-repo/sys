@@ -19,7 +19,6 @@ export const Fmt: t.DepsFmt = {
       prevRegistry = registry;
       if (isDiff) {
         table.push([]); // Blank line between registries.
-        return;
       }
 
       const [left, right] = mod.name.split('/');

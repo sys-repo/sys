@@ -11,6 +11,20 @@ describe('DenoDeps', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
   });
 
+  describe('DenoDeps.Fmt', () => {
+    it('renders the first dependency after a registry boundary', () => {
+      const text = DenoDeps.Fmt.deps([
+        DenoDeps.toDep('jsr:@sys/std@0.0.1'),
+        DenoDeps.toDep('npm:react@19.0.0'),
+        DenoDeps.toDep('npm:react-dom@19.0.0'),
+      ]);
+
+      expect(text).to.include('@sys/std');
+      expect(text).to.include('react');
+      expect(text).to.include('react-dom');
+    });
+  });
+
   describe('DepDeps.toDep', () => {
     it('from string', () => {
       const esm = 'jsr:@sys/tmp@0.1.2';

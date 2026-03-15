@@ -68,7 +68,7 @@ export type DenoFileLoadResult = t.Fs.ReadResult<t.DenoFileJson>;
 export type DenoFileJson = {
   name?: string;
   version?: string;
-  licence?: string;
+  license?: string;
   tasks?: Record<string, string>;
   importMap?: t.StringPath;
   imports?: Record<string, t.StringModuleSpecifier>;
