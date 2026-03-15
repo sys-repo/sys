@@ -6,7 +6,6 @@ description: Deep-pass a published JSR package from a local path, inspect the li
 # JSR Quality: Docs
 
 ## Purpose
-
 Use this skill when a local Deno package is published on JSR and its documentation quality needs to be raised without bluffing, padding, or score-gaming.
 
 This skill targets the documentation-derived parts of the JSR score:
@@ -20,14 +19,12 @@ It does not pretend to solve non-doc score items such as runtime compatibility m
 The goal is not merely to hit 100%. The goal is to leave the repo in a cleaner, more truthful, more useful state than before.
 
 ## Inputs
-
 - A concrete local package path.
 - The path may be absolute or relative to the current workspace.
 - Example:
   - `./code/sys.driver/driver-deno`
 
 ## Operating Standard
-
 This is a `BMIND` ("beginners mind") skill:
 - use a DEEP PASS
 - derive truth from the real code and the live public surface
@@ -50,7 +47,6 @@ Before making any edits:
 6. If the live score is already 100% and the docs page is already clean, stop and report that no JSR quality-doc pass is needed.
 
 ## Required Sources
-
 Read all relevant sources before writing:
 
 - the local package `deno.json`
@@ -63,7 +59,6 @@ Read all relevant sources before writing:
 - the implementation that determines the actual behavior
 
 ## Workflow
-
 1. Resolve the package identity.
    - Read the nearest `deno.json`.
    - Extract the JSR package name from `name`.
@@ -111,7 +106,6 @@ Read all relevant sources before writing:
    - Expand verification only as needed.
 
 ## Writing Standard
-
 Every added or revised doc must be:
 
 - true to the current implementation
@@ -150,7 +144,6 @@ When the public docs and local source diverge:
 - do not claim the live JSR state reflects unpublished local changes
 
 ## Stop Conditions
-
 Stop and report instead of guessing when:
 
 - the package name cannot be derived cleanly from `deno.json`
@@ -161,7 +154,6 @@ Stop and report instead of guessing when:
 - the remaining score failures are not source-controlled doc work
 
 ## Output
-
 Return:
 
 - the live score before the pass
