@@ -295,9 +295,11 @@ describe('DenoDeps', () => {
 
       if (data) {
         const yaml = data.toYaml();
+        const parsed = Yaml.parse<typeof yaml.obj>(yaml.text);
         print(yaml, `data.toYaml ← (${c.bold('ungrouped')})`);
         expect(yaml.obj.groups).to.eql(undefined); //      NB: no groups.
-        expect(yaml.obj).to.eql(Yaml.parse(yaml.text).data); // NB: no data loss (exact match).
+        expect(parsed.error).to.eql(undefined);
+        expect(yaml.obj).to.eql(parsed.data); // NB: no data loss (exact match).
       }
     });
 
@@ -332,8 +334,10 @@ describe('DenoDeps', () => {
 
       if (data) {
         const yaml = data.toYaml({ groupBy });
+        const parsed = Yaml.parse<typeof yaml.obj>(yaml.text);
         print(yaml, `data.toYaml ← (${c.bold('grouped')}):`);
-        expect(yaml.obj).to.eql(Yaml.parse(yaml.text).data); // NB: no data loss (exact match).
+        expect(parsed.error).to.eql(undefined);
+        expect(yaml.obj).to.eql(parsed.data); // NB: no data loss (exact match).
       }
     });
   });
