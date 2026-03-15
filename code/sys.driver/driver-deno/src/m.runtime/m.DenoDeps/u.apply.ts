@@ -1,19 +1,15 @@
-import { type t, Fs, Is, Obj, Path, isEmptyRecord } from '../common.ts';
-import { DenoDeps } from '../m.DenoDeps/mod.ts';
+import { type t, Fs, Is, Obj, Path, isEmptyRecord } from './common.ts';
 import { DenoFile } from '../m.DenoFile/mod.ts';
-import type { DenoImports } from './t.ts';
+import type { DenoDeps as DenoDepsType } from './t.ts';
+import { toDenoJson } from './u.toJson.deno.ts';
 
 /**
- * Reconcile canonical Deno imports onto a target `deno.json` file.
- *
- * If the target config declares `importMap`, that referenced file is treated
- * as authoritative and updated. Otherwise imports are written inline to the
- * `deno.json` file itself.
+ * Apply Deno imports onto a target `deno.json` file.
  */
-export async function applyDenoImports(
+export async function apply(
   path: t.StringPath | undefined,
   deps?: t.Dep[],
-): Promise<DenoImports.ApplyResult> {
+): Promise<DenoDepsType.ApplyResult> {
   const res = await DenoFile.load(path);
   if (!res.ok || !res.exists || !res.data) {
     const target = path ?? './deno.json';
@@ -22,10 +18,10 @@ export async function applyDenoImports(
 
   const denoFilePath = res.path;
   const denoJson = { ...res.data };
-  const imports = Obj.sortKeys(DenoDeps.toJson('deno.json', deps).imports ?? {});
+  const imports = Obj.sortKeys(toDenoJson(deps).imports ?? {});
   const hasImports = !isEmptyRecord(imports);
 
-  if (typeof denoJson.importMap === 'string' && denoJson.importMap.length > 0) {
+  if (Is.str(denoJson.importMap) && denoJson.importMap.length > 0) {
     const targetPath = Path.resolve(Fs.dirname(denoFilePath), denoJson.importMap);
     const currentImportMap = await Fs.readJson<t.Json>(targetPath);
     const nextImportMap: Record<string, t.Json> =

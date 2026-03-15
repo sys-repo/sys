@@ -1,6 +1,17 @@
 import type { t } from './common.ts';
 export type * from './t.yaml.ts';
 
+export declare namespace DenoDeps {
+  export type TargetKind = 'imports' | 'importMap';
+
+  export type ApplyResult = {
+    readonly kind: TargetKind;
+    readonly denoFilePath: t.StringPath;
+    readonly targetPath: t.StringPath;
+    readonly imports: Record<string, t.StringModuleSpecifier>;
+  };
+}
+
 /** Flags indicating the target file format (`deno.json` OR `package.json`). */
 export type DepTargetFile = 'deno.json' | 'package.json';
 
@@ -17,6 +28,14 @@ export type DepsLib = {
   /** Convert deps to a `deno.json` or `package.json` format. */
   toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
   toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgJsonNode;
+
+  /**
+   * Apply Deno imports onto a target `deno.json` config shape.
+   *
+   * If the target declares `importMap`, the referenced file is updated.
+   * Otherwise imports are written inline to the `deno.json` file itself.
+   */
+  apply(path: t.StringPath | undefined, deps?: t.Dep[]): Promise<DenoDeps.ApplyResult>;
 
   /** Convert deps into YAML.  */
   toYaml(deps: t.Dep[], options?: t.DepsYamlOptions): t.DepsYaml;
