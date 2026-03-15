@@ -15,7 +15,7 @@ export const ROOT_REGISTRY = [
   { id: 'video', aliases: undefined, load: () => import('../cli.video/mod.ts') },
   { id: 'copy', aliases: ['cp'], load: () => import('../cli.clipboard/mod.ts') },
   { id: 'tmpl', aliases: ['template'], load: () => import('../cli.tmpl/mod.ts') },
-  { id: 'update', aliases: ['up'], load: () => import('../cli.update/mod.ts') },
+  { id: 'update', aliases: ['up', 'info'], load: () => import('../cli.update/mod.ts') },
 ] as const satisfies readonly ToolRegistryItem[];
 
 export const TOOL_IDS = ROOT_REGISTRY.map((item) => item.id) as readonly t.Root.Command[];

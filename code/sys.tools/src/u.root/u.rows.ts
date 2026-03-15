@@ -9,7 +9,7 @@ export function rootRows(): RootRow[] {
 
   const add = (tool: t.Root.Command, alias?: readonly string[]) => {
     const items = [fmt(tool)];
-    if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(' '))})`));
+    if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(', '))})`));
     rows.push({ command: tool, columns: items });
   };
 

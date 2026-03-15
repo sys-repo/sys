@@ -30,7 +30,7 @@ System Tools
  ├─ @sys/tools/crdt
  ├─ @sys/tools/video
  ├─ @sys/tools/serve
- └─ @sys/tools/update
+ └─ @sys/tools/update   (← alias up, info)
 ```
 
 <p>&nbsp;</p>
@@ -62,6 +62,8 @@ deno run -A jsr:@sys/tools/fs
 #### Update (Self)
 ```bash
 deno run -A jsr:@sys/tools/update
+deno run -A jsr:@sys/tools/up
+deno run -A jsr:@sys/tools/info
 ```
 
 
