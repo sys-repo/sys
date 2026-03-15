@@ -27,11 +27,11 @@ export const from: t.DepsLib['from'] = async (input) => {
     if (!file.exists) return fail(`Failed to load YAML at path: ${path}`);
     yaml = file.data;
   } else {
-    try {
-      yaml = Yaml.parse(input);
-    } catch (cause: any) {
-      return fail(Err.std('Failed while parsing given YAML', { cause }));
+    const parsed = Yaml.parse<t.YamlDeps>(input);
+    if (parsed.error) {
+      return fail(Err.std('Failed while parsing given YAML', { cause: parsed.error.cause ?? parsed.error }));
     }
+    yaml = parsed.data ?? undefined;
   }
   if (!yaml) {
     return fail('Failed to load YAML');

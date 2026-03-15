@@ -48,7 +48,10 @@ export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
   const api: t.DepsYaml = {
     obj,
     get text() {
-      return _text || (_text = Yaml.stringify(obj));
+      if (_text) return _text;
+      const yaml = Yaml.stringify(obj);
+      if (yaml.error) throw yaml.error;
+      return (_text = yaml.data ?? '');
     },
     toString: () => api.text,
   };
