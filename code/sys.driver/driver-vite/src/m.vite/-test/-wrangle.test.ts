@@ -92,4 +92,33 @@ describe('Vite.Wrangle', () => {
       Deno.statSync = original;
     }
   });
+
+  it('viteSpecifier: uses consumer package authority for published https module origins', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.consumer-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '7.3.1' },
+    });
+
+    const res = await Wrangle.viteSpecifier(project, 'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts');
+    expect(res).to.eql('npm:vite@7.3.1');
+  });
+
+  it('viteSpecifier: does not crash when module origin is https and consumer package pins vite', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.command-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '7.3.1', esbuild: '0.27.3' },
+    });
+
+    const consumerVite = await Wrangle.viteSpecifier(
+      project,
+      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts',
+    );
+    expect(consumerVite).to.eql('npm:vite@7.3.1');
+  });
 });
