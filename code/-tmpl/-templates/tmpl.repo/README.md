@@ -35,7 +35,8 @@ Core tasks from `deno.json`:
 - `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
 - `deno task test` → runs all unit tests within the mono-repo with permissions `-P=test`
 - `deno task outdated` → reports dependency updates
-- `deno task upgrade` → upgrades dependencies to latest
+- `deno task upgrade` → upgrades dependencies within the current semver lane
+- `deno task upgrade:latest` → upgrades dependencies to the latest available versions, including majors
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)

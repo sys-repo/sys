@@ -7,7 +7,8 @@
     "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
     "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
     "install": "deno install --reload",
-    "upgrade": "deno update --latest",
+    "upgrade": "deno update",
+    "upgrade:latest": "deno update --latest",
     "outdated": "deno outdated",
     "info": "deno run -P=test ./-scripts/task.info.ts",
     "tmp": "deno run -A ./-scripts/tmp.ts"
