@@ -4,8 +4,11 @@ import type { t } from './common.ts';
  * Structure of the YAML definition file.
  */
 export type YamlDeps = {
+  /** Reusable named dependency groups. */
   groups?: t.YamlDepsGroups;
+  /** Dependency entries that target `deno.json`. */
   'deno.json'?: t.YamlDep[];
+  /** Dependency entries that target `package.json`. */
   'package.json'?: t.YamlDep[];
 };
 
@@ -13,7 +16,9 @@ export type YamlDeps = {
  * Named groups of imports.
  */
 export type YamlDepsGroupName = string;
+/** Map of group names to reusable dependency entries. */
 export type YamlDepsGroups = { [groupname: t.YamlDepsGroupName]: t.YamlDepsGroup[] };
+/** Reusable YAML dependency entry stored under a group. */
 export type YamlDepsGroup = Omit<t.YamlDep, 'group'>;
 
 /**

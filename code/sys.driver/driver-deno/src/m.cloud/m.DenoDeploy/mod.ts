@@ -4,6 +4,7 @@
  */
 import { type t } from './common.ts';
 
+/** Deno Deploy helper library. */
 export const DenoDeploy: t.DenoDeploy.Lib = {
   async stage(_request) {
     throw new Error('DenoDeploy.stage not implemented');

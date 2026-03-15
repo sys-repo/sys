@@ -42,9 +42,13 @@ export type DenoFileLib = {
 
 /** Result from the `DenoFile.nearest` method. */
 export type DenoFileNearestResult = {
+  /** Resolved `deno.json` file path. */
   readonly path: t.StringPath;
+  /** Directory containing the resolved `deno.json` file. */
   readonly dir: t.StringDir;
+  /** Parsed `deno.json` contents. */
   readonly file: t.DenoFileJson;
+  /** Derived booleans about the resolved file. */
   readonly is: { readonly workspace: boolean };
 };
 
@@ -66,13 +70,21 @@ export type DenoFileLoadResult = t.Fs.ReadResult<t.DenoFileJson>;
  * A parsed `deno.json` file.
  */
 export type DenoFileJson = {
+  /** Package name, when declared. */
   name?: string;
+  /** Package version, when declared. */
   version?: string;
+  /** Package license identifier, when declared. */
   license?: string;
+  /** Task commands declared in `deno.json`. */
   tasks?: Record<string, string>;
+  /** Path to an external import-map file. */
   importMap?: t.StringPath;
+  /** Inline import map entries. */
   imports?: Record<string, t.StringModuleSpecifier>;
+  /** Export map entries. */
   exports?: Record<string, string>;
+  /** Workspace child globs or paths. */
   workspace?: t.StringPath[];
 };
 
@@ -81,5 +93,6 @@ export type DenoFileJson = {
  * Referenced by `importMap` path in `deno.json` file.
  */
 export type DenoImportMapJson = {
+  /** Import map entries. */
   imports?: Record<string, t.StringModuleSpecifier>;
 };

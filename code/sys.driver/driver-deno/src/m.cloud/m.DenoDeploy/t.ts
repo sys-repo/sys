@@ -33,8 +33,16 @@ export declare namespace DenoDeploy {
   export namespace Stage {
     /** Ownership model for the staging root: `temp` is driver-owned, `path` is caller-owned. */
     export type Root =
-      | { readonly kind: 'temp' }
-      | { readonly kind: 'path'; readonly dir: t.StringDir };
+      | {
+          /** Driver-owned temporary staging root. */
+          readonly kind: 'temp';
+        }
+      | {
+          /** Caller-owned staging root path. */
+          readonly kind: 'path';
+          /** Directory to use as the staging root. */
+          readonly dir: t.StringDir;
+        };
 
     /** Request to stage a selected workspace target. */
     export type Request = {
@@ -70,6 +78,16 @@ export declare namespace DenoDeploy {
     };
 
     /** Outcome of a deploy attempt. */
-    export type Result = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
+    export type Result =
+      | {
+          /** Deploy completed successfully. */
+          readonly ok: true;
+        }
+      | {
+          /** Deploy failed. */
+          readonly ok: false;
+          /** Underlying deploy error. */
+          readonly error: unknown;
+        };
   }
 }

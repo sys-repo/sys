@@ -17,7 +17,10 @@ export type DenoFilePathLib = {
 
 /** Callback used to keep traversing up the ancestor hierarachy looking for a specific `deno.json` file. */
 export type DenoFileNearestStop = (e: t.DenoFileNearestStopArgs) => boolean | Promise<boolean>;
+/** Arguments passed to the nearest-file stop callback. */
 export type DenoFileNearestStopArgs = {
+  /** Absolute path of the candidate `deno.json` file. */
   readonly path: t.StringAbsolutePath;
+  /** Parsed contents of the candidate `deno.json` file. */
   readonly file: t.DenoFileJson;
 };

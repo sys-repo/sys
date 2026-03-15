@@ -1,13 +1,20 @@
 import type { t } from './common.ts';
 export type * from './t.yaml.ts';
 
+/** Tools and contracts for Deno dependency sets. */
 export declare namespace DenoDeps {
+  /** Where imports are written when applying deps to a Deno config. */
   export type TargetKind = 'imports' | 'importMap';
 
+  /** Result from applying deps to a `deno.json` or import-map target. */
   export type ApplyResult = {
+    /** Whether imports were written inline or via an import map. */
     readonly kind: TargetKind;
+    /** Resolved `deno.json` file path. */
     readonly denoFilePath: t.StringPath;
+    /** File path that received the rendered imports. */
     readonly targetPath: t.StringPath;
+    /** Final import map written to the target. */
     readonly imports: Record<string, t.StringModuleSpecifier>;
   };
 }
@@ -25,8 +32,9 @@ export type DepsLib = {
   /** Load the imports definitions from YAML. */
   from(input: t.StringPath | t.StringYaml): Promise<t.DepsResult>;
 
-  /** Convert deps to a `deno.json` or `package.json` format. */
+  /** Render deps as a `deno.json` config shape. */
   toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
+  /** Render deps as a `package.json` config shape. */
   toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgJsonNode;
 
   /**
@@ -55,15 +63,23 @@ export type DepsLib = {
 };
 
 /** A response object from a `DenoDeps` constructor function. */
-export type DepsResult = { data?: t.Deps; error?: t.StdError };
+export type DepsResult = {
+  /** Parsed dependency set when loading succeeded. */
+  data?: t.Deps;
+  /** Load or parse error when dependency data could not be produced. */
+  error?: t.StdError;
+};
 
 /**
  * A common data-structure for expressing an ESM "import"
  * (normalized between 'deno.json' and 'package.json")
  */
 export type Deps = {
+  /** Normalized dependency entries. */
   readonly deps: t.Dep[];
+  /** Parsed ESM module set derived from the deps. */
   readonly modules: t.EsmModules;
+  /** Render the dependency set back to YAML. */
   toYaml(options?: t.DepsYamlOptions): t.DepsYaml;
 };
 
@@ -73,19 +89,29 @@ export type Deps = {
  * be passed back in through the `DenoDeps.from("./deps.yaml")` method.
  */
 export type DepsYaml = {
+  /** Structured YAML dependency object. */
   readonly obj: t.YamlDeps;
+  /** Serialized YAML text. */
   readonly text: t.StringYaml;
+  /** Stringify the YAML wrapper. */
   toString(): string;
 };
 
 /** Options passed to the `DenoDeps.toYaml` method. */
-export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
+export type DepsYamlOptions = {
+  /** Optional grouping callback for named YAML groups. */
+  groupBy?: DepsCategorizeByGroup;
+};
 
 /** Categorize a dependency into a group (Nothing response is ungrouped). */
 export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResult;
+/** Arguments passed to the dependency grouping callback. */
 export type DepsCategorizeByGroupArgs = {
+  /** Dependency currently being grouped. */
   dep: t.Dep;
+  /** Target file kinds attached to the dependency. */
   target: t.DepTargetFile | t.DepTargetFile[];
+  /** Assign the dependency to a named YAML group. */
   group(name: string, options?: { subpaths?: t.StringDir[]; dev?: boolean }): void;
 };
 

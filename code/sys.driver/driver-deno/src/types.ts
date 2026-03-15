@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Deno driver type surface.
  */
 export type * from './m.cloud/m.DenoDeploy/t.ts';
 export type * from './m.runtime/m.DenoDeps/t.ts';

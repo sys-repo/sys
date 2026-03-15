@@ -7,6 +7,7 @@ import { nearest } from './u.nearest.ts';
 import { workspace } from './u.workspace.ts';
 import { workspaceVersion } from './u.workspaceVersion.ts';
 
+/** `deno.json` file helper library. */
 export const DenoFile: DenoFileLib = {
   Is,
   Path,
