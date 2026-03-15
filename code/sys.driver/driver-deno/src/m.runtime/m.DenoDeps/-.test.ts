@@ -1,4 +1,4 @@
-import { type t, c, describe, Esm, expect, Fs, it, Yaml } from '../../-test.ts';
+import { type t, c, describe, Esm, expect, Fs, it, stripAnsi, Yaml } from '../../-test.ts';
 import { Fmt } from './m.Fmt.ts';
 import { DenoDeps } from './mod.ts';
 
@@ -13,11 +13,11 @@ describe('DenoDeps', () => {
 
   describe('DenoDeps.Fmt', () => {
     it('renders the first dependency after a registry boundary', () => {
-      const text = DenoDeps.Fmt.deps([
+      const text = stripAnsi(DenoDeps.Fmt.deps([
         DenoDeps.toDep('jsr:@sys/std@0.0.1'),
         DenoDeps.toDep('npm:react@19.0.0'),
         DenoDeps.toDep('npm:react-dom@19.0.0'),
-      ]);
+      ]));
 
       expect(text).to.include('@sys/std');
       expect(text).to.include('react');
