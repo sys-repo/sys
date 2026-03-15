@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Monorepo type surface.
  */
 export type * from './m.ci/t.ts';
 export type * from './m.info/t.ts';
