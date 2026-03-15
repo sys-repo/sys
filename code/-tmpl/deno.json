@@ -14,7 +14,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {
