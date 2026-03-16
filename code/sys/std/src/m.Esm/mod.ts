@@ -3,7 +3,7 @@
  * Tools for working with systems and runtimes that support
  * the ESM (EcmaScript Module) standard.
  */
-import type { EsmLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { Modules } from './m.Modules.ts';
 import { hasDefaultExport } from './m.hasDefaultExport.ts';
@@ -14,7 +14,7 @@ import { toString } from './u.toString.ts';
  * Tools for working with systems and runtimes that support
  * the ESM (EcmaScript Module) standard.
  */
-export const Esm: EsmLib = {
+export const Esm: t.EsmLib = {
   Modules,
   modules: Modules.create,
   parse,
