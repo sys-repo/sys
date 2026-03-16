@@ -7,7 +7,7 @@ export type TestingServerLib = t.TestingHttpLib & {
   /**
    * Generates a new test directory on the file-system.
    */
-  dir(dirname: string, options?: t.TestingDirOptions): Promise<t.TestingDir>;
+  dir(dirname: t.StringDir, options?: t.TestingDirOptions): Promise<t.TestingDir>;
 
   /**
    * Connects to a hostname (default is "127.0.0.1") and port on a named
