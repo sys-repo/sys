@@ -5,16 +5,16 @@ export async function createStageWorkspace() {
   await Fs.writeJson(fs.join('deno.json'), {
     name: 'root',
     version: '0.0.0',
-    workspace: ['./apps/foo', './libs/bar'],
+    workspace: ['./code/apps/foo', './libs/bar'],
   });
 
-  await Fs.writeJson(fs.join('apps/foo/deno.json'), {
+  await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
     name: '@test/foo',
     version: '0.0.0',
     exports: { '.': './src/mod.ts' },
   });
   await Fs.write(
-    fs.join('apps/foo/src/mod.ts'),
+    fs.join('code/apps/foo/src/mod.ts'),
     `export default 'foo-default';\nexport const foo = 'foo';\n`,
   );
 

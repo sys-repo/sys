@@ -21,14 +21,14 @@ describe('DenoDeploy: staging target resolution', () => {
 
     it('rejects a target that is not a declared workspace child', async () => {
       const fs = await createStageWorkspace();
-      await Fs.writeJson(fs.join('apps/ghost/deno.json'), {
+      await Fs.writeJson(fs.join('code/apps/ghost/deno.json'), {
         name: '@test/ghost',
         version: '0.0.0',
         exports: { '.': './src/mod.ts' },
       });
-      await Fs.write(fs.join('apps/ghost/src/mod.ts'), `export const ghost = true;\n`);
+      await Fs.write(fs.join('code/apps/ghost/src/mod.ts'), `export const ghost = true;\n`);
 
-      const targetDir = fs.join('apps/ghost');
+      const targetDir = fs.join('code/apps/ghost');
       const error = await getStageError(() => DenoDeploy.stage({ target: { dir: targetDir } }));
       expect(error?.message).to.eql(
         `DenoDeploy.stage: target dir '${targetDir}' is not a declared workspace child of '${fs.dir}'`,
@@ -42,17 +42,17 @@ describe('DenoDeploy: staging target resolution', () => {
       await Fs.writeJson(fs.join('deno.json'), {
         name: 'root',
         version: '0.0.0',
-        workspace: ['./apps/foo'],
+        workspace: ['./code/apps/foo'],
       });
-      await Fs.writeJson(fs.join('apps/foo/deno.json'), {
+      await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
         name: '@test/foo',
         version: '0.0.0',
       });
-      await Fs.write(fs.join('apps/foo/src/mod.ts'), `export const srcMod = true;\n`);
+      await Fs.write(fs.join('code/apps/foo/src/mod.ts'), `export const srcMod = true;\n`);
 
-      const res = await DenoDeploy.stage({ target: { dir: fs.join('apps/foo') } });
+      const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       expect((await Fs.readText(res.entry)).data).to.eql(
-        `import * as target from './apps/foo/src/mod.ts';\nexport const targetEntry = './apps/foo/src/mod.ts';\nexport const targetDir = './apps/foo';\nexport * from './apps/foo/src/mod.ts';\n`,
+        `export const targetEntry = './code/apps/foo/src/mod.ts';\nexport const targetDir = './code/apps/foo';\nexport const targetPkg = './code/apps/foo/src/pkg.ts';\nexport const targetDist = './code/apps/foo/dist/';\n`,
       );
     });
 
@@ -61,24 +61,26 @@ describe('DenoDeploy: staging target resolution', () => {
       await Fs.writeJson(fs.join('deno.json'), {
         name: 'root',
         version: '0.0.0',
-        workspace: ['./apps/foo'],
+        workspace: ['./code/apps/foo'],
       });
-      await Fs.writeJson(fs.join('apps/foo/deno.json'), {
+      await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
         name: '@test/foo',
         version: '0.0.0',
         exports: { '.': './src/mod.ts' },
       });
-      await Fs.write(fs.join('apps/foo/src/mod.ts'), `export const namedOnly = true;\n`);
+      await Fs.write(fs.join('code/apps/foo/src/mod.ts'), `export const namedOnly = true;\n`);
 
-      const res = await DenoDeploy.stage({ target: { dir: fs.join('apps/foo') } });
+      const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       const stageText = (await Fs.readText(res.entry)).data ?? '';
       expect(stageText).to.eql(
-        `import * as target from './apps/foo/src/mod.ts';\nexport const targetEntry = './apps/foo/src/mod.ts';\nexport const targetDir = './apps/foo';\nexport * from './apps/foo/src/mod.ts';\n`,
+        `export const targetEntry = './code/apps/foo/src/mod.ts';\nexport const targetDir = './code/apps/foo';\nexport const targetPkg = './code/apps/foo/src/pkg.ts';\nexport const targetDist = './code/apps/foo/dist/';\n`,
       );
 
       const mod = await import(`file://${res.entry}?v=${slug()}`);
-      expect('default' in mod).to.eql(false);
-      expect(mod.namedOnly).to.eql(true);
+      expect(mod.targetEntry).to.eql('./code/apps/foo/src/mod.ts');
+      expect(mod.targetDir).to.eql('./code/apps/foo');
+      expect(mod.targetPkg).to.eql('./code/apps/foo/src/pkg.ts');
+      expect(mod.targetDist).to.eql('./code/apps/foo/dist/');
     });
   });
 });

@@ -17,7 +17,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
         children: [],
       },
       root: '/tmp/stage',
-      entry: '/tmp/stage/deploy.entry.ts',
+      entry: '/tmp/stage/entry.paths.ts',
     } as any;
 
     const args = toDeployArgs({
@@ -54,7 +54,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       target: { dir: '/repo/apps/foo' },
       workspace: {} as any,
       root: '/tmp/stage',
-      entry: '/tmp/stage/deploy.entry.ts',
+      entry: '/tmp/stage/entry.paths.ts',
     };
 
     const args = toDeployArgs({ stage, app: 'my-app' });
@@ -69,12 +69,12 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
     ]);
   });
 
-  it('serves the staged target dist index and emitted js from generated main.ts', async () => {
+  it('serves the staged target dist index and emitted js from generated entry.ts', async () => {
     const { pkgDir } = await createDeployableRepoPkg();
     const stage = await DenoDeploy.stage({ target: { dir: pkgDir } });
     await prepareStageForExistingApp(stage);
 
-    const mod = await import(`file://${stage.root}/main.ts`);
+    const mod = await import(`file://${stage.root}/entry.ts`);
     const res = await mod.default.fetch(new Request('http://local/'));
     const body = await res.text();
     const expectedHtml = (await Fs.readText(Fs.join(stage.root, 'code', 'projects', 'foo', 'dist', 'index.html'))).data ?? '';
