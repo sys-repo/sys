@@ -162,4 +162,14 @@ Return:
 - the main surfaces that were documented or refined
 - any residual mismatch between local source and the live JSR publication
 - the verification commands that were run
-- a conventional commit message suggestion
+- a canonical commit message suggestion
+  - use Conventional Commits style, aligned with canon
+  - wrap the commit message in triple backticks
+  - default to a docs-focused message when the pass is broad, for example:
+    - `docs(<scope>): improve JSR package documentation`
+  - when the pass has a clear theme, make the message more specific about the documentation class improved, for example:
+    - missing module docs
+    - public symbol docs
+    - README examples
+    - entrypoint docs
+  - do not invent a theme if the work was mixed or diffuse; use the default docs-focused message instead
