@@ -1,6 +1,6 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
-import { type t, Fs, Process, Str } from './common.ts';
+import { type t, Fs, Path, Process, Str } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
 
 export async function createDeployableRepoPkg(): Promise<{
@@ -53,6 +53,18 @@ export async function createDeployableRepoPkg(): Promise<{
   return { root, pkgDir, distDir };
 }
 
+export async function snapshotPackageDenoJson() {
+  const path = Fs.Path.fromFileUrl(new URL('../../../../deno.json', import.meta.url));
+  const text = (await Fs.readText(path)).data ?? '';
+  return { path, text } as const;
+}
+
+export async function restorePackageDenoJsonIfPolluted(snapshot: { readonly path: string; readonly text: string }) {
+  const current = (await Fs.readText(snapshot.path)).data ?? '';
+  if (current === snapshot.text) return;
+  await Fs.write(snapshot.path, snapshot.text);
+}
+
 async function createPublishedRepoFixture(): Promise<t.StringDir> {
   const root = (await Fs.makeTempDir({ prefix: 'tmpl.deploy.repo.' })).absolute as t.StringDir;
   await quietly(() =>
@@ -72,14 +84,16 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
 }
 
 export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Result) {
-  const entrypoint = Fs.join(stage.root, 'main.ts');
+  const stagedTargetRel = Path.relative(stage.workspace.dir, stage.target.dir);
+  const entrypoint = Fs.join(stage.root, 'entry.ts');
   const compatEntrypoint = Fs.join(stage.root, 'src/m.server/main.ts');
-  const stagedDistDir = Fs.join(stage.root, 'code', 'projects', 'foo', 'dist');
+  const stagedDistDir = Fs.join(stage.root, stagedTargetRel, 'dist');
   const imports = await readImportMap(stage.root);
   const fsImport = imports['@sys/fs'];
   const httpServerImport = resolveHttpServerImport(imports);
   if (!fsImport) throw new Error(`Expected staged imports.json to include '@sys/fs'.`);
   await ensureDeployConfig(stage.root);
+  await ensureStagedDistIncluded(stage.root, stagedTargetRel);
   await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
   await stageDeployDist(stage.target.dir, stagedDistDir);
 
@@ -88,13 +102,45 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
     Str.dedent(`
       import { HttpServer } from '${httpServerImport}';
       import { Fs, Pkg } from '${fsImport}';
-      import { pkg, targetDir } from './deploy.entry.ts';
+      import { targetDir, targetDist, targetEntry, targetPkg } from './entry.paths.ts';
 
       const moduleDir = Fs.Path.fromFileUrl(new URL('.', import.meta.url));
-      const distDir = Fs.join(moduleDir, targetDir, 'dist');
+      const distDir = Fs.Path.fromFileUrl(new URL(targetDist, import.meta.url));
+      const pkgPath = Fs.Path.fromFileUrl(new URL(targetPkg, import.meta.url));
+      const pkgModule = await import(new URL(targetPkg, import.meta.url).href);
+      const pkg = pkgModule.pkg;
       const dist = (await Pkg.Dist.load(distDir)).dist;
       const hash = dist?.hash.digest ?? '';
       const app = HttpServer.create({ pkg: dist?.pkg || pkg, hash, static: false });
+      app.get('/-info.json', async (c) => c.json({
+        importMetaUrl: import.meta.url,
+        cwd: Deno.cwd(),
+        moduleDir,
+        targetEntry,
+        targetDir,
+        targetPkg,
+        targetDist,
+        pkgPath,
+        distDir,
+        exists: {
+          targetDir: await Fs.exists(Fs.join(moduleDir, targetDir)),
+          pkgPath: await Fs.exists(pkgPath),
+          distDir: await Fs.exists(distDir),
+          indexHtml: await Fs.exists(Fs.join(distDir, 'index.html')),
+          distJson: await Fs.exists(Fs.join(distDir, 'dist.json')),
+        },
+        sample: {
+          indexHtml: (await Fs.readText(Fs.join(distDir, 'index.html'))).data?.slice(0, 200) ?? '',
+          distJson: (await Fs.readText(Fs.join(distDir, 'dist.json'))).data?.slice(0, 400) ?? '',
+        },
+        env: {
+          deploymentId: Deno.env.get('DENO_DEPLOYMENT_ID') ?? '',
+          region: Deno.env.get('DENO_REGION') ?? '',
+          gitSha: Deno.env.get('DENO_GIT_COMMIT_SHA') ?? '',
+          gitBranch: Deno.env.get('DENO_GIT_BRANCH') ?? '',
+          denoKeys: Object.keys(Deno.env.toObject()).filter((key) => key.startsWith('DENO_')).sort(),
+        },
+      }));
       app.use('*', HttpServer.static({
         root: distDir,
         onNotFound: async (path, c) => {
@@ -113,8 +159,8 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
   await Fs.write(
     compatEntrypoint,
     Str.dedent(`
-      export { default } from '../../main.ts';
-      export * from '../../main.ts';
+      export { default } from '../../entry.ts';
+      export * from '../../entry.ts';
     `),
   );
 
@@ -122,8 +168,8 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
     stagedDir: stage.root,
     entrypoint,
     appEntrypoint: './src/m.server/main.ts',
-    workspaceTarget: './code/projects/foo',
-    distDir: './code/projects/foo/dist',
+    workspaceTarget: `./${stagedTargetRel}`,
+    distDir: `./${stagedTargetRel}/dist`,
   } as const;
 }
 
@@ -201,10 +247,38 @@ async function ensureDeployConfig(root: string) {
     ...current,
     deploy: {
       ...currentDeploy,
-      entrypoint: './main.ts',
+      entrypoint: './entry.ts',
       cwd: './',
     },
   });
+}
+
+async function ensureStagedDistIncluded(root: string, targetRel: string) {
+  const path = Fs.join(root, '.gitignore');
+  const marker = '# generated by driver-deno external prebuilt-dist deploy proof';
+  const current = (await Fs.readText(path)).data ?? '';
+  if (current.includes(marker)) return;
+
+  const lines = [marker, ...toDistUnignoreRules(targetRel)];
+  const prefix = current.length > 0 && !current.endsWith('\n') ? '\n' : '';
+  await Fs.write(path, `${current}${prefix}${lines.join('\n')}\n`);
+}
+
+function toDistUnignoreRules(targetRel: string): string[] {
+  const clean = targetRel.replace(/^\.\//, '').replace(/\/+$/, '');
+  const parts = clean.split('/').filter(Boolean);
+  const rules: string[] = [];
+  let acc = '';
+
+  for (const part of parts) {
+    acc = acc.length > 0 ? `${acc}/${part}` : part;
+    rules.push(`!${acc}/`);
+  }
+
+  const distRel = clean.length > 0 ? `${clean}/dist` : 'dist';
+  rules.push(`!${distRel}/`);
+  rules.push(`!${distRel}/**`);
+  return rules;
 }
 
 async function stageDeployDist(targetDir: string, stagedDistDir: string) {

@@ -16,9 +16,7 @@ export const stage: t.DenoDeploy.Lib['stage'] = async (request) => {
   const entry = Fs.join(root, D.deployEntrypointFilename);
   await Fs.write(
     entry,
-    createStageEntrypoint(Path.relative(root, targetEntry.path), {
-      hasDefaultExport: targetEntry.hasDefaultExport,
-    }),
+    createStageEntrypoint(targetRootRel, Path.relative(root, targetEntry.path)),
     { force: true },
   );
 

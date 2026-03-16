@@ -5,10 +5,18 @@
  * Keep scenarios here explicit and additive.
  */
 import { loadExternalDeployEnv, printExternalDeployEnvGuidance } from './u.env.ts';
+import { restorePackageDenoJsonIfPolluted, snapshotPackageDenoJson } from './u.fixture.ts';
 
 if (!loadExternalDeployEnv()) {
   printExternalDeployEnvGuidance();
   Deno.exit(1);
 }
 
-await import('./-existing-app.ts');
+const packageDenoJson = await snapshotPackageDenoJson();
+
+try {
+  // await import('./-existing-app.ts');
+  await import('./-prebuilt-dist.ts');
+} finally {
+  await restorePackageDenoJsonIfPolluted(packageDenoJson);
+}

@@ -32,11 +32,11 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.eql(true);
     expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/deno.json'))).to.eql(true);
     expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/src/mod.ts'))).to.eql(true);
-    expect(res.entry).to.eql(Fs.join(res.root, 'deploy.entry.ts'));
+    expect(res.entry).to.eql(Fs.join(res.root, 'entry.paths.ts'));
 
     const stageText = (await Fs.readText(res.entry)).data ?? '';
     expect(stageText).to.eql(
-      `import * as target from './code/projects/foo/src/mod.ts';\nexport const targetEntry = './code/projects/foo/src/mod.ts';\nexport const targetDir = './code/projects/foo';\nexport * from './code/projects/foo/src/mod.ts';\n`,
+      `export const targetEntry = './code/projects/foo/src/mod.ts';\nexport const targetDir = './code/projects/foo';\nexport const targetPkg = './code/projects/foo/src/pkg.ts';\nexport const targetDist = './code/projects/foo/dist/';\n`,
     );
 
     const walkup = false;
@@ -48,8 +48,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(stagedPkg.data?.name).to.eql('@tmp/foo');
 
     const mod = await import(`file://${res.entry}?v=${slug()}`);
-    expect('default' in mod).to.eql(false);
     expect(mod.targetEntry).to.eql('./code/projects/foo/src/mod.ts');
     expect(mod.targetDir).to.eql('./code/projects/foo');
+    expect(mod.targetPkg).to.eql('./code/projects/foo/src/pkg.ts');
+    expect(mod.targetDist).to.eql('./code/projects/foo/dist/');
   });
 });

@@ -1,25 +1,15 @@
 import { type t, Str } from './common.ts';
 
 export function createStageEntrypoint(
+  targetDirRel: t.StringPath,
   targetEntryRel: t.StringPath,
-  options: { hasDefaultExport: boolean },
 ): string {
-  const specifier = targetEntryRel.startsWith('.') ? targetEntryRel : `./${targetEntryRel}`;
-  const targetDir = specifier.replace(/\/src\/[^/]+\.ts$/, '');
-  if (options.hasDefaultExport) {
-    return `${Str.dedent(`
-      import * as target from '${specifier}';
-      export const targetEntry = '${specifier}';
-      export const targetDir = '${targetDir}';
-      export default target.default;
-      export * from '${specifier}';
-    `)}\n`;
-  }
-
+  const targetDir = targetDirRel.startsWith('.') ? targetDirRel : `./${targetDirRel}`;
+  const targetEntry = targetEntryRel.startsWith('.') ? targetEntryRel : `./${targetEntryRel}`;
   return `${Str.dedent(`
-    import * as target from '${specifier}';
-    export const targetEntry = '${specifier}';
+    export const targetEntry = '${targetEntry}';
     export const targetDir = '${targetDir}';
-    export * from '${specifier}';
+    export const targetPkg = '${targetDir}/src/pkg.ts';
+    export const targetDist = '${targetDir}/dist/';
   `)}\n`;
 }
