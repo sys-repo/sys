@@ -1,6 +1,6 @@
 import { Process } from '@sys/process';
 
-import { describe, expect, expectError, Fs, it, makeTmpl, Templates } from '../../-test.ts';
+import { DenoFile, describe, expect, expectError, Fs, it, makeTmpl, Templates } from '../../-test.ts';
 import { TmplTesting } from '../mod.ts';
 
 describe(`@sys/tmpl/testing`, () => {
@@ -12,24 +12,25 @@ describe(`@sys/tmpl/testing`, () => {
   it('LocalRepoAuthorities.read → reads generated repo imports.json and package.json', async () => {
     const root = await writeRepo();
     const authorities = await TmplTesting.LocalRepoAuthorities.read(root);
+    const files = await readAuthorityFiles(root);
 
-    expect(authorities.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.0.274');
-    expect(authorities.packageJson.dependencies?.react).to.eql('19.2.4');
-    expect(authorities.packageJson.devDependencies?.vite).to.eql('7.3.1');
+    expect(authorities.imports).to.eql(files.imports.imports);
+    expect(authorities.packageJson).to.eql(files.packageJson);
   });
 
   it('LocalRepoAuthorities.rewrite → localizes generated repo authorities to workspace truth', async () => {
     const root = await writeRepo();
     await poisonVersions(root);
+    const expected = await readWorkspaceAuthorities();
 
     const authorities = await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
-    expect(authorities.imports['react']).to.eql('npm:react@19.2.4');
-    expect(authorities.imports['react-dom/']).to.eql('npm:react-dom@19.2.4/');
-    expect(authorities.packageJson.dependencies?.react).to.eql('19.2.4');
-    expect(authorities.packageJson.devDependencies?.vite).to.eql('7.3.1');
+    expect(authorities.imports.react).to.eql(expected.imports.react);
+    expect(authorities.imports['react-dom/']).to.eql(expected.imports['react-dom/']);
+    expect(authorities.packageJson.dependencies?.react).to.eql(expected.packageVersions.react);
+    expect(authorities.packageJson.devDependencies?.vite).to.eql(expected.packageVersions.vite);
   });
 
   it('LocalRepoFixture.create → create temp repo fixture → deno task ci passes', async () => {
@@ -91,6 +92,46 @@ async function poisonVersions(root: string) {
 
   await Fs.writeJson(importsPath, nextImports);
   await Fs.writeJson(packagePath, nextPackage);
+}
+
+async function readAuthorityFiles(root: string) {
+  return {
+    imports: await readJson<{ readonly imports: Record<string, string> }>(Fs.join(root, 'imports.json')),
+    packageJson: await readJson<{
+      readonly dependencies?: Record<string, string>;
+      readonly devDependencies?: Record<string, string>;
+    }>(Fs.join(root, 'package.json')),
+  };
+}
+
+async function readWorkspaceAuthorities() {
+  const workspace = await DenoFile.workspace();
+  const root = workspace.dir;
+  const imports = await readJson<{ readonly imports: Record<string, string> }>(Fs.join(root, 'imports.json'));
+  const packageJson = await readJson<{
+    readonly dependencies?: Record<string, string>;
+    readonly devDependencies?: Record<string, string>;
+  }>(Fs.join(root, 'package.json'));
+
+  const std = workspace.children.find((child) => child.pkg.name === '@sys/std');
+  const tmpl = workspace.children.find((child) => child.pkg.name === '@sys/tmpl');
+
+  const localizedImports: Record<string, string> = {
+    ...imports.imports,
+    '@sys/std': Fs.join(root, std?.path.dir ?? '', './src/mod.ts'),
+    '@sys/tmpl': Fs.join(root, tmpl?.path.dir ?? '', './src/mod.ts'),
+    react: `npm:react@${packageJson.dependencies?.react}`,
+    'react-dom/': `npm:react-dom@${packageJson.dependencies?.['react-dom']}/`,
+  };
+
+  return {
+    imports: localizedImports,
+    packageJson,
+    packageVersions: {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+    },
+  };
 }
 
 async function readJson<T>(path: string): Promise<T> {

@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { DenoFile, type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import { TmplTesting } from '../m.testing/mod.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 import { poisonSysVersions } from './u.repo.local.ts';
@@ -76,12 +76,13 @@ describe('Template: repo integration', () => {
     await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const authorities = await TmplTesting.LocalRepoAuthorities.read(root);
+    const expected = await readWorkspaceAuthorities();
     expect(authorities.imports['@sys/cli'].includes('/code/sys/cli/')).to.eql(true);
     expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
     expect(typeof authorities.imports['@std/testing']).to.eql('string');
-    expect(authorities.imports['react']).to.eql('npm:react@19.2.4');
-    expect(authorities.packageJson.dependencies?.react).to.eql('19.2.4');
+    expect(authorities.imports.react).to.eql(expected.imports.react);
+    expect(authorities.packageJson.dependencies?.react).to.eql(expected.packageJson.dependencies?.react);
   });
 
   it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
@@ -113,3 +114,27 @@ describe('Template: repo integration', () => {
     }
   });
 });
+
+async function readWorkspaceAuthorities() {
+  const workspace = await DenoFile.workspace();
+  const root = workspace.dir;
+  const imports = await readJson<{ readonly imports: Record<string, string> }>(Fs.join(root, 'imports.json'));
+  const packageJson = await readJson<{
+    readonly dependencies?: Record<string, string>;
+    readonly devDependencies?: Record<string, string>;
+  }>(Fs.join(root, 'package.json'));
+
+  return {
+    imports: {
+      ...imports.imports,
+      react: `npm:react@${packageJson.dependencies?.react}`,
+    },
+    packageJson,
+  };
+}
+
+async function readJson<T>(path: string): Promise<T> {
+  const res = await Fs.readJson(path);
+  if (!res.ok || !res.data) throw new Error(`Failed to read JSON: ${path}`);
+  return res.data as T;
+}
