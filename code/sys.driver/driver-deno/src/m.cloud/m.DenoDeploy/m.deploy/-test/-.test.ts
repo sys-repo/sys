@@ -1,5 +1,5 @@
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { toDeployArgs } from './u.deployArgs.ts';
+import { describe, expect, expectTypeOf, it } from '../../../../-test.ts';
+import { toDeployArgs } from '../u.deployArgs.ts';
 
 describe('DenoDeploy.deploy', () => {
   it('builds native deno deploy args from a staged artifact', () => {
