@@ -4,10 +4,10 @@
  * These checks validate real Deno Deploy behavior against an existing app.
  * Keep scenarios here explicit and additive.
  */
-import { loadDeployEnv, printDeployEnvGuidance } from './u.env.ts';
+import { loadExternalDeployEnv, printExternalDeployEnvGuidance } from './u.env.ts';
 
-if (!loadDeployEnv()) {
-  printDeployEnvGuidance();
+if (!loadExternalDeployEnv()) {
+  printExternalDeployEnvGuidance();
   Deno.exit(1);
 }
 
