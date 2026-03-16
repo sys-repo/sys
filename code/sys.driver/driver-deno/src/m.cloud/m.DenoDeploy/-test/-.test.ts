@@ -1,5 +1,5 @@
-import { describe, expect, Is, it } from '../../-test.ts';
-import { DenoDeploy } from './mod.ts';
+import { describe, expect, Is, it } from '../../../-test.ts';
+import { DenoDeploy } from '../mod.ts';
 
 describe('DenoDeploy', () => {
   it('API', () => {
