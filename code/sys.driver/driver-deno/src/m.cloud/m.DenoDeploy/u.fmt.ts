@@ -33,22 +33,23 @@ type InfoArgs = {
 
 export const Fmt = {
   blocked(args: BlockedArgs) {
+    const width = maxLabelWidth(['What', 'Why', 'Fix', ...(args.retry && args.retry.length > 0 ? ['Retry'] : []), ...(args.notes && args.notes.length > 0 ? ['Notes'] : [])]);
     const accent = toneColor(args.tone ?? 'warning');
     return [
       '',
       `${indent()}${c.bold(accent(args.title))}`,
       `${indent()}${c.bold(accent(LINE))}`,
-      richRow('What', [highlightSpecialTokens(args.what, 'white')]),
-      richRow('Why', [highlightSpecialTokens(args.why, 'white')]),
-      row('', '', { color: 'white' }),
-      richRow('Fix', [highlightEnvFile(args.fix[0] ?? '', 'white')]),
-      row('', '', { color: 'white' }),
-      ...args.fix.slice(1).map((line) => richRow('', [formatEnvAssignment(line)])),
+      richRow('What', [highlightSpecialTokens(args.what, 'white')], width),
+      richRow('Why', [highlightSpecialTokens(args.why, 'white')], width),
+      row('', '', { color: 'white', width }),
+      richRow('Fix', [highlightEnvFile(args.fix[0] ?? '', 'white')], width),
+      row('', '', { color: 'white', width }),
+      ...args.fix.slice(1).map((line) => richRow('', [formatEnvAssignment(line)], width)),
       ...(args.retry && args.retry.length > 0
-        ? [row('', '', { color: 'white' }), row('Retry', args.retry[0] ?? '', { color: 'green' }), ...args.retry.slice(1).map((line) => row('', line, { color: 'green' }))]
+        ? [row('', '', { color: 'white', width }), row('Retry', args.retry[0] ?? '', { color: 'green', width }), ...args.retry.slice(1).map((line) => row('', line, { color: 'green', width }))]
         : []),
       ...(args.notes && args.notes.length > 0
-        ? [row('', '', { color: 'white' }), row('Notes', args.notes[0] ?? '', { color: 'gray' }), ...args.notes.slice(1).map((line) => row('', line, { color: 'gray' }))]
+        ? [row('', '', { color: 'white', width }), row('Notes', args.notes[0] ?? '', { color: 'gray', width }), ...args.notes.slice(1).map((line) => row('', line, { color: 'gray', width }))]
         : []),
       `${indent()}${c.bold(accent(LINE))}`,
       '',
@@ -73,6 +74,7 @@ export const Fmt = {
   },
 
   info(args: InfoArgs) {
+    const width = maxLabelWidth(args.rows.map((row) => row.label));
     const accent = toneColor(args.tone ?? 'success');
     return [
       '',
@@ -80,8 +82,8 @@ export const Fmt = {
       `${indent()}${c.bold(accent(LINE))}`,
       ...args.rows.map((rowData) =>
         rowData.valueParts
-          ? richRow(rowData.label, rowData.valueParts)
-          : row(rowData.label, rowData.value, { color: rowData.color ?? 'white' })
+          ? richRow(rowData.label, rowData.valueParts, width)
+          : row(rowData.label, rowData.value, { color: rowData.color ?? 'white', width })
       ),
       `${indent()}${c.bold(accent(LINE))}`,
       '',
@@ -89,8 +91,12 @@ export const Fmt = {
   },
 } as const;
 
-function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' | 'green' } = {}) {
-  const head = c.gray(normalizeLabel(label).padEnd(5));
+function row(
+  label: string,
+  value: string,
+  options: { color?: 'white' | 'cyan' | 'gray' | 'green'; width?: number } = {},
+) {
+  const head = c.gray(normalizeLabel(label).padEnd(options.width ?? 5));
   const text =
     options.color === 'green'
       ? c.green(value)
@@ -102,8 +108,8 @@ function row(label: string, value: string, options: { color?: 'white' | 'cyan' |
   return `${indent()}${head} ${c.gray('│')} ${text}`;
 }
 
-function richRow(label: string, parts: readonly string[]) {
-  const head = c.gray(normalizeLabel(label).padEnd(5));
+function richRow(label: string, parts: readonly string[], width = 5) {
+  const head = c.gray(normalizeLabel(label).padEnd(width));
   return `${indent()}${head} ${c.gray('│')} ${parts.join('')}`;
 }
 
@@ -165,4 +171,8 @@ function toneColor(tone: 'warning' | 'success') {
 
 function normalizeLabel(label: string) {
   return label.length === 0 ? label : label.toLowerCase();
+}
+
+function maxLabelWidth(labels: readonly string[]) {
+  return Math.max(5, ...labels.map((label) => normalizeLabel(label).length));
 }

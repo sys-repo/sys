@@ -1,7 +1,7 @@
-import { c, describe, it } from './common.ts';
+import { c, describe, Http, it } from './common.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { printExternalDeployInfo, requireDeployEnv, toDeployFailure } from './u.env.ts';
-import { createDeployableRepoPkg, prepareStageForExistingApp } from './u.fixture.ts';
+import { createDeployableRepoPkg, prepareStageForExistingApp, printDeployEntrypointInfo } from './u.fixture.ts';
 
 describe('DenoDeploy.deploy (external)', () => {
   it('prints the external Deno Deploy config', () => {
@@ -12,7 +12,8 @@ describe('DenoDeploy.deploy (external)', () => {
     const deployEnv = requireDeployEnv();
     const { pkgDir } = await createDeployableRepoPkg();
     const stage = await DenoDeploy.stage({ target: { dir: pkgDir } });
-    await prepareStageForExistingApp(stage);
+    const entrypoint = await prepareStageForExistingApp(stage);
+    printDeployEntrypointInfo(entrypoint);
     const result = await DenoDeploy.deploy({
       stage,
       app: deployEnv.app,
@@ -28,11 +29,12 @@ describe('DenoDeploy.deploy (external)', () => {
 
     printDeployResult(result);
     if (!result.deploy?.previewUrl) throw new Error('Expected DenoDeploy.deploy to return previewUrl.');
+    await assertPreviewServesHtml(result.deploy.previewUrl);
   });
 });
 
 function printDeployResult(result: Extract<Awaited<ReturnType<typeof DenoDeploy.deploy>>, { ok: true }>) {
-  console.info(c.cyan('DenoDeploy (live external deploy result):'));
+  console.info(`DenoDeploy (${c.bold(c.brightGreen('live'))} external deploy result):`);
   console.info('');
   console.info({
     ok: result.ok,
@@ -52,4 +54,37 @@ function printDeployEndpoints(result: Extract<Awaited<ReturnType<typeof DenoDepl
     console.info(`  ${c.gray('preview:'.padEnd(11))} ${c.white(result.deploy.previewUrl)}`);
   }
   console.info('');
+}
+
+async function assertPreviewServesHtml(url: string) {
+  const fetch = Http.fetcher();
+  let last: { status: number; contentType: string; body: string } | undefined;
+
+  for (let i = 0; i < 5; i++) {
+    const res = await fetch.text(url);
+    const body = res.data ?? '';
+    const contentType = res.headers.get('content-type') ?? '';
+    last = { status: res.status, contentType, body };
+
+    const isHtml =
+      res.status === 200 &&
+      contentType.includes('text/html') &&
+      (body.includes('<!doctype html') || body.includes('<html'));
+    if (isHtml) return;
+    if (i < 4) await wait(2000);
+  }
+
+  throw new Error(
+    [
+      `Expected deployed preview URL to serve HTML: ${url}`,
+      `status: ${last?.status ?? 0}`,
+      `content-type: ${last?.contentType ?? ''}`,
+      '',
+      last?.body ?? '',
+    ].join('\n'),
+  );
+}
+
+async function wait(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
