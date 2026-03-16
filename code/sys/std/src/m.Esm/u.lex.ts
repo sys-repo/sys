@@ -1,3 +1,11 @@
+/**
+ * Lightweight lexical helpers for narrow ESM source inspection.
+ *
+ * This is not a full JavaScript/TypeScript lexer.
+ * Keep usage scoped to small source-shape checks such as export detection.
+ * If broader syntax coverage is required, promote this area deliberately
+ * rather than extending it ad hoc.
+ */
 function isWordBoundary(value: string | undefined): boolean {
   return value === undefined || !/[A-Za-z0-9_$]/.test(value);
 }
