@@ -65,5 +65,7 @@ export declare namespace TmplTesting {
     readonly targetDir?: t.StringDir;
     readonly force?: boolean;
     readonly dryRun?: boolean;
+    /** Suppress repo-generation output while materializing the fixture. */
+    readonly silent?: boolean;
   };
 }
