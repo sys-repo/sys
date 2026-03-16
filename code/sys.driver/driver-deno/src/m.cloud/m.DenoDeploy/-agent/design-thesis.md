@@ -36,8 +36,12 @@ We know several important things with high confidence:
 
 1. Deno Deploy will run the package.
 2. Deno Deploy will run our dynamic HTTP server.
-3. The staging side of the API is clean, strong, and stands on its own.
-4. The deploy core can remain small if we keep the contract explicit.
+3. A prebuilt `dist/` staged under the selected workspace child survives deploy
+   and is readable at runtime.
+4. The dynamic server can serve `index.html` and emitted JS assets from that
+   staged `dist/`.
+5. The staging side of the API is clean, strong, and stands on its own.
+6. The deploy core can remain small if we keep the contract explicit.
 
 This means the platform already gives us enough.
 
@@ -64,6 +68,8 @@ The right conclusion is:
 - dynamic deploy is sufficient
 - remote build artifact visibility is not a contract we should build our system
   around
+- prebuilt artifacts staged into the selected workspace child are the reliable
+  contract to build around
 
 ## The Operating Principle
 
@@ -99,6 +105,9 @@ The deploy stance from here is conservative:
 4. Serve exactly what we own.
 5. Avoid leaning on platform helper features as foundational assumptions.
 
+This is no longer hypothetical. The prebuilt `dist/` path has now been proven
+live on Deno Deploy under a dynamic server.
+
 In practical terms:
 
 - "build" on Deno Deploy should be treated as pedestrian environment prep at
@@ -119,7 +128,8 @@ to strong external scrutiny.
 
 ### Deploy
 
-The deploy side has been pared back to a sensible baseline.
+The deploy side has been pared back to a sensible baseline and the core
+prebuilt-asset assumption is now de-risked.
 
 The tactical hacks from the discovery/debugging loop can and should be treated
 as temporary seam work, not architecture. What remains now is to tighten the
@@ -132,11 +142,11 @@ The next step is not more platform probing.
 
 The next step is to tighten the deploy contract:
 
-1. stage a prebuilt `dist/`
-2. define one canonical deploy entry contract
-3. route runtime through that one contract only
-4. remove scattered target-path reconstruction
-5. re-prove locally, then externally
+1. define one canonical deploy entry contract
+2. route runtime through that one contract only
+3. remove scattered target-path reconstruction
+4. remove temporary debug surfaces
+5. polish the deploy API around the now-proven prebuilt `dist/` model
 
 This is contract design work now, not rescue work.
 
