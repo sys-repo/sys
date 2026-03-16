@@ -1,10 +1,13 @@
-import { type t, c, Cli, Fs, HashFmt } from './common.ts';
+import type { HttpServerLib } from './t.ts';
+
+import { c } from '@sys/color/ansi';
+import { Fs } from '@sys/fs';
 
 /**
  * Outputs a formatted console log within
  * meta-data about the running server and module.
  */
-export const print: t.HttpServerLib['print'] = (options) => {
+export const print: HttpServerLib['print'] = (options) => {
   const { addr, pkg, hash, requestedPort } = options;
   const port = c.bold(c.brightCyan(String(addr.port)));
 
@@ -15,25 +18,21 @@ export const print: t.HttpServerLib['print'] = (options) => {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
 
-    const hx = HashFmt.digest(hash);
+    const hx = wrangle.hashDigest(hash);
     const integrity = c.gray(`${hx}`);
     const mod = c.bold(pkg.name);
     const version = c.gray(`${pkg.version}`);
 
-    const table = Cli.table([]);
-    table.push([c.gray('Module:'), `${mod} ${version}`]);
-
-    if (formattedDir) {
-      table.push(['', c.gray(`${formattedDir}/`)]);
-    }
-    if (hx) table.push(['', integrity, c.gray(`${c.dim('←')} dist/dist.json`)]);
+    const lines = [ `${c.gray('Module:')} ${mod} ${version}` ];
+    if (formattedDir) lines.push(`        ${c.gray(`${formattedDir}/`)}`);
+    if (hx) lines.push(`        ${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`);
     if (requestedPort && requestedPort !== addr.port) {
-      table.push(['', host, c.gray(`${c.dim('←')} port ${requestedPort} already in use`)]);
+      lines.push(`        ${host} ${c.gray(`${c.dim('←')} port ${requestedPort} already in use`)}`);
     } else {
-      table.push(['', host]);
+      lines.push(`        ${host}`);
     }
 
-    console.info(table.toString().trim());
+    console.info(lines.join('\n'));
   } else {
     console.info(c.gray(`Listening on ${host}`));
   }
@@ -44,6 +43,12 @@ export const print: t.HttpServerLib['print'] = (options) => {
  * Helpers:
  */
 const wrangle = {
+  hashDigest(hash?: string) {
+    if (!hash) return '';
+    if (hash.length <= 18) return hash;
+    return `${hash.slice(0, 12)}…${hash.slice(-6)}`;
+  },
+
   formattedDir(dir?: string) {
     const normalizedDir = dir ? Fs.Path.normalize(dir) : '';
     if (!normalizedDir) return '';
