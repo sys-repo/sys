@@ -1,6 +1,6 @@
 import { type t, DenoFile, Fs, Is, Obj } from './common.ts';
-import { readImportMap, readPackageJson } from './u.authorities.read.ts';
 import { toExportSpecifiers, toNpmImportSpecifiers } from './u.authorities.imports.ts';
+import { readImportMap, readPackageJson } from './u.authorities.read.ts';
 
 const workspaceAuthorities = new Map<string, Promise<t.WorkspaceAuthorities>>();
 
@@ -14,14 +14,18 @@ export async function resolveWorkspaceRoot(
   return ws.dir as t.StringAbsoluteDir;
 }
 
-export async function loadWorkspaceAuthorities(root: t.StringAbsoluteDir): Promise<t.WorkspaceAuthorities> {
+export async function loadWorkspaceAuthorities(
+  root: t.StringAbsoluteDir,
+): Promise<t.WorkspaceAuthorities> {
   const key = root;
   const pending = workspaceAuthorities.get(key) ?? buildWorkspaceAuthorities(root);
   workspaceAuthorities.set(key, pending);
   return await pending;
 }
 
-async function buildWorkspaceAuthorities(root: t.StringAbsoluteDir): Promise<t.WorkspaceAuthorities> {
+async function buildWorkspaceAuthorities(
+  root: t.StringAbsoluteDir,
+): Promise<t.WorkspaceAuthorities> {
   const rootImports = await readImportMap(Fs.join(root, 'imports.json'));
   const rootPackage = await readPackageJson(Fs.join(root, 'package.json'));
   const workspace = await DenoFile.workspace(Fs.join(root, 'deno.json'), { walkup: false });
