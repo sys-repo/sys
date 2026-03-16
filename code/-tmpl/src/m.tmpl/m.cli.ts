@@ -12,7 +12,7 @@ type SetupOptions = {
  * CLI entry (interactive by default, deterministic when non-interactive).
  */
 export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsedArgs): Promise<void> {
-  console.info(c.gray(`${c.green('Current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
+  console.info(c.gray(`${c.green('current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
 
   const root = await resolveTemplate(args);
   const tmplName = assertLocalTemplate(root);
