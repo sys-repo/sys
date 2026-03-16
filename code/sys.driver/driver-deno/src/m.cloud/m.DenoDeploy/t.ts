@@ -75,6 +75,30 @@ export declare namespace DenoDeploy {
     export type Request = {
       /** Previously staged deploy artifact to deploy. */
       readonly stage: DenoDeploy.Stage.Result;
+
+      /** Deno Deploy application name. */
+      readonly app: string;
+
+      /** Optional Deno Deploy organization name. */
+      readonly org?: string;
+
+      /** Optional auth token for Deno Deploy. */
+      readonly token?: string;
+
+      /** Optional Deno config path to pass through to the native CLI. */
+      readonly config?: t.StringPath;
+
+      /** Deploy directly to production when true. */
+      readonly prod?: boolean;
+
+      /** Allow node_modules to be uploaded when true. */
+      readonly allowNodeModules?: boolean;
+
+      /** Skip waiting for the remote build to complete when true. */
+      readonly noWait?: boolean;
+
+      /** Suppress native CLI output when true. */
+      readonly silent?: boolean;
     };
 
     /** Outcome of a deploy attempt. */
@@ -82,9 +106,25 @@ export declare namespace DenoDeploy {
       | {
           /** Deploy completed successfully. */
           readonly ok: true;
+          /** Native process exit code. */
+          readonly code: number;
+          /** Captured process stdout. */
+          readonly stdout: string;
+          /** Captured process stderr. */
+          readonly stderr: string;
         }
       | {
           /** Deploy failed. */
+          readonly ok: false;
+          /** Native process exit code when available. */
+          readonly code: number;
+          /** Captured process stdout when available. */
+          readonly stdout: string;
+          /** Captured process stderr when available. */
+          readonly stderr: string;
+        }
+      | {
+          /** Deploy failed before a process result was produced. */
           readonly ok: false;
           /** Underlying deploy error. */
           readonly error: unknown;
