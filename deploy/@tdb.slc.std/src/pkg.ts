@@ -13,4 +13,4 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source control.
  *    - Do NOT manually alter this file.
  */
-export const pkg: Pkg = { name: '@tdb/slc-std', version: '0.0.36' };
+export const pkg: Pkg = { name: '@tdb/slc-std', version: '0.0.37' };
