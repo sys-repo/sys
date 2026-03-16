@@ -1,6 +1,7 @@
 import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { TmplTesting } from '../m.testing/mod.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
-import { poisonSysVersions, readRepoAuthorities, rewriteLocalRepoAuthorities } from './u.repo.local.ts';
+import { poisonSysVersions } from './u.repo.local.ts';
 
 describe('Template: repo', () => {
   it('run', async () => {
@@ -46,7 +47,7 @@ describe('Template: repo integration', () => {
 
     await tmpl.write(root, { force: true });
     await def.default(root);
-    await rewriteLocalRepoAuthorities(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const cmd = new Deno.Command('deno', {
       args: ['task', 'ci'],
@@ -72,13 +73,15 @@ describe('Template: repo integration', () => {
 
     await tmpl.write(root, { force: true });
     await def.default(root);
-    await rewriteLocalRepoAuthorities(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
-    const imports = await readRepoAuthorities(root);
-    expect(imports.imports['@sys/cli'].includes('/code/sys/cli/')).to.eql(true);
-    expect(imports.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
-    expect(imports.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
-    expect(typeof imports.imports['@std/testing']).to.eql('string');
+    const authorities = await TmplTesting.LocalRepoAuthorities.read(root);
+    expect(authorities.imports['@sys/cli'].includes('/code/sys/cli/')).to.eql(true);
+    expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
+    expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
+    expect(typeof authorities.imports['@std/testing']).to.eql('string');
+    expect(authorities.imports['react']).to.eql('npm:react@19.2.4');
+    expect(authorities.packageJson.dependencies?.react).to.eql('19.2.4');
   });
 
   it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
@@ -91,7 +94,7 @@ describe('Template: repo integration', () => {
     await tmpl.write(root, { force: true });
     await def.default(root);
     await poisonSysVersions(root, ['@sys/std', '@sys/testing', '@sys/tmpl']);
-    await rewriteLocalRepoAuthorities(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const cmd = new Deno.Command('deno', {
       args: ['task', 'ci'],
