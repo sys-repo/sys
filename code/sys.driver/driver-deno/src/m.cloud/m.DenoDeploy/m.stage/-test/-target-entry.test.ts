@@ -52,7 +52,7 @@ describe('DenoDeploy: staging target resolution', () => {
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('apps/foo') } });
       expect((await Fs.readText(res.entry)).data).to.eql(
-        `import * as target from './apps/foo/src/mod.ts';\nexport * from './apps/foo/src/mod.ts';\n`,
+        `import * as target from './apps/foo/src/mod.ts';\nexport const targetEntry = './apps/foo/src/mod.ts';\nexport const targetDir = './apps/foo';\nexport * from './apps/foo/src/mod.ts';\n`,
       );
     });
 
@@ -73,7 +73,7 @@ describe('DenoDeploy: staging target resolution', () => {
       const res = await DenoDeploy.stage({ target: { dir: fs.join('apps/foo') } });
       const stageText = (await Fs.readText(res.entry)).data ?? '';
       expect(stageText).to.eql(
-        `import * as target from './apps/foo/src/mod.ts';\nexport * from './apps/foo/src/mod.ts';\n`,
+        `import * as target from './apps/foo/src/mod.ts';\nexport const targetEntry = './apps/foo/src/mod.ts';\nexport const targetDir = './apps/foo';\nexport * from './apps/foo/src/mod.ts';\n`,
       );
 
       const mod = await import(`file://${res.entry}?v=${slug()}`);

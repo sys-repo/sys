@@ -40,7 +40,7 @@ describe('DenoDeploy: staging artifact', () => {
       expect(res.root).to.eql(stageRoot);
       expect(await Fs.exists(Fs.join(stageRoot, 'apps/foo/src/mod.ts'))).to.eql(true);
       expect((await Fs.readText(res.entry)).data).to.eql(
-        `import * as target from './apps/foo/src/mod.ts';\nexport default target.default;\nexport * from './apps/foo/src/mod.ts';\n`,
+        `import * as target from './apps/foo/src/mod.ts';\nexport const targetEntry = './apps/foo/src/mod.ts';\nexport const targetDir = './apps/foo';\nexport default target.default;\nexport * from './apps/foo/src/mod.ts';\n`,
       );
     });
   });

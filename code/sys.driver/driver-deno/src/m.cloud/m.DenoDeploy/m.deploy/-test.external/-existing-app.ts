@@ -29,7 +29,7 @@ describe('DenoDeploy.deploy (external)', () => {
 
     printDeployResult(result);
     if (!result.deploy?.previewUrl) throw new Error('Expected DenoDeploy.deploy to return previewUrl.');
-    await assertPreviewServesHtml(result.deploy.previewUrl);
+    await assertPreviewServesBuiltApp(result.deploy.previewUrl);
   });
 });
 
@@ -56,29 +56,53 @@ function printDeployEndpoints(result: Extract<Awaited<ReturnType<typeof DenoDepl
   console.info('');
 }
 
-async function assertPreviewServesHtml(url: string) {
-  const fetch = Http.fetcher();
-  let last: { status: number; contentType: string; body: string } | undefined;
+async function assertPreviewServesBuiltApp(url: string) {
+  let last:
+    | {
+        status: number;
+        contentType: string;
+        body: string;
+        assetUrl?: string;
+        assetStatus?: number;
+        assetContentType?: string;
+      }
+    | undefined;
 
-  for (let i = 0; i < 5; i++) {
-    const res = await fetch.text(url);
-    const body = res.data ?? '';
+  for (let i = 0; i < 24; i++) {
+    const res = await fetch(url);
+    const body = await res.text();
     const contentType = res.headers.get('content-type') ?? '';
-    last = { status: res.status, contentType, body };
+    const assetUrl = body.match(/src="([^"]+\.js)"/)?.[1];
+    let assetStatus: number | undefined;
+    let assetContentType: string | undefined;
+
+    if (assetUrl) {
+      const assetRes = await fetch(new URL(assetUrl, url));
+      assetStatus = assetRes.status;
+      assetContentType = assetRes.headers.get('content-type') ?? '';
+      await assetRes.text();
+    }
+
+    last = { status: res.status, contentType, body, assetUrl, assetStatus, assetContentType };
 
     const isHtml =
       res.status === 200 &&
       contentType.includes('text/html') &&
-      (body.includes('<!doctype html') || body.includes('<html'));
-    if (isHtml) return;
-    if (i < 4) await wait(2000);
+      body.trim().length > 0 &&
+      (body.includes('<!doctype html') || body.includes('<!DOCTYPE html') || body.includes('<html'));
+    const hasScript = Boolean(assetUrl) && assetStatus === 200 && (assetContentType?.includes('javascript') ?? false);
+    if (isHtml && hasScript) return;
+    if (i < 23) await wait(5000);
   }
 
   throw new Error(
     [
-      `Expected deployed preview URL to serve HTML: ${url}`,
+      `Expected deployed preview URL to serve built HTML app: ${url}`,
       `status: ${last?.status ?? 0}`,
       `content-type: ${last?.contentType ?? ''}`,
+      `asset: ${last?.assetUrl ?? ''}`,
+      `asset status: ${last?.assetStatus ?? 0}`,
+      `asset content-type: ${last?.assetContentType ?? ''}`,
       '',
       last?.body ?? '',
     ].join('\n'),

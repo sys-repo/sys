@@ -1,6 +1,6 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
-import { type t, Fs, Process } from './common.ts';
+import { type t, Fs, Process, Str } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
 
 export async function createDeployableRepoPkg(): Promise<{
@@ -72,31 +72,54 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
 }
 
 export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Result) {
-  const entrypoint = Fs.join(stage.root, 'src/m.server/main.ts');
-  const imports = await ensureDeployImports(stage.root);
+  const entrypoint = Fs.join(stage.root, 'main.ts');
+  const compatEntrypoint = Fs.join(stage.root, 'src/m.server/main.ts');
+  const stagedDistDir = Fs.join(stage.root, 'code', 'projects', 'foo', 'dist');
+  const imports = await readImportMap(stage.root);
   const fsImport = imports['@sys/fs'];
-  const httpServerImport = imports['@sys/http/server'];
+  const httpServerImport = resolveHttpServerImport(imports);
   if (!fsImport) throw new Error(`Expected staged imports.json to include '@sys/fs'.`);
-  if (!httpServerImport) throw new Error(`Expected staged imports.json to include '@sys/http/server'.`);
+  await ensureDeployConfig(stage.root);
+  await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
+  await stageDeployDist(stage.target.dir, stagedDistDir);
 
   await Fs.write(
     entrypoint,
-    [
-      `import { HttpServer } from '${httpServerImport}';`,
-      `import { Fs, Pkg } from '${fsImport}';`,
-      "import { pkg } from '../../code/projects/foo/src/pkg.ts';",
-      '',
-      "const distDir = Fs.Path.fromFileUrl(new URL('../../code/projects/foo/dist/', import.meta.url));",
-      'const dist = (await Pkg.Dist.load(distDir)).dist;',
-      "const hash = dist?.hash.digest ?? '';",
-      "const app = HttpServer.create({ pkg: dist?.pkg || pkg, hash, static: ['/*', distDir] });",
-      '',
-      'export default { fetch: app.fetch };',
-      '',
-    ].join('\n'),
+    Str.dedent(`
+      import { HttpServer } from '${httpServerImport}';
+      import { Fs, Pkg } from '${fsImport}';
+      import { pkg, targetDir } from './deploy.entry.ts';
+
+      const moduleDir = Fs.Path.fromFileUrl(new URL('.', import.meta.url));
+      const distDir = Fs.join(moduleDir, targetDir, 'dist');
+      const dist = (await Pkg.Dist.load(distDir)).dist;
+      const hash = dist?.hash.digest ?? '';
+      const app = HttpServer.create({ pkg: dist?.pkg || pkg, hash, static: false });
+      app.use('*', HttpServer.static({
+        root: distDir,
+        onNotFound: async (path, c) => {
+          const leaf = path.split('/').pop() ?? '';
+          const isAsset = leaf.includes('.');
+          if (isAsset) return c.text('Not Found', 404);
+          const html = (await Fs.readText(Fs.join(distDir, 'index.html'))).data ?? '';
+          return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+        },
+      }));
+
+      export default { fetch: app.fetch };
+    `),
+  );
+
+  await Fs.write(
+    compatEntrypoint,
+    Str.dedent(`
+      export { default } from '../../main.ts';
+      export * from '../../main.ts';
+    `),
   );
 
   return {
+    stagedDir: stage.root,
     entrypoint,
     appEntrypoint: './src/m.server/main.ts',
     workspaceTarget: './code/projects/foo',
@@ -105,6 +128,7 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
 }
 
 export function printDeployEntrypointInfo(args: {
+  readonly stagedDir: string;
   readonly entrypoint: string;
   readonly appEntrypoint: string;
   readonly workspaceTarget: string;
@@ -113,6 +137,7 @@ export function printDeployEntrypointInfo(args: {
   for (const line of Fmt.info({
     title: 'Staged Deploy Entrypoint',
     rows: [
+      { label: 'staged dir', value: args.stagedDir, color: 'white' },
       { label: 'staged file', value: args.entrypoint, color: 'white' },
       { label: 'app config', value: args.appEntrypoint, color: 'white' },
       { label: 'workspace', value: args.workspaceTarget, color: 'white' },
@@ -147,20 +172,43 @@ async function readImportMap(root: string): Promise<Record<string, string>> {
   return res.data.imports;
 }
 
-async function ensureDeployImports(root: string): Promise<Record<string, string>> {
-  const imports = await readImportMap(root);
-  if (imports['@sys/http/server']) return imports;
+function resolveHttpServerImport(imports: Record<string, string>): string {
+  const direct = imports['@sys/http/server'];
+  if (direct) return direct;
 
-  const httpClientImport = imports['@sys/http/client'];
-  if (!httpClientImport) {
+  const client = imports['@sys/http/client'];
+  if (!client) {
     throw new Error(`Expected staged imports.json to include '@sys/http/client'.`);
   }
 
-  const next = {
-    ...imports,
-    '@sys/http/server': httpClientImport.replace(/\/client$/, '/server'),
-  };
+  if (!client.startsWith('jsr:@sys/http@') || !client.endsWith('/client')) {
+    throw new Error(`Expected '@sys/http/client' to resolve to a JSR client spec, got '${client}'.`);
+  }
 
-  await Fs.writeJson(Fs.join(root, 'imports.json'), { imports: next });
-  return next;
+  return client.replace(/\/client$/, '/server');
+}
+
+async function ensureDeployConfig(root: string) {
+  const path = Fs.join(root, 'deno.json');
+  const res = await Fs.readJson<Record<string, unknown>>(path);
+  if (!res.ok || !res.data) throw new Error(`Failed to read staged deno.json: ${path}`);
+
+  const current = res.data;
+  const currentDeploy =
+    typeof current.deploy === 'object' && current.deploy !== null ? (current.deploy as Record<string, unknown>) : {};
+
+  await Fs.writeJson(path, {
+    ...current,
+    deploy: {
+      ...currentDeploy,
+      entrypoint: './main.ts',
+      cwd: './',
+    },
+  });
+}
+
+async function stageDeployDist(targetDir: string, stagedDistDir: string) {
+  const sourceDistDir = Fs.join(targetDir, 'dist');
+  const res = await Fs.copyDir(sourceDistDir, stagedDistDir, { force: true, throw: true });
+  if (res.error) throw res.error;
 }

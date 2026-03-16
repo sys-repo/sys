@@ -36,7 +36,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
 
     const stageText = (await Fs.readText(res.entry)).data ?? '';
     expect(stageText).to.eql(
-      `import * as target from './code/projects/foo/src/mod.ts';\nexport * from './code/projects/foo/src/mod.ts';\n`,
+      `import * as target from './code/projects/foo/src/mod.ts';\nexport const targetEntry = './code/projects/foo/src/mod.ts';\nexport const targetDir = './code/projects/foo';\nexport * from './code/projects/foo/src/mod.ts';\n`,
     );
 
     const walkup = false;
@@ -49,5 +49,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
 
     const mod = await import(`file://${res.entry}?v=${slug()}`);
     expect('default' in mod).to.eql(false);
+    expect(mod.targetEntry).to.eql('./code/projects/foo/src/mod.ts');
+    expect(mod.targetDir).to.eql('./code/projects/foo');
   });
 });
