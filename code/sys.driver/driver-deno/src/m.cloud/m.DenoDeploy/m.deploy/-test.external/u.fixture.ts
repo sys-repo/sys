@@ -1,16 +1,14 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
-import { type t, Fs, Path, Process, Str } from './common.ts';
+import { type t, Fs, Path, Str } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
 
 export async function createDeployableRepoPkg(): Promise<{
   readonly root: t.StringDir;
   readonly pkgDir: t.StringDir;
-  readonly distDir: t.StringDir;
 }> {
   const root = await createPublishedRepoFixture();
   const pkgDir = Fs.join(root, 'code', 'projects', 'foo');
-  const distDir = Fs.join(pkgDir, 'dist');
 
   await tmplCli(root, {
     _: ['pkg'],
@@ -25,30 +23,7 @@ export async function createDeployableRepoPkg(): Promise<{
     'no-interactive': true,
   });
 
-  const build = await Process.invoke({
-    cmd: 'deno',
-    args: ['task', 'build'],
-    cwd: pkgDir,
-    silent: true,
-  });
-
-  if (!build.success) {
-    throw new Error(Str.dedent(`
-      Generated tmpl package build failed (code ${build.code}).
-
-      stdout:
-      ${build.text.stdout}
-
-      stderr:
-      ${build.text.stderr}
-    `));
-  }
-
-  if (!(await Fs.exists(Fs.join(distDir, 'index.html')))) {
-    throw new Error(`Expected generated tmpl package build to produce '${Fs.join(distDir, 'index.html')}'.`);
-  }
-
-  return { root, pkgDir, distDir };
+  return { root, pkgDir };
 }
 
 export async function snapshotPackageDenoJson() {
@@ -85,7 +60,6 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
   const stagedTargetRel = Path.relative(stage.workspace.dir, stage.target.dir);
   const entrypoint = Fs.join(stage.root, 'entry.ts');
   const compatEntrypoint = Fs.join(stage.root, 'src/m.server/main.ts');
-  const stagedDistDir = Fs.join(stage.root, stagedTargetRel, 'dist');
   const imports = await readImportMap(stage.root);
   const fsImport = imports['@sys/fs'];
   const httpServerImport = resolveHttpServerImport(imports);
@@ -93,19 +67,18 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
   await ensureDeployConfig(stage.root);
   await ensureStagedDistIncluded(stage.root, stagedTargetRel);
   await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
-  await stageDeployDist(stage.target.dir, stagedDistDir);
 
   await Fs.write(
     entrypoint,
     Str.dedent(`
       import { HttpServer } from '${httpServerImport}';
       import { Fs, Pkg } from '${fsImport}';
-      import { targetDir, targetDist, targetEntry, targetPkg } from './entry.paths.ts';
+      import { targetDir } from './entry.paths.ts';
 
       const moduleDir = Fs.Path.fromFileUrl(new URL('.', import.meta.url));
-      const distDir = Fs.Path.fromFileUrl(new URL(targetDist, import.meta.url));
-      const pkgPath = Fs.Path.fromFileUrl(new URL(targetPkg, import.meta.url));
-      const pkgModule = await import(new URL(targetPkg, import.meta.url).href);
+      const distDir = Fs.Path.fromFileUrl(new URL(\`\${targetDir}/dist/\`, import.meta.url));
+      const pkgPath = Fs.Path.fromFileUrl(new URL(\`\${targetDir}/src/pkg.ts\`, import.meta.url));
+      const pkgModule = await import(new URL(\`\${targetDir}/src/pkg.ts\`, import.meta.url).href);
       const pkg = pkgModule.pkg;
       const dist = (await Pkg.Dist.load(distDir)).dist;
       const hash = dist?.hash.digest ?? '';
@@ -114,10 +87,7 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
         importMetaUrl: import.meta.url,
         cwd: Deno.cwd(),
         moduleDir,
-        targetEntry,
         targetDir,
-        targetPkg,
-        targetDist,
         pkgPath,
         distDir,
         exists: {
@@ -277,10 +247,4 @@ function toDistUnignoreRules(targetRel: string): string[] {
   rules.push(`!${distRel}/`);
   rules.push(`!${distRel}/**`);
   return rules;
-}
-
-async function stageDeployDist(targetDir: string, stagedDistDir: string) {
-  const sourceDistDir = Fs.join(targetDir, 'dist');
-  const res = await Fs.copyDir(sourceDistDir, stagedDistDir, { force: true, throw: true });
-  if (res.error) throw res.error;
 }
