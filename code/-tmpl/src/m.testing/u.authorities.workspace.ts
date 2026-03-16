@@ -8,6 +8,22 @@ import { readImportMap, readPackageJson } from './u.authorities.read.ts';
 
 const workspaceAuthorities = new Map<string, Promise<t.WorkspaceAuthorities>>();
 
+/**
+ * Local-workspace mode must materialize exact bare npm subpath imports used by
+ * localized `@sys/*` source, because prefix aliases like `react-icons/` are not
+ * sufficient in this generated-repo flow.
+ *
+ * Current approach:
+ * - scan localized workspace source files for bare npm subpath imports
+ * - materialize exact import-map entries from current workspace package authority
+ *
+ * This is acceptable for now because it is truthful to the actual localized
+ * source graph and is covered by scenario tests (`repo` + generated `pkg` + root `ci`).
+ *
+ * Future hardening:
+ * - replace source scanning with a canonical module/dependency graph or export
+ *   manifest once such an authority exists upstream.
+ */
 export async function resolveWorkspaceRoot(
   workspaceRoot?: t.StringAbsoluteDir,
 ): Promise<t.StringAbsoluteDir> {
