@@ -35,7 +35,7 @@ export function requireDeployEnv(): ExternalDeployEnv {
 export function printExternalDeployInfo() {
   const deployEnv = requireDeployEnv();
   for (const line of Fmt.info({
-    title: 'Deno Deploy External Test Config',
+    title: 'Deno Deploy External (Test Config)',
     rows: [
       { label: 'App', value: deployEnv.app, color: 'white' },
       { label: 'Org', value: deployEnv.org ?? '(default cli context)', color: 'white' },
