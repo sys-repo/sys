@@ -9,6 +9,7 @@ type BlockedArgs = {
   readonly fix: readonly string[];
   readonly retry?: readonly string[];
   readonly notes?: readonly string[];
+  readonly tone?: 'warning' | 'success';
 };
 
 type EnvVarsNotFoundArgs = {
@@ -19,12 +20,24 @@ type EnvVarsNotFoundArgs = {
   readonly notes?: readonly string[];
 };
 
+type InfoArgs = {
+  readonly title: string;
+  readonly rows: readonly {
+    readonly label: string;
+    readonly value: string;
+    readonly valueParts?: readonly string[];
+    readonly color?: 'white' | 'cyan' | 'gray' | 'green';
+  }[];
+  readonly tone?: 'warning' | 'success';
+};
+
 export const Fmt = {
   blocked(args: BlockedArgs) {
+    const accent = toneColor(args.tone ?? 'warning');
     return [
       '',
-      `${indent()}${c.bold(c.yellow(args.title))}`,
-      `${indent()}${c.bold(c.yellow(LINE))}`,
+      `${indent()}${c.bold(accent(args.title))}`,
+      `${indent()}${c.bold(accent(LINE))}`,
       richRow('What', [highlightSpecialTokens(args.what, 'white')]),
       richRow('Why', [highlightSpecialTokens(args.why, 'white')]),
       row('', '', { color: 'white' }),
@@ -37,7 +50,7 @@ export const Fmt = {
       ...(args.notes && args.notes.length > 0
         ? [row('', '', { color: 'white' }), row('Notes', args.notes[0] ?? '', { color: 'gray' }), ...args.notes.slice(1).map((line) => row('', line, { color: 'gray' }))]
         : []),
-      `${indent()}${c.bold(c.yellow(LINE))}`,
+      `${indent()}${c.bold(accent(LINE))}`,
       '',
     ] as const;
   },
@@ -58,10 +71,26 @@ export const Fmt = {
       notes: args.notes,
     });
   },
+
+  info(args: InfoArgs) {
+    const accent = toneColor(args.tone ?? 'success');
+    return [
+      '',
+      `${indent()}${c.bold(accent(args.title))}`,
+      `${indent()}${c.bold(accent(LINE))}`,
+      ...args.rows.map((rowData) =>
+        rowData.valueParts
+          ? richRow(rowData.label, rowData.valueParts)
+          : row(rowData.label, rowData.value, { color: rowData.color ?? 'white' })
+      ),
+      `${indent()}${c.bold(accent(LINE))}`,
+      '',
+    ] as const;
+  },
 } as const;
 
 function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' | 'green' } = {}) {
-  const head = c.gray(label.padEnd(5));
+  const head = c.gray(normalizeLabel(label).padEnd(5));
   const text =
     options.color === 'green'
       ? c.green(value)
@@ -74,7 +103,7 @@ function row(label: string, value: string, options: { color?: 'white' | 'cyan' |
 }
 
 function richRow(label: string, parts: readonly string[]) {
-  const head = c.gray(label.padEnd(5));
+  const head = c.gray(normalizeLabel(label).padEnd(5));
   return `${indent()}${head} ${c.gray('│')} ${parts.join('')}`;
 }
 
@@ -128,4 +157,12 @@ function splitAndHighlight(text: string, token: string, color: 'white' | 'cyan' 
 
 function indent() {
   return ' ';
+}
+
+function toneColor(tone: 'warning' | 'success') {
+  return tone === 'warning' ? c.yellow : c.green;
+}
+
+function normalizeLabel(label: string) {
+  return label.length === 0 ? label : label.toLowerCase();
 }

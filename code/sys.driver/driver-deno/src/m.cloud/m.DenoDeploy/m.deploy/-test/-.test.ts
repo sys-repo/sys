@@ -57,6 +57,13 @@ describe('DenoDeploy.deploy', () => {
 
     const args = toDeployArgs({ stage, app: 'my-app' });
     expectTypeOf(args).toEqualTypeOf<string[]>();
-    expect(args).to.eql(['deploy', '--app', 'my-app', '/tmp/stage']);
+    expect(args).to.eql([
+      'deploy',
+      '--app',
+      'my-app',
+      '--config',
+      '/tmp/stage/deno.json',
+      '/tmp/stage',
+    ]);
   });
 });

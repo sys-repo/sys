@@ -1,5 +1,6 @@
 import { type t, D, Process } from './common.ts';
 import { toDeployArgs } from './u.deployArgs.ts';
+import { toDeployMeta } from './u.deployResult.ts';
 import { printDeployEnvGuidance, resolveDeployRequestEnv, toDeployEnvNotes } from './u.env.ts';
 
 export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
@@ -40,6 +41,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
         code: output.code,
         stdout: output.text.stdout,
         stderr: output.text.stderr,
+        deploy: toDeployMeta({ stdout: output.text.stdout, stderr: output.text.stderr }),
       };
     }
 
@@ -48,6 +50,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
       code: output.code,
       stdout: output.text.stdout,
       stderr: output.text.stderr,
+      deploy: toDeployMeta({ stdout: output.text.stdout, stderr: output.text.stderr }),
     };
   } catch (error) {
     return { ok: false, error };

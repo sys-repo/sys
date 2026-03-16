@@ -1,7 +1,7 @@
 import { cli as tmplCli } from '@sys/tmpl';
 import { TmplTesting } from '@sys/tmpl/testing';
 
-import { type t, Fs } from './common.ts';
+import { type t, Fs, Str } from './common.ts';
 
 export async function createDeployableRepoPkg(): Promise<{
   readonly root: t.StringDir;
@@ -25,4 +25,21 @@ export async function createDeployableRepoPkg(): Promise<{
   });
 
   return { root, pkgDir };
+}
+
+export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Result) {
+  await Fs.write(
+    Fs.join(stage.root, 'src/m.server/main.ts'),
+    Str.dedent(`
+      import { pkg } from '../../code/projects/foo/src/pkg.ts';
+
+      export default {
+        fetch() {
+          return new Response(JSON.stringify(pkg), {
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+          });
+        },
+      };
+    `),
+  );
 }

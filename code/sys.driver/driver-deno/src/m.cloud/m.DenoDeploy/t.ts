@@ -112,6 +112,13 @@ export declare namespace DenoDeploy {
           readonly stdout: string;
           /** Captured process stderr. */
           readonly stderr: string;
+          /** Deno Deploy build details parsed from native output when available. */
+          readonly deploy?: {
+            /** Build URL in the Deno Deploy console. */
+            readonly revisionUrl?: string;
+            /** Preview URL emitted by the deploy. */
+            readonly previewUrl?: string;
+          };
         }
       | {
           /** Deploy failed. */
@@ -122,6 +129,13 @@ export declare namespace DenoDeploy {
           readonly stdout: string;
           /** Captured process stderr when available. */
           readonly stderr: string;
+          /** Deno Deploy build details parsed from native output when available. */
+          readonly deploy?: {
+            /** Build URL in the Deno Deploy console. */
+            readonly revisionUrl?: string;
+            /** Preview URL emitted by the deploy. */
+            readonly previewUrl?: string;
+          };
         }
       | {
           /** Deploy failed before a process result was produced. */
