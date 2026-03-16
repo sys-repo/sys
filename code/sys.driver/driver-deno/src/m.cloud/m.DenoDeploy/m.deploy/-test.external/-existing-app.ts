@@ -1,4 +1,4 @@
-import { c, describe, Http, it } from './common.ts';
+import { c, describe, Http, it, Str } from './common.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { printExternalDeployInfo, requireDeployEnv, toDeployFailure } from './u.env.ts';
 import { createDeployableRepoPkg, prepareStageForExistingApp, printDeployEntrypointInfo } from './u.fixture.ts';
@@ -95,18 +95,16 @@ async function assertPreviewServesBuiltApp(url: string) {
     if (i < 23) await wait(5000);
   }
 
-  throw new Error(
-    [
-      `Expected deployed preview URL to serve built HTML app: ${url}`,
-      `status: ${last?.status ?? 0}`,
-      `content-type: ${last?.contentType ?? ''}`,
-      `asset: ${last?.assetUrl ?? ''}`,
-      `asset status: ${last?.assetStatus ?? 0}`,
-      `asset content-type: ${last?.assetContentType ?? ''}`,
-      '',
-      last?.body ?? '',
-    ].join('\n'),
-  );
+  throw new Error(Str.dedent(`
+    Expected deployed preview URL to serve built HTML app: ${url}
+    status: ${last?.status ?? 0}
+    content-type: ${last?.contentType ?? ''}
+    asset: ${last?.assetUrl ?? ''}
+    asset status: ${last?.assetStatus ?? 0}
+    asset content-type: ${last?.assetContentType ?? ''}
+
+    ${last?.body ?? ''}
+  `));
 }
 
 async function wait(ms: number) {

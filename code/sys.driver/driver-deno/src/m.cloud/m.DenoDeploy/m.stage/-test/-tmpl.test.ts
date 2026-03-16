@@ -32,6 +32,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.eql(true);
     expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/deno.json'))).to.eql(true);
     expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/src/mod.ts'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/dist/index.html'))).to.eql(true);
     expect(res.entry).to.eql(Fs.join(res.root, 'entry.paths.ts'));
 
     const stageText = (await Fs.readText(res.entry)).data ?? '';

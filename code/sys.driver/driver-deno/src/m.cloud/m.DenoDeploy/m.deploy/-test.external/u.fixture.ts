@@ -33,17 +33,15 @@ export async function createDeployableRepoPkg(): Promise<{
   });
 
   if (!build.success) {
-    throw new Error(
-      [
-        `Generated tmpl package build failed (code ${build.code}).`,
-        '',
-        'stdout:',
-        build.text.stdout,
-        '',
-        'stderr:',
-        build.text.stderr,
-      ].join('\n'),
-    );
+    throw new Error(Str.dedent(`
+      Generated tmpl package build failed (code ${build.code}).
+
+      stdout:
+      ${build.text.stdout}
+
+      stderr:
+      ${build.text.stderr}
+    `));
   }
 
   if (!(await Fs.exists(Fs.join(distDir, 'index.html')))) {

@@ -11,7 +11,7 @@ describe('DenoDeploy: staging root policy', () => {
       await Fs.write(Fs.join(stageRoot, 'keep.txt'), 'x');
       const error = await getStageError(() =>
         DenoDeploy.stage({
-          target: { dir: fs.join('apps/foo') },
+          target: { dir: fs.join('code/apps/foo') },
           root: { kind: 'path', dir: stageRoot },
         }),
       );
@@ -24,7 +24,7 @@ describe('DenoDeploy: staging root policy', () => {
       const stageRoot = fs.join('out/stage');
       const error = await getStageError(() =>
         DenoDeploy.stage({
-          target: { dir: fs.join('apps/foo') },
+          target: { dir: fs.join('code/apps/foo') },
           root: { kind: 'path', dir: stageRoot },
         }),
       );

@@ -28,7 +28,8 @@ export declare namespace DenoDeploy {
    * Staging contracts.
    *
    * Staging is the primary operation in this API: it resolves workspace truth,
-   * materializes an isolated deploy root, and returns the artifact that deploy consumes.
+   * materializes an isolated deploy root, builds the selected target, and
+   * returns the artifact that deploy consumes.
    */
   export namespace Stage {
     /** Ownership model for the staging root: `temp` is driver-owned, `path` is caller-owned. */
@@ -44,7 +45,7 @@ export declare namespace DenoDeploy {
           readonly dir: t.StringDir;
         };
 
-    /** Request to stage a selected workspace target. */
+    /** Request to stage and build a selected workspace target. */
     export type Request = {
       /** Workspace target to materialize for deployment. */
       readonly target: DenoDeploy.Target;

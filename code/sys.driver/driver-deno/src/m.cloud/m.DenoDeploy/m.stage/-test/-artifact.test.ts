@@ -25,6 +25,7 @@ describe('DenoDeploy: staging artifact', () => {
       expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/src/mod.ts'))).to.eql(true);
       expect(await Fs.exists(Fs.join(res.root, 'libs/bar/src/mod.ts'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/dist/index.html'))).to.eql(true);
       expect(res.entry).to.eql(Fs.join(res.root, 'entry.paths.ts'));
     });
 
@@ -39,6 +40,7 @@ describe('DenoDeploy: staging artifact', () => {
 
       expect(res.root).to.eql(stageRoot);
       expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/src/mod.ts'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/dist/index.html'))).to.eql(true);
       expect((await Fs.readText(res.entry)).data).to.eql(
         `export const targetDir = './code/apps/foo';\n`,
       );

@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, slug, Testing } from '../../../../-test.ts';
+import { describe, expect, Fs, it, slug, Str, Testing } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { createStageWorkspace, getStageError } from './u.fixture.workspace.ts';
 
@@ -47,8 +47,16 @@ describe('DenoDeploy: staging target resolution', () => {
       await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
         name: '@test/foo',
         version: '0.0.0',
+        tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
       });
       await Fs.write(fs.join('code/apps/foo/src/mod.ts'), `export const srcMod = true;\n`);
+      await Fs.write(
+        fs.join('code/apps/foo/-scripts/task.build.ts'),
+        Str.dedent(`
+          await Deno.mkdir('dist', { recursive: true });
+          await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>foo</body></html>');
+        `),
+      );
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       expect((await Fs.readText(res.entry)).data).to.eql(
@@ -67,8 +75,16 @@ describe('DenoDeploy: staging target resolution', () => {
         name: '@test/foo',
         version: '0.0.0',
         exports: { '.': './src/mod.ts' },
+        tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
       });
       await Fs.write(fs.join('code/apps/foo/src/mod.ts'), `export const namedOnly = true;\n`);
+      await Fs.write(
+        fs.join('code/apps/foo/-scripts/task.build.ts'),
+        Str.dedent(`
+          await Deno.mkdir('dist', { recursive: true });
+          await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>foo</body></html>');
+        `),
+      );
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       const stageText = (await Fs.readText(res.entry)).data ?? '';
