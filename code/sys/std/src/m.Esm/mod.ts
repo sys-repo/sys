@@ -17,7 +17,7 @@ import { toString } from './u.toString.ts';
 export const Esm: EsmLib = {
   Modules,
   modules: Modules.create,
-  hasDefaultExport,
   parse,
   toString,
+  hasDefaultExport,
 };
