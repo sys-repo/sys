@@ -29,10 +29,11 @@ export declare namespace TmplTesting {
     create(args?: LocalRepoFixtureCreateArgs): Promise<LocalRepoFixture>;
   };
 
-  /** Supported package-template kinds that can be composed into a local repo fixture. */
-  export type LocalPackageTemplate = 'pkg';
-
-  /** Local-workspace authority files materialized into a generated repo fixture. */
+  /**
+   * Local-workspace authority files materialized into a generated repo fixture.
+   * Specifically, the generated repo `imports.json` and `package.json` after
+   * localization against current @sys workspace truth.
+   */
   export type LocalRepoAuthorities = {
     readonly imports: Record<string, string>;
     readonly packageJson: {
@@ -61,12 +62,8 @@ export declare namespace TmplTesting {
   /** Convenience creation of a localized repo fixture for common test flows. */
   export type LocalRepoFixtureCreateArgs = {
     readonly cwd?: t.StringDir;
-    readonly targetDir?: string;
+    readonly targetDir?: t.StringDir;
     readonly force?: boolean;
     readonly dryRun?: boolean;
-
-    readonly packageTemplate?: LocalPackageTemplate;
-    readonly pkgName?: string;
-    readonly name?: string;
   };
 }
