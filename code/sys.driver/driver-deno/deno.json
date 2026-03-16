@@ -26,7 +26,8 @@
       "read": true,
       "write": true,
       "env": true,
-      "run": true
+      "run": true,
+      "net": true
     }
   }
 }
