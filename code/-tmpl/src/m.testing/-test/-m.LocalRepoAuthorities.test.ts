@@ -22,7 +22,9 @@ describe('m.testing/LocalRepoAuthorities', () => {
     expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
     expect(authorities.imports.react).to.eql(expected.imports.react);
-    expect(authorities.imports['react-dom/']).to.eql(expected.imports['react-dom/']);
+    expect(authorities.imports['react-icons/vsc']).to.eql(
+      `npm:react-icons@${expected.packageVersions['react-icons']}/vsc`,
+    );
     expect(authorities.packageJson.dependencies?.react).to.eql(expected.packageVersions.react);
     expect(authorities.packageJson.devDependencies?.vite).to.eql(expected.packageVersions.vite);
   });

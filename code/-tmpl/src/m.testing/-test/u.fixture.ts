@@ -1,4 +1,7 @@
+import { Process } from '@sys/process';
+
 import { DenoFile, Fs, makeTmpl, Templates } from '../../-test.ts';
+import { cli as tmplCli } from '../../m.tmpl/mod.ts';
 
 export async function writeRepo() {
   const tmp = await Fs.makeTempDir({ prefix: 'tmpl.testing.repo.' });
@@ -72,6 +75,33 @@ export async function readWorkspaceAuthorities() {
       ...packageJson.devDependencies,
     },
   };
+}
+
+export async function writePkg(root: string) {
+  const dir = 'code/projects/foo';
+  await tmplCli(root, {
+    _: ['pkg'],
+    tmpl: 'pkg',
+    interactive: false,
+    dryRun: false,
+    force: true,
+    bundle: false,
+    dir,
+    pkgName: '@tmp/foo',
+    help: false,
+    'no-interactive': true,
+  });
+
+  return Fs.join(root, dir);
+}
+
+export async function runRepoCi(root: string) {
+  return await Process.invoke({
+    cmd: 'deno',
+    args: ['task', 'ci'],
+    cwd: root,
+    silent: true,
+  });
 }
 
 async function readJson<T>(path: string): Promise<T> {
