@@ -25,6 +25,7 @@ export type CliLib = {
 
   /** Index of input prompts */
   readonly Input: t.CliInputLib;
+  /** Direct access to low-level prompt primitives. */
   readonly Prompt: t.CliPromptLib; // ← available where direct access to prompt primitives is needed.
 
   /** Tools for working with a terminal screen. */

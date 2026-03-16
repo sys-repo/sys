@@ -29,4 +29,10 @@ export type MenuResultKind = (typeof MenuResultKind)[keyof typeof MenuResultKind
  * - `MenuResultKind` → shorthand result.
  * - `{ kind }` → structured result.
  */
-export type MenuResult = { readonly kind: MenuResultKind } | MenuResultKind | undefined;
+export type MenuResult =
+  | {
+      /** Structured menu result discriminant. */
+      readonly kind: MenuResultKind;
+    }
+  | MenuResultKind
+  | undefined;

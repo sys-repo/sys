@@ -18,6 +18,7 @@ export const Path: t.CliFormatLib['Path'] = {
   },
 };
 
+/** Command-line formatting helper library. */
 export const Fmt: t.CliFormatLib = {
   Table,
   Tree,

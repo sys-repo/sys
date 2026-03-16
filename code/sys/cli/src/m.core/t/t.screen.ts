@@ -13,7 +13,9 @@ export type CliScreenLib = {
 
 /** Current terminal dimensions in character cells. */
 export type CliScreenSize = {
+  /** Terminal width in character cells. */
   readonly width: number;
+  /** Terminal height in character cells. */
   readonly height: number;
 };
 
@@ -24,9 +26,14 @@ export type CliScreenEvents = t.Lifecycle & {
   readonly $: t.Observable<t.CliScreenEvent>;
   readonly resize$: t.Observable<t.CliScreenSizeChanged>;
 };
+/** Terminal screen event union. */
 export type CliScreenEvent = CliScreenSizeChanged;
+/** Terminal resize event. */
 export type CliScreenSizeChanged = {
+  /** Terminal resize event discriminant. */
   readonly kind: 'size:changed';
+  /** Terminal size before the resize. */
   readonly before: t.CliScreenSize;
+  /** Terminal size after the resize. */
   readonly after: t.CliScreenSize;
 };
