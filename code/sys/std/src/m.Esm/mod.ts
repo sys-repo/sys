@@ -6,6 +6,7 @@
 import type { EsmLib } from './t.ts';
 
 import { Modules } from './m.Modules.ts';
+import { hasDefaultExport } from './m.hasDefaultExport.ts';
 import { parse } from './u.parse.ts';
 import { toString } from './u.toString.ts';
 
@@ -16,6 +17,7 @@ import { toString } from './u.toString.ts';
 export const Esm: EsmLib = {
   Modules,
   modules: Modules.create,
+  hasDefaultExport,
   parse,
   toString,
 };

@@ -1,5 +1,4 @@
-import { type t, DenoFile, Fs, Is } from './common.ts';
-import { hasDefaultExport } from './u.esm.ts';
+import { type t, DenoFile, Esm, Fs, Is } from './common.ts';
 
 export async function resolveTargetEntry(
   targetDir: t.StringDir,
@@ -14,9 +13,10 @@ export async function resolveTargetEntry(
 
   for (const candidate of candidates) {
     if (await Fs.exists(candidate)) {
+      const source = (await Fs.readText(candidate)).data ?? '';
       return {
         path: candidate,
-        hasDefaultExport: await hasDefaultExport(candidate),
+        hasDefaultExport: Esm.hasDefaultExport(source),
       };
     }
   }

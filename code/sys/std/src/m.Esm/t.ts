@@ -15,6 +15,8 @@ export type EsmLib = {
   readonly Modules: t.EsmModulesLib;
   /** Create an instance of a group-of-modules. */
   modules: t.EsmModulesLib['create'];
+  /** Detect whether a module source text exposes a default export. */
+  hasDefaultExport(source: string): boolean;
 
   /**
    * Parses an "import" module-specifier string.
