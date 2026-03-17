@@ -18,15 +18,16 @@ describe('DenoDeploy: staging artifact', () => {
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
 
       expectTypeOf(res).toEqualTypeOf<t.DenoDeploy.Stage.Result>();
-      expect(res.workspace.exists).to.eql(true);
+      expect(res.workspace.exists).to.be.true;
       expect(res.workspace.dir).to.eql(fs.dir);
       expect(res.target.dir).to.eql(fs.join('code/apps/foo'));
 
-      expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/src/mod.ts'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/src/mod.ts'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/dist/index.html'))).to.eql(true);
-      expect(res.entry).to.eql(Fs.join(res.root, 'entry.paths.ts'));
+      expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/dist/index.html'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'entry.paths.ts'))).to.be.true;
+      expect(res.entry).to.eql(Fs.join(res.root, 'entry.ts'));
     });
 
     it('stages into a caller-provided empty root', async () => {
@@ -39,9 +40,12 @@ describe('DenoDeploy: staging artifact', () => {
       });
 
       expect(res.root).to.eql(stageRoot);
-      expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/src/mod.ts'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/dist/index.html'))).to.eql(true);
-      expect((await Fs.readText(res.entry)).data).to.eql(
+      expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(stageRoot, 'code/apps/foo/dist/index.html'))).to.be.true;
+      expect((await Fs.readText(res.entry)).data ?? '').to.include(
+        `import { targetDir } from './entry.paths.ts';`,
+      );
+      expect((await Fs.readText(Fs.join(stageRoot, 'entry.paths.ts'))).data).to.eql(
         `export const targetDir = './code/apps/foo';\n`,
       );
     });
@@ -55,13 +59,13 @@ describe('DenoDeploy: staging artifact', () => {
       const stagedWorkspace = await DenoFile.workspace(Fs.join(res.root, 'deno.json'), {
         walkup: false,
       });
-      expect(stagedWorkspace.exists).to.eql(true);
+      expect(stagedWorkspace.exists).to.be.true;
       expect(stagedWorkspace.children.map((child) => child.path.dir).toSorted()).to.eql([
         'code/apps/foo',
         'libs/bar',
       ]);
 
-      const mod = await import(`file://${res.entry}?v=${slug()}`);
+      const mod = await import(`file://${Fs.join(res.root, 'entry.paths.ts')}?v=${slug()}`);
       expect(mod.targetDir).to.eql('./code/apps/foo');
     });
   });

@@ -10,7 +10,7 @@ describe('DenoDeploy', () => {
   it('package deno.json does not contain operator deploy config', async () => {
     const path = Fs.Path.fromFileUrl(new URL('../../../../deno.json', import.meta.url));
     const res = await Fs.readJson<Record<string, unknown>>(path);
-    expect(res.ok).to.eql(true);
-    expect('deploy' in (res.data ?? {})).to.eql(false);
+    expect(res.ok).to.be.true;
+    expect('deploy' in (res.data ?? {})).to.be.false;
   });
 });

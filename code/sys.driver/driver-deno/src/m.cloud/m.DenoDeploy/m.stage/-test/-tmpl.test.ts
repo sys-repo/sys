@@ -44,28 +44,31 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     const res = await DenoDeploy.stage({ target: { dir: pkgDir } });
 
     expectTypeOf(res).toEqualTypeOf<t.DenoDeploy.Stage.Result>();
-    expect(res.workspace.exists).to.eql(true);
+    expect(res.workspace.exists).to.be.true;
     expect(res.workspace.dir).to.eql(root);
     expect(res.target.dir).to.eql(pkgDir);
 
-    expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.eql(true);
-    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/deno.json'))).to.eql(true);
-    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/src/mod.ts'))).to.eql(true);
-    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/dist/index.html'))).to.eql(true);
-    expect(res.entry).to.eql(Fs.join(res.root, 'entry.paths.ts'));
+    expect(await Fs.exists(Fs.join(res.root, 'deno.json'))).to.be.true;
+    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/deno.json'))).to.be.true;
+    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/src/mod.ts'))).to.be.true;
+    expect(await Fs.exists(Fs.join(res.root, 'code/projects/foo/dist/index.html'))).to.be.true;
+    expect(await Fs.exists(Fs.join(res.root, 'entry.paths.ts'))).to.be.true;
+    expect(res.entry).to.eql(Fs.join(res.root, 'entry.ts'));
 
-    const stageText = (await Fs.readText(res.entry)).data ?? '';
+    const entryText = (await Fs.readText(res.entry)).data ?? '';
+    expect(entryText).to.include(`import { targetDir } from './entry.paths.ts';`);
+    const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';
     expect(stageText).to.eql(`export const targetDir = './code/projects/foo';\n`);
 
     const walkup = false;
     const stagedWorkspace = await DenoFile.workspace(Fs.join(res.root, 'deno.json'), { walkup });
-    expect(stagedWorkspace.exists).to.eql(true);
+    expect(stagedWorkspace.exists).to.be.true;
     expect(stagedWorkspace.children.map((child) => child.path.dir)).to.include('code/projects/foo');
 
     const stagedPkg = await DenoFile.load(Fs.join(res.root, 'code/projects/foo'));
     expect(stagedPkg.data?.name).to.eql('@tmp/foo');
 
-    const mod = await import(`file://${res.entry}?v=${slug()}`);
+    const mod = await import(`file://${Fs.join(res.root, 'entry.paths.ts')}?v=${slug()}`);
     expect(mod.targetDir).to.eql('./code/projects/foo');
   });
 });
