@@ -1,2 +1,1 @@
-export * from '../common.ts';
-export { DenoFile } from '../m.runtime/mod.ts';
+export * from './common/mod.ts';

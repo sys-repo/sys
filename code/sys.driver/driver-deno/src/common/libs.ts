@@ -1,6 +1,6 @@
 export { Cli } from '@sys/cli';
 export { c, stripAnsi } from '@sys/color/ansi';
-export { Dir, Env, Fs } from '@sys/fs';
+export { Dir, Env, Fs, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/client';
 export { Jsr } from '@sys/jsr';
 export { Process } from '@sys/process';

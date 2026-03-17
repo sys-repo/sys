@@ -6,10 +6,12 @@ import type { t } from './common.ts';
 export declare namespace DenoEntry {
   /** Public Deno entry module surface. */
   export type Lib = {
+    readonly serve: Serve;
   };
 
   /** Options for resolving and serving a staged target entry. */
   export type ServeOptions = {
+    readonly cwd?: t.StringDir;
     readonly targetDir: t.StringRelativeDir;
     readonly distDir?: t.StringRelativeDir;
   };
