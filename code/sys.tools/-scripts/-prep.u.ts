@@ -1,6 +1,5 @@
-import { Fs } from '@sys/fs';
-import type * as t from '@sys/types';
 import type * as dt from '@sys/driver-deno/t';
+import { Fs } from '@sys/fs';
 
 export type PrepPaths = {
   rootDenoJson: string;
@@ -18,7 +17,10 @@ export const PATH = {
   },
 } as const;
 
-export async function resolveTmplVersion(source: string, denoFile: DenoFileVersionLib): Promise<string> {
+export async function resolveTmplVersion(
+  source: string,
+  denoFile: DenoFileVersionLib,
+): Promise<string> {
   const version = await denoFile.workspaceVersion('@sys/tmpl', source, { walkup: false });
   if (typeof version !== 'string') {
     throw new Error(`Missing workspace version for package "@sys/tmpl": ${source}`);

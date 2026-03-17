@@ -1,4 +1,4 @@
-import { json } from '../../-tmpl/bundle/-bundle.ts';
+import { json } from '../../-tmpl/-bundle.ts';
 import { type t, D, Fs, TmplEngine, c } from '../common.ts';
 
 export async function makeRootHookTmpl(cwd: t.StringDir) {

@@ -1,4 +1,4 @@
-import { D, Fs, TmplEngine } from '../common.ts';
+import { D, Fs, TmplEngine } from './common.ts';
 
 /**
  * Make `bundle.json` file.
