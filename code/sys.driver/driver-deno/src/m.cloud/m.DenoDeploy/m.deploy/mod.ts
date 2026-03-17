@@ -1,5 +1,5 @@
-import { type t, D, Process } from './common.ts';
-import { toDeployArgs } from './u.deployArgs.ts';
+import { type t, Process } from './common.ts';
+import { toDeployCli } from './u.deployCli.ts';
 import { toDeployMeta } from './u.deployResult.ts';
 import { printDeployEnvGuidance, resolveDeployRequestEnv, toDeployEnvNotes } from './u.env.ts';
 
@@ -28,10 +28,11 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
       };
     }
 
+    const deploy = toDeployCli(resolved);
     const output = await Process.invoke({
-      cmd: D.cmd.deno,
-      args: toDeployArgs(resolved),
-      cwd: resolved.stage.root,
+      cmd: deploy.cmd,
+      args: [...deploy.args],
+      cwd: deploy.cwd,
       silent: resolved.silent === true,
     });
 

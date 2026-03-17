@@ -1,4 +1,4 @@
-import { type t, Http, Str, expect } from './common.ts';
+import { type t, Fs, Str, expect } from './common.ts';
 
 type PreviewProbe = {
   readonly status: number;
@@ -62,8 +62,8 @@ export async function assertStageUsesGeneratedRootEntry(args: {
   readonly entrypoint: string;
   readonly entryPaths: string;
 }) {
-  const entry = (await Http.Fs.readText(args.entrypoint)).data ?? '';
-  const entryPaths = (await Http.Fs.readText(args.entryPaths)).data ?? '';
+  const entry = (await Fs.readText(args.entrypoint)).data ?? '';
+  const entryPaths = (await Fs.readText(args.entryPaths)).data ?? '';
 
   expect(entry).to.include(`import { targetDir } from './entry.paths.ts';`);
   expect(entry).to.include(`export default await DenoEntry.serve({ targetDir });`);

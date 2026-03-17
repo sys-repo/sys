@@ -163,6 +163,10 @@ API-backed log path that:
 - avoids accidental config pollution or interactive re-auth flows from ad hoc
   CLI usage
 
+Until that exists, any native deploy CLI usage should go through one owned
+helper surface with explicit `cwd` and explicit `--config`. Direct package-root
+`deno deploy*` usage should be treated as unsafe.
+
 This is a future deploy-operations task, not part of the core runtime entry
 contract.
 

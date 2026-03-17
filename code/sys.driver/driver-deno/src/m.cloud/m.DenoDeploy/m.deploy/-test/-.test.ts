@@ -1,10 +1,10 @@
 import { describe, expect, expectTypeOf, Fs, it } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { toDeployArgs } from '../u.deployArgs.ts';
+import { toDeployCli } from '../u.deployCli.ts';
 import { createDeployableRepoPkg, prepareStageForExistingApp } from '../-test.external/u.fixture.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
-  it('builds native deno deploy args from a staged artifact', () => {
+  it('builds native deno deploy cli invocation from a staged artifact', () => {
     const stage = {
       target: { dir: '/repo/apps/foo' },
       workspace: {
@@ -20,7 +20,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       entry: '/tmp/stage/entry.ts',
     } as any;
 
-    const args = toDeployArgs({
+    const cli = toDeployCli({
       stage,
       app: 'my-app',
       org: 'my-org',
@@ -32,24 +32,28 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       silent: true,
     });
 
-    expect(args).to.eql([
-      'deploy',
-      '--app',
-      'my-app',
-      '--org',
-      'my-org',
-      '--token',
-      'abc123',
-      '--config',
-      '/tmp/stage/deno.json',
-      '--prod',
-      '--allow-node-modules',
-      '--no-wait',
-      '/tmp/stage',
-    ]);
+    expect(cli).to.eql({
+      cmd: 'deno',
+      cwd: '/tmp/stage',
+      args: [
+        'deploy',
+        '--app',
+        'my-app',
+        '--org',
+        'my-org',
+        '--token',
+        'abc123',
+        '--config',
+        '/tmp/stage/deno.json',
+        '--prod',
+        '--allow-node-modules',
+        '--no-wait',
+        '/tmp/stage',
+      ],
+    });
   });
 
-  it('returns minimal args for the required deploy request surface', () => {
+  it('returns minimal cli invocation for the required deploy request surface', () => {
     const stage = {
       target: { dir: '/repo/apps/foo' },
       workspace: {} as any,
@@ -57,16 +61,24 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       entry: '/tmp/stage/entry.ts',
     };
 
-    const args = toDeployArgs({ stage, app: 'my-app' });
-    expectTypeOf(args).toEqualTypeOf<string[]>();
-    expect(args).to.eql([
-      'deploy',
-      '--app',
-      'my-app',
-      '--config',
-      '/tmp/stage/deno.json',
-      '/tmp/stage',
-    ]);
+    const cli = toDeployCli({ stage, app: 'my-app' });
+    expectTypeOf(cli).toEqualTypeOf<{
+      readonly cmd: string;
+      readonly cwd: string;
+      readonly args: readonly string[];
+    }>();
+    expect(cli).to.eql({
+      cmd: 'deno',
+      cwd: '/tmp/stage',
+      args: [
+        'deploy',
+        '--app',
+        'my-app',
+        '--config',
+        '/tmp/stage/deno.json',
+        '/tmp/stage',
+      ],
+    });
   });
 
   it('serves the staged target dist index and emitted js from generated entry.ts', async () => {
