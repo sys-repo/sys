@@ -5,7 +5,7 @@ export async function loadTarget(options: t.DenoEntry.ServeOptions) {
   const cwd = Fs.resolve(options.cwd ?? Fs.cwd());
   const target = {
     absolute: trustedPath(cwd, options.targetDir, 'targetDir'),
-    relative: ensureRelativeDir(options.targetDir),
+    relative: ensureDotRelativeDir(options.targetDir),
   };
 
   const dist = {
@@ -42,6 +42,6 @@ function trustedPath(root: t.StringPath, rel: t.StringRelativePath, label: strin
   return path;
 }
 
-function ensureRelativeDir(dir: t.StringDir) {
+function ensureDotRelativeDir(dir: t.StringDir) {
   return (dir.startsWith('./') ? dir : `./${dir}`) as t.StringRelativeDir;
 }
