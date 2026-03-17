@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { describe, expect, Fs, it, Str } from '../../../-test.ts';
 import { DenoEntry } from '../mod.ts';
 import { createServeWorkspace } from './u.fixture.ts';
 
@@ -81,6 +81,51 @@ describe(`DenoEntry.serve`, () => {
     const body = await res.text();
     expect(res.status).to.eql(200);
     expect(body).to.contain(fixture.assetPath);
+  });
+
+  it('delegates to package-local src/entry.ts when present', async () => {
+    const fixture = await createServeWorkspace({
+      entrySource: Str.dedent(`
+        export async function main(ctx) {
+          return {
+            fetch() {
+              return new Response(\`entry:\${ctx.targetDir}\`, {
+                headers: { 'content-type': 'text/plain; charset=utf-8' },
+              });
+            },
+          };
+        }
+      `),
+    });
+
+    const app = await DenoEntry.serve({
+      cwd: fixture.fs.dir,
+      targetDir: fixture.targetDir,
+    });
+
+    const res = await app.fetch(new Request('http://local/'));
+    expect(res.status).to.eql(200);
+    expect(res.headers.get('content-type')).to.contain('text/plain');
+    expect(await res.text()).to.eql(`entry:${fixture.targetDir}`);
+  });
+
+  it('rejects package entry files without an exported main', async () => {
+    const fixture = await createServeWorkspace({
+      entrySource: `export const nope = true;\n`,
+    });
+
+    let err: unknown;
+    try {
+      await DenoEntry.serve({
+        cwd: fixture.fs.dir,
+        targetDir: fixture.targetDir,
+      });
+    } catch (error) {
+      err = error;
+    }
+
+    expect(err).to.be.instanceOf(Error);
+    expect((err as Error).message).to.contain(`missing exported 'main'`);
   });
 
   it('rejects targetDir values that escape cwd', async () => {

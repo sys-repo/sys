@@ -4,6 +4,7 @@ export type CreateServeWorkspaceOptions = {
   readonly distDir?: t.StringDir;
   readonly assetName?: string;
   readonly assetCode?: string;
+  readonly entrySource?: string;
   readonly html?: string;
   readonly withIndexHtml?: boolean;
 };
@@ -11,10 +12,12 @@ export type CreateServeWorkspaceOptions = {
 export async function createServeWorkspace(options: CreateServeWorkspaceOptions = {}) {
   const fs = await Testing.dir('DenoEntry.serve');
   const targetDir = './code/projects/foo';
-  const distDir = options.distDir ?? 'dist';
+  const targetRoot = toWorkspacePath(targetDir);
+  const distDir = toRelativeDir(options.distDir ?? 'dist');
   const assetName = options.assetName ?? 'app.js';
   const assetPath = `/pkg/${assetName}`;
   const withIndexHtml = options.withIndexHtml ?? true;
+  const pkg = { name: '@tmp/foo', version: '0.0.0' } as const;
   const html =
     options.html ??
     Str.dedent(
@@ -29,30 +32,41 @@ export async function createServeWorkspace(options: CreateServeWorkspaceOptions 
     );
 
   await Fs.write(
-    fs.join('code/projects/foo/src/pkg.ts'),
-    `export const pkg = { name: '@tmp/foo', version: '0.0.0' } as const;\n`,
+    fs.join(targetRoot, 'src/pkg.ts'),
+    `export const pkg = ${JSON.stringify(pkg)} as const;\n`,
   );
+  if (options.entrySource) {
+    await Fs.write(fs.join(targetRoot, 'src/entry.ts'), options.entrySource);
+  }
   if (withIndexHtml) {
-    await Fs.write(fs.join('code/projects/foo', distDir, 'index.html'), html);
+    await Fs.write(fs.join(targetRoot, distDir, 'index.html'), html);
   }
   await Fs.write(
-    fs.join('code/projects/foo', distDir, 'pkg', assetName),
+    fs.join(targetRoot, distDir, 'pkg', assetName),
     options.assetCode ?? `console.info('foo');\n`,
   );
   const dist = (
     await Pkg.Dist.compute({
-      dir: fs.join('code/projects/foo', distDir),
-      pkg: { name: '@tmp/foo', version: '0.0.0' },
+      dir: fs.join(targetRoot, distDir),
+      pkg,
       save: true,
     })
   ).dist;
 
   return {
     assetPath,
-    distDir: `./${distDir}`,
+    distDir: toRelativeDir(distDir),
     fs,
     hash: dist?.hash?.digest ?? '',
     html,
     targetDir,
   };
+}
+
+function toRelativeDir(dir: string) {
+  return dir.startsWith('./') ? dir : `./${dir}`;
+}
+
+function toWorkspacePath(path: string) {
+  return path.startsWith('./') ? path.slice(2) : path;
 }
