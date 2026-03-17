@@ -2,6 +2,10 @@
   "imports": {
     "@sys/color": "jsr:@sys/color@0.0.216",
     "@sys/color/t": "jsr:@sys/color@0.0.216/t",
+    "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.269",
+    "@sys/driver-deno/cloud": "jsr:@sys/driver-deno@0.0.269/cloud",
+    "@sys/driver-deno/runtime": "jsr:@sys/driver-deno@0.0.269/runtime",
+    "@sys/driver-deno/t": "jsr:@sys/driver-deno@0.0.269/t",
     "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.322",
     "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.322/main",
     "@sys/driver-vite/t": "jsr:@sys/driver-vite@0.0.322/t",
@@ -38,4 +42,3 @@
     "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.262/t"
   }
 }
-
