@@ -27,41 +27,36 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "fmt": { "singleQuote": true, "trailingCommas": "always", "lineWidth": 100 },
+  "fmt": {
+    "singleQuote": true,
+    "trailingCommas": "always",
+    "lineWidth": 100
+  },
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "workspace": [
-    "code/sys/monorepo",
-    "code/sys.model/model-slug",
-    "code/sys.ui/ui-state",
-    "code/sys/types",
-    "code/sys/std",
-    "code/sys/color",
-    "code/sys/testing",
-    "code/sys/event",
-    "code/sys/immutable",
-    "code/sys/jsr",
-    "code/sys/net",
-    "code/sys/fs",
+    "code/sys.dev",
+    "code/-tmpl",
     "code/sys/cli",
-    "code/sys/process",
-    "code/sys/crypto",
+    "code/sys/color",
     "code/sys/crdt",
     "code/sys/crdt.t",
+    "code/sys/crypto",
+    "code/sys/event",
+    "code/sys/fs",
     "code/sys/http",
+    "code/sys/immutable",
+    "code/sys/jsr",
+    "code/sys/monorepo",
+    "code/sys/net",
+    "code/sys/process",
+    "code/sys/schema",
+    "code/sys/std",
+    "code/sys/testing",
     "code/sys/text",
     "code/sys/tmpl-engine",
-    "code/sys/schema",
+    "code/sys/types",
     "code/sys/yaml",
-    "code/sys.model/model",
-    "code/sys.model/model-slug",
-    "code/sys.ui/ui-css",
-    "code/sys.ui/ui-dom",
-    "code/sys.ui/ui-factory",
-    "code/sys.ui/ui-react",
-    "code/sys.ui/ui-react-devharness",
-    "code/sys.ui/ui-react-components",
-    "code/sys.ui/ui-state",
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-monaco",
@@ -70,25 +65,55 @@
     "code/sys.driver/driver-signer",
     "code/sys.driver/driver-stripe",
     "code/sys.driver/driver-vite",
+    "code/sys.model/model",
+    "code/sys.model/model-slug",
     "code/sys.tools",
-    "code/sys.dev",
+    "code/sys.ui/ui-css",
+    "code/sys.ui/ui-dom",
+    "code/sys.ui/ui-factory",
+    "code/sys.ui/ui-react",
+    "code/sys.ui/ui-react-components",
+    "code/sys.ui/ui-react-devharness",
+    "code/sys.ui/ui-state",
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
     "deploy/@tdb.slc.std",
-    "deploy/tmp.db.team",
-    "code/-tmpl"
+    "deploy/tmp.db.team"
   ],
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]
     }
   },
-  "test": { "permissions": "test" },
+  "test": {
+    "permissions": "test"
+  },
   "permissions": {
-    "test": { "read": true, "write": true, "run": true, "env": true },
-    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
-    "tmpl": { "read": true, "write": true, "run": true, "env": true },
-    "clean": { "read": true, "write": true, "run": true, "env": true }
+    "test": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "clean": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    }
   }
 }
