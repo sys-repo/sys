@@ -21,20 +21,9 @@ async function loadTarget(options: t.DenoEntry.ServeOptions) {
   const pkgModule = await import(Fs.Path.toFileUrl(pkgPath).href);
   const sourcePkg = pkgModule.pkg;
 
-  const verification = await Pkg.Dist.verify(distDir);
-  if (verification.is.valid !== true || !verification.dist) {
-    throw new Error(
-      Str.dedent(`
-        DenoEntry.serve: invalid dist artifact.
-
-        distDir: ${distDir}
-        error: ${verification.error?.message ?? 'Unknown dist verification failure.'}
-      `),
-    );
-  }
-
-  const pkg = verification.dist.pkg || sourcePkg;
-  const hash = verification.dist.hash.digest;
+  const dist = await verifyDist(distDir);
+  const pkg = dist.pkg || sourcePkg;
+  const hash = dist.hash.digest;
 
   return { distDir, pkg, hash } as const;
 }
@@ -67,4 +56,18 @@ function trustedPath(root: t.StringPath, rel: t.StringRelativePath, label: strin
     throw new Error(`DenoEntry.serve: '${label}' escapes root '${root}': ${rel}`);
   }
   return path;
+}
+
+async function verifyDist(distDir: t.StringDir) {
+  const verification = await Pkg.Dist.verify(distDir);
+  if (verification.is.valid === true && verification.dist) return verification.dist;
+
+  throw new Error(
+    Str.dedent(`
+      DenoEntry.serve: invalid dist artifact.
+
+      distDir: ${distDir}
+      error: ${verification.error?.message ?? 'Unknown dist verification failure.'}
+    `),
+  );
 }
