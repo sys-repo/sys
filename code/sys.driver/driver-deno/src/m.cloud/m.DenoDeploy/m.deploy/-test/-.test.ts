@@ -1,6 +1,6 @@
-import { describe, expect, expectTypeOf, Fs, it } from '../../../../-test.ts';
+import { describe, expect, Fs, it } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { prepareDeployLogsCli, toDeployCli } from '../../u.cli/mod.ts';
+import { DeployCli } from '../../u.cli/mod.ts';
 import { createDeployableRepoPkg, prepareStageForExistingApp } from '../-test.external/u.fixture.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
@@ -20,7 +20,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       entry: '/tmp/stage/entry.ts',
     } as any;
 
-    const cli = toDeployCli({
+    const cli = DeployCli.deploy({
       stage,
       app: 'my-app',
       org: 'my-org',
@@ -61,12 +61,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       entry: '/tmp/stage/entry.ts',
     };
 
-    const cli = toDeployCli({ stage, app: 'my-app' });
-    expectTypeOf(cli).toEqualTypeOf<{
-      readonly cmd: string;
-      readonly cwd: string;
-      readonly args: readonly string[];
-    }>();
+    const cli = DeployCli.deploy({ stage, app: 'my-app' });
     expect(cli).to.eql({
       cmd: 'deno',
       cwd: '/tmp/stage',
@@ -82,7 +77,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
   });
 
   it('builds logs cli invocation from an isolated temp root', async () => {
-    const logs = await prepareDeployLogsCli({
+    const logs = await DeployCli.logs({
       app: 'my-app',
       org: 'my-org',
       token: 'abc123',

@@ -1,4 +1,5 @@
 import { type t, D, Fs, Is } from '../common.ts';
+import { hasValue } from './u.ts';
 
 type DeployLogsCli = {
   readonly cmd: string;
@@ -18,12 +19,7 @@ type PreparedDeployLogsCli = {
  * Keep logs CLI invocation isolated here so package-root config is never
  * touched by ambient CLI behavior.
  */
-export async function prepareDeployLogsCli(req: {
-  readonly app: string;
-  readonly org?: string;
-  readonly token?: string;
-  readonly start?: string;
-}) {
+export async function logs(req: { app: string; org?: string; token?: string; start?: string }) {
   const app = req.app.trim();
   if (app.length === 0) throw new Error('DenoDeploy.logs: app must be a non-empty string');
 
@@ -32,17 +28,13 @@ export async function prepareDeployLogsCli(req: {
   await Fs.writeJson(config, {});
 
   const args = ['deploy', 'logs', '--app', app];
-  if (Is.str(req.org) && req.org.trim().length > 0) args.push('--org', req.org.trim());
-  if (Is.str(req.token) && req.token.trim().length > 0) args.push('--token', req.token.trim());
-  if (Is.str(req.start) && req.start.trim().length > 0) args.push('--start', req.start.trim());
+  if (Is.str(req.org) && hasValue(req.org)) args.push('--org', req.org.trim());
+  if (Is.str(req.token) && hasValue(req.token)) args.push('--token', req.token.trim());
+  if (Is.str(req.start) && hasValue(req.start)) args.push('--start', req.start.trim());
   args.push('--config', config);
 
   return {
-    cli: {
-      cmd: D.cmd.deno,
-      cwd: root,
-      args,
-    },
+    cli: { cmd: D.cmd.deno, cwd: root, args },
     root,
     config,
   } as const satisfies PreparedDeployLogsCli;
