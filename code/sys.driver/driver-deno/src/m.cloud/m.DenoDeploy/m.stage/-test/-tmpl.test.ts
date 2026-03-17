@@ -5,6 +5,7 @@ import {
   expectTypeOf,
   Fs,
   it,
+  pkg,
   slug,
   Str,
 } from '../../../../-test.ts';
@@ -64,6 +65,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(entryText).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';
     expect(stageText).to.eql(`export const targetDir = './code/projects/foo';\n`);
+    const importMap = await Fs.readJson<{ readonly imports?: Record<string, string> }>(Fs.join(res.root, 'imports.json'));
+    expect(importMap.data?.imports?.['@sys/driver-deno']).to.eql(`jsr:@sys/driver-deno@${pkg.version}`);
+    expect(importMap.data?.imports?.['@sys/driver-deno/cloud']).to.eql(`jsr:@sys/driver-deno@${pkg.version}/cloud`);
 
     const walkup = false;
     const stagedWorkspace = await DenoFile.workspace(Fs.join(res.root, 'deno.json'), { walkup });
