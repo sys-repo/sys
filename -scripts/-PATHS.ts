@@ -49,6 +49,7 @@ export const Paths = {
 
     'code/sys/text',
     'code/sys/tmpl-engine',
+    'code/sys/skills',
 
     /**
      * sys.model:
