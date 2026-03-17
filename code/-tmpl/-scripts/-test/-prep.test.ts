@@ -57,12 +57,28 @@ describe('prep.u', () => {
       imports: {
         '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.0',
         '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.0/main',
+        '@sys/driver-vite/t': 'jsr:@sys/driver-vite@0.0.0/t',
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/fs/t': 'jsr:@sys/fs@0.0.0/t',
         '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
+        '@sys/http/t': 'jsr:@sys/http@0.0.0/t',
+        '@sys/monorepo': 'jsr:@sys/monorepo@0.0.0',
+        '@sys/monorepo/t': 'jsr:@sys/monorepo@0.0.0/t',
+        '@sys/process': 'jsr:@sys/process@0.0.0',
+        '@sys/process/t': 'jsr:@sys/process@0.0.0/t',
         '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
         '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.0',
         '@sys/ui-react': 'jsr:@sys/ui-react@0.0.0',
         '@sys/ui-react-components': 'jsr:@sys/ui-react-components@0.0.0',
         '@sys/ui-react-devharness': 'jsr:@sys/ui-react-devharness@0.0.0',
+        '@sys/std': 'jsr:@sys/std@0.0.0',
+        '@sys/std/t': 'jsr:@sys/std@0.0.0/t',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+        '@sys/tmpl/t': 'jsr:@sys/tmpl@0.0.0/t',
+        '@sys/tools': 'jsr:@sys/tools@0.0.0',
+        '@sys/tools/t': 'jsr:@sys/tools@0.0.0/t',
+        '@sys/ui-react/t': 'jsr:@sys/ui-react@0.0.0/t',
+        '@sys/ui-react-components/t': 'jsr:@sys/ui-react-components@0.0.0/t',
       },
     };
     const authority = {
@@ -73,7 +89,13 @@ describe('prep.u', () => {
     };
     const versions = {
       '@sys/driver-vite': '0.0.297',
+      '@sys/fs': '0.0.243',
       '@sys/http': '0.0.210',
+      '@sys/monorepo': '0.0.011',
+      '@sys/process': '0.0.201',
+      '@sys/std': '0.0.300',
+      '@sys/tmpl': '0.3.7',
+      '@sys/tools': '0.2.4',
       '@sys/ui-css': '0.0.231',
       '@sys/ui-dom': '0.0.237',
       '@sys/ui-react': '0.0.245',
@@ -84,11 +106,27 @@ describe('prep.u', () => {
     const res = syncTemplateImports(input, authority, versions);
     expect(res.imports['@sys/driver-vite']).to.eql('jsr:@sys/driver-vite@0.0.297');
     expect(res.imports['@sys/driver-vite/main']).to.eql('jsr:@sys/driver-vite@0.0.297/main');
+    expect(res.imports['@sys/driver-vite/t']).to.eql('jsr:@sys/driver-vite@0.0.297/t');
+    expect(res.imports['@sys/fs']).to.eql('jsr:@sys/fs@0.0.243');
+    expect(res.imports['@sys/fs/t']).to.eql('jsr:@sys/fs@0.0.243/t');
     expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
+    expect(res.imports['@sys/http/t']).to.eql('jsr:@sys/http@0.0.210/t');
+    expect(res.imports['@sys/monorepo']).to.eql('jsr:@sys/monorepo@0.0.011');
+    expect(res.imports['@sys/monorepo/t']).to.eql('jsr:@sys/monorepo@0.0.011/t');
+    expect(res.imports['@sys/process']).to.eql('jsr:@sys/process@0.0.201');
+    expect(res.imports['@sys/process/t']).to.eql('jsr:@sys/process@0.0.201/t');
+    expect(res.imports['@sys/std']).to.eql('jsr:@sys/std@0.0.300');
+    expect(res.imports['@sys/std/t']).to.eql('jsr:@sys/std@0.0.300/t');
+    expect(res.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.3.7');
+    expect(res.imports['@sys/tmpl/t']).to.eql('jsr:@sys/tmpl@0.3.7/t');
+    expect(res.imports['@sys/tools']).to.eql('jsr:@sys/tools@0.2.4');
+    expect(res.imports['@sys/tools/t']).to.eql('jsr:@sys/tools@0.2.4/t');
     expect(res.imports['@sys/ui-css']).to.eql('jsr:@sys/ui-css@0.0.231');
     expect(res.imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
     expect(res.imports['@sys/ui-react']).to.eql('jsr:@sys/ui-react@0.0.245');
+    expect(res.imports['@sys/ui-react/t']).to.eql('jsr:@sys/ui-react@0.0.245/t');
     expect(res.imports['@sys/ui-react-components']).to.eql('jsr:@sys/ui-react-components@0.0.197');
+    expect(res.imports['@sys/ui-react-components/t']).to.eql('jsr:@sys/ui-react-components@0.0.197/t');
     expect(res.imports['@sys/ui-react-devharness']).to.eql('jsr:@sys/ui-react-devharness@0.0.242');
   });
 

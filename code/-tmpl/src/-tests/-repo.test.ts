@@ -65,7 +65,7 @@ describe('Template: repo integration', () => {
     }
   });
 
-  it('generate in temp dir → generated repo pkg build passes without local authority rewrite', async () => {
+  it('generate in temp dir → generated repo pkg check passes without local authority rewrite', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
     const root = tmp.absolute;
 
@@ -84,14 +84,14 @@ describe('Template: repo integration', () => {
 
     const res = await Process.invoke({
       cmd: 'deno',
-      args: ['task', 'build'],
+      args: ['task', 'check'],
       cwd: pkgDir,
       silent: true,
     });
 
     if (!res.success) {
       throw new Error(
-        `Generated repo pkg build failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`,
+        `Generated repo pkg check failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`,
       );
     }
   });
