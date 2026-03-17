@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, Fs, it } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { toDeployCli } from '../u.deployCli.ts';
+import { prepareDeployLogsCli, toDeployCli } from '../../u.cli/mod.ts';
 import { createDeployableRepoPkg, prepareStageForExistingApp } from '../-test.external/u.fixture.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
@@ -79,6 +79,35 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
         '/tmp/stage',
       ],
     });
+  });
+
+  it('builds logs cli invocation from an isolated temp root', async () => {
+    const logs = await prepareDeployLogsCli({
+      app: 'my-app',
+      org: 'my-org',
+      token: 'abc123',
+      start: '2026-03-17T00:00:00Z',
+    });
+
+    expect(logs.cli.cmd).to.eql('deno');
+    expect(logs.cli.cwd).to.eql(logs.root);
+    expect(logs.cli.args).to.eql([
+      'deploy',
+      'logs',
+      '--app',
+      'my-app',
+      '--org',
+      'my-org',
+      '--token',
+      'abc123',
+      '--start',
+      '2026-03-17T00:00:00Z',
+      '--config',
+      logs.config,
+    ]);
+    expect(logs.root).to.contain('sys.driver.deno.deploy.logs-');
+    expect(await Fs.exists(logs.config)).to.be.true;
+    expect((await Fs.readJson(logs.config)).data).to.eql({});
   });
 
   it('serves the staged target dist index and emitted js from generated entry.ts', async () => {

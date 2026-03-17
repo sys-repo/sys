@@ -1,4 +1,4 @@
-import { type t, D, Fs, Is } from './common.ts';
+import { type t, D, Fs, Is } from '../common.ts';
 
 type DeployCli = {
   readonly cmd: string;
@@ -7,7 +7,7 @@ type DeployCli = {
 };
 
 /**
- * The only native Deno Deploy CLI boundary for `driver-deno`.
+ * The owned native Deno Deploy CLI boundary for `driver-deno`.
  *
  * Keep deploy CLI invocation isolated here so `cwd` and `--config` remain
  * explicit and package-root config is never touched by ambient CLI behavior.

@@ -1,5 +1,5 @@
 import { type t, Process } from './common.ts';
-import { toDeployCli } from './u.deployCli.ts';
+import { toDeployCli } from '../u.cli/mod.ts';
 import { toDeployMeta } from './u.deployResult.ts';
 import { printDeployEnvGuidance, resolveDeployRequestEnv, toDeployEnvNotes } from './u.env.ts';
 
