@@ -42,7 +42,6 @@ export type { Crdt, CrdtRepoWireEvent } from '@sys/driver-automerge/t';
  * @local
  */
 export type * from '../-tmpl.cli/t.ts';
-export type * from '../-tmpl/t.ts';
 export type * from '../t.ts';
 
 export type * from '../cli.clipboard/t.ts';
