@@ -1,4 +1,4 @@
-import { type t, Fs, HttpServer, Pkg } from './common.ts';
+import { type t, Fs, HttpServer, Pkg, Str } from './common.ts';
 
 export const serve: t.DenoEntry.Serve = async (options) => {
   const { pkg, hash, distDir } = await loadTarget(options);
@@ -21,9 +21,20 @@ async function loadTarget(options: t.DenoEntry.ServeOptions) {
   const pkgModule = await import(Fs.Path.toFileUrl(pkgPath).href);
   const sourcePkg = pkgModule.pkg;
 
-  const dist = (await Pkg.Dist.load(distDir)).dist;
-  const pkg = dist?.pkg || sourcePkg;
-  const hash = dist?.hash.digest;
+  const verification = await Pkg.Dist.verify(distDir);
+  if (verification.is.valid !== true || !verification.dist) {
+    throw new Error(
+      Str.dedent(`
+        DenoEntry.serve: invalid dist artifact.
+
+        distDir: ${distDir}
+        error: ${verification.error?.message ?? 'Unknown dist verification failure.'}
+      `),
+    );
+  }
+
+  const pkg = verification.dist.pkg || sourcePkg;
+  const hash = verification.dist.hash.digest;
 
   return { distDir, pkg, hash } as const;
 }

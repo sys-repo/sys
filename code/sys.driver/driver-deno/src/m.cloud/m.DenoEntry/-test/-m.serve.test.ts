@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, Fs, it } from '../../../-test.ts';
 import { DenoEntry } from '../mod.ts';
 import { createServeWorkspace } from './u.fixture.ts';
 
@@ -98,5 +98,26 @@ describe(`DenoEntry.serve`, () => {
 
     expect(err).to.be.instanceOf(Error);
     expect((err as Error).message).to.contain(`DenoEntry.serve: 'targetDir' escapes root`);
+  });
+
+  it('rejects tampered dist artifacts at startup', async () => {
+    const fixture = await createServeWorkspace();
+    await Fs.write(
+      fixture.fs.join('code/projects/foo/dist/pkg/app.js'),
+      `console.info('tampered');\n`,
+    );
+
+    let err: unknown;
+    try {
+      await DenoEntry.serve({
+        cwd: fixture.fs.dir,
+        targetDir: fixture.targetDir,
+      });
+    } catch (error) {
+      err = error;
+    }
+
+    expect(err).to.be.instanceOf(Error);
+    expect((err as Error).message).to.contain('invalid dist artifact');
   });
 });
