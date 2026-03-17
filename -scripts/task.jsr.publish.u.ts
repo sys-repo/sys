@@ -50,12 +50,13 @@ function mainBranchGuard(branch: string) {
 
   return [
     '',
-    `${indent()}${c.bold(c.yellow('JSR PUBLISH BLOCKED'))}`,
+    `${indent()}${c.bold(c.yellow('JSR Publish Blocked'))}`,
     `${indent()}${c.bold(c.yellow(LINE))}`,
+    '',
     richRow('What', [
-      c.cyan('publish:jsr'),
+      c.green('publish:jsr'),
       c.white(' targets '),
-      c.magenta('main'),
+      c.cyan('main'),
       c.white('-only publish while you are on branch '),
       c.cyan(branch || '(unknown branch)'),
     ]),
@@ -64,20 +65,21 @@ function mainBranchGuard(branch: string) {
     row('Fix', 'Choose one before re-running publish:', { color: 'white' }),
     richRow('', [
       c.white('  1. Switch to '),
-      c.magenta('main'),
+      c.cyan('main'),
       c.white(' if you intend the strict '),
-      c.magenta('main'),
+      c.cyan('main'),
       c.white(' publish path'),
     ]),
     richRow('', [
       c.white('  2. Use '),
-      c.cyan('deno task publish:jsr:branch'),
+      c.green('deno task publish:jsr:branch'),
       c.white(' for the current branch (override)'),
     ]),
     row('', '', { color: 'white' }),
-    row('Retry', '  deno task publish:jsr', { color: 'cyan' }),
+    row('Retry', '  deno task publish:jsr', { color: 'green' }),
     row('', '  or', { color: 'gray' }),
-    richRow('', [c.cyan('  deno task publish:jsr:branch'), c.gray(' (override)')]),
+    richRow('', [c.green('  deno task publish:jsr:branch'), c.gray(' (override)')]),
+    '',
     `${indent()}${c.bold(c.yellow(LINE))}`,
     '',
   ] as const;
@@ -93,20 +95,22 @@ async function currentBranch() {
   return res.text.stdout.trim();
 }
 
-function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' } = {}) {
+function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' | 'green' } = {}) {
   const head = c.gray(label.padEnd(5));
   const text =
     options.color === 'cyan'
       ? c.cyan(value)
+      : options.color === 'green'
+        ? c.green(value)
       : options.color === 'gray'
         ? c.gray(value)
         : c.white(value);
-  return `${indent()}${head} ${c.gray('│')} ${text}`;
+  return `${indent()}${head} ${c.dim(c.gray('│'))} ${text}`;
 }
 
 function richRow(label: string, parts: readonly string[]) {
   const head = c.gray(label.padEnd(5));
-  return `${indent()}${head} ${c.gray('│')} ${parts.join('')}`;
+  return `${indent()}${head} ${c.dim(c.gray('│'))} ${parts.join('')}`;
 }
 
 function indent() {
