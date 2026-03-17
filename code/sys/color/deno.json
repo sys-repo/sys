@@ -1,6 +1,6 @@
 {
   "name": "@sys/color",
-  "version": "0.0.214",
+  "version": "0.0.215",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
