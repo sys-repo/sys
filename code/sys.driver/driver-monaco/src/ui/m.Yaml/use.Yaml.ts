@@ -82,7 +82,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
     };
 
     if (parser.current) emit(); // initial snapshot
-    parser.$.subscribe(emit);
+    parser.$.pipe(Rx.takeUntil(parser.dispose$)).subscribe(emit);
 
     // Listen and repond to `ping` requests:
     bus$
@@ -96,7 +96,9 @@ export const useYaml: t.UseEditorYaml = (args) => {
         Bus.pong(bus$, e.nonce, ['yaml']);
       });
 
-    return parser.dispose;
+    return () => {
+      parser.dispose();
+    };
   }, [editorId, Obj.hash([...wrangle.docDeps(doc), path, debounce])]);
 
   /**

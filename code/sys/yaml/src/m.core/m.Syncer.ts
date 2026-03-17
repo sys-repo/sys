@@ -80,6 +80,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
    * Listen:
    */
   const update = () => {
+    if (life.disposed) return;
+
     // Setup initial conditions.
     const sourceInput = get<string>(doc.source?.current, path.source) ?? '';
     const before = _before;
@@ -170,7 +172,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
   // Seed structural error state before the first update (deduped by Set).
   addPathErrors();
   update();
-  source$.subscribe(update);
+
+  source$.pipe(Rx.takeUntil(life.dispose$)).subscribe(update);
 
   // Finish up.
   return api;

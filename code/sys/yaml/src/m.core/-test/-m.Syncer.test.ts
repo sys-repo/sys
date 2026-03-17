@@ -273,6 +273,19 @@ describe('Yaml.syncer', () => {
         expect(doc.current['text.parsed']).to.eql({ foo: 123 }); // NB: no more updates to target.
       });
 
+      it('cancels pending debounced updates', async () => {
+        const doc = Immutable.clonerRef<T>({});
+        const syncer = Yaml.syncer<T>({ doc, path: ['text'], debounce: 25 });
+
+        doc.change((d) => (d.text = 'foo: 123'));
+        await Time.wait(5);
+        syncer.dispose();
+
+        await Time.wait(40);
+        expect(syncer.disposed).to.eql(true);
+        expect(doc.current['text.parsed']).to.eql(null);
+      });
+
       it('via: dispose$ observable', () => {
         const { dispose, dispose$ } = Rx.lifecycle();
         const doc = Immutable.clonerRef<T>({});
