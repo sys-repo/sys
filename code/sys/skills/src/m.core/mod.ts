@@ -4,4 +4,5 @@
  */
 import type { t } from './common.ts';
 
+/** Core skill artifact helper library. */
 export const SkillsCore: t.SkillsCore.Lib = {};
