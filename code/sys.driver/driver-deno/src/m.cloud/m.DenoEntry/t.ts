@@ -21,21 +21,18 @@ export declare namespace DenoEntry {
     readonly targetDir: t.StringRelativeDir;
   };
 
-  /** Standard fetch handler shape returned by an entry. */
-  export type EntryResultFetch = { readonly fetch: EntryFetch };
-
   /** Standard request handler used by entry results. */
   export type EntryFetch = (
     req: Request,
     info?: Deno.ServeHandlerInfo,
   ) => Response | Promise<Response>;
 
-  /** Supported result returned by a package entry `main(ctx)`. */
-  export type EntryResult = Response | EntryResultFetch;
+  /** Standard fetch handler shape returned by an entry. */
+  export type EntryResult = { readonly fetch: EntryFetch };
 
   /** Package-local runtime hook signature. */
   export type Main = (ctx: EntryContext) => EntryResult | Promise<EntryResult>;
 
   /** Root entry adapter signature. */
-  export type Serve = (options: ServeOptions) => Promise<EntryResultFetch>;
+  export type Serve = (options: ServeOptions) => Promise<EntryResult>;
 }
