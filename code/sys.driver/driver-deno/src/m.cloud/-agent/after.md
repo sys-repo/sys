@@ -38,3 +38,25 @@ shared helper later, likely in `@sys/std` or `@sys/fs`, for example:
 - `Path.fromFileUrlOrNull(url)`
 
 Do not generalize this until the second/third real caller pressure is clear.
+
+### Local DX → shared entry seam
+
+Normal local package start/test flows should converge on the same
+`src/entry.ts` seam used by deploy.
+
+This is now refinement work, not contract discovery.
+
+### Deploy app creation
+
+Add a principled app-creation flow when the deploy target does not yet exist.
+
+This is a deploy-operations concern, not part of the core staged entry
+contract.
+
+### Staged workspace pruning
+
+Reducing the staged workspace to a smaller deploy slice is still a possible
+optimization.
+
+This should stay explicitly outside the correctness contract until it is proven
+without weakening the current whole-workspace staging model.

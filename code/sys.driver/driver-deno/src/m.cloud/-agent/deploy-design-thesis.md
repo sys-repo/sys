@@ -131,24 +131,30 @@ to strong external scrutiny.
 The deploy side has been pared back to a sensible baseline and the core
 prebuilt-asset assumption is now de-risked.
 
-The tactical hacks from the discovery/debugging loop can and should be treated
-as temporary seam work, not architecture. What remains now is to tighten the
-entry contract and artifact contract so the deploy path becomes just as boring
-as staging.
+The major hurdle is now behind us:
+
+- staged root `entry.ts` / `entry.paths.ts` is live-proven
+- `DenoEntry.serve(...)` is live-proven
+- published JSR import authority is live-proven
+- the external staged deploy lane now passes end-to-end
+
+The tactical hacks from the discovery/debugging loop can and should continue to
+be treated as temporary seam work, not architecture. What remains now is mostly
+refinement and future operational hardening, not uncertainty about the core
+design line.
 
 ## Next Move
 
 The next step is not more platform probing.
 
-The next step is to tighten the deploy contract:
+The next step is to keep refining around the now-proven contract:
 
-1. define one canonical deploy entry contract
-2. route runtime through that one contract only
-3. remove scattered target-path reconstruction
-4. remove temporary debug surfaces
-5. polish the deploy API around the now-proven prebuilt `dist/` model
+1. align normal local package start/test flows around the same entry seam
+2. continue tightening deploy operations around owned CLI/API boundaries
+3. remove temporary debug surfaces and stale proof scaffolding
+4. only then consider optimization work like staged workspace pruning
 
-This is contract design work now, not rescue work.
+This is refinement work now, not rescue work.
 
 ## Future Note
 

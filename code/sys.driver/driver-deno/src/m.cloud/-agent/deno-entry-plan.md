@@ -14,6 +14,25 @@ The work now is to engineer the runtime entry seam cleanly:
 - one shared package entry contract used locally and in deploy
 - no generated lore blobs
 
+## Status
+
+The major contract work in this plan is now done.
+
+What is now in place:
+
+- `m.DenoEntry` exists beside `m.DenoDeploy`
+- staged root emits both `entry.ts` and `entry.paths.ts`
+- staged metadata injects `targetDir` only
+- `DenoEntry.serve(...)` handles:
+  - verified `dist/` fallback
+  - package-local `src/entry.ts` override
+- local tests prove the shared seam
+- external Deno Deploy proof now passes on the staged root entry pair
+
+So this document is now mostly a record of the design line that was executed.
+Remaining work from here is refinement, local-DX follow-through, and future
+deploy-operations hardening.
+
 ## Design Goal
 
 The root staged runtime should stabilize around:
@@ -115,7 +134,7 @@ This keeps `m.DenoDeploy` focused on:
 - deploy invocation
 - deploy config/env/result surfaces
 
-## Planned Sequence
+## Executed Sequence
 
 1. Stub `m.DenoEntry`.
    - `mod.ts`
@@ -128,7 +147,7 @@ This keeps `m.DenoDeploy` focused on:
    - decide the exact standard result shape
 
 3. Reduce staged metadata to `targetDir` only.
-   - update `u.createStageEntrypoint.ts`
+   - update stage generation
    - update stage tests
 
 4. Add the root adapter.
@@ -149,12 +168,26 @@ This keeps `m.DenoDeploy` focused on:
      - package entry override
 
 8. Update external proof second.
-   - preserve the prebuilt-dist proof lane
+   - preserve the staged artifact proof lane
    - keep proving real HTML and JS asset serving
 
 9. Remove temporary debug scaffolding once replaced by clean observability.
    - `/-info.json`
    - incidental debug-only path output
+
+## Remaining Refinement
+
+The main remaining work is no longer contract discovery.
+
+It is:
+
+- align normal local package start/test flows around `src/entry.ts`
+- continue polishing deploy operations around the owned CLI/API boundary
+- trim any leftover debug-only or historical proof scaffolding when safe
+
+Operational and future follow-ups live in:
+
+- `./after.md`
 
 ## Quality Bar
 
