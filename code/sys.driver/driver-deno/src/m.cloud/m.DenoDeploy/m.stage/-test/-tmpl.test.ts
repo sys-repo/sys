@@ -6,12 +6,31 @@ import {
   Fs,
   it,
   slug,
+  Str,
 } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { DenoFile } from '../common.ts';
+import { DenoFile, TmplEngine } from '../common.ts';
+import { json } from '../-tmpl/-bundle.ts';
+import { PATHS, renderStageEntrypoints } from '../-tmpl/mod.ts';
 import { createGeneratedRepoPkg, runDenoTask } from './u.fixture.tmpl.ts';
 
 describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
+  it('keeps the staged entry template bundle in sync', async () => {
+    const out = await Fs.makeTempDir({ prefix: 'driver-deno.stage-tmpl.' });
+    const file = Fs.join(out.absolute, '-bundle.json');
+    await TmplEngine.bundle(PATHS.files, file);
+
+    const actual = (await Fs.readText(file)).data ?? '';
+    expect(JSON.parse(actual)).to.eql(json);
+  });
+
+  it('renders the staged entry template pair from one target dir fact', () => {
+    const res = renderStageEntrypoints('./code/projects/foo');
+    expect(res.entry).to.include(`import { targetDir } from './entry.paths.ts';`);
+    expect(res.entry).to.include(`export default await DenoEntry.serve({ targetDir });`);
+    expect(res.entryPaths).to.eql(`export const targetDir = './code/projects/foo';\n`);
+  });
+
   it('stages a generated tmpl repo/package workspace target into a temp root', async () => {
     const { root, pkgDir } = await createGeneratedRepoPkg();
 

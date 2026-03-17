@@ -3,8 +3,10 @@ import { DenoFile } from '../../../m.runtime/mod.ts';
 
 type Response = {
   readonly workspace: t.DenoWorkspace;
-  readonly targetDir: t.StringDir;
-  readonly targetRootRel: t.StringPath;
+  readonly target: {
+    readonly absolute: t.StringDir;
+    readonly relative: t.StringRelativeDir;
+  };
 };
 
 export async function resolveStageTarget(request: t.DenoDeploy.Stage.Request): Promise<Response> {
@@ -41,7 +43,13 @@ export async function resolveStageTarget(request: t.DenoDeploy.Stage.Request): P
 
   return {
     workspace,
-    targetDir,
-    targetRootRel,
+    target: {
+      absolute: targetDir,
+      relative: ensureDotRelativeDir(targetRootRel),
+    },
   };
+}
+
+function ensureDotRelativeDir(dir: t.StringPath) {
+  return (dir.startsWith('./') ? dir : `./${dir}`) as t.StringRelativeDir;
 }

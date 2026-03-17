@@ -1,0 +1,4 @@
+import { DenoEntry } from '@sys/driver-deno/cloud';
+import { targetDir } from './entry.paths.ts';
+
+export default await DenoEntry.serve({ targetDir });

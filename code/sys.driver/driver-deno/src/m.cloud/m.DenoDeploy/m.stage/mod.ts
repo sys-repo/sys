@@ -1,22 +1,23 @@
 import { type t, D, Fs } from './common.ts';
+import { renderStageEntrypoints } from './-tmpl/mod.ts';
 import { buildStageTarget } from './u.buildStageTarget.ts';
-import { createStageEntrypoint } from './u.createStageEntrypoint.ts';
 import { materializeWorkspace } from './u.materializeWorkspace.ts';
 import { resolveStageRoot } from './u.resolveStageRoot.ts';
 import { resolveStageTarget } from './u.resolveStageTarget.ts';
 
 export const stage: t.DenoDeploy.Lib['stage'] = async (request) => {
-  const { workspace, targetDir, targetRootRel } = await resolveStageTarget(request);
+  const { workspace, target } = await resolveStageTarget(request);
 
   const root = await resolveStageRoot(workspace.dir, request.root);
-  await buildStageTarget(targetDir);
+  await buildStageTarget(target.absolute);
   await materializeWorkspace(workspace.dir, root);
 
   const entry = Fs.join(root, D.deployEntrypointFilename);
-  await Fs.write(entry, createStageEntrypoint(targetRootRel), { force: true });
+  const rendered = renderStageEntrypoints(target.relative);
+  await Fs.write(entry, rendered.entryPaths, { force: true });
 
   return {
-    target: { dir: targetDir },
+    target: { dir: target.absolute },
     workspace,
     root,
     entry,

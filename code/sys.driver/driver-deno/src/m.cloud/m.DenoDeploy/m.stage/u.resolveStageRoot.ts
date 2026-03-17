@@ -11,9 +11,8 @@ export async function resolveStageRoot(
   const dir = Path.resolve(root.dir);
   const workspaceRoot = Path.resolve(workspaceDir);
   if (dir === workspaceRoot || dir.startsWith(Fs.join(workspaceRoot, ''))) {
-    throw new Error(
-      `DenoDeploy.stage: stage root '${dir}' must be outside workspace '${workspaceRoot}'`,
-    );
+    const err = `DenoDeploy.stage: stage root '${dir}' must be outside workspace '${workspaceRoot}'`;
+    throw new Error(err);
   }
 
   const exists = await Fs.exists(dir);

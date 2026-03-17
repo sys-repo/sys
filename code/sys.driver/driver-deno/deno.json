@@ -5,6 +5,7 @@
   "tasks": {
     "test": "deno test -P=test",
     "test:external": "deno task test --trace-leaks ./src/m.cloud/m.DenoDeploy/-test/-external.ts",
+    "prep": "deno run -P=prep ./-scripts/task.prep.ts",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts"
@@ -18,6 +19,11 @@
   },
   "permissions": {
     "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "prep": {
       "read": true,
       "write": true,
       "env": true

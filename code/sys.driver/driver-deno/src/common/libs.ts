@@ -1,10 +1,10 @@
 export { Cli } from '@sys/cli';
 export { c, stripAnsi } from '@sys/color/ansi';
-export { Dir, Env, Fs, Pkg } from '@sys/fs';
+export { Dir, Env, FileMap, Fs, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/client';
 export { Jsr } from '@sys/jsr';
 export { Process } from '@sys/process';
-export { Delete, Err, Is, Json, Obj, Path, slug, Str } from '@sys/std';
+export { Args, Delete, Err, Is, Json, Obj, Path, slug, Str } from '@sys/std';
 export { Esm } from '@sys/std/esm';
 export { Ignore } from '@sys/std/ignore';
 export { Semver } from '@sys/std/semver/server';
