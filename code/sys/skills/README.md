@@ -1,10 +1,12 @@
 # @sys/skills
 
-@sys/skills is a versioned JSR registry of bundled Agent Skill artifacts, with lazy per-skill exports and a small core for materialization and provenance-aware access.
+`@sys/skills` is a JSR package for publishing bundled Agent Skill artifacts as versioned library data.
 
-It treats `SKILL.md` as a portable source artifact, but ships versioned bundles with explicit provenance and narrow materialization semantics rather than exposing raw markdown as an unbounded trust surface.
+It provides a stable surface for discovery, lazy per-skill access, materialization, and provenance-aware metadata, while treating `SKILL.md` as source input rather than the primary programmatic contract.
+
+This makes skill adoption easier to audit, version, and load programmatically without expanding raw markdown into an implicit trust boundary.
 
 
 ### References
 
-- [agentskills.io](https://agentskills.io)
+- [agentskills.io](https://agentskills.io) - emerging ecosystem convention for file-based agent skills centered on `SKILL.md`
