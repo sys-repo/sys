@@ -188,7 +188,7 @@ function resolveImportValue(
     if (typeof version !== 'string') {
       throw new Error(`Missing version authority for package "${pkg}"`);
     }
-    return `jsr:${pkg}@${version}${key.slice(pkg.length)}`;
+    return Jsr.Import.specifier(pkg, version, key.slice(pkg.length));
   }
 
   const fromRoot = authorityImports[key];

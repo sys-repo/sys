@@ -1,10 +1,9 @@
 import { type t, Err, Fetch, JsrUrl } from './common.ts';
-import type { JsrFetch } from './t.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: JsrFetch.PkgLib = {
+export const Pkg: t.JsrFetch.PkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
@@ -34,7 +33,7 @@ export const Pkg: JsrFetch.PkgLib = {
    * https://jsr.io/docs/api#package-version-metadata
    */
   async info(name, vInput, options = {}) {
-    const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
+    const version = vInput ? vInput : ((await Pkg.versions(name)).data?.latest ?? '');
     const url = JsrUrl.Pkg.version(name, version);
     const fetch = Fetch.make(options.dispose$);
     const res = await fetch.json<t.JsrFetch.PkgVersionInfo>(url, { cache: 'no-store' });
