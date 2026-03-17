@@ -1,5 +1,5 @@
 /**
- * External deploy lane for `driver-deno`.
+ * External deploy lane test for `driver-deno`.
  *
  * These checks validate real Deno Deploy behavior against an existing app.
  * Keep scenarios here explicit and additive.
@@ -12,11 +12,10 @@ if (!loadExternalDeployEnv()) {
   Deno.exit(1);
 }
 
-const packageDenoJson = await snapshotPackageDenoJson();
+const denoJson = await snapshotPackageDenoJson();
 
 try {
-  // await import('./-existing-app.ts');
-  await import('./-prebuilt-dist.ts');
+  await import('./-run.deploy-staged.ts');
 } finally {
-  await restorePackageDenoJsonIfPolluted(packageDenoJson);
+  await restorePackageDenoJsonIfPolluted(denoJson);
 }

@@ -58,71 +58,12 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
 
 export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Result) {
   const stagedTargetRel = Path.relative(stage.workspace.dir, stage.target.dir);
-  const entrypoint = Fs.join(stage.root, 'entry.ts');
+  const entrypoint = stage.entry;
+  const entryPaths = Fs.join(stage.root, 'entry.paths.ts');
   const compatEntrypoint = Fs.join(stage.root, 'src/m.server/main.ts');
-  const imports = await readImportMap(stage.root);
-  const fsImport = imports['@sys/fs'];
-  const httpServerImport = resolveHttpServerImport(imports);
-  if (!fsImport) throw new Error(`Expected staged imports.json to include '@sys/fs'.`);
   await ensureDeployConfig(stage.root);
   await ensureStagedDistIncluded(stage.root, stagedTargetRel);
   await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
-
-  await Fs.write(
-    entrypoint,
-    Str.dedent(`
-      import { HttpServer } from '${httpServerImport}';
-      import { Fs, Pkg } from '${fsImport}';
-      import { targetDir } from './entry.paths.ts';
-
-      const moduleDir = Fs.Path.fromFileUrl(new URL('.', import.meta.url));
-      const distDir = Fs.Path.fromFileUrl(new URL(\`\${targetDir}/dist/\`, import.meta.url));
-      const pkgPath = Fs.Path.fromFileUrl(new URL(\`\${targetDir}/src/pkg.ts\`, import.meta.url));
-      const pkgModule = await import(new URL(\`\${targetDir}/src/pkg.ts\`, import.meta.url).href);
-      const pkg = pkgModule.pkg;
-      const dist = (await Pkg.Dist.load(distDir)).dist;
-      const hash = dist?.hash.digest ?? '';
-      const app = HttpServer.create({ pkg: dist?.pkg || pkg, hash, static: false });
-      app.get('/-info.json', async (c) => c.json({
-        importMetaUrl: import.meta.url,
-        cwd: Deno.cwd(),
-        moduleDir,
-        targetDir,
-        pkgPath,
-        distDir,
-        exists: {
-          targetDir: await Fs.exists(Fs.join(moduleDir, targetDir)),
-          pkgPath: await Fs.exists(pkgPath),
-          distDir: await Fs.exists(distDir),
-          indexHtml: await Fs.exists(Fs.join(distDir, 'index.html')),
-          distJson: await Fs.exists(Fs.join(distDir, 'dist.json')),
-        },
-        sample: {
-          indexHtml: (await Fs.readText(Fs.join(distDir, 'index.html'))).data?.slice(0, 200) ?? '',
-          distJson: (await Fs.readText(Fs.join(distDir, 'dist.json'))).data?.slice(0, 400) ?? '',
-        },
-        env: {
-          deploymentId: Deno.env.get('DENO_DEPLOYMENT_ID') ?? '',
-          region: Deno.env.get('DENO_REGION') ?? '',
-          gitSha: Deno.env.get('DENO_GIT_COMMIT_SHA') ?? '',
-          gitBranch: Deno.env.get('DENO_GIT_BRANCH') ?? '',
-          denoKeys: Object.keys(Deno.env.toObject()).filter((key) => key.startsWith('DENO_')).sort(),
-        },
-      }));
-      app.use('*', HttpServer.static({
-        root: distDir,
-        onNotFound: async (path, c) => {
-          const leaf = path.split('/').pop() ?? '';
-          const isAsset = leaf.includes('.');
-          if (isAsset) return c.text('Not Found', 404);
-          const html = (await Fs.readText(Fs.join(distDir, 'index.html'))).data ?? '';
-          return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } });
-        },
-      }));
-
-      export default { fetch: app.fetch };
-    `),
-  );
 
   await Fs.write(
     compatEntrypoint,
@@ -135,6 +76,7 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
   return {
     stagedDir: stage.root,
     entrypoint,
+    entryPaths,
     appEntrypoint: './src/m.server/main.ts',
     workspaceTarget: `./${stagedTargetRel}`,
     distDir: `./${stagedTargetRel}/dist`,
@@ -144,6 +86,7 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
 export function printDeployEntrypointInfo(args: {
   readonly stagedDir: string;
   readonly entrypoint: string;
+  readonly entryPaths: string;
   readonly appEntrypoint: string;
   readonly workspaceTarget: string;
   readonly distDir: string;
@@ -152,7 +95,8 @@ export function printDeployEntrypointInfo(args: {
     title: 'Staged Deploy Entrypoint',
     rows: [
       { label: 'staged dir', value: args.stagedDir, color: 'white' },
-      { label: 'staged file', value: args.entrypoint, color: 'white' },
+      { label: 'entry', value: args.entrypoint, color: 'white' },
+      { label: 'entry paths', value: args.entryPaths, color: 'white' },
       { label: 'app config', value: args.appEntrypoint, color: 'white' },
       { label: 'workspace', value: args.workspaceTarget, color: 'white' },
       { label: 'dist', value: args.distDir, color: 'white' },
@@ -176,30 +120,6 @@ async function quietly<T>(run: () => Promise<T>): Promise<T> {
     console.log = log;
     console.warn = warn;
   }
-}
-
-async function readImportMap(root: string): Promise<Record<string, string>> {
-  const res = await Fs.readJson<{ readonly imports?: Record<string, string> }>(Fs.join(root, 'imports.json'));
-  if (!res.ok || !res.data?.imports) {
-    throw new Error(`Failed to read staged imports.json: ${Fs.join(root, 'imports.json')}`);
-  }
-  return res.data.imports;
-}
-
-function resolveHttpServerImport(imports: Record<string, string>): string {
-  const direct = imports['@sys/http/server'];
-  if (direct) return direct;
-
-  const client = imports['@sys/http/client'];
-  if (!client) {
-    throw new Error(`Expected staged imports.json to include '@sys/http/client'.`);
-  }
-
-  if (!client.startsWith('jsr:@sys/http@') || !client.endsWith('/client')) {
-    throw new Error(`Expected '@sys/http/client' to resolve to a JSR client spec, got '${client}'.`);
-  }
-
-  return client.replace(/\/client$/, '/server');
 }
 
 async function ensureDeployConfig(root: string) {
