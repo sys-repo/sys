@@ -27,9 +27,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
 
   it('renders the staged entry template pair from one target dir fact', () => {
     const res = renderStageEntrypoints('./code/projects/foo');
-    expect(res.entry).to.include(`import { Fs } from '@sys/fs';`);
+    expect(res.entry).to.include(`import { Path } from '@sys/std/path';`);
     expect(res.entry).to.include(`import { targetDir } from './entry.paths.ts';`);
-    expect(res.entry).to.include(`const cwd = Fs.Path.fromFileUrl(new URL('.', import.meta.url));`);
+    expect(res.entry).to.include(`const cwd = Path.fromFileUrl(new URL('.', import.meta.url));`);
     expect(res.entry).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     expect(res.entryPaths).to.eql(`export const targetDir = './code/projects/foo';\n`);
   });
@@ -59,9 +59,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(res.entry).to.eql(Fs.join(res.root, 'entry.ts'));
 
     const entryText = (await Fs.readText(res.entry)).data ?? '';
-    expect(entryText).to.include(`import { Fs } from '@sys/fs';`);
+    expect(entryText).to.include(`import { Path } from '@sys/std/path';`);
     expect(entryText).to.include(`import { targetDir } from './entry.paths.ts';`);
-    expect(entryText).to.include(`const cwd = Fs.Path.fromFileUrl(new URL('.', import.meta.url));`);
+    expect(entryText).to.include(`const cwd = Path.fromFileUrl(new URL('.', import.meta.url));`);
     expect(entryText).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';
     expect(stageText).to.eql(`export const targetDir = './code/projects/foo';\n`);

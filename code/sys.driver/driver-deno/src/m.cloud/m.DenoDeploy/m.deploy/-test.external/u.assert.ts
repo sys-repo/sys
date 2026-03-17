@@ -65,9 +65,9 @@ export async function assertStageUsesGeneratedRootEntry(args: {
   const entry = (await Fs.readText(args.entrypoint)).data ?? '';
   const entryPaths = (await Fs.readText(args.entryPaths)).data ?? '';
 
-  expect(entry).to.include(`import { Fs } from '@sys/fs';`);
+  expect(entry).to.include(`import { Path } from '@sys/std/path';`);
   expect(entry).to.include(`import { targetDir } from './entry.paths.ts';`);
-  expect(entry).to.include(`const cwd = Fs.Path.fromFileUrl(new URL('.', import.meta.url));`);
+  expect(entry).to.include(`const cwd = Path.fromFileUrl(new URL('.', import.meta.url));`);
   expect(entry).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
   expect(entryPaths).to.include(`export const targetDir = './`);
 }
