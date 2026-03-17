@@ -14,10 +14,10 @@ export const serve: t.DenoEntry.Serve = async (options) => {
  * Helpers:
  */
 async function loadTarget(options: t.DenoEntry.ServeOptions) {
-  const cwd = options.cwd ?? Fs.cwd();
-  const targetDir = Fs.join(cwd, options.targetDir);
-  const distDir = Fs.join(targetDir, options.distDir ?? 'dist');
-  const pkgPath = Fs.join(targetDir, 'src/pkg.ts');
+  const cwd = Fs.resolve(options.cwd ?? Fs.cwd());
+  const targetDir = trustedPath(cwd, options.targetDir, 'targetDir');
+  const distDir = trustedPath(targetDir, options.distDir ?? 'dist', 'distDir');
+  const pkgPath = trustedPath(targetDir, './src/pkg.ts', 'pkg.ts');
   const pkgModule = await import(Fs.Path.toFileUrl(pkgPath).href);
   const sourcePkg = pkgModule.pkg;
 
@@ -37,8 +37,23 @@ function fallback(distDir: string) {
       return;
     }
 
-    const html = (await Fs.readText(Fs.join(distDir, 'index.html'))).data ?? '';
+    const indexHtmlPath = Fs.join(distDir, 'index.html');
+    const exists = await Fs.exists(indexHtmlPath);
+    if (!exists) {
+      c.res = c.text(`Missing dist index.html: ${indexHtmlPath}`, 500);
+      return;
+    }
+
+    const html = (await Fs.readText(indexHtmlPath)).data ?? '';
     const headers = { 'content-type': 'text/html; charset=utf-8' };
     c.res = new Response(html, { headers });
   };
+}
+
+function trustedPath(root: t.StringPath, rel: t.StringRelativePath, label: string) {
+  const path = Fs.resolve(Fs.join(root, rel));
+  if (path !== root && !path.startsWith(Fs.join(root, ''))) {
+    throw new Error(`DenoEntry.serve: '${label}' escapes root '${root}': ${rel}`);
+  }
+  return path;
 }

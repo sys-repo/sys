@@ -5,6 +5,7 @@ export type CreateServeWorkspaceOptions = {
   readonly assetName?: string;
   readonly assetCode?: string;
   readonly html?: string;
+  readonly withIndexHtml?: boolean;
 };
 
 export async function createServeWorkspace(options: CreateServeWorkspaceOptions = {}) {
@@ -13,6 +14,7 @@ export async function createServeWorkspace(options: CreateServeWorkspaceOptions 
   const distDir = options.distDir ?? 'dist';
   const assetName = options.assetName ?? 'app.js';
   const assetPath = `/pkg/${assetName}`;
+  const withIndexHtml = options.withIndexHtml ?? true;
   const html =
     options.html ??
     Str.dedent(
@@ -30,7 +32,9 @@ export async function createServeWorkspace(options: CreateServeWorkspaceOptions 
     fs.join('code/projects/foo/src/pkg.ts'),
     `export const pkg = { name: '@tmp/foo', version: '0.0.0' } as const;\n`,
   );
-  await Fs.write(fs.join('code/projects/foo', distDir, 'index.html'), html);
+  if (withIndexHtml) {
+    await Fs.write(fs.join('code/projects/foo', distDir, 'index.html'), html);
+  }
   await Fs.write(
     fs.join('code/projects/foo', distDir, 'pkg', assetName),
     options.assetCode ?? `console.info('foo');\n`,

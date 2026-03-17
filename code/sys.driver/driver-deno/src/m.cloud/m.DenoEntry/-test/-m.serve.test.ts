@@ -51,6 +51,19 @@ describe(`DenoEntry.serve`, () => {
     expect(await res.text()).to.eql(fixture.html);
   });
 
+  it('returns 500 when dist index.html is missing', async () => {
+    const fixture = await createServeWorkspace({ withIndexHtml: false });
+
+    const app = await DenoEntry.serve({
+      cwd: fixture.fs.dir,
+      targetDir: fixture.targetDir,
+    });
+
+    const res = await app.fetch(new Request('http://local/dashboard'));
+    expect(res.status).to.eql(500);
+    expect(await res.text()).to.contain('Missing dist index.html');
+  });
+
   it('serves from distDir override when provided', async () => {
     const fixture = await createServeWorkspace({
       assetCode: `console.info('override');\n`,
@@ -68,5 +81,22 @@ describe(`DenoEntry.serve`, () => {
     const body = await res.text();
     expect(res.status).to.eql(200);
     expect(body).to.contain(fixture.assetPath);
+  });
+
+  it('rejects targetDir values that escape cwd', async () => {
+    const fixture = await createServeWorkspace();
+
+    let err: unknown;
+    try {
+      await DenoEntry.serve({
+        cwd: fixture.fs.dir,
+        targetDir: '../escape',
+      });
+    } catch (error) {
+      err = error;
+    }
+
+    expect(err).to.be.instanceOf(Error);
+    expect((err as Error).message).to.contain(`DenoEntry.serve: 'targetDir' escapes root`);
   });
 });
