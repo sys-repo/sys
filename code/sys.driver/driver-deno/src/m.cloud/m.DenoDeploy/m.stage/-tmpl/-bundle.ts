@@ -11,14 +11,14 @@ export function renderStageEntrypoints(targetDir: t.StringRelativeDir) {
   const { fileMap } = TmplEngine.FileMap.validate(json);
   if (!fileMap) throw new Error('Invalid staged entry template bundle.');
   return {
-    entry: render(fileMap, 'entry.ts.tmpl', targetDir),
-    entryPaths: render(fileMap, 'entry.paths.ts.tmpl', targetDir),
+    entry: render(fileMap, 'entry.ts', targetDir),
+    entryPaths: render(fileMap, 'entry.paths.ts', targetDir),
   } as const;
 }
 
 function render(
   fileMap: Record<string, unknown>,
-  filename: 'entry.ts.tmpl' | 'entry.paths.ts.tmpl',
+  filename: 'entry.ts' | 'entry.paths.ts',
   targetDir: t.StringRelativeDir,
 ) {
   const data = fileMap[filename];
