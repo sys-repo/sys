@@ -150,6 +150,22 @@ The next step is to tighten the deploy contract:
 
 This is contract design work now, not rescue work.
 
+## Future Note
+
+Deploy log access should be pulled under the same owned contract.
+
+Rather than depending directly on `deno deploy logs`, we should add a proper
+API-backed log path that:
+
+- uses the existing deploy token/org/app information from the external deploy
+  env surface
+- keeps log access structured and scriptable
+- avoids accidental config pollution or interactive re-auth flows from ad hoc
+  CLI usage
+
+This is a future deploy-operations task, not part of the core runtime entry
+contract.
+
 ## End State
 
 The desired outcome is simple:
