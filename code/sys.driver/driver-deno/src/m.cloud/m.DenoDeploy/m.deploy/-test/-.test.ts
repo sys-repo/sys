@@ -17,7 +17,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
         children: [],
       },
       root: '/tmp/stage',
-      entry: '/tmp/stage/entry.paths.ts',
+      entry: '/tmp/stage/entry.ts',
     } as any;
 
     const args = toDeployArgs({
@@ -54,7 +54,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       target: { dir: '/repo/apps/foo' },
       workspace: {} as any,
       root: '/tmp/stage',
-      entry: '/tmp/stage/entry.paths.ts',
+      entry: '/tmp/stage/entry.ts',
     };
 
     const args = toDeployArgs({ stage, app: 'my-app' });

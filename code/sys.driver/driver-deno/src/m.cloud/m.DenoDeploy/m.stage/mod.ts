@@ -12,9 +12,11 @@ export const stage: t.DenoDeploy.Lib['stage'] = async (request) => {
   await buildStageTarget(target.absolute);
   await materializeWorkspace(workspace.dir, root);
 
-  const entry = Fs.join(root, D.deployEntrypointFilename);
   const rendered = renderStageEntrypoints(target.relative);
-  await Fs.write(entry, rendered.entryPaths, { force: true });
+  const entry = Fs.join(root, D.filename.entry.main);
+  const entryPaths = Fs.join(root, D.filename.entry.paths);
+  await Fs.write(entry, rendered.entry, { force: true });
+  await Fs.write(entryPaths, rendered.entryPaths, { force: true });
 
   return {
     target: { dir: target.absolute },

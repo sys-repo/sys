@@ -4,7 +4,16 @@ export * from '../common.ts';
  * Defaults
  */
 export const D = {
-  denoCommand: 'deno',
-  deployEntrypointFilename: 'entry.paths.ts',
-  stageTempDirPrefix: 'sys.driver.deno.deploy.stage-',
+  cmd: {
+    deno: 'deno',
+  },
+  filename: {
+    entry: {
+      main: 'entry.ts',
+      paths: 'entry.paths.ts',
+    },
+  },
+  tmpDirPrefix: {
+    stage: 'sys.driver.deno.deploy.stage-',
+  },
 } as const;

@@ -2,7 +2,7 @@ import { D, type t, Process, Str } from './common.ts';
 
 export async function buildStageTarget(targetDir: t.StringDir) {
   const build = await Process.invoke({
-    cmd: D.denoCommand,
+    cmd: D.cmd.deno,
     args: ['task', 'build'],
     cwd: targetDir,
     silent: true,

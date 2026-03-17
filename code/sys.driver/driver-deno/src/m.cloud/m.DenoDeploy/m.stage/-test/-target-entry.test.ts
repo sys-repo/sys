@@ -59,7 +59,7 @@ describe('DenoDeploy: staging target resolution', () => {
       );
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
-      expect((await Fs.readText(res.entry)).data).to.eql(
+      expect((await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data).to.eql(
         `export const targetDir = './code/apps/foo';\n`,
       );
     });
@@ -87,10 +87,10 @@ describe('DenoDeploy: staging target resolution', () => {
       );
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
-      const stageText = (await Fs.readText(res.entry)).data ?? '';
+      const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';
       expect(stageText).to.eql(`export const targetDir = './code/apps/foo';\n`);
 
-      const mod = await import(`file://${res.entry}?v=${slug()}`);
+      const mod = await import(`file://${Fs.join(res.root, 'entry.paths.ts')}?v=${slug()}`);
       expect(mod.targetDir).to.eql('./code/apps/foo');
     });
   });

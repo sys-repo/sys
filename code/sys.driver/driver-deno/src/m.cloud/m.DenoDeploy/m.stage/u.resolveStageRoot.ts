@@ -5,7 +5,7 @@ export async function resolveStageRoot(
   root?: t.DenoDeploy.Stage.Root,
 ): Promise<t.StringDir> {
   if (!root || root.kind === 'temp') {
-    return (await Fs.makeTempDir({ prefix: D.stageTempDirPrefix })).absolute;
+    return (await Fs.makeTempDir({ prefix: D.tmpDirPrefix.stage })).absolute;
   }
 
   const dir = Path.resolve(root.dir);

@@ -29,7 +29,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
     }
 
     const output = await Process.invoke({
-      cmd: D.denoCommand,
+      cmd: D.cmd.deno,
       args: toDeployArgs(resolved),
       cwd: resolved.stage.root,
       silent: resolved.silent === true,
