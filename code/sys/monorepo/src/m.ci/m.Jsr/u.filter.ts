@@ -1,4 +1,4 @@
-import { Err, Jsr, Semver, type t } from '../common.ts';
+import { Err, Is, Jsr, Semver, type t } from '../common.ts';
 import { loadModule, type Module } from './u.ts';
 
 type VersionFilter = t.MonorepoCi.Jsr.TextArgs['versionFilter'];
@@ -18,7 +18,7 @@ export async function filterModules(
 async function filterAhead(module: Module): Promise<Module | undefined> {
   const res = await Jsr.Fetch.Pkg.versions(module.name);
   if (!res.ok) {
-    if (res.status === 404 || res.error?.status === 404 || res.error?.cause?.status === 404) {
+    if (res.status === 404 || Is.httpStatus(res.error, 404)) {
       return module;
     }
     const cause = res.error;
