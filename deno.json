@@ -51,6 +51,7 @@
     "code/sys/net",
     "code/sys/process",
     "code/sys/schema",
+    "code/sys/skills",
     "code/sys/std",
     "code/sys/testing",
     "code/sys/text",
