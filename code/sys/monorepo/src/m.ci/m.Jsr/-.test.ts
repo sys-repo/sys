@@ -202,6 +202,22 @@ describe('MonorepoCi.Jsr', () => {
       );
     });
   });
+
+  it('versionFilter: ahead → includes packages that return 404 from JSR versions metadata', async () => {
+    const fs = await Testing.dir('MonorepoCi.Jsr.ahead.unpublished-404');
+    const alpha = fs.join('code/sys/alpha');
+
+    await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
+
+    await withPkgVersions({ '@scope/alpha': unpublished404('@scope/alpha') }, async () => {
+      const yaml = await MonorepoCi.Jsr.text({
+        paths: [alpha],
+        versionFilter: 'ahead',
+      });
+
+      expect(yaml.includes('@scope/alpha')).to.eql(true);
+    });
+  });
 });
 
 type VersionsResponse = t.JsrFetch.PkgVersionsResponse;
@@ -211,6 +227,24 @@ function unpublished(): VersionsResponse {
     ok: true,
     data: undefined,
     error: undefined,
+  } as unknown as VersionsResponse;
+}
+
+function unpublished404(pkgName: string): VersionsResponse {
+  return {
+    ...responseBase(),
+    ok: false,
+    status: 404,
+    statusText: 'Not Found',
+    error: {
+      name: 'HttpError',
+      message: `HTTP/GET request failed: https://jsr.io/${pkgName}/meta.json`,
+      cause: { name: 'HttpError', message: '404 Not Found', status: 404 },
+      status: 404,
+      statusText: 'Not Found',
+      headers: {},
+    },
+    data: undefined,
   } as unknown as VersionsResponse;
 }
 

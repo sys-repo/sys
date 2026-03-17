@@ -6,6 +6,7 @@ import {
   syncByKey,
   syncTemplateImports,
   syncTemplatePackage,
+  PublishedPackageVersion,
 } from '../-prep.u.ts';
 import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
 
@@ -176,13 +177,24 @@ describe('prep.u', () => {
     const published = {
       latestVersion(name: string) {
         calls.push(name);
-        if (name === '@sys/fs') return Promise.resolve('0.0.243');
-        if (name === '@sys/tmpl') return Promise.resolve('0.0.259');
+        const resolve = (res: PublishedPackageVersion) => Promise.resolve(res);
+        if (name === '@sys/fs') return resolve({ kind: 'published', version: '0.0.243' });
+        if (name === '@sys/tmpl') return resolve({ kind: 'published', version: '0.0.259' });
+        return resolve({ kind: 'unpublished' });
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
         return Promise.resolve(undefined);
       },
     };
 
-    const res = await resolvePublishedPackageVersions(imports, published);
+    const res = await resolvePublishedPackageVersions(
+      imports,
+      published,
+      '/tmp/deno.json',
+      denoFile,
+    );
 
     expect(res).to.eql({
       '@sys/fs': '0.0.243',
@@ -191,21 +203,75 @@ describe('prep.u', () => {
     expect(calls).to.eql(['@sys/fs', '@sys/tmpl']);
   });
 
-  it('resolvePublishedPackageVersions → throws when published authority is missing', async () => {
+  it('resolvePublishedPackageVersions → falls back to workspace authority when package is unpublished', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const calls: string[] = [];
+    const published = {
+      latestVersion(name: string) {
+        calls.push(name);
+        return Promise.resolve({ kind: 'unpublished' } as const);
+      },
+    };
+    const denoFile = {
+      workspaceVersion(name: string, src?: string) {
+        expect(name).to.eql('@sys/fs');
+        expect(src).to.eql('/tmp/deno.json');
+        return Promise.resolve('0.0.243');
+      },
+    };
+
+    const res = await resolvePublishedPackageVersions(
+      imports,
+      published,
+      '/tmp/deno.json',
+      denoFile,
+    );
+
+    expect(res).to.eql({ '@sys/fs': '0.0.243' });
+    expect(calls).to.eql(['@sys/fs']);
+  });
+
+  it('resolvePublishedPackageVersions → throws when unpublished package has no workspace authority', async () => {
     const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
     const published = {
       latestVersion() {
+        return Promise.resolve({ kind: 'unpublished' } as const);
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
         return Promise.resolve(undefined);
       },
     };
 
     try {
-      await resolvePublishedPackageVersions(imports, published);
+      await resolvePublishedPackageVersions(imports, published, '/tmp/deno.json', denoFile);
       throw new Error('Expected resolvePublishedPackageVersions to throw');
     } catch (error) {
       expect((error as Error).message).to.eql(
-        'Missing published version authority for package "@sys/fs"',
+        'Missing workspace version authority for package "@sys/fs": /tmp/deno.json',
       );
+    }
+  });
+
+  it('resolvePublishedPackageVersions → throws when published authority fails for non-404 reasons', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const published = {
+      latestVersion() {
+        throw new Error('registry unavailable');
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve('0.0.243');
+      },
+    };
+
+    try {
+      await resolvePublishedPackageVersions(imports, published, '/tmp/deno.json', denoFile);
+      throw new Error('Expected resolvePublishedPackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql('registry unavailable');
     }
   });
 
@@ -248,11 +314,13 @@ describe('prep.u', () => {
     const currentVersions = Object.fromEntries(
       Object.keys(repoImports.imports)
         .map((specifier) => {
-          const pkg = specifier.startsWith('@sys/') ? specifier.split('/').slice(0, 2).join('/') : undefined;
+          const pkg = specifier.startsWith('@sys/')
+            ? specifier.split('/').slice(0, 2).join('/')
+            : undefined;
           if (!pkg) return undefined;
           const current = repoImports.imports[specifier];
           const match = current.match(/@(\d+\.\d+\.\d+)/);
-          return match ? [pkg, match[1]] as const : undefined;
+          return match ? ([pkg, match[1]] as const) : undefined;
         })
         .filter((entry): entry is readonly [string, string] => !!entry),
     );

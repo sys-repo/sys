@@ -10,6 +10,7 @@ import {
   syncTemplatePackage,
   writeIfChanged,
 } from './-prep.u.ts';
+import { DenoFile } from '@sys/driver-deno/runtime';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
@@ -26,7 +27,12 @@ async function main() {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
-  const versions = await resolvePublishedPackageVersions(repoImportMap, PublishedVersion);
+  const versions = await resolvePublishedPackageVersions(
+    repoImportMap,
+    PublishedVersion,
+    path.rootDenoJson,
+    DenoFile,
+  );
 
   const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);

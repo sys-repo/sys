@@ -18,6 +18,9 @@ export async function filterModules(
 async function filterAhead(module: Module): Promise<Module | undefined> {
   const res = await Jsr.Fetch.Pkg.versions(module.name);
   if (!res.ok) {
+    if (res.status === 404 || res.error?.status === 404 || res.error?.cause?.status === 404) {
+      return module;
+    }
     const cause = res.error;
     throw Err.std(`Failed to fetch JSR package versions: ${module.name}`, { cause });
   }

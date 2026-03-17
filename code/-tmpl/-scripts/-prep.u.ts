@@ -1,7 +1,8 @@
 import type { DenoFileLib } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import { Jsr } from '@sys/jsr/client';
-import { Is, Json, Time } from '@sys/std';
+import { c } from '@sys/cli';
+import { Is, Json, Str, Time } from '@sys/std';
 import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
@@ -16,8 +17,11 @@ export type PrepPaths = {
 };
 
 export type DenoFileVersionLib = Pick<DenoFileLib, 'workspaceVersion'>;
+export type PublishedPackageVersion =
+  | { kind: 'published'; version: string }
+  | { kind: 'unpublished' };
 export type PublishedPackageVersionLib = {
-  latestVersion(pkg: string): Promise<string | undefined>;
+  latestVersion(pkg: string): Promise<PublishedPackageVersion>;
 };
 
 export const PATH = {
@@ -137,6 +141,8 @@ export async function resolvePackageVersions(
 export async function resolvePublishedPackageVersions(
   imports: ImportMap,
   published: PublishedPackageVersionLib,
+  rootDenoJson: string,
+  denoFile: DenoFileVersionLib,
 ): Promise<PackageVersions> {
   const pkgs = [
     ...new Set(
@@ -148,10 +154,20 @@ export async function resolvePublishedPackageVersions(
 
   const entries = await Promise.all(
     pkgs.map(async (pkg) => {
-      const version = await published.latestVersion(pkg);
-      if (!Is.str(version)) {
-        throw new Error(`Missing published version authority for package "${pkg}"`);
+      const result = await published.latestVersion(pkg);
+      if (result.kind === 'published') {
+        return [pkg, result.version] as const;
       }
+
+      const version = await denoFile.workspaceVersion(pkg, rootDenoJson, { walkup: false });
+      if (!Is.str(version)) {
+        throw new Error(`Missing workspace version authority for package "${pkg}": ${rootDenoJson}`);
+      }
+
+      console.info(Str.dedent(`
+        ${c.gray('notice')}  ${c.yellow(`"${pkg}"`)} ${c.gray('is not yet published on JSR; using local workspace version')} ${c.green(version)} ${c.gray('(expected transient state before first publish).')}
+      `));
+
       return [pkg, version] as const;
     }),
   );
@@ -167,13 +183,17 @@ export const PublishedVersion: PublishedPackageVersionLib = {
       try {
         const res = await Jsr.Fetch.Pkg.versions(pkg);
         const latest = res.data?.latest;
-        if (res.ok && Is.str(latest)) return latest;
-      } catch {
+        if (res.ok && Is.str(latest)) return { kind: 'published', version: latest };
+
+        if (res.status === 404) return { kind: 'unpublished' };
+      } catch (error) {
+        const e = error as { status?: number; cause?: { status?: number } };
+        if (e.status === 404 || e.cause?.status === 404) return { kind: 'unpublished' };
         // retry
       }
     }
 
-    return undefined;
+    throw new Error(`Failed to fetch JSR package versions: ${pkg}`);
   },
 };
 
