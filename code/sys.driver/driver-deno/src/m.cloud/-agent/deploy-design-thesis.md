@@ -152,23 +152,14 @@ This is contract design work now, not rescue work.
 
 ## Future Note
 
-Deploy log access should be pulled under the same owned contract.
+Future deploy-operations follow-ups now live in:
 
-Rather than depending directly on `deno deploy logs`, we should add a proper
-API-backed log path that:
+- `./after.md`
 
-- uses the existing deploy token/org/app information from the external deploy
-  env surface
-- keeps log access structured and scriptable
-- avoids accidental config pollution or interactive re-auth flows from ad hoc
-  CLI usage
+That includes:
 
-Until that exists, any native deploy CLI usage should go through one owned
-helper surface with explicit `cwd` and explicit `--config`. Direct package-root
-`deno deploy*` usage should be treated as unsafe.
-
-This is a future deploy-operations task, not part of the core runtime entry
-contract.
+- owned API-backed deploy log access
+- JSR / `file:` URL guard helper follow-up
 
 ## End State
 
