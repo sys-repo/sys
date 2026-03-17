@@ -242,6 +242,21 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.httpStatus', () => {
+    it('Is.httpStatus: true', () => {
+      expect(Is.httpStatus({ status: 404 }, 404)).to.eql(true);
+      expect(Is.httpStatus({ cause: { status: 404 } }, 404)).to.eql(true);
+      expect(Is.httpStatus({ cause: { cause: { status: 404 } } }, 404)).to.eql(true);
+    });
+
+    it('Is.httpStatus: false', () => {
+      const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+      NON.forEach((v: any) => expect(Is.httpStatus(v, 404)).to.eql(false));
+      expect(Is.httpStatus({ status: 500 }, 404)).to.eql(false);
+      expect(Is.httpStatus({ status: '404' }, 404)).to.eql(false);
+    });
+  });
+
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
       const disposable = Rx.disposable();

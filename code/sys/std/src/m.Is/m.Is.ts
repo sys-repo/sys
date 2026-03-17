@@ -153,6 +153,13 @@ export const Is: StdIsLib = {
     return String(input)[0] === '2';
   },
 
+  httpStatus(input, status) {
+    if (!isObject(input)) return false;
+    const current = input as { status?: unknown; cause?: unknown };
+    if (current.status === status) return true;
+    return Is.httpStatus(current.cause, status);
+  },
+
   /**
    * Determine if currently running within a web-worker.
    */
