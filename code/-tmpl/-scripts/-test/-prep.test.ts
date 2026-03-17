@@ -1,6 +1,7 @@
 import {
   assertImportMap,
   readJson,
+  resolvePublishedPackageVersions,
   resolvePackageVersions,
   syncByKey,
   syncTemplateImports,
@@ -30,9 +31,6 @@ describe('prep.u', () => {
     };
     const authority = {
       imports: {
-        '@sys/fs': 'jsr:@sys/fs@0.0.243',
-        '@sys/std': 'jsr:@sys/std@0.0.300',
-        '@sys/std/async': 'jsr:@sys/std@0.0.300/async',
         '@sys/testing/server': 'jsr:@sys/testing@0.0.234/server',
       },
     };
@@ -73,6 +71,7 @@ describe('prep.u', () => {
       },
     };
     const versions = {
+      '@sys/driver-vite': '0.0.297',
       '@sys/http': '0.0.210',
       '@sys/ui-css': '0.0.231',
       '@sys/ui-dom': '0.0.237',
@@ -166,6 +165,50 @@ describe('prep.u', () => {
     ]);
   });
 
+  it('resolvePublishedPackageVersions → reads latest published versions from authority', async () => {
+    const imports = {
+      imports: {
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+      },
+    };
+    const calls: string[] = [];
+    const published = {
+      latestVersion(name: string) {
+        calls.push(name);
+        if (name === '@sys/fs') return Promise.resolve('0.0.243');
+        if (name === '@sys/tmpl') return Promise.resolve('0.0.259');
+        return Promise.resolve(undefined);
+      },
+    };
+
+    const res = await resolvePublishedPackageVersions(imports, published);
+
+    expect(res).to.eql({
+      '@sys/fs': '0.0.243',
+      '@sys/tmpl': '0.0.259',
+    });
+    expect(calls).to.eql(['@sys/fs', '@sys/tmpl']);
+  });
+
+  it('resolvePublishedPackageVersions → throws when published authority is missing', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const published = {
+      latestVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    try {
+      await resolvePublishedPackageVersions(imports, published);
+      throw new Error('Expected resolvePublishedPackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql(
+        'Missing published version authority for package "@sys/fs"',
+      );
+    }
+  });
+
   it('resolvePackageVersions → throws when workspace authority is missing', async () => {
     const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
     const denoFile = {
@@ -202,9 +245,19 @@ describe('prep.u', () => {
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
     const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
-    const versions = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
+    const currentVersions = Object.fromEntries(
+      Object.keys(repoImports.imports)
+        .map((specifier) => {
+          const pkg = specifier.startsWith('@sys/') ? specifier.split('/').slice(0, 2).join('/') : undefined;
+          if (!pkg) return undefined;
+          const current = repoImports.imports[specifier];
+          const match = current.match(/@(\d+\.\d+\.\d+)/);
+          return match ? [pkg, match[1]] as const : undefined;
+        })
+        .filter((entry): entry is readonly [string, string] => !!entry),
+    );
 
-    const syncedImports = syncTemplateImports(repoImports, rootImports, versions);
+    const syncedImports = syncTemplateImports(repoImports, rootImports, currentVersions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
 
     expect(syncedImports.imports).to.eql(repoImports.imports);

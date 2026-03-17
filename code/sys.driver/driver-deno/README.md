@@ -1,4 +1,7 @@
 # Deno Driver
+A standardized `@sys` workspace remains a real workspace all the way to live
+deployment.
+
 Tools for working with the [Deno Runtime](https://docs.deno.com/runtime/) and
 Deno cloud platform surfaces.
 

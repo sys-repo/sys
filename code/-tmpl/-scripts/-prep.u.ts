@@ -1,6 +1,7 @@
 import type { DenoFileLib } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
-import { Is, Json } from '@sys/std';
+import { Jsr } from '@sys/jsr/client';
+import { Is, Json, Time } from '@sys/std';
 import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
@@ -15,6 +16,9 @@ export type PrepPaths = {
 };
 
 export type DenoFileVersionLib = Pick<DenoFileLib, 'workspaceVersion'>;
+export type PublishedPackageVersionLib = {
+  latestVersion(pkg: string): Promise<string | undefined>;
+};
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {
@@ -130,23 +134,65 @@ export async function resolvePackageVersions(
   return Object.fromEntries(entries);
 }
 
+export async function resolvePublishedPackageVersions(
+  imports: ImportMap,
+  published: PublishedPackageVersionLib,
+): Promise<PackageVersions> {
+  const pkgs = [
+    ...new Set(
+      Object.keys(imports.imports)
+        .map(sysPackageName)
+        .filter((pkg): pkg is string => Is.str(pkg)),
+    ),
+  ];
+
+  const entries = await Promise.all(
+    pkgs.map(async (pkg) => {
+      const version = await published.latestVersion(pkg);
+      if (!Is.str(version)) {
+        throw new Error(`Missing published version authority for package "${pkg}"`);
+      }
+      return [pkg, version] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries);
+}
+
+export const PublishedVersion: PublishedPackageVersionLib = {
+  async latestVersion(pkg) {
+    for (const delay of [0, 500, 1_000] as const) {
+      if (delay > 0) await Time.wait(delay);
+
+      try {
+        const res = await Jsr.Fetch.Pkg.versions(pkg);
+        const latest = res.data?.latest;
+        if (res.ok && Is.str(latest)) return latest;
+      } catch {
+        // retry
+      }
+    }
+
+    return undefined;
+  },
+};
+
 function resolveImportValue(
   key: string,
   authorityImports: KeyValueMap,
   packageVersions: PackageVersions,
 ): string {
+  const pkg = sysPackageName(key);
+  if (pkg) {
+    const version = packageVersions[pkg];
+    if (typeof version !== 'string') {
+      throw new Error(`Missing version authority for package "${pkg}"`);
+    }
+    return `jsr:${pkg}@${version}${key.slice(pkg.length)}`;
+  }
+
   const fromRoot = authorityImports[key];
   if (typeof fromRoot === 'string') return fromRoot;
 
-  const pkg = sysPackageName(key);
-  if (!pkg) {
-    throw new Error(`Missing import "${key}" in root imports.json`);
-  }
-
-  const version = packageVersions[pkg];
-  if (typeof version !== 'string') {
-    throw new Error(`Missing version authority for package "${pkg}"`);
-  }
-
-  return `jsr:${pkg}@${version}${key.slice(pkg.length)}`;
+  throw new Error(`Missing import "${key}" in root imports.json`);
 }

@@ -1,11 +1,11 @@
 import { Fs } from '@sys/fs';
-import { DenoFile } from '@sys/driver-deno/runtime';
 import type * as t from '@sys/types';
 import {
   PATH,
+  PublishedVersion,
   assertImportMap,
   readJson,
-  resolvePackageVersions,
+  resolvePublishedPackageVersions,
   syncTemplateImports,
   syncTemplatePackage,
   writeIfChanged,
@@ -26,7 +26,7 @@ async function main() {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
-  const versions = await resolvePackageVersions(path.rootDenoJson, repoImportMap, DenoFile);
+  const versions = await resolvePublishedPackageVersions(repoImportMap, PublishedVersion);
 
   const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
