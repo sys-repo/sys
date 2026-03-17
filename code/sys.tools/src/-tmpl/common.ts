@@ -5,4 +5,4 @@ export const D = {
     source: 'src/',
     target: 'src/-tmpl/bundle/-bundle.json',
   },
-};
+} as const;
