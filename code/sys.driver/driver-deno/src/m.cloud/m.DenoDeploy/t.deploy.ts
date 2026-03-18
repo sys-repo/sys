@@ -49,20 +49,15 @@ export type Info = {
  */
 export type Result =
   /** Deploy completed successfully. */
-  | {
-      readonly ok: true;
-      readonly code: number;
-      readonly stdout: string;
-      readonly stderr: string;
-      readonly deploy?: Info;
-    }
+  | ({ readonly ok: true } & NativeResult)
   /** Deploy failed with a native process result. */
-  | {
-      readonly ok: false;
-      readonly code: number;
-      readonly stdout: string;
-      readonly stderr: string;
-      readonly deploy?: Info;
-    }
+  | ({ readonly ok: false } & NativeResult)
   /** Deploy failed before a process result was produced. */
   | { readonly ok: false; readonly error: unknown };
+
+type NativeResult = {
+  readonly code: number;
+  readonly stdout: string;
+  readonly stderr: string;
+  readonly deploy?: Info;
+};
