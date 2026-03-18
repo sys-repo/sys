@@ -1,12 +1,9 @@
-import { describe, expect, Fs, it } from '../../../../-test.ts';
-import { DenoDeploy } from '../../mod.ts';
-import { createDeployableRepoPkg } from '../../-test.external/u.fixture.ts';
+import { type t, describe, Esm, expect, Fs, it } from '../../../../-test.ts';
 import { prepare } from '../u.prepare.ts';
 
 describe('DenoDeploy.pipeline.prepare', () => {
   it('prepares a staged deploy root for the generated entry pair', async () => {
-    const { pkgDir } = await createDeployableRepoPkg();
-    const stage = await DenoDeploy.stage({ target: { dir: pkgDir } });
+    const stage = await createStageFixture();
     const res = await prepare(stage);
 
     expect(res.stagedDir).to.eql(stage.root);
@@ -33,3 +30,32 @@ describe('DenoDeploy.pipeline.prepare', () => {
     expect(gitignore).to.include('!code/projects/foo/dist/**');
   });
 });
+
+async function createStageFixture(): Promise<t.DenoDeploy.Stage.Result> {
+  const workspaceDir = (await Fs.makeTempDir({ prefix: 'driver-deno.pipeline.workspace.' }))
+    .absolute as t.StringDir;
+  const root = (await Fs.makeTempDir({ prefix: 'driver-deno.pipeline.stage.' })).absolute as t.StringDir;
+  const targetDir = Fs.join(workspaceDir, 'code', 'projects', 'foo') as t.StringDir;
+  const entry = Fs.join(root, 'entry.ts') as t.StringPath;
+
+  await Fs.ensureDir(targetDir);
+  await Fs.ensureDir(Fs.join(root, 'src', 'm.server'));
+  await Fs.writeJson(Fs.join(root, 'deno.json'), {});
+  await Fs.write(Fs.join(root, '.gitignore'), 'dist/\n');
+  await Fs.write(entry, '// staged entry\n');
+
+  const workspace: t.DenoWorkspace = {
+    exists: true,
+    dir: workspaceDir,
+    file: Fs.join(workspaceDir, 'deno.json') as t.StringPath,
+    children: [],
+    modules: Esm.Modules.create(),
+  };
+
+  return {
+    target: { dir: targetDir },
+    workspace,
+    root,
+    entry,
+  };
+}
