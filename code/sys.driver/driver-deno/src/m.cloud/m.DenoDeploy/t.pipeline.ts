@@ -6,6 +6,17 @@ import type * as s from './t.stage.ts';
 export type DeployConfig = Omit<d.Request, 'stage' | 'silent'>;
 
 /**
+ * Observable staged deploy handle.
+ */
+export type Handle = t.Lifecycle & {
+  /** Observable stream of pipeline steps. */
+  readonly $: t.Observable<Step>;
+
+  /** Execute the staged deploy pipeline. */
+  run(): Promise<Result>;
+};
+
+/**
  * Optional post-deploy verification passes.
  */
 export type Verify = {
@@ -93,15 +104,4 @@ export type Result = {
 
   /** Successful native deploy result. */
   readonly deploy: Extract<d.Result, { readonly ok: true }>;
-};
-
-/**
- * Observable staged deploy handle.
- */
-export type Handle = t.Lifecycle & {
-  /** Observable stream of pipeline steps. */
-  readonly $: t.Observable<Step>;
-
-  /** Execute the staged deploy pipeline. */
-  run(): Promise<Result>;
 };

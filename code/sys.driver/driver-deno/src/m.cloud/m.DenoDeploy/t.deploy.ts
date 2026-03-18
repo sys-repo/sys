@@ -38,10 +38,7 @@ export type Request = {
  */
 export type Info = {
   /** Deploy URLs parsed as one coherent set. */
-  readonly url?: {
-    readonly revision: t.StringUrl;
-    readonly preview: t.StringUrl;
-  };
+  readonly url?: { readonly revision: t.StringUrl; readonly preview: t.StringUrl };
 };
 
 /**
