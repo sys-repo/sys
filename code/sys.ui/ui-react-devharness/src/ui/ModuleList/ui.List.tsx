@@ -51,6 +51,7 @@ export const List: React.FC<ListProps> = (props) => {
       opacity: 0.4,
       display: 'grid',
       placeItems: 'center',
+      userSelect: 'none',
     }),
   };
 
