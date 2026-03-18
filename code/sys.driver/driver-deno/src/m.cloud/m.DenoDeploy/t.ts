@@ -1,4 +1,7 @@
 import type { t } from './common.ts';
+import type * as d from './t.deploy.ts';
+import type * as p from './t.pipeline.ts';
+import type * as s from './t.stage.ts';
 
 /**
  * Tools for staging and deploying workspace targets to Deno Deploy.
@@ -16,6 +19,9 @@ export declare namespace DenoDeploy {
 
     /** Deploy a previously staged artifact to Deno Deploy. */
     deploy(request: Deploy.Request): Promise<Deploy.Result>;
+
+    /** Construct a staged deploy pipeline for a selected workspace package. */
+    pipeline(request: Pipeline.Request): Pipeline.Handle;
   };
 
   /** Selected workspace target to stage for deployment. */
@@ -32,117 +38,27 @@ export declare namespace DenoDeploy {
    * returns the artifact that deploy consumes.
    */
   export namespace Stage {
-    /** Ownership model for the staging root: `temp` is driver-owned, `path` is caller-owned. */
-    export type Root =
-      | {
-          /** Driver-owned temporary staging root. */
-          readonly kind: 'temp';
-        }
-      | {
-          /** Caller-owned staging root path. */
-          readonly kind: 'path';
-          /** Directory to use as the staging root. */
-          readonly dir: t.StringDir;
-        };
-
-    /** Request to stage and build a selected workspace target. */
-    export type Request = {
-      /** Workspace target to materialize for deployment. */
-      readonly target: DenoDeploy.Target;
-
-      /** Optional staging root policy; when omitted, the driver chooses the default strategy. */
-      readonly root?: Root;
-    };
-
-    /** Resolved staged artifact bridging workspace resolution to downstream deploy. */
-    export type Result = {
-      /** Target that was selected for staging. */
-      readonly target: DenoDeploy.Target;
-
-      /** Resolved workspace context used during staging. */
-      readonly workspace: t.DenoWorkspace;
-
-      /** Root directory of the staged deployable artifact. */
-      readonly root: t.StringDir;
-
-      /** Deploy entry path inside the staged root. */
-      readonly entry: t.StringPath;
-    };
+    export type Root = s.Root;
+    export type Request = s.Request;
+    export type Result = s.Result;
   }
 
   /** Deploy execution contracts. */
   export namespace Deploy {
-    /** Request to deploy a staged artifact. */
-    export type Request = {
-      /** Previously staged deploy artifact to deploy. */
-      readonly stage: DenoDeploy.Stage.Result;
+    export type Request = d.Request;
+    export type Result = d.Result;
+  }
 
-      /** Deno Deploy application name. */
-      readonly app: string;
+  /** Shared deploy execution settings reused across higher-level orchestration. */
+  export type DeployConfig = p.DeployConfig;
 
-      /** Optional Deno Deploy organization name. */
-      readonly org?: string;
-
-      /** Optional auth token for Deno Deploy. */
-      readonly token?: string;
-
-      /** Optional Deno config path to pass through to the native CLI. */
-      readonly config?: t.StringPath;
-
-      /** Deploy directly to production when true. */
-      readonly prod?: boolean;
-
-      /** Allow node_modules to be uploaded when true. */
-      readonly allowNodeModules?: boolean;
-
-      /** Skip waiting for the remote build to complete when true. */
-      readonly noWait?: boolean;
-
-      /** Suppress native CLI output when true. */
-      readonly silent?: boolean;
-    };
-
-    /** Outcome of a deploy attempt. */
-    export type Result =
-      | {
-          /** Deploy completed successfully. */
-          readonly ok: true;
-          /** Native process exit code. */
-          readonly code: number;
-          /** Captured process stdout. */
-          readonly stdout: string;
-          /** Captured process stderr. */
-          readonly stderr: string;
-          /** Deno Deploy build details parsed from native output when available. */
-          readonly deploy?: {
-            /** Build URL in the Deno Deploy console. */
-            readonly revisionUrl?: string;
-            /** Preview URL emitted by the deploy. */
-            readonly previewUrl?: string;
-          };
-        }
-      | {
-          /** Deploy failed. */
-          readonly ok: false;
-          /** Native process exit code when available. */
-          readonly code: number;
-          /** Captured process stdout when available. */
-          readonly stdout: string;
-          /** Captured process stderr when available. */
-          readonly stderr: string;
-          /** Deno Deploy build details parsed from native output when available. */
-          readonly deploy?: {
-            /** Build URL in the Deno Deploy console. */
-            readonly revisionUrl?: string;
-            /** Preview URL emitted by the deploy. */
-            readonly previewUrl?: string;
-          };
-        }
-      | {
-          /** Deploy failed before a process result was produced. */
-          readonly ok: false;
-          /** Underlying deploy error. */
-          readonly error: unknown;
-        };
+  /** Staged deploy orchestration contracts. */
+  export namespace Pipeline {
+    export type Verify = p.Verify;
+    export type Request = p.Request;
+    export type Prepared = p.Prepared;
+    export type Step = p.Step;
+    export type Result = p.Result;
+    export type Handle = p.Handle;
   }
 }
