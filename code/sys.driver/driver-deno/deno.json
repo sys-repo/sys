@@ -8,7 +8,8 @@
     "prep": "deno run -P=prep ./-scripts/task.prep.ts",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/task.clean.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
