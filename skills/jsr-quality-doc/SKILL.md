@@ -88,6 +88,11 @@ Read all relevant sources before writing:
    - Add or refine README or module-doc examples when the live score indicates the package needs one.
    - Prefer single-line docs when one line is enough.
    - Use longer docs only when the extra detail materially improves correctness or usability.
+   - Match the local doc shape instead of mixing styles ad hoc:
+     - use multiline `/** */` blocks on the local hierarchy anchor: the main named object type at that module or namespace level
+     - do not promote every object-with-fields into a multiline doc block just because it has properties
+     - discriminated unions document the meaning of each variant, not every obvious field
+     - trivial fields stay undocumented unless the field meaning is non-obvious or contract-critical
 
 6. Re-read every touched doc for elegance.
    - Remove filler.
@@ -127,6 +132,24 @@ Avoid:
 - long multi-sentence blur
 - repeated restatement of the symbol name
 - comments written only to silence the score page
+
+## Doc Shape
+Use the smallest doc shape that still carries the real meaning:
+
+- Single-line JSDoc is the default for small symbols when one sharp sentence is enough.
+- Multiline JSDoc marks the local hierarchy anchor:
+  - the main named object type at that module or namespace level
+  - the thing that introduces the local contract shape
+  - not every nested object with fields
+- For discriminated unions:
+  - document the union itself briefly when needed
+  - document each variant with a terse variant-level description
+  - do not narrate every field unless a field carries non-obvious semantics
+- For object types:
+  - document the anchor type/block first
+  - only document fields that add real contract meaning beyond the field name and type
+
+The goal is not maximal comment coverage. The goal is a surface that scans cleanly and still tells the truth.
 
 ## BMIND Rules ("Beginners Mind")
 When documenting a symbol:
