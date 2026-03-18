@@ -5,6 +5,7 @@ export { Http } from '@sys/http/client';
 export { Jsr } from '@sys/jsr';
 export { Process } from '@sys/process';
 export { Args, Delete, Err, Is, Json, Obj, Path, slug, Str } from '@sys/std';
+export { Schedule } from '@sys/std/async';
 export { Esm } from '@sys/std/esm';
 export { Ignore } from '@sys/std/ignore';
 export { Rx } from '@sys/std/rx';

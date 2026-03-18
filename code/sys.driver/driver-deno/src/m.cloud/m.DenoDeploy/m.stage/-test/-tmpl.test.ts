@@ -7,7 +7,6 @@ import {
   it,
   pkg,
   slug,
-  Str,
 } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { DenoFile, TmplEngine } from '../common.ts';
@@ -32,6 +31,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(res.entry).to.include(`const cwd = Fs.Path.fromFileUrl(new URL('.', import.meta.url));`);
     expect(res.entry).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     expect(res.entryPaths).to.eql(`export const targetDir = './code/projects/foo';\n`);
+    expect(res.compatEntrypoint).to.eql(
+      `export { default } from '../../entry.ts';\nexport * from '../../entry.ts';\n`,
+    );
   });
 
   it('stages a generated tmpl repo/package workspace target into a temp root', async () => {
