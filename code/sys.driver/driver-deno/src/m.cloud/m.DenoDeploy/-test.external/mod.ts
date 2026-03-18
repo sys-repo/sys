@@ -15,7 +15,7 @@ if (!loadExternalDeployEnv()) {
 const denoJson = await snapshotPackageDenoJson();
 
 try {
-  await import('./-run.deploy-staged.ts');
+  await import('./-run.pipeline.ts');
 } finally {
   await restorePackageDenoJsonIfPolluted(denoJson);
 }

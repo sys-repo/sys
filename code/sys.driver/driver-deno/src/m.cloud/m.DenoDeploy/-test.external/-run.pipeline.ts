@@ -2,8 +2,9 @@ import { DenoDeploy } from '../mod.ts';
 import { describe, it } from './common.ts';
 import { assertStageUsesGeneratedRootEntry } from './u.assert.ts';
 import { printExternalDeployInfo, requireDeployEnv } from './u.env.ts';
-import * as fixture from './u.fixture.ts';
 import { printDeployResult } from './u.report.ts';
+
+import * as fixture from './u.fixture.ts';
 
 describe('DenoDeploy.pipeline (external staged)', () => {
   it('prints the external DenoDeploy config', () => printExternalDeployInfo());
