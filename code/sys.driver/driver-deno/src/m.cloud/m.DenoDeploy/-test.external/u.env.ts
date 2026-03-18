@@ -1,6 +1,6 @@
 import { c, stripAnsi } from './common.ts';
-import { loadDeployEnv, printDeployEnvGuidance, toDeployEnvNotes, type DeployEnv } from '../u.env.ts';
-import { Fmt } from '../../u.fmt.ts';
+import { loadDeployEnv, printDeployEnvGuidance, toDeployEnvNotes, type DeployEnv } from '../m.deploy/u.env.ts';
+import { Fmt } from '../u.fmt.ts';
 
 type ExternalDeployEnv = DeployEnv & { readonly app: string };
 

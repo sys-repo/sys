@@ -1,4 +1,4 @@
-import { DenoDeploy } from '../../mod.ts';
+import { DenoDeploy } from '../mod.ts';
 import { c } from './common.ts';
 
 type DeployResult = Extract<Awaited<ReturnType<typeof DenoDeploy.deploy>>, { ok: true }>;

@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { DeployCli } from '../../u.cli/mod.ts';
-import { createDeployableRepoPkg, prepareStageForExistingApp } from '../-test.external/u.fixture.ts';
+import { createDeployableRepoPkg, prepareStageForExistingApp } from '../../-test.external/u.fixture.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
   it('builds native deno deploy cli invocation from a staged artifact', () => {

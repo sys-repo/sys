@@ -1,7 +1,7 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
 import { type t, Fs, Path, Str } from './common.ts';
-import { Fmt } from '../../u.fmt.ts';
+import { Fmt } from '../u.fmt.ts';
 
 export async function createDeployableRepoPkg(): Promise<{
   readonly root: t.StringDir;

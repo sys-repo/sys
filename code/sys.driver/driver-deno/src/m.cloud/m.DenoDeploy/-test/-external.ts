@@ -1,6 +1,6 @@
 /**
  * External test lane aggregator for `DenoDeploy`.
  *
- * Keep per-method external scenarios in their method folders and import them here.
+ * Keep top-level external proof lanes adjacent to `m.DenoDeploy` and import them here.
  */
-import '../m.deploy/-test.external/mod.ts';
+import '../-test.external/mod.ts';

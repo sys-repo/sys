@@ -1,4 +1,4 @@
-import { DenoDeploy } from '../../mod.ts';
+import { DenoDeploy } from '../mod.ts';
 import { describe, it } from './common.ts';
 import { assertPreviewServesBuiltApp, assertStageUsesGeneratedRootEntry } from './u.assert.ts';
 import { printExternalDeployInfo, requireDeployEnv, toDeployFailure } from './u.env.ts';
