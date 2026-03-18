@@ -1,4 +1,4 @@
-import { c, stripAnsi } from './common.ts';
+import { type t, c, stripAnsi } from './common.ts';
 import { loadDeployEnv, printDeployEnvGuidance, toDeployEnvNotes, type DeployEnv } from '../m.deploy/u.env.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -30,6 +30,15 @@ export function requireDeployEnv(): ExternalDeployEnv {
 
   printExternalDeployEnvGuidance();
   throw new Error('Missing DENO_DEPLOY_APP for external Deno Deploy coverage. See guidance above.');
+}
+
+export function requireDeployConfig(): t.DenoDeploy.DeployConfig {
+  const deployEnv = requireDeployEnv();
+  return {
+    app: deployEnv.app,
+    ...(deployEnv.org ? { org: deployEnv.org } : {}),
+    ...(deployEnv.token ? { token: deployEnv.token } : {}),
+  };
 }
 
 export function printExternalDeployInfo() {
