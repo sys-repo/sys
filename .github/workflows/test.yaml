@@ -56,8 +56,6 @@ jobs:
             path: code/sys/text
           - name: "@sys/tmpl-engine"
             path: code/sys/tmpl-engine
-          - name: "@sys/skills"
-            path: code/sys/skills
           - name: "@sys/model"
             path: code/sys.model/model
           - name: "@sys/model-slug"
@@ -106,6 +104,8 @@ jobs:
             path: code/sys.tools
           - name: "@sys/dev"
             path: code/sys.dev
+          - name: "@sys/skills"
+            path: code/sys/skills
           - name: "@sys/crdt"
             path: code/sys/crdt
     steps:

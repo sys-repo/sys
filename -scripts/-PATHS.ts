@@ -12,15 +12,8 @@ export const Paths = {
     return Paths.all;
   },
   single: [
-    // 'code/sys/jsr',
-    // 'code/sys.ui/ui-dom',
-    // 'code/sys.driver/driver-signer',
     'code/sys.driver/driver-vite',
     //
-    // 'deploy/@tdb.edu.slug',
-    // 'code/sys.tools',
-    // 'code/-tmpl',
-    // 'code/sys.tools',
   ],
   all: [
     /** types: */
@@ -49,7 +42,6 @@ export const Paths = {
 
     'code/sys/text',
     'code/sys/tmpl-engine',
-    'code/sys/skills',
 
     /**
      * sys.model:
@@ -99,6 +91,7 @@ export const Paths = {
      * Curated (named) entry points and
      * higher-order bundles of system functionality:
      */
+    'code/sys/skills',
     'code/sys/crdt',
   ],
 } as const;
