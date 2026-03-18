@@ -68,9 +68,9 @@ export async function main(options: Options = {}) {
   });
 
   const commit = versionFilter === 'ahead'
-    ? 'chore(ci): refresh ahead-only workflow generation'
-    : 'chore(ci): refresh workflow generation';
+    ? c.italic(`${c.yellow('chore(ci): refresh ')}${c.white('ahead-only')}${c.yellow(' workflow generation')}`)
+    : c.italic(c.yellow('chore(ci): refresh workflow generation'));
   console.info();
-  console.info(c.gray('  commit msg:'), c.italic(c.yellow(commit)));
+  console.info(c.gray('  commit msg:'), commit);
   console.info();
 }
