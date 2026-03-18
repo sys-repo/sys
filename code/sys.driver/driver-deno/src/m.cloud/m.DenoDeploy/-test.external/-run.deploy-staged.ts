@@ -30,9 +30,9 @@ describe('DenoDeploy.deploy (external staged)', () => {
     }
 
     printDeployResult(result);
-    if (!result.deploy?.previewUrl) {
-      throw new Error('Expected DenoDeploy.deploy to return previewUrl.');
+    if (!result.deploy?.url?.preview) {
+      throw new Error('Expected DenoDeploy.deploy to return deploy.url.preview.');
     }
-    await assertPreviewServesBuiltApp(result.deploy.previewUrl);
+    await assertPreviewServesBuiltApp(result.deploy.url.preview);
   });
 });

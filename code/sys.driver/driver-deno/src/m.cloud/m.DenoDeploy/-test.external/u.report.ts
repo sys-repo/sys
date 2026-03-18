@@ -18,7 +18,7 @@ export function printDeployEndpoints(result: DeployResult) {
   };
 
   console.info(c.gray('Endpoints:'));
-  if (result.deploy?.revisionUrl) row('revision', result.deploy.revisionUrl);
-  if (result.deploy?.previewUrl) row('preview', result.deploy.previewUrl);
+  if (result.deploy?.url?.revision) row('revision', result.deploy.url.revision);
+  if (result.deploy?.url?.preview) row('preview', result.deploy.url.preview);
   console.info();
 }

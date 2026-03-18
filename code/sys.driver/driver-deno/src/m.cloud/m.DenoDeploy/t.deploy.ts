@@ -34,6 +34,17 @@ export type Request = {
 };
 
 /**
+ * Parsed deploy information emitted from native Deno Deploy output.
+ */
+export type Info = {
+  /** Deploy URLs parsed as one coherent set. */
+  readonly url?: {
+    readonly revision: t.StringUrl;
+    readonly preview: t.StringUrl;
+  };
+};
+
+/**
  * Outcome of a deploy attempt.
  */
 export type Result =
@@ -43,7 +54,7 @@ export type Result =
       readonly code: number;
       readonly stdout: string;
       readonly stderr: string;
-      readonly deploy?: { readonly revisionUrl?: string; readonly previewUrl?: string };
+      readonly deploy?: Info;
     }
   /** Deploy failed with a native process result. */
   | {
@@ -51,7 +62,7 @@ export type Result =
       readonly code: number;
       readonly stdout: string;
       readonly stderr: string;
-      readonly deploy?: { readonly revisionUrl?: string; readonly previewUrl?: string };
+      readonly deploy?: Info;
     }
   /** Deploy failed before a process result was produced. */
   | { readonly ok: false; readonly error: unknown };

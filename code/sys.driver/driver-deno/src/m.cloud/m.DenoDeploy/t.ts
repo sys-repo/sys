@@ -45,6 +45,7 @@ export declare namespace DenoDeploy {
 
   /** Deploy execution contracts. */
   export namespace Deploy {
+    export type Info = d.Info;
     export type Request = d.Request;
     export type Result = d.Result;
   }
