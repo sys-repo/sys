@@ -1,4 +1,8 @@
-import { type t, Rx } from './common.ts';
+import { type t, Rx, Str } from './common.ts';
+import { deploy } from '../m.deploy/mod.ts';
+import { stage } from '../m.stage/mod.ts';
+import { prepare } from './u.prepare.ts';
+import { verifyPreview } from './u.verify.ts';
 
 export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
   const life = Rx.abortable();
@@ -9,9 +13,64 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
     $,
 
     async run() {
-      throw new Error(
-        `DenoDeploy.pipeline: not implemented yet for ${request.pkgDir}. Extract the proven staged deploy flow next.`,
-      );
+      $$.next({ kind: 'stage:start', pkgDir: request.pkgDir });
+      const staged = await stage({ target: { dir: request.pkgDir } });
+      $$.next({ kind: 'stage:done', stage: staged });
+
+      $$.next({ kind: 'prepare:start', stage: staged });
+      const prepared = await prepare(staged);
+      $$.next({ kind: 'prepare:done', stage: staged, prepared });
+
+      $$.next({ kind: 'deploy:start', stage: staged, config: request.config });
+      const result = await deploy({
+        stage: staged,
+        ...request.config,
+        silent: request.silent,
+      });
+
+      if (!result.ok) {
+        if ('error' in result) throw result.error;
+        throw new Error(wrangle.deployFailure(result));
+      }
+
+      $$.next({ kind: 'deploy:done', result });
+
+      const preview = result.deploy?.url?.preview;
+      if (request.verify?.preview === true) {
+        if (!preview) {
+          throw new Error('DenoDeploy.pipeline: verify.preview requires deploy.url.preview.');
+        }
+        $$.next({ kind: 'verify:start', previewUrl: preview });
+        await verifyPreview(preview);
+        $$.next({ kind: 'verify:done', previewUrl: preview });
+      }
+
+      return {
+        stage: staged,
+        prepared,
+        deploy: result,
+      };
     },
   });
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  deployFailure(input: {
+    readonly code: number;
+    readonly stdout: string;
+    readonly stderr: string;
+  }) {
+    return Str.dedent(`
+      DenoDeploy.pipeline: deploy failed (code ${input.code}).
+
+      stdout:
+      ${input.stdout}
+
+      stderr:
+      ${input.stderr}
+    `);
+  },
+} as const;

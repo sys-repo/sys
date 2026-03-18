@@ -5,6 +5,12 @@
 import { Fs, Args, TmplEngine } from '../common.ts';
 export { renderStageEntrypoints } from './-bundle.ts';
 
+export const FILE = {
+  entry: 'entry.ts',
+  entryPaths: 'entry.paths.ts',
+  compatEntrypoint: 'src/m.server/main.ts',
+} as const;
+
 export const PATHS = resolvePaths(import.meta.url);
 
 export async function makeBundle() {
