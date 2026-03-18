@@ -1,4 +1,4 @@
-# @sys/skills
+# 🧩 @sys/skills
 
 `@sys/skills` is a JSR package for publishing bundled Agent Skill artifacts as versioned library data.
 
