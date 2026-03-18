@@ -1,6 +1,7 @@
 import { MonorepoCi as Ci } from '../code/sys/monorepo/src/m.ci/mod.ts';
 import type { MonorepoCi } from '../code/sys/monorepo/src/m.ci/t.ts';
 import { Paths } from './-PATHS.ts';
+import { c } from './common.ts';
 
 type Options = {
   versionFilter?: MonorepoCi.Jsr.VersionFilter;
@@ -65,4 +66,11 @@ export async function main(options: Options = {}) {
     source: { paths: Paths.modules },
     target: testTarget,
   });
+
+  const commit = versionFilter === 'ahead'
+    ? 'chore(ci): refresh ahead-only workflow generation'
+    : 'chore(ci): refresh workflow generation';
+  console.info();
+  console.info(c.gray('  commit msg:'), c.italic(c.yellow(commit)));
+  console.info();
 }
