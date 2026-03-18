@@ -1,7 +1,7 @@
 import {
   act,
-  beforeAll,
-  afterAll,
+  beforeEach,
+  afterEach,
   describe,
   DomMock,
   expect,
@@ -13,19 +13,25 @@ import {
 import { useObservableRev } from './mod.ts';
 
 describe('useObservableRev', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('returns a function', () => {
     const { result, unmount } = renderHook(() => useObservableRev(undefined));
-    expectTypeOf(result.current).toEqualTypeOf<() => void>();
-    expect(result.current).to.be.a('function');
-    unmount();
+    try {
+      expectTypeOf(result.current).toEqualTypeOf<() => void>();
+      expect(result.current).to.be.a('function');
+    } finally {
+      unmount();
+    }
   });
 
   it('does not throw when invoked (no stream)', () => {
     const { result, unmount } = renderHook(() => useObservableRev());
-    expect(() => result.current()).to.not.throw();
-    unmount();
+    try {
+      expect(() => result.current()).to.not.throw();
+    } finally {
+      unmount();
+    }
   });
 
   it('subscribes to the provided subject and unsubscribes on unmount', async () => {
@@ -36,55 +42,63 @@ describe('useObservableRev', () => {
     const sentinel = subject.subscribe(() => count++);
 
     const { unmount } = renderHook(() => useObservableRev(subject));
+    try {
+      // Fire while hook is mounted → both get the event
+      await act(async () => {
+        subject.next();
+        await Promise.resolve();
+      });
+      expect(count).to.be.greaterThan(0);
 
-    // Fire while hook is mounted → both get the event
-    await act(async () => {
-      subject.next();
-      await Promise.resolve();
-    });
-    expect(count).to.be.greaterThan(0);
-
-    // Unmount and fire again → sentinel still receives, hook unsubscribed silently
-    unmount();
-    await act(async () => {
-      subject.next();
-      await Promise.resolve();
-    });
-
-    // The test passes if no error was thrown on unmount
-    sentinel.unsubscribe();
+      // Unmount and fire again → sentinel still receives, hook unsubscribed silently
+      unmount();
+      await act(async () => {
+        subject.next();
+        await Promise.resolve();
+      });
+    } finally {
+      sentinel.unsubscribe();
+    }
   });
 
   it('keeps a stable function identity across re-renders', () => {
     const subject = Rx.subject<void>();
     const { result, rerender, unmount } = renderHook(() => useObservableRev(subject));
-    const first = result.current;
-    rerender();
-    const second = result.current;
-    expect(second).to.equal(first);
-    unmount();
+    try {
+      const first = result.current;
+      rerender();
+      const second = result.current;
+      expect(second).to.equal(first);
+    } finally {
+      unmount();
+    }
   });
 
   it('handles rapid subject.next() calls without error (coalesced internally)', async () => {
     const subject = Rx.subject<void>();
     const { result, unmount } = renderHook(() => useObservableRev(subject));
+    try {
+      await act(async () => {
+        subject.next();
+        subject.next();
+        subject.next();
+        await Promise.resolve();
+      });
 
-    await act(async () => {
-      subject.next();
-      subject.next();
-      subject.next();
-      await Promise.resolve();
-    });
-
-    expect(result.current).to.be.a('function');
-    unmount();
+      expect(result.current).to.be.a('function');
+    } finally {
+      unmount();
+    }
   });
 
   it('completes safely when subject completes', () => {
     const subject = Rx.subject<void>();
     const { result, unmount } = renderHook(() => useObservableRev(subject));
-    expect(() => subject.complete()).to.not.throw();
-    expect(result.current).to.be.a('function');
-    unmount();
+    try {
+      expect(() => subject.complete()).to.not.throw();
+      expect(result.current).to.be.a('function');
+    } finally {
+      unmount();
+    }
   });
 });
