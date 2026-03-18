@@ -36,7 +36,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     );
   });
 
-  it('stages a generated tmpl repo/package workspace target into a temp root', async () => {
+  it('stages a generated tmpl repo/package workspace target into a temp root (slow)', async () => {
     const { root, pkgDir } = await createGeneratedRepoPkg();
 
     const ci = await runDenoTask(root, 'ci');

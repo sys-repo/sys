@@ -1,7 +1,7 @@
-import { describe, expect, Fs, it } from '../../../../-test.ts';
+import { describe, expect, Fs, it, Pkg } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { DeployCli } from '../../u.cli/mod.ts';
-import { createDeployableRepoPkg, prepareStageForExistingApp } from '../../-test.external/u.fixture.ts';
+import { createStageWorkspace } from '../../m.stage/-test/u.fixture.workspace.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
   it('builds native deno deploy cli invocation from a staged artifact', () => {
@@ -106,14 +106,26 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
   });
 
   it('serves the staged target dist index and emitted js from generated entry.ts', async () => {
-    const { pkgDir } = await createDeployableRepoPkg();
-    const stage = await DenoDeploy.stage({ target: { dir: pkgDir } });
-    await prepareStageForExistingApp(stage);
+    const fs = await createStageWorkspace();
+    const stage = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
+    const stagedTarget = Fs.join(stage.root, 'code', 'apps', 'foo');
+    const html = '<!doctype html><html><body><script type="module" src="/pkg/app.js"></script></body></html>';
+    const pkg = { name: '@test/foo', version: '0.0.0' } as const;
+    await Fs.write(
+      Fs.join(stagedTarget, 'src', 'pkg.ts'),
+      `export const pkg = ${JSON.stringify(pkg)} as const;\n`,
+    );
+    await Fs.write(Fs.join(stagedTarget, 'dist', 'index.html'), html);
+    await Pkg.Dist.compute({
+      dir: Fs.join(stagedTarget, 'dist'),
+      pkg,
+      save: true,
+    });
 
     const mod = await import(`file://${stage.root}/entry.ts`);
     const res = await mod.default.fetch(new Request('http://local/'));
     const body = await res.text();
-    const expectedHtml = (await Fs.readText(Fs.join(stage.root, 'code', 'projects', 'foo', 'dist', 'index.html'))).data ?? '';
+    const expectedHtml = (await Fs.readText(Fs.join(stagedTarget, 'dist', 'index.html'))).data ?? '';
 
     expect(res.status).to.eql(200);
     expect(res.headers.get('content-type')).to.contain('text/html');
