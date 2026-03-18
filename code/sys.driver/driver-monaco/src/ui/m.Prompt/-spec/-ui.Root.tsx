@@ -9,6 +9,7 @@ export type RootProps = {
   debug: t.DebugSignals;
   autoFocus?: boolean;
   contentInset?: t.MonacoEditorContentInset;
+  borderTop?: t.CssProps['borderTop'];
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onKeyDown?: t.MonacoEditorKeyDownHandler;
@@ -29,22 +30,31 @@ export const Root: React.FC<RootProps> = (props) => {
   /**
    * Render:
    */
+  const styles = {
+    base: css({
+      display: 'grid',
+      borderTop: props.borderTop,
+    }),
+  };
+
   return (
-    <MonacoEditor
-      style={css({ height }, props.style)}
-      theme={props.theme ?? v.theme}
-      language={'plaintext'}
-      defaultValue={defaultValue}
-      autoFocus={props.autoFocus}
-      contentInset={props.contentInset}
-      onKeyDown={props.onKeyDown}
-      onMounted={(e) => wrangle.setEditor(p, channel, e.editor)}
-      onChange={(e) => wrangle.setText(p, channel, e.content.text)}
-      onDispose={() => {
-        wrangle.setEditor(p, channel, undefined);
-        wrangle.setState(p, channel, undefined);
-      }}
-    />
+    <div className={styles.base.class}>
+      <MonacoEditor
+        style={css({ height }, props.style)}
+        theme={props.theme ?? v.theme}
+        language={'plaintext'}
+        defaultValue={defaultValue}
+        autoFocus={props.autoFocus}
+        contentInset={props.contentInset}
+        onKeyDown={props.onKeyDown}
+        onMounted={(e) => wrangle.setEditor(p, channel, e.editor)}
+        onChange={(e) => wrangle.setText(p, channel, e.content.text)}
+        onDispose={() => {
+          wrangle.setEditor(p, channel, undefined);
+          wrangle.setState(p, channel, undefined);
+        }}
+      />
+    </div>
   );
 };
 
@@ -135,7 +145,11 @@ const wrangle = {
     if (channel === 'footer') p.textFooter.value = text;
   },
 
-  setState(p: t.DebugSignals['props'], channel: OwnerKind, state: t.EditorPrompt.State | undefined) {
+  setState(
+    p: t.DebugSignals['props'],
+    channel: OwnerKind,
+    state: t.EditorPrompt.State | undefined,
+  ) {
     if (channel === 'subject') p.stateSubject.value = state;
     if (channel === 'footer') p.stateFooter.value = state;
   },
