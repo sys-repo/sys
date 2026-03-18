@@ -46,7 +46,7 @@ export function logSyncResult(
   const label = Fs.trimCwd(result.target);
   const count = `${result.count} ${subject} ${Str.plural(result.count, 'module')}`;
   if (result.kind === 'written') {
-    const msg = `${c.cyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
+    const msg = `${c.brightCyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
     console.info(msg);
     return;
   }
