@@ -8,9 +8,12 @@ export { Args, c, Cli, Fs, Path, TmplEngine };
 /**
  * Constants:
  */
+const MODULE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..');
+
 export const PATHS = {
-  templates: '-templates/',
-  json: 'src/m.tmpl/-bundle.json',
+  root: MODULE_ROOT,
+  templates: Fs.join(MODULE_ROOT, '-templates'),
+  json: Fs.join(MODULE_ROOT, 'src/m.tmpl/-bundle.json'),
 } as const;
 
 /**
