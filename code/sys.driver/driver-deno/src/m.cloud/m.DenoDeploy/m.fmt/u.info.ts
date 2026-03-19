@@ -127,7 +127,11 @@ export const InfoFmt = {
         {
           label: 'Platform',
           value: '',
-          valueParts: [c.dim(c.gray('https://')), c.cyan('console.deno.com')],
+          valueParts: [
+            c.dim(c.gray('https://')),
+            c.cyan('console.deno.com'),
+            ...(config.org ? [c.dim(c.gray(`/${config.org}`))] : []),
+          ],
         },
         ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
         ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
