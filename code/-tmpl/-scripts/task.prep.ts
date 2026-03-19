@@ -6,6 +6,7 @@ import {
   PublishedVersion,
   assertImportMap,
   readJson,
+  resolvePackageVersions,
   resolvePublishedPackageVersions,
   syncTemplateImports,
   syncTemplatePackage,
@@ -17,9 +18,13 @@ import { makeBundle } from '../src/m.tmpl/u.makeBundle.ts';
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
 
-await main();
+export type VersionSource = 'workspace' | 'published';
 
-async function main() {
+type Options = {
+  readonly versionSource?: VersionSource;
+};
+
+export async function main(options: Options = {}) {
   const [repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
     readJson<t.Json>(path.tmplRepoImports),
     readJson<t.PkgJsonNode>(path.tmplRepoPackage),
@@ -29,12 +34,7 @@ async function main() {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
-  const versions = await resolvePublishedPackageVersions(
-    repoImportMap,
-    PublishedVersion,
-    path.rootDenoJson,
-    DenoFile,
-  );
+  const versions = await resolveVersions(options.versionSource ?? 'workspace', repoImportMap);
 
   const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
@@ -51,3 +51,14 @@ function logCommitMessage() {
   console.info(c.gray('  commit msg:'), commit);
   console.info();
 }
+
+export function resolveVersions(
+  versionSource: VersionSource,
+  imports: ReturnType<typeof assertImportMap>,
+) {
+  return versionSource === 'published'
+    ? resolvePublishedPackageVersions(imports, PublishedVersion, path.rootDenoJson, DenoFile)
+    : resolvePackageVersions(path.rootDenoJson, imports, DenoFile);
+}
+
+if (import.meta.main) await main();

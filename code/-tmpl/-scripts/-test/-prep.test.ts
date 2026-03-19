@@ -1,14 +1,15 @@
 import {
   assertImportMap,
+  PATH,
   readJson,
   resolvePublishedPackageVersions,
   resolvePackageVersions,
   syncByKey,
   syncTemplateImports,
   syncTemplatePackage,
-  PublishedPackageVersion,
 } from '../-prep.u.ts';
 import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
+import { resolveVersions } from '../task.prep.ts';
 
 describe('prep.u', () => {
   it('syncByKey → updates each target key deterministically', () => {
@@ -215,7 +216,7 @@ describe('prep.u', () => {
     const published = {
       latestVersion(name: string) {
         calls.push(name);
-        const resolve = (res: PublishedPackageVersion) => Promise.resolve(res);
+        const resolve = (res: { kind: 'published'; version: string } | { kind: 'unpublished' }) => Promise.resolve(res);
         if (name === '@sys/fs') return resolve({ kind: 'published', version: '0.0.243' });
         if (name === '@sys/tmpl') return resolve({ kind: 'published', version: '0.0.259' });
         return resolve({ kind: 'unpublished' });
@@ -368,5 +369,15 @@ describe('prep.u', () => {
 
     expect(syncedImports.imports).to.eql(repoImports.imports);
     expect(syncedPackage).to.eql(repoPackage);
+  });
+
+  it('task.prep → default version source is workspace release state', async () => {
+    const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
+    const path = PATH.fromRoot(root);
+    const repoImportsRaw = await readJson<t.Json>(path.tmplRepoImports);
+    const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
+    const expected = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
+    const actual = await resolveVersions('workspace', repoImports);
+    expect(actual).to.eql(expected);
   });
 });
