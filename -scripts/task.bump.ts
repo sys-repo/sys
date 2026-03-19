@@ -86,7 +86,7 @@ export async function main(options: Options = {}) {
   }
 
   const prepare = await import('./task.prep.ts');
-  await prepare.main();
+  await prepare.main('bump');
 
   return true;
 }

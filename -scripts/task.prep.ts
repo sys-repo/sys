@@ -3,6 +3,8 @@ import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
+type CommitContext = 'prep' | 'bump';
+
 /**
  * Proecss the dependencies into a`deno.json` and `package.json` files.
  */
@@ -75,8 +77,12 @@ async function prepSubmodules() {
  * The template bundle is a critical generated artifact consumed across the repo.
  * Root prep owns this explicitly rather than relying on generic workspace traversal.
  */
-async function prepTmplModule() {
-  await runTaskOrThrow(TMPL_MODULE_PATH, 'deno task prep');
+async function prepTmplModule(context: CommitContext) {
+  const commitContext = context === 'bump' ? 'bump' : 'tmpl';
+  await runTaskOrThrow(
+    TMPL_MODULE_PATH,
+    `deno run -P=prep ./-scripts/task.prep.ts --commit-context=${commitContext}`,
+  );
 }
 
 async function runTaskOrThrow(path: string, command: string) {
@@ -91,10 +97,10 @@ async function runTaskOrThrow(path: string, command: string) {
  * Prepare the [deno.json | package.json] files from
  * definitions within the monorepo's `deps.yaml` configuration.
  */
-export async function main() {
+export async function main(context: CommitContext = 'prep') {
   await processDeps();
   await updatePackages();
   const prepared = await prepSubmodules();
-  await prepTmplModule();
+  await prepTmplModule(context);
   return prepared;
 }

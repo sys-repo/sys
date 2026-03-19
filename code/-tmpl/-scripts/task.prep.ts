@@ -1,3 +1,4 @@
+import { Args } from '@sys/std';
 import { Fs } from '@sys/fs';
 import { c } from '@sys/cli';
 import type * as t from '@sys/types';
@@ -19,9 +20,16 @@ const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
 
 export type VersionSource = 'workspace' | 'published';
+export type CommitContext = 'tmpl' | 'bump';
 
 type Options = {
   readonly versionSource?: VersionSource;
+  readonly commitContext?: CommitContext;
+};
+
+type TArgs = {
+  'version-source'?: VersionSource;
+  'commit-context'?: CommitContext;
 };
 
 export async function main(options: Options = {}) {
@@ -42,11 +50,13 @@ export async function main(options: Options = {}) {
   await writeIfChanged(path.tmplRepoImports, repoImports, nextImports);
   await writeIfChanged(path.tmplRepoPackage, repoPackage, nextPackage);
   await makeBundle();
-  logCommitMessage();
+  logCommitMessage(options.commitContext ?? 'tmpl');
 }
 
-function logCommitMessage() {
-  const commit = c.italic(c.green('chore(tmpl): refresh generated template surfaces and embedded bundle'));
+function logCommitMessage(context: CommitContext) {
+  const commit = context === 'bump'
+    ? c.italic(c.green('chore(bump): update package versions and refresh generated outputs'))
+    : c.italic(c.green('chore(tmpl): refresh generated template surfaces and embedded bundle'));
   console.info();
   console.info(c.gray('  commit msg:'), commit);
   console.info();
@@ -61,4 +71,15 @@ export function resolveVersions(
     : resolvePackageVersions(path.rootDenoJson, imports, DenoFile);
 }
 
-if (import.meta.main) await main();
+function parseArgs(argv = Deno.args): Options {
+  const args = Args.parse<TArgs>(argv, {
+    string: ['version-source', 'commit-context'],
+  });
+
+  return {
+    versionSource: args['version-source'],
+    commitContext: args['commit-context'],
+  };
+}
+
+if (import.meta.main) await main(parseArgs());
