@@ -7,7 +7,7 @@ export type * from './ui/ui.Logo.Wordmark/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
 
 /**
- * SLC Panels.
+ * SLC Panels
  */
 export type CanvasPanel =
   | 'purpose'

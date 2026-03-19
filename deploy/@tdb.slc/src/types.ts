@@ -60,7 +60,7 @@ export type * from './ui.content/ui.Trailer/t.ts';
 export type * from './ui.content/-sample/ui.Videos/t.ts';
 
 /**
- * SLC Panels.
+ * SLC Panels
  */
 export type CanvasPanel =
   | 'purpose'
