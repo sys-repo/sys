@@ -6,22 +6,22 @@ type RequireDeployConfigArgs = {
   readonly appNote: string;
 };
 
-export function requireExternalDeployConfig(): t.DenoDeploy.DeployConfig {
+export async function requireExternalDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
   return requireDeployConfig({
     retry: 'deno task test:external',
     appNote: 'is required for this test lane.',
   });
 }
 
-export function requireTmpDeployConfig(): t.DenoDeploy.DeployConfig {
+export async function requireTmpDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
   return requireDeployConfig({
     retry: 'deno task tmp',
     appNote: 'is required for this sample run.',
   });
 }
 
-function requireDeployConfig(args: RequireDeployConfigArgs): t.DenoDeploy.DeployConfig {
-  const deployEnv = loadDeployEnv();
+async function requireDeployConfig(args: RequireDeployConfigArgs): Promise<t.DenoDeploy.DeployConfig> {
+  const deployEnv = await loadDeployEnv();
   if (!deployEnv.app) {
     printDeployEnvGuidance({
       title: 'DENO DEPLOY ENVIRONMENT VARIABLES NOT FOUND',

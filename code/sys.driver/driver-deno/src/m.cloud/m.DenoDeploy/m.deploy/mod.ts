@@ -5,7 +5,7 @@ import { printDeployEnvGuidance, resolveDeployRequestEnv, toDeployEnvNotes } fro
 
 export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
   try {
-    const resolved = resolveDeployRequestEnv(request);
+    const resolved = await resolveDeployRequestEnv(request);
     if (resolved.app.trim().length === 0) {
       const deployEnv = resolved;
       printDeployEnvGuidance({

@@ -14,6 +14,8 @@ export const ListenFmt = {
   listen(deployment: t.DenoDeploy.Pipeline.Handle) {
     const life = Rx.abortable();
     let spin: ReturnType<typeof ListenFmt.spinner> | undefined;
+    let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
+    const verifying = deployment.request.verify?.preview !== false;
     deployment.$.pipe(Rx.takeUntil(life.dispose$)).subscribe((step) => {
       if (step.kind === 'stage:start') {
         print(InfoFmt.deployConfig(deployment.request.config));
@@ -34,8 +36,17 @@ export const ListenFmt = {
       }
 
       if (step.kind === 'deploy:done') {
+        result = step.result;
+        if (!verifying) {
+          spin?.stop();
+          print(InfoFmt.deployResult(step.result));
+        }
+        return;
+      }
+
+      if (step.kind === 'verify:done') {
         spin?.stop();
-        print(InfoFmt.deployResult(step.result));
+        if (result) print(InfoFmt.deployResult(result));
       }
     });
 

@@ -16,9 +16,8 @@ type DeployEnvGuidanceArgs = {
   readonly notes?: readonly string[];
 };
 
-const env = await Env.load({ search: 'upward' });
-
-export function loadDeployEnv(): DeployEnv {
+export async function loadDeployEnv(): Promise<DeployEnv> {
+  const env = await Env.load({ search: 'upward' });
   const app = env.get('DENO_DEPLOY_APP').trim();
   const org = env.get('DENO_DEPLOY_ORG').trim();
   const token = env.get('DENO_DEPLOY_TOKEN').trim();
@@ -30,8 +29,8 @@ export function loadDeployEnv(): DeployEnv {
   };
 }
 
-export function resolveDeployRequestEnv(request: t.DenoDeploy.Deploy.Request): t.DenoDeploy.Deploy.Request {
-  const deployEnv = loadDeployEnv();
+export async function resolveDeployRequestEnv(request: t.DenoDeploy.Deploy.Request): Promise<t.DenoDeploy.Deploy.Request> {
+  const deployEnv = await loadDeployEnv();
   const app = request.app.trim();
   const org = request.org?.trim() ?? '';
   const token = request.token?.trim() ?? '';

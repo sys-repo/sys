@@ -52,16 +52,13 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
 
 async function quietly<T>(run: () => Promise<T>): Promise<T> {
   const info = console.info;
-  const log = console.log;
   const warn = console.warn;
   try {
     console.info = () => undefined;
-    console.log = () => undefined;
     console.warn = () => undefined;
     return await run();
   } finally {
     console.info = info;
-    console.log = log;
     console.warn = warn;
   }
 }

@@ -7,8 +7,8 @@
 import { loadExternalDeployEnv, printExternalDeployEnvGuidance } from './u.env.ts';
 import { restorePackageDenoJsonIfPolluted, snapshotPackageDenoJson } from './u.fixture.ts';
 
-if (!loadExternalDeployEnv()) {
-  printExternalDeployEnvGuidance();
+if (!await loadExternalDeployEnv()) {
+  await printExternalDeployEnvGuidance();
   Deno.exit(1);
 }
 

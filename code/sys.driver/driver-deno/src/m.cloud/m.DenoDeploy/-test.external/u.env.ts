@@ -3,13 +3,13 @@ import { loadDeployEnv, printDeployEnvGuidance, toDeployEnvNotes, type DeployEnv
 
 type ExternalDeployEnv = DeployEnv & { readonly app: string };
 
-export function loadExternalDeployEnv(): ExternalDeployEnv | undefined {
-  const deployEnv = loadDeployEnv();
+export async function loadExternalDeployEnv(): Promise<ExternalDeployEnv | undefined> {
+  const deployEnv = await loadDeployEnv();
   return deployEnv.app ? (deployEnv as ExternalDeployEnv) : undefined;
 }
 
-export function printExternalDeployEnvGuidance() {
-  const deployEnv = loadDeployEnv();
+export async function printExternalDeployEnvGuidance() {
+  const deployEnv = await loadDeployEnv();
   printDeployEnvGuidance({
     title: 'DENO DEPLOY ENVIRONMENT VARIABLES NOT FOUND',
     what: 'External Deno Deploy coverage needs an existing target app.',
@@ -23,11 +23,11 @@ export function printExternalDeployEnvGuidance() {
   });
 }
 
-export function requireDeployEnv(): ExternalDeployEnv {
-  const deployEnv = loadExternalDeployEnv();
+export async function requireDeployEnv(): Promise<ExternalDeployEnv> {
+  const deployEnv = await loadExternalDeployEnv();
   if (deployEnv) return deployEnv;
 
-  printExternalDeployEnvGuidance();
+  await printExternalDeployEnvGuidance();
   throw new Error('Missing DENO_DEPLOY_APP for external Deno Deploy coverage. See guidance above.');
 }
 

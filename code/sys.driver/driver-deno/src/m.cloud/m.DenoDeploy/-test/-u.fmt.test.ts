@@ -12,6 +12,7 @@ describe('DenoDeploy.Fmt', () => {
     );
 
     expect(text).to.include('ddo..12345');
+    expect(text).to.not.include('ddotest12345');
   });
 
   it('renders the staged deploy entrypoint summary', () => {
