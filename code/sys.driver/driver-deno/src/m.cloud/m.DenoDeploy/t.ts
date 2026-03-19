@@ -18,6 +18,9 @@ export declare namespace DenoDeploy {
     /** Operator-facing formatting and progress helpers. */
     readonly Fmt: Fmt.Lib;
 
+    /** Deno Deploy application resource helpers. */
+    readonly App: t.DenoApp.Lib;
+
     /** Materialize a deployable staging root for the selected workspace target. */
     stage(request: Stage.Request): Promise<Stage.Result>;
 

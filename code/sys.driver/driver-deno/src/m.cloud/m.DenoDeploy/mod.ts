@@ -2,6 +2,7 @@
  * @module
  * Tools for managing monorepo workspace deployments to Deno Deploy.
  */
+import { DenoApp as App } from '../m.DenoApp/mod.ts';
 import { type t } from './common.ts';
 import { deploy } from './m.deploy/mod.ts';
 import { Fmt } from './m.fmt/mod.ts';
@@ -11,6 +12,7 @@ import { stage } from './m.stage/mod.ts';
 /** Deno Deploy helper library. */
 export const DenoDeploy: t.DenoDeploy.Lib = {
   Fmt,
+  App,
   stage,
   deploy,
   pipeline,
