@@ -53,6 +53,7 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('https://console.deno.com/org/app/builds/abc');
     expect(text).to.include('https://app-abc.deno.net');
     expect(text).to.include('elapsed');
+    expect(text).to.include('true (code:0)');
   });
 
   it('renders a compact pipeline failure block', () => {

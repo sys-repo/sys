@@ -54,8 +54,8 @@ export const InfoFmt = {
     const accent = toneColor(args.tone ?? 'warning');
     return [
       '',
-      ` ${c.bold(accent(args.title))}`,
-      ` ${c.bold(accent(LINE))}`,
+      c.bold(accent(args.title)),
+      c.bold(accent(LINE)),
       richRow('What', [highlightSpecialTokens(args.what, 'white')], width),
       richRow('Why', [highlightSpecialTokens(args.why, 'white')], width),
       row('', '', { color: 'white', width }),
@@ -76,7 +76,7 @@ export const InfoFmt = {
             ...args.notes.slice(1).map((line) => row('', line, { color: 'gray', width })),
           ]
         : []),
-      ` ${c.bold(accent(LINE))}`,
+      c.bold(accent(LINE)),
       '',
     ] as const;
   },
@@ -103,14 +103,14 @@ export const InfoFmt = {
     const accent = toneColor(args.tone ?? 'success');
     return [
       '',
-      ` ${c.bold(accent(args.title))}`,
-      ` ${c.bold(accent(LINE))}`,
+      c.bold(accent(args.title)),
+      c.bold(accent(LINE)),
       ...args.rows.map((rowData) =>
         rowData.valueParts
           ? richRow(rowData.label, rowData.valueParts, width)
           : row(rowData.label, rowData.value, { color: rowData.color ?? 'white', width }),
       ),
-      ` ${c.bold(accent(LINE))}`,
+      c.bold(accent(LINE)),
       '',
     ] as const;
   },
@@ -144,13 +144,22 @@ export const InfoFmt = {
   },
 
   deployResult(result: DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
+    const codeColor = result.code === 0 ? c.green : c.red;
     return InfoFmt.info({
       title,
       rows: [
-        { label: 'ok', value: String(result.ok), color: 'green' },
-        { label: 'code', value: String(result.code), color: result.code === 0 ? 'green' : 'red' },
+        {
+          label: 'ok',
+          value: '',
+          valueParts: [
+            c.green(String(result.ok)),
+            c.gray(' (code:'),
+            codeColor(String(result.code)),
+            c.gray(')'),
+          ],
+        },
         { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
-        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'white' },
+        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'cyan' },
         ...(elapsed !== undefined
           ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
           : []),
@@ -222,11 +231,11 @@ function splitAndHighlight(text: string, token: string, color: 'white' | 'cyan' 
 }
 
 function redactToken(token?: string) {
-  if (!token) return [c.italic(c.gray('(default cli auth)'))] as const;
+  if (!token) return [c.dim(c.gray('(default cli auth)'))] as const;
 
   const head = token.slice(0, 3);
   const tail = token.slice(-5);
-  return [c.italic(c.gray(`${head}..${tail}`))] as const;
+  return [c.dim(c.gray(`${head}..${tail}`))] as const;
 }
 
 function failureMessage(error: unknown) {
