@@ -77,8 +77,7 @@ export async function readWorkspaceAuthorities() {
   };
 }
 
-export async function writePkg(root: string) {
-  const dir = 'code/projects/foo';
+export async function writePkg(root: string, dir = 'code/projects/foo', pkgName = '@tmp/foo') {
   await tmplCli(root, {
     _: ['pkg'],
     tmpl: 'pkg',
@@ -87,12 +86,16 @@ export async function writePkg(root: string) {
     force: true,
     bundle: false,
     dir,
-    pkgName: '@tmp/foo',
+    pkgName,
     help: false,
     'no-interactive': true,
   });
 
   return Fs.join(root, dir);
+}
+
+export async function writeText(path: string, text: string) {
+  await Fs.write(path, text);
 }
 
 export async function runRepoCi(root: string) {
