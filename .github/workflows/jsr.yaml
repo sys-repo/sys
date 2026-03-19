@@ -35,9 +35,9 @@ jobs:
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor HEAD refs/remotes/origin/main
 
-      - name: publish module → "@sys/skills"
+      - name: publish module → "@sys/driver-deno"
         run: |
-          cd code/sys/skills
+          cd code/sys.driver/driver-deno
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
