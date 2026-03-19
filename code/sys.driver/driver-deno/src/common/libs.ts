@@ -10,6 +10,7 @@ export { Esm } from '@sys/std/esm';
 export { Ignore } from '@sys/std/ignore';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
+export { Time } from '@sys/std/time';
 export { isEmptyRecord } from '@sys/std/value';
 export { TmplEngine } from '@sys/tmpl-engine';
 export { Yaml } from '@sys/yaml';
