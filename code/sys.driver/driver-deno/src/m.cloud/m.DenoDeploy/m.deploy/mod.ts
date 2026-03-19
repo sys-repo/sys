@@ -7,20 +7,18 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
   try {
     const resolved = resolveDeployRequestEnv(request);
     if (resolved.app.trim().length === 0) {
-      if (request.log?.process !== true) {
-        const deployEnv = resolved;
-        printDeployEnvGuidance({
-          title: 'DENO DEPLOY ENVIRONMENT VARIABLES NOT FOUND',
-          what: 'DenoDeploy.deploy needs a target app to run native deploy.',
-          why: 'Neither request.app nor DENO_DEPLOY_APP was provided.',
-          retry: 'Provide request.app or set DENO_DEPLOY_APP, then retry deploy.',
-          notes: toDeployEnvNotes({
-            app: 'is required for deploy execution.',
-            token: deployEnv.token ? 'is present.' : 'is optional if already authenticated; recommended for headless use.',
-            org: deployEnv.org ? 'is present.' : 'is optional when current CLI org context is enough.',
-          }),
-        });
-      }
+      const deployEnv = resolved;
+      printDeployEnvGuidance({
+        title: 'DENO DEPLOY ENVIRONMENT VARIABLES NOT FOUND',
+        what: 'DenoDeploy.deploy needs a target app to run native deploy.',
+        why: 'Neither request.app nor DENO_DEPLOY_APP was provided.',
+        retry: 'Provide request.app or set DENO_DEPLOY_APP, then retry deploy.',
+        notes: toDeployEnvNotes({
+          app: 'is required for deploy execution.',
+          token: deployEnv.token ? 'is present.' : 'is optional if already authenticated; recommended for headless use.',
+          org: deployEnv.org ? 'is present.' : 'is optional when current CLI org context is enough.',
+        }),
+      });
 
       return {
         ok: false,

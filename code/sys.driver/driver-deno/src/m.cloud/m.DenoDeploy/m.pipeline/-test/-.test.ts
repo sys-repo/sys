@@ -35,5 +35,34 @@ describe('DenoDeploy.pipeline', () => {
       expect(deployment.disposed).to.eql(true);
       expect(count).to.eql(1);
     });
+
+    it('rejects a second run on the same deployment handle', async () => {
+      const deployment = DenoDeploy.pipeline({
+        pkgDir: '/repo/code/projects/missing',
+        config: { app: 'sample' },
+      });
+
+      let first: unknown;
+      try {
+        await deployment.run();
+      } catch (error) {
+        first = error;
+      }
+
+      let second: unknown;
+      try {
+        await deployment.run();
+      } catch (error) {
+        second = error;
+      }
+
+      expect(first).to.be.instanceOf(Error);
+      expect(second).to.be.instanceOf(Error);
+      expect((second as Error).message).to.eql(
+        'DenoDeploy.pipeline.run(): deployment handles are single-use.',
+      );
+
+      deployment.dispose();
+    });
   });
 });
