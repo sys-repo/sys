@@ -1,4 +1,4 @@
 ---
 name: upgrade-deps
-description: Review root-workspace `deno outdated` results, present candidate upgrades for human selection, then update `deps.yaml` and run `deno task prep` using the repo's existing dependency pipeline rather than ad hoc upgrade logic.
+description: Run `deno outdated` at the repo root, present the outdated dependency table for human selection, then update `deps.yaml` and run `deno task prep`; do not use ad hoc upgrade logic or direct `deno update` mutation as the primary workflow.
 ---
