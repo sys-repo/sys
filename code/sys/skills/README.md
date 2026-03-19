@@ -4,6 +4,8 @@
 
 It provides a stable surface for discovery, lazy per-skill access, materialization, and provenance-aware metadata, while treating `SKILL.md` as source input rather than the primary programmatic contract.
 
+`@sys/skills/core` is the tight kernel for bundled skill artifact access and materialization, keeping the registry surface small and the operational mechanics explicit.
+
 This makes skill adoption easier to audit, version, and load programmatically without expanding raw markdown into an implicit trust boundary.
 
 
