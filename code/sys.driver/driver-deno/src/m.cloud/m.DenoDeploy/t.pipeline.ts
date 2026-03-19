@@ -69,7 +69,7 @@ export type Prepared = {
  */
 export type Step =
   /** Stage execution has started for the selected workspace package. */
-  | { readonly kind: 'stage:start'; readonly pkgDir: t.StringDir }
+  | { readonly kind: 'stage:start'; readonly pkgDir: t.StringDir; readonly root: t.StringDir }
   /** Stage execution completed and produced a staged artifact. */
   | { readonly kind: 'stage:done'; readonly stage: s.Result }
   /** Staged artifact preparation has started for Deno Deploy compatibility. */

@@ -119,10 +119,10 @@ export const InfoFmt = {
     return InfoFmt.info({
       title: args.title ?? 'Deploy Config',
       rows: [
-        { label: 'Platform', value: 'console.deno.com', color: 'white' },
         { label: 'App', value: config.app, color: 'white' },
         { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
         { label: 'Token', value: '', valueParts: redactToken(config.token) },
+        { label: 'Platform', value: 'https://console.deno.com', color: 'gray' },
       ],
     });
   },

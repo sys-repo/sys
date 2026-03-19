@@ -7,8 +7,12 @@ export const ListenFmt = {
     return c.italic(c.gray(text));
   },
 
+  stageSpinnerText(root: string) {
+    return `${ListenFmt.spinnerText('staging workspace...')}\n${c.gray(c.dim(root))}`;
+  },
+
   spinner(text: string) {
-    return Cli.spinner(ListenFmt.spinnerText(text));
+    return Cli.spinner(text);
   },
 
   listen(deployment: t.DenoDeploy.Pipeline.Handle) {
@@ -19,14 +23,14 @@ export const ListenFmt = {
     deployment.$.pipe(Rx.takeUntil(life.dispose$)).subscribe((step) => {
       if (step.kind === 'stage:start') {
         print(InfoFmt.deployConfig(deployment.request.config));
-        spin = ListenFmt.spinner('staging workspace...').start();
+        spin = ListenFmt.spinner(ListenFmt.stageSpinnerText(step.root)).start();
         return;
       }
 
       if (step.kind === 'prepare:done') {
         spin?.stop();
         print(InfoFmt.stagedEntrypoint(step.prepared));
-        spin = ListenFmt.spinner('deploying staged sample...').start();
+        spin = ListenFmt.spinner(ListenFmt.spinnerText('deploying staged sample...')).start();
         return;
       }
 

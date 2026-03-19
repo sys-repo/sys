@@ -1,4 +1,4 @@
-import { type t, Rx, Str } from './common.ts';
+import { type t, D, Fs, Rx, Str } from './common.ts';
 import { deploy } from '../m.deploy/mod.ts';
 import { stage } from '../m.stage/mod.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
@@ -20,8 +20,12 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       if (ran) throw new Error('DenoDeploy.pipeline.run(): deployment handles are single-use.');
       ran = true;
 
-      $$.next({ kind: 'stage:start', pkgDir: normalized.pkgDir });
-      const staged = await stage({ target: { dir: normalized.pkgDir } });
+      const root = (await Fs.makeTempDir({ prefix: D.tmpDirPrefix.stage })).absolute as t.StringDir;
+      $$.next({ kind: 'stage:start', pkgDir: normalized.pkgDir, root });
+      const staged = await stage({
+        target: { dir: normalized.pkgDir },
+        root: { kind: 'path', dir: root },
+      });
       $$.next({ kind: 'stage:done', stage: staged });
 
       $$.next({ kind: 'prepare:start', stage: staged });
