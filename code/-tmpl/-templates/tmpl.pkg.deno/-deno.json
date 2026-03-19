@@ -11,7 +11,8 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
-    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+    "tmp": "deno run -A ./-scripts/task.tmp.ts",
+    "deploy": "deno run -P=deploy ./-scripts/task.deploy.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -29,6 +30,13 @@
       "net": true,
       "ffi": true,
       "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
+    "deploy": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true
     }
   }
 }
