@@ -33,7 +33,7 @@ export async function prepareStageForExistingApp(stage: t.DenoDeploy.Stage.Resul
 }
 
 async function createPublishedRepoFixture(): Promise<t.StringDir> {
-  const root = (await Fs.makeTempDir({ prefix: 'tmpl.deploy.repo.' })).absolute as t.StringDir;
+  const root = (await Fs.makeTempDir({ prefix: 'sys.tmpl.deploy.repo.' })).absolute as t.StringDir;
   await quietly(() =>
     tmplCli(root, {
       _: ['repo'],
