@@ -29,7 +29,20 @@ export function workflowTemplate(args: WorkflowArgs) {
           deno-version: ${CI_DENO_VERSION}
 
       - name: Install Dependencies
-        run: deno task install
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in \${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
 
       - name: Monorepo Info
         run: deno task info

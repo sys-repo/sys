@@ -17,6 +17,9 @@ describe('MonorepoCi.Jsr', () => {
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
     expect(yaml.includes(`cd ${a}`)).to.eql(true);
     expect(yaml.includes(`cd ${b}`)).to.eql(true);
+    expect(yaml.includes('max_attempts=3')).to.eql(true);
+    expect(yaml.includes('if deno task install; then')).to.eql(true);
+    expect(yaml.includes('dependency install failed')).to.eql(true);
     expect(yaml.includes('push:')).to.eql(true);
     expect(yaml.includes('- main')).to.eql(true);
     expect(yaml.includes('pull_request:')).to.eql(false);
