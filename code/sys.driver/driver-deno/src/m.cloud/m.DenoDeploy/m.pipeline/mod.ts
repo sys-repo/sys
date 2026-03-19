@@ -14,8 +14,8 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
   let ran = false;
 
   return Rx.toLifecycle<t.DenoDeploy.Pipeline.Handle>(life, {
-    request: normalized,
     $,
+    request: normalized,
 
     async run() {
       if (ran) throw new Error('DenoDeploy.pipeline.run(): deployment handles are single-use.');
