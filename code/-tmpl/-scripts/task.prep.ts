@@ -1,4 +1,5 @@
 import { Fs } from '@sys/fs';
+import { c } from '@sys/cli';
 import type * as t from '@sys/types';
 import {
   PATH,
@@ -11,6 +12,7 @@ import {
   writeIfChanged,
 } from './-prep.u.ts';
 import { DenoFile } from '@sys/driver-deno/runtime';
+import { makeBundle } from '../src/m.tmpl/u.makeBundle.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
@@ -39,4 +41,13 @@ async function main() {
 
   await writeIfChanged(path.tmplRepoImports, repoImports, nextImports);
   await writeIfChanged(path.tmplRepoPackage, repoPackage, nextPackage);
+  await makeBundle();
+  logCommitMessage();
+}
+
+function logCommitMessage() {
+  const commit = c.italic(c.green('chore(tmpl): refresh generated template surfaces and embedded bundle'));
+  console.info();
+  console.info(c.gray('  commit msg:'), commit);
+  console.info();
 }

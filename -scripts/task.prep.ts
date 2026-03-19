@@ -55,14 +55,20 @@ async function updatePackages() {
  */
 async function prepSubmodules() {
   const ws = await DenoFile.workspace();
+  let prepared = 0;
   for (const item of ws.children) {
     if (item.path.dir === Fs.resolve(TMPL_MODULE_PATH)) continue;
     const tasks = item.denofile.tasks;
     if (tasks) {
-      if (tasks.prep) await runTaskOrThrow(item.path.dir, 'deno task prep');
+      if (tasks.prep) {
+        await runTaskOrThrow(item.path.dir, 'deno task prep');
+        prepared += 1;
+      }
       if (tasks.init) await runTaskOrThrow(item.path.dir, 'deno task init');
     }
   }
+
+  return prepared;
 }
 
 /**
@@ -88,6 +94,7 @@ async function runTaskOrThrow(path: string, command: string) {
 export async function main() {
   await processDeps();
   await updatePackages();
-  await prepSubmodules();
+  const prepared = await prepSubmodules();
   await prepTmplModule();
+  return prepared;
 }

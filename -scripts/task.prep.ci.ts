@@ -1,10 +1,12 @@
 import { MonorepoCi as Ci } from '../code/sys/monorepo/src/m.ci/mod.ts';
 import type { MonorepoCi } from '../code/sys/monorepo/src/m.ci/t.ts';
 import { Paths } from './-PATHS.ts';
-import { c } from './common.ts';
+import { c, Str } from './common.ts';
 
 type Options = {
   versionFilter?: MonorepoCi.Jsr.VersionFilter;
+  prepared?: number;
+  final?: boolean;
 };
 
 export const JsrIncludePrefixes = [
@@ -68,9 +70,19 @@ export async function main(options: Options = {}) {
   });
 
   const commit = versionFilter === 'ahead'
-    ? c.italic(`${c.yellow('chore(ci): refresh ')}${c.white('ahead-only')}${c.yellow(' workflow generation')}`)
-    : c.italic(c.yellow('chore(ci): refresh workflow generation'));
+    ? c.italic(`${c.green('chore(ci): refresh ahead-only GitHub workflow outputs')}`)
+    : c.italic(c.green('chore(ci): refresh generated GitHub workflow outputs'));
   console.info();
   console.info(c.gray('  commit msg:'), commit);
   console.info();
+
+  if (options.final && typeof options.prepared === 'number') {
+    const workspaceCommit = c.italic(
+      c.green(`chore(workspace): prepared ${options.prepared} workspace ${Str.plural(options.prepared, 'package')}`),
+    );
+    console.info();
+    console.info(c.gray('━'.repeat(84)));
+    console.info(c.gray('final commit msg:'), workspaceCommit);
+    console.info();
+  }
 }

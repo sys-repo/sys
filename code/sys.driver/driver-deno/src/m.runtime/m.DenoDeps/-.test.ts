@@ -21,6 +21,8 @@ describe('DenoDeps', () => {
         DenoDeps.toDep('npm:react-dom@19.0.0'),
       ]));
 
+      expect(text).to.match(/JSR\s+0\.0\.1\s+@sys\/std/);
+      expect(text).to.match(/NPM\s+19\.0\.0\s+react/);
       expect(text).to.include('@sys/std');
       expect(text).to.include('react');
       expect(text).to.include('react-dom');

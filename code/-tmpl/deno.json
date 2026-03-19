@@ -8,7 +8,7 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmpl": "deno run -P=tmpl ./src/mod.ts",
-    "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts && deno run -P=prep ./src/mod.ts --bundle",
+    "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {

@@ -25,11 +25,11 @@ export const Fmt: t.DepsFmt = {
       const name = right ? right : left;
       const scope = right ? `${left}/` : '';
 
-      const fmtRegistry = ` ${c.gray(registry.toUpperCase())}`;
+      const fmtRegistry = c.gray(registry.toUpperCase());
       const fmtName = c.gray(`${scope}${c.white(name)}`);
       const fmtVersion = wrangle.version(mod.version, maxPrefixLength);
 
-      table.push([`${indent}${fmtVersion}`, fmtName, fmtRegistry]);
+      table.push([`${indent}${fmtRegistry}`, fmtVersion, fmtName]);
     });
 
     return `${indent}↓${indent}${table.toString().trimEnd()}`;
