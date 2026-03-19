@@ -6,7 +6,6 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.4",
     "esbuild": "0.27.4",
-    "hono": "4.12.8",
     "motion": "12.38.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",

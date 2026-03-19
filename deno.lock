@@ -3504,7 +3504,6 @@
         "npm:@types/react@19.2.14",
         "npm:@vitejs/plugin-react@5.1.4",
         "npm:esbuild@0.27.4",
-        "npm:hono@4.12.8",
         "npm:motion@12.38.0",
         "npm:prettier@3.8.1",
         "npm:react-dom@19.2.4",

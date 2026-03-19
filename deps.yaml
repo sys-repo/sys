@@ -166,4 +166,3 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.6.0
   - import: npm:motion@12.38.0
-  - import: npm:hono@4.12.5
