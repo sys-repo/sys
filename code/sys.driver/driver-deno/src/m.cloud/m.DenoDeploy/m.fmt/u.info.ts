@@ -124,7 +124,11 @@ export const InfoFmt = {
         { label: 'App', value: config.app, color: 'white' },
         { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
         { label: 'Token', value: '', valueParts: redactToken(config.token) },
-        { label: 'Platform', value: 'https://console.deno.com', color: 'cyan' },
+        {
+          label: 'Platform',
+          value: '',
+          valueParts: [c.dim(c.gray('https://')), c.cyan('console.deno.com')],
+        },
         ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
         ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
       ],
