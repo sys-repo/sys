@@ -24,8 +24,8 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
 
 
 [![JSR](https://jsr.io/badges/@sys?style=flat&labelColor=f7df1e&color=1f3b4d)](https://jsr.io/@sys)  
-Public registry: [JSR](https://jsr.io/) first,  
-via [jsr.io/@sys](https://jsr.io/@sys)
+public registry: [JSR](https://jsr.io/)-first posture,  
+scope [jsr.io/@sys](https://jsr.io/@sys)
 
 
 <p>&nbsp;</p>
