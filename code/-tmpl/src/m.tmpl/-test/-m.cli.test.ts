@@ -114,4 +114,30 @@ describe('m.tmpl/m.cli', () => {
 
     expect(await Fs.exists(Fs.join(target, 'deno.json'))).to.eql(false);
   });
+
+  it('non-interactive existing target with --force overwrites successfully', async () => {
+    const test = await makeWorkspace();
+    const cwd = test.root;
+    const relTarget = 'code/ns/agent-driven';
+    const target = Fs.join(cwd, relTarget);
+
+    await Fs.ensureDir(target);
+    await Fs.write(Fs.join(target, 'stale.txt'), 'stale');
+
+    await cli(
+      cwd,
+      parseArgs([
+        'pkg',
+        '--dir',
+        relTarget,
+        '--pkgName',
+        '@my-scope/agent-driven',
+        '--force',
+        '--no-interactive',
+      ]),
+    );
+
+    expect(await Fs.exists(Fs.join(target, 'deno.json'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(target, 'src', 'mod.ts'))).to.eql(true);
+  });
 });
