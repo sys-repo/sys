@@ -8,12 +8,16 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
   const life = Rx.abortable();
   const $$ = Rx.subject<t.DenoDeploy.Pipeline.Step>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
+  let ran = false;
 
   return Rx.toLifecycle<t.DenoDeploy.Pipeline.Handle>(life, {
     request,
     $,
 
     async run() {
+      if (ran) throw new Error('DenoDeploy.pipeline.run(): deployment handles are single-use.');
+      ran = true;
+
       $$.next({ kind: 'stage:start', pkgDir: request.pkgDir });
       const staged = await stage({ target: { dir: request.pkgDir } });
       $$.next({ kind: 'stage:done', stage: staged });
