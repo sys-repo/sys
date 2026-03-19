@@ -28,7 +28,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
   });
 
   it('integration: stages a generated tmpl repo/package workspace target into a temp root', async () => {
-    const note = `note: expected to take 1+ minutes while the generated repo is prepared`;
+    const note = `note: expected to take 1+ minutes while the generated workspace repo is prepared`;
     console.info(c.italic(c.brightCyan(note)));
     const { root, pkgDir } = await createGeneratedRepoPkg();
 
