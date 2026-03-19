@@ -1,17 +1,8 @@
-import {
-  type t,
-  describe,
-  expect,
-  expectTypeOf,
-  Fs,
-  it,
-  pkg,
-  slug,
-} from '../../../../-test.ts';
-import { DenoDeploy } from '../../mod.ts';
-import { DenoFile, TmplEngine } from '../common.ts';
 import { json } from '../-tmpl/-bundle.ts';
 import { PATHS, renderStageEntrypoints } from '../-tmpl/mod.ts';
+import { c, describe, expect, expectTypeOf, Fs, it, pkg, slug, type t } from '../../../../-test.ts';
+import { DenoDeploy } from '../../mod.ts';
+import { DenoFile, TmplEngine } from '../common.ts';
 import { createGeneratedRepoPkg, runDenoTask } from './u.fixture.tmpl.ts';
 
 describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
@@ -36,14 +27,15 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     );
   });
 
-  it('stages a generated tmpl repo/package workspace target into a temp root (slow)', async () => {
+  it('integration: stages a generated tmpl repo/package workspace target into a temp root', async () => {
+    const note = `note: expected to take 1+ minutes while the generated repo is prepared`;
+    console.info(c.italic(c.brightCyan(note)));
     const { root, pkgDir } = await createGeneratedRepoPkg();
 
     const ci = await runDenoTask(root, 'ci');
     if (!ci.ok) {
-      throw new Error(
-        `Generated tmpl repo ci failed (code ${ci.code}).\n\nstdout:\n${ci.stdout}\n\nstderr:\n${ci.stderr}`,
-      );
+      const err = `Generated tmpl repo ci failed (code ${ci.code}).\n\nstdout:\n${ci.stdout}\n\nstderr:\n${ci.stderr}`;
+      throw new Error(err);
     }
 
     const res = await DenoDeploy.stage({ target: { dir: pkgDir } });
@@ -67,9 +59,15 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(entryText).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';
     expect(stageText).to.eql(`export const targetDir = './code/projects/foo';\n`);
-    const importMap = await Fs.readJson<{ readonly imports?: Record<string, string> }>(Fs.join(res.root, 'imports.json'));
-    expect(importMap.data?.imports?.['@sys/driver-deno']).to.eql(`jsr:@sys/driver-deno@${pkg.version}`);
-    expect(importMap.data?.imports?.['@sys/driver-deno/cloud']).to.eql(`jsr:@sys/driver-deno@${pkg.version}/cloud`);
+    const importMap = await Fs.readJson<{ readonly imports?: Record<string, string> }>(
+      Fs.join(res.root, 'imports.json'),
+    );
+    expect(importMap.data?.imports?.['@sys/driver-deno']).to.eql(
+      `jsr:@sys/driver-deno@${pkg.version}`,
+    );
+    expect(importMap.data?.imports?.['@sys/driver-deno/cloud']).to.eql(
+      `jsr:@sys/driver-deno@${pkg.version}/cloud`,
+    );
 
     const walkup = false;
     const stagedWorkspace = await DenoFile.workspace(Fs.join(res.root, 'deno.json'), { walkup });
