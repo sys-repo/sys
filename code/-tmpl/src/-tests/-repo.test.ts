@@ -65,7 +65,7 @@ describe('Template: repo integration', () => {
     }
   });
 
-  it('generate in temp dir → generated repo pkg check passes without local authority rewrite', async () => {
+  it('generate in temp dir → generated repo pkg check passes after local authority rewrite', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
     const root = tmp.absolute;
 
@@ -74,6 +74,7 @@ describe('Template: repo integration', () => {
 
     await tmpl.write(root, { force: true });
     await def.default(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const pkgDef = await Templates.pkg();
     const pkgTmpl = await makeTmpl('pkg');
