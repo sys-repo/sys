@@ -8,18 +8,21 @@ describe('DenoDeploy.Fmt', () => {
         app: 'sample',
         org: 'sys-org',
         token: 'ddotest12345',
-        staging: '/tmp/stage-root',
+        sourceDir: '/repo/code/projects/foo',
+        stagedDir: '/tmp/stage-root',
       }).join('\n'),
     );
 
     expect(text).to.include('ddo..12345');
     expect(text).to.not.include('ddotest12345');
+    expect(text).to.include('/repo/code/projects/foo');
     expect(text).to.include('/tmp/stage-root');
   });
 
   it('renders the staged deploy entrypoint summary', () => {
     const text = stripAnsi(
       FmtInternal.stagedEntrypoint({
+        sourceDir: '/repo/code/projects/foo',
         stagedDir: '/tmp/stage',
         entrypoint: '/tmp/stage/entry.ts',
         entryPaths: '/tmp/stage/entry.paths.ts',
@@ -29,6 +32,7 @@ describe('DenoDeploy.Fmt', () => {
       }).join('\n'),
     );
 
+    expect(text).to.include('/repo/code/projects/foo');
     expect(text).to.include('./src/m.server/main.ts');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');

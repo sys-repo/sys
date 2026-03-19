@@ -38,7 +38,8 @@ type DeployConfigArgs = {
   readonly app: string;
   readonly org?: string;
   readonly token?: string;
-  readonly staging?: string;
+  readonly sourceDir?: string;
+  readonly stagedDir?: string;
   readonly title?: string;
 };
 
@@ -124,7 +125,8 @@ export const InfoFmt = {
         { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
         { label: 'Token', value: '', valueParts: redactToken(config.token) },
         { label: 'Platform', value: 'https://console.deno.com', color: 'gray' },
-        ...(args.staging ? [{ label: 'Staging', value: args.staging, color: 'gray' as const }] : []),
+        ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
+        ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
       ],
     });
   },
@@ -133,6 +135,7 @@ export const InfoFmt = {
     return InfoFmt.info({
       title: 'Staged Entrypoint',
       rows: [
+        { label: 'source', value: args.sourceDir, color: 'white' },
         { label: 'staged dir', value: args.stagedDir, color: 'white' },
         { label: 'entry', value: args.entrypoint, color: 'white' },
         { label: 'paths', value: args.entryPaths, color: 'white' },

@@ -6,6 +6,7 @@ describe('DenoDeploy.pipeline.prepare', () => {
     const stage = await createStageFixture();
     const res = await prepare(stage);
 
+    expect(res.sourceDir).to.eql(stage.target.dir);
     expect(res.stagedDir).to.eql(stage.root);
     expect(res.entrypoint).to.eql(stage.entry);
     expect(res.entryPaths).to.eql(Fs.join(stage.root, 'entry.paths.ts'));

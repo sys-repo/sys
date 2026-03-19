@@ -45,6 +45,9 @@ export type Request = {
  * Prepared staged artifact details for the deployable root entry pair.
  */
 export type Prepared = {
+  /** Source workspace package directory being built and copied into staging. */
+  readonly sourceDir: t.StringDir;
+
   /** Root directory of the staged deployable artifact. */
   readonly stagedDir: t.StringDir;
 

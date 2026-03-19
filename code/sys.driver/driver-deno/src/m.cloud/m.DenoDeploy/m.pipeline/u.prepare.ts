@@ -18,6 +18,7 @@ export async function prepare(
   await Fs.write(compatEntrypoint, rendered.compatEntrypoint);
 
   return {
+    sourceDir: stage.target.dir,
     stagedDir: stage.root,
     entrypoint,
     entryPaths,
