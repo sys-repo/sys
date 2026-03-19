@@ -29,6 +29,7 @@ describe('DenoDeploy.Fmt', () => {
         appEntrypoint: './src/m.server/main.ts',
         workspaceTarget: './code/projects/foo',
         distDir: './code/projects/foo/dist',
+        distHash: 'sha256-abc123',
       }).join('\n'),
     );
 
@@ -36,6 +37,7 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('./src/m.server/main.ts');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');
+    expect(text).to.include('sha256-abc123');
   });
 
   it('renders deploy result urls', () => {

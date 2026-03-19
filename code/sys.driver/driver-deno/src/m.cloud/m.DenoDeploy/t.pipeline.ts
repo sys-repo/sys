@@ -65,6 +65,9 @@ export type Prepared = {
 
   /** Built dist directory path relative to the staged workspace root. */
   readonly distDir: t.StringPath;
+
+  /** Optional digest published by the built dist artifact metadata. */
+  readonly distHash?: string;
 };
 
 /**

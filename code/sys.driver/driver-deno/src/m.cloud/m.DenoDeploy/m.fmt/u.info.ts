@@ -124,7 +124,7 @@ export const InfoFmt = {
         { label: 'App', value: config.app, color: 'white' },
         { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
         { label: 'Token', value: '', valueParts: redactToken(config.token) },
-        { label: 'Platform', value: 'https://console.deno.com', color: 'gray' },
+        { label: 'Platform', value: 'https://console.deno.com', color: 'cyan' },
         ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
         ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
       ],
@@ -142,6 +142,7 @@ export const InfoFmt = {
         { label: 'main', value: args.appEntrypoint, color: 'white' },
         { label: 'workspace', value: args.workspaceTarget, color: 'white' },
         { label: 'dist', value: args.distDir, color: 'white' },
+        ...(args.distHash ? [{ label: 'dist:hash', value: args.distHash, color: 'gray' as const }] : []),
       ],
     });
   },

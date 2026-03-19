@@ -13,6 +13,7 @@ describe('DenoDeploy.pipeline.prepare', () => {
     expect(res.appEntrypoint).to.eql('./src/m.server/main.ts');
     expect(res.workspaceTarget).to.eql('./code/projects/foo');
     expect(res.distDir).to.eql('./code/projects/foo/dist');
+    expect(res.distHash).to.eql('sha256-abc123');
 
     expect(await Fs.exists(Fs.join(stage.root, 'src', 'm.server', 'main.ts'))).to.be.true;
     expect((await Fs.readText(Fs.join(stage.root, 'src', 'm.server', 'main.ts'))).data).to.eql(
@@ -41,9 +42,13 @@ async function createStageFixture(): Promise<t.DenoDeploy.Stage.Result> {
 
   await Fs.ensureDir(targetDir);
   await Fs.ensureDir(Fs.join(root, 'src', 'm.server'));
+  await Fs.ensureDir(Fs.join(root, 'code/projects/foo/dist'));
   await Fs.writeJson(Fs.join(root, 'deno.json'), {});
   await Fs.write(Fs.join(root, '.gitignore'), 'dist/\n');
   await Fs.write(entry, '// staged entry\n');
+  await Fs.writeJson(Fs.join(root, 'code/projects/foo/dist/dist.json'), {
+    hash: { digest: 'sha256-abc123' },
+  });
 
   const workspace: t.DenoWorkspace = {
     exists: true,

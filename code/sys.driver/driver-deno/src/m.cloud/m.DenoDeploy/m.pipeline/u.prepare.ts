@@ -16,6 +16,7 @@ export async function prepare(
   await ensureStagedDistIncluded(stage.root, stagedTargetRel);
   await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
   await Fs.write(compatEntrypoint, rendered.compatEntrypoint);
+  const distHash = await loadDistHash(stage.root, stagedTargetRel);
 
   return {
     sourceDir: stage.target.dir,
@@ -25,6 +26,7 @@ export async function prepare(
     appEntrypoint: `./${FILE.compatEntrypoint}`,
     workspaceTarget: `./${stagedTargetRel}`,
     distDir: `./${stagedTargetRel}/dist`,
+    distHash,
   };
 }
 
@@ -68,4 +70,15 @@ function toDistUnignoreRules(targetRel: string): string[] {
   rules.push(`!${distRel}/`);
   rules.push(`!${distRel}/**`);
   return rules;
+}
+
+async function loadDistHash(root: string, targetRel: string) {
+  const path = Fs.join(root, targetRel, 'dist', 'dist.json');
+  const res = await Fs.readJson<O>(path);
+  if (!res.ok || !res.data || !Is.record(res.data)) return undefined;
+
+  const hash = res.data.hash;
+  if (!Is.record(hash)) return undefined;
+
+  return Is.string(hash.digest) && hash.digest.length > 0 ? hash.digest : undefined;
 }
