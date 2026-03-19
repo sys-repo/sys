@@ -1,9 +1,11 @@
-import { c, describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it } from '../../-test.ts';
+import { Fmt } from '../../-tests/u.ts';
 import { TmplTesting } from '../mod.ts';
 import { runRepoCi, writePkg, writeText } from './u.fixture.ts';
 
 describe('m.testing/LocalRepoFixture/pkg', () => {
   it('create → add pkg → rewrite → repo ci passes', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create();
     const pkgDir = await writePkg(fixture.root);
     await TmplTesting.LocalRepoAuthorities.rewrite({ root: fixture.root });
@@ -21,8 +23,7 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
   });
 
   it('create → add foo + bar → import @tmp/foo from @tmp/bar → repo ci passes', async () => {
-    const note = 'note: expected to take 10–30s while the generated repo fixture is prepared and checked';
-    console.info(c.italic(c.brightCyan(note)));
+    console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create({ silent: true });
     const fooDir = await writePkg(fixture.root, 'code/projects/foo', '@tmp/foo');
     const barDir = await writePkg(fixture.root, 'code/projects/bar', '@tmp/bar');

@@ -1,6 +1,6 @@
 import { type t, c, Fs, makeTmpl, Templates, TmplEngine } from '../-test.ts';
 
-type StringDirname = string;
+export { Fmt } from './u.fmt.ts';
 
 export function logTemplate(
   name: t.TemplateName,

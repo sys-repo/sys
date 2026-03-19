@@ -1,10 +1,12 @@
 import { Process } from '@sys/process';
 
 import { describe, expectError, it } from '../../-test.ts';
+import { Fmt } from '../../-tests/u.ts';
 import { TmplTesting } from '../mod.ts';
 
 describe('m.testing/LocalRepoFixture', () => {
   it('create → create temp repo fixture → deno task ci passes', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create();
 
     const ci = await Process.invoke({
@@ -22,6 +24,7 @@ describe('m.testing/LocalRepoFixture', () => {
   });
 
   it('create → silent fixture → deno task ci passes', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create({ silent: true });
 
     const ci = await Process.invoke({

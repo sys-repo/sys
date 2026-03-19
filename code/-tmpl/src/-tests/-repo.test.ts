@@ -2,7 +2,7 @@ import { Process } from '@sys/process';
 
 import { DenoFile, type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import { TmplTesting } from '../m.testing/mod.ts';
-import { logTemplate, makeWorkspace } from './u.ts';
+import { Fmt, logTemplate, makeWorkspace } from './u.ts';
 import { poisonSysVersions } from './u.repo.local.ts';
 
 describe('Template: repo', () => {
@@ -41,6 +41,7 @@ describe('Template: repo', () => {
 
 describe('Template: repo integration', () => {
   it('generate in temp dir → deno task ci passes', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.ci-' });
     const root = tmp.absolute;
 
@@ -66,6 +67,7 @@ describe('Template: repo integration', () => {
   });
 
   it('generate in temp dir → generated repo pkg check passes after local authority rewrite', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
     const root = tmp.absolute;
 
@@ -119,6 +121,7 @@ describe('Template: repo integration', () => {
   });
 
   it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
+    console.info(Fmt.slowRepoWorkspaceNote());
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.bump-' });
     const root = tmp.absolute;
 
