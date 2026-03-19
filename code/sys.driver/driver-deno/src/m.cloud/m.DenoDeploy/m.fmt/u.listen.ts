@@ -24,7 +24,11 @@ export const ListenFmt = {
     deployment.$.pipe(Rx.takeUntil(life.dispose$)).subscribe((step) => {
       if (step.kind === 'stage:start') {
         startedAt = Time.now.timestamp as t.Msecs;
-        print(InfoFmt.deployConfig({ ...deployment.request.config, staging: step.root }));
+        print(InfoFmt.deployConfig({
+          ...deployment.request.config,
+          sourceDir: step.pkgDir,
+          stagedDir: step.root,
+        }));
         const msg = `${ListenFmt.spinnerText('preparing staged root...')}\n${c.gray(c.dim(step.root))}`;
         spin = ListenFmt.spinner(msg).start();
         return;
