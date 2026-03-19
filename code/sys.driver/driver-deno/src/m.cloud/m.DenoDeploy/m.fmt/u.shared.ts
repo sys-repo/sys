@@ -12,6 +12,7 @@ export function row(
   options: { color?: 'white' | 'cyan' | 'gray' | 'green' | 'red'; width?: number; indent?: number } = {},
 ) {
   const head = c.gray(normalizeLabel(label).padEnd(options.width ?? 5));
+  const divider = c.dim(c.gray('│'));
   const text =
     options.color === 'green'
       ? c.green(value)
@@ -20,14 +21,15 @@ export function row(
       : options.color === 'cyan'
         ? c.cyan(value)
         : options.color === 'gray'
-          ? c.gray(value)
-          : c.white(value);
-  return `${indent(options.indent)}${head} ${c.gray('│')} ${text}`;
+        ? c.gray(value)
+        : c.white(value);
+  return `${indent(options.indent)}${head} ${divider} ${text}`;
 }
 
 export function richRow(label: string, parts: readonly string[], width = 5, indentBy = 0) {
   const head = c.gray(normalizeLabel(label).padEnd(width));
-  return `${indent(indentBy)}${head} ${c.gray('│')} ${parts.join('')}`;
+  const divider = c.dim(c.gray('│'));
+  return `${indent(indentBy)}${head} ${divider} ${parts.join('')}`;
 }
 
 export function toneColor(tone: 'warning' | 'success') {

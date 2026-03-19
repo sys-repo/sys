@@ -43,7 +43,7 @@ export const ListenFmt = {
       if (step.kind === 'prepare:done') {
         spin?.stop();
         print(InfoFmt.stagedEntrypoint(step.prepared));
-        spin = ListenFmt.spinner(ListenFmt.spinnerText('deploying staged sample...')).start();
+        spin = ListenFmt.spinner(ListenFmt.spinnerText('deploying staged workspace...')).start();
         return;
       }
 

@@ -135,8 +135,8 @@ export const InfoFmt = {
       rows: [
         { label: 'staged dir', value: args.stagedDir, color: 'white' },
         { label: 'entry', value: args.entrypoint, color: 'white' },
-        { label: 'entry paths', value: args.entryPaths, color: 'white' },
-        { label: 'app config', value: args.appEntrypoint, color: 'white' },
+        { label: 'paths', value: args.entryPaths, color: 'white' },
+        { label: 'main', value: args.appEntrypoint, color: 'white' },
         { label: 'workspace', value: args.workspaceTarget, color: 'white' },
         { label: 'dist', value: args.distDir, color: 'white' },
       ],
@@ -144,7 +144,9 @@ export const InfoFmt = {
   },
 
   deployResult(result: DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
-    const codeColor = result.code === 0 ? c.green : c.red;
+    const code = result.code === 0
+      ? c.dim(c.gray(`code:${result.code}`))
+      : `${c.gray('code:')}${c.red(String(result.code))}`;
     return InfoFmt.info({
       title,
       rows: [
@@ -153,16 +155,16 @@ export const InfoFmt = {
           value: '',
           valueParts: [
             c.green(String(result.ok)),
-            c.gray(' (code:'),
-            codeColor(String(result.code)),
-            c.gray(')'),
+            result.code === 0 ? c.dim(c.gray(' (')) : c.gray(' ('),
+            code,
+            result.code === 0 ? c.dim(c.gray(')')) : c.gray(')'),
           ],
         },
-        { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
-        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'cyan' },
         ...(elapsed !== undefined
           ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
           : []),
+        { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
+        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'cyan' },
       ],
     });
   },
