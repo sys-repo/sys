@@ -12,31 +12,35 @@ export const ListenFmt = {
   },
 
   listen(deployment: t.DenoDeploy.Pipeline.Handle) {
-    print(InfoFmt.deployConfig(deployment.request.config));
-
     const life = Rx.abortable();
-    let spin = ListenFmt.spinner('staging workspace...').start();
+    let spin: ReturnType<typeof ListenFmt.spinner> | undefined;
     deployment.$.pipe(Rx.takeUntil(life.dispose$)).subscribe((step) => {
+      if (step.kind === 'stage:start') {
+        print(InfoFmt.deployConfig(deployment.request.config));
+        spin = ListenFmt.spinner('staging workspace...').start();
+        return;
+      }
+
       if (step.kind === 'prepare:done') {
-        spin.stop();
+        spin?.stop();
         print(InfoFmt.stagedEntrypoint(step.prepared));
         spin = ListenFmt.spinner('deploying staged sample...').start();
         return;
       }
 
       if (step.kind === 'verify:start') {
-        spin.text = ListenFmt.spinnerText('verifying preview...');
+        if (spin) spin.text = ListenFmt.spinnerText('verifying preview...');
         return;
       }
 
       if (step.kind === 'deploy:done') {
-        spin.stop();
+        spin?.stop();
         print(InfoFmt.deployResult(step.result));
       }
     });
 
     life.dispose$.subscribe(() => {
-      spin.stop();
+      spin?.stop();
     });
 
     return Rx.toLifecycle(life, {});
