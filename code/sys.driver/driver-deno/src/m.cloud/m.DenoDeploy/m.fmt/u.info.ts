@@ -1,4 +1,5 @@
 import { c, type t } from './common.ts';
+import { DeployConfig } from '../u.deployConfig.ts';
 import { LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
@@ -114,13 +115,14 @@ export const InfoFmt = {
   },
 
   deployConfig(args: DeployConfigArgs) {
+    const config = DeployConfig.normalize(args);
     return InfoFmt.info({
       title: args.title ?? 'Deploy Config',
       rows: [
         { label: 'Platform', value: 'console.deno.com', color: 'white' },
-        { label: 'App', value: args.app, color: 'white' },
-        { label: 'Org', value: args.org ?? '(default cli context)', color: 'white' },
-        { label: 'Token', value: '', valueParts: redactToken(args.token) },
+        { label: 'App', value: config.app, color: 'white' },
+        { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
+        { label: 'Token', value: '', valueParts: redactToken(config.token) },
       ],
     });
   },

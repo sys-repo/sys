@@ -1,35 +1,37 @@
 import { type t, Rx, Str } from './common.ts';
 import { deploy } from '../m.deploy/mod.ts';
 import { stage } from '../m.stage/mod.ts';
+import { DeployConfig } from '../u.deployConfig.ts';
 import { prepare } from './u.prepare.ts';
 import { verifyPreview } from './u.verify.ts';
 
 export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
+  const normalized = wrangle.request(request);
   const life = Rx.abortable();
   const $$ = Rx.subject<t.DenoDeploy.Pipeline.Step>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
   let ran = false;
 
   return Rx.toLifecycle<t.DenoDeploy.Pipeline.Handle>(life, {
-    request,
+    request: normalized,
     $,
 
     async run() {
       if (ran) throw new Error('DenoDeploy.pipeline.run(): deployment handles are single-use.');
       ran = true;
 
-      $$.next({ kind: 'stage:start', pkgDir: request.pkgDir });
-      const staged = await stage({ target: { dir: request.pkgDir } });
+      $$.next({ kind: 'stage:start', pkgDir: normalized.pkgDir });
+      const staged = await stage({ target: { dir: normalized.pkgDir } });
       $$.next({ kind: 'stage:done', stage: staged });
 
       $$.next({ kind: 'prepare:start', stage: staged });
       const prepared = await prepare(staged);
       $$.next({ kind: 'prepare:done', stage: staged, prepared });
 
-      $$.next({ kind: 'deploy:start', stage: staged, config: request.config });
+      $$.next({ kind: 'deploy:start', stage: staged, config: normalized.config });
       const result = await deploy({
         stage: staged,
-        ...request.config,
+        ...normalized.config,
       });
 
       if (!result.ok) {
@@ -40,7 +42,7 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       $$.next({ kind: 'deploy:done', result });
 
       const preview = result.deploy?.url?.preview;
-      if (request.verify?.preview !== false) {
+      if (normalized.verify?.preview !== false) {
         if (!preview) {
           throw new Error('DenoDeploy.pipeline: verify.preview requires deploy.url.preview.');
         }
@@ -62,6 +64,14 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
  * Helpers:
  */
 const wrangle = {
+  request(input: t.DenoDeploy.Pipeline.Request): t.DenoDeploy.Pipeline.Request {
+    return {
+      ...input,
+      pkgDir: input.pkgDir.trim() as t.StringDir,
+      config: DeployConfig.normalize(input.config),
+    };
+  },
+
   deployFailure(input: {
     readonly code: number;
     readonly stdout: string;

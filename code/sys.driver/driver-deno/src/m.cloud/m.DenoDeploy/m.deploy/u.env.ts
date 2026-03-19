@@ -1,6 +1,7 @@
 import { Env } from './common.ts';
 import { FmtInternal } from '../m.fmt/mod.ts';
 import { type t } from './common.ts';
+import { DeployConfig } from '../u.deployConfig.ts';
 
 export type DeployEnv = {
   readonly app?: string;
@@ -31,15 +32,17 @@ export async function loadDeployEnv(): Promise<DeployEnv> {
 
 export async function resolveDeployRequestEnv(request: t.DenoDeploy.Deploy.Request): Promise<t.DenoDeploy.Deploy.Request> {
   const deployEnv = await loadDeployEnv();
-  const app = request.app.trim();
-  const org = request.org?.trim() ?? '';
-  const token = request.token?.trim() ?? '';
+  const config = DeployConfig.normalize({
+    app: request.app,
+    ...(request.org !== undefined ? { org: request.org } : {}),
+    ...(request.token !== undefined ? { token: request.token } : {}),
+  });
 
   return {
     ...request,
-    app: app.length > 0 ? app : (deployEnv.app ?? ''),
-    ...(org.length > 0 ? { org } : deployEnv.org ? { org: deployEnv.org } : {}),
-    ...(token.length > 0 ? { token } : deployEnv.token ? { token: deployEnv.token } : {}),
+    app: config.app.length > 0 ? config.app : (deployEnv.app ?? ''),
+    ...(config.org ? { org: config.org } : deployEnv.org ? { org: deployEnv.org } : {}),
+    ...(config.token ? { token: config.token } : deployEnv.token ? { token: deployEnv.token } : {}),
   };
 }
 
