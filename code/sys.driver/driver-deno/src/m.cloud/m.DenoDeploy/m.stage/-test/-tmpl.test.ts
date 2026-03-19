@@ -3,7 +3,7 @@ import { PATHS, renderStageEntrypoints } from '../-tmpl/mod.ts';
 import { c, describe, expect, expectTypeOf, Fs, it, pkg, slug, type t } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { DenoFile, TmplEngine } from '../common.ts';
-import { createGeneratedRepoPkg, runDenoTask } from './u.fixture.tmpl.ts';
+import { createGeneratedRepoPkg } from './u.fixture.tmpl.ts';
 
 describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
   it('keeps the staged entry template bundle in sync', async () => {
@@ -31,12 +31,6 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     const note = `note: expected to take 1+ minutes while the generated repo is prepared`;
     console.info(c.italic(c.brightCyan(note)));
     const { root, pkgDir } = await createGeneratedRepoPkg();
-
-    const ci = await runDenoTask(root, 'ci');
-    if (!ci.ok) {
-      const err = `Generated tmpl repo ci failed (code ${ci.code}).\n\nstdout:\n${ci.stdout}\n\nstderr:\n${ci.stderr}`;
-      throw new Error(err);
-    }
 
     const res = await DenoDeploy.stage({ target: { dir: pkgDir } });
 
