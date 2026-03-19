@@ -7,11 +7,10 @@ describe('DenoDeploy.pipeline', () => {
       const deployment = DenoDeploy.pipeline({
         pkgDir: '/repo/code/projects/foo',
         config: { app: 'sample' },
-        verify: { preview: true },
-        silent: true,
       });
 
       expect(deployment.disposed).to.eql(false);
+      expect(deployment.request.verify).to.eql(undefined);
       expect(typeof deployment.dispose).to.eql('function');
       expect(typeof deployment.run).to.eql('function');
       expect(deployment.$).to.exist;

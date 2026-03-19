@@ -29,7 +29,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       prod: true,
       allowNodeModules: true,
       noWait: true,
-      silent: true,
+      log: { process: true },
     });
 
     expect(cli).to.eql({

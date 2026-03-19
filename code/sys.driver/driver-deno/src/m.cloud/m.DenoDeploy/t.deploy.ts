@@ -29,8 +29,16 @@ export type Request = {
   /** Skip waiting for the remote build to complete when true. */
   readonly noWait?: boolean;
 
-  /** Suppress native CLI output when true. */
-  readonly silent?: boolean;
+  /** Optional logging controls for the native deploy process boundary. */
+  readonly log?: Log;
+};
+
+/**
+ * Optional logging controls for deploy execution.
+ */
+export type Log = {
+  /** Stream native process output directly when true. */
+  readonly process?: boolean;
 };
 
 /**

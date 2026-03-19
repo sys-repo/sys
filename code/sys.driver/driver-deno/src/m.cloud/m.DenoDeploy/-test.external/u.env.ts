@@ -1,6 +1,5 @@
-import { type t, c, stripAnsi } from './common.ts';
+import { stripAnsi } from './common.ts';
 import { loadDeployEnv, printDeployEnvGuidance, toDeployEnvNotes, type DeployEnv } from '../m.deploy/u.env.ts';
-import { Fmt } from '../u.fmt.ts';
 
 type ExternalDeployEnv = DeployEnv & { readonly app: string };
 
@@ -32,29 +31,6 @@ export function requireDeployEnv(): ExternalDeployEnv {
   throw new Error('Missing DENO_DEPLOY_APP for external Deno Deploy coverage. See guidance above.');
 }
 
-export function requireDeployConfig(): t.DenoDeploy.DeployConfig {
-  const deployEnv = requireDeployEnv();
-  return {
-    app: deployEnv.app,
-    ...(deployEnv.org ? { org: deployEnv.org } : {}),
-    ...(deployEnv.token ? { token: deployEnv.token } : {}),
-  };
-}
-
-export function printExternalDeployInfo() {
-  const deployEnv = requireDeployEnv();
-  for (const line of Fmt.info({
-    title: 'Deno Deploy External (Test Config)',
-    rows: [
-      { label: 'App', value: deployEnv.app, color: 'white' },
-      { label: 'Org', value: deployEnv.org ?? '(default cli context)', color: 'white' },
-      { label: 'Token', value: '', valueParts: redactToken(deployEnv.token) },
-    ],
-  })) {
-    console.info(line);
-  }
-}
-
 export function toDeployFailure(input: {
   readonly code: number;
   readonly stdout: string;
@@ -70,12 +46,4 @@ export function toDeployFailure(input: {
     input.stderr,
   ];
   return stripAnsi(lines.join('\n'));
-}
-
-function redactToken(token?: string) {
-  if (!token) return [c.italic(c.gray('(default cli auth)'))] as const;
-
-  const head = token.slice(0, 3);
-  const tail = token.slice(-5);
-  return [c.italic(c.gray(`${head}..${tail}`))] as const;
 }

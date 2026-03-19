@@ -1,5 +1,5 @@
 import { Env } from './common.ts';
-import { Fmt } from '../u.fmt.ts';
+import { FmtInternal } from '../m.fmt/mod.ts';
 import { type t } from './common.ts';
 
 export type DeployEnv = {
@@ -45,7 +45,7 @@ export function resolveDeployRequestEnv(request: t.DenoDeploy.Deploy.Request): t
 }
 
 export function printDeployEnvGuidance(args: DeployEnvGuidanceArgs) {
-  for (const line of Fmt.envVarsNotFound(args)) console.info(line);
+  for (const line of FmtInternal.envVarsNotFound(args)) console.info(line);
 }
 
 export function toDeployEnvNotes(args: {

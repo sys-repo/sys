@@ -1,25 +1,13 @@
 import { DenoDeploy } from '../src/m.cloud/mod.ts';
-import {
-  printExternalDeployInfo,
-  requireDeployConfig,
-} from '../src/m.cloud/m.DenoDeploy/-test.external/u.env.ts';
-import * as fixture from '../src/m.cloud/m.DenoDeploy/-test.external/u.fixture.ts';
-import { printDeployResult } from '../src/m.cloud/m.DenoDeploy/-test.external/u.report.ts';
+import * as sample from '../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts';
 
-printExternalDeployInfo();
+const config = sample.requireTmpDeployConfig();
+const { pkgDir } = await sample.createDeployableRepoPkg();
+const deployment = DenoDeploy.pipeline({ pkgDir, config });
+const reporter = DenoDeploy.Fmt.listen(deployment);
 
-const config = requireDeployConfig();
-const { pkgDir } = await fixture.createDeployableRepoPkg();
-const deployment = DenoDeploy.pipeline({
-  pkgDir,
-  config,
-  verify: { preview: true },
-  silent: true,
-});
-
-deployment.$.subscribe((step) => {
-  if (step.kind === 'prepare:done') fixture.printDeployEntrypointInfo(step.prepared);
-});
-
-const result = await deployment.run();
-printDeployResult(result.deploy, 'tmp staged pipeline result');
+try {
+  await deployment.run();
+} finally {
+  reporter.dispose();
+}

@@ -1,6 +1,8 @@
-import { c } from './common.ts';
+import { c, type t } from './common.ts';
+import { LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
-const LINE = '━'.repeat(84);
+type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
+type DeployResult = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }>;
 
 type BlockedArgs = {
   readonly title: string;
@@ -26,19 +28,32 @@ type InfoArgs = {
     readonly label: string;
     readonly value: string;
     readonly valueParts?: readonly string[];
-    readonly color?: 'white' | 'cyan' | 'gray' | 'green';
+    readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red';
   }[];
   readonly tone?: 'warning' | 'success';
 };
 
-export const Fmt = {
+type DeployConfigArgs = {
+  readonly app: string;
+  readonly org?: string;
+  readonly token?: string;
+  readonly title?: string;
+};
+
+export const InfoFmt = {
   blocked(args: BlockedArgs) {
-    const width = maxLabelWidth(['What', 'Why', 'Fix', ...(args.retry && args.retry.length > 0 ? ['Retry'] : []), ...(args.notes && args.notes.length > 0 ? ['Notes'] : [])]);
+    const width = maxLabelWidth([
+      'What',
+      'Why',
+      'Fix',
+      ...(args.retry && args.retry.length > 0 ? ['Retry'] : []),
+      ...(args.notes && args.notes.length > 0 ? ['Notes'] : []),
+    ]);
     const accent = toneColor(args.tone ?? 'warning');
     return [
       '',
-      `${indent()}${c.bold(accent(args.title))}`,
-      `${indent()}${c.bold(accent(LINE))}`,
+      ` ${c.bold(accent(args.title))}`,
+      ` ${c.bold(accent(LINE))}`,
       richRow('What', [highlightSpecialTokens(args.what, 'white')], width),
       richRow('Why', [highlightSpecialTokens(args.why, 'white')], width),
       row('', '', { color: 'white', width }),
@@ -46,18 +61,26 @@ export const Fmt = {
       row('', '', { color: 'white', width }),
       ...args.fix.slice(1).map((line) => richRow('', [formatEnvAssignment(line)], width)),
       ...(args.retry && args.retry.length > 0
-        ? [row('', '', { color: 'white', width }), row('Retry', args.retry[0] ?? '', { color: 'green', width }), ...args.retry.slice(1).map((line) => row('', line, { color: 'green', width }))]
+        ? [
+            row('', '', { color: 'white', width }),
+            row('Retry', args.retry[0] ?? '', { color: 'green', width }),
+            ...args.retry.slice(1).map((line) => row('', line, { color: 'green', width })),
+          ]
         : []),
       ...(args.notes && args.notes.length > 0
-        ? [row('', '', { color: 'white', width }), row('Notes', args.notes[0] ?? '', { color: 'gray', width }), ...args.notes.slice(1).map((line) => row('', line, { color: 'gray', width }))]
+        ? [
+            row('', '', { color: 'white', width }),
+            row('Notes', args.notes[0] ?? '', { color: 'gray', width }),
+            ...args.notes.slice(1).map((line) => row('', line, { color: 'gray', width })),
+          ]
         : []),
-      `${indent()}${c.bold(accent(LINE))}`,
+      ` ${c.bold(accent(LINE))}`,
       '',
     ] as const;
   },
 
   envVarsNotFound(args: EnvVarsNotFoundArgs) {
-    return Fmt.blocked({
+    return InfoFmt.blocked({
       title: args.title,
       what: args.what,
       why: args.why,
@@ -78,40 +101,56 @@ export const Fmt = {
     const accent = toneColor(args.tone ?? 'success');
     return [
       '',
-      `${indent()}${c.bold(accent(args.title))}`,
-      `${indent()}${c.bold(accent(LINE))}`,
+      ` ${c.bold(accent(args.title))}`,
+      ` ${c.bold(accent(LINE))}`,
       ...args.rows.map((rowData) =>
         rowData.valueParts
           ? richRow(rowData.label, rowData.valueParts, width)
-          : row(rowData.label, rowData.value, { color: rowData.color ?? 'white', width })
+          : row(rowData.label, rowData.value, { color: rowData.color ?? 'white', width }),
       ),
-      `${indent()}${c.bold(accent(LINE))}`,
+      ` ${c.bold(accent(LINE))}`,
       '',
     ] as const;
   },
+
+  deployConfig(args: DeployConfigArgs) {
+    return InfoFmt.info({
+      title: args.title ?? 'Deploy Config',
+      rows: [
+        { label: 'Platform', value: 'console.deno.com', color: 'white' },
+        { label: 'App', value: args.app, color: 'white' },
+        { label: 'Org', value: args.org ?? '(default cli context)', color: 'white' },
+        { label: 'Token', value: '', valueParts: redactToken(args.token) },
+      ],
+    });
+  },
+
+  stagedEntrypoint(args: StagedEntrypointArgs) {
+    return InfoFmt.info({
+      title: 'Staged Entrypoint',
+      rows: [
+        { label: 'staged dir', value: args.stagedDir, color: 'white' },
+        { label: 'entry', value: args.entrypoint, color: 'white' },
+        { label: 'entry paths', value: args.entryPaths, color: 'white' },
+        { label: 'app config', value: args.appEntrypoint, color: 'white' },
+        { label: 'workspace', value: args.workspaceTarget, color: 'white' },
+        { label: 'dist', value: args.distDir, color: 'white' },
+      ],
+    });
+  },
+
+  deployResult(result: DeployResult, title = 'Deploy Result') {
+    return InfoFmt.info({
+      title,
+      rows: [
+        { label: 'ok', value: String(result.ok), color: 'green' },
+        { label: 'code', value: String(result.code), color: result.code === 0 ? 'green' : 'red' },
+        { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
+        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'white' },
+      ],
+    });
+  },
 } as const;
-
-function row(
-  label: string,
-  value: string,
-  options: { color?: 'white' | 'cyan' | 'gray' | 'green'; width?: number } = {},
-) {
-  const head = c.gray(normalizeLabel(label).padEnd(options.width ?? 5));
-  const text =
-    options.color === 'green'
-      ? c.green(value)
-      : options.color === 'cyan'
-      ? c.cyan(value)
-      : options.color === 'gray'
-        ? c.gray(value)
-        : c.white(value);
-  return `${indent()}${head} ${c.gray('│')} ${text}`;
-}
-
-function richRow(label: string, parts: readonly string[], width = 5) {
-  const head = c.gray(normalizeLabel(label).padEnd(width));
-  return `${indent()}${head} ${c.gray('│')} ${parts.join('')}`;
-}
 
 function highlightEnvFile(text: string, color: 'white' | 'cyan' | 'gray') {
   return highlightSpecialTokens(text, color, ['.env']);
@@ -161,18 +200,10 @@ function splitAndHighlight(text: string, token: string, color: 'white' | 'cyan' 
   });
 }
 
-function indent() {
-  return ' ';
-}
+function redactToken(token?: string) {
+  if (!token) return [c.italic(c.gray('(default cli auth)'))] as const;
 
-function toneColor(tone: 'warning' | 'success') {
-  return tone === 'warning' ? c.yellow : c.green;
-}
-
-function normalizeLabel(label: string) {
-  return label.length === 0 ? label : label.toLowerCase();
-}
-
-function maxLabelWidth(labels: readonly string[]) {
-  return Math.max(5, ...labels.map((label) => normalizeLabel(label).length));
+  const head = token.slice(0, 3);
+  const tail = token.slice(-5);
+  return [c.italic(c.gray(`${head}..${tail}`))] as const;
 }

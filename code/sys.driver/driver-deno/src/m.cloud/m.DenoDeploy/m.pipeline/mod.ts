@@ -10,6 +10,7 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
   return Rx.toLifecycle<t.DenoDeploy.Pipeline.Handle>(life, {
+    request,
     $,
 
     async run() {
@@ -25,7 +26,6 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       const result = await deploy({
         stage: staged,
         ...request.config,
-        silent: request.silent,
       });
 
       if (!result.ok) {
@@ -36,7 +36,7 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       $$.next({ kind: 'deploy:done', result });
 
       const preview = result.deploy?.url?.preview;
-      if (request.verify?.preview === true) {
+      if (request.verify?.preview !== false) {
         if (!preview) {
           throw new Error('DenoDeploy.pipeline: verify.preview requires deploy.url.preview.');
         }

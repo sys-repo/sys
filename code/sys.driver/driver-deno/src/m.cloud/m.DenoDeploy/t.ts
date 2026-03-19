@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import type * as d from './t.deploy.ts';
+import type * as f from './t.fmt.ts';
 import type * as p from './t.pipeline.ts';
 import type * as s from './t.stage.ts';
 
@@ -14,6 +15,9 @@ import type * as s from './t.stage.ts';
 export declare namespace DenoDeploy {
   /** Library surface for Deno Deploy staging and execution. */
   export type Lib = {
+    /** Operator-facing formatting and progress helpers. */
+    readonly Fmt: Fmt.Lib;
+
     /** Materialize a deployable staging root for the selected workspace target. */
     stage(request: Stage.Request): Promise<Stage.Result>;
 
@@ -46,12 +50,18 @@ export declare namespace DenoDeploy {
   /** Deploy execution contracts. */
   export namespace Deploy {
     export type Info = d.Info;
+    export type Log = d.Log;
     export type Request = d.Request;
     export type Result = d.Result;
   }
 
   /** Shared deploy execution settings reused across higher-level orchestration. */
   export type DeployConfig = p.DeployConfig;
+
+  /** Operator-facing formatting contracts. */
+  export namespace Fmt {
+    export type Lib = f.Lib;
+  }
 
   /** Staged deploy orchestration contracts. */
   export namespace Pipeline {

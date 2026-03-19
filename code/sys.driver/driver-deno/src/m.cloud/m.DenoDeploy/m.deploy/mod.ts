@@ -7,7 +7,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
   try {
     const resolved = resolveDeployRequestEnv(request);
     if (resolved.app.trim().length === 0) {
-      if (request.silent !== true) {
+      if (request.log?.process !== true) {
         const deployEnv = resolved;
         printDeployEnvGuidance({
           title: 'DENO DEPLOY ENVIRONMENT VARIABLES NOT FOUND',
@@ -33,7 +33,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
       cmd: deploy.cmd,
       args: [...deploy.args],
       cwd: deploy.cwd,
-      silent: resolved.silent === true,
+      silent: resolved.log?.process !== true,
     });
 
     if (output.success) {

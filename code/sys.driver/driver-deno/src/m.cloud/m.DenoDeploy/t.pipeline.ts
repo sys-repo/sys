@@ -3,12 +3,15 @@ import type * as d from './t.deploy.ts';
 import type * as s from './t.stage.ts';
 
 /** Shared deploy execution settings reused across higher-level orchestration. */
-export type DeployConfig = Omit<d.Request, 'stage' | 'silent'>;
+export type DeployConfig = Omit<d.Request, 'stage'>;
 
 /**
  * Observable staged deploy handle.
  */
 export type Handle = t.Lifecycle & {
+  /** Original pipeline request. */
+  readonly request: Request;
+
   /** Observable stream of pipeline steps. */
   readonly $: t.Observable<Step>;
 
@@ -36,9 +39,6 @@ export type Request = {
 
   /** Optional post-deploy verification passes. */
   readonly verify?: Verify;
-
-  /** Suppress native CLI output when true. */
-  readonly silent?: boolean;
 };
 
 /**
