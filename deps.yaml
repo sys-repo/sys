@@ -41,10 +41,10 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@3.2.4
-    - import: npm:@automerge/automerge-repo@2.5.3
-    - import: npm:@automerge/automerge-repo-network-websocket@2.5.3
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.3
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.3
+    - import: npm:@automerge/automerge-repo@2.5.4
+    - import: npm:@automerge/automerge-repo-network-websocket@2.5.4
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.4
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.4
     - import: npm:@automerge/prosemirror@0.2.0
 
   crypto:
@@ -62,7 +62,7 @@ groups:
     - import: npm:@deno/vite-plugin@1.0.6
     - import: npm:rollup@4.59.0
     - import: npm:vite@7.3.1
-    - import: npm:vite-plugin-wasm@3.5.0
+    - import: npm:vite-plugin-wasm@3.6.0
     - import: npm:rollup-plugin-visualizer@7.0.1
 
   dev/tools:
@@ -83,7 +83,7 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.4
     - import: npm:prosemirror-state@1.4.4
-    - import: npm:prosemirror-view@1.41.6
+    - import: npm:prosemirror-view@1.41.7
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
@@ -125,7 +125,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.8.4
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.7
+  - import: npm:hono@4.12.8
     subpaths: [cors, deno, types]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
@@ -139,7 +139,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@8.9.0
+  - import: npm:@stripe/stripe-js@8.11.0
 
   # Websockets:
   - import: npm:ws@8.19.0
@@ -165,5 +165,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.6.0
-  - import: npm:motion@12.36.0
+  - import: npm:motion@12.38.0
   - import: npm:hono@4.12.5
