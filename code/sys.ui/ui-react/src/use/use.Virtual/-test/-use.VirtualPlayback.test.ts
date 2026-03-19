@@ -1,8 +1,8 @@
 import {
   type t,
   act,
-  beforeAll,
-  afterAll,
+  beforeEach,
+  afterEach,
   describe,
   DomMock,
   expect,
@@ -15,7 +15,7 @@ import { useVirtualPlayback } from '../mod.ts';
 import { resolved, seg } from './-u.ts';
 
 describe('useVirtualPlayback', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('initializes and responds to play/pause/seek deterministically', async () => {
     const life = Rx.lifecycle();
@@ -24,22 +24,24 @@ describe('useVirtualPlayback', () => {
       useVirtualPlayback(tl, { autoPlay: false, startAt: 0, life, driver: 'off' }),
     );
 
-    expect(result.current.playing).to.eql(false);
-    expect(result.current.vtime).to.eql(0);
+    try {
+      expect(result.current.playing).to.eql(false);
+      expect(result.current.vtime).to.eql(0);
 
-    act(() => result.current.play());
-    expect(result.current.playing).to.eql(true);
+      act(() => result.current.play());
+      expect(result.current.playing).to.eql(true);
 
-    act(() => result.current.seek(500 as any));
-    expect(result.current.vtime).to.eql(500);
-    expect(result.current.index).to.eql(0);
+      act(() => result.current.seek(500 as any));
+      expect(result.current.vtime).to.eql(500);
+      expect(result.current.index).to.eql(0);
 
-    act(() => result.current.pause());
-    expect(result.current.playing).to.eql(false);
-
-    act(() => life.dispose());
-    unmount();
-    await Promise.resolve(); // flush any microtasks
+      act(() => result.current.pause());
+      expect(result.current.playing).to.eql(false);
+    } finally {
+      act(() => life.dispose());
+      unmount();
+      await Promise.resolve(); // flush any microtasks
+    }
   });
 
   it('advances via manual clock control (integration sanity)', async () => {
@@ -57,18 +59,17 @@ describe('useVirtualPlayback', () => {
       }),
     );
 
-    expect(clock).to.exist;
+    try {
+      expect(clock).to.exist;
 
-    // Advance the core clock, then publish into the hook via seek:
-    act(() => {
-      const next = clock!.advance(250 as t.Msecs);
-      result.current.seek(Timecode.VTime.toMsecs(next.vtime) as any);
-    });
+      // Advance the core clock, then publish into the hook via seek:
+      act(() => result.current.seek(Timecode.VTime.toMsecs(clock!.advance(250 as t.Msecs).vtime) as any));
 
-    expect(result.current.vtime).to.eql(250);
-
-    act(() => life.dispose());
-    unmount();
-    await Promise.resolve();
+      expect(result.current.vtime).to.eql(250);
+    } finally {
+      act(() => life.dispose());
+      unmount();
+      await Promise.resolve();
+    }
   });
 });

@@ -1,9 +1,9 @@
 import type React from 'react';
-import { act, afterAll, beforeAll, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
+import { act, afterEach, beforeEach, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
 import { usePointer } from '../use.Pointer.ts';
 
 describe('usePointer', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('does not invoke onUp for pointer cancel/lost-capture and dedupes cancel', () => {
     const upCalls: string[] = [];

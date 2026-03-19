@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import {
   act,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -13,7 +13,7 @@ import {
 import { Signal } from '../mod.ts';
 
 describe('Signal.useRedrawEffect', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('coalesces redraws per microtask', async () => {
     const h = await renderHook(() => {
@@ -45,23 +45,25 @@ describe('Signal.useRedrawEffect', () => {
       };
     });
 
-    expect(h.result.current.count).to.equal(0);
-    const rendersBefore = h.result.current.renders;
+    try {
+      expect(h.result.current.count).to.equal(0);
+      const rendersBefore = h.result.current.renders;
 
-    // Burst update (act may flush; do not assert intermediate state).
-    await act(() => h.result.current.bump3());
+      // Burst update (act may flush; do not assert intermediate state).
+      await act(() => h.result.current.bump3());
 
-    // After act/microtasks, we must observe the coalesced result.
-    await Testing.until(() => h.result.current.count === 3);
+      // After act/microtasks, we must observe the coalesced result.
+      await Testing.until(() => h.result.current.count === 3);
 
-    const rendersAfter = h.result.current.renders;
+      const rendersAfter = h.result.current.renders;
 
-    // Strict/dev variance is OK; invariant is "not 3 redraws per burst".
-    const delta = rendersAfter - rendersBefore;
-    expect(delta).to.be.gte(1).and.to.be.lte(4);
-
-    await act(() => h.unmount());
-    await Testing.wait();
+      // Strict/dev variance is OK; invariant is "not 3 redraws per burst".
+      const delta = rendersAfter - rendersBefore;
+      expect(delta).to.be.gte(1).and.to.be.lte(4);
+    } finally {
+      await act(() => h.unmount());
+      await Testing.wait();
+    }
   });
 
   it('plays nicely with direct signal-driven renders (no triple renders per burst)', async () => {
@@ -87,18 +89,20 @@ describe('Signal.useRedrawEffect', () => {
       };
     });
 
-    expect(h.result.current.count).to.equal(0);
-    const rendersBefore = h.result.current.renders;
+    try {
+      expect(h.result.current.count).to.equal(0);
+      const rendersBefore = h.result.current.renders;
 
-    await act(() => h.result.current.bump2());
+      await act(() => h.result.current.bump2());
 
-    await Testing.until(() => h.result.current.count === 2);
+      await Testing.until(() => h.result.current.count === 2);
 
-    const rendersAfter = h.result.current.renders;
-    const delta = rendersAfter - rendersBefore;
-    expect(delta).to.be.gte(1).and.to.be.lte(4);
-
-    await act(() => h.unmount());
-    await Testing.wait();
+      const rendersAfter = h.result.current.renders;
+      const delta = rendersAfter - rendersBefore;
+      expect(delta).to.be.gte(1).and.to.be.lte(4);
+    } finally {
+      await act(() => h.unmount());
+      await Testing.wait();
+    }
   });
 });

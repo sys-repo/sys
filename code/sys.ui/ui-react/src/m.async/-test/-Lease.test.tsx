@@ -1,9 +1,9 @@
 import { act } from 'react';
-import { DomMock, beforeAll, afterAll, describe, expect, it, renderHook } from '../../-test.ts';
+import { DomMock, beforeEach, afterEach, describe, expect, it, renderHook } from '../../-test.ts';
 import { Lease } from '../mod.ts';
 
 describe('Async: Lease', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   describe('makeUseLease (hook)', () => {
     it('releases old key and claims new key on key change', () => {
@@ -15,15 +15,15 @@ describe('Async: Lease', () => {
         { initialProps: { keyId: 'A', token: 'T1' } },
       );
 
-      expect(lease.isOwner('A', 'T1')).to.eql(true);
+      try {
+        expect(lease.isOwner('A', 'T1')).to.eql(true);
 
-      act(() => {
-        rerender({ keyId: 'B', token: 'T2' });
-      });
-      expect(lease.current('A')).to.eql(undefined);
-      expect(lease.isOwner('B', 'T2')).to.eql(true);
-
-      act(() => unmount());
+        act(() => rerender({ keyId: 'B', token: 'T2' }));
+        expect(lease.current('A')).to.eql(undefined);
+        expect(lease.isOwner('B', 'T2')).to.eql(true);
+      } finally {
+        act(() => unmount());
+      }
       expect(lease.current('B')).to.eql(undefined);
     });
 
@@ -37,11 +37,13 @@ describe('Async: Lease', () => {
         { initialProps: { token: 'A' } },
       );
 
-      // Re-render with the same token:
-      act(() => rerender({ token: 'A' }));
-
-      expect(lease.isOwner(KEY, 'A')).to.eql(true);
-      act(() => unmount());
+      try {
+        // Re-render with the same token:
+        act(() => rerender({ token: 'A' }));
+        expect(lease.isOwner(KEY, 'A')).to.eql(true);
+      } finally {
+        act(() => unmount());
+      }
       expect(lease.current(KEY)).to.eql(undefined);
     });
 
@@ -52,14 +54,16 @@ describe('Async: Lease', () => {
       const h1 = renderHook(() => useLease('k1', 'A'));
       const h2 = renderHook(() => useLease('k2', 'B'));
 
-      expect(lease.isOwner('k1', 'A')).to.eql(true);
-      expect(lease.isOwner('k2', 'B')).to.eql(true);
+      try {
+        expect(lease.isOwner('k1', 'A')).to.eql(true);
+        expect(lease.isOwner('k2', 'B')).to.eql(true);
 
-      act(() => h1.unmount());
-      expect(lease.current('k1')).to.eql(undefined);
-      expect(lease.isOwner('k2', 'B')).to.eql(true);
-
-      act(() => h2.unmount());
+        act(() => h1.unmount());
+        expect(lease.current('k1')).to.eql(undefined);
+        expect(lease.isOwner('k2', 'B')).to.eql(true);
+      } finally {
+        act(() => h2.unmount());
+      }
       expect(lease.current('k1')).to.eql(undefined);
       expect(lease.current('k2')).to.eql(undefined);
     });
@@ -70,12 +74,18 @@ describe('Async: Lease', () => {
 
       // undefined key
       const a = renderHook(() => useLease(undefined, 'X'));
-      act(() => a.unmount());
+      try {
+      } finally {
+        act(() => a.unmount());
+      }
 
       // null key (intentional type violation to assert runtime behavior)
       // @ts-expect-error intentional null
       const b = renderHook(() => useLease(null, 'Y'));
-      act(() => b.unmount());
+      try {
+      } finally {
+        act(() => b.unmount());
+      }
 
       expect(lease.size).to.eql(0);
     });
@@ -93,9 +103,11 @@ describe('Async: Lease', () => {
         { initialProps: { token: undefined } },
       );
 
-      expect(lease.current(KEY)).to.eql(undefined);
-
-      act(() => h.unmount());
+      try {
+        expect(lease.current(KEY)).to.eql(undefined);
+      } finally {
+        act(() => h.unmount());
+      }
       expect(lease.current(KEY)).to.eql(undefined);
     });
   });

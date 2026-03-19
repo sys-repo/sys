@@ -1,8 +1,8 @@
-import { afterAll, beforeAll, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
 import { usePointerDrag } from '../use.Pointer.Drag.ts';
 
 describe('usePointerDrag', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('touch move events trigger drag updates after start()', () => {
     withPatchedDocument((ctx) => {
@@ -118,19 +118,19 @@ describe('usePointerDrag', () => {
 
       try {
         result.current.start();
-        expect(ctx.listeners.size).to.eql(6);
+        expect(activeListenerTypes(ctx.listeners)).to.eql(EXPECTED_DRAG_LISTENERS);
 
         const onMouseUp = ctx.listeners.get('mouseup');
         expect(typeof onMouseUp).to.eql('function');
         onMouseUp?.(new window.Event('mouseup'));
-        expect(ctx.listeners.size).to.eql(0);
+        expect(activeListenerTypes(ctx.listeners)).to.eql([]);
 
         result.current.start();
-        expect(ctx.listeners.size).to.eql(6);
+        expect(activeListenerTypes(ctx.listeners)).to.eql(EXPECTED_DRAG_LISTENERS);
         const onTouchCancel = ctx.listeners.get('touchcancel');
         expect(typeof onTouchCancel).to.eql('function');
         onTouchCancel?.(new window.Event('touchcancel'));
-        expect(ctx.listeners.size).to.eql(0);
+        expect(activeListenerTypes(ctx.listeners)).to.eql([]);
       } finally {
         unmount();
       }
@@ -218,12 +218,27 @@ type PatchCtx = {
   addCounts: Map<string, number>;
 };
 
+const EXPECTED_DRAG_LISTENERS = [
+  'mousemove',
+  'mouseup',
+  'selectstart',
+  'touchcancel',
+  'touchend',
+  'touchmove',
+] as const;
+
 function toObject(map: Map<string, number>): Record<string, number> {
   const entries: [string, number][] = [];
   for (const [key, value] of map.entries()) {
     entries.push([key, value]);
   }
   return Object.fromEntries(entries);
+}
+
+function activeListenerTypes(listeners: Map<string, EventListener>) {
+  return [...listeners.keys()].filter((key) =>
+    EXPECTED_DRAG_LISTENERS.includes(key as (typeof EXPECTED_DRAG_LISTENERS)[number])
+  ).sort();
 }
 
 function fakeTouchMove(point: { x: number; y: number }): TouchEvent {

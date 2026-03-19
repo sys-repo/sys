@@ -1,7 +1,7 @@
 import {
   act,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -18,7 +18,7 @@ type State = { readonly count?: number };
 type Patch = Partial<State>;
 
 describe('useEffectController', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   const create = (initial: State = {}) => {
     const ref = createFakeRef<State>(initial);
