@@ -12,6 +12,7 @@ export type State = {
   readonly phase: string;
   readonly build: Phase;
   readonly stage: Phase;
+  readonly prepare: Phase;
   readonly deploy: Phase;
   readonly verify: Phase;
 };
@@ -47,6 +48,7 @@ export const DeploymentNote = {
       phase: 'created',
       build: { status: 'pending' },
       stage: { status: 'pending' },
+      prepare: { status: 'pending' },
       deploy: { status: 'pending' },
       verify: { status: 'pending' },
     };
@@ -111,6 +113,36 @@ export const DeploymentNote = {
     return DeploymentNote.update(input, {
       phase: 'failed',
       stage: {
+        status: 'failed',
+        facts: [
+          { label: 'elapsed', value: formatElapsed(args.elapsed) },
+          { label: 'error', value: message(args.error) },
+        ],
+      },
+    });
+  },
+
+  prepareStarted(input: State): State {
+    return DeploymentNote.update(input, {
+      phase: 'preparing',
+      prepare: { status: 'running' },
+    });
+  },
+
+  prepareDone(input: State, args: { readonly elapsed: t.Msecs }): State {
+    return DeploymentNote.update(input, {
+      phase: 'prepared',
+      prepare: {
+        status: 'ok',
+        facts: [{ label: 'elapsed', value: formatElapsed(args.elapsed) }],
+      },
+    });
+  },
+
+  prepareFailed(input: State, args: { readonly elapsed: t.Msecs; readonly error: unknown }): State {
+    return DeploymentNote.update(input, {
+      phase: 'failed',
+      prepare: {
         status: 'failed',
         facts: [
           { label: 'elapsed', value: formatElapsed(args.elapsed) },
@@ -227,6 +259,7 @@ function render(input: State) {
     `- created: \`${input.createdAt}\` ${ok}`,
     ...renderPhase('build', input.build),
     ...renderPhase('stage', input.stage),
+    ...renderPhase('prepare', input.prepare),
     ...renderPhase('deploy', input.deploy),
     ...renderPhase('verify', input.verify),
     '',

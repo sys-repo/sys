@@ -40,11 +40,18 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
           },
           onBuildStart() {
             if (!note || !root) return;
+            $$.next({ kind: 'build:start', pkgDir: normalized.pkgDir, root });
             note = DeploymentNote.buildStarted(note);
             return DeploymentNote.write(root, note);
           },
           async onBuildDone(ctx) {
             if (!note || !root) return;
+            $$.next({
+              kind: 'build:done',
+              pkgDir: normalized.pkgDir,
+              root,
+              elapsed: ctx.elapsed,
+            });
             note = await DeploymentNote.buildDone(note, {
               pkgDir: ctx.target.absolute,
               elapsed: ctx.elapsed,
@@ -53,6 +60,13 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
           },
           onBuildFailed(ctx) {
             if (!note || !root) return;
+            $$.next({
+              kind: 'build:failed',
+              pkgDir: normalized.pkgDir,
+              root,
+              elapsed: ctx.elapsed,
+              error: ctx.error,
+            });
             note = DeploymentNote.buildFailed(note, {
               elapsed: ctx.elapsed,
               error: ctx.error,
@@ -61,11 +75,22 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
           },
           onStageStart() {
             if (!note || !root) return;
+            $$.next({ kind: 'stage:materialize:start', pkgDir: normalized.pkgDir, root });
             note = DeploymentNote.stageStarted(note);
             return DeploymentNote.write(root, note);
           },
           async onStageDone(result) {
             if (!note || !root) return;
+            $$.next({
+              kind: 'stage:materialize:done',
+              stage: {
+                target: result.target,
+                workspace: result.workspace,
+                root: result.root,
+                entry: result.entry,
+              },
+              elapsed: result.elapsed,
+            });
             note = await DeploymentNote.stageDone(note, {
               stageRoot: result.root,
               elapsed: result.elapsed,
@@ -74,6 +99,13 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
           },
           onStageFailed(ctx) {
             if (!note || !root) return;
+            $$.next({
+              kind: 'stage:materialize:failed',
+              pkgDir: normalized.pkgDir,
+              root,
+              elapsed: ctx.elapsed,
+              error: ctx.error,
+            });
             note = DeploymentNote.stageFailed(note, {
               elapsed: ctx.elapsed,
               error: ctx.error,
@@ -84,13 +116,29 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       );
       $$.next({ kind: 'stage:done', stage: staged });
 
-      $$.next({ kind: 'prepare:start', stage: staged });
-      const prepared = await prepare(staged);
-      $$.next({ kind: 'prepare:done', stage: staged, prepared });
-
       if (!note || !root) {
         throw new Error('DenoDeploy.pipeline: missing stage root context.');
       }
+
+      $$.next({ kind: 'prepare:start', stage: staged });
+      note = DeploymentNote.prepareStarted(note);
+      await DeploymentNote.write(root, note);
+      const prepareStartedAt = Time.now.timestamp as t.Msecs;
+      let prepared;
+      try {
+        prepared = await prepare(staged);
+      } catch (error) {
+        const elapsed = Time.elapsed(prepareStartedAt).msec as t.Msecs;
+        $$.next({ kind: 'prepare:failed', stage: staged, elapsed, error });
+        note = DeploymentNote.prepareFailed(note, { elapsed, error });
+        await DeploymentNote.write(root, note);
+        throw error;
+      }
+      note = DeploymentNote.prepareDone(note, {
+        elapsed: Time.elapsed(prepareStartedAt).msec as t.Msecs,
+      });
+      await DeploymentNote.write(root, note);
+      $$.next({ kind: 'prepare:done', stage: staged, prepared });
 
       note = DeploymentNote.deployStarted(note);
       await DeploymentNote.write(root, note);
@@ -103,6 +151,11 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
           ...normalized.config,
         });
       } catch (error) {
+        $$.next({
+          kind: 'deploy:failed',
+          elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+          error,
+        });
         note = DeploymentNote.deployFailed(note, {
           elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
           error,
@@ -112,6 +165,11 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
       }
 
       if (!result.ok) {
+        $$.next({
+          kind: 'deploy:failed',
+          elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+          error: 'error' in result ? result.error : wrangle.deployFailure(result),
+        });
         note = DeploymentNote.deployFailed(note, {
           elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
           error: 'error' in result ? result.error : wrangle.deployFailure(result),
@@ -142,6 +200,12 @@ export const pipeline: t.DenoDeploy.Lib['pipeline'] = (request) => {
         try {
           await verifyPreview(preview);
         } catch (error) {
+          $$.next({
+            kind: 'verify:failed',
+            previewUrl: preview,
+            elapsed: Time.elapsed(verifyStartedAt).msec as t.Msecs,
+            error,
+          });
           note = DeploymentNote.verifyFailed(note, {
             elapsed: Time.elapsed(verifyStartedAt).msec as t.Msecs,
             error,

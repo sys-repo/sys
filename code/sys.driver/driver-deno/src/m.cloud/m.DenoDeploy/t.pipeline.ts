@@ -70,12 +70,42 @@ export type Prepared = {
 export type Step =
   /** Stage execution has started for the selected workspace package. */
   | { readonly kind: 'stage:start'; readonly pkgDir: t.StringDir; readonly root: t.StringDir }
+  /** Target package build has started within the selected workspace package. */
+  | { readonly kind: 'build:start'; readonly pkgDir: t.StringDir; readonly root: t.StringDir }
+  /** Target package build completed successfully. */
+  | { readonly kind: 'build:done'; readonly pkgDir: t.StringDir; readonly root: t.StringDir; readonly elapsed: t.Msecs }
+  /** Target package build failed. */
+  | {
+      readonly kind: 'build:failed';
+      readonly pkgDir: t.StringDir;
+      readonly root: t.StringDir;
+      readonly elapsed: t.Msecs;
+      readonly error: unknown;
+    }
+  /** Workspace materialization into the staged root has started. */
+  | { readonly kind: 'stage:materialize:start'; readonly pkgDir: t.StringDir; readonly root: t.StringDir }
+  /** Workspace materialization into the staged root completed successfully. */
+  | {
+      readonly kind: 'stage:materialize:done';
+      readonly stage: s.Result;
+      readonly elapsed: t.Msecs;
+    }
+  /** Workspace materialization into the staged root failed. */
+  | {
+      readonly kind: 'stage:materialize:failed';
+      readonly pkgDir: t.StringDir;
+      readonly root: t.StringDir;
+      readonly elapsed: t.Msecs;
+      readonly error: unknown;
+    }
   /** Stage execution completed and produced a staged artifact. */
   | { readonly kind: 'stage:done'; readonly stage: s.Result }
   /** Staged artifact preparation has started for Deno Deploy compatibility. */
   | { readonly kind: 'prepare:start'; readonly stage: s.Result }
   /** Staged artifact preparation completed and produced deploy entry metadata. */
   | { readonly kind: 'prepare:done'; readonly stage: s.Result; readonly prepared: Prepared }
+  /** Staged artifact preparation failed. */
+  | { readonly kind: 'prepare:failed'; readonly stage: s.Result; readonly elapsed: t.Msecs; readonly error: unknown }
   | {
       /** Native Deno Deploy execution has started. */
       readonly kind: 'deploy:start';
@@ -87,10 +117,14 @@ export type Step =
       readonly kind: 'deploy:done';
       readonly result: Extract<d.Result, { readonly ok: true }>;
     }
+  /** Native Deno Deploy execution failed. */
+  | { readonly kind: 'deploy:failed'; readonly elapsed: t.Msecs; readonly error: unknown }
   /** Live preview verification has started. */
   | { readonly kind: 'verify:start'; readonly previewUrl: t.StringUrl }
   /** Live preview verification completed successfully. */
-  | { readonly kind: 'verify:done'; readonly previewUrl: t.StringUrl };
+  | { readonly kind: 'verify:done'; readonly previewUrl: t.StringUrl }
+  /** Live preview verification failed. */
+  | { readonly kind: 'verify:failed'; readonly previewUrl: t.StringUrl; readonly elapsed: t.Msecs; readonly error: unknown };
 
 /**
  * Successful staged deploy pipeline outcome.

@@ -1,4 +1,4 @@
-import { c, type t } from './common.ts';
+import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
 import { LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
@@ -38,6 +38,7 @@ type DeployConfigArgs = {
   readonly app: string;
   readonly org?: string;
   readonly token?: string;
+  readonly staging?: string;
   readonly title?: string;
 };
 
@@ -123,6 +124,7 @@ export const InfoFmt = {
         { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
         { label: 'Token', value: '', valueParts: redactToken(config.token) },
         { label: 'Platform', value: 'https://console.deno.com', color: 'gray' },
+        ...(args.staging ? [{ label: 'Staging', value: args.staging, color: 'gray' as const }] : []),
       ],
     });
   },
@@ -141,7 +143,7 @@ export const InfoFmt = {
     });
   },
 
-  deployResult(result: DeployResult, title = 'Deploy Result') {
+  deployResult(result: DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
     return InfoFmt.info({
       title,
       rows: [
@@ -149,6 +151,23 @@ export const InfoFmt = {
         { label: 'code', value: String(result.code), color: result.code === 0 ? 'green' : 'red' },
         { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
         { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'white' },
+        ...(elapsed !== undefined
+          ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
+          : []),
+      ],
+    });
+  },
+
+  pipelineFailure(args: {
+    readonly phase: string;
+    readonly error: unknown;
+  }) {
+    return InfoFmt.info({
+      title: 'Deploy Failed',
+      tone: 'warning',
+      rows: [
+        { label: 'phase', value: args.phase, color: 'white' },
+        { label: 'error', value: failureMessage(args.error), color: 'red' },
       ],
     });
   },
@@ -208,4 +227,8 @@ function redactToken(token?: string) {
   const head = token.slice(0, 3);
   const tail = token.slice(-5);
   return [c.italic(c.gray(`${head}..${tail}`))] as const;
+}
+
+function failureMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

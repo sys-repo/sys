@@ -8,11 +8,13 @@ describe('DenoDeploy.Fmt', () => {
         app: 'sample',
         org: 'sys-org',
         token: 'ddotest12345',
+        staging: '/tmp/stage-root',
       }).join('\n'),
     );
 
     expect(text).to.include('ddo..12345');
     expect(text).to.not.include('ddotest12345');
+    expect(text).to.include('/tmp/stage-root');
   });
 
   it('renders the staged deploy entrypoint summary', () => {
@@ -45,10 +47,24 @@ describe('DenoDeploy.Fmt', () => {
             preview: 'https://app-abc.deno.net',
           },
         },
-      }).join('\n'),
+      }, 'Deploy Result', 1500).join('\n'),
     );
 
     expect(text).to.include('https://console.deno.com/org/app/builds/abc');
     expect(text).to.include('https://app-abc.deno.net');
+    expect(text).to.include('elapsed');
+  });
+
+  it('renders a compact pipeline failure block', () => {
+    const text = stripAnsi(
+      FmtInternal.pipelineFailure({
+        phase: 'prepare',
+        error: new Error('broken deploy root'),
+      }).join('\n'),
+    );
+
+    expect(text).to.include('Deploy Failed');
+    expect(text).to.include('prepare');
+    expect(text).to.include('broken deploy root');
   });
 });

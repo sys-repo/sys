@@ -15,4 +15,5 @@ export const FmtInternal = {
   deployConfig: InfoFmt.deployConfig,
   stagedEntrypoint: InfoFmt.stagedEntrypoint,
   deployResult: InfoFmt.deployResult,
+  pipelineFailure: InfoFmt.pipelineFailure,
 } as const;

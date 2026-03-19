@@ -28,6 +28,8 @@ describe('DenoDeploy.stage deployment note', () => {
       stageRoot: stageRoot.absolute,
       elapsed: 4200,
     });
+    note = DeploymentNote.prepareStarted(note);
+    note = DeploymentNote.prepareDone(note, { elapsed: 250 });
     note = DeploymentNote.deployStarted(note);
     note = DeploymentNote.deployDone(note, {
       elapsed: 12_000,
@@ -50,6 +52,7 @@ describe('DenoDeploy.stage deployment note', () => {
     expect(text).to.include('  - bundle size: `');
     expect(text).to.include('- stage: `ok` ✅');
     expect(text).to.include('  - staged size (excluding node_modules): `');
+    expect(text).to.include('- prepare: `ok` ✅');
     expect(text).to.include('- deploy: `ok` ✅');
     expect(text).to.include('  - revision: `https://console.deno.com/org/app/builds/abc`');
     expect(text).to.include('  - preview: `https://app-abc.deno.net`');
