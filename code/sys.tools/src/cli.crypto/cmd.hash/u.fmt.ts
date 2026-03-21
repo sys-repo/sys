@@ -46,10 +46,13 @@ export const HashFmt = {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));
       const digestShort = ` ${Fmt.hashSuffix(res.digest)}`;
       const status = wrangle.distStatus(opts.dist.status);
-      tbl.push([c.gray('  dist'), `${path}${digestShort}${status}`]);
+      const size = wrangle.distSize(opts.dist.sizeBytes);
+      tbl.push([c.gray('  dir:dist'), `${path}${digestShort}${status}${size}`]);
     }
-    tbl.push([c.gray('  files'), c.gray(res.fileCount.toLocaleString())]);
-    tbl.push([c.gray('  bytes'), c.gray(Str.bytes(res.bytesTotal))]);
+    tbl.push([
+      c.gray('  dir:files'),
+      c.gray(`${res.fileCount.toLocaleString()} ${Str.plural(res.fileCount, 'file')}, ${Str.bytes(res.bytesTotal)}`),
+    ]);
     tbl.push([c.gray('  elapsed'), c.gray(elapsed)]);
 
     return Str.trimEdgeNewlines(String(tbl));
@@ -57,6 +60,11 @@ export const HashFmt = {
 } as const;
 
 const wrangle = {
+  distSize(sizeBytes?: t.NumberBytes) {
+    if (sizeBytes === undefined) return '';
+    return c.gray(`, ${Str.bytes(sizeBytes)}`);
+  },
+
   distStatus(status?: t.HashDistRowStatus) {
     if (!status) return '';
     if (status === 'created' || status === 'changed') return ` ${c.green(`(${status})`)}`;

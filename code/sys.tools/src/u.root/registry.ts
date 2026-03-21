@@ -2,19 +2,20 @@ import { type t } from './common.ts';
 
 type ToolRegistryItem = {
   readonly id: t.Root.Command;
+  readonly label?: string;
   readonly aliases: readonly [string, ...string[]] | undefined;
   readonly load: () => Promise<unknown>;
 };
 
 export const ROOT_REGISTRY = [
+  { id: 'tmpl', aliases: ['clone'], load: () => import('../cli.tmpl/mod.ts') },
   { id: 'pull', aliases: undefined, load: () => import('../cli.pull/mod.ts') },
   { id: 'serve', aliases: undefined, load: () => import('../cli.serve/mod.ts') },
   { id: 'deploy', aliases: undefined, load: () => import('../cli.deploy/mod.ts') },
   { id: 'crdt', aliases: undefined, load: () => import('../cli.crdt/mod.ts') },
-  { id: 'crypto', aliases: undefined, load: () => import('../cli.crypto/mod.ts') },
+  { id: 'crypto', label: 'cryptography', aliases: ['crypto'], load: () => import('../cli.crypto/mod.ts') },
   { id: 'video', aliases: undefined, load: () => import('../cli.video/mod.ts') },
   { id: 'copy', aliases: ['cp'], load: () => import('../cli.clipboard/mod.ts') },
-  { id: 'tmpl', aliases: ['template'], load: () => import('../cli.tmpl/mod.ts') },
   { id: 'update', aliases: ['up', 'info'], load: () => import('../cli.update/mod.ts') },
 ] as const satisfies readonly ToolRegistryItem[];
 
