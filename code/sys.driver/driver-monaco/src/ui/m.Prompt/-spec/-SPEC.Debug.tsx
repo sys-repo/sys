@@ -13,7 +13,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   textSubject: 'hello world 👋',
-  textFooter: '',
+  textFooter: `LLMs are mirrors that refract written thought`,
   overflow: D.overflow,
   maxLines: 3,
 };
