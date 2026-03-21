@@ -1,5 +1,11 @@
 import { type t, c, Cli, Fs, pkg, Str, TemplateNames } from './common.ts';
 
+export function label(v: string) {
+  if (v.startsWith('@')) return `run:   ${v}`;
+  if (v === 'repo') return 'make:  repo (workspace)';
+  return `make:  ${v}`;
+}
+
 /**
  * Select from a list of templates.
  */
@@ -10,7 +16,6 @@ export async function selectTemplate() {
   // Display list of templates.
   let name = '';
   if (!name) {
-    const label = (v: string) => (v.startsWith('@') ? `run:   ${v}` : `make:  ${v}`);
     name = await Cli.Input.Select.prompt({
       message: 'Select Template:',
       options: TemplateNames.map((value: string) => ({ name: label(value), value })),

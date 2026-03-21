@@ -82,7 +82,7 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
     return { pkgName: args.pkgName };
   }
 
-  if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller-signal') {
+  if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller') {
     if (!Is.str(args.name) && !args.interactive) {
       throw new Error(`Template "${tmplName}" requires --name in --no-interactive mode.`);
     }
