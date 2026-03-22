@@ -1,3 +1,4 @@
+import React from 'react';
 import { type t, Rx, Signal } from './common.ts';
 
 export const createController: t.MyCtrlControllerFactory = (args) => {
@@ -32,3 +33,17 @@ export const createController: t.MyCtrlControllerFactory = (args) => {
 
   return api;
 };
+
+export function useControlledView(args: t.MyCtrlControllerArgs) {
+  const controller = React.useMemo(
+    () => createController(args),
+    [args.debug, args.theme, args.props?.debug, args.props?.theme],
+  );
+
+  React.useEffect(() => {
+    return () => controller.dispose();
+  }, [controller]);
+
+  Signal.useRedrawEffect(controller.listen);
+  return controller.view();
+}

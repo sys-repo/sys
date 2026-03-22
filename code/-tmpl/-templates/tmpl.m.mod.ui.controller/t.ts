@@ -32,12 +32,12 @@ export type MyCtrlControlledProps = {
 /**
  * Controller (State)
  */
-type CtrlArgs = {
+export type MyCtrlControllerArgs = {
   props?: Pick<MyCtrlProps, 'debug' | 'theme'>;
   debug?: t.Signal<boolean | undefined>;
   theme?: t.Signal<t.CommonTheme | undefined>;
 };
-export type MyCtrlControllerFactory = (args: CtrlArgs) => MyCtrlController;
+export type MyCtrlControllerFactory = (args: MyCtrlControllerArgs) => MyCtrlController;
 export type MyCtrlController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;
   readonly view: () => Pick<MyCtrlProps, 'debug' | 'theme'>;
