@@ -13,7 +13,7 @@ export function rootRows(): RootRow[] {
     rows.push({ command, columns: items });
   };
 
-  ROOT_REGISTRY.forEach((item) => add(item.id, item.label, item.aliases));
+  ROOT_REGISTRY.forEach((item) => add(item.id, 'label' in item ? item.label : undefined, item.aliases));
 
   return rows;
 }
