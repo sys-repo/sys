@@ -7,7 +7,9 @@ describe('Template: pkg', () => {
      * Template setup:
      */
     const ns = 'ns';
-    const test = await makeWorkspace();
+    const test = await makeWorkspace({
+      workspace: ['code/zns/zed', 'code/ans/alpha'],
+    });
     const name: t.TemplateName = 'pkg';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
@@ -50,7 +52,12 @@ describe('Template: pkg', () => {
       const workspaceDeno = (await Fs.readText(path)).data!;
       expect(workspaceDeno).to.include(`"workspace": [`);
       const json = (await Fs.readJson<{ workspace?: string[] }>(path)).data!;
-      expect(json.workspace).to.eql(['code/ns/foo-1', 'code/ns/foo-2']);
+      expect(json.workspace).to.eql([
+        'code/ans/alpha',
+        'code/ns/foo-1',
+        'code/ns/foo-2',
+        'code/zns/zed',
+      ]);
     }
   });
 });

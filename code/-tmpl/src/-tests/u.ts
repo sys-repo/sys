@@ -1,4 +1,4 @@
-import { type t, c, Fs, makeTmpl, Templates, TmplEngine } from '../-test.ts';
+import { type t, c, Fs, Json, makeTmpl, Templates, TmplEngine } from '../-test.ts';
 
 export { Fmt } from './u.fmt.ts';
 
@@ -19,17 +19,15 @@ export function logTemplate(
 /**
  * Create a bare sample monorepo with a single package folder.
  */
-export const makeWorkspace = async () => {
+export const makeWorkspace = async (options: { workspace?: string[] } = {}) => {
   const tmp = await Fs.makeTempDir({ prefix: 'workspace-' });
   const root = tmp.absolute;
+  const workspace = options.workspace ?? [];
   await Fs.ensureDir(Fs.join(root, '-scripts'));
   await Fs.ensureDir(Fs.join(root, 'code'));
   await Fs.write(
     Fs.join(root, 'deno.json'),
-    `{
-  "workspace": []
-}
-`,
+    Json.stringify({ workspace }) + '\n',
   );
   await Fs.write(
     Fs.join(root, '-scripts/-PATHS.ts'),
