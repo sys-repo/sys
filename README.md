@@ -273,7 +273,7 @@ The inverse proposition also appears to be true:
 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
 
-Adjacent libs: `@sys/std/esm`, `@sys/driver-deno` (workspace).
+Adjacent libs: `@sys/esm`, `@sys/driver-deno` (workspace).
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -285,4 +285,3 @@ To understand the legal and historical context around the MIT Licence
 and it's enduring importance as "an open-source classic", see **Kyle E. Mitchell**'s "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
-

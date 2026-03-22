@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Esm } from '../mod.ts';
 
-describe('Jsr.Esm', () => {
+describe('Esm', () => {
   describe('Esm.hasDefaultExport', () => {
     it('detects direct default exports', () => {
       expect(Esm.hasDefaultExport(`export default 'foo';\n`)).to.eql(true);

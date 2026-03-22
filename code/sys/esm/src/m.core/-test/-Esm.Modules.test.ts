@@ -1,7 +1,7 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Esm } from '../mod.ts';
 
-describe('Jsr.Esm', () => {
+describe('Esm', () => {
   describe('Esm.Modules', () => {
     describe('create:', () => {
       it('empty', () => {

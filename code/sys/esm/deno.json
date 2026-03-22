@@ -10,7 +10,7 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
-    ".": "./src/m.core/mod.ts",
+    ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts"

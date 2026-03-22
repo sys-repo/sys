@@ -1,7 +1,6 @@
 /**
  * @module
- * Tools for working with systems and runtimes that support
- * the ESM (EcmaScript Module) standard.
+ * Core ESM import and dependency helpers.
  */
 import type { t } from './common.ts';
 
@@ -11,8 +10,7 @@ import { parse } from './u.parse.ts';
 import { toString } from './u.toString.ts';
 
 /**
- * Tools for working with systems and runtimes that support
- * the ESM (EcmaScript Module) standard.
+ * Core ESM import and dependency helpers.
  */
 export const Esm: t.EsmLib = {
   Modules,

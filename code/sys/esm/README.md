@@ -3,5 +3,5 @@ ESM import and dependency helpers.
 
 ### Usage
 ```ts
-import { pkg } from 'jsr:@sys/esm';
+import { Esm, pkg } from 'jsr:@sys/esm';
 ```

@@ -6,10 +6,7 @@ export type EsmImportMap = { [key: string]: string };
 /** Values representing public registries of ESM modules. */
 export type EsmRegistry = 'jsr' | 'npm';
 
-/**
- * Tools for working with systems and runtimes that support
- * the ESM (EcmaScript Module) standard.
- */
+/** Core ESM import and dependency helpers. */
 export type EsmLib = {
   /** Tools for working with groups of modules. */
   readonly Modules: t.EsmModulesLib;

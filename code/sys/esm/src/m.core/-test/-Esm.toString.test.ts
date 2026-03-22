@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Esm } from '../mod.ts';
 
-describe('Jsr.Esm', () => {
+describe('Esm', () => {
   describe('Esm.toString', () => {
     it('Esm.toString', () => {
       const test = (input: string) => {

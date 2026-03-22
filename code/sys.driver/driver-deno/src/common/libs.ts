@@ -6,7 +6,7 @@ export { Jsr } from '@sys/registry/jsr';
 export { Process } from '@sys/process';
 export { Args, Delete, Err, Is, Json, Obj, Path, slug, Str } from '@sys/std';
 export { Schedule } from '@sys/std/async';
-export { Esm } from '@sys/std/esm';
+export { Esm } from '@sys/esm';
 export { Ignore } from '@sys/std/ignore';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
