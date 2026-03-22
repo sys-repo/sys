@@ -1,6 +1,6 @@
 import { Fs, type t } from './common.ts';
 
-const CANONICAL_TARGETS = ['pkg.ts', 'src/pkg.ts'] as const;
+const CANONICAL_TARGETS = ['src/pkg.ts'] as const;
 
 /**
  * Resolve the canonical generated package metadata targets for a package root.

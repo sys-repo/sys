@@ -1,5 +1,6 @@
 import { describe, expect, Fs, it, Testing } from '../-test.ts';
 import { WorkspacePkg } from './mod.ts';
+import { resolveExistingTargets } from './u.targets.ts';
 import { renderPkg } from './u.render.ts';
 
 describe(`Workspace.Pkg`, () => {
@@ -81,7 +82,6 @@ describe(`Workspace.Pkg`, () => {
       name: '@scope/a',
       version: '1.0.0',
     });
-    await Fs.write(fs.join('code/projects/a/pkg.ts'), text);
     await Fs.write(fs.join('code/projects/a/src/pkg.ts'), text);
 
     const result = await WorkspacePkg.sync({
@@ -92,14 +92,25 @@ describe(`Workspace.Pkg`, () => {
     expect(result.written).to.eql(0);
     expect(result.unchanged).to.eql(1);
     expect(result.skipped).to.eql(0);
-    expect(result.touched).to.eql([Fs.join(dir, 'pkg.ts'), Fs.join(dir, 'src/pkg.ts')]);
+    expect(result.touched).to.eql([Fs.join(dir, 'src/pkg.ts')]);
     expect(result.packages[0]).to.eql({
       kind: 'unchanged',
       packagePath: dir,
       name: '@scope/a',
       version: '1.0.0',
-      touched: [Fs.join(dir, 'pkg.ts'), Fs.join(dir, 'src/pkg.ts')],
+      touched: [Fs.join(dir, 'src/pkg.ts')],
     });
+  });
+
+  it('uses src/pkg.ts as the only canonical target', async () => {
+    const fs = await Testing.dir('WorkspacePkg.targets.canonical');
+    const dir = fs.join('code/projects/a');
+
+    await Fs.write(fs.join('code/projects/a/pkg.ts'), 'root');
+    await Fs.write(fs.join('code/projects/a/src/pkg.ts'), 'source');
+
+    const result = await resolveExistingTargets(dir);
+    expect(result).to.eql([Fs.join(dir, 'src/pkg.ts')]);
   });
 
   it('writes stale canonical targets from deno.json values', async () => {
@@ -199,7 +210,7 @@ describe(`Workspace.Pkg`, () => {
     });
   });
 
-  it('syncs whichever canonical target files already exist', async () => {
+  it('ignores root pkg.ts and skips when src/pkg.ts is missing', async () => {
     const fs = await Testing.dir('WorkspacePkg.sync.partial-targets');
     const dir = fs.join('deploy/app');
 
@@ -214,10 +225,17 @@ describe(`Workspace.Pkg`, () => {
       source: { include: ['./deploy/**/deno.json'] },
     });
 
-    expect(result.written).to.eql(1);
-    expect(result.touched).to.eql([Fs.join(dir, 'pkg.ts')]);
-    expect((await Fs.readText(fs.join('deploy/app/pkg.ts'))).data).to.eql(
-      renderPkg({ name: '@scope/deploy', version: '3.0.0' }),
-    );
+    expect(result.written).to.eql(0);
+    expect(result.skipped).to.eql(1);
+    expect(result.touched).to.eql([]);
+    expect((await Fs.readText(fs.join('deploy/app/pkg.ts'))).data).to.eql('stale');
+    expect(result.packages[0]).to.eql({
+      kind: 'skipped',
+      packagePath: dir,
+      name: '@scope/deploy',
+      version: '3.0.0',
+      touched: [],
+      reason: 'missing-target-files',
+    });
   });
 });
