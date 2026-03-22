@@ -38,6 +38,7 @@ export const Paths = {
     'code/sys/yaml',
     'code/sys/schema',
     'code/sys/registry',
+    'code/sys/esm',
     'code/sys/workspace',
 
     'code/sys/text',
