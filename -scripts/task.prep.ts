@@ -1,5 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
+import { main as prepWorkspace } from './task.prep.workspace.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
@@ -99,6 +100,7 @@ async function runTaskOrThrow(path: string, command: string) {
  */
 export async function main(context: CommitContext = 'prep') {
   await processDeps();
+  await prepWorkspace();
   await updatePackages();
   const prepared = await prepSubmodules();
   await prepTmplModule(context);
