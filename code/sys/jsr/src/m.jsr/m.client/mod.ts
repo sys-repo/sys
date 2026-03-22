@@ -5,10 +5,10 @@
  */
 
 /** JSR package metadata. */
-export { pkg } from '../pkg.ts';
+export { pkg } from '../../pkg.ts';
 
 /** Module type aliases. */
-export type * as t from '../types.ts';
+export type * as t from '../../types.ts';
 
 /** Client registry helpers. */
 export { Jsr } from './m.Jsr/mod.ts';

@@ -7,7 +7,7 @@ https://jsr.io/docs/api
 ### Example
 Retrieve version information about a module:
 ```ts
-import { Jsr } from 'jsr:@sys/jsr';
+import { Jsr } from 'jsr:@sys/registry/jsr';
 
 const res = await Jsr.Fetch.Pkg.versions("@sys/std");
 const data = res.data; 
@@ -39,7 +39,7 @@ Note: this is a "secure fetch" operation. The JSR manifest checksums (sha256) ar
 the pulled source-file content, and matched before writing to the local file-system.
 
 ```ts
-import { Jsr } from 'jsr:@sys/jsr/server';
+import { Jsr } from 'jsr:@sys/registry/jsr/server';
 
 const { manifest } = await Jsr.Manifest.fetch('@sys/std', '0.0.42');
 if (manifest) {

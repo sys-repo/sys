@@ -1,5 +1,5 @@
 {
-  "name": "@sys/jsr",
+  "name": "@sys/registry",
   "version": "0.0.230",
   "license": "MIT",
   "tasks": {
@@ -9,11 +9,12 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
-    ".": "./src/m.client/mod.ts",
+    ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/m.client/mod.ts",
-    "./server": "./src/m.server/mod.ts"
+    "./jsr": "./src/m.jsr/m.client/mod.ts",
+    "./jsr/client": "./src/m.jsr/m.client/mod.ts",
+    "./jsr/server": "./src/m.jsr/m.server/mod.ts"
   },
   "permissions": {
     "clean": {

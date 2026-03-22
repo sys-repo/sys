@@ -1,10 +1,10 @@
 import { describe, expect, it } from '../-test.ts';
 import { Jsr } from './mod.ts';
 
-describe('@sys/jsr/client', () => {
+describe('@sys/registry/jsr (client)', () => {
   it('API', async () => {
-    const root = await import('@sys/jsr');
-    const client = await import('@sys/jsr/client');
+    const root = await import('@sys/registry/jsr');
+    const client = await import('@sys/registry/jsr/client');
     expect(root.Jsr).to.equal(Jsr);
     expect(root.Jsr.Fetch).to.equal(Jsr.Fetch);
     expect(root.Jsr.Import).to.equal(Jsr.Import);

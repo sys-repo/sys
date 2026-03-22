@@ -1,6 +1,6 @@
 import type { DenoFileLib } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
-import { Jsr } from '@sys/jsr/client';
+import { Jsr } from '@sys/registry/jsr/client';
 import { c } from '@sys/cli';
 import { Is, Json, Str, Time } from '@sys/std';
 import type * as t from '@sys/types';
