@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { run } from './main.ts';
+import { run } from '../main.ts';
 
 describe('scripts/main prep orchestration', () => {
   it('--prep-all passes executed prep count into the final prep:ci close-out', async () => {
