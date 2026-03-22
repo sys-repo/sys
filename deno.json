@@ -46,7 +46,7 @@
     "code/sys/fs",
     "code/sys/http",
     "code/sys/immutable",
-    "code/sys/jsr",
+    "code/sys/registry",
     "code/sys/monorepo",
     "code/sys/net",
     "code/sys/process",
