@@ -22,8 +22,17 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
-    "types": ["@types/react"],
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "webworker",
+      "deno.ns"
+    ],
+    "types": [
+      "@types/react"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -35,29 +44,8 @@
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "workspace": [
-    "code/sys.dev",
     "code/-tmpl",
-    "code/sys/cli",
-    "code/sys/color",
-    "code/sys/crdt",
-    "code/sys/crdt.t",
-    "code/sys/crypto",
-    "code/sys/event",
-    "code/sys/fs",
-    "code/sys/http",
-    "code/sys/immutable",
-    "code/sys/registry",
-    "code/sys/workspace",
-    "code/sys/net",
-    "code/sys/process",
-    "code/sys/schema",
-    "code/sys/skills",
-    "code/sys/std",
-    "code/sys/testing",
-    "code/sys/text",
-    "code/sys/tmpl-engine",
-    "code/sys/types",
-    "code/sys/yaml",
+    "code/sys.dev",
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-monaco",
@@ -76,6 +64,28 @@
     "code/sys.ui/ui-react-components",
     "code/sys.ui/ui-react-devharness",
     "code/sys.ui/ui-state",
+    "code/sys/cli",
+    "code/sys/color",
+    "code/sys/crdt",
+    "code/sys/crdt.t",
+    "code/sys/crypto",
+    "code/sys/esm",
+    "code/sys/event",
+    "code/sys/fs",
+    "code/sys/http",
+    "code/sys/immutable",
+    "code/sys/net",
+    "code/sys/process",
+    "code/sys/registry",
+    "code/sys/schema",
+    "code/sys/skills",
+    "code/sys/std",
+    "code/sys/testing",
+    "code/sys/text",
+    "code/sys/tmpl-engine",
+    "code/sys/types",
+    "code/sys/workspace",
+    "code/sys/yaml",
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
@@ -84,7 +94,10 @@
   ],
   "lint": {
     "rules": {
-      "exclude": ["no-explicit-any", "no-slow-types"]
+      "exclude": [
+        "no-explicit-any",
+        "no-slow-types"
+      ]
     }
   },
   "test": {
@@ -118,3 +131,4 @@
     }
   }
 }
+
