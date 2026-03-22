@@ -10,6 +10,7 @@ export { Rx } from '@sys/std/rx';
 export { c, Cli } from '@sys/cli';
 export { DenoFile } from '@sys/driver-deno/runtime';
 export { Fs, Path } from '@sys/fs';
+export { Process } from '@sys/process';
 export { TmplEngine } from '@sys/tmpl-engine';
 
 /**
