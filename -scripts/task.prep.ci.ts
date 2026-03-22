@@ -30,6 +30,11 @@ export async function main(options: Options = {}) {
   const jsrTarget = '.github/workflows/jsr.yaml';
   const buildTarget = '.github/workflows/build.yaml';
   const testTarget = '.github/workflows/test.yaml';
+  /**
+   * 🐷 TODO:
+   * Move the remaining workspace-CI-specific policy/reporting from root scripts
+   * into @sys/workspace/ci after the rename/refinement pass settles.
+   */
   const jsrPaths = toJsrCiPaths(Paths.modules);
   const versionFilter = options.versionFilter ?? 'all';
   const on = {
