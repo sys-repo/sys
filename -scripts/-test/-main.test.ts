@@ -40,6 +40,21 @@ describe('scripts/main prep orchestration', () => {
       ['prepCi', { versionFilter: 'all' }],
     ]);
   });
+
+  it('--test runs root script specs before workspace module tests', async () => {
+    const calls: unknown[] = [];
+    const api = fakeLib({
+      test: async () => {
+        calls.push(['test']);
+      },
+    });
+
+    await run({ test: true }, api);
+
+    expect(calls).to.eql([
+      ['test'],
+    ]);
+  });
 });
 
 function fakeLib(override: Partial<ReturnType<typeof baseLib>> = {}) {
