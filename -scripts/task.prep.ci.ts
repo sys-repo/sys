@@ -43,7 +43,7 @@ export async function main(options: Options = {}) {
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  await Ci.Jsr.sync({
+  const jsr = await Ci.Jsr.sync({
     cwd,
     env,
     log: true,
@@ -69,17 +69,17 @@ export async function main(options: Options = {}) {
     target: testTarget,
   });
 
-  const commit = versionFilter === 'ahead'
-    ? c.italic(`${c.green('chore(ci): refresh ahead-only GitHub workflow outputs')}`)
-    : c.italic(c.green('chore(ci): refresh generated GitHub workflow outputs'));
+  const commit =
+    versionFilter === 'ahead'
+      ? c.italic(`${c.green('chore(ci): refresh ahead-only GitHub workflow outputs')}`)
+      : c.italic(c.green('chore(ci): refresh generated GitHub workflow outputs'));
   console.info();
   console.info(c.gray('  commit msg:'), commit);
   console.info();
 
   if (options.final && typeof options.prepared === 'number') {
-    const workspaceCommit = c.italic(
-      c.green(`chore(workspace): prepared ${options.prepared} workspace ${Str.plural(options.prepared, 'package')}`),
-    );
+    const msg = `chore(workspace): prepared ${options.prepared} ${Str.plural(options.prepared, 'submodule')} (${jsr.count} jsr ${Str.plural(jsr.count, 'module')})`;
+    const workspaceCommit = c.italic(c.green(msg));
     console.info();
     console.info(c.gray('━'.repeat(84)));
     console.info(c.gray('final commit msg:'), workspaceCommit);

@@ -1,16 +1,17 @@
 import { Fs, Str, c } from './common.ts';
 
-const TARGET = './code/sys/monorepo/src/m.ci/u.deno.ts';
+const TARGET = './code/sys/workspace/src/m.ci/u.deno.ts';
 
 export async function main() {
   const next = text();
-  await Fs.write(TARGET, next, { force: true });
+  const existing = (await Fs.readText(TARGET)).data;
+  const changed = existing !== next;
+  if (changed) {
+    await Fs.write(TARGET, next, { force: true });
+  }
 
-  console.info(
-    c.brightCyan('Updated file:'),
-    c.gray(Fs.trimCwd(TARGET)),
-    c.white(`(Deno ${Deno.version.deno})`),
-  );
+  const label = changed ? c.brightCyan('Updated file:') : c.gray('Unchanged file:');
+  console.info(label, c.gray(Fs.trimCwd(TARGET)), c.white(`(Deno ${Deno.version.deno})`));
 }
 
 function text(version = Deno.version.deno) {
