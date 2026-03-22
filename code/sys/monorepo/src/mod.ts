@@ -1,6 +1,6 @@
 /**
  * @module
- * Workspace facts, selection, and task-planning primitives for @sys monorepos.
+ * Workspace orchestration helpers for multi-package repositories.
  */
 export { pkg } from './pkg.ts';
 
