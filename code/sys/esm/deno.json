@@ -10,9 +10,10 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
-    ".": "./src/mod.ts",
+    ".": "./src/m.core/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./core": "./src/m.core/mod.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
