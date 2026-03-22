@@ -11,16 +11,16 @@ type DenoPkgJson = {
 /**
  * Sync generated package metadata files from discovered `deno.json` manifests.
  */
-export async function sync(args: t.MonorepoPkg.SyncArgs): Promise<t.MonorepoPkg.SyncResult> {
+export async function sync(args: t.WorkspacePkg.SyncArgs): Promise<t.WorkspacePkg.SyncResult> {
   const cwd = args.cwd ?? Deno.cwd();
   const packagePaths = await resolvePackagePaths(cwd, args.source);
-  const packages: t.MonorepoPkg.PackageResult[] = [];
+  const packages: t.WorkspacePkg.PackageResult[] = [];
 
   for (const packagePath of packagePaths) {
     packages.push(await syncPackage(packagePath));
   }
 
-  const result: t.MonorepoPkg.SyncResult = {
+  const result: t.WorkspacePkg.SyncResult = {
     count: packages.length,
     written: packages.filter((item) => item.kind === 'written').length,
     unchanged: packages.filter((item) => item.kind === 'unchanged').length,
@@ -33,7 +33,7 @@ export async function sync(args: t.MonorepoPkg.SyncArgs): Promise<t.MonorepoPkg.
   return result;
 }
 
-async function syncPackage(packagePath: t.StringPath): Promise<t.MonorepoPkg.PackageResult> {
+async function syncPackage(packagePath: t.StringPath): Promise<t.WorkspacePkg.PackageResult> {
   const denoJsonPath = Fs.join(packagePath, 'deno.json');
   const deno = (await Fs.readJson<DenoPkgJson>(denoJsonPath)).data;
 
@@ -71,9 +71,9 @@ async function syncPackage(packagePath: t.StringPath): Promise<t.MonorepoPkg.Pac
 
 function skipped(
   packagePath: t.StringPath,
-  reason: Extract<t.MonorepoPkg.PackageResult, { kind: 'skipped' }>['reason'],
+  reason: Extract<t.WorkspacePkg.PackageResult, { kind: 'skipped' }>['reason'],
   data: { name?: string; version?: string } = {},
-): t.MonorepoPkg.PackageResult {
+): t.WorkspacePkg.PackageResult {
   return {
     kind: 'skipped',
     packagePath,
@@ -85,7 +85,7 @@ function skipped(
 }
 
 function logSyncResult(
-  result: t.MonorepoPkg.SyncResult,
+  result: t.WorkspacePkg.SyncResult,
   options: { cwd: t.StringDir; log?: boolean },
 ) {
   if (!options.log) return;

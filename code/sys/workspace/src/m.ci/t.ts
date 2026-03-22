@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 
 /**
- * Continuous-integration module surface for monorepo tooling.
+ * Continuous-integration helpers for multi-package repositories.
  */
-export namespace MonorepoCi {
+export namespace WorkspaceCi {
   /** Continuous-integration helper surface. */
   export type Lib = {
     /** JSR publish workflow helpers. */

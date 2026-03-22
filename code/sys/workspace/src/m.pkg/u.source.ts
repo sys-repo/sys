@@ -7,7 +7,7 @@ const EXCLUDE = ['**/.tmp/**', '**/node_modules/**', '**/src/-test/**'] as const
  */
 export async function resolvePackagePaths(
   cwd: t.StringDir,
-  source: t.MonorepoPkg.Source,
+  source: t.WorkspacePkg.Source,
 ): Promise<readonly t.StringPath[]> {
   const glob = Fs.glob(cwd, { includeDirs: false });
   const seen = new Set<string>();

@@ -1,5 +1,5 @@
 /**
  * @module
- * Package metadata sync helpers for @sys monorepos.
+ * Package metadata sync helpers for multi-package repositories.
  */
-export { MonorepoPkg } from './m.Pkg.ts';
+export { WorkspacePkg } from './m.Pkg.ts';

@@ -3,7 +3,7 @@ import { type t, Fs } from './common.ts';
 /**
  * Compute aggregate source statistics from explicit include and exclude globs.
  */
-export async function stats(args: t.MonorepoInfo.StatsArgs): Promise<t.MonorepoInfo.StatsResult> {
+export async function stats(args: t.WorkspaceInfo.StatsArgs): Promise<t.WorkspaceInfo.StatsResult> {
   const cwd = args.cwd ?? Deno.cwd();
   const include = [...args.source.include];
   const exclude = [...(args.source.exclude ?? [])];

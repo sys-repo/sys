@@ -1,16 +1,16 @@
 import type { t } from './common.ts';
 
 /**
- * Workspace facts, selection, and task-planning primitives for @sys monorepos.
+ * Workspace facts, selection, and task-planning primitives.
  */
-export namespace Monorepo {
-  /** Root monorepo helper surface. */
+export namespace Workspace {
+  /** Root workspace helper surface. */
   export type Lib = {
     /** Continuous-integration helpers. */
-    readonly Ci: t.MonorepoCi.Lib;
+    readonly Ci: t.WorkspaceCi.Lib;
     /** Package metadata sync helpers. */
-    readonly Pkg: t.MonorepoPkg.Lib;
+    readonly Pkg: t.WorkspacePkg.Lib;
     /** Source statistics helpers. */
-    readonly Info: t.MonorepoInfo.Lib;
+    readonly Info: t.WorkspaceInfo.Lib;
   };
 }

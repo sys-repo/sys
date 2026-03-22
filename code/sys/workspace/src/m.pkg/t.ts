@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 
 /**
- * Package metadata sync helpers for @sys monorepos.
+ * Package metadata sync helpers for multi-package repositories.
  */
-export declare namespace MonorepoPkg {
+export declare namespace WorkspacePkg {
   /** Package metadata sync surface. */
   export type Lib = {
     /** Sync generated package metadata files across matching packages. */

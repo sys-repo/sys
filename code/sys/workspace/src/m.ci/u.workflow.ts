@@ -3,9 +3,9 @@ import { CI_DENO_VERSION } from './u.deno.ts';
 
 type WorkflowArgs = {
   readonly name: string;
-  readonly permissions: t.MonorepoCi.WorkflowEntries;
-  readonly on?: t.MonorepoCi.WorkflowOn;
-  readonly env?: t.MonorepoCi.WorkflowEntries;
+  readonly permissions: t.WorkspaceCi.WorkflowEntries;
+  readonly on?: t.WorkspaceCi.WorkflowOn;
+  readonly env?: t.WorkspaceCi.WorkflowEntries;
   readonly jobConfig?: string;
   readonly body: string;
 };
@@ -44,7 +44,7 @@ export function workflowTemplate(args: WorkflowArgs) {
           echo "dependency install failed after $max_attempts attempts"
           exit 1
 
-      - name: Monorepo Info
+      - name: Workspace Info
         run: deno task info
 
       - name: Deno Info
@@ -98,7 +98,7 @@ export const wrangle = {
     return values.map((value) => `${' '.repeat(indent)}- ${value}`).join('\n');
   },
 
-  on(value?: t.MonorepoCi.WorkflowOn) {
+  on(value?: t.WorkspaceCi.WorkflowOn) {
     const on = value ?? { push: { branches: ['main'] as const } };
     const lines = ['on:'];
     if (on.push?.branches?.length || on.push?.tags?.length) {

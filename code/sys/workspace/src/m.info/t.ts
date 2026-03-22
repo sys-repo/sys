@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 
 /**
- * Monorepo source statistics helpers.
+ * Workspace source statistics helpers.
  */
-export declare namespace MonorepoInfo {
+export declare namespace WorkspaceInfo {
   /** Source statistics surface. */
   export type Lib = {
     /** Compute source statistics from include and exclude globs. */
@@ -26,7 +26,7 @@ export declare namespace MonorepoInfo {
     readonly lines?: boolean;
   };
 
-  /** Arguments for monorepo source statistics. */
+  /** Arguments for workspace source statistics. */
   export type StatsArgs = {
     /** Working directory used to resolve source globs. */
     readonly cwd?: t.StringDir;

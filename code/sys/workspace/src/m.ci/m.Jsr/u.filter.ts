@@ -1,7 +1,7 @@
 import { Err, Is, Jsr, Semver, type t } from '../common.ts';
 import { loadModule, type Module } from './u.ts';
 
-type VersionFilter = t.MonorepoCi.Jsr.TextArgs['versionFilter'];
+type VersionFilter = t.WorkspaceCi.Jsr.TextArgs['versionFilter'];
 
 export async function filterModules(
   cwd: t.StringDir,

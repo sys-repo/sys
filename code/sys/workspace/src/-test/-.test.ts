@@ -1,18 +1,18 @@
 import { describe, expect, it } from '../-test.ts';
-import { MonorepoCi } from '../m.ci/mod.ts';
-import { MonorepoInfo } from '../m.info/mod.ts';
-import { MonorepoPkg } from '../m.pkg/mod.ts';
-import { Monorepo } from '../mod.ts';
+import { WorkspaceCi } from '../m.ci/mod.ts';
+import { WorkspaceInfo } from '../m.info/mod.ts';
+import { WorkspacePkg } from '../m.pkg/mod.ts';
+import { Workspace } from '../mod.ts';
 
 describe(`@sys/workspace`, () => {
   it('API', async () => {
     const m = await import('@sys/workspace');
-    expect(m.Monorepo).to.equal(Monorepo);
-    expect(m.Monorepo.Pkg).to.equal(MonorepoPkg);
-    expect(m.Monorepo.Info).to.equal(MonorepoInfo);
-    expect(m.Monorepo.Ci).to.equal(MonorepoCi);
-    expect(m.Monorepo.Ci.Jsr).to.equal(MonorepoCi.Jsr);
-    expect(m.Monorepo.Ci.Build).to.equal(MonorepoCi.Build);
-    expect(m.Monorepo.Ci.Test).to.equal(MonorepoCi.Test);
+    expect(m.Workspace).to.equal(Workspace);
+    expect(m.Workspace.Pkg).to.equal(WorkspacePkg);
+    expect(m.Workspace.Info).to.equal(WorkspaceInfo);
+    expect(m.Workspace.Ci).to.equal(WorkspaceCi);
+    expect(m.Workspace.Ci.Jsr).to.equal(WorkspaceCi.Jsr);
+    expect(m.Workspace.Ci.Build).to.equal(WorkspaceCi.Build);
+    expect(m.Workspace.Ci.Test).to.equal(WorkspaceCi.Test);
   });
 });

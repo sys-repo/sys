@@ -1,15 +1,15 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
-import { MonorepoInfo } from '../mod.ts';
+import { WorkspaceInfo } from '../mod.ts';
 
-describe(`Monorepo.Info.stats`, () => {
+describe(`Workspace.Info.stats`, () => {
   it('counts files from explicit include globs', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.files');
+    const fs = await Testing.dir('WorkspaceInfo.stats.files');
 
     await Fs.write(fs.join('code/a.ts'), 'export const a = 1;\n');
     await Fs.write(fs.join('code/b.tsx'), 'export const b = 2;\n');
     await Fs.write(fs.join('code/c.md'), '# no\n');
 
-    const result = await MonorepoInfo.stats({
+    const result = await WorkspaceInfo.stats({
       cwd: fs.dir,
       source: { include: ['code/**/*.{ts,tsx}'] },
     });
@@ -23,13 +23,13 @@ describe(`Monorepo.Info.stats`, () => {
   });
 
   it('applies exclude globs during discovery', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.exclude');
+    const fs = await Testing.dir('WorkspaceInfo.stats.exclude');
 
     await Fs.write(fs.join('code/src/a.ts'), 'export const a = 1;\n');
     await Fs.write(fs.join('code/.tmp/b.ts'), 'export const b = 2;\n');
     await Fs.write(fs.join('code/node_modules/c.ts'), 'export const c = 3;\n');
 
-    const result = await MonorepoInfo.stats({
+    const result = await WorkspaceInfo.stats({
       cwd: fs.dir,
       source: {
         include: ['code/**/*.ts'],
@@ -45,12 +45,12 @@ describe(`Monorepo.Info.stats`, () => {
   });
 
   it('computes line totals when requested', async () => {
-    const fs = await Testing.dir('MonorepoInfo.stats.lines');
+    const fs = await Testing.dir('WorkspaceInfo.stats.lines');
 
     await Fs.write(fs.join('code/a.ts'), 'a\nb\n');
     await Fs.write(fs.join('code/b.tsx'), 'c\n');
 
-    const result = await MonorepoInfo.stats({
+    const result = await WorkspaceInfo.stats({
       cwd: fs.dir,
       source: { include: ['code/**/*.{ts,tsx}'] },
       totals: { lines: true },

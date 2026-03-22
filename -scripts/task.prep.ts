@@ -1,4 +1,4 @@
-import { Monorepo } from '@sys/workspace';
+import { Workspace } from '@sys/workspace';
 import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
@@ -33,7 +33,7 @@ async function processDeps() {
   const fp = (text: string) => i(c.yellow(text)); // fp: file-path
   const fmtSeeFiles = c.gray(`${fp(PATH.deno)} and ${fp(PATH.package)}`);
   console.info();
-  console.info(c.brightWhite(`${c.bold('Monorepo Import Map')}`));
+  console.info(c.brightWhite(`${c.bold('Workspace Import Map')}`));
   console.info(c.gray(` (dependencies written to):`), fmtSeeFiles);
   console.info();
   console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
@@ -45,7 +45,7 @@ async function processDeps() {
  * to their corresponding current `deno.json` file values.
  */
 async function updatePackages() {
-  await Monorepo.Pkg.sync({
+  await Workspace.Pkg.sync({
     cwd: Deno.cwd(),
     source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
     log: true,
@@ -95,7 +95,7 @@ async function runTaskOrThrow(path: string, command: string) {
 
 /**
  * Prepare the [deno.json | package.json] files from
- * definitions within the monorepo's `deps.yaml` configuration.
+ * definitions within the workspace `deps.yaml` configuration.
  */
 export async function main(context: CommitContext = 'prep') {
   await processDeps();

@@ -1,4 +1,4 @@
-import { Monorepo } from '@sys/workspace';
+import { Workspace } from '@sys/workspace';
 
 const PATHS = {
   projects: 'code/projects',
@@ -12,7 +12,7 @@ const PATHS = {
  */
 async function updatePackages(cwd = Deno.cwd()) {
   const source = { include: ['./code/projects/**/deno.json'] };
-  await Monorepo.Pkg.sync({ cwd, source, log: true });
+  await Workspace.Pkg.sync({ cwd, source, log: true });
 }
 
 /**
@@ -25,8 +25,8 @@ async function updateCi(cwd = Deno.cwd()) {
   } as const;
 
   const source = { root: PATHS.projects };
-  await Monorepo.Ci.Build.sync({ cwd, log: true, source, target: PATHS.build, on });
-  await Monorepo.Ci.Test.sync({ cwd, log: true, source, target: PATHS.test, on });
+  await Workspace.Ci.Build.sync({ cwd, log: true, source, target: PATHS.build, on });
+  await Workspace.Ci.Test.sync({ cwd, log: true, source, target: PATHS.test, on });
 }
 
 export async function main(cwd = Deno.cwd()) {

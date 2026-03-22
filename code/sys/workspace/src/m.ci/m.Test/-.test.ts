@@ -1,9 +1,9 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
-import { MonorepoCi } from '../mod.ts';
+import { WorkspaceCi } from '../mod.ts';
 
-describe('MonorepoCi.Test', () => {
+describe('WorkspaceCi.Test', () => {
   it('builds matrix YAML from ordered module paths', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.text');
+    const fs = await Testing.dir('WorkspaceCi.Test.text');
     const a = fs.join('code/sys/alpha');
     const b = fs.join('code/sys/beta');
 
@@ -16,7 +16,7 @@ describe('MonorepoCi.Test', () => {
       tasks: { test: 'deno task info' },
     });
 
-    const yaml = await MonorepoCi.Test.text({ paths: [a, b] });
+    const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
     expect(yaml.includes('name: test')).to.eql(true);
     expect(yaml.includes('test module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
@@ -35,7 +35,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('writes YAML to disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.write');
+    const fs = await Testing.dir('WorkspaceCi.Test.write');
     const moduleDir = fs.join('code/sys/alpha');
     const target = fs.join('.github/workflows/test.yaml');
 
@@ -43,7 +43,7 @@ describe('MonorepoCi.Test', () => {
       name: '@scope/alpha',
       tasks: { test: 'deno task info' },
     });
-    const res = await MonorepoCi.Test.write({ paths: [moduleDir], target });
+    const res = await WorkspaceCi.Test.write({ paths: [moduleDir], target });
 
     expect(res.target).to.eql(target);
     expect(res.count).to.eql(1);
@@ -53,7 +53,7 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('returns unchanged when the rendered workflow already matches disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync.unchanged');
+    const fs = await Testing.dir('WorkspaceCi.Test.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/test.yaml';
 
@@ -62,10 +62,10 @@ describe('MonorepoCi.Test', () => {
       tasks: { test: 'deno task info' },
     });
 
-    const first = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
     expect(first.kind).to.eql('written');
 
-    const second = await MonorepoCi.Test.sync({
+    const second = await WorkspaceCi.Test.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
@@ -76,14 +76,14 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('renders explicit push and pull request triggers', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.on');
+    const fs = await Testing.dir('WorkspaceCi.Test.on');
     const moduleDir = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
       name: '@scope/alpha',
       tasks: { test: 'deno task info' },
     });
-    const yaml = await MonorepoCi.Test.text({
+    const yaml = await WorkspaceCi.Test.text({
       on: {
         pull_request: { branches: ['main'], paths_ignore: ['.github/workflows/jsr.yaml'] },
         push: {
@@ -102,46 +102,46 @@ describe('MonorepoCi.Test', () => {
   });
 
   it('falls back to the module path when name is missing', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.path-fallback');
+    const fs = await Testing.dir('WorkspaceCi.Test.path-fallback');
     const moduleDir = fs.join('code/projects/demo');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { tasks: { test: 'deno task info' } });
-    const yaml = await MonorepoCi.Test.text({ paths: [moduleDir] });
+    const yaml = await WorkspaceCi.Test.text({ paths: [moduleDir] });
 
     expect(yaml.includes(`name: "${moduleDir}"`)).to.eql(true);
   });
 
   it('syncs from a source root and removes the workflow when no test modules exist', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync');
+    const fs = await Testing.dir('WorkspaceCi.Test.sync');
     const root = fs.join('code/projects');
     const target = '.github/workflows/test.yaml';
 
     await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), { tasks: { test: 'deno task info' } });
     await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task info' } });
 
-    const written = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const written = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(written.kind).to.eql('written');
     expect(written.count).to.eql(1);
     expect(await Fs.exists(fs.join(target))).to.eql(true);
 
     await Fs.remove(Fs.join(root, 'alpha'));
-    const removed = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const removed = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(removed.kind).to.eql('removed');
     expect(await Fs.exists(fs.join(target))).to.eql(false);
 
-    const skipped = await MonorepoCi.Test.sync({ cwd: fs.dir, source: { root }, target });
+    const skipped = await WorkspaceCi.Test.sync({ cwd: fs.dir, source: { root }, target });
     expect(skipped.kind).to.eql('skipped');
   });
 
   it('filters explicit path sources by test task presence', async () => {
-    const fs = await Testing.dir('MonorepoCi.Test.sync.paths');
+    const fs = await Testing.dir('WorkspaceCi.Test.sync.paths');
     const testDir = fs.join('code/projects/testable');
     const buildDir = fs.join('code/projects/build-only');
 
     await Fs.writeJson(Fs.join(testDir, 'deno.json'), { tasks: { test: 'deno task info' } });
     await Fs.writeJson(Fs.join(buildDir, 'deno.json'), { tasks: { build: 'deno task info' } });
 
-    const written = await MonorepoCi.Test.sync({
+    const written = await WorkspaceCi.Test.sync({
       cwd: fs.dir,
       source: { paths: [buildDir, testDir] },
       target: '.github/workflows/test.yaml',

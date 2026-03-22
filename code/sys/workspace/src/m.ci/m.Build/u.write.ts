@@ -1,7 +1,7 @@
 import { type t, Fs } from '../common.ts';
 import { text } from './u.text.ts';
 
-export async function write(args: t.MonorepoCi.Build.WriteArgs) {
+export async function write(args: t.WorkspaceCi.Build.WriteArgs) {
   const yaml = await text(args);
   const cwd = args.cwd ?? Deno.cwd();
   const target = Fs.resolve(cwd, args.target);

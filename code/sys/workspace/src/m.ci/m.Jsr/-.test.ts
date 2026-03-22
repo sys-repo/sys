@@ -1,16 +1,16 @@
 import { type t, describe, expect, expectError, Fs, it, Jsr, Testing } from '../../-test.ts';
-import { MonorepoCi } from '../mod.ts';
+import { WorkspaceCi } from '../mod.ts';
 
-describe('MonorepoCi.Jsr', () => {
+describe('WorkspaceCi.Jsr', () => {
   it('builds YAML from ordered module paths', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.text');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.text');
     const a = fs.join('code/sys/alpha');
     const b = fs.join('code/sys/beta');
 
     await Fs.writeJson(Fs.join(a, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
     await Fs.writeJson(Fs.join(b, 'deno.json'), { name: '@scope/beta', version: '1.0.0' });
 
-    const yaml = await MonorepoCi.Jsr.text({ paths: [a, b] });
+    const yaml = await WorkspaceCi.Jsr.text({ paths: [a, b] });
     expect(yaml.includes('name: jsr')).to.eql(true);
     expect(yaml.includes('publish module → "@scope/alpha"')).to.eql(true);
     expect(yaml.includes('publish module → "@scope/beta"')).to.eql(true);
@@ -26,12 +26,12 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('writes YAML to disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.write');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.write');
     const moduleDir = fs.join('code/sys/alpha');
     const target = fs.join('.github/workflows/jsr.yaml');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    const res = await MonorepoCi.Jsr.write({ paths: [moduleDir], target });
+    const res = await WorkspaceCi.Jsr.write({ paths: [moduleDir], target });
 
     expect(res.target).to.eql(target);
     expect(res.count).to.eql(1);
@@ -41,16 +41,16 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('returns unchanged when the rendered workflow already matches disk', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.sync.unchanged');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/jsr.yaml';
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
-    const first = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Jsr.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
     expect(first.kind).to.eql('written');
 
-    const second = await MonorepoCi.Jsr.sync({
+    const second = await WorkspaceCi.Jsr.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
@@ -61,11 +61,11 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('renders explicit push and pull request triggers', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.on');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.on');
     const moduleDir = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    const yaml = await MonorepoCi.Jsr.text({
+    const yaml = await WorkspaceCi.Jsr.text({
       on: {
         pull_request: { branches: ['main'] },
         push: { branches: ['main', 'sample-branch'] },
@@ -79,11 +79,11 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('renders tag-triggered publish workflows with workflow dispatch', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.tags');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.tags');
     const moduleDir = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    const yaml = await MonorepoCi.Jsr.text({
+    const yaml = await WorkspaceCi.Jsr.text({
       on: { push: { tags: ['jsr-publish', 'jsr-publish-main'] }, workflow_dispatch: true },
       paths: [moduleDir],
     });
@@ -98,12 +98,12 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('syncs from explicit paths and removes the workflow when no modules remain', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.sync');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.sync');
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/jsr.yaml';
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
-    const written = await MonorepoCi.Jsr.sync({
+    const written = await WorkspaceCi.Jsr.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
@@ -112,23 +112,23 @@ describe('MonorepoCi.Jsr', () => {
     expect(written.count).to.eql(1);
     expect(await Fs.exists(fs.join(target))).to.eql(true);
 
-    const removed = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
+    const removed = await WorkspaceCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
     expect(removed.kind).to.eql('removed');
     expect(await Fs.exists(fs.join(target))).to.eql(false);
 
-    const skipped = await MonorepoCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
+    const skipped = await WorkspaceCi.Jsr.sync({ cwd: fs.dir, source: { paths: [] }, target });
     expect(skipped.kind).to.eql('skipped');
   });
 
   it('preserves caller order for explicit path sources', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.sync.order');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.sync.order');
     const alpha = fs.join('code/sys/alpha');
     const tmpl = fs.join('code/-tmpl');
 
     await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@sys/alpha', version: '1.0.0' });
     await Fs.writeJson(Fs.join(tmpl, 'deno.json'), { name: '@sys/tmpl', version: '1.0.0' });
 
-    const written = await MonorepoCi.Jsr.sync({
+    const written = await WorkspaceCi.Jsr.sync({
       cwd: fs.dir,
       source: { paths: [alpha, tmpl] },
       target: '.github/workflows/jsr.yaml',
@@ -140,7 +140,7 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('excludes unnamed modules during root discovery', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.root-filter');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.root-filter');
     const root = fs.join('code/projects');
 
     await Fs.writeJson(Fs.join(root, 'alpha/deno.json'), {
@@ -149,7 +149,7 @@ describe('MonorepoCi.Jsr', () => {
     });
     await Fs.writeJson(Fs.join(root, 'beta/deno.json'), { tasks: { build: 'deno task info' } });
 
-    const written = await MonorepoCi.Jsr.sync({
+    const written = await WorkspaceCi.Jsr.sync({
       cwd: fs.dir,
       source: { root },
       target: '.github/workflows/jsr.yaml',
@@ -163,7 +163,7 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('versionFilter: ahead → includes only unpublished or ahead packages', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.ahead');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.ahead');
     const alpha = fs.join('code/sys/alpha');
     const beta = fs.join('code/sys/beta');
     const gamma = fs.join('code/sys/gamma');
@@ -179,7 +179,7 @@ describe('MonorepoCi.Jsr', () => {
         '@scope/gamma': unpublished(),
       },
       async () => {
-        const yaml = await MonorepoCi.Jsr.text({
+        const yaml = await WorkspaceCi.Jsr.text({
           paths: [alpha, beta, gamma],
           versionFilter: 'ahead',
         });
@@ -193,27 +193,27 @@ describe('MonorepoCi.Jsr', () => {
   });
 
   it('versionFilter: ahead → throws when local version is behind JSR latest', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.ahead.behind');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.ahead.behind');
     const alpha = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
     await withPkgVersions({ '@scope/alpha': versions('@scope/alpha', '1.1.0') }, async () => {
       await expectError(
-        async () => await MonorepoCi.Jsr.text({ paths: [alpha], versionFilter: 'ahead' }),
+        async () => await WorkspaceCi.Jsr.text({ paths: [alpha], versionFilter: 'ahead' }),
         'Local version is behind JSR latest',
       );
     });
   });
 
   it('versionFilter: ahead → includes packages that return 404 from JSR versions metadata', async () => {
-    const fs = await Testing.dir('MonorepoCi.Jsr.ahead.unpublished-404');
+    const fs = await Testing.dir('WorkspaceCi.Jsr.ahead.unpublished-404');
     const alpha = fs.join('code/sys/alpha');
 
     await Fs.writeJson(Fs.join(alpha, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
     await withPkgVersions({ '@scope/alpha': unpublished404('@scope/alpha') }, async () => {
-      const yaml = await MonorepoCi.Jsr.text({
+      const yaml = await WorkspaceCi.Jsr.text({
         paths: [alpha],
         versionFilter: 'ahead',
       });

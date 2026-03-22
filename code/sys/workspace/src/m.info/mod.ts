@@ -1,5 +1,5 @@
 /**
  * @module
- * Monorepo source statistics helpers for @sys workspaces.
+ * Source statistics helpers for multi-package repositories.
  */
-export { MonorepoInfo } from './m.Info.ts';
+export { WorkspaceInfo } from './m.Info.ts';

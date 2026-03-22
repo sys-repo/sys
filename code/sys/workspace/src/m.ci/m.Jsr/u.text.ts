@@ -12,7 +12,7 @@ const JSR_MAIN_GUARD_STEP = `
     git merge-base --is-ancestor HEAD refs/remotes/origin/main
 `;
 
-export async function text(args: t.MonorepoCi.Jsr.TextArgs) {
+export async function text(args: t.WorkspaceCi.Jsr.TextArgs) {
   const cwd = args.cwd ?? Deno.cwd();
   const modules = await filterModules(cwd, args.paths, args.versionFilter);
   let body = wrangle.indent(JSR_MAIN_GUARD_STEP.trim(), 6);

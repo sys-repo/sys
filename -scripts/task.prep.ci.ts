@@ -1,10 +1,9 @@
-import { MonorepoCi as Ci } from '@sys/workspace/ci';
-import type { MonorepoCi } from '@sys/workspace/t';
+import { Workspace, type t } from '@sys/workspace';
 import { Paths } from './-PATHS.ts';
 import { c, Str } from './common.ts';
 
 type Options = {
-  versionFilter?: MonorepoCi.Jsr.VersionFilter;
+  versionFilter?: t.WorkspaceCi.Jsr.VersionFilter;
   prepared?: number;
   final?: boolean;
 };
@@ -48,7 +47,7 @@ export async function main(options: Options = {}) {
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  const jsr = await Ci.Jsr.sync({
+  const jsr = await Workspace.Ci.Jsr.sync({
     cwd,
     env,
     log: true,
@@ -57,7 +56,7 @@ export async function main(options: Options = {}) {
     target: jsrTarget,
     versionFilter,
   });
-  await Ci.Build.sync({
+  await Workspace.Ci.Build.sync({
     cwd,
     env,
     log: true,
@@ -65,7 +64,7 @@ export async function main(options: Options = {}) {
     source: { paths: Paths.modules },
     target: buildTarget,
   });
-  await Ci.Test.sync({
+  await Workspace.Ci.Test.sync({
     cwd,
     env,
     log: true,

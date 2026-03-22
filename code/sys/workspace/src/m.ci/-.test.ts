@@ -1,12 +1,12 @@
 import { describe, expect, it } from '../-test.ts';
-import { MonorepoCi } from './mod.ts';
+import { WorkspaceCi } from './mod.ts';
 
 describe(`@sys/workspace/ci`, () => {
   it('API', async () => {
     const m = await import('@sys/workspace/ci');
-    expect(m.MonorepoCi).to.equal(MonorepoCi);
-    expect(m.MonorepoCi.Jsr).to.equal(MonorepoCi.Jsr);
-    expect(m.MonorepoCi.Build).to.equal(MonorepoCi.Build);
-    expect(m.MonorepoCi.Test).to.equal(MonorepoCi.Test);
+    expect(m.WorkspaceCi).to.equal(WorkspaceCi);
+    expect(m.WorkspaceCi.Jsr).to.equal(WorkspaceCi.Jsr);
+    expect(m.WorkspaceCi.Build).to.equal(WorkspaceCi.Build);
+    expect(m.WorkspaceCi.Test).to.equal(WorkspaceCi.Test);
   });
 });

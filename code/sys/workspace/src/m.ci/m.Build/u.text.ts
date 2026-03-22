@@ -3,7 +3,7 @@ import { workflowTemplate, wrangle } from '../u.workflow.ts';
 import { loadModule, toMatrixItemYaml } from './u.ts';
 import { BUILD_BODY_TEMPLATE, BUILD_JOB_CONFIG_TEMPLATE } from './u.tmpl.ts';
 
-export async function text(args: t.MonorepoCi.Build.Args) {
+export async function text(args: t.WorkspaceCi.Build.Args) {
   const cwd = args.cwd ?? Deno.cwd();
   const modules = await Promise.all(args.paths.map((path) => loadModule(cwd, path)));
   const items = modules.length

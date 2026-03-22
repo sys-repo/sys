@@ -10,4 +10,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { Monorepo } from './m.Monorepo.ts';
+export { Workspace } from './m.Workspace.ts';

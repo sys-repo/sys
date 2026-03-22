@@ -1,7 +1,7 @@
-import { Monorepo } from '@sys/workspace';
+import { Workspace } from '@sys/workspace';
 
 export async function main(cwd = Deno.cwd()) {
-  const stats = await Monorepo.Info.stats({
+  const stats = await Workspace.Info.stats({
     cwd,
     source: {
       include: ['code/**/*.{ts,tsx}'],
@@ -11,7 +11,7 @@ export async function main(cwd = Deno.cwd()) {
   });
 
   console.info();
-  console.info(Monorepo.Info.fmt(stats));
+  console.info(Workspace.Info.fmt(stats));
   console.info();
 }
 

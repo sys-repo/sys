@@ -2,7 +2,7 @@ import { c, Fs, Json, Path, Str, type t } from './common.ts';
 
 export async function resolveSourcePaths(
   cwd: t.StringDir,
-  source: t.MonorepoCi.Source,
+  source: t.WorkspaceCi.Source,
   options: { task?: 'build' | 'test'; named?: boolean },
 ) {
   if ('paths' in source) {
@@ -38,7 +38,7 @@ export async function removeIfExists(cwd: t.StringDir, target: t.StringPath) {
 
 export function logSyncResult(
   subject: 'build' | 'test' | 'jsr',
-  result: t.MonorepoCi.SyncResult,
+  result: t.WorkspaceCi.SyncResult,
   options: { log?: boolean } = {},
 ) {
   if (!options.log) return;
