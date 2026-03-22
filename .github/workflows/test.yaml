@@ -48,10 +48,10 @@ jobs:
             path: code/sys/yaml
           - name: "@sys/schema"
             path: code/sys/schema
-          - name: "@sys/jsr"
-            path: code/sys/jsr
-          - name: "@sys/monorepo"
-            path: code/sys/monorepo
+          - name: "@sys/registry"
+            path: code/sys/registry
+          - name: "@sys/workspace"
+            path: code/sys/workspace
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/tmpl-engine"

@@ -13,8 +13,8 @@
     "@sys/fs/t": "jsr:@sys/fs@0.0.267/t",
     "@sys/http/client": "jsr:@sys/http@0.0.235/client",
     "@sys/http/t": "jsr:@sys/http@0.0.235/t",
-    "@sys/monorepo": "jsr:@sys/monorepo@0.0.26",
-    "@sys/monorepo/t": "jsr:@sys/monorepo@0.0.26/t",
+    "@sys/workspace": "jsr:@sys/workspace@0.0.26",
+    "@sys/workspace/t": "jsr:@sys/workspace@0.0.26/t",
     "@sys/process": "jsr:@sys/process@0.0.248",
     "@sys/process/t": "jsr:@sys/process@0.0.248/t",
     "@sys/std": "jsr:@sys/std@0.0.323",
@@ -42,4 +42,3 @@
     "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.264/t"
   }
 }
-

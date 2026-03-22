@@ -63,8 +63,8 @@ describe('prep.u', () => {
         '@sys/fs/t': 'jsr:@sys/fs@0.0.0/t',
         '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
         '@sys/http/t': 'jsr:@sys/http@0.0.0/t',
-        '@sys/monorepo': 'jsr:@sys/monorepo@0.0.0',
-        '@sys/monorepo/t': 'jsr:@sys/monorepo@0.0.0/t',
+        '@sys/workspace': 'jsr:@sys/workspace@0.0.0',
+        '@sys/workspace/t': 'jsr:@sys/workspace@0.0.0/t',
         '@sys/process': 'jsr:@sys/process@0.0.0',
         '@sys/process/t': 'jsr:@sys/process@0.0.0/t',
         '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
@@ -92,7 +92,7 @@ describe('prep.u', () => {
       '@sys/driver-vite': '0.0.297',
       '@sys/fs': '0.0.243',
       '@sys/http': '0.0.210',
-      '@sys/monorepo': '0.0.011',
+      '@sys/workspace': '0.0.011',
       '@sys/process': '0.0.201',
       '@sys/std': '0.0.300',
       '@sys/tmpl': '0.3.7',
@@ -112,8 +112,8 @@ describe('prep.u', () => {
     expect(res.imports['@sys/fs/t']).to.eql('jsr:@sys/fs@0.0.243/t');
     expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
     expect(res.imports['@sys/http/t']).to.eql('jsr:@sys/http@0.0.210/t');
-    expect(res.imports['@sys/monorepo']).to.eql('jsr:@sys/monorepo@0.0.011');
-    expect(res.imports['@sys/monorepo/t']).to.eql('jsr:@sys/monorepo@0.0.011/t');
+    expect(res.imports['@sys/workspace']).to.eql('jsr:@sys/workspace@0.0.011');
+    expect(res.imports['@sys/workspace/t']).to.eql('jsr:@sys/workspace@0.0.011/t');
     expect(res.imports['@sys/process']).to.eql('jsr:@sys/process@0.0.201');
     expect(res.imports['@sys/process/t']).to.eql('jsr:@sys/process@0.0.201/t');
     expect(res.imports['@sys/std']).to.eql('jsr:@sys/std@0.0.300');
