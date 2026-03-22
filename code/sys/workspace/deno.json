@@ -1,5 +1,5 @@
 {
-  "name": "@sys/monorepo",
+  "name": "@sys/workspace",
   "version": "0.0.26",
   "license": "MIT",
   "tasks": {

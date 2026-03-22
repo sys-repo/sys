@@ -3,7 +3,7 @@ import { MonorepoInfo } from '../mod.ts';
 
 describe(`Monorepo.Info`, () => {
   it('API', async () => {
-    const m = await import('@sys/monorepo/info');
+    const m = await import('@sys/workspace/info');
     expect(m.MonorepoInfo).to.equal(MonorepoInfo);
   });
 

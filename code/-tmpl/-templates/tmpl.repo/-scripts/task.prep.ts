@@ -1,4 +1,4 @@
-import { Monorepo } from '@sys/monorepo';
+import { Monorepo } from '@sys/workspace';
 
 const PATHS = {
   projects: 'code/projects',

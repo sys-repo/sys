@@ -1,4 +1,4 @@
-import { Monorepo } from '@sys/monorepo';
+import { Monorepo } from '@sys/workspace';
 
 export async function main(cwd = Deno.cwd()) {
   const stats = await Monorepo.Info.stats({

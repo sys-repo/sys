@@ -1,4 +1,4 @@
-import { Monorepo } from '@sys/monorepo';
+import { Monorepo } from '@sys/workspace';
 import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;

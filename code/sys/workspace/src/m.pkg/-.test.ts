@@ -4,7 +4,7 @@ import { renderPkg } from './u.render.ts';
 
 describe(`Monorepo.Pkg`, () => {
   it('API', async () => {
-    const m = await import('@sys/monorepo/pkg');
+    const m = await import('@sys/workspace/pkg');
     expect(m.MonorepoPkg).to.equal(MonorepoPkg);
   });
 

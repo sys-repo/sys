@@ -4,9 +4,9 @@ import { MonorepoInfo } from '../m.info/mod.ts';
 import { MonorepoPkg } from '../m.pkg/mod.ts';
 import { Monorepo } from '../mod.ts';
 
-describe(`@sys/monorepo/ci`, () => {
+describe(`@sys/workspace`, () => {
   it('API', async () => {
-    const m = await import('@sys/monorepo');
+    const m = await import('@sys/workspace');
     expect(m.Monorepo).to.equal(Monorepo);
     expect(m.Monorepo.Pkg).to.equal(MonorepoPkg);
     expect(m.Monorepo.Info).to.equal(MonorepoInfo);

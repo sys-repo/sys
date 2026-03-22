@@ -1,5 +1,5 @@
-import { MonorepoCi as Ci } from '../code/sys/monorepo/src/m.ci/mod.ts';
-import type { MonorepoCi } from '../code/sys/monorepo/src/m.ci/t.ts';
+import { MonorepoCi as Ci } from '@sys/workspace/ci';
+import type { MonorepoCi } from '@sys/workspace/t';
 import { Paths } from './-PATHS.ts';
 import { c, Str } from './common.ts';
 
