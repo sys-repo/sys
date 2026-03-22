@@ -3,7 +3,7 @@ import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } 
 import { HttpOrigin } from '../mod.ts';
 import { type SampleName, Sample } from './-samples.ts';
 
-type P = t.HttpOriginProps;
+type P = t.HttpOrigin.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
   controlled?: boolean;
   sample?: SampleName;
@@ -126,7 +126,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `env: ${p.env.value}`}
-        onClick={() => Signal.cycle<t.HttpOriginEnv>(p.env, ['localhost', 'production'])}
+        onClick={() => Signal.cycle<t.HttpOrigin.Env>(p.env, ['localhost', 'production'])}
       />
 
       <Button

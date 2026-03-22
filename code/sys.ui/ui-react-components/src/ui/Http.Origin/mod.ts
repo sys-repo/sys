@@ -8,7 +8,7 @@ import { Controlled } from './ui.Controlled.tsx';
 import { createController as controller } from './u.controller.ts';
 import { Data } from './m.Data.ts';
 
-export const HttpOrigin: t.HttpOriginLib = {
+export const HttpOrigin: t.HttpOrigin.Lib = {
   Data,
   controller,
   UI: { Controlled, Uncontrolled },

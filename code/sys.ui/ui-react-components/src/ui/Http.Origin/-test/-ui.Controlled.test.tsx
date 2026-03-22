@@ -17,12 +17,12 @@ describe('HttpOrigin.UI.Controlled', () => {
   DomMock.init({ beforeAll, afterAll });
 
   it('useControlledView reflects initial external signal state on first render', async () => {
-    function Probe(props: t.HttpOriginControlledProps) {
+    function Probe(props: t.HttpOrigin.ControlledProps) {
       const view = useControlledView({ env: props.env, origin: props.origin, props: { spec: props.spec } });
       return <div>{JSON.stringify({ env: view.env, hasOnChange: typeof view.onChange === 'function' })}</div>;
     }
 
-    const env = Signal.create<t.HttpOriginEnv>('production');
+    const env = Signal.create<t.HttpOrigin.Env>('production');
     const res = await TestReact.render(<Probe env={env} spec={Sample.media} />, { strict: false });
 
     expect(res.container.textContent).to.include('"env":"production"');
@@ -32,7 +32,7 @@ describe('HttpOrigin.UI.Controlled', () => {
   });
 
   it('renders production origin data on first mount with signal-backed env', async () => {
-    const env = Signal.create<t.HttpOriginEnv>('production');
+    const env = Signal.create<t.HttpOrigin.Env>('production');
     const res = await TestReact.render(<Controlled env={env} spec={Sample.media} />, { strict: false });
 
     expect(res.container.textContent?.includes('api.example.com')).to.eql(true);

@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Rx, Signal } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 
-export const createController: t.HttpOriginControllerFactory = (args) => {
+export const createController: t.HttpOrigin.ControllerFactory = (args) => {
   const s = Signal.create;
   let rev = 0;
   const state = {
@@ -10,12 +10,12 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
     origin: args.origin ?? s<t.UrlTree | undefined>(undefined),
   };
 
-  const api = Rx.toLifecycle<t.HttpOriginController>({
+  const api = Rx.toLifecycle<t.HttpOrigin.Controller>({
     state,
     get rev() {
       return rev;
     },
-    view(): ReturnType<t.HttpOriginController['view']> {
+    view(): ReturnType<t.HttpOrigin.Controller['view']> {
       const v = Signal.toObject(state);
       return {
         env: v.env,
@@ -48,7 +48,7 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
   return api;
 };
 
-export function useControlledView(args: t.HttpOriginControllerArgs) {
+export function useControlledView(args: t.HttpOrigin.ControllerArgs) {
   const controller = React.useMemo(
     () => createController(args),
     [args.env, args.origin, args.props?.env, args.props?.spec],

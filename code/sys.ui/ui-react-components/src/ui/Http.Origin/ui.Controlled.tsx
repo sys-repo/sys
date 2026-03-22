@@ -6,7 +6,7 @@ import { Uncontrolled } from './ui.tsx';
 /**
  * Component:
  */
-export const Controlled: React.FC<t.HttpOriginControlledProps> = (props) => {
+export const Controlled: React.FC<t.HttpOrigin.ControlledProps> = (props) => {
   const { origin, env, spec } = props;
   const view = useControlledView({ origin, env, props: { spec } });
 

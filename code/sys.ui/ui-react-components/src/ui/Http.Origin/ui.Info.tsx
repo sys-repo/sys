@@ -3,7 +3,7 @@ import { type t, KeyValue } from './common.ts';
 import { Data } from './m.Data.ts';
 
 export type InfoProps = {
-  env: t.HttpOriginEnv;
+  env: t.HttpOrigin.Env;
   origin?: t.UrlTree;
   theme?: t.CommonTheme;
   style?: t.CssInput;
