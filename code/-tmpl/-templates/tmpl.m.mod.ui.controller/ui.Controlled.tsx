@@ -6,7 +6,7 @@ import { Uncontrolled } from './ui.tsx';
 /**
  * Component:
  */
-export const Controlled: React.FC<t.MyCtrlControlledProps> = (props) => {
+export const Controlled: React.FC<t.MyCtrl.ControlledProps> = (props) => {
   const { debug, theme } = props;
   const view = useControlledView({ debug, theme });
 

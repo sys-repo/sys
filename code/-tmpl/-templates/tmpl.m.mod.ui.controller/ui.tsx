@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, Obj } from './common.ts';
 
-export const Uncontrolled: React.FC<t.MyCtrlProps> = (props) => {
+export const Uncontrolled: React.FC<t.MyCtrl.Props> = (props) => {
   const { debug = false } = props;
 
   /**

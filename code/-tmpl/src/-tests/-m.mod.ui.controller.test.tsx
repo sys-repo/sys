@@ -7,7 +7,7 @@ import { useControlledView } from '../../-templates/tmpl.m.mod.ui.controller/u.c
 
 describe('Template: m.mod.ui.controller', () => {
   it('useControlledView reflects initial external signal state on first render', async () => {
-    function Probe(props: t.MyCtrlControlledProps) {
+    function Probe(props: t.MyCtrl.ControlledProps) {
       const view = useControlledView(props);
       return <div>{JSON.stringify(view)}</div>;
     }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Rx, Signal } from './common.ts';
 
-export const createController: t.MyCtrlControllerFactory = (args) => {
+export const createController: t.MyCtrl.ControllerFactory = (args) => {
   const s = Signal.create;
   let rev = 0;
 
@@ -10,12 +10,12 @@ export const createController: t.MyCtrlControllerFactory = (args) => {
     theme: args.theme ?? s(args.props?.theme),
   };
 
-  const api = Rx.toLifecycle<t.MyCtrlController>({
+  const api = Rx.toLifecycle<t.MyCtrl.Controller>({
     state,
     get rev() {
       return rev;
     },
-    view(): ReturnType<t.MyCtrlController['view']> {
+    view(): ReturnType<t.MyCtrl.Controller['view']> {
       const v = Signal.toObject(state);
       return { debug: v.debug, theme: v.theme };
     },
@@ -34,7 +34,7 @@ export const createController: t.MyCtrlControllerFactory = (args) => {
   return api;
 };
 
-export function useControlledView(args: t.MyCtrlControllerArgs) {
+export function useControlledView(args: t.MyCtrl.ControllerArgs) {
   const controller = React.useMemo(
     () => createController(args),
     [args.debug, args.theme, args.props?.debug, args.props?.theme],

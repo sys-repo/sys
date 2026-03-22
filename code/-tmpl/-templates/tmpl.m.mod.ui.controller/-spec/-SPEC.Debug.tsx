@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../common.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 
-type P = t.MyCtrlProps;
+type P = t.MyCtrl.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { controlled?: boolean };
 const defaults: Storage = {
   debug: false,

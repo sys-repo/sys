@@ -2,7 +2,7 @@ import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
 
-type P = t.MyCtrlProps;
+type P = t.MyCtrl.Props;
 
 /**
  * Constants:
