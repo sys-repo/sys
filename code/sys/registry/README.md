@@ -1,29 +1,35 @@
-# JSR - “Javascript Registry”
-Tools for working with the [JSR](https://jsr.io/docs/api) module 
-registry ([ESM](https://ecma-international.org/publications-and-standards/standards/ecma-262/)).
+# Registry
+Namespace entry for working with package registries.
 
-https://jsr.io/docs/api
+<p>&nbsp;</p>
 
-### Example
-Retrieve version information about a module:
+## Surfaces
+- `jsr:@sys/registry` → root namespace package metadata.
+- `jsr:@sys/registry/jsr` → JSR client helpers (default entry)
+- `jsr:@sys/registry/jsr/client` → explicit JSR client entry.
+- `jsr:@sys/registry/jsr/server` → JSR server helpers.
+
+<p>&nbsp;</p>
+
+## JSR
+JSR is exposed under this namespace as a registry-specific surface.
+
+JSR docs:
+- https://jsr.io/docs/api
+
+Retrieve version information about a package:
 ```ts
 import { Jsr } from 'jsr:@sys/registry/jsr';
 
-const res = await Jsr.Fetch.Pkg.versions("@sys/std");
-const data = res.data; 
-//    ↑  { scope: "sys", name: "std", latest: "0.0.42", versions: [Getter] }
+const res = await Jsr.Fetch.Pkg.versions('@sys/std');
+const data = res.data;
+//    ↑  { scope: 'sys', name: 'std', latest: '0.0.42', versions: [Getter] }
 ```
 
-Sort versions:
+Retrieve information about a specific package version:
 ```ts
-import { Semver } from 'jsr:@sys/std';
+import { Jsr } from 'jsr:@sys/registry/jsr';
 
-const res = await Jsr.Fetch.Pkg.versions("@sys/std");
-const versions = Semver.sort(Object.keys(res.data?.versions ?? []));
-```
-
-Retrieve information about a specific module version:
-```ts
 const res = await Jsr.Fetch.Pkg.info('@sys/std', '0.0.42');
 
 // res.data:
@@ -33,24 +39,14 @@ const res = await Jsr.Fetch.Pkg.info('@sys/std', '0.0.42');
 //  -  graph (moduleGraph1, moduleGraph2)
 ```
 
-Pull the source-code of a specific module/version and save it to the local file-system.
-
-Note: this is a "secure fetch" operation. The JSR manifest checksums (sha256) are compared with
-the pulled source-file content, and matched before writing to the local file-system.
-
+Pull package source locally from the server surface:
 ```ts
 import { Jsr } from 'jsr:@sys/registry/jsr/server';
 
 const { manifest } = await Jsr.Manifest.fetch('@sys/std', '0.0.42');
 if (manifest) {
-  /**
-   * Options:
-   * - ƒn(filter)
-   * - write: (default string: directory to save to).
-   */
-  const pulled = await manifest.pull('./my-modules-dir'); 
-  //                                 ↑ saves to: <dir>/@<scope>/<module-name>
+  const pulled = await manifest.pull('./my-modules-dir');
+  //                         ↑ saves to: <dir>/@<scope>/<module-name>
   console.log(pulled);
 }
-
 ```
