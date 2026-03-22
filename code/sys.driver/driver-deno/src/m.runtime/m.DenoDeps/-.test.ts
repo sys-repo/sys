@@ -202,6 +202,27 @@ describe('DenoDeps', () => {
       expect(modules.items[0].version).to.eql('^0.1.0');
     });
 
+    it('de-dupe preserves registry boundaries for the same package name', async () => {
+      const yaml = `
+        deno.json:
+          - import: jsr:@scope/foo@1.2.3
+          - import: npm:@scope/foo@4.5.6
+          - import: jsr:@scope/foo@1.2.4
+      `;
+
+      const res = await DenoDeps.from(yaml);
+      const deps = res.data?.deps ?? [];
+
+      expect(res.error).to.eql(undefined);
+      expect(deps.length).to.eql(2);
+
+      const jsr = deps.find((dep) => dep.module.registry === 'jsr' && dep.module.name === '@scope/foo');
+      const npm = deps.find((dep) => dep.module.registry === 'npm' && dep.module.name === '@scope/foo');
+
+      expect(jsr?.module.version).to.eql('1.2.4');
+      expect(npm?.module.version).to.eql('4.5.6');
+    });
+
     it('groups: dev (flag) on ref → package.json:devDependencies', async () => {
       const yaml = `
         groups:

@@ -93,16 +93,16 @@ export const from: t.DepsLib['from'] = async (input) => {
    */
   const dedupedMap = new Map<string, t.Dep>();
   for (const item of deps) {
-    const name = item.module.name;
-    if (!dedupedMap.has(name)) {
-      dedupedMap.set(name, item);
+    const id = wrangle.depId(item);
+    if (!dedupedMap.has(id)) {
+      dedupedMap.set(id, item);
     } else {
       /**
        * Merge targets:
        *  - ensuring no duplicate target values.
        *  - ensuring highest version is retained.
        */
-      const existing = dedupedMap.get(name)!;
+      const existing = dedupedMap.get(id)!;
       for (const target of item.target) {
         if (!existing.target.includes(target)) {
           existing.target.push(target);
@@ -133,5 +133,11 @@ const is = {
   yamlPath(path?: string): boolean {
     if (!path) return false;
     return path.endsWith('.yaml') || path.endsWith('.yml');
+  },
+} as const;
+
+const wrangle = {
+  depId(dep: t.Dep): string {
+    return `${dep.module.registry}:${dep.module.name}`;
   },
 } as const;
