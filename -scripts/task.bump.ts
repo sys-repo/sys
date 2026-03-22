@@ -1,5 +1,7 @@
 import { DenoFile } from '@sys/driver-deno/runtime';
 import { type t, c, Cli, R, Semver, Str } from './common.ts';
+import { main as prepCi } from './task.prep.ci.ts';
+import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
@@ -86,7 +88,9 @@ export async function main(options: Options = {}) {
   }
 
   const prepare = await import('./task.prep.ts');
-  await prepare.main('bump');
+  const prepared = await prepare.main('bump');
+  await prepCiDeno();
+  await prepCi({ prepared, final: true });
 
   return true;
 }

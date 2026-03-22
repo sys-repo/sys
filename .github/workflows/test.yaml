@@ -50,6 +50,8 @@ jobs:
             path: code/sys/schema
           - name: "@sys/registry"
             path: code/sys/registry
+          - name: "@sys/esm"
+            path: code/sys/esm
           - name: "@sys/workspace"
             path: code/sys/workspace
           - name: "@sys/text"
