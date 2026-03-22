@@ -65,7 +65,7 @@ jobs:
           done
           echo "dependency install failed after $max_attempts attempts"
           exit 1
-      - name: Monorepo Info
+      - name: Workspace Info
         run: deno task info
       - name: Deno Info
         run: deno info && deno --version
