@@ -38,6 +38,16 @@ export const makeWorkspace = async (options: { workspace?: string[] } = {}) => {
 `,
   );
 
+  for (const path of workspace) {
+    const dir = Fs.join(root, path);
+    const name = path.split('/').at(-1) ?? 'sample';
+    await Fs.ensureDir(dir);
+    await Fs.writeJson(Fs.join(dir, 'deno.json'), {
+      name: `@test/${name}`,
+      version: '0.0.0',
+    });
+  }
+
   const ls = async () => (await Fs.glob(tmp.absolute).find('**')).map((m) => m.path);
   return { root, tmp, ls } as const;
 };

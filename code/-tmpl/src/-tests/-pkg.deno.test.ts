@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { type t, describe, expect, Fs, it, makeTmpl, Process, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: pkg', () => {
@@ -58,6 +58,13 @@ describe('Template: pkg', () => {
         'code/ns/foo-2',
         'code/zns/zed',
       ]);
+    }
+
+    // Self package export: `tmp` should resolve `pkg` from the named package entrypoint.
+    {
+      const res = await Process.sh({ path: dirA, silent: true }).run('deno task tmp');
+      expect(res.success).to.eql(true);
+      expect(res.text.stdout).to.include('🐷 @my-scope/foo-1');
     }
   });
 });
