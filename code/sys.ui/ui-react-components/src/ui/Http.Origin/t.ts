@@ -48,13 +48,13 @@ export type HttpOriginControlledProps = {
 /**
  * Controller (State)
  */
-type CtrlArgs = {
+export type HttpOriginControllerArgs = {
   props?: Pick<HttpOriginProps, 'env' | 'spec'>;
   env?: t.Signal<t.HttpOriginEnv | undefined>;
   origin?: t.Signal<t.UrlTree | undefined>;
 };
 /** Factory signature for constructing a Http.Origin state controller. */
-export type HttpOriginControllerFactory = (args: CtrlArgs) => HttpOriginController;
+export type HttpOriginControllerFactory = (args: HttpOriginControllerArgs) => HttpOriginController;
 /** Controller contract exposing lifecycle hooks and derived view state. */
 export type HttpOriginController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;

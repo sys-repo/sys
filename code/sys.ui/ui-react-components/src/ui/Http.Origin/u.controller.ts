@@ -1,3 +1,4 @@
+import React from 'react';
 import { type t, Rx, Signal } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 
@@ -46,3 +47,17 @@ export const createController: t.HttpOriginControllerFactory = (args) => {
 
   return api;
 };
+
+export function useControlledView(args: t.HttpOriginControllerArgs) {
+  const controller = React.useMemo(
+    () => createController(args),
+    [args.env, args.origin, args.props?.env, args.props?.spec],
+  );
+
+  React.useEffect(() => {
+    return () => controller.dispose();
+  }, [controller]);
+
+  Signal.useRedrawEffect(controller.listen);
+  return controller.view();
+}
