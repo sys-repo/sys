@@ -33,7 +33,7 @@
  * table.render();
  * ```
  */
-import { Cli } from './m.Cli.ts';
+import { Cli } from './m.Cli/mod.ts';
 
 export { Args, c, Color, stripAnsi } from './common.ts';
 export { Fmt } from './m.Fmt/mod.ts';
@@ -43,5 +43,4 @@ export { Spinner } from './m.Spinner/mod.ts';
 export { Table } from './m.Table/mod.ts';
 
 export { Cli };
-
 export default Cli;
