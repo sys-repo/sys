@@ -9,6 +9,12 @@ export const Modules: t.EsmModulesLib = {
     const items = input.map((m) => (typeof m === 'string' ? parse(m) : { ...m }) as E);
     items.filter((m) => m.error).forEach((m) => errors.push(m.error));
 
+    function latest(input: t.StringModuleSpecifier): t.StringSemver;
+    function latest(input: t.EsmImportMap): t.EsmImportMap;
+    function latest(input: t.StringModuleSpecifier | t.EsmImportMap) {
+      return typeof input === 'string' ? Latest.name(items, input) : Latest.deps(items, input);
+    }
+
     const api: t.EsmModules = {
       get ok() {
         return errors.ok;
@@ -22,11 +28,7 @@ export const Modules: t.EsmModulesLib = {
       get error() {
         return errors.toError();
       },
-      latest(input) {
-        return typeof input === 'string'
-          ? Latest.name(items, input)
-          : (Latest.deps(items, input) as any); // NB: return-type hack.
-      },
+      latest,
     };
 
     return api;
