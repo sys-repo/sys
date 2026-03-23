@@ -1,4 +1,4 @@
-import { type t, Yaml, Err, Esm, Fs, Is, Semver } from './common.ts';
+import { type t, Arr, Yaml, Err, Esm, Fs, Is, Semver } from './common.ts';
 import { toYaml } from './u.toYaml.ts';
 
 export const from: t.EsmDeps.Lib['from'] = async (input) => {
@@ -75,7 +75,7 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
     yaml['deno.json'].forEach((item) => addEntry(item, 'deno.json', false, item.subpaths, item.name)!);
   }
   if (Array.isArray(yaml['package.json'])) {
-    yaml['package.json'].forEach((item) => addEntry(item, 'package.json', item.dev)!);
+    yaml['package.json'].forEach((item) => addEntry(item, 'package.json', item.dev, item.subpaths, item.name)!);
   }
 
   const dedupedMap = new Map<string, t.EsmDeps.Entry>();
@@ -85,14 +85,7 @@ export const from: t.EsmDeps.Lib['from'] = async (input) => {
       dedupedMap.set(id, entry);
     } else {
       const existing = dedupedMap.get(id)!;
-      for (const target of entry.target) {
-        if (!existing.target.includes(target)) {
-          existing.target.push(target);
-        }
-        if (Semver.Is.greaterThan(entry.module.version, existing.module.version)) {
-          existing.module.version = entry.module.version;
-        }
-      }
+      dedupedMap.set(id, wrangle.mergeEntry(existing, entry));
     }
   }
 
@@ -114,5 +107,26 @@ const is = {
 const wrangle = {
   entryId(entry: t.EsmDeps.Entry): string {
     return `${entry.module.registry}:${entry.module.name}`;
+  },
+
+  mergeEntry(existing: t.EsmDeps.Entry, entry: t.EsmDeps.Entry): t.EsmDeps.Entry {
+    const module = Semver.Is.greaterThan(entry.module.version, existing.module.version)
+      ? entry.module
+      : existing.module;
+
+    return {
+      module,
+      target: Arr.uniq([...existing.target, ...entry.target]).toSorted(),
+      dev: existing.dev || entry.dev || undefined,
+      subpaths: wrangle.mergeSubpaths(existing.subpaths, entry.subpaths),
+    };
+  },
+
+  mergeSubpaths(
+    a?: t.EsmDeps.Entry['subpaths'],
+    b?: t.EsmDeps.Entry['subpaths'],
+  ): t.EsmDeps.Entry['subpaths'] {
+    const subpaths = Arr.uniq([...(a ?? []), ...(b ?? [])]);
+    return subpaths.length === 0 ? undefined : subpaths;
   },
 } as const;

@@ -121,6 +121,29 @@ describe('Deps.from', () => {
     expect(npm?.module.version).to.eql('4.5.6');
   });
 
+  it('merges duplicate entry metadata when versions collapse to one module', async () => {
+    const yaml = `
+      deno.json:
+        - import: jsr:@scope/foo@1.2.3
+          subpaths: [v1]
+
+      package.json:
+        - import: jsr:@scope/foo@1.2.4
+          dev: true
+          subpaths: [v2]
+    `;
+
+    const res = await Deps.from(yaml);
+    const entry = res.data?.entries[0];
+
+    expect(res.error).to.eql(undefined);
+    expect(res.data?.entries.length).to.eql(1);
+    expect(entry?.module.version).to.eql('1.2.4');
+    expect(entry?.target).to.eql(['deno.json', 'package.json']);
+    expect(entry?.dev).to.eql(true);
+    expect(entry?.subpaths).to.eql(['v1', 'v2']);
+  });
+
   it('errors: path not found', async () => {
     const path = './404.yaml';
     const res = await Deps.from(path);
