@@ -61,7 +61,7 @@ export declare namespace WorkspaceUpgrade {
   };
 
   /** Canonical dependency-graph derivation code. */
-  export type GraphCode = 'registry:info' | 'registry:graph-unsupported';
+  export type GraphCode = 'registry:info' | 'registry:graph';
 
   /** Structured reason explaining why graph derivation could not complete for one dependency. */
   export type GraphReason = {

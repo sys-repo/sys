@@ -1,31 +1,31 @@
 import { describe, expect, it, Testing } from '../../-test.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
-import { fetchFail, infoJsr, infoNpm, versionsJsr, versionsNpm, withInfo, withVersions, writeDepsYaml } from './u.fixture.ts';
+import * as fixture from './u.fixture.ts';
 
 describe('Workspace.Upgrade.upgrade', () => {
   it('composes collection, policy, and deterministic topological ordering', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade');
-    await writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(fs, `
       deno.json:
         - import: npm:react-dom@18.2.0
         - import: npm:react@18.2.0
     `);
 
-    await withVersions(
+    await fixture.withVersions(
       {
         jsr: {},
         npm: {
-          'react-dom': versionsNpm('react-dom', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
-          react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          'react-dom': fixture.versionsNpm('react-dom', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
         },
       },
       async () => {
-        await withInfo(
+        await fixture.withInfo(
           {
             jsr: {},
             npm: {
-              'react@19.0.0': infoNpm('react', '19.0.0'),
-              'react-dom@19.0.0': infoNpm('react-dom', '19.0.0', { react: '^19.0.0' }),
+              'react@19.0.0': fixture.infoNpm('react', '19.0.0'),
+              'react-dom@19.0.0': fixture.infoNpm('react-dom', '19.0.0', { react: '^19.0.0' }),
             },
           },
           async () => {
@@ -62,24 +62,74 @@ describe('Workspace.Upgrade.upgrade', () => {
     );
   });
 
+  it('derives jsr graph edges from normalized module graph metadata', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.upgrade.jsr');
+    await fixture.writeDepsYaml(fs, `
+      deno.json:
+        - import: jsr:@sys/fs@0.0.1
+        - import: jsr:@sys/std@0.0.1
+    `);
+
+    await fixture.withVersions(
+      {
+        jsr: {
+          '@sys/fs': fixture.versionsJsr('@sys/fs', '0.0.3', { '0.0.1': {}, '0.0.3': {} }),
+          '@sys/std': fixture.versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }),
+        },
+        npm: {},
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {
+              '@sys/std@0.0.3': fixture.infoJsr('@sys/std', '0.0.3', fixture.graphJsr(2, [{ path: '/mod.ts' }])),
+              '@sys/fs@0.0.3': fixture.infoJsr(
+                '@sys/fs',
+                '0.0.3',
+                fixture.graphJsr(2, [{ path: '/mod.ts', dependencies: ['jsr:@sys/std@^0.0.3'] }]),
+              ),
+            },
+            npm: {},
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.upgrade(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' } },
+            );
+
+            expect(result.graph.edges).to.eql([{ from: 'jsr:@sys/std', to: 'jsr:@sys/fs' }]);
+            expect(result.graph.unresolved).to.eql([]);
+            expect(result.topological.ok).to.eql(true);
+            if (result.topological.ok) {
+              expect(result.topological.items.map((item) => item.node.key)).to.eql([
+                'jsr:@sys/std',
+                'jsr:@sys/fs',
+              ]);
+            }
+          },
+        );
+      },
+    );
+  });
+
   it('keeps blocked dependencies out of the ordered plan', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.none');
-    await writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(fs, `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
     `);
 
-    await withVersions(
+    await fixture.withVersions(
       {
-        jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
-        npm: { react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }) },
+        jsr: { '@sys/std': fixture.versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
+        npm: { react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }) },
       },
       async () => {
-        await withInfo(
+        await fixture.withInfo(
           {
-            jsr: { '@sys/std@0.0.3': infoJsr('@sys/std', '0.0.3') },
-            npm: { 'react@19.0.0': infoNpm('react', '19.0.0') },
+            jsr: { '@sys/std@0.0.3': fixture.infoJsr('@sys/std', '0.0.3') },
+            npm: { 'react@19.0.0': fixture.infoNpm('react', '19.0.0') },
           },
           async () => {
             const result = await WorkspaceUpgrade.upgrade(
@@ -104,26 +154,26 @@ describe('Workspace.Upgrade.upgrade', () => {
 
   it('preserves collection failures while still composing the remaining plan', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.partial');
-    await writeDepsYaml(fs, `
+    await fixture.writeDepsYaml(fs, `
       deno.json:
         - import: jsr:@sys/std@0.0.1
         - import: npm:react@18.2.0
         - import: npm:zod@3.20.0
     `);
 
-    await withVersions(
+    await fixture.withVersions(
       {
-        jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
+        jsr: { '@sys/std': fixture.versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
         npm: {
-          react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
-          zod: fetchFail('https://registry.npmjs.org/zod'),
+          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          zod: fixture.fetchFail('https://registry.npmjs.org/zod'),
         },
       },
       async () => {
-        await withInfo(
+        await fixture.withInfo(
           {
-            jsr: { '@sys/std@0.0.3': infoJsr('@sys/std', '0.0.3') },
-            npm: { 'react@19.0.0': infoNpm('react', '19.0.0') },
+            jsr: { '@sys/std@0.0.3': fixture.infoJsr('@sys/std', '0.0.3') },
+            npm: { 'react@19.0.0': fixture.infoNpm('react', '19.0.0') },
           },
           async () => {
             const result = await WorkspaceUpgrade.upgrade(
@@ -143,8 +193,8 @@ describe('Workspace.Upgrade.upgrade', () => {
               {
                 entry: result.collect.candidates.find((item) => item.entry.module.name === '@sys/std')!.entry,
                 reason: {
-                  code: 'registry:graph-unsupported',
-                  message: 'JSR dependency graph derivation is not implemented yet',
+                  code: 'registry:graph',
+                  message: 'JSR graph metadata was not available for @sys/std@0.0.3',
                 },
               },
             ]);

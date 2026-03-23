@@ -1,4 +1,4 @@
-import { Err, Fs, Jsr, Npm, Str, type t } from '../../-test.ts';
+import { Err, Fs, Is, Jsr, Npm, Str, type t } from '../../-test.ts';
 
 export type VersionsResponse =
   | t.Registry.Jsr.Fetch.PkgVersionsResponse
@@ -89,7 +89,11 @@ export function infoNpm(
   };
 }
 
-export function infoJsr(name: string, version: string): t.Registry.Jsr.Fetch.PkgInfoResponse {
+export function infoJsr(
+  name: string,
+  version: string,
+  graph?: t.Registry.Jsr.Fetch.PkgGraph,
+): t.Registry.Jsr.Fetch.PkgInfoResponse {
   return {
     ok: true,
     status: 200,
@@ -101,9 +105,26 @@ export function infoJsr(name: string, version: string): t.Registry.Jsr.Fetch.Pkg
       pkg: { name, version },
       manifest: undefined,
       exports: undefined,
-      moduleGraph1: undefined,
-      moduleGraph2: undefined,
+      graph,
     },
+  };
+}
+
+export function graphJsr(
+  format: 1 | 2,
+  modules: readonly {
+    path: string;
+    dependencies?: readonly ({ specifier: string; kind?: string } | string)[];
+  }[],
+): t.Registry.Jsr.Fetch.PkgGraph {
+  return {
+    format,
+    modules: modules.map((module) => ({
+      path: module.path,
+      dependencies: (module.dependencies ?? []).map((dep) =>
+        Is.str(dep) ? { specifier: dep } : dep
+      ),
+    })),
   };
 }
 

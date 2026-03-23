@@ -1,4 +1,4 @@
-import { type t, Esm, Npm } from './common.ts';
+import { type t, Esm, Jsr, Npm } from './common.ts';
 import { collect } from './u.collect.ts';
 
 export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options) => {
@@ -70,14 +70,45 @@ const wrangle = {
       }
 
       if (entry.module.registry === 'jsr') {
-        unresolved.push({
-          entry,
-          reason: {
-            code: 'registry:graph-unsupported',
-            message: 'JSR dependency graph derivation is not implemented yet',
-          },
-        });
+        const res = await wrangle.jsrInfo(entry, selected);
+        if (!res.ok || !res.data) {
+          unresolved.push({
+            entry,
+            reason: {
+              code: 'registry:info',
+              message: res.error?.message ?? `Failed to derive JSR graph metadata for ${entry.module.name}`,
+            },
+          });
+          continue;
+        }
+
+        if (!res.data.graph) {
+          unresolved.push({
+            entry,
+            reason: {
+              code: 'registry:graph',
+              message: `JSR graph metadata was not available for ${entry.module.name}@${selected}`,
+            },
+          });
+          continue;
+        }
+
+        for (const specifier of wrangle.jsrDependencies(res.data.graph)) {
+          const from = wrangle.specifierKey(specifier);
+          if (!from || !nodeKeys.has(from)) continue;
+          const edge: t.EsmTopologicalInput['edges'][number] = { from, to: node.key };
+          edges.set(`${edge.from}->${edge.to}`, edge);
+        }
+        continue;
       }
+
+      unresolved.push({
+        entry,
+        reason: {
+          code: 'registry:graph',
+          message: `Graph derivation is not supported for registry ${entry.module.registry}`,
+        },
+      });
     }
 
     return {
@@ -93,12 +124,44 @@ const wrangle = {
     return wrangle.isNpm(entry) ? wrangle.fetchNpmInfo(entry, version) : Promise.resolve(undefined as never);
   },
 
+  jsrInfo(entry: t.EsmDeps.Entry, version: t.StringSemver) {
+    return wrangle.isJsr(entry) ? wrangle.fetchJsrInfo(entry, version) : Promise.resolve(undefined as never);
+  },
+
   isNpm(entry: t.EsmDeps.Entry): entry is t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } } {
     return entry.module.registry === 'npm';
   },
 
+  isJsr(entry: t.EsmDeps.Entry): entry is t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } } {
+    return entry.module.registry === 'jsr';
+  },
+
   fetchNpmInfo(entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } }, version: t.StringSemver) {
     return Npm.Fetch.Pkg.info(entry.module.name, version);
+  },
+
+  fetchJsrInfo(entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } }, version: t.StringSemver) {
+    return Jsr.Fetch.Pkg.info(entry.module.name, version);
+  },
+
+  jsrDependencies(graph: t.Registry.Jsr.Fetch.PkgGraph): readonly string[] {
+    const specifiers = new Set<string>();
+    for (const module of graph.modules) {
+      for (const dep of module.dependencies) {
+        if (!dep.specifier.startsWith('jsr:') && !dep.specifier.startsWith('npm:')) continue;
+        specifiers.add(dep.specifier);
+      }
+    }
+    return [...specifiers].sort((a, b) => a.localeCompare(b));
+  },
+
+  specifierKey(specifier: string): string | undefined {
+    try {
+      const module = Esm.parse(specifier);
+      return `${module.registry}:${module.name}`;
+    } catch {
+      return undefined;
+    }
   },
 
   key(entry: t.EsmDeps.Entry): string {
