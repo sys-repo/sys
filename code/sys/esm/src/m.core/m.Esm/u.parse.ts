@@ -2,7 +2,7 @@
  * @module
  * Tools for evaluating boolean flags on JSR related data.
  */
-import { type t, Err } from './common.ts';
+import { type t, Err, Is } from './common.ts';
 import { toString } from './u.toString.ts';
 
 /**
@@ -57,8 +57,8 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier, alias) => {
     return api;
   };
 
-  if (typeof moduleSpecifier !== 'string') {
-    return fail(`Given ESM import is not a string (${typeof moduleSpecifier})`);
+  if (!Is.str(moduleSpecifier)) {
+    return fail('Given ESM import is not a string');
   }
 
   // Check if the input is a relative file path (e.g. "./foo/mod.ts" or "../bar/utils.ts")
