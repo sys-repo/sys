@@ -15,14 +15,15 @@ import { Esm, pkg } from 'jsr:@sys/esm';
 import { Esm } from 'jsr:@sys/esm/core';
 ```
 
-Its core surfaces are split deliberately:
+Surfaces (dependency model):
 
-- registry adapters report package and version facts
-- policy decides which upgrades are allowed
-- topological ordering computes a deterministic dependency-safe order
-- downstream drivers project the canonical result into runtime files
+- registry adapters for package and version facts
+- policy for upgrade eligibility
+- topological ordering for dependency-safe execution order
+- driver projections for runtime files
 
-This separation keeps dependency decisions explicit, reproducible, and easier to test.
+
+The result is a dependency surface that stays legible, deterministic, and safe to project into runtime files.
 
 Key properties:
 
