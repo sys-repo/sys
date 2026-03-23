@@ -85,13 +85,19 @@ export const View: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const backgroundColor =
+    props.background == null
+      ? theme.bg
+      : Is.num(props.background)
+      ? theme.alpha(props.background).bg
+      : props.background;
   const styles = {
     base: css({
       position: 'relative',
       height: 30,
       fontSize: 14,
       color: theme.fg,
-      backgroundColor: theme.format(props.background).bg,
+      backgroundColor,
       lineHeight: 'normal',
       display: 'grid',
       gridTemplateColumns: showAction ? '1fr auto' : '1fr',
