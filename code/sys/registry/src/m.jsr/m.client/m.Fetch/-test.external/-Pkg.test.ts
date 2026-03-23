@@ -57,13 +57,13 @@ describe('Jsr.Fetch.Pkg (external)', () => {
   describe('Pkg.info( name, version )', () => {
     it('200 - success', async () => {
       await Testing.retry(3, async () => {
-        const name = '@sys/std';
+        const name = '@sys/fs';
         const version = '0.0.42';
         const res = await Fetch.Pkg.info(name, version);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
 
-        expect(res.data?.pkg.name).to.eql('@sys/std');
+        expect(res.data?.pkg.name).to.eql('@sys/fs');
         expect(res.data?.pkg.version).to.eql(version);
 
         const manifest = res.data?.manifest ?? {};
@@ -73,11 +73,13 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         assertExists('/README.md');
         assertExists('/src/mod.ts');
         assertExists('/src/pkg.ts');
-        assertExists('/src/m.Immutable/t.ts');
+        assertExists('/src/m.Fs/mod.ts');
 
         const mod = manifest['/src/mod.ts'];
         expect(mod.checksum.startsWith('sha256-')).to.eql(true);
         expect(typeof mod.size === 'number').to.eql(true);
+        expect([undefined, 1, 2].includes(res.data?.graph?.format)).to.eql(true);
+        expect(Array.isArray(res.data?.graph?.modules ?? [])).to.eql(true);
 
         Fmt.printExternalObject('Jsr.Fetch.Pkg.info:', {
           ok: res.ok,
@@ -87,11 +89,43 @@ describe('Jsr.Fetch.Pkg (external)', () => {
             pkg: res.data?.pkg,
             manifest: Object.keys(res.data?.manifest ?? {}).length,
             exports: Object.keys(res.data?.exports ?? {}).length,
-            moduleGraph1: Object.keys(res.data?.moduleGraph1 ?? {}).length,
-            moduleGraph2: Object.keys(res.data?.moduleGraph2 ?? {}).length,
+            graph: {
+              format: res.data?.graph?.format,
+              modules: res.data?.graph?.modules.length ?? 0,
+            },
           },
           error: res.error,
         });
+
+        const modules = res.data?.graph?.modules ?? [];
+        const max = 5;
+        const title = c.cyan(`${c.bold('graph modules')} (first ${max} of ${modules.length}):`);
+        console.info(title, modules.slice(0, max).map((module) => ({
+          path: module.path,
+          dependencies: module.dependencies.length,
+        })));
+        const deps = modules
+          .flatMap((module) => module.dependencies.map((dep) => dep.specifier))
+          .filter((specifier, index, items) => items.indexOf(specifier) === index)
+          .sort((a, b) => a.localeCompare(b));
+        const rel = deps.filter((specifier) => specifier.startsWith('./') || specifier.startsWith('../'));
+        const jsr = deps.filter((specifier) => specifier.startsWith('jsr:'));
+        const npm = deps.filter((specifier) => specifier.startsWith('npm:'));
+        const preview = (items: readonly string[]) => {
+          const shown = items.slice(0, 5);
+          const more = items.length - shown.length;
+          const lines = shown.length === 0 ? ['  - []'] : shown.map((item) => `  - ${c.green(JSON.stringify(item))}`);
+          if (more > 0) lines.push(`  ${c.gray(c.italic(`${more} more`))}`);
+          return lines.join('\n');
+        };
+        console.info(c.cyan(c.bold('graph dependency specifiers') + ':'));
+        console.info('  paths:');
+        console.info(preview(rel));
+        console.info('  jsr:');
+        console.info(preview(jsr));
+        console.info('  npm:');
+        console.info(preview(npm));
+        console.info();
       });
     });
 

@@ -85,15 +85,37 @@ export namespace JsrFetch {
    */
   export type PkgVersionInfo = {
     /** The package identity that was requested. */
-    pkg: t.Pkg;
+    readonly pkg: t.Pkg;
     /** Source-file manifest keyed by package-relative path. */
-    manifest?: PkgManifest;
+    readonly manifest?: PkgManifest;
     /** Export map returned by JSR. */
-    exports?: { [key: string]: string };
-    /** Opaque module-graph payload returned by JSR. */
-    moduleGraph1?: unknown;
-    /** Opaque module-graph payload returned by JSR. */
-    moduleGraph2?: unknown;
+    readonly exports?: { readonly [key: string]: string };
+    /** Normalized module graph returned by JSR when available. */
+    readonly graph?: PkgGraph;
+  };
+
+  /** Normalized JSR module graph used for planning and dependency analysis. */
+  export type PkgGraph = {
+    /** Upstream graph payload format that produced this normalized graph. */
+    readonly format: 1 | 2;
+    /** Package modules included in the registry graph payload. */
+    readonly modules: readonly PkgGraphModule[];
+  };
+
+  /** One module in the normalized JSR package graph. */
+  export type PkgGraphModule = {
+    /** Package-relative path or module specifier identifying the module. */
+    readonly path: string;
+    /** Direct imports/dependencies referenced by the module. */
+    readonly dependencies: readonly PkgGraphDependency[];
+  };
+
+  /** One dependency reference found in a normalized JSR module graph. */
+  export type PkgGraphDependency = {
+    /** Import specifier as reported by the registry graph payload. */
+    readonly specifier: string;
+    /** Optional dependency kind when reported by the registry graph payload. */
+    readonly kind?: string;
   };
 
   /**
@@ -139,6 +161,12 @@ export type JsrPkgMetaVersions = JsrFetch.PkgMetaVersions;
 export type JsrPkgMetaVersion = JsrFetch.PkgMetaVersion;
 /** Alias for JSR package version metadata. */
 export type JsrPkgVersionInfo = JsrFetch.PkgVersionInfo;
+/** Alias for normalized JSR package graph data. */
+export type JsrPkgGraph = JsrFetch.PkgGraph;
+/** Alias for one normalized JSR package graph module. */
+export type JsrPkgGraphModule = JsrFetch.PkgGraphModule;
+/** Alias for one normalized JSR package graph dependency. */
+export type JsrPkgGraphDependency = JsrFetch.PkgGraphDependency;
 /** Alias for the JSR package file manifest. */
 export type JsrPkgManifest = JsrFetch.PkgManifest;
 /** Alias for a single JSR package manifest entry. */

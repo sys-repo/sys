@@ -28,6 +28,9 @@ export declare namespace Registry {
       export type PkgMetaVersions = J.JsrPkgMetaVersions;
       export type PkgMetaVersion = J.JsrPkgMetaVersion;
       export type PkgVersionInfo = J.JsrPkgVersionInfo;
+      export type PkgGraph = J.JsrPkgGraph;
+      export type PkgGraphModule = J.JsrPkgGraphModule;
+      export type PkgGraphDependency = J.JsrPkgGraphDependency;
       export type PkgManifest = J.JsrPkgManifest;
       export type PkgManifestFile = J.JsrPkgManifestFile;
       export type PkgFileFetcher = J.JsrPkgFileFetcher;
