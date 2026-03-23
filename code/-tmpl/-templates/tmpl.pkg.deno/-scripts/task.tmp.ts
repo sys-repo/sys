@@ -1,3 +1,3 @@
-import { pkg } from '@sample/foo';
+import { pkg } from '../src/pkg.ts';
 
 console.info(`🐷 ${pkg.name}`);
