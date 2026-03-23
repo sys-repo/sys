@@ -74,6 +74,145 @@ describe('Workspace.Upgrade.apply', () => {
     );
   });
 
+  it('applies through an importMap target and preserves unrelated import-map fields', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.apply.importMap');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: jsr:@std/path@1.0.7
+        - import: npm:react@18.2.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'upgrade-app',
+      importMap: './imports.json',
+      tasks: { dev: 'deno task dev' },
+      imports: { stale: 'jsr:@std/fmt@1.0.0' },
+    });
+    await Fs.writeJson(fs.join('imports.json'), {
+      scopes: { '/foo': { bar: 'baz' } },
+    });
+
+    await fixture.withVersions(
+      {
+        jsr: {
+          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
+        },
+        npm: {
+          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {
+              '@std/path@1.0.8': fixture.infoJsr('@std/path', '1.0.8'),
+            },
+            npm: {
+              'react@19.0.0': fixture.infoNpm('react', '19.0.0'),
+            },
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.apply(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' } },
+            );
+
+            const denoJson = await Fs.readJson<{
+              importMap?: string;
+              imports?: Record<string, string>;
+              tasks?: Record<string, string>;
+            }>(fs.join('deno.json'));
+            const importMap = await Fs.readJson<{
+              imports?: Record<string, string>;
+              scopes?: Record<string, unknown>;
+            }>(fs.join('imports.json'));
+
+            expect(result.files.deno.kind).to.eql('importMap');
+            expect(result.files.deno.targetPath).to.eql(fs.join('imports.json'));
+            expect(denoJson.data).to.eql({
+              name: 'upgrade-app',
+              importMap: './imports.json',
+              tasks: { dev: 'deno task dev' },
+            });
+            expect(importMap.data).to.eql({
+              imports: {
+                '@std/path': 'jsr:@std/path@1.0.8',
+                react: 'npm:react@19.0.0',
+              },
+              scopes: {
+                '/foo': { bar: 'baz' },
+              },
+            });
+          },
+        );
+      },
+    );
+  });
+
+  it('writes canonical outputs even when policy allows no upgrades', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.apply.none');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: jsr:@std/path@1.0.7
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), {
+      name: 'no-upgrade-app',
+      tasks: { dev: 'deno task dev' },
+      imports: { stale: 'jsr:@std/fmt@1.0.0' },
+    });
+
+    await fixture.withVersions(
+      {
+        jsr: {
+          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
+        },
+        npm: {},
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {
+              '@std/path@1.0.8': fixture.infoJsr('@std/path', '1.0.8'),
+            },
+            npm: {},
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.apply(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'none' } },
+            );
+
+            const depsText = await Fs.readText(fs.join('deps.yaml'));
+            const denoJson = await Fs.readJson<{
+              imports?: Record<string, string>;
+              tasks?: Record<string, string>;
+            }>(fs.join('deno.json'));
+
+            expect(result.upgrade.totals).to.eql({
+              dependencies: 1,
+              allowed: 0,
+              blocked: 1,
+              planned: 0,
+            });
+            expect(result.entries.map((entry) => entry.module.toString())).to.eql([
+              'jsr:@std/path@1.0.7',
+            ]);
+            expect(depsText.data).to.include('jsr:@std/path@1.0.7');
+            expect(denoJson.data?.imports).to.eql({
+              '@std/path': 'jsr:@std/path@1.0.7',
+            });
+            expect(denoJson.data?.tasks).to.eql({ dev: 'deno task dev' });
+          },
+        );
+      },
+    );
+  });
+
   it('refuses to write when the derived dependency graph is cyclic', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.apply.cycle');
     await fixture.writeDepsYaml(
