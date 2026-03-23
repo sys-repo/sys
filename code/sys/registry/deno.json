@@ -14,7 +14,10 @@
     "./types": "./src/types.ts",
     "./jsr": "./src/m.jsr/m.client/mod.ts",
     "./jsr/client": "./src/m.jsr/m.client/mod.ts",
-    "./jsr/server": "./src/m.jsr/m.server/mod.ts"
+    "./jsr/server": "./src/m.jsr/m.server/mod.ts",
+    "./npm": "./src/m.npm/mod.ts",
+    "./npm/client": "./src/m.npm/m.client/mod.ts",
+    "./npm/server": "./src/m.npm/m.server/mod.ts"
   },
   "permissions": {
     "clean": {
