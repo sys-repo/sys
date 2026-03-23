@@ -5,7 +5,10 @@ import type { t } from './common.ts';
  */
 export declare namespace WorkspaceUpgrade {
   /** Dependency upgrade orchestration surface. */
-  export type Lib = {};
+  export type Lib = {
+    /** Collect canonical dependency upgrade candidates from manifest and registry inputs. */
+    collect(input: Input, options?: Options): Promise<CollectResult>;
+  };
 
   /** Workspace-facing dependency policy selection. */
   export type Policy = {
@@ -53,6 +56,69 @@ export declare namespace WorkspaceUpgrade {
     readonly blocked: number;
     /** Number of dependencies included in the ordered plan. */
     readonly planned: number;
+  };
+
+  /** One collected dependency candidate. */
+  export type Candidate = {
+    /** Canonical manifest entry being evaluated. */
+    readonly entry: t.EsmDeps.Entry;
+    /** Registry used to resolve available versions. */
+    readonly registry: t.EsmRegistry;
+    /** Normalized current pinned version. */
+    readonly current: t.StringSemver;
+    /** Latest version reported by the registry when available. */
+    readonly latest?: t.StringSemver;
+    /** Available versions reported by the registry, sorted descending. */
+    readonly available: readonly t.StringSemver[];
+  };
+
+  /** Canonical non-collection code. */
+  export type CollectCode =
+    | 'deps:load'
+    | 'registry:unsupported'
+    | 'version:missing-current'
+    | 'registry:fetch';
+
+  /** Structured non-collection reason. */
+  export type CollectReason = {
+    /** Canonical non-collection code. */
+    readonly code: CollectCode;
+    /** Optional human-readable detail. */
+    readonly message?: string;
+  };
+
+  /** One dependency that was not collected into a registry-backed candidate. */
+  export type Uncollected = {
+    /** Canonical manifest entry that could not be collected. */
+    readonly entry: t.EsmDeps.Entry;
+    /** Structured non-collection reason. */
+    readonly reason: CollectReason;
+  };
+
+  /** Aggregate counts from one candidate-collection pass. */
+  export type CollectTotals = {
+    /** Number of dependency entries inspected from the manifest. */
+    readonly dependencies: number;
+    /** Number of dependencies collected successfully. */
+    readonly collected: number;
+    /** Number of dependencies skipped before registry fetch. */
+    readonly skipped: number;
+    /** Number of dependencies that failed during registry fetch. */
+    readonly failed: number;
+  };
+
+  /** Result from collecting canonical dependency upgrade candidates. */
+  export type CollectResult = {
+    /** Resolved orchestration input. */
+    readonly input: Input;
+    /** Resolved orchestration options. */
+    readonly options: ResolvedOptions;
+    /** Aggregate collection counts. */
+    readonly totals: CollectTotals;
+    /** Successfully collected dependency candidates. */
+    readonly candidates: readonly Candidate[];
+    /** Dependencies not collected into upgrade candidates. */
+    readonly uncollected: readonly Uncollected[];
   };
 
   /** Result from one workspace dependency upgrade pass. */
