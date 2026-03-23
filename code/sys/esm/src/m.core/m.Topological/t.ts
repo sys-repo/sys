@@ -14,41 +14,41 @@ export namespace EsmTopological {
   /** Canonical topological node for one dependency decision. */
   export type Node = {
     /** Canonical dependency policy decision being planned. */
-    decision: EsmPolicy.Decision;
+    readonly decision: EsmPolicy.Decision;
     /** Stable node key derived from the dependency identity. */
-    key: string;
+    readonly key: string;
   };
 
   /** Directed dependency edge for topological planning. */
   export type Edge = {
     /** Node key that must be ordered first. */
-    from: Node['key'];
+    readonly from: Node['key'];
     /** Node key that depends on `from`. */
-    to: Node['key'];
+    readonly to: Node['key'];
   };
 
   /** Complete input to one topological planning pass. */
   export type Input = {
     /** Nodes under consideration for ordered planning. */
-    nodes: readonly Node[];
+    readonly nodes: readonly Node[];
     /** Directed dependency edges between the nodes. */
-    edges: readonly Edge[];
+    readonly edges: readonly Edge[];
   };
 
   /** One ordered node in the resulting upgrade plan. */
   export type Item = {
     /** Planned node. */
-    node: Node;
+    readonly node: Node;
     /** Zero-based execution order in the plan. */
-    index: number;
+    readonly index: number;
     /** Direct dependencies that must run before this item. */
-    after: readonly Node['key'][];
+    readonly after: readonly Node['key'][];
   };
 
   /** Structured cycle result when planning cannot be linearized. */
   export type Cycle = {
     /** Node keys participating in the detected cycle. */
-    keys: readonly Node['key'][];
+    readonly keys: readonly Node['key'][];
   };
 
   /** Canonical invalid-input code. */
@@ -56,23 +56,23 @@ export namespace EsmTopological {
 
   /** Structured invalid-input result. */
   export type Invalid = {
-    ok: false;
-    invalid: {
-      code: InvalidCode;
-      keys: readonly Node['key'][];
+    readonly ok: false;
+    readonly invalid: {
+      readonly code: InvalidCode;
+      readonly keys: readonly Node['key'][];
     };
   };
 
   /** Successful ordered planning result. */
   export type Ordered = {
-    ok: true;
-    items: readonly Item[];
+    readonly ok: true;
+    readonly items: readonly Item[];
   };
 
   /** Failed planning result due to cyclic dependency edges. */
   export type Cyclic = {
-    ok: false;
-    cycle: Cycle;
+    readonly ok: false;
+    readonly cycle: Cycle;
   };
 
   /** Result of topological planning over dependency decisions. */

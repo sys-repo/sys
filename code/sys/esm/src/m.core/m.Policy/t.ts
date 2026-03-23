@@ -19,46 +19,46 @@ export namespace EsmPolicy {
 
   /** A canonical dependency selection policy. */
   export type Def = {
-    mode: Mode;
-    exclude?: readonly string[];
+    readonly mode: Mode;
+    readonly exclude?: readonly string[];
   };
 
   /** Canonical dependency subject evaluated by policy. */
   export type Subject = {
     /** Canonical manifest entry for the dependency. */
-    entry: t.EsmDeps.Entry;
+    readonly entry: t.EsmDeps.Entry;
     /** Currently pinned version in the workspace. */
-    current: t.StringSemver;
+    readonly current: t.StringSemver;
     /** Available versions reported by a registry adapter. */
-    available: readonly t.StringSemver[];
+    readonly available: readonly t.StringSemver[];
   };
 
   /** Complete input to one policy evaluation. */
   export type Input = {
     /** Policy definition being applied. */
-    policy: Def;
+    readonly policy: Def;
     /** Dependency subject under evaluation. */
-    subject: Subject;
+    readonly subject: Subject;
   };
 
   /** One candidate version considered by the policy algebra. */
   export type Candidate = {
     /** Candidate version being evaluated. */
-    version: t.StringSemver;
+    readonly version: t.StringSemver;
     /** True when the candidate is the current pinned version. */
-    current?: true;
+    readonly current?: true;
     /** True when the candidate is the latest known version. */
-    latest?: true;
+    readonly latest?: true;
   };
 
   /** Candidate set and selected outcome for one dependency. */
   export type Selection = {
     /** Current pinned version expressed as a candidate. */
-    current: Candidate;
+    readonly current: Candidate;
     /** Candidate versions available for evaluation. */
-    available: readonly Candidate[];
+    readonly available: readonly Candidate[];
     /** Selected candidate when policy allows an upgrade. */
-    selected?: Candidate;
+    readonly selected?: Candidate;
   };
 
   /** Canonical blocked-reason code. */
@@ -71,23 +71,23 @@ export namespace EsmPolicy {
 
   /** Structured reason explaining why selection was blocked. */
   export type BlockedReason = {
-    code: BlockedCode;
-    message?: string;
+    readonly code: BlockedCode;
+    readonly message?: string;
   };
 
   /** A blocked policy decision. */
   export type Blocked = {
-    ok: false;
-    input: Input;
-    selection: Selection;
-    reason: BlockedReason;
+    readonly ok: false;
+    readonly input: Input;
+    readonly selection: Selection;
+    readonly reason: BlockedReason;
   };
 
   /** A successful policy decision. */
   export type Allowed = {
-    ok: true;
-    input: Input;
-    selection: Selection;
+    readonly ok: true;
+    readonly input: Input;
+    readonly selection: Selection;
   };
 
   /** Result of applying policy to a dependency version choice. */
@@ -95,6 +95,6 @@ export namespace EsmPolicy {
 
   /** Result set from applying policy across multiple dependencies. */
   export type Result = {
-    decisions: readonly Decision[];
+    readonly decisions: readonly Decision[];
   };
 }

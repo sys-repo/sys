@@ -5,12 +5,12 @@ export const candidates: t.EsmPolicy.Lib['candidates'] = (input) => {
   const availableVersions = wrangle.sorted(input.subject.available);
   const latestVersion = availableVersions[0];
 
-  const current: t.EsmPolicy.Candidate = { version: currentVersion };
+  const current: t.Mutable<t.EsmPolicy.Candidate> = { version: currentVersion };
   if (currentVersion === latestVersion) current.latest = true;
   current.current = true;
 
   const available = availableVersions.map((version) => {
-    const candidate: t.EsmPolicy.Candidate = { version };
+    const candidate: t.Mutable<t.EsmPolicy.Candidate> = { version };
     if (version === currentVersion) candidate.current = true;
     if (version === latestVersion) candidate.latest = true;
     return candidate;

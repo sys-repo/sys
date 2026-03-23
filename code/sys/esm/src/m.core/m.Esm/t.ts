@@ -37,33 +37,33 @@ export type EsmLib = {
 /** Options for the `Esm.toString` method. */
 export type EsmToStringOptions = {
   /** Replace registry. */
-  registry?: EsmImport['registry'];
+  readonly registry?: EsmImport['registry'];
 
   /** Replace name. */
-  name?: EsmImport['name'];
+  readonly name?: EsmImport['name'];
 
   /** Replace version. */
-  version?: EsmImport['version'];
+  readonly version?: EsmImport['version'];
 
   /** Replace subpath. */
-  subpath?: EsmImport['subpath'];
+  readonly subpath?: EsmImport['subpath'];
 };
 
 /** A parsed ESM import statement. */
 export type EsmImport = {
-  registry: EsmRegistry | '';
-  name: string;
-  version: t.StringSemver;
-  subpath: string;
+  readonly registry: EsmRegistry | '';
+  readonly name: string;
+  readonly version: t.StringSemver;
+  readonly subpath: string;
   /** An alternative name used by the import (eg. in the key of an `import_map.json`). */
-  alias?: string;
+  readonly alias?: string;
   toString(): string;
 };
 
 /** The result from an `ESM.parse` operation. */
 export type EsmParsedImport = EsmImport & {
-  input: string;
-  error?: t.StdError;
+  readonly input: string;
+  readonly error?: t.StdError;
 };
 
 /** Tools for working with group-of-modules (libarary). */
