@@ -6,7 +6,10 @@ import type { EsmPolicy } from '../m.Policy/t.ts';
  */
 export namespace EsmPlan {
   /** Runtime planning helper surface. */
-  export type Lib = {};
+  export type Lib = {
+    /** Compute a deterministic topological upgrade plan. */
+    build(input: Input): Result;
+  };
 
   /** Canonical topological node for one dependency decision. */
   export type Node = {
@@ -48,6 +51,18 @@ export namespace EsmPlan {
     keys: readonly Node['key'][];
   };
 
+  /** Canonical invalid-input code. */
+  export type InvalidCode = 'node:duplicate-key' | 'edge:unknown-node';
+
+  /** Structured invalid-input result. */
+  export type Invalid = {
+    ok: false;
+    invalid: {
+      code: InvalidCode;
+      keys: readonly Node['key'][];
+    };
+  };
+
   /** Successful ordered planning result. */
   export type Ordered = {
     ok: true;
@@ -61,5 +76,5 @@ export namespace EsmPlan {
   };
 
   /** Result of topological planning over dependency decisions. */
-  export type Result = Ordered | Cyclic;
+  export type Result = Ordered | Cyclic | Invalid;
 }
