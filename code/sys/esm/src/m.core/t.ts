@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type * as P from './m.Policy/t.ts';
+import type { EsmPolicy } from './m.Policy/t.ts';
 
 /** A map of {"alias":"module-specifier"} values. */
 export type EsmImportMap = { [key: string]: string };
@@ -10,7 +10,7 @@ export type EsmRegistry = 'jsr' | 'npm';
 /** Core ESM import and dependency helpers. */
 export type EsmLib = {
   /** Pure dependency policy algebra. */
-  readonly Policy: P.EsmPolicy.Lib;
+  readonly Policy: EsmPolicy.Lib;
   /** Tools for working with groups of modules. */
   readonly Modules: t.EsmModulesLib;
   /** Create an instance of a group-of-modules. */

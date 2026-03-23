@@ -5,7 +5,14 @@ import type { t } from '../common.ts';
  */
 export namespace EsmPolicy {
   /** Runtime policy helper surface. */
-  export type Lib = {};
+  export type Lib = {
+    /** Build the canonical candidate set for one dependency. */
+    candidates(input: Input): Selection;
+    /** Apply policy to one dependency and return the decision. */
+    decide(input: Input): Decision;
+    /** Apply policy across many dependencies. */
+    decideAll(inputs: readonly Input[]): Result;
+  };
 
   /** Supported dependency policy modes. */
   export type Mode = 'none' | 'patch' | 'minor' | 'latest';
