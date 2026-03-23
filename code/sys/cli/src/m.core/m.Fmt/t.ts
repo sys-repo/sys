@@ -4,9 +4,6 @@ import type { t } from '../common.ts';
  * Common formatting helpers when working with a CLI.
  */
 export type CliFormatLib = {
-  /** Table formatting helpers. */
-  readonly Table: t.CliTableLib;
-
   /** Path display formatting. */
   path: t.PathFormatLib['string'];
 
