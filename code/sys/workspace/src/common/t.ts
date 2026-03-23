@@ -3,6 +3,9 @@
  */
 export type * from '@sys/types';
 export type {
+  DenoDeps,
+} from '@sys/driver-deno/t';
+export type {
   EsmDeps,
   EsmPolicyDecision,
   EsmPolicyInput,

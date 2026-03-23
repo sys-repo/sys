@@ -10,6 +10,8 @@ export declare namespace WorkspaceUpgrade {
     collect(input: Input, options?: Options): Promise<CollectResult>;
     /** Compose policy and topological ordering into one canonical upgrade result. */
     upgrade(input: Input, options?: Options): Promise<Result>;
+    /** Plan and apply one canonical workspace dependency upgrade pass. */
+    apply(input: Input, options?: Options): Promise<ApplyResult>;
   };
 
   /** Workspace-facing dependency policy selection. */
@@ -168,5 +170,19 @@ export declare namespace WorkspaceUpgrade {
     readonly topological: t.EsmTopologicalResult;
     /** Aggregate outcome counts. */
     readonly totals: SummaryTotals;
+  };
+
+  /** Result from planning and applying one workspace dependency upgrade pass. */
+  export type ApplyResult = {
+    /** Resolved orchestration input. */
+    readonly input: Input;
+    /** Resolved orchestration options. */
+    readonly options: ResolvedOptions;
+    /** Canonical upgrade planning result used for application. */
+    readonly upgrade: Result;
+    /** Canonical manifest entries after selected versions were applied. */
+    readonly entries: readonly t.EsmDeps.Entry[];
+    /** Driver-deno file apply result. */
+    readonly files: t.DenoDeps.ApplyFilesResult;
   };
 }
