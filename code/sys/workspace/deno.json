@@ -15,7 +15,8 @@
     "./types": "./src/types.ts",
     "./ci": "./src/m.ci/mod.ts",
     "./info": "./src/m.info/mod.ts",
-    "./pkg": "./src/m.pkg/mod.ts"
+    "./pkg": "./src/m.pkg/mod.ts",
+    "./upgrade": "./src/m.upgrade/mod.ts"
   },
   "permissions": {
     "clean": {

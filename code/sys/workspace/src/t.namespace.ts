@@ -12,5 +12,7 @@ export namespace Workspace {
     readonly Pkg: t.WorkspacePkg.Lib;
     /** Source statistics helpers. */
     readonly Info: t.WorkspaceInfo.Lib;
+    /** Dependency upgrade orchestration helpers. */
+    readonly Upgrade: t.WorkspaceUpgrade.Lib;
   };
 }
