@@ -3,6 +3,12 @@ import type { EsmPolicy } from '../m.Policy/t.ts';
 
 /**
  * Pure topological dependency upgrade planning.
+ *
+ * NB:
+ * This surface is currently domain-shaped for ESM dependency work.
+ * If broader reuse emerges, the ordering primitive may later be extracted
+ * into a generic `@sys/std/topological` module with this layer kept as
+ * the ESM-facing adapter.
  */
 export namespace EsmTopological {
   /** Runtime planning helper surface. */
