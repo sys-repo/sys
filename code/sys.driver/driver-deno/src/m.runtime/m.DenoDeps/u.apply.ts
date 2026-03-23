@@ -1,6 +1,5 @@
 import { type t, Fs, Is, Obj, Path, isEmptyRecord } from './common.ts';
 import { DenoFile } from '../m.DenoFile/mod.ts';
-import type { DenoDeps as DenoDepsType } from './t.ts';
 import { toDenoJson } from './u.toJson.deno.ts';
 
 /**
@@ -9,7 +8,7 @@ import { toDenoJson } from './u.toJson.deno.ts';
 export async function apply(
   path: t.StringPath | undefined,
   deps?: t.Dep[],
-): Promise<DenoDepsType.ApplyResult> {
+): Promise<t.DenoDeps.ApplyResult> {
   const res = await DenoFile.load(path);
   if (!res.ok || !res.exists || !res.data) {
     const target = path ?? './deno.json';
