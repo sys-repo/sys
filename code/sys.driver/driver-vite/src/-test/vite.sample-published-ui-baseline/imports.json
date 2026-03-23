@@ -2,11 +2,11 @@
   "imports": {
     "react": "npm:react@19.2.4",
     "react-dom": "npm:react-dom@19.2.4",
-    "@sys/std": "jsr:@sys/std@0.0.324",
-    "@sys/ui-css": "jsr:@sys/ui-css@0.0.254",
-    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.261",
-    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.261/local-storage",
-    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.261/user-agent",
-    "@sys/ui-react": "jsr:@sys/ui-react@0.0.268"
+    "@sys/std": "jsr:@sys/std@0.0.325",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.255",
+    "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.262",
+    "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.262/local-storage",
+    "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.262/user-agent",
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.269"
   }
 }

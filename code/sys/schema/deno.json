@@ -1,6 +1,6 @@
 {
   "name": "@sys/schema",
-  "version": "0.0.159",
+  "version": "0.0.160",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
