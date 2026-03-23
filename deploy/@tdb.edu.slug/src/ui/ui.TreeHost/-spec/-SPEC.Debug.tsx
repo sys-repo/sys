@@ -9,7 +9,7 @@ type P = t.TreeHostProps;
 type Storage = {
   debug?: P['debug'];
   theme?: P['theme'];
-  env?: t.HttpOriginEnv;
+  env?: t.HttpOrigin.Env;
   cardKind?: t.DataCardKind;
 };
 const defaults: Storage = {

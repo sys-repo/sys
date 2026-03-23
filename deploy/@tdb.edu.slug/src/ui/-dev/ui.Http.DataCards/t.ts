@@ -42,7 +42,7 @@ export type DataCardPanelArgs = {
   readonly kind?: DataCardKind;
   readonly kinds?: DataCardKind[];
   readonly showKindSelector?: boolean;
-  readonly env?: t.HttpOriginEnv;
+  readonly env?: t.HttpOrigin.Env;
   readonly origin?: t.SlugUrlOrigin;
   readonly theme?: t.CommonTheme;
   readonly debug?: boolean;

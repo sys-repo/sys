@@ -20,7 +20,7 @@ type DescriptorMode = t.BundleDescriptorKind;
 type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  env?: t.HttpOriginEnv;
+  env?: t.HttpOrigin.Env;
   descriptorKind?: DescriptorMode;
   listTotalVisible?: number | 'all';
   treeContentRef?: string;
@@ -125,7 +125,7 @@ function normalizeVisible(input: unknown): number | 'all' {
   return Num.clamp(1, Num.MAX_INT, Num.round(input));
 }
 
-function normalizeEnv(input: unknown): t.HttpOriginEnv {
+function normalizeEnv(input: unknown): t.HttpOrigin.Env {
   return input === 'production' ? 'production' : 'localhost';
 }
 

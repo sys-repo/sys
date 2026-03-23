@@ -5,7 +5,7 @@ import { SlugOrigin } from '../mod.ts';
 type DomainName = 'slc.db.team' | 'socialleancanvas.com';
 type P = t.SlugHttpOriginProps;
 type Storage = Pick<P, 'debug' | 'theme'> & {
-  env?: t.HttpOriginEnv;
+  env?: t.HttpOrigin.Env;
   domain?: DomainName;
 };
 const defaults: Storage = {
@@ -111,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `env: ${p.env.value ?? `(undefined)`}`}
         onClick={() => {
-          return Signal.cycle<t.HttpOriginEnv | undefined>(p.env, ['localhost', 'production']);
+          return Signal.cycle<t.HttpOrigin.Env | undefined>(p.env, ['localhost', 'production']);
         }}
       />
       <Button

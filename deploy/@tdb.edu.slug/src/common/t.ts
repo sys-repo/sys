@@ -38,7 +38,7 @@ export type {
   ActionProbeSignalsLib,
   ActionProbeSignalsState,
   BulletList,
-  HttpOriginEnv,
+  HttpOrigin,
   HttpOriginSpecMap,
   TreeHost,
   KeyValueItem,
