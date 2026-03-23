@@ -34,18 +34,53 @@ export namespace EsmPolicy {
     subject: Subject;
   };
 
+  /** One candidate version considered by the policy algebra. */
+  export type Candidate = {
+    /** Candidate version being evaluated. */
+    version: t.StringSemver;
+    /** True when the candidate is the current pinned version. */
+    current?: true;
+    /** True when the candidate is the latest known version. */
+    latest?: true;
+  };
+
+  /** Candidate set and selected outcome for one dependency. */
+  export type Selection = {
+    /** Current pinned version expressed as a candidate. */
+    current: Candidate;
+    /** Candidate versions available for evaluation. */
+    available: readonly Candidate[];
+    /** Selected candidate when policy allows an upgrade. */
+    selected?: Candidate;
+  };
+
+  /** Canonical blocked-reason code. */
+  export type BlockedCode =
+    | 'policy:none'
+    | 'policy:excluded'
+    | 'version:none-available'
+    | 'version:not-newer'
+    | 'version:not-allowed';
+
+  /** Structured reason explaining why selection was blocked. */
+  export type BlockedReason = {
+    code: BlockedCode;
+    message?: string;
+  };
+
   /** A blocked policy decision. */
   export type Blocked = {
     ok: false;
     input: Input;
-    reason: string;
+    selection: Selection;
+    reason: BlockedReason;
   };
 
   /** A successful policy decision. */
   export type Allowed = {
     ok: true;
     input: Input;
-    version: t.StringSemver;
+    selection: Selection;
   };
 
   /** Result of applying policy to a dependency version choice. */
