@@ -1,33 +1,27 @@
 import { type t, Yaml, Err, Esm, Fs, Is, Semver } from './common.ts';
 import { toYaml } from './u.toYaml.ts';
 
-/**
- * Load the imports definitions from YAML.
- */
-export const from: t.DepsLib['from'] = async (input) => {
+export const from: t.EsmDeps.Lib['from'] = async (input) => {
   const errors = Err.errors();
 
   const fail = (err: string | t.StdError) => {
     errors.push(err);
     return done();
   };
-  const done = (data?: t.Deps): t.DepsResult => {
+  const done = (data?: t.EsmDeps.State): t.EsmDeps.Result => {
     let error = errors.toError();
-    if (!data && !error) error = Err.std('Imports data could not be retrieved');
+    if (!data && !error) error = Err.std('Dependency manifest data could not be retrieved');
     return { data, error };
   };
 
-  /**
-   * Read or parse YAML.
-   */
-  let yaml: t.YamlDeps | undefined;
+  let yaml: t.EsmDeps.YamlShape | undefined;
   if (is.yamlPath(input)) {
     const path = Fs.resolve(input);
-    const file = await Fs.readYaml<t.YamlDeps>(path);
+    const file = await Fs.readYaml<t.EsmDeps.YamlShape>(path);
     if (!file.exists) return fail(`Failed to load YAML at path: ${path}`);
     yaml = file.data;
   } else {
-    const parsed = Yaml.parse<t.YamlDeps>(input);
+    const parsed = Yaml.parse<t.EsmDeps.YamlShape>(input);
     if (parsed.error) {
       return fail(Err.std('Failed while parsing given YAML', { cause: parsed.error.cause ?? parsed.error }));
     }
@@ -39,23 +33,20 @@ export const from: t.DepsLib['from'] = async (input) => {
 
   const groups = Is.object(yaml.groups) ? yaml.groups : {};
 
-  /**
-   * Deserialize and map into data-structure.
-   */
-  const deps: t.Dep[] = [];
-  const addDep = (
-    item: t.YamlDep,
-    target: t.DepTargetFile,
+  const entries: t.EsmDeps.Entry[] = [];
+  const addEntry = (
+    item: t.EsmDeps.YamlEntry,
+    target: t.EsmDeps.TargetFile,
     dev?: boolean,
     subpaths?: t.StringDir[],
     nameAlias?: string,
-  ): t.Dep | undefined => {
+  ): t.EsmDeps.Entry | undefined => {
     if (Is.str(item?.group)) {
       const group = groups[item.group];
       if (Array.isArray(group)) {
-        group.forEach((m) => {
-          const item = m as t.YamlDep;
-          addDep(item, target, item.dev ?? dev, item.subpaths, item.name);
+        group.forEach((groupItem) => {
+          const item = groupItem as t.EsmDeps.YamlEntry;
+          addEntry(item, target, item.dev ?? dev, item.subpaths, item.name);
         });
       }
     }
@@ -65,69 +56,53 @@ export const from: t.DepsLib['from'] = async (input) => {
     const module = Esm.parse(item.import, nameAlias);
     if (module.error) errors.push(`${module.error.message} ("${module.input}")`);
 
-    const res: t.Dep = {
+    const entry: t.EsmDeps.Entry = {
       target: [target],
       get module() {
         return module;
       },
     };
 
-    if (dev) res.dev = true;
+    if (dev) entry.dev = true;
     if (Array.isArray(subpaths)) {
-      // NB: prevent double "//" malformed path being inserted into final deps.
-      res.subpaths = subpaths.map((path) => path.replace(/^\/+/, ''));
+      entry.subpaths = subpaths.map((path) => path.replace(/^\/+/, ''));
     }
 
-    deps.push(res);
+    entries.push(entry);
   };
 
   if (Array.isArray(yaml['deno.json'])) {
-    yaml['deno.json'].forEach((m) => addDep(m, 'deno.json', false, m.subpaths, m.name)!);
+    yaml['deno.json'].forEach((item) => addEntry(item, 'deno.json', false, item.subpaths, item.name)!);
   }
   if (Array.isArray(yaml['package.json'])) {
-    yaml['package.json'].forEach((m) => addDep(m, 'package.json', m.dev)!);
+    yaml['package.json'].forEach((item) => addEntry(item, 'package.json', item.dev)!);
   }
 
-  /**
-   * De-dupe.
-   */
-  const dedupedMap = new Map<string, t.Dep>();
-  for (const item of deps) {
-    const id = wrangle.depId(item);
+  const dedupedMap = new Map<string, t.EsmDeps.Entry>();
+  for (const entry of entries) {
+    const id = wrangle.entryId(entry);
     if (!dedupedMap.has(id)) {
-      dedupedMap.set(id, item);
+      dedupedMap.set(id, entry);
     } else {
-      /**
-       * Merge targets:
-       *  - ensuring no duplicate target values.
-       *  - ensuring highest version is retained.
-       */
       const existing = dedupedMap.get(id)!;
-      for (const target of item.target) {
+      for (const target of entry.target) {
         if (!existing.target.includes(target)) {
           existing.target.push(target);
         }
-        if (Semver.Is.greaterThan(item.module.version, existing.module.version)) {
-          existing.module.version = item.module.version;
+        if (Semver.Is.greaterThan(entry.module.version, existing.module.version)) {
+          existing.module.version = entry.module.version;
         }
       }
     }
   }
 
-  /**
-   * Finish up.
-   */
   const deduped = Array.from(dedupedMap.values());
   return done({
-    deps: deduped,
-    modules: Esm.modules(deduped.map((m) => m.module)),
+    entries: deduped,
+    modules: Esm.modules(deduped.map((entry) => entry.module)),
     toYaml: (options) => toYaml(deduped, options),
   });
 };
-
-/**
- * Helpers
- */
 
 const is = {
   yamlPath(path?: string): boolean {
@@ -137,7 +112,7 @@ const is = {
 } as const;
 
 const wrangle = {
-  depId(dep: t.Dep): string {
-    return `${dep.module.registry}:${dep.module.name}`;
+  entryId(entry: t.EsmDeps.Entry): string {
+    return `${entry.module.registry}:${entry.module.name}`;
   },
 } as const;

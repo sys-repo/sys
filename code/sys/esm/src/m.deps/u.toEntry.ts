@@ -1,19 +1,16 @@
 import { type t, Esm, Is } from './common.ts';
 
-export const toDep: t.DepsLib['toDep'] = (input, options = {}) => {
+export const toEntry: t.EsmDeps.Lib['toEntry'] = (input, options = {}) => {
   const { dev } = options;
   const subpaths = wrangle.subpaths(options.subpaths);
   const target = wrangle.target(options.target).toSorted();
   const module = Is.str(input) ? Esm.parse(input) : Esm.parse(input.toString());
-  const res: t.Dep = { module, target, dev, subpaths };
+  const res: t.EsmDeps.Entry = { module, target, dev, subpaths };
   return res;
 };
 
-/**
- * Helpers:
- */
 const wrangle = {
-  target(input?: t.DepTargetFile | t.DepTargetFile[]): t.DepTargetFile[] {
+  target(input?: t.EsmDeps.TargetFile | t.EsmDeps.TargetFile[]): t.EsmDeps.TargetFile[] {
     if (!input) return ['deno.json'];
     if (Is.str(input)) return [input];
     return input;
@@ -22,9 +19,9 @@ const wrangle = {
   subpaths(input?: t.StringDir[]): string[] | undefined {
     if (!Array.isArray(input)) return;
     const subpaths = input
-      .map((p) => String(p).trim())
+      .map((path) => String(path).trim())
       .filter(Boolean)
-      .map((p) => p.replace(/^\/+/, '').replace(/\/+$/, ''));
+      .map((path) => path.replace(/^\/+/, '').replace(/\/+$/, ''));
     return subpaths.length === 0 ? undefined : subpaths;
   },
 } as const;

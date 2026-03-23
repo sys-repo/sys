@@ -1,14 +1,14 @@
 import { Esm, type t } from './common.ts';
 
 export function findImport(
-  deps: t.Dep[] | undefined,
+  entries: t.EsmDeps.Entry[] | undefined,
   input: t.StringModuleSpecifier,
 ): t.StringModuleSpecifier | undefined {
   const parsed = Esm.parse(input);
   if (parsed.error) return undefined;
 
-  const found = deps?.find((dep) => {
-    return dep.module.registry === parsed.registry && dep.module.name === parsed.name;
+  const found = entries?.find((entry) => {
+    return entry.module.registry === parsed.registry && entry.module.name === parsed.name;
   });
 
   return found?.module.toString();
