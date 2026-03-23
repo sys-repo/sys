@@ -10,7 +10,7 @@ export type EsmRegistry = 'jsr' | 'npm';
 
 /** Core ESM import and dependency helpers. */
 export type EsmLib = {
-  /** Pure dependency upgrade planning. */
+  /** Pure topological dependency ordering. */
   readonly Topological: EsmTopological.Lib;
   /** Pure dependency policy algebra. */
   readonly Policy: EsmPolicy.Lib;
