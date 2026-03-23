@@ -10,24 +10,25 @@ import {
   SAMPLE,
   slug,
   Testing,
-} from '../../-test.ts';
-import { assertFetchDisposed } from './-u.ts';
-import { JsrUrl } from './common.ts';
-import { Fetch } from './mod.ts';
+} from '../../../-test.ts';
+import { assertFetchDisposed } from '../-u.ts';
+import { JsrUrl } from '../common.ts';
+import { Fetch } from '../mod.ts';
 
-describe('Jsr.Fetch.Pkg.file', () => {
+describe('Jsr.Fetch.Pkg.file (external)', () => {
   const { name, version } = SAMPLE.pkg;
 
   const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
     const hx = Hash.sha256(res.data);
     const table = Cli.table([]);
+    const title = `${c.bold(c.green('LIVE EXTERNAL'))} ${c.italic(c.yellow('Jsr.Fetch.Pkg.file'))}`;
 
     table.push([c.cyan(' status:'), c.bold(String(res.status))]);
     table.push([c.cyan(' url:'), c.green(res.url)]);
     table.push([c.cyan(' hash (manifest):'), checksum]);
     table.push([c.cyan(' hash (pulled):'), hx]);
 
-    console.info(c.cyan(c.bold('Fetch.Pkg.file.path:')));
+    console.info(title);
     console.info();
     console.info(table.toString().trim());
     console.info();
@@ -106,7 +107,7 @@ describe('Jsr.Fetch.Pkg.file', () => {
 
         const checksum = def.checksum;
         const file = Fetch.Pkg.file(name, version);
-        const resA = await file.text(path); // NB: default "control" (works).
+        const resA = await file.text(path);
         const resB = await file.text(path, { checksum: 'sha256-FAIL' });
         const resC = await file.text(path, { checksum });
 
@@ -141,15 +142,4 @@ describe('Jsr.Fetch.Pkg.file', () => {
       assertFetchDisposed(await promise);
     });
   });
-});
-
-it('dispose ← (cancel fetch operation)', async () => {
-  const { dispose, dispose$ } = Rx.disposable();
-  const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
-
-  dispose();
-  const res = await promise;
-
-  expect(res.error?.message).to.include('https://jsr.io/@sys/std/meta.json');
-  assertFetchDisposed(res);
 });

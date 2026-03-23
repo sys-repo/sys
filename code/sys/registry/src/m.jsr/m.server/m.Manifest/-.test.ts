@@ -40,7 +40,18 @@ describe('Jsr.Manifest (integration test)', () => {
       }
 
       console.info();
-      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, res);
+      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, {
+        ok: res.ok,
+        status: res.status,
+        origin: res.origin,
+        manifest: res.manifest
+          ? {
+              pkg: res.manifest.pkg,
+              paths: res.manifest.paths.length,
+            }
+          : undefined,
+        error: res.error,
+      });
       console.info();
     });
 
@@ -58,7 +69,13 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.error?.message).to.include(`https://jsr.io/${name}`);
 
       console.info();
-      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, res);
+      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, {
+        ok: res.ok,
+        status: res.status,
+        origin: res.origin,
+        manifest: res.manifest,
+        error: res.error,
+      });
       console.info();
     });
   });
