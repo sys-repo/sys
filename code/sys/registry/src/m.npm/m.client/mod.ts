@@ -2,6 +2,11 @@
  * @module
  * npm registry client adapter.
  */
-import type { t } from './common.ts';
+/** npm package metadata. */
+export { pkg } from '../../pkg.ts';
 
-export const Npm: t.NpmClient.Lib = {};
+/** Module type aliases. */
+export type * as t from '../../types.ts';
+
+/** Client registry helpers. */
+export { Npm } from './m.Npm/mod.ts';
