@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Args, Path } from '../../../common.ts';
-import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
+import { Args, Path } from '../../common.ts';
 import { Input } from '../../m.Input/mod.ts';
+import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
 import { copyToClipboard } from '../../u/mod.ts';
 
 describe('CLI: core / m.Cli', () => {
