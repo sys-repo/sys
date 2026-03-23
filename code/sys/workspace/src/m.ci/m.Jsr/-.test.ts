@@ -223,7 +223,7 @@ describe('WorkspaceCi.Jsr', () => {
   });
 });
 
-type VersionsResponse = t.JsrFetch.PkgVersionsResponse;
+type VersionsResponse = t.Registry.Jsr.Fetch.PkgVersionsResponse;
 function unpublished(): VersionsResponse {
   return {
     ...responseBase(),

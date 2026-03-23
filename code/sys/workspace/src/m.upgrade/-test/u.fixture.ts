@@ -1,5 +1,8 @@
 import { Err, Fs, Jsr, Npm, Str, type t } from '../../-test.ts';
 
+export type VersionsResponse =
+  | t.Registry.Jsr.Fetch.PkgVersionsResponse
+  | t.Registry.Npm.Fetch.PkgVersionsResponse;
 
 type TestDir = { join(path: string): string };
 
@@ -70,8 +73,8 @@ export async function withVersions(
 ) {
   const originalJsr = Jsr.Fetch.Pkg.versions;
   const originalNpm = Npm.Fetch.Pkg.versions;
-  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.JsrFetchPkgLib>;
-  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.NpmFetchPkgLib>;
+  const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.PkgLib>;
+  const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.PkgLib>;
 
   mutableJsr.versions = async (name) => map.jsr[name] as never;
   mutableNpm.versions = async (name) => map.npm[name] as never;

@@ -3,7 +3,7 @@
  */
 export type * from '@sys/types';
 export type { EsmDeps, EsmPolicyMode, EsmRegistry } from '@sys/esm/t';
-export type { JsrFetch, JsrFetchPkgLib, NpmFetchPkgLib } from '@sys/registry/t';
+export type { Registry } from '@sys/registry/t';
 
 /**
  * @local
