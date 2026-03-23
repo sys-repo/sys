@@ -5,8 +5,10 @@ describe('Ansi', () => {
   it('API', async () => {
     const m = await import('@sys/color/ansi');
     expect(m.Color).to.equal(Color);
-    expect(m.c).to.eql(c);
-    expect(m.stripAnsi).to.eql(stripAnsi);
+    expect(m.c).to.equal(c);
+    expect(m.stripAnsi).to.equal(stripAnsi);
+    expect(Color.ansi).to.equal(c);
+    expect(Color.rgb).to.equal(m.Color.rgb);
   });
 
   it('stripAnsi', () => {
