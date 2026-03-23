@@ -5,9 +5,9 @@
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "test": "deno test -P=test --ignore=./src/m.jsr/m.client/m.Fetch/-test.external,./src/m.npm/m.client/m.Fetch/-test.external",
+    "test": "deno test -P=test --ignore=./src/m.jsr/m.client/m.Fetch/-test.external --ignore=./src/m.jsr/m.server/m.Manifest/-test.external --ignore=./src/m.npm/m.client/m.Fetch/-test.external",
     "test:external:npm": "deno test -P=test --trace-leaks ./src/m.npm/m.client/m.Fetch/-test.external/mod.ts",
-    "test:external:jsr": "deno test -P=test --trace-leaks ./src/m.jsr/m.client/m.Fetch/-test.external/mod.ts",
+    "test:external:jsr": "deno test -P=test --trace-leaks ./src/m.jsr/-test/-external.ts",
     "test:external": "deno task test:external:npm && deno task test:external:jsr",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },

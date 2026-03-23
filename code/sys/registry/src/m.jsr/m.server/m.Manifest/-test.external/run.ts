@@ -1,7 +1,7 @@
-import { c, describe, expect, Fs, Hash, it, Pkg, SAMPLE, slug } from '../../-test.ts';
-import { Jsr } from '../mod.ts';
-import { Fetch } from './common.ts';
-import { Manifest } from './mod.ts';
+import { c, describe, expect, Fs, Hash, it, Pkg, SAMPLE, slug } from '../../../-test.ts';
+import { Jsr } from '../../mod.ts';
+import { Fetch } from '../common.ts';
+import { Manifest } from '../mod.ts';
 
 describe('Jsr.Manifest (integration test)', () => {
   describe('Manifest.create', () => {
@@ -10,7 +10,7 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(m.pkg).to.eql(SAMPLE.pkg);
       expect(m.def).to.eql(SAMPLE.def);
 
-      expect(m.pkg).to.not.equal(SAMPLE.pkg); // NB: different instance.
+      expect(m.pkg).to.not.equal(SAMPLE.pkg);
       expect(m.def).to.not.equal(SAMPLE.def);
     });
 
@@ -18,8 +18,8 @@ describe('Jsr.Manifest (integration test)', () => {
       const m = Manifest.create(SAMPLE.pkg, SAMPLE.def);
       const unordered = Object.keys(SAMPLE.def);
       expect(m.paths).to.not.eql(unordered);
-      expect(m.paths).to.eql(unordered.sort()); // NB: assert the function ensures a alpha-numeric sort on the paths.
-      expect(m.paths).to.equal(m.paths); //        NB: lazy-loaded and cached prop value.
+      expect(m.paths).to.eql(unordered.sort());
+      expect(m.paths).to.equal(m.paths);
     });
   });
 
@@ -33,7 +33,6 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.origin).to.eql(Jsr.Fetch.Url.origin);
 
       if (!res.error) {
-        // NB: type ensures manifest when no error.
         expect(res.manifest.pkg).to.eql(SAMPLE.pkg);
         expect(res.manifest.paths.includes('/deno.json')).to.be.true;
         expect(res.manifest.paths.includes('/src/common.ts')).to.be.true;
@@ -115,7 +114,6 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.written?.absolute).to.eql(Fs.join(sample.dir, Pkg.toString(SAMPLE.pkg)));
       expect(res.written?.relative).to.eql(Pkg.toString(SAMPLE.pkg));
 
-      // Ensure hash/checksums match.
       for (const file of res.files) {
         const path = Fs.join(res.written?.absolute || '', file.url.slice(baseUrl.length));
         const data = (await Fs.read(path)).data;
