@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Npm } from '../mod.ts';
-import { Fetch } from './mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Npm } from '../../mod.ts';
+import { Fetch } from '../mod.ts';
 
 describe('Npm.Fetch', () => {
   it('API', () => {
