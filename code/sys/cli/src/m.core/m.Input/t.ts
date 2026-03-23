@@ -1,4 +1,7 @@
-import type * as ext from './t.ext.ts';
+import type * as ext from '../t.ext.ts';
+
+/** Type re-exports. */
+export type * from './t.menu.ts';
 
 /**
  * Human input helpers for CLI tools.

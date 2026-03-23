@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { type t, Is } from '../common.ts';
 
 export const size: t.CliScreenLib['size'] = () => {
   const fallback: t.CliScreenSize = { width: 80, height: 24 };

@@ -1,4 +1,4 @@
-import type { CliffyKeypress } from './t.ext.ts';
+import type { CliffyKeypress } from '../t.ext.ts';
 
 /**
  * Tools for working with the keyboard within a CLI.

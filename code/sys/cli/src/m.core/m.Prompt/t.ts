@@ -1,4 +1,4 @@
-import type * as ext from './t.ext.ts';
+import type * as ext from '../t.ext.ts';
 
 /**
  * Index of input prompts.

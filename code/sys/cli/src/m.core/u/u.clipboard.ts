@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Copy arbitrary text to the system clipboard from a Deno CLI context.

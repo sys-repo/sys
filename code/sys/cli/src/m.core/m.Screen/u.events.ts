@@ -1,5 +1,5 @@
-import { type t, Rx } from './common.ts';
-import { size } from './u.screen.size.ts';
+import { type t, Rx } from '../common.ts';
+import { size } from './u.size.ts';
 
 export function events(until?: t.UntilInput): t.CliScreenEvents {
   const life = Rx.abortable(until);

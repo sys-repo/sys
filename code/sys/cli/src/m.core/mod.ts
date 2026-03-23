@@ -36,11 +36,11 @@
 import { Cli } from './m.Cli.ts';
 
 export { Args, c, Color, stripAnsi } from './common.ts';
-export { Fmt } from './m.Fmt.ts';
-export { Keyboard } from './m.Keyboard.ts';
-export { Prompt } from './m.Prompt.ts';
-export { Spinner } from './m.Spinner.ts';
-export { Table } from './m.Table.ts';
+export { Fmt } from './m.Fmt/mod.ts';
+export { Keyboard } from './m.Keyboard/mod.ts';
+export { Prompt } from './m.Prompt/mod.ts';
+export { Spinner } from './m.Spinner/mod.ts';
+export { Table } from './m.Table/mod.ts';
 
 export { Cli };
 

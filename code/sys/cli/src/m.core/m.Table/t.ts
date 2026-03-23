@@ -1,4 +1,4 @@
-import type { CliffyTable } from './t.ext.ts';
+import type { CliffyTable } from '../t.ext.ts';
 
 /**
  * Tools for working with CLI tables.

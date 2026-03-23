@@ -1,14 +1,13 @@
 import { type t, Args, Path, Time, stripAnsi } from './common.ts';
 
-import { Fmt } from './m.Fmt.ts';
-import { Input } from './m.Input.ts';
-import { Keyboard } from './m.Keyboard.ts';
-import { Prompt } from './m.Prompt.ts';
-import { Screen } from './m.Screen.ts';
-import { Spinner } from './m.Spinner.ts';
-import { Table } from './m.Table.ts';
-import { copyToClipboard } from './u.clipboard.ts';
-import { keepAlive } from './u.keepAlive.ts';
+import { Fmt } from './m.Fmt/mod.ts';
+import { Input } from './m.Input/mod.ts';
+import { Keyboard } from './m.Keyboard/mod.ts';
+import { Prompt } from './m.Prompt/mod.ts';
+import { Screen } from './m.Screen/mod.ts';
+import { Spinner } from './m.Spinner/mod.ts';
+import { Table } from './m.Table/mod.ts';
+import { copyToClipboard, keepAlive } from './u/mod.ts';
 
 /**
  * Tools for the CLI (command-line interfaces):

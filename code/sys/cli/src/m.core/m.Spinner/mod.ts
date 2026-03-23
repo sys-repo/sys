@@ -1,10 +1,10 @@
 import ora from 'ora';
-import type { CliSpinnerLib } from './t.ts';
+import type { t } from '../common.ts';
 
 /**
  * Tools for working with a CLI spinner.
  */
-export const Spinner: CliSpinnerLib = {
+export const Spinner: t.CliSpinnerLib = {
   create(text = '', options = {}) {
     const { start = true, silent = false } = options;
 

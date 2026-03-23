@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { type t, Rx } from '../common.ts';
 
 /**
  * Keep a long-running CLI process alive until disposed.

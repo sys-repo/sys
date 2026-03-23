@@ -1,4 +1,4 @@
-import type { OraSpinner } from './t.ext.ts';
+import type { OraSpinner } from '../t.ext.ts';
 
 /**
  * Tools for working with a CLI spinner.

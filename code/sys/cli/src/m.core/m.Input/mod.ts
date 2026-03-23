@@ -1,5 +1,5 @@
-import { type t, c } from './common.ts';
-import { Prompt } from './m.Prompt.ts';
+import { type t, c } from '../common.ts';
+import { Prompt } from '../m.Prompt/mod.ts';
 
 export const Input: t.CliInputLib = {
   Text: { prompt: Prompt.Input.prompt.bind(Prompt.Input) },
