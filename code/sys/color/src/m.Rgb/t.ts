@@ -1,6 +1,9 @@
 import type { t } from './common.ts';
 
-type HexColor = string;
+export type HexColor = t.StringHex;
+export type RgbColor = `rgb(${string})`;
+export type RgbaColor = `rgba(${string})`;
+export type AlphaColorInput = HexColor | RgbColor | RgbaColor;
 type ColorInput = string | null;
 
 export type StringRgb = string;
@@ -14,31 +17,31 @@ export type ColorLib = t.ColorConstants & {
    * Converts a color to an alpha RGB value.
    * @param: alpha: 0..1
    */
-  alpha(color: string, alpha: t.Percent): t.StringRgba;
+  alpha(color: AlphaColorInput, alpha: t.Percent): RgbaColor;
   /** Returns an alpha percentage of red. */
-  ruby(alpha?: t.Percent | boolean): t.StringRgba;
+  ruby(alpha?: t.Percent | boolean): RgbaColor;
 
   /**
    * Lightens the given color.
    * @param amount: 0..100
    */
-  lighten(color: string, amount: number): t.StringRgb;
+  lighten(color: HexColor, amount: number): RgbColor;
 
   /**
    * Darkens the given color.
    * @param amount: 0..100
    */
-  darken(color: string, amount: number): t.StringRgb;
+  darken(color: HexColor, amount: number): RgbColor;
 
   /**
    * Convert the given color into a hex.
    */
-  toHex(color: string): t.StringHex;
+  toHex(color: AlphaColorInput): t.StringHex | undefined;
 
   /**
    * Convert a number in the range [-1, 1] to transparent/black/white RGBA.
    */
-  toGrayAlpha(value: number): t.StringRgba;
+  toGrayAlpha(value: number): RgbaColor;
 
   /** ColorThemeLib */
   readonly Theme: ColorThemeLib;

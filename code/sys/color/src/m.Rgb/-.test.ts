@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { Color, Theme } from './mod.ts';
 
 describe('Color', () => {
@@ -26,13 +26,15 @@ describe('Color', () => {
       expect(res).to.eql('rgba(41, 48, 66, 0.3)');
     });
 
-    it('WHITE', () => {
+    it('hex only contract', () => {
       const res1 = Color.alpha(Color.WHITE, 0.5);
-      const res2 = Color.alpha('white', 0.5);
-      const res3 = Color.alpha('#fff', 0.5);
+      const res2 = Color.alpha('#fff', 0.5);
       expect(res1).to.eql('rgba(255, 255, 255, 0.5)');
       expect(res2).to.eql('rgba(255, 255, 255, 0.5)');
-      expect(res3).to.eql('rgba(255, 255, 255, 0.5)');
+    });
+
+    it('rejects named colors', () => {
+      expect(() => Color.alpha('white' as any, 0.5)).to.throw('Color.alpha expects a hex/rgb/rgba color.');
     });
   });
 
@@ -236,15 +238,9 @@ describe('Color', () => {
 
   describe('Color.toHex', () => {
     const test = (input: string, expected?: string) => {
-      const res = Color.toHex(input);
+      const res = Color.toHex(input as t.AlphaColorInput);
       expect(res).to.eql(expected);
     };
-
-    it('converts named colors to hex', () => {
-      test('white', '#ffffff');
-      test('black', '#000000');
-      test('red', '#ff0000');
-    });
 
     it('converts rgb/rgba to hex', () => {
       test('rgb(255, 0, 0)', '#ff0000');
@@ -258,6 +254,7 @@ describe('Color', () => {
     });
 
     it('returns undefined for invalid input', () => {
+      test('white', undefined);
       test('not-a-color', undefined);
       test('', undefined);
     });
