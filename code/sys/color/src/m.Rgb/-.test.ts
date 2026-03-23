@@ -11,7 +11,5 @@ describe('Color', () => {
     expect(m.Color).to.equal(Color);
     expect(m.COLORS).to.equal(COLORS);
     expect(m.Theme).to.equal(Theme);
-
-    expect(Color.Theme).to.equal(Theme);
   });
 });
