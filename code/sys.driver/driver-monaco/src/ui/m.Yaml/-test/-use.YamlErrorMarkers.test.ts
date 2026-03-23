@@ -1,4 +1,5 @@
 import {
+  act,
   type t,
   afterEach,
   beforeEach,
@@ -36,7 +37,7 @@ describe('useYamlErrorMarkers', () => {
       expect(m.endLineNumber).to.eql(2);
       expect(m.endColumn).to.eql(3);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -67,7 +68,7 @@ describe('useYamlErrorMarkers', () => {
       expect(m.endLineNumber).to.eql(1);
       expect(m.endColumn).to.eql(3);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -95,7 +96,7 @@ describe('useYamlErrorMarkers', () => {
       expect(m.startLineNumber).to.be.a('number');
       expect(m.endLineNumber).to.be.a('number');
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -122,7 +123,7 @@ describe('useYamlErrorMarkers', () => {
       expect(markers.length).to.eql(2);
       expect(markers.map((m) => m.message)).to.eql(['D1', 'E1']);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -138,13 +139,13 @@ describe('useYamlErrorMarkers', () => {
       initialProps: { monaco, editor, errors: [err] },
     });
     try {
-      rerender({ monaco, editor, errors: [] });
+      local.rerender(rerender, { monaco, editor, errors: [] });
 
       // last call should carry empty markers
       const last = spy.calls.at(-1)!;
       expect((last.args[2] as t.Monaco.I.IMarkerData[]).length).to.eql(0);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -163,12 +164,12 @@ describe('useYamlErrorMarkers', () => {
     try {
       const firstOwner = spy.calls[0]!.args[1];
 
-      rerender({ monaco, editor, errors: [err] });
+      local.rerender(rerender, { monaco, editor, errors: [err] });
       const secondOwner = spy.calls[1]!.args[1];
 
       expect(firstOwner).to.eql(secondOwner);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -192,7 +193,7 @@ describe('useYamlErrorMarkers', () => {
       expect(Array.isArray(args[2])).to.eql(true);
       expect(args[2].length).to.eql(0);
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
@@ -215,8 +216,18 @@ describe('useYamlErrorMarkers', () => {
       expect(markers[0]!.message).to.eql('two');
       expect(markers[1]!.message).to.eql('three');
     } finally {
-      unmount();
+      local.unmount(unmount);
       spy.restore();
     }
   });
 });
+
+const local = {
+  unmount(fn: () => void) {
+    act(() => fn());
+  },
+
+  rerender<T>(fn: (props?: T) => void, props: T) {
+    act(() => fn(props));
+  },
+} as const;

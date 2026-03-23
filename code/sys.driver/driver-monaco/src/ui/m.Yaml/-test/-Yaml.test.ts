@@ -45,11 +45,10 @@ describe('Monaco.Yaml', () => {
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
       try {
         const nonce = 'nonce-123';
-        act(() => {
+        await act(async () => {
           Bus.ping(bus$, ['yaml'], nonce);
+          await settle();
         });
-
-        await settle();
 
         const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
         const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
@@ -62,8 +61,10 @@ describe('Monaco.Yaml', () => {
       } finally {
         sub.unsubscribe();
         life.dispose();
-        unmount();
-        await settle();
+        await act(async () => {
+          unmount();
+          await settle();
+        });
       }
     });
   });

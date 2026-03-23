@@ -1,4 +1,5 @@
 import {
+  act,
   Is,
   afterEach,
   beforeEach,
@@ -60,7 +61,10 @@ describe('MonacoEditor', () => {
           unmount = h.unmount;
         };
         expect(fn).to.throw();
-        if (unmount) unmount();
+        const cleanup = unmount;
+        if (cleanup) {
+          act(() => cleanup());
+        }
       } finally {
         restoreGlobals();
         DomMock.polyfill();
