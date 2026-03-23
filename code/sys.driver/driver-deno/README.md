@@ -13,7 +13,7 @@ Deno cloud platform surfaces.
 
 ### Example
 
-Read a workspace file and inspect monorepo imports:
+Load a workspace config and project canonical dependency data from an input file such as `deps.yaml` into `deno.json`, import maps, and optional `package.json` files:
 
 ```ts
 import { DenoDeps, DenoFile } from 'jsr:@sys/driver-deno/runtime';

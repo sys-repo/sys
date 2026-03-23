@@ -1,9 +1,9 @@
 /**
  * @module
- * Tools for working with dependency/import sets in a Deno monorepo.
+ * Deno-facing dependency projection and apply helpers.
  *
- * Supports YAML-based dependency sets and conversion to `deno.json` and
- * `package.json` dependency surfaces.
+ * Consumes canonical manifest data from `@sys/esm/deps` and projects it onto
+ * Deno runtime surfaces such as `deno.json`, import maps, and `package.json`.
  */
 import type { DepsLib } from './t.ts';
 
@@ -12,7 +12,7 @@ import { Fmt } from './m.Fmt.ts';
 import { apply } from './u.apply.ts';
 import { toJson } from './u.toJson.ts';
 
-/** Deno dependency-set helper library. */
+/** Deno dependency projection/apply helper library. */
 export const DenoDeps: DepsLib = {
   Fmt,
   apply,

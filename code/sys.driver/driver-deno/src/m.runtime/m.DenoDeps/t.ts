@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 export type * from './t.yaml.ts';
 
-/** Tools and contracts for Deno dependency sets. */
+/** Tools and contracts for Deno dependency projection and apply helpers. */
 export declare namespace DenoDeps {
   /** Where imports are written when applying deps to a Deno config. */
   export type TargetKind = 'imports' | 'importMap';
@@ -23,13 +23,13 @@ export declare namespace DenoDeps {
 export type DepTargetFile = 'deno.json' | 'package.json';
 
 /**
- * Tools for working with the dependency/imports of a Deno mono-repo.
+ * Deno-facing dependency projection and apply helpers.
  */
 export type DepsLib = {
   /** Logging helpers */
   readonly Fmt: t.DepsFmt;
 
-  /** Load the imports definitions from YAML. */
+  /** Load canonical dependency manifest data via `@sys/esm/deps`. */
   from(input: t.StringPath | t.StringYaml): Promise<t.DepsResult>;
 
   /** Render deps as a `deno.json` config shape. */
@@ -45,10 +45,10 @@ export type DepsLib = {
    */
   apply(path: t.StringPath | undefined, deps?: t.Dep[]): Promise<DenoDeps.ApplyResult>;
 
-  /** Convert deps into YAML.  */
+  /** Render canonical dependency entries back to YAML. */
   toYaml(deps: t.Dep[], options?: t.DepsYamlOptions): t.DepsYaml;
 
-  /** Convert to a dependency representation. */
+  /** Normalize an import into a dependency entry. */
   toDep(
     module: t.EsmImport | t.StringModuleSpecifier,
     options?: {
@@ -62,7 +62,7 @@ export type DepsLib = {
   findImport(deps: t.Dep[] | undefined, input: t.StringModuleSpecifier): t.StringModuleSpecifier | undefined;
 };
 
-/** A response object from a `DenoDeps` constructor function. */
+/** Result from loading canonical dependency manifest data through the Deno adapter. */
 export type DepsResult = {
   /** Parsed dependency set when loading succeeded. */
   data?: t.Deps;
@@ -71,8 +71,7 @@ export type DepsResult = {
 };
 
 /**
- * A common data-structure for expressing an ESM "import"
- * (normalized between 'deno.json' and 'package.json")
+ * Canonical dependency entries carried through the Deno adapter.
  */
 export type Deps = {
   /** Normalized dependency entries. */
@@ -84,9 +83,7 @@ export type Deps = {
 };
 
 /**
- * The dependency-set as YAML.
- * Use this to stringify save "<deps>.yaml" files, which in turn can
- * be passed back in through the `DenoDeps.from("./deps.yaml")` method.
+ * Canonical dependency YAML rendered through the Deno adapter.
  */
 export type DepsYaml = {
   /** Structured YAML dependency object. */
@@ -97,7 +94,7 @@ export type DepsYaml = {
   toString(): string;
 };
 
-/** Options passed to the `DenoDeps.toYaml` method. */
+/** Options passed to the `DenoDeps.toYaml` adapter method. */
 export type DepsYamlOptions = {
   /** Optional grouping callback for named YAML groups. */
   groupBy?: DepsCategorizeByGroup;
@@ -116,8 +113,7 @@ export type DepsCategorizeByGroupArgs = {
 };
 
 /**
- * A common data-structure for expressing an ESM "import"
- * (normalized between 'deno.json' and 'package.json")
+ * Canonical dependency entry shape carried through the Deno adapter.
  */
 export type Dep = {
   /** The module-specifier name of the import. */
