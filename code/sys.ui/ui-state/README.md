@@ -63,5 +63,5 @@ const next = Playback.reduce(playback, {
   time: 1200 as t.Msecs,
 });
 
-next.currentBeat; // -> 'cut'
+next.currentBeat; // → 'cut'
 ```

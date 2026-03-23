@@ -48,7 +48,7 @@ async function hasPublishedVersion(name: string, version: string) {
     try {
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) {
-        lastError = new Error(`GET ${url} -> ${res.status} ${res.statusText}`);
+        lastError = new Error(`GET ${url} → ${res.status} ${res.statusText}`);
         continue;
       }
 
