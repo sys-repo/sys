@@ -12,6 +12,7 @@ describe('Esm', () => {
       expect(Esm.hasDefaultExport(`export { default } from './mod.ts';\n`)).to.eql(true);
       expect(Esm.hasDefaultExport(`export { foo as default };\n`)).to.eql(true);
       expect(Esm.hasDefaultExport(`export { foo as default } from './mod.ts';\n`)).to.eql(true);
+      expect(Esm.hasDefaultExport(`export {\n  foo as default,\n  bar,\n} from './mod.ts';\n`)).to.eql(true);
     });
 
     it('ignores non-default export forms', () => {
@@ -23,6 +24,7 @@ describe('Esm', () => {
 
     it('ignores comments and strings that only mention default exports', () => {
       expect(Esm.hasDefaultExport(`// export default 'nope';\nexport const foo = true;\n`)).to.eql(false);
+      expect(Esm.hasDefaultExport(`/* export { foo as default } */\nexport const foo = true;\n`)).to.eql(false);
       expect(Esm.hasDefaultExport(`const value = 'export default nope';\nexport const foo = true;\n`)).to.eql(false);
       expect(Esm.hasDefaultExport('const value = `export { foo as default }`;\n')).to.eql(false);
     });

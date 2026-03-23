@@ -1,5 +1,12 @@
 import { readIdentifier, skipString, skipTrivia, startsWithWord } from './u.lex.ts';
 
+/**
+ * Lightweight lexical check for obvious default-export forms in module source text.
+ *
+ * This helper is intentionally narrow:
+ * - it is not a parser
+ * - it is not guaranteed across all TS/JS syntax corners
+ */
 function listExportsDefault(source: string, index: number): boolean {
   let cursor = index + 1;
   while (cursor < source.length) {
@@ -35,7 +42,7 @@ export function hasDefaultExport(source: string): boolean {
     if (cursor >= source.length) break;
 
     const char = source[cursor];
-    if (char === '\'' || char === '"' || char === '`') {
+    if (char === "'" || char === '"' || char === '`') {
       cursor = skipString(source, cursor, char);
       continue;
     }
