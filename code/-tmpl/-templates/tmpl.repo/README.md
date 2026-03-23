@@ -1,5 +1,5 @@
 # @sys/tmpl repo starter
-Monorepo starting structure for programmatic projects managed by people and agents.
+Starter workspace for programmatic multi-package repositories managed by people and agents.
 
 Create: `deno run -A jsr:@sys/tmpl/repo`
 
@@ -31,9 +31,9 @@ Core tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type-checks the repo
-- `deno task info` → prints Deno runtime and monorepo source stats
+- `deno task info` → prints Deno runtime and workspace source stats
 - `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
-- `deno task test` → runs all unit tests within the mono-repo with permissions `-P=test`
+- `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
 - `deno task outdated` → reports dependency updates
 - `deno task upgrade` → upgrades dependencies within the current semver lane
 - `deno task upgrade:latest` → upgrades dependencies to the latest available versions, including majors
