@@ -8,6 +8,8 @@ export namespace Workspace {
   export type Lib = {
     /** Continuous-integration helpers. */
     readonly Ci: t.WorkspaceCi.Lib;
+    /** CLI entrypoints for workspace tooling. */
+    readonly Cli: t.WorkspaceCli.Lib;
     /** Package metadata sync helpers. */
     readonly Pkg: t.WorkspacePkg.Lib;
     /** Source statistics helpers. */
