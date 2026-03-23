@@ -12,7 +12,7 @@ export const Latest = {
   },
 
   deps(items: t.EsmParsedImport[], input: t.EsmImportMap): t.EsmImportMap {
-    const res: t.EsmImportMap = { ...input };
+    const res: t.Mutable<t.EsmImportMap> = { ...input };
     Object.entries(res).forEach(([key, value]) => {
       const latest = Latest.name(items, key);
       const current = wrangle.version(value);

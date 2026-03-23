@@ -3,7 +3,7 @@ import type { EsmTopological } from '../m.Topological/t.ts';
 import type { EsmPolicy } from '../m.Policy/t.ts';
 
 /** A map of {"alias":"module-specifier"} values. */
-export type EsmImportMap = { [key: string]: string };
+export type EsmImportMap = { readonly [key: string]: string };
 
 /** Values representing public registries of ESM modules. */
 export type EsmRegistry = 'jsr' | 'npm';
