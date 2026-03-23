@@ -1,10 +1,8 @@
-import type { EsmModulesLib } from './t.ts';
-
 import { type t, Err } from './common.ts';
 import { Latest } from './u.latest.ts';
 import { parse } from './u.parse.ts';
 
-export const Modules: EsmModulesLib = {
+export const Modules: t.EsmModulesLib = {
   create(input = []) {
     type E = t.EsmParsedImport;
     const errors = Err.errors();

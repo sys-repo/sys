@@ -1,7 +1,7 @@
-import { describe, expect, it, pkg } from '../../-test.ts';
+import { describe, expect, it, pkg } from '../../../-test.ts';
 import { Modules } from '../m.Modules.ts';
 import { Esm } from '../mod.ts';
-import { Policy } from '../m.Policy/mod.ts';
+import { Policy } from '../../m.Policy/mod.ts';
 
 describe('Esm', () => {
   it('API', async () => {
