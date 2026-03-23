@@ -1,7 +1,5 @@
 import {
   type t,
-  c,
-  Cli,
   describe,
   expect,
   Hash,
@@ -14,26 +12,23 @@ import {
 import { assertFetchDisposed } from '../-u.ts';
 import { JsrUrl } from '../common.ts';
 import { Fetch } from '../mod.ts';
+import { Fmt } from './u.fmt.ts';
 
 describe('Jsr.Fetch.Pkg.file (external)', () => {
   const { name, version } = SAMPLE.pkg;
 
   const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
     const hx = Hash.sha256(res.data);
-    const table = Cli.table([]);
-    const title = `${c.bold(c.green('LIVE EXTERNAL'))} ${c.italic(c.yellow('Jsr.Fetch.Pkg.file'))}`;
-
-    table.push([c.cyan(' status:'), c.bold(String(res.status))]);
-    table.push([c.cyan(' url:'), c.green(res.url)]);
-    table.push([c.cyan(' hash (manifest):'), checksum]);
-    table.push([c.cyan(' hash (pulled):'), hx]);
-
-    console.info(title);
-    console.info();
-    console.info(table.toString().trim());
-    console.info();
-    console.info(c.italic(c.yellow(res.data ?? '(empty)')));
-    console.info();
+    Fmt.printExternalTable(
+      'Jsr.Fetch.Pkg.file',
+      [
+        { label: 'status', value: String(res.status) },
+        { label: 'url', value: res.url },
+        { label: 'hash (manifest)', value: checksum },
+        { label: 'hash (pulled)', value: hx },
+      ],
+      res.data ?? '(empty)',
+    );
   };
 
   const testPull = async (path: keyof typeof SAMPLE.def, ...expectText: string[]) => {

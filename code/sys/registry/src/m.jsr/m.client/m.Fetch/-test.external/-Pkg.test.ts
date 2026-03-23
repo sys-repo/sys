@@ -2,6 +2,7 @@ import { c, describe, expect, it, Rx, Semver, slug, Testing } from '../../../-te
 import { assertFetchDisposed } from '../-u.ts';
 import { Fetch } from '../mod.ts';
 import { Jsr } from '../../m.Jsr/mod.ts';
+import { Fmt } from './u.fmt.ts';
 
 describe('Jsr.Fetch.Pkg (external)', () => {
   describe('Pkg.versions( name )', () => {
@@ -21,23 +22,18 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         expect(versions).to.include('0.0.42');
         expect(Semver.Is.valid(res.data?.latest)).to.eql(true);
 
-        console.info();
-        console.info(
-          c.bold(c.brightCyan('LIVE EXTERNAL')) + ' ' + c.italic(c.yellow('Jsr.Fetch.Pkg.versions:')),
-          {
-            ok: res.ok,
-            status: res.status,
-            url: res.url,
-            data: {
-              scope: res.data?.scope,
-              name: res.data?.name,
-              latest: res.data?.latest,
-              versions: versions.length,
-            },
-            error: res.error,
+        Fmt.printExternalObject('Jsr.Fetch.Pkg.versions:', {
+          ok: res.ok,
+          status: res.status,
+          url: res.url,
+          data: {
+            scope: res.data?.scope,
+            name: res.data?.name,
+            latest: res.data?.latest,
+            versions: versions.length,
           },
-        );
-        console.info();
+          error: res.error,
+        });
 
         const max = 5;
         const title = c.cyan(`${c.bold('versions')} (latest ${max} of ${versions.length}):`);
@@ -83,24 +79,19 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         expect(mod.checksum.startsWith('sha256-')).to.eql(true);
         expect(typeof mod.size === 'number').to.eql(true);
 
-        console.info();
-        console.info(
-          c.bold(c.brightCyan('LIVE EXTERNAL')) + ' ' + c.italic(c.yellow('Jsr.Fetch.Pkg.info:')),
-          {
-            ok: res.ok,
-            status: res.status,
-            url: res.url,
-            data: {
-              pkg: res.data?.pkg,
-              manifest: Object.keys(res.data?.manifest ?? {}).length,
-              exports: Object.keys(res.data?.exports ?? {}).length,
-              moduleGraph1: Object.keys(res.data?.moduleGraph1 ?? {}).length,
-              moduleGraph2: Object.keys(res.data?.moduleGraph2 ?? {}).length,
-            },
-            error: res.error,
+        Fmt.printExternalObject('Jsr.Fetch.Pkg.info:', {
+          ok: res.ok,
+          status: res.status,
+          url: res.url,
+          data: {
+            pkg: res.data?.pkg,
+            manifest: Object.keys(res.data?.manifest ?? {}).length,
+            exports: Object.keys(res.data?.exports ?? {}).length,
+            moduleGraph1: Object.keys(res.data?.moduleGraph1 ?? {}).length,
+            moduleGraph2: Object.keys(res.data?.moduleGraph2 ?? {}).length,
           },
-        );
-        console.info();
+          error: res.error,
+        });
       });
     });
 
