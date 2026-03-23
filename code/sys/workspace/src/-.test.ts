@@ -1,9 +1,9 @@
-import { describe, expect, it } from '../-test.ts';
-import { WorkspaceCi } from '../m.ci/mod.ts';
-import { WorkspaceInfo } from '../m.info/mod.ts';
-import { WorkspacePkg } from '../m.pkg/mod.ts';
-import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
-import { Workspace } from '../mod.ts';
+import { describe, expect, it } from './-test.ts';
+import { WorkspaceCi } from './m.ci/mod.ts';
+import { WorkspaceInfo } from './m.info/mod.ts';
+import { WorkspacePkg } from './m.pkg/mod.ts';
+import { WorkspaceUpgrade } from './m.upgrade/mod.ts';
+import { Workspace } from './mod.ts';
 
 describe(`@sys/workspace`, () => {
   it('API', async () => {
