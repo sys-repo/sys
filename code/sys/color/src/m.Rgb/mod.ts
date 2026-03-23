@@ -11,5 +11,5 @@
  * const myColor = Color.alpha(theme.fg, 0.3);
  * ```
  */
-export { Color, COLORS } from './m.Color.ts';
+export { Color, COLORS } from './m.Color/mod.ts';
 export { Theme } from './m.Theme/mod.ts';

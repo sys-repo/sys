@@ -7,10 +7,6 @@ export type HexColor = t.StringHex;
 export type RgbColor = `rgb(${string})`;
 export type RgbaColor = `rgba(${string})`;
 export type AlphaColorInput = HexColor | RgbColor | RgbaColor;
-type ColorInput = string | null;
-
-export type StringRgb = string;
-export type StringRgba = string;
 
 /**
  * Library: Helpers for working with colors.

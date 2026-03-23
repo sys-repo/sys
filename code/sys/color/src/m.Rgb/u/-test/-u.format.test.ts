@@ -1,5 +1,5 @@
-import { type t, describe, expect, it } from '../../-test.ts';
-import { Color } from '../mod.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
+import { Color } from '../../mod.ts';
 
 describe('Color.toGrayAlpha', () => {
   const test = (value: number, output: string) => {
@@ -29,7 +29,9 @@ describe('Color.alpha', () => {
   });
 
   it('rejects named colors', () => {
-    expect(() => Color.alpha('white' as any, 0.5)).to.throw('Color.alpha expects a hex/rgb/rgba color.');
+    expect(() => Color.alpha('white' as any, 0.5)).to.throw(
+      'Color.alpha expects a hex/rgb/rgba color.',
+    );
   });
 });
 

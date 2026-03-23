@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 export const RUBY = `rgba(255, 0, 0, 0.1)`; // Debugger "ruby" RED color (semi-transparent).
 

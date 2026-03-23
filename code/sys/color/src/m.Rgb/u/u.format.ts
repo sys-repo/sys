@@ -1,7 +1,7 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 
 import tinycolor from 'tinycolor2';
-import { RED } from './m.Color.const.ts';
+import { RED } from '../m.Color/u.COLORS.ts';
 import { assertAlphaColorInput, assertHexColor, isAlphaColorInput } from './u.is.ts';
 
 /**
