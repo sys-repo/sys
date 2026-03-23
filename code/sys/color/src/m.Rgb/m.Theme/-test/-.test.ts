@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Color, Theme } from '../mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Color, Theme } from '../../mod.ts';
 
 describe('Color.theme', () => {
   it('create from root API', () => {

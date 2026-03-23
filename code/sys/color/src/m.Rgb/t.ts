@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Type re-exports. */
+export type * from './m.Theme/t.ts';
+
 export type HexColor = t.StringHex;
 export type RgbColor = `rgb(${string})`;
 export type RgbaColor = `rgba(${string})`;
@@ -44,66 +47,9 @@ export type ColorLib = t.ColorConstants & {
   toGrayAlpha(value: number): RgbaColor;
 
   /** ColorThemeLib */
-  readonly Theme: ColorThemeLib;
+  readonly Theme: t.ColorThemeLib;
   /** Create a color theme instance. */
-  theme: ColorThemeLib['create'];
-};
-
-/**
- * Tools for working with the basic color theme ("Light" / "Dark").
- */
-export type ColorThemeLib = {
-  /**
-   * Create a color theme instance.
-   */
-  create(
-    input?: t.CommonTheme | t.ColorTheme | null, // NB: loose input.
-    defaultLight?: ColorInput,
-    defaultDark?: ColorInput,
-  ): t.ColorTheme;
-
-  /**
-   * Invert a color scheme.
-   */
-  invert(theme?: t.CommonTheme): t.CommonTheme;
-};
-
-/**
- * Represents a theme that produces basic color sets.
- */
-export type ColorTheme = ColorThemeColors & {
-  /** The name of the theme. */
-  readonly name: t.CommonTheme;
-
-  /** Flags */
-  readonly is: {
-    /** Theme is "Light" */
-    readonly light: boolean;
-    /** Theme is "Dark" */
-    readonly dark: boolean;
-  };
-
-  /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
-  invert(): ColorTheme;
-
-  /** Retrieve an alpha-percent (-1..1) of the current theme colors (pass negative to invert). */
-  alpha(percent?: t.Percent): ColorThemeColors;
-
-  /** Convert to string. */
-  toString(): string;
-  /** Convert to a fg/bg object. */
-  toColors(): ColorThemeColors;
-};
-
-/**
- * Primitive theme colors.
- */
-export type ColorThemeColors = {
-  /** Background color. */
-  readonly bg: HexColor;
-
-  /** Foreground color. */
-  readonly fg: HexColor;
+  theme: t.ColorThemeLib['create'];
 };
 
 /**

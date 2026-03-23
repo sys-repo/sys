@@ -4,7 +4,7 @@ export * from './m.Color.const.ts';
 export * from './u.format.ts';
 
 import { COLORS } from './m.Color.const.ts';
-import { Theme } from './m.Theme.ts';
+import { Theme } from './m.Theme/mod.ts';
 import { alpha, darken, lighten, ruby, toGrayAlpha, toHex } from './u.format.ts';
 
 /**

@@ -12,4 +12,4 @@
  * ```
  */
 export { Color, COLORS } from './m.Color.ts';
-export { Theme } from './m.Theme.ts';
+export { Theme } from './m.Theme/mod.ts';
