@@ -1,6 +1,7 @@
 import { describe, expect, it, pkg } from '../../-test.ts';
 import { Modules } from '../m.Modules.ts';
 import { Esm } from '../mod.ts';
+import { Policy } from '../m.Policy/mod.ts';
 
 describe('Esm', () => {
   it('API', async () => {
@@ -14,5 +15,6 @@ describe('Esm', () => {
 
     expect(Esm.Modules).to.equal(Modules);
     expect(Esm.modules).to.equal(Modules.create);
+    expect(Esm.Policy).to.equal(Policy);
   });
 });
