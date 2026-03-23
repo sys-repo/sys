@@ -1,6 +1,7 @@
 import { describe, expect, it, pkg } from '../../../-test.ts';
 import { Modules } from '../m.Modules.ts';
 import { Esm } from '../mod.ts';
+import { Plan } from '../../m.Plan/mod.ts';
 import { Policy } from '../../m.Policy/mod.ts';
 
 describe('Esm', () => {
@@ -13,8 +14,9 @@ describe('Esm', () => {
     expect(root.pkg).to.equal(pkg);
     expect(core.Esm).to.equal(Esm);
 
+    expect(Esm.Policy).to.equal(Policy);
+    expect(Esm.Plan).to.equal(Plan);
     expect(Esm.Modules).to.equal(Modules);
     expect(Esm.modules).to.equal(Modules.create);
-    expect(Esm.Policy).to.equal(Policy);
   });
 });
