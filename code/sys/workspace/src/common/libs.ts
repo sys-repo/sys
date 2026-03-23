@@ -1,4 +1,5 @@
 export { c } from '@sys/color/ansi';
+export { Esm } from '@sys/esm';
 export { Deps } from '@sys/esm/deps';
 export { Fs } from '@sys/fs';
 export { Jsr } from '@sys/registry/jsr';

@@ -8,6 +8,8 @@ export declare namespace WorkspaceUpgrade {
   export type Lib = {
     /** Collect canonical dependency upgrade candidates from manifest and registry inputs. */
     collect(input: Input, options?: Options): Promise<CollectResult>;
+    /** Compose policy and topological ordering into one canonical upgrade result. */
+    upgrade(input: Input, options?: Options): Promise<Result>;
   };
 
   /** Workspace-facing dependency policy selection. */
@@ -56,6 +58,25 @@ export declare namespace WorkspaceUpgrade {
     readonly blocked: number;
     /** Number of dependencies included in the ordered plan. */
     readonly planned: number;
+  };
+
+  /** Canonical dependency-graph derivation code. */
+  export type GraphCode = 'registry:info' | 'registry:graph-unsupported';
+
+  /** Structured reason explaining why graph derivation could not complete for one dependency. */
+  export type GraphReason = {
+    /** Canonical graph-derivation code. */
+    readonly code: GraphCode;
+    /** Optional human-readable detail. */
+    readonly message?: string;
+  };
+
+  /** One dependency whose graph relationships could not be fully derived. */
+  export type GraphUnresolved = {
+    /** Canonical manifest entry whose graph information is incomplete. */
+    readonly entry: t.EsmDeps.Entry;
+    /** Structured graph-derivation reason. */
+    readonly reason: GraphReason;
   };
 
   /** One collected dependency candidate. */
@@ -121,12 +142,30 @@ export declare namespace WorkspaceUpgrade {
     readonly uncollected: readonly Uncollected[];
   };
 
+  /** Derived dependency graph used for ordered upgrade planning. */
+  export type Graph = {
+    /** Nodes entering ordered planning. */
+    readonly nodes: t.EsmTopologicalInput['nodes'];
+    /** Derived dependency edges between the planned nodes. */
+    readonly edges: t.EsmTopologicalInput['edges'];
+    /** Dependencies whose graph relationships were not fully derivable. */
+    readonly unresolved: readonly GraphUnresolved[];
+  };
+
   /** Result from one workspace dependency upgrade pass. */
   export type Result = {
     /** Resolved orchestration input. */
     readonly input: Input;
     /** Resolved orchestration options. */
     readonly options: ResolvedOptions;
+    /** Canonical candidate collection result. */
+    readonly collect: CollectResult;
+    /** Policy decisions across collected candidates. */
+    readonly policy: t.EsmPolicyResult;
+    /** Derived dependency graph used for topological ordering. */
+    readonly graph: Graph;
+    /** Topological ordering result across the derived dependency graph. */
+    readonly topological: t.EsmTopologicalResult;
     /** Aggregate outcome counts. */
     readonly totals: SummaryTotals;
   };
