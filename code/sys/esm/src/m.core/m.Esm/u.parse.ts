@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for evaluating boolean flags on JSR related data.
+ * Parse ESM module-specifier strings.
  */
 import { type t, Err, Is } from './common.ts';
 import { toString } from './u.toString.ts';

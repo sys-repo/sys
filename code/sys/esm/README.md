@@ -17,19 +17,19 @@ import { Esm } from 'jsr:@sys/esm/core';
 
 Surfaces (dependency model):
 
-- registry adapters for package and version facts
+- import and module helpers
 - policy for upgrade eligibility
 - topological ordering for dependency-safe execution order
-- driver projections for runtime files
+- canonical result shapes for downstream projections
 
 
-The result is a dependency surface that stays legible, deterministic, and safe to project into runtime files.
+These surfaces keep dependency reasoning legible, deterministic, and projection-safe.
 
 Key properties:
 
 - deterministic ordering for the same graph input
 - explicit failure on invalid graph references and cycles
-- canonical manifest state as the planning input
+- designed to consume canonical dependency state, typically from `@sys/esm/deps`
 - projected file updates treated as outputs of the plan, not the source of truth
 
 
