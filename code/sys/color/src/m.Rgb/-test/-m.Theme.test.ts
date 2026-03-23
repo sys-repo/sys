@@ -99,33 +99,27 @@ describe('Color.theme', () => {
     });
   });
 
-  describe('format', () => {
-    it('input: undefined', () => {
+  describe('toColors', () => {
+    it('returns the base theme colors', () => {
       const theme = Color.theme();
-      const a = theme.format();
-      const b = theme.format(null as any);
-      const c = theme.format('');
-      expect(a).to.eql(theme.toColors());
-      expect(b).to.eql(theme.toColors());
-      expect(c).to.eql(theme.toColors());
+      expect(theme.toColors()).to.eql({ fg: theme.fg, bg: theme.bg });
+    });
+  });
+
+  describe('alpha usage alternatives', () => {
+    it('alpha(percent) replaces number-based theme formatting', () => {
+      const theme = Color.theme();
+      expect(theme.alpha(0.3)).to.eql({
+        fg: 'rgba(41, 48, 66, 0.3)',
+        bg: 'rgba(255, 255, 255, 0.3)',
+      });
+      expect(theme.alpha(2)).to.eql(theme.alpha(1));
+      expect(theme.alpha(-0.15)).to.eql(theme.invert().alpha(0.15));
     });
 
-    it('input: percent', () => {
-      const theme = Color.theme();
-      expect(theme.format(0.3)).to.eql(theme.alpha(0.3));
-      expect(theme.format(2)).to.eql(theme.alpha(1));
-      expect(theme.format(0)).to.eql(theme.alpha(0));
-      expect(theme.format(-0.15)).to.eql(theme.alpha(-0.15));
-    });
-
-    it('input: string (color)', () => {
-      const theme = Color.theme();
-      const test = (color: string) => {
-        const res = theme.format(color);
-        expect(res).to.eql({ fg: color, bg: color });
-      };
-      test('red');
-      test('#000');
+    it('string colors are now explicit passthrough at call sites', () => {
+      const color = '#000';
+      expect({ fg: color, bg: color }).to.eql({ fg: '#000', bg: '#000' });
     });
   });
 

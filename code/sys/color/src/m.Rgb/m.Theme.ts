@@ -52,12 +52,6 @@ function factory(
         },
       };
     },
-    format(input) {
-      if (input == null || input === '') return theme.toColors();
-      if (typeof input === 'string') return { fg: input, bg: input };
-      if (typeof input === 'number') return theme.alpha(input);
-      return theme.toColors();
-    },
     invert: () => create(invert(name), defaultLight, defaultDark),
     toString: () => name,
     toColors: () => ({ fg, bg }),
