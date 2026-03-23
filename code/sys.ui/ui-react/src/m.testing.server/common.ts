@@ -1,8 +1,8 @@
 export { DomMock, Testing } from '@sys/testing/server';
 export * from '../common.ts';
 
-declare global {
-  var IS_REACT_ACT_ENVIRONMENT: boolean | undefined;
-}
+const globalEnv = globalThis as typeof globalThis & {
+  IS_REACT_ACT_ENVIRONMENT?: boolean;
+};
 
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+globalEnv.IS_REACT_ACT_ENVIRONMENT = true;
