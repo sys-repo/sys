@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const build: t.EsmPlan.Lib['build'] = (input) => {
+export const build: t.EsmTopological.Lib['build'] = (input) => {
   const nodes = [...input.nodes].sort((a, b) => a.key.localeCompare(b.key));
   const duplicateKeys = wrangle.duplicates(nodes.map((node) => node.key));
   if (duplicateKeys.length > 0) {
@@ -34,7 +34,7 @@ export const build: t.EsmPlan.Lib['build'] = (input) => {
     .map((node) => node.key)
     .sort((a, b) => a.localeCompare(b));
 
-  const items: t.EsmPlan.Item[] = [];
+  const items: t.EsmTopological.Item[] = [];
 
   while (ready.length > 0) {
     const key = ready.shift()!;
@@ -81,8 +81,8 @@ const wrangle = {
   },
 
   unknownEdgeKeys(
-    edges: readonly t.EsmPlan.Edge[],
-    nodeByKey: ReadonlyMap<string, t.EsmPlan.Node>,
+    edges: readonly t.EsmTopological.Edge[],
+    nodeByKey: ReadonlyMap<string, t.EsmTopological.Node>,
   ) {
     const unknown = new Set<string>();
     for (const edge of edges) {

@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { EsmPlan } from '../m.Plan/t.ts';
+import type { EsmTopological } from '../m.Topological/t.ts';
 import type { EsmPolicy } from '../m.Policy/t.ts';
 
 /** A map of {"alias":"module-specifier"} values. */
@@ -11,7 +11,7 @@ export type EsmRegistry = 'jsr' | 'npm';
 /** Core ESM import and dependency helpers. */
 export type EsmLib = {
   /** Pure dependency upgrade planning. */
-  readonly Plan: EsmPlan.Lib;
+  readonly Topological: EsmTopological.Lib;
   /** Pure dependency policy algebra. */
   readonly Policy: EsmPolicy.Lib;
   /** Tools for working with groups of modules. */

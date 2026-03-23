@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Esm } from '../../mod.ts';
 
-describe('Esm.Plan.build', () => {
+describe('Esm.Topological.build', () => {
   const decision = (key: string) =>
     Esm.Policy.decide({
       policy: { mode: 'latest' },
@@ -15,7 +15,7 @@ describe('Esm.Plan.build', () => {
   const node = (key: string) => ({ key, decision: decision(key) });
 
   it('returns an empty ordered plan for empty input', () => {
-    const res = Esm.Plan.build({ nodes: [], edges: [] });
+    const res = Esm.Topological.build({ nodes: [], edges: [] });
 
     expect(res.ok).to.eql(true);
     if (!res.ok) return;
@@ -23,7 +23,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('returns a stable order for independent nodes', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/c'), node('@sys/a'), node('@sys/b')],
       edges: [],
     });
@@ -36,7 +36,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('orders a dependency chain topologically', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/app'), node('@sys/core'), node('@sys/net')],
       edges: [
         { from: '@sys/core', to: '@sys/net' },
@@ -53,7 +53,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('keeps deterministic order across branching edges', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/app'), node('@sys/ui'), node('@sys/core'), node('@sys/net')],
       edges: [
         { from: '@sys/core', to: '@sys/net' },
@@ -76,7 +76,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('returns the remaining nodes when a cycle is detected', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/a'), node('@sys/b'), node('@sys/c')],
       edges: [
         { from: '@sys/a', to: '@sys/b' },
@@ -92,7 +92,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('detects a self-cycle', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/a')],
       edges: [{ from: '@sys/a', to: '@sys/a' }],
     });
@@ -103,7 +103,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('dedupes repeated after keys from duplicate edges', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/a'), node('@sys/b')],
       edges: [
         { from: '@sys/a', to: '@sys/b' },
@@ -118,7 +118,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('rejects duplicate node keys', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/a'), node('@sys/a')],
       edges: [],
     });
@@ -129,7 +129,7 @@ describe('Esm.Plan.build', () => {
   });
 
   it('rejects edges that reference unknown nodes', () => {
-    const res = Esm.Plan.build({
+    const res = Esm.Topological.build({
       nodes: [node('@sys/a')],
       edges: [{ from: '@sys/a', to: '@sys/missing' }],
     });

@@ -4,7 +4,7 @@ import type { EsmPolicy } from '../m.Policy/t.ts';
 /**
  * Pure topological dependency upgrade planning.
  */
-export namespace EsmPlan {
+export namespace EsmTopological {
   /** Runtime planning helper surface. */
   export type Lib = {
     /** Compute a deterministic topological upgrade plan. */

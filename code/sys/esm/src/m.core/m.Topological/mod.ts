@@ -5,6 +5,6 @@ import { build } from './m.plan.ts';
  * @module
  * Pure topological dependency upgrade planning.
  */
-export const Plan: t.EsmPlan.Lib = {
+export const Topological: t.EsmTopological.Lib = {
   build,
 };
