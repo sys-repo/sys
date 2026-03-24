@@ -7,9 +7,8 @@
     "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
     "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
     "install": "deno install --reload",
-    "upgrade": "deno update",
-    "upgrade:latest": "deno update --latest",
-    "outdated": "deno outdated",
+    "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
+    "outdated": "deno run -P=upgrade ./-scripts/task.upgrade.ts --non-interactive --mode latest",
     "info": "deno run -P=test ./-scripts/task.info.ts",
     "tmp": "deno run -A ./-scripts/tmp.ts"
   },
@@ -25,7 +24,8 @@
   "importMap": "imports.json",
   "permissions": {
     "test": { "read": true, "write": true, "env": true },
-    "tmpl": { "read": true, "write": true, "run": true, "env": true }
+    "tmpl": { "read": true, "write": true, "run": true, "env": true },
+    "upgrade": { "read": true, "write": true, "env": true, "net": true, "ffi": true }
   },
   "workspace": []
 }

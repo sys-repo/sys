@@ -34,9 +34,12 @@ Core tasks from `deno.json`:
 - `deno task info` → prints Deno runtime and workspace source stats
 - `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
 - `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
-- `deno task outdated` → reports dependency updates
-- `deno task upgrade` → upgrades dependencies within the current semver lane
-- `deno task upgrade:latest` → upgrades dependencies to the latest available versions, including majors
+- `deno task outdated` → reports dependency updates from the canonical `deps.yaml` manifest
+- `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
+
+To run a non-default upgrade mode, pass flags through the same task surface:
+- `deno task upgrade -- --mode latest`
+- `deno task upgrade -- --non-interactive --mode latest`
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)
