@@ -1,9 +1,10 @@
-import { Workspace, type t } from '@sys/workspace';
+import { Workspace, type t as wt } from '@sys/workspace';
 import { Paths } from './-PATHS.ts';
-import { c, Str } from './common.ts';
+import { c, Str, type t } from './common.ts';
 
 type Options = {
-  versionFilter?: t.WorkspaceCi.Jsr.VersionFilter;
+  versionFilter?: wt.WorkspaceCi.Jsr.VersionFilter;
+  sourcePaths?: readonly t.StringPath[];
   prepared?: number;
   final?: boolean;
 };
@@ -34,7 +35,8 @@ export async function main(options: Options = {}) {
    * Move the remaining workspace-CI-specific policy/reporting from root scripts
    * into @sys/workspace/ci after the rename/refinement pass settles.
    */
-  const jsrPaths = toJsrCiPaths(Paths.modules);
+  const jsrSourcePaths = options.sourcePaths ?? Paths.modules;
+  const jsrPaths = toJsrCiPaths(jsrSourcePaths);
   const versionFilter = options.versionFilter ?? 'all';
   const on = {
     push: {

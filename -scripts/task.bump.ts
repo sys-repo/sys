@@ -1,3 +1,4 @@
+import { Workspace } from '@sys/workspace';
 import { DenoFile } from '@sys/driver-deno/runtime';
 import { type t, c, Cli, Path, Paths, R, Semver, Str } from './common.ts';
 import { main as prepCi } from './task.prep.ci.ts';
@@ -5,15 +6,27 @@ import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
+  from?: string;
   dryRun?: boolean;
   nonInteractive?: boolean;
   argv?: string[];
 };
 
 type TArgs = {
+  from?: string;
   release?: t.SemverReleaseType;
   'dry-run'?: boolean;
   'non-interactive'?: boolean;
+};
+
+type Candidate = {
+  readonly path: t.StringPath;
+  readonly json: t.DenoFileJson;
+  readonly name: string;
+  readonly version: {
+    readonly current: t.Semver;
+    readonly next: t.Semver;
+  };
 };
 
 export async function main(options: Options = {}) {
@@ -45,7 +58,7 @@ export async function main(options: Options = {}) {
   /**
    * Retrieve the child modules within the workspace.
    */
-  const children = orderChildren(
+  const candidates = orderChildren(
     ws.children
     .filter((child) => !exclude(child.path.denofile))
     .filter((child) => !!child.denofile.version)
@@ -62,23 +75,28 @@ export async function main(options: Options = {}) {
     Paths.all,
   );
 
+  const selection = await wrangle.selection({
+    from: wrangle.from(options, args),
+    candidates,
+  });
+  const plan = await wrangle.runSilentPhase(
+    'deriving affected downstream packages (topological)...',
+    () => wrangle.plan(candidates, selection),
+  );
+  const selected = plan.selected;
+  const selectedPaths = new Set(selected.map((child) => packagePath(child)));
+
   // Prepare the set of next versions to bump to.
   const table = Cli.table(['Module', 'Current', '', 'Next']);
-  children.forEach((child) => {
-    const { name, version } = child;
-    const modParts = name.split('/');
-    const modScope = modParts[0];
-    const modName = modParts.splice(1).join('/');
-    const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
+  candidates.forEach((child) => table.push(wrangle.preflightRow(child, selectedPaths, release)));
 
-    const vCurrent = Semver.toString(version.current);
-    const vNext = Semver.Fmt.colorize(version.next, { highlight: release });
-
-    const title = `${c.cyan(' •')} ${pkg}`;
-    table.push([title, vCurrent, '→', vNext]);
-  });
-
+  if (!selection.nonInteractive) console.clear();
   console.info();
+  if (plan.kind === 'selection') {
+    console.info(c.gray(`Selected root: ${c.white(plan.root.name)}`));
+    console.info(c.gray(`Affected packages: ${c.white(String(selected.length))}`));
+    console.info();
+  }
   console.info(c.gray(table.toString()));
   console.info();
 
@@ -91,23 +109,30 @@ export async function main(options: Options = {}) {
   /**
    * Prompt to continue.
    */
-  const yes = nonInteractive ? true : await Cli.Input.Confirm.prompt('Update files?:');
+  const yes = nonInteractive ? true : await wrangle.confirm();
   if (!yes) return false;
 
   /**
    * Write version to files.
    */
-  for (const child of children) {
-    const denofile = R.clone(child.json) as t.DenoFileJson;
-    denofile.version = Semver.toString(child.version.next);
-    const json = `${JSON.stringify(denofile, null, '  ')}\n`;
-    await Deno.writeTextFile(child.path, json);
-  }
+  await wrangle.runSilentPhase('saving bumped package versions...', async () => {
+    for (const child of selected) {
+      const denofile = R.clone(child.json) as t.DenoFileJson;
+      denofile.version = Semver.toString(child.version.next);
+      const json = `${JSON.stringify(denofile, null, '  ')}\n`;
+      await Deno.writeTextFile(child.path, json);
+    }
+  });
 
+  console.info(Cli.Fmt.spinnerText('running workspace prep...'));
   const prepare = await import('./task.prep.ts');
   const prepared = await prepare.main('bump');
+
+  console.info(Cli.Fmt.spinnerText('refreshing ci deno surface...'));
   await prepCiDeno();
-  await prepCi({ prepared, final: true });
+
+  console.info(Cli.Fmt.spinnerText('refreshing github workflow surfaces...'));
+  await prepCi({ prepared, final: true, sourcePaths: selected.map((child) => packagePath(child)) });
 
   return true;
 } 
@@ -157,8 +182,149 @@ const wrangle = {
     return options.dryRun ?? argv['dry-run'] ?? false;
   },
 
+  from(options: Options, argv: TArgs) {
+    return options.from ?? argv.from;
+  },
+
   nonInteractive(options: Options, argv: TArgs) {
     return options.nonInteractive ?? argv['non-interactive'] ?? false;
+  },
+
+  async selection(args: {
+    from?: string;
+    candidates: readonly Candidate[];
+  }): Promise<
+    | { readonly nonInteractive: true; readonly value: t.StringPath }
+    | { readonly nonInteractive: false; readonly value: t.StringPath }
+  > {
+    if (args.from) {
+      const value = wrangle.resolveFrom(args.candidates, args.from);
+      if (!value) throw new Error(`Unknown bump root: ${args.from}`);
+      return { nonInteractive: true, value };
+    }
+
+    const layout = wrangle.selectionLayout(args.candidates);
+    const options = args.candidates.map((candidate) => ({
+      name: wrangle.selectionLabel(candidate, layout),
+      value: packagePath(candidate),
+    }));
+    const total = args.candidates.length.toLocaleString();
+
+    const picked = await Cli.Input.Select.prompt<t.StringPath>({
+      message: `Start bump from package (${total} total):\n`,
+      maxRows: Math.min(50, args.candidates.length),
+      options,
+      default: packagePath(args.candidates[0]),
+      hideDefault: true,
+    });
+
+    return { nonInteractive: false, value: picked };
+  },
+
+  selectionLayout(candidates: readonly Candidate[]) {
+    return candidates.reduce(
+      (acc, candidate) => ({
+        name: Math.max(acc.name, candidate.name.length),
+        version: Math.max(acc.version, Semver.toString(candidate.version.current).length),
+      }),
+      { name: 0, version: 0 },
+    );
+  },
+
+  selectionLabel(candidate: Candidate, layout: { readonly name: number; readonly version: number }) {
+    const path = c.gray(packagePath(candidate));
+    const name = wrangle.pad(candidate.name, layout.name);
+    const current = wrangle.pad(Semver.toString(candidate.version.current), layout.version);
+    return `${c.cyan('•')} ${c.white(c.bold(name))}  ${c.gray(current)}  ${path}`;
+  },
+
+  resolveFrom(candidates: readonly Candidate[], input: string) {
+    const trimmed = input.trim();
+    const exactPath = candidates.find((candidate) => packagePath(candidate) === trimmed);
+    if (exactPath) return packagePath(exactPath);
+    const exactName = candidates.find((candidate) => candidate.name === trimmed);
+    if (exactName) return packagePath(exactName);
+    return undefined;
+  },
+
+  async plan(
+    candidates: readonly Candidate[],
+    selection: { readonly value: t.StringPath },
+  ) {
+    const root = candidates.find((candidate) => packagePath(candidate) === selection.value);
+    if (!root) throw new Error(`Unknown bump root: ${selection.value}`);
+
+    const selectedPaths = new Set<string>(await wrangle.dependentClosure(selection.value));
+    const selected = candidates.filter((candidate) => selectedPaths.has(packagePath(candidate)));
+    return { kind: 'selection', root, selected } as const;
+  },
+
+  preflightRow(
+    candidate: Candidate,
+    selectedPaths: ReadonlySet<string>,
+    release: t.SemverReleaseType,
+  ) {
+    const affected = selectedPaths.has(packagePath(candidate));
+    const { name, version } = candidate;
+    const modParts = name.split('/');
+    const modScope = modParts[0];
+    const modName = modParts.splice(1).join('/');
+    const pkg = affected
+      ? `${c.gray(modScope)}/${c.white(c.bold(modName))}`
+      : c.gray(`${modScope}/${modName}`);
+
+    const bullet = affected ? c.cyan(' •') : c.gray(c.dim(' •'));
+    const current = affected ? c.gray(Semver.toString(version.current)) : c.gray(c.dim(Semver.toString(version.current)));
+    const arrow = affected ? '→' : c.gray(c.dim('→'));
+    const next = affected
+      ? Semver.Fmt.colorize(version.next, { highlight: release })
+      : c.gray(c.dim(Semver.toString(version.next)));
+
+    return [`${bullet} ${pkg}`, current, arrow, next];
+  },
+
+  async dependentClosure(root: t.StringPath) {
+    const graph = await Workspace.Graph.collect({
+      cwd: Deno.cwd(),
+      source: { include: Paths.workspace.map((path) => `${path}/deno.json`) },
+    });
+    const packages = Workspace.Graph.packageEdges(graph);
+    const queue = [root];
+    const seen = new Set<t.StringPath>(queue);
+
+    while (queue.length > 0) {
+      const next = queue.shift()!;
+      for (const edge of packages.edges) {
+        if (edge.from !== next || seen.has(edge.to)) continue;
+        seen.add(edge.to);
+        queue.push(edge.to);
+      }
+    }
+
+    return Paths.all.filter((path) => seen.has(path));
+  },
+
+  async confirm() {
+    const answer = await Cli.Input.Select.prompt<'save' | 'cancel'>({
+      message: 'Apply update plan:\n',
+      options: [
+        { name: c.green(c.bold('Save')), value: 'save' },
+        { name: c.gray('Cancel'), value: 'cancel' },
+      ],
+      default: 'save',
+      hideDefault: true,
+    });
+    return answer === 'save';
+  },
+
+  async runSilentPhase<T>(label: string, fn: () => Promise<T>) {
+    const spinner = Cli.spinner('', { start: false });
+    spinner.start(Cli.Fmt.spinnerText(label));
+    try {
+      return await fn();
+    } finally {
+      spinner.stop();
+    }
   },
 
   increment(current: t.Semver, release: t.SemverReleaseType) {
@@ -166,4 +332,12 @@ const wrangle = {
     if (release === 'patch' && isPrerelease) release = 'prerelease';
     return Semver.increment(current, release);
   },
+
+  pad(value: string, width: number) {
+    return value.padEnd(width, ' ');
+  },
 } as const;
+
+function packagePath(input: { path: t.StringPath }) {
+  return Path.dirname(input.path);
+}
