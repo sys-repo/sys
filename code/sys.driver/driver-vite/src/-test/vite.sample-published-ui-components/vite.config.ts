@@ -1,4 +1,4 @@
-import { Vite } from 'jsr:@sys/driver-vite@0.0.326';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.327';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() =>
