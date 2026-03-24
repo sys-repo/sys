@@ -43,28 +43,7 @@ export async function readWorkspaceGraphCache(path: string = WORKSPACE_GRAPH_CAC
   if (!(await Fs.exists(path))) return undefined;
 
   const data = (await Fs.readJson<unknown>(path)).data;
-  if (!data || typeof data !== 'object') return undefined;
-
-  const orderedPaths = (data as { orderedPaths?: unknown }).orderedPaths;
-  const edges = (data as { edges?: unknown }).edges;
-  if (!Array.isArray(orderedPaths) || !orderedPaths.every(Is.str)) return undefined;
-  if (!Array.isArray(edges)) return undefined;
-
-  const validEdges = edges.every((edge) =>
-    !!edge &&
-    typeof edge === 'object' &&
-    Is.str((edge as { from?: unknown }).from) &&
-    Is.str((edge as { to?: unknown }).to)
-  );
-  if (!validEdges) return undefined;
-
-  return {
-    orderedPaths,
-    edges: edges.map((edge) => ({
-      from: (edge as { from: string }).from,
-      to: (edge as { to: string }).to,
-    })),
-  } satisfies WorkspaceGraphCache;
+  return wrangle.parseWorkspaceGraphCache(data);
 }
 
 export async function writeWorkspaceGraphCache(
@@ -116,5 +95,31 @@ export async function main(path: string = PATHS_FILE, paths?: readonly string[])
 
   return res.changed;
 }
+
+const wrangle = {
+  parseWorkspaceGraphCache(data: unknown): WorkspaceGraphCache | undefined {
+    if (!data || typeof data !== 'object') return undefined;
+    const item = data as Record<string, unknown>;
+    if (!Array.isArray(item.orderedPaths) || !item.orderedPaths.every(Is.str)) return undefined;
+    if (!Array.isArray(item.edges)) return undefined;
+
+    const edges = item.edges
+      .map((edge) => wrangle.parseWorkspaceGraphEdge(edge))
+      .filter((edge): edge is WorkspaceGraphCache['edges'][number] => !!edge);
+    if (edges.length !== item.edges.length) return undefined;
+
+    return {
+      orderedPaths: [...item.orderedPaths],
+      edges,
+    };
+  },
+
+  parseWorkspaceGraphEdge(data: unknown): WorkspaceGraphCache['edges'][number] | undefined {
+    if (!data || typeof data !== 'object') return undefined;
+    const item = data as Record<string, unknown>;
+    if (!Is.str(item.from) || !Is.str(item.to)) return undefined;
+    return { from: item.from, to: item.to };
+  },
+} as const;
 
 if (import.meta.main) await main();
