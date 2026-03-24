@@ -8,7 +8,7 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        graphHash: 'sha256-abc',
+        hash: { graph: 'sha256-abc' },
         generator: D.GENERATOR,
       },
       graph: {
@@ -21,7 +21,7 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        graphHash: 'sha256-abc',
+        hash: { graph: 'sha256-abc' },
         generator: D.GENERATOR,
       },
       graph: {
@@ -36,7 +36,7 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: 2,
-        graphHash: 'sha256-abc',
+        hash: { graph: 'sha256-abc' },
         generator: D.GENERATOR,
       },
       graph: { orderedPaths: [], edges: [] },
@@ -50,7 +50,7 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        graphHash: 'sha256-abc',
+        hash: { graph: 'sha256-abc' },
         generator: D.GENERATOR,
       },
       graph: {
@@ -67,7 +67,7 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        graphHash: 'sha256-abc',
+        hash: { graph: 'sha256-abc' },
         generator: {
           ...D.GENERATOR,
           pkg: { name: '@sys/workspace', version: 123 },

@@ -45,7 +45,6 @@ export declare namespace WorkspaceGraph {
   export type Package = {
     /**
      * Canonical package identity for local workspace graphing.
-     *
      * This is the normalized workspace-relative package path.
      */
     readonly path: t.StringPath;
@@ -61,7 +60,6 @@ export declare namespace WorkspaceGraph {
   export type Module = {
     /**
      * Canonical module identity for local workspace graphing.
-     *
      * This is the normalized workspace-relative module path.
      */
     readonly key: t.StringPath;
@@ -152,9 +150,7 @@ export declare namespace WorkspaceGraph {
   export type Cyclic = {
     readonly ok: false;
     readonly graph: PackageGraph;
-    readonly cycle: {
-      readonly keys: readonly Package['path'][];
-    };
+    readonly cycle: { readonly keys: readonly Package['path'][] };
   };
 
   /** Package-order result. */
@@ -184,11 +180,8 @@ export declare namespace WorkspaceGraph {
     /** Snapshot document metadata. */
     export type Meta = t.JsonFileMeta & {
       readonly schemaVersion: 1;
-      readonly graphHash: t.StringHash;
-      readonly generator: {
-        readonly pkg: t.Pkg;
-        readonly type: t.StringUrl;
-      };
+      readonly hash: { readonly graph: t.StringHash };
+      readonly generator: { readonly pkg: t.Pkg; readonly type: t.StringUrl };
     };
 
     /** Persisted graph snapshot document. */

@@ -12,14 +12,14 @@ export function meta(args: {
     createdAt: args.createdAt,
     ...(args.modifiedAt !== undefined ? { modifiedAt: args.modifiedAt } : {}),
     schemaVersion: D.schemaVersion,
-    graphHash: args.graphHash,
+    hash: { graph: args.graphHash },
     generator: args.generator ? cloneGenerator(args.generator) : D.GENERATOR,
   };
 }
 
 function cloneGenerator(generator: M['generator']): M['generator'] {
   return {
-    pkg: Obj.clone(generator.pkg),
     type: generator.type,
+    pkg: Obj.clone(generator.pkg),
   };
 }

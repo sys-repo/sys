@@ -30,10 +30,10 @@ describe('Workspace.Graph.Snapshot.read/write', () => {
         createdAt: 1,
         modifiedAt: 2,
         schemaVersion: 1,
-        graphHash: 'sha256-old',
+        hash: { graph: 'sha256-old' },
         generator: {
-          pkg: { name: '@sys/workspace', version: '0.0.1' },
           type: 'https://jsr.io/@sys/workspace/0.0.1/src/m.graph/t.ts',
+          pkg: { name: '@sys/workspace', version: '0.0.1' },
         },
       },
       orderedPaths: ['stale/a'],

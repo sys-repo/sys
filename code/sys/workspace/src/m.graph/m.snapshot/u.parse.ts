@@ -15,7 +15,8 @@ function parseMeta(data: unknown): t.WorkspaceGraph.Snapshot.Meta | undefined {
   if (item.schemaVersion !== D.schemaVersion) return undefined;
   if (!Is.num(item.createdAt)) return undefined;
   if (item.modifiedAt !== undefined && !Is.num(item.modifiedAt)) return undefined;
-  if (!Is.str(item.graphHash)) return undefined;
+  const hash = parseHash(item.hash);
+  if (!hash) return undefined;
 
   const generator = parseGenerator(item.generator);
   if (!generator) return undefined;
@@ -24,9 +25,15 @@ function parseMeta(data: unknown): t.WorkspaceGraph.Snapshot.Meta | undefined {
     createdAt: item.createdAt as t.UnixTimestamp,
     ...(item.modifiedAt !== undefined ? { modifiedAt: item.modifiedAt as t.UnixTimestamp } : {}),
     schemaVersion: D.schemaVersion,
-    graphHash: item.graphHash as t.StringHash,
+    hash,
     generator,
   };
+}
+
+function parseHash(data: unknown): t.WorkspaceGraph.Snapshot.Meta['hash'] | undefined {
+  if (!Is.record<Record<string, unknown>>(data)) return undefined;
+  if (!Is.str(data.graph)) return undefined;
+  return { graph: data.graph as t.StringHash };
 }
 
 function parseGenerator(data: unknown): t.WorkspaceGraph.Snapshot.Meta['generator'] | undefined {
@@ -34,7 +41,7 @@ function parseGenerator(data: unknown): t.WorkspaceGraph.Snapshot.Meta['generato
   const item = data;
   const pkg = parsePkg(item.pkg);
   if (!pkg || !Is.str(item.type)) return undefined;
-  return { pkg, type: item.type };
+  return { type: item.type, pkg };
 }
 
 function parsePkg(data: unknown): t.Pkg | undefined {

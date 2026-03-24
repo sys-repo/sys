@@ -17,7 +17,7 @@ describe('Workspace.Graph.Snapshot.create', () => {
     });
     expect(snapshot['.meta'].schemaVersion).to.eql(1);
     expect(snapshot['.meta'].createdAt).to.be.a('number');
-    expect(snapshot['.meta'].graphHash.startsWith('sha256-')).to.eql(true);
+    expect(snapshot['.meta'].hash.graph.startsWith('sha256-')).to.eql(true);
     expect(snapshot['.meta'].generator).to.eql(D.GENERATOR);
   });
 });
