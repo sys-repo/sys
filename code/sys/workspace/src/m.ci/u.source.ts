@@ -44,7 +44,7 @@ export function logSyncResult(
   if (!options.log) return;
 
   const label = Fs.trimCwd(result.target);
-  const subjectLabel = subject === 'jsr' ? 'publish:jsr' : subject;
+  const subjectLabel = subject === 'jsr' ? 'jsr:publish' : subject;
   const count = `${result.count} ${subjectLabel} ${Str.plural(result.count, 'module')}`;
   if (result.kind === 'written') {
     const msg = `${c.brightCyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
