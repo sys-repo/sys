@@ -11,7 +11,7 @@ type Options = {
 };
 
 /**
- * Proecss the dependencies into a`deno.json` and `package.json` files.
+ * Process the dependencies into `deno.json` and `package.json` files.
  */
 async function processDeps() {
   const res = await DenoDeps.from('./deps.yaml');
@@ -64,6 +64,8 @@ async function updatePackages() {
 async function prepSubmodules() {
   const ws = await DenoFile.workspace();
   let prepared = 0;
+  // Run sequentially so workspace prep stays in the same deterministic package order
+  // used elsewhere in the repo and submodule output remains easy to follow.
   for (const item of ws.children) {
     if (item.path.dir === Fs.resolve(TMPL_MODULE_PATH)) continue;
     const tasks = item.denofile.tasks;
@@ -123,8 +125,9 @@ export async function main(context: CommitContext = 'prep', options: Options = {
     console.info(Cli.Fmt.spinnerText('preparing template bundle...'));
     await prepTmplModule(context);
     return prepared;
-  } catch (err: any) {
-    spinner.fail(`Prep failed: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    spinner.fail(`Prep failed: ${message}`);
     throw err;
   } finally {
     spinner.stop();
