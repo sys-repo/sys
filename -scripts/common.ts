@@ -1,4 +1,4 @@
-export { Args, Err, Json, R, Str, Time } from '@sys/std';
+export { Args, Err, Is, Json, R, Str, Time } from '@sys/std';
 export { Semver } from '@sys/std/semver/server';
 
 export { Cli, c } from '@sys/cli';

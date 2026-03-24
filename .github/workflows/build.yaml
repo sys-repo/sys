@@ -22,8 +22,6 @@ jobs:
             path: code/sys.ui/ui-react-devharness
           - name: "@sys/ui-react-components"
             path: code/sys.ui/ui-react-components
-          - name: "@sys/ui-factory"
-            path: code/sys.ui/ui-factory
           - name: "@sys/driver-automerge"
             path: code/sys.driver/driver-automerge
           - name: "@sys/driver-monaco"
@@ -32,18 +30,20 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@tdb/slc-std"
-            path: deploy/@tdb.slc.std
-          - name: "@tdb/edu-slug"
-            path: deploy/@tdb.edu.slug
-          - name: "@tdb/slc"
-            path: deploy/@tdb.slc
-          - name: "@tdb/slc-fs"
-            path: deploy/@tdb.slc.fs
+          - name: "@sys/ui-factory"
+            path: code/sys.ui/ui-factory
           - name: "@sys/dev"
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
+          - name: "@tdb/slc"
+            path: deploy/@tdb.slc
+          - name: "@tdb/slc-fs"
+            path: deploy/@tdb.slc.fs
+          - name: "@tdb/slc-std"
+            path: deploy/@tdb.slc.std
+          - name: "@tdb/edu-slug"
+            path: deploy/@tdb.edu.slug
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'

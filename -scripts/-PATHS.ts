@@ -16,84 +16,54 @@ export const Paths = {
     //
   ],
   all: [
-    /** types: */
+    // generated:start workspace-topological
     'code/sys/types',
-
-    /**
-     * sys:
-     */
     'code/sys/std',
-    'code/sys/crdt.t',
     'code/sys/color',
-    'code/sys/cli',
-    'code/sys/crypto',
-    'code/sys/immutable',
-    'code/sys/fs',
-
-    'code/sys/testing',
-    'code/sys/process',
-    'code/sys/net',
-    'code/sys/event',
-    'code/sys/http',
-    'code/sys/yaml',
-    'code/sys/schema',
-    'code/sys/registry',
-    'code/sys/esm',
-
-    'code/sys/text',
-    'code/sys/tmpl-engine',
-
-    /**
-     * sys.model:
-     */
-    'code/sys.model/model',
-    'code/sys.model/model-slug',
-
-    /**
-     * sys.ui:
-     */
-    'code/sys.ui/ui-state',
     'code/sys.ui/ui-css',
+    'code/sys/cli',
+    'code/sys/crdt.t',
+    'code/sys/crypto',
+    'code/sys/event',
+    'code/sys.ui/ui-state',
+    'code/sys/immutable',
     'code/sys.ui/ui-dom',
-    'code/sys.ui/ui-react',
-    'code/sys.ui/ui-react-devharness',
-    'code/sys.ui/ui-react-components',
-    'code/sys.ui/ui-factory',
-
-    /**
-     * sys.driver:
-     */
-    'code/sys.driver/driver-deno',
+    'code/sys/fs',
+    'code/sys/net',
+    'code/sys/process',
     'code/sys.driver/driver-process',
     'code/sys.driver/driver-signer',
+    'code/sys/http',
+    'code/sys/registry',
+    'code/sys/skills',
+    'code/sys/testing',
+    'code/sys.ui/ui-react',
+    'code/sys.ui/ui-react-devharness',
+    'code/sys/text',
+    'code/sys/tmpl-engine',
+    'code/sys/yaml',
+    'code/sys/esm',
+    'code/sys.driver/driver-deno',
     'code/sys.driver/driver-vite',
+    'code/sys/schema',
+    'code/sys.model/model',
+    'code/sys.model/model-slug',
+    'code/sys.ui/ui-react-components',
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
     'code/sys.driver/driver-stripe',
-
+    'code/sys.tools',
+    'code/sys.ui/ui-factory',
+    'code/sys.dev',
+    'code/sys/crdt',
     'code/sys/workspace',
-
-    /**
-     * Instance (conceptually: "an app"):
-     */
-    'deploy/@tdb.slc.std',
-    'deploy/@tdb.edu.slug',
+    'code/-tmpl',
     'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
-
-    /**
-     * sys.dev: (programming system)
-     */
-    'code/-tmpl',
-    'code/sys.tools',
-    'code/sys.dev',
-
-    /**
-     * Curated (named) entry points and
-     * higher-order bundles of system functionality:
-     */
-    'code/sys/skills',
-    'code/sys/crdt',
+    'deploy/@tdb.slc.std',
+    'deploy/@tdb.edu.slug',
+    'deploy/tmp.db.team',
+    // generated:end workspace-topological
   ],
 } as const;

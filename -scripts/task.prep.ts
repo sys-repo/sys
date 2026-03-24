@@ -1,5 +1,6 @@
 import { Workspace } from '@sys/workspace';
-import { c, DenoDeps, DenoFile, Fs, Process } from './common.ts';
+import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
+import { main as prepPaths } from './task.prep.paths.ts';
 import { main as prepWorkspace } from './task.prep.workspace.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
@@ -99,10 +100,42 @@ async function runTaskOrThrow(path: string, command: string) {
  * definitions within the workspace `deps.yaml` configuration.
  */
 export async function main(context: CommitContext = 'prep') {
-  await processDeps();
-  await prepWorkspace();
-  await updatePackages();
-  const prepared = await prepSubmodules();
-  await prepTmplModule(context);
-  return prepared;
+  const spinner = Cli.spinner('', { start: false });
+  try {
+    await processDeps();
+    await runSilentPhase(spinner, 'normalizing workspace...', () => prepWorkspace());
+    await runSilentPhase(
+      spinner,
+      'deriving topological workspace path order...',
+      () => prepPaths(),
+    );
+
+    console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
+    await updatePackages();
+
+    console.info(Cli.Fmt.spinnerText('running submodule prep...'));
+    const prepared = await prepSubmodules();
+
+    console.info(Cli.Fmt.spinnerText('preparing template bundle...'));
+    await prepTmplModule(context);
+    return prepared;
+  } catch (err: any) {
+    spinner.fail(`Prep failed: ${err.message}`);
+    throw err;
+  } finally {
+    spinner.stop();
+  }
+}
+
+async function runSilentPhase<T>(
+  spinner: ReturnType<typeof Cli.spinner>,
+  label: string,
+  fn: () => Promise<T>,
+) {
+  spinner.start(Cli.Fmt.spinnerText(label));
+  try {
+    return await fn();
+  } finally {
+    spinner.stop();
+  }
 }

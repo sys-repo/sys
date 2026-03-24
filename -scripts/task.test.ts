@@ -18,7 +18,7 @@ export function targets(paths: readonly string[] = Paths.modules): readonly Test
 
 export async function main() {
   console.info();
-  const spinner = Cli.spinner();
+  const spinner = Cli.spinner('', { start: false });
 
   /**
    * Run all tests across the mono-repo.
@@ -28,7 +28,7 @@ export async function main() {
     const title = c.gray(`${c.white('Tests')} (${c.white('root')} of ${total})`);
     const commandFmt = c.green(c.bold(command));
     const moduleList = Log.moduleList({ indent: 3 });
-    spinner.text = c.gray(`${title}\n  ${commandFmt}\n${moduleList}`);
+    spinner.start(c.gray(`${title}\n  ${commandFmt}\n${moduleList}`));
     const output = await Process.sh({ path: '.', silent: true }).run(command);
     results.push({ output, path: ROOT_SCRIPT_TEST_PATH });
   };
@@ -39,7 +39,7 @@ export async function main() {
 
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
-    spinner.text = c.gray(`${title}\n  ${commandFmt}\n${moduleList}`);
+    spinner.start(c.gray(`${title}\n  ${commandFmt}\n${moduleList}`));
     const output = await Process.sh({ path, silent: true }).run(command);
     results.push({ output, path });
   };
