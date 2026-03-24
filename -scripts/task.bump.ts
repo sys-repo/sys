@@ -1,5 +1,5 @@
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { type t, c, Cli, R, Semver, Str } from './common.ts';
+import { type t, c, Cli, Path, Paths, R, Semver, Str } from './common.ts';
 import { main as prepCi } from './task.prep.ci.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 
@@ -45,7 +45,8 @@ export async function main(options: Options = {}) {
   /**
    * Retrieve the child modules within the workspace.
    */
-  const children = ws.children
+  const children = orderChildren(
+    ws.children
     .filter((child) => !exclude(child.path.denofile))
     .filter((child) => !!child.denofile.version)
     .filter((child) => typeof child.denofile.version === 'string')
@@ -57,7 +58,9 @@ export async function main(options: Options = {}) {
       const current = Semver.parse(version).version;
       const next = wrangle.increment(current, release);
       return { path, json, name, version: { current, next } };
-    });
+    }),
+    Paths.all,
+  );
 
   // Prepare the set of next versions to bump to.
   const table = Cli.table(['Module', 'Current', '', 'Next']);
@@ -107,6 +110,24 @@ export async function main(options: Options = {}) {
   await prepCi({ prepared, final: true });
 
   return true;
+} 
+
+export function orderChildren<T extends { path: t.StringPath }>(
+  children: readonly T[],
+  orderedPaths: readonly t.StringPath[],
+) {
+  const childByPath = new Map(children.map((child) => [Path.dirname(child.path), child] as const));
+  const ordered = orderedPaths.flatMap((path) => {
+    const child = childByPath.get(path);
+    return child ? [child] : [];
+  });
+
+  const seen = new Set(ordered.map((child) => Path.dirname(child.path)));
+  const remainder = children
+    .filter((child) => !seen.has(Path.dirname(child.path)))
+    .toSorted((a, b) => Path.dirname(a.path).localeCompare(Path.dirname(b.path)));
+
+  return [...ordered, ...remainder];
 }
 
 /**
