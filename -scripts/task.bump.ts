@@ -5,16 +5,24 @@ import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
+  dryRun?: boolean;
+  nonInteractive?: boolean;
   argv?: string[];
 };
 
 type TArgs = {
   release?: t.SemverReleaseType;
+  'dry-run'?: boolean;
+  'non-interactive'?: boolean;
 };
 
 export async function main(options: Options = {}) {
-  const args = Cli.args<TArgs>(options.argv ?? Deno.args);
+  const args = Cli.args<TArgs>(options.argv ?? Deno.args, {
+    boolean: ['dry-run', 'non-interactive'],
+  });
   const release = wrangle.release(options, args);
+  const dryRun = wrangle.dryRun(options, args);
+  const nonInteractive = wrangle.nonInteractive(options, args);
   const releaseColored = `${c.green(Str.capitalize(release))}`;
   console.info();
   console.info(c.gray(`${c.bold(releaseColored)} Version`));
@@ -71,10 +79,16 @@ export async function main(options: Options = {}) {
   console.info(c.gray(table.toString()));
   console.info();
 
+  if (dryRun) {
+    console.info(c.gray(c.italic('Dry run only. No files updated.')));
+    console.info();
+    return true;
+  }
+
   /**
    * Prompt to continue.
    */
-  const yes = await Cli.Input.Confirm.prompt('Update files?:');
+  const yes = nonInteractive ? true : await Cli.Input.Confirm.prompt('Update files?:');
   if (!yes) return false;
 
   /**
@@ -116,6 +130,14 @@ const wrangle = {
     }
 
     return 'patch'; // (Default).
+  },
+
+  dryRun(options: Options, argv: TArgs) {
+    return options.dryRun ?? argv['dry-run'] ?? false;
+  },
+
+  nonInteractive(options: Options, argv: TArgs) {
+    return options.nonInteractive ?? argv['non-interactive'] ?? false;
   },
 
   increment(current: t.Semver, release: t.SemverReleaseType) {

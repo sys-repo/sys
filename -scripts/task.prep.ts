@@ -25,7 +25,7 @@ async function processDeps() {
   /**
    * Write to file-system: [deno.json | package.json].
    */
-  const deps = res.data?.deps;
+  const deps = res.data?.deps ?? [];
   await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
   await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
 
