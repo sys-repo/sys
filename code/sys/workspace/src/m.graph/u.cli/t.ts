@@ -10,8 +10,8 @@ export declare namespace WorkspaceGraphCli {
   export type InfoArgs = {
     /** Working directory for the CLI call. */
     readonly cwd: t.StringDir;
-    /** Root entry module paths. */
-    readonly roots: readonly t.StringPath[];
+    /** Root entry module path. */
+    readonly root: t.StringPath;
   };
 
   /** Prepared `deno info --json` invocation. */

@@ -30,7 +30,8 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "run": true
     },
     "test:cli": {
       "read": true,
