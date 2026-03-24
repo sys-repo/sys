@@ -1,3 +1,4 @@
+export { Cli } from '@sys/cli';
 export { c } from '@sys/color/ansi';
 export { DenoDeps } from '@sys/driver-deno/runtime';
 export { Esm } from '@sys/esm';
@@ -5,7 +6,7 @@ export { Deps } from '@sys/esm/deps';
 export { Fs, Path } from '@sys/fs';
 export { Jsr } from '@sys/registry/jsr';
 export { Npm } from '@sys/registry/npm';
-export { Arr, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time, Try, Url } from '@sys/std';
+export { Args, Arr, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time, Try, Url } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver';
