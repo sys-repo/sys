@@ -8,15 +8,23 @@ export namespace Workspace {
   export type Lib = {
     /** Continuous-integration helpers. */
     readonly Ci: t.WorkspaceCi.Lib;
+
     /** CLI entrypoints for workspace tooling. */
     readonly Cli: t.WorkspaceCli.Lib;
+
     /** Local workspace graph and package-order helpers. */
     readonly Graph: t.WorkspaceGraph.Lib;
+
     /** Package metadata sync helpers. */
     readonly Pkg: t.WorkspacePkg.Lib;
+
     /** Source statistics helpers. */
     readonly Info: t.WorkspaceInfo.Lib;
+
     /** Dependency upgrade orchestration helpers. */
     readonly Upgrade: t.WorkspaceUpgrade.Lib;
+
+    /** Workspace preparation helpers. */
+    readonly Prep: t.WorkspacePrep.Lib;
   };
 }

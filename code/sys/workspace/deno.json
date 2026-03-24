@@ -19,6 +19,7 @@
     "./graph": "./src/m.graph/mod.ts",
     "./info": "./src/m.info/mod.ts",
     "./pkg": "./src/m.pkg/mod.ts",
+    "./prep": "./src/m.prep/mod.ts",
     "./upgrade": "./src/m.upgrade/mod.ts"
   },
   "permissions": {
