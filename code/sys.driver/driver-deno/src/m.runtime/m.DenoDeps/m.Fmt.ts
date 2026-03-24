@@ -21,15 +21,10 @@ export const Fmt: t.DepsFmt = {
         table.push([]); // Blank line between registries.
       }
 
-      const [left, right] = mod.name.split('/');
-      const name = right ? right : left;
-      const scope = right ? `${left}/` : '';
-
-      const fmtRegistry = c.gray(registry.toUpperCase());
-      const fmtName = c.gray(`${scope}${c.white(name)}`);
+      const fmtModule = `${c.gray(`${registry}:`)}${c.white(mod.name)}`;
       const fmtVersion = wrangle.version(mod.version, maxPrefixLength);
 
-      table.push([`${indent}${fmtRegistry}`, fmtVersion, fmtName]);
+      table.push([`${indent}${fmtVersion}`, fmtModule]);
     });
 
     return `${indent}↓${indent}${table.toString().trimEnd()}`;

@@ -54,11 +54,11 @@ describe('DenoDeps methods', () => {
         ]),
       );
 
-      expect(text).to.match(/JSR\s+0\.0\.1\s+@sys\/std/);
-      expect(text).to.match(/NPM\s+19\.0\.0\s+react/);
-      expect(text).to.include('@sys/std');
-      expect(text).to.include('react');
-      expect(text).to.include('react-dom');
+      expect(text).to.match(/0\.0\.1\s+jsr:@sys\/std/);
+      expect(text).to.match(/19\.0\.0\s+npm:react/);
+      expect(text).to.include('jsr:@sys/std');
+      expect(text).to.include('npm:react');
+      expect(text).to.include('npm:react-dom');
     });
   });
 

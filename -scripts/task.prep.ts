@@ -32,11 +32,12 @@ async function processDeps() {
   /**
    * Output: console.
    */
-  const fp = (text: string) => i(c.yellow(text)); // fp: file-path
-  const fmtSeeFiles = c.gray(`${fp(PATH.deno)} and ${fp(PATH.package)}`);
+  const total = deps.length.toLocaleString();
+  const fp = (text: string) => c.cyan(text); // fp: file-path
+  const fmtSeeFiles = `${fp(PATH.deno)} ${c.gray('|')} ${fp(PATH.package)}`;
   console.info();
-  console.info(c.brightWhite(`${c.bold('Workspace Import Map')}`));
-  console.info(c.gray(` (dependencies written to):`), fmtSeeFiles);
+  console.info(c.brightGreen(c.bold('Workspace Import Map')));
+  console.info(c.gray(` (${total} dependencies written to):`), fmtSeeFiles);
   console.info();
   console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
   console.info();
@@ -106,7 +107,7 @@ export async function main(context: CommitContext = 'prep') {
     await runSilentPhase(spinner, 'normalizing workspace...', () => prepWorkspace());
     await runSilentPhase(
       spinner,
-      'deriving topological workspace path order...',
+      'deriving topological workspace module order...',
       () => prepPaths(),
     );
 
