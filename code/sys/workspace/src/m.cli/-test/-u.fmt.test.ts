@@ -7,10 +7,13 @@ describe('Workspace.Cli.Fmt', () => {
     const text = Cli.stripAnsi(plan);
 
     expect(text).to.include('Policy');
+    expect(text).to.include('Selected');
+    expect(text).to.include('Blocked');
+    expect(text).to.include('Already latest');
     expect(text).to.not.include('Dependency   Current');
   });
 
-  it('aligns current → latest columns and colors blocked latest yellow', () => {
+  it('shows selected versions for allowed rows and latest versions for blocked rows', () => {
     const result = upgrade();
     const options = Fmt.selectionOptions(
       result,
@@ -21,19 +24,21 @@ describe('Workspace.Cli.Fmt', () => {
         deps: 'deps.yaml',
         mode: 'interactive',
         policy: 'minor',
+        prerelease: false,
       },
     );
     const labels = options.map((option) => option.name);
     const plain = labels.map((label) => Cli.stripAnsi(label));
     const arrows = plain.map((label) => label.indexOf('→'));
 
+    expect(labels.length).to.eql(2);
     expect(arrows[0]).to.be.greaterThan(0);
     expect(arrows.every((index) => index === arrows[0])).to.eql(true);
 
-    expect(labels[0]).to.include(c.green('1.0.8'));
+    expect(labels[0]).to.include(c.green('1.2.0'));
+    expect(plain[0]).to.include('newer blocked by policy - 2.0.0');
     expect(labels[1]).to.include(c.yellow('19.0.0'));
-    expect(labels[1]).to.include(c.gray(c.italic(' blocked by policy')));
-    expect(labels[2]).to.include(c.yellow('19.0.0'));
+    expect(plain[1]).to.include('blocked by policy');
   });
 
   it('renders applied output with updated rows instead of planned totals', () => {
@@ -49,9 +54,9 @@ describe('Workspace.Cli.Fmt', () => {
 });
 
 function upgrade(): t.WorkspaceUpgrade.Result {
-  const pathDecision = decisionOk('@std/path', '1.0.7', ['1.0.7', '1.0.8'], '1.0.8');
+  const pathDecision = decisionOk('@std/path', '1.0.7', ['2.0.0', '1.2.0', '1.0.8', '1.0.7'], '1.2.0');
   const reactDomDecision = decisionBlocked('react-dom', '18.2.0', ['18.2.0', '19.0.0']);
-  const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0', '19.0.0']);
+  const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0']);
 
   const nodes: t.EsmTopologicalInput['nodes'] = [
     {
@@ -67,6 +72,7 @@ function upgrade(): t.WorkspaceUpgrade.Result {
     },
     options: {
       policy: { mode: 'minor' },
+      prerelease: false,
       registries: ['jsr', 'npm'],
       log: false,
     },
@@ -87,13 +93,14 @@ function upgrade(): t.WorkspaceUpgrade.Result {
       },
       options: {
         policy: { mode: 'minor' },
+        prerelease: false,
         registries: ['jsr', 'npm'],
         log: false,
       },
       candidates: [
-        candidate('@std/path', '1.0.7', '1.0.8'),
+        candidate('@std/path', '1.0.7', '2.0.0'),
         candidate('react-dom', '18.2.0', '19.0.0'),
-        candidate('react', '18.2.0', '19.0.0'),
+        candidate('react', '18.2.0', '18.2.0'),
       ],
       totals: {
         dependencies: 3,
@@ -178,7 +185,7 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
     options: result.options,
     upgrade: result,
     entries: [
-      entry('@std/path', '1.0.8'),
+      entry('@std/path', '1.2.0'),
       entry('react-dom', '19.0.0'),
       entry('react', '18.2.0'),
     ],
@@ -196,6 +203,11 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
         denoFilePath: '/workspace/deno.json',
         targetPath: '/workspace/deno.json',
         imports: {},
+      },
+      package: {
+        packageFilePath: '/workspace/package.json',
+        dependencies: {},
+        devDependencies: {},
       },
     },
   };
