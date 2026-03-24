@@ -18,6 +18,12 @@ type SelectionLayout = {
   readonly latest: number;
 };
 
+type UpdatedRow = {
+  readonly entry: t.EsmDeps.Entry;
+  readonly from: t.StringSemver;
+  readonly to: t.StringSemver;
+};
+
 type BlockedCode =
   | 'policy:none'
   | 'policy:excluded'
@@ -26,6 +32,10 @@ type BlockedCode =
   | 'version:not-allowed';
 
 export const Fmt = {
+  spinnerText(text: string): string {
+    return c.gray(c.italic(text));
+  },
+
   plan(upgrade: t.WorkspaceUpgrade.Result): string {
     const str = Str.builder();
     str.line(Fmt.summary(upgrade));
@@ -140,19 +150,22 @@ export const Fmt = {
     );
     const layout = Fmt.selectionLayout(upgrade, decisionByKey);
 
-    return upgrade.collect.candidates.map((candidate) => {
-      const decision = decisionByKey.get(Fmt.key(candidate.entry));
-      const name = candidate.entry.module.name;
-      const alias = candidate.entry.module.alias;
-      const label = Fmt.selectionLabel(candidate, decision, layout);
-      const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-      const checked = includeSet.size > 0 ? selectedByFlag : !!decision?.ok;
-      return {
-        name: label,
-        value: name,
-        checked,
-      };
-    });
+    return upgrade.collect.candidates
+      .map((candidate) => {
+        if (!candidate.latest || candidate.latest === candidate.current) return undefined;
+        const decision = decisionByKey.get(Fmt.key(candidate.entry));
+        const name = candidate.entry.module.name;
+        const alias = candidate.entry.module.alias;
+        const label = Fmt.selectionLabel(candidate, decision, layout);
+        const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
+        const checked = includeSet.size > 0 ? selectedByFlag : !!decision?.ok;
+        return {
+          name: label,
+          value: name,
+          checked,
+        };
+      })
+      .filter((option): option is SelectionOption => !!option);
   },
 
   selected(selection: t.WorkspaceCli.Selection): string {
@@ -250,13 +263,11 @@ export const Fmt = {
     return Cli.stripAnsi(value).length;
   },
 
-  updatedRows(result: t.WorkspaceUpgrade.ApplyResult): readonly {
-    readonly entry: t.EsmDeps.Entry;
-    readonly from: t.StringSemver;
-    readonly to: t.StringSemver;
-  }[] {
+  updatedRows(result: t.WorkspaceUpgrade.ApplyResult): readonly UpdatedRow[] {
     const currentByKey = new Map(
-      result.upgrade.collect.candidates.map((candidate) => [Fmt.key(candidate.entry), candidate.current] as const),
+      result.upgrade.collect.candidates.map(
+        (candidate) => [Fmt.key(candidate.entry), candidate.current] as const,
+      ),
     );
 
     return result.entries

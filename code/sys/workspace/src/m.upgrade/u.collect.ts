@@ -46,6 +46,7 @@ export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options)
       continue;
     }
 
+    resolved.progress?.({ kind: entry.module.registry === 'jsr' ? 'registry:jsr' : 'registry:npm' });
     const versions = await wrangle.versions(entry);
     if (!versions.ok || !versions.data) {
       uncollected.push({
@@ -88,6 +89,7 @@ const wrangle = {
       policy: options?.policy ?? { mode: 'minor' },
       registries: options?.registries ?? ['jsr', 'npm'],
       log: options?.log ?? false,
+      progress: options?.progress,
     };
   },
 

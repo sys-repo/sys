@@ -3,6 +3,7 @@ import { upgrade } from './u.upgrade.ts';
 
 export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => {
   const planned = await upgrade(input, options);
+  planned.options.progress?.({ kind: 'apply' });
   if (!planned.topological.ok) throw wrangle.topologyError(planned.topological);
 
   const manifest = await Deps.from(planned.input.deps);

@@ -3,6 +3,7 @@ import { collect } from './u.collect.ts';
 
 export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options) => {
   const collected = await collect(input, options);
+  collected.options.progress?.({ kind: 'plan' });
   const policy = Esm.Policy.decideAll(collected.candidates.map(wrangle.policyInput(collected.options)));
   const graph = await wrangle.graph(policy);
   const topological = Esm.Topological.build({ nodes: graph.nodes, edges: graph.edges });

@@ -12,8 +12,13 @@ export async function runInteractive(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
-  const initial = await withSpinner('planning workspace upgrades...', () =>
-    WorkspaceUpgrade.upgrade(input, wrangle.upgradeOptions(options.policy, options.exclude)),
+  const initial = await withSpinner(Fmt.spinnerText('planning workspace upgrades...'), (spinner) =>
+    WorkspaceUpgrade.upgrade(
+      input,
+      wrangle.upgradeOptions(options.policy, options.exclude, (progress) =>
+        spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+      ),
+    ),
   );
 
   console.info();
@@ -29,8 +34,13 @@ export async function runInteractive(
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
       ? initial
-      : await withSpinner('re-planning selected workspace upgrades...', () =>
-          WorkspaceUpgrade.upgrade(input, wrangle.upgradeOptions(policy, selection.exclude)),
+      : await withSpinner(Fmt.spinnerText('re-planning selected workspace upgrades...'), (spinner) =>
+          WorkspaceUpgrade.upgrade(
+            input,
+            wrangle.upgradeOptions(policy, selection.exclude, (progress) =>
+              spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+            ),
+          ),
         );
 
   console.info(Fmt.selected(selection));
@@ -43,8 +53,13 @@ export async function runInteractive(
   }
   if (upgrade.totals.planned === 0) return { selection, upgrade };
 
-  const applied = await withSpinner('applying workspace upgrades...', () =>
-    WorkspaceUpgrade.apply(input, wrangle.upgradeOptions(policy, selection.exclude)),
+  const applied = await withSpinner(Fmt.spinnerText('applying workspace upgrades...'), (spinner) =>
+    WorkspaceUpgrade.apply(
+      input,
+      wrangle.upgradeOptions(policy, selection.exclude, (progress) =>
+        spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+      ),
+    ),
   );
   console.info(Fmt.applied(applied));
   console.info();
@@ -52,10 +67,13 @@ export async function runInteractive(
   return { selection, upgrade: applied.upgrade, applied };
 }
 
-async function withSpinner<T>(message: string, fn: () => Promise<T>): Promise<T> {
-  const spinner = Cli.spinner(c.gray(message)).start();
+async function withSpinner<T>(
+  message: string,
+  fn: (spinner: ReturnType<typeof Cli.spinner>) => Promise<T>,
+): Promise<T> {
+  const spinner = Cli.spinner(message).start();
   try {
-    return await fn();
+    return await fn(spinner);
   } finally {
     spinner.stop();
   }
@@ -65,13 +83,22 @@ const wrangle = {
   upgradeOptions(
     mode: t.EsmPolicyMode,
     exclude: readonly string[],
+    progress?: t.WorkspaceUpgrade.ProgressHandler,
   ): t.WorkspaceUpgrade.Options {
     return {
       policy: {
         mode,
         exclude: exclude.length > 0 ? exclude : undefined,
       },
+      progress,
     };
+  },
+
+  progressText(progress: t.WorkspaceUpgrade.Progress): string {
+    if (progress.kind === 'registry:jsr') return 'checking jsr registry...';
+    if (progress.kind === 'registry:npm') return 'checking npm registry...';
+    if (progress.kind === 'plan') return 'composing upgrade plan...';
+    return 'applying workspace upgrades...';
   },
 
   policy(

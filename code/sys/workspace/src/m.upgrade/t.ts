@@ -22,6 +22,15 @@ export declare namespace WorkspaceUpgrade {
     readonly exclude?: readonly string[];
   };
 
+  /** Progress event emitted during one workspace upgrade pass. */
+  export type Progress = {
+    /** Canonical progress step. */
+    readonly kind: 'registry:jsr' | 'registry:npm' | 'plan' | 'apply';
+  };
+
+  /** Callback for upgrade progress events. */
+  export type ProgressHandler = (progress: Progress) => void;
+
   /** Canonical dependency source selection for workspace upgrades. */
   export type Input = {
     /** Working directory used to resolve upgrade inputs. */
@@ -38,6 +47,8 @@ export declare namespace WorkspaceUpgrade {
     readonly registries?: readonly t.EsmRegistry[];
     /** Emit orchestration logging to the console. */
     readonly log?: boolean;
+    /** Optional progress callback for long-running upgrade phases. */
+    readonly progress?: ProgressHandler;
   };
 
   /** Resolved options used for one workspace upgrade pass. */
@@ -48,6 +59,8 @@ export declare namespace WorkspaceUpgrade {
     readonly registries: readonly t.EsmRegistry[];
     /** Whether orchestration logging was enabled. */
     readonly log: boolean;
+    /** Optional progress callback for long-running upgrade phases. */
+    readonly progress?: ProgressHandler;
   };
 
   /** Aggregate counts from one workspace upgrade pass. */

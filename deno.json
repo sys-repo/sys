@@ -13,6 +13,7 @@
     "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",
+    "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
     "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
@@ -123,6 +124,13 @@
       "run": true,
       "env": true
     },
+    "upgrade": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "ffi": true
+    },
     "clean": {
       "read": true,
       "write": true,
@@ -131,4 +139,3 @@
     }
   }
 }
-
