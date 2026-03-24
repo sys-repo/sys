@@ -8,6 +8,8 @@ describe('Ansi', () => {
     expect(m.c).to.equal(c);
     expect(m.stripAnsi).to.equal(stripAnsi);
     expect(Color.ansi).to.equal(c);
+    expect(Color.foreground.green).to.equal(c.green);
+    expect(Color.foreground.brightCyan).to.equal(c.brightCyan);
     expect(Color.rgb).to.equal(m.Color.rgb);
   });
 
