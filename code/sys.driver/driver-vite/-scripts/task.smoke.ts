@@ -1,6 +1,6 @@
-import { c, DenoFile, Err, Fs, Is, pkg, Process } from './common.ts';
+import { c, Cli, DenoFile, Err, Fs, Is, pkg, Process } from './common.ts';
 
-const LINE = '━'.repeat(84);
+const LINE = Cli.Fmt.hr();
 const RETRY_DELAYS = [0, 500, 1_000, 2_000] as const;
 
 type JsrMeta = {

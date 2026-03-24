@@ -1,6 +1,6 @@
-import { c } from './common.ts';
+import { c, Cli } from './common.ts';
 
-export const LINE = '━'.repeat(84);
+export const LINE = Cli.Fmt.hr();
 
 export function print(lines: readonly string[]) {
   for (const line of lines) console.info(line);
@@ -9,7 +9,11 @@ export function print(lines: readonly string[]) {
 export function row(
   label: string,
   value: string,
-  options: { color?: 'white' | 'cyan' | 'gray' | 'green' | 'red'; width?: number; indent?: number } = {},
+  options: {
+    color?: 'white' | 'cyan' | 'gray' | 'green' | 'red';
+    width?: number;
+    indent?: number;
+  } = {},
 ) {
   const head = c.gray(normalizeLabel(label).padEnd(options.width ?? 5));
   const divider = c.dim(c.gray('│'));
@@ -18,11 +22,11 @@ export function row(
       ? c.green(value)
       : options.color === 'red'
         ? c.red(value)
-      : options.color === 'cyan'
-        ? c.cyan(value)
-        : options.color === 'gray'
-        ? c.gray(value)
-        : c.white(value);
+        : options.color === 'cyan'
+          ? c.cyan(value)
+          : options.color === 'gray'
+            ? c.gray(value)
+            : c.white(value);
   return `${indent(options.indent)}${head} ${divider} ${text}`;
 }
 

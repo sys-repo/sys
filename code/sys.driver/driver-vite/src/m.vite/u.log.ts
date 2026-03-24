@@ -1,5 +1,5 @@
 import { ViteLog } from '../m.fmt/mod.ts';
-import { type t, Path, c } from './common.ts';
+import { type t, Cli, Path, c } from './common.ts';
 
 type BuildArgs = t.ViteLogBundleArgs & {
   stdio: string;
@@ -73,7 +73,7 @@ ${c.cyan(`         ${href}`)}
       pad?: boolean;
     }) {
       const { pkg, dist, paths, url, pad, ws } = args;
-      const hr = c.brightGreen(c.bold('─'.repeat(60)));
+      const hr = c.brightGreen(c.bold(Cli.Fmt.hr(60)));
       const key = (text: string) => c.bold(c.white(text));
       const digest = ViteLog.digest(args.dist?.hash.digest);
       const input = paths.app.entry;
