@@ -11,4 +11,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { Workspace } from './m.Workspace.ts';
+export { Workspace } from './mod.Workspace.ts';

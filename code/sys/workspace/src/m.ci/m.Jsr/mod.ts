@@ -1,6 +1,5 @@
-import type { t } from '../common.ts';
-import { sync } from './u.sync.ts';
-import { text } from './u.text.ts';
-import { write } from './u.write.ts';
-
-export const Jsr: t.WorkspaceCi.Jsr.Lib = { text, write, sync };
+/**
+ * @module
+ * JSR publish workflow helpers for workspace CI.
+ */
+export { Jsr } from './mod.Jsr.ts';
