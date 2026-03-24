@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
-import { apply } from './u.apply.ts';
+import { applyDeno } from './u.apply.ts';
+import { applyPackage } from './u.applyPackage.ts';
 import { applyYaml } from './u.applyYaml.ts';
 
 /**
@@ -9,11 +10,13 @@ export async function applyFiles(
   input: {
     readonly depsPath?: t.StringPath;
     readonly denoFilePath?: t.StringPath;
+    readonly packageFilePath?: t.StringPath;
     readonly yaml?: t.DepsYamlOptions;
   },
   deps?: t.Dep[],
 ): Promise<t.DenoDeps.ApplyFilesResult> {
   const yaml = await applyYaml(input.depsPath, deps, input.yaml);
-  const deno = await apply(input.denoFilePath, deps);
-  return { yaml, deno };
+  const deno = await applyDeno(input.denoFilePath, deps);
+  const pkg = await applyPackage(input.packageFilePath, deps);
+  return { yaml, deno, package: pkg };
 }

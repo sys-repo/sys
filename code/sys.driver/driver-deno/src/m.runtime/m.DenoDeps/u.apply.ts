@@ -5,7 +5,7 @@ import { toDenoJson } from './u.toJson.deno.ts';
 /**
  * Apply Deno imports onto a target `deno.json` file.
  */
-export async function apply(
+export async function applyDeno(
   path: t.StringPath | undefined,
   deps?: t.Dep[],
 ): Promise<t.DenoDeps.ApplyResult> {

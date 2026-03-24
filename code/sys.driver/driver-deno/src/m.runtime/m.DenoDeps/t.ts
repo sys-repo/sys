@@ -26,12 +26,24 @@ export declare namespace DenoDeps {
     readonly imports: Record<string, t.StringModuleSpecifier>;
   };
 
+  /** Result from applying deps to a `package.json` target. */
+  export type ApplyPackageResult = {
+    /** Resolved `package.json` file path. */
+    readonly packageFilePath: t.StringPath;
+    /** Final runtime dependency map written to `package.json`. */
+    readonly dependencies: Record<string, t.StringSemver>;
+    /** Final development dependency map written to `package.json`. */
+    readonly devDependencies: Record<string, t.StringSemver>;
+  };
+
   /** Result from applying canonical deps to deps.yaml and projected Deno files. */
   export type ApplyFilesResult = {
     /** Result from writing deps.yaml. */
     readonly yaml: ApplyYamlResult;
     /** Result from applying projected Deno imports. */
     readonly deno: ApplyResult;
+    /** Result from applying projected Node dependencies. */
+    readonly package: ApplyPackageResult;
   };
 }
 
@@ -59,7 +71,13 @@ export type DepsLib = {
    * If the target declares `importMap`, the referenced file is updated.
    * Otherwise imports are written inline to the `deno.json` file itself.
    */
-  apply(path: t.StringPath | undefined, deps?: t.Dep[]): Promise<DenoDeps.ApplyResult>;
+  applyDeno(path: t.StringPath | undefined, deps?: t.Dep[]): Promise<DenoDeps.ApplyResult>;
+
+  /** Apply package dependencies onto a target `package.json` config shape. */
+  applyPackage(
+    path: t.StringPath | undefined,
+    deps?: t.Dep[],
+  ): Promise<DenoDeps.ApplyPackageResult>;
 
   /** Write canonical dependency YAML back to a deps.yaml target. */
   applyYaml(
@@ -73,6 +91,7 @@ export type DepsLib = {
     input: {
       readonly depsPath?: t.StringPath;
       readonly denoFilePath?: t.StringPath;
+      readonly packageFilePath?: t.StringPath;
       readonly yaml?: t.DepsYamlOptions;
     },
     deps?: t.Dep[],

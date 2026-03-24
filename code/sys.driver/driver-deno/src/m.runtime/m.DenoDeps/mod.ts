@@ -9,16 +9,18 @@ import type { DepsLib } from './t.ts';
 
 import { findImport, from, toDep, toYaml } from './m.Deps.ts';
 import { Fmt } from './m.Fmt.ts';
-import { apply } from './u.apply.ts';
+import { applyDeno } from './u.apply.ts';
 import { applyFiles } from './u.applyFiles.ts';
+import { applyPackage } from './u.applyPackage.ts';
 import { applyYaml } from './u.applyYaml.ts';
 import { toJson } from './u.toJson.ts';
 
 /** Deno dependency projection/apply helper library. */
 export const DenoDeps: DepsLib = {
   Fmt,
-  apply,
+  applyDeno,
   applyFiles,
+  applyPackage,
   applyYaml,
   from,
   toJson,

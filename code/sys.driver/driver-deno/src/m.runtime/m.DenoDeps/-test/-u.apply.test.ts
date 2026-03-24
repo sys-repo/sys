@@ -2,17 +2,17 @@ import { describe, expect, Fs, it, Testing } from '../../../-test.ts';
 import { DenoFile } from '../../m.DenoFile/mod.ts';
 import { DenoDeps } from '../mod.ts';
 
-describe('DenoDeps.apply', () => {
+describe('DenoDeps.applyDeno', () => {
   type ImportMapJson = { imports?: Record<string, string>; scopes?: Record<string, unknown> };
 
   it('writes inline imports when no importMap is declared', async () => {
-    const fs = await Testing.dir('DenoDeps.apply.inline');
+    const fs = await Testing.dir('DenoDeps.applyDeno.inline');
     const denoPath = fs.join('deno.json');
     const dep = DenoDeps.toDep('jsr:@std/path@1.0.8', { target: 'deno.json' });
 
     await Fs.writeJson(denoPath, { name: 'inline-app', tasks: { dev: 'deno task dev' } });
 
-    const res = await DenoDeps.apply(denoPath, [dep]);
+    const res = await DenoDeps.applyDeno(denoPath, [dep]);
     const file = await DenoFile.load(denoPath);
 
     expect(res.kind).to.eql('imports');
@@ -24,7 +24,7 @@ describe('DenoDeps.apply', () => {
   });
 
   it('writes to the referenced importMap file when configured', async () => {
-    const fs = await Testing.dir('DenoDeps.apply.importMap');
+    const fs = await Testing.dir('DenoDeps.applyDeno.importMap');
     const denoPath = fs.join('deno.json');
     const importMapPath = fs.join('config/imports.json');
     const dep = DenoDeps.toDep('jsr:@std/path@1.0.8', { target: 'deno.json' });
@@ -36,7 +36,7 @@ describe('DenoDeps.apply', () => {
     });
     await Fs.writeJson(importMapPath, { scopes: { '/foo': { bar: 'baz' } } });
 
-    const res = await DenoDeps.apply(denoPath, [dep]);
+    const res = await DenoDeps.applyDeno(denoPath, [dep]);
     const file = await DenoFile.load(denoPath);
     const importMap = await Fs.readJson<ImportMapJson>(importMapPath);
 
@@ -56,7 +56,7 @@ describe('DenoDeps.apply', () => {
   });
 
   it('prefers importMap over inline imports when both are present', async () => {
-    const fs = await Testing.dir('DenoDeps.apply.preferImportMap');
+    const fs = await Testing.dir('DenoDeps.applyDeno.preferImportMap');
     const denoPath = fs.join('deno.json');
     const importMapPath = fs.join('imports.json');
     const dep = DenoDeps.toDep('jsr:@std/path@1.0.8', { target: 'deno.json' });
@@ -67,7 +67,7 @@ describe('DenoDeps.apply', () => {
       imports: { stale: 'jsr:@std/fmt@1.0.0' },
     });
 
-    const res = await DenoDeps.apply(denoPath, [dep]);
+    const res = await DenoDeps.applyDeno(denoPath, [dep]);
     const file = await DenoFile.load(denoPath);
     const importMap = await Fs.readJson<{ imports?: Record<string, string> }>(importMapPath);
 
@@ -81,7 +81,7 @@ describe('DenoDeps.apply', () => {
   });
 
   it('clears inline imports when no deno imports remain', async () => {
-    const fs = await Testing.dir('DenoDeps.apply.clearInline');
+    const fs = await Testing.dir('DenoDeps.applyDeno.clearInline');
     const denoPath = fs.join('deno.json');
 
     await Fs.writeJson(denoPath, {
@@ -90,7 +90,7 @@ describe('DenoDeps.apply', () => {
       imports: { stale: 'jsr:@std/fmt@1.0.0' },
     });
 
-    const res = await DenoDeps.apply(denoPath, []);
+    const res = await DenoDeps.applyDeno(denoPath, []);
     const file = await DenoFile.load(denoPath);
 
     expect(res.kind).to.eql('imports');
@@ -100,7 +100,7 @@ describe('DenoDeps.apply', () => {
   });
 
   it('clears importMap imports when no deno imports remain and preserves other keys', async () => {
-    const fs = await Testing.dir('DenoDeps.apply.clearImportMap');
+    const fs = await Testing.dir('DenoDeps.applyDeno.clearImportMap');
     const denoPath = fs.join('deno.json');
     const importMapPath = fs.join('imports.json');
 
@@ -113,7 +113,7 @@ describe('DenoDeps.apply', () => {
       scopes: { '/foo': { bar: 'baz' } },
     });
 
-    const res = await DenoDeps.apply(denoPath, []);
+    const res = await DenoDeps.applyDeno(denoPath, []);
     const file = await DenoFile.load(denoPath);
     const importMap = await Fs.readJson<ImportMapJson>(importMapPath);
 
