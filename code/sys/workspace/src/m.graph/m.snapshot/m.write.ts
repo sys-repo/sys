@@ -33,12 +33,18 @@ function applyWrite(
 ) {
   const { snapshot, graph, graphHash } = args;
   const createdAt = snapshot['.meta'].createdAt || doc['.meta'].createdAt;
+  const root = doc as t.DeepMutable<Record<string, unknown>> & t.DeepMutable<D>;
 
-  doc['.meta'] = meta({
+  for (const key of Object.keys(root)) {
+    if (key === '.meta' || key === 'graph') continue;
+    delete root[key];
+  }
+
+  root['.meta'] = meta({
     createdAt,
     graphHash,
     generator: snapshot['.meta'].generator,
   });
 
-  doc.graph = Obj.clone(graph) as t.DeepMutable<G>;
+  root.graph = Obj.clone(graph) as t.DeepMutable<G>;
 }
