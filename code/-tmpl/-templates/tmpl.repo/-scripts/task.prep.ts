@@ -30,6 +30,7 @@ async function updateCi(cwd = Deno.cwd()) {
 }
 
 export async function main(cwd = Deno.cwd()) {
+  await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);
 }

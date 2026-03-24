@@ -2,7 +2,7 @@
  * @system
  */
 export type * from '@sys/types';
-export type { DenoDeps } from '@sys/driver-deno/t';
+export type { DenoDeps, DenoFileJson } from '@sys/driver-deno/t';
 export type { JsonFileMeta } from '@sys/fs/t';
 export type {
   EsmDeps,

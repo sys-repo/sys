@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { WorkspaceGraph } from '../mod.ts';
 
 describe('Workspace.Graph.collect', () => {
@@ -18,10 +18,11 @@ describe('Workspace.Graph.collect', () => {
       name: '@scope/b',
       exports: { '.': './src/mod.ts' },
       files: {
-        'src/mod.ts':
-          `import { a } from '../../pkg-a/src/mod.ts';\n` +
-          `import type { A } from '../../pkg-a/src/types.ts';\n` +
-          `export const b: A = a;\n`,
+        'src/mod.ts': Str.dedent(`
+          import { a } from '../../pkg-a/src/mod.ts';
+          import type { A } from '../../pkg-a/src/types.ts';
+          export const b: A = a;
+        `),
       },
     });
 

@@ -1,7 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 import { main as prepPaths } from './task.prep.paths.ts';
-import { main as prepWorkspace } from './task.prep.workspace.ts';
 const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
@@ -109,11 +108,15 @@ export async function main(context: CommitContext = 'prep', options: Options = {
   const spinner = Cli.spinner('', { start: false });
   try {
     await processDeps();
-    await runSilentPhase(spinner, 'normalizing workspace...', () => prepWorkspace());
+    const prep = await runSilentPhase(
+      spinner,
+      `preparing ${c.bold(c.white('@sys/workspace'))} state...`,
+      () => Workspace.Prep.run(),
+    );
     await runSilentPhase(
       spinner,
       `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
-      () => prepPaths(undefined, options.orderedPaths),
+      () => prepPaths(undefined, options.orderedPaths ?? prep.graph.snapshot.graph.orderedPaths),
     );
 
     console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
