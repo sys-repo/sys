@@ -5,14 +5,7 @@ const PATHS_FILE = './-scripts/-PATHS.ts' as const;
 export const WORKSPACE_GRAPH_CACHE_FILE = './.tmp/workspace.graph.json' as const;
 const START_MARKER = '// generated:start workspace-topological';
 const END_MARKER = '// generated:end workspace-topological';
-type WorkspaceGraphCache = {
-  orderedPaths: string[];
-  edges: {
-    from: string;
-    to: string;
-  }[];
-};
-
+type WorkspaceGraphCache = Awaited<ReturnType<typeof Workspace.Graph.Snapshot.create>>['graph'];
 export function renderPaths(paths: readonly string[]) {
   return paths.map((value) => `    '${value}',`);
 }
@@ -42,10 +35,8 @@ export async function buildWorkspaceGraphCache(cwd = Deno.cwd()): Promise<Worksp
 }
 
 export async function readWorkspaceGraphCache(path: string = WORKSPACE_GRAPH_CACHE_FILE) {
-  if (!(await Fs.exists(path))) return undefined;
-
-  const data = (await Fs.readJson<unknown>(path)).data;
-  return wrangle.parseWorkspaceGraphCache(data);
+  const snapshot = await Workspace.Graph.Snapshot.read(path);
+  return snapshot?.graph;
 }
 
 export async function writeWorkspaceGraphCache(
@@ -53,8 +44,9 @@ export async function writeWorkspaceGraphCache(
   path: string = WORKSPACE_GRAPH_CACHE_FILE,
 ) {
   await Fs.ensureDir(Fs.dirname(path));
-  await Fs.writeJson(path, cache);
-  return cache;
+  const snapshot = await Workspace.Graph.Snapshot.create({ graph: cache });
+  await Workspace.Graph.Snapshot.write(snapshot, path);
+  return snapshot.graph;
 }
 
 export async function orderedWorkspacePaths(cwd = Deno.cwd()) {
@@ -97,31 +89,5 @@ export async function main(path: string = PATHS_FILE, paths?: readonly string[])
 
   return res.changed;
 }
-
-const wrangle = {
-  parseWorkspaceGraphCache(data: unknown): WorkspaceGraphCache | undefined {
-    if (!data || typeof data !== 'object') return undefined;
-    const item = data as Record<string, unknown>;
-    if (!Array.isArray(item.orderedPaths) || !item.orderedPaths.every(Is.str)) return undefined;
-    if (!Array.isArray(item.edges)) return undefined;
-
-    const edges = item.edges
-      .map((edge) => wrangle.parseWorkspaceGraphEdge(edge))
-      .filter((edge): edge is WorkspaceGraphCache['edges'][number] => !!edge);
-    if (edges.length !== item.edges.length) return undefined;
-
-    return {
-      orderedPaths: [...item.orderedPaths],
-      edges,
-    };
-  },
-
-  parseWorkspaceGraphEdge(data: unknown): WorkspaceGraphCache['edges'][number] | undefined {
-    if (!data || typeof data !== 'object') return undefined;
-    const item = data as Record<string, unknown>;
-    if (!Is.str(item.from) || !Is.str(item.to)) return undefined;
-    return { from: item.from, to: item.to };
-  },
-} as const;
 
 if (import.meta.main) await main();
