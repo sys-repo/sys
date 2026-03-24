@@ -1,4 +1,4 @@
-import { Fs, Json } from './common.ts';
+import { Arr, Fs } from './common.ts';
 import type * as t from './t.ts';
 
 export function normalizeWorkspace(
@@ -15,7 +15,9 @@ export async function main(path = './deno.json') {
   if (!before) throw new Error(`Failed to read workspace deno.json: ${path}`);
 
   const after = normalizeWorkspace(before);
-  const unchanged = Json.stringify(before) === Json.stringify(after);
+  const beforeWorkspace = Array.isArray(before.workspace) ? before.workspace : [];
+  const afterWorkspace = Array.isArray(after.workspace) ? after.workspace : [];
+  const unchanged = Arr.equal(beforeWorkspace, afterWorkspace);
   if (unchanged) return false;
 
   await Fs.writeJson(path, after);
