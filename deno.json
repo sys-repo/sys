@@ -127,6 +127,7 @@
     "upgrade": {
       "read": true,
       "write": true,
+      "run": true,
       "env": true,
       "net": true,
       "ffi": true
