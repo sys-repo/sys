@@ -1,9 +1,11 @@
 export { Cli } from '@sys/cli';
 export { c } from '@sys/color/ansi';
+export { Hash } from '@sys/crypto/hash';
 export { DenoDeps } from '@sys/driver-deno/runtime';
 export { Esm } from '@sys/esm';
 export { Deps } from '@sys/esm/deps';
 export { Fs, Path } from '@sys/fs';
+export { JsonFile } from '@sys/fs/file';
 export { Process } from '@sys/process';
 export { Jsr } from '@sys/registry/jsr';
 export { Npm } from '@sys/registry/npm';

@@ -23,6 +23,8 @@ export declare namespace WorkspaceGraph {
     packageEdges(graph: LocalModuleGraph): PackageGraph;
     /** Order packages deterministically via `@sys/esm` topological planning. */
     order(graph: PackageGraph): PackageOrderResult;
+    /** Persisted graph snapshot helpers. */
+    readonly Snapshot: Snapshot.Lib;
   };
 
   /** Package manifest discovery source for local graph collection. */
@@ -94,16 +96,6 @@ export declare namespace WorkspaceGraph {
     readonly edges: readonly ModuleEdge[];
   };
 
-  /** One module-import witness for a package dependency edge. */
-  export type PackageImport = {
-    /** Importing module key. */
-    readonly from: Module['key'];
-    /** Imported module key. */
-    readonly to: Module['key'];
-    /** Import edge kind. */
-    readonly kind: ModuleEdgeKind;
-  };
-
   /** Directed dependency edge between workspace packages. */
   export type PackageEdge = {
     /** Dependency package path that must be ordered first. */
@@ -111,7 +103,7 @@ export declare namespace WorkspaceGraph {
     /** Dependent package path that requires `from`. */
     readonly to: Package['path'];
     /** Local module imports that witness this package edge. */
-    readonly imports: readonly PackageImport[];
+    readonly imports: readonly ModuleEdge[];
   };
 
   /**
@@ -167,4 +159,47 @@ export declare namespace WorkspaceGraph {
 
   /** Package-order result. */
   export type PackageOrderResult = Ordered | Invalid | Cyclic;
+
+  /** Persisted package-edge payload used by downstream tooling. */
+  export type PersistedEdge = {
+    readonly from: Package['path'];
+    readonly to: Package['path'];
+  };
+
+  /** Persisted workspace graph payload. */
+  export type PersistedGraph = {
+    readonly orderedPaths: readonly Package['path'][];
+    readonly edges: readonly PersistedEdge[];
+  };
+
+  /** Persisted workspace graph snapshot helpers and document shapes. */
+  export namespace Snapshot {
+    /** Runtime snapshot helper surface. */
+    export type Lib = {
+      create(args: CreateArgs): Doc;
+      read(path: t.StringPath): Promise<Doc | undefined>;
+      write(snapshot: Doc, path: t.StringPath): Promise<Doc>;
+    };
+
+    /** Snapshot document metadata. */
+    export type Meta = t.JsonFileMeta & {
+      readonly schemaVersion: 1;
+      readonly graphHash: t.StringHash;
+      readonly generator: {
+        readonly pkg: t.Pkg;
+        readonly type: t.StringUrl;
+      };
+    };
+
+    /** Persisted graph snapshot document. */
+    export type Doc = {
+      readonly '.meta': Meta;
+      readonly graph: PersistedGraph;
+    };
+
+    /** Snapshot creation arguments. */
+    export type CreateArgs = {
+      readonly graph: PersistedGraph;
+    };
+  }
 }
