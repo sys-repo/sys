@@ -21,8 +21,26 @@ export declare namespace WorkspaceCli {
   /** Interaction mode for one CLI run. */
   export type Mode = 'interactive' | 'non-interactive';
 
+  /** Typed argv shape produced by `Args.parse(...)` for the workspace CLI. */
+  export type ParsedArgs = {
+    /** Apply file changes instead of only planning/reporting. */
+    readonly apply?: boolean;
+    /** Explicit interaction override. */
+    readonly 'non-interactive'?: boolean;
+    /** Upgrade policy mode override. */
+    readonly mode?: t.EsmPolicyMode;
+    /** Canonical dependency manifest path override. */
+    readonly deps?: string;
+    /** Dependency names or aliases to include. */
+    readonly include?: string | readonly string[];
+    /** Dependency names or aliases to exclude. */
+    readonly exclude?: string | readonly string[];
+  };
+
   /** Fully normalized CLI options for one run. */
   export type ResolvedOptions = {
+    /** Canonical dependency manifest path for the run. */
+    readonly deps: t.StringPath;
     /** Whether prompts and selection menus are allowed. */
     readonly mode: Mode;
     /** Upgrade policy mode passed through to workspace orchestration. */
@@ -33,8 +51,6 @@ export declare namespace WorkspaceCli {
     readonly exclude: readonly string[];
     /** Apply file changes instead of only planning/reporting. */
     readonly apply: boolean;
-    /** Suppress confirmation prompts when applying. */
-    readonly yes: boolean;
   };
 
   /** Selection resolved by the CLI before planning or apply. */
