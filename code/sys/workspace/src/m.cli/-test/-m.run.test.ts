@@ -9,9 +9,22 @@ describe('Workspace.Cli.run', () => {
     expect(result.kind).to.eql('help');
     if (result.kind === 'help') {
       expect(result.text).to.include('@sys/workspace/cli');
+      expect(result.text).to.include('Usage');
+      expect(result.text).to.include('Examples');
       expect(result.text).to.include('--prerelease');
       expect(result.text).to.include('--non-interactive');
       expect(result.text).to.include('--apply');
+    }
+  });
+
+  it('renders help for the short -h alias', async () => {
+    const result = await WorkspaceCli.run({ argv: ['-h'] });
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      expect(result.text).to.include('@sys/workspace/cli');
+      expect(result.text).to.include('Usage');
+      expect(result.text).to.include('Examples');
     }
   });
 

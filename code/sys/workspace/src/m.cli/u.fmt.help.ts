@@ -1,67 +1,36 @@
-import { Cli, Str, c } from './common.ts';
-
-type HelpRow = {
-  readonly flag: string;
-  readonly description: string;
-};
+import { Cli } from './common.ts';
 
 const D = {
   tool: '@sys/workspace/cli',
 } as const;
 
 export const FmtHelp = {
+  input(toolname: string = D.tool) {
+    return {
+      tool: toolname,
+      summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
+      note: 'Interactive by default; non-interactive for reporting or scripted apply.',
+      usage: [`${toolname} [options]`],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--non-interactive', 'plan or apply without prompts'],
+        ['--apply', 'write deps.yaml and projected files'],
+        ['--mode <none|patch|minor|latest>', 'set the upgrade policy mode'],
+        ['--prerelease', 'include prerelease versions in planning'],
+        ['--deps <path>', 'override the deps.yaml path'],
+        ['--include <name[,name]>', 'limit the run to named dependencies'],
+        ['--exclude <name[,name]>', 'exclude named dependencies from the run'],
+      ] as const,
+      examples: [
+        `${toolname}`,
+        `${toolname} --non-interactive`,
+        `${toolname} --non-interactive --apply --mode latest`,
+        `${toolname} --non-interactive --apply --mode latest --prerelease`,
+      ],
+    } as const;
+  },
+
   output(toolname: string = D.tool): string {
-    const str = Str.builder();
-
-    str
-      .line(c.bold(c.brightCyan(toolname)))
-      .line()
-      .line(c.white('Upgrade workspace dependencies from canonical deps.yaml.'))
-      .line(c.gray('Interactive by default; non-interactive for reporting or scripted apply.'))
-      .line()
-      .line(FmtHelp.usage(toolname))
-      .line()
-      .line(FmtHelp.options())
-      .line()
-      .line(FmtHelp.examples(toolname));
-
-    return Str.trimEdgeNewlines(String(str));
-  },
-
-  usage(toolname: string): string {
-    const table = Cli.table([]);
-    table.push([c.gray('Usage'), c.white(`${toolname} [options]`)]);
-    return Str.trimEdgeNewlines(String(table));
-  },
-
-  options(): string {
-    const table = Cli.table([]);
-    const rows: readonly HelpRow[] = [
-      { flag: '-h, --help', description: 'show help' },
-      { flag: '--non-interactive', description: 'plan or apply without prompts' },
-      { flag: '--apply', description: 'write deps.yaml and projected files' },
-      { flag: '--mode <none|patch|minor|latest>', description: 'set the upgrade policy mode' },
-      { flag: '--prerelease', description: 'include prerelease versions in planning' },
-      { flag: '--deps <path>', description: 'override the deps.yaml path' },
-      { flag: '--include <name[,name]>', description: 'limit the run to named dependencies' },
-      { flag: '--exclude <name[,name]>', description: 'exclude named dependencies from the run' },
-    ];
-
-    table.push([c.gray('Options'), '']);
-    for (const row of rows) {
-      table.push([c.gray(`  ${row.flag}`), row.description]);
-    }
-    return Str.trimEdgeNewlines(String(table));
-  },
-
-  examples(toolname: string): string {
-    const str = Str.builder();
-    str
-      .line(c.gray('Examples'))
-      .line(c.gray(`  ${toolname}`))
-      .line(c.gray(`  ${toolname} --non-interactive`))
-      .line(c.gray(`  ${toolname} --non-interactive --apply --mode latest`))
-      .line(c.gray(`  ${toolname} --non-interactive --apply --mode latest --prerelease`));
-    return Str.trimEdgeNewlines(String(str));
+    return Cli.Fmt.Help.build(FmtHelp.input(toolname));
   },
 } as const;

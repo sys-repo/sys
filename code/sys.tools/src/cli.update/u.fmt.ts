@@ -10,7 +10,7 @@ export const Fmt = {
   async help(toolname: string = D.tool.name) {
     const str = Str.builder();
     const version = await getVersionInfo();
-    const base = await Base.help(toolname, (e) => e.row(c.gray(`@sys/tools/${c.white('update')}`)));
+    const base = await Base.help(toolname, { note: `@sys/tools/${c.white('update')}` });
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
     if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();

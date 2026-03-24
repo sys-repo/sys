@@ -3,6 +3,7 @@ import { type t, Args, Err, Is, Path } from './common.ts';
 export function wantsHelp(argv: readonly string[]): boolean {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
     boolean: ['help'],
+    alias: { h: 'help' },
   });
   return args.help === true;
 }
@@ -14,6 +15,7 @@ export function parseArgs(
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
     boolean: ['apply', 'help', 'prerelease', 'non-interactive'],
     string: ['mode', 'deps', 'include', 'exclude'],
+    alias: { h: 'help' },
   });
 
   return {
