@@ -107,7 +107,7 @@ export async function main(context: CommitContext = 'prep') {
     await runSilentPhase(spinner, 'normalizing workspace...', () => prepWorkspace());
     await runSilentPhase(
       spinner,
-      'deriving topological workspace module order...',
+      `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
       () => prepPaths(),
     );
 
