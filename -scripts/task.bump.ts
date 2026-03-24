@@ -127,11 +127,7 @@ export async function main(options: Options = {}) {
   console.info(Cli.Fmt.spinnerText('running workspace prep...'));
   const prepare = await import('./task.prep.ts');
   const prepared = await prepare.main('bump');
-
-  console.info(Cli.Fmt.spinnerText('refreshing ci deno surface...'));
   await prepCiDeno();
-
-  console.info(Cli.Fmt.spinnerText('refreshing github workflow surfaces...'));
   await prepCi({ prepared, final: true, sourcePaths: selected.map((child) => packagePath(child)) });
 
   return true;
