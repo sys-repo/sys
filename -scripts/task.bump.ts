@@ -14,6 +14,7 @@ type Options = {
 };
 
 type TArgs = {
+  help?: boolean;
   from?: string;
   release?: t.SemverReleaseType;
   'dry-run'?: boolean;
@@ -32,14 +33,16 @@ type Candidate = {
 
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args, {
-    boolean: ['dry-run', 'non-interactive'],
+    boolean: ['help', 'dry-run', 'non-interactive'],
+    alias: { h: ['help'] },
   });
+  if (args.help) {
+    wrangle.help();
+    return false;
+  }
   const release = wrangle.release(options, args);
   const dryRun = wrangle.dryRun(options, args);
   const nonInteractive = wrangle.nonInteractive(options, args);
-  const releaseColored = `${c.green(Str.capitalize(release))}`;
-  console.info();
-  console.info(c.gray(`${c.bold(releaseColored)} Version`));
 
   /**
    * Load the workspace.
@@ -79,6 +82,7 @@ export async function main(options: Options = {}) {
   const selection = await wrangle.selection({
     from: wrangle.from(options, args),
     candidates,
+    release,
   });
   const plan = await wrangle.runPlanningPhase(candidates, selection);
   const selected = plan.selected;
@@ -172,6 +176,26 @@ const wrangle = {
     return 'patch'; // (Default).
   },
 
+  help() {
+    Cli.Fmt.Help.render({
+      tool: 'deno task bump',
+      summary: 'Bump workspace packages from a selected topological root and regenerate derived surfaces.',
+      note: 'Interactive by default; `--from` supports scripted selective bumps.',
+      usage: [
+        'deno task bump',
+        'deno task bump -- --release minor',
+        'deno task bump -- --from=@sys/esm --non-interactive --dry-run',
+      ],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--release <patch|minor|major>', 'choose the semver bump kind (default: patch)'],
+        ['--from <package-name|package-path>', 'select the bump root without an interactive picker'],
+        ['--dry-run', 'render the plan without writing files'],
+        ['--non-interactive', 'skip interactive confirmation once a root is known'],
+      ],
+    });
+  },
+
   dryRun(options: Options, argv: TArgs) {
     return options.dryRun ?? argv['dry-run'] ?? false;
   },
@@ -187,6 +211,7 @@ const wrangle = {
   async selection(args: {
     from?: string;
     candidates: readonly Candidate[];
+    release: t.SemverReleaseType;
   }): Promise<
     | { readonly nonInteractive: true; readonly value: t.StringPath }
     | { readonly nonInteractive: false; readonly value: t.StringPath }
@@ -205,7 +230,7 @@ const wrangle = {
     const total = args.candidates.length.toLocaleString();
 
     const picked = await Cli.Input.Select.prompt<t.StringPath>({
-      message: `Start bump from package (${total} total):\n`,
+      message: `${c.cyan('›')} start ${c.cyan(args.release)} bump from package ${c.gray(`(${total} total)`)}:\n`,
       maxRows: Math.min(50, args.candidates.length),
       options,
       default: packagePath(args.candidates[0]),

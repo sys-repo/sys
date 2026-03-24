@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { orderChildren } from '../task.bump.ts';
+import { main, orderChildren } from '../task.bump.ts';
 
 describe('scripts/task.bump', () => {
   it('orders bump rows by topological workspace package path order', () => {
@@ -38,5 +38,22 @@ describe('scripts/task.bump', () => {
       '@extra/alpha',
       '@extra/zeta',
     ]);
+  });
+
+  it('renders bump help with release and from options', async () => {
+    const calls: string[] = [];
+    const info = console.info;
+    console.info = (...args: unknown[]) => calls.push(String(args[0] ?? ''));
+
+    try {
+      await main({ argv: ['--help'] });
+    } finally {
+      console.info = info;
+    }
+
+    const output = calls.join('\n');
+    expect(output).to.include('deno task bump');
+    expect(output).to.include('--release <patch|minor|major>');
+    expect(output).to.include('--from <package-name|package-path>');
   });
 });
