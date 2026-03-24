@@ -39,7 +39,6 @@ export const Paths = {
     'code/sys/schema',
     'code/sys/registry',
     'code/sys/esm',
-    'code/sys/workspace',
 
     'code/sys/text',
     'code/sys/tmpl-engine',
@@ -72,6 +71,8 @@ export const Paths = {
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
     'code/sys.driver/driver-stripe',
+
+    'code/sys/workspace',
 
     /**
      * Instance (conceptually: "an app"):

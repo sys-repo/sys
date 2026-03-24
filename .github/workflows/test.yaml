@@ -52,8 +52,6 @@ jobs:
             path: code/sys/registry
           - name: "@sys/esm"
             path: code/sys/esm
-          - name: "@sys/workspace"
-            path: code/sys/workspace
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/tmpl-engine"
@@ -92,6 +90,8 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
+          - name: "@sys/workspace"
+            path: code/sys/workspace
           - name: "@tdb/slc-std"
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
