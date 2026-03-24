@@ -1,14 +1,9 @@
 import type { t } from '../common.ts';
 import type { AnsiForegroundColorName } from '@sys/color/t';
+import type { CliFormatHelpLib } from './t.help.ts';
 
-export type CliFormatHrColor = AnsiForegroundColorName;
-
-export type CliFormatHr = {
-  (): string;
-  (width: number): string;
-  (color: CliFormatHrColor): string;
-  (width: number, color: CliFormatHrColor): string;
-};
+/** Type re-exports. */
+export type * from './t.help.ts';
 
 /**
  * Common formatting helpers when working with a CLI.
@@ -16,6 +11,9 @@ export type CliFormatHr = {
 export type CliFormatLib = {
   /** Horizontal rule display formatting. */
   hr: CliFormatHr;
+
+  /** Help page formatting. */
+  readonly Help: CliFormatHelpLib;
 
   /** Path display formatting. */
   path: t.PathFormatLib['string'];
@@ -34,4 +32,25 @@ export type CliFormatLib = {
     readonly bar: '─';
     branch(isLastOrTuple: boolean | [t.Index, t.Ary<unknown>], extend?: number): string;
   };
+};
+
+/**
+ * Foreground color name accepted by the horizontal rule formatter.
+ */
+export type CliFormatHrColor = AnsiForegroundColorName;
+
+/**
+ * Horizontal rule formatter.
+ *
+ * Supported call forms:
+ * - `hr()`
+ * - `hr(width)`
+ * - `hr(color)`
+ * - `hr(width, color)`
+ */
+export type CliFormatHr = {
+  (): string;
+  (width: number): string;
+  (color: CliFormatHrColor): string;
+  (width: number, color: CliFormatHrColor): string;
 };

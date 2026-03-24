@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { Is, type t } from '../common.ts';
 
 export const Tree: t.CliFormatLib['Tree'] = {
   vert: '│',
@@ -6,9 +6,9 @@ export const Tree: t.CliFormatLib['Tree'] = {
   last: '└',
   bar: '─',
   branch(last, extend = 1) {
-    const isLast = Array.isArray(last) ? last[0] === last[1].length - 1 : last;
+    const isLast = Is.array(last) ? last[0] === last[1].length - 1 : last;
     const head = isLast ? Tree.last : Tree.mid;
-    const bar = '─'.repeat(extend);
+    const bar = Tree.bar.repeat(extend);
     return head + bar;
   },
 };

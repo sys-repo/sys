@@ -5,11 +5,12 @@
 import { Format as PathFormat } from '@sys/std/path';
 import { type t, c } from '../common.ts';
 import { hr } from './m.Fmt.Hr.ts';
+import { Help } from './m.Fmt.Help.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 
 export const Path: t.CliFormatLib['Path'] = {
   str: (path) => c.gray(Fmt.path(path, Fmt.Path.fmt())),
-  fmt(opts = {}) {
+  fmt(_opts = {}) {
     return (e) => {
       if (e.is.basename) e.change(c.white(e.part));
     };
@@ -19,6 +20,7 @@ export const Path: t.CliFormatLib['Path'] = {
 /** Command-line formatting helper library. */
 export const Fmt: t.CliFormatLib = {
   hr,
+  Help,
   Tree,
   Path,
   path: PathFormat.string,
