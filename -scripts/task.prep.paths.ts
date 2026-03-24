@@ -19,6 +19,8 @@ export function renderPaths(paths: readonly string[]) {
 
 export async function buildWorkspaceGraphCache(cwd = Deno.cwd()): Promise<WorkspaceGraphCache> {
   const deno = (await Fs.readJson<Record<string, unknown>>(Fs.join(cwd, 'deno.json'))).data ?? {};
+  // Keep this root-workspace discovery aligned with other prep-time workspace walks
+  // until package discovery is centralized behind @sys/workspace.
   const workspace = Array.isArray(deno.workspace) ? deno.workspace.filter(Is.str) : [];
   const include = workspace.map((path) => `${path}/deno.json`);
 
