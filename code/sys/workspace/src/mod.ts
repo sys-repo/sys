@@ -3,6 +3,7 @@
  * Workspace orchestration helpers for multi-package repositories.
  */
 export { pkg } from './pkg.ts';
+export { WorkspaceGraph } from './m.graph/mod.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
