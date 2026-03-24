@@ -36,7 +36,7 @@ const wrangle = {
       .filter((decision): decision is t.EsmPolicyDecision & { ok: true } => decision.ok)
       .map((decision) => ({
         key: wrangle.key(decision.input.subject.entry),
-        decision,
+        value: decision,
       }));
 
     const nodeKeys = new Set(nodes.map((node) => node.key));
@@ -44,8 +44,8 @@ const wrangle = {
     const unresolved: t.WorkspaceUpgrade.GraphUnresolved[] = [];
 
     for (const node of nodes) {
-      const entry = node.decision.input.subject.entry;
-      const selected = node.decision.selection.selected?.version;
+      const entry = node.value.input.subject.entry;
+      const selected = node.value.selection.selected?.version;
       if (!selected) continue;
 
       if (entry.module.registry === 'npm') {

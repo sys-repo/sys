@@ -1,10 +1,8 @@
 import { type t, Esm } from './common.ts';
-import { toNode } from './u.topological.ts';
 
 export const order: t.WorkspaceGraph.Lib['order'] = (graph) => {
-  const packageByPath = new Map(graph.packages.map((pkg) => [pkg.path, pkg] as const));
   const result = Esm.Topological.build({
-    nodes: graph.packages.map((pkg) => toNode(pkg)),
+    nodes: graph.packages.map((pkg) => ({ key: pkg.path, value: pkg })),
     edges: graph.edges.map((edge) => ({ from: edge.from, to: edge.to })),
   });
 
@@ -13,7 +11,7 @@ export const order: t.WorkspaceGraph.Lib['order'] = (graph) => {
       ok: true,
       graph,
       items: result.items.map((item) => ({
-        package: packageByPath.get(item.node.key)!,
+        package: item.node.value,
         index: item.index,
         after: item.after,
       })),

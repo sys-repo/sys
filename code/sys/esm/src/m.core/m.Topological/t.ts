@@ -2,59 +2,53 @@ import type { t } from '../common.ts';
 import type { EsmPolicy } from '../m.Policy/t.ts';
 
 /**
- * Pure topological dependency upgrade planning.
- *
- * NB:
- * This surface is currently domain-shaped for ESM dependency work.
- * If broader reuse emerges, the ordering primitive may later be extracted
- * into a generic `@sys/std/topological` module with this layer kept as
- * the ESM-facing adapter.
+ * Pure deterministic topological ordering.
  */
 export namespace EsmTopological {
   /** Runtime planning helper surface. */
   export type Lib = {
-    /** Compute a deterministic topological upgrade plan. */
-    build(input: Input): Result;
+    /** Compute a deterministic topological ordering. */
+    build<T>(input: Input<T>): Result<T>;
   };
 
-  /** Canonical topological node for one dependency decision. */
-  export type Node = {
-    /** Canonical dependency policy decision being planned. */
-    readonly decision: EsmPolicy.Decision;
-    /** Stable node key derived from the dependency identity. */
+  /** Canonical node in one topological ordering pass. */
+  export type Node<T> = {
+    /** Stable node key within the ordering input. */
     readonly key: string;
+    /** Opaque payload carried through the ordering result. */
+    readonly value: T;
   };
 
-  /** Directed dependency edge for topological planning. */
+  /** Directed precedence edge for topological ordering. */
   export type Edge = {
     /** Node key that must be ordered first. */
-    readonly from: Node['key'];
+    readonly from: string;
     /** Node key that depends on `from`. */
-    readonly to: Node['key'];
+    readonly to: string;
   };
 
-  /** Complete input to one topological planning pass. */
-  export type Input = {
-    /** Nodes under consideration for ordered planning. */
-    readonly nodes: readonly Node[];
-    /** Directed dependency edges between the nodes. */
+  /** Complete input to one topological ordering pass. */
+  export type Input<T> = {
+    /** Nodes under consideration for ordering. */
+    readonly nodes: readonly Node<T>[];
+    /** Directed precedence edges between the nodes. */
     readonly edges: readonly Edge[];
   };
 
-  /** One ordered node in the resulting upgrade plan. */
-  export type Item = {
-    /** Planned node. */
-    readonly node: Node;
-    /** Zero-based execution order in the plan. */
+  /** One ordered node in the resulting topological order. */
+  export type Item<T> = {
+    /** Ordered node. */
+    readonly node: Node<T>;
+    /** Zero-based position in the order. */
     readonly index: number;
     /** Direct dependencies that must run before this item. */
-    readonly after: readonly Node['key'][];
+    readonly after: readonly Node<T>['key'][];
   };
 
-  /** Structured cycle result when planning cannot be linearized. */
+  /** Structured cycle result when ordering cannot be linearized. */
   export type Cycle = {
     /** Node keys participating in the detected cycle. */
-    readonly keys: readonly Node['key'][];
+    readonly keys: readonly string[];
   };
 
   /** Canonical invalid-input code. */
@@ -65,22 +59,32 @@ export namespace EsmTopological {
     readonly ok: false;
     readonly invalid: {
       readonly code: InvalidCode;
-      readonly keys: readonly Node['key'][];
+      /** Keys involved in the invalid input. */
+      readonly keys: readonly string[];
     };
   };
 
-  /** Successful ordered planning result. */
-  export type Ordered = {
+  /** Successful topological ordering result. */
+  export type Ordered<T> = {
     readonly ok: true;
-    readonly items: readonly Item[];
+    readonly items: readonly Item<T>[];
   };
 
-  /** Failed planning result due to cyclic dependency edges. */
+  /** Failed ordering result due to cyclic dependency edges. */
   export type Cyclic = {
     readonly ok: false;
     readonly cycle: Cycle;
   };
 
-  /** Result of topological planning over dependency decisions. */
-  export type Result = Ordered | Cyclic | Invalid;
+  /** Result of topological ordering over one payload type. */
+  export type Result<T> = Ordered<T> | Cyclic | Invalid;
+
+  /** ESM-specialized node payload. */
+  export type DecisionNode = Node<EsmPolicy.Decision>;
+  /** ESM-specialized topological input. */
+  export type DecisionInput = Input<EsmPolicy.Decision>;
+  /** ESM-specialized ordered item. */
+  export type DecisionItem = Item<EsmPolicy.Decision>;
+  /** ESM-specialized topological result. */
+  export type DecisionResult = Result<EsmPolicy.Decision>;
 }

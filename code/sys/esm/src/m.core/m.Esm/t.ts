@@ -17,9 +17,9 @@ export type EsmPolicyDecision = EsmPolicy.Decision;
 /** Public dependency policy result. */
 export type EsmPolicyResult = EsmPolicy.Result;
 /** Public topological ordering input. */
-export type EsmTopologicalInput = EsmTopological.Input;
+export type EsmTopologicalInput = EsmTopological.DecisionInput;
 /** Public topological ordering result. */
-export type EsmTopologicalResult = EsmTopological.Result;
+export type EsmTopologicalResult = EsmTopological.DecisionResult;
 
 /** Core ESM import and dependency helpers. */
 export type EsmLib = {

@@ -12,7 +12,7 @@ describe('Esm.Topological.build', () => {
       },
     });
 
-  const node = (key: string) => ({ key, decision: decision(key) });
+  const node = (key: string) => ({ key, value: decision(key) });
 
   it('returns an empty ordered plan for empty input', () => {
     const res = Esm.Topological.build({ nodes: [], edges: [] });
@@ -32,6 +32,7 @@ describe('Esm.Topological.build', () => {
     if (!res.ok) return;
 
     expect(res.items.map((item) => item.node.key)).to.eql(['@sys/a', '@sys/b', '@sys/c']);
+    expect(res.items[0].node.value.input.subject.entry.module.name).to.eql('@sys/a');
     expect(res.items.map((item) => item.index)).to.eql([0, 1, 2]);
   });
 

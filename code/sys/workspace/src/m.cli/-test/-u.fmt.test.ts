@@ -61,7 +61,7 @@ function upgrade(): t.WorkspaceUpgrade.Result {
   const nodes: t.EsmTopologicalInput['nodes'] = [
     {
       key: Fmt.key(pathDecision.input.subject.entry),
-      decision: pathDecision,
+      value: pathDecision,
     },
   ];
 

@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { wrangle } from './u.wrangle.ts';
 
-export const build: t.EsmTopological.Lib['build'] = (input) => {
+export const build: t.EsmTopological.Lib['build'] = <T>(input: t.EsmTopological.Input<T>) => {
   const nodes = [...input.nodes].sort((a, b) => a.key.localeCompare(b.key));
   const duplicateKeys = wrangle.duplicates(nodes.map((node) => node.key));
   if (duplicateKeys.length > 0) {
@@ -35,7 +35,7 @@ export const build: t.EsmTopological.Lib['build'] = (input) => {
     .map((node) => node.key)
     .sort((a, b) => a.localeCompare(b));
 
-  const items: t.EsmTopological.Item[] = [];
+  const items: t.EsmTopological.Item<T>[] = [];
 
   while (ready.length > 0) {
     const key = ready.shift()!;

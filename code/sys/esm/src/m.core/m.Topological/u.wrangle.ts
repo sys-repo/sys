@@ -13,7 +13,7 @@ export const wrangle = {
 
   unknownEdgeKeys(
     edges: readonly t.EsmTopological.Edge[],
-    nodeByKey: ReadonlyMap<string, t.EsmTopological.Node>,
+    nodeByKey: ReadonlyMap<string, t.EsmTopological.Node<unknown>>,
   ) {
     const unknown = new Set<string>();
     for (const edge of edges) {
