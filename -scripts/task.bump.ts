@@ -3,6 +3,7 @@ import { DenoFile } from '@sys/driver-deno/runtime';
 import { type t, c, Cli, Path, Paths, R, Semver, Str } from './common.ts';
 import { main as prepCi } from './task.prep.ci.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
+import { buildWorkspaceGraphCache, readWorkspaceGraphCache, writeWorkspaceGraphCache } from './task.prep.paths.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
@@ -323,18 +324,19 @@ const wrangle = {
   ) {
     const spinner = Cli.spinner('', { start: false });
     console.info();
-    spinner.start(Cli.Fmt.spinnerText('loading workspace dependency graph...'));
+    spinner.start(Cli.Fmt.spinnerText('loading workspace dependency cache...'));
     try {
-      const graph = await Workspace.Graph.collect({
-        cwd: Deno.cwd(),
-        source: { include: Paths.workspace.map((path) => `${path}/deno.json`) },
-      });
-
-      spinner.text = Cli.Fmt.spinnerText('collapsing package dependency edges...');
-      const packages = Workspace.Graph.packageEdges(graph);
+      let cache: Awaited<ReturnType<typeof readWorkspaceGraphCache>> = await readWorkspaceGraphCache();
+      if (!cache) {
+        spinner.text = Cli.Fmt.spinnerText('loading workspace dependency graph...');
+        cache = await buildWorkspaceGraphCache(Deno.cwd());
+        spinner.text = Cli.Fmt.spinnerText('saving workspace dependency cache...');
+        await writeWorkspaceGraphCache(cache);
+      }
+      if (!cache) throw new Error('Failed to load workspace dependency cache');
 
       spinner.text = Cli.Fmt.spinnerText('deriving affected downstream packages (topological)...');
-      return await wrangle.plan(candidates, selection, packages);
+      return await wrangle.plan(candidates, selection, { edges: cache.edges });
     } finally {
       spinner.stop();
     }

@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Testing } from '@sys/testing/server';
 import { Str } from '../common.ts';
-import { main, renderPaths } from '../task.prep.paths.ts';
+import { main, readWorkspaceGraphCache, renderPaths, writeWorkspaceGraphCache } from '../task.prep.paths.ts';
 
 describe('scripts/task.prep.paths', () => {
   it('renders one indented array line per path', () => {
@@ -47,5 +47,24 @@ describe('scripts/task.prep.paths', () => {
     }
 
     expect(String(error)).to.include('missing generated markers');
+  });
+
+  it('reads and writes the workspace graph cache artifact', async () => {
+    const fs = await Testing.dir('scripts.task.prep.paths.cache');
+    const path = fs.join('.tmp/workspace.graph.json');
+
+    await writeWorkspaceGraphCache(
+      {
+        orderedPaths: ['code/sys/types', 'code/sys/std'],
+        edges: [{ from: 'code/sys/types', to: 'code/sys/std' }],
+      },
+      path,
+    );
+
+    const cache = await readWorkspaceGraphCache(path);
+    expect(cache).to.eql({
+      orderedPaths: ['code/sys/types', 'code/sys/std'],
+      edges: [{ from: 'code/sys/types', to: 'code/sys/std' }],
+    });
   });
 });
