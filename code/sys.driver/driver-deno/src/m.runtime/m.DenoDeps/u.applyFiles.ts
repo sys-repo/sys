@@ -18,5 +18,5 @@ export async function applyFiles(
   const yaml = await applyYaml(input.depsPath, deps, input.yaml);
   const deno = await applyDeno(input.denoFilePath, deps);
   const pkg = await applyPackage(input.packageFilePath, deps);
-  return { yaml, deno, package: pkg };
+  return pkg ? { yaml, deno, package: pkg } : { yaml, deno };
 }

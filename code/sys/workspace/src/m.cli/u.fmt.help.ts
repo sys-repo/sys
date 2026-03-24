@@ -14,7 +14,7 @@ export const FmtHelp = {
     const str = Str.builder();
 
     str
-      .line(c.gray(toolname))
+      .line(c.bold(c.brightCyan(toolname)))
       .line()
       .line(c.white('Upgrade workspace dependencies from canonical deps.yaml.'))
       .line(c.gray('Interactive by default; non-interactive for reporting or scripted apply.'))

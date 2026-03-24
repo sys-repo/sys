@@ -42,8 +42,8 @@ export declare namespace DenoDeps {
     readonly yaml: ApplyYamlResult;
     /** Result from applying projected Deno imports. */
     readonly deno: ApplyResult;
-    /** Result from applying projected Node dependencies. */
-    readonly package: ApplyPackageResult;
+    /** Result from applying projected Node dependencies, when explicitly requested. */
+    readonly package?: ApplyPackageResult;
   };
 }
 
@@ -77,7 +77,7 @@ export type DepsLib = {
   applyPackage(
     path: t.StringPath | undefined,
     deps?: t.Dep[],
-  ): Promise<DenoDeps.ApplyPackageResult>;
+  ): Promise<DenoDeps.ApplyPackageResult | undefined>;
 
   /** Write canonical dependency YAML back to a deps.yaml target. */
   applyYaml(

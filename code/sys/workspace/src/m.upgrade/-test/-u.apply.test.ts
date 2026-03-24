@@ -61,6 +61,7 @@ describe('Workspace.Upgrade.apply', () => {
             ]);
             expect(result.files.yaml.depsFilePath).to.eql(fs.join('deps.yaml'));
             expect(result.files.deno.denoFilePath).to.eql(fs.join('deno.json'));
+            expect(result.files.package).to.eql(undefined);
             expect(depsText.data).to.include('jsr:@std/path@1.0.8');
             expect(depsText.data).to.include('npm:react@19.0.0');
             expect(denoJson.data?.imports).to.eql({
@@ -68,6 +69,7 @@ describe('Workspace.Upgrade.apply', () => {
               react: 'npm:react@19.0.0',
             });
             expect(denoJson.data?.tasks).to.eql({ dev: 'deno task dev' });
+            expect(await Fs.exists(fs.join('package.json'))).to.eql(false);
           },
         );
       },

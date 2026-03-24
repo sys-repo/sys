@@ -32,6 +32,8 @@ describe('DenoDeps.applyFiles', () => {
     const denoFile = await DenoFile.load(denoPath);
     const packageFile = await Fs.readJson<t.PkgJsonNode>(packagePath);
 
+    expect(res.package).to.not.eql(undefined);
+    if (!res.package) throw new Error('Expected package result');
     expect(res.yaml.depsFilePath).to.eql(depsPath);
     expect(res.deno.denoFilePath).to.eql(denoPath);
     expect(res.package.packageFilePath).to.eql(packagePath);
@@ -49,5 +51,23 @@ describe('DenoDeps.applyFiles', () => {
       vite: '7.3.1',
     });
     expect(packageFile.data?.scripts).to.eql({ dev: 'vite' });
+  });
+
+  it('does not write package.json unless a package target is explicitly provided', async () => {
+    const fs = await Testing.dir('DenoDeps.applyFiles.noPackage');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const packagePath = fs.join('package.json');
+    const deps = [
+      DenoDeps.toDep('jsr:@std/path@1.0.8', { target: 'deno.json' }),
+      DenoDeps.toDep('npm:react@19.0.0', { target: 'package.json' }),
+    ];
+
+    await Fs.writeJson(denoPath, { name: 'upgrade-app', tasks: { dev: 'deno task dev' } });
+
+    const res = await DenoDeps.applyFiles({ depsPath, denoFilePath: denoPath }, deps);
+
+    expect(res.package).to.eql(undefined);
+    expect(await Fs.exists(packagePath)).to.eql(false);
   });
 });
