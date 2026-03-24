@@ -3,6 +3,18 @@ import { WorkspaceCli } from '../mod.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
 describe('Workspace.Cli.run', () => {
+  it('renders help without entering planning or apply flow', async () => {
+    const result = await WorkspaceCli.run({ argv: ['--help'] });
+
+    expect(result.kind).to.eql('help');
+    if (result.kind === 'help') {
+      expect(result.text).to.include('@sys/workspace/cli');
+      expect(result.text).to.include('--prerelease');
+      expect(result.text).to.include('--non-interactive');
+      expect(result.text).to.include('--apply');
+    }
+  });
+
   it('plans in non-interactive mode without mutating files', async () => {
     const fs = await Testing.dir('WorkspaceCli.run.plan');
     await fixture.writeDepsYaml(fs, `
@@ -40,22 +52,24 @@ describe('Workspace.Cli.run', () => {
             const afterDeno = await Fs.readText(fs.join('deno.json'));
 
             expect(result.kind).to.eql('plan');
-            expect(result.options).to.eql({
-              deps: fs.join('deps.yaml'),
-              mode: 'non-interactive',
-              policy: 'latest',
-              prerelease: false,
-              include: [],
-              exclude: [],
-              apply: false,
-            });
-            expect(result.selection).to.eql({ include: [], exclude: [] });
-            expect(result.upgrade.totals).to.eql({
-              dependencies: 2,
-              allowed: 2,
-              blocked: 0,
-              planned: 2,
-            });
+            if (result.kind === 'plan') {
+              expect(result.options).to.eql({
+                deps: fs.join('deps.yaml'),
+                mode: 'non-interactive',
+                policy: 'latest',
+                prerelease: false,
+                include: [],
+                exclude: [],
+                apply: false,
+              });
+              expect(result.selection).to.eql({ include: [], exclude: [] });
+              expect(result.upgrade.totals).to.eql({
+                dependencies: 2,
+                allowed: 2,
+                blocked: 0,
+                planned: 2,
+              });
+            }
             expect(afterDeps.data).to.eql(beforeDeps.data);
             expect(afterDeno.data).to.eql(beforeDeno.data);
           },
@@ -140,10 +154,13 @@ describe('Workspace.Cli.run', () => {
             });
             const depsText = await Fs.readText(fs.join('deps.yaml'));
 
-            expect(result.selection).to.eql({
-              include: ['react'],
-              exclude: ['react-dom'],
-            });
+            expect(result.kind).to.eql('apply');
+            if (result.kind === 'apply') {
+              expect(result.selection).to.eql({
+                include: ['react'],
+                exclude: ['react-dom'],
+              });
+            }
             expect(depsText.data).to.include('npm:react@19.0.0');
             expect(depsText.data).to.include('npm:react-dom@18.2.0');
           },
@@ -184,13 +201,16 @@ describe('Workspace.Cli.run', () => {
               argv: ['--non-interactive', '--apply', '--mode', 'latest', '--prerelease'],
             });
 
-            expect(result.options.prerelease).to.eql(true);
-            expect(result.upgrade.collect.candidates[0]?.latest).to.eql('0.56.0-dev-20260211');
-            expect(result.upgrade.policy.decisions[0]?.ok).to.eql(true);
-            if (result.upgrade.policy.decisions[0]?.ok) {
-              expect(result.upgrade.policy.decisions[0].selection.selected?.version).to.eql(
-                '0.56.0-dev-20260211',
-              );
+            expect(result.kind).to.eql('apply');
+            if (result.kind === 'apply') {
+              expect(result.options.prerelease).to.eql(true);
+              expect(result.upgrade.collect.candidates[0]?.latest).to.eql('0.56.0-dev-20260211');
+              expect(result.upgrade.policy.decisions[0]?.ok).to.eql(true);
+              if (result.upgrade.policy.decisions[0]?.ok) {
+                expect(result.upgrade.policy.decisions[0].selection.selected?.version).to.eql(
+                  '0.56.0-dev-20260211',
+                );
+              }
             }
           },
         );

@@ -25,6 +25,8 @@ export declare namespace WorkspaceCli {
   export type ParsedArgs = {
     /** Apply file changes instead of only planning/reporting. */
     readonly apply?: boolean;
+    /** Show CLI help and exit. */
+    readonly help?: boolean;
     /** Include prerelease versions in upgrade consideration. */
     readonly prerelease?: boolean;
     /** Explicit interaction override. */
@@ -66,7 +68,17 @@ export declare namespace WorkspaceCli {
   };
 
   /** Result from a workspace CLI run. */
-  export type Result = Planned | Applied;
+  export type Result = Help | Planned | Applied;
+
+  /** Help-only CLI run result. */
+  export type Help = {
+    /** Result discriminant. */
+    readonly kind: 'help';
+    /** Raw input passed to the CLI entrypoint. */
+    readonly input: Input;
+    /** Rendered help output. */
+    readonly text: string;
+  };
 
   /** Planned-only CLI run result. */
   export type Planned = {

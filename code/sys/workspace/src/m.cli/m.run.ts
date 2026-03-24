@@ -1,12 +1,20 @@
 import { type t, Fs } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
-import { parseArgs } from './u.args.ts';
+import { parseArgs, wantsHelp } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
+import { FmtHelp } from './u.fmt.help.ts';
 import { runInteractive } from './u.interactive.ts';
 
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const cwd = input.cwd ?? Fs.cwd('terminal');
   const argv = [...(input.argv ?? [])];
+  if (wantsHelp(argv)) {
+    const text = FmtHelp.output();
+    console.info(text);
+    console.info();
+    return { kind: 'help', input: { argv, cwd }, text };
+  }
+
   const options = parseArgs(cwd, argv);
   const upgradeInput = { cwd, deps: options.deps };
 

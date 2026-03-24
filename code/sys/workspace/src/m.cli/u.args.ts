@@ -1,11 +1,18 @@
 import { type t, Args, Err, Is, Path } from './common.ts';
 
+export function wantsHelp(argv: readonly string[]): boolean {
+  const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
+    boolean: ['help'],
+  });
+  return args.help === true;
+}
+
 export function parseArgs(
   cwd: t.StringDir,
   argv: readonly string[],
 ): t.WorkspaceCli.ResolvedOptions {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
-    boolean: ['apply', 'prerelease', 'non-interactive'],
+    boolean: ['apply', 'help', 'prerelease', 'non-interactive'],
     string: ['mode', 'deps', 'include', 'exclude'],
   });
 
