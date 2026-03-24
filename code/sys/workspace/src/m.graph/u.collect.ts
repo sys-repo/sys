@@ -1,5 +1,5 @@
 import { type t, Fs, Is, Json, Process } from './common.ts';
-import { collectInfoJson } from './u.info.collect.ts';
+import { collectInfoJson } from './u.collect.info.ts';
 import { normalizeGraph } from './u.normalize.ts';
 import { collectPackages } from './u.packages.ts';
 
