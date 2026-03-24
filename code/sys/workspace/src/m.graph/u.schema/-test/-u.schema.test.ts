@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { validateInfoJson } from '../u.schema.ts';
 
-describe('Workspace.Graph.Cli.validateInfoJson', () => {
+describe('Workspace.Graph: validateInfoJson', () => {
   it('accepts the minimal deno info json shape used by workspace graph normalization', () => {
     const json = validateInfoJson({
       roots: ['file:///workspace/code/a/src/mod.ts'],

@@ -1,6 +1,6 @@
 import { type t, Json, Process } from './common.ts';
 import { GraphCli } from './u.cli/mod.ts';
-import { validateInfoJson } from './u.cli/u.schema.ts';
+import { validateInfoJson } from './u.schema/mod.ts';
 
 export async function collectInfoJson(cwd: t.StringDir, roots: readonly t.StringPath[]) {
   const allRoots: string[] = [];
