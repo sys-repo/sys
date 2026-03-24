@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "test:cli": "deno run -P=test:cli ./-scripts/task.cli.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -29,6 +30,12 @@
       "read": true,
       "write": true,
       "env": true
+    },
+    "test:cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "ffi": true
     }
   }
 }

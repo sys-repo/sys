@@ -1,32 +1,51 @@
-import { type t, Err, Fs } from './common.ts';
+import { type t, Fs } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
 import { parseArgs } from './u.args.ts';
+import { Fmt } from './u.fmt.ts';
+import { runInteractive } from './u.interactive.ts';
 
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const cwd = input.cwd ?? Fs.cwd('terminal');
   const argv = [...(input.argv ?? [])];
   const options = parseArgs(cwd, argv);
+  const upgradeInput = { cwd, deps: options.deps };
 
   if (options.mode === 'interactive') {
-    throw Err.std('Workspace CLI interactive mode is not implemented yet');
+    const res = await runInteractive(upgradeInput, options);
+    if (res.applied) {
+      return {
+        kind: 'apply',
+        input: { argv, cwd },
+        options,
+        selection: res.selection,
+        upgrade: res.applied.upgrade,
+        applied: res.applied,
+      };
+    }
+
+    return {
+      kind: 'plan',
+      input: { argv, cwd },
+      options,
+      selection: res.selection,
+      upgrade: res.upgrade,
+    };
   }
 
-  const upgradeInput = { cwd, deps: options.deps };
   const selection = await wrangle.selection(upgradeInput, options);
-  const upgradeOptions = {
-    policy: {
-      mode: options.policy,
-      exclude: selection.exclude.length > 0 ? selection.exclude : undefined,
-    },
-  } satisfies t.WorkspaceUpgrade.Options;
+  const upgradeOptions = wrangle.upgradeOptions(options, selection.exclude);
 
   if (options.apply) {
     const applied = await WorkspaceUpgrade.apply(upgradeInput, upgradeOptions);
     const upgrade = applied.upgrade;
+    console.info(Fmt.applied(applied));
+    console.info();
     return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade, applied };
   }
 
   const upgrade = await WorkspaceUpgrade.upgrade(upgradeInput, upgradeOptions);
+  console.info(Fmt.plan(upgrade));
+  console.info();
   return { kind: 'plan', input: { argv, cwd }, options, selection, upgrade };
 };
 
@@ -35,6 +54,18 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
  */
 
 const wrangle = {
+  upgradeOptions(
+    options: t.WorkspaceCli.ResolvedOptions,
+    exclude: readonly string[],
+  ): t.WorkspaceUpgrade.Options {
+    return {
+      policy: {
+        mode: options.policy,
+        exclude: exclude.length > 0 ? exclude : undefined,
+      },
+    };
+  },
+
   async selection(
     input: t.WorkspaceUpgrade.Input,
     options: t.WorkspaceCli.ResolvedOptions,

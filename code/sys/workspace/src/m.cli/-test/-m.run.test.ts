@@ -1,4 +1,4 @@
-import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCli } from '../mod.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 
@@ -149,10 +149,5 @@ describe('Workspace.Cli.run', () => {
         );
       },
     );
-  });
-
-  it('rejects interactive mode until prompts are implemented', async () => {
-    const error = await expectError(() => WorkspaceCli.run({ argv: [] }));
-    expect(error.message).to.include('interactive mode is not implemented yet');
   });
 });

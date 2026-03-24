@@ -4,7 +4,7 @@ export function parseArgs(
   cwd: t.StringDir,
   argv: readonly string[],
 ): t.WorkspaceCli.ResolvedOptions {
-  const args = Args.parse<t.WorkspaceCli.ParsedArgs>([...argv], {
+  const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
     boolean: ['apply', 'non-interactive'],
     string: ['mode', 'deps', 'include', 'exclude'],
   });
@@ -15,7 +15,7 @@ export function parseArgs(
     policy: wrangle.policy(args.mode),
     include: wrangle.list(args.include),
     exclude: wrangle.list(args.exclude),
-    apply: args.apply === true,
+    apply: args['non-interactive'] === true ? args.apply === true : true,
   };
 }
 
@@ -42,5 +42,9 @@ const wrangle = {
         .filter(Boolean),
     );
     return [...new Set(flat)].sort((a, b) => a.localeCompare(b));
+  },
+
+  argv(input: readonly string[]): string[] {
+    return input.filter((value, index) => !(value === '--' && index === 0));
   },
 } as const;
