@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
+import { act, afterEach, beforeEach, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
 import { usePointerDrag } from '../use.Pointer.Drag.ts';
 
 describe('usePointerDrag', () => {
@@ -15,17 +15,19 @@ describe('usePointerDrag', () => {
       );
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         const move = ctx.listeners.get('touchmove');
         expect(typeof move).to.eql('function');
 
-        move?.(fakeTouchMove({ x: 10, y: 10 }));
-        move?.(fakeTouchMove({ x: 20, y: 10 }));
+        act(() => {
+          move?.(fakeTouchMove({ x: 10, y: 10 }));
+          move?.(fakeTouchMove({ x: 20, y: 10 }));
+        });
 
         expect(calls.length).to.eql(1);
         expect(calls[0]).to.eql(20);
       } finally {
-        unmount();
+        act(() => unmount());
       }
     });
   });
@@ -46,15 +48,17 @@ describe('usePointerDrag', () => {
       );
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         const move = ctx.listeners.get('mousemove');
         expect(typeof move).to.eql('function');
 
-        move?.(fakeMouseMove({ x: 12, y: 10 }));
-        move?.(fakeMouseMove({ x: 16, y: 10 }));
+        act(() => {
+          move?.(fakeMouseMove({ x: 12, y: 10 }));
+          move?.(fakeMouseMove({ x: 16, y: 10 }));
+        });
         expect(calls).to.eql([16]);
       } finally {
-        unmount();
+        act(() => unmount());
         (window as Window & { ontouchstart?: unknown }).ontouchstart = prevOntouchstart;
       }
     });
@@ -71,25 +75,27 @@ describe('usePointerDrag', () => {
       );
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         const firstMove = ctx.listeners.get('mousemove');
         expect(typeof firstMove).to.eql('function');
 
-        result.current.cancel();
+        act(() => result.current.cancel());
 
-        result.current.start();
+        act(() => result.current.start());
         const secondMove = ctx.listeners.get('mousemove');
         expect(typeof secondMove).to.eql('function');
         expect(firstMove).not.to.equal(secondMove);
 
-        firstMove?.(fakeMouseMove({ x: 30, y: 10 }));
-        firstMove?.(fakeMouseMove({ x: 34, y: 10 }));
-        secondMove?.(fakeMouseMove({ x: 10, y: 10 }));
-        secondMove?.(fakeMouseMove({ x: 14, y: 10 }));
+        act(() => {
+          firstMove?.(fakeMouseMove({ x: 30, y: 10 }));
+          firstMove?.(fakeMouseMove({ x: 34, y: 10 }));
+          secondMove?.(fakeMouseMove({ x: 10, y: 10 }));
+          secondMove?.(fakeMouseMove({ x: 14, y: 10 }));
+        });
 
         expect(calls).to.eql([14]);
       } finally {
-        unmount();
+        act(() => unmount());
       }
     });
   });
@@ -99,15 +105,15 @@ describe('usePointerDrag', () => {
       const { result, unmount } = renderHook(() => usePointerDrag({ onDrag: () => {} }));
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         const firstCounts = toObject(ctx.addCounts);
 
-        result.current.start();
+        act(() => result.current.start());
         const secondCounts = toObject(ctx.addCounts);
 
         expect(secondCounts).to.eql(firstCounts);
       } finally {
-        unmount();
+        act(() => unmount());
       }
     });
   });
@@ -117,22 +123,22 @@ describe('usePointerDrag', () => {
       const { result, unmount } = renderHook(() => usePointerDrag({ onDrag: () => {} }));
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         expect(activeListenerTypes(ctx.listeners)).to.eql(EXPECTED_DRAG_LISTENERS);
 
         const onMouseUp = ctx.listeners.get('mouseup');
         expect(typeof onMouseUp).to.eql('function');
-        onMouseUp?.(new window.Event('mouseup'));
+        act(() => onMouseUp?.(new window.Event('mouseup')));
         expect(activeListenerTypes(ctx.listeners)).to.eql([]);
 
-        result.current.start();
+        act(() => result.current.start());
         expect(activeListenerTypes(ctx.listeners)).to.eql(EXPECTED_DRAG_LISTENERS);
         const onTouchCancel = ctx.listeners.get('touchcancel');
         expect(typeof onTouchCancel).to.eql('function');
-        onTouchCancel?.(new window.Event('touchcancel'));
+        act(() => onTouchCancel?.(new window.Event('touchcancel')));
         expect(activeListenerTypes(ctx.listeners)).to.eql([]);
       } finally {
-        unmount();
+        act(() => unmount());
       }
     });
   });
@@ -147,33 +153,39 @@ describe('usePointerDrag', () => {
       );
 
       try {
-        result.current.start();
+        act(() => result.current.start());
         const touchMove = ctx.listeners.get('touchmove');
         const mouseMove = ctx.listeners.get('mousemove');
         expect(typeof touchMove).to.eql('function');
         expect(typeof mouseMove).to.eql('function');
 
-        touchMove?.(fakeTouchMove({ x: 10, y: 10 }));
-        touchMove?.(fakeTouchMove({ x: 20, y: 10 }));
-        mouseMove?.(fakeMouseMove({ x: 40, y: 10 }));
-        mouseMove?.(fakeMouseMove({ x: 44, y: 10 }));
+        act(() => {
+          touchMove?.(fakeTouchMove({ x: 10, y: 10 }));
+          touchMove?.(fakeTouchMove({ x: 20, y: 10 }));
+          mouseMove?.(fakeMouseMove({ x: 40, y: 10 }));
+          mouseMove?.(fakeMouseMove({ x: 44, y: 10 }));
+        });
         expect(calls).to.eql([20]);
 
-        result.current.cancel();
-        result.current.start();
+        act(() => {
+          result.current.cancel();
+          result.current.start();
+        });
 
         const touchMove2 = ctx.listeners.get('touchmove');
         const mouseMove2 = ctx.listeners.get('mousemove');
         expect(typeof touchMove2).to.eql('function');
         expect(typeof mouseMove2).to.eql('function');
 
-        mouseMove2?.(fakeMouseMove({ x: 12, y: 10 }));
-        mouseMove2?.(fakeMouseMove({ x: 16, y: 10 }));
-        touchMove2?.(fakeTouchMove({ x: 30, y: 10 }));
-        touchMove2?.(fakeTouchMove({ x: 34, y: 10 }));
+        act(() => {
+          mouseMove2?.(fakeMouseMove({ x: 12, y: 10 }));
+          mouseMove2?.(fakeMouseMove({ x: 16, y: 10 }));
+          touchMove2?.(fakeTouchMove({ x: 30, y: 10 }));
+          touchMove2?.(fakeTouchMove({ x: 34, y: 10 }));
+        });
         expect(calls).to.eql([20, 16]);
       } finally {
-        unmount();
+        act(() => unmount());
       }
     });
   });
