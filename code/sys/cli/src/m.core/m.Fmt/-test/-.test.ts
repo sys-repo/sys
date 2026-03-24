@@ -8,6 +8,24 @@ describe('CLI: core / m.Fmt', () => {
     expect(m.Fmt).to.equal(Cli.Fmt);
   });
 
+  describe('Fmt.hr', () => {
+    it('returns a plain rule by default', () => {
+      expect(Fmt.hr()).to.equal('━'.repeat(84));
+    });
+
+    it('accepts width only', () => {
+      expect(Fmt.hr(6)).to.equal('━'.repeat(6));
+    });
+
+    it('accepts color only', () => {
+      expect(Fmt.hr('green')).to.equal(c.green('━'.repeat(84)));
+    });
+
+    it('accepts width and color', () => {
+      expect(Fmt.hr(6, 'cyan')).to.equal(c.cyan('━'.repeat(6)));
+    });
+  });
+
   describe('Fmt.Tree', () => {
     const T = Cli.Fmt.Tree;
 
