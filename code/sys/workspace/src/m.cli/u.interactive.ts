@@ -15,7 +15,7 @@ export async function runInteractive(
   const initial = await withSpinner(Fmt.spinnerText('planning workspace upgrades...'), (spinner) =>
     WorkspaceUpgrade.upgrade(
       input,
-      wrangle.upgradeOptions(options.policy, options.exclude, (progress) =>
+      wrangle.upgradeOptions(options.policy, options.exclude, options.prerelease, (progress) =>
         spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
       ),
     ),
@@ -37,7 +37,7 @@ export async function runInteractive(
       : await withSpinner(Fmt.spinnerText('re-planning selected workspace upgrades...'), (spinner) =>
           WorkspaceUpgrade.upgrade(
             input,
-            wrangle.upgradeOptions(policy, selection.exclude, (progress) =>
+            wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
               spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
             ),
           ),
@@ -56,7 +56,7 @@ export async function runInteractive(
   const applied = await withSpinner(Fmt.spinnerText('applying workspace upgrades...'), (spinner) =>
     WorkspaceUpgrade.apply(
       input,
-      wrangle.upgradeOptions(policy, selection.exclude, (progress) =>
+      wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
         spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
       ),
     ),
@@ -83,6 +83,7 @@ const wrangle = {
   upgradeOptions(
     mode: t.EsmPolicyMode,
     exclude: readonly string[],
+    prerelease: boolean,
     progress?: t.WorkspaceUpgrade.ProgressHandler,
   ): t.WorkspaceUpgrade.Options {
     return {
@@ -90,6 +91,7 @@ const wrangle = {
         mode,
         exclude: exclude.length > 0 ? exclude : undefined,
       },
+      prerelease,
       progress,
     };
   },
@@ -123,9 +125,9 @@ const wrangle = {
 
     const picked =
       (await Cli.Input.Checkbox.prompt<string>({
-        message: 'Dependencies to upgrade',
+        message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
         options: [...promptOptions],
-        maxRows: 12,
+        maxRows: 20,
       })) ?? [];
 
     const pickedSet = new Set(picked);

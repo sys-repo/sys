@@ -44,6 +44,7 @@ describe('Workspace.Cli.run', () => {
               deps: fs.join('deps.yaml'),
               mode: 'non-interactive',
               policy: 'latest',
+              prerelease: false,
               include: [],
               exclude: [],
               apply: false,
@@ -145,6 +146,52 @@ describe('Workspace.Cli.run', () => {
             });
             expect(depsText.data).to.include('npm:react@19.0.0');
             expect(depsText.data).to.include('npm:react-dom@18.2.0');
+          },
+        );
+      },
+    );
+  });
+
+  it('passes prerelease opt-in through the non-interactive cli flow', async () => {
+    const fs = await Testing.dir('WorkspaceCli.run.prerelease');
+    await fixture.writeDepsYaml(fs, `
+      deno.json:
+        - import: npm:monaco-editor@0.55.1
+    `);
+    await Fs.writeJson(fs.join('deno.json'), { name: 'cli-prerelease-app', tasks: { dev: 'deno task dev' } });
+
+    await fixture.withVersions(
+      {
+        jsr: {},
+        npm: {
+          'monaco-editor': fixture.versionsNpm('monaco-editor', '0.56.0-dev-20260211', {
+            '0.55.1': {},
+            '0.56.0-dev-20260211': {},
+          }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {},
+            npm: {
+              'monaco-editor@0.56.0-dev-20260211': fixture.infoNpm('monaco-editor', '0.56.0-dev-20260211'),
+            },
+          },
+          async () => {
+            const result = await WorkspaceCli.run({
+              cwd: fs.dir,
+              argv: ['--non-interactive', '--apply', '--mode', 'latest', '--prerelease'],
+            });
+
+            expect(result.options.prerelease).to.eql(true);
+            expect(result.upgrade.collect.candidates[0]?.latest).to.eql('0.56.0-dev-20260211');
+            expect(result.upgrade.policy.decisions[0]?.ok).to.eql(true);
+            if (result.upgrade.policy.decisions[0]?.ok) {
+              expect(result.upgrade.policy.decisions[0].selection.selected?.version).to.eql(
+                '0.56.0-dev-20260211',
+              );
+            }
           },
         );
       },

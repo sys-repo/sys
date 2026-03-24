@@ -16,12 +16,22 @@ type SelectionLayout = {
   readonly name: number;
   readonly current: number;
   readonly latest: number;
+  readonly note: number;
 };
 
 type UpdatedRow = {
   readonly entry: t.EsmDeps.Entry;
   readonly from: t.StringSemver;
   readonly to: t.StringSemver;
+};
+
+type SelectionState = 'selected' | 'blocked' | 'current';
+
+type SummaryCounts = {
+  readonly dependencies: number;
+  readonly selected: number;
+  readonly blocked: number;
+  readonly current: number;
 };
 
 type BlockedCode =
@@ -70,14 +80,16 @@ export const Fmt = {
     const topology = upgrade.topological.ok
       ? c.green(`ok (${upgrade.topological.items.length.toLocaleString()} planned)`)
       : c.yellow('blocked');
+    const counts = Fmt.summaryCounts(upgrade);
 
     table.push([c.gray('Policy'), c.white(upgrade.options.policy.mode)]);
-    table.push([c.gray('Dependencies'), String(upgrade.totals.dependencies)]);
-    table.push([c.gray('Allowed'), c.green(String(upgrade.totals.allowed))]);
+    table.push([c.gray('Dependencies'), String(counts.dependencies)]);
+    table.push([c.gray('Selected'), c.green(String(counts.selected))]);
     table.push([
       c.gray('Blocked'),
-      upgrade.totals.blocked > 0 ? c.yellow(String(upgrade.totals.blocked)) : '0',
+      counts.blocked > 0 ? c.yellow(String(counts.blocked)) : '0',
     ]);
+    table.push([c.gray('Already latest'), counts.current > 0 ? c.gray(String(counts.current)) : '0']);
     table.push([c.gray('Planned'), c.cyan(String(upgrade.totals.planned))]);
     table.push([c.gray('Topology'), topology]);
 
@@ -152,13 +164,14 @@ export const Fmt = {
 
     return upgrade.collect.candidates
       .map((candidate) => {
-        if (!candidate.latest || candidate.latest === candidate.current) return undefined;
         const decision = decisionByKey.get(Fmt.key(candidate.entry));
+        const state = Fmt.selectionState(candidate, decision);
+        if (state === 'current') return undefined;
         const name = candidate.entry.module.name;
         const alias = candidate.entry.module.alias;
         const label = Fmt.selectionLabel(candidate, decision, layout);
         const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-        const checked = includeSet.size > 0 ? selectedByFlag : !!decision?.ok;
+        const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
         return {
           name: label,
           value: name,
@@ -197,21 +210,68 @@ export const Fmt = {
         { collect: { candidates: [candidate] }, policy: { decisions: decision ? [decision] : [] } },
         new Map(decision ? [[Fmt.key(candidate.entry), decision] as const] : []),
       );
-    const name = Fmt.pad(Fmt.name(candidate.entry), widths.name);
+    const name = Fmt.pad(Fmt.selectionName(candidate.entry, widths.name), widths.name);
     const current = Fmt.pad(c.white(candidate.current), widths.current);
-    const latestText = candidate.latest ?? candidate.current;
-    const latestColor =
-      decision && !decision.ok
-        ? c.yellow(latestText)
-        : candidate.latest
-          ? c.green(latestText)
-          : c.gray(latestText);
-    const latest = Fmt.pad(latestColor, widths.latest);
-    const reason =
-      decision && !decision.ok
-        ? c.gray(c.italic(`  ${Fmt.blockedReason(decision.reason.code)}`))
-        : '';
-    return `${name}  ${current} ${c.gray('→')} ${latest}${reason}`;
+    const state = Fmt.selectionState(candidate, decision);
+    const nextText = Fmt.selectionVersion(candidate, decision);
+    const nextColor =
+      state === 'blocked' ? c.yellow(nextText) : state === 'selected' ? c.green(nextText) : c.gray(nextText);
+    const latest = Fmt.pad(nextColor, widths.latest);
+    const note = Fmt.selectionNote(candidate, decision, state);
+    return `${name}  ${current} ${c.gray('→')} ${latest}${note}`;
+  },
+
+  selectionState(
+    candidate: t.WorkspaceUpgrade.Candidate,
+    decision?: t.EsmPolicyDecision,
+  ): SelectionState {
+    if (decision?.ok && decision.selection.selected?.version) return 'selected';
+    if (candidate.latest && candidate.latest !== candidate.current) return 'blocked';
+    return 'current';
+  },
+
+  selectionVersion(
+    candidate: t.WorkspaceUpgrade.Candidate,
+    decision?: t.EsmPolicyDecision,
+  ): t.StringSemver {
+    if (decision?.ok && decision.selection.selected?.version) return decision.selection.selected.version;
+    return candidate.latest ?? candidate.current;
+  },
+
+  selectionNote(
+    candidate: t.WorkspaceUpgrade.Candidate,
+    decision: t.EsmPolicyDecision | undefined,
+    state: SelectionState,
+  ): string {
+    if (state === 'blocked' && decision && !decision.ok) {
+      return c.gray(c.italic(`  ${Fmt.blockedReason(decision.reason.code)}`));
+    }
+    const selected = decision?.ok ? decision.selection.selected?.version : undefined;
+    if (state === 'selected' && selected && candidate.latest && candidate.latest !== selected) {
+      return `${c.gray(c.italic('  newer blocked by policy - '))}${c.yellow(candidate.latest)}`;
+    }
+    return '';
+  },
+
+  summaryCounts(upgrade: t.WorkspaceUpgrade.Result): SummaryCounts {
+    const decisionByKey = new Map(
+      upgrade.policy.decisions.map(
+        (decision) => [Fmt.key(decision.input.subject.entry), decision] as const,
+      ),
+    );
+
+    return upgrade.collect.candidates.reduce<SummaryCounts>(
+      (acc, candidate) => {
+        const state = Fmt.selectionState(candidate, decisionByKey.get(Fmt.key(candidate.entry)));
+        return {
+          dependencies: acc.dependencies + 1,
+          selected: acc.selected + (state === 'selected' ? 1 : 0),
+          blocked: acc.blocked + (state === 'blocked' ? 1 : 0),
+          current: acc.current + (state === 'current' ? 1 : 0),
+        };
+      },
+      { dependencies: 0, selected: 0, blocked: 0, current: 0 },
+    );
   },
 
   blockedReason(code: BlockedCode): string {
@@ -243,15 +303,33 @@ export const Fmt = {
       upgrade.policy.decisions.map((decision) => [Fmt.key(decision.input.subject.entry), decision]),
     ),
   ): SelectionLayout {
-    const widths = { name: 0, current: 0, latest: 0 };
+    const widths = { name: 0, current: 0, latest: 0, note: 0 };
 
     for (const candidate of upgrade.collect.candidates) {
+      const decision = decisionByKey.get(Fmt.key(candidate.entry));
+      const state = Fmt.selectionState(candidate, decision);
+      if (state === 'current') continue;
+
       widths.name = Math.max(widths.name, Fmt.width(Fmt.name(candidate.entry)));
       widths.current = Math.max(widths.current, candidate.current.length);
-      widths.latest = Math.max(widths.latest, (candidate.latest ?? candidate.current).length);
+      widths.latest = Math.max(widths.latest, Fmt.selectionVersion(candidate, decision).length);
+      widths.note = Math.max(widths.note, Fmt.selectionNote(candidate, decision, state).length);
     }
 
-    return widths;
+    const screen = Cli.Screen.size();
+    const budget = Math.max(24, screen.width - 8);
+    const reserved = widths.current + widths.latest + widths.note + 9;
+
+    return {
+      ...widths,
+      name: Math.max(16, Math.min(widths.name, budget - reserved)),
+    };
+  },
+
+  selectionName(entry: t.EsmDeps.Entry, width: number): string {
+    const alias = entry.module.alias ? ` (${entry.module.alias})` : '';
+    const text = `${entry.module.name}${alias}`;
+    return c.white(Fmt.truncate(text, width));
   },
 
   pad(value: string, width: number): string {
@@ -261,6 +339,12 @@ export const Fmt = {
 
   width(value: string): number {
     return Cli.stripAnsi(value).length;
+  },
+
+  truncate(value: string, width: number): string {
+    if (value.length <= width) return value;
+    if (width <= 1) return value.slice(0, width);
+    return `${value.slice(0, Math.max(0, width - 1))}…`;
   },
 
   updatedRows(result: t.WorkspaceUpgrade.ApplyResult): readonly UpdatedRow[] {

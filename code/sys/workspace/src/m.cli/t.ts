@@ -25,6 +25,8 @@ export declare namespace WorkspaceCli {
   export type ParsedArgs = {
     /** Apply file changes instead of only planning/reporting. */
     readonly apply?: boolean;
+    /** Include prerelease versions in upgrade consideration. */
+    readonly prerelease?: boolean;
     /** Explicit interaction override. */
     readonly 'non-interactive'?: boolean;
     /** Upgrade policy mode override. */
@@ -45,6 +47,8 @@ export declare namespace WorkspaceCli {
     readonly mode: Mode;
     /** Upgrade policy mode passed through to workspace orchestration. */
     readonly policy: t.EsmPolicyMode;
+    /** Whether prerelease versions are considered during collection and planning. */
+    readonly prerelease: boolean;
     /** Dependency names or aliases to include. */
     readonly include: readonly string[];
     /** Dependency names or aliases to exclude. */

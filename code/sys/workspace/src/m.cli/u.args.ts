@@ -5,7 +5,7 @@ export function parseArgs(
   argv: readonly string[],
 ): t.WorkspaceCli.ResolvedOptions {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
-    boolean: ['apply', 'non-interactive'],
+    boolean: ['apply', 'prerelease', 'non-interactive'],
     string: ['mode', 'deps', 'include', 'exclude'],
   });
 
@@ -13,6 +13,7 @@ export function parseArgs(
     deps: Path.resolve(cwd, wrangle.one(args.deps) ?? 'deps.yaml'),
     mode: args['non-interactive'] === true ? 'non-interactive' : 'interactive',
     policy: wrangle.policy(args.mode),
+    prerelease: args.prerelease === true,
     include: wrangle.list(args.include),
     exclude: wrangle.list(args.exclude),
     apply: args['non-interactive'] === true ? args.apply === true : true,

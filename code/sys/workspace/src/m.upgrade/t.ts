@@ -43,6 +43,8 @@ export declare namespace WorkspaceUpgrade {
   export type Options = {
     /** Policy applied to dependency version selection. */
     readonly policy: Policy;
+    /** Whether prerelease versions are considered during collection and planning. */
+    readonly prerelease?: boolean;
     /** Registries consulted for available package versions. */
     readonly registries?: readonly t.EsmRegistry[];
     /** Emit orchestration logging to the console. */
@@ -55,6 +57,8 @@ export declare namespace WorkspaceUpgrade {
   export type ResolvedOptions = {
     /** Policy applied to dependency version selection. */
     readonly policy: Policy;
+    /** Whether prerelease versions are considered during collection and planning. */
+    readonly prerelease: boolean;
     /** Registries consulted for available package versions. */
     readonly registries: readonly t.EsmRegistry[];
     /** Whether orchestration logging was enabled. */

@@ -59,12 +59,12 @@ export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options)
       continue;
     }
 
-    const available = wrangle.available(versions.data.versions);
+    const available = wrangle.available(versions.data.versions, resolved.prerelease);
     candidates.push({
       entry,
       registry: entry.module.registry as t.EsmRegistry,
       current,
-      latest: versions.data.latest || undefined,
+      latest: available[0],
       available,
     });
   }
@@ -87,6 +87,7 @@ const wrangle = {
   options(options?: t.WorkspaceUpgrade.Options): t.WorkspaceUpgrade.ResolvedOptions {
     return {
       policy: options?.policy ?? { mode: 'minor' },
+      prerelease: options?.prerelease ?? false,
       registries: options?.registries ?? ['jsr', 'npm'],
       log: options?.log ?? false,
       progress: options?.progress,
@@ -117,12 +118,19 @@ const wrangle = {
     };
   },
 
-  available(versions: Record<string, unknown>): readonly t.StringSemver[] {
+  available(versions: Record<string, unknown>, prerelease: boolean): readonly t.StringSemver[] {
     const keys = Object.keys(versions ?? {});
     const clean = keys
       .map((version) => wrangle.current(version))
-      .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0);
+      .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0)
+      .filter((version) => prerelease || wrangle.released(version));
     return Semver.sort([...new Set(clean)], { order: 'desc' });
+  },
+
+  released(version: t.StringSemver): boolean {
+    const parsed = Semver.parse(version);
+    const prerelease = parsed.version.prerelease ?? [];
+    return !parsed.error && prerelease.length === 0;
   },
 
   missingEntry(path: string): t.EsmDeps.Entry {

@@ -111,6 +111,74 @@ describe('Workspace.Upgrade.collect', () => {
     );
   });
 
+  it('filters prerelease versions out of collected upgrade candidates', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.released-only');
+    await writeDepsYaml(fs, `
+      deno.json:
+        - import: npm:@vitejs/plugin-react@5.1.4
+        - import: npm:monaco-editor@0.55.1
+    `);
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          '@vitejs/plugin-react': versionsNpm('@vitejs/plugin-react', '6.0.1', {
+            '5.1.4': {},
+            '5.2.0': {},
+            '6.0.1': {},
+          }),
+          'monaco-editor': versionsNpm('monaco-editor', '0.56.0-dev-20260211', {
+            '0.55.1': {},
+            '0.56.0-dev-20260211': {},
+          }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('deps.yaml') });
+
+        expect(
+          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+        ).to.eql([
+          ['@vitejs/plugin-react', '5.1.4', '6.0.1', ['6.0.1', '5.2.0', '5.1.4']],
+          ['monaco-editor', '0.55.1', '0.55.1', ['0.55.1']],
+        ]);
+      },
+    );
+  });
+
+  it('includes prerelease versions when explicitly enabled', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.prerelease');
+    await writeDepsYaml(fs, `
+      deno.json:
+        - import: npm:monaco-editor@0.55.1
+    `);
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          'monaco-editor': versionsNpm('monaco-editor', '0.56.0-dev-20260211', {
+            '0.55.1': {},
+            '0.56.0-dev-20260211': {},
+          }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          { policy: { mode: 'latest' }, prerelease: true },
+        );
+
+        expect(
+          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+        ).to.eql([
+          ['monaco-editor', '0.55.1', '0.56.0-dev-20260211', ['0.56.0-dev-20260211', '0.55.1']],
+        ]);
+      },
+    );
+  });
+
   it('returns a deps load failure when the manifest cannot be loaded', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.missing-deps');
     const result = await WorkspaceUpgrade.collect({ cwd: fs.dir, deps: fs.join('missing.yaml') });

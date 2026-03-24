@@ -63,6 +63,7 @@ const wrangle = {
         mode: options.policy,
         exclude: exclude.length > 0 ? exclude : undefined,
       },
+      prerelease: options.prerelease,
     };
   },
 
@@ -76,6 +77,7 @@ const wrangle = {
 
     const collected = await WorkspaceUpgrade.collect(input, {
       policy: { mode: options.policy, exclude: options.exclude },
+      prerelease: options.prerelease,
     });
 
     const include = options.include;
