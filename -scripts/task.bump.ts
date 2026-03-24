@@ -79,10 +79,7 @@ export async function main(options: Options = {}) {
     from: wrangle.from(options, args),
     candidates,
   });
-  const plan = await wrangle.runSilentPhase(
-    'deriving affected downstream packages (topological)...',
-    () => wrangle.plan(candidates, selection),
-  );
+  const plan = await wrangle.runPlanningPhase(candidates, selection);
   const selected = plan.selected;
   const selectedPaths = new Set(selected.map((child) => packagePath(child)));
 
@@ -246,11 +243,12 @@ const wrangle = {
   async plan(
     candidates: readonly Candidate[],
     selection: { readonly value: t.StringPath },
+    packages: { readonly edges: readonly { readonly from: t.StringPath; readonly to: t.StringPath }[] },
   ) {
     const root = candidates.find((candidate) => packagePath(candidate) === selection.value);
     if (!root) throw new Error(`Unknown bump root: ${selection.value}`);
 
-    const selectedPaths = new Set<string>(await wrangle.dependentClosure(selection.value));
+    const selectedPaths = new Set<string>(wrangle.dependentClosure(selection.value, packages.edges));
     const selected = candidates.filter((candidate) => selectedPaths.has(packagePath(candidate)));
     return { kind: 'selection', root, selected } as const;
   },
@@ -279,18 +277,13 @@ const wrangle = {
     return [`${bullet} ${pkg}`, current, arrow, next];
   },
 
-  async dependentClosure(root: t.StringPath) {
-    const graph = await Workspace.Graph.collect({
-      cwd: Deno.cwd(),
-      source: { include: Paths.workspace.map((path) => `${path}/deno.json`) },
-    });
-    const packages = Workspace.Graph.packageEdges(graph);
+  dependentClosure(root: t.StringPath, edges: readonly { readonly from: t.StringPath; readonly to: t.StringPath }[]) {
     const queue = [root];
     const seen = new Set<t.StringPath>(queue);
 
     while (queue.length > 0) {
       const next = queue.shift()!;
-      for (const edge of packages.edges) {
+      for (const edge of edges) {
         if (edge.from !== next || seen.has(edge.to)) continue;
         seen.add(edge.to);
         queue.push(edge.to);
@@ -315,9 +308,33 @@ const wrangle = {
 
   async runSilentPhase<T>(label: string, fn: () => Promise<T>) {
     const spinner = Cli.spinner('', { start: false });
+    console.info();
     spinner.start(Cli.Fmt.spinnerText(label));
     try {
       return await fn();
+    } finally {
+      spinner.stop();
+    }
+  },
+
+  async runPlanningPhase(
+    candidates: readonly Candidate[],
+    selection: { readonly value: t.StringPath },
+  ) {
+    const spinner = Cli.spinner('', { start: false });
+    console.info();
+    spinner.start(Cli.Fmt.spinnerText('loading workspace dependency graph...'));
+    try {
+      const graph = await Workspace.Graph.collect({
+        cwd: Deno.cwd(),
+        source: { include: Paths.workspace.map((path) => `${path}/deno.json`) },
+      });
+
+      spinner.text = Cli.Fmt.spinnerText('collapsing package dependency edges...');
+      const packages = Workspace.Graph.packageEdges(graph);
+
+      spinner.text = Cli.Fmt.spinnerText('deriving affected downstream packages (topological)...');
+      return await wrangle.plan(candidates, selection, packages);
     } finally {
       spinner.stop();
     }
