@@ -2,6 +2,11 @@
 This file adds `sys`-local constraints only.
 All broader behavior is governed by root `AGENTS.md` and canonical canon.
 
+Agents MUST:
+- continue AGENTS.md traversal upward and apply the parent `AGENTS.md`
+- treat the parent bootstrap and its canonical references as authoritative
+- apply this file cumulatively with that canon
+
 
 ====================================================================================================
 
