@@ -1,6 +1,7 @@
 import {
-  afterAll,
-  beforeAll,
+  act,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -14,7 +15,7 @@ import { Controlled } from '../ui.Controlled.tsx';
 import { useControlledView } from '../u.controller.ts';
 
 describe('HttpOrigin.UI.Controlled', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('useControlledView reflects initial external signal state on first render', async () => {
     function Probe(props: t.HttpOrigin.ControlledProps) {
@@ -24,20 +25,22 @@ describe('HttpOrigin.UI.Controlled', () => {
 
     const env = Signal.create<t.HttpOrigin.Env>('production');
     const res = await TestReact.render(<Probe env={env} spec={Sample.media} />, { strict: false });
-
-    expect(res.container.textContent).to.include('"env":"production"');
-    expect(res.container.textContent).to.include('"hasOnChange":true');
-
-    res.dispose();
+    try {
+      expect(res.container.textContent).to.include('"env":"production"');
+      expect(res.container.textContent).to.include('"hasOnChange":true');
+    } finally {
+      act(() => res.dispose());
+    }
   });
 
   it('renders production origin data on first mount with signal-backed env', async () => {
     const env = Signal.create<t.HttpOrigin.Env>('production');
     const res = await TestReact.render(<Controlled env={env} spec={Sample.media} />, { strict: false });
-
-    expect(res.container.textContent?.includes('api.example.com')).to.eql(true);
-    expect(res.container.textContent?.includes('img.example.com')).to.eql(true);
-
-    res.dispose();
+    try {
+      expect(res.container.textContent?.includes('api.example.com')).to.eql(true);
+      expect(res.container.textContent?.includes('img.example.com')).to.eql(true);
+    } finally {
+      act(() => res.dispose());
+    }
   });
 });

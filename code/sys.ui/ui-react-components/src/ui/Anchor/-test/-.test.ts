@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-  afterAll,
-  beforeAll,
+  act,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -12,7 +13,7 @@ import {
 import { A, Anchor } from '../mod.ts';
 
 describe('Anchor', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
@@ -64,8 +65,8 @@ describe('Anchor', () => {
       expect(event.defaultPrevented).to.eql(true);
       expect(disabledClicks).to.eql(0);
 
-      res.dispose();
-      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      act(() => res.dispose());
+      await Promise.resolve();
     });
   });
 });

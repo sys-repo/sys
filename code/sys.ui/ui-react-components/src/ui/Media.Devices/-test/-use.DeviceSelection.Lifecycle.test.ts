@@ -1,7 +1,7 @@
 import {
   type t,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -17,7 +17,7 @@ import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts
  * Focus: restore, fallback, persist, clear, and reorder stability.
  */
 describe('hook: useDeviceSelectionLifecycle', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   const video = { deviceId: 'v1', kind: 'videoinput', label: 'Cam 1' } as MediaDeviceInfo;
   const mic = { deviceId: 'a1', kind: 'audioinput', label: 'Mic 1' } as MediaDeviceInfo;
@@ -66,10 +66,12 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (selA$.value = e.device),
         }),
       );
-
-      await Time.waitFor(() => selA$.value?.deviceId === 'v1');
-      expect(selA$.value?.deviceId).to.equal('v1');
-      unmount();
+      try {
+        await Time.waitFor(() => selA$.value?.deviceId === 'v1');
+        expect(selA$.value?.deviceId).to.equal('v1');
+      } finally {
+        unmount();
+      }
     }
 
     // Mount B: restore from LocalStorage
@@ -110,8 +112,11 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (sel$.value = e.device),
         }),
       );
-      await Time.waitFor(() => sel$.value?.deviceId === 'v1');
-      unmount();
+      try {
+        await Time.waitFor(() => sel$.value?.deviceId === 'v1');
+      } finally {
+        unmount();
+      }
     }
 
     // Mount without "v1" (ghost): expect fallback to "a1"
@@ -127,9 +132,12 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (sel$.value = e.device),
         }),
       );
-      await Time.waitFor(() => sel$.value?.deviceId === 'a1');
-      expect(sel$.value?.deviceId).to.equal('a1');
-      unmount();
+      try {
+        await Time.waitFor(() => sel$.value?.deviceId === 'a1');
+        expect(sel$.value?.deviceId).to.equal('a1');
+      } finally {
+        unmount();
+      }
     }
 
     // New mount restores new fallback
