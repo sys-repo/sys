@@ -1,4 +1,4 @@
-import { c, Fs, type t } from './common.ts';
+import { c, Fs, Str, type t } from './common.ts';
 import { renderPkg } from './u.render.ts';
 import { resolvePackagePaths } from './u.source.ts';
 import { resolveExistingTargets } from './u.targets.ts';
@@ -93,7 +93,8 @@ function logSyncResult(
   for (const item of result.packages) {
     const path = Fs.trimCwd(item.packagePath);
     if (item.kind !== 'written') continue;
-    console.info(`${c.cyan('Updated package:')} ${c.gray(path)} ${c.white(`(${item.touched.length} file(s))`)}`);
+    const files = `${item.touched.length} ${Str.plural(item.touched.length, 'file')}`;
+    console.info(`${c.cyan('Updated package:')} ${c.gray(path)} ${c.white(`(${files})`)}`);
   }
 
   const summary = [

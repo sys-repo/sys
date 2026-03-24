@@ -84,11 +84,11 @@ export async function main(options: Options = {}) {
   console.info();
 
   if (options.final && typeof options.prepared === 'number') {
-    const msg = `chore(workspace): prepared ${options.prepared} ${Str.plural(options.prepared, 'submodule')} (${jsr.count} jsr ${Str.plural(jsr.count, 'module')})`;
-    const workspaceCommit = c.italic(c.green(msg));
+    const msg = `chore(workspace): prepared ${options.prepared} ${Str.plural(options.prepared, 'submodule')} (${jsr.count} jsr:publish ${Str.plural(jsr.count, 'module')})`;
+    const workspaceCommit = c.white(msg);
     console.info();
     console.info(c.gray('━'.repeat(84)));
-    console.info(c.gray('final commit msg:'), workspaceCommit);
+    console.info(c.bold(c.brightCyan('Final commit msg:')), workspaceCommit);
     console.info();
   }
 }
