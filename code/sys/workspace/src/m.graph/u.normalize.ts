@@ -92,6 +92,8 @@ function toModuleKey(cwd: string, packages: readonly t.WorkspaceGraph.Package[],
 }
 
 function packageForModule(packages: readonly t.WorkspaceGraph.Package[], key: string) {
+  // Keep the lookup simple at current workspace scale; if this ever becomes
+  // hot, replace the per-call sort with a precomputed longest-prefix index.
   return [...packages]
     .toSorted((a, b) => b.path.length - a.path.length || a.path.localeCompare(b.path))
     .find((pkg) => key === pkg.path || key.startsWith(`${pkg.path}/`));

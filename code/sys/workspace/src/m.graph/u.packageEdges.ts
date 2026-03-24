@@ -16,6 +16,8 @@ export const packageEdges: t.WorkspaceGraph.Lib['packageEdges'] = (graph) => {
       to: dependent.packagePath,
       imports: [],
     };
+    // Keep witness imports incrementally sorted for deterministic output at the
+    // current N; if this becomes hot, batch the sort after accumulation.
     edges.set(key, {
       ...current,
       imports: [...current.imports, { from: edge.from, to: edge.to, kind: edge.kind }].toSorted(
