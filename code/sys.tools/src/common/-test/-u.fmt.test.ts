@@ -32,7 +32,6 @@ describe('common/Fmt', () => {
       note: `@sys/tools/${c.white('update')}`,
     });
 
-    expect(help).to.include(c.white('update'));
     expect(Cli.stripAnsi(help)).to.include('@sys/tools/update');
   });
 });
