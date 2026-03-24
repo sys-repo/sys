@@ -7,4 +7,8 @@ describe('Cli.Fmt', () => {
     expect(m.Fmt).to.equal(Fmt);
     expect(m.Fmt).to.equal(Cli.Fmt);
   });
+
+  it('formats spinner text consistently', () => {
+    expect(Cli.Fmt.spinnerText('working...')).to.eql(Fmt.spinnerText('working...'));
+  });
 });

@@ -6,6 +6,7 @@ import { Format as PathFormat } from '@sys/std/path';
 import { type t, c } from '../common.ts';
 import { hr } from './m.Fmt.Hr.ts';
 import { Help } from './m.Fmt.Help.ts';
+import { spinnerText } from './m.Fmt.spinnerText.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 
 export const Path: t.CliFormatLib['Path'] = {
@@ -20,6 +21,7 @@ export const Path: t.CliFormatLib['Path'] = {
 /** Command-line formatting helper library. */
 export const Fmt: t.CliFormatLib = {
   hr,
+  spinnerText,
   Help,
   Tree,
   Path,

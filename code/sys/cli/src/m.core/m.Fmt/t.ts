@@ -12,6 +12,9 @@ export type CliFormatLib = {
   /** Horizontal rule display formatting. */
   hr: CliFormatHr;
 
+  /** Common spinner status text formatting. */
+  spinnerText(text: string): string;
+
   /** Help page formatting. */
   readonly Help: CliFormatHelpLib;
 
