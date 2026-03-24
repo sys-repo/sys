@@ -6,6 +6,9 @@ const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
+type Options = {
+  readonly orderedPaths?: readonly string[];
+};
 
 /**
  * Proecss the dependencies into a`deno.json` and `package.json` files.
@@ -100,7 +103,7 @@ async function runTaskOrThrow(path: string, command: string) {
  * Prepare the [deno.json | package.json] files from
  * definitions within the workspace `deps.yaml` configuration.
  */
-export async function main(context: CommitContext = 'prep') {
+export async function main(context: CommitContext = 'prep', options: Options = {}) {
   const spinner = Cli.spinner('', { start: false });
   try {
     await processDeps();
@@ -108,7 +111,7 @@ export async function main(context: CommitContext = 'prep') {
     await runSilentPhase(
       spinner,
       `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
-      () => prepPaths(),
+      () => prepPaths(undefined, options.orderedPaths),
     );
 
     console.info(Cli.Fmt.spinnerText('syncing package metadata...'));

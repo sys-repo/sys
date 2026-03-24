@@ -126,7 +126,7 @@ export async function main(options: Options = {}) {
 
   console.info(Cli.Fmt.spinnerText('running workspace prep...'));
   const prepare = await import('./task.prep.ts');
-  const prepared = await prepare.main('bump');
+  const prepared = await prepare.main('bump', { orderedPaths: candidates.map((child) => packagePath(child)) });
   await prepCiDeno();
   await prepCi({ prepared, final: true, sourcePaths: selected.map((child) => packagePath(child)) });
 
