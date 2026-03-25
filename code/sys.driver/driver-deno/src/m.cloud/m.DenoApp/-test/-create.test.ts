@@ -1,10 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { dynamicEntryConfig } from '../../m.DenoDeploy/m.pipeline/u.prepare.ts';
 import { DeployCli } from '../../u.cli.deploy/mod.ts';
 
 describe('DenoApp.create', () => {
   it('builds the native deno deploy create invocation from a narrow app request', () => {
-    const dynamic = dynamicEntryConfig();
     const cli = DeployCli.create({
       app: 'my-app',
       org: 'my-org',
@@ -12,13 +10,13 @@ describe('DenoApp.create', () => {
       region: 'global',
       noWait: true,
       doNotUseDetectedBuildConfig: true,
-      appDirectory: dynamic.appDirectory,
+      appDirectory: './',
       installCommand: 'true',
       buildCommand: 'true',
       preDeployCommand: 'true',
       runtimeMode: 'dynamic',
-      entrypoint: dynamic.entrypoint,
-      workingDirectory: dynamic.workingDirectory,
+      entrypoint: './entry.ts',
+      workingDirectory: './',
       dryRun: true,
       root: '/repo/code/projects/foo',
       log: true,

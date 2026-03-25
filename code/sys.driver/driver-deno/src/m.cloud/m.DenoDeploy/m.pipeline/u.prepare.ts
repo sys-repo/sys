@@ -2,14 +2,10 @@ import { type t, Fs, Is, Path } from './common.ts';
 import { FILE, renderStageEntrypoints } from '../m.stage/-tmpl/mod.ts';
 
 type O = Record<string, unknown>;
-
-export function dynamicEntryConfig() {
-  return {
-    appDirectory: './',
-    entrypoint: './entry.ts',
-    workingDirectory: './',
-  } as const;
-}
+const ENTRY_CONFIG = {
+  workingDirectory: './',
+  entrypoint: `./${FILE.entry}`,
+} as const;
 
 export async function prepare(
   stage: t.DenoDeploy.Stage.Result,
@@ -22,7 +18,7 @@ export async function prepare(
 
   await ensureDeployConfig(stage.root);
   await ensureStagedDistIncluded(stage.root, stagedTargetRel);
-  await Fs.ensureDir(Fs.join(stage.root, 'src', 'm.server'));
+  await Fs.ensureDir(Fs.dirname(compatEntrypoint));
   await Fs.write(compatEntrypoint, rendered.compatEntrypoint);
   const distHash = await loadDistHash(stage.root, stagedTargetRel);
 
@@ -38,6 +34,9 @@ export async function prepare(
   };
 }
 
+/**
+ * Helpers:
+ */
 async function ensureDeployConfig(root: string) {
   const path = Fs.join(root, 'deno.json');
   const res = await Fs.readJson<O>(path);
@@ -45,11 +44,14 @@ async function ensureDeployConfig(root: string) {
 
   const current = res.data;
   const currentDeploy = Is.record(current.deploy) ? current.deploy : {};
-  const dynamic = dynamicEntryConfig();
 
   await Fs.writeJson(path, {
     ...current,
-    deploy: { ...currentDeploy, entrypoint: dynamic.entrypoint, cwd: dynamic.workingDirectory },
+    deploy: {
+      ...currentDeploy,
+      entrypoint: ENTRY_CONFIG.entrypoint,
+      cwd: ENTRY_CONFIG.workingDirectory,
+    },
   });
 }
 
@@ -88,6 +90,5 @@ async function loadDistHash(root: string, targetRel: string) {
 
   const hash = res.data.hash;
   if (!Is.record(hash)) return undefined;
-
   return Is.string(hash.digest) && hash.digest.length > 0 ? hash.digest : undefined;
 }
