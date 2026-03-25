@@ -15,7 +15,7 @@ export type CliLib = {
   readonly Table: t.CliTableLib;
 
   /** Tools for working with a CLI spinner. */
-  readonly Spinner: t.CliSpinnerLib;
+  readonly Spinner: t.CliSpinner.Lib;
 
   /** Common formatting heleprs. */
   readonly Fmt: t.CliFormatLib;
@@ -37,8 +37,8 @@ export type CliLib = {
   /** Create a new Table generator instance. */
   table: t.CliTableLib['create'];
 
-  /** Create (and start) a new spinner instance. */
-  spinner: t.CliSpinnerLib['create'];
+  /** Create and start a new spinner instance. */
+  spinner: t.CliSpinner.Lib['start'];
 
   /** Wait for the specified milliseconds. */
   wait: t.TimeLib['wait'];

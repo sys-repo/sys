@@ -9,14 +9,25 @@
  * import { Time } from '@sys/std';
  * import { Cli } from '@sys/cli';
  *
- * const spinner = Cli.spinner('My long running process...');
+ * const spinner = Cli.spinner(Cli.Fmt.spinnerText('My long running process...'));
  *
  * await Time.wait(500);
- * spinner.text = 'Doing something else...';
+ * spinner.text = Cli.Fmt.spinnerText('Doing something else...');
  * await Time.wait(1000);
  *
- * spinner.succeed('Done!');
+ * spinner.succeed(Cli.Fmt.spinnerText('Done!'));
  * Deno.exit(0);
+ * ```
+ *
+ * @example
+ * Create a dormant spinner instance:
+ *
+ * ```ts
+ * import { Cli } from '@sys/cli';
+ *
+ * const spinner = Cli.Spinner.create(Cli.Fmt.spinnerText('Waiting...'));
+ * spinner.start();
+ * spinner.succeed(Cli.Fmt.spinnerText('Done!'));
  * ```
  *
  * @example

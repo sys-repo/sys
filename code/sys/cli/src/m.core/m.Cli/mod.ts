@@ -26,7 +26,7 @@ export const Cli: t.CliLib = {
 
   args: Args.parse,
   table: Table.create,
-  spinner: Spinner.create,
+  spinner: Spinner.start,
   wait: Time.wait,
   keypress: Keyboard.keypress,
 

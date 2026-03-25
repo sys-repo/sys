@@ -3,13 +3,14 @@
  */
 export declare namespace CliSpinner {
   export type Options = {
-    start?: boolean;
     silent?: boolean;
   };
 
   export type Lib = {
-    /** Create (and start) a new spinner instance. */
-    create(text?: string, options?: Options): Instance;
+    /** Create a new spinner instance without starting it. */
+    create(text?: string): Instance;
+    /** Create and start a new spinner instance. */
+    start(text?: string, options?: Options): Instance;
   };
 
   export type Instance = {
