@@ -68,14 +68,14 @@ export async function pullHttpBundle(
 
     if (!result.ok) {
       const error = summarizePullFailure(result);
-      spinner.fail(error);
+      spinner.fail(Fmt.spinnerText(error));
       return fail(error);
     } else {
       const size = c.dim(`(${Fmt.bundleSize(dist)})`);
       const fullpath = Fmt.prettyPath(targetDir);
       const path = `./${c.cyan(bundle.local.dir)} ${size}\n  ${fullpath}`;
       const msg = c.gray(`${c.green('bundle pulled')} → ${path}`);
-      spinner.succeed(msg);
+      spinner.succeed(Fmt.spinnerText(msg));
     }
 
     return done({
@@ -87,7 +87,7 @@ export async function pullHttpBundle(
       },
     });
   } catch (error) {
-    spinner.fail('bundle pull error');
+    spinner.fail(Fmt.spinnerText('bundle pull error'));
     return fail(errorMessage(error));
   } finally {
     spinner.stop();

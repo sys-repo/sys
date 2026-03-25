@@ -1,4 +1,5 @@
 import { type t, c, Cli, Fs, Pkg } from '../../common.ts';
+import { Fmt } from '../../u.fmt.ts';
 import {
   downloadGithubAsset,
   downloadGithubAssetById,
@@ -6,8 +7,14 @@ import {
   loadGithubToken,
 } from '../../u.github/u.client.ts';
 import { resolveGithubReleaseBundle } from '../../u.github/u.release.resolve.ts';
-import { Fmt } from '../../u.fmt.ts';
-import { clearTargetDir, done, errorMessage, fail, githubTokenHelpText, mapAuthError } from './common.ts';
+import {
+  clearTargetDir,
+  done,
+  errorMessage,
+  fail,
+  githubTokenHelpText,
+  mapAuthError,
+} from './common.ts';
 
 export async function pullGithubReleaseBundle(
   baseDir: t.StringDir,
@@ -84,11 +91,8 @@ export async function pullGithubReleaseBundle(
     }
 
     const dist = await computeReleaseDist(targetRoot);
-    spinner.succeed(
-      c.gray(
-        `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`,
-      ),
-    );
+    const msgPulled = `${c.green('release pulled')} → ${c.cyan(`${bundle.local.dir}/${releaseTagDir}`)} (${ops.length} assets)`;
+    spinner.succeed(Fmt.spinnerText(c.gray(msgPulled)));
 
     return done({
       ok: true,

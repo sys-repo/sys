@@ -27,7 +27,7 @@ export async function selectAndConvert(args: {
     const destLabel = command === 'webm-to-mp4' ? c.cyan('.mp4') : c.cyan('.webm');
     const bytesBeforeLabel = c.white(Str.bytes(bytesBefore));
     const spinnerLabel = c.gray(`Converting ${prettySrc} (${bytesBeforeLabel}) → ${destLabel}`);
-    const spin = Cli.spinner(spinnerLabel);
+    const spin = Cli.spinner(Cli.Fmt.spinnerText(spinnerLabel));
 
     try {
       const out = await convertOne({ command, src });

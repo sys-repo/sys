@@ -21,7 +21,7 @@ export async function checkUpToDate(args: {
   const distUrlText = `${c.white(Str.trimTrailingSlashes(base))}/${c.cyan('dist.json')}`;
   const client = Http.fetcher();
   const spinner = Cli.spinner();
-  spinner.start(c.italic(c.gray(`checking version ${distUrlText}`)));
+  spinner.start(Cli.Fmt.spinnerText(c.italic(c.gray(`checking version ${distUrlText}`))));
   const remote = await client.json<t.DistPkg>(distUrl);
   spinner.stop();
   if (!remote.ok) return { ok: false, reason: 'remote-fetch-failed', error: remote.error };

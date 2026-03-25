@@ -44,7 +44,7 @@ export async function runUpdate(
   const msg = `updating ${c.white(pkg.name)} from ${version.local} to ${c.green(version.latest)}...`;
 
   /** Run process: */
-  const spinner = Cli.spinner(c.gray(msg)).start();
+  const spinner = Cli.Spinner.start(Cli.Fmt.spinnerText(msg));
   const out = await (async () => {
     try {
       return await refreshCache(cwd);

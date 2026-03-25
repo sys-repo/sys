@@ -1,3 +1,4 @@
+import type { CliSpinner } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 import { main as prepPaths } from './task.prep.paths.ts';
@@ -105,7 +106,7 @@ async function runTaskOrThrow(path: string, command: string) {
  * definitions within the workspace `deps.yaml` configuration.
  */
 export async function main(context: CommitContext = 'prep', options: Options = {}) {
-  const spinner = Cli.spinner('', { start: false });
+  const spinner = Cli.Spinner.create('');
   try {
     await processDeps();
     const prep = await Workspace.Prep.run();
@@ -126,7 +127,7 @@ export async function main(context: CommitContext = 'prep', options: Options = {
     return prepared;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    spinner.fail(`Prep failed: ${message}`);
+    spinner.fail(Cli.Fmt.spinnerText(`Prep failed: ${message}`));
     throw err;
   } finally {
     spinner.stop();
@@ -134,7 +135,7 @@ export async function main(context: CommitContext = 'prep', options: Options = {
 }
 
 async function runSilentPhase<T>(
-  spinner: ReturnType<typeof Cli.spinner>,
+  spinner: CliSpinner.Instance,
   label: string,
   fn: () => Promise<T>,
 ) {

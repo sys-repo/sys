@@ -333,7 +333,7 @@ const wrangle = {
   },
 
   async runSilentPhase<T>(label: string, fn: () => Promise<T>) {
-    const spinner = Cli.spinner('', { start: false });
+    const spinner = Cli.Spinner.create('');
     console.info();
     spinner.start(Cli.Fmt.spinnerText(label));
     try {
@@ -347,7 +347,7 @@ const wrangle = {
     candidates: readonly Candidate[],
     selection: { readonly value: t.StringPath },
   ) {
-    const spinner = Cli.spinner('', { start: false });
+    const spinner = Cli.Spinner.create('');
     console.info();
     spinner.start(Cli.Fmt.spinnerText('loading workspace dependency cache...'));
     try {
