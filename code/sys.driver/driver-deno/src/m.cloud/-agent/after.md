@@ -46,12 +46,26 @@ Normal local package start/test flows should converge on the same
 
 This is now refinement work, not contract discovery.
 
-### Deploy app creation
+### Sample / probe seam cleanup
 
-Add a principled app-creation flow when the deploy target does not yet exist.
+The internal sample/probe seam now lives under:
 
-This is a deploy-operations concern, not part of the core staged entry
-contract.
+- `src/m.cloud/m.DenoDeploy/-test.sample`
+
+Keep sample deploy/create orchestration owned there and avoid rebuilding a
+second seam in `-scripts/`.
+
+### Deploy app creation follow-through
+
+Principled app creation is now in place through `DenoApp.create(...)` and the
+staged sample create flow.
+
+What remains is follow-through work:
+
+- decide how this plugs into `@sys/tools/deploy`
+- decide whether app deletion should be added through a separate owned API path
+- keep create/deploy operational surfaces coherent without widening the core
+  staged entry contract
 
 ### Staged workspace pruning
 

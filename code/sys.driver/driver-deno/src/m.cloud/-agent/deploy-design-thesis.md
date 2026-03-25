@@ -137,6 +137,7 @@ The major hurdle is now behind us:
 - `DenoEntry.serve(...)` is live-proven
 - published JSR import authority is live-proven
 - the external staged deploy lane now passes end-to-end
+- staged app creation through `DenoApp.create(...)` is live-proven
 
 The tactical hacks from the discovery/debugging loop can and should continue to
 be treated as temporary seam work, not architecture. What remains now is mostly
@@ -150,7 +151,7 @@ The next step is not more platform probing.
 The next step is to keep refining around the now-proven contract:
 
 1. align normal local package start/test flows around the same entry seam
-2. continue tightening deploy operations around owned CLI/API boundaries
+2. continue tightening deploy and app-creation operations around owned CLI/API boundaries
 3. remove temporary debug surfaces and stale proof scaffolding
 4. only then consider optimization work like staged workspace pruning
 
