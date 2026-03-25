@@ -6,7 +6,6 @@ describe('scripts/task.prep.ci', () => {
     const paths = [
       'code/sys/types',
       'code/sys/std',
-      'deploy/tmp.db.team',
       'code/sys/workspace',
       'deploy/@tdb.edu.slug',
     ];
