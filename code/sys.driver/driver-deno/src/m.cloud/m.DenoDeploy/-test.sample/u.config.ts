@@ -15,7 +15,7 @@ export async function requireExternalDeployConfig(): Promise<t.DenoDeploy.Deploy
 
 export async function requireTmpDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
   return requireDeployConfig({
-    retry: 'deno task tmp',
+    retry: 'deno task sample:deploy',
     appNote: 'is required for this sample run.',
   });
 }

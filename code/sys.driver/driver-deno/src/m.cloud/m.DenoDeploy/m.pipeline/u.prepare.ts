@@ -3,6 +3,14 @@ import { FILE, renderStageEntrypoints } from '../m.stage/-tmpl/mod.ts';
 
 type O = Record<string, unknown>;
 
+export function dynamicEntryConfig() {
+  return {
+    appDirectory: './',
+    entrypoint: './entry.ts',
+    workingDirectory: './',
+  } as const;
+}
+
 export async function prepare(
   stage: t.DenoDeploy.Stage.Result,
 ): Promise<t.DenoDeploy.Pipeline.Prepared> {
@@ -37,10 +45,11 @@ async function ensureDeployConfig(root: string) {
 
   const current = res.data;
   const currentDeploy = Is.record(current.deploy) ? current.deploy : {};
+  const dynamic = dynamicEntryConfig();
 
   await Fs.writeJson(path, {
     ...current,
-    deploy: { ...currentDeploy, entrypoint: './entry.ts', cwd: './' },
+    deploy: { ...currentDeploy, entrypoint: dynamic.entrypoint, cwd: dynamic.workingDirectory },
   });
 }
 

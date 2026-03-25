@@ -1,12 +1,24 @@
 import { describe, expect, it } from '../../../-test.ts';
+import { dynamicEntryConfig } from '../../m.DenoDeploy/m.pipeline/u.prepare.ts';
 import { DeployCli } from '../../u.cli.deploy/mod.ts';
 
 describe('DenoApp.create', () => {
   it('builds the native deno deploy create invocation from a narrow app request', () => {
+    const dynamic = dynamicEntryConfig();
     const cli = DeployCli.create({
       app: 'my-app',
       org: 'my-org',
       token: 'abc123',
+      region: 'global',
+      noWait: true,
+      doNotUseDetectedBuildConfig: true,
+      appDirectory: dynamic.appDirectory,
+      installCommand: 'true',
+      buildCommand: 'true',
+      preDeployCommand: 'true',
+      runtimeMode: 'dynamic',
+      entrypoint: dynamic.entrypoint,
+      workingDirectory: dynamic.workingDirectory,
       dryRun: true,
       root: '/repo/code/projects/foo',
       log: true,
@@ -14,17 +26,37 @@ describe('DenoApp.create', () => {
 
     expect(cli).to.eql({
       cmd: 'deno',
-      cwd: Deno.cwd(),
+      cwd: '/repo/code/projects/foo',
       args: [
         'deploy',
         'create',
+        '--source',
+        'local',
         '--app',
         'my-app',
         '--org',
         'my-org',
         '--token',
         'abc123',
+        '--region',
+        'global',
+        '--no-wait',
         '--dry-run',
+        '--do-not-use-detected-build-config',
+        '--app-directory',
+        './',
+        '--install-command',
+        'true',
+        '--build-command',
+        'true',
+        '--pre-deploy-command',
+        'true',
+        '--runtime-mode',
+        'dynamic',
+        '--entrypoint',
+        './entry.ts',
+        '--working-directory',
+        './',
         '/repo/code/projects/foo',
       ],
     });
@@ -39,8 +71,12 @@ describe('DenoApp.create', () => {
       args: [
         'deploy',
         'create',
+        '--source',
+        'local',
         '--app',
         'my-app',
+        '--no-wait',
+        Deno.cwd(),
       ],
     });
   });

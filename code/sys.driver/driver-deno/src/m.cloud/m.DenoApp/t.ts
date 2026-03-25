@@ -25,6 +25,36 @@ export declare namespace DenoApp {
       /** Optional explicit local root path to create from. */
       readonly root?: t.StringDir;
 
+      /** Deno Deploy region for the created application. */
+      readonly region?: 'us' | 'eu' | 'global';
+
+      /** Skip waiting for the initial remote build when true. */
+      readonly noWait?: boolean;
+
+      /** Ignore detected build config and use only explicit create settings. */
+      readonly doNotUseDetectedBuildConfig?: boolean;
+
+      /** Optional application directory for the initial remote build. */
+      readonly appDirectory?: string;
+
+      /** Optional install command for the initial remote build. */
+      readonly installCommand?: string;
+
+      /** Optional build command for the initial remote build. */
+      readonly buildCommand?: string;
+
+      /** Optional pre-deploy command for the initial remote build. */
+      readonly preDeployCommand?: string;
+
+      /** Runtime mode for the created application. */
+      readonly runtimeMode?: 'dynamic' | 'static';
+
+      /** Entrypoint for dynamic runtime mode. */
+      readonly entrypoint?: string;
+
+      /** Working directory for dynamic runtime mode. */
+      readonly workingDirectory?: string;
+
       /** Validate and simulate creation without creating the app. */
       readonly dryRun?: boolean;
 
