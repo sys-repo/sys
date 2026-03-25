@@ -9,7 +9,9 @@
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+    "tmp": "deno run -A ./-scripts/task.tmp.ts",
+    "sample:deploy": "deno run -A ./-scripts/task.sample.deploy.ts",
+    "sample:create-app": "deno run -A ./-scripts/task.sample.create-app.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
