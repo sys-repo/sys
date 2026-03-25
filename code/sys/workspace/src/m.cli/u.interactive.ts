@@ -69,9 +69,9 @@ export async function runInteractive(
 
 async function withSpinner<T>(
   message: string,
-  fn: (spinner: ReturnType<typeof Cli.spinner>) => Promise<T>,
+  fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
 ): Promise<T> {
-  const spinner = Cli.spinner(message).start();
+  const spinner = Cli.spinner(message);
   try {
     return await fn(spinner);
   } finally {

@@ -10,7 +10,7 @@ export const WorkspacePrep: t.WorkspacePrep.Lib = {
   async run(args = {}) {
     const cwd = args.cwd ?? Fs.cwd();
     const silent = args.silent ?? false;
-    const spinner = Cli.spinner('', { start: false });
+    const spinner = Cli.Spinner.create('');
     const workspace = await wrangle.runPhase(
       spinner,
       'normalizing workspace...',
@@ -39,6 +39,7 @@ export const WorkspacePrep: t.WorkspacePrep.Lib = {
  */
 const wrangle = {
   async runPhase<T>(
+    spinner: t.CliSpinner.Instance,
     label: string,
     silent: boolean,
     fn: () => Promise<T>,

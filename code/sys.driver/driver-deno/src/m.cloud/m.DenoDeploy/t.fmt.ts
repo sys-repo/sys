@@ -1,4 +1,4 @@
-import type { CliSpinnerLib } from '@sys/cli/types';
+import type { CliSpinner } from '@sys/cli/types';
 
 import type { t } from './common.ts';
 import type * as p from './t.pipeline.ts';
@@ -11,7 +11,7 @@ export type Lib = {
   spinnerText(text: string): string;
 
   /** Create a styled spinner for staged deploy progress. */
-  spinner(text: string): ReturnType<CliSpinnerLib['create']>;
+  spinner(text: string): CliSpinner.Instance;
 
   /** Listen to a pipeline handle and render operator-facing progress/output. */
   listen(deployment: p.Handle): t.Lifecycle;
