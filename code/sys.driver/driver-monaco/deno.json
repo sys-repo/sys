@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-monaco",
-  "version": "0.0.181",
+  "version": "0.0.182",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
