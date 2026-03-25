@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
 /**
  * Tools for working with a CLI spinner.
  */
-export const Spinner: t.CliSpinnerLib = {
+export const Spinner: t.CliSpinner.Lib = {
   create(text = '', options = {}) {
     const { start = true, silent = false } = options;
 

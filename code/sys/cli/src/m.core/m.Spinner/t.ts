@@ -1,9 +1,22 @@
-import type { OraSpinner } from '../t.ext.ts';
-
 /**
  * Tools for working with a CLI spinner.
  */
-export type CliSpinnerLib = {
-  /** Create (and start) a new spinner instance. */
-  create(text?: string, options?: { start?: boolean; silent?: boolean }): OraSpinner;
-};
+export declare namespace CliSpinner {
+  export type Options = {
+    start?: boolean;
+    silent?: boolean;
+  };
+
+  export type Lib = {
+    /** Create (and start) a new spinner instance. */
+    create(text?: string, options?: Options): Instance;
+  };
+
+  export type Instance = {
+    text: string;
+    start(text?: string): Instance;
+    stop(): Instance;
+    succeed(text?: string): Instance;
+    fail(text?: string): Instance;
+  };
+}

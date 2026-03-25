@@ -1,5 +1,3 @@
-export type { Ora as OraSpinner } from 'ora';
-
 /**
  * Cliffy:
  */
