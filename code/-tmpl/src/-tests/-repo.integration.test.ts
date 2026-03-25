@@ -52,6 +52,38 @@ describe('Template: repo integration', () => {
     expect(graph.data?.['.meta'].schemaVersion).to.eql(1);
   });
 
+  it('generate in temp dir → repo materializes deps.yaml and upgrade runs against it', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.upgrade-' });
+    const root = tmp.absolute;
+
+    const def = await Templates.repo();
+    const tmpl = await makeTmpl('repo');
+
+    await tmpl.write(root, { force: true });
+    await def.default(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
+
+    expect(await Fs.exists(Fs.join(root, 'deps.yaml'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(root, '-deps.yaml'))).to.eql(false);
+
+    const res = await Process.invoke({
+      cmd: 'deno',
+      args: ['task', 'upgrade', '--', '--non-interactive', '--mode', 'latest'],
+      cwd: root,
+      silent: true,
+    });
+
+    if (!res.success) {
+      const err = `Generated repo upgrade failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      throw new Error(err);
+    }
+
+    expect(await Fs.exists(Fs.join(root, 'deps.yaml'))).to.eql(true);
+    expect(await Fs.exists(Fs.join(root, '-deps.yaml'))).to.eql(false);
+    expect(res.text.stdout.includes('-deps.yaml')).to.eql(false);
+    expect(res.text.stderr.includes('-deps.yaml')).to.eql(false);
+  });
+
   it('generate in temp dir → prep generates project workflows from code/projects modules', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-workflows-' });
     const root = tmp.absolute;

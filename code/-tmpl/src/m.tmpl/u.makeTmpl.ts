@@ -32,6 +32,7 @@ const wrangle = {
     const parts = path.split('/');
     const name = parts.at(-1);
     if (name === '-deno.json') parts[parts.length - 1] = 'deno.json';
+    if (name === '-deps.yaml') parts[parts.length - 1] = 'deps.yaml';
     if (name === '-package.json') parts[parts.length - 1] = 'package.json';
     return parts.join('/');
   },
