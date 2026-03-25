@@ -1,3 +1,4 @@
+import { create } from './u.create.ts';
 import { deploy } from './u.deploy.ts';
 import { logs } from './u.logs.ts';
 
@@ -12,6 +13,7 @@ import { logs } from './u.logs.ts';
  * Do not move orchestration, env resolution, or result parsing here.
  */
 export const DeployCli = {
+  create,
   deploy,
   logs,
 } as const;

@@ -6,5 +6,7 @@ describe(`DenoApp`, () => {
     const m = await import('@sys/driver-deno/cloud');
     expect(m.DenoApp).to.equal(DenoApp);
     expect(m.DenoDeploy.App).to.equal(DenoApp);
+    expect(m.DenoApp.create).to.equal(DenoApp.create);
+    expect(typeof m.DenoApp.create).to.equal('function');
   });
 });
