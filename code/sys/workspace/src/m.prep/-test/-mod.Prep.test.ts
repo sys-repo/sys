@@ -42,6 +42,45 @@ describe('Workspace.Prep.run', () => {
     });
     expect(deno.data?.workspace).to.eql(['code/pkg-a', 'code/pkg-b']);
   });
+
+  it('suppresses prep phase output when silent is true', async () => {
+    const fs = await Testing.dir('WorkspacePrep.run.silent');
+
+    await Fs.writeJson(Fs.join(fs.dir, 'deno.json'), {
+      workspace: ['code/pkg-b', 'code/pkg-a'],
+    });
+
+    await writePackage(fs.dir, 'code/pkg-a', {
+      name: '@scope/a',
+      exports: { '.': './src/mod.ts' },
+      files: {
+        'src/mod.ts': `export const a = 'a';\n`,
+      },
+    });
+
+    await writePackage(fs.dir, 'code/pkg-b', {
+      name: '@scope/b',
+      exports: { '.': './src/mod.ts' },
+      files: {
+        'src/mod.ts': Str.dedent(`
+          import { a } from '../../pkg-a/src/mod.ts';
+          export const b = a;
+        `),
+      },
+    });
+
+    const info = console.info;
+    const logs: string[] = [];
+    console.info = (...args: unknown[]) => logs.push(args.map(String).join(' '));
+
+    try {
+      await WorkspacePrep.run({ cwd: fs.dir, silent: true });
+    } finally {
+      console.info = info;
+    }
+
+    expect(logs).to.eql([]);
+  });
 });
 
 async function writePackage(
