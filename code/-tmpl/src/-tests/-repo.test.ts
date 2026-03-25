@@ -1,6 +1,7 @@
 import { Process } from '@sys/process';
+import type * as w from '@sys/workspace/t';
 
-import { DenoFile, type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { type t, DenoFile, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import { TmplTesting } from '../m.testing/mod.ts';
 import { Fmt, logTemplate, makeWorkspace } from './u.ts';
 import { poisonSysVersions } from './u.repo.local.ts';
@@ -66,6 +67,25 @@ describe('Template: repo integration', () => {
     }
   });
 
+  it('generate in temp dir → prep writes workspace graph snapshot', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-graph-' });
+    const root = tmp.absolute;
+    const graphPath = Fs.join(root, '.tmp', 'workspace.graph.json');
+
+    const def = await Templates.repo();
+    const tmpl = await makeTmpl('repo');
+
+    await tmpl.write(root, { force: true });
+    expect(await Fs.exists(graphPath)).to.eql(false);
+
+    await def.default(root);
+
+    const graph = await Fs.readJson<w.WorkspaceGraph.Snapshot.Doc>(graphPath);
+    expect(await Fs.exists(graphPath)).to.eql(true);
+    expect(Array.isArray(graph.data?.graph.orderedPaths)).to.eql(true);
+    expect(graph.data?.['.meta'].schemaVersion).to.eql(1);
+  });
+
   it('generate in temp dir → generated repo pkg check passes after local authority rewrite', async () => {
     console.info(Fmt.slowRepoWorkspaceNote());
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
@@ -117,7 +137,9 @@ describe('Template: repo integration', () => {
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
     expect(typeof authorities.imports['@std/testing']).to.eql('string');
     expect(authorities.imports.react).to.eql(expected.imports.react);
-    expect(authorities.packageJson.dependencies?.react).to.eql(expected.packageJson.dependencies?.react);
+    expect(authorities.packageJson.dependencies?.react).to.eql(
+      expected.packageJson.dependencies?.react,
+    );
   });
 
   it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
@@ -151,7 +173,9 @@ describe('Template: repo integration', () => {
 async function readWorkspaceAuthorities() {
   const workspace = await DenoFile.workspace();
   const root = workspace.dir;
-  const imports = await readJson<{ readonly imports: Record<string, string> }>(Fs.join(root, 'imports.json'));
+  const imports = await readJson<{ readonly imports: Record<string, string> }>(
+    Fs.join(root, 'imports.json'),
+  );
   const packageJson = await readJson<{
     readonly dependencies?: Record<string, string>;
     readonly devDependencies?: Record<string, string>;
@@ -167,7 +191,7 @@ async function readWorkspaceAuthorities() {
 }
 
 async function readJson<T>(path: string): Promise<T> {
-  const res = await Fs.readJson(path);
+  const res = await Fs.readJson<T>(path);
   if (!res.ok || !res.data) throw new Error(`Failed to read JSON: ${path}`);
-  return res.data as T;
+  return res.data;
 }
