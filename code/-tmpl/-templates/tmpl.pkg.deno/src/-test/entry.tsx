@@ -62,16 +62,8 @@ export async function main() {
    * Entry/Splash:
    */
   async function renderSplash() {
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { Splash } = await import('./ui.Splash.tsx');
-
-    function App() {
-      useKeyboard();
-      return <Splash />;
-    }
-
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
+    const { Splash } = await import('./entry.splash.tsx');
+    root.render(<React.StrictMode>{<Splash />}</React.StrictMode>);
   }
 
   if (isDev) {
