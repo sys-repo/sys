@@ -1,4 +1,4 @@
-import { type t, D, Fs, Is } from '../common.ts';
+import { type t, D, Fs, Is } from './common.ts';
 import { hasValue } from './u.ts';
 
 type DeployLogsCli = {

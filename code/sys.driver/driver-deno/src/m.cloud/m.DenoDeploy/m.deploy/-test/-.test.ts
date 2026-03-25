@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, Pkg } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { DeployCli } from '../../u.cli/mod.ts';
+import { DeployCli } from '../../../u.cli.deploy/mod.ts';
 import { createStageWorkspace } from '../../m.stage/-test/u.fixture.workspace.ts';
 
 describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {

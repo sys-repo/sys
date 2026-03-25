@@ -1,5 +1,5 @@
 import { type t, Process } from './common.ts';
-import { DeployCli } from '../m.DenoDeploy/u.cli/mod.ts';
+import { DeployCli } from '../u.cli.deploy/mod.ts';
 
 export const create: t.DenoApp.Lib['create'] = async (request) => {
   try {

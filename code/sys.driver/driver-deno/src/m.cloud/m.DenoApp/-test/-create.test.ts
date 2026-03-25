@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { DeployCli } from '../../m.DenoDeploy/u.cli/mod.ts';
+import { DeployCli } from '../../u.cli.deploy/mod.ts';
 
 describe('DenoApp.create', () => {
   it('builds the native deno deploy create invocation from a narrow app request', () => {
