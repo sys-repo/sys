@@ -20,7 +20,8 @@
     "./info": "./src/m.info/mod.ts",
     "./pkg": "./src/m.pkg/mod.ts",
     "./prep": "./src/m.prep/mod.ts",
-    "./upgrade": "./src/m.upgrade/mod.ts"
+    "./upgrade": "./src/m.upgrade/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {
