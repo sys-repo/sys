@@ -17,9 +17,9 @@ async function main() {
   }
 
   const { DenoDeploy } = await import('@sys/driver-deno/cloud');
-  const { createDeployableRepoPkg } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
+  const { Sample } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
   const config = await requireSampleDeployConfig();
-  const { pkgDir } = await createDeployableRepoPkg();
+  const { pkgDir } = await Sample.Fixture.createDeployableRepoPkg();
 
   const deployment = DenoDeploy.pipeline({ pkgDir, config });
   const reporter = DenoDeploy.Fmt.listen(deployment);

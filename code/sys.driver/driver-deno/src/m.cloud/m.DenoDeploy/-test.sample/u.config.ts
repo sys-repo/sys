@@ -6,14 +6,14 @@ type RequireDeployConfigArgs = {
   readonly appNote: string;
 };
 
-export async function requireExternalDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
+export async function externalDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
   return requireDeployConfig({
     retry: 'deno task test:external',
     appNote: 'is required for this test lane.',
   });
 }
 
-export async function requireTmpDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
+export async function sampleDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
   return requireDeployConfig({
     retry: 'deno task sample:deploy',
     appNote: 'is required for this sample run.',

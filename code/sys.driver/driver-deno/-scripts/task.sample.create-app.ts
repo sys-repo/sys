@@ -18,8 +18,8 @@ async function main() {
   const { org, token } = await requireSampleCreateEnv();
 
   const { DenoDeploy } = await import('@sys/driver-deno/cloud');
-  const { prepareStageForCreate } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
-  const prepared = await prepareStageForCreate({ app, org, token });
+  const { Sample } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
+  const prepared = await Sample.Stage.forCreate({ app, org, token });
 
   /**
    * The actual public API call.
