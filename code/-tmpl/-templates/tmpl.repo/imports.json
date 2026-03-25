@@ -14,7 +14,9 @@
     "@sys/http/client": "jsr:@sys/http@0.0.240/client",
     "@sys/http/t": "jsr:@sys/http@0.0.240/t",
     "@sys/workspace": "jsr:@sys/workspace@0.0.35",
+    "@sys/workspace/cli": "jsr:@sys/workspace@0.0.35/cli",
     "@sys/workspace/t": "jsr:@sys/workspace@0.0.35/t",
+    "@sys/workspace/testing": "jsr:@sys/workspace@0.0.35/testing",
     "@sys/process": "jsr:@sys/process@0.0.253",
     "@sys/process/t": "jsr:@sys/process@0.0.253/t",
     "@sys/std": "jsr:@sys/std@0.0.328",
@@ -42,4 +44,3 @@
     "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.269/t"
   }
 }
-

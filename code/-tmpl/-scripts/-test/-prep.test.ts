@@ -64,7 +64,9 @@ describe('prep.u', () => {
         '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
         '@sys/http/t': 'jsr:@sys/http@0.0.0/t',
         '@sys/workspace': 'jsr:@sys/workspace@0.0.0',
+        '@sys/workspace/cli': 'jsr:@sys/workspace@0.0.0/cli',
         '@sys/workspace/t': 'jsr:@sys/workspace@0.0.0/t',
+        '@sys/workspace/testing': 'jsr:@sys/workspace@0.0.0/testing',
         '@sys/process': 'jsr:@sys/process@0.0.0',
         '@sys/process/t': 'jsr:@sys/process@0.0.0/t',
         '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
@@ -113,7 +115,11 @@ describe('prep.u', () => {
     expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
     expect(res.imports['@sys/http/t']).to.eql('jsr:@sys/http@0.0.210/t');
     expect(res.imports['@sys/workspace']).to.eql('jsr:@sys/workspace@0.0.011');
+    expect(res.imports['@sys/workspace/cli']).to.eql('jsr:@sys/workspace@0.0.011/cli');
     expect(res.imports['@sys/workspace/t']).to.eql('jsr:@sys/workspace@0.0.011/t');
+    expect(res.imports['@sys/workspace/testing']).to.eql(
+      'jsr:@sys/workspace@0.0.011/testing',
+    );
     expect(res.imports['@sys/process']).to.eql('jsr:@sys/process@0.0.201');
     expect(res.imports['@sys/process/t']).to.eql('jsr:@sys/process@0.0.201/t');
     expect(res.imports['@sys/std']).to.eql('jsr:@sys/std@0.0.300');
