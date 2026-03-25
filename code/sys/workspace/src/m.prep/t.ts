@@ -10,6 +10,8 @@ export declare namespace WorkspacePrep {
     readonly cwd?: t.StringDir;
     /** Optional precomputed graph payload used to avoid recollection. */
     readonly graph?: t.WorkspaceGraph.PersistedGraph;
+    /** Suppress prep phase output. */
+    readonly silent?: boolean;
   };
 
   /** Result summary from a canonical workspace prep run. */

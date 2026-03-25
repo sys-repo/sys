@@ -108,11 +108,7 @@ export async function main(context: CommitContext = 'prep', options: Options = {
   const spinner = Cli.spinner('', { start: false });
   try {
     await processDeps();
-    const prep = await runSilentPhase(
-      spinner,
-      `preparing ${c.bold(c.white('@sys/workspace'))} state...`,
-      () => Workspace.Prep.run(),
-    );
+    const prep = await Workspace.Prep.run();
     await runSilentPhase(
       spinner,
       `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,

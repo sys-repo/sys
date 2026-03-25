@@ -1,8 +1,8 @@
 import { Workspace } from '@sys/workspace';
-import { Fs, Is, TmplEngine } from './common.ts';
+import { Fs, TmplEngine } from './common.ts';
 
 const PATHS_FILE = './-scripts/-PATHS.ts' as const;
-export const WORKSPACE_GRAPH_CACHE_FILE = './.tmp/workspace.graph.json' as const;
+export const WORKSPACE_GRAPH_CACHE_FILE = Workspace.Prep.State.graphFile(Fs.cwd());
 const START_MARKER = '// generated:start workspace-topological';
 const END_MARKER = '// generated:end workspace-topological';
 type WorkspaceGraphCache = Awaited<ReturnType<typeof Workspace.Graph.Snapshot.create>>['graph'];
@@ -10,32 +10,12 @@ export function renderPaths(paths: readonly string[]) {
   return paths.map((value) => `    '${value}',`);
 }
 
-export async function buildWorkspaceGraphCache(cwd = Deno.cwd()): Promise<WorkspaceGraphCache> {
-  const deno = (await Fs.readJson<Record<string, unknown>>(Fs.join(cwd, 'deno.json'))).data ?? {};
-  // Keep this root-workspace discovery aligned with other prep-time workspace walks
-  // until package discovery is centralized behind @sys/workspace.
-  const workspace = Array.isArray(deno.workspace) ? deno.workspace.filter(Is.str) : [];
-  const include = workspace.map((path) => `${path}/deno.json`);
-
-  const graph = await Workspace.Graph.collect({ cwd, source: { include } });
-  const packages = Workspace.Graph.packageEdges(graph);
-  const ordered = Workspace.Graph.order(packages);
-  if (!ordered.ok) {
-    if ('invalid' in ordered) {
-      const err = `Failed to order workspace paths (${ordered.invalid.code}): ${ordered.invalid.keys.join(', ')}`;
-      throw new Error(err);
-    }
-    throw new Error(`Failed to order workspace paths (cycle): ${ordered.cycle.keys.join(', ')}`);
-  }
-
-  return {
-    orderedPaths: ordered.items.map((item) => item.package.path),
-    edges: packages.edges.map((edge) => ({ from: edge.from, to: edge.to })),
-  };
+export function buildWorkspaceGraphCache(cwd = Fs.cwd()): Promise<WorkspaceGraphCache> {
+  return Workspace.Prep.Graph.build(cwd);
 }
 
 export async function readWorkspaceGraphCache(path: string = WORKSPACE_GRAPH_CACHE_FILE) {
-  const snapshot = await Workspace.Graph.Snapshot.read(path);
+  const snapshot = await Workspace.Prep.Graph.read(workspaceCwdFromGraphFile(path));
   return snapshot?.graph;
 }
 
@@ -43,21 +23,19 @@ export async function writeWorkspaceGraphCache(
   cache: WorkspaceGraphCache,
   path: string = WORKSPACE_GRAPH_CACHE_FILE,
 ) {
-  await Fs.ensureDir(Fs.dirname(path));
-  const snapshot = await Workspace.Graph.Snapshot.create({ graph: cache });
-  await Workspace.Graph.Snapshot.write(snapshot, path);
-  return snapshot.graph;
+  const snapshot = Workspace.Prep.Graph.snapshot(cache);
+  const written = await Workspace.Prep.Graph.write({ cwd: workspaceCwdFromGraphFile(path), snapshot });
+  return written.snapshot.graph;
 }
 
-export async function orderedWorkspacePaths(cwd = Deno.cwd()) {
+export async function orderedWorkspacePaths(cwd = Fs.cwd()) {
   const cache = await buildWorkspaceGraphCache(cwd);
   return cache.orderedPaths;
 }
 
 export async function main(path: string = PATHS_FILE, paths?: readonly string[]) {
-  const cache = paths ? undefined : await buildWorkspaceGraphCache();
-  if (cache) await writeWorkspaceGraphCache(cache);
-  const nextPaths = paths ?? cache?.orderedPaths ?? [];
+  const graph = paths ? undefined : (await Workspace.Prep.Graph.ensure()).snapshot.graph;
+  const nextPaths = paths ?? graph?.orderedPaths ?? [];
   const lines = renderPaths(nextPaths);
   let betweenMarkers = false;
   let sawStart = false;
@@ -91,3 +69,10 @@ export async function main(path: string = PATHS_FILE, paths?: readonly string[])
 }
 
 if (import.meta.main) await main();
+
+/**
+ * Helpers:
+ */
+function workspaceCwdFromGraphFile(path: string) {
+  return Fs.dirname(Fs.dirname(path));
+}
