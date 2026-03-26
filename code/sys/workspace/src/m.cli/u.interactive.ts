@@ -1,4 +1,4 @@
-import { type t, Cli, c } from './common.ts';
+import { type t, Cli } from './common.ts';
 import { applyWithSession } from '../m.upgrade/u.apply.ts';
 import { createSession } from '../m.upgrade/u.session.ts';
 import { upgradeWithSession } from '../m.upgrade/u.upgrade.ts';
@@ -15,11 +15,12 @@ export async function runInteractive(
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
   const session = createSession();
-  const initial = await withSpinner(Fmt.spinnerText('planning workspace upgrades...'), (spinner) =>
+  console.info();
+  const initial = await withSpinner(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
     upgradeWithSession(
       input,
       wrangle.upgradeOptions(options.policy, options.exclude, options.prerelease, (progress) =>
-        spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+        spinner.start(Fmt.spinnerProgress(progress)),
       ),
       session,
     ),
@@ -37,11 +38,11 @@ export async function runInteractive(
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
       ? initial
-      : await withSpinnerWithGap(Fmt.spinnerText('re-planning selected workspace upgrades...'), (spinner) =>
+      : await withSpinnerWithGap(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
           upgradeWithSession(
             input,
             wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
-              spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+              spinner.start(Fmt.spinnerProgress(progress)),
             ),
             session,
           ),
@@ -57,11 +58,11 @@ export async function runInteractive(
   }
   if (upgrade.totals.planned === 0) return { selection, upgrade };
 
-  const applied = await withSpinnerWithGap(Fmt.spinnerText('applying workspace upgrades...'), (spinner) =>
+  const applied = await withSpinnerWithGap(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
     applyWithSession(
       input,
       wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
-        spinner.start(Fmt.spinnerText(wrangle.progressText(progress))),
+        spinner.start(Fmt.spinnerProgress(progress)),
       ),
       session,
     ),
@@ -107,13 +108,6 @@ const wrangle = {
       prerelease,
       progress,
     };
-  },
-
-  progressText(progress: t.WorkspaceUpgrade.Progress): string {
-    if (progress.kind === 'registry:jsr') return `checking ${c.white('jsr')} registry...`;
-    if (progress.kind === 'registry:npm') return `checking ${c.white('npm')} registry...`;
-    if (progress.kind === 'plan') return 'composing upgrade plan...';
-    return 'applying workspace upgrades...';
   },
 
   policy(

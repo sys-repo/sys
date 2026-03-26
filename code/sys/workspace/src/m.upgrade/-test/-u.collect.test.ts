@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing } from '../../-test.ts';
+import { describe, expect, it, Testing, type t } from '../../-test.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
 import { fetchFail, versionsJsr, versionsNpm, withVersions, writeDepsYaml } from './u.fixture.ts';
 
@@ -107,6 +107,64 @@ describe('Workspace.Upgrade.collect', () => {
           failed: 1,
         });
         expect(result.uncollected[0]?.reason.code).to.eql('registry:fetch');
+      },
+    );
+  });
+
+  it('emits cumulative registry progress with clipped per-registry counts', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.progress');
+    await writeDepsYaml(fs, `
+      deno.json:
+        - import: jsr:@sys/std@0.0.1
+        - import: npm:react@18.2.0
+        - import: npm:react-dom@18.2.0
+    `);
+
+    await withVersions(
+      {
+        jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
+        npm: {
+          react: versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+          'react-dom': versionsNpm('react-dom', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+        },
+      },
+      async () => {
+        const progress: t.WorkspaceUpgrade.Progress[] = [];
+
+        await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          {
+            policy: { mode: 'latest' },
+            progress: (item) => progress.push(item),
+          },
+        );
+
+        expect(progress).to.eql([
+          {
+            kind: 'registry',
+            registry: 'jsr',
+            current: { jsr: 1, npm: 0 },
+            total: { jsr: 1, npm: 2 },
+            completed: 1,
+            dependencies: 3,
+          },
+          {
+            kind: 'registry',
+            registry: 'npm',
+            current: { jsr: 1, npm: 1 },
+            total: { jsr: 1, npm: 2 },
+            completed: 2,
+            dependencies: 3,
+          },
+          {
+            kind: 'registry',
+            registry: 'npm',
+            current: { jsr: 1, npm: 2 },
+            total: { jsr: 1, npm: 2 },
+            completed: 3,
+            dependencies: 3,
+          },
+        ]);
       },
     );
   });

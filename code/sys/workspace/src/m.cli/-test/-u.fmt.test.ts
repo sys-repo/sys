@@ -57,6 +57,24 @@ describe('Workspace.Cli.Fmt', () => {
     expect(options.every((option) => option.checked === false)).to.eql(true);
   });
 
+  it('formats cumulative registry spinner progress with clipped counts and percent', () => {
+    const text = Fmt.spinnerProgress({
+      kind: 'registry',
+      registry: 'npm',
+      current: { jsr: 2, npm: 17 },
+      total: { jsr: 2, npm: 18 },
+      completed: 19,
+      dependencies: 20,
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.include('checking registry...');
+    expect(plain).to.include('(jsr:2/2 npm:17/18) - 95%');
+    expect(text).to.include(c.cyan('jsr:'));
+    expect(text).to.include(c.cyan('npm:'));
+    expect(text).to.include(c.white('95%'));
+  });
+
   it('renders applied output with updated rows instead of planned totals', () => {
     const text = Cli.stripAnsi(Fmt.applied(applied()));
 

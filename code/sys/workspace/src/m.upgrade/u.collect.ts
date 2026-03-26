@@ -1,6 +1,13 @@
 import { type t, Deps, Err, Is, Semver } from './common.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
+type RegistryProgressState = {
+  readonly total: t.WorkspaceUpgrade.RegistryProgressCounts;
+  current: t.WorkspaceUpgrade.RegistryProgressCounts;
+  completed: number;
+  readonly dependencies: number;
+};
+
 export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options) => {
   return await collectWithSession(input, options, createSession());
 };
@@ -36,6 +43,7 @@ export async function collectWithSession(
 
   const candidates: t.WorkspaceUpgrade.Candidate[] = [];
   const uncollected: t.WorkspaceUpgrade.Uncollected[] = [];
+  const progress = wrangle.registryProgress(manifest.data.entries, resolved.registries);
 
   for (const entry of manifest.data.entries) {
     const current = wrangle.current(entry.module.version);
@@ -58,7 +66,8 @@ export async function collectWithSession(
       continue;
     }
 
-    resolved.progress?.({ kind: entry.module.registry === 'jsr' ? 'registry:jsr' : 'registry:npm' });
+    wrangle.bumpProgress(progress, entry.module.registry);
+    resolved.progress?.(wrangle.progressEvent(progress, entry.module.registry));
     const versions = await Session.versions(session, wrangle.registryEntry(entry));
     if (!versions.ok || !versions.data) {
       uncollected.push({
@@ -119,6 +128,55 @@ const wrangle = {
 
   supports(registries: readonly t.EsmRegistry[], registry: string): registry is t.EsmRegistry {
     return (registry === 'jsr' || registry === 'npm') && registries.includes(registry);
+  },
+
+  registryProgress(
+    entries: readonly t.EsmDeps.Entry[],
+    registries: readonly t.EsmRegistry[],
+  ): RegistryProgressState {
+    const total = entries.reduce<t.WorkspaceUpgrade.RegistryProgressCounts>(
+      (acc, entry) => {
+        if (!wrangle.current(entry.module.version)) return acc;
+        if (!wrangle.supports(registries, entry.module.registry)) return acc;
+        return {
+          ...acc,
+          [entry.module.registry]: acc[entry.module.registry] + 1,
+        };
+      },
+      { jsr: 0, npm: 0 },
+    );
+
+    return {
+      total,
+      current: { jsr: 0, npm: 0 },
+      completed: 0,
+      dependencies: total.jsr + total.npm,
+    };
+  },
+
+  bumpProgress(
+    progress: RegistryProgressState,
+    registry: t.EsmRegistry,
+  ): void {
+    progress.current = {
+      ...progress.current,
+      [registry]: progress.current[registry] + 1,
+    };
+    progress.completed += 1;
+  },
+
+  progressEvent(
+    progress: RegistryProgressState,
+    registry: t.EsmRegistry,
+  ): t.WorkspaceUpgrade.RegistryProgress {
+    return {
+      kind: 'registry',
+      registry,
+      current: progress.current,
+      total: progress.total,
+      completed: progress.completed,
+      dependencies: progress.dependencies,
+    };
   },
 
   registryEntry(

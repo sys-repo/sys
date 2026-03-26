@@ -22,11 +22,38 @@ export declare namespace WorkspaceUpgrade {
     readonly exclude?: readonly string[];
   };
 
-  /** Progress event emitted during one workspace upgrade pass. */
-  export type Progress = {
-    /** Canonical progress step. */
-    readonly kind: 'registry:jsr' | 'registry:npm' | 'plan' | 'apply';
+  /** Per-registry collection counts emitted while checking available versions. */
+  export type RegistryProgressCounts = {
+    /** Number of JSR dependencies reached in the registry check phase. */
+    readonly jsr: number;
+    /** Number of npm dependencies reached in the registry check phase. */
+    readonly npm: number;
   };
+
+  /** Registry collection progress emitted while checking available package versions. */
+  export type RegistryProgress = {
+    /** Canonical progress step. */
+    readonly kind: 'registry';
+    /** Registry currently being checked. */
+    readonly registry: t.EsmRegistry;
+    /** Inclusive per-registry counts reached so far. */
+    readonly current: RegistryProgressCounts;
+    /** Total per-registry dependencies to check in this pass. */
+    readonly total: RegistryProgressCounts;
+    /** Inclusive total registry checks reached so far. */
+    readonly completed: number;
+    /** Total registry checks in this pass. */
+    readonly dependencies: number;
+  };
+
+  /** Non-registry orchestration phase progress. */
+  export type PhaseProgress = {
+    /** Canonical progress step. */
+    readonly kind: 'plan' | 'apply';
+  };
+
+  /** Progress event emitted during one workspace upgrade pass. */
+  export type Progress = RegistryProgress | PhaseProgress;
 
   /** Callback for upgrade progress events. */
   export type ProgressHandler = (progress: Progress) => void;

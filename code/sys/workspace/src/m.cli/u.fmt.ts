@@ -33,6 +33,8 @@ type SummaryCounts = {
   readonly current: number;
 };
 
+type RegistryProgress = t.WorkspaceUpgrade.RegistryProgress;
+
 type BlockedCode =
   | 'policy:none'
   | 'policy:excluded'
@@ -42,7 +44,36 @@ type BlockedCode =
 
 export const Fmt = {
   spinnerText(text: string): string {
-    return `${c.gray(c.italic(text))}\n`;
+    return c.italic(text);
+  },
+
+  spinnerProgress(progress: t.WorkspaceUpgrade.Progress): string {
+    if (!Fmt.isRegistryProgress(progress)) {
+      return Fmt.spinnerText(
+        c.gray(progress.kind === 'plan' ? 'composing upgrade plan...' : 'applying workspace upgrades...'),
+      );
+    }
+    const registry = progress;
+
+    const percent = Fmt.progressPercent(registry);
+    const current = `${Fmt.spinnerRegistryCount('jsr', registry.current.jsr, registry.total.jsr)} ${Fmt.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)}`;
+    return Fmt.spinnerText(
+      `${c.gray('checking registry...')} ${c.gray('(')}${current}${c.gray(') - ')}${c.white(`${percent}%`)}`,
+    );
+  },
+
+  spinnerRegistryCount(registry: 'jsr' | 'npm', current: number, total: number): string {
+    return `${c.cyan(`${registry}:`)}${c.white(String(current))}${c.gray(`/${total}`)}`;
+  },
+
+  isRegistryProgress(progress: t.WorkspaceUpgrade.Progress): progress is RegistryProgress {
+    return progress.kind === 'registry';
+  },
+
+  progressPercent(progress: RegistryProgress): number {
+    if (progress.dependencies <= 0) return 100;
+    const clamped = Math.max(0, Math.min(progress.completed, progress.dependencies));
+    return Math.max(0, Math.min(100, Math.floor((clamped / progress.dependencies) * 100)));
   },
 
   plan(upgrade: t.WorkspaceUpgrade.Result): string {
