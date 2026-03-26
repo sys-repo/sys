@@ -92,4 +92,60 @@ describe('Deps state', () => {
       expect(rendered.obj).to.eql(parsed.data);
     }
   });
+
+  it('toYaml: preserves entry subpaths when rendering back to yaml', async () => {
+    const yaml = `
+      deno.json:
+        - import: jsr:@std/path@1.1.4
+          subpaths:
+            - join
+            - posix/join
+            - windows/join
+        - import: npm:hono@4.12.9
+          subpaths:
+            - cors
+    `;
+
+    const { data, error } = await Deps.from(yaml);
+    expect(data).to.exist;
+    expect(error).to.eql(undefined);
+
+    if (data) {
+      const rendered = data.toYaml();
+      const parsed = Yaml.parse<typeof rendered.obj>(rendered.text);
+
+      expect(parsed.error).to.eql(undefined);
+      expect(rendered.obj).to.eql(parsed.data);
+      expect(rendered.text).to.include('subpaths:');
+      expect(rendered.text).to.include('- join');
+      expect(rendered.text).to.include('- posix/join');
+      expect(rendered.text).to.include('- windows/join');
+      expect(rendered.text).to.include('- cors');
+    }
+  });
+
+  it('toYaml: preserves flat subpath arrays', async () => {
+    const yaml = `
+      deno.json:
+        - import: npm:foo@1.2.3
+          subpaths:
+            - flat
+            - array
+    `;
+
+    const { data, error } = await Deps.from(yaml);
+    expect(data).to.exist;
+    expect(error).to.eql(undefined);
+
+    if (data) {
+      const rendered = data.toYaml();
+      const parsed = Yaml.parse<typeof rendered.obj>(rendered.text);
+
+      expect(parsed.error).to.eql(undefined);
+      expect(rendered.obj).to.eql(parsed.data);
+      expect(rendered.text).to.include('subpaths:');
+      expect(rendered.text).to.include('- flat');
+      expect(rendered.text).to.include('- array');
+    }
+  });
 });

@@ -53,6 +53,43 @@ describe('DenoDeps.applyFiles', () => {
     expect(packageFile.data?.scripts).to.eql({ dev: 'vite' });
   });
 
+  it('preserves dependency subpaths when applying files', async () => {
+    const fs = await Testing.dir('DenoDeps.applyFiles.subpaths');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const deps = [
+      DenoDeps.toDep('jsr:@std/path@1.1.4', {
+        target: 'deno.json',
+        subpaths: ['join', 'posix/join', 'windows/join'],
+      }),
+      DenoDeps.toDep('npm:hono@4.12.9', {
+        target: 'deno.json',
+        subpaths: ['cors'],
+      }),
+    ];
+
+    await Fs.writeJson(denoPath, { name: 'upgrade-subpaths-app', tasks: { dev: 'deno task dev' } });
+
+    const res = await DenoDeps.applyFiles({ depsPath, denoFilePath: denoPath }, deps);
+    const depsFile = await Fs.readText(depsPath);
+    const denoFile = await DenoFile.load(denoPath);
+
+    expect(depsFile.data).to.eql(res.yaml.yaml.text);
+    expect(depsFile.data).to.include('subpaths:');
+    expect(depsFile.data).to.include('- join');
+    expect(depsFile.data).to.include('- posix/join');
+    expect(depsFile.data).to.include('- windows/join');
+    expect(depsFile.data).to.include('- cors');
+    expect(denoFile.data?.imports).to.eql({
+      '@std/path': 'jsr:@std/path@1.1.4',
+      '@std/path/join': 'jsr:@std/path@1.1.4/join',
+      '@std/path/posix/join': 'jsr:@std/path@1.1.4/posix/join',
+      '@std/path/windows/join': 'jsr:@std/path@1.1.4/windows/join',
+      hono: 'npm:hono@4.12.9',
+      'hono/cors': 'npm:hono@4.12.9/cors',
+    });
+  });
+
   it('does not write package.json unless a package target is explicitly provided', async () => {
     const fs = await Testing.dir('DenoDeps.applyFiles.noPackage');
     const depsPath = fs.join('deps.yaml');

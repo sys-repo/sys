@@ -60,11 +60,13 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
 function pushEntry(list: t.EsmDeps.YamlEntry[], entry: t.EsmDeps.Entry) {
   const dev = entry.dev || undefined;
   const module = entry.module;
+  const subpaths = wrangle.subpaths(entry.subpaths);
   const existing = list.find((item) => item.import === module.toString());
   if (!existing) {
-    list.push(Delete.undefined({ import: module.toString(), dev }));
+    list.push(Delete.undefined({ import: module.toString(), dev, subpaths }));
   } else {
     if (dev) existing.dev = dev;
+    if (subpaths) existing.subpaths = wrangle.mergeSubpaths(existing.subpaths, subpaths);
   }
 }
 
@@ -93,3 +95,22 @@ function clean(obj: t.EsmDeps.YamlShape) {
       .forEach((key) => delete o.groups[key]);
   }
 }
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  subpaths(input?: readonly string[]): string[] | undefined {
+    if (!Array.isArray(input)) return;
+    const subpaths = input
+      .map((path) => String(path).trim())
+      .filter(Boolean)
+      .map((path) => path.replace(/^\/+/, '').replace(/\/+$/, ''));
+    return subpaths.length === 0 ? undefined : subpaths;
+  },
+
+  mergeSubpaths(a?: readonly string[], b?: readonly string[]): string[] | undefined {
+    const subpaths = [...new Set([...(a ?? []), ...(b ?? [])])].sort((x, y) => x.localeCompare(y));
+    return subpaths.length === 0 ? undefined : subpaths;
+  },
+} as const;
