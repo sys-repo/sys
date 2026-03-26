@@ -1,6 +1,6 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.251",
+  "version": "0.0.252",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
