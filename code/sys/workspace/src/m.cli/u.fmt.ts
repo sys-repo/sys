@@ -80,6 +80,9 @@ export const Fmt = {
     const str = Str.builder();
     str.line(Fmt.summary(upgrade));
 
+    const topology = Fmt.topologyNote(upgrade);
+    if (topology) str.blank().line(topology);
+
     const uncollected = Fmt.uncollected(upgrade);
     if (uncollected) str.blank().line(uncollected);
 
@@ -109,7 +112,7 @@ export const Fmt = {
     const table = Cli.table([]);
     const counts = Fmt.summaryCounts(upgrade);
 
-    table.push([c.gray('Policy'), c.white(upgrade.options.policy.mode)]);
+    table.push([c.gray('Release Policy'), c.white(upgrade.options.policy.mode)]);
     table.push([c.gray('Dependencies'), String(counts.dependencies)]);
     table.push([c.gray('Already latest'), counts.current > 0 ? c.gray(String(counts.current)) : '0']);
     table.push([
@@ -117,9 +120,6 @@ export const Fmt = {
       counts.blocked > 0 ? c.yellow(String(counts.blocked)) : '0',
     ]);
     table.push([c.gray('Planned'), c.cyan(String(upgrade.totals.planned))]);
-    if (!upgrade.topological.ok) {
-      table.push([c.gray('Topology'), c.yellow('blocked')]);
-    }
 
     return String(table)
       .split('\n')
@@ -131,7 +131,7 @@ export const Fmt = {
     const table = Cli.table([]);
     const updated = Fmt.updatedRows(result).length;
 
-    table.push([c.gray('Policy'), c.white(result.options.policy.mode)]);
+    table.push([c.gray('Release Policy'), c.white(result.options.policy.mode)]);
     table.push([c.gray('Updated'), c.green(String(updated))]);
 
     return String(table)
@@ -170,6 +170,24 @@ export const Fmt = {
       table.push([Fmt.name(item.entry), c.yellow(c.italic(Fmt.graphReason(item.reason.code)))]);
     }
     return Str.trimEdgeNewlines(String(table));
+  },
+
+  topologyNote(upgrade: t.WorkspaceUpgrade.Result): string {
+    if (upgrade.topological.ok) return '';
+    const options = Fmt.selectionOptions(
+      upgrade,
+      {
+        include: [],
+        exclude: [],
+        apply: true,
+        deps: upgrade.input.deps,
+        mode: 'interactive',
+        policy: upgrade.options.policy.mode,
+        prerelease: upgrade.options.prerelease,
+      },
+    );
+    if (options.length === 0) return '';
+    return c.yellow('The full upgrade set cannot be ordered together. Pick a smaller set to continue.');
   },
 
   selectionOptions(

@@ -12,20 +12,27 @@ describe('Workspace.Cli.Fmt', () => {
     expect(text).to.not.include('Dependency   Current');
   });
 
+  it('shows an actionable note when the full interactive upgrade set cannot be ordered', () => {
+    const plan = Fmt.plan(topologyBlockedUpgrade());
+    const text = Cli.stripAnsi(plan);
+
+    expect(text).to.include(
+      'The full upgrade set cannot be ordered together. Pick a smaller set to continue.',
+    );
+    expect(text).to.not.include('Topology');
+  });
+
   it('shows selected versions for allowed rows and latest versions for blocked rows', () => {
     const result = upgrade();
-    const options = Fmt.selectionOptions(
-      result,
-      {
-        include: [],
-        exclude: [],
-        apply: true,
-        deps: 'deps.yaml',
-        mode: 'interactive',
-        policy: 'minor',
-        prerelease: false,
-      },
-    );
+    const options = Fmt.selectionOptions(result, {
+      include: [],
+      exclude: [],
+      apply: true,
+      deps: 'deps.yaml',
+      mode: 'interactive',
+      policy: 'minor',
+      prerelease: false,
+    });
     const labels = options.map((option) => option.name);
     const plain = labels.map((label) => Cli.stripAnsi(label));
     const arrows = plain.map((label) => label.indexOf('→'));
@@ -41,18 +48,15 @@ describe('Workspace.Cli.Fmt', () => {
   });
 
   it('does not pre-check interactive rows without explicit include flags', () => {
-    const options = Fmt.selectionOptions(
-      upgrade(),
-      {
-        include: [],
-        exclude: [],
-        apply: true,
-        deps: 'deps.yaml',
-        mode: 'interactive',
-        policy: 'minor',
-        prerelease: false,
-      },
-    );
+    const options = Fmt.selectionOptions(upgrade(), {
+      include: [],
+      exclude: [],
+      apply: true,
+      deps: 'deps.yaml',
+      mode: 'interactive',
+      policy: 'minor',
+      prerelease: false,
+    });
 
     expect(options.every((option) => option.checked === false)).to.eql(true);
   });
@@ -94,7 +98,12 @@ describe('Workspace.Cli.Fmt', () => {
 });
 
 function upgrade(): t.WorkspaceUpgrade.Result {
-  const pathDecision = decisionOk('@std/path', '1.0.7', ['2.0.0', '1.2.0', '1.0.8', '1.0.7'], '1.2.0');
+  const pathDecision = decisionOk(
+    '@std/path',
+    '1.0.7',
+    ['2.0.0', '1.2.0', '1.0.8', '1.0.7'],
+    '1.2.0',
+  );
   const reactDomDecision = decisionBlocked('react-dom', '18.2.0', ['18.2.0', '19.0.0']);
   const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0']);
 
@@ -224,11 +233,7 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
     input: result.input,
     options: result.options,
     upgrade: result,
-    entries: [
-      entry('@std/path', '1.2.0'),
-      entry('react-dom', '19.0.0'),
-      entry('react', '18.2.0'),
-    ],
+    entries: [entry('@std/path', '1.2.0'), entry('react-dom', '19.0.0'), entry('react', '18.2.0')],
     files: {
       yaml: {
         depsFilePath: '/workspace/deps.yaml',
@@ -249,6 +254,21 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
         dependencies: {},
         devDependencies: {},
       },
+    },
+  };
+}
+
+function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  return {
+    ...result,
+    totals: {
+      ...result.totals,
+      planned: 0,
+    },
+    topological: {
+      ok: false,
+      cycle: { keys: ['jsr:@std/path', 'npm:react-dom'] },
     },
   };
 }
