@@ -278,7 +278,7 @@ function localPackageDependencies(
 }
 
 function localToolchainDependencies(authority: BridgeAuthority) {
-  const names = ['esbuild'] as const;
+  const names = ['esbuild', 'vite'] as const;
   const entries = names.map((name) => {
     const version = authority.packageVersions[name];
     if (!Is.str(version)) {
@@ -287,6 +287,37 @@ function localToolchainDependencies(authority: BridgeAuthority) {
     return [name, version] as const;
   });
   return Object.fromEntries(entries);
+}
+
+async function localToolchainImports(authority: BridgeAuthority) {
+  const vite = authority.packageVersions.vite;
+  if (!Is.str(vite)) {
+    throw new Error('Missing root package version authority for package "vite"');
+  }
+
+  const pluginReact = authority.packageVersions['@vitejs/plugin-react'];
+  if (!Is.str(pluginReact)) {
+    throw new Error('Missing root package version authority for package "@vitejs/plugin-react"');
+  }
+  const pluginReactPkgPath = ROOT.resolve(
+    'node_modules/.deno',
+    `${toDenoNpmDir('@vitejs/plugin-react')}@${pluginReact}`,
+    'node_modules/@vitejs/plugin-react/package.json',
+  );
+  const pluginReactPkg = (await Fs.readJson<{ dependencies?: Record<string, string> }>(pluginReactPkgPath)).data ?? {};
+  const pluginutils = pluginReactPkg.dependencies?.['@rolldown/pluginutils'];
+  if (!Is.str(pluginutils)) {
+    throw new Error('Missing @rolldown/pluginutils dependency authority from installed @vitejs/plugin-react package');
+  }
+
+  return {
+    '@rolldown/pluginutils': `npm:@rolldown/pluginutils@${pluginutils}`,
+    'vite/internal': `npm:vite@${vite}/internal`,
+  } as const;
+}
+
+function toDenoNpmDir(name: string) {
+  return name.replace('/', '+');
 }
 
 function defaultDenoJson(dir: string) {
@@ -336,6 +367,7 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   const sourceImports = await localSourceImportMap(ws, authority, dir);
   const sourceDependencies = localPackageDependencies(sourceSpecifiers, authority);
   const toolchainDependencies = localToolchainDependencies(authority);
+  const toolchainImports = await localToolchainImports(authority);
   const fixturePackage = (await Fs.readJson<PackageJson>(packageJsonPath)).data ?? {};
 
   await Fs.write(
@@ -343,6 +375,7 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
     Json.stringify(
       {
         imports: {
+          ...toolchainImports,
           ...bridgeImports,
           ...sourceImports,
           ...localImports,
