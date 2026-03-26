@@ -230,7 +230,7 @@ const wrangle = {
     const total = args.candidates.length.toLocaleString();
 
     const picked = await Cli.Input.Select.prompt<t.StringPath>({
-      message: `${c.cyan('›')} start ${c.cyan(args.release)} bump from package ${c.gray(`(${total} total)`)}:\n`,
+      message: `${c.cyan('›')} start ${c.cyan(args.release)} bump from which package ${c.gray(`(${total} total)`)}:\n`,
       maxRows: Math.min(50, args.candidates.length),
       options,
       default: packagePath(args.candidates[0]),
