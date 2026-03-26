@@ -15,7 +15,6 @@ export async function runInteractive(
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
   const session = createSession();
-  console.info();
   const initial = await withSpinner(Fmt.spinnerText('planning workspace upgrades...'), (spinner) =>
     upgradeWithSession(
       input,

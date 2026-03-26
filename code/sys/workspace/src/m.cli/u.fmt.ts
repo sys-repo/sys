@@ -173,7 +173,7 @@ export const Fmt = {
   },
 
   selected(selection: t.WorkspaceCli.Selection): string {
-    if (selection.include.length === 0) return c.gray('No dependencies selected.');
+    if (selection.include.length === 0) return c.gray('No dependencies to upgrade.');
     return `Selected ${c.green(selection.include.join(', '))}`;
   },
 

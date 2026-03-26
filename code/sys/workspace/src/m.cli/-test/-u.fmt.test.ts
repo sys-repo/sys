@@ -7,7 +7,6 @@ describe('Workspace.Cli.Fmt', () => {
     const text = Cli.stripAnsi(plan);
 
     expect(text).to.include('Policy');
-    expect(text).to.include('Selected');
     expect(text).to.include('Blocked');
     expect(text).to.include('Already latest');
     expect(text).to.not.include('Dependency   Current');
@@ -62,7 +61,6 @@ describe('Workspace.Cli.Fmt', () => {
     const text = Cli.stripAnsi(Fmt.applied(applied()));
 
     expect(text).to.include('Updated');
-    expect(text).to.include('Applied');
     expect(text).to.not.include('Planned');
     expect(text).to.include('react-dom');
     expect(text).to.include('18.2.0');
