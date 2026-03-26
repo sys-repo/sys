@@ -41,6 +41,23 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plain[1]).to.include('blocked by policy');
   });
 
+  it('does not pre-check interactive rows without explicit include flags', () => {
+    const options = Fmt.selectionOptions(
+      upgrade(),
+      {
+        include: [],
+        exclude: [],
+        apply: true,
+        deps: 'deps.yaml',
+        mode: 'interactive',
+        policy: 'minor',
+        prerelease: false,
+      },
+    );
+
+    expect(options.every((option) => option.checked === false)).to.eql(true);
+  });
+
   it('renders applied output with updated rows instead of planned totals', () => {
     const text = Cli.stripAnsi(Fmt.applied(applied()));
 
@@ -50,6 +67,13 @@ describe('Workspace.Cli.Fmt', () => {
     expect(text).to.include('react-dom');
     expect(text).to.include('18.2.0');
     expect(text).to.include('19.0.0');
+  });
+
+  it('does not report updates when shorthand manifest versions normalize to the same pin', () => {
+    const text = Cli.stripAnsi(Fmt.applied(appliedWithShorthandVersion()));
+
+    expect(text).to.include('Updated');
+    expect(text).to.not.include('approx-string-match');
   });
 });
 
@@ -213,7 +237,50 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
   };
 }
 
+function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
+  const result = upgradeWithShorthandCurrent();
+  return {
+    input: result.input,
+    options: result.options,
+    upgrade: result,
+    entries: [
+      entry('@std/path', '1.2.0'),
+      shorthandEntry('approx-string-match', '2'),
+      entry('react-dom', '19.0.0'),
+      entry('react', '18.2.0'),
+    ],
+    files: {
+      yaml: {
+        depsFilePath: '/workspace/deps.yaml',
+        yaml: {
+          obj: {},
+          text: '',
+          toString: () => '',
+        },
+      },
+      deno: {
+        kind: 'imports',
+        denoFilePath: '/workspace/deno.json',
+        targetPath: '/workspace/deno.json',
+        imports: {},
+      },
+      package: {
+        packageFilePath: '/workspace/package.json',
+        dependencies: {},
+        devDependencies: {},
+      },
+    },
+  };
+}
+
 function entry(name: string, version: t.StringSemver): t.EsmDeps.Entry {
+  return {
+    module: Esm.parse(`${registry(name)}:${name}@${version}`),
+    target: ['deno.json'],
+  };
+}
+
+function shorthandEntry(name: string, version: string): t.EsmDeps.Entry {
   return {
     module: Esm.parse(`${registry(name)}:${name}@${version}`),
     target: ['deno.json'],
@@ -237,4 +304,41 @@ function policyInput(
 
 function registry(name: string): t.EsmRegistry {
   return name.startsWith('@std/') ? 'jsr' : 'npm';
+}
+
+function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const approxDecision = decisionBlocked('approx-string-match', '2.0.0', ['2.0.0']);
+  return {
+    ...result,
+    totals: {
+      dependencies: 4,
+      allowed: 1,
+      blocked: 3,
+      planned: 1,
+    },
+    collect: {
+      ...result.collect,
+      candidates: [
+        result.collect.candidates[0],
+        candidate('approx-string-match', '2.0.0', '2.0.0'),
+        result.collect.candidates[1],
+        result.collect.candidates[2],
+      ],
+      totals: {
+        dependencies: 4,
+        collected: 4,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    policy: {
+      decisions: [
+        result.policy.decisions[0],
+        approxDecision,
+        result.policy.decisions[1],
+        result.policy.decisions[2],
+      ],
+    },
+  };
 }

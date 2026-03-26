@@ -1,4 +1,4 @@
-import { type t, Cli, Str, c } from './common.ts';
+import { type t, Cli, Semver, Str, c } from './common.ts';
 
 type SelectionOption = {
   readonly name: string;
@@ -171,7 +171,7 @@ export const Fmt = {
         const alias = candidate.entry.module.alias;
         const label = Fmt.selectionLabel(candidate, decision, layout);
         const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-        const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
+        const checked = includeSet.size > 0 ? selectedByFlag : false;
         return {
           name: label,
           value: name,
@@ -356,11 +356,18 @@ export const Fmt = {
 
     return result.entries
       .flatMap((entry) => {
-        const from = currentByKey.get(Fmt.key(entry));
-        const to = entry.module.version;
+        const from = Fmt.canonicalVersion(currentByKey.get(Fmt.key(entry)));
+        const to = Fmt.canonicalVersion(entry.module.version);
         if (!from || !to || from === to) return [];
         return [{ entry, from, to }] as const;
       })
       .sort((a, b) => a.entry.module.name.localeCompare(b.entry.module.name));
+  },
+
+  canonicalVersion(version?: string): t.StringSemver | undefined {
+    if (!version) return;
+    const coerced = Semver.coerce(version).version;
+    const clean = Semver.Prefix.strip(coerced);
+    return clean ? (clean as t.StringSemver) : undefined;
   },
 } as const;
