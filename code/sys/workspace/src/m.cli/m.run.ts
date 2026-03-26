@@ -1,4 +1,4 @@
-import { type t, Fs } from './common.ts';
+import { type t, Cli, Fs } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
 import { parseArgs, wantsHelp } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
@@ -41,21 +41,51 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   }
 
   const selection = await wrangle.selection(upgradeInput, options);
-  const upgradeOptions = wrangle.upgradeOptions(options, selection.exclude);
+  console.info();
 
   if (options.apply) {
-    const applied = await WorkspaceUpgrade.apply(upgradeInput, upgradeOptions);
+    const applied = await withSpinner(
+      Fmt.spinnerProgress({ kind: 'apply' }),
+      (spinner) =>
+        WorkspaceUpgrade.apply(
+          upgradeInput,
+          wrangle.upgradeOptions(options, selection.exclude, (progress) =>
+            spinner.start(Fmt.spinnerProgress(progress))
+          ),
+        ),
+    );
     const upgrade = applied.upgrade;
     console.info(Fmt.applied(applied));
     console.info();
     return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade, applied };
   }
 
-  const upgrade = await WorkspaceUpgrade.upgrade(upgradeInput, upgradeOptions);
+  const upgrade = await withSpinner(
+    Fmt.spinnerProgress({ kind: 'plan' }),
+    (spinner) =>
+      WorkspaceUpgrade.upgrade(
+        upgradeInput,
+        wrangle.upgradeOptions(options, selection.exclude, (progress) =>
+          spinner.start(Fmt.spinnerProgress(progress))
+        ),
+      ),
+  );
   console.info(Fmt.plan(upgrade));
   console.info();
   return { kind: 'plan', input: { argv, cwd }, options, selection, upgrade };
 };
+
+async function withSpinner<T>(
+  message: string,
+  fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
+): Promise<T> {
+  const spinner = Cli.spinner(message);
+  try {
+    return await fn(spinner);
+  } finally {
+    spinner.stop();
+  }
+}
 
 /**
  * Helpers:
@@ -65,6 +95,7 @@ const wrangle = {
   upgradeOptions(
     options: t.WorkspaceCli.ResolvedOptions,
     exclude: readonly string[],
+    progress?: t.WorkspaceUpgrade.ProgressHandler,
   ): t.WorkspaceUpgrade.Options {
     return {
       policy: {
@@ -72,6 +103,7 @@ const wrangle = {
         exclude: exclude.length > 0 ? exclude : undefined,
       },
       prerelease: options.prerelease,
+      progress,
     };
   },
 
