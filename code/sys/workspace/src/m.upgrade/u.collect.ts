@@ -71,7 +71,12 @@ export async function collectWithSession(
       continue;
     }
 
-    const available = wrangle.available(entry.module.registry, versions.data.versions, resolved.prerelease);
+    const available = wrangle.available(
+      entry.module.registry,
+      versions.data.latest,
+      versions.data.versions,
+      resolved.prerelease,
+    );
     candidates.push({
       entry,
       registry: entry.module.registry as t.EsmRegistry,
@@ -126,6 +131,7 @@ const wrangle = {
 
   available(
     registry: string,
+    latest: string | undefined,
     versions: Record<string, unknown>,
     prerelease: boolean,
   ): readonly t.StringSemver[] {
@@ -135,6 +141,7 @@ const wrangle = {
     const clean = keys
       .map((version) => wrangle.current(version))
       .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0)
+      .filter((version) => wrangle.withinLatest(registry, latest, version))
       .filter((version) => prerelease || wrangle.released(version));
     return Semver.sort([...new Set(clean)], { order: 'desc' });
   },
@@ -144,6 +151,13 @@ const wrangle = {
     if (!meta || typeof meta !== 'object') return false;
     const deprecated = Reflect.get(meta, 'deprecated');
     return Is.str(deprecated) && deprecated.length > 0;
+  },
+
+  withinLatest(registry: string, latest: string | undefined, version: t.StringSemver): boolean {
+    if (registry !== 'npm') return true;
+    const cap = latest ? wrangle.current(latest) : undefined;
+    if (!cap) return true;
+    return Semver.Is.lessOrEqual(version, cap);
   },
 
   released(version: t.StringSemver): boolean {
