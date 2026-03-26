@@ -34,7 +34,6 @@ export async function runInteractive(
   const policy = wrangle.policy(initial, selection, options.policy);
   if (policy !== options.policy) {
     console.info(Fmt.overrideNotice(options.policy));
-    console.info();
   }
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
@@ -50,9 +49,9 @@ export async function runInteractive(
         );
 
   console.info(Fmt.selected(selection));
-  console.info();
 
   if (!options.apply) {
+    console.info();
     console.info(Fmt.plan(upgrade));
     console.info();
     return { selection, upgrade };
