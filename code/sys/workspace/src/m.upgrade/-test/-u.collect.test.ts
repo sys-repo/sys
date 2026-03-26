@@ -147,6 +147,38 @@ describe('Workspace.Upgrade.collect', () => {
     );
   });
 
+  it('excludes deprecated npm versions from collected upgrade candidates', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.collect.npm-deprecated');
+    await writeDepsYaml(fs, `
+      deno.json:
+        - import: npm:react-spinners@0.17.0
+    `);
+
+    await withVersions(
+      {
+        jsr: {},
+        npm: {
+          'react-spinners': versionsNpm('react-spinners', '0.17.0', {
+            '0.17.0': {},
+            '1.0.0': { deprecated: "this version is incorrectly published. This package's major version is 0" },
+          }),
+        },
+      },
+      async () => {
+        const result = await WorkspaceUpgrade.collect(
+          { cwd: fs.dir, deps: fs.join('deps.yaml') },
+          { policy: { mode: 'latest' } },
+        );
+
+        expect(
+          result.candidates.map((item) => [item.entry.module.name, item.current, item.latest, item.available]),
+        ).to.eql([
+          ['react-spinners', '0.17.0', '0.17.0', ['0.17.0']],
+        ]);
+      },
+    );
+  });
+
   it('includes prerelease versions when explicitly enabled', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.prerelease');
     await writeDepsYaml(fs, `

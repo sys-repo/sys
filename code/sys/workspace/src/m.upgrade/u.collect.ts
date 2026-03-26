@@ -71,7 +71,7 @@ export async function collectWithSession(
       continue;
     }
 
-    const available = wrangle.available(versions.data.versions, resolved.prerelease);
+    const available = wrangle.available(entry.module.registry, versions.data.versions, resolved.prerelease);
     candidates.push({
       entry,
       registry: entry.module.registry as t.EsmRegistry,
@@ -124,13 +124,26 @@ const wrangle = {
     };
   },
 
-  available(versions: Record<string, unknown>, prerelease: boolean): readonly t.StringSemver[] {
-    const keys = Object.keys(versions ?? {});
+  available(
+    registry: string,
+    versions: Record<string, unknown>,
+    prerelease: boolean,
+  ): readonly t.StringSemver[] {
+    const keys = Object.entries(versions ?? {})
+      .filter(([_, meta]) => !wrangle.excluded(registry, meta))
+      .map(([version]) => version);
     const clean = keys
       .map((version) => wrangle.current(version))
       .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0)
       .filter((version) => prerelease || wrangle.released(version));
     return Semver.sort([...new Set(clean)], { order: 'desc' });
+  },
+
+  excluded(registry: string, meta: unknown): boolean {
+    if (registry !== 'npm') return false;
+    if (!meta || typeof meta !== 'object') return false;
+    const deprecated = Reflect.get(meta, 'deprecated');
+    return Is.str(deprecated) && deprecated.length > 0;
   },
 
   released(version: t.StringSemver): boolean {
