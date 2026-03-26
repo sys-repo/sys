@@ -14,7 +14,6 @@
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",
     "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
-    "outdated": "deno run -P=upgrade ./-scripts/task.upgrade.ts --non-interactive --mode latest",
     "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
@@ -140,4 +139,3 @@
     }
   }
 }
-
