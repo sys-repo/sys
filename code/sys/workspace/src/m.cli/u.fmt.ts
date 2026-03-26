@@ -29,7 +29,6 @@ type SelectionState = 'selected' | 'blocked' | 'current';
 
 type SummaryCounts = {
   readonly dependencies: number;
-  readonly selected: number;
   readonly blocked: number;
   readonly current: number;
 };
@@ -77,21 +76,19 @@ export const Fmt = {
 
   summary(upgrade: t.WorkspaceUpgrade.Result): string {
     const table = Cli.table([]);
-    const topology = upgrade.topological.ok
-      ? c.green(`ok (${upgrade.topological.items.length.toLocaleString()} planned)`)
-      : c.yellow('blocked');
     const counts = Fmt.summaryCounts(upgrade);
 
     table.push([c.gray('Policy'), c.white(upgrade.options.policy.mode)]);
     table.push([c.gray('Dependencies'), String(counts.dependencies)]);
-    table.push([c.gray('Selected'), c.green(String(counts.selected))]);
+    table.push([c.gray('Already latest'), counts.current > 0 ? c.gray(String(counts.current)) : '0']);
     table.push([
       c.gray('Blocked'),
       counts.blocked > 0 ? c.yellow(String(counts.blocked)) : '0',
     ]);
-    table.push([c.gray('Already latest'), counts.current > 0 ? c.gray(String(counts.current)) : '0']);
     table.push([c.gray('Planned'), c.cyan(String(upgrade.totals.planned))]);
-    table.push([c.gray('Topology'), topology]);
+    if (!upgrade.topological.ok) {
+      table.push([c.gray('Topology'), c.yellow('blocked')]);
+    }
 
     return String(table)
       .split('\n')
@@ -104,13 +101,7 @@ export const Fmt = {
     const updated = Fmt.updatedRows(result).length;
 
     table.push([c.gray('Policy'), c.white(result.options.policy.mode)]);
-    table.push([c.gray('Dependencies'), String(result.upgrade.totals.dependencies)]);
     table.push([c.gray('Updated'), c.green(String(updated))]);
-    table.push([
-      c.gray('Blocked'),
-      result.upgrade.totals.blocked > 0 ? c.yellow(String(result.upgrade.totals.blocked)) : '0',
-    ]);
-    table.push([c.gray('Applied'), c.green('yes')]);
 
     return String(table)
       .split('\n')
@@ -187,7 +178,7 @@ export const Fmt = {
   },
 
   overrideNotice(mode: t.EsmPolicyMode): string {
-    return c.yellow(`Selection overrides ${mode} policy for the picked dependencies.`);
+    return c.yellow(`Selection overrides ${c.white(mode)} policy for the picked dependencies.`);
   },
 
   key(entry: t.EsmDeps.Entry): string {
@@ -265,12 +256,11 @@ export const Fmt = {
         const state = Fmt.selectionState(candidate, decisionByKey.get(Fmt.key(candidate.entry)));
         return {
           dependencies: acc.dependencies + 1,
-          selected: acc.selected + (state === 'selected' ? 1 : 0),
           blocked: acc.blocked + (state === 'blocked' ? 1 : 0),
           current: acc.current + (state === 'current' ? 1 : 0),
         };
       },
-      { dependencies: 0, selected: 0, blocked: 0, current: 0 },
+      { dependencies: 0, blocked: 0, current: 0 },
     );
   },
 
