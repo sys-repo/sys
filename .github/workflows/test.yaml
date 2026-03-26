@@ -102,8 +102,6 @@ jobs:
             path: code/sys/workspace
           - name: "@sys/tmpl"
             path: code/-tmpl
-          - name: "@tdb/slc"
-            path: deploy/@tdb.slc
           - name: "@tdb/slc-fs"
             path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"

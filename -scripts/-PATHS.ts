@@ -59,6 +59,7 @@ export const Paths = {
     'code/sys/crdt',
     'code/sys/workspace',
     'code/-tmpl',
+    'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
     'deploy/@tdb.slc.std',
     'deploy/@tdb.edu.slug',
