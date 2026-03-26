@@ -42,7 +42,7 @@ type BlockedCode =
 
 export const Fmt = {
   spinnerText(text: string): string {
-    return c.gray(c.italic(text));
+    return `${c.gray(c.italic(text))}\n`;
   },
 
   plan(upgrade: t.WorkspaceUpgrade.Result): string {
