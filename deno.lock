@@ -166,7 +166,6 @@
     "npm:react-error-boundary@6.1.1": "6.1.1_react@19.2.4",
     "npm:react-icons@5.6.0": "5.6.0_react@19.2.4",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.4",
-    "npm:react-spinners@0.17.0": "0.17.0_react@19.2.4_react-dom@19.2.4__react@19.2.4",
     "npm:react@19.2.4": "19.2.4",
     "npm:resend@*": "6.9.2",
     "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.59.0",
@@ -905,8 +904,7 @@
         "npm:@types/react",
         "npm:react",
         "npm:react-error-boundary",
-        "npm:react-icons",
-        "npm:react-spinners"
+        "npm:react-icons"
       ]
     },
     "@zip-js/zip-js@2.8.21": {
@@ -2909,13 +2907,6 @@
     "react-refresh@0.18.0": {
       "integrity": "sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw=="
     },
-    "react-spinners@0.17.0_react@19.2.4_react-dom@19.2.4__react@19.2.4": {
-      "integrity": "sha512-L/8HTylaBmIWwQzIjMq+0vyaRXuoAevzWoD35wKpNTxxtYXWZp+xtgkfD7Y4WItuX0YvdxMPU79+7VhhmbmuTQ==",
-      "dependencies": [
-        "react",
-        "react-dom"
-      ]
-    },
     "react@19.2.4": {
       "integrity": "sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ=="
     },
@@ -3358,7 +3349,7 @@
       "npm:ramda@0.32.0",
       "npm:react-error-boundary@6.1.1",
       "npm:react-inspector@9.0.0",
-      "npm:react-spinners@0.17.0",
+      "npm:react-spinners@1.0.0",
       "npm:rollup-plugin-visualizer@7.0.1",
       "npm:rollup@4.60.0",
       "npm:rxjs@7.8.2",

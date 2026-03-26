@@ -77,7 +77,7 @@ deno.json:
   - import: npm:@svgdotjs/svg.js@3.2.5
   - import: npm:react-error-boundary@6.1.1
   - import: npm:react-inspector@9.0.0
-  - import: npm:react-spinners@0.17.0
+  - import: npm:react-spinners@1.0.0
   - import: npm:@preact/signals-react@3.9.1
 package.json:
   - import: npm:esbuild@0.27.4
