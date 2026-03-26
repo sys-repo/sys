@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { main, orderChildren } from '../task.bump.ts';
+import { bumpOrderedPaths, dependentClosure, main, orderChildren } from '../task.bump.ts';
 
 describe('scripts/task.bump', () => {
   it('orders bump rows by topological workspace package path order', () => {
@@ -37,6 +37,29 @@ describe('scripts/task.bump', () => {
       '@sys/workspace',
       '@extra/alpha',
       '@extra/zeta',
+    ]);
+  });
+
+  it('includes generated tmpl coupling in the bump closure', () => {
+    const res = dependentClosure('code/-tmpl', []);
+
+    expect(res).to.include('code/-tmpl');
+    expect(res).to.include('code/sys.tools');
+  });
+
+  it('reorders the bump picker paths to honor generated tmpl coupling', () => {
+    const res = bumpOrderedPaths([
+      'code/sys/std',
+      'code/sys.tools',
+      'code/-tmpl',
+      'code/sys/workspace',
+    ]);
+
+    expect(res).to.eql([
+      'code/sys/std',
+      'code/-tmpl',
+      'code/sys.tools',
+      'code/sys/workspace',
     ]);
   });
 

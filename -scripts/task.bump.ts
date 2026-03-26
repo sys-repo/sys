@@ -31,6 +31,18 @@ type Candidate = {
   };
 };
 
+type PackageEdge = {
+  readonly from: t.StringPath;
+  readonly to: t.StringPath;
+};
+
+const BUMP_COUPLINGS: readonly PackageEdge[] = [
+  {
+    from: 'code/-tmpl',
+    to: 'code/sys.tools',
+  },
+] as const;
+
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args, {
     boolean: ['help', 'dry-run', 'non-interactive'],
@@ -76,7 +88,7 @@ export async function main(options: Options = {}) {
       const next = wrangle.increment(current, release);
       return { path, json, name, version: { current, next } };
     }),
-    Paths.all,
+    bumpOrderedPaths(Paths.all),
   );
 
   const selection = await wrangle.selection({
@@ -151,6 +163,66 @@ export function orderChildren<T extends { path: t.StringPath }>(
     .toSorted((a, b) => Path.dirname(a.path).localeCompare(Path.dirname(b.path)));
 
   return [...ordered, ...remainder];
+}
+
+export function dependentClosure(
+  root: t.StringPath,
+  edges: readonly PackageEdge[],
+  couplings: readonly PackageEdge[] = BUMP_COUPLINGS,
+) {
+  const queue = [root];
+  const seen = new Set<t.StringPath>(queue);
+  const combined = [...edges, ...couplings];
+
+  while (queue.length > 0) {
+    const next = queue.shift()!;
+    for (const edge of combined) {
+      if (edge.from !== next || seen.has(edge.to)) continue;
+      seen.add(edge.to);
+      queue.push(edge.to);
+    }
+  }
+
+  return Paths.all.filter((path) => seen.has(path));
+}
+
+export function bumpOrderedPaths(
+  orderedPaths: readonly t.StringPath[],
+  couplings: readonly PackageEdge[] = BUMP_COUPLINGS,
+) {
+  const indexByPath = new Map(orderedPaths.map((path, index) => [path, index] as const));
+  const active = couplings.filter((edge) => indexByPath.has(edge.from) && indexByPath.has(edge.to));
+  if (active.length === 0) return [...orderedPaths];
+
+  const indegree = new Map<t.StringPath, number>(orderedPaths.map((path) => [path, 0] as const));
+  const outgoing = new Map<t.StringPath, t.StringPath[]>(
+    orderedPaths.map((path) => [path, [] as t.StringPath[]] as const),
+  );
+
+  for (const edge of active) {
+    outgoing.get(edge.from)!.push(edge.to);
+    indegree.set(edge.to, (indegree.get(edge.to) ?? 0) + 1);
+  }
+
+  const ready = orderedPaths.filter((path) => (indegree.get(path) ?? 0) === 0);
+  const ordered: t.StringPath[] = [];
+
+  while (ready.length > 0) {
+    const next = ready.shift()!;
+    ordered.push(next);
+
+    for (const to of outgoing.get(next) ?? []) {
+      const pending = (indegree.get(to) ?? 0) - 1;
+      indegree.set(to, pending);
+      if (pending === 0) {
+        const insertAt = ready.findIndex((path) => (indexByPath.get(path) ?? 0) > (indexByPath.get(to) ?? 0));
+        if (insertAt === -1) ready.push(to);
+        else ready.splice(insertAt, 0, to);
+      }
+    }
+  }
+
+  return ordered.length === orderedPaths.length ? ordered : [...orderedPaths];
 }
 
 /**
@@ -273,12 +345,12 @@ const wrangle = {
   async plan(
     candidates: readonly Candidate[],
     selection: { readonly value: t.StringPath },
-    packages: { readonly edges: readonly { readonly from: t.StringPath; readonly to: t.StringPath }[] },
+    packages: { readonly edges: readonly PackageEdge[] },
   ) {
     const root = candidates.find((candidate) => packagePath(candidate) === selection.value);
     if (!root) throw new Error(`Unknown bump root: ${selection.value}`);
 
-    const selectedPaths = new Set<string>(wrangle.dependentClosure(selection.value, packages.edges));
+    const selectedPaths = new Set<string>(dependentClosure(selection.value, packages.edges));
     const selected = candidates.filter((candidate) => selectedPaths.has(packagePath(candidate)));
     return { kind: 'selection', root, selected } as const;
   },
@@ -305,22 +377,6 @@ const wrangle = {
       : c.gray(c.dim(Semver.toString(version.next)));
 
     return [`${bullet} ${pkg}`, current, arrow, next];
-  },
-
-  dependentClosure(root: t.StringPath, edges: readonly { readonly from: t.StringPath; readonly to: t.StringPath }[]) {
-    const queue = [root];
-    const seen = new Set<t.StringPath>(queue);
-
-    while (queue.length > 0) {
-      const next = queue.shift()!;
-      for (const edge of edges) {
-        if (edge.from !== next || seen.has(edge.to)) continue;
-        seen.add(edge.to);
-        queue.push(edge.to);
-      }
-    }
-
-    return Paths.all.filter((path) => seen.has(path));
   },
 
   async confirm() {
