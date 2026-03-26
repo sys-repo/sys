@@ -40,15 +40,13 @@ const wrangle = {
   },
 
   version(version: t.StringSemver, maxLength: number) {
-    const colorize = (version: string) => Semver.Fmt.colorize(version, { highlight: 'major' });
     const prefix = Semver.Prefix.get(version);
     if (prefix) {
       const versionWithoutPrefix = version.slice(prefix.length);
-      const coloredPrefix = c.yellow(prefix);
       const indent = wrangle.indent(maxLength - prefix.length);
-      return `${coloredPrefix}${indent}${colorize(versionWithoutPrefix)}`;
+      return c.cyan(`${prefix}${indent}${versionWithoutPrefix}`);
     } else {
-      return `${wrangle.indent(maxLength)}${colorize(version)}`;
+      return c.cyan(`${wrangle.indent(maxLength)}${version}`);
     }
   },
 } as const;
