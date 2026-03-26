@@ -1,6 +1,15 @@
-import { type t, Deps, Err, Is, Jsr, Npm, Semver } from './common.ts';
+import { type t, Deps, Err, Is, Semver } from './common.ts';
+import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
 export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options) => {
+  return await collectWithSession(input, options, createSession());
+};
+
+export async function collectWithSession(
+  input: t.WorkspaceUpgrade.Input,
+  options: t.WorkspaceUpgrade.Options | undefined,
+  session: UpgradeSession,
+): Promise<t.WorkspaceUpgrade.CollectResult> {
   const resolved = wrangle.options(options);
   const manifest = await Deps.from(input.deps);
 
@@ -47,7 +56,7 @@ export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options)
     }
 
     resolved.progress?.({ kind: entry.module.registry === 'jsr' ? 'registry:jsr' : 'registry:npm' });
-    const versions = await wrangle.versions(entry);
+    const versions = await Session.versions(session, wrangle.registryEntry(entry));
     if (!versions.ok || !versions.data) {
       uncollected.push({
         entry,
@@ -81,7 +90,7 @@ export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options)
     candidates,
     uncollected,
   };
-};
+}
 
 const wrangle = {
   options(options?: t.WorkspaceUpgrade.Options): t.WorkspaceUpgrade.ResolvedOptions {
@@ -104,17 +113,11 @@ const wrangle = {
     return (registry === 'jsr' || registry === 'npm') && registries.includes(registry);
   },
 
-  async versions(entry: t.EsmDeps.Entry) {
-    if (entry.module.registry === 'jsr') return Jsr.Fetch.Pkg.versions(entry.module.name);
-    if (entry.module.registry === 'npm') return Npm.Fetch.Pkg.versions(entry.module.name);
-    return {
-      ok: false,
-      status: 400,
-      statusText: 'Bad Request',
-      url: '',
-      headers: new Headers(),
-      error: Err.std(`Unsupported registry: ${entry.module.registry}`),
-      data: undefined,
+  registryEntry(
+    entry: t.EsmDeps.Entry,
+  ): t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' | 'npm' } } {
+    return entry as t.EsmDeps.Entry & {
+      module: t.EsmDeps.Entry['module'] & { registry: 'jsr' | 'npm' };
     };
   },
 

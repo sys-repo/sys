@@ -1,5 +1,9 @@
-import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Testing, type t } from '../../-test.ts';
+import { Jsr, Npm } from '../common.ts';
 import { WorkspaceUpgrade } from '../mod.ts';
+import { applyWithSession } from '../u.apply.ts';
+import { createSession } from '../u.session.ts';
+import { upgradeWithSession } from '../u.upgrade.ts';
 import * as fixture from './u.fixture.ts';
 
 describe('Workspace.Upgrade.apply', () => {
@@ -264,6 +268,87 @@ describe('Workspace.Upgrade.apply', () => {
             expect(error.message).to.include('dependency graph is cyclic');
             expect(afterDeps.data).to.eql(beforeDeps.data);
             expect(afterDeno.data).to.eql(beforeDeno.data);
+          },
+        );
+      },
+    );
+  });
+
+  it('reuses registry fetches across upgrade planning and apply in one session', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.apply.cache');
+    await fixture.writeDepsYaml(
+      fs,
+      `
+      deno.json:
+        - import: jsr:@std/path@1.0.7
+        - import: npm:react@18.2.0
+    `,
+    );
+    await Fs.writeJson(fs.join('deno.json'), { name: 'upgrade-cache-app' });
+
+    await fixture.withVersions(
+      {
+        jsr: {
+          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
+        },
+        npm: {
+          react: fixture.versionsNpm('react', '19.0.0', { '18.2.0': {}, '19.0.0': {} }),
+        },
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {
+              '@std/path@1.0.8': fixture.infoJsr('@std/path', '1.0.8'),
+            },
+            npm: {
+              'react@19.0.0': fixture.infoNpm('react', '19.0.0'),
+            },
+          },
+          async () => {
+            let versionsCalls = 0;
+            let infoCalls = 0;
+
+            const mutableJsr = Jsr.Fetch.Pkg as t.Mutable<t.Registry.Jsr.Fetch.PkgLib>;
+            const mutableNpm = Npm.Fetch.Pkg as t.Mutable<t.Registry.Npm.Fetch.PkgLib>;
+            const jsrVersions = mutableJsr.versions;
+            const npmVersions = mutableNpm.versions;
+            const jsrInfo = mutableJsr.info;
+            const npmInfo = mutableNpm.info;
+
+            mutableJsr.versions = async (...args) => {
+              versionsCalls += 1;
+              return await jsrVersions(...args);
+            };
+            mutableNpm.versions = async (...args) => {
+              versionsCalls += 1;
+              return await npmVersions(...args);
+            };
+            mutableJsr.info = async (...args) => {
+              infoCalls += 1;
+              return await jsrInfo(...args);
+            };
+            mutableNpm.info = async (...args) => {
+              infoCalls += 1;
+              return await npmInfo(...args);
+            };
+
+            try {
+              const session = createSession();
+              const input = { cwd: fs.dir, deps: fs.join('deps.yaml') };
+              const options = { policy: { mode: 'latest' as const } };
+
+              await upgradeWithSession(input, options, session);
+              await applyWithSession(input, options, session);
+            } finally {
+              mutableJsr.versions = jsrVersions;
+              mutableNpm.versions = npmVersions;
+              mutableJsr.info = jsrInfo;
+              mutableNpm.info = npmInfo;
+            }
+
+            expect(versionsCalls).to.eql(2);
+            expect(infoCalls).to.eql(2);
           },
         );
       },

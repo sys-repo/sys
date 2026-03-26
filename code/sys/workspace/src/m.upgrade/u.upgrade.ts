@@ -1,11 +1,20 @@
-import { type t, Esm, Jsr, Npm } from './common.ts';
-import { collect } from './u.collect.ts';
+import { type t, Esm } from './common.ts';
+import { collectWithSession } from './u.collect.ts';
+import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
 export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options) => {
-  const collected = await collect(input, options);
+  return await upgradeWithSession(input, options, createSession());
+};
+
+export async function upgradeWithSession(
+  input: t.WorkspaceUpgrade.Input,
+  options: t.WorkspaceUpgrade.Options | undefined,
+  session: UpgradeSession,
+): Promise<t.WorkspaceUpgrade.Result> {
+  const collected = await collectWithSession(input, options, session);
   collected.options.progress?.({ kind: 'plan' });
   const policy = Esm.Policy.decideAll(collected.candidates.map(wrangle.policyInput(collected.options)));
-  const graph = await wrangle.graph(policy);
+  const graph = await wrangle.graph(policy, session);
   const topological = Esm.Topological.build({ nodes: graph.nodes, edges: graph.edges });
 
   return {
@@ -17,7 +26,7 @@ export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options)
     topological,
     totals: wrangle.totals(collected, policy, topological),
   };
-};
+}
 
 const wrangle = {
   policyInput(options: t.WorkspaceUpgrade.ResolvedOptions) {
@@ -31,7 +40,7 @@ const wrangle = {
     });
   },
 
-  async graph(policy: t.EsmPolicyResult): Promise<t.WorkspaceUpgrade.Graph> {
+  async graph(policy: t.EsmPolicyResult, session: UpgradeSession): Promise<t.WorkspaceUpgrade.Graph> {
     const nodes = policy.decisions
       .filter((decision): decision is t.EsmPolicyDecision & { ok: true } => decision.ok)
       .map((decision) => ({
@@ -49,7 +58,7 @@ const wrangle = {
       if (!selected) continue;
 
       if (entry.module.registry === 'npm') {
-        const res = await wrangle.npmInfo(entry, selected);
+        const res = await Session.npmInfo(session, wrangle.npmEntry(entry), selected);
         if (!res.ok || !res.data) {
           unresolved.push({
             entry,
@@ -71,7 +80,7 @@ const wrangle = {
       }
 
       if (entry.module.registry === 'jsr') {
-        const res = await wrangle.jsrInfo(entry, selected);
+        const res = await Session.jsrInfo(session, wrangle.jsrEntry(entry), selected);
         if (!res.ok || !res.data) {
           unresolved.push({
             entry,
@@ -121,30 +130,6 @@ const wrangle = {
     };
   },
 
-  npmInfo(entry: t.EsmDeps.Entry, version: t.StringSemver) {
-    return wrangle.isNpm(entry) ? wrangle.fetchNpmInfo(entry, version) : Promise.resolve(undefined as never);
-  },
-
-  jsrInfo(entry: t.EsmDeps.Entry, version: t.StringSemver) {
-    return wrangle.isJsr(entry) ? wrangle.fetchJsrInfo(entry, version) : Promise.resolve(undefined as never);
-  },
-
-  isNpm(entry: t.EsmDeps.Entry): entry is t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } } {
-    return entry.module.registry === 'npm';
-  },
-
-  isJsr(entry: t.EsmDeps.Entry): entry is t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } } {
-    return entry.module.registry === 'jsr';
-  },
-
-  fetchNpmInfo(entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } }, version: t.StringSemver) {
-    return Npm.Fetch.Pkg.info(entry.module.name, version);
-  },
-
-  fetchJsrInfo(entry: t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } }, version: t.StringSemver) {
-    return Jsr.Fetch.Pkg.info(entry.module.name, version);
-  },
-
   jsrDependencies(graph: t.Registry.Jsr.Fetch.PkgGraph): readonly string[] {
     const specifiers = new Set<string>();
     for (const module of graph.modules) {
@@ -167,6 +152,18 @@ const wrangle = {
 
   key(entry: t.EsmDeps.Entry): string {
     return `${entry.module.registry}:${entry.module.name}`;
+  },
+
+  npmEntry(
+    entry: t.EsmDeps.Entry,
+  ): t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } } {
+    return entry as t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'npm' } };
+  },
+
+  jsrEntry(
+    entry: t.EsmDeps.Entry,
+  ): t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } } {
+    return entry as t.EsmDeps.Entry & { module: t.EsmDeps.Entry['module'] & { registry: 'jsr' } };
   },
 
   totals(

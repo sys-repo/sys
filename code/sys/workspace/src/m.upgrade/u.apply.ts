@@ -1,8 +1,17 @@
 import { type t, DenoDeps, Deps, Err, Esm, Fs, Path } from './common.ts';
-import { upgrade } from './u.upgrade.ts';
+import { createSession, type UpgradeSession } from './u.session.ts';
+import { upgradeWithSession } from './u.upgrade.ts';
 
 export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => {
-  const planned = await upgrade(input, options);
+  return await applyWithSession(input, options, createSession());
+};
+
+export async function applyWithSession(
+  input: t.WorkspaceUpgrade.Input,
+  options: t.WorkspaceUpgrade.Options | undefined,
+  session: UpgradeSession,
+): Promise<t.WorkspaceUpgrade.ApplyResult> {
+  const planned = await upgradeWithSession(input, options, session);
   planned.options.progress?.({ kind: 'apply' });
   if (!planned.topological.ok) throw wrangle.topologyError(planned.topological);
 
@@ -29,7 +38,7 @@ export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => 
     entries,
     files,
   };
-};
+}
 
 const wrangle = {
   denoFilePath(input: t.WorkspaceUpgrade.Input): t.StringPath {
