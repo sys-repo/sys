@@ -6,6 +6,9 @@ export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options)
   return await upgradeWithSession(input, options, createSession());
 };
 
+/**
+ * Internal session-aware planning helper for multi-phase upgrade orchestration.
+ */
 export async function upgradeWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,

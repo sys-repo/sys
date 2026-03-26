@@ -6,6 +6,9 @@ export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => 
   return await applyWithSession(input, options, createSession());
 };
 
+/**
+ * Internal session-aware apply helper for multi-phase upgrade orchestration.
+ */
 export async function applyWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,

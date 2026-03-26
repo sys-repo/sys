@@ -5,6 +5,9 @@ export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options)
   return await collectWithSession(input, options, createSession());
 };
 
+/**
+ * Internal session-aware collection helper for multi-phase upgrade orchestration.
+ */
 export async function collectWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
