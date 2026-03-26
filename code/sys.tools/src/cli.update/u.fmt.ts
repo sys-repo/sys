@@ -43,8 +43,8 @@ export const Fmt = {
     const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
 
     table.push([c.gray('Package'), pkg.name]);
-    table.push([c.gray(`  latest`), remote]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);
+    table.push([c.gray(`  latest`), remote]);
     return Str.trimEdgeNewlines(String(table));
   },
 
