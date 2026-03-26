@@ -230,7 +230,7 @@ const wrangle = {
     const total = args.candidates.length.toLocaleString();
 
     const picked = await Cli.Input.Select.prompt<t.StringPath>({
-      message: `${c.cyan('›')} start ${c.cyan(args.release)} bump from which package ${c.gray(`(${total} total)`)}:\n`,
+      message: `${c.cyan('›')} which package should start the ${c.cyan(args.release)} bump ${c.gray(`(${total} total)`)}:\n`,
       maxRows: Math.min(50, args.candidates.length),
       options,
       default: packagePath(args.candidates[0]),
@@ -378,7 +378,8 @@ const wrangle = {
   },
 
   pad(value: string, width: number) {
-    return value.padEnd(width, ' ');
+    const visible = Cli.stripAnsi(value).length;
+    return visible >= width ? value : `${value}${' '.repeat(width - visible)}`;
   },
 } as const;
 
