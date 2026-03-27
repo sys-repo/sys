@@ -84,28 +84,32 @@ describe('Net.Port', () => {
       await Testing.retry(50, () => {
         const a = Port.random();
         const b = a + 1;
-        const l1 = Deno.listen({ hostname: '0.0.0.0', port: a });
-        const l2 = Deno.listen({ hostname: '0.0.0.0', port: b });
+        let l1: Deno.Listener | undefined;
+        let l2: Deno.Listener | undefined;
         try {
+          l1 = Deno.listen({ hostname: '0.0.0.0', port: a });
+          l2 = Deno.listen({ hostname: '0.0.0.0', port: b });
           const res = Port.get(a);
           expect(res).to.eql(a + 2);
         } finally {
-          l1.close();
-          l2.close();
+          l2?.close();
+          l1?.close();
         }
       });
     });
 
     (HAS_IPV6 ? it : it.skip)('increments when IPv6 holds the next ports', () => {
       const a = Port.random();
-      const l6a = Deno.listen({ hostname: '::1', port: a });
-      const l6b = Deno.listen({ hostname: '::1', port: a + 1 });
+      let l6a: Deno.Listener | undefined;
+      let l6b: Deno.Listener | undefined;
       try {
+        l6a = Deno.listen({ hostname: '::1', port: a });
+        l6b = Deno.listen({ hostname: '::1', port: a + 1 });
         const res = Port.get(a);
         expect(res).to.eql(a + 2);
       } finally {
-        l6a.close();
-        l6b.close();
+        l6b?.close();
+        l6a?.close();
       }
     });
 
