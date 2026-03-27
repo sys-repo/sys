@@ -10,3 +10,7 @@ deploy/**/*.jpg   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.jpeg  filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.svg   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.gif   filter=lfs diff=lfs merge=lfs -text
+
+# Keep this publishable SVG as normal git text so the generated TS surface can
+# be rebuilt from source without LFS pointer drift.
+deploy/@tdb.slc.std/src/ui/ui.Logo.Canvas/canvas.mini.svg -filter -diff -merge text

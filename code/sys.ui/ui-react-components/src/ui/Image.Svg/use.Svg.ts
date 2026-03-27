@@ -49,10 +49,9 @@ export function useSvg<T extends HTMLElement>(
   useEffect(() => {
     if (!importString) return;
 
-    // Load from embedded data-uri:
-    if (importString.startsWith('data:image/')) {
-      const svg = decodeURIComponent(importString.split(',')[1]);
-      setSvgMarkup(svg);
+    // Load from inline SVG markup:
+    if (importString.trimStart().startsWith('<svg')) {
+      setSvgMarkup(importString);
       return;
     }
 
