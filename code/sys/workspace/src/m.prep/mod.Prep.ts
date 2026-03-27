@@ -39,7 +39,7 @@ const wrangle = {
     readonly spinner: t.CliSpinner.Instance;
   }) {
     if (args.graph) return args.graph;
-    const msg = 'building workspace graph...';
+    const msg = 'building workspace dependency graph...';
     return await wrangle.runPhase(args.spinner, msg, args.silent, () => Graph.build(args.cwd));
   },
 
