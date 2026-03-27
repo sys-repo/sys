@@ -4,6 +4,7 @@ Common system templates invoked from the command line.
 - Powered by [`@sys/tmpl-engine`](https://jsr.io/@sys/tmpl-engine).
 - Provides an index of core **system** templates.
 - Delegates to the template CLIs exposed by `@sys/*/tmpl` entry points.
+- `@sys/tmpl/repo` produces a **"system workspace"** for multi-package composition.
 
 
 ### Usage

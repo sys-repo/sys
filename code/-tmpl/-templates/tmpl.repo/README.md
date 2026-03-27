@@ -1,6 +1,8 @@
 # @sys/tmpl repo starter
 Starter workspace for programmatic multi-package repositories managed by people and agents.
 
+This template produces a **"system workspace"** for multi-package composition.
+
 Create: `deno run -A jsr:@sys/tmpl/repo`
 
 <p>&nbsp;</p>
