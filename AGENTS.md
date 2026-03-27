@@ -7,6 +7,10 @@ Agents MUST:
 - treat the parent bootstrap and its canonical references as authoritative
 - apply this file cumulatively with that canon
 
+### Local note
+- Canonical skills live under `../sys.canon/skills/`.
+- Do not recreate canonical skills under `./skills/` unless a `sys`-local variant is explicitly needed.
+
 
 ====================================================================================================
 

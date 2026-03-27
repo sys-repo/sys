@@ -1,6 +1,17 @@
 # System Skills
+This folder is for `sys`-local skills only.
 
-Skills in this folder follow the Agent Skills specification:
-[agentskills.io/specification](https://agentskills.io/specification)
+Canonical system skills live in:
 
-Each skill is self-described in its own `SKILL.md`.
+- `../../sys.canon/skills/`
+- `https://github.com/sys-repo/sys.canon`
+
+Canonical doctrine lives in:
+
+- `../../sys.canon/AGENTS.md`
+- `../../sys.canon/-canon/`
+
+For the general skill model, see [What are skills?](https://agentskills.io/what-are-skills).
+
+Use this folder only for skills that are intentionally local to `sys`.
+Do not duplicate canonical skills here.
