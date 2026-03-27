@@ -27,7 +27,7 @@ describe('Workspace.Cli.Fmt', () => {
     const options = Fmt.selectionOptions(result, {
       include: [],
       exclude: [],
-      apply: true,
+      dryRun: false,
       deps: 'deps.yaml',
       mode: 'interactive',
       policy: 'minor',
@@ -51,7 +51,7 @@ describe('Workspace.Cli.Fmt', () => {
     const options = Fmt.selectionOptions(upgrade(), {
       include: [],
       exclude: [],
-      apply: true,
+      dryRun: false,
       deps: 'deps.yaml',
       mode: 'interactive',
       policy: 'minor',

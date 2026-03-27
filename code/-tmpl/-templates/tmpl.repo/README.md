@@ -37,9 +37,10 @@ Core tasks from `deno.json`:
 - `deno task outdated` → reports dependency updates from the canonical `deps.yaml` manifest
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
 
-To run a non-default upgrade mode, pass flags through the same task surface:
-- `deno task upgrade -- --mode latest`
-- `deno task upgrade -- --non-interactive --mode latest`
+To run the canonical workspace upgrade flow through the same task surface:
+- `deno task upgrade -- --non-interactive`
+- `deno task upgrade -- --policy latest`
+- `deno task upgrade -- --non-interactive --policy latest --dry-run`
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)

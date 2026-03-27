@@ -23,16 +23,16 @@ export declare namespace WorkspaceCli {
 
   /** Typed argv shape produced by `Args.parse(...)` for the workspace CLI. */
   export type ParsedArgs = {
-    /** Apply file changes instead of only planning/reporting. */
-    readonly apply?: boolean;
     /** Show CLI help and exit. */
     readonly help?: boolean;
     /** Include prerelease versions in upgrade consideration. */
     readonly prerelease?: boolean;
     /** Explicit interaction override. */
     readonly 'non-interactive'?: boolean;
-    /** Upgrade policy mode override. */
-    readonly mode?: t.EsmPolicyMode;
+    /** Render the upgrade result without mutating files. */
+    readonly 'dry-run'?: boolean;
+    /** Upgrade policy override. */
+    readonly policy?: t.EsmPolicyMode;
     /** Canonical dependency manifest path override. */
     readonly deps?: string;
     /** Dependency names or aliases to include. */
@@ -55,8 +55,8 @@ export declare namespace WorkspaceCli {
     readonly include: readonly string[];
     /** Dependency names or aliases to exclude. */
     readonly exclude: readonly string[];
-    /** Apply file changes instead of only planning/reporting. */
-    readonly apply: boolean;
+    /** Render the result without mutating files. */
+    readonly dryRun: boolean;
   };
 
   /** Selection resolved by the CLI before planning or apply. */

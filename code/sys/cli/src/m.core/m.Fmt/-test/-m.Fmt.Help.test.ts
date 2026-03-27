@@ -30,25 +30,32 @@ describe('Cli.Fmt.Help', () => {
     const help = Fmt.Help.build({
       tool: '@sys/workspace/cli',
       summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-      note: 'Interactive by default; non-interactive for reporting or scripted apply.',
+      note: 'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
       usage: ['@sys/workspace/cli [options]'],
       options: [
         ['-h, --help', 'show help'],
-        ['--apply', 'write deps.yaml and projected files'],
+        ['--non-interactive', 'run without prompts'],
+        ['--policy <none|patch|minor|latest>', 'set the upgrade policy'],
+        ['--dry-run', 'render the upgrade result without writing files'],
       ],
-      examples: ['@sys/workspace/cli', '@sys/workspace/cli --non-interactive'],
+      examples: [
+        '@sys/workspace/cli',
+        '@sys/workspace/cli --non-interactive',
+        '@sys/workspace/cli --non-interactive --policy latest --dry-run',
+      ],
     });
 
     const plain = Cli.stripAnsi(help);
     expect(help).to.include(c.bold(c.brightCyan('@sys/workspace/cli')));
     expect(help).to.include(c.white('Upgrade workspace dependencies from canonical deps.yaml.'));
     expect(help).to.include(
-      c.gray('Interactive by default; non-interactive for reporting or scripted apply.'),
+      c.gray('Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.'),
     );
     expect(plain).to.include('Usage');
     expect(plain).to.include('Options');
     expect(plain).to.include('Examples');
-    expect(plain).to.include('--apply');
+    expect(plain).to.include('--policy');
+    expect(plain).to.include('--dry-run');
   });
 
   it('supports generalized sections for future help layouts', () => {

@@ -13,7 +13,8 @@ describe('Workspace.Cli.run', () => {
       expect(result.text).to.include('Examples');
       expect(result.text).to.include('--prerelease');
       expect(result.text).to.include('--non-interactive');
-      expect(result.text).to.include('--apply');
+      expect(result.text).to.include('--policy');
+      expect(result.text).to.include('--dry-run');
     }
   });
 
@@ -28,8 +29,8 @@ describe('Workspace.Cli.run', () => {
     }
   });
 
-  it('plans in non-interactive mode without mutating files', async () => {
-    const fs = await Testing.dir('WorkspaceCli.run.plan');
+  it('applies in non-interactive mode by default', async () => {
+    const fs = await Testing.dir('WorkspaceCli.run.apply-default');
     await fixture.writeDepsYaml(fs, `
       deno.json:
         - import: jsr:@std/path@1.0.7
@@ -54,18 +55,16 @@ describe('Workspace.Cli.run', () => {
           },
           async () => {
             const beforeDeps = await Fs.readText(fs.join('deps.yaml'));
-            const beforeDeno = await Fs.readText(fs.join('deno.json'));
 
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--mode', 'latest'],
+              argv: ['--non-interactive', '--policy', 'latest'],
             });
 
             const afterDeps = await Fs.readText(fs.join('deps.yaml'));
-            const afterDeno = await Fs.readText(fs.join('deno.json'));
 
-            expect(result.kind).to.eql('plan');
-            if (result.kind === 'plan') {
+            expect(result.kind).to.eql('apply');
+            if (result.kind === 'apply') {
               expect(result.options).to.eql({
                 deps: fs.join('deps.yaml'),
                 mode: 'non-interactive',
@@ -73,7 +72,7 @@ describe('Workspace.Cli.run', () => {
                 prerelease: false,
                 include: [],
                 exclude: [],
-                apply: false,
+                dryRun: false,
               });
               expect(result.selection).to.eql({ include: [], exclude: [] });
               expect(result.upgrade.totals).to.eql({
@@ -83,16 +82,17 @@ describe('Workspace.Cli.run', () => {
                 planned: 2,
               });
             }
-            expect(afterDeps.data).to.eql(beforeDeps.data);
-            expect(afterDeno.data).to.eql(beforeDeno.data);
+            expect(afterDeps.data).to.not.eql(beforeDeps.data);
+            expect(afterDeps.data).to.include('jsr:@std/path@1.0.8');
+            expect(afterDeps.data).to.include('npm:react@19.0.0');
           },
         );
       },
     );
   });
 
-  it('applies in non-interactive mode when --apply is set', async () => {
-    const fs = await Testing.dir('WorkspaceCli.run.apply');
+  it('renders a non-interactive dry-run without mutating files', async () => {
+    const fs = await Testing.dir('WorkspaceCli.run.plan');
     await fixture.writeDepsYaml(fs, `
       deno.json:
         - import: jsr:@std/path@1.0.7
@@ -116,18 +116,31 @@ describe('Workspace.Cli.run', () => {
             npm: { 'react@19.0.0': fixture.infoNpm('react', '19.0.0') },
           },
           async () => {
+            const beforeDeps = await Fs.readText(fs.join('deps.yaml'));
+            const beforeDeno = await Fs.readText(fs.join('deno.json'));
+
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--apply', '--mode', 'latest'],
+              argv: ['--non-interactive', '--policy', 'latest', '--dry-run'],
             });
-            const depsText = await Fs.readText(fs.join('deps.yaml'));
+            const afterDeps = await Fs.readText(fs.join('deps.yaml'));
+            const afterDeno = await Fs.readText(fs.join('deno.json'));
 
-            expect(result.kind).to.eql('apply');
-            if (result.kind === 'apply') {
-              expect(result.applied.files.yaml.depsFilePath).to.eql(fs.join('deps.yaml'));
+            expect(result.kind).to.eql('plan');
+            if (result.kind === 'plan') {
+              expect(result.options).to.eql({
+                deps: fs.join('deps.yaml'),
+                mode: 'non-interactive',
+                policy: 'latest',
+                prerelease: false,
+                include: [],
+                exclude: [],
+                dryRun: true,
+              });
+              expect(result.selection).to.eql({ include: [], exclude: [] });
             }
-            expect(depsText.data).to.include('jsr:@std/path@1.0.8');
-            expect(depsText.data).to.include('npm:react@19.0.0');
+            expect(afterDeps.data).to.eql(beforeDeps.data);
+            expect(afterDeno.data).to.eql(beforeDeno.data);
           },
         );
       },
@@ -163,7 +176,7 @@ describe('Workspace.Cli.run', () => {
           async () => {
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--apply', '--mode', 'latest', '--include', 'react'],
+              argv: ['--non-interactive', '--policy', 'latest', '--include', 'react'],
             });
             const depsText = await Fs.readText(fs.join('deps.yaml'));
 
@@ -211,7 +224,7 @@ describe('Workspace.Cli.run', () => {
           async () => {
             const result = await WorkspaceCli.run({
               cwd: fs.dir,
-              argv: ['--non-interactive', '--apply', '--mode', 'latest', '--prerelease'],
+              argv: ['--non-interactive', '--policy', 'latest', '--prerelease'],
             });
 
             expect(result.kind).to.eql('apply');

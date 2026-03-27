@@ -50,7 +50,7 @@ export async function runInteractive(
 
   console.info(Fmt.selected(selection));
 
-  if (!options.apply) {
+  if (options.dryRun) {
     console.info();
     console.info(Fmt.plan(upgrade));
     console.info();

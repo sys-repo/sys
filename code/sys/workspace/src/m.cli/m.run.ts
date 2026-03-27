@@ -6,7 +6,7 @@ import { FmtHelp } from './u.fmt.help.ts';
 import { runInteractive } from './u.interactive.ts';
 
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
-  const cwd = input.cwd ?? Fs.cwd('terminal');
+  const cwd = input.cwd ?? Fs.cwd('process');
   const argv = [...(input.argv ?? [])];
   if (wantsHelp(argv)) {
     const text = FmtHelp.output();
@@ -43,23 +43,6 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const selection = await wrangle.selection(upgradeInput, options);
   console.info();
 
-  if (options.apply) {
-    const applied = await withSpinner(
-      Fmt.spinnerProgress({ kind: 'apply' }),
-      (spinner) =>
-        WorkspaceUpgrade.apply(
-          upgradeInput,
-          wrangle.upgradeOptions(options, selection.exclude, (progress) =>
-            spinner.start(Fmt.spinnerProgress(progress))
-          ),
-        ),
-    );
-    const upgrade = applied.upgrade;
-    console.info(Fmt.applied(applied));
-    console.info();
-    return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade, applied };
-  }
-
   const upgrade = await withSpinner(
     Fmt.spinnerProgress({ kind: 'plan' }),
     (spinner) =>
@@ -70,9 +53,26 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
         ),
       ),
   );
-  console.info(Fmt.plan(upgrade));
+  if (options.dryRun) {
+    console.info(Fmt.plan(upgrade));
+    console.info();
+    return { kind: 'plan', input: { argv, cwd }, options, selection, upgrade };
+  }
+
+  const applied = await withSpinner(
+    Fmt.spinnerProgress({ kind: 'apply' }),
+    (spinner) =>
+      WorkspaceUpgrade.apply(
+        upgradeInput,
+        wrangle.upgradeOptions(options, selection.exclude, (progress) =>
+          spinner.start(Fmt.spinnerProgress(progress))
+        ),
+      ),
+  );
+
+  console.info(Fmt.applied(applied));
   console.info();
-  return { kind: 'plan', input: { argv, cwd }, options, selection, upgrade };
+  return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade: applied.upgrade, applied };
 };
 
 async function withSpinner<T>(

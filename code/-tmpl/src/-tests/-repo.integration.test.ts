@@ -52,7 +52,7 @@ describe('Template: repo integration', () => {
     expect(graph.data?.['.meta'].schemaVersion).to.eql(1);
   });
 
-  it('generate in temp dir → repo materializes deps.yaml and upgrade runs against it', async () => {
+  it('generate in temp dir → repo materializes deps.yaml and upgrade dry-run runs against it', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.upgrade-' });
     const root = tmp.absolute;
 
@@ -68,7 +68,7 @@ describe('Template: repo integration', () => {
 
     const res = await Process.invoke({
       cmd: 'deno',
-      args: ['task', 'upgrade', '--', '--non-interactive', '--mode', 'latest'],
+      args: ['task', 'upgrade', '--', '--non-interactive', '--policy', 'latest', '--dry-run'],
       cwd: root,
       silent: true,
     });

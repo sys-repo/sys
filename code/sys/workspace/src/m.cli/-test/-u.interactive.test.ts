@@ -50,15 +50,15 @@ describe('Workspace.Cli.runInteractive', () => {
               const result = await runInteractive(
                 { cwd: fs.dir, deps: fs.join('deps.yaml') },
                 {
-                  deps: fs.join('deps.yaml'),
-                  mode: 'interactive',
-                  policy: 'minor',
-                  prerelease: false,
-                  include: [],
-                  exclude: [],
-                  apply: true,
-                },
-              );
+                deps: fs.join('deps.yaml'),
+                mode: 'interactive',
+                policy: 'minor',
+                prerelease: false,
+                include: [],
+                exclude: [],
+                dryRun: false,
+              },
+            );
 
               expect(result.selection).to.eql({
                 include: ['react-spinners'],

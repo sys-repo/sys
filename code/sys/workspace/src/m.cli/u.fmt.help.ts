@@ -9,13 +9,13 @@ export const FmtHelp = {
     return {
       tool: toolname,
       summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-      note: 'Interactive by default; non-interactive for reporting or scripted apply.',
+      note: 'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
       usage: [`${toolname} [options]`],
       options: [
         ['-h, --help', 'show help'],
-        ['--non-interactive', 'plan or apply without prompts'],
-        ['--apply', 'write deps.yaml and projected files'],
-        ['--mode <none|patch|minor|latest>', 'set the upgrade policy mode'],
+        ['--non-interactive', 'run without prompts'],
+        ['--policy <none|patch|minor|latest>', 'set the upgrade policy'],
+        ['--dry-run', 'render the upgrade result without writing files'],
         ['--prerelease', 'include prerelease versions in planning'],
         ['--deps <path>', 'override the deps.yaml path'],
         ['--include <name[,name]>', 'limit the run to named dependencies'],
@@ -24,8 +24,9 @@ export const FmtHelp = {
       examples: [
         `${toolname}`,
         `${toolname} --non-interactive`,
-        `${toolname} --non-interactive --apply --mode latest`,
-        `${toolname} --non-interactive --apply --mode latest --prerelease`,
+        `${toolname} --non-interactive --policy latest`,
+        `${toolname} --non-interactive --policy latest --prerelease`,
+        `${toolname} --non-interactive --policy latest --dry-run`,
       ],
     } as const;
   },

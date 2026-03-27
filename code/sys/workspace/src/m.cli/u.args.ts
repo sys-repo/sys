@@ -13,19 +13,19 @@ export function parseArgs(
   argv: readonly string[],
 ): t.WorkspaceCli.ResolvedOptions {
   const args = Args.parse<t.WorkspaceCli.ParsedArgs>(wrangle.argv(argv), {
-    boolean: ['apply', 'help', 'prerelease', 'non-interactive'],
-    string: ['mode', 'deps', 'include', 'exclude'],
+    boolean: ['dry-run', 'help', 'prerelease', 'non-interactive'],
+    string: ['policy', 'deps', 'include', 'exclude'],
     alias: { h: 'help' },
   });
 
   return {
     deps: Path.resolve(cwd, wrangle.one(args.deps) ?? 'deps.yaml'),
     mode: args['non-interactive'] === true ? 'non-interactive' : 'interactive',
-    policy: wrangle.policy(args.mode),
+    policy: wrangle.policy(args.policy),
     prerelease: args.prerelease === true,
     include: wrangle.list(args.include),
     exclude: wrangle.list(args.exclude),
-    apply: args['non-interactive'] === true ? args.apply === true : true,
+    dryRun: args['dry-run'] === true,
   };
 }
 

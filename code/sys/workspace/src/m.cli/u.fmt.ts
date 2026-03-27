@@ -179,7 +179,7 @@ export const Fmt = {
       {
         include: [],
         exclude: [],
-        apply: true,
+        dryRun: false,
         deps: upgrade.input.deps,
         mode: 'interactive',
         policy: upgrade.options.policy.mode,
