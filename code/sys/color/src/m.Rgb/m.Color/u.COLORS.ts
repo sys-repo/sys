@@ -16,6 +16,7 @@ export const PURPLE = '#a11d8e';
 export const RED = '#e21b22';
 export const TRANSPARENT = '#00000000';
 
+/** Canonical color constant map. */
 export const COLORS: t.ColorConstants = {
   TRANSPARENT,
   BLACK,

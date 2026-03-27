@@ -67,6 +67,7 @@ export function invert(theme: t.CommonTheme = defaultTheme): t.CommonTheme {
 /**
  * API
  */
+/** Color theme helper library. */
 export const Theme: t.ColorThemeLib = {
   create,
   invert,

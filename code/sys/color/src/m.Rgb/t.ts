@@ -3,9 +3,13 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './m.Theme/t.ts';
 
+/** Hex color string. */
 export type HexColor = t.StringHex;
+/** CSS `rgb(...)` color string. */
 export type RgbColor = `rgb(${string})`;
+/** CSS `rgba(...)` color string. */
 export type RgbaColor = `rgba(${string})`;
+/** Color inputs accepted by alpha-aware helpers. */
 export type AlphaColorInput = HexColor | RgbColor | RgbaColor;
 
 /**
@@ -42,7 +46,7 @@ export type ColorLib = t.ColorConstants & {
    */
   toGrayAlpha(value: number): RgbaColor;
 
-  /** ColorThemeLib */
+  /** Color theme helpers. */
   readonly Theme: t.ColorThemeLib;
   /** Create a color theme instance. */
   theme: t.ColorThemeLib['create'];
