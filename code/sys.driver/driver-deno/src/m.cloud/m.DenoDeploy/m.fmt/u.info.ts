@@ -142,8 +142,9 @@ export const InfoFmt = {
     return InfoFmt.info({
       title: 'Staged Entrypoint',
       rows: [
-        { label: 'entry', value: args.entrypoint, color: 'white' },
-        { label: 'paths', value: args.entryPaths, color: 'white' },
+        { label: 'dir', value: args.stagedDir, color: 'white' },
+        { label: 'entry', value: wrangle.relativeTo(args.entrypoint, args.stagedDir), color: 'white' },
+        { label: 'paths', value: wrangle.relativeTo(args.entryPaths, args.stagedDir), color: 'white' },
         { label: 'main', value: args.appEntrypoint, color: 'white' },
         { label: 'workspace', value: args.workspaceTarget, color: 'white' },
         { label: 'dist', value: args.distDir, color: 'white' },
@@ -339,5 +340,9 @@ const wrangle = {
     const revisionId = revision.match(/\/builds\/([A-Za-z0-9_-]+)/)?.[1];
     if (!revisionId) return [] as const;
     return preview.includes(revisionId) ? [revisionId] as const : [] as const;
+  },
+
+  relativeTo(path: string, base: string) {
+    return path.startsWith(`${base}/`) ? `.${path.slice(base.length)}` : path;
   },
 } as const;
