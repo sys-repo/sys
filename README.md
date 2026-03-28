@@ -261,7 +261,7 @@ The inverse proposition also appears to be true:
 
 <p>&nbsp;</p>
 
-† *CI is the enforcement mechanism that keeps Gall’s-Law evolution honest.*
+† *[CI](https://en.wikipedia.org/wiki/Continuous_integration) is the enforcement mechanism that keeps [Gall’s-Law evolution](https://en.wikipedia.org/wiki/John_Gall_(author)) honest.*
 
 ![smor-sys crdt-cell-timeline](https://github.com/cellplatform/platform-0.2.0/assets/185555/588f6c58-3e94-4818-8ada-cb333822025d)
 
