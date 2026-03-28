@@ -23,23 +23,15 @@ async function main() {
   const { pkgDir } = await Sample.Fixture.createDeployableRepoPkg();
 
   const deployment = DenoDeploy.pipeline({ pkgDir, config });
-  let printedTemplates = false;
-  const note = deployment.$.subscribe((step) => {
-    if (printedTemplates || step.kind !== 'stage:start') return;
-    printedTemplates = true;
-    console.info(
-      [
-        c.gray(` ${Cli.Fmt.Tree.last}${Cli.Fmt.Tree.bar} @sys/tmpl/repo (workspace)`),
-        c.gray(`   ${Cli.Fmt.Tree.last}${Cli.Fmt.Tree.bar} @sys/tmpl/pkg`),
-      ].join('\n'),
-    );
+  const reporter = DenoDeploy.Fmt.listen(deployment, {
+    afterConfig() {
+      return templateProvenance();
+    },
   });
-  const reporter = DenoDeploy.Fmt.listen(deployment);
 
   try {
     await deployment.run();
   } finally {
-    note.unsubscribe();
     reporter.dispose();
   }
 }
@@ -57,3 +49,15 @@ const HELP = {
   options: [['-h, --help', 'show help']],
   examples: ['deno task sample:deploy'],
 } as const;
+
+function templateProvenance() {
+  const items = [
+    '@sys/tmpl/repo (workspace)',
+    '@sys/tmpl/pkg',
+  ] as const;
+  return [
+    c.gray('Templates:'),
+    ...items.map((item, i) => c.gray(` ${Cli.Fmt.Tree.branch([i, items])} ${item}`)),
+    '',
+  ] as const;
+}

@@ -15,7 +15,7 @@ export const ListenFmt = {
     return Cli.spinner(text);
   },
 
-  listen(deployment: t.DenoDeploy.Pipeline.Handle) {
+  listen(deployment: t.DenoDeploy.Pipeline.Handle, hooks: t.DenoDeploy.Fmt.ListenHooks = {}) {
     const life = Rx.abortable();
     let spin: ReturnType<typeof ListenFmt.spinner> | undefined;
     let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
@@ -30,6 +30,8 @@ export const ListenFmt = {
           sourceDir: step.pkgDir,
           stagedDir: step.root,
         }));
+        const extra = hooks.afterConfig?.({ deployment, step });
+        if (extra && extra.length > 0) print(extra);
         wrangle.status({
           interactive,
           spin,

@@ -63,6 +63,8 @@ export declare namespace DenoDeploy {
 
   /** Operator-facing formatting contracts. */
   export namespace Fmt {
+    export type ListenCtx = f.ListenCtx;
+    export type ListenHooks = f.ListenHooks;
     export type Lib = f.Lib;
   }
 
