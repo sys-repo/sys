@@ -139,7 +139,6 @@ async function runSilentPhase<T>(
   label: string,
   fn: () => Promise<T>,
 ) {
-  console.info();
   spinner.start(Cli.Fmt.spinnerText(label));
   try {
     return await fn();

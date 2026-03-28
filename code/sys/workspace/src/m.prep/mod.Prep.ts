@@ -62,7 +62,6 @@ const wrangle = {
     fn: () => Promise<T>,
   ) {
     if (silent) return await fn();
-    console.info();
     const startedAt = Time.now.timestamp;
     const timer = Time.interval(1000, () => (spinner.text = wrangle.phaseText(label, startedAt)));
     spinner.start(Cli.Fmt.spinnerText(label));

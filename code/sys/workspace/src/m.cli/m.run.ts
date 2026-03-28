@@ -83,7 +83,6 @@ async function withSpinner<T>(
   message: string,
   fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
 ): Promise<T> {
-  console.info();
   const spinner = Cli.spinner(message);
   try {
     return await fn(spinner);
