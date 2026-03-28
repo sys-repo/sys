@@ -44,7 +44,6 @@
     "@types/ws": "npm:@types/ws@8.18.1",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@5.2.0",
     "ai": "npm:ai@6.0.141",
-    "approx-string-match": "npm:approx-string-match@2",
     "bowser": "npm:bowser@2.14.1",
     "chai": "npm:chai@6.2.2",
     "csstype": "npm:csstype@3.2.3",

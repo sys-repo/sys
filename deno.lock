@@ -128,7 +128,6 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.2.0": "5.2.0_vite@7.3.1__yaml@2.8.3",
-    "npm:approx-string-match@2": "2.0.0",
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -2016,9 +2015,6 @@
     "ansi-styles@6.2.3": {
       "integrity": "sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg=="
     },
-    "approx-string-match@2.0.0": {
-      "integrity": "sha512-03v8MsWnZYV4Svv82EYWoVw1RIKAJ/zubmhG1FYvhJwOsBnLPxx6CPHF2dXN/yW8uwHK+653j52IwiNluJR97w=="
-    },
     "aria-query@5.3.0": {
       "integrity": "sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==",
       "dependencies": [
@@ -3392,7 +3388,6 @@
       "npm:@types/ws@8.18.1",
       "npm:@vitejs/plugin-react@5.2.0",
       "npm:ai@6.0.141",
-      "npm:approx-string-match@2",
       "npm:bowser@2.14.1",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
