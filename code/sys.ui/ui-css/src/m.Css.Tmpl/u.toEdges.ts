@@ -21,7 +21,7 @@ export function toEdges(
       (res as any)[field] = value;
     };
 
-    if (typeof mutater === 'function') {
+    if (Is.func(mutater)) {
       const runMutation = (edge: keyof t.CssEdges, value?: N) => {
         let field: keyof t.CssProps | null = edge;
         const payload: t.CssEdgeMutaterArgs = {
@@ -50,7 +50,7 @@ export function toEdges(
   };
 
   if (input == null) return {};
-  if (typeof input === 'string' && input.includes(' ')) {
+  if (Is.str(input) && input.includes(' ')) {
     const parts = input.split(' ').map((v) => (Is.numeric(v) ? Number(v) : v));
     return fromArray(parts as t.CssEdgesArray);
   }
@@ -111,7 +111,7 @@ export const WrangleEdge = {
  * Helpers
  */
 function isEdgeValue(input: any): input is N {
-  return typeof input === 'number' || typeof input === 'string';
+  return Is.num(input) || Is.str(input);
 }
 
 function mutateEdge(

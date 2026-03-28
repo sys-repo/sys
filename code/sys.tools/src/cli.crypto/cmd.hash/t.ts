@@ -31,6 +31,7 @@ export type HashDistRowStatus = 'created' | 'changed' | 'differs' | 'invalid';
 
 export type HashDistRow = {
   readonly path: t.StringPath;
+  readonly sizeBytes?: t.NumberBytes;
   readonly status?: HashDistRowStatus;
 };
 
@@ -38,6 +39,7 @@ export type HashDistRowBefore = {
   readonly path: t.StringPath;
   readonly exists: boolean;
   readonly kind: 'missing' | 'canonical' | 'legacy' | 'invalid';
+  readonly sizeBytes?: t.NumberBytes;
   readonly digest?: t.StringHash;
 };
 

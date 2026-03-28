@@ -1,6 +1,6 @@
 /**
- * Tools for working with streaming media.
  * @module
+ * Tools for working with streaming media.
  */
 export { AspectRatio } from './m.AspectRatio.ts';
 export { Is } from './m.Is.ts';

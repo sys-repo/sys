@@ -39,7 +39,7 @@ export const CssTmpl: CssTmplLib = {
     if (o.Size !== undefined) formatSize('Size', o.Size, o);
 
     // Scroll → { overflow... }
-    if (typeof o.Scroll === 'boolean') formatScroll('Scroll', o.Scroll, o);
+    if (Is.bool(o.Scroll)) formatScroll('Scroll', o.Scroll, o);
 
     // Grid: gap.
     if (o.gap !== undefined) o = formatGap(o);

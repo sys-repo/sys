@@ -45,7 +45,7 @@ export type SemverLib = {
   /**
    * Return the greatest (latest) semver from the given list.
    * - Invalid or undefined values are ignored.
-   * - If all values are missing/invalid -> returns undefined.
+   * - If all values are missing/invalid → returns undefined.
    */
   latest(...inputs: t.Ary<t.Semver | t.StringSemver | undefined>): t.StringSemver | undefined;
 };

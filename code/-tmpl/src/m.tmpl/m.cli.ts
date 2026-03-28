@@ -12,7 +12,7 @@ type SetupOptions = {
  * CLI entry (interactive by default, deterministic when non-interactive).
  */
 export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsedArgs): Promise<void> {
-  console.info(c.gray(`${c.green('Current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
+  console.info(c.gray(`${c.green('working dir:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
 
   const root = await resolveTemplate(args);
   const tmplName = assertLocalTemplate(root);
@@ -82,7 +82,7 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
     return { pkgName: args.pkgName };
   }
 
-  if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller-signal') {
+  if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller') {
     if (!Is.str(args.name) && !args.interactive) {
       throw new Error(`Template "${tmplName}" requires --name in --no-interactive mode.`);
     }

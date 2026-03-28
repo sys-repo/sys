@@ -3,9 +3,13 @@ import { type t, Color } from './common.ts';
 /**
  * Helpers:
  */
-export function hex(base: string) {
-  const darken = (by: number) => Color.toHex(Color.darken(base, by));
-  const lighten = (by: number) => Color.toHex(Color.lighten(base, by));
+const asHex = (input: string, fallback: t.StringHex): t.StringHex => {
+  return Color.toHex(input) ?? fallback;
+};
+
+export function hex(base: t.StringHex) {
+  const darken = (by: number) => asHex(Color.darken(base, by), base);
+  const lighten = (by: number) => asHex(Color.lighten(base, by), base);
   return { base, darken, lighten } as const;
 }
 
@@ -13,5 +17,5 @@ export function hex(base: string) {
  * Apply alpha to a base hex and return #RRGGBBAA.
  */
 export function alpha(color: t.StringHex, a: number): t.StringHex {
-  return Color.toHex(Color.alpha(color, a));
+  return asHex(Color.alpha(color, a), color);
 }

@@ -7,9 +7,9 @@ const TOOLSET: ReadonlySet<string> = new Set(D.TOOLS);
  * Parse root argv and extract a typed command from the first positional.
  * Flags do not suppress command detection.
  */
-export function parseArgs(argv: string[]): t.Tools.CliRootParsedArgs {
+export function parseArgs(argv: string[]): t.Root.CliRootParsedArgs {
   const normalized = Args.normalizeCommand(argv, Args.toAliasLookup(ALIAS));
-  const args = Args.parse<t.Tools.CliRootArgs>(normalized, {
+  const args = Args.parse<t.Root.CliRootArgs>(normalized, {
     alias: { h: 'help' },
     boolean: ['help'],
   });
@@ -23,6 +23,6 @@ export function parseArgs(argv: string[]): t.Tools.CliRootParsedArgs {
 /**
  * Helpers
  */
-function isRootCommand(x?: string): x is t.Tools.Command {
+function isRootCommand(x?: string): x is t.Root.Command {
   return x !== undefined && TOOLSET.has(x);
 }

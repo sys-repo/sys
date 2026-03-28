@@ -19,7 +19,7 @@ export const toEdges: t.CssToEdges<t.CssEdges> = (input, options = {}) => {
   }
 
   const edges = input
-    .map((n) => (typeof n === 'string' && n.endsWith('px') ? n.replace(/px$/, '') : n))
+    .map((n) => (Is.str(n) && n.endsWith('px') ? n.replace(/px$/, '') : n))
     .map((item) => wrangle.asNumber(item));
 
   let top: number | undefined;
@@ -93,7 +93,7 @@ export function prefixEdges<T extends O>(prefix: string, edges: Partial<t.CssEdg
 const wrangle = {
   defaultValue(value?: t.CssEdgeDefault) {
     if (value === undefined || value === null) return null;
-    if (typeof value === 'number' || typeof value === 'string') return value;
+    if (Is.num(value) || Is.str(value)) return value;
     return null;
   },
 
@@ -105,7 +105,7 @@ const wrangle = {
   asNumber(value: any) {
     if (Is.blank(value)) return value;
 
-    value = typeof value === 'string' ? value.trim() : value;
+    value = Is.str(value) ? value.trim() : value;
     const num = parseFloat(value);
     if (num === undefined) return value;
     if (num.toString().length !== value.toString().length) return value;

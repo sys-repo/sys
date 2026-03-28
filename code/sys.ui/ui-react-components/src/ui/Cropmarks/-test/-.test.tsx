@@ -1,8 +1,8 @@
-import { beforeAll, afterAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { act, afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
 import { Cropmarks } from '../mod.ts';
 
 describe('<Cropmarks> percent mode', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('emits host vars and subject uses cqi/cqb sizing', async () => {
     const rendered = await TestReact.render(
@@ -29,10 +29,9 @@ describe('<Cropmarks> percent mode', () => {
     expect(norm(subjCS.getPropertyValue('inline-size'))).to.equal('calc(min(80,100)*1cqi)');
     expect(norm(subjCS.getPropertyValue('block-size'))).to.equal('calc(min(60,100)*1cqb)');
 
-    rendered.dispose();
+    act(() => rendered.dispose());
     rendered.disposed;
 
-    // Ensure any queued scheduler Immediate runs while window still exists.
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    await Promise.resolve();
   });
 });

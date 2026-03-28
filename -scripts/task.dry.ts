@@ -2,7 +2,7 @@ import { c, Cli, Log, Paths, Process, type CmdResult } from './u.ts';
 
 export async function main() {
   console.info();
-  const spinner = Cli.spinner();
+  const spinner = Cli.Spinner.create('');
 
   const results: CmdResult[] = [];
   const run = async (path: string, index: number, total: number) => {
@@ -14,7 +14,7 @@ export async function main() {
     const moduleList = Log.moduleList({ index, indent: 3 });
 
     const text = `${title}\n  ${commandFmt}\n${moduleList}`;
-    spinner.text = c.gray(text);
+    spinner.start(Cli.Fmt.spinnerText(c.gray(text)));
 
     const output = await Process.sh(path).run(command);
     results.push({ output, path });
@@ -27,7 +27,7 @@ export async function main() {
     }
     spinner.stop();
   } catch (err: any) {
-    spinner.fail(`Failed: ${err.message}`);
+    spinner.fail(Cli.Fmt.spinnerText(`Failed: ${err.message}`));
   } finally {
     spinner.stop();
   }

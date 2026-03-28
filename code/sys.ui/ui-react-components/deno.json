@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.205",
+  "version": "0.0.227",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -10,7 +10,7 @@
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help",
+    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -25,7 +25,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

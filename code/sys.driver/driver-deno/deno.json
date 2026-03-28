@@ -1,28 +1,42 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.255",
+  "version": "0.0.286",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "test:external": "deno test -P=test --trace-leaks ./src/m.cloud/m.DenoDeploy/-test/-external.ts",
+    "prep": "deno run -P=prep ./-scripts/task.prep.ts",
     "check": "deno check src/*",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -P=clean ./-scripts/task.clean.ts"
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts",
+    "sample:deploy": "deno run -A ./-scripts/task.sample.deploy.ts",
+    "sample:create-app": "deno run -A ./-scripts/task.sample.create-app.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./runtime": "./src/ns.Runtime/mod.ts"
+    "./cloud": "./src/m.cloud/mod.ts",
+    "./runtime": "./src/m.runtime/mod.ts"
   },
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
+    },
+    "prep": {
+      "read": true,
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "run": true,
+      "net": true
     }
   }
 }

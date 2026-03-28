@@ -1,6 +1,6 @@
 {
   "name": "@sys/model",
-  "version": "0.0.42",
+  "version": "0.0.63",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -19,7 +19,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

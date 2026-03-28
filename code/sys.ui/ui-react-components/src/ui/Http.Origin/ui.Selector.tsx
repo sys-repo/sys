@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, BulletList, Color, css, Is } from './common.ts';
 
-type P = t.HttpOriginProps;
+type P = t.HttpOrigin.Props;
 
 /**
  * Component:
@@ -48,6 +48,6 @@ export const OriginSelector: React.FC<P> = (props) => {
   );
 };
 
-function isEnv(input: string): input is t.HttpOriginEnv {
+function isEnv(input: string): input is t.HttpOrigin.Env {
   return input === 'localhost' || input === 'production';
 }

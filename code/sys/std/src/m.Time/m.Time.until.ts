@@ -2,6 +2,7 @@ import { Dispose } from '../m.Dispose/mod.ts';
 
 import { type t, Rx } from './common.ts';
 import { delay, Wrangle } from './m.Time.delay.ts';
+import { interval } from './m.Time.interval.ts';
 
 /**
  * Exposes timer functions that cease after a dispose signal is received.
@@ -23,6 +24,18 @@ export function until(until$: t.UntilObservable) {
       return res;
     },
 
+    interval(msecs, fn, options) {
+      const signal = wrangle.signal(options);
+      const ctrl = new AbortController();
+      const res = interval(msecs, fn, {
+        signal: signal ? AbortSignal.any([ctrl.signal, signal]) : ctrl.signal,
+        immediate: wrangle.immediate(options),
+      });
+
+      life.dispose$.pipe(Rx.take(1)).subscribe(() => ctrl.abort());
+      return res;
+    },
+
     wait(msecs) {
       return typeof msecs === 'number' ? api.delay(msecs) : api.delay();
     },
@@ -41,3 +54,19 @@ export function until(until$: t.UntilObservable) {
 
   return api;
 }
+
+const wrangle = {
+  signal(input: unknown) {
+    if (!input) return undefined;
+    if (input instanceof AbortController) return input.signal;
+    if (input instanceof AbortSignal) return input;
+    if (typeof input !== 'object') return undefined;
+    const signal = Reflect.get(input, 'signal');
+    return signal instanceof AbortSignal ? signal : undefined;
+  },
+
+  immediate(input: unknown) {
+    if (!input || typeof input !== 'object') return false;
+    return (input as t.TimeIntervalOptions).immediate === true;
+  },
+} as const;

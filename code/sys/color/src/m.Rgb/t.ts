@@ -1,109 +1,55 @@
 import type { t } from './common.ts';
 
-type HexColor = string;
-type ColorInput = string | null;
+/** Type re-exports. */
+export type * from './m.Theme/t.ts';
 
-export type StringRgb = string;
-export type StringRgba = string;
+/** Hex color string. */
+export type HexColor = t.StringHex;
+/** CSS `rgb(...)` color string. */
+export type RgbColor = `rgb(${string})`;
+/** CSS `rgba(...)` color string. */
+export type RgbaColor = `rgba(${string})`;
+/** Color inputs accepted by alpha-aware helpers. */
+export type AlphaColorInput = HexColor | RgbColor | RgbaColor;
 
 /**
  * Library: Helpers for working with colors.
  */
 export type ColorLib = t.ColorConstants & {
   /**
-   * Takes a value of various types and converts it into a color.
-   */
-  format(value?: string | number | boolean): string | undefined;
-
-  /**
    * Converts a color to an alpha RGB value.
    * @param: alpha: 0..1
    */
-  alpha(color: string, alpha: t.Percent): t.StringRgba;
+  alpha(color: AlphaColorInput, alpha: t.Percent): RgbaColor;
   /** Returns an alpha percentage of red. */
-  ruby(alpha?: t.Percent | boolean): t.StringRgba;
+  ruby(alpha?: t.Percent | boolean): RgbaColor;
 
   /**
    * Lightens the given color.
    * @param amount: 0..100
    */
-  lighten(color: string, amount: number): t.StringRgb;
+  lighten(color: HexColor, amount: number): RgbColor;
 
   /**
    * Darkens the given color.
    * @param amount: 0..100
    */
-  darken(color: string, amount: number): t.StringRgb;
+  darken(color: HexColor, amount: number): RgbColor;
 
   /**
    * Convert the given color into a hex.
    */
-  toHex(color: string): t.StringHex;
+  toHex(color: AlphaColorInput): t.StringHex | undefined;
 
-  /** ColorThemeLib */
-  readonly Theme: ColorThemeLib;
+  /**
+   * Convert a number in the range [-1, 1] to transparent/black/white RGBA.
+   */
+  toGrayAlpha(value: number): RgbaColor;
+
+  /** Color theme helpers. */
+  readonly Theme: t.ColorThemeLib;
   /** Create a color theme instance. */
-  theme: ColorThemeLib['create'];
-};
-
-/**
- * Tools for working with the basic color theme ("Light" / "Dark").
- */
-export type ColorThemeLib = {
-  /**
-   * Create a color theme instance.
-   */
-  create(
-    input?: t.CommonTheme | t.ColorTheme | null, // NB: loose input.
-    defaultLight?: ColorInput,
-    defaultDark?: ColorInput,
-  ): t.ColorTheme;
-
-  /**
-   * Invert a color scheme.
-   */
-  invert(theme?: t.CommonTheme): t.CommonTheme;
-};
-
-/**
- * Represents a theme that produces basic color sets.
- */
-export type ColorTheme = ColorThemeColors & {
-  /** The name of the theme. */
-  readonly name: t.CommonTheme;
-
-  /** Flags */
-  readonly is: {
-    /** Theme is "Light" */
-    readonly light: boolean;
-    /** Theme is "Dark" */
-    readonly dark: boolean;
-  };
-
-  /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
-  invert(): ColorTheme;
-
-  /** Retrieve an alpha-percent (-1..1) of the current theme colors (pass negative to invert). */
-  alpha(percent?: t.Percent): ColorThemeColors;
-
-  /** Retrieves an alpha-percent of the current theme, or locked to the given string-color if provided (pass negative to invert). */
-  format(input?: t.Percent | string): ColorThemeColors;
-
-  /** Convert to string. */
-  toString(): string;
-  /** Convert to a fg/bg object. */
-  toColors(): ColorThemeColors;
-};
-
-/**
- * Primitive theme colors.
- */
-export type ColorThemeColors = {
-  /** Background color. */
-  readonly bg: HexColor;
-
-  /** Foreground color. */
-  readonly fg: HexColor;
+  theme: t.ColorThemeLib['create'];
 };
 
 /**

@@ -1,6 +1,6 @@
 /**
- * UI module wrapping the Monaco code editor.
  * @module
+ * UI module wrapping the Monaco code editor.
  */
 export { Monaco } from '../m.Monaco/mod.ts';
 export { EditorCrdt } from './m.Crdt/mod.ts';

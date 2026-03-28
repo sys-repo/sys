@@ -1,0 +1,30 @@
+{
+  "tasks": {
+    "ci": "deno task check && deno task test",
+    "check": "deno check",
+    "test": "deno test -P=test ./-scripts ./code",
+    "prep": "deno run -P=test ./-scripts/task.prep.ts",
+    "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
+    "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
+    "install": "deno install --reload",
+    "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
+    "info": "deno run -P=test ./-scripts/task.info.ts",
+    "tmp": "deno run -A ./-scripts/tmp.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["npm:@types/react", "npm:@types/react-dom"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "fmt": { "singleQuote": true, "trailingCommas": "always", "lineWidth": 100 },
+  "nodeModulesDir": "auto",
+  "importMap": "imports.json",
+  "permissions": {
+    "test": { "read": true, "write": true, "env": true, "run": true },
+    "tmpl": { "read": true, "write": true, "run": true, "env": true },
+    "upgrade": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true }
+  },
+  "workspace": []
+}

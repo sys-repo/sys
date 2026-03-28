@@ -1,12 +1,15 @@
 import {
   assertImportMap,
+  PATH,
   readJson,
+  resolvePublishedPackageVersions,
   resolvePackageVersions,
   syncByKey,
   syncTemplateImports,
   syncTemplatePackage,
 } from '../-prep.u.ts';
 import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
+import { resolveVersions } from '../task.prep.ts';
 
 describe('prep.u', () => {
   it('syncByKey → updates each target key deterministically', () => {
@@ -30,9 +33,6 @@ describe('prep.u', () => {
     };
     const authority = {
       imports: {
-        '@sys/fs': 'jsr:@sys/fs@0.0.243',
-        '@sys/std': 'jsr:@sys/std@0.0.300',
-        '@sys/std/async': 'jsr:@sys/std@0.0.300/async',
         '@sys/testing/server': 'jsr:@sys/testing@0.0.234/server',
       },
     };
@@ -58,12 +58,30 @@ describe('prep.u', () => {
       imports: {
         '@sys/driver-vite': 'jsr:@sys/driver-vite@0.0.0',
         '@sys/driver-vite/main': 'jsr:@sys/driver-vite@0.0.0/main',
+        '@sys/driver-vite/t': 'jsr:@sys/driver-vite@0.0.0/t',
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/fs/t': 'jsr:@sys/fs@0.0.0/t',
         '@sys/http/client': 'jsr:@sys/http@0.0.0/client',
+        '@sys/http/t': 'jsr:@sys/http@0.0.0/t',
+        '@sys/workspace': 'jsr:@sys/workspace@0.0.0',
+        '@sys/workspace/cli': 'jsr:@sys/workspace@0.0.0/cli',
+        '@sys/workspace/t': 'jsr:@sys/workspace@0.0.0/t',
+        '@sys/workspace/testing': 'jsr:@sys/workspace@0.0.0/testing',
+        '@sys/process': 'jsr:@sys/process@0.0.0',
+        '@sys/process/t': 'jsr:@sys/process@0.0.0/t',
         '@sys/ui-css': 'jsr:@sys/ui-css@0.0.0',
         '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.0',
         '@sys/ui-react': 'jsr:@sys/ui-react@0.0.0',
         '@sys/ui-react-components': 'jsr:@sys/ui-react-components@0.0.0',
         '@sys/ui-react-devharness': 'jsr:@sys/ui-react-devharness@0.0.0',
+        '@sys/std': 'jsr:@sys/std@0.0.0',
+        '@sys/std/t': 'jsr:@sys/std@0.0.0/t',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+        '@sys/tmpl/t': 'jsr:@sys/tmpl@0.0.0/t',
+        '@sys/tools': 'jsr:@sys/tools@0.0.0',
+        '@sys/tools/t': 'jsr:@sys/tools@0.0.0/t',
+        '@sys/ui-react/t': 'jsr:@sys/ui-react@0.0.0/t',
+        '@sys/ui-react-components/t': 'jsr:@sys/ui-react-components@0.0.0/t',
       },
     };
     const authority = {
@@ -73,7 +91,14 @@ describe('prep.u', () => {
       },
     };
     const versions = {
+      '@sys/driver-vite': '0.0.297',
+      '@sys/fs': '0.0.243',
       '@sys/http': '0.0.210',
+      '@sys/workspace': '0.0.011',
+      '@sys/process': '0.0.201',
+      '@sys/std': '0.0.300',
+      '@sys/tmpl': '0.3.7',
+      '@sys/tools': '0.2.4',
       '@sys/ui-css': '0.0.231',
       '@sys/ui-dom': '0.0.237',
       '@sys/ui-react': '0.0.245',
@@ -84,11 +109,31 @@ describe('prep.u', () => {
     const res = syncTemplateImports(input, authority, versions);
     expect(res.imports['@sys/driver-vite']).to.eql('jsr:@sys/driver-vite@0.0.297');
     expect(res.imports['@sys/driver-vite/main']).to.eql('jsr:@sys/driver-vite@0.0.297/main');
+    expect(res.imports['@sys/driver-vite/t']).to.eql('jsr:@sys/driver-vite@0.0.297/t');
+    expect(res.imports['@sys/fs']).to.eql('jsr:@sys/fs@0.0.243');
+    expect(res.imports['@sys/fs/t']).to.eql('jsr:@sys/fs@0.0.243/t');
     expect(res.imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.210/client');
+    expect(res.imports['@sys/http/t']).to.eql('jsr:@sys/http@0.0.210/t');
+    expect(res.imports['@sys/workspace']).to.eql('jsr:@sys/workspace@0.0.011');
+    expect(res.imports['@sys/workspace/cli']).to.eql('jsr:@sys/workspace@0.0.011/cli');
+    expect(res.imports['@sys/workspace/t']).to.eql('jsr:@sys/workspace@0.0.011/t');
+    expect(res.imports['@sys/workspace/testing']).to.eql(
+      'jsr:@sys/workspace@0.0.011/testing',
+    );
+    expect(res.imports['@sys/process']).to.eql('jsr:@sys/process@0.0.201');
+    expect(res.imports['@sys/process/t']).to.eql('jsr:@sys/process@0.0.201/t');
+    expect(res.imports['@sys/std']).to.eql('jsr:@sys/std@0.0.300');
+    expect(res.imports['@sys/std/t']).to.eql('jsr:@sys/std@0.0.300/t');
+    expect(res.imports['@sys/tmpl']).to.eql('jsr:@sys/tmpl@0.3.7');
+    expect(res.imports['@sys/tmpl/t']).to.eql('jsr:@sys/tmpl@0.3.7/t');
+    expect(res.imports['@sys/tools']).to.eql('jsr:@sys/tools@0.2.4');
+    expect(res.imports['@sys/tools/t']).to.eql('jsr:@sys/tools@0.2.4/t');
     expect(res.imports['@sys/ui-css']).to.eql('jsr:@sys/ui-css@0.0.231');
     expect(res.imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
     expect(res.imports['@sys/ui-react']).to.eql('jsr:@sys/ui-react@0.0.245');
+    expect(res.imports['@sys/ui-react/t']).to.eql('jsr:@sys/ui-react@0.0.245/t');
     expect(res.imports['@sys/ui-react-components']).to.eql('jsr:@sys/ui-react-components@0.0.197');
+    expect(res.imports['@sys/ui-react-components/t']).to.eql('jsr:@sys/ui-react-components@0.0.197/t');
     expect(res.imports['@sys/ui-react-devharness']).to.eql('jsr:@sys/ui-react-devharness@0.0.242');
   });
 
@@ -166,6 +211,115 @@ describe('prep.u', () => {
     ]);
   });
 
+  it('resolvePublishedPackageVersions → reads latest published versions from authority', async () => {
+    const imports = {
+      imports: {
+        '@sys/fs': 'jsr:@sys/fs@0.0.0',
+        '@sys/tmpl': 'jsr:@sys/tmpl@0.0.0',
+      },
+    };
+    const calls: string[] = [];
+    const published = {
+      latestVersion(name: string) {
+        calls.push(name);
+        const resolve = (res: { kind: 'published'; version: string } | { kind: 'unpublished' }) => Promise.resolve(res);
+        if (name === '@sys/fs') return resolve({ kind: 'published', version: '0.0.243' });
+        if (name === '@sys/tmpl') return resolve({ kind: 'published', version: '0.0.259' });
+        return resolve({ kind: 'unpublished' });
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    const res = await resolvePublishedPackageVersions(
+      imports,
+      published,
+      '/tmp/deno.json',
+      denoFile,
+    );
+
+    expect(res).to.eql({
+      '@sys/fs': '0.0.243',
+      '@sys/tmpl': '0.0.259',
+    });
+    expect(calls).to.eql(['@sys/fs', '@sys/tmpl']);
+  });
+
+  it('resolvePublishedPackageVersions → falls back to workspace authority when package is unpublished', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const calls: string[] = [];
+    const published = {
+      latestVersion(name: string) {
+        calls.push(name);
+        return Promise.resolve({ kind: 'unpublished' } as const);
+      },
+    };
+    const denoFile = {
+      workspaceVersion(name: string, src?: string) {
+        expect(name).to.eql('@sys/fs');
+        expect(src).to.eql('/tmp/deno.json');
+        return Promise.resolve('0.0.243');
+      },
+    };
+
+    const res = await resolvePublishedPackageVersions(
+      imports,
+      published,
+      '/tmp/deno.json',
+      denoFile,
+    );
+
+    expect(res).to.eql({ '@sys/fs': '0.0.243' });
+    expect(calls).to.eql(['@sys/fs']);
+  });
+
+  it('resolvePublishedPackageVersions → throws when unpublished package has no workspace authority', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const published = {
+      latestVersion() {
+        return Promise.resolve({ kind: 'unpublished' } as const);
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve(undefined);
+      },
+    };
+
+    try {
+      await resolvePublishedPackageVersions(imports, published, '/tmp/deno.json', denoFile);
+      throw new Error('Expected resolvePublishedPackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql(
+        'Missing workspace version authority for package "@sys/fs": /tmp/deno.json',
+      );
+    }
+  });
+
+  it('resolvePublishedPackageVersions → throws when published authority fails for non-404 reasons', async () => {
+    const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
+    const published = {
+      latestVersion() {
+        throw new Error('registry unavailable');
+      },
+    };
+    const denoFile = {
+      workspaceVersion() {
+        return Promise.resolve('0.0.243');
+      },
+    };
+
+    try {
+      await resolvePublishedPackageVersions(imports, published, '/tmp/deno.json', denoFile);
+      throw new Error('Expected resolvePublishedPackageVersions to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql('registry unavailable');
+    }
+  });
+
   it('resolvePackageVersions → throws when workspace authority is missing', async () => {
     const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
     const denoFile = {
@@ -188,7 +342,7 @@ describe('prep.u', () => {
     const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
     const path = {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
-      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
+      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'imports.json'),
       rootDenoJson: Fs.join(root, 'deno.json'),
@@ -202,12 +356,34 @@ describe('prep.u', () => {
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
     const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
-    const versions = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
+    const currentVersions = Object.fromEntries(
+      Object.keys(repoImports.imports)
+        .map((specifier) => {
+          const pkg = specifier.startsWith('@sys/')
+            ? specifier.split('/').slice(0, 2).join('/')
+            : undefined;
+          if (!pkg) return undefined;
+          const current = repoImports.imports[specifier];
+          const match = current.match(/@(\d+\.\d+\.\d+)/);
+          return match ? ([pkg, match[1]] as const) : undefined;
+        })
+        .filter((entry): entry is readonly [string, string] => !!entry),
+    );
 
-    const syncedImports = syncTemplateImports(repoImports, rootImports, versions);
+    const syncedImports = syncTemplateImports(repoImports, rootImports, currentVersions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
 
     expect(syncedImports.imports).to.eql(repoImports.imports);
     expect(syncedPackage).to.eql(repoPackage);
+  });
+
+  it('task.prep → default version source is workspace release state', async () => {
+    const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
+    const path = PATH.fromRoot(root);
+    const repoImportsRaw = await readJson<t.Json>(path.tmplRepoImports);
+    const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
+    const expected = await resolvePackageVersions(path.rootDenoJson, repoImports, DenoFile);
+    const actual = await resolveVersions('workspace', repoImports);
+    expect(actual).to.eql(expected);
   });
 });

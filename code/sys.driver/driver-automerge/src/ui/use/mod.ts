@@ -1,6 +1,6 @@
 /**
- * Convenience hooks for working with CRDTs.
  * @module
+ * Convenience hooks for working with CRDTs.
  */
 export { useDoc } from './use.Doc.ts';
 export { useDocStats } from './use.DocStats.ts';

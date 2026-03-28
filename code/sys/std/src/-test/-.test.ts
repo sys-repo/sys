@@ -13,4 +13,17 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect(Value.Str).to.equal(Std.Str);
     expect(Value.Str.Lorem).to.equal(Value.Lorem);
   });
+
+  it('API: ANSI stays on the dedicated subpath', async () => {
+    const Std = await import('@sys/std');
+    const Ansi = await import('@sys/std/ansi/server');
+
+    expect('c' in Std).to.eql(false);
+    expect('stripAnsi' in Std).to.eql(false);
+
+    expect(Ansi.c).to.equal(Ansi.colors);
+    expect(Ansi.c.green).to.be.a('function');
+    expect(Ansi.colors).to.equal(Ansi.c);
+    expect(Ansi.stripAnsi).to.be.a('function');
+  });
 });

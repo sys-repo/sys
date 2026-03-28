@@ -9,14 +9,25 @@
  * import { Time } from '@sys/std';
  * import { Cli } from '@sys/cli';
  *
- * const spinner = Cli.spinner('My long running process...');
+ * const spinner = Cli.spinner(Cli.Fmt.spinnerText('My long running process...'));
  *
  * await Time.wait(500);
- * spinner.text = 'Doing something else...';
+ * spinner.text = Cli.Fmt.spinnerText('Doing something else...');
  * await Time.wait(1000);
  *
- * spinner.succeed('Done!');
+ * spinner.succeed(Cli.Fmt.spinnerText('Done!'));
  * Deno.exit(0);
+ * ```
+ *
+ * @example
+ * Create a dormant spinner instance:
+ *
+ * ```ts
+ * import { Cli } from '@sys/cli';
+ *
+ * const spinner = Cli.Spinner.create(Cli.Fmt.spinnerText('Waiting...'));
+ * spinner.start();
+ * spinner.succeed(Cli.Fmt.spinnerText('Done!'));
  * ```
  *
  * @example
@@ -33,15 +44,14 @@
  * table.render();
  * ```
  */
-import { Cli } from './m.Cli.ts';
+import { Cli } from './m.Cli/mod.ts';
 
 export { Args, c, Color, stripAnsi } from './common.ts';
-export { Fmt } from './m.Fmt.ts';
-export { Keyboard } from './m.Keyboard.ts';
-export { Prompt } from './m.Prompt.ts';
-export { Spinner } from './m.Spinner.ts';
-export { Table } from './m.Table.ts';
+export { Fmt } from './m.Fmt/mod.ts';
+export { Keyboard } from './m.Keyboard/mod.ts';
+export { Prompt } from './m.Prompt/mod.ts';
+export { Spinner } from './m.Spinner/mod.ts';
+export { Table } from './m.Table/mod.ts';
 
 export { Cli };
-
 export default Cli;

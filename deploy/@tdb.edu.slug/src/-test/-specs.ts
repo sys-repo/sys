@@ -22,6 +22,7 @@ export const Specs = {
   [`${ns}.dev: Http.SlugOrigin`]: () => import('../ui/-dev/ui.Http.SlugOrigin/-spec/-SPEC.tsx'),
   [`${ns}.dev: Http.SlugLoader ← (data cards)`]: () =>
     import('../ui/-dev/ui.Http.DataCards/-spec/-SPEC.tsx'),
+  [`${ns}.dev: Crdt`]: () => import('../ui/-dev/ui.Crdt/-spec/-SPEC.tsx'),
 
   [`${ns}: 🐷 (LEGACY): ui.driver.SlugPlayback`]: () =>
     import('../ui/ui.__Legacy__SlugPlaybackDriver/-spec/-SPEC.tsx'),

@@ -1,5 +1,7 @@
 import { c, Process } from './common.ts';
 
+const LINE = '━'.repeat(84);
+
 type PublishTriggerArgs = {
   readonly tag: string;
   readonly title: string;
@@ -11,14 +13,21 @@ export async function pushTriggerTag(args: PublishTriggerArgs) {
   console.info(c.gray(`refreshing reusable trigger tag: ${c.bold(args.tag)}`));
   console.info();
 
+  const current = await currentBranch();
+
   if (args.mainOnly) {
-    await runGit(['checkout', 'main']);
-    await runGit(['pull', '--ff-only', 'origin', 'main']);
+    const guard = mainBranchGuard(current);
+    if (guard) {
+      printLines(guard);
+      Deno.exit(1);
+    }
+    await runGit(['fetch', 'origin', 'main:refs/remotes/origin/main']);
   }
 
   await runGit(['tag', '-d', args.tag], { allowFailure: true });
   await runGit(['push', 'origin', `:refs/tags/${args.tag}`], { allowFailure: true });
-  await runGit(['tag', '-a', args.tag, '-m', `Trigger JSR publish: ${args.tag}`]);
+  const target = args.mainOnly ? 'refs/remotes/origin/main' : 'HEAD';
+  await runGit(['tag', '-a', args.tag, target, '-m', `Trigger JSR publish: ${args.tag}`]);
   await runGit(['push', 'origin', args.tag]);
 
   console.info();
@@ -36,3 +45,78 @@ async function runGit(args: string[], options: { allowFailure?: boolean } = {}) 
   throw new Error(`Git command failed: git ${args.join(' ')}`);
 }
 
+function mainBranchGuard(branch: string) {
+  if (branch === 'main') return;
+
+  return [
+    '',
+    `${indent()}${c.bold(c.yellow('JSR Publish Blocked'))}`,
+    `${indent()}${c.bold(c.yellow(LINE))}`,
+    '',
+    richRow('What', [
+      c.green('publish:jsr'),
+      c.white(' targets '),
+      c.cyan('main'),
+      c.white('-only publish while you are on branch '),
+      c.cyan(branch || '(unknown branch)'),
+    ]),
+    row('Why', 'Strict publish is reserved for the mainline release path.', { color: 'white' }),
+    row('', '', { color: 'white' }),
+    row('Fix', 'Choose one before re-running publish:', { color: 'white' }),
+    richRow('', [
+      c.white('  1. Switch to '),
+      c.cyan('main'),
+      c.white(' if you intend the strict '),
+      c.cyan('main'),
+      c.white(' publish path'),
+    ]),
+    richRow('', [
+      c.white('  2. Use '),
+      c.green('deno task publish:jsr:branch'),
+      c.white(' for the current branch (override)'),
+    ]),
+    row('', '', { color: 'white' }),
+    row('Retry', '  deno task publish:jsr', { color: 'green' }),
+    row('', '  or', { color: 'gray' }),
+    richRow('', [c.green('  deno task publish:jsr:branch'), c.gray(' (override)')]),
+    '',
+    `${indent()}${c.bold(c.yellow(LINE))}`,
+    '',
+  ] as const;
+}
+
+async function currentBranch() {
+  const res = await Process.invoke({
+    cmd: 'git',
+    args: ['branch', '--show-current'],
+    silent: true,
+  });
+  if (!res.success) return '';
+  return res.text.stdout.trim();
+}
+
+function row(label: string, value: string, options: { color?: 'white' | 'cyan' | 'gray' | 'green' } = {}) {
+  const head = c.gray(label.padEnd(5));
+  const text =
+    options.color === 'cyan'
+      ? c.cyan(value)
+      : options.color === 'green'
+        ? c.green(value)
+      : options.color === 'gray'
+        ? c.gray(value)
+        : c.white(value);
+  return `${indent()}${head} ${c.dim(c.gray('│'))} ${text}`;
+}
+
+function richRow(label: string, parts: readonly string[]) {
+  const head = c.gray(label.padEnd(5));
+  return `${indent()}${head} ${c.dim(c.gray('│'))} ${parts.join('')}`;
+}
+
+function indent() {
+  return ' ';
+}
+
+function printLines(lines: readonly string[]) {
+  for (const line of lines) console.info(line);
+}

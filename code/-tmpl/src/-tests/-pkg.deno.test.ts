@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { type t, describe, expect, Fs, it, makeTmpl, Process, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: pkg', () => {
@@ -7,7 +7,9 @@ describe('Template: pkg', () => {
      * Template setup:
      */
     const ns = 'ns';
-    const test = await makeWorkspace();
+    const test = await makeWorkspace({
+      workspace: ['code/zns/zed', 'code/ans/alpha'],
+    });
     const name: t.TemplateName = 'pkg';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
@@ -49,9 +51,20 @@ describe('Template: pkg', () => {
       const path = `${test.root}/deno.json`;
       const workspaceDeno = (await Fs.readText(path)).data!;
       expect(workspaceDeno).to.include(`"workspace": [`);
-      expect(workspaceDeno).to.not.include(`"workspace": []`); // inserts between array braces.
-      expect(workspaceDeno).to.include(`"code/ns/foo-1"`);
-      expect(workspaceDeno).to.include(`"code/ns/foo-2",`);
+      const json = (await Fs.readJson<{ workspace?: string[] }>(path)).data!;
+      expect(json.workspace).to.eql([
+        'code/ans/alpha',
+        'code/ns/foo-1',
+        'code/ns/foo-2',
+        'code/zns/zed',
+      ]);
+    }
+
+    // Self package export: `tmp` should resolve `pkg` from the named package entrypoint.
+    {
+      const res = await Process.sh({ path: dirA, silent: true }).run('deno task tmp');
+      expect(res.success).to.eql(true);
+      expect(res.text.stdout).to.include('🐷 @my-scope/foo-1');
     }
   });
 });

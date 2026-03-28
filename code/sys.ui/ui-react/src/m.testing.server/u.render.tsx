@@ -22,9 +22,8 @@ export const render: t.TestReactServerLib['render'] = async (el, options = {}) =
   });
 
   life.dispose$.subscribe(() => {
-    void React.act(async () => {
+    React.act(() => {
       root.unmount();
-      await Promise.resolve(); // allow scheduler/microtasks to drain
       container.remove(); // remove from document to avoid stale queries/leaks
     });
   });

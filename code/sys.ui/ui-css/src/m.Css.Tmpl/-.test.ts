@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Testing } from '../-test.ts';
+import { type t, describe, expect, Is, it, Testing } from '../-test.ts';
 import { CssTmpl } from './mod.ts';
 
 type N = string | number | null | undefined;
@@ -101,7 +101,7 @@ describe('CssTmpl: template transforms', () => {
       const res = CssTmpl.toEdges([1, 2, 3, 4], (e) => {
         edges.push(e.current.edge);
         const value = e.current.value;
-        e.changeValue(typeof value === 'number' ? value + 1 : value);
+        e.changeValue(Is.num(value) ? Number(value) + 1 : value);
       });
       assertEdges(res, [2, 3, 4, 5]);
       expect(edges).to.eql(['top', 'right', 'bottom', 'left']);

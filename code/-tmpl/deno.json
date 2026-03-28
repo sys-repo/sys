@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.264",
+  "version": "0.0.295",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -8,13 +8,14 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmpl": "deno run -P=tmpl ./src/mod.ts",
-    "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts && deno run -P=prep ./src/mod.ts --bundle",
+    "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -24,12 +25,14 @@
     },
     "tmpl": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "prep": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": true
     },
     "test": {
       "read": true,

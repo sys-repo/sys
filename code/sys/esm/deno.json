@@ -1,0 +1,31 @@
+{
+  "name": "@sys/esm",
+  "version": "0.0.12",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./core": "./src/m.core/mod.ts",
+    "./deps": "./src/m.deps/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
+  }
+}

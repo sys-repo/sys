@@ -1,5 +1,11 @@
 import { describe, expect, it } from '../../-test.ts';
-import { createSpecifierRewrite, parseJsrSpecifier, parseNpmSpecifier, resolveFromImportsMap } from '../u.app.specifierRewrite.ts';
+import {
+  createNpmPrewarm,
+  createSpecifierRewrite,
+  parseJsrSpecifier,
+  parseNpmSpecifier,
+  resolveFromImportsMap,
+} from '../u.app.specifierRewrite.ts';
 
 describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {
@@ -36,16 +42,29 @@ describe('ViteConfig.app specifier rewrite', () => {
       );
       expect(resolveFromImportsMap('@sys/unknown', imports)).to.eql(undefined);
     });
+
+    it('resolves trailing-slash import-map prefixes', () => {
+      const imports = {
+        '@sys/ui-dom/': 'jsr:@sys/ui-dom@0.0.246/',
+      };
+
+      expect(resolveFromImportsMap('@sys/ui-dom/local-storage', imports)).to.eql(
+        'jsr:@sys/ui-dom@0.0.246/local-storage',
+      );
+      expect(resolveFromImportsMap('@sys/ui-dom/user-agent', imports)).to.eql(
+        'jsr:@sys/ui-dom@0.0.246/user-agent',
+      );
+    });
   });
 
   describe('createSpecifierRewrite', () => {
     it('rewrites npm specifiers', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json');
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('npm:react@19.2.4')).to.eql('react');
+      expect(await resolveId('npm:react@19.2.4')).to.eql(null);
     });
 
-    it('does not rewrite npm specifiers for deno-owned importers', async () => {
+    it('rewrites npm specifiers for deno-owned importers', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json');
       const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
       expect(
@@ -54,6 +73,97 @@ describe('ViteConfig.app specifier rewrite', () => {
           '\0deno::TypeScript::https://jsr.io/@sys/std/0.0.298/src/m.Signal/m.Is.ts::/tmp/cache/m.Is.ts',
         ),
       ).to.eql(null);
+    });
+
+    it('rewrites npm targets from import-map aliases for deno-owned importers', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json', {
+        async loadImports() {
+          return { react: 'npm:react@19.2.4' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
+      expect(
+        await resolveId(
+          'react',
+          '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
+        ),
+      ).to.eql(null);
+    });
+
+    it('treats same-name bare npm import-map targets as pass-through', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/deno.json', {
+        async loadImports() {
+          return { react: 'npm:react@19.2.4' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
+      const res = await resolveId(
+        'react',
+        '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
+      );
+
+      expect(res).to.eql(null);
+    });
+
+    it('returns null when a normalized bare npm id is still unresolved', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/project/deno.json', {
+        async loadImports() {
+          return { react: 'npm:react@19.2.4' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (
+        this: { resolve(id: string, importer?: string, options?: { skipSelf?: boolean }): Promise<{ id: string } | null> },
+        source: string,
+        importer?: string,
+      ) => Promise<string | null>;
+
+      const res = await resolveId.call(
+        {
+          async resolve(id) {
+            expect(id).to.eql('react');
+            return null;
+          },
+        },
+        'react',
+        '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
+      );
+
+      expect(res).to.eql(null);
+    });
+
+    it('resolves remote deno importer npm ids from the project config location', async () => {
+      const rewrite = createSpecifierRewrite('/tmp/project/deno.json', {
+        async loadImports() {
+          return { '@acme/react': 'npm:react@19.2.4' };
+        },
+      });
+
+      const resolveId = rewrite.resolveId as (
+        this: { resolve(id: string, importer?: string, options?: { skipSelf?: boolean }): Promise<{ id: string } | null> },
+        source: string,
+        importer?: string,
+      ) => Promise<string | null>;
+
+      const importer = '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts';
+      let seenImporter = '';
+
+      const res = await resolveId.call(
+        {
+          async resolve(id, from) {
+            expect(id).to.eql('react');
+            seenImporter = from ?? '';
+            return { id: '/tmp/project/node_modules/react/index.mjs' };
+          },
+        },
+        '@acme/react',
+        importer,
+      );
+
+      expect(seenImporter).to.eql('/tmp/project/deno.json');
+      expect(res).to.eql('/tmp/project/node_modules/react/index.mjs');
     });
 
     it('passes through jsr-target import-map aliases (handled by deno plugin)', async () => {
@@ -75,9 +185,7 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('@acme/ws')).to.eql(
-        '@automerge/automerge-repo-network-websocket',
-      );
+      expect(await resolveId('@acme/ws')).to.eql(null);
     });
 
     it('caches import-map lookups across repeated rewrites', async () => {
@@ -120,6 +228,30 @@ describe('ViteConfig.app specifier rewrite', () => {
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
       const res = await resolveId('@acme/http/client');
       expect(res).to.eql(null);
+    });
+  });
+
+  describe('createNpmPrewarm', () => {
+    it('warms npm targets declared in the import map', async () => {
+      const warmed: string[] = [];
+      const plugin = createNpmPrewarm('/tmp/project/deno.json', {
+        async loadImports() {
+          return {
+            react: 'npm:react@19.2.4',
+            'react-dom/': 'npm:react-dom@19.2.4/',
+            '@sys/ui-dom': 'jsr:@sys/ui-dom@0.0.246',
+          };
+        },
+        async warmNpm(specifier) {
+          warmed.push(specifier);
+        },
+      });
+
+      const buildStart = plugin.buildStart as () => Promise<void>;
+      await buildStart();
+      await buildStart();
+
+      expect(warmed).to.eql(['npm:react@19.2.4', 'npm:react-dom@19.2.4']);
     });
   });
 });

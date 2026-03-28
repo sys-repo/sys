@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
-import { css, D, Style, type t, UserAgent } from './common.ts';
+import { css, D, Is, Style, type t, UserAgent } from './common.ts';
 import { useBorderStyles } from './use.BorderStyles.ts';
 import { useEvents } from './use.Events.ts';
 import { pasteHandler } from './u.pasteHandler.ts';
@@ -35,6 +35,8 @@ export const TextInput: React.FC<P> = (props) => {
   const { focused } = events;
   const { border, borderRadius, theme } = useBorderStyles(props);
   const [ready, setReady] = React.useState(false);
+  const background = props.background ?? D.background;
+  const backgroundColor = Is.num(background) ? theme.alpha(background).bg : background;
 
   /**
    * Effect: When mounted → fire onReady (once).
@@ -91,7 +93,7 @@ export const TextInput: React.FC<P> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      background: theme.format(props.background ?? D.background).bg,
+      background: backgroundColor,
       color: theme.fg,
       boxSizing: 'border-box',
       height,

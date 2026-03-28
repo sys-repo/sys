@@ -8,7 +8,7 @@ export const BarSpinner: React.FC<P> = (props) => {
   const { width = D.width, height } = props;
   const cssOverride = wrangle.cssOverride(props);
 
-  const BarLoader = useComponent(async () => (await import('react-spinners')).BarLoader);
+  const BarLoader = useComponent(wrangle.BarLoader);
   if (!BarLoader) return null;
 
   /**
@@ -36,6 +36,11 @@ export const BarSpinner: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
+  async BarLoader() {
+    const loader = await import('react-spinners/BarLoader.js');
+    return loader.default?.default ?? loader.default;
+  },
+
   cssOverride(props: P): t.CssProps | undefined {
     const { transparentTrack = false } = props;
     if (!transparentTrack) return;

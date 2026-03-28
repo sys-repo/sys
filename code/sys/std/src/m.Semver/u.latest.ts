@@ -9,7 +9,7 @@ type Input = t.Semver | t.StringSemver | undefined;
 /**
  * Return the greatest (latest) semver from the given list.
  * - Invalid or undefined values are ignored.
- * - If all values are missing/invalid -> returns undefined.
+ * - If all values are missing/invalid → returns undefined.
  */
 export const latest: t.SemverLib['latest'] = (
   ...inputs: t.Ary<Input>

@@ -1,6 +1,6 @@
-import { type t, c, Fs, makeTmpl, Templates, TmplEngine } from '../-test.ts';
+import { type t, c, Fs, Json, makeTmpl, Templates, TmplEngine } from '../-test.ts';
 
-type StringDirname = string;
+export { Fmt } from './u.fmt.ts';
 
 export function logTemplate(
   name: t.TemplateName,
@@ -19,17 +19,15 @@ export function logTemplate(
 /**
  * Create a bare sample monorepo with a single package folder.
  */
-export const makeWorkspace = async () => {
+export const makeWorkspace = async (options: { workspace?: string[] } = {}) => {
   const tmp = await Fs.makeTempDir({ prefix: 'workspace-' });
   const root = tmp.absolute;
+  const workspace = options.workspace ?? [];
   await Fs.ensureDir(Fs.join(root, '-scripts'));
   await Fs.ensureDir(Fs.join(root, 'code'));
   await Fs.write(
     Fs.join(root, 'deno.json'),
-    `{
-  "workspace": []
-}
-`,
+    Json.stringify({ workspace }) + '\n',
   );
   await Fs.write(
     Fs.join(root, '-scripts/-PATHS.ts'),
@@ -39,6 +37,16 @@ export const makeWorkspace = async () => {
 } as const;
 `,
   );
+
+  for (const path of workspace) {
+    const dir = Fs.join(root, path);
+    const name = path.split('/').at(-1) ?? 'sample';
+    await Fs.ensureDir(dir);
+    await Fs.writeJson(Fs.join(dir, 'deno.json'), {
+      name: `@test/${name}`,
+      version: '0.0.0',
+    });
+  }
 
   const ls = async () => (await Fs.glob(tmp.absolute).find('**')).map((m) => m.path);
   return { root, tmp, ls } as const;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, DEFAULTS as D, M } from './common.ts';
+import { type t, Color, css, DEFAULTS as D, Is, M } from './common.ts';
 
 type P = t.SheetProps;
 
@@ -85,7 +85,8 @@ const wrangle = {
   styles(props: P) {
     const { radius = D.radius } = props;
     const is = wrangle.is(props);
-    const shadowColor = Color.format(props.shadowOpacity ?? D.shadow.color);
+    const shadowInput = props.shadowOpacity ?? D.shadow.color;
+    const shadowColor = Is.num(shadowInput) ? Color.toGrayAlpha(shadowInput) : shadowInput;
     const blurRadius = props.shadowBlurRadius ?? D.shadow.blurRadius;
     const spreadRadius = props.shadowSpreadRadius ?? D.shadow.spreadRadius;
     const edgeMargin = wrangle.edgeMarginTemplate(props);

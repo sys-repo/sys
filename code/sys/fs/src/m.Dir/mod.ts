@@ -1,6 +1,6 @@
 /**
- * Helpers for working with file-system directories.
  * @module
+ * Helpers for working with file-system directories.
  *
  * @example
  * ```ts

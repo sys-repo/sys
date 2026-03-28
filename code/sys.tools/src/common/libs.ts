@@ -23,7 +23,7 @@ export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
 export { Http } from '@sys/http/client';
 export { Graph } from '@sys/immutable/graph';
-export { Jsr } from '@sys/jsr';
+export { Jsr } from '@sys/registry/jsr';
 export { Net } from '@sys/net';
 export { Open, Process } from '@sys/process';
 export { AliasResolver } from '@sys/std/alias';

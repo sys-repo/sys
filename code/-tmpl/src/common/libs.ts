@@ -1,7 +1,7 @@
 /**
  * Standard: @sys/std
  */
-export { Arr, Err, Is, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
+export { Arr, Err, Is, Json, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
 export { Rx } from '@sys/std/rx';
 
 /**
@@ -10,6 +10,7 @@ export { Rx } from '@sys/std/rx';
 export { c, Cli } from '@sys/cli';
 export { DenoFile } from '@sys/driver-deno/runtime';
 export { Fs, Path } from '@sys/fs';
+export { Process } from '@sys/process';
 export { TmplEngine } from '@sys/tmpl-engine';
 
 /**

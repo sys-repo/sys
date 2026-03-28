@@ -1,8 +1,8 @@
-import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { act, afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
 import { BulletList } from '../mod.ts';
 
 describe('BulletList.UI disabled interaction', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   it('does not emit onSelect for disabled items', async () => {
     const events: string[] = [];
@@ -20,12 +20,14 @@ describe('BulletList.UI disabled interaction', () => {
     const root = res.container.firstElementChild as HTMLElement;
     const enabled = root.children.item(0) as HTMLElement;
     const disabled = root.children.item(1) as HTMLElement;
-    enabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
-    disabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
+    act(() => {
+      enabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
+      disabled.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
+    });
 
     expect(events).to.eql(['enabled']);
 
-    res.dispose();
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    act(() => res.dispose());
+    await Promise.resolve();
   });
 });

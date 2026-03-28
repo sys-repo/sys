@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 import { Duration } from './m.Time.Duration.ts';
 import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
+import { interval } from './m.Time.interval.ts';
 import { until } from './m.Time.until.ts';
 import { utc } from './m.Time.utc.ts';
 import { wait, waitFor } from './m.Time.wait.ts';
@@ -18,6 +19,7 @@ export const Time: t.TimeLib = {
   until,
   utc,
   delay,
+  interval,
   wait,
   waitFor,
 

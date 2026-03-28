@@ -1,10 +1,12 @@
 import { Is, Json, Path, Process, type t } from './common.ts';
+import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
 import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
-const depsDefault: t.ResolveDeps = { invoke: Process.invoke };
+const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath };
+type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
@@ -14,16 +16,23 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
     configResolved(config: { root: string }) {
       root = Path.normalize(config.root);
     },
-    async resolveId(id: string, importer?: string) {
+    async resolveId(
+      id: string,
+      importer?: string,
+      options?: ResolveOptions,
+    ) {
       const resolvedId = unwrapViteId(id);
       const resolvedImporter = importer ? unwrapViteId(importer) : importer;
       if (isDenoSpecifier(resolvedId)) return resolvedId;
       const resolved = await resolveViteSpecifier(resolvedId, cache, root, resolvedImporter, deps);
       if (Is.str(resolved) && isBarePackageId(resolved)) {
         const skipSelf = true;
-        const packagePath = Path.join(Path.cwd(), 'package.json');
-        const delegated = await this.resolve(resolved, packagePath, { skipSelf });
-        return delegated;
+        const importerForResolve = Path.join(root, 'deno.json');
+        const delegated = await this.resolve(resolved, importerForResolve, { ...options, skipSelf });
+        if (delegated) return delegated;
+
+        const fallback = await (deps.resolveNpmPath?.(resolved, root) ?? resolveNpmPath(resolved, root));
+        return fallback ?? null;
       }
       return resolved;
     },
@@ -32,7 +41,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
       if (isDenoSpecifier(resolvedId)) {
         const parsed = parseDenoSpecifier(resolvedId);
         let cached = cache.get(parsed.resolved);
-        if (cached?.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parsed.id)) {
+        if ((cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0)) && isRemoteLike(parsed.id)) {
           const hydrated = await resolveDenoWith(parsed.id, root, deps);
           if (hydrated?.kind === 'esm') {
             cache.set(hydrated.id, hydrated);
@@ -107,6 +116,10 @@ export async function resolveDeno(id: string, cwd: string): Promise<t.DenoResolv
   return await resolveDenoWith(id, cwd, depsDefault);
 }
 
+export async function resolveNpmPath(id: string, cwd: string): Promise<string | null> {
+  return await resolveNpmPathWith(id, cwd, depsDefault);
+}
+
 export async function resolveDenoWith(
   id: string,
   cwd: string,
@@ -175,8 +188,8 @@ export async function resolveViteSpecifier(
   if (importer && isDenoSpecifier(importer)) {
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
     let cached = cache.get(parent);
-    if (cached === undefined) {
-      cached = (await resolveDenoWith(parentId, root, deps)) ?? undefined;
+    if (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))) {
+      cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
       if (cached) {
         cache.set(cached.id, cached);
         cache.set(parent, cached);
@@ -193,7 +206,10 @@ export async function resolveViteSpecifier(
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
-    if (id.startsWith('npm:')) return toViteNpmSpecifier(id);
+    if (id.startsWith('npm:')) {
+      await resolveDenoWith(id, root, deps);
+      return toViteNpmSpecifier(id);
+    }
     if (found.localPath && found.loader && isRemoteLike(id)) {
       const existing = cache.get(found.localPath);
       const hydrated = existing ?? (await resolveDenoWith(id, root, deps));
@@ -228,6 +244,24 @@ export async function resolveViteSpecifier(
   }
 
   return toDenoSpecifier(resolved.loader, id, resolved.id);
+}
+
+export async function resolveNpmPathWith(
+  id: string,
+  cwd: string,
+  deps: t.ResolveDeps,
+): Promise<string | null> {
+  const output = await deps.invoke({
+    cmd: DENO_BINARY,
+    args: ['eval', 'console.log(import.meta.resolve(Deno.args[0]))', id],
+    cwd,
+    silent: true,
+  });
+  if (!output.success) return null;
+
+  const value = output.text.stdout.trim();
+  if (!value.startsWith('file://')) return null;
+  return Path.fromFileUrl(value);
 }
 
 export function isDenoSpecifier(str: string) {

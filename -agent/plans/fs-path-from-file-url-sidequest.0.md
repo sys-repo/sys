@@ -1,4 +1,4 @@
-# Side Task Context: `Fs.Path` File URL -> Path Primitive
+# Side Task Context: `Fs.Path` File URL → Path Primitive
 
 ## Why this came up
 During the media-seq parity harness work in:
@@ -44,4 +44,3 @@ unless it truly supports non-file URLs (which is likely not desirable for `Fs.Pa
 ## Non-goal
 - Do not derail current media-seq parity/integration work.
 - This is a side-task context note only.
-

@@ -1,6 +1,8 @@
 import { describe, expect, expectError, Fs, it } from '../../-test.ts';
 import { json } from '../-bundle.ts';
+import { PATHS } from '../common.ts';
 import { assertTemplateSourceClean, isAllowedTemplateBundlePath } from '../u.makeBundle.ts';
+import { makeBundle } from '../u.makeBundle.ts';
 
 describe('m.tmpl/u.makeBundle', () => {
   it('isAllowedTemplateBundlePath excludes generated folders', () => {
@@ -31,5 +33,21 @@ describe('m.tmpl/u.makeBundle', () => {
   it('bundles the internal package scaffold under the public pkg root', () => {
     expect(Object.keys(json).some((key) => key.startsWith('pkg/'))).to.eql(true);
     expect(Object.keys(json).some((key) => key.startsWith('pkg.deno/'))).to.eql(false);
+  });
+
+  it('writes the bundle to the module path even when invoked from another cwd', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.bundle.cwd-' });
+    const previous = Deno.cwd();
+
+    try {
+      Deno.chdir(tmp.absolute);
+      await makeBundle();
+
+      const stray = Fs.join(tmp.absolute, 'src/m.tmpl/-bundle.json');
+      expect(await Fs.exists(stray)).to.eql(false);
+      expect(await Fs.exists(PATHS.json)).to.eql(true);
+    } finally {
+      Deno.chdir(previous);
+    }
   });
 });

@@ -17,6 +17,15 @@ describe('toString', () => {
     expect(res).to.eql(`color: rgba(255, 0, 0, 0.1); border: solid 1px;`);
   });
 
+  it('drops nullish props', () => {
+    const style: any = {
+      color: 'red',
+      backgroundColor: undefined,
+      borderColor: null,
+    };
+    expect(toString(style)).to.eql('color: red;');
+  });
+
   it('excludes pseudo-class children', () => {
     const style: t.CssValue = { color: ' red ', ':hover': { color: 'blue' } };
     const a = toString(style);

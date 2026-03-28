@@ -1,5 +1,7 @@
 import { Process } from '@sys/process';
-import { c, Cli, Fmt, Str } from './common.ts';
+import { c } from '@sys/color/ansi';
+import { Cli, Fmt } from '@sys/cli';
+import { Str } from '@sys/std';
 
 /**
  * Create a keyboard listener to control the running dev server.

@@ -2,7 +2,7 @@
  * System
  */
 export { Args, Delete, Err, Is, Json, R, Str, Time, Url, asArray, isRecord, slug } from '@sys/std';
-export { Esm } from '@sys/std/esm';
+export { Esm } from '@sys/esm';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
 

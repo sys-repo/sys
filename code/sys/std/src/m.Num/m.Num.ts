@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { Is } from './m.Is.ts';
 import { Percent } from './m.Percent.ts';
 import { Ratio } from './m.Ratio.ts';
 import { random } from './u.random.ts';
@@ -8,7 +9,8 @@ import { clamp, round, sum } from './u.ts';
 /**
  * Tools for working with numbers.
  */
-export const Num: t.NumberLib = {
+export const Num: t.Num.Lib = {
+  Is,
   MAX_INT: Number.MAX_SAFE_INTEGER,
   MIN_INT: Number.MIN_SAFE_INTEGER,
   INFINITY: Number.POSITIVE_INFINITY,

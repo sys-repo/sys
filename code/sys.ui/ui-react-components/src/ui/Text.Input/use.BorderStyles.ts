@@ -54,7 +54,7 @@ const wrangle = {
       defaultColor = 0;
     }
 
-    const format = (color: C) => theme.format(color).fg;
+    const format = (color: C) => (Is.num(color) ? theme.alpha(color).fg : color);
     const border = (color: C | false) => (color === false ? 'none' : `1px solid ${format(color)}`);
 
     const isOutline = mode === 'outline';

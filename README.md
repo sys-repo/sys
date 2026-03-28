@@ -1,16 +1,11 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
-[![CI][ci-badge]][ci-url]
-[![JSR Registry][jsr-badge]][jsr-url]
-[![MIT License][mit-badge]][mit-url]
 
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
 [mit-url]: https://opensource.org/licenses/MIT
 
-[jsr-badge]: https://jsr.io/badges/@sys?style=flat
-[jsr-url]: https://jsr.io/@sys
-
-[ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
-[ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
+[![test](https://github.com/sys-repo/sys/actions/workflows/test.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/test.yaml)
+[![build](https://github.com/sys-repo/sys/actions/workflows/build.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/build.yaml)
+[![publish](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
 
 
 # @sys
@@ -24,6 +19,14 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
   - [sys.model](/code/sys.model/) — pure types, schemas, and deterministic normalizers for shared concepts.
   - [sys.driver](/code/sys.driver/) — thin bindings to external engines.
   - [sys.dev](/code/sys.dev/) — *programming system* layer, higher-order developer harnesses and orchestration tools.
+
+<p>&nbsp;</p>
+
+
+[![JSR](https://jsr.io/badges/@sys?style=flat&labelColor=f7df1e&color=1f3b4d)](https://jsr.io/@sys)  
+public registry: [JSR](https://jsr.io/)-first posture,  
+scope [jsr.io/@sys](https://jsr.io/@sys)
+
 
 <p>&nbsp;</p>
 
@@ -270,7 +273,7 @@ The inverse proposition also appears to be true:
 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
 
-Adjacent libs: `@sys/std/esm`, `@sys/driver-deno` (workspace).
+Adjacent libs: `@sys/esm`, `@sys/driver-deno` (workspace).
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -282,4 +285,3 @@ To understand the legal and historical context around the MIT Licence
 and it's enduring importance as "an open-source classic", see **Kyle E. Mitchell**'s "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
-

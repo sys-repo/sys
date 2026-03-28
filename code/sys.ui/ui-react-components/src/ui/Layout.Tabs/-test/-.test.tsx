@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { act, afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
 import { Tabs } from '../mod.ts';
 
 describe('Layout.Tabs', () => {
@@ -8,7 +8,7 @@ describe('Layout.Tabs', () => {
   });
 
   describe('pointer interaction semantics', () => {
-    DomMock.init({ beforeAll, afterAll });
+    DomMock.init({ beforeEach, afterEach });
 
     const items = [
       { id: 'a', label: 'A', render: () => <div>{'A body'}</div> },
@@ -40,7 +40,7 @@ describe('Layout.Tabs', () => {
         <Tabs.UI items={items} value={'a'} onChange={(e) => events.push(e.id)} />,
         { strict: false },
       );
-      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      await Promise.resolve();
 
       const root = res.container.firstElementChild as HTMLElement;
       if (!root) throw new Error('expected Tabs root element');
@@ -48,26 +48,34 @@ describe('Layout.Tabs', () => {
       const selected = strip.children.item(0) as HTMLElement;
       pointerPatch(selected);
 
-      selected.dispatchEvent(pointer('pointerdown'));
-      selected.dispatchEvent(pointer('pointerup'));
+      act(() => {
+        selected.dispatchEvent(pointer('pointerdown'));
+        selected.dispatchEvent(pointer('pointerup'));
+      });
 
       expect(events).to.eql([]);
       expect(window.getComputedStyle(selected).cursor).to.equal('default');
       const tabB = strip.children.item(1) as HTMLElement;
       pointerPatch(tabB);
 
-      tabB.dispatchEvent(pointer('pointerdown'));
-      tabB.dispatchEvent(pointer('pointercancel'));
+      act(() => {
+        tabB.dispatchEvent(pointer('pointerdown'));
+        tabB.dispatchEvent(pointer('pointercancel'));
+      });
       expect(events).to.eql([]);
 
-      tabB.dispatchEvent(pointer('pointerdown'));
-      tabB.dispatchEvent(pointer('pointerup'));
+      act(() => {
+        tabB.dispatchEvent(pointer('pointerdown'));
+        tabB.dispatchEvent(pointer('pointerup'));
+      });
       expect(events).to.eql(['b']);
 
       for (let i = 0; i < 40; i++) {
         const next = i % 2 === 0 ? tabB : selected;
-        next.dispatchEvent(pointer('pointerdown'));
-        next.dispatchEvent(pointer('pointerup'));
+        act(() => {
+          next.dispatchEvent(pointer('pointerdown'));
+          next.dispatchEvent(pointer('pointerup'));
+        });
       }
       const baseline = events.length;
       expect(baseline).to.equal(21);
@@ -81,15 +89,17 @@ describe('Layout.Tabs', () => {
       for (let i = 0; i < 500; i++) {
         const target = rand() < 0.5 ? tabB : selected;
         const cancel = rand() < 0.2;
-        target.dispatchEvent(pointer('pointerdown'));
-        target.dispatchEvent(pointer(cancel ? 'pointercancel' : 'pointerup'));
+        act(() => {
+          target.dispatchEvent(pointer('pointerdown'));
+          target.dispatchEvent(pointer(cancel ? 'pointercancel' : 'pointerup'));
+        });
         if (!cancel && target === tabB) expectedDeterministic += 1;
       }
 
       expect(events.length).to.equal(baseline + expectedDeterministic);
       expect(events.every((id) => id === 'b')).to.equal(true);
-      res.dispose();
-      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      act(() => res.dispose());
+      await Promise.resolve();
     });
   });
 });

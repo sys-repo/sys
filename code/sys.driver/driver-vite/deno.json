@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.302",
+  "version": "0.0.336",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -9,9 +9,9 @@
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno test --node-modules-dir=auto -P=test",
     "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
-    "smoke": "deno task prep && deno task test:external",
+    "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "help": "deno run -P=dev ./-scripts/task.main.ts --cmd=help    --dir=./.tmp/sample",
+    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -25,7 +25,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,
@@ -35,7 +36,15 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     },
     "dev": {
@@ -46,7 +55,15 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     }
   }

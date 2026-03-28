@@ -1,0 +1,56 @@
+import { Fs, Str, Testing } from '../../../../-test.ts';
+
+export async function createStageWorkspace() {
+  const fs = await Testing.dir('DenoDeploy.stage');
+  await Fs.writeJson(fs.join('deno.json'), {
+    name: 'root',
+    version: '0.0.0',
+    workspace: ['./code/apps/foo', './libs/bar'],
+  });
+
+  await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
+    name: '@test/foo',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+    tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
+  });
+  await Fs.write(
+    fs.join('code/apps/foo/src/mod.ts'),
+    `export default 'foo-default';\nexport const foo = 'foo';\n`,
+  );
+  await Fs.write(
+    fs.join('code/apps/foo/-scripts/task.build.ts'),
+    Str.dedent(`
+      await Deno.mkdir('dist/pkg', { recursive: true });
+      await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>foo</body></html>');
+      await Deno.writeTextFile('dist/pkg/app.js', "console.info('foo');\\n");
+      await Deno.writeTextFile('dist/dist.json', JSON.stringify({ ok: true }, null, 2));
+    `),
+  );
+
+  await Fs.writeJson(fs.join('libs/bar/deno.json'), {
+    name: '@test/bar',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+    tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
+  });
+  await Fs.write(fs.join('libs/bar/src/mod.ts'), `export const bar = 'bar';\n`);
+  await Fs.write(
+    fs.join('libs/bar/-scripts/task.build.ts'),
+    Str.dedent(`
+      await Deno.mkdir('dist', { recursive: true });
+      await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>bar</body></html>');
+    `),
+  );
+  return fs;
+}
+
+export async function getStageError(fn: () => Promise<unknown>) {
+  let error: unknown;
+  try {
+    await fn();
+  } catch (cause) {
+    error = cause;
+  }
+  return error as Error | undefined;
+}

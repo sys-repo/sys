@@ -2,23 +2,35 @@ import { type t, describe, it, expect } from '../../-test.ts';
 import { Testing, Path, Fs } from './mod.ts';
 
 describe('Testing.dir', () => {
-  it('create: slug (default)', async () => {
-    const a = Testing.dir('foo');
-    const b = Testing.dir('foo', { slug: false });
+  it('creates: os-temp (default)', async () => {
+    const fs = await Testing.dir('foo');
+    expect(fs.dir).to.not.eql('');
+    expect(fs.dir.includes('/.tmp/test/foo')).to.eql(false);
+    expect(await fs.exists()).to.eql(true);
+    expect(Path.basename(fs.dir).startsWith('foo-')).to.eql(true);
+    expect('create' in fs).to.eql(false);
+  });
+
+  it('creates: os-temp (slug false) ← preserves dirname prefix', async () => {
+    const fs = await Testing.dir('foo', { slug: false });
+    expect(Path.basename(fs.dir).startsWith('foo-')).to.eql(true);
+  });
+
+  it('creates: local-temp', async () => {
+    const a = await Testing.dir('foo', { location: 'local-temp' });
+    const b = await Testing.dir('foo', { location: 'local-temp', slug: false });
     expect(a.dir).to.include('.tmp/test/foo/');
     expect(b.dir).to.include('.tmp/test/foo');
   });
 
   describe('exists', () => {
     it('exists: root', async () => {
-      const dir = Testing.dir('foo');
-      expect(await dir.exists()).to.eql(false);
-      await dir.create();
+      const dir = await Testing.dir('foo');
       expect(await dir.exists()).to.eql(true);
     });
 
     it('exists: subpath', async () => {
-      const fs = await Testing.dir('foo').create();
+      const fs = await Testing.dir('foo');
       expect(await fs.exists()).to.eql(true);
       expect(await fs.exists('foo/bar')).to.eql(false);
 
@@ -28,28 +40,27 @@ describe('Testing.dir', () => {
   });
 
   describe('join', () => {
-    it('root', () => {
-      const fs = Testing.dir('foo');
+    it('root', async () => {
+      const fs = await Testing.dir('foo');
       expect(fs.join()).to.eql(fs.dir);
     });
 
-    it('sub-path', () => {
-      const fs = Testing.dir('foo');
+    it('sub-path', async () => {
+      const fs = await Testing.dir('foo');
       expect(fs.join('foo', 'bar/zoo')).to.eql(Path.join(fs.dir, 'foo/bar/zoo'));
     });
   });
 
   describe('ls', () => {
     it('empty', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo');
       expect(await fs.ls()).to.eql([]);
       expect(await fs.ls(true)).to.eql([]);
-      await fs.create();
       expect(await fs.ls()).to.eql([]);
     });
 
     it('paths (absolute)', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo');
       await Fs.writeJson(Path.join(fs.dir, 'foo.json'), { foo: 123 });
       await Fs.writeJson(Path.join(fs.dir, 'foo/bar.json'), { foo: 456 });
 
@@ -60,7 +71,7 @@ describe('Testing.dir', () => {
     });
 
     it('paths (relative) ← root directory trimmed', async () => {
-      const fs = Testing.dir('foo');
+      const fs = await Testing.dir('foo');
       await Fs.writeJson(Path.join(fs.dir, 'foo.json'), { foo: 123 });
       await Fs.writeJson(Path.join(fs.dir, 'foo/bar.json'), { foo: 456 });
 

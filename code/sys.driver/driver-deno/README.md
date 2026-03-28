@@ -1,49 +1,23 @@
-# Deno Cloud Driver
-Tools for working with the [Deno Runtime](https://docs.deno.com/runtime/) and the [Deno Cloud](https://deno.com/deploy):  Deploy™️  |  Subhosting.™️
+# Deno Driver
+A standardized `@sys` workspace remains a real workspace all the way to live
+deployment.
 
+Tools for working with the [Deno Runtime](https://docs.deno.com/runtime/) and
+Deno cloud platform surfaces.
 
-### References
+### Exports
 
-- [Deno: Deploy™️](https://deno.com/deploy)
-- [Deno: Subhosting Docs](https://docs.deno.com/subhosting/manual)
-- [Privy: Verifying JWT authToken](https://docs.privy.io/guide/server/authorization/verification#verifying-the-user-s-access-token)
-
-
-### .env
-Ensure you have a `.env` file or have the following `ENV_VARS` available to the process.
-
-```bash
-# Loaded from: src/env.ts
-
-# Deno: Subhosting → Settings → Access Tokens
-#       https://dash.deno.com/subhosting
-DENO_SUBHOSTING_ACCESS_TOKEN="****"
-DENO_SUBHOSTING_DEPLOY_ORG_ID="****"
-
-# Privy: Dashboard → Settings → Basics
-#        https://dashboard.privy.io
-PRIVY_APP_ID="****"
-PRIVY_APP_SECRET="****"
-```
-
+- `jsr:@sys/driver-deno` → package metadata (`pkg`)
+- `jsr:@sys/driver-deno/runtime` → runtime/workspace helpers such as `DenoFile` and `DenoDeps`
+- `jsr:@sys/driver-deno/cloud` → cloud platform helpers such as `DenoDeploy`
 
 ### Example
-Interacting with the Deno™️ cloud/deployment services.
+
+Load a workspace config and project canonical dependency data from an input file such as `deps.yaml` into `deno.json`, import maps, and optional `package.json` files:
 
 ```ts
-import { pkg } from 'jsr:@sys/driver-deno';
-import { DenoCloud, Server } from 'jsr:@sys/driver-deno/server';
+import { DenoDeps, DenoFile } from 'jsr:@sys/driver-deno/runtime';
 
-const app = DenoCloud.server({ env, pkg });
-const options = Server.options(8080, pkg);
-Deno.serve(options, app.fetch);
-```
-
-Working with an upgradable Deno module/app.
-
-```ts
-import { Module } from 'jsr:@sys/driver-deno/runtime';
-await Module.upgrade();
-
-// ↑ updates <deno.json> version, re-runs templates, and installs new dependencies.
+const workspace = await DenoFile.workspace('./deno.json');
+const deps = await DenoDeps.from('./deps.yaml');
 ```

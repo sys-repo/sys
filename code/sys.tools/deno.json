@@ -1,13 +1,13 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.266",
+  "version": "0.0.297",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "prep": "deno run -P=dev ./-scripts/task.prep.ts && deno run -P=dev ./src/-tmpl/bundle/mod.ts",
+    "prep": "deno run -P=dev ./-scripts/task.prep.ts && deno run -P=dev ./src/-tmpl/mod.ts",
     "tmpl": "deno run -P=dev ./src/-tmpl.cli/mod.ts",
     "help": "deno run -P=dev ./src/mod.ts --help",
     "tmp": "deno run -P=dev ./-scripts/task.tmp.ts"
@@ -29,7 +29,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

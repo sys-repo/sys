@@ -1,6 +1,8 @@
 import type { DenoFileLib } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
-import { Is, Json } from '@sys/std';
+import { Jsr } from '@sys/registry/jsr/client';
+import { c } from '@sys/cli';
+import { Is, Json, Str, Time } from '@sys/std';
 import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
@@ -15,12 +17,18 @@ export type PrepPaths = {
 };
 
 export type DenoFileVersionLib = Pick<DenoFileLib, 'workspaceVersion'>;
+export type PublishedPackageVersion =
+  | { kind: 'published'; version: string }
+  | { kind: 'unpublished' };
+export type PublishedPackageVersionLib = {
+  latestVersion(pkg: string): Promise<PublishedPackageVersion>;
+};
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
-      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/package.json'),
+      tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-package.json'),
       rootPackage: Fs.join(root, 'package.json'),
       rootImports: Fs.join(root, 'imports.json'),
       rootDenoJson: Fs.join(root, 'deno.json'),
@@ -130,23 +138,81 @@ export async function resolvePackageVersions(
   return Object.fromEntries(entries);
 }
 
+export async function resolvePublishedPackageVersions(
+  imports: ImportMap,
+  published: PublishedPackageVersionLib,
+  rootDenoJson: string,
+  denoFile: DenoFileVersionLib,
+): Promise<PackageVersions> {
+  const pkgs = [
+    ...new Set(
+      Object.keys(imports.imports)
+        .map(sysPackageName)
+        .filter((pkg): pkg is string => Is.str(pkg)),
+    ),
+  ];
+
+  const entries = await Promise.all(
+    pkgs.map(async (pkg) => {
+      const result = await published.latestVersion(pkg);
+      if (result.kind === 'published') {
+        return [pkg, result.version] as const;
+      }
+
+      const version = await denoFile.workspaceVersion(pkg, rootDenoJson, { walkup: false });
+      if (!Is.str(version)) {
+        throw new Error(`Missing workspace version authority for package "${pkg}": ${rootDenoJson}`);
+      }
+
+      console.info(Str.dedent(`
+        ${c.gray('notice')}  ${c.yellow(`"${pkg}"`)} ${c.gray('is not yet published on JSR; using local workspace version')} ${c.green(version)} ${c.gray('(expected transient state before first publish).')}
+      `));
+
+      return [pkg, version] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries);
+}
+
+export const PublishedVersion: PublishedPackageVersionLib = {
+  async latestVersion(pkg) {
+    for (const delay of [0, 500, 1_000] as const) {
+      if (delay > 0) await Time.wait(delay);
+
+      try {
+        const res = await Jsr.Fetch.Pkg.versions(pkg);
+        const latest = res.data?.latest;
+        if (res.ok && Is.str(latest)) return { kind: 'published', version: latest };
+
+        if (res.status === 404) return { kind: 'unpublished' };
+      } catch (error) {
+        const e = error as { status?: number; cause?: { status?: number } };
+        if (e.status === 404 || e.cause?.status === 404) return { kind: 'unpublished' };
+        // retry
+      }
+    }
+
+    throw new Error(`Failed to fetch JSR package versions: ${pkg}`);
+  },
+};
+
 function resolveImportValue(
   key: string,
   authorityImports: KeyValueMap,
   packageVersions: PackageVersions,
 ): string {
+  const pkg = sysPackageName(key);
+  if (pkg) {
+    const version = packageVersions[pkg];
+    if (typeof version !== 'string') {
+      throw new Error(`Missing version authority for package "${pkg}"`);
+    }
+    return Jsr.Import.specifier(pkg, version, key.slice(pkg.length));
+  }
+
   const fromRoot = authorityImports[key];
   if (typeof fromRoot === 'string') return fromRoot;
 
-  const pkg = sysPackageName(key);
-  if (!pkg) {
-    throw new Error(`Missing import "${key}" in root imports.json`);
-  }
-
-  const version = packageVersions[pkg];
-  if (typeof version !== 'string') {
-    throw new Error(`Missing version authority for package "${pkg}"`);
-  }
-
-  return `jsr:${pkg}@${version}${key.slice(pkg.length)}`;
+  throw new Error(`Missing import "${key}" in root imports.json`);
 }

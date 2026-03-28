@@ -38,7 +38,7 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
     return String(str);
   };
 
-  const spinner = Cli.spinner(tableText());
+  const spinner = Cli.spinner(Fmt.spinnerText(tableText()));
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
 
@@ -51,7 +51,7 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
     onProgress(e) {
       progress.push(e);
       if (e.kind === 'doc:saved') appendTable(tableProcessed, e);
-      spinner.text = tableText();
+      spinner.text = Fmt.spinnerText(tableText());
     },
   });
 

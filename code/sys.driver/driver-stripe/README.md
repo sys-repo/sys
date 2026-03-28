@@ -17,8 +17,8 @@ VITE_STRIPE_CLIENT_SECRET="***"
 ```
 
 Use Stripe Dashboard sandbox values:
-- `VITE_STRIPE_PUBLISHABLE_KEY`: `Developers` -> `API keys` -> `Publishable key`
-- `STRIPE_SECRET_KEY`: `Developers` -> `API keys` -> `Secret key` (sandbox only; local script use)
+- `VITE_STRIPE_PUBLISHABLE_KEY`: `Developers` → `API keys` → `Publishable key`
+- `STRIPE_SECRET_KEY`: `Developers` → `API keys` → `Secret key` (sandbox only; local script use)
 
 Create `VITE_STRIPE_CLIENT_SECRET` locally with:
 1. Set `STRIPE_SECRET_KEY` in `.env`
@@ -28,4 +28,3 @@ Create `VITE_STRIPE_CLIENT_SECRET` locally with:
 `VITE_STRIPE_CLIENT_SECRET` in `.env` is for local component testing only. In production, create a fresh client secret server-side for each payment/session.
 
 `STRIPE_SECRET_KEY` is script-only and must never be read in browser code. The browser DevHarness should read only `VITE_*` values via `import.meta.env`.
-

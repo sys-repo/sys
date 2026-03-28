@@ -167,10 +167,11 @@ describe('Fs.Watch', () => {
       assertIncludesPath(fired, file3, false);
 
       // Write the the non-monitored path.
-      const length = fired.length;
       await Deno.writeTextFile(file3, slug());
       await Time.wait(120);
-      expect(fired.length).to.eql(length); // NB: no-change
+      assertIncludesPath(fired, file1, true);
+      assertIncludesPath(fired, file2, true);
+      assertIncludesPath(fired, file3, false);
 
       watcher.dispose();
     });

@@ -92,6 +92,9 @@ export type StdIsLib = {
   /** Determine if the HTTP status code is within the 200 range.  */
   statusOK(status: number): boolean;
 
+  /** True if the input or any nested `cause` carries the given HTTP status code. */
+  httpStatus(input: unknown, status: t.HttpStatusCode): boolean;
+
   /**
    * True if running inside *any* browser JS runtime:
    * window, iframe, or any Web Worker.

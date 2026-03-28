@@ -10,7 +10,7 @@ export const FORBIDDEN_FILES = ['deno.lock'] as const;
  * Prepare embedded asset bundle of template files.
  */
 export async function makeBundle() {
-  const src = Fs.resolve(PATHS.templates);
+  const src = PATHS.templates;
   const targetFile = PATHS.json;
   await assertTemplateSourceClean(src);
 

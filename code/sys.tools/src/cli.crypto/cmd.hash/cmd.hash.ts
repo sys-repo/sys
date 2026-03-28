@@ -65,7 +65,7 @@ export async function hashDir(
   }
   const elapsed = String(Time.elapsed(startedAt));
 
-  const distRow = HashRowDist.afterRun({ before: distBefore, saveDist, digest: res.digest });
+  const distRow = await HashRowDist.afterRun({ before: distBefore, saveDist, digest: res.digest });
 
   console.info();
   console.info(c.green('✔ directory hashed'));

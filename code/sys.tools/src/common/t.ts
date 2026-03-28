@@ -20,7 +20,18 @@ export type {
 } from '@sys/std/t';
 
 /** @system: Common */
-export type { CliTable, MenuResult, MenuResultKind } from '@sys/cli/t';
+export type {
+  CliFormatHelpInput,
+  CliFormatHelpInputSections,
+  CliFormatHelpInputShorthand,
+  CliFormatHelpOption,
+  CliFormatHelpPair,
+  CliFormatHelpSection,
+  CliFormatHelpTone,
+  CliTable,
+  MenuResult,
+  MenuResultKind,
+} from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { FileMap, FileMapProcessor, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';
@@ -42,7 +53,6 @@ export type { Crdt, CrdtRepoWireEvent } from '@sys/driver-automerge/t';
  * @local
  */
 export type * from '../-tmpl.cli/t.ts';
-export type * from '../-tmpl/t.ts';
 export type * from '../t.ts';
 
 export type * from '../cli.clipboard/t.ts';

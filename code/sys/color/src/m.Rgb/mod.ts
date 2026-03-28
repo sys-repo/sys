@@ -1,6 +1,6 @@
 /**
- * Helper for working with RGBA color values.
  * @module
+ * Helper for working with RGBA color values.
  *
  * @example
  * ```ts
@@ -11,5 +11,5 @@
  * const myColor = Color.alpha(theme.fg, 0.3);
  * ```
  */
-export { Color, COLORS } from './m.Color.ts';
-export { Theme } from './m.Theme.ts';
+export { Color, COLORS } from './m.Color/mod.ts';
+export { Theme } from './m.Theme/mod.ts';

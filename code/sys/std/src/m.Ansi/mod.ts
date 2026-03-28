@@ -1,8 +1,7 @@
 /**
- * ANSI Color formatting tools for the terminal.
  * @module
+ * ANSI Color formatting tools for the terminal.
  */
-import { escapePathComponent } from 'fast-json-patch';
 import type { t } from './common.ts';
 export { stripAnsi } from './common.ts';
 

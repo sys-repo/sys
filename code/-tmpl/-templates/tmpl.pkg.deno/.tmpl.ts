@@ -1,4 +1,4 @@
-import { type t, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
+import { type t, Arr, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
 
 /**
  * Setup the template (after copy):
@@ -31,14 +31,10 @@ export default async function setup(dir: t.StringAbsoluteDir, options: { pkgName
   });
 
   await TmplEngine.File.update(monorepo.path, (line) => {
-    if (line.text.includes('"workspace": [')) {
-      if (line.text.includes(': []')) {
-        line.modify(`  "workspace": [`);
-        line.insert(`    "${pkgDir}"`, 'after');
-        line.insert(`  ]`, 'after');
-      } else {
-        line.insert(`    "${pkgDir}",`, 'after');
-      }
-    }
+  });
+
+  await TmplEngine.File.updateJson<{ workspace?: string[] }>(monorepo.path, (json) => {
+    const workspace = Array.isArray(json.workspace) ? [...json.workspace, pkgDir] : [pkgDir];
+    json.workspace = Arr.uniq(workspace).toSorted((a, b) => a.localeCompare(b));
   });
 }

@@ -130,6 +130,34 @@ describe('JsonFile', () => {
       const file = await JsonFile.get<T>(path, JsonFile.default<T>({ msg: '' }));
       expect(file.current.msg).to.eql('hello');
     });
+
+    it('normalizes missing .meta on an initial seed', async () => {
+      type T = t.JsonFileDoc & { count: number };
+      const path = Fs.join(root, slug(), 'missing-meta.seed.json');
+      const before = Time.now.timestamp;
+
+      const file = await JsonFile.get<T>(path, { count: 1 } as unknown as T);
+      const after = Time.now.timestamp;
+
+      expect(file.current.count).to.eql(1);
+      expect(file.current['.meta'].createdAt).to.be.within(before, after);
+    });
+
+    it('normalizes missing .meta on an existing file', async () => {
+      type T = t.JsonFileDoc & { count: number };
+      const dir = Fs.join(root, slug());
+      const path = Fs.join(dir, 'missing-meta.existing.json');
+      const before = Time.now.timestamp;
+
+      await Fs.ensureDir(dir);
+      await Fs.writeJson(path, { count: 2 });
+
+      const file = await JsonFile.get<T>(path, JsonFile.default<T>({ count: 0 }));
+      const after = Time.now.timestamp;
+
+      expect(file.current.count).to.eql(2);
+      expect(file.current['.meta'].createdAt).to.be.within(before, after);
+    });
   });
 
   describe('save', () => {

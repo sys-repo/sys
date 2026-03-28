@@ -1,0 +1,140 @@
+import {
+  type t,
+  describe,
+  expect,
+  Hash,
+  it,
+  Rx,
+  SAMPLE,
+  slug,
+  Testing,
+} from '../../../-test.ts';
+import { assertFetchDisposed } from '../-u.ts';
+import { JsrUrl } from '../common.ts';
+import { Fetch } from '../mod.ts';
+import { Fmt } from './u.fmt.ts';
+
+describe('Jsr.Fetch.Pkg.file (external)', () => {
+  const { name, version } = SAMPLE.pkg;
+
+  const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
+    const hx = Hash.sha256(res.data);
+    Fmt.printExternalTable(
+      'Jsr.Fetch.Pkg.file',
+      [
+        { label: 'status', value: String(res.status) },
+        { label: 'url', value: res.url },
+        { label: 'hash (manifest)', value: checksum },
+        { label: 'hash (pulled)', value: hx },
+      ],
+      res.data ?? '(empty)',
+    );
+  };
+
+  const testPull = async (path: keyof typeof SAMPLE.def, ...expectText: string[]) => {
+    await Testing.retry(3, async () => {
+      const res = await Fetch.Pkg.file(name, version).text(path);
+      const hx = Hash.sha256(res.data);
+      const def = SAMPLE.def[path];
+      print(res, def.checksum);
+
+      expect(res.status).to.eql(200);
+      expect(res.error).to.eql(undefined);
+      expect(res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
+      expect(hx).to.eql(SAMPLE.def[path].checksum);
+      expectText.forEach((text) => {
+        expect(res.data).to.include(text);
+      });
+    });
+  };
+
+  it('create', () => {
+    const file = Fetch.Pkg.file(name, version);
+    expect(file.pkg).to.eql({ name, version });
+    expect(typeof file.text).to.eql('function');
+  });
+
+  it('pull: "/src/pkg.ts"', async () => {
+    await testPull(
+      '/src/pkg.ts',
+      `import type { Pkg as TPkg } from 'jsr:@sys/types@^0.0.13';`,
+      `export const pkg: TPkg = Pkg.fromJson(deno)`,
+    );
+  });
+
+  it('pull: "/deno.json"', async () => {
+    await testPull('/deno.json', `"name": "@sys/std"`);
+  });
+
+  it('pull: "/src/m.Path/mod.ts"', async () => {
+    await testPull('/src/m.Path/mod.ts', 'export default Path;');
+  });
+
+  describe('errors', () => {
+    it('error: 404', async () => {
+      const path = `/foo/404-${slug()}.ts`;
+      const res = await Fetch.Pkg.file(name, version).text(path);
+      expect(res.status).to.eql(404);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.cause?.message).to.include('404 Not Found');
+    });
+
+    describe('checksum', () => {
+      const assertSuccess = (res: t.FetchResponse<unknown>) => {
+        expect(res.ok).to.eql(true);
+        expect(res.status).to.eql(200);
+        expect(res.error).to.eql(undefined);
+      };
+
+      const assertChecksumFail = (res: t.FetchResponse<unknown>) => {
+        const error = res.error?.cause;
+        expect(res.ok).to.eql(false);
+        expect(res.status).to.eql(412);
+        expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
+        expect(error?.message).to.include(`does not match the expected checksum:`);
+        expect(error?.message).to.include(res.checksum?.actual);
+        expect(error?.message).to.include(res.checksum?.expected);
+      };
+
+      it('error: 412 ← checksum/hash mismatch', async () => {
+        const path = '/src/pkg.ts';
+        const def = SAMPLE.def[path];
+
+        const checksum = def.checksum;
+        const file = Fetch.Pkg.file(name, version);
+        const resA = await file.text(path);
+        const resB = await file.text(path, { checksum: 'sha256-FAIL' });
+        const resC = await file.text(path, { checksum });
+
+        assertSuccess(resA);
+        assertChecksumFail(resB);
+        assertSuccess(resC);
+
+        print(resB, 'sha256-FAIL');
+
+        expect(resA.checksum).to.eql(undefined);
+        expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+      });
+    });
+  });
+
+  describe('dispose ← (cancel fetch operation)', () => {
+    const path = '/src/pkg.ts';
+
+    it('dispose$: param on fetcher constructor', async () => {
+      const { dispose, dispose$ } = Rx.disposable();
+      const file = Fetch.Pkg.file(name, version, { dispose$ });
+      const promise = file.text(path);
+      dispose();
+      assertFetchDisposed(await promise);
+    });
+
+    it('dispose$: param on path fetch request', async () => {
+      const { dispose, dispose$ } = Rx.disposable();
+      const file = Fetch.Pkg.file(name, version);
+      const promise = file.text(path, { dispose$ });
+      dispose();
+      assertFetchDisposed(await promise);
+    });
+  });
+});

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 import type { CssPseudoClassLib } from './t.ts';
 
 /**
@@ -68,6 +68,6 @@ export const CssPseudoClass: CssPseudoClassLib = {
   level4: new Set(level4),
   all: new Set([...level3, ...level4]),
   isClass(input: unknown): input is t.CssPseudoClass {
-    return typeof input === 'string' && this.all.has(input as t.CssPseudoClass);
+    return Is.str(input) && this.all.has(input as t.CssPseudoClass);
   },
 };

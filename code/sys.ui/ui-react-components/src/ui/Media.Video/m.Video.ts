@@ -1,6 +1,6 @@
 /**
- * Tools for working with video streams.
  * @module
+ * Tools for working with video streams.
  */
 import type { MediaVideoLib } from './t.ts';
 

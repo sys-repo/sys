@@ -5,6 +5,7 @@ import {
   COLORS,
   Color,
   ErrorBoundary,
+  Is,
   css,
   pkg,
   useBusController,
@@ -68,7 +69,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
     }),
     base: css({
       position: 'relative',
-      backgroundColor: Color.format(props.background),
+      backgroundColor: Is.num(props.background) ? Color.toGrayAlpha(props.background) : props.background,
       pointerEvents: 'auto',
       display: 'grid',
       gridTemplateColumns: '1fr auto',

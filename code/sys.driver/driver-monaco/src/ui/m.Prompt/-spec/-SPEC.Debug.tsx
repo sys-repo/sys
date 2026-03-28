@@ -13,7 +13,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   textSubject: 'hello world 👋',
-  textFooter: '',
+  textFooter: `LLMs are mirrors that refract written thought`,
   overflow: D.overflow,
   maxLines: 3,
 };
@@ -126,16 +126,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `single-line`}
+        label={() => `max-lines: ${p.maxLines.value}`}
+        onClick={() => Signal.cycle<number>(p.maxLines, [2, 3, 5, 10])}
+      />
+      <Button
+        block
+        label={() => `to: → single-line`}
         onClick={() => {
           p.maxLines.value = 1;
           p.overflow.value = 'clamp';
         }}
-      />
-      <Button
-        block
-        label={() => `max-lines: ${p.maxLines.value}`}
-        onClick={() => Signal.cycle<number>(p.maxLines, [2, 3, 5, 10])}
       />
 
       <hr />

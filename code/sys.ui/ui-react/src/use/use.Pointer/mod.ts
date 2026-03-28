@@ -1,6 +1,6 @@
 /**
- * React hooks relating to pointer (mouse/touch) events.
  * @module
+ * React hooks relating to pointer (mouse/touch) events.
  *
  * @example
  *

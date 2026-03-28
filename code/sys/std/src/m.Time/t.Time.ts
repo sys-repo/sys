@@ -32,6 +32,16 @@ export type TimeLib = {
   delay: t.TimeDelayFn;
 
   /**
+   * Run a function repeatedly on a fixed interval until cancelled.
+   *
+   * Notes:
+   *  • `interval(msecs, fn, options?)` → repeating timer; cancellable via `.cancel()`.
+   *  • `interval(msecs, options, fn)` → same, with options before the callback.
+   *  • Use `options.immediate` to run once before the first scheduled tick.
+   */
+  interval: t.TimeIntervalFn;
+
+  /**
    * Wait for the specified milliseconds
    * (NB: use with `await`.)
    * @param msecs: delay in milliseconds.
@@ -64,6 +74,9 @@ export type TimeFrameOptions = { readonly signal?: AbortSignal };
 export type TimeUntil = t.Lifecycle & {
   /** Delay for the specified milliseconds. */
   delay: t.TimeLib['delay'];
+
+  /** Repeat on an interval until disposed. */
+  interval: t.TimeLib['interval'];
 
   /** Wait for the specified milliseconds to pass. */
   wait: t.TimeLib['wait'];

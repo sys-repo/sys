@@ -1,13 +1,10 @@
 import { describe, expect, Fs, it, type t } from '../../-test.ts';
-import { workspaceRoot } from './u.fixture.ts';
 import { buildGeneratedRepo } from './u.fixture.tmpl.ts';
 
 describe('Vite external smoke (repo-generated)', () => {
   it('build: generated tmpl.repo project foo succeeds in external workspace', async () => {
-    const repoTemplateDir = Fs.join(await workspaceRoot(), 'code', '-tmpl', '-templates', 'tmpl.repo');
     const { rootDir, fooDir, generate, build } = await buildGeneratedRepo({
       sampleName: 'Vite.repo.generated',
-      repoTemplateDir,
     });
 
     assertTaskOk(generate, 'Generated repo project creation failed');

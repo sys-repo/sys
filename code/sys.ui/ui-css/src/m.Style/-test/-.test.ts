@@ -48,6 +48,15 @@ describe('Style', () => {
         expect(res).to.eql(`${key}: 10px;`);
       });
     });
+
+    it('drops nullish props', () => {
+      const style: any = {
+        color: 'red',
+        backgroundColor: undefined,
+        borderColor: null,
+      };
+      expect(Style.toString(style)).to.eql('color: red;');
+    });
   });
 
   describe('Style.transformer ← factory', () => {
@@ -80,6 +89,12 @@ describe('Style', () => {
       expect(Style.isZero('0em')).to.eql(true);
       expect(Style.isZero('0rem')).to.eql(true);
       expect(Style.isZero('0%')).to.eql(true);
+      expect(Style.isZero(' 0px ')).to.eql(true);
+      expect(Style.isZero('0.0px')).to.eql(true);
+
+      // False: starts with zero, but not zero-valued.
+      expect(Style.isZero('0.5px')).to.eql(false);
+      expect(Style.isZero('0.1rem')).to.eql(false);
     });
   });
 });

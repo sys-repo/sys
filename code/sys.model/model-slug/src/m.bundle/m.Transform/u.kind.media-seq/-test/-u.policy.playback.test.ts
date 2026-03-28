@@ -22,7 +22,7 @@ describe('u.policy.playback', () => {
     if (!res.ok) expect(res.error.message).to.contain('media-composition');
   });
 
-  it('wires sequence -> normalize -> projection into playback manifest', async () => {
+  it('wires sequence → normalize → projection into playback manifest', async () => {
     const res = await playbackFromDag(makeDag(SLUG_YAML_WITH_TRAIT), yamlPath, SLUG_ID, { validate: true });
     expect(res.ok).to.eql(true);
     if (!res.ok) return;

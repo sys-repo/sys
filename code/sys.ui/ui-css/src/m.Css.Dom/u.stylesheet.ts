@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { createClasses, wrangleClassPrefix } from './u.classes.ts';
 import { createContainer } from './u.ctx.container.ts';
 import { createRules } from './u.rules.ts';
@@ -51,7 +51,7 @@ export const create: t.CssDomLib['stylesheet'] = (input) => {
 const wrangle = {
   options(input: Parameters<t.CssDomLib['stylesheet']>[0]): t.CssDomStylesheetOptions {
     if (!input) return {};
-    if (typeof input === 'string') return { instance: input };
+    if (Is.str(input)) return { instance: input };
     return input;
   },
 
@@ -75,6 +75,10 @@ function getOrCreateDomStyleSheet(id: string): CSSStyleSheet {
   if (typeof document === 'undefined') {
     return {} as CSSStyleSheet; // Dummy (safe on server).
   } else {
+    const selector = `style[data-controller="${id}"]`;
+    const existing = document.head.querySelector(selector) as HTMLStyleElement | null;
+    if (existing?.sheet) return existing.sheet;
+
     const el = document.createElement('style');
     el.setAttribute('data-controller', id);
     document.head.appendChild(el);

@@ -31,7 +31,7 @@ export const main: t.ViteEntryLib['main'] = async (input) => {
     return;
   }
 
-  if (cmd === 'help') {
+  if (cmd === 'info') {
     const { dir, info } = args;
     const paths = await Wrangle.pathsFromConfigfile(dir);
     const dirs = {

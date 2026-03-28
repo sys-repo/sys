@@ -1,4 +1,4 @@
-import { type t, Fs, Immutable, Obj, Time } from './common.ts';
+import { type t, Fs, Immutable, Is, Obj, Time } from './common.ts';
 
 /**
  * Get or create a file handle.
@@ -102,9 +102,12 @@ const wrangle = {
   },
 
   ensureCreatedAt<D extends t.JsonFileDoc>(input: D): D {
-    if (input['.meta'].createdAt) return input;
+    if (input['.meta']?.createdAt) return input;
 
     const clone = Obj.clone(input);
+    if (!Is.record(clone['.meta'])) {
+      (clone as t.DeepMutable<D>)['.meta'] = {} as D['.meta'];
+    }
     clone['.meta'].createdAt = Time.now.timestamp;
     return clone;
   },

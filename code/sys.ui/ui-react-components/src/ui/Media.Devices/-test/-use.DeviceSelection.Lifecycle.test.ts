@@ -1,7 +1,7 @@
 import {
   type t,
-  afterAll,
-  beforeAll,
+  afterEach,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -17,7 +17,7 @@ import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts
  * Focus: restore, fallback, persist, clear, and reorder stability.
  */
 describe('hook: useDeviceSelectionLifecycle', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   const video = { deviceId: 'v1', kind: 'videoinput', label: 'Cam 1' } as MediaDeviceInfo;
   const mic = { deviceId: 'a1', kind: 'audioinput', label: 'Mic 1' } as MediaDeviceInfo;
@@ -32,7 +32,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
     const selected$ = makeSignal<MediaDeviceInfo>();
     const items = [mic, video];
 
-    renderHook(() =>
+    const { unmount } = renderHook(() =>
       useDeviceSelectionLifecycle({
         items,
         selected: selected$.value,
@@ -41,9 +41,12 @@ describe('hook: useDeviceSelectionLifecycle', () => {
         onResolve: (e) => (selected$.value = e.device),
       }),
     );
-
-    await Time.waitFor(() => selected$.value?.deviceId === 'v1');
-    expect(selected$.value?.deviceId).to.equal('v1');
+    try {
+      await Time.waitFor(() => selected$.value?.deviceId === 'v1');
+      expect(selected$.value?.deviceId).to.equal('v1');
+    } finally {
+      unmount();
+    }
   });
 
   it('persists, then restores on fresh mount (end-to-end)', async () => {
@@ -63,16 +66,18 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (selA$.value = e.device),
         }),
       );
-
-      await Time.waitFor(() => selA$.value?.deviceId === 'v1');
-      expect(selA$.value?.deviceId).to.equal('v1');
-      unmount();
+      try {
+        await Time.waitFor(() => selA$.value?.deviceId === 'v1');
+        expect(selA$.value?.deviceId).to.equal('v1');
+      } finally {
+        unmount();
+      }
     }
 
     // Mount B: restore from LocalStorage
     {
       const selB$ = makeSignal<MediaDeviceInfo>();
-      renderHook(() =>
+      const { unmount } = renderHook(() =>
         useDeviceSelectionLifecycle({
           items,
           selected: selB$.value,
@@ -82,9 +87,12 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (selB$.value = e.device),
         }),
       );
-
-      await Time.waitFor(() => selB$.value?.deviceId === 'v1');
-      expect(selB$.value?.deviceId).to.equal('v1');
+      try {
+        await Time.waitFor(() => selB$.value?.deviceId === 'v1');
+        expect(selB$.value?.deviceId).to.equal('v1');
+      } finally {
+        unmount();
+      }
     }
   });
 
@@ -104,8 +112,11 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (sel$.value = e.device),
         }),
       );
-      await Time.waitFor(() => sel$.value?.deviceId === 'v1');
-      unmount();
+      try {
+        await Time.waitFor(() => sel$.value?.deviceId === 'v1');
+      } finally {
+        unmount();
+      }
     }
 
     // Mount without "v1" (ghost): expect fallback to "a1"
@@ -121,15 +132,18 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (sel$.value = e.device),
         }),
       );
-      await Time.waitFor(() => sel$.value?.deviceId === 'a1');
-      expect(sel$.value?.deviceId).to.equal('a1');
-      unmount();
+      try {
+        await Time.waitFor(() => sel$.value?.deviceId === 'a1');
+        expect(sel$.value?.deviceId).to.equal('a1');
+      } finally {
+        unmount();
+      }
     }
 
     // New mount restores new fallback
     {
       const sel$ = makeSignal<MediaDeviceInfo>();
-      renderHook(() =>
+      const { unmount } = renderHook(() =>
         useDeviceSelectionLifecycle({
           items: [mic],
           selected: sel$.value,
@@ -139,8 +153,12 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           onResolve: (e) => (sel$.value = e.device),
         }),
       );
-      await Time.waitFor(() => sel$.value?.deviceId === 'a1');
-      expect(sel$.value?.deviceId).to.equal('a1');
+      try {
+        await Time.waitFor(() => sel$.value?.deviceId === 'a1');
+        expect(sel$.value?.deviceId).to.equal('a1');
+      } finally {
+        unmount();
+      }
     }
   });
 
@@ -149,7 +167,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
     const initial = [video, mic];
     const swapped = [mic, video];
 
-    const { rerender } = renderHook(
+    const { rerender, unmount } = renderHook(
       (list) =>
         useDeviceSelectionLifecycle({
           items: list,
@@ -160,13 +178,16 @@ describe('hook: useDeviceSelectionLifecycle', () => {
         }),
       { initialProps: initial },
     );
+    try {
+      await Time.waitFor(() => selected$.value?.deviceId === 'v1');
+      expect(selected$.value?.deviceId).to.equal('v1');
 
-    await Time.waitFor(() => selected$.value?.deviceId === 'v1');
-    expect(selected$.value?.deviceId).to.equal('v1');
+      rerender(swapped);
 
-    rerender(swapped);
-
-    await Time.waitFor(() => selected$.value?.deviceId === 'v1');
-    expect(selected$.value?.deviceId).to.equal('v1');
+      await Time.waitFor(() => selected$.value?.deviceId === 'v1');
+      expect(selected$.value?.deviceId).to.equal('v1');
+    } finally {
+      unmount();
+    }
   });
 });

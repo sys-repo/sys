@@ -1,0 +1,1 @@
+import './-Pkg.test.ts';

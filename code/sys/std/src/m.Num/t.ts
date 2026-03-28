@@ -3,79 +3,98 @@ import type { t } from './common.ts';
 export type * from './t.percent.ts';
 export type * from './t.ratio.ts';
 
-export type NumRandomSource = 'math' | 'crypto' | (() => number);
-
-export type NumRandomOptions = {
+export declare namespace Num {
   /**
-   * Random source to use.
-   * - 'math': Math.random (default)
-   * - 'crypto': crypto.getRandomValues
-   * - fn: custom RNG that must return [0, 1)
+   * Tools for working with numbers.
    */
-  readonly source?: NumRandomSource;
-};
+  export type Lib = {
+    /** Predicates over number values. */
+    readonly Is: IsLib;
 
-export type NumRandom = {
-  /**
-   * Random float in [min, max).
-   * Defaults:
-   * - () => [0, 1)
-   * - (max) => [0, max)
-   * - (min, max) => [min, max)
-   */
-  (min?: number, max?: number, opts?: NumRandomOptions): number;
+    /** Tools for working with percentages. */
+    readonly Percent: t.PercentLib;
+    /** Tools for working with ratios. */
+    readonly Ratio: t.RatioLib;
 
-  /**
-   * Random integer in [min, max] (inclusive).
-   */
-  int(min: number, max: number, opts?: NumRandomOptions): number;
-};
+    /**
+     * Maximum integer representable exactly in the Num domain.
+     * Alias of Number.MAX_SAFE_INTEGER (IEEE-754 safe integer limit).
+     */
+    readonly MAX_INT: number;
 
-/**
- * Tools for working with numbers.
- */
-export type NumberLib = {
-  /** Tools for working with percentages. */
-  readonly Percent: t.PercentLib;
-  /** Tools for working with ratios. */
-  readonly Ratio: t.RatioLib;
+    /**
+     * Minimum integer representable exactly in the Num domain.
+     * Equivalent to -Number.MAX_SAFE_INTEGER.
+     */
+    readonly MIN_INT: number;
 
-  /**
-   * Maximum integer representable exactly in the Num domain.
-   * Alias of Number.MAX_SAFE_INTEGER (IEEE-754 safe integer limit).
-   */
-  readonly MAX_INT: number;
+    /**
+     * Positive infinity.
+     * Alias of Number.POSITIVE_INFINITY.
+     */
+    readonly INFINITY: number;
 
-  /**
-   * Minimum integer representable exactly in the Num domain.
-   * Equivalent to -Number.MAX_SAFE_INTEGER.
-   */
-  readonly MIN_INT: number;
+    /** Random number tools. */
+    readonly random: Random;
 
-  /**
-   * Positive infinity.
-   * Alias of Number.POSITIVE_INFINITY.
-   */
-  readonly INFINITY: number;
+    /** Rounds a number to the specified number of decimal places. */
+    round(value: number, precision?: number): number;
 
-  /** Random number tools. */
-  readonly random: NumRandom;
+    /** Clamps a number between a minimum and maximum value. */
+    clamp(min: number, max: number, value: number): number;
 
-  /** Rounds a number to the specified number of decimal places. */
-  round(value: number, precision?: number): number;
+    /** Sum a list of numbers (empty list → 0). */
+    sum(values: t.Ary<number>): number;
 
-  /** Clamps a number between a minimum and maximum value. */
-  clamp(min: number, max: number, value: number): number;
+    /**
+     * Convert a zero-based integer
+     * (0 → A, 1 → B, ... 25 → Z, 26 → A again) into an ASCII uppercase letter.
+     */
+    toLetter: (index: number) => string;
 
-  /** Sum a list of numbers (empty list → 0). */
-  sum(values: t.Ary<number>): number;
+    /** Formats a number into a display string. */
+    toString(value?: number, maxDecimals?: number): string;
+  };
 
   /**
-   * Convert a zero-based integer
-   * (0 → A, 1 → B, ... 25 → Z, 26 → A again) into an ASCII uppercase letter.
+   * Predicates over number values.
    */
-  toLetter: (index: number) => string;
+  export type IsLib = {
+    /** True when the input is a finite number. */
+    finite(input?: unknown): input is number;
 
-  /** Formats a number into a display string. */
-  toString(value?: number, maxDecimals?: number): string;
-};
+    /** True when the input is an integer number. */
+    int(input?: unknown): input is number;
+
+    /** True when the input is a safe integer number. */
+    safeInt(input?: unknown): input is number;
+  };
+
+  export type RandomSource = 'math' | 'crypto' | (() => number);
+
+  export type RandomOptions = {
+    /**
+     * Random source to use.
+     * - 'math': Math.random (default)
+     * - 'crypto': crypto.getRandomValues
+     * - fn: custom RNG that must return [0, 1)
+     */
+    readonly source?: RandomSource;
+  };
+
+  export type Random = {
+    /**
+     * Random float in [min, max).
+     * Defaults:
+     * - () => [0, 1)
+     * - (max) => [0, max)
+     * - (min, max) => [min, max)
+     */
+    (min?: number, max?: number, opts?: RandomOptions): number;
+
+    /**
+     * Random integer in [min, max] (inclusive).
+     */
+    int(min: number, max: number, opts?: RandomOptions): number;
+  };
+}

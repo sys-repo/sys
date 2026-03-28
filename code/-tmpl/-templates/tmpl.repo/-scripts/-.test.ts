@@ -1,30 +1,12 @@
 import { Fs } from '@sys/fs';
+import { Workspace } from '@sys/workspace/testing';
+import { describe, it } from '../code/common/-test.ts';
 
-import { type t, describe, it, expect, Testing } from '../code/common/-test.ts';
-import { main } from './task.prep.ts';
+const cwd = Fs.resolve(import.meta.dirname ?? '.', '..');
 
-describe('Repo: -scripts', () => {
-  it('baseline: 🐷', async () => {
-    expect(123).to.eql(123);
-  });
-
-  it('prep: generates project test/build workflows from code/projects modules', async () => {
-    const fs = await Testing.dir('tmpl.repo.prep').create();
-    const root = fs.dir;
-    const projectDir = Fs.join(root, 'code/projects/demo');
-    const path = 'code/projects/demo';
-
-    await Fs.writeJson(Fs.join(projectDir, 'deno.json'), {
-      tasks: { build: 'deno task help', test: 'deno task help' },
-    });
-
-    await main(root);
-
-    const build = (await Fs.readText(Fs.join(root, '.github/workflows/build.yaml'))).data ?? '';
-    const test = (await Fs.readText(Fs.join(root, '.github/workflows/test.yaml'))).data ?? '';
-    expect(build.includes(`path: ${path}`)).to.eql(true);
-    expect(test.includes(`path: ${path}`)).to.eql(true);
-    expect(build.includes(`name: "${path}"`)).to.eql(true);
-    expect(test.includes(`name: "${path}"`)).to.eql(true);
+describe('Repo Scripts', () => {
+  it('workspace/integrity', async () => {
+    if (!(await Fs.exists(Fs.join(cwd, 'deno.json')))) return;
+    await Workspace.Test.scripts(cwd);
   });
 });

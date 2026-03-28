@@ -9,15 +9,30 @@ It standardizes essential I/O and workspace setup operations across the sys runt
 - `Fs` — Core file and directory operations.
 - `Path` — Path utilities.
 - `FileMap` — Declarative file-tree representation.
-- `JsonFile` —
+- `JsonFile` — Immutable JSON-on-disk file wrapper with typed load/save helpers.
 - `Watch` — Directory watching.
-- `Env` — Environment initialization helpers.
+- `Env` — Environment initialization and `.env` loading helpers.
 
 
 ```ts
 import { Fs, Path, Env } from '@sys/fs';
 import { FileMap } from '@sys/fs/filemap';
 import { Watch } from '@sys/fs/watch';
+```
+
+<p>&nbsp;</p>
+
+## Env
+`Env.load()` reads `.env` values and falls back to the live process environment for keys not provided by `.env` file(s).
+
+- `Env.load({ search: 'cwd' })` reads only the `.env` in the target directory.
+- `Env.load({ search: 'upward' })` merges every ancestor `.env` from root to the target directory, with closest values winning and farther ancestors filling missing keys.
+
+```ts
+import { Env } from '@sys/fs/env';
+
+const env = await Env.load({ search: 'upward' });
+env.get('API_KEY');
 ```
 
 

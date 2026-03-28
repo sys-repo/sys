@@ -1,0 +1,45 @@
+{
+  "name": "@sys/workspace",
+  "version": "0.0.38",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test",
+    "test:cli": "deno run -P=test:cli ./-scripts/task.cli.ts",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./ci": "./src/m.ci/mod.ts",
+    "./cli": "./src/m.cli/mod.ts",
+    "./graph": "./src/m.graph/mod.ts",
+    "./info": "./src/m.info/mod.ts",
+    "./pkg": "./src/m.pkg/mod.ts",
+    "./prep": "./src/m.prep/mod.ts",
+    "./upgrade": "./src/m.upgrade/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": true
+    },
+    "test:cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "ffi": true
+    }
+  }
+}

@@ -4,9 +4,9 @@ import { type t, Jsr, pkg } from './common.ts';
 /**
  * GPT token counting + encoding using the underlying "gpt-tokenizer" implementation.
  *
- * - count(text) -> number of tokens
- * - encode(text) -> token IDs
- * - info -> metadata about the tokenizer/encoding + a stable URN and source reference
+ * - count(text) → number of tokens
+ * - encode(text) → token IDs
+ * - info → metadata about the tokenizer/encoding + a stable URN and source reference
  *
  * Notes:
  * - When specialTokensPolicy is "disallowed-by-default", count/encode disallow all special tokens.

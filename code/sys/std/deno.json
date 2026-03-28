@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.309",
+  "version": "0.0.330",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -19,7 +19,6 @@
     "./ansi/server": "./src/m.Ansi/mod.ts",
     "./args": "./src/m.Args/mod.ts",
     "./error": "./src/-exports/-err.ts",
-    "./esm": "./src/m.Esm/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./log": "./src/m.Log/mod.ts",

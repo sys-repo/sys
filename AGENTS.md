@@ -1,60 +1,15 @@
 # AGENTS.md (system repo root)
-Before any action:
-- Before any action that modifies code, structure, or public API, ensure `AGENTS.md`
-  constraints are in scope.
-- Apply those instructions verbatim
-- This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
+This file adds `sys`-local constraints only.
+All broader behavior is governed by root `AGENTS.md` and canonical canon.
 
-- When a clear question is posed, or when a prompt ends with the character "?":
-  - Respond in **plan mode only** (analysis / proposal / steps)
-  - Treat the response as **read-only**:
-    - Allowed:
-      - Reasoning, analysis, and explanation
-      - Reading, ingesting, parsing, or summarising existing files or content
-      - Read-only tool usage that does not modify state
-    - Forbidden:
-      - Writing, editing, deleting, or generating files
-      - Executing commands that cause side effects
-      - Modifying code, configuration, or data
-  - Do NOT make changes unless explicitly instructed
-  - If the question explicitly ends with the word **"go"**:
-    - This **overrides the read-only constraints above**
-    - Treat it as an execution command
-    - Side effects, writes, and mutations are allowed
-    - Proceed normally
+Agents MUST:
+- continue AGENTS.md traversal upward and apply the parent `AGENTS.md`
+- treat the parent bootstrap and its canonical references as authoritative
+- apply this file cumulatively with that canon
 
-- After completing any change (code, config, docs, or structure),
-  always provide a Git commit message summarizing the change, using
-  the Conventional Commits format.
-
-
-====================================================================================================
-
-
-## Deno task discipline (local policy)
-- **Module** = the nearest ancestor directory (from the target file) that contains `deno.json`.
-- **Task execution rule**:
-  - Always run `deno task …` from within the module directory (or any subdirectory of it).
-  - If starting elsewhere, `cd` into the module first.
-- **Task authority** (test / check):
-  - Always use the module’s `deno.json` tasks:
-    - `deno task test`
-    - `deno task check`
-  - Never run `deno test` / `deno check` directly.
-  - If the module’s `deno.json` does not define the task, **STOP and ask** which task
-    (or which `deno.json`) is authoritative.
-- **Scoped testing**:
-  - When run from a subdirectory, `deno task test` executes only the tests rooted under that path
-    (per task configuration).
-  - Use subdirectory runs intentionally for focus; use module root for full coverage.
-
-### Targeted tests
-- Run targeted tests with:
-  - `deno task test --trace-leaks <relative-path>`
-- Examples (from module root):
-  - `deno task test --trace-leaks ./foo/bar`
-  - `deno task test --trace-leaks ./foo/bar/-test/-baz.test.ts`
-
+### Local note
+- Canonical skills live under `../sys.canon/skills/`.
+- Do not recreate canonical skills under `./skills/` unless a `sys`-local variant is explicitly needed.
 
 
 ====================================================================================================
@@ -72,5 +27,3 @@ If the human explicitly indicates that work is scoped to a specific domain:
 
 Do NOT infer scope.
 Do NOT activate scoped canon unless explicitly instructed.
-
-Go

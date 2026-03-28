@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-std",
-  "version": "0.0.27",
+  "version": "0.0.49",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
@@ -10,7 +10,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
-    "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
+    "info": "deno run -P=dev   ./-scripts/-vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
@@ -22,7 +22,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

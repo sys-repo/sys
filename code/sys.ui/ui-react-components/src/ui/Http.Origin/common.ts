@@ -7,7 +7,7 @@ export { KeyValue } from '../KeyValue/mod.ts';
 export { Button } from '../Button/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
 
-type P = t.HttpOriginProps;
+type P = t.HttpOrigin.Props;
 
 /**
  * Constants:

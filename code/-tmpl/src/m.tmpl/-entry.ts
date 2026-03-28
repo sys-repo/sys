@@ -45,8 +45,8 @@ function printHelp() {
     '  -h, --help            show help',
     '',
     c.gray('Template flags (non-interactive):'),
-    '  pkg       -> --pkgName <@scope/name>',
-    '  m.mod.ui, m.mod.ui.controller-signal -> --name <value>',
+    '  pkg       → --pkgName <@scope/name>',
+    '  m.mod.ui, m.mod.ui.controller → --name <value>',
   ];
   console.info(rows.join('\n'));
 }

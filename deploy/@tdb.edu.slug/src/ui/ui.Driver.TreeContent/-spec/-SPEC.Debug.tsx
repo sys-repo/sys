@@ -19,7 +19,7 @@ import {
 type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  env?: t.HttpOriginEnv;
+  env?: t.HttpOrigin.Env;
   cardKind?: t.DataCardKind;
 };
 const defaults: Storage = {

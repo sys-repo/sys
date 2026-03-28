@@ -18,19 +18,30 @@ jobs:
       id-token: write # The OIDC/ID token is used for authentication with JSR.
     environment: dev
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.4
+          deno-version: v2.7.8
       - name: Install Dependencies
-        run: deno task install
-      - name: Task Help
-        run: deno task help
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 $max_attempts); do
+              if deno task install; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "dependency install failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "dependency install failed after $max_attempts attempts"
+          exit 1
+      - name: Workspace Info
+        run: deno task info
       - name: Deno Info
         run: deno info && deno --version
-      - name: System Info
-        run: deno task help
       - name: Validate main-only publish commit
         if: github.ref_name == 'jsr-publish-main'
         run: |
@@ -73,351 +84,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/crdt-t"
-        run: |
-          cd code/sys/crdt.t
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
       - name: publish module → "@sys/color"
         run: |
           cd code/sys/color
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/cli"
-        run: |
-          cd code/sys/cli
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/crypto"
-        run: |
-          cd code/sys/crypto
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/immutable"
-        run: |
-          cd code/sys/immutable
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/fs"
-        run: |
-          cd code/sys/fs
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/testing"
-        run: |
-          cd code/sys/testing
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/process"
-        run: |
-          cd code/sys/process
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/net"
-        run: |
-          cd code/sys/net
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/event"
-        run: |
-          cd code/sys/event
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/http"
-        run: |
-          cd code/sys/http
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/yaml"
-        run: |
-          cd code/sys/yaml
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/schema"
-        run: |
-          cd code/sys/schema
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/monorepo"
-        run: |
-          cd code/sys/monorepo
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/jsr"
-        run: |
-          cd code/sys/jsr
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/text"
-        run: |
-          cd code/sys/text
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/tmpl-engine"
-        run: |
-          cd code/sys/tmpl-engine
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/model"
-        run: |
-          cd code/sys.model/model
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/model-slug"
-        run: |
-          cd code/sys.model/model-slug
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/ui-state"
-        run: |
-          cd code/sys.ui/ui-state
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -451,6 +120,114 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
+      - name: publish module → "@sys/cli"
+        run: |
+          cd code/sys/cli
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/crdt-t"
+        run: |
+          cd code/sys/crdt.t
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/crypto"
+        run: |
+          cd code/sys/crypto
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/event"
+        run: |
+          cd code/sys/event
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/ui-state"
+        run: |
+          cd code/sys.ui/ui-state
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/immutable"
+        run: |
+          cd code/sys/immutable
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
       - name: publish module → "@sys/ui-dom"
         run: |
           cd code/sys.ui/ui-dom
@@ -469,9 +246,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/ui-react"
+      - name: publish module → "@sys/fs"
         run: |
-          cd code/sys.ui/ui-react
+          cd code/sys/fs
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -487,9 +264,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/ui-react-devharness"
+      - name: publish module → "@sys/net"
         run: |
-          cd code/sys.ui/ui-react-devharness
+          cd code/sys/net
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -505,45 +282,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@sys/ui-react-components"
+      - name: publish module → "@sys/process"
         run: |
-          cd code/sys.ui/ui-react-components
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/ui-factory"
-        run: |
-          cd code/sys.ui/ui-factory
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/driver-deno"
-        run: |
-          cd code/sys.driver/driver-deno
+          cd code/sys/process
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -595,9 +336,279 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
+      - name: publish module → "@sys/http"
+        run: |
+          cd code/sys/http
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/registry"
+        run: |
+          cd code/sys/registry
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/skills"
+        run: |
+          cd code/sys/skills
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/testing"
+        run: |
+          cd code/sys/testing
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/ui-react"
+        run: |
+          cd code/sys.ui/ui-react
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/ui-react-devharness"
+        run: |
+          cd code/sys.ui/ui-react-devharness
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/text"
+        run: |
+          cd code/sys/text
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/tmpl-engine"
+        run: |
+          cd code/sys/tmpl-engine
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/yaml"
+        run: |
+          cd code/sys/yaml
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/esm"
+        run: |
+          cd code/sys/esm
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/driver-deno"
+        run: |
+          cd code/sys.driver/driver-deno
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/schema"
+        run: |
+          cd code/sys/schema
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/model"
+        run: |
+          cd code/sys.model/model
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/model-slug"
+        run: |
+          cd code/sys.model/model-slug
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/ui-react-components"
+        run: |
+          cd code/sys.ui/ui-react-components
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -685,63 +696,27 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@tdb/slc-std"
-        run: |
-          cd deploy/@tdb.slc.std
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@tdb/edu-slug"
-        run: |
-          cd deploy/@tdb.edu.slug
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/tmpl"
-        run: |
-          cd code/-tmpl
-          deno task test --trace-leaks
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
       - name: publish module → "@sys/tools"
         run: |
           cd code/sys.tools
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/ui-factory"
+        run: |
+          cd code/sys.ui/ui-factory
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -778,6 +753,78 @@ jobs:
       - name: publish module → "@sys/crdt"
         run: |
           cd code/sys/crdt
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/workspace"
+        run: |
+          cd code/sys/workspace
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/tmpl"
+        run: |
+          cd code/-tmpl
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@tdb/slc-std"
+        run: |
+          cd deploy/@tdb.slc.std
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@tdb/edu-slug"
+        run: |
+          cd deploy/@tdb.edu.slug
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do

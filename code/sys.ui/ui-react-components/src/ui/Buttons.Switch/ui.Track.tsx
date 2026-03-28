@@ -1,4 +1,4 @@
-import { Color, css, R, type t } from './common.ts';
+import { Color, css, Is, R, type t } from './common.ts';
 
 export type SwitchTrackProps = {
   track: Partial<t.SwitchTrack>;
@@ -20,7 +20,7 @@ export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
   const x = track.widthOffset;
   const y = track.heightOffset;
 
-  const themeColor = Color.format(
+  const themeColor = wrangle.color(
     isEnabled ? (on ? track.color.on : track.color.off) : track.color.disabled,
   );
   const borderWidth = on ? track.borderWidth.on : track.borderWidth.off;
@@ -70,3 +70,9 @@ function toTrack(
   const res = R.mergeDeepRight(defaultTrack, track) as t.SwitchTrack;
   return R.clone(res);
 }
+
+const wrangle = {
+  color(value: string | number) {
+    return Is.str(value) ? value : Color.toGrayAlpha(value);
+  },
+} as const;

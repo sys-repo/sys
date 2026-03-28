@@ -12,6 +12,7 @@ import { procOutput } from './u.fixture.ts';
 
 describe('ViteTransport.resolve', () => {
   type PluginResolve = NonNullable<t.Rollup.PluginContext['resolve']>;
+  const pluginContext = {} as unknown as t.Rollup.PluginContext;
 
   describe('specifier encoding', () => {
     it('identifies deno-prefixed module ids', () => {
@@ -133,10 +134,7 @@ describe('ViteTransport.resolve', () => {
               kind: 'esm',
               loader: 'TypeScript',
               dependencies: [
-                {
-                  specifier: './child.ts',
-                  resolvedSpecifier: Path.toFileUrl(child).href,
-                },
+                { specifier: './child.ts', resolvedSpecifier: Path.toFileUrl(child).href },
               ],
             },
           ],
@@ -169,12 +167,7 @@ describe('ViteTransport.resolve', () => {
           ],
           [
             'jsr:@std/internal@^1.0.12/os',
-            {
-              id: childResolved,
-              kind: 'esm',
-              loader: 'TypeScript',
-              dependencies: [],
-            },
+            { id: childResolved, kind: 'esm', loader: 'TypeScript', dependencies: [] },
           ],
         ]);
 
@@ -260,6 +253,72 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
       });
 
+      it('re-hydrates remote parent graphs when cached importer has no dependencies', async () => {
+        const parentId =
+          'https://jsr.io/@sys/ui-react-devharness/0.0.251/src/ui.use/use.SizeObserver.ts';
+        const parentResolved = '/tmp/cache/use.SizeObserver.ts';
+        const importer = toDenoSpecifier('TypeScript', parentId, parentResolved);
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            { id: parentResolved, kind: 'esm', loader: 'TypeScript', dependencies: [] },
+          ],
+        ]);
+
+        let npmInfoCalls = 0;
+
+        const res = await resolveViteSpecifier('react', cache, '/tmp/project', importer, {
+          async invoke(input: t.ProcInvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+
+            if (input.args[input.args.length - 1] === parentId) {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: [parentId],
+                  modules: [
+                    {
+                      kind: 'esm',
+                      local: parentResolved,
+                      mediaType: 'TypeScript',
+                      specifier: parentId,
+                      dependencies: [
+                        { specifier: 'react', code: { specifier: 'npm:react@19.2.4' } },
+                      ],
+                    },
+                  ],
+                }),
+              });
+            }
+
+            if (input.args[input.args.length - 1] === 'npm:react@19.2.4') {
+              npmInfoCalls++;
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:react@19.2.4'],
+                  modules: [
+                    { kind: 'npm', specifier: 'npm:/react@19.2.4', npmPackage: 'react@19.2.4' },
+                  ],
+                  redirects: { 'npm:react@19.2.4': 'npm:/react@19.2.4' },
+                }),
+              });
+            }
+
+            throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+          },
+        });
+
+        expect(res).to.eql('react');
+        expect(cache.get(parentResolved)?.kind).to.eql('esm');
+        if (cache.get(parentResolved)?.kind !== 'esm')
+          throw new Error('Expected hydrated parent graph');
+        expect(cache.get(parentResolved)?.dependencies.length).to.eql(1);
+        expect(npmInfoCalls).to.eql(1);
+      });
+
       it('hydrates remote child graphs before returning wrapped deno ids', async () => {
         const parentResolved = '/tmp/cache/std-path.ts';
         const childId = 'https://jsr.io/@std/path/1.1.4/windows/basename.ts';
@@ -327,7 +386,8 @@ describe('ViteTransport.resolve', () => {
 
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
         expect(cache.get(childResolved)?.kind).to.eql('esm');
-        if (cache.get(childResolved)?.kind !== 'esm') throw new Error('Expected hydrated child graph');
+        if (cache.get(childResolved)?.kind !== 'esm')
+          throw new Error('Expected hydrated child graph');
         expect(cache.get(childResolved)?.dependencies.length).to.eql(1);
       });
 
@@ -354,15 +414,43 @@ describe('ViteTransport.resolve', () => {
             },
           ],
         ]);
+        let npmInfoCalls = 0;
 
         const res = await resolveViteSpecifier(
           '@noble/hashes/legacy.js',
           cache,
           '/tmp/project',
           importer,
+          {
+            async invoke(input: t.ProcInvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+
+              if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+                npmInfoCalls++;
+                return procOutput({
+                  success: true,
+                  stdout: JSON.stringify({
+                    roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                    modules: [
+                      {
+                        kind: 'npm',
+                        specifier: 'npm:@noble/hashes@2.0.1/legacy.js',
+                        npmPackage: '@noble/hashes',
+                      },
+                    ],
+                  }),
+                });
+              }
+
+              throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+            },
+          },
         );
 
         expect(res).to.eql('@noble/hashes/legacy.js');
+        expect(npmInfoCalls).to.eql(1);
       });
 
       it('falls through when vite cannot resolve delegated bare npm package ids', async () => {
@@ -393,9 +481,31 @@ describe('ViteTransport.resolve', () => {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
+            if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/@noble/hashes@2.0.1/legacy.js',
+                      npmPackage: '@noble/hashes@2.0.1',
+                    },
+                  ],
+                  redirects: {
+                    'npm:@noble/hashes@2.0.1/legacy.js': 'npm:/@noble/hashes@2.0.1/legacy.js',
+                  },
+                }),
+              });
+            }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
+          async resolveNpmPath() {
+            return null;
+          },
         });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
@@ -403,17 +513,13 @@ describe('ViteTransport.resolve', () => {
             options?: Parameters<PluginResolve>[2],
           ): Promise<null> {
             expect(id).to.eql('@noble/hashes/legacy.js');
-            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(_importer).to.eql('/tmp/project/deno.json');
             expect(options?.skipSelf).to.eql(true);
             return null;
           },
         } as unknown as t.Rollup.PluginContext;
 
-        const res = await plugin.resolveId.call(
-          context,
-          '@noble/hashes/legacy.js',
-          importer,
-        );
+        const res = await plugin.resolveId.call(context, '@noble/hashes/legacy.js', importer);
 
         expect(res).to.eql(null);
       });
@@ -446,9 +552,31 @@ describe('ViteTransport.resolve', () => {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
+            if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/@noble/hashes@2.0.1/legacy.js',
+                      npmPackage: '@noble/hashes@2.0.1',
+                    },
+                  ],
+                  redirects: {
+                    'npm:@noble/hashes@2.0.1/legacy.js': 'npm:/@noble/hashes@2.0.1/legacy.js',
+                  },
+                }),
+              });
+            }
             throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
           },
+          async resolveNpmPath() {
+            return null;
+          },
         });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
         const context = {
           async resolve(
             id: string,
@@ -456,7 +584,7 @@ describe('ViteTransport.resolve', () => {
             options?: Parameters<PluginResolve>[2],
           ): Promise<t.Rollup.ResolvedId> {
             expect(id).to.eql('@noble/hashes/legacy.js');
-            expect(_importer).to.eql(Path.join(Path.cwd(), 'package.json'));
+            expect(_importer).to.eql('/tmp/project/deno.json');
             expect(options?.skipSelf).to.eql(true);
             return {
               id: '/tmp/node_modules/@noble/hashes/legacy.js',
@@ -470,11 +598,7 @@ describe('ViteTransport.resolve', () => {
           },
         } as unknown as t.Rollup.PluginContext;
 
-        const res = await plugin.resolveId.call(
-          context,
-          '@noble/hashes/legacy.js',
-          importer,
-        );
+        const res = await plugin.resolveId.call(context, '@noble/hashes/legacy.js', importer);
 
         expect(res).to.eql({
           id: '/tmp/node_modules/@noble/hashes/legacy.js',
@@ -487,6 +611,134 @@ describe('ViteTransport.resolve', () => {
         });
       });
 
+      it('falls back to a deno-resolved npm file path for remote bare package ids', async () => {
+        const parentResolved = '/tmp/cache/useRubberband.ts';
+        const importer = toDenoSpecifier(
+          'TypeScript',
+          'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.Rubberband.ts',
+          parentResolved,
+        );
+        const cache = new Map<string, t.DenoResolved>([
+          [
+            parentResolved,
+            {
+              id: parentResolved,
+              kind: 'esm',
+              loader: 'TypeScript',
+              dependencies: [
+                {
+                  specifier: 'react',
+                  resolvedSpecifier: 'npm:react@19.2.4',
+                },
+              ],
+            },
+          ],
+        ]);
+        const plugin = createResolvePlugin(cache, {
+          async invoke(input: t.ProcInvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+            if (input.args[input.args.length - 1] === 'npm:react@19.2.4') {
+              return procOutput({
+                success: true,
+                stdout: JSON.stringify({
+                  roots: ['npm:react@19.2.4'],
+                  modules: [
+                    {
+                      kind: 'npm',
+                      specifier: 'npm:/react@19.2.4',
+                      npmPackage: 'react@19.2.4',
+                    },
+                  ],
+                  redirects: {
+                    'npm:react@19.2.4': 'npm:/react@19.2.4',
+                  },
+                }),
+              });
+            }
+            throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+          },
+          async resolveNpmPath(id: string, cwd: string) {
+            expect(id).to.eql('react');
+            expect(cwd).to.eql('/tmp/project');
+            return '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js';
+          },
+        });
+        plugin.configResolved?.call(pluginContext, { root: '/tmp/project' });
+        const context = {
+          async resolve(
+            id: string,
+            _importer?: string,
+            options?: Parameters<PluginResolve>[2],
+          ): Promise<null> {
+            expect(id).to.eql('react');
+            expect(_importer).to.eql('/tmp/project/deno.json');
+            expect(options?.skipSelf).to.eql(true);
+            return null;
+          },
+        } as unknown as t.Rollup.PluginContext;
+
+        const res = await plugin.resolveId.call(context, 'react', importer);
+
+        expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
+      });
+    });
+
+    describe('plugin load hydration', () => {
+      it('hydrates remote module dependencies when load sees a cold cache entry', async () => {
+        const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.resolve.load.' });
+        try {
+          const root = fs.absolute;
+          const remoteId = 'https://jsr.io/@sys/ui-react-devharness/0.0.252/src/ui.use/use.SizeObserver.js';
+          const remoteResolved = Fs.join(fs.absolute, 'cache/use.SizeObserver.js');
+          await Fs.ensureDir(Fs.join(fs.absolute, 'cache'));
+          await Fs.write(remoteResolved, `import { useEffect } from 'react';\nexport const ok = useEffect;\n`);
+          const denoId = toDenoSpecifier('JavaScript', remoteId, remoteResolved);
+          const cache = new Map<string, t.DenoResolved>();
+          const plugin = createResolvePlugin(cache, {
+            async invoke(input: t.ProcInvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+              if (input.args[input.args.length - 1] === remoteId) {
+                return procOutput({
+                  success: true,
+                  stdout: JSON.stringify({
+                    roots: [remoteId],
+                    modules: [
+                      {
+                        kind: 'esm',
+                        local: remoteResolved,
+                        mediaType: 'JavaScript',
+                        specifier: remoteId,
+                        dependencies: [
+                          { specifier: 'react', code: { specifier: 'npm:react@19.2.4' } },
+                        ],
+                      },
+                    ],
+                  }),
+                });
+              }
+              throw new Error(`Unexpected deno info lookup: ${input.args[input.args.length - 1]}`);
+            },
+          });
+          plugin.configResolved?.call({} as unknown as t.Rollup.PluginContext, { root });
+          cache.set(remoteResolved, {
+            id: remoteResolved,
+            kind: 'esm',
+            loader: 'JavaScript',
+            dependencies: [],
+          });
+
+          const result = await plugin.load.call({} as t.Rollup.PluginContext, denoId);
+          const text = typeof result === 'string' ? result : result?.code ?? '';
+
+          expect(text.includes('npm:react@19.2.4')).to.eql(true);
+        } finally {
+          await Fs.remove(fs.absolute);
+        }
+      });
     });
 
     describe('deno info normalization', () => {

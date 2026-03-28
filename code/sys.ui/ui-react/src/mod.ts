@@ -1,6 +1,6 @@
 /**
- * Tools for working with DOM/browser based UI react bindings.
  * @module
+ * Tools for working with DOM/browser based UI react bindings.
  *
  * @example
  * Import pattern for a simple React component

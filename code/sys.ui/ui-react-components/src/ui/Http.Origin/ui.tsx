@@ -5,7 +5,7 @@ import { Empty } from './ui.Empty.tsx';
 import { Info } from './ui.Info.tsx';
 import { OriginSelector } from './ui.Selector.tsx';
 
-type P = t.HttpOriginProps;
+type P = t.HttpOrigin.Props;
 
 export const Uncontrolled: React.FC<P> = (props) => {
   const { debug = false } = props;

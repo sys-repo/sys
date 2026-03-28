@@ -1,6 +1,6 @@
 {
   "name": "@sys/color",
-  "version": "0.0.204",
+  "version": "0.0.225",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -17,7 +17,8 @@
   "permissions": {
     "clean": {
       "read": true,
-      "write": true
+      "write": true,
+      "env": true
     },
     "test": {
       "read": true,

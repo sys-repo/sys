@@ -1,7 +1,5 @@
 import {
   act,
-  beforeAll,
-  afterAll,
   afterEach,
   beforeEach,
   describe,
@@ -19,7 +17,7 @@ import { __test as TD } from '../use.Slug.Diagnostics.ts';
 import { makeEditorYamlFromText } from './-u.ts';
 
 describe('useSlugDiagnostics', () => {
-  DomMock.init({ beforeAll, afterAll });
+  DomMock.init({ beforeEach, afterEach });
 
   /**
    * Minimal Slug registry stub.
@@ -118,10 +116,12 @@ describe('useSlugDiagnostics', () => {
       const { result, unmount } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
         initialProps: initial,
       });
-
-      expectTypeOf(result.current).toEqualTypeOf<t.UseSlugDiagnosticsResult>();
-      expectTypeOf(result.current.diagnostics).toEqualTypeOf<readonly t.Yaml.Diagnostic[]>();
-      unmount();
+      try {
+        expectTypeOf(result.current).toEqualTypeOf<t.UseSlugDiagnosticsResult>();
+        expectTypeOf(result.current.diagnostics).toEqualTypeOf<readonly t.Yaml.Diagnostic[]>();
+      } finally {
+        unmount();
+      }
     });
 
     it('rev stable when diagnostics unchanged; bumps when diagnostics change', () => {
@@ -135,51 +135,53 @@ describe('useSlugDiagnostics', () => {
           initialProps: initial,
         },
       );
+      try {
+        const rev0 = result.current.rev;
+        const diag0 = result.current.diagnostics;
+        const key0 = TD.toKey(diag0);
 
-      const rev0 = result.current.rev;
-      const diag0 = result.current.diagnostics;
-      const key0 = TD.toKey(diag0);
+        // Same content, new container rev → NO key change
+        act(() => {
+          rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 2)] });
+        });
 
-      // Same content, new container rev → NO key change
-      act(() => {
-        rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 2)] });
-      });
+        const rev1 = result.current.rev;
+        const diag1 = result.current.diagnostics;
+        const key1 = TD.toKey(diag1);
 
-      const rev1 = result.current.rev;
-      const diag1 = result.current.diagnostics;
-      const key1 = TD.toKey(diag1);
+        expect(rev1).to.eql(rev0); // content-identical
+        expect(diag1).to.equal(diag0); // referentially stable when key unchanged
+        expect(key1).to.eql(key0);
 
-      expect(rev1).to.eql(rev0); // content-identical
-      expect(diag1).to.equal(diag0); // referentially stable when key unchanged
-      expect(key1).to.eql(key0);
+        // Switch to invalid YAML → diagnostics change → key changes → rev bumps
+        act(() => {
+          rerender({ args: [registry, undefined, makeEditorYamlFromText(invalidYamlText, 3)] });
+        });
 
-      // Switch to invalid YAML → diagnostics change → key changes → rev bumps
-      act(() => {
-        rerender({ args: [registry, undefined, makeEditorYamlFromText(invalidYamlText, 3)] });
-      });
+        const rev2 = result.current.rev;
+        const diag2 = result.current.diagnostics;
+        const key2 = TD.toKey(diag2);
 
-      const rev2 = result.current.rev;
-      const diag2 = result.current.diagnostics;
-      const key2 = TD.toKey(diag2);
+        expect(rev2).to.be.greaterThan(rev1);
 
-      expect(rev2).to.be.greaterThan(rev1);
+        expect(key2).not.to.eql(key0); // content signature changed
+        expect(diag2.length).to.be.greaterThan(0); // there are parse diagnostics
 
-      expect(key2).not.to.eql(key0); // content signature changed
-      expect(diag2.length).to.be.greaterThan(0); // there are parse diagnostics
+        // Back to valid YAML → key returns to baseline signature
+        act(() => {
+          rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 4)] });
+        });
 
-      // Back to valid YAML → key returns to baseline signature
-      act(() => {
-        rerender({ args: [registry, undefined, makeEditorYamlFromText(validYamlText, 4)] });
-      });
+        const rev3 = result.current.rev;
+        const diag3 = result.current.diagnostics;
+        const key3 = TD.toKey(diag3);
 
-      const rev3 = result.current.rev;
-      const diag3 = result.current.diagnostics;
-      const key3 = TD.toKey(diag3);
-
-      expect(rev3).to.be.greaterThan(rev2);
-      expect(key3).to.eql(key0); // back to baseline content signature
-      expect(diag3.length).to.eql(diag0.length); // counts match baseline (may be > 0)
-      unmount();
+        expect(rev3).to.be.greaterThan(rev2);
+        expect(key3).to.eql(key0); // back to baseline content signature
+        expect(diag3.length).to.eql(diag0.length); // counts match baseline (may be > 0)
+      } finally {
+        unmount();
+      }
     });
   });
 });

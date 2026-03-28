@@ -1,8 +1,9 @@
-import { Vite } from 'jsr:@sys/driver-vite@0.0.302';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.336';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() =>
   Vite.Config.app({
+    workspace: false,
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');

@@ -1,0 +1,56 @@
+{
+  "name": "@sys/registry",
+  "version": "0.0.237",
+  "license": "MIT",
+  "tasks": {
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "test": "deno test -P=test --ignore=./src/m.jsr/m.client/m.Fetch/-test.external --ignore=./src/m.jsr/m.server/m.Manifest/-test.external --ignore=./src/m.npm/m.client/m.Fetch/-test.external",
+    "test:external:npm": "deno test -P=test --trace-leaks ./src/m.npm/m.client/m.Fetch/-test.external/mod.ts",
+    "test:external:jsr": "deno test -P=test --trace-leaks ./src/m.jsr/-test/-external.ts",
+    "test:external": "deno task test:external:npm && deno task test:external:jsr",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./jsr": "./src/m.jsr/m.client/mod.ts",
+    "./jsr/client": "./src/m.jsr/m.client/mod.ts",
+    "./jsr/server": "./src/m.jsr/m.server/mod.ts",
+    "./npm": "./src/m.npm/mod.ts",
+    "./npm/client": "./src/m.npm/m.client/mod.ts",
+    "./npm/server": "./src/m.npm/m.server/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
+    "test:external": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
+    "test:external:npm": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
+    "test:external:jsr": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    }
+  }
+}

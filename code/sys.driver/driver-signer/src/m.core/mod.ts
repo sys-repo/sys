@@ -5,4 +5,5 @@
  */
 import type { t } from './common.ts';
 
+/** Shared signer runtime namespace. */
 export const Signer: t.Signer.Lib = {};

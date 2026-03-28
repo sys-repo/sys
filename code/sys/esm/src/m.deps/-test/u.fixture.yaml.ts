@@ -1,0 +1,40 @@
+export function sampleYaml(): string {
+  return `
+#
+# Sample structure used in unit-tests.
+#
+
+groups:
+  automerge:
+    - import: npm:@automerge/automerge@2
+    - import: npm:@automerge/automerge-repo@1
+      wildcard: true
+
+  deno/std:
+    - import: jsr:@std/assert@1.0.11
+    - import: jsr:@std/http@1.0.13
+      dev: true
+
+deno.json:
+  - group: deno/std
+  - group: automerge
+
+  - import: jsr:@std/fs@1.0.11
+  - import: jsr:@std/http@1.0.5
+  - import: npm:@noble/hashes@1.7.1
+    wildcard: true
+  - import: npm:chai@5
+    subpaths: ['/', 'chai.js']
+
+package.json:
+  - group: deno/std
+
+  - import: jsr:@std/assert@1.0.10
+  - import: jsr:@std/assert@1.0.10
+  - import: jsr:@std/http
+  - import: npm:rxjs@7
+  - import: npm:hono@4.6
+  - import: npm:@types/react@^18
+    dev: true
+`;
+}

@@ -95,7 +95,7 @@ export const build: B = async (input) => {
     console.info();
   }
 
-  const spinner = Cli.Spinner.create('building', { silent, start: false });
+  const spinner = Cli.Spinner.create(Cli.Fmt.spinnerText('building'));
   if (useSpinner && !silent) spinner.start();
 
   /**
