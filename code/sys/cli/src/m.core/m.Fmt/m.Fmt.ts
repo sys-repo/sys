@@ -6,7 +6,7 @@ import { type t, c, PathFormat } from '../common.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
-import { spinnerText } from './m.Fmt.spinnerText.ts';
+import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 
 export const Path: t.CliFormatLib['Path'] = {
@@ -26,5 +26,6 @@ export const Fmt: t.CliFormatLib = {
   Tree,
   Path,
   path: PathFormat.string,
+  spinnerRaw,
   spinnerText,
 };

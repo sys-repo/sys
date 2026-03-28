@@ -1,14 +1,24 @@
-import { c } from '../common.ts';
+import { c, Num } from '../common.ts';
 import type { t } from '../common.ts';
 
 export const spinnerText: t.CliFormatLib['spinnerText'] = (
   text,
   spacing: t.CliFormatSpinnerSpacing = true,
 ) => {
-  const [before, after] = wrangle.spacing(spacing);
-  return `${'\n'.repeat(before)}${c.gray(c.italic(text))}${'\n'.repeat(after)}`;
+  return spinnerRaw(c.gray(c.italic(text)), spacing);
 };
 
+export const spinnerRaw: t.CliFormatLib['spinnerRaw'] = (
+  text,
+  spacing: t.CliFormatSpinnerSpacing = true,
+) => {
+  const [before, after] = wrangle.spacing(spacing);
+  return `${'\n'.repeat(before)}${text}${'\n'.repeat(after)}`;
+};
+
+/**
+ * Helpers:
+ */
 const wrangle = {
   spacing(input: t.CliFormatSpinnerSpacing): [number, number] {
     if (input === false) return [0, 0];
@@ -23,6 +33,6 @@ const wrangle = {
   clamp(input: number): number {
     if (!Number.isFinite(input)) return 0;
     if (!Number.isInteger(input)) return 0;
-    return Math.max(0, input);
+    return Num.clamp(0, Num.MAX_INT, input);
   },
 } as const;

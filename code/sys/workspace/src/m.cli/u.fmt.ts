@@ -43,8 +43,12 @@ type BlockedCode =
   | 'version:not-allowed';
 
 export const Fmt = {
-  spinnerText(text: string): string {
-    return Cli.Fmt.spinnerText(text);
+  spinnerText(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
+    return Cli.Fmt.spinnerText(text, spacing);
+  },
+
+  spinnerRaw(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
+    return Cli.Fmt.spinnerRaw(text, spacing);
   },
 
   spinnerProgress(progress: t.WorkspaceUpgrade.Progress): string {
@@ -57,9 +61,12 @@ export const Fmt = {
 
     const percent = Fmt.progressPercent(registry);
     const current = `${Fmt.spinnerRegistryCount('jsr', registry.current.jsr, registry.total.jsr)} ${Fmt.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)}`;
-    return Fmt.spinnerText(
-      `${c.gray('checking registry...')} ${c.gray('(')}${current}${c.gray(') - ')}${c.gray(`${percent}%`)}`,
-    );
+    const label = Fmt.spinnerText('checking registry... ', false);
+    const open = Fmt.spinnerText('(', false);
+    const close = Fmt.spinnerText(') - ', false);
+    const done = c.white(`${percent}%`);
+    const text = `${label}${open}${current}${close}${done}`;
+    return Fmt.spinnerRaw(text);
   },
 
   spinnerRegistryCount(registry: 'jsr' | 'npm', current: number, total: number): string {

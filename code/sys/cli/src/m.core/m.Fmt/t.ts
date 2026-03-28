@@ -17,6 +17,9 @@ export type CliFormatLib = {
   /** Common spinner status text formatting. */
   spinnerText: CliFormatSpinnerText;
 
+  /** Spinner spacing wrapper for text that is already fully formatted. */
+  spinnerRaw: CliFormatSpinnerText;
+
   /** Help page formatting. */
   readonly Help: CliFormatHelpLib;
 
@@ -43,6 +46,15 @@ export type CliFormatLib = {
 };
 
 /**
+ * Types for CLI formatting helpers.
+ */
+export declare namespace CliFormat {
+  export namespace Spinner {
+    export type Spacing = boolean | number | [number, number];
+  }
+}
+
+/**
  * Foreground color name accepted by the horizontal rule formatter.
  */
 export type CliFormatHrColor = AnsiForegroundColorName;
@@ -63,7 +75,7 @@ export type CliFormatHr = {
   (width: number, color: CliFormatHrColor): string;
 };
 
-export type CliFormatSpinnerSpacing = boolean | number | [number, number];
+export type CliFormatSpinnerSpacing = CliFormat.Spinner.Spacing;
 
 export type CliFormatSpinnerText = {
   (text: string): string;

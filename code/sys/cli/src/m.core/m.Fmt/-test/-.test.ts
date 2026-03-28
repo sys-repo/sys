@@ -20,4 +20,11 @@ describe('Cli.Fmt', () => {
     expect(Cli.Fmt.spinnerText('working...', 2)).to.eql(`\n\n${text}\n\n`);
     expect(Cli.Fmt.spinnerText('working...', [1, 2])).to.eql(`\n${text}\n\n`);
   });
+
+  it('supports raw spinner spacing without wrapping styles', () => {
+    const text = `${c.cyan('jsr:')}${c.white('2')}${c.gray('/2')}`;
+
+    expect(Cli.Fmt.spinnerRaw(text, false)).to.eql(text);
+    expect(Cli.Fmt.spinnerRaw(text, true)).to.eql(`${text}\n`);
+  });
 });
