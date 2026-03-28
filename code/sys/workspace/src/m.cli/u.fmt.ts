@@ -44,7 +44,7 @@ type BlockedCode =
 
 export const Fmt = {
   spinnerText(text: string): string {
-    return c.italic(text);
+    return Cli.Fmt.spinnerText(text);
   },
 
   spinnerProgress(progress: t.WorkspaceUpgrade.Progress): string {
@@ -58,7 +58,7 @@ export const Fmt = {
     const percent = Fmt.progressPercent(registry);
     const current = `${Fmt.spinnerRegistryCount('jsr', registry.current.jsr, registry.total.jsr)} ${Fmt.spinnerRegistryCount('npm', registry.current.npm, registry.total.npm)}`;
     return Fmt.spinnerText(
-      `${c.gray('checking registry...')} ${c.gray('(')}${current}${c.gray(') - ')}${c.white(`${percent}%`)}`,
+      `${c.gray('checking registry...')} ${c.gray('(')}${current}${c.gray(') - ')}${c.gray(`${percent}%`)}`,
     );
   },
 

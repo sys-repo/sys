@@ -41,7 +41,6 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   }
 
   const selection = await wrangle.selection(upgradeInput, options);
-  console.info();
 
   const upgrade = await withSpinner(
     Fmt.spinnerProgress({ kind: 'plan' }),
@@ -84,11 +83,13 @@ async function withSpinner<T>(
   message: string,
   fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
 ): Promise<T> {
+  console.info();
   const spinner = Cli.spinner(message);
   try {
     return await fn(spinner);
   } finally {
     spinner.stop();
+    console.info();
   }
 }
 

@@ -15,7 +15,6 @@ export async function runInteractive(
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
   const session = createSession();
-  console.info();
   const initial = await withSpinner(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
     upgradeWithSession(
       input,
@@ -38,7 +37,7 @@ export async function runInteractive(
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
       ? initial
-      : await withSpinnerWithGap(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
+      : await withSpinner(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
           upgradeWithSession(
             input,
             wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
@@ -58,7 +57,7 @@ export async function runInteractive(
   }
   if (upgrade.totals.planned === 0) return { selection, upgrade };
 
-  const applied = await withSpinnerWithGap(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
+  const applied = await withSpinner(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
     applyWithSession(
       input,
       wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
@@ -82,20 +81,14 @@ async function withSpinner<T>(
   message: string,
   fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
 ): Promise<T> {
+  console.info();
   const spinner = Cli.spinner(message);
   try {
     return await fn(spinner);
   } finally {
     spinner.stop();
+    console.info();
   }
-}
-
-async function withSpinnerWithGap<T>(
-  message: string,
-  fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
-): Promise<T> {
-  console.info();
-  return withSpinner(message, fn);
 }
 
 const wrangle = {
