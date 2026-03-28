@@ -90,6 +90,8 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
+          - name: "@sys/tools"
+            path: code/sys.tools
           - name: "@sys/ui-factory"
             path: code/sys.ui/ui-factory
           - name: "@sys/dev"
@@ -100,8 +102,8 @@ jobs:
             path: code/sys/workspace
           - name: "@sys/tmpl"
             path: code/-tmpl
-          - name: "@sys/tools"
-            path: code/sys.tools
+          - name: "@tdb/slc"
+            path: deploy/@tdb.slc
           - name: "@tdb/slc-fs"
             path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"
