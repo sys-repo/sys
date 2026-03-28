@@ -270,7 +270,7 @@ const wrangle = {
     const preview = urls.find((url) => url.includes('.deno.net'));
     const stderr = wrangle.stderrSummary(message);
     return {
-      summary: wrangle.failureSummary(message),
+      summary: wrangle.failureSummary(message, stderr),
       traceId,
       revision,
       preview,
@@ -278,7 +278,8 @@ const wrangle = {
     } as const;
   },
 
-  failureSummary(message: string) {
+  failureSummary(message: string, stderr?: string) {
+    if (stderr) return stderr;
     const lines = wrangle.contentLines(message);
     const preferred = lines.find((line) =>
       !line.startsWith('DenoDeploy.pipeline:') &&
