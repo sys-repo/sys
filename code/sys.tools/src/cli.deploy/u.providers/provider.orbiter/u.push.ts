@@ -3,13 +3,12 @@ import { OrbiterCli } from './u.orbiter-cli.ts';
 
 export async function push(args: {
   cwd: t.StringDir;
-  stagingDir: t.StringDir;
-  provider: t.DeployTool.Config.Provider.Orbiter;
+  target: t.OrbiterPushTarget;
 }): Promise<t.PushResult> {
   try {
-    const buildDir = args.stagingDir;
-    const siteId = String(args.provider.siteId ?? '');
-    const domain = String(args.provider.domain ?? '');
+    const buildDir = args.target.stagingDir;
+    const siteId = String(args.target.provider.siteId ?? '');
+    const domain = String(args.target.provider.domain ?? '');
 
     if (!siteId) return { ok: false, reason: 'failed', hint: 'Missing provider.siteId' };
     if (!domain) return { ok: false, reason: 'failed', hint: 'Missing provider.domain' };

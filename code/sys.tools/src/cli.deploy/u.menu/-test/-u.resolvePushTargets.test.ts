@@ -59,6 +59,7 @@ describe('Deploy: resolvePushTargets', () => {
 
       expect(plan.targets.length).to.eql(1);
       expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
+      expect(plan.targets[0]?.sourceDir).to.eql(tmp);
       expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
     });
   });
@@ -134,6 +135,7 @@ describe('Deploy: resolvePushTargets', () => {
 
       expect(plan.targets.length).to.eql(1);
       expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
+      expect(plan.targets[0]?.sourceDir).to.eql(tmp);
       expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
     });
   });
@@ -165,6 +167,7 @@ describe('Deploy: resolvePushTargets', () => {
 
       expect(plan.targets.length).to.eql(1);
       expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging`);
+      expect(plan.targets[0]?.sourceDir).to.eql(tmp);
       expect(plan.targets[0]?.provider.siteId).to.eql('base');
     });
   });

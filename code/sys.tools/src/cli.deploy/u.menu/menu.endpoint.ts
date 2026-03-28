@@ -183,7 +183,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       for (const target of targets) {
         const domainRaw = String(target.domain ?? target.provider.domain ?? '').trim();
         const domain = toHttpsUrl(domainRaw);
-        if (domain) {
+        if (domain && target.stagingDir) {
           const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
           if (res.ok) {
             const line = `${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`;
@@ -196,10 +196,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
         const res = await runPushWithSpinner({
           cwd,
-          provider: target.provider,
-          stagingDir: target.stagingDir,
-          shard: target.shard,
-          domain: target.domain,
+          target,
         });
 
         if (!res.ok) {

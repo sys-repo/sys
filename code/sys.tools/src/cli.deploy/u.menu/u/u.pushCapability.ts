@@ -21,7 +21,7 @@ type PushCapability =
       readonly show: true;
       readonly enabled: boolean;
       readonly provider: t.DeployTool.Config.Provider.All;
-      readonly stagingDirs: readonly t.StringDir[]; // Absolute staging dirs that exist on disk (deploy root resolved).
+      readonly targets: readonly t.PushTarget[];
       readonly reason?: 'probe-failed';
       readonly hint?: string;
       readonly error?: unknown;
@@ -32,7 +32,7 @@ type PushCapability =
  * should be enabled.
  *
  * Rules (current):
- * - Only show when endpoint YAML validates AND a provider exists AND staging output exists.
+ * - Only show when endpoint YAML validates AND a provider exists AND push targets resolve.
  * - Disable when provider probe fails.
  * - Never throws.
  */
@@ -87,17 +87,16 @@ export async function pushCapabilityOf(args: {
    */
   const plan = await resolvePushTargets({ cwd, yaml });
   const targets = plan.targets;
-  const stagingAbs = [...new Set(targets.map((t) => t.stagingDir))];
-  const stagingDirs = stagingAbs.filter(Boolean) as readonly t.StringDir[];
 
-  // Show push only when staging output exists.
-  if (!stagingDirs.length) {
+  // Show push only when provider push targets resolve.
+  if (!targets.length) {
     return {
       show: false,
-      reason: targets.length ? 'no-staging-output' : 'no-push-targets',
-      hint: targets.length
-        ? 'Run staging first (no staging output found).'
-        : 'No deploy targets (missing provider.shards.siteIds for shard mappings).',
+      reason: provider.kind === 'orbiter' ? 'no-staging-output' : 'no-push-targets',
+      hint:
+        provider.kind === 'orbiter'
+          ? 'Run staging first (no staging output found).'
+          : 'No deploy targets resolved for this provider.',
     };
   }
 
@@ -108,7 +107,7 @@ export async function pushCapabilityOf(args: {
       show: true,
       enabled: false,
       provider,
-      stagingDirs,
+      targets,
       reason: 'probe-failed',
       hint: preflight.hint,
       error: preflight.error,
@@ -119,6 +118,6 @@ export async function pushCapabilityOf(args: {
     show: true,
     enabled: true,
     provider,
-    stagingDirs,
+    targets,
   };
 }

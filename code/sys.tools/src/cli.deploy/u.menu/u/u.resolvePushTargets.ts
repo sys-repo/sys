@@ -1,36 +1,19 @@
 import { includesShardTemplate, resolveShardTemplate } from '../../u.shardTemplate.ts';
 import { type t, c, Fs, Is, Obj, Path } from './common.ts';
+import { resolveBases } from '../../u.endpoints/u.resolve.ts';
 import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
-
-export type PushTarget = {
-  readonly provider: t.DeployTool.Config.Provider.Orbiter;
-  readonly stagingDir: t.StringDir;
-  readonly shard?: number;
-  readonly domain?: string;
-};
-
-export type PushTargetStats = {
-  readonly total: number;
-  readonly shard: number;
-  readonly root: number;
-  readonly base: number;
-  readonly skippedShards: number;
-};
-
-export type PushTargetPlan = {
-  readonly targets: readonly PushTarget[];
-  readonly stats: PushTargetStats;
-};
 
 export async function resolvePushTargets(args: {
   cwd: t.StringDir;
   yaml: t.DeployTool.Config.EndpointYaml.Doc;
-}): Promise<PushTargetPlan> {
+}): Promise<t.OrbiterPushTargetPlan> {
   const provider = args.yaml.provider;
   if (!provider || provider.kind !== 'orbiter') {
     return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
   }
   const baseDomain = String(provider.domain ?? '').trim();
+  const bases = resolveBases(args.cwd, args.yaml);
+  const sourceDir = bases.sourceBaseAbs as t.StringDir;
 
   const mappings = args.yaml.mappings ?? [];
   const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
@@ -62,12 +45,12 @@ export async function resolvePushTargets(args: {
       return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
     }
     return {
-      targets: [{ provider, stagingDir: stagingRootAbs }],
+      targets: [{ provider, sourceDir, stagingDir: stagingRootAbs }],
       stats: { total: 1, shard: 0, root: 0, base: 1, skippedShards: 0 },
     };
   }
 
-  const targets: PushTarget[] = [];
+  const targets: t.OrbiterPushTarget[] = [];
   const seen = new Set<string>();
   let skippedShards = 0;
 
@@ -77,7 +60,7 @@ export async function resolvePushTargets(args: {
     if (!(await Fs.exists(stagingAbs))) continue;
     if (seen.has(stagingAbs)) continue;
     seen.add(stagingAbs);
-    targets.push({ provider, stagingDir: stagingAbs });
+    targets.push({ provider, sourceDir, stagingDir: stagingAbs });
   }
 
   const indexMapping = indexMappings[0];
@@ -87,7 +70,7 @@ export async function resolvePushTargets(args: {
     if (await Fs.exists(stagingAbs)) {
       if (!seen.has(stagingAbs)) {
         seen.add(stagingAbs);
-        targets.push({ provider, stagingDir: stagingAbs });
+        targets.push({ provider, sourceDir, stagingDir: stagingAbs });
       }
     }
   }
@@ -143,6 +126,7 @@ export async function resolvePushTargets(args: {
       const shardDomain = baseDomain ? `${shard}.${baseDomain}` : undefined;
       targets.push({
         provider: providerForShard,
+        sourceDir,
         stagingDir: stagingAbs,
         domain: shardDomain,
         shard,
