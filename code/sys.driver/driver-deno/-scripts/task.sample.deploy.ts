@@ -1,4 +1,5 @@
 import { Cli } from '@sys/cli';
+import { c } from '@sys/cli';
 import { Args } from '@sys/std';
 import { requireSampleDeployConfig, SAMPLE_ENV_NOTE } from './u.env.ts';
 
@@ -22,11 +23,23 @@ async function main() {
   const { pkgDir } = await Sample.Fixture.createDeployableRepoPkg();
 
   const deployment = DenoDeploy.pipeline({ pkgDir, config });
+  let printedTemplates = false;
+  const note = deployment.$.subscribe((step) => {
+    if (printedTemplates || step.kind !== 'stage:start') return;
+    printedTemplates = true;
+    console.info(
+      [
+        c.gray(` ${Cli.Fmt.Tree.last}${Cli.Fmt.Tree.bar} @sys/tmpl/repo (workspace)`),
+        c.gray(`   ${Cli.Fmt.Tree.last}${Cli.Fmt.Tree.bar} @sys/tmpl/pkg`),
+      ].join('\n'),
+    );
+  });
   const reporter = DenoDeploy.Fmt.listen(deployment);
 
   try {
     await deployment.run();
   } finally {
+    note.unsubscribe();
     reporter.dispose();
   }
 }
