@@ -29,7 +29,7 @@ type InfoArgs = {
     readonly label: string;
     readonly value: string;
     readonly valueParts?: readonly string[];
-    readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red';
+    readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red' | 'yellow';
   }[];
   readonly tone?: 'warning' | 'success';
 };
@@ -185,12 +185,17 @@ export const InfoFmt = {
     readonly phase: string;
     readonly error: unknown;
   }) {
+    const details = wrangle.failureDetails(args.error);
     return InfoFmt.info({
       title: 'Deploy Failed',
       tone: 'warning',
       rows: [
         { label: 'phase', value: args.phase, color: 'white' },
-        { label: 'error', value: failureMessage(args.error), color: 'red' },
+        { label: 'error', value: details.summary, color: 'red' },
+        ...(details.traceId ? [{ label: 'trace id', value: details.traceId, color: 'yellow' as const }] : []),
+        ...(details.revision ? [{ label: 'revision', value: details.revision, color: 'white' as const }] : []),
+        ...(details.preview ? [{ label: 'preview', value: details.preview, color: 'cyan' as const }] : []),
+        ...(details.stderr ? [{ label: 'stderr', value: details.stderr, color: 'gray' as const }] : []),
       ],
     });
   },
@@ -255,3 +260,55 @@ function redactToken(token?: string) {
 function failureMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
+
+const wrangle = {
+  failureDetails(error: unknown) {
+    const message = failureMessage(error);
+    const traceId = message.match(/trace id:\s*([a-f0-9]+)/i)?.[1];
+    const urls = message.match(/https?:\/\/[^\s]+/g) ?? [];
+    const revision = urls.find((url) => url.includes('console.deno.com/'));
+    const preview = urls.find((url) => url.includes('.deno.net'));
+    const stderr = wrangle.stderrSummary(message);
+    return {
+      summary: wrangle.failureSummary(message),
+      traceId,
+      revision,
+      preview,
+      stderr,
+    } as const;
+  },
+
+  failureSummary(message: string) {
+    const lines = wrangle.contentLines(message);
+    const preferred = lines.find((line) =>
+      !line.startsWith('DenoDeploy.pipeline:') &&
+      line !== 'stdout:' &&
+      line !== 'stderr:' &&
+      !line.startsWith('trace id:')
+    );
+    return preferred ?? lines[0] ?? message.trim();
+  },
+
+  stderrSummary(message: string) {
+    const stderr = message.split(/\nstderr:\n/i)[1];
+    if (!stderr) return undefined;
+
+    const lines = wrangle.contentLines(stderr);
+    const preferred = lines.find((line) =>
+      !line.startsWith('trace id:') &&
+      !line.startsWith('[00:') &&
+      !line.endsWith('files uploaded.') &&
+      line !== 'An error occurred:'
+    );
+
+    return preferred ?? lines.find((line) => line !== 'An error occurred:');
+  },
+
+  contentLines(text: string) {
+    return text
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => line.replace(/^✗\s*/, ''));
+  },
+} as const;

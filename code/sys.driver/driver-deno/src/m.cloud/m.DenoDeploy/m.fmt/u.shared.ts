@@ -10,7 +10,7 @@ export function row(
   label: string,
   value: string,
   options: {
-    color?: 'white' | 'cyan' | 'gray' | 'green' | 'red';
+    color?: 'white' | 'cyan' | 'gray' | 'green' | 'red' | 'yellow';
     width?: number;
     indent?: number;
   } = {},
@@ -22,6 +22,8 @@ export function row(
       ? c.green(value)
       : options.color === 'red'
         ? c.red(value)
+        : options.color === 'yellow'
+          ? c.yellow(value)
         : options.color === 'cyan'
           ? c.cyan(value)
           : options.color === 'gray'

@@ -74,4 +74,31 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('prepare');
     expect(text).to.include('broken deploy root');
   });
+
+  it('extracts deploy diagnostics from wrangle failure output', () => {
+    const text = stripAnsi(
+      FmtInternal.pipelineFailure({
+        phase: 'deploy',
+        error: new Error(`
+DenoDeploy.pipeline: deploy failed (code 1).
+
+stdout:
+
+stderr:
+[00:00]                                                    0/2 files uploaded.
+[00:00] ██████████████████████████████████████████████████ 2/2 files uploaded.
+
+✗ An error occurred:
+  An unexpected internal error occurred. If this issue persists, please contact support.
+  trace id: 6ab4a481d06f2bf753adc4897c548a2f
+        `),
+      }).join('\n'),
+    );
+
+    expect(text).to.include('Deploy Failed');
+    expect(text).to.include('deploy');
+    expect(text).to.include('An unexpected internal error occurred. If this issue persists, please contact support.');
+    expect(text).to.include('trace id');
+    expect(text).to.include('6ab4a481d06f2bf753adc4897c548a2f');
+  });
 });
