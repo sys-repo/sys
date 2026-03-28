@@ -412,8 +412,8 @@ export const Fmt = {
   commitMessage(result: t.WorkspaceUpgrade.ApplyResult): string {
     const rows = Fmt.updatedRows(result);
     if (rows.length === 0) return '';
-    if (rows.length === 1) return `chore(deps): upgrade ${rows[0]!.entry.module.name}`;
-    return 'chore(deps): upgrade workspace dependencies';
+    if (rows.length === 1) return `chore(deps): upgraded ${rows[0]!.entry.module.name}`;
+    return `chore(deps): upgraded ${rows.length} workspace dependencies`;
   },
 
   canonicalVersion(version?: string): t.StringSemver | undefined {
