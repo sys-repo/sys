@@ -251,13 +251,17 @@ Initial high fidelity design emphasis on the `1:1` (dyad) and `1:3` (tradic tend
 
 ### Gall's Law
 
->> A ***complex*** system that *works* is invariably found to have evolved from a ***simple*** system that *worked*. - [ref](https://en.wikipedia.org/wiki/John_Gall_(author))
+>> A ***complex*** system that *works* is invariably found to have evolved from a ***simple*** system that *worked*. - [ref](https://en.wikipedia.org/wiki/John_Gall_(author)) †
 
 The inverse proposition also appears to be true:
 
->> A complex system designed from scratch *never works* ***and cannot be made to work.***  You have to start over, beginning with a *simple system that works.*
+>> A complex system designed from scratch *never works* ***and cannot be made to work.***  You have to start over, beginning with a *simple system that works.* †
+
+
 
 <p>&nbsp;</p>
+
+† *CI is the enforcement mechanism that keeps Gall’s-Law evolution honest.*
 
 ![smor-sys crdt-cell-timeline](https://github.com/cellplatform/platform-0.2.0/assets/185555/588f6c58-3e94-4818-8ada-cb333822025d)
 
