@@ -15,7 +15,7 @@ export type CliFormatLib = {
   hr: CliFormatHr;
 
   /** Common spinner status text formatting. */
-  spinnerText(text: string): string;
+  spinnerText: CliFormatSpinnerText;
 
   /** Help page formatting. */
   readonly Help: CliFormatHelpLib;
@@ -61,4 +61,11 @@ export type CliFormatHr = {
   (width: number): string;
   (color: CliFormatHrColor): string;
   (width: number, color: CliFormatHrColor): string;
+};
+
+export type CliFormatSpinnerSpacing = boolean | number | [number, number];
+
+export type CliFormatSpinnerText = {
+  (text: string): string;
+  (text: string, spacing: CliFormatSpinnerSpacing): string;
 };

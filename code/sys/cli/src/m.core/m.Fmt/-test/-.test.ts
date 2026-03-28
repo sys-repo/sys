@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { c, describe, expect, it } from '../../../-test.ts';
 import { Cli, Fmt } from '../../mod.ts';
 
 describe('Cli.Fmt', () => {
@@ -10,5 +10,14 @@ describe('Cli.Fmt', () => {
 
   it('formats spinner text consistently', () => {
     expect(Cli.Fmt.spinnerText('working...')).to.eql(Fmt.spinnerText('working...'));
+  });
+
+  it('supports explicit spinner spacing control', () => {
+    const text = c.gray(c.italic('working...'));
+
+    expect(Cli.Fmt.spinnerText('working...', false)).to.eql(text);
+    expect(Cli.Fmt.spinnerText('working...', true)).to.eql(`${text}\n`);
+    expect(Cli.Fmt.spinnerText('working...', 2)).to.eql(`\n\n${text}\n\n`);
+    expect(Cli.Fmt.spinnerText('working...', [1, 2])).to.eql(`\n${text}\n\n`);
   });
 });
