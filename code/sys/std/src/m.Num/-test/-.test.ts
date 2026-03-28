@@ -6,9 +6,38 @@ import { Num } from '../mod.ts';
 
 describe('Value.Num', () => {
   it('API', () => {
+    expect(typeof Num.Is.finite).to.equal('function');
+    expect(typeof Num.Is.int).to.equal('function');
+    expect(typeof Num.Is.safeInt).to.equal('function');
     expect(Num.Percent).to.equal(Percent);
     expect(Num.Percent.Range).to.eql(PercentRange);
     expect(Num.Ratio).to.equal(Ratio);
+  });
+
+  describe('Num.Is', () => {
+    it('finite', () => {
+      expect(Num.Is.finite(0)).to.eql(true);
+      expect(Num.Is.finite(1.5)).to.eql(true);
+      expect(Num.Is.finite(NaN)).to.eql(false);
+      expect(Num.Is.finite(Number.POSITIVE_INFINITY)).to.eql(false);
+      expect(Num.Is.finite('1')).to.eql(false);
+    });
+
+    it('int', () => {
+      expect(Num.Is.int(0)).to.eql(true);
+      expect(Num.Is.int(-12)).to.eql(true);
+      expect(Num.Is.int(1.5)).to.eql(false);
+      expect(Num.Is.int(NaN)).to.eql(false);
+      expect(Num.Is.int('1')).to.eql(false);
+    });
+
+    it('safeInt', () => {
+      expect(Num.Is.safeInt(0)).to.eql(true);
+      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER)).to.eql(true);
+      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER + 1)).to.eql(false);
+      expect(Num.Is.safeInt(1.5)).to.eql(false);
+      expect(Num.Is.safeInt('1')).to.eql(false);
+    });
   });
 
   describe('Num.round', () => {

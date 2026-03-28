@@ -31,8 +31,8 @@ const wrangle = {
   },
 
   clamp(input: number): number {
-    if (!Number.isFinite(input)) return 0;
-    if (!Number.isInteger(input)) return 0;
+    if (!Num.Is.finite(input)) return 0;
+    if (!Num.Is.int(input)) return 0;
     return Num.clamp(0, Num.MAX_INT, input);
   },
 } as const;
