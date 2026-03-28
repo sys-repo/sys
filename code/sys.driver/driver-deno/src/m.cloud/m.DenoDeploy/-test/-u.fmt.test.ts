@@ -33,6 +33,7 @@ describe('DenoDeploy.Fmt', () => {
       }).join('\n'),
     );
 
+    expect(text).to.not.include('staged dir');
     expect(text).to.include('./src/m.server/main.ts');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');

@@ -142,7 +142,6 @@ export const InfoFmt = {
     return InfoFmt.info({
       title: 'Staged Entrypoint',
       rows: [
-        { label: 'staged dir', value: args.stagedDir, color: 'white' },
         { label: 'entry', value: args.entrypoint, color: 'white' },
         { label: 'paths', value: args.entryPaths, color: 'white' },
         { label: 'main', value: args.appEntrypoint, color: 'white' },
@@ -302,9 +301,9 @@ const wrangle = {
 
     const lines = wrangle.contentLines(stdout);
     const preferred = lines.find((line) =>
-      !line.startsWith('Publishing ') &&
-      !line.startsWith('Generating hashes') &&
-      !line.startsWith('Loading previously uploaded files') &&
+      !line.includes('Publishing ') &&
+      !line.includes('Generating hashes') &&
+      !line.includes('Loading previously uploaded files') &&
       !line.startsWith('Found ') &&
       !line.startsWith('You can view the revision here:')
     );
@@ -332,6 +331,7 @@ const wrangle = {
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
+      .map((line) => line.replace(/^[⠁-⣿]+\s*/, ''))
       .map((line) => line.replace(/^✗\s*/, ''));
   },
 
