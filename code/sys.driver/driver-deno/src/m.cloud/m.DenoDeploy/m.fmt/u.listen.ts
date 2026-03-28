@@ -95,19 +95,19 @@ export const ListenFmt = {
 
       if (step.kind === 'build:failed') {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'build', error: step.error }));
+        print(InfoFmt.pipelineFailure({ phase: 'build', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
       if (step.kind === 'stage:materialize:failed') {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'stage', error: step.error }));
+        print(InfoFmt.pipelineFailure({ phase: 'stage', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
       if (step.kind === 'prepare:failed') {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'prepare', error: step.error }));
+        print(InfoFmt.pipelineFailure({ phase: 'prepare', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
@@ -122,7 +122,7 @@ export const ListenFmt = {
 
       if (step.kind === 'deploy:failed') {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'deploy', error: step.error }));
+        print(InfoFmt.pipelineFailure({ phase: 'deploy', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
@@ -135,7 +135,7 @@ export const ListenFmt = {
 
       if (step.kind === 'verify:failed') {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'verify', error: step.error }));
+        print(InfoFmt.pipelineFailure({ phase: 'verify', error: step.error, at: wrangle.failedAt() }));
       }
     });
 
@@ -150,6 +150,10 @@ export const ListenFmt = {
 const wrangle = {
   elapsed(startedAt?: t.Msecs) {
     return startedAt === undefined ? undefined : (Time.elapsed(startedAt).msec as t.Msecs);
+  },
+
+  failedAt() {
+    return new Date().toISOString();
   },
 
   interactive() {

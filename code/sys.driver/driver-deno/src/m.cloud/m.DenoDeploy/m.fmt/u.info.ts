@@ -184,6 +184,7 @@ export const InfoFmt = {
   pipelineFailure(args: {
     readonly phase: string;
     readonly error: unknown;
+    readonly at?: string;
   }) {
     const details = wrangle.failureDetails(args.error);
     return InfoFmt.info({
@@ -191,6 +192,7 @@ export const InfoFmt = {
       tone: 'warning',
       rows: [
         { label: 'phase', value: args.phase, color: 'white' },
+        ...(args.at ? [{ label: 'at', value: args.at, color: 'gray' as const }] : []),
         { label: 'error', value: details.summary, color: 'red' },
         ...(details.traceId ? [{ label: 'trace id', value: details.traceId, color: 'yellow' as const }] : []),
         ...(details.revision ? [{ label: 'revision', value: details.revision, color: 'white' as const }] : []),

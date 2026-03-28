@@ -66,12 +66,14 @@ describe('DenoDeploy.Fmt', () => {
     const text = stripAnsi(
       FmtInternal.pipelineFailure({
         phase: 'prepare',
+        at: '2026-03-28T12:34:56.000Z',
         error: new Error('broken deploy root'),
       }).join('\n'),
     );
 
     expect(text).to.include('Deploy Failed');
     expect(text).to.include('prepare');
+    expect(text).to.include('2026-03-28T12:34:56.000Z');
     expect(text).to.include('broken deploy root');
   });
 
