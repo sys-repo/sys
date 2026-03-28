@@ -1,89 +1,129 @@
-# cli.deploy — Deno Integration Note
+# cli.deploy — Deno Integration Plan
 
-## 1. What We Learned
+## Summary
+
+- The current `cli.deploy` Deno work produced real signal.
+- The YAML/config direction is good.
+- The integration mistake is now clear:
+  - `stage` is real
+  - `push` is real
+  - but `push` still re-stages via `DenoDeploy.pipeline(...)`
+- The next move is not more `@sys/tools` glue.
+- The next move is a tighter `@sys/driver-deno` seam so `stage` and `push` remain independent actions over one shared staged artifact.
+
+## 1. Pre-clean
+
+- Keep the endpoint YAML scaffold improvements.
+- Preserve the authored Deno endpoint shape proven by the working sample:
+  - `provider`
+  - `source.dir`
+  - `staging.dir`
+  - `mappings`
+- Replace copy-oriented mapping nouns with provider-neutral staging nouns.
+- Keep the endpoint scaffold universal; do not split into Deno-only and Orbiter-only templates.
+
+### Commit spine
+
+~~~text
+refactor(cli.deploy): tighten the endpoint yaml scaffold and placeholder examples
+~~~
+
+~~~text
+refactor(cli.deploy): replace copy-oriented mapping modes with provider-neutral staging nouns
+~~~
+
+## 2. Tighten The Deno Driver Seam
+
+- `@sys/driver-deno` already owns the real Deno Deploy truth.
+- `@sys/tools/deploy` should not duplicate that logic.
+- Add a public driver seam to deploy an already-staged artifact without re-staging.
+- Keep `pipeline()` as the combined convenience path.
+- Do not force Orbiter symmetry unless the shared seam is clearly earned after the Deno work lands.
+
+### Required outcome
+
+- `stage` -> `DenoDeploy.stage(...)`
+- `push` -> deploy the prior staged artifact
+- no re-stage
+
+### Commit spine
+
+~~~text
+feat(driver-deno): let deploy consume an existing staged root without re-staging
+~~~
+
+## 3. Rebuild The Tools Integration
+
+- Rebuild the Deno adapter over the improved driver seam.
+- Keep `stage` and `push` as independent operator actions.
+- Resolve the Deno package target from:
+  - `source.dir + mappings`
+- Use `staging.dir` as the caller-owned stage root.
+- Make `push` consume the prior staged artifact instead of calling `pipeline()`.
+- Reuse driver progress/listener output instead of local replica spinners and status copy.
+
+### Commit spine
+
+~~~text
+refactor(cli.deploy): make deno stage and push share one staged artifact path
+~~~
+
+~~~text
+refactor(cli.deploy): reuse driver-deno progress listeners for deno stage and push
+~~~
+
+## 4. Cleanup
+
+- Remove misleading UI assumptions left from the partial integration.
+- Reduce the noticeable first-render pause in `@sys/tools/deploy`.
+- Do final naming/DX tightening after the real stage/push artifact path is proven.
+
+### Commit spine
+
+~~~text
+refactor(cli.deploy): reduce the initial deploy menu render pause
+~~~
+
+## What We Learned
 
 - `@sys/driver-deno` is the real owner of Deno Deploy staging and deploy truth.
 - `@sys/tools/deploy` should remain a thin integration layer over that driver.
-- The top-level operator model in `cli.deploy` is still correct:
+- The top-level operator model is still correct:
   - `stage`
   - `push`
 - For Deno, those are independent operator actions over one shared artifact path.
 - The correct authored Deno endpoint shape is:
+  - `provider` = remote target
   - `source.dir` = source base
+  - `staging.dir` = caller-owned stage root
   - `mappings[*].dir.source` = selected package target under that base
-  - `staging.dir` = caller-owned Deno stage root
-- Deno `probe` is env/config readiness, not CLI/PATH discovery.
 
-## 2. Gotchas And Why We Got It Wrong
+## Gotchas
 
 - We first wired Deno `push` to `DenoDeploy.pipeline(...)`.
-- That made Deno `push` work end-to-end, but it re-staged internally.
+- That made Deno `push` work, but it re-staged internally.
 - We later wired Deno `stage` to `DenoDeploy.stage(...)`.
-- That left us with two valid paths that did not join:
-  - `stage` produced a real staged root
-  - `push` ignored it and re-staged from source
-- That was the core mistake.
-- The earlier shortcut also collapsed the endpoint model too far:
-  - treated `source.dir` as the package itself
-  - instead of treating `source.dir + mappings` as the authored package selection mechanism
-- Another friction point:
-  - `cli.deploy` initially rejected absolute `staging.dir`
-  - but Deno driver staging explicitly supports caller-owned absolute roots
-- Another friction point:
-  - provider env lookup initially used raw `Deno.env.get(...)`
-  - but the repo uses upward `.env` resolution
+- That left two valid paths that did not join.
+- We also collapsed the endpoint model too far by treating `source.dir` as the package itself instead of using `source.dir + mappings`.
+- We initially rejected absolute `staging.dir`, even though Deno driver staging supports caller-owned absolute roots.
+- We initially used raw `Deno.env.get(...)` instead of upward `.env` resolution.
 
-## 3. Where We Need To Go
-
-- Keep `cli.deploy` Deno integration thin.
-- Do not add more Deno-specific staging/deploy logic to `@sys/tools/deploy`.
-- The next real move belongs in `@sys/driver-deno`.
-
-### Required driver improvement
-
-- Add a clean public seam for:
-  - deploying an already-staged Deno artifact
-- That seam should let `cli.deploy` do:
-  - `stage` -> `DenoDeploy.stage(...)`
-  - `push` -> deploy the prior staged artifact
-- `push` must not re-stage.
-
-### Why this is the right move
-
-- it preserves the independent operator model
-- it keeps the driver as the artifact-truth owner
-- it simplifies the tools adapter instead of growing it
-- it lets `cli.deploy` become a straightforward integration over expressive driver APIs
-
-## 4. Final Review — Why This Is Good
+## Why This Plan Is Good
 
 - The current work was not wasted.
 - It exposed the exact missing driver seam.
 - That is good integration signal, not random churn.
-- The stage/push split is now better understood:
-  - not one combined hidden path
-  - two explicit operator actions over one artifact
-- The right architecture is clearer now:
+- The architecture is now clearer:
   - template/repo config owns authored intent
   - `@sys/tools/deploy` owns operator UX
   - `@sys/driver-deno` owns platform truth
-- The next cleanup should therefore be sharper:
+- The next cleanup is therefore sharp:
   - improve `driver-deno`
   - then simplify `cli.deploy` around that truth
 
-## Current State
+## Snapshot Commands
 
-- Deno endpoint schema exists in `cli.deploy`
-- Deno probe exists and uses upward env loading
-- Deno stage now maps to `DenoDeploy.stage(...)`
-- Deno push still uses `DenoDeploy.pipeline(...)`
-- Therefore:
-  - Deno stage is now real
-  - Deno push is real
-  - but Deno `stage + push` is still not one shared artifact path yet
-
-## Next Commit
-
-~~~text
-feat(driver-deno): support deploy execution from an existing staged artifact
-~~~
+```bash
+git stash push -u -m "checkpoint(cli.deploy): deno integration signal before staged-artifact cleanup"
+git stash list
+git stash show --stat stash@{0}
