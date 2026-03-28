@@ -1,6 +1,6 @@
 import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
-import { DENO_CONSOLE_HOST, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
+import { formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
 type DeployResult = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }>;
@@ -127,11 +127,7 @@ export const InfoFmt = {
         {
           label: 'Platform',
           value: '',
-          valueParts: [
-            c.dim(c.gray('https://')),
-            c.cyan(DENO_CONSOLE_HOST),
-            ...(config.org ? [c.dim(c.gray(`/${config.org}`))] : []),
-          ],
+          valueParts: formatUrlParts(`https://console.deno.com${config.org ? `/${config.org}` : ''}`),
         },
         ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
         ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
@@ -175,8 +171,8 @@ export const InfoFmt = {
         ...(elapsed !== undefined
           ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
           : []),
-        { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
-        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'cyan' },
+        { label: 'revision', value: '', valueParts: formatUrlParts(result.deploy?.url?.revision ?? '') },
+        { label: 'preview', value: '', valueParts: formatUrlParts(result.deploy?.url?.preview ?? '') },
       ],
     });
   },

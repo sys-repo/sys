@@ -47,6 +47,23 @@ export function maxLabelWidth(labels: readonly string[]) {
   return Math.max(5, ...labels.map((label) => normalizeLabel(label).length));
 }
 
+export function formatUrlParts(input: string) {
+  if (input.length === 0) return [c.white('')] as const;
+
+  try {
+    const url = new URL(input);
+    return [
+      c.dim(c.gray(`${url.protocol}//`)),
+      c.cyan(url.host),
+      ...(url.pathname === '/' ? [] : [c.dim(c.gray(url.pathname))]),
+      ...(url.search ? [c.dim(c.gray(url.search))] : []),
+      ...(url.hash ? [c.dim(c.gray(url.hash))] : []),
+    ] as const;
+  } catch {
+    return [c.white(input)] as const;
+  }
+}
+
 function indent(count = 0) {
   return ' '.repeat(count);
 }
