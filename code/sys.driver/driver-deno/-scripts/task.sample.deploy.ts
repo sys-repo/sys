@@ -31,6 +31,9 @@ async function main() {
 
   try {
     await deployment.run();
+  } catch (error) {
+    reporter.dispose();
+    throw error;
   } finally {
     reporter.dispose();
   }

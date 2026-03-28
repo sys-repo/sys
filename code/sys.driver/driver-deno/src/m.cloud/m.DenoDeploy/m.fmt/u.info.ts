@@ -155,6 +155,9 @@ export const InfoFmt = {
     const code = result.code === 0
       ? c.dim(c.gray(`code:${result.code}`))
       : `${c.gray('code:')}${c.red(String(result.code))}`;
+    const revision = result.deploy?.url?.revision ?? '';
+    const preview = result.deploy?.url?.preview ?? '';
+    const highlight = wrangle.sharedDeployId(revision, preview);
     return InfoFmt.info({
       title,
       rows: [
@@ -171,8 +174,8 @@ export const InfoFmt = {
         ...(elapsed !== undefined
           ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
           : []),
-        { label: 'revision', value: '', valueParts: formatUrlParts(result.deploy?.url?.revision ?? '') },
-        { label: 'preview', value: '', valueParts: formatUrlParts(result.deploy?.url?.preview ?? '') },
+        { label: 'revision', value: '', valueParts: formatUrlParts(revision, { highlight }) },
+        { label: 'preview', value: '', valueParts: formatUrlParts(preview, { highlight }) },
       ],
     });
   },
@@ -266,18 +269,21 @@ const wrangle = {
     const urls = message.match(/https?:\/\/[^\s]+/g) ?? [];
     const revision = urls.find((url) => url.includes('console.deno.com/'));
     const preview = urls.find((url) => url.includes('.deno.net'));
+    const stdout = wrangle.stdoutSummary(message);
     const stderr = wrangle.stderrSummary(message);
     return {
-      summary: wrangle.failureSummary(message, stderr),
+      summary: wrangle.failureSummary(message, stderr, stdout),
       traceId,
       revision,
       preview,
+      stdout,
       stderr,
     } as const;
   },
 
-  failureSummary(message: string, stderr?: string) {
+  failureSummary(message: string, stderr?: string, stdout?: string) {
     if (stderr) return stderr;
+    if (stdout) return stdout;
     const lines = wrangle.contentLines(message);
     const preferred = lines.find((line) =>
       !line.startsWith('DenoDeploy.pipeline:') &&
@@ -286,6 +292,22 @@ const wrangle = {
       !line.startsWith('trace id:')
     );
     return preferred ?? lines[0] ?? message.trim();
+  },
+
+  stdoutSummary(message: string) {
+    const stdout = message.split(/\nstdout:\n/i)[1]?.split(/\nstderr:\n/i)[0];
+    if (!stdout) return undefined;
+
+    const lines = wrangle.contentLines(stdout);
+    const preferred = lines.find((line) =>
+      !line.startsWith('Publishing ') &&
+      !line.startsWith('Generating hashes') &&
+      !line.startsWith('Loading previously uploaded files') &&
+      !line.startsWith('Found ') &&
+      !line.startsWith('You can view the revision here:')
+    );
+
+    return preferred;
   },
 
   stderrSummary(message: string) {
@@ -309,5 +331,11 @@ const wrangle = {
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
       .map((line) => line.replace(/^✗\s*/, ''));
+  },
+
+  sharedDeployId(revision: string, preview: string) {
+    const revisionId = revision.match(/\/builds\/([A-Za-z0-9_-]+)/)?.[1];
+    if (!revisionId) return [] as const;
+    return preview.includes(revisionId) ? [revisionId] as const : [] as const;
   },
 } as const;

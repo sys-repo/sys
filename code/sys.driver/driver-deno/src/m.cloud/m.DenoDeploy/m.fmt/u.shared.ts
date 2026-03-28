@@ -47,21 +47,49 @@ export function maxLabelWidth(labels: readonly string[]) {
   return Math.max(5, ...labels.map((label) => normalizeLabel(label).length));
 }
 
-export function formatUrlParts(input: string) {
+export function formatUrlParts(input: string, options: { readonly highlight?: readonly string[] } = {}) {
   if (input.length === 0) return [c.white('')] as const;
 
   try {
     const url = new URL(input);
     return [
       c.dim(c.gray(`${url.protocol}//`)),
-      c.cyan(url.host),
-      ...(url.pathname === '/' ? [] : [c.dim(c.gray(url.pathname))]),
-      ...(url.search ? [c.dim(c.gray(url.search))] : []),
-      ...(url.hash ? [c.dim(c.gray(url.hash))] : []),
+      ...formatUrlHost(url.host, options.highlight),
+      ...formatUrlTail(`${url.pathname === '/' ? '' : url.pathname}${url.search}${url.hash}`, options.highlight),
     ] as const;
   } catch {
     return [c.white(input)] as const;
   }
+}
+
+function formatUrlTail(text: string, highlight: readonly string[] = []) {
+  if (text.length === 0) return [] as const;
+
+  let parts: string[] = [text];
+  for (const token of highlight.filter((value) => value.length > 0)) {
+    parts = parts.flatMap((part) => splitAndColor(part, token, 'gray'));
+  }
+  return parts as readonly string[];
+}
+
+function formatUrlHost(text: string, highlight: readonly string[] = []) {
+  if (text.length === 0) return [] as const;
+
+  let parts: string[] = [text];
+  for (const token of highlight.filter((value) => value.length > 0)) {
+    parts = parts.flatMap((part) => splitAndColor(part, token, 'cyan'));
+  }
+  return parts as readonly string[];
+}
+
+function splitAndColor(text: string, token: string, base: 'gray' | 'cyan') {
+  if (text.length === 0 || !text.includes(token)) return [base === 'cyan' ? c.cyan(text) : c.gray(text)];
+  const chunks = text.split(token);
+  return chunks.flatMap((chunk, index) => {
+    const out = [base === 'cyan' ? c.cyan(chunk) : c.gray(chunk)];
+    if (index < chunks.length - 1) out.push(c.white(token));
+    return out;
+  });
 }
 
 function indent(count = 0) {

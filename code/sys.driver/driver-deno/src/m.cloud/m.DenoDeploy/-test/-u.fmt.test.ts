@@ -1,4 +1,4 @@
-import { describe, expect, it, stripAnsi } from '../../../-test.ts';
+import { c, describe, expect, it, stripAnsi } from '../../../-test.ts';
 import { FmtInternal } from '../m.fmt/mod.ts';
 
 describe('DenoDeploy.Fmt', () => {
@@ -41,25 +41,43 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('renders deploy result urls', () => {
-    const text = stripAnsi(
-      FmtInternal.deployResult({
+    const rendered = FmtInternal.deployResult({
+      ok: true,
+      code: 0,
+      stdout: '',
+      stderr: '',
+      deploy: {
+        url: {
+          revision: 'https://console.deno.com/org/app/builds/abc',
+          preview: 'https://app-abc.deno.net',
+        },
+      },
+    }, 'Deploy Result', 1500).join('\n');
+    const text = stripAnsi(rendered);
+
+    expect(text).to.include('https://console.deno.com/org/app/builds/abc');
+    expect(text).to.include('https://app-abc.deno.net');
+    expect(text).to.include('elapsed');
+    expect(text).to.include('true (code:0)');
+    expect(rendered).to.include(c.white('abc'));
+  });
+
+  it('highlights the shared deploy id across revision and preview urls', () => {
+    const rendered = FmtInternal.deployResult({
         ok: true,
         code: 0,
         stdout: '',
         stderr: '',
         deploy: {
           url: {
-            revision: 'https://console.deno.com/org/app/builds/abc',
-            preview: 'https://app-abc.deno.net',
+            revision: 'https://console.deno.com/sys-org/driver-sample/builds/5s47nb0fx96c',
+            preview: 'https://driver-sample-5s47nb0fx96c.sys-org.deno.net',
           },
-        },
-      }, 'Deploy Result', 1500).join('\n'),
-    );
+      },
+    }, 'Deploy Result', 1500).join('\n');
 
-    expect(text).to.include('https://console.deno.com/org/app/builds/abc');
-    expect(text).to.include('https://app-abc.deno.net');
-    expect(text).to.include('elapsed');
-    expect(text).to.include('true (code:0)');
+    expect(stripAnsi(rendered).match(/5s47nb0fx96c/g)?.length).to.eql(2);
+    expect(rendered).to.include('5s47nb0fx96c');
   });
 
   it('renders a compact pipeline failure block', () => {
