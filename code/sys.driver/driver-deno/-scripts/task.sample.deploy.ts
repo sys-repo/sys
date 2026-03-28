@@ -56,6 +56,7 @@ function templateProvenance() {
     '@sys/tmpl/pkg',
   ] as const;
   return [
+    '',
     c.gray('Templates:'),
     ...items.map((item, i) => c.gray(` ${Cli.Fmt.Tree.branch([i, items])} ${item}`)),
     '',
