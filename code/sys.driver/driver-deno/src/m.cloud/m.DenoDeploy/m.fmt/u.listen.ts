@@ -11,10 +11,16 @@ export const ListenFmt = {
     return ListenFmt.spinnerText('staging workspace...');
   },
 
-  deploySpinnerText(elapsed?: t.Msecs) {
-    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(DENO_CONSOLE_HOST)}`;
+  buildSpinnerText(elapsed?: t.Msecs) {
+    const label = ListenFmt.spinnerText('building package in source workspace...');
     if (elapsed === undefined) return label;
-    return `${label} ${c.gray(String(Time.elapsed(elapsed)))}`;
+    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+  },
+
+  deploySpinnerText(elapsed?: t.Msecs) {
+    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(DENO_CONSOLE_HOST)}${c.gray('...')}`;
+    if (elapsed === undefined) return label;
+    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
   },
 
   spinner(text: string) {
@@ -27,6 +33,7 @@ export const ListenFmt = {
     let spinTimer: { cancel(): void } | undefined;
     let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
     let startedAt: t.Msecs | undefined;
+    let buildStartedAt: t.Msecs | undefined;
     let deployStartedAt: t.Msecs | undefined;
     const verifying = deployment.request.verify?.preview !== false;
     const interactive = wrangle.interactive();
@@ -52,12 +59,21 @@ export const ListenFmt = {
       }
 
       if (step.kind === 'build:start') {
-        wrangle.status({
+        buildStartedAt = Time.now.timestamp as t.Msecs;
+        wrangle.timedStatus({
           interactive,
           spin,
-          text: ListenFmt.spinnerText('building package in source workspace...'),
+          timer: spinTimer,
+          startedAt: buildStartedAt,
+          text: ListenFmt.buildSpinnerText,
+          get() {
+            return spin;
+          },
           set(next) {
             spin = next;
+          },
+          setTimer(next) {
+            spinTimer = next;
           },
         });
         return;
@@ -80,20 +96,22 @@ export const ListenFmt = {
         spin?.stop();
         print(InfoFmt.stagedEntrypoint(step.prepared));
         deployStartedAt = Time.now.timestamp as t.Msecs;
-        wrangle.status({
+        wrangle.timedStatus({
           interactive,
           spin: undefined,
-          text: ListenFmt.deploySpinnerText(deployStartedAt),
+          timer: undefined,
+          startedAt: deployStartedAt,
+          text: ListenFmt.deploySpinnerText,
+          get() {
+            return spin;
+          },
           set(next) {
             spin = next;
           },
+          setTimer(next) {
+            spinTimer = next;
+          },
         });
-        if (interactive && spin && deployStartedAt !== undefined) {
-          spinTimer = Time.interval(1000, () => {
-            if (!spin || deployStartedAt === undefined) return;
-            spin.text = ListenFmt.deploySpinnerText(deployStartedAt);
-          });
-        }
         return;
       }
 
@@ -214,5 +232,31 @@ const wrangle = {
     }
 
     args.set(ListenFmt.spinner(args.text).start());
+  },
+
+  timedStatus(args: {
+    readonly interactive: boolean;
+    readonly spin?: ReturnType<typeof ListenFmt.spinner>;
+    readonly timer?: { cancel(): void };
+    readonly startedAt: t.Msecs;
+    readonly text: (elapsed?: t.Msecs) => string;
+    readonly set: (next: ReturnType<typeof ListenFmt.spinner> | undefined) => void;
+    readonly get: () => ReturnType<typeof ListenFmt.spinner> | undefined;
+    readonly setTimer: (next: { cancel(): void } | undefined) => void;
+  }) {
+    wrangle.stopTimer(args.timer, args.setTimer);
+    wrangle.status({
+      interactive: args.interactive,
+      spin: args.spin,
+      text: args.text(args.startedAt),
+      set: args.set,
+    });
+
+    if (!args.interactive) return;
+    const spin = args.get();
+    if (!spin) return;
+    args.setTimer(Time.interval(1000, () => {
+      spin.text = args.text(args.startedAt);
+    }));
   },
 } as const;
