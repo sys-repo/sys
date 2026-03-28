@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for terminal based CLI's (command-line-interfaces).
+ * Core tools for terminal-based command-line interfaces.
  *
  * @example
  * Display a CLI spinner:
@@ -54,4 +54,6 @@ export { Spinner } from './m.Spinner/mod.ts';
 export { Table } from './m.Table/mod.ts';
 
 export { Cli };
-export default Cli;
+/** Default export of the core CLI helper library. */
+const DefaultCli = Cli;
+export default DefaultCli;

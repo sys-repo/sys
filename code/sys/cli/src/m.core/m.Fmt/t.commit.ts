@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 
+/** Commit suggestion formatter signature. */
 export type CliFormatCommitLib = {
   suggestion(message: string, options?: {
     readonly title?: string | false;
