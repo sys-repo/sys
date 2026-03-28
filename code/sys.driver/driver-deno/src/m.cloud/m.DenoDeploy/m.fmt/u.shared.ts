@@ -64,6 +64,7 @@ export function formatUrlParts(input: string, options: { readonly highlight?: re
 
 function formatUrlTail(text: string, highlight: readonly string[] = []) {
   if (text.length === 0) return [] as const;
+  if (highlight.length === 0) return [c.gray(text)] as const;
 
   let parts: string[] = [text];
   for (const token of highlight.filter((value) => value.length > 0)) {
@@ -74,6 +75,7 @@ function formatUrlTail(text: string, highlight: readonly string[] = []) {
 
 function formatUrlHost(text: string, highlight: readonly string[] = []) {
   if (text.length === 0) return [] as const;
+  if (highlight.length === 0) return [c.cyan(text)] as const;
 
   let parts: string[] = [text];
   for (const token of highlight.filter((value) => value.length > 0)) {

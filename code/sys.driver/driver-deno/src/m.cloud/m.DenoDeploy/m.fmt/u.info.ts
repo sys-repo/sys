@@ -127,7 +127,10 @@ export const InfoFmt = {
         {
           label: 'Platform',
           value: '',
-          valueParts: formatUrlParts(`https://console.deno.com${config.org ? `/${config.org}` : ''}`),
+          valueParts: [
+            ...formatUrlParts('https://console.deno.com'),
+            ...(config.org ? [c.white(`/${config.org}`)] : []),
+          ],
         },
         ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
         ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
@@ -139,7 +142,6 @@ export const InfoFmt = {
     return InfoFmt.info({
       title: 'Staged Entrypoint',
       rows: [
-        { label: 'source', value: args.sourceDir, color: 'white' },
         { label: 'staged dir', value: args.stagedDir, color: 'white' },
         { label: 'entry', value: args.entrypoint, color: 'white' },
         { label: 'paths', value: args.entryPaths, color: 'white' },

@@ -33,7 +33,6 @@ describe('DenoDeploy.Fmt', () => {
       }).join('\n'),
     );
 
-    expect(text).to.include('/repo/code/projects/foo');
     expect(text).to.include('./src/m.server/main.ts');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');
