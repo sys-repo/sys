@@ -67,7 +67,6 @@ deno.json:
   - import: jsr:@cliffy/keypress@1.0.0
   - import: jsr:@cliffy/prompt@1.0.0
   - import: jsr:@cliffy/table@1.0.0
-  - import: npm:approx-string-match@2.0.0
   - import: npm:date-fns@4.1.0
   - import: npm:diff@8.0.4
   - import: npm:fast-json-patch@3.1.1
