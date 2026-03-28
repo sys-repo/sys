@@ -43,7 +43,6 @@ async function processDeps() {
   console.info(c.gray(` (${total} dependencies written to):`), fmtSeeFiles);
   console.info();
   console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
-  console.info();
 }
 
 /**
