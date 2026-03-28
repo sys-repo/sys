@@ -1,6 +1,6 @@
 import { type t, Cli, Rx, Time, c } from './common.ts';
 import { InfoFmt } from './u.info.ts';
-import { print } from './u.shared.ts';
+import { DENO_CONSOLE_HOST, print } from './u.shared.ts';
 
 export const ListenFmt = {
   spinnerText(text: string) {
@@ -9,6 +9,10 @@ export const ListenFmt = {
 
   stageSpinnerText() {
     return ListenFmt.spinnerText('staging workspace...');
+  },
+
+  deploySpinnerText() {
+    return `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(DENO_CONSOLE_HOST)}`;
   },
 
   spinner(text: string) {
@@ -73,7 +77,7 @@ export const ListenFmt = {
         wrangle.status({
           interactive,
           spin: undefined,
-          text: ListenFmt.spinnerText('deploying staged workspace...'),
+          text: ListenFmt.deploySpinnerText(),
           set(next) {
             spin = next;
           },

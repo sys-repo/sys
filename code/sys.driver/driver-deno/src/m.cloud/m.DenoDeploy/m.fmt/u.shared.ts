@@ -1,6 +1,7 @@
 import { c, Cli } from './common.ts';
 
 export const LINE = Cli.Fmt.hr();
+export const DENO_CONSOLE_HOST = 'console.deno.com';
 
 export function print(lines: readonly string[]) {
   for (const line of lines) console.info(line);

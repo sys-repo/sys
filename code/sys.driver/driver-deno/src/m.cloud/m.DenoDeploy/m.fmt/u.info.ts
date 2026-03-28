@@ -1,6 +1,6 @@
 import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
-import { LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
+import { DENO_CONSOLE_HOST, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
 type DeployResult = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }>;
@@ -129,7 +129,7 @@ export const InfoFmt = {
           value: '',
           valueParts: [
             c.dim(c.gray('https://')),
-            c.cyan('console.deno.com'),
+            c.cyan(DENO_CONSOLE_HOST),
             ...(config.org ? [c.dim(c.gray(`/${config.org}`))] : []),
           ],
         },
