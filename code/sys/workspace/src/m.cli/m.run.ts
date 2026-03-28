@@ -71,6 +71,11 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   );
 
   console.info(Fmt.applied(applied));
+  const commit = Fmt.commitSuggestion(applied);
+  if (commit) {
+    console.info();
+    console.info(commit);
+  }
   console.info();
   return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade: applied.upgrade, applied };
 };

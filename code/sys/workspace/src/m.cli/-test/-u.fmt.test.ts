@@ -47,7 +47,7 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plain[1]).to.include('blocked by policy');
   });
 
-  it('does not pre-check interactive rows without explicit include flags', () => {
+  it('pre-checks policy-selected rows and leaves blocked rows unchecked by default', () => {
     const options = Fmt.selectionOptions(upgrade(), {
       include: [],
       exclude: [],
@@ -58,7 +58,7 @@ describe('Workspace.Cli.Fmt', () => {
       prerelease: false,
     });
 
-    expect(options.every((option) => option.checked === false)).to.eql(true);
+    expect(options.map((option) => option.checked)).to.eql([true, false]);
   });
 
   it('formats cumulative registry spinner progress with clipped counts and percent', () => {

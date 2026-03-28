@@ -1,8 +1,10 @@
 import type { t } from '../common.ts';
 import type { AnsiForegroundColorName } from '@sys/color/t';
+import type { CliFormatCommitLib } from './t.commit.ts';
 import type { CliFormatHelpLib } from './t.help.ts';
 
 /** Type re-exports. */
+export type * from './t.commit.ts';
 export type * from './t.help.ts';
 
 /**
@@ -17,6 +19,9 @@ export type CliFormatLib = {
 
   /** Help page formatting. */
   readonly Help: CliFormatHelpLib;
+
+  /** Commit message suggestion formatting. */
+  readonly Commit: CliFormatCommitLib;
 
   /** Path display formatting. */
   path: t.PathFormatLib['string'];

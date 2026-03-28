@@ -108,6 +108,12 @@ export const Fmt = {
     return Str.trimEdgeNewlines(String(str));
   },
 
+  commitSuggestion(result: t.WorkspaceUpgrade.ApplyResult): string {
+    const message = Fmt.commitMessage(result);
+    if (!message) return '';
+    return Cli.Fmt.Commit.suggestion(message);
+  },
+
   summary(upgrade: t.WorkspaceUpgrade.Result): string {
     const table = Cli.table([]);
     const counts = Fmt.summaryCounts(upgrade);
@@ -211,7 +217,7 @@ export const Fmt = {
         const alias = candidate.entry.module.alias;
         const label = Fmt.selectionLabel(candidate, decision, layout);
         const selectedByFlag = includeSet.has(name) || (!!alias && includeSet.has(alias));
-        const checked = includeSet.size > 0 ? selectedByFlag : false;
+        const checked = includeSet.size > 0 ? selectedByFlag : state === 'selected';
         return {
           name: label,
           value: name,
@@ -401,6 +407,13 @@ export const Fmt = {
         return [{ entry, from, to }] as const;
       })
       .sort((a, b) => a.entry.module.name.localeCompare(b.entry.module.name));
+  },
+
+  commitMessage(result: t.WorkspaceUpgrade.ApplyResult): string {
+    const rows = Fmt.updatedRows(result);
+    if (rows.length === 0) return '';
+    if (rows.length === 1) return `chore(deps): upgrade ${rows[0]!.entry.module.name}`;
+    return 'chore(deps): upgrade workspace dependencies';
   },
 
   canonicalVersion(version?: string): t.StringSemver | undefined {

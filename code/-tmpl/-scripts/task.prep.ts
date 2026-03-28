@@ -1,6 +1,6 @@
 import { Args } from '@sys/std';
 import { Fs } from '@sys/fs';
-import { c } from '@sys/cli';
+import { Cli } from '@sys/cli';
 import type * as t from '@sys/types';
 import {
   PATH,
@@ -55,10 +55,10 @@ export async function main(options: Options = {}) {
 
 function logCommitMessage(context: CommitContext) {
   const commit = context === 'bump'
-    ? c.italic(c.green('chore(bump): update package versions and refresh generated outputs'))
-    : c.italic(c.green('chore(tmpl): refresh generated template surfaces and embedded bundle'));
+    ? 'chore(bump): update package versions and refresh generated outputs'
+    : 'chore(tmpl): refresh generated template surfaces and embedded bundle';
   console.info();
-  console.info(c.gray('  commit msg:'), commit);
+  console.info(Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } }));
   console.info();
 }
 

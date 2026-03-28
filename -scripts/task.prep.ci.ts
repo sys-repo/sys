@@ -1,6 +1,6 @@
 import { Workspace, type t as wt } from '@sys/workspace';
 import { Paths } from './-PATHS.ts';
-import { c, Str, type t } from './common.ts';
+import { Cli, Str, type t } from './common.ts';
 
 type Options = {
   versionFilter?: wt.WorkspaceCi.Jsr.VersionFilter;
@@ -77,18 +77,17 @@ export async function main(options: Options = {}) {
 
   const commit =
     versionFilter === 'ahead'
-      ? c.italic(`${c.green('chore(ci): refresh ahead-only GitHub workflow outputs')}`)
-      : c.italic(c.green('chore(ci): refresh generated GitHub workflow outputs'));
+      ? 'chore(ci): refresh ahead-only GitHub workflow outputs'
+      : 'chore(ci): refresh generated GitHub workflow outputs';
   console.info();
-  console.info(c.gray('  commit msg:'), commit);
+  console.info(Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } }));
   console.info();
 
   if (options.final && typeof options.prepared === 'number') {
     const msg = `chore(workspace): prepared ${options.prepared} ${Str.plural(options.prepared, 'submodule')} (${jsr.count} jsr:publish ${Str.plural(jsr.count, 'module')})`;
-    const workspaceCommit = c.white(msg);
     console.info();
-    console.info(c.gray('━'.repeat(84)));
-    console.info(c.bold(c.brightCyan('Final commit msg:')), workspaceCommit);
+    console.info(Cli.Fmt.hr('gray'));
+    console.info(Cli.Fmt.Commit.suggestion(msg, { title: 'final commit msg:' }));
     console.info();
   }
 }
