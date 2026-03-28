@@ -1,7 +1,7 @@
 import { Cli } from '@sys/cli';
 import { c } from '@sys/cli';
 import { Args } from '@sys/std';
-import { requireSampleDeployConfig, SAMPLE_ENV_NOTE } from './u.env.ts';
+import { type SampleDeployConfig, requireSampleDeployConfig, SAMPLE_ENV_NOTE } from './u.env.ts';
 
 /**
  * Sample deployment example:
@@ -33,6 +33,7 @@ async function main() {
     await deployment.run();
   } catch (error) {
     reporter.dispose();
+    await printDeployLogs(config);
     throw error;
   } finally {
     reporter.dispose();
@@ -64,4 +65,42 @@ function templateProvenance() {
     ...items.map((item, i) => c.gray(` ${Cli.Fmt.Tree.branch([i, items])} ${item}`)),
     '',
   ] as const;
+}
+
+async function printDeployLogs(config: SampleDeployConfig) {
+  const [{ DeployCli }, { Fs, Process }] = await Promise.all([
+    import('../src/m.cloud/u.cli.deploy/mod.ts'),
+    import('../src/common.ts'),
+  ]);
+
+  const prepared = await DeployCli.logs({
+    app: config.app,
+    ...(config.org ? { org: config.org } : {}),
+    ...(config.token ? { token: config.token } : {}),
+  });
+
+  try {
+    const output = await Process.invoke({
+      cmd: prepared.cli.cmd,
+      args: [...prepared.cli.args],
+      cwd: prepared.cli.cwd,
+      silent: true,
+    });
+
+    const stdout = output.text.stdout.trim();
+    const stderr = output.text.stderr.trim();
+    const body = [stdout, stderr].filter((value) => value.length > 0).join('\n\n');
+    if (body.length === 0) return;
+
+    console.info('');
+    console.info(c.bold(c.yellow('Deploy Logs')));
+    console.info(c.bold(c.yellow(Cli.Fmt.hr())));
+    console.info(body);
+    console.info(c.bold(c.yellow(Cli.Fmt.hr())));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.info(c.yellow(c.italic(`Unable to fetch deploy logs: ${message}`)));
+  } finally {
+    await Fs.remove(prepared.root);
+  }
 }
