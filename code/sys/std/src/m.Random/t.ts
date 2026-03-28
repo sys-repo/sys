@@ -11,7 +11,7 @@ export type RandomLib = {
   base36(length: number): string;
 
   /** Random number tools alias (Num.random). */
-  readonly number: t.NumberLib['random'];
+  readonly number: t.Num.Lib['random'];
 
   /**
    * Generate a non-sequental identifier.

@@ -98,4 +98,3 @@ export declare namespace Num {
     int(min: number, max: number, opts?: RandomOptions): number;
   };
 }
-

@@ -4,7 +4,7 @@ const POW_2_53 = 9_007_199_254_740_992;
 const POW_2_26 = 67_108_864;
 const U32_MAX_PLUS_ONE = 4_294_967_296;
 
-const randomFloat: t.NumRandom = ((
+const randomFloat: t.Num.Random = ((
   min?: number,
   max?: number,
   options?: t.Num.RandomOptions,
@@ -14,7 +14,7 @@ const randomFloat: t.NumRandom = ((
   if (lo === hi) return lo;
   const unit = randomUnit(resolveSource(options));
   return lo + unit * (hi - lo);
-}) as t.NumRandom;
+}) as t.Num.Random;
 
 randomFloat.int = (min, max, options): number => {
   assertFiniteNumber(min, 'min');
