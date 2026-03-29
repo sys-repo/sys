@@ -1,10 +1,10 @@
 import { type t, describe, Esm, expect, Fs, it } from '../../../../-test.ts';
-import { prepare } from '../u.prepare.ts';
+import { DenoDeploy } from '../../mod.ts';
 
-describe('DenoDeploy.pipeline.prepare', () => {
+describe('DenoDeploy.prepare', () => {
   it('prepares a staged deploy root for the generated entry pair', async () => {
     const stage = await createStageFixture();
-    const res = await prepare(stage);
+    const res = await DenoDeploy.prepare(stage);
 
     expect(res.sourceDir).to.eql(stage.target.dir);
     expect(res.stagedDir).to.eql(stage.root);

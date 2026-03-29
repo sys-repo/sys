@@ -24,6 +24,9 @@ export declare namespace DenoDeploy {
     /** Materialize a deployable staging root for the selected workspace target. */
     stage(request: Stage.Request): Promise<Stage.Result>;
 
+    /** Prepare a staged artifact for native Deno Deploy execution. */
+    prepare(stage: Stage.Result): Promise<Pipeline.Prepared>;
+
     /** Deploy a previously staged artifact to Deno Deploy. */
     deploy(request: Deploy.Request): Promise<Deploy.Result>;
 
