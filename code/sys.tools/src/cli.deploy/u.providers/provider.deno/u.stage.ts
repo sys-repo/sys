@@ -1,5 +1,4 @@
-import { DenoDeploy, type t, c, Cli, Err, Fs, Path, Str } from './common.ts';
-import { Fmt } from '../../u.fmt.ts';
+import { DenoDeploy, type t, c, Err, Fs, Path, Str } from './common.ts';
 import { resolveTarget } from './u.resolveTarget.ts';
 import { Sidecar } from './u.sidecar.ts';
 
@@ -15,8 +14,7 @@ export async function stage(args: {
   cwd: t.StringDir;
   yaml: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<RunStageResult> {
-  const spin = Cli.spinner();
-  spin.start(Fmt.spinnerText('Running Deno staging...'));
+  const spin = DenoDeploy.Fmt.Spinner.create('Running Deno staging...');
 
   try {
     const res = resolveTarget(args);
@@ -31,10 +29,10 @@ export async function stage(args: {
     });
     await Sidecar.write(staged.root, Sidecar.fromStage(staged, res));
 
-    spin.succeed(Fmt.spinnerText(`${c.green('deno staging complete')} → ${c.white(staged.root)}`));
+    spin.succeed(DenoDeploy.Fmt.Spinner.text(`${c.green('deno staging complete')} → ${c.white(staged.root)}`));
     return { ok: true, stagingRoot: staged.root };
   } catch (error) {
-    spin.fail(Fmt.spinnerText('Deno staging failed'));
+    spin.fail(DenoDeploy.Fmt.Spinner.text('Deno staging failed'));
     const detail = Err.summary(error, { cause: true, stack: false });
     const body = Str.builder()
       .line(c.red('Deno staging error details'))
