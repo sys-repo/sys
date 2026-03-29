@@ -52,15 +52,21 @@ export type DeployLib = {
   failure(args: DeployFailureArgs): readonly string[];
 };
 
+/** Public spinner-formatting helpers reused by callers. */
+export type SpinnerLib = {
+  /** Style spinner text for staged deploy progress. */
+  text(text: string): string;
+
+  /** Create a styled spinner for staged deploy progress. */
+  create(text: string): CliSpinner.Instance;
+};
+
 /**
  * Formatter surface for operator-facing deploy output.
  */
 export type Lib = {
-  /** Style spinner text for staged deploy progress. */
-  spinnerText(text: string): string;
-
-  /** Create a styled spinner for staged deploy progress. */
-  spinner(text: string): CliSpinner.Instance;
+  /** Public spinner-formatting helpers. */
+  readonly Spinner: SpinnerLib;
 
   /** Decomposed deploy-formatting helpers for external callers. */
   readonly Deploy: DeployLib;

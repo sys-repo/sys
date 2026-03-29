@@ -22,7 +22,7 @@ describe('DenoDeploy.Fmt', () => {
 
   it('renders the staged deploy entrypoint summary', () => {
     const text = stripAnsi(
-      FmtInternal.stagedEntrypoint({
+      FmtInternal.Staged.entrypoint({
         sourceDir: '/repo/code/projects/foo',
         stagedDir: '/tmp/stage',
         entrypoint: '/tmp/stage/entry.ts',
@@ -46,18 +46,22 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('renders deploy result urls', () => {
-    const rendered = DenoDeploy.Fmt.Deploy.result({
-      ok: true,
-      code: 0,
-      stdout: '',
-      stderr: '',
-      deploy: {
-        url: {
-          revision: 'https://console.deno.com/org/app/builds/abc',
-          preview: 'https://app-abc.deno.net',
+    const rendered = DenoDeploy.Fmt.Deploy.result(
+      {
+        ok: true,
+        code: 0,
+        stdout: '',
+        stderr: '',
+        deploy: {
+          url: {
+            revision: 'https://console.deno.com/org/app/builds/abc',
+            preview: 'https://app-abc.deno.net',
+          },
         },
       },
-    }, 'Deploy Result', 1500).join('\n');
+      'Deploy Result',
+      1500,
+    ).join('\n');
     const text = stripAnsi(rendered);
 
     expect(text).to.include('https://console.deno.com/org/app/builds/abc');
@@ -68,7 +72,8 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('highlights the shared deploy id across revision and preview urls', () => {
-    const rendered = DenoDeploy.Fmt.Deploy.result({
+    const rendered = DenoDeploy.Fmt.Deploy.result(
+      {
         ok: true,
         code: 0,
         stdout: '',
@@ -78,8 +83,11 @@ describe('DenoDeploy.Fmt', () => {
             revision: 'https://console.deno.com/sys-org/driver-sample/builds/5s47nb0fx96c',
             preview: 'https://driver-sample-5s47nb0fx96c.sys-org.deno.net',
           },
+        },
       },
-    }, 'Deploy Result', 1500).join('\n');
+      'Deploy Result',
+      1500,
+    ).join('\n');
 
     expect(stripAnsi(rendered).match(/5s47nb0fx96c/g)?.length).to.eql(2);
     expect(rendered).to.include('5s47nb0fx96c');

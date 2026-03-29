@@ -66,7 +66,7 @@ export async function prepareStageForCreate(args: {
     },
     {
       onRoot({ root }) {
-        print(InfoFmt.deployConfig({
+        print(InfoFmt.Deploy.config({
           app: args.app,
           ...(args.org ? { org: args.org } : {}),
           ...(args.token ? { token: args.token } : {}),
@@ -83,11 +83,11 @@ export async function prepareStageForCreate(args: {
       },
       onBuildFailed(ctx) {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'build', error: ctx.error }));
+        print(InfoFmt.Deploy.failure({ phase: 'build', error: ctx.error }));
       },
       onStageFailed(ctx) {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'stage', error: ctx.error }));
+        print(InfoFmt.Deploy.failure({ phase: 'stage', error: ctx.error }));
       },
     },
   );
@@ -97,12 +97,12 @@ export async function prepareStageForCreate(args: {
     prepared = await prepare(stage);
   } catch (error) {
     spin?.stop();
-    print(InfoFmt.pipelineFailure({ phase: 'prepare', error }));
+    print(InfoFmt.Deploy.failure({ phase: 'prepare', error }));
     throw error;
   }
   spin?.stop();
   await sanitizePreparedRootForCreate(prepared.stagedDir);
-  print(InfoFmt.stagedEntrypoint(prepared));
+  print(InfoFmt.Staged.entrypoint(prepared));
   return prepared;
 }
 

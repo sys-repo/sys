@@ -40,7 +40,7 @@ export const ListenFmt = {
     deployment.$.pipe(Rx.takeUntil(life.dispose$)).subscribe((step) => {
       if (step.kind === 'stage:start') {
         startedAt = Time.now.timestamp as t.Msecs;
-        print(InfoFmt.deployConfig({
+        print(InfoFmt.Deploy.config({
           ...deployment.request.config,
           sourceDir: step.pkgDir,
           stagedDir: step.root,
@@ -94,7 +94,7 @@ export const ListenFmt = {
       if (step.kind === 'prepare:done') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.stagedEntrypoint(step.prepared));
+        print(InfoFmt.Staged.entrypoint(step.prepared));
         deployStartedAt = Time.now.timestamp as t.Msecs;
         wrangle.timedStatus({
           interactive,
@@ -131,21 +131,21 @@ export const ListenFmt = {
       if (step.kind === 'build:failed') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'build', error: step.error, at: wrangle.failedAt() }));
+        print(InfoFmt.Deploy.failure({ phase: 'build', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
       if (step.kind === 'stage:materialize:failed') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'stage', error: step.error, at: wrangle.failedAt() }));
+        print(InfoFmt.Deploy.failure({ phase: 'stage', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
       if (step.kind === 'prepare:failed') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'prepare', error: step.error, at: wrangle.failedAt() }));
+        print(InfoFmt.Deploy.failure({ phase: 'prepare', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
@@ -154,7 +154,7 @@ export const ListenFmt = {
         result = step.result;
         if (!verifying) {
           spin?.stop();
-          print(InfoFmt.deployResult(step.result, 'Deploy Result', wrangle.elapsed(startedAt)));
+          print(InfoFmt.Deploy.result(step.result, 'Deploy Result', wrangle.elapsed(startedAt)));
         }
         return;
       }
@@ -162,7 +162,7 @@ export const ListenFmt = {
       if (step.kind === 'deploy:failed') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'deploy', error: step.error, at: wrangle.failedAt() }));
+        print(InfoFmt.Deploy.failure({ phase: 'deploy', error: step.error, at: wrangle.failedAt() }));
         return;
       }
 
@@ -170,14 +170,14 @@ export const ListenFmt = {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
         if (result)
-          print(InfoFmt.deployResult(result, 'Deploy Result', wrangle.elapsed(startedAt)));
+          print(InfoFmt.Deploy.result(result, 'Deploy Result', wrangle.elapsed(startedAt)));
         return;
       }
 
       if (step.kind === 'verify:failed') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'verify', error: step.error, at: wrangle.failedAt() }));
+        print(InfoFmt.Deploy.failure({ phase: 'verify', error: step.error, at: wrangle.failedAt() }));
       }
     });
 

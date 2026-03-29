@@ -68,6 +68,7 @@ export declare namespace DenoDeploy {
   export namespace Fmt {
     export type ListenCtx = f.ListenCtx;
     export type ListenHooks = f.ListenHooks;
+    export type SpinnerLib = f.SpinnerLib;
     export type DeployConfigArgs = f.DeployConfigArgs;
     export type DeployResult = f.DeployResult;
     export type DeployFailureArgs = f.DeployFailureArgs;
