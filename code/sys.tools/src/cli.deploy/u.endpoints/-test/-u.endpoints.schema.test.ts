@@ -64,6 +64,73 @@ describe('Schema: endpoint', () => {
     expect(res.errors).to.eql([]);
   });
 
+  it('validate: accepts provider.deno', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'deno',
+        app: 'my-app',
+        org: 'my-org',
+        tokenEnv: 'DENO_DEPLOY_TOKEN',
+        verifyPreview: true,
+      },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
+  it('validate: accepts provider.deno with the existing index mapping shape', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'deno',
+        app: 'my-app',
+      },
+      mappings: [
+        {
+          mode: 'index',
+          dir: {
+            source: './pkg',
+            staging: '.',
+          },
+        },
+      ],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
+  it('validate: rejects provider.deno unknown keys', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'deno',
+        app: 'my-app',
+        extra: true,
+      },
+    });
+
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
+  });
+
+  it('validate: rejects provider.deno carrying orbiter-only fields', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'deno',
+        app: 'my-app',
+        siteId: 'orbiter-site',
+      },
+    });
+
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
+  });
+
   it('validate: rejects provider.orbiter unknown keys', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: './staging' },

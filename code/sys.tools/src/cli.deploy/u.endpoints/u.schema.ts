@@ -1,5 +1,5 @@
 import { type t, Schema } from '../common.ts';
-import { NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
+import { DenoProvider, NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
 
 /**
  * Endpoint YAML schema (authoritative config).
@@ -29,7 +29,11 @@ export const EndpointYamlSchema = {
   schema: Schema.Type.Object(
     {
       provider: Schema.Type.Optional(
-        Schema.Type.Union([OrbiterProvider.Schema.schema, NoopProvider.Schema.schema]),
+        Schema.Type.Union([
+          OrbiterProvider.Schema.schema,
+          DenoProvider.Schema.schema,
+          NoopProvider.Schema.schema,
+        ]),
       ),
       source: Schema.Type.Optional(
         Schema.Type.Object(

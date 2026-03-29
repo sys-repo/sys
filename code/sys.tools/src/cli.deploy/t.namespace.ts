@@ -115,15 +115,19 @@ export namespace DeployTool {
      * strictly at runtime. Unknown providers should fail validation once the
      * provider surface is tightened.
      *
-     * At present, only the `orbiter` provider is defined.
+     * Current providers:
+     * - `orbiter`
+     * - `deno`
+     * - `noop`
      */
     export namespace Provider {
       /**
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter | t.NoopProvider; // ...S3, etc.
+      export type All = Orbiter | Deno | t.NoopProvider; // ...S3, etc.
       export type Orbiter = t.OrbiterProvider; // IPFS
+      export type Deno = t.DenoProvider;
       export type Noop = t.NoopProvider;
     }
   }
