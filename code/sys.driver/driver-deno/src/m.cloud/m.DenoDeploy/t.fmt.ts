@@ -1,6 +1,7 @@
 import type { CliSpinner } from '@sys/cli/types';
 
 import type { t } from './common.ts';
+import type * as d from './t.deploy.ts';
 import type * as p from './t.pipeline.ts';
 
 /**
@@ -19,6 +20,38 @@ export type ListenHooks = {
   readonly afterConfig?: (ctx: ListenCtx) => readonly string[] | void;
 };
 
+/** Arguments rendered by the public deploy-config formatter. */
+export type DeployConfigArgs = {
+  readonly app: string;
+  readonly org?: string;
+  readonly token?: string;
+  readonly sourceDir?: string;
+  readonly stagedDir?: string;
+  readonly title?: string;
+};
+
+/** Successful deploy result rendered by the public deploy-result formatter. */
+export type DeployResult = Extract<d.Result, { readonly ok: true }>;
+
+/** Arguments rendered by the public deploy-failure formatter. */
+export type DeployFailureArgs = {
+  readonly phase: string;
+  readonly error: unknown;
+  readonly at?: string;
+};
+
+/** Public deploy-formatting helpers reused by decomposed callers. */
+export type DeployLib = {
+  /** Render a canonical Deno Deploy configuration summary. */
+  config(args: DeployConfigArgs): readonly string[];
+
+  /** Render a canonical successful Deno Deploy result block. */
+  result(result: DeployResult, title?: string, elapsed?: t.Msecs): readonly string[];
+
+  /** Render a canonical decomposed deploy failure block. */
+  failure(args: DeployFailureArgs): readonly string[];
+};
+
 /**
  * Formatter surface for operator-facing deploy output.
  */
@@ -28,6 +61,9 @@ export type Lib = {
 
   /** Create a styled spinner for staged deploy progress. */
   spinner(text: string): CliSpinner.Instance;
+
+  /** Decomposed deploy-formatting helpers for external callers. */
+  readonly Deploy: DeployLib;
 
   /** Listen to a pipeline handle and render operator-facing progress/output. */
   listen(deployment: p.Handle, hooks?: ListenHooks): t.Lifecycle;

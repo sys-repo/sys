@@ -5,6 +5,11 @@ import { ListenFmt } from './u.listen.ts';
 export const Fmt: t.DenoDeploy.Fmt.Lib = {
   spinnerText: ListenFmt.spinnerText,
   spinner: ListenFmt.spinner,
+  Deploy: {
+    config: InfoFmt.deployConfig,
+    result: InfoFmt.deployResult,
+    failure: InfoFmt.deployFailure,
+  },
   listen: ListenFmt.listen,
 };
 
@@ -15,5 +20,5 @@ export const FmtInternal = {
   deployConfig: InfoFmt.deployConfig,
   stagedEntrypoint: InfoFmt.stagedEntrypoint,
   deployResult: InfoFmt.deployResult,
-  pipelineFailure: InfoFmt.pipelineFailure,
+  pipelineFailure: InfoFmt.deployFailure,
 } as const;

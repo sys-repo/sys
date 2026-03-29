@@ -1,10 +1,11 @@
 import { c, describe, expect, it, stripAnsi } from '../../../-test.ts';
+import { DenoDeploy } from '../mod.ts';
 import { FmtInternal } from '../m.fmt/mod.ts';
 
 describe('DenoDeploy.Fmt', () => {
   it('renders deploy config with a redacted token', () => {
     const text = stripAnsi(
-      FmtInternal.deployConfig({
+      DenoDeploy.Fmt.Deploy.config({
         app: 'sample',
         org: 'sys-org',
         token: 'ddotest12345',
@@ -45,7 +46,7 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('renders deploy result urls', () => {
-    const rendered = FmtInternal.deployResult({
+    const rendered = DenoDeploy.Fmt.Deploy.result({
       ok: true,
       code: 0,
       stdout: '',
@@ -67,7 +68,7 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('highlights the shared deploy id across revision and preview urls', () => {
-    const rendered = FmtInternal.deployResult({
+    const rendered = DenoDeploy.Fmt.Deploy.result({
         ok: true,
         code: 0,
         stdout: '',
@@ -86,7 +87,7 @@ describe('DenoDeploy.Fmt', () => {
 
   it('renders a compact pipeline failure block', () => {
     const text = stripAnsi(
-      FmtInternal.pipelineFailure({
+      DenoDeploy.Fmt.Deploy.failure({
         phase: 'prepare',
         at: '2026-03-28T12:34:56.000Z',
         error: new Error('broken deploy root'),
@@ -101,7 +102,7 @@ describe('DenoDeploy.Fmt', () => {
 
   it('extracts deploy diagnostics from wrangle failure output', () => {
     const text = stripAnsi(
-      FmtInternal.pipelineFailure({
+      DenoDeploy.Fmt.Deploy.failure({
         phase: 'deploy',
         error: new Error(`
 DenoDeploy.pipeline: deploy failed (code 1).

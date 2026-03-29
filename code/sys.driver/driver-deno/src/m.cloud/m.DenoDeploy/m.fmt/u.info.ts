@@ -3,8 +3,6 @@ import { DeployConfig } from '../u.deployConfig.ts';
 import { formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
-type DeployResult = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }>;
-
 type BlockedArgs = {
   readonly title: string;
   readonly what: string;
@@ -32,15 +30,6 @@ type InfoArgs = {
     readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red' | 'yellow';
   }[];
   readonly tone?: 'warning' | 'success';
-};
-
-type DeployConfigArgs = {
-  readonly app: string;
-  readonly org?: string;
-  readonly token?: string;
-  readonly sourceDir?: string;
-  readonly stagedDir?: string;
-  readonly title?: string;
 };
 
 export const InfoFmt = {
@@ -116,7 +105,7 @@ export const InfoFmt = {
     ] as const;
   },
 
-  deployConfig(args: DeployConfigArgs) {
+  deployConfig(args: t.DenoDeploy.Fmt.DeployConfigArgs) {
     const config = DeployConfig.normalize(args);
     return InfoFmt.info({
       title: args.title ?? 'Deploy Config',
@@ -153,7 +142,7 @@ export const InfoFmt = {
     });
   },
 
-  deployResult(result: DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
+  deployResult(result: t.DenoDeploy.Fmt.DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
     const code = result.code === 0
       ? c.dim(c.gray(`code:${result.code}`))
       : `${c.gray('code:')}${c.red(String(result.code))}`;
@@ -182,11 +171,7 @@ export const InfoFmt = {
     });
   },
 
-  pipelineFailure(args: {
-    readonly phase: string;
-    readonly error: unknown;
-    readonly at?: string;
-  }) {
+  deployFailure(args: t.DenoDeploy.Fmt.DeployFailureArgs) {
     const details = wrangle.failureDetails(args.error);
     return InfoFmt.info({
       title: 'Deploy Failed',
@@ -201,6 +186,10 @@ export const InfoFmt = {
         ...(details.stderr ? [{ label: 'stderr', value: details.stderr, color: 'gray' as const }] : []),
       ],
     });
+  },
+
+  pipelineFailure(args: t.DenoDeploy.Fmt.DeployFailureArgs) {
+    return InfoFmt.deployFailure(args);
   },
 } as const;
 
