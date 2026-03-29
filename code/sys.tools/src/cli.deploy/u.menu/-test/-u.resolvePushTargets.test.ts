@@ -19,6 +19,29 @@ describe('Deploy: resolvePushTargets', () => {
     });
   });
 
+  it('returns one deno target when the staged root exists', async () => {
+    await withTmpDir(async (tmp) => {
+      const stageRoot = `${tmp}-stage`;
+      await Fs.ensureDir(stageRoot);
+
+      const plan = await resolvePushTargets({
+        cwd: tmp as t.StringDir,
+        yaml: {
+          provider: { kind: 'deno', app: 'my-app' },
+          source: { dir: '.' },
+          staging: { dir: stageRoot },
+          mappings: [{ mode: 'index', dir: { source: './pkg', staging: '.' } }],
+        },
+      });
+
+      expect(plan.targets.length).to.eql(1);
+      expect(plan.stats.total).to.eql(1);
+      expect(plan.targets[0]?.provider.kind).to.eql('deno');
+      expect(plan.targets[0]?.sourceDir).to.eql(`${tmp}/pkg`);
+      expect(plan.targets[0]?.stagingDir).to.eql(stageRoot);
+    });
+  });
+
   it('returns the total target count for orbiter targets', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);

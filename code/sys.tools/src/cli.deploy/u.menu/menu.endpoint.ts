@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time, Url } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { DenoProvider } from '../u.providers/mod.ts';
 import { startServing } from '../../cli.serve/m.server/mod.ts';
 
 import { ValidName } from './is.ts';
@@ -277,6 +278,13 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
       const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
       if (!freshYaml) return false;
+
+      if (freshYaml.provider?.kind === 'deno') {
+        const res = await DenoProvider.stage({ cwd, yaml: freshYaml });
+        ranOk = res.ok;
+        return res.ok;
+      }
+
       const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
       if (!resolved.ok) return false;
 
