@@ -25,7 +25,7 @@ export declare namespace DenoDeploy {
     stage(request: Stage.Request): Promise<Stage.Result>;
 
     /** Prepare a staged artifact for native Deno Deploy execution. */
-    prepare(stage: Stage.Result): Promise<Pipeline.Prepared>;
+    prepare(stage: Stage.PrepareInput): Promise<Pipeline.Prepared>;
 
     /** Deploy a previously staged artifact to Deno Deploy. */
     deploy(request: Deploy.Request): Promise<Deploy.Result>;
@@ -51,6 +51,8 @@ export declare namespace DenoDeploy {
     export type Root = s.Root;
     export type Request = s.Request;
     export type Result = s.Result;
+    export type PrepareInput = s.PrepareInput;
+    export type DeployInput = s.DeployInput;
   }
 
   /** Deploy execution contracts. */

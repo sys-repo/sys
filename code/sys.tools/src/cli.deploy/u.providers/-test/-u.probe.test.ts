@@ -17,15 +17,11 @@ describe('Provider: probe', () => {
     }
   });
 
-  it('recognizes deno as a known pending provider', async () => {
+  it('treats deno as available once runtime wiring exists', async () => {
     const cwd = (await Fs.makeTempDir()).absolute;
     const res = await Provider.probe(cwd, { kind: 'deno', app: 'my-app' });
 
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.reason).to.eql('unsupported-provider');
-      expect(res.hint).to.eql('Deno provider recognized, but deploy runtime wiring has not landed yet.');
-    }
+    expect(res.ok).to.eql(true);
   });
 
   it('treats noop as available', async () => {

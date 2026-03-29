@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
+import { DenoProvider, OrbiterProvider, Provider } from '../u.providers/mod.ts';
 
 /**
  * Execute a push for the given provider.
@@ -26,10 +26,12 @@ export async function pushProvider(args: {
 
   switch (provider.kind) {
     case 'orbiter': {
-      if (!target) {
-        return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
-      }
+      if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
       return await OrbiterProvider.push({ cwd, target: target as t.OrbiterPushTarget });
+    }
+    case 'deno': {
+      if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
+      return await DenoProvider.push({ cwd, target: target as t.DenoPushTarget });
     }
     case 'noop': {
       return { ok: true };

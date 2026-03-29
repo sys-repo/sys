@@ -8,7 +8,7 @@ const ENTRY_CONFIG = {
 } as const;
 
 export async function prepare(
-  stage: t.DenoDeploy.Stage.Result,
+  stage: t.DenoDeploy.Stage.PrepareInput,
 ): Promise<t.DenoDeploy.Pipeline.Prepared> {
   const stagedTargetRel = Path.relative(stage.workspace.dir, stage.target.dir);
   const rendered = renderStageEntrypoints(`./${stagedTargetRel}`);

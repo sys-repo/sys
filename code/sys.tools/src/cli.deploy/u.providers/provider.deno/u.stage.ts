@@ -1,6 +1,4 @@
-import { DenoDeploy } from '@sys/driver-deno/cloud';
-
-import { type t, c, Cli, Err, Fs, Path, Str } from '../../common.ts';
+import { DenoDeploy, type t, c, Cli, Err, Fs, Path, Str } from './common.ts';
 import { Fmt } from '../../u.fmt.ts';
 import { resolveTarget } from './u.resolveTarget.ts';
 import { Sidecar } from './u.sidecar.ts';
