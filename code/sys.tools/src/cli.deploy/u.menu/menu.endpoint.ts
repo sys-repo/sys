@@ -12,6 +12,7 @@ import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
+import { resolveOrbiterPushTargets } from './u/u.resolveOrbiterPushTargets.ts';
 import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
 import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 
@@ -181,7 +182,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       let bytesTotal = 0;
       let skipped = 0;
       for (const target of targets) {
-        const domainRaw = String(target.domain ?? target.provider.domain ?? '').trim();
+        const providerDomain =
+          target.provider.kind === 'orbiter' ? String(target.provider.domain ?? '').trim() : '';
+        const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
         const domain = toHttpsUrl(domainRaw);
         if (domain && target.stagingDir) {
           const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
@@ -223,34 +226,40 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushedOk = true;
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
         pushBytes = bytesTotal || undefined;
-        const stats = plan.stats;
-        const skippedTotal = (skipped ?? 0) + (stats.skippedShards ?? 0);
-        const isCleanPush = stats.total > 0 && skippedTotal === 0;
-        const table = Cli.table();
+        const orbiterPlan =
+          freshProvider.kind === 'orbiter'
+            ? await resolveOrbiterPushTargets({ cwd, yaml: freshYaml })
+            : undefined;
+        const totalCount = orbiterPlan?.stats.total ?? plan.stats.total;
+        const skippedTotal = (skipped ?? 0) + (orbiterPlan?.stats.skippedShards ?? 0);
         const totalTargets =
-          stats.total > 0
-            ? isCleanPush
-              ? c.green(String(stats.total))
-              : c.yellow(String(stats.total))
-            : stats.total;
+          totalCount > 0
+            ? skippedTotal === 0
+              ? c.green(String(totalCount))
+              : c.yellow(String(totalCount))
+            : totalCount;
+        const table = Cli.table();
         table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
-        table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
-        table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
-        if (stats.base) {
-          table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
-        }
         if (skipped)
           table.push([
             c.yellow('  skipped'),
             c.yellow(String(skipped)),
             c.italic(c.gray('up-to-date')),
           ]);
-        if (stats.skippedShards) {
-          table.push([
-            c.yellow('  skipped'),
-            c.yellow(String(stats.skippedShards)),
-            c.italic(c.gray('missing shard output')),
-          ]);
+        if (orbiterPlan) {
+          const stats = orbiterPlan.stats;
+          table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
+          table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
+          if (stats.base) {
+            table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
+          }
+          if (stats.skippedShards) {
+            table.push([
+              c.yellow('  skipped'),
+              c.yellow(String(stats.skippedShards)),
+              c.italic(c.gray('missing shard output')),
+            ]);
+          }
         }
         const reportHash = `#${hashSuffix ?? '00000'}`;
         const reportSuffix = c.gray(c.dim(`for ${reportHash}`));

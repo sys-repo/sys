@@ -42,7 +42,11 @@ export type NoopPushTarget = {
 
 export type PushTarget = OrbiterPushTarget | NoopPushTarget;
 
-export type PushTargetStats = {
+export type PushPlanStats = {
+  readonly total: number;
+};
+
+export type OrbiterPushTargetStats = {
   readonly total: number;
   readonly shard: number;
   readonly root: number;
@@ -52,12 +56,12 @@ export type PushTargetStats = {
 
 export type PushTargetPlan = {
   readonly targets: readonly PushTarget[];
-  readonly stats: PushTargetStats;
+  readonly stats: PushPlanStats;
 };
 
 export type OrbiterPushTargetPlan = {
   readonly targets: readonly OrbiterPushTarget[];
-  readonly stats: PushTargetStats;
+  readonly stats: OrbiterPushTargetStats;
 };
 
 /**
