@@ -58,6 +58,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       cwd,
       yamlPath: yamlRel,
       checkOk: check.ok,
+      probe: false,
     });
 
     const provider = yaml?.provider;

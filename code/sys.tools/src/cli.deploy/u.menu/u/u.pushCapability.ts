@@ -40,8 +40,10 @@ export async function pushCapabilityOf(args: {
   cwd: t.StringDir;
   yamlPath: t.StringRelativeDir;
   checkOk: boolean; // YAML schema validation result from EndpointsFs.validateYaml(abs).
+  probe?: boolean;
 }): Promise<PushCapability> {
   const { cwd, yamlPath, checkOk } = args;
+  const shouldProbe = args.probe ?? true;
 
   if (!checkOk) {
     return { show: false, reason: 'yaml-invalid', hint: 'Fix YAML errors to enable push.' };
@@ -101,17 +103,19 @@ export async function pushCapabilityOf(args: {
   }
 
   // Provider preflight (runtime).
-  const preflight = await Provider.probe(cwd, provider);
-  if (!preflight.ok) {
-    return {
-      show: true,
-      enabled: false,
-      provider,
-      targets,
-      reason: 'probe-failed',
-      hint: preflight.hint,
-      error: preflight.error,
-    };
+  if (shouldProbe) {
+    const preflight = await Provider.probe(cwd, provider);
+    if (!preflight.ok) {
+      return {
+        show: true,
+        enabled: false,
+        provider,
+        targets,
+        reason: 'probe-failed',
+        hint: preflight.hint,
+        error: preflight.error,
+      };
+    }
   }
 
   return {
