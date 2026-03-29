@@ -12,19 +12,24 @@ describe('EndpointsFs', () => {
   });
 
   it('initialYaml: contains mappings: []', () => {
-    const yaml = EndpointsFs.initialYaml('alpha');
+    const yaml = EndpointsFs.initialYaml();
     expect(yaml.includes('mappings: []')).to.eql(true);
+    expect(yaml.includes('# deploy endpoint: alpha')).to.eql(false);
+    expect(yaml.includes('siteId: SITE_ID_HERE')).to.eql(true);
+    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(true);
+    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(true);
+    expect(yaml.includes('source: ./my-public')).to.eql(true);
   });
 
   it('ensureInitialYaml: creates file if missing (and parent dir)', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('alpha')}`;
 
-      await EndpointsFs.ensureInitialYaml(path, 'alpha');
+      await EndpointsFs.ensureInitialYaml(path);
 
       const text = (await Fs.readText(path)).data!;
-      expect(text.includes('# deploy endpoint: alpha')).to.eql(true);
       expect(text.includes('mappings: []')).to.eql(true);
+      expect(text.includes('siteId: SITE_ID_HERE')).to.eql(true);
     });
   });
 
@@ -36,7 +41,7 @@ describe('EndpointsFs', () => {
       const original = '# custom\nmappings: []\n';
       await Fs.write(path, original);
 
-      await EndpointsFs.ensureInitialYaml(path, 'alpha');
+      await EndpointsFs.ensureInitialYaml(path);
 
       const text = (await Fs.readText(path)).data;
       expect(text).to.eql(original);

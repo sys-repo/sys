@@ -42,7 +42,7 @@ export async function endpointsMenu(cwd: t.StringDir): Promise<Result> {
         if (!ValidName.test(value)) return ValidName.hint;
         return true;
       },
-      initYaml: ({ name }) => EndpointsFs.initialYaml(name),
+      initYaml: () => EndpointsFs.initialYaml(),
     },
   });
 

@@ -46,7 +46,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
     if (!(await Fs.exists(yamlAbs))) {
       await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
-      await EndpointsFs.ensureInitialYaml(yamlAbs, key);
+      await EndpointsFs.ensureInitialYaml(yamlAbs);
     }
 
     const check = await EndpointsFs.validateYaml(yamlAbs);
