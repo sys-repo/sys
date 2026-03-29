@@ -3,6 +3,7 @@ import { DenoDeploy } from '@sys/driver-deno/cloud';
 import { type t, c, Cli, Err, Fs, Path, Str } from '../../common.ts';
 import { Fmt } from '../../u.fmt.ts';
 import { resolveTarget } from './u.resolveTarget.ts';
+import { Sidecar } from './u.sidecar.ts';
 
 type RunStageResult =
   | { readonly ok: true; readonly stagingRoot: t.StringDir }
@@ -30,6 +31,7 @@ export async function stage(args: {
       target: { dir: res.targetDir },
       root: { kind: 'path', dir: res.stagingRootAbs },
     });
+    await Sidecar.write(staged.root, Sidecar.fromStage(staged, res));
 
     spin.succeed(Fmt.spinnerText(`${c.green('deno staging complete')} → ${c.white(staged.root)}`));
     return { ok: true, stagingRoot: staged.root };
