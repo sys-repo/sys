@@ -39,6 +39,14 @@ export async function probe(
       return done({ ok: false, reason: res.reason, hint: res.hint, error: res.error });
     }
 
+    case 'deno': {
+      return done({
+        ok: false,
+        reason: 'unsupported-provider',
+        hint: 'Deno provider recognized, but deploy runtime wiring has not landed yet.',
+      });
+    }
+
     case 'noop': {
       // No-op provider is always "available"
       return done({ ok: true });
