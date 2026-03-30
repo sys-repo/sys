@@ -55,9 +55,9 @@ export const EndpointsFs = {
     const bases = resolveBases(cwd, checked.doc);
 
     const errors: t.Yaml.Error[] = [];
-    const mappings = checked.doc.mappings ?? [];
     const providerShards =
       checked.doc.provider?.kind === 'orbiter' ? checked.doc.provider?.shards : undefined;
+    const mappings = mappingChecksOf(checked.doc);
 
     {
       const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
@@ -87,14 +87,13 @@ export const EndpointsFs = {
 
     validateProviderShards(providerShards, errors);
 
-    for (let i = 0; i < mappings.length; i++) {
-      const m = mappings[i];
-      const sourceRaw = String(m?.dir?.source ?? '').trim();
+    for (const entry of mappings) {
+      const sourceRaw = String(entry.mapping?.dir?.source ?? '').trim();
 
       if (!sourceRaw) {
         errors.push(
           Yaml.Error.synthetic({
-            message: `mappings[${i}].dir.source is required.`,
+            message: `${entry.label}.dir.source is required.`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
@@ -102,8 +101,8 @@ export const EndpointsFs = {
         continue;
       }
 
-      const stagingRaw = String(m?.dir?.staging ?? '').trim();
-      const shards = resolveShardConfig(m, providerShards);
+      const stagingRaw = String(entry.mapping?.dir?.staging ?? '').trim();
+      const shards = resolveShardConfig(entry.mapping, providerShards);
       const expanded = expandShardTemplatePaths({
         source: sourceRaw,
         staging: stagingRaw,
@@ -118,8 +117,8 @@ export const EndpointsFs = {
       });
 
       let found = 0;
-      for (const item of expanded) {
-        const sourceAbs = resolvePath(bases.sourceBaseAbs, item.source);
+      for (const expandedPath of expanded) {
+        const sourceAbs = resolvePath(bases.sourceBaseAbs, expandedPath.source);
         if (await Fs.exists(sourceAbs)) {
           found += 1;
           continue;
@@ -128,7 +127,7 @@ export const EndpointsFs = {
         if (requireAll) {
           errors.push(
             Yaml.Error.synthetic({
-              message: `mappings[${i}].dir.source does not exist: ${item.source}\nresolved: ${sourceAbs}`,
+              message: `${entry.label}.dir.source does not exist: ${expandedPath.source}\nresolved: ${sourceAbs}`,
               code: EndpointYamlErrorCode,
               pos: [0, 0],
             }),
@@ -141,7 +140,7 @@ export const EndpointsFs = {
         const sourceAbs = resolvePath(bases.sourceBaseAbs, expanded[0]!.source);
         errors.push(
           Yaml.Error.synthetic({
-            message: `mappings[${i}].dir.source does not exist: ${expanded[0]!.source}\nresolved: ${sourceAbs}`,
+            message: `${entry.label}.dir.source does not exist: ${expanded[0]!.source}\nresolved: ${sourceAbs}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
@@ -154,7 +153,7 @@ export const EndpointsFs = {
         if (Path.Is.absolute(stagingExpanded)) {
           errors.push(
             Yaml.Error.synthetic({
-              message: `mappings[${i}].dir.staging must be relative (or '.'): ${stagingRaw}`,
+              message: `${entry.label}.dir.staging must be relative (or '.'): ${stagingRaw}`,
               code: EndpointYamlErrorCode,
               pos: [0, 0],
             }),
@@ -164,7 +163,7 @@ export const EndpointsFs = {
         if (stagingExpanded.includes('..')) {
           errors.push(
             Yaml.Error.synthetic({
-              message: `mappings[${i}].dir.staging must not contain '..': ${stagingRaw}`,
+              message: `${entry.label}.dir.staging must not contain '..': ${stagingRaw}`,
               code: EndpointYamlErrorCode,
               pos: [0, 0],
             }),
@@ -181,11 +180,27 @@ export const EndpointsFs = {
   },
 } as const;
 
+function mappingChecksOf(
+  doc: t.DeployTool.Config.EndpointYaml.Doc,
+): readonly {
+  readonly label: string;
+  readonly mapping: t.DeployTool.Config.EndpointYaml.Mapping | t.DeployTool.Config.EndpointYaml.DenoMapping;
+}[] {
+  if (doc.provider?.kind === 'deno') {
+    return doc.mapping ? [{ label: 'mapping', mapping: doc.mapping }] : [];
+  }
+
+  return (doc.mappings ?? []).map((mapping, index) => ({
+    label: `mappings[${index}]`,
+    mapping,
+  }));
+}
+
 function resolveShardConfig(
-  mapping: t.DeployTool.Config.EndpointYaml.Mapping,
+  mapping: t.DeployTool.Config.EndpointYaml.Mapping | t.DeployTool.Config.EndpointYaml.DenoMapping,
   providerShards: t.OrbiterProvider['shards'] | undefined,
 ): { readonly total?: number; readonly requireAll?: boolean } {
-  if (Is.num(mapping.shards?.total)) {
+  if ('shards' in mapping && Is.num(mapping.shards?.total)) {
     return { total: mapping.shards?.total, requireAll: mapping.shards?.requireAll };
   }
   return { total: providerShards?.total, requireAll: undefined };

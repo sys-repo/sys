@@ -10,7 +10,7 @@ describe('Deploy: resolvePushTargets', () => {
         yaml: {
           provider: { kind: 'deno', app: 'my-app' },
           staging: { dir: './staging' },
-          mappings: [{ mode: 'index', dir: { source: './pkg', staging: '.' } }],
+          mapping: { dir: { source: './pkg', staging: '.' } },
         },
       });
 
@@ -30,7 +30,7 @@ describe('Deploy: resolvePushTargets', () => {
           provider: { kind: 'deno', app: 'my-app' },
           source: { dir: '.' },
           staging: { dir: stageRoot },
-          mappings: [{ mode: 'index', dir: { source: './pkg', staging: '.' } }],
+          mapping: { dir: { source: './pkg', staging: '.' } },
         },
       });
 

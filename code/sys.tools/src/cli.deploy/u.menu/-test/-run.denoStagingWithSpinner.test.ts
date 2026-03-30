@@ -16,7 +16,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
             provider: { kind: 'deno', app: 'my-app' },
             source: { dir: '.' },
             staging: { dir: stageRoot, clear: true },
-            mappings: [{ mode: 'index', dir: { source: './code/apps/foo', staging: '.' } }],
+            mapping: { dir: { source: './code/apps/foo', staging: '.' } },
           },
         });
 
@@ -42,7 +42,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
           provider: { kind: 'deno', app: 'my-app' },
           source: { dir: '.' },
           staging: { dir: './stage', clear: true },
-          mappings: [{ mode: 'index', dir: { source: './code/apps/foo', staging: '.' } }],
+          mapping: { dir: { source: './code/apps/foo', staging: '.' } },
         },
       });
 

@@ -68,6 +68,16 @@ export namespace DeployTool {
       };
 
       /**
+       * Singular Deno package-target selection.
+       *
+       * Deno stages one selected target into one staged root, so no mapping
+       * mode discriminator or array fan-in is needed.
+       */
+      export type DenoMapping = {
+        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+      };
+
+      /**
        * Endpoint staging root.
        * All mapping `dir.staging` paths are resolved relative to this directory.
        */
@@ -99,6 +109,9 @@ export namespace DeployTool {
 
         /** Directory mappings assembled into this endpoint. */
         mappings?: readonly Mapping[];
+
+        /** Singular Deno package-target mapping. */
+        mapping?: DenoMapping;
       };
     }
 

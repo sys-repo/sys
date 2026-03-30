@@ -74,29 +74,31 @@ describe('Schema: endpoint', () => {
         tokenEnv: 'DENO_DEPLOY_TOKEN',
         verifyPreview: true,
       },
-      mappings: [],
+      mapping: {
+        dir: {
+          source: './pkg',
+          staging: '.',
+        },
+      },
     });
 
     expect(res.ok).to.eql(true);
     expect(res.errors).to.eql([]);
   });
 
-  it('validate: accepts provider.deno with the existing index mapping shape', () => {
+  it('validate: accepts provider.deno with a singular mapping shape', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: './staging' },
       provider: {
         kind: 'deno',
         app: 'my-app',
       },
-      mappings: [
-        {
-          mode: 'index',
-          dir: {
-            source: './pkg',
-            staging: '.',
-          },
+      mapping: {
+        dir: {
+          source: './pkg',
+          staging: '.',
         },
-      ],
+      },
     });
 
     expect(res.ok).to.eql(true);
@@ -111,6 +113,25 @@ describe('Schema: endpoint', () => {
         app: 'my-app',
         extra: true,
       },
+    });
+
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
+  });
+
+  it('validate: rejects provider.deno carrying orbiter mappings', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      provider: {
+        kind: 'deno',
+        app: 'my-app',
+      },
+      mappings: [
+        {
+          mode: 'index',
+          dir: { source: './pkg', staging: '.' },
+        },
+      ],
     });
 
     expect(res.ok).to.eql(false);

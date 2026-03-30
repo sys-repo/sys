@@ -19,9 +19,6 @@ export type ResolveDenoTargetResult =
 
 /**
  * Resolve the selected Deno package target and caller-owned stage root from endpoint YAML.
- *
- * The current endpoint schema is Orbiter-shaped, so Deno uses the first `index` mapping
- * as the least-disruptive authored fit for “deploy this workspace target”.
  */
 export function resolveTarget(args: {
   cwd: t.StringDir;
@@ -36,12 +33,12 @@ export function resolveTarget(args: {
     };
   }
 
-  const mapping = (args.yaml.mappings ?? []).find((m) => m.mode === 'index');
+  const mapping = args.yaml.mapping;
   if (!mapping) {
     return {
       ok: false,
       reason: 'missing-mapping',
-      hint: 'Deno endpoints need an index mapping to select the package target.',
+      hint: 'Deno endpoints need a singular mapping to select the package target.',
     };
   }
 

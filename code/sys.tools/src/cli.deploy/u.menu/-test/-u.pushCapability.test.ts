@@ -19,11 +19,10 @@ describe('Deploy: pushCapabilityOf', () => {
           dir: .
         staging:
           dir: ${tmp}/stage
-        mappings:
-          - mode: index
-            dir:
-              source: ./pkg
-              staging: .
+        mapping:
+          dir:
+            source: ./pkg
+            staging: .
         `),
       );
 
