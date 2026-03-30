@@ -29,7 +29,7 @@ export const ImageView: React.FC<P> = (props) => {
   }, [props.src]);
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(Boolean(src));
     setError(false);
   }, [src]);
 
@@ -40,6 +40,7 @@ export const ImageView: React.FC<P> = (props) => {
   const styles = {
     base: css({
       color: theme.fg,
+      position: 'relative',
       display: 'grid',
       backgroundColor: Color.ruby(debug),
     }),
@@ -49,8 +50,9 @@ export const ImageView: React.FC<P> = (props) => {
       pointerEvents: 'none',
     }),
     display: {
-      base: css({ Absolute: props.padding, display: 'grid' }),
+      base: css({ Absolute: props.padding ?? 0, display: 'grid' }),
       img: css({
+        Absolute: 0,
         backgroundImage: src ? `url(${src})` : undefined,
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
