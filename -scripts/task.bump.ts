@@ -329,8 +329,8 @@ const wrangle = {
   ) {
     const path = c.gray(packagePath(candidate));
     const name = wrangle.pad(candidate.name, layout.name);
-    const current = wrangle.pad(Semver.Fmt.colorize(candidate.version.current, { highlight: release }), layout.version);
-    return `${c.cyan('•')} ${c.white(c.bold(name))}  ${current}  ${path}`;
+    const current = wrangle.pad(Semver.Fmt.colorize(candidate.version.current), layout.version);
+    return `${c.cyan('•')} ${c.white(name)}  ${current}  ${path}`;
   },
 
   resolveFrom(candidates: readonly Candidate[], input: string) {
