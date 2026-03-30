@@ -1,10 +1,10 @@
-import { D, Http, pkg, type t } from './common.ts';
+import { D, Http, HttpServer, pkg, type t } from './common.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
 export const HttpProxy: t.HttpProxy.Lib = {
   create(options = {}) {
     const resolver = HttpProxyResolver(options.config ?? {});
-    const app = Http.Server.create({ pkg, static: false, cors: false });
+    const app = HttpServer.create({ pkg, static: false, cors: false });
 
     app.all('*', async (c) => {
       const url = new URL(c.req.raw.url);
@@ -33,9 +33,9 @@ export const HttpProxy: t.HttpProxy.Lib = {
   async start(options = {}) {
     const port = options.port ?? D.port;
     const app = HttpProxy.create(options);
-    const serverOptions = Http.Server.options({ port, pkg });
+    const serverOptions = HttpServer.options({ port, pkg });
 
     Deno.serve(serverOptions, app.fetch);
-    await Http.Server.keyboard({ port, print: true });
+    await HttpServer.keyboard({ port, print: true });
   },
 };

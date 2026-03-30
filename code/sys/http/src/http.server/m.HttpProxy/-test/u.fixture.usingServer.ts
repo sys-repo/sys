@@ -1,4 +1,4 @@
-import { Http, Time, type t } from '../common.ts';
+import { HttpClient, Time, type t } from '../common.ts';
 
 export const DEFAULT_TIMEOUT = 10_000;
 
@@ -18,8 +18,8 @@ export async function usingServer(args: UsingServerArgs): Promise<void> {
   const { app, fn, timeout = DEFAULT_TIMEOUT, mkFetch } = args;
   const { signal, abort } = new AbortController();
   const listener = Deno.serve({ port: 0, signal }, app.fetch);
-  const url = Http.Client.url(listener.addr);
-  const fetch = (mkFetch ?? (() => Http.client()))();
+  const url = HttpClient.url(listener.addr);
+  const fetch = (mkFetch ?? (() => HttpClient.fetcher()))();
 
   try {
     await fn({ url, fetch });

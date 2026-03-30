@@ -1,4 +1,5 @@
-import { HttpProxy, type t } from './mod.ts';
+import { type t } from './mod.ts';
+import { HttpProxy } from '@sys/http/server';
 
 /**
  * Reverse proxy target scenarios.

@@ -1,7 +1,8 @@
-import { describe, expect, it, Http } from '../../-test.ts';
-import { HttpProxy } from '../mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Http } from '../../../mod.ts';
 import { HttpProxyResolver } from '../m.Resolver.ts';
-import { usingServer } from './ufixture.usingServer.ts';
+import { HttpProxy } from '../mod.ts';
+import { usingServer } from './u.fixture.usingServer.ts';
 
 describe('HttpProxyResolver', () => {
   it('root fallback → shared path algebra for deep upstream paths', () => {
