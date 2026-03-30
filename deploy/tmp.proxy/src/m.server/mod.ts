@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { ReverseProxy } from './m.ReverseProxy.ts';
+export { HttpProxy } from './m.HttpProxy.ts';

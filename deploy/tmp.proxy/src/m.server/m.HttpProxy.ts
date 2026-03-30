@@ -1,9 +1,9 @@
 import { D, Http, pkg, type t } from './common.ts';
-import { ReverseProxyResolver } from './m.Resolver.ts';
+import { HttpProxyResolver } from './m.Resolver.ts';
 
-export const ReverseProxy: t.ReverseProxy.Lib = {
+export const HttpProxy: t.HttpProxy.Lib = {
   create(options = {}) {
-    const resolver = ReverseProxyResolver(options.config ?? {});
+    const resolver = HttpProxyResolver(options.config ?? {});
     const app = Http.Server.create({ pkg, static: false, cors: false });
 
     app.all('*', async (c) => {
@@ -32,7 +32,7 @@ export const ReverseProxy: t.ReverseProxy.Lib = {
 
   async start(options = {}) {
     const port = options.port ?? D.port;
-    const app = ReverseProxy.create(options);
+    const app = HttpProxy.create(options);
     const serverOptions = Http.Server.options({ port, pkg });
 
     Deno.serve(serverOptions, app.fetch);

@@ -1,4 +1,4 @@
-import { ReverseProxy, type t } from './mod.ts';
+import { HttpProxy, type t } from './mod.ts';
 
 /**
  * Reverse proxy target scenarios.
@@ -10,7 +10,7 @@ import { ReverseProxy, type t } from './mod.ts';
  * - `http://localhost:4040/` → `https://tmp-socialleancanvas.orbiter.website/`
  * - `http://localhost:4040/about` → `https://tmp-socialleancanvas.orbiter.website/about`
  *
- * Bundle mount (single segment):
+ * Mount (single segment):
  * - `http://localhost:4040/slc` → `308` → `http://localhost:4040/slc/`
  * - `http://localhost:4040/slc?x=1` → `308` → `http://localhost:4040/slc/?x=1`
  * - `http://localhost:4040/slc/` → `https://slc.db.team/tdb.slc/`
@@ -18,7 +18,7 @@ import { ReverseProxy, type t } from './mod.ts';
  * - `http://localhost:4040/slc/images/ui.Programme/model.customer/customer-model.png`
  *      → `https://slc.db.team/tdb.slc/images/ui.Programme/model.customer/customer-model.png`
  *
- * Bundle mount (multi segment):
+ * Mount (multi segment):
  * - `http://localhost:4040/foo/bar/slc` → `308` → `http://localhost:4040/foo/bar/slc/`
  * - `http://localhost:4040/foo/bar/slc/` → `https://slc.db.team/tdb.slc/`
  * - `http://localhost:4040/foo/bar/slc/pkg/-entry.js` → `https://slc.db.team/tdb.slc/pkg/-entry.js`
@@ -31,7 +31,7 @@ import { ReverseProxy, type t } from './mod.ts';
  * - `https://socialleancanvas.com/foo/bar/slc/` → `https://slc.db.team/tdb.slc/`
  */
 
-const config: t.ReverseProxy.Config = {
+const config: t.HttpProxy.Config = {
   root: { upstream: 'https://tmp-socialleancanvas.orbiter.website/' },
   mounts: [
     {
@@ -45,4 +45,4 @@ const config: t.ReverseProxy.Config = {
   ],
 };
 
-await ReverseProxy.start({ config });
+await HttpProxy.start({ config });

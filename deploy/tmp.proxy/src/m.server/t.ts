@@ -4,14 +4,14 @@ import type { t } from './common.ts';
  * Reverse proxy server.
  *
  * Design notes:
- * - Local bundle mounts are modeled as path-prefix mounts, not `:ns/:bundle` params.
- * - A mounted bundle may live at the upstream domain root or at any deeper upstream path.
+ * - Local mounts are modeled as path-prefix mounts, not `:ns/:bundle` params.
+ * - A mounted upstream may live at the upstream domain root or at any deeper upstream path.
  * - Matching is expected to use longest-prefix wins semantics.
  * - Mount paths should be treated as slash-normalized prefixes (start and end with `/`).
  * - Upstream roots should be treated as slash-normalized base URLs (end with `/`).
  * - Upstream roots must not include query strings or hash fragments.
  */
-export declare namespace ReverseProxy {
+export declare namespace HttpProxy {
   /** Public reverse proxy API. */
   export type Lib = {
     /** Create the HTTP application without starting a listener. */
@@ -35,7 +35,7 @@ export declare namespace ReverseProxy {
   /**
    * Root fallback upstream.
    *
-   * Used when the incoming request does not match any configured bundle mount.
+   * Used when the incoming request does not match any configured mount.
    * This can point at a site root or any upstream path, for example:
    * - `https://example.com/`
    * - `https://example.com/foo/root/`
@@ -90,7 +90,7 @@ export declare namespace ReverseProxy {
 
   /** Declarative reverse proxy routing configuration. */
   export type Config = {
-    /** Fallback upstream used for requests that do not match a bundle mount. */
+    /** Fallback upstream used for requests that do not match a configured mount. */
     readonly root?: RootTarget;
 
     /** Mounted upstreams, expected to be matched via longest-prefix wins. */
@@ -130,7 +130,7 @@ export declare namespace ReverseProxy {
     readonly upstream: t.StringUrl;
   };
 
-  /** Mounted bundle resolver result. */
+  /** Mounted upstream resolver result. */
   export type ResolveMountResult = {
     readonly kind: 'mount';
 

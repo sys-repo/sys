@@ -1,11 +1,11 @@
 import { describe, expect, it, Http } from '../../-test.ts';
-import { ReverseProxy } from '../mod.ts';
-import { ReverseProxyResolver } from '../m.Resolver.ts';
+import { HttpProxy } from '../mod.ts';
+import { HttpProxyResolver } from '../m.Resolver.ts';
 import { usingServer } from './ufixture.usingServer.ts';
 
-describe('ReverseProxyResolver', () => {
+describe('HttpProxyResolver', () => {
   it('root fallback → shared path algebra for deep upstream paths', () => {
-    const resolve = ReverseProxyResolver({
+    const resolve = HttpProxyResolver({
       root: { upstream: 'https://example.com/site/' },
     });
 
@@ -20,8 +20,8 @@ describe('ReverseProxyResolver', () => {
     });
   });
 
-  it('mount → root and asset paths resolve under bundle upstream root', () => {
-    const resolve = ReverseProxyResolver({
+  it('mount → root and asset paths resolve under mounted upstream root', () => {
+    const resolve = HttpProxyResolver({
       mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
     });
 
@@ -37,7 +37,7 @@ describe('ReverseProxyResolver', () => {
   });
 
   it('mount matching → longest-prefix wins', () => {
-    const resolve = ReverseProxyResolver({
+    const resolve = HttpProxyResolver({
       mounts: [
         { mountPath: '/foo/', upstream: 'https://example.com/a/' },
         { mountPath: '/foo/bar/', upstream: 'https://example.com/b/' },
@@ -51,7 +51,7 @@ describe('ReverseProxyResolver', () => {
   });
 
   it('redirect → exact mount path without slash', () => {
-    const resolve = ReverseProxyResolver({
+    const resolve = HttpProxyResolver({
       mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
     });
 
@@ -64,7 +64,7 @@ describe('ReverseProxyResolver', () => {
   it('validation → rejects mountPath /', () => {
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           mounts: [{ mountPath: '/', upstream: 'https://example.com/bundle/' }],
         }),
       `mountPath '/' is invalid`,
@@ -74,7 +74,7 @@ describe('ReverseProxyResolver', () => {
   it('validation → rejects duplicate mountPath', () => {
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           mounts: [
             { mountPath: '/slc/', upstream: 'https://example.com/a/' },
             { mountPath: '/slc/', upstream: 'https://example.com/b/' },
@@ -87,7 +87,7 @@ describe('ReverseProxyResolver', () => {
   it('validation → rejects upstreams without trailing slash', () => {
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           root: { upstream: 'https://example.com/root' },
         }),
       `must end with '/'`,
@@ -95,7 +95,7 @@ describe('ReverseProxyResolver', () => {
 
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle' }],
         }),
       `must end with '/'`,
@@ -105,7 +105,7 @@ describe('ReverseProxyResolver', () => {
   it('validation → rejects upstreams with query strings or hash fragments', () => {
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           root: { upstream: 'https://example.com/root/?x=1' },
         }),
       'must not include query or hash',
@@ -113,7 +113,7 @@ describe('ReverseProxyResolver', () => {
 
     expectThrowMessage(
       () =>
-        ReverseProxyResolver({
+        HttpProxyResolver({
           mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/#frag/' }],
         }),
       'must not include query or hash',
@@ -121,7 +121,7 @@ describe('ReverseProxyResolver', () => {
   });
 
   it('mounts → different local paths may share one upstream', () => {
-    const resolve = ReverseProxyResolver({
+    const resolve = HttpProxyResolver({
       mounts: [
         { mountPath: '/foo/', upstream: 'https://example.com/shared/' },
         { mountPath: '/bar/', upstream: 'https://example.com/shared/' },
@@ -135,7 +135,7 @@ describe('ReverseProxyResolver', () => {
   });
 
   it('encoded slash pathname → does not match a normalized mount prefix', () => {
-    const resolve = ReverseProxyResolver({
+    const resolve = HttpProxyResolver({
       mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
     });
 
@@ -144,14 +144,14 @@ describe('ReverseProxyResolver', () => {
   });
 });
 
-describe('ReverseProxy → runtime', () => {
+describe('HttpProxy → runtime', () => {
   it('root fallback → proxies path, query, and headers over real HTTP', async () => {
     const upstream = mkEchoApp('root');
 
     await usingServer({
       app: upstream,
       fn: async ({ url: upstreamUrl }) => {
-        const app = ReverseProxy.create({
+        const app = HttpProxy.create({
           config: {
             root: { upstream: joinUrl(upstreamUrl.raw, 'site/') },
           },
@@ -185,7 +185,7 @@ describe('ReverseProxy → runtime', () => {
     await usingServer({
       app: upstream,
       fn: async ({ url: upstreamUrl }) => {
-        const app = ReverseProxy.create({
+        const app = HttpProxy.create({
           config: {
             mounts: [
               {
@@ -220,7 +220,7 @@ describe('ReverseProxy → runtime', () => {
   });
 
   it('redirect → preserves query strings', async () => {
-    const app = ReverseProxy.create({
+    const app = HttpProxy.create({
       config: {
         mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
       },
@@ -239,7 +239,7 @@ describe('ReverseProxy → runtime', () => {
   });
 
   it('redirect → is intentional for non-GET methods', async () => {
-    const app = ReverseProxy.create({
+    const app = HttpProxy.create({
       config: {
         mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
       },
@@ -262,7 +262,7 @@ describe('ReverseProxy → runtime', () => {
   });
 
   it('encoded slash runtime behavior → does not route as a mount match', async () => {
-    const app = ReverseProxy.create({
+    const app = HttpProxy.create({
       config: {
         mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
       },
@@ -283,7 +283,7 @@ describe('ReverseProxy → runtime', () => {
     const addr = listener.addr as Deno.NetAddr;
     listener.close();
 
-    const app = ReverseProxy.create({
+    const app = HttpProxy.create({
       config: {
         root: { upstream: `http://127.0.0.1:${addr.port}/down/` },
       },

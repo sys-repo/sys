@@ -3,9 +3,9 @@
 ## Goal
 Implement a minimal reverse proxy that:
 - proxies unmatched requests to a root upstream
-- proxies mounted bundle paths to configured bundle upstream roots
+- proxies mounted paths to configured upstream roots
 - works for shallow or deep local mount paths
-- works for shallow or deep upstream bundle roots
+- works for shallow or deep upstream roots
 - stays lean by avoiding content rewriting in v1
 
 ## Current Contract
@@ -53,8 +53,8 @@ Explicitly out of scope in v1:
 - content-aware proxy transforms
 
 Upstream constraints in v1:
-- bundles should use relative asset URLs
-- bundles should not rely on absolute `<base href>`
+- mounted apps should use relative asset URLs
+- mounted apps should not rely on absolute `<base href>`
 - upstream redirects should ideally be relative
 - absolute upstream `Location` redirects are not rewritten in v1
 
@@ -100,10 +100,10 @@ Upstream constraints in v1:
    - assert `502 Bad Gateway` behavior when upstream fetch fails
 
 4. Wire the runtime server.
-   - `ReverseProxy.create()` delegates to the pure mapper
+   - `HttpProxy.create()` delegates to the pure mapper
    - use one catch-all handler for runtime dispatch
    - proxy root fallback requests through the same path-algebra as mounts
-   - proxy mounted bundle requests
+   - proxy mounted requests
    - append `url.search` in the runtime layer, not in the pure resolver
    - preserve method, headers, status, and body
    - forward upstream `Location` headers unchanged in v1

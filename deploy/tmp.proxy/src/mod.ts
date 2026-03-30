@@ -1,6 +1,6 @@
 /**
  * @module
- * Reverse proxy for root-site and mounted bundle passthrough.
+ * Reverse proxy for root-site and mounted upstream passthrough.
  */
 export { pkg } from './pkg.ts';
 
@@ -10,4 +10,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { ReverseProxy } from './m.server/mod.ts';
+export { HttpProxy } from './m.server/mod.ts';
