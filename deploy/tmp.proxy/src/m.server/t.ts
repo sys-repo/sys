@@ -20,6 +20,14 @@ export declare namespace ReverseProxy {
     start(options?: StartOptions): Promise<void>;
   };
 
+  /** Options used when creating or starting the reverse proxy. */
+  export type StartOptions = {
+    /** Local listen port. */
+    readonly port?: number;
+    /** Reverse proxy routing configuration. */
+    readonly config?: Config;
+  };
+
   /** Server application instance. */
   export type App = t.HonoApp;
 
@@ -31,7 +39,9 @@ export declare namespace ReverseProxy {
    * - `https://example.com/`
    * - `https://example.com/foo/root/`
    */
-  export type RootTarget = { upstream: t.StringUrl };
+  export type RootTarget = {
+    readonly upstream: t.StringUrl;
+  };
 
   /**
    * A locally mounted bundle.
@@ -50,12 +60,15 @@ export declare namespace ReverseProxy {
      * Local mounted path-prefix.
      *
      * Must be stored in normalized form with a leading and trailing slash.
+     * Invalid:
+     * - `/`
+     *
      * Examples:
      * - `/foo/`
      * - `/foo/bar/`
      * - `/foo/bar/baz/`
      */
-    mountPath: t.StringUrlRoute;
+    readonly mountPath: t.StringUrlRoute;
 
     /**
      * Upstream bundle root base URL.
@@ -63,24 +76,78 @@ export declare namespace ReverseProxy {
      * May point at the upstream origin root or any deeper path.
      * Must be stored in normalized form with a trailing slash.
      */
-    bundleRootUpstream: t.StringUrl;
+    readonly bundleRootUpstream: t.StringUrl;
   };
 
   /** Declarative reverse proxy routing configuration. */
   export type Config = {
     /** Fallback upstream used for requests that do not match a bundle mount. */
-    root?: RootTarget;
+    readonly root?: RootTarget;
 
     /** Bundle mounts, expected to be matched via longest-prefix wins. */
-    mounts?: BundleMount[];
+    readonly mounts?: readonly BundleMount[];
   };
 
-  /** Options used when creating or starting the reverse proxy. */
-  export type StartOptions = {
-    /** Local listen port. */
-    port?: number;
+  /**
+   * Pure request-path resolver.
+   *
+   * Input is expected to be the URL pathname only.
+   * Query-string forwarding is handled by the runtime caller.
+   */
+  export type Resolver = (pathname: t.StringUrlRoute) => ResolveResult;
 
-    /** Reverse proxy routing configuration. */
-    config?: Config;
+  /**
+   * Create a resolver from normalized routing configuration.
+   *
+   * Implementations are expected to validate and pre-sort mounts once up-front.
+   */
+  export type ResolverFactory = (config: Config) => Resolver;
+
+  /** Pure resolver output for one incoming request path. */
+  export type ResolveResult =
+    | ResolveRootResult
+    | ResolveMountResult
+    | ResolveRedirectResult
+    | ResolveNoneResult;
+
+  /** Root fallback resolver result. */
+  export type ResolveRootResult = {
+    readonly kind: 'root';
+
+    /**
+     * Fully resolved upstream URL for the pathname only.
+     * Query-string forwarding is handled by the runtime caller.
+     */
+    readonly upstream: t.StringUrl;
+  };
+
+  /** Mounted bundle resolver result. */
+  export type ResolveMountResult = {
+    readonly kind: 'mount';
+
+    /**
+     * Fully resolved upstream URL for the pathname only.
+     * Query-string forwarding is handled by the runtime caller.
+     */
+    readonly upstream: t.StringUrl;
+  };
+
+  /** Trailing-slash redirect resolver result. */
+  export type ResolveRedirectResult = {
+    /**
+     * `308` redirect target.
+     *
+     * This is an absolute local path only, not a full origin URL.
+     * Query-string forwarding is handled by the runtime caller.
+     * Runtime should intentionally preserve the original HTTP method semantics.
+     */
+    readonly kind: 'redirect';
+    readonly location: t.StringUrlRoute;
+  };
+
+  /** No-match resolver result. */
+  export type ResolveNoneResult = {
+    /** No route matched and no root fallback exists. */
+    readonly kind: 'none';
   };
 }
