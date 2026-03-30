@@ -1,4 +1,4 @@
 /**
  * @module
  */
-import type { t } from './common.ts';
+export { ReverseProxy } from './m.ReverseProxy.ts';
