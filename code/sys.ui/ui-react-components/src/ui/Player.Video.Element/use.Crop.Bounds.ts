@@ -22,6 +22,7 @@ export function useCropBounds(
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
+    if (!(lens.duration.full > 0)) return;
 
     const key = `${lens.duration.full}:${lens.range.start}:${lens.range.end}:${loop}`;
     if (lastKeyRef.current === key) return;
