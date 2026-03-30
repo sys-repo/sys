@@ -134,4 +134,23 @@ stderr:
     expect(text).to.include('trace id');
     expect(text).to.include('6ab4a481d06f2bf753adc4897c548a2f');
   });
+
+  it('renders object deploy failures without falling back to [object Object]', () => {
+    const text = stripAnsi(
+      DenoDeploy.Fmt.Deploy.failure({
+        phase: 'deploy',
+        at: '/tmp/stage',
+        error: {
+          code: 1,
+          stderr: 'Project not found: my-app',
+          stdout: '',
+        },
+      }).join('\n'),
+    );
+
+    expect(text).to.include('Deploy Failed');
+    expect(text).to.include('/tmp/stage');
+    expect(text).to.include('Project not found: my-app');
+    expect(text).to.not.include('[object Object]');
+  });
 });

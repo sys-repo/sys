@@ -242,7 +242,9 @@ function redactToken(token?: string) {
 }
 
 function failureMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') return wrangle.objectErrorMessage(error);
+  return String(error);
 }
 
 const wrangle = {
@@ -343,5 +345,61 @@ const wrangle = {
 
   relativeTo(path: string, base: string) {
     return path.startsWith(`${base}/`) ? `.${path.slice(base.length)}` : path;
+  },
+
+  objectErrorMessage(error: object) {
+    const message = wrangle.pickString(error, ['message']);
+    const stdout = wrangle.pickString(error, ['stdout']);
+    const stderr = wrangle.pickString(error, ['stderr']);
+    const code = wrangle.pickNumber(error, ['code']);
+
+    if (message || stdout || stderr || code !== undefined) {
+      return [
+        ...(message ? [message] : []),
+        ...(stdout ? [`stdout:\n${stdout}`] : []),
+        ...(stderr ? [`stderr:\n${stderr}`] : []),
+        ...(code !== undefined ? [`code: ${code}`] : []),
+      ].join('\n\n');
+    }
+
+    return wrangle.stringifyObject(error);
+  },
+
+  pickString(value: object, keys: readonly string[]) {
+    for (const key of keys) {
+      const item = (value as Record<string, unknown>)[key];
+      if (typeof item === 'string' && item.trim().length > 0) return item.trim();
+    }
+    return undefined;
+  },
+
+  pickNumber(value: object, keys: readonly string[]) {
+    for (const key of keys) {
+      const item = (value as Record<string, unknown>)[key];
+      if (typeof item === 'number' && Number.isFinite(item)) return item;
+    }
+    return undefined;
+  },
+
+  stringifyObject(value: object) {
+    const seen = new WeakSet<object>();
+    const json = JSON.stringify(value, (_key, item) => {
+      if (item instanceof Error) {
+        return {
+          name: item.name,
+          message: item.message,
+          stack: item.stack,
+        };
+      }
+
+      if (item && typeof item === 'object') {
+        if (seen.has(item)) return '[Circular]';
+        seen.add(item);
+      }
+
+      return item;
+    });
+
+    return json ?? '[unserializable object]';
   },
 } as const;
