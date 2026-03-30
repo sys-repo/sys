@@ -14,10 +14,10 @@
     "@sys/fs/t": "jsr:@sys/fs@0.0.274/t",
     "@sys/http/client": "jsr:@sys/http@0.0.243/client",
     "@sys/http/t": "jsr:@sys/http@0.0.243/t",
-    "@sys/workspace": "jsr:@sys/workspace@0.0.39",
-    "@sys/workspace/cli": "jsr:@sys/workspace@0.0.39/cli",
-    "@sys/workspace/t": "jsr:@sys/workspace@0.0.39/t",
-    "@sys/workspace/testing": "jsr:@sys/workspace@0.0.39/testing",
+    "@sys/workspace": "jsr:@sys/workspace@0.0.40",
+    "@sys/workspace/cli": "jsr:@sys/workspace@0.0.40/cli",
+    "@sys/workspace/t": "jsr:@sys/workspace@0.0.40/t",
+    "@sys/workspace/testing": "jsr:@sys/workspace@0.0.40/testing",
     "@sys/process": "jsr:@sys/process@0.0.255",
     "@sys/process/t": "jsr:@sys/process@0.0.255/t",
     "@sys/std": "jsr:@sys/std@0.0.330",
@@ -29,10 +29,10 @@
     "@sys/testing/server": "jsr:@sys/testing@0.0.264/server",
     "@sys/testing/t": "jsr:@sys/testing@0.0.264/t",
     "@sys/types": "jsr:@sys/types@0.0.271",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.296",
-    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.296/t",
-    "@sys/tools": "jsr:@sys/tools@0.0.298",
-    "@sys/tools/t": "jsr:@sys/tools@0.0.298/t",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.297",
+    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.297/t",
+    "@sys/tools": "jsr:@sys/tools@0.0.299",
+    "@sys/tools/t": "jsr:@sys/tools@0.0.299/t",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.260",
     "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.260/t",
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.267",
@@ -45,3 +45,4 @@
     "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.272/t"
   }
 }
+
