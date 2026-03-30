@@ -81,6 +81,7 @@ Upstream constraints in v1:
    - longest-prefix wins
    - duplicate mount rejection
    - `308` preserves query strings
+   - `/slc?x=1` -> `308` -> `/slc/?x=1`
    - `308` behavior is intentional for non-GET methods
    - encoded-slash behavior against actual Deno URL parsing assumptions
 
@@ -91,6 +92,8 @@ Upstream constraints in v1:
    - use real upstream mini-servers
    - assert redirect and upstream path behavior over real HTTP
    - verify protocol/header behavior that Deno `fetch()` gives us by default
+   - assert mounted query-string preservation end-to-end
+   - assert encoded-slash behavior against real runtime routing
    - assert `502 Bad Gateway` behavior when upstream fetch fails
 
 4. Wire the runtime server.
@@ -113,6 +116,9 @@ Upstream constraints in v1:
 ## Concrete URL Targets
 Reference scenarios are documented in:
 - `/Users/phil/code/org.sys/sys/deploy/tmp.proxy/src/main.ts`
+
+Key redirect scenario to preserve explicitly:
+- `/slc?x=1` -> `308` -> `/slc/?x=1`
 
 ## Notes
 Keep the proxy transport-only in v1.

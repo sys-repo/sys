@@ -12,6 +12,7 @@ import { ReverseProxy } from './mod.ts';
  *
  * Bundle mount (single segment):
  * - `http://localhost:4040/slc` → `308` → `http://localhost:4040/slc/`
+ * - `http://localhost:4040/slc?x=1` → `308` → `http://localhost:4040/slc/?x=1`
  * - `http://localhost:4040/slc/` → `https://slc.db.team/tdb.slc/`
  * - `http://localhost:4040/slc/pkg/-entry.js` → `https://slc.db.team/tdb.slc/pkg/-entry.js`
  * - `http://localhost:4040/slc/images/ui.Programme/model.customer/customer-model.png`
