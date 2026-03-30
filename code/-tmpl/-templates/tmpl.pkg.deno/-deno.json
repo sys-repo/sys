@@ -9,7 +9,7 @@
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "deploy": "deno run -P=deploy ./-scripts/task.deploy.ts",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/*",
+    "check": "deno check -- ./src/* ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
