@@ -1,5 +1,9 @@
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import { ReverseProxy } from '../mod.ts';
 
-describe(`🐷`, () => {
-  it('API', async () => {});
+describe('ReverseProxy', () => {
+  it('API', () => {
+    expect(ReverseProxy).to.be.ok;
+    expectTypeOf(ReverseProxy).toMatchTypeOf<t.ReverseProxy.Lib>();
+  });
 });

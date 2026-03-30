@@ -15,7 +15,7 @@ Source of truth:
 Current design primitives:
 - `root.upstream`
 - `mounts[].mountPath`
-- `mounts[].bundleRootUpstream`
+- `mounts[].upstream`
 - `port`
 - `Resolver`
 - `ResolverFactory`
@@ -24,7 +24,8 @@ Current design primitives:
 Normalization invariants:
 - `mountPath` must start and end with `/`
 - `mountPath: '/'` is invalid
-- `bundleRootUpstream` must end with `/`
+- `upstream` must end with `/`
+- `upstream` must not include query strings or hash fragments
 
 Routing invariants:
 - longest-prefix wins
@@ -63,6 +64,7 @@ Upstream constraints in v1:
    - reject `mountPath: '/'`
    - reject duplicate mounts
    - validate upstream URLs are parseable
+   - reject upstream URLs with query strings or hash fragments
    - sort mounts by descending `mountPath.length`
    - use one shared path-algebra for both root and mount forwarding
    - accept pathname only
@@ -80,6 +82,7 @@ Upstream constraints in v1:
    - multi-segment mount
    - longest-prefix wins
    - duplicate mount rejection
+   - upstream query/hash rejection
    - `308` preserves query strings
    - `/slc?x=1` -> `308` -> `/slc/?x=1`
    - `308` behavior is intentional for non-GET methods

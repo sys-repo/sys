@@ -8,7 +8,8 @@ import type { t } from './common.ts';
  * - A mounted bundle may live at the upstream domain root or at any deeper upstream path.
  * - Matching is expected to use longest-prefix wins semantics.
  * - Mount paths should be treated as slash-normalized prefixes (start and end with `/`).
- * - Bundle upstream roots should be treated as slash-normalized base URLs (end with `/`).
+ * - Upstream roots should be treated as slash-normalized base URLs (end with `/`).
+ * - Upstream roots must not include query strings or hash fragments.
  */
 export declare namespace ReverseProxy {
   /** Public reverse proxy API. */
@@ -40,22 +41,29 @@ export declare namespace ReverseProxy {
    * - `https://example.com/foo/root/`
    */
   export type RootTarget = {
+    /**
+     * Upstream root base URL.
+     *
+     * May point at the upstream origin root or any deeper path.
+     * Must be stored in normalized form with a trailing slash.
+     * Must not include a query string or hash fragment.
+     */
     readonly upstream: t.StringUrl;
   };
 
   /**
-   * A locally mounted bundle.
+   * A locally mounted upstream.
    *
    * Example:
    * - `mountPath: '/foo/bar/'`
-   * - `bundleRootUpstream: 'https://example.com/foo/bundle/'`
+   * - `upstream: 'https://example.com/foo/bundle/'`
    *
    * Then these should map as:
    * - `/foo/bar/` -> `https://example.com/foo/bundle/`
    * - `/foo/bar/pkg/-entry.js` -> `https://example.com/foo/bundle/pkg/-entry.js`
    * - `/foo/bar/images/a.png` -> `https://example.com/foo/bundle/images/a.png`
    */
-  export type BundleMount = {
+  export type Mount = {
     /**
      * Local mounted path-prefix.
      *
@@ -71,12 +79,13 @@ export declare namespace ReverseProxy {
     readonly mountPath: t.StringUrlRoute;
 
     /**
-     * Upstream bundle root base URL.
+     * Upstream root base URL.
      *
      * May point at the upstream origin root or any deeper path.
      * Must be stored in normalized form with a trailing slash.
+     * Must not include a query string or hash fragment.
      */
-    readonly bundleRootUpstream: t.StringUrl;
+    readonly upstream: t.StringUrl;
   };
 
   /** Declarative reverse proxy routing configuration. */
@@ -84,8 +93,8 @@ export declare namespace ReverseProxy {
     /** Fallback upstream used for requests that do not match a bundle mount. */
     readonly root?: RootTarget;
 
-    /** Bundle mounts, expected to be matched via longest-prefix wins. */
-    readonly mounts?: readonly BundleMount[];
+    /** Mounted upstreams, expected to be matched via longest-prefix wins. */
+    readonly mounts?: readonly Mount[];
   };
 
   /**

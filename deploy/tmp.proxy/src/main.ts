@@ -1,4 +1,4 @@
-import { ReverseProxy } from './mod.ts';
+import { ReverseProxy, type t } from './mod.ts';
 
 /**
  * Reverse proxy target scenarios.
@@ -31,4 +31,18 @@ import { ReverseProxy } from './mod.ts';
  * - `https://socialleancanvas.com/foo/bar/slc/` → `https://slc.db.team/tdb.slc/`
  */
 
-await ReverseProxy.start();
+const config: t.ReverseProxy.Config = {
+  root: { upstream: 'https://tmp-socialleancanvas.orbiter.website/' },
+  mounts: [
+    {
+      mountPath: '/foo/bar/slc/',
+      upstream: 'https://slc.db.team/tdb.slc/',
+    },
+    {
+      mountPath: '/slc/',
+      upstream: 'https://slc.db.team/tdb.slc/',
+    },
+  ],
+};
+
+await ReverseProxy.start({ config });
