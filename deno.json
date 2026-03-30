@@ -90,7 +90,8 @@
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
-    "deploy/@tdb.slc.std"
+    "deploy/@tdb.slc.std",
+    "deploy/tmp.proxy"
   ],
   "lint": {
     "rules": {

@@ -1,0 +1,38 @@
+{
+  "name": "@tmp/proxy",
+  "version": "0.0.0",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test",
+    "deploy": "deno run -P=deploy ./-scripts/task.deploy.ts",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/* ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
+    "deploy": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true
+    }
+  }
+}
