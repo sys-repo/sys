@@ -8,5 +8,5 @@ export * from '../ui.Programme/u.ts';
  * Path directory:
  */
 export const Dir = {
-  programme: Path.dir('/images/ui.Programme', 'posix'),
+  programme: Path.dir('./images/ui.Programme', 'posix'),
 } as const;
