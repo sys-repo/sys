@@ -6,7 +6,31 @@ const GenericDocSchema = Schema.Type.Object(
   {
     source: EndpointSchemaParts.source,
     staging: EndpointSchemaParts.staging,
-    mappings: Schema.Type.Optional(EndpointSchemaParts.orbiterMappings),
+    mappings: Schema.Type.Optional(
+      Schema.Type.Array(
+        Schema.Type.Object(
+          {
+            dir: EndpointSchemaParts.dir,
+            mode: Schema.Type.Union([
+              Schema.Type.Literal('copy'),
+              Schema.Type.Literal('build+copy'),
+              Schema.Type.Literal('index'),
+            ]),
+            shards: Schema.Type.Optional(
+              Schema.Type.Object(
+                {
+                  total: Schema.Type.Number(),
+                  requireAll: Schema.Type.Optional(Schema.Type.Boolean()),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+        { minItems: 0 },
+      ),
+    ),
   },
   { additionalProperties: false },
 );
