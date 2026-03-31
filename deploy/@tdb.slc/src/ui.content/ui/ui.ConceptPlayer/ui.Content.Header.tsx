@@ -18,11 +18,12 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
+  const hero = Color.theme('Dark');
   const styles = {
     base: css({
-      color: theme.fg,
-      borderBottom: `solid 8px ${Color.alpha(theme.fg, 0.05)}`,
+      position: 'relative',
+      color: hero.fg,
+      backgroundColor: hero.bg,
       display: 'grid',
       userSelect: 'none',
     }),
@@ -36,15 +37,23 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
       justifyContent: 'start',
       columnGap: '10px',
       padding: '0 10px',
+      paddingBottom: 6,
     }),
     title: css({ fontSize: 18 }),
+    divider: css({
+      pointerEvents: 'none',
+      backgroundColor: Color.alpha(hero.fg, 0.15),
+      Absolute: [null, 0, 0, 0],
+      height: 6,
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <BackButton theme={theme.name} onClick={props.onBackClick} />
+        <BackButton theme={hero.name} onClick={props.onBackClick} />
         <div className={styles.title.class}>{title}</div>
+        <div className={styles.divider.class} />
       </div>
     </div>
   );
