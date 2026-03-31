@@ -63,6 +63,18 @@ export function isRangeWindowCacheCandidate(input: RangeWindowCandidateInput) {
   return { ok: true, parsed, bytes } as const;
 }
 
+export function isCacheableHashedAssetResponse(response: Response) {
+  if (!response.ok) return { ok: false, reason: `status:${response.status}` } as const;
+  if (!(response.type === 'basic' || response.type === 'cors' || response.type === 'default')) {
+    return { ok: false, reason: `type:${response.type}` } as const;
+  }
+
+  const contentType = String(response.headers.get('Content-Type') ?? '').toLowerCase();
+  if (!contentType) return { ok: true } as const;
+  if (contentType.includes('text/html')) return { ok: false, reason: 'content-type:text/html' } as const;
+  return { ok: true } as const;
+}
+
 export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
   const media = resolveMediaPolicy(args.media);
@@ -132,16 +144,19 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
    */
   async function assetResponse(request: Request): Promise<Response> {
     const key = request.url;
-    const cached = await caches.match(key);
+    const cache = await caches.open(CACHE_ASSETS);
+    const cached = await cache.match(key);
     if (cached) {
       if (!silent) console.info(`🌼 asset cache hit: ${key}`);
       return cached;
     }
 
     const response = await fetch(request);
-    if (response.ok && (response.type === 'basic' || response.type === 'cors')) {
-      const cache = await caches.open(CACHE_ASSETS);
+    const check = isCacheableHashedAssetResponse(response);
+    if (check.ok) {
       cache.put(key, response.clone());
+    } else if (!silent) {
+      console.info(`🧪 skip asset cache (${check.reason}): ${key}`);
     }
     return response;
   }

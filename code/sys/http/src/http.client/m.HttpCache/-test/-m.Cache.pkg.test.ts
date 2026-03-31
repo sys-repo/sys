@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import {
+  isCacheableHashedAssetResponse,
   isSafeFullMediaCandidate,
   isRangeWindowCacheCandidate,
   resolveMediaPolicy,
@@ -8,6 +9,27 @@ import {
 } from '../m.Cache.pkg.ts';
 
 describe('Http.Cache.pkg safety guards', () => {
+  it('rejects html fallback responses for hashed assets', () => {
+    const res = isCacheableHashedAssetResponse(
+      new Response('<!doctype html><html></html>', {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      }),
+    );
+    expect(res.ok).to.eql(false);
+    if (!res.ok) expect(res.reason).to.eql('content-type:text/html');
+  });
+
+  it('accepts javascript responses for hashed assets', () => {
+    const res = isCacheableHashedAssetResponse(
+      new Response('console.log("ok")', {
+        status: 200,
+        headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
+      }),
+    );
+    expect(res).to.eql({ ok: true });
+  });
+
   it('accepts a valid full 200 response candidate', () => {
     const res = isSafeFullMediaCandidate({
       status: 200,
