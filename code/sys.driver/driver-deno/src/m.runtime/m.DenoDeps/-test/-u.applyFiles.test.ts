@@ -73,13 +73,27 @@ describe('DenoDeps.applyFiles', () => {
     const res = await DenoDeps.applyFiles({ depsPath, denoFilePath: denoPath }, deps);
     const depsFile = await Fs.readText(depsPath);
     const denoFile = await DenoFile.load(denoPath);
+    const parsed = await DenoDeps.from(depsFile.data ?? '');
 
     expect(depsFile.data).to.eql(res.yaml.yaml.text);
     expect(depsFile.data).to.include('subpaths:');
-    expect(depsFile.data).to.include('- join');
-    expect(depsFile.data).to.include('- posix/join');
-    expect(depsFile.data).to.include('- windows/join');
-    expect(depsFile.data).to.include('- cors');
+    expect(parsed.error).to.eql(undefined);
+    expect(parsed.data?.deps.map((dep) => ({
+      module: dep.module.toString(),
+      target: dep.target,
+      subpaths: dep.subpaths,
+    }))).to.eql([
+      {
+        module: 'jsr:@std/path@1.1.4',
+        target: ['deno.json'],
+        subpaths: ['join', 'posix/join', 'windows/join'],
+      },
+      {
+        module: 'npm:hono@4.12.9',
+        target: ['deno.json'],
+        subpaths: ['cors'],
+      },
+    ]);
     expect(denoFile.data?.imports).to.eql({
       '@std/path': 'jsr:@std/path@1.1.4',
       '@std/path/join': 'jsr:@std/path@1.1.4/join',
