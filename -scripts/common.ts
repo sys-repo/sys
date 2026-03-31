@@ -5,6 +5,7 @@ export { Cli, c } from '@sys/cli';
 export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';
+export { Update } from '@sys/text/update';
 export { TmplEngine } from '@sys/tmpl-engine';
 
 export { Path, Paths } from './-PATHS.ts';

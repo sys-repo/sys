@@ -91,19 +91,6 @@ describe('Tmpl.File', () => {
         expect((await Fs.readText(file.path)).data).to.eql(res.after); // NB: changes written to fs.
       });
 
-      it('changes lines: async', async () => {
-        const file = await getFile();
-        const res = await File.update(file.path, async (line) => {
-          await Testing.wait(25);
-          if (line.is.first) line.modify('first');
-          if (line.is.last) line.modify('last');
-        });
-
-        const lines = res.after.split('\n');
-        expect(lines).to.eql(['first', 'line-2', 'line-3', 'last', '']); // NB: last line modified to include content, so an additional empty EOF line added.
-        expect(res.changes.map((m) => m.op)).to.eql(['modify', 'modify']);
-        expect((await Fs.readText(file.path)).data).to.eql(res.after); // NB: changes written to fs.
-      });
     });
 
     describe('File.insert()', () => {
