@@ -36,6 +36,6 @@ export const HttpProxy: t.HttpProxy.Lib = {
     const serverOptions = HttpServer.options({ port, pkg });
 
     Deno.serve(serverOptions, app.fetch);
-    await HttpServer.keyboard({ port, print: true });
+    if (options.keyboard !== false) await HttpServer.keyboard({ port, print: true });
   },
 };

@@ -27,6 +27,8 @@ export declare namespace HttpProxy {
     readonly port?: number;
     /** Reverse proxy routing configuration. */
     readonly config?: Config;
+    /** Enable the interactive keyboard listener. */
+    readonly keyboard?: boolean;
   };
 
   /** Server application instance. */
