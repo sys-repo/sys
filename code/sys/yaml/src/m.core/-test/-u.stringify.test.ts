@@ -55,6 +55,72 @@ describe('Yaml.stringify', () => {
     expect(leading(childIndented)).to.be.greaterThan(leading(childDefault));
   });
 
+  it('supports mutable AST formatting hooks during stringify', () => {
+    const value = {
+      subpaths: ['main', 't'],
+      block: ['keep', 'expanded'],
+    } as const;
+
+    const res = Yaml.stringify(value, {
+      format(ctx) {
+        if (ctx.key === 'subpaths' && Yaml.Is.seq(ctx.node)) {
+          ctx.node.flow = true;
+        }
+      },
+    });
+
+    if (!res.data) throw new Error('Expected Yaml.stringify to yield data');
+
+    expect(res.error).to.be.undefined;
+    expect(res.data).to.contain('subpaths: [ main, t ]');
+    expect(res.data).to.contain('block:\n  - keep\n  - expanded');
+  });
+
+  it('exposes path and stop through stringify format context', () => {
+    const value = {
+      subpaths: ['main', 't'],
+      block: ['keep', 'expanded'],
+    } as const;
+
+    const seen: Array<string> = [];
+    const res = Yaml.stringify(value, {
+      format(ctx) {
+        seen.push(ctx.path.join('.'));
+        if (ctx.key === 'subpaths' && Yaml.Is.seq(ctx.node)) {
+          ctx.node.flow = true;
+          ctx.stop();
+        }
+      },
+    });
+
+    if (!res.data) throw new Error('Expected Yaml.stringify to yield data');
+
+    expect(res.error).to.be.undefined;
+    expect(seen).to.include('subpaths');
+    expect(seen).to.not.include('block');
+    expect(res.data).to.contain('subpaths: [ main, t ]');
+    expect(res.data).to.contain('block:\n  - keep\n  - expanded');
+  });
+
+  it('keeps default sequence rendering in block style without a format hook', () => {
+    const value = {
+      subpaths: ['join', 'posix/join', 'windows/join'],
+      other: ['cors'],
+    } as const;
+
+    const res = Yaml.stringify(value);
+
+    if (!res.data) throw new Error('Expected Yaml.stringify to yield data');
+
+    expect(res.error).to.be.undefined;
+    expect(res.data).to.include('subpaths:');
+    expect(res.data).to.include('- join');
+    expect(res.data).to.include('- posix/join');
+    expect(res.data).to.include('- windows/join');
+    expect(res.data).to.include('- cors');
+    expect(res.data).to.not.include('subpaths: [');
+  });
+
   it('returns Err when the underlying yaml.stringify throws', () => {
     const boom = new Error('toJSON boom');
 
