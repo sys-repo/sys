@@ -61,4 +61,9 @@ export type HttpPreloadRecord = {
   readonly bytes?: t.NumberBytes;
   readonly error?: string;
   readonly range?: HttpPreloadByteRange;
+  /**
+   * True when the warm response confirms the safe-full media cache
+   * was populated and can serve future byte-range reads locally.
+   */
+  readonly fullMediaCached?: boolean;
 };

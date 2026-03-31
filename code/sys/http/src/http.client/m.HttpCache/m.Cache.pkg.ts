@@ -1,5 +1,5 @@
 declare var self: ServiceWorkerGlobalScope;
-import { type t, Str } from './common.ts';
+import { type t, Str, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
 
 export type MediaFullResponseCandidate = {
   readonly status: number;
@@ -292,6 +292,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
         'Accept-Ranges': 'bytes',
         'Content-Length': String(length),
         'Content-Range': `bytes ${start}-${end}/${size}`,
+        [HTTP_HEADER_MEDIA_FULL_CACHE_READY]: 'true',
       },
     });
   }
