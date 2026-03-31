@@ -60,7 +60,7 @@ async function run(urls: readonly string[], priority: number) {
 
       if (life.disposed) break;
       if (current?.life !== life) break;
-      if (result.ok && result.ops.every((op) => op.ok)) {
+      if (result.ok && result.ops.every((op) => op.ok && op.fullMediaCached === true)) {
         completed.add(url);
       }
     }

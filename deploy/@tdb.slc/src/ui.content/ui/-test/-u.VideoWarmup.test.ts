@@ -12,6 +12,33 @@ describe('VideoWarmup', () => {
   const programmeMedia = () =>
     ({ children: Programme.Media.children() }) as Parameters<typeof VideoWarmup.programmeIntro>[0];
 
+  const installServiceWorker = () => {
+    const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+    const serviceWorker = {
+      controller: {},
+      ready: Promise.resolve({}),
+      addEventListener() {},
+      removeEventListener() {},
+    };
+
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: globalThis.window.navigator,
+    });
+    Object.defineProperty(globalThis.navigator, 'serviceWorker', {
+      configurable: true,
+      value: serviceWorker,
+    });
+
+    return () => {
+      if (originalNavigator) {
+        Object.defineProperty(globalThis, 'navigator', originalNavigator);
+      } else {
+        delete (globalThis as { navigator?: Navigator }).navigator;
+      }
+    };
+  };
+
   it('landing returns trailer and overview urls', () => {
     expect(VideoWarmup.landing()).to.eql([VIDEO.Trailer.src, VIDEO.Overview.src]);
   });
@@ -119,6 +146,46 @@ describe('VideoWarmup', () => {
       } else {
         delete (globalThis as { navigator?: Navigator }).navigator;
       }
+    }
+  });
+
+  it('does not mark urls completed unless the full media cache is confirmed ready', async () => {
+    const restoreNavigator = installServiceWorker();
+    const originalWarm = Http.Preload.warm;
+    const warmed: string[] = [];
+
+    try {
+      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = async (input) => {
+        const ops = Array.isArray(input) ? input : [input];
+        warmed.push(...ops.map((item) => typeof item === 'string' ? item : item.url));
+        return {
+          ok: true,
+          ops: ops.map((item) => ({
+            ok: true,
+            status: 206,
+            bytes: 1,
+            range: typeof item === 'string' ? undefined : item.range,
+            url: typeof item === 'string' ? item : item.url,
+            fullMediaCached: false,
+          })),
+        };
+      };
+
+      const href = new URL('../m.VideoWarmup.ts', import.meta.url).href;
+      const { WarmVideo } = await import(`${href}?v=${Testing.slug()}`);
+
+      await WarmVideo.landing();
+      await WarmVideo.landing();
+
+      expect(warmed).to.eql([
+        VIDEO.Trailer.src,
+        VIDEO.Overview.src,
+        VIDEO.Trailer.src,
+        VIDEO.Overview.src,
+      ]);
+    } finally {
+      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = originalWarm;
+      restoreNavigator();
     }
   });
 });
