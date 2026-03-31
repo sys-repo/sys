@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, css, Button } from './common.ts';
 
 import { Factory } from '../m/mod.ts';
+import { WarmVideo } from '../ui/m.VideoWarmup.ts';
 import { RoundedButton } from './ui.Button.Rounded.tsx';
 
 /**
@@ -62,7 +63,11 @@ export const StartProgrammeButton: React.FC<StartProgrammeButtonProps> = (props)
    * Handlers:
    */
   const stack = state.stack;
-  const enterProgramme = async () => stack.push(await Factory.programme());
+  const enterProgramme = async () => {
+    const content = await Factory.programme();
+    void WarmVideo.programmeIntro(content.media);
+    stack.push(content);
+  };
 
   /**
    * Render:

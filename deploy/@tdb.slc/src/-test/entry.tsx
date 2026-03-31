@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import type { t } from '../common.ts';
 import { pkg } from '../pkg.ts';
 import { useKeyboard } from '../ui/use/use.Keyboard.ts';
+import { WarmVideo } from '../ui.content/ui/m.VideoWarmup.ts';
 
 /**
  * Service Worker:
@@ -78,6 +79,7 @@ export async function main() {
       (id, options = {}) => Content.factory(id, { ...options, muted: true }),
       ['Entry', 'Trailer', 'Overview', 'Programme'],
     );
+    void WarmVideo.landing();
 
     root.render(
       <StrictMode>
