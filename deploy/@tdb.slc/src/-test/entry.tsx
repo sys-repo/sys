@@ -11,10 +11,10 @@ import { WarmVideo } from '../ui.content/ui/m.VideoWarmup.ts';
  */
 if ('serviceWorker' in navigator && !location.hostname.startsWith('localhost')) {
   window.addEventListener('load', () => {
-    const scope = new URL('./', location.href);
-    const sw = new URL('sw.js', scope);
+    const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
+    const sw = `${pathname}sw.js`;
     navigator.serviceWorker
-      .register(sw, { type: 'module', scope: scope.pathname })
+      .register(sw, { type: 'module', scope: pathname })
       .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
       .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
