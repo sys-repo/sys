@@ -13,7 +13,8 @@
     "./types": "./src/types.ts",
     "./diff": "./src/-exports/-diff.ts",
     "./filter": "./src/-exports/-filter.ts",
-    "./gpt": "./src/-exports/-gpt.ts"
+    "./gpt": "./src/-exports/-gpt.ts",
+    "./update": "./src/m.update/mod.ts"
   },
   "permissions": {
     "clean": {
