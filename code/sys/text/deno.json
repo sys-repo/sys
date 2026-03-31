@@ -11,9 +11,9 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./diff": "./src/-exports/-diff.ts",
-    "./filter": "./src/-exports/-filter.ts",
-    "./gpt": "./src/-exports/-gpt.ts",
+    "./diff": "./src/m.diff/mod.ts",
+    "./filter": "./src/m.filter/mod.ts",
+    "./gpt": "./src/m.gpt/mod.ts",
     "./update": "./src/m.update/mod.ts"
   },
   "permissions": {
