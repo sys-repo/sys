@@ -1,5 +1,6 @@
 import { type t, Fs, Pkg, Str } from '../common.ts';
 import { TEMPLATE } from './u.generateHtml.tmpl.ts';
+import { ensureBuildResetMeta, withBuildResetMeta } from './u.buildReset.ts';
 
 const MARKER = '@sys/tools: index';
 const MARKER_TOKEN = `<!-- ${MARKER} -->`;
@@ -17,7 +18,11 @@ type TDir = {
  */
 export async function ensureIndexHtml(
   cwd: t.StringDir,
-  options: { readonly force?: boolean; readonly baseDomain?: string } = {},
+  options: {
+    readonly force?: boolean;
+    readonly baseDomain?: string;
+    readonly buildResetToken?: string;
+  } = {},
 ): Promise<void> {
   const raw = String(cwd ?? '').trim();
   if (!raw) return;
@@ -27,14 +32,17 @@ export async function ensureIndexHtml(
   const exists = await Fs.exists(target);
   if (exists) {
     const ok = await shouldOverwrite(target, options.force === true);
-    if (!ok) return;
+    if (!ok) {
+      await ensureBuildResetMeta(target, options.buildResetToken);
+      return;
+    }
   }
   if (!exists && !options.force) {
     // no-op: only create when missing unless force is requested
   }
 
   const dirs = await directories(root);
-  const html = renderHtml(dirs, options.baseDomain);
+  const html = renderHtml(dirs, options.baseDomain, options.buildResetToken);
   await Fs.write(target, html);
 }
 
@@ -60,7 +68,7 @@ async function directories(root: t.StringDir) {
   return res.toSorted((a, b) => compareDirName(compare, a.rel, b.rel));
 }
 
-function renderHtml(dirs: TDir[], baseDomain?: string): string {
+function renderHtml(dirs: TDir[], baseDomain?: string, buildResetToken?: string): string {
   const indent = ' '.repeat(8);
   const domain = String(baseDomain ?? '').trim();
   const items = dirs
@@ -86,7 +94,8 @@ function renderHtml(dirs: TDir[], baseDomain?: string): string {
     .join('\n');
 
   const list = items ? `${items}\n${indent}<hr />\n` : '';
-  return TEMPLATE.replace('__LIST__\n', list);
+  const html = TEMPLATE.replace('__LIST__\n', list);
+  return buildResetToken ? withBuildResetMeta(html, buildResetToken) : html;
 }
 
 function parseShardIndex(input: string): number | undefined {

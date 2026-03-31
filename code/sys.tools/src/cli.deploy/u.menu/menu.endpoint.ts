@@ -292,6 +292,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
       const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
       const clearStaging = freshYaml.staging?.clear === true;
+      const buildResetHtml = freshYaml.staging?.html?.buildReset === true;
       const indexBaseDomain =
         freshYaml.provider?.kind === 'orbiter'
           ? String(freshYaml.provider.domain ?? '').trim()
@@ -304,6 +305,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         stagingRoot: stagingRootRel,
         clear: clearStaging,
         indexBaseDomain,
+        buildResetHtml,
       });
 
       ranOk = res.ok;

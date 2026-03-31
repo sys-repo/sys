@@ -11,6 +11,12 @@ const staging = Schema.Type.Object(
   {
     dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
     clear: Schema.Type.Optional(Schema.Type.Boolean()),
+    html: Schema.Type.Optional(
+      Schema.Type.Object(
+        { buildReset: Schema.Type.Optional(Schema.Type.Boolean()) },
+        { additionalProperties: false },
+      ),
+    ),
   },
   { additionalProperties: false },
 );

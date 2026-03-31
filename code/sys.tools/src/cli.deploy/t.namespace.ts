@@ -86,6 +86,11 @@ export namespace DeployTool {
         dir: t.StringPath;
         /** When true, clears staging targets before running mappings. */
         clear?: boolean;
+        /** Optional HTML staging policies. */
+        html?: {
+          /** When true, inject/update x-build-reset metadata in staged index.html files. */
+          buildReset?: boolean;
+        };
       };
 
       /**

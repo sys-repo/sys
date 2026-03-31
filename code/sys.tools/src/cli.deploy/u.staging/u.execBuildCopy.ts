@@ -9,6 +9,7 @@ export async function execBuildCopy(
   cwd: t.StringDir,
   dir: t.DeployTool.Staging.Dir,
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
+  buildResetToken?: string,
 ): Promise<void> {
   const sourceRaw = String(dir.source ?? '');
   const stagingRaw = String(dir.staging ?? '');
@@ -36,7 +37,7 @@ export async function execBuildCopy(
   });
 
   reportStep('index.html');
-  await ensureIndexHtml(dst);
+  await ensureIndexHtml(dst, { buildResetToken });
 
   reportStep('dist.json');
   await Pkg.Dist.compute({ dir: dst, save: true });

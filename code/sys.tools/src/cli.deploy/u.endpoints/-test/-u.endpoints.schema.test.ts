@@ -311,9 +311,28 @@ describe('Schema: endpoint', () => {
     expect(res.errors).to.eql([]);
   });
 
+  it('validate: accepts staging.html.buildReset', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging', html: { buildReset: true } },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
   it('validate: rejects unknown keys inside staging', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: 'staging-1', extra: true },
+    });
+
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
+  });
+
+  it('validate: rejects unknown keys inside staging.html', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: 'staging-1', html: { buildReset: true, extra: true } },
     });
 
     expect(res.ok).to.eql(false);

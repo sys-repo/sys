@@ -9,9 +9,9 @@ export async function execCopy(
   cwd: t.StringDir,
   dir: t.DeployTool.Staging.Dir,
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
-  options: { readonly overwrite?: boolean } = {},
+  options: { readonly overwrite?: boolean; readonly buildResetToken?: string } = {},
 ): Promise<void> {
-  const { overwrite = false } = options;
+  const { overwrite = false, buildResetToken } = options;
 
   const sourceRaw = String(dir.source ?? '');
   const stagingRaw = String(dir.staging ?? '');
@@ -22,7 +22,7 @@ export async function execCopy(
   report?.({ kind: 'mapping:step', label: 'copy' });
   await copyInto({ src, dst, overwrite });
 
-  await ensureIndexHtml(dst);
+  await ensureIndexHtml(dst, { buildResetToken });
 
   report?.({ kind: 'mapping:step', label: 'dist.json' });
   await Pkg.Dist.compute({ dir: dst, save: true });
