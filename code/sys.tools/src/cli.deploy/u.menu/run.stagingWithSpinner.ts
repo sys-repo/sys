@@ -1,4 +1,4 @@
-import { type t, pkg, c, Cli, Err, Path, Pkg, Str } from '../common.ts';
+import { type t, pkg, c, Cli, Err, Path, Pkg, Str, Time } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
 import { executeStaging, finalizeDistTree, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -20,6 +20,7 @@ export async function runStagingWithSpinner(args: {
   const { cwd, mappings } = args;
 
   const spin = Cli.spinner();
+  const started = Time.now.timestamp;
   spin.start(Fmt.spinnerText('Running staging...'));
 
   const active = new Map<number, string>();
@@ -31,7 +32,9 @@ export async function runStagingWithSpinner(args: {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
     const lines: string[] = [];
     const progress = Math.min(total, done + active.size);
-    lines.push(`staging (${c.white(String(progress))}/${total})...`);
+    const elapsed = Time.elapsed(started);
+    const elapsedText = elapsed.msec >= 1000 ? ` ${c.gray(c.dim(elapsed.toString()))}` : '';
+    lines.push(`staging (${c.white(String(progress))}/${total})...${elapsedText}`);
 
     for (const name of names) {
       lines.push(c.gray(`  - ${c.white(name)}`));
@@ -43,53 +46,58 @@ export async function runStagingWithSpinner(args: {
   const refresh = () => {
     spin.text = Fmt.spinnerText(render());
   };
+  const timer = globalThis.setInterval(refresh, 1000);
 
   try {
-    await executeStaging({
-      cwd,
-      mappings,
-      stagingRoot: args.stagingRoot,
-      sourceRoot: args.sourceRoot,
-      indexBaseDomain: args.indexBaseDomain,
-      concurrency: stagingConcurrencyDefault({ total }),
-      cleanStagingRoot: args.clear ?? false,
-      writeDistJson: true,
+    try {
+      await executeStaging({
+        cwd,
+        mappings,
+        stagingRoot: args.stagingRoot,
+        sourceRoot: args.sourceRoot,
+        indexBaseDomain: args.indexBaseDomain,
+        concurrency: stagingConcurrencyDefault({ total }),
+        cleanStagingRoot: args.clear ?? false,
+        writeDistJson: true,
 
-      async onWriteDistJson(e) {
-        // Regenerate dist metadata for the entire staging tree.
-        await finalizeDistTree({
-          dir: e.stagingRoot,
-          pkg,
-          builder: pkg,
-          baseDomain: args.indexBaseDomain,
-          filter: (path) => !shouldExclude(Path.basename(path)),
-        });
-      },
+        async onWriteDistJson(e) {
+          // Regenerate dist metadata for the entire staging tree.
+          await finalizeDistTree({
+            dir: e.stagingRoot,
+            pkg,
+            builder: pkg,
+            baseDomain: args.indexBaseDomain,
+            filter: (path) => !shouldExclude(Path.basename(path)),
+          });
+        },
 
-      onProgress(e) {
-        if (e.kind === 'mapping:start') {
-          active.set(e.index, Path.basename(e.source));
+        onProgress(e) {
+          if (e.kind === 'mapping:start') {
+            active.set(e.index, Path.basename(e.source));
+            refresh();
+            return;
+          }
+
+          if (e.kind === 'mapping:done') {
+            done += 1;
+            active.delete(e.index);
+            refresh();
+            return;
+          }
+
+          if (e.kind === 'mapping:fail') {
+            lastFail = e;
+            active.delete(e.index);
+            refresh();
+            return;
+          }
+
           refresh();
-          return;
-        }
-
-        if (e.kind === 'mapping:done') {
-          done += 1;
-          active.delete(e.index);
-          refresh();
-          return;
-        }
-
-        if (e.kind === 'mapping:fail') {
-          lastFail = e;
-          active.delete(e.index);
-          refresh();
-          return;
-        }
-
-        refresh();
-      },
-    });
+        },
+      });
+    } finally {
+      globalThis.clearInterval(timer);
+    }
 
     const stageAbs = Path.resolve(cwd, args.stagingRoot);
     const dist = (await Pkg.Dist.load(stageAbs)).dist;
