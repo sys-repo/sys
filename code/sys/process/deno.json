@@ -1,6 +1,6 @@
 {
   "name": "@sys/process",
-  "version": "0.0.255",
+  "version": "0.0.256",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
