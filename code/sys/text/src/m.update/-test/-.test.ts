@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
+import { Update as PublicUpdate } from '@sys/text/update';
 import { Update } from '../mod.ts';
 
 describe(`Update`, () => {
-  it('API', async () => {
-    const m = await import('@sys/text/update');
-    expect(m.Update).to.equal(Update);
+  it('API', () => {
+    expect(PublicUpdate).to.equal(Update);
   });
 });

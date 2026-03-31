@@ -10,7 +10,7 @@ export declare namespace TextUpdate {
   };
 
   /** Update text by traversing and mutating it line-by-line. */
-  export type Lines = (text: string, modify?: LineModify) => Promise<LinesResult>;
+  export type Lines = (text: string, modify?: LineModify) => LinesResult;
 
   /** Result of a line-based text update. */
   export type LinesResult = {
@@ -34,7 +34,7 @@ export declare namespace TextUpdate {
   };
 
   /** Line-update callback. */
-  export type LineModify = (line: Line) => t.IgnoredResult;
+  export type LineModify = (line: Line) => void;
 
   /** Mutable operations exposed while visiting a line. */
   export type Line = {
