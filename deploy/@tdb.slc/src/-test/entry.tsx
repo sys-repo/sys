@@ -50,8 +50,14 @@ export async function main() {
      * DevHarness:
      */
     const { App } = await import('../ui/App/mod.ts');
-    const { render } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard: useDevKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
+
+    const DevRoot = (props: { state: t.AppSignals; children?: t.ReactNode }) => {
+      useKeyboard(props.state);
+      useDevKeyboard();
+      return props.children;
+    };
 
     const app = App.signals();
     const el = await render(pkg, Specs, {
@@ -61,7 +67,7 @@ export async function main() {
 
     root.render(
       <StrictMode>
-        <Root state={app}>{el}</Root>
+        <DevRoot state={app}>{el}</DevRoot>
       </StrictMode>,
     );
   } else {
