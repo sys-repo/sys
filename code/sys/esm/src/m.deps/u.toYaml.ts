@@ -37,7 +37,12 @@ export const toYaml: t.EsmDeps.Lib['toYaml'] = (entries, options = {}) => {
     obj,
     get text() {
       if (text) return text;
-      const yaml = Yaml.stringify(obj);
+      const yaml = Yaml.stringify(obj, {
+        format(ctx) {
+          // Subpath arrays are short metadata lists; inline flow style keeps deps.yaml compact.
+          if (ctx.key === 'subpaths' && Yaml.Is.seq(ctx.node)) ctx.node.flow = true;
+        },
+      });
       if (yaml.error) throw yaml.error;
       return (text = yaml.data ?? '');
     },
@@ -52,7 +57,7 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
   groups.forEach((entry) => {
     const group = o.groups[entry.group!].filter((item) => !!item.import);
     const imports = group.filter((item) => !!item.import).map((item) => item.import!);
-    const allExist = group.every((item) => o[target].some((current) => current.import === item.import));
+    const allExist = group.every((item) => o[target].some((cur) => cur.import === item.import));
     if (allExist) obj[target] = o[target].filter((item) => !imports.includes(item.import!));
   });
 }
