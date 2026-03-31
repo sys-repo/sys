@@ -13,12 +13,8 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register(new URL('../sw.js', import.meta.url), { type: 'module' })
-      .then((reg) =>
-        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
-      )
-      .catch((err) =>
-        console.error(`💥 [main] ServiceWorker registration failed:`, err),
-      );
+      .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
 }
 
@@ -27,7 +23,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
  */
 const document = globalThis.document;
 if (document) {
-  document.title = pkg.name;
+  document.title = 'Social Lean Canvas';
   document.body.style.overflow = 'hidden'; // NB: suppress rubber-band effect.
 }
 
