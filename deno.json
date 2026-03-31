@@ -23,17 +23,8 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "@types/react"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -90,20 +81,10 @@
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
-    "deploy/@tdb.slc.std",
-    "deploy/tmp.proxy"
+    "deploy/@tdb.slc.std"
   ],
-  "lint": {
-    "rules": {
-      "exclude": [
-        "no-explicit-any",
-        "no-slow-types"
-      ]
-    }
-  },
-  "test": {
-    "permissions": "test"
-  },
+  "lint": { "rules": { "exclude": ["no-explicit-any", "no-slow-types"] } },
+  "test": { "permissions": "test" },
   "permissions": {
     "test": {
       "read": true,
@@ -140,4 +121,3 @@
     }
   }
 }
-
