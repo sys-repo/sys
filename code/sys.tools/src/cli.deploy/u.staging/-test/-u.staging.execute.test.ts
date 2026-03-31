@@ -191,6 +191,7 @@ describe('Staging: executeStaging', () => {
       expect(html.includes('stale-token')).to.eql(false);
       expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
       expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+      expect(html.indexOf('name="x-build-reset"')).to.be.lessThan(html.indexOf('<body>'));
     });
   });
 
@@ -226,6 +227,27 @@ describe('Staging: executeStaging', () => {
       });
 
       const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+    });
+  });
+
+  it('root index: carries x-build-reset after finalizeDistTree when enabled', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(
+        `${tmp}/src/index.html`,
+        '<!doctype html><html><head><title>x</title></head><body></body></html>',
+      );
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        buildResetHtml: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/index.html`);
       const html = String(index.data ?? '');
       expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
     });

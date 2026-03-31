@@ -7,6 +7,7 @@ type Args = {
   readonly pkg?: t.Pkg;
   readonly builder?: t.Pkg;
   readonly baseDomain?: string;
+  readonly buildResetToken?: string;
 };
 
 /**
@@ -22,7 +23,10 @@ export async function finalizeDistTree(args: Args): Promise<void> {
 
   const directories = await collectDirectories(root);
   for (const dir of directories) {
-    await ensureIndexHtml(dir, { baseDomain: args.baseDomain });
+    await ensureIndexHtml(dir, {
+      baseDomain: args.baseDomain,
+      buildResetToken: args.buildResetToken,
+    });
 
     await Pkg.Dist.compute({
       dir,
@@ -35,7 +39,11 @@ export async function finalizeDistTree(args: Args): Promise<void> {
   }
 
   // Re-finalize root after child dist coverage exists to avoid first/second-run drift.
-  await ensureIndexHtml(root, { force: true, baseDomain: args.baseDomain });
+  await ensureIndexHtml(root, {
+    force: true,
+    baseDomain: args.baseDomain,
+    buildResetToken: args.buildResetToken,
+  });
   await Pkg.Dist.compute({
     dir: root,
     pkg: args.pkg,

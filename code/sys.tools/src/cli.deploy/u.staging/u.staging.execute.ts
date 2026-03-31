@@ -24,7 +24,10 @@ type Args = {
   stagingRoot?: t.StringRelativeDir;
   cleanStagingRoot?: boolean;
   writeDistJson?: boolean;
-  onWriteDistJson?: (e: { stagingRoot: t.StringAbsoluteDir }) => Promise<void>;
+  onWriteDistJson?: (e: {
+    stagingRoot: t.StringAbsoluteDir;
+    buildResetToken?: string;
+  }) => Promise<void>;
   buildResetHtml?: boolean;
 
   /**
@@ -114,7 +117,7 @@ export async function executeStaging(options: Args): Promise<void> {
 
     const write = options.onWriteDistJson;
     if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
-    await write({ stagingRoot: rootAbs });
+    await write({ stagingRoot: rootAbs, buildResetToken });
   }
 }
 

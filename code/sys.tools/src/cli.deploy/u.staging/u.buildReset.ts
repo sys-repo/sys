@@ -1,6 +1,8 @@
 import { type t, Fs, slug, Time } from '../common.ts';
 
 const META_RE = /<meta\s+name=["']x-build-reset["'][^>]*>/i;
+const META_LINE_RE = /\n?[ \t]*<meta\s+name=["']x-build-reset["'][^>]*>\s*\n?/i;
+const HEAD_OPEN_RE = /<head[^>]*>/i;
 
 /**
  * Create one cache-busting token for a staging run.
@@ -16,9 +18,13 @@ export function createBuildResetToken(now = Time.now.timestamp): string {
  */
 export function withBuildResetMeta(html: string, token: string): string {
   const meta = `    <meta name="x-build-reset" content="${token}" />`;
-  if (META_RE.test(html)) return html.replace(META_RE, meta);
-  if (html.includes('</head>')) return html.replace('</head>', `${meta}\n  </head>`);
-  return `${meta}\n${html}`;
+  const cleaned = META_LINE_RE.test(html) ? html.replace(META_LINE_RE, '\n') : html;
+  if (HEAD_OPEN_RE.test(cleaned)) {
+    return cleaned.replace(HEAD_OPEN_RE, (head) => `${head}\n${meta}`);
+  }
+  if (META_RE.test(cleaned)) return cleaned.replace(META_RE, meta);
+  if (cleaned.includes('</head>')) return cleaned.replace('</head>', `${meta}\n  </head>`);
+  return `${meta}\n${cleaned}`;
 }
 
 /**

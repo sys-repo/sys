@@ -69,6 +69,7 @@ export async function runStagingWithSpinner(args: {
             pkg,
             builder: pkg,
             baseDomain: args.indexBaseDomain,
+            buildResetToken: e.buildResetToken,
             filter: (path) => !shouldExclude(Path.basename(path)),
           });
         },
