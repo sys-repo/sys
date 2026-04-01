@@ -17,7 +17,7 @@ export async function createFakeDeployCli(stageRoot: string) {
   const assertScript = Fs.join(dir.absolute, 'assert-prepared-stage.ts');
   const realDeno = Deno.execPath();
   const configPath = Fs.join(stageRoot, 'deno.json');
-  const compatEntrypoint = Fs.join(stageRoot, 'src', 'm.server', 'main.ts');
+  const compatEntrypoint = Fs.join(stageRoot, '-staged', 'm.server.ts');
 
   await Fs.write(recordScript, recordInvocationScript());
   await Fs.write(assertScript, assertPreparedStageScript());
