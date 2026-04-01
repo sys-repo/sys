@@ -32,6 +32,8 @@ type StageHooks = {
   ) => Promise<void> | void;
 };
 
+const STAGE_RUNTIME_PACKAGES = ['code/sys.driver/driver-deno'] as const;
+
 export async function executeStage(
   request: t.DenoDeploy.Stage.Request,
   hooks: StageHooks = {},
@@ -43,7 +45,7 @@ export async function executeStage(
     const err = `DenoDeploy.stage: missing workspace graph snapshot at '${Workspace.Prep.State.graphFile(workspace.dir)}' — run prep first`;
     throw new Error(err);
   }
-  const retain = closureFromGraph(snapshot.graph, target.relative);
+  const retain = wrangle.retainPackages(snapshot.graph, target.relative);
   const ctx = { workspace, target, root } as const;
 
   await hooks.onRoot?.(ctx);
@@ -67,7 +69,7 @@ export async function executeStage(
   try {
     await materializeWorkspace({ source: workspace.dir, root, retain });
     await rewriteStageWorkspace(root, retain);
-    await ensureStageDriverDenoImport(root);
+    await ensureStageDriverDenoImport(root, retain);
 
     const rendered = renderStageEntrypoints(target.relative);
     const entry = Fs.join(root, FILE.entry);
@@ -90,3 +92,19 @@ export async function executeStage(
     throw error;
   }
 }
+
+const wrangle = {
+  retainPackages(
+    graph: t.WorkspaceGraph.PersistedGraph,
+    target: t.StringPath,
+  ): ReadonlySet<t.StringPath> {
+    const retain = new Set(closureFromGraph(graph, target));
+
+    for (const path of STAGE_RUNTIME_PACKAGES) {
+      if (!graph.orderedPaths.includes(path)) continue;
+      for (const pkg of closureFromGraph(graph, path)) retain.add(pkg);
+    }
+
+    return retain;
+  },
+} as const;

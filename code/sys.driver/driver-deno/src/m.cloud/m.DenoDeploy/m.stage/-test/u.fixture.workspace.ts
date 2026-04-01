@@ -74,6 +74,36 @@ export async function createStageWorkspace() {
   return fs;
 }
 
+export async function addStageRuntimeDriverFixture(root: string) {
+  await Fs.writeJson(Fs.join(root, 'code/sys.driver/driver-deno/deno.json'), {
+    name: '@sys/driver-deno',
+    version: '0.0.288',
+    exports: {
+      '.': './src/mod.ts',
+      './cloud': './src/m.cloud/mod.ts',
+    },
+  });
+  await Fs.write(Fs.join(root, 'code/sys.driver/driver-deno/src/mod.ts'), `export const driver = true;\n`);
+  await Fs.write(
+    Fs.join(root, 'code/sys.driver/driver-deno/src/m.cloud/mod.ts'),
+    `export const cloud = true;\n`,
+  );
+
+  await Fs.writeJson(Fs.join(root, 'code/sys/fs/deno.json'), {
+    name: '@sys/fs',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+  });
+  await Fs.write(Fs.join(root, 'code/sys/fs/src/mod.ts'), `export const fs = true;\n`);
+
+  await Fs.writeJson(Fs.join(root, 'code/sys/types/deno.json'), {
+    name: '@sys/types',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+  });
+  await Fs.write(Fs.join(root, 'code/sys/types/src/mod.ts'), `export type T = true;\n`);
+}
+
 export async function writeWorkspaceGraphSnapshot(
   root: string,
   graph: import('../../../../-test.ts').t.WorkspaceGraph.PersistedGraph,

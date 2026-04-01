@@ -11,7 +11,12 @@ import {
 } from '../../../../-test.ts';
 import { DenoFile } from '../../../../m.runtime/mod.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { createStageWorkspace, getStageError, writeWorkspaceGraphSnapshot } from './u.fixture.workspace.ts';
+import {
+  addStageRuntimeDriverFixture,
+  createStageWorkspace,
+  getStageError,
+  writeWorkspaceGraphSnapshot,
+} from './u.fixture.workspace.ts';
 import { closureFromGraph } from '../u.closureFromGraph.ts';
 
 describe('DenoDeploy: staging artifact', () => {
@@ -74,6 +79,42 @@ describe('DenoDeploy: staging artifact', () => {
       expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/dist/index.html'))).to.be.true;
       expect(await Fs.exists(Fs.join(res.root, 'entry.paths.ts'))).to.be.true;
       expect(res.entry).to.eql(Fs.join(res.root, 'entry.ts'));
+    });
+
+    it('retains stage runtime packages locally and rewrites imports to local staged paths', async () => {
+      const fs = await createStageWorkspace();
+      await addStageRuntimeDriverFixture(fs.dir);
+      await writeWorkspaceGraphSnapshot(fs.dir, {
+        orderedPaths: [
+          'code/sys/types',
+          'code/sys/fs',
+          'code/sys.driver/driver-deno',
+          'libs/bar',
+          'code/apps/foo',
+          'libs/baz',
+        ],
+        edges: [
+          { from: 'code/sys/types', to: 'code/sys/fs' },
+          { from: 'code/sys/fs', to: 'code/sys.driver/driver-deno' },
+          { from: 'code/sys.driver/driver-deno', to: 'code/apps/foo' },
+          { from: 'libs/bar', to: 'code/apps/foo' },
+        ],
+      });
+
+      const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
+      expect(await Fs.exists(Fs.join(res.root, 'code/sys.driver/driver-deno/src/m.cloud/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'code/sys/fs/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'code/sys/types/src/mod.ts'))).to.be.true;
+
+      const importMap = await Fs.readJson<{ readonly imports?: Record<string, string> }>(
+        Fs.join(res.root, 'imports.json'),
+      );
+      expect(importMap.data?.imports?.['@sys/driver-deno']).to.eql('./code/sys.driver/driver-deno/src/mod.ts');
+      expect(importMap.data?.imports?.['@sys/driver-deno/cloud']).to.eql(
+        './code/sys.driver/driver-deno/src/m.cloud/mod.ts',
+      );
+      expect(importMap.data?.imports?.['@sys/fs']).to.eql('./code/sys/fs/src/mod.ts');
+      expect(importMap.data?.imports?.['@sys/types']).to.eql('./code/sys/types/src/mod.ts');
     });
 
     it('stages into a caller-provided empty root', async () => {
