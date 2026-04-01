@@ -1,4 +1,4 @@
-import { c, Time, type t } from './common.ts';
+import { c, Str, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
 import { DENO_CONSOLE_URL, formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
@@ -115,6 +115,7 @@ export const InfoFmt = {
         rows: [
           { label: 'App', value: config.app, color: 'white' },
           { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
+          ...(config.prod ? [{ label: 'prod', value: 'true', color: 'white' as const }] : []),
           { label: 'Token', value: '', valueParts: redactToken(config.token) },
           {
             label: 'Platform',
@@ -142,11 +143,12 @@ export const InfoFmt = {
             value: '',
             valueParts: wrangle.deployOkParts(result),
           },
+          ...(result.prod ? [{ label: 'timeline', value: 'production', color: 'white' as const }] : []),
+          { label: 'revision', value: '', valueParts: formatUrlParts(revision, { highlight }) },
+          { label: 'preview', value: '', valueParts: formatUrlParts(preview, { highlight }) },
           ...(elapsed !== undefined
             ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
             : []),
-          { label: 'revision', value: '', valueParts: formatUrlParts(revision, { highlight }) },
-          { label: 'preview', value: '', valueParts: formatUrlParts(preview, { highlight }) },
         ],
       });
     },
@@ -178,8 +180,11 @@ export const InfoFmt = {
           { label: 'entry', value: wrangle.relativeTo(args.entrypoint, args.stagedDir), color: 'white' },
           { label: 'paths', value: wrangle.relativeTo(args.entryPaths, args.stagedDir), color: 'white' },
           { label: 'main', value: args.appEntrypoint, color: 'white' },
-          { label: 'workspace', value: args.workspaceTarget, color: 'white' },
-          { label: 'dist', value: args.distDir, color: 'white' },
+          { label: 'package', value: args.workspaceTarget, color: 'white' },
+          ...(args.hasDistDir ? [{ label: 'dist', value: args.distDir, color: 'white' as const }] : []),
+          ...(args.stagedSizeBytes !== undefined
+            ? [{ label: 'size', value: Str.bytes(args.stagedSizeBytes), color: 'gray' as const }]
+            : []),
           ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
           ...(args.elapsed !== undefined
             ? [{ label: 'elapsed', value: Time.duration(args.elapsed).format({ round: 1 }), color: 'gray' as const }]

@@ -25,13 +25,16 @@ export type DeployConfigArgs = {
   readonly app: string;
   readonly org?: string;
   readonly token?: string;
+  readonly prod?: boolean;
   readonly sourceDir?: string;
   readonly stagedDir?: string;
   readonly title?: string;
 };
 
 /** Successful deploy result rendered by the public deploy-result formatter. */
-export type DeployResult = Extract<d.Result, { readonly ok: true }>;
+export type DeployResult = Extract<d.Result, { readonly ok: true }> & {
+  readonly prod?: boolean;
+};
 
 /** Arguments rendered by the public deploy-failure formatter. */
 export type DeployFailureArgs = {

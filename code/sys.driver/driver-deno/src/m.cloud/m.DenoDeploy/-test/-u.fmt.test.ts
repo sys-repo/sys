@@ -21,6 +21,19 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('/tmp/stage-root');
   });
 
+  it('renders prod in deploy config only when enabled', () => {
+    const text = stripAnsi(
+      DenoDeploy.Fmt.Deploy.config({
+        app: 'sample',
+        org: 'sys-org',
+        prod: true,
+      }).join('\n'),
+    );
+
+    expect(text).to.include('prod');
+    expect(text).to.include('true');
+  });
+
   it('renders the staged deploy entrypoint summary', () => {
     const rendered = FmtInternal.Staged.entrypoint({
       sourceDir: '/repo/code/projects/foo',
@@ -29,7 +42,9 @@ describe('DenoDeploy.Fmt', () => {
       entryPaths: '/tmp/stage/entry.paths.ts',
       appEntrypoint: './-staged/m.server.ts',
       workspaceTarget: './code/projects/foo',
+      hasDistDir: true,
       distDir: './code/projects/foo/dist',
+      stagedSizeBytes: 1_234_567,
       distHash: 'sha256-abc123',
     }).join('\n');
     const text = stripAnsi(rendered);
@@ -42,11 +57,34 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.not.include('/tmp/stage/entry.ts');
     expect(text).to.not.include('/tmp/stage/entry.paths.ts');
     expect(text).to.include('./-staged/m.server.ts');
+    expect(text).to.include('package');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');
+    expect(text).to.include('1.23 MB');
+    expect(rendered).to.include(c.gray('1.23 MB'));
     expect(text).to.include('sha256-abc123');
     expect(rendered).to.include(c.dim(c.gray('sha256-a')));
     expect(rendered).to.include(c.brightGreen('bc123'));
+  });
+
+  it('hides dist in staged entrypoint summary when no staged dist exists', () => {
+    const text = stripAnsi(
+      FmtInternal.Staged.entrypoint({
+        sourceDir: '/repo/deploy/sample.proxy',
+        stagedDir: '/tmp/stage',
+        entrypoint: '/tmp/stage/entry.ts',
+        entryPaths: '/tmp/stage/entry.paths.ts',
+        appEntrypoint: './-staged/m.server.ts',
+        workspaceTarget: './deploy/sample.proxy',
+        distDir: './deploy/sample.proxy/dist',
+        hasDistDir: false,
+      }).join('\n'),
+    );
+
+    expect(text).to.include('package');
+    expect(text).to.not.include('dist');
+    expect(text).to.include('./deploy/sample.proxy');
+    expect(text).to.not.include('./deploy/sample.proxy/dist');
   });
 
   it('renders deploy result urls', () => {
@@ -73,6 +111,32 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('elapsed');
     expect(text).to.include('true (code:0)');
     expect(rendered).to.include(c.white('abc'));
+    expect(text.indexOf('elapsed')).to.be.greaterThan(text.indexOf('preview'));
+  });
+
+  it('renders production timeline in deploy result only when enabled', () => {
+    const text = stripAnsi(
+      DenoDeploy.Fmt.Deploy.result(
+        {
+          ok: true,
+          code: 0,
+          stdout: '',
+          stderr: '',
+          prod: true,
+          deploy: {
+            url: {
+              revision: 'https://console.deno.com/org/app/builds/abc',
+              preview: 'https://app-abc.deno.net',
+            },
+          },
+        },
+        'Deploy Result',
+        1500,
+      ).join('\n'),
+    );
+
+    expect(text).to.include('timeline');
+    expect(text).to.include('production');
   });
 
   it('highlights the shared deploy id across revision and preview urls', () => {
@@ -100,6 +164,18 @@ describe('DenoDeploy.Fmt', () => {
   it('renders deploy spinner text with the org console url', () => {
     const text = stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org'));
     expect(text).to.include('deploying staged workspace to https://console.deno.com/sys-org');
+  });
+
+  it('hides spinner elapsed text until it reaches one second', () => {
+    expect(stripAnsi(ListenFmt.buildSpinnerText(999))).to.not.include('999');
+    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(999))).to.not.include('999');
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 999))).to.not.include(' - ');
+
+    expect(stripAnsi(ListenFmt.buildSpinnerText(1000))).to.not.eql(stripAnsi(ListenFmt.buildSpinnerText()));
+    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(1000))).to.not.eql(
+      stripAnsi(ListenFmt.stageMaterializeSpinnerText()),
+    );
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 1000))).to.include(' - ');
   });
 
   it('renders a compact pipeline failure block', () => {

@@ -8,8 +8,8 @@ import { type SampleDeployConfig, requireSampleDeployConfig, SAMPLE_ENV_NOTE } f
  */
 async function main() {
   const argv = Args.parse(Deno.args, {
-    boolean: ['help'],
-    alias: { h: 'help' },
+    boolean: ['help', 'prod', 'production'],
+    alias: { h: 'help', production: 'prod' },
   });
 
   if (argv.help) {
@@ -22,7 +22,13 @@ async function main() {
   const config = await requireSampleDeployConfig();
   const { pkgDir } = await Sample.Fixture.createDeployableRepoPkg();
 
-  const deployment = DenoDeploy.pipeline({ pkgDir, config });
+  const deployment = DenoDeploy.pipeline({
+    pkgDir,
+    config: {
+      ...config,
+      prod: argv.prod === true,
+    },
+  });
   const reporter = DenoDeploy.Fmt.listen(deployment, {
     afterConfig() {
       return templateProvenance();
@@ -49,9 +55,12 @@ const HELP = {
   tool: 'deno task sample:deploy',
   summary: 'Deploy a generated sample repo/package through the staged DenoDeploy pipeline.',
   note: `Creates a temporary sample workspace and performs a real deploy. ${SAMPLE_ENV_NOTE.deploy}`,
-  usage: ['deno task sample:deploy'],
-  options: [['-h, --help', 'show help']],
-  examples: ['deno task sample:deploy'],
+  usage: ['deno task sample:deploy [--prod|--production]'],
+  options: [
+    ['-h, --help', 'show help'],
+    ['--prod, --production', 'deploy directly to production'],
+  ],
+  examples: ['deno task sample:deploy', 'deno task sample:deploy --prod'],
 } as const;
 
 function templateProvenance() {

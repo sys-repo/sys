@@ -69,8 +69,14 @@ export type Prepared = {
   /** Built dist directory path relative to the staged workspace root. */
   readonly distDir: t.StringPath;
 
+  /** Whether the staged target currently includes a dist directory. */
+  readonly hasDistDir?: boolean;
+
   /** Optional digest published by the built dist artifact metadata. */
   readonly distHash?: string;
+
+  /** Total byte size of the staged deploy root. */
+  readonly stagedSizeBytes?: number;
 };
 
 /**

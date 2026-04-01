@@ -13,21 +13,21 @@ export const ListenFmt = {
 
   stageMaterializeSpinnerText(elapsed?: t.Msecs) {
     const label = ListenFmt.spinnerText('materializing staged workspace...');
-    if (elapsed === undefined) return label;
-    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+    const suffix = wrangle.elapsedSuffix(elapsed);
+    return suffix ? `${label} ${suffix}` : label;
   },
 
   buildSpinnerText(elapsed?: t.Msecs) {
     const label = ListenFmt.spinnerText('building package in source workspace...');
-    if (elapsed === undefined) return label;
-    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+    const suffix = wrangle.elapsedSuffix(elapsed);
+    return suffix ? `${label} ${suffix}` : label;
   },
 
   deploySpinnerText(url: string = DENO_CONSOLE_URL, elapsed?: t.Msecs) {
     const highlight = wrangle.consoleUrlHighlight(url);
     const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${formatUrlParts(url, { highlight }).join('')}`;
-    if (elapsed === undefined) return label;
-    return `${label}${c.dim(c.gray(` - ${String(Time.elapsed(elapsed))}`))}`;
+    const suffix = wrangle.elapsedSuffix(elapsed, { separator: ' - ' });
+    return suffix ? `${label}${suffix}` : label;
   },
 
   spinner(text: string) {
@@ -39,7 +39,7 @@ export const ListenFmt = {
     const consoleUrl = wrangle.consoleUrl(deployment.request.config.org);
     let spin: ReturnType<typeof ListenFmt.spinner> | undefined;
     let spinTimer: { cancel(): void } | undefined;
-    let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
+    let result: t.DenoDeploy.Fmt.DeployResult | undefined;
     let startedAt: t.Msecs | undefined;
     let buildStartedAt: t.Msecs | undefined;
     let stageMaterializeStartedAt: t.Msecs | undefined;
@@ -186,10 +186,10 @@ export const ListenFmt = {
 
       if (step.kind === 'deploy:done') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
-        result = step.result;
+        result = { ...step.result, prod: deployment.request.config.prod === true };
         if (!verifying) {
           spin?.stop();
-          print(InfoFmt.Deploy.result(step.result, 'Deploy Result', wrangle.elapsed(startedAt)));
+          print(InfoFmt.Deploy.result(result, 'Deploy Result', wrangle.elapsed(startedAt)));
         }
         return;
       }
@@ -254,6 +254,15 @@ const wrangle = {
     } catch {
       return [];
     }
+  },
+
+  elapsedSuffix(
+    elapsed?: t.Msecs,
+    opts: { separator?: string } = {},
+  ) {
+    if (elapsed === undefined || elapsed < 1000) return '';
+    const separator = opts.separator ? c.dim(c.gray(opts.separator)) : '';
+    return `${separator}${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
   },
 
   stopTimer(
