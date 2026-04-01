@@ -178,7 +178,7 @@ export const InfoFmt = {
           { label: 'main', value: args.appEntrypoint, color: 'white' },
           { label: 'workspace', value: args.workspaceTarget, color: 'white' },
           { label: 'dist', value: args.distDir, color: 'white' },
-          ...(args.distHash ? [{ label: 'dist:hash', value: args.distHash, color: 'gray' as const }] : []),
+          ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
         ],
       });
     },
@@ -345,6 +345,11 @@ const wrangle = {
 
   relativeTo(path: string, base: string) {
     return path.startsWith(`${base}/`) ? `.${path.slice(base.length)}` : path;
+  },
+
+  hashSuffix(input: string) {
+    if (input.length <= 5) return [c.brightGreen(input)] as const;
+    return [c.dim(c.gray(input.slice(0, -5))), c.brightGreen(input.slice(-5))] as const;
   },
 
   objectErrorMessage(error: object) {

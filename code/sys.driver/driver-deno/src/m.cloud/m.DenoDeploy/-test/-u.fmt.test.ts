@@ -44,6 +44,8 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');
     expect(text).to.include('sha256-abc123');
+    expect(rendered).to.include(c.dim(c.gray('sha256-a')));
+    expect(rendered).to.include(c.brightGreen('bc123'));
   });
 
   it('renders deploy result urls', () => {
