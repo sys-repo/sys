@@ -14,7 +14,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./deps": "./src/m.deps/mod.ts"
+    "./deps": "./src/m.deps/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {
