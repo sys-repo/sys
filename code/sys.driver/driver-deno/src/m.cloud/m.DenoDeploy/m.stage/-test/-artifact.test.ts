@@ -6,11 +6,12 @@ import {
   Fs,
   it,
   slug,
+  Testing,
   Workspace,
 } from '../../../../-test.ts';
 import { DenoFile } from '../../../../m.runtime/mod.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { createStageWorkspace, getStageError } from './u.fixture.workspace.ts';
+import { createStageWorkspace, getStageError, writeWorkspaceGraphSnapshot } from './u.fixture.workspace.ts';
 import { closureFromGraph } from '../u.closureFromGraph.ts';
 
 describe('DenoDeploy: staging artifact', () => {
@@ -29,6 +30,29 @@ describe('DenoDeploy: staging artifact', () => {
   });
 
   describe('workspace materialization', () => {
+    it('skips build cleanly when the target package has no build task', async () => {
+      const fs = await Testing.dir('DenoDeploy.stage.no-build-task');
+      await Fs.writeJson(fs.join('deno.json'), {
+        name: 'root',
+        version: '0.0.0',
+        workspace: ['./code/apps/foo'],
+      });
+      await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
+        name: '@test/foo',
+        version: '0.0.0',
+        exports: { '.': './src/mod.ts' },
+      });
+      await Fs.write(fs.join('code/apps/foo/src/mod.ts'), `export const foo = true;\n`);
+      await writeWorkspaceGraphSnapshot(fs.dir, {
+        orderedPaths: ['code/apps/foo'],
+        edges: [],
+      });
+
+      const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
+      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'code/apps/foo/dist'))).to.be.false;
+    });
+
     it('stages a workspace target into a temp root', async () => {
       const fs = await createStageWorkspace();
       const snapshot = await Workspace.Prep.Graph.read(fs.dir);
