@@ -26,7 +26,7 @@ describe('DenoDeploy.Fmt', () => {
       stagedDir: '/tmp/stage',
       entrypoint: '/tmp/stage/entry.ts',
       entryPaths: '/tmp/stage/entry.paths.ts',
-      appEntrypoint: './src/m.server/main.ts',
+      appEntrypoint: './-staged/m.server.ts',
       workspaceTarget: './code/projects/foo',
       distDir: './code/projects/foo/dist',
       distHash: 'sha256-abc123',
@@ -40,7 +40,7 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('./entry.paths.ts');
     expect(text).to.not.include('/tmp/stage/entry.ts');
     expect(text).to.not.include('/tmp/stage/entry.paths.ts');
-    expect(text).to.include('./src/m.server/main.ts');
+    expect(text).to.include('./-staged/m.server.ts');
     expect(text).to.include('./code/projects/foo');
     expect(text).to.include('./code/projects/foo/dist');
     expect(text).to.include('sha256-abc123');
