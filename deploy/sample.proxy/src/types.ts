@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type {};
+export type { Routes } from './m.proxy/m.proxy.routes.ts';

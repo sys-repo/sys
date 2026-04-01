@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "start": "deno run -A ./src/main.ts",
     "deploy": "deno run -P=deploy ./-scripts/task.deploy.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/* ./-scripts/*",
