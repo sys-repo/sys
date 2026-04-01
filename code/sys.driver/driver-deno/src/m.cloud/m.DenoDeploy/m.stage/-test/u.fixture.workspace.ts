@@ -1,12 +1,21 @@
-import { Fs, Str, Testing } from '../../../../-test.ts';
+import { Fs, Str, Testing, Workspace } from '../../../../-test.ts';
 
 export async function createStageWorkspace() {
   const fs = await Testing.dir('DenoDeploy.stage');
   await Fs.writeJson(fs.join('deno.json'), {
     name: 'root',
     version: '0.0.0',
-    workspace: ['./code/apps/foo', './libs/bar'],
+    importMap: './imports.json',
+    workspace: ['./code/apps/foo', './libs/bar', './libs/baz'],
   });
+  await Fs.writeJson(fs.join('imports.json'), {
+    imports: {
+      '@test/foo': './code/apps/foo/src/mod.ts',
+      '@test/bar': './libs/bar/src/mod.ts',
+      '@test/baz': './libs/baz/src/mod.ts',
+    },
+  });
+  await Fs.write(fs.join('deno.lock'), '{"version":"5"}\n');
 
   await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
     name: '@test/foo',
@@ -16,7 +25,7 @@ export async function createStageWorkspace() {
   });
   await Fs.write(
     fs.join('code/apps/foo/src/mod.ts'),
-    `export default 'foo-default';\nexport const foo = 'foo';\n`,
+    `import { bar } from '../../../../libs/bar/src/mod.ts';\nexport default 'foo-default';\nexport const foo = \`foo-\${bar}\`;\n`,
   );
   await Fs.write(
     fs.join('code/apps/foo/-scripts/task.build.ts'),
@@ -42,7 +51,36 @@ export async function createStageWorkspace() {
       await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>bar</body></html>');
     `),
   );
+
+  await Fs.writeJson(fs.join('libs/baz/deno.json'), {
+    name: '@test/baz',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+    tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
+  });
+  await Fs.write(fs.join('libs/baz/src/mod.ts'), `export const baz = 'baz';\n`);
+  await Fs.write(
+    fs.join('libs/baz/-scripts/task.build.ts'),
+    Str.dedent(`
+      await Deno.mkdir('dist', { recursive: true });
+      await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>baz</body></html>');
+    `),
+  );
+
+  await writeWorkspaceGraphSnapshot(fs.dir, {
+    orderedPaths: ['libs/bar', 'code/apps/foo', 'libs/baz'],
+    edges: [{ from: 'libs/bar', to: 'code/apps/foo' }],
+  });
   return fs;
+}
+
+export async function writeWorkspaceGraphSnapshot(
+  root: string,
+  graph: import('../../../../-test.ts').t.WorkspaceGraph.PersistedGraph,
+) {
+  const snapshot = Workspace.Graph.Snapshot.create({ graph });
+  await Fs.ensureDir(Fs.join(root, '.tmp'));
+  await Workspace.Graph.Snapshot.write(snapshot, Fs.join(root, '.tmp/workspace.graph.json'));
 }
 
 export async function getStageError(fn: () => Promise<unknown>) {

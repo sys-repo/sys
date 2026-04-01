@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it, slug, Str, Testing } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
-import { createStageWorkspace, getStageError } from './u.fixture.workspace.ts';
+import { createStageWorkspace, getStageError, writeWorkspaceGraphSnapshot } from './u.fixture.workspace.ts';
 
 describe('DenoDeploy: staging target resolution', () => {
   describe('workspace target boundaries', () => {
@@ -57,6 +57,10 @@ describe('DenoDeploy: staging target resolution', () => {
           await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>foo</body></html>');
         `),
       );
+      await writeWorkspaceGraphSnapshot(fs.dir, {
+        orderedPaths: ['code/apps/foo'],
+        edges: [],
+      });
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       expect((await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data).to.eql(
@@ -85,6 +89,10 @@ describe('DenoDeploy: staging target resolution', () => {
           await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>foo</body></html>');
         `),
       );
+      await writeWorkspaceGraphSnapshot(fs.dir, {
+        orderedPaths: ['code/apps/foo'],
+        edges: [],
+      });
 
       const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
       const stageText = (await Fs.readText(Fs.join(res.root, 'entry.paths.ts'))).data ?? '';

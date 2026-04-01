@@ -1,10 +1,12 @@
-import { type t, Fs, Time } from './common.ts';
 import { FILE, renderStageEntrypoints } from './-tmpl/mod.ts';
+import { type t, Fs, Time, Workspace } from './common.ts';
 import { buildStageTarget } from './u.buildStageTarget.ts';
+import { closureFromGraph } from './u.closureFromGraph.ts';
 import { ensureStageDriverDenoImport } from './u.ensureStageDriverDenoImport.ts';
 import { materializeWorkspace } from './u.materializeWorkspace.ts';
 import { resolveStageRoot } from './u.resolveStageRoot.ts';
 import { resolveStageTarget } from './u.resolveStageTarget.ts';
+import { rewriteStageWorkspace } from './u.rewriteStageWorkspace.ts';
 
 type StageContext = {
   readonly workspace: t.DenoWorkspace;
@@ -36,24 +38,35 @@ export async function executeStage(
 ): Promise<t.DenoDeploy.Stage.Result> {
   const { workspace, target } = await resolveStageTarget(request);
   const root = await resolveStageRoot(workspace.dir, request.root);
+  const snapshot = await Workspace.Prep.Graph.read(workspace.dir);
+  if (!snapshot) {
+    const err = `DenoDeploy.stage: missing workspace graph snapshot at '${Fs.join(workspace.dir, '.tmp', 'workspace.graph.json')}' — run prep first`;
+    throw new Error(err);
+  }
+  const retain = closureFromGraph(snapshot.graph, target.relative);
   const ctx = { workspace, target, root } as const;
 
   await hooks.onRoot?.(ctx);
   await hooks.onBuildStart?.(ctx);
 
-  const buildStartedAt = Time.now.timestamp as t.Msecs;
+  const buildStartedAt: t.Msecs = Time.now.timestamp;
   try {
     await buildStageTarget(target.absolute);
   } catch (error) {
-    await hooks.onBuildFailed?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec as t.Msecs, error });
+    await hooks.onBuildFailed?.({
+      ...ctx,
+      elapsed: Time.elapsed(buildStartedAt).msec,
+      error,
+    });
     throw error;
   }
-  await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec as t.Msecs });
+  await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec });
 
   await hooks.onStageStart?.(ctx);
-  const stageStartedAt = Time.now.timestamp as t.Msecs;
+  const stageStartedAt: t.Msecs = Time.now.timestamp;
   try {
-    await materializeWorkspace(workspace.dir, root);
+    await materializeWorkspace({ source: workspace.dir, root, retain });
+    await rewriteStageWorkspace(root, retain);
     await ensureStageDriverDenoImport(root);
 
     const rendered = renderStageEntrypoints(target.relative);
@@ -69,10 +82,11 @@ export async function executeStage(
       entry,
     } as const;
 
-    await hooks.onStageDone?.({ ...result, elapsed: Time.elapsed(stageStartedAt).msec as t.Msecs });
+    await hooks.onStageDone?.({ ...result, elapsed: Time.elapsed(stageStartedAt).msec });
     return result;
   } catch (error) {
-    await hooks.onStageFailed?.({ ...ctx, elapsed: Time.elapsed(stageStartedAt).msec as t.Msecs, error });
+    const elapsed = Time.elapsed(stageStartedAt).msec;
+    await hooks.onStageFailed?.({ ...ctx, elapsed, error });
     throw error;
   }
 }
