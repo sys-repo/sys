@@ -23,10 +23,11 @@ export const ListenFmt = {
     return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
   },
 
-  deploySpinnerText(elapsed?: t.Msecs) {
-    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${formatUrlParts(DENO_CONSOLE_URL).join('')}`;
+  deploySpinnerText(url: string = DENO_CONSOLE_URL, elapsed?: t.Msecs) {
+    const highlight = wrangle.consoleUrlHighlight(url);
+    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${formatUrlParts(url, { highlight }).join('')}`;
     if (elapsed === undefined) return label;
-    return `${label}${c.gray(' - ')}${c.dim(String(Time.elapsed(elapsed)))}`;
+    return `${label}${c.dim(c.gray(` - ${String(Time.elapsed(elapsed))}`))}`;
   },
 
   spinner(text: string) {
@@ -35,6 +36,7 @@ export const ListenFmt = {
 
   listen(deployment: t.DenoDeploy.Pipeline.Handle, hooks: t.DenoDeploy.Fmt.ListenHooks = {}) {
     const life = Rx.abortable();
+    const consoleUrl = wrangle.consoleUrl(deployment.request.config.org);
     let spin: ReturnType<typeof ListenFmt.spinner> | undefined;
     let spinTimer: { cancel(): void } | undefined;
     let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
@@ -134,7 +136,7 @@ export const ListenFmt = {
           spin: undefined,
           timer: undefined,
           startedAt: deployStartedAt,
-          text: ListenFmt.deploySpinnerText,
+          text: (elapsed) => ListenFmt.deploySpinnerText(consoleUrl, elapsed),
           get() {
             return spin;
           },
@@ -237,6 +239,20 @@ const wrangle = {
       return Deno.stdin.isTerminal() && Deno.stdout.isTerminal();
     } catch {
       return false;
+    }
+  },
+
+  consoleUrl(org?: string) {
+    if (!org || org.trim().length === 0) return DENO_CONSOLE_URL;
+    return `${DENO_CONSOLE_URL}/${org}`;
+  },
+
+  consoleUrlHighlight(url: string) {
+    try {
+      const parsed = new URL(url);
+      return parsed.pathname === '/' ? [] : [parsed.pathname];
+    } catch {
+      return [];
     }
   },
 
