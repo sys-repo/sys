@@ -7,6 +7,7 @@ export declare namespace EsmAssert {
   /** Public assertion helper surface. */
   export type Lib = {
     readonly runtimeGraphBoundary: RuntimeGraph.Boundary;
+    readonly runtimeGraphOwnership: RuntimeGraph.Ownership;
   };
 
   /** Tools for asserting a runtime graph boundary. */
@@ -18,6 +19,14 @@ export declare namespace EsmAssert {
       readonly entry: t.StringPath;
       readonly forbiddenImports?: string[];
       readonly forbiddenPathIncludes?: string[];
+    };
+
+    /** Assert that a runtime graph owns specific imports. */
+    export type Ownership = (options: OwnershipOptions) => Promise<void>;
+
+    export type OwnershipOptions = {
+      readonly entry: t.StringPath;
+      readonly ownedImports: string[];
     };
   }
 }
