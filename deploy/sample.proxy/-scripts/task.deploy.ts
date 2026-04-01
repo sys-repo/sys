@@ -5,8 +5,9 @@ const env = await Env.load({ search: 'upward' });
 
 const deployment = DenoDeploy.pipeline({
   pkgDir: new URL('..', import.meta.url).pathname,
+  autoCreate: true,
   config: {
-    app: env.get('DENO_DEPLOY_APP'),
+    app: 'sample-proxy',
     org: env.get('DENO_DEPLOY_ORG'),
     token: env.get('DENO_DEPLOY_TOKEN'),
   },
