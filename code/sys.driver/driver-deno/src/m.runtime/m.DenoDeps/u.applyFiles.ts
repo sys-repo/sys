@@ -1,12 +1,9 @@
-import { type t } from './common.ts';
-import { applyDeno } from './u.apply.ts';
-import { applyPackage } from './u.applyPackage.ts';
-import { applyYaml } from './u.applyYaml.ts';
+import { Deps, type t } from './common.ts';
 
 /**
  * Apply canonical deps to deps.yaml and projected Deno files together.
  */
-export async function applyFiles(
+export const applyFiles: t.DepsLib['applyFiles'] = async (
   input: {
     readonly depsPath?: t.StringPath;
     readonly denoFilePath?: t.StringPath;
@@ -14,9 +11,47 @@ export async function applyFiles(
     readonly yaml?: t.DepsYamlOptions;
   },
   deps?: t.Dep[],
-): Promise<t.DenoDeps.ApplyFilesResult> {
-  const yaml = await applyYaml(input.depsPath, deps, input.yaml);
-  const deno = await applyDeno(input.denoFilePath, deps);
-  const pkg = await applyPackage(input.packageFilePath, deps);
-  return pkg ? { yaml, deno, package: pkg } : { yaml, deno };
-}
+): Promise<t.DenoDeps.ApplyFilesResult> => await Deps.applyFiles(wrangle.input(input), deps);
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  input(input: {
+    readonly depsPath?: t.StringPath;
+    readonly denoFilePath?: t.StringPath;
+    readonly packageFilePath?: t.StringPath;
+    readonly yaml?: t.DepsYamlOptions;
+  }): {
+    readonly depsPath?: t.StringPath;
+    readonly denoFilePath?: t.StringPath;
+    readonly packageFilePath?: t.StringPath;
+    readonly yaml?: t.EsmDeps.YamlOptions;
+  } {
+    if (!input.yaml) {
+      return {
+        depsPath: input.depsPath,
+        denoFilePath: input.denoFilePath,
+        packageFilePath: input.packageFilePath,
+      };
+    }
+
+    if (!input.yaml.groupBy) {
+      return {
+        depsPath: input.depsPath,
+        denoFilePath: input.denoFilePath,
+        packageFilePath: input.packageFilePath,
+        yaml: {},
+      };
+    }
+
+    return {
+      depsPath: input.depsPath,
+      denoFilePath: input.denoFilePath,
+      packageFilePath: input.packageFilePath,
+      yaml: {
+        groupBy: ({ entry, target, group }) => input.yaml?.groupBy?.({ dep: entry, target, group }),
+      },
+    };
+  },
+} as const;

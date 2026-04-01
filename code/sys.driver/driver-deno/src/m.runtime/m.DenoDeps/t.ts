@@ -3,52 +3,15 @@ export type * from './t.yaml.ts';
 
 /** Tools and contracts for Deno dependency projection and apply helpers. */
 export declare namespace DenoDeps {
-  /** Where imports are written when applying deps to a Deno config. */
-  export type TargetKind = 'imports' | 'importMap';
-
-  /** Result from writing canonical deps back to a deps.yaml file. */
-  export type ApplyYamlResult = {
-    /** Resolved deps.yaml file path. */
-    readonly depsFilePath: t.StringPath;
-    /** Rendered YAML payload written to disk. */
-    readonly yaml: t.DepsYaml;
-  };
-
-  /** Result from applying deps to a `deno.json` or import-map target. */
-  export type ApplyResult = {
-    /** Whether imports were written inline or via an import map. */
-    readonly kind: TargetKind;
-    /** Resolved `deno.json` file path. */
-    readonly denoFilePath: t.StringPath;
-    /** File path that received the rendered imports. */
-    readonly targetPath: t.StringPath;
-    /** Final import map written to the target. */
-    readonly imports: Record<string, t.StringModuleSpecifier>;
-  };
-
-  /** Result from applying deps to a `package.json` target. */
-  export type ApplyPackageResult = {
-    /** Resolved `package.json` file path. */
-    readonly packageFilePath: t.StringPath;
-    /** Final runtime dependency map written to `package.json`. */
-    readonly dependencies: Record<string, t.StringSemver>;
-    /** Final development dependency map written to `package.json`. */
-    readonly devDependencies: Record<string, t.StringSemver>;
-  };
-
-  /** Result from applying canonical deps to deps.yaml and projected Deno files. */
-  export type ApplyFilesResult = {
-    /** Result from writing deps.yaml. */
-    readonly yaml: ApplyYamlResult;
-    /** Result from applying projected Deno imports. */
-    readonly deno: ApplyResult;
-    /** Result from applying projected Node dependencies, when explicitly requested. */
-    readonly package?: ApplyPackageResult;
-  };
+  export type TargetKind = t.EsmDeps.TargetKind;
+  export type ApplyYamlResult = t.EsmDeps.ApplyYamlResult;
+  export type ApplyResult = t.EsmDeps.ApplyResult;
+  export type ApplyPackageResult = t.EsmDeps.ApplyPackageResult;
+  export type ApplyFilesResult = t.EsmDeps.ApplyFilesResult;
 }
 
 /** Flags indicating the target file format (`deno.json` OR `package.json`). */
-export type DepTargetFile = 'deno.json' | 'package.json';
+export type DepTargetFile = t.EsmDeps.TargetFile;
 
 /**
  * Deno-facing dependency projection and apply helpers.
@@ -137,14 +100,7 @@ export type Deps = {
 /**
  * Canonical dependency YAML rendered through the Deno adapter.
  */
-export type DepsYaml = {
-  /** Structured YAML dependency object. */
-  readonly obj: t.YamlDeps;
-  /** Serialized YAML text. */
-  readonly text: t.StringYaml;
-  /** Stringify the YAML wrapper. */
-  toString(): string;
-};
+export type DepsYaml = t.EsmDeps.Yaml;
 
 /** Options passed to the `DenoDeps.toYaml` adapter method. */
 export type DepsYamlOptions = {
@@ -167,28 +123,7 @@ export type DepsCategorizeByGroupArgs = {
 /**
  * Canonical dependency entry shape carried through the Deno adapter.
  */
-export type Dep = {
-  /** The module-specifier name of the import. */
-  module: t.EsmParsedImport;
-
-  /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
-  target: DepTargetFile[];
-
-  /**
-   * Array of sub-paths for the module.
-   * Causes an import (within deno.json), like:
-   *
-   *    "yaml"
-   *    "yaml/types"
-   */
-  subpaths?: t.StringDir[];
-
-  /**
-   * Flag indicating if the import is a development-dependency only.
-   * Only relevant when producing a `package.json` file.
-   */
-  dev?: boolean;
-};
+export type Dep = t.EsmDeps.Entry;
 
 /**
  * Logging helpers.
