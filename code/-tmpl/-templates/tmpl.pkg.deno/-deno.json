@@ -29,6 +29,6 @@
       "net": true,
       "ffi": true,
       "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
-    },
+    }
   }
 }
