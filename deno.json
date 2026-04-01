@@ -84,7 +84,7 @@
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
     "deploy/@tdb.slc.std",
-    "deploy/tmp.proxy"
+    "deploy/sample.proxy"
   ],
   "lint": {
     "rules": {

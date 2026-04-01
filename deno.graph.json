@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775017606465,
+    "createdAt": 1775019602395,
     "schemaVersion": 1,
     "hash": {
-      "graph": "sha256-9b3fe7537ccfa691d925fe8c60311f11790734c9b87cb0f5b8a9bd09c4c2e4bb"
+      "graph": "sha256-4788cbd9b8825531b86d11782d70cc6366c5136c49cca79851723d7735d61136"
     },
     "generator": {
       "type": "https://jsr.io/@sys/workspace/0.0.41/src/m.graph/t.ts",
@@ -12,7 +12,7 @@
         "version": "0.0.41"
       }
     },
-    "modifiedAt": 1775017606469
+    "modifiedAt": 1775019602400
   },
   "graph": {
     "orderedPaths": [
@@ -62,7 +62,7 @@
       "deploy/@tdb.slc.fs",
       "deploy/@tdb.slc.std",
       "deploy/@tdb.edu.slug",
-      "deploy/tmp.proxy"
+      "deploy/sample.proxy"
     ],
     "edges": [
       {
@@ -1327,7 +1327,7 @@
       },
       {
         "from": "code/sys/types",
-        "to": "deploy/tmp.proxy"
+        "to": "deploy/sample.proxy"
       },
       {
         "from": "code/sys/workspace",

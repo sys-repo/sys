@@ -110,8 +110,8 @@ jobs:
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
             path: deploy/@tdb.edu.slug
-          - name: "@tmp/proxy"
-            path: deploy/tmp.proxy
+          - name: "@sample/proxy"
+            path: deploy/sample.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'

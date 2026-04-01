@@ -63,7 +63,7 @@ export const Paths = {
     'deploy/@tdb.slc.fs',
     'deploy/@tdb.slc.std',
     'deploy/@tdb.edu.slug',
-    'deploy/tmp.proxy',
+    'deploy/sample.proxy',
     // generated:end workspace-topological
   ],
 } as const;
