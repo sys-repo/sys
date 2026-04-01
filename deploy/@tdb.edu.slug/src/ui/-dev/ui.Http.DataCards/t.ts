@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Flags for enumerating the kinds of data-cards available.
  */
 export type DataCardKind = (typeof DataCardKindKinds)[number];
+/** Supported data-card kinds. */
 export const DataCardKindKinds = ['descriptor', 'file-content', 'playback-content'] as const;
 
 /** Ref selector state (`selected` + `choices`). */

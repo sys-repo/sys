@@ -1,5 +1,6 @@
 /**
- * @module types
+ * @module
+ * Type surface for the edu-slug package.
  */
 export type * from './m.client/t.ts';
 export type * from './m.slug.compiler/t.ts';

@@ -7,11 +7,13 @@ export type SlugSheetStackControllerLib = {
   create(initial?: t.SlugSheetStackLayer): t.SlugSheetStackController;
 };
 
+/** Item props stored in the sheet stack. */
 export type SlugSheetStackItem = {
   readonly id: t.StringId;
   readonly props: t.SlugSheetProps;
 };
 
+/** Single layer in the sheet stack. */
 export type SlugSheetStackLayer = { readonly sheet: t.SlugSheetController };
 
 /** Controller API for managing sheet stacks. */

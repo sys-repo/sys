@@ -4,6 +4,7 @@ import { fromDir } from './u.fromDir.ts';
 import { reindex } from './u.reindex.ts';
 import { toYaml } from './u.toYaml.ts';
 
+/** Helpers for building and rewriting slug trees. */
 export const SlugTree: t.SlugTreeLib = {
   Schema: SlugSchema.Tree,
   fromDag,
