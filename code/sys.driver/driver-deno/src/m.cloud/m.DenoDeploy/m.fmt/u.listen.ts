@@ -18,9 +18,9 @@ export const ListenFmt = {
   },
 
   deploySpinnerText(elapsed?: t.Msecs) {
-    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(DENO_CONSOLE_HOST)}${c.gray('...')}`;
+    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(`https://${DENO_CONSOLE_HOST}`)}`;
     if (elapsed === undefined) return label;
-    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+    return `${label}${c.gray(' - ')}${c.dim(String(Time.elapsed(elapsed)))}`;
   },
 
   spinner(text: string) {

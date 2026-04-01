@@ -109,6 +109,26 @@ describe(`DenoEntry.serve`, () => {
     expect(await res.text()).to.eql(`entry:${fixture.targetDir}`);
   });
 
+  it('does not require dist artifacts when package-local src/entry.ts is present', async () => {
+    const fixture = await createServeWorkspace({
+      entrySource: Str.dedent(`
+        export function main() {
+          return { fetch() { return new Response('entry-only'); } };
+        }
+      `),
+    });
+    await Fs.remove(fixture.fs.join('code/projects/foo/dist'));
+
+    const app = await DenoEntry.serve({
+      cwd: fixture.fs.dir,
+      targetDir: fixture.targetDir,
+    });
+
+    const res = await app.fetch(new Request('http://local/'));
+    expect(res.status).to.eql(200);
+    expect(await res.text()).to.eql('entry-only');
+  });
+
   it('rejects package entry files without an exported main', async () => {
     const fixture = await createServeWorkspace({
       entrySource: `export const nope = true;\n`,
