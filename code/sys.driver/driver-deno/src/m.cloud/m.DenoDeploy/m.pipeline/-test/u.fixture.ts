@@ -51,6 +51,20 @@ export async function createFakeAutoCreateDeployCli() {
       await Deno.writeTextFile(callsPath, JSON.stringify({ calls: state.calls }, null, 2));
 
       if (cmd === 'create') {
+        const configIndex = args.indexOf('--config');
+        if (configIndex === -1 || args[configIndex + 1] !== './deno.json') {
+          console.error('create call missing --config ./deno.json');
+          Deno.exit(1);
+        }
+        if (!args.includes('--region') || args[args.indexOf('--region') + 1] !== 'global') {
+          console.error('create call missing --region global');
+          Deno.exit(1);
+        }
+        const deno = JSON.parse(await Deno.readTextFile('./deno.json'));
+        if ('deploy' in deno) {
+          console.error('create root still contains deploy config');
+          Deno.exit(1);
+        }
         state.created = true;
         await Deno.writeTextFile(statePath, JSON.stringify(state, null, 2));
         Deno.exit(0);
@@ -75,9 +89,9 @@ export async function createFakeAutoCreateDeployCli() {
   await Fs.write(
     cli,
     Str.dedent(`
-      # Fake \`deno\` CLI shim: record deploy/create calls and simulate missing-app -> create -> redeploy.
       #!/bin/sh
       set -eu
+      # Fake \`deno\` CLI shim: record deploy/create calls and simulate missing-app -> create -> redeploy.
       "${realDeno}" run -A "${script}" "${callsPath}" "${statePath}" "$@"
     `),
   );

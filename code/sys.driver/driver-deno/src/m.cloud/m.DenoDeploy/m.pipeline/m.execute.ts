@@ -244,7 +244,13 @@ const wrangle = {
       return result;
     }
 
-    const created = await App.create(wrangle.createRequest(args.prepared, args.config));
+    const restore = await wrangle.sanitizePreparedRootForCreate(args.prepared.stagedDir);
+    let created;
+    try {
+      created = await App.create(wrangle.createRequest(args.prepared, args.config));
+    } finally {
+      await restore();
+    }
     if (!created.ok) {
       if ('error' in created) throw created.error;
       throw new Error(wrangle.autoCreateFailure(result, created));
@@ -259,9 +265,11 @@ const wrangle = {
   ): t.DenoApp.Create.Request {
     return {
       root: prepared.stagedDir,
+      config: './deno.json',
       app: config.app,
       org: config.org,
       token: config.token,
+      region: 'global',
       noWait: true,
       doNotUseDetectedBuildConfig: true,
       appDirectory: './',
@@ -271,6 +279,21 @@ const wrangle = {
       runtimeMode: 'dynamic',
       entrypoint: './entry.ts',
       workingDirectory: './',
+    };
+  },
+
+  async sanitizePreparedRootForCreate(root: t.StringDir) {
+    const path = Fs.join(root, 'deno.json');
+    const original = (await Fs.readText(path)).data ?? '';
+    const current = (await Fs.readJson<Record<string, unknown>>(path)).data;
+    if (!current) throw new Error(`Failed to read staged deno.json: ${path}`);
+
+    const { deploy, ...rest } = current;
+    void deploy;
+    await Fs.write(path, `${JSON.stringify(rest, null, 2)}\n`);
+
+    return async () => {
+      await Fs.write(path, original);
     };
   },
 
