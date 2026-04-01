@@ -33,6 +33,26 @@ describe('Workspace.Prep.Graph', () => {
     expect(second.changed).to.eql(false);
     expect(read).to.eql(second.snapshot);
   });
+
+  it('checks whether the tracked workspace graph snapshot is current', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Graph.check');
+    await writeWorkspace(fs.dir);
+
+    const missing = await Graph.check(fs.dir);
+    expect(missing.path).to.eql(State.graphFile(fs.dir));
+    expect(missing.current).to.eql(false);
+    expect(missing.existing).to.eql(undefined);
+    expect(missing.expected.graph).to.eql({
+      orderedPaths: ['code/pkg-a', 'code/pkg-b'],
+      edges: [{ from: 'code/pkg-a', to: 'code/pkg-b' }],
+    });
+
+    await Graph.ensure({ cwd: fs.dir });
+    const current = await Graph.check(fs.dir);
+    expect(current.current).to.eql(true);
+    expect(current.existing?.graph).to.eql(current.expected.graph);
+    expect(current.existing?.['.meta'].hash.graph).to.eql(current.expected['.meta'].hash.graph);
+  });
 });
 
 async function writeWorkspace(cwd: string) {

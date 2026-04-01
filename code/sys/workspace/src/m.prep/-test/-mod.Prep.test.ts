@@ -4,7 +4,7 @@ import { WorkspacePrep } from '../mod.ts';
 describe('Workspace.Prep.run', () => {
   it('normalizes the workspace and ensures the graph snapshot in one canonical pass', async () => {
     const fs = await Testing.dir('WorkspacePrep.run');
-    const graphPath = Fs.join(fs.dir, '.tmp', 'workspace.graph.json');
+    const graphPath = Fs.join(fs.dir, 'deno.graph.json');
 
     await Fs.writeJson(Fs.join(fs.dir, 'deno.json'), {
       workspace: ['code/pkg-b', 'code/pkg-a', 'code/pkg-b'],

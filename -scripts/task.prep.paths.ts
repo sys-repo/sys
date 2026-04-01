@@ -81,5 +81,5 @@ if (import.meta.main) await main();
  * Helpers:
  */
 function workspaceCwdFromGraphFile(path: string) {
-  return Fs.dirname(Fs.dirname(path));
+  return Fs.dirname(path);
 }

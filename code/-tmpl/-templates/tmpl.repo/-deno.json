@@ -2,6 +2,7 @@
   "tasks": {
     "ci": "deno task check && deno task test",
     "check": "deno check",
+    "check:graph": "deno run -P=test ./-scripts/task.check.graph.ts",
     "test": "deno test -P=test ./-scripts ./code",
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
     "prep:graph": "deno run -P=test ./-scripts/task.prep.graph.ts",

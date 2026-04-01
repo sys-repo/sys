@@ -137,8 +137,8 @@ jobs:
         run: deno task info
       - name: Deno Info
         run: deno info && deno --version
-      - name: Prepare workspace
-        run: deno task prep:graph
+      - name: Verify workspace graph
+        run: deno task check:graph
 
       - name: test module → "${{ matrix.name }}"
         run: |

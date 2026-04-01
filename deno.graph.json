@@ -1,0 +1,1387 @@
+{
+  ".meta": {
+    "createdAt": 1775016638455,
+    "schemaVersion": 1,
+    "hash": {
+      "graph": "sha256-9b3fe7537ccfa691d925fe8c60311f11790734c9b87cb0f5b8a9bd09c4c2e4bb"
+    },
+    "generator": {
+      "type": "https://jsr.io/@sys/workspace/0.0.41/src/m.graph/t.ts",
+      "pkg": {
+        "name": "@sys/workspace",
+        "version": "0.0.41"
+      }
+    },
+    "modifiedAt": 1775016638465
+  },
+  "graph": {
+    "orderedPaths": [
+      "code/sys/types",
+      "code/sys/std",
+      "code/sys/color",
+      "code/sys.ui/ui-css",
+      "code/sys/cli",
+      "code/sys/crdt.t",
+      "code/sys/crypto",
+      "code/sys/event",
+      "code/sys.ui/ui-state",
+      "code/sys/immutable",
+      "code/sys.ui/ui-dom",
+      "code/sys/fs",
+      "code/sys/net",
+      "code/sys/process",
+      "code/sys.driver/driver-process",
+      "code/sys.driver/driver-signer",
+      "code/sys/http",
+      "code/sys/registry",
+      "code/sys/skills",
+      "code/sys/testing",
+      "code/sys.ui/ui-react",
+      "code/sys.ui/ui-react-devharness",
+      "code/sys/text",
+      "code/sys/tmpl-engine",
+      "code/sys/yaml",
+      "code/sys/esm",
+      "code/sys/schema",
+      "code/sys.model/model",
+      "code/sys.model/model-slug",
+      "code/sys.ui/ui-react-components",
+      "code/sys.driver/driver-automerge",
+      "code/sys.driver/driver-monaco",
+      "code/sys.driver/driver-prosemirror",
+      "code/sys.driver/driver-stripe",
+      "code/sys.ui/ui-factory",
+      "code/sys.dev",
+      "code/sys/crdt",
+      "code/sys/workspace",
+      "code/sys.driver/driver-deno",
+      "code/-tmpl",
+      "code/sys.driver/driver-vite",
+      "code/sys.tools",
+      "deploy/@tdb.slc",
+      "deploy/@tdb.slc.fs",
+      "deploy/@tdb.slc.std",
+      "deploy/@tdb.edu.slug",
+      "deploy/tmp.proxy"
+    ],
+    "edges": [
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "code/sys/crdt"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.driver/driver-automerge",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.driver/driver-monaco",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.driver/driver-monaco",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.driver/driver-process",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.driver/driver-process",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.driver/driver-prosemirror",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.model/model",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys.model/model",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.model/model",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.model/model-slug",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.model/model-slug",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-factory",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys.ui/ui-state",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys.ui/ui-state",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/crypto"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/fs"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/process"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.ui/ui-css"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.ui/ui-dom"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys/cli"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys/testing"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/crdt.t",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/crdt.t",
+        "to": "code/sys/crdt"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys/fs"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys/testing"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/esm",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/esm",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/esm",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-process"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/esm"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/testing"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.ui/ui-dom"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys/fs"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/immutable",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys.driver/driver-process"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/registry",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/registry",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/registry",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/registry",
+        "to": "code/sys/text"
+      },
+      {
+        "from": "code/sys/registry",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.model/model"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-process"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.model/model"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-css"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-dom"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/cli"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/color"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/crdt.t"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/crypto"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/esm"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/event"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/fs"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/immutable"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/net"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/process"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/skills"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/testing"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/text"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-process"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-prosemirror"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-signer"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-vite"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.model/model"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-css"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-dom"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-factory"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-react"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/cli"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/color"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/crdt"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/crdt.t"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/crypto"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/esm"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/event"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/fs"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/immutable"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/net"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/process"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/registry"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/skills"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/std"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/testing"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/text"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/tmpl-engine"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/workspace"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/yaml"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "deploy/@tdb.slc.fs"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "deploy/tmp.proxy"
+      },
+      {
+        "from": "code/sys/workspace",
+        "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/workspace",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.model/model-slug"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/esm"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/schema"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "deploy/@tdb.slc.std",
+        "to": "deploy/@tdb.edu.slug"
+      }
+    ]
+  }
+}
+

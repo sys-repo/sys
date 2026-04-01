@@ -74,7 +74,7 @@ describe('DenoDeploy: staging artifact', () => {
 
     it('fails clearly when the workspace graph snapshot is missing', async () => {
       const fs = await createStageWorkspace();
-      await Fs.remove(Fs.join(fs.dir, '.tmp', 'workspace.graph.json'));
+      await Fs.remove(Fs.join(fs.dir, 'deno.graph.json'));
 
       const err = await getStageError(() => DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } }));
       expect(err?.message).to.include('missing workspace graph snapshot');

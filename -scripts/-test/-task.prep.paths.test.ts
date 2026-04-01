@@ -51,7 +51,7 @@ describe('scripts/task.prep.paths', () => {
 
   it('reads and writes the workspace graph cache artifact', async () => {
     const fs = await Testing.dir('scripts.task.prep.paths.cache');
-    const path = fs.join('.tmp/workspace.graph.json');
+    const path = fs.join('deno.graph.json');
 
     await writeWorkspaceGraphCache(
       {

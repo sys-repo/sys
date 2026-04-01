@@ -37,7 +37,7 @@ describe('Template: repo integration', () => {
   it('generate in temp dir → prep writes workspace graph snapshot', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-graph-' });
     const root = tmp.absolute;
-    const graphPath = Fs.join(root, '.tmp', 'workspace.graph.json');
+    const graphPath = Fs.join(root, 'deno.graph.json');
 
     const tmpl = await makeTmpl('repo');
 

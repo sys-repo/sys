@@ -35,6 +35,19 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
     return WorkspaceGraph.Snapshot.read(State.graphFile(cwd));
   },
 
+  async check(cwd = Fs.cwd()) {
+    const path = State.graphFile(cwd);
+    const existing = await Graph.read(cwd);
+    const graph = await Graph.build(cwd);
+    const expected = Graph.snapshot(graph);
+    return {
+      path,
+      current: isCurrent(existing, expected),
+      existing,
+      expected,
+    };
+  },
+
   async write(args) {
     const cwd = args.cwd ?? Fs.cwd();
     const path = State.graphFile(cwd);

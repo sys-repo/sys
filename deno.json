@@ -4,6 +4,7 @@
     "info": "deno run -P=dev ./-scripts/main.ts --info",
     "ci": "deno run -P=test ./-scripts/main.ts --dry --test --info",
     "test": "deno run -P=test ./-scripts/main.ts --test",
+    "check:graph": "deno run -P=dev ./-scripts/task.check.graph.ts",
     "dry": "deno run -P=test ./-scripts/main.ts --dry",
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",

@@ -47,10 +47,18 @@ export declare namespace WorkspacePrep {
       readonly graph?: t.WorkspaceGraph.PersistedGraph;
     };
 
+    export type CheckResult = {
+      readonly path: t.StringPath;
+      readonly current: boolean;
+      readonly existing?: t.WorkspaceGraph.Snapshot.Doc;
+      readonly expected: t.WorkspaceGraph.Snapshot.Doc;
+    };
+
     export type Lib = {
       build(cwd?: t.StringDir): Promise<t.WorkspaceGraph.PersistedGraph>;
       snapshot(graph: t.WorkspaceGraph.PersistedGraph): t.WorkspaceGraph.Snapshot.Doc;
       read(cwd?: t.StringDir): Promise<t.WorkspaceGraph.Snapshot.Doc | undefined>;
+      check(cwd?: t.StringDir): Promise<CheckResult>;
       write(args: WriteArgs): Promise<RunResult['graph']>;
       ensure(args?: EnsureArgs): Promise<RunResult['graph']>;
     };

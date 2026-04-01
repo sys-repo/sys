@@ -5,8 +5,8 @@ export const TEST_JOB_CONFIG_TEMPLATE = `    name: \${{ matrix.name }}
         include:
 __MATRIX_ITEMS__`;
 
-export const TEST_BODY_TEMPLATE = `      - name: Prepare workspace
-        run: deno task prep:graph
+export const TEST_BODY_TEMPLATE = `      - name: Verify workspace graph
+        run: deno task check:graph
 
       - name: test module → "\${{ matrix.name }}"
         run: |

@@ -79,8 +79,7 @@ export async function writeWorkspaceGraphSnapshot(
   graph: import('../../../../-test.ts').t.WorkspaceGraph.PersistedGraph,
 ) {
   const snapshot = Workspace.Graph.Snapshot.create({ graph });
-  await Fs.ensureDir(Fs.join(root, '.tmp'));
-  await Workspace.Graph.Snapshot.write(snapshot, Fs.join(root, '.tmp/workspace.graph.json'));
+  await Workspace.Graph.Snapshot.write(snapshot, Fs.join(root, 'deno.graph.json'));
 }
 
 export async function getStageError(fn: () => Promise<unknown>) {

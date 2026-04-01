@@ -40,7 +40,7 @@ export async function executeStage(
   const root = await resolveStageRoot(workspace.dir, request.root);
   const snapshot = await Workspace.Prep.Graph.read(workspace.dir);
   if (!snapshot) {
-    const err = `DenoDeploy.stage: missing workspace graph snapshot at '${Fs.join(workspace.dir, '.tmp', 'workspace.graph.json')}' — run prep first`;
+    const err = `DenoDeploy.stage: missing workspace graph snapshot at '${Workspace.Prep.State.graphFile(workspace.dir)}' — run prep first`;
     throw new Error(err);
   }
   const retain = closureFromGraph(snapshot.graph, target.relative);
