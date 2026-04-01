@@ -2,11 +2,11 @@ import { DenoDeploy } from '@sys/driver-deno/cloud';
 import { Env } from '@sys/fs';
 import { Args } from '@sys/std';
 
+const env = await Env.load({ search: 'upward' });
 const argv = Args.parse(Deno.args, {
   boolean: ['prod', 'production'],
   alias: { production: 'prod' },
 });
-const env = await Env.load({ search: 'upward' });
 
 const deployment = DenoDeploy.pipeline({
   pkgDir: new URL('..', import.meta.url).pathname,
