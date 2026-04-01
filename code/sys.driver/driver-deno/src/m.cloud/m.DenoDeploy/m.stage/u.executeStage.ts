@@ -1,5 +1,5 @@
 import { FILE, renderStageEntrypoints } from './-tmpl/mod.ts';
-import { type t, Fs, Time, Workspace } from './common.ts';
+import { type t, DenoFile, Fs, Time, Workspace } from './common.ts';
 import { buildStageTarget } from './u.buildStageTarget.ts';
 import { closureFromGraph } from './u.closureFromGraph.ts';
 import { ensureStageDriverDenoImport } from './u.ensureStageDriverDenoImport.ts';
@@ -46,23 +46,26 @@ export async function executeStage(
     throw new Error(err);
   }
   const retain = wrangle.retainPackages(snapshot.graph, target.relative);
+  const shouldBuild = await wrangle.shouldBuildTarget(target.absolute);
   const ctx = { workspace, target, root } as const;
 
   await hooks.onRoot?.(ctx);
-  await hooks.onBuildStart?.(ctx);
 
   const buildStartedAt: t.Msecs = Time.now.timestamp;
-  try {
-    await buildStageTarget(target.absolute);
-  } catch (error) {
-    await hooks.onBuildFailed?.({
-      ...ctx,
-      elapsed: Time.elapsed(buildStartedAt).msec,
-      error,
-    });
-    throw error;
+  if (shouldBuild) {
+    await hooks.onBuildStart?.(ctx);
+    try {
+      await buildStageTarget(target.absolute);
+    } catch (error) {
+      await hooks.onBuildFailed?.({
+        ...ctx,
+        elapsed: Time.elapsed(buildStartedAt).msec,
+        error,
+      });
+      throw error;
+    }
+    await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec });
   }
-  await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec });
 
   await hooks.onStageStart?.(ctx);
   const stageStartedAt: t.Msecs = Time.now.timestamp;
@@ -106,5 +109,11 @@ const wrangle = {
     }
 
     return retain;
+  },
+
+  async shouldBuildTarget(targetDir: t.StringDir) {
+    const denofile = await DenoFile.load(targetDir);
+    const task = denofile.data?.tasks?.build;
+    return typeof task === 'string' && task.trim().length > 0;
   },
 } as const;

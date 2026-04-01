@@ -11,6 +11,12 @@ export const ListenFmt = {
     return ListenFmt.spinnerText('staging workspace...');
   },
 
+  stageMaterializeSpinnerText(elapsed?: t.Msecs) {
+    const label = ListenFmt.spinnerText('materializing staged workspace...');
+    if (elapsed === undefined) return label;
+    return `${label} ${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+  },
+
   buildSpinnerText(elapsed?: t.Msecs) {
     const label = ListenFmt.spinnerText('building package in source workspace...');
     if (elapsed === undefined) return label;
@@ -34,6 +40,7 @@ export const ListenFmt = {
     let result: Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }> | undefined;
     let startedAt: t.Msecs | undefined;
     let buildStartedAt: t.Msecs | undefined;
+    let stageMaterializeStartedAt: t.Msecs | undefined;
     let deployStartedAt: t.Msecs | undefined;
     const verifying = deployment.request.verify?.preview !== false;
     const interactive = wrangle.interactive();
@@ -79,13 +86,36 @@ export const ListenFmt = {
         return;
       }
 
-      if (step.kind === 'build:done' || step.kind === 'stage:materialize:start') {
+      if (step.kind === 'build:done') {
+        wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         wrangle.status({
           interactive,
           spin,
           text: ListenFmt.stageSpinnerText(),
           set(next) {
             spin = next;
+          },
+        });
+        return;
+      }
+
+      if (step.kind === 'stage:materialize:start') {
+        stageMaterializeStartedAt = Time.now.timestamp as t.Msecs;
+        wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
+        wrangle.timedStatus({
+          interactive,
+          spin,
+          timer: spinTimer,
+          startedAt: stageMaterializeStartedAt,
+          text: ListenFmt.stageMaterializeSpinnerText,
+          get() {
+            return spin;
+          },
+          set(next) {
+            spin = next;
+          },
+          setTimer(next) {
+            spinTimer = next;
           },
         });
         return;
