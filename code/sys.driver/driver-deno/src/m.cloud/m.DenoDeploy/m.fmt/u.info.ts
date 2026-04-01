@@ -2,7 +2,9 @@ import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
 import { formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
-type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
+type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared & {
+  readonly elapsed?: t.Msecs;
+};
 type BlockedArgs = {
   readonly title: string;
   readonly what: string;
@@ -179,6 +181,9 @@ export const InfoFmt = {
           { label: 'workspace', value: args.workspaceTarget, color: 'white' },
           { label: 'dist', value: args.distDir, color: 'white' },
           ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
+          ...(args.elapsed !== undefined
+            ? [{ label: 'elapsed', value: Time.duration(args.elapsed).format({ round: 1 }), color: 'gray' as const }]
+            : []),
         ],
       });
     },

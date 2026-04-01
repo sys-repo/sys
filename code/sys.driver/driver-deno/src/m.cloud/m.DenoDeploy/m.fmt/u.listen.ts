@@ -94,7 +94,10 @@ export const ListenFmt = {
       if (step.kind === 'prepare:done') {
         wrangle.stopTimer(spinTimer, (next) => spinTimer = next);
         spin?.stop();
-        print(InfoFmt.Staged.entrypoint(step.prepared));
+        print(InfoFmt.Staged.entrypoint({
+          ...step.prepared,
+          ...(startedAt !== undefined ? { elapsed: Time.elapsed(startedAt).msec } : {}),
+        }));
         deployStartedAt = Time.now.timestamp as t.Msecs;
         wrangle.timedStatus({
           interactive,
