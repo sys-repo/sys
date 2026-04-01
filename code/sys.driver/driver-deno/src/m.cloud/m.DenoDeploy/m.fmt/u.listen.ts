@@ -1,6 +1,6 @@
 import { type t, Cli, Rx, Time, c } from './common.ts';
 import { InfoFmt } from './u.info.ts';
-import { DENO_CONSOLE_HOST, print } from './u.shared.ts';
+import { DENO_CONSOLE_URL, formatUrlParts, print } from './u.shared.ts';
 
 export const ListenFmt = {
   spinnerText(text: string) {
@@ -18,7 +18,7 @@ export const ListenFmt = {
   },
 
   deploySpinnerText(elapsed?: t.Msecs) {
-    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${c.cyan(`https://${DENO_CONSOLE_HOST}`)}`;
+    const label = `${Cli.Fmt.spinnerText('deploying staged workspace to ', false)}${formatUrlParts(DENO_CONSOLE_URL).join('')}`;
     if (elapsed === undefined) return label;
     return `${label}${c.gray(' - ')}${c.dim(String(Time.elapsed(elapsed)))}`;
   },

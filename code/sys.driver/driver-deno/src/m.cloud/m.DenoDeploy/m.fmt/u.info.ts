@@ -1,6 +1,6 @@
 import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
-import { formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
+import { DENO_CONSOLE_URL, formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared & {
   readonly elapsed?: t.Msecs;
@@ -120,7 +120,7 @@ export const InfoFmt = {
             label: 'Platform',
             value: '',
             valueParts: [
-              ...formatUrlParts('https://console.deno.com'),
+              ...formatUrlParts(DENO_CONSOLE_URL),
               ...(config.org ? [c.white(`/${config.org}`)] : []),
             ],
           },
