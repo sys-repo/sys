@@ -1,3 +1,4 @@
+import { Workspace } from '@sys/workspace';
 import { Fs, Str } from '../../../-test.ts';
 
 export async function createDenoWorkspace(root: string) {
@@ -38,5 +39,6 @@ export async function createDenoWorkspace(root: string) {
     `),
   );
 
+  await Workspace.Prep.Graph.ensure({ cwd: root });
   return root;
 }

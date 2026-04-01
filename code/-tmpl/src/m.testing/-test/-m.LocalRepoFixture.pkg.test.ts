@@ -10,9 +10,11 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
     const pkgDir = await writePkg(fixture.root);
     await TmplTesting.LocalRepoAuthorities.rewrite({ root: fixture.root });
 
-    expect(await Fs.exists(Fs.join(pkgDir, '-scripts', 'task.deploy.ts'))).to.eql(true);
     const denoJson = await Fs.readJson<{ readonly tasks?: Record<string, string> }>(Fs.join(pkgDir, 'deno.json'));
-    expect(denoJson.data?.tasks?.deploy).to.eql('deno run -P=deploy ./-scripts/task.deploy.ts');
+    expect(denoJson.data?.tasks?.build).to.eql(
+      'deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/-test/index.html',
+    );
+    expect(denoJson.data?.tasks?.deploy).to.eql(undefined);
 
     const ci = await runRepoCi(fixture.root);
     if (!ci.success) {
