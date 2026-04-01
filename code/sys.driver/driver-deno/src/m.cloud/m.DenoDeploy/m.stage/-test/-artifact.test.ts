@@ -13,6 +13,7 @@ import { DenoFile } from '../../../../m.runtime/mod.ts';
 import { DenoDeploy } from '../../mod.ts';
 import {
   addStageRuntimeDriverFixture,
+  addRetainedPackageJunkFixture,
   createStageWorkspace,
   getStageError,
   writeWorkspaceGraphSnapshot,
@@ -115,6 +116,20 @@ describe('DenoDeploy: staging artifact', () => {
       );
       expect(importMap.data?.imports?.['@sys/fs']).to.eql('./code/sys/fs/src/mod.ts');
       expect(importMap.data?.imports?.['@sys/types']).to.eql('./code/sys/types/src/mod.ts');
+    });
+
+    it('filters locked junk from retained package copies', async () => {
+      const fs = await createStageWorkspace();
+      await addRetainedPackageJunkFixture(fs.dir);
+
+      const res = await DenoDeploy.stage({ target: { dir: fs.join('code/apps/foo') } });
+
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/src/mod.ts'))).to.be.true;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/.DS_Store'))).to.be.false;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/.env'))).to.be.false;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/.tmp/cache.txt'))).to.be.false;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/node_modules/pkg/index.js'))).to.be.false;
+      expect(await Fs.exists(Fs.join(res.root, 'libs/bar/src/-test/fixture.test.ts'))).to.be.false;
     });
 
     it('stages into a caller-provided empty root', async () => {

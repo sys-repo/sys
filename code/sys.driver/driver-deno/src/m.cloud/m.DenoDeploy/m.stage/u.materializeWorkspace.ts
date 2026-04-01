@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Path } from './common.ts';
+import { type t, Fs, Ignore, Is, Path } from './common.ts';
 
 type Args = {
   readonly source: t.StringDir;
@@ -19,7 +19,10 @@ export async function materializeWorkspace(args: Args): Promise<void> {
   for (const dir of args.retain) {
     const source = Fs.join(args.source, dir);
     const target = Fs.join(args.root, dir);
-    const res = await Fs.copyDir(source, target, { force: true });
+    const res = await Fs.copyDir(source, target, {
+      force: true,
+      filter: (e) => wrangle.shouldRetain(e.source, source),
+    });
     if (res.error) throw res.error;
   }
 }
@@ -28,6 +31,14 @@ export async function materializeWorkspace(args: Args): Promise<void> {
  * Helpers:
  */
 const wrangle = {
+  ignore: Ignore.create([
+    '.DS_Store',
+    '.env',
+    '**/.tmp/**',
+    '**/node_modules/**',
+    '**/src/-test/**',
+  ]),
+
   async rootFiles(source: t.StringDir) {
     const files = ['deno.json'] as string[];
     const lock = Fs.join(source, 'deno.lock');
@@ -42,5 +53,11 @@ const wrangle = {
     }
 
     return files;
+  },
+
+  shouldRetain(path: t.StringPath, root: t.StringDir) {
+    const relative = Path.relative(root, path).replaceAll('\\', '/');
+    if (!relative || relative === '.') return true;
+    return !wrangle.ignore.isIgnored(relative);
   },
 } as const;

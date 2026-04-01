@@ -104,6 +104,14 @@ export async function addStageRuntimeDriverFixture(root: string) {
   await Fs.write(Fs.join(root, 'code/sys/types/src/mod.ts'), `export type T = true;\n`);
 }
 
+export async function addRetainedPackageJunkFixture(root: string) {
+  await Fs.write(Fs.join(root, 'libs/bar/.DS_Store'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/.env'), 'SECRET=nope\n');
+  await Fs.write(Fs.join(root, 'libs/bar/.tmp/cache.txt'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/node_modules/pkg/index.js'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/src/-test/fixture.test.ts'), 'junk\n');
+}
+
 export async function writeWorkspaceGraphSnapshot(
   root: string,
   graph: import('../../../../-test.ts').t.WorkspaceGraph.PersistedGraph,
