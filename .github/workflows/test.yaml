@@ -70,10 +70,6 @@ jobs:
             path: code/sys/yaml
           - name: "@sys/esm"
             path: code/sys/esm
-          - name: "@sys/driver-deno"
-            path: code/sys.driver/driver-deno
-          - name: "@sys/driver-vite"
-            path: code/sys.driver/driver-vite
           - name: "@sys/schema"
             path: code/sys/schema
           - name: "@sys/model"
@@ -90,8 +86,6 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@sys/tools"
-            path: code/sys.tools
           - name: "@sys/ui-factory"
             path: code/sys.ui/ui-factory
           - name: "@sys/dev"
@@ -100,8 +94,14 @@ jobs:
             path: code/sys/crdt
           - name: "@sys/workspace"
             path: code/sys/workspace
+          - name: "@sys/driver-deno"
+            path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
+          - name: "@sys/driver-vite"
+            path: code/sys.driver/driver-vite
+          - name: "@sys/tools"
+            path: code/sys.tools
           - name: "@tdb/slc"
             path: deploy/@tdb.slc
           - name: "@tdb/slc-fs"
@@ -110,6 +110,8 @@ jobs:
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
             path: deploy/@tdb.edu.slug
+          - name: "@tmp/proxy"
+            path: deploy/tmp.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'
