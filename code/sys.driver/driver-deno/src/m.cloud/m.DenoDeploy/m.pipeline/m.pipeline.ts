@@ -32,6 +32,7 @@ const wrangle = {
     return {
       ...input,
       pkgDir: input.pkgDir.trim() as t.StringDir,
+      autoCreate: input.autoCreate === true,
       config: DeployConfig.normalize(input.config),
     };
   },

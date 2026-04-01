@@ -37,6 +37,9 @@ export type Request = {
   /** Native deploy execution settings for the downstream Deno Deploy step. */
   readonly config: DeployConfig;
 
+  /** Automatically create the remote app and retry once when it is missing. */
+  readonly autoCreate?: boolean;
+
   /** Optional post-deploy verification passes. */
   readonly verify?: Verify;
 };

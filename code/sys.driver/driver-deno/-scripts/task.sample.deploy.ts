@@ -56,13 +56,15 @@ const HELP = {
 
 function templateProvenance() {
   const items = [
-    '@sys/tmpl/repo (workspace)',
-    '@sys/tmpl/pkg',
+    c.gray('@sys/tmpl/repo (workspace)'),
+    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('foo')}`,
+    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('bar')}`,
+    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('baz')}${c.gray(c.italic(' ← (pruned)'))}`,
   ] as const;
   return [
     '',
     c.gray('Templates:'),
-    ...items.map((item, i) => c.gray(` ${Cli.Fmt.Tree.branch([i, items])} ${item}`)),
+    ...items.map((item, i) => ` ${Cli.Fmt.Tree.branch([i, items])} ${item}`),
     '',
   ] as const;
 }

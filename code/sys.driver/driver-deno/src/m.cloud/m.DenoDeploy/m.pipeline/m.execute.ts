@@ -1,4 +1,5 @@
 import { type t, Fs, Str, Time } from './common.ts';
+import { DenoApp as App } from '../../m.DenoApp/mod.ts';
 import { deploy } from '../m.deploy/mod.ts';
 import { DeploymentNote } from '../m.stage/-tmpl.note/mod.ts';
 import { executeStage } from '../m.stage/u.executeStage.ts';
@@ -8,6 +9,13 @@ import { verifyPreview } from './u.verify.ts';
 type Ctx = {
   readonly request: t.DenoDeploy.Pipeline.Request;
   readonly emit: (step: t.DenoDeploy.Pipeline.Step) => void;
+};
+
+type DeployNativeFailure = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: false; readonly code: number }>;
+type CreateNativeFailure = Extract<t.DenoApp.Create.Result, { readonly ok: false; readonly code: number }>;
+type NativeTextResult = {
+  readonly stdout: string;
+  readonly stderr: string;
 };
 
 export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
@@ -107,19 +115,19 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
   ctx.emit({ kind: 'prepare:start', stage: staged });
   note = DeploymentNote.prepareStarted(note);
   await DeploymentNote.write(root, note);
-  const prepareStartedAt = Time.now.timestamp as t.Msecs;
+  const prepareStartedAt: t.Msecs = Time.now.timestamp;
   let prepared;
   try {
     prepared = await prepare(staged);
   } catch (error) {
-    const elapsed = Time.elapsed(prepareStartedAt).msec as t.Msecs;
+    const elapsed = wrangle.elapsedMsecs(prepareStartedAt);
     ctx.emit({ kind: 'prepare:failed', stage: staged, elapsed, error });
     note = DeploymentNote.prepareFailed(note, { elapsed, error });
     await DeploymentNote.write(root, note);
     throw error;
   }
   note = DeploymentNote.prepareDone(note, {
-    elapsed: Time.elapsed(prepareStartedAt).msec as t.Msecs,
+    elapsed: wrangle.elapsedMsecs(prepareStartedAt),
   });
   await DeploymentNote.write(root, note);
   ctx.emit({ kind: 'prepare:done', stage: staged, prepared });
@@ -127,21 +135,23 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
   note = DeploymentNote.deployStarted(note);
   await DeploymentNote.write(root, note);
   ctx.emit({ kind: 'deploy:start', stage: staged, config: ctx.request.config });
-  const deployStartedAt = Time.now.timestamp as t.Msecs;
+  const deployStartedAt: t.Msecs = Time.now.timestamp;
   let result;
   try {
-    result = await deploy({
+    result = await wrangle.deployWithAutoCreate({
       stage: staged,
-      ...ctx.request.config,
+      prepared,
+      config: ctx.request.config,
+      autoCreate: ctx.request.autoCreate === true,
     });
   } catch (error) {
     ctx.emit({
       kind: 'deploy:failed',
-      elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+      elapsed: wrangle.elapsedMsecs(deployStartedAt),
       error,
     });
     note = DeploymentNote.deployFailed(note, {
-      elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+      elapsed: wrangle.elapsedMsecs(deployStartedAt),
       error,
     });
     await DeploymentNote.write(root, note);
@@ -152,11 +162,11 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
     const error = 'error' in result ? result.error : wrangle.deployFailure(result);
     ctx.emit({
       kind: 'deploy:failed',
-      elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+      elapsed: wrangle.elapsedMsecs(deployStartedAt),
       error,
     });
     note = DeploymentNote.deployFailed(note, {
-      elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+      elapsed: wrangle.elapsedMsecs(deployStartedAt),
       error,
     });
     await DeploymentNote.write(root, note);
@@ -165,7 +175,7 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
   }
 
   note = DeploymentNote.deployDone(note, {
-    elapsed: Time.elapsed(deployStartedAt).msec as t.Msecs,
+    elapsed: wrangle.elapsedMsecs(deployStartedAt),
     revision: result.deploy?.url?.revision,
     preview: result.deploy?.url?.preview,
     verify: ctx.request.verify?.preview !== false,
@@ -214,11 +224,85 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
  * Helpers:
  */
 const wrangle = {
-  deployFailure(input: {
-    readonly code: number;
-    readonly stdout: string;
-    readonly stderr: string;
+  elapsedMsecs(startedAt: t.Msecs): t.Msecs {
+    return Time.elapsed(startedAt).msec;
+  },
+
+  async deployWithAutoCreate(args: {
+    readonly stage: t.DenoDeploy.Stage.Result;
+    readonly prepared: t.DenoDeploy.Pipeline.Prepared;
+    readonly config: t.DenoDeploy.DeployConfig;
+    readonly autoCreate: boolean;
   }) {
+    const request = {
+      stage: args.stage,
+      ...args.config,
+    } satisfies t.DenoDeploy.Deploy.Request;
+
+    const result = await deploy(request);
+    if (!args.autoCreate || result.ok || 'error' in result || !wrangle.isMissingAppResult(result)) {
+      return result;
+    }
+
+    const created = await App.create(wrangle.createRequest(args.prepared, args.config));
+    if (!created.ok) {
+      if ('error' in created) throw created.error;
+      throw new Error(wrangle.autoCreateFailure(result, created));
+    }
+
+    return await deploy(request);
+  },
+
+  createRequest(
+    prepared: t.DenoDeploy.Pipeline.Prepared,
+    config: t.DenoDeploy.DeployConfig,
+  ): t.DenoApp.Create.Request {
+    return {
+      root: prepared.stagedDir,
+      app: config.app,
+      org: config.org,
+      token: config.token,
+      noWait: true,
+      doNotUseDetectedBuildConfig: true,
+      appDirectory: './',
+      installCommand: 'true',
+      buildCommand: 'true',
+      preDeployCommand: 'true',
+      runtimeMode: 'dynamic',
+      entrypoint: './entry.ts',
+      workingDirectory: './',
+    };
+  },
+
+  isMissingAppResult(input: DeployNativeFailure) {
+    return wrangle.autoCreateMessage(input).includes(
+      'The requested app was not found, or you do not have access to view it.',
+    );
+  },
+
+  autoCreateMessage(input: NativeTextResult) {
+    return `${input.stderr}\n${input.stdout}`;
+  },
+
+  autoCreateFailure(
+    deployResult: DeployNativeFailure,
+    createResult: CreateNativeFailure,
+  ) {
+    return Str.dedent(`
+      DenoDeploy.pipeline: autoCreate failed after missing app deploy failure.
+
+      deploy stderr:
+      ${deployResult.stderr}
+
+      create stdout:
+      ${createResult.stdout}
+
+      create stderr:
+      ${createResult.stderr}
+    `);
+  },
+
+  deployFailure(input: DeployNativeFailure) {
     return Str.dedent(`
       DenoDeploy.pipeline: deploy failed (code ${input.code}).
 
