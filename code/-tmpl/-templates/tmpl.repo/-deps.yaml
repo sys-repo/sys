@@ -31,7 +31,7 @@ deno.json:
     subpaths: [t]
   - import: jsr:@sys/ui-react-devharness@0.0.272
     subpaths: [t]
-  - import: jsr:@sys/workspace@0.0.39
+  - import: jsr:@sys/workspace@0.0.41
     subpaths: [cli, t, testing]
 package.json:
   - import: npm:react@19.2.4

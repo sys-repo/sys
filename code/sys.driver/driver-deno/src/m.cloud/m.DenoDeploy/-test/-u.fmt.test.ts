@@ -1,6 +1,7 @@
 import { c, describe, expect, it, stripAnsi } from '../../../-test.ts';
 import { DenoDeploy } from '../mod.ts';
 import { FmtInternal } from '../m.fmt/mod.ts';
+import { ListenFmt } from '../m.fmt/u.listen.ts';
 
 describe('DenoDeploy.Fmt', () => {
   it('renders deploy config with a redacted token', () => {
@@ -94,6 +95,11 @@ describe('DenoDeploy.Fmt', () => {
 
     expect(stripAnsi(rendered).match(/5s47nb0fx96c/g)?.length).to.eql(2);
     expect(rendered).to.include('5s47nb0fx96c');
+  });
+
+  it('renders deploy spinner text with the org console url', () => {
+    const text = stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org'));
+    expect(text).to.include('deploying staged workspace to https://console.deno.com/sys-org');
   });
 
   it('renders a compact pipeline failure block', () => {
