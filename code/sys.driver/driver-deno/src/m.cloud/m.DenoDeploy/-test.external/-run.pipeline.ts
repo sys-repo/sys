@@ -1,6 +1,6 @@
 import { DenoDeploy } from '../mod.ts';
 import { describe, it } from './common.ts';
-import { assertStageUsesGeneratedRootEntry } from './u.assert.ts';
+import { assertStagePrunesUnrelatedWorkspacePkg, assertStageUsesGeneratedRootEntry } from './u.assert.ts';
 import { Sample } from './mod.ts';
 
 describe('DenoDeploy.pipeline (external staged)', () => {
@@ -17,5 +17,6 @@ describe('DenoDeploy.pipeline (external staged)', () => {
     }
 
     await assertStageUsesGeneratedRootEntry(result.prepared);
+    await assertStagePrunesUnrelatedWorkspacePkg(result.prepared.stagedDir);
   });
 });

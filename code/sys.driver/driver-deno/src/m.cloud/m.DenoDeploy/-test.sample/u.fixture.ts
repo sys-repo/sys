@@ -1,6 +1,6 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
-import { Cli, Fs, type t } from './common.ts';
+import { Cli, Fs, Process, type t } from './common.ts';
 import { InfoFmt } from '../m.fmt/u.info.ts';
 import { ListenFmt } from '../m.fmt/u.listen.ts';
 import { print } from '../m.fmt/u.shared.ts';
@@ -13,21 +13,14 @@ export async function createDeployableRepoPkg(): Promise<{
 }> {
   const root = await createPublishedRepoFixture();
   const pkgDir = Fs.join(root, 'code', 'projects', 'foo');
-
-  await quietly(() =>
-    tmplCli(root, {
-      _: ['pkg'],
-      tmpl: 'pkg',
-      interactive: false,
-      dryRun: false,
-      force: true,
-      bundle: false,
-      dir: 'code/projects/foo',
-      pkgName: '@tmp/foo',
-      help: false,
-      'no-interactive': true,
-    }),
+  await createPkg(root, 'code/projects/foo', '@tmp/foo');
+  await createPkg(root, 'code/projects/bar', '@tmp/bar');
+  await createPkg(root, 'code/projects/baz', '@tmp/baz');
+  await Fs.write(
+    Fs.join(root, 'code', 'projects', 'foo', 'src', 'mod.ts'),
+    `import { bar } from '../../bar/src/mod.ts';\nexport default 'foo-default';\nexport const foo = \`foo-\${bar}\`;\n`,
   );
+  await runPrep(root);
 
   return { root, pkgDir };
 }
@@ -122,6 +115,35 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
     }),
   );
   return root;
+}
+
+async function createPkg(root: t.StringDir, dir: string, pkgName: string) {
+  await quietly(() =>
+    tmplCli(root, {
+      _: ['pkg'],
+      tmpl: 'pkg',
+      interactive: false,
+      dryRun: false,
+      force: true,
+      bundle: false,
+      dir,
+      pkgName,
+      help: false,
+      'no-interactive': true,
+    }),
+  );
+}
+
+async function runPrep(root: t.StringDir): Promise<void> {
+  const out = await Process.invoke({
+    cmd: 'deno',
+    args: ['task', 'prep'],
+    cwd: root,
+    silent: true,
+  });
+  if (out.success) return;
+
+  throw new Error(`Failed to prepare generated deploy fixture:\n${out.text.stderr.trim()}`);
 }
 
 async function quietly<T>(run: () => Promise<T>): Promise<T> {
