@@ -53,6 +53,14 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
     const path = State.graphFile(cwd);
     await Fs.ensureDir(Fs.dirname(path));
     const existing = await WorkspaceGraph.Snapshot.read(path);
+    if (existing && isCurrent(existing, args.snapshot)) {
+      return {
+        changed: false,
+        path,
+        snapshot: existing,
+      };
+    }
+
     const written = await WorkspaceGraph.Snapshot.write(args.snapshot, path);
     return {
       changed: !isCurrent(existing, written),

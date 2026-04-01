@@ -20,7 +20,11 @@ describe('Workspace.Prep.Graph', () => {
     await writeWorkspace(fs.dir);
 
     const first = await Graph.ensure({ cwd: fs.dir });
+    const statBefore = await Deno.stat(first.path);
+    const textBefore = (await Fs.readText(first.path)).data;
     const second = await Graph.ensure({ cwd: fs.dir });
+    const statAfter = await Deno.stat(first.path);
+    const textAfter = (await Fs.readText(first.path)).data;
     const read = await Graph.read(fs.dir);
 
     expect(first.changed).to.eql(true);
@@ -32,6 +36,8 @@ describe('Workspace.Prep.Graph', () => {
 
     expect(second.changed).to.eql(false);
     expect(read).to.eql(second.snapshot);
+    expect(textAfter).to.eql(textBefore);
+    expect(statAfter.mtime?.getTime()).to.eql(statBefore.mtime?.getTime());
   });
 
   it('checks whether the tracked workspace graph snapshot is current', async () => {
