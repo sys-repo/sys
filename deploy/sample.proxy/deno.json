@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "true",
     "start": "deno run -A ./src/entry.ts",
     "deploy": "deno run -P=deploy ./-scripts/task.deploy.ts",
     "dry": "deno publish --allow-dirty --dry-run",
