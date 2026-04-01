@@ -1,4 +1,4 @@
-import { c, Cli } from './common.ts';
+import { c, Cli, Path } from './common.ts';
 
 export const LINE = Cli.Fmt.hr();
 export const DENO_CONSOLE_HOST = 'console.deno.com';
@@ -60,6 +60,17 @@ export function formatUrlParts(input: string, options: { readonly highlight?: re
   } catch {
     return [c.white(input)] as const;
   }
+}
+
+export function formatPathTail(input: string) {
+  if (input.length === 0) return [c.white('')] as const;
+
+  const normalized = input.endsWith('/') && input !== '/' ? input.slice(0, -1) : input;
+  const tail = Path.basename(normalized);
+  const head = normalized.slice(0, normalized.length - tail.length);
+  if (head.length === 0) return [c.white(normalized)] as const;
+
+  return [c.dim(c.gray(head)), c.white(tail)] as const;
 }
 
 function formatUrlTail(text: string, highlight: readonly string[] = []) {

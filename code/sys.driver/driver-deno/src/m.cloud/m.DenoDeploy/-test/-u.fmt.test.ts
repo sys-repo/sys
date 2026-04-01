@@ -21,19 +21,20 @@ describe('DenoDeploy.Fmt', () => {
   });
 
   it('renders the staged deploy entrypoint summary', () => {
-    const text = stripAnsi(
-      FmtInternal.Staged.entrypoint({
-        sourceDir: '/repo/code/projects/foo',
-        stagedDir: '/tmp/stage',
-        entrypoint: '/tmp/stage/entry.ts',
-        entryPaths: '/tmp/stage/entry.paths.ts',
-        appEntrypoint: './src/m.server/main.ts',
-        workspaceTarget: './code/projects/foo',
-        distDir: './code/projects/foo/dist',
-        distHash: 'sha256-abc123',
-      }).join('\n'),
-    );
+    const rendered = FmtInternal.Staged.entrypoint({
+      sourceDir: '/repo/code/projects/foo',
+      stagedDir: '/tmp/stage',
+      entrypoint: '/tmp/stage/entry.ts',
+      entryPaths: '/tmp/stage/entry.paths.ts',
+      appEntrypoint: './src/m.server/main.ts',
+      workspaceTarget: './code/projects/foo',
+      distDir: './code/projects/foo/dist',
+      distHash: 'sha256-abc123',
+    }).join('\n');
+    const text = stripAnsi(rendered);
 
+    expect(rendered).to.include(c.dim(c.gray('/tmp/')));
+    expect(rendered).to.include(c.white('stage'));
     expect(text).to.include('/tmp/stage');
     expect(text).to.include('./entry.ts');
     expect(text).to.include('./entry.paths.ts');

@@ -1,6 +1,6 @@
 import { c, Time, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
-import { formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
+import { formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
 type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
 type BlockedArgs = {
@@ -172,7 +172,7 @@ export const InfoFmt = {
       return InfoFmt.info({
         title: 'Staged Entrypoint',
         rows: [
-          { label: 'dir', value: args.stagedDir, color: 'white' },
+          { label: 'dir', value: '', valueParts: formatPathTail(args.stagedDir) },
           { label: 'entry', value: wrangle.relativeTo(args.entrypoint, args.stagedDir), color: 'white' },
           { label: 'paths', value: wrangle.relativeTo(args.entryPaths, args.stagedDir), color: 'white' },
           { label: 'main', value: args.appEntrypoint, color: 'white' },
