@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Obj } from './common.ts';
+import { type t, Cli, Fs, Is, Obj, Time } from './common.ts';
 import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
 
@@ -48,6 +48,30 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
     };
   },
 
+  async verify(args = {}) {
+    const cwd = args.cwd ?? Fs.cwd();
+    const silent = args.silent ?? false;
+    if (silent) return await wrangle.assertCurrent(cwd);
+
+    const spinner = Cli.Spinner.create('');
+    const startedAt = Time.now.timestamp;
+    const text = () => Cli.Fmt.spinnerText(`checking workspace graph... ${String(Time.elapsed(startedAt))}`);
+    const timer = Time.interval(1000, () => (spinner.text = text()));
+    spinner.start(text());
+    try {
+      const res = await wrangle.assertCurrent(cwd);
+      spinner.stop();
+      return res;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      spinner.fail(Cli.Fmt.spinnerText(`Check failed: ${err.message}`));
+      throw err;
+    } finally {
+      timer.cancel();
+      spinner.stop();
+    }
+  },
+
   async write(args) {
     const cwd = args.cwd ?? Fs.cwd();
     const path = State.graphFile(cwd);
@@ -79,6 +103,23 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
 /**
  * Helpers:
  */
+const wrangle = {
+  async assertCurrent(cwd = Fs.cwd()) {
+    const res = await Graph.check(cwd);
+    if (!res.existing) {
+      const err = `Workspace graph missing at '${res.path}'`;
+      throw new Error(`${err} — run 'deno task prep:graph'`);
+    }
+
+    if (!res.current) {
+      const err = `Workspace graph is stale at '${res.path}'`;
+      throw new Error(`${err} — run 'deno task prep:graph'`);
+    }
+
+    return res;
+  },
+} as const;
+
 function isCurrent(a: t.WorkspaceGraph.Snapshot.Doc | undefined, b: t.WorkspaceGraph.Snapshot.Doc) {
   if (!a) return false;
   return (

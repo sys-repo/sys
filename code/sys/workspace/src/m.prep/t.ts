@@ -37,6 +37,11 @@ export declare namespace WorkspacePrep {
 
   /** Prep-time graph snapshot lifecycle helpers. */
   export namespace Graph {
+    export type VerifyArgs = {
+      readonly cwd?: t.StringDir;
+      readonly silent?: boolean;
+    };
+
     export type WriteArgs = {
       readonly cwd?: t.StringDir;
       readonly snapshot: t.WorkspaceGraph.Snapshot.Doc;
@@ -59,6 +64,7 @@ export declare namespace WorkspacePrep {
       snapshot(graph: t.WorkspaceGraph.PersistedGraph): t.WorkspaceGraph.Snapshot.Doc;
       read(cwd?: t.StringDir): Promise<t.WorkspaceGraph.Snapshot.Doc | undefined>;
       check(cwd?: t.StringDir): Promise<CheckResult>;
+      verify(args?: VerifyArgs): Promise<CheckResult>;
       write(args: WriteArgs): Promise<RunResult['graph']>;
       ensure(args?: EnsureArgs): Promise<RunResult['graph']>;
     };
