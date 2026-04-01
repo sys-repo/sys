@@ -32,4 +32,12 @@ describe('@sys/model-slug export graph boundary', () => {
       forbiddenImports: ['@sys/fs'],
     });
   });
+
+  it('allows the fs export to own @sys/fs imports', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    await EsmAssert.runtimeGraphOwnership({
+      entry: Path.resolve(root, '../m.fs/mod.ts'),
+      ownedImports: ['@sys/fs'],
+    });
+  });
 });
