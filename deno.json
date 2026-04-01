@@ -81,10 +81,17 @@
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
-    "deploy/@tdb.slc.std"
+    "deploy/@tdb.slc.std",
+    "deploy/tmp.proxy"
   ],
-  "lint": { "rules": { "exclude": ["no-explicit-any", "no-slow-types"] } },
-  "test": { "permissions": "test" },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any", "no-slow-types"]
+    }
+  },
+  "test": {
+    "permissions": "test"
+  },
   "permissions": {
     "test": {
       "read": true,
