@@ -26,7 +26,7 @@ export async function assertStagePrunesUnrelatedWorkspacePkg(stagedDir: t.String
 
   const deno = await Fs.readJson<{ workspace?: string[] }>(Fs.join(stagedDir, 'deno.json'));
   expect(deno.data?.workspace).to.eql([
-    './code/projects/foo',
-    './code/projects/bar',
+    'code/projects/foo',
+    'code/projects/bar',
   ]);
 }
