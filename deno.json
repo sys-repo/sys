@@ -10,6 +10,7 @@
     "prep": "deno run -P=dev ./-scripts/main.ts --prep-all",
     "prep:ahead": "deno run -P=dev ./-scripts/main.ts --prep-all --ahead-only",
     "prep:imports": "deno run -P=dev ./-scripts/main.ts --prep",
+    "prep:graph": "deno run -P=dev ./-scripts/task.prep.graph.ts",
     "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",

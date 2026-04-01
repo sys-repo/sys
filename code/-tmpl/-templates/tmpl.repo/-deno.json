@@ -4,6 +4,7 @@
     "check": "deno check",
     "test": "deno test -P=test ./-scripts ./code",
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
+    "prep:graph": "deno run -P=test ./-scripts/task.prep.graph.ts",
     "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",
     "tmpl:project": "deno run -P=tmpl ./-scripts/task.tmpl.ts pkg",
     "install": "deno install --reload",

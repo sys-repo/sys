@@ -25,6 +25,8 @@ describe('WorkspaceCi.Test', () => {
     expect(yaml.includes(`path: ${b}`)).to.eql(true);
     expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
+    expect(yaml.includes('Prepare workspace')).to.eql(true);
+    expect(yaml.includes('run: deno task prep:graph')).to.eql(true);
     expect(yaml.includes('deno task test')).to.eql(true);
     expect(yaml.includes('max_attempts=3')).to.eql(true);
     expect(yaml.includes('if deno task install; then')).to.eql(true);
