@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775028980795,
+    "createdAt": 1775075336546,
     "schemaVersion": 1,
     "hash": {
-      "graph": "sha256-646bf20d2d6bc930797de172b4f713f59bf47df87ff7d0e2b49e1424e3f15891"
+      "graph": "sha256-c3a29098566663b4aea9949513c47f6871fcda7fb438b2500f18e9219b51aa21"
     },
     "generator": {
       "type": "https://jsr.io/@sys/workspace/0.0.41/src/m.graph/t.ts",
@@ -12,7 +12,7 @@
         "version": "0.0.41"
       }
     },
-    "modifiedAt": 1775028980800
+    "modifiedAt": 1775075336552
   },
   "graph": {
     "orderedPaths": [
@@ -104,6 +104,10 @@
       {
         "from": "code/sys.driver/driver-deno",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "deploy/sample.proxy"
       },
       {
         "from": "code/sys.driver/driver-monaco",

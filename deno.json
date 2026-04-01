@@ -8,6 +8,7 @@
     "dry": "deno run -P=test ./-scripts/main.ts --dry",
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
+    "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
     "prep": "deno run -P=dev ./-scripts/main.ts --prep-all",
     "prep:ahead": "deno run -P=dev ./-scripts/main.ts --prep-all --ahead-only",
     "prep:imports": "deno run -P=dev ./-scripts/main.ts --prep",
@@ -15,7 +16,6 @@
     "prep:ci:deno": "deno run -P=dev ./-scripts/main.ts --prep-ci-deno",
     "prep:ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
     "prep:ci:ahead": "deno run -P=dev ./-scripts/main.ts --prep-ci --ahead-only",
-    "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
     "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
@@ -25,17 +25,8 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "webworker",
-      "deno.ns"
-    ],
-    "types": [
-      "@types/react"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -97,10 +88,7 @@
   ],
   "lint": {
     "rules": {
-      "exclude": [
-        "no-explicit-any",
-        "no-slow-types"
-      ]
+      "exclude": ["no-explicit-any", "no-slow-types"]
     }
   },
   "test": {
@@ -142,4 +130,3 @@
     }
   }
 }
-
