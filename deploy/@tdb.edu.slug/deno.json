@@ -1,6 +1,6 @@
 {
   "name": "@tdb/edu-slug",
-  "version": "0.0.74",
+  "version": "0.0.75",
   "license": "CC-BY-4.0",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
@@ -40,15 +40,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
