@@ -118,7 +118,7 @@ describe('SlugTreeFs.fromDir', () => {
       const lib = tree[0];
       expect(lib.slug).to.eql('lib');
       expect(Array.isArray(lib.slugs)).to.eql(true);
-      expect(lib.slugs?.map((item) => item.slug)).to.eql(['README', 'child']);
+      expect(lib.slugs?.map((item) => item.slug)).to.eql(['child', 'README']);
     } finally {
       await Fs.remove(dir.absolute);
     }
