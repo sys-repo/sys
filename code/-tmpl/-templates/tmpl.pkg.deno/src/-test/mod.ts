@@ -1,15 +1,17 @@
+export { EsmAssert } from '@sys/esm/testing';
 export {
-  DomMock,
-  Testing,
   afterAll,
   afterEach,
   beforeAll,
   beforeEach,
   c,
   describe,
+  DomMock,
   expect,
   expectError,
   expectTypeOf,
   it,
+  Testing,
 } from '@sys/testing/server';
+
 export * from '../common.ts';
