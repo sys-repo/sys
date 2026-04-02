@@ -12,7 +12,7 @@ export function meta(args: {
     createdAt: args.createdAt,
     ...(args.modifiedAt !== undefined ? { modifiedAt: args.modifiedAt } : {}),
     schemaVersion: D.schemaVersion,
-    hash: { graph: args.graphHash },
+    hash: { '/graph': args.graphHash },
     generator: args.generator ? cloneGenerator(args.generator) : D.GENERATOR,
   };
 }

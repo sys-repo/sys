@@ -27,7 +27,7 @@ describe('scripts/task.check.graph', () => {
     const path = fs.join('deno.graph.json');
     const current = JSON.parse((await Fs.readText(path)).data ?? '');
     current.graph = { orderedPaths: ['code/pkg-b', 'code/pkg-a'], edges: [] };
-    current['.meta'].hash.graph = 'stale';
+    current['.meta'].hash['/graph'] = 'stale';
     await Fs.write(path, JSON.stringify(current, null, 2) + '\n');
 
     const err = await getError(() => main(fs.dir));

@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775103083786,
+    "createdAt": 1775107940623,
     "schemaVersion": 1,
     "hash": {
-      "graph": "sha256-1247993e0b0bf568c5c9f779e75e151baec6e03becd08322bbd1d34d450c9a11"
+      "/graph": "sha256-9ff4e48b5e97f619744d92057d35c74e5f7dd60a8ad8e5d9e38e8c102d9297d2"
     },
     "generator": {
       "pkg": {
@@ -14,7 +14,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.43/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775103083791
+    "modifiedAt": 1775107940628
   },
   "graph": {
     "orderedPaths": [
@@ -210,6 +210,10 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.slc.data"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
         "to": "deploy/@tdb.slc.std"
       },
       {
@@ -263,6 +267,10 @@
       {
         "from": "code/sys.ui/ui-dom",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -403,6 +411,10 @@
       {
         "from": "code/sys.ui/ui-react-devharness",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
@@ -551,6 +563,10 @@
       {
         "from": "code/sys/color",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/color",
@@ -707,6 +723,10 @@
       {
         "from": "code/sys/fs",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/http",
@@ -1074,6 +1094,10 @@
       },
       {
         "from": "code/sys/std",
+        "to": "deploy/@tdb.slc.data"
+      },
+      {
+        "from": "code/sys/std",
         "to": "deploy/@tdb.slc.std"
       },
       {
@@ -1127,6 +1151,10 @@
       {
         "from": "code/sys/testing",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/testing",

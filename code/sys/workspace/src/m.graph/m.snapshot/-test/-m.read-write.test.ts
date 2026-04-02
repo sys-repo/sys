@@ -30,7 +30,7 @@ describe('Workspace.Graph.Snapshot.read/write', () => {
         createdAt: 1,
         modifiedAt: 2,
         schemaVersion: 1,
-        hash: { graph: 'sha256-old' },
+        hash: { '/graph': 'sha256-old' },
         generator: {
           pkg: { name: '@sys/workspace', version: '0.0.1' },
           types: {

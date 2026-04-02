@@ -180,7 +180,9 @@ export declare namespace WorkspaceGraph {
     /** Snapshot document metadata. */
     export type Meta = t.JsonFileMeta & {
       readonly schemaVersion: 1;
-      readonly hash: { readonly graph: t.StringHash };
+      readonly hash: {
+        readonly '/graph': t.StringHash;
+      };
       readonly generator: {
         readonly pkg: t.Pkg;
         readonly types: {

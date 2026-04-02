@@ -19,10 +19,13 @@ describe('Workspace.Graph.Snapshot.create', () => {
     });
     expect(snapshot['.meta'].schemaVersion).to.eql(1);
     expect(snapshot['.meta'].createdAt).to.be.a('number');
-    expect(snapshot['.meta'].hash.graph.startsWith('sha256-')).to.eql(true);
+    expect(snapshot['.meta'].hash['/graph'].startsWith('sha256-')).to.eql(true);
     expect(snapshot['.meta'].generator).to.eql(D.GENERATOR);
     const path = Obj.Path.decode('/graph');
     expect(path).to.eql(['graph']);
     expect(Obj.Path.get(snapshot as O, path)).to.eql(snapshot.graph);
+    const hashPath = Obj.Path.decode('/.meta/hash/~1graph');
+    expect(hashPath).to.eql(['.meta', 'hash', '/graph']);
+    expect(Obj.Path.get(snapshot as O, hashPath)).to.eql(snapshot['.meta'].hash['/graph']);
   });
 });
