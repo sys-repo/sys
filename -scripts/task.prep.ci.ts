@@ -9,6 +9,13 @@ type Options = {
   final?: boolean;
 };
 
+type Lib = {
+  readonly ensureGraph: (cwd: t.StringDir) => Promise<unknown>;
+  readonly syncJsr: typeof Workspace.Ci.Jsr.sync;
+  readonly syncBuild: typeof Workspace.Ci.Build.sync;
+  readonly syncTest: typeof Workspace.Ci.Test.sync;
+};
+
 export const JsrIncludePrefixes = [
   'code/sys/',
   'code/sys.ui/',
@@ -19,13 +26,21 @@ export const JsrIncludePrefixes = [
   'code/-tmpl',
   'deploy/@tdb.edu.slug',
   'deploy/@tdb.slc.std',
+  'deploy/@tdb.slc.data',
 ] as const;
 
 export function toJsrCiPaths(paths: readonly string[]) {
   return paths.filter((path) => JsrIncludePrefixes.some((item) => path.startsWith(item)));
 }
 
-export async function main(options: Options = {}) {
+const lib: Lib = {
+  ensureGraph: (cwd) => Workspace.Prep.Graph.ensure({ cwd }),
+  syncJsr: Workspace.Ci.Jsr.sync,
+  syncBuild: Workspace.Ci.Build.sync,
+  syncTest: Workspace.Ci.Test.sync,
+} as const;
+
+export async function main(options: Options = {}, api: Lib = lib) {
   const cwd = Deno.cwd();
   const jsrTarget = '.github/workflows/jsr.yaml';
   const buildTarget = '.github/workflows/build.yaml';
@@ -38,6 +53,7 @@ export async function main(options: Options = {}) {
   const jsrSourcePaths = options.sourcePaths ?? Paths.modules;
   const jsrPaths = toJsrCiPaths(jsrSourcePaths);
   const versionFilter = options.versionFilter ?? 'all';
+  await api.ensureGraph(cwd);
   const on = {
     push: {
       branches: ['main', 'phil-work'],
@@ -49,7 +65,7 @@ export async function main(options: Options = {}) {
     // SAMPLE_SECRET: '${{ secrets.SAMPLE_SECRET }}',
   } as const;
 
-  const jsr = await Workspace.Ci.Jsr.sync({
+  const jsr = await api.syncJsr({
     cwd,
     env,
     log: true,
@@ -58,7 +74,7 @@ export async function main(options: Options = {}) {
     target: jsrTarget,
     versionFilter,
   });
-  await Workspace.Ci.Build.sync({
+  await api.syncBuild({
     cwd,
     env,
     log: true,
@@ -66,7 +82,7 @@ export async function main(options: Options = {}) {
     source: { paths: Paths.modules },
     target: buildTarget,
   });
-  await Workspace.Ci.Test.sync({
+  await api.syncTest({
     cwd,
     env,
     log: true,
