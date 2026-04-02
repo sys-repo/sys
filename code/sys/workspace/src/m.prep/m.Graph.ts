@@ -1,6 +1,7 @@
-import { type t, Cli, Fs, Is, Obj, Time } from './common.ts';
+import { type t, c, Cli, Fs, Is, Obj, Str, Time } from './common.ts';
 import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
+import { runPhase } from './u.phase.ts';
 
 export const Graph: t.WorkspacePrep.Graph.Lib = {
   async build(cwd = Fs.cwd()) {
@@ -51,25 +52,14 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
   async verify(args = {}) {
     const cwd = args.cwd ?? Fs.cwd();
     const silent = args.silent ?? false;
-    if (silent) return await wrangle.assertCurrent(cwd);
-
     const spinner = Cli.Spinner.create('');
-    const startedAt = Time.now.timestamp;
-    const text = () => Cli.Fmt.spinnerText(`checking workspace graph... ${String(Time.elapsed(startedAt))}`);
-    const timer = Time.interval(1000, () => (spinner.text = text()));
-    spinner.start(text());
-    try {
-      const res = await wrangle.assertCurrent(cwd);
-      spinner.stop();
-      return res;
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      spinner.fail(Cli.Fmt.spinnerText(`Check failed: ${err.message}`));
-      throw err;
-    } finally {
-      timer.cancel();
-      spinner.stop();
-    }
+    return runPhase({
+      spinner,
+      label: 'checking workspace graph...',
+      silent,
+      fn: () => wrangle.assertCurrent(cwd),
+      fail: (error) => `Check failed: ${error.message}`,
+    });
   },
 
   async write(args) {
@@ -94,9 +84,31 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
   },
 
   async ensure(args = {}) {
-    const graph = args.graph ?? (await Graph.build(args.cwd));
+    const cwd = args.cwd ?? Fs.cwd();
+    const silent = args.silent ?? false;
+    const ensureStartedAt = Time.now.timestamp;
+    const spinner = Cli.Spinner.create('');
+    const graph = args.graph ?? await runPhase({
+      spinner,
+      label: 'building workspace dependency graph...',
+      silent,
+      fn: () => Graph.build(cwd),
+    });
     const snapshot = Graph.snapshot(graph);
-    return Graph.write({ cwd: args.cwd, snapshot });
+    return runPhase({
+      spinner,
+      label: 'writing workspace graph snapshot...',
+      silent,
+      fn: () => Graph.write({ cwd, snapshot }),
+      done: (res) =>
+        wrangle.done({
+          cwd,
+          graph,
+          path: res.path,
+          changed: res.changed,
+          startedAt: ensureStartedAt,
+        }),
+    });
   },
 };
 
@@ -117,6 +129,35 @@ const wrangle = {
     }
 
     return res;
+  },
+
+  async done(args: {
+    readonly cwd: t.StringDir;
+    readonly graph: t.WorkspaceGraph.PersistedGraph;
+    readonly path: t.StringPath;
+    readonly changed: boolean;
+    readonly startedAt: number;
+  }) {
+    const path = c.gray(Fs.trimCwd(args.path, { cwd: args.cwd, prefix: true }));
+    const stats = await Fs.stat(args.path);
+    const size = Str.bytes(stats?.size ?? 0);
+    const nodes = args.graph.orderedPaths.length;
+    const summary = `${nodes} ${Str.plural(nodes, 'node')}, ${size}`;
+    const state = args.changed ? '' : ' (no change)';
+    const elapsed = c.dim(
+      c.gray(
+        ` ${summary} in ${String(Time.elapsed(args.startedAt))}${state}`,
+      ),
+    );
+    const done = `${c.green('done:')} ${path}${elapsed}`;
+    if (!args.changed) return done;
+
+    const commit = `chore(workspace): refresh generated workspace graph snapshot (${summary})`;
+    const suggestion = Cli.Fmt.Commit.suggestion(commit, {
+      title: { text: 'suggested commit msg:', color: 'cyan', bold: false },
+      message: { color: 'white' },
+    });
+    return `${done}\n\n${suggestion}\n`;
   },
 } as const;
 

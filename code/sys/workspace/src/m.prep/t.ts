@@ -50,6 +50,8 @@ export declare namespace WorkspacePrep {
     export type EnsureArgs = {
       readonly cwd?: t.StringDir;
       readonly graph?: t.WorkspaceGraph.PersistedGraph;
+      /** Suppress graph prep phase output. */
+      readonly silent?: boolean;
     };
 
     export type CheckResult = {

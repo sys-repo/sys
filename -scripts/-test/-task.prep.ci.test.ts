@@ -1,10 +1,15 @@
 import { describe, expect, Fs, it, Testing } from '@sys/testing/server';
 import { main, toJsrCiPaths } from '../task.prep.ci.ts';
 
+type DenoJson = {
+  readonly name: string;
+  readonly version: string;
+};
+
 describe('scripts/task.prep.ci', () => {
   it('filters an explicit ordered source subset to jsr-publishable modules', async () => {
     const fs = await Testing.dir('scripts.task.prep.ci.jsr-paths');
-    const create = async (path: string, denojson: Record<string, unknown>) => {
+    const create = async (path: string, denojson: DenoJson) => {
       await Fs.writeJson(fs.join(path, 'deno.json'), denojson);
       return path;
     };

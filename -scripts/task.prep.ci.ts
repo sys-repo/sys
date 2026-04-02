@@ -1,7 +1,7 @@
 import type { CliSpinner } from '@sys/cli/t';
 import { Workspace, type t as wt } from '@sys/workspace';
 import { Paths } from './-PATHS.ts';
-import { Cli, Fs, Str, Time, type t } from './common.ts';
+import { c, Cli, Fs, Str, Time, type t } from './common.ts';
 
 type Options = {
   versionFilter?: wt.WorkspaceCi.Jsr.VersionFilter;
@@ -46,7 +46,7 @@ function isJsrPkgName(name: string) {
 }
 
 const lib: Lib = {
-  ensureGraph: (cwd) => Workspace.Prep.Graph.ensure({ cwd }),
+  ensureGraph: (cwd) => Workspace.Prep.Graph.ensure({ cwd, silent: true }),
   syncJsr: Workspace.Ci.Jsr.sync,
   syncBuild: Workspace.Ci.Build.sync,
   syncTest: Workspace.Ci.Test.sync,
@@ -117,7 +117,12 @@ export async function main(options: Options = {}, api: Lib = lib) {
       const msg = `chore(workspace): prepared ${options.prepared} ${Str.plural(options.prepared, 'submodule')} (${jsr.count} jsr:publish ${Str.plural(jsr.count, 'module')})`;
       console.info();
       console.info(Cli.Fmt.hr('gray'));
-      console.info(Cli.Fmt.Commit.suggestion(msg, { title: 'final commit msg:' }));
+      console.info(
+        Cli.Fmt.Commit.suggestion(msg, {
+          title: { text: 'final commit msg:', color: 'cyan', bold: false },
+          message: { color: 'white' },
+        }),
+      );
       console.info();
     }
   } finally {
@@ -127,14 +132,23 @@ export async function main(options: Options = {}, api: Lib = lib) {
 
 async function runPhase<T>(spinner: CliSpinner.Instance, label: string, fn: () => Promise<T>) {
   const startedAt = Time.now.timestamp;
-  const text = () => Cli.Fmt.spinnerText(`${label} ${String(Time.elapsed(startedAt))}`);
-  const timer = Time.interval(1000, () => (spinner.text = text()));
-  spinner.start(text());
+  const timer = Time.interval(1000, () => (spinner.text = phaseText(label, startedAt)));
+  spinner.start(Cli.Fmt.spinnerText(label));
   try {
-    return await fn();
-  } finally {
+    const res = await fn();
     timer.cancel();
     spinner.stop();
     console.info();
+    return res;
+  } catch (error) {
+    timer.cancel();
+    spinner.stop();
+    console.info();
+    throw error;
   }
+}
+
+function phaseText(label: string, startedAt: number) {
+  const elapsed = c.dim(c.gray(` ${String(Time.elapsed(startedAt))}`));
+  return Cli.Fmt.spinnerText(`${label}${elapsed}`);
 }

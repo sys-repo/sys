@@ -19,10 +19,10 @@ describe('Workspace.Prep.Graph', () => {
     const fs = await Testing.dir('WorkspacePrep.Graph.ensure');
     await writeWorkspace(fs.dir);
 
-    const first = await Graph.ensure({ cwd: fs.dir });
+    const first = await Graph.ensure({ cwd: fs.dir, silent: true });
     const statBefore = await Deno.stat(first.path);
     const textBefore = (await Fs.readText(first.path)).data;
-    const second = await Graph.ensure({ cwd: fs.dir });
+    const second = await Graph.ensure({ cwd: fs.dir, silent: true });
     const statAfter = await Deno.stat(first.path);
     const textAfter = (await Fs.readText(first.path)).data;
     const read = await Graph.read(fs.dir);
@@ -53,11 +53,28 @@ describe('Workspace.Prep.Graph', () => {
       edges: [{ from: 'code/pkg-a', to: 'code/pkg-b' }],
     });
 
-    await Graph.ensure({ cwd: fs.dir });
+    await Graph.ensure({ cwd: fs.dir, silent: true });
     const current = await Graph.check(fs.dir);
     expect(current.current).to.eql(true);
     expect(current.existing?.graph).to.eql(current.expected.graph);
     expect(current.existing?.['.meta'].hash['/graph']).to.eql(current.expected['.meta'].hash['/graph']);
+  });
+
+  it('suppresses graph prep phase output when silent is true', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Graph.ensure.silent');
+    await writeWorkspace(fs.dir);
+
+    const info = console.info;
+    const logs: string[] = [];
+    console.info = (...args: unknown[]) => logs.push(args.map(String).join(' '));
+
+    try {
+      await Graph.ensure({ cwd: fs.dir, silent: true });
+    } finally {
+      console.info = info;
+    }
+
+    expect(logs).to.eql([]);
   });
 });
 

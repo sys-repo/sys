@@ -39,6 +39,6 @@ export async function createDenoWorkspace(root: string) {
     `),
   );
 
-  await Workspace.Prep.Graph.ensure({ cwd: root });
+  await Workspace.Prep.Graph.ensure({ cwd: root, silent: true });
   return root;
 }

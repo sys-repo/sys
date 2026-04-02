@@ -7,30 +7,30 @@ describe('scripts/task.check.graph', () => {
   it('passes when the tracked workspace graph is current', async () => {
     const fs = await Testing.dir('scripts.task.check.graph.current');
     await writeWorkspace(fs.dir);
-    await Workspace.Prep.Graph.ensure({ cwd: fs.dir });
+    await Workspace.Prep.Graph.ensure({ cwd: fs.dir, silent: true });
 
-    await main(fs.dir);
+    await captureInfo(() => main(fs.dir));
   });
 
   it('fails when the tracked workspace graph is missing', async () => {
     const fs = await Testing.dir('scripts.task.check.graph.missing');
     await writeWorkspace(fs.dir);
 
-    const err = await getError(() => main(fs.dir));
+    const err = await getError(() => captureInfo(() => main(fs.dir)));
     expect(err?.message).to.include(`Workspace graph missing at '${fs.join('deno.graph.json')}'`);
   });
 
   it('fails when the tracked workspace graph is stale', async () => {
     const fs = await Testing.dir('scripts.task.check.graph.stale');
     await writeWorkspace(fs.dir);
-    await Workspace.Prep.Graph.ensure({ cwd: fs.dir });
+    await Workspace.Prep.Graph.ensure({ cwd: fs.dir, silent: true });
     const path = fs.join('deno.graph.json');
     const current = JSON.parse((await Fs.readText(path)).data ?? '');
     current.graph = { orderedPaths: ['code/pkg-b', 'code/pkg-a'], edges: [] };
     current['.meta'].hash['/graph'] = 'stale';
     await Fs.write(path, JSON.stringify(current, null, 2) + '\n');
 
-    const err = await getError(() => main(fs.dir));
+    const err = await getError(() => captureInfo(() => main(fs.dir)));
     expect(err?.message).to.include(`Workspace graph is stale at '${path}'`);
   });
 });
@@ -86,5 +86,16 @@ async function getError(fn: () => Promise<unknown>) {
     await fn();
   } catch (error) {
     return error as Error;
+  }
+}
+
+async function captureInfo(fn: () => Promise<unknown>) {
+  const info = console.info;
+  console.info = () => {};
+
+  try {
+    await fn();
+  } finally {
+    console.info = info;
   }
 }
