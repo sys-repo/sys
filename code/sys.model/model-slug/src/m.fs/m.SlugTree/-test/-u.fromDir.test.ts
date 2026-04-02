@@ -1,6 +1,6 @@
-import { type t, describe, expect, it, Str } from '../../-test.ts';
+import { type t, describe, expect, it, Str } from '../../../-test.ts';
 import { Fs } from '../common.ts';
-import { fromDir } from '../mod.ts';
+import { SlugTreeFs } from '../mod.ts';
 
 describe('SlugTreeFs.fromDir', () => {
   async function assertReadmeIndex(readmeName: 'README.md' | '-README.md') {
@@ -30,7 +30,7 @@ describe('SlugTreeFs.fromDir', () => {
         return `crdt:lib-${count}` as t.StringRef;
       };
 
-      const doc = await fromDir({ root, createCrdt });
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -60,7 +60,7 @@ describe('SlugTreeFs.fromDir', () => {
       const filePath = Fs.join(root, 'alpha.md');
       await Fs.write(filePath, '# Alpha\n');
 
-      const doc = await fromDir({ root });
+      const doc = await SlugTreeFs.fromDir({ root });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);

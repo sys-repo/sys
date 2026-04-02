@@ -1,5 +1,4 @@
-import type { t } from '../common.ts';
-import { Is, Yaml } from './common.ts';
+import { type t, Is, Yaml } from './common.ts';
 import { normalizeCrdtRef } from './u.ref.ts';
 
 type FrontmatterParse = {
@@ -10,7 +9,7 @@ type FrontmatterParse = {
 
 const FRONT_DELIM = '---';
 
-export const ensureFrontmatterRef: t.SlugTreeFsEnsureFrontmatterRef = async (args) => {
+export const ensureFrontmatterRef: t.SlugTreeFs.EnsureFrontmatterRef = async (args) => {
   const parsed = parseFrontmatter(args.text);
   const existing = parsed.has ? readRef(parsed.frontmatter) : undefined;
   if (existing) return { ref: existing, updated: false, text: args.text };
@@ -25,7 +24,7 @@ export const ensureFrontmatterRef: t.SlugTreeFsEnsureFrontmatterRef = async (arg
   return { ref, updated: true, text: inserted };
 };
 
-export const readFrontmatterRef: t.SlugTreeFsReadFrontmatterRef = (text) => {
+export const readFrontmatterRef: t.SlugTreeFs.ReadFrontmatterRef = (text) => {
   const parsed = parseFrontmatter(text);
   if (!parsed.has) return;
   return readRef(parsed.frontmatter);

@@ -1,5 +1,4 @@
-import type { t } from '../common.ts';
-import { Arr, Fs, DEFAULT_IGNORE, Ignore } from './common.ts';
+import { type t, Arr, Fs, DEFAULT_IGNORE, Ignore } from './common.ts';
 import { ensureFrontmatterRef, readFrontmatterRef } from './u.frontmatter.ts';
 
 type DirEntry = {
@@ -9,7 +8,7 @@ type DirEntry = {
   readonly isFile: boolean;
 };
 
-export const fromDir: t.SlugTreeFsFromDir = async (args, opts = {}) => {
+export const fromDir: t.SlugTreeFs.FromDir = async (args, opts = {}) => {
   const { root, createCrdt } = args;
   const ignore = createIgnoreMatcher(opts.ignore);
   const sort = opts.sort ?? true;

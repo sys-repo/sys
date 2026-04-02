@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 export function normalizeCrdtRef(input: string): t.StringRef {
   const raw = String(input ?? '').trim();
