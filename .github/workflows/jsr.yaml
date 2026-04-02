@@ -48,9 +48,9 @@ jobs:
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor HEAD refs/remotes/origin/main
 
-      - name: publish module → "@sys/workspace"
+      - name: publish module → "@tdb/slc-data"
         run: |
-          cd code/sys/workspace
+          cd deploy/@tdb.slc.data
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
@@ -66,9 +66,9 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
-      - name: publish module → "@tdb/slc-data"
+      - name: publish module → "@tdb/edu-slug"
         run: |
-          cd deploy/@tdb.slc.data
+          cd deploy/@tdb.edu.slug
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do

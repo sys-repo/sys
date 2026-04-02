@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775107940623,
+    "createdAt": 1775115042054,
     "schemaVersion": 1,
     "hash": {
-      "/graph": "sha256-9ff4e48b5e97f619744d92057d35c74e5f7dd60a8ad8e5d9e38e8c102d9297d2"
+      "/graph": "sha256-9de762a1dfb094eae2348bee5a238cf5bd7382206a9335b6707c91cb4b3be491"
     },
     "generator": {
       "pkg": {
@@ -14,7 +14,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.43/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775107940628
+    "modifiedAt": 1775115042059
   },
   "graph": {
     "orderedPaths": [
@@ -151,6 +151,10 @@
       {
         "from": "code/sys.model/model-slug",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys.model/model-slug",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-css",
