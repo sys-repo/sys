@@ -104,6 +104,8 @@ jobs:
             path: code/sys.tools
           - name: "@tdb/slc"
             path: deploy/@tdb.slc
+          - name: "@tdb/slc-data"
+            path: deploy/@tdb.slc.data
           - name: "@tdb/slc-fs"
             path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"

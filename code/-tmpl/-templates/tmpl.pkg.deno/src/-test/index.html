@@ -1,12 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #293042;
+      }
+      body {
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+      .app-loading {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 20px;
+        user-select: none;
+      }
+    </style>
     <title>loading...</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="app-loading">loading...</div></div>
     <script type="module" src="./entry.tsx"></script>
   </body>
 </html>
