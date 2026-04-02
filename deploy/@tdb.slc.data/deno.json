@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-data",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -16,7 +16,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./fs": "./src/m.fs/mod.ts"
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
