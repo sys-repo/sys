@@ -1,4 +1,4 @@
-import { describe, expect, it, Str } from '../../../-test.ts';
+import { describe, expect, expectError, it, Str } from '../../../-test.ts';
 import { SlugTreeFs } from '../mod.ts';
 
 describe('SlugTreeFs.frontmatter', () => {
@@ -59,5 +59,27 @@ describe('SlugTreeFs.frontmatter', () => {
     expect(res.updated).to.eql(false);
     expect(res.ref).to.eql('crdt:existing');
     expect(res.text).to.eql(src);
+  });
+
+  it('normalizes urn refs before writing them', async () => {
+    const res = await SlugTreeFs.ensureFrontmatterRef({
+      text: '# Delta\n',
+      createCrdt: async () => 'urn:crdt:delta-1',
+    });
+
+    expect(res.updated).to.eql(true);
+    expect(res.ref).to.eql('crdt:delta-1');
+    expect(res.text).to.contain('ref: crdt:delta-1');
+  });
+
+  it('fails when front-matter is missing a closing delimiter', async () => {
+    await expectError(
+      async () =>
+        await SlugTreeFs.ensureFrontmatterRef({
+          text: '---\ntitle: Broken\n# Broken\n',
+          createCrdt: async () => 'crdt:broken-1',
+        }),
+      'Front-matter start found without closing delimiter.',
+    );
   });
 });

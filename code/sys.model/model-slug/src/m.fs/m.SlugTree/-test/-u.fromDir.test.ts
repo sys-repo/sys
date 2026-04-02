@@ -81,4 +81,46 @@ describe('SlugTreeFs.fromDir', () => {
   it('treats -README.md as directory index alias', async () => {
     await assertReadmeIndex('-README.md');
   });
+
+  it('ignores hidden and configured paths while reading the tree', async () => {
+    const dir = await Fs.makeTempDir();
+    try {
+      const root = Fs.join(dir.absolute, 'root');
+      await Fs.ensureDir(Fs.join(root, '.tmp'));
+
+      await Fs.write(Fs.join(root, 'alpha.md'), '# Alpha\n');
+      await Fs.write(Fs.join(root, '.hidden.md'), '# Hidden\n');
+      await Fs.write(Fs.join(root, '.tmp', 'ignored.md'), '# Ignored\n');
+      await Fs.write(Fs.join(root, 'skip.md'), '# Skip\n');
+
+      const doc = await SlugTreeFs.fromDir({ root }, { ignore: ['skip.md'] });
+
+      expect(doc.tree.map((item) => item.slug)).to.eql(['alpha']);
+    } finally {
+      await Fs.remove(dir.absolute);
+    }
+  });
+
+  it('treats README files as ordinary files when readmeAsIndex is false', async () => {
+    const dir = await Fs.makeTempDir();
+    try {
+      const root = Fs.join(dir.absolute, 'root');
+      const libDir = Fs.join(root, 'lib');
+      await Fs.ensureDir(libDir);
+
+      await Fs.write(Fs.join(libDir, 'README.md'), '# Lib\n');
+      await Fs.write(Fs.join(libDir, 'child.md'), '# Child\n');
+
+      const doc = await SlugTreeFs.fromDir({ root }, { readmeAsIndex: false });
+      const tree = doc.tree;
+
+      expect(tree.length).to.eql(1);
+      const lib = tree[0];
+      expect(lib.slug).to.eql('lib');
+      expect(Array.isArray(lib.slugs)).to.eql(true);
+      expect(lib.slugs?.map((item) => item.slug)).to.eql(['README', 'child']);
+    } finally {
+      await Fs.remove(dir.absolute);
+    }
+  });
 });
