@@ -1,6 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { toYaml } from '../u.toYaml.ts';
-import { Fs, SlugTreeFs, Yaml } from '../common.ts';
+import { Fs, SlugTreeFs, SlugTreePure, Yaml } from '../common.ts';
 
 describe('SlugTree.toYaml', () => {
   it('serializes a slug-tree that round-trips through YAML', () => {
@@ -11,7 +10,7 @@ describe('SlugTree.toYaml', () => {
       ],
     };
 
-    const yaml = toYaml(doc);
+    const yaml = SlugTreePure.toYaml(doc);
     const parsed = Yaml.parse<t.SlugTreeDoc>(yaml).data;
 
     expect(parsed).to.eql(doc);
@@ -26,7 +25,7 @@ describe('SlugTree.toYaml', () => {
 
       const createCrdt = async () => 'crdt:alpha-1' as t.StringRef;
       const doc = await SlugTreeFs.fromDir({ root, createCrdt });
-      const yaml = toYaml(doc);
+      const yaml = SlugTreePure.toYaml(doc);
       const parsed = Yaml.parse<t.SlugTreeDoc>(yaml).data;
 
       expect(parsed).to.eql(doc);

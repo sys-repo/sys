@@ -5,6 +5,7 @@ export declare namespace SlugTreeFs {
     readonly fromDir: FromDir;
     readonly ensureFrontmatterRef: EnsureFrontmatterRef;
     readonly readFrontmatterRef: ReadFrontmatterRef;
+    readonly normalizeCrdtRef: NormalizeCrdtRef;
   };
 
   export type FromDir = (
@@ -31,4 +32,5 @@ export declare namespace SlugTreeFs {
   }>;
 
   export type ReadFrontmatterRef = (text: string) => t.StringRef | undefined;
+  export type NormalizeCrdtRef = (input: string) => t.StringRef;
 }
