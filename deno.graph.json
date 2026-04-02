@@ -1,18 +1,18 @@
 {
   ".meta": {
-    "createdAt": 1775093081787,
+    "createdAt": 1775096247736,
     "schemaVersion": 1,
     "hash": {
       "graph": "sha256-1247993e0b0bf568c5c9f779e75e151baec6e03becd08322bbd1d34d450c9a11"
     },
     "generator": {
-      "type": "https://jsr.io/@sys/workspace/0.0.41/src/m.graph/t.ts",
+      "type": "https://jsr.io/@sys/workspace/0.0.42/src/m.graph/t.ts",
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.41"
+        "version": "0.0.42"
       }
     },
-    "modifiedAt": 1775093081791
+    "modifiedAt": 1775096247741
   },
   "graph": {
     "orderedPaths": [
