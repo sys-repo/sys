@@ -181,7 +181,12 @@ export declare namespace WorkspaceGraph {
     export type Meta = t.JsonFileMeta & {
       readonly schemaVersion: 1;
       readonly hash: { readonly graph: t.StringHash };
-      readonly generator: { readonly pkg: t.Pkg; readonly type: t.StringUrl };
+      readonly generator: {
+        readonly pkg: t.Pkg;
+        readonly types: {
+          readonly '/graph': t.StringUrl;
+        };
+      };
     };
 
     /** Persisted graph snapshot document. */

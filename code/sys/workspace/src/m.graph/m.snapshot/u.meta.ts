@@ -19,7 +19,7 @@ export function meta(args: {
 
 function cloneGenerator(generator: M['generator']): M['generator'] {
   return {
-    type: generator.type,
     pkg: Obj.clone(generator.pkg),
+    types: Obj.clone(generator.types),
   };
 }

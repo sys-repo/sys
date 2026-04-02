@@ -78,4 +78,21 @@ describe('Workspace.Graph.Snapshot.parse', () => {
 
     expect(snapshot).to.eql(undefined);
   });
+
+  it('rejects malformed generator type-path metadata', () => {
+    const snapshot = parseSnapshot({
+      '.meta': {
+        createdAt: 123,
+        schemaVersion: D.schemaVersion,
+        hash: { graph: 'sha256-abc' },
+        generator: {
+          ...D.GENERATOR,
+          types: { '/graph': 123 },
+        },
+      },
+      graph: { orderedPaths: [], edges: [] },
+    });
+
+    expect(snapshot).to.eql(undefined);
+  });
 });
