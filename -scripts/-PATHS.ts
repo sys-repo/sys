@@ -60,6 +60,7 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.tools',
     'deploy/@tdb.slc',
+    'deploy/@tdb.slc.data',
     'deploy/@tdb.slc.fs',
     'deploy/@tdb.slc.std',
     'deploy/@tdb.edu.slug',

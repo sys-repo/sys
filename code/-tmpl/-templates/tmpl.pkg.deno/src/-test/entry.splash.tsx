@@ -4,8 +4,10 @@
  * without pulling in richer optional UI/dev layers.
  */
 import React from 'react';
-import { css, Color } from '@sys/ui-css';
+
 import type * as t from '@sys/types';
+import { Color, css } from '@sys/ui-css';
+import { pkg } from '../pkg.ts';
 
 export type SplashProps = { theme?: t.CommonTheme };
 
@@ -21,7 +23,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
 
   return (
     <div className={css(styles.base, styles.center).class}>
-      <div className={styles.body.class}>{`👋 Hello World`}</div>
+      <div className={styles.body.class}>{`👋 hello ${pkg.name}`}</div>
     </div>
   );
 };
