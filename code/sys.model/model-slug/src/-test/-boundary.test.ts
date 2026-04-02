@@ -25,6 +25,14 @@ describe('@sys/model-slug export graph boundary', () => {
     });
   });
 
+  it('keeps core export @sys/fs free', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    await EsmAssert.runtimeGraphBoundary({
+      entry: Path.resolve(root, '../m.core/mod.ts'),
+      forbiddenImports: ['@sys/fs'],
+    });
+  });
+
   it('keeps schema export @sys/fs free', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     await EsmAssert.runtimeGraphBoundary({
