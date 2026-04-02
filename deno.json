@@ -82,6 +82,7 @@
     "code/sys/yaml",
     "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
+    "deploy/@tdb.slc.data",
     "deploy/@tdb.slc.fs",
     "deploy/@tdb.slc.std",
     "deploy/sample.proxy"
