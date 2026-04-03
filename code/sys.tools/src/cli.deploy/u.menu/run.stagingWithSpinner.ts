@@ -34,7 +34,10 @@ export async function runStagingWithSpinner(args: {
     const lines: string[] = [];
     const progress = Math.min(total, done + active.size);
     const elapsed = Time.elapsed(started);
-    const elapsedText = elapsed.msec >= 1000 ? ` ${c.gray(c.dim(elapsed.toString()))}` : '';
+    const elapsedValue = elapsed.msec >= 60_000
+      ? elapsed.format({ unit: 'm', round: 1 })
+      : elapsed.toString();
+    const elapsedText = elapsed.msec >= 1000 ? ` ${c.gray(c.dim(elapsedValue))}` : '';
     lines.push(`staging (${c.white(String(progress))}/${total})...${elapsedText}`);
 
     for (const name of names) {
