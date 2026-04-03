@@ -35,8 +35,8 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const [repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
     readJson<t.Json>(path.tmplRepoImports),
-    readJson<t.PkgJsonNode>(path.tmplRepoPackage),
-    readJson<t.PkgJsonNode>(path.rootPackage),
+    readJson<t.PkgNodeJson>(path.tmplRepoPackage),
+    readJson<t.PkgNodeJson>(path.rootPackage),
     readJson<t.Json>(path.rootImports),
   ]);
 
