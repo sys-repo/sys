@@ -40,11 +40,8 @@ export async function executeStage(
 ): Promise<t.DenoDeploy.Stage.Result> {
   const { workspace, target } = await resolveStageTarget(request);
   const root = await resolveStageRoot(workspace.dir, request.root);
-  const snapshot = await Workspace.Prep.Graph.read(workspace.dir);
-  if (!snapshot) {
-    const err = `DenoDeploy.stage: missing workspace graph snapshot at '${Workspace.Prep.State.graphFile(workspace.dir)}' — run prep first`;
-    throw new Error(err);
-  }
+  const graph = await Workspace.Prep.Graph.ensure({ cwd: workspace.dir, silent: true });
+  const snapshot = graph.snapshot;
   const retain = wrangle.retainPackages(snapshot.graph, target.relative);
   const shouldBuild = await wrangle.shouldBuildTarget(target.absolute);
   const ctx = { workspace, target, root } as const;

@@ -75,6 +75,41 @@ export async function createStageWorkspace() {
 }
 
 export async function addStageRuntimeDriverFixture(root: string) {
+  await Fs.writeJson(Fs.join(root, 'deno.json'), {
+    name: 'root',
+    version: '0.0.0',
+    importMap: './imports.json',
+    workspace: [
+      './code/apps/foo',
+      './libs/bar',
+      './libs/baz',
+      './code/sys/types',
+      './code/sys/fs',
+      './code/sys.driver/driver-deno',
+    ],
+  });
+  await Fs.writeJson(Fs.join(root, 'imports.json'), {
+    imports: {
+      '@test/foo': './code/apps/foo/src/mod.ts',
+      '@test/bar': './libs/bar/src/mod.ts',
+      '@test/baz': './libs/baz/src/mod.ts',
+      '@sys/driver-deno': './code/sys.driver/driver-deno/src/mod.ts',
+      '@sys/driver-deno/cloud': './code/sys.driver/driver-deno/src/m.cloud/mod.ts',
+      '@sys/fs': './code/sys/fs/src/mod.ts',
+      '@sys/types': './code/sys/types/src/mod.ts',
+    },
+  });
+  await Fs.write(
+    Fs.join(root, 'code/apps/foo/src/mod.ts'),
+    Str.dedent(`
+      import { cloud } from '@sys/driver-deno/cloud';
+      import { bar } from '@test/bar';
+
+      export default 'foo-default';
+      export const foo = \`foo-\${bar}-\${cloud}\`;
+    `),
+  );
+
   await Fs.writeJson(Fs.join(root, 'code/sys.driver/driver-deno/deno.json'), {
     name: '@sys/driver-deno',
     version: '0.0.288',
@@ -83,10 +118,13 @@ export async function addStageRuntimeDriverFixture(root: string) {
       './cloud': './src/m.cloud/mod.ts',
     },
   });
-  await Fs.write(Fs.join(root, 'code/sys.driver/driver-deno/src/mod.ts'), `export const driver = true;\n`);
+  await Fs.write(
+    Fs.join(root, 'code/sys.driver/driver-deno/src/mod.ts'),
+    `import { fs } from '@sys/fs';\nexport const driver = fs;\n`,
+  );
   await Fs.write(
     Fs.join(root, 'code/sys.driver/driver-deno/src/m.cloud/mod.ts'),
-    `export const cloud = true;\n`,
+    `export const cloud = 'cloud';\n`,
   );
 
   await Fs.writeJson(Fs.join(root, 'code/sys/fs/deno.json'), {
@@ -94,7 +132,10 @@ export async function addStageRuntimeDriverFixture(root: string) {
     version: '0.0.0',
     exports: { '.': './src/mod.ts' },
   });
-  await Fs.write(Fs.join(root, 'code/sys/fs/src/mod.ts'), `export const fs = true;\n`);
+  await Fs.write(
+    Fs.join(root, 'code/sys/fs/src/mod.ts'),
+    `import type { T } from '@sys/types';\nexport const fs: T = true;\n`,
+  );
 
   await Fs.writeJson(Fs.join(root, 'code/sys/types/deno.json'), {
     name: '@sys/types',
