@@ -18,7 +18,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fs": "./src/m.fs/mod.ts",
+    "./fs": "./src/fs/mod.ts",
     "./ui": "./src/ui/mod.ts"
   },
   "permissions": {
