@@ -9,5 +9,5 @@ export const ns = 'tdb.slc.data';
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}: ui.HttpOrigin`]: () => import('../ui/ui.HttpOrigin/-spec/-SPEC.tsx'),
 } as t.SpecImports;
