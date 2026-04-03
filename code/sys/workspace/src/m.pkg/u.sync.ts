@@ -102,5 +102,5 @@ function logSyncResult(
     `${result.unchanged} unchanged`,
     `${result.skipped} skipped`,
   ].join(', ');
-  console.info(`${c.gray('Package metadata sync:')} ${c.white(summary)}`);
+  console.info(`${c.gray('Package src/pkg.ts sync:')} ${c.white(summary)}`);
 }
