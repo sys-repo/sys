@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it } from '../../-test.ts';
 import { runPhase } from '../../u.phase.ts';
 
 describe('Workspace.Prep.runPhase', () => {
@@ -88,7 +88,7 @@ function createSpinner() {
     events,
     text: '',
     start(text = '') {
-      events.push(`start:${text}`);
+      events.push(`start:${Cli.stripAnsi(text)}`);
       return this;
     },
     stop() {
@@ -96,11 +96,11 @@ function createSpinner() {
       return this;
     },
     succeed(text = '') {
-      events.push(`succeed:${text}`);
+      events.push(`succeed:${Cli.stripAnsi(text)}`);
       return this;
     },
     fail(text = '') {
-      events.push(`fail:${text}`);
+      events.push(`fail:${Cli.stripAnsi(text)}`);
       return this;
     },
   };
