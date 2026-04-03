@@ -131,7 +131,7 @@ const wrangle = {
       (await Cli.Input.Checkbox.prompt<string>({
         message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
         options: [...promptOptions],
-        maxRows: 20,
+        maxRows: Math.min(50, promptOptions.length),
       })) ?? [];
 
     const pickedSet = new Set(picked);
