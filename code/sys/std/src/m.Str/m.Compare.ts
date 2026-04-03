@@ -3,6 +3,10 @@ import { type t } from './common.ts';
 const collatorCache = new Map<string, Intl.Collator>();
 
 export const Compare: t.StrCompareLib = {
+  codeUnit() {
+    return (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+  },
+
   natural(options?: t.StrCompareOptions) {
     const collator = getCollator(options);
     return (a: string, b: string) => collator.compare(a, b);
