@@ -2,7 +2,7 @@ import { type t, Cli, Fs } from './common.ts';
 import { Graph } from './m.Graph.ts';
 import { State } from './m.State.ts';
 import { Workspace } from './m.Workspace.ts';
-import { runPhase } from './u.phase.ts';
+import { runPhase } from '../u.phase.ts';
 
 export const WorkspacePrep: t.WorkspacePrep.Lib = {
   State,

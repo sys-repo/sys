@@ -12,6 +12,45 @@ export namespace WorkspaceCi {
     readonly Build: Build.Lib;
     /** Test workflow helpers. */
     readonly Test: Test.Lib;
+    /** Sync workspace CI workflows and emit prep summaries. */
+    sync(args: SyncArgs): Promise<SyncSummary>;
+  };
+
+  /** Arguments for syncing workspace CI workflows. */
+  export type SyncArgs = {
+    /** Working directory used to resolve modules and write workflows. */
+    readonly cwd?: t.StringDir;
+    /** Ordered source module paths used for workflow generation. */
+    readonly sourcePaths: readonly t.StringPath[];
+    /** Optional version-based JSR module filter. */
+    readonly versionFilter?: Jsr.VersionFilter;
+    /** Optional package scopes allowed in the generated JSR publish workflow. */
+    readonly jsrScopes?: readonly string[];
+    /** Optional prepared submodule count for final commit-summary output. */
+    readonly prepared?: number;
+    /** Emit the final aggregate commit-summary block. */
+    readonly final?: boolean;
+    /** Suppress phase and summary output. */
+    readonly silent?: boolean;
+    /** Workflow file targets. */
+    readonly targets?: {
+      readonly jsr?: t.StringPath;
+      readonly build?: t.StringPath;
+      readonly test?: t.StringPath;
+    };
+    /** Build/test workflow trigger configuration. */
+    readonly on?: WorkflowOn;
+    /** JSR publish workflow trigger configuration. */
+    readonly jsrOn?: WorkflowOn;
+    /** Workflow environment variables. */
+    readonly env?: WorkflowEntries;
+  };
+
+  /** Result from syncing workspace CI workflows. */
+  export type SyncSummary = {
+    readonly jsr: SyncResult;
+    readonly build: SyncResult;
+    readonly test: SyncResult;
   };
 
   /**
@@ -23,6 +62,8 @@ export namespace WorkspaceCi {
 
     /** JSR workflow helper surface. */
     export type Lib = {
+      /** JSR publishability predicates. */
+      readonly Is: Is.Lib;
       /** Render workflow YAML without writing files. */
       text(args: TextArgs): Promise<string>;
       /** Write a JSR workflow file to disk. */
@@ -73,6 +114,25 @@ export namespace WorkspaceCi {
       /** Whether the written file changed. */
       readonly changed: boolean;
     };
+
+    /** JSR publishability predicates. */
+    export namespace Is {
+      export type Lib = {
+        /** Determine whether a package name has valid JSR package-name syntax. */
+        jsrPkgName(name: string): boolean;
+        /** Determine whether a local package should be included in JSR workflow generation. */
+        publishable(
+          path: t.StringPath,
+          cwd?: t.StringDir,
+          options?: PublishableOptions,
+        ): Promise<boolean>;
+      };
+
+      export type PublishableOptions = {
+        /** Optional package scopes allowed in the generated JSR publish workflow. */
+        readonly scopes?: readonly string[];
+      };
+    }
   }
 
   /**

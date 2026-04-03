@@ -221,6 +221,38 @@ describe('WorkspaceCi.Jsr', () => {
       expect(yaml.includes('@scope/alpha')).to.eql(true);
     });
   });
+
+  it('identifies valid JSR package names', () => {
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sys/workspace')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@tdb/slc-data')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sample/proxy')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('sample-proxy')).to.eql(false);
+  });
+
+  it('determines whether a local module is publishable to JSR', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.Is.publishable');
+
+    await Fs.writeJson(Fs.join(fs.dir, 'code/sys/workspace/deno.json'), {
+      name: '@sys/workspace',
+      version: '0.0.1',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/@tdb.slc/deno.json'), {
+      name: '@tdb/slc',
+      version: '0.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/sample.proxy/deno.json'), {
+      name: '@sample/proxy',
+      version: '0.0.1',
+    });
+
+    const scopes = ['@sys', '@tdb'];
+
+    expect(await WorkspaceCi.Jsr.Is.publishable('code/sys/workspace', fs.dir, { scopes })).to.eql(true);
+    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/@tdb.slc', fs.dir, { scopes })).to.eql(false);
+    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/sample.proxy', fs.dir, { scopes })).to.eql(false);
+    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/sample.proxy', fs.dir)).to.eql(true);
+    expect(await WorkspaceCi.Jsr.Is.publishable('code/sys/missing', fs.dir, { scopes })).to.eql(false);
+  });
 });
 
 type VersionsResponse = t.Registry.Jsr.Fetch.PkgVersionsResponse;

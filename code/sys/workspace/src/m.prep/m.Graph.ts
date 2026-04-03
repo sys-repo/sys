@@ -1,7 +1,7 @@
 import { type t, c, Cli, Fs, Is, Obj, Str, Time } from './common.ts';
 import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
-import { runPhase } from './u.phase.ts';
+import { runPhase } from '../u.phase.ts';
 
 export const Graph: t.WorkspacePrep.Graph.Lib = {
   async build(cwd = Fs.cwd()) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { runPhase } from '../u.phase.ts';
+import { runPhase } from '../../u.phase.ts';
 
 describe('Workspace.Prep.runPhase', () => {
   it('prints the done message returned by the phase callback', async () => {
