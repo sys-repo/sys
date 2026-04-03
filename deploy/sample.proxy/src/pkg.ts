@@ -13,4 +13,4 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source control.
  *    - Do NOT manually alter this file.
  */
-export const pkg: Pkg = { name: '@sample/proxy', version: '0.0.3' };
+export const pkg: Pkg = { name: '@sample/proxy', version: '0.0.4' };
