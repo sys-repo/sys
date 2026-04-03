@@ -526,6 +526,9 @@
         "jsr:@sys/types@^0.0.248"
       ]
     },
+    "@sys/driver-deno@0.0.292": {
+      "integrity": "ea17baa1b3d49245ac827eca807b79afe92819aa3f5bd95d5d4cf8d30184c56b"
+    },
     "@sys/driver-vite@0.0.295": {
       "integrity": "9dab7a6af4b6c68dc26350a8c49af3b2497b9792a15167959de1cda511a3c957",
       "dependencies": [
