@@ -6,9 +6,6 @@ const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
-type Options = {
-  readonly orderedPaths?: readonly string[];
-};
 
 /**
  * Process the dependencies into `deno.json` and `package.json` files.
@@ -104,16 +101,10 @@ async function runTaskOrThrow(path: string, command: string) {
  * Prepare the [deno.json | package.json] files from
  * definitions within the workspace `deps.yaml` configuration.
  */
-export async function main(context: CommitContext = 'prep', options: Options = {}) {
+export async function main(context: CommitContext = 'prep') {
   const spinner = Cli.Spinner.create('');
   try {
     await processDeps();
-    const prep = await Workspace.Prep.run();
-    await runSilentPhase(
-      spinner,
-      `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
-      () => prepPaths(undefined, options.orderedPaths ?? prep.graph.snapshot.graph.orderedPaths),
-    );
 
     console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
     await updatePackages();
@@ -123,6 +114,19 @@ export async function main(context: CommitContext = 'prep', options: Options = {
 
     console.info(Cli.Fmt.spinnerText('preparing template bundle...'));
     await prepTmplModule(context);
+
+    // Finalize package metadata and graph-derived files after all generators have
+    // run so `check:graph` validates the final prepared workspace state.
+    console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
+    await updatePackages();
+
+    const prep = await Workspace.Prep.run();
+    await runSilentPhase(
+      spinner,
+      `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
+      () => prepPaths(undefined, prep.graph.snapshot.graph.orderedPaths),
+    );
+
     return prepared;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);

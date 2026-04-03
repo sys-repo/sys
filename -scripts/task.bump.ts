@@ -139,7 +139,7 @@ export async function main(options: Options = {}) {
 
   console.info(Cli.Fmt.spinnerText('running workspace prep...'));
   const prepare = await import('./task.prep.ts');
-  const prepared = await prepare.main('bump', { orderedPaths: candidates.map((child) => packagePath(child)) });
+  const prepared = await prepare.main('bump');
   await prepCiDeno();
   await Workspace.Ci.sync({
     cwd: Deno.cwd(),
