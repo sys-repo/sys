@@ -1,6 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { type t, c, Cli, Path, Paths, R, Semver, Str } from './common.ts';
+import { type t, c, Cli, D, Path, Paths, R, Semver, Str } from './common.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 import { buildWorkspaceGraphCache, readWorkspaceGraphCache, writeWorkspaceGraphCache } from './task.prep.paths.ts';
 
@@ -144,7 +144,8 @@ export async function main(options: Options = {}) {
   await Workspace.Ci.sync({
     cwd: Deno.cwd(),
     sourcePaths: selected.map((child) => packagePath(child)),
-    jsrScopes: ['@sys', '@tdb'],
+    jsrScopes: D.ci.jsrScopes,
+    on: D.ci.on,
     prepared,
     final: true,
     ensureGraph: false,

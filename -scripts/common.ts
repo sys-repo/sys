@@ -10,3 +10,18 @@ export { TmplEngine } from '@sys/tmpl-engine';
 
 export { Path, Paths } from './-PATHS.ts';
 export * as t from './t.ts';
+
+/**
+ * Defaults:
+ */
+export const D = {
+  ci: {
+    jsrScopes: ['@sys', '@tdb'],
+    on: {
+      push: {
+        branches: ['main', 'phil-work'],
+        paths_ignore: ['.github/workflows/jsr.yaml'],
+      },
+    },
+  },
+} as const;

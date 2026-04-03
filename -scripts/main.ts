@@ -1,5 +1,5 @@
 import { Workspace } from '@sys/workspace';
-import { Args } from './common.ts';
+import { Args, D } from './common.ts';
 
 import { main as bump } from './task.bump.ts';
 import { main as clean } from './task.clean.ts';
@@ -49,7 +49,8 @@ async function prepCi(options: PrepCiOptions = {}) {
   await Workspace.Ci.sync({
     cwd: Deno.cwd(),
     sourcePaths: Paths.modules,
-    jsrScopes: ['@sys', '@tdb'],
+    jsrScopes: D.ci.jsrScopes,
+    on: D.ci.on,
     versionFilter: options.versionFilter,
     prepared: options.prepared,
     final: options.final,

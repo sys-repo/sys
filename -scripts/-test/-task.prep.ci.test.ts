@@ -1,6 +1,8 @@
 import { describe, expect, it } from '@sys/testing/server';
 import { Workspace } from '@sys/workspace';
+
 import { Paths } from '../-PATHS.ts';
+import { D } from '../common.ts';
 
 describe('scripts/task.prep.ci', () => {
   it('delegates to Workspace.Ci.sync with the default module paths', async () => {
@@ -25,7 +27,8 @@ describe('scripts/task.prep.ci', () => {
     expect(actual).to.eql({
       cwd: Deno.cwd(),
       sourcePaths: Paths.modules,
-      jsrScopes: ['@sys', '@tdb'],
+      jsrScopes: D.ci.jsrScopes,
+      on: D.ci.on,
     });
   });
 });
