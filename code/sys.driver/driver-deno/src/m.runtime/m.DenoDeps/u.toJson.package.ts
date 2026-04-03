@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `package.json` format.
  */
-export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
+export function toPackageJson(deps?: t.Dep[]): t.PkgNodeJson {
   const dependencies: D = {};
   const devDependencies: D = {};
 
@@ -34,7 +34,7 @@ export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
       .forEach((e) => (devDependencies[e.module.name] = toString(e.module)));
   }
 
-  const res: t.PkgJsonNode = {};
+  const res: t.PkgNodeJson = {};
   if (!isEmptyRecord(dependencies)) res.dependencies = Obj.sortKeys(dependencies);
   if (!isEmptyRecord(devDependencies)) res.devDependencies = Obj.sortKeys(devDependencies);
   return res;

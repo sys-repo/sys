@@ -5,7 +5,7 @@ type Dependencies = Record<string, string>;
 /**
  * Convert canonical dependency entries to a `package.json` dependency shape.
  */
-export function toPackageJson(entries?: t.EsmDeps.Entry[]): t.PkgJsonNode {
+export function toPackageJson(entries?: t.EsmDeps.Entry[]): t.PkgNodeJson {
   const dependencies: Dependencies = {};
   const devDependencies: Dependencies = {};
 
@@ -34,7 +34,7 @@ export function toPackageJson(entries?: t.EsmDeps.Entry[]): t.PkgJsonNode {
       .forEach((entry) => (devDependencies[entry.module.name] = toSpecifier(entry.module)));
   }
 
-  const json: t.PkgJsonNode = {};
+  const json: t.PkgNodeJson = {};
   if (!isEmptyRecord(dependencies)) json.dependencies = Obj.sortKeys(dependencies);
   if (!isEmptyRecord(devDependencies)) json.devDependencies = Obj.sortKeys(devDependencies);
   return json;

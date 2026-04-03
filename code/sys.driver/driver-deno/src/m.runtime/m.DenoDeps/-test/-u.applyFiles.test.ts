@@ -30,7 +30,7 @@ describe('DenoDeps.applyFiles', () => {
     );
     const depsFile = await Fs.readText(depsPath);
     const denoFile = await DenoFile.load(denoPath);
-    const packageFile = await Fs.readJson<t.PkgJsonNode>(packagePath);
+    const packageFile = await Fs.readJson<t.PkgNodeJson>(packagePath);
 
     expect(res.package).to.not.eql(undefined);
     if (!res.package) throw new Error('Expected package result');

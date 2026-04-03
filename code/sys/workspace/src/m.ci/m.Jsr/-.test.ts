@@ -47,7 +47,11 @@ describe('WorkspaceCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
-    const first = await WorkspaceCi.Jsr.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
     expect(first.kind).to.eql('written');
 
     const second = await WorkspaceCi.Jsr.sync({
@@ -244,14 +248,21 @@ describe('WorkspaceCi.Jsr', () => {
       name: '@sample/proxy',
       version: '0.0.1',
     });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/@tdb.slc.fs/deno.json'), {
+      name: '@tdb/slc-fs',
+      version: '0.0.175',
+      private: true,
+    });
 
     const scopes = ['@sys', '@tdb'];
 
-    expect(await WorkspaceCi.Jsr.Is.publishable('code/sys/workspace', fs.dir, { scopes })).to.eql(true);
-    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/@tdb.slc', fs.dir, { scopes })).to.eql(false);
-    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/sample.proxy', fs.dir, { scopes })).to.eql(false);
-    expect(await WorkspaceCi.Jsr.Is.publishable('deploy/sample.proxy', fs.dir)).to.eql(true);
-    expect(await WorkspaceCi.Jsr.Is.publishable('code/sys/missing', fs.dir, { scopes })).to.eql(false);
+    const Is = WorkspaceCi.Jsr.Is;
+    expect(await Is.publishable('code/sys/workspace', fs.dir, { scopes })).to.eql(true);
+    expect(await Is.publishable('deploy/@tdb.slc', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('deploy/sample.proxy', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('deploy/sample.proxy', fs.dir)).to.eql(true);
+    expect(await Is.publishable('deploy/@tdb.slc.fs', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('code/sys/missing', fs.dir, { scopes })).to.eql(false);
   });
 });
 

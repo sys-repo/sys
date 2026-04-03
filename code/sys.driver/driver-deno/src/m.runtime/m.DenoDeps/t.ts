@@ -24,9 +24,9 @@ export type DepsLib = {
   from(input: t.StringPath | t.StringYaml): Promise<t.DepsResult>;
 
   /** Render deps as a `deno.json` config shape. */
-  toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
+  toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgDenoJson;
   /** Render deps as a `package.json` config shape. */
-  toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgJsonNode;
+  toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgNodeJson;
 
   /**
    * Apply Deno imports onto a target `deno.json` config shape.

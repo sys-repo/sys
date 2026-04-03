@@ -5,7 +5,7 @@ type Imports = Record<string, string>;
 /**
  * Convert canonical dependency entries to a `deno.json` import map shape.
  */
-export function toDenoJson(entries?: t.EsmDeps.Entry[]): t.PkgJsonDeno {
+export function toDenoJson(entries?: t.EsmDeps.Entry[]): t.PkgDenoJson {
   const imports: Imports = {};
   if (entries) {
     entries
@@ -23,7 +23,7 @@ export function toDenoJson(entries?: t.EsmDeps.Entry[]): t.PkgJsonDeno {
       });
   }
 
-  const json: t.PkgJsonDeno = {};
+  const json: t.PkgDenoJson = {};
   if (!isEmptyRecord(imports)) json.imports = Obj.sortKeys(imports);
   return json;
 }

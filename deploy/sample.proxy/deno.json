@@ -2,6 +2,7 @@
   "name": "@sample/proxy",
   "version": "0.0.4",
   "license": "MIT",
+  "private": true,
   "tasks": {
     "test": "true",
     "start": "deno run -A ./src/entry.ts",
@@ -31,11 +32,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname"]
       }
     },
     "deploy": {
