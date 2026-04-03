@@ -10,6 +10,9 @@ export type * from './m.client/m.Fetch/t.ts';
 /** Client registry helper types. */
 export type * from './m.client/m.Jsr/t.ts';
 
+/** Package-name predicate helper types. */
+export type * from './m.client/m.Is/t.ts';
+
 /** Import specifier helper types. */
 export type * from './m.client/m.Import/t.ts';
 
