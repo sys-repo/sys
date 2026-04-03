@@ -165,7 +165,7 @@ function isCurrent(a: t.WorkspaceGraph.Snapshot.Doc | undefined, b: t.WorkspaceG
   if (!a) return false;
   return (
     a['.meta'].schemaVersion === b['.meta'].schemaVersion &&
-    a['.meta'].hash['/graph'] === b['.meta'].hash['/graph'] &&
+    Obj.eql(a['.meta'].hash, b['.meta'].hash) &&
     Obj.eql(a['.meta'].generator, b['.meta'].generator) &&
     Obj.eql(a.graph, b.graph)
   );

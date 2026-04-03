@@ -57,7 +57,12 @@ describe('Workspace.Prep.Graph', () => {
     const current = await Graph.check(fs.dir);
     expect(current.current).to.eql(true);
     expect(current.existing?.graph).to.eql(current.expected.graph);
-    expect(current.existing?.['.meta'].hash['/graph']).to.eql(current.expected['.meta'].hash['/graph']);
+    expect(current.existing?.['.meta'].hash['/graph']).to.eql(
+      current.expected['.meta'].hash['/graph'],
+    );
+    expect(current.existing?.['.meta'].hash['/graph:policy']).to.eql(
+      current.expected['.meta'].hash['/graph:policy'],
+    );
   });
 
   it('suppresses graph prep phase output when silent is true', async () => {

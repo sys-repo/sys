@@ -49,7 +49,7 @@ describe('Template: repo integration', () => {
     const graph = await Fs.readJson<w.WorkspaceGraph.Snapshot.Doc>(graphPath);
     expect(await Fs.exists(graphPath)).to.eql(true);
     expect(Array.isArray(graph.data?.graph.orderedPaths)).to.eql(true);
-    expect(graph.data?.['.meta'].schemaVersion).to.eql(1);
+    expect(graph.data?.['.meta'].schemaVersion).to.eql(2);
   });
 
   it('generate in temp dir → repo materializes deps.yaml and upgrade dry-run runs against it', async () => {

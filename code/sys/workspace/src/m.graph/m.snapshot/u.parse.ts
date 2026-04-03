@@ -33,7 +33,11 @@ function parseMeta(data: unknown): t.WorkspaceGraph.Snapshot.Meta | undefined {
 function parseHash(data: unknown): t.WorkspaceGraph.Snapshot.Meta['hash'] | undefined {
   if (!Is.record<Record<string, unknown>>(data)) return undefined;
   if (!Is.str(data['/graph'])) return undefined;
-  return { '/graph': data['/graph'] as t.StringHash };
+  if (!Is.str(data['/graph:policy'])) return undefined;
+  return {
+    '/graph': data['/graph'] as t.StringHash,
+    '/graph:policy': data['/graph:policy'] as t.StringUrl,
+  };
 }
 
 function parseGenerator(data: unknown): t.WorkspaceGraph.Snapshot.Meta['generator'] | undefined {

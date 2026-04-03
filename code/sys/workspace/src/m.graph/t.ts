@@ -179,9 +179,14 @@ export declare namespace WorkspaceGraph {
 
     /** Snapshot document metadata. */
     export type Meta = t.JsonFileMeta & {
-      readonly schemaVersion: 1;
+      readonly schemaVersion: 2;
+      /**
+       * `:<qualifier>` suffixes attach provenance metadata to the base object-path key.
+       * `:` is reserved for ref qualifiers, not ordinary snapshot field names.
+       */
       readonly hash: {
         readonly '/graph': t.StringHash;
+        readonly '/graph:policy': t.StringUrl;
       };
       readonly generator: {
         readonly pkg: t.Pkg;

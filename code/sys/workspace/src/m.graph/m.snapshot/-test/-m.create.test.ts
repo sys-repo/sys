@@ -17,9 +17,10 @@ describe('Workspace.Graph.Snapshot.create', () => {
       orderedPaths: ['code/sys/types', 'code/sys/std'],
       edges: [{ from: 'code/sys/types', to: 'code/sys/std' }],
     });
-    expect(snapshot['.meta'].schemaVersion).to.eql(1);
+    expect(snapshot['.meta'].schemaVersion).to.eql(2);
     expect(snapshot['.meta'].createdAt).to.be.a('number');
     expect(snapshot['.meta'].hash['/graph'].startsWith('sha256-')).to.eql(true);
+    expect(snapshot['.meta'].hash['/graph:policy']).to.eql(D.HASH_POLICY);
     expect(snapshot['.meta'].generator).to.eql(D.GENERATOR);
     const field = '/graph';
     const path = Obj.Path.decode(field);
@@ -28,6 +29,7 @@ describe('Workspace.Graph.Snapshot.create', () => {
     expect(path).to.eql(['graph']);
     expect(value).to.eql(snapshot.graph);
     expect(snapshot['.meta'].hash[field]).to.eql(snapshot['.meta'].hash['/graph']);
+    expect(snapshot['.meta'].hash[`${field}:policy`]).to.eql(D.HASH_POLICY);
     expect(snapshot['.meta'].generator.types[field]).to.eql(D.GENERATOR.types['/graph']);
   });
 });
