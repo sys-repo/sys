@@ -4,6 +4,7 @@ import { runPhase } from '../u.phase.ts';
 import { Build } from './m.Build/mod.ts';
 import { Jsr } from './m.Jsr/mod.ts';
 import { Test } from './m.Test/mod.ts';
+import { formatSyncResult } from './u.source.ts';
 
 type OTarget = {
   readonly jsr: t.StringPath;
@@ -39,12 +40,13 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
         Jsr.sync({
           cwd,
           env,
-          log: true,
+          log: false,
           on: jsrOn,
           source: { paths: jsrPaths },
           target: targets.jsr,
           versionFilter,
         }),
+      done: (result) => formatSyncResult('jsr', result),
     });
 
     const build = await runPhase({
@@ -55,11 +57,12 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
         Build.sync({
           cwd,
           env,
-          log: true,
+          log: false,
           on,
           source: { paths: sourcePaths },
           target: targets.build,
         }),
+      done: (result) => formatSyncResult('build', result),
     });
 
     const test = await runPhase({
@@ -70,11 +73,12 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
         Test.sync({
           cwd,
           env,
-          log: true,
+          log: false,
           on,
           source: { paths: sourcePaths },
           target: targets.test,
         }),
+      done: (result) => formatSyncResult('test', result),
     });
 
     if (!silent) wrangle.log({ versionFilter, final: args.final, prepared: args.prepared, jsr });
