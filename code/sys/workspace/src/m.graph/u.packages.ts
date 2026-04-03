@@ -1,5 +1,7 @@
-import { type t, Fs, Is } from './common.ts';
+import { type t, Fs, Is, Str } from './common.ts';
 import { resolvePackagePaths } from '../m.pkg/u.source.ts';
+
+const compare = Str.Compare.codeUnit();
 
 export async function collectPackages(cwd: t.StringDir, source: t.WorkspaceGraph.PackageSource) {
   const packagePaths = await resolvePackagePaths(cwd, source);
@@ -16,7 +18,7 @@ export async function collectPackages(cwd: t.StringDir, source: t.WorkspaceGraph
     }),
   );
 
-  return packages.toSorted((a, b) => a.path.localeCompare(b.path));
+  return packages.toSorted((a, b) => compare(a.path, b.path));
 }
 
 async function resolveEntryPaths(
@@ -32,7 +34,7 @@ async function resolveEntryPaths(
   for (const path of explicit) {
     if (await Fs.exists(path)) existing.push(toRelative(cwd, path));
   }
-  if (existing.length > 0) return existing.toSorted();
+  if (existing.length > 0) return existing.toSorted(compare);
 
   const fallback: string[] = [];
   for (const rel of ['./src/mod.ts', './mod.ts'] as const) {
@@ -40,7 +42,7 @@ async function resolveEntryPaths(
     if (await Fs.exists(path)) fallback.push(toRelative(cwd, path));
   }
 
-  return fallback.toSorted();
+  return fallback.toSorted(compare);
 }
 
 function exportPaths(input: unknown): string[] {

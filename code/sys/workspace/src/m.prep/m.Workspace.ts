@@ -1,5 +1,7 @@
-import { type t, Arr, Fs } from './common.ts';
+import { type t, Arr, Fs, Str } from './common.ts';
 import { State } from './m.State.ts';
+
+const compare = Str.Compare.codeUnit();
 
 type WorkspaceFileJson = {
   workspace?: t.StringPath[];
@@ -29,6 +31,6 @@ export const Workspace: t.WorkspacePrep.Workspace.Lib = {
 function normalizeWorkspace(input: WorkspaceFileJson): WorkspaceFileJson {
   const next = structuredClone(input);
   const workspace = Array.isArray(next.workspace) ? next.workspace : [];
-  next.workspace = [...new Set(workspace)].toSorted((a, b) => a.localeCompare(b));
+  next.workspace = [...new Set(workspace)].toSorted(compare);
   return next;
 }
