@@ -2,7 +2,6 @@ import type { CliSpinner } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 import { main as prepPaths } from './task.prep.paths.ts';
-const i = c.italic;
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
@@ -40,6 +39,7 @@ async function processDeps() {
   console.info(c.gray(` (${total} dependencies written to):`), fmtSeeFiles);
   console.info();
   console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
+  console.info();
 }
 
 /**
@@ -47,10 +47,10 @@ async function processDeps() {
  * to their corresponding current `deno.json` file values.
  */
 async function updatePackages() {
-  await Workspace.Pkg.sync({
+  return await Workspace.Pkg.sync({
     cwd: Deno.cwd(),
     source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
-    log: true,
+    log: false,
   });
 }
 
@@ -106,26 +106,31 @@ export async function main(context: CommitContext = 'prep') {
   try {
     await processDeps();
 
-    console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
-    await updatePackages();
+    await runPackageSyncPhase(spinner);
 
-    console.info(Cli.Fmt.spinnerText('running submodule prep...'));
-    const prepared = await prepSubmodules();
+    const prepared = await runProcessPhase(
+      spinner,
+      'running submodule prep...',
+      () => prepSubmodules(),
+      (prepared) => {
+        const count = `${prepared} ${prepared === 1 ? 'module' : 'modules'}`;
+        return `${c.gray('Submodule prep:')} ${c.white(count)}`;
+      },
+    );
 
-    console.info(Cli.Fmt.spinnerText('preparing template bundle...'));
-    await prepTmplModule(context);
+    await runProcessPhase(
+      spinner,
+      'preparing template bundle...',
+      () => prepTmplModule(context),
+      () => `${c.gray('Template bundle prep:')} ${c.cyan(TMPL_MODULE_PATH)}`,
+    );
 
     // Finalize package metadata and graph-derived files after all generators have
     // run so `check:graph` validates the final prepared workspace state.
-    console.info(Cli.Fmt.spinnerText('syncing package metadata...'));
-    await updatePackages();
+    await runPackageSyncPhase(spinner);
 
     const prep = await Workspace.Prep.run();
-    await runSilentPhase(
-      spinner,
-      `deriving ${c.bold(c.white('@sys'))} topological workspace module order...`,
-      () => prepPaths(undefined, prep.graph.snapshot.graph.orderedPaths),
-    );
+    await prepPaths(undefined, prep.graph.snapshot.graph.orderedPaths);
 
     return prepared;
   } catch (err: unknown) {
@@ -137,16 +142,34 @@ export async function main(context: CommitContext = 'prep') {
   }
 }
 
-async function runSilentPhase<T>(
+async function runProcessPhase<T>(
   spinner: CliSpinner.Instance,
   label: string,
   fn: () => Promise<T>,
+  done: (res: T) => string,
 ) {
   spinner.start(Cli.Fmt.spinnerText(label));
+  spinner.stop();
   try {
-    return await fn();
-  } finally {
+    const res = await fn();
+    spinner.succeed(Cli.Fmt.spinnerRaw(done(res), false));
+    return res;
+  } catch (err) {
     spinner.stop();
-    console.info();
+    throw err;
+  }
+}
+
+async function runPackageSyncPhase(spinner: CliSpinner.Instance) {
+  spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
+  try {
+    const res = await updatePackages();
+    const label = `${c.gray('Package ')}${c.cyan('src/pkg.ts')}${c.gray(' sync:')}`;
+    const summary = c.white(`${res.written} written, ${res.unchanged} unchanged, ${res.skipped} skipped`);
+    const text = `${label} ${summary}`;
+    spinner.succeed(Cli.Fmt.spinnerRaw(text, false));
+  } catch (err) {
+    spinner.stop();
+    throw err;
   }
 }

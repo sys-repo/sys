@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - phil-work
     paths-ignore:
       - .github/workflows/jsr.yaml
 
@@ -35,6 +36,8 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
+          - name: "@tdb/slc"
+            path: deploy/@tdb.slc
           - name: "@tdb/slc-data"
             path: deploy/@tdb.slc.data
           - name: "@tdb/slc-fs"

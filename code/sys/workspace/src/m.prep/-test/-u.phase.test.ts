@@ -16,7 +16,7 @@ describe('Workspace.Prep.runPhase', () => {
     );
 
     expect(spinner.events).to.eql([
-      'start:running phase...\n',
+      'start:running phase...',
       'stop',
     ]);
     expect(logs).to.eql(['done: ok']);
@@ -39,8 +39,8 @@ describe('Workspace.Prep.runPhase', () => {
 
     expect(err?.message).to.eql('boom');
     expect(spinner.events).to.eql([
-      'start:running phase...\n',
-      'fail:failed: boom\n',
+      'start:running phase...',
+      'fail:failed: boom',
     ]);
   });
 
@@ -59,6 +59,25 @@ describe('Workspace.Prep.runPhase', () => {
     );
 
     expect(spinner.events).to.eql([]);
+    expect(logs).to.eql([]);
+  });
+
+  it('clears no-summary phases without emitting blank log rows', async () => {
+    const spinner = createSpinner();
+
+    const logs = await captureInfo(() =>
+      runPhase({
+        spinner,
+        label: 'running phase...',
+        silent: false,
+        fn: async () => 'ok',
+      })
+    );
+
+    expect(spinner.events).to.eql([
+      'start:running phase...',
+      'stop',
+    ]);
     expect(logs).to.eql([]);
   });
 });

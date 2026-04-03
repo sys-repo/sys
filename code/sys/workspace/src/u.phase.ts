@@ -11,25 +11,22 @@ export async function runPhase<T>(args: {
   if (args.silent) return await args.fn();
   const startedAt = Time.now.timestamp;
   const timer = Time.interval(1000, () => (args.spinner.text = phaseText(args.label, startedAt)));
-  args.spinner.start(Cli.Fmt.spinnerText(args.label));
+  args.spinner.start(Cli.Fmt.spinnerText(args.label, false));
   try {
     const res = await args.fn();
     timer.cancel();
     args.spinner.stop();
     if (args.done) {
       console.info(await args.done(res, startedAt));
-    } else {
-      console.info();
     }
     return res;
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
     timer.cancel();
     if (args.fail) {
-      args.spinner.fail(Cli.Fmt.spinnerText(args.fail(err)));
+      args.spinner.fail(Cli.Fmt.spinnerText(args.fail(err), false));
     } else {
       args.spinner.stop();
-      console.info();
     }
     throw err;
   }
@@ -37,5 +34,5 @@ export async function runPhase<T>(args: {
 
 function phaseText(label: string, startedAt: number) {
   const elapsed = c.dim(c.gray(` ${String(Time.elapsed(startedAt))}`));
-  return Cli.Fmt.spinnerText(`${label}${elapsed}`);
+  return Cli.Fmt.spinnerText(`${label}${elapsed}`, false);
 }

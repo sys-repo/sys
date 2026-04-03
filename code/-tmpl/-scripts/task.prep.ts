@@ -57,8 +57,9 @@ function logCommitMessage(context: CommitContext) {
   const commit = context === 'bump'
     ? 'chore(bump): update package versions and refresh generated outputs'
     : 'chore(tmpl): refresh generated template surfaces and embedded bundle';
+  const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } });
   console.info();
-  console.info(Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } }));
+  console.info(`  ${suggestion}`);
   console.info();
 }
 
