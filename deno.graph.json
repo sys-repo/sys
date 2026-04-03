@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775184441854,
+    "createdAt": 1775199150928,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-9de762a1dfb094eae2348bee5a238cf5bd7382206a9335b6707c91cb4b3be491",
+      "/graph": "sha256-64d0c9183a0017cc6761bdc3e3d2098561b40274e0bcd06d206a28c510531888",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.46/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,11 +15,12 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.46/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775184441861
+    "modifiedAt": 1775199150933
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
+      "code/sys.driver/driver-agent",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -1200,6 +1201,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/types",

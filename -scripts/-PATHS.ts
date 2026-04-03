@@ -18,6 +18,7 @@ export const Paths = {
   all: [
     // generated:start workspace-topological
     'code/sys/types',
+    'code/sys.driver/driver-agent',
     'code/sys/std',
     'code/sys/color',
     'code/sys.ui/ui-css',

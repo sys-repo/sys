@@ -18,6 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
           - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
           - name: "@sys/ui-react-components"

@@ -20,6 +20,8 @@ jobs:
         include:
           - name: "@sys/types"
             path: code/sys/types
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"

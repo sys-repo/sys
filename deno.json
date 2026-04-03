@@ -41,6 +41,7 @@
   "workspace": [
     "code/-tmpl",
     "code/sys.dev",
+    "code/sys.driver/driver-agent",
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-monaco",
