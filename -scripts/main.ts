@@ -42,6 +42,7 @@ type PrepCiOptions = {
   versionFilter?: 'all' | 'ahead';
   prepared?: number;
   final?: boolean;
+  ensureGraph?: boolean;
 };
 
 async function prepCi(options: PrepCiOptions = {}) {
@@ -52,6 +53,7 @@ async function prepCi(options: PrepCiOptions = {}) {
     versionFilter: options.versionFilter,
     prepared: options.prepared,
     final: options.final,
+    ...(options.ensureGraph !== undefined ? { ensureGraph: options.ensureGraph } : {}),
   });
 }
 
@@ -81,7 +83,12 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv['prep-all']) {
     const prepared = await api.prep();
     await api.prepCiDeno();
-    await api.prepCi({ versionFilter: argv['ahead-only'] ? 'ahead' : 'all', prepared, final: true });
+    await api.prepCi({
+      versionFilter: argv['ahead-only'] ? 'ahead' : 'all',
+      prepared,
+      final: true,
+      ensureGraph: false,
+    });
   }
   if (argv['prep-ci']) await api.prepCi({ versionFilter: argv['ahead-only'] ? 'ahead' : 'all' });
   if (argv['prep-ci-deno']) await api.prepCiDeno();

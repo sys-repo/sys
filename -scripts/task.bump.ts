@@ -147,6 +147,7 @@ export async function main(options: Options = {}) {
     jsrScopes: ['@sys', '@tdb'],
     prepared,
     final: true,
+    ensureGraph: false,
   });
 
   return true;

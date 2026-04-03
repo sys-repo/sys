@@ -1,4 +1,5 @@
 import { describe, expect, Fs, it, Testing } from '../-test.ts';
+import { WorkspacePrep } from '../m.prep/mod.ts';
 import { WorkspaceCi } from './mod.ts';
 
 describe(`@sys/workspace/ci`, () => {
@@ -50,6 +51,29 @@ describe(`@sys/workspace/ci`, () => {
     expect(buildText).to.include('deploy/sample.proxy');
     expect(testText).to.include('code/sys/workspace');
     expect(logs.join('\n')).to.include('chore(ci): refresh generated GitHub workflow outputs');
+  });
+
+  it('skips graph ensure when the caller already ran prep in this flow', async () => {
+    const fs = await Testing.dir('WorkspaceCi.sync.skip-graph');
+    let called = 0;
+    const ensure = WorkspacePrep.Graph.ensure;
+    WorkspacePrep.Graph.ensure = async (...args) => {
+      called += 1;
+      return await ensure(...args);
+    };
+
+    try {
+      await WorkspaceCi.sync({
+        cwd: fs.dir,
+        ensureGraph: false,
+        silent: true,
+        sourcePaths: [],
+      });
+    } finally {
+      WorkspacePrep.Graph.ensure = ensure;
+    }
+
+    expect(called).to.eql(0);
   });
 });
 

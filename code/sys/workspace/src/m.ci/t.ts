@@ -32,6 +32,11 @@ export namespace WorkspaceCi {
     readonly final?: boolean;
     /** Suppress phase and summary output. */
     readonly silent?: boolean;
+    /**
+     * Ensure the workspace graph snapshot before syncing workflows.
+     * Disable this only when the caller has already run `Workspace.Prep.run()` in the same flow.
+     */
+    readonly ensureGraph?: boolean;
     /** Workflow file targets. */
     readonly targets?: {
       readonly jsr?: t.StringPath;

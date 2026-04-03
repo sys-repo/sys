@@ -22,7 +22,7 @@ describe('scripts/main prep orchestration', () => {
     expect(calls).to.eql([
       ['prep'],
       ['prepCiDeno'],
-      ['prepCi', { versionFilter: 'all', prepared: 6, final: true }],
+      ['prepCi', { versionFilter: 'all', prepared: 6, final: true, ensureGraph: false }],
     ]);
   });
 

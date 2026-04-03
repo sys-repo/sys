@@ -17,6 +17,7 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
   const silent = args.silent ?? false;
   const sourcePaths = args.sourcePaths;
   const versionFilter = args.versionFilter ?? 'all';
+  const ensureGraph = args.ensureGraph ?? true;
   const targets = wrangle.targets(args.targets);
   const on = args.on ?? wrangle.on(targets.jsr);
   const jsrOn = args.jsrOn ?? wrangle.jsrOn();
@@ -25,12 +26,14 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
   const jsrPaths = await wrangle.jsrPaths(sourcePaths, cwd, args.jsrScopes);
 
   try {
-    await runPhase({
-      spinner,
-      label: 'ensuring workspace graph...',
-      silent,
-      fn: () => WorkspacePrep.Graph.ensure({ cwd, silent: true }),
-    });
+    if (ensureGraph) {
+      await runPhase({
+        spinner,
+        label: 'ensuring workspace graph...',
+        silent,
+        fn: () => WorkspacePrep.Graph.ensure({ cwd, silent: true }),
+      });
+    }
 
     const jsr = await runPhase({
       spinner,
