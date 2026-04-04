@@ -3,9 +3,14 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from './common.ts';
 
 type P = t.HttpOrigin.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = {
+  debug?: P['debug'];
+  theme?: P['theme'];
+  env?: t.HttpOriginBase.Env;
+};
 const defaults: Storage = {
   debug: false,
+  env: 'localhost',
   theme: 'Dark',
 };
 
@@ -25,6 +30,8 @@ export async function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
+    env: s(snap.env),
+    origin: s<t.UrlTree | undefined>(undefined),
     theme: s(snap.theme),
   };
   const p = props;
@@ -45,6 +52,7 @@ export async function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
+      d.env = p.env.value;
       d.debug = p.debug.value;
     });
   });
@@ -91,6 +99,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => `env: ${v.env ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.HttpOriginBase.Env>(p.env, ['localhost', 'production'])}
+      />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />

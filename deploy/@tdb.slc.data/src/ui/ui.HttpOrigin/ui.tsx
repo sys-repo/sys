@@ -1,25 +1,14 @@
-import { type t, Color, css, D } from './common.ts';
-import { useScopedStyles } from './use.Styles.ts';
+import { type t, D, HttpOriginBase } from './common.ts';
 
 export const HttpOrigin: t.FC<t.HttpOrigin.Props> = (props) => {
-  const { debug = false } = props;
-  const { componentAttr } = useScopedStyles(props); // ← 🐷 delete if not using CSS scoped styles.
-
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(0),
-      color: theme.fg,
-      padding: 10,
-    }),
-  };
-
   return (
-    <div className={css(styles.base, props.style).class} data-component={componentAttr}>
-      <div>{`🐷 ${D.displayName}`}</div>
-    </div>
+    <HttpOriginBase.UI.Controlled
+      env={props.env}
+      origin={props.origin}
+      spec={props.spec ?? D.spec}
+      debug={props.debug}
+      theme={props.theme}
+      style={props.style}
+    />
   );
 };
