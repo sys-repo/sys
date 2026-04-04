@@ -6,7 +6,7 @@ export * from '../common.ts';
  */
 export { Button } from '../Button/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
-export { Icons } from '../ui.Icons.ts';
+export { Icons } from '../common/u.icons.ts';
 
 /**
  * Constants:

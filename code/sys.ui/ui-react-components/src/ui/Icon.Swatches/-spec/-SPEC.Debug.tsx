@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { Icons } from '../../ui.Icons.ts';
+import { Icons } from '../../common/u.icons.ts';
 
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { IconSwatches } from '../mod.ts';
