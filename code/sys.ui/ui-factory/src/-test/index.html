@@ -4,11 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+      :root {
+        --app-loading-bg: #293042;
+        --app-loading-fg: #fff;
+      }
       html,
       body {
         height: 100%;
         margin: 0;
-        background: #293042;
+        background: var(--app-loading-bg);
       }
       body {
         font-family: ui-sans-serif, system-ui, sans-serif;
@@ -17,14 +21,14 @@
         min-height: 100vh;
         display: grid;
         place-items: center;
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--app-loading-fg);
         font-size: 20px;
         user-select: none;
         animation: app-loading-pulse 1.6s ease-in-out infinite;
       }
       @keyframes app-loading-pulse {
-        0%, 100% { opacity: 0.25; }
-        50% { opacity: 1; }
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 0.6; }
       }
       @media (prefers-reduced-motion: reduce) {
         .app-loading {
