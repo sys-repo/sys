@@ -5,7 +5,7 @@ export const Templates = {
   'm.mod': () => import('../-templates/tmpl.m.mod/.tmpl.ts'),
   'm.mod.ui': () => import('../-templates/tmpl.m.mod.ui/.tmpl.ts'),
   'm.mod.ui.controller': () => import('../-templates/tmpl.m.mod.ui.controller/.tmpl.ts'),
-  pkg: () => import('../-templates/tmpl.pkg.deno/.tmpl.ts'),
+  pkg: () => import('../-templates/tmpl.pkg/.tmpl.ts'),
   'repo': () => import('../-templates/tmpl.repo/.tmpl.ts'),
 } as const;
 
