@@ -1,4 +1,4 @@
-import { type t, Delete, Is, Yaml, isEmptyRecord } from './common.ts';
+import { type t, Delete, Err, Is, Yaml, isEmptyRecord } from './common.ts';
 
 type RequiredYamlShape = Required<t.EsmDeps.YamlShape>;
 
@@ -65,10 +65,11 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
 function pushEntry(list: t.EsmDeps.YamlEntry[], entry: t.EsmDeps.Entry) {
   const dev = entry.dev || undefined;
   const module = entry.module;
+  const importSpecifier = wrangle.importSpecifier(module);
   const subpaths = wrangle.subpaths(entry.subpaths);
-  const existing = list.find((item) => item.import === module.toString());
+  const existing = list.find((item) => item.import === importSpecifier);
   if (!existing) {
-    list.push(Delete.undefined({ import: module.toString(), dev, subpaths }));
+    list.push(Delete.undefined({ import: importSpecifier, dev, subpaths }));
   } else {
     if (dev) existing.dev = dev;
     if (subpaths) existing.subpaths = wrangle.mergeSubpaths(existing.subpaths, subpaths);
@@ -105,6 +106,15 @@ function clean(obj: t.EsmDeps.YamlShape) {
  * Helpers:
  */
 const wrangle = {
+  importSpecifier(module: t.EsmParsedImport) {
+    if (module.error) throw module.error;
+    const value = module.toString().trim();
+    if (!value) {
+      throw Err.std(`Failed to serialize ESM module-specifier string ("${module.input}")`);
+    }
+    return value;
+  },
+
   subpaths(input?: readonly string[]): string[] | undefined {
     if (!Array.isArray(input)) return;
     const subpaths = input

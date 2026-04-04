@@ -143,4 +143,12 @@ describe('Deps state', () => {
       expect(rendered.text).to.include('subpaths: [ flat, array ]');
     }
   });
+
+  it('toYaml: rejects invalid dependency entries', () => {
+    const entry = Deps.toEntry('');
+
+    expect(() => Deps.toYaml([entry])).to.throw(
+      'Failed to parse ESM module-specifier string ("")',
+    );
+  });
 });

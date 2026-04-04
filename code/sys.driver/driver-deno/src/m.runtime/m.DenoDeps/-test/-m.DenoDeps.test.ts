@@ -44,6 +44,16 @@ describe('DenoDeps methods', () => {
     });
   });
 
+  describe('toYaml', () => {
+    it('rejects invalid dependency entries', () => {
+      const dep = DenoDeps.toDep('');
+
+      expect(() => DenoDeps.toYaml([dep])).to.throw(
+        'Failed to parse ESM module-specifier string ("")',
+      );
+    });
+  });
+
   describe('Fmt', () => {
     it('renders the first dependency after a registry boundary', () => {
       const text = stripAnsi(
