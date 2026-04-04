@@ -14,7 +14,7 @@ describe('Workspace.Prep.Fmt', () => {
     expect(text).to.eql(
       [
         'Workspace import map',
-        ' (47 dependencies written to): imports.json',
+        '47 dependencies written to: imports.json',
       ].join('\n'),
     );
   });
@@ -31,7 +31,7 @@ describe('Workspace.Prep.Fmt', () => {
     expect(text).to.eql(
       [
         'Workspace import map',
-        ' (47 dependencies written to):',
+        '47 dependencies written to:',
         '  - imports.json',
         '  - package.json',
       ].join('\n'),

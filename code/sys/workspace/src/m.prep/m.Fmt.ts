@@ -5,7 +5,7 @@ export const Fmt: t.WorkspacePrep.Fmt.Lib = {
     const total = args.total.toLocaleString();
     const cwd = args.cwd ?? Fs.cwd();
     const header = c.brightGreen(c.bold('Workspace import map'));
-    const summary = c.gray(` (${total} dependencies written to):`);
+    const summary = c.gray(`${total} dependencies written to:`);
     const paths = args.paths.map((path) => Cli.Fmt.Path.str(Fs.trimCwd(path, { cwd })));
 
     if (paths.length <= 1) {
