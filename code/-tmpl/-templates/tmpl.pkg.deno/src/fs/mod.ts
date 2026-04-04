@@ -1,5 +1,5 @@
 /**
  * @module
- * Browser/UI-specific package exports.
+ * Filesystem-specific package exports.
  */
 import type { t } from './common.ts';

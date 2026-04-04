@@ -1,6 +1,7 @@
 import { describe, EsmAssert, it, Path } from '../-test.ts';
+import { pkg } from '../pkg.ts';
 
-describe('{{pkg.name}}/ui', () => {
+describe(`${pkg.name}/ui`, () => {
   it('keeps @sys/fs out of the ui runtime graph', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     await EsmAssert.runtimeGraphBoundary({
