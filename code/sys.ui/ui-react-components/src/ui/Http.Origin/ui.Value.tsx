@@ -3,6 +3,7 @@ import { type t, A, Color, css, Str } from './common.ts';
 
 export type ValueProps = {
   url: t.StringUrl;
+  verified?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -23,7 +24,7 @@ export const Value: React.FC<ValueProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      display: 'grid',
+      display: 'block',
       minWidth: 0,
     }),
     anchor: css({

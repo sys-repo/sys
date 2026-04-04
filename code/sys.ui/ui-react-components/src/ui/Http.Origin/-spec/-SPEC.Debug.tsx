@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { HttpOrigin } from '../mod.ts';
 import { type SampleName, Sample } from './-samples.ts';
+import { SampleValue } from './-ui.Sample.Value.tsx';
 
 type P = t.HttpOrigin.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
@@ -173,6 +174,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         env={p.env}
         verify={v.verify ? true : undefined}
       />
+
+      <hr style={{ margin: '15px 0 20px 0' }} />
+      <div className={Styles.title.class}>{'Samples: <Value>'}</div>
+      <SampleValue theme={theme.name} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button
