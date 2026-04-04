@@ -1,9 +1,10 @@
 import React from 'react';
 import { type t, A, Color, css, Icons, Str } from './common.ts';
+import { usePulse } from './use.Pulse.ts';
 
 export type ValueProps = {
   url: t.StringUrl;
-  verified?: boolean;
+  status?: t.HttpOrigin.VerifyStatus;
   reserveStatusSpace?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -16,7 +17,9 @@ export type ValueProps = {
 export const Value: React.FC<ValueProps> = (props) => {
   const { debug = false } = props;
   const label = Str.trimHttpScheme(props.url);
-  const showStatusSlot = props.reserveStatusSpace || props.verified !== undefined;
+  const showStatusSlot = props.reserveStatusSpace || props.status !== undefined;
+  const isRunning = props.status === 'running';
+  const opacity = usePulse(isRunning);
 
   /**
    * Render:
@@ -31,6 +34,8 @@ export const Value: React.FC<ValueProps> = (props) => {
       alignItems: 'center',
       columnGap: showStatusSlot ? 8 : 0,
       minWidth: 0,
+      opacity,
+      transition: isRunning ? 'opacity 800ms ease-in-out' : 'opacity 120ms ease',
     }),
     anchor: css({
       color: 'inherit',
@@ -49,7 +54,7 @@ export const Value: React.FC<ValueProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <A href={props.url} style={styles.anchor}>
+      <A href={props.url} enabled={!isRunning} disabledOpacity={false} style={styles.anchor}>
         {label}
       </A>
       {showStatusSlot && <div className={styles.status.class}>{renderStatusIcon(props)}</div>}
@@ -58,7 +63,7 @@ export const Value: React.FC<ValueProps> = (props) => {
 };
 
 function renderStatusIcon(props: ValueProps) {
-  if (props.verified === true) return <Icons.Check size={12} color={Color.GREEN} />;
-  if (props.verified === false) return <Icons.Error.Solid size={12} color={Color.RED} />;
+  if (props.status === 'ok') return <Icons.Check size={12} color={Color.GREEN} />;
+  if (props.status === 'error') return <Icons.Error.Solid size={12} color={Color.RED} />;
   return null;
 }

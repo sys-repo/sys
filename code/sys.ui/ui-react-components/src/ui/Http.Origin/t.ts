@@ -18,6 +18,7 @@ export declare namespace HttpOrigin {
 
   /** HTTP origin environment (e.g. localhost, production). */
   export type Env = 'localhost' | 'production';
+  export type VerifyStatus = 'idle' | 'running' | 'ok' | 'error';
   export type Verify = boolean | VerifyOptions;
   export type VerifyOptions = { resolveUrl?: (e: VerifyResolveArgs) => t.StringUrl };
   export type VerifyResolveArgs = { origin: t.StringUrl; key: string; env: Env };

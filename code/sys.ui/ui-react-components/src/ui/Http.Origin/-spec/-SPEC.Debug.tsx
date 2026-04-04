@@ -176,7 +176,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <div className={Styles.title.class}>{'Samples: <Value>'}</div>
+      <div className={Styles.title.class}>{'Sample: Value (Component)'}</div>
       <SampleValue theme={theme.name} />
     </div>
   );

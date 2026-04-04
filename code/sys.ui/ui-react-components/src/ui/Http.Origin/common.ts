@@ -8,6 +8,7 @@ export { Icons } from '../common/u.icons.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { Button } from '../Button/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
+export { BarSpinner } from '../Spinners.Bar/mod.ts';
 
 /**
  * Constants:

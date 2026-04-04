@@ -20,15 +20,6 @@ export const SampleValue: React.FC<SampleValueProps> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    state: css({
-      display: 'grid',
-      gap: 2,
-      justifyItems: 'end',
-      fontSize: 11,
-      fontFamily: 'sans-serif',
-      color: Color.alpha(theme.fg, 0.45),
-      minWidth: 90,
-    }),
   };
 
   return (
@@ -38,35 +29,48 @@ export const SampleValue: React.FC<SampleValueProps> = (props) => {
         layout={{ kind: 'table' }}
         mono={mono}
         items={[
-          { kind: 'title', v: 'Value' },
           {
             k: 'default',
-            v: <Value theme={theme.name} url={'https://app.example.com'} reserveStatusSpace={reserveStatusSpace} />,
-          },
-          {
-            k: 'verified: true',
             v: (
-              <div className={styles.state.class}>
-                <Value
-                  theme={theme.name}
-                  url={'https://cdn.example.com'}
-                  verified={true}
-                  reserveStatusSpace={reserveStatusSpace}
-                />
-              </div>
+              <Value
+                theme={theme.name}
+                url={'https://app.example.com'}
+                reserveStatusSpace={reserveStatusSpace}
+                status={'idle'}
+              />
             ),
           },
           {
-            k: 'verified: false',
+            k: 'status: ok',
             v: (
-              <div className={styles.state.class}>
-                <Value
-                  theme={theme.name}
-                  url={'https://video.cdn.example.com'}
-                  verified={false}
-                  reserveStatusSpace={reserveStatusSpace}
-                />
-              </div>
+              <Value
+                theme={theme.name}
+                url={'https://cdn.example.com'}
+                status={'ok'}
+                reserveStatusSpace={reserveStatusSpace}
+              />
+            ),
+          },
+          {
+            k: 'status: error',
+            v: (
+              <Value
+                theme={theme.name}
+                url={'https://video.cdn.example.com'}
+                status={'error'}
+                reserveStatusSpace={reserveStatusSpace}
+              />
+            ),
+          },
+          {
+            k: 'status: running',
+            v: (
+              <Value
+                theme={theme.name}
+                url={'https://stream.example.com'}
+                status={'running'}
+                reserveStatusSpace={reserveStatusSpace}
+              />
             ),
           },
         ]}

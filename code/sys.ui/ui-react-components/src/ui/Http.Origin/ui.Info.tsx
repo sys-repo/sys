@@ -1,6 +1,8 @@
 import React from 'react';
 import { type t, KeyValue } from './common.ts';
 import { Data } from './m.Data.ts';
+import { VerifyAction } from './ui.Action.Verify.tsx';
+import { useVerify } from './use.Verify.ts';
 import { Value } from './ui.Value.tsx';
 
 export type InfoProps = {
@@ -16,6 +18,8 @@ export type InfoProps = {
  */
 export const Info: React.FC<InfoProps> = (props) => {
   const { env, origin } = props;
+  const rows = React.useMemo(() => (origin ? Data.flatten(origin) : []), [origin]);
+  const verify = useVerify({ env, origin, rows, verify: props.verify });
 
   /**
    * KeyValue items:
@@ -24,13 +28,27 @@ export const Info: React.FC<InfoProps> = (props) => {
   const items: t.KeyValueItem[] = [];
   if (origin) {
     items.push({ kind: 'title', v: `HTTP Origin` });
-    Data.flatten(origin).forEach((row) => {
+    rows.forEach((row) => {
       items.push({
         k: row.key,
-        v: <Value url={row.url} theme={props.theme} />,
+        v: (
+          <Value
+            url={row.url}
+            theme={props.theme}
+            status={verify.status[row.key]}
+            reserveStatusSpace={verify.reserveStatusSpace}
+          />
+        ),
         mono,
       });
     });
+    if (verify.verifyEnabled) {
+      items.push({
+        k: 'integrity',
+        v: <VerifyAction theme={props.theme} running={verify.running} onVerify={verify.onVerify} />,
+        mono,
+      });
+    }
   }
 
   /**
