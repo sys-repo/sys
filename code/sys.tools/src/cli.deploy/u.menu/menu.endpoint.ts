@@ -10,6 +10,7 @@ import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
 import { checkUpToDate } from './u/u.checkUpToDate.ts';
 import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
+import { resolveMissingStagingOutputs } from './u/u.resolveMissingStagingOutputs.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
@@ -324,9 +325,15 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       });
       const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
       if (!freshDist?.hash?.digest) {
+        const missing = await resolveMissingStagingOutputs({
+          cwd,
+          yamlPath: yamlRel,
+          yaml: freshYaml,
+        });
+        const suffix = missing.length ? `: ${missing.join(', ')}` : '';
         const b = Str.builder()
           .line(c.yellow('Serve unavailable'))
-          .line(c.gray(c.dim('reason: no-staging-output')))
+          .line(c.gray(c.dim(`reason: no-staging-output${suffix}`)))
           .line(c.gray('Run stage first, then serve.'));
         console.info(String(b));
         return false;
