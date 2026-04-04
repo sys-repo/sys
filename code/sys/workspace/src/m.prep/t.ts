@@ -79,8 +79,22 @@ export declare namespace WorkspacePrep {
     };
   }
 
+  /** Prep-time console output formatters. */
+  export namespace Fmt {
+    export type ImportMapArgs = {
+      readonly cwd?: t.StringDir;
+      readonly total: number;
+      readonly paths: readonly t.StringPath[];
+    };
+
+    export type Lib = {
+      importMap(args: ImportMapArgs): string;
+    };
+  }
+
   export type Lib = {
     readonly State: State.Lib;
+    readonly Fmt: Fmt.Lib;
     readonly Graph: Graph.Lib;
     readonly Workspace: Workspace.Lib;
     run(args?: RunArgs): Promise<RunResult>;

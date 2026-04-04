@@ -1,4 +1,5 @@
 import { type t, Cli, Fs } from './common.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Graph } from './m.Graph.ts';
 import { State } from './m.State.ts';
 import { Workspace } from './m.Workspace.ts';
@@ -6,6 +7,7 @@ import { runPhase } from '../u.phase.ts';
 
 export const WorkspacePrep: t.WorkspacePrep.Lib = {
   State,
+  Fmt,
   Graph,
   Workspace,
   async run(args = {}) {

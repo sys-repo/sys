@@ -1,5 +1,4 @@
 import { Workspace } from '@sys/workspace';
-import { c, Cli } from '@sys/cli';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import { Fs } from '@sys/fs';
 
@@ -28,12 +27,14 @@ async function processDeps(cwd = Deno.cwd()) {
   await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
   await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
 
-  const total = deps.length.toLocaleString();
-  const fp = (text: string) => c.cyan(text);
-  const fmtSeeFiles = `${fp(PATH.deno)} ${c.gray('|')} ${fp(PATH.package)}`;
   console.info();
-  console.info(c.brightGreen(c.bold('Workspace Import Map')));
-  console.info(c.gray(` (${total} dependencies written to):`), fmtSeeFiles);
+  console.info(
+    Workspace.Prep.Fmt.importMap({
+      cwd,
+      total: deps.length,
+      paths: [PATH.deno, PATH.package],
+    }),
+  );
 }
 
 /**
