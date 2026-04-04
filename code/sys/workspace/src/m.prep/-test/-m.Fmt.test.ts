@@ -1,18 +1,20 @@
-import { c, Cli, describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it } from '../../-test.ts';
 import { WorkspacePrep } from '../mod.ts';
 
 describe('Workspace.Prep.Fmt', () => {
   it('formats a single import-map output path on one line with a cwd-trimmed graph path', () => {
-    const text = WorkspacePrep.Fmt.importMap({
-      cwd: '/repo',
-      total: 47,
-      paths: ['/repo/imports.json'],
-    });
+    const text = Cli.stripAnsi(
+      WorkspacePrep.Fmt.importMap({
+        cwd: '/repo',
+        total: 47,
+        paths: ['/repo/imports.json'],
+      }),
+    );
 
     expect(text).to.eql(
       [
-        c.brightGreen(c.bold('Workspace import map')),
-        `${c.gray(' (47 dependencies written to):')} ${c.gray('imports.json')}`,
+        'Workspace import map',
+        ' (47 dependencies written to): imports.json',
       ].join('\n'),
     );
   });
