@@ -8,6 +8,22 @@ export declare namespace DenoDeps {
   export type ApplyResult = t.EsmDeps.ApplyResult;
   export type ApplyPackageResult = t.EsmDeps.ApplyPackageResult;
   export type ApplyFilesResult = t.EsmDeps.ApplyFilesResult;
+  export type VerifyDenoInput = {
+    /** Root directory used for glob matching and `deno check` execution. */
+    readonly cwd?: t.StringDir;
+    /** `deno.json` or `deno.jsonc` config path used during verification. */
+    readonly configPath?: t.StringPath;
+    /** Source globs to verify against the projected Deno imports. */
+    readonly include: readonly t.StringPath[];
+  };
+  export type VerifyDenoResult = {
+    /** Resolved working directory used during verification. */
+    readonly cwd: t.StringDir;
+    /** Resolved Deno config file passed to `deno check`. */
+    readonly configPath: t.StringPath;
+    /** Resolved source files checked by Deno. */
+    readonly paths: readonly t.StringPath[];
+  };
 }
 
 /** Flags indicating the target file format (`deno.json` OR `package.json`). */
@@ -59,6 +75,11 @@ export type DepsLib = {
     },
     deps?: t.Dep[],
   ): Promise<DenoDeps.ApplyFilesResult>;
+
+  /** Verify projected Deno imports satisfy source specifiers for the given file globs. */
+  verifyDeno(
+    input: DenoDeps.VerifyDenoInput,
+  ): Promise<DenoDeps.VerifyDenoResult>;
 
   /** Render canonical dependency entries back to YAML. */
   toYaml(deps: t.Dep[], options?: t.DepsYamlOptions): t.DepsYaml;

@@ -14,6 +14,7 @@ import { applyFiles } from './u.applyFiles.ts';
 import { applyPackage } from './u.applyPackage.ts';
 import { applyYaml } from './u.applyYaml.ts';
 import { toJson } from './u.toJson.ts';
+import { verifyDeno } from './u.verifyDeno.ts';
 
 /** Deno dependency projection/apply helper library. */
 export const DenoDeps: DepsLib = {
@@ -27,4 +28,5 @@ export const DenoDeps: DepsLib = {
   toYaml,
   toDep,
   findImport,
+  verifyDeno,
 };
