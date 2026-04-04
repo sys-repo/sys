@@ -1,6 +1,6 @@
 {
   "name": "@sample/proxy",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -32,7 +32,11 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
       }
     },
     "deploy": {

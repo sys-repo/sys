@@ -48,9 +48,99 @@ jobs:
           git fetch origin main:refs/remotes/origin/main
           git merge-base --is-ancestor HEAD refs/remotes/origin/main
 
-      - name: publish module → "@tdb/slc-data"
+      - name: publish module → "@sys/esm"
         run: |
-          cd deploy/@tdb.slc.data
+          cd code/sys/esm
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/workspace"
+        run: |
+          cd code/sys/workspace
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/driver-deno"
+        run: |
+          cd code/sys.driver/driver-deno
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/tmpl"
+        run: |
+          cd code/-tmpl
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/driver-vite"
+        run: |
+          cd code/sys.driver/driver-vite
+          deno task test --trace-leaks
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
+      - name: publish module → "@sys/tools"
+        run: |
+          cd code/sys.tools
           deno task test --trace-leaks
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
