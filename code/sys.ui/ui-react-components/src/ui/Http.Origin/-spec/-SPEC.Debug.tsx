@@ -178,20 +178,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr style={{ margin: '15px 0 20px 0' }} />
       <div className={Styles.title.class}>{'Samples: <Value>'}</div>
       <SampleValue theme={theme.name} />
-
-      <hr style={{ margin: '15px 0 20px 0' }} />
-      <Button
-        block
-        label={() => `tmp-🐷`}
-        onClick={async () => {
-          const origin = ctrl.state.origin.value;
-          const state = Signal.toObject(ctrl.state);
-          if (origin) {
-            // 🐷
-            console.info('controller.state', state);
-          }
-        }}
-      />
     </div>
   );
 };
