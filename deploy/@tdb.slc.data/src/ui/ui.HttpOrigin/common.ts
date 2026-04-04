@@ -15,7 +15,7 @@ const spec: t.HttpOrigin.SpecMap = {
   },
   production: {
     proxy: `https://${domain}/data/`,
-    cdn: `https://site.${domain}/slc-data/`,
+    cdn: `https://cdn.${domain}/slc-data/`,
   },
 };
 
