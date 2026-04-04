@@ -1,4 +1,5 @@
 import { type t, pkg, Pkg } from '../common.ts';
+export { Http } from '@sys/http/client';
 
 export * from '../common.ts';
 export { A } from '../Anchor/mod.ts';

@@ -31,7 +31,8 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": true
     },
     "dev": {
       "read": true,
