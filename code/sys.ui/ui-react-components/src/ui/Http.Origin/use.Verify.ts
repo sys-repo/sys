@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Http, Path, Pkg, Rx } from './common.ts';
+import { type t, Http, Path, Pkg, Rx, Time } from './common.ts';
 
 export type UseVerifyArgs = {
   env: t.HttpOrigin.Env;
@@ -16,6 +16,7 @@ export function useVerify(args: UseVerifyArgs) {
   const life = React.useRef(Rx.lifecycle());
   const run = React.useRef<t.Lifecycle | undefined>(undefined);
   const [running, setRunning] = React.useState(false);
+  const [actionLabel, setActionLabel] = React.useState('run verification');
   const [status, setStatus] = React.useState<Record<string, t.HttpOrigin.VerifyStatus>>({});
 
   React.useEffect(() => {
@@ -28,6 +29,7 @@ export function useVerify(args: UseVerifyArgs) {
   React.useEffect(() => {
     run.current?.dispose();
     setRunning(false);
+    setActionLabel('run verification');
     setStatus({});
   }, [args.env, args.origin, args.verify]);
 
@@ -36,9 +38,10 @@ export function useVerify(args: UseVerifyArgs) {
     run.current?.dispose();
 
     const current = Rx.lifecycle(life.current.dispose$);
+    const settled = toRunningStatus(args.rows);
     run.current = current;
     setRunning(true);
-    setStatus(toRunningStatus(args.rows));
+    setStatus(settled);
 
     void (async () => {
       const tasks = args.rows.map(async (row) => {
@@ -51,10 +54,12 @@ export function useVerify(args: UseVerifyArgs) {
           if (current.disposed || fetch.disposed) return;
 
           const next: t.HttpOrigin.VerifyStatus = res.ok && Pkg.Is.dist(res.data) ? 'ok' : 'error';
-          setStatus((prev) => ({ ...prev, [row.key]: next }));
+          settled[row.key] = next;
+          setStatus({ ...settled });
         } catch {
           if (current.disposed) return;
-          setStatus((prev) => ({ ...prev, [row.key]: 'error' }));
+          settled[row.key] = 'error';
+          setStatus({ ...settled });
         } finally {
           fetch.dispose();
         }
@@ -63,6 +68,11 @@ export function useVerify(args: UseVerifyArgs) {
       await Promise.allSettled(tasks);
       if (current.disposed) return;
       setRunning(false);
+      setActionLabel(wrangle.actionLabel(settled));
+      Time.until(current).delay(3000, () => {
+        if (current.disposed) return;
+        setActionLabel('run verification');
+      });
     })();
   }, [args, verifyEnabled]);
 
@@ -76,6 +86,7 @@ export function useVerify(args: UseVerifyArgs) {
   return {
     verifyEnabled,
     running,
+    actionLabel,
     status,
     reserveStatusSpace,
     onVerify,
@@ -92,6 +103,12 @@ const wrangle = {
       return verify.resolveUrl({ origin: row.url, key: row.key, env: args.env });
     }
     return new URL(Path.join(row.url, 'dist.json')).href;
+  },
+  actionLabel(status: Record<string, t.HttpOrigin.VerifyStatus>) {
+    const values = Object.values(status);
+    if (values.some((value) => value === 'error')) return 'has failures';
+    if (values.some((value) => value === 'ok')) return 'success';
+    return 'run verification';
   },
 } as const;
 

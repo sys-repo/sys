@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, BarSpinner, Button, Color, css } from './common.ts';
 
 export type VerifyActionProps = {
+  label?: string;
   running?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -13,7 +14,7 @@ export type VerifyActionProps = {
  * Component:
  */
 export const VerifyAction: React.FC<VerifyActionProps> = (props) => {
-  const { debug = false, running = false } = props;
+  const { debug = false, running = false, label = 'run verification' } = props;
 
   /**
    * Render:
@@ -39,7 +40,7 @@ export const VerifyAction: React.FC<VerifyActionProps> = (props) => {
       ) : (
         <Button
           theme={theme.name}
-          label={<span className={styles.label.class}>{'Run Verification'}</span>}
+          label={<span className={styles.label.class}>{label}</span>}
           onClick={props.onVerify}
         />
       )}

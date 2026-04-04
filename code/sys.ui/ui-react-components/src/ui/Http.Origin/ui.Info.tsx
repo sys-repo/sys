@@ -45,7 +45,14 @@ export const Info: React.FC<InfoProps> = (props) => {
     if (verify.verifyEnabled) {
       items.push({
         k: 'integrity',
-        v: <VerifyAction theme={props.theme} running={verify.running} onVerify={verify.onVerify} />,
+        v: (
+          <VerifyAction
+            theme={props.theme}
+            label={verify.actionLabel}
+            running={verify.running}
+            onVerify={verify.onVerify}
+          />
+        ),
         mono,
       });
     }
