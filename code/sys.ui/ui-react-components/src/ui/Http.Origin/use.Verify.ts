@@ -19,6 +19,7 @@ export function useVerify(args: UseVerifyArgs) {
   const [running, setRunning] = React.useState(false);
   const [actionLabel, setActionLabel] = React.useState('run verification');
   const [status, setStatus] = React.useState<Record<string, t.HttpOrigin.VerifyStatus>>({});
+  const [reserveStatusSpace, setReserveStatusSpace] = React.useState(false);
 
   React.useEffect(() => {
     return () => {
@@ -32,6 +33,7 @@ export function useVerify(args: UseVerifyArgs) {
     setRunning(false);
     setActionLabel('run verification');
     setStatus({});
+    setReserveStatusSpace(false);
   }, [args.env, args.origin, args.verify]);
 
   const onVerify = React.useCallback(() => {
@@ -72,6 +74,9 @@ export function useVerify(args: UseVerifyArgs) {
 
       await Promise.allSettled(tasks);
       if (current.disposed) return;
+      if (Object.values(settled).some((value) => value === 'ok' || value === 'error')) {
+        setReserveStatusSpace(true);
+      }
       logVerifyResults({ env: args.env, rows: args.rows, resolved, status: settled });
       setRunning(false);
       setActionLabel(wrangle.actionLabel(settled));
@@ -81,13 +86,6 @@ export function useVerify(args: UseVerifyArgs) {
       });
     })();
   }, [args, verifyEnabled]);
-
-  const reserveStatusSpace = React.useMemo(() => {
-    return args.rows.some((row) => {
-      const next = status[row.key];
-      return next === 'ok' || next === 'error';
-    });
-  }, [args.rows, status]);
 
   return {
     verifyEnabled,
