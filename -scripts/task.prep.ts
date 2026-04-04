@@ -165,7 +165,9 @@ async function runPackageSyncPhase(spinner: CliSpinner.Instance) {
   try {
     const res = await updatePackages();
     const label = `${c.gray('Package ')}${c.cyan('src/pkg.ts')}${c.gray(' sync:')}`;
-    const summary = c.white(`${res.written} written, ${res.unchanged} unchanged, ${res.skipped} skipped`);
+    const summaryText = `${res.written} written, ${res.skipped} skipped, ${res.unchanged} unchanged`;
+    const summary =
+      res.count > 0 && res.unchanged === res.count ? c.dim(summaryText) : c.white(summaryText);
     const text = `${label} ${summary}`;
     spinner.succeed(Cli.Fmt.spinnerRaw(text, false));
   } catch (err) {

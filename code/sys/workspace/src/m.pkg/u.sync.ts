@@ -99,8 +99,10 @@ function logSyncResult(
 
   const summary = [
     `${result.written} written`,
-    `${result.unchanged} unchanged`,
     `${result.skipped} skipped`,
+    `${result.unchanged} unchanged`,
   ].join(', ');
-  console.info(`${c.gray('Package src/pkg.ts sync:')} ${c.white(summary)}`);
+  const isNoop = result.count > 0 && result.unchanged === result.count;
+  const fmtSummary = isNoop ? c.dim(summary) : c.white(summary);
+  console.info(`${c.gray('Package src/pkg.ts sync:')} ${fmtSummary}`);
 }
