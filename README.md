@@ -213,7 +213,7 @@ events.dispose();
 - [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf), Alan Kay, 1984, "Opening the Hood of a Word Processor";
 - [video](https://www.youtube.com/watch?v=cmi-AXKvx30&t=323s) David Clark (1960's vs. 1970/80's)
   "But what's interesting, is once the engineers got a hold, the visionaries went away ([timestamp](https://www.youtube.com/watch?v=cmi-AXKvx30&t=253s))"
-- [video](https://www.youtube.com/watch?v=-C-JoyNuQJs), Douglas Crockford, 2011, "The JSON Saga" ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))
+- [video](https://www.youtube.com/watch?v=-C-JoyNuQJs), Douglas Crockford, 2011, "The JSON Saga" — JSON "[as the] intersection of all modern programming languages" ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))
 - [video](https://youtu.be/0fpDlAEQio4?t=2641) SmallTalk (1976, 1980), only three primitive concepts. Everything is an object*, everything is a "message", be as extremely late-bound as possible. Build everything else up and out of that (aka. LISP-ey).
 
 
