@@ -209,8 +209,8 @@ events.dispose();
 
 ### Ideas, history, context:
 
-- [video](https://www.youtube.com/watch?v=Ud8WRAdihPg) Alan Kay, "Learning and Computer Science", 1970s, [video](https://www.youtube.com/watch?v=YyIQKBzIuBY) Alan Kay, 2011, "Programming and Scaling"
-- [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf) Alan Kay, 1984, "Opening the Hood of a Word Processor"
+- [video](https://www.youtube.com/watch?v=Ud8WRAdihPg), Alan Kay, "Learning and Computer Science", 1970s; [video](https://www.youtube.com/watch?v=YyIQKBzIuBY), Alan Kay, 2011, "Programming and Scaling"; [video](https://www.youtube.com/watch?v=NdSD07U5uBs), Alan Kay, 2015, "Power of Simplicity";
+- [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf), Alan Kay, 1984, "Opening the Hood of a Word Processor";
 - [video](https://www.youtube.com/watch?v=cmi-AXKvx30&t=323s) David Clark (1960's vs. 1970/80's)
   "But what's interesting, is once the engineers got a hold, the visionaries went away ([timestamp](https://www.youtube.com/watch?v=cmi-AXKvx30&t=253s))"
 - [video](https://www.youtube.com/watch?v=-C-JoyNuQJs) Crockford (2011) - "JSON [as the] intersection of all modern programming languages ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))"
