@@ -31,12 +31,14 @@ async function processDeps() {
   /**
    * Output: console.
    */
-  const total = deps.length.toLocaleString();
-  const fp = (text: string) => c.cyan(text); // fp: file-path
-  const fmtSeeFiles = `${fp(PATH.deno)} ${c.gray('|')} ${fp(PATH.package)}`;
   console.info();
-  console.info(c.brightGreen(c.bold('Workspace Import Map')));
-  console.info(c.gray(` (${total} dependencies written to):`), fmtSeeFiles);
+  console.info(
+    Workspace.Prep.Fmt.importMap({
+      cwd: Deno.cwd(),
+      total: deps.length,
+      paths: [PATH.deno, PATH.package],
+    }),
+  );
   console.info();
   console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
   console.info();
