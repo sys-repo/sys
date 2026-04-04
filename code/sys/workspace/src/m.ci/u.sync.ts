@@ -149,7 +149,7 @@ const wrangle = {
       Str.plural(args.prepared, 'submodule')
     } (${args.jsr.count} jsr:publish ${Str.plural(args.jsr.count, 'module')})`;
     console.info();
-    console.info(Cli.Fmt.hr('gray'));
+    console.info(Cli.Fmt.hr('cyan'));
     console.info(
       Cli.Fmt.Commit.suggestion(msg, {
         title: { text: 'final commit msg:', color: 'cyan', bold: false },
