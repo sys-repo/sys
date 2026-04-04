@@ -78,6 +78,7 @@ describe('Esm', () => {
       test('foobar@1.2.3', '1.2.3');
       test(' foobar@^1.2.3 ', '^1.2.3');
       test('foobar@1.2.3-alpha.1  ', '1.2.3-alpha.1');
+      test('npm:monaco-editor@0.56.0-dev-20260211', '0.56.0-dev-20260211');
       test('  @scope/foobar@3', '3');
 
       test(' foobar@~3.1', '~3.1');

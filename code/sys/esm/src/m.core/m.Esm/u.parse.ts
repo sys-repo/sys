@@ -13,13 +13,13 @@ import { toString } from './u.toString.ts';
  *       ^                                                        : start of string.
  *       (?:(jsr|npm):)?                                          : optionally match and capture "jsr:" or "npm:"
  *       ((?:@[\w.-]+\/)?[\w.-]+)                                 : capture the module name (optionally scoped).
- *       (?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))? : optionally match "@" followed by an optional version prefix and a semantic version number.
+ *       (?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?))? : optionally match "@" followed by an optional version prefix and a semantic version number.
  *       (\/[\w\/.-]+)?                                           : optionally capture a subpath starting with a slash.
  *       $                                                        : end of string
  */
 const REGEX = {
   package:
-    /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?(\/[\w\/.-]+)?$/,
+    /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?))?(\/[\w\/.-]+)?$/,
 } as const;
 
 /**
