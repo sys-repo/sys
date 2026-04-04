@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Http, Path, Pkg, Rx, Time } from './common.ts';
+import { logVerifyResults } from './u.log.ts';
 
 export type UseVerifyArgs = {
   env: t.HttpOrigin.Env;
@@ -39,13 +40,17 @@ export function useVerify(args: UseVerifyArgs) {
 
     const current = Rx.lifecycle(life.current.dispose$);
     const settled = toRunningStatus(args.rows);
+    const resolved = args.rows.reduce<Record<string, t.StringUrl>>((acc, row) => {
+      acc[row.key] = wrangle.resolveUrl(args, row);
+      return acc;
+    }, {});
     run.current = current;
     setRunning(true);
     setStatus(settled);
 
     void (async () => {
       const tasks = args.rows.map(async (row) => {
-        const url = wrangle.resolveUrl(args, row);
+        const url = resolved[row.key];
         const fetch = Http.fetcher();
         current.dispose$.subscribe(() => fetch.dispose());
 
@@ -67,6 +72,7 @@ export function useVerify(args: UseVerifyArgs) {
 
       await Promise.allSettled(tasks);
       if (current.disposed) return;
+      logVerifyResults({ env: args.env, rows: args.rows, resolved, status: settled });
       setRunning(false);
       setActionLabel(wrangle.actionLabel(settled));
       Time.until(current).delay(3000, () => {
