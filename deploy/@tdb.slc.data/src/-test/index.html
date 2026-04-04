@@ -20,6 +20,21 @@
         color: rgba(255, 255, 255, 0.3);
         font-size: 20px;
         user-select: none;
+        animation: app-loading-pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes app-loading-pulse {
+        0%,
+        100% {
+          opacity: 0.25;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .app-loading {
+          animation: none;
+        }
       }
     </style>
     <title>loading...</title>
