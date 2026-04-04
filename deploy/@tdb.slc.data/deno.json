@@ -12,7 +12,7 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
-    "sample:stage": "deno run -P=test ./-scripts/task.sample.stage.ts"
+    "stage:sample": "deno run -P=test ./-scripts/task.stage.sample.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
