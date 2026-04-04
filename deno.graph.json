@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775199150928,
+    "createdAt": 1775264910243,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-64d0c9183a0017cc6761bdc3e3d2098561b40274e0bcd06d206a28c510531888",
+      "/graph": "sha256-a54a6024a3b8308e8a65e117279b2416f6342f2224f335b50e15cf90238a6cc6",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.46/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.46/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775199150933
+    "modifiedAt": 1775264910249
   },
   "graph": {
     "orderedPaths": [
@@ -332,6 +332,10 @@
       },
       {
         "from": "code/sys.ui/ui-react",
+        "to": "deploy/@tdb.slc.data"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
         "to": "deploy/@tdb.slc.std"
       },
       {
@@ -369,6 +373,10 @@
       {
         "from": "code/sys.ui/ui-react-components",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-react-components",
