@@ -1,4 +1,5 @@
 import { Workspace } from '@sys/workspace';
+import { c, Cli } from '@sys/cli';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import { Fs } from '@sys/fs';
 
@@ -28,13 +29,7 @@ async function processDeps(cwd = Deno.cwd()) {
   await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
 
   console.info();
-  console.info(
-    Workspace.Prep.Fmt.importMap({
-      cwd,
-      total: deps.length,
-      paths: [PATH.deno, PATH.package],
-    }),
-  );
+  console.info(fmtImportMap({ cwd, total: deps.length, paths: [PATH.deno, PATH.package] }));
 }
 
 /**
@@ -65,6 +60,21 @@ export async function main(cwd = Deno.cwd()) {
   await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);
+}
+
+function fmtImportMap(args: { cwd: string; total: number; paths: readonly string[] }) {
+  const fmt = Workspace.Prep.Fmt?.importMap;
+  if (fmt) return fmt(args);
+
+  const header = c.brightGreen(c.bold('Workspace import map'));
+  const total = args.total.toLocaleString();
+  const summary = ` (${total} dependencies written to):`;
+  const paths = args.paths.map((path) => Cli.Fmt.Path.str(Fs.trimCwd(path, { cwd: args.cwd })));
+  if (paths.length <= 1) {
+    const suffix = paths[0] ? ` ${paths[0]}` : '';
+    return `${header}\n${c.gray(summary)}${suffix}`;
+  }
+  return `${header}\n${c.gray(summary)}\n${paths.map((path) => `  - ${path}`).join('\n')}`;
 }
 
 /**
