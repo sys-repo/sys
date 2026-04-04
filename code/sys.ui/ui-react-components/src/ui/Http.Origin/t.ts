@@ -4,9 +4,6 @@ import type { t } from './common.ts';
 export type * from './t.data.ts';
 
 export declare namespace HttpOrigin {
-  /** HTTP origin environment (e.g. localhost, production). */
-  export type Env = 'localhost' | 'production';
-
   /**
    * HttpOrigin UI Display.
    */
@@ -19,12 +16,19 @@ export declare namespace HttpOrigin {
     };
   };
 
+  /** HTTP origin environment (e.g. localhost, production). */
+  export type Env = 'localhost' | 'production';
+  export type Verify = boolean | VerifyOptions;
+  export type VerifyOptions = { resolveUrl?: (e: VerifyResolveArgs) => t.StringUrl };
+  export type VerifyResolveArgs = { origin: t.StringUrl; key: string; env: Env };
+
   /**
    * Component
    */
   export type Props = {
     env?: Env;
     spec?: t.HttpOriginSpecMap<Env>;
+    verify?: Verify;
     //
     debug?: boolean;
     theme?: t.CommonTheme;
@@ -39,6 +43,7 @@ export declare namespace HttpOrigin {
     env?: t.SignalOptional<Env>;
     origin?: t.SignalOptional<t.UrlTree>;
     spec?: t.HttpOriginSpecMap<Env>;
+    verify?: Verify;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;

@@ -5,6 +5,7 @@ import { Data } from './m.Data.ts';
 export type InfoProps = {
   env: t.HttpOrigin.Env;
   origin?: t.UrlTree;
+  verify?: t.HttpOrigin.Verify;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

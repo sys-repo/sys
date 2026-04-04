@@ -5,6 +5,7 @@ import { type SampleName, Sample } from './-samples.ts';
 
 type P = t.HttpOrigin.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
+  verify?: boolean;
   controlled?: boolean;
   sample?: SampleName;
   width?: t.Pixels;
@@ -13,6 +14,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   env: 'localhost',
+  verify: false,
   controlled: true,
   sample: 'cdn',
   width: 350,
@@ -36,6 +38,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    verify: s(snap.verify ?? false),
     controlled: s(snap.controlled),
     sample: s(snap.sample ?? defaults.sample),
     width: s(snap.width),
@@ -69,6 +72,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
+      d.verify = p.verify.value;
       d.controlled = p.controlled.value;
       d.sample = p.sample.value;
       d.width = p.width.value;
@@ -134,6 +138,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<SampleName | undefined>(p.sample, ['cdn', 'media', undefined])}
       />
+      <Button
+        block
+        label={() => `verify: ${p.verify.value}`}
+        onClick={() => Signal.toggle(p.verify)}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
@@ -158,7 +167,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <HttpOrigin.UI.Controlled debug={v.debug} spec={debug.sample()} env={p.env} />
+      <HttpOrigin.UI.Controlled
+        debug={v.debug}
+        spec={debug.sample()}
+        env={p.env}
+        verify={v.verify ? true : undefined}
+      />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button
