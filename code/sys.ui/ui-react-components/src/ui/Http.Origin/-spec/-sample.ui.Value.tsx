@@ -14,6 +14,7 @@ export type SampleValueProps = {
 export const SampleValue: React.FC<SampleValueProps> = (props) => {
   const { mono = true } = props;
   const theme = Color.theme(props.theme);
+  const reserveStatusSpace = true;
   const styles = {
     base: css({
       color: theme.fg,
@@ -40,14 +41,18 @@ export const SampleValue: React.FC<SampleValueProps> = (props) => {
           { kind: 'title', v: 'Value' },
           {
             k: 'default',
-            v: <Value theme={theme.name} url={'https://app.example.com'} />,
+            v: <Value theme={theme.name} url={'https://app.example.com'} reserveStatusSpace={reserveStatusSpace} />,
           },
           {
             k: 'verified: true',
             v: (
               <div className={styles.state.class}>
-                <Value theme={theme.name} url={'https://cdn.example.com'} verified={true} />
-                <div>{'verified: true'}</div>
+                <Value
+                  theme={theme.name}
+                  url={'https://cdn.example.com'}
+                  verified={true}
+                  reserveStatusSpace={reserveStatusSpace}
+                />
               </div>
             ),
           },
@@ -55,8 +60,12 @@ export const SampleValue: React.FC<SampleValueProps> = (props) => {
             k: 'verified: false',
             v: (
               <div className={styles.state.class}>
-                <Value theme={theme.name} url={'https://video.cdn.example.com'} verified={false} />
-                <div>{'verified: false'}</div>
+                <Value
+                  theme={theme.name}
+                  url={'https://video.cdn.example.com'}
+                  verified={false}
+                  reserveStatusSpace={reserveStatusSpace}
+                />
               </div>
             ),
           },

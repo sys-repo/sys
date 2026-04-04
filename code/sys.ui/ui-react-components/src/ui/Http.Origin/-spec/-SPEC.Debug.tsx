@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { HttpOrigin } from '../mod.ts';
 import { type SampleName, Sample } from './-samples.ts';
-import { SampleValue } from './-ui.Sample.Value.tsx';
+import { SampleValue } from './-sample.ui.Value.tsx';
 
 type P = t.HttpOrigin.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {

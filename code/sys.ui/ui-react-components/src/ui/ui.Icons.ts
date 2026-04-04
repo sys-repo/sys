@@ -8,8 +8,10 @@ import {
   MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
+  MdCheck,
   MdClose,
   MdConstruction,
+  MdError,
   MdErrorOutline,
   MdFace,
   MdMic,
@@ -27,10 +29,14 @@ const icon = Icon.renderer;
  */
 export const Icons = {
   Play: icon(MdPlayArrow),
+  Check: icon(MdCheck),
   Close: icon(MdClose),
   Face: icon(MdFace),
   Object: icon(VscSymbolClass),
-  Error: icon(MdErrorOutline),
+  Error: {
+    Solid: icon(MdError),
+    Outline: icon(MdErrorOutline),
+  },
   Arrow: {
     Left: icon(MdArrowBack),
     Right: icon(MdArrowForward),
