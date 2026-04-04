@@ -17,7 +17,8 @@ export type ValueProps = {
 export const Value: React.FC<ValueProps> = (props) => {
   const { debug = false } = props;
   const label = Str.trimHttpScheme(props.url);
-  const showStatusSlot = props.reserveStatusSpace || props.status !== undefined;
+  const hasResolvedStatus = props.status === 'ok' || props.status === 'error';
+  const showStatusSlot = props.reserveStatusSpace || hasResolvedStatus;
   const isRunning = props.status === 'running';
   const opacity = usePulse(isRunning);
 
