@@ -29,6 +29,8 @@ export type EsmLib = {
   readonly Policy: EsmPolicy.Lib;
   /** Tools for working with groups of modules. */
   readonly Modules: EsmModulesLib;
+  /** Module specifier predicates. */
+  readonly Is: EsmIsLib;
   /** Create an instance of a group-of-modules. */
   modules: EsmModulesLib['create'];
   /** Lightweight lexical check for obvious default-export forms in module source text. */
@@ -45,6 +47,12 @@ export type EsmLib = {
 
   /** Convert the parsed-import object to a fully-qualified ESM module-specifier. */
   toString(module: EsmImport, options?: EsmToStringOptions): string;
+};
+
+/** ESM module-specifier predicates. */
+export type EsmIsLib = {
+  /** Test whether a module specifier is a local file path or file URL. */
+  localPath(input: EsmImport | t.StringModuleSpecifier): boolean;
 };
 
 /** Options for the `Esm.toString` method. */

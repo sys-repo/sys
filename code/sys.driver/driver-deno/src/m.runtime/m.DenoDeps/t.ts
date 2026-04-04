@@ -69,6 +69,7 @@ export type DepsLib = {
     options?: {
       target?: t.DepTargetFile | t.DepTargetFile[];
       dev?: boolean;
+      name?: string;
       subpaths?: t.StringDir[];
     },
   ): t.Dep;

@@ -1,4 +1,4 @@
-import { type t, isEmptyRecord, Obj } from './common.ts';
+import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
 
 type D = { [key: string]: string };
 
@@ -12,6 +12,7 @@ export function toPackageJson(deps?: t.Dep[]): t.PkgNodeJson {
   if (deps) {
     const imports = deps
       .filter((e) => !e.module.error)
+      .filter((e) => !Esm.Is.localPath(e.module))
       .filter((e) => e.target.includes('package.json'));
 
     const toString = (mod: t.EsmImport) => {

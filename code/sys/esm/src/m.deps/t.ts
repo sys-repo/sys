@@ -42,6 +42,7 @@ export declare namespace EsmDeps {
       options?: {
         target?: TargetFile | TargetFile[];
         dev?: boolean;
+        name?: string;
         subpaths?: t.StringDir[];
       },
     ): Entry;

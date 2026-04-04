@@ -104,6 +104,49 @@ describe('Deps.applyFiles', () => {
     });
   });
 
+  it('aliases local file-path imports in deno.json and skips package.json projection', async () => {
+    const fs = await Testing.dir('EsmDeps.applyFiles.localPaths');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const packagePath = fs.join('package.json');
+    const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
+    const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
+    const privatePath = fs.join('deploy/@tdb.slc.data/src/private/mod.ts');
+    const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
+    const entries = [
+      Deps.toEntry(typesFileUrl, {
+        target: 'deno.json',
+        name: '@tdb/slc-data/t',
+      }),
+      Deps.toEntry(uiPath, {
+        target: 'deno.json',
+        name: '@tdb/slc-data/ui',
+      }),
+      Deps.toEntry(privatePath, {
+        target: 'package.json',
+        name: '@tdb/slc-data/private',
+      }),
+      Deps.toEntry('npm:react@19.0.0', { target: 'package.json' }),
+    ];
+
+    await Fs.writeJson(denoPath, { name: 'upgrade-app' });
+    await Fs.writeJson(packagePath, { name: 'upgrade-app', dependencies: { react: '18.2.0' } });
+
+    await Deps.applyFiles(
+      { depsPath, denoFilePath: denoPath, packageFilePath: packagePath },
+      entries,
+    );
+
+    const denoFile = await Fs.readJson<DenoConfigJson>(denoPath);
+    const packageFile = await Fs.readJson<t.PkgNodeJson>(packagePath);
+
+    expect(denoFile.data?.imports).to.eql({
+      '@tdb/slc-data/t': typesFileUrl,
+      '@tdb/slc-data/ui': uiPath,
+    });
+    expect(packageFile.data?.dependencies).to.eql({ react: '19.0.0' });
+  });
+
   it('does not write package.json unless a package target is explicitly provided', async () => {
     const fs = await Testing.dir('EsmDeps.applyFiles.noPackage');
     const depsPath = fs.join('deps.yaml');

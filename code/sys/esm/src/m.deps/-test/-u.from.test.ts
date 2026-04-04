@@ -1,4 +1,5 @@
 import { c, Deps, describe, expect, Fs, it, Testing } from './common.ts';
+import { toDenoJson } from '../u.toJson.deno.ts';
 import { sampleYaml } from './u.fixture.yaml.ts';
 
 describe('Deps.from', () => {
@@ -144,6 +145,55 @@ describe('Deps.from', () => {
     expect(entry?.subpaths).to.eql(['v1', 'v2']);
   });
 
+  it('parses local file-path imports with alias names for deno.json import maps', async () => {
+    const fs = await Testing.dir('EsmDeps.from.localPaths');
+    const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
+    const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
+    const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
+    const yaml = `
+      deno.json:
+        - import: ${typesFileUrl}
+          name: '@tdb/slc-data/t'
+        - import: ${uiPath}
+          name: '@tdb/slc-data/ui'
+    `;
+
+    const res = await Deps.from(yaml);
+    const entries = res.data?.entries ?? [];
+    const json = toDenoJson(entries);
+
+    expect(res.error).to.eql(undefined);
+    expect(entries.map((entry) => ({
+      alias: entry.module.alias,
+      input: entry.module.input,
+      name: entry.module.name,
+      registry: entry.module.registry,
+      subpath: entry.module.subpath,
+      version: entry.module.version,
+    }))).to.eql([
+      {
+        alias: '@tdb/slc-data/t',
+        input: typesFileUrl,
+        name: typesFileUrl,
+        registry: '',
+        subpath: '',
+        version: '',
+      },
+      {
+        alias: '@tdb/slc-data/ui',
+        input: uiPath,
+        name: uiPath,
+        registry: '',
+        subpath: '',
+        version: '',
+      },
+    ]);
+    expect(json.imports).to.eql({
+      '@tdb/slc-data/t': typesFileUrl,
+      '@tdb/slc-data/ui': uiPath,
+    });
+  });
+
   it('errors: path not found', async () => {
     const path = './404.yaml';
     const res = await Deps.from(path);
@@ -159,6 +209,19 @@ describe('Deps.from', () => {
     const res = await Deps.from(yaml);
     expect(res.error?.message).to.include('Failed while parsing given YAML');
     expect(res.error?.cause?.message).to.include('Map keys must be unique');
+  });
+
+  it('errors: bare @ alias names must be quoted YAML strings', async () => {
+    const yaml = `
+      deno.json:
+        - import: jsr:@sys/tmp@0.0.42
+          name: @sys/tmp
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.error?.message).to.include('Failed while parsing given YAML');
+    expect(res.error?.cause?.message).to.include('Plain value cannot start with reserved character @');
   });
 
   it('errors: invalid ESM import is captured without dropping the rest', async () => {

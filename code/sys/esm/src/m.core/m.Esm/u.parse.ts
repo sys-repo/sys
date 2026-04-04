@@ -3,17 +3,11 @@
  * Parse ESM module-specifier strings.
  */
 import { type t, Err, Is } from './common.ts';
+import { Is as EsmIs } from './m.Is.ts';
 import { toString } from './u.toString.ts';
 
 /**
  * Regex breakdown:
- *
- *   - For file paths:
- *       ^                                                        : start of string
- *       (?:\/|\.\/|\.\.\/)                                       : match an absolute path ("/") or a relative path ("./" or "../")
- *       [\w\/.-]+                                                : one or more word characters, slashes, dots, or hyphens
- *       \.[\w]+                                                  : a dot followed by one or more word characters (the file extension)
- *       $                                                        : end of string
  *
  *   - For package specifiers:
  *       ^                                                        : start of string.
@@ -24,7 +18,6 @@ import { toString } from './u.toString.ts';
  *       $                                                        : end of string
  */
 const REGEX = {
-  filepath: /^(?:\/|\.\/|\.\.\/)[\w\/.-]+\.[\w]+$/,
   package:
     /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?(\/[\w\/.-]+)?$/,
 } as const;
@@ -61,9 +54,8 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier, alias) => {
     return fail('Given ESM import is not a string');
   }
 
-  // Check if the input is a relative file path (e.g. "./foo/mod.ts" or "../bar/utils.ts")
   const text = moduleSpecifier.trim();
-  if (REGEX.filepath.test(text)) {
+  if (EsmIs.localPath(text)) {
     return done('', text, '', ''); // NB: "path" specifier → no prefix or version.
   }
 
