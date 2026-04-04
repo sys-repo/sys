@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, KeyValue } from './common.ts';
 import { Data } from './m.Data.ts';
+import { Value } from './ui.Value.tsx';
 
 export type InfoProps = {
   env: t.HttpOrigin.Env;
@@ -26,9 +27,8 @@ export const Info: React.FC<InfoProps> = (props) => {
     Data.flatten(origin).forEach((row) => {
       items.push({
         k: row.key,
-        v: row.url,
+        v: <Value url={row.url} theme={props.theme} />,
         mono,
-        href: { v: { infer: true, display: 'trim-http' } },
       });
     });
   }
