@@ -9,6 +9,15 @@ export declare namespace SlcDataCli {
     readonly menu: Menu.Run;
   };
 
+  /** YAML-backed staging profile document. */
+  export namespace StageProfile {
+    /** One staged data mount and its source folder. */
+    export type Doc = {
+      readonly mount: t.StringId;
+      readonly source: t.StringPath;
+    };
+  }
+
   /** Interactive staging menu. */
   export namespace Menu {
     /** Run the staging menu from a working directory. */
@@ -18,6 +27,6 @@ export declare namespace SlcDataCli {
     export type Result =
       | { readonly kind: 'exit' }
       | { readonly kind: 'back' }
-      | { readonly kind: 'staged'; readonly path: t.StringFile };
+      | { readonly kind: 'staged'; readonly path: t.StringDir };
   }
 }
