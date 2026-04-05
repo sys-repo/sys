@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <HttpOrigin.UI env={p.env} origin={p.origin} debug={v.debug} theme={v.theme} />;
+    return <HttpOrigin.UI.Controlled env={p.env} origin={p.origin} debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {
