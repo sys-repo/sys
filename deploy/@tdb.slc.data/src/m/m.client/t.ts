@@ -2,6 +2,24 @@ import type { t } from './common.ts';
 
 /** Direct client helpers for staged SLC tree/content datasets. */
 export declare namespace SlcDataClient {
+  /** Public client surface. */
+  export type Lib = {
+    readonly Mounts: {
+      readonly load: Mounts.Load;
+    };
+    readonly create: (args: CreateArgs) => Client;
+    readonly fromDataset: (args: DatasetArgs) => Client;
+    readonly refsFromTree: (tree: t.SlugTreeItems, total?: number) => string[];
+    readonly findHash: (
+      entries: readonly t.SlugFileContentEntry[],
+      ref: string,
+    ) => string | undefined;
+    readonly selectOrFirst: (
+      selected: string | undefined,
+      refs: readonly string[],
+    ) => string | undefined;
+  };
+
   export type Layout = Pick<t.SlugClientLayout, 'manifestsDir' | 'contentDir'>;
 
   export type CreateArgs = {
@@ -48,17 +66,9 @@ export declare namespace SlcDataClient {
     };
   };
 
-  export type Lib = {
-    readonly create: (args: CreateArgs) => Client;
-    readonly fromDataset: (args: DatasetArgs) => Client;
-    readonly refsFromTree: (tree: t.SlugTreeItems, total?: number) => string[];
-    readonly findHash: (
-      entries: readonly t.SlugFileContentEntry[],
-      ref: string,
-    ) => string | undefined;
-    readonly selectOrFirst: (
-      selected: string | undefined,
-      refs: readonly string[],
-    ) => string | undefined;
-  };
+  /** Root mount discovery helpers. */
+  export namespace Mounts {
+    /** Load the runtime mount index from one staged root origin. */
+    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.Mounts.Doc>>;
+  }
 }
