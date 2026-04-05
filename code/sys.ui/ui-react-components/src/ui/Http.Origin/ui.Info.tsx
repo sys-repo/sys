@@ -50,6 +50,7 @@ export const Info: React.FC<InfoProps> = (props) => {
             theme={props.theme}
             label={verify.actionLabel}
             running={verify.running}
+            reserveStatusSpace={verify.reserveStatusSpace}
             onVerify={verify.onVerify}
           />
         ),
