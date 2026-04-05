@@ -1,0 +1,64 @@
+import type { t } from './common.ts';
+
+/** Direct client helpers for staged SLC tree/content datasets. */
+export declare namespace SlcDataClient {
+  export type Layout = Pick<t.SlugClientLayout, 'manifestsDir' | 'contentDir'>;
+
+  export type CreateArgs = {
+    readonly baseUrl: t.StringUrl;
+    readonly docid: t.StringId;
+    readonly layout?: Layout;
+  };
+
+  export type DatasetArgs = {
+    readonly origin: t.StringUrl;
+    readonly dataset: t.StringId;
+    readonly docid?: t.StringId;
+    readonly layout?: Layout;
+  };
+
+  export type TreeContentArgs = {
+    readonly ref?: string;
+  };
+
+  export type TreeContentValue = {
+    readonly tree: t.SlugTreeDoc;
+    readonly refs: readonly string[];
+    readonly ref?: string;
+    readonly hash?: string;
+    readonly contentIndex?: t.SlugFileContentIndex;
+    readonly content?: t.SlugFileContentDoc;
+  };
+
+  export type Client = {
+    readonly baseUrl: t.StringUrl;
+    readonly docid: t.StringId;
+    readonly layout: Layout;
+    readonly Tree: {
+      readonly load: () => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
+    };
+    readonly FileContent: {
+      readonly index: () => Promise<t.SlugClientResult<t.SlugFileContentIndex>>;
+      readonly get: (hash: string) => Promise<t.SlugClientResult<t.SlugFileContentDoc>>;
+    };
+    readonly TreeContent: {
+      readonly load: (
+        args?: TreeContentArgs,
+      ) => Promise<t.SlugClientResult<TreeContentValue>>;
+    };
+  };
+
+  export type Lib = {
+    readonly create: (args: CreateArgs) => Client;
+    readonly fromDataset: (args: DatasetArgs) => Client;
+    readonly refsFromTree: (tree: t.SlugTreeItems, total?: number) => string[];
+    readonly findHash: (
+      entries: readonly t.SlugFileContentEntry[],
+      ref: string,
+    ) => string | undefined;
+    readonly selectOrFirst: (
+      selected: string | undefined,
+      refs: readonly string[],
+    ) => string | undefined;
+  };
+}

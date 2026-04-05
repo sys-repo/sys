@@ -9,5 +9,6 @@ export { Rx } from '@sys/std/rx';
 /**
  * Data Models:
  */
+export { SlugClient } from '@sys/model-slug/client';
 export { SlugBundle } from '@sys/model-slug/bundle';
 export { SlugTree } from '@sys/model-slug/core';
