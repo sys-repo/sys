@@ -1,6 +1,5 @@
-import type { t } from '../src/common.ts';
 import { Fs } from '@sys/fs';
-import { StageProfileFs } from '../src/fs/m.cli/u.fs.ts';
+import { SlcDataCli as Cli, type t } from '@tdb/slc-data/cli';
 import { runStageProfile } from '../src/fs/m.cli/u.stage.ts';
 
 /**
@@ -10,8 +9,8 @@ import { runStageProfile } from '../src/fs/m.cli/u.stage.ts';
  */
 const cwd = Deno.cwd() as t.StringDir;
 const profile = 'venture-examples' as t.StringId;
-const path = Fs.join(cwd, StageProfileFs.dir, `${profile}${StageProfileFs.ext}`);
-const target = StageProfileFs.target(cwd, profile);
+const path = Cli.StageProfile.path(cwd, profile);
+const target = Cli.StageProfile.fs.target(cwd, profile);
 const exists = (name: string, dir = 'manifests') => Fs.exists(Fs.join(target, dir, name));
 const ensure = async (name: string, dir = 'manifests') => {
   if (!(await exists(name, dir))) throw new Error(`missing ${name}`);

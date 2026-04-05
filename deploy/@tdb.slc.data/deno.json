@@ -13,7 +13,8 @@
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
-    "stage:sample": "deno run -P=test ./-scripts/task.sample.stage.ts"
+    "sample:create": "deno run -P=test ./-scripts/task.sample.create.ts",
+    "sample:stage": "deno run -P=test ./-scripts/task.sample.stage.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
