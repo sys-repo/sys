@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type UTree = t.UrlTree;
+
 /** Type re-exports. */
 export type * from './t.data.ts';
 
@@ -18,6 +20,8 @@ export declare namespace HttpOrigin {
 
   /** HTTP origin environment (e.g. localhost, production). */
   export type Env = 'localhost' | 'production';
+  /** Per-environment origin tree map (input to HttpOrigin component). */
+  export type SpecMap<E extends string = string, T extends UTree = UTree> = Partial<Record<E, T>>;
   export type VerifyStatus = 'idle' | 'running' | 'ok' | 'error';
   export type Verify = boolean | VerifyOptions;
   export type VerifyOptions = { resolveUrl?: (e: VerifyResolveArgs) => t.StringUrl };
@@ -28,7 +32,7 @@ export declare namespace HttpOrigin {
    */
   export type Props = {
     env?: Env;
-    spec?: t.HttpOriginSpecMap<Env>;
+    spec?: SpecMap<Env>;
     verify?: Verify;
     //
     debug?: boolean;
@@ -43,7 +47,7 @@ export declare namespace HttpOrigin {
   export type ControlledProps = {
     env?: t.SignalOptional<Env>;
     origin?: t.SignalOptional<t.UrlTree>;
-    spec?: t.HttpOriginSpecMap<Env>;
+    spec?: SpecMap<Env>;
     verify?: Verify;
     debug?: boolean;
     theme?: t.CommonTheme;

@@ -34,7 +34,6 @@ export type {
   ActionProbe,
   BulletList,
   HttpOrigin,
-  HttpOriginSpecMap,
   TreeHost,
   KeyValueItem,
   SheetProps,

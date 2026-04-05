@@ -10,7 +10,7 @@ export declare namespace HttpOrigin {
     readonly Default: { readonly spec: SpecMap };
   };
 
-  export type SpecMap = t.HttpOriginSpecMap<t.HttpOriginBase.Env>;
+  export type SpecMap = t.HttpOriginBase.SpecMap<t.HttpOriginBase.Env>;
   export type Props = Omit<t.HttpOriginBase.Props, 'spec'> & { spec?: SpecMap };
   export type ControlledProps = Omit<t.HttpOriginBase.ControlledProps, 'spec'> & {
     spec?: SpecMap;
