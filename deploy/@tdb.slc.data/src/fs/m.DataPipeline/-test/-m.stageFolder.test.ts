@@ -17,6 +17,7 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect(await exists('slug-tree.sample-1.json')).to.eql(true);
       expect(await exists('slug-tree.sample-1.yaml')).to.eql(true);
       expect(await exists('slug-tree.sample-1.assets.json')).to.eql(true);
+      expect(await Fs.exists(Fs.join(target, 'dist.json'))).to.eql(true);
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-1' }],
       });
@@ -52,6 +53,7 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect(await exists('slug-tree.sample-one.yaml')).to.eql(true);
       expect(await exists('slug-tree.sample-one.assets.json')).to.eql(true);
       expect(await exists('slug-tree.sample-1.json')).to.eql(false);
+      expect(await Fs.exists(Fs.join(target, 'dist.json'))).to.eql(true);
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-one' }],
       });
@@ -80,6 +82,8 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-a' }, { mount: 'sample-b' }],
       });
+      expect(await Fs.exists(Fs.join(dir.absolute, 'sample-a/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(dir.absolute, 'sample-b/dist.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(dir.absolute, 'dist.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
