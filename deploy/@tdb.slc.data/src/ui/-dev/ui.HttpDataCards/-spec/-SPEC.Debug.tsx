@@ -1,12 +1,19 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
+import { type t, Color, css, D, HttpOrigin, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from './common.ts';
 
 type P = t.HttpDataCards.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  env?: t.HttpOriginBase.Env;
+  dataset?: t.StringId;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  env: 'production',
+  dataset: 'sample-1',
 };
 
 /**
@@ -26,6 +33,9 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    env: s(snap.env),
+    origin: s<t.UrlTree | undefined>(undefined),
+    dataset: s(snap.dataset),
   };
   const p = props;
   const api = {
@@ -46,6 +56,8 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.env = p.env.value;
+      d.dataset = p.dataset.value;
     });
   });
 
@@ -77,12 +89,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+
+      <HttpOrigin.UI.Controlled
+        env={p.env}
+        origin={p.origin}
+        verify
+        style={{ marginTop: 20, marginBottom: 20 }}
+      />
+      <hr />
 
       <Button
         block
@@ -91,6 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div>{`dataset: ${v.dataset ?? '(undefined)'}`}</div>
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />

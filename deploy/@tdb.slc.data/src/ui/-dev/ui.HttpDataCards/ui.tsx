@@ -1,7 +1,13 @@
-import { type t, Color, css, D } from './common.ts';
+import React from 'react';
+import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
+import { createPanel } from './u.panel.tsx';
+import { createSignals } from './u.signals.ts';
 
 export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
-  const { debug = false } = props;
+  const signals = React.useMemo(() => createSignals(), []);
+  Signal.useRedrawEffect(() => Signal.listen(signals.props, true));
+  const origin = props.origin ?? DEFAULTS.origin;
+  const dataset = props.dataset ?? DEFAULTS.dataset;
 
   /**
    * Render:
@@ -15,9 +21,13 @@ export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
     }),
   };
 
-  return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <div>{`🐷 ${D.displayName}`}</div>
-    </div>
-  );
+  return createPanel({
+    signals,
+    origin,
+    dataset,
+    docid: props.docid,
+    debug: props.debug,
+    theme: props.theme,
+    style: css(styles.base, props.style),
+  });
 };
