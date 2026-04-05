@@ -47,7 +47,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr: (e) => {
-        if (e.next?.includes('-dev/ui.HttpDataCards')) return true;
+        if (e.next?.includes(': dev/ui.HttpDataCards')) return true;
       },
     });
 
