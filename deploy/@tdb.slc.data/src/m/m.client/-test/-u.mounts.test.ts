@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from '../../../-test.ts';
 import { Mounts } from '../../m.Mounts/mod.ts';
-import { SlcDataClient } from '../mod.ts';
+import { DataClient } from '../mod.ts';
 
-describe('SlcDataClient.Mounts.load', () => {
+describe('DataClient.Mounts.load', () => {
   const originalFetch = globalThis.fetch;
 
   afterEach(() => {
@@ -16,7 +16,7 @@ describe('SlcDataClient.Mounts.load', () => {
         headers: { 'content-type': 'application/json' },
       });
 
-    const res = await SlcDataClient.Mounts.load('http://example.com/data/');
+    const res = await DataClient.Mounts.load('http://example.com/data/');
     expect(res).to.eql({
       ok: true,
       value: { mounts: [{ mount: 'sample-1' }] },
@@ -30,7 +30,7 @@ describe('SlcDataClient.Mounts.load', () => {
         headers: { 'content-type': 'application/json' },
       });
 
-    const res = await SlcDataClient.Mounts.load('http://example.com/data/');
+    const res = await DataClient.Mounts.load('http://example.com/data/');
     expect(res.ok).to.eql(false);
     if (res.ok) return;
     expect(res.error.kind).to.eql('schema');

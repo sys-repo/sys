@@ -1,4 +1,4 @@
-import { type t, Is, Obj, SlcDataClient, Str } from './common.ts';
+import { type t, DataClient, Is, Obj, Str } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree+file-content.card.tsx';
 
 type Params = {
@@ -23,7 +23,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params> 
   async run(e) {
     e.obj({ expand: { paths: ['$'] } });
 
-    const client = SlcDataClient.fromDataset({
+    const client = DataClient.fromDataset({
       origin: e.origin,
       dataset: e.dataset,
       docid: e.docid,
@@ -36,12 +36,12 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params> 
     const tree = await client.Tree.load();
     if (!tree.ok) return e.result(tree);
 
-    const refs = SlcDataClient.refsFromTree(tree.value.tree);
+    const refs = DataClient.refsFromTree(tree.value.tree);
     e.probe?.treeContent?.onRefsChange?.(refs);
     e.item({ k: 'refs: loaded', v: refs.length });
     e.item({ k: 'tree: items', v: tree.value.tree.length });
 
-    const ref = SlcDataClient.selectOrFirst(e.probe?.treeContent?.ref, refs);
+    const ref = DataClient.selectOrFirst(e.probe?.treeContent?.ref, refs);
     if (!ref) {
       return e.result({
         ok: true,
@@ -57,7 +57,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params> 
     const contentIndex = await client.FileContent.index();
     if (!contentIndex.ok) return e.result(contentIndex);
 
-    const hash = SlcDataClient.findHash(contentIndex.value.entries, ref);
+    const hash = DataClient.findHash(contentIndex.value.entries, ref);
     if (!hash) {
       return e.result({
         ok: false,

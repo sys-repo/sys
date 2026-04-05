@@ -4,9 +4,7 @@ import type { t } from './common.ts';
 export declare namespace SlcDataClient {
   /** Public client surface. */
   export type Lib = {
-    readonly Mounts: {
-      readonly load: Mounts.Load;
-    };
+    readonly Mounts: Mounts.Lib;
     readonly create: (args: CreateArgs) => Client;
     readonly fromDataset: (args: DatasetArgs) => Client;
     readonly refsFromTree: (tree: t.SlugTreeItems, total?: number) => string[];
@@ -68,6 +66,11 @@ export declare namespace SlcDataClient {
 
   /** Root mount discovery helpers. */
   export namespace Mounts {
+    /** Public mounts client surface. */
+    export type Lib = {
+      readonly load: Load;
+    };
+
     /** Load the runtime mount index from one staged root origin. */
     export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.Mounts.Doc>>;
   }

@@ -1,11 +1,11 @@
 import { describe, EsmAssert, expect, it, Path } from '../-test.ts';
-import { Mounts, SlcDataClient } from './mod.ts';
+import { DataClient, Mounts } from './mod.ts';
 
 describe('@tdb/slc-data/m', () => {
   it('API', async () => {
     const m = await import('@tdb/slc-data');
     expect(m.Mounts).to.equal(Mounts);
-    expect(m.SlcDataClient).to.equal(SlcDataClient);
+    expect(m.DataClient).to.equal(DataClient);
   });
 
   it('keeps filesystem imports out of the shared m runtime graph', async () => {
