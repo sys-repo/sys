@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type re-exports. */
-export type * from '../../common.t.ts';
+export type * from '../common.t.ts';
 
 /** Dev cards for probing staged SLC data over HTTP. */
 export declare namespace HttpDataCards {

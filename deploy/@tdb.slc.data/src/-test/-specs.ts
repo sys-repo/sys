@@ -10,5 +10,5 @@ export const ns = 'slc.data';
  */
 export const Specs = {
   [`${ns}: ui.HttpOrigin`]: () => import('../ui/ui.HttpOrigin/-spec/-SPEC.tsx'),
-  [`${ns}: -dev/ui.HttpDataCards`]: () => import('../ui/-dev/ui.HttpDataCards/-spec/-SPEC.tsx'),
+  [`${ns}: dev/ui.HttpDataCards`]: () => import('../ui/-dev/ui.HttpDataCards/-spec/-SPEC.tsx'),
 } as t.SpecImports;

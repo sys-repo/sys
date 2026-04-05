@@ -5,4 +5,3 @@
 export type * from './m.client/t.ts';
 export type * from './fs/t.ts';
 export type * from './ui/t.ts';
-export type * from './ui/-dev/ui.HttpDataCards/t.ts';
