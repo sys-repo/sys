@@ -19,4 +19,8 @@ export const StageProfileFs = {
   target(cwd: t.StringDir, mount: t.StringId): t.StringDir {
     return Fs.join(cwd, TARGET_DIR, mount) as t.StringDir;
   },
+
+  path(cwd: t.StringDir, profile: t.StringId): t.StringFile {
+    return Fs.join(cwd, DIR, `${profile}${EXT}`) as t.StringFile;
+  },
 } as const;

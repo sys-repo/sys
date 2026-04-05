@@ -1,10 +1,11 @@
-import { type t, YamlConfig } from './common.ts';
+import { c, Cli, type t, YamlConfig } from './common.ts';
 import { StageProfileSchema } from './schema/mod.ts';
 import { StageProfileFs } from './u.fs.ts';
 import { MountName } from './u.is.ts';
 import { runStageProfile } from './u.stage.ts';
 
 type Action = 'stage';
+const ACTION_WIDTH = 'stage'.length;
 
 const schema = {
   init: () => StageProfileSchema.initial(),
@@ -27,7 +28,16 @@ export async function menu(cwd: t.StringDir): Promise<t.SlcDataCli.Menu.Result> 
     schema,
     invalid: { label: 'invalid yaml' },
     actions: {
-      extra: [{ name: ({ name }) => `stage ${name}`, value: 'stage' }],
+      extra: [{
+        name: ({ name, doc }) => {
+          const verb = 'stage'.padEnd(ACTION_WIDTH, ' ');
+          const mount = Cli.Fmt.path(`/${doc?.mount ?? name}`, (e) => {
+            if (e.is.basename) e.change(c.cyan(e.part));
+          });
+          return `${verb}   ${mount}`;
+        },
+        value: 'stage',
+      }],
     },
     add: {
       message: 'Mount name',
