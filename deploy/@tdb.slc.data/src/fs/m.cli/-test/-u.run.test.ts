@@ -62,6 +62,43 @@ describe('SlcDataCli.run', () => {
     }
   });
 
+  it('refreshes staged-root metadata in non-interactive mode', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    const sample = Path.resolve(root, '../../../-test/sample-1');
+    const dir = await Fs.makeTempDir();
+
+    try {
+      const cwd = dir.absolute;
+      const target = Fs.join(cwd, 'public/data');
+      await SlcDataCli.StageProfile.create({
+        cwd,
+        profile: 'sample-1',
+        source: sample,
+      });
+      await SlcDataCli.StageProfile.stage({
+        cwd,
+        profile: 'sample-1',
+        target,
+      });
+      await Fs.remove(Fs.join(target, 'sample-1'));
+
+      const result = await SlcDataCli.run({
+        cwd,
+        argv: ['refresh', '--target', target],
+      });
+
+      expect(result.kind).to.eql('refresh-root');
+      if (result.kind !== 'refresh-root') throw new Error('Expected refresh-root result');
+      expect(result.root).to.eql(target);
+      expect(result.mountsPath).to.eql(Fs.join(target, 'mounts.json'));
+      expect(result.distPath).to.eql(Fs.join(target, 'dist.json'));
+      expect((await Fs.readJson(result.mountsPath)).data).to.eql({ mounts: [] });
+      expect(await Fs.exists(result.distPath)).to.eql(true);
+    } finally {
+      await Fs.remove(dir.absolute);
+    }
+  });
+
   it('fails when create is missing a profile', () =>
     expectError(
       () => SlcDataCli.run({ argv: ['create', '--source', './src/-test/sample-1'] }),
@@ -76,4 +113,7 @@ describe('SlcDataCli.run', () => {
 
   it('fails when stage is missing a profile', () =>
     expectError(() => SlcDataCli.run({ argv: ['stage'] }), "Missing --profile for 'stage'"));
+
+  it('fails when refresh is missing a target', () =>
+    expectError(() => SlcDataCli.run({ argv: ['refresh'] }), "Missing --target for 'refresh'"));
 });

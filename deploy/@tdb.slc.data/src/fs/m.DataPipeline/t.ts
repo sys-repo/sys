@@ -10,6 +10,7 @@ export declare namespace SlcDataPipeline {
   /** Public fs pipeline surface. */
   export type Lib = {
     readonly stageFolder: StageFolder.Run;
+    readonly refreshRoot: RefreshRoot.Run;
   };
 
   /** Types for the stageFolder operation. */
@@ -31,6 +32,26 @@ export declare namespace SlcDataPipeline {
       readonly mount: t.StringId;
       readonly source: t.StringPath;
       readonly target: t.StringPath;
+    };
+  }
+
+  /** Types for refreshing staged-root metadata. */
+  export namespace RefreshRoot {
+    /** Refresh root metadata from current staged filesystem state. */
+    export type Run = (args: Args) => Promise<Result>;
+
+    /** Input path for a root metadata refresh. */
+    export type Args = {
+      readonly root: t.StringDir;
+    };
+
+    /** Successful result from refreshing root metadata. */
+    export type Result = {
+      readonly kind: 'refresh-root';
+      readonly ok: true;
+      readonly root: t.StringDir;
+      readonly mountsPath: t.StringFile;
+      readonly distPath: t.StringFile;
     };
   }
 }

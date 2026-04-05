@@ -18,6 +18,7 @@ export const FmtHelp = {
         `${toolname} create --profile <name> --source <path>`,
         `${toolname} stage  --profile <name>`,
         `${toolname} stage  --profile <name> --target <dir>`,
+        `${toolname} refresh --target <dir>`,
       ],
       options: [
         ['-h, --help', 'show help'],
@@ -28,9 +29,10 @@ export const FmtHelp = {
       examples: [
         `${toolname}`,
         `${toolname} --help`,
-        `${toolname} create --profile my-data --source ./path/to/source`,
-        `${toolname} stage  --profile my-data`,
-        `${toolname} stage  --profile my-data --target ./public/data`,
+        `${toolname} create  --profile my-data --source ./path/to/source`,
+        `${toolname} stage   --profile my-data`,
+        `${toolname} stage   --profile my-data --target ./public/data`,
+        `${toolname} refresh --target ./public/data`,
       ],
     } as const;
   },

@@ -28,7 +28,7 @@ export declare namespace SlcDataCli {
   };
 
   /** Supported non-interactive subcommands. */
-  export type Command = 'create' | 'stage';
+  export type Command = 'create' | 'stage' | 'refresh';
 
   /** Parsed CLI args. */
   export type Args = {
@@ -44,7 +44,12 @@ export declare namespace SlcDataCli {
   export type Run = (input?: Input) => Promise<Result>;
 
   /** Result from one CLI run. */
-  export type Result = Help.Result | Menu.Result | StageProfile.CreateResult | StageProfile.StageResult;
+  export type Result =
+    | Help.Result
+    | Menu.Result
+    | StageProfile.CreateResult
+    | StageProfile.StageResult
+    | RefreshResult;
 
   /** YAML-backed staging profile document. */
   export namespace StageProfile {
@@ -113,6 +118,15 @@ export declare namespace SlcDataCli {
     /** Result from a staging menu session. */
     export type Result = { readonly kind: 'exit' } | { readonly kind: 'back' };
   }
+
+  /** Result from refreshing staged-root metadata. */
+  export type RefreshResult = {
+    readonly kind: 'refresh-root';
+    readonly ok: true;
+    readonly root: t.StringDir;
+    readonly mountsPath: t.StringFile;
+    readonly distPath: t.StringFile;
+  };
 
   /** CLI help surface. */
   export namespace Help {

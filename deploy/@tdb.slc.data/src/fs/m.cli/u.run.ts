@@ -1,11 +1,12 @@
 import { Args, type t } from './common.ts';
+import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
 import { FmtHelp } from './u.help.ts';
 import { menu } from './u.menu.ts';
 import { runCreateProfile } from './u.create.ts';
 import { runStageProfile } from './u.stage.ts';
 import { StageProfileFs } from './u.fs.ts';
 
-const COMMANDS = new Set<t.SlcDataCli.Command>(['create', 'stage']);
+const COMMANDS = new Set<t.SlcDataCli.Command>(['create', 'stage', 'refresh']);
 
 /**
  * Parse and run the staging CLI.
@@ -18,6 +19,11 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
 
   if (args.help) return { kind: 'help', text: FmtHelp.output() };
   if (!args.command) return menu(cwd, target);
+
+  if (args.command === 'refresh') {
+    if (!target) throw new Error(`Missing --target for '${args.command}'`);
+    return SlcDataPipeline.refreshRoot({ root: target });
+  }
 
   const profile = args.profile;
   if (!profile) throw new Error(`Missing --profile for '${args.command}'`);

@@ -1,11 +1,12 @@
 import { c, Cli, type t, YamlConfig } from './common.ts';
+import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { StageProfileSchema } from './schema/mod.ts';
-import { StageProfilePaths } from './u.fs.ts';
+import { StageProfileFs, StageProfilePaths } from './u.fs.ts';
 import { MountName } from './u.is.ts';
 import { readProfile, runStageProfileMapping } from './u.stage.ts';
 
-type Action = `stage:${number}` | 'select';
+type Action = `stage:${number}` | 'refresh' | 'select';
 const ACTION_WIDTH = 'stage'.length;
 
 const schema = {
@@ -75,12 +76,23 @@ export async function menu(cwd: t.StringDir, target?: t.StringDir): Promise<t.Sl
       if (action.kind === 'back') break;
       if (action.kind === 'stay') continue;
       path = action.path;
+      if (action.action === 'refresh') {
+        try {
+          const root = target ?? StageProfileFs.targetRoot(cwd);
+          const result = await SlcDataPipeline.refreshRoot({ root });
+          console.info(Fmt.refreshRoot(result));
+        } catch (error) {
+          console.error(Fmt.error(error));
+        }
+        console.info();
+        continue;
+      }
       if (!action.action.startsWith('stage:')) continue;
 
       const index = Number(action.action.slice('stage:'.length));
       try {
         const result = await runStageProfileMapping({ cwd, path: action.path, index, target });
-        console.info(result);
+        console.info(Fmt.staged(result));
       } catch (error) {
         console.error(Fmt.error(error));
       }
@@ -92,7 +104,7 @@ export async function menu(cwd: t.StringDir, target?: t.StringDir): Promise<t.Sl
 function extraActions(
   doc: t.SlcDataCli.StageProfile.Doc,
 ): { name: ({ name, doc }: { name: string; doc?: t.SlcDataCli.StageProfile.Doc }) => string; value: Action }[] {
-  return doc.mappings.map((mapping, index) => ({
+  const actions = doc.mappings.map((mapping, index) => ({
     name: () => {
       const verb = 'stage'.padEnd(ACTION_WIDTH, ' ');
       const mount = Cli.Fmt.path(`/${mapping.mount}`, (e) => {
@@ -102,4 +114,9 @@ function extraActions(
     },
     value: `stage:${index}` as Action,
   }));
+  actions.push({
+    name: () => 'refresh',
+    value: 'refresh',
+  });
+  return actions;
 }
