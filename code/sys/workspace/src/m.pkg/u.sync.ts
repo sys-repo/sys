@@ -1,4 +1,5 @@
 import { c, Fs, Str, type t } from './common.ts';
+import { Fmt } from './u.fmt.ts';
 import { renderPkg } from './u.render.ts';
 import { resolvePackagePaths } from './u.source.ts';
 import { resolveExistingTargets } from './u.targets.ts';
@@ -97,12 +98,5 @@ function logSyncResult(
     console.info(`${c.cyan('Updated package:')} ${c.gray(path)} ${c.white(`(${files})`)}`);
   }
 
-  const summary = [
-    `${result.written} written`,
-    `${result.skipped} skipped`,
-    `${result.unchanged} unchanged`,
-  ].join(', ');
-  const isNoop = result.count > 0 && result.unchanged === result.count;
-  const fmtSummary = isNoop ? c.dim(summary) : c.white(summary);
-  console.info(`${c.gray('Package src/pkg.ts sync:')} ${fmtSummary}`);
+  console.info(Fmt.summary(result));
 }

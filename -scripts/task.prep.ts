@@ -166,12 +166,7 @@ async function runPackageSyncPhase(spinner: CliSpinner.Instance) {
   spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
   try {
     const res = await updatePackages();
-    const label = `${c.gray('Package ')}${c.cyan('src/pkg.ts')}${c.gray(' sync:')}`;
-    const summaryText = `${res.written} written, ${res.skipped} skipped, ${res.unchanged} unchanged`;
-    const summary =
-      res.count > 0 && res.unchanged === res.count ? c.dim(summaryText) : c.white(summaryText);
-    const text = `${label} ${summary}`;
-    spinner.succeed(Cli.Fmt.spinnerRaw(text, false));
+    spinner.succeed(Cli.Fmt.spinnerRaw(Workspace.Pkg.Fmt.summary(res), false));
   } catch (err) {
     spinner.stop();
     throw err;
