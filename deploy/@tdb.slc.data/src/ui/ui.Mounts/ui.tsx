@@ -13,8 +13,8 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(0),
       color: theme.fg,
+      fontSize: 12,
       display: 'grid',
       rowGap: 8,
       lineHeight: 1.6,
@@ -22,6 +22,7 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
     meta: css({ opacity: 0.6, fontSize: 12 }),
   };
   const items = toRows(state.mounts.value ?? []);
+  const error = state.error.value;
   const is = {
     loading: state.loading.value,
     error: Boolean(state.error.value),
@@ -32,7 +33,7 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       {is.loading && <div className={styles.meta.class}>Loading mounts...</div>}
-      {!is.loading && !is.ready && <Empty theme={theme.name} style={styles.meta} error={state.error.value} />}
+      {!is.loading && !is.ready && <Empty theme={theme.name} style={styles.meta} error={error} />}
       {is.ready && (
         <BulletList.UI
           theme={theme.name}

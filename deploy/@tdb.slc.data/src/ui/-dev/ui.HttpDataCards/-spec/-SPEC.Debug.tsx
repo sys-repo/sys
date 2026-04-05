@@ -1,6 +1,23 @@
 import React from 'react';
-import { type t, Color, css, D, HttpOrigin, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from './common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  HttpOrigin,
+  HttpOriginRoutes,
+  LocalStorage,
+  Mounts,
+  Obj,
+  ObjectView,
+  Signal,
+} from './common.ts';
+
+const LOCAL_SPEC = {
+  localhost: { proxy: 'http://localhost:1234/data/', cdn: HttpOriginRoutes.origin.localhost.cdn },
+  production: HttpOriginRoutes.origin.production,
+} satisfies t.HttpOrigin.SpecMap;
 
 type P = t.HttpDataCards.Props;
 type Storage = {
@@ -19,7 +36,11 @@ const defaults: Storage = {
 /**
  * Types:
  */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = {
+  debug: DebugSignals;
+  origin?: t.StringUrl;
+  style?: t.CssInput;
+};
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
@@ -82,11 +103,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
+  const origin = wrangle.origin(v.origin);
 
   /**
    * Render:
    */
-  const theme = Color.theme();
+  const theme = Color.theme('Light');
   const styles = {
     base: css({ color: theme.fg }),
   };
@@ -98,22 +120,47 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <HttpOrigin.UI.Controlled
         env={p.env}
         origin={p.origin}
+        spec={LOCAL_SPEC}
         verify
-        style={{ marginTop: 20, marginBottom: 20 }}
+        theme={theme.name}
+        style={{ MarginY: 20 }}
       />
+      {origin && <div className={Styles.title.class}>{'Mounts'}</div>}
+      {origin && (
+        <Mounts.UI
+          origin={origin}
+          selected={v.dataset}
+          onSelect={(next) => (p.dataset.value = next)}
+          theme={theme.name}
+          style={{ marginBottom: 20 }}
+        />
+      )}
       <hr />
 
       <Button
         block
+        theme={theme.name}
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <hr />
-      <div>{`dataset: ${v.dataset ?? '(undefined)'}`}</div>
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Button
+        block
+        theme={theme.name}
+        label={() => `debug: ${v.debug}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button block theme={theme.name} label={() => `(reset)`} onClick={debug.reset} />
+      <ObjectView name={'debug'} data={v} expand={0} theme={theme.name} style={{ marginTop: 20 }} />
     </div>
   );
 };
+
+const wrangle = {
+  origin(input: t.UrlTree | undefined): t.StringUrl | undefined {
+    if (typeof input === 'string') return input;
+    if (!input || typeof input !== 'object') return undefined;
+    const proxy = 'proxy' in input ? input.proxy : undefined;
+    return typeof proxy === 'string' ? proxy : undefined;
+  },
+} as const;
