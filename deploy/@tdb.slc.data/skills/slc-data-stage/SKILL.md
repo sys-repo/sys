@@ -1,6 +1,6 @@
 ---
 name: slc-data-stage
-description: Use when you need to create, inspect, edit, run, or verify an `@tdb/slc-data` stage profile through the module CLI. This skill is the workflow layer over the CLI, with profile-based staging as the main unit of work.
+description: Use when you need to create, inspect, edit, run, or verify an `@tdb/slc-data` stage profile through the published CLI. This skill is the workflow layer over the CLI, with profile-based staging as the main unit of work.
 ---
 
 # slc-data-stage
@@ -9,7 +9,7 @@ description: Use when you need to create, inspect, edit, run, or verify an `@tdb
 - the task is to create or edit an `@tdb/slc-data` stage profile
 - the task is to run a stage profile and produce staged output
 - the task is to inspect or verify staged output for an `@tdb/slc-data` mount
-- the task is to understand how the module CLI drives profile-based staging
+- the task is to understand how the published CLI drives profile-based staging
 
 ## Do not use this skill when
 - the task is primarily about deploying already-staged output to a remote target
@@ -26,15 +26,17 @@ description: Use when you need to create, inspect, edit, run, or verify an `@tdb
 - If the CLI cannot do what is needed, fix the CLI first.
 
 ## Authority
-Primary (the CLI contract):
-- `./deno.json` → task definitions and exports
-- `./-scripts/task.cli.ts` → CLI task entry (argv passthrough)
+Primary (works from outside the source tree):
+- the published CLI itself:
+  - `deno run -A jsr:@tdb/slc-data/cli --help`
+- this package's `./deno.json` task surface
 
-Fallback (only when debugging the CLI itself):
+Source checkout only (use only when you are inside the package source and need to debug the CLI itself):
+- `./-scripts/task.cli.ts` → local CLI task entry
 - `./src/fs/m.cli/` → CLI implementation
 - `./src/fs/m.DataPipeline/` → staging pipeline internals
 
-Deeper authority (only when understanding or repairing the pipeline boundary):
+Deeper authority (source checkout only, when understanding or repairing the pipeline boundary):
 - `./src/fs/m.DataPipeline/m.stageFolder.ts` → end-to-end staging flow
 - `./src/fs/m.DataPipeline/u.mounts.ts` → staged root mount index generation
 - `@sys/model-slug` surfaces used by the pipeline:
@@ -47,7 +49,7 @@ Deeper authority (only when understanding or repairing the pipeline boundary):
 ```
 deno run -A jsr:@tdb/slc-data/cli --help
 ```
-If this returns an error or empty output, fall back to reading `./src/fs/m.cli/u.help.ts` and `./src/fs/m.cli/mod.ts`.
+If this returns an error or empty output, and you are inside the source checkout, fall back to reading `./src/fs/m.cli/u.help.ts` and `./src/fs/m.cli/mod.ts`.
 
 ### 2. Create or edit a profile
 ```
@@ -71,12 +73,6 @@ Shape (exactly two fields, no additional properties):
 ```yaml
 source: <path>    # absolute or relative to cwd
 mount: <id>       # matches: ^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$
-```
-
-Example (`venture-examples.yaml`):
-```yaml
-source: /Users/phil/code/org.tdb/slc-knowledgebase/docs/slc-knowledge/agent-content/venture-example-libraries
-mount: venture-examples
 ```
 
 - Prefer `deno run -A jsr:@tdb/slc-data/cli create ...` over hand-authoring when creating new profiles.
