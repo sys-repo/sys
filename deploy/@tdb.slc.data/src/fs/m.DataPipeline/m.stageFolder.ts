@@ -1,5 +1,5 @@
 import { type t, Fs, Ignore, Json, Path, SlugBundle, SlugTree, SlugTreeFs } from './common.ts';
-import { refreshRootDist } from './u.dist.ts';
+import { refreshMountDist, refreshRootDist } from './u.dist.ts';
 import { refreshMounts } from './u.mounts.ts';
 
 export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
@@ -49,6 +49,7 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   }
 
   const root = Path.dirname(target) as t.StringDir;
+  await refreshMountDist(target as t.StringDir);
   await refreshMounts(root);
   await refreshRootDist(root);
 
