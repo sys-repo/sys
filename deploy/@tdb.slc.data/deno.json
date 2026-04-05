@@ -12,7 +12,8 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
-    "stage:sample": "deno run -P=test ./-scripts/task.stage.sample.ts"
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
+    "stage:sample": "deno run -P=test ./-scripts/task.sample.stage.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -33,6 +34,12 @@
     "test": {
       "read": true,
       "write": true,
+      "env": true
+    },
+    "cli": {
+      "read": true,
+      "write": true,
+      "run": true,
       "env": true
     },
     "dev": {

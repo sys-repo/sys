@@ -3,8 +3,10 @@ import { type t, Fs, Ignore, Path, SlugBundle, SlugTree, SlugTreeFs } from './co
 export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   const source = String(args.source).trim();
   const target = String(args.target).trim();
+  const mount = String(args.mount ?? '').trim() || Path.basename(source);
   if (!source) throw new Error('stageFolder: source is required');
   if (!target) throw new Error('stageFolder: target is required');
+  if (!mount) throw new Error('stageFolder: mount is required');
 
   const sourceInfo = await Fs.stat(source);
   if (!sourceInfo || !sourceInfo.isDirectory) {
@@ -13,15 +15,15 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
 
   await prepareTarget(target);
 
-  const docid = Path.basename(source) as t.StringId;
+  const mountId = mount as t.StringId;
   const manifestsDir = Fs.join(target, 'manifests');
   const contentDir = Fs.join(target, 'content');
   await Fs.ensureDir(manifestsDir);
   await Fs.ensureDir(contentDir);
 
-  const manifestJson = Fs.join(manifestsDir, `slug-tree.${docid}.json`);
-  const manifestYaml = Fs.join(manifestsDir, `slug-tree.${docid}.yaml`);
-  const assetsJson = Fs.join(manifestsDir, `slug-tree.${docid}.assets.json`);
+  const manifestJson = Fs.join(manifestsDir, `slug-tree.${mountId}.json`);
+  const manifestYaml = Fs.join(manifestsDir, `slug-tree.${mountId}.yaml`);
+  const assetsJson = Fs.join(manifestsDir, `slug-tree.${mountId}.assets.json`);
 
   const treeDoc = await SlugTreeFs.fromDir({ root: source });
   await Fs.write(manifestJson, JSON.stringify(treeDoc, null, 2));
@@ -31,7 +33,7 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   const derived = await SlugBundle.Transform.TreeFs.derive({
     files,
     includePath: true,
-    docid,
+    docid: mountId,
     manifests: [manifestJson],
   });
   if (!derived.ok) throw derived.error;
@@ -47,6 +49,7 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   return {
     ok: true,
     kind: 'stage-folder',
+    mount: mountId,
     source,
     target,
   };

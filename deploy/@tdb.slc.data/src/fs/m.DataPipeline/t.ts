@@ -21,12 +21,14 @@ export declare namespace SlcDataPipeline {
     export type Args = {
       readonly source: t.StringPath;
       readonly target: t.StringPath;
+      readonly mount?: t.StringId;
     };
 
     /** Successful result from a folder staging run. */
     export type Result = {
       readonly kind: 'stage-folder';
       readonly ok: true;
+      readonly mount: t.StringId;
       readonly source: t.StringPath;
       readonly target: t.StringPath;
     };
