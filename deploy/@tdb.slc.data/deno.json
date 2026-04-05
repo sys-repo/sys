@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-data",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -51,7 +51,11 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
       }
     }
   }

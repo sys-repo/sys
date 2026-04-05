@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775361863416,
+    "createdAt": 1775371676311,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-a54a6024a3b8308e8a65e117279b2416f6342f2224f335b50e15cf90238a6cc6",
+      "/graph": "sha256-20f131b7d711550bc35aa8ee9496a14e1aafa676ea54a0ca9f55cf393839fe66",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.50/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.50/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775361863421
+    "modifiedAt": 1775371676316
   },
   "graph": {
     "orderedPaths": [
@@ -503,6 +503,10 @@
         "to": "deploy/@tdb.edu.slug"
       },
       {
+        "from": "code/sys/cli",
+        "to": "deploy/@tdb.slc.data"
+      },
+      {
         "from": "code/sys/color",
         "to": "code/-tmpl"
       },
@@ -941,6 +945,10 @@
       {
         "from": "code/sys/schema",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/schema",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/std",
@@ -1437,6 +1445,10 @@
       {
         "from": "code/sys/yaml",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "deploy/@tdb.slc.std",
