@@ -7,7 +7,7 @@ import { Value } from './ui.Value.tsx';
 
 export type InfoProps = {
   env: t.HttpOrigin.Env;
-  origin?: t.UrlTree;
+  origin?: t.HttpOrigin.UrlTree;
   verify?: t.HttpOrigin.Verify;
   theme?: t.CommonTheme;
   style?: t.CssInput;

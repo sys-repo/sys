@@ -4,8 +4,8 @@ import { logVerifyResults } from './u.log.ts';
 
 export type UseVerifyArgs = {
   env: t.HttpOrigin.Env;
-  origin?: t.UrlTree;
-  rows: readonly t.UrlRow[];
+  origin?: t.HttpOrigin.UrlTree;
+  rows: readonly t.HttpOrigin.UrlRow[];
   verify?: t.HttpOrigin.Verify;
 };
 
@@ -101,7 +101,7 @@ export function useVerify(args: UseVerifyArgs) {
  * Helpers:
  */
 const wrangle = {
-  resolveUrl(args: UseVerifyArgs, row: t.UrlRow) {
+  resolveUrl(args: UseVerifyArgs, row: t.HttpOrigin.UrlRow) {
     const verify = args.verify;
     if (typeof verify === 'object' && verify?.resolveUrl) {
       return verify.resolveUrl({ origin: row.url, key: row.key, env: args.env });
@@ -116,7 +116,7 @@ const wrangle = {
   },
 } as const;
 
-function toRunningStatus(rows: readonly t.UrlRow[]) {
+function toRunningStatus(rows: readonly t.HttpOrigin.UrlRow[]) {
   return rows.reduce<Record<string, t.HttpOrigin.VerifyStatus>>((acc, row) => {
     acc[row.key] = 'running';
     return acc;

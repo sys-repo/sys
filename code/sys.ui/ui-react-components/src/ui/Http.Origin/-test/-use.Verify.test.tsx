@@ -23,7 +23,7 @@ describe('HttpOrigin.useVerify', () => {
       return new Response('Not found', { status: 404 });
     });
 
-    const rows: readonly t.UrlRow[] = [{ key: 'app', url: server.url.toURL().origin }];
+    const rows: readonly t.HttpOrigin.UrlRow[] = [{ key: 'app', url: server.url.toURL().origin }];
     const { result, unmount } = renderHook(() =>
       useVerify({ env: 'production', rows, verify: true }),
     );
@@ -47,7 +47,7 @@ describe('HttpOrigin.useVerify', () => {
       return new Response('Not found', { status: 404 });
     });
 
-    const rows: readonly t.UrlRow[] = [{ key: 'cdn', url: server.url.toURL().origin }];
+    const rows: readonly t.HttpOrigin.UrlRow[] = [{ key: 'cdn', url: server.url.toURL().origin }];
     const verify: t.HttpOrigin.Verify = {
       resolveUrl: ({ origin }) => `${origin}/verify.json`,
     };
@@ -67,7 +67,7 @@ describe('HttpOrigin.useVerify', () => {
 
   it('settles error when dist.json is missing', async () => {
     const server = Testing.Http.server(() => new Response('Not found', { status: 404 }));
-    const rows: readonly t.UrlRow[] = [{ key: 'video', url: server.url.toURL().origin }];
+    const rows: readonly t.HttpOrigin.UrlRow[] = [{ key: 'video', url: server.url.toURL().origin }];
     const { result, unmount } = renderHook(() =>
       useVerify({ env: 'production', rows, verify: true }),
     );

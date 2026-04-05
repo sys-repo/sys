@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 export type LogVerifyResultsArgs = {
   env: t.HttpOrigin.Env;
-  rows: readonly t.UrlRow[];
+  rows: readonly t.HttpOrigin.UrlRow[];
   resolved: Record<string, t.StringUrl>;
   status: Record<string, t.HttpOrigin.VerifyStatus>;
 };
