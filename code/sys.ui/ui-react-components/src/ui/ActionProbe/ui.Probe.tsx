@@ -143,6 +143,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         spinning={spinning || running}
         focused={focused}
         actOn={actOn}
+        theme={props.theme}
         onRun={() => void invokeRun()}
         style={styles.header}
       />
