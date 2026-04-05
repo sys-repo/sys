@@ -11,6 +11,7 @@ export declare namespace SlcDataCli {
     readonly menu: Menu.Run;
     readonly help: Help.Run;
     readonly run: Run;
+    readonly Fmt: Fmt.Lib;
     readonly StageProfile: {
       readonly fs: StageProfileFs;
       readonly schema: StageProfileSchema;
@@ -138,5 +139,13 @@ export declare namespace SlcDataCli {
       readonly kind: 'help';
       readonly text: string;
     };
+  }
+
+  /** CLI output formatting surface. */
+  export namespace Fmt {
+    export type Lib = {
+      readonly result: ResultRun;
+    };
+    export type ResultRun = (result: SlcDataCli.Result) => string;
   }
 }

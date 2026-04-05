@@ -23,6 +23,16 @@ export const Fmt = {
     return `${c.green('✔')} ${c.gray('Refreshed mounts index:')} ${c.cyan(Fs.trimCwd(result.mountsPath))}`;
   },
 
+  result(result: t.SlcDataCli.Result): string {
+    if (result.kind === 'help') return result.text;
+    if (result.kind === 'created') {
+      return `${c.green('✔')} ${c.gray('Created profile:')} ${c.cyan(Fs.trimCwd(result.path))}`;
+    }
+    if (result.kind === 'staged') return Fmt.staged(result);
+    if (result.kind === 'refresh-root') return Fmt.refreshRoot(result);
+    return '';
+  },
+
   validationErrors(errors: readonly t.ValueError[]): string {
     return errors
       .slice(0, 3)

@@ -12,11 +12,13 @@ import { runCreateProfile } from './u.create.ts';
 import { runStageProfile } from './u.stage.ts';
 import { run } from './u.run.ts';
 import { FmtHelp } from './u.help.ts';
+import { Fmt } from './u.fmt.ts';
 
 export const SlcDataCli: t.SlcDataCli.Lib = {
   help: FmtHelp.output,
   run,
   menu,
+  Fmt: { result: Fmt.result },
   StageProfile: {
     fs: StageProfileFs,
     schema: StageProfileSchema,
