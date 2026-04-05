@@ -8,14 +8,24 @@ import type { t } from './common.ts';
 import { menu } from './u.menu.ts';
 import { StageProfileSchema } from './schema/mod.ts';
 import { StageProfileFs } from './u.fs.ts';
+import { runCreateProfile } from './u.create.ts';
+import { runStageProfile } from './u.stage.ts';
+import { run } from './u.run.ts';
+import { FmtHelp } from './u.help.ts';
 
 export const SlcDataCli: t.SlcDataCli.Lib = {
+  help: FmtHelp.output,
+  run,
   menu,
   StageProfile: {
     fs: StageProfileFs,
     schema: StageProfileSchema,
     path(cwd, profile) {
       return StageProfileFs.path(cwd, profile);
+    },
+    create: runCreateProfile,
+    stage({ cwd, profile }) {
+      return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile) });
     },
   },
 };
