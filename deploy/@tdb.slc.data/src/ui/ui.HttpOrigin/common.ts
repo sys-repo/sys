@@ -14,6 +14,8 @@ export const D = {
   displayName: `@tdb/slc-data:${name}`,
   domain: Routes.domain,
   spec,
+  env: 'production',
+  verify: true,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

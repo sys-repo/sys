@@ -5,16 +5,19 @@
  */
 import React from 'react';
 
-import type * as t from '@sys/types';
-import { Color, css } from '@sys/ui-css';
+import { type t, Color, css } from './common.ts';
 import { useKeyboard as useDevKeyboard } from '@sys/ui-react-devharness';
 import { HttpOrigin } from '../ui/mod.ts';
 
 export type SplashProps = { theme?: t.CommonTheme };
 
+const D = {
+  storage: 'dev:@tdb/slc-data:entry.splash:HttpOrigin',
+} as const;
+
 export const Splash: React.FC<SplashProps> = (props) => {
-  const {} = props;
   useDevKeyboard();
+  const state = HttpOrigin.use.Controller(D.storage);
 
   const theme = Color.theme(props.theme ?? 'Dark');
   const styles = {
@@ -26,7 +29,11 @@ export const Splash: React.FC<SplashProps> = (props) => {
   return (
     <div className={css(styles.base, styles.center).class}>
       <div className={styles.body.class}>
-        <HttpOrigin.UI theme={theme.name} verify />
+        <HttpOrigin.UI.Controlled
+          env={state.env}
+          theme={theme.name}
+          verify={HttpOrigin.Default.verify}
+        />
       </div>
     </div>
   );
