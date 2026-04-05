@@ -7,7 +7,7 @@ export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
   const signals = React.useMemo(() => createSignals(), []);
   Signal.useRedrawEffect(() => Signal.listen(signals.props, true));
   const origin = props.origin ?? DEFAULTS.origin;
-  const dataset = props.dataset ?? DEFAULTS.dataset;
+  const dataset = props.dataset;
 
   /**
    * Render:
@@ -19,7 +19,12 @@ export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
       color: theme.fg,
       padding: 10,
     }),
+    empty: css({ color: Color.alpha(theme.fg, 0.5) }),
   };
+
+  if (!dataset) {
+    return <div className={css(styles.base, styles.empty, props.style).class}>{'Select a mount.'}</div>;
+  }
 
   return createPanel({
     signals,

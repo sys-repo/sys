@@ -32,7 +32,6 @@ const defaults: Storage = {
   theme: 'Dark',
   env: 'production',
   integrity: false,
-  dataset: 'sample-1',
 };
 
 /**
@@ -129,12 +128,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         theme={theme.name}
         style={{ MarginY: 20 }}
       />
-      <Button
-        block
-        theme={theme.name}
-        label={() => `integrity: ${v.integrity}`}
-        onClick={() => Signal.toggle(p.integrity)}
-      />
       {origin && <div className={Styles.title.class}>{'Mounts'}</div>}
       {origin && (
         <Mounts.UI
@@ -152,6 +145,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         theme={theme.name}
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        theme={theme.name}
+        label={() => `integrity: ${v.integrity}`}
+        onClick={() => Signal.toggle(p.integrity)}
       />
 
       <Button
