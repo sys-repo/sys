@@ -6,10 +6,11 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
+  const origin = 'http://localhost:1234/data/' as t.StringUrl;
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Mounts.UI debug={v.debug} theme={v.theme} />;
+    return <Mounts.UI origin={origin} debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {

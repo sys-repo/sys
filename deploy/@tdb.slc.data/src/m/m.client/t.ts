@@ -72,6 +72,6 @@ export declare namespace SlcDataClient {
     };
 
     /** Load the runtime mount index from one staged root origin. */
-    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.Mounts.Doc>>;
+    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.SlcMounts.Doc>>;
   }
 }

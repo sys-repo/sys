@@ -1,6 +1,8 @@
+import { DataClient } from '../../m/m.client/mod.ts';
 import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
+export { DataClient };
 
 type P = t.Mounts.Props;
 

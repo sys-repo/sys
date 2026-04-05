@@ -1,4 +1,4 @@
-import { type t, Err, Http, Mounts, Url } from './common.ts';
+import { type t, Err, Http, SlcMounts, Url } from './common.ts';
 
 const FILE = 'mounts.json' as const;
 
@@ -20,7 +20,7 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
     };
   }
 
-  const checked = Mounts.validate(res.data);
+  const checked = SlcMounts.validate(res.data);
   if (!checked.ok) {
     return {
       ok: false,
@@ -31,5 +31,5 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
     };
   }
 
-  return { ok: true, value: res.data as t.Mounts.Doc };
+  return { ok: true, value: res.data as t.SlcMounts.Doc };
 };

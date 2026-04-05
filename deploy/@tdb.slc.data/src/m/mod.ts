@@ -1,2 +1,2 @@
-export { Mounts } from './m.Mounts/mod.ts';
+export { SlcMounts } from './m.Mounts/mod.ts';
 export { DataClient } from './m.client/mod.ts';

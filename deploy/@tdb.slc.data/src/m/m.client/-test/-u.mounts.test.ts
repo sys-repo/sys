@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from '../../../-test.ts';
-import { Mounts } from '../../m.Mounts/mod.ts';
+import { SlcMounts } from '../../m.Mounts/mod.ts';
 import { DataClient } from '../mod.ts';
 
 describe('DataClient.Mounts.load', () => {
@@ -11,7 +11,7 @@ describe('DataClient.Mounts.load', () => {
 
   it('valid doc → ok', async () => {
     globalThis.fetch = async () =>
-      new Response(Mounts.stringify({ mounts: [{ mount: 'sample-1' }] }), {
+      new Response(SlcMounts.stringify({ mounts: [{ mount: 'sample-1' }] }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       });
