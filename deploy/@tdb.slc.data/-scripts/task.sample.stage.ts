@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { SlcDataCli as Cli, type t } from '@tdb/slc-data/cli';
+import { type t, SlcDataCli as Cli } from '@tdb/slc-data/cli';
 import { runStageProfile } from '../src/fs/m.cli/u.stage.ts';
 
 /**
