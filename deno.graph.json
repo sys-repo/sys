@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775371676311,
+    "createdAt": 1775395178605,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-20f131b7d711550bc35aa8ee9496a14e1aafa676ea54a0ca9f55cf393839fe66",
+      "/graph": "sha256-e34c00a83ace93461f1a05ed3b16c13831af773e717af8a37d22330e7985de45",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.50/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.50/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775371676316
+    "modifiedAt": 1775395178615
   },
   "graph": {
     "orderedPaths": [
@@ -789,6 +789,10 @@
       {
         "from": "code/sys/http",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/http",
