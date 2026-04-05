@@ -77,7 +77,8 @@ mount: <id>       # matches: ^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$
 
 - Prefer `deno run -A jsr:@tdb/slc-data/cli create ...` over hand-authoring when creating new profiles.
 - When editing an existing profile, read the file first and preserve its intent.
-- The default mount name is `sample-1`.
+- Choose the mount name explicitly for the dataset you are staging.
+- The sample-task lane uses `sample-1`; that is not a library default.
 
 ## Verification
 
