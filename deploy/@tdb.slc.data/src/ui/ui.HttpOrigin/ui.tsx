@@ -6,6 +6,7 @@ export const HttpOrigin: t.FC<t.HttpOrigin.Props> = (props) => {
       env={props.env}
       origin={props.origin}
       spec={props.spec ?? D.spec}
+      verify={props.verify}
       debug={props.debug}
       theme={props.theme}
       style={props.style}

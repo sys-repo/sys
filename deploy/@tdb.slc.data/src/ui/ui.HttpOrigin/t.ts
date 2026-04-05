@@ -13,6 +13,7 @@ export declare namespace HttpOrigin {
     env?: t.SignalOptional<t.HttpOriginBase.Env>;
     origin?: t.SignalOptional<t.UrlTree>;
     spec?: SpecMap;
+    verify?: t.HttpOriginBase.Verify;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
