@@ -1,5 +1,4 @@
-import { type t, Err, Fs, Is, Path } from './common.ts';
-import { MountSchema } from './u.schema.ts';
+import { type t, Err, Fs, Is, Mounts, Path } from './common.ts';
 
 const FILE = 'mounts.json' as const;
 const PREFIX = 'slug-tree.';
@@ -19,7 +18,7 @@ export const MountsFs = {
 } as const;
 
 /** Collect mount entries from the staged root on disk. */
-export async function collectMounts(root: t.StringDir): Promise<t.SlcDataPipeline.Mounts.Doc> {
+export async function collectMounts(root: t.StringDir): Promise<t.Mounts.Doc> {
   const mounts = new Set<t.StringId>();
   if (!(await Fs.exists(root))) return { mounts: [] };
 
@@ -56,13 +55,13 @@ export async function collectMounts(root: t.StringDir): Promise<t.SlcDataPipelin
 /** Refresh the root mounts index from the staged root on disk. */
 export async function refreshMounts(root: t.StringDir): Promise<t.StringFile> {
   const doc = await collectMounts(root);
-  const checked = MountSchema.validate(doc);
+  const checked = Mounts.validate(doc);
   if (!checked.ok) {
-    throw new Error(`MountSchema: ${Err.summary(checked.errors)}`);
+    throw new Error(`Mounts: ${Err.summary(checked.errors)}`);
   }
 
   const path = MountsFs.path(root);
-  await Fs.write(path, MountSchema.stringify(doc));
+  await Fs.write(path, Mounts.stringify(doc));
   return path;
 }
 

@@ -10,7 +10,7 @@
  * ```
  */
 export { pkg } from './pkg.ts';
-export { SlcDataClient } from './m/m.client/mod.ts';
+export { Mounts, SlcDataClient } from './m/mod.ts';
 
 /** Package type surface. */
 export type * as t from './types.ts';
