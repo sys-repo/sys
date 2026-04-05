@@ -8,12 +8,12 @@ import { StageProfileFs } from './u.fs.ts';
 export async function runStageProfile(args: {
   cwd: t.StringDir;
   path: t.StringFile;
-}): Promise<{ readonly kind: 'staged'; readonly path: t.StringDir }> {
+}): Promise<{ readonly kind: 'staged'; readonly dir: t.StringDir }> {
   const doc = await readProfile(args.path);
   const source = resolveSource(args.cwd, doc.source);
   const target = StageProfileFs.target(args.cwd, doc.mount);
   await SlcDataPipeline.stageFolder({ source, target, mount: doc.mount });
-  return { kind: 'staged', path: target };
+  return { kind: 'staged', dir: target };
 }
 
 /**

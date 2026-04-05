@@ -56,6 +56,6 @@ export declare namespace SlcDataCli {
     export type Result =
       | { readonly kind: 'exit' }
       | { readonly kind: 'back' }
-      | { readonly kind: 'staged'; readonly path: t.StringDir };
+      | { readonly kind: 'staged'; readonly dir: t.StringDir };
   }
 }

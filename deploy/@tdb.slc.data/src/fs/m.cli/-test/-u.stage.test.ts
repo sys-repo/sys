@@ -20,10 +20,10 @@ describe('runStageProfile', () => {
       const result = await runStageProfile({ cwd, path: profilePath });
 
       expect(result.kind).to.eql('staged');
-      expect(result.path).to.eql(Fs.join(cwd, '.tmp/staging.slc-data', 'sample-1'));
-      expect(await Fs.exists(Fs.join(result.path, 'manifests', 'slug-tree.sample-1.json'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(result.path, 'manifests', 'slug-tree.sample-1.yaml'))).to.eql(true);
-      expect(await Fs.exists(Fs.join(result.path, 'manifests', 'slug-tree.sample-1.assets.json'))).to.eql(true);
+      expect(result.dir).to.eql(Fs.join(cwd, '.tmp/staging.slc-data', 'sample-1'));
+      expect(await Fs.exists(Fs.join(result.dir, 'manifests', 'slug-tree.sample-1.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(result.dir, 'manifests', 'slug-tree.sample-1.yaml'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(result.dir, 'manifests', 'slug-tree.sample-1.assets.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
