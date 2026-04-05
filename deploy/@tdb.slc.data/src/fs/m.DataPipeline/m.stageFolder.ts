@@ -1,4 +1,5 @@
-import { type t, Fs, Ignore, Path, SlugBundle, SlugTree, SlugTreeFs } from './common.ts';
+import { type t, Fs, Ignore, Json, Path, SlugBundle, SlugTree, SlugTreeFs } from './common.ts';
+import { refreshMounts } from './u.mounts.ts';
 
 export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   const source = String(args.source).trim();
@@ -26,7 +27,7 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   const assetsJson = Fs.join(manifestsDir, `slug-tree.${mountId}.assets.json`);
 
   const treeDoc = await SlugTreeFs.fromDir({ root: source });
-  await Fs.write(manifestJson, JSON.stringify(treeDoc, null, 2));
+  await Fs.write(manifestJson, `${Json.stringify(treeDoc, 2)}\n`);
   await Fs.write(manifestYaml, SlugTree.toYaml(treeDoc));
 
   const files = await readSourceFiles(source);
@@ -39,12 +40,14 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   if (!derived.ok) throw derived.error;
 
   for (const item of derived.value.sha256) {
-    await Fs.write(Fs.join(contentDir, item.filename), JSON.stringify(item.doc, null, 2));
+    await Fs.write(Fs.join(contentDir, item.filename), `${Json.stringify(item.doc, 2)}\n`);
   }
 
   if (derived.value.index) {
-    await Fs.write(assetsJson, JSON.stringify(derived.value.index, null, 2));
+    await Fs.write(assetsJson, `${Json.stringify(derived.value.index, 2)}\n`);
   }
+
+  await refreshMounts(Path.dirname(target) as t.StringDir);
 
   return {
     ok: true,

@@ -8,14 +8,18 @@ describe('SlcDataPipeline.stageFolder', () => {
     const source = Path.resolve(root, '../../../-test/sample-1');
     const dir = await Fs.makeTempDir();
     try {
-      const target = Fs.join(dir.absolute, 'out');
+      const target = Fs.join(dir.absolute, 'sample-1');
       const exists = (name: string, dir = 'manifests') => Fs.exists(Fs.join(target, dir, name));
       const result = await SlcDataPipeline.stageFolder({ source, target });
 
       expect(result.ok).to.eql(true);
+      expect(result.mount).to.eql('sample-1');
       expect(await exists('slug-tree.sample-1.json')).to.eql(true);
       expect(await exists('slug-tree.sample-1.yaml')).to.eql(true);
       expect(await exists('slug-tree.sample-1.assets.json')).to.eql(true);
+      expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
+        mounts: [{ mount: 'sample-1' }],
+      });
 
       const contentDir = Fs.join(target, 'content');
       const written: string[] = [];
@@ -38,7 +42,7 @@ describe('SlcDataPipeline.stageFolder', () => {
     const source = Path.resolve(root, '../../../-test/sample-1');
     const dir = await Fs.makeTempDir();
     try {
-      const target = Fs.join(dir.absolute, 'out');
+      const target = Fs.join(dir.absolute, 'sample-one');
       const exists = (name: string, folder = 'manifests') => Fs.exists(Fs.join(target, folder, name));
       const result = await SlcDataPipeline.stageFolder({ source, target, mount: 'sample-one' });
 
@@ -47,6 +51,33 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect(await exists('slug-tree.sample-one.yaml')).to.eql(true);
       expect(await exists('slug-tree.sample-one.assets.json')).to.eql(true);
       expect(await exists('slug-tree.sample-1.json')).to.eql(false);
+      expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
+        mounts: [{ mount: 'sample-one' }],
+      });
+    } finally {
+      await Fs.remove(dir.absolute);
+    }
+  });
+
+  it('stages sibling mounts → refreshes root mounts index', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    const source = Path.resolve(root, '../../../-test/sample-1');
+    const dir = await Fs.makeTempDir();
+    try {
+      await SlcDataPipeline.stageFolder({
+        source,
+        target: Fs.join(dir.absolute, 'sample-b'),
+        mount: 'sample-b',
+      });
+      await SlcDataPipeline.stageFolder({
+        source,
+        target: Fs.join(dir.absolute, 'sample-a'),
+        mount: 'sample-a',
+      });
+
+      expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
+        mounts: [{ mount: 'sample-a' }, { mount: 'sample-b' }],
+      });
     } finally {
       await Fs.remove(dir.absolute);
     }

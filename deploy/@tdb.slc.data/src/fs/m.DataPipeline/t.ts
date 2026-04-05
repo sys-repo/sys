@@ -12,6 +12,15 @@ export declare namespace SlcDataPipeline {
     readonly stageFolder: StageFolder.Run;
   };
 
+  /** Types for the staged root mount index document. */
+  export namespace Mounts {
+    /** One available staged mount. */
+    export type Entry = { readonly mount: t.StringId };
+
+    /** Root runtime index of available staged mounts. */
+    export type Doc = { readonly mounts: readonly Entry[] };
+  }
+
   /** Types for the stageFolder operation. */
   export namespace StageFolder {
     /** Stage one source folder into a target data directory. */
