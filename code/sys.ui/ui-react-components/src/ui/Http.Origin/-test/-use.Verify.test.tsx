@@ -82,6 +82,25 @@ describe('HttpOrigin.useVerify', () => {
       await server.dispose();
     }
   });
+
+  it('settles error when response JSON is not a valid dist manifest', async () => {
+    const server = Testing.Http.server(() => Testing.Http.json({ ok: true, kind: 'not-a-dist' }));
+    const rows: readonly t.HttpOrigin.UrlRow[] = [{ key: 'app', url: server.url.toURL().origin }];
+    const { result, unmount } = renderHook(() =>
+      useVerify({ env: 'production', rows, verify: true }),
+    );
+
+    try {
+      act(() => result.current.onVerify());
+      await waitFor(() => result.current.running === false);
+      expect(result.current.status).to.eql({ app: 'error' });
+      expect(result.current.actionLabel).to.eql('has failures');
+      expect(result.current.reserveStatusSpace).to.eql(true);
+    } finally {
+      unmount();
+      await server.dispose();
+    }
+  });
 });
 
 const SAMPLE = {
