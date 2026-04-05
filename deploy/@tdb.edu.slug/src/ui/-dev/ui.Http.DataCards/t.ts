@@ -14,7 +14,7 @@ export type DataCardRefState = {
 };
 
 /** DataCards signal bag (ActionProbe + card domain state). */
-export type DataCardSignalsProps = t.ActionProbeSignalProps & {
+export type DataCardSignalsProps = t.ActionProbe.SignalProps & {
   readonly selectionList: {
     readonly totalVisible: t.Signal<number | 'all' | undefined>;
   };
@@ -27,13 +27,13 @@ export type DataCardSignalsDefaults = {
   readonly totalVisible?: number | 'all';
   readonly treeContent?: { readonly ref?: string; readonly refs?: string[] };
   readonly treePlayback?: { readonly ref?: string; readonly refs?: string[] };
-  readonly action?: Parameters<t.ActionProbeSignalsFactory>[0];
+  readonly action?: Parameters<t.ActionProbe.SignalsFactory>[0];
   readonly persist?: t.ImmutableRef<t.JsonMapU>;
   readonly persistKey?: string;
 };
 
 /** Runtime API returned by `DataCards.createSignals`. */
-export type DataCardSignals = t.ActionProbeSignals & {
+export type DataCardSignals = t.ActionProbe.Signals & {
   readonly props: DataCardSignalsProps;
 };
 

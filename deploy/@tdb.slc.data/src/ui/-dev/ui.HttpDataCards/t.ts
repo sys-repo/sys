@@ -13,7 +13,7 @@ export declare namespace HttpDataCards {
     readonly refs: t.Signal<string[] | undefined>;
   };
 
-  export type SignalsProps = t.ActionProbeSignalProps & {
+  export type SignalsProps = t.ActionProbe.SignalProps & {
     readonly selectionList: {
       readonly totalVisible: t.Signal<number | 'all' | undefined>;
     };
@@ -23,12 +23,12 @@ export declare namespace HttpDataCards {
   export type SignalsDefaults = {
     readonly totalVisible?: number | 'all';
     readonly treeContent?: { readonly ref?: string; readonly refs?: string[] };
-    readonly action?: Parameters<t.ActionProbeSignalsLib['create']>[0];
+    readonly action?: Parameters<t.ActionProbe.SignalsLib['create']>[0];
     readonly persist?: t.ImmutableRef<t.JsonMapU>;
     readonly persistKey?: string;
   };
 
-  export type Signals = t.ActionProbeSignals & {
+  export type Signals = t.ActionProbe.Signals & {
     readonly props: SignalsProps;
   };
 

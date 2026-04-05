@@ -5,7 +5,7 @@ import { Renderer } from '../m.Renderer.tsx';
 type Env = { readonly kind: 'demo' };
 type ProbeNode = {
   key: string | null;
-  props: { onRunStart?: (args?: t.ActionProbeRunStartArgs) => void; runRequest?: unknown };
+  props: { onRunStart?: (args?: t.ActionProbe.RunStartArgs) => void; runRequest?: unknown };
 };
 const sample: t.ActionProbe.ProbeSpec<Env> = {
   title: 'Test',

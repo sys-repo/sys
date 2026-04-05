@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type * as TSignals from './t.signals.ts';
 
 type O = Record<string, unknown>;
 
@@ -14,12 +15,26 @@ export type * from './t.signals.ts';
  * with host-owned lifecycle state and shared result rendering.
  */
 export namespace ActionProbe {
+  /**
+   * Signals:
+   */
+  export type SignalsLib = TSignals.ActionProbe.SignalsLib;
+  export type SignalsFactory = TSignals.ActionProbe.SignalsFactory;
+  export type SignalsCreateArgs<TPersist extends t.JsonMapU = t.JsonMapU> =
+    TSignals.ActionProbe.SignalsCreateArgs<TPersist>;
+  export type Signals = TSignals.ActionProbe.Signals;
+  export type ResultSnapshot = TSignals.ActionProbe.ResultSnapshot;
+  export type RunStartArgs = TSignals.ActionProbe.RunStartArgs;
+  export type RunHandlers = TSignals.ActionProbe.RunHandlers;
+  export type SignalProps = TSignals.ActionProbe.SignalProps;
+  export type SignalsState = TSignals.ActionProbe.SignalsState;
+
   /** Public ActionProbe module surface (components, signals, and renderer helpers). */
   export type Lib = {
     readonly Probe: t.ActionProbe.ProbeComponent;
     readonly Result: t.FC<t.ActionProbe.ResultProps>;
-    readonly Signals: t.ActionProbeSignalsLib;
-    readonly signals: t.ActionProbeSignalsLib['create'];
+    readonly Signals: t.ActionProbe.SignalsLib;
+    readonly signals: t.ActionProbe.SignalsLib['create'];
     readonly Renderer: t.ActionProbeRendererLib;
     readonly renderer: t.ActionProbeRendererLib['create'];
   };

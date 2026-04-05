@@ -1,7 +1,7 @@
 import { type t, Is, Signal } from './common.ts';
 import { Persist } from './m.Signals.persist.ts';
 
-const defaults: t.ActionProbeSignalsState = {
+const defaults: t.ActionProbe.SignalsState = {
   spinning: false,
   probe: { active: undefined, focused: undefined },
   result: {
@@ -14,7 +14,7 @@ const defaults: t.ActionProbeSignalsState = {
   },
 };
 
-export const Signals: t.ActionProbeSignalsLib = {
+export const Signals: t.ActionProbe.SignalsLib = {
   create<TPersist extends t.JsonMapU = t.JsonMapU>(input = {}) {
     const args = wrangle.createArgs<TPersist>(input);
     const inputDefaults = args.defaults ?? {};
@@ -22,7 +22,7 @@ export const Signals: t.ActionProbeSignalsLib = {
     const persistSlot = Persist.slot(args.persistKey);
     const persistedVisible = Persist.readVisible(persist, persistSlot);
 
-    const initial: t.ActionProbeSignalsState = {
+    const initial: t.ActionProbe.SignalsState = {
       spinning: inputDefaults.spinning ?? defaults.spinning,
       probe: {
         active: inputDefaults.probe?.active ?? defaults.probe.active,
@@ -40,7 +40,7 @@ export const Signals: t.ActionProbeSignalsLib = {
 
     const s = Signal.create;
     const probeTitles: Record<string, t.ReactNode | undefined> = {};
-    const props: t.ActionProbeSignalProps = {
+    const props: t.ActionProbe.SignalProps = {
       spinning: s(initial.spinning),
       probe: {
         active: s(initial.probe.active),
@@ -56,13 +56,13 @@ export const Signals: t.ActionProbeSignalsLib = {
       },
     };
 
-    const snapshot = (probe: string): t.ActionProbeResultSnapshot | undefined => {
+    const snapshot = (probe: string): t.ActionProbe.ResultSnapshot | undefined => {
       return props.result.byProbe.value[probe];
     };
     const patchSnapshot = (
       probe: string,
-      next: Partial<t.ActionProbeResultSnapshot>,
-    ): t.ActionProbeResultSnapshot => {
+      next: Partial<t.ActionProbe.ResultSnapshot>,
+    ): t.ActionProbe.ResultSnapshot => {
       const current = snapshot(probe) ?? {
         title: undefined,
         items: [],
@@ -73,14 +73,14 @@ export const Signals: t.ActionProbeSignalsLib = {
       props.result.byProbe.value = { ...props.result.byProbe.value, [probe]: patched };
       return patched;
     };
-    const project = (next: t.ActionProbeResultSnapshot) => {
+    const project = (next: t.ActionProbe.ResultSnapshot) => {
       props.result.title.value = next.title;
       props.result.items.value = next.items;
       props.result.response.value = next.response;
       props.result.obj.value = next.obj;
     };
 
-    const api: t.ActionProbeSignals = {
+    const api: t.ActionProbe.Signals = {
       get props() {
         return props;
       },
@@ -183,15 +183,15 @@ export const Signals: t.ActionProbeSignalsLib = {
 
 const wrangle = {
   createArgs<TPersist extends t.JsonMapU>(
-    input: Partial<t.ActionProbeSignalsState> | t.ActionProbeSignalsCreateArgs<TPersist>,
-  ): t.ActionProbeSignalsCreateArgs<TPersist> {
+    input: Partial<t.ActionProbe.SignalsState> | t.ActionProbe.SignalsCreateArgs<TPersist>,
+  ): t.ActionProbe.SignalsCreateArgs<TPersist> {
     if (!wrangle.isCreateArgs(input)) return { defaults: input };
     return input;
   },
 
   isCreateArgs<TPersist extends t.JsonMapU>(
     input: unknown,
-  ): input is t.ActionProbeSignalsCreateArgs<TPersist> {
+  ): input is t.ActionProbe.SignalsCreateArgs<TPersist> {
     if (!Is.object(input)) return false;
     return 'defaults' in input || 'persist' in input || 'persistKey' in input;
   },

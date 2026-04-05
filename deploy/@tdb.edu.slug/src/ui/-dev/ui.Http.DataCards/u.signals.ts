@@ -49,7 +49,7 @@ export function createSignals(
 }
 
 const wrangle = {
-  actionInput(input: t.DataCardSignalsDefaults): Parameters<t.ActionProbeSignalsFactory>[0] {
+  actionInput(input: t.DataCardSignalsDefaults): Parameters<t.ActionProbe.SignalsFactory>[0] {
     const action = input.action;
     const hasPersist = input.persist !== undefined || input.persistKey !== undefined;
     if (!hasPersist) return action;
@@ -72,7 +72,7 @@ const wrangle = {
   isCreateArgs(
     input: unknown,
   ): input is {
-    readonly defaults?: Partial<t.ActionProbeSignalsState>;
+    readonly defaults?: Partial<t.ActionProbe.SignalsState>;
     readonly persist?: t.ImmutableRef<t.JsonMapU>;
     readonly persistKey?: string;
   } {

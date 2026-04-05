@@ -8,7 +8,7 @@ type Args<TEnv extends EnvObject, TParams extends ParamsObject> = {
   run?: t.ActionProbe.ProbeRun<TEnv, TParams>;
   env: TEnv;
   getParams: <T = TParams>() => Readonly<T> | undefined;
-  onRunStart?: (args?: t.ActionProbeRunStartArgs) => void;
+  onRunStart?: (args?: t.ActionProbe.RunStartArgs) => void;
   onRunTitle?: (title: t.ReactNode) => void;
   onRunEnd?: () => void;
   onRunItem?: (item: t.KeyValueItem) => void;
