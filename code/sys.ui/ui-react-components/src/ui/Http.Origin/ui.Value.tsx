@@ -33,7 +33,7 @@ export const Value: React.FC<ValueProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: showStatusSlot ? '1fr auto' : '1fr',
       alignItems: 'center',
-      columnGap: showStatusSlot ? 8 : 0,
+      columnGap: showStatusSlot ? 3 : 0,
       minWidth: 0,
       opacity,
       transition: isRunning ? 'opacity 800ms ease-in-out' : 'opacity 120ms ease',
@@ -65,6 +65,6 @@ export const Value: React.FC<ValueProps> = (props) => {
 
 function renderStatusIcon(props: ValueProps) {
   if (props.status === 'ok') return <Icons.Check size={12} color={Color.GREEN} />;
-  if (props.status === 'error') return <Icons.Error.Solid size={12} color={Color.RED} />;
+  if (props.status === 'error') return <Icons.Close size={12} color={Color.RED} />;
   return null;
 }
