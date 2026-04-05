@@ -7,12 +7,14 @@ import React from 'react';
 
 import type * as t from '@sys/types';
 import { Color, css } from '@sys/ui-css';
+import { useKeyboard as useDevKeyboard } from '@sys/ui-react-devharness';
 import { HttpOrigin } from '../ui/mod.ts';
 
 export type SplashProps = { theme?: t.CommonTheme };
 
 export const Splash: React.FC<SplashProps> = (props) => {
   const {} = props;
+  useDevKeyboard();
 
   const theme = Color.theme(props.theme ?? 'Dark');
   const styles = {
