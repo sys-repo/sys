@@ -18,6 +18,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./cli": "./src/fs/m.cli/mod.ts",
     "./dev": "./src/ui/-dev/mod.ts",
     "./dev/t": "./src/ui/-dev/t.ts",
     "./fs": "./src/fs/mod.ts",
@@ -42,11 +43,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname"]
       }
     }
   }
