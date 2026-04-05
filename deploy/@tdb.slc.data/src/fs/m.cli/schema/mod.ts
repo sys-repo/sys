@@ -7,7 +7,7 @@ const MOUNT_PATTERN = '^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$';
  */
 export const StageProfileSchema = {
   /** Create the initial stage profile document. */
-  initial(mount = 'sample-1' as t.StringId): t.SlcDataCli.StageProfile.Doc {
+  initial(mount: t.StringId): t.SlcDataCli.StageProfile.Doc {
     return { source: '.', mount };
   },
 
@@ -24,7 +24,7 @@ export const StageProfileSchema = {
   },
 
   /** Serialize the initial stage profile document to YAML. */
-  initialYaml(mount = 'sample-1' as t.StringId): string {
+  initialYaml(mount: t.StringId): string {
     return StageProfileSchema.stringify(StageProfileSchema.initial(mount));
   },
 

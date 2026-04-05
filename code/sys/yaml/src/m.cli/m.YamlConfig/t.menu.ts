@@ -5,7 +5,7 @@ export type YamlConfigMenuActionBase = 'back' | 'delete' | 'edit' | 'rename' | '
 
 /** Schema helpers injected by the caller. */
 export type YamlConfigSchema<T> = {
-  init: () => T;
+  init?: () => T;
   validate: (value: unknown) => { ok: boolean; errors: readonly unknown[] };
   stringifyYaml?: (doc: T) => string;
 };
@@ -90,7 +90,7 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
     /** Name validation hook. */
     validate?: (value: string) => boolean | string | Promise<boolean | string>;
     /** Initial YAML rendering hook. */
-    initYaml?: (args: { name: string; doc: T }) => string;
+    initYaml?: (args: { name: string; doc?: T }) => string;
   };
 };
 

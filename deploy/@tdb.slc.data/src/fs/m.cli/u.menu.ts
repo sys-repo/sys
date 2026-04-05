@@ -1,6 +1,6 @@
 import { c, Cli, type t, YamlConfig } from './common.ts';
 import { StageProfileSchema } from './schema/mod.ts';
-import { StageProfileFs } from './u.fs.ts';
+import { StageProfilePaths } from './u.fs.ts';
 import { MountName } from './u.is.ts';
 import { runStageProfile } from './u.stage.ts';
 
@@ -8,7 +8,6 @@ type Action = 'stage';
 const ACTION_WIDTH = 'stage'.length;
 
 const schema = {
-  init: () => StageProfileSchema.initial(),
   validate: (value: unknown) => StageProfileSchema.validate(value),
   stringifyYaml: (doc: t.SlcDataCli.StageProfile.Doc) => StageProfileSchema.stringify(doc),
 } as const;
@@ -16,11 +15,11 @@ const schema = {
 /**
  * Interactive menu for staging SLC data profiles.
  */
-export async function menu(cwd: t.StringDir): Promise<t.SlcDataCli.Menu.Result> {
+export async function menu(cwd: t.StringDir, target?: t.StringDir): Promise<t.SlcDataCli.Menu.Result> {
   const res = await YamlConfig.menu<t.SlcDataCli.StageProfile.Doc, Action>({
     cwd,
-    dir: StageProfileFs.dir,
-    ext: StageProfileFs.ext,
+    dir: StageProfilePaths.dir,
+    ext: StageProfilePaths.ext,
     label: 'Staging profiles',
     itemLabel: 'stage',
     addLabel: '  add: <profile>',
@@ -55,5 +54,5 @@ export async function menu(cwd: t.StringDir): Promise<t.SlcDataCli.Menu.Result> 
   if (res.kind === 'back') return { kind: 'back' };
   if (res.kind !== 'action' || res.action !== 'stage') return { kind: 'back' };
 
-  return runStageProfile({ cwd, path: res.path });
+  return runStageProfile({ cwd, path: res.path, target });
 }

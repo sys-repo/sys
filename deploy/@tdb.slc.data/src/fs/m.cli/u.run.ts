@@ -14,9 +14,10 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
   const cwd = input.cwd ?? Deno.cwd() as t.StringDir;
   const argv = [...(input.argv ?? Deno.args)];
   const args = parseArgs(argv);
+  const target = args.target ?? input.target;
 
   if (args.help) return { kind: 'help', text: FmtHelp.output() };
-  if (!args.command) return menu(cwd);
+  if (!args.command) return menu(cwd, target);
 
   const profile = args.profile;
   if (!profile) throw new Error(`Missing --profile for '${args.command}'`);
@@ -27,14 +28,14 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
     return runCreateProfile({ cwd, profile, source });
   }
 
-  return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile) });
+  return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile), target });
 }
 
 function parseArgs(argv: string[]): t.SlcDataCli.Args {
   const args = Args.parse<Omit<t.SlcDataCli.Args, 'command'>>(argv, {
     alias: { h: 'help' },
     boolean: ['help'],
-    string: ['profile', 'source'],
+    string: ['profile', 'source', 'target'],
   });
   const head = args._[0];
   const command = isCommand(head) ? head : undefined;

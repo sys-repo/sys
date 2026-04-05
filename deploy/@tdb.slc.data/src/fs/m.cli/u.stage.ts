@@ -8,10 +8,13 @@ import { StageProfileFs } from './u.fs.ts';
 export async function runStageProfile(args: {
   cwd: t.StringDir;
   path: t.StringFile;
+  target?: t.StringDir;
 }): Promise<{ readonly kind: 'staged'; readonly dir: t.StringDir }> {
   const doc = await readProfile(args.path);
   const source = resolveSource(args.cwd, doc.source);
-  const target = StageProfileFs.target(args.cwd, doc.mount);
+  const target = args.target
+    ? Fs.join(args.target, doc.mount) as t.StringDir
+    : StageProfileFs.target(args.cwd, doc.mount);
   await SlcDataPipeline.stageFolder({ source, target, mount: doc.mount });
   return { kind: 'staged', dir: target };
 }
@@ -19,7 +22,7 @@ export async function runStageProfile(args: {
 /**
  * Helpers:
  */
-async function readProfile(path: t.StringFile): Promise<t.SlcDataCli.StageProfile.Doc> {
+export async function readProfile(path: t.StringFile): Promise<t.SlcDataCli.StageProfile.Doc> {
   const raw = String((await Fs.readText(path)).data ?? '').trim();
   const parsed = Yaml.parse<unknown>(raw);
   if (parsed.error) throw parsed.error;

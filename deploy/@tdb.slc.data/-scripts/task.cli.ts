@@ -1,10 +1,7 @@
 import { SlcDataCli } from '@tdb/slc-data/cli';
 
-const result = await SlcDataCli.run({ cwd: Deno.cwd(), argv: Deno.args });
-if (result.kind === 'help') {
-  console.info(result.text);
-  console.info();
-} else {
-  console.info(result);
-  console.info();
-}
+const cwd = Deno.cwd();
+const result = await SlcDataCli.run({ cwd, argv: Deno.args, target: `${cwd}/public/data` });
+
+console.info(result.kind === 'help' ? result.text : result);
+console.info();

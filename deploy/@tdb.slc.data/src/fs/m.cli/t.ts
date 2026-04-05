@@ -24,6 +24,7 @@ export declare namespace SlcDataCli {
   export type Input = {
     readonly cwd?: t.StringDir;
     readonly argv?: readonly string[];
+    readonly target?: t.StringDir;
   };
 
   /** Supported non-interactive subcommands. */
@@ -35,6 +36,7 @@ export declare namespace SlcDataCli {
     readonly help?: boolean;
     readonly profile?: t.StringId;
     readonly source?: t.StringPath;
+    readonly target?: t.StringDir;
     readonly command?: Command;
   };
 
@@ -69,6 +71,7 @@ export declare namespace SlcDataCli {
     export type Stage = (args: {
       readonly cwd: t.StringDir;
       readonly profile: t.StringId;
+      readonly target?: t.StringDir;
     }) => Promise<StageResult>;
 
     /** Result from staging one profile. */
@@ -80,30 +83,27 @@ export declare namespace SlcDataCli {
 
   /** Filesystem facts for stage profile config files. */
   export type StageProfileFs = {
-    readonly root: t.StringPath;
-    readonly dir: t.StringPath;
-    readonly ext: t.StringPath;
-    readonly defaultName: string;
-    readonly targetDir: t.StringPath;
+    readonly configDir: (cwd: t.StringDir) => t.StringDir;
+    readonly targetRoot: (cwd: t.StringDir) => t.StringDir;
     readonly target: (cwd: t.StringDir, mount: t.StringId) => t.StringDir;
     readonly path: (cwd: t.StringDir, profile: t.StringId) => t.StringFile;
   };
 
   /** Schema helpers for stage profile documents. */
   export type StageProfileSchema = {
-    readonly initial: (mount?: t.StringId) => StageProfile.Doc;
+    readonly initial: (mount: t.StringId) => StageProfile.Doc;
     readonly validate: (value: unknown) => {
       readonly ok: boolean;
       readonly errors: readonly t.ValueError[];
     };
     readonly stringify: (doc: StageProfile.Doc) => string;
-    readonly initialYaml: (mount?: t.StringId) => string;
+    readonly initialYaml: (mount: t.StringId) => string;
   };
 
   /** Interactive staging menu. */
   export namespace Menu {
     /** Run the staging menu from a working directory. */
-    export type Run = (cwd: t.StringDir) => Promise<Result>;
+    export type Run = (cwd: t.StringDir, target?: t.StringDir) => Promise<Result>;
 
     /** Result from a staging menu session. */
     export type Result =

@@ -3,10 +3,10 @@ import { StageProfileSchema } from '../schema/mod.ts';
 
 describe('StageProfileSchema', () => {
   it('initializes a valid stage profile', () => {
-    const doc = StageProfileSchema.initial();
+    const doc = StageProfileSchema.initial('my-data');
     const checked = StageProfileSchema.validate(doc);
 
-    expect(doc).to.eql({ mount: 'sample-1', source: '.' });
+    expect(doc).to.eql({ mount: 'my-data', source: '.' });
     expect(checked.ok).to.eql(true);
   });
 

@@ -1,4 +1,5 @@
 import { type t, BulletList, Color, css, D, Signal } from './common.ts';
+import { Empty } from './ui.Empty.tsx';
 import { useController } from './use.Controller.ts';
 
 export const Mounts: t.FC<t.Mounts.Props> = (props) => {
@@ -14,7 +15,6 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
     base: css({
       backgroundColor: Color.ruby(0),
       color: theme.fg,
-      padding: 10,
       display: 'grid',
       rowGap: 8,
       lineHeight: 1.6,
@@ -22,15 +22,18 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
     meta: css({ opacity: 0.6, fontSize: 12 }),
   };
   const items = toRows(state.mounts.value ?? []);
+  const is = {
+    loading: state.loading.value,
+    error: Boolean(state.error.value),
+    empty: items.length === 0,
+    ready: items.length > 0,
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      {state.loading.value && <div className={styles.meta.class}>Loading mounts...</div>}
-      {!state.loading.value && state.error.value && <div className={styles.meta.class}>{state.error.value}</div>}
-      {!state.loading.value && !state.error.value && items.length === 0 && (
-        <div className={styles.meta.class}>No mounts found.</div>
-      )}
-      {items.length > 0 && (
+      {is.loading && <div className={styles.meta.class}>Loading mounts...</div>}
+      {!is.loading && !is.ready && <Empty theme={theme.name} style={styles.meta} error={state.error.value} />}
+      {is.ready && (
         <BulletList.UI
           theme={theme.name}
           selected={state.selected.value}

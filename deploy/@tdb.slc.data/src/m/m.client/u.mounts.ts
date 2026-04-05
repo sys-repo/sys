@@ -1,6 +1,7 @@
 import { type t, Err, Http, SlcMounts, Url } from './common.ts';
 
 const FILE = 'mounts.json' as const;
+const EMPTY: t.SlcMounts.Doc = { mounts: [] };
 
 export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
   const fetch = Http.fetcher();
@@ -8,6 +9,7 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
   const res = await fetch.json<unknown>(url);
 
   if (!res.ok) {
+    if (wrangle.isEmpty(res)) return { ok: true, value: EMPTY };
     return {
       ok: false,
       error: {
@@ -33,3 +35,14 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
 
   return { ok: true, value: res.data as t.SlcMounts.Doc };
 };
+
+const wrangle = {
+  isEmpty(res: t.FetchResponse<unknown>) {
+    const url = res.url ?? '';
+    const isMountIndex = url.endsWith('/mounts.json');
+    const isLocalhost = url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1');
+    if (res.status === 404 && isMountIndex) return true;
+    if (res.status === 520 && isMountIndex && isLocalhost) return true;
+    return false;
+  },
+} as const;

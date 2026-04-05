@@ -17,17 +17,20 @@ export const FmtHelp = {
         `${toolname}`,
         `${toolname} create --profile <name> --source <path>`,
         `${toolname} stage --profile <name>`,
+        `${toolname} stage --profile <name> --target <dir>`,
       ],
       options: [
         ['-h, --help', 'show help'],
         ['--profile <name>', 'config file to use'],
         ['--source  <path>', 'source folder to stage'],
+        ['--target  <dir>', 'stage into <dir>/<mount> instead of the default root'],
       ] as const,
       examples: [
         `${toolname}`,
         `${toolname} --help`,
         `${toolname} create --profile my-data --source ./path/to/source`,
         `${toolname} stage  --profile my-data`,
+        `${toolname} stage  --profile my-data --target ./public/data`,
       ],
     } as const;
   },

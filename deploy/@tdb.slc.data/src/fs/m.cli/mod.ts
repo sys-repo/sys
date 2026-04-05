@@ -24,8 +24,8 @@ export const SlcDataCli: t.SlcDataCli.Lib = {
       return StageProfileFs.path(cwd, profile);
     },
     create: runCreateProfile,
-    stage({ cwd, profile }) {
-      return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile) });
+    stage({ cwd, profile, target }) {
+      return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile), target });
     },
   },
 };
