@@ -1,16 +1,19 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 import { Button, ObjectView } from './common.ts';
+import { HttpOrigin } from '../mod.ts';
 
 type P = t.HttpOrigin.Props;
 type Storage = {
   debug?: P['debug'];
   theme?: P['theme'];
   env?: t.HttpOriginBase.Env;
+  integrity?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   env: 'localhost',
+  integrity: true,
   theme: 'Dark',
 };
 
@@ -31,6 +34,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     env: s(snap.env),
+    integrity: s(snap.integrity ?? false),
     origin: s<t.UrlTree | undefined>(undefined),
     theme: s(snap.theme),
   };
@@ -54,6 +58,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.env = p.env.value;
       d.debug = p.debug.value;
+      d.integrity = p.integrity.value;
     });
   });
 
@@ -82,7 +87,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme();
+  const theme = Color.theme('Light');
   const styles = {
     base: css({ color: theme.fg }),
     vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
@@ -104,9 +109,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `env: ${v.env ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.HttpOriginBase.Env>(p.env, ['localhost', 'production'])}
       />
+      <Button
+        block
+        label={() => `integrity: ${p.integrity.value}`}
+        onClick={() => Signal.toggle(p.integrity)}
+      />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+
+      <hr style={{ margin: '15px 0 20px 0' }} />
+      <HttpOrigin.UI.Controlled
+        env={p.env}
+        origin={p.origin}
+        verify={v.integrity ? true : undefined}
+        debug={v.debug}
+        theme={theme.name}
+      />
     </div>
   );
 };

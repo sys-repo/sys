@@ -20,6 +20,7 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-1' }],
       });
+      expect(await Fs.exists(Fs.join(dir.absolute, 'dist.json'))).to.eql(true);
 
       const contentDir = Fs.join(target, 'content');
       const written: string[] = [];
@@ -54,6 +55,7 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-one' }],
       });
+      expect(await Fs.exists(Fs.join(dir.absolute, 'dist.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -78,6 +80,7 @@ describe('SlcDataPipeline.stageFolder', () => {
       expect((await Fs.readJson(Fs.join(dir.absolute, 'mounts.json'))).data).to.eql({
         mounts: [{ mount: 'sample-a' }, { mount: 'sample-b' }],
       });
+      expect(await Fs.exists(Fs.join(dir.absolute, 'dist.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }

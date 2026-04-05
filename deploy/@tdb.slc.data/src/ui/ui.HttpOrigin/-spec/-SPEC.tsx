@@ -9,7 +9,15 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <HttpOrigin.UI.Controlled env={p.env} origin={p.origin} debug={v.debug} theme={v.theme} />;
+    return (
+      <HttpOrigin.UI.Controlled
+        env={p.env}
+        origin={p.origin}
+        verify={v.integrity ? true : undefined}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {
@@ -24,6 +32,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
+    ctx.debug.width(450);
     ctx.subject
       .size([420, null])
       .display('grid')

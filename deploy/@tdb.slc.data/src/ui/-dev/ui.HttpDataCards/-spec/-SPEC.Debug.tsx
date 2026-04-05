@@ -15,7 +15,7 @@ import {
 } from './common.ts';
 
 const LOCAL_SPEC = {
-  localhost: { proxy: 'http://localhost:1234/data/', cdn: HttpOriginRoutes.origin.localhost.cdn },
+  localhost: HttpOriginRoutes.origin.localhost,
   production: HttpOriginRoutes.origin.production,
 } satisfies t.HttpOrigin.SpecMap;
 
@@ -24,12 +24,14 @@ type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   env?: t.HttpOriginBase.Env;
+  integrity?: boolean;
   dataset?: t.StringId;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   env: 'production',
+  integrity: false,
   dataset: 'sample-1',
 };
 
@@ -55,6 +57,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
+    integrity: s(snap.integrity ?? false),
     origin: s<t.UrlTree | undefined>(undefined),
     dataset: s(snap.dataset),
   };
@@ -78,6 +81,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
+      d.integrity = p.integrity.value;
       d.dataset = p.dataset.value;
     });
   });
@@ -121,9 +125,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         env={p.env}
         origin={p.origin}
         spec={LOCAL_SPEC}
-        verify
+        verify={v.integrity ? true : undefined}
         theme={theme.name}
         style={{ MarginY: 20 }}
+      />
+      <Button
+        block
+        theme={theme.name}
+        label={() => `integrity: ${v.integrity}`}
+        onClick={() => Signal.toggle(p.integrity)}
       />
       {origin && <div className={Styles.title.class}>{'Mounts'}</div>}
       {origin && (

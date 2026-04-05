@@ -4,7 +4,7 @@ export const Routes = {
   domain: 'socialleancanvas.com',
   origin: {
     localhost: {
-      proxy: 'http://localhost:8080/data/',
+      proxy: 'http://localhost:1234/data/',
       cdn: 'http://localhost:4040/slc-data/',
     },
     production: {
