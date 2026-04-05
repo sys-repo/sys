@@ -3,7 +3,7 @@ import { describe, expect, it } from '../../src/-test.ts';
 import { run } from '../task.sample.create.ts';
 
 describe('task.sample.create', () => {
-  it('writes the sample profile yaml into the stage config dir', async () => {
+  it('writes the sample profile yaml into the package config root', async () => {
     const dir = await Fs.makeTempDir();
 
     try {
@@ -13,9 +13,11 @@ describe('task.sample.create', () => {
       const yaml = String(read.data ?? '');
 
       expect(result.kind).to.eql('created');
-      expect(result.path).to.eql(Fs.join(cwd, '-config/@tdb.slc-data/stage/sample-1.yaml'));
+      expect(result.path).to.eql(Fs.join(cwd, '-config/@tdb.slc-data/sample-1.yaml'));
+      expect(yaml.includes('mappings:')).to.eql(true);
+      expect(yaml.includes('mount: sample-one')).to.eql(true);
+      expect(yaml.includes('mount: sample-two')).to.eql(true);
       expect(yaml.includes('source: ./src/-test/sample-1')).to.eql(true);
-      expect(yaml.includes('mount: sample-1')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }

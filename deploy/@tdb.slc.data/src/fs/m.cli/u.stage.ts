@@ -1,5 +1,6 @@
-import { type t, Err, Fs, Path, SlcDataPipeline, Yaml } from './common.ts';
+import { type t, Fs, Path, SlcDataPipeline, Yaml } from './common.ts';
 import { StageProfileSchema } from './schema/mod.ts';
+import { Fmt } from './u.fmt.ts';
 import { StageProfileFs } from './u.fs.ts';
 
 /**
@@ -9,14 +10,29 @@ export async function runStageProfile(args: {
   cwd: t.StringDir;
   path: t.StringFile;
   target?: t.StringDir;
+}): Promise<t.SlcDataCli.StageProfile.StageResult> {
+  const doc = await readProfile(args.path);
+  const dirs: t.StringDir[] = [];
+
+  for (const mapping of doc.mappings) {
+    const dir = await stageMapping({ cwd: args.cwd, mapping, target: args.target });
+    dirs.push(dir);
+  }
+
+  return { kind: 'staged', dirs };
+}
+
+export async function runStageProfileMapping(args: {
+  cwd: t.StringDir;
+  path: t.StringFile;
+  index: number;
+  target?: t.StringDir;
 }): Promise<{ readonly kind: 'staged'; readonly dir: t.StringDir }> {
   const doc = await readProfile(args.path);
-  const source = resolveSource(args.cwd, doc.source);
-  const target = args.target
-    ? Fs.join(args.target, doc.mount) as t.StringDir
-    : StageProfileFs.target(args.cwd, doc.mount);
-  await SlcDataPipeline.stageFolder({ source, target, mount: doc.mount });
-  return { kind: 'staged', dir: target };
+  const mapping = doc.mappings[args.index];
+  if (!mapping) throw new Error(`Stage mapping index out of range: ${args.index}`);
+  const dir = await stageMapping({ cwd: args.cwd, mapping, target: args.target });
+  return { kind: 'staged', dir };
 }
 
 /**
@@ -29,10 +45,23 @@ export async function readProfile(path: t.StringFile): Promise<t.SlcDataCli.Stag
   const doc = parsed.data;
   const validation = StageProfileSchema.validate(doc);
   if (!validation.ok) {
-    const detail = validation.errors.map((err) => Err.summary(err)).join(', ');
+    const detail = Fmt.validationErrors(validation.errors);
     throw new Error(`Invalid stage profile: ${path}${detail ? ` (${detail})` : ''}`);
   }
   return doc as t.SlcDataCli.StageProfile.Doc;
+}
+
+async function stageMapping(args: {
+  cwd: t.StringDir;
+  mapping: t.SlcDataCli.StageProfile.Mapping;
+  target?: t.StringDir;
+}): Promise<t.StringDir> {
+  const source = resolveSource(args.cwd, args.mapping.source);
+  const target = args.target
+    ? (Fs.join(args.target, args.mapping.mount) as t.StringDir)
+    : StageProfileFs.target(args.cwd, args.mapping.mount);
+  await SlcDataPipeline.stageFolder({ source, target, mount: args.mapping.mount });
+  return target;
 }
 
 function resolveSource(cwd: t.StringDir, source: t.StringPath): t.StringPath {

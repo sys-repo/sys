@@ -8,7 +8,9 @@ const MOUNT_PATTERN = '^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$';
 export const StageProfileSchema = {
   /** Create the initial stage profile document. */
   initial(mount: t.StringId): t.SlcDataCli.StageProfile.Doc {
-    return { source: '.', mount };
+    return {
+      mappings: [{ mount, source: '.' }],
+    };
   },
 
   /** Validate a stage profile document. */
@@ -31,8 +33,16 @@ export const StageProfileSchema = {
   /** JsonSchema for stage profile documents. */
   schema: Schema.Type.Object(
     {
-      source: Schema.Type.String(),
-      mount: Schema.Type.String({ pattern: MOUNT_PATTERN }),
+      mappings: Schema.Type.Array(
+        Schema.Type.Object(
+          {
+            mount: Schema.Type.String({ pattern: MOUNT_PATTERN }),
+            source: Schema.Type.String(),
+          },
+          { additionalProperties: false },
+        ),
+        { minItems: 1 },
+      ),
     },
     { additionalProperties: false },
   ),

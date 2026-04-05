@@ -20,16 +20,19 @@ describe('task.sample.stage', () => {
 
       await runCreate({ cwd });
       const result = await runStage({ cwd, profile: 'sample-1' });
-      const toPath = (path: string) => Fs.join(result.dir, path);
       const publicData = Fs.join(cwd, SAMPLE_DATA_DIR);
 
       expect(result.kind).to.eql('staged');
-      expect(result.dir).to.eql(Fs.join(cwd, SAMPLE_DATA_DIR, 'sample-1'));
-      expect(await Fs.exists(toPath('manifests/slug-tree.sample-1.json'))).be.true;
-      expect(await Fs.exists(toPath('manifests/slug-tree.sample-1.yaml'))).be.true;
-      expect(await Fs.exists(toPath('manifests/slug-tree.sample-1.assets.json'))).be.true;
+      expect(result.dirs).to.eql([
+        Fs.join(cwd, SAMPLE_DATA_DIR, 'sample-one'),
+        Fs.join(cwd, SAMPLE_DATA_DIR, 'sample-two'),
+      ]);
+      const toPath = (dir: string, path: string) => Fs.join(dir, path);
+      expect(await Fs.exists(toPath(result.dirs[0], 'manifests/slug-tree.sample-one.json'))).be.true;
+      expect(await Fs.exists(toPath(result.dirs[1], 'manifests/slug-tree.sample-two.json'))).be.true;
       expect(await Fs.exists(Fs.join(publicData, 'mounts.json'))).be.true;
-      expect(await Fs.exists(Fs.join(publicData, 'sample-1', 'manifests', 'slug-tree.sample-1.json'))).be.true;
+      expect(await Fs.exists(Fs.join(publicData, 'sample-one', 'manifests', 'slug-tree.sample-one.json'))).be.true;
+      expect(await Fs.exists(Fs.join(publicData, 'sample-two', 'manifests', 'slug-tree.sample-two.json'))).be.true;
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -42,21 +45,21 @@ describe('task.sample.stage', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data', 'stage');
+      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
       const localSample = Fs.join(cwd, 'src/-test/sample-1');
       await Fs.copy(sample, localSample);
       await Fs.ensureDir(configDir);
       await Fs.write(
         Fs.join(configDir, 'sample-1.yaml'),
-        StageProfileSchema.stringify({ mount: 'sample-1', source: './src/-test/sample-1' }),
+        StageProfileSchema.stringify({ mappings: [{ mount: 'sample-1', source: './src/-test/sample-1' }] }),
       );
       await Fs.write(
         Fs.join(configDir, 'venture-examples.yaml'),
-        StageProfileSchema.stringify({ mount: 'venture-examples', source: './src/-test/sample-1' }),
+        StageProfileSchema.stringify({ mappings: [{ mount: 'venture-examples', source: './src/-test/sample-1' }] }),
       );
       const result = await runStage({ cwd });
 
-      expect(result.dir).to.eql(Fs.join(cwd, SAMPLE_DATA_DIR, 'venture-examples'));
+      expect(result.dirs).to.eql([Fs.join(cwd, SAMPLE_DATA_DIR, 'venture-examples')]);
       expect(await Fs.exists(Fs.join(cwd, SAMPLE_DATA_DIR, 'sample-1', 'manifests', 'slug-tree.sample-1.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(cwd, SAMPLE_DATA_DIR, 'venture-examples', 'manifests', 'slug-tree.venture-examples.json'))).to.eql(true);
     } finally {
@@ -71,17 +74,17 @@ describe('task.sample.stage', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data', 'stage');
+      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
       const localSample = Fs.join(cwd, 'src/-test/sample-1');
       await Fs.copy(sample, localSample);
       await Fs.ensureDir(configDir);
       await Fs.write(
         Fs.join(configDir, 'venture-examples.yaml'),
-        StageProfileSchema.stringify({ mount: 'venture-examples', source: './src/-test/sample-1' }),
+        StageProfileSchema.stringify({ mappings: [{ mount: 'venture-examples', source: './src/-test/sample-1' }] }),
       );
       await Fs.write(
         Fs.join(configDir, 'sample-1.yaml'),
-        StageProfileSchema.stringify({ mount: 'sample-1', source: './src/-test/sample-1' }),
+        StageProfileSchema.stringify({ mappings: [{ mount: 'sample-1', source: './src/-test/sample-1' }] }),
       );
 
       await runStage({ cwd, profile: 'sample-1' });

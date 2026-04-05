@@ -13,7 +13,9 @@ export async function runCreateProfile(args: {
   const { cwd, profile, source } = args;
   const path = StageProfileFs.path(cwd, profile);
   const doc = StageProfileSchema.initial(profile);
-  const yaml = StageProfileSchema.stringify({ ...doc, source });
+  const yaml = StageProfileSchema.stringify({
+    mappings: [{ ...doc.mappings[0], source }],
+  });
   await Fs.write(path, yaml);
   return { kind: 'created', path };
 }

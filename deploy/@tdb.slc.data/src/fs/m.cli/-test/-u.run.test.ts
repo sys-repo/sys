@@ -11,7 +11,7 @@ describe('SlcDataCli.run', () => {
     expect(result.text.includes('create --profile <name> --source <path>')).to.eql(true);
     expect(result.text.includes('--profile <name>')).to.eql(true);
     expect(result.text.includes('--source <path>')).to.eql(true);
-    expect(result.text.includes('stage --profile <name>')).to.eql(true);
+    expect(result.text.includes('stage  --profile <name>')).to.eql(true);
   });
 
   it('creates a sample profile in non-interactive mode', async () => {
@@ -54,9 +54,9 @@ describe('SlcDataCli.run', () => {
       });
 
       expect(result.kind).to.eql('staged');
-      if (result.kind !== 'staged') throw new Error('Expected staged result');
-      expect(result.dir).to.eql(SlcDataCli.StageProfile.fs.target(cwd, 'sample-1'));
-      expect(await Fs.exists(Fs.join(result.dir, 'manifests/slug-tree.sample-1.json'))).to.eql(true);
+      if (result.kind !== 'staged' || !('dirs' in result)) throw new Error('Expected staged profile result');
+      expect(result.dirs).to.eql([SlcDataCli.StageProfile.fs.target(cwd, 'sample-1')]);
+      expect(await Fs.exists(Fs.join(result.dirs[0], 'manifests/slug-tree.sample-1.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }

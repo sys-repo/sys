@@ -49,9 +49,14 @@ export declare namespace SlcDataCli {
   /** YAML-backed staging profile document. */
   export namespace StageProfile {
     /** One staged data mount and its source folder. */
-    export type Doc = {
+    export type Mapping = {
       readonly mount: t.StringId;
       readonly source: t.StringPath;
+    };
+
+    /** One profile file containing one or more staged mappings. */
+    export type Doc = {
+      readonly mappings: readonly Mapping[];
     };
 
     /** Create one stage profile file. */
@@ -74,10 +79,10 @@ export declare namespace SlcDataCli {
       readonly target?: t.StringDir;
     }) => Promise<StageResult>;
 
-    /** Result from staging one profile. */
+    /** Result from staging all mappings in one profile. */
     export type StageResult = {
       readonly kind: 'staged';
-      readonly dir: t.StringDir;
+      readonly dirs: readonly t.StringDir[];
     };
   }
 
@@ -106,10 +111,7 @@ export declare namespace SlcDataCli {
     export type Run = (cwd: t.StringDir, target?: t.StringDir) => Promise<Result>;
 
     /** Result from a staging menu session. */
-    export type Result =
-      | { readonly kind: 'exit' }
-      | { readonly kind: 'back' }
-      | { readonly kind: 'staged'; readonly dir: t.StringDir };
+    export type Result = { readonly kind: 'exit' } | { readonly kind: 'back' };
   }
 
   /** CLI help surface. */

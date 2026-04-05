@@ -14,7 +14,7 @@ export async function run(args: {
   const publicData = wrangle.sampleData(cwd);
 
   await wrangle.reset(publicData);
-  let result: { readonly kind: 'staged'; readonly dir: t.StringDir } | undefined;
+  let result: t.SlcDataCli.StageProfile.StageResult | undefined;
 
   for (const profile of profiles) {
     result = await stageProfileToPublic({ cwd, profile });
@@ -28,23 +28,24 @@ export async function run(args: {
 export async function stageProfileToPublic(args: {
   cwd: t.StringDir;
   profile: t.StringId;
-}): Promise<{ readonly kind: 'staged'; readonly dir: t.StringDir }> {
+}): Promise<t.SlcDataCli.StageProfile.StageResult> {
   const result = await Cli.StageProfile.stage({
     cwd: args.cwd,
     profile: args.profile,
     target: wrangle.sampleData(args.cwd),
   });
-  await wrangle.ensureArtifacts(result.dir, args.profile);
+  for (const dir of result.dirs) {
+    await wrangle.ensureArtifacts(dir);
+  }
   return result;
 }
 
 const wrangle = {
   async defaultProfiles(cwd: t.StringDir): Promise<t.StringId[]> {
     const dir = Cli.StageProfile.fs.configDir(cwd);
-    const entries = await Array.fromAsync(Deno.readDir(dir));
+    const entries = await Fs.ls(dir, { includeDirs: false, depth: 1 });
     const profiles = entries
-      .filter((entry) => entry.isFile && entry.name.endsWith('.yaml'))
-      .map((entry) => entry.name.replace(/\.yaml$/, '').trim())
+      .map((path) => Fs.basename(path).replace(/\.yaml$/, '').trim())
       .filter(Boolean)
       .sort()
       .map((value) => value as t.StringId);
@@ -63,7 +64,8 @@ const wrangle = {
     return Fs.join(cwd, SAMPLE_DATA_DIR) as t.StringDir;
   },
 
-  async ensureArtifacts(target: t.StringDir, profile: t.StringId) {
+  async ensureArtifacts(target: t.StringDir) {
+    const profile = Fs.basename(target) as t.StringId;
     const exists = (name: string, dir = 'manifests') => Fs.exists(Fs.join(target, dir, name));
     const ensure = async (name: string, dir = 'manifests') => {
       if (!(await exists(name, dir))) throw new Error(`missing ${name}`);

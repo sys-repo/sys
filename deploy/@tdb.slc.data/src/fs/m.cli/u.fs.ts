@@ -5,7 +5,7 @@ export const StageProfilePaths = {
   ext: '.yaml' as t.StringPath,
   targetDir: './.tmp/staging.slc-data' as t.StringPath,
   get dir() {
-    return Fs.join('-config', StageProfilePaths.root, 'stage');
+    return Fs.join('-config', StageProfilePaths.root);
   },
 } as const;
 

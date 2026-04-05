@@ -55,6 +55,8 @@ If this returns an error or empty output, and you are inside the source checkout
 ```
 deno run -A jsr:@tdb/slc-data/cli create --profile <name> --source <path>
 ```
+This creates a profile with one initial mapping.
+
 Or edit the YAML file directly (see "Profile contract" below).
 
 ### 3. Run the profile
@@ -67,18 +69,24 @@ Inspect the output tree (see "Verification" below).
 
 ## Profile contract
 
-Location: `./-config/@tdb.slc-data/stage/<profile>.yaml`
+Location: `./-config/@tdb.slc-data/<profile>.yaml`
 
-Shape (exactly two fields, no additional properties):
+Shape:
 ```yaml
-source: <path>    # absolute or relative to cwd
-mount: <id>       # matches: ^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$
+mappings:
+  - mount: <id>     # matches: ^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$
+    source: <path>  # absolute or relative to cwd
+  - mount: <id>
+    source: <path>
 ```
 
 - Prefer `deno run -A jsr:@tdb/slc-data/cli create ...` over hand-authoring when creating new profiles.
 - When editing an existing profile, read the file first and preserve its intent.
-- Choose the mount name explicitly for the dataset you are staging.
-- The sample-task lane uses `sample-1`; that is not a library default.
+- One profile may contain one or more mappings.
+- Choose each mount name explicitly for the staged outputs you want.
+- `create --profile <name> --source <path>` creates a profile with one mapping whose initial mount matches `<name>`.
+- `stage --profile <name>` stages all mappings in that profile.
+- The sample-task lane uses `sample-1` as a profile name; that is not a library default.
 
 ## Verification
 

@@ -1,3 +1,4 @@
+import { Fs } from '@sys/fs';
 import { type t, SlcDataCli as Cli } from '@tdb/slc-data/cli';
 
 export async function run(args: {
@@ -8,7 +9,15 @@ export async function run(args: {
   const cwd = args.cwd ?? Deno.cwd() as t.StringDir;
   const profile = args.profile ?? 'sample-1' as t.StringId;
   const source = args.source ?? './src/-test/sample-1' as t.StringPath;
-  const result = await Cli.StageProfile.create({ cwd, profile, source });
+  const path = Cli.StageProfile.path(cwd, profile);
+  const yaml = Cli.StageProfile.schema.stringify({
+    mappings: [
+      { mount: 'sample-one' as t.StringId, source },
+      { mount: 'sample-two' as t.StringId, source },
+    ],
+  });
+  await Fs.write(path, yaml);
+  const result = { kind: 'created', path } as const;
   console.info(result);
   return result;
 }
