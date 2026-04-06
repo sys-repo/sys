@@ -15,6 +15,7 @@ export declare namespace HttpDataCards {
     };
 
     export type Params = {
+      debugWidth?: number;
       originSpec?: t.HttpOrigin.SpecMap;
       storageKey?: string;
       stateDefaults?: StateDefaults;

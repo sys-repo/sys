@@ -1,7 +1,7 @@
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { HttpDataCards } from './mod.ts';
 import type { t as TDev } from '@tdb/slc-data/dev';
 import type * as TDevSubpath from '@tdb/slc-data/dev/t';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { HttpDataCards } from './mod.ts';
 
 describe('@tdb/slc-data/dev', () => {
   it('API', async () => {

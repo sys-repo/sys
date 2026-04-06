@@ -14,12 +14,7 @@ export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.Spec.Params | 
       const v = Signal.toObject(p);
       const origin = wrangle.origin(v.origin);
       return (
-        <HttpDataCards.UI
-          debug={v.debug}
-          theme={v.theme}
-          origin={origin}
-          dataset={v.dataset}
-        />
+        <HttpDataCards.UI debug={v.debug} theme={v.theme} origin={origin} dataset={v.dataset} />
       );
     }
 
@@ -35,12 +30,11 @@ export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.Spec.Params | 
       Signal.effect(update);
       Dev.Theme.signalEffect(ctx, p.theme, 1);
 
+      ctx.debug.width(params?.debugWidth ?? 480);
       ctx.subject
         .size([420, null])
         .display('grid')
         .render(() => <Root />);
-
-      ctx.debug.width(460);
     });
 
     e.it('ui:debug', (e) => {
