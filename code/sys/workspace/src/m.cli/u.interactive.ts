@@ -86,7 +86,6 @@ async function withSpinner<T>(
     return await fn(spinner);
   } finally {
     spinner.stop();
-    console.info();
   }
 }
 
