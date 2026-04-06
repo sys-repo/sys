@@ -32,8 +32,10 @@ export const print: HttpServerLib['print'] = (options) => {
       lines.push(`        ${host}`);
     }
 
+    console.info('');
     console.info(lines.join('\n'));
   } else {
+    console.info('');
     console.info(c.gray(`Listening on ${host}`));
   }
   console.info('');

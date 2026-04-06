@@ -7,7 +7,7 @@
  * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
  * ```
  */
-import { type t, Args, Str } from './common.ts';
+import { type t, Args } from './common.ts';
 import { start } from './u.start.ts';
 
 /**
@@ -26,7 +26,6 @@ export { start };
  */
 if (import.meta.main) {
   const args = Args.parse<t.HttpServeArgs>(Deno.args);
-  console.info(Str.SPACE);
   await start(args);
   Deno.exit(0);
 }
