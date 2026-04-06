@@ -136,7 +136,7 @@ const wrangle = {
     const commit = args.versionFilter === 'ahead'
       ? 'chore(ci): refresh ahead-only GitHub workflow outputs'
       : 'chore(ci): refresh generated GitHub workflow outputs';
-    const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } });
+    const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'gray' } });
     console.info();
     console.info(`  ${suggestion}`);
 
