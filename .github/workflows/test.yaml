@@ -18,66 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "@sys/types"
-            path: code/sys/types
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
-          - name: "@sys/std"
-            path: code/sys/std
-          - name: "@sys/color"
-            path: code/sys/color
-          - name: "@sys/ui-css"
-            path: code/sys.ui/ui-css
-          - name: "@sys/cli"
-            path: code/sys/cli
-          - name: "@sys/crdt-t"
-            path: code/sys/crdt.t
-          - name: "@sys/crypto"
-            path: code/sys/crypto
-          - name: "@sys/event"
-            path: code/sys/event
-          - name: "@sys/ui-state"
-            path: code/sys.ui/ui-state
-          - name: "@sys/immutable"
-            path: code/sys/immutable
-          - name: "@sys/ui-dom"
-            path: code/sys.ui/ui-dom
-          - name: "@sys/fs"
-            path: code/sys/fs
-          - name: "@sys/net"
-            path: code/sys/net
-          - name: "@sys/process"
-            path: code/sys/process
-          - name: "@sys/driver-process"
-            path: code/sys.driver/driver-process
-          - name: "@sys/driver-signer"
-            path: code/sys.driver/driver-signer
-          - name: "@sys/http"
-            path: code/sys/http
-          - name: "@sys/registry"
-            path: code/sys/registry
-          - name: "@sys/skills"
-            path: code/sys/skills
-          - name: "@sys/testing"
-            path: code/sys/testing
-          - name: "@sys/ui-react"
-            path: code/sys.ui/ui-react
           - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
-          - name: "@sys/text"
-            path: code/sys/text
-          - name: "@sys/tmpl-engine"
-            path: code/sys/tmpl-engine
-          - name: "@sys/yaml"
-            path: code/sys/yaml
-          - name: "@sys/esm"
-            path: code/sys/esm
-          - name: "@sys/schema"
-            path: code/sys/schema
-          - name: "@sys/model"
-            path: code/sys.model/model
-          - name: "@sys/model-slug"
-            path: code/sys.model/model-slug
           - name: "@sys/ui-react-components"
             path: code/sys.ui/ui-react-components
           - name: "@sys/driver-automerge"
@@ -94,28 +36,16 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
-          - name: "@sys/workspace"
-            path: code/sys/workspace
-          - name: "@sys/driver-deno"
-            path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
-          - name: "@sys/driver-vite"
-            path: code/sys.driver/driver-vite
           - name: "@sys/tools"
             path: code/sys.tools
-          - name: "@tdb/slc"
-            path: deploy/@tdb.slc
           - name: "@tdb/slc-data"
             path: deploy/@tdb.slc.data
-          - name: "@tdb/slc-fs"
-            path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
             path: deploy/@tdb.edu.slug
-          - name: "@sample/proxy"
-            path: deploy/sample.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'

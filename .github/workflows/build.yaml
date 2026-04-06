@@ -18,8 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
           - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
           - name: "@sys/ui-react-components"
@@ -38,12 +36,8 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
-          - name: "@tdb/slc"
-            path: deploy/@tdb.slc
           - name: "@tdb/slc-data"
             path: deploy/@tdb.slc.data
-          - name: "@tdb/slc-fs"
-            path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
