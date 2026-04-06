@@ -4,4 +4,5 @@
  */
 import { type t } from './common.ts';
 
-export const DevSpec: t.DevSpec.Lib = {};
+export type * as t from './t.ts';
+export const Loader = {} as t.Loader.Lib;
