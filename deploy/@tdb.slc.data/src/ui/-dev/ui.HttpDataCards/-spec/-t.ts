@@ -5,7 +5,7 @@ export type * from '../../common.t.ts';
 export type * from '../t.ts';
 
 /** Import-time spec params. */
-export type HttpDataCardsSpecParams = t.HttpDataCards.SpecParams;
+export type HttpDataCardsSpecParams = t.HttpDataCards.Spec.Params;
 
 /**
  * Test, Spec types (internal).

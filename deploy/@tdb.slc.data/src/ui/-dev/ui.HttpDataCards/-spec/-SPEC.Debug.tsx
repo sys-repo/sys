@@ -20,13 +20,7 @@ const LOCAL_SPEC = {
 } satisfies t.HttpOrigin.SpecMap;
 
 type P = t.HttpDataCards.Props;
-type Storage = {
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  env?: t.HttpOriginBase.Env;
-  integrity?: boolean;
-  dataset?: t.StringId;
-};
+type Storage = t.HttpDataCards.Spec.StateDefaults;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
@@ -47,9 +41,11 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 /**
  * Signals:
  */
-export function createDebugSignals(params: t.HttpDataCards.SpecParams | void = {}) {
+export function createDebugSignals(params: t.HttpDataCards.Spec.Params | void = {}) {
   const s = Signal.create;
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const storageKey = params?.storageKey ?? `dev:${D.displayName}`;
+  const stateDefaults: Storage = { ...defaults, ...params?.stateDefaults };
+  const store = LocalStorage.immutable<Storage>(storageKey, stateDefaults);
   const snap = store.current;
   const originSpec = params?.originSpec ?? LOCAL_SPEC;
 
@@ -74,7 +70,7 @@ export function createDebugSignals(params: t.HttpDataCards.SpecParams | void = {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(stateDefaults, e.path)));
   }
 
   Signal.effect(() => {

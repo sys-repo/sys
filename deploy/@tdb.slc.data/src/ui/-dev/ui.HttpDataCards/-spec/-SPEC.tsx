@@ -3,7 +3,7 @@ import { type t, D, Is } from './common.ts';
 import { HttpDataCards } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.SpecParams | void> = (
+export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCards.Spec.Params | void> = (
   params = {},
 ) => {
   const debug = createDebugSignals(params);

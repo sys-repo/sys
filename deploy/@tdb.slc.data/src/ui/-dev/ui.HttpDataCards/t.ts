@@ -5,9 +5,21 @@ export type * from '../common.t.ts';
 
 /** Dev cards for probing staged SLC data over HTTP. */
 export declare namespace HttpDataCards {
-  export type SpecParams = {
-    originSpec?: t.HttpOrigin.SpecMap;
-  };
+  export namespace Spec {
+    export type StateDefaults = {
+      debug?: boolean;
+      theme?: t.CommonTheme;
+      env?: t.HttpOriginBase.Env;
+      integrity?: boolean;
+      dataset?: t.StringId;
+    };
+
+    export type Params = {
+      originSpec?: t.HttpOrigin.SpecMap;
+      storageKey?: string;
+      stateDefaults?: StateDefaults;
+    };
+  }
 
   export type DataCardKind = (typeof DataCardKindKinds)[number];
   export const DataCardKindKinds: readonly ['file-content'];
@@ -68,7 +80,7 @@ export declare namespace HttpDataCards {
     readonly createSignals: (input?: SignalsDefaults) => Signals;
     readonly createPanel: (args: PanelArgs) => t.ReactNode;
     readonly Spec: {
-      readonly load: t.DevSpec.Loader.ModuleLoader<SpecParams | void>;
+      readonly load: t.DevSpec.Loader.ModuleLoader<Spec.Params | void>;
     };
     readonly Card: {
       readonly TreeContent: t.ActionProbe.ProbeSpec<TEnv, { readonly kind: 'slug-tree:fs' }>;
