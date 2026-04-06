@@ -11,5 +11,6 @@ describe('@tdb/slc-data/dev', () => {
 
   it('types', () => {
     expectTypeOf({} as TDev.HttpDataCards.Lib).toEqualTypeOf<TDevSubpath.HttpDataCards.Lib>();
+    expectTypeOf(HttpDataCards.Spec.load).toEqualTypeOf<TDev.HttpDataCards.Lib['Spec']['load']>();
   });
 });

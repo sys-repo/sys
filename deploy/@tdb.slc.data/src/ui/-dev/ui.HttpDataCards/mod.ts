@@ -11,5 +11,8 @@ export const HttpDataCards: t.HttpDataCards.Lib = {
   UI,
   createPanel,
   createSignals,
+  Spec: {
+    load: () => import('./-spec/-SPEC.tsx').then((m) => ({ createSpec: m.createSpec })),
+  },
   Card: { TreeContent },
 };

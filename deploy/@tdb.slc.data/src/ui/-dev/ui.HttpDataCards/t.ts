@@ -5,6 +5,10 @@ export type * from '../common.t.ts';
 
 /** Dev cards for probing staged SLC data over HTTP. */
 export declare namespace HttpDataCards {
+  export type SpecParams = {
+    originSpec?: t.HttpOrigin.SpecMap;
+  };
+
   export type DataCardKind = (typeof DataCardKindKinds)[number];
   export const DataCardKindKinds: readonly ['file-content'];
 
@@ -63,6 +67,9 @@ export declare namespace HttpDataCards {
     readonly UI: t.FC<Props>;
     readonly createSignals: (input?: SignalsDefaults) => Signals;
     readonly createPanel: (args: PanelArgs) => t.ReactNode;
+    readonly Spec: {
+      readonly load: t.DevSpec.Loader.ModuleLoader<SpecParams | void>;
+    };
     readonly Card: {
       readonly TreeContent: t.ActionProbe.ProbeSpec<TEnv, { readonly kind: 'slug-tree:fs' }>;
     };

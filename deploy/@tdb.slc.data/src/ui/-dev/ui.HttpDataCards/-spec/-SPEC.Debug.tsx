@@ -47,7 +47,7 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 /**
  * Signals:
  */
-export function createDebugSignals(params: t.HttpDataCardsSpecParams | void = {}) {
+export function createDebugSignals(params: t.HttpDataCards.SpecParams | void = {}) {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
