@@ -3,48 +3,54 @@ import { type t, D, Is } from './common.ts';
 import { HttpDataCards } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, async (e) => {
-  const debug = await createDebugSignals();
+export const createSpec: t.DevSpec.Loader.Factory<t.HttpDataCardsSpecParams | void> = (
+  params = {},
+) => {
+  const debug = createDebugSignals(params);
   const p = debug.props;
 
-  function Root() {
-    const v = Signal.toObject(p);
-    const origin = wrangle.origin(v.origin);
-    return (
-      <HttpDataCards.UI
-        debug={v.debug}
-        theme={v.theme}
-        origin={origin}
-        dataset={v.dataset}
-      />
-    );
-  }
-
-  e.it('init', (e) => {
-    const ctx = Spec.ctx(e);
-
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
+  return Spec.describe(D.displayName, async (e) => {
+    function Root() {
+      const v = Signal.toObject(p);
+      const origin = wrangle.origin(v.origin);
+      return (
+        <HttpDataCards.UI
+          debug={v.debug}
+          theme={v.theme}
+          origin={origin}
+          dataset={v.dataset}
+        />
+      );
     }
 
-    Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    e.it('init', (e) => {
+      const ctx = Spec.ctx(e);
 
-    ctx.subject
-      .size([420, null])
-      .display('grid')
-      .render(() => <Root />);
+      update();
+      function update() {
+        debug.listen();
+        ctx.redraw();
+      }
 
-    ctx.debug.width(460);
+      Signal.effect(update);
+      Dev.Theme.signalEffect(ctx, p.theme, 1);
+
+      ctx.subject
+        .size([420, null])
+        .display('grid')
+        .render(() => <Root />);
+
+      ctx.debug.width(460);
+    });
+
+    e.it('ui:debug', (e) => {
+      const ctx = Spec.ctx(e);
+      ctx.debug.row(<Debug debug={debug} />);
+    });
   });
+};
 
-  e.it('ui:debug', (e) => {
-    const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug debug={debug} />);
-  });
-});
+export default createSpec();
 
 const wrangle = {
   origin(input: t.UrlTree | undefined): t.StringUrl | undefined {

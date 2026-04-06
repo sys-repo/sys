@@ -47,10 +47,11 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals(params: t.HttpDataCardsSpecParams | void = {}) {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const originSpec = params?.originSpec ?? LOCAL_SPEC;
 
   const props = {
     debug: s(snap.debug),
@@ -62,6 +63,7 @@ export async function createDebugSignals() {
   };
   const p = props;
   const api = {
+    originSpec,
     props,
     listen,
     reset,
@@ -107,6 +109,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
   const origin = wrangle.origin(v.origin);
+  const originSpec = debug.originSpec;
 
   /**
    * Render:
@@ -123,7 +126,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <HttpOrigin.UI.Controlled
         env={p.env}
         origin={p.origin}
-        spec={LOCAL_SPEC}
+        spec={originSpec}
         verify={v.integrity ? true : undefined}
         theme={theme.name}
         style={{ MarginY: 20 }}

@@ -20,7 +20,7 @@ export type {
   HttpOrigin as HttpOriginBase,
   UrlTree,
 } from '@sys/ui-react-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { DevCtx, DevSpec } from '@sys/ui-react-devharness/t';
 export type * from '@sys/model-slug/client';
 export type * from '@sys/model-slug/types';
 
