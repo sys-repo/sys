@@ -116,11 +116,8 @@ describe('Deps state', () => {
 
       expect(parsed.error).to.eql(undefined);
       expect(rendered.obj).to.eql(parsed.data);
-      expect(rendered.text).to.include('subpaths:');
-      expect(rendered.text).to.include('- join');
-      expect(rendered.text).to.include('- posix/join');
-      expect(rendered.text).to.include('- windows/join');
-      expect(rendered.text).to.include('- cors');
+      expect(rendered.text).to.include('subpaths: [ join, posix/join, windows/join ]');
+      expect(rendered.text).to.include('subpaths: [ cors ]');
     }
   });
 
@@ -143,9 +140,15 @@ describe('Deps state', () => {
 
       expect(parsed.error).to.eql(undefined);
       expect(rendered.obj).to.eql(parsed.data);
-      expect(rendered.text).to.include('subpaths:');
-      expect(rendered.text).to.include('- flat');
-      expect(rendered.text).to.include('- array');
+      expect(rendered.text).to.include('subpaths: [ flat, array ]');
     }
+  });
+
+  it('toYaml: rejects invalid dependency entries', () => {
+    const entry = Deps.toEntry('');
+
+    expect(() => Deps.toYaml([entry])).to.throw(
+      'Failed to parse ESM module-specifier string ("")',
+    );
   });
 });

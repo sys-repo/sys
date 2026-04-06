@@ -14,4 +14,5 @@ export { Semver } from '@sys/std/semver/server';
 export { Time } from '@sys/std/time';
 export { isEmptyRecord } from '@sys/std/value';
 export { TmplEngine } from '@sys/tmpl-engine';
+export { Workspace } from '@sys/workspace';
 export { Yaml } from '@sys/yaml';

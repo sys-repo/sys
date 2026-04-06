@@ -1,4 +1,4 @@
-import { describe, expect, it, stripAnsi } from '../../../-test.ts';
+import { describe, expect, Fs, it, stripAnsi, Testing } from '../../../-test.ts';
 import { Deps } from '@sys/esm/deps';
 import { DenoDeps } from '../mod.ts';
 
@@ -40,6 +40,16 @@ describe('DenoDeps methods', () => {
       );
       expect(DenoDeps.findImport(deno.data?.deps, 'npm:esbuild')).to.eql(
         Deps.findImport(esm.data?.entries, 'npm:esbuild'),
+      );
+    });
+  });
+
+  describe('toYaml', () => {
+    it('rejects invalid dependency entries', () => {
+      const dep = DenoDeps.toDep('');
+
+      expect(() => DenoDeps.toYaml([dep])).to.throw(
+        'Failed to parse ESM module-specifier string ("")',
       );
     });
   });
@@ -87,6 +97,25 @@ describe('DenoDeps methods', () => {
         },
       });
     });
+
+    it('aliases local file-path imports', async () => {
+      const fs = await Testing.dir('DenoDeps.toJson.localPaths');
+      const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
+      const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
+      const res = await DenoDeps.from(`
+        deno.json:
+          - import: ${typesFileUrl}
+            name: '@tdb/slc-data/t'
+      `);
+      const json = DenoDeps.toJson('deno.json', res.data?.deps);
+
+      expect(res.error).to.eql(undefined);
+      expect(json).to.eql({
+        imports: {
+          '@tdb/slc-data/t': typesFileUrl,
+        },
+      });
+    });
   });
 
   describe('toJson("package.json")', () => {
@@ -111,6 +140,22 @@ describe('DenoDeps methods', () => {
           '@std/http': 'npm:@jsr/std__http@1.0.13',
           '@types/react': '^18',
         },
+      });
+    });
+
+    it('skips local file-path imports', async () => {
+      const fs = await Testing.dir('DenoDeps.toJson.packageLocalPaths');
+      const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
+      const json = DenoDeps.toJson('package.json', [
+        DenoDeps.toDep(uiPath, {
+          target: 'package.json',
+          name: '@tdb/slc-data/ui',
+        }),
+        DenoDeps.toDep('npm:react@19.0.0', { target: 'package.json' }),
+      ]);
+
+      expect(json).to.eql({
+        dependencies: { react: '19.0.0' },
       });
     });
   });

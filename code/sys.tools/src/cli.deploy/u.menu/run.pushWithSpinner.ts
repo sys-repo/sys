@@ -17,19 +17,19 @@ type RunPushResult =
  */
 export async function runPushWithSpinner(args: {
   cwd: t.StringDir;
-  provider: t.DeployTool.Config.Provider.All;
-  stagingDir: t.StringDir;
-  shard?: number;
-  domain?: string;
+  target: t.PushTarget;
 }): Promise<RunPushResult> {
   const spin = Cli.spinner();
-  const dist = (await Pkg.Dist.load(Path.join(args.stagingDir, '.'))).dist;
+  const dist = args.target.stagingDir
+    ? (await Pkg.Dist.load(Path.join(args.target.stagingDir, '.'))).dist
+    : undefined;
   const bytes = dist?.build.size.total ?? 0;
 
-  const shardLabel = Is.num(args.shard) ? 'shard' : undefined;
+  const shardLabel = Is.num(args.target.shard) ? 'shard' : undefined;
   const providerDomain =
-    args.provider.kind === 'orbiter' ? String(args.provider.domain ?? '').trim() : '';
-  const providerLabel = String(args.domain ?? '').trim() || providerDomain || args.provider.kind;
+    args.target.provider.kind === 'orbiter' ? String(args.target.provider.domain ?? '').trim() : '';
+  const providerLabel =
+    String(args.target.domain ?? '').trim() || providerDomain || args.target.provider.kind;
   let pushing = shardLabel
     ? `pushing ${shardLabel} to ${c.white(providerLabel)}`
     : `pushing to ${c.white(providerLabel)}`;

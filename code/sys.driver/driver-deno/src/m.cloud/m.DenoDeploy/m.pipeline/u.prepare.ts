@@ -8,7 +8,7 @@ const ENTRY_CONFIG = {
 } as const;
 
 export async function prepare(
-  stage: t.DenoDeploy.Stage.Result,
+  stage: t.DenoDeploy.Stage.PrepareInput,
 ): Promise<t.DenoDeploy.Pipeline.Prepared> {
   const stagedTargetRel = Path.relative(stage.workspace.dir, stage.target.dir);
   const rendered = renderStageEntrypoints(`./${stagedTargetRel}`);
@@ -20,7 +20,10 @@ export async function prepare(
   await ensureStagedDistIncluded(stage.root, stagedTargetRel);
   await Fs.ensureDir(Fs.dirname(compatEntrypoint));
   await Fs.write(compatEntrypoint, rendered.compatEntrypoint);
+  const stagedDistDir = Fs.join(stage.root, stagedTargetRel, 'dist');
+  const hasDistDir = await Fs.exists(stagedDistDir);
   const distHash = await loadDistHash(stage.root, stagedTargetRel);
+  const stagedSize = await Fs.Size.dir(stage.root);
 
   return {
     sourceDir: stage.target.dir,
@@ -30,7 +33,9 @@ export async function prepare(
     appEntrypoint: `./${FILE.compatEntrypoint}`,
     workspaceTarget: `./${stagedTargetRel}`,
     distDir: `./${stagedTargetRel}/dist`,
+    hasDistDir,
     distHash,
+    stagedSizeBytes: stagedSize.total.bytes,
   };
 }
 

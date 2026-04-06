@@ -3,67 +3,46 @@ import { resolvePushTargets } from '../u/u.resolvePushTargets.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
 
 describe('Deploy: resolvePushTargets', () => {
-  it('returns no targets for shard mappings without siteIds', async () => {
+  it('returns no targets for unsupported providers', async () => {
     await withTmpDir(async (tmp) => {
       const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
-          provider: {
-            kind: 'orbiter',
-            siteId: 'base',
-            domain: 'example.com',
-            shards: { total: 2 },
-          },
+          provider: { kind: 'deno', app: 'my-app' },
           staging: { dir: './staging' },
-          mappings: [
-            {
-              mode: 'copy',
-              dir: {
-                source: './video/partition-<shard>',
-                staging: './shard.<shard>',
-              },
-            },
-          ],
+          mapping: { dir: { source: './pkg', staging: '.' } },
         },
       });
 
       expect(plan.targets.length).to.eql(0);
+      expect(plan.stats.total).to.eql(0);
     });
   });
 
-  it('returns shard targets when siteIds and staging dirs exist', async () => {
+  it('returns one deno target when the staged root exists', async () => {
     await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/staging/shard.1`);
+      const stageRoot = `${tmp}-stage`;
+      await Fs.ensureDir(stageRoot);
 
       const plan = await resolvePushTargets({
         cwd: tmp as t.StringDir,
         yaml: {
-          provider: {
-            kind: 'orbiter',
-            siteId: 'base',
-            domain: 'example.com',
-            shards: { total: 2, siteIds: { 1: 'site-1' } },
-          },
-          staging: { dir: './staging' },
-          mappings: [
-            {
-              mode: 'copy',
-              dir: {
-                source: './video/partition-<shard>',
-                staging: './shard.<shard>',
-              },
-            },
-          ],
+          provider: { kind: 'deno', app: 'my-app' },
+          source: { dir: '.' },
+          staging: { dir: stageRoot },
+          mapping: { dir: { source: './pkg', staging: '.' } },
         },
       });
 
       expect(plan.targets.length).to.eql(1);
-      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
-      expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
+      expect(plan.stats.total).to.eql(1);
+      expect(plan.targets[0]?.provider.kind).to.eql('deno');
+      expect(plan.targets[0]?.sourceDir).to.eql(`${tmp}/pkg`);
+      expect(plan.targets[0]?.stagingDir).to.eql(stageRoot);
     });
   });
 
-  it('adds root target for index mapping when shard targets exist', async () => {
+  it('returns the total target count for orbiter targets', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);
       await Fs.ensureDir(`${tmp}/staging/-root`);
@@ -97,75 +76,8 @@ describe('Deploy: resolvePushTargets', () => {
         },
       });
 
-      const root = plan.targets.find((target) => target.stagingDir.endsWith('/-root'));
-      const shard = plan.targets.find((target) => target.shard === 1);
-
-      expect(root?.provider.siteId).to.eql('base');
-      expect(shard?.provider.siteId).to.eql('site-1');
-    });
-  });
-
-  it('filters shard targets when only list is provided', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/staging/shard.1`);
-      await Fs.ensureDir(`${tmp}/staging/shard.2`);
-
-      const plan = await resolvePushTargets({
-        cwd: tmp as t.StringDir,
-        yaml: {
-          provider: {
-            kind: 'orbiter',
-            siteId: 'base',
-            domain: 'example.com',
-            shards: { total: 3, only: [1], siteIds: { 1: 'site-1', 2: 'site-2' } },
-          },
-          staging: { dir: './staging' },
-          mappings: [
-            {
-              mode: 'copy',
-              dir: {
-                source: './video/partition-<shard>',
-                staging: './shard.<shard>',
-              },
-            },
-          ],
-        },
-      });
-
-      expect(plan.targets.length).to.eql(1);
-      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging/shard.1`);
-      expect(plan.targets[0]?.provider.siteId).to.eql('site-1');
-    });
-  });
-
-  it('uses staging root when no shard mappings exist', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/staging`);
-
-      const plan = await resolvePushTargets({
-        cwd: tmp as t.StringDir,
-        yaml: {
-          provider: {
-            kind: 'orbiter',
-            siteId: 'base',
-            domain: 'example.com',
-          },
-          staging: { dir: './staging' },
-          mappings: [
-            {
-              mode: 'copy',
-              dir: {
-                source: './video',
-                staging: '.',
-              },
-            },
-          ],
-        },
-      });
-
-      expect(plan.targets.length).to.eql(1);
-      expect(plan.targets[0]?.stagingDir).to.eql(`${tmp}/staging`);
-      expect(plan.targets[0]?.provider.siteId).to.eql('base');
+      expect(plan.targets.length).to.eql(2);
+      expect(plan.stats.total).to.eql(2);
     });
   });
 });

@@ -1,0 +1,61 @@
+import { FaLink, FaRegFileLines } from 'react-icons/fa6';
+import { LiaCertificateSolid } from 'react-icons/lia';
+import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash, LuDna } from 'react-icons/lu';
+import {
+  MdArrowBack,
+  MdArrowDownward,
+  MdArrowForward,
+  MdArrowUpward,
+  MdChevronLeft,
+  MdChevronRight,
+  MdCheck,
+  MdClose,
+  MdConstruction,
+  MdError,
+  MdErrorOutline,
+  MdFace,
+  MdMic,
+  MdMicOff,
+  MdPlayArrow,
+  MdSettings,
+} from 'react-icons/md';
+import { VscSymbolClass } from 'react-icons/vsc';
+
+import { Icon } from '../Icon/mod.ts';
+const icon = Icon.renderer;
+
+/**
+ * Icon Collection:
+ */
+export const Icons = {
+  Play: icon(MdPlayArrow),
+  Check: icon(MdCheck),
+  Close: icon(MdClose),
+  Face: icon(MdFace),
+  Object: icon(VscSymbolClass),
+  Error: {
+    Solid: icon(MdError),
+    Outline: icon(MdErrorOutline),
+  },
+  Arrow: {
+    Left: icon(MdArrowBack),
+    Right: icon(MdArrowForward),
+    Up: icon(MdArrowUpward),
+    Down: icon(MdArrowDownward),
+  },
+  Mic: { On: icon(MdMic), Off: icon(MdMicOff) },
+  Settings: { Default: icon(MdSettings) },
+  Tools: icon(MdConstruction),
+  Copy: {
+    Basic: icon(LuCopy),
+    Tick: icon(LuCopyCheck),
+    Slash: icon(LuCopySlash),
+    Plus: icon(LuCopyPlus),
+    Minus: icon(LuCopyMinus),
+  },
+  Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
+  Certificate: icon(LiaCertificateSolid),
+  Link: icon(FaLink),
+  Dna: icon(LuDna),
+  File: icon(FaRegFileLines),
+} as const;

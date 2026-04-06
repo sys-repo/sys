@@ -5,7 +5,7 @@ export * from '../common.ts';
 export { Spinners } from '../Spinners/mod.ts';
 export { Data } from '../TreeView.Index.Data/mod.ts';
 export { IndexTreeViewItem } from '../TreeView.Index.Item/mod.ts';
-export { Icons } from '../ui.Icons.ts';
+export { Icons } from '../common/u.icons.ts';
 
 /**
  * Constants:

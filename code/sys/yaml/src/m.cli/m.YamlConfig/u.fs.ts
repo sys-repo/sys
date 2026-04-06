@@ -33,6 +33,7 @@ export async function ensureDefaultConfig<T>(
 
 export async function ensureInitialYaml<T>(path: t.StringFile, schema: YamlConfigSchema<T>) {
   if (await Fs.exists(path)) return;
+  if (!schema.init) throw new Error('YamlConfig: schema.init is required to create a default config');
   await writeYaml(path, schema.init(), schema);
 }
 

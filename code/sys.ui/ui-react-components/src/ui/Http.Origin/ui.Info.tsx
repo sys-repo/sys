@@ -1,10 +1,14 @@
 import React from 'react';
 import { type t, KeyValue } from './common.ts';
 import { Data } from './m.Data.ts';
+import { VerifyAction } from './ui.Action.Verify.tsx';
+import { useVerify } from './use.Verify.ts';
+import { Value } from './ui.Value.tsx';
 
 export type InfoProps = {
   env: t.HttpOrigin.Env;
-  origin?: t.UrlTree;
+  origin?: t.HttpOrigin.UrlTree;
+  verify?: t.HttpOrigin.Verify;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -14,6 +18,8 @@ export type InfoProps = {
  */
 export const Info: React.FC<InfoProps> = (props) => {
   const { env, origin } = props;
+  const rows = React.useMemo(() => (origin ? Data.flatten(origin) : []), [origin]);
+  const verify = useVerify({ env, origin, rows, verify: props.verify });
 
   /**
    * KeyValue items:
@@ -22,14 +28,35 @@ export const Info: React.FC<InfoProps> = (props) => {
   const items: t.KeyValueItem[] = [];
   if (origin) {
     items.push({ kind: 'title', v: `HTTP Origin` });
-    Data.flatten(origin).forEach((row) => {
+    rows.forEach((row) => {
       items.push({
         k: row.key,
-        v: row.url,
+        v: (
+          <Value
+            url={row.url}
+            theme={props.theme}
+            status={verify.status[row.key]}
+            reserveStatusSpace={verify.reserveStatusSpace}
+          />
+        ),
         mono,
-        href: { v: { infer: true, display: 'trim-http' } },
       });
     });
+    if (verify.verifyEnabled) {
+      items.push({ kind: 'hr' });
+      items.push({
+        k: 'integrity',
+        v: (
+          <VerifyAction
+            theme={props.theme}
+            label={verify.actionLabel}
+            running={verify.running}
+            onVerify={verify.onVerify}
+          />
+        ),
+        mono,
+      });
+    }
   }
 
   /**

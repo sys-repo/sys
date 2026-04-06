@@ -4,20 +4,19 @@ import { createRoot } from 'react-dom/client';
 import type { t } from '../common.ts';
 import { pkg } from '../pkg.ts';
 import { useKeyboard } from '../ui/use/use.Keyboard.ts';
+import { WarmVideo } from '../ui.content/ui/m.VideoWarmup.ts';
 
 /**
  * Service Worker:
  */
-if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+if ('serviceWorker' in navigator && !location.hostname.startsWith('localhost')) {
   window.addEventListener('load', () => {
+    const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
+    const sw = `${pathname}sw.js`;
     navigator.serviceWorker
-      .register(new URL('../sw.js', import.meta.url), { type: 'module' })
-      .then((reg) =>
-        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
-      )
-      .catch((err) =>
-        console.error(`💥 [main] ServiceWorker registration failed:`, err),
-      );
+      .register(sw, { type: 'module', scope: pathname })
+      .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
 }
 
@@ -26,7 +25,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
  */
 const document = globalThis.document;
 if (document) {
-  document.title = pkg.name;
+  document.title = 'Social Lean Canvas';
   document.body.style.overflow = 'hidden'; // NB: suppress rubber-band effect.
 }
 
@@ -51,8 +50,14 @@ export async function main() {
      * DevHarness:
      */
     const { App } = await import('../ui/App/mod.ts');
-    const { render } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard: useDevKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
+
+    const DevRoot = (props: { state: t.AppSignals; children?: t.ReactNode }) => {
+      useKeyboard(props.state);
+      useDevKeyboard();
+      return props.children;
+    };
 
     const app = App.signals();
     const el = await render(pkg, Specs, {
@@ -62,7 +67,7 @@ export async function main() {
 
     root.render(
       <StrictMode>
-        <Root state={app}>{el}</Root>
+        <DevRoot state={app}>{el}</DevRoot>
       </StrictMode>,
     );
   } else {
@@ -78,6 +83,7 @@ export async function main() {
       (id, options = {}) => Content.factory(id, { ...options, muted: true }),
       ['Entry', 'Trailer', 'Overview', 'Programme'],
     );
+    void WarmVideo.landing();
 
     root.render(
       <StrictMode>

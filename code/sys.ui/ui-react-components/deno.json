@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.227",
+  "version": "0.0.237",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -31,7 +31,8 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": true
     },
     "dev": {
       "read": true,

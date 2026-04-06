@@ -4,10 +4,36 @@ import type { t } from './common.ts';
  * Canonical `deps.yaml` manifest helpers for ESM dependencies.
  */
 export declare namespace EsmDeps {
+  /** Where imports are written when applying deps to a Deno config. */
+  export type TargetKind = 'imports' | 'importMap';
+
   /** Runtime surface for working with canonical dependency manifests. */
   export type Lib = {
     /** Load a dependency manifest from YAML text or path. */
     from(input: t.StringPath | t.StringYaml): Promise<Result>;
+    /** Apply Deno imports onto a target `deno.json` or import-map target. */
+    applyDeno(path: t.StringPath | undefined, entries?: Entry[]): Promise<ApplyResult>;
+    /** Apply package dependencies onto a target `package.json`. */
+    applyPackage(
+      path: t.StringPath | undefined,
+      entries?: Entry[],
+    ): Promise<ApplyPackageResult | undefined>;
+    /** Write canonical dependency YAML back to a deps.yaml target. */
+    applyYaml(
+      path: t.StringPath | undefined,
+      entries?: Entry[],
+      options?: YamlOptions,
+    ): Promise<ApplyYamlResult>;
+    /** Apply canonical deps to deps.yaml and projected files together. */
+    applyFiles(
+      input: {
+        readonly depsPath?: t.StringPath;
+        readonly denoFilePath?: t.StringPath;
+        readonly packageFilePath?: t.StringPath;
+        readonly yaml?: YamlOptions;
+      },
+      entries?: Entry[],
+    ): Promise<ApplyFilesResult>;
     /** Render manifest entries back to `deps.yaml`. */
     toYaml(entries: Entry[], options?: YamlOptions): Yaml;
     /** Normalize an ESM import into a manifest entry. */
@@ -16,6 +42,7 @@ export declare namespace EsmDeps {
       options?: {
         target?: TargetFile | TargetFile[];
         dev?: boolean;
+        name?: string;
         subpaths?: t.StringDir[];
       },
     ): Entry;
@@ -35,6 +62,46 @@ export declare namespace EsmDeps {
     data?: State;
     /** Load or parse error when state could not be produced. */
     error?: t.StdError;
+  };
+
+  /** Result from writing canonical deps back to a deps.yaml file. */
+  export type ApplyYamlResult = {
+    /** Resolved deps.yaml file path. */
+    readonly depsFilePath: t.StringPath;
+    /** Rendered YAML payload written to disk. */
+    readonly yaml: Yaml;
+  };
+
+  /** Result from applying deps to a `deno.json` or import-map target. */
+  export type ApplyResult = {
+    /** Whether imports were written inline or via an import map. */
+    readonly kind: TargetKind;
+    /** Resolved `deno.json` file path. */
+    readonly denoFilePath: t.StringPath;
+    /** File path that received the rendered imports. */
+    readonly targetPath: t.StringPath;
+    /** Final import map written to the target. */
+    readonly imports: Record<string, t.StringModuleSpecifier>;
+  };
+
+  /** Result from applying deps to a `package.json` target. */
+  export type ApplyPackageResult = {
+    /** Resolved `package.json` file path. */
+    readonly packageFilePath: t.StringPath;
+    /** Final runtime dependency map written to `package.json`. */
+    readonly dependencies: Record<string, t.StringSemver>;
+    /** Final development dependency map written to `package.json`. */
+    readonly devDependencies: Record<string, t.StringSemver>;
+  };
+
+  /** Result from applying canonical deps to deps.yaml and projected files. */
+  export type ApplyFilesResult = {
+    /** Result from writing deps.yaml. */
+    readonly yaml: ApplyYamlResult;
+    /** Result from applying projected Deno imports. */
+    readonly deno: ApplyResult;
+    /** Result from applying projected Node dependencies, when explicitly requested. */
+    readonly package?: ApplyPackageResult;
   };
 
   /** Canonical dependency manifest state. */

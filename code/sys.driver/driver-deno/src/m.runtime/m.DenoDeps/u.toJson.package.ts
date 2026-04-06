@@ -1,17 +1,18 @@
-import { type t, isEmptyRecord, Obj } from './common.ts';
+import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
 
 type D = { [key: string]: string };
 
 /**
  * Convert deps to a `package.json` format.
  */
-export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
+export function toPackageJson(deps?: t.Dep[]): t.PkgNodeJson {
   const dependencies: D = {};
   const devDependencies: D = {};
 
   if (deps) {
     const imports = deps
       .filter((e) => !e.module.error)
+      .filter((e) => !Esm.Is.localPath(e.module))
       .filter((e) => e.target.includes('package.json'));
 
     const toString = (mod: t.EsmImport) => {
@@ -34,7 +35,7 @@ export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
       .forEach((e) => (devDependencies[e.module.name] = toString(e.module)));
   }
 
-  const res: t.PkgJsonNode = {};
+  const res: t.PkgNodeJson = {};
   if (!isEmptyRecord(dependencies)) res.dependencies = Obj.sortKeys(dependencies);
   if (!isEmptyRecord(devDependencies)) res.devDependencies = Obj.sortKeys(devDependencies);
   return res;

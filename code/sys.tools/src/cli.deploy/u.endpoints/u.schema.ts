@@ -1,5 +1,39 @@
 import { type t, Schema } from '../common.ts';
-import { NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
+import { DenoProvider, NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
+import { EndpointSchemaParts } from './u.schema.parts.ts';
+
+const GenericDocSchema = Schema.Type.Object(
+  {
+    source: EndpointSchemaParts.source,
+    staging: EndpointSchemaParts.staging,
+    mappings: Schema.Type.Optional(
+      Schema.Type.Array(
+        Schema.Type.Object(
+          {
+            dir: EndpointSchemaParts.dir,
+            mode: Schema.Type.Union([
+              Schema.Type.Literal('copy'),
+              Schema.Type.Literal('build+copy'),
+              Schema.Type.Literal('index'),
+            ]),
+            shards: Schema.Type.Optional(
+              Schema.Type.Object(
+                {
+                  total: Schema.Type.Number(),
+                  requireAll: Schema.Type.Optional(Schema.Type.Boolean()),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+        { minItems: 0 },
+      ),
+    ),
+  },
+  { additionalProperties: false },
+);
 
 /**
  * Endpoint YAML schema (authoritative config).
@@ -26,56 +60,10 @@ export const EndpointYamlSchema = {
   /**
    * JsonSchema.
    */
-  schema: Schema.Type.Object(
-    {
-      provider: Schema.Type.Optional(
-        Schema.Type.Union([OrbiterProvider.Schema.schema, NoopProvider.Schema.schema]),
-      ),
-      source: Schema.Type.Optional(
-        Schema.Type.Object(
-          { dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]) },
-          { additionalProperties: false },
-        ),
-      ),
-      staging: Schema.Type.Object(
-        {
-          dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-          clear: Schema.Type.Optional(Schema.Type.Boolean()),
-        },
-        { additionalProperties: false },
-      ),
-      mappings: Schema.Type.Optional(
-        Schema.Type.Array(
-          Schema.Type.Object(
-            {
-              dir: Schema.Type.Object(
-                {
-                  source: Schema.Type.String(),
-                  staging: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-                },
-                { additionalProperties: false },
-              ),
-              mode: Schema.Type.Union([
-                Schema.Type.Literal('copy'),
-                Schema.Type.Literal('build+copy'),
-                Schema.Type.Literal('index'),
-              ]),
-              shards: Schema.Type.Optional(
-                Schema.Type.Object(
-                  {
-                    total: Schema.Type.Number(),
-                    requireAll: Schema.Type.Optional(Schema.Type.Boolean()),
-                  },
-                  { additionalProperties: false },
-                ),
-              ),
-            },
-            { additionalProperties: false },
-          ),
-          { minItems: 0 },
-        ),
-      ),
-    },
-    { additionalProperties: false },
-  ),
+  schema: Schema.Type.Union([
+    GenericDocSchema,
+    OrbiterProvider.EndpointSchema.doc,
+    NoopProvider.EndpointSchema.doc,
+    DenoProvider.EndpointSchema.doc,
+  ]),
 } as const;

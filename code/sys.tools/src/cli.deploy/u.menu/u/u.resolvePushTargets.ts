@@ -1,167 +1,35 @@
-import { includesShardTemplate, resolveShardTemplate } from '../../u.shardTemplate.ts';
-import { type t, c, Fs, Is, Obj, Path } from './common.ts';
-import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
-
-export type PushTarget = {
-  readonly provider: t.DeployTool.Config.Provider.Orbiter;
-  readonly stagingDir: t.StringDir;
-  readonly shard?: number;
-  readonly domain?: string;
-};
-
-export type PushTargetStats = {
-  readonly total: number;
-  readonly shard: number;
-  readonly root: number;
-  readonly base: number;
-  readonly skippedShards: number;
-};
-
-export type PushTargetPlan = {
-  readonly targets: readonly PushTarget[];
-  readonly stats: PushTargetStats;
-};
+import { DenoProvider } from '../../u.providers/mod.ts';
+import { type t } from './common.ts';
+import { resolveOrbiterPushTargets } from './u.resolveOrbiterPushTargets.ts';
+import { Fs } from '../../common.ts';
 
 export async function resolvePushTargets(args: {
   cwd: t.StringDir;
   yaml: t.DeployTool.Config.EndpointYaml.Doc;
-}): Promise<PushTargetPlan> {
+}): Promise<t.PushTargetPlan> {
   const provider = args.yaml.provider;
-  if (!provider || provider.kind !== 'orbiter') {
-    return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
+  if (!provider) {
+    return { targets: [], stats: { total: 0 } };
   }
-  const baseDomain = String(provider.domain ?? '').trim();
-
-  const mappings = args.yaml.mappings ?? [];
-  const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = resolvePushStagingDir({ cwd: args.cwd, stagingRootRel });
-
-  const shardMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
-  const baseMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
-  const indexMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
-
-  for (const mapping of mappings) {
-    if (mapping.mode === 'index') {
-      indexMappings.push(mapping);
-      continue;
-    }
-    const source = String(mapping.dir.source ?? '').trim();
-    const staging = String(mapping.dir.staging ?? '').trim();
-    const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
-    if (hasTemplate) shardMappings.push(mapping);
-    else baseMappings.push(mapping);
-  }
-
-  if (indexMappings.length > 1) {
-    const msg = 'Deploy: multiple index mappings found; using the first for root push.';
-    console.info(c.yellow(msg));
-  }
-
-  if (shardMappings.length === 0) {
-    if (!(await Fs.exists(stagingRootAbs))) {
-      return { targets: [], stats: { total: 0, shard: 0, root: 0, base: 0, skippedShards: 0 } };
+  if (provider.kind === 'deno') {
+    const res = DenoProvider.resolveTarget(args);
+    if (!res.ok) return { targets: [], stats: { total: 0 } };
+    if (!(await Fs.exists(res.stagingRootAbs))) {
+      return { targets: [], stats: { total: 0 } };
     }
     return {
-      targets: [{ provider, stagingDir: stagingRootAbs }],
-      stats: { total: 1, shard: 0, root: 0, base: 1, skippedShards: 0 },
+      targets: [
+        {
+          provider: res.provider,
+          sourceDir: res.targetDir,
+          stagingDir: res.stagingRootAbs,
+        },
+      ],
+      stats: { total: 1 },
     };
   }
+  if (provider.kind !== 'orbiter') return { targets: [], stats: { total: 0 } };
 
-  const targets: PushTarget[] = [];
-  const seen = new Set<string>();
-  let skippedShards = 0;
-
-  for (const mapping of baseMappings) {
-    const stagingRel = String(mapping.dir.staging ?? '').trim() || '.';
-    const stagingAbs = Path.resolve(stagingRootAbs, stagingRel);
-    if (!(await Fs.exists(stagingAbs))) continue;
-    if (seen.has(stagingAbs)) continue;
-    seen.add(stagingAbs);
-    targets.push({ provider, stagingDir: stagingAbs });
-  }
-
-  const indexMapping = indexMappings[0];
-  if (indexMapping) {
-    const stagingRel = String(indexMapping.dir.staging ?? '').trim() || '.';
-    const stagingAbs = Path.resolve(stagingRootAbs, stagingRel);
-    if (await Fs.exists(stagingAbs)) {
-      if (!seen.has(stagingAbs)) {
-        seen.add(stagingAbs);
-        targets.push({ provider, stagingDir: stagingAbs });
-      }
-    }
-  }
-
-  const shardConfig = provider.shards;
-  const siteIds = shardConfig?.siteIds;
-  const total = shardConfig?.total;
-  if (!Is.num(total) || !Number.isFinite(total) || total <= 0) {
-    const rootCount = indexMapping ? 1 : 0;
-    return {
-      targets,
-      stats: {
-        total: targets.length,
-        shard: 0,
-        root: rootCount,
-        base: Math.max(0, targets.length - rootCount),
-        skippedShards,
-      },
-    };
-  }
-  if (!siteIds || Obj.keys(siteIds).length === 0) {
-    const rootCount = indexMapping ? 1 : 0;
-    return {
-      targets,
-      stats: {
-        total: targets.length,
-        shard: 0,
-        root: rootCount,
-        base: Math.max(0, targets.length - rootCount),
-        skippedShards,
-      },
-    };
-  }
-
-  const only = shardConfig?.only ?? [];
-  const indices =
-    only.length > 0 ? only : Obj.keys(siteIds).map((key) => Number.parseInt(String(key), 10));
-
-  for (const shard of indices) {
-    if (!Is.num(shard) || !Number.isInteger(shard)) continue;
-    if (shard < 0 || shard >= total) continue;
-    const siteId = siteIds[shard];
-    if (!Is.str(siteId) || !siteId.trim()) continue;
-
-    let hasShardOutput = false;
-    for (const mapping of shardMappings) {
-      const stagingRel = String(mapping.dir.staging ?? '').trim() || '.';
-      const expandedRel = resolveShardTemplate(stagingRel, shard, total);
-      const stagingAbs = Path.resolve(stagingRootAbs, expandedRel);
-      if (!(await Fs.exists(stagingAbs))) continue;
-      hasShardOutput = true;
-      const providerForShard = { ...provider, siteId };
-      const shardDomain = baseDomain ? `${shard}.${baseDomain}` : undefined;
-      targets.push({
-        provider: providerForShard,
-        stagingDir: stagingAbs,
-        domain: shardDomain,
-        shard,
-      });
-    }
-    if (!hasShardOutput) skippedShards += 1;
-  }
-
-  const shardCount = targets.filter((target) => Is.num(target.shard)).length;
-  const baseCount = targets.filter((target) => !Is.num(target.shard)).length;
-  const rootCount = indexMapping ? 1 : 0;
-  return {
-    targets,
-    stats: {
-      total: targets.length,
-      shard: shardCount,
-      root: rootCount,
-      base: Math.max(0, baseCount - rootCount),
-      skippedShards,
-    },
-  };
+  const plan = await resolveOrbiterPushTargets(args);
+  return { targets: plan.targets, stats: { total: plan.stats.total } };
 }

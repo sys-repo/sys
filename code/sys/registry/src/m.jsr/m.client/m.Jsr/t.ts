@@ -7,6 +7,8 @@ import type { t } from './common.ts';
 export type JsrClientLib = {
   /** Network fetching helpers against the "jsr.io" end-point. */
   readonly Fetch: t.JsrFetch.Lib;
+  /** JSR package-name predicates. */
+  readonly Is: t.JsrIsLib;
   /** JSR import specifier helpers. */
   readonly Import: t.JsrImportLib;
   /** JSR registry URL helpers. */

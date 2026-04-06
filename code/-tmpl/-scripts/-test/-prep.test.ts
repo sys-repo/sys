@@ -350,8 +350,8 @@ describe('prep.u', () => {
 
     const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
       readJson<t.Json>(path.tmplRepoImports),
-      readJson<t.PkgJsonNode>(path.tmplRepoPackage),
-      readJson<t.PkgJsonNode>(path.rootPackage),
+      readJson<t.PkgNodeJson>(path.tmplRepoPackage),
+      readJson<t.PkgNodeJson>(path.rootPackage),
       readJson<t.Json>(path.rootImports),
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);

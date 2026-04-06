@@ -1,5 +1,5 @@
 import { Workspace } from '@sys/workspace';
-import { Fs, TmplEngine } from './common.ts';
+import { Fs, Update } from './common.ts';
 
 const PATHS_FILE = './-scripts/-PATHS.ts' as const;
 export const WORKSPACE_GRAPH_CACHE_FILE = Workspace.Prep.State.graphFile(Fs.cwd());
@@ -41,8 +41,11 @@ export async function main(path: string = PATHS_FILE, paths?: readonly string[])
   let sawStart = false;
   let sawEnd = false;
 
-  const res = await TmplEngine.File.update(path, (e) => {
-    const text = e.text.trim();
+  const read = await Fs.readText(path);
+  if (read.error) throw read.error;
+
+  const res = Update.lines(read.data ?? '', (line) => {
+    const text = line.text.trim();
     if (text === START_MARKER) {
       sawStart = true;
       betweenMarkers = true;
@@ -52,17 +55,21 @@ export async function main(path: string = PATHS_FILE, paths?: readonly string[])
     if (text === END_MARKER) {
       sawEnd = true;
       if (!betweenMarkers) return;
-      for (const line of lines) e.insert(line, 'before');
+      for (const value of lines) line.insert(value, 'before');
       betweenMarkers = false;
       return;
     }
 
-    if (betweenMarkers) e.delete();
+    if (betweenMarkers) line.delete();
   });
 
-  if (res.error) throw res.error;
   if (!sawStart || !sawEnd) {
     throw new Error(`Failed to update ${path}: missing generated markers`);
+  }
+
+  if (res.changed) {
+    const write = await Fs.write(path, res.after, { force: true });
+    if (write.error) throw write.error;
   }
 
   return res.changed;
@@ -74,5 +81,5 @@ if (import.meta.main) await main();
  * Helpers:
  */
 function workspaceCwdFromGraphFile(path: string) {
-  return Fs.dirname(Fs.dirname(path));
+  return Fs.dirname(path);
 }

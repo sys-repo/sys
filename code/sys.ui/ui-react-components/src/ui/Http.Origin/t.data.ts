@@ -8,13 +8,6 @@ export type HttpOriginDataLib = {
 };
 
 /**
- * Per-environment origin tree map (input to HttpOrigin component).
- */
-export type HttpOriginSpecMap<E extends string = string, T extends UrlTree = UrlTree> = Partial<
-  Record<E, T>
->;
-
-/**
  * URL value for a single row (supports single or multiple origins).
  */
 export type HttpOriginValue = t.StringUrl | readonly t.StringUrl[];

@@ -18,6 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
           - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
           - name: "@sys/ui-react-components"
@@ -38,6 +40,8 @@ jobs:
             path: code/sys/crdt
           - name: "@tdb/slc"
             path: deploy/@tdb.slc
+          - name: "@tdb/slc-data"
+            path: deploy/@tdb.slc.data
           - name: "@tdb/slc-fs"
             path: deploy/@tdb.slc.fs
           - name: "@tdb/slc-std"
@@ -49,7 +53,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.8
+          deno-version: v2.7.11
       - name: Install Dependencies
         run: |
           max_attempts=3

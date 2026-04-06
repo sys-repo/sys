@@ -48,7 +48,7 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
   console.info();
   console.info(c.brightCyan(`${pkg.name}`));
   console.info(c.gray(`location: ${location}`));
-  console.info(c.gray(`template: ${c.bold(c.green(`${root}`))}`));
+  console.info(c.gray(`template: ${c.bold(c.brightCyan(`${root}`))}`));
   console.info();
   console.info(TmplEngine.Log.table(ops, targetDir));
   console.info();

@@ -59,5 +59,33 @@ export type YamlParseResult<T> = YamlOk<T | null> | YamlErr<t.StdError>; // yaml
  */
 export type YamlStringifyResult = YamlOk<t.StringYaml> | YamlErr<t.StdError>;
 
-/** Options for the `Yaml.stringify` method (direct alias of `yaml.ToStringOptions`). */
-export type YamlStringifyOptions = Y.ToStringOptions;
+/**
+ * Mutable formatting context exposed while `Yaml.stringify` walks
+ * the generated YAML AST before serialization.
+ */
+export type YamlStringifyFormatContext = {
+  /** The mutable YAML document being serialized. */
+  readonly doc: t.Yaml.Doc;
+  /** Parent AST node of the current node, when one exists. */
+  readonly parent?: t.YamlAstParent;
+  /** The current mutable AST node. */
+  readonly node: t.YamlAstNode;
+  /** Logical object path to the current value position. */
+  readonly path: t.ObjectPath;
+  /** Logical key/index from the parent to the current node. */
+  readonly key: string | number | null;
+  /** Stops further formatting traversal. */
+  stop(): void;
+};
+
+/** Callback invoked while formatting a YAML AST during stringify. */
+export type YamlStringifyFormat = (ctx: t.YamlStringifyFormatContext) => void;
+
+/** Options for the `Yaml.stringify` method. */
+export type YamlStringifyOptions = Y.ToStringOptions & {
+  /**
+   * Optional mutable AST formatting hook.
+   * Runs after the document is built and before it is serialized.
+   */
+  format?: t.YamlStringifyFormat;
+};

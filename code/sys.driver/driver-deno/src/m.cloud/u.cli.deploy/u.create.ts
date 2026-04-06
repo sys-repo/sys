@@ -15,6 +15,7 @@ export function create(req: t.DenoApp.Create.Request) {
   const args = ['deploy', 'create', '--source', 'local', '--app', app];
   if (Is.str(req.org) && hasValue(req.org)) args.push('--org', req.org.trim());
   if (Is.str(req.token) && hasValue(req.token)) args.push('--token', req.token.trim());
+  if (Is.str(req.config) && hasValue(req.config)) args.push('--config', req.config.trim());
   if (Is.str(req.region) && hasValue(req.region)) args.push('--region', req.region.trim());
   if (req.noWait !== false) args.push('--no-wait');
   if (req.dryRun === true) args.push('--dry-run');

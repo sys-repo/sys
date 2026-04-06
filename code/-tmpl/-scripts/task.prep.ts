@@ -35,8 +35,8 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const [repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
     readJson<t.Json>(path.tmplRepoImports),
-    readJson<t.PkgJsonNode>(path.tmplRepoPackage),
-    readJson<t.PkgJsonNode>(path.rootPackage),
+    readJson<t.PkgNodeJson>(path.tmplRepoPackage),
+    readJson<t.PkgNodeJson>(path.rootPackage),
     readJson<t.Json>(path.rootImports),
   ]);
 
@@ -57,8 +57,9 @@ function logCommitMessage(context: CommitContext) {
   const commit = context === 'bump'
     ? 'chore(bump): update package versions and refresh generated outputs'
     : 'chore(tmpl): refresh generated template surfaces and embedded bundle';
+  const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } });
   console.info();
-  console.info(Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'green' } }));
+  console.info(`  ${suggestion}`);
   console.info();
 }
 

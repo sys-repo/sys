@@ -1,14 +1,15 @@
-import { Args } from './common.ts';
+import { Workspace } from '@sys/workspace';
+import { Args, D } from './common.ts';
 
 import { main as bump } from './task.bump.ts';
 import { main as clean } from './task.clean.ts';
 import { main as dry } from './task.dry.ts';
 import { main as info } from './task.info.ts';
 import { main as lint } from './task.lint.ts';
-import { main as prepCi } from './task.prep.ci.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 import { main as prep } from './task.prep.ts';
 import { main as test } from './task.test.ts';
+import { Paths } from './-PATHS.ts';
 
 export type MainArgs = {
   dry?: boolean;
@@ -37,6 +38,26 @@ type Lib = {
   readonly prepCiDeno: typeof prepCiDeno;
 };
 
+type PrepCiOptions = {
+  versionFilter?: 'all' | 'ahead';
+  prepared?: number;
+  final?: boolean;
+  ensureGraph?: boolean;
+};
+
+async function prepCi(options: PrepCiOptions = {}) {
+  await Workspace.Ci.sync({
+    cwd: Deno.cwd(),
+    sourcePaths: Paths.modules,
+    jsrScopes: D.ci.jsrScopes,
+    on: D.ci.on,
+    versionFilter: options.versionFilter,
+    prepared: options.prepared,
+    final: options.final,
+    ...(options.ensureGraph !== undefined ? { ensureGraph: options.ensureGraph } : {}),
+  });
+}
+
 const lib: Lib = {
   dry,
   test,
@@ -63,7 +84,12 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv['prep-all']) {
     const prepared = await api.prep();
     await api.prepCiDeno();
-    await api.prepCi({ versionFilter: argv['ahead-only'] ? 'ahead' : 'all', prepared, final: true });
+    await api.prepCi({
+      versionFilter: argv['ahead-only'] ? 'ahead' : 'all',
+      prepared,
+      final: true,
+      ensureGraph: false,
+    });
   }
   if (argv['prep-ci']) await api.prepCi({ versionFilter: argv['ahead-only'] ? 'ahead' : 'all' });
   if (argv['prep-ci-deno']) await api.prepCiDeno();

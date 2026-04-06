@@ -3,8 +3,15 @@ import { InfoFmt } from './u.info.ts';
 import { ListenFmt } from './u.listen.ts';
 
 export const Fmt: t.DenoDeploy.Fmt.Lib = {
-  spinnerText: ListenFmt.spinnerText,
-  spinner: ListenFmt.spinner,
+  Spinner: {
+    text: ListenFmt.spinnerText,
+    create: ListenFmt.spinner,
+  },
+  Deploy: {
+    config: InfoFmt.Deploy.config,
+    result: InfoFmt.Deploy.result,
+    failure: InfoFmt.Deploy.failure,
+  },
   listen: ListenFmt.listen,
 };
 
@@ -12,8 +19,12 @@ export const FmtInternal = {
   blocked: InfoFmt.blocked,
   envVarsNotFound: InfoFmt.envVarsNotFound,
   info: InfoFmt.info,
-  deployConfig: InfoFmt.deployConfig,
-  stagedEntrypoint: InfoFmt.stagedEntrypoint,
-  deployResult: InfoFmt.deployResult,
-  pipelineFailure: InfoFmt.pipelineFailure,
+  Deploy: {
+    config: InfoFmt.Deploy.config,
+    result: InfoFmt.Deploy.result,
+    failure: InfoFmt.Deploy.failure,
+  },
+  Staged: {
+    entrypoint: InfoFmt.Staged.entrypoint,
+  },
 } as const;

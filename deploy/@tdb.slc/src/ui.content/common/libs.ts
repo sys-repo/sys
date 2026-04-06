@@ -1,4 +1,5 @@
 export { DEFAULTS } from '../../ui/App.Render/mod.ts';
+export { Http } from '@sys/http/client';
 export {
   App,
   FadeText,

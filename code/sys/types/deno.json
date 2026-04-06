@@ -1,6 +1,6 @@
 {
   "name": "@sys/types",
-  "version": "0.0.271",
+  "version": "0.0.273",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",

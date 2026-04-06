@@ -1,4 +1,5 @@
 import { describe, expect, it, pkg } from '../../../-test.ts';
+import { Is } from '../m.Is.ts';
 import { Modules } from '../m.Modules.ts';
 import { Esm } from '../mod.ts';
 import { Topological } from '../../m.Topological/mod.ts';
@@ -17,6 +18,7 @@ describe('Esm', () => {
     expect(Esm.Policy).to.equal(Policy);
     expect(Esm.Topological).to.equal(Topological);
     expect(Esm.Modules).to.equal(Modules);
+    expect(Esm.Is).to.equal(Is);
     expect(Esm.modules).to.equal(Modules.create);
   });
 });

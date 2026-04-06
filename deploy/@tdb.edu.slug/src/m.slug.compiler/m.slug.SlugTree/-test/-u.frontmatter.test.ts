@@ -1,5 +1,5 @@
 import { describe, expect, it, Str } from '../../-test.ts';
-import { ensureFrontmatterRef } from '../u.frontmatter.ts';
+import { SlugTreeFs } from '../common.ts';
 
 describe('SlugTree.frontmatter', () => {
   it('inserts front-matter with ref when missing', async () => {
@@ -9,7 +9,7 @@ describe('SlugTree.frontmatter', () => {
       return `new-${count}`;
     };
 
-    const res = await ensureFrontmatterRef({
+    const res = await SlugTreeFs.ensureFrontmatterRef({
       text: '# Title\n',
       createCrdt,
     });
@@ -29,7 +29,7 @@ describe('SlugTree.frontmatter', () => {
       # Beta
     `).trimStart();
 
-    const res = await ensureFrontmatterRef({
+    const res = await SlugTreeFs.ensureFrontmatterRef({
       text: src,
       createCrdt: async () => 'crdt:beta-1',
     });
@@ -51,7 +51,7 @@ describe('SlugTree.frontmatter', () => {
       # Gamma
     `).trimStart();
 
-    const res = await ensureFrontmatterRef({
+    const res = await SlugTreeFs.ensureFrontmatterRef({
       text: src,
       createCrdt: async () => 'crdt:should-not-use',
     });

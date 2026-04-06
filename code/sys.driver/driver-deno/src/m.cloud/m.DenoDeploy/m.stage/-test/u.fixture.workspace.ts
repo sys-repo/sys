@@ -1,12 +1,21 @@
-import { Fs, Str, Testing } from '../../../../-test.ts';
+import { Fs, Str, Testing, Workspace } from '../../../../-test.ts';
 
 export async function createStageWorkspace() {
   const fs = await Testing.dir('DenoDeploy.stage');
   await Fs.writeJson(fs.join('deno.json'), {
     name: 'root',
     version: '0.0.0',
-    workspace: ['./code/apps/foo', './libs/bar'],
+    importMap: './imports.json',
+    workspace: ['./code/apps/foo', './libs/bar', './libs/baz'],
   });
+  await Fs.writeJson(fs.join('imports.json'), {
+    imports: {
+      '@test/foo': './code/apps/foo/src/mod.ts',
+      '@test/bar': './libs/bar/src/mod.ts',
+      '@test/baz': './libs/baz/src/mod.ts',
+    },
+  });
+  await Fs.write(fs.join('deno.lock'), '{"version":"5"}\n');
 
   await Fs.writeJson(fs.join('code/apps/foo/deno.json'), {
     name: '@test/foo',
@@ -16,7 +25,7 @@ export async function createStageWorkspace() {
   });
   await Fs.write(
     fs.join('code/apps/foo/src/mod.ts'),
-    `export default 'foo-default';\nexport const foo = 'foo';\n`,
+    `import { bar } from '../../../../libs/bar/src/mod.ts';\nexport default 'foo-default';\nexport const foo = \`foo-\${bar}\`;\n`,
   );
   await Fs.write(
     fs.join('code/apps/foo/-scripts/task.build.ts'),
@@ -42,7 +51,114 @@ export async function createStageWorkspace() {
       await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>bar</body></html>');
     `),
   );
+
+  await Fs.writeJson(fs.join('libs/baz/deno.json'), {
+    name: '@test/baz',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+    tasks: { build: 'deno run -A ./-scripts/task.build.ts' },
+  });
+  await Fs.write(fs.join('libs/baz/src/mod.ts'), `export const baz = 'baz';\n`);
+  await Fs.write(
+    fs.join('libs/baz/-scripts/task.build.ts'),
+    Str.dedent(`
+      await Deno.mkdir('dist', { recursive: true });
+      await Deno.writeTextFile('dist/index.html', '<!doctype html><html><body>baz</body></html>');
+    `),
+  );
+
+  await writeWorkspaceGraphSnapshot(fs.dir, {
+    orderedPaths: ['libs/bar', 'code/apps/foo', 'libs/baz'],
+    edges: [{ from: 'libs/bar', to: 'code/apps/foo' }],
+  });
   return fs;
+}
+
+export async function addStageRuntimeDriverFixture(root: string) {
+  await Fs.writeJson(Fs.join(root, 'deno.json'), {
+    name: 'root',
+    version: '0.0.0',
+    importMap: './imports.json',
+    workspace: [
+      './code/apps/foo',
+      './libs/bar',
+      './libs/baz',
+      './code/sys/types',
+      './code/sys/fs',
+      './code/sys.driver/driver-deno',
+    ],
+  });
+  await Fs.writeJson(Fs.join(root, 'imports.json'), {
+    imports: {
+      '@test/foo': './code/apps/foo/src/mod.ts',
+      '@test/bar': './libs/bar/src/mod.ts',
+      '@test/baz': './libs/baz/src/mod.ts',
+      '@sys/driver-deno': './code/sys.driver/driver-deno/src/mod.ts',
+      '@sys/driver-deno/cloud': './code/sys.driver/driver-deno/src/m.cloud/mod.ts',
+      '@sys/fs': './code/sys/fs/src/mod.ts',
+      '@sys/types': './code/sys/types/src/mod.ts',
+    },
+  });
+  await Fs.write(
+    Fs.join(root, 'code/apps/foo/src/mod.ts'),
+    Str.dedent(`
+      import { cloud } from '@sys/driver-deno/cloud';
+      import { bar } from '@test/bar';
+
+      export default 'foo-default';
+      export const foo = \`foo-\${bar}-\${cloud}\`;
+    `),
+  );
+
+  await Fs.writeJson(Fs.join(root, 'code/sys.driver/driver-deno/deno.json'), {
+    name: '@sys/driver-deno',
+    version: '0.0.288',
+    exports: {
+      '.': './src/mod.ts',
+      './cloud': './src/m.cloud/mod.ts',
+    },
+  });
+  await Fs.write(
+    Fs.join(root, 'code/sys.driver/driver-deno/src/mod.ts'),
+    `import { fs } from '@sys/fs';\nexport const driver = fs;\n`,
+  );
+  await Fs.write(
+    Fs.join(root, 'code/sys.driver/driver-deno/src/m.cloud/mod.ts'),
+    `export const cloud = 'cloud';\n`,
+  );
+
+  await Fs.writeJson(Fs.join(root, 'code/sys/fs/deno.json'), {
+    name: '@sys/fs',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+  });
+  await Fs.write(
+    Fs.join(root, 'code/sys/fs/src/mod.ts'),
+    `import type { T } from '@sys/types';\nexport const fs: T = true;\n`,
+  );
+
+  await Fs.writeJson(Fs.join(root, 'code/sys/types/deno.json'), {
+    name: '@sys/types',
+    version: '0.0.0',
+    exports: { '.': './src/mod.ts' },
+  });
+  await Fs.write(Fs.join(root, 'code/sys/types/src/mod.ts'), `export type T = true;\n`);
+}
+
+export async function addRetainedPackageJunkFixture(root: string) {
+  await Fs.write(Fs.join(root, 'libs/bar/.DS_Store'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/.env'), 'SECRET=nope\n');
+  await Fs.write(Fs.join(root, 'libs/bar/.tmp/cache.txt'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/node_modules/pkg/index.js'), 'junk\n');
+  await Fs.write(Fs.join(root, 'libs/bar/src/-test/fixture.test.ts'), 'junk\n');
+}
+
+export async function writeWorkspaceGraphSnapshot(
+  root: string,
+  graph: import('../../../../-test.ts').t.WorkspaceGraph.PersistedGraph,
+) {
+  const snapshot = Workspace.Graph.Snapshot.create({ graph });
+  await Workspace.Graph.Snapshot.write(snapshot, Fs.join(root, 'deno.graph.json'));
 }
 
 export async function getStageError(fn: () => Promise<unknown>) {

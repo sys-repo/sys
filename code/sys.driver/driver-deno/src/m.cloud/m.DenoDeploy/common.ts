@@ -9,6 +9,6 @@ export const D = {
   },
   tmpDirPrefix: {
     logs: 'sys.driver.deno.deploy.logs-',
-    stage: 'sys.driver.deno.deploy.stage-',
+    stage: 'sys.driver.deno.deploy.staged-',
   },
 } as const;

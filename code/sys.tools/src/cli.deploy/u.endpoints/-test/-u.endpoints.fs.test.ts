@@ -12,19 +12,25 @@ describe('EndpointsFs', () => {
   });
 
   it('initialYaml: contains mappings: []', () => {
-    const yaml = EndpointsFs.initialYaml('alpha');
+    const yaml = EndpointsFs.initialYaml();
     expect(yaml.includes('mappings: []')).to.eql(true);
+    expect(yaml.includes('# mapping:')).to.eql(true);
+    expect(yaml.includes('# deploy endpoint: alpha')).to.eql(false);
+    expect(yaml.includes('siteId: SITE_ID_HERE')).to.eql(true);
+    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(true);
+    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(true);
+    expect(yaml.includes('source: ./my-public')).to.eql(true);
   });
 
   it('ensureInitialYaml: creates file if missing (and parent dir)', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('alpha')}`;
 
-      await EndpointsFs.ensureInitialYaml(path, 'alpha');
+      await EndpointsFs.ensureInitialYaml(path);
 
       const text = (await Fs.readText(path)).data!;
-      expect(text.includes('# deploy endpoint: alpha')).to.eql(true);
       expect(text.includes('mappings: []')).to.eql(true);
+      expect(text.includes('siteId: SITE_ID_HERE')).to.eql(true);
     });
   });
 
@@ -36,7 +42,7 @@ describe('EndpointsFs', () => {
       const original = '# custom\nmappings: []\n';
       await Fs.write(path, original);
 
-      await EndpointsFs.ensureInitialYaml(path, 'alpha');
+      await EndpointsFs.ensureInitialYaml(path);
 
       const text = (await Fs.readText(path)).data;
       expect(text).to.eql(original);
@@ -130,6 +136,32 @@ describe('EndpointsFs', () => {
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
 
+      expect(res.ok).to.eql(true);
+    });
+  });
+
+  it('validateYaml: deno singular mapping source exists relative to tool cwd → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('deno')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.ensureDir(`${tmp}/code/apps/foo`);
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: deno
+          app: my-app
+        source:
+          dir: .
+        staging:
+          dir: ./stage
+        mapping:
+          dir:
+            source: ./code/apps/foo
+            staging: .
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
       expect(res.ok).to.eql(true);
     });
   });
@@ -323,18 +355,17 @@ describe('EndpointsFs', () => {
 
       await Fs.ensureDir(`${tmp}/code/my-modules/ui.foo.bar`);
 
-      const yaml = [
-        'source:',
-        '  dir: ./code',
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: build+copy',
-        '    dir:',
-        '      source: ./my-modules/ui.foo.bar',
-        '      staging: dist/my-output',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        source:
+          dir: ./code
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: build+copy
+            dir:
+              source: ./my-modules/ui.foo.bar
+              staging: dist/my-output
+      `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -350,18 +381,17 @@ describe('EndpointsFs', () => {
 
       await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-react-components`);
 
-      const yaml = [
-        'source:',
-        '  dir: ./repo-root',
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: build+copy',
-        '    dir:',
-        '      source: ./sys.ui/ui-react-components',
-        '      staging: dist/ui-react-components',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        source:
+          dir: ./repo-root
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: build+copy
+            dir:
+              source: ./sys.ui/ui-react-components
+              staging: dist/ui-react-components
+      `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -374,7 +404,11 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.write(path, ['staging:', '  dir: ./staging', 'mappings: []', ''].join('\n'));
+      await Fs.write(path, Str.dedent(`
+        staging:
+          dir: ./staging
+        mappings: []
+      `));
 
       const res = await EndpointsFs.validateYaml(path);
       expect(res.ok).to.eql(true);
@@ -397,16 +431,15 @@ describe('EndpointsFs', () => {
         // ensure the directory exists under home for this test
         await Fs.ensureDir(srcAbs);
 
-        const yaml = [
-          'staging:',
-          '  dir: ./staging',
-          'mappings:',
-          '  - mode: build+copy',
-          '    dir:',
-          `      source: ${Fs.Tilde.collapse(srcAbs)}`,
-          '      staging: dist/my-output',
-          '',
-        ].join('\n');
+        const yaml = Str.dedent(`
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: build+copy
+              dir:
+                source: ${Fs.Tilde.collapse(srcAbs)}
+                staging: dist/my-output
+        `);
 
         await Fs.write(yamlPath, yaml);
 
@@ -429,7 +462,11 @@ describe('EndpointsFs', () => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('staging-abs')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      const yaml = ['staging:', '  dir: /tmp/staging-abs', 'mappings: []', ''].join('\n');
+      const yaml = Str.dedent(`
+        staging:
+          dir: /tmp/staging-abs
+        mappings: []
+      `);
       await Fs.write(yamlPath, yaml);
 
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -447,7 +484,11 @@ describe('EndpointsFs', () => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('staging-dotdot')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      const yaml = ['staging:', '  dir: ../staging-1', 'mappings: []', ''].join('\n');
+      const yaml = Str.dedent(`
+        staging:
+          dir: ../staging-1
+        mappings: []
+      `);
       await Fs.write(yamlPath, yaml);
 
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -468,16 +509,15 @@ describe('EndpointsFs', () => {
       const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
       await Fs.ensureDir(srcAbs);
 
-      const yaml = [
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: copy',
-        '    dir:',
-        '      source: ../code/my-modules/ui.foo.bar',
-        '      staging: /tmp/nope',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            dir:
+              source: ../code/my-modules/ui.foo.bar
+              staging: /tmp/nope
+      `);
 
       await Fs.write(yamlPath, yaml);
 
@@ -499,16 +539,15 @@ describe('EndpointsFs', () => {
       const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
       await Fs.ensureDir(srcAbs);
 
-      const yaml = [
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: copy',
-        '    dir:',
-        '      source: ../code/my-modules/ui.foo.bar',
-        '      staging: ../nope',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            dir:
+              source: ../code/my-modules/ui.foo.bar
+              staging: ../nope
+      `);
 
       await Fs.write(yamlPath, yaml);
 
@@ -530,16 +569,15 @@ describe('EndpointsFs', () => {
       const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
       await Fs.ensureDir(srcAbs);
 
-      const yaml = [
-        'staging:',
-        '  dir: staging-1',
-        'mappings:',
-        '  - mode: copy',
-        '    dir:',
-        '      source: ./code/my-modules/ui.foo.bar',
-        '      staging: ui-react-components',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        staging:
+          dir: staging-1
+        mappings:
+          - mode: copy
+            dir:
+              source: ./code/my-modules/ui.foo.bar
+              staging: ui-react-components
+      `);
 
       await Fs.write(yamlPath, yaml);
 

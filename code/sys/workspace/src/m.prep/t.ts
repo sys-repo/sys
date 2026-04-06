@@ -37,6 +37,11 @@ export declare namespace WorkspacePrep {
 
   /** Prep-time graph snapshot lifecycle helpers. */
   export namespace Graph {
+    export type VerifyArgs = {
+      readonly cwd?: t.StringDir;
+      readonly silent?: boolean;
+    };
+
     export type WriteArgs = {
       readonly cwd?: t.StringDir;
       readonly snapshot: t.WorkspaceGraph.Snapshot.Doc;
@@ -45,12 +50,23 @@ export declare namespace WorkspacePrep {
     export type EnsureArgs = {
       readonly cwd?: t.StringDir;
       readonly graph?: t.WorkspaceGraph.PersistedGraph;
+      /** Suppress graph prep phase output. */
+      readonly silent?: boolean;
+    };
+
+    export type CheckResult = {
+      readonly path: t.StringPath;
+      readonly current: boolean;
+      readonly existing?: t.WorkspaceGraph.Snapshot.Doc;
+      readonly expected: t.WorkspaceGraph.Snapshot.Doc;
     };
 
     export type Lib = {
       build(cwd?: t.StringDir): Promise<t.WorkspaceGraph.PersistedGraph>;
       snapshot(graph: t.WorkspaceGraph.PersistedGraph): t.WorkspaceGraph.Snapshot.Doc;
       read(cwd?: t.StringDir): Promise<t.WorkspaceGraph.Snapshot.Doc | undefined>;
+      check(cwd?: t.StringDir): Promise<CheckResult>;
+      verify(args?: VerifyArgs): Promise<CheckResult>;
       write(args: WriteArgs): Promise<RunResult['graph']>;
       ensure(args?: EnsureArgs): Promise<RunResult['graph']>;
     };
@@ -63,8 +79,22 @@ export declare namespace WorkspacePrep {
     };
   }
 
+  /** Prep-time console output formatters. */
+  export namespace Fmt {
+    export type ImportMapArgs = {
+      readonly cwd?: t.StringDir;
+      readonly total: number;
+      readonly paths: readonly t.StringPath[];
+    };
+
+    export type Lib = {
+      importMap(args: ImportMapArgs): string;
+    };
+  }
+
   export type Lib = {
     readonly State: State.Lib;
+    readonly Fmt: Fmt.Lib;
     readonly Graph: Graph.Lib;
     readonly Workspace: Workspace.Lib;
     run(args?: RunArgs): Promise<RunResult>;

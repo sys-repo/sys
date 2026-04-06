@@ -3,7 +3,7 @@ import { RecorderHookView, StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, Obj, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Signal, Time } from '../common.ts';
-import { Icons } from '../ui.Icons.ts';
+import { Icons } from '../../common/u.icons.ts';
 
 type P = t.MediaRecorderFilesProps;
 type L = { filters: Partial<t.MediaFilterValues>; zoom: Partial<t.MediaZoomValues> };

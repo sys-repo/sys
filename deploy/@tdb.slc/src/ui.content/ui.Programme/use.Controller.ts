@@ -1,4 +1,5 @@
 import { type t } from './common.ts';
+import { WarmVideo } from '../ui/m.VideoWarmup.ts';
 import { useSection } from './use.Section.ts';
 
 export function useController(props: { state: t.ProgrammeSignals; video: t.VideoPlayerSignals }) {
@@ -26,6 +27,7 @@ export function useController(props: { state: t.ProgrammeSignals; video: t.Video
     onSectionSelected(index: t.Index) {
       p.section.value = { index };
       p.align.value = 'Right';
+      void WarmVideo.section(media.value?.children?.[index]);
     },
 
     onBackClick() {

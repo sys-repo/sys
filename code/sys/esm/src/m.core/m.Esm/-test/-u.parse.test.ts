@@ -1,7 +1,24 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
+import { type t, describe, expect, it, Path } from '../../../-test.ts';
 import { Esm } from '../mod.ts';
 
 describe('Esm', () => {
+  const absPath = Path.resolve('deploy/@tdb.slc.data/src/ui/mod.ts');
+  const fileUrl = String(Path.toFileUrl(Path.resolve('deploy/@tdb.slc.data/src/types.ts')));
+
+  describe('Esm.Is.localPath', () => {
+    it('classifies local module specifiers', () => {
+      expect(Esm.Is.localPath('./foo/mod.ts')).to.eql(true);
+      expect(Esm.Is.localPath('../foo/mod.ts')).to.eql(true);
+      expect(Esm.Is.localPath(absPath)).to.eql(true);
+      expect(Esm.Is.localPath(fileUrl)).to.eql(true);
+
+      expect(Esm.Is.localPath('jsr:@std/assert@1')).to.eql(false);
+      expect(Esm.Is.localPath('npm:react@19')).to.eql(false);
+      expect(Esm.Is.localPath('@scope/pkg')).to.eql(false);
+      expect(Esm.Is.localPath('file://')).to.eql(false);
+    });
+  });
+
   describe('Esm.parse', () => {
     it('prefix', () => {
       const test = (input: string, expectedRegistry: t.EsmImport['registry']) => {
@@ -37,7 +54,8 @@ describe('Esm', () => {
       test('jsr:@foo/bar', '@foo/bar');
 
       test('./foobar/mod.ts', './foobar/mod.ts');
-      test('/foobar/mod.ts', '/foobar/mod.ts');
+      test(absPath, absPath);
+      test(fileUrl, fileUrl);
     });
 
     it('name → alias', () => {
@@ -60,6 +78,7 @@ describe('Esm', () => {
       test('foobar@1.2.3', '1.2.3');
       test(' foobar@^1.2.3 ', '^1.2.3');
       test('foobar@1.2.3-alpha.1  ', '1.2.3-alpha.1');
+      test('npm:monaco-editor@0.56.0-dev-20260211', '0.56.0-dev-20260211');
       test('  @scope/foobar@3', '3');
 
       test(' foobar@~3.1', '~3.1');
@@ -89,7 +108,8 @@ describe('Esm', () => {
       test('jsr:foobar@^1.2/foo', 'foo');
 
       test('./foobar/mod.ts', '');
-      test('/foobar/mod.ts', '');
+      test(absPath, '');
+      test(fileUrl, '');
     });
 
     describe('error', () => {

@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
+import { DenoProvider, OrbiterProvider, Provider } from '../u.providers/mod.ts';
 
 /**
  * Execute a push for the given provider.
@@ -10,10 +10,10 @@ import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
  */
 export async function pushProvider(args: {
   cwd: t.StringDir;
-  provider?: t.DeployTool.Config.Provider.All;
-  stagingDir: t.StringDir;
+  target?: t.PushTarget;
 }): Promise<t.PushResult> {
-  const { cwd, provider, stagingDir } = args;
+  const { cwd, target } = args;
+  const provider = target?.provider;
 
   const preflight = await Provider.probe(cwd, provider, { spin: false });
   if (!preflight.ok) {
@@ -26,7 +26,12 @@ export async function pushProvider(args: {
 
   switch (provider.kind) {
     case 'orbiter': {
-      return await OrbiterProvider.push({ cwd, stagingDir, provider });
+      if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
+      return await OrbiterProvider.push({ cwd, target: target as t.OrbiterPushTarget });
+    }
+    case 'deno': {
+      if (!target) return { ok: false, reason: 'failed', hint: 'Missing provider push target.' };
+      return await DenoProvider.push({ cwd, target: target as t.DenoPushTarget });
     }
     case 'noop': {
       return { ok: true };

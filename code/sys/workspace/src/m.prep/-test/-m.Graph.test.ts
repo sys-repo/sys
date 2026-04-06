@@ -19,8 +19,12 @@ describe('Workspace.Prep.Graph', () => {
     const fs = await Testing.dir('WorkspacePrep.Graph.ensure');
     await writeWorkspace(fs.dir);
 
-    const first = await Graph.ensure({ cwd: fs.dir });
-    const second = await Graph.ensure({ cwd: fs.dir });
+    const first = await Graph.ensure({ cwd: fs.dir, silent: true });
+    const statBefore = await Deno.stat(first.path);
+    const textBefore = (await Fs.readText(first.path)).data;
+    const second = await Graph.ensure({ cwd: fs.dir, silent: true });
+    const statAfter = await Deno.stat(first.path);
+    const textAfter = (await Fs.readText(first.path)).data;
     const read = await Graph.read(fs.dir);
 
     expect(first.changed).to.eql(true);
@@ -32,6 +36,50 @@ describe('Workspace.Prep.Graph', () => {
 
     expect(second.changed).to.eql(false);
     expect(read).to.eql(second.snapshot);
+    expect(textAfter).to.eql(textBefore);
+    expect(statAfter.mtime?.getTime()).to.eql(statBefore.mtime?.getTime());
+  });
+
+  it('checks whether the tracked workspace graph snapshot is current', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Graph.check');
+    await writeWorkspace(fs.dir);
+
+    const missing = await Graph.check(fs.dir);
+    expect(missing.path).to.eql(State.graphFile(fs.dir));
+    expect(missing.current).to.eql(false);
+    expect(missing.existing).to.eql(undefined);
+    expect(missing.expected.graph).to.eql({
+      orderedPaths: ['code/pkg-a', 'code/pkg-b'],
+      edges: [{ from: 'code/pkg-a', to: 'code/pkg-b' }],
+    });
+
+    await Graph.ensure({ cwd: fs.dir, silent: true });
+    const current = await Graph.check(fs.dir);
+    expect(current.current).to.eql(true);
+    expect(current.existing?.graph).to.eql(current.expected.graph);
+    expect(current.existing?.['.meta'].hash['/graph']).to.eql(
+      current.expected['.meta'].hash['/graph'],
+    );
+    expect(current.existing?.['.meta'].hash['/graph:policy']).to.eql(
+      current.expected['.meta'].hash['/graph:policy'],
+    );
+  });
+
+  it('suppresses graph prep phase output when silent is true', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Graph.ensure.silent');
+    await writeWorkspace(fs.dir);
+
+    const info = console.info;
+    const logs: string[] = [];
+    console.info = (...args: unknown[]) => logs.push(args.map(String).join(' '));
+
+    try {
+      await Graph.ensure({ cwd: fs.dir, silent: true });
+    } finally {
+      console.info = info;
+    }
+
+    expect(logs).to.eql([]);
   });
 });
 

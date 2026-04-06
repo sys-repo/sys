@@ -112,10 +112,11 @@ export async function menu<T, A extends string = string>(
 
     const filename = fileOf(name.trim(), ext);
     const path = Fs.join(dir, filename);
-    const doc = args.schema.init();
     if (args.add?.initYaml) {
-      await Fs.write(path, args.add.initYaml({ name: name.trim(), doc }));
+      await Fs.write(path, args.add.initYaml({ name: name.trim(), doc: args.schema.init?.() }));
     } else {
+      if (!args.schema.init) throw new Error('YamlConfig: schema.init is required when add.initYaml is not provided');
+      const doc = args.schema.init();
       await writeYaml(path, doc, args.schema);
     }
     files = await listConfigs(dir, ext);

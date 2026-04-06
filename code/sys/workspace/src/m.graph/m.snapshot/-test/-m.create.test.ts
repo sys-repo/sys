@@ -1,10 +1,12 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, Obj } from '../../../-test.ts';
 import { WorkspaceGraph } from '../../mod.ts';
 import { D } from '../common.ts';
 
+type O = Record<string, unknown>;
+
 describe('Workspace.Graph.Snapshot.create', () => {
   it('creates a snapshot with canonical metadata and provenance', async () => {
-    const snapshot = await WorkspaceGraph.Snapshot.create({
+    const snapshot = WorkspaceGraph.Snapshot.create({
       graph: {
         orderedPaths: ['code/sys/types', 'code/sys/std'],
         edges: [{ from: 'code/sys/types', to: 'code/sys/std' }],
@@ -15,9 +17,19 @@ describe('Workspace.Graph.Snapshot.create', () => {
       orderedPaths: ['code/sys/types', 'code/sys/std'],
       edges: [{ from: 'code/sys/types', to: 'code/sys/std' }],
     });
-    expect(snapshot['.meta'].schemaVersion).to.eql(1);
+    expect(snapshot['.meta'].schemaVersion).to.eql(2);
     expect(snapshot['.meta'].createdAt).to.be.a('number');
-    expect(snapshot['.meta'].hash.graph.startsWith('sha256-')).to.eql(true);
+    expect(snapshot['.meta'].hash['/graph'].startsWith('sha256-')).to.eql(true);
+    expect(snapshot['.meta'].hash['/graph:policy']).to.eql(D.HASH_POLICY);
     expect(snapshot['.meta'].generator).to.eql(D.GENERATOR);
+    const field = '/graph';
+    const path = Obj.Path.decode(field);
+    const value = Obj.Path.get(snapshot as O, path);
+
+    expect(path).to.eql(['graph']);
+    expect(value).to.eql(snapshot.graph);
+    expect(snapshot['.meta'].hash[field]).to.eql(snapshot['.meta'].hash['/graph']);
+    expect(snapshot['.meta'].hash[`${field}:policy`]).to.eql(D.HASH_POLICY);
+    expect(snapshot['.meta'].generator.types[field]).to.eql(D.GENERATOR.types['/graph']);
   });
 });

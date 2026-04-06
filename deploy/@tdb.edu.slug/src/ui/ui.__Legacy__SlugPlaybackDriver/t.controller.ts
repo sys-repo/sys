@@ -18,6 +18,7 @@ export type SlugPlaybackController = t.EffectController<
 
 /** Static config properties of the controller. */
 export type SlugPlaybackControllerProps = { baseUrl: t.StringUrl };
+/** Partial playback-state update. */
 export type SlugPlaybackPatch = Partial<SlugPlaybackState>;
 
 /**

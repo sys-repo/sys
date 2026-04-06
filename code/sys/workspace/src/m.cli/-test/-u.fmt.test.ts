@@ -95,6 +95,17 @@ describe('Workspace.Cli.Fmt', () => {
     expect(text).to.include('Updated');
     expect(text).to.not.include('approx-string-match');
   });
+
+  it('formats the commit message with per-registry update counts', () => {
+    expect(Fmt.commitMessage(applied())).to.eql(
+      'chore(deps): upgraded 2 workspace dependencies - jsr:1, npm:1',
+    );
+  });
+
+  it('omits empty registries from the commit message count suffix', () => {
+    const result = appliedJsrOnly();
+    expect(Fmt.commitMessage(result)).to.eql('chore(deps): upgraded @std/path - jsr:1');
+  });
 });
 
 function upgrade(): t.WorkspaceUpgrade.Result {
@@ -306,6 +317,15 @@ function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
         devDependencies: {},
       },
     },
+  };
+}
+
+function appliedJsrOnly(): t.WorkspaceUpgrade.ApplyResult {
+  const result = upgrade();
+  return {
+    ...applied(),
+    upgrade: result,
+    entries: [entry('@std/path', '1.2.0')],
   };
 }
 

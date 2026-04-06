@@ -2,7 +2,7 @@ import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 export { Button } from '../Button/mod.ts';
-export { Icons } from '../ui.Icons.ts';
+export { Icons } from '../common/u.icons.ts';
 
 /**
  * Constants:

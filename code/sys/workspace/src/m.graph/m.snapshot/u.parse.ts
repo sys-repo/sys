@@ -32,16 +32,27 @@ function parseMeta(data: unknown): t.WorkspaceGraph.Snapshot.Meta | undefined {
 
 function parseHash(data: unknown): t.WorkspaceGraph.Snapshot.Meta['hash'] | undefined {
   if (!Is.record<Record<string, unknown>>(data)) return undefined;
-  if (!Is.str(data.graph)) return undefined;
-  return { graph: data.graph as t.StringHash };
+  if (!Is.str(data['/graph'])) return undefined;
+  if (!Is.str(data['/graph:policy'])) return undefined;
+  return {
+    '/graph': data['/graph'] as t.StringHash,
+    '/graph:policy': data['/graph:policy'] as t.StringUrl,
+  };
 }
 
 function parseGenerator(data: unknown): t.WorkspaceGraph.Snapshot.Meta['generator'] | undefined {
   if (!Is.record<Record<string, unknown>>(data)) return undefined;
   const item = data;
   const pkg = parsePkg(item.pkg);
-  if (!pkg || !Is.str(item.type)) return undefined;
-  return { type: item.type, pkg };
+  const types = parseGeneratorTypes(item.types);
+  if (!pkg || !types) return undefined;
+  return { pkg, types };
+}
+
+function parseGeneratorTypes(data: unknown): t.WorkspaceGraph.Snapshot.Meta['generator']['types'] | undefined {
+  if (!Is.record<Record<string, unknown>>(data)) return undefined;
+  if (!Is.str(data['/graph'])) return undefined;
+  return { '/graph': data['/graph'] as t.StringUrl };
 }
 
 function parsePkg(data: unknown): t.Pkg | undefined {

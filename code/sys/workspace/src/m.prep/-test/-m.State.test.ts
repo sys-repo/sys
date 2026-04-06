@@ -6,6 +6,6 @@ describe('Workspace.Prep.State', () => {
     const fs = await Testing.dir('WorkspacePrep.State.paths');
 
     expect(State.workspaceFile(fs.dir)).to.eql(Fs.join(fs.dir, 'deno.json'));
-    expect(State.graphFile(fs.dir)).to.eql(Fs.join(fs.dir, '.tmp', 'workspace.graph.json'));
+    expect(State.graphFile(fs.dir)).to.eql(Fs.join(fs.dir, 'deno.graph.json'));
   });
 });

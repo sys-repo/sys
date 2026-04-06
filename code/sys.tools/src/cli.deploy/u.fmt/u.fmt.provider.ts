@@ -10,6 +10,9 @@ export function fmtProvider(
     case 'orbiter':
       return fmtProviderOrbiter(provider);
 
+    case 'deno':
+      return fmtProviderDeno(provider);
+
     case 'noop':
       return { label: 'provider', value: c.white('noop') };
 
@@ -36,6 +39,16 @@ function fmtProviderOrbiter(p: t.DeployTool.Config.Provider.Orbiter): t.Provider
     return `${c.dim(c.gray(prefix))}${c.white(suffix)}`;
   })();
   const value = `${c.cyan('orbiter')} siteId:${shortIdFmt}`.trimEnd();
+
+  return { label: 'provider', value };
+}
+
+function fmtProviderDeno(p: t.DeployTool.Config.Provider.Deno): t.ProviderFmt {
+  const app = String(p.app ?? '').trim() || c.dim(c.gray('-'));
+  const org = String(p.org ?? '').trim();
+  const value = org
+    ? `${c.cyan('deno')} app:${c.white(app)} org:${c.white(org)}`
+    : `${c.cyan('deno')} app:${c.white(app)}`;
 
   return { label: 'provider', value };
 }

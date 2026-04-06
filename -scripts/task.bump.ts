@@ -1,7 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { type t, c, Cli, Path, Paths, R, Semver, Str } from './common.ts';
-import { main as prepCi } from './task.prep.ci.ts';
+import { type t, c, Cli, D, Path, Paths, R, Semver, Str } from './common.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 import { buildWorkspaceGraphCache, readWorkspaceGraphCache, writeWorkspaceGraphCache } from './task.prep.paths.ts';
 
@@ -140,9 +139,17 @@ export async function main(options: Options = {}) {
 
   console.info(Cli.Fmt.spinnerText('running workspace prep...'));
   const prepare = await import('./task.prep.ts');
-  const prepared = await prepare.main('bump', { orderedPaths: candidates.map((child) => packagePath(child)) });
+  const prepared = await prepare.main('bump');
   await prepCiDeno();
-  await prepCi({ prepared, final: true, sourcePaths: selected.map((child) => packagePath(child)) });
+  await Workspace.Ci.sync({
+    cwd: Deno.cwd(),
+    sourcePaths: selected.map((child) => packagePath(child)),
+    jsrScopes: D.ci.jsrScopes,
+    on: D.ci.on,
+    prepared,
+    final: true,
+    ensureGraph: false,
+  });
 
   return true;
 } 
@@ -329,8 +336,8 @@ const wrangle = {
   ) {
     const path = c.gray(packagePath(candidate));
     const name = wrangle.pad(candidate.name, layout.name);
-    const current = wrangle.pad(Semver.Fmt.colorize(candidate.version.current, { highlight: release }), layout.version);
-    return `${c.cyan('•')} ${c.white(c.bold(name))}  ${current}  ${path}`;
+    const current = wrangle.pad(Semver.Fmt.colorize(candidate.version.current), layout.version);
+    return `${c.cyan('•')} ${c.white(name)}  ${current}  ${path}`;
   },
 
   resolveFrom(candidates: readonly Candidate[], input: string) {

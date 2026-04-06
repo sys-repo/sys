@@ -25,7 +25,7 @@ export type PkgScoped = { name: t.StringScopedPkgName; version: t.StringSemver }
 /**
  * Common/minimal definition of the `package.json` file fields.
  */
-export type PkgJsonNode = {
+export type PkgNodeJson = {
   name?: string;
   version?: t.StringSemver;
   scripts?: { [key: string]: string };
@@ -36,9 +36,11 @@ export type PkgJsonNode = {
 /**
  * Common/minimal definition of the `deno.json` file fields.
  */
-export type PkgJsonDeno = {
+export type PkgDenoJson = {
   name?: string;
   version?: t.StringSemver;
+  /** Repo-local publishability marker; `true` means local-only, never emit to JSR prep. */
+  private?: boolean;
   tasks?: { [key: string]: string };
   imports?: { [key: string]: t.StringSemver };
   importMap?: t.StringPath;

@@ -1,4 +1,4 @@
-import { type t, DenoDeps, Deps, Err, Esm, Fs, Path } from './common.ts';
+import { type t, Deps, Err, Esm, Fs, Path } from './common.ts';
 import { createSession, type UpgradeSession } from './u.session.ts';
 import { upgradeWithSession } from './u.upgrade.ts';
 
@@ -26,7 +26,7 @@ export async function applyWithSession(
   }
 
   const entries = wrangle.entries(manifest.data.entries, planned.policy);
-  const files = await DenoDeps.applyFiles(
+  const files = await Deps.applyFiles(
     {
       depsPath: planned.input.deps,
       denoFilePath: wrangle.denoFilePath(planned.input),

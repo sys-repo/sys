@@ -19,10 +19,22 @@ export async function loadTarget(options: t.DenoEntry.ServeOptions) {
   const pkgPath = trustedPath(target.absolute, './src/pkg.ts', 'pkg.ts');
   const pkgModule = await import(Fs.Path.toFileUrl(pkgPath).href);
   const sourcePkg = pkgModule.pkg;
+  const hasEntry = await Fs.exists(entry.absolute);
+
+  if (hasEntry) {
+    return {
+      dist,
+      entry,
+      hasEntry,
+      hash: '' as t.StringHash,
+      pkg: sourcePkg,
+      target,
+    } as const;
+  }
+
   const distPkg = await verifyDist(dist.absolute);
   const pkg = distPkg.pkg || sourcePkg;
   const hash = distPkg.hash.digest;
-  const hasEntry = await Fs.exists(entry.absolute);
 
   return {
     dist,

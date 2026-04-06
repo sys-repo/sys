@@ -1,6 +1,5 @@
 import { type t, describe, expect, it, Str } from '../../-test.ts';
-import { fromDir } from '../u.fromDir.ts';
-import { Fs } from '../common.ts';
+import { Fs, SlugTreeFs } from '../common.ts';
 
 describe('SlugTree.fromDir', () => {
   async function assertReadmeIndex(readmeName: 'README.md' | '-README.md') {
@@ -30,7 +29,7 @@ describe('SlugTree.fromDir', () => {
         return `crdt:lib-${count}` as t.StringRef;
       };
 
-      const doc = await fromDir({ root, createCrdt });
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -60,7 +59,7 @@ describe('SlugTree.fromDir', () => {
       const filePath = Fs.join(root, 'alpha.md');
       await Fs.write(filePath, '# Alpha\n');
 
-      const doc = await fromDir({ root });
+      const doc = await SlugTreeFs.fromDir({ root });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -89,7 +88,7 @@ describe('SlugTree.fromDir', () => {
         return `crdt:alpha-${count}` as t.StringRef;
       };
 
-      const doc = await fromDir({ root, createCrdt });
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -122,13 +121,13 @@ describe('SlugTree.fromDir', () => {
       const blank = async () => '   ' as t.StringRef;
       const none = async () => undefined;
 
-      const docA = await fromDir({ root, createCrdt: blank });
+      const docA = await SlugTreeFs.fromDir({ root, createCrdt: blank });
       expect(docA.tree.length).to.eql(2);
-      expect(docA.tree.every((item) => !('ref' in item))).to.eql(true);
+      expect(docA.tree.every((item: t.SlugTreeItem) => !('ref' in item))).to.eql(true);
 
-      const docB = await fromDir({ root, createCrdt: none });
+      const docB = await SlugTreeFs.fromDir({ root, createCrdt: none });
       expect(docB.tree.length).to.eql(2);
-      expect(docB.tree.every((item) => !('ref' in item))).to.eql(true);
+      expect(docB.tree.every((item: t.SlugTreeItem) => !('ref' in item))).to.eql(true);
 
       const afterA = (await Fs.readText(fileA)).data ?? '';
       const afterB = (await Fs.readText(fileB)).data ?? '';
@@ -160,7 +159,7 @@ describe('SlugTree.fromDir', () => {
       );
 
       const createCrdt = async () => 'crdt:beta-1' as t.StringRef;
-      const doc = await fromDir({ root, createCrdt });
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -200,7 +199,7 @@ describe('SlugTree.fromDir', () => {
       await Fs.write(Fs.join(root, 'visible.md'), '# Visible\n');
 
       const createCrdt = async () => 'crdt:visible-1' as t.StringRef;
-      const doc = await fromDir({ root, createCrdt });
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
       const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
@@ -225,8 +224,8 @@ describe('SlugTree.fromDir', () => {
         return `crdt:${count}` as t.StringRef;
       };
 
-      const doc = await fromDir({ root, createCrdt });
-      const slugs = doc.tree.map((item) => item.slug);
+      const doc = await SlugTreeFs.fromDir({ root, createCrdt });
+      const slugs = doc.tree.map((item: t.SlugTreeItem) => item.slug);
 
       expect(slugs).to.eql(['A', 'b']);
     } finally {

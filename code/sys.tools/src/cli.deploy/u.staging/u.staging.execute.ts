@@ -1,4 +1,5 @@
 import { type t, Fs, Is, Path } from '../common.ts';
+import { createBuildResetToken } from './u.buildReset.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 import { execIndex } from './u.execIndex.ts';
@@ -23,7 +24,11 @@ type Args = {
   stagingRoot?: t.StringRelativeDir;
   cleanStagingRoot?: boolean;
   writeDistJson?: boolean;
-  onWriteDistJson?: (e: { stagingRoot: t.StringAbsoluteDir }) => Promise<void>;
+  onWriteDistJson?: (e: {
+    stagingRoot: t.StringAbsoluteDir;
+    buildResetToken?: string;
+  }) => Promise<void>;
+  buildResetHtml?: boolean;
 
   /**
    * When true, allow mappings to overwrite existing staging files.
@@ -43,6 +48,7 @@ export async function executeStaging(options: Args): Promise<void> {
 
   const sourceBaseAbs = resolvePath(cwd, options.sourceRoot ?? '.');
   const stagingBaseAbs = resolvePath(cwd, options.stagingRoot ?? '.');
+  const buildResetToken = options.buildResetHtml ? createBuildResetToken() : undefined;
 
   if (options.cleanStagingRoot) {
     if (!options.stagingRoot)
@@ -80,6 +86,7 @@ export async function executeStaging(options: Args): Promise<void> {
     total,
     indexOffset: 0,
     indexBaseDomain: options.indexBaseDomain,
+    buildResetToken,
   });
 
   await runPhase({
@@ -93,11 +100,16 @@ export async function executeStaging(options: Args): Promise<void> {
     total,
     indexOffset: standard.length,
     indexBaseDomain: options.indexBaseDomain,
+    buildResetToken,
   });
 
   const rootAbs = stagingBaseAbs;
   // Always refresh the root index after successful staging (safe: only overwrites if marker present).
-  await ensureIndexHtml(rootAbs, { force: true, baseDomain: options.indexBaseDomain });
+  await ensureIndexHtml(rootAbs, {
+    force: true,
+    baseDomain: options.indexBaseDomain,
+    buildResetToken,
+  });
 
   if (options.writeDistJson) {
     if (!options.stagingRoot)
@@ -105,7 +117,7 @@ export async function executeStaging(options: Args): Promise<void> {
 
     const write = options.onWriteDistJson;
     if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
-    await write({ stagingRoot: rootAbs });
+    await write({ stagingRoot: rootAbs, buildResetToken });
   }
 }
 
@@ -120,6 +132,7 @@ async function runPhase(args: {
   total: number;
   indexOffset: number;
   indexBaseDomain?: string;
+  buildResetToken?: string;
 }): Promise<void> {
   const {
     cwd,
@@ -132,6 +145,7 @@ async function runPhase(args: {
     total,
     indexOffset,
     indexBaseDomain,
+    buildResetToken,
   } = args;
   const phaseTotal = mappings.length;
   if (phaseTotal === 0) return;
@@ -177,11 +191,11 @@ async function runPhase(args: {
       try {
         switch (m.mode) {
           case 'copy': {
-            await execCopy(cwd, dir, reportStep, { overwrite });
+            await execCopy(cwd, dir, reportStep, { overwrite, buildResetToken });
             break;
           }
           case 'build+copy': {
-            await execBuildCopy(cwd, dir, reportStep);
+            await execBuildCopy(cwd, dir, reportStep, buildResetToken);
             break;
           }
           case 'index': {
@@ -191,6 +205,7 @@ async function runPhase(args: {
               reportStep,
               stagingBaseAbs,
               indexBaseDomain,
+              buildResetToken,
             );
             break;
           }

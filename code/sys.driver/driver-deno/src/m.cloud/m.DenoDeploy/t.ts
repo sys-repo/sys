@@ -24,6 +24,9 @@ export declare namespace DenoDeploy {
     /** Materialize a deployable staging root for the selected workspace target. */
     stage(request: Stage.Request): Promise<Stage.Result>;
 
+    /** Prepare a staged artifact for native Deno Deploy execution. */
+    prepare(stage: Stage.PrepareInput): Promise<Pipeline.Prepared>;
+
     /** Deploy a previously staged artifact to Deno Deploy. */
     deploy(request: Deploy.Request): Promise<Deploy.Result>;
 
@@ -48,6 +51,8 @@ export declare namespace DenoDeploy {
     export type Root = s.Root;
     export type Request = s.Request;
     export type Result = s.Result;
+    export type PrepareInput = s.PrepareInput;
+    export type DeployInput = s.DeployInput;
   }
 
   /** Deploy execution contracts. */
@@ -63,6 +68,13 @@ export declare namespace DenoDeploy {
 
   /** Operator-facing formatting contracts. */
   export namespace Fmt {
+    export type ListenCtx = f.ListenCtx;
+    export type ListenHooks = f.ListenHooks;
+    export type SpinnerLib = f.SpinnerLib;
+    export type DeployConfigArgs = f.DeployConfigArgs;
+    export type DeployResult = f.DeployResult;
+    export type DeployFailureArgs = f.DeployFailureArgs;
+    export type DeployLib = f.DeployLib;
     export type Lib = f.Lib;
   }
 

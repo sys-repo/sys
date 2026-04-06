@@ -1,35 +1,9 @@
-import { type t, Fs, Is, Obj, isEmptyRecord } from './common.ts';
-import { toPackageJson } from './u.toJson.package.ts';
+import { Deps, type t } from './common.ts';
 
 /**
  * Apply package dependencies onto a target `package.json` file.
  */
-export async function applyPackage(
+export const applyPackage: t.DepsLib['applyPackage'] = async (
   path: t.StringPath | undefined,
   deps?: t.Dep[],
-): Promise<t.DenoDeps.ApplyPackageResult | undefined> {
-  if (!path) return undefined;
-
-  const packageFilePath = path;
-  const current = await Fs.readJson<t.Json>(packageFilePath);
-  const packageJson =
-    current.ok && Is.record<Record<string, t.Json>>(current.data) ? { ...current.data } : {};
-  const next = toPackageJson(deps);
-
-  if (next.dependencies && !isEmptyRecord(next.dependencies)) {
-    packageJson.dependencies = next.dependencies;
-  }
-  else delete packageJson.dependencies;
-
-  if (next.devDependencies && !isEmptyRecord(next.devDependencies)) {
-    packageJson.devDependencies = next.devDependencies;
-  } else delete packageJson.devDependencies;
-
-  await Fs.writeJson(packageFilePath, packageJson);
-
-  return {
-    packageFilePath,
-    dependencies: next.dependencies ?? {},
-    devDependencies: next.devDependencies ?? {},
-  };
-}
+): Promise<t.DenoDeps.ApplyPackageResult | undefined> => await Deps.applyPackage(path, deps);

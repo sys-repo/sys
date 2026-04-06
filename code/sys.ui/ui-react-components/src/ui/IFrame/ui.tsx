@@ -17,7 +17,7 @@ export const IFrame: React.FC<t.IFrameProps> = (props) => {
     } catch (error) {
       // [Cross-origin]: fall back to the live element src (updates on in-iframe navigation).
       href = node?.src || href;
-      if (!silent) console.warn('contentWindow/error:', error);
+      if (!silent && !wrangle.isCrossOriginFrameError(error)) console.warn('contentWindow/error:', error);
     }
     props.onLoad?.({ ref, href });
   };
@@ -76,5 +76,9 @@ const wrangle = {
     if (!props.src) return { src: undefined, html: undefined };
     if (typeof props.src === 'string') return { src: props.src };
     return { src: props.src.url, html: props.src.html };
+  },
+
+  isCrossOriginFrameError(error: unknown) {
+    return error instanceof DOMException && error.name === 'SecurityError';
   },
 };

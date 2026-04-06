@@ -29,6 +29,7 @@ async function main() {
    */
   const result = await DenoDeploy.App.create({
     root: prepared.stagedDir,
+    config: './deno.json',
     app,
     org,
     token,

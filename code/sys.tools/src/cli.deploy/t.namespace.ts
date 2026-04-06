@@ -68,6 +68,16 @@ export namespace DeployTool {
       };
 
       /**
+       * Singular Deno package-target selection.
+       *
+       * Deno stages one selected target into one staged root, so no mapping
+       * mode discriminator or array fan-in is needed.
+       */
+      export type DenoMapping = {
+        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+      };
+
+      /**
        * Endpoint staging root.
        * All mapping `dir.staging` paths are resolved relative to this directory.
        */
@@ -76,6 +86,11 @@ export namespace DeployTool {
         dir: t.StringPath;
         /** When true, clears staging targets before running mappings. */
         clear?: boolean;
+        /** Optional HTML staging policies. */
+        html?: {
+          /** When true, inject/update x-build-reset metadata in staged index.html files. */
+          buildReset?: boolean;
+        };
       };
 
       /**
@@ -99,6 +114,9 @@ export namespace DeployTool {
 
         /** Directory mappings assembled into this endpoint. */
         mappings?: readonly Mapping[];
+
+        /** Singular Deno package-target mapping. */
+        mapping?: DenoMapping;
       };
     }
 
@@ -115,15 +133,19 @@ export namespace DeployTool {
      * strictly at runtime. Unknown providers should fail validation once the
      * provider surface is tightened.
      *
-     * At present, only the `orbiter` provider is defined.
+     * Current providers:
+     * - `orbiter`
+     * - `deno`
+     * - `noop`
      */
     export namespace Provider {
       /**
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter | t.NoopProvider; // ...S3, etc.
+      export type All = Orbiter | Deno | t.NoopProvider; // ...S3, etc.
       export type Orbiter = t.OrbiterProvider; // IPFS
+      export type Deno = t.DenoProvider;
       export type Noop = t.NoopProvider;
     }
   }

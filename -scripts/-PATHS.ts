@@ -18,6 +18,7 @@ export const Paths = {
   all: [
     // generated:start workspace-topological
     'code/sys/types',
+    'code/sys.driver/driver-agent',
     'code/sys/std',
     'code/sys/color',
     'code/sys.ui/ui-css',
@@ -43,8 +44,6 @@ export const Paths = {
     'code/sys/tmpl-engine',
     'code/sys/yaml',
     'code/sys/esm',
-    'code/sys.driver/driver-deno',
-    'code/sys.driver/driver-vite',
     'code/sys/schema',
     'code/sys.model/model',
     'code/sys.model/model-slug',
@@ -53,16 +52,20 @@ export const Paths = {
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
     'code/sys.driver/driver-stripe',
-    'code/sys.tools',
     'code/sys.ui/ui-factory',
     'code/sys.dev',
     'code/sys/crdt',
     'code/sys/workspace',
+    'code/sys.driver/driver-deno',
     'code/-tmpl',
+    'code/sys.driver/driver-vite',
+    'code/sys.tools',
     'deploy/@tdb.slc',
+    'deploy/@tdb.slc.data',
     'deploy/@tdb.slc.fs',
     'deploy/@tdb.slc.std',
     'deploy/@tdb.edu.slug',
+    'deploy/sample.proxy',
     // generated:end workspace-topological
   ],
 } as const;

@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time, Url } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { DenoProvider } from '../u.providers/mod.ts';
 import { startServing } from '../../cli.serve/m.server/mod.ts';
 
 import { ValidName } from './is.ts';
@@ -9,9 +10,11 @@ import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
 import { checkUpToDate } from './u/u.checkUpToDate.ts';
 import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
+import { resolveMissingStagingOutputs } from './u/u.resolveMissingStagingOutputs.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
+import { resolveOrbiterPushTargets } from './u/u.resolveOrbiterPushTargets.ts';
 import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
 import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 
@@ -46,7 +49,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
     if (!(await Fs.exists(yamlAbs))) {
       await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
-      await EndpointsFs.ensureInitialYaml(yamlAbs, key);
+      await EndpointsFs.ensureInitialYaml(yamlAbs);
     }
 
     const check = await EndpointsFs.validateYaml(yamlAbs);
@@ -56,6 +59,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       cwd,
       yamlPath: yamlRel,
       checkOk: check.ok,
+      probe: false,
     });
 
     const provider = yaml?.provider;
@@ -181,9 +185,11 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       let bytesTotal = 0;
       let skipped = 0;
       for (const target of targets) {
-        const domainRaw = String(target.domain ?? target.provider.domain ?? '').trim();
+        const providerDomain =
+          target.provider.kind === 'orbiter' ? String(target.provider.domain ?? '').trim() : '';
+        const domainRaw = String(target.domain ?? providerDomain ?? '').trim();
         const domain = toHttpsUrl(domainRaw);
-        if (domain) {
+        if (domain && target.stagingDir) {
           const res = await checkUpToDate({ stagingDir: target.stagingDir, domain });
           if (res.ok) {
             const line = `${c.gray('push skipped (up-to-date)')} ${c.white(domain)} ${c.gray('✔')}`;
@@ -196,10 +202,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
         const res = await runPushWithSpinner({
           cwd,
-          provider: target.provider,
-          stagingDir: target.stagingDir,
-          shard: target.shard,
-          domain: target.domain,
+          target,
         });
 
         if (!res.ok) {
@@ -226,34 +229,40 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         pushedOk = true;
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
         pushBytes = bytesTotal || undefined;
-        const stats = plan.stats;
-        const skippedTotal = (skipped ?? 0) + (stats.skippedShards ?? 0);
-        const isCleanPush = stats.total > 0 && skippedTotal === 0;
-        const table = Cli.table();
+        const orbiterPlan =
+          freshProvider.kind === 'orbiter'
+            ? await resolveOrbiterPushTargets({ cwd, yaml: freshYaml })
+            : undefined;
+        const totalCount = orbiterPlan?.stats.total ?? plan.stats.total;
+        const skippedTotal = (skipped ?? 0) + (orbiterPlan?.stats.skippedShards ?? 0);
         const totalTargets =
-          stats.total > 0
-            ? isCleanPush
-              ? c.green(String(stats.total))
-              : c.yellow(String(stats.total))
-            : stats.total;
+          totalCount > 0
+            ? skippedTotal === 0
+              ? c.green(String(totalCount))
+              : c.yellow(String(totalCount))
+            : totalCount;
+        const table = Cli.table();
         table.push([c.gray('  targets'), totalTargets, c.italic(c.gray('total push targets'))]);
-        table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
-        table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
-        if (stats.base) {
-          table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
-        }
         if (skipped)
           table.push([
             c.yellow('  skipped'),
             c.yellow(String(skipped)),
             c.italic(c.gray('up-to-date')),
           ]);
-        if (stats.skippedShards) {
-          table.push([
-            c.yellow('  skipped'),
-            c.yellow(String(stats.skippedShards)),
-            c.italic(c.gray('missing shard output')),
-          ]);
+        if (orbiterPlan) {
+          const stats = orbiterPlan.stats;
+          table.push([c.gray('  root index'), stats.root, c.italic(c.gray('root index target'))]);
+          table.push([c.gray('  shards'), stats.shard, c.italic(c.gray('shard targets'))]);
+          if (stats.base) {
+            table.push([c.gray('  non-shards'), stats.base, c.italic(c.gray('non-shard targets'))]);
+          }
+          if (stats.skippedShards) {
+            table.push([
+              c.yellow('  skipped'),
+              c.yellow(String(stats.skippedShards)),
+              c.italic(c.gray('missing shard output')),
+            ]);
+          }
         }
         const reportHash = `#${hashSuffix ?? '00000'}`;
         const reportSuffix = c.gray(c.dim(`for ${reportHash}`));
@@ -271,12 +280,20 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
       const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
       if (!freshYaml) return false;
+
+      if (freshYaml.provider?.kind === 'deno') {
+        const res = await DenoProvider.stage({ cwd, yaml: freshYaml });
+        ranOk = res.ok;
+        return res.ok;
+      }
+
       const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
       if (!resolved.ok) return false;
 
       const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
       const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
       const clearStaging = freshYaml.staging?.clear === true;
+      const buildResetHtml = freshYaml.staging?.html?.buildReset === true;
       const indexBaseDomain =
         freshYaml.provider?.kind === 'orbiter'
           ? String(freshYaml.provider.domain ?? '').trim()
@@ -289,6 +306,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         stagingRoot: stagingRootRel,
         clear: clearStaging,
         indexBaseDomain,
+        buildResetHtml,
       });
 
       ranOk = res.ok;
@@ -307,9 +325,15 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       });
       const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
       if (!freshDist?.hash?.digest) {
+        const missing = await resolveMissingStagingOutputs({
+          cwd,
+          yamlPath: yamlRel,
+          yaml: freshYaml,
+        });
+        const suffix = missing.length ? `: ${missing.join(', ')}` : '';
         const b = Str.builder()
           .line(c.yellow('Serve unavailable'))
-          .line(c.gray(c.dim('reason: no-staging-output')))
+          .line(c.gray(c.dim(`reason: no-staging-output${suffix}`)))
           .line(c.gray('Run stage first, then serve.'));
         console.info(String(b));
         return false;

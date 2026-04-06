@@ -13,6 +13,7 @@ export type TreeHostLib = {
   readonly Data: TreeHostDataLib;
 };
 
+/** TreeHost data helpers extended with slug client access. */
 export type TreeHostDataLib = t.TreeDataLib & { readonly Client: t.SlugClientLib };
 
 /**
@@ -32,12 +33,16 @@ export type TreeHostSlotInput = t.TreeHost.SlotInput;
  * Event handlers:
  */
 export type TreeHostPathChangeHandler = t.TreeHost.PathChangeHandler;
+/** Node-select handler type. */
 export type TreeHostNodeSelectHandler = t.TreeHost.NodeSelectHandler;
 
 /**
  * Event payloads:
  */
 export type TreeHostPathChange = t.TreeHost.PathChange;
+/** Node-select event payload. */
 export type TreeHostNodeSelect = t.TreeHost.NodeSelect;
+/** Nav-leaf renderer function. */
 export type TreeHostNavLeafRenderer = t.TreeHost.NavLeafRenderer;
+/** Args passed to a nav-leaf renderer. */
 export type TreeHostNavLeafRenderArgs = t.TreeHost.NavLeafRenderArgs;

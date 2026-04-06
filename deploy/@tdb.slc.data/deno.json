@@ -1,0 +1,62 @@
+{
+  "name": "@tdb/slc-data",
+  "version": "0.0.14",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test",
+    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/-test/index.html",
+    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/-test/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/* ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts",
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
+    "sample:create": "deno run -P=test ./-scripts/task.sample.create.ts",
+    "sample:stage": "deno run -P=test ./-scripts/task.sample.stage.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./cli": "./src/fs/m.cli/mod.ts",
+    "./dev": "./src/ui/-dev/mod.ts",
+    "./dev/t": "./src/ui/-dev/t.ts",
+    "./fs": "./src/fs/mod.ts",
+    "./ui": "./src/ui/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "cli": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
+      }
+    }
+  }
+}

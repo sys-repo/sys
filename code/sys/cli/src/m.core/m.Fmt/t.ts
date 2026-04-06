@@ -29,13 +29,13 @@ export type CliFormatLib = {
   /** Path display formatting. */
   path: t.PathFormatLib['string'];
 
-  /** Common CLI pretty path formatting */
+  /** Pretty path formatting helpers. */
   readonly Path: {
     str: (path: string) => string;
     fmt: (opts?: {}) => t.PathFormatter;
   };
 
-  /** Glyphs for representing a tree hierarchy */
+  /** Glyphs and helpers for rendering a tree hierarchy. */
   readonly Tree: {
     readonly vert: '│';
     readonly mid: '├';
@@ -46,7 +46,7 @@ export type CliFormatLib = {
 };
 
 /**
- * Types for CLI formatting helpers.
+ * CLI formatting helper types.
  */
 export declare namespace CliFormat {
   export namespace Spinner {
@@ -75,8 +75,10 @@ export type CliFormatHr = {
   (width: number, color: CliFormatHrColor): string;
 };
 
+/** Spacing input accepted by spinner text helpers. */
 export type CliFormatSpinnerSpacing = CliFormat.Spinner.Spacing;
 
+/** Spinner text formatter signature. */
 export type CliFormatSpinnerText = {
   (text: string): string;
   (text: string, spacing: CliFormatSpinnerSpacing): string;

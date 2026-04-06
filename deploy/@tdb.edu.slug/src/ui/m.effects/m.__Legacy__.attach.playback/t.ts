@@ -1,7 +1,9 @@
 import type { t } from '../common.ts';
 
+/** Effect adapter for playback runtime state. */
 export type PlaybackEffectAdapter = t.EffectAdapter<SlugPlaybackRuntimeState | undefined>;
 
+/** Runtime playback state used by legacy slug playback effects. */
 export type SlugPlaybackRuntimeState = {
   /** Loaded playback bundle (timeline spec + resolver). */
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;

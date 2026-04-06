@@ -67,6 +67,24 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('copy: injects x-build-reset into staged index.html when enabled', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/index.html`, '<!doctype html><html><head><title>x</title></head><body></body></html>');
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        buildResetHtml: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
+      const html = String(index.data ?? '');
+      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+    });
+  });
+
   it('build+copy: runs build tasks then stages /dist output', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;
@@ -138,6 +156,45 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('build+copy: replaces existing x-build-reset in built index.html when enabled', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+
+      const buildFile = [
+        `await Deno.mkdir("dist", { recursive: true });`,
+        `await Deno.writeTextFile("dist/index.html", '<!doctype html><html><head><meta name=\"x-build-reset\" content=\"stale-token\" /></head><body></body></html>');`,
+        ``,
+      ].join('\n');
+
+      const denoJson = Json.stringify({
+        name: 'tmp-staging-build',
+        version: '0.0.0',
+        tasks: {
+          test: `deno eval "Deno.exit(0)"`,
+          build: `deno run -A ./-build.ts`,
+        },
+      });
+
+      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
+      await Fs.write(`${srcRoot}/deno.json`, denoJson);
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        buildResetHtml: true,
+        mappings: [{ mode: 'build+copy', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
+      const html = String(index.data ?? '');
+      expect(html.includes('stale-token')).to.eql(false);
+      expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
+      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+      expect(html.indexOf('name="x-build-reset"')).to.be.lessThan(html.indexOf('<body>'));
+    });
+  });
+
   it('index: generates index.html into staging target from staging root', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/stage/alpha`);
@@ -154,6 +211,45 @@ describe('Staging: executeStaging', () => {
       const dist = await Fs.readJson(`${tmp}/stage/dist/root/dist.json`);
       expect(dist.ok).to.eql(true);
       expect(dist.exists).to.eql(true);
+    });
+  });
+
+  it('index: injects x-build-reset into generated staged index.html when enabled', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/stage/alpha`);
+      await Fs.write(`${tmp}/stage/alpha/a.txt`, 'x');
+
+      const dir = { source: '.', staging: 'dist/root' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        buildResetHtml: true,
+        mappings: [{ mode: 'index', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+    });
+  });
+
+  it('root index: carries x-build-reset after finalizeDistTree when enabled', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(
+        `${tmp}/src/index.html`,
+        '<!doctype html><html><head><title>x</title></head><body></body></html>',
+      );
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        buildResetHtml: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/index.html`);
+      const html = String(index.data ?? '');
+      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
     });
   });
 

@@ -7,9 +7,7 @@ export type * from './t.bundle.ts';
 export type * from './t.menu.ts';
 export type * from './t.run.ts';
 
-/**
- * Bundler tools
- */
+/** Bundler runtime surface. */
 export type SlugBundleLib = {
   readonly validate: (args: { path: t.StringFile }) => Promise<t.BundleConfigValidation>;
   readonly run: (args: {
@@ -19,6 +17,7 @@ export type SlugBundleLib = {
   }) => Promise<t.MenuResult>;
 };
 
+/** Result of validating a bundle profile file. */
 export type BundleConfigValidation = {
   ok: boolean;
   errors: readonly t.ValueError[];

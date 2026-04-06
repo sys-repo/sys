@@ -22,4 +22,18 @@ describe('Str.Compare', () => {
       expect(sorted).to.eql(['a1', 'a2', 'a10']);
     });
   });
+
+  describe('Compare.codeUnit', () => {
+    it('sorts by UTF-16 code-unit order without locale collation', () => {
+      const compare = Str.Compare.codeUnit();
+      const list = ['a2', 'a10', 'A', 'a1'];
+      const sorted = list.toSorted(compare);
+      expect(sorted).to.eql(['A', 'a1', 'a10', 'a2']);
+    });
+
+    it('returns 0 for equal strings', () => {
+      const compare = Str.Compare.codeUnit();
+      expect(compare('same', 'same')).to.eql(0);
+    });
+  });
 });

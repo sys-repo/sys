@@ -6,6 +6,6 @@ export const State: t.WorkspacePrep.State.Lib = {
   },
 
   graphFile(cwd = Fs.cwd()) {
-    return Fs.join(cwd, '.tmp', 'workspace.graph.json');
+    return Fs.join(cwd, 'deno.graph.json');
   },
 };

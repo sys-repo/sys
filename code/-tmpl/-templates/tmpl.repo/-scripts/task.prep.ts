@@ -1,10 +1,36 @@
 import { Workspace } from '@sys/workspace';
+import { c, Cli } from '@sys/cli';
+import { DenoDeps } from '@sys/driver-deno/runtime';
+import { Fs } from '@sys/fs';
 
 const PATHS = {
   projects: 'code/projects',
   build: '.github/workflows/build.yaml',
   test: '.github/workflows/test.yaml',
 } as const;
+
+/**
+ * Process the dependencies into `imports.json` and `package.json` files.
+ */
+async function processDeps(cwd = Deno.cwd()) {
+  const res = await DenoDeps.from(Fs.join(cwd, 'deps.yaml'));
+  if (res.error) {
+    console.error(res.error);
+    return;
+  }
+
+  const PATH = {
+    package: Fs.join(cwd, 'package.json'),
+    deno: Fs.join(cwd, 'imports.json'),
+  } as const;
+
+  const deps = res.data?.deps ?? [];
+  await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
+  await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
+
+  console.info();
+  console.info(fmtImportMap({ cwd, total: deps.length, paths: [PATH.deno, PATH.package] }));
+}
 
 /**
  * Write all {pkg}.ts files with name/version values synced
@@ -30,9 +56,25 @@ async function updateCi(cwd = Deno.cwd()) {
 }
 
 export async function main(cwd = Deno.cwd()) {
+  await processDeps(cwd);
   await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);
+}
+
+function fmtImportMap(args: { cwd: string; total: number; paths: readonly string[] }) {
+  const fmt = Workspace.Prep.Fmt?.importMap;
+  if (fmt) return fmt(args);
+
+  const header = c.brightGreen(c.bold('Workspace import map'));
+  const total = args.total.toLocaleString();
+  const summary = ` (${total} dependencies written to):`;
+  const paths = args.paths.map((path) => Cli.Fmt.Path.str(Fs.trimCwd(path, { cwd: args.cwd })));
+  if (paths.length <= 1) {
+    const suffix = paths[0] ? ` ${paths[0]}` : '';
+    return `${header}\n${c.gray(summary)}${suffix}`;
+  }
+  return `${header}\n${c.gray(summary)}\n${paths.map((path) => `  - ${path}`).join('\n')}`;
 }
 
 /**

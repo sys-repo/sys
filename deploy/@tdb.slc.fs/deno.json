@@ -1,7 +1,8 @@
 {
   "name": "@tdb/slc-fs",
-  "version": "0.0.173",
+  "version": "0.0.175",
   "license": "MIT",
+  "private": true,
   "tasks": {
     "test": "echo no-op",
     "build": "deno run -P=build ./-scripts/-build.ts && deno task info",

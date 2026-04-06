@@ -112,6 +112,62 @@ describe('Workspace.Upgrade.upgrade', () => {
     );
   });
 
+  it('ignores self-package jsr subpath edges when ordering external published dependencies', async () => {
+    const fs = await Testing.dir('WorkspaceUpgrade.upgrade.jsr.self-edge');
+    await fixture.writeDepsYaml(fs, `
+      deno.json:
+        - import: jsr:@sys/types@0.0.270
+        - import: jsr:@sys/color@0.0.224
+    `);
+
+    await fixture.withVersions(
+      {
+        jsr: {
+          '@sys/types': fixture.versionsJsr('@sys/types', '0.0.271', { '0.0.270': {}, '0.0.271': {} }),
+          '@sys/color': fixture.versionsJsr('@sys/color', '0.0.225', { '0.0.224': {}, '0.0.225': {} }),
+        },
+        npm: {},
+      },
+      async () => {
+        await fixture.withInfo(
+          {
+            jsr: {
+              '@sys/types@0.0.271': fixture.infoJsr(
+                '@sys/types',
+                '0.0.271',
+                fixture.graphJsr(2, [
+                  { path: '/mod.ts', dependencies: ['jsr:@sys/types@^0.0.271/t'] },
+                ]),
+              ),
+              '@sys/color@0.0.225': fixture.infoJsr(
+                '@sys/color',
+                '0.0.225',
+                fixture.graphJsr(2, [{ path: '/mod.ts' }]),
+              ),
+            },
+            npm: {},
+          },
+          async () => {
+            const result = await WorkspaceUpgrade.upgrade(
+              { cwd: fs.dir, deps: fs.join('deps.yaml') },
+              { policy: { mode: 'latest' } },
+            );
+
+            expect(result.graph.edges).to.eql([]);
+            expect(result.graph.unresolved).to.eql([]);
+            expect(result.topological.ok).to.eql(true);
+            if (result.topological.ok) {
+              expect(result.topological.items.map((item) => item.node.key)).to.eql([
+                'jsr:@sys/color',
+                'jsr:@sys/types',
+              ]);
+            }
+          },
+        );
+      },
+    );
+  });
+
   it('keeps blocked dependencies out of the ordered plan', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.upgrade.none');
     await fixture.writeDepsYaml(fs, `

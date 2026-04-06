@@ -18,3 +18,17 @@ export async function assertStageUsesGeneratedRootEntry(args: {
   expect(entry).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
   expect(entryPaths).to.include(`export const targetDir = './`);
 }
+
+export async function assertStagePrunesUnrelatedWorkspacePkg(args: {
+  readonly sourceRoot: t.StringDir;
+  readonly stagedDir: t.StringDir;
+}) {
+  expect(await Fs.exists(Fs.join(args.stagedDir, 'code/projects/foo/src/mod.ts'))).to.be.true;
+  expect(await Fs.exists(Fs.join(args.stagedDir, 'code/projects/bar/src/mod.ts'))).to.be.true;
+  expect(await Fs.exists(Fs.join(args.stagedDir, 'code/projects/baz/src/mod.ts'))).to.be.false;
+
+  const source = await Fs.readJson<{ workspace?: string[] }>(Fs.join(args.sourceRoot, 'deno.json'));
+  const staged = await Fs.readJson<{ workspace?: string[] }>(Fs.join(args.stagedDir, 'deno.json'));
+  const expected = (source.data?.workspace ?? []).filter((path) => path !== 'code/projects/baz');
+  expect(staged.data?.workspace).to.eql(expected);
+}

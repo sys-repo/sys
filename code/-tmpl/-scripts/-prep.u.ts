@@ -55,7 +55,7 @@ export function sysPackageName(specifier: string): string | undefined {
   return `${scope}/${name}`;
 }
 
-export function syncTemplatePackage(input: t.PkgJsonNode, source: t.PkgJsonNode): t.PkgJsonNode {
+export function syncTemplatePackage(input: t.PkgNodeJson, source: t.PkgNodeJson): t.PkgNodeJson {
   const allSource = { ...(source.dependencies ?? {}), ...(source.devDependencies ?? {}) };
   const next = structuredClone(input);
 

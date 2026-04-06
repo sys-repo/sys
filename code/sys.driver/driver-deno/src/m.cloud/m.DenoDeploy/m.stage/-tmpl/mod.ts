@@ -8,7 +8,7 @@ export { renderStageEntrypoints } from './-bundle.ts';
 export const FILE = {
   entry: 'entry.ts',
   entryPaths: 'entry.paths.ts',
-  compatEntrypoint: 'src/m.server/main.ts',
+  compatEntrypoint: '-staged/m.server.ts',
 } as const;
 
 export const PATHS = resolvePaths(import.meta.url);

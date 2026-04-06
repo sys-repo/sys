@@ -25,6 +25,9 @@ export declare namespace DenoApp {
       /** Optional explicit local root path to create from. */
       readonly root?: t.StringDir;
 
+      /** Optional Deno config path to use when creating the application. */
+      readonly config?: t.StringPath;
+
       /** Deno Deploy region for the created application. */
       readonly region?: 'us' | 'eu' | 'global';
 

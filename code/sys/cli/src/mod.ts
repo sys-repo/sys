@@ -1,19 +1,19 @@
 /**
  * @module
- * Tools for working with a CLI (command-line-interface).
+ * Tools for working with command-line interfaces.
  *
  * @example
  * ```ts
  * import { Cli, Fmt, Table } from '@sys/cli';
- * import { c, Colors, stripAnsi } from '@sys/cli/fmt';
+ * import { c, Color, stripAnsi } from '@sys/cli/fmt';
  * ```
  */
 export { pkg } from './pkg.ts';
 
-/** Types */
+/** Package type surface. */
 export type * as t from './types.ts';
 
 /**
- * Library
+ * Root CLI helper library.
  */
 export * from './m.core/mod.ts';

@@ -3,7 +3,6 @@
  */
 export type * from '@sys/types';
 export type { CliFormat, CliSpinner } from '@sys/cli/t';
-export type { DenoDeps, DenoFileJson } from '@sys/driver-deno/t';
 export type { JsonFileMeta } from '@sys/fs/t';
 export type { ProcOutput } from '@sys/process/t';
 export type {

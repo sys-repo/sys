@@ -37,7 +37,7 @@ describe('Template: repo integration', () => {
   it('generate in temp dir → prep writes workspace graph snapshot', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-graph-' });
     const root = tmp.absolute;
-    const graphPath = Fs.join(root, '.tmp', 'workspace.graph.json');
+    const graphPath = Fs.join(root, 'deno.graph.json');
 
     const tmpl = await makeTmpl('repo');
 
@@ -49,7 +49,7 @@ describe('Template: repo integration', () => {
     const graph = await Fs.readJson<w.WorkspaceGraph.Snapshot.Doc>(graphPath);
     expect(await Fs.exists(graphPath)).to.eql(true);
     expect(Array.isArray(graph.data?.graph.orderedPaths)).to.eql(true);
-    expect(graph.data?.['.meta'].schemaVersion).to.eql(1);
+    expect(graph.data?.['.meta'].schemaVersion).to.eql(2);
   });
 
   it('generate in temp dir → repo materializes deps.yaml and upgrade dry-run runs against it', async () => {
@@ -82,6 +82,40 @@ describe('Template: repo integration', () => {
     expect(await Fs.exists(Fs.join(root, '-deps.yaml'))).to.eql(false);
     expect(res.text.stdout.includes('-deps.yaml')).to.eql(false);
     expect(res.text.stderr.includes('-deps.yaml')).to.eql(false);
+  });
+
+  it('generate in temp dir → prep preserves canonical repo import subpaths from deps authority', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-imports-' });
+    const root = tmp.absolute;
+
+    const def = await Templates.repo();
+    const tmpl = await makeTmpl('repo');
+
+    await tmpl.write(root, { force: true });
+    await def.default(root);
+
+    const res = await Process.invoke({
+      cmd: 'deno',
+      args: ['task', 'prep'],
+      cwd: root,
+      silent: true,
+    });
+
+    if (!res.success) {
+      const err = `Generated repo prep failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      throw new Error(err);
+    }
+
+    const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
+    expect(imports.imports?.['@sys/driver-deno/runtime']).to.eql(
+      imports.imports?.['@sys/driver-deno'] + '/runtime',
+    );
+    expect(imports.imports?.['@sys/workspace/cli']).to.eql(
+      imports.imports?.['@sys/workspace'] + '/cli',
+    );
+    expect(imports.imports?.['@sys/workspace/testing']).to.eql(
+      imports.imports?.['@sys/workspace'] + '/testing',
+    );
   });
 
   it('generate in temp dir → prep generates project workflows from code/projects modules', async () => {

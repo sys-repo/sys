@@ -1,7 +1,12 @@
-import { Diff } from './mod.ts';
 import { describe, expect, it } from '../-test.ts';
+import { Diff } from './mod.ts';
 
 describe('Diff', () => {
+  it('API', async () => {
+    const m = await import('@sys/text/diff');
+    expect(m.Diff).to.equal(Diff);
+  });
+
   it('no change', () => {
     const res1 = Diff.chars('hello', 'hello'); // NB: Case-sensitive by default.
     const res2 = Diff.chars('hello', 'Hello', { ignoreCase: true });

@@ -1,4 +1,4 @@
-import { type t, Fetch, Is, Await } from './common.ts';
+import { type t, Fetch, Is, Await, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
 
 export async function warm(
   input: t.HttpPreloadInput,
@@ -68,12 +68,20 @@ const wrangle = {
     const status = res.status;
     const ok = res.ok;
     const error = ok ? undefined : (res.error?.message ?? res.statusText);
-    return { url, ok, status, bytes, error, range };
+    const fullMediaCached = range ? wrangle.fullMediaCached(res.headers) : undefined;
+    return { url, ok, status, bytes, error, range, fullMediaCached };
   },
 
   contentLength(headers: Headers): number | undefined {
     const raw = headers.get('content-length');
     const value = raw ? Number(raw) : NaN;
     return Number.isFinite(value) ? value : undefined;
+  },
+
+  fullMediaCached(headers?: Headers): boolean | undefined {
+    if (!headers) return undefined;
+    const value = headers.get(HTTP_HEADER_MEDIA_FULL_CACHE_READY);
+    if (!value) return undefined;
+    return value === 'true';
   },
 } as const;

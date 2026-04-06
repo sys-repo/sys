@@ -47,7 +47,11 @@ describe('WorkspaceCi.Jsr', () => {
 
     await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), { name: '@scope/alpha', version: '1.0.0' });
 
-    const first = await WorkspaceCi.Jsr.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Jsr.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
     expect(first.kind).to.eql('written');
 
     const second = await WorkspaceCi.Jsr.sync({
@@ -220,6 +224,45 @@ describe('WorkspaceCi.Jsr', () => {
 
       expect(yaml.includes('@scope/alpha')).to.eql(true);
     });
+  });
+
+  it('identifies valid JSR package names', () => {
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sys/workspace')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@tdb/slc-data')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('@sample/proxy')).to.eql(true);
+    expect(WorkspaceCi.Jsr.Is.jsrPkgName('sample-proxy')).to.eql(false);
+  });
+
+  it('determines whether a local module is publishable to JSR', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.Is.publishable');
+
+    await Fs.writeJson(Fs.join(fs.dir, 'code/sys/workspace/deno.json'), {
+      name: '@sys/workspace',
+      version: '0.0.1',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/@tdb.slc/deno.json'), {
+      name: '@tdb/slc',
+      version: '0.0.0',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/sample.proxy/deno.json'), {
+      name: '@sample/proxy',
+      version: '0.0.1',
+    });
+    await Fs.writeJson(Fs.join(fs.dir, 'deploy/@tdb.slc.fs/deno.json'), {
+      name: '@tdb/slc-fs',
+      version: '0.0.175',
+      private: true,
+    });
+
+    const scopes = ['@sys', '@tdb'];
+
+    const Is = WorkspaceCi.Jsr.Is;
+    expect(await Is.publishable('code/sys/workspace', fs.dir, { scopes })).to.eql(true);
+    expect(await Is.publishable('deploy/@tdb.slc', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('deploy/sample.proxy', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('deploy/sample.proxy', fs.dir)).to.eql(true);
+    expect(await Is.publishable('deploy/@tdb.slc.fs', fs.dir, { scopes })).to.eql(false);
+    expect(await Is.publishable('code/sys/missing', fs.dir, { scopes })).to.eql(false);
   });
 });
 

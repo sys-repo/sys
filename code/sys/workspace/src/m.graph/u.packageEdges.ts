@@ -1,4 +1,6 @@
-import { type t } from './common.ts';
+import { type t, Str } from './common.ts';
+
+const compare = Str.Compare.codeUnit();
 
 export const packageEdges: t.WorkspaceGraph.Lib['packageEdges'] = (graph) => {
   const moduleByKey = new Map(graph.modules.map((module) => [module.key, module] as const));
@@ -21,14 +23,14 @@ export const packageEdges: t.WorkspaceGraph.Lib['packageEdges'] = (graph) => {
     edges.set(key, {
       ...current,
       imports: [...current.imports, { from: edge.from, to: edge.to, kind: edge.kind }].toSorted(
-        (a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to) || a.kind.localeCompare(b.kind),
+        (a, b) => compare(a.from, b.from) || compare(a.to, b.to) || compare(a.kind, b.kind),
       ),
     });
   }
 
   return {
     cwd: graph.cwd,
-    packages: [...graph.packages].toSorted((a, b) => a.path.localeCompare(b.path)),
-    edges: [...edges.values()].toSorted((a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to)),
+    packages: [...graph.packages].toSorted((a, b) => compare(a.path, b.path)),
+    edges: [...edges.values()].toSorted((a, b) => compare(a.from, b.from) || compare(a.to, b.to)),
   };
 };

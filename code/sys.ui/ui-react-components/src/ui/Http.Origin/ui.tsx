@@ -39,7 +39,7 @@ export const Uncontrolled: React.FC<P> = (props) => {
         <OriginSelector theme={theme.name} env={props.env} onChange={props.onChange} />
       </div>
       <div className={styles.divider.class} />
-      <Info theme={theme.name} env={env} origin={origin} />
+      <Info theme={theme.name} env={env} origin={origin} verify={props.verify} />
     </div>
   );
 
