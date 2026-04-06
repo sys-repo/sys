@@ -17,6 +17,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./hooks": "./src/-export/-hooks.ts",
+    "./spec": "./src/m.DevSpec/mod.ts",
     "./-test/entry-specs": "./src/-test/-specs.ts"
   },
   "permissions": {
@@ -38,15 +39,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
