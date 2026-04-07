@@ -7,33 +7,46 @@ import { usingServer } from './u.fixture.usingServer.ts';
 describe('HttpProxyResolver', () => {
   it('root fallback → shared path algebra for deep upstream paths', () => {
     const resolve = HttpProxyResolver({
-      root: { upstream: 'https://example.com/site/' },
+      root: {
+        upstream: 'https://example.com/site/',
+        response: { headers: { 'cache-control': 'no-store' } },
+      },
     });
 
     expect(resolve('/')).to.eql({
       kind: 'root',
       upstream: 'https://example.com/site/',
+      response: { headers: { 'cache-control': 'no-store' } },
     });
 
     expect(resolve('/about')).to.eql({
       kind: 'root',
       upstream: 'https://example.com/site/about',
+      response: { headers: { 'cache-control': 'no-store' } },
     });
   });
 
   it('mount → root and asset paths resolve under mounted upstream root', () => {
     const resolve = HttpProxyResolver({
-      mounts: [{ mountPath: '/slc/', upstream: 'https://example.com/bundle/' }],
+      mounts: [
+        {
+          mountPath: '/slc/',
+          upstream: 'https://example.com/bundle/',
+          response: { headers: { 'cache-control': 'no-store' } },
+        },
+      ],
     });
 
     expect(resolve('/slc/')).to.eql({
       kind: 'mount',
       upstream: 'https://example.com/bundle/',
+      response: { headers: { 'cache-control': 'no-store' } },
     });
 
     expect(resolve('/slc/pkg/-entry.js')).to.eql({
       kind: 'mount',
       upstream: 'https://example.com/bundle/pkg/-entry.js',
+      response: { headers: { 'cache-control': 'no-store' } },
     });
   });
 
@@ -301,6 +314,72 @@ describe('HttpProxy → runtime', () => {
       },
     });
   });
+
+  it('root response headers → override upstream response headers', async () => {
+    const upstream = mkEchoApp('root');
+
+    await usingServer({
+      app: upstream,
+      fn: async ({ url: upstreamUrl }) => {
+        const app = HttpProxy.create({
+          config: {
+            root: {
+              upstream: joinUrl(upstreamUrl.raw, 'site/'),
+              response: { headers: { 'cache-control': 'no-store' } },
+            },
+          },
+        });
+
+        await usingServer({
+          app,
+          fn: async ({ url }) => {
+            const res = await fetch(joinUrl(url.raw, 'about'));
+
+            expect(res.status).to.eql(200);
+            expect(res.headers.get('cache-control')).to.eql('no-store');
+            await res.json();
+          },
+        });
+      },
+    });
+  });
+
+  it('mount response headers → apply only to the matched mount', async () => {
+    const upstream = mkEchoApp('mount');
+
+    await usingServer({
+      app: upstream,
+      fn: async ({ url: upstreamUrl }) => {
+        const app = HttpProxy.create({
+          config: {
+            root: { upstream: joinUrl(upstreamUrl.raw, 'site/') },
+            mounts: [
+              {
+                mountPath: '/data/',
+                upstream: joinUrl(upstreamUrl.raw, 'data/'),
+                response: { headers: { 'cache-control': 'no-store' } },
+              },
+            ],
+          },
+        });
+
+        await usingServer({
+          app,
+          fn: async ({ url }) => {
+            const dataRes = await fetch(joinUrl(url.raw, 'data/pkg.json'));
+            expect(dataRes.status).to.eql(200);
+            expect(dataRes.headers.get('cache-control')).to.eql('no-store');
+            await dataRes.json();
+
+            const rootRes = await fetch(joinUrl(url.raw, 'about'));
+            expect(rootRes.status).to.eql(200);
+            expect(rootRes.headers.get('cache-control')).to.eql('public, max-age=60');
+            await rootRes.json();
+          },
+        });
+      },
+    });
+  });
 });
 
 function mkEchoApp(tag: string) {
@@ -308,13 +387,17 @@ function mkEchoApp(tag: string) {
 
   app.all('*', async (c) => {
     const url = new URL(c.req.raw.url);
-    return c.json({
-      tag,
-      method: c.req.raw.method,
-      pathname: url.pathname,
-      search: url.search,
-      header: c.req.raw.headers.get('x-proxy-test'),
-    });
+    return c.json(
+      {
+        tag,
+        method: c.req.raw.method,
+        pathname: url.pathname,
+        search: url.search,
+        header: c.req.raw.headers.get('x-proxy-test'),
+      },
+      200,
+      { 'cache-control': 'public, max-age=60' },
+    );
   });
 
   return app;

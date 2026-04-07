@@ -12,6 +12,12 @@ import type { t } from './common.ts';
  * - Upstream roots must not include query strings or hash fragments.
  */
 export declare namespace HttpProxy {
+  /** Declarative response header overrides applied to proxied responses. */
+  export type ResponseHeadersConfig = {
+    /** Headers to set on the outgoing proxied response. */
+    readonly headers?: HeadersInit;
+  };
+
   /** Public reverse proxy API. */
   export type Lib = {
     /** Create the HTTP application without starting a listener. */
@@ -51,6 +57,9 @@ export declare namespace HttpProxy {
      * Must not include a query string or hash fragment.
      */
     readonly upstream: t.StringUrl;
+
+    /** Route-scoped response header overrides. */
+    readonly response?: ResponseHeadersConfig;
   };
 
   /**
@@ -88,6 +97,9 @@ export declare namespace HttpProxy {
      * Must not include a query string or hash fragment.
      */
     readonly upstream: t.StringUrl;
+
+    /** Route-scoped response header overrides. */
+    readonly response?: ResponseHeadersConfig;
   };
 
   /** Declarative reverse proxy routing configuration. */
@@ -130,6 +142,9 @@ export declare namespace HttpProxy {
      * Query-string forwarding is handled by the runtime caller.
      */
     readonly upstream: t.StringUrl;
+
+    /** Route-scoped response header overrides for the resolved root route. */
+    readonly response?: ResponseHeadersConfig;
   };
 
   /** Mounted upstream resolver result. */
@@ -141,6 +156,9 @@ export declare namespace HttpProxy {
      * Query-string forwarding is handled by the runtime caller.
      */
     readonly upstream: t.StringUrl;
+
+    /** Route-scoped response header overrides for the resolved mount. */
+    readonly response?: ResponseHeadersConfig;
   };
 
   /** Trailing-slash redirect resolver result. */

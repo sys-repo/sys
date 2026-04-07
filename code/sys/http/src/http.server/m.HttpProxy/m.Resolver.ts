@@ -16,6 +16,7 @@ export const HttpProxyResolver: t.HttpProxy.ResolverFactory = (config) => {
       return {
         kind: 'mount',
         upstream: joinUpstream(mount.upstream, pathname.slice(mount.mountPath.length)),
+        ...withResponseConfig(mount.response),
       } satisfies t.HttpProxy.ResolveMountResult;
     }
 
@@ -23,6 +24,7 @@ export const HttpProxyResolver: t.HttpProxy.ResolverFactory = (config) => {
       return {
         kind: 'root',
         upstream: joinUpstream(root.upstream, pathname.slice(1)),
+        ...withResponseConfig(root.response),
       } satisfies t.HttpProxy.ResolveRootResult;
     }
 
@@ -45,7 +47,10 @@ function normalizeConfig(config: t.HttpProxy.Config): t.HttpProxy.Config {
 
 function normalizeRoot(root: t.HttpProxy.RootTarget): t.HttpProxy.RootTarget {
   validateUpstream(root.upstream, 'root.upstream');
-  return { upstream: root.upstream } satisfies t.HttpProxy.RootTarget;
+  return {
+    upstream: root.upstream,
+    response: root.response,
+  } satisfies t.HttpProxy.RootTarget;
 }
 
 function normalizeMounts(
@@ -67,6 +72,7 @@ function normalizeMounts(
     return {
       mountPath: mount.mountPath,
       upstream: mount.upstream,
+      response: mount.response,
     } satisfies t.HttpProxy.Mount;
   });
 
@@ -128,4 +134,10 @@ function resolveRedirect(
 function joinUpstream(base: t.StringUrl, suffix: string): t.StringUrl {
   const relative = Str.trimLeadingSlashes(suffix);
   return new URL(relative || '.', base).href as t.StringUrl;
+}
+
+function withResponseConfig(
+  response?: t.HttpProxy.ResponseHeadersConfig,
+): Partial<Pick<t.HttpProxy.ResolveMountResult, 'response'>> {
+  return response ? { response } : {};
 }

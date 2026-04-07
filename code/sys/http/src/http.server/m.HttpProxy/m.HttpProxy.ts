@@ -21,7 +21,8 @@ export const HttpProxy: t.HttpProxy.Lib = {
       const upstream = `${result.upstream}${url.search}`;
 
       try {
-        return await fetch(new Request(upstream, c.req.raw));
+        const response = await fetch(new Request(upstream, c.req.raw));
+        return applyResponseHeaders(response, result.response?.headers);
       } catch {
         return c.text('Bad Gateway', 502);
       }
@@ -39,3 +40,20 @@ export const HttpProxy: t.HttpProxy.Lib = {
     if (options.keyboard !== false) await HttpServer.keyboard({ port, print: true });
   },
 };
+
+/**
+ * Helpers:
+ */
+
+function applyResponseHeaders(response: Response, headers?: HeadersInit): Response {
+  if (!headers) return response;
+
+  const nextHeaders = new Headers(response.headers);
+  new Headers(headers).forEach((value, key) => nextHeaders.set(key, value));
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: nextHeaders,
+  });
+}
