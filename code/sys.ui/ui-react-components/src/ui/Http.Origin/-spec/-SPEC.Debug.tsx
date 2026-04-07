@@ -14,7 +14,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  env: 'localhost',
+  env: 'production',
   verify: false,
   controlled: true,
   sample: 'overflow',
@@ -138,7 +138,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
         onClick={() =>
-          Signal.cycle<SampleName | undefined>(p.sample, ['overflow', 'cdn', 'fs.db.team', 'media', undefined])}
+          Signal.cycle<SampleName | undefined>(p.sample, [
+            'overflow',
+            'cdn',
+            'fs.db.team',
+            'media',
+            undefined,
+          ])
+        }
       />
       <Button
         block

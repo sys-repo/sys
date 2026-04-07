@@ -63,7 +63,7 @@ export const Value: React.FC<ValueProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <A href={props.url} enabled={!isRunning} disabledOpacity={false} style={styles.anchor}>
+      <A href={props.url} enabled={!isRunning} disabledOpacity={false} theme={props.theme} style={styles.anchor}>
         {label}
       </A>
       {showStatusSlot && <div className={styles.status.class}>{renderStatusIcon(props, styles.statusIcon)}</div>}
