@@ -17,7 +17,7 @@ const defaults: Storage = {
   env: 'localhost',
   verify: false,
   controlled: true,
-  sample: 'cdn',
+  sample: 'overflow',
   width: 350,
 };
 
@@ -137,7 +137,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<SampleName | undefined>(p.sample, ['cdn', 'media', undefined])}
+        onClick={() =>
+          Signal.cycle<SampleName | undefined>(p.sample, ['overflow', 'cdn', 'fs.db.team', 'media', undefined])}
       />
       <Button
         block

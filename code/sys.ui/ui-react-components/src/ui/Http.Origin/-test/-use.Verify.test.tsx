@@ -32,6 +32,7 @@ describe('HttpOrigin.useVerify', () => {
       act(() => result.current.onVerify());
       await waitFor(() => result.current.running === false);
       expect(result.current.status).to.eql({ app: 'ok' });
+      expect(result.current.digest).to.eql({ app: dist.hash.digest });
       expect(result.current.reserveStatusSpace).to.eql(true);
     } finally {
       unmount();

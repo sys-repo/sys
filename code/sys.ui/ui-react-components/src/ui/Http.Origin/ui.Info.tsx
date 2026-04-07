@@ -36,6 +36,9 @@ export const Info: React.FC<InfoProps> = (props) => {
             url={row.url}
             theme={props.theme}
             status={verify.status[row.key]}
+            tooltip={verify.status[row.key] === 'ok' && verify.digest[row.key]
+              ? `dist.json: ${verify.digest[row.key]}`
+              : undefined}
             reserveStatusSpace={verify.reserveStatusSpace}
           />
         ),

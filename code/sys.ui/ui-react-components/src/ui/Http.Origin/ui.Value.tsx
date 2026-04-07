@@ -5,6 +5,7 @@ import { usePulse } from './use.Pulse.ts';
 export type ValueProps = {
   url: t.StringUrl;
   status?: t.HttpOrigin.VerifyStatus;
+  tooltip?: string;
   reserveStatusSpace?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -51,6 +52,13 @@ export const Value: React.FC<ValueProps> = (props) => {
       minWidth: 14,
       opacity: 0.7,
     }),
+    statusIcon: css({
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 14,
+      height: 14,
+    }),
   };
 
   return (
@@ -58,13 +66,19 @@ export const Value: React.FC<ValueProps> = (props) => {
       <A href={props.url} enabled={!isRunning} disabledOpacity={false} style={styles.anchor}>
         {label}
       </A>
-      {showStatusSlot && <div className={styles.status.class}>{renderStatusIcon(props)}</div>}
+      {showStatusSlot && <div className={styles.status.class}>{renderStatusIcon(props, styles.statusIcon)}</div>}
     </div>
   );
 };
 
-function renderStatusIcon(props: ValueProps) {
-  if (props.status === 'ok') return <Icons.Check size={12} color={Color.GREEN} />;
+function renderStatusIcon(props: ValueProps, style?: t.CssInput) {
+  if (props.status === 'ok') {
+    return (
+      <span className={css(style).class} title={props.tooltip}>
+        <Icons.Check size={12} color={Color.GREEN} />
+      </span>
+    );
+  }
   if (props.status === 'error') return <Icons.Close size={12} color={Color.RED} />;
   return null;
 }

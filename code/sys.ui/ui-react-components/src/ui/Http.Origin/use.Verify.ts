@@ -19,6 +19,7 @@ export function useVerify(args: UseVerifyArgs) {
   const [running, setRunning] = React.useState(false);
   const [actionLabel, setActionLabel] = React.useState('run verification');
   const [status, setStatus] = React.useState<Record<string, t.HttpOrigin.VerifyStatus>>({});
+  const [digest, setDigest] = React.useState<Record<string, t.StringHash | undefined>>({});
   const [reserveStatusSpace, setReserveStatusSpace] = React.useState(false);
 
   React.useEffect(() => {
@@ -33,6 +34,7 @@ export function useVerify(args: UseVerifyArgs) {
     setRunning(false);
     setActionLabel('run verification');
     setStatus({});
+    setDigest({});
     setReserveStatusSpace(false);
   }, [args.env, args.origin, args.verify]);
 
@@ -42,6 +44,7 @@ export function useVerify(args: UseVerifyArgs) {
 
     const current = Rx.lifecycle(life.current.dispose$);
     const settled = toRunningStatus(args.rows);
+    const digests: Record<string, t.StringHash | undefined> = {};
     const resolved = args.rows.reduce<Record<string, t.StringUrl>>((acc, row) => {
       acc[row.key] = wrangle.resolveUrl(args, row);
       return acc;
@@ -60,13 +63,18 @@ export function useVerify(args: UseVerifyArgs) {
           const res = await fetch.json(url);
           if (current.disposed || fetch.disposed) return;
 
-          const next: t.HttpOrigin.VerifyStatus = res.ok && Pkg.Is.dist(res.data) ? 'ok' : 'error';
+          const dist = res.ok && Pkg.Is.dist(res.data) ? res.data : undefined;
+          const next: t.HttpOrigin.VerifyStatus = dist ? 'ok' : 'error';
+          digests[row.key] = dist?.hash.digest;
           settled[row.key] = next;
           setStatus({ ...settled });
+          setDigest({ ...digests });
         } catch {
           if (current.disposed) return;
+          digests[row.key] = undefined;
           settled[row.key] = 'error';
           setStatus({ ...settled });
+          setDigest({ ...digests });
         } finally {
           fetch.dispose();
         }
@@ -92,6 +100,7 @@ export function useVerify(args: UseVerifyArgs) {
     running,
     actionLabel,
     status,
+    digest,
     reserveStatusSpace,
     onVerify,
   } as const;
