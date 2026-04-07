@@ -1,6 +1,6 @@
 import { type t, D } from './common.ts';
 
-type P = t.TextInputProps;
+type P = t.TextInput.Props;
 type H = HTMLInputElement;
 
 export function pasteHandler(
@@ -24,9 +24,9 @@ export function pasteHandler(
     let cancelled = false;
     let replacement = text;
 
-    const payload: t.TextInputPasteArgs = {
+    const payload: t.TextInput.PasteArgs = {
       text,
-      modify(next) {
+      modify(next: string) {
         replacement = next;
       },
       cancel() {

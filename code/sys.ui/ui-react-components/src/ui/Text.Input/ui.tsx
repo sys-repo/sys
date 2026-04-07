@@ -1,11 +1,11 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { css, D, Is, Style, type t, UserAgent } from './common.ts';
+import { pasteHandler } from './u.pasteHandler.ts';
 import { useBorderStyles } from './use.BorderStyles.ts';
 import { useEvents } from './use.Events.ts';
-import { pasteHandler } from './u.pasteHandler.ts';
 
-type P = t.TextInputProps;
+type P = t.TextInput.Props;
 type H = HTMLInputElement;
 const isFirefox = UserAgent.current.is.firefox;
 
