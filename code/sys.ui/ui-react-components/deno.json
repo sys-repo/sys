@@ -20,7 +20,8 @@
     "./specs": "./src/-test/-specs.ts",
     "./fonts": "./src/m.webfonts/mod.ts",
     "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts",
-    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts"
+    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts",
+    "./text": "./src/ui/Text/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -42,15 +43,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
