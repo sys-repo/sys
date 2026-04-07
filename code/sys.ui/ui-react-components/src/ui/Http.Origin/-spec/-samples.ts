@@ -68,7 +68,7 @@ const overflow: t.HttpOrigin.SpecMap<t.HttpOrigin.Env, MyCdn> = {
     },
   },
   production: {
-    app: 'https://app.example.com/products/venture-library/overflow-case/root',
+    app: 'https://app.example.com/products/foobar/overflow-case/root',
     cdn: {
       default: 'https://cdn.example.com/packages/default/with/a/really/long/asset/root',
       video: 'https://video.cdn.example.com/packages/video/with/a/really/long/asset/root',
