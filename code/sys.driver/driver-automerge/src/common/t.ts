@@ -28,9 +28,7 @@ export type {
   CropmarksProps,
   KeyValueItem,
   ObjectViewProps,
-  TextInputChangeHandler,
-  TextInputKeyHandler,
-  TextInputProps,
+  TextInput,
 } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 export type { PointerEventsHandler } from '@sys/ui-react/t';

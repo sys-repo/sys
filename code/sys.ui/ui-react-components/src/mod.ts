@@ -39,7 +39,7 @@ export { Prose } from './ui/Prose/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
-export { TextInput } from './ui/Text.Input/mod.ts';
+export { Text, TextInput } from './ui/Text/mod.ts';
 export { IndexTreeView } from './ui/TreeView.Index/mod.ts';
 export { TreeView } from './ui/TreeView/mod.ts';
 

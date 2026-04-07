@@ -66,7 +66,7 @@ export function useLocalStorage(args: {
   /**
    * Handlers:
    */
-  const onArrowKey: t.TextInputKeyHandler = (e) => {
+  const onArrowKey: t.TextInput.KeyHandler = (e) => {
     e.cancel();
     const history = historyRef.current;
 

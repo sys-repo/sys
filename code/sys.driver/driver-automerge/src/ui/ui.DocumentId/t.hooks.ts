@@ -29,8 +29,8 @@ export type DocumentIdHook = Readonly<{
   transient: Readonly<{ kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs }>;
   handlers: Readonly<{
     onAction: t.DocumentIdActionHandler;
-    onTextChange: t.TextInputChangeHandler;
-    onKeyDown: t.TextInputKeyHandler;
+    onTextChange: t.TextInput.ChangeHandler;
+    onKeyDown: t.TextInput.KeyHandler;
   }>;
 }>;
 
