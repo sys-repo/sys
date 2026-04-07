@@ -43,7 +43,7 @@ export const Info: React.FC<InfoProps> = (props) => {
       });
     });
     if (verify.verifyEnabled) {
-      items.push({ kind: 'hr' });
+      items.push({ kind: 'hr', thickness: 5, opacity: 0.06 });
       items.push({
         k: 'integrity',
         v: (
