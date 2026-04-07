@@ -18,8 +18,54 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/http"
+            path: code/sys/http
+          - name: "@sys/registry"
+            path: code/sys/registry
+          - name: "@sys/ui-react"
+            path: code/sys.ui/ui-react
+          - name: "@sys/ui-react-devharness"
+            path: code/sys.ui/ui-react-devharness
+          - name: "@sys/text"
+            path: code/sys/text
+          - name: "@sys/tmpl-engine"
+            path: code/sys/tmpl-engine
+          - name: "@sys/model-slug"
+            path: code/sys.model/model-slug
+          - name: "@sys/ui-react-components"
+            path: code/sys.ui/ui-react-components
+          - name: "@sys/driver-automerge"
+            path: code/sys.driver/driver-automerge
+          - name: "@sys/driver-monaco"
+            path: code/sys.driver/driver-monaco
+          - name: "@sys/driver-prosemirror"
+            path: code/sys.driver/driver-prosemirror
+          - name: "@sys/driver-stripe"
+            path: code/sys.driver/driver-stripe
+          - name: "@sys/ui-factory"
+            path: code/sys.ui/ui-factory
+          - name: "@sys/dev"
+            path: code/sys.dev
+          - name: "@sys/crdt"
+            path: code/sys/crdt
+          - name: "@sys/workspace"
+            path: code/sys/workspace
+          - name: "@sys/driver-deno"
+            path: code/sys.driver/driver-deno
+          - name: "@sys/tmpl"
+            path: code/-tmpl
+          - name: "@sys/driver-vite"
+            path: code/sys.driver/driver-vite
+          - name: "@sys/tools"
+            path: code/sys.tools
           - name: "@tdb/slc-data"
             path: deploy/@tdb.slc.data
+          - name: "@tdb/slc-std"
+            path: deploy/@tdb.slc.std
+          - name: "@tdb/edu-slug"
+            path: deploy/@tdb.edu.slug
+          - name: "@sample/proxy"
+            path: deploy/sample.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'
