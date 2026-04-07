@@ -102,13 +102,16 @@ export declare namespace HttpProxy {
     readonly response?: ResponseHeadersConfig;
   };
 
+  /** Collection of mounted upstream routes. */
+  export type Mounts = readonly Mount[];
+
   /** Declarative reverse proxy routing configuration. */
   export type Config = {
     /** Fallback upstream used for requests that do not match a configured mount. */
     readonly root?: RootTarget;
 
     /** Mounted upstreams, expected to be matched via longest-prefix wins. */
-    readonly mounts?: readonly Mount[];
+    readonly mounts?: Mounts;
   };
 
   /**
