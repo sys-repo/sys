@@ -9,7 +9,7 @@ import { main as lint } from './task.lint.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 import { main as prep } from './task.prep.ts';
 import { main as test } from './task.test.ts';
-import { Paths } from './-PATHS.ts';
+import { orderedWorkspacePaths } from './u.graph.ts';
 
 export type MainArgs = {
   dry?: boolean;
@@ -48,7 +48,7 @@ type PrepCiOptions = {
 async function prepCi(options: PrepCiOptions = {}) {
   await Workspace.Ci.sync({
     cwd: Deno.cwd(),
-    sourcePaths: Paths.modules,
+    sourcePaths: await orderedWorkspacePaths(),
     jsrScopes: D.ci.jsrScopes,
     on: D.ci.on,
     versionFilter: options.versionFilter,

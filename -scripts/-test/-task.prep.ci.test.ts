@@ -1,13 +1,14 @@
 import { describe, expect, it } from '@sys/testing/server';
 import { Workspace } from '@sys/workspace';
 
-import { Paths } from '../-PATHS.ts';
 import { D } from '../common.ts';
+import { orderedWorkspacePaths } from '../u.graph.ts';
 
 describe('scripts/task.prep.ci', () => {
   it('delegates to Workspace.Ci.sync with the default module paths', async () => {
     let actual: unknown;
     const sync = Workspace.Ci.sync;
+    const sourcePaths = await orderedWorkspacePaths();
 
     Workspace.Ci.sync = async (args) => {
       actual = args;
@@ -26,7 +27,7 @@ describe('scripts/task.prep.ci', () => {
 
     expect(actual).to.eql({
       cwd: Deno.cwd(),
-      sourcePaths: Paths.modules,
+      sourcePaths,
       jsrScopes: D.ci.jsrScopes,
       on: D.ci.on,
     });

@@ -29,14 +29,6 @@ export const makeWorkspace = async (options: { workspace?: string[] } = {}) => {
     Fs.join(root, 'deno.json'),
     Json.stringify({ workspace }) + '\n',
   );
-  await Fs.write(
-    Fs.join(root, '-scripts/-PATHS.ts'),
-    `export const PATHS = {
-  modules: [
-  ],
-} as const;
-`,
-  );
 
   for (const path of workspace) {
     const dir = Fs.join(root, path);

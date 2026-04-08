@@ -1,5 +1,5 @@
+import { default as denojson } from '../deno.json' with { type: 'json' };
 import { c, Fs, Path, Process } from './common.ts';
-import { Paths } from './u.ts';
 
 type DenoJson = {
   name: string;
@@ -35,7 +35,7 @@ export async function main() {
     console.info(`${c.cyan('     clean')} ${pathFmt}`);
   };
 
-  for (const path of Paths.workspace) {
+  for (const path of denojson.workspace) {
     await run(path);
   }
   console.info();

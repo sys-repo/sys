@@ -1,8 +1,8 @@
 import { Workspace } from '@sys/workspace';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { type t, c, Cli, D, Path, Paths, R, Semver, Str } from './common.ts';
+import { type t, c, Cli, D, Path, R, Semver, Str } from './common.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
-import { buildWorkspaceGraphCache, readWorkspaceGraphCache, writeWorkspaceGraphCache } from './task.prep.paths.ts';
+import { ensureWorkspaceGraphCache } from './u.graph.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
@@ -58,6 +58,7 @@ export async function main(options: Options = {}) {
   /**
    * Load the workspace.
    */
+  const graph = await ensureWorkspaceGraphCache(Deno.cwd());
   const ws = await DenoFile.workspace();
   if (!ws.exists) {
     const err = `Could not find a workspace. Ensure the root deno.json file as a "workspace" configuration.`;
@@ -87,7 +88,7 @@ export async function main(options: Options = {}) {
       const next = wrangle.increment(current, release);
       return { path, json, name, version: { current, next } };
     }),
-    bumpOrderedPaths(Paths.all),
+    bumpOrderedPaths(graph.orderedPaths),
   );
 
   const selection = await wrangle.selection({
@@ -95,7 +96,7 @@ export async function main(options: Options = {}) {
     candidates,
     release,
   });
-  const plan = await wrangle.runPlanningPhase(candidates, selection);
+  const plan = await wrangle.runPlanningPhase(candidates, selection, graph);
   const selected = plan.selected;
   const selectedPaths = new Set(selected.map((child) => packagePath(child)));
 
@@ -175,6 +176,7 @@ export function orderChildren<T extends { path: t.StringPath }>(
 export function dependentClosure(
   root: t.StringPath,
   edges: readonly PackageEdge[],
+  orderedPaths: readonly t.StringPath[],
   couplings: readonly PackageEdge[] = BUMP_COUPLINGS,
 ) {
   const queue = [root];
@@ -190,7 +192,7 @@ export function dependentClosure(
     }
   }
 
-  return Paths.all.filter((path) => seen.has(path));
+  return orderedPaths.filter((path) => seen.has(path));
 }
 
 export function bumpOrderedPaths(
@@ -352,12 +354,17 @@ const wrangle = {
   async plan(
     candidates: readonly Candidate[],
     selection: { readonly value: t.StringPath },
-    packages: { readonly edges: readonly PackageEdge[] },
+    packages: {
+      readonly edges: readonly PackageEdge[];
+      readonly orderedPaths: readonly t.StringPath[];
+    },
   ) {
     const root = candidates.find((candidate) => packagePath(candidate) === selection.value);
     if (!root) throw new Error(`Unknown bump root: ${selection.value}`);
 
-    const selectedPaths = new Set<string>(dependentClosure(selection.value, packages.edges));
+    const selectedPaths = new Set<string>(
+      dependentClosure(selection.value, packages.edges, packages.orderedPaths),
+    );
     const selected = candidates.filter((candidate) => selectedPaths.has(packagePath(candidate)));
     return { kind: 'selection', root, selected } as const;
   },
@@ -413,22 +420,16 @@ const wrangle = {
   async runPlanningPhase(
     candidates: readonly Candidate[],
     selection: { readonly value: t.StringPath },
+    graph: {
+      readonly edges: readonly PackageEdge[];
+      readonly orderedPaths: readonly t.StringPath[];
+    },
   ) {
     const spinner = Cli.Spinner.create('');
     console.info();
-    spinner.start(Cli.Fmt.spinnerText('loading workspace dependency cache...'));
+    spinner.start(Cli.Fmt.spinnerText('deriving affected downstream packages (topological)...'));
     try {
-      let cache: Awaited<ReturnType<typeof readWorkspaceGraphCache>> = await readWorkspaceGraphCache();
-      if (!cache) {
-        spinner.text = Cli.Fmt.spinnerText('loading workspace dependency graph...');
-        cache = await buildWorkspaceGraphCache(Deno.cwd());
-        spinner.text = Cli.Fmt.spinnerText('saving workspace dependency cache...');
-        await writeWorkspaceGraphCache(cache);
-      }
-      if (!cache) throw new Error('Failed to load workspace dependency cache');
-
-      spinner.text = Cli.Fmt.spinnerText('deriving affected downstream packages (topological)...');
-      return await wrangle.plan(candidates, selection, { edges: cache.edges });
+      return await wrangle.plan(candidates, selection, graph);
     } finally {
       spinner.stop();
     }

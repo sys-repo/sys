@@ -1,4 +1,5 @@
-import { c, Cli, Log, Paths, Process, type CmdResult } from './u.ts';
+import { c, Cli, Log, Process, type CmdResult } from './u.ts';
+import { orderedWorkspacePaths } from './u.graph.ts';
 
 const ROOT_SCRIPT_TEST_COMMAND = `deno test -P=test --trace-leaks ./-scripts/-test/*.ts` as const;
 const ROOT_SCRIPT_TEST_PATH = './-scripts/-test' as const;
@@ -9,7 +10,7 @@ export type TestTarget = {
   label: string;
 };
 
-export function targets(paths: readonly string[] = Paths.modules): readonly TestTarget[] {
+export function targets(paths: readonly string[]): readonly TestTarget[] {
   return [
     { path: ROOT_SCRIPT_TEST_PATH, command: ROOT_SCRIPT_TEST_COMMAND, label: 'root' },
     ...paths.map((path) => ({ path, command: 'deno task test', label: path })),
@@ -19,6 +20,7 @@ export function targets(paths: readonly string[] = Paths.modules): readonly Test
 export async function main() {
   console.info();
   const spinner = Cli.Spinner.create('');
+  const paths = await orderedWorkspacePaths();
 
   /**
    * Run all tests across the mono-repo.
@@ -27,7 +29,7 @@ export async function main() {
   const runRootScripts = async (total: number, command: string) => {
     const title = c.gray(`${c.white('Tests')} (${c.white('root')} of ${total})`);
     const commandFmt = c.green(c.bold(command));
-    const moduleList = Log.moduleList({ indent: 3 });
+    const moduleList = Log.moduleList(paths, { indent: 3 });
     spinner.start(Cli.Fmt.spinnerText(c.gray(`${title}\n  ${commandFmt}\n${moduleList}`)));
     const output = await Process.sh({ path: '.', silent: true }).run(command);
     results.push({ output, path: ROOT_SCRIPT_TEST_PATH });
@@ -38,17 +40,17 @@ export async function main() {
     const commandFmt = c.green(`deno task ${c.bold(c.cyan(cmd))}`);
 
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
-    const moduleList = Log.moduleList({ index, indent: 3 });
+    const moduleList = Log.moduleList(paths, { index, indent: 3 });
     spinner.start(Cli.Fmt.spinnerText(c.gray(`${title}\n  ${commandFmt}\n${moduleList}`)));
     const output = await Process.sh({ path, silent: true }).run(command);
     results.push({ output, path });
   };
 
   try {
-    const plan = targets(Paths.modules);
+    const plan = targets(paths);
     const total = plan.length;
     await runRootScripts(total, plan[0].command);
-    for (const [index, path] of Paths.modules.entries()) {
+    for (const [index, path] of paths.entries()) {
       await run(path, index + 1, total);
     }
     spinner.stop();

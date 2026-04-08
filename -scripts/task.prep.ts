@@ -1,7 +1,6 @@
 import type { CliSpinner } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
-import { main as prepPaths } from './task.prep.paths.ts';
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
@@ -131,8 +130,7 @@ export async function main(context: CommitContext = 'prep') {
     // run so `check:graph` validates the final prepared workspace state.
     await runPackageSyncPhase(spinner);
 
-    const prep = await Workspace.Prep.run();
-    await prepPaths(undefined, prep.graph.snapshot.graph.orderedPaths);
+    await Workspace.Prep.run();
 
     return prepared;
   } catch (err: unknown) {

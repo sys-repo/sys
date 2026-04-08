@@ -1,4 +1,5 @@
-import { Process, Log, Paths, type CmdResult } from './u.ts';
+import { Process, Log, type CmdResult } from './u.ts';
+import { orderedWorkspacePaths } from './u.graph.ts';
 
 export async function main() {
   /**
@@ -10,7 +11,7 @@ export async function main() {
     results.push({ output, path });
   };
 
-  for (const path of Paths.modules) {
+  for (const path of await orderedWorkspacePaths()) {
     await run(path);
   }
 

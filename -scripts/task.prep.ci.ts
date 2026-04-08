@@ -1,11 +1,11 @@
 import { Workspace } from '@sys/workspace';
 
-import { Paths } from './-PATHS.ts';
 import { D } from './common.ts';
+import { orderedWorkspacePaths } from './u.graph.ts';
 
 await Workspace.Ci.sync({
   cwd: Deno.cwd(),
-  sourcePaths: Paths.modules,
+  sourcePaths: await orderedWorkspacePaths(),
   jsrScopes: D.ci.jsrScopes,
   on: D.ci.on,
 });
