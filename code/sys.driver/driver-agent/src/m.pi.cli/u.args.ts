@@ -1,14 +1,22 @@
 import { Fs, type t } from './common.ts';
+import { PI_CODING_AGENT_IMPORT, resolvePkg } from './u.resolve.pkg.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
 
 const PI_CLI_TMP_SEGMENTS = ['.tmp', 'pi.cli'] as const;
 
 export const PiArgs = {
-  async toPiArgs(cwd: t.StringDir, args: readonly string[], read: readonly t.StringPath[] = []) {
+  async toArgs(
+    cwd: t.StringDir,
+    args: readonly string[],
+    read: readonly t.StringPath[] = [],
+    pkg?: t.StringModuleSpecifier,
+    depsPath?: t.StringPath,
+  ) {
     const denoDir = PiArgs.toDenoDir(cwd);
     const readScope = (await resolveRead(cwd, denoDir, read)).join(',');
     const writeScope = resolveWrite(cwd).join(',');
+    const specifier = await resolvePkg({ pkg, depsPath });
     return [
       'run',
       '--node-modules-dir=none',
@@ -19,7 +27,7 @@ export const PiArgs = {
       `--allow-read=${readScope}`,
       `--allow-write=${writeScope}`,
       `--allow-ffi=${denoDir}`,
-      'npm:@mariozechner/pi-coding-agent',
+      specifier,
       '--no-extensions',
       '--no-skills',
       '--no-prompt-templates',
@@ -34,4 +42,6 @@ export const PiArgs = {
   toDenoDir(cwd: t.StringDir) {
     return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'deno');
   },
+
+  import: PI_CODING_AGENT_IMPORT,
 } as const;

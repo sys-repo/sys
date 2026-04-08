@@ -9,18 +9,19 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     expect(PiArgs.toDenoDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/deno');
   });
 
-  it('toPiArgs → assembles pi launch args with scoped permissions', async () => {
+  it('toArgs → assembles pi launch args with scoped permissions', async () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     const prevTmp = Deno.env.get('TMPDIR');
+    const pkg = 'npm:@mariozechner/pi-coding-agent@9.9.9' as t.StringModuleSpecifier;
     try {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
-      const args = [...await PiArgs.toPiArgs(cwd, ['--help'])];
+      const args = [...await PiArgs.toArgs(cwd, ['--help'], [], pkg)];
       const readArg = findArg(args, '--allow-read=');
       const writeArg = findArg(args, '--allow-write=');
       const sysArg = findArg(args, '--allow-sys=');
 
       expect(args).to.include('run');
-      expect(args).to.include('npm:@mariozechner/pi-coding-agent');
+      expect(args).to.include(pkg);
       expect(args).to.include('--help');
       expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
       expect(readArg).to.contain(cwd);
@@ -33,6 +34,23 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       expect(sysArg).to.contain('uid');
     } finally {
       restoreEnv('TMPDIR', prevTmp);
+    }
+  });
+
+  it('toArgs → resolves the Pi package spec from canonical deps when provided', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const depsDir = await Deno.makeTempDir();
+    const depsPath = Fs.join(depsDir, 'deps.yaml');
+    try {
+      await Deno.writeTextFile(
+        depsPath,
+        `deno.json:\n  - import: npm:@mariozechner/pi-coding-agent@1.2.3\n`,
+      );
+
+      const args = [...(await PiArgs.toArgs(cwd, ['--help'], [], undefined, depsPath))];
+      expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
+    } finally {
+      await Deno.remove(depsDir, { recursive: true });
     }
   });
 });

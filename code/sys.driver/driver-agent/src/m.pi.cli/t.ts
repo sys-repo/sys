@@ -33,5 +33,11 @@ export declare namespace PiCli {
 
     /** Additional read-scope paths supplied by the caller. */
     readonly read?: readonly t.StringPath[];
+
+    /** Pi package spec to execute. Defaults to the canonical upstream package stem. */
+    readonly pkg?: t.StringModuleSpecifier;
+
+    /** Canonical deps manifest used to resolve the Pi package spec when `pkg` is omitted. */
+    readonly depsPath?: t.StringPath;
   };
 }
