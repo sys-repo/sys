@@ -185,10 +185,10 @@ export const InfoFmt = {
           ...(args.stagedSizeBytes !== undefined
             ? [{ label: 'size', value: Str.bytes(args.stagedSizeBytes), color: 'gray' as const }]
             : []),
-          ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
           ...(args.elapsed !== undefined
             ? [{ label: 'elapsed', value: Time.duration(args.elapsed).format({ round: 1 }), color: 'gray' as const }]
             : []),
+          ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
         ],
       });
     },

@@ -65,6 +65,7 @@ describe('DenoDeploy.Fmt', () => {
     expect(text).to.include('sha256-abc123');
     expect(rendered).to.include(c.dim(c.gray('sha256-a')));
     expect(rendered).to.include(c.brightGreen('bc123'));
+    expect(text.indexOf('dist:hash')).to.be.greaterThan(text.indexOf('elapsed'));
   });
 
   it('hides dist in staged entrypoint summary when no staged dist exists', () => {
