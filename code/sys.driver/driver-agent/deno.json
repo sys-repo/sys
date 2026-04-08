@@ -16,7 +16,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./pi/cli": "./src/m.pi.cli/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -37,11 +38,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname"]
       }
     }
   }
