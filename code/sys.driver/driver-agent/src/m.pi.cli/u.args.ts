@@ -1,5 +1,6 @@
 import { Fs, Path, type t } from './common.ts';
 import { PiEnv } from './u.env.ts';
+import { PiWriteScope } from './u.writeScope.ts';
 
 const PI_CLI_TMP_SEGMENTS = ['.tmp', 'pi.cli'] as const;
 
@@ -7,7 +8,7 @@ export const PiArgs = {
   async toPiArgs(cwd: t.StringDir, args: readonly string[]) {
     const denoDir = PiArgs.toDenoDir(cwd);
     const readScope = (await resolveReadScope(cwd, denoDir)).join(',');
-    const writeScope = resolveWriteScope(cwd).join(',');
+    const writeScope = PiWriteScope.resolve(cwd).join(',');
     return [
       'run',
       '--node-modules-dir=none',
