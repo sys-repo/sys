@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775623318257,
+    "createdAt": 1775684482623,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-e34c00a83ace93461f1a05ed3b16c13831af773e717af8a37d22330e7985de45",
+      "/graph": "sha256-884bccbd16fd5ec77619f40b1ac8f709473227d28939fbfecf3db31e8fb18577",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,12 +15,11 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775623318283
+    "modifiedAt": 1775684482654
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
-      "code/sys.driver/driver-agent",
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
@@ -42,6 +41,7 @@
       "code/sys/testing",
       "code/sys.ui/ui-react",
       "code/sys.ui/ui-react-devharness",
+      "code/sys.driver/driver-agent",
       "code/sys/text",
       "code/sys/tmpl-engine",
       "code/sys/yaml",
@@ -168,6 +168,10 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-agent"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -229,6 +233,10 @@
       {
         "from": "code/sys.ui/ui-dom",
         "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -392,6 +400,10 @@
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-agent"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -513,6 +525,10 @@
       {
         "from": "code/sys/color",
         "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/color",
@@ -677,6 +693,10 @@
       {
         "from": "code/sys/fs",
         "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/fs",
@@ -864,6 +884,10 @@
       },
       {
         "from": "code/sys/process",
+        "to": "code/sys.driver/driver-agent"
+      },
+      {
+        "from": "code/sys/process",
         "to": "code/sys.driver/driver-deno"
       },
       {
@@ -961,6 +985,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/std",
@@ -1133,6 +1161,10 @@
       {
         "from": "code/sys/testing",
         "to": "code/sys.dev"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/testing",
