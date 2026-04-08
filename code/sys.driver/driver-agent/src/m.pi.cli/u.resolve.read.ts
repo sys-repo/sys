@@ -1,8 +1,13 @@
 import { Fs, Path, type t } from './common.ts';
 import { PiEnv } from './u.env.ts';
 
-export async function resolveRead(cwd: t.StringDir, denoDir: t.StringDir) {
+export async function resolveRead(
+  cwd: t.StringDir,
+  denoDir: t.StringDir,
+  extra: t.StringPath[] = [],
+) {
   const scope = new Set<string>([cwd, denoDir]);
+  for (const path of extra) scope.add(path);
   for (const path of toExecutableReadScope()) scope.add(path);
   const tmpDir = PiEnv.toTmpDir();
   if (tmpDir) scope.add(tmpDir);
@@ -16,9 +21,9 @@ export async function resolveRead(cwd: t.StringDir, denoDir: t.StringDir) {
 
   scope.add(gitRoot);
   const parent = Path.dirname(gitRoot) as t.StringDir;
+  const agents = Fs.join(parent, 'AGENTS.md');
 
   if (await Fs.stat(agents)) scope.add(agents);
-  if (await Fs.stat(sysCanon)) scope.add(sysCanon);
 
   return [...scope];
 }
@@ -27,11 +32,7 @@ export async function resolveRead(cwd: t.StringDir, denoDir: t.StringDir) {
  * Helpers:
  */
 function toExecutableReadScope() {
-  const scope = new Set<string>([
-    '/bin/bash',
-    '/bin/sh',
-    '/bin/zsh',
-  ]);
+  const scope = new Set<string>(['/bin/bash', '/bin/sh', '/bin/zsh']);
   scope.add(PiEnv.toShellPath());
   return [...scope];
 }

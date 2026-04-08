@@ -10,6 +10,6 @@ export const run: t.PiCli.Lib['run'] = async (input = {}) => {
     PI_CODING_AGENT_DIR: PiArgs.toAgentDir(cwd),
   };
 
-  const args = [...(await PiArgs.toPiArgs(cwd, input.args ?? []))];
+  const args = [...(await PiArgs.toPiArgs(cwd, input.args ?? [], input.read ?? []))];
   return await Process.inherit({ cmd: 'deno', args, cwd, env });
 };

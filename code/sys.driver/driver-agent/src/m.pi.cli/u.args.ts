@@ -5,9 +5,9 @@ import { resolveWrite } from './u.resolve.write.ts';
 const PI_CLI_TMP_SEGMENTS = ['.tmp', 'pi.cli'] as const;
 
 export const PiArgs = {
-  async toPiArgs(cwd: t.StringDir, args: readonly string[]) {
+  async toPiArgs(cwd: t.StringDir, args: string[], read: t.StringPath[] = []) {
     const denoDir = PiArgs.toDenoDir(cwd);
-    const readScope = (await resolveRead(cwd, denoDir)).join(',');
+    const readScope = (await resolveRead(cwd, denoDir, read)).join(',');
     const writeScope = resolveWrite(cwd).join(',');
     return [
       'run',

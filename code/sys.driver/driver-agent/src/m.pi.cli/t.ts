@@ -25,14 +25,13 @@ export declare namespace PiCli {
      */
     readonly cwd?: t.StringDir;
 
-    /**
-     * Additional Pi CLI arguments.
-     */
+    /** Additional Pi CLI arguments. */
     readonly args?: readonly string[];
 
-    /**
-     * Optional environment variable overrides for the Pi child process.
-     */
+    /** Optional environment variable overrides for the Pi child process. */
     readonly env?: Record<string, string>;
+
+    /** Additional read-scope paths supplied by the caller. */
+    readonly read?: readonly t.StringPath[];
   };
 }

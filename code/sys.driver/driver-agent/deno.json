@@ -4,7 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
-    "cli": "deno run -P=cli ./src/m.pi.cli/mod.ts",
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/-test/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/-test/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
