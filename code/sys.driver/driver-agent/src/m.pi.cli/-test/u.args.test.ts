@@ -5,7 +5,7 @@ import { PiArgs } from '../u.args.ts';
 describe(`@sys/driver-agent/pi/cli/u.args`, () => {
   it('toAgentDir / toDenoDir → derive local runtime directories', () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
-    expect(PiArgs.toAgentDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/agent');
+    expect(PiArgs.toAgentDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/agent');
     expect(PiArgs.toDenoDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/deno');
   });
 

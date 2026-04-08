@@ -28,7 +28,7 @@ export const PiArgs = {
   },
 
   toAgentDir(cwd: t.StringDir) {
-    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'agent');
+    return Fs.join(cwd, '.pi', 'agent');
   },
 
   toDenoDir(cwd: t.StringDir) {

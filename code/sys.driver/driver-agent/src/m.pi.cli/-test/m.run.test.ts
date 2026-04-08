@@ -29,7 +29,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(sysArg).to.contain('uid');
         expect(input.env).to.eql({
           DENO_DIR: Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno'),
-          PI_CODING_AGENT_DIR: Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'agent'),
+          PI_CODING_AGENT_DIR: Fs.join(Fs.cwd('terminal'), '.pi', 'agent'),
         });
         return { code: 0, success: true, signal: null };
       };
@@ -51,7 +51,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.env).to.eql({
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
-          PI_CODING_AGENT_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'agent'),
+          PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
         });
         expect(input.args).to.include('run');
         expect(input.args).to.include('npm:@mariozechner/pi-coding-agent');
