@@ -26,7 +26,7 @@ export namespace WorkspaceCi {
     readonly versionFilter?: Jsr.VersionFilter;
     /** Optional package scopes allowed in the generated JSR publish workflow. */
     readonly jsrScopes?: readonly string[];
-    /** Optional prepared submodule count for final commit-summary output. */
+    /** Optional count of workspace packages that ran `deno task prep` for final commit-summary output. */
     readonly prepared?: number;
     /** Emit the final aggregate commit-summary block. */
     readonly final?: boolean;
