@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, A, Color, css, Icons, Str } from './common.ts';
+import { type t, A, Color, css, Icons, Str, TextEllipsize } from './common.ts';
 import { usePulse } from './use.Pulse.ts';
 
 export type ValueProps = {
@@ -64,7 +64,7 @@ export const Value: React.FC<ValueProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <A href={props.url} enabled={!isRunning} disabledOpacity={false} theme={props.theme} style={styles.anchor}>
-        {label}
+        <TextEllipsize.UI text={label} tail={7} />
       </A>
       {showStatusSlot && <div className={styles.status.class}>{renderStatusIcon(props, styles.statusIcon)}</div>}
     </div>
