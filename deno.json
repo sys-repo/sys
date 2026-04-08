@@ -94,6 +94,9 @@
       "exclude": ["no-explicit-any", "no-slow-types"]
     }
   },
+  "exclude": [
+    ".pi"
+  ],
   "test": {
     "permissions": "test"
   },

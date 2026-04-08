@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno test -P=test ./src ./-scripts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/-test/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/-test/index.html",
@@ -20,6 +20,10 @@
     "./types": "./src/types.ts",
     "./pi/cli": "./src/m.pi.cli/mod.ts"
   },
+  "exclude": [
+    ".tmp",
+    ".pi"
+  ],
   "permissions": {
     "clean": {
       "read": true,
