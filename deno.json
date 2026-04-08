@@ -26,8 +26,17 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
-    "types": ["@types/react"],
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "webworker",
+      "deno.ns"
+    ],
+    "types": [
+      "@types/react"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
@@ -91,7 +100,10 @@
   ],
   "lint": {
     "rules": {
-      "exclude": ["no-explicit-any", "no-slow-types"]
+      "exclude": [
+        "no-explicit-any",
+        "no-slow-types"
+      ]
     }
   },
   "exclude": [
@@ -136,3 +148,4 @@
     }
   }
 }
+
