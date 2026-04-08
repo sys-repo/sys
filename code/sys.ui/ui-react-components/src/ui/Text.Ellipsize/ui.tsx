@@ -1,23 +1,34 @@
 import { type t, Color, css, D } from './common.ts';
+import { useTextEllipsize } from './use.TextEllipsize.ts';
 
 export const TextEllipsize: t.FC<t.TextEllipsize.Props> = (props) => {
   const { debug = false } = props;
+  const ellipsized = useTextEllipsize(props);
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(0),
-      color: theme.fg,
-      padding: 10,
+      display: 'block',
+      width: '100%',
+      minWidth: 0,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
     }),
+    text: css({ whiteSpace: 'inherit' }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <div>{`🐷 ${D.displayName}`}</div>
-    </div>
+    <span
+      ref={ellipsized.hostRef}
+      className={css(styles.base, props.style).class}
+      data-component={debug ? D.displayName : undefined}
+      title={ellipsized.isEllipsized ? props.text : undefined}
+    >
+      <span ref={ellipsized.contentRef} className={styles.text.class}>
+        {ellipsized.text}
+      </span>
+    </span>
   );
 };

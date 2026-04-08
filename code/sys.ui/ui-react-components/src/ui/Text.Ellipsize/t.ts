@@ -6,8 +6,10 @@ import type { t } from './common.ts';
 export declare namespace TextEllipsize {
   export type Lib = { readonly UI: t.FC<Props> };
   export type Props = {
+    text: string;
+    tail?: number;
+    ellipsis?: string;
     debug?: boolean;
-    theme?: t.CommonTheme;
     style?: t.CssInput;
   };
 }

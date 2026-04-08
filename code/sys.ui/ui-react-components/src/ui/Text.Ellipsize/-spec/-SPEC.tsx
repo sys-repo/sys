@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <TextEllipsize.UI debug={v.debug} theme={v.theme} />;
+    return <TextEllipsize.UI debug={v.debug} text={v.text} tail={v.tail} ellipsis={v.ellipsis} />;
   }
 
   e.it('init', (e) => {
@@ -22,10 +22,8 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
-
     ctx.subject
-      .size([360, null])
+      .size([p.width.value, null])
       .display('grid')
       .render(() => <Root />);
   });

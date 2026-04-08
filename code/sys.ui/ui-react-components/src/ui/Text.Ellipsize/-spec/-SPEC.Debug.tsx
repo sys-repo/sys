@@ -3,10 +3,18 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
 
 type P = t.TextEllipsize.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'text' | 'ellipsis' | 'tail'> & { width: number };
+const samples = {
+  short: 'foobar',
+  overflow: 'https://app.example.com/products/foobar/overflow-case/root',
+} as const;
+
 const defaults: Storage = {
   debug: false,
-  theme: 'Dark',
+  text: samples.overflow,
+  tail: 7,
+  ellipsis: '…',
+  width: 220,
 };
 
 /**
@@ -25,7 +33,10 @@ export async function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
-    theme: s(snap.theme),
+    text: s(snap.text),
+    tail: s(snap.tail),
+    ellipsis: s(snap.ellipsis),
+    width: s(snap.width),
   };
   const p = props;
   const api = {
@@ -44,8 +55,11 @@ export async function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.text = p.text.value;
+      d.tail = p.tail.value;
+      d.ellipsis = p.ellipsis.value;
+      d.width = p.width.value;
     });
   });
 
@@ -77,7 +91,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
@@ -86,12 +99,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${v.theme ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={() => {
+          return `text: ${v.text === samples.short ? 'foobar' : 'overflow'}`;
+        }}
+        onClick={() => {
+          return Signal.cycle(p.text, [samples.short, samples.overflow]);
+        }}
+      />
+
+      <Button
+        block
+        label={() => `tail: ${v.tail}`}
+        onClick={() => Signal.cycle(p.tail, [5, 7, 9, 12, undefined])}
       />
 
       <hr />
+
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+
+      <Button
+        block
+        label={() => `width: ${v.width}px`}
+        onClick={() => Signal.cycle(p.width, [160, 220, 280, 360])}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
