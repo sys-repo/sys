@@ -11,12 +11,11 @@ export const PiArgs = {
     args: readonly string[],
     read: readonly t.StringPath[] = [],
     pkg?: t.StringModuleSpecifier,
-    depsPath?: t.StringPath,
   ) {
     const denoDir = PiArgs.toDenoDir(cwd);
     const readScope = (await resolveRead(cwd, denoDir, read)).join(',');
     const writeScope = resolveWrite(cwd).join(',');
-    const specifier = await resolvePkg({ pkg, depsPath });
+    const specifier = await resolvePkg({ cwd, pkg });
     return [
       'run',
       '--node-modules-dir=none',

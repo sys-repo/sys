@@ -15,7 +15,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.cmd).to.eql('deno');
         expect(input.cwd).to.eql(Fs.cwd('terminal'));
         expect(input.args).to.include('run');
-        expect(input.args).to.include('npm:@mariozechner/pi-coding-agent');
+        expect(findPkgArg(input.args)).to.match(/^npm:@mariozechner\/pi-coding-agent(?:@.+)?$/);
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
@@ -43,7 +43,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → passes cwd and env through to the child process', async () => {
     const prev = Process.inherit;
-    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const cwd = await Deno.makeTempDir() as t.StringDir;
     const env = { PI_FOO: 'bar' };
     try {
       Process.inherit = async (input) => {
@@ -54,7 +54,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
         });
         expect(input.args).to.include('run');
-        expect(input.args).to.include('npm:@mariozechner/pi-coding-agent');
+        expect(findPkgArg(input.args)).to.match(/^npm:@mariozechner\/pi-coding-agent(?:@.+)?$/);
         expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
@@ -68,12 +68,19 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
+      await Deno.remove(cwd, { recursive: true });
     }
   });
 });
 
 function findArg(args: readonly string[], prefix: string) {
   const value = args.find((arg) => arg.startsWith(prefix));
+  expect(value).to.be.a('string');
+  return value as string;
+}
+
+function findPkgArg(args: readonly string[]) {
+  const value = args.find((arg) => arg.startsWith('npm:@mariozechner/pi-coding-agent'));
   expect(value).to.be.a('string');
   return value as string;
 }

@@ -8,7 +8,6 @@ const gitRoot = await findGitRoot(cwd);
 await PiCli.run({
   args: Deno.args,
   read: [...(await resolveTaskReadScope(gitRoot))],
-  depsPath: await resolveTaskDepsPath(gitRoot),
 });
 
 /**
@@ -20,14 +19,6 @@ async function resolveTaskReadScope(gitRoot: string | undefined) {
   const sysCanon = Path.join(Path.dirname(gitRoot), 'sys.canon');
   if (!(await Fs.exists(sysCanon))) return [];
   return [sysCanon];
-}
-
-async function resolveTaskDepsPath(gitRoot: string | undefined) {
-  if (!gitRoot) return undefined;
-
-  const depsPath = Path.join(gitRoot, 'deps.yaml');
-  if (!(await Fs.exists(depsPath))) return undefined;
-  return depsPath;
 }
 
 async function findGitRoot(dir: string): Promise<string | undefined> {

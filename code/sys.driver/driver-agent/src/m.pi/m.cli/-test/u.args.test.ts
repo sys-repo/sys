@@ -37,17 +37,18 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     }
   });
 
-  it('toArgs → resolves the Pi package spec from canonical deps when provided', async () => {
-    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+  it('toArgs → resolves the Pi package spec from canonical deps when present above cwd', async () => {
     const depsDir = await Deno.makeTempDir();
+    const cwd = Fs.join(depsDir, 'pkg') as t.StringDir;
     const depsPath = Fs.join(depsDir, 'deps.yaml');
     try {
+      await Deno.mkdir(cwd, { recursive: true });
       await Deno.writeTextFile(
         depsPath,
         `deno.json:\n  - import: npm:@mariozechner/pi-coding-agent@1.2.3\n`,
       );
 
-      const args = [...(await PiArgs.toArgs(cwd, ['--help'], [], undefined, depsPath))];
+      const args = [...(await PiArgs.toArgs(cwd, ['--help']))];
       expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
     } finally {
       await Deno.remove(depsDir, { recursive: true });

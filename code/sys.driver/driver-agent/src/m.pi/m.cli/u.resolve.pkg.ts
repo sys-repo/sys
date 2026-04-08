@@ -1,4 +1,4 @@
-import { DenoDeps, type t } from './common.ts';
+import { DenoDeps, Fs, type t } from './common.ts';
 
 export const PI_CODING_AGENT_IMPORT = 'npm:@mariozechner/pi-coding-agent' as const;
 
@@ -6,14 +6,30 @@ export const PI_CODING_AGENT_IMPORT = 'npm:@mariozechner/pi-coding-agent' as con
  * Resolve the Pi package spec from an explicit override or canonical deps file.
  */
 export async function resolvePkg(input: {
+  readonly cwd: t.StringDir;
   readonly pkg?: t.StringModuleSpecifier;
-  readonly depsPath?: t.StringPath;
 }) {
   if (input.pkg) return input.pkg;
-  if (!input.depsPath) return PI_CODING_AGENT_IMPORT;
+  const depsPath = await findDepsPath(input.cwd);
+  if (!depsPath) return PI_CODING_AGENT_IMPORT;
 
-  const res = await DenoDeps.from(input.depsPath);
+  const res = await DenoDeps.from(depsPath);
   if (res.error) throw res.error;
 
   return DenoDeps.findImport(res.data?.deps, PI_CODING_AGENT_IMPORT) ?? PI_CODING_AGENT_IMPORT;
+}
+
+/**
+ * Helpers:
+ */
+async function findDepsPath(cwd: t.StringDir) {
+  if (!(await Fs.exists(cwd))) return undefined;
+  let found: t.StringPath | undefined;
+  await Fs.walkUp(cwd, async ({ dir, stop }) => {
+    const path = Fs.join(dir, 'deps.yaml');
+    if (!(await Fs.exists(path))) return;
+    found = path;
+    stop();
+  });
+  return found;
 }
