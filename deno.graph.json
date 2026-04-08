@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1775547804382,
+    "createdAt": 1775623318257,
     "schemaVersion": 2,
     "hash": {
       "/graph": "sha256-e34c00a83ace93461f1a05ed3b16c13831af773e717af8a37d22330e7985de45",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.52/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.52"
+        "version": "0.0.53"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.52/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775547804392
+    "modifiedAt": 1775623318283
   },
   "graph": {
     "orderedPaths": [
