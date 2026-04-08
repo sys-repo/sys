@@ -151,7 +151,7 @@ const wrangle = {
 
     const packages = `${args.prepared} workspace ${Str.plural(args.prepared, 'package')}`;
     const modules = `${args.jsr.count} jsr:publish ${Str.plural(args.jsr.count, 'module')}`;
-    const msg = `chore(workspace): ran prep for ${packages} (${modules})`;
+    const msg = `chore(workspace): refreshed ${packages} (${modules})`;
     console.info();
     console.info(Cli.Fmt.hr('cyan'));
     console.info(
