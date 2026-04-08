@@ -47,6 +47,27 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plain[1]).to.include('blocked by policy');
   });
 
+  it('keeps common scoped npm package names visible before truncating interactive rows', () => {
+    const restore = stubScreenWidth(80);
+    try {
+      const options = Fmt.selectionOptions(upgradeWithLongScopedName(), {
+        include: [],
+        exclude: [],
+        dryRun: false,
+        deps: 'deps.yaml',
+        mode: 'interactive',
+        policy: 'minor',
+        prerelease: false,
+      });
+      const plain = Cli.stripAnsi(options[0]!.name);
+
+      expect(plain).to.include('@elevenlabs/elevenlabs-js');
+      expect(plain).to.include('blocked by policy');
+    } finally {
+      restore();
+    }
+  });
+
   it('pre-checks policy-selected rows and leaves blocked rows unchecked by default', () => {
     const options = Fmt.selectionOptions(upgrade(), {
       include: [],
@@ -284,6 +305,38 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
   };
 }
 
+function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const decision = decisionBlocked(
+    '@elevenlabs/elevenlabs-js',
+    '2.41.1',
+    ['2.42.0', '2.41.1'],
+  );
+
+  return {
+    ...result,
+    totals: {
+      dependencies: 1,
+      allowed: 0,
+      blocked: 1,
+      planned: 0,
+    },
+    collect: {
+      ...result.collect,
+      candidates: [candidate('@elevenlabs/elevenlabs-js', '2.41.1', '2.42.0')],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    policy: {
+      decisions: [decision],
+    },
+  };
+}
+
 function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
   const result = upgradeWithShorthandCurrent();
   return {
@@ -396,5 +449,14 @@ function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {
         result.policy.decisions[2],
       ],
     },
+  };
+}
+
+function stubScreenWidth(width: number): () => void {
+  const screen = Cli.Screen as { size: () => { width: number; height: number } };
+  const prev = screen.size;
+  screen.size = () => ({ width, height: 24 });
+  return () => {
+    screen.size = prev;
   };
 }

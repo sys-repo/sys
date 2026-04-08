@@ -42,6 +42,8 @@ type BlockedCode =
   | 'version:not-newer'
   | 'version:not-allowed';
 
+const NAME_MIN_WIDTH = 25;
+
 export const Fmt = {
   spinnerText(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
     return Cli.Fmt.spinnerText(text, spacing);
@@ -374,7 +376,7 @@ export const Fmt = {
 
     return {
       ...widths,
-      name: Math.max(16, Math.min(widths.name, budget - reserved)),
+      name: Math.max(NAME_MIN_WIDTH, Math.min(widths.name, budget - reserved)),
     };
   },
 
