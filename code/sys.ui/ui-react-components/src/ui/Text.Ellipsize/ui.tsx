@@ -1,4 +1,4 @@
-import { type t, Color, css, D } from './common.ts';
+import { type t, css, D } from './common.ts';
 import { useTextEllipsize } from './use.TextEllipsize.ts';
 
 export const TextEllipsize: t.FC<t.TextEllipsize.Props> = (props) => {
