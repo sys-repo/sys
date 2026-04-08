@@ -15,17 +15,16 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    ctx.subject.display('grid').render(() => <Root />);
+
     update();
     function update() {
       debug.listen();
+      ctx.subject.size([p.width.value, null]);
       ctx.redraw();
     }
 
     Signal.effect(update);
-    ctx.subject
-      .size([p.width.value, null])
-      .display('grid')
-      .render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {
