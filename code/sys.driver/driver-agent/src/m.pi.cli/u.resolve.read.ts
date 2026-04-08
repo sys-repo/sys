@@ -4,7 +4,7 @@ import { PiEnv } from './u.env.ts';
 export async function resolveRead(
   cwd: t.StringDir,
   denoDir: t.StringDir,
-  extra: t.StringPath[] = [],
+  extra: readonly t.StringPath[] = [],
 ) {
   const scope = new Set<string>([cwd, denoDir]);
   for (const path of extra) scope.add(path);

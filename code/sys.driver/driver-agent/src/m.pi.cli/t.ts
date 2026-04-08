@@ -15,7 +15,7 @@ import type { t } from './common.ts';
  */
 export declare namespace PiCli {
   export type Lib = {
-    run(args?: RunArgs): Promise<t.ProcInheritOutput>;
+    run(args?: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
   export type RunArgs = {

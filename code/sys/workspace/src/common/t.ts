@@ -4,7 +4,7 @@
 export type * from '@sys/types';
 export type { CliFormat, CliSpinner } from '@sys/cli/t';
 export type { JsonFileMeta } from '@sys/fs/t';
-export type { ProcOutput } from '@sys/process/t';
+export type { Process } from '@sys/process/t';
 export type {
   EsmDeps,
   EsmPolicyDecision,

@@ -36,7 +36,7 @@ export type DenoResolved = DenoResolvedEsm | DenoResolvedNpm;
 export type DenoCache = Map<string, DenoResolved>;
 
 export type ResolveDeps = {
-  readonly invoke: t.ProcLib['invoke'];
+  readonly invoke: t.Process.Lib['invoke'];
   readonly resolveNpmPath?: (id: string, cwd: string) => Promise<string | null>;
 };
 

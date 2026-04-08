@@ -7,6 +7,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
  * @system
  */
 export type * from '@sys/types';
+export type { Process } from '@sys/process/t';
 
 /** User-interface: */
 export type { ColorTheme } from '@sys/color/t';

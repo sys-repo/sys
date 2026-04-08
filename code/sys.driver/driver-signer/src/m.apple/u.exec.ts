@@ -1,7 +1,7 @@
 import { type t, Err, Process } from './common.ts';
 import type { RuntimeExecResult } from './u.run.ts';
 
-export type Invoke = t.ProcLib['invoke'];
+export type Invoke = t.Process.Lib['invoke'];
 export type RuntimeExecDeps = {
   readonly invoke: Invoke;
   readonly sleep: (ms: t.Msecs) => Promise<void>;

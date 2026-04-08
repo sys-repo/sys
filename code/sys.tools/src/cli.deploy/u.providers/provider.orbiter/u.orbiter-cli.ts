@@ -15,7 +15,7 @@ type RunOptions = {
 /**
  * Execute an `orbiter-cli` process.
  */
-async function run(cwd: t.StringDir, args: string[], opts: RunOptions = {}): Promise<t.ProcOutput> {
+async function run(cwd: t.StringDir, args: string[], opts: RunOptions = {}): Promise<t.Process.Output> {
   const { silent = true } = opts;
   const permissions = toPermissionArgs(cwd, opts);
   const argv = ['x', ...permissions, 'npm:orbiter-cli', ...args];

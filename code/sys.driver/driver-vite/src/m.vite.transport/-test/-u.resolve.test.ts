@@ -33,7 +33,7 @@ describe('ViteTransport.resolve', () => {
   describe('deno resolution', () => {
     it('returns null for unresolved deno info lookups', async () => {
       const res = await resolveDenoWith('./missing.ts', '/tmp', {
-        async invoke(input: t.ProcInvokeArgs) {
+        async invoke(input: t.Process.InvokeArgs) {
           if (input.args[0] === '--version') {
             return procOutput({ success: true, stdout: 'deno 2.x' });
           }
@@ -47,7 +47,7 @@ describe('ViteTransport.resolve', () => {
     it('throws for integrity-check failures', async () => {
       try {
         await resolveDenoWith('./bad.ts', '/tmp', {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
@@ -202,7 +202,7 @@ describe('ViteTransport.resolve', () => {
           '/tmp/project',
           importer,
           {
-            async invoke(input: t.ProcInvokeArgs) {
+            async invoke(input: t.Process.InvokeArgs) {
               if (input.args[0] === '--version') {
                 return procOutput({ success: true, stdout: 'deno 2.x' });
               }
@@ -268,7 +268,7 @@ describe('ViteTransport.resolve', () => {
         let npmInfoCalls = 0;
 
         const res = await resolveViteSpecifier('react', cache, '/tmp/project', importer, {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
@@ -349,7 +349,7 @@ describe('ViteTransport.resolve', () => {
           '/tmp/project',
           importer,
           {
-            async invoke(input: t.ProcInvokeArgs) {
+            async invoke(input: t.Process.InvokeArgs) {
               if (input.args[0] === '--version') {
                 return procOutput({ success: true, stdout: 'deno 2.x' });
               }
@@ -422,7 +422,7 @@ describe('ViteTransport.resolve', () => {
           '/tmp/project',
           importer,
           {
-            async invoke(input: t.ProcInvokeArgs) {
+            async invoke(input: t.Process.InvokeArgs) {
               if (input.args[0] === '--version') {
                 return procOutput({ success: true, stdout: 'deno 2.x' });
               }
@@ -477,7 +477,7 @@ describe('ViteTransport.resolve', () => {
           ],
         ]);
         const plugin = createResolvePlugin(cache, {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
@@ -548,7 +548,7 @@ describe('ViteTransport.resolve', () => {
           ],
         ]);
         const plugin = createResolvePlugin(cache, {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
@@ -635,7 +635,7 @@ describe('ViteTransport.resolve', () => {
           ],
         ]);
         const plugin = createResolvePlugin(cache, {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }
@@ -697,7 +697,7 @@ describe('ViteTransport.resolve', () => {
           const denoId = toDenoSpecifier('JavaScript', remoteId, remoteResolved);
           const cache = new Map<string, t.DenoResolved>();
           const plugin = createResolvePlugin(cache, {
-            async invoke(input: t.ProcInvokeArgs) {
+            async invoke(input: t.Process.InvokeArgs) {
               if (input.args[0] === '--version') {
                 return procOutput({ success: true, stdout: 'deno 2.x' });
               }
@@ -764,7 +764,7 @@ describe('ViteTransport.resolve', () => {
         });
 
         const res = await resolveDenoWith('jsr:@std/path/join', '/tmp', {
-          async invoke(input: t.ProcInvokeArgs) {
+          async invoke(input: t.Process.InvokeArgs) {
             if (input.args[0] === '--version') {
               return procOutput({ success: true, stdout: 'deno 2.x' });
             }

@@ -30,7 +30,7 @@ export const Workspace = { ...Base, Test: WorkspaceTesting };
  * Helpers:
  */
 const wrangle = {
-  prepFailure(cwd: t.StringDir, output: t.ProcOutput) {
+  prepFailure(cwd: t.StringDir, output: t.Process.Output) {
     const stdout = output.text.stdout.trim();
     const stderr = output.text.stderr.trim();
     const text = [stdout, stderr].filter(Boolean).join('\n\n');

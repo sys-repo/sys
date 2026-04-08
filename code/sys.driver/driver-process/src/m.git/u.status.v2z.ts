@@ -10,7 +10,7 @@ export const statusPorcelainV2Z: t.GitStatusPorcelainV2ZFn = async (opts = {}) =
     args.push('--find-renames');
   }
 
-  let res: t.ProcOutput;
+  let res: t.Process.Output;
   try {
     res = await Process.invoke({
       cmd: git,

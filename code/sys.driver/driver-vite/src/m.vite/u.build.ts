@@ -31,7 +31,7 @@ export const build: B = async (input) => {
   };
 
   type R = t.ViteBuildResponse;
-  type RArgs = { ok: boolean; output: t.ProcOutput; elapsed: t.Msecs; dist: t.DistPkg };
+  type RArgs = { ok: boolean; output: t.Process.Output; elapsed: t.Msecs; dist: t.DistPkg };
   const response = (args: RArgs): R => {
     const { ok, output, elapsed, dist } = args;
     const stdio = output.toString();
@@ -62,7 +62,7 @@ export const build: B = async (input) => {
     };
   };
 
-  const fail = async (message: string, output: t.ProcOutput) => {
+  const fail = async (message: string, output: t.Process.Output) => {
     const errInfo = {
       cmd,
       code: output.code,
