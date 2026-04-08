@@ -18,12 +18,10 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./pi": "./src/m.pi/mod.ts",
     "./pi/cli": "./src/m.pi.cli/mod.ts"
   },
-  "exclude": [
-    ".tmp",
-    ".pi"
-  ],
+  "exclude": [".tmp", ".pi"],
   "permissions": {
     "clean": {
       "read": true,
