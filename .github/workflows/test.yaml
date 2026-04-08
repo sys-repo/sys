@@ -62,8 +62,6 @@ jobs:
             path: code/sys.ui/ui-react
           - name: "@sys/ui-react-devharness"
             path: code/sys.ui/ui-react-devharness
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
           - name: "@sys/text"
             path: code/sys/text
           - name: "@sys/tmpl-engine"
@@ -100,6 +98,8 @@ jobs:
             path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
           - name: "@sys/tools"

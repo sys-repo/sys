@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775684482623,
+    "createdAt": 1775689865614,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-884bccbd16fd5ec77619f40b1ac8f709473227d28939fbfecf3db31e8fb18577",
+      "/graph": "sha256-d99070af76de8e788e7c064e1191018ce1ee5292921d31faa3b55dce062f3cc5",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775684482654
+    "modifiedAt": 1775689865628
   },
   "graph": {
     "orderedPaths": [
@@ -41,7 +41,6 @@
       "code/sys/testing",
       "code/sys.ui/ui-react",
       "code/sys.ui/ui-react-devharness",
-      "code/sys.driver/driver-agent",
       "code/sys/text",
       "code/sys/tmpl-engine",
       "code/sys/yaml",
@@ -60,6 +59,7 @@
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
       "code/-tmpl",
+      "code/sys.driver/driver-agent",
       "code/sys.driver/driver-vite",
       "code/sys.tools",
       "deploy/@tdb.slc",
@@ -101,6 +101,10 @@
       {
         "from": "code/sys.driver/driver-deno",
         "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys.driver/driver-deno",
