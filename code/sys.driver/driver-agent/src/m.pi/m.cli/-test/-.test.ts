@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { PiCli } from '../mod.ts';
 
 describe(`@sys/driver-agent/pi/cli`, () => {

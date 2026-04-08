@@ -143,7 +143,8 @@
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@*": "1.0.6_vite@7.3.2__yaml@2.8.3_yaml@2.8.3",
     "npm:@deno/vite-plugin@1.0.6": "1.0.6_vite@7.3.2__yaml@2.8.3_yaml@2.8.3",
-    "npm:@mariozechner/pi-coding-agent@*": "0.65.2_ws@8.20.0_zod@3.25.76",
+    "npm:@mariozechner/pi-coding-agent@*": "0.66.1_ws@8.20.0_zod@3.25.76",
+    "npm:@mariozechner/pi-coding-agent@0.66.1": "0.66.1_ws@8.20.0_zod@3.25.76",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.5_react-dom@19.2.5__react@19.2.5",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@octokit/rest@22.0.1": "22.0.1_@octokit+core@7.0.6",
@@ -2804,14 +2805,14 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-agent-core@0.65.2_ws@8.20.0_zod@3.25.76": {
-      "integrity": "sha512-GYOrX5aRUpSDMPtKR174Tv72CWH92anqlRuiGn8PV05OowPAahT99JoxvZEP4fcKANBdHsyDfMMwFYpPhvPBUQ==",
+    "@mariozechner/pi-agent-core@0.66.1_ws@8.20.0_zod@3.25.76": {
+      "integrity": "sha512-Nj54A7SuB/EQi8r3Gs+glFOr9wz/a9uxYFf0pCLf2DE7VmzA9O7WSejrvArna17K6auftLSdNyRRe2bIO0qezg==",
       "dependencies": [
         "@mariozechner/pi-ai"
       ]
     },
-    "@mariozechner/pi-ai@0.65.2_ws@8.20.0_zod@3.25.76": {
-      "integrity": "sha512-XCbXncmh10Q89tvS0880Ms6pv3DTxFTEtanfVHEPXKQBi0FBYnrkAlOnP5VRU8vCfe18P1AMNsWCndsCBUqY7g==",
+    "@mariozechner/pi-ai@0.66.1_ws@8.20.0_zod@3.25.76": {
+      "integrity": "sha512-7IZHvpsFdKEBkTmjNrdVL7JLUJVIpha6bwTr12cZ5XyDrxij06wP6Ncpnf4HT5BXAzD5w2JnoqTOSbMEIZj3dg==",
       "dependencies": [
         "@anthropic-ai/sdk",
         "@aws-sdk/client-bedrock-runtime",
@@ -2829,8 +2830,8 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-coding-agent@0.65.2_ws@8.20.0_zod@3.25.76": {
-      "integrity": "sha512-/rpFzPQ+CishxrSwJHSSRZBQHHWy2K3Rbu/iV0HcMq/hl9cSI2ygpwjVTRbPW+NuP1tHxVV3AMxz69VLAs5Ztg==",
+    "@mariozechner/pi-coding-agent@0.66.1_ws@8.20.0_zod@3.25.76": {
+      "integrity": "sha512-cNmatT+5HvYzQ78cRhRih00wCeUTH/fFx9ecJh5AbN7axgWU+bwiZYy0cjrTsGVgMGF4xMYlPRn/Nze9JEB+/w==",
       "dependencies": [
         "@mariozechner/jiti",
         "@mariozechner/pi-agent-core",
@@ -2858,8 +2859,8 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-tui@0.65.2": {
-      "integrity": "sha512-LBPbIBASjCF4QLrc/dwmPdBzVMsbkDhzmBIAFgglX5rZBnGRppB7ekSA+1kb5pdxDpDn8IbxJX+bl7ZaeqZqxw==",
+    "@mariozechner/pi-tui@0.66.1": {
+      "integrity": "sha512-hNFN42ebjwtfGooqoUwM+QaPR1XCyqPuueuP3aLOWS1bZ2nZP/jq8MBuGNrmMw1cgiDcotvOlSNj3BatzEOGsw==",
       "dependencies": [
         "@types/mime-types",
         "chalk@5.6.2",

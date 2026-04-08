@@ -19,7 +19,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./pi": "./src/m.pi/mod.ts",
-    "./pi/cli": "./src/m.pi.cli/mod.ts"
+    "./pi/cli": "./src/m.pi/m.cli/mod.ts"
   },
   "exclude": [".tmp", ".pi"],
   "permissions": {

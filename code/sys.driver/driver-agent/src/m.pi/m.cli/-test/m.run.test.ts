@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
 import { PiCli } from '../mod.ts';
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
 
