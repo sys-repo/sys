@@ -1,17 +1,17 @@
 import { Fs, type t } from './common.ts';
 
 export const PiEnv = {
-  toHomeDir() {
+  toHome() {
     return env('HOME');
   },
 
-  toHomeAgentsSkillsDir() {
-    const home = PiEnv.toHomeDir();
+  toAgentsSkillsDir() {
+    const home = PiEnv.toHome();
     return home ? Fs.join(home, '.agents', 'skills') : undefined;
   },
 
-  toGoogleApplicationDefaultCredentialsPath() {
-    const home = PiEnv.toHomeDir();
+  toGoogleCredentialPath() {
+    const home = PiEnv.toHome();
     return home
       ? Fs.join(home, '.config', 'gcloud', 'application_default_credentials.json')
       : undefined;
