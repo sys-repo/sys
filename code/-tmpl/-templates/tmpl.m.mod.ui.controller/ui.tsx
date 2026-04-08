@@ -17,7 +17,7 @@ export const Uncontrolled: React.FC<t.MyCtrl.Props> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <div>{`🐷 ${D.displayName}`}</div>
     </div>
   );
