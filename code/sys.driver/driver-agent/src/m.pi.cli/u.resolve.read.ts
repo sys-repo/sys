@@ -42,6 +42,11 @@ function ancestorContextPaths(dir: t.StringDir) {
   let current = dir;
   while (true) {
     paths.push(Fs.join(current, 'AGENTS.md'));
+    /**
+     * Pi still probes `CLAUDE.md` during startup. Allow this read for upstream
+     * compatibility only; it is not part of the intended `@sys` context contract.
+     */
+    paths.push(Fs.join(current, 'CLAUDE.md'));
     const parent = Path.dirname(current) as t.StringDir;
     if (parent === current) return paths;
     current = parent;
