@@ -2,6 +2,16 @@ import type { t } from './common.ts';
 
 /**
  * Thin CLI transport surface for launching Pi.
+ *
+ * References:
+ * - https://pi.dev/
+ * - https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
+ *
+ * This local surface is a thin `@sys` launcher wrapper over the upstream Pi
+ * coding-agent project.
+ *
+ * Provenance:
+ * - Upstream Pi coding-agent license: MIT
  */
 export declare namespace PiCli {
   export type Lib = {

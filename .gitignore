@@ -4,6 +4,7 @@
 .tmp
 .tmp.*
 .tmp-*
+.pi
 .env
 .env.*
 .swc
