@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.238",
+  "version": "0.0.239",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -43,7 +43,15 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     }
   }
