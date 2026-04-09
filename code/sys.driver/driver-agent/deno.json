@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-agent",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -21,7 +21,10 @@
     "./pi": "./src/m.pi/mod.ts",
     "./pi/cli": "./src/m.pi/m.cli/mod.ts"
   },
-  "exclude": [".tmp", ".pi"],
+  "exclude": [
+    ".tmp",
+    ".pi"
+  ],
   "permissions": {
     "clean": {
       "read": true,
@@ -47,7 +50,11 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
       }
     }
   }
