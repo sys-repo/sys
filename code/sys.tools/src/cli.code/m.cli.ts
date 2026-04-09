@@ -21,7 +21,9 @@ export const cli: t.CodeToolsLib['cli'] = async (cwd, argv) => {
 async function run(cwd: t.StringDir, argv: string[]) {
   const specifier = await resolveSpecifier(cwd);
   return await Process.inherit({
+    cmd: 'deno',
     cwd,
+    env: { INIT_CWD: cwd },
     args: ['run', '-A', specifier, ...argv],
   });
 }
