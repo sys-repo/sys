@@ -27,8 +27,8 @@ describe('Vite.Wrangle', () => {
     const versions = await rootVersions();
     const res = await Wrangle.command(paths, 'build');
 
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/.deno/esbuild@');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/@esbuild/');
+    expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/.deno/');
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@esbuild/`);
     expect(
       res.env.ESBUILD_BINARY_PATH.endsWith('/bin/esbuild') ||
         res.env.ESBUILD_BINARY_PATH.endsWith('\\esbuild.exe'),
@@ -45,7 +45,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.not.include('-A');
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${versions.vite}`);
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`esbuild@${versions.esbuild}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${versions.esbuild}`);
   });
 
   it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
@@ -71,7 +71,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${versions.vite}`);
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`esbuild@${versions.esbuild}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${versions.esbuild}`);
   });
 
   it('anchors npm resolution at the nearest consumer package boundary', () => {
