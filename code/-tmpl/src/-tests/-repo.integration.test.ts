@@ -107,6 +107,12 @@ describe('Template: repo integration', () => {
     }
 
     const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
+    const templateImports = await readJson<DenoImportMapJson>(
+      Fs.resolve(import.meta.dirname ?? '.', '../../-templates/tmpl.repo/imports.json'),
+    );
+
+    expect(imports.imports?.['@sys/tmpl']).to.eql(templateImports.imports?.['@sys/tmpl']);
+    expect(imports.imports?.['@sys/workspace']).to.eql(templateImports.imports?.['@sys/workspace']);
     expect(imports.imports?.['@sys/driver-deno/runtime']).to.eql(
       imports.imports?.['@sys/driver-deno'] + '/runtime',
     );

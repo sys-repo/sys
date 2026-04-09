@@ -5,9 +5,11 @@ import {
   resolvePublishedPackageVersions,
   resolvePackageVersions,
   syncByKey,
+  syncTemplateDeps,
   syncTemplateImports,
   syncTemplatePackage,
 } from '../-prep.u.ts';
+import { DenoDeps } from '@sys/driver-deno/runtime';
 import { DenoFile, describe, expect, Fs, it, type t } from '../../src/-test.ts';
 import { resolveVersions } from '../task.prep.ts';
 
@@ -341,6 +343,7 @@ describe('prep.u', () => {
   it('parity invariant → prep sync result equals template files for all current keys', async () => {
     const root = Fs.resolve(import.meta.dirname ?? '.', '..', '..', '..', '..');
     const path = {
+      tmplRepoDeps: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-deps.yaml'),
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-package.json'),
       rootPackage: Fs.join(root, 'package.json'),
@@ -348,7 +351,11 @@ describe('prep.u', () => {
       rootDenoJson: Fs.join(root, 'deno.json'),
     } as const;
 
-    const [repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
+    const [repoDepsText, repoImportsRaw, repoPackage, rootPackage, rootImportsRaw] = await Promise.all([
+      Fs.readText(path.tmplRepoDeps).then((res) => {
+        if (!res.ok || res.data === undefined) throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+        return res.data;
+      }),
       readJson<t.Json>(path.tmplRepoImports),
       readJson<t.PkgNodeJson>(path.tmplRepoPackage),
       readJson<t.PkgNodeJson>(path.rootPackage),
@@ -356,6 +363,8 @@ describe('prep.u', () => {
     ]);
     const repoImports = assertImportMap(repoImportsRaw, path.tmplRepoImports);
     const rootImports = assertImportMap(rootImportsRaw, path.rootImports);
+    const repoDeps = await DenoDeps.from(repoDepsText);
+    if (repoDeps.error || !repoDeps.data) throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
     const currentVersions = Object.fromEntries(
       Object.keys(repoImports.imports)
         .map((specifier) => {
@@ -372,7 +381,10 @@ describe('prep.u', () => {
 
     const syncedImports = syncTemplateImports(repoImports, rootImports, currentVersions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
+    const syncedDeps = syncTemplateDeps(repoDeps.data.deps, currentVersions, rootPackage);
+    const syncedDepsText = DenoDeps.toYaml(syncedDeps).text;
 
+    expect(syncedDepsText).to.eql(repoDepsText);
     expect(syncedImports.imports).to.eql(repoImports.imports);
     expect(syncedPackage).to.eql(repoPackage);
   });

@@ -2,6 +2,7 @@ import { Args } from '@sys/std';
 import { Fs } from '@sys/fs';
 import { Cli } from '@sys/cli';
 import type * as t from '@sys/types';
+import { DenoDeps } from '@sys/driver-deno/runtime';
 import {
   PATH,
   PublishedVersion,
@@ -9,9 +10,11 @@ import {
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
+  syncTemplateDeps,
   syncTemplateImports,
   syncTemplatePackage,
   writeIfChanged,
+  writeTextIfChanged,
 } from './-prep.u.ts';
 import { DenoFile } from '@sys/driver-deno/runtime';
 import { makeBundle } from '../src/m.tmpl/u.makeBundle.ts';
@@ -33,7 +36,11 @@ type TArgs = {
 };
 
 export async function main(options: Options = {}) {
-  const [repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
+  const [repoDepsText, repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
+    Fs.readText(path.tmplRepoDeps).then((res) => {
+      if (!res.ok || res.data === undefined) throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+      return res.data;
+    }),
     readJson<t.Json>(path.tmplRepoImports),
     readJson<t.PkgNodeJson>(path.tmplRepoPackage),
     readJson<t.PkgNodeJson>(path.rootPackage),
@@ -43,10 +50,17 @@ export async function main(options: Options = {}) {
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
   const versions = await resolveVersions(options.versionSource ?? 'workspace', repoImportMap);
+  const repoDeps = await DenoDeps.from(repoDepsText);
+  if (repoDeps.error || !repoDeps.data) {
+    throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
+  }
 
   const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
+  const nextDeps = syncTemplateDeps(repoDeps.data.deps, versions, rootPackage);
+  const nextDepsText = DenoDeps.toYaml(nextDeps).text;
 
+  await writeTextIfChanged(path.tmplRepoDeps, repoDepsText, nextDepsText);
   await writeIfChanged(path.tmplRepoImports, repoImports, nextImports);
   await writeIfChanged(path.tmplRepoPackage, repoPackage, nextPackage);
   await makeBundle();

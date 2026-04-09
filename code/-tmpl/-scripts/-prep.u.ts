@@ -1,4 +1,5 @@
-import type { DenoFileLib } from '@sys/driver-deno/t';
+import { DenoDeps } from '@sys/driver-deno/runtime';
+import type { DenoFileLib, Dep as DenoDep } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import { Jsr } from '@sys/registry/jsr/client';
 import { c } from '@sys/cli';
@@ -9,6 +10,7 @@ export type ImportMap = { imports: Record<string, string> };
 export type PackageVersions = Record<string, string>;
 export type KeyValueMap = Record<string, string>;
 export type PrepPaths = {
+  tmplRepoDeps: string;
   tmplRepoImports: string;
   tmplRepoPackage: string;
   rootPackage: string;
@@ -27,6 +29,7 @@ export type PublishedPackageVersionLib = {
 export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
+      tmplRepoDeps: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-deps.yaml'),
       tmplRepoImports: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/imports.json'),
       tmplRepoPackage: Fs.join(root, 'code/-tmpl/-templates/tmpl.repo/-package.json'),
       rootPackage: Fs.join(root, 'package.json'),
@@ -76,6 +79,48 @@ export function syncTemplatePackage(input: t.PkgNodeJson, source: t.PkgNodeJson)
   return next;
 }
 
+export function syncTemplateDeps(
+  deps: DenoDep[],
+  packageVersions: PackageVersions,
+  source: t.PkgNodeJson,
+): DenoDep[] {
+  const allSource = { ...(source.dependencies ?? {}), ...(source.devDependencies ?? {}) };
+
+  return deps.map((dep) => {
+    const module = dep.module.toString();
+
+    const sysPkg = jsrPackageName(module);
+    if (sysPkg) {
+      const version = packageVersions[sysPkg];
+      if (typeof version !== 'string') {
+        throw new Error(`Missing version authority for package "${sysPkg}"`);
+      }
+
+      return DenoDeps.toDep(rewriteModuleVersion(module, version), {
+        target: dep.target,
+        dev: dep.dev,
+        subpaths: dep.subpaths,
+      });
+    }
+
+    const npmPkg = npmPackageName(module);
+    if (npmPkg) {
+      const version = allSource[npmPkg];
+      if (typeof version !== 'string') {
+        throw new Error(`Missing dependency "${npmPkg}" in root package.json`);
+      }
+
+      return DenoDeps.toDep(rewriteModuleVersion(module, version), {
+        target: dep.target,
+        dev: dep.dev,
+        subpaths: dep.subpaths,
+      });
+    }
+
+    return dep;
+  });
+}
+
 export async function readJson<T extends t.Json>(path: string): Promise<T> {
   const res = await Fs.readJson<T>(path);
   if (!res.ok || !res.data) throw new Error(`Failed to read JSON: ${path}`);
@@ -97,6 +142,15 @@ export async function writeIfChanged(path: string, before: t.Json, after: t.Json
     return;
   }
   await Fs.writeJson(path, after as t.Json);
+  console.info(`updated    ${Fs.trimCwd(path)}`);
+}
+
+export async function writeTextIfChanged(path: string, before: string, after: string) {
+  if (before === after) {
+    console.info(`unchanged  ${Fs.trimCwd(path)}`);
+    return;
+  }
+  await Fs.write(path, after);
   console.info(`updated    ${Fs.trimCwd(path)}`);
 }
 
@@ -215,4 +269,21 @@ function resolveImportValue(
   if (typeof fromRoot === 'string') return fromRoot;
 
   throw new Error(`Missing import "${key}" in root imports.json`);
+}
+
+function npmPackageName(specifier: string): string | undefined {
+  const match = specifier.match(/^npm:((?:@[^/@]+\/)?[^@/]+)@[^/]+(?:\/.*)?$/);
+  return match?.[1];
+}
+
+function jsrPackageName(specifier: string): string | undefined {
+  const match = specifier.match(/^jsr:((?:@[^/@]+\/)?[^@/]+)@[^/]+(?:\/.*)?$/);
+  return match?.[1];
+}
+
+function rewriteModuleVersion(specifier: string, version: string): string {
+  const match = specifier.match(/^([a-z]+:(?:@[^/@]+\/)?[^@/]+)@([^/]+)(\/.*)?$/);
+  if (!match) return specifier;
+  const [, prefix, , suffix = ''] = match;
+  return `${prefix}@${version}${suffix}`;
 }
