@@ -1,4 +1,5 @@
 import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Pkg, Process, Time } from './common.ts';
+import { ViteLog } from '../m.fmt/mod.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -158,7 +159,7 @@ const wrangle = {
 
   spinnerText(label: string, startedAt: number) {
     const elapsed = Time.elapsed(startedAt);
-    const suffix = elapsed.msec >= 1000 ? c.dim(c.gray(` ${String(elapsed)}`)) : '';
+    const suffix = elapsed.msec >= 1000 ? c.dim(c.gray(` ${ViteLog.elapsed(elapsed.msec)}`)) : '';
     return Cli.Fmt.spinnerText(`${label}${suffix}`);
   },
 } as const;

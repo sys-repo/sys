@@ -24,6 +24,9 @@ export type ViteLogLib = {
 
   /** Format the digest-hash */
   digest(hash?: t.StringHash): string;
+
+  /** Format elapsed build/dev timing for CLI surfaces. */
+  elapsed(msec?: t.Msecs): string;
 };
 
 /**
