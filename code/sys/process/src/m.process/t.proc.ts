@@ -83,7 +83,7 @@ export declare namespace Process {
     args: string[];
     cmd?: string;
     cwd?: string;
-    env?: Record<string, string>;
+    env?: t.Process.Env;
     silent?: boolean;
   };
 
@@ -195,5 +195,22 @@ export declare namespace Process {
     readonly source: t.Process.StdStream;
     readonly data: Uint8Array;
     toString(): string;
+  };
+
+  /**
+   * Environment values passed through to a child process.
+   *
+   * This remains an open string map, but a small number of keys have
+   * repo-level semantics and are documented here to prevent drift.
+   */
+  export type Env = Record<string, string> & {
+    /**
+     * Pseudo-standard tooling convention for the initiating terminal cwd.
+     *
+     * Not a Unix/POSIX env var.
+     * Consumed by `Fs.cwd('terminal')` to preserve the caller's original
+     * terminal directory across delegated child-process launches.
+     */
+    INIT_CWD?: t.StringDir;
   };
 }

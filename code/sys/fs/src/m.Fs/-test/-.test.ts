@@ -28,7 +28,7 @@ describe('Fs: filesystem', () => {
 
     it('returns the initiating terminal CWD', () => {
       const dir = Fs.cwd('terminal');
-      expect(dir).to.eql(Deno.env.get('INIT_CWD'));
+      expect(dir).to.eql(Deno.env.get('INIT_CWD') ?? Deno.cwd());
     });
   });
 });
