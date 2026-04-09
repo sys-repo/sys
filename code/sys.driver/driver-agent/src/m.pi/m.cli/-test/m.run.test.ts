@@ -15,7 +15,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.cmd).to.eql('deno');
         expect(input.cwd).to.eql(Fs.cwd('terminal'));
         expect(input.args).to.include('run');
-        expect(findPkgArg(input.args)).to.match(/^npm:@mariozechner\/pi-coding-agent(?:@.+)?$/);
+        expect(findPkgArg(input.args)).to.eql('npm:@mariozechner/pi-coding-agent@0.66.1');
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
@@ -54,7 +54,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
         });
         expect(input.args).to.include('run');
-        expect(findPkgArg(input.args)).to.match(/^npm:@mariozechner\/pi-coding-agent(?:@.+)?$/);
+        expect(findPkgArg(input.args)).to.eql('npm:@mariozechner/pi-coding-agent@0.66.1');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
