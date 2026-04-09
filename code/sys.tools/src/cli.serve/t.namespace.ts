@@ -25,8 +25,13 @@ export namespace ServeTool {
   export type RouteView = 'json';
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.Tools.CliArgs & { port?: number };
-  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+  export type CliArgs = t.Tools.CliArgs & {
+    port?: number;
+    'no-interactive'?: boolean;
+  };
+  export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
+    interactive: boolean;
+  };
 
   /** Known MIME types mapped from known filename extensions. */
   export type MimeType = t.MimeType;

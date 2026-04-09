@@ -1,7 +1,8 @@
 import { startServing } from './m.server/mod.ts';
 
-import { type t, Args, c, D, done, Fs, Is } from './common.ts';
+import { type t, c, D, done, Fs, Is } from './common.ts';
 import { Fmt } from './u.fmt.ts';
+import { parseArgs } from './u.args.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
 import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
@@ -12,7 +13,7 @@ import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
 export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
+  const args = parseArgs(argv);
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   /* Migrate legacy configs (idempotent). */
@@ -20,7 +21,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 
   /* Run */
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd, args);
+  const res = await runInteractive(cwd, args);
   console.info(Fmt.signoff(toolname));
 
   /* Exit */
@@ -31,7 +32,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution
  */
-async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
+async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
   const port = Is.num(args.port) ? args.port : D.port;
 
   while (true) {
