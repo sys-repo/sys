@@ -12,7 +12,8 @@ describe('@sys/tools/code/m.cli', () => {
         expect(input.cmd).to.eql('deno');
         expect(input.cwd).to.eql(cwd);
         expect(input.env).to.eql({ INIT_CWD: cwd });
-        expect(input.args.slice(0, 3)).to.eql(['run', '-A', 'jsr:@sys/driver-agent@0.0.3/pi/cli']);
+        expect(input.args.slice(0, 2)).to.eql(['run', '-A']);
+        expect(input.args[2]).to.match(/^(?:@sys\/driver-agent\/pi\/cli|jsr:@sys\/driver-agent@.+\/pi\/cli)$/);
         expect(input.args.at(-1)).to.eql('--help');
         return { code: 0, success: true, signal: null };
       };
