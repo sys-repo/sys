@@ -3,6 +3,14 @@ import { Fs, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
 
 describe(`@sys/driver-agent/pi/cli/u.args`, () => {
+  it('parse → recognizes wrapper help and preserves passthrough argv otherwise', () => {
+    expect(PiArgs.parse(['-h'])).to.eql({ help: true, _: [] });
+    expect(PiArgs.parse(['--model', 'gpt-5.4'])).to.eql({
+      help: false,
+      _: ['--model', 'gpt-5.4'],
+    });
+  });
+
   it('toAgentDir / toDenoDir → derive local runtime directories', () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     expect(PiArgs.toAgentDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/agent');

@@ -5,8 +5,9 @@ import { Path } from '@sys/std';
 const cwd = Fs.cwd('terminal');
 const gitRoot = await findGitRoot(cwd);
 
-await PiCli.run({
-  args: Deno.args,
+await PiCli.main({
+  argv: Deno.args,
+  cwd,
   read: [...(await resolveTaskReadScope(gitRoot))],
 });
 
