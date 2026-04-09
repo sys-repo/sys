@@ -4,12 +4,29 @@ export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const str = Str.builder()
-      .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
-      .line(await Base.help(toolname))
-      .line();
-
-    return String(str);
+    return await Base.help(toolname, {
+      note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
+      usage: [
+        `${toolname}`,
+        `${toolname} --no-interactive --dir . [--host local|network] [--port 4040] [--open]`,
+        `${toolname} --no-interactive --config ./-config/site.serve.yaml [--port 4040] [--open]`,
+      ],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--port <number>', 'preferred port (auto-increments if occupied)'],
+        ['--no-interactive', 'disable prompts and require direct inputs'],
+        ['--dir <path>', 'serve this directory directly'],
+        ['--config <path>', 'load a saved serve config YAML'],
+        ['--host <local|network>', 'bind 127.0.0.1 or 0.0.0.0'],
+        ['--open', 'open the resolved URL after start'],
+      ],
+      examples: [
+        `${toolname} --no-interactive --dir .`,
+        `${toolname} --no-interactive --dir . --port 4040`,
+        `${toolname} --no-interactive --dir . --host network`,
+        `${toolname} --no-interactive --config ./-config/site.serve.yaml --open`,
+      ],
+    });
   },
 
   async folderAsText(args: {

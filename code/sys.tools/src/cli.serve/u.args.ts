@@ -3,7 +3,8 @@ import { type t, Args } from './common.ts';
 export function parseArgs(argv: string[] = []): t.ServeTool.CliParsedArgs {
   const args = Args.parse<t.ServeTool.CliArgs>(argv, {
     alias: { h: 'help' },
-    boolean: ['help', 'no-interactive'],
+    boolean: ['help', 'open', 'no-interactive'],
+    string: ['config', 'dir', 'host'],
   });
 
   return {

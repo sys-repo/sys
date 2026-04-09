@@ -27,6 +27,10 @@ export namespace ServeTool {
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & {
     port?: number;
+    dir?: string;
+    config?: string;
+    host?: 'local' | 'network';
+    open?: boolean;
     'no-interactive'?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {

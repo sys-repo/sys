@@ -1,10 +1,11 @@
 import { startServing } from './m.server/mod.ts';
 
-import { type t, c, D, done, Fs, Is } from './common.ts';
+import { type t, c, D, done, Fs, Is, Open, Str } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { parseArgs } from './u.args.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
+import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
 import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
 
 /**
@@ -21,7 +22,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 
   /* Run */
   console.info(await Fmt.header(toolname));
-  const res = await runInteractive(cwd, args);
+  const res = args.interactive ? await runInteractive(cwd, args) : await runNonInteractive(cwd, args);
   console.info(Fmt.signoff(toolname));
 
   /* Exit */
@@ -67,6 +68,29 @@ async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs)
       }
     }
   }
+}
+
+async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
+  const resolved = await resolveNonInteractive(cwd, args);
+  const { startServer } = await import('./m.server/mod.ts');
+  const context = startServer(resolved.location, {
+    port: Is.num(args.port) ? args.port : D.port,
+    host: resolved.host,
+    silent: true,
+  });
+
+  const url = `http://localhost:${context.port}/` as t.StringUrl;
+  console.info(Str.builder()
+    .line(c.gray(`Serving: ${resolved.location.dir}`))
+    .line(c.gray(`Host: ${context.hostname}`))
+    .line(c.gray(`Port: ${String(context.port)}`))
+    .line(c.gray(`URL:  ${c.cyan(url)}`))
+    .toString());
+
+  if (resolved.open) Open.invokeDetached(cwd, url, { silent: true });
+
+  await context.server.finished;
+  return done(0);
 }
 
 /**
