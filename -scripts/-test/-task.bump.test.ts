@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { bumpOrderedPaths, dependentClosure, main, orderChildren } from '../task.bump.ts';
+import { bumpOrderedPaths, dependentClosure, main, orderChildren, postBumpPrepArgs } from '../task.bump.ts';
 
 describe('scripts/task.bump', () => {
   it('orders bump rows by topological workspace package path order', () => {
@@ -41,7 +41,7 @@ describe('scripts/task.bump', () => {
   });
 
   it('includes generated tmpl coupling in the bump closure', () => {
-    const res = dependentClosure('code/-tmpl', []);
+    const res = dependentClosure('code/-tmpl', [], ['code/-tmpl', 'code/sys.tools']);
 
     expect(res).to.include('code/-tmpl');
     expect(res).to.include('code/sys.tools');
@@ -60,6 +60,17 @@ describe('scripts/task.bump', () => {
       'code/-tmpl',
       'code/sys.tools',
       'code/sys/workspace',
+    ]);
+  });
+
+  it('delegates post-bump prep to the canonical ahead-only prep lane', () => {
+    expect(postBumpPrepArgs()).to.eql([
+      'run',
+      '-P=dev',
+      './-scripts/main.ts',
+      '--prep-all',
+      '--ahead-only',
+      '--prep-context=bump',
     ]);
   });
 

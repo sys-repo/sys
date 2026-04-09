@@ -4,6 +4,7 @@ import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
+export type { CommitContext };
 
 /**
  * Process the dependencies into `deno.json` and `package.json` files.

@@ -7,7 +7,7 @@ import { main as dry } from './task.dry.ts';
 import { main as info } from './task.info.ts';
 import { main as lint } from './task.lint.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
-import { main as prep } from './task.prep.ts';
+import { main as prep, type CommitContext } from './task.prep.ts';
 import { main as test } from './task.test.ts';
 import { orderedWorkspacePaths } from './u.graph.ts';
 
@@ -23,6 +23,7 @@ export type MainArgs = {
   'prep-ci'?: boolean;
   'prep-ci-deno'?: boolean;
   'ahead-only'?: boolean;
+  'prep-context'?: CommitContext;
   tmpl?: boolean;
 };
 
@@ -33,7 +34,7 @@ type Lib = {
   readonly clean: typeof clean;
   readonly lint: typeof lint;
   readonly bump: typeof bump;
-  readonly prep: typeof prep;
+  readonly prep: (context?: CommitContext) => Promise<number>;
   readonly prepCi: typeof prepCi;
   readonly prepCiDeno: typeof prepCiDeno;
 };
@@ -80,9 +81,9 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv.clean) await api.clean();
   if (argv.lint) await api.lint();
   if (argv.bump) await api.bump();
-  if (argv.prep) await api.prep();
+  if (argv.prep) await api.prep(argv['prep-context']);
   if (argv['prep-all']) {
-    const prepared = await api.prep();
+    const prepared = await api.prep(argv['prep-context']);
     await api.prepCiDeno();
     await api.prepCi({
       versionFilter: argv['ahead-only'] ? 'ahead' : 'all',

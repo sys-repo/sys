@@ -1,7 +1,5 @@
-import { Workspace } from '@sys/workspace';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { type t, c, Cli, D, Path, R, Semver, Str } from './common.ts';
-import { main as prepCiDeno } from './task.prep.ci.deno.ts';
+import { type t, c, Cli, Path, Process, R, Semver, Str } from './common.ts';
 import { ensureWorkspaceGraphCache } from './u.graph.ts';
 
 type Options = {
@@ -139,18 +137,7 @@ export async function main(options: Options = {}) {
   });
 
   console.info(Cli.Fmt.spinnerText('running workspace prep...'));
-  const prepare = await import('./task.prep.ts');
-  const prepared = await prepare.main('bump');
-  await prepCiDeno();
-  await Workspace.Ci.sync({
-    cwd: Deno.cwd(),
-    sourcePaths: selected.map((child) => packagePath(child)),
-    jsrScopes: D.ci.jsrScopes,
-    on: D.ci.on,
-    prepared,
-    final: true,
-    ensureGraph: false,
-  });
+  await wrangle.runPostBumpPrep(Deno.cwd());
 
   return true;
 } 
@@ -232,6 +219,10 @@ export function bumpOrderedPaths(
   }
 
   return ordered.length === orderedPaths.length ? ordered : [...orderedPaths];
+}
+
+export function postBumpPrepArgs() {
+  return ['run', '-P=dev', './-scripts/main.ts', '--prep-all', '--ahead-only', '--prep-context=bump'] as const;
 }
 
 /**
@@ -439,6 +430,13 @@ const wrangle = {
     const isPrerelease = (current.prerelease ?? []).length > 0;
     if (release === 'patch' && isPrerelease) release = 'prerelease';
     return Semver.increment(current, release);
+  },
+
+  async runPostBumpPrep(cwd: t.StringDir) {
+    const args = [...postBumpPrepArgs()];
+    const res = await Process.inherit({ cmd: 'deno', args, cwd });
+    if (res.success) return;
+    throw new Error(`Failed post-bump prep: deno ${args.join(' ')}`);
   },
 
   pad(value: string, width: number) {
