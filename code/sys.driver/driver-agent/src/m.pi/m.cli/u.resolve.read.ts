@@ -47,6 +47,17 @@ function toAncestorContextPaths(dir: t.StringDir) {
      * compatibility only; it is not part of the intended `@sys` context contract.
      */
     paths.push(Fs.join(current, 'CLAUDE.md'));
+    /**
+     * Pi probes ancestor git markers while auto-discovering repo resources.
+     * Allow these marker reads so startup stays non-interactive within the
+     * caller's cwd ancestry, without broadening scope to full ancestor dirs.
+     */
+    paths.push(Fs.join(current, '.git'));
+    /**
+     * Pi auto-discovers `.agents/skills` along the cwd ancestry up to the git
+     * repo root. Allow these directory probes explicitly for compatibility.
+     */
+    paths.push(Fs.join(current, '.agents', 'skills'));
     const parent = Path.dirname(current) as t.StringDir;
     if (parent === current) return paths;
     current = parent;
