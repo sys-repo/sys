@@ -5,7 +5,7 @@
 
 [![test](https://github.com/sys-repo/sys/actions/workflows/test.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/test.yaml)
 [![build](https://github.com/sys-repo/sys/actions/workflows/build.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/build.yaml)
-[![publish](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
+[![registry:jsr](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg?label=registry:jsr)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
 
 
 # @sys
