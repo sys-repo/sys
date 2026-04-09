@@ -157,9 +157,11 @@ const wrangle = {
       // Fall back to the Deno npm layout when the platform package is not linked directly.
     }
 
-    const esbuildMain = require.resolve('esbuild');
-    const denoNodeModules = Path.dirname(Path.dirname(Path.dirname(esbuildMain)));
-    return Path.join(denoNodeModules, pkg, subpath);
+    const version = wrangle.esbuildVersion(cwd);
+    const { storeDir } = wrangle.esbuildPackage(version);
+    const anchor = wrangle.packageAnchor(cwd);
+    const denoStoreRoot = Path.join(Path.dirname(anchor), 'node_modules', '.deno');
+    return Path.join(denoStoreRoot, storeDir, 'node_modules', pkg, subpath);
   },
 
   requireFrom(start: string) {
@@ -201,13 +203,35 @@ const wrangle = {
     }
   },
 
-  esbuildPackage() {
+  esbuildVersion(cwd: string) {
+    const require = wrangle.esbuildRequire(cwd);
+    try {
+      const pkg = require(require.resolve('esbuild/package.json')) as { version?: string };
+      const version = pkg.version?.trim();
+      if (version) return version;
+    } catch {
+      // Fall through to package manifest lookup when the node_modules shim is absent.
+    }
+
+    const anchor = wrangle.packageAnchor(cwd);
+    const manifest = Deno.readTextFileSync(anchor);
+    const pkg = JSON.parse(manifest) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
+    if (!version) throw new Error(`Failed to resolve installed esbuild version from consumer package boundary: ${cwd}`);
+    return version.replace(/^[~^]/, '');
+  },
+
+  esbuildPackage(version?: string) {
     const arch = wrangle.normalizeEsbuildArch(Deno.build.arch);
     const key = `${Deno.build.os}/${arch}`;
     const pkg = ESBUILD_PACKAGES[key as keyof typeof ESBUILD_PACKAGES];
     if (!pkg) throw new Error(`Unsupported esbuild platform: ${key}`);
     const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
-    return { pkg, subpath } as const;
+    const storeDir = version ? `${pkg.replace('/', '+')}@${version}` : '';
+    return { pkg, storeDir, subpath } as const;
   },
 
   normalizeEsbuildArch(arch: string) {
