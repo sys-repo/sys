@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1775689865614,
+    "createdAt": 1775695688397,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-d99070af76de8e788e7c064e1191018ce1ee5292921d31faa3b55dce062f3cc5",
+      "/graph": "sha256-bf1708778dc4ae47540e29d4e24dbe84aee4b668b5d4f056890afb3f02518973",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.53/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1775689865628
+    "modifiedAt": 1775695688403
   },
   "graph": {
     "orderedPaths": [
@@ -70,6 +70,10 @@
       "deploy/sample.proxy"
     ],
     "edges": [
+      {
+        "from": "code/sys.driver/driver-agent",
+        "to": "code/sys.tools"
+      },
       {
         "from": "code/sys.driver/driver-automerge",
         "to": "code/sys.dev"
@@ -461,6 +465,10 @@
       {
         "from": "code/sys/cli",
         "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/cli",
