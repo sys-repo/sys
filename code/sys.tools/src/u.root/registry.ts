@@ -8,6 +8,7 @@ type ToolRegistryItem = {
 };
 
 export const ROOT_REGISTRY = [
+  { id: 'code', aliases: undefined, load: () => import('../cli.code/mod.ts') },
   { id: 'tmpl', aliases: ['clone'], load: () => import('../cli.tmpl/mod.ts') },
   { id: 'pull', aliases: undefined, load: () => import('../cli.pull/mod.ts') },
   { id: 'serve', aliases: undefined, load: () => import('../cli.serve/mod.ts') },

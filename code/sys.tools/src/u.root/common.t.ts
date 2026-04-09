@@ -24,6 +24,7 @@ export namespace Root {
   export type Command =
     | 'pull'
     | 'serve'
+    | 'code'
     | 'deploy'
     | 'crdt'
     | 'crypto'

@@ -11,6 +11,7 @@ export namespace Tools {
   export type Command =
     | t.ServeTool.Id
     | t.ClipboardTool.Id
+    | t.CodeTool.Id
     | t.CryptoTool.Id
     | t.CrdtTool.Id
     | t.DeployTool.Id
