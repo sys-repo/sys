@@ -1,11 +1,8 @@
+import { Fs } from '../common.ts';
 import { type t } from './common.ts';
 import { Imports } from './u.imports.ts';
 
 type CliFn = (cwd: t.StringDir, argv: readonly string[]) => Promise<unknown>;
-
-function terminalCwd(): t.StringDir {
-  return (Deno.env.get('INIT_CWD') ?? Deno.cwd()) as t.StringDir;
-}
 
 /**
  * Load a tool module and return its `cli(cwd, argv)` entry.
@@ -26,5 +23,5 @@ async function loadCli(command: t.Root.Command): Promise<CliFn> {
  */
 export async function dispatchRootCommand(command: t.Root.Command, argv: readonly string[]) {
   const cli = await loadCli(command);
-  await cli(terminalCwd(), argv.slice(1));
+  await cli(Fs.cwd('terminal'), argv.slice(1));
 }
