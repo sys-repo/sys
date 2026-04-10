@@ -9,7 +9,7 @@ const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-agent@0.0.8/pi/cli';
 /**
  * Main entry.
  *
- * Delegates all argv/cwd handling to `@sys/driver-agent/pi/cli`.
+ * Delegates all argv/cwd handling to the Pi profile launcher.
  */
 export const cli: t.CodeToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
@@ -24,7 +24,7 @@ async function run(cwd: t.StringDir, argv: string[]) {
     cmd: 'deno',
     cwd,
     env: { INIT_CWD: cwd },
-    args: ['run', '-A', specifier, ...argv],
+    args: ['run', '-A', specifier, 'Profiles', ...argv],
   });
 }
 

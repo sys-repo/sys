@@ -1,8 +1,8 @@
 /**
  * @module
- * Thin `@sys/tools/code` wrapper.
+ * Code agent profile launcher.
  *
- * Delegates execution directly to `@sys/driver-agent/pi/cli`.
+ * Delegates execution to `@sys/driver-agent/pi/cli Profiles`.
  */
 import { Fs } from './common.ts';
 import { cli } from './m.cli.ts';

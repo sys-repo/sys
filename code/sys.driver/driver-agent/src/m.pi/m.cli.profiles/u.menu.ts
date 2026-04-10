@@ -20,7 +20,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
   const res = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
     cwd,
     dir: ProfilesFs.dir,
-    label: 'Agents',
+    label: 'Agent',
     itemLabel: 'profiles',
     addLabel: ' add: <profile>',
     defaultName: 'default',

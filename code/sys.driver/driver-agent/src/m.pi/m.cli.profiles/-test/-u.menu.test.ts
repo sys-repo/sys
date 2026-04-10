@@ -8,7 +8,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const original = Cli.Input.Select.prompt;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: () => Promise.resolve('exit'),
+      value: (input: { message: string }) => {
+        expect(input.message).to.eql('Agent:\n');
+        return Promise.resolve('exit');
+      },
     });
 
     try {
