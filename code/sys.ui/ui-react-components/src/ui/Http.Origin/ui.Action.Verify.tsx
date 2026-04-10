@@ -29,17 +29,21 @@ export const VerifyAction: React.FC<VerifyActionProps> = (props) => {
       minWidth: 0,
     }),
     action: css({ display: 'grid', justifyItems: 'end', minWidth: 0 }),
+    layer: css({ gridArea: '1 / 1' }),
+    hidden: css({ visibility: 'hidden', pointerEvents: 'none' }),
     label: css({ fontFamily: 'sans-serif' }),
   };
 
   const elLabel = <span className={styles.label.class}>{label}</span>;
   const elSpinner = <BarSpinner theme={theme.name} width={30} />;
   const elButton = <Button theme={theme.name} label={elLabel} onClick={props.onVerify} />;
-  const elAction = running ? elSpinner : elButton;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.action.class}>{elAction}</div>
+      <div className={styles.action.class}>
+        <div className={css(styles.layer, running && styles.hidden).class}>{elButton}</div>
+        <div className={css(styles.layer, !running && styles.hidden).class}>{elSpinner}</div>
+      </div>
     </div>
   );
 };
