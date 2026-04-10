@@ -42,12 +42,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         config,
         Str.dedent(
           `
-          profiles:
-            - name: main
-              args: [--model, gpt-5.4]
-              read: [./canon]
-              env:
-                PI_PROFILE: main
+          args: [--model, gpt-5.4]
+          read: [./canon]
+          env:
+            PI_PROFILE: main
           `,
         ).trimStart(),
       );

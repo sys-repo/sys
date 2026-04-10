@@ -18,7 +18,6 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     ? {
       kind: 'selected' as const,
       config: parsed.config as t.StringPath,
-      profile: parsed.profile ?? '',
     }
     : await menu({ cwd });
 
@@ -27,7 +26,6 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const output = await run({
     cwd,
     config: picked.config,
-    profile: picked.profile || undefined,
     args: parsed._,
     env: input.env,
     read: input.read,

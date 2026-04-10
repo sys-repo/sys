@@ -13,6 +13,7 @@ type PromptActionArgs<A extends string, T> = {
   invalidLabel?: string;
   allow?: YamlConfigMenuActionBase[];
   defaultValue?: YamlConfigMenuActionBase | A;
+  message?: string;
   actionLabel?: string;
   extra?: { name: YamlConfigMenuItemName<T>; value: A }[];
 };
@@ -50,7 +51,9 @@ export async function promptAction<A extends string = string, T = unknown>(
       );
 
   const answer = await Cli.Input.Select.prompt<YamlConfigMenuActionBase | A>({
-    message: args.valid ? 'Actions:' : `Actions: ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
+    message: args.valid
+      ? args.message ?? 'Actions:'
+      : `${args.message ?? 'Actions:'} ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
     options: allowed,
     default: args.defaultValue,
     hideDefault: true,

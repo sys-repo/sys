@@ -1,6 +1,6 @@
 /**
  * @module
- * Persisted environment profiles for Pi.
+ * Persisted profile configs for Pi.
  */
 import type { t } from './common.ts';
 import { main } from './m.main.ts';

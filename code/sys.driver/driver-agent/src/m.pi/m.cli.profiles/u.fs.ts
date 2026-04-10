@@ -1,6 +1,6 @@
 import { Fs, pkg, Schema, Str, type t, Yaml, YamlConfig } from './common.ts';
-import { ProfileSetSchema } from './u.schema.ts';
-import { ProfileSetYamlErrorCode, validateProfileSetYamlText } from './u.validate.ts';
+import { ProfileSchema } from './u.schema.ts';
+import { ProfileYamlErrorCode, validateProfileYamlText } from './u.validate.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
 const PROFILES_DIR = `-config/${ROOT}.pi` satisfies t.PiCliProfiles.Yaml.DirName;
@@ -17,17 +17,14 @@ export const ProfilesFs = {
   initialYaml(name = 'default'): string {
     return Str.dedent(
       `
-      # environment profiles: ${name}
+      # pi profile: ${name}
       #
-      # Contains one or more named Pi environment profiles.
       # Args pass through to Pi.
-      # Paths resolve relative to the CLI cwd.
+      # Paths resolve relative to the current working directory.
 
-      profiles:
-        - name: main
-          args: []
-          read: []
-          env: {}
+      args: []
+      read: []
+      env: {}
 
       `,
     ).trimStart();
@@ -42,8 +39,8 @@ export const ProfilesFs = {
   async validateYaml(path: t.StringPath): Promise<t.PiCliProfiles.Yaml.YamlCheck> {
     if (!(await Fs.exists(path))) {
       const err = Yaml.Error.synthetic({
-        message: 'Environment profile YAML file does not exist.',
-        code: ProfileSetYamlErrorCode,
+        message: 'Profile config YAML file does not exist.',
+        code: ProfileYamlErrorCode,
         pos: [0, 0],
       });
       return { ok: false, errors: Schema.Error.fromYaml([err]) };
@@ -52,19 +49,19 @@ export const ProfilesFs = {
     const read = await Fs.readText(path);
     if (!read.ok) {
       const err = Yaml.Error.synthetic({
-        message: 'Unable to read environment profile YAML file.',
-        code: ProfileSetYamlErrorCode,
+        message: 'Unable to read profile config YAML file.',
+        code: ProfileYamlErrorCode,
         pos: [0, 0],
       });
       return { ok: false, errors: Schema.Error.fromYaml([err]) };
     }
 
-    return validateProfileSetYamlText(read.data ?? '');
+    return validateProfileYamlText(read.data ?? '');
   },
 
-  async writeProfileSet(path: t.StringPath, doc: t.PiCliProfiles.Yaml.ProfileSet) {
+  async writeProfile(path: t.StringPath, doc: t.PiCliProfiles.Yaml.Profile) {
     await Fs.ensureDir(Fs.dirname(path));
-    const text = ProfileSetSchema.stringify(doc);
+    const text = ProfileSchema.stringify(doc);
     await Fs.write(path, text);
   },
 } as const;

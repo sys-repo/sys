@@ -13,18 +13,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         config,
         Str.dedent(
           `
-          profiles:
-            - name: main
-              args: [--model, gpt-5.3]
-              read: [./default-read]
-              env:
-                PI_PROFILE: main
-            - name: work
-              args: [--model, gpt-5.4]
-              read: [./profile-read]
-              env:
-                PI_PROFILE: work
-                PI_KEEP: profile
+          args: [--model, gpt-5.4]
+          read: [./profile-read]
+          env:
+            PI_PROFILE: work
+            PI_KEEP: profile
           `,
         ).trimStart(),
       );
@@ -43,7 +36,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       const res = await Profiles.run({
         cwd,
         config,
-        profile: 'work',
         args: ['--help'],
         read: ['./extra-read' as t.StringPath],
         env: { PI_PROFILE: 'override' },
@@ -56,7 +48,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → uses main profile when no profile is named', async () => {
+  it('run → uses the selected profile file', async () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
@@ -65,11 +57,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         config,
         Str.dedent(
           `
-          profiles:
-            - name: main
-              args: [--model, gpt-5.4]
-              env:
-                PI_PROFILE: main
+          args: [--model, gpt-5.4]
+          env:
+            PI_PROFILE: main
           `,
         ).trimStart(),
       );

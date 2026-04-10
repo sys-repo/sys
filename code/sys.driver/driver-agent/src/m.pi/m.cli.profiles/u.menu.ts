@@ -1,6 +1,6 @@
-import { c, Cli, type t, YamlConfig } from './common.ts';
+import { c, type t, YamlConfig } from './common.ts';
 import { ProfilesFs } from './u.fs.ts';
-import { ProfileSetSchema } from './u.schema.ts';
+import { ProfileSchema } from './u.schema.ts';
 
 type Action = 'run';
 
@@ -13,21 +13,21 @@ const ValidName = {
 
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
   const schema = {
-    init: () => ProfileSetSchema.initial(),
-    validate: (value: unknown) => ProfileSetSchema.validate(value),
+    init: () => ProfileSchema.initial(),
+    validate: (value: unknown) => ProfileSchema.validate(value),
   } as const;
 
-  const res = await YamlConfig.menu<t.PiCliProfiles.Yaml.ProfileSet, Action>({
+  const res = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
     cwd,
     dir: ProfilesFs.dir,
-    label: 'Agent Profiles',
+    label: 'Agents',
     itemLabel: 'profiles',
     addLabel: ' add: <profile>',
     ensureDefault: false,
     schema,
     actions: {
-      label: 'profile',
-      extra: [{ name: c.green('open'), value: 'run' }],
+      message: 'Profile:',
+      extra: [{ name: c.green('start'), value: 'run' }],
     },
     add: {
       message: 'Profile name',
@@ -43,20 +43,5 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
   if (res.kind === 'exit') return { kind: 'exit' };
   if (res.kind !== 'action' || res.action !== 'run') return { kind: 'exit' };
 
-  const checked = await ProfilesFs.validateYaml(res.path);
-  if (!checked.ok) return { kind: 'exit' };
-
-  const names = checked.doc.profiles.map((profile) => profile.name);
-  const profile = await Cli.Input.Select.prompt<string>({
-    message: 'Profile:\n',
-    options: [
-      ...names.map((name) => ({ name, value: name })),
-      { name: '(exit)', value: 'exit' },
-    ],
-    default: names[0],
-    hideDefault: true,
-  });
-
-  if (profile === 'exit') return { kind: 'exit' };
-  return { kind: 'selected', config: res.path, profile };
+  return { kind: 'selected', config: res.path };
 };

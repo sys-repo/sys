@@ -81,6 +81,8 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
   /** Extra actions and handler hook. */
   actions?: {
+    /** Action prompt message (default: "Actions:"). */
+    message?: string;
     /** Label used for built-in edit/reload/rename actions (default: "config"). */
     label?: string;
     extra?: YamlConfigMenuExtra<A, T>[];

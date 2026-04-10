@@ -1,16 +1,16 @@
 import type { t } from './common.ts';
 
 /**
- * Persisted environment profiles for Pi.
+ * Persisted profile configs for Pi.
  */
 export declare namespace PiCliProfiles {
   /** Runtime surface for the persisted profile launcher. */
   export type Lib = {
     /** Parse wrapper args, optionally show help, then launch or open the profile menu. */
     main(input?: Input): Promise<Result>;
-    /** Run Pi from a concrete environment profile config. */
+    /** Run Pi from a concrete profile config. */
     run(args: RunArgs): Promise<t.Process.InheritOutput>;
-    /** Open the environment profile config menu. */
+    /** Open the profile config menu. */
     menu(args: MenuArgs): Promise<MenuResult>;
   };
 
@@ -32,10 +32,8 @@ export declare namespace PiCliProfiles {
   export type RunArgs = {
     /** Terminal working directory used to resolve profile paths. */
     readonly cwd?: t.StringDir;
-    /** Environment profile YAML file. */
+    /** Profile config YAML file. */
     readonly config: t.StringPath;
-    /** Named profile inside the config; defaults to `main`, then first profile. */
-    readonly profile?: string;
     /** Extra Pi args appended after profile args. */
     readonly args?: readonly string[];
     /** Environment overrides merged over profile env. */
@@ -56,7 +54,6 @@ export declare namespace PiCliProfiles {
   export type ParsedArgs = {
     readonly help?: boolean;
     readonly config?: string;
-    readonly profile?: string;
     /** Pi args captured after `--`. */
     readonly _: readonly string[];
   };
@@ -88,25 +85,17 @@ export declare namespace PiCliProfiles {
   /** Profile menu result. */
   export type MenuResult =
     | { readonly kind: 'exit' }
-    | { readonly kind: 'selected'; readonly config: t.StringPath; readonly profile: string };
+    | { readonly kind: 'selected'; readonly config: t.StringPath };
 
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
     export type DirName = `-config/${string}.pi`;
-    /** Environment profile file extension. */
+    /** Profile config file extension. */
     export type Ext = '.yaml';
 
-    /** YAML document persisted per environment profile file. */
-    export type ProfileSet = {
-      /** Named profiles available in this file. */
-      readonly profiles: readonly Profile[];
-    };
-
-    /** One named environment profile. */
+    /** YAML document persisted per profile config file. */
     export type Profile = {
-      /** Profile name used by `--profile`. */
-      readonly name: string;
       /** Pi args applied before CLI passthrough args. */
       readonly args?: readonly string[];
       /** Extra read-scope paths for this profile. */
@@ -117,7 +106,7 @@ export declare namespace PiCliProfiles {
 
     /** YAML validation result. */
     export type YamlCheck =
-      | { readonly ok: true; readonly doc: ProfileSet }
+      | { readonly ok: true; readonly doc: Profile }
       | { readonly ok: false; readonly errors: readonly unknown[] };
   }
 }
