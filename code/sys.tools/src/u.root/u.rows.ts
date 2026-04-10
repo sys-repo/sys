@@ -9,11 +9,17 @@ export function rootRows(): RootRow[] {
 
   const add = (command: t.Root.Command, label?: string, alias?: readonly string[]) => {
     const items = [fmt(label ?? command)];
-    if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(', '))})`));
+    const displayAliases = alias?.filter((item) => item !== command && item !== label);
+    if (displayAliases?.length) items.push(fmtAliases(displayAliases));
     rows.push({ command, columns: items });
   };
 
   ROOT_REGISTRY.forEach((item) => add(item.id, 'label' in item ? item.label : undefined, item.aliases));
 
   return rows;
+}
+
+function fmtAliases(aliases: readonly string[]) {
+  const label = aliases.length === 1 ? 'alias' : 'aliases';
+  return c.gray(`(← ${label} ${c.white(aliases.join(', '))})`);
 }

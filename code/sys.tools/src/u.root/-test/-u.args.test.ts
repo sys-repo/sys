@@ -1,4 +1,5 @@
-import { type t, describe, it, expect, expectTypeOf } from '../../-test.ts';
+import { describe, it, expect, expectTypeOf } from '../../-test.ts';
+import type { t } from '../common.ts';
 import { parseArgs } from '../u.args.ts';
 
 describe('Root Args', () => {
@@ -15,8 +16,32 @@ describe('Root Args', () => {
     expect(res._).eql(['serve', 'x', 'y']);
 
     if (res.command) {
-      expectTypeOf(res.command).toEqualTypeOf<t.Tools.Command>();
+      expectTypeOf(res.command).toEqualTypeOf<t.Root.Command>();
     }
+  });
+
+  it('normalizes agent alias to the fn command', () => {
+    const res = parseArgs(['agent', 'x']);
+    expect(res.command).eql('fn');
+    expect(res._).eql(['fn', 'x']);
+  });
+
+  it('keeps the fn command as canonical', () => {
+    const res = parseArgs(['fn', 'x']);
+    expect(res.command).eql('fn');
+    expect(res._).eql(['fn', 'x']);
+  });
+
+  it('normalizes branded alias to the fn command', () => {
+    const res = parseArgs(['ƒn', 'x']);
+    expect(res.command).eql('fn');
+    expect(res._).eql(['fn', 'x']);
+  });
+
+  it('does not accept removed code alias', () => {
+    const res = parseArgs(['code', 'x']);
+    expect(res.command).eql(undefined);
+    expect(res._).eql(['code', 'x']);
   });
 
   it('leaves command undefined when first positional is not a tool', () => {

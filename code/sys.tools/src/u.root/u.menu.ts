@@ -25,15 +25,15 @@ export async function rootMenu(): Promise<RootMenuPick> {
 
   table.push([`${exitIndent}${exitLabel}`]);
 
-  const lines = trimEdgeNewlines(table.toString()).split('\n');
+  const lines = optionLines(table.toString());
   const options: Array<{ name: string; value: t.Root.Command | 'exit' }> = rows.map(
     (row, index) => ({
-      name: lines[index] ?? row.columns.join(' '),
+      name: optionName(lines[index], row.columns.join(' ')),
       value: row.command,
     }),
   );
 
-  options.push({ name: lines[rows.length] ?? c.gray('(exit)'), value: 'exit' as const });
+  options.push({ name: optionName(lines[rows.length], c.gray('(exit)')), value: 'exit' as const });
 
   console.info();
   const picked = await Cli.Input.Select.prompt<t.Root.Command | 'exit'>({
@@ -49,4 +49,20 @@ export async function rootMenu(): Promise<RootMenuPick> {
   if (picked === 'exit') return { kind: 'exit' };
   if (!isToolCommand(picked)) return { kind: 'exit' };
   return { kind: 'selected', command: picked };
+}
+
+export function optionLines(table: string): string[] {
+  return trimEdgeNewlines(table)
+    .split('\n')
+    .filter((line) => visibleText(line).length > 0);
+}
+
+export function optionName(line: string | undefined, fallback: string): string {
+  if (visibleText(line).length > 0) return line!;
+  if (visibleText(fallback).length > 0) return fallback;
+  throw new Error('Root menu option name must not be blank');
+}
+
+function visibleText(input?: string): string {
+  return Cli.stripAnsi(input ?? '').trim();
 }

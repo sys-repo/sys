@@ -1,0 +1,34 @@
+import { describe, expect, it } from '../../-test.ts';
+import { optionLines, optionName } from '../u.menu.ts';
+
+describe('Root Menu', () => {
+  it('drops leading whitespace-only table rows', () => {
+    const lines = optionLines([
+      '                                               ',
+      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '└─ @sys/tools update         (← alias up, info)',
+      '  (exit)                                       ',
+    ].join('\n'));
+
+    expect(lines).to.eql([
+      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '└─ @sys/tools update         (← alias up, info)',
+      '  (exit)                                       ',
+    ]);
+  });
+
+  it('drops ansi-only rows when building visible options', () => {
+    const lines = optionLines([
+      '\x1b[90m                                               \x1b[39m',
+      '├─ @sys/tools ƒn             (← alias agent)   ',
+    ].join('\n'));
+
+    expect(lines).to.eql([
+      '├─ @sys/tools ƒn             (← alias agent)   ',
+    ]);
+  });
+
+  it('falls back when a rendered line is visibly blank', () => {
+    expect(optionName('\x1b[90m   \x1b[39m', 'fallback')).to.eql('fallback');
+  });
+});

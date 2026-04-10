@@ -8,7 +8,7 @@ type ToolRegistryItem = {
 };
 
 export const ROOT_REGISTRY = [
-  { id: 'code', aliases: undefined, specifier: '../cli.code/mod.ts' },
+  { id: 'fn', label: 'ƒn', aliases: ['agent', 'ƒn'], specifier: '../cli.code/mod.ts' },
   { id: 'tmpl', aliases: ['clone'], specifier: '../cli.tmpl/mod.ts' },
   { id: 'pull', aliases: undefined, specifier: '../cli.pull/mod.ts' },
   { id: 'serve', aliases: undefined, specifier: '../cli.serve/mod.ts' },
