@@ -33,6 +33,7 @@ export async function prepareStageForCreate(args: {
   readonly app: string;
   readonly org?: string;
   readonly token?: string;
+  readonly onBeforeOutput?: () => void;
 }) {
   const { pkgDir } = await createDeployableRepoPkg();
 
@@ -59,6 +60,7 @@ export async function prepareStageForCreate(args: {
     },
     {
       onRoot({ root }) {
+        args.onBeforeOutput?.();
         print(InfoFmt.Deploy.config({
           app: args.app,
           ...(args.org ? { org: args.org } : {}),

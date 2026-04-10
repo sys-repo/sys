@@ -15,7 +15,7 @@ async function main() {
   }
 
   console.info('');
-  const boot = Cli.spinner(Cli.Fmt.spinnerText(c.italic(c.gray('preparing sample app create...')))).start();
+  const boot = Cli.spinner(Cli.Fmt.spinnerText(c.italic(c.gray('preparing sample app creation...')))).start();
   try {
     const appArg = Is.str(argv._[0]) ? argv._[0].trim() : '';
     const app = appArg.length > 0 ? appArg : `foo-${slug()}`;
@@ -23,7 +23,14 @@ async function main() {
 
     const { DenoDeploy } = await import('@sys/driver-deno/cloud');
     const { Sample } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
-    const prepared = await Sample.Stage.forCreate({ app, org, token });
+    const prepared = await Sample.Stage.forCreate({
+      app,
+      org,
+      token,
+      onBeforeOutput() {
+        boot.stop();
+      },
+    });
 
     /**
      * The actual public API call.
