@@ -137,7 +137,7 @@ function joinUpstream(base: t.StringUrl, suffix: string): t.StringUrl {
 }
 
 function withResponseConfig(
-  response?: t.HttpProxy.ResponseHeadersConfig,
+  response?: t.HttpProxy.ResponseConfig,
 ): Partial<Pick<t.HttpProxy.ResolveMountResult, 'response'>> {
   return response ? { response } : {};
 }

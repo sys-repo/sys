@@ -8,7 +8,8 @@ export const HttpProxy: t.HttpProxy.Lib = {
 
     app.all('*', async (c) => {
       const url = new URL(c.req.raw.url);
-      const result = resolver(url.pathname as t.StringUrlRoute);
+      const pathname = url.pathname as t.StringUrlRoute;
+      const result = resolver(pathname);
 
       if (result.kind === 'redirect') {
         return c.redirect(`${result.location}${url.search}`, 308);
@@ -22,7 +23,13 @@ export const HttpProxy: t.HttpProxy.Lib = {
 
       try {
         const response = await fetch(new Request(upstream, c.req.raw));
-        return applyResponseHeaders(response, result.response?.headers);
+        const transformed = await applyResponseTransform(response, {
+          request: c.req.raw,
+          pathname,
+          upstream: upstream as t.StringUrl,
+          routeKind: result.kind,
+        }, result.response);
+        return applyResponseHeaders(transformed, result.response?.headers);
       } catch {
         return c.text('Bad Gateway', 502);
       }
@@ -56,4 +63,13 @@ function applyResponseHeaders(response: Response, headers?: HeadersInit): Respon
     statusText: response.statusText,
     headers: nextHeaders,
   });
+}
+
+async function applyResponseTransform(
+  response: Response,
+  context: t.HttpProxy.ResponseTransformContext,
+  config?: t.HttpProxy.ResponseConfig,
+): Promise<Response> {
+  if (!config?.transform) return response;
+  return await config.transform(response, context);
 }

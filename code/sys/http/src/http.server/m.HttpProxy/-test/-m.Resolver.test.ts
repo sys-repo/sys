@@ -380,6 +380,59 @@ describe('HttpProxy → runtime', () => {
       },
     });
   });
+
+  it('response transform → can rewrite proxied html bodies before header overrides', async () => {
+    const upstream = Http.Server.create({ static: false, cors: false });
+    const html = '<!doctype html><html><head><base href="https://upstream.example/site/"></head><body>ok</body></html>';
+
+    upstream.get('*', (c) => c.html(html));
+
+    await usingServer({
+      app: upstream,
+      fn: async ({ url: upstreamUrl }) => {
+        const app = HttpProxy.create({
+          config: {
+            root: {
+              upstream: joinUrl(upstreamUrl.raw, 'site/'),
+              response: {
+                headers: { 'cache-control': 'no-store' },
+                transform: async (response, context) => {
+                  const contentType = response.headers.get('content-type') ?? '';
+                  if (!contentType.includes('text/html')) return response;
+
+                  expect(context.pathname).to.eql('/about');
+                  expect(context.routeKind).to.eql('root');
+                  expect(context.upstream).to.eql(joinUrl(upstreamUrl.raw, 'site/about'));
+
+                  const body = await response.text();
+                  const rewritten = body.replace(/<base\b[^>]*>\s*/i, '');
+                  const headers = new Headers(response.headers);
+                  return new Response(rewritten, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers,
+                  });
+                },
+              },
+            },
+          },
+        });
+
+        await usingServer({
+          app,
+          fn: async ({ url }) => {
+            const res = await fetch(joinUrl(url.raw, 'about'));
+            const body = await res.text();
+
+            expect(res.status).to.eql(200);
+            expect(res.headers.get('cache-control')).to.eql('no-store');
+            expect(body).to.not.include('<base ');
+            expect(body).to.include('<body>ok</body>');
+          },
+        });
+      },
+    });
+  });
 });
 
 function mkEchoApp(tag: string) {

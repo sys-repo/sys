@@ -12,10 +12,50 @@ import type { t } from './common.ts';
  * - Upstream roots must not include query strings or hash fragments.
  */
 export declare namespace HttpProxy {
-  /** Declarative response header overrides applied to proxied responses. */
-  export type ResponseHeadersConfig = {
+  /** Context available to response transforms. */
+  export type ResponseTransformContext = {
+    /** Original incoming request received by the proxy. */
+    readonly request: Request;
+
+    /** Original local proxy pathname, before any upstream joining. */
+    readonly pathname: t.StringUrlRoute;
+
+    /** Fully resolved upstream request URL including the query-string. */
+    readonly upstream: t.StringUrl;
+
+    /** Resolved proxy route kind. */
+    readonly routeKind: 'root' | 'mount';
+  };
+
+  /** Route-scoped response transform applied to proxied responses. */
+  export type ResponseTransform = (
+    response: Response,
+    context: ResponseTransformContext,
+  ) => Response | Promise<Response>;
+
+  /** Declarative proxied-response adaptation config. */
+  export type ResponseConfig = {
     /** Headers to set on the outgoing proxied response. */
     readonly headers?: HeadersInit;
+
+    /**
+     * Optional response transform hook.
+     *
+     * Intended for targeted proxy adaptations such as HTML base-tag rewrites,
+     * cookie/header normalization, or content-type-sensitive response shaping.
+     * Header overrides are applied after the transform so declarative headers
+     * remain authoritative.
+     *
+     * Contract:
+     * - Treat this as a targeted response adaptation hook, not a blanket
+     *   interception layer.
+     * - Transforms that rewrite payload bytes are responsible for returning a
+     *   body/header-coherent `Response`.
+     * - In practice, body rewrites should usually be content-type-gated and
+     *   return a fresh `Response` so representation headers such as
+     *   `content-length` remain correct.
+     */
+    readonly transform?: ResponseTransform;
   };
 
   /** Public reverse proxy API. */
@@ -59,7 +99,7 @@ export declare namespace HttpProxy {
     readonly upstream: t.StringUrl;
 
     /** Route-scoped response header overrides. */
-    readonly response?: ResponseHeadersConfig;
+    readonly response?: ResponseConfig;
   };
 
   /**
@@ -99,7 +139,7 @@ export declare namespace HttpProxy {
     readonly upstream: t.StringUrl;
 
     /** Route-scoped response header overrides. */
-    readonly response?: ResponseHeadersConfig;
+    readonly response?: ResponseConfig;
   };
 
   /** Collection of mounted upstream routes. */
@@ -147,7 +187,7 @@ export declare namespace HttpProxy {
     readonly upstream: t.StringUrl;
 
     /** Route-scoped response header overrides for the resolved root route. */
-    readonly response?: ResponseHeadersConfig;
+    readonly response?: ResponseConfig;
   };
 
   /** Mounted upstream resolver result. */
@@ -161,7 +201,7 @@ export declare namespace HttpProxy {
     readonly upstream: t.StringUrl;
 
     /** Route-scoped response header overrides for the resolved mount. */
-    readonly response?: ResponseHeadersConfig;
+    readonly response?: ResponseConfig;
   };
 
   /** Trailing-slash redirect resolver result. */
