@@ -4,7 +4,7 @@ export { Dir, Env, FileMap, Fs, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/client';
 export { Jsr } from '@sys/registry/jsr';
 export { Process } from '@sys/process';
-export { Args, Delete, Err, Is, Json, Obj, Path, slug, Str } from '@sys/std';
+export { Args, Delete, Err, Is, Json, Num, Obj, Path, slug, Str } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Esm } from '@sys/esm';
 export { Deps } from '@sys/esm/deps';

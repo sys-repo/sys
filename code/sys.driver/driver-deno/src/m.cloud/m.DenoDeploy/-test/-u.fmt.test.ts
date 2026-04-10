@@ -179,6 +179,17 @@ describe('DenoDeploy.Fmt', () => {
     expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 1000))).to.include(' - ');
   });
 
+  it('renders spinner elapsed with fixed two-decimal minutes after one minute', () => {
+    expect(stripAnsi(ListenFmt.buildSpinnerText(61_234))).to.include('1.02m');
+    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(240_000))).to.include('4.00m');
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 240_000))).to.include('4.00m');
+  });
+
+  it('renders sub-minute spinner elapsed from the elapsed duration value', () => {
+    expect(stripAnsi(ListenFmt.buildSpinnerText(10_000))).to.include('10s');
+    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(1_500))).to.include('1.5s');
+  });
+
   it('renders a compact pipeline failure block', () => {
     const text = stripAnsi(
       DenoDeploy.Fmt.Deploy.failure({
@@ -219,6 +230,59 @@ stderr:
     expect(text).to.include('An unexpected internal error occurred. If this issue persists, please contact support.');
     expect(text).to.include('trace id');
     expect(text).to.include('6ab4a481d06f2bf753adc4897c548a2f');
+  });
+
+  it('ignores ansi progress noise and prefers the real native deploy stderr', () => {
+    const text = stripAnsi(
+      DenoDeploy.Fmt.Deploy.failure({
+        phase: 'deploy',
+        error: new Error(`
+DenoDeploy.pipeline: deploy failed (code 1).
+
+stdout:
+\u001b[2K⠋ Publishing '/tmp/stage'
+You can view the revision here:
+https://console.deno.com/sys-org/driver-sample/builds/axxhgz0t8jmr
+
+stderr:
+\u001b[31m✗ An error occurred:\u001b[0m
+  Failed to parse "deploy" configuration: missing field \`org\`
+        `),
+      }).join('\n'),
+    );
+
+    expect(text).to.include('Deploy Failed');
+    expect(text).to.include('Failed to parse "deploy" configuration: missing field `org`');
+    expect(text).to.not.include("error    │ Publishing '/tmp/stage'");
+    expect(text).to.include('revision');
+    expect(text).to.include('https://console.deno.com/sys-org/driver-sample/builds/axxhgz0t8jmr');
+  });
+
+  it('prefers logs-backed deploy diagnostics over generic native stderr', () => {
+    const text = stripAnsi(
+      DenoDeploy.Fmt.Deploy.failure({
+        phase: 'deploy',
+        error: new Error(`
+DenoDeploy.pipeline: deploy failed (code 1).
+
+stdout:
+
+stderr:
+✗ An error occurred:
+
+logs:
+✗ An error occurred:
+  The requested app was not found, or you do not have access to view it.
+  trace id: 8485febc7c30791441fc10fa07c406e9
+        `),
+      }).join('\n'),
+    );
+
+    expect(text).to.include('Deploy Failed');
+    expect(text).to.include('The requested app was not found, or you do not have access to view it.');
+    expect(text).to.not.include('error │ An error occurred:');
+    expect(text).to.include('trace id');
+    expect(text).to.include('8485febc7c30791441fc10fa07c406e9');
   });
 
   it('renders object deploy failures without falling back to [object Object]', () => {

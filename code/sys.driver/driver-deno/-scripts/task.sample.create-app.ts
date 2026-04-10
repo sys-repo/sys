@@ -1,4 +1,5 @@
 import { Cli } from '@sys/cli';
+import { c } from '@sys/cli';
 import { Args, Is, slug } from '@sys/std';
 import { requireSampleCreateEnv, SAMPLE_ENV_NOTE } from './u.env.ts';
 
@@ -13,48 +14,54 @@ async function main() {
     return;
   }
 
-  const appArg = Is.str(argv._[0]) ? argv._[0].trim() : '';
-  const app = appArg.length > 0 ? appArg : `foo-${slug()}`;
-  const { org, token } = await requireSampleCreateEnv();
+  console.info('');
+  const boot = Cli.spinner(Cli.Fmt.spinnerText(c.italic(c.gray('preparing sample app create...')))).start();
+  try {
+    const appArg = Is.str(argv._[0]) ? argv._[0].trim() : '';
+    const app = appArg.length > 0 ? appArg : `foo-${slug()}`;
+    const { org, token } = await requireSampleCreateEnv();
 
-  const { DenoDeploy } = await import('@sys/driver-deno/cloud');
-  const { Sample } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
-  const prepared = await Sample.Stage.forCreate({ app, org, token });
+    const { DenoDeploy } = await import('@sys/driver-deno/cloud');
+    const { Sample } = await import('../src/m.cloud/m.DenoDeploy/-test.sample/mod.ts');
+    const prepared = await Sample.Stage.forCreate({ app, org, token });
 
-  /**
-   * The actual public API call.
-   *
-   * Everything above prepares a canonical staged sample artifact;
-   * this call creates the Deno Deploy app resource from that root.
-   */
-  const result = await DenoDeploy.App.create({
-    root: prepared.stagedDir,
-    config: './deno.json',
-    app,
-    org,
-    token,
+    /**
+     * The actual public API call.
+     *
+     * Everything above prepares a canonical staged sample artifact;
+     * this call creates the Deno Deploy app resource from that root.
+     */
+    const result = await DenoDeploy.App.create({
+      root: prepared.stagedDir,
+      config: './deno.json',
+      app,
+      org,
+      token,
 
-    // Sample-only explicit create settings for the staged dynamic root:
-    region: 'global',
-    noWait: true,
-    doNotUseDetectedBuildConfig: true,
-    appDirectory: './',
-    installCommand: 'true',
-    buildCommand: 'true',
-    preDeployCommand: 'true',
-    runtimeMode: 'dynamic',
-    entrypoint: './entry.ts',
-    workingDirectory: './',
-    log: true,
-  });
+      // Sample-only explicit create settings for the staged dynamic root:
+      region: 'global',
+      noWait: true,
+      doNotUseDetectedBuildConfig: true,
+      appDirectory: './',
+      installCommand: 'true',
+      buildCommand: 'true',
+      preDeployCommand: 'true',
+      runtimeMode: 'dynamic',
+      entrypoint: './entry.ts',
+      workingDirectory: './',
+      log: true,
+    });
 
-  if (!result.ok) {
-    if ('error' in result) throw result.error;
-    const details = [result.stderr.trim(), result.stdout.trim()]
-      .filter((v) => v.length > 0)
-      .join('\n');
-    if (details.length > 0) throw new Error(details);
-    throw new Error(`DenoApp.create failed (code ${result.code}).`);
+    if (!result.ok) {
+      if ('error' in result) throw result.error;
+      const details = [result.stderr.trim(), result.stdout.trim()]
+        .filter((v) => v.length > 0)
+        .join('\n');
+      if (details.length > 0) throw new Error(details);
+      throw new Error(`DenoApp.create failed (code ${result.code}).`);
+    }
+  } finally {
+    boot.stop();
   }
 }
 

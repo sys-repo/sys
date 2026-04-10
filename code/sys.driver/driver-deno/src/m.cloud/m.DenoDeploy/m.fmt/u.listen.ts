@@ -1,4 +1,4 @@
-import { type t, Cli, Rx, Time, c } from './common.ts';
+import { type t, Cli, Num, Rx, Time, c } from './common.ts';
 import { InfoFmt } from './u.info.ts';
 import { DENO_CONSOLE_URL, formatUrlParts, print } from './u.shared.ts';
 
@@ -262,7 +262,12 @@ const wrangle = {
   ) {
     if (elapsed === undefined || elapsed < 1000) return '';
     const separator = opts.separator ? c.dim(c.gray(opts.separator)) : '';
-    return `${separator}${c.dim(c.gray(String(Time.elapsed(elapsed))))}`;
+    return `${separator}${c.dim(c.gray(wrangle.formatSpinnerElapsed(elapsed)))}`;
+  },
+
+  formatSpinnerElapsed(elapsed: t.Msecs) {
+    if (elapsed < 60_000) return Time.duration(elapsed).format({ round: 1 });
+    return `${Num.round((elapsed / 60_000), 2).toFixed(2)}m`;
   },
 
   stopTimer(
@@ -303,10 +308,11 @@ const wrangle = {
     readonly setTimer: (next: { cancel(): void } | undefined) => void;
   }) {
     wrangle.stopTimer(args.timer, args.setTimer);
+    const render = () => args.text(Time.elapsed(args.startedAt).msec as t.Msecs);
     wrangle.status({
       interactive: args.interactive,
       spin: args.spin,
-      text: args.text(args.startedAt),
+      text: render(),
       set: args.set,
     });
 
@@ -314,7 +320,7 @@ const wrangle = {
     const spin = args.get();
     if (!spin) return;
     args.setTimer(Time.interval(1000, () => {
-      spin.text = args.text(args.startedAt);
+      spin.text = render();
     }));
   },
 } as const;
