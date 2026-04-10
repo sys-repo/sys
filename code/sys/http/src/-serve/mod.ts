@@ -5,9 +5,10 @@
  * ```bash
  * deno run -RNE jsr:@sys/http/serve
  * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
+ * deno run -RNE jsr:@sys/http/serve --no-interactive --dir=dist
  * ```
  */
-import { type t, Args } from './common.ts';
+import { parseArgs } from './u.args.ts';
 import { start } from './u.start.ts';
 
 /**
@@ -22,10 +23,11 @@ export { start };
  * ```bash
  * deno run -RNE jsr:@sys/http/serve
  * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
+ * deno run -RNE jsr:@sys/http/serve --no-interactive --dir=dist
  * ```
  */
 if (import.meta.main) {
-  const args = Args.parse<t.HttpServeArgs>(Deno.args);
+  const args = parseArgs(Deno.args);
   await start(args);
   Deno.exit(0);
 }

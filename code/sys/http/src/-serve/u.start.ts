@@ -15,7 +15,12 @@ export async function start(args: t.HttpServeArgs) {
   const options = HttpServer.options({ port, pkg, hash, dir });
 
   Deno.serve(options, app.fetch);
-  await HttpServer.keyboard({ port, print: true });
+  if (resolveKeyboard(args)) await HttpServer.keyboard({ port, print: true });
+}
+
+/** Resolve whether the interactive keyboard listener should start. */
+export function resolveKeyboard(args: t.HttpServeArgs): boolean {
+  return args.keyboard ?? args['no-interactive'] !== true;
 }
 
 /**
