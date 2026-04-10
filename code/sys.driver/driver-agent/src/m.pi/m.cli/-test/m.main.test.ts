@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
-import { PiCli } from '../mod.ts';
+import { Cli } from '../mod.ts';
 
 describe(`@sys/driver-agent/pi/cli/m.main`, () => {
   it('help → renders wrapper help without launching Pi', async () => {
@@ -14,7 +14,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
         };
         console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
-        const res = await PiCli.main({ argv: [arg] });
+        const res = await Cli.main({ argv: [arg] });
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
         expect(res.text).to.contain('@sys/driver-agent/pi/cli');
@@ -41,7 +41,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await PiCli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
+      const res = await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
@@ -59,7 +59,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await PiCli.main({ cwd, argv: ['--', '--help'] });
+      const res = await Cli.main({ cwd, argv: ['--', '--help'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;

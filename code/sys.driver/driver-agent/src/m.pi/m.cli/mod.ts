@@ -10,13 +10,13 @@ import { run } from './m.run.ts';
  * API surface:
  */
 export { Profiles } from '../m.cli.profiles/mod.ts';
-export const PiCli: t.PiCli.Lib = { main, run };
+export const Cli: t.PiCli.Lib = { main, run };
 
 /**
  * CLI entry-point:
  */
 if (import.meta.main) {
-  await PiCli.main({
+  await Cli.main({
     argv: Deno.args,
     cwd: Fs.cwd('terminal'),
   });

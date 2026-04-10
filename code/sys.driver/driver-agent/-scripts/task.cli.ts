@@ -1,11 +1,11 @@
-import { PiCli } from '@sys/driver-agent/pi/cli';
+import { Cli } from '@sys/driver-agent/pi/cli';
 import { Fs } from '@sys/fs';
 import { Path } from '@sys/std';
 
 const cwd = Fs.cwd('terminal');
 const gitRoot = await findGitRoot(cwd);
 
-await PiCli.main({
+await Cli.main({
   argv: Deno.args,
   cwd,
   read: [...(await resolveTaskReadScope(gitRoot))],

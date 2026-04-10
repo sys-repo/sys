@@ -1,11 +1,11 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
-import { PiCli } from '../mod.ts';
+import { Cli } from '../mod.ts';
 
 describe(`@sys/driver-agent/pi/cli/m.run`, () => {
   it('API', async () => {
     const m = await import('@sys/driver-agent/pi/cli');
-    expect(m.PiCli).to.equal(PiCli);
+    expect(m.Cli).to.equal(Cli);
   });
 
   it('run → launches pi in inherited stdio with terminal cwd scope', async () => {
@@ -34,7 +34,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await PiCli.run({ args: ['--help'] });
+      const res = await Cli.run({ args: ['--help'] });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -64,7 +64,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await PiCli.run({ cwd, env });
+      const res = await Cli.run({ cwd, env });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
