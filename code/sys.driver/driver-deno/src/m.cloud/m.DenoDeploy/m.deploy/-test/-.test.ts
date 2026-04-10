@@ -77,6 +77,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       org: 'my-org',
       token: 'abc123',
       start: '2026-03-17T00:00:00Z',
+      end: '2026-03-17T00:05:00Z',
     });
 
     expect(logs.cli.cmd).to.eql('deno');
@@ -92,12 +93,30 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       'abc123',
       '--start',
       '2026-03-17T00:00:00Z',
+      '--end',
+      '2026-03-17T00:05:00Z',
       '--config',
       logs.config,
     ]);
     expect(logs.root).to.contain('sys.driver.deno.deploy.logs-');
     expect(await Fs.exists(logs.config)).to.be.true;
     expect((await Fs.readJson(logs.config)).data).to.eql({});
+  });
+
+  it('rejects logs end without a start boundary', async () => {
+    let error: unknown;
+
+    try {
+      await DeployCli.logs({
+        app: 'my-app',
+        end: '2026-03-17T00:05:00Z',
+      });
+    } catch (cause) {
+      error = cause;
+    }
+
+    expect(error).to.be.instanceOf(Error);
+    expect((error as Error).message).to.eql('DenoDeploy.logs: end requires start.');
   });
 
   it('serves the staged target dist index and emitted js from generated entry.ts', async () => {
@@ -153,6 +172,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
         app: 'my-app',
         org: 'my-org',
         token: 'abc123',
+        config: './deno.json',
         prod: true,
       });
 
@@ -179,12 +199,17 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
       expect(invocation?.args).to.include('--token');
       expect(invocation?.args).to.include('abc123');
       expect(invocation?.args).to.include('--config');
-      expect(invocation?.args).to.include(Fs.join(stage.root, 'deno.json'));
+      expect(invocation?.args).to.include('./deno.json');
       expect(invocation?.args).to.include('--prod');
       expect(invocation?.args?.at(-1)).to.eql(stage.root);
 
       expect((await Fs.readJson<Record<string, unknown>>(fake.preparedPath)).data).to.eql({
-        deploy: { entrypoint: './entry.ts', cwd: './' },
+        deploy: {
+          entrypoint: './entry.ts',
+          cwd: './',
+          app: 'my-app',
+          org: 'my-org',
+        },
         compatEntrypoint: `export { default } from '../../entry.ts';\nexport * from '../../entry.ts';\n`,
       });
     } finally {

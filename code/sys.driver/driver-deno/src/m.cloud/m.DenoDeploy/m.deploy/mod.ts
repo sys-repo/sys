@@ -1,4 +1,4 @@
-import { type t, Process } from './common.ts';
+import { type t, Fs, Is, Path, Process } from './common.ts';
 import { DeployCli } from '../../u.cli.deploy/mod.ts';
 import { toDeployMeta } from './u.deployResult.ts';
 import { printDeployEnvGuidance, resolveDeployRequestEnv, toDeployEnvNotes } from './u.env.ts';
@@ -26,6 +26,7 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
       };
     }
 
+    await wrangle.ensureDeployConfig(resolved);
     const deploy = DeployCli.deploy(resolved);
     const output = await Process.invoke({
       cmd: deploy.cmd,
@@ -55,3 +56,26 @@ export const deploy: t.DenoDeploy.Lib['deploy'] = async (request) => {
     return { ok: false, error };
   }
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  async ensureDeployConfig(request: t.DenoDeploy.Deploy.Request) {
+    const configPath = Is.str(request.config) && request.config.trim().length > 0
+      ? Path.resolve(request.stage.root, request.config.trim())
+      : Fs.join(request.stage.root, 'deno.json');
+    const current = (await Fs.readJson<Record<string, unknown>>(configPath)).data;
+    if (!current) throw new Error(`Failed to read staged deno.json: ${configPath}`);
+
+    const deploy = Is.record(current.deploy) ? current.deploy : {};
+    await Fs.writeJson(configPath, {
+      ...current,
+      deploy: {
+        ...deploy,
+        app: request.app,
+        ...(request.org ? { org: request.org } : {}),
+      },
+    });
+  },
+} as const;
