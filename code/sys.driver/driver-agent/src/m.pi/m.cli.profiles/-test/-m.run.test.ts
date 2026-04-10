@@ -14,11 +14,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         Str.dedent(
           `
           profiles:
-            - name: default
+            - name: main
               args: [--model, gpt-5.3]
               read: [./default-read]
               env:
-                PI_PROFILE: default
+                PI_PROFILE: main
             - name: work
               args: [--model, gpt-5.4]
               read: [./profile-read]
@@ -56,7 +56,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → uses default profile when no profile is named', async () => {
+  it('run → uses main profile when no profile is named', async () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
@@ -66,17 +66,17 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         Str.dedent(
           `
           profiles:
-            - name: default
+            - name: main
               args: [--model, gpt-5.4]
               env:
-                PI_PROFILE: default
+                PI_PROFILE: main
           `,
         ).trimStart(),
       );
 
       Process.inherit = async (input) => {
         expect(input.args).to.include.members(['--model', 'gpt-5.4']);
-        expect(input.env?.PI_PROFILE).to.eql('default');
+        expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
       };
 

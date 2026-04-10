@@ -43,11 +43,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         Str.dedent(
           `
           profiles:
-            - name: default
+            - name: main
               args: [--model, gpt-5.4]
               read: [./canon]
               env:
-                PI_PROFILE: default
+                PI_PROFILE: main
           `,
         ).trimStart(),
       );
@@ -55,7 +55,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
-        expect(input.env?.PI_PROFILE).to.eql('default');
+        expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
       };
 

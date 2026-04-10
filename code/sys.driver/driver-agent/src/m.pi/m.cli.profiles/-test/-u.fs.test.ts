@@ -3,15 +3,15 @@ import { ProfilesFs } from '../u.fs.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
   it('paths → derives canonical profile config location', () => {
-    expect(ProfilesFs.dir).to.eql('-config/@sys.driver-agent.pi.cli');
+    expect(ProfilesFs.dir).to.eql('-config/@sys.driver-agent.pi');
     expect(ProfilesFs.ext).to.eql('.yaml');
-    expect(ProfilesFs.fileOf('default')).to.eql('-config/@sys.driver-agent.pi.cli/default.yaml');
+    expect(ProfilesFs.fileOf('default')).to.eql('-config/@sys.driver-agent.pi/default.yaml');
   });
 
   it('initialYaml → emits the minimal profile YAML shape', async () => {
     const text = ProfilesFs.initialYaml('default');
     expect(text).to.contain('profiles:');
-    expect(text).to.contain('name: default');
+    expect(text).to.contain('name: main');
 
     const { dir, path } = await writeTempYaml(text);
     try {

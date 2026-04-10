@@ -1,4 +1,4 @@
-export { Cli } from '@sys/cli';
+export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { DenoDeps } from '@sys/driver-deno/runtime';
 export { Process } from '@sys/process';

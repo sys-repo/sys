@@ -34,7 +34,7 @@ export declare namespace PiCliProfiles {
     readonly cwd?: t.StringDir;
     /** Environment profile YAML file. */
     readonly config: t.StringPath;
-    /** Named profile inside the config; defaults to `default`, then first profile. */
+    /** Named profile inside the config; defaults to `main`, then first profile. */
     readonly profile?: string;
     /** Extra Pi args appended after profile args. */
     readonly args?: readonly string[];
@@ -93,7 +93,7 @@ export declare namespace PiCliProfiles {
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
-    export type DirName = `-config/${string}.pi.cli`;
+    export type DirName = `-config/${string}.pi`;
     /** Environment profile file extension. */
     export type Ext = '.yaml';
 

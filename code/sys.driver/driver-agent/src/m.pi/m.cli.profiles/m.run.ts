@@ -32,7 +32,9 @@ function resolveProfile(
     return found;
   }
 
-  const fallback = doc.profiles.find((profile) => profile.name === 'default') ?? doc.profiles[0];
+  const fallback = doc.profiles.find((profile) => profile.name === 'main') ??
+    doc.profiles.find((profile) => profile.name === 'default') ??
+    doc.profiles[0];
   if (!fallback) throw new Error('Profile config is empty.');
   return fallback;
 }

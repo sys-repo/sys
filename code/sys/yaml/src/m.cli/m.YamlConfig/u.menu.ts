@@ -37,7 +37,8 @@ export async function menu<T, A extends string = string>(
     const baseIndent = args.indent ?? ' ';
     const addValue = normalizeAddLabel(args.addLabel);
     const labelWidth = Math.max(itemLabel.length, 'add'.length);
-    const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: ${addValue}`;
+    const addLabelWidth = files.length > 0 ? labelWidth : 'add'.length;
+    const addLabel = `${baseIndent}${padLabel('add', addLabelWidth)}: ${addValue}`;
 
     const tree: Array<{ name: string; value: t.StringFile }> = [];
     for (const item of withTree(files, ext)) {

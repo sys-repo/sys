@@ -1,8 +1,8 @@
-import { Cli, type t, YamlConfig } from './common.ts';
+import { c, Cli, type t, YamlConfig } from './common.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileSetSchema } from './u.schema.ts';
 
-type Action = 'select';
+type Action = 'run';
 
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
@@ -20,13 +20,15 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
   const res = await YamlConfig.menu<t.PiCliProfiles.Yaml.ProfileSet, Action>({
     cwd,
     dir: ProfilesFs.dir,
-    label: 'Environment Profiles',
+    label: 'Agent Profiles',
     itemLabel: 'profiles',
     addLabel: ' add: <profile>',
     ensureDefault: false,
     schema,
-    mode: 'select',
-    selectAction: 'select',
+    actions: {
+      label: 'profile',
+      extra: [{ name: c.green('open'), value: 'run' }],
+    },
     add: {
       message: 'Profile name',
       hint: ValidName.hint,
@@ -39,7 +41,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
   });
 
   if (res.kind === 'exit') return { kind: 'exit' };
-  if (res.kind !== 'action' || res.action !== 'select') return { kind: 'exit' };
+  if (res.kind !== 'action' || res.action !== 'run') return { kind: 'exit' };
 
   const checked = await ProfilesFs.validateYaml(res.path);
   if (!checked.ok) return { kind: 'exit' };

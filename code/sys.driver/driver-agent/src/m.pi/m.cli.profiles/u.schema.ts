@@ -7,7 +7,7 @@ const Type = Schema.Type;
  */
 export const ProfileSetSchema = {
   initial(): t.PiCliProfiles.Yaml.ProfileSet {
-    return { profiles: [{ name: 'default', args: [], read: [], env: {} }] };
+    return { profiles: [{ name: 'main', args: [], read: [], env: {} }] };
   },
 
   validate(value: unknown) {

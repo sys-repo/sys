@@ -3,7 +3,7 @@ import { ProfileSetSchema } from './u.schema.ts';
 import { ProfileSetYamlErrorCode, validateProfileSetYamlText } from './u.validate.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
-const PROFILES_DIR = `-config/${ROOT}.pi.cli` satisfies t.PiCliProfiles.Yaml.DirName;
+const PROFILES_DIR = `-config/${ROOT}.pi` satisfies t.PiCliProfiles.Yaml.DirName;
 const PROFILES_EXT = '.yaml' satisfies t.PiCliProfiles.Yaml.Ext;
 
 export const ProfilesFs = {
@@ -24,7 +24,7 @@ export const ProfilesFs = {
       # Paths resolve relative to the CLI cwd.
 
       profiles:
-        - name: default
+        - name: main
           args: []
           read: []
           env: {}

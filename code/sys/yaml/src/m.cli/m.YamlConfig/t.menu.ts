@@ -80,7 +80,12 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   /** Invalid YAML handling (label + allowed actions). */
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
   /** Extra actions and handler hook. */
-  actions?: { extra?: YamlConfigMenuExtra<A, T>[]; onAction?: YamlConfigMenuHandler<A> };
+  actions?: {
+    /** Label used for built-in edit/reload/rename actions (default: "config"). */
+    label?: string;
+    extra?: YamlConfigMenuExtra<A, T>[];
+    onAction?: YamlConfigMenuHandler<A>;
+  };
   /** Add prompt configuration. */
   add?: {
     /** Prompt message (default: "Config name"). */

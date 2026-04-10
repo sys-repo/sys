@@ -34,6 +34,7 @@ export async function actionMenu<T, A extends string = string>(
       invalidLabel: args.invalid?.label,
       allow: args.invalid?.allow,
       defaultValue: lastAction,
+      actionLabel: args.actions?.label,
       extra: args.actions?.extra,
     });
     lastAction = action;

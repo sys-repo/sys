@@ -17,7 +17,7 @@ const HELP = {
   examples: [
     'deno task cli:profiles',
     'deno task cli:profiles -- --model gpt-5.4',
-    'deno task cli:profiles -- --config ./path/my-env.yaml --profile default',
+    'deno task cli:profiles -- --config ./path/my-env.yaml --profile main',
   ],
 } as const;
 
