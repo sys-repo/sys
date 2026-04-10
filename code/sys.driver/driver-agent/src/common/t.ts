@@ -8,6 +8,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 export type { Process } from '@sys/process/t';
+export type { Yaml } from '@sys/yaml/t';
 
 /** User-interface: */
 export type { ColorTheme } from '@sys/color/t';
