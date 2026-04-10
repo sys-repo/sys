@@ -84,11 +84,21 @@ async function prepSubmodules() {
  * Root prep owns this explicitly rather than relying on generic workspace traversal.
  */
 async function prepTmplModule(context: CommitContext) {
+  const args = [...tmplPrepArgs(context)];
+  const res = await Process.inherit({ cmd: 'deno', args, cwd: TMPL_MODULE_PATH });
+  if (res.success) return;
+  throw new Error(`Failed in ${TMPL_MODULE_PATH}: deno ${args.join(' ')}`);
+}
+
+export function tmplPrepArgs(context: CommitContext) {
   const commitContext = context === 'bump' ? 'bump' : 'tmpl';
-  await runTaskOrThrow(
-    TMPL_MODULE_PATH,
-    `deno run -P=prep ./-scripts/task.prep.ts --commit-context=${commitContext}`,
-  );
+  return [
+    'run',
+    '-P=prep',
+    './-scripts/task.prep.ts',
+    '--version-source=published',
+    `--commit-context=${commitContext}`,
+  ] as const;
 }
 
 async function runTaskOrThrow(path: string, command: string) {
