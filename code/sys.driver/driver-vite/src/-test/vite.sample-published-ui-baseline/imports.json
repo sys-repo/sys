@@ -7,6 +7,6 @@
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.270",
     "@sys/ui-dom/local-storage": "jsr:@sys/ui-dom@0.0.270/local-storage",
     "@sys/ui-dom/user-agent": "jsr:@sys/ui-dom@0.0.270/user-agent",
-    "@sys/ui-react": "jsr:@sys/ui-react@0.0.283"
+    "@sys/ui-react": "jsr:@sys/ui-react@0.0.284"
   }
 }
