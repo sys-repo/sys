@@ -9,6 +9,7 @@ import { run } from './m.run.ts';
 /**
  * API surface:
  */
+export { Profiles } from '../m.cli.profiles/mod.ts';
 export const PiCli: t.PiCli.Lib = { main, run };
 
 /**
