@@ -49,9 +49,11 @@ async function ensureDeployConfig(root: string) {
 
   const current = res.data;
   const currentDeploy = Is.record(current.deploy) ? current.deploy : {};
+  const { workspace: _workspace, ...artifact } = current;
+  void _workspace;
 
   await Fs.writeJson(path, {
-    ...current,
+    ...artifact,
     deploy: {
       ...currentDeploy,
       entrypoint: ENTRY_CONFIG.entrypoint,

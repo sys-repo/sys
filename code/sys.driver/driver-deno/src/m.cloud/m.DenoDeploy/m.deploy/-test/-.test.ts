@@ -210,7 +210,7 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
           app: 'my-app',
           org: 'my-org',
         },
-        compatEntrypoint: `export { default } from '../../entry.ts';\nexport * from '../../entry.ts';\n`,
+        compatEntrypoint: `export { default } from '../entry.ts';\nexport * from '../entry.ts';\n`,
       });
     } finally {
       (D.cmd as { deno: string }).deno = originalDeno;
