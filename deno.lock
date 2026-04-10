@@ -165,6 +165,7 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.2.0": "5.2.0_vite@7.3.2__yaml@2.8.3_yaml@2.8.3",
+    "npm:ai@6.0.156": "6.0.156_zod@3.25.76",
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -1312,6 +1313,15 @@
     }
   },
   "npm": {
+    "@ai-sdk/gateway@3.0.95_zod@3.25.76": {
+      "integrity": "sha512-ZmUNNbZl3V42xwQzPaNUi+s8eqR2lnrxf0bvB6YbLXpLjHYv0k2Y78t12cNOfY0bxGeuVVTLyk856uLuQIuXEQ==",
+      "dependencies": [
+        "@ai-sdk/provider@3.0.8",
+        "@ai-sdk/provider-utils@4.0.23_zod@3.25.76",
+        "@vercel/oidc",
+        "zod"
+      ]
+    },
     "@ai-sdk/openai@3.0.52_zod@3.25.76": {
       "integrity": "sha512-4Rr8NCGmfWTz6DCUvixn9UmyZcMatiHn0zWoMzI3JCUe9R1P/vsPOpCBALKoSzVYOjyJnhtnVIbfUKujcS39uw==",
       "dependencies": [
@@ -2889,6 +2899,9 @@
         "@octokit/openapi-types"
       ]
     },
+    "@opentelemetry/api@1.9.0": {
+      "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="
+    },
     "@pkgjs/parseargs@0.11.0": {
       "integrity": "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="
     },
@@ -3626,6 +3639,9 @@
         "@types/node"
       ]
     },
+    "@vercel/oidc@3.1.0": {
+      "integrity": "sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w=="
+    },
     "@vitejs/plugin-react@5.2.0_vite@7.3.2__yaml@2.8.3_yaml@2.8.3": {
       "integrity": "sha512-YmKkfhOAi3wsB1PhJq5Scj3GXMn3WvtQ/JC0xoopuHoXSdmtdStOpFrYaT1kie2YgFBcIe64ROzMYRjCrYOdYw==",
       "dependencies": [
@@ -3640,6 +3656,16 @@
     },
     "agent-base@7.1.4": {
       "integrity": "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ=="
+    },
+    "ai@6.0.156_zod@3.25.76": {
+      "integrity": "sha512-uyi/5LYbugHQxZsR2PeAFOZEL4WqKkzZw4pv0nQvvdgxgVOsM7snOmGrYkp5fShxH/vnd08SXvHCVTX7oUW7xQ==",
+      "dependencies": [
+        "@ai-sdk/gateway",
+        "@ai-sdk/provider@3.0.8",
+        "@ai-sdk/provider-utils@4.0.23_zod@3.25.76",
+        "@opentelemetry/api",
+        "zod"
+      ]
     },
     "ajv-formats@3.0.1_ajv@8.18.0": {
       "integrity": "sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==",
