@@ -4,20 +4,21 @@ type ToolRegistryItem = {
   readonly id: t.Root.Command;
   readonly label?: string;
   readonly aliases: readonly [string, ...string[]] | undefined;
+  readonly group: 'primary' | 'secondary' | 'utility';
   readonly specifier: string;
 };
 
 export const ROOT_REGISTRY = [
-  { id: 'fn', label: 'ƒn', aliases: ['agent', 'ƒn'], specifier: '../cli.code/mod.ts' },
-  { id: 'tmpl', aliases: ['clone'], specifier: '../cli.tmpl/mod.ts' },
-  { id: 'pull', aliases: undefined, specifier: '../cli.pull/mod.ts' },
-  { id: 'serve', aliases: undefined, specifier: '../cli.serve/mod.ts' },
-  { id: 'deploy', aliases: undefined, specifier: '../cli.deploy/mod.ts' },
-  { id: 'crdt', aliases: undefined, specifier: '../cli.crdt/mod.ts' },
-  { id: 'video', aliases: undefined, specifier: '../cli.video/mod.ts' },
-  { id: 'crypto', label: 'cryptography', aliases: ['crypto'], specifier: '../cli.crypto/mod.ts' },
-  { id: 'copy', label: 'clipboard', aliases: ['cp'], specifier: '../cli.clipboard/mod.ts' },
-  { id: 'update', aliases: ['up', 'info'], specifier: '../cli.update/mod.ts' },
+  { id: 'fn', label: 'ƒn', aliases: ['agent', 'ƒn'], group: 'primary', specifier: '../cli.code/mod.ts' },
+  { id: 'tmpl', aliases: ['clone'], group: 'primary', specifier: '../cli.tmpl/mod.ts' },
+  { id: 'pull', aliases: undefined, group: 'primary', specifier: '../cli.pull/mod.ts' },
+  { id: 'serve', aliases: undefined, group: 'primary', specifier: '../cli.serve/mod.ts' },
+  { id: 'deploy', aliases: undefined, group: 'primary', specifier: '../cli.deploy/mod.ts' },
+  { id: 'crdt', aliases: undefined, group: 'secondary', specifier: '../cli.crdt/mod.ts' },
+  { id: 'video', aliases: undefined, group: 'secondary', specifier: '../cli.video/mod.ts' },
+  { id: 'crypto', label: 'cryptography', aliases: ['crypto'], group: 'secondary', specifier: '../cli.crypto/mod.ts' },
+  { id: 'copy', label: 'clipboard', aliases: ['cp'], group: 'secondary', specifier: '../cli.clipboard/mod.ts' },
+  { id: 'update', aliases: ['up', 'info'], group: 'utility', specifier: '../cli.update/mod.ts' },
 ] as const satisfies readonly ToolRegistryItem[];
 
 export const TOOL_IDS = ROOT_REGISTRY.map((item) => item.id) as readonly t.Root.Command[];

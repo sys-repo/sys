@@ -2,8 +2,9 @@ import { type t, c, pkg } from './common.ts';
 import { ROOT_REGISTRY } from './registry.ts';
 
 export type RootRow = { readonly command: t.Root.Command; readonly columns: string[] };
+export type RootRowGroup = 'primary' | 'secondary' | 'utility';
 
-export function rootRows(): RootRow[] {
+export function rootRows(group?: RootRowGroup): RootRow[] {
   const fmt = (tool: string) => c.gray(c.dim(`${pkg.name} `)) + tool;
   const rows: RootRow[] = [];
 
@@ -14,7 +15,9 @@ export function rootRows(): RootRow[] {
     rows.push({ command, columns: items });
   };
 
-  ROOT_REGISTRY.forEach((item) => add(item.id, 'label' in item ? item.label : undefined, item.aliases));
+  ROOT_REGISTRY
+    .filter((item) => group === undefined || item.group === group)
+    .forEach((item) => add(item.id, 'label' in item ? item.label : undefined, item.aliases));
 
   return rows;
 }
