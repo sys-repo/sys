@@ -19,7 +19,7 @@ export const ProfilesFs = {
       `
       # pi profile: ${name}
       #
-      # Args pass through to Pi.
+      # Args passed through to Pi.
       # Paths resolve relative to the current working directory.
 
       args: []

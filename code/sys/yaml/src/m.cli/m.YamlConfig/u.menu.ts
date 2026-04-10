@@ -2,7 +2,6 @@ import { type t, c, Cli, DEFAULT, Fs } from './common.ts';
 import type { YamlConfigMenuArgs, YamlConfigMenuResult } from './t.menu.ts';
 import {
   ensureConfigDir,
-  ensureDefaultConfig,
   fileOf,
   listConfigs,
   readYaml,
@@ -26,8 +25,7 @@ export async function menu<T, A extends string = string>(
 
   let files = await listConfigs(dir, ext);
   if (files.length === 0 && args.ensureDefault !== false) {
-    const name = args.defaultName ?? DEFAULT.NAME;
-    await ensureDefaultConfig(dir, args.schema, name, ext);
+    await writeInitialConfig(args, dir, args.defaultName ?? DEFAULT.NAME, ext);
     files = await listConfigs(dir, ext);
   }
 
@@ -84,8 +82,7 @@ export async function menu<T, A extends string = string>(
       if (res.kind === 'back') {
         files = await listConfigs(dir, ext);
         if (files.length === 0 && args.ensureDefault !== false) {
-          const name = args.defaultName ?? DEFAULT.NAME;
-          await ensureDefaultConfig(dir, args.schema, name, ext);
+          await writeInitialConfig(args, dir, args.defaultName ?? DEFAULT.NAME, ext);
           files = await listConfigs(dir, ext);
         }
         continue;
@@ -113,13 +110,7 @@ export async function menu<T, A extends string = string>(
 
     const filename = fileOf(name.trim(), ext);
     const path = Fs.join(dir, filename);
-    if (args.add?.initYaml) {
-      await Fs.write(path, args.add.initYaml({ name: name.trim(), doc: args.schema.init?.() }));
-    } else {
-      if (!args.schema.init) throw new Error('YamlConfig: schema.init is required when add.initYaml is not provided');
-      const doc = args.schema.init();
-      await writeYaml(path, doc, args.schema);
-    }
+    await writeInitialConfig(args, dir, name.trim(), ext);
     files = await listConfigs(dir, ext);
     lastSelected = path;
   }
@@ -132,6 +123,24 @@ function normalizeAddLabel(label?: string): string {
     return parts.slice(1).join(':').trim() || '<config>';
   }
   return raw;
+}
+
+async function writeInitialConfig<T, A extends string>(
+  args: YamlConfigMenuArgs<T, A>,
+  dir: t.StringDir,
+  name: string,
+  ext: string,
+) {
+  const path = Fs.join(dir, fileOf(name, ext));
+  if (await Fs.exists(path)) return;
+
+  if (!args.add?.initYaml) {
+    if (!args.schema.init) throw new Error('YamlConfig: schema.init is required when add.initYaml is not provided');
+    await writeYaml(path, args.schema.init(), args.schema);
+    return;
+  }
+
+  await Fs.write(path, args.add.initYaml({ name, doc: args.schema.init?.() }));
 }
 
 function padLabel(label: string, width: number): string {

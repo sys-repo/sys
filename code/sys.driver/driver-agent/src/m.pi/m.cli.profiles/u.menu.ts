@@ -23,7 +23,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
     label: 'Agents',
     itemLabel: 'profiles',
     addLabel: ' add: <profile>',
-    ensureDefault: false,
+    defaultName: 'default',
     schema,
     actions: {
       message: 'Profile:',
