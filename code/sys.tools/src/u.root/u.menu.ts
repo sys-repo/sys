@@ -7,6 +7,8 @@ export type RootMenuPick =
   | { readonly kind: 'exit' }
   | { readonly kind: 'selected'; command: t.Root.Command };
 
+const ROOT_MENU_MAX_ROWS = 20;
+
 export async function rootMenu(): Promise<RootMenuPick> {
   const rows = rootRows();
   const table = Cli.table([]);
@@ -41,6 +43,7 @@ export async function rootMenu(): Promise<RootMenuPick> {
     ].join('\n'),
     options,
     hideDefault: true,
+    maxRows: ROOT_MENU_MAX_ROWS,
   });
 
   if (picked === 'exit') return { kind: 'exit' };
