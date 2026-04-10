@@ -225,6 +225,10 @@ export function postBumpPrepArgs() {
   return ['run', '-P=dev', './-scripts/main.ts', '--prep-all', '--ahead-only', '--prep-context=bump'] as const;
 }
 
+export function postBumpPackageSyncArgs() {
+  return ['run', '-P=dev', './-scripts/main.ts', '--prep-pkg'] as const;
+}
+
 /**
  * Helpers
  */
@@ -433,10 +437,15 @@ const wrangle = {
   },
 
   async runPostBumpPrep(cwd: t.StringDir) {
-    const args = [...postBumpPrepArgs()];
-    const res = await Process.inherit({ cmd: 'deno', args, cwd });
+    await wrangle.runDeno(cwd, postBumpPackageSyncArgs(), 'post-bump package metadata sync');
+    await wrangle.runDeno(cwd, postBumpPrepArgs(), 'post-bump prep');
+  },
+
+  async runDeno(cwd: t.StringDir, args: readonly string[], label: string) {
+    const denoArgs = [...args];
+    const res = await Process.inherit({ cmd: 'deno', args: denoArgs, cwd });
     if (res.success) return;
-    throw new Error(`Failed post-bump prep: deno ${args.join(' ')}`);
+    throw new Error(`Failed ${label}: deno ${denoArgs.join(' ')}`);
   },
 
   pad(value: string, width: number) {

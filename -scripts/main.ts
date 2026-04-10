@@ -7,7 +7,7 @@ import { main as dry } from './task.dry.ts';
 import { main as info } from './task.info.ts';
 import { main as lint } from './task.lint.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
-import { main as prep, type CommitContext } from './task.prep.ts';
+import { main as prep, syncPackageMetadata, type CommitContext } from './task.prep.ts';
 import { main as test } from './task.test.ts';
 import { orderedWorkspacePaths } from './u.graph.ts';
 
@@ -20,6 +20,7 @@ export type MainArgs = {
   bump?: boolean;
   prep?: boolean;
   'prep-all'?: boolean;
+  'prep-pkg'?: boolean;
   'prep-ci'?: boolean;
   'prep-ci-deno'?: boolean;
   'ahead-only'?: boolean;
@@ -35,6 +36,7 @@ type Lib = {
   readonly lint: typeof lint;
   readonly bump: typeof bump;
   readonly prep: (context?: CommitContext) => Promise<number>;
+  readonly prepPkg: () => Promise<unknown>;
   readonly prepCi: typeof prepCi;
   readonly prepCiDeno: typeof prepCiDeno;
 };
@@ -67,6 +69,7 @@ const lib: Lib = {
   lint,
   bump,
   prep,
+  prepPkg: syncPackageMetadata,
   prepCi,
   prepCiDeno,
 } as const;
@@ -82,6 +85,7 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv.lint) await api.lint();
   if (argv.bump) await api.bump();
   if (argv.prep) await api.prep(argv['prep-context']);
+  if (argv['prep-pkg']) await api.prepPkg();
   if (argv['prep-all']) {
     const prepared = await api.prep(argv['prep-context']);
     await api.prepCiDeno();
@@ -98,7 +102,7 @@ export async function run(argv: MainArgs, api: Lib = lib) {
 
 if (import.meta.main) {
   const argv = Args.parse<MainArgs>(Deno.args, {
-    boolean: ['dry', 'test', 'info', 'clean', 'lint', 'bump', 'prep', 'prep-all', 'prep-ci', 'prep-ci-deno', 'ahead-only', 'tmpl'],
+    boolean: ['dry', 'test', 'info', 'clean', 'lint', 'bump', 'prep', 'prep-all', 'prep-pkg', 'prep-ci', 'prep-ci-deno', 'ahead-only', 'tmpl'],
   });
   await run(argv);
   Deno.exit(0);

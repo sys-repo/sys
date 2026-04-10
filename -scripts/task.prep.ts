@@ -48,7 +48,7 @@ async function processDeps() {
  * Write all {pkg}.ts files with name/version values synced
  * to their corresponding current `deno.json` file values.
  */
-async function updatePackages() {
+export async function syncPackageMetadata() {
   return await Workspace.Pkg.sync({
     cwd: Deno.cwd(),
     source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
@@ -174,7 +174,7 @@ async function runProcessPhase<T>(
 async function runPackageSyncPhase(spinner: CliSpinner.Instance) {
   spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
   try {
-    const res = await updatePackages();
+    const res = await syncPackageMetadata();
     spinner.succeed(Cli.Fmt.spinnerRaw(Workspace.Pkg.Fmt.summary(res), false));
   } catch (err) {
     spinner.stop();

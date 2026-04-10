@@ -26,6 +26,21 @@ describe('scripts/main prep orchestration', () => {
     ]);
   });
 
+  it('--prep-pkg only syncs package metadata', async () => {
+    const calls: unknown[] = [];
+    const api = fakeLib({
+      prepPkg: async () => {
+        calls.push(['prepPkg']);
+      },
+    });
+
+    await run({ 'prep-pkg': true }, api);
+
+    expect(calls).to.eql([
+      ['prepPkg'],
+    ]);
+  });
+
   it('--prep-all forwards the prep context into the canonical prep lane', async () => {
     const calls: unknown[] = [];
     const api = fakeLib({
@@ -94,6 +109,7 @@ function baseLib() {
     lint: async () => {},
     bump: async () => undefined,
     prep: async (_context?: unknown) => 0,
+    prepPkg: async () => {},
     prepCi: async (_options?: unknown) => {},
     prepCiDeno: async () => {},
   } as const;

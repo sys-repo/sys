@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { bumpOrderedPaths, dependentClosure, main, orderChildren, postBumpPrepArgs } from '../task.bump.ts';
+import { bumpOrderedPaths, dependentClosure, main, orderChildren, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.ts';
 
 describe('scripts/task.bump', () => {
   it('orders bump rows by topological workspace package path order', () => {
@@ -63,7 +63,13 @@ describe('scripts/task.bump', () => {
     ]);
   });
 
-  it('delegates post-bump prep to the canonical ahead-only prep lane', () => {
+  it('syncs package metadata before delegating to the canonical ahead-only prep lane', () => {
+    expect(postBumpPackageSyncArgs()).to.eql([
+      'run',
+      '-P=dev',
+      './-scripts/main.ts',
+      '--prep-pkg',
+    ]);
     expect(postBumpPrepArgs()).to.eql([
       'run',
       '-P=dev',
