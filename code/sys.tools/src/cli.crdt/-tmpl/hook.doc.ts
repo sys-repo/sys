@@ -1,4 +1,4 @@
-import type { t } from 'jsr:@sys/tools';
+import type * as t from 'jsr:@sys/tools/t';
 
 import { c } from 'jsr:@sys/cli';
 import { env } from 'jsr:@sys/tools/env';

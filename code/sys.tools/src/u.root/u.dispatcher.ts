@@ -1,5 +1,5 @@
-import { Fs } from '../common.ts';
 import { type t } from './common.ts';
+import { terminalCwd } from './u.cwd.ts';
 import { Imports } from './u.imports.ts';
 
 type CliFn = (cwd: t.StringDir, argv: readonly string[]) => Promise<unknown>;
@@ -23,5 +23,5 @@ async function loadCli(command: t.Root.Command): Promise<CliFn> {
  */
 export async function dispatchRootCommand(command: t.Root.Command, argv: readonly string[]) {
   const cli = await loadCli(command);
-  await cli(Fs.cwd('terminal'), argv.slice(1));
+  await cli(terminalCwd(), argv.slice(1));
 }

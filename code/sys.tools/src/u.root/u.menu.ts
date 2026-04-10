@@ -1,6 +1,7 @@
-import { type t, c, Cli, pkg, Str } from './common.ts';
+import { type t, c, Cli, pkg } from './common.ts';
 import { isToolCommand } from './u.is.ts';
 import { rootRows } from './u.rows.ts';
+import { trimEdgeNewlines } from './u.text.ts';
 
 export type RootMenuPick =
   | { readonly kind: 'exit' }
@@ -22,7 +23,7 @@ export async function rootMenu(): Promise<RootMenuPick> {
 
   table.push([`${exitIndent}${exitLabel}`]);
 
-  const lines = Str.trimEdgeNewlines(table.toString()).split('\n');
+  const lines = trimEdgeNewlines(table.toString()).split('\n');
   const options: Array<{ name: string; value: t.Root.Command | 'exit' }> = rows.map(
     (row, index) => ({
       name: lines[index] ?? row.columns.join(' '),
