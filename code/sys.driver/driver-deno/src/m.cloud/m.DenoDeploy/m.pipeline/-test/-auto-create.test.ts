@@ -43,4 +43,42 @@ describe('DenoDeploy.pipeline autoCreate', () => {
       (D.cmd as { deno: string }).deno = originalDeno;
     }
   });
+
+  it('enriches deploy failures with deploy logs when autoCreate is disabled', async () => {
+    const fs = await createNoBuildWorkspace();
+    const fake = await createFakeAutoCreateDeployCli();
+    const originalDeno = D.cmd.deno;
+
+    try {
+      (D.cmd as { deno: string }).deno = fake.cli;
+
+      const deployment = DenoDeploy.pipeline({
+        pkgDir: fs.join('code/apps/foo'),
+        config: { app: 'sample-proxy', org: 'sys-org', token: 'abc123' },
+        autoCreate: false,
+        verify: { preview: false },
+      });
+
+      let error: unknown;
+      try {
+        await deployment.run();
+      } catch (cause) {
+        error = cause;
+      }
+
+      expect(error).to.be.instanceOf(Error);
+      expect((error as Error).message).to.include('logs:');
+      expect((error as Error).message).to.include(
+        'The requested app was not found, or you do not have access to view it.',
+      );
+
+      const records = (await Fs.readJson<{ calls: string[] }>(fake.callsPath)).data?.calls ?? [];
+      expect(records).to.eql([
+        'deploy',
+        'logs',
+      ]);
+    } finally {
+      (D.cmd as { deno: string }).deno = originalDeno;
+    }
+  });
 });

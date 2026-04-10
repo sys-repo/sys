@@ -19,9 +19,12 @@ type PreparedDeployLogsCli = {
  * Keep logs CLI invocation isolated here so package-root config is never
  * touched by ambient CLI behavior.
  */
-export async function logs(req: { app: string; org?: string; token?: string; start?: string }) {
+export async function logs(req: { app: string; org?: string; token?: string; start?: string; end?: string }) {
   const app = req.app.trim();
   if (app.length === 0) throw new Error('DenoDeploy.logs: app must be a non-empty string');
+  if (Is.str(req.end) && hasValue(req.end) && !(Is.str(req.start) && hasValue(req.start))) {
+    throw new Error('DenoDeploy.logs: end requires start.');
+  }
 
   const root = (await Fs.makeTempDir({ prefix: D.tmpDirPrefix.logs })).absolute;
   const config = Fs.join(root, 'deno.json');
@@ -31,6 +34,7 @@ export async function logs(req: { app: string; org?: string; token?: string; sta
   if (Is.str(req.org) && hasValue(req.org)) args.push('--org', req.org.trim());
   if (Is.str(req.token) && hasValue(req.token)) args.push('--token', req.token.trim());
   if (Is.str(req.start) && hasValue(req.start)) args.push('--start', req.start.trim());
+  if (Is.str(req.end) && hasValue(req.end)) args.push('--end', req.end.trim());
   args.push('--config', config);
 
   return {

@@ -43,12 +43,21 @@ export async function createFakeAutoCreateDeployCli() {
       const state = JSON.parse(await Deno.readTextFile(statePath).catch(() => '{"created":false,"calls":[]}'));
       const cmd = args[0] === 'deploy' && args[1] === 'create'
         ? 'create'
+        : args[0] === 'deploy' && args[1] === 'logs'
+        ? 'logs'
         : args[0] === 'deploy'
         ? 'deploy'
         : 'other';
       state.calls.push(cmd);
       await Deno.writeTextFile(statePath, JSON.stringify(state, null, 2));
       await Deno.writeTextFile(callsPath, JSON.stringify({ calls: state.calls }, null, 2));
+
+      if (cmd === 'logs') {
+        console.error('✗ An error occurred:');
+        console.error('  The requested app was not found, or you do not have access to view it.');
+        console.error('  trace id: 8485febc7c30791441fc10fa07c406e9');
+        Deno.exit(0);
+      }
 
       if (cmd === 'create') {
         const configIndex = args.indexOf('--config');

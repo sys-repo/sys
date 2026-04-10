@@ -1,4 +1,4 @@
-import { c, Str, Time, type t } from './common.ts';
+import { c, Str, Time, stripAnsi, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
 import { DENO_CONSOLE_URL, formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
@@ -264,13 +264,15 @@ const wrangle = {
     const urls = message.match(/https?:\/\/[^\s]+/g) ?? [];
     const revision = urls.find((url) => url.includes('console.deno.com/'));
     const preview = urls.find((url) => url.includes('.deno.net'));
+    const logs = wrangle.logsSummary(message);
     const stdout = wrangle.stdoutSummary(message);
     const stderr = wrangle.stderrSummary(message);
     return {
-      summary: wrangle.failureSummary(message, stderr, stdout),
+      summary: wrangle.failureSummary(message, logs, stderr, stdout),
       traceId,
       revision,
       preview,
+      logs,
       stdout,
       stderr,
     } as const;
@@ -294,7 +296,8 @@ const wrangle = {
     return c.dim(c.gray(text));
   },
 
-  failureSummary(message: string, stderr?: string, stdout?: string) {
+  failureSummary(message: string, logs?: string, stderr?: string, stdout?: string) {
+    if (logs) return logs;
     if (stderr) return stderr;
     if (stdout) return stdout;
     const lines = wrangle.contentLines(message);
@@ -302,6 +305,7 @@ const wrangle = {
       !line.startsWith('DenoDeploy.pipeline:') &&
       line !== 'stdout:' &&
       line !== 'stderr:' &&
+      line !== 'logs:' &&
       !line.startsWith('trace id:')
     );
     return preferred ?? lines[0] ?? message.trim();
@@ -324,7 +328,7 @@ const wrangle = {
   },
 
   stderrSummary(message: string) {
-    const stderr = message.split(/\nstderr:\n/i)[1];
+    const stderr = message.split(/\nstderr:\n/i)[1]?.split(/\nlogs:\n/i)[0];
     if (!stderr) return undefined;
 
     const lines = wrangle.contentLines(stderr);
@@ -338,10 +342,25 @@ const wrangle = {
     return preferred ?? lines.find((line) => line !== 'An error occurred:');
   },
 
+  logsSummary(message: string) {
+    const logs = message.split(/\nlogs:\n/i)[1];
+    if (!logs) return undefined;
+
+    const lines = wrangle.contentLines(logs);
+    const preferred = lines.find((line) =>
+      !line.startsWith('trace id:') &&
+      !line.startsWith('[00:') &&
+      !line.endsWith('files uploaded.') &&
+      line !== 'An error occurred:'
+    );
+
+    return preferred ?? lines.find((line) => line !== 'An error occurred:');
+  },
+
   contentLines(text: string) {
     return text
       .split('\n')
-      .map((line) => line.trim())
+      .map((line) => stripAnsi(line).trim())
       .filter((line) => line.length > 0)
       .map((line) => line.replace(/^[⠁-⣿]+\s*/, ''))
       .map((line) => line.replace(/^✗\s*/, ''));

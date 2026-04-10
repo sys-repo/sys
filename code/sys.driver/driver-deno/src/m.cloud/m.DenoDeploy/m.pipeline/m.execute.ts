@@ -1,10 +1,11 @@
-import { type t, Fs, Str, Time } from './common.ts';
+import { type t, Fs, Process, Str, Time } from './common.ts';
 import { DenoApp as App } from '../../m.DenoApp/mod.ts';
 import { deploy } from '../m.deploy/mod.ts';
 import { DeploymentNote } from '../m.stage/-tmpl.note/mod.ts';
 import { executeStage } from '../m.stage/u.executeStage.ts';
 import { prepare } from './u.prepare.ts';
 import { verifyPreview } from './u.verify.ts';
+import { DeployCli } from '../../u.cli.deploy/mod.ts';
 
 type Ctx = {
   readonly request: t.DenoDeploy.Pipeline.Request;
@@ -159,7 +160,13 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
   }
 
   if (!result.ok) {
-    const error = 'error' in result ? result.error : wrangle.deployFailure(result);
+    const error = 'error' in result
+      ? result.error
+      : await wrangle.deployFailureError({
+          result,
+          config: ctx.request.config,
+          startedAt: deployStartedAt,
+        });
     ctx.emit({
       kind: 'deploy:failed',
       elapsed: wrangle.elapsedMsecs(deployStartedAt),
@@ -171,7 +178,7 @@ export async function execute(ctx: Ctx): Promise<t.DenoDeploy.Pipeline.Result> {
     });
     await DeploymentNote.write(root, note);
     if ('error' in result) throw result.error;
-    throw new Error(wrangle.deployFailure(result));
+    throw error;
   }
 
   note = DeploymentNote.deployDone(note, {
@@ -326,6 +333,19 @@ const wrangle = {
   },
 
   deployFailure(input: DeployNativeFailure) {
+    return wrangle.deployFailureWithLogs(input);
+  },
+
+  async deployFailureError(args: {
+    readonly result: DeployNativeFailure;
+    readonly config: t.DenoDeploy.DeployConfig;
+    readonly startedAt: t.Msecs;
+  }) {
+    const logs = await wrangle.deployLogs(args.config, args.startedAt);
+    return new Error(wrangle.deployFailureWithLogs(args.result, logs));
+  },
+
+  deployFailureWithLogs(input: DeployNativeFailure, logs?: string) {
     return Str.dedent(`
       DenoDeploy.pipeline: deploy failed (code ${input.code}).
 
@@ -334,7 +354,38 @@ const wrangle = {
 
       stderr:
       ${input.stderr}
+
+      ${logs ? `\nlogs:\n${logs}\n` : ''}
     `);
+  },
+
+  async deployLogs(config: t.DenoDeploy.DeployConfig, startedAt: t.Msecs) {
+    try {
+      const prepared = await DeployCli.logs({
+        app: config.app,
+        ...(config.org ? { org: config.org } : {}),
+        ...(config.token ? { token: config.token } : {}),
+        start: new Date(startedAt).toISOString(),
+        end: new Date().toISOString(),
+      });
+
+      try {
+        const output = await Process.invoke({
+          cmd: prepared.cli.cmd,
+          args: [...prepared.cli.args],
+          cwd: prepared.cli.cwd,
+          silent: true,
+        });
+        const stdout = output.text.stdout.trim();
+        const stderr = output.text.stderr.trim();
+        const body = [stdout, stderr].filter((value) => value.length > 0).join('\n\n').trim();
+        return body.length > 0 ? body : undefined;
+      } finally {
+        await Fs.remove(prepared.root);
+      }
+    } catch {
+      return undefined;
+    }
   },
 
   async note(args: { readonly pkgDir: t.StringDir; readonly root: t.StringDir }) {
