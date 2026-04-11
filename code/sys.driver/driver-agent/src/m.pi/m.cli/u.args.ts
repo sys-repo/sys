@@ -22,14 +22,16 @@ export const PiArgs = {
     cwd: t.StringDir,
     args: readonly string[],
     read: readonly t.StringPath[] = [],
+    write: readonly t.StringPath[] = [],
     pkg?: t.StringModuleSpecifier,
   ) {
     const denoDir = PiArgs.toDenoDir(cwd);
     const readScope = (await resolveRead(cwd, denoDir, read)).join(',');
-    const writeScope = resolveWrite(cwd).join(',');
+    const writeScope = resolveWrite(cwd, write).join(',');
     const specifier = await resolvePkg({ cwd, pkg });
     return [
       'run',
+      '--no-prompt',
       '--node-modules-dir=none',
       '--allow-env',
       '--allow-net',

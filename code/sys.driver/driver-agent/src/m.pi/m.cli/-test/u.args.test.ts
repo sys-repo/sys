@@ -23,12 +23,13 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     const pkg = 'npm:@mariozechner/pi-coding-agent@9.9.9' as t.StringModuleSpecifier;
     try {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
-      const args = [...await PiArgs.toArgs(cwd, ['--help'], [], pkg)];
+      const args = [...await PiArgs.toArgs(cwd, ['--help'], [], ['/tmp/pi-cli-write' as t.StringPath], pkg)];
       const readArg = findArg(args, '--allow-read=');
       const writeArg = findArg(args, '--allow-write=');
       const sysArg = findArg(args, '--allow-sys=');
 
       expect(args).to.include('run');
+      expect(args).to.include('--no-prompt');
       expect(args).to.include(pkg);
       expect(args).to.include('--help');
       expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
@@ -40,6 +41,7 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       expect(readArg).to.contain('/tmp/.git');
       expect(readArg).to.contain('/bin/bash');
       expect(writeArg).to.contain(cwd);
+      expect(writeArg).to.contain('/tmp/pi-cli-write');
       expect(writeArg).to.contain('/tmp/pi-cli-runtime');
       expect(sysArg).to.contain('homedir');
       expect(sysArg).to.contain('osRelease');

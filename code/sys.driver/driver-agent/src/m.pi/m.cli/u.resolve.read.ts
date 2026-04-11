@@ -20,10 +20,7 @@ export async function resolveRead(
   if (!gitRoot) return [...scope];
 
   scope.add(gitRoot);
-  const parent = Path.dirname(gitRoot) as t.StringDir;
-  const agents = Fs.join(parent, 'AGENTS.md');
-
-  if (await Fs.stat(agents)) scope.add(agents);
+  for (const path of await toBootstrapContextPaths(gitRoot)) scope.add(path);
 
   return [...scope];
 }
@@ -62,6 +59,28 @@ function toAncestorContextPaths(dir: t.StringDir) {
     if (parent === current) return paths;
     current = parent;
   }
+}
+
+async function toBootstrapContextPaths(gitRoot: t.StringDir) {
+  const paths = new Set<string>();
+  const parent = Path.dirname(gitRoot) as t.StringDir;
+  const parentAgents = Fs.join(parent, 'AGENTS.md');
+  if (await Fs.stat(parentAgents)) paths.add(parentAgents);
+
+  const canonRoot = Fs.join(parent, 'sys.canon') as t.StringDir;
+  const canonAgents = Fs.join(canonRoot, 'AGENTS.md');
+  if (!(await Fs.stat(canonAgents))) return [...paths];
+
+  paths.add(canonAgents);
+
+  const canonDir = Fs.join(canonRoot, '-canon') as t.StringDir;
+  if (!(await Fs.stat(canonDir))) return [...paths];
+
+  for await (const entry of Fs.walk(canonDir, { includeDirs: false })) {
+    paths.add(entry.path);
+  }
+
+  return [...paths];
 }
 
 async function findGitRoot(dir: t.StringDir): Promise<t.StringDir | undefined> {
