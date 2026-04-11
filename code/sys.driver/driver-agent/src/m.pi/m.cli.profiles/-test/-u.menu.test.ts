@@ -67,4 +67,45 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       await Deno.remove(cwd, { recursive: true });
     }
   });
+
+  it('menu → sandbox prints effective scope and returns to the action menu', async () => {
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const prompts: string[] = [];
+    const prints: string[] = [];
+    let topLevelCount = 0;
+    let actionCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: { message: string }) => {
+        prompts.push(input.message);
+        if (input.message === 'Agent:\n') {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (input.message === 'Agent:') {
+          actionCount += 1;
+          if (actionCount === 1) return Promise.resolve('sandbox');
+          return Promise.resolve('back');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+
+    try {
+      const res = await menu({ cwd });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(prints).to.have.length(1);
+      expect(prints[0]).to.contain('Sandbox:');
+      expect(prompts).to.eql(['Agent:\n', 'Agent:', 'Agent:', 'Agent:\n']);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
 });

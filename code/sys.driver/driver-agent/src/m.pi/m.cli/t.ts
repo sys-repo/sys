@@ -79,6 +79,34 @@ export declare namespace PiCli {
     readonly text: string;
   };
 
+  /** Resolved sandbox contract shown before launch. */
+  export type SandboxSummary = {
+    /** Working directory Pi starts in. */
+    readonly cwd: t.StringDir;
+    /** Effective read scope grouped for display. */
+    readonly read?: SandboxSummary.Scope;
+    /** Effective write scope grouped for display. */
+    readonly write?: SandboxSummary.Scope;
+    /** Intentional guidance context exposed to Pi. */
+    readonly context?: {
+      /** Generic `AGENTS.md` discovery policy. */
+      readonly agents?: 'walk-up';
+      /** Extra guidance files included in Pi context. */
+      readonly include?: readonly t.StringPath[];
+      /** Effective context-related files discovered by the launcher. */
+      readonly detail?: readonly t.StringPath[];
+    };
+  };
+
+  export namespace SandboxSummary {
+    export type Scope = {
+      /** Human-readable summary groups. */
+      readonly summary?: readonly string[];
+      /** Optional detail entries shown below the main summary table. */
+      readonly detail?: readonly t.StringPath[];
+    };
+  }
+
   export type Ran = {
     readonly kind: 'run';
     readonly input: Input;

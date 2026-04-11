@@ -1,8 +1,10 @@
 import { c, type t, YamlConfig } from './common.ts';
+import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { ProfilesFs } from './u.fs.ts';
+import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from './u.schema.ts';
 
-type Action = 'run';
+type Action = 'run' | 'sandbox';
 
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
@@ -27,7 +29,16 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
     schema,
     actions: {
       message: 'Agent:',
-      extra: [{ name: c.green('start'), value: 'run' }],
+      extra: [
+        { name: c.green('start'), value: 'run' },
+        { name: 'sandbox', value: 'sandbox' },
+      ],
+      async onAction({ action, path }) {
+        if (action !== 'sandbox') return { kind: 'action', action, path };
+        const resolved = await resolveRun({ cwd, config: path });
+        console.info(PiSandboxFmt.table(resolved.sandbox));
+        return { kind: 'stay' };
+      },
     },
     add: {
       message: 'Profile name',

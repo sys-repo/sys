@@ -35,8 +35,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
 
   it('main → runs selected config and passes argv after -- through to Pi', async () => {
     const prev = Process.inherit;
+    const prevInfo = console.info;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const calls: string[] = [];
     try {
       await Deno.writeTextFile(
         config,
@@ -51,6 +53,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
           `,
         ).trimStart(),
       );
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
@@ -61,8 +64,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
 
       const res = await Profiles.main({ cwd, argv: ['--config', config, '--', '--help'] });
       expect(res.kind).to.eql('run');
+      expect(calls).to.eql([]);
     } finally {
       Process.inherit = prev;
+      console.info = prevInfo;
       await Deno.remove(cwd, { recursive: true });
     }
   });
