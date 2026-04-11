@@ -31,4 +31,36 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       await Deno.remove(cwd, { recursive: true });
     }
   });
+
+  it('menu → uses Agent: for the action prompt', async () => {
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const calls: string[] = [];
+    let topLevelCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: { message: string }) => {
+        calls.push(input.message);
+        if (input.message === 'Agent:\n') {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (input.message === 'Agent:') {
+          return Promise.resolve('back');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+
+    try {
+      const res = await menu({ cwd });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(calls).to.eql(['Agent:\n', 'Agent:', 'Agent:\n']);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
 });
