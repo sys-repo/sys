@@ -81,11 +81,16 @@ function rowsToOptions(rows: readonly MenuRow[]) {
   const table = Cli.table([]);
   const exitLabel = c.gray('(exit)');
   const exitIndent = ' '.repeat(Cli.Fmt.Tree.branch([0, rows]).length);
-  const treeRows = rows.filter((row) => row.value !== 'back');
+  const treeRows = rows.filter((row) => row.value !== 'back' && row.value !== 'more');
 
   rows.forEach((row, index) => {
     if (row.value === 'back') {
       table.push([` ${row.columns[0]}`]);
+      return;
+    }
+
+    if (row.value === 'more') {
+      table.push([`${c.dim(Cli.Fmt.Tree.vert)}     ${row.columns[0]}`]);
       return;
     }
 
@@ -117,7 +122,7 @@ function specialRow(kind: 'more' | 'back'): MenuRow {
     value: kind,
     columns: [
       kind === 'more'
-        ? `  ${c.gray(c.italic('more...'))}`
+        ? c.gray(c.italic('more...'))
         : c.gray('← back'),
     ],
   };

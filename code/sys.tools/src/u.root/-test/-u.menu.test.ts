@@ -1,4 +1,4 @@
-import { describe, expect, it, Cli } from '../../-test.ts';
+import { describe, expect, it, Cli, Str } from '../../-test.ts';
 import { optionLines, optionName } from '../u.menu.ts';
 
 describe('Root Menu', () => {
@@ -49,5 +49,18 @@ describe('Root Menu', () => {
 
     expect(lines[3]).to.eql('└─ @sys/tools clipboard      (← alias cp)');
     expect(lines[4]).to.eql(' ← back                                 ');
+  });
+
+  it('keeps more rows as a tree continuation, not a branch', () => {
+    const lines = optionLines(
+      Str.dedent([
+        '├─ @sys/tools deploy',
+        '│     more...',
+        '└─ @sys/tools update',
+        '  (exit)',
+      ].join('\n')),
+    );
+
+    expect(lines[1]).to.eql('│     more...');
   });
 });
