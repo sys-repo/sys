@@ -96,13 +96,15 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
 
   it('pinTmplSpecifier throws when marker constant is missing', () => {
     expect(() => pinTmplSpecifier(`const X = 'jsr:@sys/tmpl@0.0.1';`, '0.0.256')).to.throw(
-      'Could not locate TMPL_JSR_SPECIFIER constant in cli.tmpl/m.cli.ts',
+      'Could not locate TMPL_JSR_SPECIFIER constant in code/sys.tools/src/cli.tmpl/m.cli.ts',
     );
   });
 
   it('pinDriverAgentPiCliSpecifier throws when marker constant is missing', () => {
     expect(() =>
       pinDriverAgentPiCliSpecifier(`const X = 'jsr:@sys/driver-agent@0.0.1/pi/cli';`, '0.0.256'),
-    ).to.throw('Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in cli.code/m.cli.ts');
+    ).to.throw(
+      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.code/m.cli.ts',
+    );
   });
 });

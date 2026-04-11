@@ -1,10 +1,21 @@
 import type * as dt from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
+import {
+  PASSTHROUGH_TARGETS,
+  pinPassthroughSpecifier,
+  type PassthroughTarget,
+} from '../../../-scripts/u.passthrough.ts';
 
 export type PrepPaths = {
   rootDenoJson: string;
   cliTmplFile: string;
   cliCodeFile: string;
+};
+
+export type PrepTarget = {
+  readonly path: string;
+  readonly file: string;
+  readonly target: PassthroughTarget;
 };
 
 export type DenoFileVersionLib = Pick<dt.DenoFileLib, 'workspaceVersion'>;
@@ -19,42 +30,69 @@ export const PATH = {
   },
 } as const;
 
+export const TARGET = {
+  tmpl(path: PrepPaths): PrepTarget {
+    const target = toTarget('@sys/tmpl');
+    return {
+      path: path.cliTmplFile,
+      file: target.consumer.fileFromRoot,
+      target,
+    };
+  },
+  code(path: PrepPaths): PrepTarget {
+    const target = toTarget('@sys/driver-agent');
+    return {
+      path: path.cliCodeFile,
+      file: target.consumer.fileFromRoot,
+      target,
+    };
+  },
+} as const;
+
 export async function resolveTmplVersion(
   source: string,
   denoFile: DenoFileVersionLib,
 ): Promise<string> {
-  const version = await denoFile.workspaceVersion('@sys/tmpl', source, { walkup: false });
-  if (typeof version !== 'string') {
-    throw new Error(`Missing workspace version for package "@sys/tmpl": ${source}`);
-  }
-  return version;
+  return await resolveWorkspaceVersion('@sys/tmpl', source, denoFile);
 }
 
 export async function resolveDriverAgentVersion(
   source: string,
   denoFile: DenoFileVersionLib,
 ): Promise<string> {
-  const version = await denoFile.workspaceVersion('@sys/driver-agent', source, { walkup: false });
+  return await resolveWorkspaceVersion('@sys/driver-agent', source, denoFile);
+}
+
+export async function resolveWorkspaceVersion(
+  name: string,
+  source: string,
+  denoFile: DenoFileVersionLib,
+): Promise<string> {
+  const version = await denoFile.workspaceVersion(name, source, { walkup: false });
   if (typeof version !== 'string') {
-    throw new Error(`Missing workspace version for package "@sys/driver-agent": ${source}`);
+    throw new Error(`Missing workspace version for package "${name}": ${source}`);
   }
   return version;
 }
 
 export function pinTmplSpecifier(source: string, version: string): string {
-  const pinned = `jsr:@sys/tmpl@${version}`;
-  const pattern = /const TMPL_JSR_SPECIFIER = 'jsr:@sys\/tmpl(?:@[^']+)?';/;
-  if (!pattern.test(source)) {
-    throw new Error('Could not locate TMPL_JSR_SPECIFIER constant in cli.tmpl/m.cli.ts');
-  }
-  return source.replace(pattern, `const TMPL_JSR_SPECIFIER = '${pinned}';`);
+  return pinPassthroughSpecifier(source, toTarget('@sys/tmpl'), version);
 }
 
 export function pinDriverAgentPiCliSpecifier(source: string, version: string): string {
-  const pinned = `jsr:@sys/driver-agent@${version}/pi/cli`;
-  const pattern = /const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = 'jsr:@sys\/driver-agent(?:@[^']+)?\/pi\/cli';/;
-  if (!pattern.test(source)) {
-    throw new Error('Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in cli.code/m.cli.ts');
-  }
-  return source.replace(pattern, `const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = '${pinned}';`);
+  return pinPassthroughSpecifier(source, toTarget('@sys/driver-agent'), version);
+}
+
+export function pinPassthrough(
+  source: string,
+  target: PassthroughTarget,
+  version: string,
+): string {
+  return pinPassthroughSpecifier(source, target, version);
+}
+
+function toTarget(name: string): PassthroughTarget {
+  const target = PASSTHROUGH_TARGETS.find((item) => item.upstream.name === name);
+  if (!target) throw new Error(`Missing passthrough target for package "${name}"`);
+  return target;
 }

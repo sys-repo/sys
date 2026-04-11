@@ -47,6 +47,16 @@ describe('scripts/task.bump', () => {
     expect(res).to.include('code/sys.tools');
   });
 
+  it('includes generated driver-agent coupling in the bump closure', () => {
+    const res = dependentClosure('code/sys.driver/driver-agent', [], [
+      'code/sys.driver/driver-agent',
+      'code/sys.tools',
+    ]);
+
+    expect(res).to.include('code/sys.driver/driver-agent');
+    expect(res).to.include('code/sys.tools');
+  });
+
   it('reorders the bump picker paths to honor generated tmpl coupling', () => {
     const res = bumpOrderedPaths([
       'code/sys/std',
@@ -58,6 +68,22 @@ describe('scripts/task.bump', () => {
     expect(res).to.eql([
       'code/sys/std',
       'code/-tmpl',
+      'code/sys.tools',
+      'code/sys/workspace',
+    ]);
+  });
+
+  it('reorders the bump picker paths to honor generated driver-agent coupling', () => {
+    const res = bumpOrderedPaths([
+      'code/sys/std',
+      'code/sys.tools',
+      'code/sys.driver/driver-agent',
+      'code/sys/workspace',
+    ]);
+
+    expect(res).to.eql([
+      'code/sys/std',
+      'code/sys.driver/driver-agent',
       'code/sys.tools',
       'code/sys/workspace',
     ]);

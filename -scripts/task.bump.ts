@@ -1,6 +1,7 @@
 import { DenoFile } from '@sys/driver-deno/runtime';
 import { type t, c, Cli, Path, Process, R, Semver, Str } from './common.ts';
 import { ensureWorkspaceGraphCache } from './u.graph.ts';
+import { toPassthroughCouplings } from './u.passthrough.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
@@ -33,12 +34,7 @@ type PackageEdge = {
   readonly to: t.StringPath;
 };
 
-const BUMP_COUPLINGS: readonly PackageEdge[] = [
-  {
-    from: 'code/-tmpl',
-    to: 'code/sys.tools',
-  },
-] as const;
+const BUMP_COUPLINGS: readonly PackageEdge[] = toPassthroughCouplings();
 
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args, {

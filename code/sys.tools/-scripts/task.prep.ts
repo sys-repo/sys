@@ -1,13 +1,7 @@
 import { Fs } from '@sys/fs';
 import { c } from '@sys/cli';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import {
-  PATH,
-  pinDriverAgentPiCliSpecifier,
-  pinTmplSpecifier,
-  resolveDriverAgentVersion,
-  resolveTmplVersion,
-} from './-prep.u.ts';
+import { PATH, TARGET, pinPassthrough, resolveWorkspaceVersion, type PrepTarget } from './-prep.u.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
@@ -15,22 +9,15 @@ const path = PATH.fromRoot(root);
 await main();
 
 async function main() {
-  await prepTmpl();
-  await prepCode();
+  await prepTarget(TARGET.tmpl(path));
+  await prepTarget(TARGET.code(path));
 }
 
-async function prepTmpl() {
-  const source = await readText(path.cliTmplFile);
-  const version = await resolveTmplVersion(path.rootDenoJson, DenoFile);
-  const next = pinTmplSpecifier(source, version);
-  await writeIfChanged(path.cliTmplFile, source, next);
-}
-
-async function prepCode() {
-  const source = await readText(path.cliCodeFile);
-  const version = await resolveDriverAgentVersion(path.rootDenoJson, DenoFile);
-  const next = pinDriverAgentPiCliSpecifier(source, version);
-  await writeIfChanged(path.cliCodeFile, source, next);
+async function prepTarget(target: PrepTarget) {
+  const source = await readText(target.path);
+  const version = await resolveWorkspaceVersion(target.target.upstream.name, path.rootDenoJson, DenoFile);
+  const next = pinPassthrough(source, target.target, version);
+  await writeIfChanged(target.path, source, next);
 }
 
 async function readText(file: string) {
