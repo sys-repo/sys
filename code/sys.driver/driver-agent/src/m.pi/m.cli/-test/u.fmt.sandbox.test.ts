@@ -1,9 +1,10 @@
 import { describe, expect, it } from '../../../-test.ts';
+import { Cli } from '../common.ts';
 import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 
 describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   it('table → renders cwd, scope and context rows', () => {
-    const text = PiSandboxFmt.table({
+    const text = Cli.stripAnsi(PiSandboxFmt.table({
       cwd: '/tmp/pi-cli-test',
       read: {
         summary: ['cwd', 'runtime', 'context'],
@@ -18,7 +19,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
         include: ['/tmp/pi-cli-test/extra.md'],
         detail: ['/tmp/pi-cli-test/AGENTS.md'],
       },
-    });
+    }));
 
     expect(text).to.contain('Sandbox:');
     expect(text).to.contain('━');
@@ -43,7 +44,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   });
 
   it('table → aligns wrapped detail rows under the value column', () => {
-    const text = PiSandboxFmt.table({
+    const text = Cli.stripAnsi(PiSandboxFmt.table({
       cwd: '/tmp/pi-cli-test',
       read: {
         summary: ['cwd', 'runtime', 'context'],
@@ -69,7 +70,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
           '/Users/phil/code/org.sys/sys.canon/-canon/protocol.testing.md',
         ],
       },
-    });
+    }));
 
     expect(text).to.match(/read\+\s+\.\.?\//);
     expect(text).to.match(/\n\s+\/bin\/bash/);
@@ -79,13 +80,13 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   });
 
   it('table → keeps write+ for non-temp extra write scope', () => {
-    const text = PiSandboxFmt.table({
+    const text = Cli.stripAnsi(PiSandboxFmt.table({
       cwd: '/tmp/pi-cli-test',
       write: {
         summary: ['cwd', 'temp', 'extra'],
         detail: ['/tmp/pi-cli-runtime', '/tmp/pi-cli-test/out'],
       },
-    });
+    }));
 
     expect(text).to.contain('write+');
     expect(text).not.to.match(/\nt\s+\/tmp/);
