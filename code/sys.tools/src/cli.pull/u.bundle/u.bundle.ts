@@ -161,9 +161,7 @@ export async function pullBundle(
     const index = Number(A.slice(PULL_PREFIX.length));
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-
-    const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
-    const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
+    const pulled = await executeBundlePull(yamlPath, location, bundle);
     if (!pulled.ok) {
       const b = Str.builder()
         .line(c.yellow('Pull failed'))
@@ -172,20 +170,34 @@ export async function pullBundle(
       return pullBundle(_cwd, yamlPath, location);
     }
 
-    console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
-
-    // Update lastUsedAt in the YAML file.
-    await updateYamlBundles(yamlPath, (list) => {
-      const hit = list.find(
-        (m) => isSameBundle(m, bundle),
-      );
-      if (hit) hit.lastUsedAt = Time.now.timestamp;
-    });
-
-    return done(effectiveBundle);
+    return done(pulled.bundle);
   }
 
   return done();
+}
+
+export async function executeBundlePull(
+  yamlPath: t.StringPath,
+  location: t.PullTool.ConfigYaml.Location,
+  bundle: t.PullTool.ConfigYaml.Bundle,
+): Promise<
+  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
+  | { readonly ok: false; readonly error: string }
+> {
+  const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
+  const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
+  if (!pulled.ok) {
+    return { ok: false, error: pulled.error };
+  }
+
+  console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
+
+  await updateYamlBundles(yamlPath, (list) => {
+    const hit = list.find((m) => isSameBundle(m, bundle));
+    if (hit) hit.lastUsedAt = Time.now.timestamp;
+  });
+
+  return { ok: true, bundle: effectiveBundle };
 }
 
 function isSameBundle(a: t.PullTool.ConfigYaml.Bundle, b: t.PullTool.ConfigYaml.Bundle): boolean {

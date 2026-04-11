@@ -27,8 +27,13 @@ export namespace PullTool {
   export type MenuOption = { readonly name: string; readonly value: MenuCmd };
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.Tools.CliArgs;
-  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+  export type CliArgs = t.Tools.CliArgs & {
+    config?: string;
+    'no-interactive'?: boolean;
+  };
+  export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
+    readonly interactive: boolean;
+  };
 
   export type GithubReleaseAsset = PullToolGithubReleaseAsset;
   export type GithubRelease = PullToolGithubRelease;

@@ -1,8 +1,9 @@
 import { type t, c, D, done, Fs, Is } from './common.ts';
-import { pullBundle } from './u.bundle/mod.ts';
+import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
+import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
 import { PullFs, PullMigrate } from './u.yaml/mod.ts';
 
 /**
@@ -18,7 +19,7 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
 
   /* Run */
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd);
+  const res = args.interactive ? await runInteractive(cwd) : await runNonInteractive(cwd, args);
   console.info(Fmt.signoff(toolname));
 
   /* Exit */
@@ -29,7 +30,7 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
   while (true) {
     const picked = await yamlConfigsMenu(cwd);
     if (picked.kind === 'exit') return done();
@@ -53,4 +54,22 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (result.kind === 'back') break;
     }
   }
+}
+
+async function runNonInteractive(cwd: t.StringDir, args: t.PullTool.CliParsedArgs): Promise<t.RunReturn> {
+  const resolved = await resolveNonInteractive(cwd, args);
+  const bundles = resolved.location.bundles ?? [];
+  if (bundles.length === 0) {
+    console.info(c.gray('No bundles configured.'));
+    return done(0);
+  }
+
+  for (const bundle of bundles) {
+    const result = await executeBundlePull(resolved.yamlPath, resolved.location, bundle);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+  }
+
+  return done(0);
 }

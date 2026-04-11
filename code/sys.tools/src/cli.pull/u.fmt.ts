@@ -4,12 +4,22 @@ export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const str = Str.builder()
-      .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
-      .line(await Base.help(toolname))
-      .line();
-
-    return String(str);
+    return await Base.help(toolname, {
+      note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
+      usage: [
+        `${toolname}`,
+        `${toolname} --no-interactive --config ./-config/@sys.tools.pull/sample.yaml`,
+      ],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--no-interactive', 'disable prompts and require direct inputs'],
+        ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
+      ],
+      examples: [
+        `${toolname}`,
+        `${toolname} --no-interactive --config ./-config/@sys.tools.pull/sample.yaml`,
+      ],
+    });
   },
 
   pullSummary(args: {
