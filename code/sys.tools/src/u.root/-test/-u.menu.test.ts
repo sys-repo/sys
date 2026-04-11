@@ -20,11 +20,11 @@ describe('Root Menu', () => {
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
       '\x1b[90m                                               \x1b[39m',
-      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '├─ @sys/tools ƒ             (← aliases fn, agent)   ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '├─ @sys/tools ƒ             (← aliases fn, agent)   ',
     ]);
   });
 

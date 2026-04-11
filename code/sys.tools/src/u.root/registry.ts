@@ -10,7 +10,7 @@ type ToolRegistryItem = {
 };
 
 export const ROOT_REGISTRY = [
-  { id: 'fn', label: 'ƒ', aliases: ['agent', 'ƒ', 'f'], displayAliases: ['agent', 'fn'], group: 'primary', specifier: '../cli.code/mod.ts' },
+  { id: 'fn', label: 'ƒ', aliases: ['agent', 'ƒ', 'f'], displayAliases: ['fn', 'agent'], group: 'primary', specifier: '../cli.code/mod.ts' },
   { id: 'tmpl', aliases: ['clone'], group: 'primary', specifier: '../cli.tmpl/mod.ts' },
   { id: 'pull', aliases: undefined, group: 'primary', specifier: '../cli.pull/mod.ts' },
   { id: 'serve', aliases: undefined, group: 'primary', specifier: '../cli.serve/mod.ts' },

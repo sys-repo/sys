@@ -5,7 +5,7 @@ describe('Root Rows', () => {
   it('renders the fn row with the displayed compatibility aliases', () => {
     const row = rootRows('primary').find((item) => item.command === 'fn');
     expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools ƒ');
-    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases agent, fn)');
+    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases fn, agent)');
   });
 
   it('renders multi-alias rows with a plural alias label', () => {
