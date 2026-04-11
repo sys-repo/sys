@@ -33,7 +33,13 @@ describe('Root Args', () => {
   });
 
   it('normalizes branded alias to the fn command', () => {
-    const res = parseArgs(['ƒn', 'x']);
+    const res = parseArgs(['ƒ', 'x']);
+    expect(res.command).eql('fn');
+    expect(res._).eql(['fn', 'x']);
+  });
+
+  it('normalizes short hidden alias to the fn command', () => {
+    const res = parseArgs(['f', 'x']);
     expect(res.command).eql('fn');
     expect(res._).eql(['fn', 'x']);
   });

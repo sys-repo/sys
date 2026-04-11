@@ -2,10 +2,10 @@ import { describe, expect, it, Cli } from '../../-test.ts';
 import { rootRows } from '../u.rows.ts';
 
 describe('Root Rows', () => {
-  it('renders the fn row with the displayed compatibility alias', () => {
+  it('renders the fn row with the displayed compatibility aliases', () => {
     const row = rootRows('primary').find((item) => item.command === 'fn');
-    expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools ƒn');
-    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← alias agent)');
+    expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools ƒ');
+    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases agent, fn)');
   });
 
   it('renders multi-alias rows with a plural alias label', () => {

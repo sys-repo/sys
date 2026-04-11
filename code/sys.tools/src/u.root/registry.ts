@@ -4,12 +4,13 @@ type ToolRegistryItem = {
   readonly id: t.Root.Command;
   readonly label?: string;
   readonly aliases: readonly [string, ...string[]] | undefined;
+  readonly displayAliases?: readonly [string, ...string[]] | undefined;
   readonly group: 'primary' | 'secondary' | 'utility';
   readonly specifier: string;
 };
 
 export const ROOT_REGISTRY = [
-  { id: 'fn', label: 'ƒn', aliases: ['agent', 'ƒn'], group: 'primary', specifier: '../cli.code/mod.ts' },
+  { id: 'fn', label: 'ƒ', aliases: ['agent', 'ƒ', 'f'], displayAliases: ['agent', 'fn'], group: 'primary', specifier: '../cli.code/mod.ts' },
   { id: 'tmpl', aliases: ['clone'], group: 'primary', specifier: '../cli.tmpl/mod.ts' },
   { id: 'pull', aliases: undefined, group: 'primary', specifier: '../cli.pull/mod.ts' },
   { id: 'serve', aliases: undefined, group: 'primary', specifier: '../cli.serve/mod.ts' },

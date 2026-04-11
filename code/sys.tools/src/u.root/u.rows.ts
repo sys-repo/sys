@@ -8,16 +8,28 @@ export function rootRows(group?: RootRowGroup): RootRow[] {
   const fmt = (tool: string) => c.gray(c.dim(`${pkg.name} `)) + tool;
   const rows: RootRow[] = [];
 
-  const add = (command: t.Root.Command, label?: string, alias?: readonly string[]) => {
+  const add = (
+    command: t.Root.Command,
+    label?: string,
+    alias?: readonly string[],
+    displayAlias?: readonly string[],
+  ) => {
     const items = [fmt(label ?? command)];
-    const displayAliases = alias?.filter((item) => item !== command && item !== label);
+    const displayAliases = displayAlias ?? alias?.filter((item) => item !== command && item !== label);
     if (displayAliases?.length) items.push(fmtAliases(displayAliases));
     rows.push({ command, columns: items });
   };
 
   ROOT_REGISTRY
     .filter((item) => group === undefined || item.group === group)
-    .forEach((item) => add(item.id, 'label' in item ? item.label : undefined, item.aliases));
+    .forEach((item) =>
+      add(
+        item.id,
+        'label' in item ? item.label : undefined,
+        item.aliases,
+        'displayAliases' in item ? item.displayAliases : undefined,
+      )
+    );
 
   return rows;
 }
