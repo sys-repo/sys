@@ -5,13 +5,25 @@ import { validateProfileYamlText } from '../u.validate.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
   it('initial → returns the minimal profile config', () => {
-    expect(ProfileSchema.initial()).to.eql({ args: [], read: [], env: {} });
+    expect(ProfileSchema.initial()).to.eql({
+      args: [],
+      sandbox: {
+        capability: { read: [], write: [], env: {} },
+        context: { agents: 'walk-up', include: [] },
+      },
+    });
   });
 
   it('validate → accepts the profile config shape and rejects residue fields', () => {
-    expect(ProfileSchema.validate({ args: ['--model', 'gpt-5.4'] }).ok).to.eql(true);
+    expect(
+      ProfileSchema.validate({
+        args: ['--model', 'gpt-5.4'],
+        sandbox: { capability: { read: ['./canon'] } },
+      }).ok,
+    ).to.eql(true);
     expect(ProfileSchema.validate({ name: 'main' }).ok).to.eql(false);
     expect(ProfileSchema.validate({ args: [], cwd: '.' }).ok).to.eql(false);
+    expect(ProfileSchema.validate({ args: [], read: ['./legacy'] }).ok).to.eql(false);
   });
 
   it('validateProfileYamlText → parses valid YAML and reports invalid YAML', () => {
@@ -19,8 +31,14 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
       Str.dedent(
         `
         args: []
-        read: []
-        env: {}
+        sandbox:
+          capability:
+            read: []
+            write: []
+            env: {}
+          context:
+            agents: walk-up
+            include: []
         `,
       ).trimStart(),
     );

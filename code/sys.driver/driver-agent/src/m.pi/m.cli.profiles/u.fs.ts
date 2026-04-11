@@ -20,11 +20,17 @@ export const ProfilesFs = {
       # pi profile: ${name}
       #
       # Args passed through to Pi.
-      # Paths resolve relative to the current working directory.
+      # Sandbox paths resolve relative to the current working directory.
 
       args: []
-      read: []
-      env: {}
+      sandbox:
+        capability:
+          read: []
+          write: []
+          env: {}
+        context:
+          agents: walk-up
+          include: []
 
       `,
     ).trimStart();

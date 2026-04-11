@@ -14,20 +14,30 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         Str.dedent(
           `
           args: [--model, gpt-5.4]
-          read: [./profile-read]
-          env:
-            PI_PROFILE: work
-            PI_KEEP: profile
+          sandbox:
+            capability:
+              read: [./profile-read]
+              write: [./profile-write]
+              env:
+                PI_PROFILE: work
+                PI_KEEP: profile
+            context:
+              include: [./profile-context]
           `,
         ).trimStart(),
       );
 
       Process.inherit = async (input) => {
         const read = findArg(input.args, '--allow-read=');
+        const write = findArg(input.args, '--allow-write=');
         expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include('--no-prompt');
         expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
         expect(read).to.contain('./profile-read');
+        expect(read).to.contain('./profile-context');
         expect(read).to.contain('./extra-read');
+        expect(write).to.contain('./profile-write');
+        expect(write).to.contain('./extra-write');
         expect(input.env?.PI_PROFILE).to.eql('override');
         expect(input.env?.PI_KEEP).to.eql('profile');
         return { code: 0, success: true, signal: null };
@@ -38,6 +48,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         config,
         args: ['--help'],
         read: ['./extra-read' as t.StringPath],
+        write: ['./extra-write' as t.StringPath],
         env: { PI_PROFILE: 'override' },
       });
 
@@ -58,13 +69,16 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         Str.dedent(
           `
           args: [--model, gpt-5.4]
-          env:
-            PI_PROFILE: main
+          sandbox:
+            capability:
+              env:
+                PI_PROFILE: main
           `,
         ).trimStart(),
       );
 
       Process.inherit = async (input) => {
+        expect(input.args).to.include('--no-prompt');
         expect(input.args).to.include.members(['--model', 'gpt-5.4']);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };

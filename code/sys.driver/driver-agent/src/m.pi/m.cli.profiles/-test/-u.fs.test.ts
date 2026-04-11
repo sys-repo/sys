@@ -11,8 +11,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
   it('initialYaml → emits the minimal profile YAML shape', async () => {
     const text = ProfilesFs.initialYaml('default');
     expect(text).to.contain('args: []');
+    expect(text).to.contain('sandbox:');
     expect(text).to.contain('read: []');
+    expect(text).to.contain('write: []');
     expect(text).to.contain('env: {}');
+    expect(text).to.contain('agents: walk-up');
+    expect(text).to.contain('include: []');
 
     const { dir, path } = await writeTempYaml(text);
     try {

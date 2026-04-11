@@ -24,6 +24,8 @@ export declare namespace PiCliProfiles {
     readonly env?: Record<string, string>;
     /** Extra read-scope paths added to the Pi sandbox. */
     readonly read?: readonly t.StringPath[];
+    /** Extra write-scope paths added to the Pi sandbox. */
+    readonly write?: readonly t.StringPath[];
     /** Pi package specifier override, primarily for tests and pinned launchers. */
     readonly pkg?: t.StringModuleSpecifier;
   };
@@ -40,6 +42,8 @@ export declare namespace PiCliProfiles {
     readonly env?: Record<string, string>;
     /** Extra read-scope paths merged with profile read scope. */
     readonly read?: readonly t.StringPath[];
+    /** Extra write-scope paths merged with profile write scope. */
+    readonly write?: readonly t.StringPath[];
     /** Pi package specifier override, primarily for tests and pinned launchers. */
     readonly pkg?: t.StringModuleSpecifier;
   };
@@ -129,10 +133,6 @@ export declare namespace PiCliProfiles {
     export type Profile = {
       /** Pi args applied before CLI passthrough args. */
       readonly args?: readonly string[];
-      /** Extra read-scope paths for this profile. */
-      readonly read?: readonly t.StringPath[];
-      /** Environment variables for the Pi process. */
-      readonly env?: Record<string, string>;
       /** Explicit sandbox policy for this profile. */
       readonly sandbox?: PiCliProfiles.Sandbox;
     };

@@ -7,7 +7,13 @@ const Type = Schema.Type;
  */
 export const ProfileSchema = {
   initial(): t.PiCliProfiles.Yaml.Profile {
-    return { args: [], read: [], env: {} };
+    return {
+      args: [],
+      sandbox: {
+        capability: { read: [], write: [], env: {} },
+        context: { agents: 'walk-up', include: [] },
+      },
+    };
   },
 
   validate(value: unknown) {
@@ -25,8 +31,32 @@ export const ProfileSchema = {
   schema: Type.Object(
     {
       args: Type.Optional(Type.Array(Type.String())),
-      read: Type.Optional(Type.Array(Type.String())),
-      env: Type.Optional(Type.Record(Type.String(), Type.String())),
+      sandbox: Type.Optional(
+        Type.Object(
+          {
+            capability: Type.Optional(
+              Type.Object(
+                {
+                  read: Type.Optional(Type.Array(Type.String())),
+                  write: Type.Optional(Type.Array(Type.String())),
+                  env: Type.Optional(Type.Record(Type.String(), Type.String())),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+            context: Type.Optional(
+              Type.Object(
+                {
+                  agents: Type.Optional(Type.Literal('walk-up')),
+                  include: Type.Optional(Type.Array(Type.String())),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
     },
     { additionalProperties: false },
   ),

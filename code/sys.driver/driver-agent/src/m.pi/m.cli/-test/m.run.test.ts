@@ -15,6 +15,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.cmd).to.eql('deno');
         expect(input.cwd).to.eql(Fs.cwd('terminal'));
         expect(input.args).to.include('run');
+        expect(input.args).to.include('--no-prompt');
         expect(findPkgArg(input.args)).to.eql('npm:@mariozechner/pi-coding-agent@0.66.1');
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno')}`);
@@ -48,6 +49,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     try {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include('--no-prompt');
         expect(input.env).to.eql({
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
@@ -65,6 +67,28 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       };
 
       const res = await Cli.run({ cwd, env });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
+
+  it('run → passes extra write scope through to the child process', async () => {
+    const prev = Process.inherit;
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    try {
+      Process.inherit = async (input) => {
+        const writeArg = findArg(input.args, '--allow-write=');
+        expect(writeArg).to.contain(cwd);
+        expect(writeArg).to.contain('/tmp/pi-cli-extra-write');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Cli.run({
+        cwd,
+        write: ['/tmp/pi-cli-extra-write' as t.StringPath],
+      });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
