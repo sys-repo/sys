@@ -87,6 +87,37 @@ export declare namespace PiCliProfiles {
     | { readonly kind: 'exit' }
     | { readonly kind: 'selected'; readonly config: t.StringPath };
 
+  /** Sandbox policy for a Pi profile. */
+  export type Sandbox = {
+    /** Capabilities granted to Pi. */
+    readonly capability?: Sandbox.Capability;
+    /** Intentional context made visible to Pi. */
+    readonly context?: Sandbox.Context;
+  };
+
+  export namespace Sandbox {
+    /** Filesystem and process capabilities granted to Pi. */
+    export type Capability = {
+      /** Extra readable paths beyond the default launcher scope. */
+      readonly read?: readonly t.StringPath[];
+      /** Extra writable paths beyond the default launcher scope. */
+      readonly write?: readonly t.StringPath[];
+      /** Extra environment variables passed to Pi. */
+      readonly env?: Record<string, string>;
+    };
+
+    /** Guidance and instruction sources intentionally exposed to Pi. */
+    export type Context = {
+      /** Enable generic `AGENTS.md` closest-then-walk-up discovery. */
+      readonly agents?: AgentsMode;
+      /** Extra guidance files intentionally included in Pi's context. */
+      readonly include?: readonly t.StringPath[];
+    };
+
+    /** `AGENTS.md` discovery policy. */
+    export type AgentsMode = 'walk-up';
+  }
+
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
@@ -102,6 +133,8 @@ export declare namespace PiCliProfiles {
       readonly read?: readonly t.StringPath[];
       /** Environment variables for the Pi process. */
       readonly env?: Record<string, string>;
+      /** Explicit sandbox policy for this profile. */
+      readonly sandbox?: PiCliProfiles.Sandbox;
     };
 
     /** YAML validation result. */
