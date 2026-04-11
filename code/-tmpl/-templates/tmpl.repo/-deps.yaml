@@ -2,9 +2,9 @@ deno.json:
   - import: jsr:@sys/cli@0.0.257
   - import: jsr:@sys/color@0.0.228
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.303
+  - import: jsr:@sys/driver-deno@0.0.304
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.353
+  - import: jsr:@sys/driver-vite@0.0.354
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.279
     subpaths: [ t ]
@@ -16,9 +16,9 @@ deno.json:
     subpaths: [ async, log, rx, t, testing ]
   - import: jsr:@sys/testing@0.0.269
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.319
+  - import: jsr:@sys/tmpl@0.0.320
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.325
+  - import: jsr:@sys/tools@0.0.326
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.274
   - import: jsr:@sys/ui-css@0.0.263
