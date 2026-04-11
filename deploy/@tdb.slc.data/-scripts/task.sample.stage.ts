@@ -21,7 +21,7 @@ export async function run(args: {
   }
 
   if (!result) throw new Error('No sample profiles configured');
-  console.info(result);
+  console.info(Cli.Fmt.result(result));
   return result;
 }
 

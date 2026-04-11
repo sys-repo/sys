@@ -18,7 +18,7 @@ export async function run(args: {
   });
   await Fs.write(path, yaml);
   const result = { kind: 'created', path } as const;
-  console.info(result);
+  console.info(Cli.Fmt.result(result));
   return result;
 }
 
