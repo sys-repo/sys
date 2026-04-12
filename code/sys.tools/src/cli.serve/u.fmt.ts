@@ -1,15 +1,16 @@
-import { type t, Fmt as Base, c, D, Fs, Str } from './common.ts';
+import { type t, Fmt as Base, c, Fs, Str } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    return await Base.help(toolname, {
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('serve');
+    return await Base.help(cmd, {
       note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
       usage: [
-        `${toolname}`,
-        `${toolname} --no-interactive --dir . [--host local|network] [--port 4040] [--open]`,
-        `${toolname} --no-interactive --config ./-config/site.serve.yaml [--port 4040] [--open]`,
+        `${cmd}`,
+        `${cmd} --no-interactive --dir . [--host local|network] [--port 4040] [--open]`,
+        `${cmd} --no-interactive --config ./my-config.yaml [--port 4040] [--open]`,
       ],
       options: [
         ['-h, --help', 'show help'],
@@ -21,10 +22,10 @@ export const Fmt = {
         ['--open', 'open the resolved URL after start'],
       ],
       examples: [
-        `${toolname} --no-interactive --dir .`,
-        `${toolname} --no-interactive --dir . --port 4040`,
-        `${toolname} --no-interactive --dir . --host network`,
-        `${toolname} --no-interactive --config ./-config/site.serve.yaml --open`,
+        `${cmd} --no-interactive --dir .`,
+        `${cmd} --no-interactive --dir . --port 4040`,
+        `${cmd} --no-interactive --dir . --host network`,
+        `${cmd} --no-interactive --config ./my-config.yaml --open`,
       ],
     });
   },

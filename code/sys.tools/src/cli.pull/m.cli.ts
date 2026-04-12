@@ -14,7 +14,7 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
 
-  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  if (args.help) return void console.info(await Fmt.help(cwd));
   await PullMigrate.run(cwd);
 
   /* Run */

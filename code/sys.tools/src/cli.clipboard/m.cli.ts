@@ -12,7 +12,7 @@ export const cli: t.ClipboardToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.VideoTool.CliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname));
+  if (args.help) return void console.info(await Fmt.help());
 
   console.info(await Fmt.header(toolname, cwd));
   await run(cwd);

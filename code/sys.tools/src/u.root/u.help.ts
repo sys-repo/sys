@@ -22,7 +22,7 @@ export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
   console.info(`\n${title}\n${trimEdgeNewlines(table.toString())}\n`);
 
   if (args.help) {
-    const cmd = 'deno run -A jsr:@sys/tools';
+    const cmd = Fmt.invoke();
     const alias = `${c.italic(c.cyan('alias'))} ${c.white('sys')}=${c.yellow(`"${cmd}"`)}`;
     console.info(c.gray(`  shortcut: ${alias}\n`));
   }

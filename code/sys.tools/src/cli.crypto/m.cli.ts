@@ -13,7 +13,7 @@ export const cli: t.CryptoToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
 
-  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  if (args.help) return void console.info(await Fmt.help(cwd));
   await CryptoMigrate.run(cwd);
 
   /* Run */

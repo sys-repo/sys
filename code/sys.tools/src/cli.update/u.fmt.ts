@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, D, pkg, Str } from './common.ts';
+import { type t, Fmt as Base, c, Cli, pkg, Str } from './common.ts';
 import { getVersionInfo } from './u.ts';
 
 const g = c.green;
@@ -7,10 +7,10 @@ const w = c.white;
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name) {
+  async help() {
     const str = Str.builder();
     const version = await getVersionInfo();
-    const base = await Base.help(toolname, { note: `@sys/tools/${c.white('update')}` });
+    const base = await Base.help(Base.invoke('update'), { note: `@sys/tools/${c.white('update')}` });
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
     if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();

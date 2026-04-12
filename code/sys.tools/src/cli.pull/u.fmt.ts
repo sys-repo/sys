@@ -1,14 +1,15 @@
-import { type t, Fmt as Base, c, Cli, D, Fs, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Fs, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    return await Base.help(toolname, {
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('pull');
+    return await Base.help(cmd, {
       note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
       usage: [
-        `${toolname}`,
-        `${toolname} --no-interactive --config ./-config/@sys.tools.pull/sample.yaml`,
+        `${cmd}`,
+        `${cmd} --no-interactive --config ./my-config.yaml`,
       ],
       options: [
         ['-h, --help', 'show help'],
@@ -16,8 +17,7 @@ export const Fmt = {
         ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
       ],
       examples: [
-        `${toolname}`,
-        `${toolname} --no-interactive --config ./-config/@sys.tools.pull/sample.yaml`,
+        `${cmd} --no-interactive --config ./my-config.yaml`,
       ],
     });
   },

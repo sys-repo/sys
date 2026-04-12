@@ -1,11 +1,12 @@
-import { type t, Fmt as Base, c, Cli, D, Fs, Str } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Fs, Str } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('crypto');
     const direct = Cli.table([]);
-    direct.push([c.gray('  cmd'), c.white('crypto hash [dir]')]);
+    direct.push([c.gray('  cmd'), c.white(`${cmd} hash [dir]`)]);
     direct.push([c.gray('  dir'), c.gray('optional target directory (defaults to current dir)')]);
     direct.push([c.gray('  --save'), c.gray('write dist.json in target directory')]);
     direct.push([c.gray('  -h, --help'), c.gray('show help')]);
@@ -14,7 +15,7 @@ export const Fmt = {
 
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
-      .line(await Base.help(toolname))
+      .line(await Base.help(cmd))
       .line(c.gray('direct command:'))
       .line(String(direct))
       .blank()

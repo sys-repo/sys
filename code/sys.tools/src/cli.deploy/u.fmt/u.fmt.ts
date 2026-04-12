@@ -1,4 +1,4 @@
-import { type t, c, D, Fmt as Base, Fs } from '../common.ts';
+import { type t, c, Fmt as Base, Fs } from '../common.ts';
 import { endpointTable } from './u.fmt.endpoint.ts';
 import { endpointValidation } from './u.fmt.validation.ts';
 
@@ -7,13 +7,14 @@ export const Fmt = {
   endpointValidation,
   endpointTable,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    return await Base.help(toolname, {
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('deploy');
+    return await Base.help(cmd, {
       note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
       usage: [
-        `${toolname}`,
-        `${toolname} --no-interactive --config ./my-config.yaml --action stage`,
-        `${toolname} --no-interactive --config ./my-config.yaml --action stage+push`,
+        `${cmd}`,
+        `${cmd} --no-interactive --config ./my-config.yaml --action stage`,
+        `${cmd} --no-interactive --config ./my-config.yaml --action stage+push`,
       ],
       options: [
         ['-h, --help', 'show help'],
@@ -22,10 +23,9 @@ export const Fmt = {
         ['--action <stage|push|stage+push>', 'run one direct endpoint action without prompts'],
       ],
       examples: [
-        `${toolname}`,
-        `${toolname} --no-interactive --config ./my-config.yaml --action stage`,
-        `${toolname} --no-interactive --config ./my-config.yaml --action push`,
-        `${toolname} --no-interactive --config ./my-config.yaml --action stage+push`,
+        `${cmd} --no-interactive --config ./my-config.yaml --action stage`,
+        `${cmd} --no-interactive --config ./my-config.yaml --action push`,
+        `${cmd} --no-interactive --config ./my-config.yaml --action stage+push`,
       ],
     });
   },

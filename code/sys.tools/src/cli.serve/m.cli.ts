@@ -15,7 +15,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = parseArgs(argv);
-  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  if (args.help) return void console.info(await Fmt.help(cwd));
 
   /* Migrate legacy configs (idempotent). */
   await ServeMigrate.run(cwd);

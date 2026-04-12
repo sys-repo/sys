@@ -23,7 +23,10 @@ async function run(cwd: t.StringDir, argv: string[]) {
   return await Process.inherit({
     cmd: 'deno',
     cwd,
-    env: { INIT_CWD: cwd },
+    env: {
+      INIT_CWD: cwd,
+      PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools fn',
+    },
     args: ['run', '-A', specifier, 'Profiles', ...argv],
   });
 }

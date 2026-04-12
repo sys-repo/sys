@@ -13,7 +13,7 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = parseArgs(argv);
-  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  if (args.help) return void console.info(await Fmt.help(cwd));
 
   /* Run */
   console.info(await Fmt.header(toolname));
