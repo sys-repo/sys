@@ -15,7 +15,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
     expect(text).to.contain('read: []   # extra readable paths');
     expect(text).to.contain('write: []  # extra writable paths');
     expect(text).to.contain('env: {}    # extra environment variables');
-    expect(text).to.contain('include: []');
+    expect(text).to.contain('include: []  # extra context files');
 
     const { dir, path } = await writeTempYaml(text);
     try {

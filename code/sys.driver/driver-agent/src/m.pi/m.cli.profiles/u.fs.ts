@@ -28,7 +28,7 @@ export const ProfilesFs = {
           write: []  # extra writable paths
           env: {}    # extra environment variables
         context:
-          include: []
+          include: []  # extra context files
 
       `,
     ).trimStart();
