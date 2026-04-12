@@ -7,7 +7,7 @@ function helpInput() {
   const tool = Deno.env.get(HELP_TOOL_ENV) || DEFAULT_TOOL;
   return {
     tool,
-    summary: 'Launch Pi via persisted profile configs.',
+    summary: 'Launch Pi via persisted profile configurations.',
     note:
       'Select a saved profile config, or pass --profile or --config to run one directly. Args after -- pass through to Pi.',
     usage: [
