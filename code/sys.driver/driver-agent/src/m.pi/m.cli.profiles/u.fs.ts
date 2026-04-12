@@ -1,9 +1,9 @@
-import { Fs, pkg, Schema, Str, type t, Yaml, YamlConfig } from './common.ts';
+import { Fs, Schema, Str, type t, Yaml } from './common.ts';
+import { PiFs } from '../u.fs.ts';
 import { ProfileSchema } from './u.schema.ts';
 import { ProfileYamlErrorCode, validateProfileYamlText } from './u.validate.ts';
 
-const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
-const PROFILES_DIR = `-config/${ROOT}.pi` satisfies t.PiCliProfiles.Yaml.DirName;
+const PROFILES_DIR = PiFs.configDir satisfies t.PiCliProfiles.Yaml.DirName;
 const PROFILES_EXT = '.yaml' satisfies t.PiCliProfiles.Yaml.Ext;
 
 export const ProfilesFs = {

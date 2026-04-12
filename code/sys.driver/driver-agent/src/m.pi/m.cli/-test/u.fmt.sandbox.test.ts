@@ -5,6 +5,7 @@ import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   it('table → renders cwd, scope and context rows', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
+      report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
       cwd: '/tmp/pi-cli-test',
       read: {
         summary: ['cwd', 'runtime', 'context'],
@@ -23,6 +24,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
 
     expect(text).to.contain('Sandbox:');
     expect(text).to.contain('━');
+    expect(text).to.match(/report\s+\/tmp\/pi-cli-test\/\.log\/@sys\.driver-agent\.pi\/1775975797\.abc123\.sandbox\.log\.md/);
     expect(text).to.contain('cwd');
     expect(text).to.contain('/tmp/pi-cli-test');
     expect(text).to.contain('cwd +');
@@ -73,10 +75,11 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     }));
 
     expect(text).to.match(/read\+\s+\.\.?\//);
-    expect(text).to.match(/\n\s+\/bin\/bash/);
+    expect(text).to.contain('read+      ./.tmp/pi.cli/deno, /bin/bash, /bin/sh, +4 more');
     expect(text).to.match(/context\+\s+\.\.?\//);
-    expect(text).to.match(/\n\s+~\/code\/org\.sys\/AGENTS\.md|\n\s+\/Users\/phil\/code\/org\.sys\/AGENTS\.md/);
+    expect(text).to.match(/\n\s+\/Users\/phil\/code\/org\.sys\/AGENTS\.md/);
     expect(text).not.to.contain('./CLAUDE.md');
+    expect(text).to.contain('+4 more');
   });
 
   it('table → keeps write+ for non-temp extra write scope', () => {

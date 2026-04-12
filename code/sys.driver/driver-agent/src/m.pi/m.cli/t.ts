@@ -81,6 +81,8 @@ export declare namespace PiCli {
 
   /** Resolved sandbox contract shown before launch. */
   export type SandboxSummary = {
+    /** Optional persisted report path for the full sandbox inspection artifact. */
+    readonly report?: t.StringPath;
     /** Working directory Pi starts in. */
     readonly cwd: t.StringDir;
     /** Effective read scope grouped for display. */

@@ -1,10 +1,12 @@
 import { c, Cli, Fs, Str, type t } from './common.ts';
 
 const DETAIL_WRAP_AT = 60;
+const DETAIL_PREVIEW_MAX = 3;
 
 export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary) {
     const table = Cli.table([]);
+    if (input.report) table.push([c.gray('report'), Cli.Fmt.Path.str(Fs.trimCwd(input.report))]);
     table.push([c.gray('cwd'), formatCwdPath(input.cwd)]);
     pushWriteDetailRows(table, input.cwd, input.write);
     table.push([c.gray('write'), formatWriteSummary(input.write)]);
@@ -87,14 +89,14 @@ function pushWriteDetailRows(
 
 function summarizeDetail(cwd: t.StringDir, input: readonly t.StringPath[]) {
   const items = input.map((path) => Cli.Fmt.Path.str(trimPath(path, cwd)));
-  if (items.length <= 6) return items;
-  return [...items.slice(0, 6), c.italic(c.cyan(`+${items.length - 6} more`))];
+  if (items.length <= DETAIL_PREVIEW_MAX) return items;
+  return [...items.slice(0, DETAIL_PREVIEW_MAX), c.italic(c.cyan(`+${items.length - DETAIL_PREVIEW_MAX} more`))];
 }
 
 function summarizeWriteDetail(cwd: t.StringDir, input: readonly t.StringPath[]) {
   const items = input.map((path) => formatWritePath(path, cwd));
-  if (items.length <= 6) return items;
-  return [...items.slice(0, 6), c.italic(c.cyan(`+${items.length - 6} more`))];
+  if (items.length <= DETAIL_PREVIEW_MAX) return items;
+  return [...items.slice(0, DETAIL_PREVIEW_MAX), c.italic(c.cyan(`+${items.length - DETAIL_PREVIEW_MAX} more`))];
 }
 
 function prettyPath(path: t.StringPath) {
