@@ -18,7 +18,7 @@ deno.json:
     subpaths: [ server, t ]
   - import: jsr:@sys/tmpl@0.0.320
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.327
+  - import: jsr:@sys/tools@0.0.329
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.274
   - import: jsr:@sys/ui-css@0.0.263
