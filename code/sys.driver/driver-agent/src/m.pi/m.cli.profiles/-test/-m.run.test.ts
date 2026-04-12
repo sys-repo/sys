@@ -4,7 +4,7 @@ import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
-  it('run → merges profile args, read scope and env into raw Pi launch', async () => {
+  it('run → merges typed profile sandbox policy and invocation args into raw Pi launch', async () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
@@ -13,7 +13,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         config,
         Str.dedent(
           `
-          args: [--model, gpt-5.4]
           sandbox:
             capability:
               read: [./profile-read]
@@ -46,7 +45,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       const res = await Profiles.run({
         cwd,
         config,
-        args: ['--help'],
+        args: ['--model', 'gpt-5.4', '--help'],
         read: ['./extra-read' as t.StringPath],
         write: ['./extra-write' as t.StringPath],
         env: { PI_PROFILE: 'override' },
@@ -68,7 +67,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         config,
         Str.dedent(
           `
-          args: [--model, gpt-5.4]
           sandbox:
             capability:
               env:
@@ -84,7 +82,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Profiles.run({ cwd, config });
+      const res = await Profiles.run({ cwd, config, args: ['--model', 'gpt-5.4'] });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;

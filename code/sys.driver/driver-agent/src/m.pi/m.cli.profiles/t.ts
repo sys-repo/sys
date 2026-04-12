@@ -36,7 +36,7 @@ export declare namespace PiCliProfiles {
     readonly cwd?: t.StringDir;
     /** Profile config YAML file. */
     readonly config: t.StringPath;
-    /** Extra Pi args appended after profile args. */
+    /** Extra Pi args appended at invocation time. */
     readonly args?: readonly string[];
     /** Environment overrides merged over profile env. */
     readonly env?: Record<string, string>;
@@ -113,14 +113,9 @@ export declare namespace PiCliProfiles {
 
     /** Guidance and instruction sources intentionally exposed to Pi. */
     export type Context = {
-      /** Enable generic `AGENTS.md` closest-then-walk-up discovery. */
-      readonly agents?: AgentsMode;
       /** Extra guidance files intentionally included in Pi's context. */
       readonly include?: readonly t.StringPath[];
     };
-
-    /** `AGENTS.md` discovery policy. */
-    export type AgentsMode = 'walk-up';
   }
 
   /** Persisted YAML document types. */
@@ -132,8 +127,6 @@ export declare namespace PiCliProfiles {
 
     /** YAML document persisted per profile config file. */
     export type Profile = {
-      /** Pi args applied before CLI passthrough args. */
-      readonly args?: readonly string[];
       /** Explicit sandbox policy for this profile. */
       readonly sandbox?: PiCliProfiles.Sandbox;
     };

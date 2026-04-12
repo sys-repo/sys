@@ -1,4 +1,4 @@
-import { Cli } from './common.ts';
+import { Cli, Str } from './common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
 const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-agent/pi/cli Profiles';
@@ -8,8 +8,10 @@ function helpInput() {
   return {
     tool,
     summary: 'Launch Pi via persisted profile configurations.',
-    note:
-      'Select a saved profile config, or pass --profile or --config to run one directly. Args after -- pass through to Pi.',
+    note: Str.dedent(`
+      Select a saved profile config, or pass --profile or --config to run one directly.
+      Defaults live in profile YAML; args after -- pass through to Pi.
+    `).trim(),
     usage: [
       `${tool} [--help]`,
       `${tool} [--profile <name> | --config <path>] [-- <pi-args...>]`,

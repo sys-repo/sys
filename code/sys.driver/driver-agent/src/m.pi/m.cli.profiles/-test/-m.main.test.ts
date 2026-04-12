@@ -66,7 +66,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         config,
         Str.dedent(
           `
-          args: [--model, gpt-5.4]
           sandbox:
             capability:
               read: [./canon]
@@ -79,7 +78,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
-        expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
+        expect(input.args).to.include.members(['--help']);
+        expect(input.args).not.to.include('--model');
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
       };
@@ -102,13 +102,18 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     try {
       await Deno.mkdir(Fs.dirname(config), { recursive: true });
       await Deno.writeTextFile(config, Str.dedent(`
-        args: [--model, gpt-5.4]
+        sandbox:
+          capability:
+            env:
+              PI_PROFILE: canon
       `).trimStart());
       console.info = () => {};
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
-        expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
+        expect(input.args).to.include.members(['--help']);
+        expect(input.args).not.to.include('--model');
+        expect(input.env?.PI_PROFILE).to.eql('canon');
         return { code: 0, success: true, signal: null };
       };
 

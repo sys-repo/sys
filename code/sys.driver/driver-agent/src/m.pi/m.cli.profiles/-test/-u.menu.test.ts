@@ -21,14 +21,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('# pi profile: default');
-      expect(text).to.contain('# Args passed through to Pi.');
+      expect(text).to.contain('# Typed Pi launcher policy.');
       expect(text).to.contain('# Sandbox paths resolve relative to the current working directory.');
-      expect(text).to.contain('args: []');
       expect(text).to.contain('sandbox:');
-      expect(text).to.contain('read: []');
-      expect(text).to.contain('write: []');
-      expect(text).to.contain('env: {}');
-      expect(text).to.contain('agents: walk-up');
+      expect(text).to.contain('read: []   # extra readable paths');
+      expect(text).to.contain('write: []  # extra writable paths');
+      expect(text).to.contain('env: {}    # extra environment variables');
       expect(text).to.contain('include: []');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });

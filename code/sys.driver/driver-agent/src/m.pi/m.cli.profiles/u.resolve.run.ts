@@ -21,7 +21,6 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const profile = checked.doc;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
-  const agents = context?.agents ?? 'walk-up';
   const read = [
     ...(capability?.read ?? []),
     ...(context?.include ?? []),
@@ -33,14 +32,14 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     read,
     write,
     context: {
-      agents,
+      agents: 'walk-up', // Include the nearest AGENTS.md and continue upward through parent folders.
       include: [...(context?.include ?? [])],
     },
   });
 
   return {
     cwd,
-    args: [...(profile.args ?? []), ...(input.args ?? [])],
+    args: [...(input.args ?? [])],
     read,
     write,
     env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },
