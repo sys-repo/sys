@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 
 const EXCLUDE: readonly string[] = ['.DS_Store'];
 

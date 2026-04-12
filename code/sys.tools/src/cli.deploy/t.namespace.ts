@@ -14,8 +14,15 @@ export namespace DeployTool {
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.Tools.CliArgs;
-  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+  export type CliAction = 'stage' | 'push' | 'stage+push';
+  export type CliArgs = t.Tools.CliArgs & {
+    config?: string;
+    action?: CliAction;
+    'no-interactive'?: boolean;
+  };
+  export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
+    interactive: boolean;
+  };
 
   export namespace Config {
     export type File = t.JsonFile<Doc>;
@@ -151,11 +158,11 @@ export namespace DeployTool {
   }
 
   export namespace Endpoint {
-      /**
-       * Filesystem conventions for endpoint YAML storage.
-       * - Root dir is relative to the CLI cwd.
-       * - Each endpoint is one YAML file named "<name>.yaml".
-       */
+    /**
+     * Filesystem conventions for endpoint YAML storage.
+     * - Root dir is relative to the CLI cwd.
+     * - Each endpoint is one YAML file named "<name>.yaml".
+     */
     export namespace Fs {
       export type DirName = `-config/${string}.deploy`;
       export type Ext = '.yaml';
@@ -177,6 +184,19 @@ export namespace DeployTool {
         | 'back';
       export type Option = { readonly name: string; readonly value: Action };
     }
+
+    export type RunAction = Extract<Menu.Action, 'stage' | 'push' | 'stage-push' | 'serve'>;
+    export type RunResult = {
+      readonly ok: boolean;
+      readonly stageOk?: boolean;
+      readonly push?: {
+        readonly ok: boolean;
+        readonly elapsed?: string;
+        readonly shards?: number;
+        readonly bytes?: number;
+      };
+      readonly error?: unknown;
+    };
   }
 
   export namespace Staging {
