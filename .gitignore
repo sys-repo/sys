@@ -9,6 +9,7 @@
 .env.*
 .swc
 .data
+.log
 
 dist
 dist.*
