@@ -38,7 +38,7 @@ export const Fmt = {
     const table = Cli.table([]);
 
     const upToDate = version.is.latest;
-    const remote = formatVersion(version.remote, upToDate);
+    const remote = formatVersion(version.remote, upToDate, '✔');
     const local = formatVersion(version.local, upToDate, '✔');
     const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
 
