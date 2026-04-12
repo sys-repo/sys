@@ -9,7 +9,7 @@ export type HttpServeArgs = {
   /** Directory to serve. */
   readonly dir?: t.StringDir;
   /** Disable the interactive keyboard listener. */
-  readonly 'no-interactive'?: boolean;
+  readonly 'non-interactive'?: boolean;
   /** Runtime keyboard-listener override. */
   readonly keyboard?: boolean;
 };

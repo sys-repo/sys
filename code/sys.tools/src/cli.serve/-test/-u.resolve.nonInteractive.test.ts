@@ -6,7 +6,7 @@ import { Fixture } from './u.ts';
 describe('@sys/tools/serve non-interactive resolution', () => {
   it('resolves --dir into a runtime location', async () => {
     const cwd = await Fixture.makeTempDir('serve-resolve');
-    const args = parseArgs(['--no-interactive', '--dir', './site', '--host', 'network', '--open']);
+    const args = parseArgs(['--non-interactive', '--dir', './site', '--host', 'network', '--open']);
     const res = await resolveNonInteractive(cwd, args);
 
     expect(res.host).to.eql('network');
@@ -21,7 +21,7 @@ describe('@sys/tools/serve non-interactive resolution', () => {
     await Fixture.writeFile(cwd, '-config/@sys.tools.serve/sample.yaml', 'name: Sample\ndir: ./dist\n');
     const yamlPath = `${configDir}/sample.yaml`;
 
-    const args = parseArgs(['--no-interactive', '--config', yamlPath]);
+    const args = parseArgs(['--non-interactive', '--config', yamlPath]);
     const res = await resolveNonInteractive(cwd, args);
 
     expect(res.host).to.eql('local');
@@ -34,11 +34,11 @@ describe('@sys/tools/serve non-interactive resolution', () => {
     const cwd = await Fixture.makeTempDir('serve-resolve');
 
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive'])),
       'Exactly one of --dir or --config is required',
     );
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--dir', '.', '--config', './x.yaml'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--dir', '.', '--config', './x.yaml'])),
       'Exactly one of --dir or --config is required',
     );
   });
@@ -46,7 +46,7 @@ describe('@sys/tools/serve non-interactive resolution', () => {
   it('rejects invalid --host', async () => {
     const cwd = await Fixture.makeTempDir('serve-resolve');
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--dir', '.', '--host', 'wide'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--dir', '.', '--host', 'wide'])),
       'Invalid --host value',
     );
   });

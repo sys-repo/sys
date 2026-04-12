@@ -18,7 +18,7 @@ export namespace DeployTool {
   export type CliArgs = t.Tools.CliArgs & {
     config?: string;
     action?: CliAction;
-    'no-interactive'?: boolean;
+    'non-interactive'?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     interactive: boolean;

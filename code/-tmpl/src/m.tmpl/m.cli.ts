@@ -57,7 +57,7 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
 async function resolveTemplate(args: CliParsedArgs): Promise<string> {
   if (Is.str(args.tmpl) && args.tmpl.length > 0) return args.tmpl;
   if (args.interactive) return Prompt.selectTemplate();
-  throw new Error('Missing required argument: <tmpl>. Provide a template name when using --no-interactive.');
+  throw new Error('Missing required argument: <tmpl>. Provide a template name when using --non-interactive.');
 }
 
 function assertLocalTemplate(name: string): t.TemplateName {
@@ -71,20 +71,20 @@ function assertLocalTemplate(name: string): t.TemplateName {
 async function resolveTargetDir(cwd: t.StringDir, args: CliParsedArgs): Promise<t.StringAbsoluteDir> {
   if (Is.str(args.dir) && args.dir.length > 0) return Fs.resolve(cwd, args.dir) as t.StringAbsoluteDir;
   if (args.interactive) return Prompt.directoryName(cwd);
-  throw new Error('Missing required flag: --dir (required with --no-interactive).');
+  throw new Error('Missing required flag: --dir (required with --non-interactive).');
 }
 
 function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): SetupOptions {
   if (tmplName === 'pkg') {
     if (!Is.str(args.pkgName) && !args.interactive) {
-      throw new Error(`Template "${tmplName}" requires --pkgName in --no-interactive mode.`);
+      throw new Error(`Template "${tmplName}" requires --pkgName in --non-interactive mode.`);
     }
     return { pkgName: args.pkgName };
   }
 
   if (tmplName === 'm.mod.ui' || tmplName === 'm.mod.ui.controller') {
     if (!Is.str(args.name) && !args.interactive) {
-      throw new Error(`Template "${tmplName}" requires --name in --no-interactive mode.`);
+      throw new Error(`Template "${tmplName}" requires --name in --non-interactive mode.`);
     }
     return { name: args.name };
   }

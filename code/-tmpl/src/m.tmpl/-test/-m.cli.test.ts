@@ -50,7 +50,7 @@ describe('m.tmpl/m.cli', () => {
       relTarget,
       '--pkgName',
       '@my-scope/agent-driven',
-      '--no-interactive',
+      '--non-interactive',
     ]);
 
     const selectTemplate = Prompt.selectTemplate;
@@ -58,10 +58,10 @@ describe('m.tmpl/m.cli', () => {
     const prompt = Prompt as unknown as PromptMutable;
     try {
       prompt.selectTemplate = async () => {
-        throw new Error('should not prompt for template in --no-interactive mode');
+        throw new Error('should not prompt for template in --non-interactive mode');
       };
       prompt.directoryName = async () => {
-        throw new Error('should not prompt for directory in --no-interactive mode');
+        throw new Error('should not prompt for directory in --non-interactive mode');
       };
       await cli(cwd, args);
     } finally {
@@ -76,7 +76,7 @@ describe('m.tmpl/m.cli', () => {
   it('non-interactive fails when --dir missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive'])),
       'Missing required flag: --dir',
     );
   });
@@ -84,12 +84,12 @@ describe('m.tmpl/m.cli', () => {
   it('non-interactive fails when required template params are missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive'])),
       'requires --pkgName',
     );
 
     await expectError(
-      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive'])),
       'requires --name',
     );
   });
@@ -133,7 +133,7 @@ describe('m.tmpl/m.cli', () => {
         '--pkgName',
         '@my-scope/agent-driven',
         '--force',
-        '--no-interactive',
+        '--non-interactive',
       ]),
     );
 

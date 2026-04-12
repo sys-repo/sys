@@ -7,9 +7,9 @@ describe('@sys/tools/serve u.args', () => {
     expect(res.interactive).to.eql(true);
   });
 
-  it('parses --no-interactive as strict mode', () => {
-    const res = parseArgs(['--no-interactive', '--dir', '.', '--host', 'network', '--open', '--port', '4040']);
-    expect(res['no-interactive']).to.eql(true);
+  it('parses --non-interactive as strict mode', () => {
+    const res = parseArgs(['--non-interactive', '--dir', '.', '--host', 'network', '--open', '--port', '4040']);
+    expect(res['non-interactive']).to.eql(true);
     expect(res.interactive).to.eql(false);
     expect(res.dir).to.eql('.');
     expect(res.host).to.eql('network');

@@ -11,14 +11,14 @@ export async function resolveNonInteractive(
 }> {
   const config = String(args.config ?? '').trim();
   if (!config) {
-    throw new Error('Missing required flag: --config (required with --no-interactive).');
+    throw new Error('Missing required flag: --config (required with --non-interactive).');
   }
 
   const action = toRunAction(args.action);
   if (!action) {
     const arg = String(args.action ?? '').trim();
     if (arg) throw new Error(`Invalid --action: ${arg}. Expected one of: stage, push, stage+push.`);
-    throw new Error('Missing required flag: --action (required with --no-interactive).');
+    throw new Error('Missing required flag: --action (required with --non-interactive).');
   }
 
   const yamlPath = Fs.resolve(cwd, config) as t.StringPath;

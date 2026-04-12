@@ -31,7 +31,7 @@ export namespace ServeTool {
     config?: string;
     host?: 'local' | 'network';
     open?: boolean;
-    'no-interactive'?: boolean;
+    'non-interactive'?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     interactive: boolean;

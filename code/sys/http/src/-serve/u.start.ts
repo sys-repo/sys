@@ -20,7 +20,7 @@ export async function start(args: t.HttpServeArgs) {
 
 /** Resolve whether the interactive keyboard listener should start. */
 export function resolveKeyboard(args: t.HttpServeArgs): boolean {
-  return args.keyboard ?? args['no-interactive'] !== true;
+  return args.keyboard ?? args['non-interactive'] !== true;
 }
 
 /**

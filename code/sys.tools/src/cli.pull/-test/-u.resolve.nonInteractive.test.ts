@@ -18,16 +18,16 @@ describe('@sys/tools/pull non-interactive resolution', () => {
       `).trimStart(),
     );
 
-    const res = await resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--config', `./${yamlRel}`]));
+    const res = await resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--config', `./${yamlRel}`]));
     expect(res.yamlPath).to.eql(`${cwd}/${yamlRel}`);
     expect(res.location.dir).to.eql(`${cwd}/workspace`);
     expect(res.location.bundles?.[0]?.kind).to.eql('http');
   });
 
-  it('requires --config with --no-interactive', async () => {
+  it('requires --config with --non-interactive', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.resolve.' })).absolute;
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive'])),
       'Missing required flag: --config',
     );
   });
@@ -35,7 +35,7 @@ describe('@sys/tools/pull non-interactive resolution', () => {
   it('fails clearly when the config cannot load', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.resolve.' })).absolute;
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--config', './missing.yaml'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--config', './missing.yaml'])),
       'Could not load pull config',
     );
   });

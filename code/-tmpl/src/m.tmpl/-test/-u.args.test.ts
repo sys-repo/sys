@@ -22,8 +22,8 @@ describe('m.tmpl/u.args', () => {
     expect(res._).to.eql(['pkg']);
   });
 
-  it('parses --no-interactive and template name flags', () => {
-    const res = parseArgs(['m.mod.ui', '--name', 'Button', '--dir', 'src/ui/Button', '--no-interactive']);
+  it('parses --non-interactive and template name flags', () => {
+    const res = parseArgs(['m.mod.ui', '--name', 'Button', '--dir', 'src/ui/Button', '--non-interactive']);
 
     expect(res.tmpl).to.eql('m.mod.ui');
     expect(res.name).to.eql('Button');

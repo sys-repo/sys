@@ -10,6 +10,6 @@ export type * from './u.push/t.ts';
  * CLI helpers for working with Deploy.
  */
 export type DeployToolsLib = {
-  /** Run the deploy CLI flow (interactive by default, strict with `--no-interactive`). */
+  /** Run the deploy CLI flow (interactive by default, strict with `--non-interactive`). */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };

@@ -113,7 +113,7 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
       bundle: false,
       dir: '.',
       help: false,
-      'no-interactive': true,
+      'non-interactive': true,
     }),
   );
   return root;
@@ -131,7 +131,7 @@ async function createPkg(root: t.StringDir, dir: string, pkgName: string) {
       dir,
       pkgName,
       help: false,
-      'no-interactive': true,
+      'non-interactive': true,
     }),
   );
 }

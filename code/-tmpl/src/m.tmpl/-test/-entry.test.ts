@@ -49,7 +49,7 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('Templates are selected by positional argument, not by JSR subpath.')).to.eql(true);
       expect(text.includes('Use: deno run -A jsr:@sys/tmpl repo')).to.eql(true);
       expect(text.includes('Not: deno run -A jsr:@sys/tmpl/repo')).to.eql(true);
-      expect(text.includes('deno run -A jsr:@sys/tmpl --no-interactive --dir my-repo repo')).to.eql(true);
+      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to.eql(true);
       expect(text.includes('repo      → no extra template flags; identity inferred from --dir')).to.eql(true);
       expect(text.includes('--dir <path>          target directory to create/update')).to.eql(true);
     } finally {

@@ -21,7 +21,7 @@ export async function createGeneratedRepoPkg(): Promise<{
     dir: 'code/projects/foo',
     pkgName: '@tmp/foo',
     help: false,
-    'no-interactive': true,
+    'non-interactive': true,
   });
 
   return { root, pkgDir };

@@ -9,15 +9,15 @@ export const Fmt = {
       note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
       usage: [
         `${cmd}`,
-        `${cmd} --no-interactive --config ./my-config.yaml`,
+        `${cmd} --non-interactive --config ./my-config.yaml`,
       ],
       options: [
         ['-h, --help', 'show help'],
-        ['--no-interactive', 'disable prompts and require direct inputs'],
+        ['--non-interactive', 'disable prompts and require direct inputs'],
         ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
       ],
       examples: [
-        `${cmd} --no-interactive --config ./my-config.yaml`,
+        `${cmd} --non-interactive --config ./my-config.yaml`,
       ],
     });
   },

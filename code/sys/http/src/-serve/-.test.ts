@@ -9,18 +9,18 @@ describe('@sys/http/serve', () => {
     expect(m.start).to.equal(start);
   });
 
-  it('args → parses --no-interactive as keyboardless mode', () => {
-    const res = parseArgs(['--no-interactive', '--dir', 'dist', '--port', '1234']);
+  it('args → parses --non-interactive as keyboardless mode', () => {
+    const res = parseArgs(['--non-interactive', '--dir', 'dist', '--port', '1234']);
 
-    expect(res['no-interactive']).to.eql(true);
+    expect(res['non-interactive']).to.eql(true);
     expect(res.dir).to.eql('dist');
     expect(res.port).to.eql(1234);
   });
 
-  it('keyboard → defaults on and --no-interactive turns it off', () => {
+  it('keyboard → defaults on and --non-interactive turns it off', () => {
     expect(resolveKeyboard({})).to.eql(true);
-    expect(resolveKeyboard({ 'no-interactive': true })).to.eql(false);
+    expect(resolveKeyboard({ 'non-interactive': true })).to.eql(false);
     expect(resolveKeyboard({ keyboard: false })).to.eql(false);
-    expect(resolveKeyboard({ keyboard: true, 'no-interactive': true })).to.eql(true);
+    expect(resolveKeyboard({ keyboard: true, 'non-interactive': true })).to.eql(true);
   });
 });

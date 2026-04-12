@@ -10,7 +10,7 @@ export async function resolveNonInteractive(
 }> {
   const hasConfig = typeof args.config === 'string' && args.config.trim().length > 0;
   if (!hasConfig) {
-    throw new Error('Missing required flag: --config (required with --no-interactive).');
+    throw new Error('Missing required flag: --config (required with --non-interactive).');
   }
 
   const yamlPath = Fs.resolve(cwd, args.config!) as t.StringPath;

@@ -15,7 +15,7 @@ export async function resolveNonInteractive(cwd: t.StringDir, args: t.ServeTool.
   const hasConfig = typeof args.config === 'string' && args.config.trim().length > 0;
 
   if (hasDir === hasConfig) {
-    throw new Error('Exactly one of --dir or --config is required with --no-interactive.');
+    throw new Error('Exactly one of --dir or --config is required with --non-interactive.');
   }
 
   if (hasDir) {

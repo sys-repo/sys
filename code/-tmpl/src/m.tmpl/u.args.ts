@@ -8,7 +8,7 @@ export type CliArgs = {
   name?: string;
   pkgName?: string;
   help?: boolean;
-  'no-interactive'?: boolean;
+  'non-interactive'?: boolean;
 };
 
 export type CliParsedArgs = {
@@ -24,13 +24,13 @@ export type CliParsedArgs = {
 export function parseArgs(argv: string[] = []): CliParsedArgs {
   const args = Args.parse<CliArgs>(argv, {
     alias: { h: 'help' },
-    boolean: ['bundle', 'dryRun', 'force', 'help', 'no-interactive'],
+    boolean: ['bundle', 'dryRun', 'force', 'help', 'non-interactive'],
     string: ['dir', 'name', 'pkgName'],
     default: { bundle: false, dryRun: false, force: false, help: false },
   });
 
   const tmpl = args._[0];
-  const interactive = args['no-interactive'] !== true;
+  const interactive = args['non-interactive'] !== true;
   return {
     ...args,
     tmpl,

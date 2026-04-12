@@ -5,7 +5,7 @@
  * ```bash
  * deno run -RNE jsr:@sys/http/serve
  * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
- * deno run -RNE jsr:@sys/http/serve --no-interactive --dir=dist
+ * deno run -RNE jsr:@sys/http/serve --non-interactive --dir=dist
  * ```
  */
 import { parseArgs } from './u.args.ts';
@@ -23,7 +23,7 @@ export { start };
  * ```bash
  * deno run -RNE jsr:@sys/http/serve
  * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
- * deno run -RNE jsr:@sys/http/serve --no-interactive --dir=dist
+ * deno run -RNE jsr:@sys/http/serve --non-interactive --dir=dist
  * ```
  */
 if (import.meta.main) {

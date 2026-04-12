@@ -88,7 +88,7 @@ export async function writePkg(root: string, dir = 'code/projects/foo', pkgName 
     dir,
     pkgName,
     help: false,
-    'no-interactive': true,
+    'non-interactive': true,
   });
 
   return Fs.join(root, dir);

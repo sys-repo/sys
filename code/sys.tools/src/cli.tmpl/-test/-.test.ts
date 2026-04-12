@@ -26,7 +26,7 @@ describe('tool: Tmpl', () => {
             calls.push(config);
             return { code: 0, success: true, signal: null };
           }, async () => {
-            await cli('/tmp/tool-cwd', ['pkg.deno', '--dir', 'code/ns/foo', '--no-interactive']);
+            await cli('/tmp/tool-cwd', ['pkg.deno', '--dir', 'code/ns/foo', '--non-interactive']);
           });
       });
     });
@@ -36,7 +36,7 @@ describe('tool: Tmpl', () => {
     expect(calls[0]?.args?.[0]).to.eql('run');
     expect(calls[0]?.args?.[1]).to.eql('-A');
     expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
-    expect(calls[0]?.args?.slice(3)).to.eql(['pkg.deno', '--dir', 'code/ns/foo', '--no-interactive']);
+    expect(calls[0]?.args?.slice(3)).to.eql(['pkg.deno', '--dir', 'code/ns/foo', '--non-interactive']);
   });
 
   it('inside @sys monorepo delegates to @sys/tmpl (no jsr prefix)', async () => {

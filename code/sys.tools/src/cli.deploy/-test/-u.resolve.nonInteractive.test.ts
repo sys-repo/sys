@@ -27,7 +27,7 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
 
     const res = await resolveNonInteractive(
       cwd,
-      parseArgs(['--no-interactive', '--config', `./${yamlRel}`, '--action', 'stage+push']),
+      parseArgs(['--non-interactive', '--config', `./${yamlRel}`, '--action', 'stage+push']),
     );
 
     expect(res.yamlPath).to.eql(`${cwd}/${yamlRel}`);
@@ -35,25 +35,25 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
     expect(res.action).to.eql('stage-push');
   });
 
-  it('requires --config with --no-interactive', async () => {
+  it('requires --config with --non-interactive', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--action', 'stage'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--action', 'stage'])),
       'Missing required flag: --config',
     );
   });
 
-  it('requires --action with --no-interactive', async () => {
+  it('requires --action with --non-interactive', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
     await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--no-interactive', '--config', './x.yaml'])),
+      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--config', './x.yaml'])),
       'Missing required flag: --action',
     );
   });
 
   it('fails clearly for invalid actions', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
-    const args = parseArgs(['--no-interactive', '--config', './x.yaml', '--action', 'serve']);
+    const args = parseArgs(['--non-interactive', '--config', './x.yaml', '--action', 'serve']);
     await expectError(() => resolveNonInteractive(cwd, args), 'Invalid --action');
   });
 });

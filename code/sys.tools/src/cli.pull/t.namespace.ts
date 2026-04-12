@@ -29,7 +29,7 @@ export namespace PullTool {
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & {
     config?: string;
-    'no-interactive'?: boolean;
+    'non-interactive'?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     readonly interactive: boolean;

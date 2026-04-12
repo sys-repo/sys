@@ -66,7 +66,7 @@ git push --force origin baseline-0
 ## /projects
 New projects:
 - via interactive CLI: `deno task tmpl:project`
-- via non-interactive/agent flow using `deno run ... @sys/tmpl ... --no-interactive`
+- via non-interactive/agent flow using `deno run ... @sys/tmpl ... --non-interactive`
 - after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>
