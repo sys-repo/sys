@@ -37,6 +37,25 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
       restoreEnv('TMPDIR', prevTmp);
     }
   });
+
+  it('classifies the resolved tmp dir as temp even when the path is outside heuristic defaults', async () => {
+    const prevTmp = Deno.env.get('TMPDIR');
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    try {
+      Deno.env.set('TMPDIR', '/var/tmp/pi-cli-runtime');
+
+      const res = await resolveSandboxSummary({
+        cwd,
+        write: ['./out' as t.StringPath],
+      });
+
+      expect(res.write?.summary).to.include.members(['cwd', 'temp', 'extra']);
+      expect(res.write?.detail).to.include('/var/tmp/pi-cli-runtime');
+      expect(res.write?.detail).to.include('./out');
+    } finally {
+      restoreEnv('TMPDIR', prevTmp);
+    }
+  });
 });
 
 function restoreEnv(name: string, value: string | undefined) {

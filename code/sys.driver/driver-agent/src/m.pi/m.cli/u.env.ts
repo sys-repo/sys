@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { Fs, Path, type t } from './common.ts';
 
 export const PiEnv = {
   toHome() {
@@ -21,8 +21,8 @@ export const PiEnv = {
     return (env('SHELL') || '/bin/bash') as t.StringDir;
   },
 
-  toTmpDir() {
-    return env('TMPDIR') || env('TMP') || env('TEMP') || undefined;
+  async toTmpDir() {
+    return env('TMPDIR') || env('TMP') || env('TEMP') || (await toPlatformTmpDir());
   },
 } as const;
 
@@ -31,4 +31,13 @@ export const PiEnv = {
  */
 function env(name: string) {
   return Deno.env.get(name);
+}
+
+async function toPlatformTmpDir() {
+  const probe = await Fs.makeTempDir({ prefix: 'driver-agent.pi.cli.' });
+  try {
+    return Path.dirname(probe.absolute) as t.StringDir;
+  } finally {
+    await Fs.remove(probe.absolute);
+  }
 }

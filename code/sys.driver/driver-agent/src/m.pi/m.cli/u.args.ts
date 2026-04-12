@@ -27,7 +27,7 @@ export const PiArgs = {
   ) {
     const denoDir = PiArgs.toDenoDir(cwd);
     const readScope = (await resolveRead(cwd, denoDir, read)).join(',');
-    const writeScope = resolveWrite(cwd, write).join(',');
+    const writeScope = (await resolveWrite(cwd, write)).join(',');
     const specifier = await resolvePkg({ cwd, pkg });
     return [
       'run',

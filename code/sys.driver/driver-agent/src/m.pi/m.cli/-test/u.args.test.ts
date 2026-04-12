@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, type t } from '../common.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
 
 describe(`@sys/driver-agent/pi/cli/u.args`, () => {
@@ -68,6 +68,30 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       await Deno.remove(depsDir, { recursive: true });
     }
   });
+
+  it('toArgs → falls back to the platform tmp dir when temp env vars are absent', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const prevTmpDir = Deno.env.get('TMPDIR');
+    const prevTmp = Deno.env.get('TMP');
+    const prevTemp = Deno.env.get('TEMP');
+    try {
+      restoreEnv('TMPDIR', undefined);
+      restoreEnv('TMP', undefined);
+      restoreEnv('TEMP', undefined);
+
+      const args = [...await PiArgs.toArgs(cwd, ['--help'])];
+      const readArg = findArg(args, '--allow-read=');
+      const writeArg = findArg(args, '--allow-write=');
+      const tmpDir = await toPlatformTmpDir();
+
+      expect(readArg).to.contain(tmpDir);
+      expect(writeArg).to.contain(tmpDir);
+    } finally {
+      restoreEnv('TMPDIR', prevTmpDir);
+      restoreEnv('TMP', prevTmp);
+      restoreEnv('TEMP', prevTemp);
+    }
+  });
 });
 
 function findArg(args: readonly string[], prefix: string) {
@@ -82,4 +106,13 @@ function restoreEnv(name: string, value: string | undefined) {
     return;
   }
   Deno.env.set(name, value);
+}
+
+async function toPlatformTmpDir() {
+  const probe = await Fs.makeTempDir({ prefix: 'driver-agent.pi.cli.test.' });
+  try {
+    return Path.dirname(probe.absolute) as t.StringDir;
+  } finally {
+    await Fs.remove(probe.absolute);
+  }
 }

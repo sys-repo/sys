@@ -1,4 +1,5 @@
 import { Fs, type t } from './common.ts';
+import { PiEnv } from './u.env.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
 import { PiArgs } from './u.args.ts';
@@ -12,30 +13,35 @@ export async function resolveSandboxSummary(args: {
   context?: t.PiCli.SandboxSummary['context'];
 }): Promise<t.PiCli.SandboxSummary> {
   const denoDir = PiArgs.toDenoDir(args.cwd);
+  const tmpDir = await PiEnv.toTmpDir();
   const read = await resolveRead(args.cwd, denoDir, [
     ...(args.read ?? []),
     ...(args.context?.include ?? []),
   ]);
-  const write = resolveWrite(args.cwd, args.write ?? []);
+  const write = await resolveWrite(args.cwd, args.write ?? []);
 
   const context = toContext(args.cwd, read, args.context);
 
   return {
     cwd: args.cwd,
-    read: toReadScope(args.cwd, read),
-    write: toWriteScope(args.cwd, write),
+    read: toReadScope(args.cwd, read, tmpDir),
+    write: toWriteScope(args.cwd, write, tmpDir),
     context,
   };
 }
 
-function toReadScope(cwd: t.StringDir, paths: readonly t.StringPath[]): t.PiCli.SandboxSummary.Scope {
+function toReadScope(
+  cwd: t.StringDir,
+  paths: readonly t.StringPath[],
+  tmpDir?: t.StringDir,
+): t.PiCli.SandboxSummary.Scope {
   const groups = new Set<string>(['cwd']);
   const detail: t.StringPath[] = [];
 
   for (const path of unique(paths)) {
     if (path === cwd) continue;
 
-    if (isRuntimeRead(cwd, path)) {
+    if (isRuntimeRead(cwd, path, tmpDir)) {
       groups.add('runtime');
       detail.push(path);
       continue;
@@ -72,13 +78,17 @@ function toContext(
   };
 }
 
-function toWriteScope(cwd: t.StringDir, paths: readonly t.StringPath[]): t.PiCli.SandboxSummary.Scope {
+function toWriteScope(
+  cwd: t.StringDir,
+  paths: readonly t.StringPath[],
+  tmpDir?: t.StringDir,
+): t.PiCli.SandboxSummary.Scope {
   const groups = new Set<string>(['cwd']);
   const detail: t.StringPath[] = [];
 
   for (const path of unique(paths)) {
     if (path === cwd) continue;
-    if (isTempPath(path)) groups.add('temp');
+    if (isTempPath(path, tmpDir)) groups.add('temp');
     else groups.add('extra');
     detail.push(path);
   }
@@ -100,8 +110,8 @@ function unique(paths: readonly t.StringPath[]) {
   return next;
 }
 
-function isRuntimeRead(cwd: t.StringDir, path: t.StringPath) {
-  return path === PiArgs.toDenoDir(cwd) || SHELLS.has(path) || isTempPath(path);
+function isRuntimeRead(cwd: t.StringDir, path: t.StringPath, tmpDir?: t.StringDir) {
+  return path === PiArgs.toDenoDir(cwd) || SHELLS.has(path) || isTempPath(path, tmpDir);
 }
 
 function isContextRead(cwd: t.StringDir, path: t.StringPath) {
@@ -120,6 +130,6 @@ function isProbeRead(cwd: t.StringDir, path: t.StringPath) {
   );
 }
 
-function isTempPath(path: t.StringPath) {
-  return path.startsWith('/tmp/') || path.includes('/T/');
+function isTempPath(path: t.StringPath, tmpDir?: t.StringDir) {
+  return tmpDir ? path === tmpDir || path.startsWith(`${tmpDir}/`) : false;
 }

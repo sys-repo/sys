@@ -9,7 +9,7 @@ export async function resolveRead(
   const scope = new Set<string>([cwd, denoDir]);
   for (const path of extra) scope.add(path);
   for (const path of toExecutableReadScope()) scope.add(path);
-  const tmpDir = PiEnv.toTmpDir();
+  const tmpDir = await PiEnv.toTmpDir();
   if (tmpDir) scope.add(tmpDir);
   const agentsSkillsDir = PiEnv.toAgentsSkillsDir();
   if (agentsSkillsDir) scope.add(agentsSkillsDir);
