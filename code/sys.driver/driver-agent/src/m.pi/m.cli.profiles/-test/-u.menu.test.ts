@@ -96,10 +96,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     try {
       const res = await menu({ cwd });
+      const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
-      expect(prints.join('\n')).to.contain('Sandbox:');
-      expect(prints.join('\n')).to.match(/report\s+.*\/\.log\/@sys\.driver-agent\.pi\/\d+\.[a-z0-9]+\.sandbox\.log\.md/);
-      expect(prints.join('\n')).to.contain('.sandbox.log.md');
+      expect(printed).to.contain('Sandbox:');
+      expect(printed).to.match(/report\s+.*\/\.log\/@sys\.driver-agent\.pi\/\d+\.[a-z0-9]+\.sandbox\.log\.md/);
+      expect(printed).to.contain('.sandbox.log.md');
       expect(prompts).to.eql(['Agent:\n', 'Agent:', 'Agent:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
