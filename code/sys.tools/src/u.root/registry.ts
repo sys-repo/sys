@@ -11,7 +11,7 @@ type ToolRegistryItem = {
 
 export const ROOT_REGISTRY: readonly ToolRegistryItem[] = [
   { id: 'agent', aliases: undefined, group: 'primary', specifier: '../cli.code/mod.ts' },
-  { id: 'tmpl', aliases: ['clone'], group: 'primary', specifier: '../cli.tmpl/mod.ts' },
+  { id: 'tmpl', aliases: undefined, group: 'primary', specifier: '../cli.tmpl/mod.ts' },
   { id: 'pull', aliases: undefined, group: 'primary', specifier: '../cli.pull/mod.ts' },
   { id: 'serve', aliases: undefined, group: 'primary', specifier: '../cli.serve/mod.ts' },
   { id: 'deploy', aliases: undefined, group: 'primary', specifier: '../cli.deploy/mod.ts' },
