@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Str, type t } from '../common.ts';
+import { Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 
@@ -20,6 +20,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         if (res.kind !== 'help') throw new Error('Expected help result.');
         expect(res.text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles');
         expect(res.text).to.contain('-h, --help');
+        expect(res.text).to.contain('--profile <name>');
         expect(res.text).to.contain('--config <path>');
         expect(res.text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4');
         expect(calls).to.eql([res.text]);
@@ -38,14 +39,14 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const prevInfo = console.info;
     const calls: string[] = [];
     try {
-      Deno.env.set('PI_CLI_PROFILES_HELP_TOOL', 'deno run -A jsr:@sys/tools fn');
+      Deno.env.set('PI_CLI_PROFILES_HELP_TOOL', 'deno run -A jsr:@sys/tools agent');
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       const res = await Profiles.main({ argv: ['--help'] });
       expect(res.kind).to.eql('help');
       if (res.kind !== 'help') throw new Error('Expected help result.');
-      expect(res.text).to.contain('deno run -A jsr:@sys/tools fn');
-      expect(res.text).to.contain('deno run -A jsr:@sys/tools fn --config ./my-config.yaml');
+      expect(res.text).to.contain('deno run -A jsr:@sys/tools agent');
+      expect(res.text).to.contain('deno run -A jsr:@sys/tools agent --profile canon');
       expect(calls).to.eql([res.text]);
     } finally {
       if (prev === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
@@ -91,5 +92,42 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       console.info = prevInfo;
       await Deno.remove(cwd, { recursive: true });
     }
+  });
+
+  it('main → resolves --profile via the standard profile file naming convention', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-agent.pi/canon.yaml` as t.StringPath;
+    try {
+      await Deno.mkdir(Fs.dirname(config), { recursive: true });
+      await Deno.writeTextFile(config, Str.dedent(`
+        args: [--model, gpt-5.4]
+      `).trimStart());
+      console.info = () => {};
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({ cwd, argv: ['--profile', 'canon', '--', '--help'] });
+      expect(res.kind).to.eql('run');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
+
+  it('main → rejects --config and --profile together', async () => {
+    let error = '';
+    try {
+      await Profiles.main({ argv: ['--config', './a.yaml', '--profile', 'canon'] });
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    }
+    expect(error).to.eql('--config and --profile are mutually exclusive; pass exactly one.');
   });
 });

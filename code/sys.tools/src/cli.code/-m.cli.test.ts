@@ -5,7 +5,7 @@ import { cli } from './m.cli.ts';
 function expectedEnv(cwd: t.StringDir) {
   return {
     INIT_CWD: cwd,
-    PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools fn',
+    PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools agent',
   } as const;
 }
 

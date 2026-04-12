@@ -5,12 +5,13 @@ export const ProfileArgs = {
     const args = Args.parse<t.PiCliProfiles.ParsedArgs>([...argv], {
       alias: { h: 'help' },
       boolean: ['help'],
-      string: ['config'],
+      string: ['config', 'profile'],
     });
 
     return {
       help: args.help === true,
       ...(args.config ? { config: args.config } : {}),
+      ...(args.profile ? { profile: args.profile } : {}),
       _: args._ ?? [],
     };
   },

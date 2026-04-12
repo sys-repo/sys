@@ -58,6 +58,7 @@ export declare namespace PiCliProfiles {
   export type ParsedArgs = {
     readonly help?: boolean;
     readonly config?: string;
+    readonly profile?: string;
     /** Pi args captured after `--`. */
     readonly _: readonly string[];
   };

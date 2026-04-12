@@ -9,17 +9,19 @@ function helpInput() {
     tool,
     summary: 'Launch Pi via persisted profile configs.',
     note:
-      'Select a saved profile config, or pass --config to run one directly. Args after -- pass through to Pi.',
+      'Select a saved profile config, or pass --profile or --config to run one directly. Args after -- pass through to Pi.',
     usage: [
       `${tool} [--help]`,
-      `${tool} [--config <path>] [-- <pi-args...>]`,
+      `${tool} [--profile <name> | --config <path>] [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
+      ['--profile <name>', 'skip the menu and load a named profile config'],
       ['--config <path>', 'skip the menu and load a profile config file'],
     ],
     examples: [
       `${tool}`,
+      `${tool} --profile canon`,
       `${tool} -- --model gpt-5.4`,
       `${tool} --config ./my-config.yaml`,
     ],

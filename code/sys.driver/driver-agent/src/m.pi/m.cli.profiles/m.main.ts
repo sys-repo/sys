@@ -3,6 +3,7 @@ import { run as runCli } from '../m.cli/m.run.ts';
 import { menu } from './u.menu.ts';
 import { ProfileArgs } from './u.args.ts';
 import { ProfilesFmt } from './u.fmt.help.ts';
+import { ProfilesFs } from './u.fs.ts';
 import { resolveRun } from './u.resolve.run.ts';
 
 export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
@@ -15,12 +16,21 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     return { kind: 'help', input, text };
   }
 
+  if (parsed.config && parsed.profile) {
+    throw new Error('--config and --profile are mutually exclusive; pass exactly one.');
+  }
+
   const picked = parsed.config
     ? {
       kind: 'selected' as const,
       config: parsed.config as t.StringPath,
     }
-    : await menu({ cwd });
+    : parsed.profile
+      ? {
+        kind: 'selected' as const,
+        config: ProfilesFs.fileOf(parsed.profile) as t.StringPath,
+      }
+      : await menu({ cwd });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
