@@ -5,13 +5,13 @@ describe('Root Menu', () => {
   it('drops leading whitespace-only table rows', () => {
     const lines = optionLines([
       '                                               ',
-      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '├─ @sys/tools agent                          ',
       '└─ @sys/tools update         (← alias up, info)',
       '  (exit)                                       ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools ƒn             (← alias agent)   ',
+      '├─ @sys/tools agent                          ',
       '└─ @sys/tools update         (← alias up, info)',
       '  (exit)                                       ',
     ]);
@@ -20,11 +20,11 @@ describe('Root Menu', () => {
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
       '\x1b[90m                                               \x1b[39m',
-      '├─ @sys/tools ƒ             (← aliases fn, agent)   ',
+      '├─ @sys/tools agent                              ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools ƒ             (← aliases fn, agent)   ',
+      '├─ @sys/tools agent                              ',
     ]);
   });
 

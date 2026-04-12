@@ -20,34 +20,28 @@ describe('Root Args', () => {
     }
   });
 
-  it('normalizes agent alias to the fn command', () => {
+  it('keeps agent as the canonical root command', () => {
     const res = parseArgs(['agent', 'x']);
-    expect(res.command).eql('fn');
-    expect(res._).eql(['fn', 'x']);
+    expect(res.command).eql('agent');
+    expect(res._).eql(['agent', 'x']);
   });
 
-  it('keeps the fn command as canonical', () => {
+  it('does not accept removed fn command', () => {
     const res = parseArgs(['fn', 'x']);
-    expect(res.command).eql('fn');
-    expect(res._).eql(['fn', 'x']);
-  });
-
-  it('normalizes branded alias to the fn command', () => {
-    const res = parseArgs(['ƒ', 'x']);
-    expect(res.command).eql('fn');
-    expect(res._).eql(['fn', 'x']);
-  });
-
-  it('normalizes short hidden alias to the fn command', () => {
-    const res = parseArgs(['f', 'x']);
-    expect(res.command).eql('fn');
-    expect(res._).eql(['fn', 'x']);
-  });
-
-  it('does not accept removed code alias', () => {
-    const res = parseArgs(['code', 'x']);
     expect(res.command).eql(undefined);
-    expect(res._).eql(['code', 'x']);
+    expect(res._).eql(['fn', 'x']);
+  });
+
+  it('does not accept removed branded alias', () => {
+    const res = parseArgs(['ƒ', 'x']);
+    expect(res.command).eql(undefined);
+    expect(res._).eql(['ƒ', 'x']);
+  });
+
+  it('does not accept removed short alias', () => {
+    const res = parseArgs(['f', 'x']);
+    expect(res.command).eql(undefined);
+    expect(res._).eql(['f', 'x']);
   });
 
   it('leaves command undefined when first positional is not a tool', () => {

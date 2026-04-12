@@ -25,9 +25,9 @@ export function rootRows(group?: RootRowGroup): RootRow[] {
     .forEach((item) =>
       add(
         item.id,
-        'label' in item ? item.label : undefined,
+        item.label,
         item.aliases,
-        'displayAliases' in item ? item.displayAliases : undefined,
+        item.displayAliases,
       )
     );
 
