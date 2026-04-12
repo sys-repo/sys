@@ -1,4 +1,4 @@
-import { type t, c, Cli, pkg } from './common.ts';
+import { type t, c, Cli, Fmt, pkg } from './common.ts';
 import { rootRows } from './u.rows.ts';
 import { dedent, trimEdgeNewlines } from './u.text.ts';
 
