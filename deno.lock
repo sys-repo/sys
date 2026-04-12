@@ -210,12 +210,14 @@
     "npm:prosemirror-state@1.4.4": "1.4.4",
     "npm:prosemirror-view@1.41.8": "1.41.8",
     "npm:ramda@0.32.0": "0.32.0",
+    "npm:react-dom@19.2.4": "19.2.4_react@19.2.5",
     "npm:react-dom@19.2.5": "19.2.5_react@19.2.5",
     "npm:react-error-boundary@6.1.1": "6.1.1_react@19.2.5",
     "npm:react-icons@5.5.0": "5.5.0_react@19.2.5",
     "npm:react-icons@5.6.0": "5.6.0_react@19.2.5",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.5",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.5_react-dom@19.2.5__react@19.2.5",
+    "npm:react@19.2.4": "19.2.4",
     "npm:react@19.2.5": "19.2.5",
     "npm:resend@*": "6.9.2",
     "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.60.1",
@@ -606,6 +608,7 @@
         "npm:@automerge/automerge-repo@2.5.3",
         "npm:@automerge/automerge@3.2.4",
         "npm:react-icons@5.5.0",
+        "npm:react@19.2.4",
         "npm:ws@8.19.0"
       ]
     },
@@ -1139,7 +1142,8 @@
         "jsr:@sys/ui-dom@^0.0.226",
         "jsr:@sys/ui-react-devharness",
         "jsr:@sys/yaml",
-        "npm:@octokit/rest"
+        "npm:@octokit/rest",
+        "npm:react@19.2.4"
       ]
     },
     "@sys/types@0.0.231": {
@@ -1195,7 +1199,8 @@
       "dependencies": [
         "jsr:@sys/color@^0.0.185",
         "jsr:@sys/std@^0.0.290",
-        "jsr:@sys/types@^0.0.231"
+        "jsr:@sys/types@^0.0.231",
+        "npm:react@19.2.4"
       ]
     },
     "@sys/ui-css@0.0.235": {
@@ -1239,7 +1244,8 @@
         "jsr:@sys/ui-css@^0.0.220",
         "jsr:@sys/ui-dom@^0.0.226",
         "npm:@preact/signals-react@3.9.0",
-        "npm:@testing-library/react"
+        "npm:@testing-library/react",
+        "npm:react@19.2.4"
       ]
     },
     "@sys/ui-react-components@0.0.186": {
@@ -1259,10 +1265,12 @@
         "jsr:@sys/yaml",
         "npm:@svgdotjs/svg.js",
         "npm:motion@12.34.2",
+        "npm:react-dom@19.2.4",
         "npm:react-error-boundary",
         "npm:react-icons@5.5.0",
         "npm:react-inspector",
-        "npm:react-spinners"
+        "npm:react-spinners",
+        "npm:react@19.2.4"
       ]
     },
     "@sys/ui-react-devharness@0.0.231": {
@@ -1276,7 +1284,8 @@
         "jsr:@sys/ui-dom@^0.0.226",
         "jsr:@sys/ui-react",
         "npm:react-error-boundary",
-        "npm:react-icons@5.5.0"
+        "npm:react-icons@5.5.0",
+        "npm:react@19.2.4"
       ]
     },
     "@sys/ui-react-devharness@0.0.252": {
@@ -2805,8 +2814,8 @@
       "dependencies": [
         "@monaco-editor/loader",
         "monaco-editor",
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ]
     },
     "@noble/hashes@1.8.0": {
@@ -2915,7 +2924,7 @@
       "integrity": "sha512-Uxu6lidNVr9z27b/6DbCin86ekzHiJDrLXZii82aXSzvyMXYMr7l0Bab1cKbfWdbkxq13e7kS7paix3pjKBTLA==",
       "dependencies": [
         "@preact/signals-core@1.14.1",
-        "react",
+        "react@19.2.5",
         "use-sync-external-store"
       ]
     },
@@ -2923,7 +2932,7 @@
       "integrity": "sha512-C0Qn4AiAYEAHbg7/UEMgdJd+GNDnP/OxI1tk+8WDco9QFIh4gbW+r9V2K4M6OAB6A/ztHW/uZ8/kwBnxNSB94g==",
       "dependencies": [
         "@preact/signals-core@1.14.1",
-        "react",
+        "react@19.2.5",
         "use-sync-external-store"
       ]
     },
@@ -3535,8 +3544,8 @@
         "@testing-library/dom",
         "@types/react",
         "@types/react-dom",
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ],
       "optionalPeers": [
         "@types/react",
@@ -4294,13 +4303,13 @@
       "dependencies": [
         "motion-dom",
         "motion-utils",
-        "react",
-        "react-dom",
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5",
         "tslib"
       ],
       "optionalPeers": [
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ]
     },
     "fsevents@2.3.3": {
@@ -4692,26 +4701,26 @@
       "integrity": "sha512-QAthwCtW6N0TpZ+bBmBMzdwuftoay2yFV2DT44jRcUQhPbFPdAX+pjzmIUNM3sMYDD5OAraJagRGAKE8q5OsmA==",
       "dependencies": [
         "framer-motion",
-        "react",
-        "react-dom",
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5",
         "tslib"
       ],
       "optionalPeers": [
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ]
     },
     "motion@12.38.0_react@19.2.5_react-dom@19.2.5__react@19.2.5": {
       "integrity": "sha512-uYfXzeHlgThchzwz5Te47dlv5JOUC7OB4rjJ/7XTUgtBZD8CchMN8qEJ4ZVsUmTyYA44zjV0fBwsiktRuFnn+w==",
       "dependencies": [
         "framer-motion",
-        "react",
-        "react-dom",
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5",
         "tslib"
       ],
       "optionalPeers": [
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ]
     },
     "mouse-change@1.4.0": {
@@ -5156,35 +5165,42 @@
     "ramda@0.32.0": {
       "integrity": "sha512-GQWAHhxhxWBWA8oIBr1XahFVjQ9Fic6MK9ikijfd4TZHfE2+urfk+irVlR5VOn48uwMgM+loRRBJd6Yjsbc0zQ=="
     },
+    "react-dom@19.2.4_react@19.2.5": {
+      "integrity": "sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==",
+      "dependencies": [
+        "react@19.2.5",
+        "scheduler"
+      ]
+    },
     "react-dom@19.2.5_react@19.2.5": {
       "integrity": "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag==",
       "dependencies": [
-        "react",
+        "react@19.2.5",
         "scheduler"
       ]
     },
     "react-error-boundary@6.1.1_react@19.2.5": {
       "integrity": "sha512-BrYwPOdXi5mqkk5lw+Uvt0ThHx32rCt3BkukS4X23A2AIWDPSGX6iaWTc0y9TU/mHDA/6qOSGel+B2ERkOvD1w==",
       "dependencies": [
-        "react"
+        "react@19.2.5"
       ]
     },
     "react-icons@5.5.0_react@19.2.5": {
       "integrity": "sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==",
       "dependencies": [
-        "react"
+        "react@19.2.5"
       ]
     },
     "react-icons@5.6.0_react@19.2.5": {
       "integrity": "sha512-RH93p5ki6LfOiIt0UtDyNg/cee+HLVR6cHHtW3wALfo+eOHTp8RnU2kRkI6E+H19zMIs03DyxUG/GfZMOGvmiA==",
       "dependencies": [
-        "react"
+        "react@19.2.5"
       ]
     },
     "react-inspector@9.0.0_react@19.2.5": {
       "integrity": "sha512-w/VJucSeHxlwRa2nfM2k7YhpT1r5EtlDOClSR+L7DyQP91QMdfFEDXDs9bPYN4kzP7umFtom7L0b2GGjph4Kow==",
       "dependencies": [
-        "react"
+        "react@19.2.5"
       ]
     },
     "react-is@17.0.2": {
@@ -5196,9 +5212,12 @@
     "react-spinners@0.17.0_react@19.2.5_react-dom@19.2.5__react@19.2.5": {
       "integrity": "sha512-L/8HTylaBmIWwQzIjMq+0vyaRXuoAevzWoD35wKpNTxxtYXWZp+xtgkfD7Y4WItuX0YvdxMPU79+7VhhmbmuTQ==",
       "dependencies": [
-        "react",
-        "react-dom"
+        "react@19.2.5",
+        "react-dom@19.2.5_react@19.2.5"
       ]
+    },
+    "react@19.2.4": {
+      "integrity": "sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ=="
     },
     "react@19.2.5": {
       "integrity": "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="
@@ -5553,7 +5572,7 @@
     "use-sync-external-store@1.6.0_react@19.2.5": {
       "integrity": "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==",
       "dependencies": [
-        "react"
+        "react@19.2.5"
       ]
     },
     "uuid@10.0.0": {
