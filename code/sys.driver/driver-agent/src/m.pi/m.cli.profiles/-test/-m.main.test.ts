@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, Str, type t } from '../common.ts';
+import { Cli, Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 
@@ -45,8 +45,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       const res = await Profiles.main({ argv: ['--help'] });
       expect(res.kind).to.eql('help');
       if (res.kind !== 'help') throw new Error('Expected help result.');
-      expect(res.text).to.contain('deno run -A jsr:@sys/tools agent');
-      expect(res.text).to.contain('deno run -A jsr:@sys/tools agent --profile canon');
+      const text = Cli.stripAnsi(res.text);
+      expect(text).to.contain('deno run -A jsr:@sys/tools agent');
+      expect(text).to.contain('deno run -A jsr:@sys/tools agent --profile my-canon');
       expect(calls).to.eql([res.text]);
     } finally {
       if (prev === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
