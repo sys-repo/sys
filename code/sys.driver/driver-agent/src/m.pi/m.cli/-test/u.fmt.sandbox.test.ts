@@ -22,7 +22,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
       },
     }));
 
-    expect(text).to.contain('Sandbox:');
+    expect(text).to.contain('Sandbox');
     expect(text).to.contain('━');
     expect(text).to.match(/report\s+\/tmp\/pi-cli-test\/\.log\/@sys\.driver-agent\.pi\/1775975797\.abc123\.sandbox\.log\.md/);
     expect(text).to.contain('/tmp/pi-cli-test');

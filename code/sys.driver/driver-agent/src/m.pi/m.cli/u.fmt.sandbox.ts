@@ -15,7 +15,7 @@ export const PiSandboxFmt = {
 
     return Str.builder()
       .line(Cli.Fmt.hr(72, 'green'))
-      .line(c.bold(c.green('Sandbox:')))
+      .line(c.bold(c.green('Sandbox')))
       .line(Str.trimEdgeNewlines(String(table)))
       .toString();
   },
