@@ -72,9 +72,9 @@ const HELP = {
 function templateProvenance() {
   const items = [
     c.gray('@sys/tmpl/repo (workspace)'),
-    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('foo')}`,
-    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('bar')}`,
-    `${c.gray('@sys/tmpl/pkg/')}${c.cyan('baz')}${c.gray(c.italic(' ← (pruned)'))}`,
+    templatePkg('foo'),
+    templatePkg('bar'),
+    `${templatePkg('baz', 'brightYellow')}${c.gray(c.italic(' ← (pruned)'))}`,
   ] as const;
   return [
     '',
@@ -82,4 +82,8 @@ function templateProvenance() {
     ...items.map((item, i) => ` ${Cli.Fmt.Tree.branch([i, items])} ${item}`),
     '',
   ] as const;
+}
+
+function templatePkg(name: string, tone: 'cyan' | 'brightYellow' = 'cyan') {
+  return `${c.gray('@sys/tmpl/pkg/')}${c[tone](name)}`;
 }
