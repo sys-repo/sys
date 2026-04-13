@@ -25,27 +25,17 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('Sandbox:');
     expect(text).to.contain('━');
     expect(text).to.match(/report\s+\/tmp\/pi-cli-test\/\.log\/@sys\.driver-agent\.pi\/1775975797\.abc123\.sandbox\.log\.md/);
-    expect(text).to.contain('cwd');
     expect(text).to.contain('/tmp/pi-cli-test');
-    expect(text).to.contain('cwd +');
-    expect(text).to.contain('runtime');
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test/);
+    expect(text).to.not.contain('AGENTS.md walk-up');
+    expect(text).to.not.contain('discovered context');
+    expect(text).to.not.contain('extra context');
+    expect(text).to.contain('read');
     expect(text).to.contain('context');
-    expect(text).to.contain('tmp');
-    expect(text).to.match(/cwd\s+.*\ntmp\s+.*\nwrite\s+cwd \+ tmp/s);
-    expect(text).not.to.match(/cwd\s*\n/);
-    expect(text).to.contain('AGENTS.md walk-up');
-    expect(text).to.contain('discovered context');
-    expect(text).to.contain('extra context');
-    expect(text).to.contain('read+');
-    expect(text).to.contain('tmp');
-    expect(text).not.to.contain('write+');
-    expect(text).to.contain('context+');
-    expect(text).to.contain('.tmp/pi.cli/');
-    expect(text).to.contain('./AGENTS.md');
-    expect(text).to.contain('./extra.md');
+    expect(text).to.contain('..');
   });
 
-  it('table → aligns wrapped detail rows under the value column', () => {
+  it('table → keeps read and context compact with preview overflow', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
       cwd: '/tmp/pi-cli-test',
       read: {
@@ -74,24 +64,29 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
       },
     }));
 
-    expect(text).to.match(/read\+\s+\.\.?\//);
-    expect(text).to.contain('read+      ./.tmp/pi.cli/deno, /bin/bash, /bin/sh, +4 more');
-    expect(text).to.match(/context\+\s+\.\.?\//);
-    expect(text).to.match(/\n\s+\/Users\/phil\/code\/org\.sys\/AGENTS\.md/);
+    expect(text).to.contain('read');
+    expect(text).to.contain('/bin/bash');
+    expect(text).to.contain('context');
+    expect(text).to.contain('..');
     expect(text).not.to.contain('./CLAUDE.md');
+    expect(text).to.contain('+5 more');
     expect(text).to.contain('+4 more');
   });
 
-  it('table → keeps write+ for non-temp extra write scope', () => {
+  it('table → spells out all write roots with continuation rows', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
       cwd: '/tmp/pi-cli-test',
       write: {
         summary: ['cwd', 'temp', 'extra'],
-        detail: ['/tmp/pi-cli-runtime', '/tmp/pi-cli-test/out'],
+        detail: ['/tmp/pi-cli-runtime', '/tmp/pi-cli-test/out', '/opt/pi-cli-extra'],
       },
     }));
 
-    expect(text).to.contain('write+');
-    expect(text).not.to.match(/\nt\s+\/tmp/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test/);
+    expect(text).to.contain(':tmp');
+    expect(text).to.contain('/tmp/pi-cli-runtime');
+    expect(text).to.contain('./out');
+    expect(text).to.contain(':extra');
+    expect(text).to.contain('/opt/pi-cli-extra');
   });
 });
