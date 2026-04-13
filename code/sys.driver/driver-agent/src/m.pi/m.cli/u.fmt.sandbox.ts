@@ -14,8 +14,8 @@ export const PiSandboxFmt = {
     pushWriteRows(table, input.cwd, input.write);
 
     return Str.builder()
-      .line(Cli.Fmt.hr(72, 'green'))
-      .line(c.bold(c.green('Sandbox')))
+      .line(Cli.Fmt.hr(72, 'cyan'))
+      .line(c.bold(c.cyan('Sandbox')))
       .line(Str.trimEdgeNewlines(String(table)))
       .toString();
   },
