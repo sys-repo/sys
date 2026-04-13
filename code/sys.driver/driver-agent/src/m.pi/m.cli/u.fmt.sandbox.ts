@@ -94,7 +94,7 @@ function formatPreviewPath(path: string) {
   const value = path.length > PREVIEW_ITEM_MAX[0] + PREVIEW_ITEM_MAX[1] + 2
     ? Str.ellipsize(path, PREVIEW_ITEM_MAX, '..')
     : path;
-  return c.white(value);
+  return c.gray(value);
 }
 
 function isTempWritePath(path: t.StringPath, cwd: t.StringDir) {
