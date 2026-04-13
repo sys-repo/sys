@@ -25,3 +25,13 @@ LLM + shell + fs + markdown + cron == "agent" (🦞)
  ↑ file-system, `fs` (state, .md)  
  ↑ shell, `bash`  
  ↑ language-model (LLM)
+
+
+
+<p>&nbsp;</p>
+
+----
+
+### Refs
+
+- Mario Zechner, [Pi](https://pi.dev/) creator - [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0), [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY)
