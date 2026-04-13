@@ -26,7 +26,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('━');
     expect(text).to.match(/report\s+\/tmp\/pi-cli-test\/\.log\/@sys\.driver-agent\.pi\/1775975797\.abc123\.sandbox\.log\.md/);
     expect(text).to.contain('/tmp/pi-cli-test');
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\//);
     expect(text).to.not.contain('AGENTS.md walk-up');
     expect(text).to.not.contain('discovered context');
     expect(text).to.not.contain('extra context');
@@ -82,11 +82,11 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
       },
     }));
 
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\//);
     expect(text).to.contain(':tmp');
-    expect(text).to.contain('/tmp/pi-cli-runtime');
-    expect(text).to.contain('./out');
+    expect(text).to.contain('/tmp/pi-cli-runtime/');
+    expect(text).to.contain('./out/');
     expect(text).to.contain(':extra');
-    expect(text).to.contain('/opt/pi-cli-extra');
+    expect(text).to.contain('/opt/pi-cli-extra/');
   });
 });

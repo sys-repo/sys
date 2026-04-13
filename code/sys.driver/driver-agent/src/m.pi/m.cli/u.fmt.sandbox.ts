@@ -72,7 +72,7 @@ function prettyPath(path: t.StringPath) {
 }
 
 function formatWritePath(path: t.StringPath, cwd: t.StringDir) {
-  return c.gray(Cli.Fmt.path(path === cwd ? prettyPath(path) : trimPath(path, cwd), (e) => {
+  return c.gray(Cli.Fmt.path(normalizeWritePath(path, cwd), (e) => {
     if (e.is.basename) e.change(c.yellow(e.part));
   }));
 }
@@ -82,6 +82,14 @@ function trimPath(path: t.StringPath, cwd: t.StringDir) {
   const prefix = `${cwd}/`;
   if (!path.startsWith(prefix)) return Fs.trimCwd(path);
   return `./${path.slice(prefix.length)}`;
+}
+
+function normalizeWritePath(path: t.StringPath, cwd: t.StringDir) {
+  return withTrailingSlash(path === cwd ? prettyPath(path) : trimPath(path, cwd));
+}
+
+function withTrailingSlash(path: string) {
+  return path.endsWith('/') ? path : `${path}/`;
 }
 
 function previewPath(path: t.StringPath, cwd: t.StringDir) {
