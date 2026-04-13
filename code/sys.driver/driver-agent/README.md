@@ -34,4 +34,5 @@ LLM + shell + fs + markdown + cron == "agent" (🦞)
 
 ### Refs
 
-- Mario Zechner, [Pi](https://pi.dev/) creator - [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0), [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY)
+- Mario Zechner, [Pi](https://pi.dev/) creator - [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0)
+- Lucas Meijer - [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY)
