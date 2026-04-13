@@ -25,7 +25,7 @@ describe('cli.update.runUpdate', () => {
       },
       prompt: async () => {
         prompted = true;
-        return 'update';
+        return 'upgrade';
       },
       spinner: () => spinner(events),
       info: (...data) => {
@@ -59,7 +59,7 @@ describe('cli.update.runUpdate', () => {
       }),
       prompt: async () => {
         events.push('prompt');
-        return 'update';
+        return 'upgrade';
       },
       spinner: () => spinner(events),
       info: (...data) => {
@@ -74,7 +74,7 @@ describe('cli.update.runUpdate', () => {
     expect(plain.findIndex((line) => line.includes('start:checking latest @sys/tools version...'))).to.be.lessThan(
       plain.indexOf('prompt'),
     );
-    expect(plain.findIndex((line) => line.includes('start:updating @sys/tools from 0.0.318 to 0.0.319...'))).to.be.greaterThan(
+    expect(plain.findIndex((line) => line.includes('start:upgrading @sys/tools from 0.0.318 to 0.0.319...'))).to.be.greaterThan(
       plain.indexOf('prompt'),
     );
   });

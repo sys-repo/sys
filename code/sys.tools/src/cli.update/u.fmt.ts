@@ -22,7 +22,7 @@ export const Fmt = {
     const a = c.yellow(`sys update --latest ${c.gray('[-l]')}`);
     const b = c.gray(`# ↑ equiv: deno cache --reload jsr:@sys/tools`);
     str
-      .line(c.gray('To update to latest run:'))
+      .line(c.gray('To upgrade to latest run:'))
       .line()
       .line(c.italic(`  ${a}`))
       .line(c.italic(`  ${b}`))
@@ -40,7 +40,7 @@ export const Fmt = {
     const upToDate = version.is.latest;
     const remote = formatVersion(version.remote, upToDate, '✔');
     const local = formatVersion(version.local, upToDate, '✔');
-    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
+    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(upgrade available)'))}`);
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);

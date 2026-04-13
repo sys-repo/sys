@@ -59,14 +59,14 @@ export async function runUpdate(
     return;
   }
 
-  const UPDATE = 'update';
+  const UPGRADE = 'upgrade';
   const EXIT = '__exit__';
 
   if (interactive) {
     const answer = await deps.prompt({
       message: 'Run',
       options: [
-        { name: ` - update to ${c.green(version.latest)} now`, value: UPDATE },
+        { name: ` - upgrade to ${c.green(version.latest)} now`, value: UPGRADE },
         { name: c.dim(c.gray(`(exit)`)), value: EXIT },
       ],
     });
@@ -77,7 +77,7 @@ export async function runUpdate(
     }
   }
 
-  const msg = `updating ${c.white(pkg.name)} from ${version.local} to ${c.green(version.latest)}...`;
+  const msg = `upgrading ${c.white(pkg.name)} from ${version.local} to ${c.green(version.latest)}...`;
 
   /** Run process: */
   const spinner = deps.spinner();
