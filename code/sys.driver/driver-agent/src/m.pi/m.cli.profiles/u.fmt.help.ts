@@ -23,9 +23,9 @@ function helpInput() {
     ],
     examples: [
       `${tool}`,
-      `${tool} --profile canon`,
+      `${tool} --profile my-canon`,
       `${tool} -- --model gpt-5.4`,
-      `${tool} --config ./my-config.yaml`,
+      `${tool} --config ./my-canon.yaml`,
     ],
   } as const;
 }
