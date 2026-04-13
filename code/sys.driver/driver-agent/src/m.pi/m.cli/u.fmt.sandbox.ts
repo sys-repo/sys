@@ -6,12 +6,12 @@ export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary) {
     const table = Cli.table([]);
     if (input.report) table.push([c.gray('report'), Cli.Fmt.Path.str(Fs.trimCwd(input.report))]);
-    pushWriteRows(table, input.cwd, input.write);
-    table.push([c.gray('read'), formatPreview(cwdAndDetail(input.cwd, input.read?.detail ?? []))]);
     table.push([c.gray('context'), formatPreview([
       ...(input.context?.detail ?? []),
       ...(input.context?.include ?? []),
     ], input.cwd)]);
+    table.push([c.gray('read'), formatPreview(cwdAndDetail(input.cwd, input.read?.detail ?? []))]);
+    pushWriteRows(table, input.cwd, input.write);
 
     return Str.builder()
       .line(Cli.Fmt.hr(72, 'green'))

@@ -33,6 +33,14 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('read');
     expect(text).to.contain('context');
     expect(text).to.contain('..');
+    const reportIndex = text.indexOf('report');
+    const contextIndex = text.indexOf('context');
+    const readIndex = text.indexOf('read');
+    const writeIndex = text.indexOf('write:cwd');
+    expect(contextIndex).to.be.greaterThan(-1);
+    expect(contextIndex).to.be.greaterThan(reportIndex);
+    expect(readIndex).to.be.greaterThan(contextIndex);
+    expect(writeIndex).to.be.greaterThan(readIndex);
   });
 
   it('table → keeps read and context compact with preview overflow', () => {
