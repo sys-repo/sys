@@ -1,4 +1,6 @@
 import { Fs, type t } from './common.ts';
+import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
+import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { run as runCli } from '../m.cli/m.run.ts';
 import { menu } from './u.menu.ts';
 import { ProfileArgs } from './u.args.ts';
@@ -43,6 +45,8 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     write: input.write,
     pkg: input.pkg,
   });
+  const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
+  console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
   const output = await runCli(resolved);
 
   return { kind: 'run', input, parsed, output };
