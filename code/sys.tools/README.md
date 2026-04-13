@@ -1,6 +1,7 @@
 # @sys/tools
-Common system tools index (with Programmatic and CLI entry-points).
+CLI surface for @sys primitive compositions.
 
 ```bash
 deno run -A jsr:@sys/tools
+deno run -A jsr:@sys/tools --help
 ```
