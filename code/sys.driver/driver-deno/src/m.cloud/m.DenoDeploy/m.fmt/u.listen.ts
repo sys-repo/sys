@@ -266,7 +266,7 @@ const wrangle = {
   },
 
   formatSpinnerElapsed(elapsed: t.Msecs) {
-    if (elapsed < 60_000) return Time.duration(elapsed).format({ round: 1 });
+    if (elapsed < 60_000) return `${Math.floor(elapsed / 1000)}s`;
     return `${Num.round((elapsed / 60_000), 2).toFixed(2)}m`;
   },
 

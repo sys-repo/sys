@@ -187,7 +187,9 @@ describe('DenoDeploy.Fmt', () => {
 
   it('renders sub-minute spinner elapsed from the elapsed duration value', () => {
     expect(stripAnsi(ListenFmt.buildSpinnerText(10_000))).to.include('10s');
-    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(1_500))).to.include('1.5s');
+    expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(1_500))).to.include('1s');
+    expect(stripAnsi(ListenFmt.buildSpinnerText(54_100))).to.include('54s');
+    expect(stripAnsi(ListenFmt.buildSpinnerText(54_100))).to.not.include('54.1s');
   });
 
   it('renders a compact pipeline failure block', () => {
