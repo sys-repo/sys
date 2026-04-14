@@ -1,56 +1,18 @@
 import type { CliSpinner } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
-import { c, Cli, DenoDeps, DenoFile, Fs, Process } from './common.ts';
+import { c, Cli, DenoFile, Fs, Process } from './common.ts';
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
 
 type CommitContext = 'prep' | 'bump';
 export type { CommitContext };
 
 /**
- * Process the dependencies into `deno.json` and `package.json` files.
- */
-async function processDeps() {
-  const res = await DenoDeps.from('./deps.yaml');
-  if (res.error) {
-    console.error(res.error);
-    return;
-  }
-
-  const PATH = {
-    package: './package.json',
-    deno: './imports.json',
-  } as const;
-
-  /**
-   * Write to file-system: [deno.json | package.json].
-   */
-  const deps = res.data?.deps ?? [];
-  await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
-  await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
-
-  /**
-   * Output: console.
-   */
-  console.info();
-  console.info(
-    Workspace.Prep.Fmt.importMap({
-      cwd: Deno.cwd(),
-      total: deps.length,
-      paths: [PATH.deno, PATH.package],
-    }),
-  );
-  console.info();
-  console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
-  console.info();
-}
-
-/**
  * Write all {pkg}.ts files with name/version values synced
  * to their corresponding current `deno.json` file values.
  */
-export async function syncPackageMetadata() {
+export async function syncPackageMetadata(cwd = Deno.cwd()) {
   return await Workspace.Pkg.sync({
-    cwd: Deno.cwd(),
+    cwd,
     source: { include: ['./code/**/deno.json', './deploy/**/deno.json'] },
     log: false,
   });
@@ -114,11 +76,13 @@ async function runTaskOrThrow(path: string, command: string) {
  * definitions within the workspace `deps.yaml` configuration.
  */
 export async function main(context: CommitContext = 'prep') {
+  const cwd = Deno.cwd();
+  const log = true;
   const spinner = Cli.Spinner.create('');
   try {
-    await processDeps();
+    await Workspace.Prep.Deps.sync({ cwd, log });
 
-    await runPackageSyncPhase(spinner);
+    await runPackageSyncPhase(spinner, cwd);
 
     const prepared = await runProcessPhase(
       spinner,
@@ -139,9 +103,9 @@ export async function main(context: CommitContext = 'prep') {
 
     // Finalize package metadata and graph-derived files after all generators have
     // run so `check:graph` validates the final prepared workspace state.
-    await runPackageSyncPhase(spinner);
+    await runPackageSyncPhase(spinner, cwd);
 
-    await Workspace.Prep.run();
+    await Workspace.Prep.run({ cwd });
 
     return prepared;
   } catch (err: unknown) {
@@ -171,10 +135,10 @@ async function runProcessPhase<T>(
   }
 }
 
-async function runPackageSyncPhase(spinner: CliSpinner.Instance) {
+async function runPackageSyncPhase(spinner: CliSpinner.Instance, cwd: string) {
   spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
   try {
-    const res = await syncPackageMetadata();
+    const res = await syncPackageMetadata(cwd);
     spinner.succeed(Cli.Fmt.spinnerRaw(Workspace.Pkg.Fmt.summary(res), false));
   } catch (err) {
     spinner.stop();

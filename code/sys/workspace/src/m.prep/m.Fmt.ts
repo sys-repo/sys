@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs } from './common.ts';
+import { c, Cli, Fs, type t } from './common.ts';
 
 export const Fmt: t.WorkspacePrep.Fmt.Lib = {
   importMap(args) {
@@ -15,5 +15,11 @@ export const Fmt: t.WorkspacePrep.Fmt.Lib = {
 
     const items = paths.map((path) => `  - ${path}`).join('\n');
     return `${header}\n${summary}\n${items}`;
+  },
+
+  importMapSync(args) {
+    const paths = [args.result.deno.targetPath];
+    if (args.result.package) paths.push(args.result.package.packageFilePath);
+    return Fmt.importMap({ cwd: args.cwd, total: args.result.total, paths });
   },
 };

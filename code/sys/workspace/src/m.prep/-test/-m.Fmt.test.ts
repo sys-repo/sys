@@ -1,4 +1,4 @@
-import { Cli, describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it, Str } from '../../-test.ts';
 import { WorkspacePrep } from '../mod.ts';
 
 describe('Workspace.Prep.Fmt', () => {
@@ -12,10 +12,10 @@ describe('Workspace.Prep.Fmt', () => {
     );
 
     expect(text).to.eql(
-      [
-        'Workspace import map',
-        '47 dependencies written to: imports.json',
-      ].join('\n'),
+      Str.dedent(`
+        Workspace import map
+        47 dependencies written to: imports.json
+      `),
     );
   });
 
@@ -29,12 +29,44 @@ describe('Workspace.Prep.Fmt', () => {
     );
 
     expect(text).to.eql(
-      [
-        'Workspace import map',
-        '47 dependencies written to:',
-        '  - imports.json',
-        '  - package.json',
-      ].join('\n'),
+      Str.dedent(`
+        Workspace import map
+        47 dependencies written to:
+          - imports.json
+          - package.json
+      `),
+    );
+  });
+
+  it('formats a deps sync result without rebuilding the output paths in callers', () => {
+    const text = Cli.stripAnsi(
+      WorkspacePrep.Fmt.importMapSync({
+        cwd: '/repo',
+        result: {
+          total: 47,
+          depsPath: '/repo/deps.yaml',
+          deno: {
+            kind: 'importMap',
+            denoFilePath: '/repo/deno.json',
+            targetPath: '/repo/imports.json',
+            imports: {},
+          },
+          package: {
+            packageFilePath: '/repo/package.json',
+            dependencies: {},
+            devDependencies: {},
+          },
+        },
+      }),
+    );
+
+    expect(text).to.eql(
+      Str.dedent(`
+        Workspace import map
+        47 dependencies written to:
+          - imports.json
+          - package.json
+      `),
     );
   });
 });
