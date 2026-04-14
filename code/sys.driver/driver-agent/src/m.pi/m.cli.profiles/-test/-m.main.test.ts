@@ -133,6 +133,35 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     }
   });
 
+  it('main → bootstraps the default profile on first direct --profile default run', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const calls: string[] = [];
+    try {
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include.members(['--help']);
+        const created = `${cwd}/-config/@sys.driver-agent.pi/default.yaml`;
+        expect(await Deno.readTextFile(created)).to.contain('# pi profile: default');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({ cwd, argv: ['--profile', 'default', '--', '--help'] });
+      expect(res.kind).to.eql('run');
+      const printed = Cli.stripAnsi(calls.join('\n'));
+      expect(printed).to.contain('Sandbox');
+      expect(printed).to.contain('.sandbox.log.md');
+      expect(printed).to.contain('write:cwd');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
+
   it('main → rejects --config and --profile together', async () => {
     let error = '';
     try {

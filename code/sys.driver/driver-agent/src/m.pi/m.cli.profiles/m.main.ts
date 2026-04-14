@@ -36,6 +36,10 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
+  if (parsed.profile === 'default') {
+    await ProfilesFs.ensureInitialYaml(Fs.resolve(cwd, picked.config) as t.StringPath, 'default');
+  }
+
   const resolved = await resolveRun({
     cwd,
     config: picked.config,
