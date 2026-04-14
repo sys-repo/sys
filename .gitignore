@@ -24,3 +24,8 @@ orbiter.json
 # Codex (local agent state):
 .claude/
 .codex/
+
+# Pi agent runtime/state
+.pi/
+.log/
+
