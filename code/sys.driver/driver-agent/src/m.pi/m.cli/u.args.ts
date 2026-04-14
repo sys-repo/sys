@@ -32,6 +32,8 @@ export const PiArgs = {
     return [
       'run',
       '--no-prompt',
+      '--no-config',
+      '--no-lock',
       '--node-modules-dir=none',
       '--allow-env',
       '--allow-net',

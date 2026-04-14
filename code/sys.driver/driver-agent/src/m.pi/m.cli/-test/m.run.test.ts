@@ -17,6 +17,8 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.cwd).to.eql(Fs.cwd('terminal'));
         expect(input.args).to.include('run');
         expect(input.args).to.include('--no-prompt');
+        expect(input.args).to.include('--no-config');
+        expect(input.args).to.include('--no-lock');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno')}`);
@@ -51,6 +53,8 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--no-prompt');
+        expect(input.args).to.include('--no-config');
+        expect(input.args).to.include('--no-lock');
         expect(input.env).to.eql({
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),

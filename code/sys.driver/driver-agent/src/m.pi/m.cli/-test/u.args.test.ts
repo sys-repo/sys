@@ -30,6 +30,8 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
 
       expect(args).to.include('run');
       expect(args).to.include('--no-prompt');
+      expect(args).to.include('--no-config');
+      expect(args).to.include('--no-lock');
       expect(args).to.include(pkg);
       expect(args).to.include('--help');
       expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
@@ -63,6 +65,8 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       );
 
       const args = [...(await PiArgs.toArgs(cwd, ['--help']))];
+      expect(args).to.include('--no-config');
+      expect(args).to.include('--no-lock');
       expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
     } finally {
       await Deno.remove(depsDir, { recursive: true });
@@ -80,6 +84,8 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       restoreEnv('TEMP', undefined);
 
       const args = [...await PiArgs.toArgs(cwd, ['--help'])];
+      expect(args).to.include('--no-config');
+      expect(args).to.include('--no-lock');
       const readArg = findArg(args, '--allow-read=');
       const writeArg = findArg(args, '--allow-write=');
       const tmpDir = await toPlatformTmpDir();
