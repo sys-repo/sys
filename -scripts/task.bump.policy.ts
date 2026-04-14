@@ -1,5 +1,4 @@
-import type { WorkspaceBump } from '@sys/workspace/t';
-import { type t } from './common.ts';
+import { type t } from '@sys/workspace';
 import { toPassthroughCouplings } from './u.passthrough.ts';
 
 export function postBumpPrepArgs() {
@@ -17,10 +16,10 @@ export function postBumpPackageSyncArgs() {
   return ['run', '-P=dev', './-scripts/main.ts', '--prep-pkg'] as const;
 }
 
-export function bumpPolicy(): WorkspaceBump.Policy {
+export function bumpPolicy(): t.WorkspaceBump.Policy {
   return {
     couplings: toPassthroughCouplings(),
-    exclude: (path: t.StringPath) => path.includes('deploy/@tdb.slc/'),
+    exclude: (path) => path.includes('deploy/@tdb.slc/'),
     followups({ cwd }) {
       return [
         {
