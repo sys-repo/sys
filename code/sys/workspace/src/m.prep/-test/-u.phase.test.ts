@@ -126,7 +126,7 @@ function createSpinner() {
 async function captureInfo(fn: () => Promise<unknown>) {
   const info = console.info;
   const logs: string[] = [];
-  console.info = (...args: unknown[]) => logs.push(args.map(String).join(' '));
+  console.info = (...args: unknown[]) => logs.push(Cli.stripAnsi(args.map(String).join(' ')));
 
   try {
     await fn();
