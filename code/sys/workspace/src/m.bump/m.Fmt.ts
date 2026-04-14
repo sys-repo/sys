@@ -32,9 +32,8 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   phase(args) {
     switch (args.kind) {
       case 'collect':
-        return 'collecting workspace bump candidates...';
       case 'plan':
-        return 'deriving affected downstream packages (topological)...';
+        return 'calculating workspace bump plan...';
       case 'apply':
         return 'saving bumped package versions...';
       case 'followup':

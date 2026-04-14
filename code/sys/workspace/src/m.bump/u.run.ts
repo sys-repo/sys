@@ -25,6 +25,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     release: collected.release,
     from: args.from,
   });
+  if (selected.prompted) console.clear();
   args.progress?.({ kind: 'plan' });
   const planned = await runPhase({
     spinner,
@@ -34,7 +35,6 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   });
 
   const selectedPaths = new Set(planned.selectedPaths);
-  if (selected.prompted) console.clear();
   if (log) {
     const table = Cli.table(['Module', 'Current', '', 'Next']);
     collected.candidates.forEach((candidate) => {

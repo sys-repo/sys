@@ -8,4 +8,13 @@ describe(`@sys/workspace/bump`, () => {
     expect(m.WorkspaceBump.Args).to.equal(WorkspaceBump.Args);
     expect(m.WorkspaceBump.Fmt).to.equal(WorkspaceBump.Fmt);
   });
+
+  it('formats canonical bump phase labels', () => {
+    expect(WorkspaceBump.Fmt.phase({ kind: 'collect' })).to.eql(
+      'calculating workspace bump plan...',
+    );
+    expect(WorkspaceBump.Fmt.phase({ kind: 'plan' })).to.eql(
+      'calculating workspace bump plan...',
+    );
+  });
 });
