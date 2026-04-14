@@ -11,3 +11,4 @@ export type * from './m.prep/t.ts';
 export type * from './m.testing/t.ts';
 export type * from './m.upgrade/t.ts';
 export type * from './t.namespace.ts';
+export type * from './m.bump/t.ts';
