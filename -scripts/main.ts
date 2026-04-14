@@ -1,7 +1,6 @@
 import { Workspace } from '@sys/workspace';
 import { Args, D } from './common.ts';
 
-import { main as bump } from './task.bump.ts';
 import { main as clean } from './task.clean.ts';
 import { main as dry } from './task.dry.ts';
 import { main as info } from './task.info.ts';
@@ -9,6 +8,7 @@ import { main as lint } from './task.lint.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
 import { main as prep, syncPackageMetadata, type CommitContext } from './task.prep.ts';
 import { main as test } from './task.test.ts';
+import { bumpPolicy } from './task.bump.policy.ts';
 import { orderedWorkspacePaths } from './u.graph.ts';
 
 export type MainArgs = {
@@ -34,7 +34,7 @@ type Lib = {
   readonly info: typeof info;
   readonly clean: typeof clean;
   readonly lint: typeof lint;
-  readonly bump: typeof bump;
+  readonly bump: () => Promise<unknown>;
   readonly prep: (context?: CommitContext) => Promise<number>;
   readonly prepPkg: () => Promise<unknown>;
   readonly prepCi: typeof prepCi;
@@ -67,7 +67,7 @@ const lib: Lib = {
   info,
   clean,
   lint,
-  bump,
+  bump: () => Workspace.Bump.run({ cwd: Deno.cwd(), policy: bumpPolicy() }),
   prep,
   prepPkg: syncPackageMetadata,
   prepCi,

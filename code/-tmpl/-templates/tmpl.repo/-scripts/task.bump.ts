@@ -1,5 +1,4 @@
 import { type t, Workspace } from '@sys/workspace';
-import { bumpPolicy } from './task.bump.policy.ts';
 
 export async function main(input: t.WorkspaceBump.Args.RunInput = {}) {
   const args = Workspace.Bump.Args.run({ ...input, policy: bumpPolicy() });
@@ -11,6 +10,14 @@ export async function main(input: t.WorkspaceBump.Args.RunInput = {}) {
   await Workspace.Bump.run(args.run);
 
   return true;
+}
+
+function bumpPolicy(): t.WorkspaceBump.Policy {
+  return {
+    followups({ cwd }) {
+      return [{ cwd, cmd: 'deno', args: ['task', 'prep'], label: 'post-bump prep' }];
+    },
+  };
 }
 
 /**

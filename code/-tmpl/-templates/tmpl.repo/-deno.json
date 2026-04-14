@@ -4,6 +4,7 @@
     "check": "deno check",
     "check:graph": "deno run -P=test ./-scripts/task.check.graph.ts",
     "test": "deno test -P=test ./-scripts ./code",
+    "bump": "deno run -P=test ./-scripts/task.bump.ts",
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
     "prep:graph": "deno run -P=test ./-scripts/task.prep.graph.ts",
     "tmpl": "deno run -P=tmpl ./-scripts/task.tmpl.ts",

@@ -6,6 +6,8 @@ import type { t } from './common.ts';
 export declare namespace WorkspaceBump {
   /** Workspace package version bump helper surface. */
   export type Lib = {
+    /** Argument parsers for workspace bump flows. */
+    readonly Args: Args.Lib;
     /** Console output formatters for workspace bump flows. */
     readonly Fmt: Fmt.Lib;
     /** Collect bumpable workspace packages from the local workspace. */
@@ -193,10 +195,61 @@ export declare namespace WorkspaceBump {
     readonly policy?: Policy;
   };
 
+  /** Argument parsers for workspace bump flows. */
+  export namespace Args {
+    /** Argument helper surface for workspace bump flows. */
+    export type Lib = {
+      /** Parse one bump argv vector into canonical CLI args. */
+      parse(argv?: string[]): Parsed;
+      /** Normalize one semver release type argument. */
+      release(input?: string): t.SemverReleaseType | undefined;
+      /** Resolve one canonical bump run invocation from argv, overrides, and policy. */
+      run(input?: RunInput): RunResolved;
+    };
+
+    /** Parsed CLI args for workspace bump flows. */
+    export type Parsed = {
+      readonly help?: boolean;
+      readonly from?: string;
+      readonly release?: string;
+      readonly dryRun: boolean;
+      readonly nonInteractive: boolean;
+    };
+
+    /** Optional run-argument overrides from a script edge. */
+    export type RunOptions = Partial<
+      Pick<RunArgs, 'cwd' | 'release' | 'from' | 'dryRun' | 'nonInteractive'>
+    >;
+
+    /** Inputs for resolving one canonical bump run invocation. */
+    export type RunInput = {
+      /** Optional argv vector to parse. */
+      readonly argv?: readonly string[];
+      /** Optional run-argument overrides from the caller. */
+      readonly options?: RunOptions;
+      /** Optional repo policy to attach to the resolved run args. */
+      readonly policy?: Policy;
+    };
+
+    /** Resolved script-edge bump run inputs. */
+    export type RunResolved = {
+      /** Whether help was requested by argv. */
+      readonly help: boolean;
+      /** Invalid raw release string from argv, when one was supplied. */
+      readonly invalidRelease?: string;
+      /** Canonical args for `Workspace.Bump.run(...)`. */
+      readonly run: RunArgs;
+    };
+  }
+
   /** Console output formatters for workspace bump flows. */
   export namespace Fmt {
     /** Console output formatting surface for workspace bumps. */
     export type Lib = {
+      /** Render canonical help for the bump task surface. */
+      help(): void;
+      /** Format one unsupported release warning for script edges. */
+      invalidRelease(input: string): string;
       /** Derive aligned label widths for candidate selection. */
       selectionLayout(candidates: readonly Candidate[]): SelectionLayout;
       /** Format one interactive candidate selection label. */
