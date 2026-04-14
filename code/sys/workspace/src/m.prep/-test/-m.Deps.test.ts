@@ -6,17 +6,20 @@ describe('Workspace.Prep.Deps', () => {
     const fs = await Testing.dir('WorkspacePrep.Deps.sync');
     const depsPath = Fs.join(fs.dir, 'deps.yaml');
     await Fs.writeJson(Fs.join(fs.dir, 'deno.json'), { importMap: 'imports.json' });
+    const denoImport = 'jsr:@sys/std@0.0.333';
+    const reactImport = 'npm:react@19.2.5';
+    const viteImport = 'npm:vite@7.3.2';
 
     await Fs.write(
       depsPath,
       Str.dedent(`
         deno.json:
-        - import: jsr:@sys/std@0.0.333
-        subpaths: [async]
+          - import: ${denoImport}
+            subpaths: [async]
         package.json:
-        - import: npm:react@19.2.5
-        - import: npm:vite@7.3.2
-        dev: true
+          - import: ${reactImport}
+          - import: ${viteImport}
+            dev: true
         `),
     );
 
@@ -34,8 +37,8 @@ describe('Workspace.Prep.Deps', () => {
     expect(result.deno.targetPath).to.eql(Fs.join(fs.dir, 'imports.json'));
     expect(result.package?.packageFilePath).to.eql(Fs.join(fs.dir, 'package.json'));
     expect(imports.data?.imports).to.eql({
-      '@sys/std': 'jsr:@sys/std@0.0.333',
-      '@sys/std/async': 'jsr:@sys/std@0.0.333/async',
+      '@sys/std': denoImport,
+      '@sys/std/async': `${denoImport}/async`,
     });
     expect(pkg.data?.dependencies).to.eql({ react: '19.2.5' });
     expect(pkg.data?.devDependencies).to.eql({ vite: '7.3.2' });
