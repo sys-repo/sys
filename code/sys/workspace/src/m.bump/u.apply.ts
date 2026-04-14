@@ -40,13 +40,17 @@ export function toFollowups(args: {
 
 export async function runFollowups(followups: readonly t.WorkspaceBump.Followup[]) {
   for (const followup of followups) {
-    const res = await Process.inherit({
-      cmd: followup.cmd,
-      args: [...(followup.args ?? [])],
-      cwd: followup.cwd,
-    });
-    if (res.success) continue;
-    const command = [followup.cmd, ...(followup.args ?? [])].join(' ');
-    throw new Error(`Failed ${followup.label}: ${command}`);
+    await runFollowup(followup);
   }
+}
+
+export async function runFollowup(followup: t.WorkspaceBump.Followup) {
+  const res = await Process.inherit({
+    cmd: followup.cmd,
+    args: [...(followup.args ?? [])],
+    cwd: followup.cwd,
+  });
+  if (res.success) return;
+  const command = [followup.cmd, ...(followup.args ?? [])].join(' ');
+  throw new Error(`Failed ${followup.label}: ${command}`);
 }

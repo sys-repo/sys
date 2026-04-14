@@ -250,6 +250,8 @@ export declare namespace WorkspaceBump {
       help(): void;
       /** Format one unsupported release warning for script edges. */
       invalidRelease(input: string): string;
+      /** Format one canonical spinner label for bump orchestration. */
+      phase(args: PhaseLabelArgs): string;
       /** Derive aligned label widths for candidate selection. */
       selectionLayout(candidates: readonly Candidate[]): SelectionLayout;
       /** Format one interactive candidate selection label. */
@@ -294,6 +296,14 @@ export declare namespace WorkspaceBump {
     export type PlanSummaryArgs = {
       /** Planned bump to summarize. */
       readonly plan: PlanResult;
+    };
+
+    /** Arguments for formatting one bump phase label. */
+    export type PhaseLabelArgs = {
+      /** Canonical phase kind being rendered. */
+      readonly kind: PhaseProgress['kind'];
+      /** Optional follow-up label for `followup` phases. */
+      readonly followup?: string;
     };
   }
 }

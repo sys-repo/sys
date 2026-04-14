@@ -29,6 +29,19 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
     return c.yellow(`${title}: ${msg}`);
   },
 
+  phase(args) {
+    switch (args.kind) {
+      case 'collect':
+        return 'collecting workspace bump candidates...';
+      case 'plan':
+        return 'deriving affected downstream packages (topological)...';
+      case 'apply':
+        return 'saving bumped package versions...';
+      case 'followup':
+        return args.followup ? `running ${args.followup}...` : 'running post-bump followups...';
+    }
+  },
+
   selectionLayout(candidates) {
     return candidates.reduce(
       (acc, candidate) => ({

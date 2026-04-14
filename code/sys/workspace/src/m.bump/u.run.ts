@@ -1,7 +1,7 @@
 import { runPhase } from '../u.phase.ts';
 import { c, Cli, Fs, type t } from './common.ts';
 import { Fmt } from './m.Fmt.ts';
-import { runFollowups, toFollowups, writePlan } from './u.apply.ts';
+import { runFollowup, toFollowups, writePlan } from './u.apply.ts';
 import { collect } from './u.collect.ts';
 import { plan } from './u.plan.ts';
 
@@ -10,10 +10,15 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   const log = args.log ?? true;
   const spinner = Cli.Spinner.create('');
   args.progress?.({ kind: 'collect' });
-  const collected = await collect({
-    cwd,
-    release: args.release,
-    policy: args.policy,
+  const collected = await runPhase({
+    spinner,
+    label: Fmt.phase({ kind: 'collect' }),
+    silent: !log,
+    fn: () => collect({
+      cwd,
+      release: args.release,
+      policy: args.policy,
+    }),
   });
   const selected = await wrangle.select({
     candidates: collected.candidates,
@@ -23,7 +28,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   args.progress?.({ kind: 'plan' });
   const planned = await runPhase({
     spinner,
-    label: 'deriving affected downstream packages (topological)...',
+    label: Fmt.phase({ kind: 'plan' }),
     silent: !log,
     fn: () => plan({ collect: collected, rootPkgPath: selected.pkgPath }),
   });
@@ -56,19 +61,21 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   args.progress?.({ kind: 'apply' });
   const writes = await runPhase({
     spinner,
-    label: 'saving bumped package versions...',
+    label: Fmt.phase({ kind: 'apply' }),
     silent: !log,
     fn: () => writePlan(planned),
   });
   const followups = toFollowups({ cwd, plan: planned, policy: args.policy });
   if (followups.length > 0) {
-    args.progress?.({ kind: 'followup' });
-    await runPhase({
-      spinner,
-      label: 'running post-bump followups...',
-      silent: !log,
-      fn: () => runFollowups(followups),
-    });
+    for (const followup of followups) {
+      args.progress?.({ kind: 'followup' });
+      await runPhase({
+        spinner,
+        label: Fmt.phase({ kind: 'followup', followup: followup.label }),
+        silent: !log,
+        fn: () => runFollowup(followup),
+      });
+    }
   }
 
   return {
