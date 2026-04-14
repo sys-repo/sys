@@ -23,19 +23,21 @@ export const Args: t.WorkspaceBump.Args.Lib = {
     };
   },
 
-  release(input) {
+  release(input?: string) {
     if (!input) return undefined;
     const normalized = input.toLowerCase() as t.SemverReleaseType;
     const supported: t.SemverReleaseType[] = ['major', 'minor', 'patch'];
     return supported.includes(normalized) ? normalized : undefined;
   },
 
-  run(input = {}) {
+  run(input: t.WorkspaceBump.Args.RunInput = {}) {
     const args = Args.parse(input.argv);
     const release = Args.release(args.release);
     return {
       help: args.help ?? false,
-      invalidRelease: args.release !== undefined && release === undefined ? args.release : undefined,
+      invalidRelease: args.release !== undefined && release === undefined
+        ? args.release
+        : undefined,
       run: {
         cwd: input.options?.cwd ?? Fs.cwd(),
         release: input.options?.release ?? release ?? 'patch',

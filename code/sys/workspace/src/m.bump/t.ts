@@ -224,7 +224,7 @@ export declare namespace WorkspaceBump {
     /** Inputs for resolving one canonical bump run invocation. */
     export type RunInput = {
       /** Optional argv vector to parse. */
-      readonly argv?: readonly string[];
+      readonly argv?: string[];
       /** Optional run-argument overrides from the caller. */
       readonly options?: RunOptions;
       /** Optional repo policy to attach to the resolved run args. */
