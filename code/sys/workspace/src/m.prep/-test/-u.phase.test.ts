@@ -80,6 +80,23 @@ describe('Workspace.Prep.runPhase', () => {
     ]);
     expect(logs).to.eql([]);
   });
+
+  it('prints line-rendered phases without starting the spinner', async () => {
+    const spinner = createSpinner();
+
+    const logs = await captureInfo(() =>
+      runPhase({
+        spinner,
+        label: 'running phase...',
+        render: 'line',
+        silent: false,
+        fn: async () => 'ok',
+      })
+    );
+
+    expect(spinner.events).to.eql([]);
+    expect(logs).to.eql(['running phase...']);
+  });
 });
 
 function createSpinner() {

@@ -16,9 +16,9 @@ deno.json:
     subpaths: [ async, log, rx, t, testing ]
   - import: jsr:@sys/testing@0.0.270
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.322
+  - import: jsr:@sys/tmpl@0.0.321
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.337
+  - import: jsr:@sys/tools@0.0.336
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.275
   - import: jsr:@sys/ui-css@0.0.264

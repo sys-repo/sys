@@ -73,6 +73,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
         spinner,
         label: Fmt.phase({ kind: 'followup', followup: followup.label }),
         silent: !log,
+        render: 'line',
         fn: () => runFollowup(followup),
       });
     }
