@@ -126,7 +126,10 @@ export declare namespace WorkspaceBump {
   export type Exclude = (path: t.StringPath) => boolean;
 
   /** Optional follow-up command provider for applied bumps. */
-  export type Followups = (args: { readonly cwd: t.StringDir; readonly plan: PlanResult }) => readonly Followup[];
+  export type Followups = (args: {
+    readonly cwd: t.StringDir;
+    readonly plan: PlanResult;
+  }) => readonly Followup[];
 
   /** Common bump policy injected from the repo edge. */
   export type Policy = {
@@ -192,6 +195,20 @@ export declare namespace WorkspaceBump {
 
   /** Console output formatters for workspace bump flows. */
   export namespace Fmt {
+    /** Console output formatting surface for workspace bumps. */
+    export type Lib = {
+      /** Derive aligned label widths for candidate selection. */
+      selectionLayout(candidates: readonly Candidate[]): SelectionLayout;
+      /** Format one interactive candidate selection label. */
+      selectionLabel(args: SelectionLabelArgs): string;
+      /** Format one preflight table row. */
+      preflightRow(args: PreflightRowArgs): string[];
+      /** Format the planned bump summary lines. */
+      planSummary(args: PlanSummaryArgs): readonly string[];
+      /** Format the canonical dry-run notice. */
+      dryRun(): string;
+    };
+
     /** Selection-label layout widths derived from bump candidates. */
     export type SelectionLayout = {
       /** Visible width reserved for package names. */
@@ -224,20 +241,6 @@ export declare namespace WorkspaceBump {
     export type PlanSummaryArgs = {
       /** Planned bump to summarize. */
       readonly plan: PlanResult;
-    };
-
-    /** Console output formatting surface for workspace bumps. */
-    export type Lib = {
-      /** Derive aligned label widths for candidate selection. */
-      selectionLayout(candidates: readonly Candidate[]): SelectionLayout;
-      /** Format one interactive candidate selection label. */
-      selectionLabel(args: SelectionLabelArgs): string;
-      /** Format one preflight table row. */
-      preflightRow(args: PreflightRowArgs): readonly string[];
-      /** Format the planned bump summary lines. */
-      planSummary(args: PlanSummaryArgs): readonly string[];
-      /** Format the canonical dry-run notice. */
-      dryRun(): string;
     };
   }
 }

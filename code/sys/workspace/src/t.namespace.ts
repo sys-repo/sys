@@ -6,6 +6,9 @@ import type { t } from './common.ts';
 export namespace Workspace {
   /** Root workspace helper surface. */
   export type Lib = {
+    /** Workspace package version bump orchestration helpers. */
+    readonly Bump: t.WorkspaceBump.Lib;
+
     /** Continuous-integration helpers. */
     readonly Ci: t.WorkspaceCi.Lib;
 
