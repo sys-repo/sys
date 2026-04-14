@@ -34,7 +34,7 @@ Core tasks from `deno.json`:
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type-checks the repo
 - `deno task info` → prints Deno runtime and workspace source stats
-- `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
+- `deno task prep` → syncs generated package metadata and GitHub workflows for workspace packages under `./code/packages`
 - `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
 - `deno task outdated` → reports dependency updates from the canonical `deps.yaml` manifest
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
@@ -63,10 +63,10 @@ git push --force origin baseline-0
 
 <p>&nbsp;</p>
 
-## /projects
-New projects:
+## /packages
+New packages:
 - via interactive CLI: `deno task tmpl:project`
 - via non-interactive/agent flow using `deno run ... @sys/tmpl ... --non-interactive`
-- after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
+- after adding/removing workspace packages with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>

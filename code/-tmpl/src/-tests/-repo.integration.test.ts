@@ -124,16 +124,16 @@ describe('Template: repo integration', () => {
     );
   });
 
-  it('generate in temp dir → prep generates project workflows from code/projects modules', async () => {
+  it('generate in temp dir → prep generates package workflows from code/packages modules', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.prep-workflows-' });
     const root = tmp.absolute;
-    const path = 'code/projects/demo';
-    const projectDir = Fs.join(root, path);
+    const path = 'code/packages/demo';
+    const packageDir = Fs.join(root, path);
 
     const tmpl = await makeTmpl('repo');
 
     await tmpl.write(root, { force: true });
-    await Fs.writeJson(Fs.join(projectDir, 'deno.json'), {
+    await Fs.writeJson(Fs.join(packageDir, 'deno.json'), {
       tasks: {
         build: 'deno task info',
         test: 'deno task info',
@@ -166,7 +166,7 @@ describe('Template: repo integration', () => {
 
     const pkgDef = await Templates.pkg();
     const pkgTmpl = await makeTmpl('pkg');
-    const pkgDir = Fs.join(root, 'code', 'projects', 'foo');
+    const pkgDir = Fs.join(root, 'code', 'packages', 'foo');
 
     await pkgTmpl.write(pkgDir, { force: true });
     await pkgDef.default(pkgDir, { pkgName: '@tmp/foo' });

@@ -77,7 +77,7 @@ export async function readWorkspaceAuthorities() {
   };
 }
 
-export async function writePkg(root: string, dir = 'code/projects/foo', pkgName = '@tmp/foo') {
+export async function writePkg(root: string, dir = 'code/packages/foo', pkgName = '@tmp/foo') {
   await tmplCli(root, {
     _: ['pkg'],
     tmpl: 'pkg',

@@ -27,8 +27,8 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
   it('create → add foo + bar → import @tmp/foo from @tmp/bar → repo ci passes', async () => {
     console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create({ silent: true });
-    const fooDir = await writePkg(fixture.root, 'code/projects/foo', '@tmp/foo');
-    const barDir = await writePkg(fixture.root, 'code/projects/bar', '@tmp/bar');
+    const fooDir = await writePkg(fixture.root, 'code/packages/foo', '@tmp/foo');
+    const barDir = await writePkg(fixture.root, 'code/packages/bar', '@tmp/bar');
 
     await writeText(
       Fs.join(fooDir, 'src', 'mod.ts'),
