@@ -44,6 +44,8 @@ describe('m.tmpl/m.cli', () => {
     const test = await makeWorkspace();
     const cwd = test.root;
     const relTarget = 'code/ns/agent-driven';
+    const lines: string[] = [];
+    const info = console.info;
     const args = parseArgs([
       'pkg',
       '--dir',
@@ -57,6 +59,7 @@ describe('m.tmpl/m.cli', () => {
     const directoryName = Prompt.directoryName;
     const prompt = Prompt as unknown as PromptMutable;
     try {
+      console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
       prompt.selectTemplate = async () => {
         throw new Error('should not prompt for template in --non-interactive mode');
       };
@@ -65,12 +68,16 @@ describe('m.tmpl/m.cli', () => {
       };
       await cli(cwd, args);
     } finally {
+      console.info = info;
       prompt.selectTemplate = selectTemplate;
       prompt.directoryName = directoryName;
     }
 
     const denoJson = Fs.join(cwd, relTarget, 'deno.json');
     expect(await Fs.exists(denoJson)).to.eql(true);
+    const output = lines.join('\n');
+    expect(output.includes('commit msg:')).to.eql(true);
+    expect(output.includes('pkg scaffold created at code/ns/agent-driven for @my-scope/agent-driven (38 files)')).to.eql(true);
   });
 
   it('non-interactive fails when --dir missing', async () => {

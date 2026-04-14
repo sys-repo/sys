@@ -2,6 +2,7 @@ import { type t, c, Cli, Fs, Is, pkg, TemplateNames, Templates, TmplEngine } fro
 import { makeTmpl } from './u.makeTmpl.ts';
 import { Prompt } from './u.prompt.ts';
 import { type CliParsedArgs } from './u.args.ts';
+import { Fmt } from './u.fmt.ts';
 
 type SetupOptions = {
   pkgName?: string;
@@ -42,6 +43,7 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
   const tmpl = await makeTmpl(tmplName);
   const res = await tmpl.write(targetDir, { dryRun: args.dryRun, force: args.force });
   await tmplSetup.default(res.dir.target, options);
+  const commitOptions = await resolveCommitOptions(tmplName, targetDir, options);
 
   const { ops } = res;
   const location = Cli.Fmt.Path.str(`${Fs.trimCwd(targetDir)}/`);
@@ -51,6 +53,8 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
   console.info(c.gray(`template: ${c.bold(c.brightCyan(`${root}`))}`));
   console.info();
   console.info(TmplEngine.Log.table(ops, targetDir));
+  console.info();
+  console.info(Fmt.finalCommit({ tmpl: tmplName, targetDir, cwd, ops, options: { ...commitOptions, dryRun: args.dryRun } }));
   console.info();
 }
 
@@ -90,4 +94,15 @@ function resolveSetupOptions(tmplName: t.TemplateName, args: CliParsedArgs): Set
   }
 
   return {};
+}
+
+async function resolveCommitOptions(
+  tmplName: t.TemplateName,
+  targetDir: t.StringAbsoluteDir,
+  options: SetupOptions,
+): Promise<SetupOptions> {
+  if (tmplName !== 'pkg' || options.pkgName) return options;
+
+  const res = await Fs.readJson<{ readonly name?: string }>(Fs.join(targetDir, 'deno.json'));
+  return { ...options, pkgName: res.data?.name };
 }
