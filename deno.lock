@@ -147,6 +147,7 @@
     "npm:@elevenlabs/elevenlabs-js@2.43.0": "2.43.0",
     "npm:@mariozechner/pi-coding-agent@0.67.1": "0.67.1_ws@8.20.0_zod@3.25.76",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.5_react-dom@19.2.5__react@19.2.5",
+    "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@noble/hashes@2.2.0": "2.2.0",
     "npm:@octokit/rest@22.0.1": "22.0.1_@octokit+core@7.0.6",
     "npm:@preact/signals-core@1.13.0": "1.13.0",
@@ -550,7 +551,8 @@
       "dependencies": [
         "jsr:@sys/cli@^0.0.213",
         "jsr:@sys/std@^0.0.290",
-        "jsr:@sys/types@^0.0.231"
+        "jsr:@sys/types@^0.0.231",
+        "npm:@noble/hashes@2.0.1"
       ]
     },
     "@sys/crypto@0.0.221": {
@@ -2815,6 +2817,9 @@
     },
     "@noble/hashes@1.8.0": {
       "integrity": "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="
+    },
+    "@noble/hashes@2.0.1": {
+      "integrity": "sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw=="
     },
     "@noble/hashes@2.2.0": {
       "integrity": "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="
