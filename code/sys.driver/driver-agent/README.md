@@ -11,7 +11,7 @@ import { pkg } from 'jsr:@sys/driver-agent';
 deno run -A jsr:@sys/driver-agent/pi/cli Profiles
 deno run -A jsr:@sys/driver-agent/pi/cli Profiles --profile canon
 
-# (equivalent): from system tools:
+# (equivalent): from system tools ↓
 
 deno run -A jsr:@sys/tools agent
 deno run -A jsr:@sys/tools agent --profile canon
@@ -28,14 +28,15 @@ LLM + shell + fs + markdown + cron == "agent" (🦞)
 
 <p>&nbsp;</p>
 
-"Marrying the language-model mindset to the Unix shell/prompt mindset. What is an agent?" — [Marc Andreessen](https://www.youtube.com/watch?v=knx2wrILP1M&t=2121s)
+"Marrying the language-model mindset to the [Unix shell/prompt mindset](https://github.com/sys-repo/sys?tab=readme-ov-file#development-philosophy). **What is an agent?**" — [Marc Andreessen](https://www.youtube.com/watch?v=knx2wrILP1M&t=2121s)
 
+It is:
 
-🦞
- ↑ `cron` job (loop, heartbeat)  
- ↑ file-system, `fs` (state, .md)  
- ↑ shell, `bash`  
- ↑ language-model (LLM)
+- 🦞
+ - ↑ `cron` job (loop, heartbeat)  
+ - ↑ file-system, `fs` (state, .md)  
+ - ↑ shell, `bash`  
+ - ↑ language-model (LLM)
 
 
 
