@@ -10,7 +10,9 @@ describe(`@sys/workspace/bump Fmt`, () => {
   it('formats canonical bump phase labels', () => {
     const a = WorkspaceBump.Fmt.phase({ kind: 'collect' });
     const b = WorkspaceBump.Fmt.phase({ kind: 'followup', followup: 'post-bump prep' });
+    const c = WorkspaceBump.Fmt.phase({ kind: 'integrity' });
     expect(a).to.eql('calculating workspace bump plan...');
     expect(b).to.eql('running post-bump prep...');
+    expect(c).to.eql('verifying unbumped package integrity...');
   });
 });

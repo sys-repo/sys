@@ -58,7 +58,13 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   const confirmed = args.nonInteractive ? true : await wrangle.confirm();
   if (!confirmed) return { collect: collected, plan: planned, dryRun: false };
 
-  const untouched = await wrangle.snapshotUnselected(collected.candidates, planned.selectedPaths);
+  args.progress?.({ kind: 'integrity' });
+  const untouched = await runPhase({
+    spinner,
+    label: Fmt.phase({ kind: 'integrity', followup: 'package integrity baseline' }),
+    silent: !log,
+    fn: () => wrangle.snapshotUnselected(collected.candidates, planned.selectedPaths),
+  });
   args.progress?.({ kind: 'apply' });
   const writes = await runPhase({
     spinner,
@@ -79,7 +85,13 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
       });
     }
   }
-  await wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched);
+  args.progress?.({ kind: 'integrity' });
+  await runPhase({
+    spinner,
+    label: Fmt.phase({ kind: 'integrity' }),
+    silent: !log,
+    fn: () => wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched),
+  });
 
   return {
     collect: collected,

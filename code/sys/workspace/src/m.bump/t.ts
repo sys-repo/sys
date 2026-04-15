@@ -118,7 +118,7 @@ export declare namespace WorkspaceBump {
   /** Canonical progress step emitted during one bump run. */
   export type PhaseProgress = {
     /** Canonical bump progress phase. */
-    readonly kind: 'collect' | 'plan' | 'apply' | 'followup';
+    readonly kind: 'collect' | 'plan' | 'integrity' | 'apply' | 'followup';
   };
 
   /** Callback for bump run progress events. */

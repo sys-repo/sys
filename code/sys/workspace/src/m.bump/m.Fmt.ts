@@ -34,6 +34,10 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
       case 'collect':
       case 'plan':
         return 'calculating workspace bump plan...';
+      case 'integrity':
+        return args.followup
+          ? `verifying ${args.followup}...`
+          : 'verifying unbumped package integrity...';
       case 'apply':
         return 'saving bumped package versions...';
       case 'followup':
