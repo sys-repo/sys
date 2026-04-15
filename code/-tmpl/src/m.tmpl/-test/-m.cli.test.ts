@@ -101,6 +101,28 @@ describe('m.tmpl/m.cli', () => {
     );
   });
 
+  it('non-interactive repo dry-run does not execute setup side effects', async () => {
+    const test = await makeWorkspace();
+    const cwd = test.root;
+    const relTarget = 'my-repo';
+    const target = Fs.join(cwd, relTarget);
+
+    await cli(
+      cwd,
+      parseArgs([
+        'repo',
+        '--dir',
+        relTarget,
+        '--non-interactive',
+        '--dry-run',
+      ]),
+    );
+
+    expect(await Fs.exists(target)).to.eql(false);
+    expect(await Fs.exists(Fs.join(target, 'deps.yaml'))).to.eql(false);
+    expect(await Fs.exists(Fs.join(target, 'deno.graph.json'))).to.eql(false);
+  });
+
   it('interactive existing target warns and exits without failure', async () => {
     const test = await makeWorkspace();
     const cwd = test.root;

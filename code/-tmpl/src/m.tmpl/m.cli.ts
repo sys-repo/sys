@@ -42,7 +42,9 @@ export async function cli(cwd: t.StringDir = Fs.cwd('terminal'), args: CliParsed
   const options = resolveSetupOptions(tmplName, args);
   const tmpl = await makeTmpl(tmplName);
   const res = await tmpl.write(targetDir, { dryRun: args.dryRun, force: args.force });
-  await tmplSetup.default(res.dir.target, options);
+  if (!args.dryRun) {
+    await tmplSetup.default(res.dir.target, options);
+  }
   const commitOptions = await resolveCommitOptions(tmplName, targetDir, options);
 
   const { ops } = res;
