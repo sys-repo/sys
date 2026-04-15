@@ -21,7 +21,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "fmt": { "singleQuote": true, "trailingCommas": "always", "lineWidth": 100 },
+  "fmt": { "singleQuote": true, "lineWidth": 100 },
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "permissions": {
