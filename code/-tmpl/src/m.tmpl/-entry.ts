@@ -50,7 +50,7 @@ function printHelp() {
     c.gray('Flags:'),
     '  --dir <path>          target directory to create/update',
     '  --non-interactive     disable prompts and require direct inputs',
-    '  --dryRun              write preview only',
+    '  --dry-run             write preview only',
     '  --force               allow overwrite',
     '  --bundle              regenerate template bundle',
     '  -h, --help            show help',

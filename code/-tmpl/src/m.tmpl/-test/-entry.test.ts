@@ -52,6 +52,8 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to.eql(true);
       expect(text.includes('repo      → no extra template flags; identity inferred from --dir')).to.eql(true);
       expect(text.includes('--dir <path>          target directory to create/update')).to.eql(true);
+      expect(text.includes('--dry-run             write preview only')).to.eql(true);
+      expect(text.includes('--dryRun')).to.eql(false);
     } finally {
       console.info = info;
       console.warn = warn;

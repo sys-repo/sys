@@ -3,6 +3,7 @@ import { Args } from './common.ts';
 export type CliArgs = {
   bundle?: boolean;
   dryRun?: boolean;
+  'dry-run'?: boolean;
   force?: boolean;
   dir?: string;
   name?: string;
@@ -23,20 +24,21 @@ export type CliParsedArgs = {
 
 export function parseArgs(argv: string[] = []): CliParsedArgs {
   const args = Args.parse<CliArgs>(argv, {
-    alias: { h: 'help' },
-    boolean: ['bundle', 'dryRun', 'force', 'help', 'non-interactive'],
+    alias: { h: 'help', 'dry-run': 'dryRun' },
+    boolean: ['bundle', 'dryRun', 'dry-run', 'force', 'help', 'non-interactive'],
     string: ['dir', 'name', 'pkgName'],
-    default: { bundle: false, dryRun: false, force: false, help: false },
+    default: { bundle: false, dryRun: false, 'dry-run': false, force: false, help: false },
   });
 
   const tmpl = args._[0];
   const interactive = args['non-interactive'] !== true;
+  const dryRun = args.dryRun === true || args['dry-run'] === true;
   return {
     ...args,
     tmpl,
     interactive,
     bundle: args.bundle === true,
-    dryRun: args.dryRun === true,
+    dryRun,
     force: args.force === true,
   };
 }

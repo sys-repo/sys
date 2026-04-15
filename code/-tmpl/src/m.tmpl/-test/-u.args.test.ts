@@ -7,7 +7,7 @@ describe('m.tmpl/u.args', () => {
       'pkg',
       '--dir',
       './code/ns/foo',
-      '--dryRun',
+      '--dry-run',
       '--force',
       '--pkgName',
       '@my-scope/foo',
@@ -20,6 +20,11 @@ describe('m.tmpl/u.args', () => {
     expect(res.pkgName).to.eql('@my-scope/foo');
     expect(res.interactive).to.eql(true);
     expect(res._).to.eql(['pkg']);
+  });
+
+  it('accepts --dryRun as a compatibility alias', () => {
+    const res = parseArgs(['pkg', '--dryRun']);
+    expect(res.dryRun).to.eql(true);
   });
 
   it('parses --non-interactive and template name flags', () => {
