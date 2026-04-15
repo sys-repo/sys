@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.339",
+  "version": "0.0.340",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./-scripts ./src",
