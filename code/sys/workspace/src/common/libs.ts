@@ -3,6 +3,7 @@ export { c } from '@sys/color/ansi';
 export { Hash } from '@sys/crypto/hash';
 export { Esm } from '@sys/esm';
 export { Deps } from '@sys/esm/deps';
+export { Dir } from '@sys/fs';
 export { Fs, Path } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
 export { Process } from '@sys/process';

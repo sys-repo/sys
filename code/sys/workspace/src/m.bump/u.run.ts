@@ -1,5 +1,5 @@
 import { runPhase } from '../u.phase.ts';
-import { c, Cli, Fs, type t } from './common.ts';
+import { c, Cli, Dir, Fs, Path, type t } from './common.ts';
 import { Fmt } from './m.Fmt.ts';
 import { runFollowup, toFollowups, writePlan } from './u.apply.ts';
 import { collect } from './u.collect.ts';
@@ -58,6 +58,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
   const confirmed = args.nonInteractive ? true : await wrangle.confirm();
   if (!confirmed) return { collect: collected, plan: planned, dryRun: false };
 
+  const untouched = await wrangle.snapshotUnselected(collected.candidates, planned.selectedPaths);
   args.progress?.({ kind: 'apply' });
   const writes = await runPhase({
     spinner,
@@ -78,6 +79,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
       });
     }
   }
+  await wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched);
 
   return {
     collect: collected,
@@ -134,5 +136,40 @@ const wrangle = {
       hideDefault: true,
     });
     return answer === 'save';
+  },
+
+  async snapshotUnselected(
+    candidates: readonly t.WorkspaceBump.Candidate[],
+    selectedPaths: readonly t.StringPath[],
+  ) {
+    const selected = new Set(selectedPaths);
+    const snapshots = new Map<t.StringPath, string>();
+    for (const candidate of candidates) {
+      if (selected.has(candidate.pkgPath)) continue;
+      const dir = Path.dirname(candidate.denoFilePath);
+      const res = await Dir.Hash.compute(dir);
+      snapshots.set(candidate.pkgPath, res.hash.digest);
+    }
+    return snapshots;
+  },
+
+  async assertUnselectedStable(
+    candidates: readonly t.WorkspaceBump.Candidate[],
+    selectedPaths: readonly t.StringPath[],
+    before: ReadonlyMap<t.StringPath, string>,
+  ) {
+    const selected = new Set(selectedPaths);
+    const changed: t.WorkspaceBump.Candidate[] = [];
+    for (const candidate of candidates) {
+      if (selected.has(candidate.pkgPath)) continue;
+      const dir = Path.dirname(candidate.denoFilePath);
+      const res = await Dir.Hash.compute(dir);
+      if (before.get(candidate.pkgPath) === res.hash.digest) continue;
+      changed.push(candidate);
+    }
+    if (changed.length === 0) return;
+
+    const list = changed.map((candidate) => `${candidate.name} (${candidate.pkgPath})`).join(', ');
+    throw new Error(`Bump followups changed unbumped packages: ${list}`);
   },
 } as const;
