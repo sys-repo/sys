@@ -34,8 +34,8 @@ deno.json:
   - import: npm:@sinclair/typebox-codegen@0.11.1
   - import: npm:@sinclair/typebox@0.34.49
     subpaths: [ errors, value ]
-  - import: npm:ai@6.0.159
-  - import: npm:@ai-sdk/openai@3.0.52
+  - import: npm:ai@6.0.161
+  - import: npm:@ai-sdk/openai@3.0.53
   - import: npm:ollama-ai-provider@1.2.0
   - import: npm:ollama@0.6.3
   - import: npm:gpt-tokenizer@3.4.0
@@ -66,7 +66,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
-  - import: npm:@mariozechner/pi-coding-agent@0.67.1
+  - import: npm:@mariozechner/pi-coding-agent@0.67.2
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
@@ -106,7 +106,7 @@ package.json:
     dev: true
   - import: npm:react-icons@5.6.0
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
-  - import: npm:prettier@3.8.2
+  - import: npm:prettier@3.8.3
     dev: true
   - import: npm:react@19.2.5
   - import: npm:react-dom@19.2.5

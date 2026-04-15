@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@3.0.52",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@3.0.53",
     "@automerge/automerge": "npm:@automerge/automerge@3.2.5",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.5.5",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.5.5",
@@ -12,7 +12,7 @@
     "@cliffy/table": "jsr:@cliffy/table@1.0.0",
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0.6",
     "@elevenlabs/elevenlabs-js": "npm:@elevenlabs/elevenlabs-js@2.43.0",
-    "@mariozechner/pi-coding-agent": "npm:@mariozechner/pi-coding-agent@0.67.1",
+    "@mariozechner/pi-coding-agent": "npm:@mariozechner/pi-coding-agent@0.67.2",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@2.2.0",
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.2.0/legacy.js",
@@ -44,7 +44,7 @@
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@5.2.0",
-    "ai": "npm:ai@6.0.159",
+    "ai": "npm:ai@6.0.161",
     "bowser": "npm:bowser@2.14.1",
     "chai": "npm:chai@6.2.2",
     "csstype": "npm:csstype@3.2.3",
