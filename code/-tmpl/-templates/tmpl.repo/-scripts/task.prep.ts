@@ -1,6 +1,5 @@
 import { Workspace } from '@sys/workspace';
-import { Fs, PATHS } from './common.ts';
-import { DenoDeps } from '@sys/driver-deno/runtime';
+import { PATHS } from './common.ts';
 
 /**
  * Write all {pkg}.ts files with name/version values synced
@@ -26,31 +25,10 @@ async function updateCi(cwd = Deno.cwd()) {
 }
 
 export async function main(cwd = Deno.cwd()) {
-  await syncDeps(cwd);
+  await Workspace.Prep.Deps.sync({ cwd, log: true });
   await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);
-}
-
-async function syncDeps(cwd = Deno.cwd()) {
-  if (Workspace.Prep.Deps?.sync) {
-    await Workspace.Prep.Deps.sync({ cwd, log: true });
-    return;
-  }
-
-  const res = await DenoDeps.from(Fs.join(cwd, 'deps.yaml'));
-  if (res.error) throw res.error;
-
-  const deps = res.data?.deps ?? [];
-  const importsPath = Fs.join(cwd, 'imports.json');
-  const packagePath = Fs.join(cwd, 'package.json');
-  await Fs.writeJson(importsPath, DenoDeps.toJson('deno.json', deps));
-  await Fs.writeJson(packagePath, DenoDeps.toJson('package.json', deps));
-
-  const fmt = Workspace.Prep.Fmt?.importMap;
-  if (fmt) {
-    console.info(fmt({ cwd, total: deps.length, paths: [importsPath, packagePath] }));
-  }
 }
 
 /**
