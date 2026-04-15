@@ -45,7 +45,7 @@ export const updateJson: t.TmplFileLib['updateJson'] = async <T extends t.Json>(
   const changed = before !== after;
 
   if (changed) {
-    const write = await Fs.write(path, after, { force: true });
+    const write = await Fs.writeJson(path, next, { force: true });
     if (write.error) return withError(write.error, { before, after, data: { before: beforeJson.data, after: next } });
   }
 
