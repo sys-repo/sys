@@ -13,6 +13,6 @@ describe(`@sys/workspace/bump Fmt`, () => {
     const c = WorkspaceBump.Fmt.phase({ kind: 'integrity' });
     expect(a).to.eql('calculating workspace bump plan...');
     expect(b).to.eql('running post-bump prep...');
-    expect(c).to.eql('verifying unbumped package integrity...');
+    expect(c).to.eql('checking non-bumped package integrity...');
   });
 });
