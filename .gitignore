@@ -25,7 +25,6 @@ orbiter.json
 .claude/
 .codex/
 
-# Pi agent runtime/state
+# Agent runtime/state
 .pi/
-.log/
 

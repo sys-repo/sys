@@ -6,6 +6,17 @@ Agent driver adapters.
 import { pkg } from 'jsr:@sys/driver-agent';
 ```
 
+### Invoking
+```sh
+deno run -A jsr:@sys/driver-agent/pi/cli Profiles
+deno run -A jsr:@sys/driver-agent/pi/cli Profiles --profile canon
+
+# (equivalent): from system tools:
+
+deno run -A jsr:@sys/tools agent
+deno run -A jsr:@sys/tools agent --profile canon
+```
+
 <p>&nbsp;</p>
 
 ---
