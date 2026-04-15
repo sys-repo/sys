@@ -9,19 +9,24 @@ export const HashPreflight = {
       files: 100,
       bytes: 50 * MB,
     },
+    junk: ['.DS_Store'] as const,
   },
 
   async scan(targetDir: t.StringDir): Promise<t.HashPreflight> {
     const entries = await Fs.glob(targetDir, { includeDirs: false }).find('**');
     let bytesTotal = 0;
     let fileCount = 0;
+    const junkFiles: t.StringPath[] = [];
     for (const entry of entries) {
       if (!entry.isFile) continue;
       fileCount += 1;
       const stat = await Fs.stat(entry.path);
       bytesTotal += stat?.size ?? 0;
+      if (HashPreflight.D.junk.includes(Fs.basename(entry.path) as (typeof HashPreflight.D.junk)[number])) {
+        junkFiles.push(entry.path);
+      }
     }
-    return { targetDir, fileCount, bytesTotal };
+    return { targetDir, fileCount, bytesTotal, junkFiles };
   },
 
   shouldConfirm(summary: t.HashPreflight) {

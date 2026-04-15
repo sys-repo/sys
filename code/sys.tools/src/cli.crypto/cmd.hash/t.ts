@@ -47,6 +47,7 @@ export type HashPreflight = {
   readonly targetDir: t.StringDir;
   readonly fileCount: number;
   readonly bytesTotal: t.NumberBytes;
+  readonly junkFiles: readonly t.StringPath[];
 };
 
 export type HashProgressEvent = {

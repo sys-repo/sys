@@ -23,6 +23,14 @@ export const HashFmt = {
     return `Large target detected (estimate): ${c.cyan(HashFmt.preflightSummary(summary))}`;
   },
 
+  preflightJunk(summary: t.HashPreflight) {
+    if (summary.junkFiles.length === 0) return '';
+    const files = summary.junkFiles
+      .map((path) => `  ${HashFmt.pathLabel(path)}`)
+      .join('\n');
+    return `Delete before calculating:\n${files}`;
+  },
+
   pathLabel(path: string) {
     return Fs.Path.trimCwd(path, { prefix: true }) || './';
   },

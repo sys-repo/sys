@@ -22,6 +22,11 @@ export async function hashDir(
   const dirLabel = HashFmt.dirLabel(resolved);
   const saveDist = opts.saveDist ?? false;
   const preflight = await HashPreflight.scan(resolved);
+  if (preflight.junkFiles.length > 0) {
+    console.info();
+    console.info(c.yellow(HashFmt.preflightJunk(preflight)));
+    console.info();
+  }
   if (HashPreflight.shouldConfirm(preflight)) {
     if (HashPreflight.isInteractive()) {
       const ok = await HashPreflight.confirmContinue(preflight);

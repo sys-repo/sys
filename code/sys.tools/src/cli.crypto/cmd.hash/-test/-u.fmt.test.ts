@@ -25,4 +25,17 @@ describe('cli.crypto/cmd.hash/u.fmt', () => {
     expect(text.includes('dir:dist')).to.eql(true);
     expect(text.includes('./dist.json #74119 (created), 27 kB')).to.eql(true);
   });
+
+  it('renders pre-clean junk-file guidance', () => {
+    const text = Cli.stripAnsi(HashFmt.preflightJunk({
+      targetDir: Fs.cwd(),
+      fileCount: 2,
+      bytesTotal: 12,
+      junkFiles: [Fs.join(Fs.cwd(), '.DS_Store'), Fs.join(Fs.cwd(), 'sub/.DS_Store')],
+    }));
+
+    expect(text.includes('Delete before calculating:')).to.eql(true);
+    expect(text.includes('./.DS_Store')).to.eql(true);
+    expect(text.includes('./sub/.DS_Store')).to.eql(true);
+  });
 });
