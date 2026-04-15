@@ -57,7 +57,7 @@ After generating this starter from `@sys/tmpl/repo` and making your initial prep
 updates for your project, tag it with:
 
 ```bash
-git tag -fa baseline-0 -m "baseline-0: generated from @sys/tmpl/repo and prepped with initial configuration and values"
+git tag -fa baseline-0 -m "baseline-0: generated from @sys/tmpl/repo and prepped with initial configuration"
 git push --force origin baseline-0
 ```
 
