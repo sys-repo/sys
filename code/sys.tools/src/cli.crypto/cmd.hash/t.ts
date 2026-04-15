@@ -48,6 +48,13 @@ export type HashPreflight = {
   readonly fileCount: number;
   readonly bytesTotal: t.NumberBytes;
   readonly junkFiles: readonly t.StringPath[];
+  readonly junk: readonly HashPreflightJunkGroup[];
+};
+
+export type HashPreflightJunkGroup = {
+  readonly kind: string;
+  readonly label: string;
+  readonly files: readonly t.StringPath[];
 };
 
 export type HashProgressEvent = {

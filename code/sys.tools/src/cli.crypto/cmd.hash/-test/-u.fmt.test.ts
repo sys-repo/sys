@@ -32,6 +32,13 @@ describe('cli.crypto/cmd.hash/u.fmt', () => {
       fileCount: 2,
       bytesTotal: 12,
       junkFiles: [Fs.join(Fs.cwd(), '.DS_Store'), Fs.join(Fs.cwd(), 'sub/.DS_Store')],
+      junk: [
+        {
+          kind: '.DS_Store',
+          label: '.DS_Store',
+          files: [Fs.join(Fs.cwd(), '.DS_Store'), Fs.join(Fs.cwd(), 'sub/.DS_Store')],
+        },
+      ],
     }));
 
     expect(text.includes('Delete before calculating:')).to.eql(true);
