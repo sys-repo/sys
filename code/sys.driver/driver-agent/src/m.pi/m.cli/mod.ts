@@ -11,6 +11,7 @@ import { Profiles } from '../m.cli.profiles/mod.ts';
  * API surface:
  */
 export { Profiles };
+/** Thin CLI launcher wrapper for the upstream Pi coding agent. */
 export const Cli: t.PiCli.Lib = { main, run };
 
 /**

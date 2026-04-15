@@ -24,7 +24,7 @@ deno run -A jsr:@sys/tools agent --profile canon
 ### Conceptual Primitives
 Working frame for this package, not a universal industry definition of “agent.”
 
-LLM + shell + fs + markdown + cron == "agent" (🦞)  
+    <LLM> + shell + fs + markdown + cron == "agent" (🦞)  
 
 <p>&nbsp;</p>
 
@@ -47,4 +47,4 @@ It is:
 ### Refs
 
 - Mario Zechner, [Pi](https://pi.dev/) creator - [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0)
-- Lucas Meijer - [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY)
+- Lucas Meijer - [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY) ("love letter to pi")

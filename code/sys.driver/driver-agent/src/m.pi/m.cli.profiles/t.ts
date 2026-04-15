@@ -100,6 +100,7 @@ export declare namespace PiCliProfiles {
     readonly context?: Sandbox.Context;
   };
 
+  /** Sandbox policy helper types. */
   export namespace Sandbox {
     /** Filesystem and process capabilities granted to Pi. */
     export type Capability = {

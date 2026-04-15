@@ -14,11 +14,13 @@ import type { t } from './common.ts';
  * - Upstream Pi coding-agent license: MIT
  */
 export declare namespace PiCli {
+  /** Runtime surface for the Pi CLI launcher wrapper. */
   export type Lib = {
     main(input?: Input): Promise<Result>;
     run(args?: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
+  /** Wrapper entry input for launching Pi. */
   export type Input = {
     /** Raw argv tokens passed to the CLI wrapper entrypoint. */
     readonly argv?: readonly string[];
@@ -42,6 +44,7 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
+  /** Concrete Pi run request after wrapper argument resolution. */
   export type RunArgs = {
     /**
      * Working directory passed to the Pi child process.
@@ -71,8 +74,10 @@ export declare namespace PiCli {
     readonly _: readonly string[];
   };
 
+  /** Wrapper result union. */
   export type Result = Help | Ran;
 
+  /** Help output result. */
   export type Help = {
     readonly kind: 'help';
     readonly input: Input;
@@ -100,7 +105,9 @@ export declare namespace PiCli {
     };
   };
 
+  /** Display-oriented sandbox summary helpers. */
   export namespace SandboxSummary {
+    /** Grouped scope details for one capability lane. */
     export type Scope = {
       /** Human-readable summary groups. */
       readonly summary?: readonly string[];
@@ -109,6 +116,7 @@ export declare namespace PiCli {
     };
   }
 
+  /** Successful launch result. */
   export type Ran = {
     readonly kind: 'run';
     readonly input: Input;
