@@ -1,42 +1,80 @@
 # Pi integration notes
 
-Summary of the agreed `@sys/driver-agent` Pi structure.
+Current working boundary hypothesis for `@sys/driver-agent/pi`.
 
-## Intended shape
+This note is intentionally provisional. It records the present design direction,
+not a locked architecture. Keep only the partitions earned by the first real Pi
+adapter pass.
+
+## Core proposition
+
+- Pi is the programmable agent substrate.
+- `sys.canon/-canon` is the engineering constitution.
+- Skills are an indexing and routing layer into that constitution.
+- The value of `@sys/driver-agent/pi` is not generic agent orchestration.
+- The value is driving Pi to author and edit real `@sys` TypeScript modules
+  under canon constraints.
+
+## What is actually known
+
+- The public package surface should be `driver-agent/pi`.
+- The first-class integration target should be direct Pi ESM or SDK surfaces.
+- The driver must remain truthful to Pi's real capability surface.
+- The driver must not couple core integration semantics to UI.
+- App or product workflow policy does not belong in the driver.
+
+## Preferred integration order
+
+1. SDK or ESM integration first
+2. print or JSON / process transport as fallback
+3. RPC only if later integration boundaries require it
+
+Reason:
+- SDK or ESM is the strongest value lane for typed control.
+- print or JSON is a compatibility lane, not the main proposition.
+- RPC may become useful later, but it should not define the first boundary by
+  default.
+
+## Boundary hypothesis
+
+Start with the minimum believable shape:
 
 - `driver-agent/pi`
-  - public Pi driver surface
-  - exports the Pi runtime surface
-  - exports the Pi type plane
-  - composes lower layers without coupling to UI
+  - public typed Pi driver surface
+  - exposes the runtime surface
+  - exposes the type plane
+  - stays free of UI coupling
+
+Only introduce a lower layer if the real Pi integration earns it:
 
 - `driver-agent/pi/core`
-  - lowest-level truthful Pi wrapper
-  - owns direct Pi ESM/API integration
-  - handles transport, lifecycle, event/stream translation, and substrate constraints
-  - no UI bleed
-  - no app orchestration
+  - optional low-level Pi substrate
+  - owns direct Pi integration only if that split reduces coupling or clarifies
+    truth boundaries
+  - may own transport, lifecycle, or event translation if those concerns prove
+    structurally distinct
+
+Optional UI helpers may exist only as adapters:
 
 - `driver-agent/pi/ui`
-  - optional primitive UI adapters/components
-  - may provide IO bindings, state presenters, or dev/demo helpers
-  - must not become the real logic layer
-  - must not push design pressure back into `pi/core`
+  - optional primitive UI adapters or state presenters
+  - must not become the source of truth
+  - must not push design pressure back into `pi` or `pi/core`
 
-## Boundary rules
+## Dependency direction
 
-Dependency direction should remain one-way:
+If `core` and `ui` are introduced, dependency direction remains one-way:
 
-- `pi/ui` -> `pi` -> `core`
+- `pi/ui` -> `pi` -> `pi/core`
 
 Avoid:
 
-- `core` depending on `ui`
-- UI concerns bleeding into `core`
-- hidden orchestration in the driver substrate
+- `pi/core` depending on `ui`
+- UI concerns bleeding into the integration substrate
+- hidden orchestration in the driver
 - invented capabilities that Pi does not actually expose
 
-## Design intent
+## Canon fit
 
 This follows canon driver rules:
 
@@ -45,24 +83,42 @@ This follows canon driver rules:
 - drivers translate; they do not decide
 - lifecycle and side effects are explicit
 - UI remains an adapter layer, not the source of truth
+- skills index into canon; they do not become a second constitution
 
-## Policy split
+## Policy boundary
 
-Keep `pi/core` as the pure Pi-facing substrate.
-
-Keep `pi` as the logic/policy wrapper around `core`, but only for driver-scoped policy such as:
+Driver-scoped policy is allowed only where it keeps the integration legible and
+stable, for example:
 
 - option normalization
-- session/lifecycle shaping
+- session or lifecycle shaping
 - stable event mapping
 - truthful capability exposure
 - error translation
 
-Do not put app/product workflow policy in the driver.
-That belongs in the higher-level wrapper/system using this driver.
+Do not put app, workflow, or product policy in the driver.
 
-## UI rule
+## Codex harness note
 
-`pi/ui` is allowed and useful as a primitive adapter layer, provided it remains optional and does not own the real Pi integration semantics.
+Codex desktop may provide extra affordances, such as commentary updates, local
+tool execution, review directives, or app-level interaction patterns.
 
-The real integration semantics should live in `core` and `pi`, not in `pi/ui`.
+Those client-specific affordances must not define the core `pi` driver
+contract.
+
+Per canon, client-specific behavior belongs in optional adapters, wrappers, or
+integration layers above the core Pi driver surface.
+
+## S-tier guardrails
+
+Do not claim yet:
+
+- that `pi/core` is definitely required
+- that RPC is part of the v1 contract
+- that Pi already understands `sys.canon`
+- that skills alone are sufficient to guarantee `@sys`-grade output
+
+Safer claim:
+
+- Pi can be configured and driven by `sys.canon/-canon` constraints, with
+  skills serving as a routing layer into that doctrine.
