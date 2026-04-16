@@ -4,7 +4,7 @@ import { DenoDeps } from '../mod.ts';
 
 describe('DenoDeps methods', () => {
   const SAMPLE = {
-    path: Path.resolve('code/sys.driver/driver-deno/src/-test/sample-2/deps.yaml'),
+    path: Path.resolve('./src/-test/sample-2/deps.yaml'),
   };
 
   describe('compatibility', () => {
@@ -82,6 +82,7 @@ describe('DenoDeps methods', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
+      expect(res.error).to.eql(undefined);
       const json = DenoDeps.toJson('deno.json', res.data?.deps);
       expect(json).to.eql({
         imports: {
@@ -128,7 +129,8 @@ describe('DenoDeps methods', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
-      const json = DenoDeps.toJson('package.json', res.data!.deps);
+      expect(res.error).to.eql(undefined);
+      const json = DenoDeps.toJson('package.json', res.data?.deps);
 
       expect(json).to.eql({
         dependencies: {
