@@ -68,7 +68,7 @@ git push --force origin baseline-0
 ## /packages
 New packages:
 - via interactive CLI: `deno task tmpl:project`
-- via non-interactive/agent flow using `deno run ... @sys/tmpl ... --non-interactive`
+- via non-interactive/agent flow: `deno run -A jsr:@sys/tmpl --non-interactive --dir code/packages/foo pkg --pkgName @acme/foo`
 - after adding/removing workspace packages with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>
