@@ -34,7 +34,7 @@ deno.json:
   - import: npm:@sinclair/typebox-codegen@0.11.1
   - import: npm:@sinclair/typebox@0.34.49
     subpaths: [ errors, value ]
-  - import: npm:ai@6.0.161
+  - import: npm:ai@6.0.162
   - import: npm:@ai-sdk/openai@3.0.53
   - import: npm:ollama-ai-provider@1.2.0
   - import: npm:ollama@0.6.3
@@ -62,11 +62,11 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.12
+  - import: npm:hono@4.12.14
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
-  - import: npm:@mariozechner/pi-coding-agent@0.67.2
+  - import: npm:@mariozechner/pi-coding-agent@0.67.3
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
