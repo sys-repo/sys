@@ -13,4 +13,4 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source control.
  *    - Do NOT manually alter this file.
  */
-export const pkg: Pkg = { name: '@sys/schema', version: '0.0.172' };
+export const pkg: Pkg = { name: '@sys/schema', version: '0.0.173' };
