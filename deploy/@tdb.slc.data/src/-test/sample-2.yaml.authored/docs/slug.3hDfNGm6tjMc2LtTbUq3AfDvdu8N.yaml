@@ -1,0 +1,434 @@
+title: The Startup Journey
+description: Understanding the journey from startup to business - search vs
+  execute, validation cycles, and founder-led early stages
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:core-videos/core 3.1.2 the-startup-journeyR.webm.02.mp4.webm
+      slice: 00:00..05:42
+      script: >
+        [00:00:00] Let's look at the journey from startup business model idea to
+        successful venture to understand how we move from guessing at a business
+        model to designing one that works.
+
+        [00:00:10] If you're new to startups, this may differ a lot from how
+        you've thought about building organizations in the past.
+
+        [00:00:16] The modern startup approach is fundamentally different from
+        how established businesses operate.
+
+        [00:00:23] This section on the startup journey gives you a framework and
+        a set of concepts that will help you make sense of what needs to happen,
+        in what order, and why.
+
+        [00:00:34] This modern startup approach also arms you to respond to
+        people recycling old school business advice about how to develop a
+        venture, or people from the nonprofit sector who might have old ideas
+        about how purpose-driven ventures should be built.
+
+        [00:00:49] Here's what we'll cover: the fundamental difference between a
+        startup and a business, what the journey from one to the other looks
+        like, and what your venture will need to look like across this journey.
+
+        [00:01:02] First, let's look at what it means to be a startup.
+
+        [00:01:04] By startup, I'm meaning someone who's innovating on a new
+        idea that has some sort of economic engine powering it, and in your
+        case, some sort of impact component.
+
+        [00:01:15] Knowing the difference between a startup and a business will
+        shape your whole journey.
+
+        [00:01:20] A startup isn't a small version of a big business. It's a
+        fundamentally different thing.
+
+        [00:01:25] As Steve Blank puts it, a startup is a temporary organization
+        designed to search for a repeatable, scalable business model.
+
+        [00:01:33] A business is a permanent organization designed to execute on
+        a repeatable, scalable business model.
+
+        [00:01:41] In the startup phase, your job is to test the idea, learn,
+        evolve it, and only once it's right, shift to execution.
+
+        [00:01:50] This is the single most important point to grasp.
+
+        [00:01:53] Many startups jump straight to execution, get buried in
+        operations, and never prove their model.
+
+        [00:01:59] They pour money and energy into trying to make a broken
+        business model work. By the time they realize the model is wrong,
+        they're too committed to change direction.
+
+        [00:02:09] They either fail outright or fall way short of their
+        potential.
+
+        [00:02:13] This distinction is even more important for building
+        purpose-driven ventures because you have the added complexity of an
+        impact model to integrate.
+
+        [00:02:21] It's even more critical to test and learn and not just guess
+        at the business model.
+
+        [00:02:26] There are too many things to get wrong.
+
+        [00:02:28] A startup searches for a repeatable, scalable business model
+        by moving through cycles of validation and iteration.
+
+        [00:02:37] You start with your initial business model idea.
+
+        [00:02:39] You map it into your Social Lean Canvas, and then you begin
+        validating it.
+
+        [00:02:44] Validation means taking the assumptions inside your model -
+        your untested guesses about how it's going to work - and testing them
+        against reality to see if they hold up.
+
+        [00:02:55] We take a scientific approach using a process called Build,
+        Measure, and Learn.
+
+        [00:03:01] You build an experiment, you measure the results.
+
+        [00:03:04] You learn from what happened.
+
+        [00:03:06] Then you build the next experiment informed by what you have
+        learned.
+
+        [00:03:09] You start with the riskiest assumptions first, the ones that
+        would kill your venture if they were wrong.
+
+        [00:03:15] Then you fold what you've learned back into your model.
+
+        [00:03:18] That's iteration - one version of your business model after
+        the next, until you have it right.
+
+        [00:03:23] Fewer guesses, more proven facts.
+
+        [00:03:26] A model that reflects reality and becomes increasingly likely
+        to work.
+
+        [00:03:31] That's exactly how an investor or a funder would look at a
+        venture as well.
+
+        [00:03:35] The more it has been de-risked, the more likely it is to
+        succeed, and therefore the more likely someone is to want to fund it.
+
+        [00:03:43] Over time you transition from mostly experimentation and
+        learning to more and more execution as your confidence in the business
+        model grows.
+
+        [00:03:51] This is how a starting theory full of assumptions becomes a
+        tight validated business model.
+
+        [00:03:57] And how your organization shifts from a creative, flexible
+        network startup into a structured, efficient, scalable business.
+
+        [00:04:06] Your venture starting out on the left side of the diagram
+        looks very different from when it gets to the right side.
+
+        [00:04:11] Left side - you're experimenting, learning, pivoting. Right
+        side - you are executing, optimizing and scaling.
+
+        [00:04:17] The journey from left to right is what we are mapping in this
+        program.
+
+        [00:04:23] Business model design, improvement, validation, and strategy.
+        These are the tools that move you reliably through this transition.
+
+        [00:04:32] In the startup phase, it's on you - the founders - to figure
+        things out.
+
+        [00:04:36] You might bring in others later on, but at the start, it's
+        you.
+
+        [00:04:40] It's tempting to try and outsource some of the hardest bits,
+        but don't fall into this trap.
+
+        [00:04:45] During early validation and iteration, founders must hold the
+        key roles in the organization and make the key decisions.
+
+        [00:04:53] Later, once the model is validated and you're starting to
+        execute at scale, you can hire specialists.
+
+        [00:04:59] But don't hand your canvas to an expert and ask them to fill
+        in the hard sections for you.
+
+        [00:05:04] For example, in the startup phase, understanding your
+        customers and crafting your unique value proposition is founder's work.
+
+        [00:05:11] You can't hire a marketing person to do this for you.
+
+        [00:05:15] You need to learn from your customers firsthand and build the
+        business model around them.
+
+        [00:05:20] Later you can hire marketing people to execute on your
+        marketing.
+
+        [00:05:24] Get advice from people who know more than you, but you make
+        the critical calls.
+
+        [00:05:28] Don't outsource crucial business model design.
+
+        [00:05:32] This is what the Social Lean Canvas is designed to help with.
+        It keeps all the key pieces together in one coherent model so you can
+        know what to do, when to do it, and can be the founder you need to be.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Definition of a Startup
+          text:
+            headline: The Startup Journey
+            tagline: Learn the path, walk it
+        00:00:49:
+          text:
+            headline: What We'll Cover
+            body: |
+              - Startup vs business
+        00:00:53:
+          text:
+            headline: What We'll Cover
+            body: |
+              - The journey between them
+        00:00:56:
+          text:
+            headline: What We'll Cover
+            body: |
+              - What your venture looks like
+        00:01:02:
+          text:
+            headline: What It Means to Be a Startup
+            tagline: More than just being small
+        00:01:15:
+          text:
+            headline: Startup vs Business
+            tagline: This shapes your whole journey
+        00:01:20:
+          text:
+            headline: Fundamentally Different
+            tagline: Not a small version of big business
+        00:01:25:
+          pause: 3s
+          image: /:core-images/startup-to-business.png
+          text:
+            headline: Startup vs Business
+            tagline: Search, then execute
+        00:01:28:
+          pause: 2s
+          image: /:core-images/steve-blank.png
+          text:
+            headline: Steve Blank
+            tagline: Startup methodology pioneer
+        00:01:33:
+          image: /:core-images/startup-to-business.png
+          text:
+            headline: Startup vs Business
+        00:01:41:
+          image: /:core-images/startup-to-business.png
+          text:
+            headline: Your Job in Startup Phase
+            tagline: Test, learn, evolve, then execute
+        00:01:50:
+          pause: 2s
+          image: /:core-images/startup-to-business.png
+          text:
+            headline: The Critical Point
+            tagline: Don't jump straight to execution
+        00:01:53:
+          text:
+            headline: The Common Mistake
+            body: |
+              - Jump to execution too soon
+              - Get buried in operations
+              - Never prove the model
+        00:02:09:
+          text:
+            headline: The Result
+            tagline: Failure or far short of potential
+        00:02:13:
+          text:
+            headline: Purpose-Driven Ventures
+            tagline: Even more critical to test and learn
+        00:02:21:
+          text:
+            headline: Impact Model Complexity
+            body: |
+              Too many things to get wrong
+              Test, don't guess
+        00:02:28:
+          pause: 2s
+          title: From Startup to Business
+          text:
+            headline: From Startup to Business
+            tagline: Search first, then execute
+        00:02:33:
+          text:
+            headline: Validation and Iteration
+            tagline: Cycles of testing and learning
+        00:02:39:
+          text:
+            headline: Start with Your Idea
+            tagline: Map it to Social Lean Canvas
+        00:02:44:
+          pause: 3s
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Validation
+            tagline: Test assumptions against reality
+        00:02:55:
+          text:
+            headline: Build-Measure-Learn
+            tagline: A scientific approach
+        00:03:01:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Build-Measure-Learn
+            tagline: Build an experiment
+        00:03:03:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Build-Measure-Learn
+            tagline: Measure the results
+        00:03:05:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Build-Measure-Learn
+            tagline: Learn from what happened
+        00:03:07:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Build-Measure-Learn
+            tagline: Build the next experiment
+        00:03:09:
+          image: /:core-images/startup-journey-validation.png
+          pause: 2s
+          text:
+            headline: Validation Priority
+            tagline: Start with riskiest assumptions
+        00:03:12:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Validation Priority
+            tagline: The ones that would kill your venture Test these first
+        00:03:15:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Iteration
+            tagline: Fold learnings back into model
+        00:03:23:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Iteration Outcome
+            tagline: Fewer guesses
+        00:03:25:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Iteration Outcome
+            tagline: More proven facts
+        00:03:27:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Iteration Outcome
+            tagline: Model reflects reality
+        00:03:31:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Investor Perspective
+            tagline: De-risked ventures get funded
+        00:03:43:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: The Transition
+            tagline: From experimentation to execution
+        00:03:51:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Theory to Reality
+            tagline: Assumptions become validated model
+        00:03:57:
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: Organization Evolution
+            tagline: Creative startup to scalable business
+        00:04:06:
+          image: /:core-images/startup-journey-validation.png
+          pause: 2s
+          text:
+            headline: The Journey
+            tagline: Left to right transformation
+        00:04:23:
+          text:
+            headline: The Tools
+            body: |
+              - Business model design
+              - Improvement
+              - Validation
+              - Strategy
+        00:04:32:
+          pause: 2s
+          title: Founders First
+          text:
+            headline: Founders First
+            tagline: Own the model early
+        00:04:36:
+          text:
+            headline: It's On You
+            tagline: Bring others in later
+        00:04:40:
+          text:
+            headline: The Temptation
+            tagline: Don't outsource the hard bits
+        00:04:45:
+          pause: 2s
+          text:
+            headline: Early Stage
+            tagline: Founders hold key roles
+        00:04:50:
+          text:
+            headline: Early Stage
+            body: |
+              Early: Founders hold key roles, make key decisions
+              Later: Hire specialists to execute at scale
+        00:04:59:
+          text:
+            headline: Don't Hand Off the Canvas
+            tagline: No experts filling hard sections
+        00:05:04:
+          pause: 2s
+          text:
+            headline: Founder's Work
+            tagline: Customer understanding and UVP
+        00:05:11:
+          text:
+            headline: Founder's Work
+            body: |
+              Can't hire marketing to do this
+              Learn from customers firsthand
+        00:05:20:
+          text:
+            headline: Later Stage
+            tagline: Then hire people to execute
+        00:05:24:
+          text:
+            headline: Get Advice
+            tagline: But you make the critical calls
+        00:05:28:
+          text:
+            headline: Don't Outsource Design
+            tagline: Crucial business model decisions are yours
+        00:05:32:
+          pause: 2s
+          text:
+            headline: Social Lean Canvas Purpose
+            tagline: Know what to do, when to do it

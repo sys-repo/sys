@@ -1,0 +1,1079 @@
+title: Introduction
+description: Welcome to Pivoting to Purpose - Program overview, opportunity
+  landscape, and how the SLC system works
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-2.0-intro-2025
+  :p2p-assets: :index/:assets/p2p-2.0-intro-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Add P2P program logo/image at opening (00:00:00)
+    comment: >
+      We need to create a master image to promote the p2p program and use in
+      different into and trailer slugs
+  - TODO: Create and add program structure diagram showing 3 modules (for Video 2,
+      ~00:01:25)
+    comment: |
+      Simple diagram that we can use in multiple places 
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 2.0 intro1.webm.02.mp4.webm
+      slice: 00:00..04:23
+      script: >
+        [00:00:00] Welcome to Pivoting to Purpose.
+
+        [00:00:02] This is the place to get support and guidance as you develop
+        and build your own venture, your own business or social enterprise.
+
+        [00:00:10] The Pivoting to Purpose program will help you take your
+        untested ideas and form them into an enterprise that can succeed.
+
+        [00:00:17] It will walk you through designing, validating, and executing
+        on a purpose-driven business model.
+
+        [00:00:24] It's a practical step-by-step process with a clear framework,
+        tools, and real world examples to help you see a clear path to success,
+        and it's completely free.
+
+        [00:00:36] There's something unique happening right now traditional
+        employment is being disrupted.
+
+        [00:00:40] Whole industries are changing jobs we thought would be there
+        forever are vanishing, but with this disruption, along with all the
+        uncertainty, comes opportunity.
+
+        [00:00:50] Opportunity to reinvent how we work in unprecedented ways.
+
+        [00:00:55] This trend of solo founders and small teams building their
+        own ventures has been emerging for a while, but the development of AI is
+        supercharging what's possible.
+
+        [00:01:04] One person can now build what used to take entire teams.
+
+        [00:01:08] A new kind of entrepreneur is emerging.
+
+        [00:01:10] People are stepping away from traditional jobs and building
+        their own ventures.
+
+        [00:01:15] Small, purposeful, and profitable.
+
+        [00:01:18] We call doing this pivoting to purpose.
+
+        [00:01:21] Pivoting to purpose describes making that step into building
+        your own thing.
+
+        [00:01:26] A way to generate income, wealth, and financial freedom while
+        doing something you actually believe in.
+
+        [00:01:33] Here we focus on two important things.
+
+        [00:01:35] Firstly, size pivoting to purpose is focused on small scale
+        ventures can be created by solo founders and very small teams, not high
+        growth startups and huge social enterprises, and secondly, this is about
+        being purpose driven.
+
+        [00:01:50] Stepping into doing something that matters to you.
+
+        [00:01:53] It helps you make sense of what you're doing, manage the
+        risks you're taking, and helps you chart your best course through them
+        to success.
+
+        [00:02:01] You might be mid-career and looking to transition out of
+        uninspiring work, or you could be self-employed and looking to build a
+        venture that will scale your efforts beyond dollars for hours, toil, or
+        perhaps you're new to the workforce starting out.
+
+        [00:02:15] And just aren't inspired by the idea of spending the next few
+        decades working a job you don't like for people you don't respect in
+        service of a mission, you don't believe in any of these sound like you.
+
+        [00:02:26] If so, you're in the right place.
+
+        [00:02:28] This program is here to help you make this pivot.
+
+        [00:02:32] To be clear, this isn't about sleazy internet hustle culture.
+
+        [00:02:36] The internet is full of people promising get rich quick
+        approaches and promoting a self-centered culture of win by any means
+        necessary.
+
+        [00:02:44] Pivoting to purpose is about honest hustle.
+
+        [00:02:47] Bringing the best of yourself, being smart, being strategic,
+        being successful while staying grounded in your values.
+
+        [00:02:54] Building success with your soul intact.
+
+        [00:02:57] It isn't about taking on investors who will push you to only
+        think of financial returns.
+
+        [00:03:02] It's a way for you to balance money, a mission you care about
+        and a way of life that you want.
+
+        [00:03:09] In a world becoming increasingly uncertain and untrustworthy,
+        purpose becomes your advantage.
+
+        [00:03:14] It helps you cut through the noise.
+
+        [00:03:16] Customers of ventures that have purpose at their heart are
+        more engaged, more loyal, and more likely to refer others.
+
+        [00:03:23] Purpose isn't just feel good anymore.
+
+        [00:03:25] It's becoming a strategic advantage.
+
+        [00:03:28] Whether you're trying to change the world or just build a
+        foundation for your family's happiness, integrating purpose into what
+        you're building is now a complete no-brainer.
+
+        [00:03:37] In fact, when you've done it, it will seem crazy to think
+        that you could ever build something that didn't embody your purpose and
+        values it.
+
+        [00:03:44] In building a venture, you're not creating a job for
+        yourself.
+
+        [00:03:47] You're building a machine.
+
+        [00:03:49] In the past, leaving traditional employment meant becoming a
+        freelancer or a consultant, swapping the certainty of a job for the
+        uncertainty of trading time for money.
+
+        [00:04:00] But pivoting to building a venture is different.
+
+        [00:04:03] You're building a business model that creates value beyond
+        your time.
+
+        [00:04:07] A machine that you own that produces more than you could
+        produce by yourself.
+
+        [00:04:11] We call this machine a pivot to purpose venture, or P two P
+        venture.
+
+        [00:04:16] A scalable, repeatable business model that enables you to
+        pivot away from the traditional working world while pursuing things that
+        are important to you.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Welcome
+          text:
+            headline: Pivoting to Purpose
+            tagline: Your path from idea to enterprise
+        00:00:36:
+          pause: 2s
+          text:
+            headline: The Opportunity
+            tagline: Disruption creates opportunity
+        00:00:50:
+          pause: 3s
+          text:
+            headline: The Opportunity
+            tagline: Reinvent how we work
+            body: |
+              - Disruption = Opportunity
+        00:00:55:
+          text:
+            headline: The Opportunity
+            tagline: Reinvent how we work
+            body: |
+              - AI supercharges what's possible
+        00:01:08:
+          text:
+            headline: The Opportunity
+            tagline: Reinvent how we work
+            body: |
+              - The one-person startup is real
+        00:01:18:
+          pause: 2s
+          text:
+            headline: Pivoting to Purpose
+            tagline: Build your own thing
+        00:01:33:
+          pause: 2s
+          text:
+            headline: Two Key Focus Areas
+            tagline: Size and purpose
+        00:02:01:
+          pause: 2s
+          text:
+            headline: Who This Is For
+            tagline: You're in the right place
+        00:02:32:
+          pause: 2s
+          text:
+            headline: Honest Hustle
+            tagline: Success with soul intact
+        00:02:47:
+          pause: 3s
+          text:
+            headline: Honest Hustle
+            tagline: Success with soul intact
+            body: |
+              - Being smart, strategic, successful
+              - Staying grounded in your values
+              - Build with integrity
+        00:03:09:
+          pause: 2s
+          text:
+            headline: Purpose is Your Advantage
+            tagline: Cut through the noise
+        00:03:16:
+          pause: 3s
+          text:
+            headline: Purpose is Your Advantage
+            tagline: Cut through the noise
+            body: |
+              - More engaged customers
+        00:03:20:
+          text:
+            headline: Purpose is Your Advantage
+            tagline: Cut through the noise
+            body: |
+              - More loyal customers
+        00:03:23:
+          text:
+            headline: Purpose is Your Advantage
+            tagline: Cut through the noise
+            body: |
+              - More likely to refer others
+        00:03:25:
+          text:
+            headline: Purpose is Your Advantage
+            tagline: Cut through the noise
+            body: |
+              - Strategic advantage
+        00:03:44:
+          pause: 2s
+          text:
+            headline: Building a Machine
+            tagline: Not a job, a venture
+        00:04:03:
+          pause: 3s
+          text:
+            headline: Building a Machine
+            tagline: Creates value beyond your time
+            body: |
+              - A machine that you own
+              - Produces more than you could alone
+              - Leverage + Financial independence
+        00:04:16:
+          pause: 2s
+          text:
+            headline: P2P Venture
+            tagline: Scalable, repeatable business model
+    - pause: 3s
+    - video: /:p2p-videos/p2p 2.0 intro2.webm.02.mp4.webm
+      slice: 00:00..03:21
+      script: >
+        [00:00:00] The Social Lean Canvas system has been developed over more
+        than 10 years.
+
+        [00:00:03] It's been used with thousands of social ventures,
+        accelerators, and incubator programs.
+
+        [00:00:08] It's the fastest and most reliable way to map, test, and
+        build ideas into successful business models.
+
+        [00:00:15] The canvas maps your entire business model, everything,
+        visible details, and big picture together.
+
+        [00:00:21] This isn't a narrow methodology that tries to squeeze every
+        venture into a one size fits all.
+
+        [00:00:27] The canvas system can support all kinds of entrepreneurs that
+        want to take a purpose-driven approach to building a venture.
+
+        [00:00:33] It works for a solo founder creating something they can run
+        by themselves.
+
+        [00:00:37] It works for a giant corporation or social enterprise and
+        everything in between.
+
+        [00:00:43] In pivoting to purpose, we're focusing on starting small solo
+        or small team ventures, but the social lean canvas can handle any
+        direction you choose to go in.
+
+        [00:00:52] The framework is universal.
+
+        [00:00:53] Your application of it is specific.
+
+        [00:00:56] The canvas weaves together three models that work as a
+        system, your customer model, how your venture creates value for
+        customers.
+
+        [00:01:04] Your impact model the logic for how your venture delivers on
+        your purpose.
+
+        [00:01:08] and your economic model, how money flows through your venture
+        to make it financially successful.
+
+        [00:01:14] These three models interrelate.
+
+        [00:01:16] They influence each other together.
+
+        [00:01:18] They form your complete business model.
+
+        [00:01:21] The P two P program is structured in three modules.
+
+        [00:01:24] Each module builds on the last, and each creates a clear
+        deliverable.
+
+        [00:01:30] Module One, design Your Business Model.
+
+        [00:01:32] The output of this will be your completed social lean canvas
+        This module introduces you to the fundamentals of how to design a
+        business model then guides you through sketching a first draft of your
+        idea in the social lean canvas.
+
+        [00:01:46] You'll work through each section of the canvas mapping your
+        idea into a comprehensive business model.
+
+        [00:01:51] By the end, you'll see how all the pieces fit together into a
+        single coherent model.
+
+        [00:01:57] Module two, improve your business model.
+
+        [00:01:59] The output of this is a strengthen business model with clear
+        assumptions.
+
+        [00:02:04] In this module, you'll improve what you've mapped in the
+        first module.
+
+        [00:02:07] Work through each model systematically.
+
+        [00:02:10] Identifying weak points, fixing them, and clarifying your
+        riskiest assumptions.
+
+        [00:02:15] This module makes your business model as strong as possible
+        before you start testing it.
+
+        [00:02:20] Module three, build your strategy.
+
+        [00:02:22] The output of this is a complete validation plan and
+        multi-layer strategy.
+
+        [00:02:28] This module works through assessing where you are, your
+        current stage of development, then creating a validation plan for your
+        customer model, impact model, and economic model.
+
+        [00:02:38] These specify exactly what you need to do to develop each
+        one.
+
+        [00:02:42] And finally we'll build this into a strategy.
+
+        [00:02:45] This layers your business model development, organizational
+        development, and capital strategy, all working together in a single
+        timeline.
+
+        [00:02:54] By the end, you'll have a clear, flexible roadmap.
+
+        [00:02:57] You'll know what you're doing when you're doing it, what
+        resources you'll need to get it done.
+
+        [00:03:03] Each module creates a deliverable.
+
+        [00:03:05] each deliverable feeds the next module.
+
+        [00:03:07] Module one gives you your canvas.
+
+        [00:03:09] Module two strengthens it, and module three turns it into an
+        executable strategy.
+
+        [00:03:14] Progressive clarity, going from vague idea to concrete plan.
+
+        [00:03:19] Ready to go.
+
+        [00:03:21] Let's begin.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: How This Program Works
+          image: /:p2p-assets/images/canvas-blank.png
+          text:
+            headline: The Social Lean Canvas
+            tagline: See everything at once
+        00:00:03:
+          pause: 2s
+          text:
+            headline: The Social Lean Canvas
+            tagline: Proven system
+            body: |
+              - 10+ years developed
+              - Thousands of ventures
+              - Fastest, most reliable way
+        00:00:21:
+          pause: 2s
+          text:
+            headline: Universal Framework
+            tagline: Any scale, your application
+        00:00:27:
+          pause: 2s
+          text:
+            headline: Universal Framework
+            tagline: Any scale, your application
+            body: |
+              - Solo entrepreneur → Corporation
+              - Works for any scale
+              - Your specific application
+        00:00:56:
+          pause: 2s
+          text:
+            headline: Three Models System
+            tagline: Integrated approach
+        00:01:00:
+          pause: 2s
+          image: /:p2p-images/customer-model-overview.png
+          text:
+            headline: Customer Model
+            tagline: How you create value for customers
+        00:01:08:
+          pause: 2s
+          image: /:p2p-images/impact-model-overview.png
+          text:
+            headline: Impact Model
+            tagline: Logic for delivering on your purpose
+        00:01:12:
+          pause: 2s
+          image: /:p2p-images/economic-model-overview.png
+          text:
+            headline: Economic Model
+            tagline: How money flows to financial success
+        00:01:20:
+          pause: 3s
+          text:
+            headline: Three Models System
+            tagline: Integrated approach
+            body: |
+              - Customer Model
+              - Impact Model
+              - Economic Model
+              - Three models, one system
+        00:01:30:
+          pause: 2s
+          text:
+            headline: Module 1
+            tagline: Design Your Business Model
+        00:01:37:
+          pause: 3s
+          text:
+            headline: Module 1
+            tagline: Design Your Business Model
+            body: |
+              - Learn business model fundamentals
+        00:01:42:
+          text:
+            headline: Module 1
+            tagline: Design Your Business Model
+            body: |
+              - Sketch your first draft canvas
+        00:01:46:
+          text:
+            headline: Module 1
+            tagline: Design Your Business Model
+            body: |
+              - Map all sections systematically
+        00:01:51:
+          text:
+            headline: Module 1
+            tagline: Design Your Business Model
+            body: |
+              - See how pieces fit together
+        00:01:57:
+          pause: 2s
+          text:
+            headline: Module 2
+            tagline: Improve Your Business Model
+        00:02:04:
+          pause: 3s
+          text:
+            headline: Module 2
+            tagline: Improve Your Business Model
+            body: |
+              - Improve what you've mapped
+        00:02:07:
+          text:
+            headline: Module 2
+            tagline: Improve Your Business Model
+            body: |
+              - Work through each model systematically
+        00:02:10:
+          text:
+            headline: Module 2
+            tagline: Improve Your Business Model
+            body: |
+              - Identify weak points, fix them
+        00:02:15:
+          text:
+            headline: Module 2
+            tagline: Improve Your Business Model
+            body: |
+              - Clarify your riskiest assumptions
+        00:02:20:
+          pause: 2s
+          text:
+            headline: Module 3
+            tagline: Build Your Strategy
+        00:02:28:
+          pause: 3s
+          text:
+            headline: Module 3
+            tagline: Build Your Strategy
+            body: |
+              - Assess your current stage
+        00:02:32:
+          text:
+            headline: Module 3
+            tagline: Build Your Strategy
+            body: |
+              - Create validation plans
+        00:02:42:
+          text:
+            headline: Module 3
+            tagline: Build Your Strategy
+            body: |
+              - Build complete strategy
+        00:02:54:
+          text:
+            headline: Module 3
+            tagline: Build Your Strategy
+            body: |
+              - Clear, flexible roadmap
+        00:03:03:
+          pause: 2s
+          text:
+            headline: How It Builds
+            tagline: Progressive clarity
+        00:03:14:
+          pause: 2s
+          text:
+            headline: How It Builds
+            tagline: Progressive clarity
+            body: |
+              - Map → Improve → Execute
+              - Vague idea → Concrete plan
+              - Iterate to success
+        00:03:21:
+          pause: 2s
+          text:
+            headline: Let's Begin
+            tagline: Ready to start
+archive-1:
+  title: Introduction
+  description: P2P Program Introduction - Welcome and program overview
+  traits:
+    - of: concept-player
+    - as: sequence
+  alias:
+    :core-slugs: :core/prog.core
+    :root: :core-assets/p2p\ 2.0\ intro\ 2025
+    :videos: :root/videos
+    :images: :root/images
+  data:
+    sequence:
+      - video: /:p2p-videos/p2p-2.0-intro1.webm
+        slice: 00:00..04:23
+        action: script-to-timeline
+        script: >
+          
+          [00:00:00] Welcome to Pivoting to Purpose.
+
+          [00:00:02] This is the place to get support and guidance as you
+          develop and build your own venture, your own business or social
+          enterprise.
+
+          [00:00:10] The Pivoting to Purpose program will help you take your
+          untested ideas and form them into an enterprise that can succeed.
+
+          [00:00:17] It will walk you through designing, validating, and
+          executing on a purpose-driven business model.
+
+          [00:00:24] It's a practical step-by-step process with a clear
+          framework, tools, and real world examples to help you see a clear path
+          to success, and it's completely free.
+
+
+          [00:00:36] There's something unique happening right now. Traditional
+          employment is being disrupted.
+
+          [00:00:40] Whole industries are changing. Jobs we thought would be
+          there forever are vanishing.
+
+          [00:00:48] But with this disruption, along with all the uncertainty,
+          comes opportunity.
+
+          [00:00:50] Opportunity to reinvent how we work in unprecedented ways.
+
+
+          [00:00:55] This trend of solo founders and small teams building their
+          own ventures has been emerging for a while.
+
+          [00:01:03] But the development of AI is supercharging what's possible.
+
+          [00:01:04] One person can now build what used to take entire teams.
+
+          [00:01:08] A new kind of entrepreneur is emerging.
+
+          [00:01:10] People are stepping away from traditional jobs and building
+          their own ventures.
+
+          [00:01:15] Small, purposeful, and profitable.
+
+          [00:01:18] We call doing this pivoting to purpose.
+
+
+          [00:01:21] Pivoting to purpose describes making that step into
+          building your own thing.
+
+          [00:01:26] A way to generate income, wealth, and financial freedom
+          while doing something you actually believe in.
+
+
+          [00:01:33] Here we focus on two important things.
+
+          [00:01:35] Firstly, size. Pivoting to purpose is focused on small
+          scale ventures that can be created by solo founders and very small
+          teams.
+
+          [00:01:45] Not high growth startups and huge social enterprises.
+
+          [00:01:50] And secondly, this is about being purpose driven.
+
+          [00:01:53] Stepping into doing something that matters to you.
+
+
+          [00:01:53] It helps you make sense of what you're doing, manage the
+          risks you're taking, and helps you chart your best course through them
+          to success.
+
+
+          [00:02:01] You might be mid-career and looking to transition out of
+          uninspiring work, or you could be self-employed and looking to build a
+          venture that will scale your efforts beyond dollars for hours toil.
+
+          [00:02:15] Or perhaps you're new to the workforce starting out.
+
+          [00:02:15] And just aren't inspired by the idea of spending the next
+          few decades working a job you don't like for people you don't respect
+          in service of a mission you don't believe in.
+
+          [00:02:26] Any of these sound like you?
+
+          [00:02:26] If so, you're in the right place.
+
+          [00:02:28] This program is here to help you make this pivot.
+
+
+          [00:02:32] To be clear, this isn't about sleazy internet hustle
+          culture.
+
+          [00:02:36] The internet is full of people promising get rich quick
+          approaches and promoting a self-centered culture of win by any means
+          necessary.
+
+          [00:02:44] Pivoting to purpose is about honest hustle.
+
+          [00:02:47] Bringing the best of yourself, being smart, being
+          strategic, being successful, while staying grounded in your values.
+
+          [00:02:54] Building success with your soul intact.
+
+
+          [00:02:57] It isn't about taking on investors who will push you to
+          only think of financial returns.
+
+          [00:03:02] It's a way for you to balance money, a mission you care
+          about, and a way of life that you want.
+
+
+          [00:03:09] In a world becoming increasingly uncertain and
+          untrustworthy, purpose becomes your advantage.
+
+          [00:03:14] It helps you cut through the noise.
+
+          [00:03:16] Customers of ventures that have purpose at their heart are
+          more engaged, more loyal, and more likely to refer others.
+
+          [00:03:23] Purpose isn't just feel good anymore.
+
+          [00:03:25] It's becoming a strategic advantage.
+
+
+          [00:03:28] Whether you're trying to change the world or just build a
+          foundation for your family's happiness, integrating purpose into what
+          you're building is now a complete no-brainer.
+
+          [00:03:37] In fact, when you've done it, it will seem crazy to think
+          that you could ever build something that didn't embody your purpose
+          and values.
+
+
+          [00:03:44] In building a venture, you're not creating a job for
+          yourself.
+
+          [00:03:47] You're building a machine.
+
+
+          [00:03:49] In the past, leaving traditional employment meant becoming
+          a freelancer or a consultant.
+
+          [00:03:57] Swapping the certainty of a job for the uncertainty of
+          trading time for money.
+
+
+          [00:04:00] But pivoting to building a venture is different.
+
+          [00:04:03] You're building a business model that creates value beyond
+          your time.
+
+          [00:04:07] A machine that you own that produces more than you could
+          produce by yourself.
+
+
+          [00:04:11] We call this machine a pivot to purpose venture, or P2P
+          venture.
+
+          [00:04:16] A scalable, repeatable business model that enables you to
+          pivot away from the traditional working world while pursuing things
+          that are important to you.          
+        timestamps:
+          00:00:00:
+            pause: 2s
+            title: Welcome
+            image: /:p2p-images/image-name.png
+          00:00:36:
+            pause: 2s
+            title: The Opportunity
+            text:
+              tagline: Disruption creates opportunity
+          00:00:48:
+            text:
+              body: |
+                Traditional employment is changing
+                Solo founders can now build what took teams
+                AI supercharges what's possible
+          00:01:18:
+            text:
+              tagline: The one-person startup is real
+          00:01:33:
+            text:
+              body: |
+                Two focus areas:
+
+                - Small scale - Solo founders and small teams
+                - Purpose driven - Work that matters to you
+          00:02:26:
+            text:
+              tagline: You're in the right place
+          00:02:32:
+            pause: 2s
+            title: Honest Hustle
+            text:
+              tagline: Success with soul intact
+          00:02:44:
+            text:
+              body: |
+                Not internet hustle culture
+                Bring your best self
+                Stay grounded in values
+                Build with integrity
+          00:03:02:
+            text:
+              headline: Balance what matters
+              tagline: Money • Mission • Lifestyle
+          00:03:09:
+            pause: 2s
+            title: Purpose is Advantage
+            text:
+              tagline: Purpose cuts through noise
+          00:03:16:
+            text:
+              body: |
+                More engaged customers
+                Increased loyalty
+                Higher referral rates
+                Strategic competitive edge
+          00:03:44:
+            pause: 2s
+            title: Building a Machine
+            text:
+              tagline: Not a job - a machine
+          00:03:49:
+            text:
+              body: |
+                Past: Freelancer trading time for money
+                Now: Building leverage beyond your time
+                Result: Financial independence + impact
+          00:04:03:
+            text:
+              headline: Value beyond your time
+              tagline: Build a machine
+          00:04:11:
+            text:
+              headline: Purpose Pivot Venture (P2P)
+              tagline: Scalable • Repeatable • Yours
+      - slug: /:core-slugs/3.2.1-purpose
+        display: overlay
+      - pause: 3s
+      - video: /:p2p-videos/p2p-2.0-intro2.webm
+        slice: 00:00..03:21
+        script: >
+          [00:00:00] The Social Lean Canvas system has been developed over more
+          than 10 years.
+
+          [00:00:03] It's been used with thousands of social ventures,
+          accelerators, and incubator programs.
+
+          [00:00:08] It's the fastest and most reliable way to map, test, and
+          build ideas into successful business models.
+
+
+          [00:00:15] The canvas maps your entire business model - everything
+          visible, details and big picture together.
+
+
+          [00:00:21] This isn't a narrow methodology that tries to squeeze every
+          venture into a one size fits all.
+
+          [00:00:27] The canvas system can support all kinds of entrepreneurs
+          that want to take a purpose-driven approach to building a venture.
+
+
+          [00:00:33] It works for a solo founder creating something they can run
+          by themselves.
+
+          [00:00:37] It works for a giant corporation or social enterprise, and
+          everything in between.
+
+
+          [00:00:43] In pivoting to purpose, we're focusing on starting small -
+          solo or small team ventures, but the Social Lean Canvas can handle any
+          direction you choose to go in.
+
+          [00:00:52] The framework is universal. Your application of it is
+          specific.
+
+
+          [00:00:56] The canvas weaves together three models that work as a
+          system.
+
+          [00:01:00] Your customer model - how your venture creates value for
+          customers.
+
+          [00:01:04] Your impact model - the logic for how your venture delivers
+          on your purpose.
+
+          [00:01:08] And your economic model - how money flows through your
+          venture to make it financially successful.
+
+
+          [00:01:14] These three models interrelate. They influence each other.
+
+          [00:01:18] Together, they form your complete business model.
+
+
+          [00:01:21] The P2P program is structured in three modules.
+
+          [00:01:24] Each module builds on the last, and each creates a clear
+          deliverable.
+
+
+          [00:01:30] Module One: Design Your Business Model.
+
+          [00:01:32] The output of this will be your completed Social Lean
+          Canvas.
+
+          [00:01:37] This module introduces you to the fundamentals of how to
+          design a business model, then guides you through sketching a first
+          draft of your idea in the Social Lean Canvas.
+
+          [00:01:46] You'll work through each section of the canvas, mapping
+          your idea into a comprehensive business model.
+
+          [00:01:51] By the end, you'll see how all the pieces fit together into
+          a single coherent model.
+
+
+          [00:01:57] Module Two: Improve Your Business Model.
+
+          [00:01:59] The output of this is a strengthened business model with
+          clear assumptions.
+
+          [00:02:04] In this module, you'll improve what you've mapped in the
+          first module.
+
+          [00:02:07] Work through each model systematically, identifying weak
+          points, fixing them, and clarifying your riskiest assumptions.
+
+          [00:02:15] This module makes your business model as strong as possible
+          before you start testing it.
+
+
+          [00:02:20] Module Three: Build Your Strategy.
+
+          [00:02:23] The output of this is a complete validation plan and
+          multi-layer strategy.
+
+          [00:02:28] This module works through assessing where you are - your
+          current stage of development.
+
+          [00:02:35] Then creating a validation plan for your customer model,
+          impact model, and economic model.
+
+          [00:02:42] These specify exactly what you need to do to develop each
+          one.
+
+          [00:02:45] And finally we'll build this into a strategy.
+
+          [00:02:48] This layers your business model development, organizational
+          development, and capital strategy, all working together in a single
+          timeline.
+
+          [00:02:54] By the end, you'll have a clear, flexible roadmap.
+
+          [00:02:57] You'll know what you're doing, when you're doing it, and
+          what resources you'll need to get it done.
+
+
+          [00:03:03] Each module creates a deliverable. Each deliverable feeds
+          the next module.
+
+          [00:03:07] Module one gives you your canvas. Module two strengthens
+          it, and module three turns it into an executable strategy.
+
+          [00:03:14] Progressive clarity, going from vague idea to concrete
+          plan.
+
+
+          [00:03:19] Ready to go?
+
+          [00:03:21] Let's begin.
+        timestamps:
+          00:00:00:
+            pause: 2s
+            title: The Social Lean Canvas
+            image: /images/social-lean-canvas-blank.png
+            text:
+              tagline: See everything at once
+          00:00:08:
+            text:
+              body: |
+                10+ years of development
+                Thousands of ventures tested
+                Fastest path to validated model
+          00:00:21:
+            text:
+              headline: Universal Framework
+              tagline: Any scale, your application
+          00:00:33:
+            text:
+              body: |
+                Solo founder → Corporation
+                Social enterprise → Business
+                Any purpose-driven venture
+          00:00:56:
+            pause: 2s
+            title: Three Models Working Together
+            text:
+              tagline: Customer • Impact • Economic
+          00:01:00:
+            image: /images/customer-model.png
+            text:
+              headline: Customer Model
+              tagline: How you create value
+          00:01:04:
+            image: /images/impact-model.png
+            text:
+              headline: Impact Model
+              tagline: How you deliver purpose
+          00:01:08:
+            image: /images/economic-model.png
+            text:
+              headline: Economic Model
+              tagline: How money flows
+          00:01:18:
+            text:
+              headline: One Complete System
+              tagline: Three models, one business model
+          00:01:21:
+            pause: 2s
+            title: Program Structure
+            text:
+              tagline: Three modules ahead
+          00:01:30:
+            pause: 1s
+            text:
+              headline: Module 1
+              tagline: Design Your Business Model
+          00:01:37:
+            text:
+              body: |
+                Learn business model fundamentals
+                Sketch your first draft canvas
+                Map all sections systematically
+                See how pieces fit together
+          00:01:57:
+            pause: 1s
+            text:
+              headline: Module 2
+              tagline: Improve Your Business Model
+          00:02:04:
+            text:
+              body: |
+                Strengthen what you've mapped
+                Identify and fix weak points
+                Clarify riskiest assumptions
+                Prepare for validation
+          00:02:20:
+            pause: 1s
+            text:
+              headline: Module 3
+              tagline: Build Your Strategy
+          00:02:23:
+            image: /images/strategy-model-blank.png
+          00:02:28:
+            text:
+              body: |
+                Assess your current stage
+                Create validation plans
+                Build multi-layer strategy
+                Get clear, flexible roadmap
+          00:02:48:
+            image: /images/strategy-model-filled.png
+            text:
+              headline: Three Strategic Layers
+              body: |
+                Business model development
+                Organizational development
+                Capital strategy timeline
+          00:03:03:
+            pause: 2s
+            title: Progressive Learning
+            text:
+              tagline: Map • Improve • Execute
+          00:03:07:
+            text:
+              body: |
+                Module 1 → Your canvas
+                Module 2 → Strengthened model
+                Module 3 → Executable strategy
+                Then iterate with learning
+          00:03:14:
+            text:
+              headline: From Idea to Success
+              tagline: Progressive clarity
+          00:03:19:
+            pause: 2s
+            text:
+              headline: Let's Begin
+              tagline: Ready to go?

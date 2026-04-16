@@ -1,0 +1,380 @@
+title: 3.2.3 Impact Model
+description: P2P framing and commentary for Impact Model, wrapping Core content
+  with spectrum perspective on social vs personal impact
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Create Ridwell Impact Model diagram (Video 2, ~00:00:54)
+    comment: >
+      Visual showing Ridwell's impact chain: Issue → Participants → Activities
+      → 
+
+      Short-term outcomes → Medium-term outcomes → Long-term outcomes → Impact.
+
+      Used during the Ridwell example walkthrough.
+  - TODO: Create Personal Transformation Impact Model diagram (Video 2, ~00:02:17)
+    comment: |
+      Visual showing personal impact model structure: feeling trapped → 
+      building venture → short/medium/long-term personal outcomes → 
+      life aligned with values. Used during the personal example.
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.2.3 impact-model 1.webm.02.mp4.webm
+      script: >
+        [00:00:00] Now you're going to work through the Core content on Impact
+        Model.
+
+        [00:00:03] This shows how your activities generate positive social or
+        environmental outcomes that create long-term impact.
+
+        [00:00:11] The Core Framework walks you through rigorous impact
+        modeling, including issue, participants, activities, outcomes at
+        different time horizons, and ultimate impact.
+
+        [00:00:21] This is the full framework used by social enterprises.
+
+        [00:00:25] Remember the spectrum we talked about in the Purpose section.
+
+        [00:00:28] You might be building a full impact-driven venture with a
+        detailed impact model, or your purpose might be more personal.
+
+        [00:00:36] After the Core content, we'll show you what impact modeling
+        might look like across that full spectrum.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Impact Model Introduction
+          image: /:core-images/im-title.png
+          text:
+            headline: null
+            tagline: null
+        00:00:03:
+          text:
+            headline: Impact Model
+            tagline: How activities create outcomes
+        00:00:11:
+          pause: 2s
+          text:
+            headline: Core Framework
+            tagline: Rigorous impact modeling
+            body: |
+              - Issue
+              - Participants
+              - Activities
+              - Outcomes
+              - Impact
+        00:00:28:
+          text:
+            headline: The Spectrum
+            tagline: Impact at every level
+    - slug: /:core-slugs/3.2.3-impact-model
+      display: inline
+    - pause: 3s
+    - video: /:p2p-videos/p2p 3.2.3 impact-model 2.webm.02.mp4.webm
+      script: >
+        [00:00:00] The Core Framework just showed you how to build rigorous
+        impact models for social and environmental change.
+
+        [00:00:06] Now let's talk about what this means across the P2P spectrum.
+
+        [00:00:11] Your impact model is how you operationalize your purpose.
+
+        [00:00:15] It captures the logic of how your intentions translate into
+        actual change in the world.
+
+        [00:00:21] If you're pursuing explicit social or environmental impact,
+        you map it using the framework you just saw—issue through to impact.
+
+        [00:00:31] This gets beyond hopes and assumptions about positive change.
+
+        [00:00:35] You map the causal chain so you can measure whether it's
+        actually happening.
+
+        [00:00:41] But if you're not pursuing this kind of impact, you can still
+        use the impact model structure to map your personal journey—what you're
+        trying to achieve for yourself and the people close to you.
+
+        [00:00:51] Let's look at examples of both.
+
+        [00:00:54] If we look at Ridwell, they likely have an impact model that
+        looks something like this.
+
+        [00:01:00] The issue: hard-to-recycle household items are filling up
+        landfills because of system gaps and inconvenient disposal options.
+
+        [00:01:08] Participants: household members, Ridwell staff, recycling and
+        reuse partners, and broader communities.
+
+        [00:01:16] The activities: households sort items, Ridwell does bi-weekly
+        doorstep collection, warehouse processing, transport to specialized
+        partners.
+
+        [00:01:26] The short-term outcomes: items diverted from trash, reduced
+        disposal guilt, increased recycling awareness.
+
+        [00:01:33] The medium-term outcomes: millions of pounds of waste
+        diverted, expanded partner networks, normalized subscription waste
+        services.
+
+        [00:01:44] And the long-term outcomes: systemic waste reduction,
+        stronger circular economy, policy changes supporting environmental
+        responsibility.
+
+        [00:01:53] And the final impact: a world where responsible disposal is
+        as convenient as trash, supporting a circular economy with minimal
+        waste.
+
+        [00:02:01] As you can see, the causal chain—activities lead to
+        measurable short-term changes, which compound into medium-term shifts,
+        which create long-term systemic change, which moves the world towards
+        the ultimate impact.
+
+        [00:02:17] Now, what if your purpose isn't about solving a social or
+        environmental problem?
+
+        [00:02:21] What if it's just focused on creating a better future for
+        yourself and for your family?
+
+        [00:02:26] You can still use the impact model structure.
+
+        [00:02:28] It could look something like this. The issue: feeling trapped
+        in work that doesn't align with your values, wanting to create freedom
+        and a better life for your family.
+
+        [00:02:38] Participants: you, your family members, maybe close
+        collaborators.
+
+        [00:02:42] The activities: building this Purpose Pivot Venture—creating
+        the business model, validating it, launching it, making it succeed.
+
+        [00:02:51] Short-term outcomes: you're out of your suffocating job,
+        you're making progress on the venture, you feel more aligned with your
+        values, you're building new skills.
+
+        [00:03:01] Medium-term outcomes: the venture is generating income, you
+        have more control over your time, your family sees the change in you.
+
+        [00:03:11] Long-term outcomes: you've achieved financial independence,
+        you're doing work that matters to you, you've created the freedom you
+        wanted.
+
+        [00:03:17] And then the final impact: you're living a life aligned with
+        your values, with the freedom to choose how to spend your time and the
+        resources to support the people around you.
+
+        [00:03:27] This is a valid use of the impact model.
+
+        [00:03:30] You're mapping how your activities create the change you're
+        seeking, even if that change is personal rather than societal.
+
+        [00:03:38] And remember, in the Purpose section we talked about how
+        design is never neutral.
+
+        [00:03:42] This personal transformation example shows why this matters.
+
+        [00:03:46] Even if your impact model is "create freedom for myself and
+        my family," you're still encoding values.
+
+        [00:03:53] What kind of freedom? At what cost? With what constraints?
+        How do you want to be in the world as you build this?
+
+        [00:03:59] Without being explicit about these things, defaults and
+        incentives will work against them.
+
+        [00:04:06] You could end up with financial success but burned
+        relationships, or freedom from a job but trapped in a venture that's
+        just as miserable.
+
+        [00:04:14] Map your personal impact deliberately.
+
+        [00:04:17] It keeps you honest about what you're actually trying to
+        achieve.
+
+        [00:04:21] Some P2P ventures probably have both—personal transformation
+        and social or environmental impact layered together.
+
+        [00:04:29] Our example of Buy Me Once likely fits this pattern—building
+        a sustainable business that creates freedom and income, while also
+        creating environmental impact through promoting durable, sustainable
+        products.
+
+        [00:04:42] You don't have to choose one or the other.
+
+        [00:04:44] Just be clear about what you're mapping and why.
+
+        [00:04:48] Keep it simple on your first pass.
+
+        [00:04:50] Whether you're mapping social impact or personal
+        transformation, just get the basic flow down.
+
+        [00:04:56] If your impact model is complex—multiple participant groups,
+        multiple causal chains—it'll take more time to develop.
+
+        [00:05:03] That's fine, but make sure you're not adding complexity you
+        don't need.
+
+        [00:05:08] Focus on the impact components that truly align with your
+        purpose.
+
+        [00:05:13] Check out the P2P Example Library to see different
+        approaches.
+
+        [00:05:16] The Core Example Library has comprehensive social enterprise
+        impact models as well, if you want to go deep.
+
+        [00:05:21] Document your impact model. Capture it in your canvas.
+
+        [00:05:27] This becomes the logic by which you'll prove—to yourself, to
+        funders, to collaborators—that the change you're seeking is actually
+        happening.
+      timestamps:
+        00:00:00:
+          text:
+            headline: Impact Model
+            tagline: Your impact, your way
+        00:00:11:
+          pause: 3s
+          title: Operationalizing Purpose
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Operationalizing Purpose
+        00:00:15:
+          text:
+            headline: Operationalizing Purpose
+            tagline: Intentions into action
+        00:00:35:
+          text:
+            headline: Operationalizing Purpose
+            tagline: Map the causal chain
+        00:00:54:
+          pause: 3s
+          title: Ridwell Example
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Ridwell Example
+        00:01:00:
+          pause: 2s
+          text:
+            headline: Ridwell
+            tagline: Social/environmental impact
+            body: |
+              - Issue: Hard-to-recycle items filling landfills
+        00:01:08:
+          text:
+            headline: Ridwell
+            tagline: Social/environmental impact
+            body: |
+              - Issue: Hard-to-recycle items filling landfills
+              - Participants: Households, staff, partners, communities
+        00:01:16:
+          text:
+            headline: Ridwell
+            tagline: Social/environmental impact
+            body: |
+              - Issue: Hard-to-recycle items filling landfills
+              - Participants: Households, staff, partners, communities
+              - Activities: Collection, processing, partner transport
+        00:01:26:
+          text:
+            headline: Ridwell
+            tagline: Outcomes and impact
+            body: |
+              - Short-term: Items diverted, awareness increased
+              - Medium-term: Millions of pounds diverted
+              - Long-term: Systemic waste reduction
+        00:01:53:
+          text:
+            headline: Ridwell
+            tagline: Ultimate impact
+        00:02:01:
+          text:
+            headline: Causal Chain
+            tagline: Activities → outcomes → impact
+        00:02:17:
+          pause: 3s
+          title: Personal Transformation
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Personal Transformation
+        00:02:21:
+          text:
+            headline: Personal Impact
+            tagline: A better future for you and your family
+        00:02:51:
+          text:
+            headline: Personal Impact
+            tagline: From trapped to free
+        00:03:27:
+          text:
+            headline: Personal Impact
+            tagline: Personal change counts
+        00:03:38:
+          pause: 3s
+          title: Design Is Never Neutral
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Design Is Never Neutral
+        00:03:42:
+          text:
+            headline: Design Is Never Neutral
+            tagline: Personal impact encodes values
+        00:03:53:
+          text:
+            headline: Design Is Never Neutral
+            tagline: What kind of freedom? At what cost?
+        00:04:14:
+          text:
+            headline: Design Is Never Neutral
+            tagline: Encode your values
+        00:04:21:
+          text:
+            headline: Both Personal And Social
+            tagline: Impact can layer
+        00:04:48:
+          pause: 3s
+          title: Practical Guidance
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Practical Guidance
+        00:04:50:
+          text:
+            headline: Getting Started
+            tagline: Simple first
+        00:05:08:
+          text:
+            headline: Getting Started
+            tagline: Focus on purpose
+        00:05:21:
+          text:
+            headline: Document It
+            tagline: Map it, measure it
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

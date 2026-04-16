@@ -1,0 +1,166 @@
+title: 3.2.6 Conclusion
+description: Celebrates completing the Social Lean Canvas and previews the next
+  module on improving your business model.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.2.6 conclusion.webm.02.mp4.webm
+      slice: 00:00..01:19
+      script: >
+        [00:00:00] Great. You've filled in your Social Lean Canvas. That's an
+        achievement worth acknowledging.
+
+        [00:00:04] Most entrepreneurs never even get this level of clarity.
+
+        [00:00:08] They're just running on faith and instinct and hoping their
+        original idea will just work if they build it.
+
+        [00:00:14] You've created a conceptual foundation.
+
+        [00:00:16] Something you can test, improve, and evolve into a successful
+        business model.
+
+        [00:00:22] This is rare in the haphazard world of venture building. Well
+        done.
+
+        [00:00:27] You have a clear sketch of your business model in one
+        place—your Purpose, Customer Model, Impact Model, Economic Model, and
+        Key Metrics.
+
+        [00:00:35] All connected and all visible. And you have a tool.
+
+        [00:00:39] You can take this canvas and talk it through with advisors,
+        mentors, potential collaborators, other founders.
+
+        [00:00:48] Get their perspectives, find out where your thinking might be
+        off, and discover gaps that you hadn't seen.
+
+        [00:00:52] The canvas makes those conversations productive.
+
+        [00:00:55] Instead of vague ideas, you have something concrete to
+        discuss and refine.
+
+        [00:01:01] You've built the foundation—the conceptual structure that
+        everything else builds on.
+
+        [00:01:06] Now you can build on it.
+
+        [00:01:08] The next step is about improving your model—taking it from
+        back of the napkin, initial ideas, and making it something that is worth
+        committing your time and effort into developing.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Foundation Complete
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Foundation Complete
+        00:00:16:
+          text:
+            headline: Your Achievement
+            tagline: A conceptual foundation
+        00:00:22:
+          text:
+            headline: Your Achievement
+            tagline: Rare in venture building
+        00:00:27:
+          pause: 3s
+          title: What You Have Now
+          text:
+            headline: null
+            tagline: null
+            body: |
+              What You Have Now
+        00:00:31:
+          pause: 2s
+          text:
+            headline: Your Canvas
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+        00:00:32:
+          text:
+            headline: Your Canvas
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+        00:00:33:
+          text:
+            headline: Your Canvas
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+        00:00:34:
+          text:
+            headline: Your Canvas
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+              - Economic Model
+        00:00:35:
+          text:
+            headline: Your Canvas
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+              - Economic Model
+              - Key Metrics
+        00:00:48:
+          pause: 2s
+          text:
+            headline: A Tool For Conversation
+            tagline: Find out where your thinking might be off
+            body: |
+              - Get perspectives
+              - Find gaps
+              - Discuss and refine
+        00:00:55:
+          text:
+            headline: A Tool For Conversation
+            tagline: Something concrete to discuss
+        00:01:01:
+          text:
+            headline: Foundation Built
+            tagline: Now you can build on it
+        00:01:08:
+          pause: 3s
+          title: Next Steps
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Next Steps
+        00:01:10:
+          text:
+            headline: Improving Your Model
+            tagline: From idea to reality
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

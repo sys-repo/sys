@@ -1,0 +1,390 @@
+title: 3.2.1 Purpose
+description: P2P framing on why purpose matters for solo founders, Core
+  framework on crafting purpose, and P2P commentary on the purpose spectrum,
+  design philosophy, and Honest Hustle approach.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Add library images when ready
+    comment: >
+      Need visuals for P2P and Core example libraries when examples are finalized
+data:
+  sequence:
+    - image: /:core-images/purpose-title.png
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Why Purpose Matters
+    - video: /:p2p-videos/p2p 3.2.1 purpose 1.webm.02.mp4.webm
+      slice: 00:00..01:01
+      script: >
+        [00:00:00] Making a purpose pivot into building your own venture isn't
+        easy.
+
+        [00:00:04] When things get tough and they will get tough, you'll doubt
+        yourself or you'll doubt your ideas, or worse, you'll push ahead in the
+        wrong direction.
+
+        [00:00:12] If you're not anchored to something solid, engaging your
+        purpose gives you a foundation.
+
+        [00:00:18] It supports you through the venture building journey, and it
+        helps you communicate to others, to collaborators, customers, investors,
+        why this matters, why they should engage with what you're doing and back
+        you to do it.
+
+        [00:00:31] Purpose keeps you aligned. When things get tough.
+
+        [00:00:34] It makes your marketing clear and compelling, when you put
+        purpose into your work, you get to be a fuller version of yourself.
+
+        [00:00:41] Who wants to go through the difficulty of pivoting to
+        building their own venture if it doesn't allow them to more fully embody
+        their values, passion and vision in the world.
+
+        [00:00:51] Next, you'll work through the core content on purpose.
+
+        [00:00:55] After that, we'll come back and talk about what purpose means
+        specifically for P two P ventures.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          text:
+            headline: Purpose Pivot
+            tagline: Not easy, but worth anchoring to
+        00:00:12:
+          text:
+            headline: Purpose Gives Foundation
+            tagline: Supports you through the journey
+        00:00:18:
+          pause: 2s
+          text:
+            headline: Why Purpose Matters
+            body: |
+              - Foundation through difficulty
+              - Clear communication to others
+              - Alignment when things get tough
+        00:00:34:
+          text:
+            headline: Be Your Fuller Self
+            tagline: Clear marketing and authentic expression
+        00:00:41:
+          pause: 2s
+          text:
+            headline: Embody Your Values
+            body: |
+              More fully embody your values, passion, and vision
+              Be a fuller version of yourself
+        00:00:51:
+          text:
+            headline: What's Next
+            tagline: Core content then P2P application
+    - pause: 3s
+    - slug: /:core-slugs/3.2.1-purpose
+      display: inline
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Core Framework
+          text:
+            body: |
+              Core Framework
+        -00:00:03:
+          pause: 3s
+    - pause: 3s
+    - video: /:p2p-videos/p2p 3.2.1 purpose 2.webm.02.mp4.webm
+      slice: 00:00..04:25
+      script: >
+        [00:00:00] The core framework showed you how to craft your purpose
+        statement.
+
+        [00:00:04] Now let's talk about what purpose means for you when you're
+        building a P two P venture.
+
+        [00:00:09] You may be deep in the social enterprise space and developing
+        a detailed impact model, a full theory of change, measurable outcomes,
+        the whole thing, or your purpose might be building something that can
+        reliably feed your family and allow you to contribute to your community,
+        creating a better life for you and the people close to you, or somewhere
+        in between.
+
+        [00:00:31] When you pivot to building your own thing, you get to fold
+        more of yourself into it.
+
+        [00:00:37] You're no longer spending the most productive years of your
+        life working on things that don't matter to you, making other people
+        rich.
+
+        [00:00:43] You get to decide what matters.
+
+        [00:00:45] When you put more of yourself into your venture, it gets more
+        of your energy, inspiration, sweat and love.
+
+        [00:00:52] You become a fuller, more integrated version of yourself and
+        your venture benefits from this.
+
+        [00:00:58] There's also a deeper design reason to integrate purpose into
+        your venture.
+
+        [00:01:02] Most businesses ignore this, and it's a large reason why the
+        world is in the sorry state it is in today.
+
+        [00:01:09] Design is never neutral.
+
+        [00:01:11] Systems always encode values.
+
+        [00:01:13] If you don't explicitly design for a value, a combination of
+        defaults, constraints and incentives will work against that value.
+
+        [00:01:22] Much of the harm in the world today is not intentional.
+
+        [00:01:25] It's systems that weren't deliberately designed to protect
+        the things that we value, what they were designed to achieve.
+
+        [00:01:32] Growth and profit cause them to evolve in ways that are
+        destructive to things that we value in society and in the environment.
+
+        [00:01:41] 20th century businesses created massive environmental
+        destruction, not because they set out to harm the environment, but
+        because they didn't set out explicitly intending not to harm the
+        environment.
+
+        [00:01:53] The incentives around what they did intend to do, grow the
+        business and make money for shareholders, caused them to make thousands
+        of small decisions that resulted collectively in environmental
+        destruction.
+
+        [00:02:07] This is why a slogan like Don't Be Evil doesn't stop complex
+        systems like modern corporations from producing destructive outcomes.
+
+        [00:02:16] You need to consciously decide what values and outcomes to
+        prioritize alongside growth and profit, then actively designed to ensure
+        that those outcomes are prioritized.
+
+        [00:02:28] This is why Internet hustle culture feels so icky.
+
+        [00:02:31] It prioritizes personal success and nothing else, which
+        really means prioritizing personal success at the expense of everything
+        else.
+
+        [00:02:41] Honest Hustle is about bringing energy, tenacity, hard work,
+        and smart thinking, but also knowing what we stand for and not
+        compromising on this not accidentally hurting people or our planet.
+
+        [00:02:54] Because we never considered that an action may have a
+        consequence.
+
+        [00:02:58] So even if your purpose isn't about an explicit social or
+        environmental mission, you still need to understand what you stand for,
+        what matters to you, and how you want to be in the world as you build
+        your venture.
+
+        [00:03:11] Your purpose will shape every decision you make when things
+        get hard.
+
+        [00:03:15] It'll make sure that you stand firm on what's important to
+        you and find a way to succeed without selling your soul.
+
+        [00:03:23] Let's take a look at what purpose looks like at different
+        points across the purpose spectrum.
+
+        [00:03:28] Looking in the P two P example library, you can see that Nest
+        Labs has a clear educational and community mission.
+
+        [00:03:35] Red well built itself around local environmental impact
+        design.
+
+        [00:03:40] Joy focused on creative freedom and quality work, different
+        expressions of purpose, all legitimate.
+
+        [00:03:47] The core example library shows purpose-driven ventures across
+        an even wider range, including many social enterprises with
+        comprehensive impact models.
+
+        [00:03:57] how to capture this.
+
+        [00:03:58] If you're working with others, discuss your purpose and make
+        sure you're all aligned.
+
+        [00:04:02] Get on the same page early.
+
+        [00:04:04] Keep it simple and powerful.
+
+        [00:04:06] Create a high level description of why this matters.
+
+        [00:04:09] Capture that in your canvas along with any brief explanation
+        that helps people understand it.
+
+        [00:04:16] Document your purpose, capture it in your canvas.
+
+        [00:04:18] This becomes your north star.
+
+        [00:04:20] The thing that you come back to when you're doubting, when
+        decisions get hard and when you need to remember why you're doing this.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Purpose Spectrum
+          text:
+            body: |
+              Purpose Spectrum
+        00:00:03:
+          pause: 2s
+          text:
+            headline: P2P Application
+            tagline: What purpose means for you
+        00:00:09:
+          pause: 2s
+          text:
+            headline: Purpose Spectrum
+            body: |
+              - Feed family and contribute locally
+              - Build with core values
+              - Full impact model with outcomes
+        00:00:31:
+          text:
+            headline: All Purpose Is Valid
+            tagline: Fold more of yourself into your venture
+        00:00:37:
+          text:
+            headline: You Decide
+            body: |
+              You get to decide what matters
+        00:00:45:
+          text:
+            headline: More of You
+            body: |
+              More energy, inspiration, sweat, and love
+        00:00:52:
+          text:
+            headline: Integration
+            tagline: Fuller version of yourself benefits venture
+        00:00:58:
+          pause: 3s
+          title: Design with Values
+          text:
+            body: |
+              Design with Values
+        00:01:01:
+          pause: 2s
+          text:
+            headline: Why Design Matters
+            tagline: Large reason world is in sorry state
+        00:01:09:
+          pause: 2s
+          text:
+            headline: Design Is Never Neutral
+            body: |
+              Systems encode values
+              No explicit design for X → System evolves against X
+        00:01:22:
+          text:
+            headline: Unintentional Harm
+            tagline: Systems not designed to protect what we value
+        00:01:32:
+          text:
+            headline: Destructive Evolution
+            tagline: Optimized for growth, destroyed unstated values
+        00:01:41:
+          pause: 2s
+          text:
+            headline: 20th Century Example
+            body: |
+              Environmental destruction wasn't intentional
+              Optimized for growth and profit
+              Thousands of small decisions → collective harm
+        00:02:07:
+          text:
+            headline: Beyond Slogans
+            tagline: Don't Be Evil isn't enough
+        00:02:16:
+          pause: 2s
+          text:
+            headline: Active Design Required
+            body: |
+              Consciously decide what values to prioritize
+              Actively design to ensure those outcomes
+        00:02:28:
+          text:
+            headline: Internet Hustle Culture
+            tagline: Personal success at expense of everything else
+        00:02:41:
+          pause: 2s
+          text:
+            headline: Honest Hustle
+            body: |
+              - Energy, tenacity, hard work
+              - Know what you stand for
+              - Don't compromise values
+              - Don't accidentally harm
+        00:02:58:
+          text:
+            headline: Know What You Stand For
+            tagline: What matters as you build your venture
+        00:03:11:
+          text:
+            headline: Purpose Shapes Decisions
+            tagline: Stand firm without selling your soul
+        00:03:23:
+          text:
+            headline: Purpose Across Spectrum
+            tagline: Examples at different points
+        00:03:28:
+          pause: 2s
+          text:
+            headline: P2P Examples
+            body: |
+              - Ness Labs: Educational mission
+              - Ridwell: Environmental impact
+              - DesignJoy: Creative freedom
+        00:03:47:
+          text:
+            headline: Core Examples
+            tagline: Wider range including social enterprises
+        00:03:58:
+          pause: 2s
+          text:
+            headline: Practical Steps
+            body: |
+              - Align with collaborators early
+        00:04:04:
+          text:
+            headline: Practical Steps
+            body: |
+              - Keep it simple and powerful
+              - High-level description
+        00:04:09:
+          text:
+            headline: Practical Steps
+            body: |
+              - Document in your canvas
+              - Brief explanation for clarity
+        00:04:16:
+          pause: 2s
+          text:
+            headline: Your North Star
+            body: |
+              Come back to purpose when:
+              - Doubting yourself
+              - Decisions get hard
+              - Need to remember why
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

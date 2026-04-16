@@ -1,0 +1,25 @@
+title: Business Model Design
+description: Introduction to business model design and guided canvas completion
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+data:
+  sequence:
+    - pause: 3s
+      title: Understanding Business Model Design
+      text:
+        body: |
+          Understanding Business Model Design
+    - slug: /:p2p-slugs/3.1-understanding-business-model-design
+      display: inline
+    - pause: 3s
+      title: Fill In Your Canvas
+      text:
+        body: |
+          Fill In Your Canvas
+    - slug: /:p2p-slugs/3.2-fill-in-your-canvas
+      display: inline

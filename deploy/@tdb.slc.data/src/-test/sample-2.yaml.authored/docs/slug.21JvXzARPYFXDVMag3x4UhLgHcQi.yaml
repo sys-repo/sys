@@ -1,0 +1,82 @@
+prompts:
+  - prompt: 'Slug Workflow - Step 1: Validation & Planning'
+    ref: 'crdt:SbTGWPYQqR5HYzgkjdkXkDK9LbX'
+  - prompt: 'Slug Workflow - Step 2: Full YAML Generation'
+    ref: 'crdt:3rv8Sp4ndk2v7vMggt4QNGUQxTT8'
+  - prompt: SLC Slug Creation - Technical Context
+    ref: 'crdt:45FYvUk7HhUckoh2xYKLa5nRbkwu'
+  - prompt: Slug Creation Rules
+    ref: 'crdt:2xnw2enoruoNiWM3DB9Nm9Xq5M1A'
+refs:
+  - slug: venture-library
+    ref: 'crdt:3ncU6zd9tvqEad7qZ4fD5F2s828Z'
+alias:
+  ':core': slug/data/prog.core
+  ':p2p': slug/data/prog.p2p
+  ':assets': ~/Documents/All-docs/TeamDB/Design/Video/P2P-program/Oct-2025/publish/
+traits:
+  - of: slug-tree
+    as: prog.core
+  - of: slug-tree
+    as: prog.p2p
+data:
+  prog.core:
+    tree:
+      - slug: 2.0-intro
+        ref: 'crdt:4VxV2qemEge2SLvANvD9SxZJGJGq'
+        slugs:
+          - slug: 2.1-intro-learn-more
+            ref: 'crdt:4S2yRh7yvZnSrLkTdYhE7DSwwVMe'
+      - slug: 3.0-business-model-design
+        ref: 'crdt:pz1U8r3FH2ubPjnBzTMtFB8Yaaw'
+        slugs:
+          - slug: 3.1-understanding-business-model-design
+            ref: 'crdt:3R4c1avdeDB34cQ9q6PsdsSFYyrb'
+            slugs:
+              - slug: 3.1.1-what-is-a-business-model
+                ref: 'crdt:4YM1pCmPzKXZZQDtpgvsuJDMkNmn'
+              - slug: 3.1.2-the-startup-journey
+                ref: 'crdt:3hDfNGm6tjMc2LtTbUq3AfDvdu8N'
+              - slug: 3.1.3-the-three-circles-model
+                ref: 'crdt:3rzB8pEFLK5Rmsj8ULapzKcfuypX'
+              - slug: 3.1.4-the-venture-example-library
+                ref: 'crdt:3e3Xd3kEJnefXpyRGcmyYFDvdFWv'
+          - slug: 3.2-fill-in-your-canvas
+            ref: 'crdt:3qYxjZdxDVTRe6V5fd4zH3HezJfR'
+            slugs:
+              - slug: 3.2.1-purpose
+                ref: 'crdt:2g2Wg3GWSpvyeBMTRkRARWacea1h'
+              - slug: 3.2.2-customer-model
+                ref: 'crdt:4YbWrL5nqbXeWT1P2P3hpkKyT2rb'
+              - slug: 3.2.3-impact-model
+                ref: 'crdt:dzXi9xxjvYKf9eQo58dMfbxNeZN'
+              - slug: 3.2.4-economic-model
+                ref: 'crdt:2rF4fgGBYRKVg3PzVdtzF8d2Qs51'
+              - slug: 3.2.5-key-metric
+                ref: 'crdt:27dGC1m1NTXNaYUa23LwwjXmhube'
+              - slug: 3.2.6-conclusion
+                ref: 'crdt:31mbtvZFF7KrY6yb2EArC4u62vAN'
+  prog.p2p:
+    tree:
+      - slug: 2.0-intro
+        ref: 'crdt:2kcH93dUVmRsZq77YVbaTLNGPr8z'
+      - slug: 3.0-business-model-design
+        ref: 'crdt:3ehH7J6cycUsSUe7DJr8UNLGeBgf'
+        slugs:
+          - slug: 3.1-understanding-business-model-design
+            ref: 'crdt:rM8NVn7L3YK6Qgjw8y2ifidTjPp'
+          - slug: 3.2-fill-in-your-canvas
+            ref: 'crdt:38UaiR5PU1sim68hKo8SBmp2uSUR'
+            slugs:
+              - slug: 3.2.1-purpose
+                ref: 'crdt:qPTTi1s5xLvWqBPK4HY2nN63ENz'
+              - slug: 3.2.2-customer-model
+                ref: 'crdt:43o2JVnq76M8sqaEbxTt3mvKUEcB'
+              - slug: 3.2.3-impact-model
+                ref: 'crdt:3riw14cbuYHL5Hxx9vzZeczv8xso'
+              - slug: 3.2.4-economic-model
+                ref: 'crdt:3tzSooit3ou45ZecbjCvWHhx9VBu'
+              - slug: 3.2.5-key-metrics
+                ref: 'crdt:3x87rXgYrszL6WCdWubVStcA3mDB'
+              - slug: 3.2.6-conclusion
+                ref: 'crdt:3gam5dCqVsng1ptEsP9AYvPTNHr4'

@@ -1,0 +1,193 @@
+title: The Venture Example Library
+description: Learning from real purpose-driven ventures - accessing case studies
+  throughout the program and recap of core principles
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Add venture example library images when interface is ready
+    comment: |
+      Create and add screenshot images of the venture example library 
+      showing the grid interface and example venture cards
+data:
+  sequence:
+    - video: /:core-videos/core 3.1.4 the-venture-example-library.webm.02.mp4.webm
+      slice: 00:00..01:35
+      script: >
+        [00:00:00] Understanding business model design in theory is one thing.
+
+        [00:00:03] Seeing it work in practice is another.
+
+        [00:00:05] Throughout this program, you'll have access to the Venture
+        Example Library, a collection of case studies of real purpose-driven
+        ventures that have built successful, impactful business models.
+
+        [00:00:16] Each example gives you three things: an outline of how the
+        venture works, a complete walkthrough of their Social Lean Canvas
+        showing how their customer, impact, and economic models work together,
+        and a detailed look at their impact model.
+
+        [00:00:29] You can access these examples at any time throughout the
+        program.
+
+        [00:00:33] Use them to see how different organizations applied the tools
+        and techniques we're covering.
+
+        [00:00:38] You'll see patterns in how ventures design their business
+        models.
+
+        [00:00:41] You'll see different approaches to creating and capturing
+        value.
+
+        [00:00:45] And you'll learn from the choices and trade-offs that they
+        made along the way.
+
+        [00:00:49] We'll reference specific venture examples throughout the
+        program when they illustrate a particular concept.
+
+        [00:00:55] But don't wait for us. Explore them on your own.
+
+        [00:00:57] See what resonates. See what surprises you.
+
+        [00:01:00] The library is there to support your learning whenever you
+        need it.
+
+        [00:01:03] These core principles will help you make sense of your
+        journey through the Social Lean Canvas.
+
+        [00:01:08] The journey from an early model full of untested assumptions
+        and risks to a validated, repeatable, scalable business model.
+
+        [00:01:16] You now understand what a business model is.
+
+        [00:01:18] You know why design beats guesswork.
+
+        [00:01:21] You understand the startup journey from search to execution.
+
+        [00:01:25] You know your responsibilities as founders. You have the
+        Three Circles Model to help keep your business model focused on what
+        matters.
+
+        [00:01:32] Now you're ready to start mapping your business model in the
+        Social Lean Canvas.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: The Venture Example Library
+          text:
+            headline: The Venture Example Library
+            tagline: Learn from real ventures
+        00:00:03:
+          text:
+            headline: Theory and Practice
+            tagline: See it work in the real world
+        00:00:05:
+          text:
+            headline: Venture Example Library
+            tagline: Real purpose-driven ventures
+        00:00:10:
+          text:
+            headline: Case Studies
+            tagline: Successful, impactful business models
+        00:00:16:
+          pause: 2s
+          text:
+            headline: What Each Example Provides
+            tagline: Three components per venture
+        00:00:18:
+          text:
+            headline: What Each Example Provides
+            body: |
+              - Venture outline
+        00:00:21:
+          text:
+            headline: What Each Example Provides
+            body: |
+              - Social Lean Canvas walkthrough
+        00:00:25:
+          text:
+            headline: What Each Example Provides
+            body: |
+              - Impact Model detail
+        00:00:29:
+          text:
+            headline: Access Anytime
+            tagline: Available throughout the program
+        00:00:33:
+          text:
+            headline: How to Use the Library
+            tagline: See tools and techniques applied
+        00:00:38:
+          pause: 2s
+          text:
+            headline: What You'll Learn
+            tagline: Patterns, approaches, trade-offs
+        00:00:40:
+          text:
+            headline: What You'll Learn
+            body: |
+              - Patterns in business model design
+              - Different approaches to value
+              - Choices and trade-offs
+        00:00:49:
+          text:
+            headline: We'll Reference Examples
+            tagline: When they illustrate concepts
+        00:00:55:
+          text:
+            headline: Don't Wait for Us
+            tagline: Explore on your own
+        00:00:57:
+          text:
+            headline: Explore the Library
+            body: |
+              See what resonates
+              See what surprises you
+        00:01:00:
+          text:
+            headline: Supporting Your Learning
+            tagline: Whenever you need it
+        00:01:03:
+          pause: 2s
+          title: You're Ready
+          text:
+            headline: You're Ready
+            tagline: Core principles in place
+        00:01:08:
+          text:
+            headline: Your Journey
+            tagline: From assumptions to validated model
+        00:01:13:
+          text:
+            headline: Your Journey
+            body: |
+              Untested assumptions and risks
+              To validated, repeatable, scalable model
+        00:01:16:
+          pause: 2s
+          text:
+            headline: Core Principles
+            tagline: What you've learned
+        00:01:18:
+          text:
+            headline: Core Principles
+            body: |
+              - What a business model is
+              - Design beats guesswork
+              - Startup journey: Search to execution
+              - 3 Circles Model: Focus on what matters
+        00:01:32:
+          pause: 2s
+          text:
+            headline: Now You're Ready
+            tagline: Prove it, then scale it

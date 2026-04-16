@@ -1,0 +1,468 @@
+title: 3.2.2 Customer Model
+description: P2P wrapper for Customer Model - framing, core content, and
+  P2P-specific guidance on value creation
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.2.2 customer-model 1.webm.02.mp4.webm
+      script: >
+        [00:00:00] Next, you're going to work through the Core content on the
+        Customer Model.
+
+        [00:03:03] This is where you map out how you create value for your
+        customers.
+
+        [00:07:07] This is the foundation of your business model.
+
+        [00:09:09] The Core Framework walks you through four key sections:
+        Customers, Jobs to be Done,
+
+        [00:15:15] Unique Value Proposition, and Solution.
+
+        [00:18:18] You'll see how these four pieces fit together into a single
+        coherent system.
+
+        [00:24:24] The Core content uses the term "social enterprise" quite
+        broadly,
+
+        [00:28:28] so just bear this in mind. This includes P2P ventures like
+        yours.
+
+        [00:32:32] After you've gone through the Core Framework, we'll come back
+
+        [00:35:35] and talk about what matters specifically for P2P ventures.
+      timestamps:
+        00:00:00:
+          title: Introduction
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Introduction
+        00:00:03:
+          pause: 3s
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Customer Model
+            tagline: Value creation starts here
+    - slug: /:core-slugs/3.2.2-customer-model
+      display: inline
+    - pause: 3s
+    - video: /:p2p-videos/p2p 3.2.2 customer-model 2.webm.02.mp4.webm
+      script: >
+        [00:00:00] The Core Framework just walked you through the Customer
+        Model—how to identify customers, understand their jobs to be done, craft
+        unique value propositions, and design solutions.
+
+        [00:10:10] Now, let's talk about what this means with a P2P flavour.
+
+        [00:15:15] First, a bit of a mindset shift.
+
+        [00:17:17] For P2P ventures, small can be better.
+
+        [00:21:21] Kevin Kelly's concept of "1,000 True Fans" gives us a useful
+        lens here.
+
+        [00:26:26] You don't need millions of customers to build a viable
+        venture.
+
+        [00:30:30] You need a minimum viable audience.
+
+        [00:33:33] People willing to directly support what you're building
+        through subscriptions, purchases, memberships—whatever fits your model.
+
+        [00:40:40] For a Purpose Pivot Venture, this is strategic.
+
+        [00:43:43] Going narrow and deep with a niche group who really value
+        what you can offer can be more powerful than trying to go broad,
+        especially when you're a solo or small team.
+
+        [00:55:55] Remember, you're building a machine—not just selling your
+        time, not just being labour.
+
+        [01:01:01] For your machine to be scalable and repeatable, it needs a
+        reliable way to create value.
+
+        [01:06:06] Your customer model does this by stringing together:
+        identifiable customers,
+
+        [01:10:10] jobs they need done,
+
+        [01:13:13] value propositions they'll engage with,
+
+        [01:15:15] and solutions that will deliver.
+
+        [01:17:17] All four pieces need to work together elegantly.
+
+        [01:21:21] If one piece is weak, the whole model struggles.
+
+        [01:25:25] Be particularly aware of complexity in your customer model.
+
+        [01:28:28] The more complex your model, the more difficult and expensive
+        it will be to validate.
+
+        [01:32:32] More customer types means multiplied work.
+
+        [01:36:36] Each customer type has its own jobs to be done, its own value
+        proposition.
+
+        [01:40:40] You have to validate each one separately.
+
+        [01:43:43] More complexity, more validation work, and more risk of
+        getting things wrong.
+
+        [01:49:49] Let's look at a couple of examples from the library to better
+        understand this.
+
+        [01:54:54] Plausible Analytics keeps it simple.
+
+        [01:56:56] Single customer type—privacy-conscious developers who need
+        web analytics.
+
+        [02:01:01] Their flow: developers frustrated with Google
+        Analytics—that's the customer.
+
+        [02:07:07] Need privacy-respecting analytics—that's the job to be done.
+
+        [02:11:11] That doesn't compromise on features—that's the UVP.
+
+        [02:15:15] Delivered through a lightweight, open-source tool—that's the
+        solution.
+
+        [02:19:19] Clean. One customer type, one clear flow. Solo founder
+        viable.
+
+        [02:25:25] Ridwell is a little more complex.
+
+        [02:27:27] They have two customer types: households who want to recycle
+        hard-to-recycle items, and city/waste partners who need better recycling
+        solutions.
+
+        [02:37:37] Each type has different jobs to be done, different value
+        propositions.
+
+        [02:41:41] The household customer wants convenience and environmental
+        impact.
+
+        [02:46:46] The city partner wants cost reduction and sustainability
+        metrics.
+
+        [02:51:51] Two distinct flows that have to work together.
+
+        [02:54:54] Does Ridwell need this complexity?
+
+        [02:57:57] Probably. Their model requires it, so they will have gone in
+        eyes open knowing they have to validate and serve two different customer
+        types.
+
+        [03:06:06] If you are adding a second or more customer types, ask hard
+        questions about whether you really need it.
+
+        [03:14:14] Sometimes you do. Just understand you're signing up for
+        multiplied work and risk.
+
+        [03:20:20] When you're choosing customer segments as a solo or small
+        venture, you'll probably face some constraints.
+
+        [03:26:26] Channel constraints.
+
+        [03:27:27] For example, a solo founder will find it hard to do
+        high-touch enterprise sales calls.
+
+        [03:33:33] You won't be able to afford a sales team.
+
+        [03:36:36] You need customers who can find you through content
+        marketing, SEO, community, word of mouth—channels that can automate or
+        scale without you needing to be everywhere at once.
+
+        [03:49:49] Choose customers who value small.
+
+        [03:51:51] Some segments actively prefer solo or small teams.
+
+        [03:55:55] They get faster response times, more specialised expertise,
+        personal touch.
+
+        [04:01:01] Others want the appearance of a big company.
+
+        [04:03:03] Pick segments that work with what you are.
+
+        [04:08:08] Look for async communication opportunities.
+
+        [04:11:11] You can't be available 24/7.
+
+        [04:13:13] Customers who expect instant support or constant handholding
+        are tough to serve solo.
+
+        [04:19:19] Choose segments and use cases where asynchronous
+        communication can be accepted.
+
+        [04:26:26] Not all P2P ventures will have well-developed purpose
+        narratives.
+
+        [04:30:30] You might be doing this for yourself and your family, and
+        that story might not strengthen your business model beyond improving
+        your own motivation.
+
+        [04:39:39] But if your purpose can play a role in the attractiveness of
+        your solution, the Customer Model is where this shows up.
+
+        [04:45:45] For our example of Buy Me Once, the desire for sustainable
+        products is the core engine of value creation for customers—it also
+        delivers the impact model for the venture.
+
+        [04:56:56] Purpose is integral to the value proposition that drives
+        customers to engage.
+
+        [05:02:02] For Plausible Analytics, their mission to solve surveillance
+        capitalism problems folds directly into their value proposition as well.
+
+        [05:10:10] "Privacy without sacrifice" and "transparency through open
+        source."
+
+        [05:15:15] If your authentic voice and commitment to purpose can
+        strengthen your value proposition, lean into it.
+
+        [05:21:21] If not, that's fine too.
+
+        [05:23:23] Modern AI and digital tools make solo customer models viable
+        in ways that they just weren't five years ago.
+
+        [05:30:30] Content creation, customer research, marketing, logistics.
+
+        [05:35:35] You can leverage tools to do work that used to require whole
+        teams.
+
+        [05:39:39] We'll dive deeper into the specific tools and approaches in
+        Module 4, where we'll be working on improving your business model.
+
+        [05:46:46] But for now, just know that being solo doesn't mean you have
+        to do everything manually.
+
+        [05:51:51] So keep it simple on your first pass of the canvas.
+
+        [05:54:54] Get the basics down: Customers, Jobs, Value Proposition,
+        Solution.
+
+        [05:59:59] If you're adding multiple customer types, pause and ask if
+        you really need them.
+
+        [06:04:04] The complexity might be necessary, but go in with your eyes
+        open.
+
+        [06:08:08] Check out the P2P Example Library to see how different
+        ventures mapped their customer models.
+
+        [06:14:14] The Core Example Library has additional examples showing
+        various different approaches as well.
+      timestamps:
+        00:00:15:
+          title: 1,000 True Fans
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              1,000 True Fans
+        00:00:18:
+          text:
+            headline: 1,000 True Fans
+            tagline: Small can be better
+        00:00:30:
+          pause: 2s
+          text:
+            headline: 1,000 True Fans
+            tagline: Minimum viable audience
+        00:00:43:
+          text:
+            headline: 1,000 True Fans
+            tagline: Small and viable
+        00:00:55:
+          title: Building A Machine
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Building A Machine
+        00:00:58:
+          text:
+            headline: Building A Machine
+            tagline: Not selling your time
+        00:01:06:
+          pause: 2s
+          text:
+            headline: Building A Machine
+            tagline: Build the system
+            body: |
+              - Identifiable Customers
+        00:01:10:
+          text:
+            headline: Building A Machine
+            tagline: Build the system
+            body: |
+              - Identifiable Customers
+              - Jobs They Need Done
+        00:01:13:
+          text:
+            headline: Building A Machine
+            tagline: Build the system
+            body: |
+              - Identifiable Customers
+              - Jobs They Need Done
+              - Value Propositions They'll Engage With
+        00:01:15:
+          text:
+            headline: Building A Machine
+            tagline: Build the system
+            body: |
+              - Identifiable Customers
+              - Jobs They Need Done
+              - Value Propositions They'll Engage With
+              - Solutions That Deliver
+        00:01:25:
+          title: Beware Complexity
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Beware Complexity
+        00:01:28:
+          text:
+            headline: Beware Complexity
+            tagline: More complex = harder to validate
+        00:01:36:
+          pause: 3s
+          text:
+            headline: Beware Complexity
+            tagline: Customer types multiply work
+            body: |
+              - More Types = More JTBD
+              - More UVPs
+              - More Validation
+              - More Risk
+        00:01:54:
+          text:
+            headline: Plausible Analytics
+            tagline: Single customer type
+        00:02:19:
+          pause: 2s
+          text:
+            headline: Plausible Analytics
+            tagline: Solo founder viable
+        00:02:25:
+          text:
+            headline: Ridwell
+            tagline: Two customer types
+        00:02:51:
+          pause: 2s
+          text:
+            headline: Ridwell
+            tagline: Two distinct flows
+        00:03:06:
+          text:
+            headline: Beware Complexity
+            tagline: Simple beats complex
+        00:03:20:
+          title: P2P Constraints
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              P2P Constraints
+        00:03:26:
+          pause: 2s
+          text:
+            headline: P2P Constraints
+            tagline: Channel constraints
+            body: |
+              - Content Marketing
+              - SEO
+              - Community
+              - Word of Mouth
+        00:03:49:
+          pause: 2s
+          text:
+            headline: P2P Constraints
+            tagline: Choose customers who value small
+        00:04:08:
+          pause: 2s
+          text:
+            headline: P2P Constraints
+            tagline: Async communication opportunities
+        00:04:19:
+          text:
+            headline: P2P Constraints
+            tagline: Choose compatible segments
+        00:04:26:
+          title: Purpose As UVP Amplifier
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Purpose As UVP Amplifier
+        00:04:39:
+          text:
+            headline: Purpose As UVP Amplifier
+            tagline: Where purpose shows up
+        00:04:45:
+          text:
+            headline: Buy Me Once
+            tagline: Purpose drives value creation
+        00:05:02:
+          text:
+            headline: Plausible Analytics
+            tagline: Mission folds into UVP
+        00:05:15:
+          text:
+            headline: Purpose As UVP Amplifier
+            tagline: Purpose when relevant
+        00:05:23:
+          text:
+            headline: AI Enables Scale
+            tagline: Solo models now viable
+        00:05:39:
+          text:
+            headline: AI Enables Scale
+            tagline: Details in Module 4
+        00:05:51:
+          title: Practical Guidance
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Practical Guidance
+        00:05:54:
+          pause: 3s
+          text:
+            headline: Practical Guidance
+            tagline: Start simple
+            body: |
+              - Simple First
+              - Question Complexity
+              - Use Examples
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

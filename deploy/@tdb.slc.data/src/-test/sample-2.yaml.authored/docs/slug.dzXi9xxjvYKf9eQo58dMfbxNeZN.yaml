@@ -1,0 +1,582 @@
+title: 3.2.3 Impact Model
+description: Learn how to map the chain of causality from your activities
+  through outcomes to long-term social impact. Includes framework explanation
+  and worked example.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - image: /:core-images/im-title.png
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Overview
+    - video: /:core-videos/impact model_overview.webm.02.mp4.webm
+      slice: 00:00..00:42
+      script: >
+        [00:00:00] Just as your customer model describes how you create customer
+        value, your impact model shows how you create social value.
+
+        [00:00:08] It shows how your activities are going to generate positive
+        social or environmental outcomes that will then create your long-term
+        impact.
+
+        [00:00:18] Based on what you've described in the purpose section of the
+        canvas, your impact model will show the chain of causality, the logic by
+        which your intentions will translate into impact that will actually
+        occur in the world.
+
+        [00:00:32] And this will get you beyond mere hopes and assumptions about
+        the positive change you're going to cause and get real about how this
+        will actually happen.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/impact-model-overview.png
+          text:
+            headline: Impact Model
+            tagline: Shows how you create social value
+        00:00:18:
+          text:
+            headline: Impact Model
+            tagline: Chain of causality from intentions to impact
+    - video: /:core-videos/impact model_overview_context.webm.02.mp4.webm
+      slice: 00:00..01:02
+      script: >
+        [00:00:00] Depending on what you're trying to achieve, your impact model
+        will be more or less complicated.
+
+        [00:00:05] This template will allow you to sketch out each component of
+        your impact model as a simple starting point for you to build on.
+
+        [00:00:12] This is just one template for developing an impact model.
+        There are many others, so feel free to use a different one if you know
+        it better or if it's the one used by your organization, funder or
+        program that you're in.
+
+        [00:00:25] If your impact model's relatively simple, it may have just a
+        single line that maps your impact from issue through to final impact.
+
+        [00:00:33] But if it's more complex, then you may have several and they
+        may interact in complex ways.
+
+        [00:00:39] If this is the case, it's going to take a bit more time and
+        effort to develop your impact model.
+
+        [00:00:44] That said, also make sure that you're not making your impact
+        model more complex than it needs to be.
+
+        [00:00:51] It can be tempting to add in every positive thing that your
+        business could do, but keep it simple by focusing only on the impact
+        components that truly align with your purpose.
+      timestamps:
+        00:00:00:
+          image: /:core-images/impact-model-overview.png
+          text:
+            headline: Flexibility
+            tagline: Adapt complexity to your needs
+        00:00:25:
+          text:
+            headline: Flexibility
+            body: |
+              - Simple: single line from issue to impact
+              - Complex: multiple interacting pathways
+              - Focus only on components aligned with purpose
+    - video: /:core-videos/impact model_overview_disclaimer.webm.02.mp4.webm
+      slice: 00:00..00:39
+      script: >
+        [00:00:00] This impact logic you are creating here tells the story of
+        how the things you do will solve real issues for real people in a
+        predictable and measurable way.
+
+        [00:00:11] But of course there are often many, many more factors causing
+        these issues than you could hope to address on your own.
+
+        [00:00:17] Complex problems cannot be solved with one simple fix.
+
+        [00:00:21] So your impact model needs to reflect that you understand the
+        system that is producing the issues you want to solve, and that based on
+        this understanding your intervention often in conjunction with other
+        people's work will influence this system in a significant and positive
+        way.
+      timestamps:
+        00:00:00:
+          image: /:core-images/impact-model-overview.png
+          text:
+            headline: Systems Thinking
+            tagline: Complex problems need systemic understanding
+        00:00:17:
+          text:
+            headline: Systems Thinking
+            tagline: Your intervention influences larger systems
+    - pause: 2s
+    - video: /:core-videos/impact model_issue.webm.02.mp4.webm
+      slice: 00:00..00:30
+      script: >
+        [00:00:00] The issue section of your impact model draws directly from
+        your purpose statement.
+
+        [00:00:05] The issue is the thing you are really trying to address with
+        your enterprise, the problem you are trying to solve for this first pass
+        through the canvas, describe the issue in a high level way, but even
+        though you're only going to describe it simply here in the canvas, you
+        do need to understand it deeply.
+
+        [00:00:23] Or at least be on the journey to understanding it deeply.
+
+        [00:00:26] Otherwise, you can't hope to do anything useful about it.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Issue
+          text:
+            body: |
+              Issue
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-issue.png
+          text:
+            headline: Issue
+            tagline: Draws from your Purpose statement
+        00:00:15:
+          text:
+            headline: Issue
+            tagline: Understand it deeply to address it
+    - pause: 2s
+    - video: /:core-videos/impact model_participants.webm.02.mp4.webm
+      slice: 00:00..00:24
+      script: >
+        [00:00:00] The participants in your impact model are your stakeholders,
+        the people or organizations who will participate in your impact
+        activities.
+
+        [00:00:08] This will include any core beneficiary groups that you're
+        serving, as well as other key people and organizations who will engage
+        with you on your impact activities.
+
+        [00:00:18] A participant might also be a customer in your customer model
+        if they play a key role in making your broader business model work as
+        well.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Participants
+          text:
+            body: |
+              Participants
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-part.png
+          text:
+            headline: Participants
+            tagline: Stakeholders who engage in your activities
+        00:00:18:
+          text:
+            headline: Participants
+            tagline: May also be customers in your model
+    - pause: 2s
+    - video: /:core-videos/impact model_activities.webm.02.mp4.webm
+      slice: 00:00..00:30
+      script: >
+        [00:00:00] Your activities are the things your participants will do
+        because of your enterprise.
+
+        [00:00:05] They will ultimately lead to the impact that you want to
+        have.
+
+        [00:00:09] Activities could be, for example, a participant group attends
+        a training program. You offer installs, solar lighting, plants, trees,
+        receives medical treatment, things like that.
+
+        [00:00:20] It'll be different for every impact model, but the activities
+        need to be the things that ultimately cause the impact to happen.
+
+        [00:00:29] These impact activities will also be outlined in the solution
+        section of your customer model.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Activities
+          text:
+            body: |
+              Activities
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-act.png
+          text:
+            headline: Activities
+            tagline: What participants do because of you
+        00:00:09:
+          text:
+            headline: Activities
+            body: |
+              - Training programs
+              - Installing equipment
+              - Planting trees
+              - Receiving services
+        00:00:20:
+          image: /:core-images/im-act.png
+          text:
+            headline: Activities
+            tagline: Things that ultimately cause impact
+    - pause: 2s
+    - video: /:core-videos/impact model_ST outcomes.webm.02.mp4.webm
+      slice: 00:00..00:16
+      script: >
+        [00:00:00] Following from the activities, you need to map out the
+        short-term outcomes that will flow from them.
+
+        [00:00:06] These are the positive outcomes that will result immediately
+        from your activities and be the first small step towards the impact that
+        you're trying to have.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Short-term Outcomes
+          text:
+            body: |
+              Short-term Outcomes
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-sto.png
+          text:
+            headline: Short-term Outcomes
+            tagline: Immediate positive results from activities
+    - pause: 2s
+    - video: /:core-videos/impact model_MT outcomes.webm.02.mp4.webm
+      slice: 00:00..00:15
+      script: >
+        [00:00:00] Medium term outcomes are the positive changes that will
+        follow on from your short term outcomes.
+
+        [00:00:06] They are the measurable changes that are going to occur over
+        the next, say, one to two years as a direct result of these short term
+        outcomes.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Medium-term Outcomes
+          text:
+            body: |
+              Medium-term Outcomes
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-mto.png
+          text:
+            headline: Medium-term Outcomes
+            tagline: Measurable changes over 1-2 years
+    - pause: 2s
+    - video: /:core-videos/impact model_LT outcomes.webm.02.mp4.webm
+      slice: 00:00..00:12
+      script: >
+        [00:00:00] Your long-term outcomes are the long-term positive changes
+        that will follow from your short and medium term outcomes, perhaps
+        across, uh, two to 10 year time horizon.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Long-term Outcomes
+          text:
+            body: |
+              Long-term Outcomes
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-lto.png
+          text:
+            headline: Long-term Outcomes
+            tagline: Positive changes over 2-10 years
+    - pause: 2s
+    - video: /:core-videos/impact model_impact.webm.02.mp4.webm
+      slice: 00:00..00:30
+      script: >
+        [00:00:00] The final impact section of your impact model describes what
+        the state of the world will be like when you have achieved your purpose.
+
+        [00:00:07] It is the destination of your activities and your short,
+        medium, and long-term outcomes.
+
+        [00:00:14] It should be simple, short and high level.
+
+        [00:00:17] It's okay for it to be a bit abstract.
+
+        [00:00:19] The detail you capture and your outcomes will make it
+        concrete.
+
+        [00:00:23] It is describing the world. After all the steps of your
+        impact model have been delivered on.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Impact
+          text:
+            body: |
+              Impact
+        00:00:03:
+          pause: 2s
+          image: /:core-images/im-impact.png
+          text:
+            headline: Impact
+            tagline: State of the world with purpose achieved
+        00:00:14:
+          text:
+            headline: Impact
+            body: |
+              - Simple and high-level
+              - Okay to be abstract
+              - Outcomes provide concrete detail
+    - pause: 3s
+    - video: /:core-videos/impact model_example_intro.webm.02.mp4.webm
+      slice: 00:00..00:16
+      script: >
+        [00:00:00] Let's walk through an example to help understand how to fill
+        in your impact model.
+
+        [00:00:04] Imagine an enterprise that delivers its impact through
+        providing mentoring programs for kids who are getting kicked out of
+        school for behavioral issues.
+
+        [00:00:12] This is a fake enterprise just for the sake of understanding
+        the process.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Example Walkthrough
+          text:
+            body: |
+              Example Walkthrough
+        00:00:03:
+          pause: 2s
+          image: /:core-images/impact-model-overview.png
+          text:
+            headline: Example Enterprise
+            tagline: Educational mentoring for at-risk students
+    - video: /:core-videos/impact model_example_issue.webm.02.mp4.webm
+      slice: 00:00..00:22
+      script: >
+        [00:00:00] The issue would relate to the enterprise's purpose statement.
+
+        [00:00:03] The issue might be something like, young people are falling
+        out of school because they aren't getting the support they need to
+        overcome solvable problems.
+
+        [00:00:12] This is creating long-term issues around lack of employment,
+        lack of self-esteem, and other social issues affecting them, their
+        families, and the wider community.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-issue.png
+          text:
+            headline: Example - Issue
+            tagline: Young people falling out of school
+        00:00:03:
+          text:
+            headline: Example - Issue
+            body: >
+              Young people falling out of school because they aren't getting
+              support to overcome solvable problems, creating long-term issues
+              around employment, self-esteem, and other social challenges
+              affecting them, families, and community
+    - video: /:core-videos/impact model_example_participants.webm.02.mp4.webm
+      slice: 00:00..00:21
+      script: >
+        [00:00:00] Participants will be the various key stakeholders that they
+        need to work together in order to make the impact model work.
+
+        [00:00:07] For example, firstly, students say students between the ages
+        of 14 to 17 at schools in low income communities. Who are excluded from
+        school for behavioral issues.
+
+        [00:00:16] And then secondly, teachers specialist teaching staff who are
+        tasked with managing students with behavioral issues.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-part.png
+          text:
+            headline: Example - Participants
+            tagline: Key stakeholders who make impact work
+        00:00:07:
+          text:
+            headline: Example - Participants
+            body: |
+              - Students: ages 14-17, excluded for behavioral issues
+              - Specialist teachers: manage behavioral challenges
+    - video: /:core-videos/impact model_example_activities.webm.02.mp4.webm
+      slice: 00:00..00:17
+      script: >
+        [00:00:00] For activities, there might be a couple of main components.
+
+        [00:00:03] One might be students attend a weekly mentoring program,
+        which comprises of one-to-one mentoring as well as group work.
+
+        [00:00:11] A second one might be mentor staff, work with specialist
+        teachers to collaborate on a plan to support students through their
+        journey.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-act.png
+          text:
+            headline: Example - Activities
+            tagline: What participants do
+        00:00:03:
+          text:
+            headline: Example - Activities
+            body: |
+              - Weekly mentoring program (one-to-one + group)
+              - Mentors collaborate with teachers on support plans
+    - video: /:core-videos/impact model_example_ST outcomes.webm.02.mp4.webm
+      slice: 00:00..00:30
+      script: >
+        [00:00:00] For short term, uh, 3, 2, 1, and go for short term outcomes.
+
+        [00:00:04] These are the immediate things that will happen as a result
+        of the activities.
+
+        [00:00:09] This can be a mixture of outputs and outcomes and might look
+        something like students regularly attend the mentoring and group
+        sessions.
+
+        [00:00:18] Each mentor student pairing produces a plan specialist.
+
+        [00:00:22] Teachers engage with mentors on the above plans and students
+        feel engaged in the process.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-sto.png
+          text:
+            headline: Example - Short-term Outcomes
+            tagline: Immediate results
+        00:00:09:
+          text:
+            headline: Example - Short-term Outcomes
+            body: |
+              - Students regularly attend sessions
+        00:00:18:
+          text:
+            headline: Example - Short-term Outcomes
+            body: |
+              - Each pairing produces a plan
+        00:00:22:
+          text:
+            headline: Example - Short-term Outcomes
+            body: |
+              - Teachers engage with mentors
+              - Students feel engaged in process
+    - video: /:core-videos/impact model_example_MT outcomes.webm.02.mp4.webm
+      slice: 00:00..00:23
+      script: >
+        [00:00:06] 3, 2, 1, and go.
+
+        [00:00:08] And medium term outcomes.
+
+        [00:00:10] What happens over the next one to two years?
+
+        [00:00:13] Perhaps students feel more engaged at school, have better
+        attendance, and get in less trouble, and they're achieving better
+        results in their school work at the end of the year.
+      timestamps:
+        00:00:08:
+          pause: 2s
+          image: /:core-images/im-mto.png
+          text:
+            headline: Example - Medium-term Outcomes
+            tagline: Changes over 1-2 years
+        00:00:13:
+          text:
+            headline: Example - Medium-term Outcomes
+            body: |
+              - More engaged at school
+              - Better attendance
+              - Less behavioral trouble
+              - Better academic results
+    - video: /:core-videos/impact model_example_LT outcomes.webm.02.mp4.webm
+      slice: 00:00..00:20
+      script: >
+        [00:00:00] long-term outcomes.
+
+        [00:00:01] What happens over the next two to 10 years?
+
+        [00:00:04] Students are more likely to finish school and achieve in
+        their results.
+
+        [00:00:08] They're more confident in their learning abilities.
+
+        [00:00:10] They're more prepared to find stable employment, and they're
+        less likely to experience negative social outcomes like addiction and
+        violence.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-lto.png
+          text:
+            headline: Example - Long-term Outcomes
+            tagline: Changes over 2-10 years
+        00:00:04:
+          text:
+            headline: Example - Long-term Outcomes
+            body: |
+              - Finish school successfully
+              - More confident in abilities
+              - Prepared for stable employment
+              - Less negative social outcomes
+    - video: /:core-videos/impact model_example_impact.webm.02.mp4.webm
+      slice: 00:00..00:40
+      script: >
+        [00:00:00] impact what ultimately is going to happen as a result of this
+        enterprise.
+
+        [00:00:05] Something like young people who experience challenges in life
+        are going to become happy, healthy, and valuable members of the
+        community.
+
+        [00:00:13] Now it's important to note that this enterprise will not be
+        able to claim that they alone will have caused this impact.
+
+        [00:00:20] But by fleshing out their impact model and measuring their
+        outcomes over time, they can prove and indeed need to be able to prove
+        that, one, the long-term outcomes they predict are in fact occurring,
+        and two, that the work they are doing is a significant cause of these
+        outcomes.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/im-impact.png
+          text:
+            headline: Example - Impact
+            tagline: Ultimate destination
+        00:00:05:
+          text:
+            headline: Example - Impact
+            body: >
+              Young people who experience challenges become happy, healthy,
+              valuable community members
+        00:00:13:
+          image: /:core-images/im-impact.png
+          text:
+            headline: Proving Impact
+            tagline: Measure outcomes and demonstrate causality
+        00:00:20:
+          text:
+            headline: Proving Impact
+            body: |
+              - Long-term outcomes are occurring
+              - Your work is a significant cause
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

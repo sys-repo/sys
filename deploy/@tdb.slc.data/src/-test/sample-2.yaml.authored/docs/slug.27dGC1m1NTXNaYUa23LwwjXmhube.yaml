@@ -1,0 +1,126 @@
+title: 3.2.5 Key Metrics
+description: Learn how to track progress with key metrics that show validated
+  evidence of your business model working, distinct from future assumptions
+  about scale.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - image: /:core-images/km-title.png
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Key Metrics
+    - video: /:core-videos/key metrics.webm.02.mp4.webm
+      slice: 00:00..01:38
+      script: >
+        [00:00:00] The key metric section is a little different from the rest of
+        the canvas.
+
+        [00:00:04] It is the place where you capture a handful of key numbers
+        and ratios that show the current state of progress for your enterprise.
+
+        [00:00:12] While the rest of the canvas shows what you think will be the
+        case that is mostly yet to be validated assumptions about how you think
+        your business model will work at scale.
+
+        [00:00:22] Your key metrics allow you to show a snapshot of your
+        progress towards developing this business model.
+
+        [00:00:30] Make sure that you include at least one key metric for each
+        of your customer impact and economic models.
+
+        [00:00:37] Choose metrics that show evidence of the key dynamics that
+        you are trying to prove as you develop your enterprise, for example.
+
+        [00:00:46] For your customer model, it might be a metric that tracks the
+        increase in new signups to your educational program, showing that your
+        unique value proposition is working, what we call problem solution fit
+        for your economic model.
+
+        [00:01:01] It might be a metric that tracks some early outcomes that
+        you're measuring from, testing parts of your impact model.
+
+        [00:01:09] For your economic model, it might be a metric that shows your
+        ability to reach customers at scale through your main marketing channel,
+        for example.
+
+        [00:01:18] These key metrics will change as you progress and will also
+        differ greatly depending on the type of enterprise you are building and
+        the stage you're at in your journey.
+
+        [00:01:29] But fundamentally, they will reflect, reflect the strategy
+        that you are taking to prove that your business model is possible and
+        will work.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          text:
+            headline: Key Metrics
+            tagline: Different from the rest of the canvas
+        00:00:12:
+          pause: 2s
+          text:
+            headline: Key Metrics
+            body: |
+              Rest of Canvas: Future assumptions about scale
+              Key Metrics: Current snapshot of progress
+        00:00:30:
+          pause: 2s
+          text:
+            headline: Practical Guidance
+            body: |
+              Include at least one metric per model:
+              - Customer Model
+              - Impact Model
+              - Economic Model
+        00:00:37:
+          text:
+            headline: Choose Wisely
+            tagline: Show evidence of key dynamics you're proving
+        00:00:46:
+          pause: 2s
+          text:
+            headline: Customer Model Example
+            body: |
+              Track new signups to educational program
+              Shows unique value proposition working (problem-solution fit)
+        00:01:01:
+          pause: 2s
+          text:
+            headline: Impact Model Example
+            body: |
+              Track early outcomes from testing
+              Measures progress on impact activities
+        00:01:09:
+          pause: 2s
+          text:
+            headline: Economic Model Example
+            body: |
+              Track customer reach through main marketing channel
+              Shows ability to scale acquisition
+        00:01:18:
+          pause: 2s
+          text:
+            headline: Metrics Evolve
+            body: |
+              Key metrics change as you progress:
+              - Differ by enterprise type and stage
+              - Reflect current strategy
+              - Prove business model viability
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

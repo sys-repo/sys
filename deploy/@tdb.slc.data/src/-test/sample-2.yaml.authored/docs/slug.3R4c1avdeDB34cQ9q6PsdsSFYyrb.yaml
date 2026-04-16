@@ -1,0 +1,45 @@
+title: Understanding Business Model Design
+description: Core concepts and frameworks for designing purpose-driven business models
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - pause: 3s
+      title: What Is A Business Model
+      text:
+        body: |
+          What Is A Business Model
+    - slug: /:core-slugs/3.1.1-what-is-a-business-model
+      display: inline
+    - pause: 3s
+      title: The Startup Journey
+      text:
+        body: |
+          The Startup Journey
+    - slug: /:core-slugs/3.1.2-the-startup-journey
+      display: inline
+    - pause: 3s
+      title: The Three Circles Model
+      text:
+        body: |
+          The Three Circles Model
+    - slug: /:core-slugs/3.1.3-the-three-circles-model
+      display: inline
+    - pause: 3s
+      title: The Venture Example Library
+      text:
+        body: |
+          The Venture Example Library
+    - slug: /:core-slugs/3.1.4-the-venture-example-library
+      display: inline

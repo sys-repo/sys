@@ -1,0 +1,11 @@
+refs:
+  - slug: programme-index
+    ref: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+alias:
+  :root-folder: ~/code/org.tdb/slc-knowledgebase/docs/slc-knowledge/agent-content/venture-example-libraries
+traits:
+  - of: slug-tree
+    as: venture.library.examples
+data:
+  venture.library.examples:
+    tree: []
