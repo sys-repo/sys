@@ -77,6 +77,11 @@ async function runOnce(args: {
       }
       if (info.stage === 'slug-tree:fs') {
         spinner.text = Fmt.spinnerText('bundling slug-tree:fs');
+        return;
+      }
+      if (info.stage === 'slug:fs:yaml') {
+        const current = String(info.current);
+        spinner.text = Fmt.spinnerText(`materializing slug:fs:yaml (${c.white(current)}/${info.total})`);
       }
     },
   });
@@ -119,6 +124,13 @@ function printSummary(summary: t.BundleRunSummary) {
       'slug-tree:fs',
       `files=${summary.slugTreeFs.files}, manifests=${summary.slugTreeFs.manifests}, time=${elapsedText}`,
     );
+  }
+
+  if (summary.slugFsYaml) {
+    const elapsed = summary.slugFsYaml.elapsed;
+    const elapsedText = elapsed > 0 ? `${(elapsed / 1000).toFixed(2)}s` : '0s';
+    kv('slug:fs:yaml', `${summary.slugFsYaml.written}/${summary.slugFsYaml.total} docs, time=${elapsedText}`);
+    kv('slug:fs:yaml dir', summary.slugFsYaml.dir);
   }
 
   const text = String(table);

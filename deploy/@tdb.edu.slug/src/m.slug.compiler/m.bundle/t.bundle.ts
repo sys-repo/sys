@@ -17,7 +17,8 @@ export type BundleBase = {
 /** Single bundle configuration entry. */
 export type BundleConfig =
   | (BundleBase & t.SlugBundleFileTree & { readonly kind: 'slug-tree:fs' })
-  | (BundleBase & t.SlugBundleMediaSeq & { readonly kind: 'slug-tree:media:seq' });
+  | (BundleBase & t.SlugBundleMediaSeq & { readonly kind: 'slug-tree:media:seq' })
+  | (BundleBase & t.SlugBundleDocYaml & { readonly kind: 'slug:fs:yaml' });
 
 /** Bundle configuration discriminator. */
 export type BundleKind = BundleConfig['kind'];

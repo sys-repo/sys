@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './m.bundle.slug-tree.fs/t.ts';
+export type * from './m.bundle.slug-doc.yaml/t.ts';
 export type * from './m.bundle.slug-tree.media-seq/t.ts';
 export type * from './t.bundle.ts';
 export type * from './t.menu.ts';

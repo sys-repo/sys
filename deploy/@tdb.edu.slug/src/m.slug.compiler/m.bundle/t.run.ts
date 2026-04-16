@@ -3,7 +3,8 @@ import type { t } from './common.ts';
 /** Progress events emitted while a bundle run is executing. */
 export type BundleRunProgress =
   | { stage: 'media:seq'; current: number; total: number; docid: t.Crdt.Id }
-  | { stage: 'slug-tree:fs' };
+  | { stage: 'slug-tree:fs' }
+  | { stage: 'slug:fs:yaml'; current: number; total: number; docid: t.Crdt.Id };
 
 /** Per-document summary emitted by a bundle run. */
 export type BundleRunDocSummary = {
@@ -24,4 +25,10 @@ export type BundleRunSummary = {
     readonly elapsed: t.Msecs;
   };
   readonly slugTreeFs?: { readonly ran: boolean } & t.SlugBundleFileTreeStats;
+  readonly slugFsYaml?: {
+    readonly total: number;
+    readonly written: number;
+    readonly elapsed: t.Msecs;
+    readonly dir: t.StringDir;
+  };
 };

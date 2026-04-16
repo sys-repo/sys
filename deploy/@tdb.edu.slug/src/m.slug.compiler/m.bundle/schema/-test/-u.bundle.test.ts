@@ -15,6 +15,11 @@ describe('SchemaBundleConfig', () => {
           kind: 'slug-tree:media:seq',
           crdt: { docid: 'slug:test', path: '/slug' },
         },
+        {
+          kind: 'slug:fs:yaml',
+          crdt: { docid: 'slug:test', path: '/slug' },
+          target: { dir: './out/authored', filenames: { mode: 'docid' } },
+        },
       ],
     };
     const ok = Schema.Value.Check(SchemaBundleConfig, doc);
