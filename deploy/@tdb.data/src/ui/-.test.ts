@@ -1,9 +1,9 @@
 import { describe, EsmAssert, expect, it, Path } from '../-test.ts';
 import { HttpOrigin, Mounts } from './mod.ts';
 
-describe('@tdb/slc-data/ui', () => {
+describe('@tdb/data/slug/ui', () => {
   it('API', async () => {
-    const m = await import('@tdb/slc-data/ui');
+    const m = await import('@tdb/data/slug/ui');
     expect(m.HttpOrigin).to.equal(HttpOrigin);
     expect(m.Mounts).to.equal(Mounts);
   });

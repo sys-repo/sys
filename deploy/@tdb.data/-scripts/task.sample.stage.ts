@@ -1,6 +1,6 @@
 import { Args } from '@sys/cli';
 import { Fs } from '@sys/fs';
-import { type t, SlcDataCli as Cli } from '@tdb/slc-data/cli';
+import { type t, SlcDataCli as Cli } from '@tdb/data/slug/cli';
 
 const SAMPLE_DATA_DIR = './public/data' as t.StringDir;
 

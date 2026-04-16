@@ -1,9 +1,9 @@
 import { describe, EsmAssert, expect, it, Path } from '../../-test.ts';
 import { SlcDataPipeline } from '../mod.ts';
 
-describe(`@tdb/slc-data/fs`, () => {
+describe(`@tdb/data/slug/fs`, () => {
   it('API', async () => {
-    const m = await import('@tdb/slc-data/fs');
+    const m = await import('@tdb/data/slug/fs');
     expect(m.SlcDataPipeline).to.equal(SlcDataPipeline);
   });
 

@@ -11,7 +11,7 @@ describe('runStageProfile', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
+      const configDir = Fs.join(cwd, '-config', '@tdb.data');
       const profilePath = Fs.join(configDir, 'sample-1.yaml');
 
       await Fs.ensureDir(configDir);
@@ -41,7 +41,7 @@ describe('runStageProfile', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
+      const configDir = Fs.join(cwd, '-config', '@tdb.data');
       const profilePath = Fs.join(configDir, 'sample-1.yaml');
 
       await Fs.ensureDir(configDir);
@@ -70,7 +70,7 @@ describe('runStageProfile', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
+      const configDir = Fs.join(cwd, '-config', '@tdb.data');
       const profilePath = Fs.join(configDir, 'yo.yaml');
 
       await Fs.ensureDir(configDir);

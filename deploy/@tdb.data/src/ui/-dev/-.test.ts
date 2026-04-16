@@ -1,11 +1,11 @@
-import type { t as TDev } from '@tdb/slc-data/dev';
-import type * as TDevSubpath from '@tdb/slc-data/dev/t';
+import type { t as TDev } from '@tdb/data/slug/ui/dev';
+import type * as TDevSubpath from '@tdb/data/slug/ui/dev/t';
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { HttpDataCards } from './mod.ts';
 
-describe('@tdb/slc-data/dev', () => {
+describe('@tdb/data/slug/ui/dev', () => {
   it('API', async () => {
-    const m = await import('@tdb/slc-data/dev');
+    const m = await import('@tdb/data/slug/ui/dev');
     expect(m.HttpDataCards).to.equal(HttpDataCards);
   });
 

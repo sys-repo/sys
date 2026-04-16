@@ -13,7 +13,7 @@ describe('task.sample.create', () => {
       const yaml = String(read.data ?? '');
 
       expect(result.kind).to.eql('created');
-      expect(result.path).to.eql(Fs.join(cwd, '-config/@tdb.slc-data/sample-1.yaml'));
+      expect(result.path).to.eql(Fs.join(cwd, '-config/@tdb.data/sample-1.yaml'));
       expect(yaml.includes('mappings:')).to.eql(true);
       expect(yaml.includes('mount: sample-one')).to.eql(true);
       expect(yaml.includes('mount: sample-two')).to.eql(true);

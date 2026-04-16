@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { SlcDataCli as Cli } from '@tdb/slc-data/cli';
+import { SlcDataCli as Cli } from '@tdb/data/slug/cli';
 import { describe, expect, it, Path } from '../../src/-test.ts';
 import { run as runCreate } from '../task.sample.create.ts';
 import { run as runStage } from '../task.sample.stage.ts';
@@ -45,7 +45,7 @@ describe('task.sample.stage', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
+      const configDir = Fs.join(cwd, '-config', '@tdb.data');
       const localSample = Fs.join(cwd, 'src/-test/sample-1');
       await Fs.copy(sample, localSample);
       await Fs.ensureDir(configDir);
@@ -74,7 +74,7 @@ describe('task.sample.stage', () => {
 
     try {
       const cwd = dir.absolute;
-      const configDir = Fs.join(cwd, '-config', '@tdb.slc-data');
+      const configDir = Fs.join(cwd, '-config', '@tdb.data');
       const localSample = Fs.join(cwd, 'src/-test/sample-1');
       await Fs.copy(sample, localSample);
       await Fs.ensureDir(configDir);

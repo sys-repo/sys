@@ -1,7 +1,7 @@
 import { Cli } from './common.ts';
 
 const D = {
-  tool: '@tdb/data/cli',
+  tool: '@tdb/data/slug/cli',
 } as const;
 
 /**

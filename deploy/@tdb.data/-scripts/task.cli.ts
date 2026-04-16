@@ -1,4 +1,4 @@
-import { SlcDataCli } from '@tdb/slc-data/cli';
+import { SlcDataCli } from '@tdb/data/slug/cli';
 
 const cwd = Deno.cwd();
 const result = await SlcDataCli.run({ cwd, argv: Deno.args, target: `${cwd}/public/data` });
