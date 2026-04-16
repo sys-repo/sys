@@ -33,10 +33,12 @@ Core tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type-checks the repo
+- `deno task check:graph` → verifies the generated workspace graph snapshot
 - `deno task info` → prints Deno runtime and workspace source stats
-- `deno task prep` → syncs generated package metadata and GitHub workflows for workspace packages under `./code/packages`
+- `deno task install` → refreshes `deno.lock`
+- `deno task prep` → syncs dependency authority files, the workspace graph snapshot, generated package metadata, and GitHub workflows for workspace packages under `./code/packages`
+- `deno task prep:graph` → writes the workspace graph snapshot only
 - `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
-- `deno task outdated` → reports dependency updates from the canonical `deps.yaml` manifest
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
 
 To run the canonical workspace upgrade flow through the same task surface:
