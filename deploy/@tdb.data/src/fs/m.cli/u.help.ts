@@ -1,7 +1,7 @@
 import { Cli } from './common.ts';
 
 const D = {
-  tool: '@tdb/slc-data/cli',
+  tool: '@tdb/data/cli',
 } as const;
 
 /**
@@ -11,7 +11,7 @@ export const FmtHelp = {
   input(toolname: string = D.tool) {
     return {
       tool: toolname,
-      summary: 'Create profile configs and build staged SLC data outputs.',
+      summary: 'Create profile configs and build staged data outputs.',
       note: 'Interactive by default; use a subcommand for deterministic non-interactive runs.',
       usage: [
         `${toolname}`,

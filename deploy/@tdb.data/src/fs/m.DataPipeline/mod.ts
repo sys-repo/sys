@@ -1,6 +1,6 @@
 /**
  * @module
- * Filesystem-backed SLC data pipeline operations.
+ * Filesystem-backed staged-data pipeline operations.
  */
 import { type t } from './common.ts';
 import { stageSlugDataset } from './m.stageSlugDataset.ts';

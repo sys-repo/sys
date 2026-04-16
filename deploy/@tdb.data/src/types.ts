@@ -1,6 +1,6 @@
 /**
  * @module
- * Type surface for the SLC data package.
+ * Type surface for the staged-data package.
  */
 export type * from './fs/m.cli/t.ts';
 export type * from './fs/t.ts';

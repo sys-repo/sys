@@ -1,14 +1,14 @@
-# @tdb/slc-data
-SLC data pipelines and runtime components.
+# @tdb/data
+Filesystem-backed data staging, runtime clients, and UI helpers for staged slug datasets.
 
-This package is the working home for SLC content generation, local serving, and related data/UI glue.
+This package stages local source folders and slug datasets into published data roots, provides runtime clients for mounted data, and includes optional UI and dev helpers for inspecting staged outputs.
 
 ## API
 
-The published entrypoint currently exposes package metadata and the package type surface.
+The published entrypoint exposes package metadata, staged-data client helpers, and the package type surface.
 
 ```ts
-import { pkg } from '@tdb/slc-data';
+import { pkg } from '@tdb/data';
 
 console.info(pkg.name, pkg.version);
 ```

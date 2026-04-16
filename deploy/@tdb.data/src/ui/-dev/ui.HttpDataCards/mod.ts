@@ -1,5 +1,6 @@
 /**
  * @module
+ * Dev cards for probing staged data over HTTP.
  */
 import type { t } from './common.ts';
 import { HttpDataCards as UI } from './ui.tsx';

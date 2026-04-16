@@ -16,7 +16,7 @@ const schema = {
 } as const;
 
 /**
- * Interactive menu for staging SLC data profiles.
+ * Interactive menu for staging data profiles.
  */
 export async function menu(
   cwd: t.StringDir,

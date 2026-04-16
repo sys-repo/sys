@@ -1,5 +1,5 @@
 /**
  * @module
- * Direct client helpers for staged SLC datasets.
+ * Direct client helpers for staged datasets.
  */
 export { DataClient } from './m.DataClient.ts';

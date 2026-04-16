@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from '../common.t.ts';
 
-/** Dev cards for probing staged SLC data over HTTP. */
+/** Dev cards for probing staged data over HTTP. */
 export declare namespace HttpDataCards {
   export namespace Spec {
     export type StateDefaults = {

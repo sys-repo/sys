@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-/** Direct client helpers for staged SLC tree/content datasets. */
+/** Direct client helpers for staged tree/content datasets. */
 export declare namespace SlcDataClient {
   /** Public client surface. */
   export type Lib = {

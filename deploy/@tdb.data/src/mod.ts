@@ -1,10 +1,10 @@
 /**
  * @module
- * Public package entry for SLC data package metadata and type exports.
+ * Public package entry for staged-data package metadata, clients, and type exports.
  *
  * @example
  * ```ts
- * import { pkg } from '@tdb/slc-data';
+ * import { pkg } from '@tdb/data';
  *
  * const version = pkg.version;
  * ```

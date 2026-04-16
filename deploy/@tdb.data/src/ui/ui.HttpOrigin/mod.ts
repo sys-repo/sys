@@ -1,5 +1,6 @@
 /**
  * @module
+ * UI helpers for selecting and persisting staged-data HTTP origins.
  */
 import type { t } from './common.ts';
 import { D } from './common.ts';

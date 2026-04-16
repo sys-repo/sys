@@ -1,6 +1,6 @@
 /**
  * @module
- * Dev-only staged data probe surfaces.
+ * Dev-only probe surfaces for staged data.
  */
 export { HttpDataCards } from './ui.HttpDataCards/mod.ts';
 

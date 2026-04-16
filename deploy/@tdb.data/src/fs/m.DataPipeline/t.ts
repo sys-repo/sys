@@ -1,10 +1,10 @@
 import type { t } from './common.ts';
 
 /**
- * Filesystem-backed SLC data pipeline operations.
+ * Filesystem-backed staged-data pipeline operations.
  *
- * Use this namespace for local source-folder workflows that generate
- * staged SLC data outputs.
+ * Use this namespace for local folder and slug-dataset workflows that generate
+ * staged data outputs.
  */
 export declare namespace SlcDataPipeline {
   /** Public fs pipeline surface. */

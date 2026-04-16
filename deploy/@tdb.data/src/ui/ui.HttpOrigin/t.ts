@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Visual selector for SLC data HTTP origins.
+ * Visual selector for staged-data HTTP origins.
  */
 export declare namespace HttpOrigin {
   /** Public `HttpOrigin` library surface. */
@@ -21,16 +21,16 @@ export declare namespace HttpOrigin {
   };
 
   type CPropsBase = t.HttpOriginBase.ControlledProps;
-  /** SLC data origin map keyed by environment. */
+  /** Data origin map keyed by environment. */
   export type SpecMap = t.HttpOriginBase.SpecMap<t.HttpOriginBase.Env>;
-  /** Uncontrolled SLC `HttpOrigin` props. */
+  /** Uncontrolled `HttpOrigin` props. */
   export type Props = Omit<t.HttpOriginBase.Props, 'spec'> & { spec?: SpecMap };
-  /** Controlled SLC `HttpOrigin` props. */
+  /** Controlled `HttpOrigin` props. */
   export type ControlledProps = Omit<CPropsBase, 'spec'> & { spec?: SpecMap };
 
-  /** Hook for persisted SLC `HttpOrigin` env state. */
+  /** Hook for persisted `HttpOrigin` env state. */
   export type UseController = (storage: string) => ControllerState;
-  /** Persisted controller state for SLC `HttpOrigin`. */
+  /** Persisted controller state for `HttpOrigin`. */
   export type ControllerState = {
     readonly env: t.Signal<t.HttpOriginBase.Env | undefined>;
   };

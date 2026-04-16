@@ -1,6 +1,6 @@
 /**
  * @module
- * YAML-backed staging CLI helpers for filesystem workflows.
+ * YAML-backed staging CLI helpers for staged-data filesystem workflows.
  */
 export type * as t from './t.ts';
 
