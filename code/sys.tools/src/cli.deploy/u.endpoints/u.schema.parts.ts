@@ -11,6 +11,12 @@ const staging = Schema.Type.Object(
   {
     dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
     clear: Schema.Type.Optional(Schema.Type.Boolean()),
+    serve: Schema.Type.Optional(
+      Schema.Type.Object(
+        { port: Schema.Type.Optional(Schema.Type.Number({ minimum: 1, maximum: 65535 })) },
+        { additionalProperties: false },
+      ),
+    ),
     html: Schema.Type.Optional(
       Schema.Type.Object(
         { buildReset: Schema.Type.Optional(Schema.Type.Boolean()) },

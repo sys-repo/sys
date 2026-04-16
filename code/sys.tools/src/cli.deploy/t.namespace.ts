@@ -93,6 +93,11 @@ export namespace DeployTool {
         dir: t.StringPath;
         /** When true, clears staging targets before running mappings. */
         clear?: boolean;
+        /** Optional local serve configuration for staged endpoint sanity checks. */
+        serve?: {
+          /** Port used by the local staged static server. */
+          port?: number;
+        };
         /** Optional HTML staging policies. */
         html?: {
           /** When true, inject/update x-build-reset metadata in staged index.html files. */

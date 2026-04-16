@@ -122,4 +122,21 @@ describe('Endpoints: validateEndpointYamlText', () => {
     expect(res.ok).to.eql(false);
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
+
+  it('valid YAML with staging.serve.port → ok:true', () => {
+    const yaml = Str.dedent(`
+      staging:
+        dir: ./staging
+        serve:
+          port: 4041
+      mappings: []
+    `);
+
+    const res = validateEndpointYamlText(yaml);
+    expect(res.ok).to.eql(true);
+
+    if (res.ok) {
+      expect(res.doc.staging?.serve?.port).to.eql(4041);
+    }
+  });
 });

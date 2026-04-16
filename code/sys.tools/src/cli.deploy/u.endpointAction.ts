@@ -231,6 +231,9 @@ async function runServeAction(args: {
 
   const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
   const freshStagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel });
+  const servePort = Is.num(freshYaml.staging?.serve?.port)
+    ? freshYaml.staging.serve.port
+    : undefined;
   const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
   if (!freshDist?.hash?.digest) {
     const missing = await resolveMissingStagingOutputs({
@@ -251,7 +254,7 @@ async function runServeAction(args: {
     name: key,
     dir: freshStagingRootAbs,
   };
-  await startServing(cwd, location, { host: 'local' });
+  await startServing(cwd, location, { host: 'local', port: servePort });
   return { ok: true };
 }
 

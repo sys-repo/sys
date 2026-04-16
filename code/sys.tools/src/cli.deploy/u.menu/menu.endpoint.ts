@@ -1,4 +1,5 @@
 import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time } from '../common.ts';
+import { D as ServeD } from '../../cli.serve/common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -84,6 +85,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
     const hasStageMeta = !!(stageAge || stageSize);
     const hasStagedOutput = !!digest;
+    const servePort = Is.num(yaml?.staging?.serve?.port)
+      ? yaml.staging.serve.port
+      : ServeD.port;
     const pushUrl = provider?.kind === 'orbiter'
       ? String(provider.domain ?? '').trim()
         ? `https://${String(provider.domain ?? '').trim()}`
@@ -114,6 +118,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       showPush,
       showStagePush,
       showServe: hasStagedOutput,
+      servePort,
       pushedOk,
       pushElapsed,
       pushShards,
