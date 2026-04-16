@@ -2,8 +2,8 @@ import { type t, describe, expect, it, Path } from '../../../-test.ts';
 import { Esm } from '../mod.ts';
 
 describe('Esm', () => {
-  const absPath = Path.resolve('deploy/@tdb.slc.data/src/ui/mod.ts');
-  const fileUrl = String(Path.toFileUrl(Path.resolve('deploy/@tdb.slc.data/src/types.ts')));
+  const absPath = Path.resolve('code/sys/esm/src/m.core/m.Esm/mod.ts');
+  const fileUrl = String(Path.toFileUrl(Path.resolve('code/sys/esm/src/types.ts')));
 
   describe('Esm.Is.localPath', () => {
     it('classifies local module specifiers', () => {

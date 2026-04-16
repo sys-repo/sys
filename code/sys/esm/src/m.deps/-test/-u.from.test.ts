@@ -147,15 +147,15 @@ describe('Deps.from', () => {
 
   it('parses local file-path imports with alias names for deno.json import maps', async () => {
     const fs = await Testing.dir('EsmDeps.from.localPaths');
-    const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
-    const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
+    const typesPath = fs.join('fixtures/local/types.ts');
+    const uiPath = fs.join('fixtures/local/ui/mod.ts');
     const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
     const yaml = `
       deno.json:
         - import: ${typesFileUrl}
-          name: '@tdb/slc-data/t'
+          name: '@local/types'
         - import: ${uiPath}
-          name: '@tdb/slc-data/ui'
+          name: '@local/ui'
     `;
 
     const res = await Deps.from(yaml);
@@ -172,7 +172,7 @@ describe('Deps.from', () => {
       version: entry.module.version,
     }))).to.eql([
       {
-        alias: '@tdb/slc-data/t',
+        alias: '@local/types',
         input: typesFileUrl,
         name: typesFileUrl,
         registry: '',
@@ -180,7 +180,7 @@ describe('Deps.from', () => {
         version: '',
       },
       {
-        alias: '@tdb/slc-data/ui',
+        alias: '@local/ui',
         input: uiPath,
         name: uiPath,
         registry: '',
@@ -189,8 +189,8 @@ describe('Deps.from', () => {
       },
     ]);
     expect(json.imports).to.eql({
-      '@tdb/slc-data/t': typesFileUrl,
-      '@tdb/slc-data/ui': uiPath,
+      '@local/types': typesFileUrl,
+      '@local/ui': uiPath,
     });
   });
 

@@ -109,22 +109,22 @@ describe('Deps.applyFiles', () => {
     const depsPath = fs.join('deps.yaml');
     const denoPath = fs.join('deno.json');
     const packagePath = fs.join('package.json');
-    const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
-    const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
-    const privatePath = fs.join('deploy/@tdb.slc.data/src/private/mod.ts');
+    const typesPath = fs.join('fixtures/local/types.ts');
+    const uiPath = fs.join('fixtures/local/ui/mod.ts');
+    const privatePath = fs.join('fixtures/local/private/mod.ts');
     const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
     const entries = [
       Deps.toEntry(typesFileUrl, {
         target: 'deno.json',
-        name: '@tdb/slc-data/t',
+        name: '@local/types',
       }),
       Deps.toEntry(uiPath, {
         target: 'deno.json',
-        name: '@tdb/slc-data/ui',
+        name: '@local/ui',
       }),
       Deps.toEntry(privatePath, {
         target: 'package.json',
-        name: '@tdb/slc-data/private',
+        name: '@local/private',
       }),
       Deps.toEntry('npm:react@19.0.0', { target: 'package.json' }),
     ];
@@ -141,8 +141,8 @@ describe('Deps.applyFiles', () => {
     const packageFile = await Fs.readJson<t.PkgNodeJson>(packagePath);
 
     expect(denoFile.data?.imports).to.eql({
-      '@tdb/slc-data/t': typesFileUrl,
-      '@tdb/slc-data/ui': uiPath,
+      '@local/types': typesFileUrl,
+      '@local/ui': uiPath,
     });
     expect(packageFile.data?.dependencies).to.eql({ react: '19.0.0' });
   });

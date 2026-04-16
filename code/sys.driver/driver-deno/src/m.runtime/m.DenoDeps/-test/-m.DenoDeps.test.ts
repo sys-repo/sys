@@ -1,10 +1,10 @@
-import { describe, expect, Fs, it, stripAnsi, Testing } from '../../../-test.ts';
+import { describe, expect, Fs, it, Path, stripAnsi, Testing } from '../../../-test.ts';
 import { Deps } from '@sys/esm/deps';
 import { DenoDeps } from '../mod.ts';
 
 describe('DenoDeps methods', () => {
   const SAMPLE = {
-    path: './src/-test/sample-2/deps.yaml',
+    path: Path.resolve('code/sys.driver/driver-deno/src/-test/sample-2/deps.yaml'),
   };
 
   describe('compatibility', () => {
@@ -100,19 +100,19 @@ describe('DenoDeps methods', () => {
 
     it('aliases local file-path imports', async () => {
       const fs = await Testing.dir('DenoDeps.toJson.localPaths');
-      const typesPath = fs.join('deploy/@tdb.slc.data/src/types.ts');
+      const typesPath = fs.join('fixtures/local/types.ts');
       const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
       const res = await DenoDeps.from(`
         deno.json:
           - import: ${typesFileUrl}
-            name: '@tdb/slc-data/t'
+            name: '@local/types'
       `);
       const json = DenoDeps.toJson('deno.json', res.data?.deps);
 
       expect(res.error).to.eql(undefined);
       expect(json).to.eql({
         imports: {
-          '@tdb/slc-data/t': typesFileUrl,
+          '@local/types': typesFileUrl,
         },
       });
     });
@@ -145,11 +145,11 @@ describe('DenoDeps methods', () => {
 
     it('skips local file-path imports', async () => {
       const fs = await Testing.dir('DenoDeps.toJson.packageLocalPaths');
-      const uiPath = fs.join('deploy/@tdb.slc.data/src/ui/mod.ts');
+      const uiPath = fs.join('fixtures/local/ui/mod.ts');
       const json = DenoDeps.toJson('package.json', [
         DenoDeps.toDep(uiPath, {
           target: 'package.json',
-          name: '@tdb/slc-data/ui',
+          name: '@local/ui',
         }),
         DenoDeps.toDep('npm:react@19.0.0', { target: 'package.json' }),
       ]);
