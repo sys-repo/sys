@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Pure document contract for the staged root mounts index.
  */
-export declare namespace SlcMounts {
+export declare namespace SlugMounts {
   /** Public mounts document surface. */
   export type Lib = {
     readonly schema: t.TSchema;

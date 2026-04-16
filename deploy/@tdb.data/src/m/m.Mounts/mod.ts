@@ -6,10 +6,10 @@ import { type t, Json, Schema } from './common.ts';
 
 const MOUNT_PATTERN = '^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$';
 
-export const SlcMounts: t.SlcMounts.Lib = {
+export const SlugMounts: t.SlugMounts.Lib = {
   validate(value) {
-    const ok = Schema.Value.Check(SlcMounts.schema, value);
-    const errors = ok ? [] : [...Schema.Value.Errors(SlcMounts.schema, value)];
+    const ok = Schema.Value.Check(SlugMounts.schema, value);
+    const errors = ok ? [] : [...Schema.Value.Errors(SlugMounts.schema, value)];
     return { ok: errors.length === 0, errors } as const;
   },
 

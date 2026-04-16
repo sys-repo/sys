@@ -18,9 +18,9 @@ console.info(pkg.name, pkg.version);
 The working runtime and type surface is namespaced under `@tdb/data/slug`.
 
 ```ts
-import { DataClient, SlcMounts } from '@tdb/data/slug';
-import { SlcDataPipeline } from '@tdb/data/slug/fs';
-import { SlcDataCli } from '@tdb/data/slug/cli';
+import { DataClient, SlugMounts } from '@tdb/data/slug';
+import { SlugDataPipeline } from '@tdb/data/slug/fs';
+import { SlugDataCli } from '@tdb/data/slug/cli';
 ```
 
 ## Subpaths

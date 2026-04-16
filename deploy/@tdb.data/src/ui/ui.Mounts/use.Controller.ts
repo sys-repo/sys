@@ -6,7 +6,7 @@ export const useController: t.Mounts.UseController = (args) => {
     return {
       loading: Signal.create(false),
       error: Signal.create<string | undefined>(undefined),
-      mounts: Signal.create<readonly t.SlcMounts.Entry[] | undefined>(undefined),
+      mounts: Signal.create<readonly t.SlugMounts.Entry[] | undefined>(undefined),
       selected: Signal.create<t.StringId | undefined>(args.selected),
     };
   }, []);

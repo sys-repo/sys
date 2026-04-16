@@ -4,7 +4,7 @@ import { create } from './u.create.ts';
 import { fromDataset } from './u.dataset.ts';
 import { findHash, refsFromTree, selectOrFirst } from './u.refs.ts';
 
-export const DataClient: t.SlcDataClient.Lib = {
+export const DataClient: t.SlugDataClient.Lib = {
   Mounts,
   create,
   fromDataset,

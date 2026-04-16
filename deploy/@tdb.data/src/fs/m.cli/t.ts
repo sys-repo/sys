@@ -5,7 +5,7 @@ import type { t } from './common.ts';
 /**
  * YAML-backed staging CLI helpers for filesystem workflows.
  */
-export declare namespace SlcDataCli {
+export declare namespace SlugDataCli {
   /** Public staging CLI surface. */
   export type Lib = {
     readonly menu: Menu.Run;
@@ -156,6 +156,6 @@ export declare namespace SlcDataCli {
     export type Lib = {
       readonly result: ResultRun;
     };
-    export type ResultRun = (result: SlcDataCli.Result) => string;
+    export type ResultRun = (result: SlugDataCli.Result) => string;
   }
 }

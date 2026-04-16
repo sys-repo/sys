@@ -25,7 +25,7 @@ export declare namespace Mounts {
   export type ControllerState = {
     readonly loading: t.Signal<boolean>;
     readonly error: t.Signal<string | undefined>;
-    readonly mounts: t.Signal<readonly t.SlcMounts.Entry[] | undefined>;
+    readonly mounts: t.Signal<readonly t.SlugMounts.Entry[] | undefined>;
     readonly selected: t.Signal<t.StringId | undefined>;
   };
 }

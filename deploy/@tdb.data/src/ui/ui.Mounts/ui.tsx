@@ -50,6 +50,6 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
   );
 };
 
-function toRows(mounts: readonly t.SlcMounts.Entry[]): t.BulletList.Item[] {
+function toRows(mounts: readonly t.SlugMounts.Entry[]): t.BulletList.Item[] {
   return mounts.map((item) => ({ id: item.mount }));
 }

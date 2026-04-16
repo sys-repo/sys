@@ -2,7 +2,7 @@ import { type t, SlugClient, Url } from './common.ts';
 import { toLayout } from './u.layout.ts';
 import { loadTreeContent } from './u.treeContent.ts';
 
-export function create(args: t.SlcDataClient.CreateArgs): t.SlcDataClient.Client {
+export function create(args: t.SlugDataClient.CreateArgs): t.SlugDataClient.Client {
   const layout = toLayout(args.layout);
   const baseUrl = String(Url.parse(args.baseUrl).href) as t.StringUrl;
   const docid = String(args.docid).trim() as t.StringId;

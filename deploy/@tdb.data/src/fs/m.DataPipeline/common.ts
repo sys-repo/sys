@@ -1,3 +1,3 @@
 export * from '../common.ts';
 export { Pkg } from '@sys/fs/pkg';
-export { SlcMounts } from '../../m/m.Mounts/mod.ts';
+export { SlugMounts } from '../../m/m.Mounts/mod.ts';

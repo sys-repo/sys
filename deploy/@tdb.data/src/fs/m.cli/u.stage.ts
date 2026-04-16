@@ -1,4 +1,4 @@
-import { type t, Fs, Path, SlcDataPipeline, Yaml } from './common.ts';
+import { type t, Fs, Path, SlugDataPipeline, Yaml } from './common.ts';
 import { StageProfileSchema } from './schema/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { StageProfileFs } from './u.fs.ts';
@@ -10,8 +10,8 @@ export async function runStageProfile(args: {
   cwd: t.StringDir;
   path: t.StringFile;
   target?: t.StringDir;
-  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
-}): Promise<t.SlcDataCli.StageProfile.StageResult> {
+  onProgress?: (info: t.SlugDataPipeline.StageSlugDataset.Progress) => void;
+}): Promise<t.SlugDataCli.StageProfile.StageResult> {
   const doc = await readProfile(args.path);
   const dirs: t.StringDir[] = [];
 
@@ -28,8 +28,8 @@ export async function runStageProfileMapping(args: {
   path: t.StringFile;
   index: number;
   target?: t.StringDir;
-  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
-}): Promise<t.SlcDataCli.StageProfile.StageResult> {
+  onProgress?: (info: t.SlugDataPipeline.StageSlugDataset.Progress) => void;
+}): Promise<t.SlugDataCli.StageProfile.StageResult> {
   const doc = await readProfile(args.path);
   const mapping = doc.mappings[args.index];
   if (!mapping) throw new Error(`Stage mapping index out of range: ${args.index}`);
@@ -40,7 +40,7 @@ export async function runStageProfileMapping(args: {
 /**
  * Helpers:
  */
-export async function readProfile(path: t.StringFile): Promise<t.SlcDataCli.StageProfile.Doc> {
+export async function readProfile(path: t.StringFile): Promise<t.SlugDataCli.StageProfile.Doc> {
   const raw = String((await Fs.readText(path)).data ?? '').trim();
   const parsed = Yaml.parse<unknown>(raw);
   if (parsed.error) throw parsed.error;
@@ -50,19 +50,19 @@ export async function readProfile(path: t.StringFile): Promise<t.SlcDataCli.Stag
     const detail = Fmt.validationErrors(validation.errors);
     throw new Error(`Invalid stage profile: ${path}${detail ? ` (${detail})` : ''}`);
   }
-  return doc as t.SlcDataCli.StageProfile.Doc;
+  return doc as t.SlugDataCli.StageProfile.Doc;
 }
 
 async function stageMapping(args: {
   cwd: t.StringDir;
-  mapping: t.SlcDataCli.StageProfile.Mapping;
+  mapping: t.SlugDataCli.StageProfile.Mapping;
   target?: t.StringDir;
-  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
+  onProgress?: (info: t.SlugDataPipeline.StageSlugDataset.Progress) => void;
 }): Promise<readonly t.StringDir[]> {
   const source = resolveSource(args.cwd, args.mapping.source);
   if (args.mapping.kind === 'slug-dataset') {
     const root = args.target ?? StageProfileFs.targetRoot(args.cwd);
-    const result = await SlcDataPipeline.stageSlugDataset({
+    const result = await SlugDataPipeline.stageSlugDataset({
       source: source as t.StringDir,
       root,
       progress: args.onProgress,
@@ -72,7 +72,7 @@ async function stageMapping(args: {
 
   const mount = args.mapping.mount;
   const target = args.target ? (Fs.join(args.target, mount) as t.StringDir) : StageProfileFs.target(args.cwd, mount);
-  await SlcDataPipeline.stageFolder({ source, target, mount });
+  await SlugDataPipeline.stageFolder({ source, target, mount });
   return [target];
 }
 

@@ -14,7 +14,7 @@ import { run } from './u.run.ts';
 import { FmtHelp } from './u.help.ts';
 import { Fmt } from './u.fmt.ts';
 
-export const SlcDataCli: t.SlcDataCli.Lib = {
+export const SlugDataCli: t.SlugDataCli.Lib = {
   help: FmtHelp.output,
   run,
   menu,

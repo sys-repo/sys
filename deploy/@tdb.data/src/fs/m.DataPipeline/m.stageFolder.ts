@@ -2,7 +2,7 @@ import { type t, Fs, Ignore, Json, Path, SlugBundle, SlugTree, SlugTreeFs } from
 import { refreshMount } from './u.stage.shared.ts';
 import { prepareTarget, refreshStagedRoot, writeTreeFsDerivedOutputs, writeTreeMountOutputs } from './u.stage.shared.ts';
 
-export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
+export const stageFolder: t.SlugDataPipeline.StageFolder.Run = async (args) => {
   const source = String(args.source).trim();
   const target = String(args.target).trim();
   const mount = String(args.mount ?? '').trim() || Path.basename(source);

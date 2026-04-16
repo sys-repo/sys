@@ -2,15 +2,15 @@ import { type t, SlugClient } from './common.ts';
 import { findHash, refsFromTree, selectOrFirst } from './u.refs.ts';
 
 type O = {
-  readonly layout: t.SlcDataClient.Layout;
+  readonly layout: t.SlugDataClient.Layout;
 };
 
 export async function loadTreeContent(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options: O,
-  input: t.SlcDataClient.TreeContentArgs = {},
-): Promise<t.SlugClientResult<t.SlcDataClient.TreeContentValue>> {
+  input: t.SlugDataClient.TreeContentArgs = {},
+): Promise<t.SlugClientResult<t.SlugDataClient.TreeContentValue>> {
   const tree = await SlugClient.FromEndpoint.Tree.load(baseUrl, docid, options);
   if (!tree.ok) return tree;
 

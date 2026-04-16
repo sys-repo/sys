@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { SlcDataCli as Cli } from '@tdb/data/slug/cli';
+import { SlugDataCli as Cli } from '@tdb/data/slug/cli';
 import { describe, expect, it, Path } from '../../src/-test.ts';
 import { run as runCreate } from '../task.sample.create.ts';
 import { run as runStage } from '../task.sample.stage.ts';

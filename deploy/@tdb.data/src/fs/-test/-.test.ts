@@ -1,10 +1,10 @@
 import { describe, EsmAssert, expect, it, Path } from '../../-test.ts';
-import { SlcDataPipeline } from '../mod.ts';
+import { SlugDataPipeline } from '../mod.ts';
 
 describe(`@tdb/data/slug/fs`, () => {
   it('API', async () => {
     const m = await import('@tdb/data/slug/fs');
-    expect(m.SlcDataPipeline).to.equal(SlcDataPipeline);
+    expect(m.SlugDataPipeline).to.equal(SlugDataPipeline);
   });
 
   it('allows the fs entry to own @sys/fs imports', async () => {

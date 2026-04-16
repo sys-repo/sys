@@ -1,6 +1,6 @@
 import { c, Cli, type t, YamlConfig } from './common.ts';
 import type { YamlConfigMenuExtra, YamlConfigMenuItemArgs } from '@sys/yaml/t';
-import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
+import { SlugDataPipeline } from '../m.DataPipeline/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { StageProfileSchema } from './schema/mod.ts';
 import { StageProfileFs, StageProfilePaths } from './u.fs.ts';
@@ -12,7 +12,7 @@ type Action = `stage:${number}` | 'refresh' | 'select';
 
 const schema = {
   validate: (value: unknown) => StageProfileSchema.validate(value),
-  stringifyYaml: (doc: t.SlcDataCli.StageProfile.Doc) => StageProfileSchema.stringify(doc),
+  stringifyYaml: (doc: t.SlugDataCli.StageProfile.Doc) => StageProfileSchema.stringify(doc),
 } as const;
 
 /**
@@ -21,9 +21,9 @@ const schema = {
 export async function menu(
   cwd: t.StringDir,
   target?: t.StringDir,
-): Promise<t.SlcDataCli.Menu.Result> {
+): Promise<t.SlugDataCli.Menu.Result> {
   while (true) {
-    const selected = await YamlConfig.menu<t.SlcDataCli.StageProfile.Doc, Action>({
+    const selected = await YamlConfig.menu<t.SlugDataCli.StageProfile.Doc, Action>({
       cwd,
       dir: StageProfilePaths.dir,
       ext: StageProfilePaths.ext,
@@ -52,7 +52,7 @@ export async function menu(
 
     let path = selected.path;
     while (true) {
-      let doc: t.SlcDataCli.StageProfile.Doc;
+      let doc: t.SlugDataCli.StageProfile.Doc;
       try {
         doc = await readProfile(path);
       } catch (error) {
@@ -61,7 +61,7 @@ export async function menu(
         break;
       }
 
-      const action = await YamlConfig.menu<t.SlcDataCli.StageProfile.Doc, Action>({
+      const action = await YamlConfig.menu<t.SlugDataCli.StageProfile.Doc, Action>({
         cwd,
         dir: StageProfilePaths.dir,
         ext: StageProfilePaths.ext,
@@ -85,7 +85,7 @@ export async function menu(
           const root = target ?? StageProfileFs.targetRoot(cwd);
           const result = await Cli.Spinner.with(
             Fmt.spinnerText('refreshing staged root...'),
-            () => SlcDataPipeline.refreshRoot({ root }),
+            () => SlugDataPipeline.refreshRoot({ root }),
           );
           console.info(Fmt.refreshRoot(result));
         } catch (error) {
@@ -111,10 +111,10 @@ export async function menu(
 }
 
 function extraActions(
-  doc: t.SlcDataCli.StageProfile.Doc,
-): YamlConfigMenuExtra<Action, t.SlcDataCli.StageProfile.Doc>[] {
+  doc: t.SlugDataCli.StageProfile.Doc,
+): YamlConfigMenuExtra<Action, t.SlugDataCli.StageProfile.Doc>[] {
   const actions = doc.mappings.map((mapping, index) => ({
-    name: (_args: YamlConfigMenuItemArgs<t.SlcDataCli.StageProfile.Doc>) => {
+    name: (_args: YamlConfigMenuItemArgs<t.SlugDataCli.StageProfile.Doc>) => {
       if (mapping.kind === 'slug-dataset') {
         const source = Cli.Fmt.path(compactPath(mapping.source), (e) => {
           if (e.is.basename) e.change(c.white(e.part));

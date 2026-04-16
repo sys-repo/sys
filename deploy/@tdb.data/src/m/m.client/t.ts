@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Direct client helpers for staged tree/content datasets. */
-export declare namespace SlcDataClient {
+export declare namespace SlugDataClient {
   /** Public client surface. */
   export type Lib = {
     readonly Mounts: Mounts.Lib;
@@ -72,6 +72,6 @@ export declare namespace SlcDataClient {
     };
 
     /** Load the runtime mount index from one staged root origin. */
-    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.SlcMounts.Doc>>;
+    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.SlugMounts.Doc>>;
   }
 }

@@ -5,7 +5,7 @@ export const Fmt = {
     return Cli.Fmt.spinnerText(text, false);
   },
 
-  slugDatasetProgress(info: t.SlcDataPipeline.StageSlugDataset.Progress): string {
+  slugDatasetProgress(info: t.SlugDataPipeline.StageSlugDataset.Progress): string {
     if (info.stage === 'mount') {
       return Fmt.spinnerText(
         `staging slug dataset ${c.white(info.mount)} (${c.white(String(info.current))}/${info.total} mounts)`,
@@ -21,7 +21,7 @@ export const Fmt = {
     return `${c.red('Error:')} ${message}`;
   },
 
-  staged(result: { readonly dir: t.StringDir } | t.SlcDataCli.StageProfile.StageResult): string {
+  staged(result: { readonly dir: t.StringDir } | t.SlugDataCli.StageProfile.StageResult): string {
     if ('dir' in result) {
       return `${c.green('✔')} ${c.gray('Staged mount:')} ${c.cyan(Fs.trimCwd(result.dir))}`;
     }
@@ -34,11 +34,11 @@ export const Fmt = {
     ].join('\n');
   },
 
-  refreshRoot(result: t.SlcDataCli.RefreshResult): string {
+  refreshRoot(result: t.SlugDataCli.RefreshResult): string {
     return `${c.green('✔')} ${c.gray('Refreshed mounts index:')} ${c.cyan(Fs.trimCwd(result.mountsPath))}`;
   },
 
-  result(result: t.SlcDataCli.Result): string {
+  result(result: t.SlugDataCli.Result): string {
     if (result.kind === 'help') return result.text;
     if (result.kind === 'created') {
       return `${c.green('✔')} ${c.gray('Created profile:')} ${c.cyan(Fs.trimCwd(result.path))}`;

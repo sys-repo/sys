@@ -1,2 +1,2 @@
 export * from '../../common.ts';
-export { SlcMounts } from '../m.Mounts/mod.ts';
+export { SlugMounts } from '../m.Mounts/mod.ts';

@@ -7,7 +7,7 @@ import { stageSlugDataset } from './m.stageSlugDataset.ts';
 import { stageFolder } from './m.stageFolder.ts';
 import { refreshRoot } from './u.refresh.ts';
 
-export const SlcDataPipeline: t.SlcDataPipeline.Lib = {
+export const SlugDataPipeline: t.SlugDataPipeline.Lib = {
   stageSlugDataset,
   stageFolder,
   refreshRoot,

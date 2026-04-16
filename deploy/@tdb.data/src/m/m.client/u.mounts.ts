@@ -1,9 +1,9 @@
-import { type t, Err, Http, SlcMounts, Url } from './common.ts';
+import { type t, Err, Http, SlugMounts, Url } from './common.ts';
 
 const FILE = 'mounts.json' as const;
-const EMPTY: t.SlcMounts.Doc = { mounts: [] };
+const EMPTY: t.SlugMounts.Doc = { mounts: [] };
 
-export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
+export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
   const fetch = Http.fetcher();
   const url = Url.parse(origin).join(FILE) as t.StringUrl;
   const res = await fetch.json<unknown>(url);
@@ -22,7 +22,7 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
     };
   }
 
-  const checked = SlcMounts.validate(res.data);
+  const checked = SlugMounts.validate(res.data);
   if (!checked.ok) {
     return {
       ok: false,
@@ -33,7 +33,7 @@ export const loadMounts: t.SlcDataClient.Mounts.Load = async (origin) => {
     };
   }
 
-  return { ok: true, value: res.data as t.SlcMounts.Doc };
+  return { ok: true, value: res.data as t.SlugMounts.Doc };
 };
 
 const wrangle = {

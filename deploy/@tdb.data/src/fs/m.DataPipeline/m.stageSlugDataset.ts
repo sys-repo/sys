@@ -31,7 +31,7 @@ type RootTreeExport = {
 
 const YAML_PATH = [] as unknown as t.ObjectPath;
 
-export const stageSlugDataset: t.SlcDataPipeline.StageSlugDataset.Run = async (args) => {
+export const stageSlugDataset: t.SlugDataPipeline.StageSlugDataset.Run = async (args) => {
   const source = String(args.source).trim();
   const root = String(args.root).trim();
   if (!source) throw new Error('stageSlugDataset: source is required');

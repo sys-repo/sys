@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { type t, SlcDataCli as Cli } from '@tdb/data/slug/cli';
+import { type t, SlugDataCli as Cli } from '@tdb/data/slug/cli';
 
 export async function run(args: {
   cwd?: t.StringDir;

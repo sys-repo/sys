@@ -1,6 +1,6 @@
 import { Args } from '@sys/cli';
 import { Fs } from '@sys/fs';
-import { type t, SlcDataCli as Cli } from '@tdb/data/slug/cli';
+import { type t, SlugDataCli as Cli } from '@tdb/data/slug/cli';
 
 const SAMPLE_DATA_DIR = './public/data' as t.StringDir;
 
@@ -14,7 +14,7 @@ export async function run(args: {
   const publicData = wrangle.sampleData(cwd);
 
   await wrangle.reset(publicData);
-  let result: t.SlcDataCli.StageProfile.StageResult | undefined;
+  let result: t.SlugDataCli.StageProfile.StageResult | undefined;
 
   for (const profile of profiles) {
     result = await stageProfileToPublic({ cwd, profile });
@@ -28,7 +28,7 @@ export async function run(args: {
 export async function stageProfileToPublic(args: {
   cwd: t.StringDir;
   profile: t.StringId;
-}): Promise<t.SlcDataCli.StageProfile.StageResult> {
+}): Promise<t.SlugDataCli.StageProfile.StageResult> {
   const result = await Cli.StageProfile.stage({
     cwd: args.cwd,
     profile: args.profile,

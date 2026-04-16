@@ -1,10 +1,10 @@
 import { describe, expect, expectError, it, Path } from '../../../-test.ts';
 import { Fs, Str } from '../../common.ts';
-import { SlcDataCli } from '../mod.ts';
+import { SlugDataCli } from '../mod.ts';
 
-describe('SlcDataCli.run', () => {
+describe('SlugDataCli.run', () => {
   it('renders help text', async () => {
-    const result = await SlcDataCli.run({ argv: ['--help'] });
+    const result = await SlugDataCli.run({ argv: ['--help'] });
 
     expect(result.kind).to.eql('help');
     if (result.kind !== 'help') throw new Error('Expected help result');
@@ -12,7 +12,7 @@ describe('SlcDataCli.run', () => {
     expect(result.text.includes('--profile <name>')).to.eql(true);
     expect(result.text.includes('--source <path>')).to.eql(true);
     expect(result.text.includes('stage  --profile <name>')).to.eql(true);
-    expect(SlcDataCli.Fmt.result(result)).to.eql(result.text);
+    expect(SlugDataCli.Fmt.result(result)).to.eql(result.text);
   });
 
   it('creates a sample profile in non-interactive mode', async () => {
@@ -20,16 +20,16 @@ describe('SlcDataCli.run', () => {
 
     try {
       const cwd = dir.absolute;
-      const result = await SlcDataCli.run({
+      const result = await SlugDataCli.run({
         cwd,
         argv: ['create', '--profile', 'sample-1', '--source', './src/-test/sample-1'],
       });
 
       expect(result.kind).to.eql('created');
       if (result.kind !== 'created') throw new Error('Expected created result');
-      expect(result.path).to.eql(SlcDataCli.StageProfile.path(cwd, 'sample-1'));
+      expect(result.path).to.eql(SlugDataCli.StageProfile.path(cwd, 'sample-1'));
       expect(await Fs.exists(result.path)).to.eql(true);
-      expect(SlcDataCli.Fmt.result(result).includes('Created profile:')).to.eql(true);
+      expect(SlugDataCli.Fmt.result(result).includes('Created profile:')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -44,22 +44,22 @@ describe('SlcDataCli.run', () => {
       const cwd = dir.absolute;
       const localSample = Fs.join(cwd, 'src/-test/sample-1');
       await Fs.copy(sample, localSample);
-      await SlcDataCli.StageProfile.create({
+      await SlugDataCli.StageProfile.create({
         cwd,
         profile: 'sample-1',
         source: './src/-test/sample-1',
       });
 
-      const result = await SlcDataCli.run({
+      const result = await SlugDataCli.run({
         cwd,
         argv: ['stage', '--profile', 'sample-1'],
       });
 
       expect(result.kind).to.eql('staged');
       if (result.kind !== 'staged' || !('dirs' in result)) throw new Error('Expected staged profile result');
-      expect(result.dirs).to.eql([SlcDataCli.StageProfile.fs.target(cwd, 'sample-1')]);
+      expect(result.dirs).to.eql([SlugDataCli.StageProfile.fs.target(cwd, 'sample-1')]);
       expect(await Fs.exists(Fs.join(result.dirs[0], 'manifests/slug-tree.sample-1.json'))).to.eql(true);
-      expect(SlcDataCli.Fmt.result(result).includes('Staged mount:')).to.eql(true);
+      expect(SlugDataCli.Fmt.result(result).includes('Staged mount:')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -73,7 +73,7 @@ describe('SlcDataCli.run', () => {
     try {
       const cwd = dir.absolute;
       const localSample = Fs.join(cwd, 'src/-test/sample-2.yaml.authored');
-      const profilePath = SlcDataCli.StageProfile.path(cwd, 'sample-2');
+      const profilePath = SlugDataCli.StageProfile.path(cwd, 'sample-2');
       await Fs.copy(sample, localSample);
       await Fs.write(profilePath, Str.dedent(`
         mappings:
@@ -81,7 +81,7 @@ describe('SlcDataCli.run', () => {
             source: ./src/-test/sample-2.yaml.authored
       `));
 
-      const result = await SlcDataCli.run({
+      const result = await SlugDataCli.run({
         cwd,
         argv: ['stage', '--profile', 'sample-2'],
       });
@@ -89,13 +89,13 @@ describe('SlcDataCli.run', () => {
       expect(result.kind).to.eql('staged');
       if (result.kind !== 'staged' || !('dirs' in result)) throw new Error('Expected staged profile result');
       expect(result.dirs).to.eql([
-        Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'prog.core'),
-        Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'prog.p2p'),
+        Fs.join(SlugDataCli.StageProfile.fs.targetRoot(cwd), 'prog.core'),
+        Fs.join(SlugDataCli.StageProfile.fs.targetRoot(cwd), 'prog.p2p'),
       ]);
-      expect(await Fs.exists(Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'mounts.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(SlugDataCli.StageProfile.fs.targetRoot(cwd), 'mounts.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(result.dirs[0]!, 'manifests/slug-tree.prog.core.json'))).to.eql(true);
       expect(await Fs.exists(Fs.join(result.dirs[1]!, 'manifests/slug-tree.prog.p2p.json'))).to.eql(true);
-      expect(SlcDataCli.Fmt.result(result).includes('Staged mounts:')).to.eql(true);
+      expect(SlugDataCli.Fmt.result(result).includes('Staged mounts:')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -109,19 +109,19 @@ describe('SlcDataCli.run', () => {
     try {
       const cwd = dir.absolute;
       const target = Fs.join(cwd, 'public/data');
-      await SlcDataCli.StageProfile.create({
+      await SlugDataCli.StageProfile.create({
         cwd,
         profile: 'sample-1',
         source: sample,
       });
-      await SlcDataCli.StageProfile.stage({
+      await SlugDataCli.StageProfile.stage({
         cwd,
         profile: 'sample-1',
         target,
       });
       await Fs.remove(Fs.join(target, 'sample-1'));
 
-      const result = await SlcDataCli.run({
+      const result = await SlugDataCli.run({
         cwd,
         argv: ['refresh', '--target', target],
       });
@@ -133,7 +133,7 @@ describe('SlcDataCli.run', () => {
       expect(result.distPath).to.eql(Fs.join(target, 'dist.json'));
       expect((await Fs.readJson(result.mountsPath)).data).to.eql({ mounts: [] });
       expect(await Fs.exists(result.distPath)).to.eql(true);
-      expect(SlcDataCli.Fmt.result(result).includes('Refreshed mounts index:')).to.eql(true);
+      expect(SlugDataCli.Fmt.result(result).includes('Refreshed mounts index:')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -141,19 +141,19 @@ describe('SlcDataCli.run', () => {
 
   it('fails when create is missing a profile', () =>
     expectError(
-      () => SlcDataCli.run({ argv: ['create', '--source', './src/-test/sample-1'] }),
+      () => SlugDataCli.run({ argv: ['create', '--source', './src/-test/sample-1'] }),
       "Missing --profile for 'create'",
     ));
 
   it('fails when create is missing a source', () =>
     expectError(
-      () => SlcDataCli.run({ argv: ['create', '--profile', 'sample-1'] }),
+      () => SlugDataCli.run({ argv: ['create', '--profile', 'sample-1'] }),
       "Missing --source for 'create'",
     ));
 
   it('fails when stage is missing a profile', () =>
-    expectError(() => SlcDataCli.run({ argv: ['stage'] }), "Missing --profile for 'stage'"));
+    expectError(() => SlugDataCli.run({ argv: ['stage'] }), "Missing --profile for 'stage'"));
 
   it('fails when refresh is missing a target', () =>
-    expectError(() => SlcDataCli.run({ argv: ['refresh'] }), "Missing --target for 'refresh'"));
+    expectError(() => SlugDataCli.run({ argv: ['refresh'] }), "Missing --target for 'refresh'"));
 });

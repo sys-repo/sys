@@ -1,5 +1,5 @@
 import { Args, Cli, type t } from './common.ts';
-import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
+import { SlugDataPipeline } from '../m.DataPipeline/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { FmtHelp } from './u.help.ts';
 import { menu } from './u.menu.ts';
@@ -8,12 +8,12 @@ import { runStageProfile } from './u.stage.ts';
 import { StageProfileFs } from './u.fs.ts';
 import { withStageSpinner } from './u.spin.ts';
 
-const COMMANDS = new Set<t.SlcDataCli.Command>(['create', 'stage', 'refresh']);
+const COMMANDS = new Set<t.SlugDataCli.Command>(['create', 'stage', 'refresh']);
 
 /**
  * Parse and run the staging CLI.
  */
-export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.Result> {
+export async function run(input: t.SlugDataCli.Input = {}): Promise<t.SlugDataCli.Result> {
   const cwd = input.cwd ?? Deno.cwd() as t.StringDir;
   const argv = [...(input.argv ?? Deno.args)];
   const args = parseArgs(argv);
@@ -26,7 +26,7 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
     if (!target) throw new Error(`Missing --target for '${args.command}'`);
     return Cli.Spinner.with(
       Fmt.spinnerText('refreshing staged root...'),
-      () => SlcDataPipeline.refreshRoot({ root: target }),
+      () => SlugDataPipeline.refreshRoot({ root: target }),
     );
   }
 
@@ -44,8 +44,8 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
   );
 }
 
-function parseArgs(argv: string[]): t.SlcDataCli.Args {
-  const args = Args.parse<Omit<t.SlcDataCli.Args, 'command'>>(argv, {
+function parseArgs(argv: string[]): t.SlugDataCli.Args {
+  const args = Args.parse<Omit<t.SlugDataCli.Args, 'command'>>(argv, {
     alias: { h: 'help' },
     boolean: ['help'],
     string: ['profile', 'source', 'target'],
@@ -55,6 +55,6 @@ function parseArgs(argv: string[]): t.SlcDataCli.Args {
   return { ...args, command };
 }
 
-function isCommand(value: unknown): value is t.SlcDataCli.Command {
-  return typeof value === 'string' && COMMANDS.has(value as t.SlcDataCli.Command);
+function isCommand(value: unknown): value is t.SlugDataCli.Command {
+  return typeof value === 'string' && COMMANDS.has(value as t.SlugDataCli.Command);
 }

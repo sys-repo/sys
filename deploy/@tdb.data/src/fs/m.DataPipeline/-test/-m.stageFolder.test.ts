@@ -1,8 +1,8 @@
 import { describe, expect, it, Path } from '../../../-test.ts';
 import { Fs } from '../../common.ts';
-import { SlcDataPipeline } from '../mod.ts';
+import { SlugDataPipeline } from '../mod.ts';
 
-describe('SlcDataPipeline.stageFolder', () => {
+describe('SlugDataPipeline.stageFolder', () => {
   it('stages a representative markdown folder into manifests and content', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     const source = Path.resolve(root, '../../../-test/sample-1');
@@ -10,7 +10,7 @@ describe('SlcDataPipeline.stageFolder', () => {
     try {
       const target = Fs.join(dir.absolute, 'sample-1');
       const exists = (name: string, dir = 'manifests') => Fs.exists(Fs.join(target, dir, name));
-      const result = await SlcDataPipeline.stageFolder({ source, target });
+      const result = await SlugDataPipeline.stageFolder({ source, target });
 
       expect(result.ok).to.eql(true);
       expect(result.mount).to.eql('sample-1');
@@ -46,7 +46,7 @@ describe('SlcDataPipeline.stageFolder', () => {
     try {
       const target = Fs.join(dir.absolute, 'sample-one');
       const exists = (name: string, folder = 'manifests') => Fs.exists(Fs.join(target, folder, name));
-      const result = await SlcDataPipeline.stageFolder({ source, target, mount: 'sample-one' });
+      const result = await SlugDataPipeline.stageFolder({ source, target, mount: 'sample-one' });
 
       expect(result.mount).to.eql('sample-one');
       expect(await exists('slug-tree.sample-one.json')).to.eql(true);
@@ -68,12 +68,12 @@ describe('SlcDataPipeline.stageFolder', () => {
     const source = Path.resolve(root, '../../../-test/sample-1');
     const dir = await Fs.makeTempDir();
     try {
-      await SlcDataPipeline.stageFolder({
+      await SlugDataPipeline.stageFolder({
         source,
         target: Fs.join(dir.absolute, 'sample-b'),
         mount: 'sample-b',
       });
-      await SlcDataPipeline.stageFolder({
+      await SlugDataPipeline.stageFolder({
         source,
         target: Fs.join(dir.absolute, 'sample-a'),
         mount: 'sample-a',

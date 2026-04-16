@@ -1,8 +1,8 @@
 import { describe, expect, it, Path } from '../../../-test.ts';
 import { Fs } from '../../common.ts';
-import { SlcDataPipeline } from '../mod.ts';
+import { SlugDataPipeline } from '../mod.ts';
 
-describe('SlcDataPipeline.stageSlugDataset', () => {
+describe('SlugDataPipeline.stageSlugDataset', () => {
   it('stages one mount per root slug-tree trait → keeps closure-derived outputs', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     const source = Path.resolve(root, '../../../-test/sample-2.yaml.authored');
@@ -10,7 +10,7 @@ describe('SlcDataPipeline.stageSlugDataset', () => {
 
     try {
       const target = Fs.join(dir.absolute, 'public/data');
-      const result = await SlcDataPipeline.stageSlugDataset({ source, root: target });
+      const result = await SlugDataPipeline.stageSlugDataset({ source, root: target });
 
       expect(result.ok).to.eql(true);
       expect(result.mounts).to.eql(['prog.core', 'prog.p2p']);

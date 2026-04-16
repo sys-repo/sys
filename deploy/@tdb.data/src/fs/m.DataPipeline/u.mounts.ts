@@ -1,4 +1,4 @@
-import { type t, Err, Fs, Is, Path, SlcMounts } from './common.ts';
+import { type t, Err, Fs, Is, Path, SlugMounts } from './common.ts';
 
 const FILE = 'mounts.json' as const;
 const PREFIX = 'slug-tree.';
@@ -18,7 +18,7 @@ export const MountsFs = {
 } as const;
 
 /** Collect mount entries from the staged root on disk. */
-export async function collectMounts(root: t.StringDir): Promise<t.SlcMounts.Doc> {
+export async function collectMounts(root: t.StringDir): Promise<t.SlugMounts.Doc> {
   const mounts = new Set<t.StringId>();
   if (!(await Fs.exists(root))) return { mounts: [] };
 
@@ -55,13 +55,13 @@ export async function collectMounts(root: t.StringDir): Promise<t.SlcMounts.Doc>
 /** Refresh the root mounts index from the staged root on disk. */
 export async function refreshMounts(root: t.StringDir): Promise<t.StringFile> {
   const doc = await collectMounts(root);
-  const checked = SlcMounts.validate(doc);
+  const checked = SlugMounts.validate(doc);
   if (!checked.ok) {
     throw new Error(`Mounts: ${Err.summary(checked.errors)}`);
   }
 
   const path = MountsFs.path(root);
-  await Fs.write(path, SlcMounts.stringify(doc));
+  await Fs.write(path, SlugMounts.stringify(doc));
   return path;
 }
 

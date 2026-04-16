@@ -1,14 +1,14 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { SlcMounts } from '../mod.ts';
+import { SlugMounts } from '../mod.ts';
 
-describe('SlcMounts', () => {
+describe('SlugMounts', () => {
   it('valid doc → ok', () => {
-    const res = SlcMounts.validate({ mounts: [{ mount: 'sample-1' }] });
+    const res = SlugMounts.validate({ mounts: [{ mount: 'sample-1' }] });
     expect(res.ok).to.eql(true);
   });
 
   it('invalid mount → error', () => {
-    const res = SlcMounts.validate({ mounts: [{ mount: 'bad/mount' }] });
+    const res = SlugMounts.validate({ mounts: [{ mount: 'bad/mount' }] });
     expect(res.ok).to.eql(false);
     expect(res.errors.length > 0).to.eql(true);
   });

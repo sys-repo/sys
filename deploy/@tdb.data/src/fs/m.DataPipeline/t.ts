@@ -6,7 +6,7 @@ import type { t } from './common.ts';
  * Use this namespace for local folder and slug-dataset workflows that generate
  * staged data outputs.
  */
-export declare namespace SlcDataPipeline {
+export declare namespace SlugDataPipeline {
   /** Public fs pipeline surface. */
   export type Lib = {
     readonly stageFolder: StageFolder.Run;

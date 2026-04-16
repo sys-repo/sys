@@ -1,10 +1,10 @@
 import { describe, EsmAssert, expect, it, Path } from '../-test.ts';
-import { DataClient, SlcMounts } from './mod.ts';
+import { DataClient, SlugMounts } from './mod.ts';
 
 describe('@tdb/data/slug', () => {
   it('API', async () => {
     const m = await import('@tdb/data/slug');
-    expect(m.SlcMounts).to.equal(SlcMounts);
+    expect(m.SlugMounts).to.equal(SlugMounts);
     expect(m.DataClient).to.equal(DataClient);
   });
 

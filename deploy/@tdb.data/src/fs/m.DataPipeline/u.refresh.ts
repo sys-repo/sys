@@ -5,7 +5,7 @@ import { refreshMounts } from './u.mounts.ts';
 /**
  * Refresh root staged metadata from current filesystem state.
  */
-export const refreshRoot: t.SlcDataPipeline.RefreshRoot.Run = async (args) => {
+export const refreshRoot: t.SlugDataPipeline.RefreshRoot.Run = async (args) => {
   await refreshMountDists(args.root);
   const mountsPath = await refreshMounts(args.root);
   const distPath = await refreshRootDist(args.root);

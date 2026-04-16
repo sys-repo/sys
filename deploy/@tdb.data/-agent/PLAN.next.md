@@ -47,9 +47,9 @@ formatted result seam so the downstream wrapper does not need internal imports.
 
 Best next addition:
 
-- `SlcDataCli.Fmt.result(result)`
+- `SlugDataCli.Fmt.result(result)`
 
 Then the downstream wrapper becomes:
 
-- call `SlcDataCli.run({ cwd, argv, target: \`${cwd}/public/data\` })`
-- print `SlcDataCli.Fmt.result(result)`
+- call `SlugDataCli.run({ cwd, argv, target: \`${cwd}/public/data\` })`
+- print `SlugDataCli.Fmt.result(result)`

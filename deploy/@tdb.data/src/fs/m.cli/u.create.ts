@@ -9,7 +9,7 @@ export async function runCreateProfile(args: {
   cwd: t.StringDir;
   profile: t.StringId;
   source: t.StringPath;
-}): Promise<t.SlcDataCli.StageProfile.CreateResult> {
+}): Promise<t.SlugDataCli.StageProfile.CreateResult> {
   const { cwd, profile, source } = args;
   const path = StageProfileFs.path(cwd, profile);
   const doc = StageProfileSchema.initial(profile);
