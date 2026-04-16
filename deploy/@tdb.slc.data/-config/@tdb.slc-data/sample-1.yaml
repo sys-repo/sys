@@ -1,0 +1,5 @@
+mappings:
+  - mount: sample-one
+    source: ./src/-test/sample-1
+  - mount: sample-two
+    source: ./src/-test/sample-1

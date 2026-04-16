@@ -1,1 +1,9 @@
 public/data
+
+# Configuration
+!-config/
+-config/*
+!-config/@tdb.slc-data/
+-config/@tdb.slc-data/*
+!-config/@tdb.slc-data/sample-1.yaml
+!-config/@tdb.slc-data/prog.yaml
