@@ -4,7 +4,7 @@
 
 After the next JSR bump/publish, keep the integration split principled:
 
-- `@tdb/slc-data` owns the reusable dev component/runtime surface
+- `@tdb/data` owns the reusable dev component/runtime surface
 - downstream projects own origin/proxy policy and the final spec harness
 
 ### Why
@@ -33,7 +33,7 @@ Add a matching API assertion in:
 
 In `agent-projects/code/projects/slc-data`:
 
-- import `HttpDataCards` from `@tdb/slc-data/dev/http-data-cards`
+- import `HttpDataCards` from `@tdb/data/slug/ui/dev/http-data-cards`
 - keep a tiny local spec wrapper
 - wire that wrapper to project-owned `ProxyRoutes` / `ui.HttpOrigin`
 
@@ -53,4 +53,3 @@ Then the downstream wrapper becomes:
 
 - call `SlcDataCli.run({ cwd, argv, target: \`${cwd}/public/data\` })`
 - print `SlcDataCli.Fmt.result(result)`
-

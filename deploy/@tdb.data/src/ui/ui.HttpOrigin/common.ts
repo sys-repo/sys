@@ -11,7 +11,7 @@ const spec: t.HttpOrigin.SpecMap = Routes.origin;
 
 export const D = {
   name,
-  displayName: `@tdb/slc-data:${name}`,
+  displayName: `@tdb/data/slug:${name}`,
   domain: Routes.domain,
   spec,
   env: 'production',

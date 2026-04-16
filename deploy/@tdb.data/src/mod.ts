@@ -1,16 +1,15 @@
 /**
  * @module
- * Public package entry for staged-data package metadata, clients, and type exports.
+ * Slug-dataset runtime entrypoint published at `@tdb/data/slug`.
  *
  * @example
  * ```ts
- * import { pkg } from '@tdb/data';
+ * import { DataClient, SlcMounts } from '@tdb/data/slug';
  *
- * const version = pkg.version;
+ * const client = DataClient;
  * ```
  */
-export { pkg } from './pkg.ts';
 export { DataClient, SlcMounts } from './m/mod.ts';
 
-/** Package type surface. */
+/** Slug type surface. */
 export type * as t from './types.ts';
