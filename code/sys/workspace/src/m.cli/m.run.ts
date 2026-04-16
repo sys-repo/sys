@@ -42,7 +42,7 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
 
   const selection = await wrangle.selection(upgradeInput, options);
 
-  const upgrade = await withSpinner(
+  const upgrade = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'plan' }),
     (spinner) =>
       WorkspaceUpgrade.upgrade(
@@ -58,7 +58,7 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
     return { kind: 'plan', input: { argv, cwd }, options, selection, upgrade };
   }
 
-  const applied = await withSpinner(
+  const applied = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'apply' }),
     (spinner) =>
       WorkspaceUpgrade.apply(
@@ -78,18 +78,6 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   console.info();
   return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade: applied.upgrade, applied };
 };
-
-async function withSpinner<T>(
-  message: string,
-  fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
-): Promise<T> {
-  const spinner = Cli.spinner(message);
-  try {
-    return await fn(spinner);
-  } finally {
-    spinner.stop();
-  }
-}
 
 /**
  * Helpers:
