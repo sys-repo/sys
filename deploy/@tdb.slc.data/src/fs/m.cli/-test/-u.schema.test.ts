@@ -6,7 +6,7 @@ describe('StageProfileSchema', () => {
     const doc = StageProfileSchema.initial('my-data');
     const checked = StageProfileSchema.validate(doc);
 
-    expect(doc).to.eql({ mappings: [{ mount: 'my-data', source: '.' }] });
+    expect(doc).to.eql({ mappings: [{ kind: 'folder', mount: 'my-data', source: '.' }] });
     expect(checked.ok).to.eql(true);
   });
 

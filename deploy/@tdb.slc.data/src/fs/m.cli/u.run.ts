@@ -1,10 +1,12 @@
 import { Args, type t } from './common.ts';
 import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
+import { Fmt } from './u.fmt.ts';
 import { FmtHelp } from './u.help.ts';
 import { menu } from './u.menu.ts';
 import { runCreateProfile } from './u.create.ts';
 import { runStageProfile } from './u.stage.ts';
 import { StageProfileFs } from './u.fs.ts';
+import { withSpinner, withStageSpinner } from './u.spin.ts';
 
 const COMMANDS = new Set<t.SlcDataCli.Command>(['create', 'stage', 'refresh']);
 
@@ -22,7 +24,10 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
 
   if (args.command === 'refresh') {
     if (!target) throw new Error(`Missing --target for '${args.command}'`);
-    return SlcDataPipeline.refreshRoot({ root: target });
+    return withSpinner(
+      Fmt.spinnerText('refreshing staged root...'),
+      (_spinner) => SlcDataPipeline.refreshRoot({ root: target }),
+    );
   }
 
   const profile = args.profile;
@@ -34,7 +39,9 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
     return runCreateProfile({ cwd, profile, source });
   }
 
-  return runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile), target });
+  return withStageSpinner((onProgress) =>
+    runStageProfile({ cwd, path: StageProfileFs.path(cwd, profile), target, onProgress })
+  );
 }
 
 function parseArgs(argv: string[]): t.SlcDataCli.Args {

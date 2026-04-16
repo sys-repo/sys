@@ -32,10 +32,9 @@ export async function promptAction<A extends string = string, T = unknown>(
     { name: `${actionLabel}: reload`, value: 'reload' },
     { name: `${actionLabel}: rename`, value: 'rename' },
   ];
-  const colonWidth = toColonWidth([...extraActions, ...baseActions].map((item) => item.name));
   const base = [
-    ...extraActions.map((item) => ({ name: `  ${alignColon(item.name, colonWidth)}`, value: item.value })),
-    ...baseActions.map((item) => ({ name: `  ${alignColon(item.name, colonWidth)}`, value: item.value })),
+    ...extraActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
+    ...baseActions.map((item) => ({ name: `  ${item.name}`, value: item.value })),
     { name: c.dim(c.gray(' (delete)')), value: 'delete' },
     { name: `${c.cyan('←')} back`, value: 'back' },
   ];
@@ -63,17 +62,4 @@ export async function promptAction<A extends string = string, T = unknown>(
 
 function resolveName<T>(name: YamlConfigMenuItemName<T>, args: YamlConfigMenuItemArgs<T>) {
   return Is.func(name) ? name(args) : name;
-}
-
-function toColonWidth(labels: readonly string[]) {
-  return labels.reduce((width, label) => {
-    const index = label.indexOf(':');
-    return index < 0 ? width : Math.max(width, index);
-  }, 0);
-}
-
-function alignColon(label: string, width: number) {
-  const index = label.indexOf(':');
-  if (index < 0) return label;
-  return `${' '.repeat(Math.max(0, width - index))}${label}`;
 }

@@ -58,8 +58,8 @@ describe('runStageProfile', () => {
       const result = await runStageProfileMapping({ cwd, path: profilePath, index: 1 });
 
       expect(result.kind).to.eql('staged');
-      expect(result.dir).to.eql(Fs.join(cwd, '.tmp/staging.slc-data', 'venture-examples'));
-      expect(await Fs.exists(Fs.join(result.dir, 'manifests', 'slug-tree.venture-examples.json'))).to.eql(true);
+      expect(result.dirs).to.eql([Fs.join(cwd, '.tmp/staging.slc-data', 'venture-examples')]);
+      expect(await Fs.exists(Fs.join(result.dirs[0], 'manifests', 'slug-tree.venture-examples.json'))).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }
@@ -90,8 +90,7 @@ describe('runStageProfile', () => {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         expect(message).to.contain(`Invalid stage profile: ${profilePath}`);
-        expect(message).to.contain('/mappings/0/mount: Expected string to match');
-        expect(message).to.contain('^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$');
+        expect(message).to.contain('/mappings/0: Expected union value');
       }
     } finally {
       await Fs.remove(dir.absolute);

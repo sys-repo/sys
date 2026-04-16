@@ -1,6 +1,21 @@
-import { c, Fs, type t } from './common.ts';
+import { c, Cli, Fs, type t } from './common.ts';
 
 export const Fmt = {
+  spinnerText(text: string) {
+    return Cli.Fmt.spinnerText(text, false);
+  },
+
+  slugDatasetProgress(info: t.SlcDataPipeline.StageSlugDataset.Progress): string {
+    if (info.stage === 'mount') {
+      return Fmt.spinnerText(
+        `staging slug dataset ${c.white(info.mount)} (${c.white(String(info.current))}/${info.total} mounts)`,
+      );
+    }
+    return Fmt.spinnerText(
+      `staging ${c.white(info.mount)} (${c.white(String(info.current))}/${info.total} docs)`,
+    );
+  },
+
   error(error: unknown): string {
     const message = error instanceof Error ? error.message : String(error);
     return `${c.red('Error:')} ${message}`;

@@ -8,7 +8,7 @@ describe('sample-2.yaml.authored', () => {
   const docsDir = Fs.join(fixture, 'docs');
   const rootMetaPath = Fs.join(fixture, '-root.yaml');
 
-  it('is a trimmed but closed authored-yaml fixture', async () => {
+  it('is a trimmed but closed slug-dataset fixture', async () => {
     const meta = Yaml.parse<Record<string, unknown>>(
       String((await Fs.readText(rootMetaPath)).data ?? ''),
     ).data ?? {};

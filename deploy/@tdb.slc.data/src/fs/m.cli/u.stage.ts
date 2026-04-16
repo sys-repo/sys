@@ -10,13 +10,14 @@ export async function runStageProfile(args: {
   cwd: t.StringDir;
   path: t.StringFile;
   target?: t.StringDir;
+  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
 }): Promise<t.SlcDataCli.StageProfile.StageResult> {
   const doc = await readProfile(args.path);
   const dirs: t.StringDir[] = [];
 
   for (const mapping of doc.mappings) {
-    const dir = await stageMapping({ cwd: args.cwd, mapping, target: args.target });
-    dirs.push(dir);
+    const staged = await stageMapping({ cwd: args.cwd, mapping, target: args.target, onProgress: args.onProgress });
+    dirs.push(...staged);
   }
 
   return { kind: 'staged', dirs };
@@ -27,12 +28,13 @@ export async function runStageProfileMapping(args: {
   path: t.StringFile;
   index: number;
   target?: t.StringDir;
-}): Promise<{ readonly kind: 'staged'; readonly dir: t.StringDir }> {
+  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
+}): Promise<t.SlcDataCli.StageProfile.StageResult> {
   const doc = await readProfile(args.path);
   const mapping = doc.mappings[args.index];
   if (!mapping) throw new Error(`Stage mapping index out of range: ${args.index}`);
-  const dir = await stageMapping({ cwd: args.cwd, mapping, target: args.target });
-  return { kind: 'staged', dir };
+  const dirs = await stageMapping({ cwd: args.cwd, mapping, target: args.target, onProgress: args.onProgress });
+  return { kind: 'staged', dirs };
 }
 
 /**
@@ -55,13 +57,23 @@ async function stageMapping(args: {
   cwd: t.StringDir;
   mapping: t.SlcDataCli.StageProfile.Mapping;
   target?: t.StringDir;
-}): Promise<t.StringDir> {
+  onProgress?: (info: t.SlcDataPipeline.StageSlugDataset.Progress) => void;
+}): Promise<readonly t.StringDir[]> {
   const source = resolveSource(args.cwd, args.mapping.source);
-  const target = args.target
-    ? (Fs.join(args.target, args.mapping.mount) as t.StringDir)
-    : StageProfileFs.target(args.cwd, args.mapping.mount);
-  await SlcDataPipeline.stageFolder({ source, target, mount: args.mapping.mount });
-  return target;
+  if (args.mapping.kind === 'slug-dataset') {
+    const root = args.target ?? StageProfileFs.targetRoot(args.cwd);
+    const result = await SlcDataPipeline.stageSlugDataset({
+      source: source as t.StringDir,
+      root,
+      progress: args.onProgress,
+    });
+    return result.dirs;
+  }
+
+  const mount = args.mapping.mount;
+  const target = args.target ? (Fs.join(args.target, mount) as t.StringDir) : StageProfileFs.target(args.cwd, mount);
+  await SlcDataPipeline.stageFolder({ source, target, mount });
+  return [target];
 }
 
 function resolveSource(cwd: t.StringDir, source: t.StringPath): t.StringPath {

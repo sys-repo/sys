@@ -20,7 +20,6 @@ type AuthoredDoc = {
 type AuthoredDataset = {
   readonly rootDocid: t.StringId;
   readonly root: AuthoredDoc;
-  readonly docsDir: t.StringDir;
   readonly docs: readonly AuthoredDoc[];
   readonly dag: t.SlugBundleTransform.Dag.Shape;
 };
@@ -32,28 +31,37 @@ type RootTreeExport = {
 
 const YAML_PATH = [] as unknown as t.ObjectPath;
 
-export const stageAuthoredYaml: t.SlcDataPipeline.StageAuthoredYaml.Run = async (args) => {
+export const stageSlugDataset: t.SlcDataPipeline.StageSlugDataset.Run = async (args) => {
   const source = String(args.source).trim();
   const root = String(args.root).trim();
-  if (!source) throw new Error('stageAuthoredYaml: source is required');
-  if (!root) throw new Error('stageAuthoredYaml: root is required');
+  if (!source) throw new Error('stageSlugDataset: source is required');
+  if (!root) throw new Error('stageSlugDataset: root is required');
 
   const sourceInfo = await Fs.stat(source);
   if (!sourceInfo || !sourceInfo.isDirectory) {
-    throw new Error(`stageAuthoredYaml: source directory not found: ${source}`);
+    throw new Error(`stageSlugDataset: source directory not found: ${source}`);
   }
 
   const dataset = await readAuthoredDataset(source as t.StringDir);
   const requested = new Set((args.mounts ?? []).map((value) => String(value).trim()).filter(Boolean));
   const mounts = resolveRootTreeExports(dataset.root.slug, requested);
   if (mounts.length === 0) {
-    throw new Error(`stageAuthoredYaml: no slug-tree mounts found in ${dataset.root.file}`);
+    throw new Error(`stageSlugDataset: no slug-tree mounts found in ${dataset.root.file}`);
   }
+  const progress = args.progress;
+  const derivedDocs = dataset.docs.filter((doc) => doc.docid !== dataset.rootDocid);
 
   const dirs: t.StringDir[] = [];
   const stagedMounts: t.StringId[] = [];
 
-  for (const item of mounts) {
+  for (const [mountIndex, item] of mounts.entries()) {
+    progress?.({
+      stage: 'mount',
+      current: mountIndex + 1,
+      total: mounts.length,
+      mount: item.mount,
+    });
+
     const target = Fs.join(root, item.mount) as t.StringDir;
     await prepareTarget(target);
 
@@ -64,7 +72,7 @@ export const stageAuthoredYaml: t.SlcDataPipeline.StageAuthoredYaml.Run = async 
       treeYaml: SlugTree.toYaml(item.tree),
     });
 
-    const content = await deriveAuthoredContent({
+    const content = await deriveSlugDatasetContent({
       dataset,
       mount: item.mount,
       manifests: [treeFiles.manifestJson, treeFiles.manifestYaml],
@@ -77,8 +85,14 @@ export const stageAuthoredYaml: t.SlcDataPipeline.StageAuthoredYaml.Run = async 
       derived: content.value,
     });
 
-    for (const doc of dataset.docs) {
-      if (doc.docid === dataset.rootDocid) continue;
+    for (const [docIndex, doc] of derivedDocs.entries()) {
+      progress?.({
+        stage: 'doc',
+        current: docIndex + 1,
+        total: derivedDocs.length,
+        mount: item.mount,
+        docid: doc.docid,
+      });
       const derived = await SlugBundle.Transform.derive({
         dag: dataset.dag,
         yamlPath: YAML_PATH,
@@ -104,7 +118,7 @@ export const stageAuthoredYaml: t.SlcDataPipeline.StageAuthoredYaml.Run = async 
 
   return {
     ok: true,
-    kind: 'stage-authored-yaml',
+    kind: 'stage-slug-dataset',
     source: source as t.StringDir,
     root: root as t.StringDir,
     dirs,
@@ -117,15 +131,13 @@ export const stageAuthoredYaml: t.SlcDataPipeline.StageAuthoredYaml.Run = async 
 async function readAuthoredDataset(source: t.StringDir): Promise<AuthoredDataset> {
   const metaPath = Fs.join(source, '-root.yaml');
   const docsDir = Fs.join(source, 'docs') as t.StringDir;
-  if (!(await Fs.exists(metaPath))) throw new Error(`stageAuthoredYaml: missing -root.yaml in ${source}`);
-  if (!(await Fs.exists(docsDir))) throw new Error(`stageAuthoredYaml: missing docs directory in ${source}`);
+  if (!(await Fs.exists(metaPath))) throw new Error(`stageSlugDataset: missing -root.yaml in ${source}`);
+  if (!(await Fs.exists(docsDir))) throw new Error(`stageSlugDataset: missing docs directory in ${source}`);
 
   const metaRaw = String((await Fs.readText(metaPath)).data ?? '');
   const meta = (Yaml.parse<RootMeta>(metaRaw).data ?? {}) as RootMeta;
   const rootDocidRaw = String(meta.root?.docid ?? '').trim();
-  const rootFileRaw = String(meta.root?.file ?? '').trim();
-  if (!rootDocidRaw) throw new Error(`stageAuthoredYaml: missing root.docid in ${metaPath}`);
-  if (!rootFileRaw) throw new Error(`stageAuthoredYaml: missing root.file in ${metaPath}`);
+  if (!rootDocidRaw) throw new Error(`stageSlugDataset: missing root.docid in ${metaPath}`);
 
   const paths = await Fs.ls(docsDir, { includeDirs: false, depth: 1 });
   const docs: AuthoredDoc[] = [];
@@ -135,7 +147,7 @@ async function readAuthoredDataset(source: t.StringDir): Promise<AuthoredDataset
     if (!match) continue;
     const sourceText = String((await Fs.readText(path)).data ?? '');
     const parsed = Yaml.parse<Record<string, unknown>>(sourceText).data;
-    if (!Is.record(parsed)) throw new Error(`stageAuthoredYaml: invalid yaml doc: ${path}`);
+    if (!Is.record(parsed)) throw new Error(`stageSlugDataset: invalid yaml doc: ${path}`);
     docs.push({
       docid: match[1] as t.StringId,
       file: path as t.StringFile,
@@ -147,13 +159,13 @@ async function readAuthoredDataset(source: t.StringDir): Promise<AuthoredDataset
 
   const rootDocid = rootDocidRaw as t.StringId;
   const root = docs.find((doc) => doc.docid === rootDocid);
-  if (!root) throw new Error(`stageAuthoredYaml: root doc not found in docs/: ${rootDocid}`);
+  if (!root) throw new Error(`stageSlugDataset: root doc not found in docs/: ${rootDocid}`);
 
   const dag = {
     nodes: docs.map((doc) => ({ id: toCrdtId(doc.docid), doc: { current: doc.source } })),
   } as const;
 
-  return { rootDocid, root, docsDir, docs, dag };
+  return { rootDocid, root, docs, dag };
 }
 
 function resolveRootTreeExports(
@@ -171,16 +183,16 @@ function resolveRootTreeExports(
     if (!as) continue;
     if (requested.size > 0 && !requested.has(as)) continue;
     const payload = data[as];
-    if (!Is.record(payload)) throw new Error(`stageAuthoredYaml: root tree payload missing at data.${as}`);
+    if (!Is.record(payload)) throw new Error(`stageSlugDataset: root tree payload missing at data.${as}`);
     const checked = SlugSchema.Tree.validate(payload);
-    if (!checked.ok) throw new Error(`stageAuthoredYaml: invalid root tree at data.${as}: ${checked.error.message}`);
+    if (!checked.ok) throw new Error(`stageSlugDataset: invalid root tree at data.${as}: ${checked.error.message}`);
     items.push({ mount: as as t.StringId, tree: checked.sequence });
   }
 
   return items.sort((a, b) => a.mount.localeCompare(b.mount));
 }
 
-async function deriveAuthoredContent(args: {
+async function deriveSlugDatasetContent(args: {
   dataset: AuthoredDataset;
   mount: t.StringId;
   manifests: readonly t.StringPath[];

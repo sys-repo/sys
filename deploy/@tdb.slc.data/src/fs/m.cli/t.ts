@@ -54,11 +54,21 @@ export declare namespace SlcDataCli {
 
   /** YAML-backed staging profile document. */
   export namespace StageProfile {
-    /** One staged data mount and its source folder. */
-    export type Mapping = {
+    /** One staged folder mount and its source folder. */
+    export type FolderMapping = {
+      readonly kind?: 'folder';
       readonly mount: t.StringId;
       readonly source: t.StringPath;
     };
+
+    /** One slug-dataset source mapping. */
+    export type SlugDatasetMapping = {
+      readonly kind: 'slug-dataset';
+      readonly source: t.StringPath;
+    };
+
+    /** One staged data mapping. */
+    export type Mapping = FolderMapping | SlugDatasetMapping;
 
     /** One profile file containing one or more staged mappings. */
     export type Doc = {

@@ -1,5 +1,5 @@
 import { describe, expect, expectError, it, Path } from '../../../-test.ts';
-import { Fs } from '../../common.ts';
+import { Fs, Str } from '../../common.ts';
 import { SlcDataCli } from '../mod.ts';
 
 describe('SlcDataCli.run', () => {
@@ -60,6 +60,42 @@ describe('SlcDataCli.run', () => {
       expect(result.dirs).to.eql([SlcDataCli.StageProfile.fs.target(cwd, 'sample-1')]);
       expect(await Fs.exists(Fs.join(result.dirs[0], 'manifests/slug-tree.sample-1.json'))).to.eql(true);
       expect(SlcDataCli.Fmt.result(result).includes('Staged mount:')).to.eql(true);
+    } finally {
+      await Fs.remove(dir.absolute);
+    }
+  });
+
+  it('stages a slug-dataset profile in non-interactive mode', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    const sample = Path.resolve(root, '../../../-test/sample-2.yaml.authored');
+    const dir = await Fs.makeTempDir();
+
+    try {
+      const cwd = dir.absolute;
+      const localSample = Fs.join(cwd, 'src/-test/sample-2.yaml.authored');
+      const profilePath = SlcDataCli.StageProfile.path(cwd, 'sample-2');
+      await Fs.copy(sample, localSample);
+      await Fs.write(profilePath, Str.dedent(`
+        mappings:
+          - kind: slug-dataset
+            source: ./src/-test/sample-2.yaml.authored
+      `));
+
+      const result = await SlcDataCli.run({
+        cwd,
+        argv: ['stage', '--profile', 'sample-2'],
+      });
+
+      expect(result.kind).to.eql('staged');
+      if (result.kind !== 'staged' || !('dirs' in result)) throw new Error('Expected staged profile result');
+      expect(result.dirs).to.eql([
+        Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'prog.core'),
+        Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'prog.p2p'),
+      ]);
+      expect(await Fs.exists(Fs.join(SlcDataCli.StageProfile.fs.targetRoot(cwd), 'mounts.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(result.dirs[0]!, 'manifests/slug-tree.prog.core.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(result.dirs[1]!, 'manifests/slug-tree.prog.p2p.json'))).to.eql(true);
+      expect(SlcDataCli.Fmt.result(result).includes('Staged mounts:')).to.eql(true);
     } finally {
       await Fs.remove(dir.absolute);
     }

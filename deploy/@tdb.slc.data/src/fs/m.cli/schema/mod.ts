@@ -9,7 +9,7 @@ export const StageProfileSchema = {
   /** Create the initial stage profile document. */
   initial(mount: t.StringId): t.SlcDataCli.StageProfile.Doc {
     return {
-      mappings: [{ mount, source: '.' }],
+      mappings: [{ kind: 'folder', mount, source: '.' }],
     };
   },
 
@@ -34,12 +34,24 @@ export const StageProfileSchema = {
   schema: Schema.Type.Object(
     {
       mappings: Schema.Type.Array(
-        Schema.Type.Object(
-          {
-            mount: Schema.Type.String({ pattern: MOUNT_PATTERN }),
-            source: Schema.Type.String(),
-          },
-          { additionalProperties: false },
+        Schema.Type.Union(
+          [
+            Schema.Type.Object(
+              {
+                kind: Schema.Type.Optional(Schema.Type.Literal('folder')),
+                mount: Schema.Type.String({ pattern: MOUNT_PATTERN }),
+                source: Schema.Type.String(),
+              },
+              { additionalProperties: false },
+            ),
+            Schema.Type.Object(
+              {
+                kind: Schema.Type.Literal('slug-dataset'),
+                source: Schema.Type.String(),
+              },
+              { additionalProperties: false },
+            ),
+          ],
         ),
         { minItems: 1 },
       ),

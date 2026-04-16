@@ -28,7 +28,7 @@ describe('YamlConfig.menu.prompt', () => {
     }
   });
 
-  it('aligns action namespaces', async () => {
+  it('keeps a fixed indent for action namespaces', async () => {
     const original = Cli.Input.Select.prompt;
     let seen: { name: string; value: string }[] = [];
 
@@ -48,9 +48,9 @@ describe('YamlConfig.menu.prompt', () => {
       });
 
       expect(seen[0]?.name).to.eql('  profile: run');
-      expect(seen[1]?.name).to.eql('   config: edit');
-      expect(seen[2]?.name).to.eql('   config: reload');
-      expect(seen[3]?.name).to.eql('   config: rename');
+      expect(seen[1]?.name).to.eql('  config: edit');
+      expect(seen[2]?.name).to.eql('  config: reload');
+      expect(seen[3]?.name).to.eql('  config: rename');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
     }

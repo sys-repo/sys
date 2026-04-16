@@ -6,4 +6,4 @@ public/data
 !-config/@tdb.slc-data/
 -config/@tdb.slc-data/*
 !-config/@tdb.slc-data/sample-1.yaml
-!-config/@tdb.slc-data/prog.yaml
+!-config/@tdb.slc-data/sample-2.yaml
