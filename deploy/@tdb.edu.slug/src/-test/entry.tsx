@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { pkg } from '../pkg.ts';

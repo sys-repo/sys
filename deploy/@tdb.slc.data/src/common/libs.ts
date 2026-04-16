@@ -6,6 +6,7 @@ export { Arr, Err, Is, Json, Log, Num, Obj, Path, Pkg, Str, Time, Try, Url } fro
 export { Schedule } from '@sys/std/async';
 export { Ignore } from '@sys/std/ignore';
 export { Rx } from '@sys/std/rx';
+export { Yaml } from '@sys/yaml';
 
 /**
  * Data Models:
