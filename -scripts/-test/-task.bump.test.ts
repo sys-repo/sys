@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@sys/testing/server';
 import { main } from '../task.bump.ts';
-import { postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
+import { bumpPolicy, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
 
 describe('scripts/task.bump', () => {
   it('syncs package metadata before delegating to the canonical ahead-only prep lane', () => {
@@ -35,5 +35,13 @@ describe('scripts/task.bump', () => {
     expect(output).to.include('deno task bump');
     expect(output).to.include('--release <patch|minor|major>');
     expect(output).to.include('--from <package-name|package-path>');
+  });
+
+  it('couples tmpl bumps to workspace packages embedded in the repo template authorities', () => {
+    const couplings = bumpPolicy().couplings ?? [];
+
+    expect(couplings).to.deep.include({ from: 'code/sys/workspace', to: 'code/-tmpl' });
+    expect(couplings).to.deep.include({ from: 'code/sys/std', to: 'code/-tmpl' });
+    expect(couplings).to.deep.include({ from: 'code/-tmpl', to: 'code/sys.tools' });
   });
 });
