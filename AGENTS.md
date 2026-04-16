@@ -1,4 +1,4 @@
-# AGENTS.md (system repo root)
+# AGENTS.md (workspace)
 This file adds `sys`-local constraints only.
 All broader behavior is governed by root `AGENTS.md` and canonical canon.
 
