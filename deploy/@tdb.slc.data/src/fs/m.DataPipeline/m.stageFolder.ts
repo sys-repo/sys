@@ -1,6 +1,6 @@
 import { type t, Fs, Ignore, Json, Path, SlugBundle, SlugTree, SlugTreeFs } from './common.ts';
-import { refreshMountDist, refreshRootDist } from './u.dist.ts';
-import { refreshMounts } from './u.mounts.ts';
+import { refreshMount } from './u.stage.shared.ts';
+import { prepareTarget, refreshStagedRoot, writeTreeFsDerivedOutputs, writeTreeMountOutputs } from './u.stage.shared.ts';
 
 export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   const source = String(args.source).trim();
@@ -18,40 +18,32 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
   await prepareTarget(target);
 
   const mountId = mount as t.StringId;
-  const manifestsDir = Fs.join(target, 'manifests');
-  const contentDir = Fs.join(target, 'content');
-  await Fs.ensureDir(manifestsDir);
-  await Fs.ensureDir(contentDir);
-
-  const manifestJson = Fs.join(manifestsDir, `slug-tree.${mountId}.json`);
-  const manifestYaml = Fs.join(manifestsDir, `slug-tree.${mountId}.yaml`);
-  const assetsJson = Fs.join(manifestsDir, `slug-tree.${mountId}.assets.json`);
-
   const treeDoc = await SlugTreeFs.fromDir({ root: source });
-  await Fs.write(manifestJson, `${Json.stringify(treeDoc, 2)}\n`);
-  await Fs.write(manifestYaml, SlugTree.toYaml(treeDoc));
+  const treeFiles = await writeTreeMountOutputs({
+    target: target as t.StringPath,
+    mount: mountId,
+    treeJson: treeDoc,
+    treeYaml: SlugTree.toYaml(treeDoc),
+  });
 
   const files = await readSourceFiles(source);
   const derived = await SlugBundle.Transform.TreeFs.derive({
     files,
     includePath: true,
     docid: mountId,
-    manifests: [manifestJson],
+    manifests: [treeFiles.manifestJson],
   });
   if (!derived.ok) throw derived.error;
 
-  for (const item of derived.value.sha256) {
-    await Fs.write(Fs.join(contentDir, item.filename), `${Json.stringify(item.doc, 2)}\n`);
-  }
-
-  if (derived.value.index) {
-    await Fs.write(assetsJson, `${Json.stringify(derived.value.index, 2)}\n`);
-  }
+  await writeTreeFsDerivedOutputs({
+    contentDir: treeFiles.contentDir,
+    assetsJson: treeFiles.assetsJson,
+    derived: derived.value,
+  });
 
   const root = Path.dirname(target) as t.StringDir;
-  await refreshMountDist(target as t.StringDir);
-  await refreshMounts(root);
-  await refreshRootDist(root);
+  await refreshMount(target as t.StringDir);
+  await refreshStagedRoot(root);
 
   return {
     ok: true,
@@ -63,12 +55,6 @@ export const stageFolder: t.SlcDataPipeline.StageFolder.Run = async (args) => {
 };
 
 const DEFAULT_IGNORE = Ignore.normalize(['node_modules', '.git', '.tmp', '.*', '.DS_Store']);
-
-async function prepareTarget(target: string): Promise<void> {
-  const exists = await Fs.exists(target);
-  if (exists) await Fs.remove(target);
-  await Fs.ensureDir(target);
-}
 
 async function readSourceFiles(root: string): Promise<readonly { path: t.StringPath; source: string; name: string }[]> {
   const ignore = Ignore.create(DEFAULT_IGNORE);

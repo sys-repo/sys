@@ -6,7 +6,7 @@ describe('sample-2.yaml.authored', () => {
   const root = Path.resolve(import.meta.dirname ?? '.');
   const fixture = Path.resolve(root, '..');
   const docsDir = Fs.join(fixture, 'docs');
-  const rootMetaPath = Fs.join(fixture, 'root.yaml');
+  const rootMetaPath = Fs.join(fixture, '-root.yaml');
 
   it('is a trimmed but closed authored-yaml fixture', async () => {
     const meta = Yaml.parse<Record<string, unknown>>(

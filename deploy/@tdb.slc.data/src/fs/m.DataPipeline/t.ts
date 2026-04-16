@@ -10,6 +10,7 @@ export declare namespace SlcDataPipeline {
   /** Public fs pipeline surface. */
   export type Lib = {
     readonly stageFolder: StageFolder.Run;
+    readonly stageAuthoredYaml: StageAuthoredYaml.Run;
     readonly refreshRoot: RefreshRoot.Run;
   };
 
@@ -32,6 +33,28 @@ export declare namespace SlcDataPipeline {
       readonly mount: t.StringId;
       readonly source: t.StringPath;
       readonly target: t.StringPath;
+    };
+  }
+
+  /** Types for staging one authored-yaml dataset into one staged root. */
+  export namespace StageAuthoredYaml {
+    export type Run = (args: Args) => Promise<Result>;
+
+    export type Args = {
+      readonly source: t.StringDir;
+      readonly root: t.StringDir;
+      readonly mounts?: readonly t.StringId[];
+    };
+
+    export type Result = {
+      readonly kind: 'stage-authored-yaml';
+      readonly ok: true;
+      readonly source: t.StringDir;
+      readonly root: t.StringDir;
+      readonly mounts: readonly t.StringId[];
+      readonly dirs: readonly t.StringDir[];
+      readonly mountsPath: t.StringFile;
+      readonly distPath: t.StringFile;
     };
   }
 
