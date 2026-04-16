@@ -6,7 +6,7 @@ import { StageProfileSchema } from './schema/mod.ts';
 import { StageProfileFs, StageProfilePaths } from './u.fs.ts';
 import { MountName } from './u.is.ts';
 import { readProfile, runStageProfileMapping } from './u.stage.ts';
-import { withSpinner, withStageSpinner } from './u.spin.ts';
+import { withStageSpinner } from './u.spin.ts';
 
 type Action = `stage:${number}` | 'refresh' | 'select';
 
@@ -83,9 +83,9 @@ export async function menu(
       if (action.action === 'refresh') {
         try {
           const root = target ?? StageProfileFs.targetRoot(cwd);
-          const result = await withSpinner(
+          const result = await Cli.Spinner.with(
             Fmt.spinnerText('refreshing staged root...'),
-            (_spinner) => SlcDataPipeline.refreshRoot({ root }),
+            () => SlcDataPipeline.refreshRoot({ root }),
           );
           console.info(Fmt.refreshRoot(result));
         } catch (error) {

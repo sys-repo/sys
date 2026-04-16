@@ -20,4 +20,13 @@ export const Spinner: t.CliSpinner.Lib = {
     if (!silent) spinner.start();
     return spinner;
   },
+
+  async with<T>(text: string, run: (spinner: t.CliSpinner.Instance) => Promise<T>, options = {}) {
+    const spinner = Spinner.start(text, options);
+    try {
+      return await run(spinner);
+    } finally {
+      spinner.stop();
+    }
+  },
 };

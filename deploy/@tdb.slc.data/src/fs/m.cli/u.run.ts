@@ -1,4 +1,4 @@
-import { Args, type t } from './common.ts';
+import { Args, Cli, type t } from './common.ts';
 import { SlcDataPipeline } from '../m.DataPipeline/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { FmtHelp } from './u.help.ts';
@@ -6,7 +6,7 @@ import { menu } from './u.menu.ts';
 import { runCreateProfile } from './u.create.ts';
 import { runStageProfile } from './u.stage.ts';
 import { StageProfileFs } from './u.fs.ts';
-import { withSpinner, withStageSpinner } from './u.spin.ts';
+import { withStageSpinner } from './u.spin.ts';
 
 const COMMANDS = new Set<t.SlcDataCli.Command>(['create', 'stage', 'refresh']);
 
@@ -24,9 +24,9 @@ export async function run(input: t.SlcDataCli.Input = {}): Promise<t.SlcDataCli.
 
   if (args.command === 'refresh') {
     if (!target) throw new Error(`Missing --target for '${args.command}'`);
-    return withSpinner(
+    return Cli.Spinner.with(
       Fmt.spinnerText('refreshing staged root...'),
-      (_spinner) => SlcDataPipeline.refreshRoot({ root: target }),
+      () => SlcDataPipeline.refreshRoot({ root: target }),
     );
   }
 
