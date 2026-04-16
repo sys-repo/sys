@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1776230605377,
+    "createdAt": 1776371158111,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-0bed653238616432d91b761f81cfded64565d71f6dd2b0aa7768a5feb82542d9",
+      "/graph": "sha256-85fc50f0a4a9e73a56e9bba96fcba952d405cdb6eb1bcdce508f5e1cdd57636b",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.61/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.61/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1776230605382
+    "modifiedAt": 1776371158132
   },
   "graph": {
     "orderedPaths": [
@@ -62,8 +62,8 @@
       "code/sys.driver/driver-agent",
       "code/sys.driver/driver-vite",
       "code/sys.tools",
+      "deploy/@tdb.data",
       "deploy/@tdb.slc",
-      "deploy/@tdb.slc.data",
       "deploy/@tdb.slc.fs",
       "deploy/@tdb.slc.std",
       "deploy/@tdb.edu.slug",
@@ -156,11 +156,11 @@
       },
       {
         "from": "code/sys.model/model-slug",
-        "to": "deploy/@tdb.edu.slug"
+        "to": "deploy/@tdb.data"
       },
       {
         "from": "code/sys.model/model-slug",
-        "to": "deploy/@tdb.slc.data"
+        "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-css",
@@ -216,15 +216,15 @@
       },
       {
         "from": "code/sys.ui/ui-css",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-css",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-css",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-css",
@@ -280,15 +280,15 @@
       },
       {
         "from": "code/sys.ui/ui-dom",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-dom",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-dom",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -336,15 +336,15 @@
       },
       {
         "from": "code/sys.ui/ui-react",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-react",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-react",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-react",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-react",
@@ -380,15 +380,15 @@
       },
       {
         "from": "code/sys.ui/ui-react-components",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-react-components",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-react-components",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-react-components",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-react-components",
@@ -436,15 +436,15 @@
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
@@ -520,11 +520,11 @@
       },
       {
         "from": "code/sys/cli",
-        "to": "deploy/@tdb.edu.slug"
+        "to": "deploy/@tdb.data"
       },
       {
         "from": "code/sys/cli",
-        "to": "deploy/@tdb.slc.data"
+        "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/color",
@@ -600,15 +600,15 @@
       },
       {
         "from": "code/sys/color",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/color",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/color",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/color",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/color",
@@ -768,11 +768,11 @@
       },
       {
         "from": "code/sys/fs",
-        "to": "deploy/@tdb.edu.slug"
+        "to": "deploy/@tdb.data"
       },
       {
         "from": "code/sys/fs",
-        "to": "deploy/@tdb.slc.data"
+        "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/http",
@@ -812,15 +812,15 @@
       },
       {
         "from": "code/sys/http",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/http",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/http",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/http",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/http",
@@ -984,11 +984,11 @@
       },
       {
         "from": "code/sys/schema",
-        "to": "deploy/@tdb.edu.slug"
+        "to": "deploy/@tdb.data"
       },
       {
         "from": "code/sys/schema",
-        "to": "deploy/@tdb.slc.data"
+        "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/std",
@@ -1152,15 +1152,15 @@
       },
       {
         "from": "code/sys/std",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/std",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/std",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/std",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/std",
@@ -1216,15 +1216,15 @@
       },
       {
         "from": "code/sys/testing",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/testing",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/testing",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/testing",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/testing",
@@ -1428,15 +1428,15 @@
       },
       {
         "from": "code/sys/types",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/types",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/types",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/types",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "code/sys/types",
@@ -1492,15 +1492,15 @@
       },
       {
         "from": "code/sys/yaml",
+        "to": "deploy/@tdb.data"
+      },
+      {
+        "from": "code/sys/yaml",
         "to": "deploy/@tdb.edu.slug"
       },
       {
         "from": "code/sys/yaml",
         "to": "deploy/@tdb.slc"
-      },
-      {
-        "from": "code/sys/yaml",
-        "to": "deploy/@tdb.slc.data"
       },
       {
         "from": "deploy/@tdb.slc.std",

@@ -1,5 +1,5 @@
 {
-  "name": "@tdb/slc-data",
+  "name": "@tdb/data",
   "version": "0.0.22",
   "license": "MIT",
   "tasks": {
