@@ -3,8 +3,8 @@
   "version": "0.0.284",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",

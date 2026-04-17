@@ -157,11 +157,11 @@ describe('Config.Build', () => {
     it('keeps env loading rooted at package cwd when app root is nested', async () => {
       const paths = ViteConfig.paths({
         cwd: '/pkg',
-        app: { entry: 'src/-test/index.html' },
+        app: { entry: 'src/index.html' },
       });
       const config = await ViteConfig.app({ paths });
 
-      expect(config.root).to.eql('/pkg/src/-test');
+      expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
     });
   });

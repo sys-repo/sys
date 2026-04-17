@@ -3,9 +3,9 @@
   "version": "0.0.241",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/-test/index.html",
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test --unstable-worker-options",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/-test/index.html",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "ws": "deno run -P=ws @sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt",
     "dry": "deno publish --allow-dirty --dry-run",

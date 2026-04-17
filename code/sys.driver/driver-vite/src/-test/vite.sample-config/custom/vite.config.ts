@@ -8,7 +8,7 @@ import { defineConfig } from 'vite';
 export default defineConfig(async () => {
   const paths = Vite.Config.paths({
     app: {
-      entry: '.tmp/sample/src/-test/index.html',
+      entry: '.tmp/sample/src/index.html',
       outDir: '.tmp/sample/dist',
     },
   });
