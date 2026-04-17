@@ -6,5 +6,8 @@
  * driver to keep Vite behavior explicit and consistent across adopting apps.
  */
 import type { t } from './common.ts';
+import { OptimizeImportsPlugin as OptimizeImports } from './m.OptimizeImports/mod.ts';
 
-export const VitePlugins: t.VitePlugins.Lib = {};
+export const VitePlugins: t.VitePlugins.Lib = {
+  OptimizeImports,
+};

@@ -7,5 +7,7 @@ import type { t } from './common.ts';
  * driver to keep Vite behavior explicit and consistent across adopting apps.
  */
 export declare namespace VitePlugins {
-  export type Lib = {};
+  export type Lib = {
+    readonly OptimizeImports: t.OptimizeImportsPlugin.Lib;
+  };
 }
