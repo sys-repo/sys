@@ -9,7 +9,7 @@
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "ws": "deno run -P=ws @sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/*",
+    "check": "deno check src/",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
