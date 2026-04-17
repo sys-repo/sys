@@ -39,6 +39,7 @@ export declare namespace HttpOrigin {
     env?: Env;
     spec?: SpecMap<Env>;
     verify?: Verify;
+    labels?: Partial<Record<string, t.ReactNode>>;
     //
     debug?: boolean;
     theme?: t.CommonTheme;
@@ -54,6 +55,7 @@ export declare namespace HttpOrigin {
     origin?: t.SignalOptional<UrlTree>;
     spec?: SpecMap<Env>;
     verify?: Verify;
+    labels?: Partial<Record<string, t.ReactNode>>;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;

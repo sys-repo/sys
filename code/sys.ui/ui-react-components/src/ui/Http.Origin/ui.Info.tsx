@@ -9,6 +9,7 @@ export type InfoProps = {
   env: t.HttpOrigin.Env;
   origin?: t.HttpOrigin.UrlTree;
   verify?: t.HttpOrigin.Verify;
+  labels?: Partial<Record<string, t.ReactNode>>;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -30,7 +31,7 @@ export const Info: React.FC<InfoProps> = (props) => {
     items.push({ kind: 'title', v: `HTTP Origin` });
     rows.forEach((row) => {
       items.push({
-        k: row.key,
+        k: props.labels?.[row.key] ?? row.key,
         v: (
           <Value
             url={row.url}

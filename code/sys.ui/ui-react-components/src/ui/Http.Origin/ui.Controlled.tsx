@@ -20,6 +20,7 @@ export const Controlled: React.FC<t.HttpOrigin.ControlledProps> = (props) => {
       style={props.style}
       theme={props.theme}
       verify={verify}
+      labels={props.labels}
       {...view}
       spec={spec}
     />
