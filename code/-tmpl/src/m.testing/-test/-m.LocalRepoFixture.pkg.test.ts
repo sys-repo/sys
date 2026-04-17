@@ -12,7 +12,7 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
 
     const denoJson = await Fs.readJson<{ readonly tasks?: Record<string, string> }>(Fs.join(pkgDir, 'deno.json'));
     expect(denoJson.data?.tasks?.build).to.eql(
-      'deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/-test/index.html',
+      'deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html',
     );
     expect(denoJson.data?.tasks?.deploy).to.eql(undefined);
 
