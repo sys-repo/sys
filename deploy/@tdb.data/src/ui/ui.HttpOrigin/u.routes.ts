@@ -5,11 +5,11 @@ export const Routes = {
   origin: {
     localhost: {
       proxy: 'http://localhost:1234/data/',
-      cdn: 'http://localhost:4040/slc-data/',
+      cdn: 'http://localhost:4041/slc-data/',
     },
     production: {
       proxy: 'https://socialleancanvas.com/data/',
-      cdn: 'https://cdn.socialleancanvas.com/slc-data/',
+      cdn: 'https://data-slc.orbiter.website/',
     },
   } satisfies t.HttpOrigin.SpecMap,
 } as const;
