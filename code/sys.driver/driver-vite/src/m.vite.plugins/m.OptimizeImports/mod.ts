@@ -16,6 +16,4 @@
  * - unknown imports are left unchanged
  * - this plugin is a performance adapter, not an import-policy authority
  */
-import type { t } from './common.ts';
-
-export const OptimizeImportsPlugin: t.OptimizeImportsPlugin.Lib = {};
+export { OptimizeImportsPlugin } from './mod.OptimizeImportsPlugin.ts';
