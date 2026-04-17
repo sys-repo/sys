@@ -49,9 +49,11 @@ describe('Config.Build', () => {
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
     });
 
-    it('no plugins', async () => {
+    it('no common plugins', async () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
-      expect(config.plugins).to.eql([]);
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      expect(names).to.eql(['sys:optimize-imports']);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
