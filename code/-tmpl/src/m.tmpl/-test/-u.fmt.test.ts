@@ -14,6 +14,6 @@ describe('m.tmpl/u.fmt', () => {
     });
 
     expect(text.includes('commit msg:')).to.eql(true);
-    expect(text.includes('pkg scaffold created at yolo for @foo/yolo (1 file)')).to.eql(true);
+    expect(text.includes('chore(tmpl:pkg): scaffold yolo for @foo/yolo (1 file)')).to.eql(true);
   });
 });

@@ -32,22 +32,25 @@ const wrangle = {
     const path = Fs.trimCwd(args.targetDir, { cwd: args.cwd });
     const count = (args.ops ?? []).filter((op) => op.kind === 'create' || op.kind === 'modify').length;
     const files = count === 1 ? '1 file' : `${count} files`;
+    const scope = `tmpl:${args.tmpl}`;
 
-    if (args.tmpl === 'repo') return `repo scaffold created at ${Fs.basename(path)} (${files})`;
+    if (args.tmpl === 'repo') return `chore(${scope}): scaffold ${Fs.basename(path)} (${files})`;
     if (args.tmpl === 'pkg') {
-      if (args.options?.pkgName) return `pkg scaffold created at ${path} for ${args.options.pkgName} (${files})`;
+      if (args.options?.pkgName) {
+        return `chore(${scope}): scaffold ${path} for ${args.options.pkgName} (${files})`;
+      }
     }
 
-    if (args.tmpl === 'm.mod') return `m.mod scaffold created at ${path} (${files})`;
+    if (args.tmpl === 'm.mod') return `chore(${scope}): scaffold ${path} (${files})`;
 
     if (args.tmpl === 'm.mod.ui' && args.options?.name) {
-      return `m.mod.ui scaffold created at ${path} for ${args.options.name} (${files})`;
+      return `chore(${scope}): scaffold ${path} for ${args.options.name} (${files})`;
     }
 
     if (args.tmpl === 'm.mod.ui.controller' && args.options?.name) {
-      return `m.mod.ui.controller scaffold created at ${path} for ${args.options.name} (${files})`;
+      return `chore(${scope}): scaffold ${path} for ${args.options.name} (${files})`;
     }
 
-    return `${args.tmpl} scaffold created at ${path} (${files})`;
+    return `chore(${scope}): scaffold ${path} (${files})`;
   },
 } as const;

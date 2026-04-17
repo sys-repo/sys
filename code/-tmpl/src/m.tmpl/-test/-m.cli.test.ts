@@ -77,7 +77,11 @@ describe('m.tmpl/m.cli', () => {
     expect(await Fs.exists(denoJson)).to.eql(true);
     const output = lines.join('\n');
     expect(output.includes('commit msg:')).to.eql(true);
-    expect(output.includes('pkg scaffold created at code/ns/agent-driven for @my-scope/agent-driven (38 files)')).to.eql(true);
+    expect(
+      output.includes(
+        'chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven (38 files)',
+      ),
+    ).to.eql(true);
   });
 
   it('non-interactive fails when --dir missing', async () => {
