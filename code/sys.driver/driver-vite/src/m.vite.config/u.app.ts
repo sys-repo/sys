@@ -5,6 +5,7 @@ import { type t, DenoFile, Fs, Is, asArray, Delete, Path, R } from './common.ts'
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
+import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
 
 /**
  * Application bundle configuration.
@@ -56,6 +57,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
   }
+  plugins.push(OptimizeImportsPlugin.plugin());
   if (options.vitePlugins?.length) {
     plugins.push(...options.vitePlugins);
   }
