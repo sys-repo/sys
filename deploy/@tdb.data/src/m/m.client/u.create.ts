@@ -19,6 +19,11 @@ export function create(args: t.SlugDataClient.CreateArgs): t.SlugDataClient.Clie
       index: () => SlugClient.FromEndpoint.FileContent.index(baseUrl, docid, options),
       get: (hash) => SlugClient.FromEndpoint.FileContent.get(baseUrl, hash, options),
     },
+    Timeline: {
+      Playback: {
+        load: () => SlugClient.FromEndpoint.Timeline.Playback.load(baseUrl, docid, options),
+      },
+    },
     TreeContent: {
       load: (input) => loadTreeContent(baseUrl, docid, options, input),
     },

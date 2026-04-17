@@ -63,6 +63,11 @@ export declare namespace SlugDataClient {
       readonly index: () => Promise<t.SlugClientResult<t.SlugFileContentIndex>>;
       readonly get: (hash: string) => Promise<t.SlugClientResult<t.SlugFileContentDoc>>;
     };
+    readonly Timeline: {
+      readonly Playback: {
+        readonly load: () => Promise<t.SlugClientResult<t.SlugPlaybackManifest>>;
+      };
+    };
     readonly TreeContent: {
       readonly load: (
         args?: TreeContentArgs,

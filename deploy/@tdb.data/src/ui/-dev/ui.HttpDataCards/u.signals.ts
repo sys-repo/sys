@@ -12,6 +12,10 @@ export function createSignals(
       ref: s(input.treeContent?.ref),
       refs: s(input.treeContent?.refs),
     },
+    treePlayback: {
+      ref: s(input.treePlayback?.ref),
+      refs: s(input.treePlayback?.refs),
+    },
   };
 
   const api: t.HttpDataCards.Signals = {
@@ -31,6 +35,8 @@ export function createSignals(
       props.selectionList.totalVisible.value = input.totalVisible ?? 3;
       props.treeContent.ref.value = input.treeContent?.ref;
       props.treeContent.refs.value = input.treeContent?.refs;
+      props.treePlayback.ref.value = input.treePlayback?.ref;
+      props.treePlayback.refs.value = input.treePlayback?.refs;
       return api;
     },
   };

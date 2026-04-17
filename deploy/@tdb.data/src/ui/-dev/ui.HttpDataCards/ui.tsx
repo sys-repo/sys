@@ -5,6 +5,7 @@ import { createSignals } from './u.signals.ts';
 
 export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
   const signals = React.useMemo(() => createSignals(), []);
+  const [kind, setKind] = React.useState<t.HttpDataCards.DataCardKind>('file-content');
   Signal.useRedrawEffect(() => Signal.listen(signals.props, true));
   const origin = props.origin ?? DEFAULTS.origin;
   const dataset = props.dataset;
@@ -28,11 +29,13 @@ export const HttpDataCards: t.FC<t.HttpDataCards.Props> = (props) => {
 
   return createPanel({
     signals,
+    kind,
     origin,
     dataset,
     docid: props.docid,
     debug: props.debug,
     theme: props.theme,
     style: css(styles.base, props.style),
+    onKindSelect: setKind,
   });
 };
