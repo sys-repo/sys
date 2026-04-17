@@ -1,11 +1,11 @@
 # OptimizeImports plugin plan
 
 ## Goal
-Build a small, explicit Vite plugin in `@sys/driver-vite` that rewrites only approved broad `@sys/*` root imports to approved public narrow subpath imports.
+Build a small Vite plugin in `@sys/driver-vite` that optimizes broad public barrel imports into narrower public subpath imports when that rewrite can be derived safely.
 
 The plugin is a performance adapter:
 - central
-- explicit
+- derived from package/barrel truth
 - reviewable
 - consistent across apps using `@sys/driver-vite`
 
@@ -17,55 +17,55 @@ It is not the truth layer for package import policy.
 - `src/m.vite.plugins/m.OptimizeImports/`
 
 ### Scope
-- allowlisted package roots only
-- explicit mapping table only
-- public exported subpaths only
+- optimize public barrel imports only
+- derive candidates from public package/export reality
+- rewrite to public exported subpaths only
 - deterministic rewrites only
-- no generic optimization of all `@sys/*`
+- start with `@sys/*` workspace packages, but do not hard-code package-specific policy into the driver as the durable truth source
 
 ### Truth split
-Rewrite authority comes from:
-- approved plugin mapping rules
-- real public package export surfaces
+Rewrite authority comes from a derived rule dataset built from:
+- package `deno.json` public `exports`
+- root barrel exports such as `src/mod.ts`
+- public subpath module exports
 
 Graph tooling is for:
+- prioritization
 - diagnostics
 - proof
-- fixture generation
 - hot-path analysis
 
 Graph tooling is not for:
-- rewrite authority
-- path inference
-- automatic rule generation
+- sole rewrite authority
+- private path inference
+- papering over missing public exports
 
 ### Public API stance
-Keep the public type surface small and policy-first:
-- `Lib`
-- `OptionsInput`
-- `PackageRule`
-- `ImportRule`
-- `ImportRuleKind`
+Keep the public type surface small and policy-first.
 
 Do not leak:
 - AST mechanics
 - internal transform helpers
-- workspace graph inputs
+- raw workspace graph structures
+- barrel-analysis internals
 - `common` as a public rule kind unless it earns promotion later
 
 ## Rewrite strategy
 
 ### Preferred sequencing
-1. Inspect whether canonical public package sub-surfaces can reduce broad-root cost first.
-2. If that is enough, prefer that simpler structural rewrite lane.
-3. If not enough, add approved symbol-level named-import rewrites.
+1. Read package public exports from `deno.json`.
+2. Read the root public barrel (`src/mod.ts` or exported root module).
+3. Read public exported subpath modules.
+4. Derive symbol → narrower public subpath candidates where the same symbol is exported at both levels.
+5. Rewrite only unambiguous safe cases.
 
 ### Hard invariants
-- rewrites are explicit and allowlisted
+- the driver must not hand-author durable package-specific `@sys/*` rewrite knowledge
+- rewrites must be derived from public package/barrel truth
 - targets must be stable public exports
 - unknown imports are left unchanged
 - no rewrites to private or internal source paths
-- no guessing from runtime or graph discovery
+- no guessing from runtime discovery alone
 - no papering over missing upstream exports
 
 ## Transform policy questions to lock before full implementation
@@ -86,11 +86,13 @@ Do not fall into brittle string-rewrite surgery.
 
 ## Investigation order
 1. Inspect current `driver-vite` composition and plugin order.
-2. Inspect public export reality for initial target packages.
-3. Inspect real broad imports on the hot path in the pain case.
-4. Decide whether v1 can start with canonical package sub-surfaces.
-5. Decide transform mechanism: reuse vs AST.
-6. Greenlight implementation only if the path stays explicit and clean.
+2. Identify the minimum derived rule dataset shape.
+3. Read package `deno.json` export maps for candidate packages.
+4. Read root/public barrel exports and public subpath exports.
+5. Derive safe symbol → subpath candidates.
+6. Use graph data only to prioritize and prove payoff.
+7. Decide transform mechanism: regex v1 vs AST if syntax scope expands.
+8. Greenlight implementation only if the path stays explicit and clean.
 
 ## Initial target bias
 Prefer UI packages first if export reality supports it:
@@ -102,23 +104,32 @@ Defer `@sys/std` unless discovery shows it is unusually trivial and safe.
 ## Greenlight criteria
 Proceed only if all are true:
 1. meaningful payoff on a real pain path
-2. stable public narrow targets exist for a useful subset
-3. transform implementation path is clean
+2. stable public narrow targets can be derived for a useful subset
+3. rewrite authority stays outside hand-authored driver package knowledge
+4. transform implementation path is clean
 
 ## Test plan
 1. unit tests for transform behavior
-   - approved rewrites
+   - derived safe rewrites
    - type-only correctness
    - unknown imports unchanged
    - unsupported forms unchanged unless explicitly supported
-2. integration test for `driver-vite` composition
-3. proof against a real pain case or focused fixture
-4. keep graph/proof tooling separate from rewrite authority
+2. tests for rule derivation
+   - package exports read correctly
+   - root/public subpath symbol matching is correct
+   - ambiguous cases are rejected
+3. integration test for `driver-vite` composition
+4. proof against a real pain case or focused fixture
+5. keep graph/proof tooling separate from sole rewrite authority
+
+## Current posture correction
+The current hard-coded default package rules are acceptable only as a mechanism spike/proof.
+They are not the intended final authority model.
 
 ## Expected truthful outcomes
 Healthy v1 may be:
 - small plugin
-- small mapping table
+- small derived rule dataset
 - clear blocked cases
 - explicit upstream export-surface follow-ups
 
