@@ -2,6 +2,7 @@
   "name": "@tdb/slc",
   "version": "0.0.1",
   "license": "MIT",
+  "private": true,
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "test": "deno test -P=test",
