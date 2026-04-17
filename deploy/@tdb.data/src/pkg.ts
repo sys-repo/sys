@@ -1,11 +1,6 @@
 import type { Pkg } from '@sys/types';
 
 /**
- * @module
- * Package-root metadata entrypoint published at `@tdb/data`.
- */
-
-/**
  * Package metadata.
  *
  * AUTO-GENERATED:
