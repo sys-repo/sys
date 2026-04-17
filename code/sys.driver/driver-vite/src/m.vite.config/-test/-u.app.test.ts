@@ -1,4 +1,4 @@
-import { describe, expect, Is, it } from '../../-test.ts';
+import { describe, expect, Fs, Is, it, SAMPLE } from '../../-test.ts';
 import { OptimizeImportsPlugin } from '../../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { ViteConfig } from '../mod.ts';
 
@@ -22,6 +22,23 @@ describe('ViteConfig.app', () => {
     expect(pluginName(optimize)[0]).to.eql(OptimizeImportsPlugin.plugin().name);
     expect(pluginEnforce(optimize)).to.eql('pre');
   });
+
+  it('applies optimize-imports to the published ui-components sample entry', async () => {
+    const config = await ViteConfig.app({
+      workspace: false,
+      plugins: { deno: false, react: false, wasm: false },
+    });
+    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const optimize = firstPlugin(config.plugins?.[0]);
+    const transform = asTransform(pluginTransform(optimize));
+    const result = await transform(source, '/tmp/main.tsx');
+
+    expect(Is.object(result)).to.eql(true);
+    if (!result || typeof result === 'string') throw new Error('Expected transform result object');
+    expect(result.code.includes('ui-react-devharness/hooks')).to.eql(true);
+    expect(result.code.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
+    expect(result.code.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
+  });
 });
 
 function firstPlugin(input: unknown) {
@@ -38,4 +55,18 @@ function pluginEnforce(input: unknown) {
   if (!Is.record<Record<string, unknown>>(input)) return undefined;
   const value = input.enforce;
   return value === 'pre' || value === 'post' ? value : undefined;
+}
+
+function pluginTransform(input: unknown) {
+  if (!Is.record<Record<string, unknown>>(input)) return undefined;
+  return input.transform;
+}
+
+function asTransform(transform: unknown) {
+  if (!transform) throw new Error('Expected transform hook');
+  if (typeof transform === 'function') return transform;
+  if (Is.record<Record<string, unknown>>(transform) && typeof transform.handler === 'function') {
+    return transform.handler;
+  }
+  throw new Error('Expected callable transform hook');
 }
