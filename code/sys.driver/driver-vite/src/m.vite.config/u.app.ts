@@ -6,6 +6,7 @@ import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewri
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
+import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
 
 /**
  * Application bundle configuration.
@@ -16,6 +17,8 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const ws = await wrangle.workspace(options);
   const denoConfig = await wrangle.denoConfig(paths.cwd, ws);
   const npmPrewarm = denoConfig ? await wrangle.canPrewarmNpm(denoConfig) : false;
+  const optimizeImports = options.plugins?.optimizeImports ?? true;
+  const optimizePackages = optimizeImports && ws ? await deriveWorkspacePackageRules(ws) : [];
 
   const main = Path.join(paths.cwd, paths.app.entry);
   const sw = paths.app.sw ? Path.join(paths.cwd, paths.app.sw) : undefined;
@@ -57,7 +60,9 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
   }
-  plugins.push(OptimizeImportsPlugin.plugin());
+  if (optimizeImports) {
+    plugins.push(OptimizeImportsPlugin.plugin({ packages: optimizePackages }));
+  }
   if (options.vitePlugins?.length) {
     plugins.push(...options.vitePlugins);
   }

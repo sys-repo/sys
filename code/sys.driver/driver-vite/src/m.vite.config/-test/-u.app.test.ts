@@ -23,9 +23,8 @@ describe('ViteConfig.app', () => {
     expect(pluginEnforce(optimize)).to.eql('pre');
   });
 
-  it('applies optimize-imports to the published ui-components sample entry', async () => {
+  it('applies derived optimize-imports to the published ui-components sample entry', async () => {
     const config = await ViteConfig.app({
-      workspace: false,
       plugins: { deno: false, react: false, wasm: false },
     });
     const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
@@ -36,8 +35,29 @@ describe('ViteConfig.app', () => {
     expect(Is.object(result)).to.eql(true);
     if (!result || typeof result === 'string') throw new Error('Expected transform result object');
     expect(result.code.includes('ui-react-devharness/hooks')).to.eql(true);
+    expect(result.code.includes('ui-react-components/button')).to.eql(true);
     expect(result.code.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
     expect(result.code.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
+    expect(result.code.includes(`from '@sys/ui-react-components'`)).to.eql(false);
+    expect(result.code.includes(`from "@sys/ui-react-components"`)).to.eql(false);
+  });
+
+  it('can disable optimize-imports for on/off proofing', async () => {
+    const config = await ViteConfig.app({
+      plugins: { deno: false, react: false, wasm: false, optimizeImports: false },
+    });
+    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const plugins = config.plugins ?? [];
+    const names = plugins
+      .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .flatMap((entry) => pluginName(entry));
+    const optimize = plugins.flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .find((entry) => pluginName(entry)[0] === 'sys:optimize-imports');
+
+    expect(names.includes('sys:optimize-imports')).to.eql(false);
+    expect(optimize).to.eql(undefined);
+    expect(source.includes(`from '@sys/ui-react-components'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-react-devharness'`)).to.eql(true);
   });
 });
 
