@@ -153,9 +153,12 @@ export declare namespace SlugDataCli {
 
   /** CLI output formatting surface. */
   export namespace Fmt {
+    /** Public formatter helpers for CLI results. */
     export type Lib = {
       readonly result: ResultRun;
     };
+
+    /** Render one CLI result into display text. */
     export type ResultRun = (result: SlugDataCli.Result) => string;
   }
 }

@@ -20,7 +20,9 @@ export declare namespace HttpOrigin {
     };
   };
 
+  /** Shared controlled prop shape from the upstream `HttpOriginBase`. */
   type CPropsBase = t.HttpOriginBase.ControlledProps;
+
   /** Data origin map keyed by environment. */
   export type SpecMap = t.HttpOriginBase.SpecMap<t.HttpOriginBase.Env>;
   /** Uncontrolled `HttpOrigin` props. */

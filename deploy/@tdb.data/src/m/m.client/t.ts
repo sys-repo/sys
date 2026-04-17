@@ -18,14 +18,17 @@ export declare namespace SlugDataClient {
     ) => string | undefined;
   };
 
+  /** Directory layout used by the staged slug runtime client. */
   export type Layout = Pick<t.SlugClientLayout, 'manifestsDir' | 'contentDir'>;
 
+  /** Arguments for constructing a client from a direct staged base URL. */
   export type CreateArgs = {
     readonly baseUrl: t.StringUrl;
     readonly docid: t.StringId;
     readonly layout?: Layout;
   };
 
+  /** Arguments for constructing a client from an origin + dataset pair. */
   export type DatasetArgs = {
     readonly origin: t.StringUrl;
     readonly dataset: t.StringId;
@@ -33,10 +36,12 @@ export declare namespace SlugDataClient {
     readonly layout?: Layout;
   };
 
+  /** Optional tree-content selection input. */
   export type TreeContentArgs = {
     readonly ref?: string;
   };
 
+  /** Combined tree, refs, and optional file-content payload. */
   export type TreeContentValue = {
     readonly tree: t.SlugTreeDoc;
     readonly refs: readonly string[];
@@ -46,6 +51,7 @@ export declare namespace SlugDataClient {
     readonly content?: t.SlugFileContentDoc;
   };
 
+  /** Stateful client for one staged slug dataset. */
   export type Client = {
     readonly baseUrl: t.StringUrl;
     readonly docid: t.StringId;

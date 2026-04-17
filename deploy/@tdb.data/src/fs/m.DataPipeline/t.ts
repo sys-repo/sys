@@ -38,6 +38,7 @@ export declare namespace SlugDataPipeline {
 
   /** Types for staging one slug dataset into one staged root. */
   export namespace StageSlugDataset {
+    /** Progress callback payload for one mount/doc staging step. */
     export type Progress = {
       readonly stage: 'mount' | 'doc';
       readonly current: number;
@@ -46,8 +47,10 @@ export declare namespace SlugDataPipeline {
       readonly docid?: t.StringId;
     };
 
+    /** Stage one slug dataset directory into one staged root. */
     export type Run = (args: Args) => Promise<Result>;
 
+    /** Input paths and optional filters for slug-dataset staging. */
     export type Args = {
       readonly source: t.StringDir;
       readonly root: t.StringDir;
@@ -55,6 +58,7 @@ export declare namespace SlugDataPipeline {
       readonly progress?: (info: Progress) => void;
     };
 
+    /** Successful result from staging one slug dataset. */
     export type Result = {
       readonly kind: 'stage-slug-dataset';
       readonly ok: true;
