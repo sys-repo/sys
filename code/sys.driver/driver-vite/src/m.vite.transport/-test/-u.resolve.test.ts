@@ -589,11 +589,8 @@ describe('ViteTransport.resolve', () => {
             return {
               id: '/tmp/node_modules/@noble/hashes/legacy.js',
               external: false,
-              resolvedBy: 'test',
-              attributes: {},
               meta: {},
               moduleSideEffects: true,
-              syntheticNamedExports: false,
             };
           },
         } as unknown as t.Rollup.PluginContext;
@@ -603,11 +600,8 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql({
           id: '/tmp/node_modules/@noble/hashes/legacy.js',
           external: false,
-          resolvedBy: 'test',
-          attributes: {},
           meta: {},
           moduleSideEffects: true,
-          syntheticNamedExports: false,
         });
       });
 

@@ -1,5 +1,5 @@
-import type { PluginContext, ResolvedId } from 'rollup';
 import { describe, expect, it } from '../../-test.ts';
+import type { t } from '../common.ts';
 import prefixPlugin from '../u.prefix.ts';
 
 describe('ViteTransport.prefix', () => {
@@ -36,6 +36,8 @@ describe('ViteTransport.prefix', () => {
           return null;
         }),
         'npm:react@19.2.0',
+        undefined,
+        wrangle.options(),
       );
 
       expect(res).to.eql('react');
@@ -60,29 +62,25 @@ describe('ViteTransport.prefix', () => {
       });
 
       const res = await plugin.resolveId.call(
-        wrangle.context(async (id: string): Promise<ResolvedId | null> => {
+        wrangle.context(async (id: string): Promise<t.Rollup.ResolvedId | null> => {
           expect(id).to.eql('tinycolor2');
           return {
             id: '/virtual/tinycolor2/esm/tinycolor.js',
             external: false,
-            resolvedBy: 'test',
-            attributes: {},
             meta: {},
             moduleSideEffects: true,
-            syntheticNamedExports: false,
           };
         }),
         'npm:tinycolor2@1.6.0',
+        undefined,
+        wrangle.options(),
       );
 
       expect(res).to.eql({
         id: '/virtual/tinycolor2/esm/tinycolor.js',
         external: false,
-        resolvedBy: 'test',
-        attributes: {},
         meta: {},
         moduleSideEffects: true,
-        syntheticNamedExports: false,
       });
     });
 
@@ -110,6 +108,8 @@ describe('ViteTransport.prefix', () => {
           return null;
         }),
         'npm:@noble/hashes@2.0.1/legacy.js',
+        undefined,
+        wrangle.options(),
       );
 
       expect(res).to.eql('@noble/hashes/legacy.js');
@@ -139,6 +139,8 @@ describe('ViteTransport.prefix', () => {
           return null;
         }),
         'npm:@noble/hashes@2.0.1/legacy.js',
+        undefined,
+        wrangle.options(),
       );
 
       expect(res).to.eql('@noble/hashes/legacy.js');
@@ -161,6 +163,7 @@ describe('ViteTransport.prefix', () => {
         wrangle.context(async () => null),
         'https://example.com/mod.ts',
         '/tmp/importer.ts',
+        wrangle.options(),
       );
 
       expect(res).to.eql('https://example.com/mod.ts?resolved');
@@ -179,7 +182,12 @@ describe('ViteTransport.prefix', () => {
         },
       });
 
-      const res = await plugin.resolveId.call(wrangle.context(async () => null), './local.ts');
+      const res = await plugin.resolveId.call(
+        wrangle.context(async () => null),
+        './local.ts',
+        undefined,
+        wrangle.options(),
+      );
       expect(res).to.eql(undefined);
     });
 
@@ -202,7 +210,7 @@ describe('ViteTransport.prefix', () => {
           return undefined;
         },
       });
-      plugin.configResolved?.call({} as PluginContext, { root: '/tmp/project' });
+      plugin.configResolved?.call({} as t.Rollup.PluginContext, { root: '/tmp/project' });
 
       const res = await plugin.resolveId.call(
         wrangle.context(async (id: string) => {
@@ -210,6 +218,8 @@ describe('ViteTransport.prefix', () => {
           return null;
         }),
         'npm:react@19.2.4',
+        undefined,
+        wrangle.options(),
       );
 
       expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
@@ -218,7 +228,18 @@ describe('ViteTransport.prefix', () => {
 });
 
 const wrangle = {
-  context(resolve: PluginContext['resolve']) {
-    return { resolve } as PluginContext;
+  context(resolve: t.Rollup.PluginContext['resolve']) {
+    return {
+      resolve,
+      meta: { rolldownVersion: 'test', viteVersion: 'test' },
+      cache: new Map(),
+      getWatchFiles: () => [],
+      setAssetSource: () => {
+        throw new Error('not implemented in test');
+      },
+    } as unknown as t.Rollup.PluginContext;
+  },
+  options() {
+    return { isEntry: false } as const;
   },
 } as const;
