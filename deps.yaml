@@ -17,13 +17,13 @@ deno.json:
     subpaths: [ auto ]
   - import: npm:esbuild@0.27.5
     dev: true
-  - import: npm:@vitejs/plugin-react@5.2.0
+  - import: npm:@vitejs/plugin-react@6.0.1
     dev: true
   - import: npm:@deno/vite-plugin@1.0.6
     dev: true
   - import: npm:rollup@4.60.1
     dev: true
-  - import: npm:vite@7.3.2
+  - import: npm:vite@8.0.2
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -92,13 +92,13 @@ deno.json:
 package.json:
   - import: npm:esbuild@0.27.5
     dev: true
-  - import: npm:@vitejs/plugin-react@5.2.0
+  - import: npm:@vitejs/plugin-react@6.0.1
     dev: true
   - import: npm:@deno/vite-plugin@1.0.6
     dev: true
   - import: npm:rollup@4.60.1
     dev: true
-  - import: npm:vite@7.3.2
+  - import: npm:vite@8.0.2
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true

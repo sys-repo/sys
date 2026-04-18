@@ -43,7 +43,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@5.2.0",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@6.0.1",
     "ai": "npm:ai@6.0.168",
     "bowser": "npm:bowser@2.14.1",
     "chai": "npm:chai@6.2.2",
@@ -96,7 +96,7 @@
     "strip-ansi": "npm:strip-ansi@7.2.0",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.1.1",
-    "vite": "npm:vite@7.3.2",
+    "vite": "npm:vite@8.0.2",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.20.0",
     "yaml": "npm:yaml@2.8.3"
