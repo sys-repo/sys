@@ -1,4 +1,5 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 
 describe('Vite.build (workspace composition)', () => {
@@ -35,12 +36,31 @@ describe('Vite.build (workspace composition)', () => {
     await Fs.remove(Fs.dirname(cwd), { log: false });
     await Fs.ensureDir(Fs.dirname(cwd));
     await Fs.copy(sample, cwd);
+    const configPath = Fs.join(cwd, 'vite.config.ts');
+    const originalConfig = (await Fs.readText(configPath)).data ?? '';
+    const workspace = Fs.resolve('../../../deno.json').replaceAll('\\', '/');
+    await Fs.write(
+      configPath,
+      originalConfig.replace(
+        'Vite.Config.app({ paths })',
+        `Vite.Config.app({ paths, workspace: ${JSON.stringify(workspace)} })`,
+      ),
+    );
+    const restore = await writeLocalFixtureImports(cwd);
 
     try {
-      const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+      const expectedPaths = {
+        cwd,
+        app: {
+          entry: 'src/-entry/index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
 
       const res = await Vite.build({
         cwd,
+        paths: expectedPaths,
         pkg,
         silent: true,
         spinner: false,
@@ -49,7 +69,7 @@ describe('Vite.build (workspace composition)', () => {
       if (!res.ok) console.warn(res.toString());
 
       expect(res.ok).to.eql(true);
-      expect(res.paths).to.eql(fromFile.paths);
+      expect(res.paths).to.eql(expectedPaths);
 
       const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
       const { paths } = res;
@@ -70,6 +90,8 @@ describe('Vite.build (workspace composition)', () => {
         },
       } as const;
     } finally {
+      await restore();
+      await Fs.write(configPath, originalConfig);
       await Fs.remove(Fs.dirname(cwd), { log: false });
     }
   };

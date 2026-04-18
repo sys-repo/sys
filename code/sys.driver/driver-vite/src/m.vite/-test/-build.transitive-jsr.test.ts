@@ -14,6 +14,14 @@ describe('Vite.build (transitive jsr)', () => {
         try {
           const res = await Vite.build({
             cwd,
+            paths: {
+              cwd,
+              app: {
+                entry: 'index.html',
+                outDir: 'dist',
+                base: './',
+              },
+            },
             pkg,
             silent: true,
             spinner: false,
