@@ -13,6 +13,9 @@
   - `src/m.vite/-test/-wrangle.test.ts`
   - `src/m.vite/-test/-build.test.ts`
   - `src/m.vite/-test/-dev.test.ts`
+- The first two planned product commits are now landed:
+  - `fix(driver-vite): adapt config seams for vite 8 under deno`
+  - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
 - Previously rejected cleanup seams remain rejected:
   - mirrored test-local `@sys/driver-vite` bridge rewrite
   - Vite 8 `--configLoader=runner`
@@ -144,11 +147,12 @@ After the initial commit series lands:
 4. prefer a small distillation pass over any “clean-room” reimplementation
 
 ## Review method from here
-1. land the mechanical noise chunk on its own
-2. review the remaining product files file-by-file into A / B / C / D
-3. commit only coherent slices with tests that explain them
-4. keep notes/docs separate unless intentionally documenting the probe line in history
-5. after the commit series, consider a narrow hardening/distillation pass rather than a rewrite
+1. mechanical noise chunk: landed separately
+2. A config/runtime seam fix chunk: landed
+3. B child runtime stabilization chunk: landed
+4. current live review target is C: structural cleanup
+5. keep notes/docs separate unless intentionally documenting the probe line in history
+6. after the commit series, consider a narrow hardening/distillation pass rather than a rewrite
 
 ## Verification baseline
 Run from:
@@ -165,7 +169,13 @@ Mechanical/noise:
 - `chore(repo): refresh dependency and template lockstep files`
 
 Working-set candidates:
-- `fix(driver-vite): adapt config seams for vite 8 under deno`
-- `fix(driver-vite): stabilize vite 8 child build and dev runtime`
-- `refactor(driver-vite): narrow local common import surfaces`
+- `fix(driver-vite): adapt config seams for vite 8 under deno` ✅ landed
+- `fix(driver-vite): stabilize vite 8 child build and dev runtime` ✅ landed
+- `refactor(driver-vite): narrow local common import surfaces` ← current live chunk
 - `docs(driver-vite): refresh vite 8 probe notes`
+
+## Current excluded residue / post-commit hardening frontier
+- `ViteConfig.fromFile` rolldown signal-listener leak path remains separate
+- `Vite.build (transitive jsr)` leak path remains separate
+- `Vite.build (workspace composition)` currently re-enters the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier and fails on linked local workspace dependency authority (`strip-ansi` from `@sys/std` local source)
+- These should not be used to reopen the already-landed B runtime line

@@ -22,13 +22,16 @@
   - `src/m.vite/-test/-wrangle.test.ts`
   - `src/m.vite/-test/-build.test.ts`
   - `src/m.vite/-test/-dev.test.ts`
+- Two product commits are now landed from this probe line:
+  - `fix(driver-vite): adapt config seams for vite 8 under deno`
+  - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
 - Earlier proven seams still stand:
-  - lazy `vite` load in `src/m.vite.config/u.fromFile.ts`
   - npm dynamic import for `vite-plugin-wasm` in `src/m.vite.config/u.plugins.ts`
   - `manualChunks(id) => alias | undefined` adaptation in `src/m.vite.config/u.app.ts`
   - localhost-only build permission and local IPv4/IPv6 dev permissions in `src/m.vite/u.wrangle.ts`
   - transitive local workspace import bridging in `src/m.vite/-test/u.bridge.fixture.ts`
   - explicit `paths` in focused `m.vite` tests to avoid parent-process rolldown leaks
+  - Vite 8+ child commands using `--configLoader=native`, with a Vite 7 guard
 
 ## New cleanup result
 - Narrowed self-hosted local common barrels away from the root broad runtime barrel in:
@@ -79,19 +82,19 @@
   - it did not earn a cleaner line than the current stable green state
 
 ## Best next move
-- Do not randomly keep shaving local barrels now
+- Next live chunk is now:
+  - `refactor(driver-vite): narrow local common import surfaces`
+- Do not randomly reopen the already-committed config/runtime or child-runtime seams
 - Do not revive the mirrored-package bridge approach unless new evidence appears
 - Do not switch Vite 8 child commands to `--configLoader=runner`
   - it turns the current non-fatal unresolved-import warnings into a hard config-load failure (`ERR_MODULE_NOT_FOUND`, e.g. `@sys/cli` from `src/m.vite/common.ts`)
-- Accepted cleanup win:
-  - Vite 8+ child commands now pass `--configLoader=native`
-  - this was proven first by direct manual fixture probes, then by real `Wrangle.command(...)` build/dev probes under the actual permission envelope
-  - focused `wrangle` / `build` / `dev` tests remain green
-  - the prior self-hosted unresolved-import warning wall no longer appeared in the focused dev path after this change
 - Current S-tier read:
-  - focused Vite 8 proof is done
-  - remaining residue is smaller and primarily the fixture `deno.json` importMap-ignored warning, not the old self-hosted unresolved-import wall
-- If continuing beyond this point, only do so with a clearly owned seam that is simpler than the already-accepted `native` config-loader improvement
+  - focused Vite 8 proof is done and the key runtime line is committed
+  - remaining residue is now mainly separate from the focused B line:
+    - `ViteConfig.fromFile` rolldown signal-listener leak frontier
+    - `Vite.build (transitive jsr)` leak frontier
+    - `Vite.build (workspace composition)` re-entering the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier (`strip-ansi` from linked local workspace code)
+- If continuing beyond C, treat those as post-commit hardening/residue work, not reasons to reopen the committed runtime line
 
 ## Focused verification
 Run from:

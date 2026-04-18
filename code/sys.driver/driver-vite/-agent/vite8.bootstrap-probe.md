@@ -12,7 +12,10 @@
   - Current state:
     - bootstrap-authority failures have been pushed through far enough to run real fixture builds and dev servers
     - focused `m.vite` Vite 8 probes are green on the current tree
-    - the current remaining noise is now a narrower self-hosting warning class during local-file config/module bundling
+    - two product commits are now landed from this probe line:
+      - `fix(driver-vite): adapt config seams for vite 8 under deno`
+      - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
+    - the current remaining noise/frontier is no longer the core runtime line, but structural cleanup plus separate post-commit residue around `fromFile`/native local config loading
 
 - Stable design:
   - explicit child bootstrap authority layer
@@ -138,12 +141,14 @@ deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
 ```
 
 - Current frontier:
-  - the focused `m.vite` Vite 8 line is no longer blocked on build/dev startup
-  - the blocker/noise class has shifted again:
-    - no longer broad root-barrel coupling
-    - now direct unresolved bare `@sys/*` imports from localized self-hosted submodule common files during Vite/rolldown local-file bundling
-  - next principled question:
-    - is there a bounded resolver/alias seam owned by `driver-vite` that can teach that local-file bundling path about direct bare `@sys/*` imports, without violating the accepted bootstrap boundary?
+  - the focused `m.vite` Vite 8 line is no longer blocked on build/dev startup and that runtime line is now committed
+  - the active next chunk is structural cleanup:
+    - narrow local common import surfaces
+    - keep it separate from the already-landed runtime fixes
+  - separate excluded residue remains:
+    - `ViteConfig.fromFile` rolldown signal-listener leak path
+    - `Vite.build (transitive jsr)` leak path
+    - `Vite.build (workspace composition)` re-entering the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier and failing on linked local workspace dependency authority (`strip-ansi` from local `@sys/std` source)
   - attempted and rejected cleanup seams:
     - a test-local mirrored `@sys/driver-vite` bridge rewrite in `src/m.vite/-test/u.bridge.fixture.ts`
       - rejected because it increased complexity, widened the self-hosted warning surface into transitive packages, and introduced fresh runtime/package-authority failures without improving the proof line enough to keep
