@@ -12,10 +12,12 @@
   - Current state:
     - bootstrap-authority failures have been pushed through far enough to run real fixture builds and dev servers
     - focused `m.vite` Vite 8 probes are green on the current tree
-    - two product commits are now landed from this probe line:
+    - four code commits are now landed from this probe line:
       - `fix(driver-vite): adapt config seams for vite 8 under deno`
       - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
-    - the current remaining noise/frontier is no longer the core runtime line, but structural cleanup plus separate post-commit residue around `fromFile`/native local config loading
+      - `refactor(driver-vite): narrow local common import surfaces`
+      - `test(driver-vite): align transport prefix tests with current plugin context`
+    - the current remaining noise/frontier is no longer the core runtime line; it is now the separate post-commit residue around `fromFile` / native local config loading
 
 - Stable design:
   - explicit child bootstrap authority layer
@@ -142,9 +144,7 @@ deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
 
 - Current frontier:
   - the focused `m.vite` Vite 8 line is no longer blocked on build/dev startup and that runtime line is now committed
-  - the active next chunk is structural cleanup:
-    - narrow local common import surfaces
-    - keep it separate from the already-landed runtime fixes
+  - structural cleanup and the small transport prefix test-alignment slice are also now committed
   - separate excluded residue remains:
     - `ViteConfig.fromFile` rolldown signal-listener leak path
     - `Vite.build (transitive jsr)` leak path

@@ -22,9 +22,11 @@
   - `src/m.vite/-test/-wrangle.test.ts`
   - `src/m.vite/-test/-build.test.ts`
   - `src/m.vite/-test/-dev.test.ts`
-- Two product commits are now landed from this probe line:
+- Four code commits are now landed from this probe line:
   - `fix(driver-vite): adapt config seams for vite 8 under deno`
   - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
+  - `refactor(driver-vite): narrow local common import surfaces`
+  - `test(driver-vite): align transport prefix tests with current plugin context`
 - Earlier proven seams still stand:
   - npm dynamic import for `vite-plugin-wasm` in `src/m.vite.config/u.plugins.ts`
   - `manualChunks(id) => alias | undefined` adaptation in `src/m.vite.config/u.app.ts`
@@ -82,8 +84,11 @@
   - it did not earn a cleaner line than the current stable green state
 
 ## Best next move
-- Next live chunk is now:
-  - `refactor(driver-vite): narrow local common import surfaces`
+- The main Vite 8 line is now committed through:
+  - config/runtime seam fixes
+  - child runtime stabilization
+  - structural local common-surface narrowing
+  - transport prefix test/hook-shape alignment
 - Do not randomly reopen the already-committed config/runtime or child-runtime seams
 - Do not revive the mirrored-package bridge approach unless new evidence appears
 - Do not switch Vite 8 child commands to `--configLoader=runner`
