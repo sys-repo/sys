@@ -83,23 +83,26 @@
   - it introduced fresh runtime/package-authority failure modes
   - it did not earn a cleaner line than the current stable green state
 
-## Best next move
-- The main Vite 8 line is now committed through:
-  - config/runtime seam fixes
-  - child runtime stabilization
-  - structural local common-surface narrowing
-  - transport prefix test/hook-shape alignment
+## Latest hardening result
+- The post-commit residue frontier was pushed through without reopening the committed Vite 8 runtime line
+- Full package test suite is now green under `--trace-leaks`:
+  - `34 passed | 0 failed`
+- The final hardening moves were:
+  - `src/m.vite.config/-test/-fromFile.test.ts`
+    - moved `ViteConfig.fromFile(...)` coverage onto a child-process probe
+    - preserved API coverage while avoiding parent-process rolldown signal-listener leaks
+  - `src/m.vite/-test/-build.transitive-jsr.test.ts`
+    - passed explicit `paths` to keep the test on the child-runtime lane
+    - removed the indirect parent-process `fromFile` leak path
+  - `src/m.vite/-test/-build.workspace-composition.test.ts`
+    - passed explicit `paths`
+    - used `writeLocalFixtureImports(...)`
+    - injected explicit workspace authority into the copied fixture config
+    - this moved the test off the excluded native local-config-loading residue and restored truthful workspace-composition coverage
 - Do not randomly reopen the already-committed config/runtime or child-runtime seams
 - Do not revive the mirrored-package bridge approach unless new evidence appears
 - Do not switch Vite 8 child commands to `--configLoader=runner`
   - it turns the current non-fatal unresolved-import warnings into a hard config-load failure (`ERR_MODULE_NOT_FOUND`, e.g. `@sys/cli` from `src/m.vite/common.ts`)
-- Current S-tier read:
-  - focused Vite 8 proof is done and the key runtime line is committed
-  - remaining residue is now mainly separate from the focused B line:
-    - `ViteConfig.fromFile` rolldown signal-listener leak frontier
-    - `Vite.build (transitive jsr)` leak frontier
-    - `Vite.build (workspace composition)` re-entering the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier (`strip-ansi` from linked local workspace code)
-- If continuing beyond C, treat those as post-commit hardening/residue work, not reasons to reopen the committed runtime line
 
 ## Focused verification
 Run from:

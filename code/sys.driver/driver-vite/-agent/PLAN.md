@@ -177,8 +177,17 @@ Working-set candidates:
 - `test(driver-vite): align transport prefix tests with current plugin context` ✅ landed
 - `docs(driver-vite): refresh vite 8 probe notes`
 
-## Current excluded residue / post-commit hardening frontier
-- `ViteConfig.fromFile` rolldown signal-listener leak path remains separate
-- `Vite.build (transitive jsr)` leak path remains separate
-- `Vite.build (workspace composition)` currently re-enters the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier and fails on linked local workspace dependency authority (`strip-ansi` from `@sys/std` local source)
-- These should not be used to reopen the already-landed B runtime line
+## Latest hardening outcome
+- The previously excluded post-commit residue frontier has now been pushed through
+- Resolved seams:
+  - `ViteConfig.fromFile`
+    - test coverage now runs through a child-process probe rather than triggering rolldown signal listeners in the parent test process
+  - `Vite.build (transitive jsr)`
+    - now stays on explicit `paths` and no longer re-enters the parent `fromFile` leak path
+  - `Vite.build (workspace composition)`
+    - now stays on explicit `paths`
+    - uses local bridge imports plus explicit workspace authority in the copied fixture config
+    - no longer fails on the earlier native local-config-loading / linked workspace authority frontier
+- Result:
+  - `deno task test --trace-leaks` is green for `code/sys.driver/driver-vite`
+- Any further work from here should be distillation / cleanup only, not frontier rescue

@@ -17,7 +17,8 @@
       - `fix(driver-vite): stabilize vite 8 child build and dev runtime`
       - `refactor(driver-vite): narrow local common import surfaces`
       - `test(driver-vite): align transport prefix tests with current plugin context`
-    - the current remaining noise/frontier is no longer the core runtime line; it is now the separate post-commit residue around `fromFile` / native local config loading
+    - the former post-commit residue around `fromFile` / native local config loading has now been pushed through
+    - the full `driver-vite` package test suite is green under `--trace-leaks`
 
 - Stable design:
   - explicit child bootstrap authority layer
@@ -143,12 +144,14 @@ deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
 ```
 
 - Current frontier:
-  - the focused `m.vite` Vite 8 line is no longer blocked on build/dev startup and that runtime line is now committed
-  - structural cleanup and the small transport prefix test-alignment slice are also now committed
-  - separate excluded residue remains:
-    - `ViteConfig.fromFile` rolldown signal-listener leak path
-    - `Vite.build (transitive jsr)` leak path
-    - `Vite.build (workspace composition)` re-entering the excluded `Vite.Config.fromFile(...)` / native local-config-loading frontier and failing on linked local workspace dependency authority (`strip-ansi` from local `@sys/std` source)
+  - the focused `m.vite` Vite 8 line is committed and stable
+  - structural cleanup and the small transport prefix test-alignment slice are committed
+  - the former post-commit residue has also been pushed through via narrow test/harness hardening:
+    - `ViteConfig.fromFile` coverage now runs in a child probe instead of the parent process
+    - `Vite.build (transitive jsr)` uses explicit `paths`
+    - `Vite.build (workspace composition)` uses explicit `paths`, local bridge imports, and explicit workspace authority in the copied fixture config
+  - practical state now:
+    - `deno task test --trace-leaks` is green for `code/sys.driver/driver-vite`
   - attempted and rejected cleanup seams:
     - a test-local mirrored `@sys/driver-vite` bridge rewrite in `src/m.vite/-test/u.bridge.fixture.ts`
       - rejected because it increased complexity, widened the self-hosted warning surface into transitive packages, and introduced fresh runtime/package-authority failures without improving the proof line enough to keep
