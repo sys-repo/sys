@@ -166,5 +166,22 @@ describe('Config.Build', () => {
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
     });
+
+    it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {
+      const config = await ViteConfig.app({
+        chunks(e) {
+          e.chunk('react', 'react');
+          e.chunk('react.dom', 'react-dom');
+        },
+      });
+
+      const manualChunks = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+      const chunk = manualChunks.manualChunks as undefined | ((id: string) => string | undefined);
+
+      expect(typeof chunk).to.eql('function');
+      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql('react');
+      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js')).to.eql('react.dom');
+      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(undefined);
+    });
   });
 });

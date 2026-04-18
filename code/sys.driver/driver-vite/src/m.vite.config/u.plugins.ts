@@ -1,6 +1,5 @@
-import type { t } from './common.ts';
+import { Is, type t } from './common.ts';
 import react from '@vitejs/plugin-react';
-import wasm from 'vite-plugin-wasm';
 import { ViteTransport } from '../m.vite.transport/mod.ts';
 
 export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
@@ -17,8 +16,7 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
    * WASM support:
    */
   if (options.wasm ?? true) {
-    // deno-lint-ignore ban-ts-comment
-    // @ts-ignore
+    const wasm = await wrangle.wasmPlugin();
     plugins.push(wasm());
   }
 
@@ -33,3 +31,23 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   // Finish up.
   return plugins;
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  async wasmPlugin() {
+    const loaded = await import('npm:vite-plugin-wasm');
+    const plugin = wrangle.pluginFromModule(loaded);
+    if (!plugin) throw new Error('Failed to load vite-plugin-wasm from npm runtime entry');
+    return plugin;
+  },
+
+  pluginFromModule(loaded: unknown) {
+    return (Is.func(loaded)
+      ? loaded
+      : Is.func((loaded as { default?: unknown })?.default)
+      ? (loaded as { default: () => t.VitePluginOption }).default
+      : undefined) as undefined | (() => t.VitePluginOption);
+  },
+} as const;

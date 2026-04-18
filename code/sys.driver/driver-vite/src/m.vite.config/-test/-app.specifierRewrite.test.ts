@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import type { t } from '../common.ts';
 import {
   createNpmPrewarm,
   createSpecifierRewrite,
@@ -61,14 +62,15 @@ describe('ViteConfig.app specifier rewrite', () => {
     it('rewrites npm specifiers', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json');
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('npm:react@19.2.4')).to.eql(null);
+      expect(await resolveId.call(wrangle.context(), 'npm:react@19.2.4')).to.eql(null);
     });
 
     it('rewrites npm specifiers for deno-owned importers', async () => {
       const rewrite = createSpecifierRewrite('/tmp/deno.json');
       const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
       expect(
-        await resolveId(
+        await resolveId.call(
+          wrangle.context(),
           'npm:@preact/signals-core@1.13.0',
           '\0deno::TypeScript::https://jsr.io/@sys/std/0.0.298/src/m.Signal/m.Is.ts::/tmp/cache/m.Is.ts',
         ),
@@ -84,7 +86,11 @@ describe('ViteConfig.app specifier rewrite', () => {
 
       const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
       expect(
-        await resolveId(
+        await resolveId.call(
+          wrangle.context(async (id) => {
+            expect(id).to.eql('react');
+            return null;
+          }),
           'react',
           '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
         ),
@@ -99,7 +105,11 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string, importer?: string) => Promise<string | null>;
-      const res = await resolveId(
+      const res = await resolveId.call(
+        wrangle.context(async (id) => {
+          expect(id).to.eql('react');
+          return null;
+        }),
         'react',
         '\0deno::TypeScript::https://jsr.io/@sys/ui-dom/0.0.247/src/m.UserAgent/m.UserAgent.ts::/tmp/cache/m.UserAgent.ts',
       );
@@ -174,7 +184,7 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('@acme/http/client')).to.eql(null);
+      expect(await resolveId.call(wrangle.context(), '@acme/http/client')).to.eql(null);
     });
 
     it('normalizes npm targets resolved from import-map aliases', async () => {
@@ -185,7 +195,15 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('@acme/ws')).to.eql(null);
+      expect(
+        await resolveId.call(
+          wrangle.context(async (id) => {
+            expect(id).to.eql('@automerge/automerge-repo-network-websocket');
+            return null;
+          }),
+          '@acme/ws',
+        ),
+      ).to.eql(null);
     });
 
     it('caches import-map lookups across repeated rewrites', async () => {
@@ -199,8 +217,9 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      const a = await resolveId('@sys/http/client');
-      const b = await resolveId('@sys/http/client/foo');
+      const ctx = wrangle.context();
+      const a = await resolveId.call(ctx, '@sys/http/client');
+      const b = await resolveId.call(ctx, '@sys/http/client/foo');
 
       expect(a).to.eql('/tmp/http-client.ts');
       expect(b).to.eql('/tmp/http-client.ts/foo');
@@ -215,7 +234,7 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      expect(await resolveId('@sys/missing')).to.eql(null);
+      expect(await resolveId.call(wrangle.context(), '@sys/missing')).to.eql(null);
     });
 
     it('returns null for jsr-target rewrites to avoid fallback fs-loads', async () => {
@@ -226,7 +245,7 @@ describe('ViteConfig.app specifier rewrite', () => {
       });
 
       const resolveId = rewrite.resolveId as (source: string) => Promise<string | null>;
-      const res = await resolveId('@acme/http/client');
+      const res = await resolveId.call(wrangle.context(), '@acme/http/client');
       expect(res).to.eql(null);
     });
   });
@@ -255,3 +274,14 @@ describe('ViteConfig.app specifier rewrite', () => {
     });
   });
 });
+
+const wrangle = {
+  context(resolve?: t.Rollup.PluginContext['resolve']) {
+    return {
+      async resolve(id: string, importer?: string, options?: { skipSelf?: boolean }) {
+        if (resolve) return await resolve(id, importer, options);
+        return null;
+      },
+    } as unknown as t.Rollup.PluginContext;
+  },
+} as const;
