@@ -1,4 +1,16 @@
-import { type t, DEFAULTS, Http, Is, Net, Path, Pkg, Process, Url, stripAnsi } from './common.ts';
+import {
+  DEFAULTS,
+  Http,
+  Is,
+  Net,
+  Num,
+  Path,
+  Pkg,
+  Process,
+  stripAnsi,
+  type t,
+  Url,
+} from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -35,7 +47,10 @@ export const dev: D = async (input) => {
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
   let resolvedLocalUrl = '';
-  const { args, env } = await Wrangle.command(paths, `dev --port=${requestedPort} --host`);
+  const { args, env, dispose: disposeBootstrap } = await Wrangle.command(
+    paths,
+    `dev --port=${requestedPort} --host`,
+  );
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
@@ -49,7 +64,10 @@ export const dev: D = async (input) => {
       const foundNetworkUrl = DevParse.url(line, REGEX.NETWORK_URL);
       if (foundLocalUrl) resolvedLocalUrl = foundLocalUrl;
       if (!resolvedLocalUrl && foundNetworkUrl) resolvedUrl = foundNetworkUrl;
-      if (REGEX.STARTED.test(line) || REGEX.DEV_RUNNING.test(line) || REGEX.LOCAL_OR_NETWORK.test(line)) {
+      if (
+        REGEX.STARTED.test(line) || REGEX.DEV_RUNNING.test(line) ||
+        REGEX.LOCAL_OR_NETWORK.test(line)
+      ) {
         isReady = true;
       }
     }
@@ -66,6 +84,13 @@ export const dev: D = async (input) => {
     dispose$: input.dispose$,
   });
   const { dispose } = proc;
+  const cleanup = async () => {
+    try {
+      await dispose();
+    } finally {
+      await disposeBootstrap();
+    }
+  };
 
   try {
     const readyAbort = new AbortController();
@@ -84,7 +109,7 @@ export const dev: D = async (input) => {
     await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 });
   } catch (error) {
     try {
-      await dispose();
+      await cleanup();
     } catch {
       // Best effort cleanup: preserve original startup failure.
     }
@@ -92,10 +117,8 @@ export const dev: D = async (input) => {
   }
 
   const port = DevParse.port(resolvedUrl, requestedPort);
-  const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose });
-  const listen = async () => {
-    await keyboard();
-  };
+  const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose: cleanup });
+  const listen = async () => void await keyboard();
 
   /**
    * API:
@@ -110,7 +133,7 @@ export const dev: D = async (input) => {
     },
 
     // Lifecycle:
-    dispose,
+    dispose: cleanup,
     get dispose$() {
       return proc.dispose$;
     },
@@ -121,6 +144,9 @@ export const dev: D = async (input) => {
   return api;
 };
 
+/**
+ * Standardised `dev` parsing helpers:
+ */
 export const DevParse = {
   url(line: string, pattern: RegExp) {
     const match = line.match(pattern);
@@ -137,7 +163,7 @@ export const DevParse = {
     if (Is.blank(value)) return fallback;
 
     const port = Number(value);
-    if (!Is.number(port)) return fallback;
-    return Number.isInteger(port) ? port : fallback;
+    if (!Is.num(port)) return fallback;
+    return Num.Is.int(port) ? port : fallback;
   },
 } as const;

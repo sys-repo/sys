@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import { type t, Fs, Path, ViteConfig } from './common.ts';
+import { Bootstrap } from './u.bootstrap.ts';
 
 /**
  * Helpers
@@ -8,9 +9,17 @@ export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
     const config = 'vite.config.ts';
     const env = wrangle.env(paths.cwd);
-    const args = await wrangle.args(paths, arg, config, env);
+    const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
+    const args = await wrangle.args(paths, arg, config, env, bootstrap?.path);
     const cmd = ['deno', ...args].join(' ');
-    return { cmd, args, env } as const;
+    return {
+      cmd,
+      args,
+      env,
+      dispose: async () => {
+        await bootstrap?.cleanup();
+      },
+    } as const;
   },
 
   async pathsFromConfigfile(cwd?: t.StringDir) {
@@ -54,17 +63,26 @@ export const Wrangle = {
 } as const;
 
 const wrangle = {
-  async args(paths: t.ViteConfigPaths, arg: string, config: string, env: Record<string, string>) {
+  async args(
+    paths: t.ViteConfigPaths,
+    arg: string,
+    config: string,
+    env: Record<string, string>,
+    importMap?: string,
+  ) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
     const permissions = await wrangle.permissions(paths, cmd ?? '', env);
     const vite = await wrangle.viteSpecifier(paths.cwd);
+    const configLoader = await wrangle.configLoaderArg(paths.cwd);
     return [
       'run',
       ...permissions,
       '--node-modules-dir',
+      importMap ? `--import-map=${importMap}` : '',
       vite,
       cmd,
       ...rest,
+      configLoader,
       `--config=${config}`,
     ].filter(Boolean);
   },
@@ -73,12 +91,13 @@ const wrangle = {
     const allowRun = `--allow-run=${env.ESBUILD_BINARY_PATH},${Deno.execPath()}`;
     const allowWrite = `--allow-write=${(await wrangle.writeRoots(paths)).join(',')}`;
     const allowSysCommon = '--allow-sys=osRelease,homedir,uid,gid';
+    const allowNetLocal = '--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]';
     const common = ['--allow-env', '--allow-ffi', '--allow-read', allowSysCommon, allowRun, allowWrite];
-    const allowNetDev = '--allow-net=localhost,127.0.0.1,0.0.0.0';
     const allowSysDev = '--allow-sys=osRelease,homedir,uid,gid,networkInterfaces';
 
-    if (cmd === 'build') return common;
-    if (cmd === 'dev') return ['--allow-env', '--allow-ffi', '--allow-read', allowSysDev, allowRun, allowWrite, allowNetDev];
+    // Vite 8 / rolldown build can issue a localhost DNS lookup under Deno during config/runtime startup.
+    if (cmd === 'build') return [...common, allowNetLocal];
+    if (cmd === 'dev') return ['--allow-env', '--allow-ffi', '--allow-read', allowSysDev, allowRun, allowWrite, allowNetLocal];
     return common;
   },
 
@@ -110,6 +129,11 @@ const wrangle = {
       anchor,
     )).data ?? {};
     return pkg.dependencies?.vite ?? pkg.devDependencies?.vite ?? '';
+  },
+
+  async configLoaderArg(cwd: string) {
+    const version = await wrangle.viteVersionFromPackage(wrangle.packageAnchor(cwd));
+    return wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
   },
 
   vitePackageAnchors(start: string, moduleUrl = import.meta.url) {
@@ -232,6 +256,11 @@ const wrangle = {
     const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
     const storeDir = version ? `${pkg.replace('/', '+')}@${version}` : '';
     return { pkg, storeDir, subpath } as const;
+  },
+
+  viteMajor(version: string) {
+    const match = version.trim().match(/^[@~^<>=\s]*(\d+)/);
+    return match ? Number(match[1]) : 0;
   },
 
   normalizeEsbuildArch(arch: string) {

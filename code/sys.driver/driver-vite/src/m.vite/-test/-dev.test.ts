@@ -44,13 +44,21 @@ describe('Vite.dev', () => {
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       const restore = await writeLocalFixtureImports(cwd);
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
       const port = Testing.randomPort();
       let server: t.ViteProcess | undefined;
       let timeout: t.TimeDelayPromise | undefined;
       const controller = new AbortController();
 
       try {
-        const promise = Vite.dev({ cwd, port, silent: false });
+        const promise = Vite.dev({ cwd, paths, port, silent: false });
         server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
 
         server.proc.onStdErr(async (e) => {
@@ -97,12 +105,20 @@ describe('Vite.dev', () => {
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       const restore = await writeLocalFixtureImports(cwd);
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
       const requestedPort = Testing.randomPort();
       const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
       let server: t.ViteProcess | undefined;
 
       try {
-        server = await Vite.dev({ cwd, port: requestedPort, silent: true });
+        server = await Vite.dev({ cwd, paths, port: requestedPort, silent: true });
 
         const actualPort = Number(new URL(server.url).port);
         expect(actualPort).to.not.eql(requestedPort);
