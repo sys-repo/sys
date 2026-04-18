@@ -8,5 +8,5 @@ export { CanvasSlug, usePulldown, useTimestamps, useVideoPlayer } from '../ui/mo
  * Path directory:
  */
 export const Dir = {
-  overview: Path.dir('/images/ui.Overview', 'posix'),
+  overview: Path.dir('./images/ui.Overview', 'posix'),
 } as const;

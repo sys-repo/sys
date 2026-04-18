@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, D, pkg, Str } from './common.ts';
+import { type t, Fmt as Base, c, Cli, pkg, Str } from './common.ts';
 import { getVersionInfo } from './u.ts';
 
 const g = c.green;
@@ -7,10 +7,10 @@ const w = c.white;
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name) {
+  async help() {
     const str = Str.builder();
     const version = await getVersionInfo();
-    const base = await Base.help(toolname, { note: `@sys/tools/${c.white('update')}` });
+    const base = await Base.help(Base.invoke('update'), { note: `@sys/tools/${c.white('update')}` });
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
     if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();
@@ -22,7 +22,7 @@ export const Fmt = {
     const a = c.yellow(`sys update --latest ${c.gray('[-l]')}`);
     const b = c.gray(`# ↑ equiv: deno cache --reload jsr:@sys/tools`);
     str
-      .line(c.gray('To update to latest run:'))
+      .line(c.gray('To upgrade to latest run:'))
       .line()
       .line(c.italic(`  ${a}`))
       .line(c.italic(`  ${b}`))
@@ -38,9 +38,9 @@ export const Fmt = {
     const table = Cli.table([]);
 
     const upToDate = version.is.latest;
-    const remote = formatVersion(version.remote, upToDate);
+    const remote = formatVersion(version.remote, upToDate, '✔');
     const local = formatVersion(version.local, upToDate, '✔');
-    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
+    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(upgrade available)'))}`);
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);

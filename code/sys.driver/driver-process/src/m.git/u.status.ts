@@ -9,7 +9,7 @@ export const status: t.GitStatusFn = async (opts = {}) => {
     args.push('--untracked-files=no');
   }
 
-  let res: t.ProcOutput;
+  let res: t.Process.Output;
   try {
     res = await Process.invoke({
       cmd: git,

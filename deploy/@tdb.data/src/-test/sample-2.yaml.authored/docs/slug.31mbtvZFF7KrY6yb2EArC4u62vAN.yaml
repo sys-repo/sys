@@ -1,0 +1,266 @@
+title: 3.2.6-conclusion
+description: Conclusion to Fill In Your Canvas module - acknowledges achievement
+  and introduces next steps
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :core-videos: :core-assets/videos
+TASKS:
+  - TODO: Add Build program image at ~00:39 when introducing the follow-on program
+    comment: |
+      Image needed to visually introduce Build program. Currently using
+      headline/tagline text elements as placeholder.
+data:
+  sequence:
+    - video: /:core-videos/core 3.2.6-conclusion.webm.02.mp4.webm
+      slice: 00:00..02:11
+      script: >
+        [00:00:00] Great work! You've filled in your Social Lean Canvas.
+
+        [00:02:73] This is an achievement worth acknowledging.
+
+        [00:05:03] Most entrepreneurs never get to this level of clarity.
+
+        [00:08:45] They're just running on faith and instinct, hoping that their
+        idea will just work if they build it.
+
+        [00:14:44] You've created a conceptual foundation—something you can
+        test, improve, and evolve into a successful business model.
+
+        [00:22:58] This level of clarity is rare in the haphazard world of
+        venture building.
+
+        [00:26:81] Well done.
+
+        [00:27:86] You have a clear sketch of your business model in one place.
+
+        [00:31:61] Your purpose, customer model, impact model, economic model,
+        and key metrics.
+
+        [00:36:30] All connected and all visible.
+
+        [00:38:53] And you have a tool.
+
+        [00:39:88] You can take this canvas and talk it through with advisors,
+        mentors, potential collaborators, and funders.
+
+        [00:45:73] Get their perspectives, find out where your thinking might be
+        off, and discover gaps you haven't seen yet.
+
+        [00:51:96] The canvas makes those conversations productive.
+
+        [00:54:56] Instead of vague ideas, you have something concrete to
+        discuss and refine.
+
+        [00:59:65] You've built the foundation—the conceptual structure that
+        everything else builds on.
+
+        [01:03:70] Now you can build on it.
+
+        [01:05:80] Having completed your canvas might be all you need for now.
+
+        [01:09:10] Your next moves might be obvious.
+
+        [01:11:25] You can pull together a plan and start executing.
+
+        [01:14:36] Or you might have realised, through mapping things out, that
+        this particular idea isn't good enough—and that you're better off
+        tossing it and starting again.
+
+        [01:22:19] This can be a win too.
+
+        [01:24:12] Alternatively, you may be left with some big questions.
+
+        [01:27:14] Like: How do I know if this business model is actually good
+        enough to work on?
+
+        [01:30:34] And if it has potential but isn't good yet, how do I improve
+        it?
+
+        [01:34:55] Or: What are the steps to actually build this in the real
+        world?
+
+        [01:39:17] If you're holding questions like these, you should work
+        through Build—our follow-on program—where I'll walk you through
+        assessing your business model, making it stronger, and developing a
+        strategy to build your venture.
+
+        [01:50:57] Build does have a cost. That's how we keep the program you've
+        just completed free and open to everyone.
+
+        [01:56:14] If you can't afford to pay, just let us know and we'll cover
+        it.
+
+        [01:59:35] No one misses out because of money.
+
+        [02:01:25] People who can pay are paying it forward for those who can't.
+
+        [02:03:42] However you choose to proceed—well done.
+
+        [02:07:38] Completing your canvas is a big step towards building
+        something that matters.
+      timestamps:
+        00:00:00:
+          title: Conclusion
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Conclusion
+        00:00:03:
+          text:
+            headline: Foundation Complete
+            tagline: null
+        00:00:14:
+          text:
+            headline: Foundation Complete
+            tagline: Something you can test, improve, and evolve
+        00:00:27:
+          title: What You Have Now
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              What You Have Now
+        00:00:30:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+        00:00:31:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+        00:00:32:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+        00:00:33:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+        00:00:34:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+              - Economic Model
+        00:00:35:
+          text:
+            headline: Your Business Model
+            tagline: All connected, all visible
+            body: |
+              - Purpose
+              - Customer Model
+              - Impact Model
+              - Economic Model
+              - Key Metrics
+        00:00:38:
+          text:
+            headline: A Tool For Conversations
+            tagline: null
+        00:00:45:
+          text:
+            headline: A Tool For Conversations
+            tagline: Get perspectives, find gaps
+        00:00:52:
+          text:
+            headline: A Tool For Conversations
+            tagline: Something concrete to discuss and refine
+        00:00:59:
+          text:
+            headline: Foundation Built
+            tagline: Now you can build on it
+        00:01:06:
+          title: Next Steps
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Next Steps
+        00:01:09:
+          text:
+            headline: Next Steps
+            tagline: Your canvas might be all you need
+        00:01:11:
+          text:
+            headline: Next Steps
+            tagline: Your canvas might be all you need
+            body: |
+              - Ready to execute
+        00:01:14:
+          text:
+            headline: Next Steps
+            tagline: Your canvas might be all you need
+            body: |
+              - Ready to execute
+              - Toss it and start again
+        00:01:22:
+          text:
+            headline: Next Steps
+            tagline: Your canvas might be all you need
+            body: |
+              - Ready to execute
+              - Toss it and start again
+              - Left with big questions
+        00:01:24:
+          text:
+            headline: Big Questions
+            tagline: null
+        00:01:27:
+          text:
+            headline: Big Questions
+            tagline: null
+            body: |
+              - Is this business model actually good?
+        00:01:30:
+          text:
+            headline: Big Questions
+            tagline: null
+            body: |
+              - Is this business model actually good?
+              - How do I improve it?
+        00:01:35:
+          text:
+            headline: Big Questions
+            tagline: null
+            body: |
+              - Is this business model actually good?
+              - How do I improve it?
+              - What are the steps to build it?
+        00:01:39:
+          text:
+            headline: Build Program
+            tagline: Assess, strengthen, and strategise
+        00:01:51:
+          text:
+            headline: Build Program
+            tagline: Free and open to everyone
+        00:01:56:
+          text:
+            headline: Build Program
+            tagline: No one misses out because of money
+        00:02:03:
+          text:
+            headline: Well Done
+            tagline: A big step towards building something that matters

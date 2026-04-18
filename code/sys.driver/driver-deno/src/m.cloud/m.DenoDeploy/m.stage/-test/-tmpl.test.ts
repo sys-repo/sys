@@ -23,7 +23,7 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     expect(res.entry).to.include(`export default await DenoEntry.serve({ cwd, targetDir });`);
     expect(res.entryPaths).to.eql(`export const targetDir = './code/projects/foo';\n`);
     expect(res.compatEntrypoint).to.eql(
-      `export { default } from '../../entry.ts';\nexport * from '../../entry.ts';\n`,
+      `export { default } from '../entry.ts';\nexport * from '../entry.ts';\n`,
     );
   });
 

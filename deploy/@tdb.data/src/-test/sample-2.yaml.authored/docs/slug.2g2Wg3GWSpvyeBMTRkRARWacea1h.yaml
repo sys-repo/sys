@@ -1,0 +1,94 @@
+title: Purpose
+description: Crafting your purpose statement - the starting point for your
+  Social Lean Canvas
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Add in the longer purpose program module when there is time
+    comment: |
+      Link to the extended EUSIC purpose program content as additional
+      deep-dive material for users who want more comprehensive guidance
+data:
+  sequence:
+    - video: /:core-videos/purpose.webm.02.mp4.webm
+      slice: 00:00..00:57
+      script: >
+        [00:00:00] Your purpose is the starting point for your canvas.
+
+        [00:00:03] It's your reason for creating this enterprise.
+
+        [00:00:07] It needs to be clearly defined in terms of the social or
+        environmental problems that you want to solve.
+
+        [00:00:15] So for the purpose section of the canvas, you need to craft a
+        solid purpose statement.
+
+        [00:00:20] This purpose statement should be, firstly, inspirational - to
+        inspire you and others.
+
+        [00:00:26] It should be simple, clear, and concise and easy to
+        understand.
+
+        [00:00:31] It should be high level. This is not about describing the
+        detail of exactly what you're going to do.
+
+        [00:00:37] It's a broad statement about your intentions.
+
+        [00:00:41] And finally, your purpose statement needs to be based around
+        the fundamental social or environmental problem that you are trying to
+        solve here.
+
+        [00:00:50] So pull together these points. Make a clear purpose statement
+        that you can understand and that others will understand as well.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Purpose
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Purpose
+            tagline: The starting point for your canvas
+        00:00:07:
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Clearly Defined
+            tagline: Social or environmental problems
+        00:00:15:
+          pause: 2s
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Craft a Purpose Statement
+            tagline: Solid and clear
+        00:00:20:
+          pause: 2s
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Four Characteristics
+            tagline: What makes a good purpose statement
+        00:00:22:
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Four Characteristics
+            tagline: Inspirational Simple High-level Based on a fundamental problem
+        00:00:50:
+          pause: 2s
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Pull It Together
+            tagline: Clear statement you and others understand
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

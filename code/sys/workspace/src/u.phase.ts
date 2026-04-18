@@ -1,0 +1,55 @@
+import { type t, c, Cli, Time } from './common.ts';
+
+export async function runPhase<T>(args: {
+  readonly spinner: t.CliSpinner.Instance;
+  readonly label: string;
+  readonly silent: boolean;
+  readonly render?: 'spinner' | 'line';
+  readonly fn: () => Promise<T>;
+  readonly done?: (result: T, startedAt: number) => Promise<string> | string;
+  readonly fail?: (error: Error) => string;
+}) {
+  if (args.silent) return await args.fn();
+  const startedAt = Time.now.timestamp;
+  if (args.render === 'line') {
+    console.info(c.gray(args.label));
+    try {
+      const res = await args.fn();
+      if (args.done) {
+        console.info(await args.done(res, startedAt));
+      }
+      return res;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      if (args.fail) {
+        console.info(args.fail(err));
+      }
+      throw err;
+    }
+  }
+  const timer = Time.interval(1000, () => (args.spinner.text = phaseText(args.label, startedAt)));
+  args.spinner.start(Cli.Fmt.spinnerText(args.label, false));
+  try {
+    const res = await args.fn();
+    timer.cancel();
+    args.spinner.stop();
+    if (args.done) {
+      console.info(await args.done(res, startedAt));
+    }
+    return res;
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    timer.cancel();
+    if (args.fail) {
+      args.spinner.fail(Cli.Fmt.spinnerText(args.fail(err), false));
+    } else {
+      args.spinner.stop();
+    }
+    throw err;
+  }
+}
+
+function phaseText(label: string, startedAt: number) {
+  const elapsed = c.dim(c.gray(` ${String(Time.elapsed(startedAt))}`));
+  return Cli.Fmt.spinnerText(`${label}${elapsed}`, false);
+}

@@ -17,6 +17,21 @@ describe('Workspace.Prep.Workspace.normalize', () => {
     expect(next.data?.workspace).to.eql(['code/alpha', 'code/beta', 'code/zeta']);
   });
 
+  it('uses code-unit ordering for canonical workspace paths', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Workspace.codeUnit');
+    const path = Fs.join(fs.dir, 'deno.json');
+
+    await Fs.writeJson(path, {
+      workspace: ['code/a2', 'code/a10', 'code/A'],
+    });
+
+    const result = await Workspace.normalize(fs.dir);
+    const next = await Fs.readJson<Record<string, unknown>>(path);
+
+    expect(result).to.eql({ changed: true, path });
+    expect(next.data?.workspace).to.eql(['code/A', 'code/a10', 'code/a2']);
+  });
+
   it('returns unchanged when the workspace array is already canonical', async () => {
     const fs = await Testing.dir('WorkspacePrep.Workspace.unchanged');
     const path = Fs.join(fs.dir, 'deno.json');

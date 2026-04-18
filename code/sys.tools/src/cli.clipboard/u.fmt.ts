@@ -1,9 +1,10 @@
-import { Fmt as Base, Cli, D, Str, c, pkg } from './common.ts';
+import { Fmt as Base, Cli, Str, c, pkg } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name) {
+  async help() {
+    const cmd = Base.invoke('copy');
     const table = Cli.table([]);
 
     const gr = c.gray;
@@ -12,7 +13,7 @@ export const Fmt = {
 
     return Str.builder()
       .line()
-      .line(c.gray(`${c.green(toolname)} `))
+      .line(c.gray(`${c.green(cmd)} `))
       .line(table.toString().trim())
       .line()
       .toString();

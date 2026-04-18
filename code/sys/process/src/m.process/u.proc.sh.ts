@@ -1,12 +1,12 @@
 import type { t } from './common.ts';
 import { invoke } from './u.proc.invoke.ts';
 
-type ShellOptions = t.ShellProcOptions;
+type ShellOptions = t.Process.ShellOptions;
 
 /**
  * Build a shell runner. This is sugar over `invoke({ cmd:'sh', args:['-c', <script>] })`.
  */
-export const sh: t.ProcLib['sh'] = (...input: unknown[]) => {
+export const sh: t.Process.Lib['sh'] = (...input: unknown[]) => {
   const options = shellOptions(input);
   const path = options.path ?? '';
   return {

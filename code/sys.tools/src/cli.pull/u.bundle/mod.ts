@@ -1,1 +1,1 @@
-export { pullBundle } from './u.bundle.ts';
+export { executeBundlePull, pullBundle } from './u.bundle.ts';

@@ -81,7 +81,7 @@ async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<Ta
     '-P=integration',
     '@sys/tmpl',
     'pkg',
-    '--no-interactive',
+    '--non-interactive',
     '--dir',
     dir,
     '--pkgName',

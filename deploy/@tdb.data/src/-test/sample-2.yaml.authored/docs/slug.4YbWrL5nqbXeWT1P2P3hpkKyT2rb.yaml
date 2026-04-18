@@ -1,0 +1,784 @@
+title: Customer Model
+description: Creating value for customers - understanding the four key sections
+  and how they work together through detailed explanation and Facebook example
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:core-videos/customer model_overview.webm.02.mp4.webm
+      slice: 00:00..00:53
+      script: >
+        [00:00:00] Your customer model outlines how you create value for your
+        customers.
+
+        [00:00:04] Creating value for customers that you can get paid for is
+        what drives your business model.
+
+        [00:00:10] Your customer model pulls together four key sections of the
+        canvas: your customers, the jobs they need done, the unique value
+        proposition that they will respond to, and the solution that you will
+        give them that they and other of your customers will pay for.
+
+        [00:00:27] Your customer model could be very simple with a single group
+        of customers who pay for a single simple product, or it can be much more
+        complex, and social enterprises often tend to be more complex than
+        traditional ones in the customer model.
+
+        [00:00:43] Developing this customer model is about understanding how
+        these four canvas sections come together to form a coherent model of how
+        you'll create value for your customers.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Customer Model Overview
+          image: /:core-images/cm-title.png
+          text:
+            headline: Customer Model
+            tagline: Creating value for customers
+        00:00:10:
+          pause: 2s
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Four Key Sections
+            tagline: Integrated customer model
+        00:00:15:
+          pause: 3s
+          text:
+            headline: Four Key Sections
+            body: |
+              - Customers
+              - Jobs to Be Done
+              - Unique Value Proposition
+              - Solution
+        00:00:25:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Simple or Complex
+            tagline: From single to multiple customer types
+        00:00:43:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Coherent Model
+            tagline: How sections work together
+    - video: /:core-videos/customer model_customers_1.webm.02.mp4.webm
+      slice: 00:00..01:10
+      script: >
+        [00:00:00] Your customers are those people or organizations that you
+        need to move to make your business model work.
+
+        [00:00:07] You need to categorize them in two ways. Firstly, your
+        customer types, and secondly, your customer segments.
+
+        [00:00:15] Customer types are the different categories of customers who
+        play completely different roles in your business model.
+
+        [00:00:23] Some businesses only have one customer type, for example, the
+        customer who buys and consumes your product.
+
+        [00:00:29] But in more complex business models, especially in social
+        enterprise, there can be several types of customers.
+
+        [00:00:36] For example, users, funders, advertisers, sponsors,
+        government buyers, all can be different customer types.
+
+        [00:00:45] With multiple customer types, it's this combination of the
+        different customer types working collectively that creates the value
+        needed for your business model to work.
+
+        [00:00:56] If you have more than one customer type, try to color code or
+        number them in your canvas because each customer type will have a
+        correspondingly different job to be done and different unique value
+        proposition that you'll have to create for them.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Customers
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Customers
+            tagline: People you need to move
+        00:00:07:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Two Ways to Categorize
+            tagline: Customer types and segments
+        00:00:15:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Customer Types
+            tagline: Different roles in your model
+        00:00:23:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Single Customer Type
+            tagline: Buyer and consumer combined
+        00:00:29:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Multiple Customer Types
+            tagline: Especially in social enterprise
+        00:00:36:
+          pause: 3s
+          text:
+            headline: Customer Type Examples
+            body: |
+              - Users
+              - Funders
+              - Advertisers
+              - Sponsors
+              - Government buyers
+        00:00:45:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Working Collectively
+            tagline: Combination creates value
+        00:00:56:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Color Code or Number
+            tagline: Track different types through canvas
+    - video: /:core-videos/customer model_customers_2.webm.02.mp4.webm
+      slice: 00:00..00:59
+      script: >
+        [00:00:00] For your customer segments, these are the subgroups of
+        customers that sit inside each of your customer types. For the canvas,
+        sketch out the core customer segment that you're gonna serve for each of
+        your customer types.
+
+        [00:00:15] For example, if you have a customer type of user, your main
+        user customer segment might be stay-at-home parents.
+
+        [00:00:24] Keep your customer section simple, only include those types
+        and segments that you need to make your business model work.
+
+        [00:00:33] Depending on your business model, your participants from your
+        impact model might also be classified as customers if they are people
+        that you have to move to make your business model work, but if you don't
+        rely on them for your business model to succeed, then don't include them
+        in your customers section.
+
+        [00:00:50] Any extra customers you include in here that you don't
+        actually need will just add unnecessary complexity to your business
+        model.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Customer Segments
+            tagline: Subgroups within customer types
+        00:00:15:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Example Segment
+            tagline: Users → Stay-at-home parents
+        00:00:24:
+          pause: 3s
+          text:
+            headline: Keep It Simple
+            body: |
+              Only include types and segments you NEED
+              Extra customers add unnecessary complexity
+        00:00:40:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Impact Model Participants
+            tagline: Include only if needed for model to work
+    - video: /:core-videos/customer model_customers_early-adopters.webm.02.mp4.webm
+      slice: 00:00..00:47
+      script: >
+        [00:00:00] Your early adopters are the small subgroup of your customer
+        segments who you think will have the strongest desire for your solution.
+
+        [00:00:09] For example, for our customer type of user and our customer
+        segment of stay-at-home parents, our early adopters might be
+        stay-at-home parents who have just had their first child.
+
+        [00:00:22] These will be the customers who you'll engage with first to
+        learn from and test out your ideas.
+
+        [00:00:27] Only include early adopters for customer types that will be
+        in significant numbers.
+
+        [00:00:34] If the customer type is, for example, a single government
+        funder, then there's no need to identify early adopters here because
+        they're a single customer. They don't represent a larger market that
+        you're planning on selling to.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Early Adopters
+            tagline: Strongest desire for your solution
+        00:00:09:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Example Early Adopters
+            tagline: Stay-at-home parents with first child
+        00:00:22:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Learn and Test
+            tagline: Engage with them first
+        00:00:27:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Significant Numbers Only
+            tagline: Not for single customer types
+    - video: /:core-videos/customer model_jobs to be done.webm.02.mp4.webm
+      slice: 00:00..00:51
+      script: >
+        [00:00:00] Filling in the Jobs to Be Done section of the canvas is about
+        understanding what's motivating your customers.
+
+        [00:00:07] What will drive them to engage with your solution?
+
+        [00:00:10] What job is your customer going to hire your product or
+        service to do for them?
+
+        [00:00:16] Make sure that you go deeper here than just the obvious need
+        that the customer has.
+
+        [00:00:21] Dig deep to find the particular thing that you will be able
+        to do for them that isn't currently available to them from someone else.
+
+        [00:00:29] Identify at least one key job to be done for each of your
+        customer types, and then color code or number each of them so that you
+        can see what customer type they relate to.
+
+        [00:00:41] Clearly identifying and understanding the jobs that your
+        customers need done is really important. It's the basis for how your
+        business model will create value for them.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Jobs to Be Done
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Jobs to Be Done
+            tagline: Understanding customer motivation
+        00:00:07:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: What Drives Them?
+            tagline: Why they'll engage with your solution
+        00:00:16:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Go Deeper
+            tagline: Beyond the obvious need
+        00:00:21:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Your Unique Contribution
+            tagline: What you do that others don't
+        00:00:29:
+          pause: 3s
+          text:
+            headline: Key Actions
+            body: |
+              - One key job per customer type
+              - Color code or number each
+              - Link to customer types
+        00:00:41:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Basis for Value Creation
+            tagline: Really important to get right
+    - video: /:core-videos/customer model_jobs to be done_existing
+        alternatives.webm.02.mp4.webm
+      slice: 00:00..00:47
+      script: >
+        [00:00:00] Existing alternatives show how your future customers are
+        currently getting these jobs done. And this is important for two main
+        reasons.
+
+        [00:00:08] Firstly, it shows evidence of customer need. If your
+        potential customers are already engaging with an existing alternative,
+        it shows that the customer actually does want this job to be done in
+        real life.
+
+        [00:00:21] Secondly, it starts to outline who your competitors might be,
+        showing you who is already out there doing these jobs for your customer.
+
+        [00:00:30] You might also find that you're competing against an existing
+        alternative of just doing nothing.
+
+        [00:00:36] This is important to identify early because if your future
+        customers are not currently trying to get these jobs done, then it could
+        mean that they don't really care about getting them done after all.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Existing Alternatives
+            tagline: How customers currently get jobs done
+        00:00:08:
+          text:
+            headline: Two Main Reasons
+            body: |
+              1. Evidence of customer need
+              Real engagement shows real desire
+
+              2. Outlines potential competitors
+              Who's already doing these jobs?
+        00:00:25:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: “Do Nothing” Alternative
+            tagline: Important to identify early
+        00:00:36:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Test Real Need
+            tagline: Do they actually care?
+    - video: /:core-videos/customer model_UVP.webm.02.mp4.webm
+      slice: 00:00..00:58
+      script: >
+        [00:00:00] Your unique value proposition describes the benefits that
+        your customers are gonna get from using your product or service.
+
+        [00:00:07] A UVP is based on the particular job that your customer is
+        trying to get done and the special way that you are gonna do this job
+        for them.
+
+        [00:00:16] This is not the same thing as the solution section of the
+        canvas where you describe your product or service.
+
+        [00:00:23] This is about describing the benefit that your customer will
+        get from using your product or service.
+
+        [00:00:29] If you have more than one customer type, you will have a
+        different job to be done for each customer type, and likewise, you'll
+        have a different unique value proposition for each as well.
+
+        [00:00:40] Number or color code these in the same way that you did in
+        the Jobs to Be Done section.
+
+        [00:00:46] The unique value proposition section is where you demonstrate
+        that you have deeply understood your customers, you have understood what
+        they're trying to achieve, what value they're trying to get, and how to
+        talk to them about it.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Unique Value Proposition
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Unique Value Proposition
+            tagline: Benefits customers will get
+        00:00:07:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Based on the Job
+            tagline: Special way you do it for them
+        00:00:16:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Not the Solution
+            tagline: The benefit, not the product
+        00:00:29:
+          pause: 2s
+          text:
+            headline: Multiple Customer Types
+            body: |
+              Different job per type
+              Different UVP per type
+              Number or color code consistently
+        00:00:46:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Deep Customer Understanding
+            tagline: What they want and how to talk to them
+    - video: /:core-videos/customer model_solution.webm.02.mp4.webm
+      slice: 00:00..00:46
+      script: >
+        [00:00:00] The last section to fill in in your customer model is the
+        solution section.
+
+        [00:00:04] This is the part of the canvas where you describe what your
+        enterprise actually does, your product or service.
+
+        [00:00:11] Your solution is what's gonna deliver the value to your
+        customers in a way that at least some of them will pay for.
+
+        [00:00:18] As well as this, your solution needs to deliver the social or
+        environmental impact that's mapped out in your impact model.
+
+        [00:00:25] So make sure that you describe the parts of your solution
+        that will deliver the activities in your impact model.
+
+        [00:00:32] Keep the description of your solution simple and high level.
+
+        [00:00:36] You don't need to go into great detail, but make sure that
+        you cover off the key aspects of it so that it clearly shows both how
+        you're gonna create customer value and impact.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Solution
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Solution
+            tagline: What your enterprise actually does
+        00:00:11:
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Delivers Value
+            tagline: In a way customers will pay for
+        00:00:18:
+          pause: 2s
+          text:
+            headline: Delivers Impact Too
+            body: |
+              Solution must deliver both:
+              - Customer value
+              - Social/environmental impact
+        00:00:32:
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Simple and High Level
+            tagline: Cover key aspects clearly
+    - video: /:core-videos/customer model_FBexample_intro.webm.02.mp4.webm
+      slice: 00:00..00:35
+      script: >
+        [00:00:00] As a way of demonstrating how the customer model works, let's
+        walk through an example using the early days of Facebook and their
+        customer model.
+
+        [00:00:08] Now, Facebook isn't an impact-driven organization, but
+        they'll still be useful here.
+
+        [00:00:14] They're a company you should already be familiar with, as
+        well as being an example of one that has more than one customer type.
+
+        [00:00:21] For this example, we're gonna talk through the simple version
+        of Facebook from when they first started out, not the behemoth that they
+        are today.
+
+        [00:00:29] When they started, their vision was simple: become the
+        largest social network on university campuses.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Facebook Example
+          image: /:core-images/facebook-logo.jpg
+          text:
+            headline: Facebook Example
+            tagline: Early days customer model
+        00:00:08:
+          image: /:core-images/facebook-logo.jpg
+          text:
+            headline: Not Impact-Driven
+            tagline: But useful for learning
+        00:00:14:
+          image: /:core-images/facebook-logo.jpg
+          text:
+            headline: Multiple Customer Types
+            tagline: Familiar company, complex model
+        00:00:21:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Simple Version
+            tagline: When they first started
+        00:00:29:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Their Vision
+            tagline: Largest network on university campuses
+    - video: /:core-videos/customer model_FBexample_customers.webm.02.mp4.webm
+      slice: 00:00..01:51
+      script: >
+        [00:00:00] So let's get into it, starting with the customer section of
+        their canvas.
+
+        [00:00:04] At the start, Facebook had two different customer types in
+        mind.
+
+        [00:00:08] Firstly, users, people who will use the social network, and
+        secondly, advertisers, organizations who pay to have their ads viewed by
+        Facebook's users.
+
+        [00:00:19] So those are the two distinct types of customers who are
+        gonna get completely different types of value out of Facebook.
+
+        [00:00:27] Next, for their customer segments, we zero in on the markets
+        within each customer type that Facebook will actually try and serve.
+
+        [00:00:36] For users, they zeroed in on university students as their
+        main user customer segment.
+
+        [00:00:41] Of course, as they grew and succeeded, they broadened this
+        out to include many more customer segments.
+
+        [00:00:48] But to start with, they were tightly focused on students.
+
+        [00:00:51] The early adopters in the student customer segment were, and
+        I'm guessing here, something like dorm room students who are living away
+        from home for the first time.
+
+        [00:01:02] These students would likely have more of an immediate social
+        need to be fulfilled ahead of other students.
+
+        [00:01:09] For the advertiser customer type, they would zero in on the
+        kinds of advertisers who were often targeting students and would value
+        Facebook's unique value proposition to do this more effectively.
+
+        [00:01:21] This might include fashion or music industry advertisers, or
+        other entertainment industry advertisers.
+
+        [00:01:29] For early adopters in this advertiser customer segment,
+        again, they would zero in to find smaller advertising segments that are
+        currently working hard to reach students that they can start with.
+
+        [00:01:40] This might be local event promoters who are working hard to
+        reach students in a local environment and make them good candidates to
+        actually test ideas on.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Facebook's Customers
+            tagline: Starting with customer section
+        00:00:04:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Two Customer Types
+            tagline: Users and Advertisers
+        00:00:08:
+          pause: 3s
+          text:
+            headline: "Customer Type 1: Users"
+            body: |
+              People who use the social network
+              Get social connection value
+        00:00:13:
+          pause: 3s
+          text:
+            headline: "Customer Type 2: Advertisers"
+            body: |
+              Organizations paying for ad views
+              Get targeted reach value
+        00:00:19:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Two Distinct Value Types
+            tagline: Completely different for each
+        00:00:27:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Customer Segments
+            tagline: Zero in on markets to serve
+        00:00:36:
+          pause: 3s
+          text:
+            headline: Users Segment
+            body: |
+              Main segment: University students
+              (Later expanded, started focused)
+        00:00:48:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Tightly Focused
+            tagline: Students first
+        00:00:51:
+          pause: 4s
+          text:
+            headline: Users Early Adopters
+            body: |
+              Dorm room students
+              Living away from home for first time
+              Immediate social need to fulfill
+        00:01:09:
+          pause: 4s
+          text:
+            headline: Advertiser Segment
+            body: |
+              Fashion, music, entertainment industries
+              Targeting students
+              Value FB's unique reach
+        00:01:29:
+          pause: 4s
+          text:
+            headline: Advertiser Early Adopters
+            body: |
+              Local event promoters
+              Working hard to reach students locally
+              Good candidates for testing
+    - video: /:core-videos/customer model_FBexample_jobs to be done.webm.02.mp4.webm
+      slice: 00:00..00:38
+      script: >
+        [00:00:00] Now moving on to the Jobs to Be Done section of their canvas.
+
+        [00:00:05] For the student user customer type, the job they're trying to
+        get done might be something like meeting people and making new friends.
+
+        [00:00:13] The existing alternatives to do this job might include
+        joining clubs and sports groups, or going to bars and attending parties.
+
+        [00:00:20] For the advertiser type, the job to be done could be finding
+        more effective methods of reaching our target audiences.
+
+        [00:00:31] The existing alternatives for this might be untargeted online
+        banner advertising, or traditional print and media advertising.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Facebook's Jobs to Be Done
+            tagline: What drives each customer type
+        00:00:05:
+          pause: 3s
+          text:
+            headline: Users' Job to Be Done
+            body: |
+              Job: Meeting people, making new friends
+
+              Existing alternatives:
+              - Clubs and sports groups
+              - Bars and parties
+        00:00:20:
+          pause: 3s
+          text:
+            headline: Advertisers' Job to Be Done
+            body: |
+              Job: More effective audience reach
+
+              Existing alternatives:
+              - Untargeted banner ads
+              - Traditional print/media ads
+    - video: /:core-videos/customer model_FBexample_UVP.webm.02.mp4.webm
+      slice: 00:00..00:35
+      script: >
+        [00:00:00] Now the unique value proposition.
+
+        [00:00:03] For students, the unique value proposition might be something
+        like "easily meet and connect with new friends in a low social risk
+        way."
+
+        [00:00:11] For advertisers, it could be "highly targeted advertising
+        that guarantees you better engagement and a higher click-through rate."
+
+        [00:00:20] You can see here that the unique value propositions map
+        directly to the jobs to be done that each different customer type has.
+
+        [00:00:28] This is how you translate the need your customer has into
+        clearly articulated value that you can provide for them.
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Facebook's UVP
+            tagline: Benefits for each customer type
+        00:00:03:
+          pause: 3s
+          text:
+            headline: Users UVP
+            body: |
+              "Easily meet and connect with new friends
+              in a low social risk way"
+        00:00:11:
+          pause: 3s
+          text:
+            headline: Advertisers UVP
+            body: |
+              "Highly targeted advertising that guarantees
+              better engagement and higher click-through rates"
+        00:00:20:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Maps Directly to Jobs
+            tagline: UVP connects to jobs to be done
+        00:00:28:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Need to Value Translation
+            tagline: Clearly articulated benefits
+    - video: /:core-videos/customer model_FBexample_solution.webm.02.mp4.webm
+      slice: 00:00..00:27
+      script: >
+        [00:00:00] And for the solution section, their solution description
+        needs to tie together both of their customer types.
+
+        [00:00:07] And also if Facebook was an impact-driven enterprise, it
+        would need to describe their impact activities as well.
+
+        [00:00:14] Facebook's early solution description would be something
+        like: "An online social media application that creates a student social
+        network and that also provides a highly targeted advertising platform."
+      timestamps:
+        00:00:00:
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Facebook's Solution
+            tagline: Ties both customer types together
+        00:00:07:
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Plus Impact Activities
+            tagline: If it were impact-driven
+        00:00:14:
+          pause: 3s
+          text:
+            headline: Facebook's Solution Description
+            body: |
+              "An online social media application that
+              creates a student social network and provides
+              a highly targeted advertising platform"
+
+              (Ties together both customer types)
+    - video: /:core-videos/customer model_FBexample_conclusion.webm.02.mp4.webm
+      slice: 00:00..00:33
+      script: >
+        [00:00:00] You can see using the simple example of Facebook that all of
+        these sections of the canvas need to fit together in a coherent way to
+        form the customer model.
+
+        [00:00:09] They need to clearly outline how the customer model creates
+        value for customers in a way that Facebook can earn its revenue.
+
+        [00:00:19] The value it creates for its users by getting an important
+        job done for them in turn creates the ability for Facebook to sell a
+        different kind of value to its advertisers.
+
+        [00:00:27] All of these pieces need to work together to create a
+        powerful customer model that can succeed.
+      timestamps:
+        00:00:00:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Coherent Integration
+            tagline: All sections fit together
+        00:00:09:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Creates Value and Revenue
+            tagline: Clear outline of how it works
+        00:00:19:
+          pause: 2s
+          text:
+            headline: Interconnected Value
+            body: |
+              User value enables advertiser value
+              One customer type enables the other
+              Powerful integrated model
+        00:00:27:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: All Pieces Work Together
+            tagline: Powerful customer model
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

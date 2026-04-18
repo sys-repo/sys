@@ -10,10 +10,9 @@
  * - Use this file only for cold-start root launcher paths that must stay
  *   isolated from package-wide runtime/type barrels.
  */
-import type { ParsedArgs } from '@sys/std/t';
-
-export type { StringDir } from '@sys/types';
-export type { ArgsAliasMap, ParsedArgs } from '@sys/std/t';
+export type StringDir = string;
+export type ArgsAliasMap<K extends string> = Partial<Record<K, readonly [string, ...string[]]>>;
+export type ParsedArgs<T extends Record<string, unknown>> = T & { readonly _: readonly string[] };
 
 /**
  * Root command and argument types used by the launcher before a specific tool
@@ -24,6 +23,7 @@ export namespace Root {
   export type Command =
     | 'pull'
     | 'serve'
+    | 'agent'
     | 'deploy'
     | 'crdt'
     | 'crypto'

@@ -1,15 +1,33 @@
-import { type t, Fmt as Base, c, D, Fs, Str } from './common.ts';
+import { type t, Fmt as Base, c, Fs, Str } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const str = Str.builder()
-      .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
-      .line(await Base.help(toolname))
-      .line();
-
-    return String(str);
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('serve');
+    return await Base.help(cmd, {
+      note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
+      usage: [
+        `${cmd}`,
+        `${cmd} --non-interactive --dir . [--host local|network] [--port 4040] [--open]`,
+        `${cmd} --non-interactive --config ./my-config.yaml [--port 4040] [--open]`,
+      ],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--port <number>', 'preferred port (auto-increments if occupied)'],
+        ['--non-interactive', 'disable prompts and require direct inputs'],
+        ['--dir <path>', 'serve this directory directly'],
+        ['--config <path>', 'load a saved serve config YAML'],
+        ['--host <local|network>', 'bind 127.0.0.1 or 0.0.0.0'],
+        ['--open', 'open the resolved URL after start'],
+      ],
+      examples: [
+        `${cmd} --non-interactive --dir .`,
+        `${cmd} --non-interactive --dir . --port 4040`,
+        `${cmd} --non-interactive --dir . --host network`,
+        `${cmd} --non-interactive --config ./my-config.yaml --open`,
+      ],
+    });
   },
 
   async folderAsText(args: {

@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Color } from '../common.ts';
-import { TextInput } from '../mod.ts';
+import { type t, D, Color } from '../common.ts';
+import { UI as TextInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -40,15 +40,15 @@ export default Spec.describe(D.displayName, (e) => {
           border={p.border.value}
           borderRadius={p.borderRadius.value}
           // ⚡️
-          onReady={(e) => console.info(`🌳 onReady:`, e)}
-          onKeyDown={(e) => console.info(`⚡️ onKeyDown:`, e)}
-          onKeyUp={(e) => console.info(`⚡️ onKeyUp:`, e)}
-          onFocusChange={(e) => console.info(`⚡️ onFocusChange`, e)}
-          onChange={(e) => {
+          onReady={(e: t.TextInput.ReadyArgs) => console.info(`🌳 onReady:`, e)}
+          onKeyDown={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyDown:`, e)}
+          onKeyUp={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyUp:`, e)}
+          onFocusChange={(e: t.TextInput.FocusArgs) => console.info(`⚡️ onFocusChange`, e)}
+          onChange={(e: t.TextInput.ChangeArgs) => {
             console.info(`⚡️ onChange:`, e);
             p.value.value = e.value;
           }}
-          onPaste={(e) => {
+          onPaste={(e: t.TextInput.PasteArgs) => {
             console.info(`⚡️ onPaste:`, e);
             // e.modify('hello');
           }}

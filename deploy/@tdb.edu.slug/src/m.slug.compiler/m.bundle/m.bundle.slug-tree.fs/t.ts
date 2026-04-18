@@ -18,6 +18,7 @@ export type SlugBundleFileTree = {
   readonly readmeAsIndex?: boolean;
 };
 
+/** Output targets for generated slug-tree artifacts. */
 export type SlugBundleFileTreeTarget = {
   /** Manifest targets for generated artifacts. */
   readonly manifests?: t.StringPath | readonly t.StringPath[];
@@ -28,11 +29,13 @@ export type SlugBundleFileTreeTarget = {
     | readonly SlugBundleFileTreeTargetDir[];
 };
 
+/** Output directory target for generated slug-tree files. */
 export type SlugBundleFileTreeTargetDir = {
   readonly kind: 'source' | 'sha256';
   readonly path: t.StringPath;
 };
 
+/** Summary stats for a slug-tree filesystem bundle run. */
 export type SlugBundleFileTreeStats = {
   readonly files: number;
   readonly sourceFiles: number;

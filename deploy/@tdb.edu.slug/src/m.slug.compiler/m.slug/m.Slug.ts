@@ -4,6 +4,7 @@ import { makeParser as parser } from '../m.resolve/mod.ts';
 import { MediaComposition } from '../m.slug.MediaComposition/mod.ts';
 import { SlugTree as Tree } from '../m.slug.SlugTree/mod.ts';
 
+/** Core slug language helpers. */
 export const Slug: t.SlugLib = {
   parser,
   Schema: SlugSchema,

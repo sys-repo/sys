@@ -1,7 +1,7 @@
 import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
-export { Icons } from '../ui.Icons.ts';
+export { Icons } from '../common/u.icons.ts';
 
 type P = t.IndexTreeViewItemProps;
 

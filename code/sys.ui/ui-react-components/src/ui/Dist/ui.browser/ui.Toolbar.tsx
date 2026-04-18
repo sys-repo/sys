@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, TextInput } from './common.ts';
+import { type t, Color, css } from './common.ts';
+import { UI as TextInput } from '../../Text.Input/mod.ts';
 
 export type ToolbarProps = {
   placement?: t.DistBrowserToolbarPlacement;
@@ -29,7 +30,7 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
     placeholderText = 'filter on path',
   } = props;
 
-  const onChange: t.TextInputChangeHandler = (e) => {
+  const onChange: t.TextInput.ChangeHandler = (e) => {
     props.onFilter?.({ text: e.value });
   };
 

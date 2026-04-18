@@ -197,7 +197,7 @@ export const View: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.label.class}>{label}</div>
       <div {...pointer.handlers}>
-        <TextInput
+        <TextInput.UI
           value={textbox}
           prefix={elPrefix}
           suffix={elSuffix}
@@ -215,14 +215,14 @@ export const View: React.FC<P> = (props) => {
           background={0}
           autoFocus={!readOnly && autoFocus}
           //
-          onReady={(e) => (inputRef.current = e.input)}
+          onReady={(e: t.TextInput.ReadyArgs) => (inputRef.current = e.input)}
           onChange={controller.handlers.onTextChange}
           onKeyDown={controller.handlers.onKeyDown}
-          onFocusChange={(e) => {
+          onFocusChange={(e: t.TextInput.FocusArgs) => {
             if (readOnly) setFocused(false);
             else setFocused(e.focused);
           }}
-          onPaste={(e) => {
+          onPaste={(e: t.TextInput.PasteArgs) => {
             /**
              * Clean pasted string:
              */

@@ -1,0 +1,415 @@
+prompt: >
+  # SLUG WORKFLOW - STEP 1: Validation & Planning
+
+  Purpose: Verify inputs, confirm scope, and propose structural plan before
+  generation.
+
+  Token cost: ~10-15k tokens
+
+
+  ## Your Task
+
+  You are creating a YAML slug for the SLC program using the Concept Player
+  system.
+
+
+  In this step, you will:
+
+
+  1. Verify you can access all required files
+
+  2. Confirm you understand the slug scope
+
+  3. Propose navigation structure
+
+  4. Propose image placement strategy
+
+  5. Identify body text opportunities
+
+  6. Ask clarifying questions
+
+  7. Estimate Step 2 token cost
+
+  8. Wait for approval before proceeding
+
+
+  ---
+
+
+  ## Context Documents
+
+
+  You have been provided with:
+
+
+  - slug-technical-context.md - System architecture reference
+
+  - slug-creation-rules.md - Quality rules and decision-making principles
+
+
+  CRITICAL: Follow ALL rules in slug-creation-rules.md when making proposals.
+
+
+  ---
+
+
+  ## Inputs Provided by User
+
+
+  The user has provided a template with:
+
+
+  ### 1. Slug Identification
+
+
+  - Slug title
+
+  - Program Index (crdt ID)
+
+  - Asset paths (core-assets, p2p-assets)
+
+  - Program type (CORE/P2P)
+
+
+  ### 2. Content Sources
+
+
+  - Obsidian script file path
+
+  - Number of videos
+
+  - Video filenames
+
+  - Sequence structure (videos, nested slugs, order)
+
+
+  ### 3. Available Images
+
+
+  - Image filenames with descriptions
+
+  - Separate lists for core and P2P images
+
+
+  ### 4. Solo Slugs (if applicable)
+
+
+  - Slugs to include outside sequence
+
+
+  ### 5. Tasks (if any)
+
+
+  - Pre-identified tasks from user
+
+
+  ### 6. Additional Context
+
+
+  - Special instructions or emphasis points
+
+
+  Note: Obsidian file contains both script AND SRT timestamps (appended at
+  bottom)
+
+
+  ---
+
+
+  ## Step 1 Process
+
+
+  ### 1. Verify File Access
+
+
+  Action: Use get_vault_file with the exact Obsidian path provided.
+
+
+  Check:
+
+
+  - ✅ File exists and is accessible
+
+  - ✅ Contains script content
+
+  - ✅ Contains SRT timestamps at bottom
+
+  - ✅ You can see the structure
+
+
+  If file doesn't load:
+
+
+  - ❌ DO NOT search the vault
+
+  - ❌ Ask user to verify the exact path
+
+  - ❌ DO NOT proceed until confirmed
+
+
+  ### 2. Understand the Scope
+
+
+  Review the script and note:
+
+
+  - Approximate content length (based on SRT timestamps)
+
+  - Number of major sections visible in script
+
+  - Program type (Generic/Core or P2P)
+
+  - Any nested slugs in sequence
+
+
+  ### 3. Propose Navigation Structure
+
+
+  Following the rules in `slug-creation-rules.md`:
+
+
+  Analyze script sections and propose navigation titles (max ~10):
+
+
+  - Choose conceptually distinct and substantial sections
+
+  - Major breaks learner might want to jump to
+
+  - Sections typically >30 seconds
+
+
+  For each proposed navigation title, briefly explain:
+
+
+  - Why included (substantial section, major concept)
+
+  - OR why excluded (flows within parent, too brief)
+
+
+  Remember: Not every script heading becomes navigation - be selective.
+
+
+  ### 4. Propose Image Placement Strategy
+
+
+  For each available image, propose:
+
+
+  - When: Timestamp or section where it appears
+
+  - Why: What concept it supports
+
+  - Paired with: What text elements (headline/tagline/body)
+
+
+  Remember from creation-rules.md:
+
+
+  - Coordinate with narration discussing the concept
+
+  - Images and body text cannot appear simultaneously
+
+  - Strategic placement at conceptually important moments
+
+
+  For images NOT used:
+
+
+  - State which ones and why (no appropriate moment, etc.)
+
+
+  ### 5. Identify Body Text Opportunities
+
+
+  Scan script for moments where body text would be valuable:
+
+
+  Propose for each:
+
+
+  - Section: Where in the content
+
+  - Timestamp: Approximate timing
+
+  - Purpose: Why body text helps (break down concept, list stages, etc.)
+
+  - Content approach: Brief description of what bullets would cover
+
+  - Animation: Progressive build or all at once
+
+
+  Remember from creation-rules.md:  
+
+
+  - Body text requires headline context
+
+  - Headlines persist through progressive reveals
+
+  - Balance detail vs cognitive load
+
+  - Cannot display with images
+
+
+  ### 6. Ask Clarifying Questions
+
+
+  Ask about anything unclear:
+
+
+  - Video filename completeness/correctness
+
+  - Specific emphasis or pacing requirements
+
+  - Any sections that should/shouldn't be navigation
+
+  - Progressive animation preferences
+
+  - Anything ambiguous in script or structure
+
+
+  ### 7. Estimate Token Cost for Step 2
+
+
+  Based on:
+
+
+  - Script length and complexity
+
+  - Number of videos
+
+  - Amount of reconciliation work needed
+
+
+  Provide: Rough estimate (~30-50k typical range)
+
+
+  ---
+
+
+  ## Output Format
+
+  Provide a concise, structured response:
+
+
+  ```
+      ## STEP 1 - VALIDATION & PLANNING
+
+      ### File Access: ✅ / ❌
+      - Obsidian script: [ACCESSIBLE / PATH ERROR]
+      - Script length: ~[N] sections, [MM:SS] duration
+      - SRT timestamps: [FOUND / NOT FOUND]
+
+      ### Scope Confirmed:
+      - Slug title: [TITLE]
+      - Program: [CORE / P2P]
+      - Videos: [N]
+      - Nested slugs: [N or NONE]
+
+      ---
+
+      ### Proposed Navigation ([N] sections)
+
+      1. **[TITLE]** (~00:00) - [Brief reason for inclusion]
+      2. **[TITLE]** (~01:30) - [Brief reason]
+      3. **[TITLE]** (~03:45) - [Brief reason]
+
+      **Excluded sections:**
+      - [SECTION] → flows within [PARENT]
+      - [SECTION] → too brief, combines with [PARENT]
+
+      **Rationale:** [One sentence about selection approach for this content]
+
+      ---
+
+      ### Image Placement Strategy
+
+      **[IMAGE_1]:**
+      - When: ~00:02:15, during [SECTION]
+      - Why: Illustrates [CONCEPT]
+      - Paired with: Headline "[TEXT]" + tagline "[TEXT]"
+
+      **[IMAGE_2]:**
+      - When: ~00:04:30, during [SECTION]
+      - Why: Shows [CONCEPT]
+      - Paired with: Body text (no image display per rules)
+
+      **Not used:**
+      - [IMAGE]: [Reason - no appropriate moment]
+
+      ---
+
+      ### Body Text Opportunities
+
+      **Section: [NAME]**
+      - When: ~00:03:00
+      - Purpose: Break down three models concept
+      - Content: List the three models with brief descriptors
+      - Animation: Progressive (timed to narration)
+
+      **Section: [NAME]**
+      - When: ~00:05:15
+      - Purpose: Show program structure
+      - Content: Module overview bullets
+      - Animation: All at once (overview)
+
+      ---
+
+      ### Clarifying Questions
+
+      1. [QUESTION 1 - if any]
+      2. [QUESTION 2 - if any]
+
+      [Or: "No clarifications needed - structure is clear"]
+
+      ---
+
+      ### Step 2 Token Estimate
+
+      Based on [N] videos totaling ~[MM:SS]:
+      - Full reconciliation: ~[N]k tokens
+      - Complete YAML generation: ~[N]k tokens
+      - **Total Step 2 estimate: ~[30-50]k tokens**
+
+      ---
+
+      ### Ready to Proceed?
+
+      Once you confirm this approach (or request adjustments), I'll proceed to Step 2: Full YAML Generation.
+  ```
+
+
+  ---
+
+
+  ## Critical Reminders
+
+
+  - DO reference slug-creation-rules.md for all decision-making
+
+  - DO NOT modify any Obsidian files
+
+  - DO NOT do broad vault searches
+
+  - DO NOT proceed to Step 2 without approval
+
+  - DO estimate token costs
+
+  - DO ask for clarification rather than guessing
+
+  - Keep responses concise - brief reasoning, not verbose explanations
+
+
+  ---
+
+
+  ## After User Response
+
+
+  Once user confirms approach (with any adjustments):
+
+
+  1. Note any changes requested
+
+  2. Proceed to Step 2: Full YAML Generation
+
+  3. Use approved structural plan throughout generation

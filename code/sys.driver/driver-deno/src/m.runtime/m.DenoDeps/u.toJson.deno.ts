@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `deno.json` format.
  */
-export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
+export function toDenoJson(deps?: t.Dep[]): t.PkgDenoJson {
   const imports: D = {};
   if (deps) {
     deps
@@ -23,7 +23,7 @@ export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
       });
   }
 
-  const res: t.PkgJsonDeno = {};
+  const res: t.PkgDenoJson = {};
   if (!isEmptyRecord(imports)) res.imports = Obj.sortKeys(imports);
   return res;
 }

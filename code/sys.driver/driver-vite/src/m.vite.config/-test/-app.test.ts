@@ -49,9 +49,11 @@ describe('Config.Build', () => {
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
     });
 
-    it('no plugins', async () => {
+    it('no common plugins', async () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
-      expect(config.plugins).to.eql([]);
+      const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
+
+      expect(names).to.eql(['sys:optimize-imports']);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
@@ -157,11 +159,11 @@ describe('Config.Build', () => {
     it('keeps env loading rooted at package cwd when app root is nested', async () => {
       const paths = ViteConfig.paths({
         cwd: '/pkg',
-        app: { entry: 'src/-test/index.html' },
+        app: { entry: 'src/index.html' },
       });
       const config = await ViteConfig.app({ paths });
 
-      expect(config.root).to.eql('/pkg/src/-test');
+      expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
     });
   });

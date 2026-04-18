@@ -1,4 +1,6 @@
-import { type t, Fs, Is } from './common.ts';
+import { type t, Fs, Is, Str } from './common.ts';
+
+const compare = Str.Compare.codeUnit();
 
 type NormalizeInput = {
   readonly cwd: t.StringDir;
@@ -15,7 +17,7 @@ export function normalizeGraph(input: NormalizeInput): t.WorkspaceGraph.LocalMod
   return {
     cwd: input.cwd,
     packages: [...input.packages],
-    roots: [...rootKeys].toSorted(),
+    roots: [...rootKeys].toSorted(compare),
     modules,
     edges,
   };
@@ -48,7 +50,7 @@ const wrangle = {
         key,
         packagePath: packageForModule(packages, key)!.path,
       }))
-      .toSorted((a, b) => a.key.localeCompare(b.key));
+      .toSorted((a, b) => compare(a.key, b.key));
   },
 
   edges(
@@ -80,7 +82,7 @@ const wrangle = {
     }
 
     return edges.toSorted((a, b) =>
-      a.from.localeCompare(b.from) || a.to.localeCompare(b.to) || a.kind.localeCompare(b.kind)
+      compare(a.from, b.from) || compare(a.to, b.to) || compare(a.kind, b.kind)
     );
   },
 } as const;
@@ -95,6 +97,6 @@ function packageForModule(packages: readonly t.WorkspaceGraph.Package[], key: st
   // Keep the lookup simple at current workspace scale; if this ever becomes
   // hot, replace the per-call sort with a precomputed longest-prefix index.
   return [...packages]
-    .toSorted((a, b) => b.path.length - a.path.length || a.path.localeCompare(b.path))
+    .toSorted((a, b) => b.path.length - a.path.length || compare(a.path, b.path))
     .find((pkg) => key === pkg.path || key.startsWith(`${pkg.path}/`));
 }

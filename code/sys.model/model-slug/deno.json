@@ -1,6 +1,6 @@
 {
   "name": "@sys/model-slug",
-  "version": "0.0.63",
+  "version": "0.0.77",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -14,8 +14,10 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./bundle": "./src/m.bundle/mod.ts",
+    "./core": "./src/m.core/mod.ts",
     "./client": "./src/m.client/mod.ts",
-    "./schema": "./src/m.schema/mod.ts"
+    "./schema": "./src/m.schema/mod.ts",
+    "./fs": "./src/m.fs/mod.ts"
   },
   "permissions": {
     "clean": {

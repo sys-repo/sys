@@ -5,7 +5,7 @@
 
 [![test](https://github.com/sys-repo/sys/actions/workflows/test.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/test.yaml)
 [![build](https://github.com/sys-repo/sys/actions/workflows/build.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/build.yaml)
-[![publish](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
+[![registry:jsr](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg?label=registry:jsr)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
 
 
 # @sys
@@ -209,11 +209,11 @@ events.dispose();
 
 ### Ideas, history, context:
 
-- [video](https://www.youtube.com/watch?v=Ud8WRAdihPg) Alan Kay, "Learning and Computer Science", 1970s, [video](https://www.youtube.com/watch?v=YyIQKBzIuBY) Alan Kay, 2011, "Programming and Scaling"
-- [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf) Alan Kay, 1984, "Opening the Hood of a Word Processor"
+- [video](https://www.youtube.com/watch?v=Ud8WRAdihPg), Alan Kay, "Learning and Computer Science", 1970s; [video](https://www.youtube.com/watch?v=YyIQKBzIuBY), Alan Kay, 2011, "Programming and Scaling"; [video](https://www.youtube.com/watch?v=NdSD07U5uBs), Alan Kay, 2015, "Power of Simplicity";
+- [paper](https://github.com/philcockfield/Papers/raw/main/Alan%20Kay/Kay%20-%20Opening%20the%20Hood%20of%20a%20Word%20Processor.pdf), Alan Kay, 1984, "Opening the Hood of a Word Processor";
 - [video](https://www.youtube.com/watch?v=cmi-AXKvx30&t=323s) David Clark (1960's vs. 1970/80's)
   "But what's interesting, is once the engineers got a hold, the visionaries went away ([timestamp](https://www.youtube.com/watch?v=cmi-AXKvx30&t=253s))"
-- [video](https://www.youtube.com/watch?v=-C-JoyNuQJs) Crockford (2011) - "JSON [as the] intersection of all modern programming languages ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))"
+- [video](https://www.youtube.com/watch?v=-C-JoyNuQJs), Douglas Crockford, 2011, "The JSON Saga" — JSON "[as the] intersection of all modern programming languages" ([timestamp](https://youtu.be/-C-JoyNuQJs?t=741))
 - [video](https://youtu.be/0fpDlAEQio4?t=2641) SmallTalk (1976, 1980), only three primitive concepts. Everything is an object*, everything is a "message", be as extremely late-bound as possible. Build everything else up and out of that (aka. LISP-ey).
 
 
@@ -251,15 +251,22 @@ Initial high fidelity design emphasis on the `1:1` (dyad) and `1:3` (tradic tend
 
 ### Gall's Law
 
->> A ***complex*** system that *works* is invariably found to have evolved from a ***simple*** system that *worked*. - [ref](https://en.wikipedia.org/wiki/John_Gall_(author))
+>> A ***complex*** system that *works* is invariably found to have evolved from a ***simple*** system that *worked*. - [ref](https://en.wikipedia.org/wiki/John_Gall_(author)) †
 
 The inverse proposition also appears to be true:
 
->> A complex system designed from scratch *never works* ***and cannot be made to work.***  You have to start over, beginning with a *simple system that works.*
+>> A complex system designed from scratch *never works* ***and cannot be made to work.***  You have to start over, beginning with a *simple system that works.* †
+
+
 
 <p>&nbsp;</p>
 
-![smor-sys crdt-cell-timeline](https://github.com/cellplatform/platform-0.2.0/assets/185555/588f6c58-3e94-4818-8ada-cb333822025d)
+† *[CI](https://en.wikipedia.org/wiki/Continuous_integration) is the enforcement mechanism that keeps [Gall’s-Law evolution](https://en.wikipedia.org/wiki/John_Gall_(author)) honest.*
+
+
+<p>&nbsp;</p>
+<img width="5171" height="3653" alt="smor-sys crdt-cell" src="https://github.com/user-attachments/assets/036f81d1-d5d4-4352-b1f4-6643ae45e765" />
+
 
 
 <p>&nbsp;</p>

@@ -1,12 +1,13 @@
-import { type t, Fmt as Base, c, Cli, Crdt, D, Str } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Crdt, Str } from './common.ts';
 import { CrdtDocsFs } from './u.config.docs/u.fs.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('crdt');
     const str = Str.builder()
-      .line(await Base.help(toolname))
+      .line(await Base.help(cmd))
       .line(await Fmt.Table.configuredDocs(cwd))
       .line();
 

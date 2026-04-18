@@ -15,7 +15,7 @@ export async function runInteractive(
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
   const session = createSession();
-  const initial = await withSpinner(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
+  const initial = await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
     upgradeWithSession(
       input,
       wrangle.upgradeOptions(options.policy, options.exclude, options.prerelease, (progress) =>
@@ -37,7 +37,7 @@ export async function runInteractive(
   const upgrade =
     policy === options.policy && wrangle.sameExclude(selection.exclude, options.exclude)
       ? initial
-      : await withSpinner(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
+      : await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'plan' }), (spinner) =>
           upgradeWithSession(
             input,
             wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
@@ -57,7 +57,7 @@ export async function runInteractive(
   }
   if (upgrade.totals.planned === 0) return { selection, upgrade };
 
-  const applied = await withSpinner(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
+  const applied = await Cli.Spinner.with(Fmt.spinnerProgress({ kind: 'apply' }), (spinner) =>
     applyWithSession(
       input,
       wrangle.upgradeOptions(policy, selection.exclude, options.prerelease, (progress) =>
@@ -75,19 +75,6 @@ export async function runInteractive(
   console.info();
 
   return { selection, upgrade: applied.upgrade, applied };
-}
-
-async function withSpinner<T>(
-  message: string,
-  fn: (spinner: t.CliSpinner.Instance) => Promise<T>,
-): Promise<T> {
-  const spinner = Cli.spinner(message);
-  try {
-    return await fn(spinner);
-  } finally {
-    spinner.stop();
-    console.info();
-  }
 }
 
 const wrangle = {
@@ -131,7 +118,7 @@ const wrangle = {
       (await Cli.Input.Checkbox.prompt<string>({
         message: `Dependencies to upgrade (${promptOptions.length.toLocaleString()})`,
         options: [...promptOptions],
-        maxRows: 20,
+        maxRows: Math.min(50, promptOptions.length),
       })) ?? [];
 
     const pickedSet = new Set(picked);

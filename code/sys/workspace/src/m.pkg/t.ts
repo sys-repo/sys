@@ -4,8 +4,16 @@ import type { t } from './common.ts';
  * Package metadata sync helpers for multi-package repositories.
  */
 export declare namespace WorkspacePkg {
+  export namespace Fmt {
+    export type Lib = {
+      summary(result: SyncResult): string;
+    };
+  }
+
   /** Package metadata sync surface. */
   export type Lib = {
+    /** Package metadata sync formatter helpers. */
+    readonly Fmt: t.WorkspacePkg.Fmt.Lib;
     /** Sync generated package metadata files across matching packages. */
     sync(args: SyncArgs): Promise<SyncResult>;
   };

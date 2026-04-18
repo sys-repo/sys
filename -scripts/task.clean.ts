@@ -1,5 +1,5 @@
+import { default as denojson } from '../deno.json' with { type: 'json' };
 import { c, Fs, Path, Process } from './common.ts';
-import { Paths } from './u.ts';
 
 type DenoJson = {
   name: string;
@@ -29,14 +29,13 @@ export async function main() {
     const deno = mod.default as DenoJson;
     if (!deno.tasks?.clean) return; // NB: check the task exists before running.
 
-    await Fs.remove(Fs.join(path, '.tmp/'));
     await Process.sh({ silent: true, path }).run('deno task clean');
 
     const pathFmt = `${c.gray(Path.dirname(path))}/${c.white(Path.basename(path))}`;
     console.info(`${c.cyan('     clean')} ${pathFmt}`);
   };
 
-  for (const path of Paths.workspace) {
+  for (const path of denojson.workspace) {
     await run(path);
   }
   console.info();

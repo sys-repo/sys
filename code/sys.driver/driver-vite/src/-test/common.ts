@@ -1,2 +1,2 @@
-export { describe, expect, it, Testing, Fs, Path } from '@sys/testing/server';
+export { describe, expect, expectTypeOf, Fs, it, Path, Testing } from '@sys/testing/server';
 export * from '../common.ts';

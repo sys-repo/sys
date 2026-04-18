@@ -14,7 +14,7 @@ export type * from '@sys/types/t';
 export type * from './tmpl.m.mod.ui/t.ts';
 export type * from './tmpl.m.mod.ui.controller/t.ts';
 export type * from './tmpl.m.mod/t.ts';
-export type * from './tmpl.pkg.deno/src/common/t.ts';
+export type * from './tmpl.pkg/src/common/t.ts';
 
 /** Local module types. */
 export * from '../src/common/t.ts';

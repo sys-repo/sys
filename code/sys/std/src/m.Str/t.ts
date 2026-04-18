@@ -239,6 +239,18 @@ export type StrLoremLib = {
  */
 export type StrCompareLib = {
   /**
+   * Locale-invariant comparator over ECMAScript string code units.
+   *
+   * ECMAScript strings are sequences of 16-bit unsigned integer values
+   * (UTF-16 code units), and relational string comparison is defined over
+   * those code-unit sequences.
+   *
+   * @see https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type
+   * @see https://tc39.es/ecma262/#sec-islessthan
+   */
+  codeUnit(): (a: string, b: string) => number;
+
+  /**
    * Natural string comparator factory (numeric segments sort numerically).
    */
   natural(options?: StrCompareOptions): (a: string, b: string) => number;

@@ -1,22 +1,17 @@
 import { Workspace } from '@sys/workspace';
-
-const PATHS = {
-  projects: 'code/projects',
-  build: '.github/workflows/build.yaml',
-  test: '.github/workflows/test.yaml',
-} as const;
+import { PATHS } from './common.ts';
 
 /**
  * Write all {pkg}.ts files with name/version values synced
  * to their corresponding current `deno.json` file values.
  */
 async function updatePackages(cwd = Deno.cwd()) {
-  const source = { include: ['./code/projects/**/deno.json'] };
+  const source = { include: [`./${PATHS.packages}/**/deno.json`] };
   await Workspace.Pkg.sync({ cwd, source, log: true });
 }
 
 /**
- * Sync generated CI workflows for project packages.
+ * Sync generated CI workflows for workspace packages.
  */
 async function updateCi(cwd = Deno.cwd()) {
   const on = {
@@ -24,12 +19,13 @@ async function updateCi(cwd = Deno.cwd()) {
     push: { branches: ['main'] },
   } as const;
 
-  const source = { root: PATHS.projects };
+  const source = { root: PATHS.packages };
   await Workspace.Ci.Build.sync({ cwd, log: true, source, target: PATHS.build, on });
   await Workspace.Ci.Test.sync({ cwd, log: true, source, target: PATHS.test, on });
 }
 
 export async function main(cwd = Deno.cwd()) {
+  await Workspace.Prep.Deps.sync({ cwd, log: true });
   await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);

@@ -26,8 +26,8 @@ export {
   SplitPane,
   Switch,
   SwitchTheme,
-  TextInput,
 } from '@sys/ui-react-components';
+export { TextInput } from '@sys/ui-react-components/text';
 
 /**
  * local:

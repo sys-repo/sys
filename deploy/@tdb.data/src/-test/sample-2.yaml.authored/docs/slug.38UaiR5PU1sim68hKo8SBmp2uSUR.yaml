@@ -1,0 +1,59 @@
+title: Fill In Your Canvas
+description: Complete walkthrough of filling in each section of your Social Lean Canvas
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - pause: 3s
+      title: Purpose
+      text:
+        body: |
+          Purpose
+    - slug: /:p2p-slugs/3.2.1-purpose
+      display: inline
+    - pause: 3s
+      title: Customer Model
+      text:
+        body: |
+          Customer Model
+    - slug: /:p2p-slugs/3.2.2-customer-model
+      display: inline
+    - pause: 3s
+      title: Impact Model
+      text:
+        body: |
+          Impact Model
+    - slug: /:p2p-slugs/3.2.3-impact-model
+      display: inline
+    - pause: 3s
+      title: Economic Model
+      text:
+        body: |
+          Economic Model
+    - slug: /:p2p-slugs/3.2.4-economic-model
+      display: inline
+    - pause: 3s
+      title: Key Metrics
+      text:
+        body: |
+          Key Metrics
+    - slug: /:p2p-slugs/3.2.5-key-metrics
+      display: inline
+    - pause: 3s
+      title: Conclusion
+      text:
+        body: |
+          Conclusion
+    - slug: /:p2p-slugs/3.2.6-conclusion
+      display: inline

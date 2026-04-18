@@ -1,4 +1,5 @@
 import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Pkg, Process, Time } from './common.ts';
+import { ViteLog } from '../m.fmt/mod.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -31,7 +32,7 @@ export const build: B = async (input) => {
   };
 
   type R = t.ViteBuildResponse;
-  type RArgs = { ok: boolean; output: t.ProcOutput; elapsed: t.Msecs; dist: t.DistPkg };
+  type RArgs = { ok: boolean; output: t.Process.Output; elapsed: t.Msecs; dist: t.DistPkg };
   const response = (args: RArgs): R => {
     const { ok, output, elapsed, dist } = args;
     const stdio = output.toString();
@@ -62,7 +63,7 @@ export const build: B = async (input) => {
     };
   };
 
-  const fail = async (message: string, output: t.ProcOutput) => {
+  const fail = async (message: string, output: t.Process.Output) => {
     const errInfo = {
       cmd,
       code: output.code,
@@ -95,46 +96,54 @@ export const build: B = async (input) => {
     console.info();
   }
 
-  const spinner = Cli.Spinner.create(Cli.Fmt.spinnerText('building'));
+  const startedAt = Time.now.timestamp;
+  const spinner = Cli.Spinner.create(wrangle.spinnerText('building', startedAt));
+  const spinTimer = useSpinner && !silent
+    ? Time.interval(1000, () => (spinner.text = wrangle.spinnerText('building', startedAt)))
+    : undefined;
   if (useSpinner && !silent) spinner.start();
 
-  /**
-   * Run vite (CLI):
-   */
-  const output = await Process.invoke({ cwd, args, env, silent: true });
-  const ok = output.success;
-
-  if (!ok) {
+  const stopSpinner = () => {
+    spinTimer?.cancel();
     spinner.stop();
-    return await fail('Vite build failed (non-zero exit)', output);
+  };
+
+  try {
+    /**
+     * Run vite (CLI):
+     */
+    const output = await Process.invoke({ cwd, args, env, silent: true });
+    const ok = output.success;
+
+    if (!ok) {
+      return await fail('Vite build failed (non-zero exit)', output);
+    }
+
+    if (pkg) {
+      const path = Fs.join(dir, 'pkg', '-pkg.json');
+      await Fs.ensureDir(Fs.dirname(path));
+      await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
+    }
+
+    await clean(paths.app.outDir);
+
+    /**
+     * Assert non-empty dist after apparent success:
+     */
+    const size = await Fs.Size.dir(dir, { maxDepth: 2 });
+    if (!size.exists || size.total.files === 0) {
+      return await fail(`Vite build produced no artifacts at ${dir}`, output);
+    }
+
+    /**
+     * Success:
+     */
+    const elapsed = timer.elapsed.msec;
+    const dist = await computeDist(true);
+    return response({ ok: true, output, elapsed, dist });
+  } finally {
+    stopSpinner();
   }
-
-  if (pkg) {
-    const path = Fs.join(dir, 'pkg', '-pkg.json');
-    await Fs.ensureDir(Fs.dirname(path));
-    await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
-  }
-
-  await clean(paths.app.outDir);
-
-  /**
-   * Assert non-empty dist after apparent success:
-   */
-  const size = await Fs.Size.dir(dir, { maxDepth: 2 });
-  if (!size.exists || size.total.files === 0) {
-    spinner.stop();
-    return await fail(`Vite build produced no artifacts at ${dir}`, output);
-  }
-
-  /**
-   * Success:
-   */
-  const elapsed = timer.elapsed.msec;
-  const dist = await computeDist(true);
-  const res = response({ ok: true, output, elapsed, dist });
-
-  spinner.stop();
-  return res;
 };
 
 /**
@@ -146,5 +155,11 @@ const wrangle = {
       .trim()
       .replace(/^(?:\.\/)+/, '') //   ← strip any leading "./" segments.
       .replace(/\/+$/, ''); //        ← strip any trailing "/" characters.
+  },
+
+  spinnerText(label: string, startedAt: number) {
+    const elapsed = Time.elapsed(startedAt);
+    const suffix = elapsed.msec >= 1000 ? c.dim(c.gray(` ${ViteLog.elapsed(elapsed.msec)}`)) : '';
+    return Cli.Fmt.spinnerText(`${label}${suffix}`);
   },
 } as const;

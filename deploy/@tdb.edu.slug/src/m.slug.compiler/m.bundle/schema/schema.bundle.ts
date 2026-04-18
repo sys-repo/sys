@@ -1,4 +1,5 @@
 import { Schema } from '../common.ts';
+import { SchemaSlugDocYamlBundleFields } from './schema.slug.doc.yaml.ts';
 import { SchemaSlugTreeFsFields } from './schema.tree.fs.ts';
 import { SchemaSlugTreeMediaSeqBundleFields } from './schema.tree.media.seq.ts';
 
@@ -20,6 +21,14 @@ export const SchemaBundleEntry = Schema.Type.Union([
       kind: Schema.Type.Literal('slug-tree:media:seq'),
       ...SchemaBundleBaseFields,
       ...SchemaSlugTreeMediaSeqBundleFields,
+    },
+    { additionalProperties: false },
+  ),
+  Schema.Type.Object(
+    {
+      kind: Schema.Type.Literal('slug:fs:yaml'),
+      ...SchemaBundleBaseFields,
+      ...SchemaSlugDocYamlBundleFields,
     },
     { additionalProperties: false },
   ),

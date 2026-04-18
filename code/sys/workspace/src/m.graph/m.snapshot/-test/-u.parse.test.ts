@@ -8,7 +8,10 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        hash: { graph: 'sha256-abc' },
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
         generator: D.GENERATOR,
       },
       graph: {
@@ -21,7 +24,10 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        hash: { graph: 'sha256-abc' },
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
         generator: D.GENERATOR,
       },
       graph: {
@@ -35,8 +41,11 @@ describe('Workspace.Graph.Snapshot.parse', () => {
     const snapshot = parseSnapshot({
       '.meta': {
         createdAt: 123,
-        schemaVersion: 2,
-        hash: { graph: 'sha256-abc' },
+        schemaVersion: 3,
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
         generator: D.GENERATOR,
       },
       graph: { orderedPaths: [], edges: [] },
@@ -50,7 +59,10 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        hash: { graph: 'sha256-abc' },
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
         generator: D.GENERATOR,
       },
       graph: {
@@ -67,11 +79,65 @@ describe('Workspace.Graph.Snapshot.parse', () => {
       '.meta': {
         createdAt: 123,
         schemaVersion: D.schemaVersion,
-        hash: { graph: 'sha256-abc' },
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
         generator: {
           ...D.GENERATOR,
           pkg: { name: '@sys/workspace', version: 123 },
         },
+      },
+      graph: { orderedPaths: [], edges: [] },
+    });
+
+    expect(snapshot).to.eql(undefined);
+  });
+
+  it('rejects malformed generator type-path metadata', () => {
+    const snapshot = parseSnapshot({
+      '.meta': {
+        createdAt: 123,
+        schemaVersion: D.schemaVersion,
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': D.HASH_POLICY,
+        },
+        generator: {
+          ...D.GENERATOR,
+          types: { '/graph': 123 },
+        },
+      },
+      graph: { orderedPaths: [], edges: [] },
+    });
+
+    expect(snapshot).to.eql(undefined);
+  });
+
+  it('rejects malformed graph hash metadata', () => {
+    const snapshot = parseSnapshot({
+      '.meta': {
+        createdAt: 123,
+        schemaVersion: D.schemaVersion,
+        hash: { graph: 'sha256-abc' },
+        generator: D.GENERATOR,
+      },
+      graph: { orderedPaths: [], edges: [] },
+    });
+
+    expect(snapshot).to.eql(undefined);
+  });
+
+  it('rejects malformed graph hash-policy metadata', () => {
+    const snapshot = parseSnapshot({
+      '.meta': {
+        createdAt: 123,
+        schemaVersion: D.schemaVersion,
+        hash: {
+          '/graph': 'sha256-abc',
+          '/graph:policy': 123,
+        },
+        generator: D.GENERATOR,
       },
       graph: { orderedPaths: [], edges: [] },
     });

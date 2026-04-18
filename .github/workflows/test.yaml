@@ -70,10 +70,6 @@ jobs:
             path: code/sys/yaml
           - name: "@sys/esm"
             path: code/sys/esm
-          - name: "@sys/driver-deno"
-            path: code/sys.driver/driver-deno
-          - name: "@sys/driver-vite"
-            path: code/sys.driver/driver-vite
           - name: "@sys/schema"
             path: code/sys/schema
           - name: "@sys/model"
@@ -90,8 +86,6 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@sys/tools"
-            path: code/sys.tools
           - name: "@sys/ui-factory"
             path: code/sys.ui/ui-factory
           - name: "@sys/dev"
@@ -100,8 +94,18 @@ jobs:
             path: code/sys/crdt
           - name: "@sys/workspace"
             path: code/sys/workspace
+          - name: "@sys/driver-deno"
+            path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
+          - name: "@sys/driver-vite"
+            path: code/sys.driver/driver-vite
+          - name: "@sys/tools"
+            path: code/sys.tools
+          - name: "@tdb/data"
+            path: deploy/@tdb.data
           - name: "@tdb/slc"
             path: deploy/@tdb.slc
           - name: "@tdb/slc-fs"
@@ -110,12 +114,14 @@ jobs:
             path: deploy/@tdb.slc.std
           - name: "@tdb/edu-slug"
             path: deploy/@tdb.edu.slug
+          - name: "@sample/proxy"
+            path: deploy/sample.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.8
+          deno-version: v2.7.12
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -135,6 +141,9 @@ jobs:
         run: deno task info
       - name: Deno Info
         run: deno info && deno --version
+      - name: Verify workspace graph
+        run: deno task check:graph
+
       - name: test module → "${{ matrix.name }}"
         run: |
           cd ${{ matrix.path }}

@@ -1,0 +1,546 @@
+prompt: >
+  # SLC Slug Creation - Technical Context
+
+
+  Purpose: System architecture reference - what things ARE and how they work
+
+  Last Updated: November 2025
+
+
+  ---
+
+
+  ## System Overview
+
+  ### The Concept Player
+
+
+  The SLC content is delivered through a custom "Concept Player" - a multimedia
+  learning platform with:
+
+
+  - Video panel: Instructor talking head
+
+  - Main window: Can display images (3/4 of window) + text area (1/4), or just
+  text/images
+
+  - Program navigation: Tree structure on left (outside individual slugs)
+
+  - Slug navigation: Internal navigation within each slug (shows progress,
+  allows jumping to sections)
+
+
+  ### What is a Slug?
+
+  A slug is a composable learning unit - a self-contained piece of educational
+  content that orchestrates:
+
+
+  - One or more videos (with precise timecodes)
+
+  - Images and diagrams
+
+  - Text elements (headlines, taglines, body text)
+
+  - Other slugs (playing inline or as overlays)
+
+  - Pauses for cognitive processing
+
+
+  Slugs can contain:
+
+  - Content (videos, images, text)
+
+  - Other slugs (nested composition)
+
+  - A mixture of both
+
+
+  ### Composability
+
+  Slugs are designed to be composable:
+
+
+  - Inline display: Nested slug plays as if it's native content in the parent
+  slug
+
+  - Overlay display: Nested slug opens as a separate layer (with its own video,
+  navigation, etc.) that can be closed to return to the parent (default for solo
+  slugs)
+
+
+  ---
+
+
+  ## Slug Architecture
+
+  ### Navigation Hierarchy
+
+
+  Program Navigation (outside slugs):
+
+  - Lives in the container, not in any particular slug
+
+  - Shows module/section structure
+
+  - User clicks to load/play slugs
+
+
+  Slug Navigation (inside slugs):
+
+  - Shows internal sections within the current slug
+
+  - Created by title: entries in the YAML sequence
+
+  - Allows jumping to timestamped sections
+
+  - Shows progress through the slug
+
+
+  Critical distinction: The slug's top-level title: appears in the program
+  navigation. The title: entries within timestamps: create the slug navigation.
+
+  Example:
+
+
+  ```yaml
+    # This goes in PROGRAM navigation:
+    title: Introduction
+
+    # These go in SLUG navigation:
+    timestamps:
+      00:00:00:
+        title: Welcome  # ← Appears in slug nav
+      00:01:30:
+        title: The Opportunity  # ← Appears in slug nav
+  ```
+
+
+  ### How Slugs Play
+
+  Linear playback with navigation:
+
+  - Content plays sequentially through the sequence:
+
+  - User can click slug navigation to jump to specific title: sections
+
+  - Video slider allows scrubbing through content
+
+
+  Example playback flow:
+
+  1. Video starts at 00:00
+
+  2. At 00:00:15, pause 2s, title "Welcome" appears in nav, headline/tagline
+  display
+
+  3. At 00:01:30, new title "The Opportunity" appears, image loads
+
+  4. At 03:45, nested slug plays (inline or overlay depending on display:)
+
+  5. Continue through sequence
+
+
+  ---
+
+
+  ## YAML Structure
+
+  ### Top-Level Structure
+
+
+  ```yaml
+    # Slug: Concept Player
+    #
+    title: Introduction  # Appears in program navigation
+    description: Brief description of slug content
+
+    traits:
+      - of: media-composition
+        as: sequence
+      - of: slug-list
+        as: solo
+
+    alias:
+      :name-1: /path/:name-2/somewhere
+      :name-2: crdt:id
+
+    TASKS:
+      - TODO: Add P2P program logo/image at opening (00:00:00)
+        comment: |
+          We need to create a master image to promote the p2p program
+
+    data:
+      sequence:
+        # All content items listed sequentially
+        
+      solo:
+        # Slugs that exist outside of the sequence
+        - slug: /:core-slugs/3.2.1-purpose
+          display: overlay  # or inline (default is overlay)
+  ```
+
+
+  ### Aliasing System
+
+  Purpose: Create reusable path shortcuts through a centralized index
+
+  External document addresses: An address to an external document can be
+  expressed in an alias using the URI format crdt:<id>. This is just another
+  segment in the alias path.
+
+  Standard aliases for any slug:
+
+
+  ```yaml
+    alias:
+    :index:       crdt:21JvXzARPYFXDVMag3x4UhLgHcQi   # Provided in workflow
+    :core-slugs:  :index/:core
+    :p2p-slugs:   :index/:p2p
+
+    :core-assets: :index/:assets/core-2.0-intro-2025  # Provided in workflow
+    :p2p-assets:  :index/:assets/p2p-2.0-intro-2025   # Provided in workflow
+
+    :core-images: :core-assets/images
+    :p2p-images:  :p2p-assets/images
+
+    :core-videos: :core-assets/videos
+    :p2p-videos:  :p2p-assets/videos
+  ```
+
+
+  Program-specific usage:
+
+  For Generic/Core slugs:
+
+  ```yaml
+    sequence:
+      - video: /:core-videos/3.2.1-purpose.webm
+      - image: /:core-images/canvas-diagram.png
+      - slug:  /:core-slugs/3.1.2-business-model-intro  
+  ```
+
+
+  For P2P slugs:
+
+  ```yaml
+    sequence:
+      - video: /:p2p-videos/p2p-2.0-intro1.webm
+      - image: /:p2p-images/honest-hustle-visual.png
+      - slug:  /:core-slugs/3.2.2-customer-model  # P2P can reference Core slugs
+  ```
+
+
+  Key principles:
+
+  - Use program-specific aliases (:core-videos: or :p2p-videos:)
+
+  - P2P slugs can reference Core slugs via :core-slugs:
+
+  - Generic/Core slugs should not reference P2P slugs
+
+  - The :index: CRDT reference remains constant across all slugs
+
+
+  ### TASKS
+
+  Tasks capture future work needed to complete the slug. They are created by the
+  user in the initial template or added during conversation at user request.
+
+
+  Format:
+
+  ```yaml
+    TASKS:
+      - TODO: Add P2P program logo/image at opening (00:00:00)
+        comment: |
+          We need to create a master image to promote the p2p program
+      - TODO: Create diagram showing 3 modules (for Video 2, ~00:01:25)
+        comment: Simple diagram that we can use in multiple places
+  ```
+
+
+  ### Sequence Items
+
+  Video with timestamps:
+
+  ```yaml
+    - video: /:p2p-videos/p2p-2.0-intro1.webm
+      slice: 00:00..04:23  # Optional: play only this section
+      script: |
+        [00:00:00] Transcript text here with inline timecodes
+        [00:00:05] More transcript text
+        [00:00:12] Continues with precise timing
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Section Name
+          image: /:p2p-images/diagram.png
+          text:
+            headline: Main Heading
+            tagline: Reinforcing phrase
+            body: |
+              - Markdown formatted
+              - Bullet points
+  ```
+
+
+  Standalone pause (e.g., between videos):
+
+  ```yaml
+    - pause: 3s  # Separate sequence item
+  ```
+
+
+  Nested slug:
+
+  ```yaml
+    - slug: /:core-slugs/3.2.2-customer-model
+      display: inline  # or overlay
+  ```
+
+
+  Solo slugs (outside sequence):
+
+  ```yaml
+    solo:
+      - slug: /:p2p-slugs/6.2-p2p-venture-typology
+        display: overlay  # default is overlay
+  ```
+
+
+  ### Text Element Properties
+
+  Three types of text:
+
+  ```yaml
+    text:
+      headline: Section Heading  # Main idea/concept name
+      tagline: Short reinforcing phrase  # 3-10 words, captures key point
+      body: |  # Detailed explanation, lists, complex ideas
+        - Markdown formatted
+        - Progressive revelation possible
+  ```
+
+
+  Where they appear:
+
+  - If image present: Headline and tagline go in the 1/4 text area
+
+  - If no image and no body text: Headline and tagline can appear in the main
+  (3/4) area
+
+  - Body text: Only appears in the 3/4 area
+
+  - Image and body text: Cannot appear simultaneously (compete for same space)
+
+
+  Software determines placement automatically based on what's present.
+
+
+  ---
+
+
+  ## Generic vs P2P Programs
+
+
+  ### Two-Layer System
+
+
+  Generic/Core Program:
+
+
+  - Universal SLC frameworks
+
+  - Professional instructional tone
+
+  - Applicable to all purpose-driven ventures
+
+  - Comprehensive, rigorous treatment
+
+  - Examples across all venture types
+
+
+  P2P Program:
+
+
+  - Wraps Core content with P2P context
+
+  - Solo founder / small team focus
+
+  - More conversational tone
+
+  - AI-native approaches
+
+  - 6 venture typology categories
+
+  - "Keep your job until validated" guidance
+
+
+  ### The Sandwich Structure (P2P Content)
+
+
+  When P2P content references Core/Generic content:
+
+  ```yaml
+    sequence:
+      # 1. P2P Framing (sets up what to watch for)
+      - video: /:p2p-videos/p2p-framing.webm
+        script: |
+          [00:00:00] You're about to learn the Core Framework...
+          [00:00:15] Pay attention to how customer segmentation works...
+      
+      # 2. Core Content (plays through completely)
+      - slug: /:core-slugs/3.2.2-customer-model
+        display: inline
+      
+      - pause: 3s  # Separate pause between content sections
+      
+      # 3. P2P Commentary (reconnects and applies)
+      - video: /:p2p-videos/p2p-commentary.webm
+        script: |
+          [00:00:00] Now that you've seen the Core Framework...
+          [00:00:05] For solo founders, segment selection matters because...
+  ```
+
+
+  ---
+
+  ## File Organization
+
+  ### Obsidian Vault Structure
+
+  Generic Program:
+
+  ```
+    slc-knowledgebase/docs/slc-program-design/
+      generic-content-development/
+        generic-canvas-program/
+          3.0 business-model-design/
+          4.0 improving-your-business-model/
+          5.0 strategy/
+  ```
+
+
+  P2P Program:
+
+  ```
+    slc-knowledgebase/docs/slc-program-design/
+      program-ideas/
+        p2p-canvas-program/
+          p2p-program/
+            2.0 intro/
+            3.0 business-model-design/
+            4.0 improving-your-business-model/
+            5.0 strategy/
+  ```
+
+
+  Script and SRT: Obsidian files contain both script content and SRT timestamps
+  (appended at bottom).
+
+
+  ### Asset Organization
+
+  Video and image assets live outside Obsidian vault
+
+  Referenced via alias system:
+
+  ```
+    /:core-assets/core-2.0-intro-2025/
+      videos/
+        video1.webm
+        video2.webm
+      images/
+        canvas-blank.png
+        strategy-model.png
+  ```
+
+
+  ## Script Timecode Format
+
+  In the script: field, use inline timecodes:
+
+  ```yaml
+    script: |
+      [00:00:15] Welcome to the program.
+      [00:00:19] This section will help you understand the framework.
+      [00:00:24] We'll work through each component systematically.
+  ```
+
+
+  Purpose: Shows pacing, helps understand why visual elements appear when they
+  do.
+
+
+  ---
+
+
+  ## Quick Reference Template
+
+  ```yaml
+      # Slug: Concept Player
+      #
+      title: Slug Name
+      description: Brief description
+
+      traits:
+        - of: media-composition
+          as: sequence
+        - of: slug-list
+          as: solo
+
+      alias:
+        :index:       crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+        :core-slugs:  /:index/alias/:core
+        :p2p-slugs:   /:index/alias/:p2p
+        
+        :core-assets: /:index/alias/:assets/core-2.0-intro-2025
+        :p2p-assets:  /:index/alias/:assets/p2p-2.0-intro-2025
+        
+        :core-images: /:core-assets/images
+        :p2p-images:  /:p2p-assets/images
+        
+        :core-videos: /:core-assets/videos
+        :p2p-videos:  /:p2p-assets/videos
+
+      TASKS:
+        - TODO: Task description with timecode (00:00:00)
+          comment: |
+            Detailed notes about the task
+
+      data:
+        sequence:
+          - video: /:p2p-videos/filename.webm  # or /:core-videos/ for Generic
+            slice: 00:00..04:23
+            script: |
+              [00:00:00] Text with timecodes
+            timestamps:
+              00:00:00:
+                pause: 2s
+                title: Section Name
+                image: /:p2p-images/file.png  # or /:core-images/ for Generic
+                text:
+                  headline: Heading
+                  tagline: Short phrase
+                  body: |
+                    - Markdown content
+          
+          - pause: 3s  # Between major sections
+          
+          - slug: /:core-slugs/reference
+            display: inline
+        
+        solo:
+          - slug: /:p2p-slugs/6.2-p2p-venture-typology
+            display: overlay
+
+
+  ---
+
+
+  ## End of Technical Context
+
+  For quality rules and decision-making principles, see: slug-creation-rules.md
+
+  For workflow instructions, see: Step 1 and Step 2 prompt documents

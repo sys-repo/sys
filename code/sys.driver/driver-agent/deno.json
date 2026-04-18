@@ -1,0 +1,63 @@
+{
+  "name": "@sys/driver-agent",
+  "version": "0.0.24",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test ./src ./-scripts",
+    "prep": "deno run -P=dev ./-scripts/task.prep.ts",
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
+    "cli:profiles": "deno run -P=cli ./-scripts/task.cli.profiles.ts",
+    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
+    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./pi": "./src/m.pi/mod.ts",
+    "./pi/cli": "./src/m.pi/m.cli/mod.ts"
+  },
+  "exclude": [
+    ".tmp",
+    ".pi"
+  ],
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "cli": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
+      }
+    }
+  }
+}

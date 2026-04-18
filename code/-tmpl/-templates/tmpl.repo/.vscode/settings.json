@@ -1,5 +1,25 @@
 {
   // --- Deno -------------------------------------------------
   "deno.enable": true,
-  "deno.lint": false
+  "deno.lint": false,
+
+  // --- Formatting -------------------------------------------
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[typescriptreact]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[javascriptreact]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.removeUnusedImports": "never",
+    "source.fixAll": "never"
+  },
+
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "files.trimTrailingWhitespace": false
+  }
 }

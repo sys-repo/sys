@@ -32,14 +32,8 @@ export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type {
   ActionProbe,
-  ActionProbeSignalProps,
-  ActionProbeSignals,
-  ActionProbeSignalsFactory,
-  ActionProbeSignalsLib,
-  ActionProbeSignalsState,
   BulletList,
   HttpOrigin,
-  HttpOriginSpecMap,
   TreeHost,
   KeyValueItem,
   SheetProps,

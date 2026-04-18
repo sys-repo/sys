@@ -44,9 +44,9 @@ describe('Process.spawn (async long-lived)', () => {
       const args = ['eval', cmd];
       const handle = Process.spawn({ args, env, readySignal, silent: true });
 
-      const firedWhenReady: t.ProcProcessReadyHandlerArgs[] = [];
-      const firedObservable: t.ProcEvent[] = [];
-      const firedOnHandler: t.ProcEvent[] = [];
+      const firedWhenReady: t.Process.ReadyHandlerArgs[] = [];
+      const firedObservable: t.Process.Event[] = [];
+      const firedOnHandler: t.Process.Event[] = [];
       handle.$.subscribe((e) => firedObservable.push(e));
       handle.onStdOut((e) => firedOnHandler.push(e));
 
@@ -79,7 +79,7 @@ describe('Process.spawn (async long-lived)', () => {
 
   it('spawn → wait ("ready signal" function) → events', async () => {
     let fired = 0;
-    const readySignal: t.ProcReadySignalFilter = (e) => {
+    const readySignal: t.Process.ReadySignalFilter = (e) => {
       fired++;
       return e.toString() === 'foo:3\n';
     };

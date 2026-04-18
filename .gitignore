@@ -4,10 +4,12 @@
 .tmp
 .tmp.*
 .tmp-*
+.pi
 .env
 .env.*
 .swc
 .data
+.log
 
 dist
 dist.*
@@ -22,3 +24,7 @@ orbiter.json
 # Codex (local agent state):
 .claude/
 .codex/
+
+# Agent runtime/state
+.pi/
+

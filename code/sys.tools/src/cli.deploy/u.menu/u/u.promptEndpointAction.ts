@@ -2,6 +2,10 @@ import { type t, c, Cli, Is, Str } from './common.ts';
 
 type A = t.DeployTool.Endpoint.Menu.Action;
 
+export function formatServeActionName(port: number): string {
+  return `  serve   ${c.gray(`port:${port}`)}`;
+}
+
 /**
  * Prompt for the next action in the endpoint menu.
  * Keeps the option-list rules centralized.
@@ -12,6 +16,7 @@ export async function promptEndpointAction(args: {
   showPush: boolean;
   showStagePush: boolean;
   showServe: boolean;
+  servePort: number;
   pushedOk: boolean;
   pushElapsed?: string;
   pushShards?: number;
@@ -28,6 +33,7 @@ export async function promptEndpointAction(args: {
     showPush,
     showStagePush,
     showServe,
+    servePort,
     pushedOk,
     hashPrefix,
     stageAge,
@@ -63,7 +69,7 @@ export async function promptEndpointAction(args: {
       ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
       ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
       ...(showStagePush ? [{ name: stagePushName, value: 'stage-push' as const }] : []),
-      ...(showServe ? [{ name: '  serve', value: 'serve' as const }] : []),
+      ...(showServe ? [{ name: formatServeActionName(servePort), value: 'serve' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },

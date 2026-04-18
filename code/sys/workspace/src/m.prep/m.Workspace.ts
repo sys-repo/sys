@@ -1,10 +1,16 @@
-import { type t, Arr, Fs } from './common.ts';
+import { type t, Arr, Fs, Str } from './common.ts';
 import { State } from './m.State.ts';
+
+const compare = Str.Compare.codeUnit();
+
+type WorkspaceFileJson = {
+  workspace?: t.StringPath[];
+} & t.JsonMap;
 
 export const Workspace: t.WorkspacePrep.Workspace.Lib = {
   async normalize(cwd = Fs.cwd()) {
     const path = State.workspaceFile(cwd);
-    const before = (await Fs.readJson<t.DenoFileJson>(path)).data;
+    const before = (await Fs.readJson<WorkspaceFileJson>(path)).data;
     if (!before) throw new Error(`Workspace.Prep.Workspace.normalize: failed to read "${path}"`);
 
     const after = normalizeWorkspace(before);
@@ -12,7 +18,7 @@ export const Workspace: t.WorkspacePrep.Workspace.Lib = {
     const afterWorkspace = Array.isArray(after.workspace) ? after.workspace : [];
     const changed = !Arr.equal(beforeWorkspace, afterWorkspace);
     if (changed) {
-      await Fs.writeJson(path, after);
+      await Fs.writeJson(path, after as t.Json);
     }
 
     return { changed, path };
@@ -22,9 +28,9 @@ export const Workspace: t.WorkspacePrep.Workspace.Lib = {
 /**
  * Helpers:
  */
-function normalizeWorkspace(input: t.DenoFileJson): t.DenoFileJson {
+function normalizeWorkspace(input: WorkspaceFileJson): WorkspaceFileJson {
   const next = structuredClone(input);
   const workspace = Array.isArray(next.workspace) ? next.workspace : [];
-  next.workspace = [...new Set(workspace)].toSorted((a, b) => a.localeCompare(b));
+  next.workspace = [...new Set(workspace)].toSorted(compare);
   return next;
 }

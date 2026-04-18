@@ -63,6 +63,9 @@ export type ViteConfigCommonPlugins = {
 
   /** Flag indicating if the "wasm" plugin should be included. */
   wasm?: boolean;
+
+  /** Flag indicating if the derived barrel optimize-imports plugin should be included. */
+  optimizeImports?: boolean;
 };
 
 /**

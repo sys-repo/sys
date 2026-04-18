@@ -11,7 +11,7 @@ import { spawn } from './u.proc.spawn.ts';
  * Unix child process.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export const Process: t.ProcLib = {
+export const Process: t.Process.Lib = {
   Script,
   Signal: { ready: 'PROCESS_READY' },
   invoke,

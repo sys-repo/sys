@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Color, pkg, Style, Rx } from './common.ts';
+import { type t, Color, D, Style, Rx } from './common.ts';
 
-const componentAttr = `${pkg.name}:ActionProbe`;
 type P = { theme?: t.CommonTheme };
 
 /**
@@ -12,7 +11,6 @@ export const useScopedStyles = (props: P) => {
     const styles = initStyles(props);
     return () => styles.dispose();
   }, [props.theme]);
-  return { componentAttr } as const;
 };
 
 /**
@@ -22,7 +20,7 @@ export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
   const life = Rx.lifecycle(opts.life);
   const theme = Color.theme(props.theme);
   const sheet = Style.Dom.stylesheet();
-  const scope = `[data-component="${componentAttr}"]`;
+  const scope = `[data-component="${D.displayName}"]`;
   const rule = (selector: string, css: t.CssValue) => sheet.rule(`${scope} ${selector}`, css);
 
   rule('code', {

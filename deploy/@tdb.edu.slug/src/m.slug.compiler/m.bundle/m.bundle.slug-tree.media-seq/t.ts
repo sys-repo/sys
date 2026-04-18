@@ -4,7 +4,9 @@ import type { t } from './common.ts';
  * Media Sequence
  */
 export type BundleSequenceDag = t.Graph.Dag.Result;
+/** Lint facet attached to a media-sequence bundle result. */
 export type BundleSequenceFacet = t.SlugLintFacet;
+/** Lint result paired with generated media-sequence output paths. */
 export type BundleSequenceResult = t.LintSequenceFilepathResult & {
   readonly dir: {
     readonly base: t.StringDir;

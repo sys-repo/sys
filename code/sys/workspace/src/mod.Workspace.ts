@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { WorkspaceBump as Bump } from './m.bump/mod.ts';
 import { WorkspaceCi as Ci } from './m.ci/mod.ts';
 import { WorkspaceCli as Cli } from './m.cli/mod.ts';
 import { WorkspaceGraph as Graph } from './m.graph/mod.ts';
@@ -9,6 +10,7 @@ import { WorkspacePrep as Prep } from './m.prep/mod.ts';
 
 /** Root workspace helper library. */
 export const Workspace: t.Workspace.Lib = {
+  Bump,
   Pkg,
   Info,
   Upgrade,

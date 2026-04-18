@@ -10,9 +10,11 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
     const pkgDir = await writePkg(fixture.root);
     await TmplTesting.LocalRepoAuthorities.rewrite({ root: fixture.root });
 
-    expect(await Fs.exists(Fs.join(pkgDir, '-scripts', 'task.deploy.ts'))).to.eql(true);
     const denoJson = await Fs.readJson<{ readonly tasks?: Record<string, string> }>(Fs.join(pkgDir, 'deno.json'));
-    expect(denoJson.data?.tasks?.deploy).to.eql('deno run -P=deploy ./-scripts/task.deploy.ts');
+    expect(denoJson.data?.tasks?.build).to.eql(
+      'deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html',
+    );
+    expect(denoJson.data?.tasks?.deploy).to.eql(undefined);
 
     const ci = await runRepoCi(fixture.root);
     if (!ci.success) {
@@ -25,8 +27,8 @@ describe('m.testing/LocalRepoFixture/pkg', () => {
   it('create → add foo + bar → import @tmp/foo from @tmp/bar → repo ci passes', async () => {
     console.info(Fmt.slowRepoWorkspaceNote());
     const fixture = await TmplTesting.LocalRepoFixture.create({ silent: true });
-    const fooDir = await writePkg(fixture.root, 'code/projects/foo', '@tmp/foo');
-    const barDir = await writePkg(fixture.root, 'code/projects/bar', '@tmp/bar');
+    const fooDir = await writePkg(fixture.root, 'code/packages/foo', '@tmp/foo');
+    const barDir = await writePkg(fixture.root, 'code/packages/bar', '@tmp/bar');
 
     await writeText(
       Fs.join(fooDir, 'src', 'mod.ts'),

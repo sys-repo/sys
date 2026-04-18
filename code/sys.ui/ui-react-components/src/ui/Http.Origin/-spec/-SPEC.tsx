@@ -16,6 +16,7 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         spec={debug.sample()}
+        verify={v.verify ? true : undefined}
       />
     );
   }
@@ -23,7 +24,13 @@ export default Spec.describe(D.displayName, async (e) => {
   function RootControlled() {
     const v = Signal.toObject(p);
     return (
-      <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} env={p.env} spec={debug.sample()} />
+      <HttpOrigin.UI.Controlled
+        debug={v.debug}
+        theme={v.theme}
+        env={p.env}
+        spec={debug.sample()}
+        verify={v.verify ? true : undefined}
+      />
     );
   }
 

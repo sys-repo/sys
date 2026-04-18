@@ -31,4 +31,33 @@ describe('m.tmpl/-entry', () => {
       Deno.exitCode = previousExitCode;
     }
   });
+
+  it('prints repo-focused help for first-contact usage', async () => {
+    const lines: string[] = [];
+    const info = console.info;
+    const warn = console.warn;
+    const previousExitCode = Deno.exitCode;
+
+    try {
+      console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+      console.warn = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+      Deno.exitCode = 0;
+
+      await entry(['--help']);
+
+      const text = lines.join('\n');
+      expect(text.includes('Templates are selected by positional argument, not by JSR subpath.')).to.eql(true);
+      expect(text.includes('Use: deno run -A jsr:@sys/tmpl repo')).to.eql(true);
+      expect(text.includes('Not: deno run -A jsr:@sys/tmpl/repo')).to.eql(true);
+      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to.eql(true);
+      expect(text.includes('repo      → no extra template flags; identity inferred from --dir')).to.eql(true);
+      expect(text.includes('--dir <path>          target directory to create/update')).to.eql(true);
+      expect(text.includes('--dry-run             write preview only')).to.eql(true);
+      expect(text.includes('--dryRun')).to.eql(false);
+    } finally {
+      console.info = info;
+      console.warn = warn;
+      Deno.exitCode = previousExitCode;
+    }
+  });
 });

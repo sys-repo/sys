@@ -14,6 +14,7 @@ export const SlugLintFacets = [
   'media:seq:file:video',
   'media:seq:file:image',
 ] as const;
+/** Supported slug lint facets. */
 export type SlugLintFacet = (typeof SlugLintFacets)[number];
 
 /**
@@ -26,10 +27,12 @@ export type LintAggregateResult<I extends t.LintIssue = t.LintIssue> = {
   readonly facets: readonly string[];
 };
 
+/** Slug-scoped lint issue. */
 export type SlugLintIssue<K extends string = string> = t.LintIssue<K> & {
   readonly doc: { readonly id: t.StringId };
 };
 
+/** Aggregate result from running slug lint checks. */
 export type SlugLintResult<K extends string = string> = {
   readonly ok: boolean;
   readonly issues: readonly SlugLintIssue<K>[];

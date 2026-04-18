@@ -1,6 +1,6 @@
 {
   "name": "@sys/esm",
-  "version": "0.0.12",
+  "version": "0.0.24",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -14,7 +14,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./deps": "./src/m.deps/mod.ts"
+    "./deps": "./src/m.deps/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {

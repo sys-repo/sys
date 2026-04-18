@@ -226,7 +226,7 @@ export declare namespace WorkspaceUpgrade {
     readonly upgrade: Result;
     /** Canonical manifest entries after selected versions were applied. */
     readonly entries: readonly t.EsmDeps.Entry[];
-    /** Driver-deno file apply result. */
-    readonly files: t.DenoDeps.ApplyFilesResult;
+    /** Projected dependency file apply result. */
+    readonly files: t.EsmDeps.ApplyFilesResult;
   };
 }

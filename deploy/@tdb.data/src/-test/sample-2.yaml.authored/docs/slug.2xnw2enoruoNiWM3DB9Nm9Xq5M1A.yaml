@@ -1,0 +1,1019 @@
+prompt: >
+  # Slug Creation Rules
+
+  Purpose: Single source of truth for all quality rules and decision-making
+  principles
+
+  Last Updated: November 2025
+
+
+  ---
+
+
+  ## Navigation Rules
+
+  ### Selection Criteria
+
+  Max ~10 navigation items per slug
+
+
+  Choose sections that are:
+
+
+  - Conceptually distinct and substantial
+
+  - Moments learner might want to jump to
+
+  - Major breaks in content (typically >30 seconds)
+
+
+  Not every script heading becomes navigation title
+
+  Exclude:
+
+
+  - Brief subsections that flow naturally
+
+  - Transitional content
+
+  - Supporting details within larger sections
+
+
+  ### Navigation Title Display
+
+
+  CRITICAL RULE: Navigation titles MUST appear as body text for 3 seconds before
+  content starts.
+
+
+  Format:
+
+  ```yaml
+      00:00:00:
+        title: Introduction To Business Models  # Creates nav entry
+        pause: 3s
+        text:
+          headline: 
+          tagline: 
+          body: |
+            Introduction To Business Models  # Displays as body text
+  ```
+
+
+  Why: Gives learners time to see the navigation marker appear and prepare for
+  content.
+
+
+  During this 3-second display:
+
+  - No other headlines, taglines, or body text should display
+
+  - Only the navigation title as body text
+
+
+  ### Navigation Title Style
+
+  - Title Case: Each Word Capitalized
+
+  - Example: "Business Model Design", "The Opportunity", "Getting Started"
+
+
+  ---
+
+
+  ## Body Text Rules
+
+  ### Rule 1: Body Text Requires Headline Context
+
+  ❌ NEVER display body text bullets without a headline ✅ ALWAYS include headline
+  when body text appears
+
+  ```yaml
+      00:02:15:
+        text:
+          body: |
+            - Cuts Through Noise
+            - More Engaged Customers
+  ```
+
+
+  Example - CORRECT:
+
+  ```yaml
+    00:02:15:
+      text:
+        headline: Three Key Benefits  # Context provided
+        body: |
+          - Cuts Through Noise
+          - More Engaged Customers
+  ```
+
+
+  Why: Bullets without context lose meaning. Learners need framing to understand
+  what the bullets relate to.
+
+
+  ### Rule 2: Headlines Persist Through Progressive Reveals
+
+  When building bullets progressively, repeat the headline/tagline at EACH
+  timestamp.
+
+
+  Example - CORRECT:
+
+  ```yaml
+    00:01:37:
+      text:
+        headline: Module 1
+        tagline: Design Your Business Model
+        body: |
+          - Learn business model fundamentals
+
+    00:01:42:
+      text:
+        headline: Module 1                    # ← Repeat
+        tagline: Design Your Business Model   # ← Repeat
+        body: |
+          - Sketch your first draft canvas
+
+    00:01:47:
+      text:
+        headline: Module 1                    # ← Repeat
+        tagline: Design Your Business Model   # ← Repeat
+        body: |
+          - Map all sections systematically
+  ```
+
+
+  Why: Context disappears if not repeated. Each timestamp is independent in the
+  system.
+
+
+  ### Rule 3: Case Consistency
+
+  Title Case for labels, categories, bullets that are names:
+
+  - Customer Model
+
+  - Early Adopters
+
+  - Disruption = Opportunity
+
+
+  Sentence case for full sentences, explanatory text:
+
+  - This is a complete explanation of the concept.
+
+  - Build with integrity and purpose at the core.
+
+
+  ### Rule 4: Maximum Lengths
+
+  - Max 3 lines of visual text per block (default)
+
+  - Can override to 5 lines if needed (use sparingly)
+
+  - Max 5 bullets per overlay
+
+  - Use - for markdown bullets
+
+
+  ### Rule 5: Grouping and Fragmentation
+
+  Balance detail vs cognitive load:
+
+
+  - Don't over-fragment progressive reveals
+
+  - Group related points that should appear together
+
+  - Progressive reveals work best for 3-5 distinct points
+
+
+  Example of good grouping:
+
+  ```yaml
+    # Good - substantial points revealed progressively
+    00:02:00:
+      body: |
+        - Customer Model: How you create value
+
+    00:02:05:
+      body: |
+        - Impact Model: How you deliver purpose
+
+    00:02:10:
+      body: |
+        - Economic Model: How money flows
+  ```
+
+
+  Example of over-fragmentation:
+
+  ```yaml
+    # Bad - too granular
+    00:02:00:
+      body: |
+        - Customer
+
+    00:02:02:
+      body: |
+        - Model
+
+    00:02:04:
+      body: |
+        - How you
+
+    00:02:06:
+      body: |
+        - create value
+  ```
+
+
+  ---
+
+
+  ## Image and Body Text Display Rules
+
+  ### CRITICAL: Images and Body Text Cannot Appear Simultaneously
+
+  Why: They compete for the same screen area (3/4 window)
+
+  When image is present:
+
+
+  - Headlines and taglines go in 1/4 text area
+
+  - Body text does NOT display
+
+  - Use image OR body text, never both
+
+
+  When no image:  
+
+  - Body text displays in 3/4 area
+
+  - Headlines and taglines can also display there
+
+
+  Planning implication: Choose: show diagram OR show bullet list
+
+  If concept needs both, use separate timestamps:
+
+
+  ```yaml
+    # First: image with headline/tagline
+    00:02:15:
+      pause: 3s
+      image: /:images/three-models-diagram.png
+      text:
+        headline: Integrated System
+        tagline: Three models working together
+
+    # Then: body text with headline/tagline (image disappears)
+    00:02:45:
+      text:
+        headline: Integrated System
+        body: |
+          - Customer Model: How you create value
+          - Impact Model: How you deliver purpose
+          - Economic Model: How money flows
+  ```
+
+
+  ---
+
+
+  ## Image Placement Strategy
+
+
+  ### When to Use Images
+
+
+  ✅ Use for:
+
+  - Canvas sections and diagrams
+
+  - Models and frameworks
+
+  - Complex concepts that benefit from visualization
+
+  - Showing relationships or structure
+
+
+  ❌ Avoid:
+
+  - Overuse - sometimes text is clearer
+
+  - When text alone would be more scannable
+
+  - Simple concepts that don't need visualization
+
+
+  ### Timing Principle
+
+  Coordinate image appearance with narration discussing the concept
+
+  - Image should appear when instructor starts explaining it
+
+  - Not before (learner sees unexplained visual)
+
+  - Not after (explanation without visual support)
+
+
+  ### Strategic Placement
+
+  - Conceptually important moments
+
+  - When showing relationships or structure
+
+  - When text alone would be confusing
+
+  - To break up text-heavy sections
+
+
+  ---
+
+
+  ## Pause and Timing Rules
+
+  ### Cognitive Load Principle
+
+  Give people time to see, register, and read what appeared before video
+  continues
+
+
+  ### Specific Durations
+
+  1 second:
+
+  - Simple transitions
+
+  - Just navigation title appearing
+
+  - Minimal new content
+
+
+  2 seconds:
+
+  - Title + tagline
+
+  - Title + simple image
+
+  - Standard section transitions
+
+
+  3-4 seconds:
+
+  - Title + image + body text
+
+  - Complex diagrams
+
+  - Major section transitions
+
+  - Multiple elements appearing together
+
+
+  4-5 seconds:
+
+  - Very complex visualizations with multiple elements
+
+  - Dense body text (4-5 bullets)
+
+  - Conceptually challenging diagrams
+
+
+  ### Between Videos
+
+  Always 3s pause between videos (as separate sequence item):
+
+  ```yaml
+    - video: /:p2p-videos/video1.webm
+      [content]
+
+    - pause: 3s  # ← Separate sequence item
+
+    - video: /:p2p-videos/video2.webm
+      [content]
+  ```
+
+
+  Why: Gives processing time before context shift
+
+
+  ### Scaling Principle
+
+  Scale pause duration to:
+
+  1. Amount of new visual content
+
+  2. Complexity of concept
+
+  3. Amount of text to read
+
+  4. Cognitive load required
+
+
+  Example:
+
+  ```yaml
+    # Simple transition - 1s
+    00:01:30:
+      pause: 1s
+      title: Next Section
+
+    # Complex content - 4s
+    00:02:45:
+      pause: 4s
+      title: Three Models
+      image: /:images/three-models-diagram.png
+      text:
+        headline: Integrated System
+        body: |
+          - Customer Model
+          - Impact Model
+          - Economic Model
+  ```
+
+
+  ---
+
+
+  ## Text Element Strategy
+
+  ### Headlines
+
+  Purpose: Name the concept/section
+
+  Style: Clear, concise, typically 1-4 words
+
+
+  Examples:
+
+  - "Customer Model"
+
+  - "Venture Scale Model"
+
+  - "Three Key Benefits"
+
+
+  When to use:
+
+  - Every timestamp with content
+
+  - Changes to mark new subsections
+
+  - Provides persistent context for body text
+
+
+  ### Taglines
+
+  Purpose: Reinforce key ideas in sync with narration
+
+  Length: 3-10 words (sweet spot: 4-6 words)
+
+  Style: Punchy, memorable, active
+
+
+  Examples:
+
+  - "See everything at once"
+
+  - "Build with integrity"
+
+  - "Purpose cuts through noise"
+
+  - "Four stages every venture passes through"
+
+
+  CRITICAL - Timing Principle:
+
+  Taglines should land WHEN the concept is being articulated in video
+
+
+  Process:
+
+  1. Listen to script timing
+
+  2. Identify moment of emphasis or key phrase
+
+  3. Place tagline at that specific moment
+
+  4. Sync with instructor's articulation
+
+
+  Why: Taglines reinforce what's being said. They must land at the moment of
+  emphasis, not before or after.
+
+
+  ### Body Text
+
+  Purpose:
+
+  - Break down complex concepts into scannable bullets
+
+  - Display structured information (lists, stages, categories)
+
+  - Provide details when images aren't available
+
+
+  When to use:
+
+  - Explaining multi-part concepts
+
+  - Listing stages, categories, types
+
+  - When image isn't appropriate
+
+  - Creating scannable reference points
+
+
+  When NOT to use:
+
+  - With images (they compete for space)
+
+  - For simple concepts (headline + tagline sufficient)
+
+  - When narration is self-explanatory
+
+
+  Animation approach:
+
+  - Progressive: Build bullets as each is discussed (for sequential lists)
+
+  - All at once: When bullets are supporting context (for overviews)
+
+
+  ---
+
+
+  ## Reconciliation Rules
+
+  ### Authority Sources
+
+  Obsidian script = Language authority
+
+  - Correct words and phrasing
+
+  - Proper terminology
+
+  - Quality-controlled narrative
+
+  - Use this for what SHOULD be said
+
+
+  SRT transcript = Timing authority
+
+  - Precise timecodes
+
+  - What WAS actually spoken
+
+  - Delivery pacing
+
+  - Use this for when things were said
+
+
+  ### Reconciliation Process
+
+  1. Parse SRT to understand timing and actual delivery
+
+  2. Map SRT phrases to Obsidian script sections
+
+  3. Identify transcription errors → correct using Obsidian
+
+  4. Note structural differences (sections cut/added during recording)
+
+  5. Produce reconciled script with inline [timecode] markers
+
+  6. Design visual elements timed to reconciled content
+
+
+  ### Common Issues
+
+  Transcription errors:
+
+  - Descript doesn't know SLC terminology
+
+  - Expect errors on: Purpose, JTBD, UVP, Impact Model, Customer Model, etc.
+
+  - Always trust Obsidian script for correct terms
+
+
+  Structural differences:
+
+  - Content delivered in different order → follow actual delivery order
+
+  - Sections cut during recording → note in TASKS if visuals were planned
+
+  - Content added during recording → include it, note in TASKS if needs review
+
+
+  Timing mismatches:
+
+  - Phrases combined or split differently than script
+
+  - Use SRT timing but Obsidian phrasing
+
+  - Adjust timecodes to match actual delivery
+
+
+  ### If Can't Reconcile
+
+  - Flag clearly in YAML comments
+
+  - Include both versions (script vs SRT)
+
+  - Ask for clarification
+
+  - Never guess or invent content
+
+
+  ---
+
+
+  ## Lexicon and Terminology
+
+  ### Canvas Sections (capitalize as proper nouns)
+
+  - Purpose
+
+  - Customer Model
+
+  - Impact Model
+
+  - Economic Model
+
+  - Key Metrics
+
+
+  ### Key Terms (use correctly)
+
+  - Purpose-driven venture (primary term)
+
+  - Social enterprise (legacy term, still acceptable)
+
+  - Jobs to be Done (JTBD)
+
+  - Unique Value Proposition (UVP)
+
+  - Early Adopters
+
+  - Channels (for acquisition + distribution)
+
+
+  ### P2P-Specific Terms
+
+  - Pivoting to purpose venture (p2p venture)
+
+  - Honest Hustle
+
+  - Core Module / Core Framework / Core content (when P2P references generic
+  content)
+
+
+  ### Formatting
+
+  - Pipe-separated metrics: 17,740 farmers | 51% ↑ income | 10.5%
+
+  - NZ English formatting throughout
+
+
+  ---
+
+
+  ## Voice and Tone
+
+  ### Generic/Core Content
+
+  - Professional, instructional tone
+
+  - Authoritative teaching
+
+  - Direct coach approach
+
+  - Structured and calm
+
+  - "you" POV (use "we" for shared journey steps)
+
+  - Never use: "I think", "I see", "I believe" - use direct statements
+
+
+  ### P2P Content
+
+  - More conversational and informal
+
+  - Friendly but credible
+
+  - Sentence fragments for emphasis okay
+
+  - Questions to learner
+
+  - Casual connectors: "Here's the thing...", "So what does this mean for you?"
+
+  - Real talk moments: "Let's be honest..."
+
+  - Still avoid: "I think/see/believe", filler words, hedging language
+
+
+  ---
+
+
+  ## Program-Specific Rules
+
+  ### P2P Sandwich Structure
+
+  When P2P content wraps Core content:
+
+
+  1. P2P Framing (sets up what to watch for)
+
+  - Intro to upcoming Core content
+
+  - What to pay attention to
+
+  - How it applies to solo founders
+
+
+  2. Core Content (plays inline completely)
+
+  - Universal framework
+
+  - Comprehensive treatment
+
+  - Professional instructional tone
+
+
+  3. P2P Commentary (reconnects and applies)
+
+  - "Now that you've seen..."
+
+  - Application to solo founders
+
+  - AI-native approaches
+
+  - Practical next steps
+
+
+  ### Cross-Reference Rules
+
+  - ✅ P2P slugs CAN reference Core slugs (via :core-slugs:)
+
+  - ❌ Core/Generic slugs should NOT reference P2P slugs
+
+  - Use "Core Module", "Core Framework" for reverent references
+
+
+  ---
+
+
+  ## YAML Structure Rules
+
+  ### Standard Alias Structure
+
+  Always use this structure (values provided in workflow):
+
+
+  ```yaml
+    alias:
+      :index:       crdt:[PROVIDED_ID]
+      :core-slugs:  :index/:core
+      :p2p-slugs:   :index/:p2p
+      
+      :core-assets: :index/:assets/[ASSET_FOLDER]
+      :p2p-assets:  :index/:assets/[ASSET_FOLDER]
+      
+      :core-images: :core-assets/images
+      :p2p-images:  :p2p-assets/images
+      
+      :core-videos: :core-assets/videos
+      :p2p-videos:  :p2p-assets/videos
+  ```
+
+  ### Asset References
+
+  - Use program-specific aliases
+
+  - :core-videos: for Generic/Core content
+
+  - :p2p-videos: for P2P content
+
+  - Same pattern for images
+
+
+  ### Solo Slugs
+
+  - Separate from sequence (in solo: section)
+
+  - Default display: overlay
+
+  - Use display: inline when content flows naturally as part of parent
+
+  - Solo slugs are for content that learner can access but isn't part of linear
+  playback
+
+
+  ### TASKS Management
+
+  Who creates tasks:
+
+  - User adds them in initial template
+
+  - User requests them during conversation
+
+  - Claude does NOT add tasks unprompted
+
+
+  Format:
+
+  ```yaml
+    TASKS:
+      - TODO: Add P2P program logo/image at opening (00:00:00)
+        comment: |
+          We need to create a master image to promote the p2p program
+          and use in different intro and trailer slugs
+  ```
+
+
+  When to create tasks:
+
+  - Images that need to be created
+
+  - Content that was cut but needs visuals
+
+  - Assets that need revision
+
+  - Follow-up work identified during creation
+
+
+
+  ### Quotes in Text Content
+
+  YAML uses straight quotes (`"`) for syntax. Smart quotes (`"` `"`) must be
+  used inside text content.
+
+  If you use straight quotes inside text elements, YAML will throw a parsing
+  error.
+
+
+  ### The Rule:
+
+  - YAML syntax: Use straight quotes " '
+
+  - Text content (headlines, taglines, body): Use smart quotes " "
+
+
+  ### Example - WRONG ❌
+
+  ```yaml
+    text:
+      headline: User UVP
+      tagline: Meet friends in a "low social risk" way  # ❌ Straight quotes - YAML error
+  ```
+
+
+  ### Example - CORRECT ✅
+
+  ```yaml
+    text:
+      headline: User UVP
+      tagline: Meet friends in a "low social risk" way  # ✅ Smart quotes
+  ```
+
+
+  ### Applies to:
+
+  - Headlines
+
+  - Taglines  
+
+  - Body text
+
+  - Any quoted speech or emphasis within text content
+
+
+  ---
+
+
+  ## File Handling Rules
+
+  ### Critical Constraints
+
+  1. Never modify Obsidian files - only READ
+
+  2. All outputs go to YAML files
+
+  3. Always use exact file paths (never broad searches)
+
+  4. If path doesn't work, ask for correction (never guess)
+
+
+  ### File Locations
+
+  - Obsidian script: Contains script + SRT (appended at bottom)
+
+  - Reconciled scripts: Live in YAML only (not back to Obsidian)
+
+  - Output files: /mnt/user-data/outputs/
+
+
+  ---
+
+
+  ## Quality Checklist
+
+  Before outputting YAML, verify:
+
+
+  ### Structure
+
+  - [ ] Proper YAML syntax (indentation, colons, pipes)
+
+  - [ ] All alias paths defined correctly
+
+  - [ ] All video/image references use aliases
+
+  - [ ] Sequence items in correct order
+
+  - [ ] Solo slugs in separate section (if applicable)
+
+  - [ ] Timestamps in ascending order
+
+
+  ### Content
+
+  - [ ] All scripts fully reconciled with inline timecodes
+
+  - [ ] Navigation titles match selection criteria (typically 2-10 total)
+
+  - [ ] Navigation titles displayed as body text for 3s before content
+
+  - [ ] Headlines change to mark subsections
+
+  - [ ] Images placed at appropriate moments
+
+  - [ ] Body text uses proper markdown (- for bullets)
+
+  - [ ] Body text groups have persistent headlines
+
+  - [ ] Progressive bullets keep headline/tagline visible
+
+  - [ ] No images + body text simultaneously
+
+  - [ ] Body text case consistency
+
+
+  ### Timing
+
+  - [ ] Pauses match cognitive load guidelines
+
+  - [ ] Pause placement follows principles
+
+  - [ ] Text elements timed to narration
+
+  - [ ] Taglines land when concept articulated
+
+  - [ ] 3s pause between videos (as separate sequence item)
+
+
+  ### Details
+
+  - [ ] Video slice times accurate
+
+  - [ ] Taglines 3-10 words
+
+  - [ ] Body text max 5 bullets per overlay
+
+  - [ ] Terminology follows lexicon
+
+  - [ ] Voice/tone appropriate for program
+
+
+  ---
+
+
+  ## When to Update This Document
+
+  Add new rule when:
+
+  - You discover a pattern that creates better learning
+
+  - You identify a mistake pattern that should be avoided
+
+  - User feedback reveals a quality issue
+
+  - You refine an existing principle
+
+
+  Format for additions:
+
+  ```yaml
+    ### New Rule Name
+    ❌ **Bad pattern:** What not to do
+    ✅ **Good pattern:** What to do instead
+
+    **Why:** Pedagogical or technical reason
+    **Example:** [show code]
+  ```
+
+
+  This keeps the document as living documentation of quality standards.

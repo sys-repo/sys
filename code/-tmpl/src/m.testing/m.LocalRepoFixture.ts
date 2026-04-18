@@ -24,7 +24,7 @@ export const LocalRepoFixture: t.TmplTesting.LocalRepoFixtureLib = {
         bundle: false,
         dir: target.dir,
         help: false,
-        'no-interactive': true,
+        'non-interactive': true,
       });
 
     if (args.silent === true) await quietly(writeRepo);

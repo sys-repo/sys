@@ -1,0 +1,3 @@
+mappings:
+  - kind: slug-dataset
+    source: ./src/-test/sample-2.yaml.authored

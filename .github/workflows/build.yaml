@@ -36,6 +36,10 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
+          - name: "@sys/driver-agent"
+            path: code/sys.driver/driver-agent
+          - name: "@tdb/data"
+            path: deploy/@tdb.data
           - name: "@tdb/slc"
             path: deploy/@tdb.slc
           - name: "@tdb/slc-fs"
@@ -49,7 +53,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.8
+          deno-version: v2.7.12
       - name: Install Dependencies
         run: |
           max_attempts=3

@@ -1,65 +1,22 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { bumpOrderedPaths, dependentClosure, main, orderChildren } from '../task.bump.ts';
+import { main } from '../task.bump.ts';
+import { bumpPolicy, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
 
 describe('scripts/task.bump', () => {
-  it('orders bump rows by topological workspace package path order', () => {
-    const children = [
-      { path: 'code/sys/workspace/deno.json', name: '@sys/workspace' },
-      { path: 'code/sys/std/deno.json', name: '@sys/std' },
-      { path: 'code/sys/types/deno.json', name: '@sys/types' },
-    ];
-
-    const res = orderChildren(children, [
-      'code/sys/types',
-      'code/sys/std',
-      'code/sys/workspace',
+  it('syncs package metadata before delegating to the canonical ahead-only prep lane', () => {
+    expect(postBumpPackageSyncArgs()).to.eql([
+      'run',
+      '-P=dev',
+      './-scripts/main.ts',
+      '--prep-pkg',
     ]);
-
-    expect(res.map((child) => child.name)).to.eql([
-      '@sys/types',
-      '@sys/std',
-      '@sys/workspace',
-    ]);
-  });
-
-  it('keeps unmatched children at the end in stable path order', () => {
-    const children = [
-      { path: 'code/sys/workspace/deno.json', name: '@sys/workspace' },
-      { path: 'code/extra/zeta/deno.json', name: '@extra/zeta' },
-      { path: 'code/sys/std/deno.json', name: '@sys/std' },
-      { path: 'code/extra/alpha/deno.json', name: '@extra/alpha' },
-    ];
-
-    const res = orderChildren(children, ['code/sys/std', 'code/sys/workspace']);
-
-    expect(res.map((child) => child.name)).to.eql([
-      '@sys/std',
-      '@sys/workspace',
-      '@extra/alpha',
-      '@extra/zeta',
-    ]);
-  });
-
-  it('includes generated tmpl coupling in the bump closure', () => {
-    const res = dependentClosure('code/-tmpl', []);
-
-    expect(res).to.include('code/-tmpl');
-    expect(res).to.include('code/sys.tools');
-  });
-
-  it('reorders the bump picker paths to honor generated tmpl coupling', () => {
-    const res = bumpOrderedPaths([
-      'code/sys/std',
-      'code/sys.tools',
-      'code/-tmpl',
-      'code/sys/workspace',
-    ]);
-
-    expect(res).to.eql([
-      'code/sys/std',
-      'code/-tmpl',
-      'code/sys.tools',
-      'code/sys/workspace',
+    expect(postBumpPrepArgs()).to.eql([
+      'run',
+      '-P=dev',
+      './-scripts/main.ts',
+      '--prep-all',
+      '--ahead-only',
+      '--prep-context=bump',
     ]);
   });
 
@@ -78,5 +35,13 @@ describe('scripts/task.bump', () => {
     expect(output).to.include('deno task bump');
     expect(output).to.include('--release <patch|minor|major>');
     expect(output).to.include('--from <package-name|package-path>');
+  });
+
+  it('couples tmpl bumps to workspace packages embedded in the repo template authorities', () => {
+    const couplings = bumpPolicy().couplings ?? [];
+
+    expect(couplings).to.deep.include({ from: 'code/sys/workspace', to: 'code/-tmpl' });
+    expect(couplings).to.deep.include({ from: 'code/sys/std', to: 'code/-tmpl' });
+    expect(couplings).to.deep.include({ from: 'code/-tmpl', to: 'code/sys.tools' });
   });
 });

@@ -55,7 +55,13 @@ export namespace Fs {
     /** Start a file-system watcher. */
     readonly watch: t.FsWatchLib['start'];
 
-    /** Current working directory. */
+    /**
+     * Current working directory.
+     *
+     * - `process`: current process cwd (`Deno.cwd()`).
+     * - `terminal`: initiating terminal cwd when the pseudo-standard
+     *   `INIT_CWD` env var is present, otherwise falls back to `Deno.cwd()`.
+     */
     cwd(kind?: 'process' | 'terminal'): t.StringDir;
 
     /** Removes the CWD (current-working-directory) from the given path if it exists. */

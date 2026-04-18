@@ -20,7 +20,7 @@ describe('Open.invokeDetached', () => {
   it('falls through NotFound openers and succeeds on later candidate', () => {
     const target = 'https://example.com' as t.StringUrl;
     const processRef = Process as unknown as {
-      invokeDetached: (config: t.ProcInvokeArgs) => { pid: number };
+      invokeDetached: (config: t.Process.InvokeArgs) => { pid: number };
     };
     const original = processRef.invokeDetached;
     const attempts: string[] = [];
@@ -43,7 +43,7 @@ describe('Open.invokeDetached', () => {
   it('throws NotFound when all linux candidates are unavailable', () => {
     const target = 'https://example.com' as t.StringUrl;
     const processRef = Process as unknown as {
-      invokeDetached: (config: t.ProcInvokeArgs) => { pid: number };
+      invokeDetached: (config: t.Process.InvokeArgs) => { pid: number };
     };
     const original = processRef.invokeDetached;
 

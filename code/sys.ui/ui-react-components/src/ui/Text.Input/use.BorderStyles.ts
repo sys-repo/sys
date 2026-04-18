@@ -1,6 +1,6 @@
 import { type t, DEFAULTS, Is, Color } from './common.ts';
 
-type P = t.TextInputProps;
+type P = t.TextInput.Props;
 type C = string | t.Percent;
 
 /**
@@ -21,7 +21,7 @@ export function useBorderStyles(props: P, options: { theme?: t.ColorTheme } = {}
  * Helpers:
  */
 const wrangle = {
-  borderRadius(props: P, mode: t.TextInputBorder['mode']) {
+  borderRadius(props: P, mode: t.TextInput.Border['mode']) {
     const px = props.borderRadius ?? DEFAULTS.borderRadius;
     if (mode === 'line:bottom') return `${px}px ${px}px ${0}px ${0}px`;
     if (mode === 'line:top') return `${0}px ${0}px ${px}px ${px}px`;

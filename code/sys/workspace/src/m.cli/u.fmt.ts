@@ -42,6 +42,8 @@ type BlockedCode =
   | 'version:not-newer'
   | 'version:not-allowed';
 
+const NAME_MIN_WIDTH = 25;
+
 export const Fmt = {
   spinnerText(text: string, spacing: t.CliFormat.Spinner.Spacing = true): string {
     return Cli.Fmt.spinnerText(text, spacing);
@@ -374,7 +376,7 @@ export const Fmt = {
 
     return {
       ...widths,
-      name: Math.max(16, Math.min(widths.name, budget - reserved)),
+      name: Math.max(NAME_MIN_WIDTH, Math.min(widths.name, budget - reserved)),
     };
   },
 
@@ -419,8 +421,25 @@ export const Fmt = {
   commitMessage(result: t.WorkspaceUpgrade.ApplyResult): string {
     const rows = Fmt.updatedRows(result);
     if (rows.length === 0) return '';
-    if (rows.length === 1) return `chore(deps): upgraded ${rows[0]!.entry.module.name}`;
-    return `chore(deps): upgraded ${rows.length} workspace dependencies`;
+    const suffix = Fmt.commitRegistrySuffix(rows);
+    if (rows.length === 1) {
+      return `chore(deps): upgraded ${rows[0]!.entry.module.name}${suffix}`;
+    }
+    return `chore(deps): upgraded ${rows.length} workspace dependencies${suffix}`;
+  },
+
+  commitRegistrySuffix(rows: readonly UpdatedRow[]): string {
+    let jsr = 0;
+    let npm = 0;
+    for (const row of rows) {
+      if (row.entry.module.registry === 'jsr') jsr += 1;
+      if (row.entry.module.registry === 'npm') npm += 1;
+    }
+    const parts = [
+      jsr > 0 ? `jsr:${jsr}` : undefined,
+      npm > 0 ? `npm:${npm}` : undefined,
+    ].filter((part): part is string => !!part);
+    return parts.length > 0 ? ` - ${parts.join(', ')}` : '';
   },
 
   canonicalVersion(version?: string): t.StringSemver | undefined {

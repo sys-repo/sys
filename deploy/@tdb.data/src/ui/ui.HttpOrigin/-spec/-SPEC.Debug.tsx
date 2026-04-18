@@ -1,0 +1,131 @@
+import React from 'react';
+import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
+import { Button, ObjectView } from './common.ts';
+import { HttpOrigin } from '../mod.ts';
+
+type P = t.HttpOrigin.Props;
+type Storage = {
+  debug?: P['debug'];
+  theme?: P['theme'];
+  env?: t.HttpOriginBase.Env;
+  integrity?: boolean;
+};
+const defaults: Storage = {
+  debug: false,
+  env: 'localhost',
+  integrity: true,
+  theme: 'Dark',
+};
+
+/**
+ * Types:
+ */
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+
+/**
+ * Signals:
+ */
+export async function createDebugSignals() {
+  const s = Signal.create;
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
+  const props = {
+    debug: s(snap.debug),
+    env: s(snap.env),
+    integrity: s(snap.integrity ?? false),
+    origin: s<t.UrlTree | undefined>(undefined),
+    theme: s(snap.theme),
+  };
+  const p = props;
+  const api = {
+    props,
+    listen,
+    reset,
+  };
+
+  function listen() {
+    Signal.listen(props, true);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.env = p.env.value;
+      d.debug = p.debug.value;
+      d.integrity = p.integrity.value;
+    });
+  });
+
+  return api;
+}
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
+/**
+ * Component:
+ */
+export const Debug: React.FC<DebugProps> = (props) => {
+  const { debug } = props;
+  const p = debug.props;
+  const v = Signal.toObject(p);
+  Signal.useRedrawEffect(debug.listen);
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme('Light');
+  const styles = {
+    base: css({ color: theme.fg }),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `env: ${v.env ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.HttpOriginBase.Env>(p.env, ['localhost', 'production'])}
+      />
+      <Button
+        block
+        label={() => `integrity: ${p.integrity.value}`}
+        onClick={() => Signal.toggle(p.integrity)}
+      />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+
+      <hr style={{ margin: '15px 0 20px 0' }} />
+      <HttpOrigin.UI.Controlled
+        env={p.env}
+        origin={p.origin}
+        verify={v.integrity ? true : undefined}
+        debug={v.debug}
+        theme={theme.name}
+      />
+    </div>
+  );
+};

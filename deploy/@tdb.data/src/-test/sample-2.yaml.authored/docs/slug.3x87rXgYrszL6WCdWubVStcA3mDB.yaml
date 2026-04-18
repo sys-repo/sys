@@ -1,0 +1,151 @@
+title: 3.2.5-key-metrics
+description: Track real progress with a handful of metrics that show the current
+  state of your venture
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.2.5 key-metrics.webm.02.mp4.webm
+      slice: 00:00..01:43
+      script: >
+        [00:00:00] Key Metrics is where you capture a handful of numbers that
+        show the current state of your venture.
+
+        [00:04:00] This section is different from the rest of your canvas.
+
+        [00:07:06] Everything else on your canvas shows what you think will
+        work—assumptions about your business model at scale.
+
+        [00:11:09] Key Metrics show what's actually happening right now.
+
+        [00:18:01] A snapshot of your progress.
+
+        [00:20:06] Include at least one metric for each major part of your
+        canvas—customer, impact, and economic models.
+
+        [00:27:05] Choose metrics that show evidence of the key dynamics you're
+        trying to prove.
+
+        [00:33:00] For your customer model, maybe it's new signups showing your
+        value proposition resonates.
+
+        [00:40:06] For your impact model, maybe it's early outcomes you're
+        measuring.
+
+        [00:44:06] For your economic model, maybe it's traction in your main
+        acquisition channel.
+
+        [00:48:09] These metrics will change as you progress.
+
+        [00:51:05] Early stage, you might track customer interviews completed or
+        prototype tests run.
+
+        [00:57:03] Later, you'll be tracking things like revenue, retention, and
+        outcomes achieved.
+
+        [01:02:04] The important thing is that key metrics track your learning
+        and emerging evidence that your business model works.
+
+        [01:09:04] Remember, at the start—progress is about learning and
+        discovering.
+
+        [01:13:08] Your early key metrics should track this.
+
+        [01:17:02] Don't overthink this on your first pass.
+
+        [01:19:02] Pick three to five numbers that show where you are right now.
+
+        [01:22:04] You can always change them later.
+
+        [01:24:08] The point is to have a clear view of progress.
+
+        [01:27:00] Not vanity metrics that look good but don't tell you anything
+        useful.
+
+        [01:32:02] Real numbers that show progress.
+
+        [01:34:00] Document them in your canvas. Update them regularly.
+
+        [01:38:02] They become your dashboard for tracking whether you're moving
+        in the right direction.
+      timestamps:
+        00:00:00:
+          title: Key Metrics
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Key Metrics
+        00:00:03:
+          pause: 3s
+          image: /:core-images/km-title.png
+          text:
+            headline: Key Metrics
+            tagline: Track real progress
+        00:00:18:
+          pause: 2s
+          text:
+            headline: Key Metrics
+            tagline: A snapshot of your progress
+            body: |
+              - Rest of canvas = Assumptions
+              - Key Metrics = Reality
+        00:00:20:
+          title: What To Measure
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              What To Measure
+        00:00:24:
+          pause: 2s
+          text:
+            headline: What To Measure
+            tagline: One metric per model
+            body: |
+              - Customer metric
+              - Impact metric
+              - Economic metric
+        00:01:09:
+          text:
+            headline: What To Measure
+            tagline: Match your stage
+        00:01:17:
+          title: Keep It Simple
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Keep It Simple
+        00:01:22:
+          pause: 2s
+          text:
+            headline: Keep It Simple
+            tagline: Simple dashboard
+            body: |
+              - 3–5 metrics
+              - Real progress
+              - Not vanity
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

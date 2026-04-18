@@ -1,13 +1,13 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.227",
+  "version": "0.0.246",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
-    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/-test/index.html",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --in=./src/-test/index.html",
+    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/index.html",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
-    "check": "deno check src/*",
+    "check": "deno check src/",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info",
@@ -17,10 +17,23 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./button": "./src/ui/Button/mod.ts",
+    "./cropmarks": "./src/ui/Cropmarks/mod.ts",
+    "./icon": "./src/ui/Icon/mod.ts",
+    "./iframe": "./src/ui/IFrame/mod.ts",
+    "./key-value": "./src/ui/KeyValue/mod.ts",
+    "./layout/center-column": "./src/ui/Layout.CenterColumn/mod.ts",
+    "./layout/split-pane": "./src/ui/Layout.SplitPane/mod.ts",
+    "./media": "./src/ui/Media/mod.ts",
+    "./object-view": "./src/ui/ObjectView/mod.ts",
+    "./player": "./src/ui/Player/mod.ts",
     "./specs": "./src/-test/-specs.ts",
+    "./spinners": "./src/ui/Spinners/mod.ts",
+    "./tree-view": "./src/ui/TreeView/mod.ts",
     "./fonts": "./src/m.webfonts/mod.ts",
     "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts",
-    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts"
+    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts",
+    "./text": "./src/ui/Text/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -31,7 +44,8 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": true
     },
     "dev": {
       "read": true,

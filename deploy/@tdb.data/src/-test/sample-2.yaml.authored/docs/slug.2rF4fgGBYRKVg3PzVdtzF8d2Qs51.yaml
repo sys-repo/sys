@@ -1,0 +1,609 @@
+title: 3.2.4 Economic Model
+description: Learn how to reach customers at scale, build financial
+  sustainability, and identify the leverage that makes your business model
+  successful. Includes Facebook example walkthrough.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - image: /:core-images/em-title.png
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Overview
+    - video: /:core-videos/economic model_overview.webm.02.mp4.webm
+      slice: 00:00..01:22
+      script: >
+        [00:00:00] Once you've developed the first version of your customer and
+        impact models, it's time to lay out your economic model.
+
+        [00:00:06] Your economic model shows how your enterprise will take the
+        value you create for your customers and turn it into an engine that will
+        power the social value that's created by your impact model.
+
+        [00:00:18] Where your customer and impact models drilled in on the micro
+        of understanding how you create value and change starting with
+        individuals, your economic model will focus on scale.
+
+        [00:00:30] Now, scale doesn't necessarily mean that your enterprise
+        needs to become huge. Sometimes small is the right size for achieving
+        your goals, but rather it's about understanding the dynamics by which
+        your enterprise is going to operate at the size it needs to get to to
+        achieve your goals.
+
+        [00:00:47] Your economic model's going to unpack firstly, how you're
+        going to reach your customers at the scale you need.
+
+        [00:00:53] Secondly, how your financial model will work to ensure that
+        you're financially sustainable and if it's one of your goals profitable.
+
+        [00:01:02] And thirdly, it's going to be where you identify the key
+        points of leverage that your business model is going to take advantage
+        of in order for you to succeed.
+
+        [00:01:12] These components all need to hold together in a coherent
+        model. Your economic model that you and your supporters can understand
+        and have confidence in.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/economic-model-overview.png
+          text:
+            headline: Economic Model
+            tagline: Powers your social value engine
+        00:00:18:
+          text:
+            headline: Economic Model
+            tagline: Focus on scale
+        00:00:30:
+          text:
+            headline: Scale
+            tagline: Operating at the right size for your goals
+        00:00:47:
+          text:
+            headline: Three Components
+            body: |
+              - Reach customers at scale
+        00:00:53:
+          text:
+            headline: Three Components
+            body: |
+              - Financial sustainability
+        00:01:02:
+          text:
+            headline: Three Components
+            body: |
+              - Key leverage points
+        00:01:12:
+          image: /:core-images/economic-model-overview.png
+          text:
+            headline: Economic Model
+            tagline: Coherent system you can have confidence in
+    - pause: 2s
+    - video: /:core-videos/economic model_channels.webm.01-1.mp4.01.webm
+      slice: 00:00..01:10
+      script: >
+        [00:00:00] Channels are how your enterprise connects with your customers
+        at scale, and there are two distinct components to channels.
+
+        [00:00:06] Firstly, channels through which your customer finds you and
+        becomes your customer. These are known as customer acquisition channels
+        or marketing channels.
+
+        [00:00:17] They could be things like online advertising, word of mouth,
+        affiliate networks, print advertising, store frontage, things like that.
+
+        [00:00:26] The second component of channels covers how your product or
+        service gets to your customers. These are known as distribution
+        channels.
+
+        [00:00:34] They could be things like a retail location, courier
+        delivery, delivery through an online platform like Amazon, physical
+        classroom delivery, sales through a distribution partner, things like
+        that.
+
+        [00:00:48] Both of these things are crucial to understanding how your
+        economic model will work at scale.
+
+        [00:00:54] You will need to be able to prove that your channels will be
+        effective at providing what your business model needs.
+
+        [00:01:00] And also channels usually incur significant cost. So you'll
+        need to be able to model these costs and feed them into your financial
+        model.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Channels
+          text:
+            body: |
+              Channels
+        00:00:03:
+          pause: 2s
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Channels
+            tagline: Connect with customers at scale
+        00:00:06:
+          text:
+            headline: Customer Acquisition
+            tagline: How customers find you
+        00:00:17:
+          text:
+            headline: Customer Acquisition
+            body: |
+              - Online advertising
+              - Word of mouth
+              - Affiliate networks
+              - Print advertising
+              - Store frontage
+        00:00:26:
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Distribution
+            tagline: How your product gets to customers
+        00:00:34:
+          text:
+            headline: Distribution
+            body: |
+              - Retail locations
+              - Courier delivery
+              - Online platforms
+              - Physical delivery
+              - Distribution partners
+        00:00:48:
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Channels
+            tagline: Crucial to operating at scale
+        00:01:00:
+          text:
+            headline: Channels
+            tagline: Model costs and feed into financial model
+    - pause: 2s
+    - video: /:core-videos/economic model_financial model_intro.webm.01-1.mp4.01.webm
+      slice: 00:00..00:47
+      script: >
+        [00:00:00] The revenue and cost components of your economic model come
+        together to form the beginnings of your financial model.
+
+        [00:00:06] This shows the way that money works for your enterprise at
+        scale.
+
+        [00:00:11] This is about proving that the revenue that you get from your
+        customers will be enough to cover the cost of delivering your product or
+        service to your customers, as well as the cost of delivering the
+        activities that your impact model requires.
+
+        [00:00:26] This will show that your business model works as a single,
+        whole integrated system.
+
+        [00:00:32] That all of the pieces come together to create something that
+        can at least sustain itself and turn a profit. If that's your goal in
+        this first pass through the canvas, start by listing your business
+        model's main revenue and cost items.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Financial Model
+          text:
+            body: |
+              Financial Model
+        00:00:03:
+          pause: 2s
+          image: /:core-images/em-revcost-highlight.png
+          text:
+            headline: Financial Model
+            tagline: How money works at scale
+        00:00:11:
+          text:
+            headline: Financial Model
+            tagline: Revenue covers costs and impact activities
+        00:00:26:
+          text:
+            headline: Financial Model
+            tagline: Single integrated system
+        00:00:32:
+          text:
+            headline: First Pass
+            tagline: List main revenue and cost items
+    - video: /:core-videos/economic model_financial
+        model_revenue.webm.01-1.mp4.01.webm
+      slice: 00:00..00:27
+      script: >
+        [00:00:00] For revenue. This will include all forms of regular income
+        that your business model will generate.
+
+        [00:00:05] This could be in the form of sales donations, grants
+        sponsorship, and other forms of income.
+
+        [00:00:11] But remember that we are looking here to understand what your
+        financial model will look like at scale.
+
+        [00:00:17] This is not about how you will get there, so only include
+        revenue that will be there when you're at scale, not things like funding
+        that you will use in the startup phase.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/em-rev-highlight.png
+          text:
+            headline: Revenue
+            tagline: Regular income your model generates
+        00:00:05:
+          text:
+            headline: Revenue
+            body: |
+              - Sales
+              - Donations
+              - Grants
+              - Sponsorship
+        00:00:11:
+          image: /:core-images/em-rev-highlight.png
+          text:
+            headline: Revenue at Scale
+            tagline: Not startup funding
+    - video: /:core-videos/economic model_financial model_costs.webm.01-1.mp4.01.webm
+      slice: 00:00..00:37
+      script: >
+        [00:00:00] For costs. This might include the costs involved with making
+        your product or service marketing costs, distribution costs, and the
+        cost of delivering your impact activities.
+
+        [00:00:11] This will also include any other major ongoing costs that
+        your business model will have to cover.
+
+        [00:00:17] Keep all of this simple and high level to start with.
+
+        [00:00:20] This will give you the shape of your financial model and
+        allow you to assess its viability as well as what might need to change
+        about it over time.
+
+        [00:00:29] You will add in more detail as you move forward with your
+        enterprise and test the revenue and cost assumptions in this model.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/em-costs-highlight.png
+          text:
+            headline: Costs
+            tagline: Ongoing expenses to deliver value
+        00:00:03:
+          text:
+            headline: Costs
+            body: |
+              - Product/service delivery
+        00:00:06:
+          text:
+            headline: Costs
+            body: |
+              - Marketing
+        00:00:08:
+          text:
+            headline: Costs
+            body: |
+              - Distribution
+        00:00:11:
+          text:
+            headline: Costs
+            body: |
+              - Impact activities
+              - Other ongoing costs
+        00:00:17:
+          image: /:core-images/em-costs-highlight.png
+          text:
+            headline: Start Simple
+            tagline: High-level shape shows viability
+    - pause: 2s
+    - video: /:core-videos/economic model_advantage_1.webm.02.mp4.webm
+      slice: 00:00..01:34
+      script: >
+        [00:00:00] The advantage section of your economic model is about
+        understanding what is powerful about how your business model works.
+
+        [00:00:07] What is the leverage that is generated in your business model
+        that when you reach the scale you're going for will make your business
+        model successful.
+
+        [00:00:16] If there is no powerful advantage, you will not be able to
+        make your revenue greater than your costs long term. That is you won't
+        be financially sustainable.
+
+        [00:00:26] All businesses need to have one or more fundamental dynamics
+        that make them work.
+
+        [00:00:32] It is possible to have a product that people want and will
+        pay for channels to reach customers through, and the ability to deliver
+        this at scale, but to never be able to make the economics work.
+
+        [00:00:44] This is because there's not enough leverage in the business
+        model.
+
+        [00:00:48] No matter how hard you try, you just can't make your revenue
+        greater than your costs. You need an advantage in the form of some type
+        of leverage to make the difference.
+
+        [00:00:59] This advantage could take many different forms.
+
+        [00:01:02] It could be owning a crucial piece of intellectual property
+        that others don't have access to.
+
+        [00:01:08] It could be having access to a key resource at a discount, or
+        for free, benefiting from powerful network effects, having valuable
+        brand associations like a celebrity endorsement.
+
+        [00:01:21] Access to cheap or free capital. For example, if there's an
+        impact investment that's available on better terms than your more
+        commercial competitors can get or some other form of leverage.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Advantage
+          text:
+            body: |
+              Advantage
+        00:00:03:
+          pause: 2s
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Advantage
+            tagline: What makes your business model powerful
+        00:00:16:
+          text:
+            headline: Advantage
+            tagline: Essential for financial sustainability
+        00:00:26:
+          text:
+            headline: Leverage
+            tagline: Fundamental dynamics that make it work
+        00:00:44:
+          text:
+            headline: Without Leverage
+            tagline: Economics won't work no matter how hard you try
+        00:00:59:
+          text:
+            headline: Forms of Advantage
+            body: |
+              - Intellectual property
+        00:01:02:
+          text:
+            headline: Forms of Advantage
+            body: |
+              - Key resource access
+        00:01:08:
+          text:
+            headline: Forms of Advantage
+            body: |
+              - Network effects
+              - Brand associations
+        00:01:21:
+          text:
+            headline: Forms of Advantage
+            body: |
+              - Access to capital
+              - Other leverage
+    - video: /:core-videos/economic model_advantage_2 innovate.webm.02.mp4.webm
+      slice: 00:00..00:20
+      script: >
+        [00:00:00] The advantage section of your canvas is often where you can
+        innovate on your business model.
+
+        [00:00:05] It's the place where you can brainstorm how your business
+        model can be improved by finding an advantage that you can build on.
+
+        [00:00:12] This is especially important if after sketching your
+        financial model, you find that the numbers don't really stack up.
+      timestamps:
+        00:00:00:
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Innovation Opportunity
+            tagline: Brainstorm advantages you can build
+        00:00:12:
+          text:
+            headline: Innovation Opportunity
+            tagline: Especially important when numbers don't stack up
+    - pause: 3s
+    - video: /:core-videos/economic model_FBexample_overview.webm.01-1.mp4.01.webm
+      slice: 00:00..00:13
+      script: >
+        [00:00:00] Let's walk through the example of Facebook to practice how to
+        develop your economic model.
+
+        [00:00:05] There isn't an impact component to consider for Facebook, but
+        it will be a useful and familiar model to work through all the same
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Facebook Example
+          text:
+            body: |
+              Facebook Example
+        00:00:03:
+          pause: 3s
+          image: /:core-images/facebook-logo.jpg
+          text:
+            headline: Example - Facebook
+            tagline: Practice developing your economic model
+    - video: /:core-videos/economic model_FBexample_channels.webm.01-1.mp4.01.webm
+      slice: 00:00..00:38
+      script: >
+        [00:00:00] Firstly, channels, Facebook's customer acquisition channel
+        for its user. Customer type was mainly via viral word of mouth.
+
+        [00:00:08] People who became Facebook users invited their friends, and
+        as each user invited, on average, more than one other user, customer
+        numbers grew exponentially.
+
+        [00:00:19] For its advertiser customer type, Facebook used a direct
+        sales channel selling ads to businesses, and then later a self-service
+        digital sales channel.
+
+        [00:00:31] Facebook's distribution channel was its online website
+        application, and later its mobile application.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Facebook - Channels
+            tagline: User acquisition via viral word of mouth
+        00:00:08:
+          text:
+            headline: Facebook - Acquisition
+            tagline: Exponential growth from user invitations
+        00:00:19:
+          text:
+            headline: Facebook - Advertiser Acquisition
+            body: |
+              - Direct sales channel
+              - Self-service digital sales
+        00:00:31:
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Facebook - Distribution
+            tagline: Online and mobile applications
+    - video: /:core-videos/economic model_FBexample_financial
+        model.webm.01-1.mp4.01.webm
+      slice: 00:00..00:58
+      script: >
+        [00:00:00] For its financial model, the basics of Facebook's revenue and
+        costs would look something like for revenue, X advertising, dollars per
+        user, per hour of engagement.
+
+        [00:00:11] Then perhaps a projection of how much revenue they would
+        expect at scale based on the numbers of users and the average level of
+        engagement from these users.
+
+        [00:00:22] For costs, it would include things like development costs to
+        maintain and improve the product, hosting and bandwidth costs for
+        delivering the product, sales costs, for selling to advertising buyers
+        and other business and staffing costs.
+
+        [00:00:38] For this first pass through the canvas, we keep the numbers
+        high level and then develop the financial model in more detail over
+        time.
+
+        [00:00:46] The key important thing to understand in Facebook's financial
+        model is if the customer and impact models are both correct. Can
+        Facebook succeed from a financial perspective?
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/em-rev-highlight.png
+          text:
+            headline: Facebook - Revenue
+            tagline: Ad dollars per user per hour of engagement
+        00:00:11:
+          text:
+            headline: Facebook - Revenue
+            tagline: Projected at scale based on users and engagement
+        00:00:22:
+          pause: 2s
+          image: /:core-images/em-costs-highlight.png
+          text:
+            headline: Facebook - Costs
+            tagline: Development, Hosting, Sales, Staffing
+        00:00:38:
+          image: /:core-images/em-revcost-highlight.png
+          text:
+            headline: Facebook - Financial Model
+            tagline: High-level first pass
+        00:00:46:
+          text:
+            headline: Key Question
+            tagline: Can Facebook succeed financially?
+    - video: /:core-videos/economic model_FBexample_advantage.webm.01-1.mp4.01.webm
+      slice: 00:00..01:17
+      script: >
+        [00:00:00] In the advantage section, we are looking for the powerful
+        business model dynamics that will cause Facebook to succeed.
+
+        [00:00:06] There are two main advantages that Facebook had here. Two
+        forms of leverage that made their business model so strong.
+
+        [00:00:14] Firstly, they can grow incredibly quickly at almost zero
+        cost.
+
+        [00:00:19] While other businesses have to recycle large amounts of their
+        revenue back into acquiring expensive new customers. Facebook's users
+        did this job for them for free.
+
+        [00:00:29] They were able to grow to over 2 billion users without paying
+        for customer acquisition in the way that other online businesses have
+        to.
+
+        [00:00:38] The second main point of leverage was the network effects
+        that they generated.
+
+        [00:00:43] This is the dynamic by which the value of their service goes
+        up with every new customer that they add.
+
+        [00:00:50] The more people that are on Facebook, the more valuable it is
+        to each of those users because there are more possible people for them
+        to connect with.
+
+        [00:00:59] Both of these points of leverage created an unstoppable
+        advantage for Facebook.
+
+        [00:01:04] They could add users very cheaply and quickly, and every new
+        user they added made their platform better and better.
+
+        [00:01:12] This created a virtuous cycle that no other social network
+        could compete with.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Facebook - Advantage
+            tagline: Two main forms of leverage
+        00:00:14:
+          text:
+            headline: Advantage 1
+            tagline: Viral growth at zero cost
+        00:00:19:
+          text:
+            headline: Advantage 1
+            body: |
+              Users acquired customers for free
+              Grew to 2 billion without acquisition costs
+        00:00:38:
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Advantage 2
+            tagline: Network effects
+        00:00:43:
+          text:
+            headline: Advantage 2
+            body: |
+              Value increases with every new customer
+              More users = more valuable to each user
+        00:00:59:
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Unstoppable Advantage
+            tagline: Virtuous cycle no competitor could match
+        00:01:04:
+          text:
+            headline: Virtuous Cycle
+            body: |
+              - Add users cheaply and quickly
+              - Each user makes platform better
+              - Competitive moat
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

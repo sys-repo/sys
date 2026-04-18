@@ -1,0 +1,705 @@
+prompt: >
+  # SLUG WORKFLOW - STEP 2: Full YAML Generation
+
+
+  Purpose: Complete reconciliation and generate full YAML slug
+
+
+  Token cost: ~30-50k tokens (varies by slug length)
+
+
+  ---
+
+
+  ## Your Task
+
+
+  This is Step 2 of the workflow. Step 1 validation and planning is complete and
+  approved.
+
+
+  In this step, you will:
+
+
+  1. Perform complete reconciliation of all scripts with SRT timestamps
+
+  2. Generate full YAML structure with all sequence items
+
+  3. Apply all approved structural decisions from Step 1
+
+  4. Include all navigation titles, images, text elements, and timing
+
+  5. Output complete YAML file
+
+
+  ---
+
+
+  ## Context Documents
+
+
+  You have been provided with:
+
+
+  - slug-technical-context.md - System architecture reference
+
+  - slug-creation-rules.md - Quality rules and principles
+
+
+  CRITICAL: Follow ALL rules in slug-creation-rules.md during generation.
+
+
+  ---
+
+
+  ## What You Have from Step 1
+
+
+  From approved Step 1, you have:
+
+
+  - ✅ Confirmed Obsidian script file path
+
+  - ✅ Confirmed video filenames and sequence
+
+  - ✅ Confirmed available images
+
+  - ✅ Approved navigation structure
+
+  - ✅ Approved image placement strategy
+
+  - ✅ Approved body text strategy
+
+  - ✅ Answers to any clarifying questions
+
+
+  ---
+
+
+  ## CRITICAL RULE: Navigation Title Display
+
+
+  Before you begin creating the sequence, understand this mandatory pattern:
+
+
+  ### Navigation titles MUST be displayed as body text for 3 seconds before
+  their content starts
+
+
+  This is NON-NEGOTIABLE. Every navigation title must follow this exact pattern.
+
+
+  ### The Pattern - MEMORIZE THIS:
+
+  ```yaml
+    00:00:00:
+      title: [NAVIGATION TITLE]   # ← Creates nav entry
+      pause: 3s                   # ← Must be 3 seconds
+      text:
+        headline:                 # ← Leave empty
+        tagline:                  # ← Leave empty  
+        body: |                   # ← Display title as body text
+          [NAVIGATION TITLE]      # ← Same text as title above
+  ```
+
+
+  ### Example - CORRECT ✅
+
+  ```yaml
+    00:00:00:
+      title: Customers
+      pause: 3s
+      text:
+        headline: 
+        tagline: 
+        body: |
+          Customers
+
+    # THEN at next timestamp, start actual content:
+    00:00:03:
+      image: /:core-images/cm-c-highlight.png
+      text:
+        headline: Customers
+        tagline: People you need to move
+  ```
+
+
+  ### Example - WRONG ❌
+
+  ```yaml
+
+  00:00:00:
+    title: Customers
+    pause: 2s                              # ❌ Wrong duration
+    image: /:core-images/cm-c-highlight.png  # ❌ Image too early
+    text:
+      headline: Customers                  # ❌ Headline too early
+      tagline: People you need to move     # ❌ Tagline too early
+      # ❌ NO BODY TEXT - This violates the rule!
+  ```
+
+
+  ### Why This Matters
+
+
+  This 3-second display:
+
+
+  1. Gives learners time to see the navigation marker appear
+
+  2. Prepares them mentally for the content section
+
+  3. Provides a clear break between sections
+
+  4. Matches the navigation UI update timing
+
+
+  Failure to implement this rule breaks the learning experience.
+
+
+
+  ---
+
+
+  ## CRITICAL RULE: Images and Body Text Cannot Appear Together
+
+
+  The Concept Player cannot render both an image and body text at the same
+  timestamp.
+
+
+  If you include both, only one will display and the other will be lost.
+
+
+  ### The Rule:
+
+
+  At any given timestamp, use EITHER:
+
+  - Image + headline + tagline (no body text)
+
+  - Body text + headline + tagline (no image)
+
+
+  NEVER both.
+
+
+
+
+  ### Example - WRONG ❌
+
+  ```yaml
+    00:00:14:
+      image: /:core-images/overview.png
+      text:
+        headline: Four Key Sections
+        body: |           # ❌ Body text WITH image - will break!
+          - Customers
+          - Jobs To Be Done
+  ```
+
+
+  ### Example - CORRECT ✅
+
+  ```yaml
+    # First show image with headline/tagline
+    00:00:10:
+      image: /:core-images/overview.png
+      text:
+        headline: Four Key Sections
+        tagline: Integrated customer model
+
+    # Then show body text (image disappears)
+    00:00:14:
+      text:
+        headline: Four Key Sections
+        body: |
+          - Customers
+          - Jobs To Be Done
+  ```
+
+
+  ### For Progressive Reveals with Canvas Images:
+
+  If you need to show a canvas image while building a list, use taglines instead
+  of body text:
+
+
+  ```yaml
+    00:00:14:
+      image: /:core-images/overview.png
+      text:
+        headline: Four Key Sections
+        tagline: Customers
+
+    00:00:18:
+      image: /:core-images/overview.png
+      text:
+        headline: Four Key Sections
+        tagline: Customers, Jobs To Be Done
+  ```
+
+
+  Or remove the image during the list build and show it after.
+
+
+  ---
+
+
+  ## Step 2 Process
+
+  ### 1. Complete Reconciliation
+
+
+  For each video in the slug:
+
+  Parse the full SRT timestamps and reconcile with Obsidian script:
+
+
+  - Map SRT phrases to script sections
+
+  - Use Obsidian language (language authority)
+
+  - Use SRT timecodes (timing authority)
+
+  - Correct transcription errors
+
+  - Note any structural differences
+
+  - Flag sections that can't be reconciled
+
+
+  Remember from slug-creation-rules.md:
+
+
+  - Obsidian script = language authority (correct words)
+
+  - SRT = timing authority (precise timecodes)
+
+  - Descript doesn't know SLC terminology - expect errors
+
+  - If can't reconcile, flag for user clarification
+
+
+  Produce complete script with inline timecode markers:
+
+
+  ```yaml
+    script: |
+      [00:00:00] First sentence with precise timing.
+      [00:00:05] Next sentence continues the thought.
+      [00:00:12] And so on throughout the entire video.
+  ```
+
+
+  ### 2. Build Complete YAML Structure
+
+  Follow structure from slug-technical-context.md:  
+
+  Top-level:  
+
+
+  ```yaml
+    # Slug: Concept Player
+    #
+    title: [TITLE]
+    description: [DESCRIPTION]
+
+    traits:
+      - of: media-composition
+        as: sequence
+      - of: slug-list
+        as: solo
+
+    alias:
+      [Standard alias structure with provided values]
+
+    TASKS:
+      [User-provided or conversation-generated tasks]
+
+    data:
+      sequence:
+        [All sequence items]
+      
+      solo:
+        [Solo slugs if applicable]
+  ```
+
+
+  ### 3. Create Sequence Items
+
+  REMINDER: For every navigation title in your sequence, you MUST use the
+  navigation title display pattern shown above.
+
+
+  For each video:
+
+  ```yaml
+    - video: /:videos/[FILENAME]
+      slice: 00:00..[END_TIME]
+      script: |
+        [Complete reconciled script with inline timecodes]
+      timestamps:
+        [All timed events - pauses, titles, images, text]
+  ```
+
+
+  For navigation titles within video timestamps:
+
+  Use the mandatory pattern:
+
+
+
+  ```yaml
+    00:00:00:
+      title: [NAVIGATION TITLE]
+      pause: 3s
+      text:
+        headline: 
+        tagline: 
+        body: |
+          [NAVIGATION TITLE]
+
+    # Then continue with actual content at next timestamp  
+  ```
+
+
+  For non-navigation timestamps:
+
+  ```yaml
+    - pause: 3s  # Separate sequence item
+  ```
+
+
+  Between videos (if multiple):
+
+  ```yaml
+    - pause: 3s  # Separate sequence item
+  ```
+
+
+  For nested slugs:
+
+  ```yaml
+    - slug: /:core-slugs/[REFERENCE]
+      display: inline  # or overlay
+  ```
+    
+  For solo slugs (outside sequence):  
+
+  ```yaml
+    solo:
+      - slug: /:slugs/[REFERENCE]
+        display: overlay  # default is overlay
+  ```
+
+
+
+  ### 4. Implement Approved Structure
+
+  Navigation titles (from Step 1 approval):
+
+
+  Apply the mandatory navigation title display pattern to each approved
+  navigation section.
+
+  Images (from Step 1 approval): Place at approved timestamps with approved text
+  pairings
+
+  Remember: Images and body text cannot appear simultaneously
+
+  Body text (from Step 1 approval): Implement at approved moments with approved
+  animation approach
+
+
+  CRITICAL from slug-creation-rules.md:
+
+  - Body text requires headline context
+
+  - Headlines persist through progressive reveals
+
+  - Repeat headline/tagline at each progressive timestamp
+
+
+  ### 5. Apply All Quality Rules
+
+  Follow checklist in slug-creation-rules.md:
+
+  Text elements:
+
+
+  - Headlines provide context for body text
+
+  - Headlines persist through progressive reveals
+
+  - Taglines land when concept is articulated (timing!)
+
+  - Case consistency (Title Case for labels, sentence case for prose)
+
+  - Max lengths respected (3-5 lines, max 5 bullets)
+
+
+  Timing:
+
+  - Navigation titles: 3s pause with body text display ← CHECK THIS
+
+  - Pauses scaled to cognitive load (1s/2s/3-4s/4-5s)
+
+  - Text elements timed to narration
+
+  - 3s pause between videos (separate sequence item)
+
+
+  Structure:
+
+  - Proper YAML syntax
+
+  - All aliases defined correctly
+
+  - All timestamps in ascending order
+
+  - Solo slugs in separate section
+
+
+  ---
+
+
+  ## Output Instructions
+
+  ### 1. Generate Complete YAML
+
+
+  Create the full YAML file following:
+
+  - Approved structural plan from Step 1
+
+  - All rules in slug-creation-rules.md
+
+  - Architecture from slug-technical-context.md
+
+  - MANDATORY navigation title display pattern
+
+
+  ### 2. Save to Outputs
+
+  Use bash_tool to create and copy:
+
+
+  ```bash
+    # Create in working directory
+    cat > /home/claude/[slug-name]-slug.yaml << 'EOF'
+    [YAML content]
+    EOF
+
+    # Copy to outputs for user
+    cp /home/claude/[slug-name]-slug.yaml /mnt/user-data/outputs/[slug-name]-slug.yaml
+  ```
+
+
+
+  ### 3. Provide Concise Summary
+
+  After generating YAML:
+
+  ```yaml
+      ## STEP 2 COMPLETE
+
+      ✅ **[View your slug YAML](computer:///mnt/user-data/outputs/[slug-name]-slug.yaml)**
+
+      **Summary:**
+      - Slug: [TITLE]
+      - Videos: [N], Duration: ~[MM:SS]
+      - Navigation sections: [N]
+      - Images: [N] placed
+      - Solo slugs: [N or NONE]
+
+      **Key features:**
+      - [Notable feature 1]
+      - [Notable feature 2]
+
+      **Reconciliation notes:**
+      - [Any notable decisions or flagged issues]
+
+      ---
+
+      Ready for review. Let me know if you need adjustments.
+  ```
+
+
+  ---
+
+
+  ## If Issues Arise
+
+
+  Can't reconcile a section:
+
+  - Flag clearly in YAML comments
+
+  - Include both versions (script vs SRT)
+
+  - Ask user for clarification
+
+
+  SRT timestamp gaps:
+
+  - Note where they occur
+
+  - Ask if content was cut intentionally
+
+
+  Script sections missing in SRT:
+
+  - Flag for user review
+
+  - May have been cut during recording
+
+
+  Technical errors:
+
+  - Don't proceed if YAML syntax is broken
+
+  - Fix and validate before outputting
+
+
+  ---
+
+
+  ## Critical Reminders
+
+  - DO complete full reconciliation - don't skip sections
+
+  - DO use inline timecodes in script: [00:00:00]
+
+  - DO follow all rules in slug-creation-rules.md
+
+  - DO implement navigation title display pattern for EVERY navigation title
+
+  - DO use 3s pause for navigation title displays
+
+  - DO use markdown for body text bullets: -
+
+  - DO verify timestamps are ascending
+
+  - DO save to outputs directory
+
+  - DO NOT modify Obsidian files
+
+  - DO flag anything unclear for user review
+
+  - Keep summary concise - brief and actionable
+
+
+  ---
+
+
+  ## Quality Verification Before Output
+
+  Before saving YAML, verify using checklist in slug-creation-rules.md:
+
+
+  ### Structure
+
+  - [ ] Proper YAML syntax
+
+  - [ ] All aliases defined
+
+  - [ ] All references use aliases
+
+  - [ ] Sequence items in order
+
+  - [ ] Timestamps ascending
+
+
+  ### Content
+
+  - [ ] Scripts fully reconciled
+
+  - [ ] Navigation titles (2-10 typical)
+
+  - [ ] Navigation titles displayed as body text for 3s ← CRITICAL CHECK
+
+  - [ ] Headlines mark subsections
+
+  - [ ] Images at approved moments
+
+  - [ ] Body text with persistent headlines
+
+  - [ ] No images + body text together
+
+  - [ ] Case consistency
+
+  - [ ] No image + body text at same timestamp ← CRITICAL CHECK
+
+
+  ### Timing
+
+  - [ ] Navigation sections: 3s pause ← CRITICAL CHECK
+
+  - [ ] Other pauses match cognitive load
+
+  - [ ] Text timed to narration
+
+  - [ ] Taglines land at emphasis
+
+  - [ ] 3s pause between videos
+
+
+  ### Details
+
+  - [ ] Video slice times accurate
+
+  - [ ] Taglines 3-10 words
+
+  - [ ] Max 5 bullets per overlay
+
+  - [ ] Correct terminology
+
+  - [ ] Appropriate voice/tone
+
+  - [ ] Smart quotes (“”) used in text content (not straight quotes (""))
+
+
+  ---
+
+
+  ## Navigation Title Display - Final Reminder
+
+  Before you output the YAML, verify EVERY navigation title follows this
+  pattern:
+
+
+  ```yaml
+      00:00:00:
+        title: [NAVIGATION TITLE]
+        pause: 3s
+        text:
+          headline: 
+          tagline: 
+          body: |
+            [NAVIGATION TITLE]
+  ```
+
+
+  Count your navigation titles. Count the implementations of this pattern. They
+  must match.
+
+  If you have 5 navigation titles, you must have 5 implementations of this exact
+  pattern.
+
+
+  ---
+
+
+  ## After Generation
+
+  Once YAML is generated and saved:
+
+
+  1. Provide concise summary
+
+  2. Await user feedback
+
+  3. Make requested revisions if needed
+
+  4. Workflow complete when user approves

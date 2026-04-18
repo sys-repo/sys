@@ -1,0 +1,9 @@
+root:
+  docid: 21JvXzARPYFXDVMag3x4UhLgHcQi
+  file: ./docs/slug.21JvXzARPYFXDVMag3x4UhLgHcQi.yaml
+sample:
+  derivedFrom: agent-projects authored dataset export
+  kept:
+    prog.core: 2
+    prog.p2p: 2
+  docs: 31

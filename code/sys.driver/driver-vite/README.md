@@ -126,7 +126,7 @@ import { defineConfig } from 'vite';
 export default defineConfig(() => {
   const paths = Vite.Config.paths({
     app: {
-      entry: 'src/-test/index.html',
+      entry: 'src/index.html',
       outDir: 'dist',
     },
   });
@@ -154,7 +154,7 @@ import { defineConfig } from 'vite';
 export default defineConfig(async () => {
   const paths = Vite.Config.paths({
     app: {
-      entry: 'src/-test/index.html',
+      entry: 'src/index.html',
       outDir: 'dist',
     },
   });

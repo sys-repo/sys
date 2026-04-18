@@ -58,6 +58,7 @@ export const RunButton: React.FC<RunButtonProps> = (props) => {
       <Button
         enabled={canRun && !spinning}
         disabledOpacity={1}
+        theme={theme.name}
         tooltip={tooltip}
         onClick={onRun}
       >

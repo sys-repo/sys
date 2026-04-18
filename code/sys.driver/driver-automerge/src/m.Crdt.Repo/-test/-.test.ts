@@ -1,4 +1,4 @@
-import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
+import { NetworkAdapter, type Message, type PeerId, type PeerMetadata } from '@automerge/automerge-repo';
 import { type t, AutomergeRepo, describe, expect, it, Rx, Time } from '../../-test.ts';
 
 import { Crdt } from '../../m.server/common.ts';
@@ -6,6 +6,24 @@ import { toAutomergeRepo, toRepo } from '../mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
+
+  class TestNetworkAdapter extends NetworkAdapter {
+    readonly url: t.StringUrl;
+    constructor(url: t.StringUrl) {
+      super();
+      this.url = url;
+    }
+    isReady() {
+      return true;
+    }
+    async whenReady() {}
+    connect(peerId: PeerId, peerMetadata?: PeerMetadata) {
+      this.peerId = peerId;
+      this.peerMetadata = peerMetadata;
+    }
+    send(_message: Message) {}
+    disconnect() {}
+  }
 
   it('toAutomergeRepo', () => {
     const base = new AutomergeRepo();
@@ -41,7 +59,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('creates with { peerId }', () => {
-      const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
+      const network = [new TestNetworkAdapter('wss://sync.db.team')];
       const peerId = 'foo:bar';
       const a = toRepo(new AutomergeRepo(), { peerId });
       const b = toRepo(new AutomergeRepo({ network }), { peerId });
@@ -278,8 +296,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('sync (network)', () => {
     const createAdapters = () => {
-      const net1 = new BrowserWebSocketClientAdapter('wss://sync.automerge.org');
-      const net2 = new BrowserWebSocketClientAdapter('wss://sync.db.team');
+      const net1 = new TestNetworkAdapter('wss://sync.automerge.org');
+      const net2 = new TestNetworkAdapter('wss://sync.db.team');
       return { net1, net2 } as const;
     };
 
@@ -299,7 +317,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(c.sync.enabled).to.eql(true);
     });
 
-    it('can never be enbled when no networks', () => {
+    it('can never be enabled when no networks', () => {
       const { net1 } = createAdapters();
       const a = toRepo(new AutomergeRepo({}));
       const b = toRepo(new AutomergeRepo({ network: [net1] }));

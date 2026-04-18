@@ -4,7 +4,7 @@ import { asCommand, printOutput, toProcOutput } from './u.ts';
 /**
  * Run a <unix> command (argv) and wait for response.
  */
-export const invoke: t.ProcLib['invoke'] = async (config) => {
+export const invoke: t.Process.Lib['invoke'] = async (config) => {
   const { silent } = config;
   const command = asCommand(config);
   const output = await command.output();
@@ -20,7 +20,7 @@ export const invoke: t.ProcLib['invoke'] = async (config) => {
  * - unrefs the process so the parent can exit immediately
  * - returns only the PID
  */
-export const invokeDetached: t.ProcLib['invokeDetached'] = (config) => {
+export const invokeDetached: t.Process.Lib['invokeDetached'] = (config) => {
   const command = asCommand(config, {
     stdin: 'null',
     stdout: 'null',

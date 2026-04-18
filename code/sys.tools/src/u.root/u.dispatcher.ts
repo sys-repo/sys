@@ -1,11 +1,8 @@
 import { type t } from './common.ts';
+import { terminalCwd } from './u.cwd.ts';
 import { Imports } from './u.imports.ts';
 
 type CliFn = (cwd: t.StringDir, argv: readonly string[]) => Promise<unknown>;
-
-function terminalCwd(): t.StringDir {
-  return (Deno.env.get('INIT_CWD') ?? Deno.cwd()) as t.StringDir;
-}
 
 /**
  * Load a tool module and return its `cli(cwd, argv)` entry.

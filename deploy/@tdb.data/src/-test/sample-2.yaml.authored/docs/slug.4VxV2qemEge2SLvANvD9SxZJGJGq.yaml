@@ -1,0 +1,176 @@
+title: Introduction
+description: Introduction to the Social Lean Canvas - what it is, who it's for,
+  and what you'll get
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-2.0-intro-2025
+  :core-images: :core-assets/images
+  :core-videos: :core-assets/videos
+TASKS:
+  - TODO: Create marketing image for Social Lean Canvas program
+    comment: |
+      Use program summary box #14 as reference. Display at opening (~00:00:00) 
+      alongside or instead of canvas-blank.png.
+  - TODO: Create marketing image for Build program
+    comment: |
+      Use program summary box #14 as reference. Display when discussing 
+      Build (~00:01:38).
+  - TODO: Create SLC origin story solo slug
+    comment: |
+      Should mention DM. Add as solo slug with overlay display once created.
+data:
+  sequence:
+    - video: /:core-videos/core 2.0-intro1.webm.01-1.mp4.01.webm
+      slice: 00:00..02:01
+      script: >
+        [00:00:00] Welcome to the Social Lean Canvas.
+
+        [00:00:02] This is where you take the ideas in your head and turn them
+        into a clear, testable business model that can succeed.
+
+        [00:00:08] I'll walk you through a set of simple steps to map what you
+        know, what you suspect, and what you haven't yet articulated into a
+        coherent model that fits on a single page.
+
+        [00:00:19] When you've completed your canvas, you'll have a one-page map
+        of who you serve, how you create value, how you make money, and how you
+        create impact.
+
+        [00:00:28] The Social Lean Canvas is for purpose-driven ventures.
+
+        [00:00:32] Organisations that care about both a business model, a money
+        system that keeps your venture alive, and an impact model, a clear logic
+        for the change you want to create in the world.
+
+        [00:00:43] This can include social enterprises, community and indigenous
+        ventures, cooperatives, non-profits with earned income, mission-led
+        startups, solo ventures, and all the other yet-to-be-imagined ways that
+        we can use a business model to deliver social or environmental impact.
+
+        [00:01:01] If this is what you're working towards, then the Social Lean
+        Canvas is for you.
+
+        [00:01:05] By the time you've finished your Social Lean Canvas, you'll
+        have made sense of your ideas.
+
+        [00:01:10] You'll have a clear one-page map of your venture and how it's
+        going to work.
+
+        [00:01:14] You'll have a shared language to talk about your idea with
+        co-founders, funders, partners and supporters.
+
+        [00:01:22] And you'll have a foundation upon which you can build a clear
+        strategy to take your venture forward.
+
+        [00:01:26] The Social Lean Canvas is free and open to everyone.
+
+        [00:01:30] If after you've done your canvas, you want more support to
+        improve your model and design your strategy, there's a follow-on program
+        called Build.
+
+        [00:01:38] We charge a modest fee for Build to help sustain this work,
+        but we also know that a modest fee for one person could be a month's
+        salary for another.
+
+        [00:01:46] So if you want to join Build but can't afford to pay for it,
+        we've got you covered.
+
+        [00:01:50] No one misses out because of money.
+
+        [00:01:53] People who pay for Build effectively pay it forward.
+
+        [00:01:55] Helping fund places for those who can't afford it, and
+        keeping the Social Lean Canvas accessible to anyone who needs it.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Welcome
+          text:
+            body: |
+              Welcome
+        00:00:03:
+          pause: 2s
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: The Social Lean Canvas
+            tagline: Turn your idea into a testable purpose-driven business model
+        00:00:19:
+          text:
+            headline: The Social Lean Canvas
+            tagline: See everything on a single page
+        00:00:28:
+          pause: 3s
+          title: Purpose-Driven Ventures
+          text:
+            body: |
+              Purpose-Driven Ventures
+        00:00:31:
+          text:
+            headline: Purpose-Driven Ventures
+            tagline: Business model + impact model
+        00:00:43:
+          text:
+            headline: Purpose-Driven Ventures
+            body: |
+              - Social enterprises
+              - Community and indigenous ventures
+              - Cooperatives
+              - Non-profits with earned income
+              - Mission-led startups and solo ventures
+        00:01:05:
+          pause: 3s
+          title: What You'll Get
+          text:
+            body: |
+              What You'll Get
+        00:01:08:
+          text:
+            headline: What You'll Get
+            tagline: Make sense of your ideas
+        00:01:10:
+          text:
+            headline: What You'll Get
+            body: |
+              - A clear one-page map of your venture
+        00:01:14:
+          text:
+            headline: What You'll Get
+            body: |
+              - A clear one-page map of your venture
+              - A shared language with co-founders, funders, partners
+        00:01:22:
+          text:
+            headline: What You'll Get
+            body: |
+              - A clear one-page map of your venture
+              - A shared language with co-founders, funders, partners
+              - A foundation for your strategy
+        00:01:26:
+          pause: 3s
+          title: Free And Open
+          text:
+            body: |
+              Free And Open
+        00:01:29:
+          image: /:core-images/creative-commons.png
+          text:
+            headline: Free And Open
+            tagline: Accessible to everyone
+        00:01:38:
+          text:
+            headline: Build Program
+            tagline: More structure and support
+        00:01:53:
+          text:
+            headline: Pay It Forward
+            tagline: No one misses out because of money
+  solo:
+    - slug: /:core-slugs/2.1-intro-learn-more
+      display: overlay

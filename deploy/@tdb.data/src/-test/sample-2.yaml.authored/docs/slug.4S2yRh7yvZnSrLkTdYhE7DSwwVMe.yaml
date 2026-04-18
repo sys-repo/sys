@@ -1,0 +1,600 @@
+title: Learn More
+description: Deeper introduction to the Social Lean Canvas - why it matters, how
+  it works, and the three models
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-2.0-intro-2025
+  :core-images: :core-assets/images
+  :core-videos: :core-assets/videos
+TASKS:
+  - TODO: Create graphic with logos of organisations that have used the SLC
+    comment: |
+      "Thousands of ventures, accelerators, incubator programs, universities, 
+      NGOs and community organisations around the world." Display at ~00:02:24.
+data:
+  sequence:
+    - video: /:core-videos/core 2.0-intro2.webm.02.mp4.webm
+      slice: 00:00..08:28
+      script: >
+        [00:00:00] There are lots of different ways that using a business model
+        to create social or environmental impact can show up.
+
+        [00:00:06] You could call yourself a social enterprise, a community or
+        indigenous enterprise, a cooperative, a nonprofit with earned income, a
+        mission-led startup or a solo venture of some sort.
+
+        [00:00:17] All of these have a mechanism for money to flow through them,
+        to make them financially sustainable and even profitable while having a
+        social or environmental mission. All can work in the Social Lean Canvas.
+
+        [00:00:28] We've deliberately designed the SLC so that it isn't tied to
+        any one legal structure or narrow definition.
+
+        [00:00:34] If you have a way to earn money and a way to deliver impact,
+        the canvas is for you.
+
+        [00:00:42] Rather than getting lost in labels, we refer to all of these
+        kinds of organisations combining business and impact models simply as
+        purpose-driven ventures.
+
+        [00:00:48] Traditional businesses can't be relied on to solve the
+        problems that the world faces, and increasingly, they're becoming the
+        cause of many of these problems.
+
+        [00:00:57] At the same time, a whole new set of tools are arriving that
+        make building purpose-aligned organisations easier and more able to
+        compete with traditional companies.
+
+        [00:01:08] Digital platforms, AI and other technologies are making it
+        possible for purpose-driven organisations to succeed in ways that were
+        impossible in the past.
+
+        [00:01:16] There's a new playbook emerging for purpose-driven ventures
+        to harness technology, innovation, capital, and networks in ways that
+        have only been available to big traditional businesses in the past.
+
+        [00:01:28] And there's a rich history of purpose-driven organisations to
+        learn from, and every day brings new examples of people using the tools
+        of business to create positive change.
+
+        [00:01:38] The Social Lean Canvas exists to give these ventures a better
+        shot at success in today's landscape.
+
+        [00:01:45] But succeeding with this is complex and difficult.
+
+        [00:01:48] Most startups fail, and the stats are even worse for
+        purpose-driven startups where you have to figure out how to make the
+        economics work, which is hard on its own, and figure out how to have a
+        positive impact on the world at the same time.
+
+        [00:02:01] And it's not good enough to just rely on feel-good vibes. You
+        need to be able to prove that you're making a difference.
+
+        [00:02:07] Our goal with the Social Lean Canvas is to meaningfully
+        increase the number of purpose-driven ventures that succeed, and in our
+        own small way, nudge the world in a better direction.
+
+        [00:02:18] We created the canvas in 2013 and have been evolving it ever
+        since as a free and open-source tool.
+
+        [00:02:24] It's been used by thousands of ventures, accelerators, and
+        incubator programs, universities, NGOs and community organisations
+        around the world.
+
+        [00:02:33] The canvas is designed to demystify the venture building
+        process by breaking it into a small set of core questions.
+
+        [00:02:39] It gives you a simple framework and a shared language for
+        your ideas so you can have better conversations with co-founders,
+        partners, funders, and stakeholders.
+
+        [00:02:48] And it gives you the confidence to move forward knowing that
+        you can understand and prioritise the important steps that you need to
+        take.
+
+        [00:02:56] In fact, once you've created a venture using the canvas, it
+        will seem crazy to think that you would've ever tried to build a venture
+        without first mapping it and making sense of it, even though that's what
+        most people still end up doing.
+
+        [00:03:09] The Social Lean Canvas process builds out of startup best
+        practice. First, sketching the model that you think can work, and then
+        validating the riskiest pieces of this model with real customers and
+        stakeholders.
+
+        [00:03:20] And then based on this learning, evolving your model into
+        something that can succeed.
+
+        [00:03:26] The canvas starts by walking you through defining your
+        purpose, the thing that you're here to do, the thing that animates you,
+        the thing that keeps you focused and stops you becoming just another
+        company.
+
+        [00:03:36] It then breaks your venture down into three main models: your
+        customer model, your impact model, and your economic model.
+
+        [00:03:43] These three models need to fit together in order for your
+        venture to succeed, but they can be worked on independently to make them
+        easier to understand.
+
+        [00:03:51] Firstly, you map your customer model, the part of your
+        venture that creates value for customers.
+
+        [00:03:59] Your customer segments, who you serve.
+
+        [00:04:02] Their jobs to be done, what need of theirs you're serving.
+
+        [00:04:05] Your unique value proposition, why they would choose you.
+
+        [00:04:10] And your solution, what you actually deliver to them.
+
+        [00:04:14] This can be simple. One clear product, one obvious customer.
+
+        [00:04:19] More complex, multiple customers. For example, users, payers,
+        and partners.
+
+        [00:04:24] Or very complex, multi-sided platforms or Web3 protocols
+        where you might have customers, contributors, investors and community
+        members all playing different roles in the model.
+
+        [00:04:33] The canvas helps you get all of that out of your head and
+        onto the page in a way that you can actually work with.
+
+        [00:04:37] Then follows your impact model, your theory of change.
+
+        [00:04:42] How will what you do lead to real, provable change over time?
+
+        [00:04:45] What needs to happen in the short, medium, and long term?
+
+        [00:04:48] And how will you know if impact is happening?
+
+        [00:04:51] This gets you beyond things that just feel good. It forces
+        you to be honest about whether your activities connect to outcomes in
+        the world that can be measured, tested, and improved.
+
+        [00:05:01] And then finally, you map your economic model, how money
+        flows through your venture.
+
+        [00:05:05] This includes channels, how people find you and how you
+        deliver your solution to them.
+
+        [00:05:11] Revenue, where the money actually comes from and in what form
+        it comes.
+
+        [00:05:16] Costs, what it takes to deliver your product or service, and
+        your impact.
+
+        [00:05:20] And advantage. Why is this sustainable and defensible over
+        time?
+
+        [00:05:26] The goal is to see clearly whether your model can support
+        growth and sustainability. Not just survive in the short term, but
+        thrive in a lasting way.
+
+        [00:05:32] You don't have to start from a blank page.
+
+        [00:05:35] As you work through your canvas, you can lean on the venture
+        example library – collections of example canvases for different sectors,
+        impact areas, geographies, and founder types.
+
+        [00:05:42] Seeing how ventures similar to yours express their customer,
+        impact and economic models is the fastest way to understand how the
+        canvas works and spot patterns and options that you might not have
+        considered.
+
+        [00:05:54] How long will this take?
+
+        [00:05:55] It depends on where you're starting from.
+
+        [00:05:57] If your idea is fairly simple and you're already clear about
+        how it works, you might be able to do your first Social Lean Canvas in a
+        couple of hours.
+
+        [00:06:05] If there's a lot that still isn't clear yet, it will take
+        longer.
+
+        [00:06:09] This isn't a problem though. It's the point. The canvas is
+        designed to surface the questions you haven't properly answered yet, or
+        didn't even know that you needed to ask.
+
+        [00:06:19] There's a few important things to keep in mind. Firstly, it's
+        not a race.
+
+        [00:06:24] The goal isn't to finish your canvas as fast as possible.
+        It's to think properly about the questions that it raises.
+
+        [00:06:28] You might be less clear than you think.
+
+        [00:06:30] It's common to start the canvas feeling confident, and then
+        discover gaps and contradictions as you go.
+
+        [00:06:38] This can feel uncomfortable, but it's a gift.
+
+        [00:06:40] Better to do this now than later.
+
+        [00:06:41] It's much better to learn the parts of your model that don't
+        quite make sense when everything still lives on a single page, rather
+        than after you've hired people, raised money or launched something that
+        you can't easily change.
+
+        [00:06:53] So give this the time that it needs. Decisions that you make
+        now as a result of getting really clear about what you're doing, will
+        pay you back many times over through the life of your venture.
+
+        [00:07:04] I'll keep it real and walk you through each idea and each
+        step on video, so you're not starting with an empty template, wondering
+        what to do next.
+
+        [00:07:12] Once you've finished your Social Lean Canvas, you may have
+        everything you need to move forward on your own.
+
+        [00:07:19] But if you want more structure and support to improve your
+        model and design a strategy, that's what Build is for.
+
+        [00:07:23] Build is a follow-on program for people who've already
+        completed the Social Lean Canvas and want help to start making it real.
+
+        [00:07:31] In Build, there are two main pieces.
+
+        [00:07:33] Improving your business model – where you stress-test your
+        canvas, explore alternatives, and make your business model stronger.
+
+        [00:07:39] And then designing a strategy to take it forward. You turn
+        your business model into an executable plan.
+
+        [00:07:44] This lays out your roadmap for the immediate, short-term and
+        medium-term timeframes.
+
+        [00:07:50] We keep the Social Lean Canvas program free and open by
+        charging a modest fee for Build, but we ensure that if anyone can't
+        afford this, that the fee isn't a barrier.
+
+        [00:07:58] If you can afford to pay for Build, then you do pay.
+
+        [00:08:01] If you can't, let us know and we'll ensure that there's space
+        for you.
+
+        [00:08:05] People who can pay for Build help fund places for people who
+        can't.
+
+        [00:08:09] Together, this also helps fund the work needed to keep the
+        Social Lean Canvas program free and open to everyone, and to keep
+        improving these programs over time.
+
+        [00:08:17] The goal is to make this whole system financially sustainable
+        while making sure no one misses out because of money.
+
+        [00:08:24] If you're ready, let's start designing your venture in the
+        Social Lean Canvas.
+
+        [00:08:28] First up, a quick look at how to understand business models.
+      timestamps:
+        00:00:00:
+          pause: 3s
+          title: Purpose-Driven Ventures
+          text:
+            body: |
+              Purpose-Driven Ventures
+        00:00:03:
+          text:
+            headline: Purpose-Driven Ventures
+            tagline: Many ways to combine business and impact
+        00:00:06:
+          text:
+            headline: Purpose-Driven Ventures
+            body: |
+              - Social enterprises
+              - Community and indigenous enterprises
+              - Cooperatives
+              - Non-profits with earned income
+              - Mission-led startups and solo ventures
+        00:00:28:
+          text:
+            headline: Purpose-Driven Ventures
+            tagline: Not tied to any one legal structure
+        00:00:42:
+          text:
+            headline: Purpose-Driven Ventures
+            tagline: Business model + impact model = purpose-driven venture
+        00:00:48:
+          pause: 3s
+          title: Why This Matters
+          text:
+            body: |
+              Why This Matters
+        00:00:51:
+          text:
+            headline: Why This Matters
+            tagline: Traditional business can't solve today's problems
+        00:01:08:
+          text:
+            headline: A New Playbook
+            tagline: Digital platforms, AI and new technologies
+        00:01:28:
+          text:
+            headline: A Rich History
+            tagline: Learn from those who came before
+        00:01:38:
+          text:
+            headline: The Social Lean Canvas
+            tagline: A better shot at success
+        00:01:45:
+          pause: 3s
+          title: About The Canvas
+          text:
+            body: |
+              About The Canvas
+        00:01:48:
+          text:
+            headline: The Challenge
+            tagline: Most startups fail – purpose-driven ventures even more so
+        00:02:07:
+          text:
+            headline: Our Goal
+            tagline: Meaningfully increase the ventures that succeed
+        00:02:18:
+          pause: 2s
+          image: /:core-images/creative-commons.png
+          text:
+            headline: Free And Open Source
+            tagline: Since 2013 and always evolving
+        00:02:33:
+          text:
+            headline: What The Canvas Does
+            tagline: Demystify venture building
+        00:02:39:
+          text:
+            headline: What The Canvas Does
+            body: |
+              - A simple framework and shared language
+              - Better conversations with stakeholders
+              - Confidence to prioritise next steps
+        00:02:56:
+          text:
+            headline: What The Canvas Does
+            tagline: Map it before you build it
+        00:03:09:
+          pause: 3s
+          title: The Three Models
+          text:
+            body: |
+              The Three Models
+        00:03:12:
+          text:
+            headline: Startup Best Practice
+            tagline: Sketch, validate, evolve
+        00:03:26:
+          pause: 2s
+          image: /:core-images/purpose-title.png
+          text:
+            headline: Purpose
+            tagline: The thing that animates you
+        00:03:36:
+          text:
+            headline: Three Models
+            body: |
+              - Customer Model
+              - Impact Model
+              - Economic Model
+        00:03:43:
+          text:
+            headline: Three Models
+            tagline: Work together, but can be understood independently
+        00:03:51:
+          pause: 2s
+          image: /:core-images/cm-title.png
+          text:
+            headline: Customer Model
+            tagline: How you create value for customers
+        00:03:55:
+          image: /:core-images/customer-model-overview.png
+          text:
+            headline: Customer Model
+            tagline: The value creation engine
+        00:03:59:
+          image: /:core-images/cm-c-highlight.png
+          text:
+            headline: Customer Segments
+            tagline: Who you serve
+        00:04:02:
+          image: /:core-images/cm-jtbd-highlight.png
+          text:
+            headline: Jobs To Be Done
+            tagline: What need you're serving
+        00:04:05:
+          image: /:core-images/cm-uvp-highlight.png
+          text:
+            headline: Unique Value Proposition
+            tagline: Why they would choose you
+        00:04:10:
+          image: /:core-images/cm-sol-highlight.png
+          text:
+            headline: Solution
+            tagline: What you actually deliver
+        00:04:14:
+          text:
+            headline: Customer Model Complexity
+            body: |
+              - Simple: one product, one customer
+              - Complex: multiple customer types
+              - Very complex: multi-sided platforms
+        00:04:33:
+          text:
+            headline: Customer Model
+            tagline: Get it out of your head and onto the page
+        00:04:37:
+          pause: 2s
+          image: /:core-images/im-title.png
+          text:
+            headline: Impact Model
+            tagline: Your theory of change
+        00:04:42:
+          image: /:core-images/impact-model-overview.png
+          text:
+            headline: Impact Model
+            tagline: How your work leads to real change
+        00:04:45:
+          image: /:core-images/im-sto.png
+          text:
+            headline: Outcomes Over Time
+            tagline: Short-term outcomes
+        00:04:46:
+          image: /:core-images/im-mto.png
+          text:
+            headline: Outcomes Over Time
+            tagline: Medium-term outcomes
+        00:04:47:
+          image: /:core-images/im-lto.png
+          text:
+            headline: Outcomes Over Time
+            tagline: Long-term outcomes
+        00:04:48:
+          image: /:core-images/im-impact.png
+          text:
+            headline: Impact
+            tagline: How will you know it's happening?
+        00:04:51:
+          text:
+            headline: Impact Model
+            tagline: Beyond feel-good vibes – measured, tested, improved
+        00:05:01:
+          pause: 2s
+          image: /:core-images/em-title.png
+          text:
+            headline: Economic Model
+            tagline: How money flows through your venture
+        00:05:04:
+          image: /:core-images/economic-model-overview.png
+          text:
+            headline: Economic Model
+            tagline: The financial engine
+        00:05:05:
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Channels
+            tagline: How people find you and how you deliver
+        00:05:11:
+          image: /:core-images/em-rev-highlight.png
+          text:
+            headline: Revenue
+            tagline: Where the money comes from
+        00:05:16:
+          image: /:core-images/em-costs-highlight.png
+          text:
+            headline: Costs
+            tagline: What it takes to deliver
+        00:05:20:
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Advantage
+            tagline: Why it's sustainable and defensible
+        00:05:26:
+          text:
+            headline: Economic Model
+            tagline: Growth and sustainability – thrive in a lasting way
+        00:05:32:
+          pause: 3s
+          title: Using Examples
+          text:
+            body: |
+              Using Examples
+        00:05:35:
+          text:
+            headline: Venture Example Library
+            tagline: You don't have to start from a blank page
+        00:05:42:
+          text:
+            headline: Venture Example Library
+            body: |
+              - Example canvases by sector
+              - Example canvases by impact area
+              - Example canvases by geography
+              - Example canvases by founder type
+        00:05:54:
+          pause: 3s
+          title: How Long Will This Take
+          text:
+            body: |
+              How Long Will This Take
+        00:05:57:
+          text:
+            headline: Time Required
+            tagline: It depends where you're starting from
+        00:06:05:
+          text:
+            headline: Time Required
+            tagline: Longer if things aren't clear yet – that's the point
+        00:06:19:
+          text:
+            headline: Keep In Mind
+            body: |
+              - It's not a race
+        00:06:28:
+          text:
+            headline: Keep In Mind
+            body: |
+              - It's not a race
+              - You might be less clear than you think
+        00:06:40:
+          text:
+            headline: Keep In Mind
+            body: |
+              - It's not a race
+              - You might be less clear than you think
+              - Better now than later
+        00:06:53:
+          text:
+            headline: Give This Time
+            tagline: Clarity now pays back many times over
+        00:07:04:
+          text:
+            headline: You're Not Alone
+            tagline: Each step guided on video
+        00:07:12:
+          pause: 3s
+          title: The Build Program
+          text:
+            body: |
+              The Build Program
+        00:07:15:
+          text:
+            headline: Build Program
+            tagline: More structure and support when you need it
+        00:07:31:
+          text:
+            headline: Build Program
+            body: |
+              - Improving Your Business Model
+        00:07:39:
+          text:
+            headline: Build Program
+            body: |
+              - Improving Your Business Model
+              - Designing Your Strategy
+        00:07:50:
+          image: /:core-images/creative-commons.png
+          text:
+            headline: Pay It Forward
+            tagline: Free and open, sustained by those who can pay
+        00:08:05:
+          text:
+            headline: Pay It Forward
+            tagline: People who pay help fund places for those who can't
+        00:08:17:
+          text:
+            headline: The Goal
+            tagline: Financially sustainable – no one misses out
+        00:08:24:
+          text:
+            headline: Ready To Start
+            tagline: Let's design your venture
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

@@ -1,5 +1,7 @@
 import { c, Fs, Json, Path, Str, type t } from './common.ts';
 
+type SyncSubject = 'build' | 'test' | 'jsr';
+
 export async function resolveSourcePaths(
   cwd: t.StringDir,
   source: t.WorkspaceCi.Source,
@@ -37,33 +39,31 @@ export async function removeIfExists(cwd: t.StringDir, target: t.StringPath) {
 }
 
 export function logSyncResult(
-  subject: 'build' | 'test' | 'jsr',
+  subject: SyncSubject,
   result: t.WorkspaceCi.SyncResult,
   options: { log?: boolean } = {},
 ) {
   if (!options.log) return;
+  console.info(formatSyncResult(subject, result));
+}
 
+export function formatSyncResult(subject: SyncSubject, result: t.WorkspaceCi.SyncResult) {
   const label = Fs.trimCwd(result.target);
   const subjectLabel = subject === 'jsr' ? 'jsr:publish' : subject;
   const count = `${result.count} ${subjectLabel} ${Str.plural(result.count, 'module')}`;
   if (result.kind === 'written') {
-    const msg = `${c.brightCyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
-    console.info(msg);
-    return;
+    return `${c.brightCyan('Updated file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
   }
 
   if (result.kind === 'unchanged') {
-    const msg = `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
-    console.info(msg);
-    return;
+    return `${c.gray('Unchanged file:')} ${c.gray(label)} ${c.white(`(${count})`)}`;
   }
 
   if (result.kind === 'removed') {
-    console.info(`${c.cyan('Removed file:')} ${c.gray(label)}`);
-    return;
+    return `${c.cyan('Removed file:')} ${c.gray(label)}`;
   }
 
-  console.info(`${c.gray('Skipped file:')} ${c.gray(label)}`);
+  return `${c.gray('Skipped file:')} ${c.gray(label)}`;
 }
 
 function hasTask(value: unknown, key: 'build' | 'test') {

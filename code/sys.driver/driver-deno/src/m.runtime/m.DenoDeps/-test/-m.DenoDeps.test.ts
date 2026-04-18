@@ -1,10 +1,10 @@
-import { describe, expect, it, stripAnsi } from '../../../-test.ts';
+import { describe, expect, Fs, it, Path, stripAnsi, Testing } from '../../../-test.ts';
 import { Deps } from '@sys/esm/deps';
 import { DenoDeps } from '../mod.ts';
 
 describe('DenoDeps methods', () => {
   const SAMPLE = {
-    path: './src/-test/sample-2/deps.yaml',
+    path: Path.resolve('./src/-test/sample-2/deps.yaml'),
   };
 
   describe('compatibility', () => {
@@ -44,6 +44,16 @@ describe('DenoDeps methods', () => {
     });
   });
 
+  describe('toYaml', () => {
+    it('rejects invalid dependency entries', () => {
+      const dep = DenoDeps.toDep('');
+
+      expect(() => DenoDeps.toYaml([dep])).to.throw(
+        'Failed to parse ESM module-specifier string ("")',
+      );
+    });
+  });
+
   describe('Fmt', () => {
     it('renders the first dependency after a registry boundary', () => {
       const text = stripAnsi(
@@ -72,6 +82,7 @@ describe('DenoDeps methods', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
+      expect(res.error).to.eql(undefined);
       const json = DenoDeps.toJson('deno.json', res.data?.deps);
       expect(json).to.eql({
         imports: {
@@ -87,6 +98,25 @@ describe('DenoDeps methods', () => {
         },
       });
     });
+
+    it('aliases local file-path imports', async () => {
+      const fs = await Testing.dir('DenoDeps.toJson.localPaths');
+      const typesPath = fs.join('fixtures/local/types.ts');
+      const typesFileUrl = String(Fs.Path.toFileUrl(typesPath));
+      const res = await DenoDeps.from(`
+        deno.json:
+          - import: ${typesFileUrl}
+            name: '@local/types'
+      `);
+      const json = DenoDeps.toJson('deno.json', res.data?.deps);
+
+      expect(res.error).to.eql(undefined);
+      expect(json).to.eql({
+        imports: {
+          '@local/types': typesFileUrl,
+        },
+      });
+    });
   });
 
   describe('toJson("package.json")', () => {
@@ -99,7 +129,8 @@ describe('DenoDeps methods', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
-      const json = DenoDeps.toJson('package.json', res.data!.deps);
+      expect(res.error).to.eql(undefined);
+      const json = DenoDeps.toJson('package.json', res.data?.deps);
 
       expect(json).to.eql({
         dependencies: {
@@ -111,6 +142,22 @@ describe('DenoDeps methods', () => {
           '@std/http': 'npm:@jsr/std__http@1.0.13',
           '@types/react': '^18',
         },
+      });
+    });
+
+    it('skips local file-path imports', async () => {
+      const fs = await Testing.dir('DenoDeps.toJson.packageLocalPaths');
+      const uiPath = fs.join('fixtures/local/ui/mod.ts');
+      const json = DenoDeps.toJson('package.json', [
+        DenoDeps.toDep(uiPath, {
+          target: 'package.json',
+          name: '@local/ui',
+        }),
+        DenoDeps.toDep('npm:react@19.0.0', { target: 'package.json' }),
+      ]);
+
+      expect(json).to.eql({
+        dependencies: { react: '19.0.0' },
       });
     });
   });

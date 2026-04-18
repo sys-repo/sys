@@ -1,10 +1,15 @@
-import { type t, Cli, Fs, Time } from './common.ts';
+import { Cli, Fs, type t } from './common.ts';
+import { PrepDeps as Deps } from './m.Deps.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Graph } from './m.Graph.ts';
 import { State } from './m.State.ts';
 import { Workspace } from './m.Workspace.ts';
+import { runPhase } from '../u.phase.ts';
 
 export const WorkspacePrep: t.WorkspacePrep.Lib = {
   State,
+  Deps,
+  Fmt,
   Graph,
   Workspace,
   async run(args = {}) {
@@ -29,7 +34,12 @@ const wrangle = {
     readonly spinner: t.CliSpinner.Instance;
   }) {
     const msg = 'normalizing workspace...';
-    return await wrangle.runPhase(args.spinner, msg, args.silent, () => Workspace.normalize(args.cwd));
+    return await runPhase({
+      spinner: args.spinner,
+      label: msg,
+      silent: args.silent,
+      fn: () => Workspace.normalize(args.cwd),
+    });
   },
 
   async graphPayload(args: {
@@ -40,7 +50,12 @@ const wrangle = {
   }) {
     if (args.graph) return args.graph;
     const msg = 'building workspace dependency graph...';
-    return await wrangle.runPhase(args.spinner, msg, args.silent, () => Graph.build(args.cwd));
+    return await runPhase({
+      spinner: args.spinner,
+      label: msg,
+      silent: args.silent,
+      fn: () => Graph.build(args.cwd),
+    });
   },
 
   async graphWrite(args: {
@@ -50,31 +65,11 @@ const wrangle = {
     readonly spinner: t.CliSpinner.Instance;
   }) {
     const msg = 'writing workspace graph snapshot...';
-    return await wrangle.runPhase(args.spinner, msg, args.silent, () =>
-      Graph.write({ cwd: args.cwd, snapshot: args.snapshot })
-    );
-  },
-
-  async runPhase<T>(
-    spinner: t.CliSpinner.Instance,
-    label: string,
-    silent: boolean,
-    fn: () => Promise<T>,
-  ) {
-    if (silent) return await fn();
-    const startedAt = Time.now.timestamp;
-    const timer = Time.interval(1000, () => (spinner.text = wrangle.phaseText(label, startedAt)));
-    spinner.start(Cli.Fmt.spinnerText(label));
-    try {
-      return await fn();
-    } finally {
-      timer.cancel();
-      spinner.stop();
-      console.info();
-    }
-  },
-
-  phaseText(label: string, startedAt: number) {
-    return Cli.Fmt.spinnerText(`${label} ${String(Time.elapsed(startedAt))}`);
+    return await runPhase({
+      spinner: args.spinner,
+      label: msg,
+      silent: args.silent,
+      fn: () => Graph.write({ cwd: args.cwd, snapshot: args.snapshot }),
+    });
   },
 } as const;

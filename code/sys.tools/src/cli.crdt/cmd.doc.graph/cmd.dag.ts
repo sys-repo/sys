@@ -36,7 +36,7 @@ export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath
         .line(yi(`  No hook ƒunction available`))
         .line(gi(`  Create a ${c.white(D.Hook.Doc.filename)} file exporting a DAG hook:`))
         .line()
-        .line(yid(`    import type { t } from 'jsr:@sys/tools';`))
+        .line(yid(`    import type * as t from 'jsr:@sys/tools/t';`))
         .line(yid(`    export const onDag: t.DocumentGraphDagHook = async (e) => { ... }`))
         .line();
       console.info(String(str));

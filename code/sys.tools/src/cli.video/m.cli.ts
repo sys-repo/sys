@@ -9,7 +9,7 @@ export const cli: t.VideoToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.VideoTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (!(await Ffmpeg.getVersion()).is.installed) return;
-  if (args.help) return void console.info(await Fmt.help(toolname));
+  if (args.help) return void console.info(await Fmt.help());
 
   console.info();
   console.info(await Fmt.header(toolname, cwd));

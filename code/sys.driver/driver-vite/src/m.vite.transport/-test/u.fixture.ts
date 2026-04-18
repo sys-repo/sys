@@ -5,7 +5,7 @@ export function procOutput(args: {
   stdout?: string;
   stderr?: string;
   code?: number;
-}): t.ProcOutput {
+}): t.Process.Output {
   return {
     success: args.success,
     code: args.code ?? (args.success ? 0 : 1),

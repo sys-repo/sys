@@ -7,6 +7,8 @@ type SampleCreateEnv = {
   readonly token: string;
 };
 
+export type SampleDeployConfig = t.DenoDeploy.DeployConfig;
+
 export const SAMPLE_ENV_NOTE = {
   deploy: `Requires DENO_DEPLOY_APP. DENO_DEPLOY_ORG and DENO_DEPLOY_TOKEN are optional when current CLI context is enough.`,
   createApp: `Requires DENO_DEPLOY_ORG and DENO_DEPLOY_TOKEN.`,
@@ -26,7 +28,7 @@ export async function requireSampleCreateEnv(): Promise<SampleCreateEnv> {
   return { org, token };
 }
 
-export async function requireSampleDeployConfig(): Promise<t.DenoDeploy.DeployConfig> {
+export async function requireSampleDeployConfig(): Promise<SampleDeployConfig> {
   const env = await loadDeployEnv();
   const app = env.app?.trim() ?? '';
 

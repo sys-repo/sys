@@ -7,7 +7,7 @@ export const createController: t.HttpOrigin.ControllerFactory = (args) => {
   let rev = 0;
   const state = {
     env: args.env ?? s(args.props?.env || 'localhost'),
-    origin: args.origin ?? s<t.UrlTree | undefined>(undefined),
+    origin: args.origin ?? s<t.HttpOrigin.UrlTree | undefined>(undefined),
   };
 
   const api = Rx.toLifecycle<t.HttpOrigin.Controller>({

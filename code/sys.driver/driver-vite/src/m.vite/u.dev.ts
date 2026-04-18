@@ -39,7 +39,7 @@ export const dev: D = async (input) => {
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
-  const readySignal: t.ProcReadySignalFilter = (e) => {
+  const readySignal: t.Process.ReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString())
       .split('\n')
       .map((line) => line.trim());

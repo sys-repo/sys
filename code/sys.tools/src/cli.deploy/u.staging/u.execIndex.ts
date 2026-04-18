@@ -10,6 +10,7 @@ export async function execIndex(
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
   stagingRoot?: t.StringDir,
   baseDomain?: string,
+  buildResetToken?: string,
 ): Promise<void> {
   const sourceRaw = String(dir.source ?? '');
   const stagingRaw = String(dir.staging ?? '');
@@ -20,7 +21,7 @@ export async function execIndex(
 
   report?.({ kind: 'mapping:step', label: 'index.html' });
   await Fs.ensureDir(dst);
-  await ensureIndexHtml(src, { force: true, baseDomain });
+  await ensureIndexHtml(src, { force: true, baseDomain, buildResetToken });
   await Fs.copy(Fs.join(src, 'index.html'), Fs.join(dst, 'index.html'), { force: true });
 
   report?.({ kind: 'mapping:step', label: 'dist.json' });

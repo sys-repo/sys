@@ -5,11 +5,11 @@ export { kill } from './u.kill.ts';
  * Creates a configured `Deno.Command` from process invocation args.
  */
 export function asCommand(
-  input: t.ProcInvokeArgs,
+  input: t.Process.InvokeArgs,
   options: {
-    stdin?: t.Stdio;
-    stdout?: t.Stdio;
-    stderr?: t.Stdio;
+    stdin?: t.Process.Stdio;
+    stdout?: t.Process.Stdio;
+    stderr?: t.Process.Stdio;
     forceColor?: boolean;
   } = {},
 ) {
@@ -58,11 +58,11 @@ export function printOutput(
 /**
  * Format [Deno.CommandOutput] into a standard output object.
  */
-export function toProcOutput(input: Deno.CommandOutput): t.ProcOutput {
+export function toProcOutput(input: Deno.CommandOutput): t.Process.Output {
   const { code, success, signal, stdout, stderr } = input;
   let _stdout: undefined | string;
   let _stderr: undefined | string;
-  const res: t.ProcOutput = {
+  const res: t.Process.Output = {
     code,
     success,
     signal,

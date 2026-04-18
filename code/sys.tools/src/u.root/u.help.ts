@@ -1,5 +1,6 @@
-import { type t, c, Cli, pkg, Str } from './common.ts';
+import { type t, c, Cli, Fmt, pkg } from './common.ts';
 import { rootRows } from './u.rows.ts';
+import { dedent, trimEdgeNewlines } from './u.text.ts';
 
 export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
   const table = Cli.table([]);
@@ -15,22 +16,14 @@ export async function printRootHelp(args: t.Root.CliRootParsedArgs) {
     table.push([` ${c.dim(branch)} ${row.columns[0]}`, ...row.columns.slice(1)]);
   });
 
-  const text = Str.builder()
-    .line()
-    .line(c.gray(`${c.green(' system:tools')} `))
-    .line(Str.trimEdgeNewlines(table.toString()))
-    .line()
-    .toString();
-
-  console.info(text);
+  const title = ` ${dedent(`
+    ${c.gray(`${c.green('system:tools')} `)}
+  `)}`;
+  console.info(`\n${title}\n${trimEdgeNewlines(table.toString())}\n`);
 
   if (args.help) {
-    const cmd = 'deno run -A jsr:@sys/tools';
+    const cmd = Fmt.invoke();
     const alias = `${c.italic(c.cyan('alias'))} ${c.white('sys')}=${c.yellow(`"${cmd}"`)}`;
-    const str = Str.builder()
-      //
-      .line(`  shortcut: ${alias}`)
-      .blank();
-    console.info(c.gray(String(str)));
+    console.info(c.gray(`  shortcut: ${alias}\n`));
   }
 }

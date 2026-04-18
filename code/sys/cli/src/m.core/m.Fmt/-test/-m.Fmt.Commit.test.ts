@@ -18,6 +18,17 @@ describe('Cli.Fmt.Commit', () => {
     expect(text).to.eql(c.green('chore(ci): refresh generated GitHub workflow outputs'));
   });
 
+  it('supports styling the title line', () => {
+    const text = Fmt.Commit.suggestion('chore(workspace): refresh generated graph snapshot', {
+      title: { text: 'commit:', color: 'cyan', bold: false },
+      message: { color: 'white' },
+    });
+    const lines = text.split('\n');
+
+    expect(lines[0]).to.eql(c.cyan('commit:'));
+    expect(lines[1]).to.eql(c.white('chore(workspace): refresh generated graph snapshot'));
+  });
+
   it('supports indenting the rendered block', () => {
     const text = Fmt.Commit.suggestion('chore(deps): upgrade workspace dependencies', {
       indent: 2,

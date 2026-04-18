@@ -1,14 +1,14 @@
 import { type t, c, Rx } from './common.ts';
 import { asCommand, kill } from './u.ts';
 
-type H = t.ProcHandle;
-type E = { source: t.StdStream; fn: t.ProcEventHandler };
+type H = t.Process.Handle;
+type E = { source: t.Process.StdStream; fn: t.Process.EventHandler };
 
 /**
  * Spawn a child process to run a <unix> command
  * and retrieve a streaming handle to monitor and control it.
  */
-export const spawn: t.ProcLib['spawn'] = (config) => {
+export const spawn: t.Process.Lib['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
   const life = Rx.lifecycleAsync(config.dispose$, async () => {
@@ -16,7 +16,7 @@ export const spawn: t.ProcLib['spawn'] = (config) => {
     await stderrReader.cancel();
     await kill(child);
   });
-  const $ = Rx.subject<t.ProcEvent>();
+  const $ = Rx.subject<t.Process.Event>();
   const $$ = $.pipe(Rx.takeUntil(life.dispose$));
 
   const command = asCommand(config, { stdin: 'null' });
@@ -24,13 +24,13 @@ export const spawn: t.ProcLib['spawn'] = (config) => {
   const pid = child.pid;
 
   const stdioHandlers = new Set<E>();
-  const whenReadyHandlers = new Set<t.ProcReadyHandler>();
+  const whenReadyHandlers = new Set<t.Process.ReadyHandler>();
 
   // Function to process output data chunks.
-  const processOutput = (source: t.StdStream, data: Uint8Array) => {
+  const processOutput = (source: t.Process.StdStream, data: Uint8Array) => {
     if (!silent) Deno.stdout.writeSync(data);
     let _text: undefined | string;
-    const e: t.ProcEvent = {
+    const e: t.Process.Event = {
       source,
       data,
       toString: () => _text ?? (_text = decoder.decode(data)),
@@ -65,7 +65,7 @@ export const spawn: t.ProcLib['spawn'] = (config) => {
    * Monitor the STDIO streams.
    */
   const handleStream = async (
-    kind: t.StdStream,
+    kind: t.Process.StdStream,
     reader: ReadableStreamDefaultReader<Uint8Array>,
   ) => {
     try {

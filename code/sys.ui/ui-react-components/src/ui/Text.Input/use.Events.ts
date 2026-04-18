@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { type t, D } from './common.ts';
 
 type H = HTMLInputElement;
-type P = t.TextInputProps;
+type P = t.TextInput.Props;
 
 export function useEvents(props: P) {
   const { readOnly = D.readOnly } = props;
@@ -26,7 +26,7 @@ export function useEvents(props: P) {
       },
     });
   };
-  const keyHandler = (cb?: t.TextInputKeyHandler) => {
+  const keyHandler = (cb?: t.TextInput.KeyHandler) => {
     if (!cb) return;
     return (e: React.KeyboardEvent<H>) => {
       const input = e.currentTarget;
@@ -49,13 +49,13 @@ export function useEvents(props: P) {
       });
     };
   };
-  const focusHandler = (focused: boolean, ...cb: (t.TextInputFocusHandler | undefined)[]) => {
+  const focusHandler = (focused: boolean, ...cb: (t.TextInput.FocusHandler | undefined)[]) => {
     cb = cb.filter(Boolean);
     return (e: React.FocusEvent<H>) => {
       setFocused(focused);
       const input = e.currentTarget;
       const value = input.value;
-      const payload: t.TextInputFocusArgs = {
+      const payload: t.TextInput.FocusArgs = {
         value,
         focused,
         synthetic: e,

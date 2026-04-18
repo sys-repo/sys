@@ -1,0 +1,208 @@
+title: Fill in Your Canvas
+description: Module overview - walking through the three integrated models and
+  starting simple with your first pass
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Add venture example library images when interface is ready
+    comment: |
+      Add screenshot images showing the venture example library interface
+      to support the reference at ~00:00:34
+data:
+  sequence:
+    - video: /:core-videos/core 3.2 fill-in-your-social-lean-canvas.webm.02.mp4.webm
+      slice: 00:00..01:09
+      script: >
+        [00:00:00] In this module, I'll walk you through developing your
+        business model in the Social Lean Canvas.
+
+        [00:00:04] You'll get an overview of the whole canvas and we'll guide
+        you through filling in each of the key sections.
+
+        [00:00:11] We'll work through the three integrated models.
+
+        [00:00:14] First, your Customer Model - how you create and deliver value
+        for your customers.
+
+        [00:00:19] Second, your Impact Model - how your activities will deliver
+        meaningful change in the world.
+
+        [00:00:24] And third, your Economic Model. How you can achieve financial
+        sustainability and success.
+
+        [00:00:30] Work through each section in order. The program will guide
+        you through each step.
+
+        [00:00:34] As you work, use the Venture Example Library to see what
+        other ventures did when building their business models.
+
+        [00:00:41] See their choices, their approaches, and their trade-offs.
+
+        [00:00:45] For your first pass through the canvas, keep it simple and
+        high level.
+
+        [00:00:49] Getting the structure right is important at the start.
+
+        [00:00:52] You can flesh out the details later on. If you're in the
+        early stages of developing your venture, use back of the napkin numbers.
+
+        [00:00:59] What's your best starting guess about how your business model
+        will work?
+
+        [00:01:02] Start simple and then add on complexity later on.
+
+        [00:01:08] Good luck.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Filling in Your Canvas
+          text:
+            headline: Fill in Your Canvas
+            tagline: Build your business model step by step
+        00:00:04:
+          pause: 2s
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: Overview of the Canvas
+            tagline: Complete Social Lean Canvas
+        00:00:08:
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: Guided Process
+            tagline: Fill in each key section
+        00:00:11:
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: Three Integrated Models
+            tagline: Customer, Impact, Economic
+        00:00:14:
+          pause: 2s
+          image: /:core-images/cm-title.png
+          text:
+            headline: Customer Model
+            tagline: Create and deliver value
+        00:00:19:
+          pause: 2s
+          image: /:core-images/im-title.png
+          text:
+            headline: Impact Model
+            tagline: Deliver meaningful change
+        00:00:24:
+          pause: 2s
+          image: /:core-images/em-title.png
+          text:
+            headline: Economic Model
+            tagline: Financial sustainability and success
+        00:00:30:
+          pause: 2s
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: Three Integrated Models
+            tagline: Customer Model Impact Model Economic Model
+        00:00:34:
+          text:
+            headline: Use the Venture Example Library
+            tagline: See what other ventures did
+        00:00:41:
+          text:
+            headline: Learn from Examples
+            body: |
+              See their choices
+              See their approaches
+              See their trade-offs
+        00:00:45:
+          pause: 2s
+          title: Start Simple
+          text:
+            headline: Start Simple
+            tagline: First pass strategy
+        00:00:49:
+          pause: 2s
+          text:
+            headline: First Pass
+            tagline: Keep it simple and high level
+        00:00:52:
+          text:
+            headline: Structure First
+            body: |
+              Get the structure right first
+              Flesh out details later
+        00:00:59:
+          pause: 2s
+          text:
+            headline: Early Stages
+            tagline: Back of napkin numbers
+        00:01:02:
+          text:
+            headline: Early Stages
+            body: |
+              Use your best starting guess
+              Start simple, add complexity later
+        00:01:08:
+          pause: 2s
+          text:
+            headline: Ready to Begin
+            tagline: Good luck!
+    - pause: 3s
+      title: Purpose
+      text:
+        headline: Purpose
+        tagline: Define why your venture exists
+    - slug: /:core-slugs/3.2.1-purpose
+      display: inline
+    - pause: 3s
+    - pause: 3s
+      title: Customer Model
+      text:
+        headline: Customer Model
+        tagline: How you serve your customers
+    - slug: /:core-slugs/3.2.2-customer-model
+      display: inline
+    - pause: 3s
+    - pause: 3s
+      title: Impact Model
+      text:
+        headline: Impact Model
+        tagline: How you create impact
+    - slug: /:core-slugs/3.2.3-impact-model
+      display: inline
+    - pause: 3s
+    - pause: 3s
+      title: Economic Model
+      text:
+        headline: Economic Model
+        tagline: How money flows through your venture
+    - slug: /:core-slugs/3.2.4-economic-model
+      display: inline
+    - pause: 3s
+    - pause: 3s
+      title: Key Metrics
+      text:
+        headline: Key Metrics
+        tagline: Measure what matters
+    - slug: /:core-slugs/3.2.5-key-metric
+      display: inline
+    - pause: 3s
+    - pause: 3s
+      title: Conclusion
+      text:
+        headline: Conclusion
+        tagline: Your business model complete
+    - slug: /:core-slugs/3.2.6-conclusion
+      display: inline
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay

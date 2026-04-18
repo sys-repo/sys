@@ -6,6 +6,8 @@ import type { t } from './common.ts';
 export type NpmClientLib = {
   /** Network fetching helpers against the npm registry end-point. */
   readonly Fetch: t.NpmFetch.Lib;
+  /** npm package-name predicates. */
+  readonly Is: t.NpmIsLib;
   /** npm import specifier helpers. */
   readonly Import: t.NpmImportLib;
   /** npm registry URL helpers. */

@@ -1,4 +1,5 @@
 import { type t, Crdt, Fs, Shard, Slug } from './common.ts';
+import { bundleSlugDocYaml } from './m.bundle.slug-doc.yaml/mod.ts';
 import { bundleSequenceFilepaths } from './m.bundle.slug-tree.media-seq/mod.ts';
 import { BundleProfileSchema } from './schema/mod.ts';
 import { bundleSlugTreeFs } from './m.bundle.slug-tree.fs/mod.ts';
@@ -35,6 +36,7 @@ export async function runProfile(args: {
   const bundles = profile.bundles ?? [];
   let mediaSeqTotals: t.BundleRunSummary['mediaSeq'] | undefined;
   let slugTreeFsTotals: t.BundleRunSummary['slugTreeFs'] | undefined;
+  let slugFsYamlTotals: t.BundleRunSummary['slugFsYaml'] | undefined;
   const descriptorEntries: Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }> = [];
   const distDirs = new Set<string>();
 
@@ -125,6 +127,45 @@ export async function runProfile(args: {
       continue;
     }
 
+    if (bundle.kind === 'slug:fs:yaml') {
+      const exportStart = Date.now();
+      const rawDocid = String(bundle.crdt.docid ?? '').trim();
+      if (!rawDocid || rawDocid === '<tbd>') {
+        warnings.push(`warning: bundle:slug:fs:yaml skipped (bundle#${i + 1}, crdt.docid missing or placeholder)`);
+        continue;
+      }
+
+      const yamlPath = parseYamlPath(bundle.crdt.path);
+      const rootId = rawDocid.startsWith('crdt:')
+        ? (rawDocid as t.Crdt.Id)
+        : (`crdt:${rawDocid}` as t.Crdt.Id);
+      const dag = await buildDocumentDag(cmd, rootId, yamlPath);
+
+      for (const [index, node] of dag.nodes.entries()) {
+        args.onProgress?.({
+          stage: 'slug:fs:yaml',
+          current: index + 1,
+          total: dag.nodes.length,
+          docid: node.id as t.Crdt.Id,
+        });
+      }
+
+      const result = await bundleSlugDocYaml({
+        cwd,
+        dag,
+        yamlPath,
+        config: bundle,
+      });
+
+      slugFsYamlTotals = {
+        total: (slugFsYamlTotals?.total ?? 0) + dag.nodes.length,
+        written: (slugFsYamlTotals?.written ?? 0) + result.written.length,
+        elapsed: (slugFsYamlTotals?.elapsed ?? 0) + (Date.now() - exportStart),
+        dir: result.dir,
+      };
+      continue;
+    }
+
     if (bundle.kind === 'slug-tree:fs') {
       args.onProgress?.({ stage: 'slug-tree:fs' });
       const stats = await bundleSlugTreeFs({
@@ -153,6 +194,7 @@ export async function runProfile(args: {
 
   if (mediaSeqTotals) summary = { ...summary, mediaSeq: mediaSeqTotals };
   if (slugTreeFsTotals) summary = { ...summary, slugTreeFs: slugTreeFsTotals };
+  if (slugFsYamlTotals) summary = { ...summary, slugFsYaml: slugFsYamlTotals };
 
   if (descriptorEntries.length > 0) {
     await writeDistClientFiles(descriptorEntries);
@@ -175,7 +217,7 @@ function formatValidationErrors(errors: readonly t.ValueError[]): string {
 
 function parseYamlPath(input: t.StringPath): t.ObjectPath {
   const raw = String(input ?? '').trim();
-  if (!raw) return [] as t.ObjectPath;
+  if (!raw || raw === '.' || raw === '/') return [] as t.ObjectPath;
   const parts = raw.split('/').filter((p) => p.length > 0);
   return parts as t.ObjectPath;
 }

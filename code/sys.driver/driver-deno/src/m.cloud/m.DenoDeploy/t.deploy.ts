@@ -6,7 +6,7 @@ import type * as s from './t.stage.ts';
  */
 export type Request = {
   /** Previously staged deploy artifact to deploy. */
-  readonly stage: s.Result;
+  readonly stage: s.DeployInput;
 
   /** Deno Deploy application name. */
   readonly app: string;

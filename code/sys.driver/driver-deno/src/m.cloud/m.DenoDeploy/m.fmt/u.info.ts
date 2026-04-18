@@ -1,10 +1,10 @@
-import { c, Time, type t } from './common.ts';
+import { c, Str, Time, stripAnsi, type t } from './common.ts';
 import { DeployConfig } from '../u.deployConfig.ts';
-import { LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
+import { DENO_CONSOLE_URL, formatPathTail, formatUrlParts, LINE, maxLabelWidth, richRow, row, toneColor } from './u.shared.ts';
 
-type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared;
-type DeployResult = Extract<t.DenoDeploy.Deploy.Result, { readonly ok: true }>;
-
+type StagedEntrypointArgs = t.DenoDeploy.Pipeline.Prepared & {
+  readonly elapsed?: t.Msecs;
+};
 type BlockedArgs = {
   readonly title: string;
   readonly what: string;
@@ -29,18 +29,9 @@ type InfoArgs = {
     readonly label: string;
     readonly value: string;
     readonly valueParts?: readonly string[];
-    readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red';
+    readonly color?: 'white' | 'cyan' | 'gray' | 'green' | 'red' | 'yellow';
   }[];
   readonly tone?: 'warning' | 'success';
-};
-
-type DeployConfigArgs = {
-  readonly app: string;
-  readonly org?: string;
-  readonly token?: string;
-  readonly sourceDir?: string;
-  readonly stagedDir?: string;
-  readonly title?: string;
 };
 
 export const InfoFmt = {
@@ -116,83 +107,91 @@ export const InfoFmt = {
     ] as const;
   },
 
-  deployConfig(args: DeployConfigArgs) {
-    const config = DeployConfig.normalize(args);
-    return InfoFmt.info({
-      title: args.title ?? 'Deploy Config',
-      rows: [
-        { label: 'App', value: config.app, color: 'white' },
-        { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
-        { label: 'Token', value: '', valueParts: redactToken(config.token) },
-        {
-          label: 'Platform',
-          value: '',
-          valueParts: [
-            c.dim(c.gray('https://')),
-            c.cyan('console.deno.com'),
-            ...(config.org ? [c.dim(c.gray(`/${config.org}`))] : []),
-          ],
-        },
-        ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
-        ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
-      ],
-    });
+  Deploy: {
+    config(args: t.DenoDeploy.Fmt.DeployConfigArgs) {
+      const config = DeployConfig.normalize(args);
+      return InfoFmt.info({
+        title: args.title ?? 'Deploy Config',
+        rows: [
+          { label: 'App', value: config.app, color: 'white' },
+          { label: 'Org', value: config.org ?? '(default cli context)', color: 'white' },
+          ...(config.prod ? [{ label: 'prod', value: 'true', color: 'white' as const }] : []),
+          { label: 'Token', value: '', valueParts: redactToken(config.token) },
+          {
+            label: 'Platform',
+            value: '',
+            valueParts: [
+              ...formatUrlParts(DENO_CONSOLE_URL),
+              ...(config.org ? [c.white(`/${config.org}`)] : []),
+            ],
+          },
+          ...(args.sourceDir ? [{ label: 'source dir', value: args.sourceDir, color: 'gray' as const }] : []),
+          ...(args.stagedDir ? [{ label: 'staged dir', value: args.stagedDir, color: 'gray' as const }] : []),
+        ],
+      });
+    },
+
+    result(result: t.DenoDeploy.Fmt.DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
+      const revision = result.deploy?.url?.revision ?? '';
+      const preview = result.deploy?.url?.preview ?? '';
+      const highlight = wrangle.sharedDeployId(revision, preview);
+      return InfoFmt.info({
+        title,
+        rows: [
+          {
+            label: 'ok',
+            value: '',
+            valueParts: wrangle.deployOkParts(result),
+          },
+          ...(result.prod ? [{ label: 'timeline', value: 'production', color: 'white' as const }] : []),
+          { label: 'revision', value: '', valueParts: formatUrlParts(revision, { highlight }) },
+          { label: 'preview', value: '', valueParts: formatUrlParts(preview, { highlight }) },
+          ...(elapsed !== undefined
+            ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
+            : []),
+        ],
+      });
+    },
+
+    failure(args: t.DenoDeploy.Fmt.DeployFailureArgs) {
+      const details = wrangle.failureDetails(args.error);
+      return InfoFmt.info({
+        title: 'Deploy Failed',
+        tone: 'warning',
+        rows: [
+          { label: 'phase', value: args.phase, color: 'white' },
+          ...(args.at ? [{ label: 'at', value: args.at, color: 'gray' as const }] : []),
+          { label: 'error', value: details.summary, color: 'red' },
+          ...(details.traceId ? [{ label: 'trace id', value: details.traceId, color: 'yellow' as const }] : []),
+          ...(details.revision ? [{ label: 'revision', value: details.revision, color: 'white' as const }] : []),
+          ...(details.preview ? [{ label: 'preview', value: details.preview, color: 'cyan' as const }] : []),
+          ...(details.stderr ? [{ label: 'stderr', value: details.stderr, color: 'gray' as const }] : []),
+        ],
+      });
+    },
   },
 
-  stagedEntrypoint(args: StagedEntrypointArgs) {
-    return InfoFmt.info({
-      title: 'Staged Entrypoint',
-      rows: [
-        { label: 'source', value: args.sourceDir, color: 'white' },
-        { label: 'staged dir', value: args.stagedDir, color: 'white' },
-        { label: 'entry', value: args.entrypoint, color: 'white' },
-        { label: 'paths', value: args.entryPaths, color: 'white' },
-        { label: 'main', value: args.appEntrypoint, color: 'white' },
-        { label: 'workspace', value: args.workspaceTarget, color: 'white' },
-        { label: 'dist', value: args.distDir, color: 'white' },
-        ...(args.distHash ? [{ label: 'dist:hash', value: args.distHash, color: 'gray' as const }] : []),
-      ],
-    });
-  },
-
-  deployResult(result: DeployResult, title = 'Deploy Result', elapsed?: t.Msecs) {
-    const code = result.code === 0
-      ? c.dim(c.gray(`code:${result.code}`))
-      : `${c.gray('code:')}${c.red(String(result.code))}`;
-    return InfoFmt.info({
-      title,
-      rows: [
-        {
-          label: 'ok',
-          value: '',
-          valueParts: [
-            c.green(String(result.ok)),
-            result.code === 0 ? c.dim(c.gray(' (')) : c.gray(' ('),
-            code,
-            result.code === 0 ? c.dim(c.gray(')')) : c.gray(')'),
-          ],
-        },
-        ...(elapsed !== undefined
-          ? [{ label: 'elapsed', value: Time.duration(elapsed).format({ round: 1 }), color: 'gray' as const }]
-          : []),
-        { label: 'revision', value: result.deploy?.url?.revision ?? '', color: 'white' },
-        { label: 'preview', value: result.deploy?.url?.preview ?? '', color: 'cyan' },
-      ],
-    });
-  },
-
-  pipelineFailure(args: {
-    readonly phase: string;
-    readonly error: unknown;
-  }) {
-    return InfoFmt.info({
-      title: 'Deploy Failed',
-      tone: 'warning',
-      rows: [
-        { label: 'phase', value: args.phase, color: 'white' },
-        { label: 'error', value: failureMessage(args.error), color: 'red' },
-      ],
-    });
+  Staged: {
+    entrypoint(args: StagedEntrypointArgs) {
+      return InfoFmt.info({
+        title: 'Staged Entrypoint',
+        rows: [
+          { label: 'dir', value: '', valueParts: formatPathTail(args.stagedDir) },
+          { label: 'entry', value: wrangle.relativeTo(args.entrypoint, args.stagedDir), color: 'white' },
+          { label: 'paths', value: wrangle.relativeTo(args.entryPaths, args.stagedDir), color: 'white' },
+          { label: 'main', value: args.appEntrypoint, color: 'white' },
+          { label: 'package', value: args.workspaceTarget, color: 'white' },
+          ...(args.hasDistDir ? [{ label: 'dist', value: args.distDir, color: 'white' as const }] : []),
+          ...(args.stagedSizeBytes !== undefined
+            ? [{ label: 'size', value: Str.bytes(args.stagedSizeBytes), color: 'gray' as const }]
+            : []),
+          ...(args.elapsed !== undefined
+            ? [{ label: 'elapsed', value: Time.duration(args.elapsed).format({ round: 1 }), color: 'gray' as const }]
+            : []),
+          ...(args.distHash ? [{ label: 'dist:hash', value: '', valueParts: wrangle.hashSuffix(args.distHash) }] : []),
+        ],
+      });
+    },
   },
 } as const;
 
@@ -253,5 +252,188 @@ function redactToken(token?: string) {
 }
 
 function failureMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') return wrangle.objectErrorMessage(error);
+  return String(error);
 }
+
+const wrangle = {
+  failureDetails(error: unknown) {
+    const message = failureMessage(error);
+    const traceId = message.match(/trace id:\s*([a-f0-9]+)/i)?.[1];
+    const urls = message.match(/https?:\/\/[^\s]+/g) ?? [];
+    const revision = urls.find((url) => url.includes('console.deno.com/'));
+    const preview = urls.find((url) => url.includes('.deno.net'));
+    const logs = wrangle.logsSummary(message);
+    const stdout = wrangle.stdoutSummary(message);
+    const stderr = wrangle.stderrSummary(message);
+    return {
+      summary: wrangle.failureSummary(message, logs, stderr, stdout),
+      traceId,
+      revision,
+      preview,
+      logs,
+      stdout,
+      stderr,
+    } as const;
+  },
+
+  deployOkParts(result: t.DenoDeploy.Fmt.DeployResult) {
+    const code = result.code === 0
+      ? c.dim(c.gray(`code:${result.code}`))
+      : `${c.gray('code:')}${c.red(String(result.code))}`;
+    const parenColor = result.code === 0 ? wrangle.dimmedGray : c.gray;
+
+    return [
+      c.green(String(result.ok)),
+      parenColor(' ('),
+      code,
+      parenColor(')'),
+    ] as const;
+  },
+
+  dimmedGray(text: string) {
+    return c.dim(c.gray(text));
+  },
+
+  failureSummary(message: string, logs?: string, stderr?: string, stdout?: string) {
+    if (logs) return logs;
+    if (stderr) return stderr;
+    if (stdout) return stdout;
+    const lines = wrangle.contentLines(message);
+    const preferred = lines.find((line) =>
+      !line.startsWith('DenoDeploy.pipeline:') &&
+      line !== 'stdout:' &&
+      line !== 'stderr:' &&
+      line !== 'logs:' &&
+      !line.startsWith('trace id:')
+    );
+    return preferred ?? lines[0] ?? message.trim();
+  },
+
+  stdoutSummary(message: string) {
+    const stdout = message.split(/\nstdout:\n/i)[1]?.split(/\nstderr:\n/i)[0];
+    if (!stdout) return undefined;
+
+    const lines = wrangle.contentLines(stdout);
+    const preferred = lines.find((line) =>
+      !line.includes('Publishing ') &&
+      !line.includes('Generating hashes') &&
+      !line.includes('Loading previously uploaded files') &&
+      !line.startsWith('Found ') &&
+      !line.startsWith('You can view the revision here:')
+    );
+
+    return preferred;
+  },
+
+  stderrSummary(message: string) {
+    const stderr = message.split(/\nstderr:\n/i)[1]?.split(/\nlogs:\n/i)[0];
+    if (!stderr) return undefined;
+
+    const lines = wrangle.contentLines(stderr);
+    const preferred = lines.find((line) =>
+      !line.startsWith('trace id:') &&
+      !line.startsWith('[00:') &&
+      !line.endsWith('files uploaded.') &&
+      line !== 'An error occurred:'
+    );
+
+    return preferred ?? lines.find((line) => line !== 'An error occurred:');
+  },
+
+  logsSummary(message: string) {
+    const logs = message.split(/\nlogs:\n/i)[1];
+    if (!logs) return undefined;
+
+    const lines = wrangle.contentLines(logs);
+    const preferred = lines.find((line) =>
+      !line.startsWith('trace id:') &&
+      !line.startsWith('[00:') &&
+      !line.endsWith('files uploaded.') &&
+      line !== 'An error occurred:'
+    );
+
+    return preferred ?? lines.find((line) => line !== 'An error occurred:');
+  },
+
+  contentLines(text: string) {
+    return text
+      .split('\n')
+      .map((line) => stripAnsi(line).trim())
+      .filter((line) => line.length > 0)
+      .map((line) => line.replace(/^[⠁-⣿]+\s*/, ''))
+      .map((line) => line.replace(/^✗\s*/, ''));
+  },
+
+  sharedDeployId(revision: string, preview: string) {
+    const revisionId = revision.match(/\/builds\/([A-Za-z0-9_-]+)/)?.[1];
+    if (!revisionId) return [] as const;
+    return preview.includes(revisionId) ? [revisionId] as const : [] as const;
+  },
+
+  relativeTo(path: string, base: string) {
+    return path.startsWith(`${base}/`) ? `.${path.slice(base.length)}` : path;
+  },
+
+  hashSuffix(input: string) {
+    if (input.length <= 5) return [c.brightGreen(input)] as const;
+    return [c.dim(c.gray(input.slice(0, -5))), c.brightGreen(input.slice(-5))] as const;
+  },
+
+  objectErrorMessage(error: object) {
+    const message = wrangle.pickString(error, ['message']);
+    const stdout = wrangle.pickString(error, ['stdout']);
+    const stderr = wrangle.pickString(error, ['stderr']);
+    const code = wrangle.pickNumber(error, ['code']);
+
+    if (message || stdout || stderr || code !== undefined) {
+      return [
+        ...(message ? [message] : []),
+        ...(stdout ? [`stdout:\n${stdout}`] : []),
+        ...(stderr ? [`stderr:\n${stderr}`] : []),
+        ...(code !== undefined ? [`code: ${code}`] : []),
+      ].join('\n\n');
+    }
+
+    return wrangle.stringifyObject(error);
+  },
+
+  pickString(value: object, keys: readonly string[]) {
+    for (const key of keys) {
+      const item = (value as Record<string, unknown>)[key];
+      if (typeof item === 'string' && item.trim().length > 0) return item.trim();
+    }
+    return undefined;
+  },
+
+  pickNumber(value: object, keys: readonly string[]) {
+    for (const key of keys) {
+      const item = (value as Record<string, unknown>)[key];
+      if (typeof item === 'number' && Number.isFinite(item)) return item;
+    }
+    return undefined;
+  },
+
+  stringifyObject(value: object) {
+    const seen = new WeakSet<object>();
+    const json = JSON.stringify(value, (_key, item) => {
+      if (item instanceof Error) {
+        return {
+          name: item.name,
+          message: item.message,
+          stack: item.stack,
+        };
+      }
+
+      if (item && typeof item === 'object') {
+        if (seen.has(item)) return '[Circular]';
+        seen.add(item);
+      }
+
+      return item;
+    });
+
+    return json ?? '[unserializable object]';
+  },
+} as const;

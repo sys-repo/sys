@@ -1,4 +1,4 @@
-import { type t, Delete, Is, Yaml, isEmptyRecord } from './common.ts';
+import { type t, Delete, Err, Is, Yaml, isEmptyRecord } from './common.ts';
 
 type RequiredYamlShape = Required<t.EsmDeps.YamlShape>;
 
@@ -37,7 +37,12 @@ export const toYaml: t.EsmDeps.Lib['toYaml'] = (entries, options = {}) => {
     obj,
     get text() {
       if (text) return text;
-      const yaml = Yaml.stringify(obj);
+      const yaml = Yaml.stringify(obj, {
+        format(ctx) {
+          // Subpath arrays are short metadata lists; inline flow style keeps deps.yaml compact.
+          if (ctx.key === 'subpaths' && Yaml.Is.seq(ctx.node)) ctx.node.flow = true;
+        },
+      });
       if (yaml.error) throw yaml.error;
       return (text = yaml.data ?? '');
     },
@@ -52,7 +57,7 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
   groups.forEach((entry) => {
     const group = o.groups[entry.group!].filter((item) => !!item.import);
     const imports = group.filter((item) => !!item.import).map((item) => item.import!);
-    const allExist = group.every((item) => o[target].some((current) => current.import === item.import));
+    const allExist = group.every((item) => o[target].some((cur) => cur.import === item.import));
     if (allExist) obj[target] = o[target].filter((item) => !imports.includes(item.import!));
   });
 }
@@ -60,10 +65,11 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
 function pushEntry(list: t.EsmDeps.YamlEntry[], entry: t.EsmDeps.Entry) {
   const dev = entry.dev || undefined;
   const module = entry.module;
+  const importSpecifier = wrangle.importSpecifier(module);
   const subpaths = wrangle.subpaths(entry.subpaths);
-  const existing = list.find((item) => item.import === module.toString());
+  const existing = list.find((item) => item.import === importSpecifier);
   if (!existing) {
-    list.push(Delete.undefined({ import: module.toString(), dev, subpaths }));
+    list.push(Delete.undefined({ import: importSpecifier, dev, subpaths }));
   } else {
     if (dev) existing.dev = dev;
     if (subpaths) existing.subpaths = wrangle.mergeSubpaths(existing.subpaths, subpaths);
@@ -100,6 +106,15 @@ function clean(obj: t.EsmDeps.YamlShape) {
  * Helpers:
  */
 const wrangle = {
+  importSpecifier(module: t.EsmParsedImport) {
+    if (module.error) throw module.error;
+    const value = module.toString().trim();
+    if (!value) {
+      throw Err.std(`Failed to serialize ESM module-specifier string ("${module.input}")`);
+    }
+    return value;
+  },
+
   subpaths(input?: readonly string[]): string[] | undefined {
     if (!Array.isArray(input)) return;
     const subpaths = input

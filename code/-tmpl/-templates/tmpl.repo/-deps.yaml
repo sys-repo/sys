@@ -1,34 +1,51 @@
 deno.json:
-  - import: jsr:@sys/color@0.0.220
-  - import: jsr:@sys/driver-deno@0.0.276
-  - import: jsr:@sys/driver-vite@0.0.326
-  - import: jsr:@sys/fs@0.0.269
-  - import: jsr:@sys/http@0.0.237
-  - import: jsr:@sys/process@0.0.250
-  - import: jsr:@sys/std@0.0.325
-  - import: jsr:@sys/testing@0.0.259
-  - import: jsr:@sys/tmpl@0.0.282
-  - import: jsr:@sys/tools@0.0.284
-  - import: jsr:@sys/types@0.0.266
-  - import: jsr:@sys/ui-css@0.0.255
-  - import: jsr:@sys/ui-dom@0.0.262
-  - import: jsr:@sys/ui-react@0.0.269
-  - import: jsr:@sys/ui-react-components@0.0.221
-  - import: jsr:@sys/ui-react-devharness@0.0.266
-  - import: jsr:@sys/workspace@0.0.28
+  - import: jsr:@sys/cli@0.0.259
+  - import: jsr:@sys/color@0.0.229
+    subpaths: [ t ]
+  - import: jsr:@sys/driver-deno@0.0.309
+    subpaths: [ cloud, runtime, t ]
+  - import: jsr:@sys/driver-vite@0.0.360
+    subpaths: [ main, t ]
+  - import: jsr:@sys/fs@0.0.281
+    subpaths: [ t ]
+  - import: jsr:@sys/http@0.0.254
+    subpaths: [ client, t ]
+  - import: jsr:@sys/process@0.0.261
+    subpaths: [ t ]
+  - import: jsr:@sys/std@0.0.334
+    subpaths: [ async, log, rx, t, testing ]
+  - import: jsr:@sys/testing@0.0.271
+    subpaths: [ server, t ]
+  - import: jsr:@sys/tmpl@0.0.328
+    subpaths: [ t ]
+  - import: jsr:@sys/tools@0.0.344
+    subpaths: [ t ]
+  - import: jsr:@sys/types@0.0.275
+  - import: jsr:@sys/ui-css@0.0.264
+    subpaths: [ t ]
+  - import: jsr:@sys/ui-dom@0.0.271
+    subpaths: [ t ]
+  - import: jsr:@sys/ui-react@0.0.286
+    subpaths: [ t ]
+  - import: jsr:@sys/ui-react-components@0.0.246
+    subpaths: [ t ]
+  - import: jsr:@sys/ui-react-devharness@0.0.284
+    subpaths: [ t ]
+  - import: jsr:@sys/workspace@0.0.62
+    subpaths: [ cli, t, testing ]
 package.json:
-  - import: npm:react@19.2.4
-  - import: npm:react-dom@19.2.4
+  - import: npm:react@19.2.5
+  - import: npm:react-dom@19.2.5
   - import: npm:react-icons@5.6.0
   - import: npm:@deno/vite-plugin@1.0.6
     dev: true
-  - import: npm:@vitejs/plugin-react@5.1.4
+  - import: npm:@vitejs/plugin-react@5.2.0
     dev: true
-  - import: npm:rollup@4.59.0
+  - import: npm:rollup@4.60.1
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:vite@7.3.1
+  - import: npm:vite@7.3.2
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true

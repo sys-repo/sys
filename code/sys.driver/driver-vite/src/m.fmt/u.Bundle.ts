@@ -1,5 +1,5 @@
-import { type t, c, Path, Semver, Str, Time } from './common.ts';
-import { digest, pad } from './u.ts';
+import { type t, c, Path, Semver, Str } from './common.ts';
+import { digest, elapsed, pad } from './u.ts';
 
 export const Bundle: t.ViteLogLib['Bundle'] = {
   log(args) {
@@ -13,7 +13,7 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
 
     const input = Path.trimCwd(dirs.in) || './';
     const outDir = Path.trimCwd(dirs.out);
-    const elapsed = args.elapsed ? Time.duration(args.elapsed).format({ round: 1 }) : '-';
+    const fmtElapsed = elapsed(args.elapsed);
     const tx = digest(hash);
 
     let strPkg = ``;
@@ -28,7 +28,7 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
     if (hash) fmtHash = c.gray(c.dim(hash.slice(0, -5)) + hash.slice(-5));
 
     let text = `
-${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
+${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}
 ${c.gray(`pkg:      ${strPkg}`)}
 ${c.gray(`in:       ${clean(input)}`)}
 ${c.gray(`out:      ${clean(outDir)}/dist.json`)} ${tx}

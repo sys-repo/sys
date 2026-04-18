@@ -34,7 +34,9 @@ export const SpecsComponents = {
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: Splash`]: () => import('../ui/Splash/-spec/-SPEC.tsx'),
-  [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
+
+  [`${ns}: Text.Input`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Ellipsize`]: () => import('../ui/Text.Ellipsize/-spec/-SPEC.tsx'),
 
   [`${ns}: Prose.Measure`]: () => import('../ui/Prose.Measure/-spec/-SPEC.tsx'),
   [`${ns}: Prose.Manuscript`]: () => import('../ui/Prose.Manuscript/-spec/-SPEC.tsx'),

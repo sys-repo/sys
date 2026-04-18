@@ -63,6 +63,40 @@ describe('Workspace.Graph.collect', () => {
       { from: 'code/pkg-b/src/mod.ts', to: 'code/pkg-a/src/types.ts', kind: 'type' },
     ]);
   });
+
+  it('orders package paths and roots by code-unit order', async () => {
+    const fs = await Testing.dir('WorkspaceGraph.collect.codeUnit');
+
+    await writePackage(fs.dir, 'code/a2', {
+      name: '@scope/a2',
+      exports: { '.': './src/mod.ts' },
+      files: { 'src/mod.ts': `export const value = 'a2';\n` },
+    });
+
+    await writePackage(fs.dir, 'code/a10', {
+      name: '@scope/a10',
+      exports: { '.': './src/mod.ts' },
+      files: { 'src/mod.ts': `export const value = 'a10';\n` },
+    });
+
+    await writePackage(fs.dir, 'code/A', {
+      name: '@scope/A',
+      exports: { '.': './src/mod.ts' },
+      files: { 'src/mod.ts': `export const value = 'A';\n` },
+    });
+
+    const graph = await WorkspaceGraph.collect({
+      cwd: fs.dir,
+      source: { include: ['./code/**/deno.json'] },
+    });
+
+    expect(graph.packages.map((item) => item.path)).to.eql(['code/A', 'code/a10', 'code/a2']);
+    expect(graph.roots).to.eql([
+      'code/A/src/mod.ts',
+      'code/a10/src/mod.ts',
+      'code/a2/src/mod.ts',
+    ]);
+  });
 });
 
 async function writePackage(

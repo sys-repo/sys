@@ -6,6 +6,7 @@ import { type t } from './common.ts';
 
 import { Topological } from '../m.Topological/mod.ts';
 import { Policy } from '../m.Policy/mod.ts';
+import { Is } from './m.Is.ts';
 import { Modules } from './m.Modules.ts';
 import { hasDefaultExport } from './m.hasDefaultExport.ts';
 import { parse } from './u.parse.ts';
@@ -18,6 +19,7 @@ export const Esm: t.EsmLib = {
   Topological,
   Policy,
   Modules,
+  Is,
   modules: Modules.create,
   parse,
   toString,

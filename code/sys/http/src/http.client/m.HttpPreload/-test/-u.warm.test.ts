@@ -1,4 +1,5 @@
 import { Testing, describe, expect, it } from '../../../-test.ts';
+import { HTTP_HEADER_MEDIA_FULL_CACHE_READY } from '../../common.ts';
 import { Preload } from '../mod.ts';
 
 describe('Http.Preload.warm', () => {
@@ -41,6 +42,28 @@ describe('Http.Preload.warm', () => {
     expect(res.ops[0].ok).to.eql(true);
     expect(res.ops[0].bytes).to.eql(1);
     expect(res.ops[0].range).to.eql({ start: 0, end: 0 });
+    expect(res.ops[0].fullMediaCached).to.eql(undefined);
+
+    await server.dispose();
+  });
+
+  it('Range: reports when the safe-full media cache is ready', async () => {
+    const server = Testing.Http.server(() =>
+      new Response(new Uint8Array([1]), {
+        status: 206,
+        headers: {
+          'content-range': 'bytes 0-0/1',
+          [HTTP_HEADER_MEDIA_FULL_CACHE_READY]: 'true',
+        },
+      })
+    );
+
+    const url = server.url.toString();
+    const res = await Preload.warm([{ url, range: { start: 0, end: 0 } }]);
+
+    expect(res.ok).to.eql(true);
+    expect(res.ops[0].ok).to.eql(true);
+    expect(res.ops[0].fullMediaCached).to.eql(true);
 
     await server.dispose();
   });

@@ -16,7 +16,7 @@ export const root: t.GitRootFn = async (opts = {}) => {
     };
   }
 
-  let res: t.ProcOutput;
+  let res: t.Process.Output;
   try {
     res = await Process.invoke({
       cmd: git,

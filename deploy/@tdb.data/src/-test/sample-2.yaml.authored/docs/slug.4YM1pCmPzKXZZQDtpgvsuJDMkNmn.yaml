@@ -1,0 +1,374 @@
+title: What Is a Business Model?
+description: Business model fundamentals - understanding the four-part framework
+  and why systematic design matters
+traits:
+  - of: media-composition
+    as: sequence
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+data:
+  sequence:
+    - video: /:core-videos/core 3.1.1 what-is-a-business-modelR.webm.02.mp4.webm
+      slice: 00:00..04:10
+      script: >
+        [00:00:00] Before we jump into filling in your Social Lean Canvas, let's
+        get a couple of business model basics straight.
+
+        [00:00:06] If you can understand the essentials - what a business model
+        is, how the different parts work together, and how we map the journey
+        from startup idea to successful venture - the whole process will run
+        smoother and make a lot more sense.
+
+        [00:00:19] If you don't understand these fundamentals, you risk
+        investing time, energy, and capital in the wrong places and burning your
+        opportunity to make your venture work.
+
+        [00:00:29] This section is about those basics, so we share the same
+        mental model before we touch the canvas.
+
+        [00:00:35] Once that's in place, each step we take becomes clear,
+        testable, and faster to execute.
+
+        [00:00:41] Let's start by looking at what a business model actually is.
+
+        [00:00:45] People often define the term business model in different
+        ways, which adds to the confusion.
+
+        [00:00:51] Some people point to the business model as being only the
+        financial side of a venture.
+
+        [00:00:55] But this misses seeing your venture as an integrated system
+        that needs to function as a whole.
+
+        [00:01:00] We need to see the business model as the core machine that
+        drives the whole business or social enterprise, more than just the money
+        side.
+
+        [00:01:08] This might sound complex, but in reality there's just four
+        fundamental pieces.
+
+        [00:01:13] To have a business model, you have to create value, deliver
+        value, capture value, and manage costs.
+
+        [00:01:20] If you can do that, you have a business model.
+
+        [00:01:23] Let's look at a quick example. A coffee cart.
+
+        [00:01:26] You sell great coffee - that's creating value.
+
+        [00:01:29] You're at a train station where commuters pass by on their
+        way to work - that's delivering value.
+
+        [00:01:34] You charge $5 cash or card for a cup of coffee - that's
+        capturing value.
+
+        [00:01:39] You watch both the price of beans, staff hours, and permit
+        fees. That's managing costs.
+
+        [00:01:45] For a purpose-driven venture, we add one more dimension:
+        creating impact.
+
+        [00:01:50] You still create, deliver, and capture value while managing
+        costs, but you also aim to create measurable change in the world, not
+        just satisfied customers.
+
+        [00:02:01] If we map the simple business model definition to the Social
+        Lean Canvas, we have the Customer Model - how you create value - who you
+        serve, the job they need done, the promise they'll respond to, the
+        solution you'll deliver.
+
+        [00:02:15] The Impact Model - how you create impact - from the issue you
+        care about, your activities and the outcomes you'll generate, through to
+        the ultimate impact you're aiming for.
+
+        [00:02:25] And the Economic Model, the business model's engine. You
+        deliver value through Channels, capture value through Revenue, and
+        manage costs in your Costs section.
+
+        [00:02:34] Advantage captures the leverage that makes your model
+        powerful.
+
+        [00:02:39] This is an integrated view of how your business model works.
+
+        [00:02:42] It allows you to see and understand the important
+        interactions across your venture that will need to happen to make it
+        work.
+
+        [00:02:49] So why should we bother designing our business model?
+
+        [00:02:52] Why not just take an idea and start executing on it?
+
+        [00:02:56] From the outside, business models can look simple.
+
+        [00:02:59] You make something, you sell something, but in reality there
+        are hundreds of decisions that shape a business model.
+
+        [00:03:05] Each one nudges you towards success or failure.
+
+        [00:03:08] Think about the coffee cart example. Looks simple, right?
+
+        [00:03:11] But underneath there are dozens of choices.
+
+        [00:03:14] Which station do you set up at?
+
+        [00:03:16] What hours do you operate?
+
+        [00:03:18] What coffee beans do you buy?
+
+        [00:03:20] What level of quality?
+
+        [00:03:22] What price point? Do you take card payments or cash?
+
+        [00:03:24] Do you offer food?
+
+        [00:03:26] What's your customer service approach?
+
+        [00:03:28] How do you handle bad weather?
+
+        [00:03:29] Each decision affects whether the cart succeeds or fails.
+
+        [00:03:34] Now, multiply that complexity for a full-sized venture.
+
+        [00:03:37] Where do you find customers?
+
+        [00:03:39] How do you reach them?
+
+        [00:03:40] What value proposition resonates?
+
+        [00:03:42] What's the right solution?
+
+        [00:03:44] How do you deliver it?
+
+        [00:03:45] What should you charge?
+
+        [00:03:46] What partnerships do you need?
+
+        [00:03:47] For purpose-driven ventures, this complexity is amplified.
+
+        [00:03:51] You need to integrate an impact model into an already complex
+        business model.
+
+        [00:03:56] You're juggling customer value creation and impact delivery
+        simultaneously.
+
+        [00:04:01] If we don't use a systematic process to design our business
+        model, we're just guessing.
+
+        [00:04:06] And guessing is a recipe for burnout, failure, and wasted
+        potential.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: What Is a Business Model?
+          text:
+            headline: What Is a Business Model?
+            tagline: Learn the foundations
+        00:00:41:
+          text:
+            headline: What Is a Business Model?
+            tagline: More than just money
+        00:01:08:
+          pause: 2s
+          text:
+            headline: Four Fundamental Pieces
+            tagline: The business model core
+        00:01:13:
+          text:
+            headline: Four Fundamental Pieces
+            body: |
+              - Create value
+        00:01:15:
+          text:
+            headline: Four Fundamental Pieces
+            body: |
+              - Deliver value
+        00:01:17:
+          text:
+            headline: Four Fundamental Pieces
+            body: |
+              - Capture value
+        00:01:19:
+          text:
+            headline: Four Fundamental Pieces
+            body: |
+              - Manage costs
+        00:01:23:
+          pause: 3s
+          image: /:core-images/coffee-cart.png
+          text:
+            headline: Coffee Cart Example
+            tagline: Four pieces in action
+        00:01:26:
+          image: /:core-images/coffee-cart.png
+          text:
+            headline: Coffee Cart Example
+            tagline: "Create: Great coffee"
+        00:01:29:
+          image: /:core-images/coffee-cart.png
+          text:
+            headline: Coffee Cart Example
+            tagline: "Deliver: Train station location"
+        00:01:34:
+          image: /:core-images/coffee-cart.png
+          text:
+            headline: Coffee Cart Example
+            tagline: "Capture: $5 per cup"
+        00:01:39:
+          image: /:core-images/coffee-cart.png
+          text:
+            headline: Coffee Cart Example
+            tagline: "Manage: Beans, staff, permits"
+        00:01:45:
+          pause: 2s
+          text:
+            headline: Purpose-Driven Addition
+            tagline: Create measurable impact
+        00:01:50:
+          text:
+            headline: Purpose-Driven Addition
+            body: |
+              - Create value
+              - Deliver value
+              - Capture value
+              - Manage costs
+              - Create impact
+        00:02:01:
+          pause: 2s
+          text:
+            headline: Social Lean Canvas
+            tagline: An integrated system
+        00:02:05:
+          text:
+            headline: Social Lean Canvas
+            body: |
+              Customer Model: Create value
+        00:02:15:
+          text:
+            headline: Social Lean Canvas
+            body: |
+              Impact Model: Create impact
+        00:02:25:
+          text:
+            headline: Social Lean Canvas
+            body: |
+              Economic Model: Deliver, capture, manage
+        00:02:39:
+          text:
+            headline: Integrated View
+            tagline: See the whole system
+        00:02:49:
+          pause: 2s
+          title: Why Design a Business Model?
+          text:
+            headline: Why Design a Business Model?
+            tagline: Design beats guesswork
+        00:02:56:
+          text:
+            headline: Simple on the Surface
+            tagline: Complex underneath
+        00:03:05:
+          text:
+            headline: Hundreds of Decisions
+            tagline: Each one matters
+        00:03:08:
+          pause: 2s
+          text:
+            headline: Coffee Cart Complexity
+            tagline: Dozens of choices
+        00:03:14:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - Which station?
+        00:03:16:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - What hours?
+        00:03:18:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - What beans, what quality?
+        00:03:22:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - What price? Card or cash?
+        00:03:24:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - Food offerings?
+        00:03:26:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - Service approach?
+        00:03:28:
+          text:
+            headline: Coffee Cart Complexity
+            body: |
+              - Weather contingency?
+        00:03:34:
+          pause: 2s
+          text:
+            headline: Full Venture Scale
+            tagline: Multiply the complexity
+        00:03:37:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - Where do you find customers?
+        00:03:39:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - How do you reach them?
+        00:03:40:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - What value proposition resonates?
+        00:03:42:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - What's the right solution?
+        00:03:44:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - How do you deliver it?
+        00:03:45:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - What should you charge?
+        00:03:46:
+          text:
+            headline: Full Venture Scale
+            body: |
+              - What partnerships do you need?
+        00:03:47:
+          pause: 2s
+          text:
+            headline: Purpose-Driven Amplification
+            tagline: Impact plus business model
+        00:03:56:
+          text:
+            headline: Purpose-Driven Amplification
+            tagline: Juggling dual value creation
+        00:04:01:
+          pause: 2s
+          text:
+            headline: Design Beats Guesswork
+            tagline: Use a systematic process

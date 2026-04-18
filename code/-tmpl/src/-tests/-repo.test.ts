@@ -28,7 +28,7 @@ describe('Template: repo', () => {
     expect(includes('/deps.yaml')).to.be.true;
     expect(includes('/imports.json')).to.be.true;
     expect(includes('/README.md')).to.be.true;
-    expect(includes('/code/projects/mod.ts')).to.be.true;
+    expect(includes('/code/packages/mod.ts')).to.be.true;
     expect(includes('/-scripts/task.prep.ts')).to.be.true;
     expect(includes('/-scripts/task.tmpl.ts')).to.be.true;
     expect(includes('/-deps.yaml')).to.be.false;

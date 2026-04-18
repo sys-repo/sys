@@ -33,10 +33,12 @@ Core tasks from `deno.json`:
 
 - `deno task ci` → runs baseline quality gates (`check` then `test`)
 - `deno task check` → type-checks the repo
+- `deno task check:graph` → verifies the generated workspace graph snapshot
 - `deno task info` → prints Deno runtime and workspace source stats
-- `deno task prep` → syncs generated package metadata and GitHub workflows for project modules under `./code/projects`
+- `deno task install` → refreshes `deno.lock`
+- `deno task prep` → syncs dependency authority files, the workspace graph snapshot, generated package metadata, and GitHub workflows for workspace packages under `./code/packages`
+- `deno task prep:graph` → writes the workspace graph snapshot only
 - `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
-- `deno task outdated` → reports dependency updates from the canonical `deps.yaml` manifest
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
 
 To run the canonical workspace upgrade flow through the same task surface:
@@ -57,16 +59,16 @@ After generating this starter from `@sys/tmpl/repo` and making your initial prep
 updates for your project, tag it with:
 
 ```bash
-git tag -fa baseline-0 -m "baseline-0: generated from @sys/tmpl/repo and prepped with initial configuration and values"
+git tag -fa baseline-0 -m "baseline-0: generated from @sys/tmpl/repo and prepped with initial configuration"
 git push --force origin baseline-0
 ```
 
 <p>&nbsp;</p>
 
-## /projects
-New projects:
+## /packages
+New packages:
 - via interactive CLI: `deno task tmpl:project`
-- via non-interactive/agent flow using `deno run ... @sys/tmpl ... --no-interactive`
-- after adding/removing project modules with `deno.json` tasks, refresh workflows with `deno task prep`
+- via non-interactive/agent flow: `deno run -A jsr:@sys/tmpl --non-interactive --dir code/packages/foo pkg --pkgName @acme/foo`
+- after adding/removing workspace packages with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>

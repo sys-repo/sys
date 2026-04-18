@@ -192,7 +192,7 @@ function useInternal(args: Args = {}): Hook {
     }
   };
 
-  const onTextChange: t.TextInputChangeHandler = (e) => {
+  const onTextChange: t.TextInput.ChangeHandler = (e) => {
     const p = signalsRef.current;
     const doc = p.doc.value;
     const parsed = Parse.textbox(e.value);
@@ -201,7 +201,7 @@ function useInternal(args: Args = {}): Hook {
     p.path.value = parsed.path;
   };
 
-  const onKeyDown: t.TextInputKeyHandler = (e) => {
+  const onKeyDown: t.TextInput.KeyHandler = (e) => {
     if (e.key === 'Enter') {
       const props = wrangle.props(args, signalsRef.current, repo);
       run(props.action);

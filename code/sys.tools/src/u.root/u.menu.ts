@@ -1,48 +1,129 @@
-import { type t, c, Cli, pkg, Str } from './common.ts';
+import { type t, c, Cli, pkg } from './common.ts';
 import { isToolCommand } from './u.is.ts';
 import { rootRows } from './u.rows.ts';
+import { trimEdgeNewlines } from './u.text.ts';
 
+type RootMenuAction = t.Root.Command | 'more' | 'back' | 'exit';
 export type RootMenuPick =
   | { readonly kind: 'exit' }
   | { readonly kind: 'selected'; command: t.Root.Command };
 
+const ROOT_MENU_MAX_ROWS = 20;
+
 export async function rootMenu(): Promise<RootMenuPick> {
-  const rows = rootRows();
-  const table = Cli.table([]);
-  const total = rows.length;
-  const exitLabel = c.gray('(exit)');
-  const exitIndent = ' '.repeat(Cli.Fmt.Tree.branch([0, rows]).length);
+  let scope: 'primary' | 'secondary' = 'primary';
 
-  rows.forEach((row, index) => {
-    const branch = index === total - 1
-      ? Cli.Fmt.Tree.branch(true, 1)
-      : Cli.Fmt.Tree.branch([index, rows]);
-    table.push([`${c.dim(branch)} ${row.columns[0]}`, ...row.columns.slice(1)]);
-  });
+  while (true) {
+    const picked = await promptMenu(scope);
 
-  table.push([`${exitIndent}${exitLabel}`]);
+    if (picked === 'exit') return { kind: 'exit' };
+    if (picked === 'more') {
+      scope = 'secondary';
+      continue;
+    }
+    if (picked === 'back') {
+      scope = 'primary';
+      continue;
+    }
+    if (!isToolCommand(picked)) return { kind: 'exit' };
+    return { kind: 'selected', command: picked };
+  }
+}
 
-  const lines = Str.trimEdgeNewlines(table.toString()).split('\n');
-  const options: Array<{ name: string; value: t.Root.Command | 'exit' }> = rows.map(
-    (row, index) => ({
-      name: lines[index] ?? row.columns.join(' '),
-      value: row.command,
-    }),
-  );
+export function optionLines(table: string): string[] {
+  return trimEdgeNewlines(table)
+    .split('\n')
+    .filter((line) => visibleText(line).length > 0);
+}
 
-  options.push({ name: lines[rows.length] ?? c.gray('(exit)'), value: 'exit' as const });
+export function optionName(line: string | undefined, fallback: string): string {
+  if (visibleText(line).length > 0) return line!;
+  if (visibleText(fallback).length > 0) return fallback;
+  throw new Error('Root menu option name must not be blank');
+}
+
+function visibleText(input?: string): string {
+  return Cli.stripAnsi(input ?? '').trim();
+}
+
+async function promptMenu(scope: 'primary' | 'secondary'): Promise<RootMenuAction> {
+  const rows = scope === 'primary'
+    ? [...toolMenuRows('primary'), specialRow('more'), ...toolMenuRows('utility')]
+    : [...toolMenuRows('secondary'), specialRow('back')];
+  const options = rowsToOptions(rows);
 
   console.info();
-  const picked = await Cli.Input.Select.prompt<t.Root.Command | 'exit'>({
+  const picked = await Cli.Input.Select.prompt<RootMenuAction>({
     message: [
       `${c.green('system:tools')}${c.gray(c.dim('@'))}${c.gray(pkg.version)}`,
       `  ${c.dim(Cli.Fmt.Tree.vert)}`,
     ].join('\n'),
     options,
     hideDefault: true,
+    maxRows: ROOT_MENU_MAX_ROWS,
   });
 
-  if (picked === 'exit') return { kind: 'exit' };
-  if (!isToolCommand(picked)) return { kind: 'exit' };
-  return { kind: 'selected', command: picked };
+  if (isRootMenuAction(picked)) return picked;
+  throw new Error(`Invalid root menu action: ${picked}`);
+}
+
+type MenuRow = { readonly value: RootMenuAction; readonly columns: readonly string[] };
+
+function toolMenuRows(group: 'primary' | 'secondary' | 'utility'): MenuRow[] {
+  return rootRows(group).map((row) => ({ value: row.command, columns: row.columns }));
+}
+
+function isRootMenuAction(value: string): value is RootMenuAction {
+  return value === 'more' || value === 'back' || value === 'exit' || isToolCommand(value);
+}
+
+function rowsToOptions(rows: readonly MenuRow[]) {
+  const table = Cli.table([]);
+  const exitLabel = c.gray('(exit)');
+  const exitIndent = ' '.repeat(Cli.Fmt.Tree.branch([0, rows]).length);
+  const treeRows = rows.filter((row) => row.value !== 'back' && row.value !== 'more');
+
+  rows.forEach((row, index) => {
+    if (row.value === 'back') {
+      table.push([` ${row.columns[0]}`]);
+      return;
+    }
+
+    if (row.value === 'more') {
+      table.push([`${c.dim(Cli.Fmt.Tree.vert)}     ${row.columns[0]}`]);
+      return;
+    }
+
+    const treeIndex = treeRows.findIndex((item) => item === row);
+    const branch = treeIndex === treeRows.length - 1
+      ? Cli.Fmt.Tree.branch(true, 1)
+      : Cli.Fmt.Tree.branch([treeIndex, treeRows]);
+    table.push([`${c.dim(branch)} ${row.columns[0]}`, ...row.columns.slice(1)]);
+  });
+
+  table.push([`${exitIndent}${exitLabel}`]);
+
+  const lines = optionLines(table.toString());
+  const options: Array<{ name: string; value: RootMenuAction }> = rows.map((row, index) => ({
+    name: optionName(lines[index], row.columns.join(' ')),
+    value: row.value,
+  }));
+
+  options.push({
+    name: optionName(lines[rows.length], c.gray('(exit)')),
+    value: 'exit',
+  });
+
+  return options;
+}
+
+function specialRow(kind: 'more' | 'back'): MenuRow {
+  return {
+    value: kind,
+    columns: [
+      kind === 'more'
+        ? c.gray(c.italic('more...'))
+        : c.gray('← back'),
+    ],
+  };
 }

@@ -37,3 +37,23 @@ export type Result = {
   /** Deploy entry path inside the staged root. */
   readonly entry: t.StringPath;
 };
+
+/**
+ * Narrow stage-like input required by `prepare()`.
+ *
+ * This exists so external callers can rehydrate staged metadata without
+ * pretending to own the full resolved `DenoWorkspace` object.
+ */
+export type PrepareInput = {
+  readonly target: DenoDeploy.Target;
+  readonly workspace: { readonly dir: t.StringDir };
+  readonly root: t.StringDir;
+  readonly entry: t.StringPath;
+};
+
+/**
+ * Narrow stage-like input required by `deploy()`.
+ */
+export type DeployInput = {
+  readonly root: t.StringDir;
+};

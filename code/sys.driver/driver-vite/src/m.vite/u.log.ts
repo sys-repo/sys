@@ -14,7 +14,6 @@ export const Log = {
    */
   Entry: {
     log(Pkg: t.Pkg, input: t.StringPath) {
-      console.info();
       console.info(Log.Entry.toString(Pkg, input, { pad: true }));
     },
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {

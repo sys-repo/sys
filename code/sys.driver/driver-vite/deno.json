@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.336",
+  "version": "0.0.360",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -20,6 +20,7 @@
     "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
     "./main": "./src/-entry/-main.ts",
+    "./plugins": "./src/m.vite.plugins/mod.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
   },
   "permissions": {

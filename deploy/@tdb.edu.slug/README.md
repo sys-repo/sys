@@ -9,7 +9,7 @@ Slug concept-player training system.
 
 
 ## Bundle Hook
-In the `jsr:@sys/tools crdt` command, generate the `hookt.ts` file and expose a "**bundler plugin**". Default plugin available from the `Bundler` export within the content/compiler tools:
+In the `jsr:@sys/tools crdt` command, generate the `hook.ts` file and expose a "**bundler plugin**". Default plugin available from the `Bundler` export within the content/compiler tools:
 
 ```ts
 import type { t } from 'jsr:@sys/tools';
@@ -41,6 +41,49 @@ system/crdt:tools
    repository
   (exit)
 ```
+
+<p>&nbsp;</p>
+
+
+## Document Graph Lint Hook
+In the `jsr:@sys/tools crdt` command, generate the `hook.doc.ts` file and expose a
+document-graph plugin for linting the currently selected DAG.
+
+```ts
+import type { t } from 'jsr:@sys/tools';
+import { c } from 'jsr:@sys/cli';
+import { env } from 'jsr:@sys/tools/env';
+
+await env();
+
+export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
+  if (e.is.root) {
+    e.log(`hook: from root document | ${c.green(e.id)}`);
+  }
+};
+
+export const plugins: readonly t.CrdtTool.Doc.Graph.Plugin[] = [
+  {
+    id: 'lint:program:slugs',
+    title: `lint ${c.dim(`[ ${c.cyan('@tdb/edu-slug')} ]`)}`,
+    async run(args) {
+      const { Linter } = await import('jsr:@tdb/edu-slug/compiler');
+      await Linter.cmd({
+        cmd: args.cmd,
+        dag: args.dag,
+        docpath: args.docpath,
+        cwd: args.cwd,
+        interactive: true,
+      });
+
+      return { kind: 'stay' };
+    },
+  },
+];
+```
+
+This plugin appears from the document graph menu, not the root `system/crdt:tools`
+menu, because it requires the current DAG and selected `docpath`.
 
 <p>&nbsp;</p>
 

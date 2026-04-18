@@ -10,6 +10,13 @@ export const Fmt = {
   Tree: Cli.Fmt.Tree,
 
   /**
+   * Deterministic runnable command for this published package.
+   */
+  invoke(...parts: string[]) {
+    return ['deno run -A jsr:@sys/tools', ...parts].join(' ').trim();
+  },
+
+  /**
    * Common intro header.
    */
   async header(toolname: string, dir?: t.StringDir, opts: { exitHint?: boolean } = {}) {

@@ -1,12 +1,13 @@
 import type { t } from './common.ts';
 
+type UTree = t.UrlTree;
+type URow = t.UrlRow;
+type UValue = t.HttpOriginValue;
+
 /** Type re-exports. */
 export type * from './t.data.ts';
 
 export declare namespace HttpOrigin {
-  /** HTTP origin environment (e.g. localhost, production). */
-  export type Env = 'localhost' | 'production';
-
   /**
    * HttpOrigin UI Display.
    */
@@ -19,12 +20,26 @@ export declare namespace HttpOrigin {
     };
   };
 
+  /** HTTP origin environment (e.g. localhost, production). */
+  export type Env = 'localhost' | 'production';
+  /** Per-environment origin tree map (input to HttpOrigin component). */
+  export type SpecMap<E extends string = string, T extends UTree = UTree> = Partial<Record<E, T>>;
+  export type UrlTree = UTree;
+  export type UrlRow = URow;
+  export type Value = UValue;
+  export type VerifyStatus = 'idle' | 'running' | 'ok' | 'error';
+  export type Verify = boolean | VerifyOptions;
+  export type VerifyOptions = { resolveUrl?: (e: VerifyResolveArgs) => t.StringUrl };
+  export type VerifyResolveArgs = { origin: t.StringUrl; key: string; env: Env };
+
   /**
    * Component
    */
   export type Props = {
     env?: Env;
-    spec?: t.HttpOriginSpecMap<Env>;
+    spec?: SpecMap<Env>;
+    verify?: Verify;
+    labels?: Partial<Record<string, t.ReactNode>>;
     //
     debug?: boolean;
     theme?: t.CommonTheme;
@@ -37,8 +52,10 @@ export declare namespace HttpOrigin {
    */
   export type ControlledProps = {
     env?: t.SignalOptional<Env>;
-    origin?: t.SignalOptional<t.UrlTree>;
-    spec?: t.HttpOriginSpecMap<Env>;
+    origin?: t.SignalOptional<UrlTree>;
+    spec?: SpecMap<Env>;
+    verify?: Verify;
+    labels?: Partial<Record<string, t.ReactNode>>;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
@@ -50,7 +67,7 @@ export declare namespace HttpOrigin {
   export type ControllerArgs = {
     props?: Pick<Props, 'env' | 'spec'>;
     env?: t.Signal<Env | undefined>;
-    origin?: t.Signal<t.UrlTree | undefined>;
+    origin?: t.Signal<UrlTree | undefined>;
   };
   /** Factory signature for constructing a Http.Origin state controller. */
   export type ControllerFactory = (args: ControllerArgs) => Controller;
@@ -61,7 +78,7 @@ export declare namespace HttpOrigin {
     readonly view: () => Pick<Props, 'env' | 'spec' | 'onChange'>;
     readonly state: {
       readonly env: t.ReadonlySignal<Env | undefined>;
-      readonly origin: t.ReadonlySignal<t.UrlTree | undefined>;
+      readonly origin: t.ReadonlySignal<UrlTree | undefined>;
     };
   };
 }

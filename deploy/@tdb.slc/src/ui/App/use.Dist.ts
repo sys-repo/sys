@@ -9,7 +9,7 @@ export function useDist(state?: t.AppSignals) {
    * Effect: update app state-model.
    */
   useEffect(() => {
-    console.info(`💦 ${pkg.name}@${pkg.version}: dist.json →`, dist.json);
+    if (dist.json) console.info(`💦 ${pkg.name}@${pkg.version}: dist.json →`, dist.json);
     if (state) state.props.dist.value = dist.json;
   }, [!!state, dist.count]);
 

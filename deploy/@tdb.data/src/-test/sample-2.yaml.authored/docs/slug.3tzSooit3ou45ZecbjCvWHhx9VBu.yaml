@@ -1,0 +1,706 @@
+title: 3.2.4-economic-model
+description: P2P framing and commentary for the Economic Model section, wrapping
+  Core content with solo founder perspective on channels, revenue, costs, and
+  advantage.
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+TASKS:
+  - TODO: Create images for venture example library entries
+    comment: |
+      Need to create consistent visual assets for ventures featured
+      in the example libraries (including Plausible Analytics in this slug).
+      These can be used across multiple slugs where examples appear.
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.2.4 economic-model 1.webm.02.mp4.webm
+      script: >
+        [00:00:00] Now you're about to work through the Core content on the
+        Economic Model.
+
+        [00:00:04] This shows how your enterprise turns the value you create for
+        customers
+
+        [00:00:08] into an engine that powers your whole venture—your business
+        and your impact.
+
+        [00:00:13] The Core Framework walks you through channels, revenue,
+        costs, and advantage.
+
+        [00:00:18] How to reach your customers at scale, how money works in your
+        model, and where your leverage comes from.
+
+        [00:00:24] After the Core content, we'll come back and talk about what
+        economic models look like for P2P ventures—
+
+        [00:00:33] specifically solo or small team operations with fundamentally
+        different cost structures and leverage points.
+      timestamps:
+        00:00:00:
+          title: P2P Framing
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              P2P Framing
+        00:00:03:
+          text:
+            headline: Economic Model
+            tagline: Economics at scale.
+    - slug: /:core-slugs/3.2.4-economic-model
+      display: inline
+    - pause: 3s
+    - video: /:p2p-videos/p2p 3.2.4 economic-model 2.webm.02.mp4.webm
+      script: >
+        [00:00:00] The Core Framework just showed you how the economic model
+        works—channels, revenue, costs, and advantage.
+
+        [00:00:06] Now let's talk about what this looks like for a venture like
+        yours.
+
+        [00:00:10] For P2P ventures, the economic model can look significantly
+        different from that of a high-growth startup or a large social
+        enterprise.
+
+        [00:00:18] Every venture will be different, but here are some principles
+        to guide building an economic model that will work for your venture at
+        your scale.
+
+        [00:00:28] Channels—how you reach and serve customers.
+
+        [00:00:31] They matter differently for P2P ventures. Your constraints
+        shape which channels will work well for your business model.
+
+        [00:00:39] Like we discussed in Customer Model, you probably can't
+        afford a direct sales team.
+
+        [00:00:44] You won't be able to do high-touch enterprise sales where
+        you're on calls all day.
+
+        [00:00:49] You also likely won't be able to afford expensive paid
+        acquisition channels at scale.
+
+        [00:00:55] These all require resources you probably won't have.
+
+        [00:00:59] What does work for P2P scale then?
+
+        [00:01:01] Content-driven channels—SEO, blog posts, YouTube, AI
+        discovery.
+
+        [00:01:07] Community and word-of-mouth acquisition, where customers you
+        already have bring in more customers.
+
+        [00:01:12] Self-serve digital channels.
+
+        [00:01:15] Curation platforms like Product Hunt, app stores, and
+        marketplaces.
+
+        [00:01:21] Strategic partnerships that don't require constant input and
+        management.
+
+        [00:01:27] Here's the key test: Can this channel work while you sleep?
+
+        [00:01:30] You need async, automated, or community-driven channels.
+
+        [00:01:34] You can't be manually selling to every customer, or you'll
+        never scale beyond your own time.
+
+        [00:01:41] Some revenue models work better than others when you're on
+        your own or in a small team.
+
+        [00:01:46] Subscription revenue is predictable and recurring, and it
+        compounds over time.
+
+        [00:01:51] You build the product once, and revenue keeps coming in month
+        after month. Each new customer adds to your base.
+
+        [00:01:58] One-time sales can be lumpy.
+
+        [00:02:00] They require constant customer acquisition.
+
+        [00:02:03] You're always hunting for the next sale.
+
+        [00:02:05] Revenue spikes when you sell, then drops until you sell
+        again.
+
+        [00:02:09] Beware revenue models that require constant manual work—
+
+        [00:02:13] consulting hours, one-off services, custom builds. These
+        don't scale.
+
+        [00:02:18] You're just selling your time.
+
+        [00:02:20] When you stop working, revenue stops as well.
+
+        [00:02:23] Look for models with compounding effects. Each customer adds
+        to the base.
+
+        [00:02:28] Each piece of content brings in more organic traffic.
+
+        [00:02:32] Each community member attracts more members.
+
+        [00:02:35] You're building an engine, not just making individual sales.
+
+        [00:02:40] Let's talk about cost structure.
+
+        [00:02:42] P2P cost models are generally leaner than traditional
+        ventures.
+
+        [00:02:47] No office. No staff initially. You're using cloud-based
+        infrastructure. AI tools instead of hiring.
+
+        [00:02:53] Outsourcing or automating work that doesn't need your direct
+        touch.
+
+        [00:02:58] This lean baseline creates two advantages.
+
+        [00:03:01] First, you can validate your model while you're still
+        employed, because you can achieve more with less time.
+
+        [00:03:07] Second, your revenue doesn't need to be massive in order for
+        you to be sustainable.
+
+        [00:03:14] Once they're up and running, a traditional startup might need
+        $50,000 or more in monthly revenue just to cover basic overheads—
+
+        [00:03:22] office, staff, benefits, all of it.
+
+        [00:03:24] A P2P venture might just need $5,000 per month to be
+        viable—or less—because the cost structure is so much leaner.
+
+        [00:03:33] This changes what scale means for you.
+
+        [00:03:35] You're not trying to support 20 employees and an office
+        lease.
+
+        [00:03:39] You're trying to support yourself and build something
+        sustainable.
+
+        [00:03:42] It's a different game entirely.
+
+        [00:03:45] The Core Framework showed you the Advantage section—where you
+        identify the leverage that makes your model work.
+
+        [00:03:52] For P2P ventures, certain types of leverage are particularly
+        powerful.
+
+        [00:03:57] These include productization—one-to-many instead of
+        one-to-one.
+
+        [00:04:02] Courses instead of one-on-one consulting. SaaS instead of
+        custom development.
+
+        [00:04:06] Build it once, sell it many times. Your work compounds.
+
+        [00:04:10] Automation replacing manual work. Customer support handled by
+        AI chatbots.
+
+        [00:04:16] Automated onboarding sequences. Email workflows that nurture
+        customers without you having to touch each one.
+
+        [00:04:23] AI handling tasks that used to need people.
+
+        [00:04:26] Low or zero marginal cost digital products—like software as a
+        service.
+
+        [00:04:31] Each additional customer costs almost nothing for you to
+        serve.
+
+        [00:04:34] Your tenth customer costs the same as your thousandth.
+
+        [00:04:39] Building on top of existing digital platforms—Shopify,
+        Substack, Stripe.
+
+        [00:04:44] They handle infrastructure, payments, hosting, and security.
+
+        [00:04:48] You can focus on core value creation, and they handle
+        everything else.
+
+        [00:04:53] Community as a growth engine.
+
+        [00:04:55] Members recruit other members. They create content. They
+        provide support for each other.
+
+        [00:05:00] The community becomes the acquisition channel and the support
+        system.
+
+        [00:05:05] Finally, personal brand is your moat.
+
+        [00:05:07] You can't be replicated.
+
+        [00:05:09] Your authentic voice, your specific expertise, your unique
+        perspective—
+
+        [00:05:13] that's an advantage to leverage. No one else can be you.
+
+        [00:05:19] Let's look at an example.
+
+        [00:05:21] Plausible Analytics shows what clean P2P venture economics
+        can look like in practice.
+
+        [00:05:28] Channels: Self-serve digital signup. No sales team.
+
+        [00:05:34] Content marketing through blog posts about privacy and web
+        analytics.
+
+        [00:05:37] Word of mouth in developer communities where people share
+        tools they love.
+
+        [00:05:41] Revenue: Subscription model.
+
+        [00:05:44] Recurring monthly revenue per customer. Plans from $9 to $19
+        per month, depending on traffic volume.
+
+        [00:05:51] Costs: Cloud hosting for the infrastructure.
+
+        [00:05:53] Time contributed by the founders. Minimal overhead beyond
+        that.
+
+        [00:05:59] Advantage: Their leverage shows up in several places.
+
+        [00:06:03] Low marginal costs—it's a SaaS model, so each additional
+        customer costs pennies in hosting to serve.
+
+        [00:06:10] Platform leverage—they built on existing cloud infrastructure
+        rather than managing their own servers.
+
+        [00:06:16] Personal brand—the founders built reputation in the privacy
+        and open-source space. People trust them.
+
+        [00:06:22] Product differentiation—they offer a simple, privacy-focused
+        alternative to Google Analytics.
+
+        [00:06:28] They have very clear positioning.
+
+        [00:06:31] They don't need millions of customers to succeed.
+
+        [00:06:34] A few thousand paying subscribers at $9 to $19 per month
+        creates a sustainable business for a small team.
+
+        [00:06:42] That's the power of the right economic model.
+
+        [00:06:46] The Venture Typology shows different economic model patterns
+        across the six categories.
+
+        [00:06:52] Software and AI ventures have different economics than Local
+        and Regenerative ventures.
+
+        [00:06:57] Different cost structures, different revenue models,
+        different sources of leverage.
+
+        [00:07:02] Browse through the typology to see patterns that might fit
+        your model.
+
+        [00:07:05] See how ventures similar to yours have structured their
+        economics.
+
+        [00:07:10] Use AI tools to explore your economic model.
+
+        [00:07:12] You can prompt LLMs for monetization strategies you haven't
+        considered.
+
+        [00:07:17] Channel ideas specific to your venture type. Ways to optimize
+        costs.
+
+        [00:07:22] Leverage points you might be missing.
+
+        [00:07:25] AI is good at pattern matching and brainstorming.
+
+        [00:07:27] So use AI tools to expand what you're considering beyond your
+        first ideas.
+
+        [00:07:34] Keep it high-level for this first pass through the canvas.
+
+        [00:07:38] Main channels, key revenue streams, major costs, primary
+        leverage points.
+
+        [00:07:44] Just the shape of your economic model.
+
+        [00:07:46] We'll go deeper in Module 2, where you'll improve your whole
+        business model.
+
+        [00:07:49] There's detailed economic model work coming—pricing
+        strategies,
+
+        [00:07:53] customer acquisition cost, lifetime value, unit economics,
+        all of that.
+
+        [00:07:58] But for now, just sketch the outline so you can see if the
+        basic structure holds together.
+
+        [00:08:04] Check the P2P Example Library for different economic model
+        approaches.
+
+        [00:08:08] The Core Example Library shows comprehensive models across
+        different venture types and scales as well.
+
+        [00:08:16] Document what you have in your canvas.
+
+        [00:08:17] This becomes your economic hypothesis—the model you'll test
+        and refine as you validate.
+      timestamps:
+        00:00:00:
+          title: P2P Economics
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              P2P Economics
+        00:00:03:
+          text:
+            headline: Economic Model
+            tagline: P2P economics.
+        00:00:18:
+          text:
+            headline: Economic Model
+            tagline: Principles for your scale.
+        00:00:28:
+          title: Channels
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Channels
+        00:00:31:
+          pause: 2s
+          image: /:core-images/em-chan-highlight.png
+          text:
+            headline: Channels
+            tagline: Async channels win.
+        00:00:39:
+          text:
+            headline: Channels
+            tagline: Your constraints shape your options.
+        00:00:59:
+          pause: 3s
+          text:
+            headline: Channels
+            tagline: What works for P2P scale?
+            body: |
+              - Content-Driven: SEO, Blog, YouTube, AI Discovery
+        00:01:07:
+          text:
+            headline: Channels
+            tagline: What works for P2P scale?
+            body: |
+              - Content-Driven: SEO, Blog, YouTube, AI Discovery
+              - Community and Word-of-Mouth
+        00:01:12:
+          text:
+            headline: Channels
+            tagline: What works for P2P scale?
+            body: |
+              - Content-Driven: SEO, Blog, YouTube, AI Discovery
+              - Community and Word-of-Mouth
+              - Self-Serve Digital
+        00:01:15:
+          text:
+            headline: Channels
+            tagline: What works for P2P scale?
+            body: |
+              - Content-Driven: SEO, Blog, YouTube, AI Discovery
+              - Community and Word-of-Mouth
+              - Self-Serve Digital
+              - Curation Platforms
+        00:01:21:
+          text:
+            headline: Channels
+            tagline: What works for P2P scale?
+            body: |
+              - Content-Driven: SEO, Blog, YouTube, AI Discovery
+              - Community and Word-of-Mouth
+              - Self-Serve Digital
+              - Curation Platforms
+              - Strategic Partnerships
+        00:01:27:
+          pause: 2s
+          text:
+            headline: Channels
+            tagline: Can this channel work while you sleep?
+        00:01:41:
+          title: Revenue Models
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Revenue Models
+        00:01:44:
+          pause: 2s
+          image: /:core-images/em-rev-highlight.png
+          text:
+            headline: Revenue Models
+            tagline: Recurring beats one-time.
+        00:01:46:
+          text:
+            headline: Revenue Models
+            tagline: Subscriptions compound over time.
+        00:01:58:
+          pause: 2s
+          text:
+            headline: Revenue Models
+            tagline: One-time sales are lumpy.
+        00:02:09:
+          text:
+            headline: Revenue Models
+            tagline: Avoid selling your time.
+        00:02:23:
+          pause: 2s
+          text:
+            headline: Revenue Models
+            tagline: Build compounding effects.
+        00:02:40:
+          title: Costs
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Costs
+        00:02:43:
+          pause: 2s
+          image: /:core-images/em-costs-highlight.png
+          text:
+            headline: Costs
+            tagline: Lean by design.
+        00:02:47:
+          pause: 3s
+          text:
+            headline: Costs
+            tagline: Lean by design.
+            body: |
+              - No Office
+              - Cloud Infrastructure
+              - AI Tools Over Hiring
+              - Outsource Non-Core Work
+        00:02:58:
+          text:
+            headline: Costs
+            tagline: Two lean advantages.
+        00:03:01:
+          pause: 2s
+          text:
+            headline: Costs
+            tagline: Validate while still employed.
+        00:03:07:
+          text:
+            headline: Costs
+            tagline: Revenue threshold is lower.
+        00:03:14:
+          pause: 3s
+          text:
+            headline: Costs
+            tagline: $50k/month vs $5k/month.
+        00:03:33:
+          text:
+            headline: Costs
+            tagline: Scale means something different.
+        00:03:45:
+          title: Advantage
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Advantage
+        00:03:48:
+          pause: 2s
+          image: /:core-images/em-adv-highlight.png
+          text:
+            headline: Advantage
+            tagline: Leverage enables small.
+        00:03:57:
+          pause: 3s
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+        00:04:10:
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+              - Automation: Replace Manual Work
+        00:04:26:
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+              - Automation: Replace Manual Work
+              - Zero Marginal Cost: SaaS Model
+        00:04:39:
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+              - Automation: Replace Manual Work
+              - Zero Marginal Cost: SaaS Model
+              - Platform Leverage: Build on Giants
+        00:04:53:
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+              - Automation: Replace Manual Work
+              - Zero Marginal Cost: SaaS Model
+              - Platform Leverage: Build on Giants
+              - Community as Growth Engine
+        00:05:05:
+          text:
+            headline: Advantage
+            tagline: P2P leverage types.
+            body: |
+              - Productization: One-to-Many
+              - Automation: Replace Manual Work
+              - Zero Marginal Cost: SaaS Model
+              - Platform Leverage: Build on Giants
+              - Community as Growth Engine
+              - Personal Brand as Moat
+        00:05:19:
+          title: "Example: Plausible Analytics"
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Example: Plausible Analytics
+        00:05:22:
+          text:
+            headline: Plausible Analytics
+            tagline: Clean P2P economics in practice.
+        00:05:28:
+          pause: 3s
+          text:
+            headline: Plausible Analytics
+            tagline: Channels.
+            body: |
+              - Self-Serve Digital Signup
+              - Content Marketing (Privacy + Analytics)
+              - Word-of-Mouth in Dev Communities
+        00:05:41:
+          pause: 2s
+          text:
+            headline: Plausible Analytics
+            tagline: Revenue.
+            body: |
+              - Subscription Model
+              - $9–$19/month per customer
+              - Recurring, compounding base
+        00:05:51:
+          pause: 2s
+          text:
+            headline: Plausible Analytics
+            tagline: Costs.
+            body: |
+              - Cloud Hosting
+              - Founder Time
+              - Minimal Overhead
+        00:05:59:
+          pause: 3s
+          text:
+            headline: Plausible Analytics
+            tagline: Advantage.
+            body: |
+              - Low Marginal Costs (SaaS)
+        00:06:10:
+          text:
+            headline: Plausible Analytics
+            tagline: Advantage.
+            body: |
+              - Low Marginal Costs (SaaS)
+              - Platform Leverage (Cloud Infra)
+        00:06:16:
+          text:
+            headline: Plausible Analytics
+            tagline: Advantage.
+            body: |
+              - Low Marginal Costs (SaaS)
+              - Platform Leverage (Cloud Infra)
+              - Personal Brand (Privacy Space)
+        00:06:22:
+          text:
+            headline: Plausible Analytics
+            tagline: Advantage.
+            body: |
+              - Low Marginal Costs (SaaS)
+              - Platform Leverage (Cloud Infra)
+              - Personal Brand (Privacy Space)
+              - Product Differentiation (Clear Positioning)
+        00:06:31:
+          pause: 2s
+          text:
+            headline: Plausible Analytics
+            tagline: Thousands, not millions.
+        00:06:46:
+          text:
+            headline: Explore Patterns
+            tagline: Six categories, different economics.
+        00:07:02:
+          text:
+            headline: Explore Patterns
+            tagline: Find models that fit yours.
+        00:07:10:
+          text:
+            headline: AI Tools
+            tagline: Expand beyond first ideas.
+        00:07:34:
+          title: Practical Guidance
+          pause: 3s
+          text:
+            headline: null
+            tagline: null
+            body: |
+              Practical Guidance
+        00:07:37:
+          text:
+            headline: First Pass
+            tagline: Sketch the economics.
+        00:07:44:
+          pause: 2s
+          text:
+            headline: First Pass
+            tagline: Just the shape for now.
+        00:07:46:
+          text:
+            headline: Module 2
+            tagline: Detailed work coming.
+        00:07:58:
+          text:
+            headline: First Pass
+            tagline: See if the structure holds.
+        00:08:04:
+          text:
+            headline: Example Libraries
+            tagline: Different approaches to explore.
+        00:08:16:
+          pause: 2s
+          text:
+            headline: Your Canvas
+            tagline: Document your economic hypothesis.
+  solo:
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay

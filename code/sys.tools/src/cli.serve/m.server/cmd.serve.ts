@@ -2,17 +2,26 @@ import { type t, c, Cli, D, Fmt, Http, Net, Open, Str } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
 import { route } from './u.serve.route.ts';
 
-type Opts = { port?: number; host?: 'local' | 'network' };
+type Opts = { port?: number; host?: 'local' | 'network'; silent?: boolean };
+export type StartServingContext = {
+  readonly location: t.ServeTool.LocationYaml.Location;
+  readonly host: 'local' | 'network';
+  readonly hostname: '127.0.0.1' | '0.0.0.0';
+  readonly port: number;
+  readonly baseUrl: t.StringUrl;
+  readonly server: Deno.HttpServer<Deno.NetAddr>;
+  readonly abort: AbortController;
+  close(): Promise<void>;
+};
 type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
 
 /**
- * Start a local HTTP server for the given directory.
+ * Start a local HTTP server for the given directory and return the running context.
  */
-export async function startServing(
-  cwd: t.StringDir,
+export function startServer(
   location: t.ServeTool.LocationYaml.Location,
   opts: Opts = {},
-): Promise<ServeResult> {
+): StartServingContext {
   const { dir } = location;
   const app = Http.Server.create({ static: false });
 
@@ -20,122 +29,142 @@ export async function startServing(
   app.use('*', route({ dir }));
   app.use('*', Http.Server.static({ root: dir }));
 
-  console.info();
   const port = Net.port(opts.port ?? D.port);
-  const baseOptions = Http.Server.options({ port, dir, silent: false });
-  const ac = new AbortController();
+  const baseOptions = Http.Server.options({ port, dir, silent: opts.silent === true });
+  const abort = new AbortController();
   const host = opts.host ?? 'local';
   const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
-  const server = Deno.serve({ ...baseOptions, hostname, signal: ac.signal }, app.fetch);
+  const server = Deno.serve({ ...baseOptions, hostname, signal: abort.signal }, app.fetch);
+  const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
 
-  /**
-   * Run Open → Prompt (Loop)
-   */
-  const runOpenPromptLoop = (() => {
-    const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
-    type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
-    let didBack = false;
-    let lastSelection: OpenValue | undefined;
-    let notice: string | undefined;
+  return {
+    location,
+    host,
+    hostname,
+    port,
+    baseUrl: baseUrl as t.StringUrl,
+    server,
+    abort,
+    async close() {
+      abort.abort();
+      await server.finished;
+    },
+  };
+}
 
-    const toPath = (value: OpenValue): string => {
-      if (value.cmd !== 'open') return '';
-      return Str.trimLeadingSlashes(value.path);
-    };
+/**
+ * Start a local HTTP server for the given directory and run the interactive menu loop.
+ */
+export async function startServing(
+  cwd: t.StringDir,
+  location: t.ServeTool.LocationYaml.Location,
+  opts: Opts = {},
+): Promise<ServeResult> {
+  const context = startServer(location, { ...opts, silent: false });
+  return await runOpenPromptLoop(cwd, context);
+}
 
-    const toUrl = (value: OpenValue): t.StringUrl => {
-      const path = toPath(value);
-      return `${baseUrl}/${path}`;
-    };
+type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
 
-    const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
+async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext): Promise<ServeResult> {
+  const { location, host, port, baseUrl } = context;
+  let didBack = false;
+  let lastSelection: OpenValue | undefined;
+  let notice: string | undefined;
 
-    function renderHeader() {
-      const str = Str.builder().blank();
+  const toPath = (value: OpenValue): string => {
+    if (value.cmd !== 'open') return '';
+    return Str.trimLeadingSlashes(value.path);
+  };
 
-      if (host === 'network') {
-        str.line(`  Listening on ${c.cyan('http://')}${c.yellow('0.0.0.0')}${c.cyan(`:${port}/`)}`);
-      } else {
-        str.line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
-      }
+  const toUrl = (value: OpenValue): t.StringUrl => {
+    const path = toPath(value);
+    return `${baseUrl}/${path}`;
+  };
 
-      if (lastSelection) {
-        const path = toPath(lastSelection);
-        if (path) {
-          const url = `  ${baseUrl}/${path}`;
-          str.line(`             ${c.dim(c.gray(url))}`);
-        }
-      }
+  const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
-      if (notice) str.line(`  ${notice}`);
+  function renderHeader() {
+    const str = Str.builder().blank();
 
-      return String(str.blank());
+    if (host === 'network') {
+      str.line(`  Listening on ${c.cyan('http://')}${c.yellow('0.0.0.0')}${c.cyan(`:${port}/`)}`);
+    } else {
+      str.line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
     }
 
-    return async (): Promise<ServeResult> => {
-      const loadOpenMenu = async (text: string) => {
-        const spinner = Cli.spinner(Fmt.spinnerText(text));
-        spinner.start();
+    if (lastSelection) {
+      const path = toPath(lastSelection);
+      if (path) {
+        const url = `  ${baseUrl}/${path}`;
+        str.line(`             ${c.dim(c.gray(url))}`);
+      }
+    }
+
+    if (notice) str.line(`  ${notice}`);
+
+    return String(str.blank());
+  }
+
+  const loadOpenMenu = async (text: string) => {
+    const spinner = Cli.spinner(Fmt.spinnerText(text));
+    spinner.start();
+    try {
+      return await OpenTargets.menuOptions(location);
+    } finally {
+      spinner.stop();
+    }
+  };
+
+  let openMenu = await loadOpenMenu('indexing static targets...');
+
+  const hasOpenPath = (path: string) => openMenu.some((item) => item.value.path === path);
+  const syncLastSelection = () => {
+    if (!lastSelection || lastSelection.cmd !== 'open') return;
+    if (!hasOpenPath(lastSelection.path)) lastSelection = undefined;
+  };
+
+  async function promptOnce(): Promise<OpenValue> {
+    const options = [
+      ...openMenu,
+      { name: c.dim(c.gray('  ↻ reload')), value: { cmd: 'reload' } },
+      { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } },
+    ];
+    console.clear();
+    console.info(renderHeader());
+    return (await Cli.Input.Select.prompt({
+      message: 'HTTP Static',
+      options,
+      default: lastSelection,
+      hideDefault: true,
+      maxRows: 20,
+    })) as OpenValue;
+  }
+
+  try {
+    while (true) {
+      const answer = await promptOnce();
+      if (answer.cmd === 'reload') {
         try {
-          return await OpenTargets.menuOptions(location);
-        } finally {
-          spinner.stop();
-        }
-      };
-
-      let openMenu = await loadOpenMenu('indexing static targets...');
-
-      const hasOpenPath = (path: string) => openMenu.some((item) => item.value.path === path);
-      const syncLastSelection = () => {
-        if (!lastSelection || lastSelection.cmd !== 'open') return;
-        if (!hasOpenPath(lastSelection.path)) lastSelection = undefined;
-      };
-
-      async function promptOnce(): Promise<OpenValue> {
-        const options = [
-          ...openMenu,
-          { name: c.dim(c.gray('  ↻ reload')), value: { cmd: 'reload' } },
-          { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } },
-        ];
-        console.clear();
-        console.info(renderHeader());
-        return (await Cli.Input.Select.prompt({
-          message: 'HTTP Static',
-          options,
-          default: lastSelection,
-          hideDefault: true,
-          maxRows: 20,
-        })) as OpenValue;
-      }
-
-      try {
-        while (true) {
-          const answer = await promptOnce();
-          if (answer.cmd === 'reload') {
-            try {
-              openMenu = await loadOpenMenu('reloading static targets...');
-              syncLastSelection();
-              notice = undefined;
-            } catch (error) {
-              notice = c.red(`reload failed: ${errorMessage(error)}`);
-            }
-            continue;
-          }
-          if (answer.cmd === 'back') {
-            didBack = true;
-            break;
-          }
+          openMenu = await loadOpenMenu('reloading static targets...');
+          syncLastSelection();
           notice = undefined;
-          lastSelection = answer;
-          Open.invokeDetached(cwd, toUrl(answer));
+        } catch (error) {
+          notice = c.red(`reload failed: ${errorMessage(error)}`);
         }
-      } finally {
-        ac.abort();
-        await server.finished;
+        continue;
       }
-      return didBack ? { kind: 'back' } : { kind: 'closed' };
-    };
-  })();
+      if (answer.cmd === 'back') {
+        didBack = true;
+        break;
+      }
+      notice = undefined;
+      lastSelection = answer;
+      Open.invokeDetached(cwd, toUrl(answer));
+    }
+  } finally {
+    await context.close();
+  }
 
-  return await runOpenPromptLoop();
+  return didBack ? { kind: 'back' } : { kind: 'closed' };
 }

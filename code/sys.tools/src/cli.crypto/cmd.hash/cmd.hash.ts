@@ -21,7 +21,27 @@ export async function hashDir(
   const resolved = Fs.Path.resolve(cwd, targetDir);
   const dirLabel = HashFmt.dirLabel(resolved);
   const saveDist = opts.saveDist ?? false;
-  const preflight = await HashPreflight.scan(resolved);
+  let preflight = await HashPreflight.scan(resolved);
+  if (preflight.junkFiles.length > 0) {
+    if (HashPreflight.isInteractive()) {
+      const kinds = await HashPreflight.promptCleanup(preflight);
+      if (kinds.length > 0) {
+        const removed = await HashPreflight.deleteSelected(preflight, kinds);
+        console.info();
+        console.info(c.yellow(`deleted ${removed.toLocaleString()} pre-clean ${removed === 1 ? 'file' : 'files'}`));
+        console.info();
+        preflight = await HashPreflight.scan(resolved);
+      } else {
+        console.info();
+        console.info(c.yellow(HashFmt.preflightJunk(preflight)));
+        console.info();
+      }
+    } else {
+      console.info();
+      console.info(c.yellow(HashFmt.preflightJunk(preflight)));
+      console.info();
+    }
+  }
   if (HashPreflight.shouldConfirm(preflight)) {
     if (HashPreflight.isInteractive()) {
       const ok = await HashPreflight.confirmContinue(preflight);

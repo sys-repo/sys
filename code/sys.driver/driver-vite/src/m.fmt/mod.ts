@@ -9,7 +9,7 @@ import { Bundle } from './u.Bundle.ts';
 import { Dist } from './u.Dist.ts';
 import { Help } from './u.Help.ts';
 import { Module } from './u.Module.ts';
-import { digest, pad } from './u.ts';
+import { digest, elapsed, pad } from './u.ts';
 
 export const ViteLog: ViteLogLib = {
   Help,
@@ -20,5 +20,6 @@ export const ViteLog: ViteLogLib = {
   Dist,
 
   digest,
+  elapsed,
   pad,
 };

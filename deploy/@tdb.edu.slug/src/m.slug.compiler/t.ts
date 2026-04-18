@@ -1,3 +1,4 @@
+/** Slug compiler type surface. */
 export type * from './m.bundle/t.ts';
 export type * from './m.lint/t.ts';
 export type * from './m.resolve/t.ts';

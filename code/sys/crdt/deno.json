@@ -1,14 +1,14 @@
 {
   "name": "@sys/crdt",
-  "version": "0.0.150",
+  "version": "0.0.169",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/-test/index.html",
+    "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
-    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/-test/index.html",
+    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/*",
+    "check": "deno check src/",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"

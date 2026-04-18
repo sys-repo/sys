@@ -13,6 +13,10 @@ describe('common/Fmt', () => {
     expect(Cli.stripAnsi(res)).to.eql('#cde');
   });
 
+  it('builds the canonical published invocation command', () => {
+    expect(Fmt.invoke('deploy')).to.eql('deno run -A jsr:@sys/tools deploy');
+  });
+
   it('builds help pages via the shared cli help formatter surface', async () => {
     const help = await Fmt.help('sys update', {
       usage: ['sys update [options]'],

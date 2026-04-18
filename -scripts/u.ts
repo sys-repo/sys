@@ -1,9 +1,8 @@
 import { type t, Path, c } from './common.ts';
-import { Paths } from './u.ts';
 export * from './common.ts';
 
 export type CmdResult = {
-  output: t.ProcOutput;
+  output: t.Process.Output;
   path: string;
 };
 
@@ -51,12 +50,12 @@ export const Log = {
   /**
    * List of modules at the given path.
    */
-  moduleList(args: { index?: t.Index; indent?: number }) {
+  moduleList(paths: readonly string[], args: { index?: t.Index; indent?: number }) {
     let res = '';
     const append = (line: String) => (res += `${line}\n`);
     const indent = args.indent ? ' '.repeat(args.indent) : '';
 
-    for (const [index, path] of Paths.modules.entries()) {
+    for (const [index, path] of paths.entries()) {
       const isCurrent = typeof args.index === 'number' ? index === args.index : false;
       const dim = (text: string) => (isCurrent ? text : c.dim(text));
 

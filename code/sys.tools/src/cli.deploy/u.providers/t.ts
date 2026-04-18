@@ -1,3 +1,4 @@
+export type * from './provider.deno/t.ts';
 export type * from './provider.noop/t.ts';
 export type * from './provider.orbiter/t.ts';
 

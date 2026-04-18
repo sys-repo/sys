@@ -1,15 +1,25 @@
-import { type t, Fmt as Base, c, Cli, D, Fs, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Fs, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const str = Str.builder()
-      .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
-      .line(await Base.help(toolname))
-      .line();
-
-    return String(str);
+  async help(cwd: t.StringDir) {
+    const cmd = Base.invoke('pull');
+    return await Base.help(cmd, {
+      note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
+      usage: [
+        `${cmd}`,
+        `${cmd} --non-interactive --config ./my-config.yaml`,
+      ],
+      options: [
+        ['-h, --help', 'show help'],
+        ['--non-interactive', 'disable prompts and require direct inputs'],
+        ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
+      ],
+      examples: [
+        `${cmd} --non-interactive --config ./my-config.yaml`,
+      ],
+    });
   },
 
   pullSummary(args: {

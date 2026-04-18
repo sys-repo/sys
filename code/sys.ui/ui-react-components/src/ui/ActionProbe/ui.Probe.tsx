@@ -85,6 +85,10 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
    * Render
    */
   const theme = Color.theme(props.theme);
+  const focusedShadow =
+    theme.name === 'Dark'
+      ? `0 3px 35px ${Color.alpha(Color.BLACK, 0.45)}`
+      : `0 3px 35px ${Color.alpha(Color.DARK, 0.12)}`;
   const styles = {
     base: css({
       color: theme.fg,
@@ -92,7 +96,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       outline: 'none',
       border: `dashed 1px ${Color.alpha(theme.fg, focused ? 0.6 : 0.25)}`,
       borderRadius,
-      boxShadow: focused ? `0 3px 35px ${Color.alpha(Color.DARK, 0.12)}` : 'none',
+      boxShadow: focused ? focusedShadow : 'none',
       ':focus': { outline: 'none' },
       ':focus-visible': { outline: 'none' },
       transition: 'box-shadow 40ms ease',
@@ -143,6 +147,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
         spinning={spinning || running}
         focused={focused}
         actOn={actOn}
+        theme={props.theme}
         onRun={() => void invokeRun()}
         style={styles.header}
       />

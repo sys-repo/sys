@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { pkg } from '../pkg.ts';
@@ -41,6 +43,7 @@ export async function main() {
         if (e.prev?.endsWith('.TreeHost')) return true;
         if (e.next?.endsWith('.SlugKB')) return true;
         if (e.next?.endsWith('.dev: Http.SlugOrigin')) return true;
+        if (e.next?.includes('slug: 🐷 (LEGACY)')) return true;
       },
     });
 

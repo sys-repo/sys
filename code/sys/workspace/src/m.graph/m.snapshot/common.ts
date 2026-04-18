@@ -3,11 +3,15 @@ import { type t, Jsr, pkg } from '../common.ts';
 export * from '../common.ts';
 
 export const TYPE_PATH = 'src/m.graph/t.ts' as const;
+export const HASH_POLICY_PATH = 'src/m.graph/m.snapshot/m.Hash.ts' as const;
 export const DEFAULTS = {
-  schemaVersion: 1,
+  schemaVersion: 2,
+  HASH_POLICY: Jsr.Url.Pkg.file(pkg, HASH_POLICY_PATH),
   GENERATOR: {
-    type: Jsr.Url.Pkg.file(pkg, TYPE_PATH),
     pkg,
+    types: {
+      '/graph': Jsr.Url.Pkg.file(pkg, TYPE_PATH),
+    },
   } as const satisfies t.WorkspaceGraph.Snapshot.Meta['generator'],
 } as const;
 export const D = DEFAULTS;

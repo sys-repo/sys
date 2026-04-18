@@ -1,9 +1,11 @@
 import type { t } from './common.ts';
 
+/** Descriptor-backed slug client helpers. */
 export type SlugLoaderDescriptorLib = {
   readonly create: (target: t.SlugLoaderDescriptorTarget) => t.SlugLoaderDescriptor;
 };
 
+/** Descriptor binding used to resolve a slug client. */
 export type SlugLoaderDescriptorTarget = {
   readonly id: t.StringId;
   readonly kind: t.BundleDescriptorKind;
@@ -11,6 +13,7 @@ export type SlugLoaderDescriptorTarget = {
   readonly basePath: t.StringPath;
 };
 
+/** Bound descriptor loader for a specific deploy target. */
 export type SlugLoaderDescriptor = {
   /** Deploy-supported descriptor kind. */
   readonly kind: t.BundleDescriptorKind;
@@ -34,6 +37,7 @@ export type SlugLoaderDescriptor = {
   ) => Promise<t.SlugClientResult<t.SlugClientDescriptor>>;
 };
 
+/** Inputs for building a descriptor-backed slug client. */
 export type SlugLoaderDescriptorClientArgs = {
   origin: t.StringUrl | t.SlugUrlOrigin;
   /** Optional explicit bundle selection (otherwise first matching docid is used). */

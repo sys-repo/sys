@@ -36,7 +36,7 @@ export type { ColorTheme } from '@sys/color/t';
 export type { FileMap, FileMapProcessor, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler, HttpPullEvent, HttpPullToDirResult } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';
-export type { ProcOutput } from '@sys/process/t';
+export type { Process } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';
@@ -56,6 +56,7 @@ export type * from '../-tmpl.cli/t.ts';
 export type * from '../t.ts';
 
 export type * from '../cli.clipboard/t.ts';
+export type * from '../cli.code/t.ts';
 export type * from '../cli.crdt/t.ts';
 export type * from '../cli.deploy/t.ts';
 export type * from '../cli.serve/t.ts';

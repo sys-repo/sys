@@ -8,6 +8,6 @@ export type * from './t.namespace.ts';
  * CLI helpers for working with Serve.
  */
 export type ServeToolsLib = {
-  /** Run the interactive CLI flow (prompts + spinner). */
+  /** Run the serve CLI flow (interactive by default, strict with `--non-interactive`). */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };

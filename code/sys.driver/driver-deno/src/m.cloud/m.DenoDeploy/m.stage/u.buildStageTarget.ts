@@ -1,6 +1,10 @@
-import { D, type t, Process, Str } from './common.ts';
+import { D, DenoFile, type t, Process, Str } from './common.ts';
 
 export async function buildStageTarget(targetDir: t.StringDir) {
+  const denofile = await DenoFile.load(targetDir);
+  const task = denofile.data?.tasks?.build;
+  if (!task) return;
+
   const build = await Process.invoke({
     cmd: D.cmd.deno,
     args: ['task', 'build'],

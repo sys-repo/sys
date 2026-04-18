@@ -1,0 +1,510 @@
+title: 3.1 Understanding Business Model Design
+description: P2P introduction to business model fundamentals, what makes P2P
+  ventures different, and key resources for the journey
+traits:
+  - of: media-composition
+    as: sequence
+  - of: slug-list
+    as: solo
+alias:
+  :index: crdt:21JvXzARPYFXDVMag3x4UhLgHcQi
+  :core-slugs: :index/:core
+  :p2p-slugs: :index/:p2p
+  :core-assets: :index/:assets/core-3.0-business-model-design-2025
+  :p2p-assets: :index/:assets/p2p-3.0-business-model-design-2025
+  :core-images: :core-assets/images
+  :p2p-images: :p2p-assets/images
+  :core-videos: :core-assets/videos
+  :p2p-videos: :p2p-assets/videos
+  TASKS:
+    - TODO: Add in images when we have them
+      comment: |
+        venture typology, venture example library, p2p venture example library
+data:
+  sequence:
+    - video: /:p2p-videos/p2p 3.1
+        understanding-business-model-design1.webm.02.mp4.webm
+      slice: 00:00..01:15
+      script: >
+        [00:00:00] Before we dive into filling in your business model in the
+        Social Lean Canvas, it's important that we understand what a business
+        model actually is and how the journey of creating a successful one
+        actually works.
+
+        [00:00:12] If you're considering leaving your job and pivoting to
+        purpose, getting these fundamentals right isn't optional—it's critical.
+
+        [00:00:17] When you're bootstrapping solo or with a small team to build
+        a venture, you can't afford to waste time, money, or energy guessing at
+        a business model.
+
+        [00:00:25] You don't have the safety net of a large team or investor
+        capital to cover mistakes.
+
+        [00:00:32] Getting the business model fundamentals right is your
+        foundation for the journey ahead.
+
+        [00:00:39] You're about to work through the Core content on business
+        model design.
+
+        [00:00:43] These are the universal frameworks that apply to any venture.
+
+        [00:00:47] The Core Framework will walk you through what a business
+        model is, why design beats guesswork, and the critical distinction
+        between a startup and a business.
+
+        [00:01:00] After the Core content, we'll come back and talk about what
+        makes P2P ventures different from other paths of venture building, like
+        high-growth startups and social enterprises, which is covered in the
+        Core content.
+
+        [00:01:08] We'll also introduce resources that you can return to
+        throughout the program to make sense of your specific journey.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: Welcome
+          image: /:core-images/canvas-blank.png
+          text:
+            headline: Business Model Design
+            tagline: Foundation first, then build
+        00:00:39:
+          pause: 2s
+          text:
+            headline: Core Framework Ahead
+            tagline: Universal principles for any venture
+    - slug: /:core-slugs/3.1.1-what-is-a-business-model
+      display: inline
+    - slug: /:core-slugs/3.1.2-the-startup-journey
+      display: inline
+    - slug: /:core-slugs/3.1.3-the-three-circles-model
+      display: inline
+    - slug: /:core-slugs/3.1.4-the-venture-example-library
+      display: inline
+    - pause: 3s
+    - video: /:p2p-videos/p2p 3.1
+        understanding-business-model-design2.webm.02.mp4.webm
+      slice: 00:00..09:06
+      script: >
+        [00:00:00] The Core Framework just walked you through business model
+        fundamentals—what a business model is, why design matters, and the
+        startup journey from search to validation to execution.
+
+        [00:00:11] These are universal principles.
+
+        [00:00:13] Now let's talk about what makes P2P ventures different, and
+        why this particular moment is ripe with opportunity.
+
+        [00:00:20] There are three important things that distinguish small
+        purpose-driven ventures like yours from other paths you might take.
+
+        [00:00:28] First, a P2P venture is different from building a high-growth
+        startup.
+
+        [00:00:31] The traditional startup path is relatively
+        straightforward—you raise money, build a team, scale fast, eventually
+        sell the company so that investors can get their return.
+
+        [00:00:41] This path exists and you can take it if it fits your goals,
+        but it's not what we're focusing on here.
+
+        [00:00:47] A P2P venture might stay small or grow slowly.
+
+        [00:00:51] You might take no investment and end up with a hundred
+        percent ownership.
+
+        [00:00:54] You might never sell.
+
+        [00:00:56] You might stay solo or build a really small team, leveraging
+        AI and modern tools to skip the high-growth investment-driven approach
+        entirely.
+
+        [00:01:04] Small by design is legitimate.
+
+        [00:01:06] Slow growth is fine.
+
+        [00:01:08] You're building a machine that serves your life, not serving
+        a machine that demands hypergrowth.
+
+        [00:01:15] Second, a P2P venture is not about business and money above
+        everything else.
+
+        [00:01:19] Pivoting to purpose is about building something that helps
+        you act and feel more in line with your values than you do in your
+        current job or whatever you're doing right now.
+
+        [00:01:28] You are integrating how you want to be in the world with how
+        you sustain yourself financially and generate wealth.
+
+        [00:01:35] This might manifest as a full social enterprise with a
+        comprehensive theory of change driving your venture, or it might just be
+        commitments that you make to yourself about how you want to show up as
+        you do this work.
+
+        [00:01:47] Either way, this purpose focus makes a P2P venture something
+        that you can fully commit your whole self to.
+
+        [00:01:54] We'll explore the spectrum of purpose in more depth when we
+        get into the Purpose section.
+
+        [00:01:59] The third important aspect of P2P ventures is that we're not
+        talking about creating a job for yourself—essentially taking your
+        existing job and removing all the security it offers.
+
+        [00:02:09] It's not about becoming a freelancer where you trade one kind
+        of challenge—no meaning, no control—for another—uncertainty about where
+        your next paycheck comes from.
+
+        [00:02:19] Pivoting to purpose is about harnessing the power of business
+        ownership to find meaningful ways to contribute to the world that can
+        bring you financial independence.
+
+        [00:02:28] You're building a machine that generates freedom—not just
+        income, but the ability to make choices about your time, your work, and
+        your life.
+
+        [00:02:35] This is why business model design work matters so much.
+
+        [00:02:39] You're not just finding clients, you're designing a system
+        that creates value, delivers it efficiently, captures revenue and
+        manages costs, all while aligned with your purpose.
+
+        [00:02:49] The Core Framework laid out these four pieces of any business
+        model.
+
+        [00:02:54] P2P ventures still need all four.
+
+        [00:02:57] Whether you're building a micro-SaaS product, offering
+        productized services, or creating a content-driven community, these
+        business model pieces must work together.
+
+        [00:03:04] The scale might be smaller, the approach might be more
+        automated, but the logic is the same.
+
+        [00:03:10] And if you're aiming for a measurable impact beyond your own
+        livelihood, you add in the impact dimension—the fifth piece that sits
+        alongside the commercial model.
+
+        [00:03:21] The Core content made the case that design beats guesswork.
+
+        [00:03:23] For P2P ventures, this matters even more.
+
+        [00:03:26] When you're solo or with a small team, you don't have a
+        safety net to catch mistakes.
+
+        [00:03:31] When you're bootstrapping, especially spending your own
+        money, every decision counts.
+
+        [00:03:36] You can't afford to spend six months building the wrong
+        thing.
+
+        [00:03:39] This is where Honest Hustle comes in.
+
+        [00:03:41] We're not talking about internet hustle culture—growth hacks
+        and hype.
+
+        [00:03:45] We're talking about designing your business model with
+        intention, testing it in smart ways, building something that makes money
+        and makes sense for the life that you want.
+
+        [00:03:53] Design your business model deliberately.
+
+        [00:03:55] Test it, evolve it, prove that it works, and then scale it.
+
+        [00:04:01] Now, the startup journey piece—this is where things get
+        specifically relevant to P2P ventures.
+
+        [00:04:07] The Core Framework showed you the search phase where you're
+        testing assumptions and validating your model.
+
+        [00:04:13] This phase is perfect for evenings and weekends if you need
+        to keep your existing job.
+
+        [00:04:16] Only make the leap when your model is validated and
+        generating meaningful income.
+
+        [00:04:19] This removes massive financial pressure and lets you validate
+        thoroughly rather than rushing because your runway is burning.
+
+        [00:04:29] Different people are in different situations, but if staying
+        employed is an option, use it strategically.
+
+        [00:04:36] Modern AI tools make solo validation faster and more feasible
+        than ever before.
+
+        [00:04:41] You can do customer research, build MVPs, test core
+        assumptions with tools that didn't exist two years ago.
+
+        [00:04:48] We'll cover specific tools in later sections, but know that
+        being solo doesn't mean being stuck.
+
+        [00:04:54] You have leverage that previous generations just didn't have.
+
+        [00:04:58] The Core content also emphasized "Founders First"—founders
+        must own the key decisions early on.
+
+        [00:05:04] For P2P ventures, this becomes "Founder First."
+
+        [00:05:08] You are the team in the early stages.
+
+        [00:05:11] You can't outsource customer discovery or value proposition
+        design.
+
+        [00:05:14] You have to learn directly from your customers and make the
+        calls yourself.
+
+        [00:05:18] AI tools can augment you significantly, but you make the
+        calls.
+
+        [00:05:26] There's a critical P2P mindset shift—slower validation is
+        okay when you're keeping your job.
+
+        [00:05:32] The pressure isn't "validate in 12 weeks or die."
+
+        [00:05:35] It's validate thoroughly, build confidence in the model, then
+        make the leap.
+
+        [00:05:39] Better to take an extra three months proving that the model
+        works, then quitting too early and failing under financial stress.
+
+        [00:05:44] When we look across the landscape of successful purpose
+        pivots—solo founders and small teams building sustainable ventures—we
+        see six common patterns emerging.
+
+        [00:05:54] These aren't rigid categories that you have to fit into.
+
+        [00:05:57] Think of them as a pattern library, archetypes that can help
+        you recognize what's working in the real world.
+
+        [00:06:04] These different types of P2P ventures are: Software and AI,
+        Productized Services, Consulting and Coaching, Content Education and
+        Community, Digital Goods and Commerce, and Local Regenerative and
+        Physical ventures.
+
+        [00:06:20] We've put together a typology with different examples of
+        ventures that fit into these categories.
+
+        [00:06:26] The important thing to understand is that different examples
+        from each category will be relevant to you at different times.
+
+        [00:06:32] As we work through your Customer Model, you might relate most
+        to a Software and AI example.
+
+        [00:06:39] When we hit Economic Model, maybe a Productized Service
+        example shows you a better cost structure approach.
+
+        [00:06:44] Use these categories and examples as reference points and
+        inspiration, but not as rigid templates.
+
+        [00:06:51] If you want to go deeper into the venture typology—see more
+        examples in each category, understand the common business model patterns
+        within each—check out the Venture Typology deep dive.
+
+        [00:07:02] Throughout this program, you have access to two example
+        libraries that show you real venture examples in the Social Lean Canvas
+        framework.
+
+        [00:07:10] The Core Example Library contains purpose-driven ventures of
+        all types—from fully developed social enterprises with deep impact
+        models to traditional businesses with strong purpose integration.
+
+        [00:07:21] These examples show you the full range of what's possible
+        with the framework and demonstrate how it's applied to different
+        ventures.
+
+        [00:07:28] You'll find established purpose-driven ventures like
+        Patagonia, alongside newer social innovations.
+
+        [00:07:35] The P2P library is specifically curated for ventures that fit
+        the six patterns that we just looked at.
+
+        [00:07:41] These are ventures built by solo founders or very small
+        teams—the kinds of businesses that you might recognize yourself in.
+
+        [00:07:47] Each one has a walkthrough that shows you not just their
+        completed canvas, but the story of how their business model works and
+        why certain choices mattered.
+
+        [00:07:57] Let me show you one quickly.
+
+        [00:07:58] This is DesignJoy—a productized design service that packages
+        unlimited design work into a fixed monthly subscription.
+
+        [00:08:06] You can see their full Customer Model, Impact Model, and
+        Economic Model laid out.
+
+        [00:08:10] This is what you'll find for a bunch of P2P ventures—real
+        ventures that you can study section by section.
+
+        [00:08:18] As we work through filling in your canvas, I'll point you to
+        relevant examples.
+
+        [00:08:22] When we hit Customer Model, you might want to watch how
+        Plausible Analytics identified their early adopters.
+
+        [00:08:27] When we get to Economic Model, you might look at how a
+        content-led business structures their revenue streams differently from a
+        SaaS product.
+
+        [00:08:35] Remember, these are reference points, not blueprints.
+
+        [00:08:38] Your venture will be unique, but seeing how others have
+        solved similar problems is invaluable.
+
+        [00:08:44] You've got the fundamentals now—what a business model is, why
+        design matters, and how the startup journey works.
+
+        [00:08:51] You understand what makes P2P ventures different—not the
+        high-growth startup path, more than just money, and building ownership
+        rather than another job.
+
+        [00:09:00] Next we'll start filling in the canvas section by section.
+        The typology and example libraries are there when you need them.
+      timestamps:
+        00:00:00:
+          pause: 2s
+          title: What Makes P2P Different
+          text:
+            headline: Core Framework Complete
+            tagline: Now let's talk P2P distinctions
+        00:00:28:
+          pause: 3s
+          image: /:core-images/startup-to-business.png
+          text:
+            headline: Three Key Distinctions
+            tagline: What sets P2P ventures apart
+        00:00:35:
+          text:
+            headline: Three Key Distinctions
+            tagline: What sets P2P ventures apart
+            body: |
+              - Not high-growth startup path
+        00:01:06:
+          text:
+            headline: Three Key Distinctions
+            tagline: What sets P2P ventures apart
+            body: |
+              - Not high-growth startup path
+              - More than just money
+        00:01:08:
+          text:
+            tagline: Small by design is legitimate
+        00:01:54:
+          text:
+            headline: Three Key Distinctions
+            tagline: What sets P2P ventures apart
+            body: |
+              - Not high-growth startup path
+              - More than just money
+              - Business ownership, not freelancing
+        00:02:28:
+          text:
+            tagline: Ownership creates freedom
+        00:02:49:
+          pause: 3s
+          title: Business Model Fundamentals
+          text:
+            headline: Four Core Pieces
+            tagline: Same pieces, your scale
+            body: |
+              - Create value
+              - Deliver value
+              - Capture value
+              - Manage costs
+        00:03:10:
+          text:
+            headline: Four Core Pieces
+            tagline: Plus impact for purpose ventures
+            body: |
+              - Create value
+              - Deliver value
+              - Capture value
+              - Manage costs
+              - Deliver impact
+        00:03:39:
+          text:
+            headline: Honest Hustle
+            tagline: Design with intention
+        00:04:01:
+          pause: 3s
+          title: The Startup Journey for P2P
+          image: /:core-images/startup-journey-validation.png
+          text:
+            headline: The Search Phase
+            tagline: Validate while employed
+        00:04:36:
+          text:
+            headline: AI-Enabled Validation
+            tagline: Solo doesn't mean stuck
+        00:05:04:
+          text:
+            headline: Founder First
+            tagline: You are the team
+        00:05:26:
+          text:
+            tagline: Validate thoroughly, then leap
+        00:05:44:
+          pause: 2s
+          title: Venture Typology
+          text:
+            headline: Six Common P2P Patterns
+            tagline: Pattern library, not rigid boxes
+        00:06:09:
+          text:
+            headline: Six Common P2P Patterns
+            tagline: Pattern library, not rigid boxes
+            body: |
+              - Software & AI
+              - Productized Services
+              - Consulting & Coaching
+              - Content, Education & Community
+              - Digital Goods & Commerce
+              - Local, Regenerative & Physical
+        00:06:44:
+          text:
+            tagline: Reference points, not templates
+        00:06:51:
+          text:
+            headline: Go Deeper
+            body: |
+              
+              # add in an image of the venture typology slug
+        00:07:02:
+          pause: 2s
+          title: Example Libraries
+          text:
+            headline: Two Example Libraries
+            tagline: Learn from real ventures
+        00:07:10:
+          text:
+            headline: Core Example Library
+            body: >
+              
+
+              Purpose-driven ventures of all types—social enterprises,
+              traditional businesses with purpose integration, established
+              companies like Patagonia
+        00:07:35:
+          text:
+            headline: P2P Example Library
+            body: >
+              
+
+              Solo founders and small teams—ventures built using the six
+              patterns, with full canvas walkthroughs
+        00:08:38:
+          text:
+            tagline: Reference points, not blueprints
+        00:08:44:
+          pause: 2s
+          title: Moving Forward
+          text:
+            headline: Fundamentals Complete
+            tagline: Ready to fill in your canvas
+  solo:
+    - slug: /:p2p-slugs/6.2-p2p-venture-typology
+      display: overlay
+    - slug: /:core-slugs/6.1-venture-example-library
+      display: overlay
+    - slug: /:p2p-slugs/6.1-p2p-venture-example-library
+      display: overlay

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Obj, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
 
-type P = t.TextInputProps;
+type P = t.TextInput.Props;
 type Storage = Pick<
   P,
   | 'theme'

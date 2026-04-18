@@ -19,6 +19,9 @@ dist-ssr/
 logs/
 *.log
 
+# Agent runtime/state
+.pi/
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json
@@ -30,3 +33,4 @@ logs/
 *.njsproj
 *.sln
 *.sw?
+

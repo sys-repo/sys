@@ -14,8 +14,7 @@ export type ShardExpandedPaths = {
 
 export function expandShardTemplatePaths(args: ShardTemplatePaths): ShardExpandedPaths[] {
   const { source, staging } = args;
-  const hasTemplate =
-    includesShardTemplate(source) || includesShardTemplate(staging);
+  const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
 
   if (!hasTemplate) return [{ source, staging }];
 

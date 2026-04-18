@@ -65,7 +65,9 @@ export const Entry: React.FC<EntryProps> = (props) => {
     <div
       ref={size.ref}
       className={css(styles.base, props.style).class}
-      onClick={() => state.stack.clear(1)}
+      onClick={() => {
+        if (!isTop) state.stack.clear(1);
+      }}
     >
       {elHeader}
       {elBody}

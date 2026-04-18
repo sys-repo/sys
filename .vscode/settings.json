@@ -6,19 +6,32 @@
   "deno.enablePaths": ["code", "deploy", "-scripts"],
   "deno.disablePaths": ["node_modules", "**/dist", "**/.vite", "**/coverage", "-tmp", "-tmp/**"],
 
-  // --- Editor (quality of life) -------------------------------------------
+  // --- Editor (quality of life) -----------------------------
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestionsDelay": 0,
 
-  // --- Formatting ----------------------------------
+  // --- Formatting -------------------------------------------
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[typescriptreact]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[javascriptreact]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.removeUnusedImports": "never",
+    "source.fixAll": "never"
+  },
+
   "[markdown]": {
     "editor.formatOnSave": false,
-    "editor.defaultFormatter": null,
     "files.trimTrailingWhitespace": false
   },
 
-  // --- File-system Hygiene ----------------------------------
+  // --- File-system hygiene ----------------------------------
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,

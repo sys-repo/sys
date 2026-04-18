@@ -3,6 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 type NodeAlias = t.Alias.TableAnalysis | undefined;
 
+/** Slug resolver lenses for common YAML and object paths. */
 export type LensLib = {
   readonly yaml: t.ObjLens<string>;
   readonly alias: t.ObjLens<O>;
@@ -11,11 +12,13 @@ export type LensLib = {
   readonly tasks: t.ObjLens<t.Task[]>;
 };
 
+/** Resolver library surface. */
 export type ResolversLib = {
   readonly Lens: LensLib;
   readonly Resolve: ResolveLib;
 };
 
+/** Slug resolver helpers. */
 export type ResolveLib = {
   readonly path: ResolvePathFn;
   slug(node: t.Graph.Dag.Node): O | null | undefined;
@@ -37,6 +40,7 @@ export type ResolvePathFn = (
   index?: t.Alias.Resolver,
 ) => t.Alias.Expand.Chain.Result | undefined;
 
+/** Parsed slug node with derived resolver state. */
 export type ParsedNode = {
   readonly node: t.Graph.Dag.Node;
   readonly isRoot: boolean;
@@ -48,6 +52,7 @@ export type ParsedNode = {
  * Parser helpers.
  */
 export type MakeParser = (yamlPath: t.ObjectPath) => Parser;
+/** Parser for resolved slug graphs. */
 export type Parser = {
   readonly Resolve: ResolveLib;
   readonly Lens: LensLib;

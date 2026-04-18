@@ -3,34 +3,62 @@
  * Parse ESM module-specifier strings.
  */
 import { type t, Err, Is } from './common.ts';
+import { Is as EsmIs } from './m.Is.ts';
 import { toString } from './u.toString.ts';
 
 /**
+ * Supported package-spec grammar:
+ *
+ *   - registry:
+ *       - `jsr:` or `npm:`
+ *       - optional for bare package imports.
+ *
+ *   - package name:
+ *       - unscoped: `react`
+ *       - scoped: `@scope/pkg`
+ *
+ *   - version selector:
+ *       - optional
+ *       - supports pinned numeric versions:
+ *         - `1`
+ *         - `1.2`
+ *         - `1.2.3`
+ *       - supports a single comparator prefix:
+ *         - `~ ^ > < >= <=`
+ *       - supports prerelease suffixes:
+ *         - `1.2.3-alpha.1`
+ *         - `0.56.0-dev-20260211`
+ *
+ *   - subpath:
+ *       - optional trailing package subpath:
+ *         - `/server`
+ *         - `/foo/bar`
+ *
+ * Explicit non-goals for this parser:
+ *   - full npm semver/range grammar
+ *   - build metadata (`+build`)
+ *   - unions such as `^1 || ^2`
+ *   - wildcard/tag selectors such as `1.x`, `*`, or `latest`
+ *
  * Regex breakdown:
- *
- *   - For file paths:
- *       ^                                                        : start of string
- *       (?:\/|\.\/|\.\.\/)                                       : match an absolute path ("/") or a relative path ("./" or "../")
- *       [\w\/.-]+                                                : one or more word characters, slashes, dots, or hyphens
- *       \.[\w]+                                                  : a dot followed by one or more word characters (the file extension)
- *       $                                                        : end of string
- *
- *   - For package specifiers:
- *       ^                                                        : start of string.
- *       (?:(jsr|npm):)?                                          : optionally match and capture "jsr:" or "npm:"
- *       ((?:@[\w.-]+\/)?[\w.-]+)                                 : capture the module name (optionally scoped).
- *       (?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))? : optionally match "@" followed by an optional version prefix and a semantic version number.
- *       (\/[\w\/.-]+)?                                           : optionally capture a subpath starting with a slash.
- *       $                                                        : end of string
+ *   ^                                                        : start of string.
+ *   (?:(jsr|npm):)?                                          : optionally match and capture "jsr:" or "npm:"
+ *   ((?:@[\w.-]+\/)?[\w.-]+)                                 : capture the module name (optionally scoped).
+ *   (?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?))? : optionally match "@" followed by a supported version selector.
+ *   (\/[\w\/.-]+)?                                           : optionally capture a subpath starting with a slash.
+ *   $                                                        : end of string
  */
 const REGEX = {
-  filepath: /^(?:\/|\.\/|\.\.\/)[\w\/.-]+\.[\w]+$/,
   package:
-    /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?(\/[\w\/.-]+)?$/,
+    /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@((?:~|\^|>|<|>=|<=)?\d+(?:\.\d+){0,2}(?:-[\w.-]+)?))?(\/[\w\/.-]+)?$/,
 } as const;
 
 /**
- * Parses an "import" module-specifier string.
+ * Parses an import module-specifier string into package-spec parts.
+ *
+ * Local paths short-circuit before package parsing. Package-spec parsing is
+ * intentionally narrower than full npm semver/range support; this helper owns
+ * the supported workspace package-spec contract, not generic registry parsing.
  */
 export const parse: t.EsmLib['parse'] = (moduleSpecifier, alias) => {
   type T = t.EsmImport;
@@ -61,9 +89,8 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier, alias) => {
     return fail('Given ESM import is not a string');
   }
 
-  // Check if the input is a relative file path (e.g. "./foo/mod.ts" or "../bar/utils.ts")
   const text = moduleSpecifier.trim();
-  if (REGEX.filepath.test(text)) {
+  if (EsmIs.localPath(text)) {
     return done('', text, '', ''); // NB: "path" specifier → no prefix or version.
   }
 

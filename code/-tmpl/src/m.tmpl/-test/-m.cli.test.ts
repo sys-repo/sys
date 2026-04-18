@@ -44,39 +44,50 @@ describe('m.tmpl/m.cli', () => {
     const test = await makeWorkspace();
     const cwd = test.root;
     const relTarget = 'code/ns/agent-driven';
+    const lines: string[] = [];
+    const info = console.info;
     const args = parseArgs([
       'pkg',
       '--dir',
       relTarget,
       '--pkgName',
       '@my-scope/agent-driven',
-      '--no-interactive',
+      '--non-interactive',
     ]);
 
     const selectTemplate = Prompt.selectTemplate;
     const directoryName = Prompt.directoryName;
     const prompt = Prompt as unknown as PromptMutable;
     try {
+      console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
       prompt.selectTemplate = async () => {
-        throw new Error('should not prompt for template in --no-interactive mode');
+        throw new Error('should not prompt for template in --non-interactive mode');
       };
       prompt.directoryName = async () => {
-        throw new Error('should not prompt for directory in --no-interactive mode');
+        throw new Error('should not prompt for directory in --non-interactive mode');
       };
       await cli(cwd, args);
     } finally {
+      console.info = info;
       prompt.selectTemplate = selectTemplate;
       prompt.directoryName = directoryName;
     }
 
     const denoJson = Fs.join(cwd, relTarget, 'deno.json');
     expect(await Fs.exists(denoJson)).to.eql(true);
+    const output = lines.join('\n');
+    expect(output.includes('commit msg:')).to.eql(true);
+    expect(
+      output.includes(
+        'chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven (38 files)',
+      ),
+    ).to.eql(true);
   });
 
   it('non-interactive fails when --dir missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive'])),
       'Missing required flag: --dir',
     );
   });
@@ -84,14 +95,36 @@ describe('m.tmpl/m.cli', () => {
   it('non-interactive fails when required template params are missing', async () => {
     const test = await makeWorkspace();
     await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive'])),
       'requires --pkgName',
     );
 
     await expectError(
-      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--no-interactive'])),
+      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive'])),
       'requires --name',
     );
+  });
+
+  it('non-interactive repo dry-run does not execute setup side effects', async () => {
+    const test = await makeWorkspace();
+    const cwd = test.root;
+    const relTarget = 'my-repo';
+    const target = Fs.join(cwd, relTarget);
+
+    await cli(
+      cwd,
+      parseArgs([
+        'repo',
+        '--dir',
+        relTarget,
+        '--non-interactive',
+        '--dry-run',
+      ]),
+    );
+
+    expect(await Fs.exists(target)).to.eql(false);
+    expect(await Fs.exists(Fs.join(target, 'deps.yaml'))).to.eql(false);
+    expect(await Fs.exists(Fs.join(target, 'deno.graph.json'))).to.eql(false);
   });
 
   it('interactive existing target warns and exits without failure', async () => {
@@ -133,7 +166,7 @@ describe('m.tmpl/m.cli', () => {
         '--pkgName',
         '@my-scope/agent-driven',
         '--force',
-        '--no-interactive',
+        '--non-interactive',
       ]),
     );
 

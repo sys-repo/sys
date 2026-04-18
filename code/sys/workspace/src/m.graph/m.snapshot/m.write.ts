@@ -1,6 +1,6 @@
-import { type t, Hash, JsonFile, Obj } from './common.ts';
+import { type t, JsonFile, Obj } from './common.ts';
 import { defaultDoc } from './u.defaultDoc.ts';
-import { cloneGraph } from './u.graph.ts';
+import { GraphHash } from './m.Hash.ts';
 import { meta } from './u.meta.ts';
 import { parseSnapshot } from './u.parse.ts';
 
@@ -8,11 +8,16 @@ type D = t.WorkspaceGraph.Snapshot.Doc;
 type G = t.WorkspaceGraph.PersistedGraph;
 
 export const write: t.WorkspaceGraph.Snapshot.Lib['write'] = async (snapshot, path) => {
-  const graph = cloneGraph(snapshot.graph);
-  const graphHash = Hash.sha256(graph);
+  const { graph, digest } = GraphHash.snapshot(snapshot.graph);
 
   const file = await JsonFile.get<D>(path, defaultDoc(), { touch: true });
-  file.change((doc) => applyWrite(doc as t.DeepMutable<D>, { snapshot, graph, graphHash }));
+  file.change((doc) =>
+    applyWrite(doc as t.DeepMutable<D>, {
+      snapshot,
+      graph,
+      graphHash: digest,
+    })
+  );
 
   const { error } = await file.fs.save();
   if (error) throw error;
@@ -44,6 +49,7 @@ function applyWrite(
     createdAt,
     graphHash,
     generator: snapshot['.meta'].generator,
+    hashPolicy: snapshot['.meta'].hash['/graph:policy'],
   });
 
   root.graph = Obj.clone(graph) as t.DeepMutable<G>;

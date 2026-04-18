@@ -108,7 +108,7 @@ const wrangle = {
 
         for (const specifier of wrangle.jsrDependencies(res.data.graph)) {
           const from = wrangle.specifierKey(specifier);
-          if (!from || !nodeKeys.has(from)) continue;
+          if (!from || from === node.key || !nodeKeys.has(from)) continue;
           const edge: t.EsmTopologicalInput['edges'][number] = { from, to: node.key };
           edges.set(`${edge.from}->${edge.to}`, edge);
         }

@@ -1,10 +1,12 @@
-import { type t, Fs, Time } from './common.ts';
 import { FILE, renderStageEntrypoints } from './-tmpl/mod.ts';
+import { type t, DenoFile, Fs, Time, Workspace } from './common.ts';
 import { buildStageTarget } from './u.buildStageTarget.ts';
+import { closureFromGraph } from './u.closureFromGraph.ts';
 import { ensureStageDriverDenoImport } from './u.ensureStageDriverDenoImport.ts';
 import { materializeWorkspace } from './u.materializeWorkspace.ts';
 import { resolveStageRoot } from './u.resolveStageRoot.ts';
 import { resolveStageTarget } from './u.resolveStageTarget.ts';
+import { rewriteStageWorkspace } from './u.rewriteStageWorkspace.ts';
 
 type StageContext = {
   readonly workspace: t.DenoWorkspace;
@@ -30,31 +32,44 @@ type StageHooks = {
   ) => Promise<void> | void;
 };
 
+const STAGE_RUNTIME_PACKAGES = ['code/sys.driver/driver-deno'] as const;
+
 export async function executeStage(
   request: t.DenoDeploy.Stage.Request,
   hooks: StageHooks = {},
 ): Promise<t.DenoDeploy.Stage.Result> {
   const { workspace, target } = await resolveStageTarget(request);
   const root = await resolveStageRoot(workspace.dir, request.root);
+  const graph = await Workspace.Prep.Graph.ensure({ cwd: workspace.dir, silent: true });
+  const snapshot = graph.snapshot;
+  const retain = wrangle.retainPackages(snapshot.graph, target.relative);
+  const shouldBuild = await wrangle.shouldBuildTarget(target.absolute);
   const ctx = { workspace, target, root } as const;
 
   await hooks.onRoot?.(ctx);
-  await hooks.onBuildStart?.(ctx);
 
-  const buildStartedAt = Time.now.timestamp as t.Msecs;
-  try {
-    await buildStageTarget(target.absolute);
-  } catch (error) {
-    await hooks.onBuildFailed?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec as t.Msecs, error });
-    throw error;
+  const buildStartedAt: t.Msecs = Time.now.timestamp;
+  if (shouldBuild) {
+    await hooks.onBuildStart?.(ctx);
+    try {
+      await buildStageTarget(target.absolute);
+    } catch (error) {
+      await hooks.onBuildFailed?.({
+        ...ctx,
+        elapsed: Time.elapsed(buildStartedAt).msec,
+        error,
+      });
+      throw error;
+    }
+    await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec });
   }
-  await hooks.onBuildDone?.({ ...ctx, elapsed: Time.elapsed(buildStartedAt).msec as t.Msecs });
 
   await hooks.onStageStart?.(ctx);
-  const stageStartedAt = Time.now.timestamp as t.Msecs;
+  const stageStartedAt: t.Msecs = Time.now.timestamp;
   try {
-    await materializeWorkspace(workspace.dir, root);
-    await ensureStageDriverDenoImport(root);
+    await materializeWorkspace({ source: workspace.dir, root, retain });
+    await rewriteStageWorkspace(root, retain);
+    await ensureStageDriverDenoImport(root, retain);
 
     const rendered = renderStageEntrypoints(target.relative);
     const entry = Fs.join(root, FILE.entry);
@@ -69,10 +84,33 @@ export async function executeStage(
       entry,
     } as const;
 
-    await hooks.onStageDone?.({ ...result, elapsed: Time.elapsed(stageStartedAt).msec as t.Msecs });
+    await hooks.onStageDone?.({ ...result, elapsed: Time.elapsed(stageStartedAt).msec });
     return result;
   } catch (error) {
-    await hooks.onStageFailed?.({ ...ctx, elapsed: Time.elapsed(stageStartedAt).msec as t.Msecs, error });
+    const elapsed = Time.elapsed(stageStartedAt).msec;
+    await hooks.onStageFailed?.({ ...ctx, elapsed, error });
     throw error;
   }
 }
+
+const wrangle = {
+  retainPackages(
+    graph: t.WorkspaceGraph.PersistedGraph,
+    target: t.StringPath,
+  ): ReadonlySet<t.StringPath> {
+    const retain = new Set(closureFromGraph(graph, target));
+
+    for (const path of STAGE_RUNTIME_PACKAGES) {
+      if (!graph.orderedPaths.includes(path)) continue;
+      for (const pkg of closureFromGraph(graph, path)) retain.add(pkg);
+    }
+
+    return retain;
+  },
+
+  async shouldBuildTarget(targetDir: t.StringDir) {
+    const denofile = await DenoFile.load(targetDir);
+    const task = denofile.data?.tasks?.build;
+    return typeof task === 'string' && task.trim().length > 0;
+  },
+} as const;

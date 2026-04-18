@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const border: t.TextInputBorder = {
+const border: t.TextInput.Border = {
   mode: 'outline',
   defaultColor: 0.3,
   focusColor: Color.BLUE,

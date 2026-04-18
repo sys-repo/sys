@@ -1,11 +1,12 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "license": "MIT",
+  "private": true,
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
-    "build": "deno run -P=dev ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "build": "deno run -P=dev ./-scripts/-main.ts --cmd=build  --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/-main.ts --cmd=serve",
     "d-ipfs-staging": "orbiter deploy --config=orbiter-slc.db.team.json",
     "d-ipfs-prod": "orbiter deploy --config=orbiter-socialleancanvas.com.json",
@@ -25,8 +26,34 @@
     "./specs": "./src/-test/-specs.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
-    "dev": { "read": true, "write": true, "run": true, "env": true, "net": true, "ffi": true, "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"] } }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
   }
 }

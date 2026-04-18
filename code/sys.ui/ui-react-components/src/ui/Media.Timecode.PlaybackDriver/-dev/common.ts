@@ -14,7 +14,7 @@ export { ObjectView } from '../../ObjectView/mod.ts';
 export { VideoDecks } from '../../Player.Video.Decks/mod.ts';
 export { Player } from '../../Player/mod.ts';
 export { Spinners } from '../../Spinners/mod.ts';
-export { Icons } from '../../ui.Icons.ts';
+export { Icons } from '../../common/u.icons.ts';
 
 /**
  * Helpers:

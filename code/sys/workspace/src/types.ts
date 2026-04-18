@@ -2,6 +2,7 @@
  * @module
  * Workspace type surface.
  */
+export type * from './m.bump/t.ts';
 export type * from './m.ci/t.ts';
 export type * from './m.cli/t.ts';
 export type * from './m.graph/t.ts';

@@ -1,6 +1,6 @@
 import { cli as tmplCli } from '@sys/tmpl';
 
-import { Cli, Fs, type t } from './common.ts';
+import { Cli, Fs, Process, type t } from './common.ts';
 import { InfoFmt } from '../m.fmt/u.info.ts';
 import { ListenFmt } from '../m.fmt/u.listen.ts';
 import { print } from '../m.fmt/u.shared.ts';
@@ -13,21 +13,14 @@ export async function createDeployableRepoPkg(): Promise<{
 }> {
   const root = await createPublishedRepoFixture();
   const pkgDir = Fs.join(root, 'code', 'projects', 'foo');
-
-  await quietly(() =>
-    tmplCli(root, {
-      _: ['pkg'],
-      tmpl: 'pkg',
-      interactive: false,
-      dryRun: false,
-      force: true,
-      bundle: false,
-      dir: 'code/projects/foo',
-      pkgName: '@tmp/foo',
-      help: false,
-      'no-interactive': true,
-    }),
+  await createPkg(root, 'code/projects/foo', '@tmp/foo');
+  await createPkg(root, 'code/projects/bar', '@tmp/bar');
+  await createPkg(root, 'code/projects/baz', '@tmp/baz');
+  await Fs.write(
+    Fs.join(root, 'code', 'projects', 'foo', 'src', 'mod.ts'),
+    `import { bar } from '../../bar/src/mod.ts';\nexport default 'foo-default';\nexport const foo = \`foo-\${bar}\`;\n`,
   );
+  await runPrep(root);
 
   return { root, pkgDir };
 }
@@ -40,6 +33,7 @@ export async function prepareStageForCreate(args: {
   readonly app: string;
   readonly org?: string;
   readonly token?: string;
+  readonly onBeforeOutput?: () => void;
 }) {
   const { pkgDir } = await createDeployableRepoPkg();
 
@@ -66,7 +60,8 @@ export async function prepareStageForCreate(args: {
     },
     {
       onRoot({ root }) {
-        print(InfoFmt.deployConfig({
+        args.onBeforeOutput?.();
+        print(InfoFmt.Deploy.config({
           app: args.app,
           ...(args.org ? { org: args.org } : {}),
           ...(args.token ? { token: args.token } : {}),
@@ -83,11 +78,11 @@ export async function prepareStageForCreate(args: {
       },
       onBuildFailed(ctx) {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'build', error: ctx.error }));
+        print(InfoFmt.Deploy.failure({ phase: 'build', error: ctx.error }));
       },
       onStageFailed(ctx) {
         spin?.stop();
-        print(InfoFmt.pipelineFailure({ phase: 'stage', error: ctx.error }));
+        print(InfoFmt.Deploy.failure({ phase: 'stage', error: ctx.error }));
       },
     },
   );
@@ -97,12 +92,12 @@ export async function prepareStageForCreate(args: {
     prepared = await prepare(stage);
   } catch (error) {
     spin?.stop();
-    print(InfoFmt.pipelineFailure({ phase: 'prepare', error }));
+    print(InfoFmt.Deploy.failure({ phase: 'prepare', error }));
     throw error;
   }
   spin?.stop();
   await sanitizePreparedRootForCreate(prepared.stagedDir);
-  print(InfoFmt.stagedEntrypoint(prepared));
+  print(InfoFmt.Staged.entrypoint(prepared));
   return prepared;
 }
 
@@ -118,10 +113,39 @@ async function createPublishedRepoFixture(): Promise<t.StringDir> {
       bundle: false,
       dir: '.',
       help: false,
-      'no-interactive': true,
+      'non-interactive': true,
     }),
   );
   return root;
+}
+
+async function createPkg(root: t.StringDir, dir: string, pkgName: string) {
+  await quietly(() =>
+    tmplCli(root, {
+      _: ['pkg'],
+      tmpl: 'pkg',
+      interactive: false,
+      dryRun: false,
+      force: true,
+      bundle: false,
+      dir,
+      pkgName,
+      help: false,
+      'non-interactive': true,
+    }),
+  );
+}
+
+async function runPrep(root: t.StringDir): Promise<void> {
+  const out = await Process.invoke({
+    cmd: 'deno',
+    args: ['task', 'prep'],
+    cwd: root,
+    silent: true,
+  });
+  if (out.success) return;
+
+  throw new Error(`Failed to prepare generated deploy fixture:\n${out.text.stderr.trim()}`);
 }
 
 async function quietly<T>(run: () => Promise<T>): Promise<T> {

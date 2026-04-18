@@ -4,7 +4,7 @@ import { asCommand } from './u.ts';
 /**
  * Run a command with stdio inherited from the current terminal.
  */
-export const inherit: t.ProcLib['inherit'] = async (config) => {
+export const inherit: t.Process.Lib['inherit'] = async (config) => {
   const command = asCommand(config, {
     stdin: 'inherit',
     stdout: 'inherit',

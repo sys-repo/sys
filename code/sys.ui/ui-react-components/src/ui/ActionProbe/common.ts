@@ -6,7 +6,7 @@ export { Switch } from '../Buttons.Switch/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
 export { Spinners } from '../Spinners/mod.ts';
-export { Icons } from '../ui.Icons.ts';
+export { Icons } from '../common/u.icons.ts';
 
 /**
  * Constants:

@@ -5,13 +5,13 @@ import { execStage } from '../u.exec.ts';
 const TEST_IDENTITY = 'Developer ID Application: Example Org (TEAMID1234)';
 
 describe('@sys/driver-signer/apple: u.exec', () => {
-  type ProcInvokeArgs = t.ProcInvokeArgs;
-  type ProcOutput = t.ProcOutput;
+  type InvokeArgs = t.Process.InvokeArgs;
+  type Output = t.Process.Output;
   const sleep = async (_ms: number) => {};
 
   it('sign stage → calls codesign --force --sign <identity> <artifactPath>', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -34,8 +34,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('sign stage (dmg) → calls codesign without runtime option', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -56,8 +56,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage → calls ditto zip and xcrun notarytool submit --wait in order', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       if (input.cmd === 'xcrun') {
         return procOut({ success: true, code: 0, stdout: '{"id":"SUB-A1","status":"Accepted"}' });
@@ -98,8 +98,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage (dmg) → calls xcrun notarytool submit --wait directly', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0, stdout: '{"id":"SUB-1","status":"Accepted"}' });
     };
@@ -137,7 +137,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage (dmg) with non-accepted status → E_NOTARIZE', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       return procOut({ success: true, code: 0, stdout: '{"id":"SUB-2","status":"In Progress"}' });
     };
 
@@ -150,7 +150,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage (dmg) with processing complete + statusCode 0 → accepted', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       return procOut({
         success: true,
         code: 0,
@@ -163,7 +163,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage (dmg) with processing complete + non-zero statusCode → E_NOTARIZE', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       return procOut({
         success: true,
         code: 0,
@@ -181,8 +181,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage (dmg) invalid + submission id → appends notary log issue summary', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       if (input.cmd === 'xcrun' && input.args[1] === 'submit') {
         return procOut({
@@ -224,8 +224,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('staple stage → calls xcrun stapler staple + validate', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -242,9 +242,9 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('staple stage (dmg) → calls xcrun stapler staple + validate after grace wait', async () => {
-    const calls: ProcInvokeArgs[] = [];
+    const calls: InvokeArgs[] = [];
     const sleeps: number[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -265,8 +265,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('verify stage → calls codesign verify and spctl assess in order', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -282,8 +282,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('verify stage (dmg) → calls codesign verify and spctl open assess in order', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       return procOut({ success: true, code: 0 });
     };
@@ -306,7 +306,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('sign stage failure → maps to E_SIGN', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       return procOut({ success: false, code: 1, stderr: 'codesign failed\n' });
     };
 
@@ -317,7 +317,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('verify stage failure → maps to E_VERIFY', async () => {
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       if (input.cmd === 'spctl') {
         return procOut({ success: false, code: 3, stderr: 'rejected\n' });
       }
@@ -331,8 +331,8 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage failure → maps to E_NOTARIZE', async () => {
-    const calls: ProcInvokeArgs[] = [];
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const calls: InvokeArgs[] = [];
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       if (input.cmd === 'xcrun') {
         return procOut({ success: false, code: 2, stderr: 'notarytool failed\n' });
@@ -348,7 +348,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('staple stage failure → maps to E_STAPLE', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       return procOut({ success: false, code: 4, stderr: 'staple failed\n' });
     };
 
@@ -359,7 +359,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('staple stage with unsupported mode → E_STAPLE', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       throw new Error('invoke should not be called for unsupported mode');
     };
 
@@ -370,7 +370,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('notarize stage with missing notary input → E_NOTARIZE', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       throw new Error('invoke should not be called without notary input');
     };
 
@@ -390,7 +390,7 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('unsupported stage (read) → maps to E_INTERNAL', async () => {
-    const invoke = async (_input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (_input: InvokeArgs): Promise<Output> => {
       throw new Error('invoke should not be called for unsupported stage');
     };
 
@@ -401,10 +401,10 @@ describe('@sys/driver-signer/apple: u.exec', () => {
   });
 
   it('staple stage (dmg) retries transient ticket propagation errors then succeeds', async () => {
-    const calls: ProcInvokeArgs[] = [];
+    const calls: InvokeArgs[] = [];
     const sleeps: number[] = [];
     let attempt = 0;
-    const invoke = async (input: ProcInvokeArgs): Promise<ProcOutput> => {
+    const invoke = async (input: InvokeArgs): Promise<Output> => {
       calls.push(input);
       attempt += 1;
       if (attempt < 3) {
@@ -482,7 +482,7 @@ function procOut(args: {
   readonly code: number;
   readonly stdout?: string;
   readonly stderr?: string;
-}): t.ProcOutput {
+}): t.Process.Output {
   const stdoutText = args.stdout ?? '';
   const stderrText = args.stderr ?? '';
   const stdout = new TextEncoder().encode(stdoutText);

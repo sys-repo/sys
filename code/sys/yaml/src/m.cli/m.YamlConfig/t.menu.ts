@@ -5,7 +5,7 @@ export type YamlConfigMenuActionBase = 'back' | 'delete' | 'edit' | 'rename' | '
 
 /** Schema helpers injected by the caller. */
 export type YamlConfigSchema<T> = {
-  init: () => T;
+  init?: () => T;
   validate: (value: unknown) => { ok: boolean; errors: readonly unknown[] };
   stringifyYaml?: (doc: T) => string;
 };
@@ -80,7 +80,14 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   /** Invalid YAML handling (label + allowed actions). */
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
   /** Extra actions and handler hook. */
-  actions?: { extra?: YamlConfigMenuExtra<A, T>[]; onAction?: YamlConfigMenuHandler<A> };
+  actions?: {
+    /** Action prompt message (default: "Actions:"). */
+    message?: string;
+    /** Label used for built-in edit/reload/rename actions (default: "config"). */
+    label?: string;
+    extra?: YamlConfigMenuExtra<A, T>[];
+    onAction?: YamlConfigMenuHandler<A>;
+  };
   /** Add prompt configuration. */
   add?: {
     /** Prompt message (default: "Config name"). */
@@ -90,7 +97,7 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
     /** Name validation hook. */
     validate?: (value: string) => boolean | string | Promise<boolean | string>;
     /** Initial YAML rendering hook. */
-    initYaml?: (args: { name: string; doc: T }) => string;
+    initYaml?: (args: { name: string; doc?: T }) => string;
   };
 };
 
