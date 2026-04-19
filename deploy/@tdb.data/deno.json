@@ -3,7 +3,7 @@
   "version": "0.0.25",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno test -P=test ./src ./-scripts",
     "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
@@ -27,6 +27,9 @@
     "./slug/ui/dev": "./src/ui/-dev/mod.ts",
     "./slug/ui/dev/t": "./src/ui/-dev/t.ts"
   },
+  "exclude": [
+    ".tmp"
+  ],
   "permissions": {
     "clean": {
       "read": true,

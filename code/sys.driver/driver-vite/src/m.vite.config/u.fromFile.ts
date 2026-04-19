@@ -1,4 +1,3 @@
-import { loadConfigFromFile } from 'vite';
 import { type t, Delete, Err, Fs, Path, PATHS } from './common.ts';
 
 /**
@@ -23,6 +22,7 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
 
   const command = 'build';
   const mode = 'production';
+  const { loadConfigFromFile } = await import('vite');
   const fromFile = await loadConfigFromFile(
     { command, mode }, // param: configEnv
     configFile, //        param: configFile

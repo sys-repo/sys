@@ -1,6 +1,11 @@
 # Vite Driver
 Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler within a multi-module [Deno](https://docs.deno.com/) workspace.
 
+## What
+`@sys/driver-vite` lets you use Vite under Deno without inventing a new app model. It preserves a sane, faithful Vite experience while owning the Deno-specific adaptation work that Vite does not natively handle.
+
+## Why
+Vite assumes a Node/npm-oriented runtime, module-resolution, and config-loading environment. Deno has different import, runtime, and compatibility semantics. `@sys/driver-vite` owns that adaptation boundary so applications can stay conceptually close to normal Vite usage while still working correctly under Deno.
 
 #### Philosophy
 <UI Framework™️> agnostic.

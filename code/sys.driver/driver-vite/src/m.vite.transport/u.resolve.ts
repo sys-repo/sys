@@ -2,6 +2,7 @@ import { Is, Json, Path, Process, type t } from './common.ts';
 import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
 import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
+import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier, unwrapViteId } from './u.specifier.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -10,11 +11,13 @@ type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
+  let browserIds = false;
 
   const plugin = {
     name: 'deno',
-    configResolved(config: { root: string }) {
+    configResolved(config: { root: string; command?: string }) {
       root = Path.normalize(config.root);
+      browserIds = config.command === 'serve';
     },
     async resolveId(
       id: string,
@@ -49,7 +52,7 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
             cached = hydrated;
           }
         }
-        return await loadDenoModule(resolvedId, cached?.dependencies ?? []);
+        return await loadDenoModule(resolvedId, cached?.dependencies ?? [], { browserIds });
       }
 
       return;
@@ -264,33 +267,12 @@ export async function resolveNpmPathWith(
   return Path.fromFileUrl(value);
 }
 
-export function isDenoSpecifier(str: string) {
-  return str.startsWith('\0deno');
-}
-
-export function toDenoSpecifier(loader: string, id: string, resolved: string) {
-  return `\0deno::${loader}::${id}::${resolved}`;
-}
-
-export function parseDenoSpecifier(spec: string) {
-  const [_, loader, id, posixPath] = spec.split('::');
-  return {
-    loader,
-    id,
-    resolved: Path.normalize(posixPath),
-  };
-}
-
 function isRemoteLike(specifier: string) {
   return (
     specifier.startsWith('http://') ||
     specifier.startsWith('https://') ||
     specifier.startsWith('jsr:')
   );
-}
-
-function unwrapViteId(id: string) {
-  return id.startsWith('/@id/') ? id.slice('/@id/'.length).replace('__x00__', '\0') : id;
 }
 
 async function ensureDenoInstalled(cwd: string, deps: t.ResolveDeps) {

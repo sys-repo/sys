@@ -1,5 +1,5 @@
 import { type t, c, describe, expect, Fs, it, Path, SAMPLE } from '../../-test.ts';
-import { Vite } from '../../mod.ts';
+import { probeFromFile } from './u.fixture.fromFile.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('ViteConfig.fromFile', () => {
@@ -14,7 +14,7 @@ describe('ViteConfig.fromFile', () => {
 
   it('from "/<root-dir>/"', async () => {
     const rootDir = SAMPLE.Dirs.sample2;
-    const res = await ViteConfig.fromFile(rootDir);
+    const res = await probeFromFile(rootDir);
     print(res);
 
     expect(res.exists).to.eql(true);
@@ -28,8 +28,8 @@ describe('ViteConfig.fromFile', () => {
 
   it('from "/<root-dir>/vite.config.ts" (with config filename)', async () => {
     const rootDir = SAMPLE.Dirs.sample2;
-    const resA = await ViteConfig.fromFile(Path.join(rootDir, 'vite.config.ts'));
-    const resB = await ViteConfig.fromFile(rootDir);
+    const resA = await probeFromFile(Path.join(rootDir, 'vite.config.ts'));
+    const resB = await probeFromFile(rootDir);
     expect(resA.exists).to.eql(true);
     expect(resA.error).to.eql(undefined);
     expect(resA).to.eql(resB);
@@ -37,7 +37,7 @@ describe('ViteConfig.fromFile', () => {
 
   it('loads main samples', async () => {
     const test = async (path: t.StringPath) => {
-      const res = await Vite.Config.fromFile(path);
+      const res = await probeFromFile(path);
       expect(res.error).to.eql(undefined);
       expect(ViteConfig.Is.paths(res.paths)).to.be.true;
     };
@@ -51,7 +51,7 @@ describe('ViteConfig.fromFile', () => {
     try {
       const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
       await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
-      const res = await ViteConfig.fromFile(dir);
+      const res = await probeFromFile(dir);
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
       expect(ViteConfig.Is.paths(res.paths)).to.eql(true);
@@ -63,7 +63,7 @@ describe('ViteConfig.fromFile', () => {
   });
 
   it('fail: not found', async () => {
-    const res = await ViteConfig.fromFile('/foo/404/vite.config.ts');
+    const res = await probeFromFile('/foo/404/vite.config.ts');
     expect(res.exists).to.eql(false);
     expect(res.error?.message).to.include('A config file could not be found in directory');
     expect(res.error?.message).to.include(': /foo/404');

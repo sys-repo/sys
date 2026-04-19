@@ -1,12 +1,10 @@
-import type { ManualChunksOption, PreRenderedChunk } from 'rollup';
-
 import { workspace } from '../m.vite.config.workspace/mod.ts';
-import { type t, DenoFile, Fs, Is, asArray, Delete, Path, R } from './common.ts';
+import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
+import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
+import { asArray, Delete, DenoFile, Fs, Is, Path, type t } from './common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
-import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
-import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
 
 /**
  * Application bundle configuration.
@@ -27,13 +25,13 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const root = Path.dirname(main);
 
   /**
-   * Chunking.
+   * Chunking:
    */
-  const manualChunks: ManualChunksOption = {};
+  const manualChunks: Record<string, string[]> = {};
   if (options.chunks) {
     const chunker: t.ViteModuleChunksArgs = {
       chunk(alias, moduleName) {
-        manualChunks[alias] = R.uniq(asArray(moduleName ?? alias));
+        manualChunks[alias] = [...new Set(asArray(moduleName ?? alias))];
         return chunker;
       },
     };
@@ -43,17 +41,17 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const format = 'es';
   const output: t.Rollup.OutputOptions = {
     format,
-    manualChunks,
+    manualChunks: wrangle.manualChunks(manualChunks),
     chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
     assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
-    entryFileNames(chunkInfo: PreRenderedChunk) {
+    entryFileNames(chunkInfo) {
       if (chunkInfo.name === 'sw') return 'sw.js';
       return 'pkg/-entry.[hash].js';
     },
   };
 
   /**
-   * Plugins
+   * Plugins:
    */
   const plugins = await commonPlugins(options.plugins);
   if (denoConfig && (options.plugins?.deno ?? true)) {
@@ -151,5 +149,29 @@ const wrangle = {
   path(envKey: string) {
     const path = Deno.env.get(envKey) ?? '';
     return path ? Path.resolve(path) : '';
+  },
+
+  manualChunks(chunks: Record<string, string[]>) {
+    const entries = Object.entries(chunks);
+    if (entries.length === 0) return undefined;
+
+    return ((id: string) => {
+      const resolved = wrangle.normalizeModuleId(id);
+      for (const [alias, modules] of entries) {
+        if (modules.some((moduleName) => wrangle.matchesManualChunk(resolved, moduleName))) {
+          return alias;
+        }
+      }
+      return undefined;
+    }) as t.Rollup.OutputOptions['manualChunks'];
+  },
+
+  matchesManualChunk(id: string, moduleName: string) {
+    const target = wrangle.normalizeModuleId(moduleName);
+    return id === target || id.includes(`/node_modules/${target}/`);
+  },
+
+  normalizeModuleId(value: string) {
+    return value.replaceAll('\\', '/');
   },
 } as const;

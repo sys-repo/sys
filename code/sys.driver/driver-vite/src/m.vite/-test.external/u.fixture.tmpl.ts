@@ -1,5 +1,5 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
-import { Fs, type t } from '../../-test.ts';
+import { Fs, Str, type t } from '../../-test.ts';
 import { runCommand, runTask, type TaskRun } from './u.fixture.task.ts';
 
 type GeneratedRepo = {
@@ -128,19 +128,18 @@ async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskR
     );
     await Fs.write(
       Fs.join(fooDir, 'src', '-test', 'entry.tsx'),
-      [
-        `import { StrictMode } from 'react';`,
-        `import { createRoot } from 'react-dom/client';`,
-        `import { sharedMessage } from '@tmp/bar';`,
-        ``,
-        `const root = createRoot(document.getElementById('root')!);`,
-        `root.render(`,
-        `  <StrictMode>`,
-        `    <div data-shared={sharedMessage}>{sharedMessage}</div>`,
-        `  </StrictMode>,`,
-        `);`,
-        ``,
-      ].join('\n'),
+      Str.dedent(`
+        import { StrictMode } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { sharedMessage } from '@tmp/bar';
+
+        const root = createRoot(document.getElementById('root')!);
+        root.render(
+          <StrictMode>
+            <div data-shared={sharedMessage}>{sharedMessage}</div>
+          </StrictMode>,
+        );
+      `),
     );
     return { cwd: fooDir, cmd, ok: true, code: 0, stdout: '', stderr: '' };
   } catch (error) {

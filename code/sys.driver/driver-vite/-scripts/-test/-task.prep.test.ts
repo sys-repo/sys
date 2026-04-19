@@ -2,7 +2,7 @@ import type * as dt from '@sys/driver-deno/t';
 import { describe, expect, Fs, it } from '../../src/-test.ts';
 import { SAMPLE } from '../../src/-test/u.SAMPLE.ts';
 import { syncPublishedFixture, syncPublishedFixtureImport, syncPublishedFixtureImports } from '../task.prep.u.published.ts';
-import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport } from '../task.prep.ts';
+import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport, syncWasmPluginImport } from '../task.prep.ts';
 
 describe('driver-vite prep', () => {
   it('syncs the transport loader import from root deps.yaml', async () => {
@@ -32,6 +32,37 @@ describe('driver-vite prep', () => {
     const text = (await Fs.readText(targetPath)).data ?? '';
     expect(text).to.include("from 'npm:esbuild@0.27.3'");
     expect(text).to.not.include("from 'npm:esbuild@0.27.2'");
+
+    await Fs.remove(fs.absolute);
+  });
+
+  it('syncs the wasm plugin import from root deps.yaml', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'driver-vite.prep.' });
+    const depsPath = Fs.join(fs.absolute, 'deps.yaml');
+    const targetPath = Fs.join(fs.absolute, 'u.plugins.ts');
+
+    await Fs.write(
+      depsPath,
+      `
+        groups:
+          build/tools/vite:
+            - import: npm:vite-plugin-wasm@3.7.0
+
+        deno.json:
+          - group: build/tools/vite
+      `,
+    );
+
+    await Fs.write(
+      targetPath,
+      "const loaded = await import('npm:vite-plugin-wasm@3.6.0');\n",
+    );
+
+    await syncWasmPluginImport({ depsPath, targetPath });
+
+    const text = (await Fs.readText(targetPath)).data ?? '';
+    expect(text).to.include("import('npm:vite-plugin-wasm@3.7.0')");
+    expect(text).to.not.include("import('npm:vite-plugin-wasm@3.6.0')");
 
     await Fs.remove(fs.absolute);
   });

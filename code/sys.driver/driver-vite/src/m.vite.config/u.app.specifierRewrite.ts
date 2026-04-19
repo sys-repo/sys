@@ -1,10 +1,8 @@
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
-import type { PluginContext } from 'rollup';
 import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
 
 type LoadImports = (configPath: t.StringPath) => Promise<Record<string, string>>;
 type WarmNpm = (specifier: string, cwd: string) => Promise<void>;
-type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createSpecifierRewrite(
   configPath: t.StringPath,
@@ -17,19 +15,14 @@ export function createSpecifierRewrite(
     name: 'sys:specifier-rewrite',
     enforce: 'pre',
     async resolveId(
-      this: PluginContext,
       source: string,
-      importer?: string,
-      options?: ResolveOptions,
+      importer: string | undefined,
+      options: { custom?: t.Rollup.CustomPluginOptions; ssr?: boolean; isEntry: boolean },
     ) {
       const rewritten = await rewriteSpecifier(source);
       if (!rewritten) return null;
       const importerForResolve = wrangle.isDenoImporter(importer) ? resolutionImporter : importer;
-      const ctx = this as PluginContext | undefined;
-
-      const resolved = ctx?.resolve
-        ? await ctx.resolve(rewritten, importerForResolve, { ...options, skipSelf: true })
-        : null;
+      const resolved = await this.resolve(rewritten, importerForResolve, { ...options, skipSelf: true });
       if (resolved?.id) return resolved.id;
       if (isBarePackageId(rewritten)) return null;
       return rewritten;
@@ -144,7 +137,7 @@ const wrangle = {
 
   toStringRecord(input: unknown): Record<string, string> {
     const res: Record<string, string> = {};
-    if (!input || typeof input !== 'object') return res;
+    if (!Is.record<Record<string, unknown>>(input)) return res;
     for (const [key, value] of Object.entries(input)) {
       if (!Is.string(value)) continue;
       res[key] = value;

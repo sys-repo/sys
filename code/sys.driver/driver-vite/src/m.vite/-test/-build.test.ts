@@ -39,10 +39,18 @@ describe('Vite.build', () => {
     const restore = await writeLocalFixtureImports(cwd);
 
     try {
-      const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+      const expectedPaths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
 
       const res = await Vite.build({
         cwd,
+        paths: expectedPaths,
         pkg,
         silent: true,
         spinner: false, // Test runner owns progress/logging; avoid long-lived spinner timers in tests.
@@ -52,9 +60,10 @@ describe('Vite.build', () => {
 
       expect(res.ok).to.eql(true);
       expect(res.cmd.input).to.include('deno run');
-      expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
+      expect(res.cmd.input).to.include('--node-modules-dir');
+      expect(res.cmd.input).to.include('npm:vite@');
       expect(res.elapsed).to.be.greaterThan(0);
-      expect(res.paths).to.eql(fromFile.paths);
+      expect(res.paths).to.eql(expectedPaths);
 
       // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
       const keys = Object.keys(res.dist.hash.parts);

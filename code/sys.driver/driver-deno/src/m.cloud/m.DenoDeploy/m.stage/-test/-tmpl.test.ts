@@ -32,6 +32,9 @@ describe('DenoDeploy: staging (tmpl repo/pkg)', () => {
     console.info(c.italic(c.brightCyan(note)));
     const { root, pkgDir } = await createGeneratedRepoPkg();
 
+    const viteConfigText = (await Fs.readText(Fs.join(pkgDir, 'vite.config.ts'))).data ?? '';
+    expect(viteConfigText).to.include(`import { Vite } from '@sys/driver-vite';`);
+
     const res = await DenoDeploy.stage({ target: { dir: pkgDir } });
 
     expectTypeOf(res).toEqualTypeOf<t.DenoDeploy.Stage.Result>();

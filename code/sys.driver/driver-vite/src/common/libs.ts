@@ -1,12 +1,19 @@
 /**
  * System
  */
-export { Args, Delete, Err, Is, Json, R, Str, Time, Url, asArray, isRecord, slug } from '@sys/std';
 export { Esm } from '@sys/esm';
+export { Args } from '@sys/std/args';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Json } from '@sys/std/json';
+export { slug } from '@sys/std/random';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
+export { Is, Num, Str, asArray, isRecord } from '@sys/std/value';
 
-export { Cli, c, stripAnsi } from '@sys/cli';
+export { c, Cli, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, FileHashUri, Hash } from '@sys/crypto/hash';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';

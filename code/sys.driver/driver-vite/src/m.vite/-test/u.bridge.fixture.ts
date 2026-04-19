@@ -78,6 +78,9 @@ function isSourceFile(path: string) {
 function sourcePackageSpecifiers(source: string) {
   const specifiers = new Set<string>();
   for (const match of source.matchAll(SOURCE_IMPORT_PATTERN)) {
+    const statement = match[0]?.trimStart() ?? '';
+    if (statement.startsWith('import type') || statement.startsWith('export type')) continue;
+
     const specifier = (match.groups as SourceImportMatch | undefined)?.specifier;
     if (Is.str(specifier) && isRelevantPackageSpecifier(specifier)) {
       specifiers.add(specifier);
@@ -248,17 +251,40 @@ async function localSourceImports(
   return [...specifiers].sort();
 }
 
-async function localSourceImportMap(
+async function importsMapForSpecifiers(
   ws: WorkspaceAuthority,
   authority: BridgeAuthority,
-  dir: string,
+  specifiers: readonly string[],
 ) {
-  const entries = await Promise.all((await localSourceImports(ws, authority, dir)).map(async (specifier) => {
+  const entries = await Promise.all(specifiers.map(async (specifier) => {
     const local = specifier.startsWith('@sys/driver-vite/') ? workspacePackagePath(ws, specifier) : undefined;
     if (local) return local;
     return resolveBridgeImport(ws, specifier, authority);
   }));
   return Object.fromEntries(entries);
+}
+
+async function localWorkspaceSourceImports(
+  ws: WorkspaceAuthority,
+  specifiers: readonly string[],
+) {
+  const collected = new Set<string>();
+
+  for (const specifier of specifiers) {
+    if (!specifier.startsWith('@sys/')) continue;
+    const local = workspacePackagePath(ws, specifier);
+    if (!local) continue;
+
+    const [, targetPath] = local;
+    if (!isSourceFile(targetPath)) continue;
+
+    const source = (await Fs.readText(targetPath)).data ?? '';
+    for (const found of sourcePackageSpecifiers(source)) {
+      collected.add(found);
+    }
+  }
+
+  return [...collected].sort();
 }
 
 function localPackageDependencies(
@@ -312,7 +338,11 @@ async function localToolchainImports(authority: BridgeAuthority) {
 
   return {
     '@rolldown/pluginutils': `npm:@rolldown/pluginutils@${pluginutils}`,
+    fs: 'node:fs',
+    path: 'node:path',
     'vite/internal': `npm:vite@${vite}/internal`,
+    'vite/module-runner': `npm:vite@${vite}/module-runner`,
+    zlib: 'node:zlib',
   } as const;
 }
 
@@ -364,8 +394,10 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   const fixtureImports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
   const bridgeImports = await localConfigImports(ws, authority, configEntry);
   const sourceSpecifiers = await localSourceImports(ws, authority, dir);
-  const sourceImports = await localSourceImportMap(ws, authority, dir);
-  const sourceDependencies = localPackageDependencies(sourceSpecifiers, authority);
+  const localWorkspaceSpecifiers = await localWorkspaceSourceImports(ws, sourceSpecifiers);
+  const bridgedSpecifiers = [...new Set([...sourceSpecifiers, ...localWorkspaceSpecifiers])].sort();
+  const sourceImports = await importsMapForSpecifiers(ws, authority, bridgedSpecifiers);
+  const sourceDependencies = localPackageDependencies(bridgedSpecifiers, authority);
   const toolchainDependencies = localToolchainDependencies(authority);
   const toolchainImports = await localToolchainImports(authority);
   const fixturePackage = (await Fs.readJson<PackageJson>(packageJsonPath)).data ?? {};

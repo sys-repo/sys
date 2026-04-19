@@ -1,7 +1,7 @@
 /**
  * @module
  */
-import { type t, DenoFile, Fs, Path, R } from './common.ts';
+import { type t, DenoFile, Fs, Path } from './common.ts';
 import { Log } from './u.log.ts';
 
 type E = {
@@ -91,8 +91,7 @@ const wrangle = {
      *     are not prematurely matched and returned by Vite/Rollup.
      */
     const length = (alias: t.ViteAlias) => String(alias.find).length;
-    const compare = (a: t.ViteAlias, b: t.ViteAlias) => length(b) - length(a);
-    return R.sort<t.ViteAlias>(compare, list);
+    return [...list].sort((a, b) => length(b) - length(a));
   },
 
   filterArgs(pkg: string, alias: t.ViteAlias): t.WorkspaceFilterArgs {

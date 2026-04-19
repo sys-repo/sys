@@ -1,12 +1,10 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
 import { type t } from '../common.ts';
+import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u.specifier.ts';
 import {
   createResolvePlugin,
-  isDenoSpecifier,
-  parseDenoSpecifier,
   resolveDenoWith,
   resolveViteSpecifier,
-  toDenoSpecifier,
 } from '../u.resolve.ts';
 import { procOutput } from './u.fixture.ts';
 
@@ -589,11 +587,8 @@ describe('ViteTransport.resolve', () => {
             return {
               id: '/tmp/node_modules/@noble/hashes/legacy.js',
               external: false,
-              resolvedBy: 'test',
-              attributes: {},
               meta: {},
               moduleSideEffects: true,
-              syntheticNamedExports: false,
             };
           },
         } as unknown as t.Rollup.PluginContext;
@@ -603,11 +598,8 @@ describe('ViteTransport.resolve', () => {
         expect(res).to.eql({
           id: '/tmp/node_modules/@noble/hashes/legacy.js',
           external: false,
-          resolvedBy: 'test',
-          attributes: {},
           meta: {},
           moduleSideEffects: true,
-          syntheticNamedExports: false,
         });
       });
 

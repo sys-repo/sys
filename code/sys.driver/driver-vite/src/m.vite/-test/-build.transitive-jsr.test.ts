@@ -14,6 +14,14 @@ describe('Vite.build (transitive jsr)', () => {
         try {
           const res = await Vite.build({
             cwd,
+            paths: {
+              cwd,
+              app: {
+                entry: 'index.html',
+                outDir: 'dist',
+                base: './',
+              },
+            },
             pkg,
             silent: true,
             spinner: false,
@@ -26,6 +34,9 @@ describe('Vite.build (transitive jsr)', () => {
           const outDir = Fs.join(res.paths.cwd, res.paths.app.outDir);
           const html = (await Fs.readText(Fs.join(outDir, 'index.html'))).data ?? '';
           expect(html).to.include('<title>Sample-Std-Path</title>');
+          const files = await Fs.glob(outDir).find('**/*.js');
+          const texts = await Promise.all(files.map(async (file) => (await Fs.readText(file.path)).data ?? ''));
+          expect(texts.some((text) => text.includes('/@id/__x00__deno::'))).to.eql(false);
         } finally {
           await restore();
         }

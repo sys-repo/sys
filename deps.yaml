@@ -15,15 +15,15 @@ deno.json:
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
     subpaths: [ auto ]
-  - import: npm:esbuild@0.27.5
+  - import: npm:esbuild@0.28.0
     dev: true
-  - import: npm:@vitejs/plugin-react@5.2.0
+  - import: npm:@vitejs/plugin-react@6.0.1
     dev: true
-  - import: npm:@deno/vite-plugin@1.0.6
+  - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.1
+  - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@7.3.2
+  - import: npm:vite@8.0.8
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -90,15 +90,15 @@ deno.json:
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:@preact/signals-react@3.10.0
 package.json:
-  - import: npm:esbuild@0.27.5
+  - import: npm:esbuild@0.28.0
     dev: true
-  - import: npm:@vitejs/plugin-react@5.2.0
+  - import: npm:@vitejs/plugin-react@6.0.1
     dev: true
-  - import: npm:@deno/vite-plugin@1.0.6
+  - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.1
+  - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@7.3.2
+  - import: npm:vite@8.0.8
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true

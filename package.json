@@ -10,12 +10,12 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "1.0.6",
-    "@vitejs/plugin-react": "5.2.0",
-    "esbuild": "0.27.5",
+    "@vitejs/plugin-react": "6.0.1",
+    "esbuild": "0.28.0",
     "prettier": "3.8.3",
-    "rollup": "4.60.1",
+    "rollup": "4.60.2",
     "rollup-plugin-visualizer": "7.0.1",
-    "vite": "7.3.2",
+    "vite": "8.0.8",
     "vite-plugin-wasm": "3.6.0"
   }
 }
