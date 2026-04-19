@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1776374434247,
+    "createdAt": 1776567384945,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-85fc50f0a4a9e73a56e9bba96fcba952d405cdb6eb1bcdce508f5e1cdd57636b",
+      "/graph": "sha256-fa46f1ab5c8756f07d0dc0cebf3000edbffb02de0e7a2d17dbdfa5855e5da6a9",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.62/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.62/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1776374434266
+    "modifiedAt": 1776567384955
   },
   "graph": {
     "orderedPaths": [
@@ -669,10 +669,6 @@
       {
         "from": "code/sys/esm",
         "to": "code/sys.driver/driver-deno"
-      },
-      {
-        "from": "code/sys/esm",
-        "to": "code/sys.driver/driver-vite"
       },
       {
         "from": "code/sys/esm",

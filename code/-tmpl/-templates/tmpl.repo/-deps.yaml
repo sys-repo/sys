@@ -16,9 +16,9 @@ deno.json:
     subpaths: [ async, log, rx, t, testing ]
   - import: jsr:@sys/testing@0.0.271
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.329
+  - import: jsr:@sys/tmpl@0.0.328
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.345
+  - import: jsr:@sys/tools@0.0.344
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.275
   - import: jsr:@sys/ui-css@0.0.264
@@ -41,11 +41,11 @@ package.json:
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.1
     dev: true
-  - import: npm:rollup@4.60.1
+  - import: npm:rollup@4.60.2
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:vite@8.0.2
+  - import: npm:vite@8.0.8
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
