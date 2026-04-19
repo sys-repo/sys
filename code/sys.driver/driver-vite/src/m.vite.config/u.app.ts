@@ -1,7 +1,7 @@
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
-import { asArray, Delete, DenoFile, Fs, Is, Path, R, type t } from './common.ts';
+import { asArray, Delete, DenoFile, Fs, Is, Path, type t } from './common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
@@ -31,7 +31,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   if (options.chunks) {
     const chunker: t.ViteModuleChunksArgs = {
       chunk(alias, moduleName) {
-        manualChunks[alias] = R.uniq(asArray(moduleName ?? alias));
+        manualChunks[alias] = [...new Set(asArray(moduleName ?? alias))];
         return chunker;
       },
     };

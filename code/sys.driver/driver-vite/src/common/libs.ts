@@ -2,23 +2,16 @@
  * System
  */
 export { Esm } from '@sys/esm';
-export {
-  Args,
-  asArray,
-  Delete,
-  Err,
-  Is,
-  isRecord,
-  Json,
-  Num,
-  R,
-  slug,
-  Str,
-  Time,
-  Url,
-} from '@sys/std';
+export { Args } from '@sys/std/args';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Json } from '@sys/std/json';
+export { slug } from '@sys/std/random';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
+export { Is, Num, Str, asArray, isRecord } from '@sys/std/value';
 
 export { c, Cli, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
