@@ -12,8 +12,9 @@ Vite assumes a Node/npm-oriented runtime, module-resolution, and config-loading 
 
 
 #### Standards
-Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade.
-It's time. Good things happen collectively when everything conforms to the same single common/open ideas. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
+Bundled output from `@sys/driver-vite` is **ESM only**, aligned with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules) and with the established [standard module format](https://tc39.es/ecma262/#sec-modules) of the modern web.
+
+Shared open standards reduce friction across tools, runtimes, and packages, and make the overall system simpler, more durable, and easier to evolve collectively. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
 
 
 >> "Fully standardized and finalized as a core part of ECMAScript, maintained by TC39 and ECMA International" (2015)
