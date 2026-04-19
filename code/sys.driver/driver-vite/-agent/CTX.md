@@ -104,6 +104,50 @@
 - Do not switch Vite 8 child commands to `--configLoader=runner`
   - it turns the current non-fatal unresolved-import warnings into a hard config-load failure (`ERR_MODULE_NOT_FOUND`, e.g. `@sys/cli` from `src/m.vite/common.ts`)
 
+## Latest publish-safe hardening checkpoint
+- The `driver-vite` publish/runtime seam was tightened and committed cleanly before this next frontier.
+- Landed shape:
+  - `src/m.vite.config/u.plugins.ts`
+    - publish-safe literal pinned npm import for `vite-plugin-wasm`
+  - `src/m.vite/u.wrangle.ts`
+    - removed unanalyzable `require.resolve('esbuild/package.json')`
+    - now prefers declared consumer package authority for `esbuild` version lookup
+  - `-scripts/task.prep.ts`
+    - prep now syncs the pinned `vite-plugin-wasm` import from canonical dependency authority
+  - `-scripts/-test/-task.prep.test.ts`
+    - covers the new prep sync
+- Proof that was green before moving on:
+  - `deno task test --trace-leaks ./-scripts/-test/-task.prep.test.ts`
+  - `deno task dry`
+- A small follow-up stale test expectation in `src/m.vite/-test/-wrangle.test.ts` was also corrected so that it asserts the consumer fixture's declared `esbuild` version rather than the workspace-root version.
+
+## Next frontier after compact
+- Scope shift:
+  - stop working the publish-safe `driver-vite` seam
+  - start a broader CI/package build sweep for Vite-backed packages using `deno task build`
+- Known failure classes already observed:
+  1. `driver-deno` staged/generated tmpl package build
+     - failure shape:
+       - `Failed to resolve declared esbuild version from consumer package boundary`
+     - likely cause:
+       - generated/staged package does not declare `esbuild`, but `driver-vite` now prefers declared consumer authority
+     - this is a narrower local build-authority seam, distinct from the broader config-loader residue class
+  2. CI / package `deno task build` failures during Vite config loading
+     - example shape:
+       - `Import "strip-ansi" not a dependency and not in import map`
+       - from local workspace source like `code/sys/std/src/m.Ansi/common.ts`
+     - best current read:
+       - this is the self-hosted local config/module loading residue where Vite native config loading ignores root import-map authority for linked local workspace files
+- Important classification:
+  - these two failure classes are related to Deno/Vite authority, but they are not the same blocker and should not be conflated
+
+## Resume plan
+1. Read the current CI build workflow/package build set.
+2. Enumerate local `deno task build` failures across that same set.
+3. Classify failures by blocker class before fixing anything broad.
+4. Patch one class at a time, rerunning only the affected package build lane.
+5. Keep the first decisive blocker for each package; do not reopen solved publish-safe seams unless evidence requires it.
+
 ## Focused verification
 Run from:
 `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-vite`
@@ -111,3 +155,5 @@ Run from:
 - `deno task test --trace-leaks ./src/m.vite/-test/-wrangle.test.ts`
 - `deno task test --trace-leaks ./src/m.vite/-test/-build.test.ts`
 - `deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts`
+- `deno task test --trace-leaks ./-scripts/-test/-task.prep.test.ts`
+- `deno task dry`

@@ -156,6 +156,27 @@ After the initial commit series lands:
 7. keep notes/docs separate unless intentionally documenting the probe line in history
 8. after the commit series, consider a narrow hardening/distillation pass rather than a rewrite
 
+## Next post-checkpoint plan
+After the current clean commit / CI checkpoint, the next frontier is a package-build sweep rather than more `driver-vite` publish-surface work.
+
+### Goal
+- mirror the CI `deno task build` package set locally
+- identify which Vite-backed packages fail
+- classify by blocker class
+- fix one class at a time with the narrowest owning seam
+
+### Known initial blocker classes
+1. staged/generated package build strictness around declared `esbuild` authority
+2. self-hosted Vite native config loading of local workspace source while root import-map authority is ignored
+
+### Method
+1. inspect the CI build workflow/package list
+2. run matching local `deno task build` commands
+3. group failures by first decisive blocker
+4. fix the smallest owning seam
+5. rerun only the affected package build lane
+6. do not reopen already-green publish-safe seams unless the new evidence directly points there
+
 ## Verification baseline
 Run from:
 ```bash
@@ -164,6 +185,8 @@ cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-vite
 deno task test --trace-leaks ./src/m.vite/-test/-wrangle.test.ts
 deno task test --trace-leaks ./src/m.vite/-test/-build.test.ts
 deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
+deno task test --trace-leaks ./-scripts/-test/-task.prep.test.ts
+deno task dry
 ```
 
 ## Anticipated commit messages
