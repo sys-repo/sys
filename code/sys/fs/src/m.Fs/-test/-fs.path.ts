@@ -1,4 +1,4 @@
-import { Path as StdPath } from '@sys/std';
+import { Path as StdPath } from '@sys/std/path';
 import { describe, expect, it } from '../../-test.ts';
 import { Path } from '../common.ts';
 import { Fs } from '../mod.ts';

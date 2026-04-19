@@ -1,3 +1,13 @@
-export { Args, Arr, Err, Is, Log, Num, Obj, Path, Pkg, slug, Str, Time, Try, Url } from '@sys/std';
+export { Args } from '@sys/std/args';
+export { Arr } from '@sys/std/arr';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
+export { Path } from '@sys/std/path';
+export { slug } from '@sys/std/random';
+export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
+export { Log, Obj, Pkg, Try } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

@@ -6,7 +6,8 @@
 import { Crdt } from '@sys/driver-automerge/web';
 import { Url } from '@sys/std';
 
-export { Log, Url } from '@sys/std';
+export { Url } from '@sys/std/url';
+export { Log } from '@sys/std';
 export { Crdt };
 
 /**

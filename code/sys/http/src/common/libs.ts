@@ -1,4 +1,11 @@
-export { Args, Dispose, Err, Is, isObject, isRecord, Log, Path, Pkg, R, Str, Try, Url } from '@sys/std';
+export { Args } from '@sys/std/args';
+export { Err } from '@sys/std/error';
+export { Is, isObject, isRecord } from '@sys/std/is';
+export { Path } from '@sys/std/path';
+export { R } from '@sys/std/r';
+export { Str } from '@sys/std/str';
+export { Url } from '@sys/std/url';
+export { Dispose, Log, Pkg, Try } from '@sys/std';
 export { Await } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time } from '@sys/std/time';

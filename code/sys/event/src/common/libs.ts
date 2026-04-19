@@ -1,3 +1,10 @@
-export { Arr, Err, Is, Json, Obj, Pkg, Str, Time, slug } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
+export { slug } from '@sys/std/random';
+export { Obj, Pkg } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

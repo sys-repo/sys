@@ -1,18 +1,14 @@
-export {
-  Arr,
-  Date,
-  Delete,
-  Is,
-  Json,
-  JsrUrl,
-  Num,
-  Obj,
-  R,
-  Str,
-  Time,
-  isRecord,
-  slug,
-} from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Date, Time } from '@sys/std/time';
+export { Delete } from '@sys/std/delete';
+export { Is, isRecord } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { JsrUrl } from '@sys/std/url';
+export { Num } from '@sys/std/num';
+export { R } from '@sys/std/r';
+export { Str } from '@sys/std/str';
+export { slug } from '@sys/std/random';
+export { Obj } from '@sys/std';
 export { Err } from '@sys/std/error';
 export { Ignore } from '@sys/std/ignore';
 export { Path as StdPath } from '@sys/std/path';
