@@ -1,6 +1,7 @@
 import { Fs, Path, type t } from './common.ts';
 import { transform } from 'npm:esbuild@0.28.0';
 import { toViteNpmSpecifier } from './u.npm.ts';
+import { parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
 
 export type DenoLoadResult =
   | string
@@ -12,10 +13,13 @@ export type DenoLoadResult =
 export async function loadDenoModule(
   id: string,
   dependencies: readonly t.DenoDependency[] = [],
+  options: {
+    readonly browserIds?: boolean;
+  } = {},
 ): Promise<DenoLoadResult> {
   const { loader, resolved } = parseDenoSpecifier(id);
   const original = (await Fs.readText(resolved)).data ?? '';
-  const content = rewriteResolvedImports(original, dependencies);
+  const content = rewriteResolvedImports(original, dependencies, options);
 
   if (loader === 'JavaScript') return content;
   if (loader === 'Json') return `export default ${content}`;
@@ -27,7 +31,7 @@ export async function loadDenoModule(
   });
 
   const map = result.map === '' ? null : result.map;
-  return { code: rewriteResolvedImports(result.code, dependencies), map };
+  return { code: rewriteResolvedImports(result.code, dependencies, options), map };
 }
 
 export function mediaTypeToLoader(media: string) {
@@ -50,9 +54,12 @@ export function mediaTypeToLoader(media: string) {
 function rewriteResolvedImports(
   content: string,
   dependencies: readonly t.DenoDependency[],
+  options: {
+    readonly browserIds?: boolean;
+  },
 ): string {
   return dependencies.reduce((next, dependency) => {
-    const target = resolvedImportSpecifier(dependency);
+    const target = resolvedImportSpecifier(dependency, options);
     if (target === dependency.specifier) return next;
 
     const sources = new Set<string>([dependency.specifier]);
@@ -67,10 +74,17 @@ function rewriteResolvedImports(
   }, content);
 }
 
-function resolvedImportSpecifier(dependency: t.DenoDependency) {
+function resolvedImportSpecifier(
+  dependency: t.DenoDependency,
+  options: {
+    readonly browserIds?: boolean;
+  },
+) {
   const { resolvedSpecifier: specifier, localPath } = dependency;
   if (localPath && dependency.loader && isRemoteLike(specifier)) {
-    return toBrowserDenoSpecifier(dependency.loader, specifier, localPath);
+    return options.browserIds
+      ? toBrowserDenoSpecifier(dependency.loader, specifier, localPath)
+      : toDenoSpecifier(dependency.loader, specifier, localPath);
   }
   if (specifier.startsWith('file://')) return Path.fromFileUrl(specifier);
   if (specifier.startsWith('npm:')) return specifier;
@@ -96,13 +110,4 @@ function rewriteImportSpecifier(content: string, source: string, target: string)
     .replaceAll(`from "${source}"`, `from "${target}"`)
     .replaceAll(`import('${source}')`, `import('${target}')`)
     .replaceAll(`import("${source}")`, `import("${target}")`);
-}
-
-export function parseDenoSpecifier(spec: string) {
-  const [_, loader, id, posixPath] = spec.split('::');
-  return {
-    loader,
-    id,
-    resolved: Path.normalize(posixPath),
-  };
 }

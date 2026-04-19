@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
-import { loadDenoModule, mediaTypeToLoader, parseDenoSpecifier } from '../u.load.ts';
-import { toDenoSpecifier } from '../u.resolve.ts';
+import { loadDenoModule, mediaTypeToLoader } from '../u.load.ts';
+import { parseDenoSpecifier, toDenoSpecifier } from '../u.specifier.ts';
 
 describe('ViteTransport.load', () => {
   describe('specifier parsing', () => {
@@ -51,8 +51,30 @@ describe('ViteTransport.load', () => {
       await Fs.remove(fs.absolute);
     });
 
-    it('rewrites remote deno children to wrapped browser ids', async () => {
+    it('rewrites remote deno children to wrapped browser ids for dev transport', async () => {
       const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.remote.' });
+      const path = Fs.join(fs.absolute, 'mod.js');
+      const child = '/tmp/deno-cache/child.ts';
+      await Fs.write(path, "export { value } from 'https://jsr.io/@std/path/1.1.4/value.ts';");
+
+      const res = await loadDenoModule(toDenoSpecifier('JavaScript', './mod.js', path), [
+        {
+          specifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+          resolvedSpecifier: 'https://jsr.io/@std/path/1.1.4/value.ts',
+          localPath: child,
+          loader: 'TypeScript',
+        },
+      ], { browserIds: true });
+
+      expect(res).to.eql(
+        "export { value } from '/@id/__x00__deno::TypeScript::https://jsr.io/@std/path/1.1.4/value.ts::/tmp/deno-cache/child.ts';",
+      );
+
+      await Fs.remove(fs.absolute);
+    });
+
+    it('rewrites remote deno children to deno specifiers for build transport', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteTransport.load.remote-build.' });
       const path = Fs.join(fs.absolute, 'mod.js');
       const child = '/tmp/deno-cache/child.ts';
       await Fs.write(path, "export { value } from 'https://jsr.io/@std/path/1.1.4/value.ts';");
@@ -67,7 +89,7 @@ describe('ViteTransport.load', () => {
       ]);
 
       expect(res).to.eql(
-        "export { value } from '/@id/__x00__deno::TypeScript::https://jsr.io/@std/path/1.1.4/value.ts::/tmp/deno-cache/child.ts';",
+        `export { value } from '${toDenoSpecifier('TypeScript', 'https://jsr.io/@std/path/1.1.4/value.ts', child)}';`,
       );
 
       await Fs.remove(fs.absolute);

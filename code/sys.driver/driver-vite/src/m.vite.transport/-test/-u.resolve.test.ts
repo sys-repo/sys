@@ -1,12 +1,10 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
 import { type t } from '../common.ts';
+import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u.specifier.ts';
 import {
   createResolvePlugin,
-  isDenoSpecifier,
-  parseDenoSpecifier,
   resolveDenoWith,
   resolveViteSpecifier,
-  toDenoSpecifier,
 } from '../u.resolve.ts';
 import { procOutput } from './u.fixture.ts';
 
