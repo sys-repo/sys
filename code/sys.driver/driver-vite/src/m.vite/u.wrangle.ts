@@ -228,15 +228,29 @@ const wrangle = {
   },
 
   esbuildVersion(cwd: string) {
+    const declared = wrangle.declaredEsbuildVersion(cwd);
+    if (declared) return declared;
+
+    const resolved = wrangle.esbuildRequire(cwd).resolve('esbuild');
+    const match = resolved.match(/[\\/]\.deno[\\/]esbuild@([^\\/]+)[\\/]/);
+    if (match?.[1]) return match[1];
+
+    throw new Error(`Failed to resolve esbuild version from consumer package boundary or runtime path: ${cwd}`);
+  },
+
+  declaredEsbuildVersion(cwd: string) {
     const anchor = wrangle.packageAnchor(cwd);
-    const manifest = Deno.readTextFileSync(anchor);
-    const pkg = JSON.parse(manifest) as {
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-    };
-    const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
-    if (!version) throw new Error(`Failed to resolve declared esbuild version from consumer package boundary: ${cwd}`);
-    return version.replace(/^[~^]/, '');
+    try {
+      const manifest = Deno.readTextFileSync(anchor);
+      const pkg = JSON.parse(manifest) as {
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
+      return version.replace(/^[~^]/, '');
+    } catch {
+      return '';
+    }
   },
 
   esbuildPackage(version?: string) {

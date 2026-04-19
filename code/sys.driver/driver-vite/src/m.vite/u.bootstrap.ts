@@ -43,17 +43,39 @@ export const Bootstrap = {
 const bootstrap = {
   async source(cwd: string): Promise<BootstrapSource> {
     const deno = await DenoFile.nearest(cwd);
-    if (!deno) {
-      return { dir: cwd, imports: {}, json: {} };
-    }
+    const workspaceRoot = await DenoFile.Path.nearest(cwd, (e) => Array.isArray(e.file.workspace));
+    const nearest = deno ? await bootstrap.sourceFromDenoFile(deno.dir, deno.file) : undefined;
+    const root = workspaceRoot ? await bootstrap.sourceFromPath(workspaceRoot) : undefined;
 
-    const inlineImports = bootstrap.toStringRecord(deno.file.imports);
-    const importMapRef = deno.file.importMap;
+    const baseDir = nearest?.dir ?? root?.dir ?? cwd;
+    return {
+      dir: baseDir,
+      imports: {
+        ...(root?.imports ?? {}),
+        ...(nearest?.imports ?? {}),
+      },
+      json: {
+        ...(root?.json ?? {}),
+        ...(nearest?.json ?? {}),
+      },
+    };
+  },
+
+  async sourceFromPath(path: string) {
+    const loaded = await Fs.readJson<t.DenoFileJson>(path);
+    return loaded.ok && loaded.data
+      ? await bootstrap.sourceFromDenoFile(Path.dirname(path), loaded.data)
+      : undefined;
+  },
+
+  async sourceFromDenoFile(dir: string, file: t.DenoFileJson): Promise<BootstrapSource> {
+    const inlineImports = bootstrap.toStringRecord(file.imports);
+    const importMapRef = file.importMap;
     if (!Is.str(importMapRef) || importMapRef.trim().length === 0) {
-      return { dir: deno.dir, imports: inlineImports, json: {} };
+      return { dir, imports: inlineImports, json: {} };
     }
 
-    const path = Path.resolve(deno.dir, importMapRef);
+    const path = Path.resolve(dir, importMapRef);
     const current = await Fs.readJson<t.Json>(path);
     const json =
       current.ok && Is.record<Record<string, unknown>>(current.data)
