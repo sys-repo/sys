@@ -58,7 +58,7 @@ deno.json:
   - import: jsr:@cliffy/prompt@1.0.0
   - import: jsr:@cliffy/table@1.0.0
   - import: npm:date-fns@4.1.0
-  - import: npm:diff@8.0.4
+  - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
@@ -66,7 +66,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.3.0
-  - import: npm:@mariozechner/pi-coding-agent@0.67.67
+  - import: npm:@mariozechner/pi-coding-agent@0.67.68
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
