@@ -1,4 +1,4 @@
-# PLAN — driver-vite Vite 8 commit distillation and post-commit hardening
+# PLAN — driver-vite Vite 8 merge distillation and final hardening
 
 ## Scope
 - Package: `code/sys.driver/driver-vite`
@@ -156,38 +156,51 @@ After the initial commit series lands:
 7. keep notes/docs separate unless intentionally documenting the probe line in history
 8. after the commit series, consider a narrow hardening/distillation pass rather than a rewrite
 
-## Next post-checkpoint plan
-After the current clean commit / CI checkpoint, the next frontier is a package-build sweep rather than more `driver-vite` publish-surface work.
+## Latest additional landed work
+Since the earlier checkpoint, these commits are also part of the earned line:
+- `fix(driver-vite): merge workspace import authority into vite bootstrap`
+- `fix(driver-vite): keep dev-only deno transport ids out of production bundles`
 
-### Goal
-- mirror the CI `deno task build` package set locally
-- identify which Vite-backed packages fail
-- classify by blocker class
-- fix one class at a time with the narrowest owning seam
+### Latest hardening seam
+- A real production build bug was found after the earlier Vite 8 runtime fixes:
+  - dev-only Deno browser ids leaked into built `dist` assets
+  - static serve then 404ed those ids
+- That seam is now fixed in `src/m.vite.transport`
+- The fix is principled:
+  - dev path => browser ids
+  - build path => encoded Deno specifiers
+- The implementation was cleaned before accepting it:
+  - transport specifier helpers were split to `src/m.vite.transport/u.specifier.ts`
+  - avoids leaving a `u.load.ts <-> u.resolve.ts` cycle in the final line
 
-### Known initial blocker classes
-1. staged/generated package build strictness around declared `esbuild` authority
-2. self-hosted Vite native config loading of local workspace source while root import-map authority is ignored
+## Current goal
+- Put the branch down responsibly
+- Do not keep opening new product seams unless merge gating reveals a real blocker
+- Finalize notes, verification posture, and merge hygiene
 
-### Method
-1. inspect the CI build workflow/package list
-2. run matching local `deno task build` commands
-3. group failures by first decisive blocker
-4. fix the smallest owning seam
-5. rerun only the affected package build lane
-6. do not reopen already-green publish-safe seams unless the new evidence directly points there
-
-## Verification baseline
+## Current verification baseline
 Run from:
 ```bash
 cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-vite
 
-deno task test --trace-leaks ./src/m.vite/-test/-wrangle.test.ts
-deno task test --trace-leaks ./src/m.vite/-test/-build.test.ts
-deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts
-deno task test --trace-leaks ./-scripts/-test/-task.prep.test.ts
-deno task dry
+deno task test --trace-leaks ./src/m.vite.transport/-test/-u.load.test.ts ./src/m.vite.transport/-test/-u.resolve.test.ts
+deno task test --trace-leaks ./src/m.vite/-test/-build.transitive-jsr.test.ts
 ```
+
+Then rely on the branch CI / merge gate suite already in place.
+
+## Current decision rule
+1. If the focused transport/build proofs and branch CI are green, stop.
+2. If a new failure appears, classify it before editing:
+   - same solved seam? then reject reopening without evidence
+   - new seam? isolate it narrowly
+3. Keep unrelated upstream/toolchain noise out of this line unless it is reproducible and blocking.
+
+## Explicit non-goals from here
+- do not reopen the earlier package-build sweep as the default next move
+- do not reopen published-fixture config-path experiments pre-publish
+- do not mix the transient `vite:oxc` `TsconfigCache` first-run warning into the transport fix line
+- do not rewrite the transport layer now that the behavioral line is proven
 
 ## Anticipated commit messages
 Mechanical/noise:
@@ -198,19 +211,13 @@ Working-set candidates:
 - `fix(driver-vite): stabilize vite 8 child build and dev runtime` ✅ landed
 - `refactor(driver-vite): narrow local common import surfaces` ✅ landed
 - `test(driver-vite): align transport prefix tests with current plugin context` ✅ landed
+- `fix(driver-vite): merge workspace import authority into vite bootstrap` ✅ landed
+- `fix(driver-vite): keep dev-only deno transport ids out of production bundles` ✅ landed
 - `docs(driver-vite): refresh vite 8 probe notes`
 
-## Latest hardening outcome
-- The previously excluded post-commit residue frontier has now been pushed through
-- Resolved seams:
-  - `ViteConfig.fromFile`
-    - test coverage now runs through a child-process probe rather than triggering rolldown signal listeners in the parent test process
-  - `Vite.build (transitive jsr)`
-    - now stays on explicit `paths` and no longer re-enters the parent `fromFile` leak path
-  - `Vite.build (workspace composition)`
-    - now stays on explicit `paths`
-    - uses local bridge imports plus explicit workspace authority in the copied fixture config
-    - no longer fails on the earlier native local-config-loading / linked workspace authority frontier
-- Result:
-  - `deno task test --trace-leaks` is green for `code/sys.driver/driver-vite`
-- Any further work from here should be distillation / cleanup only, not frontier rescue
+## Current merge posture
+- This line is now in distillation mode, not rescue mode
+- The only remaining acceptable work before merge is:
+  - note refresh
+  - final focused verification
+  - merge hygiene

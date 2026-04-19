@@ -1,4 +1,4 @@
-# CTX — Vite 8 probe current state
+# CTX — Vite 8 hardening current state
 
 ## Scope
 - Package: `code/sys.driver/driver-vite`
@@ -121,39 +121,68 @@
   - `deno task dry`
 - A small follow-up stale test expectation in `src/m.vite/-test/-wrangle.test.ts` was also corrected so that it asserts the consumer fixture's declared `esbuild` version rather than the workspace-root version.
 
-## Next frontier after compact
-- Scope shift:
-  - stop working the publish-safe `driver-vite` seam
-  - start a broader CI/package build sweep for Vite-backed packages using `deno task build`
-- Known failure classes already observed:
-  1. `driver-deno` staged/generated tmpl package build
-     - failure shape:
-       - `Failed to resolve declared esbuild version from consumer package boundary`
-     - likely cause:
-       - generated/staged package does not declare `esbuild`, but `driver-vite` now prefers declared consumer authority
-     - this is a narrower local build-authority seam, distinct from the broader config-loader residue class
-  2. CI / package `deno task build` failures during Vite config loading
-     - example shape:
-       - `Import "strip-ansi" not a dependency and not in import map`
-       - from local workspace source like `code/sys/std/src/m.Ansi/common.ts`
-     - best current read:
-       - this is the self-hosted local config/module loading residue where Vite native config loading ignores root import-map authority for linked local workspace files
-- Important classification:
-  - these two failure classes are related to Deno/Vite authority, but they are not the same blocker and should not be conflated
+## Latest production hardening result
+- A real production/output bug was found after the earlier Vite 8 build fixes:
+  - built `dist` assets were leaking dev-only browser transport ids such as:
+    - `/@id/__x00__deno::...`
+  - static serving then 404ed those ids as expected
+- The decisive proof was:
+  - built output in `code/sys.ui/ui-react-components/dist` contained `/@id/__x00__deno::...`
+  - the bug was therefore in production build output, not in the static server
 
-## Resume plan
-1. Read the current CI build workflow/package build set.
-2. Enumerate local `deno task build` failures across that same set.
-3. Classify failures by blocker class before fixing anything broad.
-4. Patch one class at a time, rerunning only the affected package build lane.
-5. Keep the first decisive blocker for each package; do not reopen solved publish-safe seams unless evidence requires it.
+## Latest landed fix
+- Landed:
+  - `fix(driver-vite): keep dev-only deno transport ids out of production bundles`
+- Owning seam:
+  - `src/m.vite.transport`
+- Final design:
+  - dev transport keeps browser ids
+  - build transport emits encoded Deno specifiers instead
+  - production bundles no longer carry dev-only `/@id/__x00__deno...` ids
+- Hardening shape:
+  - added a small shared specifier utility:
+    - `src/m.vite.transport/u.specifier.ts`
+  - this removed the temporary `u.load.ts -> u.resolve.ts` cycle introduced during the fix
+
+## Latest verification
+- Focused transport proofs are green:
+  - `src/m.vite.transport/-test/-u.load.test.ts`
+  - `src/m.vite.transport/-test/-u.resolve.test.ts`
+- Production artifact proof is green:
+  - `src/m.vite/-test/-build.transitive-jsr.test.ts`
+  - asserts built JS does not contain `/@id/__x00__deno::`
+- Real package smoke is green:
+  - rebuilt `code/sys.ui/ui-react-components`
+  - verified fresh static output no longer contains dev transport ids
+  - user smoke test passed
+
+## Current classification
+- The previous package-build sweep blockers were real and useful, but they are no longer the active frontier for this note
+- Current state is no longer frontier rescue
+- Current state is:
+  - earned Vite 8 line working
+  - post-commit hardening materially advanced
+  - remaining work should be verification, note hygiene, and merge hygiene
+
+## Current open caution
+- A separate first-run local dev warning was observed:
+  - `Failed to recover TsconfigCache type from napi value`
+  - plugin: `vite:oxc`
+- Best current read:
+  - upstream/transient Vite 8 / OXC issue
+  - not the same seam as the transport-id production leak
+  - keep it out of the transport fix line unless it becomes reproducible and blocking
+
+## Merge posture
+1. Keep the earned behavioral fixes as-is.
+2. Do not reopen solved bootstrap or transport seams without new evidence.
+3. Run the narrow verification set we actually stand behind.
+4. Treat the next move as merge/distillation, not more frontier hacking.
 
 ## Focused verification
 Run from:
 `cd /Users/phil/code/org.sys/sys/code/sys.driver/driver-vite`
 
-- `deno task test --trace-leaks ./src/m.vite/-test/-wrangle.test.ts`
-- `deno task test --trace-leaks ./src/m.vite/-test/-build.test.ts`
-- `deno task test --trace-leaks ./src/m.vite/-test/-dev.test.ts`
-- `deno task test --trace-leaks ./-scripts/-test/-task.prep.test.ts`
-- `deno task dry`
+- `deno task test --trace-leaks ./src/m.vite.transport/-test/-u.load.test.ts ./src/m.vite.transport/-test/-u.resolve.test.ts`
+- `deno task test --trace-leaks ./src/m.vite/-test/-build.transitive-jsr.test.ts`
+- plus the normal branch/CI checks already used for merge gating
