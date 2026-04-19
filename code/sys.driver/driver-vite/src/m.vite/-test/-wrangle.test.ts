@@ -17,8 +17,9 @@ describe('Vite.Wrangle', () => {
   it('build: scopes child permissions to esbuild, deno, and localhost dns only', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.build-' });
     const root = tmp.absolute;
+    const consumerEsbuild = '0.27.4';
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '8.0.2', esbuild: '0.27.4', '@vitejs/plugin-react': '6.0.1' },
+      dependencies: { vite: '8.0.2', esbuild: consumerEsbuild, '@vitejs/plugin-react': '6.0.1' },
     });
     await Fs.writeJson(`${root}/deno.json`, { imports: { '@sys/http': './src/http.ts' } });
     const paths = {
@@ -64,7 +65,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${versions.vite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${versions.esbuild}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
 
     await res.dispose();
     expect(importMapPath ? await Fs.exists(importMapPath) : false).to.eql(false);
@@ -73,8 +74,9 @@ describe('Vite.Wrangle', () => {
   it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.dev-' });
     const root = tmp.absolute;
+    const consumerEsbuild = '0.27.4';
     await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '8.0.2', esbuild: '0.27.4' },
+      dependencies: { vite: '8.0.2', esbuild: consumerEsbuild },
     });
     const paths = {
       cwd: root,
@@ -99,7 +101,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${versions.vite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${versions.esbuild}`);
+    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
     expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
     await res.dispose();
   });
