@@ -3,7 +3,9 @@ import { type t, c, Cli, Path } from './common.ts';
 /**
  * Workspace logging helpers.
  */
-export const Log = {
+export const Log: {
+  toString(ws: t.ViteDenoWorkspace, options?: { pad?: boolean }): string;
+} = {
   toString(ws: t.ViteDenoWorkspace, options: { pad?: boolean } = {}) {
     let res = '';
     const line = (...parts: string[]) => (res += `\n${parts.join(' ')}`);
@@ -61,4 +63,4 @@ export const Log = {
     res = res.trim();
     return options.pad ? `\n${res}\n` : res;
   },
-} as const;
+};
