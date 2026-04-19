@@ -36,4 +36,5 @@ export { Url } from '../m.Url/mod.ts';
 export { Date, Duration, Time } from './-time.ts';
 
 /** Value utilities */
-export { Arr, Num, Obj, R, Str, asArray, isEmptyRecord, isObject, isRecord } from './-value.ts';
+export { Arr, Num, Obj, Str, asArray, isEmptyRecord, isObject, isRecord } from './-value.ts';
+export { R } from './-r.ts';
