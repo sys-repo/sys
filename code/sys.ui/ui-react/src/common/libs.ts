@@ -1,8 +1,10 @@
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
-export { Obj, Pkg, Try } from '@sys/std';
+export { Obj, Try } from '@sys/std';
+export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
-export { Time, Timecode } from '@sys/std/time';
+export { Time } from '@sys/std/time';
+export { Timecode } from '@sys/std/timecode';
 export { Color, css } from '@sys/ui-css';
 export { Kbd } from '@sys/ui-dom';

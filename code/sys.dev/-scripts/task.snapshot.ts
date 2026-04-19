@@ -1,7 +1,10 @@
 import * as t from '@sys/types/t';
 
 import { c, Cli } from '@sys/cli';
-import { Time, Str, slug, Is, Obj } from '@sys/std';
+import { Obj, Str } from '@sys/std';
+import { Time } from '@sys/std/time';
+import { Is } from '@sys/std/is';
+import { slug } from '@sys/std/random';
 import { Fs } from '@sys/fs';
 import { Crdt } from '@sys/driver-automerge/fs';
 import { CrdtRef } from '@sys/driver-automerge/t';

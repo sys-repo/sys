@@ -1,4 +1,4 @@
-import { Json } from '@sys/std';
+import { Json } from '@sys/std/json';
 import { type t } from '@sys/workspace';
 import { toPassthroughCouplings } from './u.passthrough.ts';
 
@@ -50,7 +50,8 @@ const wrangle = {
 
   tmplRepoCouplings(): readonly t.WorkspaceBump.PackageEdge[] {
     const pkgByName = wrangle.workspacePackagePaths();
-    const imports = wrangle.readJson<{ imports?: Record<string, string> }>(PATHS.tmplRepoImports).imports ?? {};
+    const imports =
+      wrangle.readJson<{ imports?: Record<string, string> }>(PATHS.tmplRepoImports).imports ?? {};
     const tmplPath = 'code/-tmpl';
     const seen = new Set<string>();
 
@@ -66,11 +67,15 @@ const wrangle = {
 
   workspacePackagePaths() {
     const root = wrangle.readJson<{ workspace?: unknown }>(PATHS.rootDenoJson);
-    const workspace = Array.isArray(root.workspace) ? root.workspace.filter((value): value is string => typeof value === 'string') : [];
+    const workspace = Array.isArray(root.workspace)
+      ? root.workspace.filter((value): value is string => typeof value === 'string')
+      : [];
     const map = new Map<string, string>();
 
     for (const pkgPath of workspace) {
-      const deno = wrangle.readJson<{ name?: unknown }>(new URL(`../${pkgPath}/deno.json`, import.meta.url));
+      const deno = wrangle.readJson<{ name?: unknown }>(
+        new URL(`../${pkgPath}/deno.json`, import.meta.url),
+      );
       if (typeof deno.name !== 'string' || deno.name.length === 0) continue;
       map.set(deno.name, pkgPath);
     }

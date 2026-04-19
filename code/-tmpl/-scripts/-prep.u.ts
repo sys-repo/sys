@@ -3,7 +3,10 @@ import type { DenoFileLib, Dep as DenoDep } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import { Jsr } from '@sys/registry/jsr/client';
 import { c } from '@sys/cli';
-import { Is, Json, Str, Time } from '@sys/std';
+import { Str } from '@sys/std';
+import { Is } from '@sys/std/is';
+import { Json } from '@sys/std/json';
+import { Time } from '@sys/std/time';
 import type * as t from '@sys/types';
 
 export type ImportMap = { imports: Record<string, string> };
@@ -45,8 +48,9 @@ export function syncTemplateImports(
   packageVersions: PackageVersions,
 ): ImportMap {
   const next = structuredClone(input);
-  next.imports = syncByKey(next.imports, (key) =>
-    resolveImportValue(key, authority.imports, packageVersions),
+  next.imports = syncByKey(
+    next.imports,
+    (key) => resolveImportValue(key, authority.imports, packageVersions),
   );
   return next;
 }
@@ -215,11 +219,15 @@ export async function resolvePublishedPackageVersions(
 
       const version = await denoFile.workspaceVersion(pkg, rootDenoJson, { walkup: false });
       if (!Is.str(version)) {
-        throw new Error(`Missing workspace version authority for package "${pkg}": ${rootDenoJson}`);
+        throw new Error(
+          `Missing workspace version authority for package "${pkg}": ${rootDenoJson}`,
+        );
       }
 
       console.info(Str.dedent(`
-        ${c.gray('notice')}  ${c.yellow(`"${pkg}"`)} ${c.gray('is not yet published on JSR; using local workspace version')} ${c.green(version)} ${c.gray('(expected transient state before first publish).')}
+        ${c.gray('notice')}  ${c.yellow(`"${pkg}"`)} ${
+        c.gray('is not yet published on JSR; using local workspace version')
+      } ${c.green(version)} ${c.gray('(expected transient state before first publish).')}
       `));
 
       return [pkg, version] as const;

@@ -1,2 +1,7 @@
 export { Color, COLORS } from '@sys/color';
-export { Delete, Is, isObject, isRecord, Obj, R, slug, Str, Time } from '@sys/std';
+export { isObject, isRecord, Obj, Str } from '@sys/std';
+export { Delete } from '@sys/std/delete';
+export { Is } from '@sys/std/is';
+export { slug } from '@sys/std/random';
+export { R } from '@sys/std/r';
+export { Time } from '@sys/std/time';

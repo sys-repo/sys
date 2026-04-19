@@ -1,2 +1,4 @@
 export { Jsr } from '@sys/registry/jsr';
-export { Is, Str, Time } from '@sys/std';
+export { Str } from '@sys/std';
+export { Is } from '@sys/std/is';
+export { Time } from '@sys/std/time';

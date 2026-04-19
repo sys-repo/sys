@@ -1,5 +1,10 @@
 export { Cmd } from '@sys/event/cmd';
-export { Arr, Err, Is, Log, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
+export { Arr, Num, Obj, Str, Try } from '@sys/std';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Log } from '@sys/std/log';
+export { Pkg } from '@sys/std/pkg';
+export { Time } from '@sys/std/time';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Timecode } from '@sys/std/timecode';

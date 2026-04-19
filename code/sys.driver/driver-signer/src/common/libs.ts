@@ -1,4 +1,11 @@
 export { Fs, Pkg as FsPkg } from '@sys/fs';
-export { Arr, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time } from '@sys/std';
+export { Num, Obj, Str } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Log } from '@sys/std/log';
+export { Pkg } from '@sys/std/pkg';
+export { Time } from '@sys/std/time';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

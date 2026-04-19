@@ -3,5 +3,5 @@
  * Tools for working with time and date.
  */
 export { Date } from '../m.Time.Date/mod.ts';
-export { Timecode } from '../m.Timecode/mod.ts';
-export { Duration, Time } from '../m.Time/mod.ts';
+export { Time } from '../m.Time/m.Time.ts';
+export { Duration } from '../m.Time/m.Time.Duration.ts';

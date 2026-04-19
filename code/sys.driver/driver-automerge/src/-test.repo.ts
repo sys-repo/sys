@@ -4,9 +4,10 @@
  * No UI modules leak into this boundary.
  */
 import { Crdt } from '@sys/driver-automerge/web';
-import { type t, Url, slug } from './common.ts';
+import { slug, type t } from './common.ts';
 
-export { Log, Url } from '@sys/std';
+export { Log } from '@sys/std/log';
+import { Url } from '@sys/std/url';
 export { Crdt };
 
 /**

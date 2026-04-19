@@ -4,10 +4,10 @@
  * No UI modules leak into this boundary.
  */
 import { Crdt } from '@sys/driver-automerge/web';
-import { Url } from '@sys/std';
+import { Url } from '@sys/std/url';
 
 export { Url } from '@sys/std/url';
-export { Log } from '@sys/std';
+export { Log } from '@sys/std/log';
 export { Crdt };
 
 /**

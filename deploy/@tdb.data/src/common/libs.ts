@@ -2,7 +2,15 @@
  * Standard Libs:
  */
 export { Schema } from '@sys/schema';
-export { Arr, Err, Is, Json, Log, Num, Obj, Path, Pkg, Str, Time, Try, Url } from '@sys/std';
+export { Arr, Num, Obj, Str, Try } from '@sys/std';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Log } from '@sys/std/log';
+export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';
 export { Ignore } from '@sys/std/ignore';
 export { Rx } from '@sys/std/rx';

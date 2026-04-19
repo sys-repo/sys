@@ -10,7 +10,10 @@
 const now = new Date();
 
 import { Jsr } from '@sys/registry/jsr';
-import { Args, Date as D, Path, Str, Time } from '@sys/std';
+import { Str } from '@sys/std';
+import { Args } from '@sys/std/args';
+import { Path } from '@sys/std/path';
+import { Date as D, Time } from '@sys/std/time';
 import { IndexedDb } from '@sys/std/indexeddb';
 import { Rx } from '@sys/std/rx';
 import { Semver } from '@sys/std/semver';

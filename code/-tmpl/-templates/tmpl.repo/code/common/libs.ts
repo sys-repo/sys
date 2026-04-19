@@ -1,4 +1,6 @@
-export { Log, Obj, Pkg, Try } from '@sys/std';
+export { Obj, Try } from '@sys/std';
+export { Log } from '@sys/std/log';
+export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Arr } from '@sys/std/arr';
 export { Err } from '@sys/std/error';

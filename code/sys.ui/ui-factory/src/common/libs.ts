@@ -1,6 +1,10 @@
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Type } from '@sys/schema';
-export { Arr, Err, Is, Num, Obj, Pkg, Str, Time } from '@sys/std';
+export { Arr, Num, Obj, Str } from '@sys/std';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Pkg } from '@sys/std/pkg';
+export { Time } from '@sys/std/time';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Signal } from '@sys/ui-react';

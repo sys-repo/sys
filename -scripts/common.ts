@@ -1,7 +1,14 @@
-export { Args, Arr, Err, Is, Json, Path, R, Str, Time } from '@sys/std';
+export { Arr, Str } from '@sys/std';
+export { Args } from '@sys/std/args';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Path } from '@sys/std/path';
+export { R } from '@sys/std/r';
 export { Semver } from '@sys/std/semver/server';
+export { Time } from '@sys/std/time';
 
-export { Cli, c } from '@sys/cli';
+export { c, Cli } from '@sys/cli';
 export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';

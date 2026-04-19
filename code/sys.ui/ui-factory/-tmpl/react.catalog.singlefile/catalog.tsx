@@ -13,7 +13,7 @@
 import React from 'react';
 
 import { Type } from '@sys/schema';
-import { Is } from '@sys/std';
+import { Is } from '@sys/std/is';
 import { Color, css } from '@sys/ui-css';
 import { Factory } from '@sys/ui-factory/core';
 
@@ -68,7 +68,7 @@ function TwoColumn(props: {
   };
 
   return (
-    <section className={styles.base.class} data-layout="two">
+    <section className={styles.base.class} data-layout='two'>
       <div className={styles.area.class}>
         <div className={styles.label.class}>Left</div>
         {props.Left}
@@ -110,7 +110,7 @@ function Panel(props: {
       {props.body && <div className={styles.body.class}>{props.body}</div>}
       <div className={styles.code.class}>{`count = ${wrap(props.count)}`}</div>
       {/* Nested slot is optional; safe when omitted */}
-      {props.Inner && <div data-slot="Inner">{props.Inner}</div>}
+      {props.Inner && <div data-slot='Inner'>{props.Inner}</div>}
     </article>
   );
 }

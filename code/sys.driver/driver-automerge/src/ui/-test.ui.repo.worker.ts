@@ -1,5 +1,5 @@
 import { Is } from '@sys/std/is';
-import { Log } from '@sys/std';
+import { Log } from '@sys/std/log';
 import { Crdt } from '../-exports/-web/mod.ts';
 import type { t } from './common.ts';
 

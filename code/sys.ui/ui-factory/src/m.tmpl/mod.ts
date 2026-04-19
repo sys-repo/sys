@@ -2,8 +2,9 @@
  * @module
  * File-system templates for `@sys/ui-factory`.
  */
-import { Args, c, Cli } from '@sys/cli';
+import { c, Cli } from '@sys/cli';
 import { Str } from '@sys/std';
+import { Args } from '@sys/std/args';
 import { Fs, TmplEngine } from '@sys/tmpl-engine';
 import type { t } from '../common.ts';
 import { pkg } from '../pkg.ts';
@@ -27,7 +28,7 @@ export async function run(
   const inScope = (p: string) => p === bundleRoot || p.startsWith(prefix);
 
   const tmpl = TmplEngine.makeTmpl(json, { processFile }).filter((e: t.FileMapFilterArgs) =>
-    inScope(e.path),
+    inScope(e.path)
   );
   return tmpl.write(targetDir, { dryRun, force });
 }

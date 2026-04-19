@@ -1,12 +1,12 @@
-import { Args } from '@sys/std';
+import { Args } from '@sys/std/args';
 import { Fs } from '@sys/fs';
 import { Cli } from '@sys/cli';
 import type * as t from '@sys/types';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import {
+  assertImportMap,
   PATH,
   PublishedVersion,
-  assertImportMap,
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
@@ -38,7 +38,9 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const [repoDepsText, repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
     Fs.readText(path.tmplRepoDeps).then((res) => {
-      if (!res.ok || res.data === undefined) throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+      if (!res.ok || res.data === undefined) {
+        throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+      }
       return res.data;
     }),
     readJson<t.Json>(path.tmplRepoImports),
@@ -71,7 +73,10 @@ function logCommitMessage(context: CommitContext) {
   const commit = context === 'bump'
     ? 'chore(bump): update package versions and refresh generated outputs'
     : 'chore(tmpl): refresh generated template surfaces and embedded bundle';
-  const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'gray' } });
+  const suggestion = Cli.Fmt.Commit.suggestion(commit, {
+    title: false,
+    message: { color: 'gray' },
+  });
   console.info();
   console.info(`  ${suggestion}`);
   console.info();
