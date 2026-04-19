@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { loadBarLoader } from './u.loader.ts';
 import { useComponent } from './use.Component.tsx';
 
 type P = t.BarSpinnerProps;
@@ -36,9 +37,8 @@ export const BarSpinner: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  async BarLoader() {
-    const loader = await import('react-spinners/BarLoader.js');
-    return loader.default?.default ?? loader.default;
+  BarLoader() {
+    return loadBarLoader();
   },
 
   cssOverride(props: P): t.CssProps | undefined {
