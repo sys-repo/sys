@@ -228,15 +228,6 @@ const wrangle = {
   },
 
   esbuildVersion(cwd: string) {
-    const require = wrangle.esbuildRequire(cwd);
-    try {
-      const pkg = require(require.resolve('esbuild/package.json')) as { version?: string };
-      const version = pkg.version?.trim();
-      if (version) return version;
-    } catch {
-      // Fall through to package manifest lookup when the node_modules shim is absent.
-    }
-
     const anchor = wrangle.packageAnchor(cwd);
     const manifest = Deno.readTextFileSync(anchor);
     const pkg = JSON.parse(manifest) as {
@@ -244,7 +235,7 @@ const wrangle = {
       devDependencies?: Record<string, string>;
     };
     const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
-    if (!version) throw new Error(`Failed to resolve installed esbuild version from consumer package boundary: ${cwd}`);
+    if (!version) throw new Error(`Failed to resolve declared esbuild version from consumer package boundary: ${cwd}`);
     return version.replace(/^[~^]/, '');
   },
 

@@ -37,7 +37,7 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
  */
 const wrangle = {
   async wasmPlugin() {
-    const loaded = await import('npm:vite-plugin-wasm');
+    const loaded = await import('npm:vite-plugin-wasm@3.6.0');
     const plugin = wrangle.pluginFromModule(loaded);
     if (!plugin) throw new Error('Failed to load vite-plugin-wasm from npm runtime entry');
     return plugin;
