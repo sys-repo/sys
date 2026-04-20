@@ -1,7 +1,6 @@
 import {
   assertImportMap,
   PATH,
-  applyPublishedBridges,
   assertPublishedImportExports,
   augmentImportMapFromSpecifiers,
   augmentTemplateDeps,
@@ -377,27 +376,7 @@ describe('prep.u', () => {
     }
   });
 
-  it('applyPublishedBridges → rewrites sanctioned published std leafs onto the published fallback export', () => {
-    const input = {
-      imports: {
-        '@sys/std': 'jsr:@sys/std@0.0.336',
-        '@sys/std/num': 'jsr:@sys/std@0.0.336/num',
-        '@sys/std/obj': 'jsr:@sys/std@0.0.336/obj',
-        '@sys/std/str': 'jsr:@sys/std@0.0.336/str',
-        '@sys/std/time': 'jsr:@sys/std@0.0.336/time',
-        '@sys/std/try': 'jsr:@sys/std@0.0.336/try',
-      },
-    };
-
-    const res = applyPublishedBridges(input);
-    expect(res.imports['@sys/std/num']).to.eql('jsr:@sys/std@0.0.336/value');
-    expect(res.imports['@sys/std/obj']).to.eql('jsr:@sys/std@0.0.336/value');
-    expect(res.imports['@sys/std/str']).to.eql('jsr:@sys/std@0.0.336/value');
-    expect(res.imports['@sys/std/time']).to.eql('jsr:@sys/std@0.0.336/time');
-    expect(res.imports['@sys/std/try']).to.eql('jsr:@sys/std@0.0.336');
-  });
-
-  it('assertPublishedImportExports → accepts sanctioned published bridge leaves when the fallback export exists', async () => {
+  it('assertPublishedImportExports → accepts published template leaves when the published version exports them directly', async () => {
     const imports = {
       imports: {
         '@sys/std': 'jsr:@sys/std@0.0.0',
@@ -406,12 +385,17 @@ describe('prep.u', () => {
         '@sys/std/try': 'jsr:@sys/std@0.0.0/try',
       },
     };
-    const versions = { '@sys/std': '0.0.336' };
+    const versions = { '@sys/std': '0.0.338' };
     const published = {
       exports() {
         return Promise.resolve({
           kind: 'published' as const,
-          exports: { '.': './src/mod.ts', './value': './src/-exports/-value.ts' },
+          exports: {
+            '.': './src/mod.ts',
+            './num': './src/m.Num/mod.ts',
+            './obj': './src/m.Obj/mod.ts',
+            './try': './src/m.Try/mod.ts',
+          },
         });
       },
     };
@@ -544,8 +528,7 @@ describe('prep.u', () => {
       Fs.join(root, 'code/-tmpl/-templates/tmpl.pkg'),
     ]);
     const augmentedImports = augmentImportMapFromSpecifiers(repoImports, rootImports, templateSpecifiers);
-    const syncedImportsBase = syncTemplateImports(augmentedImports, rootImports, currentVersions);
-    const syncedImports = applyPublishedBridges(syncedImportsBase);
+    const syncedImports = syncTemplateImports(augmentedImports, rootImports, currentVersions);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
     const augmentedDeps = augmentTemplateDeps(repoDeps.data.deps, templateSpecifiers, currentVersions);
     const syncedDeps = syncTemplateDeps(augmentedDeps, currentVersions, rootPackage);

@@ -8,7 +8,6 @@ import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
 import { Time } from '@sys/std/time';
 import type * as t from '@sys/types';
-import { applyPublishedImportBridges, publishedImportBridgeTarget } from '../-templates/tmpl.repo/-scripts/u.published.ts';
 
 export type ImportMap = { imports: Record<string, string> };
 export type PackageVersions = Record<string, string>;
@@ -390,14 +389,6 @@ export async function assertPublishedImportExports(
       .map((key) => {
         const exportKey = key === pkg ? '.' : `.${key.slice(pkg.length)}`;
         if (result.exports[exportKey]) return undefined;
-
-        const bridge = publishedImportBridgeTarget(key);
-        if (bridge) {
-          const bridgePkg = sysPackageName(bridge);
-          const bridgeKey = bridgePkg === pkg ? `.${bridge.slice(pkg.length)}` : undefined;
-          if (bridgeKey && result.exports[bridgeKey]) return undefined;
-        }
-
         return exportKey;
       })
       .filter((key): key is string => Is.str(key));
@@ -409,10 +400,6 @@ export async function assertPublishedImportExports(
       );
     }
   }
-}
-
-export function applyPublishedBridges(input: ImportMap): ImportMap {
-  return { imports: applyPublishedImportBridges(input.imports) };
 }
 
 function resolveImportValue(

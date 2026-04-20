@@ -8,7 +8,6 @@ import {
   PATH,
   PublishedExports,
   PublishedVersion,
-  applyPublishedBridges,
   assertPublishedImportExports,
   augmentImportMapFromSpecifiers,
   augmentTemplateDeps,
@@ -76,8 +75,7 @@ export async function main(options: Options = {}) {
     throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
   }
 
-  const nextImportsBase = syncTemplateImports(repoImportMapAugmented, rootImportMap, versions);
-  const nextImports = versionSource === 'published' ? applyPublishedBridges(nextImportsBase) : nextImportsBase;
+  const nextImports = syncTemplateImports(repoImportMapAugmented, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
   const nextDepsAugmented = augmentTemplateDeps(repoDeps.data.deps, templateSpecifiers, versions);
   const nextDeps = syncTemplateDeps(nextDepsAugmented, versions, rootPackage);
