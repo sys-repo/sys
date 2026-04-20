@@ -17,8 +17,6 @@ deno run -A jsr:@sys/tools agent
 deno run -A jsr:@sys/tools agent --profile canon
 ```
 
-<p>&nbsp;</p>
-
 ---
 
 ### Conceptual Primitives
@@ -38,6 +36,20 @@ It is:
  - ↑ shell, `bash`  
  - ↑ language-model (LLM)
 
+
+<p>&nbsp;</p>
+
+---
+
+### Pi Startup Policy
+
+- `@sys/driver-agent/pi` requires launching inside a git repository.
+- Startup walks upward from the starting directory to the nearest ancestor containing `.git`.
+- That git root becomes the effective Pi launch cwd.
+- Runtime state and launcher artifacts are anchored to that repo root, including:
+  - `./.pi/`
+  - `./.tmp/pi.cli/`
+  - `./.log/@sys.driver-agent.pi/`
 
 
 <p>&nbsp;</p>
