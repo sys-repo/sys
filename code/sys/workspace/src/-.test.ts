@@ -6,6 +6,7 @@ import { WorkspaceGraph } from './m.graph/mod.ts';
 import { WorkspaceInfo } from './m.info/mod.ts';
 import { WorkspacePkg } from './m.pkg/mod.ts';
 import { WorkspacePrep } from './m.prep/mod.ts';
+import { WorkspaceRun } from './m.run/mod.ts';
 import { WorkspaceUpgrade } from './m.upgrade/mod.ts';
 import { Workspace } from './mod.ts';
 
@@ -24,5 +25,6 @@ describe(`@sys/workspace`, () => {
     expect(m.Workspace.Ci.Build).to.equal(WorkspaceCi.Build);
     expect(m.Workspace.Ci.Test).to.equal(WorkspaceCi.Test);
     expect(m.Workspace.Prep).to.equal(WorkspacePrep);
+    expect(m.Workspace.Run).to.equal(WorkspaceRun);
   });
 });

@@ -4,6 +4,7 @@
  */
 export { pkg } from './pkg.ts';
 export { WorkspaceGraph } from './m.graph/mod.ts';
+export { WorkspaceRun } from './m.run/mod.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
