@@ -15,6 +15,9 @@ import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts
 import { Vite } from '../mod.ts';
 
 describe('Vite.dev', () => {
+  const DEV_STARTUP_TIMEOUT_MS = 15_000;
+  const DEV_FETCH_TIMEOUT_MS = 5_000;
+
   const printHtml = (html: string, title: string, dir: t.StringDir) => {
     console.info();
     console.info(c.brightCyan(`${c.bold(title)}:`));
@@ -69,12 +72,15 @@ describe('Vite.dev', () => {
         console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
         const { signal } = controller;
-        timeout = Time.delay(5000, () => {
+
+        await Http.Client.waitFor(server.url, {
+          timeout: DEV_STARTUP_TIMEOUT_MS,
+          interval: 200,
+        });
+        timeout = Time.delay(DEV_FETCH_TIMEOUT_MS, () => {
           controller.abort();
           server?.dispose();
         });
-
-        await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
         console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
 
         const res = await fetch(server.url, { signal });
@@ -124,7 +130,10 @@ describe('Vite.dev', () => {
         expect(actualPort).to.not.eql(requestedPort);
         expect(server.port).to.eql(actualPort);
 
-        await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
+        await Http.Client.waitFor(server.url, {
+          timeout: DEV_STARTUP_TIMEOUT_MS,
+          interval: 200,
+        });
         const res = await fetch(server.url);
         const html = await res.text();
 
