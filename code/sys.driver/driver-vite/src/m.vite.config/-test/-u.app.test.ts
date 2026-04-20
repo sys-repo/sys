@@ -38,8 +38,6 @@ describe('ViteConfig.app', () => {
     expect(result.code.includes('ui-react-components/button')).to.eql(true);
     expect(result.code.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
     expect(result.code.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
-    expect(result.code.includes(`from '@sys/ui-react-components'`)).to.eql(false);
-    expect(result.code.includes(`from "@sys/ui-react-components"`)).to.eql(false);
   });
 
   it('can disable optimize-imports for on/off proofing', async () => {
@@ -56,7 +54,7 @@ describe('ViteConfig.app', () => {
 
     expect(names.includes('sys:optimize-imports')).to.eql(false);
     expect(optimize).to.eql(undefined);
-    expect(source.includes(`from '@sys/ui-react-components'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-react-components/button'`)).to.eql(true);
     expect(source.includes(`from '@sys/ui-react-devharness'`)).to.eql(true);
   });
 });

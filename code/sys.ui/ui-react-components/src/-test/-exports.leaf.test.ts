@@ -1,5 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
 
+import { pkg } from '../pkg.ts';
+
 import { ActionProbe } from '../ui/ActionProbe/mod.ts';
 import { A, Anchor } from '../ui/Anchor/mod.ts';
 import { Bullet } from '../ui/Bullet/mod.ts';
@@ -37,6 +39,15 @@ import { TreeView } from '../ui/TreeView/mod.ts';
 import { VimeoBackground } from '../ui/VimeoBackground/mod.ts';
 
 describe('@sys/ui-react-components leaf exports', () => {
+  it('keeps the root export minimal and package-only', async () => {
+    const root = await import('@sys/ui-react-components');
+    expect(root.pkg).to.equal(pkg);
+    expect('Button' in root).to.eql(false);
+    expect('Media' in root).to.eql(false);
+    expect('TreeView' in root).to.eql(false);
+    expect('t' in root).to.eql(false);
+  });
+
   it('exports the core component leaves', async () => {
     const [
       actionProbe,

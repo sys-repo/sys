@@ -12,16 +12,6 @@ describe('OptimizeImportsPlugin graph proof', () => {
     expect(counts.root > counts.narrow).to.eql(true);
   });
 
-  it('reduces ui-react-components local module graph breadth for the derived narrow import', async () => {
-    const counts = await graphCounts({
-      packageDir: ROOT.resolve('code/sys.ui/ui-react-components').replaceAll('\\', '/'),
-      rootImport: "import { Button } from '@sys/ui-react-components';",
-      narrowImport: "import { Button } from '@sys/ui-react-components/button';",
-      symbol: 'Button',
-    });
-
-    expect(counts.root > counts.narrow).to.eql(true);
-  });
 });
 
 async function graphCounts(args: { packageDir: string; rootImport: string; narrowImport: string; symbol: string }) {
