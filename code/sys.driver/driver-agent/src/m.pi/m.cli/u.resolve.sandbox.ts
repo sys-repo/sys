@@ -7,25 +7,25 @@ import { PiArgs } from './u.args.ts';
 const SHELLS = new Set(['/bin/bash', '/bin/sh', '/bin/zsh']);
 
 export async function resolveSandboxSummary(args: {
-  cwd: t.StringDir;
+  cwd: t.PiCli.Cwd;
   read?: readonly t.StringPath[];
   write?: readonly t.StringPath[];
   context?: t.PiCli.SandboxSummary['context'];
 }): Promise<t.PiCli.SandboxSummary> {
-  const denoDir = PiArgs.toDenoDir(args.cwd);
+  const denoDir = PiArgs.toDenoDir(args.cwd.git);
   const tmpDir = await PiEnv.toTmpDir();
-  const read = await resolveRead(args.cwd, denoDir, [
+  const read = await resolveRead(args.cwd.git, denoDir, [
     ...(args.read ?? []),
     ...(args.context?.include ?? []),
   ]);
-  const write = await resolveWrite(args.cwd, args.write ?? []);
+  const write = await resolveWrite(args.cwd.git, args.write ?? []);
 
-  const context = toContext(args.cwd, read, args.context);
+  const context = toContext(args.cwd.git, read, args.context);
 
   return {
     cwd: args.cwd,
-    read: toReadScope(args.cwd, read, tmpDir),
-    write: toWriteScope(args.cwd, write, tmpDir),
+    read: toReadScope(args.cwd.git, read, tmpDir),
+    write: toWriteScope(args.cwd.git, write, tmpDir),
     context,
   };
 }

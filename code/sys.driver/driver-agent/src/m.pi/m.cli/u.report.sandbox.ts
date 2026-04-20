@@ -27,7 +27,7 @@ export const PiSandboxReport = {
 
   text(input: Input) {
     const { sandbox } = input;
-    const write = [sandbox.cwd, ...(sandbox.write?.detail ?? [])];
+    const write = [sandbox.cwd.git, ...(sandbox.write?.detail ?? [])];
     const context = [
       ...(sandbox.context?.detail ?? []),
       ...(sandbox.context?.include ?? []),
@@ -37,7 +37,8 @@ export const PiSandboxReport = {
       '',
       `- pkg: ${pkg.name}@${pkg.version}`,
       `- time: ${new Date().toISOString()}`,
-      `- cwd: ${sandbox.cwd}`,
+      `- cwd.git: ${sandbox.cwd.git}`,
+      `- cwd.invoked: ${sandbox.cwd.invoked}`,
       '',
       '## Summary',
       `- read: ${toSummary(sandbox.read)}`,
