@@ -12,7 +12,7 @@ export { Npm } from '@sys/registry/npm';
 export { Schema } from '@sys/schema';
 export { Arr } from '@sys/std/arr';
 export { Num } from '@sys/std/num';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Try } from '@sys/std';
 export { Args } from '@sys/std/args';

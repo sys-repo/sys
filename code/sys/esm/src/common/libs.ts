@@ -6,7 +6,7 @@ export { Path } from '@sys/std/path';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';

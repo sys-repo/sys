@@ -1,4 +1,4 @@
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';

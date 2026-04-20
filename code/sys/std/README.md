@@ -7,7 +7,7 @@ import type { t } from 'jsr:@sys/std/t';
 import { Num } from 'jsr:@sys/std/num';
 import { Pkg } from 'jsr:@sys/std/pkg';
 import { Str } from 'jsr:@sys/std/str';
-import { Obj } from 'jsr:@sys/std/value';
+import { Obj } from 'jsr:@sys/std/obj';
 ```
 
 
@@ -41,7 +41,7 @@ export { Num } from 'jsr:@sys/std/num';
 export { Pkg } from 'jsr:@sys/std/pkg';
 export { Str } from 'jsr:@sys/std/str';
 export { Time } from 'jsr:@sys/std/time';
-export { Obj } from 'jsr:@sys/std/value';
+export { Obj } from 'jsr:@sys/std/obj';
 
 import { Args } from 'jsr:@sys/std/args';
 import { Schedule } from 'jsr:@sys/std/async';

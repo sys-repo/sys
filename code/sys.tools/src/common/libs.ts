@@ -9,7 +9,7 @@ export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 export { Lazy, Try } from '@sys/std';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Log } from '@sys/std/log';
 
 export { Args, c, Cli } from '@sys/cli';

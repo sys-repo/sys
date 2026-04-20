@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Str } from '@sys/std/value';
+ * import { Str } from '@sys/std/str';
  *
  * const long = 'hello world.'.repeat(100)'
  * const short = Str.shorten(long);

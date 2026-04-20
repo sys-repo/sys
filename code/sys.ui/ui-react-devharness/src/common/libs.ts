@@ -4,7 +4,7 @@ export { Test } from '@sys/testing/spec';
 
 export { Dispose } from '@sys/std';
 
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';

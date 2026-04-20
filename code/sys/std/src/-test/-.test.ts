@@ -5,6 +5,8 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
   it('API: root stays lean and excludes leaf-owned exports', async () => {
     const Std = await import('@sys/std');
     const Value = await import('@sys/std/value');
+    const Obj = await import('@sys/std/obj');
+    const ObjPath = await import('@sys/std/obj/path');
     const Time = await import('@sys/std/time');
     const Log = await import('@sys/std/log');
 
@@ -21,6 +23,9 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect('Log' in Std).to.eql(false);
 
     expect(Value.Str.Lorem).to.equal(Value.Lorem);
+    expect('Obj' in Value).to.eql(false);
+    expect(Obj.Obj).to.be.an('object');
+    expect(ObjPath.Path).to.equal(Obj.Obj.Path);
     expect(Time.Time).to.be.an('object');
     expect(Log.Log).to.be.an('object');
   });

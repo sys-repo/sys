@@ -1,6 +1,6 @@
 export { Color, COLORS } from '@sys/color';
 export { isObject, isRecord } from '@sys/std/is';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Delete } from '@sys/std/delete';
 export { Is } from '@sys/std/is';

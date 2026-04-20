@@ -16,7 +16,7 @@ export { Net } from '@sys/net';
 export { Arr } from '@sys/std/arr';
 export { Dispose, History, Try } from '@sys/std';
 export { Num } from '@sys/std/num';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Args } from '@sys/std/args';
 export { Delete } from '@sys/std/delete';

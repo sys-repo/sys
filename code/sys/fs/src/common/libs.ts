@@ -8,7 +8,7 @@ export { Num } from '@sys/std/num';
 export { R } from '@sys/std/r';
 export { Str } from '@sys/std/str';
 export { slug } from '@sys/std/random';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Err } from '@sys/std/error';
 export { Ignore } from '@sys/std/ignore';
 export { Path as StdPath } from '@sys/std/path';

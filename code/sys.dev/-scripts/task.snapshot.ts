@@ -1,7 +1,7 @@
 import * as t from '@sys/types/t';
 
 import { c, Cli } from '@sys/cli';
-import { Obj } from '@sys/std/value';
+import { Obj } from '@sys/std/obj';
 import { Str } from '@sys/std/str';
 import { Time } from '@sys/std/time';
 import { Is } from '@sys/std/is';

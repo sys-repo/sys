@@ -9,7 +9,7 @@ export { Num } from '@sys/std/num';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { slug } from '@sys/std/random';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';

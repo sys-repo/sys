@@ -1,6 +1,6 @@
 import { c, Cli } from '@sys/cli';
 import { Crdt } from '@sys/driver-automerge/fs';
-import { Obj } from '@sys/std/value';
+import { Obj } from '@sys/std/obj';
 import { Str } from '@sys/std/str';
 // const ws = 'localhost:3030';
 // const ws = 'waiheke.sync.db.team';

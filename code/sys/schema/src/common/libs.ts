@@ -10,7 +10,7 @@ export { Value } from '@sinclair/typebox/value';
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Arr } from '@sys/std/arr';
 export { Num } from '@sys/std/num';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';

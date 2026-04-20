@@ -1,6 +1,6 @@
 export { Arr, asArray } from '@sys/std/arr';
 export { isRecord } from '@sys/std/is';
-export { Obj } from '@sys/std/value';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';

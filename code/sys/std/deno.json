@@ -22,6 +22,8 @@
     "./delete": "./src/m.Delete/mod.ts",
     "./error": "./src/-exports/-err.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
+    "./obj": "./src/m.Obj/mod.ts",
+    "./obj/path": "./src/m.Obj.Path/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./is": "./src/-exports/-is.ts",
     "./json": "./src/m.Json/mod.ts",
