@@ -19,7 +19,7 @@ export declare namespace PiCliProfiles {
     /** Wrapper argv; args after `--` pass through to Pi. */
     readonly argv?: readonly string[];
     /** Terminal working directory used to resolve profile paths. */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | t.PiCli.Cwd;
     /** Environment overrides passed to the Pi process. */
     readonly env?: Record<string, string>;
     /** Extra read-scope paths added to the Pi sandbox. */
@@ -33,7 +33,7 @@ export declare namespace PiCliProfiles {
   /** Concrete run request after profile selection. */
   export type RunArgs = {
     /** Terminal working directory used to resolve profile paths. */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | t.PiCli.Cwd;
     /** Profile config YAML file. */
     readonly config: t.StringPath;
     /** Extra Pi args appended at invocation time. */

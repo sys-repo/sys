@@ -7,9 +7,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('help → renders profile help without launching Pi', async () => {
     const check = async (arg: '-h' | '--help') => {
       const prev = Process.inherit;
+      const prevHelpTool = Deno.env.get('PI_CLI_PROFILES_HELP_TOOL');
       const prevInfo = console.info;
       const calls: string[] = [];
       try {
+        Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
         Process.inherit = async () => {
           throw new Error('Process.inherit should not run during help.');
         };
@@ -18,13 +20,16 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         const res = await Profiles.main({ argv: [arg] });
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
-        expect(res.text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles');
-        expect(res.text).to.contain('-h, --help');
-        expect(res.text).to.contain('--profile <name>');
-        expect(res.text).to.contain('--config <path>');
-        expect(res.text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4');
+        const text = Cli.stripAnsi(res.text);
+        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles');
+        expect(text).to.contain('-h, --help');
+        expect(text).to.contain('--profile <name>');
+        expect(text).to.contain('--config <path>');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4');
         expect(calls).to.eql([res.text]);
       } finally {
+        if (prevHelpTool === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
+        else Deno.env.set('PI_CLI_PROFILES_HELP_TOOL', prevHelpTool);
         Process.inherit = prev;
         console.info = prevInfo;
       }
@@ -63,6 +68,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       await Deno.writeTextFile(
         config,
         Str.dedent(
@@ -104,6 +110,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const config = `${cwd}/-config/@sys.driver-agent.pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       await Deno.mkdir(Fs.dirname(config), { recursive: true });
       await Deno.writeTextFile(config, Str.dedent(`
         sandbox:
@@ -139,6 +146,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const calls: string[] = [];
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       Process.inherit = async (input) => {

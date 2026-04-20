@@ -7,6 +7,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const original = Cli.Input.Select.prompt;
 
+    await Deno.mkdir(Fs.join(cwd, '.git'));
+
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
         expect(input.message).to.eql('Agent:\n');
@@ -38,6 +40,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Deno.mkdir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
     let topLevelCount = 0;
 
@@ -71,6 +75,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Deno.mkdir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
     const prints: string[] = [];
     let topLevelCount = 0;

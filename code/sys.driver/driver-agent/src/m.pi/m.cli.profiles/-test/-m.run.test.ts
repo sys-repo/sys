@@ -26,6 +26,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         ).trimStart(),
       );
 
+      await Deno.mkdir(`${cwd}/.git`);
+
       Process.inherit = async (input) => {
         const read = findArg(input.args, '--allow-read=');
         const write = findArg(input.args, '--allow-write=');
@@ -74,6 +76,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
           `,
         ).trimStart(),
       );
+
+      await Deno.mkdir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
         expect(input.args).to.include('--no-prompt');
