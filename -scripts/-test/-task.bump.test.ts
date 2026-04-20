@@ -44,4 +44,25 @@ describe('scripts/task.bump', () => {
     expect(couplings).to.deep.include({ from: 'code/sys/std', to: 'code/-tmpl' });
     expect(couplings).to.deep.include({ from: 'code/-tmpl', to: 'code/sys.tools' });
   });
+
+  it('couples driver-vite to workspace packages embedded in published fixture authorities', () => {
+    const couplings = bumpPolicy().couplings ?? [];
+
+    expect(couplings).to.deep.include({
+      from: 'code/sys/http',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.deep.include({
+      from: 'code/sys/std',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.deep.include({
+      from: 'code/sys.ui/ui-react',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.not.deep.include({
+      from: 'code/sys.driver/driver-vite',
+      to: 'code/sys.driver/driver-vite',
+    });
+  });
 });
