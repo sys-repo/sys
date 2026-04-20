@@ -34,6 +34,8 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
+
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--model');
@@ -53,6 +55,8 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
+
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--help');
@@ -63,6 +67,22 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
+
+  it('main → fails clearly when no git ancestor exists', async () => {
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    try {
+      let error = '';
+      try {
+        await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err);
+      }
+      expect(error).to.contain('Pi startup requires a git repository root');
+      expect(error).to.contain(cwd);
+    } finally {
       await Deno.remove(cwd, { recursive: true });
     }
   });

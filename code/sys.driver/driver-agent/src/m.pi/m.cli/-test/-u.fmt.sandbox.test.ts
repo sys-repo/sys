@@ -6,7 +6,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   it('table → renders cwd, scope and context rows', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
       report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
-      cwd: '/tmp/pi-cli-test',
+      cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
         summary: ['cwd', 'runtime', 'context'],
         detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno', '/tmp/pi-cli-test/canon'],
@@ -26,6 +26,8 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('━');
     expect(text).to.match(/report\s+\/tmp\/pi-cli-test\/\.log\/@sys\.driver-agent\.pi\/1775975797\.abc123\.sandbox\.log\.md/);
     expect(text).to.contain('/tmp/pi-cli-test');
+    expect(text).to.contain('cwd:git');
+    expect(text).to.contain('cwd:invoked');
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\//);
     expect(text).to.not.contain('AGENTS.md walk-up');
     expect(text).to.not.contain('discovered context');
@@ -45,7 +47,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
 
   it('table → keeps read and context compact with preview overflow', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
-      cwd: '/tmp/pi-cli-test',
+      cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
         summary: ['cwd', 'runtime', 'context'],
         detail: [
@@ -83,7 +85,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
 
   it('table → spells out all write roots with continuation rows', () => {
     const text = Cli.stripAnsi(PiSandboxFmt.table({
-      cwd: '/tmp/pi-cli-test',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: {
         summary: ['cwd', 'temp', 'extra'],
         detail: ['/tmp/pi-cli-runtime', '/tmp/pi-cli-test/out', '/opt/pi-cli-extra'],

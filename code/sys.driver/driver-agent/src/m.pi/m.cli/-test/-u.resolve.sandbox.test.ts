@@ -10,7 +10,7 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
 
       const res = await resolveSandboxSummary({
-        cwd,
+        cwd: { invoked: `${cwd}/nested` as t.StringDir, git: cwd },
         read: ['./canon' as t.StringPath],
         write: ['./out' as t.StringPath],
         context: {
@@ -19,7 +19,7 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
         },
       });
 
-      expect(res.cwd).to.eql(cwd);
+      expect(res.cwd).to.eql({ invoked: `${cwd}/nested`, git: cwd });
       expect(res.read?.summary).to.include.members(['cwd', 'runtime', 'context']);
       expect(res.read?.detail).to.include('./canon');
       expect(res.read?.detail).to.include(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
@@ -45,7 +45,7 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
       Deno.env.set('TMPDIR', '/var/tmp/pi-cli-runtime');
 
       const res = await resolveSandboxSummary({
-        cwd,
+        cwd: { invoked: cwd, git: cwd },
         write: ['./out' as t.StringPath],
       });
 

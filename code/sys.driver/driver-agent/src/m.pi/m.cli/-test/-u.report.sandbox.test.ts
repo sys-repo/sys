@@ -16,7 +16,7 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
     const text = PiSandboxReport.text({
       cwd: '/tmp/pi-cli-test',
       sandbox: {
-        cwd: '/tmp/pi-cli-test',
+        cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
         read: {
           summary: ['cwd', 'runtime', 'context'],
           detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno', '/bin/bash'],
@@ -41,7 +41,8 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
     expect(text).to.contain('## Context Files');
     expect(text).to.contain('- read: cwd + runtime + context');
     expect(text).to.contain('- write: cwd + tmp');
-    expect(text).not.to.contain('## Summary\n\n- cwd: /tmp/pi-cli-test');
+    expect(text).to.contain('- cwd.git: /tmp/pi-cli-test');
+    expect(text).to.contain('- cwd.invoked: /tmp/pi-cli-test/nested');
     expect(text).to.contain('## Writable Paths\n- /tmp/pi-cli-test\n- /var/tmp/pi');
     expect(text).to.contain('- /tmp/pi-cli-test/AGENTS.md');
     expect(text).to.contain('- /tmp/pi-cli-test/canon.md');

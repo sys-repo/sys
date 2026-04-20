@@ -38,7 +38,8 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.run({ args: ['--help'] });
+      const cwd = Fs.cwd('terminal');
+      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, args: ['--help'] });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -71,6 +72,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       const res = await Cli.run({ cwd, env });
       expect(res.success).to.eql(true);
     } finally {
@@ -90,6 +92,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       const res = await Cli.run({
         cwd,
         write: ['/tmp/pi-cli-extra-write' as t.StringPath],
