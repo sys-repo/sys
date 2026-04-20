@@ -1,5 +1,7 @@
 import { Workspace } from '@sys/workspace';
+import { Fs } from './common.ts';
 import { PATHS } from './common.ts';
+import { applyPublishedImportBridges } from './u.published.ts';
 
 /**
  * Write all {pkg}.ts files with name/version values synced
@@ -26,9 +28,20 @@ async function updateCi(cwd = Deno.cwd()) {
 
 export async function main(cwd = Deno.cwd()) {
   await Workspace.Prep.Deps.sync({ cwd, log: true });
+  await bridgePublishedImports(cwd);
   await Workspace.Prep.run({ cwd });
   await updatePackages(cwd);
   await updateCi(cwd);
+}
+
+async function bridgePublishedImports(cwd = Deno.cwd()) {
+  const path = Fs.join(cwd, 'imports.json');
+  const before = await Fs.readJson<{ imports?: Record<string, string> }>(path);
+  if (!before.ok || !before.data?.imports) return;
+
+  const next = { ...before.data, imports: applyPublishedImportBridges(before.data.imports) };
+  if (JSON.stringify(before.data) === JSON.stringify(next)) return;
+  await Fs.writeJson(path, next);
 }
 
 /**

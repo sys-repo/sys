@@ -8,6 +8,7 @@ import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
 import { Time } from '@sys/std/time';
 import type * as t from '@sys/types';
+import { applyPublishedImportBridges, publishedImportBridgeTarget } from '../-templates/tmpl.repo/-scripts/u.published.ts';
 
 export type ImportMap = { imports: Record<string, string> };
 export type PackageVersions = Record<string, string>;
@@ -27,6 +28,12 @@ export type PublishedPackageVersion =
   | { kind: 'unpublished' };
 export type PublishedPackageVersionLib = {
   latestVersion(pkg: string): Promise<PublishedPackageVersion>;
+};
+export type PublishedPackageExports =
+  | { kind: 'published'; exports: Record<string, string> }
+  | { kind: 'unpublished' };
+export type PublishedPackageExportsLib = {
+  exports(pkg: string, version: string): Promise<PublishedPackageExports>;
 };
 
 export const PATH = {
@@ -258,6 +265,67 @@ export const PublishedVersion: PublishedPackageVersionLib = {
     throw new Error(`Failed to fetch JSR package versions: ${pkg}`);
   },
 };
+
+export const PublishedExports: PublishedPackageExportsLib = {
+  async exports(pkg, version) {
+    const res = await Jsr.Fetch.Pkg.info(pkg, version);
+    if (res.status === 404) return { kind: 'unpublished' };
+    if (!res.ok || !res.data) {
+      throw new Error(`Failed to fetch JSR package exports: ${pkg}@${version}`);
+    }
+    return { kind: 'published', exports: { ...(res.data.exports ?? {}) } };
+  },
+};
+
+export async function assertPublishedImportExports(
+  imports: ImportMap,
+  packageVersions: PackageVersions,
+  published: PublishedPackageExportsLib,
+) {
+  const pkgs = [
+    ...new Set(
+      Object.keys(imports.imports)
+        .map(sysPackageName)
+        .filter((pkg): pkg is string => Is.str(pkg)),
+    ),
+  ];
+
+  for (const pkg of pkgs) {
+    const version = packageVersions[pkg];
+    if (!Is.str(version)) throw new Error(`Missing version authority for package "${pkg}"`);
+
+    const result = await published.exports(pkg, version);
+    if (result.kind === 'unpublished') continue;
+
+    const keys = Object.keys(imports.imports).filter((key) => key === pkg || key.startsWith(`${pkg}/`));
+    const missing = keys
+      .map((key) => {
+        const exportKey = key === pkg ? '.' : `.${key.slice(pkg.length)}`;
+        if (result.exports[exportKey]) return undefined;
+
+        const bridge = publishedImportBridgeTarget(key);
+        if (bridge) {
+          const bridgePkg = sysPackageName(bridge);
+          const bridgeKey = bridgePkg === pkg ? `.${bridge.slice(pkg.length)}` : undefined;
+          if (bridgeKey && result.exports[bridgeKey]) return undefined;
+        }
+
+        return exportKey;
+      })
+      .filter((key): key is string => Is.str(key));
+
+    if (missing.length > 0) {
+      const available = Object.keys(result.exports).sort();
+      throw new Error(
+        `Template import authority is ahead of published JSR exports for ${pkg}@${version}: missing ${missing.join(', ')}. Published exports: ${available.join(', ')}`,
+      );
+    }
+  }
+}
+
+export function applyPublishedBridges(input: ImportMap): ImportMap {
+  return { imports: applyPublishedImportBridges(input.imports) };
+}
 
 function resolveImportValue(
   key: string,

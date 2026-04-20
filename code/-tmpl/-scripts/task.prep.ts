@@ -6,7 +6,10 @@ import { DenoDeps } from '@sys/driver-deno/runtime';
 import {
   assertImportMap,
   PATH,
+  PublishedExports,
   PublishedVersion,
+  applyPublishedBridges,
+  assertPublishedImportExports,
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
@@ -51,13 +54,18 @@ export async function main(options: Options = {}) {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
-  const versions = await resolveVersions(options.versionSource ?? 'workspace', repoImportMap);
+  const versionSource = options.versionSource ?? 'workspace';
+  const versions = await resolveVersions(versionSource, repoImportMap);
+  if (versionSource === 'published') {
+    await assertPublishedImportExports(repoImportMap, versions, PublishedExports);
+  }
   const repoDeps = await DenoDeps.from(repoDepsText);
   if (repoDeps.error || !repoDeps.data) {
     throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
   }
 
-  const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
+  const nextImportsBase = syncTemplateImports(repoImportMap, rootImportMap, versions);
+  const nextImports = versionSource === 'published' ? applyPublishedBridges(nextImportsBase) : nextImportsBase;
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
   const nextDeps = syncTemplateDeps(repoDeps.data.deps, versions, rootPackage);
   const nextDepsText = DenoDeps.toYaml(nextDeps).text;

@@ -1,6 +1,8 @@
 import {
   assertImportMap,
   PATH,
+  applyPublishedBridges,
+  assertPublishedImportExports,
   readJson,
   resolvePublishedPackageVersions,
   resolvePackageVersions,
@@ -322,6 +324,105 @@ describe('prep.u', () => {
     }
   });
 
+  it('applyPublishedBridges → rewrites sanctioned published std leafs onto the published fallback export', () => {
+    const input = {
+      imports: {
+        '@sys/std': 'jsr:@sys/std@0.0.336',
+        '@sys/std/num': 'jsr:@sys/std@0.0.336/num',
+        '@sys/std/str': 'jsr:@sys/std@0.0.336/str',
+        '@sys/std/time': 'jsr:@sys/std@0.0.336/time',
+      },
+    };
+
+    const res = applyPublishedBridges(input);
+    expect(res.imports['@sys/std/num']).to.eql('jsr:@sys/std@0.0.336/value');
+    expect(res.imports['@sys/std/str']).to.eql('jsr:@sys/std@0.0.336/value');
+    expect(res.imports['@sys/std/time']).to.eql('jsr:@sys/std@0.0.336/time');
+  });
+
+  it('assertPublishedImportExports → accepts sanctioned published bridge leaves when the fallback export exists', async () => {
+    const imports = {
+      imports: {
+        '@sys/std': 'jsr:@sys/std@0.0.0',
+        '@sys/std/num': 'jsr:@sys/std@0.0.0/num',
+      },
+    };
+    const versions = { '@sys/std': '0.0.336' };
+    const published = {
+      exports() {
+        return Promise.resolve({
+          kind: 'published' as const,
+          exports: { '.': './src/mod.ts', './value': './src/-exports/-value.ts' },
+        });
+      },
+    };
+
+    await assertPublishedImportExports(imports, versions, published);
+  });
+
+  it('assertPublishedImportExports → throws when template imports a leaf missing from the published version and no sanctioned bridge exists', async () => {
+    const imports = {
+      imports: {
+        '@sys/std': 'jsr:@sys/std@0.0.0',
+        '@sys/std/num': 'jsr:@sys/std@0.0.0/num',
+      },
+    };
+    const versions = { '@sys/std': '0.0.336' };
+    const published = {
+      exports() {
+        return Promise.resolve({
+          kind: 'published' as const,
+          exports: { '.': './src/mod.ts', './time': './src/-exports/-time.ts' },
+        });
+      },
+    };
+
+    try {
+      await assertPublishedImportExports(imports, versions, published);
+      throw new Error('Expected assertPublishedImportExports to throw');
+    } catch (error) {
+      expect((error as Error).message).to.include('@sys/std@0.0.336');
+      expect((error as Error).message).to.include('missing ./num');
+    }
+  });
+
+  it('assertPublishedImportExports → allows template imports when the published version exports every requested leaf', async () => {
+    const imports = {
+      imports: {
+        '@sys/std': 'jsr:@sys/std@0.0.0',
+        '@sys/std/time': 'jsr:@sys/std@0.0.0/time',
+      },
+    };
+    const versions = { '@sys/std': '0.0.336' };
+    const published = {
+      exports() {
+        return Promise.resolve({
+          kind: 'published' as const,
+          exports: { '.': './src/mod.ts', './time': './src/-exports/-time.ts' },
+        });
+      },
+    };
+
+    await assertPublishedImportExports(imports, versions, published);
+  });
+
+  it('assertPublishedImportExports → skips unpublished packages that still resolve via workspace fallback', async () => {
+    const imports = {
+      imports: {
+        '@sys/foo': 'jsr:@sys/foo@0.0.0',
+        '@sys/foo/bar': 'jsr:@sys/foo@0.0.0/bar',
+      },
+    };
+    const versions = { '@sys/foo': '0.0.1' };
+    const published = {
+      exports() {
+        return Promise.resolve({ kind: 'unpublished' as const });
+      },
+    };
+
+    await assertPublishedImportExports(imports, versions, published);
+  });
+
   it('resolvePackageVersions → throws when workspace authority is missing', async () => {
     const imports = { imports: { '@sys/fs': 'jsr:@sys/fs@0.0.0' } };
     const denoFile = {
@@ -379,7 +480,8 @@ describe('prep.u', () => {
         .filter((entry): entry is readonly [string, string] => !!entry),
     );
 
-    const syncedImports = syncTemplateImports(repoImports, rootImports, currentVersions);
+    const syncedImportsBase = syncTemplateImports(repoImports, rootImports, currentVersions);
+    const syncedImports = applyPublishedBridges(syncedImportsBase);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
     const syncedDeps = syncTemplateDeps(repoDeps.data.deps, currentVersions, rootPackage);
     const syncedDepsText = DenoDeps.toYaml(syncedDeps).text;
