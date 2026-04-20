@@ -58,12 +58,12 @@ export async function runTask(
 /**
  * Helpers:
  */
-async function readManifest(path: t.StringPath) {
-  const res = await Fs.readJson(path);
+async function readManifest(path: t.StringPath): Promise<Record<string, unknown>> {
+  const res = await Fs.readJson<Record<string, unknown>>(path);
   if (res.error) {
     throw Err.std(`Workspace.Run: failed to read deno.json: ${path}`, { cause: res.error });
   }
-  return Obj.clone(res.data ?? {});
+  return Obj.clone(res.data ?? {}) as Record<string, unknown>;
 }
 
 function hasTask(deno: Record<string, unknown>, task: t.WorkspaceRun.Task) {
