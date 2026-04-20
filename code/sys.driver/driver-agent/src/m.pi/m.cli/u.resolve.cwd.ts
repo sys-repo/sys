@@ -27,18 +27,6 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
 }
 
 /**
- * Resolve startup cwd and require a concrete git-rooted result.
- *
- * Use this from lower-level helpers that cannot represent an operator-selected
- * startup exit in their return type.
- */
-export async function resolveCwdOrThrow(input?: CwdInput): Promise<t.PiCli.Cwd> {
-  const resolved = await resolveCwd(input);
-  if (resolved.kind === 'exit') throw new Error('Pi startup cancelled before launch.');
-  return resolved.cwd;
-}
-
-/**
  * Helpers:
  */
 async function findGitRoot(dir: t.StringDir) {

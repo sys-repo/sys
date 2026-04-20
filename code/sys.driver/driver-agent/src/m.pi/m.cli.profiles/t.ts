@@ -30,10 +30,10 @@ export declare namespace PiCliProfiles {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
-  /** Concrete run request after profile selection. */
+  /** Concrete run request after startup cwd resolution. */
   export type RunArgs = {
-    /** Terminal working directory used to resolve profile paths. */
-    readonly cwd?: t.StringDir | t.PiCli.Cwd;
+    /** Git-rooted cwd contract already resolved by startup. */
+    readonly cwd: t.PiCli.Cwd;
     /** Profile config YAML file. */
     readonly config: t.StringPath;
     /** Extra Pi args appended at invocation time. */

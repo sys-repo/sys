@@ -17,7 +17,7 @@ export declare namespace PiCli {
   /** Runtime surface for the Pi CLI launcher wrapper. */
   export type Lib = {
     main(input?: Input): Promise<Result>;
-    run(args?: RunArgs): Promise<t.Process.InheritOutput>;
+    run(args: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
   /** Startup cwd contract preserving invocation and resolved git roots. */
@@ -58,13 +58,10 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
-  /** Concrete Pi run request after wrapper argument resolution. */
+  /** Concrete Pi run request after startup cwd resolution. */
   export type RunArgs = {
-    /**
-     * Working directory passed to the Pi child process.
-     * Defaults to the current host working directory.
-     */
-    readonly cwd?: t.StringDir | Cwd;
+    /** Git-rooted cwd contract already resolved by the launcher. */
+    readonly cwd: Cwd;
 
     /** Additional Pi CLI arguments. */
     readonly args?: readonly string[];

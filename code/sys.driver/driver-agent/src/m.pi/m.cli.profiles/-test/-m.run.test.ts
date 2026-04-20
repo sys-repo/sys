@@ -45,7 +45,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       };
 
       const res = await Profiles.run({
-        cwd,
+        cwd: { invoked: cwd, git: cwd },
         config,
         args: ['--model', 'gpt-5.4', '--help'],
         read: ['./extra-read' as t.StringPath],
@@ -86,7 +86,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Profiles.run({ cwd, config, args: ['--model', 'gpt-5.4'] });
+      const res = await Profiles.run({
+        cwd: { invoked: cwd, git: cwd },
+        config,
+        args: ['--model', 'gpt-5.4'],
+      });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;

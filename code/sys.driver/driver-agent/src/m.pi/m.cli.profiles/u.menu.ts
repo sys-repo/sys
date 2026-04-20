@@ -36,7 +36,10 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
       ],
       async onAction({ action, path }) {
         if (action !== 'sandbox') return { kind: 'action', action, path };
-        const resolved = await resolveRun({ cwd, config: path });
+        const resolved = await resolveRun({
+          cwd: { invoked: cwd, git: cwd },
+          config: path,
+        });
         const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
         console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
         return { kind: 'stay' };

@@ -73,7 +73,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       };
 
       await Deno.mkdir(Fs.join(cwd, '.git'));
-      const res = await Cli.run({ cwd, env });
+      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, env });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -94,7 +94,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
       await Deno.mkdir(Fs.join(cwd, '.git'));
       const res = await Cli.run({
-        cwd,
+        cwd: { invoked: cwd, git: cwd },
         write: ['/tmp/pi-cli-extra-write' as t.StringPath],
       });
       expect(res.success).to.eql(true);

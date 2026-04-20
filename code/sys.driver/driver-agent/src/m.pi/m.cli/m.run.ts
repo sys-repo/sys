@@ -1,9 +1,8 @@
 import { Process, type t } from './common.ts';
 import { PiArgs } from './u.args.ts';
-import { resolveCwdOrThrow } from './u.resolve.cwd.ts';
 
-export const run: t.PiCli.Lib['run'] = async (input = {}) => {
-  const cwd = await resolveCwdOrThrow(input.cwd);
+export const run: t.PiCli.Lib['run'] = async (input) => {
+  const cwd = input.cwd;
   const denoDir = PiArgs.toDenoDir(cwd.git);
   const env = {
     ...input.env,
