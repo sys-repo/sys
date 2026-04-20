@@ -6,7 +6,6 @@ export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary) {
     const table = Cli.table([]);
     if (input.report) table.push([c.gray('report'), Cli.Fmt.Path.str(Fs.trimCwd(input.report))]);
-    pushCwdRows(table, input.cwd);
     table.push([c.gray('context'), formatPreview([
       ...(input.context?.detail ?? []),
       ...(input.context?.include ?? []),
@@ -21,11 +20,6 @@ export const PiSandboxFmt = {
       .toString();
   },
 } as const;
-
-function pushCwdRows(table: ReturnType<typeof Cli.table>, cwd: t.PiCli.Cwd) {
-  table.push([c.gray('cwd:git'), c.gray(Cli.Fmt.path(cwd.git))]);
-  table.push([c.gray('cwd:invoked'), c.gray(Cli.Fmt.path(cwd.invoked))]);
-}
 
 function pushWriteRows(
   table: ReturnType<typeof Cli.table>,
