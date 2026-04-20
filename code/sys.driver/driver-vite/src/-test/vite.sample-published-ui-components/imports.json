@@ -4,7 +4,7 @@
     "@std/path": "jsr:@std/path@1.1.4",
     "@sys/std": "jsr:@sys/std@0.0.336",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.266",
-    "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.248",
+    "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.249",
     "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.286",
     "motion/react": "npm:motion@12.35.1/react",
     "react": "npm:react@19.2.4",
