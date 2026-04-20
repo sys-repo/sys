@@ -4,7 +4,7 @@
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Schema, Type } from '@sys/schema';
 export { Arr } from '@sys/std/arr';
-export { Dispose } from '@sys/std';
+export { Dispose } from '@sys/std/dispose';
 export { Fn } from '@sys/std/fn';
 export { Try } from '@sys/std/try';
 export { Num } from '@sys/std/num';

@@ -5,7 +5,7 @@ export { Path } from '@sys/std/path';
 export { R } from '@sys/std/r';
 export { Str } from '@sys/std/str';
 export { Url } from '@sys/std/url';
-export { Dispose } from '@sys/std';
+export { Dispose } from '@sys/std/dispose';
 export { Try } from '@sys/std/try';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';

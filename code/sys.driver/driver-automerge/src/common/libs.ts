@@ -14,7 +14,7 @@ export { Graph } from '@sys/immutable/graph';
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Net } from '@sys/net';
 export { Arr } from '@sys/std/arr';
-export { Dispose } from '@sys/std';
+export { Dispose } from '@sys/std/dispose';
 export { History } from '@sys/std/history';
 export { Try } from '@sys/std/try';
 export { Num } from '@sys/std/num';

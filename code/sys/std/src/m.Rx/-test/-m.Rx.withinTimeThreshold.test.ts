@@ -1,5 +1,5 @@
 import { describe, expect, it, Testing, Time } from '../../-test.ts';
-import { Dispose } from '../../mod.ts';
+import { Dispose } from '../../m.Dispose/mod.ts';
 import { Rx } from '../mod.ts';
 
 describe('Rx.withinTimeThreshold (eg. "double-click")', () => {

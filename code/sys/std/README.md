@@ -45,7 +45,7 @@ export { Obj } from 'jsr:@sys/std/obj';
 
 import { Args } from 'jsr:@sys/std/args';
 import { Schedule } from 'jsr:@sys/std/async';
-import { Dispose } from 'jsr:@sys/std';
+import { Dispose } from 'jsr:@sys/std/dispose';
 import { Path } from 'jsr:@sys/std/path';
 import { Signal } from 'jsr:@sys/std/signal';
 import { Date, Time } from 'jsr:@sys/std/time';

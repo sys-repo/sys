@@ -20,6 +20,7 @@
     "./args": "./src/m.Args/mod.ts",
     "./arr": "./src/m.Arr/mod.ts",
     "./delete": "./src/m.Delete/mod.ts",
+    "./dispose": "./src/m.Dispose/mod.ts",
     "./error": "./src/-exports/-err.ts",
     "./fn": "./src/m.Fn/mod.ts",
     "./history": "./src/m.History/mod.ts",

@@ -4,6 +4,7 @@ import { describe, expect, it, pkg } from '../-test.ts';
 describe(`module: ${Pkg.toString(pkg)}`, () => {
   it('API: root stays lean and dedicated leaves remain authoritative', async () => {
     const Std = await import('@sys/std');
+    const Dispose = await import('@sys/std/dispose');
     const Fn = await import('@sys/std/fn');
     const History = await import('@sys/std/history');
     const Is = await import('@sys/std/is');
@@ -18,6 +19,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     const Try = await import('@sys/std/try');
 
     expect('Arr' in Std).to.eql(false);
+    expect('Dispose' in Std).to.eql(false);
     expect('Fn' in Std).to.eql(false);
     expect('History' in Std).to.eql(false);
     expect('Is' in Std).to.eql(false);
@@ -30,6 +32,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect('Time' in Std).to.eql(false);
     expect('Try' in Std).to.eql(false);
 
+    expect(Dispose.Dispose).to.be.an('object');
     expect(Fn.Fn).to.be.an('object');
     expect(History.History).to.be.an('object');
     expect(Lazy.Lazy).to.be.an('object');

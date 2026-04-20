@@ -10,8 +10,7 @@ export { pkg } from '../pkg.ts';
 export type * as t from '@sys/types/t';
 
 /**
- * Root-owned libraries.
+ * Root barrel stays minimal.
  *
- * Symbols with dedicated public leaf subpaths stay off the root barrel.
+ * Public libraries with dedicated leaf subpaths stay off the root barrel.
  */
-export { Dispose } from '../m.Dispose/mod.ts';
