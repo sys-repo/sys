@@ -62,7 +62,8 @@ function pushWriteBucket(
 ) {
   if (input.length === 0) return;
   const [head, ...tail] = input.map((path) => formatWritePath(path, cwd));
-  table.push([c.yellow(label), head]);
+  const lead = label === 'write:cwd' ? `${head}  ${c.cyan('(git)')}` : head;
+  table.push([c.yellow(label), lead]);
   for (const item of tail) table.push(['', item]);
 }
 
