@@ -13,6 +13,17 @@ describe('@sys/workspace/bump args', () => {
     });
   });
 
+  it('ignores deno task argv separator before bump args', () => {
+    const res = Args.parse(['--', '--from', '@scope/a', '--release', 'minor', '--dry-run']);
+    expect(res).to.eql({
+      help: undefined,
+      from: '@scope/a',
+      release: 'minor',
+      dryRun: true,
+      nonInteractive: false,
+    });
+  });
+
   it('normalizes supported release kinds', () => {
     expect(Args.release()).to.eql(undefined);
     expect(Args.release('PATCH')).to.eql('patch');

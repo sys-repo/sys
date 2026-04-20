@@ -3,13 +3,14 @@ import { Args as StdArgs } from '@sys/std/args';
 
 export const Args: t.WorkspaceBump.Args.Lib = {
   parse(argv = Deno.args) {
+    const normalized = argv[0] === '--' ? argv.slice(1) : argv;
     const args = StdArgs.parse<{
       help?: boolean;
       from?: string;
       release?: string;
       'dry-run'?: boolean;
       'non-interactive'?: boolean;
-    }>([...argv], {
+    }>([...normalized], {
       boolean: ['help', 'dry-run', 'non-interactive'],
       alias: { h: ['help'] },
     });

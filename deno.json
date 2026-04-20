@@ -20,7 +20,7 @@
     "publish:jsr": "deno task publish:jsr:main",
     "publish:jsr:main": "deno run -P=dev ./-scripts/task.jsr.publish.main.ts",
     "publish:jsr:branch": "deno run -P=dev ./-scripts/task.jsr.publish.ts",
-    "bump": "deno run -P=test ./-scripts/main.ts --bump",
+    "bump": "deno run -P=test ./-scripts/task.bump.ts",
     "tmpl": "deno run -P=tmpl @sys/tmpl",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
