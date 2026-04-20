@@ -1,9 +1,10 @@
 import { Fs, type t } from './common.ts';
 import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
+import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
 import { ProfilesFs } from './u.fs.ts';
 
 export type ResolvedProfileRun = {
-  readonly cwd: t.StringDir;
+  readonly cwd: t.PiCli.Cwd;
   readonly args: readonly string[];
   readonly read: readonly t.StringPath[];
   readonly write: readonly t.StringPath[];
@@ -13,8 +14,8 @@ export type ResolvedProfileRun = {
 };
 
 export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
-  const cwd = input.cwd ?? Fs.cwd('terminal');
-  const config = Fs.resolve(cwd, input.config) as t.StringPath;
+  const cwd = await resolveCwd(input.cwd);
+  const config = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
   const checked = await ProfilesFs.validateYaml(config);
   if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(config)}`);
 

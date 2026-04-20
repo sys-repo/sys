@@ -1,10 +1,10 @@
-import { Fs, type t } from './common.ts';
+import { type t } from './common.ts';
 import { PiCliFmt } from './u.fmt.help.ts';
 import { PiArgs } from './u.args.ts';
 import { run } from './m.run.ts';
+import { resolveCwd } from './u.resolve.cwd.ts';
 
 export const main: t.PiCli.Lib['main'] = async (input = {}) => {
-  const cwd = input.cwd ?? Fs.cwd('terminal');
   const parsed = PiArgs.parse(input.argv ?? []);
 
   if (parsed.help) {
@@ -16,6 +16,8 @@ export const main: t.PiCli.Lib['main'] = async (input = {}) => {
       text,
     };
   }
+
+  const cwd = await resolveCwd(input.cwd);
 
   const output = await run({
     cwd,

@@ -20,6 +20,15 @@ export declare namespace PiCli {
     run(args?: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
+  /** Startup cwd contract preserving invocation and resolved git roots. */
+  export type Cwd = {
+    /** Directory the operator invoked the launcher from. */
+    readonly invoked: t.StringDir;
+
+    /** Nearest ancestor git root used as the effective Pi launch root. */
+    readonly git: t.StringDir;
+  };
+
   /** Wrapper entry input for launching Pi. */
   export type Input = {
     /** Raw argv tokens passed to the CLI wrapper entrypoint. */
@@ -29,7 +38,7 @@ export declare namespace PiCli {
      * Working directory passed to the Pi child process.
      * Defaults to the current host working directory.
      */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | Cwd;
 
     /** Optional environment variable overrides for the Pi child process. */
     readonly env?: Record<string, string>;
@@ -50,7 +59,7 @@ export declare namespace PiCli {
      * Working directory passed to the Pi child process.
      * Defaults to the current host working directory.
      */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | Cwd;
 
     /** Additional Pi CLI arguments. */
     readonly args?: readonly string[];
@@ -88,8 +97,8 @@ export declare namespace PiCli {
   export type SandboxSummary = {
     /** Optional persisted report path for the full sandbox inspection artifact. */
     readonly report?: t.StringPath;
-    /** Working directory Pi starts in. */
-    readonly cwd: t.StringDir;
+    /** Working directories preserved across startup resolution. */
+    readonly cwd: Cwd;
     /** Effective read scope grouped for display. */
     readonly read?: SandboxSummary.Scope;
     /** Effective write scope grouped for display. */
