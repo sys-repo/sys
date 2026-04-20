@@ -3,6 +3,10 @@ import {
   PATH,
   applyPublishedBridges,
   assertPublishedImportExports,
+  augmentImportMapFromSpecifiers,
+  augmentTemplateDeps,
+  collectTemplateBareImports,
+  extractBareImports,
   readJson,
   resolvePublishedPackageVersions,
   resolvePackageVersions,
@@ -22,6 +26,55 @@ describe('prep.u', () => {
 
     expect(res).to.eql({ a: 'a.next', b: 'b.next' });
     expect(input).to.eql({ a: '1', b: '2' });
+  });
+
+  it('extractBareImports → captures bare package specifiers used by template source', () => {
+    const text = `
+      import { Try } from '@sys/std/try';
+      export { Obj } from "@sys/std/obj";
+      import '@sys/std/log';
+      const mod = await import('@sys/std/dispose');
+      import { local } from './local.ts';
+    `;
+
+    expect(extractBareImports(text)).to.eql([
+      '@sys/std/dispose',
+      '@sys/std/log',
+      '@sys/std/obj',
+      '@sys/std/try',
+    ]);
+  });
+
+  it('augmentImportMapFromSpecifiers → adds missing authority keys required by template source', () => {
+    const input = { imports: { '@sys/std': 'jsr:@sys/std@0.0.0' } };
+    const authority = {
+      imports: {
+        '@sys/std/path': 'jsr:@sys/std@0.0.0/path',
+      },
+    };
+
+    const res = augmentImportMapFromSpecifiers(input, authority, [
+      '@sys/std/try',
+      '@sys/std/path',
+      './local.ts',
+    ]);
+
+    expect(Object.keys(res.imports).sort()).to.eql([
+      '@sys/std',
+      '@sys/std/path',
+      '@sys/std/try',
+    ]);
+  });
+
+  it('augmentTemplateDeps → adds missing subpaths required by template source', () => {
+    const deps = [DenoDeps.toDep('jsr:@sys/std@0.0.337', { subpaths: ['arr', 'str'] })];
+    const versions = { '@sys/std': '0.0.337' };
+
+    const res = augmentTemplateDeps(deps, ['@sys/std/try', '@sys/std/obj', '@sys/std/str'], versions);
+    const dep = res[0];
+
+    expect(dep.module.toString()).to.eql('jsr:@sys/std@0.0.337');
+    expect(dep.subpaths).to.eql(['arr', 'obj', 'str', 'try']);
   });
 
   it('syncTemplateImports → updates direct @sys imports from authorities', () => {
@@ -329,15 +382,19 @@ describe('prep.u', () => {
       imports: {
         '@sys/std': 'jsr:@sys/std@0.0.336',
         '@sys/std/num': 'jsr:@sys/std@0.0.336/num',
+        '@sys/std/obj': 'jsr:@sys/std@0.0.336/obj',
         '@sys/std/str': 'jsr:@sys/std@0.0.336/str',
         '@sys/std/time': 'jsr:@sys/std@0.0.336/time',
+        '@sys/std/try': 'jsr:@sys/std@0.0.336/try',
       },
     };
 
     const res = applyPublishedBridges(input);
     expect(res.imports['@sys/std/num']).to.eql('jsr:@sys/std@0.0.336/value');
+    expect(res.imports['@sys/std/obj']).to.eql('jsr:@sys/std@0.0.336/value');
     expect(res.imports['@sys/std/str']).to.eql('jsr:@sys/std@0.0.336/value');
     expect(res.imports['@sys/std/time']).to.eql('jsr:@sys/std@0.0.336/time');
+    expect(res.imports['@sys/std/try']).to.eql('jsr:@sys/std@0.0.336');
   });
 
   it('assertPublishedImportExports → accepts sanctioned published bridge leaves when the fallback export exists', async () => {
@@ -345,6 +402,8 @@ describe('prep.u', () => {
       imports: {
         '@sys/std': 'jsr:@sys/std@0.0.0',
         '@sys/std/num': 'jsr:@sys/std@0.0.0/num',
+        '@sys/std/obj': 'jsr:@sys/std@0.0.0/obj',
+        '@sys/std/try': 'jsr:@sys/std@0.0.0/try',
       },
     };
     const versions = { '@sys/std': '0.0.336' };
@@ -480,10 +539,16 @@ describe('prep.u', () => {
         .filter((entry): entry is readonly [string, string] => !!entry),
     );
 
-    const syncedImportsBase = syncTemplateImports(repoImports, rootImports, currentVersions);
+    const templateSpecifiers = await collectTemplateBareImports([
+      Fs.join(root, 'code/-tmpl/-templates/tmpl.repo'),
+      Fs.join(root, 'code/-tmpl/-templates/tmpl.pkg'),
+    ]);
+    const augmentedImports = augmentImportMapFromSpecifiers(repoImports, rootImports, templateSpecifiers);
+    const syncedImportsBase = syncTemplateImports(augmentedImports, rootImports, currentVersions);
     const syncedImports = applyPublishedBridges(syncedImportsBase);
     const syncedPackage = syncTemplatePackage(repoPackage, rootPackage);
-    const syncedDeps = syncTemplateDeps(repoDeps.data.deps, currentVersions, rootPackage);
+    const augmentedDeps = augmentTemplateDeps(repoDeps.data.deps, templateSpecifiers, currentVersions);
+    const syncedDeps = syncTemplateDeps(augmentedDeps, currentVersions, rootPackage);
     const syncedDepsText = DenoDeps.toYaml(syncedDeps).text;
 
     expect(syncedDepsText).to.eql(repoDepsText);

@@ -1,6 +1,8 @@
 export const PUBLISHED_IMPORT_BRIDGES = {
   '@sys/std/num': '@sys/std/value',
+  '@sys/std/obj': '@sys/std/value',
   '@sys/std/str': '@sys/std/value',
+  '@sys/std/try': '@sys/std',
 } as const;
 
 export function applyPublishedImportBridges(

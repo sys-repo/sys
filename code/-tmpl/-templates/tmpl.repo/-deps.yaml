@@ -22,12 +22,15 @@ deno.json:
         is,
         log,
         num,
+        obj,
+        path,
         pkg,
         rx,
         str,
         t,
         testing,
         time,
+        try,
         url
       ]
   - import: jsr:@sys/testing@0.0.274
@@ -44,11 +47,13 @@ deno.json:
   - import: jsr:@sys/ui-react@0.0.289
     subpaths: [ t ]
   - import: jsr:@sys/ui-react-components@0.0.250
-    subpaths: [ t ]
+    subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
   - import: jsr:@sys/ui-react-devharness@0.0.287
     subpaths: [ t ]
   - import: jsr:@sys/workspace@0.0.65
     subpaths: [ cli, t, testing ]
+  - import: jsr:@sys/esm@0.0.27
+    subpaths: [ testing ]
 package.json:
   - import: npm:react@19.2.5
   - import: npm:react-dom@19.2.5

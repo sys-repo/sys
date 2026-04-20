@@ -69,6 +69,74 @@ export function sysPackageName(specifier: string): string | undefined {
   return `${scope}/${name}`;
 }
 
+export async function collectTemplateBareImports(paths: string[]): Promise<string[]> {
+  const files = (await Promise.all(paths.map((path) => collectSourceFiles(path)))).flat();
+  const imports = new Set<string>();
+
+  for (const path of files) {
+    const text = await Deno.readTextFile(path);
+    for (const specifier of extractBareImports(text)) imports.add(specifier);
+  }
+
+  return [...imports].sort();
+}
+
+export function augmentImportMapFromSpecifiers(
+  input: ImportMap,
+  authority: ImportMap,
+  specifiers: string[],
+): ImportMap {
+  const next = structuredClone(input);
+
+  for (const specifier of specifiers) {
+    const isSys = Is.str(sysPackageName(specifier));
+    const hasRootAuthority = typeof authority.imports[specifier] === 'string';
+    if (!isSys && !hasRootAuthority) continue;
+    if (typeof next.imports[specifier] === 'string') continue;
+    next.imports[specifier] = specifier;
+  }
+
+  return next;
+}
+
+export function augmentTemplateDeps(
+  deps: DenoDep[],
+  specifiers: string[],
+  packageVersions: PackageVersions,
+): DenoDep[] {
+  const next = [...deps];
+
+  for (const specifier of specifiers) {
+    const pkg = sysPackageName(specifier);
+    if (!pkg) continue;
+
+    const version = packageVersions[pkg];
+    if (!Is.str(version)) continue;
+
+    const subpath = toPackageSubpath(specifier, pkg);
+    const index = next.findIndex((dep) => jsrPackageName(dep.module.toString()) === pkg);
+
+    if (index >= 0) {
+      const dep = next[index];
+      const subpaths = uniqueStrings([...(dep.subpaths ?? []), ...(subpath ? [subpath] : [])]);
+      next[index] = DenoDeps.toDep(rewriteModuleVersion(dep.module.toString(), version), {
+        target: dep.target,
+        dev: dep.dev,
+        subpaths: subpaths.length > 0 ? subpaths : undefined,
+      });
+      continue;
+    }
+
+    next.push(
+      DenoDeps.toDep(`jsr:${pkg}@${version}`, {
+        subpaths: subpath ? [subpath] : undefined,
+      }),
+    );
+  }
+
+  return next;
+}
+
 export function syncTemplatePackage(input: t.PkgNodeJson, source: t.PkgNodeJson): t.PkgNodeJson {
   const allSource = { ...(source.dependencies ?? {}), ...(source.devDependencies ?? {}) };
   const next = structuredClone(input);
@@ -136,6 +204,26 @@ export async function readJson<T extends t.Json>(path: string): Promise<T> {
   const res = await Fs.readJson<T>(path);
   if (!res.ok || !res.data) throw new Error(`Failed to read JSON: ${path}`);
   return res.data;
+}
+
+export function extractBareImports(text: string): string[] {
+  const source = stripComments(text);
+  const imports = new Set<string>();
+  const patterns = [
+    /\bfrom\s*['\"]([^'\"]+)['\"]/g,
+    /\bimport\s*['\"]([^'\"]+)['\"]/g,
+    /\bimport\s*\(\s*['\"]([^'\"]+)['\"]\s*\)/g,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) {
+      const specifier = match[1];
+      if (!isBareSpecifier(specifier)) continue;
+      imports.add(specifier);
+    }
+  }
+
+  return [...imports].sort();
 }
 
 export function assertImportMap(input: t.Json, source: string): ImportMap {
@@ -362,4 +450,50 @@ function rewriteModuleVersion(specifier: string, version: string): string {
   if (!match) return specifier;
   const [, prefix, , suffix = ''] = match;
   return `${prefix}@${version}${suffix}`;
+}
+
+async function collectSourceFiles(root: string): Promise<string[]> {
+  const files: string[] = [];
+  for await (const path of walkFiles(root)) {
+    if (isSourceFile(path)) files.push(path);
+  }
+  return files.sort();
+}
+
+async function* walkFiles(root: string): AsyncGenerator<string> {
+  for await (const entry of Deno.readDir(root)) {
+    const path = Fs.join(root, entry.name);
+    if (entry.isDirectory) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      yield* walkFiles(path);
+      continue;
+    }
+    if (entry.isFile) yield path;
+  }
+}
+
+function isSourceFile(path: string) {
+  return /\.(ts|tsx|js|jsx|mts|cts)$/.test(path);
+}
+
+function isBareSpecifier(specifier: string) {
+  return !specifier.startsWith('.')
+    && !specifier.startsWith('/')
+    && !specifier.startsWith('file:')
+    && !specifier.startsWith('data:');
+}
+
+function stripComments(text: string) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
+}
+
+function toPackageSubpath(specifier: string, pkg: string): string | undefined {
+  const suffix = specifier.slice(pkg.length).replace(/^\//, '');
+  return suffix || undefined;
+}
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values)].sort();
 }

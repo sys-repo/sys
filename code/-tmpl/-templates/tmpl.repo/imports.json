@@ -51,7 +51,18 @@
     "@sys/ui-react-components": "jsr:@sys/ui-react-components@0.0.250",
     "@sys/ui-react-components/t": "jsr:@sys/ui-react-components@0.0.250/t",
     "@sys/ui-react-devharness": "jsr:@sys/ui-react-devharness@0.0.287",
-    "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.287/t"
+    "@sys/ui-react-devharness/t": "jsr:@sys/ui-react-devharness@0.0.287/t",
+    "@sys/esm/testing": "jsr:@sys/esm@0.0.27/testing",
+    "@sys/std/obj": "jsr:@sys/std@0.0.337/value",
+    "@sys/std/path": "jsr:@sys/std@0.0.337/path",
+    "@sys/std/try": "jsr:@sys/std@0.0.337",
+    "@sys/ui-react-components/button": "jsr:@sys/ui-react-components@0.0.250/button",
+    "@sys/ui-react-components/cropmarks": "jsr:@sys/ui-react-components@0.0.250/cropmarks",
+    "@sys/ui-react-components/icon": "jsr:@sys/ui-react-components@0.0.250/icon",
+    "@sys/ui-react-components/key-value": "jsr:@sys/ui-react-components@0.0.250/key-value",
+    "@sys/ui-react-components/object-view": "jsr:@sys/ui-react-components@0.0.250/object-view",
+    "react-icons/md": "npm:react-icons@5.6.0/md",
+    "vite": "npm:vite@8.0.8"
   }
 }
 

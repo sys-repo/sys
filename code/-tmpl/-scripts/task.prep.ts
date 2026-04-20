@@ -10,6 +10,9 @@ import {
   PublishedVersion,
   applyPublishedBridges,
   assertPublishedImportExports,
+  augmentImportMapFromSpecifiers,
+  augmentTemplateDeps,
+  collectTemplateBareImports,
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
@@ -54,20 +57,30 @@ export async function main(options: Options = {}) {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
+  const templateSpecifiers = await collectTemplateBareImports([
+    Fs.join(root, 'code/-tmpl/-templates/tmpl.repo'),
+    Fs.join(root, 'code/-tmpl/-templates/tmpl.pkg'),
+  ]);
+  const repoImportMapAugmented = augmentImportMapFromSpecifiers(
+    repoImportMap,
+    rootImportMap,
+    templateSpecifiers,
+  );
   const versionSource = options.versionSource ?? 'workspace';
-  const versions = await resolveVersions(versionSource, repoImportMap);
+  const versions = await resolveVersions(versionSource, repoImportMapAugmented);
   if (versionSource === 'published') {
-    await assertPublishedImportExports(repoImportMap, versions, PublishedExports);
+    await assertPublishedImportExports(repoImportMapAugmented, versions, PublishedExports);
   }
   const repoDeps = await DenoDeps.from(repoDepsText);
   if (repoDeps.error || !repoDeps.data) {
     throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
   }
 
-  const nextImportsBase = syncTemplateImports(repoImportMap, rootImportMap, versions);
+  const nextImportsBase = syncTemplateImports(repoImportMapAugmented, rootImportMap, versions);
   const nextImports = versionSource === 'published' ? applyPublishedBridges(nextImportsBase) : nextImportsBase;
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
-  const nextDeps = syncTemplateDeps(repoDeps.data.deps, versions, rootPackage);
+  const nextDepsAugmented = augmentTemplateDeps(repoDeps.data.deps, templateSpecifiers, versions);
+  const nextDeps = syncTemplateDeps(nextDepsAugmented, versions, rootPackage);
   const nextDepsText = DenoDeps.toYaml(nextDeps).text;
 
   await writeTextIfChanged(path.tmplRepoDeps, repoDepsText, nextDepsText);
