@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-factory",
-  "version": "0.0.214",
+  "version": "0.0.215",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/index.html",
