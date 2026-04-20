@@ -17,7 +17,7 @@ import { resolve } from './u.resolve.ts';
 import { stat } from './u.stat.ts';
 import { toDir } from './u.toDir.ts';
 import { toFile } from './u.toFile.ts';
-import { walk, walkUp } from './u.walk.ts';
+import { findAncestor, walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
 
 export { Path };
@@ -86,5 +86,6 @@ export const Fs: t.Fs.Lib = {
 
   walk,
   walkUp,
+  findAncestor,
   watch: Watch.start,
 };

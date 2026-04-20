@@ -52,6 +52,9 @@ export namespace Fs {
     /** Recursively walk up a directory tree (visitor pattern). */
     readonly walkUp: WalkUp;
 
+    /** Walk upward until the callback returns the first defined result. */
+    readonly findAncestor: FindAncestor;
+
     /** Start a file-system watcher. */
     readonly watch: t.FsWatchLib['start'];
 
@@ -234,6 +237,17 @@ export namespace Fs {
     files(): Promise<WalkFile[]>;
     stop(): void;
   };
+
+  /**
+   * Walk upward until the callback returns the first defined result.
+   */
+  export type FindAncestor = <T = t.StringDir>(
+    start: t.StringPath,
+    onVisit: FindAncestorCallback<T>,
+  ) => Promise<T | undefined>;
+  export type FindAncestorCallback<T> = (
+    e: t.Fs.WalkUpCallbackArgs,
+  ) => Promise<T | undefined> | T | undefined;
 
   /**
    * Details about a walked file.
