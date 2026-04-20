@@ -4,7 +4,7 @@ import { Rx } from '../m.Rx/mod.ts';
 
 describe(`Lazy`, () => {
   it('API', async () => {
-    const m = await import('@sys/std');
+    const m = await import('@sys/std/lazy');
     expect(m.Lazy).to.equal(Lazy);
   });
 

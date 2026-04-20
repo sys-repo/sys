@@ -4,26 +4,37 @@ import { describe, expect, it, pkg } from '../-test.ts';
 describe(`module: ${Pkg.toString(pkg)}`, () => {
   it('API: root stays lean and dedicated leaves remain authoritative', async () => {
     const Std = await import('@sys/std');
+    const Fn = await import('@sys/std/fn');
+    const History = await import('@sys/std/history');
     const Is = await import('@sys/std/is');
+    const Lazy = await import('@sys/std/lazy');
+    const Log = await import('@sys/std/log');
     const Num = await import('@sys/std/num');
     const Obj = await import('@sys/std/obj');
     const ObjPath = await import('@sys/std/obj/path');
+    const Regex = await import('@sys/std/regex');
     const Str = await import('@sys/std/str');
     const Time = await import('@sys/std/time');
-    const Log = await import('@sys/std/log');
-
-    expect(Std.Try).to.be.an('object');
-    expect(Std.Try.run).to.be.a('function');
-    expect(Std.Lazy).to.be.an('object');
+    const Try = await import('@sys/std/try');
 
     expect('Arr' in Std).to.eql(false);
+    expect('Fn' in Std).to.eql(false);
+    expect('History' in Std).to.eql(false);
+    expect('Is' in Std).to.eql(false);
+    expect('Lazy' in Std).to.eql(false);
+    expect('Log' in Std).to.eql(false);
     expect('Num' in Std).to.eql(false);
     expect('Obj' in Std).to.eql(false);
+    expect('Regex' in Std).to.eql(false);
     expect('Str' in Std).to.eql(false);
-    expect('Is' in Std).to.eql(false);
     expect('Time' in Std).to.eql(false);
-    expect('Log' in Std).to.eql(false);
+    expect('Try' in Std).to.eql(false);
 
+    expect(Fn.Fn).to.be.an('object');
+    expect(History.History).to.be.an('object');
+    expect(Lazy.Lazy).to.be.an('object');
+    expect(Regex.Regex).to.be.an('object');
+    expect(Try.Try.run).to.be.a('function');
     expect(Num.Num).to.be.an('object');
     expect(Str.Str).to.be.an('object');
     expect(Str.Str.Lorem).to.equal(Str.Lorem);

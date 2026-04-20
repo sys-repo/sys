@@ -1,5 +1,5 @@
 export { Obj } from '@sys/std/obj';
-export { Try } from '@sys/std';
+export { Try } from '@sys/std/try';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';

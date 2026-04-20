@@ -5,7 +5,7 @@ export { Num } from '@sys/std/num';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Obj } from '@sys/std/obj';
-export { Try } from '@sys/std';
+export { Try } from '@sys/std/try';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
 export { Schema, Type } from '@sys/schema';

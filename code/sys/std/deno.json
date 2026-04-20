@@ -21,7 +21,10 @@
     "./arr": "./src/m.Arr/mod.ts",
     "./delete": "./src/m.Delete/mod.ts",
     "./error": "./src/-exports/-err.ts",
+    "./fn": "./src/m.Fn/mod.ts",
+    "./history": "./src/m.History/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
+    "./lazy": "./src/m.Lazy/mod.ts",
     "./obj": "./src/m.Obj/mod.ts",
     "./obj/path": "./src/m.Obj.Path/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
@@ -33,6 +36,7 @@
     "./pkg": "./src/-exports/-pkg.ts",
     "./random": "./src/-exports/-random.ts",
     "./r": "./src/-exports/-r.ts",
+    "./regex": "./src/m.Regex/mod.ts",
     "./rx": "./src/-exports/-rx.ts",
     "./semver": "./src/m.Semver/mod.ts",
     "./semver/server": "./src/m.Semver.Server/mod.ts",
@@ -43,6 +47,7 @@
     "./testing/server": "./src/-exports/-testing.server.ts",
     "./time": "./src/-exports/-time.ts",
     "./timecode": "./src/-exports/-time.timecode.ts",
+    "./try": "./src/m.Try/mod.ts",
     "./url": "./src/-exports/-url.ts"
   },
   "permissions": {

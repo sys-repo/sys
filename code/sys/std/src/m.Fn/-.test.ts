@@ -3,7 +3,7 @@ import { Fn } from './mod.ts';
 
 describe(`Fn`, () => {
   it('API', async () => {
-    const m = await import('@sys/std');
+    const m = await import('@sys/std/fn');
     expect(m.Fn).to.eql(Fn);
   });
 

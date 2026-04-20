@@ -8,7 +8,8 @@ export { slug } from '@sys/std/random';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
-export { Lazy, Try } from '@sys/std';
+export { Lazy } from '@sys/std/lazy';
+export { Try } from '@sys/std/try';
 export { Obj } from '@sys/std/obj';
 export { Log } from '@sys/std/log';
 

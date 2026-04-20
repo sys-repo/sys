@@ -6,7 +6,7 @@ export { Motion, Motion as M };
  * System
  */
 export { Obj } from '@sys/std/obj';
-export { Try } from '@sys/std';
+export { Try } from '@sys/std/try';
 export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';
 export { Json } from '@sys/std/json';

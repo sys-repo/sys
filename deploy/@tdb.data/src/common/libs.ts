@@ -6,7 +6,7 @@ export { Arr } from '@sys/std/arr';
 export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
-export { Try } from '@sys/std';
+export { Try } from '@sys/std/try';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
