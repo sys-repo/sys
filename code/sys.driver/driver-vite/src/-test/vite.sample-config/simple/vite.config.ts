@@ -8,4 +8,4 @@ const paths = Vite.Config.paths({
   },
 });
 
-export default defineConfig(() => Vite.Config.app({ paths }));
+export default defineConfig(async () => await Vite.Config.app({ paths }));

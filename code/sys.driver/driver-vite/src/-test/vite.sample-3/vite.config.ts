@@ -4,11 +4,11 @@ import { defineConfig } from 'npm:vite';
 /**
  * Sample: with service-worker.
  */
-export default defineConfig(() => {
+export default defineConfig(async () => {
   const entry = './index.html';
   const sw = './sw.ts';
   const paths = Vite.Config.paths({ app: { entry, sw } });
-  return Vite.Config.app({
+  return await Vite.Config.app({
     paths,
     chunks(e) {
       e.chunk('react', 'react');
