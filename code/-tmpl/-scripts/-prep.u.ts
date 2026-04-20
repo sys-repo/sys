@@ -3,7 +3,7 @@ import type { DenoFileLib, Dep as DenoDep } from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import { Jsr } from '@sys/registry/jsr/client';
 import { c } from '@sys/cli';
-import { Str } from '@sys/std';
+import { Str } from '@sys/std/str';
 import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
 import { Time } from '@sys/std/time';

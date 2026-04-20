@@ -5,7 +5,13 @@ export { Schema, Type } from '@sys/schema';
 export { toSchema, V } from '@sys/schema/recipe';
 export { Yaml } from '@sys/yaml';
 
-export { Arr, Num, Obj, Str } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+
+export { Num } from '@sys/std/num';
+
+export { Obj } from '@sys/std/value';
+
+export { Str } from '@sys/std/str';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Path } from '@sys/std/path';

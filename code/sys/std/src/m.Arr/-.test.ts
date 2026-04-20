@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
-import { Arr, Time, asArray } from '../mod.ts';
+import { Arr, asArray } from './mod.ts';
+import { Time } from '../m.Time/mod.ts';
 
 describe('Arr (Array)', () => {
   it('API', async () => {

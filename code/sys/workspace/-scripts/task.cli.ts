@@ -1,8 +1,7 @@
 import { Cli } from '@sys/cli';
 import { c } from '@sys/color/ansi';
 import { Fs } from '@sys/fs';
-import { Str } from '@sys/std';
-
+import { Str } from '@sys/std/str';
 import { createCliSandbox } from './task.cli.fixture.ts';
 
 const sandbox = await createCliSandbox(Deno.args);

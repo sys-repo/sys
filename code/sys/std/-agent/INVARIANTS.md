@@ -5,24 +5,24 @@
 - Purpose of this note: retain the durable rules learned from the leaf-subpath migration and compatibility restoration work.
 
 ## Landed truth
-`@sys/std` is now operating under a compatibility-preserving leaf-export posture:
-- leaf subpaths are valid and preferred where they provide truthful narrow authority
-- root `@sys/std` remains an important compatibility surface during migration
-- compatibility restoration was required after narrowing work proved too strict for existing consumers/tests
+`@sys/std` now operates under a leaf-authoritative posture:
+- symbols with dedicated public leaf subpaths stay off the root barrel
+- package-local `common/libs.ts` files may rebundle those leaves for local ergonomics
+- root `@sys/std` is reserved for symbols that do not yet have their own truthful public leaf
 
-Representative landed fix line:
-- `fix(std): restore root compatibility exports for leaf subpath migration`
+Representative landed policy line:
+- `refactor(std): require leaf imports for dedicated std public modules`
 
 ## Evergreen rules
 
-### 1. Leaf exports are preferred, but compatibility is authoritative during migration
-A migration to narrower leaves must not silently strand existing root consumers unless that break is explicitly intended and coordinated.
+### 1. A dedicated public leaf path is the import authority
+If a symbol has a truthful published subpath such as `@sys/std/time`, `@sys/std/pkg`, `@sys/std/log`, `@sys/std/num`, or `@sys/std/str`, consumers should import from that leaf instead of the root barrel.
 
-### 2. Public root compatibility should be restored when the package historically promised it
-If existing consumers/tests rely on root exports such as `Pkg`, `Is`, `Time`, `Err`, `Log`, or `Timecode`, preserve them while the leaf contract matures.
+### 2. Root exports are only for root-owned concepts
+Do not let `@sys/std` root become a convenience dumping ground. Keep only symbols that do not yet have their own dedicated public leaf.
 
-### 3. Add narrow leaves only when they are truthful and consumer-justified
-Leaf exports should reflect stable public concepts, not internal enthusiasm for decomposition.
+### 3. Convenience belongs in local rebundling, not package root fan-in
+If a package wants ergonomic imports, rebundle leaves inside its own `common/libs.ts` rather than widening `@sys/std` root.
 
 ### 4. Publication/version truth matters as much as local workspace truth
 A leaf path is only usable by generated/external consumers when:
@@ -38,7 +38,7 @@ If templates or generated repos import `@sys/std/<leaf>`, their `-deps.yaml` / i
 ## Review rule for future std narrowing
 When considering a new std leaf or migration step:
 1. confirm the symbol is a stable public concept
-2. preserve root compatibility unless a break is intentional
+2. make the leaf the public authority once the break is intentional
 3. update dependent authority surfaces (templates/import maps/examples)
 4. verify both local package proof and generated/external-consumer truth
 

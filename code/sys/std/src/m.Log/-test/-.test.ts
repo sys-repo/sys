@@ -3,10 +3,10 @@ import { Log } from '../mod.ts';
 
 describe('Log', () => {
   it('API', async () => {
-    const a = await import('../../mod.ts');
-    const b = await import('@sys/std/log');
-    expect(a.Log).to.equal(Log);
-    expect(b.Log).to.equal(Log);
+    const root = await import('../../mod.ts');
+    const leaf = await import('@sys/std/log');
+    expect('Log' in root).to.eql(false);
+    expect(leaf.Log).to.equal(Log);
   });
 
   it('Log.levels', () => {

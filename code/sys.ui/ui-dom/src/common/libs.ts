@@ -1,6 +1,8 @@
 export { Color } from '@sys/color';
 export { Immutable } from '@sys/immutable/rfc6902';
-export { isObject, isRecord, Obj, Str } from '@sys/std';
+export { isObject, isRecord } from '@sys/std/is';
+export { Obj } from '@sys/std/value';
+export { Str } from '@sys/std/str';
 export { Is } from '@sys/std/is';
 export { slug } from '@sys/std/random';
 export { R } from '@sys/std/r';

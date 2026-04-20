@@ -1,5 +1,7 @@
 export { Fs, Pkg as FsPkg } from '@sys/fs';
-export { Num, Obj, Str } from '@sys/std';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/value';
+export { Str } from '@sys/std/str';
 export { Arr } from '@sys/std/arr';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';

@@ -1,6 +1,7 @@
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
-export { Obj, Try } from '@sys/std';
+export { Obj } from '@sys/std/value';
+export { Try } from '@sys/std';
 export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

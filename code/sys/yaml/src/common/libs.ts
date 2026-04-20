@@ -1,5 +1,8 @@
 export { Immutable } from '@sys/immutable/rfc6902';
-export { Arr, Num, Obj, Str } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/value';
+export { Str } from '@sys/std/str';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Pkg } from '@sys/std/pkg';

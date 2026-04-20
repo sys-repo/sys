@@ -1,6 +1,8 @@
 export { c, Cli, stripAnsi } from '@sys/cli';
 export { FileMap, Fs, Path } from '@sys/fs';
-export { Arr, isRecord, Str } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { isRecord } from '@sys/std/is';
+export { Str } from '@sys/std/str';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';

@@ -2,7 +2,9 @@ export { ErrorBoundary } from 'react-error-boundary';
 
 export { Test } from '@sys/testing/spec';
 
-export { Dispose, Obj } from '@sys/std';
+export { Dispose } from '@sys/std';
+
+export { Obj } from '@sys/std/value';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';

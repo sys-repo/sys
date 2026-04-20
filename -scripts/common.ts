@@ -1,4 +1,5 @@
-export { Arr, Str } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Str } from '@sys/std/str';
 export { Args } from '@sys/std/args';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';

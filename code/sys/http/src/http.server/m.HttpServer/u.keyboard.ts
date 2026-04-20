@@ -1,8 +1,7 @@
 import { Process } from '@sys/process';
 import { c } from '@sys/color/ansi';
 import { Cli, Fmt } from '@sys/cli';
-import { Str } from '@sys/std';
-
+import { Str } from '@sys/std/str';
 /**
  * Create a keyboard listener to control the running dev server.
  */

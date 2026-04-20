@@ -10,7 +10,7 @@
 const now = new Date();
 
 import { Jsr } from '@sys/registry/jsr';
-import { Str } from '@sys/std';
+import { Str } from '@sys/std/str';
 import { Args } from '@sys/std/args';
 import { Path } from '@sys/std/path';
 import { Date as D, Time } from '@sys/std/time';

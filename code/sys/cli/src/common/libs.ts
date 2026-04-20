@@ -1,5 +1,6 @@
 export { c, Color, stripAnsi } from '@sys/color/ansi';
-export { Num, Str } from '@sys/std';
+export { Num } from '@sys/std/num';
+export { Str } from '@sys/std/str';
 export { Is } from '@sys/std/is';
 export { Time } from '@sys/std/time';
 export { Args } from '@sys/std/args';

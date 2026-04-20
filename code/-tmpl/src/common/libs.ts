@@ -1,7 +1,11 @@
 /**
  * Standard: @sys/std
  */
-export { Arr, Num, Obj, Str, Try } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/value';
+export { Str } from '@sys/std/str';
+export { Try } from '@sys/std';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';

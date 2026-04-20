@@ -6,7 +6,7 @@ export { Dir, Env, FileMap, Fs, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/client';
 export { Process } from '@sys/process';
 export { Jsr } from '@sys/registry/jsr';
-export { Obj } from '@sys/std';
+export { Obj } from '@sys/std/value';
 export { Args } from '@sys/std/args';
 export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';

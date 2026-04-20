@@ -3,7 +3,7 @@
  * Environment-agnostic logging primitives for consistent, dependency-free console output.
  *
  * @example
- * import { Log } from '@sys/std';
+ * import { Log } from '@sys/std/log';
  * const enabled = { value: true };  // ← signal-like
  * const log = Log.logger('My.Category', { enabled, method: 'info' });
  * log('boot');                      // ← prints

@@ -1,7 +1,7 @@
 import { c, Cli } from '@sys/cli';
 import { Crdt } from '@sys/driver-automerge/fs';
-import { Obj, Str } from '@sys/std';
-
+import { Obj } from '@sys/std/value';
+import { Str } from '@sys/std/str';
 // const ws = 'localhost:3030';
 // const ws = 'waiheke.sync.db.team';
 const ws = 'crdtsync.dbteam.deno.net';

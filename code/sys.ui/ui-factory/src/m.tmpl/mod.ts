@@ -3,7 +3,7 @@
  * File-system templates for `@sys/ui-factory`.
  */
 import { c, Cli } from '@sys/cli';
-import { Str } from '@sys/std';
+import { Str } from '@sys/std/str';
 import { Args } from '@sys/std/args';
 import { Fs, TmplEngine } from '@sys/tmpl-engine';
 import type { t } from '../common.ts';
