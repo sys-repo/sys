@@ -6,7 +6,7 @@ import {
 } from 'react-icons/lu';
 import { MdArrowBack, MdArrowDownward, MdArrowForward, MdArrowUpward } from 'react-icons/md';
 
-import { Icon } from '@sys/ui-react-components';
+import { Icon } from '@sys/ui-react-components/icon';
 const icon = Icon.renderer;
 
 /**

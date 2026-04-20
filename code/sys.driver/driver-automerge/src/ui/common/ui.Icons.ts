@@ -1,4 +1,4 @@
-import { Icon } from '@sys/ui-react-components';
+import { Icon } from '@sys/ui-react-components/icon';
 import { BsFileBinaryFill } from 'react-icons/bs';
 import { FiExternalLink, FiLink } from 'react-icons/fi';
 import { HiDownload } from 'react-icons/hi';

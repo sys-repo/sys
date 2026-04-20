@@ -1,8 +1,9 @@
-import { CenterColumn, Cropmarks } from '@sys/ui-react-components';
+import { Cropmarks } from '@sys/ui-react-components/cropmarks';
+import { CenterColumn } from '@sys/ui-react-components/layout/center-column';
 import {} from '@sys/ui-react-components/t';
 
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
+import { Color, css, type t } from '../common.ts';
 import { IndexTree } from './ui.Section.Host.tsx';
 
 type O = Record<string, unknown>;
