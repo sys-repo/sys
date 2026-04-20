@@ -18,7 +18,9 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     return { kind: 'help', input, text };
   }
 
-  const cwd = await resolveCwd(input.cwd);
+  const resolvedCwd = await resolveCwd(input.cwd);
+  if (resolvedCwd.kind === 'exit') return { kind: 'exit', input };
+  const cwd = resolvedCwd.cwd;
 
   if (parsed.config && parsed.profile) {
     throw new Error('--config and --profile are mutually exclusive; pass exactly one.');

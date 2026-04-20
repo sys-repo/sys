@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
 import { Cli } from '../mod.ts';
+import { GitInitMenu } from '../u.menu.git.init.ts';
 
 describe(`@sys/driver-agent/pi/cli/m.main`, () => {
   it('help → renders wrapper help without launching Pi', async () => {
@@ -71,18 +72,15 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
     }
   });
 
-  it('main → fails clearly when no git ancestor exists', async () => {
+  it('main → exits cleanly when git init recovery is declined', async () => {
     const cwd = await Deno.makeTempDir() as t.StringDir;
+    const prevPrompt = GitInitMenu.prompt;
     try {
-      let error = '';
-      try {
-        await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
-      } catch (err) {
-        error = err instanceof Error ? err.message : String(err);
-      }
-      expect(error).to.contain('Pi startup requires a git repository root');
-      expect(error).to.contain(cwd);
+      Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
+      const res = await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
+      expect(res.kind).to.eql('exit');
     } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Deno.remove(cwd, { recursive: true });
     }
   });

@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
+import { GitInitMenu } from '../../m.cli/u.menu.git.init.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('help → renders profile help without launching Pi', async () => {
@@ -166,6 +167,19 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
+      await Deno.remove(cwd, { recursive: true });
+    }
+  });
+
+  it('main → exits cleanly when git init recovery is declined', async () => {
+    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
+      const res = await Profiles.main({ cwd, argv: ['--profile', 'canon'] });
+      expect(res.kind).to.eql('exit');
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Deno.remove(cwd, { recursive: true });
     }
   });

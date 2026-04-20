@@ -29,6 +29,11 @@ export declare namespace PiCli {
     readonly git: t.StringDir;
   };
 
+  /** Startup cwd resolution result. */
+  export type CwdResolution =
+    | { readonly kind: 'resolved'; readonly cwd: Cwd }
+    | { readonly kind: 'exit' };
+
   /** Wrapper entry input for launching Pi. */
   export type Input = {
     /** Raw argv tokens passed to the CLI wrapper entrypoint. */
@@ -84,7 +89,7 @@ export declare namespace PiCli {
   };
 
   /** Wrapper result union. */
-  export type Result = Help | Ran;
+  export type Result = Help | Ran | Exit;
 
   /** Help output result. */
   export type Help = {
@@ -124,6 +129,12 @@ export declare namespace PiCli {
       readonly detail?: readonly t.StringPath[];
     };
   }
+
+  /** User exited startup without launching Pi. */
+  export type Exit = {
+    readonly kind: 'exit';
+    readonly input: Input;
+  };
 
   /** Successful launch result. */
   export type Ran = {

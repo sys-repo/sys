@@ -17,10 +17,11 @@ export const main: t.PiCli.Lib['main'] = async (input = {}) => {
     };
   }
 
-  const cwd = await resolveCwd(input.cwd);
+  const resolved = await resolveCwd(input.cwd);
+  if (resolved.kind === 'exit') return { kind: 'exit', input };
 
   const output = await run({
-    cwd,
+    cwd: resolved.cwd,
     args: parsed._,
     env: input.env,
     read: input.read,
