@@ -43,8 +43,7 @@
     "./testing/server": "./src/-exports/-testing.server.ts",
     "./time": "./src/-exports/-time.ts",
     "./timecode": "./src/-exports/-time.timecode.ts",
-    "./url": "./src/-exports/-url.ts",
-    "./value": "./src/-exports/-value.ts"
+    "./url": "./src/-exports/-url.ts"
   },
   "permissions": {
     "test": {

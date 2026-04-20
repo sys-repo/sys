@@ -4,10 +4,11 @@ import { describe, expect, it, pkg } from '../-test.ts';
 describe(`module: ${Pkg.toString(pkg)}`, () => {
   it('API: root stays lean and dedicated leaves remain authoritative', async () => {
     const Std = await import('@sys/std');
-    const Value = await import('@sys/std/value');
     const Is = await import('@sys/std/is');
+    const Num = await import('@sys/std/num');
     const Obj = await import('@sys/std/obj');
     const ObjPath = await import('@sys/std/obj/path');
+    const Str = await import('@sys/std/str');
     const Time = await import('@sys/std/time');
     const Log = await import('@sys/std/log');
 
@@ -23,7 +24,9 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect('Time' in Std).to.eql(false);
     expect('Log' in Std).to.eql(false);
 
-    expect(Value.Str.Lorem).to.equal(Value.Lorem);
+    expect(Num.Num).to.be.an('object');
+    expect(Str.Str).to.be.an('object');
+    expect(Str.Str.Lorem).to.equal(Str.Lorem);
     expect(Is.Is.object).to.equal(Is.isObject);
     expect(Is.Is.record).to.equal(Is.isRecord);
     expect(Is.Is.emptyRecord).to.equal(Is.isEmptyRecord);
