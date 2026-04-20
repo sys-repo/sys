@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.187",
+  "version": "0.0.188",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/task.vite.ts --cmd=dev   --in=./src/index.html",
