@@ -6,3 +6,5 @@ export async function main() {
   console.info(Workspace.Run.Fmt.result(result));
   console.info();
 }
+
+if (import.meta.main) await main();
