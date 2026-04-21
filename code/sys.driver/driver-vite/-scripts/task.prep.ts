@@ -6,10 +6,11 @@ const SPECIFIER_ESBUILD = 'npm:esbuild';
 const PATTERN_ESBUILD = /from 'npm:esbuild@[^']+'/;
 const SPECIFIER_VITE_PLUGIN_WASM = 'npm:vite-plugin-wasm';
 const PATTERN_VITE_PLUGIN_WASM = /import\('npm:vite-plugin-wasm@[^']+'\)/;
+const PACKAGE_DIR = Path.dirname(Path.dirname(Path.fromFileUrl(import.meta.url)));
 export const PUBLISHED_FIXTURE_DIRS = [
-  './src/-test/vite.sample-published-baseline',
-  './src/-test/vite.sample-published-ui-baseline',
-  './src/-test/vite.sample-published-ui-components',
+  Path.join(PACKAGE_DIR, 'src/-test/vite.sample-published-baseline'),
+  Path.join(PACKAGE_DIR, 'src/-test/vite.sample-published-ui-baseline'),
+  Path.join(PACKAGE_DIR, 'src/-test/vite.sample-published-ui-components'),
 ] as const;
 
 export async function syncTransportLoaderImport(args: { depsPath: string; targetPath: string }) {

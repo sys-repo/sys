@@ -4,7 +4,6 @@ import {
   describe,
   expect,
   Fs,
-  Http,
   it,
   pkg,
   SAMPLE,
@@ -15,7 +14,6 @@ import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts
 import { Vite } from '../mod.ts';
 
 describe('Vite.dev', () => {
-  const DEV_STARTUP_TIMEOUT_MS = 15_000;
   const DEV_FETCH_TIMEOUT_MS = 5_000;
 
   const printHtml = (html: string, title: string, dir: t.StringDir) => {
@@ -73,10 +71,7 @@ describe('Vite.dev', () => {
 
         const { signal } = controller;
 
-        await Http.Client.waitFor(server.url, {
-          timeout: DEV_STARTUP_TIMEOUT_MS,
-          interval: 200,
-        });
+        // Vite.dev(...) does not return until the child server is reachable.
         timeout = Time.delay(DEV_FETCH_TIMEOUT_MS, () => {
           controller.abort();
           server?.dispose();
@@ -130,10 +125,6 @@ describe('Vite.dev', () => {
         expect(actualPort).to.not.eql(requestedPort);
         expect(server.port).to.eql(actualPort);
 
-        await Http.Client.waitFor(server.url, {
-          timeout: DEV_STARTUP_TIMEOUT_MS,
-          interval: 200,
-        });
         const res = await fetch(server.url);
         const html = await res.text();
 
