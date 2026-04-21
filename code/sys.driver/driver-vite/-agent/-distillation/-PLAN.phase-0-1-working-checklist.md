@@ -105,6 +105,12 @@ Create the internal architectural boundary that later phases need:
 
 But do so with **no intentional runtime behavior change**.
 
+This is still the tactical Phase-1 naming.
+If the seam later graduates cleanly, its more truthful long-term conceptual home is:
+- `m.vite.startup`
+
+Do **not** perform that module rename in Phase 1.
+
 ## Exact target outcome
 At the end of Phase 1, the code should say clearly:
 - this part discovers and projects startup authority
@@ -159,6 +165,13 @@ Do not force it if local internal types inside `project`/`deliver` remain cleane
 If introduced, keep it to:
 - projected startup authority model
 - delivery handle/result
+
+### Naming note
+For this packet, keep `bootstrap` filenames.
+That is tactical and temporary.
+The seam is being split first, not conceptually renamed first.
+The later graduation target is:
+- `src/m.vite.startup/`
 
 ### File that should remain functionally untouched
 #### 5. `src/m.vite/u.wrangle.ts`

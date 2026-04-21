@@ -154,15 +154,33 @@ The implementation target is:
 ## File-shape landing target
 The exact filenames may vary, but the plan assumes a landing shape roughly like this:
 
+### Phase-1 tactical seam names
+For the first implementation packet, keep the current tactical naming:
+- `src/m.vite/u.bootstrap.ts`
+- `src/m.vite/u.bootstrap.project.ts`
+- `src/m.vite/u.bootstrap.deliver.ts`
+- `src/m.vite/u.bootstrap.t.ts`
+
+That keeps the first move behavior-preserving and avoids mixing conceptual graduation with the initial split.
+
+### Final conceptual home
+If the seam lands as intended, its truthful long-term home is better understood as:
+- `src/m.vite.startup/`
+
+That name is preferred over `bootstrap`, `imports`, or `esm`, because the final seam is not a general resolver or module-format subsystem.
+It is a **startup authority projection + delivery + early handoff** seam.
+
 ### likely new/reshaped internal files
 - `src/m.vite/u.bootstrap.ts`
-  - thin coordinator/export surface only
+  - thin coordinator/export surface only in Phase 1
 - `src/m.vite/u.bootstrap.project.ts`
   - startup authority discovery + projection
 - `src/m.vite/u.bootstrap.deliver.ts`
   - delivery handle generation + stable identity logic
 - `src/m.vite/u.bootstrap.t.ts`
   - internal bootstrap model / handle types
+- future graduation target:
+  - `src/m.vite.startup/`
 - `src/m.vite/u.interop.ts` or equivalent narrow helper
   - package/runtime interop facts currently smeared across bootstrap/wrangle
 

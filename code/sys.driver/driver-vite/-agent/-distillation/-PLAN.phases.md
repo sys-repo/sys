@@ -46,6 +46,11 @@ All phases remain downstream of the same architecture sentence:
 
 If a phase implementation stops serving that doctrine, it is off-plan.
 
+Naming doctrine:
+- the tactical Phase-1 seam may still be spelled `bootstrap`
+- the cleaner long-term conceptual home for that seam is `m.vite.startup`
+- that is because the final owned surface is startup preparation and early handoff, not a general imports or ESM subsystem
+
 ---
 
 ## Phase map
