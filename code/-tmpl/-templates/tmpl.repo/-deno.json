@@ -3,7 +3,7 @@
     "ci": "deno task check && deno task test",
     "check": "deno check",
     "check:graph": "deno run -P=test ./-scripts/task.check.graph.ts",
-    "test": "deno test -P=test ./-scripts ./code",
+    "test": "deno run -P=test ./-scripts/task.test.ts",
     "bump": "deno run -P=test ./-scripts/task.bump.ts",
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
     "prep:graph": "deno run -P=test ./-scripts/task.prep.graph.ts",

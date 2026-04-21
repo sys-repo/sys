@@ -38,7 +38,7 @@ Core tasks from `deno.json`:
 - `deno task install` → refreshes `deno.lock`
 - `deno task prep` → syncs dependency authority files, the workspace graph snapshot, generated package metadata, and GitHub workflows for workspace packages under `./code/packages`
 - `deno task prep:graph` → writes the workspace graph snapshot only
-- `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
+- `deno task test` → runs workspace package `test` tasks in topological order with permissions `-P=test`
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
 
 To run the canonical workspace upgrade flow through the same task surface:
