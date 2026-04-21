@@ -1,4 +1,5 @@
 import { Fs, Is, type t } from './common.ts';
+import { ensureGitignore } from './u.ensure.gitignore.ts';
 import { GitInitMenu } from './u.menu.git.init.ts';
 
 type CwdInput = t.StringDir | t.PiCli.Cwd;
@@ -8,7 +9,10 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
 
   const invoked = input ?? Fs.cwd('terminal');
   const git = await findGitRoot(invoked);
-  if (git) return { kind: 'resolved', cwd: { invoked, git } };
+  if (git) {
+    await ensureGitignore(git);
+    return { kind: 'resolved', cwd: { invoked, git } };
+  }
 
   const action = await GitInitMenu.prompt(invoked);
   if (action === 'exit') return { kind: 'exit' };
@@ -19,7 +23,10 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
   }
 
   const resolved = await findGitRoot(invoked);
-  if (resolved) return { kind: 'resolved', cwd: { invoked, git: resolved } };
+  if (resolved) {
+    await ensureGitignore(resolved);
+    return { kind: 'resolved', cwd: { invoked, git: resolved } };
+  }
 
   throw new Error(
     `Pi startup requires a git repository root. No .git ancestor found from ${invoked}`,

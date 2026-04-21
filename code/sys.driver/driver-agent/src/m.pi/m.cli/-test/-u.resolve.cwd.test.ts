@@ -25,6 +25,56 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
     }
   });
 
+  describe('gitignore bootstrap', () => {
+    it('updates an existing .gitignore when a git ancestor is found', async () => {
+      const cwd = await Deno.makeTempDir() as t.StringDir;
+      const nested = Fs.join(cwd, 'a') as t.StringDir;
+      const path = Fs.join(cwd, '.gitignore') as t.StringPath;
+      try {
+        await Deno.mkdir(Fs.join(cwd, '.git'));
+        await Deno.mkdir(nested, { recursive: true });
+        await Fs.write(path, 'node_modules/\n');
+
+        const res = await resolveCwd(nested);
+        expect(res).to.eql({ kind: 'resolved', cwd: { invoked: nested, git: cwd } });
+
+        const read = await Fs.readText(path);
+        if (!read.ok) throw read.error;
+        expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+      } finally {
+        await Deno.remove(cwd, { recursive: true });
+      }
+    });
+
+    it('updates an existing .gitignore after git init recovery', async () => {
+      const cwd = await Deno.makeTempDir() as t.StringDir;
+      const path = Fs.join(cwd, '.gitignore') as t.StringPath;
+      const prevPrompt = GitInitMenu.prompt;
+      const prevInit = GitInitMenu.init;
+      try {
+        await Fs.write(path, 'node_modules/\n');
+        Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'create' });
+        Object.defineProperty(GitInitMenu, 'init', {
+          value: async () => {
+            await Deno.mkdir(Fs.join(cwd, '.git'));
+            return { ok: true, bin: { git: 'git' }, cwd };
+          },
+        });
+
+        const res = await resolveCwd(cwd);
+        expect(res).to.eql({ kind: 'resolved', cwd: { invoked: cwd, git: cwd } });
+
+        const read = await Fs.readText(path);
+        if (!read.ok) throw read.error;
+        expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+      } finally {
+        Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+        Object.defineProperty(GitInitMenu, 'init', { value: prevInit });
+        await Deno.remove(cwd, { recursive: true });
+      }
+    });
+  });
+
   it('offers git init and continues startup when chosen', async () => {
     const cwd = await Deno.makeTempDir() as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
