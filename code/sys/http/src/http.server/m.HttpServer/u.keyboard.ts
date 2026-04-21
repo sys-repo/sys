@@ -7,6 +7,7 @@ import { Str } from '@sys/std/str';
  */
 export async function keyboard(args: {
   port: number;
+  url?: string;
   print?: boolean;
   dispose?: () => Promise<void>;
 }) {
@@ -32,7 +33,7 @@ export async function keyboard(args: {
        * OPEN → open the local browser and point it at the running port.
        */
       if (e.key === 'o') {
-        const url = `http://localhost:${args.port}`;
+        const url = args.url ?? `http://localhost:${args.port}`;
         sh.run(`open ${url}`);
       }
 
