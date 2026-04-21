@@ -7,6 +7,8 @@
   - `-agent/-distillation/-PLAN.md`
 - Proof-matrix companion:
   - `-agent/-distillation/-PLAN.proof-matrix.md`
+- Upstream Vite source reference when causal source checks are needed:
+  - `/Users/phil/code/-random/vite`
 - Target boundary:
   - Vite consumers importing published JSR `@sys/*` modules in dev and build
 
@@ -35,6 +37,9 @@ And in the architecture doctrine:
 **project truth, deliver stably, launch narrowly, delegate early**
 
 must show up not only as cleaner code, but as better consumer-facing behavior.
+
+For this protocol, the preferred consumer-facing behavior is not an abstract benchmark lane.
+It is, wherever practical, an **external call-site simulation using pure/published JSR `@sys/*` imports**.
 
 ---
 
@@ -86,6 +91,7 @@ Measure the user-facing dev startup cost on the target boundary.
 ### Preferred scenarios
 - external/generated published-boundary world from `src/m.vite/-test.external/*`
 - one scenario as small as possible while still crossing the published boundary honestly
+- preferably this smallest world is an explicit external call-site simulation using pure/published JSR `@sys/*` imports
 - one scenario closer to a realistic UI consumer if that remains stable enough for repeated measurement
 
 ### Required observable
@@ -103,6 +109,7 @@ Measure build posture on the same target boundary.
 
 ### Preferred scenarios
 - external/generated published-boundary build world
+- preferably one explicit external call-site / pure-JSR consumer world
 - one transitive-JSR-sensitive world if possible
 
 ### Required observable
@@ -238,10 +245,16 @@ These are the minimum scenarios this protocol should cover.
 ### Why
 Gives the cleanest signal with the least unrelated app noise.
 
+This should preferably be the canonical **external call-site simulation** world:
+- consumer outside the workspace truth world
+- driver used from the outside posture
+- pure/published JSR `@sys/*` imports at the relevant consumer boundary
+
 ### Must measure
 - dev ready elapsed
 - repeated-run posture
 - delivery identity stability note
+- whether the pure/published JSR import world stayed honest during measurement
 
 ---
 
@@ -249,10 +262,13 @@ Gives the cleanest signal with the least unrelated app noise.
 ### Why
 Pairs with Scenario 1 and keeps the claim honest across build as well as dev.
 
+This should preferably exercise the same external call-site / pure-JSR boundary shape as Scenario 1.
+
 ### Must measure
 - build elapsed
 - repeated-run posture if meaningful
 - artifact correctness still green
+- whether the pure/published JSR import world stayed honest during measurement
 
 ---
 

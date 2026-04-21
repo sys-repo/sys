@@ -32,6 +32,10 @@ And in the broader architectural doctrine:
 
 **project truth, deliver stably, launch narrowly, delegate early.**
 
+For this package, that doctrine must stay anchored to the real target boundary:
+
+**an external call-site world using pure/published JSR `@sys/*` imports is a first-class proof target, not a nice-to-have edge lane.**
+
 The matrix is here to make those sentences enforceable.
 
 ---
@@ -190,6 +194,11 @@ At minimum prove:
 Published-boundary reality is the real target boundary.
 The rewrite must not preserve truth only by silently relying on local privilege or bridge-heavy fixture help.
 
+This world should be treated as an **external call-site simulation** world wherever possible:
+- the consumer stands outside the workspace truth world
+- the driver is exercised from that outside posture
+- pure/published JSR `@sys/*` imports remain the honest import boundary under proof
+
 ### Concern bundle
 - consumer: published-boundary or external/generated consumer
 - authority: least local privilege possible
@@ -208,12 +217,14 @@ The rewrite must not preserve truth only by silently relying on local privilege 
 
 ### Required observable
 At minimum prove:
-1. published-boundary scenario starts/builds truthfully
-2. green proof does not depend on local-source aliasing masquerading as the final answer
+1. published-boundary scenario starts/builds truthfully from an external call-site posture
+2. pure/published JSR `@sys/*` import usage remains green in the relevant external world
+3. green proof does not depend on local-source aliasing masquerading as the final answer
 
 ### Likely implementation surface
 - `src/m.vite/-test.external/*`
 - possibly a new generated external fixture variant tuned for reduced local privilege
+- preferably with at least one world explicitly named and shaped as an external call-site / pure-JSR consumer scenario
 
 ### Unlocks
 - **P7**

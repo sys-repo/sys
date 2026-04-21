@@ -13,6 +13,8 @@
   - `src/m.vite.config/-test/*`
   - `src/m.vite.config.workspace/-test/*`
   - `src/m.vite.transport/-test/*`
+- Upstream source reference when narrow Vite seam reading is needed:
+  - `/Users/phil/code/-random/vite`
 - Architecture sources:
   - `-agent/vite8.bootstrap-refactor.intent.md`
   - `-agent/-bootstrap/04.essential-contract-extraction.md`
@@ -94,6 +96,14 @@ These are non-negotiable.
 
 ## Execution posture
 This plan must be executed in a strict cadence.
+
+### Upstream source posture
+Do **not** do broad Vite source reading before implementation movement.
+If later phases require narrow upstream confirmation about ownership, startup handoff, or runtime-additions justification, use the local Vite source clone at:
+
+- `/Users/phil/code/-random/vite`
+
+Read only the smallest relevant seam needed for the concrete question at hand.
 
 ### Per phase
 1. state the phase goal
