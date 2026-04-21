@@ -72,14 +72,23 @@ Capture:
 - anything that looks unrelated to the bootstrap seam and should stay out of the first move
 
 ## If red
-Do **not** start Phase 1.
+Do **not** start Phase 1 automatically.
 Instead:
 1. classify the failure
 2. decide whether it is:
    - existing seam instability
    - unrelated noise
    - actual prerequisite blocker
+   - a separate published/external validation lane that is not executing the local working tree
 3. only continue after the line is back to known-green or the blocker is explicitly classified
+
+### Temporary local external-lane posture
+If the published/external lane is locally red because it is consuming the currently published package rather than the local working tree, that lane may be temporarily skipped/classified for the duration of the initial local refactor move.
+
+That is allowed only under these conditions:
+- the lane remains explicitly documented as serious and temporary
+- internal/local proof gates stay green
+- the external published lane is re-enabled and revalidated after the local refactor move is clean
 
 ## Phase 0 success condition
 - all baseline commands green

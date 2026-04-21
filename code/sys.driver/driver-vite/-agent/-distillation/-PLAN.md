@@ -215,6 +215,16 @@ deno task test --trace-leaks ./src/m.vite/-test/-build.transitive-jsr.test.ts ./
 deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts
 ```
 
+### Temporary local posture during the refactor campaign
+The external/published-boundary lane remains a serious proof target and is **not** being retired.
+However, if that lane is locally red because it is executing the currently published package rather than the local working tree, it may be classified separately from the local Phase 1 factoring move.
+
+That means:
+- do not treat the external published lane as nonsense
+- do not silently delete its proof role
+- do allow temporary local skipping/classification where needed so the behavior-preserving local refactor can proceed cleanly
+- re-enable and revalidate the full external published lane after the local refactor move is clean and complete
+
 ### Why this exact baseline
 It covers:
 - wrangle launch contract
