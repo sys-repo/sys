@@ -1,7 +1,7 @@
 import { Workspace } from '@sys/workspace';
 
 export async function main() {
-  const result = await Workspace.Run.test({ filter: (e) => true });
+  const result = await Workspace.Run.test();
   console.info();
   console.info(Workspace.Run.Fmt.result(result));
   console.info();

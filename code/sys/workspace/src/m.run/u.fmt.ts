@@ -69,6 +69,7 @@ const wrangle = {
 
   taskNoun(task: t.WorkspaceRun.Task) {
     if (task === 'test') return 'tests';
+    if (task === 'dry') return 'dry runs';
     return 'checks';
   },
 } as const;

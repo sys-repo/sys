@@ -58,6 +58,23 @@ describe('WorkspaceRun', () => {
     expect(log).to.eql('test:pkg-c\\n');
   });
 
+  it('runs declared package dry tasks in topological order', async () => {
+    const fs = await Testing.dir('WorkspaceRun.dry');
+    await writeWorkspace(fs.dir, { failCheck: false });
+
+    const result = await WorkspaceRun.dry({
+      cwd: fs.dir,
+      rebuildGraph: true,
+      filter: (e) => e.pkg.name === '@test/pkg-a' || e.pkg.name === '@test/pkg-c',
+    });
+    expect(result.ok).to.eql(true);
+    expect(result.task).to.eql('dry');
+    expect(result.orderedPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+    expect(result.packages).to.have.length(2);
+    expect(result.packages[0]?.kind).to.eql('ran');
+    expect(result.packages[1]?.kind).to.eql('ran');
+  });
+
   it('formats the run summary contract', async () => {
     const fs = await Testing.dir('WorkspaceRun.fmt');
     await writeWorkspace(fs.dir, { failCheck: false });
@@ -78,6 +95,21 @@ describe('WorkspaceRun', () => {
     expect(text.includes('package')).to.eql(true);
     expect(text.includes('code/pkg-a')).to.eql(true);
     expect(text.includes('code/pkg-c')).to.eql(true);
+  });
+
+  it('formats dry run titles', async () => {
+    const fs = await Testing.dir('WorkspaceRun.fmt.dry');
+    await writeWorkspace(fs.dir, { failCheck: false });
+
+    const result = await WorkspaceRun.dry({
+      cwd: fs.dir,
+      rebuildGraph: true,
+      filter: (e) => e.pkg.name === '@test/pkg-a',
+    });
+    const text = Cli.stripAnsi(WorkspaceRun.Fmt.result(result));
+
+    expect(text.includes('Workspace dry runs done in')).to.eql(true);
+    expect(text.includes(' task      dry')).to.eql(true);
   });
 
   it('stops on the first failing package check', async () => {

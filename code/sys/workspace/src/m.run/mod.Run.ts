@@ -6,5 +6,6 @@ import { runTask } from './u.run.ts';
 export const WorkspaceRun: t.WorkspaceRun.Lib = {
   Fmt,
   check: (args) => runTask('check', args),
+  dry: (args) => runTask('dry', args),
   test: (args) => runTask('test', args),
 };

@@ -14,7 +14,8 @@ export async function runTask(
   const packages: t.WorkspaceRun.Package.Result[] = [];
 
   for (const candidate of candidates) {
-    if (!hasTask(candidate.deno, task)) {
+    const command = wrangle.command(candidate.deno, task);
+    if (!command) {
       packages.push({ kind: 'skipped', path: candidate.dir, reason: 'task:missing' });
       continue;
     }
@@ -26,8 +27,8 @@ export async function runTask(
     const packageStartedAt = Time.now.timestamp;
     const output = await Process.inherit({
       cwd: Fs.join(cwd, candidate.dir),
-      cmd: 'deno',
-      args: ['task', task],
+      cmd: command.cmd,
+      args: [...command.args],
     });
     const ran: t.WorkspaceRun.Package.Ran = {
       kind: 'ran',
@@ -111,7 +112,18 @@ type Candidate = {
   readonly deno: Record<string, unknown>;
 };
 
+type Command = {
+  readonly cmd: string;
+  readonly args: readonly string[];
+};
+
 const wrangle = {
+  command(deno: Record<string, unknown>, task: t.WorkspaceRun.Task): Command | null {
+    if (hasTask(deno, task)) return { cmd: 'deno', args: ['task', task] };
+    if (task === 'dry') return { cmd: 'deno', args: ['publish', '--allow-dirty', '--dry-run'] };
+    return null;
+  },
+
   async candidates(
     cwd: t.StringDir,
     task: t.WorkspaceRun.Task,

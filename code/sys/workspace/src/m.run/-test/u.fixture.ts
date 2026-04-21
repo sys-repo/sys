@@ -10,6 +10,7 @@ export async function writeWorkspace(cwd: string, args: { readonly failCheck: bo
     tasks: {
       test: script("Deno.writeTextFileSync('../../run.log', 'test:pkg-a\\n', { append: true });"),
       check: script("Deno.writeTextFileSync('../../run.log', 'check:pkg-a\\n', { append: true });"),
+      dry: script("Deno.writeTextFileSync('../../run.log', 'dry:pkg-a\\n', { append: true });"),
     },
     source: `export const a = 'a';\n`,
   });
@@ -34,6 +35,7 @@ export async function writeWorkspace(cwd: string, args: { readonly failCheck: bo
     tasks: {
       test: script("Deno.writeTextFileSync('../../run.log', 'test:pkg-c\\n', { append: true });"),
       check: script("Deno.writeTextFileSync('../../run.log', 'check:pkg-c\\n', { append: true });"),
+      dry: script("Deno.writeTextFileSync('../../run.log', 'dry:pkg-c\\n', { append: true });"),
     },
     source: Str.dedent(`
       import { b } from '../../pkg-b/src/mod.ts';

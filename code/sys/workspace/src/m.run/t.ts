@@ -10,6 +10,8 @@ export declare namespace WorkspaceRun {
     readonly Fmt: Fmt.Lib;
     /** Run `deno task check` across ordered workspace packages. */
     check(args?: Args): Promise<Result>;
+    /** Run package dry runs across ordered workspace packages. */
+    dry(args?: Args): Promise<Result>;
     /** Run `deno task test` across ordered workspace packages. */
     test(args?: Args): Promise<Result>;
   };
@@ -40,7 +42,7 @@ export declare namespace WorkspaceRun {
   export type Filter = (entry: FilterEntry) => boolean;
 
   /** Canonical workspace task names supported by this surface. */
-  export type Task = 'check' | 'test';
+  export type Task = 'check' | 'dry' | 'test';
 
   /** Package-level outcomes during one workspace task run. */
   export namespace Package {

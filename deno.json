@@ -1,12 +1,12 @@
 {
   "tasks": {
     "install": "deno install --reload",
-    "info": "deno run -P=dev ./-scripts/main.ts --info",
-    "ci": "deno run -P=test ./-scripts/main.ts --dry --test --info",
-    "test": "deno run -P=test ./-scripts/main.ts --test",
-    "check": "deno task dry",
+    "info": "deno run -P=dev ./-scripts/task.info.ts",
+    "ci": "deno task check && deno task dry && deno task test && deno task info",
+    "test": "deno run -P=test ./-scripts/task.test.ts",
+    "check": "deno run -P=test ./-scripts/task.check.ts",
     "check:graph": "deno run -P=dev ./-scripts/task.check.graph.ts",
-    "dry": "deno run -P=test ./-scripts/main.ts --dry",
+    "dry": "deno run -P=test ./-scripts/task.dry.ts",
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
     "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",

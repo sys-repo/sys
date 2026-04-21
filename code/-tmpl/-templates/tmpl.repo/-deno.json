@@ -1,9 +1,10 @@
 {
   "tasks": {
-    "ci": "deno task check && deno task test",
-    "check": "deno check",
+    "ci": "deno task check && deno task dry && deno task test",
+    "check": "deno run -P=test ./-scripts/task.check.ts",
     "check:graph": "deno run -P=test ./-scripts/task.check.graph.ts",
     "test": "deno run -P=test ./-scripts/task.test.ts",
+    "dry": "deno run -P=test ./-scripts/task.dry.ts",
     "bump": "deno run -P=test ./-scripts/task.bump.ts",
     "prep": "deno run -P=test ./-scripts/task.prep.ts",
     "prep:graph": "deno run -P=test ./-scripts/task.prep.graph.ts",
