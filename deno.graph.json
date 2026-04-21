@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1776733912741,
+    "createdAt": 1776811680740,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-4bc42d4efa6d8b93015944fbcb82a744212dee59febe86c4a56a060f6b5e5e46",
+      "/graph": "sha256-418c4e7d8aa7348a745bc6c680f5ed354c4472ede123ade8c8cc6d91be73a572",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.69/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.69/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1776733912746
+    "modifiedAt": 1776811680745
   },
   "graph": {
     "orderedPaths": [
@@ -1229,6 +1229,10 @@
       {
         "from": "code/sys/testing",
         "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/text",
