@@ -1,4 +1,5 @@
 import { Fs } from '../../-test.ts';
+import { resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 export async function authorityConflictFixture(prefix: string) {
@@ -87,6 +88,9 @@ export async function bootstrapImportMap(
   return {
     path,
     data: loaded.data ?? {},
+    resolve(value?: string) {
+      return resolveFromImportMap(path, value);
+    },
     dispose: res.dispose,
   } as const;
 }

@@ -105,7 +105,7 @@ const projection = {
   },
 
   async consumerVersion(cwd: string, name: string) {
-    const pkgPath = projection.packageAnchor(cwd);
+    const pkgPath = await projection.packageAnchor(cwd);
     const pkg = (await Fs.readJson<{
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -113,17 +113,13 @@ const projection = {
     return pkg.dependencies?.[name] ?? pkg.devDependencies?.[name] ?? '';
   },
 
-  packageAnchor(start: string) {
+  async packageAnchor(start: string) {
     let current = Path.resolve(start);
 
     while (true) {
       const path = Path.join(current, 'package.json');
-      try {
-        const stat = Deno.statSync(path);
-        if (stat.isFile) return path;
-      } catch {
-        // Keep climbing until we find the consumer package boundary.
-      }
+      const stat = await Fs.stat(path);
+      if (stat?.isFile) return path;
 
       const parent = Path.dirname(current);
       if (parent === current) return Path.join(Path.resolve(start), 'package.json');

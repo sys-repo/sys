@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Json } from '../../-test.ts';
 import { ViteStartup } from '../../m.vite.startup/mod.ts';
 
 describe('Bootstrap runtime-additions world', () => {
@@ -100,8 +100,8 @@ async function fixture(args: {
 }) {
   const tmp = await Fs.makeTempDir({ prefix: args.prefix });
   const root = tmp.absolute;
-  await Deno.writeTextFile(`${root}/package.json`, `${JSON.stringify(args.packageJson, null, 2)}\n`);
-  await Deno.writeTextFile(`${root}/deno.json`, `${JSON.stringify(args.denoJson, null, 2)}\n`);
+  await Fs.write(`${root}/package.json`, `${Json.stringify(args.packageJson, 2)}\n`);
+  await Fs.write(`${root}/deno.json`, `${Json.stringify(args.denoJson, 2)}\n`);
   return root;
 }
 

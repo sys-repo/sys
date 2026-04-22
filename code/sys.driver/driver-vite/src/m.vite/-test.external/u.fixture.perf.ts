@@ -43,7 +43,7 @@ export const Perf = {
       scenario,
       runs,
       deliveryIdentityNote:
-        'Current delivery identity remains unstable; see src/m.vite/-test/-bootstrap.delivery.identity.test.ts.',
+        'Delivery identity is now deterministic; published-boundary build remains red for separate reasons.',
       samples,
     };
   },

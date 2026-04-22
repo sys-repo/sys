@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Path } from '../../-test.ts';
 import { authorityConflictFixture, bootstrapImportMap } from './u.bootstrap.fixture.ts';
 
 describe('Bootstrap authority conflict world', () => {
@@ -8,9 +8,15 @@ describe('Bootstrap authority conflict world', () => {
 
     try {
       const imports = delivery.data.imports as Record<string, string> | undefined;
-      expect(imports?.['@shared/conflict']).to.eql('./child-conflict.ts');
-      expect(imports?.['@child/only']).to.eql('./child-only.ts');
-      expect(imports?.['@inline/child']).to.eql('./inline-child.ts');
+      expect(delivery.resolve(imports?.['@shared/conflict'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'child-conflict.ts')).href,
+      );
+      expect(delivery.resolve(imports?.['@child/only'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'child-only.ts')).href,
+      );
+      expect(delivery.resolve(imports?.['@inline/child'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'inline-child.ts')).href,
+      );
     } finally {
       await delivery.dispose();
     }
@@ -22,9 +28,15 @@ describe('Bootstrap authority conflict world', () => {
 
     try {
       const imports = delivery.data.imports as Record<string, string> | undefined;
-      expect(imports?.['@root/only']).to.eql('./root-only.ts');
-      expect(imports?.['@inline/root']).to.eql('./inline-root.ts');
-      expect(imports?.['@child/only']).to.eql('./child-only.ts');
+      expect(delivery.resolve(imports?.['@root/only'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'root-only.ts')).href,
+      );
+      expect(delivery.resolve(imports?.['@inline/root'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'inline-root.ts')).href,
+      );
+      expect(delivery.resolve(imports?.['@child/only'])).to.eql(
+        Path.toFileUrl(Path.join(ctx.child, 'child-only.ts')).href,
+      );
     } finally {
       await delivery.dispose();
     }

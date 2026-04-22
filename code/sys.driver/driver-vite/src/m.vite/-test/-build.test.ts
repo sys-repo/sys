@@ -1,5 +1,5 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
-import { extractModulePreloadLinks } from './-u.ts';
+import { extractModulePreloadLinks } from './u.html.ts';
 import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 

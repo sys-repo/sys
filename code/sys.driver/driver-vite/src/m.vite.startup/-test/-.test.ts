@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Path } from '../../-test.ts';
+import { relativeFromImportMap, resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Vite } from '../../m.vite/mod.ts';
 import { ViteStartup } from '../mod.ts';
 
@@ -109,13 +110,22 @@ describe(`ViteStartup`, () => {
     }>(handle.path);
 
     expect(handle.path.includes('.vite.bootstrap.')).to.eql(true);
+    expect(handle.path.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
     expect(written.data?.imports?.['#module-sync-enabled']).to.match(
       /^file:.*module-sync-enabled\.mjs$/,
     );
-    expect(written.data?.imports?.['@sys/fs']).to.eql('./src/fs.ts');
-    expect(written.data?.imports?.['@sys/http']).to.eql('./src/http.ts');
+    expect(resolveFromImportMap(handle.path, written.data?.imports?.['@sys/fs'])).to.eql(
+      Path.toFileUrl(Path.join(root, 'src/fs.ts')).href,
+    );
+    expect(resolveFromImportMap(handle.path, written.data?.imports?.['@sys/http'])).to.eql(
+      Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
+    );
     expect(written.data?.imports?.vite).to.eql('npm:vite@8.0.9');
-    expect(written.data?.scopes?.['./src/']).to.eql({ '@sys/std': './src/std.ts' });
+    expect(written.data?.scopes).to.eql({
+      [relativeFromImportMap(handle.path, Path.join(root, 'src'), true)]: {
+        '@sys/std': relativeFromImportMap(handle.path, Path.join(root, 'src/std.ts')),
+      },
+    });
 
     await handle.cleanup();
     expect(await Fs.exists(handle.path)).to.eql(false);

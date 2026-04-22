@@ -1,4 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Path } from '../../-test.ts';
+import { relativeFromImportMap } from '../../-test/u.importMap.ts';
 import { authorityConflictFixture, bootstrapImportMap } from './u.bootstrap.fixture.ts';
 
 describe('Bootstrap payload world', () => {
@@ -20,13 +21,13 @@ describe('Bootstrap payload world', () => {
 
     try {
       expect(delivery.data.scopes).to.eql({
-        './child/': {
-          '@scope/child': './scope-child.ts',
+        [relativeFromImportMap(delivery.path, Path.join(ctx.child, 'child'), true)]: {
+          '@scope/child': relativeFromImportMap(delivery.path, Path.join(ctx.child, 'scope-child.ts')),
         },
       });
       expect(delivery.data.scopes).to.not.eql({
-        './root/': {
-          '@scope/root': './scope-root.ts',
+        [relativeFromImportMap(delivery.path, Path.join(ctx.child, 'root'), true)]: {
+          '@scope/root': relativeFromImportMap(delivery.path, Path.join(ctx.child, 'scope-root.ts')),
         },
       });
     } finally {

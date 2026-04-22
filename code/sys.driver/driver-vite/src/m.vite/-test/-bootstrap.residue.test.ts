@@ -2,15 +2,16 @@ import { describe, expect, Fs, it } from '../../-test.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Bootstrap residue world', () => {
-  it('build: current delivery materialization is visible in the consumer root until cleanup', async () => {
+  it('build: delivery materialization stays out of the consumer root surface during normal operation', async () => {
     const ctx = await fixture('vite.bootstrap.residue.build-');
     expect(await visibleBootstrapFiles(ctx.root)).to.eql([]);
 
     const res = await Wrangle.command(ctx.paths, 'build');
     try {
-      const during = await visibleBootstrapFiles(ctx.root);
-      expect(during.some((name) => name.endsWith('.imports.json'))).to.eql(true);
-      expect(during.some((name) => name.endsWith('.module-sync-enabled.mjs'))).to.eql(true);
+      expect(await visibleBootstrapFiles(ctx.root)).to.eql([]);
+      const importMapPath = importMapArg(res.args);
+      expect(importMapPath.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
+      expect(await Fs.exists(importMapPath)).to.eql(true);
     } finally {
       await res.dispose();
     }
@@ -18,15 +19,16 @@ describe('Bootstrap residue world', () => {
     expect(await visibleBootstrapFiles(ctx.root)).to.eql([]);
   });
 
-  it('dev: current delivery materialization is visible in the consumer root until cleanup', async () => {
+  it('dev: delivery materialization stays out of the consumer root surface during normal operation', async () => {
     const ctx = await fixture('vite.bootstrap.residue.dev-');
     expect(await visibleBootstrapFiles(ctx.root)).to.eql([]);
 
     const res = await Wrangle.command(ctx.paths, 'dev --port=4173 --host');
     try {
-      const during = await visibleBootstrapFiles(ctx.root);
-      expect(during.some((name) => name.endsWith('.imports.json'))).to.eql(true);
-      expect(during.some((name) => name.endsWith('.module-sync-enabled.mjs'))).to.eql(true);
+      expect(await visibleBootstrapFiles(ctx.root)).to.eql([]);
+      const importMapPath = importMapArg(res.args);
+      expect(importMapPath.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
+      expect(await Fs.exists(importMapPath)).to.eql(true);
     } finally {
       await res.dispose();
     }
@@ -63,11 +65,14 @@ async function fixture(prefix: string) {
   };
 }
 
+function importMapArg(args: readonly string[]) {
+  return args.find((item) => item.startsWith('--import-map='))?.replace('--import-map=', '') ?? '';
+}
+
 async function visibleBootstrapFiles(root: string) {
-  const names: string[] = [];
-  for await (const entry of Deno.readDir(root)) {
-    if (!entry.name.startsWith('.vite.bootstrap.')) continue;
-    names.push(entry.name);
-  }
-  return names.sort();
+  const paths = await Fs.ls(root, { trimCwd: true, depth: 1 });
+  return paths
+    .map((path) => Fs.basename(path))
+    .filter((name) => name.startsWith('.vite.bootstrap.'))
+    .sort();
 }

@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Path } from '../../-test.ts';
+import { resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite.Wrangle', () => {
@@ -53,7 +54,9 @@ describe('Vite.Wrangle', () => {
     expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(
       'npm:@rolldown/pluginutils@1.0.0-rc.7',
     );
-    expect(importMap?.data?.imports?.['@sys/http']).to.eql('./src/http.ts');
+    expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to.eql(
+      Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
+    );
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include(root);
     expect(allowWrite).to.include('node_modules/.vite');
@@ -108,23 +111,15 @@ describe('Vite.Wrangle', () => {
     await res.dispose();
   });
 
-  it('anchors npm resolution at the nearest consumer package boundary', () => {
-    const root = '/tmp/repo';
-    const original = Deno.statSync;
+  it('anchors npm resolution at the nearest consumer package boundary', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.anchor-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, { dependencies: {} });
 
-    Deno.statSync = ((path: string | URL) => {
-      if (String(path) === '/tmp/repo/package.json') {
-        return { isFile: true } as Deno.FileInfo;
-      }
-      throw new Deno.errors.NotFound('missing');
-    }) as typeof Deno.statSync;
-
-    try {
-      const res = Wrangle.packageAnchor('/tmp/repo/code/projects/foo');
-      expect(res).to.eql('/tmp/repo/package.json');
-    } finally {
-      Deno.statSync = original;
-    }
+    const res = await Wrangle.packageAnchor(project);
+    expect(res).to.eql(`${root}/package.json`);
   });
 
   it('viteSpecifier: uses consumer package authority for published https module origins', async () => {
