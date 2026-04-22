@@ -35,16 +35,7 @@ describe('Vite published external minimal-crutch world', () => {
   });
 
   it('build: external pure-JSR world builds without falling forward to local-source alias privilege', async () => {
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: [
-        'eval',
-        '--node-modules-dir=auto',
-        BUILD_PROBE_SOURCE,
-      ],
-      cwd: ROOT.resolve('code/sys.driver/driver-vite'),
-      silent: true,
-    });
+    const res = await runProbe(BUILD_PROBE_SOURCE);
 
     expect(res.success).to.eql(true);
     const data = parseProbeJson<{
@@ -62,16 +53,7 @@ describe('Vite published external minimal-crutch world', () => {
   });
 
   it('dev: external pure-JSR world serves transformed entry without local-source alias privilege', async () => {
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: [
-        'eval',
-        '--node-modules-dir=auto',
-        DEV_PROBE_SOURCE,
-      ],
-      cwd: ROOT.resolve('code/sys.driver/driver-vite'),
-      silent: true,
-    });
+    const res = await runProbe(DEV_PROBE_SOURCE);
 
     expect(res.success).to.eql(true);
     const data = parseProbeJson<{
@@ -118,14 +100,18 @@ const DEV_PROBE_SOURCE = `
   const res = await devSample({
     sampleName: 'Vite.published.minimal-crutch.dev.probe',
     sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
+    moduleMode: 'none',
   });
   try {
+    const moduleTexts = await Promise.all(
+      res.entry.imports.map(async (url) => (await res.fetch(url)).text),
+    );
     console.log(JSON.stringify({
       ok: true,
       htmlStatus: res.html.status,
       entryStatus: res.entry.status,
       entryText: res.entry.text,
-      moduleTexts: res.modules.map((mod) => mod.text),
+      moduleTexts,
     }));
   } finally {
     await res.dev.dispose();
@@ -136,6 +122,23 @@ function parseProbeJson<T>(stdout: string): T {
   const lines = stdout.trim().split('\n').filter(Boolean);
   const line = lines.at(-1) ?? '{}';
   return JSON.parse(line) as T;
+}
+
+async function runProbe(source: string) {
+  const cwd = ROOT.resolve('code/sys.driver/driver-vite');
+  const path = Fs.join(cwd, `.tmp.published-minimal-crutch.${crypto.randomUUID()}.ts`);
+  await Fs.write(path, source);
+
+  try {
+    return await Process.invoke({
+      cmd: 'deno',
+      args: ['run', '-P=test', '--node-modules-dir=auto', path],
+      cwd,
+      silent: true,
+    });
+  } finally {
+    await Fs.remove(path, { log: false });
+  }
 }
 
 async function externalStartupImportMap(arg: string) {
