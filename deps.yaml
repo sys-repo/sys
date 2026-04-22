@@ -40,7 +40,7 @@ deno.json:
   - import: npm:ollama@0.6.3
   - import: npm:gpt-tokenizer@3.4.0
   - import: npm:@elevenlabs/elevenlabs-js@2.44.0
-  - import: npm:@automerge/automerge@3.2.5
+  - import: npm:@automerge/automerge@3.2.6
   - import: npm:@automerge/automerge-repo@2.5.5
   - import: npm:@automerge/automerge-repo-network-websocket@2.5.5
   - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.5
@@ -66,7 +66,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.68.1
+  - import: npm:@mariozechner/pi-coding-agent@0.69.0
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
@@ -77,7 +77,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.2.0
+  - import: npm:@stripe/stripe-js@9.3.0
   - import: npm:ws@8.20.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
