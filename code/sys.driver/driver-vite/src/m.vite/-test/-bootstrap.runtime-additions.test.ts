@@ -23,7 +23,7 @@ describe('Bootstrap runtime-additions world', () => {
     expect('@rolldown/pluginutils' in authority.imports).to.eql(false);
   });
 
-  it('plugin-react-sensitive additions only appear when that interop fact is present', async () => {
+  it('plugin-react interop does not widen the startup additions surface by itself', async () => {
     const plainRoot = await fixture({
       prefix: 'vite.bootstrap.runtime-additions.plain-react-',
       packageJson: {
@@ -58,7 +58,8 @@ describe('Bootstrap runtime-additions world', () => {
     expectStartupCriticalBaseline(plain.imports, 'npm:vite@8.0.9');
     expectStartupCriticalBaseline(react.imports, 'npm:vite@8.0.9');
     expect('@rolldown/pluginutils' in plain.imports).to.eql(false);
-    expect(react.imports['@rolldown/pluginutils']).to.match(/^npm:@rolldown\/pluginutils@/);
+    expect('@rolldown/pluginutils' in react.imports).to.eql(false);
+    expect(Object.keys(react.imports)).to.eql(Object.keys(plain.imports));
   });
 
   it('remaining additions stay explicit instead of mirroring consumer package dependencies', async () => {
@@ -107,37 +108,21 @@ async function fixture(args: {
 
 function expectStartupCriticalBaseline(imports: Record<string, string>, vite: string) {
   expect(Object.keys(imports)).to.include.members([...REQUIRED_STARTUP_IMPORT_KEYS]);
-  expect(imports.fs).to.eql('node:fs');
-  expect(imports.path).to.eql('node:path');
   expect(imports.zlib).to.eql('node:zlib');
   expect(imports.vite).to.eql(vite);
   expect(imports['vite/internal']).to.eql(`${vite}/internal`);
   expect(imports['vite/module-runner']).to.eql(`${vite}/module-runner`);
-  expect(imports.lightningcss).to.match(/^npm:lightningcss@/);
-  expect(imports.picomatch).to.match(/^npm:picomatch@/);
-  expect(imports.postcss).to.match(/^npm:postcss@/);
-  expect(imports.rolldown).to.match(/^npm:rolldown@/);
-  expect(imports.tinyglobby).to.match(/^npm:tinyglobby@/);
-  expect(imports['rolldown/experimental']).to.match(/^npm:rolldown@.+\/experimental$/);
-  expect(imports['rolldown/filter']).to.match(/^npm:rolldown@.+\/filter$/);
-  expect(imports['rolldown/parseAst']).to.match(/^npm:rolldown@.+\/parseAst$/);
-  expect(imports['rolldown/plugins']).to.match(/^npm:rolldown@.+\/plugins$/);
-  expect(imports['rolldown/utils']).to.match(/^npm:rolldown@.+\/utils$/);
+  expect(imports.fs).to.eql(undefined);
+  expect(imports.path).to.eql(undefined);
+  expect(imports.lightningcss).to.eql(undefined);
+  expect(imports.picomatch).to.eql(undefined);
+  expect(imports.postcss).to.eql(undefined);
+  expect(imports.rolldown).to.eql(undefined);
+  expect(imports['rolldown/experimental']).to.eql(undefined);
+  expect(imports.tinyglobby).to.eql(undefined);
 }
 
 const REQUIRED_STARTUP_IMPORT_KEYS = [
-  'fs',
-  'lightningcss',
-  'path',
-  'picomatch',
-  'postcss',
-  'rolldown',
-  'rolldown/experimental',
-  'rolldown/filter',
-  'rolldown/parseAst',
-  'rolldown/plugins',
-  'rolldown/utils',
-  'tinyglobby',
   'vite',
   'vite/internal',
   'vite/module-runner',

@@ -46,14 +46,12 @@ describe('Vite.Wrangle', () => {
     expect(importMap?.data?.imports?.['#module-sync-enabled']).to.match(
       /^file:.*module-sync-enabled\.mjs$/,
     );
-    expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(
-      'npm:rolldown@1.0.0-rc.11/experimental',
-    );
     expect(importMap?.data?.imports?.zlib).to.eql('node:zlib');
-    expect(importMap?.data?.imports?.tinyglobby).to.eql('npm:tinyglobby@^0.2.15');
-    expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(
-      'npm:@rolldown/pluginutils@1.0.0-rc.7',
-    );
+    expect(importMap?.data?.imports?.fs).to.eql(undefined);
+    expect(importMap?.data?.imports?.path).to.eql(undefined);
+    expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(undefined);
+    expect(importMap?.data?.imports?.tinyglobby).to.eql(undefined);
+    expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(undefined);
     expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to.eql(
       Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
     );

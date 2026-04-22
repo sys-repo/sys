@@ -36,11 +36,31 @@ const projection = {
   ): BootstrapSource {
     const primary = args.nearest ?? args.root;
     if (!primary) return { dir: args.cwd, imports: {} };
+
+    const inheritedRootImports = args.nearest && args.root
+      ? projection.rootStartupImports(args.root.imports)
+      : {};
+
     return {
       dir: primary.dir,
-      imports: { ...primary.imports },
+      imports: { ...inheritedRootImports, ...primary.imports },
       ...(primary.scopes ? { scopes: { ...primary.scopes } } : {}),
     };
+  },
+
+  rootStartupImports(imports: Record<string, string>) {
+    return Object.fromEntries(
+      Object.entries(imports).filter(([, value]) => projection.isStartupExternal(value)),
+    );
+  },
+
+  isStartupExternal(value: string) {
+    return value.startsWith('npm:') ||
+      value.startsWith('jsr:') ||
+      value.startsWith('node:') ||
+      value.startsWith('http:') ||
+      value.startsWith('https:') ||
+      value.startsWith('data:');
   },
 
   async sourceFromPath(path: string) {
@@ -75,54 +95,13 @@ const projection = {
     };
   },
 
-  async viteImports(cwd: string, vite: string) {
-    const imports: Record<string, string> = {
-      fs: 'node:fs',
-      path: 'node:path',
+  async viteImports(_cwd: string, vite: string) {
+    return {
       zlib: 'node:zlib',
       vite,
       'vite/internal': `${vite}/internal`,
       'vite/module-runner': `${vite}/module-runner`,
-    };
-
-    for (const [name, version] of Object.entries(VITE_BOOTSTRAP_DEPENDENCIES)) {
-      imports[name] = `npm:${name}@${version}`;
-    }
-    for (const subpath of ROLLDOWN_BOOTSTRAP_SUBPATHS) {
-      imports[`rolldown/${subpath}`] = `npm:rolldown@${VITE_BOOTSTRAP_DEPENDENCIES.rolldown}/${subpath}`;
-    }
-
-    const reactPlugin = await projection.consumerVersion(cwd, '@vitejs/plugin-react');
-    if (reactPlugin) {
-      for (const [name, version] of Object.entries(PLUGIN_REACT_BOOTSTRAP_DEPENDENCIES)) {
-        imports[name] = `npm:${name}@${version}`;
-      }
-    }
-
-    return imports;
-  },
-
-  async consumerVersion(cwd: string, name: string) {
-    const pkgPath = await projection.packageAnchor(cwd);
-    const pkg = (await Fs.readJson<{
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-    }>(pkgPath)).data ?? {};
-    return pkg.dependencies?.[name] ?? pkg.devDependencies?.[name] ?? '';
-  },
-
-  async packageAnchor(start: string) {
-    let current = Path.resolve(start);
-
-    while (true) {
-      const path = Path.join(current, 'package.json');
-      const stat = await Fs.stat(path);
-      if (stat?.isFile) return path;
-
-      const parent = Path.dirname(current);
-      if (parent === current) return Path.join(Path.resolve(start), 'package.json');
-      current = parent;
-    }
+    } satisfies Record<string, string>;
   },
 
   sortImports(imports: Record<string, string>) {
@@ -144,16 +123,3 @@ const projection = {
   },
 } as const;
 
-const VITE_BOOTSTRAP_DEPENDENCIES = {
-  lightningcss: '^1.32.0',
-  picomatch: '^4.0.3',
-  postcss: '^8.5.8',
-  rolldown: '1.0.0-rc.11',
-  tinyglobby: '^0.2.15',
-} as const;
-
-const PLUGIN_REACT_BOOTSTRAP_DEPENDENCIES = {
-  '@rolldown/pluginutils': '1.0.0-rc.7',
-} as const;
-
-const ROLLDOWN_BOOTSTRAP_SUBPATHS = ['experimental', 'filter', 'parseAst', 'plugins', 'utils'] as const;

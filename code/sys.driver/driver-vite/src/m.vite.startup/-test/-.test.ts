@@ -45,13 +45,54 @@ describe(`ViteStartup`, () => {
     expect(res.imports.vite).to.eql('npm:vite@8.0.9');
     expect(res.imports['vite/internal']).to.eql('npm:vite@8.0.9/internal');
     expect(res.imports['vite/module-runner']).to.eql('npm:vite@8.0.9/module-runner');
-    expect(res.imports['@rolldown/pluginutils']).to.eql('npm:@rolldown/pluginutils@1.0.0-rc.7');
+    expect(res.imports.zlib).to.eql('node:zlib');
+    expect(res.imports.fs).to.eql(undefined);
+    expect(res.imports.path).to.eql(undefined);
+    expect(res.imports['@rolldown/pluginutils']).to.eql(undefined);
     expect(res.scopes).to.eql({
       './src/': {
         '@sys/std': './src/std.ts',
       },
     });
     expect(Object.keys(res.imports)).to.eql([...Object.keys(res.imports)].sort());
+  });
+
+  it('Projection.create inherits root external imports needed by local workspace startup without reviving root-local aliases', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.projection.workspace-' });
+    const root = tmp.absolute;
+    const child = `${root}/code/pkg-a`;
+    await Fs.ensureDir(child);
+
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '8.0.9' },
+    });
+    await Fs.writeJson(`${root}/imports.json`, {
+      imports: {
+        '@cliffy/keypress': 'jsr:@cliffy/keypress@1.0.1',
+        '@root/only': './root-only.ts',
+        'strip-ansi': 'npm:strip-ansi@7.2.0',
+      },
+    });
+    await Fs.writeJson(`${root}/deno.json`, {
+      workspace: ['./code/pkg-a'],
+      importMap: './imports.json',
+    });
+    await Fs.writeJson(`${child}/deno.json`, {
+      imports: {
+        '@child/only': './child-only.ts',
+      },
+    });
+
+    const res = await ViteStartup.Projection.create({
+      cwd: child as never,
+      vite: 'npm:vite@8.0.9',
+    });
+
+    expect(res.dir).to.eql(child);
+    expect(res.imports['@child/only']).to.eql('./child-only.ts');
+    expect(res.imports['@cliffy/keypress']).to.eql('jsr:@cliffy/keypress@1.0.1');
+    expect(res.imports['strip-ansi']).to.eql('npm:strip-ansi@7.2.0');
+    expect(res.imports['@root/only']).to.eql(undefined);
   });
 
   it('Delivery.create derives a stable path from equivalent startup authority', async () => {
