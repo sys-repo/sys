@@ -40,7 +40,8 @@ export type SyncServer = t.LifecycleAsync & {
 export type SyncServerHandsakeHeaders = {
   upgrade: 'websocket';
   connection: 'Upgrade';
-  date: t.StringHttpDate;
+  /** Ambient server header; not guaranteed across runtimes. */
+  date?: t.StringHttpDate;
   'sys-pkg': t.StringScopedPkgNameVer;
   'sec-websocket-accept': string;
 };
