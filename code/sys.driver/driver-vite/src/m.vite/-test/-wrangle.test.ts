@@ -68,7 +68,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
+    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
 
     await res.dispose();
     expect(importMapPath ? await Fs.exists(importMapPath) : false).to.eql(false);
@@ -104,7 +104,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
+    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
     expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
     await res.dispose();
   });

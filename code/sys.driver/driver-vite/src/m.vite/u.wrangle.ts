@@ -178,14 +178,18 @@ const wrangle = {
     try {
       return require.resolve(`${pkg}/${subpath}`);
     } catch {
-      // Fall back to the Deno npm layout when the platform package is not linked directly.
+      // Deno's npm layout may not expose the platform package as a direct resolution target.
     }
 
-    const version = await wrangle.esbuildVersion(cwd);
-    const { storeDir } = wrangle.esbuildPackage(version);
-    const anchor = await wrangle.packageAnchor(cwd);
-    const denoStoreRoot = Path.join(Path.dirname(anchor), 'node_modules', '.deno');
-    return Path.join(denoStoreRoot, storeDir, 'node_modules', pkg, subpath);
+    const esbuildMain = require.resolve('esbuild');
+    const esbuildPkgDir = Path.dirname(Path.dirname(esbuildMain));
+    const siblingBinary = Path.join(Path.dirname(esbuildPkgDir), pkg, subpath);
+    if (await Fs.exists(siblingBinary)) return siblingBinary;
+
+    const binScript = require.resolve('esbuild/bin/esbuild');
+    if (await Fs.exists(binScript)) return binScript;
+
+    throw new Error(`Failed to resolve esbuild binary from runtime package boundary: ${cwd}`);
   },
 
   async requireFrom(start: string) {
@@ -223,35 +227,13 @@ const wrangle = {
     }
   },
 
-  async esbuildVersion(cwd: string) {
-    const declared = await wrangle.declaredEsbuildVersion(cwd);
-    if (declared) return declared;
-
-    const resolved = (await wrangle.esbuildRequire(cwd)).resolve('esbuild');
-    const match = resolved.match(/[\\/]\.deno[\\/]esbuild@([^\\/]+)[\\/]/);
-    if (match?.[1]) return match[1];
-
-    throw new Error(`Failed to resolve esbuild version from consumer package boundary or runtime path: ${cwd}`);
-  },
-
-  async declaredEsbuildVersion(cwd: string) {
-    const anchor = await wrangle.packageAnchor(cwd);
-    const pkg = (await Fs.readJson<{
-      dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
-    }>(anchor)).data ?? {};
-    const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
-    return version.replace(/^[~^]/, '');
-  },
-
-  esbuildPackage(version?: string) {
+  esbuildPackage() {
     const arch = wrangle.normalizeEsbuildArch(Deno.build.arch);
     const key = `${Deno.build.os}/${arch}`;
     const pkg = ESBUILD_PACKAGES[key as keyof typeof ESBUILD_PACKAGES];
     if (!pkg) throw new Error(`Unsupported esbuild platform: ${key}`);
     const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
-    const storeDir = version ? `${pkg.replace('/', '+')}@${version}` : '';
-    return { pkg, storeDir, subpath } as const;
+    return { pkg, subpath } as const;
   },
 
   viteMajor(version: string) {

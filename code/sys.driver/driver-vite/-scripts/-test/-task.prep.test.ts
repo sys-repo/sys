@@ -168,6 +168,17 @@ describe('driver-vite prep', () => {
     await Fs.remove(fs.absolute);
   });
 
+  it('keeps the published ui-components fixture leaf import pinned explicitly', async () => {
+    const imports =
+      (await Fs.readJson<{ imports?: Record<string, string> }>(`${SAMPLE.Dirs.samplePublishedUiComponents}/imports.json`))
+        .data?.imports ?? {};
+
+    expect(imports['@sys/ui-react-components']).to.match(/^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+$/);
+    expect(imports['@sys/ui-react-components/button']).to.match(
+      /^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+\/button$/,
+    );
+  });
+
   it('covers every published sample fixture in prep', () => {
     expect(PUBLISHED_FIXTURE_DIRS).to.eql([
       SAMPLE.Dirs.samplePublishedBaseline,
