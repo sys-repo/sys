@@ -5,8 +5,10 @@
   - post-`.08` closeout / ship verification
 - lane:
   - generated-workspace bootstrap/install truth
-- primary failing proof world:
+- original failing proof world:
   - `src/m.vite/-test.external/-repo-generated.workspace.ts`
+- current state:
+  - resolved locally
 
 ## Purpose
 This note is the narrow execution packet for the generated `tmpl.repo` bootstrap/install failure.
@@ -46,11 +48,11 @@ These are no longer the active frontier:
 - published `ui-components` build/dev correctness under narrowed proof
 - published minimal-crutch build/dev correctness
 
-### Current red lane
-The active remaining external red is:
+### Original red lane
+The red that motivated this packet was:
 - `src/m.vite/-test.external/-repo-generated.workspace.ts`
 
-Representative failure:
+Representative failure at the time:
 ```text
 cmd: deno npm install --package-lock=false
 npm error 404 Not Found - GET https://registry.npmjs.org/@jsr%2fdeno__loader - Not found
@@ -289,6 +291,17 @@ This packet is complete when one of the following is true:
 2. **truthful blocker classification landed**
    - lane remains red
    - but the blocker is now precise, separate, and documented at the correct layer
+
+This packet completed via outcome 1.
+
+### Resolved local truth
+- owning layer:
+  - bootstrap verb/mechanics
+- decisive fix:
+  - switch generated workspace bootstrap from raw npm install mechanics to the generated repo's canonical Deno install flow
+- result:
+  - generated-workspace lane green
+  - aggregate external lane later reran green
 
 The packet is **not** complete merely because the aggregate suite gets greener.
 

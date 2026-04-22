@@ -290,42 +290,32 @@ for:
 
 This remains a distinct proof-world problem and should not be conflated with the esbuild binary-path mismatch.
 
-### Current state after the published esbuild-binary and ui-components leaf-import fixes
-The latest narrow fixes moved the published external truth forward again.
+### Current state after closeout fixes
+The earlier published external reds described in this handoff are now resolved locally.
 
 #### What is now green
-- published baseline build world is green again
-- published `ui-components` build world is green again
-- outside-in published leaf import truth for:
-  - `@sys/ui-react-components/button`
-  is now proven in a serious external build lane
+- published baseline build/dev world
+- published `ui-baseline` build world
+- published `ui-components` build/dev world
+- published minimal-crutch build/dev world
+- generated-workspace bootstrap/install + build world
+- aggregate external lane via `deno task test:external`
 
-This means the important published outside-in import block is no longer the primary red.
-The main architecture/rewrite line remains intact.
+#### What changed to get here
+The decisive closeout fixes were narrow and lane-owned:
+- published transport/esbuild path corrections already reflected in the current line
+- published fixture truth updates for `@sys/ui-react-components/button`
+- bounded external dev proof shaping where the earlier crawl was broader than the claim
+- generated-workspace bootstrap corrected from raw npm install mechanics to the generated repo's Deno-owned install flow
+- minimal-crutch probe execution corrected to run through the test preset rather than an ad hoc `deno eval` subprocess shape
 
-#### What the current red is now
-The remaining red is centered on the heavier external dev proof world, especially:
-- published `ui-components` dev lane
+#### Current interpretation
+This handoff should now be read as historical debug context rather than an active red-state report.
+The main architecture/rewrite line remained intact, and the local published external acceptance lane is now honest-green.
 
-That lane no longer looks like the same build-resolution failure.
-It is currently better classified as one or both of:
-- dev proof/harness breadth that is too wide for the correctness claim
-- a realism/performance-heavy published dev world that still needs a more truthful bounded proof shape
-
-#### Current operator rule
-Do not respond to this by skipping the world or rerunning the full aggregate repeatedly.
-The next move should be:
-1. distill exactly what the external dev world must prove
-2. narrow the helper/test to that truthful contract without losing realism
-3. rerun the single targeted world before the aggregate external lane
-
-#### Why this matters
-This same `ui-components` world is also a plausible realism lane for where the old pre-refactor published-boundary slowdown lived.
-So the remaining work here is not only acceptance cleanup.
-It may also be where the consumer-facing perf truth is still hiding.
-
-But do not claim that win early.
-Fix the correctness/proof shape first, then measure honestly.
+#### Why this still matters
+This lane is still valuable because it is now the right outside-in baseline for later published-boundary performance work.
+But the correctness/debug frontier documented earlier in this file has been crossed.
 
 ---
 
@@ -345,18 +335,11 @@ without mixing in a separate published-package/runtime-environment debug problem
 
 ---
 
-## Desired outcome of this debug thread
-Reach one of these explicit outcomes:
+## Outcome of this debug thread
+This thread reached outcome 4.
 
-1. **local environment issue confirmed**
-   - with clear reproduction and local-only explanation
-
-2. **published package issue confirmed**
-   - with a concrete local-source fix candidate
-   - and a clear statement that external published tests require a republish to validate
-
-3. **fixture/protocol issue confirmed**
-   - with a clean explanation of why local baseline should classify it separately
-
-4. **local external lane restored green**
-   - with explicit explanation of what changed and why
+### 4. local external lane restored green
+The local external lane is restored green with explicit explanations for the decisive closeout moves:
+- generated-workspace failure was owned by bootstrap verb/mechanics
+- minimal-crutch red was owned by fixture/protocol execution shape plus bounded dev-proof shape
+- aggregate `deno task test:external` is now green locally

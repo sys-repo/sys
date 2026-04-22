@@ -203,27 +203,25 @@ Naming doctrine:
 This is not another hidden implementation phase.
 It is the verification/ship grind after `phase.08`.
 
-### Current frontier
-- published external `@sys/ui-react-components` package-boundary resolution truth
-- representative build red: `@sys/ui-react-components/button`
-- paired external dev red should be treated as the same frontier until proven otherwise
+### Current state
+The earlier closeout frontier is now resolved locally.
+Current truth:
+- published external baseline build/dev lane green
+- published external `ui-baseline` build lane green
+- published external `ui-components` build/dev lane green
+- published-boundary minimal-crutch build/dev lane green
+- generated-workspace bootstrap/install lane green
+- aggregate `deno task test:external` green
 
-### Operating rule
-- use the smallest failing external world first
-- prefer a single targeted build world before rerunning paired dev or full aggregate lanes
-- do not rerun `deno task test:external` until a concrete cause or fix candidate exists
-- stop multi-minute targeted loops once they stop yielding new information
-- keep separate generated-workspace registry/bootstrap failures classified separately
-
-Generated-workspace bootstrap/install tracing now has its own closeout packet:
+Generated-workspace bootstrap/install tracing has its own closeout packet:
 - `-agent/-distillation/-PLAN.closeout.generated-workspace-loader.md`
 
-### Why this world matters
-This is both:
-- a real published-boundary correctness frontier
-- a plausible realism world for the slowdown the old line may have been imposing on consumers
+### Why this still matters
+This now serves as:
+- the real published-boundary correctness acceptance line
+- the stable outside-in baseline for later performance judgment
 
-So fix it truthfully first, then judge performance honestly on the same lane.
+So keep the lane truthful and green, then measure performance honestly on the same lane rather than reopening correctness work without evidence.
 
 ---
 

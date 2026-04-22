@@ -713,26 +713,24 @@ This is not a new rewrite phase.
 It is the ship-truth grind after `phase.08` is locally complete.
 
 ### Current frontier
-The important red is no longer a vague transport mystery.
-The active published-boundary frontier is:
-- external `@sys/ui-react-components` package-boundary resolution truth
+The earlier published-boundary correctness reds are now resolved locally.
+Current truth:
+- published baseline build/dev worlds are green
+- published `ui-baseline` build worlds are green
+- published `ui-components` build/dev worlds are green
+- published minimal-crutch build/dev world is green
+- generated-workspace bootstrap/install and build world is green
+- aggregate `deno task test:external` is green
 
-Representative current failure shape:
-- build cannot resolve `@sys/ui-react-components/button`
-- external dev likely fails for the same reason at module-load time
+This means the closeout correctness frontier described earlier in this file has been crossed.
+Do not reopen rewrite architecture now that the external published acceptance lane is locally honest-green.
 
-Treat that as the live correctness frontier until a smaller truth edge disproves it.
-Do not re-open rewrite architecture while this remains the active published-boundary red.
+### Why this matters twice
+This is not only an acceptance win.
+It also establishes a truthful outside-in baseline for any later published-boundary perf work.
 
-### Why this frontier matters twice
-This world is not only an acceptance target.
-It is also a plausible place where the old line paid avoidable published-boundary cost.
-So if this frontier is fixed truthfully, it may improve both:
-- published-boundary correctness
-- published-boundary startup/build posture where the consumer feels the slowdown
-
-Do not force a perf claim from that hope alone.
-But do treat this world as one of the highest-value realism lanes.
+Do not force a perf claim from correctness green alone.
+But do treat the now-green external published lane as the right stable baseline for later perf comparison.
 
 ### Tight-loop / slow-loop protocol
 To avoid getting trapped in multi-minute external reruns:
@@ -766,6 +764,11 @@ The closeout grind is in a good state when:
 - the narrow published-boundary realism worlds are green first
 - the aggregate external lane is rerun only after those worlds move
 - any remaining red is explicitly classified as separate rather than smeared back into architecture
+
+That condition is now satisfied locally:
+- the narrow published-boundary realism worlds moved green
+- the separate generated-workspace bootstrap/install lane moved green
+- the aggregate external lane reran green
 
 ---
 
