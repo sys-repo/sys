@@ -48,6 +48,7 @@ describe('Vite.dev', () => {
       const fs = await SAMPLE.fs('Vite.dev');
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd);
       const paths = {
         cwd,
@@ -90,7 +91,7 @@ describe('Vite.dev', () => {
         const html = await res.text();
         printHtml(html, 'Fetched HTML', cwd);
 
-        const entryUrl = `${server.url}main.tsx`;
+        const entryUrl = `${server.url}main.js`;
         const { res: entryRes, text: entryText } = await fetchEntryWhenReady(entryUrl, {
           signal,
           server,
@@ -98,7 +99,7 @@ describe('Vite.dev', () => {
         });
 
         expect(res.status).to.eql(200);
-        expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
+        expect(html).to.include(`<script type="module" src="./main.js">`);
         expect(html).to.include(`@vite/client`);
         if (entryRes.status !== 200) {
           throw new Error(
@@ -123,6 +124,7 @@ describe('Vite.dev', () => {
       const fs = await SAMPLE.fs('Vite.dev-port-fallback');
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd);
       const paths = {
         cwd,
@@ -164,6 +166,41 @@ describe('Vite.dev', () => {
     });
   });
 });
+
+async function prepareDevEntryFixture(cwd: string) {
+  const entryDir = Fs.join(cwd, 'src/-entry');
+  await Fs.write(
+    Fs.join(entryDir, 'index.html'),
+    [
+      '<!DOCTYPE html>',
+      '<html lang="en">',
+      '  <head>',
+      '    <meta charset="UTF-8" />',
+      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+      '    <title>Sample-2</title>',
+      '  </head>',
+      '  <body>',
+      '    <div id="root"></div>',
+      '    <script type="module" src="./main.js"></script>',
+      '  </body>',
+      '</html>',
+      '',
+    ].join('\n'),
+  );
+  await Fs.write(
+    Fs.join(entryDir, 'main.js'),
+    [
+      `import React from 'react';`,
+      `import { createRoot } from 'react-dom/client';`,
+      `import '@sys/driver-vite/sample-imports';`,
+      `const dynamic = import('../m.foo.ts');`,
+      `dynamic.then((mod) => console.info('💦 dynmaic import', mod));`,
+      `const root = createRoot(document.getElementById('root'));`,
+      `root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));`,
+      '',
+    ].join('\n'),
+  );
+}
 
 async function fetchWhenReady(
   url: string,
