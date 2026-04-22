@@ -2,7 +2,7 @@ import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
 
 import { buildSample } from './u.fixture.ts';
 
-describe('Vite published external smoke (ui-baseline)', () => {
+describe('Vite published external smoke (ui-baseline)', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('build: published driver-vite resolves static tsx ui baseline imports', async () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample({

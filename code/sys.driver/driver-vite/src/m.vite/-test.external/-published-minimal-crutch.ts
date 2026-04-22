@@ -34,7 +34,7 @@ describe('Vite published external minimal-crutch world', () => {
     }
   });
 
-  it('build: current external pure-JSR world fails honestly instead of falling forward to local-source alias privilege', async () => {
+  it('build: external pure-JSR world builds without falling forward to local-source alias privilege', async () => {
     const res = await Process.invoke({
       cmd: 'deno',
       args: [
@@ -51,9 +51,14 @@ describe('Vite published external minimal-crutch world', () => {
       ok: boolean;
       stderr: string;
       stdout: string;
+      moduleTexts: string[];
     }>(res.text.stdout);
-    expect(data.ok).to.eql(false);
-    expectPublishedBoundaryFailure(`${data.stderr}\n${data.stdout}`);
+    expect(data.ok).to.eql(true);
+    expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to.eql(false);
+    expect(data.stdout.includes('built in')).to.eql(true);
   });
 
   it('dev: external pure-JSR world serves transformed entry without local-source alias privilege', async () => {
@@ -102,6 +107,7 @@ const BUILD_PROBE_SOURCE = `
     ok: res.build.ok,
     stderr: res.build.cmd.output.text.stderr,
     stdout: res.build.cmd.output.text.stdout,
+    moduleTexts: res.files.js.map((file) => file.text),
   }));
 `;
 
@@ -163,13 +169,3 @@ async function externalStartupImportMap(arg: string) {
   } as const;
 }
 
-function expectPublishedBoundaryFailure(text: string) {
-  const normalized = text.replace(/\u001b\[[0-9;]*m/g, '');
-  const markers = [
-    'jsr:@sys/driver-vite@',
-    'https://jsr.io/@sys/driver-vite/',
-    'Could not resolve',
-    "reading 'unref'",
-  ];
-  expect(markers.some((marker) => normalized.includes(marker))).to.eql(true);
-}

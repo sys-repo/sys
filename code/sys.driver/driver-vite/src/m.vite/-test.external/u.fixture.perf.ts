@@ -88,6 +88,7 @@ const perf = {
         const res = await devSample({
           sampleName: `Vite.perf.${args.scenario}.dev.${index + 1}`,
           sampleDir: perf.sampleDir(args.scenario),
+          moduleMode: 'none',
         });
         try {
           samples.push({

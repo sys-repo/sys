@@ -1,6 +1,8 @@
 import { Fs, Http, SAMPLE, Testing, Url, pkg, type t } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 
+const FETCH_TIMEOUT = 10_000 as t.Msecs;
+
 type DevResponse = {
   readonly url: string;
   readonly status: number;
@@ -15,7 +17,7 @@ export type DevModule = DevResponse & {
 export type DevSample = {
   readonly dev: t.ViteProcess;
   readonly html: DevResponse;
-  readonly entry: DevResponse;
+  readonly entry: DevModule;
   readonly modules: readonly DevModule[];
   readonly fetch: (url: string) => Promise<DevResponse>;
 };
@@ -24,8 +26,9 @@ export async function devSample(args: {
   sampleName?: string;
   sampleDir?: t.StringDir;
   cwd?: t.StringDir;
+  moduleMode?: 'crawl' | 'none';
 }): Promise<DevSample> {
-  const { sampleName, sampleDir, cwd } = args;
+  const { sampleName, sampleDir, cwd, moduleMode = 'crawl' } = args;
   const port = Testing.randomPort();
   const fs = sampleName ? await SAMPLE.fs(sampleName) : undefined;
   const dir = cwd ?? fs?.dir;
@@ -38,12 +41,14 @@ export async function devSample(args: {
   const dev = await Vite.dev({ cwd: dir, port, pkg, silent: true });
 
   try {
-    await Http.Client.waitFor(dev.url, { timeout: 10_000, interval: 200 });
+    await Http.Client.waitFor(dev.url, { timeout: FETCH_TIMEOUT, interval: 200 });
 
     const html = await fetchModule(dev.url);
     const entryUrl = wrangle.entryUrl(html);
-    const entry = await fetchModule(entryUrl);
-    const modules = await crawlModules(entryUrl, entry.text);
+    const entryResponse = await fetchModule(entryUrl);
+    const entryImports = wrangle.isJavaScript(entryResponse) ? wrangle.imports(entryUrl, entryResponse.text) : [];
+    const entry: DevModule = { ...entryResponse, imports: entryImports };
+    const modules = moduleMode === 'crawl' ? await crawlModules(entryUrl, entry.text) : [];
 
     return { dev, html, entry, modules, fetch: fetchModule };
   } catch (error) {
@@ -53,7 +58,7 @@ export async function devSample(args: {
 }
 
 async function fetchModule(url: string): Promise<DevResponse> {
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
   return {
     url,
     status: res.status,
