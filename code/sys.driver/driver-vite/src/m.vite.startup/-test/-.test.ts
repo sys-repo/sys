@@ -48,6 +48,33 @@ describe(`ViteStartup`, () => {
     expect(Object.keys(res.imports)).to.eql([...Object.keys(res.imports)].sort());
   });
 
+  it('Delivery.create derives a stable path from equivalent startup authority', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.delivery.identity-' });
+    const root = tmp.absolute;
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '8.0.9' },
+    });
+    await Fs.writeJson(`${root}/deno.json`, {
+      imports: {
+        '@sys/http': './src/http.ts',
+      },
+    });
+
+    const authority = await ViteStartup.Projection.create({
+      cwd: root as never,
+      vite: 'npm:vite@8.0.9',
+    });
+    const first = await ViteStartup.Delivery.create({ authority });
+    const second = await ViteStartup.Delivery.create({ authority });
+
+    try {
+      expect(first.path).to.eql(second.path);
+    } finally {
+      await first.cleanup();
+      await second.cleanup();
+    }
+  });
+
   it('Delivery.create materializes and cleans up the child startup handle', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.delivery-' });
     const root = tmp.absolute;

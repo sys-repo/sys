@@ -2,30 +2,30 @@ import { describe, expect, Fs, it } from '../../-test.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Bootstrap delivery identity world', () => {
-  it('build: equivalent inputs currently churn delivery handle identity', async () => {
+  it('build: equivalent inputs now derive stable delivery handle identity', async () => {
     const ctx = await fixture('vite.bootstrap.identity.build-');
     const first = await capture(ctx.paths, 'build');
     const second = await capture(ctx.paths, 'build');
 
     try {
-      expect(first.importMapPath).to.not.eql(second.importMapPath);
-      expect(first.moduleSyncPath).to.not.eql(second.moduleSyncPath);
-      expect(first.cmd).to.not.eql(second.cmd);
+      expect(first.importMapPath).to.eql(second.importMapPath);
+      expect(first.moduleSyncPath).to.eql(second.moduleSyncPath);
+      expect(first.cmd).to.eql(second.cmd);
     } finally {
       await first.dispose();
       await second.dispose();
     }
   });
 
-  it('dev: equivalent inputs currently churn delivery handle identity', async () => {
+  it('dev: equivalent inputs now derive stable delivery handle identity', async () => {
     const ctx = await fixture('vite.bootstrap.identity.dev-');
     const first = await capture(ctx.paths, 'dev --port=4321 --host');
     const second = await capture(ctx.paths, 'dev --port=4321 --host');
 
     try {
-      expect(first.importMapPath).to.not.eql(second.importMapPath);
-      expect(first.moduleSyncPath).to.not.eql(second.moduleSyncPath);
-      expect(first.cmd).to.not.eql(second.cmd);
+      expect(first.importMapPath).to.eql(second.importMapPath);
+      expect(first.moduleSyncPath).to.eql(second.moduleSyncPath);
+      expect(first.cmd).to.eql(second.cmd);
     } finally {
       await first.dispose();
       await second.dispose();
