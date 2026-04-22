@@ -5,6 +5,9 @@ export async function createDelivery(
   args: t.ViteStartup.Delivery.Args,
 ): Promise<t.ViteStartup.Handle> {
   const authority = args.authority as AuthorityState;
+
+  // Phase .01 preserves the current startup delivery mechanics for behavior stability.
+  // This is isolated delivery debt and will be replaced by later stable-identity work.
   const moduleSyncPath = Path.join(
     authority.dir,
     `.vite.bootstrap.${crypto.randomUUID()}.module-sync-enabled.mjs`,
