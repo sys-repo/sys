@@ -1,12 +1,8 @@
 import { describe, expect, Fs, it, type t } from '../../-test.ts';
 
-// 🐷 Temporarily skipped during the startup seam refactor campaign.
-// This generated external workspace lane is currently classified separately
-// from the local Phase 1 factoring move and will be revalidated after the
-// refactor line is clean.
 import { buildGeneratedWorkspaceRepo } from './u.fixture.tmpl.ts';
 
-describe.skip('Vite external smoke (repo-generated workspace)', () => {
+describe('Vite external smoke (repo-generated workspace)', () => {
   it('build: generated tmpl.repo sibling packages compose through workspace imports', async () => {
     const { rootDir, fooDir, barDir, generateFoo, generateBar, patch, bootstrap, build } =
       await buildGeneratedWorkspaceRepo({
