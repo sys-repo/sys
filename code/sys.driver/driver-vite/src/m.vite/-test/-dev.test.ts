@@ -95,7 +95,14 @@ describe('Vite.dev', () => {
         expect(res.status).to.eql(200);
         expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
         expect(html).to.include(`@vite/client`);
-        expect(entryRes.status).to.eql(200);
+        if (entryRes.status !== 200) {
+          throw new Error(
+            `Expected dev entry fetch to return 200, got ${entryRes.status}.\n\n` +
+              `url: ${entryUrl}\n\n` +
+              `entry body:\n${entryText}\n\n` +
+              `stderr:\n${stderr.trim()}`,
+          );
+        }
         expect(entryText).to.include('sample-imports');
       } finally {
         controller.abort();
