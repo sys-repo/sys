@@ -1,4 +1,5 @@
 import { describe, expect, Fs, it, Process, ROOT, SAMPLE } from '../../-test.ts';
+import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite published external minimal-crutch world', () => {
   it('fixture stages an external pure-JSR driver world without local-source alias privilege', async () => {
@@ -13,6 +14,24 @@ describe('Vite published external minimal-crutch world', () => {
     expect(imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
     expect(Object.keys(imports).includes('@sys/driver-vite')).to.eql(false);
     expect(Object.values(imports).some((value) => value.startsWith('file:'))).to.eql(false);
+  });
+
+  it('startup authority for an external pure-JSR consumer stays consumer-visible and published-boundary honest', async () => {
+    const sample = await externalStartupImportMap('build');
+
+    try {
+      expect(sample.path.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
+      expect(sample.data.scopes).to.eql(undefined);
+      expect(sample.data.imports?.['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
+      expect(sample.data.imports?.['@sys/driver-vite']).to.eql(undefined);
+      expect(sample.data.imports?.['@sys/http']).to.eql(undefined);
+      expect(sample.data.imports?.['#module-sync-enabled']).to.match(/^file:.*module-sync-enabled\.mjs$/);
+      const nonStartupFiles = Object.entries(sample.data.imports ?? {})
+        .filter(([key, value]) => key !== '#module-sync-enabled' && value.startsWith('file:'));
+      expect(nonStartupFiles).to.eql([]);
+    } finally {
+      await sample.dispose();
+    }
   });
 
   it('build: current external pure-JSR world fails honestly instead of falling forward to local-source alias privilege', async () => {
@@ -55,6 +74,7 @@ describe('Vite published external minimal-crutch world', () => {
       htmlStatus: number;
       entryStatus: number;
       entryText: string;
+      moduleTexts: string[];
     }>(res.text.stdout);
     expect(data.ok).to.eql(true);
     expect(data.htmlStatus).to.eql(200);
@@ -63,6 +83,10 @@ describe('Vite published external minimal-crutch world', () => {
     expect(data.entryText).to.include('sample-bridge-http');
     expect(data.entryText.includes('.vite.bootstrap.')).to.eql(false);
     expect(data.entryText.includes('#module-sync-enabled')).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('.vite.bootstrap.'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('#module-sync-enabled'))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes("from '@sys/driver-vite'"))).to.eql(false);
+    expect(data.moduleTexts.some((text) => text.includes('file:///Users/phil/code/org.sys'))).to.eql(false);
   });
 });
 
@@ -95,6 +119,7 @@ const DEV_PROBE_SOURCE = `
       htmlStatus: res.html.status,
       entryStatus: res.entry.status,
       entryText: res.entry.text,
+      moduleTexts: res.modules.map((mod) => mod.text),
     }));
   } finally {
     await res.dev.dispose();
@@ -105,6 +130,37 @@ function parseProbeJson<T>(stdout: string): T {
   const lines = stdout.trim().split('\n').filter(Boolean);
   const line = lines.at(-1) ?? '{}';
   return JSON.parse(line) as T;
+}
+
+async function externalStartupImportMap(arg: string) {
+  const fs = await Fs.makeTempDir({ prefix: 'Vite.published.minimal-crutch.startup.' });
+  const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.samplePublishedBaseline));
+  await Fs.copy(SAMPLE.Dirs.samplePublishedBaseline, dir);
+
+  const paths = {
+    cwd: dir,
+    app: {
+      entry: './index.html',
+      outDir: 'dist',
+      base: './',
+    },
+  } as const;
+
+  const res = await Wrangle.command(paths, arg);
+  const importMapArg = res.args.find((item) => item.startsWith('--import-map='));
+  const path = importMapArg?.replace('--import-map=', '') ?? '';
+  const loaded = path
+    ? await Fs.readJson<{ imports?: Record<string, string>; scopes?: Record<string, unknown> }>(path)
+    : { data: undefined };
+
+  return {
+    path,
+    data: loaded.data ?? {},
+    dispose: async () => {
+      await res.dispose();
+      await Fs.remove(fs.absolute, { log: false });
+    },
+  } as const;
 }
 
 function expectPublishedBoundaryFailure(text: string) {
