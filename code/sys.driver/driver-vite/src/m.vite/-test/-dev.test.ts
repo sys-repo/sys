@@ -167,6 +167,17 @@ describe('Vite.dev', () => {
   });
 });
 
+/**
+ * Harden the copied temp dev fixture against the upstream Vite/OXC TSX-entry
+ * transform crash seen in CI (`Failed to recover TsconfigCache type from napi value`).
+ *
+ * This keeps the dev smoke truthful by still proving:
+ * - dev startup
+ * - HTML serving
+ * - entry-module serving
+ * - local bridge imports
+ * while avoiding ownership drift into upstream TSX transform instability.
+ */
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
   await Fs.write(
