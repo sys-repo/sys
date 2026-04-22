@@ -215,6 +215,9 @@ It is the verification/ship grind after `phase.08`.
 - stop multi-minute targeted loops once they stop yielding new information
 - keep separate generated-workspace registry/bootstrap failures classified separately
 
+Generated-workspace bootstrap/install tracing now has its own closeout packet:
+- `-agent/-distillation/-PLAN.closeout.generated-workspace-loader.md`
+
 ### Why this world matters
 This is both:
 - a real published-boundary correctness frontier

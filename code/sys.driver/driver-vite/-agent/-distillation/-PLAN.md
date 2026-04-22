@@ -753,6 +753,14 @@ Keep these as separate tracks unless evidence proves they are the same problem:
 - published `@sys/ui-react-components` package-boundary resolution truth
 - generated-workspace bootstrap/install truth such as `@jsr/deno__loader` registry failure
 
+The generated-workspace lane now has its own closeout packet:
+- `-agent/-distillation/-PLAN.closeout.generated-workspace-loader.md`
+
+Use that packet when the active work is:
+- template-generated repo bootstrap/install tracing
+- transitive loader-resolution ownership classification
+- deciding whether the fix belongs in template authority, bootstrap mechanics, or explicit external blocker classification
+
 ### Success condition for closeout
 The closeout grind is in a good state when:
 - the narrow published-boundary realism worlds are green first
