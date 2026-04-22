@@ -1,5 +1,10 @@
 # CTX — Vite 8 hardening current state
 
+## Archive status
+This file is now historical campaign context.
+The Vite 8 rewrite and external published acceptance line are locally landed.
+It is preserved so future readers can reconstruct the sequence of frontiers, proofs, and rejected paths without treating this file as a live task list.
+
 ## Scope
 - Package: `code/sys.driver/driver-vite`
 - Frontier: Vite 8 child-runtime under Deno
