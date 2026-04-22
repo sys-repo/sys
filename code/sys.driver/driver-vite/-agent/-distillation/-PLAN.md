@@ -708,6 +708,59 @@ If those are all true, the plan succeeded.
 
 ---
 
+## Post-phase closeout execution
+This is not a new rewrite phase.
+It is the ship-truth grind after `phase.08` is locally complete.
+
+### Current frontier
+The important red is no longer a vague transport mystery.
+The active published-boundary frontier is:
+- external `@sys/ui-react-components` package-boundary resolution truth
+
+Representative current failure shape:
+- build cannot resolve `@sys/ui-react-components/button`
+- external dev likely fails for the same reason at module-load time
+
+Treat that as the live correctness frontier until a smaller truth edge disproves it.
+Do not re-open rewrite architecture while this remains the active published-boundary red.
+
+### Why this frontier matters twice
+This world is not only an acceptance target.
+It is also a plausible place where the old line paid avoidable published-boundary cost.
+So if this frontier is fixed truthfully, it may improve both:
+- published-boundary correctness
+- published-boundary startup/build posture where the consumer feels the slowdown
+
+Do not force a perf claim from that hope alone.
+But do treat this world as one of the highest-value realism lanes.
+
+### Tight-loop / slow-loop protocol
+To avoid getting trapped in multi-minute external reruns:
+
+1. use the smallest failing proof world first
+   - prefer a single external file such as `-ui-components.ts`
+   - prefer a single build world before the paired dev world when both are red
+2. inspect fixture and package-boundary truth before rerunning end-to-end
+   - published exports
+   - published subpath truth
+   - import-map or package-entry shape
+3. do not rerun `deno task test:external` until a concrete cause or fix candidate exists
+4. if a targeted lane runs longer than about 60–90 seconds without yielding new information, stop and classify it
+5. only run the aggregate external lane after a local fix has already moved the narrow proof world
+
+### Separation rule
+Keep these as separate tracks unless evidence proves they are the same problem:
+- published `@sys/ui-react-components` package-boundary resolution truth
+- generated-workspace bootstrap/install truth such as `@jsr/deno__loader` registry failure
+
+### Success condition for closeout
+The closeout grind is in a good state when:
+- the narrow published-boundary realism worlds are green first
+- the aggregate external lane is rerun only after those worlds move
+- any remaining red is explicitly classified as separate rather than smeared back into architecture
+
+---
+
 ## Triple-check sequence
 
 ### First TMIND check

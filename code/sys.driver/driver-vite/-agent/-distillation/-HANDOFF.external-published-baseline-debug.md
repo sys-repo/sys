@@ -239,6 +239,96 @@ Do not blur them.
 
 ---
 
+## Current published acceptance state after `@sys/driver-vite@0.0.371`
+The newest published line materially changed the failure shape.
+
+### What improved
+The earlier published external build failures were dominated by esbuild JS API startup problems such as:
+- `unref`
+- `startSyncServiceWorker`
+
+After publishing the transport change that runs transforms through the esbuild binary, the primary visible failure is no longer that worker/service startup family.
+
+### Current primary failure
+The published external lanes now fail on a concrete esbuild binary spawn path that does not exist.
+Representative failure:
+```text
+NotFound: Failed to spawn '.../node_modules/.deno/@esbuild+darwin-arm64@0.27.5/node_modules/@esbuild/darwin-arm64/bin/esbuild': No such file or directory (os error 2)
+```
+
+Observed stack:
+- `https://jsr.io/@sys/driver-vite/0.0.371/src/m.vite.transport/u.load.ts`
+- `https://jsr.io/@sys/driver-vite/0.0.371/src/m.vite.transport/u.resolve.ts`
+
+This is a narrower and more actionable failure than the earlier `unref` crash family.
+It suggests the binary-exec direction is correct, but the published external world is still computing or inheriting the wrong esbuild binary path.
+
+### Current version-mismatch truth
+In the same failing external worlds, the temp consumer environment is initializing:
+- `esbuild@0.28.0`
+- `@esbuild/darwin-arm64@0.28.0`
+
+But the spawned binary path points at:
+- `@esbuild/darwin-arm64@0.27.5`
+
+So the current published-boundary failure is best classified as a concrete esbuild binary path/version mismatch, not as a bootstrap-architecture failure.
+
+### Current dev-lane interpretation
+The remaining external dev `500` failures are likely the same transport failure surfacing at module-load time:
+- HTML and startup can succeed
+- entry/module fetch then fails because the transport transform path is broken
+
+So the dev red should be treated as part of the same narrowed transport-path issue until proven otherwise.
+
+### Still-separate external issue
+The generated-workspace lane still has the separate npm/registry failure:
+```text
+npm error 404 Not Found - GET https://registry.npmjs.org/@jsr%2fdeno__loader - Not found
+```
+for:
+- `@jsr/deno__loader@^0.5.0`
+
+This remains a distinct proof-world problem and should not be conflated with the esbuild binary-path mismatch.
+
+### Current state after the published esbuild-binary and ui-components leaf-import fixes
+The latest narrow fixes moved the published external truth forward again.
+
+#### What is now green
+- published baseline build world is green again
+- published `ui-components` build world is green again
+- outside-in published leaf import truth for:
+  - `@sys/ui-react-components/button`
+  is now proven in a serious external build lane
+
+This means the important published outside-in import block is no longer the primary red.
+The main architecture/rewrite line remains intact.
+
+#### What the current red is now
+The remaining red is centered on the heavier external dev proof world, especially:
+- published `ui-components` dev lane
+
+That lane no longer looks like the same build-resolution failure.
+It is currently better classified as one or both of:
+- dev proof/harness breadth that is too wide for the correctness claim
+- a realism/performance-heavy published dev world that still needs a more truthful bounded proof shape
+
+#### Current operator rule
+Do not respond to this by skipping the world or rerunning the full aggregate repeatedly.
+The next move should be:
+1. distill exactly what the external dev world must prove
+2. narrow the helper/test to that truthful contract without losing realism
+3. rerun the single targeted world before the aggregate external lane
+
+#### Why this matters
+This same `ui-components` world is also a plausible realism lane for where the old pre-refactor published-boundary slowdown lived.
+So the remaining work here is not only acceptance cleanup.
+It may also be where the consumer-facing perf truth is still hiding.
+
+But do not claim that win early.
+Fix the correctness/proof shape first, then measure honestly.
+
+---
+
 ## Relationship to the main implementation campaign
 The main implementation campaign remains:
 - planning complete

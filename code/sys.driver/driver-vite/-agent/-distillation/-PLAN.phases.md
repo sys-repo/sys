@@ -199,6 +199,31 @@ Naming doctrine:
 
 ---
 
+## Post-phase closeout — published external acceptance
+This is not another hidden implementation phase.
+It is the verification/ship grind after `phase.08`.
+
+### Current frontier
+- published external `@sys/ui-react-components` package-boundary resolution truth
+- representative build red: `@sys/ui-react-components/button`
+- paired external dev red should be treated as the same frontier until proven otherwise
+
+### Operating rule
+- use the smallest failing external world first
+- prefer a single targeted build world before rerunning paired dev or full aggregate lanes
+- do not rerun `deno task test:external` until a concrete cause or fix candidate exists
+- stop multi-minute targeted loops once they stop yielding new information
+- keep separate generated-workspace registry/bootstrap failures classified separately
+
+### Why this world matters
+This is both:
+- a real published-boundary correctness frontier
+- a plausible realism world for the slowdown the old line may have been imposing on consumers
+
+So fix it truthfully first, then judge performance honestly on the same lane.
+
+---
+
 ## How to use this file
 
 ### Before starting a phase
