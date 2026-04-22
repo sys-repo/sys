@@ -1,46 +1,101 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, Fs, it } from '../../-test.ts';
+import { Vite } from '../../m.vite/mod.ts';
 import { ViteStartup } from '../mod.ts';
 
 describe(`ViteStartup`, () => {
-  it('exposes Projection and Delivery', () => {
-    expect(ViteStartup.Projection).to.equal(ViteStartup.Projection);
-    expect(ViteStartup.Delivery).to.equal(ViteStartup.Delivery);
+  it('API', () => {
+    expect(Vite.Startup).to.equal(ViteStartup);
   });
 
-  it('Projection.create throws until implemented', async () => {
-    await expectRejectMessage(
-      () =>
-        ViteStartup.Projection.create({
-          cwd: '/tmp' as never,
-          vite: 'npm:vite@8.0.9',
-        }),
-      'ViteStartup.Projection.create not implemented',
-    );
+  it('Projection.create projects startup authority for child launch', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.projection-' });
+    const root = tmp.absolute;
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: {
+        vite: '8.0.9',
+        '@vitejs/plugin-react': '6.0.1',
+      },
+    });
+    await Fs.writeJson(`${root}/imports.json`, {
+      imports: {
+        '@sys/fs': './src/fs.ts',
+      },
+      scopes: {
+        './src/': {
+          '@sys/std': './src/std.ts',
+        },
+      },
+    });
+    await Fs.writeJson(`${root}/deno.json`, {
+      imports: {
+        '@sys/http': './src/http.ts',
+      },
+      importMap: './imports.json',
+    });
+
+    const res = await ViteStartup.Projection.create({
+      cwd: root as never,
+      vite: 'npm:vite@8.0.9',
+    });
+
+    expect(res.dir).to.eql(root);
+    expect(res.imports['@sys/fs']).to.eql('./src/fs.ts');
+    expect(res.imports['@sys/http']).to.eql('./src/http.ts');
+    expect(res.imports.vite).to.eql('npm:vite@8.0.9');
+    expect(res.imports['vite/internal']).to.eql('npm:vite@8.0.9/internal');
+    expect(res.imports['vite/module-runner']).to.eql('npm:vite@8.0.9/module-runner');
+    expect(res.imports['@rolldown/pluginutils']).to.eql('npm:@rolldown/pluginutils@1.0.0-rc.7');
+    expect(Object.keys(res.imports)).to.eql([...Object.keys(res.imports)].sort());
   });
 
-  it('Delivery.create throws until implemented', async () => {
-    await expectRejectMessage(
-      () =>
-        ViteStartup.Delivery.create({
-          authority: {
-            dir: '/tmp' as never,
-            imports: {},
-          },
-        }),
-      'ViteStartup.Delivery.create not implemented',
+  it('Delivery.create materializes and cleans up the child startup handle', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.delivery-' });
+    const root = tmp.absolute;
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '8.0.9' },
+    });
+    await Fs.writeJson(`${root}/imports.json`, {
+      imports: {
+        '@sys/fs': './src/fs.ts',
+      },
+      scopes: {
+        './src/': {
+          '@sys/std': './src/std.ts',
+        },
+      },
+    });
+    await Fs.writeJson(`${root}/deno.json`, {
+      imports: {
+        '@sys/http': './src/http.ts',
+      },
+      importMap: './imports.json',
+    });
+
+    const authority = await ViteStartup.Projection.create({
+      cwd: root as never,
+      vite: 'npm:vite@8.0.9',
+    });
+    const handle = await ViteStartup.Delivery.create({ authority });
+    const written = await Fs.readJson<{
+      imports?: Record<string, string>;
+      scopes?: Record<string, unknown>;
+    }>(handle.path);
+
+    expect(handle.path.includes('.vite.bootstrap.')).to.eql(true);
+    expect(written.data?.imports?.['#module-sync-enabled']).to.match(
+      /^file:.*module-sync-enabled\.mjs$/,
     );
+    expect(written.data?.imports?.['@sys/fs']).to.eql('./src/fs.ts');
+    expect(written.data?.imports?.['@sys/http']).to.eql('./src/http.ts');
+    expect(written.data?.imports?.vite).to.eql('npm:vite@8.0.9');
+    expect(written.data?.scopes?.['./src/']).to.eql({ '@sys/std': './src/std.ts' });
+
+    await handle.cleanup();
+    expect(await Fs.exists(handle.path)).to.eql(false);
+    const moduleSyncPath = written.data?.imports?.['#module-sync-enabled']
+      ? new URL(written.data.imports['#module-sync-enabled']).pathname
+      : '';
+    expect(moduleSyncPath.length > 0).to.eql(true);
+    expect(moduleSyncPath ? await Fs.exists(moduleSyncPath) : true).to.eql(false);
   });
 });
-
-async function expectRejectMessage(
-  fn: () => Promise<unknown>,
-  message: string,
-) {
-  try {
-    await fn();
-    throw new Error(`Expected rejection: ${message}`);
-  } catch (error) {
-    if (!(error instanceof Error)) throw error;
-    expect(error.message).to.equal(message);
-  }
-}

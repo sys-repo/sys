@@ -3,20 +3,14 @@
  * Startup authority projection and delivery for the Vite child launch seam.
  */
 import type { t } from './common.ts';
-
-const notImplemented = (name: string): never => {
-  throw new Error(`ViteStartup.${name} not implemented`);
-};
+import { createDelivery } from './u.delivery.ts';
+import { createProjection } from './u.projection.ts';
 
 export const ViteStartup: t.ViteStartup.Lib = {
   Projection: {
-    async create() {
-      return notImplemented('Projection.create');
-    },
+    create: createProjection,
   },
   Delivery: {
-    async create() {
-      return notImplemented('Delivery.create');
-    },
+    create: createDelivery,
   },
 } as const;
