@@ -1,10 +1,9 @@
 import { DenoFile, Fs, Is, Path, type t } from './common.ts';
-import { AUTHORITY_JSON, type AuthorityState } from './u.internal.ts';
 
 type BootstrapSource = {
   readonly dir: string;
   readonly imports: Record<string, string>;
-  readonly json: Record<string, unknown>;
+  readonly scopes?: Record<string, Record<string, string>>;
 };
 
 export async function createProjection(
@@ -16,13 +15,11 @@ export async function createProjection(
     ...(await projection.viteImports(args.cwd, args.vite)),
   });
 
-  const state: AuthorityState = {
+  return {
     dir: source.dir as t.StringAbsoluteDir,
     imports,
-    [AUTHORITY_JSON]: source.json,
+    ...(source.scopes ? { scopes: source.scopes } : {}),
   };
-
-  return state;
 }
 
 const projection = {
@@ -39,10 +36,11 @@ const projection = {
         ...(root?.imports ?? {}),
         ...(nearest?.imports ?? {}),
       },
-      json: {
-        ...(root?.json ?? {}),
-        ...(nearest?.json ?? {}),
-      },
+      ...(nearest?.scopes
+        ? { scopes: nearest.scopes }
+        : root?.scopes
+          ? { scopes: root.scopes }
+          : {}),
     };
   },
 
@@ -57,7 +55,7 @@ const projection = {
     const inlineImports = projection.toStringRecord(file.imports);
     const importMapRef = file.importMap;
     if (!Is.str(importMapRef) || importMapRef.trim().length === 0) {
-      return { dir, imports: inlineImports, json: {} };
+      return { dir, imports: inlineImports };
     }
 
     const path = Path.resolve(dir, importMapRef);
@@ -69,11 +67,12 @@ const projection = {
     const mappedImports = projection.toStringRecord(
       Is.record<Record<string, unknown>>(json.imports) ? json.imports : undefined,
     );
+    const scopes = projection.toScopeRecord(json.scopes);
 
     return {
       dir: Path.dirname(path),
       imports: { ...inlineImports, ...mappedImports },
-      json,
+      ...(Object.keys(scopes).length > 0 ? { scopes } : {}),
     };
   },
 
@@ -134,6 +133,15 @@ const projection = {
   toStringRecord(value: unknown) {
     if (!Is.record<Record<string, unknown>>(value)) return {};
     return Object.fromEntries(Object.entries(value).filter(([, entry]) => Is.str(entry))) as Record<string, string>;
+  },
+
+  toScopeRecord(value: unknown) {
+    if (!Is.record<Record<string, unknown>>(value)) return {};
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([scope, imports]) => [scope, projection.toStringRecord(imports)])
+        .filter(([, imports]) => Object.keys(imports).length > 0),
+    ) as Record<string, Record<string, string>>;
   },
 } as const;
 

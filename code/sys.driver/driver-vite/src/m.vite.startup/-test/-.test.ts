@@ -46,6 +46,11 @@ describe(`ViteStartup`, () => {
     expect(res.imports['vite/internal']).to.eql('npm:vite@8.0.9/internal');
     expect(res.imports['vite/module-runner']).to.eql('npm:vite@8.0.9/module-runner');
     expect(res.imports['@rolldown/pluginutils']).to.eql('npm:@rolldown/pluginutils@1.0.0-rc.7');
+    expect(res.scopes).to.eql({
+      './src/': {
+        '@sys/std': './src/std.ts',
+      },
+    });
     expect(Object.keys(res.imports)).to.eql([...Object.keys(res.imports)].sort());
   });
 

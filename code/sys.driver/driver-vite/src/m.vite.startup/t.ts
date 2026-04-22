@@ -14,6 +14,7 @@ export declare namespace ViteStartup {
   export type Authority = {
     readonly dir: t.StringAbsoluteDir;
     readonly imports: Imports;
+    readonly scopes?: Scopes;
   };
 
   /** Child-consumable startup handle. */
@@ -23,6 +24,7 @@ export declare namespace ViteStartup {
   };
 
   export type Imports = Readonly<Record<string, string>>;
+  export type Scopes = Readonly<Record<string, Imports>>;
   export type Cleanup = () => Promise<void>;
 
   /** Startup authority projection. */

@@ -1,5 +1,5 @@
 import { CompositeHash, Fs, Is, Json, Path, type t } from './common.ts';
-import { AUTHORITY_JSON, MODULE_SYNC_ENABLED, type AuthorityState } from './u.internal.ts';
+import { MODULE_SYNC_ENABLED } from './u.internal.ts';
 
 const DELIVERY_VERSION = 'vite.startup.delivery.v1';
 const MODULE_SYNC_SOURCE = 'export default false;\n';
@@ -8,7 +8,7 @@ const MODULE_SYNC_FILENAME = '.vite.bootstrap.module-sync-enabled.mjs';
 export async function createDelivery(
   args: t.ViteStartup.Delivery.Args,
 ): Promise<t.ViteStartup.Handle> {
-  const authority = args.authority as AuthorityState;
+  const authority = args.authority;
   const dir = await delivery.dir(authority.dir);
   await Fs.ensureDir(dir);
 
@@ -21,7 +21,7 @@ export async function createDelivery(
     ...authority.imports,
     [MODULE_SYNC_ENABLED]: Path.toFileUrl(moduleSyncPath).href,
   });
-  const json = delivery.importMap({ ...(authority[AUTHORITY_JSON] ?? {}), imports }, authority.dir, dir);
+  const json = delivery.importMap({ imports, scopes: authority.scopes }, authority.dir, dir);
   const digest = delivery.identity(json);
   const path = Path.join(dir, `.vite.bootstrap.${digest}.imports.json`);
   await Fs.write(path, `${Json.stringify(json, 2)}\n`);
@@ -51,12 +51,15 @@ const delivery = {
   // Delivery owns rebasing because moving the import-map changes the base used for
   // relative imports and scopes. Projection still owns authority truth. Keep this
   // logic transport-only; do not use it to change payload breadth or authority ranking.
-  importMap(value: Record<string, unknown>, authorityDir: string, deliveryDir: string) {
-    const imports = delivery.rebaseSpecifierRecord(value.imports, authorityDir, deliveryDir);
+  importMap(
+    value: { imports: Record<string, string>; scopes?: t.ViteStartup.Scopes },
+    authorityDir: string,
+    deliveryDir: string,
+  ) {
+    const imports = delivery.rebaseSpecifierRecord(value.imports, authorityDir, deliveryDir) ?? {};
     const scopes = delivery.rebaseScopes(value.scopes, authorityDir, deliveryDir);
     return {
-      ...value,
-      ...(imports ? { imports } : {}),
+      imports,
       ...(scopes ? { scopes } : {}),
     };
   },
