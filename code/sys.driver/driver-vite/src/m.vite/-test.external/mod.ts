@@ -5,6 +5,7 @@
  * `/sys` workspace. Keep scenarios here explicit and additive.
  */
 import './-baseline.ts';
+import './-published-minimal-crutch.ts';
 import './-repo-generated.ts';
 import './-repo-generated.workspace.ts';
 import './-ui-baseline.ts';
