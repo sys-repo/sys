@@ -1,5 +1,5 @@
 import { Fs, Path, type t } from './common.ts';
-import { transform } from 'npm:esbuild@0.28.0';
+import { transformSync } from 'npm:esbuild@0.28.0';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
 
@@ -24,7 +24,7 @@ export async function loadDenoModule(
   if (loader === 'JavaScript') return content;
   if (loader === 'Json') return `export default ${content}`;
 
-  const result = await transform(content, {
+  const result = transformSync(content, {
     format: 'esm',
     loader: mediaTypeToLoader(loader),
     logLevel: 'debug',

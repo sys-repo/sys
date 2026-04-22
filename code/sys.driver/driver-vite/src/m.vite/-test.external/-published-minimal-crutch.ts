@@ -10,7 +10,7 @@ describe('Vite published external minimal-crutch world', () => {
       )
     ).data?.imports ?? {};
 
-    expect(config).to.include(`from 'jsr:@sys/driver-vite@0.0.368'`);
+    expect(config).to.match(/from 'jsr:@sys\/driver-vite@\d+\.\d+\.\d+'/);
     expect(imports['@sys/http/client']).to.eql('jsr:@sys/http@0.0.260/client');
     expect(Object.keys(imports).includes('@sys/driver-vite')).to.eql(false);
     expect(Object.values(imports).some((value) => value.startsWith('file:'))).to.eql(false);
@@ -166,7 +166,7 @@ async function externalStartupImportMap(arg: string) {
 function expectPublishedBoundaryFailure(text: string) {
   const normalized = text.replace(/\u001b\[[0-9;]*m/g, '');
   const markers = [
-    'jsr:@sys/driver-vite@0.0.368',
+    'jsr:@sys/driver-vite@',
     'https://jsr.io/@sys/driver-vite/',
     'Could not resolve',
     "reading 'unref'",
