@@ -13,9 +13,11 @@ import {
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 
-const DEV_FETCH_TIMEOUT_MS = 5_000;
-const DEV_CONNECT_RETRY_TIMEOUT_MS = 2_000;
-const DEV_CONNECT_RETRY_INTERVAL_MS = 100;
+const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;
+const DEV_CONNECT_RETRY_TIMEOUT = 2_000 as t.Msecs;
+const DEV_CONNECT_RETRY_INTERVAL = 100 as t.Msecs;
+const DEV_ENTRY_RETRY_TIMEOUT = 2_000 as t.Msecs;
+const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
 describe('Vite.dev', () => {
   const printHtml = (html: string, title: string, dir: t.StringDir) => {
@@ -74,7 +76,7 @@ describe('Vite.dev', () => {
         const { signal } = controller;
 
         // Vite.dev(...) does not return until the child server is reachable.
-        timeout = Time.delay(DEV_FETCH_TIMEOUT_MS, () => {
+        timeout = Time.delay(DEV_FETCH_TIMEOUT, () => {
           controller.abort();
           server?.dispose();
         });
@@ -89,8 +91,11 @@ describe('Vite.dev', () => {
         printHtml(html, 'Fetched HTML', cwd);
 
         const entryUrl = `${server.url}main.tsx`;
-        const entryRes = await fetch(entryUrl, { signal });
-        const entryText = await entryRes.text();
+        const { res: entryRes, text: entryText } = await fetchEntryWhenReady(entryUrl, {
+          signal,
+          server,
+          stderr: () => stderr,
+        });
 
         expect(res.status).to.eql(200);
         expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
@@ -143,7 +148,7 @@ describe('Vite.dev', () => {
         expect(server.port).to.eql(actualPort);
 
         const res = await fetchWhenReady(server.url, {
-          signal: AbortSignal.timeout(DEV_FETCH_TIMEOUT_MS),
+          signal: AbortSignal.timeout(DEV_FETCH_TIMEOUT),
           server,
           stderr: () => stderr,
         });
@@ -171,7 +176,7 @@ async function fetchWhenReady(
   const started = Date.now();
   let lastError: unknown;
 
-  while (Date.now() - started < DEV_CONNECT_RETRY_TIMEOUT_MS) {
+  while (Date.now() - started < DEV_CONNECT_RETRY_TIMEOUT) {
     try {
       return await fetch(url, { signal: args.signal });
     } catch (error) {
@@ -191,9 +196,47 @@ async function fetchWhenReady(
         );
       }
 
-      await Time.wait(DEV_CONNECT_RETRY_INTERVAL_MS);
+      await Time.wait(DEV_CONNECT_RETRY_INTERVAL);
     }
   }
 
   throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+async function fetchEntryWhenReady(
+  url: string,
+  args: {
+    signal: AbortSignal;
+    server: t.ViteProcess;
+    stderr: () => string;
+  },
+) {
+  const started = Date.now();
+  let last = {
+    res: new Response('', { status: 500 }),
+    text: '',
+  };
+
+  while (Date.now() - started < DEV_ENTRY_RETRY_TIMEOUT) {
+    const res = await fetch(url, { signal: args.signal });
+    const text = await res.text();
+    last = { res, text };
+
+    if (res.status === 200) return last;
+    if (args.signal.aborted) return last;
+    if (res.status < 500) return last;
+
+    if (args.server.proc.disposed) {
+      const stderr = args.stderr().trim();
+      throw new Error(
+        stderr
+          ? `Vite dev server exited before serving the entry module.\n\nstderr:\n${stderr}`
+          : 'Vite dev server exited before serving the entry module.',
+      );
+    }
+
+    await Time.wait(DEV_ENTRY_RETRY_INTERVAL);
+  }
+
+  return last;
 }
