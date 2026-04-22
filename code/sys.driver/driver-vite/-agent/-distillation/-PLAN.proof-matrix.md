@@ -331,6 +331,7 @@ That can only be done responsibly if remaining additions are justified by startu
 At minimum prove:
 1. removal of accidental carry-over does not break startup
 2. remaining additions correspond to real startup needs rather than historical residue
+3. the proof is anchored to startup-critical and conditional behavior, not to freezing the entire incidental current import roster as a permanent contract
 
 ### Likely implementation surface
 - `src/m.vite/-test/-wrangle.test.ts`

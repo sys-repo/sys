@@ -346,9 +346,18 @@ to
 - “these remain only because startup still requires them”
 
 ### Proposed test cases
-1. `plain consumer startup additions are the minimum required set`
+1. `plain consumer startup additions include the startup-critical baseline without freezing the full incidental roster`
 2. `plugin-react-sensitive additions only appear when that interop fact is present`
 3. `remaining additions are explicitly startup-justified rather than broad carry-over`
+
+### Assertion posture
+Prefer invariant assertions over exact-key freezing.
+This world should prove:
+- startup-critical additions remain present
+- interop-sensitive additions remain conditional
+- arbitrary consumer dependencies are not mirrored into startup authority
+
+It should not turn the current incidental import roster into a sacred long-term contract unless a later phase explicitly chooses that as the design.
 
 ### Unlocks
 - Phase 8
