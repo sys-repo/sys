@@ -17,12 +17,25 @@ export async function loadDenoModule(
     readonly browserIds?: boolean;
   } = {},
 ): Promise<DenoLoadResult> {
-  const { loader, resolved } = parseDenoSpecifier(id);
+  const parsed = parseDenoSpecifier(id);
+  const loader = parsed.loader as t.DenoLoader;
+  const { resolved } = parsed;
   const original = (await Fs.readText(resolved)).data ?? '';
   const content = rewriteResolvedImports(original, dependencies, options);
 
   if (loader === 'JavaScript') return content;
   if (loader === 'Json') return `export default ${content}`;
+
+  const transformed = await transformModule(content, loader, resolved);
+  return {
+    code: rewriteResolvedImports(transformed.code, dependencies, options),
+    map: transformed.map,
+  };
+}
+
+async function transformModule(content: string, loader: t.DenoLoader, sourcefile: string) {
+  const cli = Deno.env.get('ESBUILD_BINARY_PATH')?.trim();
+  if (cli) return await transformModuleWithCli({ cli, content, loader, sourcefile });
 
   const result = transformSync(content, {
     format: 'esm',
@@ -30,8 +43,45 @@ export async function loadDenoModule(
     logLevel: 'debug',
   });
 
-  const map = result.map === '' ? null : result.map;
-  return { code: rewriteResolvedImports(result.code, dependencies, options), map };
+  return {
+    code: result.code,
+    map: result.map === '' ? null : result.map,
+  } as const;
+}
+
+async function transformModuleWithCli(args: {
+  cli: string;
+  content: string;
+  loader: t.DenoLoader;
+  sourcefile: string;
+}) {
+  const child = new Deno.Command(args.cli, {
+    args: [
+      '--format=esm',
+      `--loader=${mediaTypeToLoader(args.loader)}`,
+      '--log-level=debug',
+      `--sourcefile=${args.sourcefile}`,
+    ],
+    stdin: 'piped',
+    stdout: 'piped',
+    stderr: 'piped',
+  }).spawn();
+
+  const writer = child.stdin.getWriter();
+  await writer.write(new TextEncoder().encode(args.content));
+  await writer.close();
+
+  const output = await child.output();
+  if (!output.success) {
+    const stderr = new TextDecoder().decode(output.stderr);
+    const stdout = new TextDecoder().decode(output.stdout);
+    throw new Error(stderr || stdout || `esbuild transform failed: ${args.sourcefile}`);
+  }
+
+  return {
+    code: new TextDecoder().decode(output.stdout),
+    map: null,
+  } as const;
 }
 
 export function mediaTypeToLoader(media: string) {
