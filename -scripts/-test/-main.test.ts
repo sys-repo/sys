@@ -41,7 +41,30 @@ describe('scripts/main prep orchestration', () => {
     ]);
   });
 
-  it('--prep-all forwards the prep context into the canonical prep lane', async () => {
+  it('--prep-bump forwards the prep context into the dedicated bump followup lane without refreshing the CI Deno pin', async () => {
+    const calls: unknown[] = [];
+    const api = fakeLib({
+      prep: async (context?: unknown) => {
+        calls.push(['prep', context]);
+        return 2;
+      },
+      prepCiDeno: async () => {
+        calls.push(['prepCiDeno']);
+      },
+      prepCi: async (options?: unknown) => {
+        calls.push(['prepCi', options]);
+      },
+    });
+
+    await run({ 'prep-bump': true, 'prep-context': 'bump' }, api);
+
+    expect(calls).to.eql([
+      ['prep', 'bump'],
+      ['prepCi', { versionFilter: 'ahead', prepared: 2, final: true, ensureGraph: false }],
+    ]);
+  });
+
+  it('--prep-all forwards the prep context into the broad repo prep lane', async () => {
     const calls: unknown[] = [];
     const api = fakeLib({
       prep: async (context?: unknown) => {

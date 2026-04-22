@@ -3,7 +3,7 @@ import { main } from '../task.bump.ts';
 import { bumpPolicy, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
 
 describe('scripts/task.bump', () => {
-  it('syncs package metadata before delegating to the canonical ahead-only prep lane', () => {
+  it('syncs package metadata before delegating to the dedicated bump followup prep lane', () => {
     expect(postBumpPackageSyncArgs()).to.eql([
       'run',
       '-P=dev',
@@ -14,8 +14,7 @@ describe('scripts/task.bump', () => {
       'run',
       '-P=dev',
       './-scripts/main.ts',
-      '--prep-all',
-      '--ahead-only',
+      '--prep-bump',
       '--prep-context=bump',
     ]);
   });

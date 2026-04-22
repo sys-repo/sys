@@ -26,8 +26,7 @@ export function postBumpPrepArgs() {
     'run',
     '-P=dev',
     './-scripts/main.ts',
-    '--prep-all',
-    '--ahead-only',
+    '--prep-bump',
     '--prep-context=bump',
   ] as const;
 }
