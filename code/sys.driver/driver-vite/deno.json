@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.373",
+  "version": "0.0.374",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -71,3 +71,4 @@
     }
   }
 }
+

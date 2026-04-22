@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-agent",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -61,3 +61,4 @@
     }
   }
 }
+
