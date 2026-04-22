@@ -1,20 +1,33 @@
 import { type t } from './common.ts';
 
 export const plan: t.WorkspaceBump.Lib['plan'] = async (args) => {
-  const root = args.collect.candidates.find((candidate) => candidate.pkgPath === args.rootPkgPath);
-  if (!root) throw new Error(`Unknown bump root: ${args.rootPkgPath}`);
+  const rootPkgPaths = [...new Set(args.rootPkgPaths)];
+  if (rootPkgPaths.length === 0) throw new Error('At least one bump root is required.');
 
-  const selectedPaths = dependentClosure(args.rootPkgPath, args.collect.edges, args.collect.orderedPaths);
-  const selected = args.collect.candidates.filter((candidate) => selectedPaths.includes(candidate.pkgPath));
-  return { root, selected, selectedPaths };
+  const rootSet = new Set(rootPkgPaths);
+  const roots = args.collect.candidates.filter((candidate) => rootSet.has(candidate.pkgPath));
+  const missing = rootPkgPaths.filter((pkgPath) =>
+    !roots.some((candidate) => candidate.pkgPath === pkgPath)
+  );
+  if (missing.length > 0) throw new Error(`Unknown bump roots: ${missing.join(', ')}`);
+
+  const selectedPaths = dependentClosure(
+    rootPkgPaths,
+    args.collect.edges,
+    args.collect.orderedPaths,
+  );
+  const selected = args.collect.candidates.filter((candidate) =>
+    selectedPaths.includes(candidate.pkgPath)
+  );
+  return { roots, selected, selectedPaths };
 };
 
 export function dependentClosure(
-  rootPkgPath: t.StringPath,
+  rootPkgPaths: readonly t.StringPath[],
   edges: readonly t.WorkspaceBump.PackageEdge[],
   orderedPaths: readonly t.StringPath[],
 ) {
-  const queue = [rootPkgPath];
+  const queue = [...new Set(rootPkgPaths)];
   const seen = new Set<t.StringPath>(queue);
 
   while (queue.length > 0) {

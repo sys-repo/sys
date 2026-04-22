@@ -14,16 +14,12 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     label: Fmt.phase({ kind: 'collect' }),
     silent: !log,
-    fn: () => collect({
-      cwd,
-      release: args.release,
-      policy: args.policy,
-    }),
+    fn: () => collect({ cwd, release: args.release, policy: args.policy }),
   });
   const selected = await wrangle.select({
-    candidates: collected.candidates,
+    candidates: [...collected.candidates],
     release: collected.release,
-    from: args.from,
+    from: args.from ? [...args.from] : undefined,
   });
   if (selected.prompted) console.clear();
   args.progress?.({ kind: 'plan' });
@@ -31,7 +27,7 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     label: Fmt.phase({ kind: 'plan' }),
     silent: !log,
-    fn: () => plan({ collect: collected, rootPkgPath: selected.pkgPath }),
+    fn: () => plan({ collect: collected, rootPkgPaths: selected.pkgPaths }),
   });
 
   const selectedPaths = new Set(planned.selectedPaths);
@@ -90,7 +86,8 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     spinner,
     label: Fmt.phase({ kind: 'integrity' }),
     silent: !log,
-    fn: () => wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched),
+    fn: () =>
+      wrangle.assertUnselectedStable(collected.candidates, planned.selectedPaths, untouched),
   });
 
   return {
@@ -103,14 +100,13 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 
 const wrangle = {
   async select(args: {
-    readonly candidates: readonly t.WorkspaceBump.Candidate[];
-    readonly release: t.SemverReleaseType;
-    readonly from?: string;
-  }): Promise<{ readonly pkgPath: t.StringPath; readonly prompted: boolean }> {
-    if (args.from) {
-      const pkgPath = wrangle.resolveFrom(args.candidates, args.from);
-      if (!pkgPath) throw new Error(`Unknown bump root: ${args.from}`);
-      return { pkgPath, prompted: false };
+    candidates: readonly t.WorkspaceBump.Candidate[];
+    release: t.SemverReleaseType;
+    from?: readonly string[];
+  }): Promise<{ readonly pkgPaths: readonly t.StringPath[]; readonly prompted: boolean }> {
+    if (args.from && args.from.length > 0) {
+      const pkgPaths = wrangle.resolveFrom(args.candidates, args.from);
+      return { pkgPaths, prompted: false };
     }
 
     const layout = Fmt.selectionLayout(args.candidates);
@@ -118,23 +114,35 @@ const wrangle = {
       name: Fmt.selectionLabel({ candidate, layout, release: args.release }),
       value: candidate.pkgPath,
     }));
-    const total = args.candidates.length.toLocaleString();
-    const picked = await Cli.Input.Select.prompt<t.StringPath>({
-      message: `${c.cyan('›')} which package should start the ${c.cyan(args.release)} bump ${
-        c.gray(`(${total} total)`)
-      }:\n`,
+
+    let message = `Which packages should start the ${c.cyan(args.release)} bump`;
+    message += ` ${c.gray(`(${args.candidates.length.toLocaleString()} total)`)}`;
+
+    const picked = await Cli.Input.Checkbox.prompt<t.StringPath>({
+      message,
       maxRows: Math.min(50, args.candidates.length),
+      minOptions: 1,
       options,
-      default: args.candidates[0]?.pkgPath,
-      hideDefault: true,
     });
-    return { pkgPath: picked, prompted: true };
+    return { pkgPaths: wrangle.unique(picked ?? []), prompted: true };
   },
 
-  resolveFrom(candidates: readonly t.WorkspaceBump.Candidate[], input: string) {
-    const trimmed = input.trim();
-    return candidates.find((candidate) => candidate.pkgPath === trimmed)?.pkgPath ??
-      candidates.find((candidate) => candidate.name === trimmed)?.pkgPath;
+  resolveFrom(candidates: readonly t.WorkspaceBump.Candidate[], input: readonly string[]) {
+    const resolved: t.StringPath[] = [];
+
+    for (const value of input) {
+      const trimmed = value.trim();
+      const pkgPath = candidates.find((candidate) => candidate.pkgPath === trimmed)?.pkgPath ??
+        candidates.find((candidate) => candidate.name === trimmed)?.pkgPath;
+      if (!pkgPath) throw new Error(`Unknown bump root: ${value}`);
+      resolved.push(pkgPath);
+    }
+
+    return wrangle.unique(resolved);
+  },
+
+  unique(values: readonly t.StringPath[]) {
+    return [...new Set(values)];
   },
 
   async confirm() {

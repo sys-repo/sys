@@ -12,7 +12,7 @@ export declare namespace WorkspaceBump {
     readonly Fmt: Fmt.Lib;
     /** Collect bumpable workspace packages from the local workspace. */
     collect(args?: CollectArgs): Promise<CollectResult>;
-    /** Plan one workspace package bump from a selected root. */
+    /** Plan one workspace package bump from selected roots. */
     plan(args: PlanArgs): Promise<PlanResult>;
     /** Apply one planned workspace package bump. */
     apply(args: ApplyArgs): Promise<ApplyResult>;
@@ -45,10 +45,10 @@ export declare namespace WorkspaceBump {
     };
   };
 
-  /** One resolved bump plan rooted at a selected package. */
+  /** One resolved bump plan rooted at one or more selected packages. */
   export type PlanResult = {
-    /** Canonical bump root package. */
-    readonly root: Candidate;
+    /** Canonical bump root packages in stable workspace order. */
+    readonly roots: readonly Candidate[];
     /** Ordered selected packages affected by the bump. */
     readonly selected: readonly Candidate[];
     /** Ordered selected package paths for quick membership checks. */
@@ -161,8 +161,8 @@ export declare namespace WorkspaceBump {
   export type PlanArgs = {
     /** Collected workspace bump inputs. */
     readonly collect: CollectResult;
-    /** Resolved workspace package root path used as the bump root. */
-    readonly rootPkgPath: t.StringPath;
+    /** Resolved workspace package root paths used as bump roots. */
+    readonly rootPkgPaths: readonly t.StringPath[];
   };
 
   /** Arguments for applying one planned workspace package bump. */
@@ -181,13 +181,13 @@ export declare namespace WorkspaceBump {
     readonly cwd?: t.StringDir;
     /** Release type used to derive next versions. Defaults to `patch`. */
     readonly release?: t.SemverReleaseType;
-    /** Optional preselected bump root by package name or package path. */
-    readonly from?: string;
+    /** Optional preselected bump roots by package name or package path. */
+    readonly from?: readonly string[];
     /** Render the plan without writing any files. */
     readonly dryRun?: boolean;
     /** Emit orchestration logging to the console. */
     readonly log?: boolean;
-    /** Skip interactive prompts once the bump root is known. */
+    /** Skip interactive prompts once bump roots are known. */
     readonly nonInteractive?: boolean;
     /** Optional progress callback for long-running bump phases. */
     readonly progress?: ProgressHandler;
@@ -210,7 +210,7 @@ export declare namespace WorkspaceBump {
     /** Parsed CLI args for workspace bump flows. */
     export type Parsed = {
       readonly help?: boolean;
-      readonly from?: string;
+      readonly from?: readonly string[];
       readonly release?: string;
       readonly dryRun: boolean;
       readonly nonInteractive: boolean;
