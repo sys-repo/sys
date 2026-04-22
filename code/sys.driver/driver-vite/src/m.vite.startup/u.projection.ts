@@ -28,19 +28,18 @@ const projection = {
     const workspaceRoot = await DenoFile.Path.nearest(cwd, (e) => Array.isArray(e.file.workspace));
     const nearest = deno ? await projection.sourceFromDenoFile(deno.dir, deno.file) : undefined;
     const root = workspaceRoot ? await projection.sourceFromPath(workspaceRoot) : undefined;
+    return projection.rankedSource({ cwd, nearest, root });
+  },
 
-    const baseDir = nearest?.dir ?? root?.dir ?? cwd;
+  rankedSource(
+    args: { cwd: string; nearest?: BootstrapSource; root?: BootstrapSource },
+  ): BootstrapSource {
+    const primary = args.nearest ?? args.root;
+    if (!primary) return { dir: args.cwd, imports: {} };
     return {
-      dir: baseDir,
-      imports: {
-        ...(root?.imports ?? {}),
-        ...(nearest?.imports ?? {}),
-      },
-      ...(nearest?.scopes
-        ? { scopes: nearest.scopes }
-        : root?.scopes
-          ? { scopes: root.scopes }
-          : {}),
+      dir: primary.dir,
+      imports: { ...primary.imports },
+      ...(primary.scopes ? { scopes: { ...primary.scopes } } : {}),
     };
   },
 
