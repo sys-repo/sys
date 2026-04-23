@@ -285,6 +285,13 @@ describe('ViteTransport.resolve', () => {
   });
 
   describe('vite resolution', () => {
+    it('requires resolved cacheDir when dev transport config is resolved', () => {
+      const plugin = createResolvePlugin(new Map());
+      expect(() => plugin.configResolved?.call(pluginContext, { root: '/tmp/project', command: 'serve' })).to.throw(
+        'Expected resolved Vite cacheDir for dev transport cache.',
+      );
+    });
+
     describe('resolved module ids', () => {
       it('returns direct file ids for in-root esm modules', async () => {
         const root = '/tmp/project';

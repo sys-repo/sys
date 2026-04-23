@@ -14,12 +14,19 @@ type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
   let root = Path.cwd();
   let browserIds = false;
+  let transportCacheDir = '';
 
   const plugin = {
     name: 'deno',
-    configResolved(config: { root: string; command?: string }) {
+    configResolved(config: { root: string; command?: string; cacheDir?: string }) {
       root = Path.normalize(config.root);
       browserIds = config.command === 'serve';
+      if (browserIds && !Is.str(config.cacheDir)) {
+        throw new Error('Expected resolved Vite cacheDir for dev transport cache.');
+      }
+      transportCacheDir = browserIds && Is.str(config.cacheDir)
+        ? Path.resolve(config.cacheDir)
+        : '';
     },
     async resolveId(
       id: string,
@@ -54,7 +61,10 @@ export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = de
             cached = hydrated;
           }
         }
-        return await loadDenoModule(resolvedId, cached?.dependencies ?? [], { browserIds });
+        return await loadDenoModule(resolvedId, cached?.dependencies ?? [], {
+          browserIds,
+          transformCacheDir: transportCacheDir,
+        });
       }
 
       return;

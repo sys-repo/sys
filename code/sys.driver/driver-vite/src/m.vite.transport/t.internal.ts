@@ -33,6 +33,11 @@ export type DenoResolvedNpm = {
 
 export type DenoResolved = DenoResolvedEsm | DenoResolvedNpm;
 
+export type DenoTransformedModule = {
+  readonly code: string;
+  readonly map: string | null;
+};
+
 export type DenoCache = Map<string, DenoResolved>;
 
 export type ResolveMemo = {
