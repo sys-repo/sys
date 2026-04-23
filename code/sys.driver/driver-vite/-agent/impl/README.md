@@ -25,22 +25,23 @@ Do not use this folder for broader historical packet lineage or deeper TMIND res
 ## Current state summary
 - Packet A landed as session-local resolve reuse.
 - Packet D landed as persistent dev-only transport transform cache under Vite cache ownership.
-- Outside-in call-site truth now shows:
-  - transform cache hits are real
-  - transform-hit latency is cheap
-  - `transport.resolveDeno` remains the dominant hot seam
-  - equivalent remote identities still appear split as both `https://...` and `https:/...`
+- Packet E has now landed its narrow resolve-identity fix.
+- Outside-in proof-world validation now shows:
+  - transform cache hits are still real
+  - malformed `https:/...` remote request identity no longer appears in the traced resolve lane
+  - malformed wrapped remote importer vocabulary no longer appears in the traced browser/dev path
+  - equivalent malformed/canonical concrete remote spellings now collapse before duplicated expensive resolve work is paid
 
 ## Current implementation posture
-The next move is not to broaden transform caching.
-The audit and findings are complete.
-The active move is now the smallest truthful first identity-boundary fix for equivalent malformed/canonical remote resolve identities.
+The active Packet E implementation lane is complete.
+The perf fix stayed narrow:
+- one shared concrete-remote authority-delimiter repair helper
+- resolver lookup-key collapse before expensive resolve work
+- wrapped-id writer cleanup across resolve/specifier/load boundaries
+- targeted deterministic tests plus proof-world remeasurement
 
-The active lane is therefore:
-- provenance audit complete
-- confirm where malformed `https:/...` ids are first written
-- land one narrow fix packet covering causal source + early expensive-boundary collapse
-- stop if implementation pressure would broaden the packet boundary
+The next move is therefore not more Packet E widening.
+Only follow-up seams proven after this point should open a new narrow packet.
 
 ## Step 2 tracing flag
 Use a dedicated env-gated trace flag for Packet E audit work:

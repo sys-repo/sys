@@ -113,6 +113,17 @@ Contributing observed behavior:
 Practical interpretation:
 - request/provenance identity collapse happens too late; malformed and canonical remote forms enter expensive resolve work as distinct first-class requests
 
+4A source-check refinement:
+- `code/sys.driver/driver-vite/src/m.vite.transport/u.resolve.ts` is itself a live writer boundary for malformed wrapped parent ids because `resolveViteSpecifier(...)` returns `toDenoSpecifier(resolved.loader, id, resolved.id)` using the raw incoming request `id`
+- if that incoming request is malformed `https:/...`, the driver writes a malformed wrapped parent id even after resolution has already produced a truthful local file target
+- `code/sys.driver/driver-vite/src/m.vite.transport/u.specifier.ts` preserves that vocabulary verbatim because `toDenoSpecifier(...)` and `parseDenoSpecifier(...)` do not canonicalize `id`
+- `code/sys.driver/driver-vite/src/m.vite.transport/u.load.ts` canonicalizes child remote dependency ids through `canonicalRemoteSpecifier(...)` before re-encoding them, which explains the observed malformed-parent / canonical-child asymmetry
+- that wrapped malformed parent id later re-enters the resolver through `parseDenoSpecifier(importer)` → `resolveDenoWith(parentId, ...)`, so the driver is not only preserving malformed vocabulary but feeding it back into distinct resolver lookup-key formation
+
+Operational consequence:
+- step 4B remains the mandatory defensive perf boundary
+- step 4C is now causally justified in the same packet because the driver is a writer of malformed wrapped parent vocabulary
+
 ## 8. Proposed narrow fix
 - target file(s):
   - `code/sys.driver/driver-vite/src/m.vite.transport/u.resolve.ts`
@@ -145,8 +156,37 @@ Practical interpretation:
 - other:
   - repeated `/sw.js` negative misses should be recorded as a secondary seam and may justify a follow-up lane if they remain noisy after the primary identity-boundary fix
 
+## 11. Post-fix outcome
+Implementation and validation result:
+- the Packet E fix landed as a narrow shared concrete-remote authority-delimiter repair across:
+  - resolver lookup-key formation in `u.resolve.ts`
+  - wrapped Deno specifier write/read boundaries in `u.specifier.ts`
+  - browser/dev wrapped-id emission in `u.load.ts`
+- deterministic tests now cover:
+  - must-collapse malformed/canonical pair
+  - concurrent malformed/canonical race
+  - must-not-collapse nearby distinct targets
+  - same-remote different-cwd-world guard
+  - importer-provenance repair
+  - browser/dev wrapped-id repair
+
+Proof-world remeasurement:
+- world A: `@sys/ui-react-components`
+  - trace file: `code/sys.driver/driver-vite/.tmp/trace-3/A.log`
+  - malformed `https:/jsr.io` request/importer vocabulary after the fix: none observed
+  - sampled `transport.resolveDeno` tail: `count=7 total=491`
+- world B: `@sys/driver-automerge`
+  - trace file: `code/sys.driver/driver-vite/.tmp/trace-3/B.log`
+  - malformed `https:/jsr.io` request/importer vocabulary after the fix: none observed
+  - sampled `transport.resolveDeno` tail: `count=7 total=382`
+
+Practical conclusion:
+- Packet E achieved its intended effect
+- the earlier partial-win risk was real but was eliminated once the browser/dev wrapped-id writer in `u.load.ts` was aligned with the same repair rule
+- the remaining `/sw.js` seam stays deferred as a distinct negative-miss lane
+
 ## Exit rule
-Packet E is now justified to proceed to:
-1. deterministic tests for one must-collapse pair and one must-not-collapse nearby pair
-2. one narrow implementation change targeting earlier truthful collapse of equivalent malformed/canonical remote request identities
-3. outside-in remeasurement in the same call-site world
+Packet E implementation is complete:
+1. deterministic tests are in place for must-collapse, must-not-collapse, cwd-world, race, importer, and browser writer behavior
+2. the narrow implementation change landed at the truthful expensive-boundary + writer-boundary seams
+3. outside-in remeasurement in both proof worlds removed the malformed/canonical remote split from traced request/importer identity

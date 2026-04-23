@@ -1,8 +1,8 @@
 # Packet E step 4: early remote identity collapse
 
 ## Status
-Implementation-planning note for step 4.
-Derived from the completed Packet E audit and findings.
+Implementation packet for Packet E step 4.
+The planned fix has now been implemented and validated in the proof worlds.
 
 ## Depends on
 - `./dev-startup-perf.callsite-cache-truth.md`
@@ -220,7 +220,7 @@ Post-step-4 remeasurement should separate `/sw.js` negative churn from remote-id
 5. Does the test plan now cover the real concurrent malformed/canonical race, first-miss suppression, and same-remote different-cwd-world guard well enough?
 6. Is `/sw.js` correctly left out of step 4?
 
-## Recommended commit message when implementation is ready
+## Landed commit message
 ```text
 perf(driver-vite): collapse equivalent remote resolve identities earlier
 ```
