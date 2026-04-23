@@ -6,6 +6,7 @@ import { validateProfileYamlText } from '../u.validate.ts';
 describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
   it('initial → returns the minimal profile config', () => {
     expect(ProfileSchema.initial()).to.eql({
+      prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
         context: { include: [] },
@@ -16,9 +17,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
   it('validate → accepts the profile config shape and rejects residue fields', () => {
     expect(
       ProfileSchema.validate({
+        prompt: { system: 'You are focused.' },
         sandbox: { capability: { read: ['./canon'] } },
       }).ok,
     ).to.eql(true);
+    expect(ProfileSchema.validate({ prompt: { system: '' } }).ok).to.eql(false);
     expect(ProfileSchema.validate({ name: 'main' }).ok).to.eql(false);
     expect(ProfileSchema.validate({ args: [], sandbox: {} }).ok).to.eql(false);
     expect(ProfileSchema.validate({ sandbox: {}, read: ['./legacy'] }).ok).to.eql(false);
@@ -28,6 +31,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
     const valid = validateProfileYamlText(
       Str.dedent(
         `
+        prompt:
+          system: null
         sandbox:
           capability:
             read: []

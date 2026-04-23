@@ -19,6 +19,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(config)}`);
 
   const profile = checked.doc;
+  const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
   const read = [
@@ -39,11 +40,15 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
 
   return {
     cwd,
-    args: [...(input.args ?? [])],
+    args: [...toPromptArgs(prompt), ...(input.args ?? [])],
     read,
     write,
     env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },
     pkg: input.pkg,
     sandbox,
   };
+}
+
+function toPromptArgs(input?: t.PiCliProfiles.Prompt) {
+  return input?.system ? ['--system-prompt', input.system] as const : [] as const;
 }

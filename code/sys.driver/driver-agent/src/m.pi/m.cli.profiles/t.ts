@@ -119,6 +119,12 @@ export declare namespace PiCliProfiles {
     };
   }
 
+  /** Prompt policy for a Pi profile. */
+  export type Prompt = {
+    /** Replace Pi's default system prompt when set. */
+    readonly system?: string | null;
+  };
+
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
@@ -128,6 +134,8 @@ export declare namespace PiCliProfiles {
 
     /** YAML document persisted per profile config file. */
     export type Profile = {
+      /** Optional prompt override policy for this profile. */
+      readonly prompt?: PiCliProfiles.Prompt;
       /** Explicit sandbox policy for this profile. */
       readonly sandbox?: PiCliProfiles.Sandbox;
     };

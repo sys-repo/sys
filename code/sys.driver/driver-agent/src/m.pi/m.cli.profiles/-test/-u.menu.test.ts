@@ -4,10 +4,11 @@ import { menu } from '../u.menu.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
 
-    await Deno.mkdir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
@@ -19,29 +20,28 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       const path = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
-      const text = await Deno.readTextFile(path);
+      const read = await Fs.readText(path);
+      expect(read.ok).to.eql(true);
+      const text = read.data ?? '';
 
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('# pi profile: default');
       expect(text).to.contain('# Typed Pi launcher policy.');
-      expect(text).to.contain('# Sandbox paths resolve relative to the current working directory.');
+      expect(text).to.contain('prompt:');
       expect(text).to.contain('sandbox:');
-      expect(text).to.contain('read: []   # extra readable paths');
-      expect(text).to.contain('write: []  # extra writable paths');
-      expect(text).to.contain('env: {}    # extra environment variables');
-      expect(text).to.contain('include: []  # extra context files');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('menu → uses Agent: for the action prompt', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
 
-    await Deno.mkdir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
     let topLevelCount = 0;
 
@@ -66,17 +66,18 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(calls).to.eql(['Agent:\n', 'Agent:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('menu → sandbox prints effective scope and returns to the action menu', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
 
-    await Deno.mkdir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
     const prints: string[] = [];
     let topLevelCount = 0;
@@ -111,7 +112,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 });

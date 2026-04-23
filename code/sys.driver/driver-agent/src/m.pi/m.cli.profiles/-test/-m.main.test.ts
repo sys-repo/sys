@@ -65,12 +65,13 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('main → runs selected config and passes argv after -- through to Pi', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
-      await Deno.writeTextFile(
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(
         config,
         Str.dedent(
           `
@@ -100,20 +101,21 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('main → resolves --profile via the standard profile file naming convention', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-agent.pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
-      await Deno.mkdir(Fs.dirname(config), { recursive: true });
-      await Deno.writeTextFile(config, Str.dedent(`
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.dirname(config));
+      await Fs.write(config, Str.dedent(`
         sandbox:
           capability:
             env:
@@ -137,24 +139,27 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('main → bootstraps the default profile on first direct --profile default run', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
     const calls: string[] = [];
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include.members(['--help']);
         const created = `${cwd}/-config/@sys.driver-agent.pi/default.yaml`;
-        expect(await Deno.readTextFile(created)).to.contain('# pi profile: default');
+        const read = await Fs.readText(created);
+        expect(read.ok).to.eql(true);
+        expect(read.data ?? '').to.contain('# pi profile: default');
         return { code: 0, success: true, signal: null };
       };
 
@@ -167,12 +172,13 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('main → exits cleanly when git init recovery is declined', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
     try {
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
@@ -180,7 +186,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
