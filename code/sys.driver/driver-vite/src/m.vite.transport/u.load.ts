@@ -23,7 +23,7 @@ export async function loadDenoModule(
     loader,
     dependencies: dependencies.length,
     browserIds: options.browserIds ?? false,
-  });
+  }, { level: 3 });
   const original = (await Fs.readText(resolved)).data ?? '';
   const content = rewriteResolvedImports(original, dependencies, options);
 
@@ -49,7 +49,10 @@ export async function loadDenoModule(
   if (cache.kind === 'ready') {
     const cached = await TransformCache.read(cache.plan);
     if (cached.kind === 'hit') {
-      Perf.log('transport.transform.cache.hit', { id: parsed.id, loader, key: cache.plan.key });
+      Perf.log('transport.transform.cache.hit', { id: parsed.id, loader, key: cache.plan.key }, {
+        level: 2,
+        dedupeKey: `transport.transform.cache.hit:${cache.plan.key}`,
+      });
       end({ transform: true, cache: 'hit', bytes: cached.value.code.length });
       return cached.value;
     }
@@ -59,12 +62,18 @@ export async function loadDenoModule(
         loader,
         key: cache.plan.key,
         reason: cached.reason,
-      });
+      }, { level: 1, dedupeKey: `transport.transform.cache.validationFailed:${cache.plan.key}:${cached.reason}` });
     } else {
-      Perf.log('transport.transform.cache.miss', { id: parsed.id, loader, key: cache.plan.key });
+      Perf.log('transport.transform.cache.miss', { id: parsed.id, loader, key: cache.plan.key }, {
+        level: 2,
+        dedupeKey: `transport.transform.cache.miss:${cache.plan.key}`,
+      });
     }
   } else {
-    Perf.log('transport.transform.cache.bypass', { id: parsed.id, loader, reason: cache.reason });
+    Perf.log('transport.transform.cache.bypass', { id: parsed.id, loader, reason: cache.reason }, {
+      level: 2,
+      dedupeKey: `transport.transform.cache.bypass:${parsed.id}:${loader}:${cache.reason}`,
+    });
   }
 
   const transformed = await transformModule(content, loader, resolved);
@@ -75,7 +84,10 @@ export async function loadDenoModule(
   } as const;
   if (cache.kind === 'ready') {
     await TransformCache.write(cache.plan, result);
-    Perf.log('transport.transform.cache.write', { id: parsed.id, loader, key: cache.plan.key });
+    Perf.log('transport.transform.cache.write', { id: parsed.id, loader, key: cache.plan.key }, {
+      level: 2,
+      dedupeKey: `transport.transform.cache.write:${cache.plan.key}`,
+    });
   }
   end({ transform: true, cache: cache.kind === 'ready' ? 'write' : 'bypass', bytes: code.length });
   return result;
@@ -85,7 +97,10 @@ async function transformModule(content: string, loader: t.DenoLoader, sourcefile
   const cli = Deno.env.get('ESBUILD_BINARY_PATH')?.trim();
   if (cli) return await transformModuleWithCli({ cli, content, loader, sourcefile });
 
-  const end = Perf.section('transport.transform.esbuildSync', { loader, sourcefile });
+  const end = Perf.section('transport.transform.esbuildSync', { loader, sourcefile }, {
+    level: 3,
+    thresholdMs: 10 as t.Msecs,
+  });
   const result = transformSync(content, {
     format: 'esm',
     loader: mediaTypeToLoader(loader),
@@ -108,7 +123,7 @@ async function transformModuleWithCli(args: {
   const end = Perf.section('transport.transform.esbuildCli', {
     loader: args.loader,
     sourcefile: args.sourcefile,
-  });
+  }, { level: 3, thresholdMs: 10 as t.Msecs });
   const child = new Deno.Command(args.cli, {
     args: [
       '--format=esm',

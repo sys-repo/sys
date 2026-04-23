@@ -206,10 +206,16 @@ For direct examples, see:
 
 ## Perf Debugging
 
-Set `SYS_DRIVER_VITE_PERF=1` to print startup timing samples to stdout from both the parent and child Vite processes.
+`SYS_DRIVER_VITE_PERF` supports leveled transport/startup diagnostics from both the parent and child Vite processes.
+
+- `SYS_DRIVER_VITE_PERF=1` → calm operator summary
+- `SYS_DRIVER_VITE_PERF=2` → diagnostic mode (slow resolve samples, cache misses/writes/hits)
+- `SYS_DRIVER_VITE_PERF=3` → full trace mode (includes inflight/settled chatter)
 
 ```bash
 SYS_DRIVER_VITE_PERF=1 deno task dev
+SYS_DRIVER_VITE_PERF=2 deno task dev
+SYS_DRIVER_VITE_PERF=3 deno task dev
 ```
 
 If you want to inspect a run later, redirect stdout/stderr to a file and sample it with `rg`, `tail`, or `awk`.

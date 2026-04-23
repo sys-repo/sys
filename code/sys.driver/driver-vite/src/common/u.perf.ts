@@ -1,4 +1,4 @@
-import { Is, Json, Time } from './libs.ts';
+import { Is, Json, Time, c } from './libs.ts';
 import type * as t from './t.ts';
 
 const ENV = {
@@ -6,21 +6,33 @@ const ENV = {
   EPOCH: 'SYS_DRIVER_VITE_PERF_EPOCH',
 } as const;
 
+type PerfLevel = 0 | 1 | 2 | 3;
+
 type PerfState = {
-  enabled: boolean;
+  level: PerfLevel;
   epoch: t.Msecs;
   samples: Map<string, { count: number; total: t.Msecs }>;
+  seen: Set<string>;
 };
 
 type PerfMeta = Record<string, unknown>;
+type PerfOptions = {
+  level?: PerfLevel;
+  dedupeKey?: string;
+  thresholdMs?: t.Msecs;
+};
 
 type PerfGlobal = typeof globalThis & {
   __sysDriverVitePerfState__?: PerfState;
 };
 
 export const Perf = {
-  enabled() {
-    return perf.state().enabled;
+  enabled(level: PerfLevel = 1) {
+    return Perf.level() >= level;
+  },
+
+  level() {
+    return perf.state().level;
   },
 
   epoch() {
@@ -30,7 +42,7 @@ export const Perf = {
   childEnv(): Record<string, string> {
     if (!Perf.enabled()) return {};
     return {
-      [ENV.ENABLED]: '1',
+      [ENV.ENABLED]: String(Perf.level()),
       [ENV.EPOCH]: String(Perf.epoch()),
     };
   },
@@ -39,35 +51,41 @@ export const Perf = {
     return Time.elapsed(Perf.epoch()).msec;
   },
 
-  log(label: string, meta: PerfMeta = {}) {
-    if (!Perf.enabled()) return;
+  log(label: string, meta: PerfMeta = {}, options: PerfOptions = {}) {
+    const level = options.level ?? 1;
+    if (!Perf.enabled(level)) return;
+    if (!perf.markSeen(options.dedupeKey)) return;
+
     const sinceStart = Perf.sinceStart();
     const suffix = perf.meta(meta);
-    console.info(`[driver-vite:perf +${sinceStart}ms pid=${Deno.pid}] ${label}${suffix}`);
+    console.info(`${perf.prefix(sinceStart, level)} ${label}${suffix}`);
   },
 
-  sample(label: string, elapsed: t.Msecs, meta: PerfMeta = {}) {
-    if (!Perf.enabled()) return;
+  sample(label: string, elapsed: t.Msecs, meta: PerfMeta = {}, options: PerfOptions = {}) {
+    const threshold = options.thresholdMs ?? (0 as t.Msecs);
+    if (elapsed < threshold) return;
+    if (!Perf.enabled(options.level ?? 1)) return;
+
     const summary = perf.record(label, elapsed);
     Perf.log(label, {
       elapsed,
       count: summary.count,
       total: summary.total,
       ...meta,
-    });
+    }, options);
   },
 
-  section(label: string, meta: PerfMeta = {}) {
+  section(label: string, meta: PerfMeta = {}, options: PerfOptions = {}) {
     const startedAt = Time.now.timestamp as t.Msecs;
     return (extra: PerfMeta = {}) => {
       const elapsed = Time.elapsed(startedAt).msec;
-      Perf.sample(label, elapsed, { ...meta, ...extra });
+      Perf.sample(label, elapsed, { ...meta, ...extra }, options);
       return elapsed;
     };
   },
 
-  async measure<T>(label: string, run: () => Promise<T>, meta: PerfMeta = {}): Promise<T> {
-    const end = Perf.section(label, meta);
+  async measure<T>(label: string, run: () => Promise<T>, meta: PerfMeta = {}, options: PerfOptions = {}): Promise<T> {
+    const end = Perf.section(label, meta, options);
     try {
       const result = await run();
       end({ ok: true });
@@ -85,17 +103,26 @@ const perf = {
     const existing = root.__sysDriverVitePerfState__;
     if (existing) return existing;
 
-    const enabled = perf.enabledFromEnv(Deno.env.get(ENV.ENABLED));
+    const level = perf.levelFromEnv(Deno.env.get(ENV.ENABLED));
     const epoch = perf.epochFromEnv(Deno.env.get(ENV.EPOCH)) ?? (Time.now.timestamp as t.Msecs);
-    const state: PerfState = { enabled, epoch, samples: new Map() };
+    const state: PerfState = { level, epoch, samples: new Map(), seen: new Set() };
     root.__sysDriverVitePerfState__ = state;
     return state;
   },
 
-  enabledFromEnv(value?: string | null) {
-    if (!Is.string(value)) return false;
+  levelFromEnv(value?: string | null): PerfLevel {
+    if (!Is.string(value)) return 0;
     const normalized = value.trim().toLowerCase();
-    return normalized !== '' && normalized !== '0' && normalized !== 'false' && normalized !== 'off' && normalized !== 'no';
+    if (normalized === '' || normalized === '0' || normalized === 'false' || normalized === 'off' || normalized === 'no') return 0;
+    if (normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes') return 1;
+    if (normalized === '2') return 2;
+    if (normalized === '3') return 3;
+
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed)) return 1;
+    if (parsed <= 0) return 0;
+    if (parsed >= 3) return 3;
+    return parsed >= 2 ? 2 : 1;
   },
 
   epochFromEnv(value?: string | null) {
@@ -143,5 +170,18 @@ const perf = {
   quote(input: string) {
     const text = input.length > 140 ? `${input.slice(0, 137)}...` : input;
     return JSON.stringify(text);
+  },
+
+  markSeen(key?: string) {
+    if (!Is.str(key) || key === '') return true;
+    const state = perf.state();
+    if (state.seen.has(key)) return false;
+    state.seen.add(key);
+    return true;
+  },
+
+  prefix(sinceStart: t.Msecs, level: PerfLevel) {
+    const pid = level >= 2 ? ` p=${Deno.pid}` : '';
+    return `${c.gray('[')}${c.cyan('driver-vite:perf')} ${c.gray(`+${sinceStart}ms${pid}`)}${c.gray(']')}`;
   },
 } as const;

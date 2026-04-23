@@ -141,7 +141,9 @@ export async function resolveDenoWith(
   deps: t.ResolveDeps,
 ): Promise<t.DenoResolved | null> {
   if (id.startsWith('\0')) {
-    Perf.sample('transport.resolveDeno', 0 as t.Msecs, { id, cwd, skipped: true, reason: 'null-byte' });
+    Perf.sample('transport.resolveDeno', 0 as t.Msecs, { id, cwd, skipped: true, reason: 'null-byte' }, {
+      level: 3,
+    });
     return null;
   }
 
@@ -149,18 +151,26 @@ export async function resolveDenoWith(
   const canonical = wrangle.canonicalKey(key, deps.memo);
   const settled = deps.memo?.settled.get(canonical);
   if (settled) {
-    Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', { id, cwd });
+    Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', { id, cwd }, {
+      level: 3,
+      dedupeKey: canonical === key
+        ? `transport.resolveDeno.settled:${canonical}:${cwd}`
+        : `transport.resolveDeno.alias:${key}:${canonical}:${cwd}`,
+    });
     return settled;
   }
 
   const inflight = deps.memo?.inflight.get(canonical);
   if (inflight) {
-    Perf.log('transport.resolveDeno.inflight', { id, cwd });
+    Perf.log('transport.resolveDeno.inflight', { id, cwd }, {
+      level: 3,
+      dedupeKey: `transport.resolveDeno.inflight:${canonical}:${cwd}`,
+    });
     return await inflight;
   }
 
   const run = (async () => {
-    const end = Perf.section('transport.resolveDeno', { id, cwd });
+    const end = Perf.section('transport.resolveDeno', { id, cwd }, { level: 2, thresholdMs: 20 as t.Msecs });
     if (!checkedDenoInstall) {
       await ensureDenoInstalled(cwd, deps);
       checkedDenoInstall = true;
@@ -325,7 +335,7 @@ export async function resolveNpmPathWith(
   cwd: string,
   deps: t.ResolveDeps,
 ): Promise<string | null> {
-  const end = Perf.section('transport.resolveNpmPath', { id, cwd });
+  const end = Perf.section('transport.resolveNpmPath', { id, cwd }, { level: 2, thresholdMs: 20 as t.Msecs });
   const output = await deps.invoke({
     cmd: DENO_BINARY,
     args: ['eval', 'console.log(import.meta.resolve(Deno.args[0]))', id],
