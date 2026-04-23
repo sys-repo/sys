@@ -208,9 +208,9 @@ For direct examples, see:
 
 `SYS_DRIVER_VITE_PERF` supports leveled transport/startup diagnostics from both the parent and child Vite processes.
 
-- `SYS_DRIVER_VITE_PERF=1` → calm operator summary
-- `SYS_DRIVER_VITE_PERF=2` → diagnostic mode (slow resolve samples, cache misses/writes/hits)
-- `SYS_DRIVER_VITE_PERF=3` → full trace mode (includes inflight/settled chatter)
+- `SYS_DRIVER_VITE_PERF=1` → calm operator summaries and major readiness milestones
+- `SYS_DRIVER_VITE_PERF=2` → diagnostic mode (phase timings, slow resolve samples, cache misses/writes/hits)
+- `SYS_DRIVER_VITE_PERF=3` → full trace mode (includes per-item churn such as inflight/settled chatter)
 
 ```bash
 SYS_DRIVER_VITE_PERF=1 deno task dev

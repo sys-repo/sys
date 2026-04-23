@@ -10,7 +10,7 @@ type BootstrapSource = {
 export async function createProjection(
   args: t.ViteStartup.Projection.Args,
 ): Promise<t.ViteStartup.Authority> {
-  const end = Perf.section('startup.projection', { cwd: args.cwd, vite: args.vite });
+  const end = Perf.section('startup.projection', { cwd: args.cwd, vite: args.vite }, { level: 2 });
   const source = await projection.source(args.cwd);
   const imports = projection.sortImports({
     ...source.imports,
@@ -126,4 +126,3 @@ const projection = {
     ) as Record<string, Record<string, string>>;
   },
 } as const;
-

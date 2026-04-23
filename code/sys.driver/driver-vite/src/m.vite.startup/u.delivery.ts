@@ -10,7 +10,7 @@ export async function createDelivery(
   args: t.ViteStartup.Delivery.Args,
 ): Promise<t.ViteStartup.Handle> {
   const authority = args.authority;
-  const end = Perf.section('startup.delivery', { dir: authority.dir, imports: Object.keys(authority.imports).length });
+  const end = Perf.section('startup.delivery', { dir: authority.dir, imports: Object.keys(authority.imports).length }, { level: 2 });
   const dir = await delivery.dir(authority.dir);
   await Fs.ensureDir(dir);
 

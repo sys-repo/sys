@@ -12,20 +12,20 @@ import { commonPlugins } from './u.plugins.ts';
  */
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const { minify = true } = options;
-  const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify });
+  const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify }, { level: 2 });
   const paths = formatPaths(options.paths);
   const ws = await wrangle.workspace(options);
   const denoConfig = await Perf.measure('config.app.denoConfig', async () => await wrangle.denoConfig(paths.cwd, ws), {
     cwd: paths.cwd,
-  });
+  }, { level: 2 });
   const npmPrewarm = denoConfig
-    ? await Perf.measure('config.app.canPrewarmNpm', async () => await wrangle.canPrewarmNpm(denoConfig), { config: denoConfig })
+    ? await Perf.measure('config.app.canPrewarmNpm', async () => await wrangle.canPrewarmNpm(denoConfig), { config: denoConfig }, { level: 2 })
     : false;
   const optimizeImports = options.plugins?.optimizeImports ?? true;
   const optimizePackages = optimizeImports && ws
     ? await Perf.measure('config.app.optimizePackages', async () => await deriveWorkspacePackageRules(ws), {
       aliases: ws.aliases.length,
-    })
+    }, { level: 2 })
     : [];
 
   const main = Path.join(paths.cwd, paths.app.entry);
@@ -65,7 +65,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   const plugins = await Perf.measure('config.app.commonPlugins', async () => await commonPlugins(options.plugins), {
     react: options.plugins?.react ?? true,
-  });
+  }, { level: 2 });
   if (denoConfig && (options.plugins?.deno ?? true)) {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
@@ -131,7 +131,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     npmPrewarm,
     plugins: plugins.length,
     vitePlugins: options.vitePlugins?.length ?? 0,
-  });
+  }, { level: 1 });
   end({ root, aliases: ws?.aliases.length ?? 0, optimizePackages: optimizePackages.length, npmPrewarm, plugins: plugins.length });
   return res;
 };

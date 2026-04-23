@@ -42,15 +42,15 @@ export const REGEX = {
 export const dev: D = async (input) => {
   const { silent = false, pkg } = input;
   const startedAt = Time.now.timestamp as t.Msecs;
-  const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent });
+  const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent }, { level: 1 });
   const paths = input.paths ?? (await Perf.measure('dev.parent.paths', async () => await Wrangle.pathsFromConfigfile(input.cwd), {
     cwd: input.cwd ?? '',
-  }));
+  }, { level: 2 }));
   const cwd = paths.cwd;
   const requestedPort = Net.port(input.port ?? DEFAULTS.port);
   const { dist } = await Perf.measure('dev.parent.dist', async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')), {
     cwd,
-  });
+  }, { level: 2 });
 
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
@@ -58,7 +58,7 @@ export const dev: D = async (input) => {
   const { args, env, dispose: disposeBootstrap } = await Perf.measure('dev.parent.command', async () => await Wrangle.command(
     paths,
     `dev --port=${requestedPort} --host`,
-  ), { cwd, port: requestedPort });
+  ), { cwd, port: requestedPort }, { level: 2 });
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
@@ -103,7 +103,7 @@ export const dev: D = async (input) => {
   try {
     const readyAbort = new AbortController();
     try {
-      const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl });
+      const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl }, { level: 2 });
       await Promise.race([
         proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
         Http.Client.waitFor(requestedUrl, {
@@ -118,7 +118,7 @@ export const dev: D = async (input) => {
     }
     await Perf.measure('dev.parent.waitForResolvedUrl', async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }), {
       resolvedUrl,
-    });
+    }, { level: 2 });
   } catch (error) {
     try {
       await cleanup();
@@ -135,7 +135,7 @@ export const dev: D = async (input) => {
     requestedUrl,
     resolvedUrl,
     elapsed: Time.elapsed(startedAt).msec,
-  });
+  }, { level: 1 });
   end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose: cleanup });
   const listen = async () => void await keyboard();

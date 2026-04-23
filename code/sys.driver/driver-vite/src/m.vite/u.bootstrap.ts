@@ -13,7 +13,7 @@ type BootstrapResult = {
  */
 export const Bootstrap = {
   async create(cwd: string, vite: string): Promise<BootstrapResult | undefined> {
-    const end = Perf.section('bootstrap.create', { cwd, vite });
+    const end = Perf.section('bootstrap.create', { cwd, vite }, { level: 2 });
     if (bootstrap.viteMajor(vite) < 8) {
       end({ skipped: true, reason: 'vite<8' });
       return undefined;
@@ -22,11 +22,11 @@ export const Bootstrap = {
     const authority = await Perf.measure('startup.projection.create', async () => await ViteStartup.Projection.create({
       cwd: cwd as t.StringAbsoluteDir,
       vite,
-    }), { cwd, vite });
+    }), { cwd, vite }, { level: 2 });
     const handle = await Perf.measure('startup.delivery.create', async () => await ViteStartup.Delivery.create({ authority }), {
       cwd,
       imports: Object.keys(authority.imports).length,
-    });
+    }, { level: 2 });
     end({ path: handle.path, imports: Object.keys(authority.imports).length });
     return handle;
   },

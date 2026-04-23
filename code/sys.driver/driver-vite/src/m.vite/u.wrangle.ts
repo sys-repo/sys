@@ -8,7 +8,7 @@ import { Bootstrap } from './u.bootstrap.ts';
  */
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
-    const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg });
+    const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg }, { level: 2 });
     const config = 'vite.config.ts';
     const env = await wrangle.env(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
@@ -27,7 +27,7 @@ export const Wrangle = {
 
   async pathsFromConfigfile(cwd?: t.StringDir) {
     const rootDir = cwd || Path.cwd();
-    const end = Perf.section('wrangle.pathsFromConfigfile', { cwd: rootDir });
+    const end = Perf.section('wrangle.pathsFromConfigfile', { cwd: rootDir }, { level: 2 });
     const filename = 'vite.config.ts';
     const path = Path.join(rootDir, filename);
 
@@ -107,7 +107,7 @@ const wrangle = {
   },
 
   async env(cwd: string) {
-    const end = Perf.section('wrangle.env', { cwd });
+    const end = Perf.section('wrangle.env', { cwd }, { level: 2 });
     const env = {
       ESBUILD_BINARY_PATH: await wrangle.esbuildBinaryPath(cwd),
       ...Perf.childEnv(),
@@ -117,7 +117,7 @@ const wrangle = {
   },
 
   async viteSpecifier(start: string, moduleUrl = import.meta.url) {
-    const end = Perf.section('wrangle.viteSpecifier', { start });
+    const end = Perf.section('wrangle.viteSpecifier', { start }, { level: 2 });
     const anchors = await wrangle.vitePackageAnchors(start, moduleUrl);
 
 
@@ -148,7 +148,7 @@ const wrangle = {
   },
 
   async configLoaderArg(cwd: string) {
-    const end = Perf.section('wrangle.configLoaderArg', { cwd });
+    const end = Perf.section('wrangle.configLoaderArg', { cwd }, { level: 2 });
     const version = await wrangle.viteVersionFromPackage(await wrangle.packageAnchor(cwd));
     const arg = wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
     end({ version, arg });
@@ -192,7 +192,7 @@ const wrangle = {
   },
 
   async esbuildBinaryPath(cwd: string) {
-    const end = Perf.section('wrangle.esbuildBinaryPath', { cwd });
+    const end = Perf.section('wrangle.esbuildBinaryPath', { cwd }, { level: 2 });
     const require = await wrangle.esbuildRequire(cwd);
     const { pkg, subpath } = wrangle.esbuildPackage();
     try {

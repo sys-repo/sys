@@ -45,7 +45,7 @@ export function createNpmPrewarm(
       if (warmed) return;
       warmed = true;
 
-      const end = Perf.section('config.npmPrewarm', { configPath });
+      const end = Perf.section('config.npmPrewarm', { configPath }, { level: 2 });
       const imports = await loadImports(configPath);
       const cwd = Path.dirname(configPath);
       const specifiers = Object.values(imports)
@@ -54,7 +54,7 @@ export function createNpmPrewarm(
       const uniqueSpecifiers = [...new Set(specifiers)];
 
       for (const specifier of uniqueSpecifiers) {
-        const startedAt = Perf.section('config.npmPrewarm.specifier', { specifier, cwd });
+        const startedAt = Perf.section('config.npmPrewarm.specifier', { specifier, cwd }, { level: 3 });
         await warmNpm(specifier, cwd);
         startedAt();
       }
@@ -119,7 +119,7 @@ const wrangle = {
   },
 
   async loadImports(configPath: t.StringPath): Promise<Record<string, string>> {
-    const end = Perf.section('config.loadImports', { configPath });
+    const end = Perf.section('config.loadImports', { configPath }, { level: 2 });
     const file = await DenoFile.load(configPath);
     if (!file.ok || !file.data) {
       end({ ok: false, imports: 0 });
@@ -225,7 +225,7 @@ const wrangle = {
       stdout: 'null',
       stderr: 'piped',
     });
-    const startedAt = Perf.section('config.npmPrewarm.info', { specifier });
+    const startedAt = Perf.section('config.npmPrewarm.info', { specifier }, { level: 3 });
     const output = await cmd.output();
     startedAt({ success: output.success });
     if (output.success) return;
