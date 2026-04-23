@@ -57,6 +57,7 @@
     "npm:@preact/signals-react@3.10.0": "3.10.0_react@19.2.5",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.49": "0.34.49",
+    "npm:@stripe/stripe-js@9.3.1": "9.3.1",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@testing-library+dom@10.4.1_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.5_react-dom@19.2.5__react@19.2.5",
     "npm:@types/ramda@0.31.1": "0.31.1",
@@ -1699,8 +1700,6 @@
     "@napi-rs/wasm-runtime@1.1.4_@emnapi+core@1.9.2_@emnapi+runtime@1.9.2": {
       "integrity": "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==",
       "dependencies": [
-        "@emnapi/core@1.9.2",
-        "@emnapi/runtime@1.9.2",
         "@tybys/wasm-util"
       ]
     },
@@ -2560,6 +2559,9 @@
     },
     "@standard-schema/spec@1.1.0": {
       "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="
+    },
+    "@stripe/stripe-js@9.3.1": {
+      "integrity": "sha512-oWpAEENuVg8aw4W2OUAM9WxRDtIV2YTLr2nr6qHT+D8tHPW7bya61ufinPpUespyRNUVXqesnHo+jQdUNsGywA=="
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
