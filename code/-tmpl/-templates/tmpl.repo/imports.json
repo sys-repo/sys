@@ -7,9 +7,9 @@
     "@sys/driver-deno/cloud": "jsr:@sys/driver-deno@0.0.319/cloud",
     "@sys/driver-deno/runtime": "jsr:@sys/driver-deno@0.0.319/runtime",
     "@sys/driver-deno/t": "jsr:@sys/driver-deno@0.0.319/t",
-    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.377",
-    "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.377/main",
-    "@sys/driver-vite/t": "jsr:@sys/driver-vite@0.0.377/t",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.378",
+    "@sys/driver-vite/main": "jsr:@sys/driver-vite@0.0.378/main",
+    "@sys/driver-vite/t": "jsr:@sys/driver-vite@0.0.378/t",
     "@sys/fs": "jsr:@sys/fs@0.0.289",
     "@sys/fs/t": "jsr:@sys/fs@0.0.289/t",
     "@sys/http/client": "jsr:@sys/http@0.0.262/client",
@@ -38,10 +38,10 @@
     "@sys/testing/server": "jsr:@sys/testing@0.0.279/server",
     "@sys/testing/t": "jsr:@sys/testing@0.0.279/t",
     "@sys/types": "jsr:@sys/types@0.0.277",
-    "@sys/tmpl": "jsr:@sys/tmpl@0.0.348",
-    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.348/t",
-    "@sys/tools": "jsr:@sys/tools@0.0.364",
-    "@sys/tools/t": "jsr:@sys/tools@0.0.364/t",
+    "@sys/tmpl": "jsr:@sys/tmpl@0.0.349",
+    "@sys/tmpl/t": "jsr:@sys/tmpl@0.0.349/t",
+    "@sys/tools": "jsr:@sys/tools@0.0.365",
+    "@sys/tools/t": "jsr:@sys/tools@0.0.365/t",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.271",
     "@sys/ui-css/t": "jsr:@sys/ui-css@0.0.271/t",
     "@sys/ui-dom": "jsr:@sys/ui-dom@0.0.278",
@@ -62,7 +62,7 @@
     "@sys/ui-react-components/key-value": "jsr:@sys/ui-react-components@0.0.256/key-value",
     "@sys/ui-react-components/object-view": "jsr:@sys/ui-react-components@0.0.256/object-view",
     "react-icons/md": "npm:react-icons@5.6.0/md",
-    "vite": "npm:vite@8.0.9"
+    "vite": "npm:vite@8.0.10"
   }
 }
 
