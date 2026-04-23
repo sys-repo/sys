@@ -8,6 +8,7 @@ dev-startup performance lane.
 2. `./dev-startup-perf.resolve-key-audit.packet.md`
 3. `./dev-startup-perf.resolve-key-audit.findings.md`
 4. `./dev-startup-perf.resolve-identity-fix.packet.md`
+5. `./dev-startup-perf.packet-c.optimize-deps-surface.packet.md`
 
 Optional next-lane candidate only if reopened after publish validation:
 - `./dev-startup-perf.negative-miss-suppression.candidate.md`
@@ -42,6 +43,11 @@ The perf fix stayed narrow:
 - resolver lookup-key collapse before expensive resolve work
 - wrapped-id writer cleanup across resolve/specifier/load boundaries
 - targeted deterministic tests plus proof-world remeasurement
+
+A new narrow Packet C is now opened for the Vite dep-optimizer seam:
+- canonical `optimizeDeps` surface exposure in `Vite.Config.app(...)`
+- no heuristic driver defaults
+- no call-site tuning mixed into the packet
 
 The next move is therefore not more Packet E widening.
 Only follow-up seams proven after this point should open a new narrow packet.
