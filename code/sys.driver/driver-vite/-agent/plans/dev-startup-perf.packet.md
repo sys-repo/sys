@@ -11,7 +11,7 @@ It still has historical value as an intermediate distillation step.
 ## Current authority
 There is no live next-step implementation packet in this historical note.
 Current state-truth is tracked in:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 Historical packet notes:
 - `./dev-startup-perf.resolve-reuse.packet.md`
@@ -46,6 +46,6 @@ This packet landed as the dev-only remote immutable transform cache layer.
 ## Use of this file now
 Read this file only as historical context for how the packet ranking evolved.
 For current outside-in state truth, follow:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 For implementation, derive the next packet from that current truth rather than reopening this historical note.

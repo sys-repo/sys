@@ -9,7 +9,7 @@ Historical packet notes:
 - `./dev-startup-perf.transport-cache.packet.md`
 
 Current state-truth note:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 This review remains the research/base-truth note.
 It is no longer the place to find the live next implementation packet.

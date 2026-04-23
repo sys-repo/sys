@@ -21,7 +21,7 @@ Packet A landed in the transport resolver as a session-local reuse layer:
 
 Phase A3 negative caching was not opened.
 Current outside-in cache/resolve truth is tracked in:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 ## Goal
 Convert the first measured startup truth into the narrowest high-value implementation packet.

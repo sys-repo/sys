@@ -6,7 +6,7 @@ Historical tracking note for Packet A execution.
 Packet A is no longer an open execution lane.
 Use this file to remember what the packet was supposed to prove and what happened.
 Current outside-in cache/resolve truth is tracked in:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 ## Packet A — resolver reuse correctness with measured payoff
 

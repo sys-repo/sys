@@ -19,7 +19,7 @@ Packet D landed as a narrow first slice in the transport layer:
 - no persistent resolve cache in this packet
 
 Current outside-in cache/resolve truth is tracked in:
-- `./dev-startup-perf.callsite-cache-truth.md`
+- `../impl/dev-startup-perf.callsite-cache-truth.md`
 
 ## Human trigger
 Outside-in call-site remeasurement after Packet A showed:
