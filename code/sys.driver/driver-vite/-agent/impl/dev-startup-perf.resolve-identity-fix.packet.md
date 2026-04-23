@@ -24,6 +24,10 @@ Current evidence across at least two worlds (`@sys/ui-react-components` and `@sy
 ## Step 4 headline
 Collapse equivalent malformed/canonical concrete remote URL spellings at the resolver-owned concrete-remote lookup-key boundary, before inflight/settled/miss accounting and before the first expensive resolve miss is paid.
 
+Two distinct notions of "primary" apply here:
+- **perf-primary boundary:** the resolver-owned concrete-remote lookup-key boundary where duplicated expensive work is currently paid
+- **causal-primary boundary:** the first authoritative writer boundary for malformed identity vocabulary, if step 4A proves that boundary is upstream of resolver key formation
+
 ## STIER / TMIND upgrade after adversarial review
 - **STIER:** keep step 4 narrow, but do not assume the malformed `https:/...` form is merely external input. First confirm where it is written.
 - **TMIND:** two explanations remain compatible with the traces:
@@ -46,23 +50,31 @@ Do not mix any of these into step 4:
 - broader URL normalization not proven by the trace
 
 ## Planned implementation shape
-This is one implementation packet, but it now has three disciplined parts:
+This is one implementation packet with one hard pre-implementation gate and two possible implementation parts.
 
-### Step 4A — causal-source check before editing behavior
-Before landing the fix, confirm where `https:/jsr.io/...` is first written.
+### Step 4A — hard causal-source gate before any code lands
+Before landing the fix, confirm where `https:/jsr.io/...` is first written and whether any cached/provenance structure can re-enter that malformed form later.
 
-The key question is:
+The key questions are:
 - does the malformed form originate in driver code (especially wrapped-specifier/provenance machinery),
 - or does it enter from outside and only become expensive once it reaches the resolve-key boundary?
+- does any alias/provenance/cache structure write raw malformed ids that are later read back as importer/request vocabulary?
 
 Primary suspicion surfaces:
 - `code/sys.driver/driver-vite/src/m.vite.transport/u.specifier.ts`
 - wrapped-id boundaries used by:
   - `toDenoSpecifier(...)`
   - `parseDenoSpecifier(...)`
+- any transport alias/provenance structure that writes raw ids and later reuses them
 
 This is not a new research phase.
-It is one final causality check so step 4 does not accidentally patch a downstream symptom while leaving the writer untouched.
+It is a hard branch point so step 4 does not accidentally patch a downstream symptom while leaving the writer untouched.
+
+Decision table:
+- if the malformed form is first written outside driver code, land step 4B as the primary perf fix; step 4C remains conditional by test and remeasurement
+- if the malformed form is first written by driver wrapping/provenance code and that writer feeds distinct resolver lookup keys, step 4C becomes causal-primary and should land with step 4B in the same packet
+- if the malformed form is first written by driver code but does not survive into distinct resolver lookup keys after step 4B, keep step 4C deferred
+- if the writer boundary is ambiguous, stop and gather one more focused trace rather than blending the fix
 
 ### Step 4B — canonical resolver lookup key before expensive resolve work
 Apply a narrow canonical concrete-remote collapse before:
@@ -83,7 +95,7 @@ The canonicalization used here must be narrow and truthful:
 - do **not** collapse different paths, packages, versions, cwd worlds, or unrelated URL structure
 - do **not** broaden into generic URL normalization
 
-### Step 4C — conditional wrapped remote provenance cleanup
+### Step 4C — conditional writer-boundary cleanup
 Prevent wrapped Deno importer ids from reintroducing malformed parent identity vocabulary once the equivalent canonical remote form is already known/truthful.
 
 This likely touches:
@@ -96,11 +108,11 @@ Goal:
 - importer/parent ids should stop carrying `https:/...` when the same semantic target should already be represented canonically as `https://...`
 
 Priority note:
-- step 4B is the primary perf fix and should land
+- step 4B should land as the primary perf fix unless step 4A proves the malformed form is first written by driver wrapping/provenance code
 - step 4C is conditional by default and should land only if:
-  - step 4A confirms the malformed form is first written by driver wrapping code, or
+  - step 4A confirms the malformed form is first written by driver wrapping/provenance code, or
   - failing tests / remeasurement prove malformed wrapped provenance still creates distinct work or graph-identity drift after step 4B
-- if step 4A confirms the malformed form is first written by driver wrapping code, step 4C becomes causal-primary and should not be deferred behind the safety net
+- if step 4A confirms the malformed form is first written by driver wrapping/provenance code, step 4C becomes causal-primary and step 4B should be understood and documented as the defensive expensive-boundary guard, not the source fix
 
 ## Code targets
 Primary:
@@ -116,6 +128,8 @@ Use one shared pure helper for the narrow remote-spelling collapse.
 Do not hand-inline competing regexes in multiple places.
 
 Contract:
+- input domain is only concrete remote `http` / `https` URLs
+- do **not** apply this helper to `jsr:`, `npm:`, `file:`, bare ids, or relative paths
 - only repair scheme-authority delimiter for concrete `http` / `https` URLs
 - `https:/foo` → `https://foo`
 - `http:/foo` → `http://foo`
@@ -136,6 +150,7 @@ Expected:
 - same canonical lookup-key identity in the same cwd world
 - only one expensive first miss is paid
 - the equivalent canonical spelling becomes inflight-hit / settled-hit / alias-hit rather than paying a second first miss
+- prove this with a deterministic mock/stub of the expensive resolve path and assert call count is exactly one
 
 ### Concurrent malformed/canonical race test
 Prove that malformed and canonical spellings entering concurrently do not both pay first-miss cost.
@@ -144,6 +159,7 @@ Expected:
 - one canonical expensive resolve path wins
 - the competing equivalent spelling coalesces instead of paying a second independent miss
 - Packet A single-flight now protects the semantic target, not merely whichever malformed raw spelling got there first
+- exercise this as genuinely overlapping async work (for example concurrent promises), not as a sequential simulation
 
 ### Must-not-collapse test
 Prove that nearby but distinct targets remain distinct:
@@ -160,6 +176,7 @@ Prove that the same repaired remote concrete URL under different cwd authority w
 Expected:
 - cwd/world authority remains part of the key
 - no global over-collapse across authority worlds
+- assert the resulting lookup keys remain distinct
 
 ### Importer-provenance test
 Prove that malformed wrapped importer ids no longer reintroduce fragmented identity for equivalent canonical child targets.
@@ -169,6 +186,7 @@ It should show explicitly:
 - wrapped malformed parent input
 - canonical child/provenance output
 - request-key behavior before/after the fix
+- assert the resulting child lookup key is canonical, not merely print it
 
 ## Success criteria
 After the fix and remeasurement, we want to see:
@@ -178,6 +196,7 @@ After the fix and remeasurement, we want to see:
 - lower `transport.resolveDeno total`
 - no regression in targeted transport tests
 - meaningful outside-in startup improvement, not only prettier internal logs
+- one graph-facing sanity signal that the same semantic remote target is not still surfacing under both malformed and canonical Vite-facing identity in the targeted scenario
 
 ## Secondary seam explicitly deferred
 Repeated unresolved `/sw.js` misses are proven, but they are not part of step 4.
@@ -187,7 +206,8 @@ If still worthwhile after the primary fix, they belong in a separate narrow foll
 Post-step-4 remeasurement should separate `/sw.js` negative churn from remote-identity churn so a secondary miss seam does not obscure the primary fix payoff.
 
 ## Risks / watchouts
-- If `https:/...` is first written by driver wrapping code, landing only the request-key guard would be a partial win and an incomplete causal fix.
+- If `https:/...` is first written by driver wrapping/provenance code, landing only the request-key guard would be a partial win and an incomplete causal fix.
+- If malformed ids can re-enter from cached/provenance structures, the first-writer check must catch that before the packet is judged complete.
 - The collapse rule must be scheme-aware; `http` / `https` authority repair is justified, but broader URL rewriting is not.
 - Vite-facing ids should not continue to see malformed remote spellings after step 4, or graph identity may remain split even if `deno info` work is reduced.
 - The concurrent malformed/canonical race is part of the real bug and must be covered in tests, not inferred only from sequential reuse.
