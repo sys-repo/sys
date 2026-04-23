@@ -68,8 +68,6 @@ export async function main() {
   }
 }
 
-if (import.meta.main) await main();
-
 async function syncPinnedImport(args: {
   depsPath: string;
   targetPath: string;
@@ -101,3 +99,5 @@ const wrangle = {
     throw Err.std(`Failed to derive esbuild version from canonical import: ${specifier}`);
   },
 } as const;
+
+if (import.meta.main) await main();
