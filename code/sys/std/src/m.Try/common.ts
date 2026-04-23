@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { Err } from '../m.Err/mod.ts';
+export { normalize as normalizeError } from '../m.Err/u.normalize.ts';

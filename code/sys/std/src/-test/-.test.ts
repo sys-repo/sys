@@ -61,4 +61,21 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect(Ansi.colors).to.equal(Ansi.c);
     expect(Ansi.stripAnsi).to.be.a('function');
   });
+
+  it('API: Try and Err subpaths co-exist without circular init drift', async () => {
+    const { Try } = await import('@sys/std/try');
+    const { Err } = await import('@sys/std/error');
+
+    const runResult = Try.run((): string => {
+      throw 'boom';
+    });
+    const result = runResult.result;
+
+    expect(Err.Try).to.equal(Try);
+    expect(result.ok).to.eql(false);
+    if (!result.ok) {
+      expect(result.error).to.be.instanceOf(Error);
+      expect(result.error.message).to.eql('boom');
+    }
+  });
 });

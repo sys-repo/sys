@@ -1,4 +1,4 @@
-import { type t, isPromise, Err } from './common.ts';
+import { type t, isPromise, normalizeError } from './common.ts';
 
 // Overload: throws → sync result
 export function _catch<T = never>(fn: () => never): t.TryResult<T>;
@@ -16,10 +16,10 @@ export function _catch<T>(fn: () => T | Promise<T>): t.TryResult<T> | Promise<t.
     if (isPromise(out)) {
       return Promise.resolve(out)
         .then((data) => ({ ok: true as const, data, error: undefined }))
-        .catch((e) => ({ ok: false as const, error: Err.normalize(e) }));
+        .catch((e) => ({ ok: false as const, error: normalizeError(e) }));
     }
     return { ok: true, data: out as T, error: undefined };
   } catch (e) {
-    return { ok: false, error: Err.normalize(e) };
+    return { ok: false, error: normalizeError(e) };
   }
 }
