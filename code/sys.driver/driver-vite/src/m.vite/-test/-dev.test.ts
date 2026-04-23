@@ -7,6 +7,7 @@ import {
   it,
   pkg,
   SAMPLE,
+  Str,
   Testing,
   Time,
 } from '../../-test.ts';
@@ -182,34 +183,31 @@ async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
   await Fs.write(
     Fs.join(entryDir, 'index.html'),
-    [
-      '<!DOCTYPE html>',
-      '<html lang="en">',
-      '  <head>',
-      '    <meta charset="UTF-8" />',
-      '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-      '    <title>Sample-2</title>',
-      '  </head>',
-      '  <body>',
-      '    <div id="root"></div>',
-      '    <script type="module" src="./main.js"></script>',
-      '  </body>',
-      '</html>',
-      '',
-    ].join('\n'),
+    Str.dedent(`<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sample-2</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script type="module" src="./main.js"></script>
+      </body>
+    </html>
+    `),
   );
   await Fs.write(
     Fs.join(entryDir, 'main.js'),
-    [
-      `import React from 'react';`,
-      `import { createRoot } from 'react-dom/client';`,
-      `import '@sys/driver-vite/sample-imports';`,
-      `const dynamic = import('../m.foo.ts');`,
-      `dynamic.then((mod) => console.info('💦 dynmaic import', mod));`,
-      `const root = createRoot(document.getElementById('root'));`,
-      `root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));`,
-      '',
-    ].join('\n'),
+    Str.dedent(`
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import '@sys/driver-vite/sample-imports';
+      const dynamic = import('../m.foo.ts');
+      dynamic.then((mod) => console.info('💦 dynmaic import', mod));
+      const root = createRoot(document.getElementById('root'));
+      root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));
+    `),
   );
 }
 
