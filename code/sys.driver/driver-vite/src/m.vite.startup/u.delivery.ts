@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { CompositeHash, Fs, Is, Json, Path, type t } from './common.ts';
 import { MODULE_SYNC_ENABLED } from './u.internal.ts';
 
@@ -9,6 +10,7 @@ export async function createDelivery(
   args: t.ViteStartup.Delivery.Args,
 ): Promise<t.ViteStartup.Handle> {
   const authority = args.authority;
+  const end = Perf.section('startup.delivery', { dir: authority.dir, imports: Object.keys(authority.imports).length });
   const dir = await delivery.dir(authority.dir);
   await Fs.ensureDir(dir);
 
@@ -26,13 +28,15 @@ export async function createDelivery(
   const path = Path.join(dir, `.vite.bootstrap.${digest}.imports.json`);
   await Fs.write(path, `${Json.stringify(json, 2)}\n`);
 
-  return {
+  const handle = {
     path,
     cleanup: async () => {
       if (await Fs.exists(path)) await Fs.remove(path, { log: false });
       if (await Fs.exists(moduleSyncPath)) await Fs.remove(moduleSyncPath, { log: false });
     },
   };
+  end({ path, digest, deliveryDir: dir });
+  return handle;
 }
 
 const delivery = {

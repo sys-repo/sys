@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { Fs, Path, type t } from './common.ts';
 import { transformSync } from 'npm:esbuild@0.28.0';
 import { toViteNpmSpecifier } from './u.npm.ts';
@@ -20,15 +21,30 @@ export async function loadDenoModule(
   const parsed = parseDenoSpecifier(id);
   const loader = parsed.loader as t.DenoLoader;
   const { resolved } = parsed;
+  const end = Perf.section('transport.loadDenoModule', {
+    id,
+    loader,
+    dependencies: dependencies.length,
+    browserIds: options.browserIds ?? false,
+  });
   const original = (await Fs.readText(resolved)).data ?? '';
   const content = rewriteResolvedImports(original, dependencies, options);
 
-  if (loader === 'JavaScript') return content;
-  if (loader === 'Json') return `export default ${content}`;
+  if (loader === 'JavaScript') {
+    end({ transform: false, bytes: content.length });
+    return content;
+  }
+  if (loader === 'Json') {
+    const code = `export default ${content}`;
+    end({ transform: false, bytes: code.length });
+    return code;
+  }
 
   const transformed = await transformModule(content, loader, resolved);
+  const code = rewriteResolvedImports(transformed.code, dependencies, options);
+  end({ transform: true, bytes: code.length });
   return {
-    code: rewriteResolvedImports(transformed.code, dependencies, options),
+    code,
     map: transformed.map,
   };
 }
@@ -37,11 +53,13 @@ async function transformModule(content: string, loader: t.DenoLoader, sourcefile
   const cli = Deno.env.get('ESBUILD_BINARY_PATH')?.trim();
   if (cli) return await transformModuleWithCli({ cli, content, loader, sourcefile });
 
+  const end = Perf.section('transport.transform.esbuildSync', { loader, sourcefile });
   const result = transformSync(content, {
     format: 'esm',
     loader: mediaTypeToLoader(loader),
     logLevel: 'debug',
   });
+  end({ bytes: result.code.length });
 
   return {
     code: result.code,
@@ -55,6 +73,10 @@ async function transformModuleWithCli(args: {
   loader: t.DenoLoader;
   sourcefile: string;
 }) {
+  const end = Perf.section('transport.transform.esbuildCli', {
+    loader: args.loader,
+    sourcefile: args.sourcefile,
+  });
   const child = new Deno.Command(args.cli, {
     args: [
       '--format=esm',
@@ -75,11 +97,14 @@ async function transformModuleWithCli(args: {
   if (!output.success) {
     const stderr = new TextDecoder().decode(output.stderr);
     const stdout = new TextDecoder().decode(output.stdout);
+    end({ ok: false });
     throw new Error(stderr || stdout || `esbuild transform failed: ${args.sourcefile}`);
   }
 
+  const code = new TextDecoder().decode(output.stdout);
+  end({ ok: true, bytes: code.length });
   return {
-    code: new TextDecoder().decode(output.stdout),
+    code,
     map: null,
   } as const;
 }

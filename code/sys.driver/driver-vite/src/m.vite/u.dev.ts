@@ -7,10 +7,12 @@ import {
   Path,
   Pkg,
   Process,
+  Time,
   stripAnsi,
   type t,
   Url,
 } from './common.ts';
+import { Perf } from '../common/u.perf.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -39,18 +41,24 @@ export const REGEX = {
  */
 export const dev: D = async (input) => {
   const { silent = false, pkg } = input;
-  const paths = input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd));
+  const startedAt = Time.now.timestamp as t.Msecs;
+  const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent });
+  const paths = input.paths ?? (await Perf.measure('dev.parent.paths', async () => await Wrangle.pathsFromConfigfile(input.cwd), {
+    cwd: input.cwd ?? '',
+  }));
   const cwd = paths.cwd;
   const requestedPort = Net.port(input.port ?? DEFAULTS.port);
-  const { dist } = await Pkg.Dist.load(Path.resolve('./dist/dist.json'));
+  const { dist } = await Perf.measure('dev.parent.dist', async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')), {
+    cwd,
+  });
 
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
   let resolvedLocalUrl = '';
-  const { args, env, dispose: disposeBootstrap } = await Wrangle.command(
+  const { args, env, dispose: disposeBootstrap } = await Perf.measure('dev.parent.command', async () => await Wrangle.command(
     paths,
     `dev --port=${requestedPort} --host`,
-  );
+  ), { cwd, port: requestedPort });
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
@@ -95,6 +103,7 @@ export const dev: D = async (input) => {
   try {
     const readyAbort = new AbortController();
     try {
+      const waitForReady = Perf.section('dev.parent.waitForReady', { requestedUrl });
       await Promise.race([
         proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
         Http.Client.waitFor(requestedUrl, {
@@ -103,10 +112,13 @@ export const dev: D = async (input) => {
           signal: readyAbort.signal,
         }),
       ]);
+      waitForReady({ resolvedUrl });
     } finally {
       readyAbort.abort();
     }
-    await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 });
+    await Perf.measure('dev.parent.waitForResolvedUrl', async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }), {
+      resolvedUrl,
+    });
   } catch (error) {
     try {
       await cleanup();
@@ -117,6 +129,14 @@ export const dev: D = async (input) => {
   }
 
   const port = DevParse.port(resolvedUrl, requestedPort);
+  Perf.log('dev.parent.ready', {
+    requestedPort,
+    port,
+    requestedUrl,
+    resolvedUrl,
+    elapsed: Time.elapsed(startedAt).msec,
+  });
+  end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose: cleanup });
   const listen = async () => void await keyboard();
 

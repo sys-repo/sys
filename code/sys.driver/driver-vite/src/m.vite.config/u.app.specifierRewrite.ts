@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { type t, DenoFile, Fs, Is, Json, Path } from './common.ts';
 import { isBarePackageId } from '../m.vite.transport/u.npm.ts';
 
@@ -44,15 +45,21 @@ export function createNpmPrewarm(
       if (warmed) return;
       warmed = true;
 
+      const end = Perf.section('config.npmPrewarm', { configPath });
       const imports = await loadImports(configPath);
       const cwd = Path.dirname(configPath);
       const specifiers = Object.values(imports)
         .map((target) => wrangle.toNpmWarmSpecifier(target))
         .filter((value): value is string => Boolean(value));
+      const uniqueSpecifiers = [...new Set(specifiers)];
 
-      for (const specifier of new Set(specifiers)) {
+      for (const specifier of uniqueSpecifiers) {
+        const startedAt = Perf.section('config.npmPrewarm.specifier', { specifier, cwd });
         await warmNpm(specifier, cwd);
+        startedAt();
       }
+
+      end({ imports: Object.keys(imports).length, specifiers: uniqueSpecifiers.length });
     },
   };
 }
@@ -112,18 +119,31 @@ const wrangle = {
   },
 
   async loadImports(configPath: t.StringPath): Promise<Record<string, string>> {
+    const end = Perf.section('config.loadImports', { configPath });
     const file = await DenoFile.load(configPath);
-    if (!file.ok || !file.data) return {};
+    if (!file.ok || !file.data) {
+      end({ ok: false, imports: 0 });
+      return {};
+    }
+
 
     const denoImports = wrangle.toStringRecord(file.data.imports);
     const importMapPath = file.data.importMap ? wrangle.resolveImportMapPath(file.path, file.data.importMap) : undefined;
-    if (!importMapPath) return denoImports;
+    if (!importMapPath) {
+      end({ importMap: false, imports: Object.keys(denoImports).length });
+      return denoImports;
+    }
 
     const importMap = await Fs.readJson<t.DenoImportMapJson>(importMapPath);
-    if (!importMap.ok || !importMap.data) return denoImports;
+    if (!importMap.ok || !importMap.data) {
+      end({ importMap: importMapPath, imports: Object.keys(denoImports).length });
+      return denoImports;
+    }
 
     const mapImports = wrangle.toStringRecord(importMap.data.imports);
-    return { ...mapImports, ...denoImports };
+    const merged = { ...mapImports, ...denoImports };
+    end({ importMap: importMapPath, imports: Object.keys(merged).length, mapImports: Object.keys(mapImports).length });
+    return merged;
   },
 
   resolveImportMapPath(configPath: t.StringPath, importMapPath: t.StringPath) {
@@ -205,7 +225,9 @@ const wrangle = {
       stdout: 'null',
       stderr: 'piped',
     });
+    const startedAt = Perf.section('config.npmPrewarm.info', { specifier });
     const output = await cmd.output();
+    startedAt({ success: output.success });
     if (output.success) return;
 
     const stderr = new TextDecoder().decode(output.stderr).trim();

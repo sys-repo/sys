@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
@@ -11,12 +12,21 @@ import { commonPlugins } from './u.plugins.ts';
  */
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const { minify = true } = options;
+  const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify });
   const paths = formatPaths(options.paths);
   const ws = await wrangle.workspace(options);
-  const denoConfig = await wrangle.denoConfig(paths.cwd, ws);
-  const npmPrewarm = denoConfig ? await wrangle.canPrewarmNpm(denoConfig) : false;
+  const denoConfig = await Perf.measure('config.app.denoConfig', async () => await wrangle.denoConfig(paths.cwd, ws), {
+    cwd: paths.cwd,
+  });
+  const npmPrewarm = denoConfig
+    ? await Perf.measure('config.app.canPrewarmNpm', async () => await wrangle.canPrewarmNpm(denoConfig), { config: denoConfig })
+    : false;
   const optimizeImports = options.plugins?.optimizeImports ?? true;
-  const optimizePackages = optimizeImports && ws ? await deriveWorkspacePackageRules(ws) : [];
+  const optimizePackages = optimizeImports && ws
+    ? await Perf.measure('config.app.optimizePackages', async () => await deriveWorkspacePackageRules(ws), {
+      aliases: ws.aliases.length,
+    })
+    : [];
 
   const main = Path.join(paths.cwd, paths.app.entry);
   const sw = paths.app.sw ? Path.join(paths.cwd, paths.app.sw) : undefined;
@@ -53,7 +63,9 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   /**
    * Plugins:
    */
-  const plugins = await commonPlugins(options.plugins);
+  const plugins = await Perf.measure('config.app.commonPlugins', async () => await commonPlugins(options.plugins), {
+    react: options.plugins?.react ?? true,
+  });
   if (denoConfig && (options.plugins?.deno ?? true)) {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
@@ -112,6 +124,15 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   /**
    * Finish up.
    */
+  Perf.log('config.app.summary', {
+    root,
+    aliases: ws?.aliases.length ?? 0,
+    optimizePackages: optimizePackages.length,
+    npmPrewarm,
+    plugins: plugins.length,
+    vitePlugins: options.vitePlugins?.length ?? 0,
+  });
+  end({ root, aliases: ws?.aliases.length ?? 0, optimizePackages: optimizePackages.length, npmPrewarm, plugins: plugins.length });
   return res;
 };
 

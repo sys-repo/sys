@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { DenoFile, Fs, Is, Path, type t } from './common.ts';
 
 type BootstrapSource = {
@@ -9,17 +10,20 @@ type BootstrapSource = {
 export async function createProjection(
   args: t.ViteStartup.Projection.Args,
 ): Promise<t.ViteStartup.Authority> {
+  const end = Perf.section('startup.projection', { cwd: args.cwd, vite: args.vite });
   const source = await projection.source(args.cwd);
   const imports = projection.sortImports({
     ...source.imports,
     ...(await projection.viteImports(args.cwd, args.vite)),
   });
 
-  return {
+  const authority = {
     dir: source.dir as t.StringAbsoluteDir,
     imports,
     ...(source.scopes ? { scopes: source.scopes } : {}),
   };
+  end({ dir: authority.dir, imports: Object.keys(authority.imports).length, scopes: Object.keys(authority.scopes ?? {}).length });
+  return authority;
 }
 
 const projection = {

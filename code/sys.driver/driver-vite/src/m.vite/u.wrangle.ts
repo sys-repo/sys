@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { Perf } from '../common/u.perf.ts';
 import { type t, Fs, Path, ViteConfig } from './common.ts';
 import { Bootstrap } from './u.bootstrap.ts';
 
@@ -7,11 +8,13 @@ import { Bootstrap } from './u.bootstrap.ts';
  */
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
+    const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg });
     const config = 'vite.config.ts';
     const env = await wrangle.env(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
     const args = await wrangle.args(paths, arg, config, env, bootstrap?.path);
     const cmd = ['deno', ...args].join(' ');
+    end({ importMap: bootstrap?.path ?? '', argCount: args.length });
     return {
       cmd,
       args,
@@ -24,6 +27,7 @@ export const Wrangle = {
 
   async pathsFromConfigfile(cwd?: t.StringDir) {
     const rootDir = cwd || Path.cwd();
+    const end = Perf.section('wrangle.pathsFromConfigfile', { cwd: rootDir });
     const filename = 'vite.config.ts';
     const path = Path.join(rootDir, filename);
 
@@ -50,6 +54,7 @@ export const Wrangle = {
       paths = { ...paths, app };
     }
 
+    end({ config: path, entry: paths.app.entry, outDir: paths.app.outDir });
     return paths;
   },
 
@@ -102,18 +107,28 @@ const wrangle = {
   },
 
   async env(cwd: string) {
-    return {
+    const end = Perf.section('wrangle.env', { cwd });
+    const env = {
       ESBUILD_BINARY_PATH: await wrangle.esbuildBinaryPath(cwd),
+      ...Perf.childEnv(),
     } as const;
+    end({ perf: Perf.enabled() });
+    return env;
   },
 
   async viteSpecifier(start: string, moduleUrl = import.meta.url) {
+    const end = Perf.section('wrangle.viteSpecifier', { start });
     const anchors = await wrangle.vitePackageAnchors(start, moduleUrl);
+
 
     let lastMissing = '';
     for (const anchor of anchors) {
       const version = await wrangle.viteVersionFromPackage(anchor);
-      if (version) return `npm:vite@${version}`;
+      if (version) {
+        const specifier = `npm:vite@${version}`;
+        end({ anchors: anchors.length, specifier });
+        return specifier;
+      }
       lastMissing = anchor;
     }
 
@@ -121,6 +136,7 @@ const wrangle = {
       throw new Error(`Missing "vite" dependency in package authority: ${start}`);
     }
 
+    end({ ok: false, anchors: anchors.length, lastMissing });
     throw new Error(`Missing "vite" dependency in package authority: ${lastMissing}`);
   },
 
@@ -132,8 +148,11 @@ const wrangle = {
   },
 
   async configLoaderArg(cwd: string) {
+    const end = Perf.section('wrangle.configLoaderArg', { cwd });
     const version = await wrangle.viteVersionFromPackage(await wrangle.packageAnchor(cwd));
-    return wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
+    const arg = wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
+    end({ version, arg });
+    return arg;
   },
 
   async vitePackageAnchors(start: string, moduleUrl = import.meta.url) {
@@ -173,10 +192,13 @@ const wrangle = {
   },
 
   async esbuildBinaryPath(cwd: string) {
+    const end = Perf.section('wrangle.esbuildBinaryPath', { cwd });
     const require = await wrangle.esbuildRequire(cwd);
     const { pkg, subpath } = wrangle.esbuildPackage();
     try {
-      return require.resolve(`${pkg}/${subpath}`);
+      const resolved = require.resolve(`${pkg}/${subpath}`);
+      end({ pkg, source: 'platform-package', resolved });
+      return resolved;
     } catch {
       // Deno's npm layout may not expose the platform package as a direct resolution target.
     }
@@ -184,11 +206,18 @@ const wrangle = {
     const esbuildMain = require.resolve('esbuild');
     const esbuildPkgDir = Path.dirname(Path.dirname(esbuildMain));
     const siblingBinary = Path.join(Path.dirname(esbuildPkgDir), pkg, subpath);
-    if (await Fs.exists(siblingBinary)) return siblingBinary;
+    if (await Fs.exists(siblingBinary)) {
+      end({ pkg, source: 'sibling-package', resolved: siblingBinary });
+      return siblingBinary;
+    }
 
     const binScript = require.resolve('esbuild/bin/esbuild');
-    if (await Fs.exists(binScript)) return binScript;
+    if (await Fs.exists(binScript)) {
+      end({ pkg, source: 'bin-script', resolved: binScript });
+      return binScript;
+    }
 
+    end({ ok: false, pkg, source: 'missing' });
     throw new Error(`Failed to resolve esbuild binary from runtime package boundary: ${cwd}`);
   },
 

@@ -1,3 +1,4 @@
+import { Perf } from '../common/u.perf.ts';
 import { Is, Json, Path, Process, type t } from './common.ts';
 import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
@@ -128,7 +129,11 @@ export async function resolveDenoWith(
   cwd: string,
   deps: t.ResolveDeps,
 ): Promise<t.DenoResolved | null> {
-  if (id.startsWith('\0')) return null;
+  const end = Perf.section('transport.resolveDeno', { id, cwd });
+  if (id.startsWith('\0')) {
+    end({ skipped: true, reason: 'null-byte' });
+    return null;
+  }
 
   if (!checkedDenoInstall) {
     await ensureDenoInstalled(cwd, deps);
@@ -144,37 +149,51 @@ export async function resolveDenoWith(
   if (!output.success) {
     const text = output.text.stderr || output.text.stdout || output.toString();
     if (text.includes('Integrity check failed')) throw new Error(text);
+    end({ ok: false, success: false });
     return null;
   }
 
   const parsed = Json.safeParse<t.ResolveInfo>(output.text.stdout);
-  if (!parsed.ok || !parsed.data) return null;
+  if (!parsed.ok || !parsed.data) {
+    end({ ok: false, parsed: false });
+    return null;
+  }
   const json = parsed.data;
   const actualId = json.roots[0];
   const redirected = json.redirects?.[actualId] ?? actualId;
   const mod = json.modules.find((info) => !isResolveError(info) && info.specifier === redirected);
 
-  if (mod === undefined || isResolveError(mod)) return null;
+  if (mod === undefined || isResolveError(mod)) {
+    end({ ok: false, redirected });
+    return null;
+  }
 
   if (isResolveInfoModuleEsm(mod)) {
-    return {
+    const resolved = {
       id: mod.local,
       kind: mod.kind,
       loader: mod.mediaType ?? null,
       dependencies: normalizeDependencies(mod.dependencies, json.modules),
     };
+    end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
+    return resolved;
   }
 
   if (isResolveInfoModuleNpm(mod)) {
-    return {
+    const resolved = {
       id: mod.npmPackage,
       kind: mod.kind,
       loader: null,
-      dependencies: [],
+      dependencies: [] as const,
     };
+    end({ ok: true, kind: resolved.kind, dependencies: 0 });
+    return resolved;
   }
 
-  if (isResolveInfoModuleExternal(mod)) return null;
+  if (isResolveInfoModuleExternal(mod)) {
+    end({ ok: true, kind: mod.kind, external: true });
+    return null;
+  }
   throw new Error(`Unsupported: ${JSON.stringify(mod, null, 2)}`);
 }
 
@@ -254,17 +273,26 @@ export async function resolveNpmPathWith(
   cwd: string,
   deps: t.ResolveDeps,
 ): Promise<string | null> {
+  const end = Perf.section('transport.resolveNpmPath', { id, cwd });
   const output = await deps.invoke({
     cmd: DENO_BINARY,
     args: ['eval', 'console.log(import.meta.resolve(Deno.args[0]))', id],
     cwd,
     silent: true,
   });
-  if (!output.success) return null;
+  if (!output.success) {
+    end({ ok: false });
+    return null;
+  }
 
   const value = output.text.stdout.trim();
-  if (!value.startsWith('file://')) return null;
-  return Path.fromFileUrl(value);
+  if (!value.startsWith('file://')) {
+    end({ ok: false, fileUrl: false });
+    return null;
+  }
+  const path = Path.fromFileUrl(value);
+  end({ ok: true, path });
+  return path;
 }
 
 function isRemoteLike(specifier: string) {

@@ -1,6 +1,7 @@
 /**
  * @module
  */
+import { Perf } from '../common/u.perf.ts';
 import { type t, DenoFile, Fs, Path } from './common.ts';
 import { Log } from './u.log.ts';
 
@@ -16,6 +17,7 @@ type E = {
  */
 export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
   const { walkup = true, filter } = options;
+  const end = Perf.section('config.workspace', { denofile: options.denofile ?? '', walkup });
   const base = await DenoFile.workspace(options.denofile, { walkup });
   const aliases = await wrangle.aliases(Path.dirname(base.file), base.children, filter);
   const error = base.exists
@@ -37,6 +39,7 @@ export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
     log: (options) => console.info(api.toString(options)),
   };
 
+  end({ exists: api.exists, aliases: aliases.length, children: base.children.length, config: api.file });
   return api;
 };
 
