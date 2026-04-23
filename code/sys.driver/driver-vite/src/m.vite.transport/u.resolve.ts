@@ -1,3 +1,4 @@
+import { Fmt } from '../common/u.fmt.ts';
 import { Perf } from '../common/u.perf.ts';
 import { Is, Json, Path, Process, type t } from './common.ts';
 import type { PluginContext } from 'rollup';
@@ -7,6 +8,7 @@ import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier, unwrapViteId } fr
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
+const TRACE_RESOLVE_ENV = 'SYS_DRIVER_VITE_TRACE_RESOLVE';
 const memoDefault: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
 const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath, memo: memoDefault };
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
@@ -144,11 +146,20 @@ export async function resolveDenoWith(
     Perf.sample('transport.resolveDeno', 0 as t.Msecs, { id, cwd, skipped: true, reason: 'null-byte' }, {
       level: 3,
     });
+    trace.resolve('request.skip', { id, cwd, reason: 'null-byte' });
     return null;
   }
 
   const key = wrangle.requestKey(id, cwd);
   const canonical = wrangle.canonicalKey(key, deps.memo);
+  trace.resolve('request', {
+    id,
+    cwd,
+    key,
+    canonical,
+    canonicalChanged: canonical !== key,
+  });
+
   const settled = deps.memo?.settled.get(canonical);
   if (settled) {
     Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', { id, cwd }, {
@@ -156,6 +167,16 @@ export async function resolveDenoWith(
       dedupeKey: canonical === key
         ? `transport.resolveDeno.settled:${canonical}:${cwd}`
         : `transport.resolveDeno.alias:${key}:${canonical}:${cwd}`,
+    });
+    trace.resolve(canonical === key ? 'hit.settled' : 'hit.alias', {
+      id,
+      cwd,
+      key,
+      canonical,
+      resolvedId: settled.id,
+      kind: settled.kind,
+      loader: settled.loader ?? '',
+      dependencies: settled.dependencies.length,
     });
     return settled;
   }
@@ -166,9 +187,11 @@ export async function resolveDenoWith(
       level: 3,
       dedupeKey: `transport.resolveDeno.inflight:${canonical}:${cwd}`,
     });
+    trace.resolve('hit.inflight', { id, cwd, key, canonical });
     return await inflight;
   }
 
+  trace.resolve('miss', { id, cwd, key, canonical });
   const run = (async () => {
     const end = Perf.section('transport.resolveDeno', { id, cwd }, { level: 2, thresholdMs: 20 as t.Msecs });
     if (!checkedDenoInstall) {
@@ -184,6 +207,7 @@ export async function resolveDenoWith(
     });
     if (!output.success) {
       const text = output.text.stderr || output.text.stdout || output.toString();
+      trace.resolve('result.error', { id, cwd, key, canonical, error: text });
       if (text.includes('Integrity check failed')) throw new Error(text);
       end({ ok: false, success: false });
       return null;
@@ -191,6 +215,7 @@ export async function resolveDenoWith(
 
     const parsed = Json.safeParse<t.ResolveInfo>(output.text.stdout);
     if (!parsed.ok || !parsed.data) {
+      trace.resolve('result.error', { id, cwd, key, canonical, reason: 'json-parse' });
       end({ ok: false, parsed: false });
       return null;
     }
@@ -200,6 +225,7 @@ export async function resolveDenoWith(
     const mod = json.modules.find((info) => !isResolveError(info) && info.specifier === redirected);
 
     if (mod === undefined || isResolveError(mod)) {
+      trace.resolve('result.error', { id, cwd, key, canonical, actualId, redirected, reason: 'module-not-found' });
       end({ ok: false, redirected });
       return null;
     }
@@ -211,6 +237,7 @@ export async function resolveDenoWith(
         loader: mod.mediaType ?? null,
         dependencies: normalizeDependencies(mod.dependencies, json.modules),
       };
+      const aliasKeys = wrangle.aliasKeys({ input: key, actualId, redirected, cwd });
       wrangle.memoizeResolved(deps.memo, {
         canonical,
         input: key,
@@ -218,6 +245,20 @@ export async function resolveDenoWith(
         redirected,
         cwd,
         resolved,
+      });
+      trace.resolve('result.resolved', {
+        id,
+        cwd,
+        key,
+        canonical,
+        actualId,
+        redirected,
+        moduleSpecifier: mod.specifier,
+        resolvedId: resolved.id,
+        kind: resolved.kind,
+        loader: resolved.loader ?? '',
+        dependencies: resolved.dependencies.length,
+        aliasKeys,
       });
       end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
       return resolved;
@@ -230,6 +271,7 @@ export async function resolveDenoWith(
         loader: null,
         dependencies: [] as const,
       };
+      const aliasKeys = wrangle.aliasKeys({ input: key, actualId, redirected, cwd });
       wrangle.memoizeResolved(deps.memo, {
         canonical,
         input: key,
@@ -238,11 +280,25 @@ export async function resolveDenoWith(
         cwd,
         resolved,
       });
+      trace.resolve('result.resolved', {
+        id,
+        cwd,
+        key,
+        canonical,
+        actualId,
+        redirected,
+        moduleSpecifier: mod.specifier,
+        resolvedId: resolved.id,
+        kind: resolved.kind,
+        dependencies: 0,
+        aliasKeys,
+      });
       end({ ok: true, kind: resolved.kind, dependencies: 0 });
       return resolved;
     }
 
     if (isResolveInfoModuleExternal(mod)) {
+      trace.resolve('result.external', { id, cwd, key, canonical, actualId, redirected, moduleSpecifier: mod.specifier });
       end({ ok: true, kind: mod.kind, external: true });
       return null;
     }
@@ -271,6 +327,7 @@ export async function resolveViteSpecifier(
 
   if (importer && isDenoSpecifier(importer)) {
     const { id: parentId, resolved: parent } = parseDenoSpecifier(importer);
+    trace.resolve('importer.request', { sourceId, importer, parentId, parent });
     let cached = cache.get(parent);
     if (cached === undefined || (cached.kind === 'esm' && cached.dependencies.length === 0 && isRemoteLike(parentId))) {
       cached = (await resolveDenoWith(parentId, root, deps)) ?? cached;
@@ -286,7 +343,21 @@ export async function resolveViteSpecifier(
       if (dep.specifier.startsWith('npm:')) return toViteNpmSpecifier(dep.specifier) === sourceId;
       return false;
     });
-    if (found === undefined) return;
+    if (found === undefined) {
+      trace.resolve('importer.miss', { sourceId, importer, parentId, parent });
+      return;
+    }
+
+    trace.resolve('importer.hit', {
+      sourceId,
+      importer,
+      parentId,
+      parent,
+      specifier: found.specifier,
+      resolvedSpecifier: found.resolvedSpecifier,
+      localPath: found.localPath,
+      loader: found.loader ?? '',
+    });
 
     id = found.resolvedSpecifier;
     if (id.startsWith('file://')) return Path.fromFileUrl(id);
@@ -398,6 +469,23 @@ const wrangle = {
       wrangle.requestKey(args.actualId, args.cwd),
       wrangle.requestKey(args.redirected, args.cwd),
     ])];
+  },
+} as const;
+
+const trace = {
+  enabled() {
+    const value = Deno.env.get(TRACE_RESOLVE_ENV)?.trim().toLowerCase();
+    return value !== undefined && value !== '' && value !== '0' && value !== 'false' && value !== 'off' && value !== 'no';
+  },
+
+  resolve(label: string, meta: Record<string, unknown>) {
+    if (!trace.enabled()) return;
+    const suffix = Object.entries(meta)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => Fmt.Diag.meta(key, value))
+      .filter(Boolean)
+      .join(' ');
+    console.info(`${Fmt.Diag.prefix('trace', { detail: `resolve.${label}` })}${suffix ? ` ${suffix}` : ''}`);
   },
 } as const;
 

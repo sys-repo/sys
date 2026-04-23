@@ -1,5 +1,6 @@
-import { Is, Json, Time, c } from './libs.ts';
+import { Is, Json, Time } from './libs.ts';
 import type * as t from './t.ts';
+import { Fmt } from './u.fmt.ts';
 
 const ENV = {
   ENABLED: 'SYS_DRIVER_VITE_PERF',
@@ -182,6 +183,6 @@ const perf = {
 
   prefix(sinceStart: t.Msecs, level: PerfLevel) {
     const pid = level >= 2 ? ` p=${Deno.pid}` : '';
-    return `${c.gray('[')}${c.cyan('driver-vite:perf')} ${c.gray(`+${sinceStart}ms${pid}`)}${c.gray(']')}`;
+    return Fmt.Diag.prefix('perf', { detail: `+${sinceStart}ms${pid}` });
   },
 } as const;

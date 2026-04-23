@@ -11,6 +11,7 @@ import { procOutput } from './u.fixture.ts';
 describe('ViteTransport.resolve', () => {
   type PluginResolve = NonNullable<t.Rollup.PluginContext['resolve']>;
   const pluginContext = {} as unknown as t.Rollup.PluginContext;
+  const ENV_TRACE = 'SYS_DRIVER_VITE_TRACE_RESOLVE';
 
   describe('specifier encoding', () => {
     it('identifies deno-prefixed module ids', () => {
@@ -204,6 +205,108 @@ describe('ViteTransport.resolve', () => {
         dependencies: [],
       });
       expect(memo.inflight.size).to.eql(0);
+    });
+
+    it('emits resolve provenance trace lines when enabled', async () => {
+      const prev = Deno.env.get(ENV_TRACE);
+      Deno.env.set(ENV_TRACE, '1');
+      const lines: string[] = [];
+      const original = console.info;
+      console.info = (...args: unknown[]) => {
+        lines.push(args.map((value) => String(value)).join(' '));
+      };
+
+      try {
+        const json = JSON.stringify({
+          roots: ['jsr:@std/path/join'],
+          modules: [
+            {
+              kind: 'esm',
+              local: '/tmp/cache/std-path-join.ts',
+              mediaType: 'TypeScript',
+              specifier: 'jsr:@std/path/join',
+              dependencies: [],
+            },
+          ],
+        });
+
+        await resolveDenoWith('jsr:@std/path/join', '/tmp', {
+          memo: { inflight: new Map(), settled: new Map(), alias: new Map() },
+          async invoke(input: t.Process.InvokeArgs) {
+            if (input.args[0] === '--version') {
+              return procOutput({ success: true, stdout: 'deno 2.x' });
+            }
+            return procOutput({ success: true, stdout: json });
+          },
+        });
+      } finally {
+        console.info = original;
+        if (prev === undefined) Deno.env.delete(ENV_TRACE);
+        else Deno.env.set(ENV_TRACE, prev);
+      }
+
+      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.request'))).to.eql(true);
+      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.miss'))).to.eql(true);
+      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.result.resolved'))).to.eql(true);
+    });
+
+    it('traces importer-derived dependency hits when enabled', async () => {
+      const prev = Deno.env.get(ENV_TRACE);
+      Deno.env.set(ENV_TRACE, '1');
+      const lines: string[] = [];
+      const original = console.info;
+      console.info = (...args: unknown[]) => {
+        lines.push(args.map((value) => String(value)).join(' '));
+      };
+
+      try {
+        const cache = new Map<string, t.DenoResolved>();
+        cache.set('/tmp/cache/parent.ts', {
+          id: '/tmp/cache/parent.ts',
+          kind: 'esm',
+          loader: 'TypeScript',
+          dependencies: [{
+            specifier: './child.ts',
+            resolvedSpecifier: 'https://jsr.io/@scope/pkg/child.ts',
+            localPath: '/tmp/cache/child.ts',
+            loader: 'TypeScript',
+          }],
+        });
+
+        const json = JSON.stringify({
+          roots: ['https://jsr.io/@scope/pkg/child.ts'],
+          modules: [{
+            kind: 'esm',
+            local: '/tmp/cache/child.ts',
+            mediaType: 'TypeScript',
+            specifier: 'https://jsr.io/@scope/pkg/child.ts',
+            dependencies: [],
+          }],
+        });
+
+        await resolveViteSpecifier(
+          './child.ts',
+          cache,
+          '/tmp',
+          toDenoSpecifier('TypeScript', 'jsr:@scope/pkg/parent', '/tmp/cache/parent.ts'),
+          {
+            memo: { inflight: new Map(), settled: new Map(), alias: new Map() },
+            async invoke(input: t.Process.InvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+              return procOutput({ success: true, stdout: json });
+            },
+          },
+        );
+      } finally {
+        console.info = original;
+        if (prev === undefined) Deno.env.delete(ENV_TRACE);
+        else Deno.env.set(ENV_TRACE, prev);
+      }
+
+      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.importer.request'))).to.eql(true);
+      expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.importer.hit'))).to.eql(true);
     });
 
     it('reuses redirected settled results for later equivalent requests', async () => {

@@ -204,7 +204,13 @@ For direct examples, see:
 - `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
 - `deno task clean` → remove generated temp state and sample fixture build artifacts
 
-## Perf Debugging
+<p>&nbsp;</p>
+
+---
+
+## Debugging
+
+### Perf
 
 `SYS_DRIVER_VITE_PERF` supports leveled transport/startup diagnostics from both the parent and child Vite processes.
 
@@ -219,3 +225,18 @@ SYS_DRIVER_VITE_PERF=3 deno task dev
 ```
 
 If you want to inspect a run later, redirect stdout/stderr to a file and sample it with `rg`, `tail`, or `awk`.
+
+### Resolve trace
+
+`SYS_DRIVER_VITE_TRACE_RESOLVE=1` enables narrow resolve-provenance tracing for transport audit/debug work.
+It is intentionally more targeted than `SYS_DRIVER_VITE_PERF` and is meant for short-lived investigation runs.
+
+```bash
+SYS_DRIVER_VITE_TRACE_RESOLVE=1 deno task dev
+```
+
+Current trace output focuses on:
+- resolve request keys and canonical aliases
+- miss / inflight-hit / settled-hit / alias-hit boundaries
+- importer-derived dependency hits
+- resolved redirect / alias identity hints
