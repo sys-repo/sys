@@ -57,6 +57,154 @@ describe('ViteTransport.resolve', () => {
         expect(String(error)).to.include('Integrity check failed');
       }
     });
+
+    it('coalesces concurrent identical resolve requests into one deno info call', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map() };
+      let infoCalls = 0;
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const json = JSON.stringify({
+        roots: ['jsr:@std/path/join'],
+        modules: [
+          {
+            kind: 'esm',
+            local: '/tmp/cache/std-path-join.ts',
+            mediaType: 'TypeScript',
+            specifier: 'jsr:@std/path/join',
+            dependencies: [],
+          },
+        ],
+      });
+
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          await gate;
+          return procOutput({ success: true, stdout: json });
+        },
+      } satisfies t.ResolveDeps;
+
+      const first = resolveDenoWith('jsr:@std/path/join', '/tmp', deps);
+      const second = resolveDenoWith('jsr:@std/path/join', '/tmp', deps);
+      await Promise.resolve();
+
+      expect(infoCalls).to.eql(1);
+      expect(memo.inflight.size).to.eql(1);
+
+      release();
+      const [a, b] = await Promise.all([first, second]);
+
+      expect(a).to.eql(b);
+      expect(memo.inflight.size).to.eql(0);
+    });
+
+    it('clears inflight failures so later retries can resolve cleanly', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map() };
+      let fail = true;
+      let infoCalls = 0;
+      const json = JSON.stringify({
+        roots: ['jsr:@std/path/join'],
+        modules: [
+          {
+            kind: 'esm',
+            local: '/tmp/cache/std-path-join.ts',
+            mediaType: 'TypeScript',
+            specifier: 'jsr:@std/path/join',
+            dependencies: [],
+          },
+        ],
+      });
+
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          if (fail) return procOutput({ success: false, stderr: 'Integrity check failed' });
+          return procOutput({ success: true, stdout: json });
+        },
+      } satisfies t.ResolveDeps;
+
+      await Promise.allSettled([
+        resolveDenoWith('jsr:@std/path/join', '/tmp', deps),
+        resolveDenoWith('jsr:@std/path/join', '/tmp', deps),
+      ]);
+
+      expect(infoCalls).to.eql(1);
+      expect(memo.inflight.size).to.eql(0);
+
+      fail = false;
+      const res = await resolveDenoWith('jsr:@std/path/join', '/tmp', deps);
+
+      expect(infoCalls).to.eql(2);
+      expect(res).to.eql({
+        id: '/tmp/cache/std-path-join.ts',
+        kind: 'esm',
+        loader: 'TypeScript',
+        dependencies: [],
+      });
+      expect(memo.inflight.size).to.eql(0);
+    });
+
+    it('clears inflight null results so later retries can run cleanly', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map() };
+      let unresolved = true;
+      let infoCalls = 0;
+      const json = JSON.stringify({
+        roots: ['jsr:@std/path/join'],
+        modules: [
+          {
+            kind: 'esm',
+            local: '/tmp/cache/std-path-join.ts',
+            mediaType: 'TypeScript',
+            specifier: 'jsr:@std/path/join',
+            dependencies: [],
+          },
+        ],
+      });
+
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          if (unresolved) return procOutput({ success: false, stderr: 'Module not found' });
+          return procOutput({ success: true, stdout: json });
+        },
+      } satisfies t.ResolveDeps;
+
+      const [a, b] = await Promise.all([
+        resolveDenoWith('jsr:@std/path/join', '/tmp', deps),
+        resolveDenoWith('jsr:@std/path/join', '/tmp', deps),
+      ]);
+
+      expect(a).to.eql(null);
+      expect(b).to.eql(null);
+      expect(infoCalls).to.eql(1);
+      expect(memo.inflight.size).to.eql(0);
+
+      unresolved = false;
+      const res = await resolveDenoWith('jsr:@std/path/join', '/tmp', deps);
+
+      expect(infoCalls).to.eql(2);
+      expect(res).to.eql({
+        id: '/tmp/cache/std-path-join.ts',
+        kind: 'esm',
+        loader: 'TypeScript',
+        dependencies: [],
+      });
+      expect(memo.inflight.size).to.eql(0);
+    });
   });
 
   describe('vite resolution', () => {

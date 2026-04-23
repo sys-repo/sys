@@ -7,7 +7,8 @@ import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier, unwrapViteId } fr
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
-const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath };
+const memoDefault: t.ResolveMemo = { inflight: new Map() };
+const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath, memo: memoDefault };
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
 export function createResolvePlugin(cache: t.DenoCache, deps: t.ResolveDeps = depsDefault) {
@@ -129,72 +130,90 @@ export async function resolveDenoWith(
   cwd: string,
   deps: t.ResolveDeps,
 ): Promise<t.DenoResolved | null> {
-  const end = Perf.section('transport.resolveDeno', { id, cwd });
   if (id.startsWith('\0')) {
-    end({ skipped: true, reason: 'null-byte' });
+    Perf.sample('transport.resolveDeno', 0 as t.Msecs, { id, cwd, skipped: true, reason: 'null-byte' });
     return null;
   }
 
-  if (!checkedDenoInstall) {
-    await ensureDenoInstalled(cwd, deps);
-    checkedDenoInstall = true;
+  const key = wrangle.requestKey(id, cwd);
+  const inflight = deps.memo?.inflight.get(key);
+  if (inflight) {
+    Perf.log('transport.resolveDeno.inflight', { id, cwd });
+    return await inflight;
   }
 
-  const output = await deps.invoke({
-    cmd: DENO_BINARY,
-    args: ['info', '--json', id],
-    cwd,
-    silent: true,
-  });
-  if (!output.success) {
-    const text = output.text.stderr || output.text.stdout || output.toString();
-    if (text.includes('Integrity check failed')) throw new Error(text);
-    end({ ok: false, success: false });
-    return null;
-  }
+  const run = (async () => {
+    const end = Perf.section('transport.resolveDeno', { id, cwd });
+    if (!checkedDenoInstall) {
+      await ensureDenoInstalled(cwd, deps);
+      checkedDenoInstall = true;
+    }
 
-  const parsed = Json.safeParse<t.ResolveInfo>(output.text.stdout);
-  if (!parsed.ok || !parsed.data) {
-    end({ ok: false, parsed: false });
-    return null;
-  }
-  const json = parsed.data;
-  const actualId = json.roots[0];
-  const redirected = json.redirects?.[actualId] ?? actualId;
-  const mod = json.modules.find((info) => !isResolveError(info) && info.specifier === redirected);
+    const output = await deps.invoke({
+      cmd: DENO_BINARY,
+      args: ['info', '--json', id],
+      cwd,
+      silent: true,
+    });
+    if (!output.success) {
+      const text = output.text.stderr || output.text.stdout || output.toString();
+      if (text.includes('Integrity check failed')) throw new Error(text);
+      end({ ok: false, success: false });
+      return null;
+    }
 
-  if (mod === undefined || isResolveError(mod)) {
-    end({ ok: false, redirected });
-    return null;
-  }
+    const parsed = Json.safeParse<t.ResolveInfo>(output.text.stdout);
+    if (!parsed.ok || !parsed.data) {
+      end({ ok: false, parsed: false });
+      return null;
+    }
+    const json = parsed.data;
+    const actualId = json.roots[0];
+    const redirected = json.redirects?.[actualId] ?? actualId;
+    const mod = json.modules.find((info) => !isResolveError(info) && info.specifier === redirected);
 
-  if (isResolveInfoModuleEsm(mod)) {
-    const resolved = {
-      id: mod.local,
-      kind: mod.kind,
-      loader: mod.mediaType ?? null,
-      dependencies: normalizeDependencies(mod.dependencies, json.modules),
-    };
-    end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
-    return resolved;
-  }
+    if (mod === undefined || isResolveError(mod)) {
+      end({ ok: false, redirected });
+      return null;
+    }
 
-  if (isResolveInfoModuleNpm(mod)) {
-    const resolved = {
-      id: mod.npmPackage,
-      kind: mod.kind,
-      loader: null,
-      dependencies: [] as const,
-    };
-    end({ ok: true, kind: resolved.kind, dependencies: 0 });
-    return resolved;
-  }
+    if (isResolveInfoModuleEsm(mod)) {
+      const resolved = {
+        id: mod.local,
+        kind: mod.kind,
+        loader: mod.mediaType ?? null,
+        dependencies: normalizeDependencies(mod.dependencies, json.modules),
+      };
+      end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
+      return resolved;
+    }
 
-  if (isResolveInfoModuleExternal(mod)) {
-    end({ ok: true, kind: mod.kind, external: true });
-    return null;
+    if (isResolveInfoModuleNpm(mod)) {
+      const resolved = {
+        id: mod.npmPackage,
+        kind: mod.kind,
+        loader: null,
+        dependencies: [] as const,
+      };
+      end({ ok: true, kind: resolved.kind, dependencies: 0 });
+      return resolved;
+    }
+
+    if (isResolveInfoModuleExternal(mod)) {
+      end({ ok: true, kind: mod.kind, external: true });
+      return null;
+    }
+    throw new Error(`Unsupported: ${JSON.stringify(mod, null, 2)}`);
+  })();
+
+  if (!deps.memo) return await run;
+
+  deps.memo.inflight.set(key, run);
+  try {
+    return await run;
+  } finally {
+    deps.memo.inflight.delete(key);
   }
-  throw new Error(`Unsupported: ${JSON.stringify(mod, null, 2)}`);
 }
 
 export async function resolveViteSpecifier(
@@ -302,6 +321,12 @@ function isRemoteLike(specifier: string) {
     specifier.startsWith('jsr:')
   );
 }
+
+const wrangle = {
+  requestKey(id: string, cwd: string) {
+    return Json.stringify([Path.normalize(cwd), id]);
+  },
+} as const;
 
 async function ensureDenoInstalled(cwd: string, deps: t.ResolveDeps) {
   const res = await deps.invoke({
