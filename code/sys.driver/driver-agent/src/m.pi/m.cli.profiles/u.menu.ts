@@ -42,6 +42,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
         });
         const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
         console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+        console.info('');
         return { kind: 'stay' };
       },
     },

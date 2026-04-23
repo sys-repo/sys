@@ -106,7 +106,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.contain('Agent:Sandbox');
-      expect(printed).to.match(/report\s+.*\/\.log\/@sys\.driver-agent\.pi\/\d+\.[a-z0-9]+\.sandbox\.log\.md/);
+      expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
+      expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
       expect(prompts).to.eql(['Agent:\n', 'Agent:', 'Agent:', 'Agent:\n']);
     } finally {
