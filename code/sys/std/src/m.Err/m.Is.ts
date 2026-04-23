@@ -1,4 +1,5 @@
-import { type t, isRecord } from './common.ts';
+import { isRecord } from '../common.ts';
+import type { t } from '../common.ts';
 
 export const Is: t.ErrIsLib = {
   error(input: unknown): input is Error {
