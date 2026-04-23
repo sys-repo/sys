@@ -1,4 +1,4 @@
-# Packet E findings checkpoint: resolve-key audit
+# Packet E findings checkpoint: resolve provenance audit
 
 ## Status
 Checkpoint template only.
@@ -19,10 +19,14 @@ Do not start implementation until the audit findings are written here and review
 - date:
 - trace knobs enabled:
 
-### 2. Per-specifier frequency summary
-- top repeated specifiers:
-- counts:
-- whether repeated equivalent ids dominate or not:
+### 2. Semantic target summary
+For each dominant repeated target, record:
+- semantic target:
+- raw spellings seen:
+- request keys seen:
+- fan-in count:
+- fan-out source boundary (`caller` / `importer` / `dependency` / `redirect`):
+- interpretation:
 
 ### 3. Coalescing effectiveness summary
 - `miss` count:
@@ -33,10 +37,22 @@ Do not start implementation until the audit findings are written here and review
 
 ### 4. Divergence point
 - first meaningful split observed at:
+- first causal owner seam:
 - exact raw ids involved:
 - whether `https:/...` and `https://...` were semantically equivalent in this path:
+- whether the visible split was causal or symptomatic:
 
-### 5. Confirmed primary fault class
+### 5. Must-collapse pair
+- pair:
+- why these must collapse:
+- proposed canonical boundary:
+
+### 6. Must-not-collapse nearby pair
+- pair:
+- why these must remain distinct:
+- boundary that preserves the distinction:
+
+### 7. Confirmed primary fault class
 Choose one:
 - canonical normalization missing or incomplete
 - request key formed before canonicalization
@@ -45,20 +61,22 @@ Choose one:
 - parent/child hydration vocabulary mismatch
 - other:
 
-### 6. Proposed narrow fix
+### 8. Proposed narrow fix
 - target file(s):
 - exact change shape:
-- why this is the smallest truthful fix:
+- why this is the smallest truthful first identity-boundary fix:
 
-### 7. Rejected alternatives
+### 9. Rejected alternatives
 - broader normalization rejected because:
 - persistent resolve cache rejected because:
+- resolver-local patch rejected because:
 - other alternatives rejected because:
 
-### 8. Risks / watchouts
+### 10. Risks / watchouts
 - authority/cwd correctness risk:
 - Vite module-graph identity risk:
+- user-visible startup payoff risk:
 - other:
 
 ## Exit rule
-Only after this note is complete should Packet E proceed to a deterministic failing test and one narrow implementation change.
+Only after this note is complete should Packet E proceed to deterministic tests and one narrow implementation change.

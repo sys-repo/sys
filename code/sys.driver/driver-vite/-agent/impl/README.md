@@ -1,4 +1,4 @@
-# `impl/` — active implementation-facing perf lane
+# `impl/` — decision-grade operational truth for the active perf lane
 
 This folder is the isolated review/execution unit for the current `driver-vite`
 dev-startup performance lane.
@@ -11,7 +11,8 @@ dev-startup performance lane.
 ## Purpose
 Use this folder for:
 - current outside-in truth
-- next implementation packet
+- the active implementation packet
+- decision-grade operational notes that can overturn earlier packet ranking without reopening all historical context
 - narrow reviewable execution thinking
 
 Do not use this folder for broader historical packet lineage or deeper TMIND research.
@@ -31,4 +32,9 @@ Do not use this folder for broader historical packet lineage or deeper TMIND res
 
 ## Current implementation posture
 The next move is not to broaden transform caching.
-The next move is to audit resolve-key truth at the real call site, classify the exact fault before coding, and derive the smallest truthful normalization / alias-collapse implementation packet.
+The next move is to run a resolve provenance audit at the real call site, classify the exact fault before coding, and then derive the smallest truthful first identity-boundary fix.
+
+The active lane is therefore:
+- provenance audit first
+- fix second
+- stop if the evidence does not justify the current packet boundary
