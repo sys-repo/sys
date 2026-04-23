@@ -6,7 +6,8 @@ dev-startup performance lane.
 ## Read order
 1. `./dev-startup-perf.callsite-cache-truth.md`
 2. `./dev-startup-perf.resolve-key-audit.packet.md`
-3. `./dev-startup-perf.resolve-key-audit.findings.md` once the audit checkpoint exists
+3. `./dev-startup-perf.resolve-key-audit.findings.md`
+4. `./dev-startup-perf.resolve-identity-fix.packet.md`
 
 ## Purpose
 Use this folder for:
@@ -32,12 +33,14 @@ Do not use this folder for broader historical packet lineage or deeper TMIND res
 
 ## Current implementation posture
 The next move is not to broaden transform caching.
-The next move is to run a resolve provenance audit at the real call site, classify the exact fault before coding, and then derive the smallest truthful first identity-boundary fix.
+The audit and findings are complete.
+The active move is now the smallest truthful first identity-boundary fix for equivalent malformed/canonical remote resolve identities.
 
 The active lane is therefore:
-- provenance audit first
-- fix second
-- stop if the evidence does not justify the current packet boundary
+- provenance audit complete
+- confirm where malformed `https:/...` ids are first written
+- land one narrow fix packet covering causal source + early expensive-boundary collapse
+- stop if implementation pressure would broaden the packet boundary
 
 ## Step 2 tracing flag
 Use a dedicated env-gated trace flag for Packet E audit work:
