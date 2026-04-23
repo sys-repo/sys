@@ -218,12 +218,14 @@ function isRemoteLike(specifier: string) {
   return (
     specifier.startsWith('http://') ||
     specifier.startsWith('https://') ||
+    specifier.startsWith('http:/') ||
+    specifier.startsWith('https:/') ||
     specifier.startsWith('jsr:')
   );
 }
 
 function toBrowserDenoSpecifier(loader: t.DenoLoader, id: string, resolved: string) {
-  const specifier = `\0deno::${loader}::${id}::${Path.normalize(resolved)}`;
+  const specifier = toDenoSpecifier(loader, id, resolved);
   return `/@id/${specifier.replace('\0', '__x00__')}`;
 }
 

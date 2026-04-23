@@ -1,6 +1,11 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
-import { type t } from '../common.ts';
-import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u.specifier.ts';
+import { Json, type t } from '../common.ts';
+import {
+  isDenoSpecifier,
+  parseDenoSpecifier,
+  repairConcreteRemoteAuthorityDelimiter,
+  toDenoSpecifier,
+} from '../u.specifier.ts';
 import {
   createResolvePlugin,
   resolveDenoWith,
@@ -26,6 +31,28 @@ describe('ViteTransport.resolve', () => {
       expect(parsed.loader).to.eql('TypeScript');
       expect(parsed.id).to.eql('./mod.ts');
       expect(parsed.resolved).to.eql(Path.normalize('/tmp/dir/../mod.ts'));
+    });
+
+    it('repairs malformed concrete remote authority delimiters narrowly', () => {
+      expect(repairConcreteRemoteAuthorityDelimiter('https:/jsr.io/@std/path/mod.ts')).to.eql(
+        'https://jsr.io/@std/path/mod.ts',
+      );
+      expect(repairConcreteRemoteAuthorityDelimiter('http:/example.com/mod.ts')).to.eql(
+        'http://example.com/mod.ts',
+      );
+      expect(repairConcreteRemoteAuthorityDelimiter('https://jsr.io/@std/path/mod.ts')).to.eql(
+        'https://jsr.io/@std/path/mod.ts',
+      );
+      expect(repairConcreteRemoteAuthorityDelimiter('jsr:@std/path')).to.eql('jsr:@std/path');
+      expect(repairConcreteRemoteAuthorityDelimiter('./mod.ts')).to.eql('./mod.ts');
+    });
+
+    it('repairs malformed remote ids when encoding and parsing deno specifiers', () => {
+      const spec = toDenoSpecifier('TypeScript', 'https:/jsr.io/@std/path/mod.ts', '/tmp/cache/mod.ts');
+      const parsed = parseDenoSpecifier(spec);
+
+      expect(parsed.id).to.eql('https://jsr.io/@std/path/mod.ts');
+      expect(spec).to.eql('\0deno::TypeScript::https://jsr.io/@std/path/mod.ts::/tmp/cache/mod.ts');
     });
   });
 
@@ -66,7 +93,7 @@ describe('ViteTransport.resolve', () => {
       const gate = new Promise<void>((resolve) => {
         release = resolve;
       });
-      const json = JSON.stringify({
+      const json = Json.stringify({
         roots: ['jsr:@std/path/join'],
         modules: [
           {
@@ -109,7 +136,7 @@ describe('ViteTransport.resolve', () => {
       const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let fail = true;
       let infoCalls = 0;
-      const json = JSON.stringify({
+      const json = Json.stringify({
         roots: ['jsr:@std/path/join'],
         modules: [
           {
@@ -159,7 +186,7 @@ describe('ViteTransport.resolve', () => {
       const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let unresolved = true;
       let infoCalls = 0;
-      const json = JSON.stringify({
+      const json = Json.stringify({
         roots: ['jsr:@std/path/join'],
         modules: [
           {
@@ -217,7 +244,7 @@ describe('ViteTransport.resolve', () => {
       };
 
       try {
-        const json = JSON.stringify({
+        const json = Json.stringify({
           roots: ['jsr:@std/path/join'],
           modules: [
             {
@@ -273,7 +300,7 @@ describe('ViteTransport.resolve', () => {
           }],
         });
 
-        const json = JSON.stringify({
+        const json = Json.stringify({
           roots: ['https://jsr.io/@scope/pkg/child.ts'],
           modules: [{
             kind: 'esm',
@@ -309,6 +336,98 @@ describe('ViteTransport.resolve', () => {
       expect(lines.some((line) => line.includes('driver-vite:trace') && line.includes('resolve.importer.hit'))).to.eql(true);
     });
 
+    it('coalesces malformed and canonical remote spellings into one first miss', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          expect(input.args[input.args.length - 1]).to.eql('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts');
+          return procOutput({
+            success: true,
+            stdout: Json.stringify({
+              roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
+              redirects: {
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+              },
+              modules: [
+                {
+                  kind: 'esm',
+                  local: '/tmp/cache/std-path-resolve.ts',
+                  mediaType: 'TypeScript',
+                  specifier: 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      const first = await resolveDenoWith('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      const second = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+
+      expect(first).to.eql(second);
+      expect(infoCalls).to.eql(1);
+      expect(memo.settled.size).to.eql(1);
+    });
+
+    it('coalesces concurrent malformed and canonical remote spellings into one inflight miss', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          await gate;
+          return procOutput({
+            success: true,
+            stdout: Json.stringify({
+              roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
+              redirects: {
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+              },
+              modules: [
+                {
+                  kind: 'esm',
+                  local: '/tmp/cache/std-path-resolve.ts',
+                  mediaType: 'TypeScript',
+                  specifier: 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      const first = resolveDenoWith('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      const second = resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      await Promise.resolve();
+
+      expect(infoCalls).to.eql(1);
+      expect(memo.inflight.size).to.eql(1);
+
+      release();
+      const [a, b] = await Promise.all([first, second]);
+
+      expect(a).to.eql(b);
+      expect(infoCalls).to.eql(1);
+      expect(memo.inflight.size).to.eql(0);
+      expect(memo.settled.size).to.eql(1);
+    });
+
     it('reuses redirected settled results for later equivalent requests', async () => {
       const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let infoCalls = 0;
@@ -321,7 +440,7 @@ describe('ViteTransport.resolve', () => {
           infoCalls++;
           return procOutput({
             success: true,
-            stdout: JSON.stringify({
+            stdout: Json.stringify({
               roots: ['jsr:@std/path/join'],
               redirects: {
                 'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',
@@ -360,7 +479,7 @@ describe('ViteTransport.resolve', () => {
           infoCalls++;
           return procOutput({
             success: true,
-            stdout: JSON.stringify({
+            stdout: Json.stringify({
               roots: ['jsr:@std/path/join'],
               redirects: {
                 'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',
@@ -381,6 +500,81 @@ describe('ViteTransport.resolve', () => {
 
       await resolveDenoWith('jsr:@std/path/join', '/tmp/a', deps);
       await resolveDenoWith('https://jsr.io/@std/path/1.1.4/join.ts', '/tmp/b', deps);
+
+      expect(infoCalls).to.eql(2);
+      expect(memo.settled.size).to.eql(2);
+    });
+
+    it('does not over-collapse distinct nearby remote targets', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          const lookup = input.args[input.args.length - 1];
+          return procOutput({
+            success: true,
+            stdout: Json.stringify({
+              roots: [lookup],
+              modules: [
+                {
+                  kind: 'esm',
+                  local: `/tmp/cache/${lookup.includes('/windows/') ? 'windows' : 'posix'}.ts`,
+                  mediaType: 'TypeScript',
+                  specifier: lookup,
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      const a = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp', deps);
+      const b = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/windows/resolve.ts', '/tmp', deps);
+
+      expect(infoCalls).to.eql(2);
+      expect(a?.id).to.not.eql(b?.id);
+      expect(memo.settled.size).to.eql(2);
+    });
+
+    it('keeps malformed and canonical remote spellings distinct across cwd authority worlds', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          return procOutput({
+            success: true,
+            stdout: Json.stringify({
+              roots: ['https:/jsr.io/@std/path/1.1.4/posix/resolve.ts'],
+              redirects: {
+                'https:/jsr.io/@std/path/1.1.4/posix/resolve.ts': 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+              },
+              modules: [
+                {
+                  kind: 'esm',
+                  local: '/tmp/cache/std-path-resolve.ts',
+                  mediaType: 'TypeScript',
+                  specifier: 'https://jsr.io/@std/path/1.1.4/posix/resolve.ts',
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      await resolveDenoWith('https:/jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp/a', deps);
+      await resolveDenoWith('https://jsr.io/@std/path/1.1.4/posix/resolve.ts', '/tmp/b', deps);
 
       expect(infoCalls).to.eql(2);
       expect(memo.settled.size).to.eql(2);
@@ -543,7 +737,7 @@ describe('ViteTransport.resolve', () => {
               if (input.args[input.args.length - 1] === parentId) {
                 return procOutput({
                   success: true,
-                  stdout: JSON.stringify({
+                  stdout: Json.stringify({
                     roots: [parentId],
                     modules: [
                       {
@@ -563,7 +757,7 @@ describe('ViteTransport.resolve', () => {
               if (input.args[input.args.length - 1] === childId) {
                 return procOutput({
                   success: true,
-                  stdout: JSON.stringify({
+                  stdout: Json.stringify({
                     roots: [childId],
                     modules: [
                       {
@@ -583,6 +777,76 @@ describe('ViteTransport.resolve', () => {
           },
         );
 
+        expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
+      });
+
+      it('canonicalizes malformed wrapped remote importer ids before parent re-hydration', async () => {
+        const parentId = 'https://jsr.io/@sys/http/0.0.210/src/-exports/-http.client.ts';
+        const parentMalformed = 'https:/jsr.io/@sys/http/0.0.210/src/-exports/-http.client.ts';
+        const parentResolved = '/tmp/cache/http-export.ts';
+        const childId = 'https://jsr.io/@sys/http/0.0.210/src/http.client/mod.ts';
+        const childResolved = '/tmp/cache/http-client-mod.ts';
+        const importer = toDenoSpecifier('TypeScript', parentMalformed, parentResolved);
+        const cache = new Map<string, t.DenoResolved>();
+        const lookups: string[] = [];
+
+        const res = await resolveViteSpecifier(
+          '../http.client/mod.ts',
+          cache,
+          '/tmp/project',
+          importer,
+          {
+            async invoke(input: t.Process.InvokeArgs) {
+              if (input.args[0] === '--version') {
+                return procOutput({ success: true, stdout: 'deno 2.x' });
+              }
+
+              const lookup = input.args[input.args.length - 1];
+              lookups.push(lookup);
+              if (lookup === parentId) {
+                return procOutput({
+                  success: true,
+                  stdout: Json.stringify({
+                    roots: [parentId],
+                    modules: [
+                      {
+                        kind: 'esm',
+                        local: parentResolved,
+                        mediaType: 'TypeScript',
+                        specifier: parentId,
+                        dependencies: [
+                          { specifier: '../http.client/mod.ts', code: { specifier: childId } },
+                        ],
+                      },
+                    ],
+                  }),
+                });
+              }
+
+              if (lookup === childId) {
+                return procOutput({
+                  success: true,
+                  stdout: Json.stringify({
+                    roots: [childId],
+                    modules: [
+                      {
+                        kind: 'esm',
+                        local: childResolved,
+                        mediaType: 'TypeScript',
+                        specifier: childId,
+                        dependencies: [],
+                      },
+                    ],
+                  }),
+                });
+              }
+
+              throw new Error(`Unexpected deno info lookup: ${lookup}`);
+            },
+          },
+        );
+
+        expect(lookups).to.eql([parentId, childId]);
         expect(res).to.eql(toDenoSpecifier('TypeScript', childId, childResolved));
       });
 
@@ -609,7 +873,7 @@ describe('ViteTransport.resolve', () => {
             if (input.args[input.args.length - 1] === parentId) {
               return procOutput({
                 success: true,
-                stdout: JSON.stringify({
+                stdout: Json.stringify({
                   roots: [parentId],
                   modules: [
                     {
@@ -630,7 +894,7 @@ describe('ViteTransport.resolve', () => {
               npmInfoCalls++;
               return procOutput({
                 success: true,
-                stdout: JSON.stringify({
+                stdout: Json.stringify({
                   roots: ['npm:react@19.2.4'],
                   modules: [
                     { kind: 'npm', specifier: 'npm:/react@19.2.4', npmPackage: 'react@19.2.4' },
@@ -690,7 +954,7 @@ describe('ViteTransport.resolve', () => {
               if (input.args[input.args.length - 1] === childId) {
                 return procOutput({
                   success: true,
-                  stdout: JSON.stringify({
+                  stdout: Json.stringify({
                     roots: [childId],
                     modules: [
                       {
@@ -764,7 +1028,7 @@ describe('ViteTransport.resolve', () => {
                 npmInfoCalls++;
                 return procOutput({
                   success: true,
-                  stdout: JSON.stringify({
+                  stdout: Json.stringify({
                     roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
                     modules: [
                       {
@@ -817,7 +1081,7 @@ describe('ViteTransport.resolve', () => {
             if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
               return procOutput({
                 success: true,
-                stdout: JSON.stringify({
+                stdout: Json.stringify({
                   roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
                   modules: [
                     {
@@ -888,7 +1152,7 @@ describe('ViteTransport.resolve', () => {
             if (input.args[input.args.length - 1] === 'npm:@noble/hashes@2.0.1/legacy.js') {
               return procOutput({
                 success: true,
-                stdout: JSON.stringify({
+                stdout: Json.stringify({
                   roots: ['npm:@noble/hashes@2.0.1/legacy.js'],
                   modules: [
                     {
@@ -969,7 +1233,7 @@ describe('ViteTransport.resolve', () => {
             if (input.args[input.args.length - 1] === 'npm:react@19.2.4') {
               return procOutput({
                 success: true,
-                stdout: JSON.stringify({
+                stdout: Json.stringify({
                   roots: ['npm:react@19.2.4'],
                   modules: [
                     {
@@ -1031,7 +1295,7 @@ describe('ViteTransport.resolve', () => {
               if (input.args[input.args.length - 1] === remoteId) {
                 return procOutput({
                   success: true,
-                  stdout: JSON.stringify({
+                  stdout: Json.stringify({
                     roots: [remoteId],
                     modules: [
                       {
@@ -1070,7 +1334,7 @@ describe('ViteTransport.resolve', () => {
 
     describe('deno info normalization', () => {
       it('falls back to the raw specifier when dependency code specifier is absent', async () => {
-        const json = JSON.stringify({
+        const json = Json.stringify({
           roots: ['jsr:@std/path/join'],
           redirects: {
             'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',

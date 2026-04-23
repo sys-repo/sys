@@ -4,7 +4,13 @@ import { Is, Json, Path, Process, type t } from './common.ts';
 import type { PluginContext } from 'rollup';
 import { loadDenoModule } from './u.load.ts';
 import { isBarePackageId, toViteNpmSpecifier } from './u.npm.ts';
-import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier, unwrapViteId } from './u.specifier.ts';
+import {
+  isDenoSpecifier,
+  parseDenoSpecifier,
+  repairConcreteRemoteAuthorityDelimiter,
+  toDenoSpecifier,
+  unwrapViteId,
+} from './u.specifier.ts';
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
@@ -302,7 +308,7 @@ export async function resolveDenoWith(
       end({ ok: true, kind: mod.kind, external: true });
       return null;
     }
-    throw new Error(`Unsupported: ${JSON.stringify(mod, null, 2)}`);
+    throw new Error(`Unsupported: ${Json.stringify(mod, 2)}`);
   })();
 
   if (!deps.memo) return await run;
@@ -438,7 +444,7 @@ function isRemoteLike(specifier: string) {
 
 const wrangle = {
   requestKey(id: string, cwd: string) {
-    return Json.stringify([Path.normalize(cwd), id]);
+    return Json.stringify([Path.normalize(cwd), repairConcreteRemoteAuthorityDelimiter(id)]);
   },
 
   canonicalKey(key: string, memo?: t.ResolveMemo) {
