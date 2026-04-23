@@ -1,4 +1,4 @@
-import { type t, Cli, Process, ViteConfig } from './common.ts';
+import { type t, Cli, Process, Rx, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 type KeypressEvent = {
@@ -26,6 +26,7 @@ export function keyboardFactory(args: {
   url: string;
   pkg?: t.Pkg;
   dist?: t.DistPkg;
+  until?: t.Process.Handle['dispose$'];
   dispose: () => Promise<void>;
 }, deps: KeyboardDeps = {}) {
   const { pkg, dist, paths, dispose } = args;
@@ -69,8 +70,10 @@ export function keyboardFactory(args: {
         }
       }
     } catch (error) {
-      if (error instanceof Deno.errors.BadResource) return;
-      if (error instanceof Error && /ENOTTY|Not a typewriter/i.test(error.message)) return;
+      if (wrangle.isUnsupportedKeyboard(error)) {
+        await wrangle.waitUntil(args.until);
+        return;
+      }
       throw error;
     }
   };
@@ -86,5 +89,15 @@ const wrangle = {
     if (e.key === 'i' && e.shiftKey) return 'info.extended';
     if (e.key === 'i') return 'info';
     return 'noop';
+  },
+
+  isUnsupportedKeyboard(error: unknown) {
+    if (error instanceof Deno.errors.BadResource) return true;
+    return error instanceof Error && /ENOTTY|Not a typewriter/i.test(error.message);
+  },
+
+  async waitUntil(until?: t.Process.Handle['dispose$']) {
+    if (!until) return;
+    await Rx.firstValueFrom(until.pipe(Rx.defaultIfEmpty(undefined)));
   },
 } as const;

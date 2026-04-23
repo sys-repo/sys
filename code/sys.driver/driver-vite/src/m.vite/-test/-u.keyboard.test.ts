@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test/common.ts';
+import { describe, expect, it, Rx } from '../../-test/common.ts';
 import type { t } from '../common.ts';
 import { keyboardFactory } from '../u.keyboard.ts';
 
@@ -45,6 +45,47 @@ describe('Vite.dev keyboard', () => {
     await keyboard();
 
     expect(events).to.eql(['clear', 'extended']);
+  });
+
+  it('waits for child disposal when keyboard input is unavailable', async () => {
+    const events: string[] = [];
+    const dispose$ = new Rx.Subject<t.DisposeAsyncEvent>();
+    let resolved = false;
+    const keyboard = keyboardFactory({
+      paths: paths(),
+      port: 1234,
+      url: 'http://localhost:1234/',
+      until: dispose$,
+      dispose: async () => {
+        events.push('dispose');
+      },
+    }, {
+      keypress: () => ({
+        async *[Symbol.asyncIterator]() {
+          throw new Error('ENOTTY');
+        },
+      }),
+      exit: (_code) => {},
+    });
+
+    const run = keyboard().then(() => {
+      resolved = true;
+      events.push('done');
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(resolved).to.eql(false);
+    expect(events).to.eql([]);
+
+    dispose$.next({
+      type: 'dispose',
+      payload: { is: { ok: true, done: true }, stage: 'complete' },
+    });
+    dispose$.complete();
+    await run;
+
+    expect(events).to.eql(['done']);
   });
 });
 

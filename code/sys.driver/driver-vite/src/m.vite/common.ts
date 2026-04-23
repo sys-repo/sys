@@ -12,6 +12,7 @@ export { Process } from '@sys/process';
 export { Json } from '@sys/std/json';
 export { Is } from '@sys/std/is';
 export { Num } from '@sys/std/num';
+export { Rx } from '@sys/std/rx';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 

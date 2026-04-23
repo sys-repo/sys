@@ -137,7 +137,15 @@ export const dev: D = async (input) => {
     elapsed: Time.elapsed(startedAt).msec,
   }, { level: 1 });
   end({ port, resolvedUrl, elapsed: Time.elapsed(startedAt).msec });
-  const keyboard = keyboardFactory({ pkg, dist, paths, port, url: resolvedUrl, dispose: cleanup });
+  const keyboard = keyboardFactory({
+    pkg,
+    dist,
+    paths,
+    port,
+    url: resolvedUrl,
+    until: proc.dispose$,
+    dispose: cleanup,
+  });
   const listen = async () => void await keyboard();
 
   /**
