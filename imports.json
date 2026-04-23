@@ -39,7 +39,7 @@
     "@std/testing": "jsr:@std/testing@1.0.18",
     "@std/testing/bdd": "jsr:@std/testing@1.0.18/bdd",
     "@std/uuid": "jsr:@std/uuid@1.1.1",
-    "@stripe/stripe-js": "npm:@stripe/stripe-js@9.3.0",
+    "@stripe/stripe-js": "npm:@stripe/stripe-js@9.3.1",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
@@ -96,7 +96,7 @@
     "strip-ansi": "npm:strip-ansi@7.2.0",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.1.1",
-    "vite": "npm:vite@8.0.9",
+    "vite": "npm:vite@8.0.10",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.20.0",
     "yaml": "npm:yaml@2.8.3"

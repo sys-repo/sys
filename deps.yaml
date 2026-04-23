@@ -23,7 +23,7 @@ deno.json:
     dev: true
   - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@8.0.9
+  - import: npm:vite@8.0.10
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -77,7 +77,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.3.0
+  - import: npm:@stripe/stripe-js@9.3.1
   - import: npm:ws@8.20.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
@@ -98,7 +98,7 @@ package.json:
     dev: true
   - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@8.0.9
+  - import: npm:vite@8.0.10
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
