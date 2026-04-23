@@ -9,3 +9,11 @@
  * Pi settings are derived integration state for the Pi runtime.
  */
 import type { t } from './common.ts';
+import { SettingsFs } from './m.fs.ts';
+import { resolve } from './u.resolve.ts';
+
+/** Wrapper-owned Pi settings surface. */
+export const Settings: t.PiSettings.Lib = {
+  Fs: SettingsFs,
+  resolve,
+};
