@@ -38,3 +38,12 @@ The active lane is therefore:
 - provenance audit first
 - fix second
 - stop if the evidence does not justify the current packet boundary
+
+## Step 2 tracing flag
+Use a dedicated env-gated trace flag for Packet E audit work:
+- `SYS_DRIVER_VITE_TRACE_RESOLVE=1`
+
+This trace should stay:
+- narrow
+- provenance-oriented
+- removable after findings are recorded
