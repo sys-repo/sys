@@ -102,6 +102,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     envDir: paths.cwd,
     publicDir,
     base: paths.app.base,
+    optimizeDeps: options.optimizeDeps,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
     worker: {
       format,
@@ -115,6 +116,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
       return plugins;
     },
     resolve: {
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
       get alias() {
         return ws ? ws.aliases : undefined;
       },

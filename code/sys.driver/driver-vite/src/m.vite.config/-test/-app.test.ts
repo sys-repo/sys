@@ -43,6 +43,8 @@ describe('Config.Build', () => {
       expect(config.envDir).to.eql(p.cwd);
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
+      expect(config.optimizeDeps).to.eql(undefined);
+      expect(config.resolve?.dedupe).to.eql(['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
@@ -165,6 +167,17 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
+    });
+
+    it('passes optimizeDeps through without adding driver defaults', async () => {
+      const optimizeDeps: NonNullable<t.ViteUserConfig['optimizeDeps']> = {
+        include: ['react', 'react-dom/client'],
+        exclude: ['@acme/skip'],
+        entries: ['src/-test/index.html'],
+      };
+      const config = await ViteConfig.app({ optimizeDeps });
+
+      expect(config.optimizeDeps).to.eql(optimizeDeps);
     });
 
     it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {
