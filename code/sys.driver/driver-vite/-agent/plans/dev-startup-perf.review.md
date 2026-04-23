@@ -118,6 +118,9 @@ The same run also showed repeated resolution of the same or equivalent `@std/*` 
 
 That suggests cache-key normalization / repeated-resolution posture may be materially worsening the cost.
 
+Cache-key normalization here should mean one centralized canonicalization utility used before both lookup and write time, not ad hoc string cleanup at random call sites.
+The semantic goal is to ensure the cache never treats two forms of the same remote authority/specifier as distinct identities.
+
 ### Confidence
 Very high.
 This is now supported by real instrumentation, not only architecture reading.
