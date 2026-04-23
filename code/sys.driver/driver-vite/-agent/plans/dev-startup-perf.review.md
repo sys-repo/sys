@@ -4,6 +4,12 @@
 Research/distillation note only.
 No implementation in this note.
 
+Current implementation authority:
+- `./dev-startup-perf.resolve-reuse.packet.md`
+
+This review remains the research/base-truth note.
+The resolve-reuse packet is the live next-step implementation plan.
+
 ## Human intent
 Understand why the current `@sys/driver-vite` call-site dev experience still feels slow even after the bootstrap/startup correctness refactor, and identify optimization lanes that are:
 
@@ -230,36 +236,6 @@ Keep transform strategy redesign in the queue, but prioritize resolution reuse/n
 ---
 
 ## 5. The call site itself is likely carrying avoidable graph weight
-### Source anchor
-From Vite 8 source and config defaults:
-
-- default `dev.warmup` is `[]`
-- Vite logs recommend `optimizeDeps.include` to speed cold start
-
-### Code anchor
-- `code/sys.driver/driver-vite/src/m.vite.config/u.app.ts`
-
-### Current shape
-The current app config does not set:
-
-- `dev.warmup`
-- `optimizeDeps.include`
-
-### Why this matters
-Even if total work is unchanged, explicit warmup and targeted dep optimization can improve:
-
-- cold start,
-- first page response,
-- first module graph stabilization,
-- and perceived speed.
-
-### Confidence
-Medium-high.
-This is a strong small/medium optimization candidate and is directly supported by upstream behavior.
-
----
-
-## 5. The call site itself is likely carrying avoidable graph weight
 ### Code anchor
 - `agent-projects/code/projects/slc-data/src/-test/entry.splash.tsx`
 - `agent-projects/code/projects/slc-data/src/-test/entry.tsx`
@@ -348,37 +324,41 @@ That means it is not the right current source of truth for today's optimization 
 
 # Ranked optimization directions
 
-## Tier 1 — small / measurable / likely useful
-1. add instrumentation around driver cold-start phases
-2. add explicit `dev.warmup`
-3. add targeted `optimizeDeps.include`
-4. narrow `sys:npm-prewarm`
-5. re-measure real call-site cold + warm runs
+## Tier 1 — next implementation packet
+1. enforce session-local resolve single-flight
+2. add canonical request/alias normalization where proven safe
+3. add same-session negative caching only if repeated miss/external churn is still measured
+4. remeasure the same local proof world
 
-## Tier 2 — high-value deeper work
-6. replace per-module esbuild CLI spawn with a persistent transform strategy
-7. reduce subprocess-heavy Deno resolution / add reuse
+## Tier 2 — separate shallow startup tax packet
+5. narrow `sys:npm-prewarm` breadth
+6. then remeasure again
 
-## Tier 3 — structural cache wins
-8. persistent transport transform cache under driver-owned cache dir
-9. persistent resolved-graph metadata cache keyed by authority/lock identity
+## Tier 3 — upstream-aligned levers only if still warranted
+7. add explicit `dev.warmup`
+8. add targeted `optimizeDeps.include`
 
-## Tier 4 — ecosystem-level future win
-10. browser-ready published surfaces for hot `@sys` packages so less transport transform work is needed at runtime
+## Tier 4 — deeper transport / cache redesign
+9. replace per-module esbuild CLI spawn with a persistent transform strategy
+10. add stronger resolution reuse / persistent resolved metadata only if session-local reuse is insufficient
+11. add persistent transport cache only if the deeper lane is still justified after narrower wins are banked
+
+## Tier 5 — ecosystem-level future win
+12. browser-ready published surfaces for hot `@sys` packages so less transport transform work is needed at runtime
 
 ---
 
 # Recommendation
 The next move should **not** be broad optimization guessing.
-It should be a narrow measurement-first packet focused on driver-owned cold-path timing and one or two upstream-supported Vite levers.
+It should be the narrow resolver reuse correctness packet captured in:
 
-Most likely first candidates:
+- `./dev-startup-perf.resolve-reuse.packet.md`
 
-- instrumentation,
-- `dev.warmup`,
-- explicit `optimizeDeps.include`,
-- narrower npm prewarm.
+That packet should:
+- enforce single-flight first,
+- then add alias-safe normalization,
+- only then consider same-session negative caching if measurement still justifies it,
+- and stop after remeasurement.
 
-The largest probable future win remains:
-
-- eliminating per-module esbuild CLI spawn in the transport path.
+`sys:npm-prewarm` narrowing remains the clearest separate follow-up packet after that.
+Vite-native levers remain available later, but they are no longer the first move under current measured truth.

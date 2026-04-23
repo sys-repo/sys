@@ -1,4 +1,4 @@
-# Packet: `driver-vite` dev startup perf — resolve reuse first, prewarm second
+# Packet A: `driver-vite` resolve reuse correctness with measured payoff
 
 ## Depends on
 - `./dev-startup-perf.review.md`
@@ -18,27 +18,39 @@ No implementation in this note.
 ## Goal
 Convert the first measured startup truth into the narrowest high-value implementation packet.
 
+This packet is **not** a general startup-performance packet.
+It is a resolver reuse correctness packet whose payoff should be measured in startup terms.
+
 The packet should improve real dev cold-start / first-load feel while preserving:
 - published-boundary truth
 - startup delivery correctness
 - authority correctness
 - and clean owner separation.
 
+## Governing invariant
+Equivalent authority-scoped resolution requests within one dev session should pay the subprocess cost at most once.
+
+If that invariant is enforced cleanly, performance should improve as a consequence.
+If that invariant is not enforced, broader startup tuning risks becoming symptom treatment.
+
 ## Hard verdict after re-review
-Yes: the current plan direction is right, but it should be sharpened.
+Yes: the current plan direction is right, but it should be sharpened into one sharper packet.
 
-The best current ranking is not merely:
-1. cache-key normalization / duplicate equivalent specifier collapse
-2. npm prewarm narrowing
-
-It is more precisely:
+Packet A should be only:
 1. **single-flight resolve reuse** for repeated `deno info --json` work
-2. **canonical request-key / alias normalization** so equivalent specifiers hit the same reuse path
-3. **session-local negative/result alias caching** so misses and redirects do not repeat needlessly
-4. **narrow `sys:npm-prewarm` breadth** as the clearest shallow startup tax
-5. only then reconsider Vite-native levers or deeper transport redesign
+2. **canonical request-key / alias normalization** so equivalent requests hit the same reuse path
+3. **optional same-session negative caching only if measurement proves repeated misses/external churn**
+4. **remeasure**
+5. **stop**
 
-This is a stronger, more timeless formulation because it attacks the classic three causes of wasted work:
+Not in Packet A:
+- `sys:npm-prewarm` narrowing
+- `dev.warmup`
+- `optimizeDeps.include`
+- persistent cache work
+- transform redesign
+
+This is the stronger, more timeless formulation because it attacks the classic three causes of wasted work:
 - doing the same work concurrently
 - doing the same work again under a different name
 - doing unnecessary broad work before the user needs it
@@ -115,19 +127,22 @@ It should be framed as:
 
 # STIER recommendation
 ## Best next packet
-1. implement resolve single-flight + alias-safe normalization
+Packet A should do only this:
+1. implement resolve single-flight
 2. remeasure the same local world
-3. then narrow `sys:npm-prewarm`
+3. implement alias-safe normalization where proven necessary
 4. remeasure again
-5. only then decide whether deeper transport redesign or Vite-native tuning is next
+5. only if still justified, add same-session negative caching
+6. remeasure again
+7. stop
 
-## Not first
-- broad config/workspace tuning
+## Separate follow-ups, not part of Packet A
+- `sys:npm-prewarm` narrowing
+- Vite-native warmup/deps tuning
 - persistent cross-restart cache
-- esbuild transform redesign
-- `dev.warmup` / `optimizeDeps.include`
+- transform redesign
 
-Those may still matter later, but the present proof does not justify leading with them.
+Those may still matter later, but the present proof does not justify mixing them into the first implementation packet.
 
 ---
 
@@ -163,7 +178,9 @@ That stack is older than Vite and Deno and is still the right posture now.
 - no fake local-source privilege
 - no broad transport redesign yet
 - no persistent-cache expansion before session-local reuse is honest and strong
-- no broad npm-prewarm rewrite before startup-used breadth is better understood
+- no `sys:npm-prewarm` change in Packet A
+- no Vite-native tuning in Packet A
+- optimize the resolver invariant first; treat perf gains as confirmation, not substitute proof
 
 ---
 
@@ -219,11 +236,17 @@ Any of those is useful truth.
 Make repeated equivalent resolution work collapse correctly inside a running dev session.
 
 ## Core design
-Introduce a small session-local resolver memo layer with four concepts:
+Introduce a small session-local resolver memo layer with four first-class concepts:
 
 ### A. request key
 The key representing the current authority-scoped resolution request.
 This must not erase distinctions that change truth.
+
+Before implementation, this packet must force an explicit answer to:
+- which fields define authority?
+- which importer/cwd/root dimensions can change truth?
+- which dimensions are only accidental string drift?
+- which normalized URL forms are guaranteed equivalent?
 
 ### B. inflight map
 `Map<RequestKey, Promise<DenoResolved | null>>`
@@ -246,6 +269,19 @@ Once a resolution succeeds, equivalent names should point at the canonical settl
 - local cache path
 - known dependency-resolved form where safe
 
+### E. negative map
+`Map<RequestKey, null>` or equivalent policy seam
+
+This is intentionally demoted.
+Do not implement it in the first patch unless measurement proves repeated same-session miss/external churn that survives single-flight plus alias normalization.
+
+## Resolver invariants
+- equivalent authority-scoped requests share one inflight future
+- inflight entries are removed on settle
+- rejection does not permanently poison future retries unless explicit policy says so
+- settled positive results may alias only through proven-safe equivalence
+- negative results are stored only by explicit policy, not by accident
+
 ## Why this is the right order
 If we normalize first but do not coalesce in-flight work, concurrent duplicate misses can still explode.
 If we coalesce first but never normalize/alias, equivalent requests can still miss under different spellings.
@@ -253,23 +289,34 @@ If we coalesce first but never normalize/alias, equivalent requests can still mi
 So the elegant order is:
 1. introduce single-flight at the existing truthful request boundary
 2. then tighten canonicalization and alias collapse around it
+3. only then consider same-session negative caching if evidence still demands it
 
 ## Candidate interventions
-### A. Add session-local single-flight around `resolveDenoWith(...)`
+### A. Build a tiny resolver memo object first
+Do not smear policy through `u.resolve.ts` as ad hoc `Map` mutations.
+Create one small seam that conceptually owns:
+- `lookup(request)`
+- `getInflight(request)`
+- `begin(request, promise)`
+- `settle(request, result)`
+- `alias(aliasKey, requestKey)`
+- optional negative storage by explicit policy
+
+### B. Add session-local single-flight around `resolveDenoWith(...)`
 This should be the first code move.
 
-### B. Extract canonicalization into pure helpers
+### C. Extract canonicalization into pure helpers
 Do not scatter string surgery across the resolver.
 Create small pure helpers for:
 - canonical remote URL normalization
 - file URL/path normalization
 - safe specifier alias derivation
 
-### C. Alias successful results aggressively but truthfully
+### D. Alias successful results aggressively but truthfully
 After a successful resolve, store the result under all proven-equivalent names.
 
-### D. Optionally add negative session caching
-If repeated misses/external results are observed, store them for the lifetime of the dev server.
+### E. Only then consider negative session caching
+If repeated misses/external results are still observed after single-flight plus alias normalization, store them for the lifetime of the dev server.
 Do not turn this into persistent state yet.
 
 ## Constraints
@@ -277,6 +324,7 @@ Do not turn this into persistent state yet.
 - do not erase cwd/root distinctions without proof
 - do not assume importer differences are irrelevant unless measured
 - do not canonicalize beyond what the URL/specifier rules guarantee
+- do not add negative caching just because caches seem attractive
 
 ## Acceptance
 - repeated resolve count drops materially on the same local run
@@ -366,42 +414,21 @@ The outside-in world is the correction factor, not the first debugging loop.
 
 ---
 
-# Phase 3 — narrow `sys:npm-prewarm`
+# Separate follow-up packet — `sys:npm-prewarm` breadth
 
-## Objective
-Reduce pre-ready startup tax without lying about dependency authority or simply moving the pain later blindly.
+`sys:npm-prewarm` narrowing is a separate packet after Packet A remeasurement.
+It is intentionally out of scope for this implementation slice.
 
-## Hard review correction
-This lane should not start as “just trim the list.”
-It should start as “separate startup-critical npm warming from authority-wide npm warming.”
+## Why separate it
+- Packet A should optimize one resolver invariant at a time
+- prewarm breadth is a different owner policy question
+- combining them in one patch would blur semantic proof and performance proof
 
-That is the more timeless formulation.
-
-## Candidate strategies
-### A. Startup-critical subset first
-Warm only npm targets that are strongly justified by startup reality, for example direct app/config/runtime-critical deps.
-
-### B. Background the rest
-If broader warmup remains useful, move non-critical warming out of the pre-ready path.
-
-### C. Bounded concurrency only after breadth is principled
-Parallelism can reduce wall time, but it should not be used to excuse warming too much unnecessary work.
-
-## Preferred order
-1. narrow breadth
-2. then consider defer/backgrounding
-3. only then consider bounded concurrency
-
-## Constraints
-- keep dependency authority truthful
-- do not create hidden cold misses without measuring the trade
-- do not overfit a one-off allowlist if a principled startup-critical rule can be derived
-
-## Acceptance
-- `config.npmPrewarm elapsed` drops materially
-- `dev.parent.total` drops materially
-- first-entry behavior does not regress unexpectedly
-- targeted dev/build proof lanes stay green
+## Follow-up doctrine
+When opened, that packet should start from:
+- startup-critical subset first
+- then defer/background non-critical warm work if still useful
+- only then consider bounded concurrency
 
 ---
 
@@ -412,16 +439,17 @@ Parallelism can reduce wall time, but it should not be used to excuse warming to
 - `src/m.vite.transport/t.internal.ts`
 - `src/m.vite.transport/-test/-u.resolve.test.ts`
 
-## Order
-1. add the smallest resolver-memo seam needed for session-local reuse
-2. add/extend failing tests for concurrent duplicate resolve requests
-3. implement single-flight around `resolveDenoWith(...)`
+## Mandatory sequencing
+1. add or extend failing deterministic tests for concurrent identical requests
+2. add the smallest resolver-memo seam needed for session-local reuse
+3. implement single-flight around `resolveDenoWith(...)` only
 4. remeasure the same local world
-5. add/extend failing tests for alias/canonical-equivalent collapse
-6. implement canonical request/alias normalization where proven safe
+5. add or extend failing deterministic tests for alias-equivalent requests
+6. implement canonical request/alias normalization only where proven safe
 7. remeasure again
-8. only if still justified, add session-local negative caching
-9. then run the same proof world again before opening the separate `sys:npm-prewarm` slice
+8. only if measurement still proves repeated same-session misses/external churn, add negative caching
+9. remeasure again
+10. stop
 
 ## Explicit deferrals
 - persistent cross-restart cache
@@ -430,25 +458,13 @@ Parallelism can reduce wall time, but it should not be used to excuse warming to
 - `optimizeDeps.include`
 - transform strategy redesign
 
-## Done criteria for the resolve packet
+## Done criteria for Packet A
 - concurrent equivalent resolve requests collapse to one subprocess call
+- inflight entries are removed correctly on settle
+- rejected inflight work does not poison future legitimate retries unintentionally
 - alias-equivalent requests reuse settled truth where safe
 - `transport.resolveDeno` count drops materially in the same local proof world
 - no regressions in targeted transport/dev proof lanes
-
-# Suggested execution order
-1. add narrow hit/miss/inflight/alias instrumentation for resolve reuse
-2. implement single-flight for `resolveDenoWith(...)`
-3. remeasure the same local world
-4. implement canonicalization / alias collapse where the audit proved it safe
-5. remeasure again
-6. only if still justified, add session-local negative caching
-7. then narrow `sys:npm-prewarm`
-8. remeasure again
-9. only then decide whether the next lane is:
-   - deeper transport redesign
-   - Vite-native levers
-   - or call-site graph cleanup
 
 ---
 
@@ -493,6 +509,7 @@ For each implementation substep:
 5. compare before/after metrics
 6. decide whether to continue, simplify, or stop
 
+This sequencing is mandatory for Packet A, not advisory.
 ## Step-specific evaluation rules
 ### Single-flight
 Must prove:
@@ -516,14 +533,18 @@ Expected perf effect:
 - reduced repeated parent/child graph hydration
 
 ### Negative caching
-Only proceed if measurement shows repeated same-session misses/external outcomes.
+Only proceed if measurement shows repeated same-session misses/external outcomes that survive single-flight plus alias normalization.
 
 Must prove:
 - repeated equivalent misses do not respawn subprocess work
 - integrity-failure behavior is preserved
 - distinct requests are not accidentally suppressed
 
+If that proof is absent, do not add negative caching in Packet A.
 ### npm prewarm narrowing
+Out of scope for Packet A.
+This rule applies only when the separate prewarm packet is opened later.
+
 Must prove:
 - startup-critical npm deps still behave correctly
 - reduced pre-ready work does not merely reappear as worse first-entry cost
@@ -566,7 +587,6 @@ Stop and re-plan if any of these become true:
 - repeated resolve work is mostly legitimate and not materially reducible by single-flight/alias fixes
 - the resolve fix improves counts but not startup meaningfully
 - canonicalization risks collapsing distinct authority worlds
-- prewarm narrowing only defers the same pain into first entry without net win
 - outside-in call-site runs contradict the local ranking strongly enough to change priority
 - implementation complexity rises faster than measured gain
 
@@ -589,9 +609,17 @@ Any of these outcomes is useful and truthful.
 # Final STIER recommendation
 Yes: this should become the next implementation packet.
 
-But the packet should be expressed in the stronger order:
+But it should be expressed as a **resolver reuse correctness packet with measured payoff**.
+
+Packet A:
 1. **single-flight resolve reuse**
 2. **canonical request/alias normalization**
-3. **optional session negative caching**
-4. **narrow `sys:npm-prewarm`**
-5. **remeasure before any broader move**
+3. **optional same-session negative caching only if measurement still proves it necessary**
+4. **remeasure**
+5. **stop**
+
+Packet B, separately:
+- **narrow `sys:npm-prewarm` breadth**
+
+Packet C, only if still warranted later:
+- **Vite-native warmup/deps tuning**
