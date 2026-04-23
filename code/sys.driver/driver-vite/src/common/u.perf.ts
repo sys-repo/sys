@@ -14,10 +14,9 @@ type PerfState = {
 
 type PerfMeta = Record<string, unknown>;
 
-declare global {
-  // deno-lint-ignore no-var
-  var __sysDriverVitePerfState__: PerfState | undefined;
-}
+type PerfGlobal = typeof globalThis & {
+  __sysDriverVitePerfState__?: PerfState;
+};
 
 export const Perf = {
   enabled() {
@@ -82,13 +81,14 @@ export const Perf = {
 
 const perf = {
   state() {
-    const existing = globalThis.__sysDriverVitePerfState__;
+    const root = globalThis as PerfGlobal;
+    const existing = root.__sysDriverVitePerfState__;
     if (existing) return existing;
 
     const enabled = perf.enabledFromEnv(Deno.env.get(ENV.ENABLED));
     const epoch = perf.epochFromEnv(Deno.env.get(ENV.EPOCH)) ?? (Time.now.timestamp as t.Msecs);
     const state: PerfState = { enabled, epoch, samples: new Map() };
-    globalThis.__sysDriverVitePerfState__ = state;
+    root.__sysDriverVitePerfState__ = state;
     return state;
   },
 
