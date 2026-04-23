@@ -9,6 +9,9 @@ dev-startup performance lane.
 3. `./dev-startup-perf.resolve-key-audit.findings.md`
 4. `./dev-startup-perf.resolve-identity-fix.packet.md`
 
+Optional next-lane candidate only if reopened after publish validation:
+- `./dev-startup-perf.negative-miss-suppression.candidate.md`
+
 ## Purpose
 Use this folder for:
 - current outside-in truth
