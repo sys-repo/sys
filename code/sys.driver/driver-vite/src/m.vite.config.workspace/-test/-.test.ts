@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, ROOT } from '../../-test.ts';
+import { type t, describe, expect, Fs, it, Json, ROOT } from '../../-test.ts';
 import { ViteConfig } from '../../m.vite.config/mod.ts';
 import { workspace } from '../mod.ts';
 
@@ -53,7 +53,7 @@ describe('ViteConfig.workspace', () => {
       await Fs.write(Fs.join(childSrc, 'mod.ts'), 'export const ok = true;');
       await Fs.write(
         Fs.join(childDir, 'deno.json'),
-        JSON.stringify(
+        Json.stringify(
           {
             name: '@sys/pkg-a',
             version: '0.0.0',
@@ -61,7 +61,6 @@ describe('ViteConfig.workspace', () => {
               './mod': './src/mod.ts',
             },
           },
-          null,
           2,
         ),
       );

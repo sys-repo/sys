@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Process, ROOT, SAMPLE } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Process, ROOT, SAMPLE } from '../../-test.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite published external minimal-crutch world', () => {
@@ -79,13 +79,13 @@ describe('Vite published external minimal-crutch world', () => {
 
 const BUILD_PROBE_SOURCE = `
   import { buildSample } from './src/m.vite/-test.external/u.fixture.build.ts';
-  import { SAMPLE } from './src/-test.ts';
+  import { Json, SAMPLE } from './src/-test.ts';
 
   const res = await buildSample({
     sampleName: 'Vite.published.minimal-crutch.build.probe',
     sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
   });
-  console.log(JSON.stringify({
+  console.log(Json.stringify({
     ok: res.build.ok,
     stderr: res.build.cmd.output.text.stderr,
     stdout: res.build.cmd.output.text.stdout,
@@ -95,7 +95,7 @@ const BUILD_PROBE_SOURCE = `
 
 const DEV_PROBE_SOURCE = `
   import { devSample } from './src/m.vite/-test.external/u.fixture.dev.ts';
-  import { SAMPLE } from './src/-test.ts';
+  import { Json, SAMPLE } from './src/-test.ts';
 
   const res = await devSample({
     sampleName: 'Vite.published.minimal-crutch.dev.probe',
@@ -106,7 +106,7 @@ const DEV_PROBE_SOURCE = `
     const moduleTexts = await Promise.all(
       res.entry.imports.map(async (url) => (await res.fetch(url)).text),
     );
-    console.log(JSON.stringify({
+    console.log(Json.stringify({
       ok: true,
       htmlStatus: res.html.status,
       entryStatus: res.entry.status,
@@ -121,7 +121,7 @@ const DEV_PROBE_SOURCE = `
 function parseProbeJson<T>(stdout: string): T {
   const lines = stdout.trim().split('\n').filter(Boolean);
   const line = lines.at(-1) ?? '{}';
-  return JSON.parse(line) as T;
+  return Json.parse(line) as T;
 }
 
 async function runProbe(source: string) {

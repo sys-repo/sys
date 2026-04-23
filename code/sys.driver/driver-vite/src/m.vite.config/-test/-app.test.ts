@@ -1,4 +1,4 @@
-import { type t, Fs, c, describe, expect, it } from '../../-test.ts';
+import { type t, Fs, c, describe, expect, it, Json } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
@@ -101,14 +101,14 @@ describe('Config.Build', () => {
       try {
         await Fs.write(
           Fs.join(fs.absolute, 'deno.json'),
-          JSON.stringify({
+          Json.stringify({
             name: '@tmp/manual',
             version: '0.0.0',
             nodeModulesDir: 'manual',
             importMap: 'imports.json',
-          }, null, 2),
+          }, 2),
         );
-        await Fs.write(Fs.join(fs.absolute, 'imports.json'), JSON.stringify({ imports: {} }, null, 2));
+        await Fs.write(Fs.join(fs.absolute, 'imports.json'), Json.stringify({ imports: {} }, 2));
 
         const paths = ViteConfig.paths({ cwd: fs.absolute });
         const config = await ViteConfig.app({ workspace: false, paths });

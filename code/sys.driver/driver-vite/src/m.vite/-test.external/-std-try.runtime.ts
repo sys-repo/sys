@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Process, ROOT, Str } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Process, ROOT, Str } from '../../-test.ts';
 
 describe('Vite external std try runtime', () => {
   it('consumer dev entry importing @sys/std/try evaluates without Try TDZ crash', async () => {
@@ -30,7 +30,7 @@ describe('Vite external std try runtime', () => {
 });
 
 const PROBE_SOURCE = Str.dedent(`
-  import { Fs, Testing } from './src/-test.ts';
+  import { Fs, Json, Testing } from './src/-test.ts';
   import { writeLocalFixtureImports } from './src/m.vite/-test/u.bridge.fixture.ts';
   import { Vite } from './src/m.vite/mod.ts';
   import { Str } from '@sys/std/str';
@@ -82,7 +82,7 @@ const PROBE_SOURCE = Str.dedent(`
   try {
     const entryUrl = dev.url + 'main.ts';
     const mod = await import(entryUrl);
-    console.log(JSON.stringify({
+    console.log(Json.stringify({
       ok: mod.tryOk === true && mod.tryMessage === 'ok',
       tryOk: mod.tryOk ?? null,
       tryMessage: mod.tryMessage ?? null,
@@ -98,7 +98,7 @@ const PROBE_SOURCE = Str.dedent(`
 function parseProbeJson<T>(stdout: string): T {
   const lines = stdout.trim().split('\n').filter(Boolean);
   const line = lines.at(-1) ?? '{}';
-  return JSON.parse(line) as T;
+  return Json.parse(line) as T;
 }
 
 async function runProbe(source: string) {

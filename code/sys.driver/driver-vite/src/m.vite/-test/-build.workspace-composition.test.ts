@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { type t, c, describe, expect, Fs, it, Json, pkg, SAMPLE, Testing } from '../../-test.ts';
 import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
 
@@ -43,7 +43,7 @@ describe('Vite.build (workspace composition)', () => {
       configPath,
       originalConfig.replace(
         'Vite.Config.app({ paths })',
-        `Vite.Config.app({ paths, workspace: ${JSON.stringify(workspace)} })`,
+        `Vite.Config.app({ paths, workspace: ${Json.stringify(workspace)} })`,
       ),
     );
     const restore = await writeLocalFixtureImports(cwd);

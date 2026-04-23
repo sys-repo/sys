@@ -170,7 +170,7 @@ const perf = {
 
   quote(input: string) {
     const text = input.length > 140 ? `${input.slice(0, 137)}...` : input;
-    return JSON.stringify(text);
+    return Json.stringify(text);
   },
 
   markSeen(key?: string) {
