@@ -86,10 +86,68 @@ It should be readable enough to answer:
 
 ---
 
-# Phase 1 — Vite-native easy wins
+# Evidence update after first local instrumentation run
+
+A local `ui-react-components` dev run produced three important truths:
+
+1. `transport.resolveDeno` is the dominant measured driver-owned hot seam so far.
+   - sample signal: `count=161`, `total=65142` cumulative resolve time
+   - repeated equivalent `@std/*` targets were resolved many times
+   - inconsistent-looking specifier shapes (`https://...` and `https:/...`) appeared in the same run
+2. `sys:npm-prewarm` is a real startup tax.
+   - sample signal: `specifiers=82`, `elapsed=1634`
+3. workspace/config assembly is comparatively cheap.
+   - sample signal: `config.workspace≈9ms`, `config.app≈25ms`
+
+This changes the first execution ranking:
+- resolution reuse/normalization is now the highest-priority deeper lane,
+- npm prewarm narrowing is now justified as a shallow follow-up,
+- CLI transform redesign remains relevant but no longer looks first in the current local proof.
+
+---
+
+# Phase 1 — immediate follow-up after instrumentation
 
 ## Objective
-Try the cheapest upstream-aligned optimizations first.
+Exploit the first measured truths before broad new tuning.
+
+## Candidate A — inspect and reduce repeated `resolveDenoWith(...)` work
+### Why
+The first local run strongly suggests repeated subprocess resolution is the largest driver-owned cost center.
+
+### Trial
+- inspect cache-key normalization and equivalent-specifier duplication
+- explain repeated resolution of the same `@std/*` targets
+- investigate malformed/variant specifier shapes such as:
+  - `https://jsr.io/...`
+  - `https:/jsr.io/...`
+- improve reuse before redesigning transport wholesale
+
+### Acceptance
+- repeated resolve counts drop materially
+- cumulative resolve time drops materially
+- no published-boundary truth drift
+
+## Candidate B — narrow `sys:npm-prewarm`
+### Why
+The first local run measured prewarm as a real startup tax (~`1634ms`) over `82` specifiers.
+
+### Trial
+- warm only app/config-reachable npm deps
+- or skip clearly irrelevant authority-wide npm imports
+- or move non-critical warming out of the pre-ready window
+
+### Acceptance
+- startup ready time drops materially
+- no dependency authority lies
+- no correctness drift
+
+---
+
+# Phase 2 — Vite-native easy wins
+
+## Objective
+Try the cheapest upstream-aligned optimizations after the first measured resolution/prewarm follow-up.
 
 ## Candidate A — `dev.warmup`
 ### Why

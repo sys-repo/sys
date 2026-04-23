@@ -82,37 +82,7 @@ It is which of those steps still dominates cold dev startup and first page load.
 
 # High-confidence findings
 
-## 1. Per-module esbuild CLI spawn in transport is a likely major hotspot
-### Code anchor
-- `code/sys.driver/driver-vite/src/m.vite/u.wrangle.ts`
-- `code/sys.driver/driver-vite/src/m.vite.transport/u.load.ts`
-
-### Current shape
-`Wrangle.env(...)` always sets `ESBUILD_BINARY_PATH`.
-`loadDenoModule(...)` prefers the CLI path when that env var exists.
-The CLI path uses `new Deno.Command(args.cli, ...)` for each transformed non-JS transported module.
-
-### Why this matters
-For a Deno/JSR-heavy dev graph, first page load can trigger many transformed TS/TSX modules.
-If each one spawns a separate esbuild process, cold load cost can explode.
-
-### Confidence
-High.
-This is a direct reading of the code path, not a vague guess.
-
-### Likely implication
-A future performance lane should evaluate a persistent transform strategy:
-
-- JS API fast path with correct binary ownership,
-- long-lived transform worker/service,
-- pooled transformer,
-- CLI fallback only as the compatibility path.
-
-This looks like the single highest-leverage driver-owned optimization seam.
-
----
-
-## 2. Deno resolution still relies on subprocess `deno info --json`
+## 1. Deno resolution still relies on subprocess `deno info --json`
 ### Code anchor
 - `code/sys.driver/driver-vite/src/m.vite.transport/u.resolve.ts`
 
@@ -127,20 +97,36 @@ There is an in-memory cache per dev server session, but not a persistent cross-r
 For a wide first-load graph, repeated subprocess resolution work adds up.
 The in-memory cache helps only after the first walk inside a running server.
 
+### Concrete local signal
+A local `ui-react-components` dev instrumentation run showed:
+
+- `transport.resolveDeno count=161`
+- `transport.resolveDeno total=65142`
+
+This cumulative total is not a wall-clock duration claim because many resolves may overlap, but it is still a strong signal that subprocess resolution is the dominant driver-owned hot seam in that run.
+
+The same run also showed repeated resolution of the same or equivalent `@std/*` targets, including inconsistent-looking specifier shapes such as both:
+
+- `https://jsr.io/...`
+- `https:/jsr.io/...`
+
+That suggests cache-key normalization / repeated-resolution posture may be materially worsening the cost.
+
 ### Confidence
-High.
-The subprocess-based resolution path is explicit in the code.
+Very high.
+This is now supported by real instrumentation, not only architecture reading.
 
 ### Likely implication
-A later optimization lane should consider:
+The next serious driver-vite optimization lane should prioritize:
 
-- reducing subprocess count,
+- reducing repeated subprocess resolution,
+- inspecting cache-key normalization and duplicate equivalent specifiers,
 - better graph hydration/reuse,
 - or adding a persistent resolved-metadata cache keyed by root/import-map/lock identity.
 
 ---
 
-## 3. `sys:npm-prewarm` is truthful but too broad
+## 2. `sys:npm-prewarm` is truthful but too broad
 ### Code anchor
 - `code/sys.driver/driver-vite/src/m.vite.config/u.app.specifierRewrite.ts`
 
@@ -160,14 +146,17 @@ At the `agent-projects` root import map, that includes npm targets unrelated to 
 This startup work is broad authority-driven warming, not app-reachable warming.
 It is truthful, but not minimal.
 
-### Nuance
-Local spot-checks suggest some individual warm calls are cheap when already materialized.
-So this is likely not the whole story by itself.
-Still, it is a real startup-coupled broadening seam.
+### Concrete local signal
+A local `ui-react-components` dev instrumentation run showed:
+
+- `config.npmPrewarm specifiers=82`
+- `config.npmPrewarm elapsed=1634`
+
+That makes npm prewarm a confirmed startup tax, not just a theoretical concern. It is still secondary to transport resolution in the same run, but it is large enough to justify a narrow follow-up.
 
 ### Confidence
-Medium-high.
-Broadness is certain; total cost contribution still needs measurement.
+High.
+Broadness is certain and the startup cost is now measured.
 
 ### Likely implication
 Narrowing options:
@@ -179,7 +168,68 @@ Narrowing options:
 
 ---
 
-## 4. The driver is not yet using Vite's explicit cold-start levers
+## 3. The driver is not yet using Vite's explicit cold-start levers
+### Source anchor
+From Vite 8 source and config defaults:
+
+- default `dev.warmup` is `[]`
+- Vite logs recommend `optimizeDeps.include` to speed cold start
+
+### Code anchor
+- `code/sys.driver/driver-vite/src/m.vite.config/u.app.ts`
+
+### Current shape
+The current app config does not set:
+
+- `dev.warmup`
+- `optimizeDeps.include`
+
+### Why this matters
+Even if total work is unchanged, explicit warmup and targeted dep optimization can improve:
+
+- cold start,
+- first page response,
+- first module graph stabilization,
+- and perceived speed.
+
+### Confidence
+Medium-high.
+This is a strong small/medium optimization candidate and is directly supported by upstream behavior.
+
+---
+
+## 4. Per-module esbuild CLI spawn in transport is a real cost, but not the leading one in current local proof
+### Code anchor
+- `code/sys.driver/driver-vite/src/m.vite/u.wrangle.ts`
+- `code/sys.driver/driver-vite/src/m.vite.transport/u.load.ts`
+
+### Current shape
+`Wrangle.env(...)` always sets `ESBUILD_BINARY_PATH`.
+`loadDenoModule(...)` prefers the CLI path when that env var exists.
+The CLI path uses `new Deno.Command(args.cli, ...)` for each transformed non-JS transported module.
+
+### Why this matters
+For a Deno/JSR-heavy dev graph, first page load can trigger many transformed TS/TSX modules.
+If each one spawns a separate esbuild process, cold load cost can explode.
+
+### Concrete local signal
+A local `ui-react-components` dev instrumentation run showed roughly:
+
+- `transport.transform.esbuildCli count≈105`
+- `transport.transform.esbuildCli total≈1827`
+
+That is real cost, but materially smaller than the same run's `transport.resolveDeno total≈65142` cumulative resolve time and also smaller than `config.npmPrewarm elapsed≈1634` wall-clock startup tax.
+
+### Confidence
+Medium-high.
+This remains a meaningful seam, but it no longer looks like the first owner to hit based on current evidence.
+
+### Likely implication
+Keep transform strategy redesign in the queue, but prioritize resolution reuse/normalization first unless later outside-in call-site runs contradict the local ranking.
+
+---
+
+## 5. The call site itself is likely carrying avoidable graph weight
 ### Source anchor
 From Vite 8 source and config defaults:
 
