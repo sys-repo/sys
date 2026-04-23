@@ -203,3 +203,13 @@ For direct examples, see:
 - `deno task check` → module typecheck
 - `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
 - `deno task clean` → remove generated temp state and sample fixture build artifacts
+
+## Perf Debugging
+
+Set `SYS_DRIVER_VITE_PERF=1` to print startup timing samples to stdout from both the parent and child Vite processes.
+
+```bash
+SYS_DRIVER_VITE_PERF=1 deno task dev
+```
+
+If you want to inspect a run later, redirect stdout/stderr to a file and sample it with `rg`, `tail`, or `awk`.
