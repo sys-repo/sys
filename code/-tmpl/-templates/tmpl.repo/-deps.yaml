@@ -2,9 +2,9 @@ deno.json:
   - import: jsr:@sys/cli@0.0.264
   - import: jsr:@sys/color@0.0.234
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.316
+  - import: jsr:@sys/driver-deno@0.0.317
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.371
+  - import: jsr:@sys/driver-vite@0.0.374
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.287
     subpaths: [ t ]
@@ -35,9 +35,9 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.277
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.344
+  - import: jsr:@sys/tmpl@0.0.345
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.358
+  - import: jsr:@sys/tools@0.0.361
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.277
   - import: jsr:@sys/ui-css@0.0.269
@@ -50,7 +50,7 @@ deno.json:
     subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
   - import: jsr:@sys/ui-react-devharness@0.0.290
     subpaths: [ t ]
-  - import: jsr:@sys/workspace@0.0.69
+  - import: jsr:@sys/workspace@0.0.70
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/esm@0.0.30
     subpaths: [ testing ]

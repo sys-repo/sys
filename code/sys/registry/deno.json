@@ -1,6 +1,6 @@
 {
   "name": "@sys/registry",
-  "version": "0.0.255",
+  "version": "0.0.256",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -55,3 +55,4 @@
     }
   }
 }
+

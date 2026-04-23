@@ -1,6 +1,6 @@
 {
   "name": "@tdb/data",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -64,3 +64,4 @@
     }
   }
 }
+
