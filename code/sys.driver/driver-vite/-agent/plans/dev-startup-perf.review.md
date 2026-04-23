@@ -4,11 +4,15 @@
 Research/distillation note only.
 No implementation in this note.
 
-Current implementation authority:
+Historical packet notes:
 - `./dev-startup-perf.resolve-reuse.packet.md`
+- `./dev-startup-perf.transport-cache.packet.md`
+
+Current state-truth note:
+- `./dev-startup-perf.callsite-cache-truth.md`
 
 This review remains the research/base-truth note.
-The resolve-reuse packet is the live next-step implementation plan.
+It is no longer the place to find the live next implementation packet.
 
 ## Human intent
 Understand why the current `@sys/driver-vite` call-site dev experience still feels slow even after the bootstrap/startup correctness refactor, and identify optimization lanes that are:
@@ -37,9 +41,14 @@ Understand why the current `@sys/driver-vite` call-site dev experience still fee
 The correctness rewrite clearly improved the architecture and published-boundary truth.
 The outside-in build result (~30s at `agent-projects/code/projects/slc-data`) is a credible positive signal.
 
+Packet D also changed the call-site truth in an important way:
+- persistent transport transform cache is now visibly writing and reusing entries under Vite cache ownership
+- follow-up call-site logs show real `transport.transform.cache.hit` reuse
+- `loadDenoModule(...)` cache-hit latency is now materially cheap
+
 However, dev startup / first browser load still has plausible major hot spots.
 The remaining call-site slowness should **not** be waved away as only "the bug we just fixed".
-The `Try` runtime failure may have prevented normal warm-cache behavior, but the current driver line still contains several expensive cold-path seams.
+The current driver line still contains several expensive cold-path seams, and the newest outside-in proof now makes one of them clearer: transform reuse improved, but resolve churn still dominates.
 
 ## Most important distinction
 The winning ambition is not:
@@ -123,15 +132,15 @@ The semantic goal is to ensure the cache never treats two forms of the same remo
 
 ### Confidence
 Very high.
-This is now supported by real instrumentation, not only architecture reading.
+This is now supported by both local instrumentation and later outside-in call-site logs.
 
 ### Likely implication
 The next serious driver-vite optimization lane should prioritize:
 
 - reducing repeated subprocess resolution,
-- inspecting cache-key normalization and duplicate equivalent specifiers,
+- inspecting request-key normalization and duplicate equivalent specifiers,
 - better graph hydration/reuse,
-- or adding a persistent resolved-metadata cache keyed by root/import-map/lock identity.
+- and only then deciding whether a broader persistent resolved-metadata cache is justified.
 
 ---
 

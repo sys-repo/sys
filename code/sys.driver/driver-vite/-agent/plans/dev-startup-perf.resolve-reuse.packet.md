@@ -12,8 +12,16 @@
 - `../tmind/dev-startup-perf/09.distill-ranked-actions.md`
 
 ## Status
-Planning note only.
-No implementation in this note.
+Historical/implemented packet note.
+
+Packet A landed in the transport resolver as a session-local reuse layer:
+- inflight single-flight reuse
+- settled alias reuse
+- retry-safe inflight cleanup on failure/null outcomes
+
+Phase A3 negative caching was not opened.
+Current outside-in cache/resolve truth is tracked in:
+- `./dev-startup-perf.callsite-cache-truth.md`
 
 ## Goal
 Convert the first measured startup truth into the narrowest high-value implementation packet.

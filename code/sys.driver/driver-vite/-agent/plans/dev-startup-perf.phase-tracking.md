@@ -1,12 +1,12 @@
 # Tracking: `driver-vite` resolve reuse implementation phases
 
 ## Purpose
-Human/LLM tracking note for Packet A execution.
+Historical tracking note for Packet A execution.
 
-The collaboration model is:
-- LLM implements one narrow phase at a time
-- human reviews at semantic/perf decision gates
-- stop after each phase and decide whether to continue
+Packet A is no longer an open execution lane.
+Use this file to remember what the packet was supposed to prove and what happened.
+Current outside-in cache/resolve truth is tracked in:
+- `./dev-startup-perf.callsite-cache-truth.md`
 
 ## Packet A — resolver reuse correctness with measured payoff
 
@@ -127,8 +127,8 @@ Suggested later commit:
 ---
 
 ## Flat tracking list
-- [ ] A1 single-flight
-- [ ] A2 alias-safe normalization
-- [ ] A3 negative caching only if justified
+- [x] A1 single-flight
+- [x] A2 alias-safe normalization
+- [ ] A3 negative caching only if justified (not opened)
 - [ ] B npm prewarm breadth
 - [ ] C Vite-native levers if still needed
