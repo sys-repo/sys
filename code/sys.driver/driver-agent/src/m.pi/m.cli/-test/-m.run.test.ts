@@ -9,40 +9,48 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     expect(m.Cli).to.equal(Cli);
   });
 
-  it('run → launches pi in inherited stdio with terminal cwd scope', async () => {
+  it('run → writes canonical project-local settings before launch', async () => {
     const prev = Process.inherit;
+    const cwd = await Deno.makeTempDir() as t.StringDir;
     try {
+      await Deno.mkdir(Fs.join(cwd, '.git'));
       Process.inherit = async (input) => {
         expect(input.cmd).to.eql('deno');
-        expect(input.cwd).to.eql(Fs.cwd('terminal'));
+        expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('run');
         expect(input.args).to.include('--no-prompt');
-        expect(input.args).to.include('--no-config');
+        expect(input.args).not.to.include('--no-config');
         expect(input.args).to.include('--no-lock');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
         expect(input.args).to.include('--help');
-        expect(input.args).to.include(`--allow-ffi=${Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno')}`);
+        expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
         const sysArg = findArg(input.args, '--allow-sys=');
-        expect(readArg).to.contain(Fs.cwd('terminal'));
-        expect(readArg).to.contain(Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno'));
-        expect(writeArg).to.contain(Fs.cwd('terminal'));
+        expect(readArg).to.contain(cwd);
+        expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
+        expect(writeArg).to.contain(cwd);
         expect(sysArg).to.contain('homedir');
         expect(sysArg).to.contain('osRelease');
         expect(sysArg).to.contain('uid');
         expect(input.env).to.eql({
-          DENO_DIR: Fs.join(Fs.cwd('terminal'), '.tmp', 'pi.cli', 'deno'),
-          PI_CODING_AGENT_DIR: Fs.join(Fs.cwd('terminal'), '.pi', 'agent'),
+          DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
+          PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
+        });
+        const read = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
+        if (!read.ok) throw read.error;
+        expect(JSON.parse(read.data ?? '')).to.eql({
+          quietStartup: true,
+          collapseChangelog: true,
         });
         return { code: 0, success: true, signal: null };
       };
 
-      const cwd = Fs.cwd('terminal');
       const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, args: ['--help'] });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
+      await Deno.remove(cwd, { recursive: true });
     }
   });
 
@@ -54,7 +62,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--no-prompt');
-        expect(input.args).to.include('--no-config');
+        expect(input.args).not.to.include('--no-config');
         expect(input.args).to.include('--no-lock');
         expect(input.env).to.eql({
           ...env,
@@ -69,6 +77,12 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(readArg).to.contain(cwd);
         expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
         expect(writeArg).to.contain(cwd);
+        const read = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
+        if (!read.ok) throw read.error;
+        expect(JSON.parse(read.data ?? '')).to.eql({
+          quietStartup: true,
+          collapseChangelog: true,
+        });
         return { code: 0, success: true, signal: null };
       };
 
