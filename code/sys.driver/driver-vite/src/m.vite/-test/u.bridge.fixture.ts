@@ -1,41 +1,50 @@
+import type { DenoWorkspace } from '@sys/driver-deno/t';
+
 import { DenoFile, Fs, Is, Json, Process, ROOT } from '../../-test.ts';
 
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const VALID_PACKAGE_SPECIFIER = /^(@[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)(\/.*)?$/;
 
+type O = Record<string, string>;
 type DenoInfo = {
   readonly modules?: readonly {
-    readonly dependencies?: readonly {
-      readonly specifier?: string;
-    }[];
+    readonly dependencies?: readonly { readonly specifier?: string }[];
   }[];
 };
 
-type RootPackageVersions = Readonly<Record<string, string>>;
-type RootImportMap = Readonly<Record<string, string>>;
+type RootPackageVersions = Readonly<O>;
+type RootImportMap = Readonly<O>;
 type PackageJson = {
-  readonly dependencies?: Record<string, string>;
-  readonly devDependencies?: Record<string, string>;
+  readonly dependencies?: O;
+  readonly devDependencies?: O;
   readonly [key: string]: unknown;
 };
 type BridgeAuthority = {
   readonly packageVersions: RootPackageVersions;
   readonly imports: RootImportMap;
 };
-type WorkspaceAuthority = Awaited<ReturnType<typeof DenoFile.workspace>>;
+type WorkspaceAuthority = DenoWorkspace;
 type SourceImportMatch = {
   readonly specifier: string;
 };
 
-const SOURCE_FILE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs']);
+const SOURCE_FILE_EXTENSIONS = new Set([
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.mts',
+  '.cts',
+  '.mjs',
+  '.cjs',
+]);
 const SOURCE_IMPORT_PATTERN =
   /\b(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?['"](?<specifier>[^'"]+)['"]|\bimport\s*\(\s*['"](?<specifier>[^'"]+)['"]\s*\)/g;
 
 function sysPackageName(specifier: string) {
   return specifier.split('/').slice(0, 2).join('/');
 }
-
 
 function npmPackageName(specifier: string) {
   return specifier.startsWith('@')
@@ -49,8 +58,8 @@ function isBarePackageSpecifier(specifier: string) {
 
 async function rootPackageVersions(): Promise<RootPackageVersions> {
   const rootPkg = (await Fs.readJson<{
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
+    dependencies?: O;
+    devDependencies?: O;
   }>(ROOT.resolve('package.json'))).data ?? {};
   return {
     ...(rootPkg.dependencies ?? {}),
@@ -67,7 +76,9 @@ function isRelevantPackageSpecifier(specifier: string) {
   if (specifier.startsWith('npm:')) return false;
   if (specifier.startsWith('jsr:')) return false;
   if (!VALID_PACKAGE_SPECIFIER.test(specifier)) return false;
-  if (LOCAL_DRIVER_VITE_IMPORTS.includes(specifier as (typeof LOCAL_DRIVER_VITE_IMPORTS)[number])) return false;
+  if (LOCAL_DRIVER_VITE_IMPORTS.includes(specifier as (typeof LOCAL_DRIVER_VITE_IMPORTS)[number])) {
+    return false;
+  }
   return true;
 }
 
@@ -90,7 +101,8 @@ function sourcePackageSpecifiers(source: string) {
 }
 
 async function rootImportMap(): Promise<RootImportMap> {
-  return (await Fs.readJson<{ imports?: Record<string, string> }>(ROOT.resolve('imports.json'))).data?.imports ?? {};
+  return (await Fs.readJson<{ imports?: O }>(ROOT.resolve('imports.json')))
+    .data?.imports ?? {};
 }
 
 async function rootAuthority(): Promise<BridgeAuthority> {
@@ -129,7 +141,7 @@ function workspacePackagePath(
   return [specifier, Fs.join(dir, target)] as const;
 }
 
-async function localDriverViteImports(ws: WorkspaceAuthority): Promise<Record<string, string>> {
+async function localDriverViteImports(ws: WorkspaceAuthority): Promise<O> {
   const entries = LOCAL_DRIVER_VITE_IMPORTS.map((specifier) => {
     const entry = workspacePackageImport(ws, specifier);
     if (!entry) {
@@ -140,7 +152,7 @@ async function localDriverViteImports(ws: WorkspaceAuthority): Promise<Record<st
   return Object.fromEntries(entries);
 }
 
-function rewriteDriverViteConfigImports(source: string, imports: Record<string, string>) {
+function rewriteDriverViteConfigImports(source: string, imports: O) {
   let next = source;
 
   for (const specifier of LOCAL_DRIVER_VITE_IMPORTS) {
@@ -220,7 +232,7 @@ async function localConfigImports(
   ws: WorkspaceAuthority,
   authority: BridgeAuthority,
   entry: string,
-): Promise<Record<string, string>> {
+): Promise<O> {
   const entries = await Promise.all(
     (await reachablePackageSpecifiers(entry)).map(async (specifier) =>
       resolveBridgeImport(ws, specifier, authority)
@@ -257,7 +269,9 @@ async function importsMapForSpecifiers(
   specifiers: readonly string[],
 ) {
   const entries = await Promise.all(specifiers.map(async (specifier) => {
-    const local = specifier.startsWith('@sys/driver-vite/') ? workspacePackagePath(ws, specifier) : undefined;
+    const local = specifier.startsWith('@sys/driver-vite/')
+      ? workspacePackagePath(ws, specifier)
+      : undefined;
     if (local) return local;
     return resolveBridgeImport(ws, specifier, authority);
   }));
@@ -290,7 +304,7 @@ async function localWorkspaceSourceImports(
 function localPackageDependencies(
   specifiers: readonly string[],
   authority: BridgeAuthority,
-): Record<string, string> {
+): O {
   const entries = specifiers.flatMap((specifier) => {
     if (specifier.startsWith('@sys/')) return [];
     const pkgName = npmPackageName(specifier);
@@ -330,10 +344,12 @@ async function localToolchainImports(authority: BridgeAuthority) {
     `${toDenoNpmDir('@vitejs/plugin-react')}@${pluginReact}`,
     'node_modules/@vitejs/plugin-react/package.json',
   );
-  const pluginReactPkg = (await Fs.readJson<{ dependencies?: Record<string, string> }>(pluginReactPkgPath)).data ?? {};
+  const pluginReactPkg = (await Fs.readJson<{ dependencies?: O }>(pluginReactPkgPath)).data ?? {};
   const pluginutils = pluginReactPkg.dependencies?.['@rolldown/pluginutils'];
   if (!Is.str(pluginutils)) {
-    throw new Error('Missing @rolldown/pluginutils dependency authority from installed @vitejs/plugin-react package');
+    throw new Error(
+      'Missing @rolldown/pluginutils dependency authority from installed @vitejs/plugin-react package',
+    );
   }
 
   return {
@@ -357,31 +373,36 @@ function defaultDenoJson(dir: string) {
       importMap: 'imports.json',
     },
     2,
-  ) + '\n';
+  );
 }
 
-function defaultPackageJson(dependencies: Record<string, string>) {
-  return Json.stringify(
-    {
-      private: true,
-      dependencies,
-    },
-    2,
-  ) + '\n';
+function defaultPackageJson(dependencies: O) {
+  return Json.stringify({ private: true, dependencies }, 2);
+}
+
+function defaultTsconfigJson() {
+  const obj = {
+    compilerOptions: { allowJs: true, checkJs: false, jsx: 'react-jsx', jsxImportSource: 'react' },
+    include: ['src/**/*'],
+  };
+  return Json.stringify(obj, 2);
 }
 
 export async function writeLocalFixtureImports(dir: string, config = 'vite.config.ts') {
   const importsPath = Fs.join(dir, 'imports.json');
   const denoJsonPath = Fs.join(dir, 'deno.json');
   const packageJsonPath = Fs.join(dir, 'package.json');
+  const tsconfigPath = Fs.join(dir, 'tsconfig.json');
   const configPath = Fs.join(dir, config);
   const originalImports = (await Fs.readText(importsPath)).data ?? '';
   const originalDenoJson = (await Fs.readText(denoJsonPath)).data ?? '';
   const originalPackageJson = (await Fs.readText(packageJsonPath)).data ?? '';
+  const originalTsconfig = (await Fs.readText(tsconfigPath)).data ?? '';
   const originalConfig = (await Fs.readText(configPath)).data ?? '';
   const hadImports = await Fs.exists(importsPath);
   const hadDenoJson = await Fs.exists(denoJsonPath);
   const hadPackageJson = await Fs.exists(packageJsonPath);
+  const hadTsconfig = await Fs.exists(tsconfigPath);
   const ws = await DenoFile.workspace(ROOT.denofile.path, { walkup: false });
   const authority = await rootAuthority();
   const localImports = await localDriverViteImports(ws);
@@ -390,8 +411,12 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   if (!hadDenoJson) {
     await Fs.write(denoJsonPath, defaultDenoJson(dir));
   }
+  if (!hadTsconfig) {
+    await Fs.write(tsconfigPath, defaultTsconfigJson());
+  }
 
-  const fixtureImports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+  const fixtureImports =
+    (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
   const bridgeImports = await localConfigImports(ws, authority, configEntry);
   const sourceSpecifiers = await localSourceImports(ws, authority, dir);
   const localWorkspaceSpecifiers = await localWorkspaceSourceImports(ws, sourceSpecifiers);
@@ -426,13 +451,13 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
           {
             ...fixturePackage,
             dependencies: {
-            ...sourceDependencies,
-            ...toolchainDependencies,
-            ...(fixturePackage.dependencies ?? {}),
+              ...sourceDependencies,
+              ...toolchainDependencies,
+              ...(fixturePackage.dependencies ?? {}),
+            },
           },
-        },
-        2,
-      ) + '\n'
+          2,
+        ) + '\n'
         : defaultPackageJson({ ...sourceDependencies, ...toolchainDependencies }),
     );
   }
@@ -448,6 +473,9 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
 
     if (hadPackageJson) await Fs.write(packageJsonPath, originalPackageJson);
     else await Fs.remove(packageJsonPath, { log: false });
+
+    if (hadTsconfig) await Fs.write(tsconfigPath, originalTsconfig);
+    else await Fs.remove(tsconfigPath, { log: false });
 
     await Fs.write(configPath, originalConfig);
   };
