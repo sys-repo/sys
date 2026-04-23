@@ -7,7 +7,7 @@ import { isDenoSpecifier, parseDenoSpecifier, toDenoSpecifier, unwrapViteId } fr
 
 let checkedDenoInstall = false;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
-const memoDefault: t.ResolveMemo = { inflight: new Map() };
+const memoDefault: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
 const depsDefault: t.ResolveDeps = { invoke: Process.invoke, resolveNpmPath, memo: memoDefault };
 type ResolveOptions = NonNullable<Parameters<PluginContext['resolve']>[2]>;
 
@@ -136,7 +136,14 @@ export async function resolveDenoWith(
   }
 
   const key = wrangle.requestKey(id, cwd);
-  const inflight = deps.memo?.inflight.get(key);
+  const canonical = wrangle.canonicalKey(key, deps.memo);
+  const settled = deps.memo?.settled.get(canonical);
+  if (settled) {
+    Perf.log(canonical === key ? 'transport.resolveDeno.settled' : 'transport.resolveDeno.alias', { id, cwd });
+    return settled;
+  }
+
+  const inflight = deps.memo?.inflight.get(canonical);
   if (inflight) {
     Perf.log('transport.resolveDeno.inflight', { id, cwd });
     return await inflight;
@@ -184,6 +191,14 @@ export async function resolveDenoWith(
         loader: mod.mediaType ?? null,
         dependencies: normalizeDependencies(mod.dependencies, json.modules),
       };
+      wrangle.memoizeResolved(deps.memo, {
+        canonical,
+        input: key,
+        actualId,
+        redirected,
+        cwd,
+        resolved,
+      });
       end({ ok: true, kind: resolved.kind, loader: resolved.loader ?? '', dependencies: resolved.dependencies.length });
       return resolved;
     }
@@ -195,6 +210,14 @@ export async function resolveDenoWith(
         loader: null,
         dependencies: [] as const,
       };
+      wrangle.memoizeResolved(deps.memo, {
+        canonical,
+        input: key,
+        actualId,
+        redirected,
+        cwd,
+        resolved,
+      });
       end({ ok: true, kind: resolved.kind, dependencies: 0 });
       return resolved;
     }
@@ -208,11 +231,11 @@ export async function resolveDenoWith(
 
   if (!deps.memo) return await run;
 
-  deps.memo.inflight.set(key, run);
+  deps.memo.inflight.set(canonical, run);
   try {
     return await run;
   } finally {
-    deps.memo.inflight.delete(key);
+    deps.memo.inflight.delete(canonical);
   }
 }
 
@@ -325,6 +348,36 @@ function isRemoteLike(specifier: string) {
 const wrangle = {
   requestKey(id: string, cwd: string) {
     return Json.stringify([Path.normalize(cwd), id]);
+  },
+
+  canonicalKey(key: string, memo?: t.ResolveMemo) {
+    return memo?.alias.get(key) ?? key;
+  },
+
+  memoizeResolved(
+    memo: t.ResolveMemo | undefined,
+    args: {
+      canonical: string;
+      input: string;
+      actualId: string;
+      redirected: string;
+      cwd: string;
+      resolved: t.DenoResolved;
+    },
+  ) {
+    if (!memo) return;
+    memo.settled.set(args.canonical, args.resolved);
+    for (const key of wrangle.aliasKeys(args)) {
+      memo.alias.set(key, args.canonical);
+    }
+  },
+
+  aliasKeys(args: { input: string; actualId: string; redirected: string; cwd: string }) {
+    return [...new Set([
+      args.input,
+      wrangle.requestKey(args.actualId, args.cwd),
+      wrangle.requestKey(args.redirected, args.cwd),
+    ])];
   },
 } as const;
 

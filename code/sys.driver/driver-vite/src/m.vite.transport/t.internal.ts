@@ -37,6 +37,8 @@ export type DenoCache = Map<string, DenoResolved>;
 
 export type ResolveMemo = {
   readonly inflight: Map<string, Promise<DenoResolved | null>>;
+  readonly settled: Map<string, DenoResolved>;
+  readonly alias: Map<string, string>;
 };
 
 export type ResolveDeps = {

@@ -59,7 +59,7 @@ describe('ViteTransport.resolve', () => {
     });
 
     it('coalesces concurrent identical resolve requests into one deno info call', async () => {
-      const memo: t.ResolveMemo = { inflight: new Map() };
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let infoCalls = 0;
       let release!: () => void;
       const gate = new Promise<void>((resolve) => {
@@ -105,7 +105,7 @@ describe('ViteTransport.resolve', () => {
     });
 
     it('clears inflight failures so later retries can resolve cleanly', async () => {
-      const memo: t.ResolveMemo = { inflight: new Map() };
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let fail = true;
       let infoCalls = 0;
       const json = JSON.stringify({
@@ -155,7 +155,7 @@ describe('ViteTransport.resolve', () => {
     });
 
     it('clears inflight null results so later retries can run cleanly', async () => {
-      const memo: t.ResolveMemo = { inflight: new Map() };
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
       let unresolved = true;
       let infoCalls = 0;
       const json = JSON.stringify({
@@ -204,6 +204,83 @@ describe('ViteTransport.resolve', () => {
         dependencies: [],
       });
       expect(memo.inflight.size).to.eql(0);
+    });
+
+    it('reuses redirected settled results for later equivalent requests', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          return procOutput({
+            success: true,
+            stdout: JSON.stringify({
+              roots: ['jsr:@std/path/join'],
+              redirects: {
+                'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',
+              },
+              modules: [
+                {
+                  kind: 'esm',
+                  local: '/tmp/cache/std-path-join.ts',
+                  mediaType: 'TypeScript',
+                  specifier: 'https://jsr.io/@std/path/1.1.4/join.ts',
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      const first = await resolveDenoWith('jsr:@std/path/join', '/tmp', deps);
+      const second = await resolveDenoWith('https://jsr.io/@std/path/1.1.4/join.ts', '/tmp', deps);
+
+      expect(first).to.eql(second);
+      expect(infoCalls).to.eql(1);
+      expect(memo.settled.size).to.eql(1);
+    });
+
+    it('keeps settled aliases scoped to the cwd authority world', async () => {
+      const memo: t.ResolveMemo = { inflight: new Map(), settled: new Map(), alias: new Map() };
+      let infoCalls = 0;
+      const deps = {
+        memo,
+        async invoke(input: t.Process.InvokeArgs) {
+          if (input.args[0] === '--version') {
+            return procOutput({ success: true, stdout: 'deno 2.x' });
+          }
+          infoCalls++;
+          return procOutput({
+            success: true,
+            stdout: JSON.stringify({
+              roots: ['jsr:@std/path/join'],
+              redirects: {
+                'jsr:@std/path/join': 'https://jsr.io/@std/path/1.1.4/join.ts',
+              },
+              modules: [
+                {
+                  kind: 'esm',
+                  local: '/tmp/cache/std-path-join.ts',
+                  mediaType: 'TypeScript',
+                  specifier: 'https://jsr.io/@std/path/1.1.4/join.ts',
+                  dependencies: [],
+                },
+              ],
+            }),
+          });
+        },
+      } satisfies t.ResolveDeps;
+
+      await resolveDenoWith('jsr:@std/path/join', '/tmp/a', deps);
+      await resolveDenoWith('https://jsr.io/@std/path/1.1.4/join.ts', '/tmp/b', deps);
+
+      expect(infoCalls).to.eql(2);
+      expect(memo.settled.size).to.eql(2);
     });
   });
 
