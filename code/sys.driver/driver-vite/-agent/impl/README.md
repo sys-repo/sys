@@ -8,7 +8,8 @@ dev-startup performance lane.
 2. `./dev-startup-perf.resolve-key-audit.packet.md`
 3. `./dev-startup-perf.resolve-key-audit.findings.md`
 4. `./dev-startup-perf.resolve-identity-fix.packet.md`
-5. `./dev-startup-perf.packet-c.optimize-deps-surface.packet.md`
+5. `./dev-startup-perf.local-equivalent-boundary-doctrine.md`
+6. `./dev-startup-perf.packet-c.optimize-deps-surface.packet.md`
 
 Optional next-lane candidate only if reopened after publish validation:
 - `./dev-startup-perf.negative-miss-suppression.candidate.md`
@@ -80,6 +81,11 @@ If residual Class 2 churn remains after broader remeasurement:
 
 The next move is therefore not more Packet E widening and not more speculative authority planning.
 Only follow-up seams proven after remeasurement should open a new narrow packet.
+
+Use `./dev-startup-perf.local-equivalent-boundary-doctrine.md` as the current ranking doctrine for deciding whether a residue belongs to:
+- artificial local-vs-published boundary tax worth attacking
+- honest graph/toolchain cost that should remain visible
+- or a separate seam that should not be mixed into the next packet
 
 ## Step 2 tracing flag
 Use a dedicated env-gated trace flag for Packet E audit work:
