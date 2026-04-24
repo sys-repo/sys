@@ -1,7 +1,8 @@
 # Packet C — canonical optimizeDeps surface in `Vite.Config.app(...)`
 
 ## Status
-Active narrow implementation packet.
+Landed narrow keeper.
+Not the current root-causal work packet.
 
 ## Why this packet is open now
 Outside-in `slc-data` startup evidence now shows a real Vite dep-optimizer churn seam after Packet D and Packet E:
@@ -16,24 +17,27 @@ This is a driver-owned gap even though each call-site’s final hot dep list rem
 ## Current sequencing decision
 This packet remains a valid narrow keeper, but it is not the current root-causal lead.
 
-The current startup evidence should be read as two fault classes:
+The related authority/cache lane has now materially landed in code/tests:
+- consumer-local Vite optimizer cache authority
+- optimize-deps authority audit seam
+- React/npm authority convergence for workspace consumers
+- fixture-based authority regression coverage
+
+The current startup evidence should still be read as two fault classes:
 - Class 1: cross-start optimizer invalidation (for example `Re-optimizing dependencies because vite config has changed`)
 - Class 2: same-session late dependency discovery (for example `optimized dependencies changed. reloading`)
 
-Before any app-local `optimizeDeps.include` tuning is treated as the next fix, a separate driver lane should first test Class 1 directly:
-- explicitly consumer-local Vite optimizer cache authority
-- driver-owned subcaches remaining subordinate to that resolved Vite authority
-- first implementation suspicion: project-root vs workspace-root resolution of `paths.cwd`
-- before/after restart proof showing whether repeated optimizer invalidation materially drops
-
-If the cache-authority lane removes most repeated Class 1 churn:
-- keep this packet as the canonical config surface
-- do not widen into driver default include lists
-- do not add `dev.warmup`
+The next step is not more Packet C widening.
+The next step is to remeasure after the landed authority/cache work and classify the residue:
+- confirm whether repeated Class 1 invalidation materially dropped
+- confirm whether the authority split / duplicate-wrapper failure is gone
+- determine whether any material residual churn is now mostly Class 2
 
 If material Class 2 churn remains after that proof:
-- use this packet’s surface for truthful call-site tuning
-- then decide whether any later driver-level derivation/default lane is justified
+- use this packet’s landed surface for truthful call-site tuning
+- keep the tuning call-site-specific first
+- do not widen into driver default include lists
+- do not add `dev.warmup`
 
 ## Packet thesis
 Add a narrow, typed `optimizeDeps` pass-through to `Vite.Config.app(...)` so consumers can configure Vite dep-optimizer breadth canonically without dropping out of the driver abstraction.
@@ -71,5 +75,5 @@ Stop after:
 Do not widen into heuristic defaults in the same packet.
 Do not treat this packet as proof that app-local tuning is already the root-causal answer.
 
-## Likely commit
+## Landed commit
 `feat(driver-vite): expose optimizeDeps in app config`

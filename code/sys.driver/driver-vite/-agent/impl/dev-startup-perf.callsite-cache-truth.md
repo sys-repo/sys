@@ -1,8 +1,18 @@
 # Current truth: call-site cache state after Packet D
 
 ## Status
-Current outside-in truth note.
+Historical outside-in truth note retained as a pre-authority snapshot.
 No implementation in this note.
+
+## Important scope boundary
+This note records the call-site state before the later authority/cache work landed.
+It should now be read as input context, not as the live next-step packet.
+Later landed work now exists for:
+- consumer-local Vite `cacheDir`
+- optimize-deps authority audit
+- React/npm authority convergence for workspace consumers
+
+The current next move after this historical snapshot is remeasurement, not re-opening the authority plan as if it were still untouched.
 
 ## Scope
 This note captures the post-Packet-D call-site reality at:
@@ -152,11 +162,14 @@ Do not reopen transform caching first.
 Do not broaden Packet D.
 Do not treat app-local optimizer include lists as the first proof move.
 
-The next hard passes are now split cleanly:
-1. Packet E already handled resolve-key fragmentation for malformed/canonical remote identities.
-2. The current root-causal startup lane should test whether Vite optimizer cache authority is explicitly consumer-local and stable across restarts.
-   - first suspicion: the wrong authority may come from project-root vs workspace-root resolution of `paths.cwd`, not from the final `cacheDir` join helper itself
-3. Only after that proof should any app-local `optimizeDeps` tuning be treated as the next move for residual Class 2 churn.
+The historical next passes described in this note have now materially moved into landed code/tests:
+1. Packet E handled resolve-key fragmentation for malformed/canonical remote identities.
+2. The later authority/cache lane landed consumer-local cache authority plus React/npm authority convergence work.
+
+Therefore the current next move is:
+3. remeasure the real proof worlds after those landed changes
+4. classify any remaining residue before choosing the next packet
+5. only then treat app-local `optimizeDeps` tuning as the next move for residual Class 2 churn if the measurements still justify it
 
 Low-priority residue seen in the same logs:
 - repeated `/sw.js` misses redirected to `file:///sw.js`

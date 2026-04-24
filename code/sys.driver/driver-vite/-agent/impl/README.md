@@ -29,37 +29,43 @@ Do not use this folder for broader historical packet lineage or deeper TMIND res
 ## Current state summary
 - Packet A landed as session-local resolve reuse.
 - Packet D landed as persistent dev-only transport transform cache under Vite cache ownership.
-- Packet E has now landed its narrow resolve-identity fix.
-- Outside-in proof-world validation now shows:
-  - transform cache hits are still real
-  - malformed `https:/...` remote request identity no longer appears in the traced resolve lane
-  - malformed wrapped remote importer vocabulary no longer appears in the traced browser/dev path
-  - equivalent malformed/canonical concrete remote spellings now collapse before duplicated expensive resolve work is paid
+- Packet E landed its narrow resolve-identity fix.
+- The Vite optimizer/cache authority lane has now also materially landed:
+  - consumer-local `cacheDir`
+  - optimize-deps authority audit seam
+  - React/npm authority convergence for workspace consumers
+  - fixture-based authority regression coverage
+- Packet C also landed as a narrow keeper:
+  - canonical `optimizeDeps` surface exposure in `Vite.Config.app(...)`
+  - no heuristic driver defaults
 
 ## Current implementation posture
-The active Packet E implementation lane is complete.
+The earlier Packet E implementation lane is complete.
 The perf fix stayed narrow:
 - one shared concrete-remote authority-delimiter repair helper
 - resolver lookup-key collapse before expensive resolve work
 - wrapped-id writer cleanup across resolve/specifier/load boundaries
 - targeted deterministic tests plus proof-world remeasurement
 
-A new narrow Packet C is now opened for the Vite dep-optimizer seam:
-- canonical `optimizeDeps` surface exposure in `Vite.Config.app(...)`
-- no heuristic driver defaults
-- no call-site tuning mixed into the packet
+The later authority/cache lane has now moved from plan to landed code/tests.
+Current startup evidence should still be classified as two fault classes:
+- Class 1: cross-start optimizer invalidation
+- Class 2: same-session late dependency discovery
 
-However, the current root-causal priority is the separate cache-authority lane:
-- treat startup churn as two classes:
-  - Class 1: cross-start optimizer invalidation
-  - Class 2: same-session late dependency discovery
-- make Vite optimizer cache authority explicitly consumer-local for Class 1
-- keep driver-owned subcaches subordinate to that authority
-- investigate whether the authority seam is really project-root vs workspace-root resolution of `paths.cwd`
-- remeasure before deciding whether any app-local `optimizeDeps` tuning is still needed for residual Class 2 churn
+The current next block is therefore:
+- remeasure the real proof worlds after the landed authority/cache changes
+- confirm whether Class 1 materially dropped
+- confirm whether the React identity split / duplicate wrapper failure is gone
+- classify any remaining residue truthfully before opening any new packet
 
-The next move is therefore not more Packet E widening.
-Only follow-up seams proven after this point should open a new narrow packet.
+Packet C remains a landed keeper, but not the current lead.
+If residual Class 2 churn remains after remeasurement:
+- use the Packet C surface truthfully at the call site
+- do not widen into driver default include lists
+- do not add `dev.warmup`
+
+The next move is therefore not more Packet E widening and not more speculative authority planning.
+Only follow-up seams proven after remeasurement should open a new narrow packet.
 
 ## Step 2 tracing flag
 Use a dedicated env-gated trace flag for Packet E audit work:
