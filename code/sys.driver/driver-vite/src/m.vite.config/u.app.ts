@@ -33,6 +33,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const outDir = Path.join(paths.cwd, paths.app.outDir);
   const publicDir = Path.join(paths.cwd, 'public');
   const root = Path.dirname(main);
+  const cacheDir = wrangle.cacheDir(paths.cwd);
 
   /**
    * Chunking:
@@ -101,6 +102,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     root,
     envDir: paths.cwd,
     publicDir,
+    cacheDir,
     base: paths.app.base,
     optimizeDeps: options.optimizeDeps,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
@@ -116,7 +118,6 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
       return plugins;
     },
     resolve: {
-      dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
       get alias() {
         return ws ? ws.aliases : undefined;
       },
@@ -128,13 +129,14 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   Perf.log('config.app.summary', {
     root,
+    cacheDir,
     aliases: ws?.aliases.length ?? 0,
     optimizePackages: optimizePackages.length,
     npmPrewarm,
     plugins: plugins.length,
     vitePlugins: options.vitePlugins?.length ?? 0,
   }, { level: 1 });
-  end({ root, aliases: ws?.aliases.length ?? 0, optimizePackages: optimizePackages.length, npmPrewarm, plugins: plugins.length });
+  end({ root, cacheDir, aliases: ws?.aliases.length ?? 0, optimizePackages: optimizePackages.length, npmPrewarm, plugins: plugins.length });
   return res;
 };
 
@@ -167,6 +169,10 @@ const wrangle = {
     const file = await DenoFile.load(configPath);
     const nodeModulesDir = (file.data as { nodeModulesDir?: unknown } | undefined)?.nodeModulesDir;
     return nodeModulesDir === 'auto';
+  },
+
+  cacheDir(cwd: string) {
+    return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
   },
 
   path(envKey: string) {

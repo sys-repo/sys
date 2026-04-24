@@ -41,10 +41,10 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql(p.cwd);
       expect(config.envDir).to.eql(p.cwd);
+      expect(config.cacheDir).to.eql(Fs.join(p.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
-      expect(config.resolve?.dedupe).to.eql(['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
@@ -150,6 +150,7 @@ describe('Config.Build', () => {
       print(config, '(custom paths)', paths);
 
       expect(config.root).to.eql('/foo/src');
+      expect(config.cacheDir).to.eql(Fs.join(paths.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, 'foobar/out'));
 
       const input = config.build?.rollupOptions?.input as any;
@@ -167,6 +168,7 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
+      expect(config.cacheDir).to.eql('/pkg/node_modules/.vite');
     });
 
     it('passes optimizeDeps through without adding driver defaults', async () => {

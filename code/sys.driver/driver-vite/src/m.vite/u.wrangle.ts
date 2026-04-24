@@ -171,10 +171,7 @@ const wrangle = {
   },
 
   async viteCacheDir(cwd: string) {
-    const require = await wrangle.esbuildRequire(cwd);
-    const esbuildMain = require.resolve('esbuild');
-    const [nodeModulesDir] = esbuildMain.split(/[\\/]\.deno[\\/]/);
-    return Path.join(nodeModulesDir, '.vite');
+    return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
   },
 
   async writeRoots(paths: t.ViteConfigPaths) {

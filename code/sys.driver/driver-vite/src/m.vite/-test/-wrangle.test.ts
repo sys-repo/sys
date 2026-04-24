@@ -57,7 +57,7 @@ describe('Vite.Wrangle', () => {
     );
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include('node_modules/.vite');
+    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
@@ -95,7 +95,7 @@ describe('Vite.Wrangle', () => {
 
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include('node_modules/.vite');
+    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid,networkInterfaces');
@@ -106,6 +106,32 @@ describe('Vite.Wrangle', () => {
     expect(res.args).to.include('--configLoader=native');
     expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
     expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
+    await res.dispose();
+  });
+
+  it('scopes vite cache writes to the consumer cwd instead of the broader package anchor', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.cache-root-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '8.0.2', esbuild: '0.27.4' },
+    });
+
+    const paths = {
+      cwd: project,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: '.',
+      },
+    } as const;
+
+    const res = await Wrangle.command(paths, 'dev --port=1234 --host');
+    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
+    expect(allowWrite).to.include(project);
+    expect(allowWrite).to.include(`${project}/node_modules/.vite`);
+    expect(allowWrite).to.not.include(`${root}/node_modules/.vite`);
     await res.dispose();
   });
 
