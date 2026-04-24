@@ -62,11 +62,11 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.14
+  - import: npm:hono@4.12.15
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.70.0
+  - import: npm:@mariozechner/pi-coding-agent@0.70.2
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
