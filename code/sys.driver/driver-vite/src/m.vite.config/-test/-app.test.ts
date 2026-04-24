@@ -11,6 +11,15 @@ describe('Config.Build', () => {
       return plugins.some((p) => p.name.toLowerCase().includes(name));
     };
 
+    const resolveAlias = async (cwd: string, find: string) => {
+      const config = await ViteConfig.app({
+        paths: ViteConfig.paths({ cwd }),
+        workspace: ROOT.denofile.path,
+      });
+      const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
+      return aliases.find((item) => item.find === find)?.replacement;
+    };
+
     const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
       if (paths) {
         console.info();
@@ -187,14 +196,23 @@ describe('Config.Build', () => {
       const cwd = ROOT.resolve('code', 'sys.ui', 'ui-react-components');
       const require = createRequire(ROOT.resolve('package.json'));
       const expected = Path.dirname(require.resolve('react-inspector/package.json'));
-      const config = await ViteConfig.app({
-        paths: ViteConfig.paths({ cwd }),
-        workspace: ROOT.denofile.path,
-      });
-      const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
-      const alias = aliases.find((item) => item.find === 'react-inspector');
+      const actual = await resolveAlias(cwd, 'react-inspector');
 
-      expect(alias?.replacement).to.eql(expected);
+      expect(actual).to.eql(expected);
+    });
+
+    it('extends the react-inspector authority alias to transitive workspace consumers', async () => {
+      const require = createRequire(ROOT.resolve('package.json'));
+      const expected = Path.dirname(require.resolve('react-inspector/package.json'));
+      const consumers = [
+        ROOT.resolve('code', 'sys.driver', 'driver-monaco'),
+        ROOT.resolve('code', 'sys.driver', 'driver-automerge'),
+      ];
+
+      for (const cwd of consumers) {
+        const actual = await resolveAlias(cwd, 'react-inspector');
+        expect(actual).to.eql(expected);
+      }
     });
 
     it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {

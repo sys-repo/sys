@@ -47,10 +47,11 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     : [];
   const resolveAliases = await Perf.measure(
     'config.app.resolveAliases',
-    async () => await wrangle.resolveAliases(paths.cwd, denoConfig, ws?.aliases),
+    async () => await wrangle.resolveAliases(paths.cwd, denoConfig, ws),
     {
       cwd: paths.cwd,
       workspaceAliases: ws?.aliases.length ?? 0,
+      workspaceChildren: ws?.children.length ?? 0,
     },
     { level: 2 },
   );
@@ -215,21 +216,29 @@ const wrangle = {
   async resolveAliases(
     cwd: string,
     denoConfig: string | undefined,
-    workspaceAliases: t.ViteAlias[] = [],
+    ws?: t.ViteDenoWorkspace,
   ) {
+    const workspaceAliases = ws?.aliases ?? [];
     const singletonAliases = denoConfig
-      ? await wrangle.singletonPackageAliases(cwd, Path.dirname(denoConfig))
+      ? await wrangle.singletonPackageAliases(cwd, Path.dirname(denoConfig), ws)
       : [];
     return [...workspaceAliases, ...singletonAliases];
   },
 
-  async singletonPackageAliases(cwd: string, authorityDir: string) {
-    if (Path.resolve(cwd) === Path.resolve(authorityDir)) return [];
-    const packages = await wrangle.topLevelPackages(cwd);
-    const aliases = await Promise.all(
-      packages.map(async (pkg) => await wrangle.singletonPackageAlias(cwd, authorityDir, pkg)),
-    );
-    return aliases.filter(Boolean) as t.ViteAlias[];
+  async singletonPackageAliases(cwd: string, authorityDir: string, ws?: t.ViteDenoWorkspace) {
+    const dirs = wrangle.singletonPackageConsumerDirs(cwd, ws);
+    const aliases: t.ViteAlias[] = [];
+
+    for (const dir of dirs) {
+      if (Path.resolve(dir) === Path.resolve(authorityDir)) continue;
+      const packages = await wrangle.topLevelPackages(dir);
+      const next = await Promise.all(
+        packages.map(async (pkg) => await wrangle.singletonPackageAlias(dir, authorityDir, pkg)),
+      );
+      aliases.push(...next.filter(Boolean) as t.ViteAlias[]);
+    }
+
+    return wrangle.uniqueAliases(aliases);
   },
 
   async singletonPackageAlias(cwd: string, authorityDir: string, pkg: string) {
@@ -259,6 +268,25 @@ const wrangle = {
     } catch {
       return '';
     }
+  },
+
+  singletonPackageConsumerDirs(cwd: string, ws?: t.ViteDenoWorkspace) {
+    const dirs = new Set([Path.resolve(cwd)]);
+    if (!ws) return [...dirs];
+
+    const base = Path.dirname(ws.file);
+    for (const child of ws.children) {
+      dirs.add(Path.join(base, child.path.dir));
+    }
+    return [...dirs].map((dir) => Path.resolve(dir)).sort();
+  },
+
+  uniqueAliases(list: t.ViteAlias[]) {
+    const map = new Map<string, t.ViteAlias>();
+    for (const alias of list) {
+      if (!map.has(String(alias.find))) map.set(String(alias.find), alias);
+    }
+    return [...map.values()];
   },
 
   async topLevelPackages(cwd: string) {
