@@ -52,14 +52,28 @@ Current startup evidence should still be classified as two fault classes:
 - Class 1: cross-start optimizer invalidation
 - Class 2: same-session late dependency discovery
 
-The current next block is therefore:
+The current next block was therefore:
 - remeasure the real proof worlds after the landed authority/cache changes
 - confirm whether Class 1 materially dropped
 - confirm whether the React identity split / duplicate wrapper failure is gone
 - classify any remaining residue truthfully before opening any new packet
 
+That proof step has now been exercised in `@sys/ui-react-components` on a fresh local cold start.
+Observed result:
+- consumer-local Vite cache was created under `code/sys.ui/ui-react-components/node_modules/.vite`
+- consumer-local optimizer metadata was created under `node_modules/.vite/deps/_metadata.json`
+- the React optimize graph collapsed to one wrapper: `react.js`
+- `react-dom`, `react-dom/client`, and `react-inspector` all consumed `react.js`
+- `DepAudit.reactSingletons(...)` reported:
+  - `mixedAuthority: false`
+  - `duplicateWrapper: false`
+  - `divergentConsumers: false`
+
+This is a real authority-convergence proof win for that world.
+It is not yet a universal startup win claim and it does not close the separate intermittent `vite:oxc` / `TsconfigCache` cold-start seam.
+
 Packet C remains a landed keeper, but not the current lead.
-If residual Class 2 churn remains after remeasurement:
+If residual Class 2 churn remains after broader remeasurement:
 - use the Packet C surface truthfully at the call site
 - do not widen into driver default include lists
 - do not add `dev.warmup`

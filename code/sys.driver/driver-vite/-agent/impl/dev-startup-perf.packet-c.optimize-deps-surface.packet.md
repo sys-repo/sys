@@ -28,12 +28,20 @@ The current startup evidence should still be read as two fault classes:
 - Class 2: same-session late dependency discovery (for example `optimized dependencies changed. reloading`)
 
 The next step is not more Packet C widening.
-The next step is to remeasure after the landed authority/cache work and classify the residue:
+The next step was to remeasure after the landed authority/cache work and classify the residue:
 - confirm whether repeated Class 1 invalidation materially dropped
 - confirm whether the authority split / duplicate-wrapper failure is gone
 - determine whether any material residual churn is now mostly Class 2
 
-If material Class 2 churn remains after that proof:
+That remeasurement has now produced one clean proof-world result in `@sys/ui-react-components`:
+- local cold start created consumer-local `.vite` state under the app
+- optimizer metadata lived under the consumer app cache
+- `react-inspector` consumed `react.js`
+- the optimized graph showed one React wrapper only
+- driver audit reported no mixed authority and no duplicate wrapper divergence
+
+Therefore this packet should continue to stay narrow.
+If material Class 2 churn remains after broader remeasurement:
 - use this packet’s landed surface for truthful call-site tuning
 - keep the tuning call-site-specific first
 - do not widen into driver default include lists

@@ -14,6 +14,16 @@ Later landed work now exists for:
 
 The current next move after this historical snapshot is remeasurement, not re-opening the authority plan as if it were still untouched.
 
+One such proof-world remeasurement has now been performed in `@sys/ui-react-components` after the later authority/cache work.
+That fresh local cold-start proof showed:
+- consumer-local `.vite` creation under the app
+- consumer-local optimizer metadata
+- a collapsed single React wrapper graph
+- no mixed React authority in the driver audit result
+
+That newer proof does not change the historical observations recorded below.
+It does confirm that this note should now be read as pre-fix context, not as the current live behavior claim.
+
 ## Scope
 This note captures the post-Packet-D call-site reality at:
 - `/Users/phil/code/-people/rowanyeoman-dev/agent-projects/code/projects/slc-data`
