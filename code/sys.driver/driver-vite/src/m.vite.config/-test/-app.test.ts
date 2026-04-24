@@ -1,5 +1,4 @@
-import { createRequire } from 'node:module';
-import { c, describe, expect, Fs, it, Json, Path, ROOT, type t } from '../../-test.ts';
+import { c, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
@@ -11,10 +10,11 @@ describe('Config.Build', () => {
       return plugins.some((p) => p.name.toLowerCase().includes(name));
     };
 
-    const resolveAlias = async (cwd: string, find: string) => {
+    const resolveAlias = async (cwd: string, workspace: string, find: string) => {
       const config = await ViteConfig.app({
         paths: ViteConfig.paths({ cwd }),
-        workspace: ROOT.denofile.path,
+        workspace,
+        plugins: { optimizeImports: false },
       });
       const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
       return aliases.find((item) => item.find === find)?.replacement;
@@ -193,25 +193,22 @@ describe('Config.Build', () => {
     });
 
     it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {
-      const cwd = ROOT.resolve('code', 'sys.ui', 'ui-react-components');
-      const require = createRequire(ROOT.resolve('package.json'));
-      const expected = Path.dirname(require.resolve('react-inspector/package.json'));
-      const actual = await resolveAlias(cwd, 'react-inspector');
-
-      expect(actual).to.eql(expected);
+      const fs = await fixture.aliasWorld('ViteConfig.app.alias.direct.', { direct: true });
+      try {
+        const actual = await resolveAlias(fs.appDir, fs.workspaceFile, 'react-inspector');
+        expect(actual).to.eql(fs.authorityPackageDir);
+      } finally {
+        await Fs.remove(fs.root);
+      }
     });
 
     it('extends the react-inspector authority alias to transitive workspace consumers', async () => {
-      const require = createRequire(ROOT.resolve('package.json'));
-      const expected = Path.dirname(require.resolve('react-inspector/package.json'));
-      const consumers = [
-        ROOT.resolve('code', 'sys.driver', 'driver-monaco'),
-        ROOT.resolve('code', 'sys.driver', 'driver-automerge'),
-      ];
-
-      for (const cwd of consumers) {
-        const actual = await resolveAlias(cwd, 'react-inspector');
-        expect(actual).to.eql(expected);
+      const fs = await fixture.aliasWorld('ViteConfig.app.alias.transitive.', { transitive: true });
+      try {
+        const actual = await resolveAlias(fs.appDir, fs.workspaceFile, 'react-inspector');
+        expect(actual).to.eql(fs.authorityPackageDir);
+      } finally {
+        await Fs.remove(fs.root);
       }
     });
 
@@ -238,3 +235,73 @@ describe('Config.Build', () => {
     });
   });
 });
+
+const fixture = {
+  async aliasWorld(
+    prefix: string,
+    options: { direct?: boolean; transitive?: boolean },
+  ) {
+    const fs = await Fs.makeTempDir({ prefix });
+    const root = await Fs.realPath(fs.absolute);
+    const workspaceFile = Path.join(root, 'deno.json');
+    const authorityPackageDir = Path.join(root, 'node_modules', 'react-inspector');
+    const appDir = Path.join(root, 'code', 'app');
+    const libDir = Path.join(root, 'code', 'lib');
+
+    await fixture.packageJson(Path.join(root, 'package.json'), {
+      name: '@tmp/root',
+      version: '0.0.0',
+      private: true,
+    });
+    await Fs.writeJson(workspaceFile, {
+      name: '@tmp/workspace',
+      version: '0.0.0',
+      workspace: ['./code/app', './code/lib'],
+    });
+
+    await fixture.workspaceMember(appDir, '@tmp/app');
+    await fixture.workspaceMember(libDir, '@tmp/lib');
+    await fixture.reactLinkedPackage(authorityPackageDir, '0.0.0-fixture');
+
+    if (options.direct) {
+      await fixture.reactLinkedPackage(
+        Path.join(appDir, 'node_modules', 'react-inspector'),
+        '0.0.0-fixture',
+      );
+    }
+
+    if (options.transitive) {
+      await fixture.reactLinkedPackage(
+        Path.join(libDir, 'node_modules', 'react-inspector'),
+        '0.0.0-fixture',
+      );
+    }
+
+    return { root, workspaceFile, authorityPackageDir, appDir, libDir } as const;
+  },
+
+  async workspaceMember(dir: string, name: string) {
+    await Fs.ensureDir(Path.join(dir, 'src'));
+    await Fs.write(Path.join(dir, 'src', 'mod.ts'), 'export const ok = true;\n');
+    await Fs.writeJson(Path.join(dir, 'deno.json'), {
+      name,
+      version: '0.0.0',
+      exports: { './mod': './src/mod.ts' },
+    });
+  },
+
+  async reactLinkedPackage(dir: string, version: string) {
+    await fixture.packageJson(Path.join(dir, 'package.json'), {
+      name: 'react-inspector',
+      version,
+      peerDependencies: {
+        react: '^19.0.0',
+      },
+    });
+  },
+
+  async packageJson(path: string, data: Record<string, unknown>) {
+    await Fs.ensureDir(Path.dirname(path));
+    await Fs.write(path, Json.stringify(data, 2));
+  },
+} as const;
