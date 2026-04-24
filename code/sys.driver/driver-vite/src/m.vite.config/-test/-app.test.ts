@@ -1,4 +1,5 @@
-import { type t, Fs, c, describe, expect, it, Json } from '../../-test.ts';
+import { createRequire } from 'node:module';
+import { c, describe, expect, Fs, it, Json, Path, ROOT, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
@@ -93,7 +94,7 @@ describe('Config.Build', () => {
     it('supports app config without a workspace', async () => {
       const config = await ViteConfig.app({ workspace: false });
 
-      expect(config.resolve?.alias).to.eql(undefined);
+      expect(config.resolve?.alias).to.eql([]);
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
       expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
     });
@@ -115,7 +116,7 @@ describe('Config.Build', () => {
         const paths = ViteConfig.paths({ cwd: fs.absolute });
         const config = await ViteConfig.app({ workspace: false, paths });
 
-        expect(config.resolve?.alias).to.eql(undefined);
+        expect(config.resolve?.alias).to.eql([]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -129,7 +130,7 @@ describe('Config.Build', () => {
         const paths = ViteConfig.paths({ cwd: fs.absolute });
         const config = await ViteConfig.app({ workspace: false, paths });
 
-        expect(config.resolve?.alias).to.eql(undefined);
+        expect(config.resolve?.alias).to.eql([]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(false);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -182,6 +183,20 @@ describe('Config.Build', () => {
       expect(config.optimizeDeps).to.eql(optimizeDeps);
     });
 
+    it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {
+      const cwd = ROOT.resolve('code', 'sys.ui', 'ui-react-components');
+      const require = createRequire(ROOT.resolve('package.json'));
+      const expected = Path.dirname(require.resolve('react-inspector/package.json'));
+      const config = await ViteConfig.app({
+        paths: ViteConfig.paths({ cwd }),
+        workspace: ROOT.denofile.path,
+      });
+      const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
+      const alias = aliases.find((item) => item.find === 'react-inspector');
+
+      expect(alias?.replacement).to.eql(expected);
+    });
+
     it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {
       const config = await ViteConfig.app({
         chunks(e) {
@@ -194,9 +209,14 @@ describe('Config.Build', () => {
       const chunk = manualChunks.manualChunks as undefined | ((id: string) => string | undefined);
 
       expect(typeof chunk).to.eql('function');
-      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql('react');
-      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js')).to.eql('react.dom');
-      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(undefined);
+      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql(
+        'react',
+      );
+      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js'))
+        .to.eql('react.dom');
+      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(
+        undefined,
+      );
     });
   });
 });

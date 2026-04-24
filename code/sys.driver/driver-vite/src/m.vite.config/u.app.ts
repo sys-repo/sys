@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { Perf } from '../common/u.perf.ts';
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
@@ -12,21 +13,47 @@ import { commonPlugins } from './u.plugins.ts';
  */
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const { minify = true } = options;
-  const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify }, { level: 2 });
+  const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify }, {
+    level: 2,
+  });
   const paths = formatPaths(options.paths);
   const ws = await wrangle.workspace(options);
-  const denoConfig = await Perf.measure('config.app.denoConfig', async () => await wrangle.denoConfig(paths.cwd, ws), {
-    cwd: paths.cwd,
-  }, { level: 2 });
+  const denoConfig = await Perf.measure(
+    'config.app.denoConfig',
+    async () => await wrangle.denoConfig(paths.cwd, ws),
+    {
+      cwd: paths.cwd,
+    },
+    { level: 2 },
+  );
   const npmPrewarm = denoConfig
-    ? await Perf.measure('config.app.canPrewarmNpm', async () => await wrangle.canPrewarmNpm(denoConfig), { config: denoConfig }, { level: 2 })
+    ? await Perf.measure(
+      'config.app.canPrewarmNpm',
+      async () => await wrangle.canPrewarmNpm(denoConfig),
+      { config: denoConfig },
+      { level: 2 },
+    )
     : false;
   const optimizeImports = options.plugins?.optimizeImports ?? true;
   const optimizePackages = optimizeImports && ws
-    ? await Perf.measure('config.app.optimizePackages', async () => await deriveWorkspacePackageRules(ws), {
-      aliases: ws.aliases.length,
-    }, { level: 2 })
+    ? await Perf.measure(
+      'config.app.optimizePackages',
+      async () => await deriveWorkspacePackageRules(ws),
+      {
+        aliases: ws.aliases.length,
+      },
+      { level: 2 },
+    )
     : [];
+  const resolveAliases = await Perf.measure(
+    'config.app.resolveAliases',
+    async () => await wrangle.resolveAliases(paths.cwd, denoConfig, ws?.aliases),
+    {
+      cwd: paths.cwd,
+      workspaceAliases: ws?.aliases.length ?? 0,
+    },
+    { level: 2 },
+  );
 
   const main = Path.join(paths.cwd, paths.app.entry);
   const sw = paths.app.sw ? Path.join(paths.cwd, paths.app.sw) : undefined;
@@ -64,9 +91,14 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   /**
    * Plugins:
    */
-  const plugins = await Perf.measure('config.app.commonPlugins', async () => await commonPlugins(options.plugins), {
-    react: options.plugins?.react ?? true,
-  }, { level: 2 });
+  const plugins = await Perf.measure(
+    'config.app.commonPlugins',
+    async () => await commonPlugins(options.plugins),
+    {
+      react: options.plugins?.react ?? true,
+    },
+    { level: 2 },
+  );
   if (denoConfig && (options.plugins?.deno ?? true)) {
     plugins.unshift(createSpecifierRewrite(denoConfig));
     if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
@@ -118,9 +150,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
       return plugins;
     },
     resolve: {
-      get alias() {
-        return ws ? ws.aliases : undefined;
-      },
+      alias: resolveAliases,
     },
   };
 
@@ -130,13 +160,20 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   Perf.log('config.app.summary', {
     root,
     cacheDir,
-    aliases: ws?.aliases.length ?? 0,
+    aliases: resolveAliases.length,
     optimizePackages: optimizePackages.length,
     npmPrewarm,
     plugins: plugins.length,
     vitePlugins: options.vitePlugins?.length ?? 0,
   }, { level: 1 });
-  end({ root, cacheDir, aliases: ws?.aliases.length ?? 0, optimizePackages: optimizePackages.length, npmPrewarm, plugins: plugins.length });
+  end({
+    root,
+    cacheDir,
+    aliases: resolveAliases.length,
+    optimizePackages: optimizePackages.length,
+    npmPrewarm,
+    plugins: plugins.length,
+  });
   return res;
 };
 
@@ -173,6 +210,110 @@ const wrangle = {
 
   cacheDir(cwd: string) {
     return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
+  },
+
+  async resolveAliases(
+    cwd: string,
+    denoConfig: string | undefined,
+    workspaceAliases: t.ViteAlias[] = [],
+  ) {
+    const singletonAliases = denoConfig
+      ? await wrangle.singletonPackageAliases(cwd, Path.dirname(denoConfig))
+      : [];
+    return [...workspaceAliases, ...singletonAliases];
+  },
+
+  async singletonPackageAliases(cwd: string, authorityDir: string) {
+    if (Path.resolve(cwd) === Path.resolve(authorityDir)) return [];
+    const packages = await wrangle.topLevelPackages(cwd);
+    const aliases = await Promise.all(
+      packages.map(async (pkg) => await wrangle.singletonPackageAlias(cwd, authorityDir, pkg)),
+    );
+    return aliases.filter(Boolean) as t.ViteAlias[];
+  },
+
+  async singletonPackageAlias(cwd: string, authorityDir: string, pkg: string) {
+    const consumerPackageDir = await wrangle.topLevelPackageDir(cwd, pkg);
+    if (!consumerPackageDir) return undefined;
+    if (!await wrangle.isReactLinkedPackage(consumerPackageDir)) return undefined;
+
+    const authorityPackageDir = await wrangle.packageDir(authorityDir, pkg);
+    if (!authorityPackageDir) return undefined;
+
+    const authorityVersion = await wrangle.packageVersion(authorityPackageDir);
+    const consumerVersion = await wrangle.packageVersion(consumerPackageDir);
+    if (!authorityVersion || !consumerVersion || authorityVersion !== consumerVersion) {
+      return undefined;
+    }
+    if (Path.resolve(authorityPackageDir) === Path.resolve(consumerPackageDir)) return undefined;
+
+    return { find: pkg, replacement: authorityPackageDir } as const;
+  },
+
+  async packageDir(start: string, pkg: string) {
+    const anchor = await wrangle.packageAnchor(start);
+    const require = createRequire(anchor);
+    try {
+      const path = require.resolve(`${pkg}/package.json`);
+      return Path.dirname(path);
+    } catch {
+      return '';
+    }
+  },
+
+  async topLevelPackages(cwd: string) {
+    const root = Path.join(Path.resolve(cwd), 'node_modules');
+    if (!(await Fs.exists(root))) return [];
+
+    const packages: string[] = [];
+    for await (const item of Deno.readDir(root)) {
+      if (!item.isDirectory && !item.isSymlink) continue;
+      if (item.name.startsWith('.')) continue;
+      if (!item.name.startsWith('@')) {
+        packages.push(item.name);
+        continue;
+      }
+      const scopeDir = Path.join(root, item.name);
+      for await (const child of Deno.readDir(scopeDir)) {
+        if (!child.isDirectory && !child.isSymlink) continue;
+        packages.push(`${item.name}/${child.name}`);
+      }
+    }
+    return packages.sort();
+  },
+
+  async topLevelPackageDir(cwd: string, pkg: string) {
+    const path = Path.join(Path.resolve(cwd), 'node_modules', pkg, 'package.json');
+    return await Fs.exists(path) ? Path.dirname(path) : '';
+  },
+
+  async isReactLinkedPackage(dir: string) {
+    const pkg = (await Fs.readJson<{
+      dependencies?: Record<string, string>;
+      peerDependencies?: Record<string, string>;
+    }>(Path.join(dir, 'package.json'))).data;
+    return [
+      pkg?.dependencies?.react,
+      pkg?.dependencies?.['react-dom'],
+      pkg?.peerDependencies?.react,
+      pkg?.peerDependencies?.['react-dom'],
+    ].some(Boolean);
+  },
+
+  async packageVersion(dir: string) {
+    const pkg = (await Fs.readJson<{ version?: string }>(Path.join(dir, 'package.json'))).data;
+    return pkg?.version ?? '';
+  },
+
+  async packageAnchor(start: string) {
+    let current = Path.resolve(start);
+    while (true) {
+      const path = Path.join(current, 'package.json');
+      if (await Fs.exists(path)) return path;
+      const parent = Path.dirname(current);
+      if (parent === current) return Path.join(Path.resolve(start), 'package.json');
+      current = parent;
+    }
   },
 
   path(envKey: string) {
