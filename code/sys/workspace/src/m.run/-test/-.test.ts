@@ -1,8 +1,10 @@
-import { Cli, describe, expect, it, Testing } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Testing } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
 import { readLog, writeWorkspace } from './u.fixture.ts';
 
 describe('WorkspaceRun', () => {
+  const normalizeSummary = (text: string) => Cli.stripAnsi(text).replace(/\s+/g, ' ').trim();
+
   it('runs declared package tests in topological order and skips missing tasks', async () => {
     const fs = await Testing.dir('WorkspaceRun.test');
     await writeWorkspace(fs.dir, { failCheck: false });
@@ -24,7 +26,11 @@ describe('WorkspaceRun', () => {
       expect(result.packages[0].signal).to.eql(null);
       expect(result.packages[0].elapsed >= 0).to.eql(true);
     }
-    expect(result.packages[1]).to.eql({ kind: 'skipped', path: 'code/pkg-b', reason: 'task:missing' });
+    expect(result.packages[1]).to.eql({
+      kind: 'skipped',
+      path: 'code/pkg-b',
+      reason: 'task:missing',
+    });
     expect(result.packages[2]?.kind).to.eql('ran');
     if (result.packages[2]?.kind === 'ran') {
       expect(result.packages[2].path).to.eql('code/pkg-c');
@@ -75,7 +81,7 @@ describe('WorkspaceRun', () => {
     expect(result.packages[1]?.kind).to.eql('ran');
   });
 
-  it('formats the run summary contract', async () => {
+  it('formats test run summary text and cyan task highlight', async () => {
     const fs = await Testing.dir('WorkspaceRun.fmt');
     await writeWorkspace(fs.dir, { failCheck: false });
 
@@ -84,20 +90,23 @@ describe('WorkspaceRun', () => {
       rebuildGraph: true,
       filter: (e) => e.pkg.name === '@test/pkg-a' || e.pkg.name === '@test/pkg-c',
     });
-    const text = Cli.stripAnsi(WorkspaceRun.Fmt.result(result));
+    const formatted = WorkspaceRun.Fmt.result(result);
+    const text = normalizeSummary(formatted);
 
     expect(text.includes('Workspace tests done in')).to.eql(true);
-    expect(text.includes(' status    success')).to.eql(true);
-    expect(text.includes(' task      test')).to.eql(true);
-    expect(text.includes(' ran       2')).to.eql(true);
-    expect(text.includes(' skipped   0')).to.eql(true);
-    expect(text.includes(' failed    0')).to.eql(true);
+    expect(text.includes('status success')).to.eql(true);
+    expect(text.includes('task test')).to.eql(true);
+    expect(formatted.includes(c.cyan('tests'))).to.eql(true);
+    expect(formatted.includes(c.cyan('test'))).to.eql(true);
+    expect(text.includes('ran 2')).to.eql(true);
+    expect(text.includes('skipped 0')).to.eql(true);
+    expect(text.includes('failed 0')).to.eql(true);
     expect(text.includes('package')).to.eql(true);
     expect(text.includes('code/pkg-a')).to.eql(true);
     expect(text.includes('code/pkg-c')).to.eql(true);
   });
 
-  it('formats dry run titles', async () => {
+  it('formats dry run summary text and cyan task highlight', async () => {
     const fs = await Testing.dir('WorkspaceRun.fmt.dry');
     await writeWorkspace(fs.dir, { failCheck: false });
 
@@ -106,10 +115,13 @@ describe('WorkspaceRun', () => {
       rebuildGraph: true,
       filter: (e) => e.pkg.name === '@test/pkg-a',
     });
-    const text = Cli.stripAnsi(WorkspaceRun.Fmt.result(result));
+    const formatted = WorkspaceRun.Fmt.result(result);
+    const text = normalizeSummary(formatted);
 
     expect(text.includes('Workspace dry runs done in')).to.eql(true);
-    expect(text.includes(' task      dry')).to.eql(true);
+    expect(text.includes('task dry')).to.eql(true);
+    expect(formatted.includes(c.cyan('dry runs'))).to.eql(true);
+    expect(formatted.includes(c.cyan('dry'))).to.eql(true);
   });
 
   it('stops on the first failing package check', async () => {

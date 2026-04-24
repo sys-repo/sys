@@ -1,4 +1,4 @@
-import { Cli, Str, Time, c, type t } from './common.ts';
+import { c, Cli, Str, type t, Time } from './common.ts';
 
 export const Fmt: t.WorkspaceRun.Fmt.Lib = {
   result(result) {
@@ -7,14 +7,22 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
     const noun = wrangle.taskNoun(result.task);
     const status = result.ok ? c.green('success') : c.red('failed');
     const color = result.ok ? 'green' : 'red';
+    const nounText = c.cyan(noun);
     const title = result.ok
-      ? c.green(`Workspace ${noun} done in ${Time.duration(result.elapsed).toString()}`)
-      : c.red(`Workspace ${noun} failed in ${Time.duration(result.elapsed).toString()}`);
+      ? `${c.green('Workspace')} ${nounText} ${
+        c.green(`done in ${Time.duration(result.elapsed).toString()}`)
+      }`
+      : `${c.red('Workspace')} ${nounText} ${
+        c.red(`failed in ${Time.duration(result.elapsed).toString()}`)
+      }`;
 
     rows.push([c.gray('status'), status]);
-    rows.push([c.gray('task'), c.white(result.task)]);
+    rows.push([c.gray('task'), c.cyan(result.task)]);
     rows.push([c.gray('ran'), counts.ran > 0 ? c.white(String(counts.ran)) : c.gray('0')]);
-    rows.push([c.gray('skipped'), counts.skipped > 0 ? c.yellow(String(counts.skipped)) : c.gray('0')]);
+    rows.push([
+      c.gray('skipped'),
+      counts.skipped > 0 ? c.yellow(String(counts.skipped)) : c.gray('0'),
+    ]);
     rows.push([c.gray('failed'), counts.failed > 0 ? c.red(String(counts.failed)) : c.gray('0')]);
 
     const str = Str.builder();
