@@ -49,6 +49,15 @@ A new narrow Packet C is now opened for the Vite dep-optimizer seam:
 - no heuristic driver defaults
 - no call-site tuning mixed into the packet
 
+However, the current root-causal priority is the separate cache-authority lane:
+- treat startup churn as two classes:
+  - Class 1: cross-start optimizer invalidation
+  - Class 2: same-session late dependency discovery
+- make Vite optimizer cache authority explicitly consumer-local for Class 1
+- keep driver-owned subcaches subordinate to that authority
+- investigate whether the authority seam is really project-root vs workspace-root resolution of `paths.cwd`
+- remeasure before deciding whether any app-local `optimizeDeps` tuning is still needed for residual Class 2 churn
+
 The next move is therefore not more Packet E widening.
 Only follow-up seams proven after this point should open a new narrow packet.
 

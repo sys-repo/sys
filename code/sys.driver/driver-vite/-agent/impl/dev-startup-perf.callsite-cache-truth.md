@@ -90,6 +90,14 @@ Logs such as:
 belong to Vite's dep optimizer lane, not the driver transport transform cache lane.
 
 Do not read Vite optimizer churn as evidence that Packet D failed.
+Do read them as evidence for a separate cache-authority / dep-optimizer lane.
+
+That lane should now be split into two fault classes:
+- Class 1: cross-start optimizer invalidation (for example `Re-optimizing dependencies because vite config has changed`)
+- Class 2: same-session late dependency discovery (for example `optimized dependencies changed. reloading`)
+
+The first class points primarily at cache authority / metadata provenance.
+The second class points primarily at optimizer breadth and request-time discovery.
 
 ### 2. It does not prove follow-up `deno task dev` should now feel near-instant
 Packet D only removed one specific class of repeated work:
@@ -142,13 +150,13 @@ That combination is exactly the kind of signature expected when:
 ## STIER recommendation
 Do not reopen transform caching first.
 Do not broaden Packet D.
-Do not blame Vite dep optimization for this evidence.
+Do not treat app-local optimizer include lists as the first proof move.
 
-The next hard pass should instead start with:
-1. outside-in resolve-key audit at the real call site
-2. identify where `https:/` and `https://` forms first diverge
-3. tighten request-key normalization and alias collapse only where truth allows
-4. remeasure the same call site
+The next hard passes are now split cleanly:
+1. Packet E already handled resolve-key fragmentation for malformed/canonical remote identities.
+2. The current root-causal startup lane should test whether Vite optimizer cache authority is explicitly consumer-local and stable across restarts.
+   - first suspicion: the wrong authority may come from project-root vs workspace-root resolution of `paths.cwd`, not from the final `cacheDir` join helper itself
+3. Only after that proof should any app-local `optimizeDeps` tuning be treated as the next move for residual Class 2 churn.
 
 Low-priority residue seen in the same logs:
 - repeated `/sw.js` misses redirected to `file:///sw.js`
