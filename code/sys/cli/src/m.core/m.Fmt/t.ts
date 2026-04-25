@@ -69,7 +69,7 @@ export declare namespace CliFormat {
      * Horizontal rule formatter.
      *
      * Supported call forms:
-     * - `hr()`        ← calculated window width
+     * - `hr()`        ← calculated window width, default color.
      * - `hr(width)`
      * - `hr(color)`
      * - `hr(width, color)`
