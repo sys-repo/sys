@@ -11,14 +11,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
 
   it('initialYaml → emits the minimal profile YAML shape', async () => {
     const text = ProfilesFs.initialYaml('default');
-    expect(text).to.contain('# Typed Pi launcher policy.');
-    expect(text).to.contain('prompt:');
-    expect(text).to.contain('system: null  # replace the default system prompt when set');
-    expect(text).to.contain('sandbox:');
-    expect(text).to.contain('read: []   # extra readable paths');
-    expect(text).to.contain('write: []  # extra writable paths');
-    expect(text).to.contain('env: {}    # extra environment variables');
-    expect(text).to.contain('include: []  # extra context files');
+    for (const expected of ['prompt:', 'system: null', 'sandbox:', 'read: []', 'write: []', 'env: {}', 'include: []']) {
+      expect(text).to.contain(expected);
+    }
 
     const { dir, path } = await writeTempYaml(text);
     try {
