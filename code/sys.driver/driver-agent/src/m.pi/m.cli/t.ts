@@ -79,9 +79,19 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
+  /** Git root resolution strategy for startup cwd recovery. */
+  export type GitRootMode = 'walk-up' | 'cwd';
+
+  /** Wrapper-local cwd resolution options. */
+  export type CwdResolveOptions = {
+    /** How startup resolves the effective git root from the invocation directory. */
+    readonly gitRoot?: GitRootMode;
+  };
+
   /** Typed wrapper argv shape produced from `Args.parse(...)`. */
   export type ParsedArgs = {
     readonly help?: boolean;
+    readonly gitRoot?: GitRootMode;
     readonly _: readonly string[];
   };
 

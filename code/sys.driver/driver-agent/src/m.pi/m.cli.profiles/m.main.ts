@@ -18,7 +18,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     return { kind: 'help', input, text };
   }
 
-  const resolvedCwd = await resolveCwd(input.cwd);
+  const resolvedCwd = await resolveCwd(input.cwd, { gitRoot: parsed.gitRoot });
   if (resolvedCwd.kind === 'exit') return { kind: 'exit', input };
   const cwd = resolvedCwd.cwd;
 
@@ -32,16 +32,19 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       config: parsed.config as t.StringPath,
     }
     : parsed.profile
-      ? {
-        kind: 'selected' as const,
-        config: ProfilesFs.fileOf(parsed.profile) as t.StringPath,
-      }
-      : await menu({ cwd: cwd.git });
+    ? {
+      kind: 'selected' as const,
+      config: ProfilesFs.fileOf(parsed.profile) as t.StringPath,
+    }
+    : await menu({ cwd: cwd.git });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
   if (parsed.profile === 'default') {
-    await ProfilesFs.ensureInitialYaml(Fs.resolve(cwd.git, picked.config) as t.StringPath, 'default');
+    await ProfilesFs.ensureInitialYaml(
+      Fs.resolve(cwd.git, picked.config) as t.StringPath,
+      'default',
+    );
   }
 
   const resolved = await resolveRun({

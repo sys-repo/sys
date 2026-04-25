@@ -1,4 +1,5 @@
 import { c, Cli, Git, type t } from './common.ts';
+import { GitInitFmt } from './u.fmt.git.init.ts';
 
 type Action = 'create' | 'exit';
 
@@ -8,15 +9,11 @@ export const GitInitMenu = {
   },
 
   async prompt(cwd: t.StringDir): Promise<Action> {
-    const title = c.cyan('Agent:Startup');
-    const warning = c.yellow('This folder is not inside a git repository.');
-    const message = `${title}\n\n${warning}`;
-    const parent = Cli.Fmt.path(cwd, (e) => e.change(c.gray(e.part)));
-    const dir = `${parent}${c.gray('/')}${c.white('.git')}`;
+    console.info(GitInitFmt.block(cwd));
     const picked = await Cli.Input.Select.prompt<Action>({
-      message,
+      message: 'Action',
       options: [
-        { name: `${c.green('create:')} ${dir}`, value: 'create' },
+        { name: c.cyan('create'), value: 'create' },
         { name: 'exit', value: 'exit' },
       ],
       default: 'create',

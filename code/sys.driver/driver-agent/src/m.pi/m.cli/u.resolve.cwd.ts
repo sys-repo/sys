@@ -1,14 +1,18 @@
 import { Fs, Is, type t } from './common.ts';
+import { bootstrapGitattributes } from './u.ensure.gitattributes.ts';
 import { bootstrapGitignore, ensureGitignore } from './u.ensure.gitignore.ts';
 import { GitInitMenu } from './u.menu.git.init.ts';
 
 type CwdInput = t.StringDir | t.PiCli.Cwd;
 
-export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolution> {
+export async function resolveCwd(
+  input?: CwdInput,
+  opts: t.PiCli.CwdResolveOptions = {},
+): Promise<t.PiCli.CwdResolution> {
   if (isResolved(input)) return { kind: 'resolved', cwd: input };
 
-  const invoked = input ?? Fs.cwd('terminal');
-  const git = await findGitRoot(invoked);
+  const invoked = input ?? Fs.cwd('process');
+  const git = await resolveGitRoot(invoked, opts.gitRoot);
   if (git) {
     await ensureGitignore(git);
     return { kind: 'resolved', cwd: { invoked, git } };
@@ -22,9 +26,10 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
     throw new Error(initialized.hint);
   }
 
-  const resolved = await findGitRoot(invoked);
+  const resolved = await resolveGitRoot(invoked, opts.gitRoot);
   if (resolved) {
     await bootstrapGitignore(resolved);
+    await bootstrapGitattributes(resolved);
     return { kind: 'resolved', cwd: { invoked, git: resolved } };
   }
 
@@ -36,9 +41,17 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
 /**
  * Helpers:
  */
+async function resolveGitRoot(dir: t.StringDir, mode: t.PiCli.GitRootMode = 'walk-up') {
+  if (mode === 'cwd') return await isGitRoot(dir) ? dir : undefined;
+  return await findGitRoot(dir);
+}
+
 async function findGitRoot(dir: t.StringDir) {
-  const isGit = async (dir: string) => await Fs.stat(Fs.join(dir, '.git'));
-  return await Fs.findAncestor(dir, async ({ dir }) => (await isGit(dir)) ? dir : undefined);
+  return await Fs.findAncestor(dir, async ({ dir }) => (await isGitRoot(dir)) ? dir : undefined);
+}
+
+async function isGitRoot(dir: t.StringDir) {
+  return await Fs.stat(Fs.join(dir, '.git'));
 }
 
 function isResolved(input?: CwdInput): input is t.PiCli.Cwd {

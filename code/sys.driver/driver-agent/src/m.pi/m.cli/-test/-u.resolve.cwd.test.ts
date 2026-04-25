@@ -19,13 +19,14 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
 
       const res = await resolveCwd(nested);
       expect(res).to.eql({ kind: 'resolved', cwd: { invoked: nested, git: cwd } });
+      expect(await Fs.exists(Fs.join(cwd, '.gitattributes'))).to.eql(false);
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Fs.remove(cwd);
     }
   });
 
-  describe('gitignore bootstrap', () => {
+  describe('git bootstrap', () => {
     it('updates an existing .gitignore when a git ancestor is found', async () => {
       const cwd = await tempDir();
       const nested = Fs.join(cwd, 'a') as t.StringDir;
@@ -46,13 +47,14 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
       }
     });
 
-    it('updates an existing .gitignore after git init recovery', async () => {
+    it('updates an existing .gitignore and creates .gitattributes after git init recovery', async () => {
       const cwd = await tempDir();
-      const path = Fs.join(cwd, '.gitignore') as t.StringPath;
+      const gitignore = Fs.join(cwd, '.gitignore') as t.StringPath;
+      const gitattributes = Fs.join(cwd, '.gitattributes') as t.StringPath;
       const prevPrompt = GitInitMenu.prompt;
       const prevInit = GitInitMenu.init;
       try {
-        await Fs.write(path, 'node_modules/\n');
+        await Fs.write(gitignore, 'node_modules/\n');
         Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'create' });
         Object.defineProperty(GitInitMenu, 'init', {
           value: async () => {
@@ -64,9 +66,14 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
         const res = await resolveCwd(cwd);
         expect(res).to.eql({ kind: 'resolved', cwd: { invoked: cwd, git: cwd } });
 
-        const read = await Fs.readText(path);
-        if (!read.ok) throw read.error;
-        expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+        const readGitignore = await Fs.readText(gitignore);
+        if (!readGitignore.ok) throw readGitignore.error;
+        expect(readGitignore.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+
+        const readGitattributes = await Fs.readText(gitattributes);
+        if (!readGitattributes.ok) throw readGitattributes.error;
+        expect(readGitattributes.data).to.contain('* text=auto');
+        expect(readGitattributes.data).to.contain('*.mp4 filter=lfs diff=lfs merge=lfs -text');
       } finally {
         Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
         Object.defineProperty(GitInitMenu, 'init', { value: prevInit });
@@ -74,9 +81,10 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
       }
     });
 
-    it('creates a fresh .gitignore after git init recovery when missing', async () => {
+    it('creates fresh .gitignore and .gitattributes files after git init recovery when missing', async () => {
       const cwd = await tempDir();
-      const path = Fs.join(cwd, '.gitignore') as t.StringPath;
+      const gitignore = Fs.join(cwd, '.gitignore') as t.StringPath;
+      const gitattributes = Fs.join(cwd, '.gitattributes') as t.StringPath;
       const prevPrompt = GitInitMenu.prompt;
       const prevInit = GitInitMenu.init;
       try {
@@ -91,9 +99,14 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
         const res = await resolveCwd(cwd);
         expect(res).to.eql({ kind: 'resolved', cwd: { invoked: cwd, git: cwd } });
 
-        const read = await Fs.readText(path);
-        if (!read.ok) throw read.error;
-        expect(read.data).to.eql('.pi/\n.log/\n.tmp/\n');
+        const readGitignore = await Fs.readText(gitignore);
+        if (!readGitignore.ok) throw readGitignore.error;
+        expect(readGitignore.data).to.eql('.pi/\n.log/\n.tmp/\n');
+
+        const readGitattributes = await Fs.readText(gitattributes);
+        if (!readGitattributes.ok) throw readGitattributes.error;
+        expect(readGitattributes.data).to.contain('# Enforce consistent line endings');
+        expect(readGitattributes.data).to.contain('*.mov filter=lfs diff=lfs merge=lfs -text');
       } finally {
         Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
         Object.defineProperty(GitInitMenu, 'init', { value: prevInit });
@@ -126,6 +139,50 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       Object.defineProperty(GitInitMenu, 'init', { value: prevInit });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('uses cwd-only git resolution when requested', async () => {
+    const cwd = await tempDir();
+    const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(nested);
+      Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
+
+      const res = await resolveCwd(nested, { gitRoot: 'cwd' });
+      expect(res).to.eql({ kind: 'exit' });
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('ignores stale INIT_CWD when no cwd input is provided', async () => {
+    const cwd = await tempDir();
+    const prevCwd = Deno.cwd();
+    const prevPrompt = GitInitMenu.prompt;
+    const key = 'INIT_CWD';
+    const before = Deno.env.get(key);
+    try {
+      Deno.chdir(cwd);
+      const invoked = Deno.cwd() as t.StringDir;
+      Deno.env.set(key, '/tmp/stale-init-cwd');
+      Object.defineProperty(GitInitMenu, 'prompt', {
+        value: async (path: t.StringDir) => {
+          expect(path).to.eql(invoked);
+          return 'exit';
+        },
+      });
+
+      const res = await resolveCwd(undefined, { gitRoot: 'cwd' });
+      expect(res).to.eql({ kind: 'exit' });
+    } finally {
+      Deno.chdir(prevCwd);
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      before === undefined ? Deno.env.delete(key) : Deno.env.set(key, before);
       await Fs.remove(cwd);
     }
   });

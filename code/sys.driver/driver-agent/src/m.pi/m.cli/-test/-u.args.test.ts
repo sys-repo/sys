@@ -9,6 +9,22 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       help: false,
       _: ['--model', 'gpt-5.4'],
     });
+    expect(PiArgs.parse(['--git-root', 'cwd', '--', '--model', 'gpt-5.4'])).to.eql({
+      help: false,
+      gitRoot: 'cwd',
+      _: ['--model', 'gpt-5.4'],
+    });
+    expect(PiArgs.parse(['--git-root=cwd', '--model', 'gpt-5.4'])).to.eql({
+      help: false,
+      gitRoot: 'cwd',
+      _: ['--model', 'gpt-5.4'],
+    });
+  });
+
+  it('parse → rejects unsupported git root modes', () => {
+    expect(() => PiArgs.parse(['--git-root', 'elsewhere'])).to.throw(
+      'Unsupported --git-root value: elsewhere. Expected one of: walk-up, cwd',
+    );
   });
 
   it('toAgentDir / toDenoDir → derive local runtime directories', () => {
@@ -23,7 +39,9 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     const pkg = 'npm:@mariozechner/pi-coding-agent@9.9.9' as t.StringModuleSpecifier;
     try {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
-      const args = [...await PiArgs.toArgs(cwd, ['--help'], [], ['/tmp/pi-cli-write' as t.StringPath], pkg)];
+      const args = [
+        ...await PiArgs.toArgs(cwd, ['--help'], [], ['/tmp/pi-cli-write' as t.StringPath], pkg),
+      ];
       const readArg = findArg(args, '--allow-read=');
       const writeArg = findArg(args, '--allow-write=');
       const sysArg = findArg(args, '--allow-sys=');

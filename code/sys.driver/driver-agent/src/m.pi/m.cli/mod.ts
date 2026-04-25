@@ -18,7 +18,7 @@ export const Cli: t.PiCli.Lib = { main, run };
  * CLI entry-point:
  */
 if (import.meta.main) {
-  const cwd = Fs.cwd('terminal');
+  const cwd = Fs.cwd('process');
   if (Deno.args[0] === 'Profiles') {
     await Profiles.main({ argv: Deno.args.slice(1), cwd });
   } else {

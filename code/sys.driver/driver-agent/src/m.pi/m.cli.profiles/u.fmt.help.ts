@@ -13,17 +13,22 @@ function helpInput() {
       Defaults live in profile YAML; args after -- pass through to Pi.
     `).trim(),
     usage: [
-      `${tool} [--help]`,
-      `${tool} [--profile <name> | --config <path>] [-- <pi-args...>]`,
+      `${tool} [--help] [--git-root <walk-up|cwd>]`,
+      `${tool} [--profile <name> | --config <path>] [--git-root <walk-up|cwd>] [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
       ['--profile <name>', 'skip the menu and load a named profile config'],
       ['--config <path>', 'skip the menu and load a profile config file'],
+      [
+        '--git-root <walk-up|cwd>',
+        'resolve the effective git root by walking ancestors or using cwd only',
+      ],
     ],
     examples: [
       `${tool}`,
       `${tool} --profile my-canon`,
+      `${tool} --git-root cwd`,
       `${tool} -- --model gpt-5.4`,
       `${tool} --config ./my-canon.yaml`,
     ],

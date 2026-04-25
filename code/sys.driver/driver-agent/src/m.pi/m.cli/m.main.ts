@@ -17,7 +17,7 @@ export const main: t.PiCli.Lib['main'] = async (input = {}) => {
     };
   }
 
-  const resolved = await resolveCwd(input.cwd);
+  const resolved = await resolveCwd(input.cwd, { gitRoot: parsed.gitRoot });
   if (resolved.kind === 'exit') return { kind: 'exit', input };
 
   const output = await run({
@@ -25,6 +25,7 @@ export const main: t.PiCli.Lib['main'] = async (input = {}) => {
     args: parsed._,
     env: input.env,
     read: input.read,
+    write: input.write,
     pkg: input.pkg,
   });
 

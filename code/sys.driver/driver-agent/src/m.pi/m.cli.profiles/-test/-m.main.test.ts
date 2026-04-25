@@ -26,7 +26,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4');
+        expect(text).to.contain('--git-root <walk-up|cwd>');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles --git-root cwd');
+        expect(text).to.contain(
+          'deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4',
+        );
         expect(calls).to.eql([res.text]);
       } finally {
         if (prevHelpTool === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
@@ -54,6 +58,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       const text = Cli.stripAnsi(res.text);
       expect(text).to.contain('deno run -A jsr:@sys/tools agent');
       expect(text).to.contain('deno run -A jsr:@sys/tools agent --profile my-canon');
+      expect(text).to.contain('deno run -A jsr:@sys/tools agent --git-root cwd');
       expect(calls).to.eql([res.text]);
     } finally {
       if (prev === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
@@ -115,12 +120,15 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.ensureDir(Fs.dirname(config));
-      await Fs.write(config, Str.dedent(`
+      await Fs.write(
+        config,
+        Str.dedent(`
         sandbox:
           capability:
             env:
               PI_PROFILE: canon
-      `).trimStart());
+      `).trimStart(),
+      );
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       Process.inherit = async (input) => {
@@ -172,6 +180,23 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → supports cwd-only git root resolution for smoke testing', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(nested);
+      Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
+      const res = await Profiles.main({ cwd: nested, argv: ['--git-root', 'cwd'] });
+      expect(res.kind).to.eql('exit');
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Fs.remove(cwd);
     }
   });
