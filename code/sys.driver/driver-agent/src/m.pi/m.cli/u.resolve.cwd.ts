@@ -1,5 +1,5 @@
 import { Fs, Is, type t } from './common.ts';
-import { ensureGitignore } from './u.ensure.gitignore.ts';
+import { bootstrapGitignore, ensureGitignore } from './u.ensure.gitignore.ts';
 import { GitInitMenu } from './u.menu.git.init.ts';
 
 type CwdInput = t.StringDir | t.PiCli.Cwd;
@@ -24,7 +24,7 @@ export async function resolveCwd(input?: CwdInput): Promise<t.PiCli.CwdResolutio
 
   const resolved = await findGitRoot(invoked);
   if (resolved) {
-    await ensureGitignore(resolved);
+    await bootstrapGitignore(resolved);
     return { kind: 'resolved', cwd: { invoked, git: resolved } };
   }
 
