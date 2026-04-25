@@ -49,4 +49,50 @@ describe('@sys/tools/code/m.cli', () => {
       Process.inherit = prev;
     }
   });
+
+  it('forwards --git-root=cwd through the @sys/tools agent entrypoint', async () => {
+    const prev = Process.inherit;
+    const cwd = Fs.cwd('process');
+
+    try {
+      Process.inherit = async (input) => {
+        expect(input.cmd).to.eql('deno');
+        expect(input.cwd).to.eql(cwd);
+        expect(input.env).to.eql(expectedEnv(cwd));
+        expect(input.args).to.eql([
+          'run',
+          '-A',
+          '@sys/driver-agent/pi/cli',
+          'Profiles',
+          '--git-root=cwd',
+        ]);
+        return { code: 0, success: true, signal: null };
+      };
+
+      await cli(cwd, ['--git-root=cwd']);
+    } finally {
+      Process.inherit = prev;
+    }
+  });
+
+  it('ignores stale INIT_CWD when no cwd is passed explicitly', async () => {
+    const prev = Process.inherit;
+    const key = 'INIT_CWD';
+    const before = Deno.env.get(key);
+    const cwd = Fs.cwd('process');
+
+    try {
+      Deno.env.set(key, '/tmp/stale-init-cwd');
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.env).to.eql(expectedEnv(cwd));
+        return { code: 0, success: true, signal: null };
+      };
+
+      await cli(undefined as never, ['--help']);
+    } finally {
+      Process.inherit = prev;
+      before === undefined ? Deno.env.delete(key) : Deno.env.set(key, before);
+    }
+  });
 });

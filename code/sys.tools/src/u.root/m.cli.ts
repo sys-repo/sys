@@ -5,7 +5,7 @@ export async function cli(cwd: t.StringDir, argv: string[]) {
   const args = parseArgs(argv);
   if (args.command) {
     const { dispatchRootCommand } = await import('./u.dispatcher.ts');
-    await dispatchRootCommand(args.command, argv);
+    await dispatchRootCommand(cwd, args.command, argv);
   } else {
     if (args.help) {
       const { printRootHelp } = await import('./u.help.ts');
@@ -18,6 +18,6 @@ export async function cli(cwd: t.StringDir, argv: string[]) {
     if (picked.kind === 'exit') return;
 
     const { dispatchRootCommand } = await import('./u.dispatcher.ts');
-    await dispatchRootCommand(picked.command, [picked.command]);
+    await dispatchRootCommand(cwd, picked.command, [picked.command]);
   }
 }

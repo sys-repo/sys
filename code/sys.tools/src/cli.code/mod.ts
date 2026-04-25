@@ -12,5 +12,5 @@ export { cli };
  * CLI entry-point:
  */
 if (import.meta.main) {
-  await cli(Fs.cwd('terminal'), Deno.args);
+  await cli(Fs.cwd('process'), Deno.args);
 }
