@@ -12,7 +12,7 @@ export type * from './t.help.ts';
  */
 export type CliFormatLib = {
   /** Horizontal rule display formatting. */
-  hr: CliFormatHr;
+  hr: CliFormat.Hr.Fn;
 
   /** Common spinner status text formatting. */
   spinnerText: CliFormatSpinnerText;
@@ -52,28 +52,38 @@ export declare namespace CliFormat {
   export namespace Spinner {
     export type Spacing = boolean | number | [number, number];
   }
+
+  export namespace Hr {
+    /** Foreground color name accepted by the horizontal rule formatter. */
+    export type Color = AnsiForegroundColorName;
+
+    /** Horizontal rule formatting options. */
+    export type Options = {
+      /** Explicit rule width. Omit to use the current screen width. */
+      readonly width?: number;
+      /** Optional rule foreground color. */
+      readonly color?: Color;
+    };
+
+    /**
+     * Horizontal rule formatter.
+     *
+     * Supported call forms:
+     * - `hr()`
+     * - `hr(width)`
+     * - `hr(color)`
+     * - `hr(width, color)`
+     * - `hr(options)`
+     */
+    export type Fn = {
+      (): string;
+      (width: number): string;
+      (color: Color): string;
+      (width: number, color: Color): string;
+      (options: Options): string;
+    };
+  }
 }
-
-/**
- * Foreground color name accepted by the horizontal rule formatter.
- */
-export type CliFormatHrColor = AnsiForegroundColorName;
-
-/**
- * Horizontal rule formatter.
- *
- * Supported call forms:
- * - `hr()`
- * - `hr(width)`
- * - `hr(color)`
- * - `hr(width, color)`
- */
-export type CliFormatHr = {
-  (): string;
-  (width: number): string;
-  (color: CliFormatHrColor): string;
-  (width: number, color: CliFormatHrColor): string;
-};
 
 /** Spacing input accepted by spinner text helpers. */
 export type CliFormatSpinnerSpacing = CliFormat.Spinner.Spacing;
