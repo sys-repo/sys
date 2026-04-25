@@ -2,7 +2,7 @@ import { type t, Color, Is } from '../common.ts';
 import { Screen } from '../m.Screen/mod.ts';
 
 const HR_CHAR = '━';
-const HR_DEFAULT_WIDTH = 84;
+const HR_FALLBACK_WIDTH = 80;
 
 type HrInput = number | t.CliFormat.Hr.Color | t.CliFormat.Hr.Options | undefined;
 
@@ -27,6 +27,6 @@ const wrangle = {
   width(input?: number): number {
     if (Is.number(input)) return Math.max(0, input);
     const measured = Screen.size().width;
-    return measured > 0 ? measured : HR_DEFAULT_WIDTH;
+    return measured > 0 ? measured : HR_FALLBACK_WIDTH;
   },
 } as const;
