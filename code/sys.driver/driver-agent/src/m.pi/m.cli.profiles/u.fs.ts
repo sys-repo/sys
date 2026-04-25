@@ -23,7 +23,7 @@ export const ProfilesFs = {
       # Sandbox paths resolve relative to the current working directory.
 
       prompt:
-        system: null  # replace the default system prompt when set
+        system: null  # override default system prompt
 
       sandbox:
         capability:
