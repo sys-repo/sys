@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import type { AnsiForegroundColorName } from '@sys/color/t';
+import type { AnsiColor } from '@sys/color/t';
 import type { CliFormatCommitLib } from './t.commit.ts';
 import type { CliFormatHelpLib } from './t.help.ts';
 
@@ -55,7 +55,7 @@ export declare namespace CliFormat {
 
   export namespace Hr {
     /** Foreground color name accepted by the horizontal rule formatter. */
-    export type Color = AnsiForegroundColorName;
+    export type Color = AnsiColor.Name;
 
     /** Horizontal rule formatting options. */
     export type Options = {

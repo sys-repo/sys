@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 
 /** Commit suggestion text styling options. */
 export type CliFormatCommitText = {
-  readonly color?: t.AnsiForegroundColorName;
+  readonly color?: t.AnsiColor.Name;
   readonly bold?: boolean;
   readonly italic?: boolean;
 };
