@@ -171,7 +171,7 @@
     "npm:rxjs@7.8.2": "7.8.2",
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
-    "npm:ts-essentials@10.1.1": "10.1.1",
+    "npm:ts-essentials@10.2.0": "10.2.0",
     "npm:vite-plugin-wasm@*": "3.6.0_vite@8.0.10__esbuild@0.28.0__yaml@2.8.3_esbuild@0.28.0_yaml@2.8.3",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.10__esbuild@0.28.0__yaml@2.8.3_esbuild@0.28.0_yaml@2.8.3",
     "npm:vite@*": "8.0.10_esbuild@0.28.0_yaml@2.8.3",
@@ -3249,8 +3249,8 @@
     "tr46@0.0.3": {
       "integrity": "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw=="
     },
-    "ts-essentials@10.1.1": {
-      "integrity": "sha512-4aTB7KLHKmUvkjNj8V+EdnmuVTiECzn3K+zIbRthumvHu+j44x3w63xpfs0JL3NGIzGXqoQ7AV591xHO+XrOTw=="
+    "ts-essentials@10.2.0": {
+      "integrity": "sha512-z9FlLywg0XEV46Ws1FwYN4NZDMr9qAe38lTTtgVBqzhhyEgwrnCUkFe4MEqnvar1kY1kFEnlkp56bxn2g0V+UA=="
     },
     "ts-toolbelt@9.6.0": {
       "integrity": "sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w=="
@@ -3483,7 +3483,7 @@
       "npm:rxjs@7.8.2",
       "npm:strip-ansi@7.2.0",
       "npm:tinycolor2@1.6.0",
-      "npm:ts-essentials@10.1.1",
+      "npm:ts-essentials@10.2.0",
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.0.10",
       "npm:ws@8.20.0",

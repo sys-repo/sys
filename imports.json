@@ -95,7 +95,7 @@
     "rxjs/operators": "npm:rxjs@7.8.2/operators",
     "strip-ansi": "npm:strip-ansi@7.2.0",
     "tinycolor2": "npm:tinycolor2@1.6.0",
-    "ts-essentials": "npm:ts-essentials@10.1.1",
+    "ts-essentials": "npm:ts-essentials@10.2.0",
     "vite": "npm:vite@8.0.10",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.20.0",

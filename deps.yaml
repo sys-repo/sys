@@ -75,7 +75,7 @@ deno.json:
     subpaths: [ operators ]
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
-  - import: npm:ts-essentials@10.1.1
+  - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
   - import: npm:@stripe/stripe-js@9.3.1
   - import: npm:ws@8.20.0
