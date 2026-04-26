@@ -7,6 +7,7 @@ import {
   collectTemplateBareImports,
   extractBareImports,
   readJson,
+  readPublishedPackageExports,
   resolvePublishedPackageVersions,
   resolvePackageVersions,
   syncByKey,
@@ -373,6 +374,73 @@ describe('prep.u', () => {
       throw new Error('Expected resolvePublishedPackageVersions to throw');
     } catch (error) {
       expect((error as Error).message).to.eql('registry unavailable');
+    }
+  });
+
+  it('readPublishedPackageExports → retries transient fetch failure before succeeding', async () => {
+    const calls: Array<{ pkg: string; version?: string }> = [];
+    const waits: number[] = [];
+
+    const res = await readPublishedPackageExports('@sys/ui-css', '0.0.272', {
+      async info(pkg: string, version?: string) {
+        calls.push({ pkg, version });
+        if (calls.length < 3) throw new Error('registry unavailable');
+        return {
+          ok: true,
+          status: 200,
+          data: {
+            exports: { '.': './src/mod.ts', './t': './src/types.ts' },
+          },
+        } as const;
+      },
+      async wait(msec: number) {
+        waits.push(msec);
+      },
+    });
+
+    expect(res).to.eql({
+      kind: 'published',
+      exports: { '.': './src/mod.ts', './t': './src/types.ts' },
+    });
+    expect(calls).to.eql([
+      { pkg: '@sys/ui-css', version: '0.0.272' },
+      { pkg: '@sys/ui-css', version: '0.0.272' },
+      { pkg: '@sys/ui-css', version: '0.0.272' },
+    ]);
+    expect(waits).to.eql([500, 1000]);
+  });
+
+  it('readPublishedPackageExports → returns unpublished on 404 without retrying further', async () => {
+    const waits: number[] = [];
+    const res = await readPublishedPackageExports('@sys/ui-css', '0.0.272', {
+      async info() {
+        return { ok: false, status: 404, data: undefined } as const;
+      },
+      async wait(msec: number) {
+        waits.push(msec);
+      },
+    });
+
+    expect(res).to.eql({ kind: 'unpublished' });
+    expect(waits).to.eql([]);
+  });
+
+  it('readPublishedPackageExports → throws after bounded transient failures', async () => {
+    const waits: number[] = [];
+
+    try {
+      await readPublishedPackageExports('@sys/ui-css', '0.0.272', {
+        async info() {
+          throw new Error('registry unavailable');
+        },
+        async wait(msec: number) {
+          waits.push(msec);
+        },
+      });
+      throw new Error('Expected readPublishedPackageExports to throw');
+    } catch (error) {
+      expect((error as Error).message).to.eql('Failed to fetch JSR package exports: @sys/ui-css@0.0.272');
+      expect(waits).to.eql([500, 1000]);
     }
   });
 

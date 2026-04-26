@@ -35,6 +35,20 @@ export type PublishedPackageExportsLib = {
   exports(pkg: string, version: string): Promise<PublishedPackageExports>;
 };
 
+type Wait = (msec: number) => Promise<unknown>;
+type PublishedPackageInfoResponse = {
+  readonly ok: boolean;
+  readonly status: number;
+  readonly data?: { readonly exports?: Record<string, string> };
+};
+type PublishedPackageInfoFetcher = (
+  name: string,
+  version?: string,
+  options?: unknown,
+) => Promise<PublishedPackageInfoResponse>;
+
+const PUBLISHED_FETCH_RETRY_DELAYS_MSEC = [0, 500, 1_000] as const;
+
 export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
@@ -252,6 +266,13 @@ export async function writeTextIfChanged(path: string, before: string, after: st
   console.info(`updated    ${Fs.trimCwd(path)}`);
 }
 
+const wrangle = {
+  isUnpublished(error: unknown) {
+    const e = error as { status?: number; cause?: { status?: number } };
+    return e.status === 404 || e.cause?.status === 404;
+  },
+} as const;
+
 export function syncByKey(
   target: KeyValueMap,
   resolver: (key: string, current: string) => string,
@@ -333,7 +354,7 @@ export async function resolvePublishedPackageVersions(
 
 export const PublishedVersion: PublishedPackageVersionLib = {
   async latestVersion(pkg) {
-    for (const delay of [0, 500, 1_000] as const) {
+    for (const delay of PUBLISHED_FETCH_RETRY_DELAYS_MSEC) {
       if (delay > 0) await Time.wait(delay);
 
       try {
@@ -343,8 +364,7 @@ export const PublishedVersion: PublishedPackageVersionLib = {
 
         if (res.status === 404) return { kind: 'unpublished' };
       } catch (error) {
-        const e = error as { status?: number; cause?: { status?: number } };
-        if (e.status === 404 || e.cause?.status === 404) return { kind: 'unpublished' };
+        if (wrangle.isUnpublished(error)) return { kind: 'unpublished' };
         // retry
       }
     }
@@ -353,14 +373,37 @@ export const PublishedVersion: PublishedPackageVersionLib = {
   },
 };
 
+export async function readPublishedPackageExports(
+  pkg: string,
+  version: string,
+  deps: {
+    readonly info?: PublishedPackageInfoFetcher;
+    readonly wait?: Wait;
+  } = {},
+): Promise<PublishedPackageExports> {
+  const info = deps.info ?? Jsr.Fetch.Pkg.info;
+  const wait = deps.wait ?? Time.wait;
+
+  for (const delay of PUBLISHED_FETCH_RETRY_DELAYS_MSEC) {
+    if (delay > 0) await wait(delay);
+
+    try {
+      const res = await info(pkg, version);
+      if (res.status === 404) return { kind: 'unpublished' };
+      if (res.ok && res.data) {
+        return { kind: 'published', exports: { ...(res.data.exports ?? {}) } };
+      }
+    } catch (error) {
+      if (wrangle.isUnpublished(error)) return { kind: 'unpublished' };
+    }
+  }
+
+  throw new Error(`Failed to fetch JSR package exports: ${pkg}@${version}`);
+}
+
 export const PublishedExports: PublishedPackageExportsLib = {
   async exports(pkg, version) {
-    const res = await Jsr.Fetch.Pkg.info(pkg, version);
-    if (res.status === 404) return { kind: 'unpublished' };
-    if (!res.ok || !res.data) {
-      throw new Error(`Failed to fetch JSR package exports: ${pkg}@${version}`);
-    }
-    return { kind: 'published', exports: { ...(res.data.exports ?? {}) } };
+    return await readPublishedPackageExports(pkg, version);
   },
 };
 
