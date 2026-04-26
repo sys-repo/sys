@@ -17,7 +17,7 @@ export async function selectTemplate() {
   let name = '';
   if (!name) {
     name = await Cli.Input.Select.prompt({
-      message: 'Select Template:',
+      message: 'Template:',
       options: TemplateNames.map((value: string) => ({ name: label(value), value })),
     });
   }
