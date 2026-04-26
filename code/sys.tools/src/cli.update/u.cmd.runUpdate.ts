@@ -2,6 +2,7 @@ import { type t, c, Cli, pkg } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { refreshCache } from './u.refreshCache.ts';
 import { getVersionInfo } from './u.ts';
+import { writeUpdateAdvisorySuccess } from './u.advisory.ts';
 
 type Spinner = {
   text: string;
@@ -22,6 +23,7 @@ type RunUpdateDeps = {
   readonly prompt: typeof Cli.Input.Select.prompt<string>;
   readonly spinner: (text?: string) => Spinner;
   readonly info: (...data: unknown[]) => void;
+  readonly writeAdvisorySuccess: typeof writeUpdateAdvisorySuccess;
 };
 
 /**
@@ -36,6 +38,7 @@ export async function runUpdate(
     prompt: Cli.Input.Select.prompt<string>,
     spinner: Cli.spinner,
     info: console.info,
+    writeAdvisorySuccess: writeUpdateAdvisorySuccess,
   },
 ): Promise<void> {
   const { interactive = false } = opts;
@@ -48,6 +51,12 @@ export async function runUpdate(
       versionSpinner.stop();
     }
   })();
+
+  try {
+    await deps.writeAdvisorySuccess(version.remote);
+  } catch {
+    // Advisory persistence must remain fail-quiet.
+  }
 
   deps.info();
   deps.info(Fmt.versionInfoTable(version));
