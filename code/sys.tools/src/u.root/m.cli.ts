@@ -13,8 +13,14 @@ export async function cli(cwd: t.StringDir, argv: string[]) {
       return;
     }
 
+    const { prepareRootUpdateAdvisory, refreshRootUpdateAdvisoryInBackground } = await import('./u.updateAdvisory.ts');
+    const advisory = await prepareRootUpdateAdvisory();
+    refreshRootUpdateAdvisoryInBackground(advisory);
+
+    if (advisory.prelude) console.info(advisory.prelude);
+
     const { rootMenu } = await import('./u.menu.ts');
-    const picked = await rootMenu();
+    const picked = await rootMenu({ highlightUpdate: advisory.hasUpdate });
     if (picked.kind === 'exit') return;
 
     const { dispatchRootCommand } = await import('./u.dispatcher.ts');

@@ -4,8 +4,15 @@ import { ROOT_REGISTRY } from './registry.ts';
 export type RootRow = { readonly command: t.Root.Command; readonly columns: string[] };
 export type RootRowGroup = 'primary' | 'secondary' | 'utility';
 
-export function rootRows(group?: RootRowGroup): RootRow[] {
-  const fmt = (tool: string) => c.gray(c.dim(`${pkg.name} `)) + tool;
+type RootRowOptions = {
+  readonly highlightCommand?: t.Root.Command;
+};
+
+export function rootRows(group?: RootRowGroup, options: RootRowOptions = {}): RootRow[] {
+  const fmt = (command: t.Root.Command, tool: string) => {
+    const label = options.highlightCommand === command ? c.cyan(tool) : tool;
+    return c.gray(c.dim(`${pkg.name} `)) + label;
+  };
   const rows: RootRow[] = [];
 
   const add = (
@@ -14,7 +21,7 @@ export function rootRows(group?: RootRowGroup): RootRow[] {
     alias?: readonly string[],
     displayAlias?: readonly string[],
   ) => {
-    const items = [fmt(label ?? command)];
+    const items = [fmt(command, label ?? command)];
     const displayAliases = displayAlias ?? alias?.filter((item) => item !== command && item !== label);
     if (displayAliases?.length) items.push(fmtAliases(displayAliases));
     rows.push({ command, columns: items });

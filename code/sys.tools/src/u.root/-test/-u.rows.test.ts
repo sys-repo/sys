@@ -18,4 +18,10 @@ describe('Root Rows', () => {
     expect(rootRows('secondary').map((item) => item.command)).to.eql(['crdt', 'video', 'crypto', 'copy']);
     expect(rootRows('utility').map((item) => item.command)).to.eql(['update']);
   });
+
+  it('can highlight the update command when update attention is present', () => {
+    const row = rootRows('utility', { highlightCommand: 'update' }).find((item) => item.command === 'update');
+    expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools update');
+    expect(row?.columns[0]).to.contain('\x1b[36m');
+  });
 });
