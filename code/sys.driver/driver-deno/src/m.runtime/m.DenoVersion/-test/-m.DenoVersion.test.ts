@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
+import { detect } from '../u.authority.ts';
 import { get } from '../u.current.ts';
 import { run } from '../u.upgrade.run.ts';
 import { status } from '../u.upgrade.status.ts';
@@ -65,6 +66,20 @@ describe('m.DenoVersion', () => {
     expect(res.data.from).to.eql('2.7.13');
     expect(res.data.to).to.eql('2.7.14');
     expect(res.data.dryRun).to.eql(true);
+  });
+
+  it('Authority.detect resolves the runtime upgrade authority', async () => {
+    const res = await detect({ cmd: 'deno-custom' }, {
+      which: async () => procOutput('/opt/homebrew/bin/deno\n'),
+      realPath: async () => '/opt/homebrew/Cellar/deno/2.7.13/bin/deno',
+      home: () => '/Users/tester',
+      execPath: () => '/ignored',
+    });
+
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(res.data.kind).to.eql('brew');
+    expect(res.data.path).to.eql('/opt/homebrew/Cellar/deno/2.7.13/bin/deno');
   });
 
   it('returns a typed failure when command output cannot be parsed', async () => {

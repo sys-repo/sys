@@ -14,4 +14,11 @@ describe(`DenoVersion`, () => {
     expect(Semver.Is.valid(res.data.version)).to.eql(true);
     expect(res.data.output.cmd).to.eql('deno');
   });
+
+  it('detects the Deno runtime upgrade authority', async () => {
+    const res = await DenoVersion.Authority.detect();
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(['deno-upgrade', 'brew', 'unknown']).to.contain(res.data.kind);
+  });
 });
