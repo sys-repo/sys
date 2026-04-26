@@ -5,21 +5,40 @@ import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
 type O = Record<string, unknown>;
 
 describe('Vite @sys bridge integration', () => {
-  it('fixture bridge writes and restores local tsconfig authority', async () => {
+  it('fixture bridge writes local tsconfig authority without reviving pluginutils split-brain imports', async () => {
     const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.fixture.' });
     const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
     const tsconfigPath = Fs.join(dir, 'tsconfig.json');
+    const importsPath = Fs.join(dir, 'imports.json');
     await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
 
     const restore = await writeLocalBridgeImports(dir);
     try {
       type T = { compilerOptions?: O; include?: string[] };
       const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
+      const imports = (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
       expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
       expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
       expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
       expect(tsconfig.compilerOptions?.jsxImportSource).to.eql('react');
       expect(tsconfig.include).to.eql(['src/**/*']);
+      expect(imports['@rolldown/pluginutils']).to.eql(undefined);
+    } finally {
+      await restore();
+      expect(await Fs.exists(tsconfigPath)).to.eql(false);
+      await Fs.remove(fs.absolute, { log: false });
+    }
+  });
+
+  it('fixture bridge can skip synthetic tsconfig authority for js-entry smoke worlds', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.fixture.skip-tsconfig.' });
+    const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sample2));
+    const tsconfigPath = Fs.join(dir, 'tsconfig.json');
+    await Fs.copy(SAMPLE.Dirs.sample2, dir);
+
+    const restore = await writeLocalBridgeImports(dir, { skipTsconfig: true });
+    try {
+      expect(await Fs.exists(tsconfigPath)).to.eql(false);
     } finally {
       await restore();
       expect(await Fs.exists(tsconfigPath)).to.eql(false);

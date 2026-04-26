@@ -17,7 +17,10 @@ import { Vite } from '../mod.ts';
 const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;
 const DEV_CONNECT_RETRY_TIMEOUT = 2_000 as t.Msecs;
 const DEV_CONNECT_RETRY_INTERVAL = 100 as t.Msecs;
-const DEV_ENTRY_RETRY_TIMEOUT = 2_000 as t.Msecs;
+// Vite 8 / OXC / rolldown can transiently 500 the first served entry transform
+// on fresh temp fixtures before recovering on the next request. The dev contract
+// we actually own here is eventual entry readiness once the server is up.
+const DEV_ENTRY_RETRY_TIMEOUT = 5_000 as t.Msecs;
 const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
 describe('Vite.dev', () => {
@@ -50,7 +53,7 @@ describe('Vite.dev', () => {
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
-      const restore = await writeLocalFixtureImports(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
       const paths = {
         cwd,
         app: {
@@ -126,7 +129,7 @@ describe('Vite.dev', () => {
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
-      const restore = await writeLocalFixtureImports(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
       const paths = {
         cwd,
         app: {
@@ -169,7 +172,7 @@ describe('Vite.dev', () => {
 });
 
 /**
- * Harden the copied temp dev fixture against the upstream Vite/OXC TSX-entry
+ * Harden the copied temp dev fixture against the upstream Vite/OXC fresh-entry
  * transform crash seen in CI (`Failed to recover TsconfigCache type from napi value`).
  *
  * This keeps the dev smoke truthful by still proving:
@@ -177,7 +180,7 @@ describe('Vite.dev', () => {
  * - HTML serving
  * - entry-module serving
  * - local bridge imports
- * while avoiding ownership drift into upstream TSX transform instability.
+ * while avoiding ownership drift into upstream entry-transform instability.
  */
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
