@@ -1,4 +1,4 @@
-import { Fs, Is, Process, type t } from './common.ts';
+import { Fs, Is, Process, type t } from '../common.ts';
 import { resolvePassThroughContext } from '../u.passThrough/u.context.ts';
 import type { PassThroughTarget } from '../u.passThrough/t.ts';
 
@@ -41,4 +41,8 @@ async function run(cwd: t.StringDir, argv: string[]) {
     },
     args: ['run', '-A', ctx.specifier, 'Profiles', ...argv],
   });
+}
+
+if (import.meta.main) {
+  await cli(Fs.cwd('process'), Deno.args);
 }

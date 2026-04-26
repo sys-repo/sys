@@ -42,7 +42,7 @@ export const PASSTHROUGH_TARGETS: readonly PassthroughTarget[] = [
     },
     consumer: {
       path: 'code/sys.tools',
-      fileFromRoot: 'code/sys.tools/src/cli.code/m.cli.ts',
+      fileFromRoot: 'code/sys.tools/src/cli.pi/mod.ts',
     },
     pin: {
       constName: 'DRIVER_AGENT_PI_CLI_JSR_SPECIFIER',

@@ -9,7 +9,7 @@ import type { t } from '../common.ts';
  * - allow one small context resolver to serve multiple wrapper entrypoints
  *
  * Initial sample callers:
- * - `src/cli.code/m.cli.ts`
+ * - `src/cli.pi/mod.ts`
  * - `src/cli.tmpl/m.cli.ts`
  */
 

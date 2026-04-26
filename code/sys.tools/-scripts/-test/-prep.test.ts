@@ -14,11 +14,11 @@ describe('scripts/-prep', () => {
 
     expect(res.map((item) => item.file)).to.eql([
       'code/sys.tools/src/cli.tmpl/m.cli.ts',
-      'code/sys.tools/src/cli.code/m.cli.ts',
+      'code/sys.tools/src/cli.pi/mod.ts',
     ]);
     expect(res.map((item) => item.path)).to.eql([
       '/repo/code/sys.tools/src/cli.tmpl/m.cli.ts',
-      '/repo/code/sys.tools/src/cli.code/m.cli.ts',
+      '/repo/code/sys.tools/src/cli.pi/mod.ts',
     ]);
     expect(res.map((item) => item.target.upstream.name)).to.eql([
       '@sys/tmpl',
@@ -122,7 +122,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     expect(() =>
       pinDriverAgentPiCliSpecifier(`const X = 'jsr:@sys/driver-agent@0.0.1/pi/cli';`, '0.0.256'),
     ).to.throw(
-      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.code/m.cli.ts',
+      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
     );
   });
 });
