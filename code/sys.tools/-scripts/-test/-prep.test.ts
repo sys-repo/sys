@@ -2,12 +2,30 @@ import { describe, expect, it } from '../../src/-test.ts';
 import {
   pinDriverAgentPiCliSpecifier,
   pinTmplSpecifier,
+  prepTargets,
   resolveDriverAgentVersion,
   resolveTmplVersion,
   type DenoFileVersionLib,
 } from '../-prep.u.ts';
 
 describe('scripts/-prep', () => {
+  it('derives sys.tools passthrough prep targets from the canonical root registry', () => {
+    const res = prepTargets('/repo');
+
+    expect(res.map((item) => item.file)).to.eql([
+      'code/sys.tools/src/cli.tmpl/m.cli.ts',
+      'code/sys.tools/src/cli.code/m.cli.ts',
+    ]);
+    expect(res.map((item) => item.path)).to.eql([
+      '/repo/code/sys.tools/src/cli.tmpl/m.cli.ts',
+      '/repo/code/sys.tools/src/cli.code/m.cli.ts',
+    ]);
+    expect(res.map((item) => item.target.upstream.name)).to.eql([
+      '@sys/tmpl',
+      '@sys/driver-agent',
+    ]);
+  });
+
   it('pins TMPL_JSR_SPECIFIER to the target @sys/tmpl version', () => {
     const source = `
 const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.100';

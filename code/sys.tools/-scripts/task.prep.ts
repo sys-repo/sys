@@ -1,7 +1,7 @@
 import { Fs } from '@sys/fs';
 import { c } from '@sys/cli';
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { PATH, TARGET, pinPassthrough, resolveWorkspaceVersion, type PrepTarget } from './-prep.u.ts';
+import { PATH, pinPassthrough, prepTargets, resolveWorkspaceVersion, type PrepTarget } from './-prep.u.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const path = PATH.fromRoot(root);
@@ -9,8 +9,9 @@ const path = PATH.fromRoot(root);
 await main();
 
 async function main() {
-  await prepTarget(TARGET.tmpl(path));
-  await prepTarget(TARGET.code(path));
+  for (const target of prepTargets(root)) {
+    await prepTarget(target);
+  }
 }
 
 async function prepTarget(target: PrepTarget) {
