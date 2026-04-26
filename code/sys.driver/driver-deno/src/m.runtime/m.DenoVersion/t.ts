@@ -33,19 +33,9 @@ export declare namespace DenoVersion {
    * downstream callers retain durable forensic material if Deno CLI wording
    * changes later.
    */
-  export type Output = {
+  export type Output = t.Process.Output & {
     readonly cmd: string;
     readonly args: readonly string[];
-    readonly code: number;
-    readonly success: boolean;
-    readonly signal: Deno.Signal | null;
-    readonly stdout: Uint8Array;
-    readonly stderr: Uint8Array;
-    readonly text: {
-      readonly stdout: string;
-      readonly stderr: string;
-    };
-    toString(): string;
   };
 
   /**
