@@ -22,12 +22,12 @@ describe(D.tool.name, () => {
 describe('cli.update advisory', () => {
   it('resolves advisory path from XDG cache home', () => {
     const path = resolveUpdateAdvisoryPath(fixture.env({ XDG_CACHE_HOME: '/tmp/xdg', HOME: '/tmp/home' }));
-    expect(path).to.eql('/tmp/xdg/sys/tools/update-advisory.json');
+    expect(path).to.eql('/tmp/xdg/@sys.tools/advisory.json');
   });
 
   it('falls back to HOME cache when XDG cache home is unavailable', () => {
     const path = resolveUpdateAdvisoryPath(fixture.env({ HOME: '/tmp/home' }));
-    expect(path).to.eql('/tmp/home/.cache/sys/tools/update-advisory.json');
+    expect(path).to.eql('/tmp/home/.cache/@sys.tools/advisory.json');
   });
 
   it('disables advisory path resolution when no cache root is available', () => {
@@ -36,14 +36,14 @@ describe('cli.update advisory', () => {
   });
 
   it('treats missing records as stale so the first probe can run', () => {
-    expect(shouldRefreshUpdateAdvisory(undefined, { clock: fixture.clock(2_000) })).to.eql(true);
+    expect(shouldRefreshUpdateAdvisory(undefined, { now: fixture.now(2_000) })).to.eql(true);
   });
 
   it('treats fresh records as non-stale within the ttl window', () => {
     expect(
       shouldRefreshUpdateAdvisory(
-        { package: '@sys/tools', checkedAt: new Date(1_000).toISOString(), ok: true, remote: '0.0.372' },
-        { clock: fixture.clock(1_000 + 60_000) },
+        { package: '@sys/tools', checkedAt: 1_000, ok: true, remote: '0.0.372' },
+        { now: fixture.now(1_000 + 60_000) },
       ),
     ).to.eql(false);
   });
@@ -51,8 +51,8 @@ describe('cli.update advisory', () => {
   it('treats old records as stale once the ttl expires', () => {
     expect(
       shouldRefreshUpdateAdvisory(
-        { package: '@sys/tools', checkedAt: new Date(1_000).toISOString(), ok: true, remote: '0.0.372' },
-        { clock: fixture.clock(1_000 + 25 * 60 * 60 * 1000) },
+        { package: '@sys/tools', checkedAt: 1_000, ok: true, remote: '0.0.372' },
+        { now: fixture.now(1_000 + 25 * 60 * 60 * 1000) },
       ),
     ).to.eql(true);
   });
@@ -60,7 +60,7 @@ describe('cli.update advisory', () => {
   it('suppresses the pre-menu advisory when cached remote is not newer', () => {
     const text = toRootUpdateAdvisoryPrelude({
       package: '@sys/tools',
-      checkedAt: new Date().toISOString(),
+      checkedAt: 1,
       ok: true,
       remote: '0.0.1',
     });
@@ -70,11 +70,11 @@ describe('cli.update advisory', () => {
 
   it('reads malformed advisory files fail-quiet and marks them stale', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.update.advisory.malformed.' });
-    const path = `${tmp.absolute}/update-advisory.json`;
+    const path = `${tmp.absolute}/advisory.json`;
 
     try {
       await Fs.write(path, '{nope');
-      const res = await readUpdateAdvisoryState({ path, clock: fixture.clock(5_000) });
+      const res = await readUpdateAdvisoryState({ path, now: fixture.now(5_000) });
       expect(res.record).to.eql(undefined);
       expect(res.hasUpdate).to.eql(false);
       expect(res.prelude).to.eql(undefined);
@@ -90,11 +90,12 @@ describe('cli.update advisory', () => {
 
     try {
       Deno.env.set(key, '9.9.9');
-      const res = await readUpdateAdvisoryState({ clock: fixture.clock(1_000) });
+      const res = await readUpdateAdvisoryState({ now: fixture.now(1_000) });
       expect(res.path).to.eql(undefined);
       expect(res.stale).to.eql(false);
       expect(res.hasUpdate).to.eql(true);
-      expect(res.record?.remote).to.eql('9.9.9');
+      expect(res.record?.ok).to.eql(true);
+      if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
       expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('Run sys update --latest');
       expect(Cli.stripAnsi(res.prelude ?? '')).to.not.contain('Package');
     } finally {
@@ -106,7 +107,7 @@ describe('cli.update advisory', () => {
     const text = Cli.stripAnsi(
       toRootUpdateAdvisoryPrelude({
         package: '@sys/tools',
-        checkedAt: new Date().toISOString(),
+        checkedAt: 1,
         ok: true,
         remote: '9.9.9',
       }) ?? '',
@@ -119,15 +120,15 @@ describe('cli.update advisory', () => {
 
   it('writes and reads success advisory records', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.update.advisory.success.' });
-    const path = `${tmp.absolute}/update-advisory.json`;
+    const path = `${tmp.absolute}/advisory.json`;
 
     try {
-      await writeUpdateAdvisorySuccess('9.9.9', { path, clock: fixture.clock(12_345) });
-      const res = await readUpdateAdvisoryState({ path, clock: fixture.clock(12_346) });
+      await writeUpdateAdvisorySuccess('9.9.9', { path, now: fixture.now(12_345) });
+      const res = await readUpdateAdvisoryState({ path, now: fixture.now(12_346) });
 
       expect(res.record).to.eql({
         package: '@sys/tools',
-        checkedAt: new Date(12_345).toISOString(),
+        checkedAt: 12_345,
         ok: true,
         remote: '9.9.9',
       });
@@ -141,15 +142,15 @@ describe('cli.update advisory', () => {
 
   it('writes failure advisory records quietly', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.update.advisory.failure.' });
-    const path = `${tmp.absolute}/update-advisory.json`;
+    const path = `${tmp.absolute}/advisory.json`;
 
     try {
-      await writeUpdateAdvisoryFailure(new Error('network down'), { path, clock: fixture.clock(55) });
-      const res = await readUpdateAdvisoryState({ path, clock: fixture.clock(56) });
+      await writeUpdateAdvisoryFailure(new Error('network down'), { path, now: fixture.now(55) });
+      const res = await readUpdateAdvisoryState({ path, now: fixture.now(56) });
 
       expect(res.record).to.eql({
         package: '@sys/tools',
-        checkedAt: new Date(55).toISOString(),
+        checkedAt: 55,
         ok: false,
         error: 'network down',
       });
@@ -341,8 +342,8 @@ const fixture = {
     };
   },
 
-  clock(now: number) {
-    return { now: () => now };
+  now(timestamp: t.UnixTimestamp) {
+    return () => timestamp;
   },
 } as const;
 

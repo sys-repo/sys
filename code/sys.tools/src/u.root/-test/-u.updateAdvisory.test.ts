@@ -5,7 +5,7 @@ describe('Root update advisory', () => {
   it('prepares root advisory state by delegating to the update-owned advisory seam', async () => {
     const res = await prepareRootUpdateAdvisory({
       readState: async () => ({
-        path: '/tmp/update-advisory.json',
+        path: '/tmp/advisory.json',
         record: undefined,
         stale: true,
         hasUpdate: true,
@@ -14,7 +14,7 @@ describe('Root update advisory', () => {
     });
 
     expect(res).to.eql({
-      path: '/tmp/update-advisory.json',
+      path: '/tmp/advisory.json',
       record: undefined,
       stale: true,
       hasUpdate: true,
@@ -27,7 +27,7 @@ describe('Root update advisory', () => {
 
     refreshRootUpdateAdvisoryInBackground(
       {
-        path: '/tmp/update-advisory.json',
+        path: '/tmp/advisory.json',
         record: undefined,
         stale: true,
         hasUpdate: false,
@@ -49,7 +49,7 @@ describe('Root update advisory', () => {
 
     refreshRootUpdateAdvisoryInBackground(
       {
-        path: '/tmp/update-advisory.json',
+        path: '/tmp/advisory.json',
         record: undefined,
         stale: false,
         hasUpdate: false,

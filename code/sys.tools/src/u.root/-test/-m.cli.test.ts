@@ -9,7 +9,7 @@ describe('Root CLI', () => {
       async prepareRootUpdateAdvisory() {
         events.push('prepare');
         return {
-          path: '/tmp/update-advisory.json' as never,
+          path: '/tmp/advisory.json' as never,
           record: undefined,
           stale: true,
           hasUpdate: true,
