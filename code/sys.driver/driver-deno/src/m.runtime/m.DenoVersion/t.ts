@@ -12,6 +12,8 @@ export declare namespace DenoVersion {
     readonly Current: DenoVersion.Current.Lib;
     /** Deno runtime upgrade status and execution helpers. */
     readonly Upgrade: DenoVersion.Upgrade.Lib;
+    /** Upgrade authority detection for the installed Deno runtime. */
+    readonly Authority: DenoVersion.Authority.Lib;
   };
 
   /**
@@ -71,6 +73,34 @@ export declare namespace DenoVersion {
     };
 
     /** Response from resolving the installed local Deno runtime version. */
+    export type Result = DenoVersion.Result<Data>;
+  }
+
+  /**
+   * Upgrade authority detection for the installed Deno runtime.
+   */
+  export namespace Authority {
+    /** Upgrade authority detection surface. */
+    export type Lib = {
+      /** Detect the upgrade authority for the resolved Deno executable. */
+      detect(input?: DenoVersion.Input): Promise<Result>;
+    };
+
+    /** Known upgrade authorities for the installed Deno runtime. */
+    export type Kind =
+      | 'deno-upgrade'
+      | 'brew'
+      | 'unknown';
+
+    /** Detected upgrade authority facts for the resolved Deno executable. */
+    export type Data = {
+      /** Detected upgrade authority kind. */
+      readonly kind: Kind;
+      /** Resolved executable path used for authority detection, when known. */
+      readonly path?: t.StringPath;
+    };
+
+    /** Response from resolving the Deno runtime upgrade authority. */
     export type Result = DenoVersion.Result<Data>;
   }
 
