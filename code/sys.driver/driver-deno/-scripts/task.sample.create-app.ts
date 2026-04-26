@@ -1,6 +1,8 @@
 import { Cli } from '@sys/cli';
 import { c } from '@sys/cli';
-import { Args, Is, slug } from '@sys/std';
+import { Args } from '@sys/std/args';
+import { Is } from '@sys/std/is';
+import { slug } from '@sys/std/random';
 import { requireSampleCreateEnv, SAMPLE_ENV_NOTE } from './u.env.ts';
 
 async function main() {

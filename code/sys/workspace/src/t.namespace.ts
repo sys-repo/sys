@@ -29,5 +29,8 @@ export namespace Workspace {
 
     /** Workspace preparation helpers. */
     readonly Prep: t.WorkspacePrep.Lib;
+
+    /** Canonical workspace task runners. */
+    readonly Run: t.WorkspaceRun.Lib;
   };
 }

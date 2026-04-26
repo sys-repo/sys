@@ -1,4 +1,4 @@
-import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Pkg, Process, Time } from './common.ts';
+import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Json, Pkg, Process, Time } from './common.ts';
 import { ViteLog } from '../m.fmt/mod.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -122,7 +122,7 @@ export const build: B = async (input) => {
     if (pkg) {
       const path = Fs.join(dir, 'pkg', '-pkg.json');
       await Fs.ensureDir(Fs.dirname(path));
-      await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
+      await Fs.write(path, Json.stringify(pkg, 2));
     }
 
     await clean(paths.app.outDir);

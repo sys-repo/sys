@@ -1,13 +1,12 @@
 import { type t } from './common.ts';
 
 /**
- * Resolve the shell directory that invoked the CLI.
+ * Resolve the direct process cwd for the root CLI entrypoint.
  *
- * `INIT_CWD` is a package-runner convention used to preserve the user's
- * original terminal directory when a command delegates through another process.
- * Keep this root-local to avoid loading the full filesystem package before the
- * first menu render.
+ * Do not trust ambient `INIT_CWD` here: some shells export it globally, which
+ * can poison direct invocations after `cd`. Delegated child tools must receive
+ * their cwd explicitly from the caller instead of relying on inherited env.
  */
 export function terminalCwd(): t.StringDir {
-  return Deno.env.get('INIT_CWD') ?? Deno.cwd();
+  return Deno.cwd();
 }

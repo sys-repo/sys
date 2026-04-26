@@ -1,6 +1,6 @@
 import { Cli } from '@sys/cli';
 import { c } from '@sys/cli';
-import { Args } from '@sys/std';
+import { Args } from '@sys/std/args';
 import { requireSampleDeployConfig, SAMPLE_ENV_NOTE } from './u.env.ts';
 
 /**

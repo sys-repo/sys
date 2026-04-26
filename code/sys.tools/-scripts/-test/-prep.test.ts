@@ -2,12 +2,30 @@ import { describe, expect, it } from '../../src/-test.ts';
 import {
   pinDriverAgentPiCliSpecifier,
   pinTmplSpecifier,
+  prepTargets,
   resolveDriverAgentVersion,
   resolveTmplVersion,
   type DenoFileVersionLib,
 } from '../-prep.u.ts';
 
 describe('scripts/-prep', () => {
+  it('derives sys.tools passthrough prep targets from the canonical root registry', () => {
+    const res = prepTargets('/repo');
+
+    expect(res.map((item) => item.file)).to.eql([
+      'code/sys.tools/src/cli.tmpl/mod.ts',
+      'code/sys.tools/src/cli.pi/mod.ts',
+    ]);
+    expect(res.map((item) => item.path)).to.eql([
+      '/repo/code/sys.tools/src/cli.tmpl/mod.ts',
+      '/repo/code/sys.tools/src/cli.pi/mod.ts',
+    ]);
+    expect(res.map((item) => item.target.upstream.name)).to.eql([
+      '@sys/tmpl',
+      '@sys/driver-agent',
+    ]);
+  });
+
   it('pins TMPL_JSR_SPECIFIER to the target @sys/tmpl version', () => {
     const source = `
 const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.100';
@@ -96,7 +114,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
 
   it('pinTmplSpecifier throws when marker constant is missing', () => {
     expect(() => pinTmplSpecifier(`const X = 'jsr:@sys/tmpl@0.0.1';`, '0.0.256')).to.throw(
-      'Could not locate TMPL_JSR_SPECIFIER constant in code/sys.tools/src/cli.tmpl/m.cli.ts',
+      'Could not locate TMPL_JSR_SPECIFIER constant in code/sys.tools/src/cli.tmpl/mod.ts',
     );
   });
 
@@ -104,7 +122,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     expect(() =>
       pinDriverAgentPiCliSpecifier(`const X = 'jsr:@sys/driver-agent@0.0.1/pi/cli';`, '0.0.256'),
     ).to.throw(
-      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.code/m.cli.ts',
+      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
     );
   });
 });

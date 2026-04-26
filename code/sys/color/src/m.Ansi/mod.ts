@@ -2,14 +2,14 @@
  * @module
  * ANSI Color formatting tools for the terminal.
  */
-import type { AnsiColorLib, AnsiForegroundColors } from './t.ts';
+import type { AnsiColor, AnsiColorLib } from './t.ts';
 
 import { c, stripAnsi } from '@sys/std/ansi/server';
 import { Color as rgb } from '../m.Rgb/mod.ts';
 
 export { c, stripAnsi };
 
-const foreground: AnsiForegroundColors = {
+const foreground: AnsiColor.Foreground = {
   black: c.black,
   red: c.red,
   green: c.green,

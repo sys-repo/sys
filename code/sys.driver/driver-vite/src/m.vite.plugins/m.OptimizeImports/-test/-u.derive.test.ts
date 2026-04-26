@@ -15,26 +15,6 @@ describe('OptimizeImportsPlugin.deriveWorkspacePackageRules', () => {
     expect(devharness.imports.some((rule) => rule.importName === 'useRubberband')).to.eql(false);
 
     const components = rules.find((rule) => rule.packageId === '@sys/ui-react-components');
-    expect(Is.object(components)).to.eql(true);
-    if (!components) throw new Error('Expected @sys/ui-react-components rule set');
-
-    const expected = [
-      ['Button', './button'],
-      ['Cropmarks', './cropmarks'],
-      ['Icon', './icon'],
-      ['ObjectView', './object-view'],
-      ['KeyValue', './key-value'],
-      ['Spinners', './spinners'],
-      ['CenterColumn', './layout/center-column'],
-      ['IFrame', './iframe'],
-      ['Player', './player'],
-      ['SplitPane', './layout/split-pane'],
-      ['TreeView', './tree-view'],
-      ['Media', './media'],
-    ] as const;
-
-    for (const [importName, subpath] of expected) {
-      expect(components.imports.some((rule) => rule.importName === importName && rule.subpath === subpath)).to.eql(true);
-    }
+    expect(components).to.eql(undefined);
   });
 });

@@ -1,10 +1,11 @@
 {
   "name": "@sys/color",
-  "version": "0.0.229",
+  "version": "0.0.237",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts"
   },
   "exports": {
@@ -27,3 +28,4 @@
     }
   }
 }
+

@@ -1,9 +1,10 @@
 {
   "name": "@sys/http",
-  "version": "0.0.254",
+  "version": "0.0.263",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "test": "deno test -P=test",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
@@ -35,3 +36,4 @@
     }
   }
 }
+

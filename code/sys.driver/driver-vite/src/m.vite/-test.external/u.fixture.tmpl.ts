@@ -1,6 +1,6 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
 import { Fs, Str, type t } from '../../-test.ts';
-import { runCommand, runTask, type TaskRun } from './u.fixture.task.ts';
+import { runTask, type TaskRun } from './u.fixture.task.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
@@ -65,8 +65,8 @@ export async function buildGeneratedWorkspaceRepo(args: {
       : skippedTask(fooDir, 'patch', 'Skipped workspace patch because generated packages were unavailable');
   const bootstrap =
     generateFoo.ok && generateBar.ok && patch.ok
-      ? await runCommand(rootDir, 'npm', ['install', '--package-lock=false'] as const)
-      : skippedTask(rootDir, 'npm install --package-lock=false', 'Skipped workspace bootstrap because generated packages were unavailable');
+      ? await runTask(rootDir, 'install')
+      : skippedTask(rootDir, 'install', 'Skipped workspace bootstrap because generated packages were unavailable');
   const build =
     generateFoo.ok && generateBar.ok && patch.ok && bootstrap.ok && (await Fs.exists(fooDir))
       ? await runTask(fooDir, 'build')

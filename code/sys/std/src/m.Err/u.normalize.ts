@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from '../common.ts';
 import { Is } from './m.Is.ts';
 
 export const normalize: t.ErrLib['normalize'] = (input) => {

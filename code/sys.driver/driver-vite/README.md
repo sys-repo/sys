@@ -12,8 +12,9 @@ Vite assumes a Node/npm-oriented runtime, module-resolution, and config-loading 
 
 
 #### Standards
-Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade.
-It's time. Good things happen collectively when everything conforms to the same single common/open ideas. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
+Bundled output from `@sys/driver-vite` is **ESM only**, aligned with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules) and with the established [standard module format](https://tc39.es/ecma262/#sec-modules) of the modern web.
+
+Shared open standards reduce friction across tools, runtimes, and packages, and make the overall system simpler, more durable, and easier to evolve collectively. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
 
 
 >> "Fully standardized and finalized as a core part of ECMAScript, maintained by TC39 and ECMA International" (2015)
@@ -202,3 +203,40 @@ For direct examples, see:
 - `deno task check` → module typecheck
 - `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
 - `deno task clean` → remove generated temp state and sample fixture build artifacts
+
+<p>&nbsp;</p>
+
+---
+
+## Debugging
+
+### Perf
+
+`SYS_DRIVER_VITE_PERF` supports leveled transport/startup diagnostics from both the parent and child Vite processes.
+
+- `SYS_DRIVER_VITE_PERF=1` → calm operator summaries and major readiness milestones
+- `SYS_DRIVER_VITE_PERF=2` → diagnostic mode (phase timings, slow resolve samples, cache misses/writes/hits)
+- `SYS_DRIVER_VITE_PERF=3` → full trace mode (includes per-item churn such as inflight/settled chatter)
+
+```bash
+SYS_DRIVER_VITE_PERF=1 deno task dev
+SYS_DRIVER_VITE_PERF=2 deno task dev
+SYS_DRIVER_VITE_PERF=3 deno task dev
+```
+
+If you want to inspect a run later, redirect stdout/stderr to a file and sample it with `rg`, `tail`, or `awk`.
+
+### Resolve trace
+
+`SYS_DRIVER_VITE_TRACE_RESOLVE=1` enables narrow resolve-provenance tracing for transport audit/debug work.
+It is intentionally more targeted than `SYS_DRIVER_VITE_PERF` and is meant for short-lived investigation runs.
+
+```bash
+SYS_DRIVER_VITE_TRACE_RESOLVE=1 deno task dev
+```
+
+Current trace output focuses on:
+- resolve request keys and canonical aliases
+- miss / inflight-hit / settled-hit / alias-hit boundaries
+- importer-derived dependency hits
+- resolved redirect / alias identity hints

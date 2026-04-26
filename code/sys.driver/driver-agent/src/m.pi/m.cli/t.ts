@@ -17,8 +17,22 @@ export declare namespace PiCli {
   /** Runtime surface for the Pi CLI launcher wrapper. */
   export type Lib = {
     main(input?: Input): Promise<Result>;
-    run(args?: RunArgs): Promise<t.Process.InheritOutput>;
+    run(args: RunArgs): Promise<t.Process.InheritOutput>;
   };
+
+  /** Startup cwd contract preserving invocation and resolved git roots. */
+  export type Cwd = {
+    /** Directory the operator invoked the launcher from. */
+    readonly invoked: t.StringDir;
+
+    /** Nearest ancestor git root used as the effective Pi launch root. */
+    readonly git: t.StringDir;
+  };
+
+  /** Startup cwd resolution result. */
+  export type CwdResolution =
+    | { readonly kind: 'resolved'; readonly cwd: Cwd }
+    | { readonly kind: 'exit' };
 
   /** Wrapper entry input for launching Pi. */
   export type Input = {
@@ -29,7 +43,7 @@ export declare namespace PiCli {
      * Working directory passed to the Pi child process.
      * Defaults to the current host working directory.
      */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | Cwd;
 
     /** Optional environment variable overrides for the Pi child process. */
     readonly env?: Record<string, string>;
@@ -44,13 +58,10 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
-  /** Concrete Pi run request after wrapper argument resolution. */
+  /** Concrete Pi run request after startup cwd resolution. */
   export type RunArgs = {
-    /**
-     * Working directory passed to the Pi child process.
-     * Defaults to the current host working directory.
-     */
-    readonly cwd?: t.StringDir;
+    /** Git-rooted cwd contract already resolved by the launcher. */
+    readonly cwd: Cwd;
 
     /** Additional Pi CLI arguments. */
     readonly args?: readonly string[];
@@ -68,14 +79,24 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
+  /** Git root resolution strategy for startup cwd recovery. */
+  export type GitRootMode = 'walk-up' | 'cwd';
+
+  /** Wrapper-local cwd resolution options. */
+  export type CwdResolveOptions = {
+    /** How startup resolves the effective git root from the invocation directory. */
+    readonly gitRoot?: GitRootMode;
+  };
+
   /** Typed wrapper argv shape produced from `Args.parse(...)`. */
   export type ParsedArgs = {
     readonly help?: boolean;
+    readonly gitRoot?: GitRootMode;
     readonly _: readonly string[];
   };
 
   /** Wrapper result union. */
-  export type Result = Help | Ran;
+  export type Result = Help | Ran | Exit;
 
   /** Help output result. */
   export type Help = {
@@ -88,8 +109,8 @@ export declare namespace PiCli {
   export type SandboxSummary = {
     /** Optional persisted report path for the full sandbox inspection artifact. */
     readonly report?: t.StringPath;
-    /** Working directory Pi starts in. */
-    readonly cwd: t.StringDir;
+    /** Working directories preserved across startup resolution. */
+    readonly cwd: Cwd;
     /** Effective read scope grouped for display. */
     readonly read?: SandboxSummary.Scope;
     /** Effective write scope grouped for display. */
@@ -115,6 +136,12 @@ export declare namespace PiCli {
       readonly detail?: readonly t.StringPath[];
     };
   }
+
+  /** User exited startup without launching Pi. */
+  export type Exit = {
+    readonly kind: 'exit';
+    readonly input: Input;
+  };
 
   /** Successful launch result. */
   export type Ran = {

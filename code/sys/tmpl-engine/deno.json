@@ -1,10 +1,11 @@
 {
   "name": "@sys/tmpl-engine",
-  "version": "0.0.280",
+  "version": "0.0.289",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "exports": {
@@ -25,3 +26,4 @@
     }
   }
 }
+

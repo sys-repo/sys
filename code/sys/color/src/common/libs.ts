@@ -1,1 +1,3 @@
-export { Err, Num, Pkg } from '@sys/std';
+export { Err } from '@sys/std/error';
+export { Num } from '@sys/std/num';
+export { Pkg } from '@sys/std/pkg';

@@ -4,7 +4,7 @@ import { Lens } from '../mod.ts';
 
 describe('Obj.Lens', () => {
   it('exports stable surface', async () => {
-    const { Obj } = await import('@sys/std/value');
+    const { Obj } = await import('@sys/std/obj');
     expect(Obj.Lens).to.equal(Lens);
     expect(Obj.Lens.Is).to.equal(Is);
   });

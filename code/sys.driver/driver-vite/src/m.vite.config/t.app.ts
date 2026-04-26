@@ -46,6 +46,14 @@ export type ViteConfigAppOptions = {
   vitePlugins?: t.VitePluginOption[];
 
   /**
+   * Canonical pass-through for Vite dependency-optimizer configuration.
+   *
+   * This packet intentionally exposes Vite's native surface without adding
+   * driver-owned heuristic defaults.
+   */
+  optimizeDeps?: t.ViteUserConfig['optimizeDeps'];
+
+  /**
    * Flag indicating if the `rollup-plugin-visualizer` should be applied to the bundle.
    * Out to (default) `dist/stats.html` or the path provided.
    */

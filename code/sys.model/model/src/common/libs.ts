@@ -1,3 +1,12 @@
-export { Arr, Err, Is, Log, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
+export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
+export { Obj } from '@sys/std/obj';
+export { Try } from '@sys/std/try';
+export { Log } from '@sys/std/log';
+export { Pkg } from '@sys/std/pkg';
 export { Schema, Type } from '@sys/schema';
 export { toSchema, V } from '@sys/schema/recipe';

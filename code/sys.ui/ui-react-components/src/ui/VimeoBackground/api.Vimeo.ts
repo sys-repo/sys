@@ -3,7 +3,9 @@ import { type t, Time } from './common.ts';
 /**
  * Vimeo simple IFrame/message API.
  */
-export const Vimeo = {
+export const Vimeo: {
+  create(iframe: HTMLIFrameElement, options?: { timeout?: t.Msecs }): t.VimeoIFrame;
+} = {
   create(iframe: HTMLIFrameElement, options: { timeout?: t.Msecs } = {}): t.VimeoIFrame {
     const { timeout = 3_000 } = options;
 

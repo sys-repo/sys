@@ -5,8 +5,9 @@ import { WorkspaceCli as Cli } from './m.cli/mod.ts';
 import { WorkspaceGraph as Graph } from './m.graph/mod.ts';
 import { WorkspaceInfo as Info } from './m.info/mod.ts';
 import { WorkspacePkg as Pkg } from './m.pkg/mod.ts';
-import { WorkspaceUpgrade as Upgrade } from './m.upgrade/mod.ts';
 import { WorkspacePrep as Prep } from './m.prep/mod.ts';
+import { WorkspaceRun as Run } from './m.run/mod.ts';
+import { WorkspaceUpgrade as Upgrade } from './m.upgrade/mod.ts';
 
 /** Root workspace helper library. */
 export const Workspace: t.Workspace.Lib = {
@@ -18,4 +19,5 @@ export const Workspace: t.Workspace.Lib = {
   Cli,
   Graph,
   Prep,
+  Run,
 };

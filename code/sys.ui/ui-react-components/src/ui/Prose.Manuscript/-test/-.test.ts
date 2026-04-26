@@ -4,7 +4,7 @@ import { Manuscript } from '../ui.tsx';
 
 describe('Prose.Manuscript', () => {
   it('API', async () => {
-    const m = await import('@sys/ui-react-components');
+    const m = await import('@sys/ui-react-components/prose');
     expect(m.Prose.Manuscript).to.equal(ProseManuscript);
     expect(ProseManuscript.UI).to.equal(Manuscript);
   });

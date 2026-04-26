@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, Button, Color, Cropmarks, css, Time, Icons } from '../common.ts';
+import { Button, Color, Cropmarks, css, Icons, type t, Time } from '../common.ts';
 
-import { IFrame as IFrameView } from '@sys/ui-react-components';
+import { IFrame as IFrameView } from '@sys/ui-react-components/iframe';
 import type { IFrameSchema } from '../-schemas/mod.ts';
 
 export type IFrameHostProps = {

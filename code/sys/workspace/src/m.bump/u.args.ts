@@ -1,22 +1,22 @@
-import { Fs, type t } from './common.ts';
-import { Args as StdArgs } from '@sys/std';
+import { Args as StdArgs, Fs, Is, type t } from './common.ts';
 
 export const Args: t.WorkspaceBump.Args.Lib = {
   parse(argv = Deno.args) {
+    const normalized = argv[0] === '--' ? argv.slice(1) : argv;
     const args = StdArgs.parse<{
       help?: boolean;
-      from?: string;
+      from?: string | string[];
       release?: string;
       'dry-run'?: boolean;
       'non-interactive'?: boolean;
-    }>([...argv], {
+    }>([...normalized], {
       boolean: ['help', 'dry-run', 'non-interactive'],
       alias: { h: ['help'] },
     });
 
     return {
       help: args.help,
-      from: args.from,
+      from: wrangle.from(args.from),
       release: args.release,
       dryRun: args['dry-run'] ?? false,
       nonInteractive: args['non-interactive'] ?? false,
@@ -49,3 +49,13 @@ export const Args: t.WorkspaceBump.Args.Lib = {
     };
   },
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  from(input?: string | string[]) {
+    if (input === undefined) return undefined;
+    return Is.str(input) ? [input] : [...input];
+  },
+} as const;

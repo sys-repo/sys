@@ -7,6 +7,7 @@ type ToStringOptions = { pad?: boolean };
  */
 export type ViteLib = {
   readonly Config: t.ViteConfigLib;
+  readonly Startup: t.ViteStartup.Lib;
 
   /**
    * Run the Vite `build` command to produce an output `/dist` bundle.

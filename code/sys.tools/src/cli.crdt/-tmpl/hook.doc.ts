@@ -2,7 +2,8 @@ import type * as t from 'jsr:@sys/tools/t';
 
 import { c } from 'jsr:@sys/cli';
 import { env } from 'jsr:@sys/tools/env';
-import { Str, Obj } from 'jsr:@sys/std';
+import { Str } from 'jsr:@sys/std/str';
+import { Obj } from 'jsr:@sys/std/obj';
 
 /** Ensure VSCode environment setup (need only run once). */
 await env();

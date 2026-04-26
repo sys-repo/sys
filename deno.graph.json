@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1776567384945,
+    "createdAt": 1777018603872,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-fa46f1ab5c8756f07d0dc0cebf3000edbffb02de0e7a2d17dbdfa5855e5da6a9",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.62/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-b4edb861dde36482dfaba2df9de5261d1966a49c11f931cc83f50092ac9a2dfc",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.62"
+        "version": "0.0.73"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.62/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1776567384955
+    "modifiedAt": 1777018603877
   },
   "graph": {
     "orderedPaths": [
@@ -125,6 +125,10 @@
       {
         "from": "code/sys.driver/driver-monaco",
         "to": "deploy/@tdb.slc"
+      },
+      {
+        "from": "code/sys.driver/driver-process",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys.driver/driver-process",
@@ -669,6 +673,10 @@
       {
         "from": "code/sys/esm",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/esm",
+        "to": "code/sys.driver/driver-vite"
       },
       {
         "from": "code/sys/esm",
@@ -1225,6 +1233,10 @@
       {
         "from": "code/sys/testing",
         "to": "deploy/@tdb.slc.std"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys.driver/driver-agent"
       },
       {
         "from": "code/sys/text",

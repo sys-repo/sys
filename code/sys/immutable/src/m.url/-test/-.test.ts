@@ -1,4 +1,4 @@
-import { Url as UrlBase } from '@sys/std';
+import { Url as UrlBase } from '@sys/std/url';
 import { describe, expect, it } from '../../-test.ts';
 import { Url } from '../mod.ts';
 

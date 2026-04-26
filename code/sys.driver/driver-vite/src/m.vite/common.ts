@@ -9,9 +9,12 @@ export { Fs, Path, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/server';
 export { Net } from '@sys/net';
 export { Process } from '@sys/process';
+export { Json } from '@sys/std/json';
+export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
+export { Rx } from '@sys/std/rx';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
-export { Is, Num } from '@sys/std/value';
 
 export { ViteConfig } from '../m.vite.config/mod.ts';
 

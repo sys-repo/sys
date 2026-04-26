@@ -8,8 +8,6 @@ import {
 
 export type PrepPaths = {
   rootDenoJson: string;
-  cliTmplFile: string;
-  cliCodeFile: string;
 };
 
 export type PrepTarget = {
@@ -24,30 +22,19 @@ export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
       rootDenoJson: Fs.join(root, 'deno.json'),
-      cliTmplFile: Fs.join(root, 'code/sys.tools/src/cli.tmpl/m.cli.ts'),
-      cliCodeFile: Fs.join(root, 'code/sys.tools/src/cli.code/m.cli.ts'),
     };
   },
 } as const;
 
-export const TARGET = {
-  tmpl(path: PrepPaths): PrepTarget {
-    const target = toTarget('@sys/tmpl');
-    return {
-      path: path.cliTmplFile,
+export function prepTargets(root: string): readonly PrepTarget[] {
+  return PASSTHROUGH_TARGETS
+    .filter((target) => target.consumer.path === 'code/sys.tools')
+    .map((target) => ({
+      path: Fs.join(root, target.consumer.fileFromRoot),
       file: target.consumer.fileFromRoot,
       target,
-    };
-  },
-  code(path: PrepPaths): PrepTarget {
-    const target = toTarget('@sys/driver-agent');
-    return {
-      path: path.cliCodeFile,
-      file: target.consumer.fileFromRoot,
-      target,
-    };
-  },
-} as const;
+    }));
+}
 
 export async function resolveTmplVersion(
   source: string,

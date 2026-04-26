@@ -3,7 +3,7 @@ import { main } from '../task.bump.ts';
 import { bumpPolicy, postBumpPackageSyncArgs, postBumpPrepArgs } from '../task.bump.policy.ts';
 
 describe('scripts/task.bump', () => {
-  it('syncs package metadata before delegating to the canonical ahead-only prep lane', () => {
+  it('syncs package metadata before delegating to the dedicated bump followup prep lane', () => {
     expect(postBumpPackageSyncArgs()).to.eql([
       'run',
       '-P=dev',
@@ -14,8 +14,7 @@ describe('scripts/task.bump', () => {
       'run',
       '-P=dev',
       './-scripts/main.ts',
-      '--prep-all',
-      '--ahead-only',
+      '--prep-bump',
       '--prep-context=bump',
     ]);
   });
@@ -43,5 +42,26 @@ describe('scripts/task.bump', () => {
     expect(couplings).to.deep.include({ from: 'code/sys/workspace', to: 'code/-tmpl' });
     expect(couplings).to.deep.include({ from: 'code/sys/std', to: 'code/-tmpl' });
     expect(couplings).to.deep.include({ from: 'code/-tmpl', to: 'code/sys.tools' });
+  });
+
+  it('couples driver-vite to workspace packages embedded in published fixture authorities', () => {
+    const couplings = bumpPolicy().couplings ?? [];
+
+    expect(couplings).to.deep.include({
+      from: 'code/sys/http',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.deep.include({
+      from: 'code/sys/std',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.deep.include({
+      from: 'code/sys.ui/ui-react',
+      to: 'code/sys.driver/driver-vite',
+    });
+    expect(couplings).to.not.deep.include({
+      from: 'code/sys.driver/driver-vite',
+      to: 'code/sys.driver/driver-vite',
+    });
   });
 });

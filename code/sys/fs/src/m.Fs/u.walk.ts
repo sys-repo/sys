@@ -49,3 +49,22 @@ export const walkUp: t.Fs.WalkUp = async (startAt, onVisit) => {
     dir = parentDir; // ← step-up.
   }
 };
+
+/**
+ * Walk upward until the callback returns the first defined result.
+ */
+export const findAncestor: t.Fs.FindAncestor = async <T = t.StringDir>(
+  start: t.StringPath,
+  onVisit: t.Fs.FindAncestorCallback<T>,
+) => {
+  let found: T | undefined;
+
+  await walkUp(start, async (e) => {
+    const match = await onVisit(e);
+    if (match === undefined) return;
+    found = match;
+    e.stop();
+  });
+
+  return found;
+};

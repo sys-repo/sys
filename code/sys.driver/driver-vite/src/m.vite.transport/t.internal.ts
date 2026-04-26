@@ -33,11 +33,23 @@ export type DenoResolvedNpm = {
 
 export type DenoResolved = DenoResolvedEsm | DenoResolvedNpm;
 
+export type DenoTransformedModule = {
+  readonly code: string;
+  readonly map: string | null;
+};
+
 export type DenoCache = Map<string, DenoResolved>;
+
+export type ResolveMemo = {
+  readonly inflight: Map<string, Promise<DenoResolved | null>>;
+  readonly settled: Map<string, DenoResolved>;
+  readonly alias: Map<string, string>;
+};
 
 export type ResolveDeps = {
   readonly invoke: t.Process.Lib['invoke'];
   readonly resolveNpmPath?: (id: string, cwd: string) => Promise<string | null>;
+  readonly memo?: ResolveMemo;
 };
 
 export type PrefixDeps = {

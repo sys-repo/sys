@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.334",
+  "version": "0.0.342",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -20,27 +20,36 @@
     "./args": "./src/m.Args/mod.ts",
     "./arr": "./src/m.Arr/mod.ts",
     "./delete": "./src/m.Delete/mod.ts",
+    "./dispose": "./src/m.Dispose/mod.ts",
     "./error": "./src/-exports/-err.ts",
+    "./fn": "./src/m.Fn/mod.ts",
+    "./history": "./src/m.History/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
+    "./lazy": "./src/m.Lazy/mod.ts",
+    "./obj": "./src/m.Obj/mod.ts",
+    "./obj/path": "./src/m.Obj.Path/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./is": "./src/-exports/-is.ts",
     "./json": "./src/m.Json/mod.ts",
     "./log": "./src/m.Log/mod.ts",
+    "./num": "./src/m.Num/mod.ts",
     "./path": "./src/-exports/-path.ts",
     "./pkg": "./src/-exports/-pkg.ts",
     "./random": "./src/-exports/-random.ts",
     "./r": "./src/-exports/-r.ts",
+    "./regex": "./src/m.Regex/mod.ts",
     "./rx": "./src/-exports/-rx.ts",
     "./semver": "./src/m.Semver/mod.ts",
     "./semver/server": "./src/m.Semver.Server/mod.ts",
     "./shard": "./src/m.Shard/mod.ts",
     "./signal": "./src/m.Signal/mod.ts",
+    "./str": "./src/m.Str/mod.ts",
     "./testing": "./src/-exports/-testing.ts",
     "./testing/server": "./src/-exports/-testing.server.ts",
     "./time": "./src/-exports/-time.ts",
     "./timecode": "./src/-exports/-time.timecode.ts",
-    "./url": "./src/-exports/-url.ts",
-    "./value": "./src/-exports/-value.ts"
+    "./try": "./src/m.Try/mod.ts",
+    "./url": "./src/-exports/-url.ts"
   },
   "permissions": {
     "test": {
@@ -51,3 +60,4 @@
     }
   }
 }
+

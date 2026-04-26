@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { Path } from '@sys/std';
+import { Path } from '@sys/std/path';
 import type { t } from '../src/common.ts';
 
 export const TaskCli = {

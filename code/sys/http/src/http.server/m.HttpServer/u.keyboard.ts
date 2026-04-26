@@ -1,13 +1,13 @@
 import { Process } from '@sys/process';
 import { c } from '@sys/color/ansi';
 import { Cli, Fmt } from '@sys/cli';
-import { Str } from '@sys/std';
-
+import { Str } from '@sys/std/str';
 /**
  * Create a keyboard listener to control the running dev server.
  */
 export async function keyboard(args: {
   port: number;
+  url?: string;
   print?: boolean;
   dispose?: () => Promise<void>;
 }) {
@@ -33,7 +33,7 @@ export async function keyboard(args: {
        * OPEN → open the local browser and point it at the running port.
        */
       if (e.key === 'o') {
-        const url = `http://localhost:${args.port}`;
+        const url = args.url ?? `http://localhost:${args.port}`;
         sh.run(`open ${url}`);
       }
 

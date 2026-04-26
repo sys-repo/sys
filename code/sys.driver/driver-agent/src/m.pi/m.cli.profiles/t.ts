@@ -19,7 +19,7 @@ export declare namespace PiCliProfiles {
     /** Wrapper argv; args after `--` pass through to Pi. */
     readonly argv?: readonly string[];
     /** Terminal working directory used to resolve profile paths. */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: t.StringDir | t.PiCli.Cwd;
     /** Environment overrides passed to the Pi process. */
     readonly env?: Record<string, string>;
     /** Extra read-scope paths added to the Pi sandbox. */
@@ -30,10 +30,10 @@ export declare namespace PiCliProfiles {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
-  /** Concrete run request after profile selection. */
+  /** Concrete run request after startup cwd resolution. */
   export type RunArgs = {
-    /** Terminal working directory used to resolve profile paths. */
-    readonly cwd?: t.StringDir;
+    /** Git-rooted cwd contract already resolved by startup. */
+    readonly cwd: t.PiCli.Cwd;
     /** Profile config YAML file. */
     readonly config: t.StringPath;
     /** Extra Pi args appended at invocation time. */
@@ -59,6 +59,7 @@ export declare namespace PiCliProfiles {
     readonly help?: boolean;
     readonly config?: string;
     readonly profile?: string;
+    readonly gitRoot?: t.PiCli.GitRootMode;
     /** Pi args captured after `--`. */
     readonly _: readonly string[];
   };
@@ -119,6 +120,12 @@ export declare namespace PiCliProfiles {
     };
   }
 
+  /** Prompt policy for a Pi profile. */
+  export type Prompt = {
+    /** Replace Pi's default system prompt when set. */
+    readonly system?: string | null;
+  };
+
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
@@ -128,6 +135,8 @@ export declare namespace PiCliProfiles {
 
     /** YAML document persisted per profile config file. */
     export type Profile = {
+      /** Optional prompt override policy for this profile. */
+      readonly prompt?: PiCliProfiles.Prompt;
       /** Explicit sandbox policy for this profile. */
       readonly sandbox?: PiCliProfiles.Sandbox;
     };

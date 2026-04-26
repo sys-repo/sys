@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.284",
+  "version": "0.0.293",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
@@ -8,6 +8,7 @@
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
@@ -52,3 +53,4 @@
     }
   }
 }
+

@@ -4,8 +4,11 @@ import { menu } from '../u.menu.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
@@ -17,27 +20,28 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       const path = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
-      const text = await Deno.readTextFile(path);
+      const read = await Fs.readText(path);
+      expect(read.ok).to.eql(true);
+      const text = read.data ?? '';
 
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('# pi profile: default');
       expect(text).to.contain('# Typed Pi launcher policy.');
-      expect(text).to.contain('# Sandbox paths resolve relative to the current working directory.');
+      expect(text).to.contain('prompt:');
       expect(text).to.contain('sandbox:');
-      expect(text).to.contain('read: []   # extra readable paths');
-      expect(text).to.contain('write: []  # extra writable paths');
-      expect(text).to.contain('env: {}    # extra environment variables');
-      expect(text).to.contain('include: []  # extra context files');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
-  it('menu → uses Agent: for the action prompt', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+  it('menu → uses Harness: for the action prompt', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
     let topLevelCount = 0;
 
@@ -49,7 +53,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Agent:') {
+        if (input.message === 'Harness:') {
           return Promise.resolve('back');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
@@ -59,18 +63,21 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
-      expect(calls).to.eql(['Agent:\n', 'Agent:', 'Agent:\n']);
+      expect(calls).to.eql(['Agent:\n', 'Harness:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('menu → sandbox prints effective scope and returns to the action menu', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
     const prints: string[] = [];
     let topLevelCount = 0;
@@ -84,7 +91,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Agent:') {
+        if (input.message === 'Harness:') {
           actionCount += 1;
           if (actionCount === 1) return Promise.resolve('sandbox');
           return Promise.resolve('back');
@@ -99,13 +106,14 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.contain('Agent:Sandbox');
-      expect(printed).to.match(/report\s+.*\/\.log\/@sys\.driver-agent\.pi\/\d+\.[a-z0-9]+\.sandbox\.log\.md/);
+      expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
+      expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['Agent:\n', 'Agent:', 'Agent:', 'Agent:\n']);
+      expect(prompts).to.eql(['Agent:\n', 'Harness:', 'Harness:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 });

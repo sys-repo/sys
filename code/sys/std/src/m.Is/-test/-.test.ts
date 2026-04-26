@@ -9,7 +9,8 @@ import {
 } from '../../common.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Url } from '../../m.Url/mod.ts';
-import { Err, Is } from '../../mod.ts';
+import { Err } from '../../m.Err/mod.ts';
+import { Is } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('API', () => {

@@ -1,5 +1,11 @@
 export { Hash } from '@sys/crypto/hash';
 export { Fetch, Http } from '@sys/http/client';
-export { Err, Is, JsrUrl, Path, Pkg, Time, slug } from '@sys/std';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
+export { slug } from '@sys/std/random';
+export { Time } from '@sys/std/time';
+export { JsrUrl } from '@sys/std/url';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver';

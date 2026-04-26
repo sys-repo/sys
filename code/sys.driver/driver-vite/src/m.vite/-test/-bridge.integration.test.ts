@@ -2,7 +2,31 @@ import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-tes
 import { Vite } from '../mod.ts';
 import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
 
+type O = Record<string, unknown>;
+
 describe('Vite @sys bridge integration', () => {
+  it('fixture bridge writes and restores local tsconfig authority', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.fixture.' });
+    const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
+    const tsconfigPath = Fs.join(dir, 'tsconfig.json');
+    await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
+
+    const restore = await writeLocalBridgeImports(dir);
+    try {
+      type T = { compilerOptions?: O; include?: string[] };
+      const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
+      expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
+      expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
+      expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
+      expect(tsconfig.compilerOptions?.jsxImportSource).to.eql('react');
+      expect(tsconfig.include).to.eql(['src/**/*']);
+    } finally {
+      await restore();
+      expect(await Fs.exists(tsconfigPath)).to.eql(false);
+      await Fs.remove(fs.absolute, { log: false });
+    }
+  });
+
   it('build: resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.build.' });

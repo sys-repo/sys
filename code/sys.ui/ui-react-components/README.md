@@ -1,13 +1,13 @@
 # UI Components
-Library of common `<React>` system components.
 
+Library of common `<React>` system components.
 
 # Example
 
 ```tsx
-import { Button } from '@sys/ui-react-components';
+import { Button } from '@sys/ui-react-components/button';
 
-function MyComponent(props:{ text: string }){
-  return <Button>{text}</Button>
-} 
+function MyComponent(props: { text: string }) {
+  return <Button>{props.text}</Button>;
+}
 ```

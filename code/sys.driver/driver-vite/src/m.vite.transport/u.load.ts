@@ -1,37 +1,159 @@
+import { Perf } from '../common/u.perf.ts';
 import { Fs, Path, type t } from './common.ts';
-import { transform } from 'npm:esbuild@0.28.0';
+import { transformSync } from 'npm:esbuild@0.28.0';
+import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
-import { parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
+import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
 
-export type DenoLoadResult =
-  | string
-  | {
-      readonly code: string;
-      readonly map: string | null;
-    };
+export type DenoLoadResult = string | t.DenoTransformedModule;
 
 export async function loadDenoModule(
   id: string,
   dependencies: readonly t.DenoDependency[] = [],
   options: {
     readonly browserIds?: boolean;
+    readonly transformCacheDir?: string;
   } = {},
 ): Promise<DenoLoadResult> {
-  const { loader, resolved } = parseDenoSpecifier(id);
+  const parsed = parseDenoSpecifier(id);
+  const loader = parsed.loader as t.DenoLoader;
+  const { resolved } = parsed;
+  const end = Perf.section('transport.loadDenoModule', {
+    id,
+    loader,
+    dependencies: dependencies.length,
+    browserIds: options.browserIds ?? false,
+  }, { level: 3 });
   const original = (await Fs.readText(resolved)).data ?? '';
   const content = rewriteResolvedImports(original, dependencies, options);
 
-  if (loader === 'JavaScript') return content;
-  if (loader === 'Json') return `export default ${content}`;
+  if (loader === 'JavaScript') {
+    end({ transform: false, bytes: content.length });
+    return content;
+  }
+  if (loader === 'Json') {
+    const code = `export default ${content}`;
+    end({ transform: false, bytes: code.length });
+    return code;
+  }
 
-  const result = await transform(content, {
+  const cache = TransformCache.plan({
+    cacheDir: options.transformCacheDir,
+    browserIds: options.browserIds ?? false,
+    id: parsed.id,
+    resolved,
+    loader,
+    source: original,
+    dependencies,
+  });
+  if (cache.kind === 'ready') {
+    const cached = await TransformCache.read(cache.plan);
+    if (cached.kind === 'hit') {
+      Perf.log('transport.transform.cache.hit', { id: parsed.id, loader, key: cache.plan.key }, {
+        level: 2,
+        dedupeKey: `transport.transform.cache.hit:${cache.plan.key}`,
+      });
+      end({ transform: true, cache: 'hit', bytes: cached.value.code.length });
+      return cached.value;
+    }
+    if (cached.kind === 'invalid') {
+      Perf.log('transport.transform.cache.validationFailed', {
+        id: parsed.id,
+        loader,
+        key: cache.plan.key,
+        reason: cached.reason,
+      }, { level: 1, dedupeKey: `transport.transform.cache.validationFailed:${cache.plan.key}:${cached.reason}` });
+    } else {
+      Perf.log('transport.transform.cache.miss', { id: parsed.id, loader, key: cache.plan.key }, {
+        level: 2,
+        dedupeKey: `transport.transform.cache.miss:${cache.plan.key}`,
+      });
+    }
+  } else {
+    Perf.log('transport.transform.cache.bypass', { id: parsed.id, loader, reason: cache.reason }, {
+      level: 2,
+      dedupeKey: `transport.transform.cache.bypass:${parsed.id}:${loader}:${cache.reason}`,
+    });
+  }
+
+  const transformed = await transformModule(content, loader, resolved);
+  const code = rewriteResolvedImports(transformed.code, dependencies, options);
+  const result = {
+    code,
+    map: transformed.map,
+  } as const;
+  if (cache.kind === 'ready') {
+    await TransformCache.write(cache.plan, result);
+    Perf.log('transport.transform.cache.write', { id: parsed.id, loader, key: cache.plan.key }, {
+      level: 2,
+      dedupeKey: `transport.transform.cache.write:${cache.plan.key}`,
+    });
+  }
+  end({ transform: true, cache: cache.kind === 'ready' ? 'write' : 'bypass', bytes: code.length });
+  return result;
+}
+
+async function transformModule(content: string, loader: t.DenoLoader, sourcefile: string) {
+  const cli = Deno.env.get('ESBUILD_BINARY_PATH')?.trim();
+  if (cli) return await transformModuleWithCli({ cli, content, loader, sourcefile });
+
+  const end = Perf.section('transport.transform.esbuildSync', { loader, sourcefile }, {
+    level: 3,
+    thresholdMs: 10 as t.Msecs,
+  });
+  const result = transformSync(content, {
     format: 'esm',
     loader: mediaTypeToLoader(loader),
     logLevel: 'debug',
   });
+  end({ bytes: result.code.length });
 
-  const map = result.map === '' ? null : result.map;
-  return { code: rewriteResolvedImports(result.code, dependencies, options), map };
+  return {
+    code: result.code,
+    map: result.map === '' ? null : result.map,
+  } as const;
+}
+
+async function transformModuleWithCli(args: {
+  cli: string;
+  content: string;
+  loader: t.DenoLoader;
+  sourcefile: string;
+}) {
+  const end = Perf.section('transport.transform.esbuildCli', {
+    loader: args.loader,
+    sourcefile: args.sourcefile,
+  }, { level: 3, thresholdMs: 10 as t.Msecs });
+  const child = new Deno.Command(args.cli, {
+    args: [
+      '--format=esm',
+      `--loader=${mediaTypeToLoader(args.loader)}`,
+      '--log-level=debug',
+      `--sourcefile=${args.sourcefile}`,
+    ],
+    stdin: 'piped',
+    stdout: 'piped',
+    stderr: 'piped',
+  }).spawn();
+
+  const writer = child.stdin.getWriter();
+  await writer.write(new TextEncoder().encode(args.content));
+  await writer.close();
+
+  const output = await child.output();
+  if (!output.success) {
+    const stderr = new TextDecoder().decode(output.stderr);
+    const stdout = new TextDecoder().decode(output.stdout);
+    end({ ok: false });
+    throw new Error(stderr || stdout || `esbuild transform failed: ${args.sourcefile}`);
+  }
+
+  const code = new TextDecoder().decode(output.stdout);
+  end({ ok: true, bytes: code.length });
+  return {
+    code,
+    map: null,
+  } as const;
 }
 
 export function mediaTypeToLoader(media: string) {
@@ -82,9 +204,10 @@ function resolvedImportSpecifier(
 ) {
   const { resolvedSpecifier: specifier, localPath } = dependency;
   if (localPath && dependency.loader && isRemoteLike(specifier)) {
+    const sourceId = canonicalRemoteSpecifier(specifier);
     return options.browserIds
-      ? toBrowserDenoSpecifier(dependency.loader, specifier, localPath)
-      : toDenoSpecifier(dependency.loader, specifier, localPath);
+      ? toBrowserDenoSpecifier(dependency.loader, sourceId, localPath)
+      : toDenoSpecifier(dependency.loader, sourceId, localPath);
   }
   if (specifier.startsWith('file://')) return Path.fromFileUrl(specifier);
   if (specifier.startsWith('npm:')) return specifier;
@@ -95,12 +218,14 @@ function isRemoteLike(specifier: string) {
   return (
     specifier.startsWith('http://') ||
     specifier.startsWith('https://') ||
+    specifier.startsWith('http:/') ||
+    specifier.startsWith('https:/') ||
     specifier.startsWith('jsr:')
   );
 }
 
 function toBrowserDenoSpecifier(loader: t.DenoLoader, id: string, resolved: string) {
-  const specifier = `\0deno::${loader}::${id}::${Path.normalize(resolved)}`;
+  const specifier = toDenoSpecifier(loader, id, resolved);
   return `/@id/${specifier.replace('\0', '__x00__')}`;
 }
 

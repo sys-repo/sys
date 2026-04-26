@@ -3,7 +3,7 @@ import { Tabs } from '../mod.ts';
 
 describe('Layout.Tabs', () => {
   it('API', async () => {
-    const m = await import('@sys/ui-react-components');
+    const m = await import('@sys/ui-react-components/layout/tabs');
     expect(m.Tabs).to.equal(Tabs);
   });
 

@@ -1,4 +1,4 @@
-import { type t, Fs, c, describe, expect, it } from '../../-test.ts';
+import { c, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
 
 describe('Config.Build', () => {
@@ -8,6 +8,16 @@ describe('Config.Build', () => {
     const includesPlugin = (config: t.ViteUserConfig, name: string) => {
       const plugins = (config.plugins ?? []).flat() as t.VitePlugin[];
       return plugins.some((p) => p.name.toLowerCase().includes(name));
+    };
+
+    const resolveAlias = async (cwd: string, workspace: string, find: string) => {
+      const config = await ViteConfig.app({
+        paths: ViteConfig.paths({ cwd }),
+        workspace,
+        plugins: { optimizeImports: false },
+      });
+      const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
+      return aliases.find((item) => item.find === find)?.replacement;
     };
 
     const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
@@ -41,8 +51,10 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql(p.cwd);
       expect(config.envDir).to.eql(p.cwd);
+      expect(config.cacheDir).to.eql(Fs.join(p.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
+      expect(config.optimizeDeps).to.eql(undefined);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
@@ -91,7 +103,7 @@ describe('Config.Build', () => {
     it('supports app config without a workspace', async () => {
       const config = await ViteConfig.app({ workspace: false });
 
-      expect(config.resolve?.alias).to.eql(undefined);
+      expect(config.resolve?.alias).to.eql([]);
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
       expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
     });
@@ -101,19 +113,19 @@ describe('Config.Build', () => {
       try {
         await Fs.write(
           Fs.join(fs.absolute, 'deno.json'),
-          JSON.stringify({
+          Json.stringify({
             name: '@tmp/manual',
             version: '0.0.0',
             nodeModulesDir: 'manual',
             importMap: 'imports.json',
-          }, null, 2),
+          }, 2),
         );
-        await Fs.write(Fs.join(fs.absolute, 'imports.json'), JSON.stringify({ imports: {} }, null, 2));
+        await Fs.write(Fs.join(fs.absolute, 'imports.json'), Json.stringify({ imports: {} }, 2));
 
         const paths = ViteConfig.paths({ cwd: fs.absolute });
         const config = await ViteConfig.app({ workspace: false, paths });
 
-        expect(config.resolve?.alias).to.eql(undefined);
+        expect(config.resolve?.alias).to.eql([]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -127,7 +139,7 @@ describe('Config.Build', () => {
         const paths = ViteConfig.paths({ cwd: fs.absolute });
         const config = await ViteConfig.app({ workspace: false, paths });
 
-        expect(config.resolve?.alias).to.eql(undefined);
+        expect(config.resolve?.alias).to.eql([]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(false);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -148,6 +160,7 @@ describe('Config.Build', () => {
       print(config, '(custom paths)', paths);
 
       expect(config.root).to.eql('/foo/src');
+      expect(config.cacheDir).to.eql(Fs.join(paths.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, 'foobar/out'));
 
       const input = config.build?.rollupOptions?.input as any;
@@ -165,6 +178,38 @@ describe('Config.Build', () => {
 
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
+      expect(config.cacheDir).to.eql('/pkg/node_modules/.vite');
+    });
+
+    it('passes optimizeDeps through without adding driver defaults', async () => {
+      const optimizeDeps: NonNullable<t.ViteUserConfig['optimizeDeps']> = {
+        include: ['react', 'react-dom/client'],
+        exclude: ['@acme/skip'],
+        entries: ['src/-test/index.html'],
+      };
+      const config = await ViteConfig.app({ optimizeDeps });
+
+      expect(config.optimizeDeps).to.eql(optimizeDeps);
+    });
+
+    it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.alias.direct.', { direct: true });
+      try {
+        const actual = await resolveAlias(fs.appDir, fs.workspaceFile, 'react-inspector');
+        expect(actual).to.eql(fs.authorityPackageDir);
+      } finally {
+        await Fs.remove(fs.root);
+      }
+    });
+
+    it('extends the react-inspector authority alias to transitive workspace consumers', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.alias.transitive.', { transitive: true });
+      try {
+        const actual = await resolveAlias(fs.appDir, fs.workspaceFile, 'react-inspector');
+        expect(actual).to.eql(fs.authorityPackageDir);
+      } finally {
+        await Fs.remove(fs.root);
+      }
     });
 
     it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {
@@ -179,9 +224,84 @@ describe('Config.Build', () => {
       const chunk = manualChunks.manualChunks as undefined | ((id: string) => string | undefined);
 
       expect(typeof chunk).to.eql('function');
-      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql('react');
-      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js')).to.eql('react.dom');
-      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(undefined);
+      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql(
+        'react',
+      );
+      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js'))
+        .to.eql('react.dom');
+      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(
+        undefined,
+      );
     });
   });
 });
+
+const fixture = {
+  async aliasWorld(
+    prefix: string,
+    options: { direct?: boolean; transitive?: boolean },
+  ) {
+    const fs = await Fs.makeTempDir({ prefix });
+    const root = await Fs.realPath(fs.absolute);
+    const workspaceFile = Path.join(root, 'deno.json');
+    const authorityPackageDir = Path.join(root, 'node_modules', 'react-inspector');
+    const appDir = Path.join(root, 'code', 'app');
+    const libDir = Path.join(root, 'code', 'lib');
+
+    await fixture.packageJson(Path.join(root, 'package.json'), {
+      name: '@tmp/root',
+      version: '0.0.0',
+      private: true,
+    });
+    await Fs.writeJson(workspaceFile, {
+      name: '@tmp/workspace',
+      version: '0.0.0',
+      workspace: ['./code/app', './code/lib'],
+    });
+
+    await fixture.workspaceMember(appDir, '@tmp/app');
+    await fixture.workspaceMember(libDir, '@tmp/lib');
+    await fixture.reactLinkedPackage(authorityPackageDir, '0.0.0-fixture');
+
+    if (options.direct) {
+      await fixture.reactLinkedPackage(
+        Path.join(appDir, 'node_modules', 'react-inspector'),
+        '0.0.0-fixture',
+      );
+    }
+
+    if (options.transitive) {
+      await fixture.reactLinkedPackage(
+        Path.join(libDir, 'node_modules', 'react-inspector'),
+        '0.0.0-fixture',
+      );
+    }
+
+    return { root, workspaceFile, authorityPackageDir, appDir, libDir } as const;
+  },
+
+  async workspaceMember(dir: string, name: string) {
+    await Fs.ensureDir(Path.join(dir, 'src'));
+    await Fs.write(Path.join(dir, 'src', 'mod.ts'), 'export const ok = true;\n');
+    await Fs.writeJson(Path.join(dir, 'deno.json'), {
+      name,
+      version: '0.0.0',
+      exports: { './mod': './src/mod.ts' },
+    });
+  },
+
+  async reactLinkedPackage(dir: string, version: string) {
+    await fixture.packageJson(Path.join(dir, 'package.json'), {
+      name: 'react-inspector',
+      version,
+      peerDependencies: {
+        react: '^19.0.0',
+      },
+    });
+  },
+
+  async packageJson(path: string, data: Record<string, unknown>) {
+    await Fs.ensureDir(Path.dirname(path));
+    await Fs.write(path, Json.stringify(data, 2));
+  },
+} as const;

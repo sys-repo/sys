@@ -6,7 +6,7 @@
  * Display a CLI spinner:
  *
  * ```ts
- * import { Time } from '@sys/std';
+ * import { Time } from '@sys/std/time';
  * import { Cli } from '@sys/cli';
  *
  * const spinner = Cli.spinner(Cli.Fmt.spinnerText('My long running process...'));

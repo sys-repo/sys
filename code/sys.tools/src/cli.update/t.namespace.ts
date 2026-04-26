@@ -13,6 +13,21 @@ export namespace UpdateTool {
   export type CliArgs = t.Tools.CliArgs & { latest?: boolean };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
+  /** Cached advisory record persisted between root CLI startups. */
+  export type AdvisoryRecord =
+    | {
+      readonly ok: true;
+      readonly checkedAt: t.UnixTimestamp;
+      readonly package: t.StringPkgName;
+      readonly remote: t.StringSemver;
+    }
+    | {
+      readonly ok: false;
+      readonly checkedAt: t.UnixTimestamp;
+      readonly package: t.StringPkgName;
+      readonly error: string;
+    };
+
   /** Table of update versions. */
   export type VersionInfo = {
     readonly local: t.StringSemver;

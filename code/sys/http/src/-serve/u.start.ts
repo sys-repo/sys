@@ -14,8 +14,15 @@ export async function start(args: t.HttpServeArgs) {
   const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
   const options = HttpServer.options({ port, pkg, hash, dir });
 
-  Deno.serve(options, app.fetch);
-  if (resolveKeyboard(args)) await HttpServer.keyboard({ port, print: true });
+  const listener = Deno.serve(options, app.fetch);
+  const addr = listener.addr as Deno.NetAddr;
+  if (resolveKeyboard(args)) {
+    await HttpServer.keyboard({
+      port: addr.port,
+      url: `http://localhost:${addr.port}`,
+      print: true,
+    });
+  }
 }
 
 /** Resolve whether the interactive keyboard listener should start. */

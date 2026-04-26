@@ -19,8 +19,13 @@ export async function serve(args: t.ViteEntryArgsServe) {
   const fmtDirExists = c.yellow(!dirExists ? c.bold('(does not exist)') : '');
   console.info(c.gray(`Static:   ${fmtDir}/ ${fmtDirExists}`));
 
-  Deno.serve(options, app.fetch);
-  await Http.Server.keyboard({ port, print: !silent });
+  const listener = Deno.serve(options, app.fetch);
+  const addr = listener.addr as Deno.NetAddr;
+  await Http.Server.keyboard({
+    port: addr.port,
+    url: `http://localhost:${addr.port}`,
+    print: !silent,
+  });
 }
 
 /**

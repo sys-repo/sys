@@ -1,7 +1,6 @@
 import { DenoDeploy } from '@sys/driver-deno/cloud';
 import { Env } from '@sys/fs';
-import { Args } from '@sys/std';
-
+import { Args } from '@sys/std/args';
 const env = await Env.load({ search: 'upward' });
 const argv = Args.parse(Deno.args, {
   boolean: ['prod', 'production'],

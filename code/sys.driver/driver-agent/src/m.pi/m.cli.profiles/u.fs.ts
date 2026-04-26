@@ -22,6 +22,9 @@ export const ProfilesFs = {
       # Typed Pi launcher policy.
       # Sandbox paths resolve relative to the current working directory.
 
+      prompt:
+        system: null  # override default system prompt
+
       sandbox:
         capability:
           read: []   # extra readable paths

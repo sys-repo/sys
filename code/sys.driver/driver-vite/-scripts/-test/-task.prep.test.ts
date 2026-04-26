@@ -2,7 +2,7 @@ import type * as dt from '@sys/driver-deno/t';
 import { describe, expect, Fs, it } from '../../src/-test.ts';
 import { SAMPLE } from '../../src/-test/u.SAMPLE.ts';
 import { syncPublishedFixture, syncPublishedFixtureImport, syncPublishedFixtureImports } from '../task.prep.u.published.ts';
-import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport, syncWasmPluginImport } from '../task.prep.ts';
+import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport, syncTransportLoaderVersion, syncWasmPluginImport } from '../task.prep.ts';
 
 describe('driver-vite prep', () => {
   it('syncs the transport loader import from root deps.yaml', async () => {
@@ -32,6 +32,37 @@ describe('driver-vite prep', () => {
     const text = (await Fs.readText(targetPath)).data ?? '';
     expect(text).to.include("from 'npm:esbuild@0.27.3'");
     expect(text).to.not.include("from 'npm:esbuild@0.27.2'");
+
+    await Fs.remove(fs.absolute);
+  });
+
+  it('syncs the transport loader cache version from root deps.yaml', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'driver-vite.prep.' });
+    const depsPath = Fs.join(fs.absolute, 'deps.yaml');
+    const targetPath = Fs.join(fs.absolute, 'u.cache.ts');
+
+    await Fs.write(
+      depsPath,
+      `
+        groups:
+          build/tools/vite:
+            - import: npm:esbuild@0.27.3
+
+        deno.json:
+          - group: build/tools/vite
+      `,
+    );
+
+    await Fs.write(
+      targetPath,
+      "const ESBUILD_VERSION = '0.27.2';\nexport const ok = true;\n",
+    );
+
+    await syncTransportLoaderVersion({ depsPath, targetPath });
+
+    const text = (await Fs.readText(targetPath)).data ?? '';
+    expect(text).to.include("const ESBUILD_VERSION = '0.27.3'");
+    expect(text).to.not.include("const ESBUILD_VERSION = '0.27.2'");
 
     await Fs.remove(fs.absolute);
   });
@@ -166,6 +197,17 @@ describe('driver-vite prep', () => {
     expect(imports['@sys/ui-dom']).to.eql('jsr:@sys/ui-dom@0.0.237');
 
     await Fs.remove(fs.absolute);
+  });
+
+  it('keeps the published ui-components fixture leaf import pinned explicitly', async () => {
+    const imports =
+      (await Fs.readJson<{ imports?: Record<string, string> }>(`${SAMPLE.Dirs.samplePublishedUiComponents}/imports.json`))
+        .data?.imports ?? {};
+
+    expect(imports['@sys/ui-react-components']).to.match(/^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+$/);
+    expect(imports['@sys/ui-react-components/button']).to.match(
+      /^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+\/button$/,
+    );
   });
 
   it('covers every published sample fixture in prep', () => {

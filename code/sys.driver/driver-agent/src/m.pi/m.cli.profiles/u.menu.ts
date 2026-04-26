@@ -24,21 +24,25 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
     cwd,
     dir: ProfilesFs.dir,
     label: 'Agent',
-    itemLabel: 'profiles',
+    itemLabel: 'profile',
     addLabel: ' add: <profile>',
     defaultName: 'default',
     schema,
     actions: {
-      message: 'Agent:',
+      message: 'Harness:',
       extra: [
         { name: c.green('start'), value: 'run' },
         { name: 'sandbox', value: 'sandbox' },
       ],
       async onAction({ action, path }) {
         if (action !== 'sandbox') return { kind: 'action', action, path };
-        const resolved = await resolveRun({ cwd, config: path });
+        const resolved = await resolveRun({
+          cwd: { invoked: cwd, git: cwd },
+          config: path,
+        });
         const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
         console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+        console.info('');
         return { kind: 'stay' };
       },
     },

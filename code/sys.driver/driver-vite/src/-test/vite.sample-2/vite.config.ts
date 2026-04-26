@@ -6,4 +6,4 @@ export const paths = Vite.Config.paths({
   app: { entry: 'src/-entry/index.html' },
 });
 
-export default defineConfig(() => Vite.Config.app({ paths }));
+export default defineConfig(async () => await Vite.Config.app({ paths }));

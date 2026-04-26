@@ -1,7 +1,7 @@
 import { type t, c, Cli, pkg } from './common.ts';
 import { isToolCommand } from './u.is.ts';
 import { rootRows } from './u.rows.ts';
-import { trimEdgeNewlines } from './u.text.ts';
+import { dedent, trimEdgeNewlines } from './u.text.ts';
 
 type RootMenuAction = t.Root.Command | 'more' | 'back' | 'exit';
 export type RootMenuPick =
@@ -10,11 +10,11 @@ export type RootMenuPick =
 
 const ROOT_MENU_MAX_ROWS = 20;
 
-export async function rootMenu(): Promise<RootMenuPick> {
+export async function rootMenu(args: { highlightUpdate?: boolean } = {}): Promise<RootMenuPick> {
   let scope: 'primary' | 'secondary' = 'primary';
 
   while (true) {
-    const picked = await promptMenu(scope);
+    const picked = await promptMenu(scope, args.highlightUpdate);
 
     if (picked === 'exit') return { kind: 'exit' };
     if (picked === 'more') {
@@ -46,18 +46,21 @@ function visibleText(input?: string): string {
   return Cli.stripAnsi(input ?? '').trim();
 }
 
-async function promptMenu(scope: 'primary' | 'secondary'): Promise<RootMenuAction> {
+export function menuMessage(): string {
+  return dedent(`
+    ${c.green('system:tools')}${c.gray(c.dim('@'))}${c.gray(pkg.version)}
+      ${c.dim(Cli.Fmt.Tree.vert)}
+  `);
+}
+
+async function promptMenu(scope: 'primary' | 'secondary', highlightUpdate?: boolean): Promise<RootMenuAction> {
   const rows = scope === 'primary'
-    ? [...toolMenuRows('primary'), specialRow('more'), ...toolMenuRows('utility')]
-    : [...toolMenuRows('secondary'), specialRow('back')];
+    ? [...toolMenuRows('primary', highlightUpdate), specialRow('more'), ...toolMenuRows('utility', highlightUpdate)]
+    : [...toolMenuRows('secondary', highlightUpdate), specialRow('back')];
   const options = rowsToOptions(rows);
 
-  console.info();
   const picked = await Cli.Input.Select.prompt<RootMenuAction>({
-    message: [
-      `${c.green('system:tools')}${c.gray(c.dim('@'))}${c.gray(pkg.version)}`,
-      `  ${c.dim(Cli.Fmt.Tree.vert)}`,
-    ].join('\n'),
+    message: menuMessage(),
     options,
     hideDefault: true,
     maxRows: ROOT_MENU_MAX_ROWS,
@@ -69,8 +72,9 @@ async function promptMenu(scope: 'primary' | 'secondary'): Promise<RootMenuActio
 
 type MenuRow = { readonly value: RootMenuAction; readonly columns: readonly string[] };
 
-function toolMenuRows(group: 'primary' | 'secondary' | 'utility'): MenuRow[] {
-  return rootRows(group).map((row) => ({ value: row.command, columns: row.columns }));
+function toolMenuRows(group: 'primary' | 'secondary' | 'utility', highlightUpdate?: boolean): MenuRow[] {
+  const highlightCommand = highlightUpdate ? 'update' : undefined;
+  return rootRows(group, { highlightCommand }).map((row) => ({ value: row.command, columns: row.columns }));
 }
 
 function isRootMenuAction(value: string): value is RootMenuAction {

@@ -20,10 +20,14 @@ describe('Root Args', () => {
     }
   });
 
-  it('keeps agent as the canonical root command', () => {
-    const res = parseArgs(['agent', 'x']);
-    expect(res.command).eql('agent');
-    expect(res._).eql(['agent', 'x']);
+  it('keeps pi as the canonical root command and normalizes agent as an alias', () => {
+    const primary = parseArgs(['pi', 'x']);
+    expect(primary.command).eql('pi');
+    expect(primary._).eql(['pi', 'x']);
+
+    const alias = parseArgs(['agent', 'x']);
+    expect(alias.command).eql('pi');
+    expect(alias._).eql(['pi', 'x']);
   });
 
   it('does not accept removed fn command', () => {

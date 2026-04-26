@@ -1,4 +1,4 @@
-import { slug } from '@sys/std';
+import { slug } from '@sys/std/random';
 
 /**
  * Unique identifier generators.

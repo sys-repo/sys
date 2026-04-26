@@ -16,7 +16,10 @@ export async function resolveRead(
   const googleCredentialPath = PiEnv.toGoogleCredentialPath();
   if (googleCredentialPath) scope.add(googleCredentialPath);
   for (const path of toAncestorContextPaths(cwd)) scope.add(path);
-  const gitRoot = await findGitRoot(cwd);
+  if (!(await Fs.exists(cwd))) return [...scope];
+
+  const gitParent = async (dir: string) => (await Fs.stat(Fs.join(dir, '.git'))) ? dir : undefined;
+  const gitRoot = await Fs.findAncestor(cwd, (e) => gitParent(e.dir));
   if (!gitRoot) return [...scope];
 
   scope.add(gitRoot);
@@ -81,14 +84,4 @@ async function toBootstrapContextPaths(gitRoot: t.StringDir) {
   }
 
   return [...paths];
-}
-
-async function findGitRoot(dir: t.StringDir): Promise<t.StringDir | undefined> {
-  let current = dir;
-  while (true) {
-    if (await Fs.stat(Fs.join(current, '.git'))) return current;
-    const parent = Path.dirname(current) as t.StringDir;
-    if (parent === current) return undefined;
-    current = parent;
-  }
 }

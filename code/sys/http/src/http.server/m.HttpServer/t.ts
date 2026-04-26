@@ -34,6 +34,7 @@ export type HttpServerOptionsOptions = {
 /** Arguments passed to [HttpServer.print] */
 export type HttpServerKeyboardOptions = {
   port: number;
+  url?: string;
   print?: boolean;
   dispose?: () => Promise<void>;
 };

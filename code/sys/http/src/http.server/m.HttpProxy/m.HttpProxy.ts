@@ -43,8 +43,15 @@ export const HttpProxy: t.HttpProxy.Lib = {
     const app = HttpProxy.create(options);
     const serverOptions = HttpServer.options({ port, pkg });
 
-    Deno.serve(serverOptions, app.fetch);
-    if (options.keyboard !== false) await HttpServer.keyboard({ port, print: true });
+    const listener = Deno.serve(serverOptions, app.fetch);
+    const addr = listener.addr as Deno.NetAddr;
+    if (options.keyboard !== false) {
+      await HttpServer.keyboard({
+        port: addr.port,
+        url: `http://localhost:${addr.port}`,
+        print: true,
+      });
+    }
   },
 };
 

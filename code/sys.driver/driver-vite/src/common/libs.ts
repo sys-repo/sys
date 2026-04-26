@@ -9,9 +9,12 @@ export { Json } from '@sys/std/json';
 export { slug } from '@sys/std/random';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver/server';
+export { asArray } from '@sys/std/arr';
+export { Is, isRecord } from '@sys/std/is';
+export { Num } from '@sys/std/num';
+export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
-export { Is, Num, Str, asArray, isRecord } from '@sys/std/value';
 
 export { c, Cli, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';

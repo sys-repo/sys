@@ -1,15 +1,29 @@
 import { motion as Motion } from 'motion/react';
 export { AnimatePresence } from 'motion/react';
-export { Motion as M, Motion };
+export { Motion, Motion as M };
 
 /**
  * System
  */
-export { Delete, Err, Is, Json, JsrUrl, Log, Path, Pkg, R, slug, Try, Url } from '@sys/std';
+export { Obj } from '@sys/std/obj';
+export { Try } from '@sys/std/try';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Json } from '@sys/std/json';
+export { Log } from '@sys/std/log';
+export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
+export { slug } from '@sys/std/random';
+export { R } from '@sys/std/r';
+export { JsrUrl, Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';
+export { Arr } from '@sys/std/arr';
+export { Is } from '@sys/std/is';
+export { Num } from '@sys/std/num';
 export { Rx } from '@sys/std/rx';
-export { Time, Timecode } from '@sys/std/time';
-export { Arr, Num, Obj, Str } from '@sys/std/value';
+export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
+export { Timecode } from '@sys/std/timecode';
 export { Filter } from '@sys/text/filter';
 
 export { Http } from '@sys/http/client';

@@ -13,24 +13,22 @@ export { Http } from '@sys/http/client';
 export { Graph } from '@sys/immutable/graph';
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Net } from '@sys/net';
-export {
-  Args,
-  Arr,
-  Delete,
-  Dispose,
-  Err,
-  History,
-  Is,
-  Num,
-  Obj,
-  Path,
-  Pkg,
-  R,
-  Str,
-  Time,
-  Try,
-  Url,
-  slug,
-} from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Dispose } from '@sys/std/dispose';
+export { History } from '@sys/std/history';
+export { Try } from '@sys/std/try';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
+export { Str } from '@sys/std/str';
+export { Args } from '@sys/std/args';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
+export { slug } from '@sys/std/random';
+export { R } from '@sys/std/r';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

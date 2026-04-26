@@ -1,4 +1,15 @@
-export { Arr, Err, Is, Obj, Path, Pkg, Signal, Str, Url, asArray, isRecord, slug } from '@sys/std';
+export { Arr, asArray } from '@sys/std/arr';
+export { isRecord } from '@sys/std/is';
+export { Obj } from '@sys/std/obj';
+export { Str } from '@sys/std/str';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Path } from '@sys/std/path';
+export { Pkg } from '@sys/std/pkg';
+export { slug } from '@sys/std/random';
+export { Signal } from '@sys/std/signal';
+export { Url } from '@sys/std/url';
 export { Rx } from '@sys/std/rx';
-export { Time, Timecode } from '@sys/std/time';
+export { Time } from '@sys/std/time';
+export { Timecode } from '@sys/std/timecode';
 export { Yaml } from '@sys/yaml';

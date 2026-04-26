@@ -1,5 +1,7 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
 import { apply } from '../u.apply.ts';
+
+const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
 
 describe('@sys/workspace/bump apply', () => {
   it('writes bumped package versions and runs followups', async () => {
@@ -16,7 +18,7 @@ describe('@sys/workspace/bump apply', () => {
     await Fs.write(Fs.join(pkgPath, 'src/mod.ts'), `export const a = 'a';\n`);
 
     const plan = {
-      root: {
+      roots: [{
         pkgPath,
         denoFilePath,
         name: '@scope/a',
@@ -24,7 +26,7 @@ describe('@sys/workspace/bump apply', () => {
           current: version(0),
           next: version(1),
         },
-      },
+      }],
       selected: [{
         pkgPath,
         denoFilePath,
@@ -44,8 +46,12 @@ describe('@sys/workspace/bump apply', () => {
         followups: ({ cwd }) => [{
           label: 'write marker',
           cmd: 'deno',
-          args: ['eval', `await Deno.writeTextFile(${JSON.stringify(marker)}, ${JSON.stringify(cwd)})`],
-          cwd,
+          args: [
+            'eval',
+            `import { Fs } from ${Json.stringify(FS_MOD)}; await Fs.write(${
+              Json.stringify(marker)
+            }, ${Json.stringify(cwd)})`,
+          ],
         }],
       },
     });

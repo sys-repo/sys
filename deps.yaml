@@ -4,13 +4,13 @@ deno.json:
   - import: jsr:@std/encoding@1.0.10
   - import: jsr:@std/jsonc@1.0.2
   - import: jsr:@std/fs@1.0.23
-  - import: jsr:@std/http@1.0.25
+  - import: jsr:@std/http@1.1.0
     subpaths: [ file-server ]
   - import: jsr:@std/path@1.1.4
     subpaths: [ join, posix/join, windows/join ]
   - import: jsr:@std/semver@1.0.8
-  - import: jsr:@std/uuid@1.1.0
-  - import: jsr:@std/testing@1.0.17
+  - import: jsr:@std/uuid@1.1.1
+  - import: jsr:@std/testing@1.0.18
     subpaths: [ bdd ]
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
@@ -23,7 +23,7 @@ deno.json:
     dev: true
   - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@8.0.8
+  - import: npm:vite@8.0.10
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -39,8 +39,8 @@ deno.json:
   - import: npm:ollama-ai-provider@1.2.0
   - import: npm:ollama@0.6.3
   - import: npm:gpt-tokenizer@3.4.0
-  - import: npm:@elevenlabs/elevenlabs-js@2.43.0
-  - import: npm:@automerge/automerge@3.2.5
+  - import: npm:@elevenlabs/elevenlabs-js@2.44.0
+  - import: npm:@automerge/automerge@3.2.6
   - import: npm:@automerge/automerge-repo@2.5.5
   - import: npm:@automerge/automerge-repo-network-websocket@2.5.5
   - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.5
@@ -54,19 +54,19 @@ deno.json:
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.4
   - import: npm:yaml@2.8.3
-  - import: jsr:@cliffy/keypress@1.0.0
-  - import: jsr:@cliffy/prompt@1.0.0
-  - import: jsr:@cliffy/table@1.0.0
+  - import: jsr:@cliffy/keypress@1.0.1
+  - import: jsr:@cliffy/prompt@1.0.1
+  - import: jsr:@cliffy/table@1.0.1
   - import: npm:date-fns@4.1.0
   - import: npm:diff@9.0.0
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.14
+  - import: npm:hono@4.12.15
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
-  - import: npm:ora@9.3.0
-  - import: npm:@mariozechner/pi-coding-agent@0.67.68
+  - import: npm:ora@9.4.0
+  - import: npm:@mariozechner/pi-coding-agent@0.70.2
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
@@ -75,9 +75,9 @@ deno.json:
     subpaths: [ operators ]
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
-  - import: npm:ts-essentials@10.1.1
+  - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.2.0
+  - import: npm:@stripe/stripe-js@9.3.1
   - import: npm:ws@8.20.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
@@ -98,7 +98,7 @@ package.json:
     dev: true
   - import: npm:rollup@4.60.2
     dev: true
-  - import: npm:vite@8.0.8
+  - import: npm:vite@8.0.10
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true

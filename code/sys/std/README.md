@@ -4,7 +4,10 @@ Common low(ish)-level utility functions and helpers.
 
 ```ts
 import type { t } from 'jsr:@sys/std/t';
-import { Obj, Num, Str, Pkg } from 'jsr:@sys/std';
+import { Num } from 'jsr:@sys/std/num';
+import { Pkg } from 'jsr:@sys/std/pkg';
+import { Str } from 'jsr:@sys/std/str';
+import { Obj } from 'jsr:@sys/std/obj';
 ```
 
 
@@ -27,17 +30,28 @@ import { Obj, Num, Str, Pkg } from 'jsr:@sys/std';
 
 ```ts
 // Types:
-import type * as t from 'jsr:@sys/std/t';                // ↓
-import type { t } from 'jsr:@sys/std';                   // ↑  (alternative)
+import type * as t from 'jsr:@sys/std/t';
+import type { t } from 'jsr:@sys/std';
 
 // Common:
-export { Arr, Err, Is, Num, Obj, Pkg, Str, Time } from 'jsr:@sys/std';
-import { Args, Dispose, Path, Schedule, Signal } from 'jsr:@sys/std';
+export { Arr } from 'jsr:@sys/std/arr';
+export { Err } from 'jsr:@sys/std/error';
+export { Is } from 'jsr:@sys/std/is';
+export { Num } from 'jsr:@sys/std/num';
+export { Pkg } from 'jsr:@sys/std/pkg';
+export { Str } from 'jsr:@sys/std/str';
+export { Time } from 'jsr:@sys/std/time';
+export { Obj } from 'jsr:@sys/std/obj';
 
-import { DateTime, Time } from 'jsr:@sys/std/date';
-import { Rx } from 'jsr:@sys/std/rx'; // event streams.
+import { Args } from 'jsr:@sys/std/args';
+import { Schedule } from 'jsr:@sys/std/async';
+import { Dispose } from 'jsr:@sys/std/dispose';
+import { Path } from 'jsr:@sys/std/path';
+import { Signal } from 'jsr:@sys/std/signal';
+import { Date, Time } from 'jsr:@sys/std/time';
+import { Rx } from 'jsr:@sys/std/rx';
 
 // Unit-testing:
-import { Testing } from 'jsr:@sys/std/testing';          // ↓
-import { Testing } from 'jsr:@sys/std/testing/server';   // ↑  (alternative)
+import { Testing } from 'jsr:@sys/std/testing';
+import { Testing } from 'jsr:@sys/std/testing/server';
 ```

@@ -1,4 +1,4 @@
-import { Icon } from '@sys/ui-react-components';
+import { Icon } from '@sys/ui-react-components/icon';
 import { MdErrorOutline, MdFace } from 'react-icons/md';
 
 const icon = Icon.renderer;

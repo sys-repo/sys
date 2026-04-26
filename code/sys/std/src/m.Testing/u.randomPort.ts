@@ -1,5 +1,3 @@
-export * from './u.expectError.ts';
-
 /**
  * Retrieves a random unused port.
  */

@@ -1,19 +1,17 @@
-export {
-  Arr,
-  Delete,
-  Err,
-  Is,
-  Json,
-  Lazy,
-  Log,
-  Num,
-  Obj,
-  slug,
-  Str,
-  Time,
-  Try,
-  Url,
-} from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Num } from '@sys/std/num';
+export { slug } from '@sys/std/random';
+export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
+export { Url } from '@sys/std/url';
+export { Lazy } from '@sys/std/lazy';
+export { Try } from '@sys/std/try';
+export { Obj } from '@sys/std/obj';
+export { Log } from '@sys/std/log';
 
 export { Args, c, Cli } from '@sys/cli';
 export { Color } from '@sys/color';

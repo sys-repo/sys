@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { Perf } from '../common/u.perf.ts';
 import { type t, Fs, Path, ViteConfig } from './common.ts';
 import { Bootstrap } from './u.bootstrap.ts';
 
@@ -7,11 +8,13 @@ import { Bootstrap } from './u.bootstrap.ts';
  */
 export const Wrangle = {
   async command(paths: t.ViteConfigPaths, arg: string) {
+    const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg }, { level: 2 });
     const config = 'vite.config.ts';
-    const env = wrangle.env(paths.cwd);
+    const env = await wrangle.env(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
     const args = await wrangle.args(paths, arg, config, env, bootstrap?.path);
     const cmd = ['deno', ...args].join(' ');
+    end({ importMap: bootstrap?.path ?? '', argCount: args.length });
     return {
       cmd,
       args,
@@ -24,6 +27,7 @@ export const Wrangle = {
 
   async pathsFromConfigfile(cwd?: t.StringDir) {
     const rootDir = cwd || Path.cwd();
+    const end = Perf.section('wrangle.pathsFromConfigfile', { cwd: rootDir }, { level: 2 });
     const filename = 'vite.config.ts';
     const path = Path.join(rootDir, filename);
 
@@ -50,11 +54,12 @@ export const Wrangle = {
       paths = { ...paths, app };
     }
 
+    end({ config: path, entry: paths.app.entry, outDir: paths.app.outDir });
     return paths;
   },
 
-  packageAnchor(start: string) {
-    return wrangle.packageAnchor(start);
+  async packageAnchor(start: string) {
+    return await wrangle.packageAnchor(start);
   },
 
   async viteSpecifier(start: string, moduleUrl = import.meta.url) {
@@ -101,19 +106,29 @@ const wrangle = {
     return common;
   },
 
-  env(cwd: string) {
-    return {
-      ESBUILD_BINARY_PATH: wrangle.esbuildBinaryPath(cwd),
+  async env(cwd: string) {
+    const end = Perf.section('wrangle.env', { cwd }, { level: 2 });
+    const env = {
+      ESBUILD_BINARY_PATH: await wrangle.esbuildBinaryPath(cwd),
+      ...Perf.childEnv(),
     } as const;
+    end({ perf: Perf.enabled() });
+    return env;
   },
 
   async viteSpecifier(start: string, moduleUrl = import.meta.url) {
-    const anchors = wrangle.vitePackageAnchors(start, moduleUrl);
+    const end = Perf.section('wrangle.viteSpecifier', { start }, { level: 2 });
+    const anchors = await wrangle.vitePackageAnchors(start, moduleUrl);
+
 
     let lastMissing = '';
     for (const anchor of anchors) {
       const version = await wrangle.viteVersionFromPackage(anchor);
-      if (version) return `npm:vite@${version}`;
+      if (version) {
+        const specifier = `npm:vite@${version}`;
+        end({ anchors: anchors.length, specifier });
+        return specifier;
+      }
       lastMissing = anchor;
     }
 
@@ -121,6 +136,7 @@ const wrangle = {
       throw new Error(`Missing "vite" dependency in package authority: ${start}`);
     }
 
+    end({ ok: false, anchors: anchors.length, lastMissing });
     throw new Error(`Missing "vite" dependency in package authority: ${lastMissing}`);
   },
 
@@ -132,15 +148,18 @@ const wrangle = {
   },
 
   async configLoaderArg(cwd: string) {
-    const version = await wrangle.viteVersionFromPackage(wrangle.packageAnchor(cwd));
-    return wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
+    const end = Perf.section('wrangle.configLoaderArg', { cwd }, { level: 2 });
+    const version = await wrangle.viteVersionFromPackage(await wrangle.packageAnchor(cwd));
+    const arg = wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
+    end({ version, arg });
+    return arg;
   },
 
-  vitePackageAnchors(start: string, moduleUrl = import.meta.url) {
-    const anchors = [wrangle.packageAnchor(start)];
+  async vitePackageAnchors(start: string, moduleUrl = import.meta.url) {
+    const anchors = [await wrangle.packageAnchor(start)];
     const moduleStart = wrangle.moduleStart(moduleUrl);
     if (moduleStart) {
-      const moduleAnchor = wrangle.packageAnchor(moduleStart);
+      const moduleAnchor = await wrangle.packageAnchor(moduleStart);
       if (!anchors.includes(moduleAnchor)) anchors.push(moduleAnchor);
     }
     return anchors;
@@ -151,15 +170,12 @@ const wrangle = {
     return Path.dirname(Path.fromFileUrl(moduleUrl));
   },
 
-  viteCacheDir(cwd: string) {
-    const require = wrangle.esbuildRequire(cwd);
-    const esbuildMain = require.resolve('esbuild');
-    const [nodeModulesDir] = esbuildMain.split(/[\\/]\.deno[\\/]/);
-    return Path.join(nodeModulesDir, '.vite');
+  async viteCacheDir(cwd: string) {
+    return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
   },
 
   async writeRoots(paths: t.ViteConfigPaths) {
-    const roots = [paths.cwd, wrangle.viteCacheDir(paths.cwd)];
+    const roots = [paths.cwd, await wrangle.viteCacheDir(paths.cwd)];
     const canonical = await Promise.all(roots.map((path) => wrangle.tryRealPath(path)));
     return [...new Set([...roots, ...canonical.filter(Boolean)])];
   },
@@ -172,24 +188,38 @@ const wrangle = {
     }
   },
 
-  esbuildBinaryPath(cwd: string) {
-    const require = wrangle.esbuildRequire(cwd);
+  async esbuildBinaryPath(cwd: string) {
+    const end = Perf.section('wrangle.esbuildBinaryPath', { cwd }, { level: 2 });
+    const require = await wrangle.esbuildRequire(cwd);
     const { pkg, subpath } = wrangle.esbuildPackage();
     try {
-      return require.resolve(`${pkg}/${subpath}`);
+      const resolved = require.resolve(`${pkg}/${subpath}`);
+      end({ pkg, source: 'platform-package', resolved });
+      return resolved;
     } catch {
-      // Fall back to the Deno npm layout when the platform package is not linked directly.
+      // Deno's npm layout may not expose the platform package as a direct resolution target.
     }
 
-    const version = wrangle.esbuildVersion(cwd);
-    const { storeDir } = wrangle.esbuildPackage(version);
-    const anchor = wrangle.packageAnchor(cwd);
-    const denoStoreRoot = Path.join(Path.dirname(anchor), 'node_modules', '.deno');
-    return Path.join(denoStoreRoot, storeDir, 'node_modules', pkg, subpath);
+    const esbuildMain = require.resolve('esbuild');
+    const esbuildPkgDir = Path.dirname(Path.dirname(esbuildMain));
+    const siblingBinary = Path.join(Path.dirname(esbuildPkgDir), pkg, subpath);
+    if (await Fs.exists(siblingBinary)) {
+      end({ pkg, source: 'sibling-package', resolved: siblingBinary });
+      return siblingBinary;
+    }
+
+    const binScript = require.resolve('esbuild/bin/esbuild');
+    if (await Fs.exists(binScript)) {
+      end({ pkg, source: 'bin-script', resolved: binScript });
+      return binScript;
+    }
+
+    end({ ok: false, pkg, source: 'missing' });
+    throw new Error(`Failed to resolve esbuild binary from runtime package boundary: ${cwd}`);
   },
 
-  requireFrom(start: string) {
-    return createRequire(wrangle.packageAnchor(start));
+  async requireFrom(start: string) {
+    return createRequire(await wrangle.packageAnchor(start));
   },
 
   moduleRequire() {
@@ -197,8 +227,8 @@ const wrangle = {
     return createRequire(import.meta.url);
   },
 
-  esbuildRequire(cwd: string) {
-    const consumer = wrangle.requireFrom(cwd);
+  async esbuildRequire(cwd: string) {
+    const consumer = await wrangle.requireFrom(cwd);
     try {
       consumer.resolve('esbuild');
       return consumer;
@@ -209,17 +239,13 @@ const wrangle = {
     }
   },
 
-  packageAnchor(start: string) {
+  async packageAnchor(start: string) {
     let current = Path.resolve(start);
 
     while (true) {
       const path = Path.join(current, 'package.json');
-      try {
-        const stat = Deno.statSync(path);
-        if (stat.isFile) return path;
-      } catch {
-        // Keep climbing until we find the consumer package boundary.
-      }
+      const stat = await Fs.stat(path);
+      if (stat?.isFile) return path;
 
       const parent = Path.dirname(current);
       if (parent === current) return Path.join(Path.resolve(start), 'package.json');
@@ -227,40 +253,13 @@ const wrangle = {
     }
   },
 
-  esbuildVersion(cwd: string) {
-    const declared = wrangle.declaredEsbuildVersion(cwd);
-    if (declared) return declared;
-
-    const resolved = wrangle.esbuildRequire(cwd).resolve('esbuild');
-    const match = resolved.match(/[\\/]\.deno[\\/]esbuild@([^\\/]+)[\\/]/);
-    if (match?.[1]) return match[1];
-
-    throw new Error(`Failed to resolve esbuild version from consumer package boundary or runtime path: ${cwd}`);
-  },
-
-  declaredEsbuildVersion(cwd: string) {
-    const anchor = wrangle.packageAnchor(cwd);
-    try {
-      const manifest = Deno.readTextFileSync(anchor);
-      const pkg = JSON.parse(manifest) as {
-        dependencies?: Record<string, string>;
-        devDependencies?: Record<string, string>;
-      };
-      const version = pkg.dependencies?.esbuild?.trim() || pkg.devDependencies?.esbuild?.trim() || '';
-      return version.replace(/^[~^]/, '');
-    } catch {
-      return '';
-    }
-  },
-
-  esbuildPackage(version?: string) {
+  esbuildPackage() {
     const arch = wrangle.normalizeEsbuildArch(Deno.build.arch);
     const key = `${Deno.build.os}/${arch}`;
     const pkg = ESBUILD_PACKAGES[key as keyof typeof ESBUILD_PACKAGES];
     if (!pkg) throw new Error(`Unsupported esbuild platform: ${key}`);
     const subpath = Deno.build.os === 'windows' ? 'esbuild.exe' : 'bin/esbuild';
-    const storeDir = version ? `${pkg.replace('/', '+')}@${version}` : '';
-    return { pkg, storeDir, subpath } as const;
+    return { pkg, subpath } as const;
   },
 
   viteMajor(version: string) {

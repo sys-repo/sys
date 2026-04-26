@@ -1,4 +1,4 @@
-import { type t, Schema, Yaml } from './common.ts';
+import { Schema, type t, Yaml } from './common.ts';
 
 const Type = Schema.Type;
 
@@ -8,6 +8,7 @@ const Type = Schema.Type;
 export const ProfileSchema = {
   initial(): t.PiCliProfiles.Yaml.Profile {
     return {
+      prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
         context: { include: [] },
@@ -29,6 +30,12 @@ export const ProfileSchema = {
 
   schema: Type.Object(
     {
+      prompt: Type.Optional(
+        Type.Object(
+          { system: Type.Optional(Type.Union([Type.String({ minLength: 1 }), Type.Null()])) },
+          { additionalProperties: false },
+        ),
+      ),
       sandbox: Type.Optional(
         Type.Object(
           {
@@ -44,9 +51,7 @@ export const ProfileSchema = {
             ),
             context: Type.Optional(
               Type.Object(
-                {
-                  include: Type.Optional(Type.Array(Type.String())),
-                },
+                { include: Type.Optional(Type.Array(Type.String())) },
                 { additionalProperties: false },
               ),
             ),

@@ -30,7 +30,8 @@ export type PkgLib = {
    * @example
    *
    * ```ts
-   * import { Pkg, type t } from '@sys/std';
+   * import { Pkg } from '@sys/std/pkg';
+   * import type { t } from '@sys/std';
    * import { default as deno } from '../deno.json' with { type: 'json' };
    * export const pkg: t.Pkg = Pkg.fromJson(deno);
    * ```

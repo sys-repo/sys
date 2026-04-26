@@ -10,11 +10,29 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.args`, () => {
       profile: 'canon',
       _: [],
     });
+    expect(ProfileArgs.parse(['--git-root', 'cwd', '--profile', 'canon'])).to.eql({
+      help: false,
+      profile: 'canon',
+      gitRoot: 'cwd',
+      _: [],
+    });
+    expect(ProfileArgs.parse(['--git-root=cwd', '--profile', 'canon'])).to.eql({
+      help: false,
+      profile: 'canon',
+      gitRoot: 'cwd',
+      _: [],
+    });
     expect(ProfileArgs.parse(['--config', './profiles.yaml', '--', '--model']))
       .to.eql({
         help: false,
         config: './profiles.yaml',
         _: ['--model'],
       });
+  });
+
+  it('parse → rejects unsupported git root modes', () => {
+    expect(() => ProfileArgs.parse(['--git-root', 'elsewhere'])).to.throw(
+      'Unsupported --git-root value: elsewhere. Expected one of: walk-up, cwd',
+    );
   });
 });

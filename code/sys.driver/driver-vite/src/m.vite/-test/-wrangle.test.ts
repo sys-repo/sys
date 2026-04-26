@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Path } from '../../-test.ts';
+import { resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Wrangle } from '../u.wrangle.ts';
 
 describe('Vite.Wrangle', () => {
@@ -45,18 +46,18 @@ describe('Vite.Wrangle', () => {
     expect(importMap?.data?.imports?.['#module-sync-enabled']).to.match(
       /^file:.*module-sync-enabled\.mjs$/,
     );
-    expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(
-      'npm:rolldown@1.0.0-rc.11/experimental',
-    );
     expect(importMap?.data?.imports?.zlib).to.eql('node:zlib');
-    expect(importMap?.data?.imports?.tinyglobby).to.eql('npm:tinyglobby@^0.2.15');
-    expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(
-      'npm:@rolldown/pluginutils@1.0.0-rc.7',
+    expect(importMap?.data?.imports?.fs).to.eql(undefined);
+    expect(importMap?.data?.imports?.path).to.eql(undefined);
+    expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(undefined);
+    expect(importMap?.data?.imports?.tinyglobby).to.eql(undefined);
+    expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(undefined);
+    expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to.eql(
+      Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
     );
-    expect(importMap?.data?.imports?.['@sys/http']).to.eql('./src/http.ts');
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include('node_modules/.vite');
+    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
@@ -67,7 +68,7 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
+    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
 
     await res.dispose();
     expect(importMapPath ? await Fs.exists(importMapPath) : false).to.eql(false);
@@ -94,7 +95,7 @@ describe('Vite.Wrangle', () => {
 
     const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
     expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include('node_modules/.vite');
+    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
     expect(res.args).to.include('--allow-env');
     expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
     expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid,networkInterfaces');
@@ -103,28 +104,46 @@ describe('Vite.Wrangle', () => {
     expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
     expect(res.args).to.include(`npm:vite@${consumerVite}`);
     expect(res.args).to.include('--configLoader=native');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@${consumerEsbuild}`);
+    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
     expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
     await res.dispose();
   });
 
-  it('anchors npm resolution at the nearest consumer package boundary', () => {
-    const root = '/tmp/repo';
-    const original = Deno.statSync;
+  it('scopes vite cache writes to the consumer cwd instead of the broader package anchor', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.cache-root-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, {
+      dependencies: { vite: '8.0.2', esbuild: '0.27.4' },
+    });
 
-    Deno.statSync = ((path: string | URL) => {
-      if (String(path) === '/tmp/repo/package.json') {
-        return { isFile: true } as Deno.FileInfo;
-      }
-      throw new Deno.errors.NotFound('missing');
-    }) as typeof Deno.statSync;
+    const paths = {
+      cwd: project,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: '.',
+      },
+    } as const;
 
-    try {
-      const res = Wrangle.packageAnchor('/tmp/repo/code/projects/foo');
-      expect(res).to.eql('/tmp/repo/package.json');
-    } finally {
-      Deno.statSync = original;
-    }
+    const res = await Wrangle.command(paths, 'dev --port=1234 --host');
+    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
+    expect(allowWrite).to.include(project);
+    expect(allowWrite).to.include(`${project}/node_modules/.vite`);
+    expect(allowWrite).to.not.include(`${root}/node_modules/.vite`);
+    await res.dispose();
+  });
+
+  it('anchors npm resolution at the nearest consumer package boundary', async () => {
+    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.anchor-' });
+    const root = tmp.absolute;
+    const project = `${root}/code/projects/foo`;
+    await Fs.ensureDir(project);
+    await Fs.writeJson(`${root}/package.json`, { dependencies: {} });
+
+    const res = await Wrangle.packageAnchor(project);
+    expect(res).to.eql(`${root}/package.json`);
   });
 
   it('viteSpecifier: uses consumer package authority for published https module origins', async () => {

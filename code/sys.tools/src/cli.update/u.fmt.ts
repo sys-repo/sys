@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, pkg, Str } from './common.ts';
+import { c, Cli, Fmt as Base, pkg, Str, type t } from './common.ts';
 import { getVersionInfo } from './u.ts';
 
 const g = c.green;
@@ -10,7 +10,9 @@ export const Fmt = {
   async help() {
     const str = Str.builder();
     const version = await getVersionInfo();
-    const base = await Base.help(Base.invoke('update'), { note: `@sys/tools/${c.white('update')}` });
+    const base = await Base.help(Base.invoke('update'), {
+      note: `@sys/tools/${c.white('update')}`,
+    });
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
     if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();
@@ -54,5 +56,31 @@ export const Fmt = {
       .line(`Local version ${g(version.local)} of ${w(pkg.name)} is the most recent release`)
       .line(c.italic(c.dim(`No update required`)));
     return c.gray(String(str));
+  },
+
+  rootAdvisoryPrelude(remote?: t.StringSemver) {
+    const hr = c.green(Cli.Fmt.hr());
+    const width = Cli.stripAnsi(hr).length;
+    const message = `${c.gray('Run')} ${c.white('sys update --latest')}`;
+    const latest = remote ? c.dim(c.gray(remote)) : undefined;
+
+    return Str.builder()
+      .line(hr)
+      .line(wrangle.rootAdvisoryLine({ width, message, latest }))
+      .line(hr)
+      .toString();
+  },
+} as const;
+
+const wrangle = {
+  rootAdvisoryLine(args: { width: number; message: string; latest?: string }) {
+    const { width, message, latest } = args;
+    if (!latest) return message;
+
+    const left = Cli.stripAnsi(message).length;
+    const right = Cli.stripAnsi(latest).length;
+    const spaces = width - left - right;
+    if (spaces < 2) return message;
+    return `${message}${' '.repeat(spaces)}${latest}`;
   },
 } as const;

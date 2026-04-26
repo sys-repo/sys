@@ -1,9 +1,10 @@
 import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
+
 import { buildSample } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
-describe('Vite published external smoke (baseline)', () => {
-  it('build: published driver-vite resolves @sys imports from dedicated fixture', async () => {
+describe('Vite published external smoke (baseline build)', { sanitizeOps: false, sanitizeResources: false }, () => {
+  it('published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample({
         sampleName: 'Vite.bridge.published.build',
@@ -16,12 +17,15 @@ describe('Vite published external smoke (baseline)', () => {
       expect(files.js.some((file) => file.text.includes('sample-bridge-http'))).to.eql(true);
     });
   });
+});
 
-  it('dev: published driver-vite serves transformed module with @sys imports', async () => {
+describe('Vite published external smoke (baseline dev)', () => {
+  it('published driver-vite serves transformed module with @sys imports', async () => {
     await Testing.retry(2, async () => {
       const { dev, html, entry } = await devSample({
         sampleName: 'Vite.bridge.published.dev',
         sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
+        moduleMode: 'none',
       });
 
       try {

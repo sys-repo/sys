@@ -4,9 +4,22 @@
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Url } from '@sys/immutable/url';
 export { Schema, Type, Value } from '@sys/schema';
-export { V, toSchema } from '@sys/schema/recipe';
-export { Arr, Delete, Err, Is, Lazy, Log, Num, Obj, Pkg, Str, Try, isRecord, slug } from '@sys/std';
-export { Time, Timecode } from '@sys/std/time';
+export { toSchema, V } from '@sys/schema/recipe';
+export { Arr } from '@sys/std/arr';
+export { isRecord } from '@sys/std/is';
+export { Lazy } from '@sys/std/lazy';
+export { Try } from '@sys/std/try';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
+export { Str } from '@sys/std/str';
+export { Delete } from '@sys/std/delete';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Log } from '@sys/std/log';
+export { Pkg } from '@sys/std/pkg';
+export { slug } from '@sys/std/random';
+export { Time } from '@sys/std/time';
+export { Timecode } from '@sys/std/timecode';
 
 export { Rx } from '@sys/std/rx';
 export { Signal } from '@sys/ui-react';

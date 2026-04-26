@@ -1,7 +1,7 @@
-import { type t, Fs, Process, Semver } from './common.ts';
+import { Fs, Json, Process, Semver, type t } from './common.ts';
 
 export const apply: t.WorkspaceBump.Lib['apply'] = async (args) => {
-  const cwd = args.cwd ?? Deno.cwd();
+  const cwd = args.cwd ?? Fs.cwd();
   const writes = await writePlan(args.plan);
   const followups = toFollowups({ cwd, plan: args.plan, policy: args.policy });
   await runFollowups(followups);
@@ -18,8 +18,8 @@ export async function writePlan(plan: t.WorkspaceBump.PlanResult) {
     }
 
     const denofile = { ...res.data, version: Semver.toString(candidate.version.next) };
-    const json = `${JSON.stringify(denofile, null, '  ')}\n`;
-    await Deno.writeTextFile(candidate.denoFilePath, json);
+    const json = `${Json.stringify(denofile, '  ')}\n`;
+    await Fs.write(candidate.denoFilePath, json);
     writes.push({
       pkgPath: candidate.pkgPath,
       denoFilePath: candidate.denoFilePath,

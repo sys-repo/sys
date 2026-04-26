@@ -5,9 +5,10 @@
  */
 import React from 'react';
 
-import { type t, Color, css } from './common.ts';
-import { useKeyboard as useDevKeyboard } from '@sys/ui-react-devharness';
-import { HttpOrigin } from '../ui/mod.ts';
+import type * as t from '@sys/types';
+import { Color, css } from '@sys/ui-css';
+import { Keyboard } from '@sys/ui-dom';
+import { HttpOrigin } from '../ui/ui.HttpOrigin/mod.ts';
 
 export type SplashProps = { theme?: t.CommonTheme };
 
@@ -16,7 +17,7 @@ const D = {
 } as const;
 
 export const Splash: React.FC<SplashProps> = (props) => {
-  useDevKeyboard();
+  useSplashKeyboard();
   const state = HttpOrigin.use.Controller(D.storage);
 
   const theme = Color.theme(props.theme ?? 'Dark');
@@ -38,3 +39,20 @@ export const Splash: React.FC<SplashProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+function useSplashKeyboard() {
+  React.useEffect(() => {
+    const keyboard = Keyboard.until();
+
+    keyboard.on('CMD + Enter', () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('dev', 'true');
+      window.location.href = url.href;
+    });
+
+    return keyboard.dispose;
+  }, []);
+}

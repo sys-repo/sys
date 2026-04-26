@@ -1,7 +1,16 @@
 /**
  * Standard: @sys/std
  */
-export { Arr, Err, Is, Json, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
+export { Arr } from '@sys/std/arr';
+export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
+export { Str } from '@sys/std/str';
+export { Try } from '@sys/std/try';
+export { Err } from '@sys/std/error';
+export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
+export { Pkg } from '@sys/std/pkg';
+export { Time } from '@sys/std/time';
 export { Rx } from '@sys/std/rx';
 
 /**
@@ -19,4 +28,6 @@ export { TmplEngine } from '@sys/tmpl-engine';
 export { Color, css, Style } from '@sys/ui-css';
 export { LocalStorage } from '@sys/ui-dom';
 export { Signal } from '@sys/ui-react';
-export { Button, KeyValue, ObjectView } from '@sys/ui-react-components';
+export { Button } from '@sys/ui-react-components/button';
+export { KeyValue } from '@sys/ui-react-components/key-value';
+export { ObjectView } from '@sys/ui-react-components/object-view';

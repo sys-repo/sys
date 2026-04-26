@@ -1,4 +1,4 @@
-import { describe, expect, Json, Path, ROOT, it } from '../../../-test.ts';
+import { describe, expect, Fs, Json, Path, ROOT, it } from '../../../-test.ts';
 
 describe('OptimizeImportsPlugin graph proof', () => {
   it('reduces ui-react-devharness local module graph breadth for the derived narrow import', async () => {
@@ -12,26 +12,17 @@ describe('OptimizeImportsPlugin graph proof', () => {
     expect(counts.root > counts.narrow).to.eql(true);
   });
 
-  it('reduces ui-react-components local module graph breadth for the derived narrow import', async () => {
-    const counts = await graphCounts({
-      packageDir: ROOT.resolve('code/sys.ui/ui-react-components').replaceAll('\\', '/'),
-      rootImport: "import { Button } from '@sys/ui-react-components';",
-      narrowImport: "import { Button } from '@sys/ui-react-components/button';",
-      symbol: 'Button',
-    });
-
-    expect(counts.root > counts.narrow).to.eql(true);
-  });
 });
 
 async function graphCounts(args: { packageDir: string; rootImport: string; narrowImport: string; symbol: string }) {
-  const dir = await Deno.makeTempDir({ prefix: 'optimize-imports-graph-proof-' });
+  const tmp = await Fs.makeTempDir({ prefix: 'optimize-imports-graph-proof-' });
+  const dir = tmp.absolute;
   const rootFile = Path.join(dir, 'root.ts');
   const narrowFile = Path.join(dir, 'narrow.ts');
 
   try {
-    await Deno.writeTextFile(rootFile, `${args.rootImport}\nconsole.info(${args.symbol});\n`);
-    await Deno.writeTextFile(narrowFile, `${args.narrowImport}\nconsole.info(${args.symbol});\n`);
+    await Fs.write(rootFile, `${args.rootImport}\nconsole.info(${args.symbol});\n`);
+    await Fs.write(narrowFile, `${args.narrowImport}\nconsole.info(${args.symbol});\n`);
 
     const rootInfo = await denoInfo(rootFile);
     const narrowInfo = await denoInfo(narrowFile);
@@ -40,7 +31,7 @@ async function graphCounts(args: { packageDir: string; rootImport: string; narro
       narrow: countLocalModules(narrowInfo, args.packageDir),
     } as const;
   } finally {
-    await Deno.remove(dir, { recursive: true }).catch(() => undefined);
+    await Fs.remove(dir, { log: false }).catch(() => undefined);
   }
 }
 

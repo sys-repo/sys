@@ -31,14 +31,15 @@ git lfs install
 ## Tasks
 Core tasks from `deno.json`:
 
-- `deno task ci` → runs baseline quality gates (`check` then `test`)
-- `deno task check` → type-checks the repo
+- `deno task ci` → runs baseline quality gates (`check`, `dry`, then `test`)
+- `deno task dry` → runs workspace package `dry` tasks in topological order, falling back to `deno publish --allow-dirty --dry-run` when missing
+- `deno task check` → runs workspace package `check` tasks in topological order
 - `deno task check:graph` → verifies the generated workspace graph snapshot
 - `deno task info` → prints Deno runtime and workspace source stats
 - `deno task install` → refreshes `deno.lock`
 - `deno task prep` → syncs dependency authority files, the workspace graph snapshot, generated package metadata, and GitHub workflows for workspace packages under `./code/packages`
 - `deno task prep:graph` → writes the workspace graph snapshot only
-- `deno task test` → runs all unit tests within the workspace with permissions `-P=test`
+- `deno task test` → runs workspace package `test` tasks in topological order with permissions `-P=test`
 - `deno task upgrade` → runs the interactive workspace upgrade flow from `deps.yaml`
 
 To run the canonical workspace upgrade flow through the same task surface:

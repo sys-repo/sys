@@ -8,7 +8,7 @@ import { Path } from './common.ts';
 /**
  * Testing constants.
  */
-const dir = Path.resolve('../../..');
+const dir = Path.dirname(Path.fromFileUrl(new URL('../../../../../deno.json', import.meta.url).href));
 export const ROOT = {
   dir,
   resolve: (...path: string[]) => Path.join(dir, ...path),

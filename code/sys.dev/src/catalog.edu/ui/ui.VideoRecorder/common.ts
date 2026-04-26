@@ -1,10 +1,11 @@
-import { type t, Crdt, Log, pkg, Pkg } from '../common.ts';
+import { Crdt, Log, Pkg, pkg, type t } from '../common.ts';
 export * from '../common.ts';
 
 /**
  * Libs:
  */
-export { Media, Spinners } from '@sys/ui-react-components';
+export { Media } from '@sys/ui-react-components/media';
+export { Spinners } from '@sys/ui-react-components/spinners';
 export { Icons } from '../ui.Icons.ts';
 
 /**

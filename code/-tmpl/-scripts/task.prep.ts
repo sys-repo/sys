@@ -1,12 +1,17 @@
-import { Args } from '@sys/std';
+import { Args } from '@sys/std/args';
 import { Fs } from '@sys/fs';
 import { Cli } from '@sys/cli';
 import type * as t from '@sys/types';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import {
-  PATH,
-  PublishedVersion,
   assertImportMap,
+  PATH,
+  PublishedExports,
+  PublishedVersion,
+  assertPublishedImportExports,
+  augmentImportMapFromSpecifiers,
+  augmentTemplateDeps,
+  collectTemplateBareImports,
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
@@ -38,7 +43,9 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const [repoDepsText, repoImports, repoPackage, rootPackage, rootImports] = await Promise.all([
     Fs.readText(path.tmplRepoDeps).then((res) => {
-      if (!res.ok || res.data === undefined) throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+      if (!res.ok || res.data === undefined) {
+        throw new Error(`Failed to read: ${path.tmplRepoDeps}`);
+      }
       return res.data;
     }),
     readJson<t.Json>(path.tmplRepoImports),
@@ -49,15 +56,29 @@ export async function main(options: Options = {}) {
 
   const repoImportMap = assertImportMap(repoImports, path.tmplRepoImports);
   const rootImportMap = assertImportMap(rootImports, path.rootImports);
-  const versions = await resolveVersions(options.versionSource ?? 'workspace', repoImportMap);
+  const templateSpecifiers = await collectTemplateBareImports([
+    Fs.join(root, 'code/-tmpl/-templates/tmpl.repo'),
+    Fs.join(root, 'code/-tmpl/-templates/tmpl.pkg'),
+  ]);
+  const repoImportMapAugmented = augmentImportMapFromSpecifiers(
+    repoImportMap,
+    rootImportMap,
+    templateSpecifiers,
+  );
+  const versionSource = options.versionSource ?? 'workspace';
+  const versions = await resolveVersions(versionSource, repoImportMapAugmented);
+  if (versionSource === 'published') {
+    await assertPublishedImportExports(repoImportMapAugmented, versions, PublishedExports);
+  }
   const repoDeps = await DenoDeps.from(repoDepsText);
   if (repoDeps.error || !repoDeps.data) {
     throw new Error(`Failed to read deps manifest: ${path.tmplRepoDeps}`);
   }
 
-  const nextImports = syncTemplateImports(repoImportMap, rootImportMap, versions);
+  const nextImports = syncTemplateImports(repoImportMapAugmented, rootImportMap, versions);
   const nextPackage = syncTemplatePackage(repoPackage, rootPackage);
-  const nextDeps = syncTemplateDeps(repoDeps.data.deps, versions, rootPackage);
+  const nextDepsAugmented = augmentTemplateDeps(repoDeps.data.deps, templateSpecifiers, versions);
+  const nextDeps = syncTemplateDeps(nextDepsAugmented, versions, rootPackage);
   const nextDepsText = DenoDeps.toYaml(nextDeps).text;
 
   await writeTextIfChanged(path.tmplRepoDeps, repoDepsText, nextDepsText);
@@ -71,7 +92,10 @@ function logCommitMessage(context: CommitContext) {
   const commit = context === 'bump'
     ? 'chore(bump): update package versions and refresh generated outputs'
     : 'chore(tmpl): refresh generated template surfaces and embedded bundle';
-  const suggestion = Cli.Fmt.Commit.suggestion(commit, { title: false, message: { color: 'gray' } });
+  const suggestion = Cli.Fmt.Commit.suggestion(commit, {
+    title: false,
+    message: { color: 'gray' },
+  });
   console.info();
   console.info(`  ${suggestion}`);
   console.info();

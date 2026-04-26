@@ -15,18 +15,15 @@ export {
   useSizeObserver,
 } from '@sys/ui-react';
 
-export {
-  Bullet,
-  Button,
-  Cropmarks,
-  ErrorBoundary,
-  KeyValue,
-  ObjectView,
-  Spinners,
-  SplitPane,
-  Switch,
-  SwitchTheme,
-} from '@sys/ui-react-components';
+export { Bullet } from '@sys/ui-react-components/bullet';
+export { Button } from '@sys/ui-react-components/button';
+export { Cropmarks } from '@sys/ui-react-components/cropmarks';
+export { ErrorBoundary } from '@sys/ui-react-components/error-boundary';
+export { KeyValue } from '@sys/ui-react-components/key-value';
+export { ObjectView } from '@sys/ui-react-components/object-view';
+export { Spinners } from '@sys/ui-react-components/spinners';
+export { SplitPane } from '@sys/ui-react-components/layout/split-pane';
+export { Switch, SwitchTheme } from '@sys/ui-react-components/buttons/switch';
 export { TextInput } from '@sys/ui-react-components/text';
 
 /**

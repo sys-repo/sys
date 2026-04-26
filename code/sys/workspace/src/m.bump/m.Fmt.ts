@@ -5,19 +5,22 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   help() {
     Cli.Fmt.Help.render({
       tool: 'deno task bump',
-      summary: 'Bump workspace packages from a selected topological root.',
-      note: 'Interactive by default; `--from` supports scripted selective bumps.',
+      summary: 'Bump workspace packages from one or more selected topological roots.',
+      note: 'Interactive by default; repeat `--from` for scripted multi-root bumps.',
       usage: [
         'deno task bump',
         'deno task bump -- --release minor',
-        'deno task bump -- --from=@scope/pkg --non-interactive --dry-run',
+        'deno task bump -- --from=@scope/pkg --from=code/sys/fs --non-interactive --dry-run',
       ],
       options: [
         ['-h, --help', 'show help'],
         ['--release <patch|minor|major>', 'choose the semver bump kind (default: patch)'],
-        ['--from <package-name|package-path>', 'select the bump root without an interactive picker'],
+        [
+          '--from <package-name|package-path>',
+          'select bump roots without the interactive picker (repeatable)',
+        ],
         ['--dry-run', 'render the plan without writing files'],
-        ['--non-interactive', 'skip interactive confirmation once a root is known'],
+        ['--non-interactive', 'skip interactive confirmation once bump roots are known'],
       ],
     });
   },
@@ -62,7 +65,7 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
       Semver.Fmt.colorize(args.candidate.version.current),
       args.layout.version,
     );
-    return `${c.cyan('•')} ${c.white(name)}  ${current}  ${path}`;
+    return `${c.white(name)}  ${current}  ${path}`;
   },
 
   preflightRow(args) {
@@ -87,8 +90,14 @@ export const Fmt: t.WorkspaceBump.Fmt.Lib = {
   },
 
   planSummary(args) {
+    const roots = args.plan.roots.map((root) => root.name);
+    const selectedRoots = roots.length === 1
+      ? c.gray(`Selected root: ${c.white(roots[0]!)}`)
+      : c.gray(
+        `Selected roots: ${c.white(String(roots.length))} ${c.dim(`(${wrangle.list(roots)})`)}`,
+      );
     return [
-      c.gray(`Selected root: ${c.white(args.plan.root.name)}`),
+      selectedRoots,
       c.gray(`Affected packages: ${c.white(String(args.plan.selected.length))}`),
     ];
   },
@@ -105,5 +114,11 @@ const wrangle = {
   pad(value: string, width: number) {
     const visible = Cli.stripAnsi(value).length;
     return visible >= width ? value : `${value}${' '.repeat(width - visible)}`;
+  },
+
+  list(values: readonly string[]) {
+    if (values.length <= 3) return values.join(', ');
+    const head = values.slice(0, 3).join(', ');
+    return `${head}, +${values.length - 3} more`;
   },
 } as const;

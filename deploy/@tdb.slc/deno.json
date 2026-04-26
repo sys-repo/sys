@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.2",
+  "version": "0.0.14",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -14,6 +14,7 @@
     "deploy-staging": "deno task test && deno task build && deno task d-ipfs-staging && deno task info --info",
     "deploy-prod": "deno task test && deno task build && deno task d-ipfs-prod && deno task info --info",
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
     "info": "deno run -P=dev   ./-scripts/-main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
@@ -57,3 +58,4 @@
     }
   }
 }
+

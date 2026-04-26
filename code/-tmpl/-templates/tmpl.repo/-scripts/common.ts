@@ -1,7 +1,7 @@
 export * from '../code/common/mod.ts';
 export { Fs } from '@sys/fs';
 export { Process } from '@sys/process';
-export { Args } from '@sys/std';
+export { Args } from '@sys/std/args';
 
 export const PATHS = {
   packages: 'code/packages',

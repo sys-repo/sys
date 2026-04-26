@@ -1,8 +1,8 @@
-import { Player } from '@sys/ui-react-components';
+import { Player } from '@sys/ui-react-components/player';
 import React from 'react';
 
 import type { VideoSchema } from '../-schemas/mod.ts';
-import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
+import { Color, Cropmarks, css, Is, Obj, type t } from '../common.ts';
 
 export type VideoHostProps = {
   data?: VideoSchema;

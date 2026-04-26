@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.360",
+  "version": "0.0.382",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -9,6 +9,7 @@
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno test --node-modules-dir=auto -P=test",
     "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
@@ -70,3 +71,4 @@
     }
   }
 }
+

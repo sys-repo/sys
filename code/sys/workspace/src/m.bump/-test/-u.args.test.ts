@@ -6,7 +6,18 @@ describe('@sys/workspace/bump args', () => {
     const res = Args.parse(['--from', '@scope/a', '--release', 'minor', '--dry-run']);
     expect(res).to.eql({
       help: undefined,
-      from: '@scope/a',
+      from: ['@scope/a'],
+      release: 'minor',
+      dryRun: true,
+      nonInteractive: false,
+    });
+  });
+
+  it('ignores deno task argv separator before bump args', () => {
+    const res = Args.parse(['--', '--from', '@scope/a', '--release', 'minor', '--dry-run']);
+    expect(res).to.eql({
+      help: undefined,
+      from: ['@scope/a'],
       release: 'minor',
       dryRun: true,
       nonInteractive: false,
@@ -25,10 +36,21 @@ describe('@sys/workspace/bump args', () => {
     expect(Args.release('banana')).to.eql(undefined);
   });
 
+  it('accumulates repeated bump roots from argv', () => {
+    const res = Args.parse(['--from', '@scope/a', '--from', 'code/pkg-b']);
+    expect(res).to.eql({
+      help: undefined,
+      from: ['@scope/a', 'code/pkg-b'],
+      release: undefined,
+      dryRun: false,
+      nonInteractive: false,
+    });
+  });
+
   it('resolves canonical run args from argv, overrides, and policy', () => {
     const policy = { couplings: [] } as const;
     const res = Args.run({
-      argv: ['--from', '@scope/a', '--release', 'minor', '--dry-run'],
+      argv: ['--from', '@scope/a', '--from', 'code/pkg-b', '--release', 'minor', '--dry-run'],
       options: { cwd: '/tmp/workspace', nonInteractive: true },
       policy,
     });
@@ -39,7 +61,7 @@ describe('@sys/workspace/bump args', () => {
       run: {
         cwd: '/tmp/workspace',
         release: 'minor',
-        from: '@scope/a',
+        from: ['@scope/a', 'code/pkg-b'],
         dryRun: true,
         nonInteractive: true,
         policy,
