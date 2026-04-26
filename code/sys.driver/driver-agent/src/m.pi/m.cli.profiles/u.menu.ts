@@ -29,7 +29,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
     defaultName: 'default',
     schema,
     actions: {
-      message: 'Agent:',
+      message: 'Harness:',
       extra: [
         { name: c.green('start'), value: 'run' },
         { name: 'sandbox', value: 'sandbox' },

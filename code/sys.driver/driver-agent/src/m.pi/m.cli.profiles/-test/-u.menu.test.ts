@@ -35,7 +35,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → uses Agent: for the action prompt', async () => {
+  it('menu → uses Harness: for the action prompt', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -53,7 +53,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Agent:') {
+        if (input.message === 'Harness:') {
           return Promise.resolve('back');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
@@ -63,7 +63,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
-      expect(calls).to.eql(['Agent:\n', 'Agent:', 'Agent:\n']);
+      expect(calls).to.eql(['Agent:\n', 'Harness:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       await Fs.remove(cwd);
@@ -91,7 +91,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Agent:') {
+        if (input.message === 'Harness:') {
           actionCount += 1;
           if (actionCount === 1) return Promise.resolve('sandbox');
           return Promise.resolve('back');
@@ -109,7 +109,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['Agent:\n', 'Agent:', 'Agent:', 'Agent:\n']);
+      expect(prompts).to.eql(['Agent:\n', 'Harness:', 'Harness:', 'Agent:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
