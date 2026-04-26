@@ -73,6 +73,8 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
         const readGitattributes = await Fs.readText(gitattributes);
         if (!readGitattributes.ok) throw readGitattributes.error;
         expect(readGitattributes.data).to.contain('* text=auto');
+        expect(readGitattributes.data).to.contain('*.png filter=lfs diff=lfs merge=lfs -text');
+        expect(readGitattributes.data).to.contain('*.webp filter=lfs diff=lfs merge=lfs -text');
         expect(readGitattributes.data).to.contain('*.mp4 filter=lfs diff=lfs merge=lfs -text');
       } finally {
         Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
@@ -106,6 +108,8 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.cwd`, () => {
         const readGitattributes = await Fs.readText(gitattributes);
         if (!readGitattributes.ok) throw readGitattributes.error;
         expect(readGitattributes.data).to.contain('# Enforce consistent line endings');
+        expect(readGitattributes.data).to.contain('*.png filter=lfs diff=lfs merge=lfs -text');
+        expect(readGitattributes.data).to.contain('*.webp filter=lfs diff=lfs merge=lfs -text');
         expect(readGitattributes.data).to.contain('*.mov filter=lfs diff=lfs merge=lfs -text');
       } finally {
         Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });

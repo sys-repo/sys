@@ -2,6 +2,11 @@ import { Fs, Str, type t } from './common.ts';
 
 const GITATTRIBUTES = '.gitattributes' as const;
 const MEDIA_LFS_LINES = [
+  '*.png filter=lfs diff=lfs merge=lfs -text',
+  '*.jpg filter=lfs diff=lfs merge=lfs -text',
+  '*.jpeg filter=lfs diff=lfs merge=lfs -text',
+  '*.gif filter=lfs diff=lfs merge=lfs -text',
+  '*.webp filter=lfs diff=lfs merge=lfs -text',
   '*.mp4 filter=lfs diff=lfs merge=lfs -text',
   '*.webm filter=lfs diff=lfs merge=lfs -text',
   '*.mov filter=lfs diff=lfs merge=lfs -text',
@@ -12,6 +17,11 @@ const CANONICAL = `${
   * text=auto
 
   # Track common large binary assets with Git LFS:
+  *.png filter=lfs diff=lfs merge=lfs -text
+  *.jpg filter=lfs diff=lfs merge=lfs -text
+  *.jpeg filter=lfs diff=lfs merge=lfs -text
+  *.gif filter=lfs diff=lfs merge=lfs -text
+  *.webp filter=lfs diff=lfs merge=lfs -text
   *.mp4 filter=lfs diff=lfs merge=lfs -text
   *.webm filter=lfs diff=lfs merge=lfs -text
   *.mov filter=lfs diff=lfs merge=lfs -text

@@ -8,6 +8,11 @@ const CANONICAL = `${
   * text=auto
 
   # Track common large binary assets with Git LFS:
+  *.png filter=lfs diff=lfs merge=lfs -text
+  *.jpg filter=lfs diff=lfs merge=lfs -text
+  *.jpeg filter=lfs diff=lfs merge=lfs -text
+  *.gif filter=lfs diff=lfs merge=lfs -text
+  *.webp filter=lfs diff=lfs merge=lfs -text
   *.mp4 filter=lfs diff=lfs merge=lfs -text
   *.webm filter=lfs diff=lfs merge=lfs -text
   *.mov filter=lfs diff=lfs merge=lfs -text
@@ -53,7 +58,7 @@ describe('@sys/driver-agent/pi/cli/u.ensure.gitattributes', () => {
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
       expect(read.data).to.eql(
-        '*.mp4 filter=lfs diff=lfs merge=lfs -text\ncustom=value\n*.webm filter=lfs diff=lfs merge=lfs -text\n*.mov filter=lfs diff=lfs merge=lfs -text\n',
+        '*.mp4 filter=lfs diff=lfs merge=lfs -text\ncustom=value\n*.png filter=lfs diff=lfs merge=lfs -text\n*.jpg filter=lfs diff=lfs merge=lfs -text\n*.jpeg filter=lfs diff=lfs merge=lfs -text\n*.gif filter=lfs diff=lfs merge=lfs -text\n*.webp filter=lfs diff=lfs merge=lfs -text\n*.webm filter=lfs diff=lfs merge=lfs -text\n*.mov filter=lfs diff=lfs merge=lfs -text\n',
       );
     } finally {
       await Fs.remove(cwd);
@@ -71,7 +76,7 @@ describe('@sys/driver-agent/pi/cli/u.ensure.gitattributes', () => {
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
       expect(read.data).to.eql(
-        '# repo policy\n* text eol=lf\n*.mp4 filter=lfs diff=lfs merge=lfs -text\n*.webm filter=lfs diff=lfs merge=lfs -text\n*.mov filter=lfs diff=lfs merge=lfs -text\n',
+        '# repo policy\n* text eol=lf\n*.png filter=lfs diff=lfs merge=lfs -text\n*.jpg filter=lfs diff=lfs merge=lfs -text\n*.jpeg filter=lfs diff=lfs merge=lfs -text\n*.gif filter=lfs diff=lfs merge=lfs -text\n*.webp filter=lfs diff=lfs merge=lfs -text\n*.mp4 filter=lfs diff=lfs merge=lfs -text\n*.webm filter=lfs diff=lfs merge=lfs -text\n*.mov filter=lfs diff=lfs merge=lfs -text\n',
       );
     } finally {
       await Fs.remove(cwd);
