@@ -8,23 +8,10 @@ export declare namespace DenoVersion {
    * Library surface for Deno runtime version and upgrade facts.
    */
   export type Lib = {
-    /**
-     * Resolve the currently installed local Deno runtime version.
-     * Typically backed by `deno --version`.
-     */
-    current(input?: Input): Promise<CurrentResult>;
-
-    /**
-     * Determine whether a Deno runtime upgrade is needed.
-     * Typically backed by `deno upgrade --dry-run`.
-     */
-    upgradeStatus(input?: Input): Promise<UpgradeStatusResult>;
-
-    /**
-     * Execute `deno upgrade` directly.
-     * Keep this low-level and factual; no prompts or product UX here.
-     */
-    upgrade(input?: UpgradeInput): Promise<UpgradeRunResult>;
+    /** Installed local Deno runtime version facts. */
+    readonly Current: DenoVersion.Current.Lib;
+    /** Deno runtime upgrade status and execution helpers. */
+    readonly Upgrade: DenoVersion.Upgrade.Lib;
   };
 
   /**
@@ -78,80 +65,89 @@ export declare namespace DenoVersion {
     };
 
   /**
-   * The currently installed local Deno runtime version.
+   * Installed local Deno runtime version facts.
    */
-  export type Current = {
-    readonly current: t.StringSemver;
-    readonly output: Output;
-  };
+  export namespace Current {
+    /** Installed local Deno runtime version surface. */
+    export type Lib = {
+      /** Resolve the currently installed local Deno runtime version. */
+      get(input?: DenoVersion.Input): Promise<Result>;
+    };
+
+    /** Current local Deno runtime facts. */
+    export type Data = {
+      readonly version: t.StringSemver;
+      readonly output: DenoVersion.Output;
+    };
+
+    /** Response from resolving the installed local Deno runtime version. */
+    export type Result = DenoVersion.Result<Data>;
+  }
 
   /**
-   * Response from resolving the installed local Deno runtime version.
+   * Deno runtime upgrade status and execution facts.
    */
-  export type CurrentResult = Result<Current>;
+  export namespace Upgrade {
+    /** Deno runtime upgrade surface. */
+    export type Lib = {
+      /** Determine whether a Deno runtime upgrade is needed. */
+      status(input?: DenoVersion.Input): Promise<StatusResult>;
+      /** Execute `deno upgrade` directly. */
+      run(input?: Input): Promise<RunResult>;
+    };
 
-  /**
-   * Facts derived from checking whether the installed Deno runtime needs an
-   * upgrade.
-   */
-  export type UpgradeStatus = {
-    /** Installed local Deno runtime version. */
-    readonly current: t.StringSemver;
-    /** Latest target version, when Deno reported it clearly. */
-    readonly latest?: t.StringSemver;
-    /** True when Deno indicates a runtime upgrade is needed. */
-    readonly needed: boolean;
-    /** Source authority used to derive the result. */
-    readonly source: 'deno-upgrade-dry-run';
-    /** Raw command output retained for diagnostics. */
-    readonly output: Output;
-  };
+    /**
+     * Explicit version/channel/target passed through to `deno upgrade`.
+     * Examples: `stable`, `2.1.3`, `rc`, `<commit-hash>`, `pr 12345`.
+     */
+    export type Target = string;
 
-  /**
-   * Response from resolving whether a Deno runtime upgrade is needed.
-   */
-  export type UpgradeStatusResult = Result<UpgradeStatus>;
+    /** Input for executing `deno upgrade`. */
+    export type Input = DenoVersion.Input & {
+      /** Optional explicit version/channel/target passed to `deno upgrade`. */
+      readonly target?: Target;
+      /** Perform checks without replacing the current executable. */
+      readonly dryRun?: boolean;
+      /** Replace the current executable even if it is already current. */
+      readonly force?: boolean;
+      /** Suppress diagnostic output when supported. */
+      readonly quiet?: boolean;
+      /** Optional path passed through to `deno upgrade --output`. */
+      readonly outputPath?: t.StringPath;
+    };
 
-  /**
-   * Explicit version/channel/target passed through to `deno upgrade`.
-   * Examples: `stable`, `2.1.3`, `rc`, `<commit-hash>`, `pr 12345`.
-   */
-  export type UpgradeTarget = string;
+    /** Facts derived from checking whether the installed Deno runtime needs an upgrade. */
+    export type Status = {
+      /** Installed local Deno runtime version. */
+      readonly current: t.StringSemver;
+      /** Latest target version, when Deno reported it clearly. */
+      readonly latest?: t.StringSemver;
+      /** True when Deno indicates a runtime upgrade is needed. */
+      readonly needed: boolean;
+      /** Source authority used to derive the result. */
+      readonly source: 'deno-upgrade-dry-run';
+      /** Raw command output retained for diagnostics. */
+      readonly output: DenoVersion.Output;
+    };
 
-  /**
-   * Input for executing `deno upgrade`.
-   */
-  export type UpgradeInput = Input & {
-    /** Optional explicit version/channel/target passed to `deno upgrade`. */
-    readonly target?: UpgradeTarget;
-    /** Perform checks without replacing the current executable. */
-    readonly dryRun?: boolean;
-    /** Replace the current executable even if it is already current. */
-    readonly force?: boolean;
-    /** Suppress diagnostic output when supported. */
-    readonly quiet?: boolean;
-    /** Optional path passed through to `deno upgrade --output`. */
-    readonly outputPath?: t.StringPath;
-  };
+    /** Response from resolving whether a Deno runtime upgrade is needed. */
+    export type StatusResult = DenoVersion.Result<Status>;
 
-  /**
-   * Facts derived from executing `deno upgrade`.
-   */
-  export type UpgradeRun = {
-    /** Installed version before the upgrade attempt, when known. */
-    readonly from?: t.StringSemver;
-    /** Installed or target version after the upgrade attempt, when known. */
-    readonly to?: t.StringSemver;
-    /** True when the `deno upgrade` command completed successfully. */
-    readonly success: boolean;
-    /** Whether the command was executed as a dry run. */
-    readonly dryRun: boolean;
-    /** Raw command output retained for diagnostics. */
-    readonly output: Output;
-  };
+    /** Facts derived from executing `deno upgrade`. */
+    export type Run = {
+      /** Installed version before the upgrade attempt, when known. */
+      readonly from?: t.StringSemver;
+      /** Installed or target version after the upgrade attempt, when known. */
+      readonly to?: t.StringSemver;
+      /** True when the `deno upgrade` command completed successfully. */
+      readonly success: boolean;
+      /** Whether the command was executed as a dry run. */
+      readonly dryRun: boolean;
+      /** Raw command output retained for diagnostics. */
+      readonly output: DenoVersion.Output;
+    };
 
-  /**
-   * Response from executing `deno upgrade`.
-   */
-  export type UpgradeRunResult = Result<UpgradeRun>;
+    /** Response from executing `deno upgrade`. */
+    export type RunResult = DenoVersion.Result<Run>;
+  }
 }
