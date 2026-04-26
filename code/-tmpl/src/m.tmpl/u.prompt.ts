@@ -2,8 +2,9 @@ import { type t, c, Cli, Fs, pkg, Str, TemplateNames } from './common.ts';
 
 export function label(v: string) {
   if (v.startsWith('@')) return `run:   ${v}`;
-  if (v === 'repo') return 'make:  repo (workspace)';
-  return `make:  ${v}`;
+  const make = c.dim(c.gray('make:'));
+  if (v === 'repo') return `${make} repo (workspace)`;
+  return `${make} ${v}`;
 }
 
 /**
