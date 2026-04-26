@@ -21,4 +21,4 @@ export type { ServeTool } from './cli.serve/t.namespace.ts';
 export type { UpdateTool } from './cli.update/t.namespace.ts';
 export type { VideoTool } from './cli.video/t.namespace.ts';
 export type { Tools } from './t.namespace.ts';
-export type { TmplTool } from './cli.tmpl/t.namespace.ts';
+export type { TmplTool } from './cli.tmpl/t.ts';

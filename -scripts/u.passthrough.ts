@@ -27,7 +27,7 @@ export const PASSTHROUGH_TARGETS: readonly PassthroughTarget[] = [
     },
     consumer: {
       path: 'code/sys.tools',
-      fileFromRoot: 'code/sys.tools/src/cli.tmpl/m.cli.ts',
+      fileFromRoot: 'code/sys.tools/src/cli.tmpl/mod.ts',
     },
     pin: {
       constName: 'TMPL_JSR_SPECIFIER',

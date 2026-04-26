@@ -1,7 +1,18 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
-/** Type re-exports. */
-export type * from './t.namespace.ts';
+/**
+ * The Tmpl tool namespace.
+ */
+export namespace TmplTool {
+  export const ID = 'tmpl' as const;
+  export const NAME = 'system/tmpl:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
+
+  /** Command line arguments (argv). */
+  export type CliArgs = t.Tools.CliArgs;
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+}
 
 /**
  * CLI helpers for the thin `@sys/tools/tmpl` wrapper.

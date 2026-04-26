@@ -10,7 +10,7 @@ import type { t } from '../common.ts';
  *
  * Initial sample callers:
  * - `src/cli.pi/mod.ts`
- * - `src/cli.tmpl/m.cli.ts`
+ * - `src/cli.tmpl/mod.ts`
  */
 
 /** Workspace child evidence used to prove repo shape. */

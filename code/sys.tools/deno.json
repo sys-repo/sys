@@ -19,6 +19,7 @@
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
     "./pi": "./src/cli.pi/mod.ts",
+    "./tmpl": "./src/cli.tmpl/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
     "./video": "./src/cli.video/mod.ts",
     "./serve": "./src/cli.serve/mod.ts",

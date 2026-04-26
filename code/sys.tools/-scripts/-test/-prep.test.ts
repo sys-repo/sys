@@ -13,11 +13,11 @@ describe('scripts/-prep', () => {
     const res = prepTargets('/repo');
 
     expect(res.map((item) => item.file)).to.eql([
-      'code/sys.tools/src/cli.tmpl/m.cli.ts',
+      'code/sys.tools/src/cli.tmpl/mod.ts',
       'code/sys.tools/src/cli.pi/mod.ts',
     ]);
     expect(res.map((item) => item.path)).to.eql([
-      '/repo/code/sys.tools/src/cli.tmpl/m.cli.ts',
+      '/repo/code/sys.tools/src/cli.tmpl/mod.ts',
       '/repo/code/sys.tools/src/cli.pi/mod.ts',
     ]);
     expect(res.map((item) => item.target.upstream.name)).to.eql([
@@ -114,7 +114,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
 
   it('pinTmplSpecifier throws when marker constant is missing', () => {
     expect(() => pinTmplSpecifier(`const X = 'jsr:@sys/tmpl@0.0.1';`, '0.0.256')).to.throw(
-      'Could not locate TMPL_JSR_SPECIFIER constant in code/sys.tools/src/cli.tmpl/m.cli.ts',
+      'Could not locate TMPL_JSR_SPECIFIER constant in code/sys.tools/src/cli.tmpl/mod.ts',
     );
   });
 
