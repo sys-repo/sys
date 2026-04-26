@@ -15,11 +15,11 @@ describe('Root Dispatcher', () => {
 
   it('dispatchRootCommand → preserves the caller cwd when delegating', async () => {
     const cwd = '/tmp/sys.tools.dispatch.cwd' as never;
-    const original = Imports.agent;
+    const original = Imports.pi;
     const calls: Array<{ cwd: string; argv: readonly string[] }> = [];
 
     try {
-      Object.defineProperty(Imports, 'agent', {
+      Object.defineProperty(Imports, 'pi', {
         value: async () => ({
           cli(inputCwd: string, argv: readonly string[]) {
             calls.push({ cwd: inputCwd, argv });
@@ -28,10 +28,10 @@ describe('Root Dispatcher', () => {
         }),
       });
 
-      await dispatchRootCommand(cwd, 'agent', ['agent', '--git-root=cwd']);
+      await dispatchRootCommand(cwd, 'pi', ['pi', '--git-root=cwd']);
       expect(calls).to.eql([{ cwd, argv: ['--git-root=cwd'] }]);
     } finally {
-      Object.defineProperty(Imports, 'agent', { value: original });
+      Object.defineProperty(Imports, 'pi', { value: original });
     }
   });
 });

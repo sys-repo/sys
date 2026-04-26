@@ -1,19 +1,19 @@
 import { describe, expect, Fs, it } from '../-test.ts';
 import { Process, type t } from '../common.ts';
-import { CodeTool } from './t.ts';
-import * as CodeTools from './mod.ts';
+import { PiTool } from './t.ts';
+import * as PiTools from './mod.ts';
 
 function expectedEnv(cwd: t.StringDir) {
   return {
     INIT_CWD: cwd,
-    PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools agent',
+    PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools pi',
   } as const;
 }
 
-describe(CodeTool.NAME, () => {
+describe(PiTool.NAME, () => {
   it('API', async () => {
-    const m = await import('@sys/tools/code');
-    expect(m.cli).to.equal(CodeTools.cli);
+    const m = await import('@sys/tools/pi');
+    expect(m.cli).to.equal(PiTools.cli);
   });
 
   it('inside @sys → delegates to the local driver-agent profile launcher', async () => {
@@ -29,7 +29,7 @@ describe(CodeTool.NAME, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await CodeTools.cli(cwd, ['--help']);
+      await PiTools.cli(cwd, ['--help']);
     } finally {
       Process.inherit = prev;
     }
@@ -50,13 +50,13 @@ describe(CodeTool.NAME, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await CodeTools.cli(cwd, ['--', '--model', 'gpt-5.4']);
+      await PiTools.cli(cwd, ['--', '--model', 'gpt-5.4']);
     } finally {
       Process.inherit = prev;
     }
   });
 
-  it('forwards --git-root=cwd through the @sys/tools agent entrypoint', async () => {
+  it('forwards --git-root=cwd through the @sys/tools pi entrypoint', async () => {
     const prev = Process.inherit;
     const cwd = Fs.cwd('process');
 
@@ -75,7 +75,7 @@ describe(CodeTool.NAME, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await CodeTools.cli(cwd, ['--git-root=cwd']);
+      await PiTools.cli(cwd, ['--git-root=cwd']);
     } finally {
       Process.inherit = prev;
     }
@@ -95,7 +95,7 @@ describe(CodeTool.NAME, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await CodeTools.cli(undefined as never, ['--help']);
+      await PiTools.cli(undefined as never, ['--help']);
     } finally {
       Process.inherit = prev;
       before === undefined ? Deno.env.delete(key) : Deno.env.set(key, before);

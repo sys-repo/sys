@@ -12,7 +12,7 @@
 
 /** Public namespaces. */
 export type { ClipboardTool } from './cli.clipboard/t.namespace.ts';
-export type { CodeTool } from './cli.pi/t.ts';
+export type { PiTool } from './cli.pi/t.ts';
 export type { CrdtTool } from './cli.crdt/t.namespace.ts';
 export type { CryptoTool } from './cli.crypto/t.namespace.ts';
 export type { DeployTool } from './cli.deploy/t.namespace.ts';

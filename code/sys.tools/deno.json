@@ -18,7 +18,7 @@
     "./types": "./src/types.ts",
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
-    "./code": "./src/cli.pi/mod.ts",
+    "./pi": "./src/cli.pi/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
     "./video": "./src/cli.video/mod.ts",
     "./serve": "./src/cli.serve/mod.ts",

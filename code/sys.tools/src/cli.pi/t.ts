@@ -1,15 +1,11 @@
 import type { t } from '../common.ts';
 
 /**
- * The `@sys/tools/code` namespace.
- *
- * Internal folder note:
- * - implementation now lives under `cli.pi/`
- * - public command/export surface remains `@sys/tools/code`
+ * The `@sys/tools/pi` namespace.
  */
-export namespace CodeTool {
-  export const ID = 'code' as const;
-  export const NAME = 'system/code:tools' as const;
+export namespace PiTool {
+  export const ID = 'pi' as const;
+  export const NAME = 'system/pi:tools' as const;
   export type Id = typeof ID;
   export type Name = typeof NAME;
 
@@ -19,9 +15,9 @@ export namespace CodeTool {
 }
 
 /**
- * Code agent profile launcher.
+ * Pi agent profile launcher.
  */
-export type CodeToolsLib = {
+export type PiToolsLib = {
   /** Delegate to `@sys/driver-agent/pi/cli Profiles` with passthrough argv/cwd semantics. */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };

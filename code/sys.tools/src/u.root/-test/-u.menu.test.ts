@@ -4,27 +4,27 @@ import { optionLines, optionName } from '../u.menu.ts';
 describe('Root Menu', () => {
   it('drops leading whitespace-only table rows', () => {
     const lines = optionLines([
-      '                                               ',
-      '├─ @sys/tools agent                          ',
-      '└─ @sys/tools update         (← alias up, info)',
-      '  (exit)                                       ',
+      '                                                         ',
+      '├─ @sys/tools pi             (← alias agent)             ',
+      '└─ @sys/tools update         (← alias up, info)          ',
+      '  (exit)                                                 ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools agent                          ',
-      '└─ @sys/tools update         (← alias up, info)',
-      '  (exit)                                       ',
+      '├─ @sys/tools pi             (← alias agent)             ',
+      '└─ @sys/tools update         (← alias up, info)          ',
+      '  (exit)                                                 ',
     ]);
   });
 
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
-      '\x1b[90m                                               \x1b[39m',
-      '├─ @sys/tools agent                              ',
+      '\x1b[90m                                                         \x1b[39m',
+      '├─ @sys/tools pi             (← alias agent)                 ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools agent                              ',
+      '├─ @sys/tools pi             (← alias agent)                 ',
     ]);
   });
 
