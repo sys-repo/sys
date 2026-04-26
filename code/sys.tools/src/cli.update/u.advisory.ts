@@ -81,8 +81,9 @@ export function shouldRefreshUpdateAdvisory(
 }
 
 export function toRootUpdateAdvisoryPrelude(record?: UpdateAdvisoryRecord): string | undefined {
+  if (!record?.ok) return undefined;
   if (!wrangle.hasUpdate(record)) return undefined;
-  return Fmt.rootAdvisoryPrelude();
+  return Fmt.rootAdvisoryPrelude(record.remote);
 }
 
 async function readUpdateAdvisoryRecord(path: t.StringPath): Promise<UpdateAdvisoryRecord | undefined> {

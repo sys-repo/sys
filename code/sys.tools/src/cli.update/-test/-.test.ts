@@ -112,10 +112,14 @@ describe('cli.update advisory', () => {
         remote: '9.9.9',
       }) ?? '',
     );
+    const lines = text.split('\n').filter(Boolean);
+    const body = lines[1] ?? '';
 
     expect(text).to.not.contain('Package');
     expect(text).to.not.contain('@sys/tools');
-    expect(text).to.contain('Run sys update --latest');
+    expect(body).to.contain('Run sys update --latest');
+    expect(body.endsWith('9.9.9')).to.eql(true);
+    expect(body.length).to.eql(lines[0]?.length);
   });
 
   it('writes and reads success advisory records', async () => {

@@ -58,12 +58,29 @@ export const Fmt = {
     return c.gray(String(str));
   },
 
-  rootAdvisoryPrelude() {
+  rootAdvisoryPrelude(remote?: t.StringSemver) {
     const hr = c.green(Cli.Fmt.hr());
+    const width = Cli.stripAnsi(hr).length;
+    const message = `${c.gray('Run')} ${c.white('sys update --latest')}`;
+    const latest = remote ? c.dim(c.gray(remote)) : undefined;
+
     return Str.builder()
       .line(hr)
-      .line(`${c.gray('Run')} ${c.white('sys update --latest')}`)
+      .line(wrangle.rootAdvisoryLine({ width, message, latest }))
       .line(hr)
       .toString();
+  },
+} as const;
+
+const wrangle = {
+  rootAdvisoryLine(args: { width: number; message: string; latest?: string }) {
+    const { width, message, latest } = args;
+    if (!latest) return message;
+
+    const left = Cli.stripAnsi(message).length;
+    const right = Cli.stripAnsi(latest).length;
+    const spaces = width - left - right;
+    if (spaces < 2) return message;
+    return `${message}${' '.repeat(spaces)}${latest}`;
   },
 } as const;
