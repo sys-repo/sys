@@ -1,6 +1,6 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.267
-  - import: jsr:@sys/color@0.0.237
+  - import: jsr:@sys/cli@0.0.268
+  - import: jsr:@sys/color@0.0.238
     subpaths: [ t ]
   - import: jsr:@sys/driver-deno@0.0.321
     subpaths: [ cloud, runtime, t ]
@@ -12,7 +12,7 @@ deno.json:
     subpaths: [ client, t ]
   - import: jsr:@sys/process@0.0.269
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.342
+  - import: jsr:@sys/std@0.0.343
     subpaths:
       [
         args,
@@ -39,8 +39,8 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/tools@0.0.377
     subpaths: [ t ]
-  - import: jsr:@sys/types@0.0.278
-  - import: jsr:@sys/ui-css@0.0.272
+  - import: jsr:@sys/types@0.0.279
+  - import: jsr:@sys/ui-css@0.0.273
     subpaths: [ t ]
   - import: jsr:@sys/ui-dom@0.0.279
     subpaths: [ t ]
