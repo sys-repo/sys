@@ -47,6 +47,106 @@ The metamedium claim is grounded in this loop:
 This layout is independent of final package placement.
 Package placement remains open, with `@sys/cell` the strongest candidate.
 
+## Pure essence / no-drift formulation
+No new primitives are needed.
+The power is in the exact composition of existing ones.
+
+A Cell is the minimal local metamedium loop:
+
+```text
+files → interpreter → lens → validated write-back → files
+```
+
+Mapped to the landed seams:
+
+```text
+dsl      = files as late-bound medium
+runtime  = interpreter over that medium
+view     = lens onto that medium
+```
+
+Mapped to existing system substrates:
+
+```text
+dsl      = @sys/schema + @sys/yaml + Markdown/files + help map
+runtime  = @sys/http/server + Deno ESM + validation/write-back
+view     = @sys/driver-vite + dist.json + optional @sys/tools/pull
+```
+
+Mapped to operator affordances:
+
+```text
+@sys/tools/pi      active agent harness over the Cell
+@sys/tools/pull    optional view artifact acquisition/update
+@sys/tools/serve   possible friendly door, not the core runtime
+```
+
+The Cell itself remains the small grammar that binds them.
+
+### No-drift invariants
+- Truth stays in the folder, not in the view.
+- Turing-complete behavior stays explicit in runtime, not hidden in magic.
+- The view is a replaceable artifact, not the app.
+- `--help` is the first map, not optional discovery.
+- Agent writes are schema/runtime validated before closeout.
+- Pull/serve/pi are loose operator affordances, not Cell ownership.
+- The implementation should feel boring if the concept is right.
+
+### TMIND failure checks
+If the design starts to look like a framework, stop.
+If Stripe becomes the model instead of the first proof view, stop.
+If Pi becomes the owner instead of a harness, stop.
+If Vite becomes the center instead of one bound-lens substrate, stop.
+If YAML becomes untyped config instead of a TypeScript/schema-backed carry surface, stop.
+If the runtime hides file truth behind opaque state, stop.
+
+## Long-range alignment — why `Cell` earns the name
+The long-range system diagrams are not feature maps.
+They are invariant maps:
+- perception and I/O
+- typed conversation
+- local memory and resilient state
+- active runtime and message passing
+- distribution, namespace, and trust
+- cell division into package/repo/workspace forms
+
+The Cell layout matches those invariants structurally, not metaphorically.
+
+```text
+Cell
+├─ dsl       late-bound medium
+├─ runtime   active interpreter
+└─ view      bound lens / managed artifact
+```
+
+Mapping:
+- `dsl` carries local memory, schemas, help maps, written state, and typed intent.
+- `runtime` carries computation, command/event response, dynamic binding, validation, and write-back.
+- `view` carries perception, attention, conversation UI, and replaceable lenses.
+- `dist.json` / `@sys/tools/pull` carry distribution and managed artifact provenance.
+- `@sys/tools/pi` carries an active conversational harness over the same local medium.
+- `@sys/tmpl/pkg` and `@sys/tmpl/repo` are Cell-division proof-worlds, not separate metaphysics.
+
+This is why `@sys/cell` is the right name when the package is earned.
+It does not name one product feature.
+It names the smallest local unit that can express the whole system shape.
+
+S-tier precision:
+- Cell is **not** "all of it" as a central framework.
+- Cell is "all of it" as a generative primitive: the smallest addressable local medium from which the other shapes can be grown.
+
+So the strong claim is:
+
+> A Cell is the local, writable, interpretable unit of the @sys metamedium.
+
+That is powerful enough to deserve the name only while the implementation stays small:
+- files remain truth
+- runtime remains explicit
+- views remain replaceable
+- operator tools remain loose
+- validation protects write-back
+- composition beats ownership
+
 ## Core question
 The landing place will shape the concept.
 
@@ -575,6 +675,135 @@ Pi can rewrite the folder because the folder is intentionally shaped to be rewri
 - not random files
 - not hidden app state
 - a configured local medium
+
+## Baseline usage scenario — Stripe Payment Cell
+This is the first concrete proof scenario to carry into implementation design.
+
+The view is the existing `@sys/driver-stripe` payment render sample, served from a built `dist/` bundle.
+The screenshot proof-world is the current Stripe PaymentElement DevHarness view: dark canvas, PaymentElement card widget, debug panel, and Stripe button.
+
+This scenario is intentionally mundane:
+- not a special Stripe framework
+- not a custom Cell app
+- not Pi-owned
+- not Vite-owned
+
+It proves loose coupling that becomes tight only when configured.
+
+### Scenario sequence
+1. Operator starts a normal Pi session in a folder:
+
+```sh
+sys pi
+```
+
+2. Pi initializes the folder with the normal baseline discipline:
+- git-aware working directory
+- help/map first posture
+- local policy files
+- no hidden state
+
+3. Pi invokes a new Cell-oriented action or command surface.
+The exact command is not designed yet.
+Conceptually:
+
+```text
+make this folder a Stripe payment Cell
+```
+
+4. The action writes/configures the Cell DSL:
+- choose the Stripe PaymentElement view bundle
+- declare the view as a managed artifact
+- add minimal payment widget config/state
+- declare schema/runtime validation
+- expose help map and write rules
+
+5. The view is served from `dist/`:
+- either shipped with the Cell
+- or pulled/swapped/updated through `@sys/tools/pull` from a `dist.json` manifest
+
+6. Runtime serves the view and projects Cell DSL/state into it.
+The view renders the Stripe PaymentElement.
+Writes or config changes route back through runtime validation.
+
+### Why Stripe is a good first proof
+Stripe gives a real, concrete view with real configuration pressure:
+- publishable key
+- client secret
+- theme
+- debug/pass-secrets toggles
+- widget config
+- environment-sensitive behavior
+
+That is enough to prove:
+- view artifact can be selected by config
+- view artifact can be managed by `dist.json` / pull tooling
+- DSL can carry minimal typed state
+- runtime can project state into the UI
+- Pi can write state from intent
+- schema validation prevents invalid Cell DSL/state
+
+### What this scenario must not do
+Do not let Stripe own the abstraction.
+Stripe is the first view proof, not the Cell model.
+
+The same Cell primitives should later support:
+- YAML/Markdown editor
+- repo/IDE view
+- Pi profile view
+- generic schema form view
+
+### Candidate Stripe Cell shape
+Illustrative only:
+
+```text
+payment-cell/
+├─ cell.yaml
+├─ data.yaml
+├─ data.schema.ts
+├─ HELP.md
+├─ runtime.ts
+└─ dist/
+   ├─ index.html
+   ├─ assets/...
+   └─ dist.json
+```
+
+Possible descriptor sketch:
+
+```yaml
+kind: cell
+version: 1
+
+view:
+  dist: ./dist
+  manifest: ./dist/dist.json
+  source:
+    kind: http
+    dist: https://example.com/sys/driver-stripe/payment-cell/dist.json
+
+dsl:
+  data: ./data.yaml
+  schema: ./data.schema.ts
+  help: ./HELP.md
+
+runtime:
+  module: ./runtime.ts
+```
+
+Possible data sketch:
+
+```yaml
+payment:
+  provider: stripe
+  element: PaymentElement
+  theme: Dark
+  debug: false
+  passSecrets: true
+```
+
+Secret handling remains a runtime/policy concern.
+The scenario should prove shape and validation, not encourage unsafe secret persistence.
 
 ## Proof-worlds
 A candidate `@sys/cell` needs at least two proof-worlds to fit naturally without special cases.
