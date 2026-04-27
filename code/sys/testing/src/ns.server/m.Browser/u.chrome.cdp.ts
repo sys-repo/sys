@@ -1,27 +1,7 @@
-import { Json, Time } from './common.ts';
-
-export type CdpClient = {
-  send<T = Record<string, unknown>>(
-    method: string,
-    params?: Record<string, unknown>,
-    sessionId?: string,
-  ): Promise<T>;
-  on(handler: (msg: CdpMessage) => void): () => void;
-  waitFor(method: string, sessionId: string | undefined, timeout: number): Promise<CdpMessage>;
-  close(): void;
-};
-
-type CdpMessage = {
-  id?: number;
-  method?: string;
-  params?: unknown;
-  result?: unknown;
-  error?: { message?: string; data?: string };
-  sessionId?: string;
-};
+import { Json, type t } from './common.ts';
 
 export function connectCdp(url: string) {
-  return new Promise<CdpClient>((resolve, reject) => {
+  return new Promise<t.Browser.Chrome.Cdp.Client>((resolve, reject) => {
     const ws = new WebSocket(url);
     ws.addEventListener('open', () => resolve(createCdpClient(ws)), { once: true });
     ws.addEventListener('error', () => reject(new Error('Failed to connect to Chrome DevTools Protocol.')), {
@@ -30,34 +10,22 @@ export function connectCdp(url: string) {
   });
 }
 
-export async function waitForBrowserWs(port: number, options: { timeout?: number } = {}) {
-  const url = `http://127.0.0.1:${port}/json/version`;
-  const timeout = options.timeout ?? 20_000;
-  const started = Date.now();
-  while (Date.now() - started < timeout) {
-    try {
-      const res = await fetch(url);
-      const json = objectRecord(await res.json());
-      if (typeof json.webSocketDebuggerUrl === 'string') return json.webSocketDebuggerUrl;
-    } catch {
-      // Still starting.
-    }
-    await Time.wait(50);
-  }
-  throw new Error('Timed out waiting for Chrome DevTools Protocol.');
-}
-
-function objectRecord(input: unknown): Record<string, unknown> {
-  return typeof input === 'object' && input !== null ? input as Record<string, unknown> : {};
-}
-
-function createCdpClient(ws: WebSocket): CdpClient {
+function createCdpClient(ws: WebSocket): t.Browser.Chrome.Cdp.Client {
   let id = 0;
-  const handlers = new Set<(msg: CdpMessage) => void>();
+  let closed = false;
+  const handlers = new Set<(msg: t.Browser.Chrome.Cdp.Message) => void>();
   const pending = new Map<number, { resolve: (value: unknown) => void; reject: (error: Error) => void }>();
+  const waiters = new Set<{ reject: (error: Error) => void; dispose: () => void }>();
+
+  const failAll = (error: Error) => {
+    pending.forEach((item) => item.reject(error));
+    pending.clear();
+    Array.from(waiters).forEach((item) => item.reject(error));
+    waiters.clear();
+  };
 
   ws.addEventListener('message', (event) => {
-    const msg = Json.parse<CdpMessage>(String(event.data), {});
+    const msg = Json.parse<t.Browser.Chrome.Cdp.Message>(String(event.data), {});
     if (msg.id && pending.has(msg.id)) {
       const item = pending.get(msg.id)!;
       pending.delete(msg.id);
@@ -67,8 +35,22 @@ function createCdpClient(ws: WebSocket): CdpClient {
     handlers.forEach((fn) => fn(msg));
   });
 
-  const api: CdpClient = {
+  ws.addEventListener('close', () => {
+    if (closed) return;
+    closed = true;
+    failAll(new Error('Chrome DevTools Protocol connection closed.'));
+  });
+
+  ws.addEventListener('error', () => {
+    failAll(new Error('Chrome DevTools Protocol connection error.'));
+  });
+
+  const api: t.Browser.Chrome.Cdp.Client = {
     send<T = Record<string, unknown>>(method: string, params: Record<string, unknown> = {}, sessionId?: string) {
+      if (closed || ws.readyState !== WebSocket.OPEN) {
+        return Promise.reject(new Error('Chrome DevTools Protocol connection is not open.'));
+      }
+
       const tx = ++id;
       const payload = sessionId ? { id: tx, method, params, sessionId } : { id: tx, method, params };
       ws.send(Json.stringify(payload));
@@ -83,23 +65,49 @@ function createCdpClient(ws: WebSocket): CdpClient {
     },
 
     waitFor(method, sessionId, timeout) {
-      return new Promise<CdpMessage>((resolve, reject) => {
-        const timer = setTimeout(() => {
-          off();
-          reject(new Error(`Timed out waiting for CDP event: ${method}`));
+      return new Promise<t.Browser.Chrome.Cdp.Message>((resolve, reject) => {
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        let off: (() => void) | undefined;
+
+        const waiter = {
+          reject: (error: Error) => finish('reject', error),
+          dispose: () => finish('dispose'),
+        };
+
+        const finish = (
+          kind: 'resolve' | 'reject' | 'dispose',
+          value?: t.Browser.Chrome.Cdp.Message | Error,
+        ) => {
+          if (!waiters.has(waiter)) return;
+          waiters.delete(waiter);
+          if (timer) clearTimeout(timer);
+          off?.();
+          if (kind === 'resolve') resolve(value as t.Browser.Chrome.Cdp.Message);
+          if (kind === 'reject') reject(value as Error);
+        };
+
+        waiters.add(waiter);
+        timer = setTimeout(() => {
+          finish('reject', new Error(`Timed out waiting for CDP event: ${method}`));
         }, timeout);
-        const off = api.on((msg) => {
+
+        off = api.on((msg) => {
           if (msg.method !== method) return;
           if (sessionId && msg.sessionId !== sessionId) return;
-          clearTimeout(timer);
-          off();
-          resolve(msg);
+          finish('resolve', msg);
         });
       });
     },
 
     close() {
-      ws.close();
+      if (closed) return;
+      closed = true;
+      failAll(new Error('Chrome DevTools Protocol connection closed.'));
+      try {
+        ws.close();
+      } catch {
+        // Already closed.
+      }
     },
   };
 
