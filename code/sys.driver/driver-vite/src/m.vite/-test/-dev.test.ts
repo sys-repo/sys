@@ -54,6 +54,7 @@ describe('Vite.dev', () => {
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+      await disableUpstreamOxcForDevSmoke(cwd);
       const paths = {
         cwd,
         app: {
@@ -130,6 +131,7 @@ describe('Vite.dev', () => {
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+      await disableUpstreamOxcForDevSmoke(cwd);
       const paths = {
         cwd,
         app: {
@@ -172,16 +174,26 @@ describe('Vite.dev', () => {
 });
 
 /**
- * Harden the copied temp dev fixture against the upstream Vite/OXC fresh-entry
- * transform crash seen in CI (`Failed to recover TsconfigCache type from napi value`).
+ * The dev smoke owns the @sys/driver-vite process contract, not upstream
+ * Vite/OXC transform stability. CI has shown Vite 8/OXC can fail this copied
+ * temp fixture with `Failed to recover TsconfigCache type from napi value`.
  *
- * This keeps the dev smoke truthful by still proving:
+ * Disable OXC for this fixture only so the test still proves the owned surface:
  * - dev startup
  * - HTML serving
  * - entry-module serving
  * - local bridge imports
- * while avoiding ownership drift into upstream entry-transform instability.
+ * - disposal
  */
+async function disableUpstreamOxcForDevSmoke(cwd: string) {
+  const path = Fs.join(cwd, 'vite.config.ts');
+  const source = (await Fs.readText(path)).data ?? '';
+  const oldText = 'export default defineConfig(async () => await Vite.Config.app({ paths }));';
+  const newText = 'export default defineConfig(async () => ({ ...(await Vite.Config.app({ paths })), oxc: false }));';
+  if (!source.includes(oldText)) throw new Error('Unexpected Vite dev smoke fixture config shape.');
+  await Fs.write(path, source.replace(oldText, newText));
+}
+
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
   await Fs.write(
