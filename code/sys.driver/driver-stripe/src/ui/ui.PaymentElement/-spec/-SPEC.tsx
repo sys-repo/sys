@@ -40,7 +40,7 @@ export default Spec.describe(D.displayName, async (e) => {
       base: css({
         pointerEvents: 'none',
         Absolute: [null, null, 5, 18],
-        fontSize: 64,
+        fontSize: 80,
       }),
     };
     return <div className={styles.base.class}>{'🥧'}</div>;
