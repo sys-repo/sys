@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777018603872,
+    "createdAt": 1777262023947,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-b4edb861dde36482dfaba2df9de5261d1966a49c11f931cc83f50092ac9a2dfc",
+      "/graph": "sha256-b3b31c559312bdd5f7b4958330d22e6f4b1d26bbfb4877917602cfe8abf77b1b",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777018603877
+    "modifiedAt": 1777262023952
   },
   "graph": {
     "orderedPaths": [
@@ -891,6 +891,10 @@
         "to": "code/sys/http"
       },
       {
+        "from": "code/sys/net",
+        "to": "code/sys/testing"
+      },
+      {
         "from": "code/sys/process",
         "to": "code/-tmpl"
       },
@@ -921,6 +925,10 @@
       {
         "from": "code/sys/process",
         "to": "code/sys/http"
+      },
+      {
+        "from": "code/sys/process",
+        "to": "code/sys/testing"
       },
       {
         "from": "code/sys/process",
