@@ -14,7 +14,14 @@ export async function sync(args: t.WorkspaceCi.Test.SyncArgs): Promise<t.Workspa
     return result;
   }
 
-  const res = await write({ cwd, env: args.env, on: args.on, paths, target: args.target });
+  const res = await write({
+    cwd,
+    browserPaths: args.browserPaths,
+    env: args.env,
+    on: args.on,
+    paths,
+    target: args.target,
+  });
   const result: t.WorkspaceCi.SyncResult = res.changed
     ? { kind: 'written', target: res.target, yaml: res.yaml, count: res.count }
     : { kind: 'unchanged', target: res.target, count: res.count };

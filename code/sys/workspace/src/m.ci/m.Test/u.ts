@@ -9,8 +9,9 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
   return { path, name: Is.str(name) && name ? name : path } as const;
 }
 
-export function toMatrixItemYaml(module: { path: t.StringPath; name: string }) {
-  return TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+export function toMatrixItemYaml(module: { path: t.StringPath; name: string; browser?: boolean }) {
+  const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, module.name).replace(/PATH/g, module.path);
+  return module.browser ? `${yaml}\n  browser: true` : yaml;
 }
 
 async function loadJson(path: string) {

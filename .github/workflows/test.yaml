@@ -58,6 +58,7 @@ jobs:
             path: code/sys/skills
           - name: "@sys/testing"
             path: code/sys/testing
+            browser: true
           - name: "@sys/ui-react"
             path: code/sys.ui/ui-react
           - name: "@sys/ui-react-devharness"
@@ -142,12 +143,12 @@ jobs:
       - name: Deno Info
         run: deno info && deno --version
       - name: 'Install Browser Runtime: Chrome'
-        if: ${{ matrix.path == 'code/sys/testing' }}
+        if: ${{ matrix.browser == true }}
         id: setup-chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Configure Browser Runtime
-        if: ${{ matrix.path == 'code/sys/testing' }}
+        if: ${{ matrix.browser == true }}
         run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
 
       - name: Verify workspace graph

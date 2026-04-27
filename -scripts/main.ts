@@ -55,6 +55,7 @@ async function prepCi(options: PrepCiOptions = {}) {
     sourcePaths: await orderedWorkspacePaths(),
     jsrScopes: D.ci.jsrScopes,
     on: D.ci.on,
+    testBrowserPaths: D.ci.testBrowserPaths,
     versionFilter: options.versionFilter,
     prepared: options.prepared,
     final: options.final,

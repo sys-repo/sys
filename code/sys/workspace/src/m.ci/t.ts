@@ -49,6 +49,8 @@ export namespace WorkspaceCi {
     readonly jsrOn?: WorkflowOn;
     /** Workflow environment variables. */
     readonly env?: WorkflowEntries;
+    /** Module paths whose test jobs require an installed browser runtime. */
+    readonly testBrowserPaths?: readonly t.StringPath[];
   };
 
   /** Result from syncing workspace CI workflows. */
@@ -217,6 +219,8 @@ export namespace WorkspaceCi {
       readonly on?: WorkflowOn;
       /** Optional workflow environment variables. */
       readonly env?: WorkflowEntries;
+      /** Module paths whose test jobs require an installed browser runtime. */
+      readonly browserPaths?: readonly t.StringPath[];
     };
     /** Arguments for writing a rendered test workflow file. */
     export type WriteArgs = Args & { readonly target: t.StringPath };
@@ -232,6 +236,8 @@ export namespace WorkspaceCi {
       readonly on?: WorkflowOn;
       /** Optional workflow environment variables. */
       readonly env?: WorkflowEntries;
+      /** Module paths whose test jobs require an installed browser runtime. */
+      readonly browserPaths?: readonly t.StringPath[];
       /** Emit sync logging to the console. */
       readonly log?: boolean;
     };

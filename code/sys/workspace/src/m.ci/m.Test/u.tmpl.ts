@@ -6,12 +6,12 @@ export const TEST_JOB_CONFIG_TEMPLATE = `    name: \${{ matrix.name }}
 __MATRIX_ITEMS__`;
 
 export const TEST_BODY_TEMPLATE = `      - name: 'Install Browser Runtime: Chrome'
-        if: \${{ matrix.path == 'code/sys/testing' }}
+        if: \${{ matrix.browser == true }}
         id: setup-chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Configure Browser Runtime
-        if: \${{ matrix.path == 'code/sys/testing' }}
+        if: \${{ matrix.browser == true }}
         run: echo "CHROME_BIN=\${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
 
       - name: Verify workspace graph

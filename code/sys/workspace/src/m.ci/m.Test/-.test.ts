@@ -16,7 +16,7 @@ describe('WorkspaceCi.Test', () => {
       tasks: { test: 'deno task info' },
     });
 
-    const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
+    const yaml = await WorkspaceCi.Test.text({ browserPaths: [b], paths: [a, b] });
     expect(yaml.includes('name: test')).to.eql(true);
     expect(yaml.includes('test module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
@@ -26,9 +26,10 @@ describe('WorkspaceCi.Test', () => {
     expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
     expect(yaml.includes('Install Browser Runtime: Chrome')).to.eql(true);
-    expect(yaml.includes("if: ${{ matrix.path == 'code/sys/testing' }}")).to.eql(true);
+    expect(yaml.includes('if: ${{ matrix.browser == true }}')).to.eql(true);
     expect(yaml.includes('browser-actions/setup-chrome@v1')).to.eql(true);
     expect(yaml.includes('CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}')).to.eql(true);
+    expect(yaml.includes('browser: true')).to.eql(true);
     expect(yaml.includes('Verify workspace graph')).to.eql(true);
     expect(yaml.includes('run: deno task check:graph')).to.eql(true);
     expect(yaml.includes('deno task test')).to.eql(true);
