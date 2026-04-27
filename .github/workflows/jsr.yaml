@@ -140,7 +140,7 @@ jobs:
 
       - name: publish module → "@sys/crdt-t"
         run: |
-          cd code/sys/crdt.t
+          cd code/sys/crdt
           deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do

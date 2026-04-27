@@ -1,5 +1,5 @@
 import type { Crdt } from '@sys/crdt-t/t';
-import { describe, expectTypeOf, it } from './-test.ts';
+import { describe, expectTypeOf, it } from './mod.ts';
 
 describe(`types: general namespace`, () => {
   it('types: Ref (Doc)', () => {

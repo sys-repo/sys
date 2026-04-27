@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777333909177,
+    "createdAt": 1777334110321,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-27da34ccb7116010d9b7e68941dba727d3fa7f5aa8dcff7f52fdf20932b42774",
+      "/graph": "sha256-d93cd1b51dd58d95c013ba55b28f396d191b868fe91ae41147334180451fe593",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777333909183
+    "modifiedAt": 1777334110326
   },
   "graph": {
     "orderedPaths": [
@@ -24,7 +24,7 @@
       "code/sys/color",
       "code/sys.ui/ui-css",
       "code/sys/cli",
-      "code/sys/crdt.t",
+      "code/sys/crdt",
       "code/sys/crypto",
       "code/sys/event",
       "code/sys.ui/ui-state",
@@ -576,7 +576,7 @@
         "to": "deploy/@tdb.slc.std"
       },
       {
-        "from": "code/sys/crdt.t",
+        "from": "code/sys/crdt",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -1037,7 +1037,7 @@
       },
       {
         "from": "code/sys/std",
-        "to": "code/sys/crdt.t"
+        "to": "code/sys/crdt"
       },
       {
         "from": "code/sys/std",
@@ -1293,7 +1293,7 @@
       },
       {
         "from": "code/sys/types",
-        "to": "code/sys/crdt.t"
+        "to": "code/sys/crdt"
       },
       {
         "from": "code/sys/types",

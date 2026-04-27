@@ -69,7 +69,7 @@
     "code/sys.ui/ui-state",
     "code/sys/cli",
     "code/sys/color",
-    "code/sys/crdt.t",
+    "code/sys/crdt",
     "code/sys/crypto",
     "code/sys/esm",
     "code/sys/event",
