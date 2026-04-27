@@ -14,8 +14,6 @@ jobs:
       contents: read
     environment: dev
     name: ${{ matrix.name }}
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
       fail-fast: false
       matrix:
@@ -145,14 +143,19 @@ jobs:
         run: deno task info
       - name: Deno Info
         run: deno info && deno --version
-      - name: 'Install Browser Runtime: Chrome'
+      - name: 'Configure Browser Runtime: Chrome'
         if: ${{ matrix.browser == true }}
-        id: setup-chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Configure Browser Runtime
-        if: ${{ matrix.browser == true }}
-        run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+        run: |
+          for bin in google-chrome google-chrome-stable chromium chromium-browser; do
+            if command -v "$bin" >/dev/null 2>&1; then
+              path="$(command -v "$bin")"
+              echo "CHROME_BIN=$path" >> "$GITHUB_ENV"
+              "$path" --version
+              exit 0
+            fi
+          done
+          echo "::error::Chrome/Chromium runtime not found"
+          exit 1
 
       - name: Verify workspace graph
         run: deno task check:graph
