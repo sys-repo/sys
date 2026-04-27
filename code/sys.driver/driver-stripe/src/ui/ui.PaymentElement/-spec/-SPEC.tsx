@@ -28,7 +28,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const styles = {
       base: css({
         pointerEvents: 'none',
-        Absolute: [-10, null, null, 18],
+        Absolute: [null, null, 10, 18],
         fontSize: 64,
       }),
     };
