@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777262023947,
+    "createdAt": 1777267852222,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-b3b31c559312bdd5f7b4958330d22e6f4b1d26bbfb4877917602cfe8abf77b1b",
+      "/graph": "sha256-356cfdd457df150bed08ae6d796121ed7973912c8f8a9ccaa53066d43b2a6a6b",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777262023952
+    "modifiedAt": 1777267852227
   },
   "graph": {
     "orderedPaths": [
@@ -889,10 +889,6 @@
       {
         "from": "code/sys/net",
         "to": "code/sys/http"
-      },
-      {
-        "from": "code/sys/net",
-        "to": "code/sys/testing"
       },
       {
         "from": "code/sys/process",

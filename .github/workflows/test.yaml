@@ -87,6 +87,7 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
+            browser: true
           - name: "@sys/ui-factory"
             path: code/sys.ui/ui-factory
           - name: "@sys/dev"
