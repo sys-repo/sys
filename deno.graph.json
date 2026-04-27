@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777279613999,
+    "createdAt": 1777319324659,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-66902177dfa8d4e14448f7d3f70f8eefd861acae352e56754f0e88ebba815c12",
+      "/graph": "sha256-975468687206e44d5171bc077a618bb8d4beabd15c669c4070cd95af992e1919",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777279614004
+    "modifiedAt": 1777319324665
   },
   "graph": {
     "orderedPaths": [
@@ -37,7 +37,6 @@
       "code/sys.driver/driver-signer",
       "code/sys/http",
       "code/sys/registry",
-      "code/sys/skills",
       "code/sys/testing",
       "code/sys.ui/ui-react",
       "code/sys.ui/ui-react-devharness",
@@ -1144,10 +1143,6 @@
       },
       {
         "from": "code/sys/std",
-        "to": "code/sys/skills"
-      },
-      {
-        "from": "code/sys/std",
         "to": "code/sys/testing"
       },
       {
@@ -1417,10 +1412,6 @@
       {
         "from": "code/sys/types",
         "to": "code/sys/schema"
-      },
-      {
-        "from": "code/sys/types",
-        "to": "code/sys/skills"
       },
       {
         "from": "code/sys/types",

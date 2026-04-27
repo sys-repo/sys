@@ -54,8 +54,6 @@ jobs:
             path: code/sys/http
           - name: "@sys/registry"
             path: code/sys/registry
-          - name: "@sys/skills"
-            path: code/sys/skills
           - name: "@sys/testing"
             path: code/sys/testing
             browser: true
