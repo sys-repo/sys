@@ -1,7 +1,7 @@
 import React from 'react';
 import { PaymentElement } from '../ui/ui.PaymentElement/mod.ts';
 import { loadRuntimeSession, readRuntimeConfig } from '../ui/ui.PaymentElement/-spec/-u.runtimeSession.ts';
-import { Button, Color, css, ObjectView, Signal } from './common.ts';
+import { Button, Color, Cropmarks, css, ObjectView, Signal } from './common.ts';
 
 type SessionState =
   | { readonly status: 'idle' }
@@ -31,18 +31,7 @@ export function PaymentElementSample() {
     }),
     stage: css({
       display: 'grid',
-      placeItems: 'center',
-      backgroundImage: `linear-gradient(${Color.alpha(colors.fg, 0.08)} 1px, transparent 1px), linear-gradient(90deg, ${Color.alpha(colors.fg, 0.08)} 1px, transparent 1px)`,
-      backgroundSize: '360px 360px',
-    }),
-    card: css({
-      width: 360,
-      minHeight: 120,
-      padding: 20,
-      borderRadius: 8,
-      border: `1px solid ${Color.alpha(colors.fg, 0.12)}`,
-      backgroundColor: Color.alpha(colors.bg, 0.24),
-      boxShadow: `0 18px 45px ${Color.alpha('#000', 0.18)}`,
+      position: 'relative',
     }),
     side: css({
       padding: 22,
@@ -64,7 +53,7 @@ export function PaymentElementSample() {
   return (
     <div className={styles.root.class}>
       <div className={styles.stage.class}>
-        <div className={styles.card.class}>
+        <Cropmarks theme={theme.value} borderOpacity={0.12} size={{ mode: 'center', width: 360 }}>
           <PaymentElement.UI
             debug={debug.value}
             theme={theme.value}
@@ -74,7 +63,7 @@ export function PaymentElementSample() {
             onChange={(event) => console.info(`⚡️ onChange:`, event)}
             onLoadError={(error) => console.info(`⚡️ onLoadError`, error)}
           />
-        </div>
+        </Cropmarks>
         <div className={styles.pie.class}>{'🥧'}</div>
       </div>
       <div className={styles.side.class}>
