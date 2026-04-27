@@ -30,6 +30,5 @@ export const D = {
         paths_ignore: ['.github/workflows/jsr.yaml'],
       },
     },
-    testBrowserPaths: ['code/sys/testing'],
   },
 } as const;

@@ -8,5 +8,4 @@ await Workspace.Ci.sync({
   sourcePaths: await orderedWorkspacePaths(),
   jsrScopes: D.ci.jsrScopes,
   on: D.ci.on,
-  testBrowserPaths: D.ci.testBrowserPaths,
 });

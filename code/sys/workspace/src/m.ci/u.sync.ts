@@ -22,7 +22,6 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
   const on = args.on ?? wrangle.on(targets.jsr);
   const jsrOn = args.jsrOn ?? wrangle.jsrOn();
   const env = args.env ?? {};
-  const testBrowserPaths = args.testBrowserPaths ?? [];
   const spinner = Cli.Spinner.create('');
   const jsrPaths = await wrangle.jsrPaths(sourcePaths, cwd, args.jsrScopes);
 
@@ -76,7 +75,6 @@ export async function sync(args: t.WorkspaceCi.SyncArgs) {
       fn: () =>
         Test.sync({
           cwd,
-          browserPaths: testBrowserPaths,
           env,
           log: false,
           on,

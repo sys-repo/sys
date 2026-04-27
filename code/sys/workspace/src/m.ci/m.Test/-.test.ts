@@ -14,9 +14,10 @@ describe('WorkspaceCi.Test', () => {
     await Fs.writeJson(Fs.join(b, 'deno.json'), {
       name: '@scope/beta',
       tasks: { test: 'deno task info' },
+      'x-sys': { ci: { test: { browser: true } } },
     });
 
-    const yaml = await WorkspaceCi.Test.text({ browserPaths: [b], paths: [a, b] });
+    const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
     expect(yaml.includes('name: test')).to.eql(true);
     expect(yaml.includes('test module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
