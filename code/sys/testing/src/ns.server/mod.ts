@@ -21,4 +21,5 @@
  * });
  */
 export * from './common.ts';
+export { Browser } from './m.Browser/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
