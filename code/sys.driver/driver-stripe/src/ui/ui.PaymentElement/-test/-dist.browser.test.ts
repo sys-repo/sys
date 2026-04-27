@@ -58,7 +58,10 @@ function contentType(path: string) {
   return 'application/octet-stream';
 }
 
-function isAllowedBrowserError(text: string) {
-  return /^Failed to load resource: the server responded with a status of 503/.test(text);
+function isAllowedBrowserError(input: string) {
+  const text = input.trim();
+  const isMissingRuntimeSession = text.includes('/-/stripe/payment-intent') &&
+    (text.includes('status of 503') || text.includes('ERR_CONNECTION_REFUSED'));
+  return isMissingRuntimeSession;
 }
 
