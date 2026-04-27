@@ -81,17 +81,13 @@ jobs:
             path: code/sys.driver/driver-automerge
           - name: "@sys/driver-monaco"
             path: code/sys.driver/driver-monaco
+          - name: "@sys/dev"
+            path: code/sys.dev
           - name: "@sys/driver-prosemirror"
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
             browser: true
-          - name: "@sys/ui-factory"
-            path: code/sys.ui/ui-factory
-          - name: "@sys/dev"
-            path: code/sys.dev
-          - name: "@sys/crdt"
-            path: code/sys/crdt
           - name: "@sys/workspace"
             path: code/sys/workspace
           - name: "@sys/driver-deno"

@@ -69,7 +69,6 @@
     "code/sys.ui/ui-state",
     "code/sys/cli",
     "code/sys/color",
-    "code/sys/crdt",
     "code/sys/crdt.t",
     "code/sys/crypto",
     "code/sys/esm",
@@ -145,3 +144,4 @@
     }
   }
 }
+

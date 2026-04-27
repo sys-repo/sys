@@ -606,6 +606,24 @@ jobs:
           echo "publish failed after $max_attempts attempts"
           exit 1
 
+      - name: publish module → "@sys/dev"
+        run: |
+          cd code/sys.dev
+          deno task test
+          max_attempts=5
+          for attempt in $(seq 1 $max_attempts); do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                delay=$((5 * 2 ** (attempt - 1)))
+                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
+                sleep "$delay"
+              fi
+          done
+          echo "publish failed after $max_attempts attempts"
+          exit 1
+
       - name: publish module → "@sys/driver-prosemirror"
         run: |
           cd code/sys.driver/driver-prosemirror
@@ -627,60 +645,6 @@ jobs:
       - name: publish module → "@sys/driver-stripe"
         run: |
           cd code/sys.driver/driver-stripe
-          deno task test
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/ui-factory"
-        run: |
-          cd code/sys.ui/ui-factory
-          deno task test
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/dev"
-        run: |
-          cd code/sys.dev
-          deno task test
-          max_attempts=5
-          for attempt in $(seq 1 $max_attempts); do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              if [ "$attempt" -lt "$max_attempts" ]; then
-                delay=$((5 * 2 ** (attempt - 1)))
-                echo "publish failed (attempt $attempt/$max_attempts), retrying in ${delay}s..."
-                sleep "$delay"
-              fi
-          done
-          echo "publish failed after $max_attempts attempts"
-          exit 1
-
-      - name: publish module → "@sys/crdt"
-        run: |
-          cd code/sys/crdt
           deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
