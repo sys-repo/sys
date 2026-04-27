@@ -30,10 +30,11 @@ export function connectCdp(url: string) {
   });
 }
 
-export async function waitForBrowserWs(port: number) {
+export async function waitForBrowserWs(port: number, options: { timeout?: number } = {}) {
   const url = `http://127.0.0.1:${port}/json/version`;
+  const timeout = options.timeout ?? 20_000;
   const started = Date.now();
-  while (Date.now() - started < 10_000) {
+  while (Date.now() - started < timeout) {
     try {
       const res = await fetch(url);
       const json = objectRecord(await res.json());

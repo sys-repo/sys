@@ -1,4 +1,4 @@
-import { Net, Process, Time, type t } from './common.ts';
+import { Env, Fs, Net, Process, Time, type t } from './common.ts';
 import { connectCdp, waitForBrowserWs } from './u.chrome.cdp.ts';
 
 const DEFAULT_WAIT_AFTER_LOAD = 750;
@@ -6,10 +6,10 @@ const DEFAULT_WAIT_AFTER_LOAD = 750;
 export async function loadChrome(url: string, options: t.Browser.Load.Options = {}): Promise<t.Browser.Load.Result> {
   const browser: t.Browser.Kind = 'Chrome';
   const executablePath = options.executablePath ?? await findChrome();
-  if (!executablePath) throw chromeNotFoundError();
+  if (!executablePath) throw await chromeNotFoundError();
 
   const debugPort = Net.Port.random();
-  const userDataDir = await Deno.makeTempDir({ prefix: 'sys-testing-chrome-' });
+  const userDataDir = (await Fs.makeTempDir({ prefix: 'sys-testing-chrome-' })).absolute;
   const errors: string[] = [];
 
   let stderr = '';
@@ -19,6 +19,8 @@ export async function loadChrome(url: string, options: t.Browser.Load.Options = 
       '--headless=new',
       `--remote-debugging-port=${debugPort}`,
       `--user-data-dir=${userDataDir}`,
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
       '--disable-background-networking',
       '--disable-default-apps',
       '--disable-extensions',
@@ -32,7 +34,9 @@ export async function loadChrome(url: string, options: t.Browser.Load.Options = 
   }).onStdErr((e) => (stderr += e.toString()));
 
   try {
-    const browserWs = await waitForBrowserWs(debugPort);
+    const browserWs = await waitForBrowserWs(debugPort, { timeout: 20_000 }).catch((cause) => {
+      throw chromeStartError({ cause, executablePath, stderr });
+    });
     const cdp = await connectCdp(browserWs);
     try {
       const { targetId } = await cdp.send<{ targetId: string }>('Target.createTarget', {
@@ -72,7 +76,7 @@ export async function loadChrome(url: string, options: t.Browser.Load.Options = 
     }
   } finally {
     await proc.dispose();
-    await Deno.remove(userDataDir, { recursive: true }).catch(() => undefined);
+    await Fs.remove(userDataDir).catch(() => undefined);
   }
 
   const fatal = options.allowError ? errors.filter((text) => !options.allowError?.(text)) : errors;
@@ -109,14 +113,14 @@ function objectParams(input: unknown): Record<string, unknown> {
 }
 
 async function findChrome() {
-  for (const path of chromeCandidates()) {
+  for (const path of await chromeCandidates()) {
     if (await exists(path)) return path;
   }
   return undefined;
 }
 
-function chromeCandidates() {
-  const env = Deno.env.get('CHROME_BIN');
+async function chromeCandidates() {
+  const env = (await Env.load()).get('CHROME_BIN');
   return [
     ...(env ? [env] : []),
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -127,7 +131,7 @@ function chromeCandidates() {
   ];
 }
 
-function chromeNotFoundError() {
+async function chromeNotFoundError() {
   return new Error([
     'Browser.load: Chrome executable not found.',
     '',
@@ -135,19 +139,23 @@ function chromeNotFoundError() {
     'Lookup order:',
     '  1. options.executablePath',
     '  2. CHROME_BIN',
-    ...chromeCandidates().map((path) => `  - ${path}`),
+    ...(await chromeCandidates()).map((path) => `  - ${path}`),
     '',
     'Fix: install Chrome/Chromium or set CHROME_BIN to the browser executable.',
     'Note: `deno task test` runs the Browser.load integration proof for @sys/testing.',
   ].join('\n'));
 }
 
+function chromeStartError(args: { cause: unknown; executablePath: string; stderr: string }) {
+  const message = args.cause instanceof Error ? args.cause.message : String(args.cause);
+  return new Error([
+    `Browser.load: ${message}`,
+    '',
+    `Chrome executable: ${args.executablePath}`,
+    args.stderr ? `Chrome stderr:\n${args.stderr}` : 'Chrome stderr: <empty>',
+  ].join('\n'));
+}
+
 async function exists(path: string) {
-  try {
-    await Deno.stat(path);
-    return true;
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) return false;
-    throw error;
-  }
+  return Fs.exists(path);
 }
