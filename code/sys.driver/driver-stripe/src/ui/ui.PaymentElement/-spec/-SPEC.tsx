@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { PaymentElement } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { readEnv } from './-u.env.ts';
 import { D } from './common.ts';
 
@@ -24,6 +24,17 @@ export default Spec.describe(D.displayName, async (e) => {
     );
   }
 
+  function Pie() {
+    const styles = {
+      base: css({
+        pointerEvents: 'none',
+        Absolute: [-10, null, null, 18],
+        fontSize: 64,
+      }),
+    };
+    return <div className={styles.base.class}>{'🥧'}</div>;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -40,6 +51,8 @@ export default Spec.describe(D.displayName, async (e) => {
       .size([360, null])
       .display('grid')
       .render(() => <Root />);
+
+    ctx.host.layer(-1).render(() => <Pie />);
   });
 
   e.it('ui:debug', (e) => {
