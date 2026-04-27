@@ -1,4 +1,4 @@
-import { Browser, describe, expect, it, Path, Testing } from '../../../-test.ts';
+import { Browser, describe, expect, Fs, it, Path, Testing } from '../../../-test.ts';
 
 const WAIT_AFTER_LOAD = 750;
 
@@ -7,7 +7,7 @@ describe('Stripe.PaymentElement dist browser runtime', () => {
     if (Deno.env.get('SYS_DRIVER_STRIPE_BROWSER_DIST') !== '1') return;
 
     const dist = Path.resolve('./dist');
-    if (!(await exists(dist))) throw new Error('Missing ./dist. Run `deno task build` before this test.');
+    if (!(await Fs.exists(dist))) throw new Error('Missing ./dist. Run `deno task build` before this test.');
 
     const server = startStaticServer(dist);
     try {
@@ -40,11 +40,11 @@ function startStaticServer(root: string) {
     if (!path.startsWith(root)) return new Response('Forbidden', { status: 403 });
 
     try {
-      const file = await Deno.readFile(path);
-      return new Response(file, { headers: { 'content-type': contentType(path) } });
-    } catch (error) {
-      if (error instanceof Deno.errors.NotFound) return new Response('Not found', { status: 404 });
-      throw error;
+      const file = await Fs.read(path);
+      if (!file.ok || !file.data) return new Response('Not found', { status: 404 });
+      return new Response(file.data.slice(), { headers: { 'content-type': contentType(path) } });
+    } catch {
+      return new Response('Not found', { status: 404 });
     }
   });
 }
@@ -62,12 +62,3 @@ function isAllowedBrowserError(text: string) {
   return /^Failed to load resource: the server responded with a status of 503/.test(text);
 }
 
-async function exists(path: string) {
-  try {
-    await Deno.stat(path);
-    return true;
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) return false;
-    throw error;
-  }
-}

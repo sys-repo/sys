@@ -1,4 +1,4 @@
-import { describe, expect, it, Path } from '../../../-test.ts';
+import { describe, expect, Fs, it, Path } from '../../../-test.ts';
 
 const FORBIDDEN_STRIPE_PATTERNS = [
   /VITE_STRIPE_CLIENT_SECRET/,
@@ -25,7 +25,7 @@ describe('Stripe.PaymentElement spec bundle safety', () => {
 
   it('dist → is safe for browser runtime and contains no baked Stripe secrets', async () => {
     const root = Path.resolve('./dist');
-    if (!(await exists(root))) return;
+    if (!(await Fs.exists(root))) return;
 
     const files = await collectTextFiles(root);
 
@@ -41,22 +41,14 @@ describe('Stripe.PaymentElement spec bundle safety', () => {
  * Helpers:
  */
 async function collectTextFiles(root: string): Promise<readonly string[]> {
-  const files: string[] = [];
-  for await (const entry of Deno.readDir(root)) {
-    const path = Path.join(root, entry.name);
-    if (entry.isDirectory) {
-      files.push(...await collectTextFiles(path));
-    } else if (isTextFile(path)) {
-      files.push(path);
-    }
-  }
-  return files;
+  const paths = await Fs.ls(root, { includeDirs: false, trimCwd: false });
+  return paths.filter(isTextFile);
 }
 
 async function findForbiddenMatches(files: readonly string[], patterns: readonly RegExp[]) {
   const hits: string[] = [];
   for (const file of files) {
-    const text = await Deno.readTextFile(file);
+    const text = (await Fs.readText(file)).data ?? '';
     patterns.forEach((pattern) => {
       if (pattern.test(text)) hits.push(`${trimCwd(file)} :: ${pattern.source}`);
     });
@@ -64,18 +56,8 @@ async function findForbiddenMatches(files: readonly string[], patterns: readonly
   return hits;
 }
 
-async function exists(path: string) {
-  try {
-    await Deno.stat(path);
-    return true;
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) return false;
-    throw error;
-  }
-}
-
 function trimCwd(path: string) {
-  const rel = Path.relative(Deno.cwd(), path);
+  const rel = Path.relative(Fs.cwd(), path);
   return rel.startsWith('..') ? path : rel;
 }
 
