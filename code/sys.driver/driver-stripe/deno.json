@@ -2,23 +2,18 @@
   "name": "@sys/driver-stripe",
   "version": "0.0.73",
   "license": "MIT",
-  "x-sys": {
-    "ci": {
-      "test": {
-        "browser": true
-      }
-    }
-  },
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
-    "test": "deno task test:unit && deno task build && deno task test:dist",
+    "test": "deno task check && deno task test:unit && deno task build && deno task test:dist",
     "test:unit": "deno test -P=test",
     "test:dist": "SYS_DRIVER_STRIPE_BROWSER_DIST=1 deno test -P=test-dist --trace-leaks ./src/ui/ui.PaymentElement/-test/-spec.bundle.test.ts ./src/ui/ui.PaymentElement/-test/-dist.browser.test.ts",
     "verify": "deno task check && deno task test",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
-    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "serve": "deno task serve:fixture",
+    "serve:static": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "serve:fixture": "deno run -P=dev ./-scripts/task.serve.fixture.ts",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/",
+    "check": "deno check -- ./src/ ./-scripts/task.vite.ts ./-scripts/task.clean.ts ./-scripts/task.serve.fixture.ts ./vite.config.ts ./vite.config.fixture.dev.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
@@ -27,8 +22,11 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./ui": "./src/ui/mod.ts"
+    "./ui": "./src/ui/mod.ts",
+    "./server": "./src/server/mod.ts",
+    "./server/t": "./src/server/t.ts"
   },
+  "x-sys": { "ci": { "test": { "browser": true } } },
   "permissions": {
     "clean": {
       "read": true,
@@ -68,4 +66,3 @@
     }
   }
 }
-
