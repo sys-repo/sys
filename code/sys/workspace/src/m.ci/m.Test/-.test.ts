@@ -26,7 +26,7 @@ describe('WorkspaceCi.Test', () => {
     expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
     expect(yaml.includes('Install Browser Runtime: Chrome')).to.eql(true);
-    expect(yaml.includes("if: matrix.path == 'code/sys/testing'")).to.eql(true);
+    expect(yaml.includes("if: ${{ matrix.path == 'code/sys/testing' }}")).to.eql(true);
     expect(yaml.includes('browser-actions/setup-chrome@v1')).to.eql(true);
     expect(yaml.includes('CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}')).to.eql(true);
     expect(yaml.includes('Verify workspace graph')).to.eql(true);
