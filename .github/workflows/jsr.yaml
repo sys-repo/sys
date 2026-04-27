@@ -51,7 +51,7 @@ jobs:
       - name: publish module → "@sys/types"
         run: |
           cd code/sys/types
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -69,7 +69,7 @@ jobs:
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -87,7 +87,7 @@ jobs:
       - name: publish module → "@sys/color"
         run: |
           cd code/sys/color
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -105,7 +105,7 @@ jobs:
       - name: publish module → "@sys/ui-css"
         run: |
           cd code/sys.ui/ui-css
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -123,7 +123,7 @@ jobs:
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -141,7 +141,7 @@ jobs:
       - name: publish module → "@sys/crdt-t"
         run: |
           cd code/sys/crdt.t
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -159,7 +159,7 @@ jobs:
       - name: publish module → "@sys/crypto"
         run: |
           cd code/sys/crypto
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -177,7 +177,7 @@ jobs:
       - name: publish module → "@sys/event"
         run: |
           cd code/sys/event
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -195,7 +195,7 @@ jobs:
       - name: publish module → "@sys/ui-state"
         run: |
           cd code/sys.ui/ui-state
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -213,7 +213,7 @@ jobs:
       - name: publish module → "@sys/immutable"
         run: |
           cd code/sys/immutable
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -231,7 +231,7 @@ jobs:
       - name: publish module → "@sys/ui-dom"
         run: |
           cd code/sys.ui/ui-dom
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -249,7 +249,7 @@ jobs:
       - name: publish module → "@sys/fs"
         run: |
           cd code/sys/fs
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -267,7 +267,7 @@ jobs:
       - name: publish module → "@sys/net"
         run: |
           cd code/sys/net
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -285,7 +285,7 @@ jobs:
       - name: publish module → "@sys/process"
         run: |
           cd code/sys/process
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -303,7 +303,7 @@ jobs:
       - name: publish module → "@sys/driver-process"
         run: |
           cd code/sys.driver/driver-process
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -321,7 +321,7 @@ jobs:
       - name: publish module → "@sys/driver-signer"
         run: |
           cd code/sys.driver/driver-signer
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -339,7 +339,7 @@ jobs:
       - name: publish module → "@sys/http"
         run: |
           cd code/sys/http
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -357,7 +357,7 @@ jobs:
       - name: publish module → "@sys/registry"
         run: |
           cd code/sys/registry
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -375,7 +375,7 @@ jobs:
       - name: publish module → "@sys/skills"
         run: |
           cd code/sys/skills
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -393,7 +393,7 @@ jobs:
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -411,7 +411,7 @@ jobs:
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -429,7 +429,7 @@ jobs:
       - name: publish module → "@sys/ui-react-devharness"
         run: |
           cd code/sys.ui/ui-react-devharness
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -447,7 +447,7 @@ jobs:
       - name: publish module → "@sys/text"
         run: |
           cd code/sys/text
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -465,7 +465,7 @@ jobs:
       - name: publish module → "@sys/tmpl-engine"
         run: |
           cd code/sys/tmpl-engine
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -483,7 +483,7 @@ jobs:
       - name: publish module → "@sys/yaml"
         run: |
           cd code/sys/yaml
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -501,7 +501,7 @@ jobs:
       - name: publish module → "@sys/esm"
         run: |
           cd code/sys/esm
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -519,7 +519,7 @@ jobs:
       - name: publish module → "@sys/schema"
         run: |
           cd code/sys/schema
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -537,7 +537,7 @@ jobs:
       - name: publish module → "@sys/model"
         run: |
           cd code/sys.model/model
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -555,7 +555,7 @@ jobs:
       - name: publish module → "@sys/model-slug"
         run: |
           cd code/sys.model/model-slug
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -573,7 +573,7 @@ jobs:
       - name: publish module → "@sys/ui-react-components"
         run: |
           cd code/sys.ui/ui-react-components
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -591,7 +591,7 @@ jobs:
       - name: publish module → "@sys/driver-automerge"
         run: |
           cd code/sys.driver/driver-automerge
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -609,7 +609,7 @@ jobs:
       - name: publish module → "@sys/driver-monaco"
         run: |
           cd code/sys.driver/driver-monaco
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -627,7 +627,7 @@ jobs:
       - name: publish module → "@sys/driver-prosemirror"
         run: |
           cd code/sys.driver/driver-prosemirror
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -645,7 +645,7 @@ jobs:
       - name: publish module → "@sys/driver-stripe"
         run: |
           cd code/sys.driver/driver-stripe
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -663,7 +663,7 @@ jobs:
       - name: publish module → "@sys/ui-factory"
         run: |
           cd code/sys.ui/ui-factory
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -681,7 +681,7 @@ jobs:
       - name: publish module → "@sys/dev"
         run: |
           cd code/sys.dev
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -699,7 +699,7 @@ jobs:
       - name: publish module → "@sys/crdt"
         run: |
           cd code/sys/crdt
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -717,7 +717,7 @@ jobs:
       - name: publish module → "@sys/workspace"
         run: |
           cd code/sys/workspace
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -735,7 +735,7 @@ jobs:
       - name: publish module → "@sys/driver-deno"
         run: |
           cd code/sys.driver/driver-deno
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -753,7 +753,7 @@ jobs:
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/-tmpl
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -771,7 +771,7 @@ jobs:
       - name: publish module → "@sys/driver-agent"
         run: |
           cd code/sys.driver/driver-agent
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -789,7 +789,7 @@ jobs:
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -807,7 +807,7 @@ jobs:
       - name: publish module → "@sys/tools"
         run: |
           cd code/sys.tools
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -825,7 +825,7 @@ jobs:
       - name: publish module → "@tdb/data"
         run: |
           cd deploy/@tdb.data
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -843,7 +843,7 @@ jobs:
       - name: publish module → "@tdb/slc-std"
         run: |
           cd deploy/@tdb.slc.std
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then
@@ -861,7 +861,7 @@ jobs:
       - name: publish module → "@tdb/edu-slug"
         run: |
           cd deploy/@tdb.edu.slug
-          deno task test --trace-leaks
+          deno task test
           max_attempts=5
           for attempt in $(seq 1 $max_attempts); do
               if deno publish --allow-dirty; then

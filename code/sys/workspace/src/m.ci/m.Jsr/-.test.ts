@@ -17,6 +17,8 @@ describe('WorkspaceCi.Jsr', () => {
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
     expect(yaml.includes(`cd ${a}`)).to.eql(true);
     expect(yaml.includes(`cd ${b}`)).to.eql(true);
+    expect(yaml.includes('deno task test\n')).to.eql(true);
+    expect(yaml.includes('deno task test --trace-leaks')).to.eql(false);
     expect(yaml.includes('max_attempts=3')).to.eql(true);
     expect(yaml.includes('if deno task install; then')).to.eql(true);
     expect(yaml.includes('dependency install failed')).to.eql(true);
