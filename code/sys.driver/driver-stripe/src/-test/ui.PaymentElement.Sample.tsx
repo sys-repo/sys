@@ -10,12 +10,17 @@ type SessionState =
   | { readonly status: 'error'; readonly error: Error };
 
 const runtime = readRuntimeConfig();
+const defaults = {
+  debug: false,
+  theme: 'Dark' as const,
+  loadSession: true,
+};
 
 /** Browser-safe standalone PaymentElement sample for production bundles. */
 export function PaymentElementSample() {
-  const theme = Signal.useSignal<'Light' | 'Dark'>('Dark');
-  const debug = Signal.useSignal(false);
-  const loadSession = Signal.useSignal(true);
+  const theme = Signal.useSignal<'Light' | 'Dark'>(defaults.theme);
+  const debug = Signal.useSignal(defaults.debug);
+  const loadSession = Signal.useSignal(defaults.loadSession);
   const session = useRuntimeSession(loadSession.value, runtime.sessionUrl);
   const ready = session.status === 'ready';
   const colors = Color.theme(theme.value);
@@ -45,9 +50,18 @@ export function PaymentElementSample() {
   };
 
   const summary = {
+    debug: debug.value,
+    theme: theme.value,
+    loadSession: loadSession.value,
     runtime,
     session: session.status,
     error: session.status === 'error' ? session.error.message : undefined,
+  };
+
+  const reset = () => {
+    theme.value = defaults.theme;
+    debug.value = defaults.debug;
+    loadSession.value = defaults.loadSession;
   };
 
   return (
@@ -80,6 +94,7 @@ export function PaymentElementSample() {
           label={() => `runtime session: ${loadSession.value ? 'enabled' : 'disabled'}`}
           onClick={() => Signal.toggle(loadSession)}
         />
+        <Button block label={() => `(reset)`} onClick={reset} />
         <ObjectView name={'debug'} data={summary} expand={0} style={{ marginTop: 20 }} />
       </div>
     </div>
