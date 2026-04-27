@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1777267852222,
+    "createdAt": 1777279613999,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-356cfdd457df150bed08ae6d796121ed7973912c8f8a9ccaa53066d43b2a6a6b",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-66902177dfa8d4e14448f7d3f70f8eefd861acae352e56754f0e88ebba815c12",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.73"
+        "version": "0.0.74"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.73/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777267852227
+    "modifiedAt": 1777279614004
   },
   "graph": {
     "orderedPaths": [
@@ -728,6 +728,10 @@
       },
       {
         "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-stripe"
+      },
+      {
+        "from": "code/sys/fs",
         "to": "code/sys.driver/driver-vite"
       },
       {
@@ -785,6 +789,10 @@
       {
         "from": "code/sys/http",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-stripe"
       },
       {
         "from": "code/sys/http",

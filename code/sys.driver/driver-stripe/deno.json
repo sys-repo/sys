@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-stripe",
-  "version": "0.0.73",
+  "version": "0.0.74",
   "license": "MIT",
   "tasks": {
     "test": "deno task check && deno task test:unit && deno task build && deno task test:dist",
@@ -25,7 +25,13 @@
     "./server": "./src/server/mod.ts",
     "./server/t": "./src/server/t.ts"
   },
-  "x-sys": { "ci": { "test": { "browser": true } } },
+  "x-sys": {
+    "ci": {
+      "test": {
+        "browser": true
+      }
+    }
+  },
   "permissions": {
     "clean": {
       "read": true,
@@ -65,3 +71,4 @@
     }
   }
 }
+
