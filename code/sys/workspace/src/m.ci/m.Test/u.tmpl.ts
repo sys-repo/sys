@@ -1,4 +1,6 @@
 export const TEST_JOB_CONFIG_TEMPLATE = `    name: \${{ matrix.name }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
       fail-fast: false
       matrix:

@@ -29,6 +29,7 @@ describe('WorkspaceCi.Test', () => {
     expect(yaml.includes('Install Browser Runtime: Chrome')).to.eql(true);
     expect(yaml.includes('if: ${{ matrix.browser == true }}')).to.eql(true);
     expect(yaml.includes('browser-actions/setup-chrome@v1')).to.eql(true);
+    expect(yaml.includes('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true')).to.eql(true);
     expect(yaml.includes('CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}')).to.eql(true);
     expect(yaml.includes('browser: true')).to.eql(true);
     expect(yaml.includes('Verify workspace graph')).to.eql(true);
