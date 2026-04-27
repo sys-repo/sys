@@ -1,6 +1,5 @@
 import { Vite } from 'jsr:@sys/driver-vite';
 import { defineConfig } from 'npm:vite';
-import { stripeDevRuntime } from './vite.config.fixture.dev.ts';
 
 export default defineConfig(() => {
   const entry = './src/index.html';
@@ -10,7 +9,6 @@ export default defineConfig(() => {
   return Vite.Config.app({
     paths,
     visualizer: false,
-    vitePlugins: [stripeDevRuntime()],
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');

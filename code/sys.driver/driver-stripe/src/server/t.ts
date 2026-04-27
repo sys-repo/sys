@@ -1,16 +1,15 @@
 import type * as t from '@sys/types';
+export type { PortNumber, StringDir, StringHostname } from '@sys/types';
 
 /**
  * Server-side helpers for the local Stripe PaymentElement fixture.
  *
  * This namespace is intentionally scoped to server/runtime use. It provides the
- * local proof endpoint used by the package fixture; it is not a browser API and
+ * local proof endpoint used by package dev fixtures; it is not a browser API and
  * it is not a production Stripe runtime abstraction.
  */
 export declare namespace StripeFixture {
-  /**
-   * Local Stripe fixture API.
-   */
+  /** Local Stripe fixture API. */
   export type Lib = {
     /**
      * Runtime endpoint that mints a fresh Stripe PaymentIntent session.
@@ -49,20 +48,18 @@ export declare namespace StripeFixture {
     handle(req: Request, args?: SessionArgs): Promise<Response | undefined>;
 
     /**
-     * Serves a built `dist/` directory and the local Stripe runtime endpoint.
+     * Serves the local Stripe runtime fixture endpoint.
      *
-     * This is the package-local fixture behind `deno task serve`. It is intended
-     * for local proof/dev only: static browser assets are served from `dist`, and
-     * `POST /-/stripe/payment-intent` mints the runtime session server-side.
+     * This is the server fixture behind `deno task fixture`. It owns the
+     * server-side Stripe secret and mints PaymentIntent sessions for a browser
+     * client running elsewhere, such as `deno task dev` or `deno task serve`.
      *
      * The promise resolves when the underlying server stops.
      */
     serve(args?: ServeArgs): Promise<void>;
   };
 
-  /**
-   * Arguments shared by fixture calls that read server-side Stripe configuration.
-   */
+  /** Arguments shared by fixture calls that read server-side Stripe configuration. */
   export type SessionArgs = {
     /**
      * Directory used when loading local environment configuration.
@@ -74,21 +71,12 @@ export declare namespace StripeFixture {
     readonly cwd?: t.StringDir;
   };
 
-  /**
-   * Arguments for the local built-artifact fixture server.
-   */
+  /** Arguments for the local runtime fixture server. */
   export type ServeArgs = SessionArgs & {
-    /**
-     * Built artifact directory to serve.
-     *
-     * Defaults to `./dist` relative to {@link SessionArgs.cwd}.
-     */
-    readonly dist?: t.StringDir;
-
     /**
      * TCP port for the fixture server.
      *
-     * Defaults to `PORT` from the environment, or `8080` when unset.
+     * Defaults to `STRIPE_FIXTURE_PORT` from the environment, or `9090` when unset.
      */
     readonly port?: t.PortNumber;
 

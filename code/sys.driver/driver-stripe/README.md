@@ -2,37 +2,55 @@
 
 Stripe payment and UI driver primitives.
 
-### Usage
-
 ```ts
 import { PaymentElement } from 'jsr:@sys/driver-stripe/ui';
 ```
 
-### Runtime config
+## Local development
 
-`ui.PaymentElement` follows Stripe's PaymentElement model: the browser receives a publishable key
-and a fresh PaymentIntent `client_secret` from a runtime endpoint.
+Start the Stripe runtime fixture:
 
-The browser bundle must not contain a baked PaymentIntent client secret. The browser never reads
-`STRIPE_SECRET_KEY`; only the runtime process may read it.
+```sh
+deno task fixture
+```
 
-For local/dev runtimes, keep Stripe secrets server-side. `deno task dev` exposes the default
-session endpoint from the Vite server process via `vite.config.fixture.dev.ts`:
+Start the Vite dev server:
+
+```sh
+deno task dev
+```
+
+Tasks:
+
+- `fixture` → Stripe runtime fixture, `http://127.0.0.1:9090/`
+- `dev` → Vite dev server, pointed at the fixture endpoint
+- `build` → bundles the browser with the fixture endpoint URL
+- `serve` → standard Vite preview for `dist/`
+
+Both `dev` and `build` point the browser at:
+
+```text
+http://127.0.0.1:9090/-/stripe/payment-intent
+```
+
+Required local server-side environment:
 
 ```env
 STRIPE_SECRET_KEY="***"
 STRIPE_PUBLISHABLE_KEY="***"
-STRIPE_PAYMENT_AMOUNT="1099"
-STRIPE_PAYMENT_CURRENCY="usd"
 ```
 
-Use Stripe Dashboard sandbox values:
+Optional:
 
-- `STRIPE_PUBLISHABLE_KEY`: `Developers` → `API keys` → `Publishable key`
-- `STRIPE_SECRET_KEY`: `Developers` → `API keys` → `Secret key` (sandbox only; server/runtime use)
+```env
+STRIPE_PAYMENT_AMOUNT="1099"
+STRIPE_PAYMENT_CURRENCY="usd"
+STRIPE_FIXTURE_PORT="9090"
+```
 
-The local browser sample calls `VITE_STRIPE_SESSION_URL` at runtime. That endpoint should create a fresh
-PaymentIntent server-side and return:
+## Runtime boundary
+
+`PaymentElement` is browser-side only. It calls a runtime endpoint for:
 
 ```json
 {
@@ -41,34 +59,17 @@ PaymentIntent server-side and return:
 }
 ```
 
-Do not use `VITE_STRIPE_CLIENT_SECRET`. `VITE_*` values are browser-facing and may be inlined into
-built bundles.
-
-### Dev fixture boundary
-
-`vite.config.fixture.dev.ts` is a local runtime fixture, not the driver API and not a production
-payment runtime. It exists to prove the correct seam:
+The browser bundle must not contain `STRIPE_SECRET_KEY` or a baked PaymentIntent client secret.
+Do not use `VITE_STRIPE_CLIENT_SECRET`.
 
 ```text
 browser view → runtime session endpoint → Stripe PaymentIntent
 ```
 
-Future Cell/runtime work should keep this seam and replace the fixture with a runtime-owned adapter.
-The view should continue to ask for a fresh payment session; it should not learn Stripe secret keys,
-order pricing rules, fulfillment, or webhook policy.
+`@sys/driver-stripe/server` is only the local fixture/proof runtime, not the production payment adapter.
 
-### Local verification
+## Verification
 
 ```sh
 deno task verify
 ```
-
-This checks the source, rebuilds `dist/`, scans the built bundle for baked Stripe credentials and
-CLI/runtime-only modules, then runs the external browser gate:
-
-```sh
-deno task test:external
-```
-
-The external gate opens the local bundle in headless Chrome and fails on browser runtime exceptions
-such as `unsupported runtime`. It requires Chrome/Chromium locally, or `CHROME_BIN` in CI.
