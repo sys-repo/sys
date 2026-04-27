@@ -1,2 +1,2 @@
-export * from '../../ui/-test.ui.ts';
+export * from '../../-test/ui.ts';
 export { DevUrl } from './-dev/mod.ts';

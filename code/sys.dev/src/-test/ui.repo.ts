@@ -34,7 +34,7 @@ export function createUiRepo() {
  * Spawns a test UI repo on a background web worker.
  */
 export async function spawnUiRepoWorker() {
-  const w = new Worker(new URL('./-test.ui.repo.worker.ts', import.meta.url), { type: 'module' });
+  const w = new Worker(new URL('./ui.repo.worker.ts', import.meta.url), { type: 'module' });
   const { repo } = await Crdt.Worker.Client.spawn(w);
   return { repo };
 }
