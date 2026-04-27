@@ -1,13 +1,13 @@
 import React from 'react';
-import { readEnv } from './-u.env.ts';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
+import { readRuntimeConfig } from './-u.runtimeSession.ts';
+import { Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal, type t } from './common.ts';
 
 type P = t.PaymentElement.Props;
-type Storage = Pick<P, 'debug' | 'theme'> & { passSecrets?: boolean };
+type Storage = Pick<P, 'debug' | 'theme'> & { loadSession?: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  passSecrets: true,
+  loadSession: true,
 };
 
 /**
@@ -21,13 +21,13 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}:runtime-session`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    passSecrets: s(snap.passSecrets),
+    loadSession: s(snap.loadSession),
   };
   const p = props;
   const api = {
@@ -48,7 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.passSecrets = p.passSecrets.value;
+      d.loadSession = p.loadSession.value;
     });
   });
 
@@ -97,14 +97,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
-        label={() => `passSecrets: ${p.passSecrets.value}`}
-        onClick={() => Signal.toggle(p.passSecrets)}
+        label={() => `runtime session: ${p.loadSession.value ? 'enabled' : 'disabled'}`}
+        onClick={() => Signal.toggle(p.loadSession)}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
-        name={'env'}
-        data={Obj.truncateStrings(readEnv(), 25)}
+        name={'runtime'}
+        data={Obj.truncateStrings(readRuntimeConfig(), 80)}
         style={{ marginTop: 6 }}
         expand={0}
       />

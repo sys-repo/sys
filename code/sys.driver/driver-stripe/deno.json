@@ -5,6 +5,9 @@
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "test": "deno test -P=test",
+    "test:external": "SYS_DRIVER_STRIPE_BROWSER_DIST=1 deno test -P=test-dist --trace-leaks ./src/ui/ui.PaymentElement/-test/-spec.bundle.test.ts ./src/ui/ui.PaymentElement/-test/-dist.browser.test.ts",
+    "test:dist": "deno task test:external",
+    "verify": "deno task check && deno task build && deno task test:external",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
@@ -29,6 +32,13 @@
       "read": true,
       "write": true,
       "env": true
+    },
+    "test-dist": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
     },
     "dev": {
       "read": true,

@@ -1,5 +1,6 @@
 export {
   DomMock,
+  Browser,
   Testing,
   afterAll,
   afterEach,
