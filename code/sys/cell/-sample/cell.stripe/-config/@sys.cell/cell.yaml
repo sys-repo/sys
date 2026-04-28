@@ -4,11 +4,8 @@ version: 1
 dsl:
   root: ./data
 
-view:
-  driver:
-    name: driver.stripe
-    path: ./view/.pulled/driver.stripe
-    source: https://fs.db.team/driver.stripe/dist.json
+views:
+  config: ./-config/@sys.tools.pull/view.yaml
 
 runtime:
   kind: pending
