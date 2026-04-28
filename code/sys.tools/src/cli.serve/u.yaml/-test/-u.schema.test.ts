@@ -36,6 +36,16 @@ describe('Schema: serve location', () => {
     expect(res.errors).to.eql([]);
   });
 
+  it('validate: accepts optional info rows', () => {
+    const res = ServeYamlSchema.validate({
+      name: 'Test',
+      dir: '.',
+      info: { foo: '/foo/bar/' },
+    });
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
   it('validate: rejects removed contentTypes key', () => {
     const res = ServeYamlSchema.validate({
       name: 'Test',

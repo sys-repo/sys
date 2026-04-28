@@ -88,8 +88,7 @@ async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedAr
     keyboard: true,
   });
 
-  const url = `${context.baseUrl}/` as t.StringUrl;
-  if (resolved.open) Open.invokeDetached(cwd, url, { silent: true });
+  if (resolved.open) Open.invokeDetached(cwd, context.url, { silent: true });
 
   await context.server.finished;
   return done(0);

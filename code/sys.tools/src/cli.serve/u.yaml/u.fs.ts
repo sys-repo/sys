@@ -102,6 +102,7 @@ export const ServeFs = {
       location: {
         name: doc.name,
         dir: resolvedDir,
+        info: doc.info,
       },
     };
   },

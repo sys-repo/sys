@@ -9,6 +9,7 @@ export type StartServingContext = {
   readonly hostname: '127.0.0.1' | '0.0.0.0';
   readonly port: number;
   readonly baseUrl: t.StringUrl;
+  readonly url: t.StringUrl;
   readonly server: Deno.HttpServer<Deno.NetAddr>;
   close(): Promise<void>;
 };
@@ -21,7 +22,7 @@ export function startServer(
   location: t.ServeTool.LocationYaml.Location,
   opts: Opts = {},
 ): StartServingContext {
-  const { dir } = location;
+  const { dir, name } = location;
   const app = Http.Server.create({ static: false });
 
   app.use('*', Http.Server.forceDirSlash(dir));
@@ -30,9 +31,13 @@ export function startServer(
 
   const host = opts.host ?? 'local';
   const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
+  const info = normalizeInfo(location.info);
+  const infoPath = firstPathInfo(info);
   const started = Http.Server.start(app, {
     port: opts.port ?? D.port,
     hostname,
+    name,
+    info,
     dir,
     silent: opts.silent === true,
     keyboard: opts.keyboard,
@@ -40,6 +45,7 @@ export function startServer(
   const port = started.port;
   const server = started.server;
   const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `${started.origin}`;
+  const url = infoPath ? `${baseUrl}/${Str.trimLeadingSlashes(infoPath)}` : `${baseUrl}/`;
 
   return {
     location,
@@ -47,6 +53,7 @@ export function startServer(
     hostname,
     port,
     baseUrl: baseUrl as t.StringUrl,
+    url: url as t.StringUrl,
     server,
     async close() {
       await started.close('serve.close');
@@ -67,6 +74,21 @@ export async function startServing(
 }
 
 type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
+
+function normalizeInfo(info?: Record<string, string>) {
+  if (!info) return undefined;
+  return Object.fromEntries(
+    Object.entries(info).map(([key, value]) => {
+      const trimmed = value.trim();
+      const normalized = trimmed.startsWith('/') ? `/${Str.trimLeadingSlashes(trimmed)}` : trimmed;
+      return [key, normalized];
+    }),
+  );
+}
+
+function firstPathInfo(info?: Record<string, string>) {
+  return Object.values(info ?? {}).find((value) => value.startsWith('/'));
+}
 
 async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext): Promise<ServeResult> {
   const { location, host, port, baseUrl } = context;
