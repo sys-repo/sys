@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../common.ts';
 import { CellSchema } from '../mod.ts';
-import { loadStripeDescriptor } from './u.fixture.ts';
+import { loadStripeDescriptor } from '../../-test/u.fixture.ts';
 
 describe(`Cell.Schema`, () => {
   describe('valid descriptors', () => {

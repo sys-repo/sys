@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
 import { Cell } from '../mod.ts';
-import type { t } from '../common.ts';
+import { catchLoad, sampleRoot, tempCell } from './u.fixture.ts';
 
 describe('Cell.load', () => {
   it('loads and validates the Stripe sample descriptor', async () => {
@@ -16,19 +16,26 @@ describe('Cell.load', () => {
 
   it('fails clearly when the descriptor is missing', async () => {
     const root = Fs.resolve('./.tmp/cell.missing');
-
-    let error: Error | undefined;
-    try {
-      await Cell.load(root);
-    } catch (err) {
-      error = err as Error;
-    }
+    const error = await catchLoad(root);
 
     expect(error?.message).to.contain('Cell.load: failed to read descriptor:');
     expect(error?.message).to.contain('-config/@sys.cell/cell.yaml');
   });
+
+  it('fails clearly when descriptor YAML is invalid', async () => {
+    const root = await tempCell('invalid-yaml', `kind: cell:\n`);
+    const error = await catchLoad(root);
+
+    expect(error?.message).to.contain('Cell.load: failed to parse descriptor YAML:');
+    expect(error?.message).to.contain('-config/@sys.cell/cell.yaml');
+  });
+
+  it('fails clearly when descriptor schema is invalid', async () => {
+    const root = await tempCell('invalid-schema', `kind: cell\nversion: 1\ndsl:\n  root: data\n`);
+    const error = await catchLoad(root);
+
+    expect(error?.message).to.contain('Cell.load: invalid descriptor:');
+    expect(error?.message).to.contain('/dsl/root');
+  });
 });
 
-function sampleRoot(): t.StringDir {
-  return new URL('../../../-sample/cell.stripe', import.meta.url).pathname;
-}
