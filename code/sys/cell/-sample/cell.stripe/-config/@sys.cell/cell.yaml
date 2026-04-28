@@ -7,13 +7,25 @@ dsl:
   root: ./data
 
 views:
-  pull: ./-config/@sys.tools.pull/view.yaml
-  serve: ./-config/@sys.tools.serve/view.yaml
+  stripe.dev:
+    source:
+      pull: ./-config/@sys.tools.pull/view.yaml
+  hello:
+    source:
+      local: ./view/hello-world
 
 runtime:
   services:
+    - name: view
+      kind: http-static
+      for:
+        views: [stripe.dev, hello]
+      from: '@sys/http/server/static'
+      export: HttpStatic
+      config: ./-config/@sys.http.static/view.yaml
+
     - name: stripe
       kind: http-server
       from: '@sys/driver-stripe/server/fixture'
       export: StripeFixture
-      driver: ./-config/@sys.driver-stripe/fixture.yaml
+      config: ./-config/@sys.driver-stripe/fixture.yaml
