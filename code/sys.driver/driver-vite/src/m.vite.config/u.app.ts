@@ -12,7 +12,7 @@ import { commonPlugins } from './u.plugins.ts';
  * Application bundle configuration.
  */
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
-  const { minify = true, oxc = false } = options;
+  const { minify = true } = options;
   const end = Perf.section('config.app', { entry: options.paths?.app.entry ?? '', minify }, {
     level: 2,
   });
@@ -137,7 +137,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     publicDir,
     cacheDir,
     base: paths.app.base,
-    oxc,
+    oxc: options.oxc,
     optimizeDeps: options.optimizeDeps,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
     worker: {

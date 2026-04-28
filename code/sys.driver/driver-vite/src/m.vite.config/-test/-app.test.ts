@@ -55,7 +55,7 @@ describe('Config.Build', () => {
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
-      expect(config.oxc).to.eql(false);
+      expect(config.oxc).to.eql(undefined);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
