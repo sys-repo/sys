@@ -82,7 +82,7 @@ async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs)
 async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
   const resolved = await resolveNonInteractive(cwd, args);
   const { startServer } = await import('./m.server/mod.ts');
-  const context = startServer(resolved.location, {
+  const context = await startServer(resolved.location, {
     port: Is.num(args.port) ? args.port : D.port,
     host: resolved.host,
     keyboard: true,

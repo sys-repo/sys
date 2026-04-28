@@ -11,7 +11,7 @@ export const print: HttpServerLib['print'] = (options) => {
   const port = c.bold(c.brightCyan(String(addr.port)));
 
   const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
-  const host = c.cyan(`http://localhost:${port}/`);
+  const host = c.cyan(`http://localhost:${port}`);
   const infoEntries = Object.entries(info ?? {});
   const url = formatUrl({ host, infoEntries });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
@@ -53,7 +53,7 @@ export const print: HttpServerLib['print'] = (options) => {
  */
 function formatUrl(input: { host: string; infoEntries: readonly (readonly [string, string])[] }) {
   const path = input.infoEntries.find(([, value]) => value.startsWith('/'))?.[1];
-  return path ? `${input.host}${c.gray(Str.trimLeadingSlashes(path))}` : input.host;
+  return path ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(path)}`)}` : `${input.host}${c.gray('/')}`;
 }
 
 const URL_NOTE_INDENT = 17;

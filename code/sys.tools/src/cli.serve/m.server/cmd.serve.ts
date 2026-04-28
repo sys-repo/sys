@@ -18,10 +18,10 @@ type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
 /**
  * Start a local HTTP server for the given directory and return the running context.
  */
-export function startServer(
+export async function startServer(
   location: t.ServeTool.LocationYaml.Location,
   opts: Opts = {},
-): StartServingContext {
+): Promise<StartServingContext> {
   const { dir, name } = location;
   const app = Http.Server.create({ static: false });
 
@@ -31,7 +31,7 @@ export function startServer(
 
   const host = opts.host ?? 'local';
   const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
-  const info = normalizeInfo(location.info);
+  const info = await resolveInfo(location);
   const infoPath = firstPathInfo(info);
   const started = Http.Server.start(app, {
     port: opts.port ?? D.port,
@@ -69,11 +69,22 @@ export async function startServing(
   location: t.ServeTool.LocationYaml.Location,
   opts: Opts = {},
 ): Promise<ServeResult> {
-  const context = startServer(location, { ...opts, silent: false });
+  const context = await startServer(location, { ...opts, silent: false });
   return await runOpenPromptLoop(cwd, context);
 }
 
 type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
+
+async function resolveInfo(location: t.ServeTool.LocationYaml.Location) {
+  const explicit = normalizeInfo(location.info);
+  if (explicit) return explicit;
+
+  const targets = await OpenTargets.discover(location.dir);
+  const paths = targets.map((target) => target.path).filter(Boolean);
+  if (paths.length !== 1) return undefined;
+
+  return { path: `/${Str.trimSlashes(paths[0])}/` };
+}
 
 function normalizeInfo(info?: Record<string, string>) {
   if (!info) return undefined;
