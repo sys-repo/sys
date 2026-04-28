@@ -20,6 +20,8 @@ jobs:
         include:
           - name: "@sys/types"
             path: code/sys/types
+          - name: "@sys/crdt"
+            path: code/sys/crdt
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"
@@ -28,8 +30,6 @@ jobs:
             path: code/sys.ui/ui-css
           - name: "@sys/cli"
             path: code/sys/cli
-          - name: "@sys/crdt-t"
-            path: code/sys/crdt
           - name: "@sys/crypto"
             path: code/sys/crypto
           - name: "@sys/event"
