@@ -1,6 +1,0 @@
-# Keep the sample Cell descriptor tracked despite the workspace-level `-config` ignore.
-!-config/
-!-config/**
-
-# Pulled view artifacts are managed outputs.
-view/driver.stripe/

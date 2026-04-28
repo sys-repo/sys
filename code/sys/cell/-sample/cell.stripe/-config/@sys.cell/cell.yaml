@@ -2,12 +2,12 @@ kind: cell
 version: 1
 
 dsl:
-  root: ../../data
+  root: ./data
 
 view:
   driver:
     name: driver.stripe
-    path: ../../view/driver.stripe
+    path: ./view/.pulled/driver.stripe
     source: https://fs.db.team/driver.stripe/dist.json
 
 runtime:

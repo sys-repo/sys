@@ -1,0 +1,6 @@
+# Keep sample Cell descriptors tracked despite the workspace-level `-config` ignore.
+!-sample/*/-config/
+!-sample/*/-config/**
+
+# Pulled Cell view artifacts are managed outputs.
+-sample/*/view/.pulled/
