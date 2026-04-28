@@ -20,6 +20,8 @@ jobs:
         include:
           - name: "@sys/types"
             path: code/sys/types
+          - name: "@sys/cell"
+            path: code/sys/cell
           - name: "@sys/crdt"
             path: code/sys/crdt
           - name: "@sys/std"

@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777334478227,
+    "createdAt": 1777338725177,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-2417c6d19f13df1767f08f28696131cc6ecb9ffbe4abcd64af23f3618ccce856",
+      "/graph": "sha256-d91c255fc22f95157a4810d512bcb0da8e8c371397e7a49f72bc35e43c86c27b",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,11 +15,12 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777334478232
+    "modifiedAt": 1777338725182
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
+      "code/sys/cell",
       "code/sys/crdt",
       "code/sys/std",
       "code/sys/color",
@@ -1278,6 +1279,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/types",
