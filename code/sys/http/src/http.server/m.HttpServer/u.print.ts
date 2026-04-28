@@ -45,7 +45,7 @@ export const print: HttpServerLib['print'] = (options) => {
     console.info('');
     console.info(Str.trimEdgeNewlines(String(table)));
   }
-  console.info('');
+  if (!fallback) console.info('');
 };
 
 /**
