@@ -27,18 +27,31 @@ export const PiSandboxFmt = {
     const contentBudget = sandboxContentBudget(renderWidth);
     const table = Cli.table([]);
 
-    if (input.report) table.push([c.gray('report'), formatReportPath(input.report, contentBudget, input.cwd.git)]);
-    table.push([c.gray('context'), formatPreview([
-      ...(input.context?.detail ?? []),
-      ...(input.context?.include ?? []),
-    ], contentBudget, input.cwd.git)]);
-    table.push([c.gray('read'), formatPreview(cwdAndDetail(input.cwd.git, input.read?.detail ?? []), contentBudget)]);
+    if (input.report) {
+      table.push([c.gray('report'), formatReportPath(input.report, contentBudget, input.cwd.git)]);
+    }
+    table.push([
+      c.gray('context'),
+      formatPreview(
+        [
+          ...(input.context?.detail ?? []),
+          ...(input.context?.include ?? []),
+        ],
+        contentBudget,
+        input.cwd.git,
+      ),
+    ]);
+    table.push([
+      c.gray('read'),
+      formatPreview(cwdAndDetail(input.cwd.git, input.read?.detail ?? []), contentBudget),
+    ]);
     pushWriteRows(table, input.cwd.git, input.write, contentBudget);
 
     return Str.builder()
-      .line(Cli.Fmt.hr(renderWidth, 'cyan'))
-      .line(c.bold(c.cyan('Agent:Sandbox')))
+      .line(c.bold(c.green('Agent:Sandbox')))
+      .line(Cli.Fmt.hr(renderWidth, 'green'))
       .line(Str.trimEdgeNewlines(String(table)))
+      .line(Cli.Fmt.hr(renderWidth, 'green'))
       .toString();
   },
 } as const;
@@ -79,7 +92,9 @@ function fitDisplayPath(path: string, budget: number) {
   if (dirBudget <= 0) return fitPreviewPathToBudget(tail, budget);
   if (visibleWidth(dirname) <= dirBudget) return `${dirname}/${tail}`;
 
-  const left = dirBudget > PATH_DIR_PREFIX_WIDTH + PREVIEW_ELLIPSIS.length ? PATH_DIR_PREFIX_WIDTH : 0;
+  const left = dirBudget > PATH_DIR_PREFIX_WIDTH + PREVIEW_ELLIPSIS.length
+    ? PATH_DIR_PREFIX_WIDTH
+    : 0;
   const right = Math.max(0, dirBudget - left - PREVIEW_ELLIPSIS.length);
   const shortenedDir = Str.ellipsize(dirname, [left, right], PREVIEW_ELLIPSIS);
   return `${shortenedDir}/${tail}`;

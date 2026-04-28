@@ -25,8 +25,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     }, width);
 
     const renderWidth = width - 1;
-    expect(firstLine(text)).to.eql('━'.repeat(renderWidth));
-    expect(text).to.contain('Sandbox');
+    expectHeaderFrame(text, renderWidth);
     expect(text).to.contain('.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.log');
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
@@ -86,7 +85,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     }, width);
 
     const renderWidth = width - 1;
-    expect(firstLine(text)).to.eql('━'.repeat(renderWidth));
+    expectHeaderFrame(text, renderWidth);
     expect(text).to.match(/\+[0-9]+ more/);
     expect(text).to.contain('..');
     expectTargetRowsToFit(text, renderWidth, ['context', 'read']);
@@ -170,8 +169,11 @@ function render(input: t.PiCli.SandboxSummary, width: number) {
   return Cli.stripAnsi(PiSandboxFmt.table(input, { width }));
 }
 
-function firstLine(text: string) {
-  return lines(text)[0] ?? '';
+function expectHeaderFrame(text: string, width: number) {
+  const output = lines(text);
+  expect(output[0]).to.eql('Agent:Sandbox');
+  expect(output[1]).to.eql('━'.repeat(width));
+  expect(output.at(-1)).to.eql('━'.repeat(width));
 }
 
 function expectTargetRowsToFit(text: string, width: number, labels: readonly string[]) {
