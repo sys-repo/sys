@@ -13,7 +13,9 @@ export const print: HttpServerLib['print'] = (options) => {
   const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
   const host = c.cyan(`http://localhost:${port}`);
   const infoEntries = Object.entries(info ?? {});
-  const url = formatUrl({ host, infoEntries });
+  const pathEntry = findPathEntry(infoEntries);
+  const detailEntries = infoEntries.filter((entry) => entry !== pathEntry);
+  const url = formatUrl({ host, path: pathEntry?.[1] });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
   if (pkg) {
@@ -29,6 +31,7 @@ export const print: HttpServerLib['print'] = (options) => {
     table.push([c.gray('module:'), `${mod} ${version}`]);
     if (name) table.push([c.gray('serving:'), c.bold(name)]);
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
+    for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
     if (hx) table.push([c.gray('dist:'), `${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
     table.push([c.gray('url:'), url]);
     if (fallback) table.push(['', fallback]);
@@ -39,6 +42,7 @@ export const print: HttpServerLib['print'] = (options) => {
     const table = Cli.Table.create([]);
     if (name) table.push([c.gray('serving:'), c.bold(name)]);
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
+    for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
     table.push([c.gray('url:'), url]);
     if (fallback) table.push(['', fallback]);
 
@@ -51,9 +55,12 @@ export const print: HttpServerLib['print'] = (options) => {
 /**
  * Helpers:
  */
-function formatUrl(input: { host: string; infoEntries: readonly (readonly [string, string])[] }) {
-  const path = input.infoEntries.find(([, value]) => value.startsWith('/'))?.[1];
-  return path ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(path)}`)}` : `${input.host}${c.gray('/')}`;
+function findPathEntry(infoEntries: readonly (readonly [string, string])[]) {
+  return infoEntries.find(([, value]) => value.startsWith('/'));
+}
+
+function formatUrl(input: { host: string; path?: string }) {
+  return input.path ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(input.path)}`)}` : `${input.host}${c.gray('/')}`;
 }
 
 const URL_NOTE_INDENT = 17;
