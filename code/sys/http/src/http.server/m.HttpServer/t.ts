@@ -1,6 +1,6 @@
 import type {
-  Hono,
   Context as HonoContext,
+  Hono,
   MiddlewareHandler as HonoMiddlewareHandler,
   Schema as HonoSchema,
 } from 'hono';
@@ -17,6 +17,7 @@ export type HttpServerLib = {
   readonly static: t.HttpServeStatic;
   forceDirSlash(root: string, strip?: string): t.HonoMiddlewareHandler;
   create(options?: t.HttpServerCreateOptions): HonoApp;
+  start(app: t.HonoApp, options?: t.HttpServerStartOptions): t.HttpServerStarted;
   options(args?: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;
   keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
@@ -31,12 +32,65 @@ export type HttpServerOptionsOptions = {
   dir?: string;
 };
 
-/** Arguments passed to [HttpServer.print] */
+/** Arguments passed to [HttpServer.keyboard]. */
 export type HttpServerKeyboardOptions = {
   port: number;
   url?: string;
   print?: boolean;
+  exit?: boolean;
   dispose?: () => Promise<void>;
+};
+
+/** Arguments passed to [HttpServer.start]. */
+export type HttpServerStartOptions = {
+  port?: t.PortNumber;
+  hostname?: t.StringHostname;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+  silent?: boolean;
+  dir?: t.StringDir;
+
+  /** External platform cancellation bridge. */
+  signal?: AbortSignal;
+
+  /** Canonical @sys lifecycle bridge. */
+  until?: t.UntilInput;
+
+  keyboard?: boolean | HttpServerStartKeyboardOptions;
+};
+
+/** Keyboard behavior for [HttpServer.start]. */
+export type HttpServerStartKeyboardOptions = {
+  print?: boolean;
+
+  /**
+   * Exit the process when keyboard quit is received.
+   *
+   * Defaults to false. Server shutdown is the primitive behavior;
+   * process exit must be explicit.
+   */
+  exit?: boolean;
+};
+
+/** Running server returned by [HttpServer.start]. */
+export type HttpServerStarted = t.LifecycleAsync & {
+  readonly app: t.HonoApp;
+  readonly server: Deno.HttpServer<Deno.NetAddr>;
+  readonly addr: Deno.NetAddr;
+  readonly hostname: t.StringHostname;
+  readonly port: t.PortNumber;
+
+  /** Local browser-safe HTTP origin, e.g. `http://localhost:8080`. */
+  readonly origin: t.StringUrl;
+
+  /** Server lifecycle signal; aborted when this context is disposed or closed. */
+  readonly signal: AbortSignal;
+
+  /** Resolves when the underlying Deno server has finished. */
+  readonly finished: Promise<void>;
+
+  /** HTTP/domain alias for `dispose()`. */
+  close(reason?: unknown): Promise<void>;
 };
 
 /** Arguments passed to [HttpServer.print] */

@@ -1,6 +1,6 @@
 import { Env, Fs, HttpServer, type t } from '../common.ts';
 import { pkg } from '../../pkg.ts';
-import { StripeFixture, methodNotAllowed } from './mod.StripeFixture.ts';
+import { methodNotAllowed, StripeFixture } from './mod.StripeFixture.ts';
 
 export async function serve(args: t.StripeFixture.ServeArgs = {}) {
   const cwd = args.cwd ?? Fs.cwd();
@@ -8,9 +8,8 @@ export async function serve(args: t.StripeFixture.ServeArgs = {}) {
   const hostname = args.hostname ?? '127.0.0.1';
   const port = args.port ?? readPort(env.get('STRIPE_FIXTURE_PORT'), 9090);
   const app = createApp({ cwd });
-  const options = HttpServer.options({ port, pkg });
-  const listener = Deno.serve({ ...options, hostname }, app.fetch);
-  await listener.finished;
+  const server = HttpServer.start(app, { port, pkg, hostname });
+  await server.finished;
 }
 
 function createApp(args: { readonly cwd: string }) {
@@ -23,8 +22,7 @@ function createApp(args: { readonly cwd: string }) {
       name: pkg.name,
       fixture: 'stripe-runtime',
       endpoint: StripeFixture.path,
-    })
-  );
+    }));
   return app;
 }
 

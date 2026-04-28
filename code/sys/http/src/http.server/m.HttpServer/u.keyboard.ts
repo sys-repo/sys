@@ -9,6 +9,7 @@ export async function keyboard(args: {
   port: number;
   url?: string;
   print?: boolean;
+  exit?: boolean;
   dispose?: () => Promise<void>;
 }) {
   try {
@@ -19,10 +20,11 @@ export async function keyboard(args: {
       };
 
       const fmt = (str: string) => c.italic(c.gray(str));
+      const quit = args.exit === false ? 'close server' : 'exit';
       const str = Str.builder()
         .line(c.gray('Keyboard:'))
         .line(branch(false, 1) + fmt(` ${c.white('O')}      open in browser`))
-        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to exit`))
+        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to ${quit}`))
         .line();
       console.info(String(str));
     }
@@ -38,14 +40,15 @@ export async function keyboard(args: {
       }
 
       /**
-       * QUIT → shutdown server and exit.
+       * QUIT → shutdown server and optionally exit.
        */
       let isQuit = false;
       if (e.ctrlKey && e.key === 'c') isQuit = true;
       if (e.key === 'q') isQuit = true;
       if (isQuit) {
         await args.dispose?.();
-        Deno.exit(0);
+        if (args.exit ?? true) Deno.exit(0);
+        return;
       }
     }
   } catch (error) {
