@@ -141,6 +141,40 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
+  it('run → keeps Pi default system prompt when profile prompt is null', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          prompt:
+            system: null
+          `,
+        ).trimStart(),
+      );
+
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        expect(input.args).not.to.include('--system-prompt');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({
+        cwd: { invoked: cwd, git: cwd },
+        config,
+      });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → leaves the final system prompt override with invocation-time passthrough', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
