@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, opt, Str, Time, Url, Yaml } from '../common.ts';
+import { type t, c, Cli, Fs, Open, opt, Str, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { resolveBundleForPull } from './u.defaults.ts';
@@ -177,7 +177,7 @@ export async function pullBundle(
 }
 
 export async function executeBundlePull(
-  yamlPath: t.StringPath,
+  _yamlPath: t.StringPath,
   location: t.PullTool.ConfigYaml.Location,
   bundle: t.PullTool.ConfigYaml.Bundle,
 ): Promise<
@@ -192,38 +192,7 @@ export async function executeBundlePull(
 
   console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
 
-  await updateYamlBundles(yamlPath, (list) => {
-    const hit = list.find((m) => isSameBundle(m, bundle));
-    if (hit) hit.lastUsedAt = Time.now.timestamp;
-  });
-
   return { ok: true, bundle: effectiveBundle };
-}
-
-function isSameBundle(a: t.PullTool.ConfigYaml.Bundle, b: t.PullTool.ConfigYaml.Bundle): boolean {
-  if (a.kind !== b.kind) return false;
-  if (a.local.dir !== b.local.dir) return false;
-
-  if (a.kind === 'http' && b.kind === 'http') {
-    return a.dist === b.dist;
-  }
-
-  if (a.kind === 'github:release' && b.kind === 'github:release') {
-    return a.repo === b.repo &&
-      normalizeOptional(a.tag) === normalizeOptional(b.tag) &&
-      normalizeAsset(a.asset) === normalizeAsset(b.asset);
-  }
-
-  return false;
-}
-
-function normalizeOptional(value?: string): string {
-  return String(value ?? '').trim();
-}
-
-function normalizeAsset(value?: string | string[]): string {
-  if (Array.isArray(value)) return value.map((m) => normalizeOptional(m)).join('|');
-  return normalizeOptional(value);
 }
 
 /**
