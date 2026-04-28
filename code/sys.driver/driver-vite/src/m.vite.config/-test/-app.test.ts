@@ -60,13 +60,14 @@ describe('Config.Build', () => {
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
+      expect(includesPlugin(config, 'sys:oxc-preflight')).to.be.true;
     });
 
     it('no common plugins', async () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names).to.eql(['sys:optimize-imports']);
+      expect(names).to.eql(['sys:optimize-imports', 'sys:oxc-preflight']);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
@@ -97,7 +98,8 @@ describe('Config.Build', () => {
       });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names.at(-2)).to.eql('custom:a');
+      expect(names.at(-3)).to.eql('custom:a');
+      expect(names.at(-2)).to.eql('sys:oxc-preflight');
       expect(names.at(-1)).to.eql('visualizer');
     });
 

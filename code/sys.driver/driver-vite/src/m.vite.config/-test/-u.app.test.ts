@@ -16,7 +16,7 @@ describe('ViteConfig.app', () => {
       .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
       .flatMap((entry) => pluginName(entry));
 
-    expect(names).to.eql(['sys:optimize-imports', 'user:plugin']);
+    expect(names).to.eql(['sys:optimize-imports', 'user:plugin', 'sys:oxc-preflight']);
 
     const optimize = firstPlugin(plugins[0]);
     expect(pluginName(optimize)[0]).to.eql(OptimizeImportsPlugin.plugin().name);

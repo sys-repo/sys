@@ -48,9 +48,8 @@ export type ViteConfigAppOptions = {
   /**
    * Canonical pass-through for Vite's OXC transform configuration.
    *
-   * Defaults to `false` for @sys app configs because Vite 8's OXC/Rolldown
-   * native transform path is not yet stable under Deno/NPM temp workspaces.
-   * Pass an OXC options object to opt into Vite's native transform path.
+   * Unset by default so Vite keeps its native OXC behavior. Pass `false` only
+   * when intentionally disabling Vite's OXC transform path.
    */
   oxc?: t.ViteUserConfig['oxc'];
 
