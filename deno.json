@@ -67,6 +67,7 @@
     "code/sys.ui/ui-react-components",
     "code/sys.ui/ui-react-devharness",
     "code/sys.ui/ui-state",
+    "code/sys/cell",
     "code/sys/cli",
     "code/sys/color",
     "code/sys/crdt",
