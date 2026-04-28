@@ -1,5 +1,4 @@
 import {
-  type t,
   c,
   describe,
   expect,
@@ -8,6 +7,7 @@ import {
   pkg,
   SAMPLE,
   Str,
+  type t,
   Testing,
   Time,
 } from '../../-test.ts';
@@ -17,9 +17,8 @@ import { Vite } from '../mod.ts';
 const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;
 const DEV_CONNECT_RETRY_TIMEOUT = 2_000 as t.Msecs;
 const DEV_CONNECT_RETRY_INTERVAL = 100 as t.Msecs;
-// Vite 8 / OXC / rolldown can transiently 500 the first served entry transform
-// on fresh temp fixtures before recovering on the next request. The dev contract
-// we actually own here is eventual entry readiness once the server is up.
+// Vite dev can transiently 404/500 an entry while the server finishes cold-start transforms.
+// The dev contract we own here is eventual entry readiness once the server is up.
 const DEV_ENTRY_RETRY_TIMEOUT = 5_000 as t.Msecs;
 const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
@@ -45,7 +44,6 @@ describe('Vite.dev', () => {
    *
    *    ➜  Local:   http://localhost:1234/
    *    ➜  Network: use --host to expose
-   *
    */
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(2, async () => {
@@ -54,7 +52,6 @@ describe('Vite.dev', () => {
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
-      await disableUpstreamOxcForDevSmoke(cwd);
       const paths = {
         cwd,
         app: {
@@ -131,7 +128,6 @@ describe('Vite.dev', () => {
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
       const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
-      await disableUpstreamOxcForDevSmoke(cwd);
       const paths = {
         cwd,
         app: {
@@ -172,27 +168,6 @@ describe('Vite.dev', () => {
     });
   });
 });
-
-/**
- * The dev smoke owns the @sys/driver-vite process contract, not upstream
- * Vite/OXC transform stability. CI has shown Vite 8/OXC can fail this copied
- * temp fixture with `Failed to recover TsconfigCache type from napi value`.
- *
- * Disable OXC for this fixture only so the test still proves the owned surface:
- * - dev startup
- * - HTML serving
- * - entry-module serving
- * - local bridge imports
- * - disposal
- */
-async function disableUpstreamOxcForDevSmoke(cwd: string) {
-  const path = Fs.join(cwd, 'vite.config.ts');
-  const source = (await Fs.readText(path)).data ?? '';
-  const oldText = 'export default defineConfig(async () => await Vite.Config.app({ paths }));';
-  const newText = 'export default defineConfig(async () => ({ ...(await Vite.Config.app({ paths })), oxc: false }));';
-  if (!source.includes(oldText)) throw new Error('Unexpected Vite dev smoke fixture config shape.');
-  await Fs.write(path, source.replace(oldText, newText));
-}
 
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
