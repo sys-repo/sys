@@ -28,6 +28,8 @@ export type HttpServerOptionsOptions = {
   port?: number;
   pkg?: t.Pkg;
   hash?: t.StringHash;
+  name?: string;
+  info?: Record<string, string>;
   silent?: boolean;
   dir?: string;
 };
@@ -47,6 +49,8 @@ export type HttpServerStartOptions = {
   hostname?: t.StringHostname;
   pkg?: t.Pkg;
   hash?: t.StringHash;
+  name?: string;
+  info?: Record<string, string>;
   silent?: boolean;
   dir?: t.StringDir;
 
@@ -98,6 +102,8 @@ export type HttpServerPrintOptions = {
   addr: Deno.NetAddr;
   pkg?: t.Pkg;
   hash?: t.StringHash;
+  name?: string;
+  info?: Record<string, string>;
   keyboard?: boolean;
   requestedPort?: t.PortNumber;
   dir?: t.StringDir;

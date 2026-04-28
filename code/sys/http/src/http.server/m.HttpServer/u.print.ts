@@ -1,18 +1,20 @@
 import type { HttpServerLib } from './t.ts';
 
-import { c } from '@sys/color/ansi';
-import { Fs } from '@sys/fs';
+import { Cli, c, Fs, Str } from './common.ts';
 
 /**
  * Outputs a formatted console log within
  * meta-data about the running server and module.
  */
 export const print: HttpServerLib['print'] = (options) => {
-  const { addr, pkg, hash, requestedPort } = options;
+  const { addr, pkg, hash, name, info, requestedPort } = options;
   const port = c.bold(c.brightCyan(String(addr.port)));
 
-  const formattedDir = wrangle.formattedDir(options.dir);
+  const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
   const host = c.cyan(`http://localhost:${port}/`);
+  const infoEntries = Object.entries(info ?? {});
+  const url = formatUrl({ host, infoEntries });
+  const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
   if (pkg) {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
@@ -23,30 +25,25 @@ export const print: HttpServerLib['print'] = (options) => {
     const mod = c.bold(pkg.name);
     const version = c.gray(`${pkg.version}`);
 
-    const lines = [ `${c.gray('Module:')} ${mod} ${version}` ];
-    if (formattedDir) lines.push(`        ${c.gray(`${formattedDir}/`)}`);
-    if (hx) lines.push(`        ${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`);
-    if (requestedPort && requestedPort !== addr.port) {
-      lines.push(`        ${host} ${c.gray(`${c.dim('←')} port ${requestedPort} already in use`)}`);
-    } else {
-      lines.push(`        ${host}`);
-    }
+    const table = Cli.Table.create([]);
+    table.push([c.gray('module:'), `${mod} ${version}`]);
+    if (name) table.push([c.gray('serving:'), c.bold(name)]);
+    if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
+    if (hx) table.push([c.gray('dist:'), `${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
+    table.push([c.gray('url:'), url]);
+    if (fallback) table.push(['', fallback]);
 
     console.info('');
-    console.info(lines.join('\n'));
+    console.info(Str.trimEdgeNewlines(String(table)));
   } else {
-    const lines = [];
-    if (options.dir) lines.push(c.gray(`Serving: ${Fs.Path.normalize(options.dir)}`));
-    lines.push(c.gray(`Host: ${addr.hostname}`));
-    lines.push(c.gray(`Port: ${String(addr.port)}`));
-    if (requestedPort && requestedPort !== addr.port) {
-      lines.push(c.gray(`URL:  ${host} ${c.dim(`← port ${requestedPort} already in use`)}`));
-    } else {
-      lines.push(c.gray(`URL:  ${host}`));
-    }
+    const table = Cli.Table.create([]);
+    if (name) table.push([c.gray('serving:'), c.bold(name)]);
+    if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
+    table.push([c.gray('url:'), url]);
+    if (fallback) table.push(['', fallback]);
 
     console.info('');
-    console.info(lines.join('\n'));
+    console.info(Str.trimEdgeNewlines(String(table)));
   }
   console.info('');
 };
@@ -54,31 +51,24 @@ export const print: HttpServerLib['print'] = (options) => {
 /**
  * Helpers:
  */
+function formatUrl(input: { host: string; infoEntries: readonly (readonly [string, string])[] }) {
+  const path = input.infoEntries.find(([, value]) => value.startsWith('/'))?.[1];
+  return path ? `${input.host}${c.gray(Str.trimLeadingSlashes(path))}` : input.host;
+}
+
+const URL_NOTE_INDENT = 17;
+
+function formatPortFallback(input: { requestedPort?: number; actualPort: number }) {
+  const { requestedPort, actualPort } = input;
+  if (!requestedPort || requestedPort === actualPort) return '';
+  const indent = ' '.repeat(URL_NOTE_INDENT);
+  return `${indent}${c.gray(c.dim(`${requestedPort} already in use`))}`;
+}
+
 const wrangle = {
   hashDigest(hash?: string) {
     if (!hash) return '';
     if (hash.length <= 18) return hash;
     return `${hash.slice(0, 12)}…${hash.slice(-6)}`;
-  },
-
-  formattedDir(dir?: string) {
-    const normalizedDir = dir ? Fs.Path.normalize(dir) : '';
-    if (!normalizedDir) return '';
-
-    const terminalDir = Fs.Path.normalize(Fs.cwd('terminal'));
-    const processDir = Fs.Path.normalize(Fs.cwd('process'));
-    const relative =
-      wrangle.relativeSegment(terminalDir, normalizedDir) ||
-      wrangle.relativeSegment(processDir, normalizedDir);
-
-    if (relative) return `./${relative}`;
-    return normalizedDir.replace(/^\/+|\/+$/g, '');
-  },
-
-  relativeSegment(base: string, target: string) {
-    if (!target || target === base) return '';
-    const candidate = Fs.Path.relative(base, target);
-    if (!candidate || candidate.startsWith('..')) return '';
-    return candidate.replace(/^\/+|\/+$/g, '');
   },
 } as const;

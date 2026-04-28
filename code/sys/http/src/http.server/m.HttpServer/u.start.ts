@@ -14,6 +14,8 @@ export const start: F = (app, input = {}) => {
     port: input.port,
     pkg: input.pkg,
     hash: input.hash,
+    name: input.name,
+    info: input.info,
     silent: input.silent,
     dir: input.dir,
   });
