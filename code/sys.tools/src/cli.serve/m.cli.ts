@@ -1,6 +1,6 @@
 import { startServing } from './m.server/mod.ts';
 
-import { type t, c, D, done, Fs, Is, Open, Str } from './common.ts';
+import { type t, c, D, done, Fs, Is, Open } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { parseArgs } from './u.args.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
@@ -21,9 +21,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   await ServeMigrate.run(cwd);
 
   /* Run */
-  console.info(await Fmt.header(toolname));
-  const res = args.interactive ? await runInteractive(cwd, args) : await runNonInteractive(cwd, args);
-  console.info(Fmt.signoff(toolname));
+  const res = args.interactive ? await runInteractiveWithShell(cwd, args, toolname) : await runNonInteractive(cwd, args);
 
   /* Exit */
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -33,6 +31,17 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution
  */
+async function runInteractiveWithShell(
+  cwd: t.StringDir,
+  args: t.ServeTool.CliParsedArgs,
+  toolname: string,
+): Promise<t.RunReturn> {
+  console.info(await Fmt.header(toolname));
+  const res = await runInteractive(cwd, args);
+  console.info(Fmt.signoff(toolname));
+  return res;
+}
+
 async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
   const port = Is.num(args.port) ? args.port : D.port;
 
@@ -76,17 +85,10 @@ async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedAr
   const context = startServer(resolved.location, {
     port: Is.num(args.port) ? args.port : D.port,
     host: resolved.host,
-    silent: true,
+    keyboard: true,
   });
 
-  const url = `http://localhost:${context.port}/` as t.StringUrl;
-  console.info(Str.builder()
-    .line(c.gray(`Serving: ${resolved.location.dir}`))
-    .line(c.gray(`Host: ${context.hostname}`))
-    .line(c.gray(`Port: ${String(context.port)}`))
-    .line(c.gray(`URL:  ${c.cyan(url)}`))
-    .toString());
-
+  const url = `${context.baseUrl}/` as t.StringUrl;
   if (resolved.open) Open.invokeDetached(cwd, url, { silent: true });
 
   await context.server.finished;

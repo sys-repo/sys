@@ -1,8 +1,8 @@
-import { type t, c, Cli, D, Fmt, Http, Net, Open, Str } from '../common.ts';
+import { type t, c, Cli, D, Fmt, Http, Open, Str } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
 import { route } from './u.serve.route.ts';
 
-type Opts = { port?: number; host?: 'local' | 'network'; silent?: boolean };
+type Opts = { port?: number; host?: 'local' | 'network'; silent?: boolean; keyboard?: boolean };
 export type StartServingContext = {
   readonly location: t.ServeTool.LocationYaml.Location;
   readonly host: 'local' | 'network';
@@ -10,7 +10,6 @@ export type StartServingContext = {
   readonly port: number;
   readonly baseUrl: t.StringUrl;
   readonly server: Deno.HttpServer<Deno.NetAddr>;
-  readonly abort: AbortController;
   close(): Promise<void>;
 };
 type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
@@ -29,13 +28,18 @@ export function startServer(
   app.use('*', route({ dir }));
   app.use('*', Http.Server.static({ root: dir }));
 
-  const port = Net.port(opts.port ?? D.port);
-  const baseOptions = Http.Server.options({ port, dir, silent: opts.silent === true });
-  const abort = new AbortController();
   const host = opts.host ?? 'local';
   const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
-  const server = Deno.serve({ ...baseOptions, hostname, signal: abort.signal }, app.fetch);
-  const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
+  const started = Http.Server.start(app, {
+    port: opts.port ?? D.port,
+    hostname,
+    dir,
+    silent: opts.silent === true,
+    keyboard: opts.keyboard,
+  });
+  const port = started.port;
+  const server = started.server;
+  const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `${started.origin}`;
 
   return {
     location,
@@ -44,10 +48,8 @@ export function startServer(
     port,
     baseUrl: baseUrl as t.StringUrl,
     server,
-    abort,
     async close() {
-      abort.abort();
-      await server.finished;
+      await started.close('serve.close');
     },
   };
 }
