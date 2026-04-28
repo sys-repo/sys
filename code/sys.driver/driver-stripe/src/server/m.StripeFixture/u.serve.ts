@@ -1,35 +1,9 @@
-import { Env, Fs, HttpServer, type t } from '../common.ts';
-import { pkg } from '../../pkg.ts';
-import { methodNotAllowed, StripeFixture } from './mod.StripeFixture.ts';
+import type { t } from '../common.ts';
+import { start } from './u.start.ts';
 
-export async function serve(args: t.StripeFixture.ServeArgs = {}) {
-  const cwd = args.cwd ?? Fs.cwd();
-  const env = await Env.load({ cwd });
-  const hostname = args.hostname ?? '127.0.0.1';
-  const port = args.port ?? readPort(env.get('STRIPE_FIXTURE_PORT'), 9090);
-  const app = createApp({ cwd });
-  const server = HttpServer.start(app, { port, pkg, hostname });
+type F = t.StripeFixture.Lib['serve'];
+
+export const serve: F = async (args = {}) => {
+  const server = await start(args);
   await server.finished;
-}
-
-function createApp(args: { readonly cwd: string }) {
-  const app = HttpServer.create({ pkg, static: false });
-  app.post(StripeFixture.path, async () => await StripeFixture.createSession({ cwd: args.cwd }));
-  app.all(StripeFixture.path, () => methodNotAllowed('POST'));
-  app.get('/favicon.ico', () => new Response(null, { status: 204 }));
-  app.get('/', () =>
-    Response.json({
-      name: pkg.name,
-      fixture: 'stripe-runtime',
-      endpoint: StripeFixture.path,
-    }));
-  return app;
-}
-
-function readPort(input: string, fallback: number) {
-  const port = Number(input || fallback);
-  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
-    throw new Error(`Invalid STRIPE_FIXTURE_PORT: ${JSON.stringify(input)}`);
-  }
-  return port as t.PortNumber;
-}
+};

@@ -23,6 +23,7 @@
     "./types": "./src/types.ts",
     "./ui": "./src/ui/mod.ts",
     "./server": "./src/server/mod.ts",
+    "./server/fixture": "./src/server/m.StripeFixture/mod.ts",
     "./server/t": "./src/server/t.ts"
   },
   "x-sys": {
@@ -41,7 +42,8 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "env": true,
+      "net": true
     },
     "test-dist": {
       "read": true,
@@ -71,4 +73,3 @@
     }
   }
 }
-

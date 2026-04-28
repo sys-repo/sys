@@ -9,6 +9,7 @@ export { Url } from '@sys/std/url';
 export { Obj } from '@sys/std/obj';
 export { Try } from '@sys/std/try';
 export { Log } from '@sys/std/log';
+export { Net } from '@sys/net';
 export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

@@ -1,4 +1,6 @@
-import type * as t from '@sys/types';
+import type * as THttp from '@sys/http/t';
+import type * as TSys from '@sys/types';
+
 export type { PortNumber, StringDir, StringHostname } from '@sys/types';
 
 /**
@@ -48,13 +50,20 @@ export declare namespace StripeFixture {
     handle(req: Request, args?: SessionArgs): Promise<Response | undefined>;
 
     /**
-     * Serves the local Stripe runtime fixture endpoint.
+     * Starts the fixture and returns the owned HTTP lifecycle.
      *
-     * This is the server fixture behind `deno task fixture`. It owns the
-     * server-side Stripe secret and mints PaymentIntent sessions for a browser
-     * client running elsewhere, such as `deno task dev` or `deno task serve`.
+     * Use this from tests and runtime orchestrators that need to close the
+     * service explicitly. Startup is async because lifecycle configuration is
+     * loaded from `args.cwd` before the HTTP server is bound.
+     */
+    start(args?: StartArgs): Promise<THttp.HttpServerStarted>;
+
+    /**
+     * Runs the fixture until its HTTP lifecycle finishes.
      *
-     * The promise resolves when the underlying server stops.
+     * This is the process/task adapter for `deno task fixture`: it delegates to
+     * {@link start} and then awaits `server.finished`. Composed runtimes should
+     * prefer `start(...)` so they can own shutdown.
      */
     serve(args?: ServeArgs): Promise<void>;
   };
@@ -68,25 +77,31 @@ export declare namespace StripeFixture {
      * values such as `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` to be
      * available from this context.
      */
-    readonly cwd?: t.StringDir;
+    readonly cwd?: TSys.StringDir;
   };
 
-  /** Arguments for the local runtime fixture server. */
-  export type ServeArgs = SessionArgs & {
+  /** Startup options for acquiring the fixture lifecycle. */
+  export type StartArgs = SessionArgs & {
     /**
      * TCP port for the fixture server.
      *
      * Defaults to `STRIPE_FIXTURE_PORT` from the environment, or `9090` when unset.
      */
-    readonly port?: t.PortNumber;
+    readonly port?: TSys.PortNumber;
 
     /**
      * Hostname/interface for the fixture server.
      *
      * Defaults to `127.0.0.1`.
      */
-    readonly hostname?: t.StringHostname;
+    readonly hostname?: TSys.StringHostname;
+
+    /** Suppress HTTP server listen output. */
+    readonly silent?: boolean;
   };
+
+  /** Process-mode serving options; equivalent to {@link StartArgs}. */
+  export type ServeArgs = StartArgs;
 
   /**
    * Server-side Stripe configuration used to create a PaymentIntent.

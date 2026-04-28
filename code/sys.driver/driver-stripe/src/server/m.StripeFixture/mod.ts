@@ -1,1 +1,5 @@
-export { StripeFixture } from './mod.StripeFixture.ts';
+/**
+ * @module
+ * Local Stripe fixture server entrypoint.
+ */
+export { StripeFixture } from './m.StripeFixture.ts';

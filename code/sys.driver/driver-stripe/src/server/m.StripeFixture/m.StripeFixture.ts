@@ -1,8 +1,8 @@
-import { createSession } from './u.session.ts';
-import { serve } from './u.serve.ts';
 import type { t } from '../common.ts';
-
-const path: t.StripeFixture.Lib['path'] = '/-/stripe/payment-intent';
+import { createSession } from './u.session.ts';
+import { start } from './u.start.ts';
+import { methodNotAllowed, path } from './u.route.ts';
+import { serve } from './u.serve.ts';
 
 export const StripeFixture: t.StripeFixture.Lib = {
   path,
@@ -13,9 +13,6 @@ export const StripeFixture: t.StripeFixture.Lib = {
     if (req.method !== 'POST') return methodNotAllowed('POST');
     return await createSession(args);
   },
+  start,
   serve,
 };
-
-export function methodNotAllowed(allow: string) {
-  return Response.json({ error: 'Method not allowed.' }, { status: 405, headers: { allow } });
-}

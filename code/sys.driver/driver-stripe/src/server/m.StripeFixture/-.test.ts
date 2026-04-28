@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Net, Testing } from '../../-test.ts';
 import { StripeFixture } from './mod.ts';
 
 const STRIPE_SECRET_KEY = `sk_${'test_fixture'}`;
@@ -6,10 +6,50 @@ const STRIPE_PUBLISHABLE_KEY = `pk_${'test_fixture'}`;
 const CLIENT_SECRET = `pi_${'fixture'}_secret_${'test'}`;
 
 describe('StripeFixture', () => {
+  it('API', async () => {
+    const m = await import('@sys/driver-stripe/server/fixture');
+    expect(m.StripeFixture).to.equal(StripeFixture);
+  });
+
   it('returns 405 for non-POST session requests', async () => {
-    const res = await StripeFixture.handle(new Request(`http://localhost${StripeFixture.path}`), {});
+    const res = await StripeFixture.handle(
+      new Request(`http://localhost${StripeFixture.path}`),
+      {},
+    );
     expect(res?.status).to.eql(405);
     expect(res?.headers.get('allow')).to.eql('POST');
+  });
+
+  it('starts → closes as a managed lifecycle', async () => {
+    const port = Net.port();
+    const server = await StripeFixture.start({ port, silent: true });
+
+    try {
+      expect(server.port).to.eql(port);
+      const res = await fetch(`${server.origin}/`);
+      const body = await res.json();
+
+      expect(res.status).to.eql(200);
+      expect(body.fixture).to.eql('stripe-runtime');
+      expect(body.endpoint).to.eql(StripeFixture.path);
+    } finally {
+      await server.close('test');
+    }
+
+    expect(server.disposed).to.eql(true);
+  });
+
+  it('reads STRIPE_FIXTURE_PORT from cwd .env at startup', async () => {
+    const dir = await Testing.dir('driver-stripe.fixture.port-env');
+    await Fs.write(dir.join('.env'), 'STRIPE_FIXTURE_PORT=not-a-port\n');
+
+    try {
+      await StripeFixture.start({ cwd: dir.dir, silent: true });
+      expect.fail('Expected StripeFixture.start to reject invalid STRIPE_FIXTURE_PORT.');
+    } catch (cause) {
+      if (!(cause instanceof Error)) throw cause;
+      expect(cause.message).to.contain('Invalid STRIPE_FIXTURE_PORT');
+    }
   });
 
   it('fails closed when server-side Stripe env is missing', async () => {
@@ -34,7 +74,9 @@ describe('StripeFixture', () => {
     globalThis.fetch = async (input, init) => {
       expect(String(input)).to.eql('https://api.stripe.com/v1/payment_intents');
       expect(init?.method).to.eql('POST');
-      expect(String((init?.headers as Record<string, string>).authorization)).to.eql(`Bearer ${STRIPE_SECRET_KEY}`);
+      expect(String((init?.headers as Record<string, string>).authorization)).to.eql(
+        `Bearer ${STRIPE_SECRET_KEY}`,
+      );
       return Response.json({ client_secret: CLIENT_SECRET });
     };
 
