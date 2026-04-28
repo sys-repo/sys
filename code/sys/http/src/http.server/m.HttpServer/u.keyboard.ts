@@ -20,12 +20,11 @@ export async function keyboard(args: {
         return c.gray(`${' '.repeat(indent)}${c.dim(b)}`);
       };
 
-      const fmt = (str: string) => c.italic(c.gray(str));
-      const quit = args.exit === false ? 'close server' : 'exit';
+      const fmt = (str: string) => c.gray(str);
       const str = Str.builder()
-        .line(c.gray('Keyboard:'))
-        .line(branch(false, 1) + fmt(` ${c.white('O')}      open in browser`))
-        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to ${quit}`))
+        .line(c.gray('keyboard:'))
+        .line(branch(false, 1) + fmt(` ${c.white('O')} open in browser`))
+        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to quit`))
         .line();
       console.info(String(str));
     }
