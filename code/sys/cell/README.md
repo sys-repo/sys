@@ -6,11 +6,13 @@ The medium is ordinary files in a folder: Markdown, YAML, TypeScript, JSON, bina
 
 ```text
 @sys/cell
- - runtime
  - dsl
+ - runtime
  - view
 
-Runtime = functional environment
-DSL     = stored meaning
-View    = bound perception
+DSL      =  stored meaning
+Runtime  =  ƒ(active interpretation)
+View     =  bound perception
+
+meaning → interpretation → perception
 ```
