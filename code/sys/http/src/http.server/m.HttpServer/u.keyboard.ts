@@ -13,6 +13,7 @@ export async function keyboard(args: {
   dispose?: () => Promise<void>;
 }) {
   try {
+    if (!Deno.stdin.isTerminal()) return;
     if (args.print) {
       const branch = (isLast: boolean, indent = 0) => {
         const b = Fmt.Tree.branch(isLast);
@@ -53,7 +54,7 @@ export async function keyboard(args: {
     }
   } catch (error) {
     if (error instanceof Deno.errors.BadResource) return;
-    if (error instanceof Error && /ENOTTY|Not a typewriter/i.test(error.message)) return;
+    if (error instanceof Error && /ENODEV|ENOTTY|No such device|Not a typewriter/i.test(error.message)) return;
     throw error;
   }
 }

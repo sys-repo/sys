@@ -35,8 +35,18 @@ export const print: HttpServerLib['print'] = (options) => {
     console.info('');
     console.info(lines.join('\n'));
   } else {
+    const lines = [];
+    if (options.dir) lines.push(c.gray(`Serving: ${Fs.Path.normalize(options.dir)}`));
+    lines.push(c.gray(`Host: ${addr.hostname}`));
+    lines.push(c.gray(`Port: ${String(addr.port)}`));
+    if (requestedPort && requestedPort !== addr.port) {
+      lines.push(c.gray(`URL:  ${host} ${c.dim(`← port ${requestedPort} already in use`)}`));
+    } else {
+      lines.push(c.gray(`URL:  ${host}`));
+    }
+
     console.info('');
-    console.info(c.gray(`Listening on ${host}`));
+    console.info(lines.join('\n'));
   }
   console.info('');
 };
