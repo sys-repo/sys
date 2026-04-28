@@ -1,4 +1,5 @@
 export { EsmAssert } from '@sys/esm/testing';
+export { Fs } from '@sys/fs';
 export {
   afterAll,
   afterEach,

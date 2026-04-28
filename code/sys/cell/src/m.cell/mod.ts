@@ -9,5 +9,8 @@
  * importable, and owner-correct instead of hidden in shell task choreography.
  */
 import type { t } from './common.ts';
+import { CellSchema } from './u.schema/mod.ts';
 
-export const Cell: t.Cell.Lib = {};
+export const Cell: t.Cell.Lib = {
+  Schema: CellSchema,
+};
