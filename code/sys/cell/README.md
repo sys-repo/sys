@@ -4,6 +4,8 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 The medium is ordinary files in a folder: Markdown, YAML, TypeScript, JSON, binary data, and other file-carried forms.
 
+A Cell's DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScript type surface, or Markdown whose structure, conventions, and prose schema carry stable meaning.
+
 ```text
 @sys/cell
  - dsl
