@@ -28,3 +28,5 @@ export async function main() {
   await info();
   console.info();
 }
+
+if (import.meta.main) await main();
