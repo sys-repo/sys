@@ -13,4 +13,16 @@ import { CellSchema } from './u.schema/mod.ts';
 
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
+  load: async (root, options) => {
+    /**
+     * Runtime-only loader import.
+     *
+     * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+     * does not scan the FS-aware loader into browser bundles that only import
+     * `@sys/cell` for descriptor/schema work. Do NOT simplify this string.
+     */
+    const LOAD_SPEC = './u.' + 'load.ts';
+    const { loadCell } = await import(/* @vite-ignore */ LOAD_SPEC);
+    return loadCell(root, options);
+  },
 };
