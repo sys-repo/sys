@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1777338725177,
+    "createdAt": 1777356082887,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-d91c255fc22f95157a4810d512bcb0da8e8c371397e7a49f72bc35e43c86c27b",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-79201ebab703e2e4fd93ce73b0da8f7ed30d90b113e58cb26efb3f41d88a0e89",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.75/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.74"
+        "version": "0.0.75"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.74/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.75/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777338725182
+    "modifiedAt": 1777356082892
   },
   "graph": {
     "orderedPaths": [
@@ -831,6 +831,10 @@
       {
         "from": "code/sys/net",
         "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/net",
+        "to": "code/sys.driver/driver-stripe"
       },
       {
         "from": "code/sys/net",

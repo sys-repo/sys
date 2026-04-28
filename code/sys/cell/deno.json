@@ -1,6 +1,6 @@
 {
   "name": "@sys/cell",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -16,8 +16,23 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "sample": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "test": { "read": true, "write": true, "env": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "sample": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    }
   }
 }
+
