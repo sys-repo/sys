@@ -96,6 +96,10 @@ That is a successful first soup-to-nuts composition proof:
 
 - `@sys.tools.pull/view.yaml` owns remote artifact acquisition.
 - `@sys.tools.serve/view.yaml` owns plain static serving shape.
+- Operator commands should stay Unix-light through `sys ... --config ...`; do not add `deno.json` tasks to Cell instances just to start tooling.
+- Package-root sample tasks may demonstrate operation, but Cell instance folders stay ordinary/runtime-owned.
+- Cell folders stay ordinary/runtime-owned; `-config/@sys.*` files are the contract surface.
+- Port authority stays with the serving/runtime owner: static view uses the `@sys/tools/serve` default; Stripe runtime fixture uses the `@sys/driver-stripe` fixture default.
 - Serving from the Cell root is important because pulled view artifacts may carry absolute/base-relative assumptions.
 - `view/.pulled/` is a good managed artifact lane: hidden, ignored, colocated with view concerns.
 
@@ -126,9 +130,9 @@ Do not implement broadly yet; use this as a design pressure for the first real `
 Do not collapse Cell runtime to "HTTP server".
 
 Likely service kinds:
-- HTTP static: serve files and pulled bundles.
+- HTTP static: serve files and pulled bundles. Current default comes from `@sys/tools/serve` (`4040`).
 - HTTP proxy/mount: map logical Cell paths onto raw artifacts or upstreams.
-- Dynamic HTTP: Deno/Hono-style routes for Cell/data/runtime operations.
+- Dynamic HTTP: Deno/Hono-style routes for Cell/data/runtime operations. Stripe fixture default is `9090`.
 - WebSocket/Cmd: long-lived command/event channels, like CRDT repo daemon semantics.
 - Local process/lifecycle: workers, watchers, indexers, background services.
 
