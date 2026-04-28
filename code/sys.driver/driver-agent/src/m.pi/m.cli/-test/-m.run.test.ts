@@ -36,6 +36,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.env).to.eql({
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
+          PI_SKIP_VERSION_CHECK: '1',
         });
         const read = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
         if (!read.ok) throw read.error;
@@ -68,6 +69,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
+          PI_SKIP_VERSION_CHECK: '1',
         });
         expect(input.args).to.include('run');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);

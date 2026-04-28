@@ -9,6 +9,7 @@ export const run: t.PiCli.Lib['run'] = async (input) => {
     ...input.env,
     DENO_DIR: denoDir,
     PI_CODING_AGENT_DIR: PiArgs.toAgentDir(cwd.git),
+    PI_SKIP_VERSION_CHECK: '1',
   };
 
   await Settings.Fs.write({ cwd: cwd.git });
