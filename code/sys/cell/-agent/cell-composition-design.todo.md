@@ -12,6 +12,8 @@ The first concrete Cell sample is:
 ├─ -config/
 │  ├─ @sys.cell/
 │  │  └─ cell.yaml
+│  ├─ @sys.driver-stripe/
+│  │  └─ fixture.yaml
 │  ├─ @sys.tools.pull/
 │  │  └─ view.yaml
 │  └─ @sys.tools.serve/
@@ -23,11 +25,12 @@ The first concrete Cell sample is:
 Current design split:
 
 ```text
--config/@sys.cell/cell.yaml         Cell anatomy / binding descriptor
--config/@sys.tools.pull/view.yaml   managed remote view artifact pull config
--config/@sys.tools.serve/view.yaml  static serving config for the pulled view
-data/                               DSL / stored meaning / file-carried forms
-view/.pulled/                       ignored managed view artifacts
+-config/@sys.cell/cell.yaml             Cell anatomy / binding descriptor
+-config/@sys.tools.pull/view.yaml       managed remote view artifact pull config
+-config/@sys.tools.serve/view.yaml      static serving config for the pulled view
+-config/@sys.driver-stripe/fixture.yaml Stripe fixture runtime config
+data/                                   DSL / stored meaning / file-carried forms
+view/.pulled/                           ignored managed view artifacts
 ```
 
 Principle:
@@ -155,6 +158,49 @@ We now have enough concrete signal to split next work into two tracks:
    - First `Cell.serve(...)` slice.
    - Static + proxy/mount topology.
    - Later dynamic HTTP and WebSocket/Cmd service lifecycle.
+
+## Runtime binding decision
+`@sys/driver-stripe/server/fixture` now exposes the fixture as an ESM lifecycle service:
+
+```ts
+import { StripeFixture } from '@sys/driver-stripe/server/fixture';
+const server = await StripeFixture.start({ cwd, hostname, port });
+```
+
+Cell runtime declarations should point at that module API, not shell through `deno task fixture`.
+
+Cell descriptor owns only the service envelope:
+
+```yaml
+runtime:
+  services:
+    - name: stripe
+      kind: http-server
+      from: '@sys/driver-stripe/server/fixture'
+      export: StripeFixture
+      driver: ./-config/@sys.driver-stripe/fixture.yaml
+```
+
+Field decisions:
+- `from` is the ESM import specifier.
+- `export` is the named service export.
+- `kind: http-server` names the runtime role.
+- `driver` is a Cell-root-relative path to service-owner config.
+
+Driver-owned fixture config stays separate:
+
+```yaml
+hostname: 127.0.0.1
+port: 9090
+```
+
+Runtime orchestrator guardrails for later:
+- validate the Cell envelope before import
+- restrict/allowlist service specifiers before dynamic import
+- assert the selected export exposes async `start(...)`
+- pass `{ cwd: cell.root, ...driverConfig }` into `start(...)`
+
+Secrets stay in environment, not YAML.
 
 ## Open design questions
 

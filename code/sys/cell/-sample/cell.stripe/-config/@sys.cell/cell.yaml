@@ -11,4 +11,9 @@ views:
   serve: ./-config/@sys.tools.serve/view.yaml
 
 runtime:
-  kind: pending
+  services:
+    - name: stripe
+      kind: http-server
+      from: '@sys/driver-stripe/server/fixture'
+      export: StripeFixture
+      driver: ./-config/@sys.driver-stripe/fixture.yaml
