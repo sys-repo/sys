@@ -1,3 +1,5 @@
+# Pull view artifact.
+
 dir: .
 bundles:
   - kind: http

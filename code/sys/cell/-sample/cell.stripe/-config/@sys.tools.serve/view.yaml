@@ -1,0 +1,5 @@
+# Serve Cell root.
+# View URL: http://localhost:4040/view/.pulled/driver.stripe/
+
+name: stripe view
+dir: .
