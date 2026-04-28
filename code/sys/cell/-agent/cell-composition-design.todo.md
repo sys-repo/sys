@@ -178,14 +178,15 @@ runtime:
       kind: http-server
       from: '@sys/driver-stripe/server/fixture'
       export: StripeFixture
-      driver: ./-config/@sys.driver-stripe/fixture.yaml
+      config: ./-config/@sys.driver-stripe/fixture.yaml
 ```
 
 Field decisions:
 - `from` is the ESM import specifier.
 - `export` is the named service export.
 - `kind: http-server` names the runtime role.
-- `driver` is a Cell-root-relative path to service-owner config.
+- `config` is a Cell-root-relative path to service-owned config.
+- Avoid `driver` as a field name; it overloads implementation/owner language while the value is simply service config.
 
 Driver-owned fixture config stays separate:
 
@@ -198,9 +199,48 @@ Runtime orchestrator guardrails for later:
 - validate the Cell envelope before import
 - restrict/allowlist service specifiers before dynamic import
 - assert the selected export exposes async `start(...)`
-- pass `{ cwd: cell.root, ...driverConfig }` into `start(...)`
+- pass `{ cwd: cell.root, ...serviceConfig }` into `start(...)`
 
 Secrets stay in environment, not YAML.
+
+## Sample strategy
+Use two real but minimal composition masses to keep Cell primitive pressure honest.
+
+### sample-1: Stripe Cell
+Purpose:
+- remote pulled view artifact
+- static view serving
+- HTTP runtime fixture
+- service-owned runtime config
+- secrets outside YAML
+
+This proves Cell can bind a real browser view and a real driver-owned runtime without becoming a payment framework.
+
+### sample-2: Concept Player / MediaPlayer Cell
+Purpose:
+- `data/` carries concept/media meaning
+- view binds perception as a player
+- runtime may serve/index/control concept-media state
+
+This should prove Cell is not Stripe-shaped. It should remain real, minimal, config-driven, and agent-readable.
+
+Guardrail:
+
+> A second sample should ask whether Cell can hold concept/media meaning and bind it to player view/runtime without becoming a media framework.
+
+## Tomorrow clean engineering run
+1. Rename current sample runtime field `driver` → `config` before schema hardens.
+2. Add first `@sys/cell` type/schema namespace for `cell.yaml`.
+3. Implement minimal `Cell.load(...)`:
+   - resolve Cell root
+   - load `-config/@sys.cell/cell.yaml`
+   - validate descriptor
+   - resolve Cell-root-relative paths
+4. Validate `cell.stripe` as the first fixture.
+5. Then add the smallest `Cell.Runtime.start(...)` slice for one `http-server` service.
+6. Later sketch `cell.concept-player` as sample-2.
+
+Do not add task choreography or heavy runtime orchestration as a substitute for the Cell API.
 
 ## Open design questions
 
