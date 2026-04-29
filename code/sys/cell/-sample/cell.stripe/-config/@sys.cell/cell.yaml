@@ -29,3 +29,11 @@ runtime:
       from: '@sys/driver-stripe/server/fixture'
       export: StripeFixture
       config: ./-config/@sys.driver-stripe/fixture.yaml
+
+    - name: app
+      kind: http-proxy
+      for:
+        views: [stripe.dev, hello]
+      from: '@sys/http/server/proxy'
+      export: HttpProxy
+      config: ./-config/@sys.http/proxy.yaml

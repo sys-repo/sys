@@ -7,15 +7,24 @@ describe('Cell.Runtime.verify', () => {
     const cell = await Cell.load(sampleRoot());
     const verify = await Cell.Runtime.verify(cell);
 
-    expect(verify.services.map((service) => service.service.name)).to.eql(['view', 'stripe']);
+    expect(verify.services.map((service) => service.service.name)).to.eql([
+      'view',
+      'stripe',
+      'app',
+    ]);
     expect(verify.services.map((service) => service.service.kind)).to.eql([
       'http-static',
       'http-server',
+      'http-proxy',
     ]);
     expect(verify.services.every((service) => Is.func(service.endpoint.start))).to.eql(true);
     expect(verify.services[0].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/static.view.yaml'),
     );
+    expect(verify.services[2].paths.config).to.eql(
+      Fs.join(cell.root, '-config/@sys.http/proxy.yaml'),
+    );
+    expect(verify.services[2].service.for?.views).to.eql(['stripe.dev', 'hello']);
   });
 
   it('fails clearly when service config is missing', async () => {

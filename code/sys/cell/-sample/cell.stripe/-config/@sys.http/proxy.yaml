@@ -1,0 +1,15 @@
+# Proxied Cell app runtime.
+
+name: cell:proxy
+hostname: 127.0.0.1
+port: 8080
+config:
+  root:
+    upstream: http://127.0.0.1:4040/view/hello-world/
+  mounts:
+    - mountPath: /payments/
+      upstream: http://127.0.0.1:4040/view/.pulled/driver.stripe/
+    - mountPath: /view/
+      upstream: http://127.0.0.1:4040/view/
+    - mountPath: /-/stripe/
+      upstream: http://127.0.0.1:9090/-/stripe/
