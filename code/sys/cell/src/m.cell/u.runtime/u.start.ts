@@ -1,12 +1,12 @@
 import { Is, type t } from './common.ts';
-import { check } from './u.check.ts';
+import { verify } from './u.verify.ts';
 
 export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => {
-  const checked = await check(cell, options);
+  const verification = await verify(cell, options);
   const services: t.Cell.Runtime.StartedService[] = [];
 
   try {
-    for (const service of checked.services) {
+    for (const service of verification.services) {
       const args = { cwd: cell.root, ...service.config };
       const startArgs = options.args ? await options.args({ cell, service, args }) : args;
       const started = await service.endpoint.start(startArgs);
@@ -14,7 +14,7 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
     }
   } catch (cause) {
     await closeStarted(services, 'start-failed');
-    const name = checked.services[services.length]?.service.name ?? '<unknown>';
+    const name = verification.services[services.length]?.service.name ?? '<unknown>';
     throw new Error(`Cell.Runtime.start: failed to start service '${name}'.`, { cause });
   }
 

@@ -3,8 +3,8 @@ import { Fs } from '@sys/fs';
 
 const DEFAULT_TRUSTED = ['@sys/'] as const;
 
-export const check: t.Cell.Runtime.Lib['check'] = async (cell, options = {}) => {
-  const services: t.Cell.Runtime.CheckedService[] = [];
+export const verify: t.Cell.Runtime.Lib['verify'] = async (cell, options = {}) => {
+  const services: t.Cell.Runtime.VerifiedService[] = [];
 
   for (const service of cell.descriptor.runtime?.services ?? []) {
     assertTrusted(service, options);
@@ -24,12 +24,12 @@ export const check: t.Cell.Runtime.Lib['check'] = async (cell, options = {}) => 
   return { services };
 };
 
-function assertTrusted(service: t.Cell.Runtime.Service, options: t.Cell.Runtime.CheckOptions) {
+function assertTrusted(service: t.Cell.Runtime.Service, options: t.Cell.Runtime.VerifyOptions) {
   const trusted = options.trusted ?? DEFAULT_TRUSTED;
   const ok = trusted.some((prefix) => service.from.startsWith(prefix));
   if (!ok) {
     const { name, from } = service;
-    const err = `Cell.Runtime.check: untrusted runtime service import for '${name}': ${from}`;
+    const err = `Cell.Runtime.verify: untrusted runtime service import for '${name}': ${from}`;
     throw new Error(err);
   }
 }
@@ -40,17 +40,17 @@ async function loadConfig(
 ): Promise<Record<string, unknown>> {
   const read = await Fs.readText(path);
   if (!read.ok) {
-    throw new Error(`Cell.Runtime.check: failed to read config for '${service.name}': ${path}`);
+    throw new Error(`Cell.Runtime.verify: failed to read config for '${service.name}': ${path}`);
   }
 
   const parsed = Yaml.parse<unknown>(read.data ?? '');
   if (parsed.error) {
-    const err = `Cell.Runtime.check: failed to parse config YAML for '${service.name}': ${path}`;
+    const err = `Cell.Runtime.verify: failed to parse config YAML for '${service.name}': ${path}`;
     throw new Error(err, { cause: parsed.error });
   }
 
   if (!Is.record(parsed.data)) {
-    const err = `Cell.Runtime.check: config for '${service.name}' must be a YAML object: ${path}`;
+    const err = `Cell.Runtime.verify: config for '${service.name}' must be a YAML object: ${path}`;
     throw new Error(err);
   }
 
@@ -65,7 +65,7 @@ async function loadEndpoint(
     mod = await import(/* @vite-ignore */ service.from);
   } catch (cause) {
     const { name, from } = service;
-    const err = `Cell.Runtime.check: failed to import runtime service for '${name}': ${from}`;
+    const err = `Cell.Runtime.verify: failed to import runtime service for '${name}': ${from}`;
     throw new Error(err, { cause });
   }
 
@@ -73,7 +73,7 @@ async function loadEndpoint(
 
   if (!Is.record(endpoint) || !Is.func(endpoint.start)) {
     const err =
-      `Cell.Runtime.check: '${service.from}' export '${service.export}' must expose start(...) for service '${service.name}'.`;
+      `Cell.Runtime.verify: '${service.from}' export '${service.export}' must expose start(...) for service '${service.name}'.`;
     throw new Error(err);
   }
 

@@ -7,6 +7,7 @@ describe(`Cell`, () => {
     expect(m.Cell).to.equal(Cell);
     expect(m.Cell.Schema).to.equal(Cell.Schema);
     expect(m.Cell.Runtime).to.equal(Cell.Runtime);
+    expect(m.Cell.Runtime.verify).to.equal(Cell.Runtime.verify);
     expect(m.Cell.Runtime.start).to.equal(Cell.Runtime.start);
   });
 

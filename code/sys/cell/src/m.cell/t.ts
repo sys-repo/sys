@@ -58,20 +58,20 @@ export declare namespace Cell {
 
   /** Runtime services declared by the Cell descriptor. */
   export namespace Runtime {
-    /** Runtime checking/activation API. */
+    /** Runtime verification/activation API. */
     export type Lib = {
-      check(cell: Instance, options?: CheckOptions): Promise<Check>;
+      verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
     };
 
-    /** Runtime check options. */
-    export type CheckOptions = {
+    /** Runtime verification options. */
+    export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
       readonly trusted?: readonly string[];
     };
 
     /** Runtime start options. */
-    export type StartOptions = CheckOptions & {
+    export type StartOptions = VerifyOptions & {
       /** Optional operator hook for final service start arguments. */
       args?(input: StartArgsInput): Record<string, unknown> | Promise<Record<string, unknown>>;
     };
@@ -79,12 +79,12 @@ export declare namespace Cell {
     /** Service start argument hook input. */
     export type StartArgsInput = {
       readonly cell: Instance;
-      readonly service: CheckedService;
+      readonly service: VerifiedService;
       readonly args: Record<string, unknown>;
     };
 
-    /** Runtime topology check result. */
-    export type Check = { readonly services: readonly CheckedService[] };
+    /** Runtime topology verification result. */
+    export type Verification = { readonly services: readonly VerifiedService[] };
 
     /** Started runtime services. */
     export type Started = {
@@ -92,8 +92,8 @@ export declare namespace Cell {
       close(reason?: unknown): Promise<void>;
     };
 
-    /** Checked runtime service with resolved config and lifecycle endpoint. */
-    export type CheckedService = {
+    /** Verified runtime service with resolved config and lifecycle endpoint. */
+    export type VerifiedService = {
       readonly service: Service;
       readonly paths: { readonly config: t.StringPath };
       readonly config: Record<string, unknown>;
@@ -101,7 +101,7 @@ export declare namespace Cell {
     };
 
     /** Started runtime service with its lifecycle handle. */
-    export type StartedService = CheckedService & { readonly started: unknown };
+    export type StartedService = VerifiedService & { readonly started: unknown };
 
     /** Runtime service lifecycle endpoint. */
     export type LifecycleEndpoint = {

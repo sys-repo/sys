@@ -2,18 +2,18 @@ import { describe, expect, Fs, Is, it, Str } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { sampleRoot, tempCell } from './u.fixture.ts';
 
-describe('Cell.Runtime.check', () => {
-  it('checks runtime service endpoints for the Stripe sample', async () => {
+describe('Cell.Runtime.verify', () => {
+  it('verifies runtime service endpoints for the Stripe sample', async () => {
     const cell = await Cell.load(sampleRoot());
-    const check = await Cell.Runtime.check(cell);
+    const verify = await Cell.Runtime.verify(cell);
 
-    expect(check.services.map((service) => service.service.name)).to.eql(['view', 'stripe']);
-    expect(check.services.map((service) => service.service.kind)).to.eql([
+    expect(verify.services.map((service) => service.service.name)).to.eql(['view', 'stripe']);
+    expect(verify.services.map((service) => service.service.kind)).to.eql([
       'http-static',
       'http-server',
     ]);
-    expect(check.services.every((service) => Is.func(service.endpoint.start))).to.eql(true);
-    expect(check.services[0].paths.config).to.eql(
+    expect(verify.services.every((service) => Is.func(service.endpoint.start))).to.eql(true);
+    expect(verify.services[0].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/static.view.yaml'),
     );
   });
@@ -24,9 +24,9 @@ describe('Cell.Runtime.check', () => {
       descriptor({ config: './-config/missing.yaml' }),
     );
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
-    expect(error?.message).to.contain("Cell.Runtime.check: failed to read config for 'view':");
+    expect(error?.message).to.contain("Cell.Runtime.verify: failed to read config for 'view':");
     expect(error?.message).to.contain('-config/missing.yaml');
   });
 
@@ -36,10 +36,10 @@ describe('Cell.Runtime.check', () => {
       force: true,
     });
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.contain(
-      "Cell.Runtime.check: failed to parse config YAML for 'view':",
+      "Cell.Runtime.verify: failed to parse config YAML for 'view':",
     );
     expect(error?.message).to.contain('-config/@sys.http/static.view.yaml');
   });
@@ -48,10 +48,10 @@ describe('Cell.Runtime.check', () => {
     const root = await tempCell('runtime-config-not-object', descriptor());
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `- bad\n`, { force: true });
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.contain(
-      "Cell.Runtime.check: config for 'view' must be a YAML object:",
+      "Cell.Runtime.verify: config for 'view' must be a YAML object:",
     );
     expect(error?.message).to.contain('-config/@sys.http/static.view.yaml');
   });
@@ -63,20 +63,20 @@ describe('Cell.Runtime.check', () => {
     );
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Runtime.check: failed to import runtime service for 'view': @sys/cell/missing-runtime",
+      "Cell.Runtime.verify: failed to import runtime service for 'view': @sys/cell/missing-runtime",
     );
   });
 
   it('fails clearly when service import is untrusted', async () => {
     const root = await tempCell('runtime-untrusted', descriptor({ from: 'npm:fake-package' }));
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Runtime.check: untrusted runtime service import for 'view': npm:fake-package",
+      "Cell.Runtime.verify: untrusted runtime service import for 'view': npm:fake-package",
     );
   });
 
@@ -84,10 +84,10 @@ describe('Cell.Runtime.check', () => {
     const root = await tempCell('runtime-missing-export', descriptor({ export: 'MissingExport' }));
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Runtime.check: '@sys/http/server/static' export 'MissingExport' must expose start(...) for service 'view'.",
+      "Cell.Runtime.verify: '@sys/http/server/static' export 'MissingExport' must expose start(...) for service 'view'.",
     );
   });
 
@@ -98,17 +98,19 @@ describe('Cell.Runtime.check', () => {
     );
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
-    const error = await catchCheck(cell);
+    const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Runtime.check: '@sys/cell' export 'Cell' must expose start(...) for service 'view'.",
+      "Cell.Runtime.verify: '@sys/cell' export 'Cell' must expose start(...) for service 'view'.",
     );
   });
 });
 
-async function catchCheck(cell: Awaited<ReturnType<typeof Cell.load>>): Promise<Error | undefined> {
+async function catchVerify(
+  cell: Awaited<ReturnType<typeof Cell.load>>,
+): Promise<Error | undefined> {
   try {
-    await Cell.Runtime.check(cell);
+    await Cell.Runtime.verify(cell);
   } catch (err) {
     return err as Error;
   }
