@@ -23,9 +23,9 @@ export const print: HttpServerLib['print'] = (options) => {
   const hx = pkg ? wrangle.hashDigest(hash) : '';
 
   if (pkg) {
-    pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
-    pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([c.gray('module:'), `${c.bold(pkg.name)} ${c.gray(`${pkg.version}`)}`]);
+    const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
+    const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
+    table.push([c.gray('module:'), `${c.bold(pkgName)} ${c.gray(`${pkgVersion}`)}`]);
   }
 
   if (name) table.push([c.gray('service:'), c.bold(name)]);
@@ -37,7 +37,8 @@ export const print: HttpServerLib['print'] = (options) => {
   pushUrls(table, urls);
   if (fallback) table.push(['', fallback]);
 
-  wrangle.printBlock(table);
+  console.info('');
+  console.info(Str.trimEdgeNewlines(String(table)));
 };
 
 /**
@@ -67,11 +68,6 @@ function formatPortFallback(input: { requestedPort?: number; actualPort: number 
 }
 
 const wrangle = {
-  printBlock(table: ReturnType<typeof Cli.Table.create>) {
-    console.info('');
-    console.info(Str.trimEdgeNewlines(String(table)));
-  },
-
   hashDigest(hash?: string) {
     if (!hash) return '';
     if (hash.length <= 18) return hash;
