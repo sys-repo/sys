@@ -27,6 +27,19 @@ export const Cell: t.Cell.Lib = {
       const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
       return CellRuntime.check(cell, options);
     },
+    async start(cell, options) {
+      /**
+       * Runtime-only service starter import.
+       *
+       * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+       * does not scan the FS/import-aware runtime starter into browser bundles
+       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
+       * this string.
+       */
+      const RUNTIME_SPEC = './u.' + 'runtime/mod.ts';
+      const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
+      return CellRuntime.start(cell, options);
+    },
   },
   async load(root, options) {
     /**

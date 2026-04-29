@@ -61,6 +61,7 @@ export declare namespace Cell {
     /** Runtime checking/activation API. */
     export type Lib = {
       check(cell: Instance, options?: CheckOptions): Promise<Check>;
+      start(cell: Instance, options?: StartOptions): Promise<Started>;
     };
 
     /** Runtime check options. */
@@ -69,9 +70,16 @@ export declare namespace Cell {
       readonly trusted?: readonly string[];
     };
 
+    /** Runtime start options. */
+    export type StartOptions = CheckOptions;
+
     /** Runtime topology check result. */
-    export type Check = {
-      readonly services: readonly CheckedService[];
+    export type Check = { readonly services: readonly CheckedService[] };
+
+    /** Started runtime services. */
+    export type Started = {
+      readonly services: readonly StartedService[];
+      close(reason?: unknown): Promise<void>;
     };
 
     /** Checked runtime service with resolved config and lifecycle endpoint. */
@@ -81,6 +89,9 @@ export declare namespace Cell {
       readonly config: Record<string, unknown>;
       readonly endpoint: LifecycleEndpoint;
     };
+
+    /** Started runtime service with its lifecycle handle. */
+    export type StartedService = CheckedService & { readonly started: unknown };
 
     /** Runtime service lifecycle endpoint. */
     export type LifecycleEndpoint = {
