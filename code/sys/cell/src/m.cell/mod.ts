@@ -13,7 +13,22 @@ import { CellSchema } from './u.schema/mod.ts';
 
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
-  load: async (root, options) => {
+  Runtime: {
+    async check(cell, options) {
+      /**
+       * Runtime-only service checker import.
+       *
+       * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+       * does not scan the FS/import-aware runtime checker into browser bundles
+       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
+       * this string.
+       */
+      const RUNTIME_SPEC = './u.' + 'runtime/mod.ts';
+      const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
+      return CellRuntime.check(cell, options);
+    },
+  },
+  async load(root, options) {
     /**
      * Runtime-only loader import.
      *

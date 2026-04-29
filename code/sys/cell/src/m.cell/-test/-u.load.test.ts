@@ -7,10 +7,10 @@ describe('Cell.load', () => {
     const root = sampleRoot();
     const cell = await Cell.load(root);
 
-    expect(cell.root).to.equal(Fs.resolve(root));
-    expect(cell.paths.descriptor).to.equal(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
-    expect(cell.descriptor.kind).to.equal('cell');
-    expect(cell.descriptor.version).to.equal(1);
+    expect(cell.root).to.eql(Fs.resolve(root));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
+    expect(cell.descriptor.kind).to.eql('cell');
+    expect(cell.descriptor.version).to.eql(1);
     expect(Object.keys(cell.descriptor.views ?? {})).to.eql(['stripe.dev', 'hello']);
   });
 
@@ -38,4 +38,3 @@ describe('Cell.load', () => {
     expect(error?.message).to.contain('/dsl/root');
   });
 });
-

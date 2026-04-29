@@ -36,7 +36,7 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
+      expect(result.ok).to.eql(false);
       expect(result.errors).to.deep.include({
         kind: 'semantic',
         path: '/views/Bad_View',
@@ -58,8 +58,8 @@ describe(`Cell.Schema`, () => {
         views: { hello: { source: {} } },
       };
 
-      expect(CellSchema.Descriptor.validate(missing).ok).to.equal(false);
-      expect(CellSchema.Descriptor.validate(empty).ok).to.equal(false);
+      expect(CellSchema.Descriptor.validate(missing).ok).to.eql(false);
+      expect(CellSchema.Descriptor.validate(empty).ok).to.eql(false);
     });
 
     it('enforces view source as pull OR local', () => {
@@ -73,8 +73,8 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
-      expect(result.errors.some((e) => e.kind === 'schema')).to.equal(true);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
   });
 
@@ -100,8 +100,8 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
-      expect(result.errors.some((e) => e.kind === 'schema')).to.equal(true);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
 
     it('rejects empty view references on runtime services', () => {
@@ -113,8 +113,8 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
-      expect(result.errors.some((e) => e.kind === 'schema')).to.equal(true);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
 
     it('rejects duplicate runtime service names', () => {
@@ -126,7 +126,7 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
+      expect(result.ok).to.eql(false);
       expect(result.errors).to.deep.include({
         kind: 'semantic',
         path: '/runtime/services/1/name',
@@ -144,7 +144,7 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
+      expect(result.ok).to.eql(false);
       expect(result.errors).to.deep.include({
         kind: 'semantic',
         path: '/runtime/services/0/for/views/0',
@@ -166,7 +166,7 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
+      expect(result.ok).to.eql(false);
       expect(result.errors.filter((e) => e.kind === 'schema').length).to.be.greaterThan(0);
     });
 
@@ -179,8 +179,8 @@ describe(`Cell.Schema`, () => {
       };
 
       const result = CellSchema.Descriptor.validate(descriptor);
-      expect(result.ok).to.equal(false);
-      expect(result.errors.some((e) => e.kind === 'schema')).to.equal(true);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
   });
 });

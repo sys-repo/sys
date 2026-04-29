@@ -7,6 +7,7 @@ export declare namespace Cell {
   /** Root library surface exported as `Cell`. */
   export type Lib = {
     readonly Schema: Schema.Lib;
+    readonly Runtime: Runtime.Lib;
     load(root: t.StringDir, options?: LoadOptions): Promise<Instance>;
   };
 
@@ -57,6 +58,35 @@ export declare namespace Cell {
 
   /** Runtime services declared by the Cell descriptor. */
   export namespace Runtime {
+    /** Runtime checking/activation API. */
+    export type Lib = {
+      check(cell: Instance, options?: CheckOptions): Promise<Check>;
+    };
+
+    /** Runtime check options. */
+    export type CheckOptions = {
+      /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
+      readonly trusted?: readonly string[];
+    };
+
+    /** Runtime topology check result. */
+    export type Check = {
+      readonly services: readonly CheckedService[];
+    };
+
+    /** Checked runtime service with resolved config and lifecycle endpoint. */
+    export type CheckedService = {
+      readonly service: Service;
+      readonly paths: { readonly config: t.StringPath };
+      readonly config: Record<string, unknown>;
+      readonly endpoint: LifecycleEndpoint;
+    };
+
+    /** Runtime service lifecycle endpoint. */
+    export type LifecycleEndpoint = {
+      start(args: Record<string, unknown>): unknown | Promise<unknown>;
+    };
+
     /** Runtime section of the Cell descriptor. */
     export type Descriptor = { services: Service[] };
 
