@@ -371,3 +371,7 @@ Do not mix with Cell sample/API work.
 4. Decide the smallest `@sys/cell` operation that can compose the existing view pull+serve configs without shelling through CLI as its core API.
 5. In a separate thread, remove/relocate `@sys/tools/pull` `lastUsedAt` source-config mutation.
 6. In a later separate packet, add GitHub repo/archive pull support if Cell data/canon use cases require it.
+7. Add `@sys/cell` operator onboarding from nothing to a working Cell:
+   - `--help` auto-documentation that explains the Cell folder contract, descriptor, views, runtime services, and config ownership.
+   - A skill/setup path that can scaffold or guide from an empty folder to the equivalent shape of `-sample/cell.stripe`.
+   - Keep this operator-facing: it should teach and generate correct Cell shape without turning `cell.yaml` into a mega-config or hiding owner-specific configs.
