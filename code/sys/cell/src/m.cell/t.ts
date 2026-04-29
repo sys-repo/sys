@@ -73,14 +73,17 @@ export declare namespace Cell {
     /** Runtime start options. */
     export type StartOptions = VerifyOptions & {
       /** Optional operator hook for final service start arguments. */
-      args?(input: StartArgsInput): Record<string, unknown> | Promise<Record<string, unknown>>;
+      startArgs?(input: StartArgsInput): StartArgs | Promise<StartArgs>;
     };
+
+    /** Runtime service start arguments. */
+    export type StartArgs = Record<string, unknown>;
 
     /** Service start argument hook input. */
     export type StartArgsInput = {
       readonly cell: Instance;
       readonly service: VerifiedService;
-      readonly args: Record<string, unknown>;
+      readonly base: StartArgs;
     };
 
     /** Runtime topology verification result. */
@@ -105,7 +108,7 @@ export declare namespace Cell {
 
     /** Runtime service lifecycle endpoint. */
     export type LifecycleEndpoint = {
-      start(args: Record<string, unknown>): unknown | Promise<unknown>;
+      start(args: StartArgs): unknown | Promise<unknown>;
     };
 
     /** Runtime section of the Cell descriptor. */

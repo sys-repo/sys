@@ -7,9 +7,9 @@ import { Yaml } from '@sys/yaml';
 const root = './-sample/cell.stripe';
 const cell = await Cell.load(root);
 const runtime = await Cell.Runtime.start(cell, {
-  async args({ service, args }) {
-    if (service.service.kind !== 'http-static') return args;
-    return { ...args, info: await viewUrls(cell, service.service) };
+  async startArgs({ service, base }) {
+    if (service.service.kind !== 'http-static') return base;
+    return { ...base, info: await viewUrls(cell, service.service) };
   },
 });
 
