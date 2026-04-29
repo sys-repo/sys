@@ -66,7 +66,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.70.5
+  - import: npm:@mariozechner/pi-coding-agent@0.70.6
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
