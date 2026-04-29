@@ -1,12 +1,11 @@
 import { Http, type t, Time } from '../common.ts';
-import { HttpServer } from '../mod.ts';
 
 export const DEFAULT_TIMEOUT = 10_000;
 
 type UsingServerArgsCallback = (e: UsingServerArgsCallbackArgs) => Promise<void>;
 type UsingServerArgsCallbackArgs = { readonly url: t.HttpUrl; readonly fetch: t.HttpFetch };
 type UsingServerArgs = {
-  app: ReturnType<typeof HttpServer.create>;
+  app: t.HonoApp;
   fn: UsingServerArgsCallback;
   timeout?: t.Msecs;
 
