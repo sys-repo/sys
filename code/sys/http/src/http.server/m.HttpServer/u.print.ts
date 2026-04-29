@@ -13,9 +13,10 @@ export const print: HttpServerLib['print'] = (options) => {
   const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
   const host = c.cyan(`http://localhost:${port}`);
   const infoEntries = Object.entries(info ?? {});
-  const pathEntry = findPathEntry(infoEntries);
-  const detailEntries = infoEntries.filter((entry) => entry !== pathEntry);
-  const url = formatUrl({ host, path: pathEntry?.[1] });
+  const pathEntries = findPathEntries(infoEntries);
+  const detailEntries = infoEntries.filter((entry) => !pathEntries.includes(entry));
+  const pathUrls = pathEntries.map(([, path]) => formatUrl({ host, path }));
+  const urls = pathUrls.length > 0 ? pathUrls : [formatUrl({ host })];
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
   if (pkg) {
@@ -33,7 +34,7 @@ export const print: HttpServerLib['print'] = (options) => {
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
     for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
     if (hx) table.push([c.gray('dist:'), `${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
-    table.push([c.gray('url:'), url]);
+    pushUrls(table, urls);
     if (fallback) table.push(['', fallback]);
 
     console.info('');
@@ -43,7 +44,7 @@ export const print: HttpServerLib['print'] = (options) => {
     if (name) table.push([c.gray('serving:'), c.bold(name)]);
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
     for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
-    table.push([c.gray('url:'), url]);
+    pushUrls(table, urls);
     if (fallback) table.push(['', fallback]);
 
     console.info('');
@@ -55,8 +56,12 @@ export const print: HttpServerLib['print'] = (options) => {
 /**
  * Helpers:
  */
-function findPathEntry(infoEntries: readonly (readonly [string, string])[]) {
-  return infoEntries.find(([, value]) => value.startsWith('/'));
+function findPathEntries(infoEntries: readonly (readonly [string, string])[]) {
+  return infoEntries.filter(([, value]) => value.startsWith('/'));
+}
+
+function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
+  urls.forEach((url, index) => table.push([index === 0 ? c.gray('url:') : '', url]));
 }
 
 function formatUrl(input: { host: string; path?: string }) {
