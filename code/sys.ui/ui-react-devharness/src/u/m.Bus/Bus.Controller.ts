@@ -1,7 +1,7 @@
 import { Context } from '../m.Ctx/mod.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { BusMemoryState } from './Bus.MemoryState.ts';
-import { type t, DEFAULTS, Id, Is, Obj, Rx, RxBus, Test } from './common.ts';
+import { DEFAULTS, Id, Is, Obj, Rx, RxBus, type t, Test } from './common.ts';
 
 /**
  * Start the controller and return an event API.
@@ -10,7 +10,7 @@ export function BusController(args: {
   instance: t.DevInstance;
   env?: t.DevEnvVars;
   filter?: (e: t.DevEvent) => boolean;
-  dispose$?: t.UntilObservable;
+  until?: t.UntilInput;
 }): t.DevEvents {
   const { env } = args;
   const bus = RxBus.asType<t.DevEvent>(args.instance.bus);
@@ -19,7 +19,7 @@ export function BusController(args: {
   const events = BusEvents({
     instance: args.instance,
     filter: args.filter,
-    dispose$: args.dispose$,
+    until: args.until,
   });
   const { dispose$ } = events;
 
@@ -41,7 +41,7 @@ export function BusController(args: {
       return Ctx._ || (Ctx._ = await Ctx.init());
     },
     async init() {
-      const context = await Context.init(args.instance, { env, dispose$ });
+      const context = await Context.init(args.instance, { env, until: dispose$ });
       await state.change('context:init', (draft) => Ctx.resetInfo(draft));
       return context;
     },

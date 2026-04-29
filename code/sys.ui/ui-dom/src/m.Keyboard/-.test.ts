@@ -1,4 +1,4 @@
-import { type t, afterAll, beforeAll, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
+import { afterAll, beforeAll, describe, DomMock, expect, it, Rx, type t, Time } from '../-test.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
 
@@ -156,7 +156,7 @@ describe('Keyboard', () => {
       const life = Rx.disposable();
       const { dispose$ } = life;
       const res1 = Keyboard.dbl(2);
-      const res2 = Keyboard.dbl(2, { dispose$ });
+      const res2 = Keyboard.dbl(2, { until: dispose$ });
 
       expect(res1.disposed).to.eql(false);
       expect(res2.disposed).to.eql(false);

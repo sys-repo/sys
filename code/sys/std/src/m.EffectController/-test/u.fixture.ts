@@ -20,8 +20,8 @@ export function createFakeRef<S extends object>(initial: S) {
       _state = next;
       $.next({ after: _state });
     },
-    events(dispose$: t.UntilInput) {
-      const life = Rx.lifecycle(dispose$);
+    events(until: t.UntilInput) {
+      const life = Rx.lifecycle(until);
       life.dispose$.subscribe(() => $.complete());
       return { $ };
     },

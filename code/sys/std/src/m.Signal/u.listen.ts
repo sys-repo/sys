@@ -1,4 +1,4 @@
-import { type t, Dispose, isRecord } from './common.ts';
+import { Dispose, isRecord, type t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { effect as baseEffect } from './u.effect.ts';
 
@@ -7,8 +7,8 @@ type O = Record<string, unknown>;
 /**
  * Create a new listeners collection.
  */
-export const listeners: t.SignalLib['listeners'] = (until$) => {
-  const life = Dispose.lifecycle(until$);
+export const listeners: t.SignalLib['listeners'] = (until) => {
+  const life = Dispose.lifecycle(until);
   const disposers = new Set<() => void>();
 
   const effect = (fn: t.SignalEffectFn) => {

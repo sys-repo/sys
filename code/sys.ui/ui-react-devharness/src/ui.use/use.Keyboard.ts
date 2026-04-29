@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, Keyboard } from './common.ts';
+import { Keyboard, type t } from './common.ts';
 
 const D = { enabled: true } as const;
 
@@ -17,7 +17,7 @@ export const useKeyboard: t.UseDevKeyboard = (options) => {
  * Pure keyboard listener function.
  */
 export function listen(options: t.UseDevKeyboardOptions = {}) {
-  const keyboard = Keyboard.until(options.dispose$);
+  const keyboard = Keyboard.until(options.until);
   if (!(options.enabled ?? D.enabled)) return keyboard;
 
   const dbl = keyboard.dbl();
@@ -47,9 +47,9 @@ export function listen(options: t.UseDevKeyboardOptions = {}) {
 
     if (is.dev) {
       const current = query.get('dev');
-      if (current === 'true')
+      if (current === 'true') {
         query.delete('dev'); // ← goto Root screen.
-      else query.set('dev', 'true'); //               ← goto DevHarness index.
+      } else query.set('dev', 'true'); //               ← goto DevHarness index.
       window.location.href = url.href;
     }
   });

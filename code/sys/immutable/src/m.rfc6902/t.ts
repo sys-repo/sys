@@ -41,12 +41,12 @@ type ClonerRef = <T>(
 
 type EventsViaOverride = <T, P = DefaultPatch>(
   source: t.Immutable<T, P>,
-  dispose$?: t.UntilInput,
+  until?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
 
 type EventsViaObservable = <T, P = DefaultPatch>(
   $: t.Observable<t.ImmutableChange<T, P>>,
-  dispose$?: t.UntilInput,
+  until?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
 
 type PathEventsFactory = <

@@ -4,12 +4,12 @@ import {
   Is,
   Net,
   NodeWSServerAdapter,
-  pkg,
   Pkg,
+  pkg,
   Rx,
+  type t,
   WebSocket,
   WebSocketServer,
-  type t,
 } from './common.ts';
 import { createHttpServer, disposeHttpServer } from './u.http.ts';
 import { monitorPeers } from './u.monitor.ts';
@@ -118,7 +118,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
       console.error('[wss:shutdown:error]', err);
     }
   }
-  const life = Rx.lifecycleAsync((options as any).dispose$, cleanup);
+  const life = Rx.lifecycleAsync(options.until, cleanup);
   const monitor = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
 
   /**
@@ -277,7 +277,8 @@ function installBrokenPipeTrap(silent?: boolean) {
       // reconstructing a doc. Log and keep the server process alive.
       event.preventDefault();
       if (!silent) {
-        const msg = `[unhandledrejection][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
+        const msg =
+          `[unhandledrejection][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
         const summary = Is.error(reason) ? `${reason.name}: ${reason.message}` : String(reason);
         console.error(msg, summary);
       }
@@ -294,7 +295,8 @@ function installBrokenPipeTrap(silent?: boolean) {
       // Same OOM/capacity/aliasing case, but surfaced as a top-level error instead of a rejection.
       event.preventDefault();
       if (!silent) {
-        const msg = `[error][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
+        const msg =
+          `[error][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
         const summary = Is.error(reason) ? `${reason.name}: ${reason.message}` : String(reason);
         console.error(msg, summary);
       }

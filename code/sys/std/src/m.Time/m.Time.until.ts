@@ -7,8 +7,8 @@ import { interval } from './m.Time.interval.ts';
 /**
  * Exposes timer functions that cease after a dispose signal is received.
  */
-export function until(until$?: t.UntilInput) {
-  const life = Dispose.lifecycle(until$);
+export function until(until?: t.UntilInput) {
+  const life = Dispose.lifecycle(until);
 
   const api: t.TimeUntil = {
     delay(...args: any[]): t.TimeDelayPromise {

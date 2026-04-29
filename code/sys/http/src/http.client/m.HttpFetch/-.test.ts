@@ -371,14 +371,14 @@ describe('Http.Fetch', () => {
   });
 
   describe('lifecycle', () => {
-    it('create: dispose$ param variants', async () => {
+    it('create: until param variants', async () => {
       const life = Rx.disposable();
       const abort = new AbortController();
       const { dispose$ } = life;
       const a = Fetch.make(life.dispose$);
       const b = Fetch.make([life.dispose$]);
       const c = Fetch.make([life.dispose$, undefined]);
-      const d = Fetch.make({ dispose$ });
+      const d = Fetch.make({ until: dispose$ });
       const e = Fetch.make(life);
       const f = Fetch.make(abort.signal);
       const all = [a, b, c, d, e, f];

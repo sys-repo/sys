@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 
 /**
  * Create or reuse a singleton producer keyed by `key`, with refcounted teardown.
@@ -6,7 +6,7 @@ import { type t, Rx } from './common.ts';
  * - `create` constructs the producer the first time.
  * - The returned handle's `dispose()` releases *this* acquisition (idempotent).
  * - When the refcount drops to zero, `producer.dispose()` is called exactly once.
- * - If `until$` is provided, the handle auto-releases when it emits/completes.
+ * - If `until` is provided, the handle auto-releases when it emits/completes.
  */
 export function singleton<K, P extends t.DisposableLike>(
   registry: Map<K, { refCount: number; producer: P }>,

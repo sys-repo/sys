@@ -19,7 +19,7 @@ export type HttpFetchLib = {
 export type HttpFetchCreateOptions = {
   headers?: t.HttpMutateHeaders;
   accessToken?: t.StringJwt | (() => t.StringJwt);
-  dispose$?: t.UntilObservable;
+  until?: t.UntilInput;
   /**
    * Controls when the default `content-type` header is set.
    * - 'corsSafe' (default) sets it only for non-GET/HEAD requests that include a body.

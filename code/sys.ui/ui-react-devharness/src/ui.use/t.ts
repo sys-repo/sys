@@ -11,5 +11,5 @@ export type UseDevKeyboardOptions = {
   clearConsole?: boolean;
   cancelSave?: boolean;
   cancelPrint?: boolean;
-  dispose$?: t.UntilInput;
+  until?: t.UntilInput;
 };

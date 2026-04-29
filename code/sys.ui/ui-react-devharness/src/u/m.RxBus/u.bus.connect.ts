@@ -1,4 +1,4 @@
-import { type t, Dispose, Rx } from '../common.ts';
+import { Dispose, Rx, type t } from '../common.ts';
 
 /**
  * Setup a two-way connection between two or more event-buses.
@@ -12,7 +12,7 @@ export function connect<E extends t.Event>(
   }
 
   const { async = true } = options;
-  const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
+  const { dispose, dispose$ } = Dispose.disposable(options.until);
 
   let _isDisposed = false;
   dispose$.subscribe(() => (_isDisposed = true));

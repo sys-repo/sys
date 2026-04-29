@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Rx, slug, Testing, Time } from '../../-test.ts';
+import { describe, expect, it, Rx, slug, type t, Testing, Time } from '../../-test.ts';
 import { Process } from '../mod.ts';
 
 describe('Process.spawn (async long-lived)', () => {
@@ -18,10 +18,10 @@ describe('Process.spawn (async long-lived)', () => {
       expect(fired.length).to.eql(2);
     });
 
-    it('spawn → dispose$', async () => {
+    it('spawn → until', async () => {
       const { dispose$, dispose } = Rx.lifecycle();
       const args = ['eval', 'console.log("👋")'];
-      const handle = Process.spawn({ args, silent: true, dispose$ });
+      const handle = Process.spawn({ args, silent: true, until: dispose$ });
 
       const fired: t.DisposeAsyncEvent[] = [];
       handle.dispose$.subscribe((e) => fired.push(e));

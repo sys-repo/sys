@@ -1,4 +1,4 @@
-import { type t, filter, take } from './common.ts';
+import { filter, type t, take } from './common.ts';
 import { disposable, disposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
 
 type L = t.Lifecycle;
@@ -7,8 +7,8 @@ type L = t.Lifecycle;
  * Generates a disposable interface that maintains
  * and exposes it's disposed state.
  */
-export function lifecycle(until$?: t.UntilInput) {
-  const { dispose, dispose$ } = disposable(until$);
+export function lifecycle(until?: t.UntilInput) {
+  const { dispose, dispose$ } = disposable(until);
   let _disposed = false;
   dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
   return {
@@ -26,8 +26,8 @@ export function lifecycle(until$?: t.UntilInput) {
  * An async variant of the lifecycle pattern.
  */
 export function lifecycleAsync(...args: any[]) {
-  const { until$, onDispose } = toDisposableAsyncArgs(args);
-  const { dispose, dispose$ } = disposableAsync(until$, onDispose);
+  const { until, onDispose } = toDisposableAsyncArgs(args);
+  const { dispose, dispose$ } = disposableAsync(until, onDispose);
   let _disposed = false;
   dispose$
     .pipe(

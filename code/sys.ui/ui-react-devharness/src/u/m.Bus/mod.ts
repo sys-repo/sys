@@ -17,7 +17,7 @@ export const DevBus: DevBusLib = {
     const ctx = wrangle.ctx(input);
     const dispose$ = ctx ? ctx.dispose$ : undefined;
     const instance = wrangle.instance(input);
-    return DevBus.Events({ instance, dispose$ });
+    return DevBus.Events({ instance, until: dispose$ });
   },
 
   async withEvents(input: InstanceInput, handler: (events: t.DevEvents) => any) {

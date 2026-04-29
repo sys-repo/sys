@@ -9,6 +9,6 @@ export type ContextLib = {
    */
   init(
     instance: t.DevInstance,
-    options?: { env?: t.DevEnvVars; dispose$?: t.UntilObservable },
+    options?: { env?: t.DevEnvVars; until?: t.UntilInput },
   ): Promise<t.DevContext>;
 };

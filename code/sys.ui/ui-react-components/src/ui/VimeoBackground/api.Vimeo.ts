@@ -15,7 +15,7 @@ export const Vimeo: {
         iframe?.contentWindow?.postMessage({ method, value }, targetOrigin);
       },
       get: {
-        method<T>(method: string, dispose$: t.UntilInput) {
+        method<T>(method: string, until: t.UntilInput) {
           return new Promise<T>((resolve, reject) => {
             const failWith = (message: string) => reject(new Error(message));
             const listener = (event: MessageEvent) => {
@@ -32,25 +32,25 @@ export const Vimeo: {
             const cleanup = () => window.removeEventListener('message', listener);
 
             api.post(method);
-            Time.until(dispose$).delay(timeout, () => {
+            Time.until(until).delay(timeout, () => {
               cleanup();
               failWith(`Timeout waiting for method: ${method}`);
             });
           });
         },
 
-        currentTime(dispose$) {
-          return api.get.method<number>('getCurrentTime', dispose$);
+        currentTime(until) {
+          return api.get.method<number>('getCurrentTime', until);
         },
 
-        duration(dispose$) {
-          return api.get.method<number>('getDuration', dispose$);
+        duration(until) {
+          return api.get.method<number>('getDuration', until);
         },
 
-        async time(dispose$) {
+        async time(until) {
           const [current, duration] = await Promise.all([
-            api.get.currentTime(dispose$),
-            api.get.duration(dispose$),
+            api.get.currentTime(until),
+            api.get.duration(until),
           ]);
           return { current, duration };
         },

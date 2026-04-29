@@ -29,7 +29,6 @@ export type ViteLib = {
    *    ➜  Network: use --host to expose
    */
   dev(args: ViteDevArgs): Promise<t.ViteProcess>;
-
 };
 
 /**
@@ -60,7 +59,7 @@ export type ViteDevArgs = {
   port?: number;
   pkg?: t.Pkg; // Consumer module.
   silent?: boolean;
-  dispose$?: t.UntilObservable;
+  until?: t.UntilInput;
 };
 
 /**

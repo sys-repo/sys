@@ -7,9 +7,9 @@ import {
   Path,
   Pkg,
   Process,
-  Time,
   stripAnsi,
   type t,
+  Time,
   Url,
 } from './common.ts';
 import { Perf } from '../common/u.perf.ts';
@@ -43,22 +43,39 @@ export const dev: D = async (input) => {
   const { silent = false, pkg } = input;
   const startedAt = Time.now.timestamp as t.Msecs;
   const end = Perf.section('dev.parent.total', { cwd: input.cwd ?? '', silent }, { level: 1 });
-  const paths = input.paths ?? (await Perf.measure('dev.parent.paths', async () => await Wrangle.pathsFromConfigfile(input.cwd), {
-    cwd: input.cwd ?? '',
-  }, { level: 2 }));
+  const paths = input.paths ??
+    (await Perf.measure(
+      'dev.parent.paths',
+      async () => await Wrangle.pathsFromConfigfile(input.cwd),
+      {
+        cwd: input.cwd ?? '',
+      },
+      { level: 2 },
+    ));
   const cwd = paths.cwd;
   const requestedPort = Net.port(input.port ?? DEFAULTS.port);
-  const { dist } = await Perf.measure('dev.parent.dist', async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')), {
-    cwd,
-  }, { level: 2 });
+  const { dist } = await Perf.measure(
+    'dev.parent.dist',
+    async () => await Pkg.Dist.load(Path.resolve('./dist/dist.json')),
+    {
+      cwd,
+    },
+    { level: 2 },
+  );
 
   const requestedUrl = `http://localhost:${requestedPort}/`;
   let resolvedUrl = requestedUrl;
   let resolvedLocalUrl = '';
-  const { args, env, dispose: disposeBootstrap } = await Perf.measure('dev.parent.command', async () => await Wrangle.command(
-    paths,
-    `dev --port=${requestedPort} --host`,
-  ), { cwd, port: requestedPort }, { level: 2 });
+  const { args, env, dispose: disposeBootstrap } = await Perf.measure(
+    'dev.parent.command',
+    async () =>
+      await Wrangle.command(
+        paths,
+        `dev --port=${requestedPort} --host`,
+      ),
+    { cwd, port: requestedPort },
+    { level: 2 },
+  );
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
   // Readiness from process output (fast path), or HTTP fallback:
@@ -89,7 +106,7 @@ export const dev: D = async (input) => {
     env,
     silent,
     readySignal,
-    dispose$: input.dispose$,
+    until: input.until,
   });
   const { dispose } = proc;
   const cleanup = async () => {
@@ -116,9 +133,14 @@ export const dev: D = async (input) => {
     } finally {
       readyAbort.abort();
     }
-    await Perf.measure('dev.parent.waitForResolvedUrl', async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }), {
-      resolvedUrl,
-    }, { level: 2 });
+    await Perf.measure(
+      'dev.parent.waitForResolvedUrl',
+      async () => await Http.Client.waitFor(resolvedUrl, { timeout: 30_000, interval: 150 }),
+      {
+        resolvedUrl,
+      },
+      { level: 2 },
+    );
   } catch (error) {
     try {
       await cleanup();

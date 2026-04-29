@@ -1,4 +1,4 @@
-import { type t, Err, Fetch, JsrUrl } from './common.ts';
+import { Err, Fetch, JsrUrl, type t } from './common.ts';
 import { graph, type RawPkgVersionInfo } from './u.graph.ts';
 
 /**
@@ -10,16 +10,16 @@ export const Pkg: t.JsrFetch.PkgLib = {
    */
   async versions(name, options = {}) {
     const url = JsrUrl.Pkg.metadata(name);
-    const fetch = Fetch.make(options.dispose$);
+    const fetch = Fetch.make(options.until);
     const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url, { cache: 'no-store' });
     const data = res.data
       ? {
-          ...res.data,
-          get versions() {
-            // NB: prevent display blow-outs if console logging the response object.
-            return res.data.versions;
-          },
-        }
+        ...res.data,
+        get versions() {
+          // NB: prevent display blow-outs if console logging the response object.
+          return res.data.versions;
+        },
+      }
       : undefined;
     return {
       ...res,
@@ -36,7 +36,7 @@ export const Pkg: t.JsrFetch.PkgLib = {
   async info(name, vInput, options = {}) {
     const version = vInput ? vInput : ((await Pkg.versions(name)).data?.latest ?? '');
     const url = JsrUrl.Pkg.version(name, version);
-    const fetch = Fetch.make(options.dispose$);
+    const fetch = Fetch.make(options.until);
     const res = await fetch.json<RawPkgVersionInfo>(url, { cache: 'no-store' });
     if (!res.data) return res;
 
@@ -66,7 +66,7 @@ export const Pkg: t.JsrFetch.PkgLib = {
       async text(path, options = {}) {
         const { checksum } = options;
         const errors = Err.errors();
-        const fetch = Fetch.make([opt.dispose$, options.dispose$]);
+        const fetch = Fetch.make([opt.until, options.until]);
         const url = JsrUrl.Pkg.file(name, version, path);
 
         let res = await fetch.text(url, {}, { checksum });

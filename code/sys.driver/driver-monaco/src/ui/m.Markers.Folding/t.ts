@@ -18,7 +18,7 @@ export type EditorFoldingLib = {
    */
   observe(
     args: { editor: t.Monaco.Editor; bus$?: t.EditorEventBus },
-    dispose$?: t.UntilInput,
+    until?: t.UntilInput,
   ): t.EditorFoldingAreaObserver;
 
   /**

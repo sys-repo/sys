@@ -13,7 +13,7 @@ export type DevBusLib = {
     instance: t.DevInstance;
     env?: t.DevEnvVars;
     filter?: (e: t.DevEvent) => boolean;
-    dispose$?: t.UntilObservable;
+    until?: t.UntilInput;
   }): t.DevEvents;
 
   /**
@@ -22,7 +22,7 @@ export type DevBusLib = {
   Events(args: {
     instance: { bus: t.EventBus<any>; id: t.StringId };
     filter?: (e: t.DevEvent) => boolean;
-    dispose$?: t.UntilObservable;
+    until?: t.UntilInput;
   }): t.DevEvents;
 
   /**

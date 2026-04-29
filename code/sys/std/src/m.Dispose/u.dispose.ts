@@ -1,12 +1,12 @@
 import { Delete, Err, Is, Subject, type t } from './common.ts';
 import { done } from './u.done.ts';
-import { until } from './u.until.ts';
+import { until as untilObservables } from './u.until.ts';
 
 /**
  * Generates a generic disposable interface that is
  * typically mixed into a wider interface of some kind.
  */
-export function disposable(until$?: t.UntilInput): t.Disposable {
+export function disposable(until?: t.UntilInput): t.Disposable {
   const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
 
@@ -30,8 +30,8 @@ export function disposable(until$?: t.UntilInput): t.Disposable {
   };
 
   // Bridge external lifetimes into this disposable.
-  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
-  for (const $ of until(until$)) {
+  // Assumes `untilObservables(until)` → Iterable<Observable<DisposeEvent>>.
+  for (const $ of untilObservables(until)) {
     type T = t.DisposeEvent | undefined;
     const sub = $.subscribe((e) => dispose((e as T)?.reason));
     bridges.add(sub);
@@ -49,7 +49,7 @@ export function disposable(until$?: t.UntilInput): t.Disposable {
  * Generates an asnchronous Disposable interface.
  */
 export function disposableAsync(...args: any[]) {
-  const { until$, onDispose } = toDisposableAsyncArgs(args);
+  const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
   let _disposing = false;
 
@@ -99,8 +99,8 @@ export function disposableAsync(...args: any[]) {
   };
 
   // Bridge external lifetimes into this disposable.
-  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
-  for (const $ of until(until$)) {
+  // Assumes `untilObservables(until)` → Iterable<Observable<DisposeEvent>>.
+  for (const $ of untilObservables(until)) {
     const sub = $.subscribe((e) => disposable.dispose((e as t.DisposeEvent | undefined)?.reason));
     bridges.add(sub);
   }
@@ -114,11 +114,11 @@ export function disposableAsync(...args: any[]) {
 export function toDisposableAsyncArgs(args: any[]) {
   type Fn = (e: t.DisposeEvent) => Promise<void>;
   let onDispose: Fn | undefined;
-  let until$: t.UntilObservable | undefined;
+  let untilInput: t.UntilObservable | undefined;
 
   if (typeof args[0] === 'function') onDispose = args[0];
   if (typeof args[1] === 'function') onDispose = args[1];
-  if (Is.untilInput(args[0])) until$ = until(args[0]);
+  if (Is.untilInput(args[0])) untilInput = untilObservables(args[0]);
 
-  return { onDispose, until$ };
+  return { onDispose, until: untilInput };
 }

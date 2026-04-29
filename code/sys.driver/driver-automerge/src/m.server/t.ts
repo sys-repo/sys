@@ -24,7 +24,7 @@ export type SyncServerStartOptions = {
   maxClients?: number;
   maxPayload?: number;
   silent?: boolean;
-  dispose$?: t.UntilInput;
+  until?: t.UntilInput;
 };
 
 /** Response from the staring a new sync-server: `Server.ws()`. */

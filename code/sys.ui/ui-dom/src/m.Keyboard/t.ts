@@ -46,12 +46,12 @@ export type KeyboardLib = {
    * @param fn - A function that defines the condition for stopping the listener.
    * @returns A promise that resolves when the condition is met.
    */
-  until(dispose$?: t.UntilInput): t.KeyboardEventsUntil;
+  until(until?: t.UntilInput): t.KeyboardEventsUntil;
 
   /**
    * Start a multi-key listener waiting for a "double-press" event.
    */
-  dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
+  dbl(threshold?: t.Msecs, options?: { until?: t.UntilInput }): t.KeyboardMonitorMulti;
 
   /**
    * Convert a loose input into standard modifier-key flags if the given
@@ -91,7 +91,6 @@ export type KeyboardIsLib = {
    *    When on macOS™    →     ⌘  == meta
    *    When on Linux     →   ctrl == meta
    *    When on Windows™  →   ctrl == meta
-   *
    */
   command(
     modifiers?: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags>,
@@ -380,12 +379,14 @@ export type KeyboardKeypress = {
   handled(): void;
 };
 
-export type KeyboardKeypressProps = {
-  readonly code: string;
-  readonly key: string;
-  readonly isComposing: boolean;
-  readonly location: number;
-  readonly repeat: boolean;
-  handled(): void;
-} & t.UIEventBase &
-  t.UIModifierKeys;
+export type KeyboardKeypressProps =
+  & {
+    readonly code: string;
+    readonly key: string;
+    readonly isComposing: boolean;
+    readonly location: number;
+    readonly repeat: boolean;
+    handled(): void;
+  }
+  & t.UIEventBase
+  & t.UIModifierKeys;

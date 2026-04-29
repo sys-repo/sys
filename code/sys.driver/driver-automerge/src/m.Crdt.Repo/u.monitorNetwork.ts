@@ -1,14 +1,14 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 
 /**
  * Sets up listeners for tracking an aggregate of peer's network events.
  */
 export function monitorNetwork(
   adapters: t.NetworkAdapterInterface[],
-  dispose$: t.UntilInput,
+  until: t.UntilInput,
   onChange: t.CrdtNetworkChangeHandler,
 ) {
-  const life = Rx.lifecycle(dispose$);
+  const life = Rx.lifecycle(until);
   const disposers: Array<() => void> = [];
 
   for (const adapter of adapters) {

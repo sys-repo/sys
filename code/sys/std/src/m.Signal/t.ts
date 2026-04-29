@@ -29,7 +29,7 @@ export type SignalLib = {
   computed: typeof Preact.computed;
 
   /** Create a new listeners collection. */
-  listeners(dispose$?: t.UntilInput): t.SignalListeners;
+  listeners(until?: t.UntilInput): t.SignalListeners;
 
   /** Hooks into signal(s) value property. */
   listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;

@@ -89,7 +89,7 @@ export declare namespace Process {
 
   /** Arguments passed to the `Process.spawn` method. */
   export type SpawnArgs = t.Process.InvokeArgs & {
-    dispose$?: t.UntilObservable;
+    until?: t.UntilInput;
 
     /**
      * The flag used in the child process to signal "ready" and cause

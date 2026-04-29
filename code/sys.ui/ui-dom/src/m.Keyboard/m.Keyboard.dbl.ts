@@ -1,11 +1,11 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 import { handlerOn } from './m.Keyboard.Monitor.ts';
 
 /**
  * A "multi event" monitor scoped to 2-keypresses.
  */
-export function dbl(threshold = 500, options: { dispose$?: t.UntilInput } = {}) {
-  const life = Rx.lifecycle(options.dispose$);
+export function dbl(threshold = 500, options: { until?: t.UntilInput } = {}) {
+  const life = Rx.lifecycle(options.until);
   const { dispose, dispose$ } = life;
 
   const api: t.KeyboardMonitorMulti = {
@@ -21,7 +21,7 @@ export function dbl(threshold = 500, options: { dispose$?: t.UntilInput } = {}) 
 
       const next = (e: E) => {
         if (!monitor) {
-          monitor = Rx.withinTimeThreshold($, threshold, { dispose$ });
+          monitor = Rx.withinTimeThreshold($, threshold, { until: dispose$ });
           monitor.timeout$.subscribe(killMonitor);
           monitor.$.subscribe((e) => {
             fn(e);
@@ -31,7 +31,7 @@ export function dbl(threshold = 500, options: { dispose$?: t.UntilInput } = {}) 
         $.next(e);
       };
 
-      return handlerOn(pattern, (e) => next(e), { dispose$ });
+      return handlerOn(pattern, (e) => next(e), { until: dispose$ });
     },
 
     dispose,

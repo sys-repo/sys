@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { type t, Err, Fetch, Path, Pkg, Rx } from './common.ts';
+import { Err, Fetch, Path, Pkg, Rx, type t } from './common.ts';
 
 /** Create a manifest helper from an existing definition. */
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
@@ -17,10 +17,10 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
 
     async pull(input) {
       const options = wrangle.pullOptions(input);
-      const life = Rx.lifecycle(options.dispose$);
+      const life = Rx.lifecycle(options.until);
       const { dispose$ } = life;
 
-      const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { dispose$ });
+      const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { until: dispose$ });
       const baseUrl = Fetch.Url.Pkg.file(pkg.name, pkg.version, '');
       const errors = Err.errors();
 

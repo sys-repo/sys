@@ -1,4 +1,4 @@
-import { type t, Arr, Err, exists, Path, Rx } from './common.ts';
+import { Arr, Err, exists, Path, Rx, type t } from './common.ts';
 import type { FsWatchLib } from './t.ts';
 
 /**
@@ -12,7 +12,7 @@ export const Watch: FsWatchLib = {
     const { recursive = true } = options;
     const paths = Arr.asArray(pathInput);
     const errors = Err.errors();
-    const life = Rx.lifecycle(options.dispose$);
+    const life = Rx.lifecycle(options.until);
 
     const $$ = Rx.subject<t.FsWatchEvent>();
     const $ = $$.pipe(Rx.takeUntil(life.dispose$));

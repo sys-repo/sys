@@ -9,7 +9,7 @@ export type FsWatchLib = {
    */
   start(
     paths: t.StringPath | t.StringPath[],
-    options?: { recursive?: boolean; dispose$?: t.UntilObservable },
+    options?: { recursive?: boolean; until?: t.UntilInput },
   ): Promise<t.FsWatcher>;
 };
 
