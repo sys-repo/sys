@@ -142,7 +142,6 @@
     "npm:@types/react@19.2.14": "19.2.14",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@6.0.1": "6.0.1_vite@8.0.10__esbuild@0.28.0__yaml@2.8.3_esbuild@0.28.0_yaml@2.8.3",
-    "npm:ai@6.0.169": "6.0.169_zod@3.25.76",
     "npm:bowser@2.14.1": "2.14.1",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -927,15 +926,6 @@
     }
   },
   "npm": {
-    "@ai-sdk/gateway@3.0.105_zod@3.25.76": {
-      "integrity": "sha512-XpERadvLMHkYGJO4hz1Sw7Y9J705Iex48TmdZLdZdaPiFFtVgiA9qhXugLUWGAxdlXU/2N6ipoPSOwfnULZbXw==",
-      "dependencies": [
-        "@ai-sdk/provider@3.0.9",
-        "@ai-sdk/provider-utils@4.0.24_zod@3.25.76",
-        "@vercel/oidc",
-        "zod"
-      ]
-    },
     "@ai-sdk/openai@3.0.54_zod@3.25.76": {
       "integrity": "sha512-j1qrNe/ebUKuE+fETzS+CVnczs11jQBR9y9M6aoKtJZAosg6SZnPC1Bb92e2u6yaSK+88TZoFhiY67uYphPitw==",
       "dependencies": [
@@ -2446,9 +2436,6 @@
         "@octokit/openapi-types"
       ]
     },
-    "@opentelemetry/api@1.9.0": {
-      "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="
-    },
     "@oxc-project/types@0.127.0": {
       "integrity": "sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ=="
     },
@@ -3240,9 +3227,6 @@
         "@types/node"
       ]
     },
-    "@vercel/oidc@3.2.0": {
-      "integrity": "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="
-    },
     "@vitejs/plugin-react@6.0.1_vite@8.0.10__esbuild@0.28.0__yaml@2.8.3_esbuild@0.28.0_yaml@2.8.3": {
       "integrity": "sha512-l9X/E3cDb+xY3SWzlG1MOGt2usfEHGMNIaegaUGFsLkb3RCn/k8/TOXBcab+OndDI4TBtktT8/9BwwW8Vi9KUQ==",
       "dependencies": [
@@ -3252,16 +3236,6 @@
     },
     "agent-base@7.1.4": {
       "integrity": "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ=="
-    },
-    "ai@6.0.169_zod@3.25.76": {
-      "integrity": "sha512-eDAIc8bJJ3Ktk5qvBvWfAK7Uwj6zrOMI9VvQ6yLfF+7HdqnR0TSxgkLuIONrmowB2OujeAuVF9jalpNPJSN57g==",
-      "dependencies": [
-        "@ai-sdk/gateway",
-        "@ai-sdk/provider@3.0.9",
-        "@ai-sdk/provider-utils@4.0.24_zod@3.25.76",
-        "@opentelemetry/api",
-        "zod"
-      ]
     },
     "ansi-regex@5.0.1": {
       "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="
@@ -5336,7 +5310,7 @@
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
       "npm:@vitejs/plugin-react@6.0.1",
-      "npm:ai@6.0.169",
+      "npm:ai@6.0.170",
       "npm:bowser@2.14.1",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",

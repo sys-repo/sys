@@ -44,7 +44,7 @@
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@6.0.1",
-    "ai": "npm:ai@6.0.169",
+    "ai": "npm:ai@6.0.170",
     "bowser": "npm:bowser@2.14.1",
     "chai": "npm:chai@6.2.2",
     "csstype": "npm:csstype@3.2.3",
