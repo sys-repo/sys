@@ -1,6 +1,6 @@
-import type { t } from '../../common.ts';
-import { errorMessage, fail } from './common.ts';
-import { pullGithubReleaseBundle } from './u.pull.github.ts';
+import { type t } from './common.ts';
+import { errorMessage, fail } from './u.result.ts';
+import { pullGithubReleaseBundle } from './u.pull.github.release.ts';
 import { pullHttpBundle } from './u.pull.http.ts';
 
 type PullHttp = (

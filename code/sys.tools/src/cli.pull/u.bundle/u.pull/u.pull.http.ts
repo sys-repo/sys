@@ -1,8 +1,9 @@
-import { type t, c, Cli, Err, Http, Str, Url } from '../../common.ts';
+import { c, Cli, Err, Http, Str, type t, Url } from './common.ts';
 import { Fmt as BaseFmt } from '../../u.fmt.ts';
 import { createMonotonicProgress } from '../u.monotonicProgress.ts';
 import { rewriteTags } from '../u.pull.rewriteTags.ts';
-import { clearTargetDir, done, errorMessage, fail } from './common.ts';
+import { clearTargetDir } from './u.clearTargetDir.ts';
+import { done, errorMessage, fail } from './u.result.ts';
 
 type Progress = { index: t.Index; total: number };
 
