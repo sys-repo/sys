@@ -9,6 +9,7 @@ describe(`Cell`, () => {
     expect(m.Cell.Runtime).to.equal(Cell.Runtime);
     expect(m.Cell.Runtime.verify).to.equal(Cell.Runtime.verify);
     expect(m.Cell.Runtime.start).to.equal(Cell.Runtime.start);
+    expect(m.Cell.Runtime.wait).to.equal(Cell.Runtime.wait);
   });
 
   it('keeps FS-aware seams out of the public import graph', async () => {

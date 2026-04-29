@@ -1,4 +1,5 @@
 import { Is, type t } from './common.ts';
+import { deriveStartArgs } from './u.start.args.ts';
 import { verify } from './u.verify.ts';
 
 export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => {
@@ -7,7 +8,8 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
 
   try {
     for (const service of verification.services) {
-      const base = { cwd: cell.root, ...service.config };
+      const configured: t.Cell.Runtime.StartArgs = { cwd: cell.root, ...service.config };
+      const base = await deriveStartArgs(cell, service, configured);
       const args = options.startArgs ? await options.startArgs({ cell, service, base }) : base;
       const started = await service.endpoint.start(args);
       services.push({ ...service, started });

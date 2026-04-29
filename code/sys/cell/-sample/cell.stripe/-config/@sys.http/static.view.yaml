@@ -1,6 +1,6 @@
 # Static view runtime.
 
-name: stripe view
+name: ui:static:stripe
 dir: .
 hostname: 127.0.0.1
 port: 4040

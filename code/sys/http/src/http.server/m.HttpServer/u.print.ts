@@ -30,7 +30,7 @@ export const print: HttpServerLib['print'] = (options) => {
 
     const table = Cli.Table.create([]);
     table.push([c.gray('module:'), `${mod} ${version}`]);
-    if (name) table.push([c.gray('serving:'), c.bold(name)]);
+    if (name) table.push([c.gray('service:'), c.bold(name)]);
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
     for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
     if (hx) table.push([c.gray('dist:'), `${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
@@ -41,7 +41,7 @@ export const print: HttpServerLib['print'] = (options) => {
     console.info(Str.trimEdgeNewlines(String(table)));
   } else {
     const table = Cli.Table.create([]);
-    if (name) table.push([c.gray('serving:'), c.bold(name)]);
+    if (name) table.push([c.gray('service:'), c.bold(name)]);
     if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
     for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
     pushUrls(table, urls);

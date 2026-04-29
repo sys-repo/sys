@@ -62,6 +62,8 @@ export declare namespace Cell {
     export type Lib = {
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
+      /** Wait for started service lifecycle handles that expose `finished`. */
+      wait(runtime: Started): Promise<void>;
     };
 
     /** Runtime verification options. */
@@ -72,7 +74,7 @@ export declare namespace Cell {
 
     /** Runtime start options. */
     export type StartOptions = VerifyOptions & {
-      /** Optional operator hook for final service start arguments. */
+      /** Optional operator hook for final service start arguments after Cell-derived defaults. */
       startArgs?(input: StartArgsInput): StartArgs | Promise<StartArgs>;
     };
 
@@ -83,6 +85,7 @@ export declare namespace Cell {
     export type StartArgsInput = {
       readonly cell: Instance;
       readonly service: VerifiedService;
+      /** Base arguments derived from Cell runtime context and service config. */
       readonly base: StartArgs;
     };
 
