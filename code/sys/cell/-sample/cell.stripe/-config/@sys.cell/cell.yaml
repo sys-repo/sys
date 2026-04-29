@@ -22,7 +22,7 @@ runtime:
         views: [stripe.dev, hello]
       from: '@sys/http/server/static'
       export: HttpStatic
-      config: ./-config/@sys.http.static/view.yaml
+      config: ./-config/@sys.http/static.view.yaml
 
     - name: stripe
       kind: http-server
