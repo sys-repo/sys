@@ -41,6 +41,7 @@ describe('Cell.Runtime.start', () => {
         dir: .
         bundles:
           - kind: http
+            dist: https://fs.db.team/driver.stripe/dist.json
             local:
               dir: view/.pulled/driver.stripe
       `).trimStart(),
