@@ -61,11 +61,12 @@ export const Fmt = {
   rootAdvisoryPrelude(remote?: t.StringSemver) {
     const hr = c.green(Cli.Fmt.hr());
     const width = Cli.stripAnsi(hr).length;
-    const message = `${c.gray('Run')} ${c.white('sys update --latest')}`;
+    const message = c.white('sys update --latest');
     const latest = remote ? c.dim(c.gray(remote)) : undefined;
 
     return Str.builder()
       .line(hr)
+      .line(c.green('A new release of System Tools is available:'))
       .line(wrangle.rootAdvisoryLine({ width, message, latest }))
       .line(hr)
       .toString();

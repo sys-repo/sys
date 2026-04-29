@@ -96,7 +96,10 @@ describe('cli.update advisory', () => {
       expect(res.hasUpdate).to.eql(true);
       expect(res.record?.ok).to.eql(true);
       if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
-      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('Run sys update --latest');
+      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain(
+        'A new release of System Tools is available:',
+      );
+      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
       expect(Cli.stripAnsi(res.prelude ?? '')).to.not.contain('Package');
     } finally {
       before === undefined ? Deno.env.delete(key) : Deno.env.set(key, before);
@@ -113,13 +116,13 @@ describe('cli.update advisory', () => {
       }) ?? '',
     );
     const lines = text.split('\n').filter(Boolean);
-    const body = lines[1] ?? '';
 
     expect(text).to.not.contain('Package');
     expect(text).to.not.contain('@sys/tools');
-    expect(body).to.contain('Run sys update --latest');
-    expect(body.endsWith('9.9.9')).to.eql(true);
-    expect(body.length).to.eql(lines[0]?.length);
+    expect(lines[1]).to.eql('A new release of System Tools is available:');
+    expect(lines[2]?.startsWith('sys update --latest')).to.eql(true);
+    expect(lines[2]?.endsWith('9.9.9')).to.eql(true);
+    expect(lines[2]?.length).to.eql(lines[0]?.length);
   });
 
   it('writes and reads success advisory records', async () => {
@@ -137,7 +140,10 @@ describe('cli.update advisory', () => {
         remote: '9.9.9',
       });
       expect(res.hasUpdate).to.eql(true);
-      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('Run sys update --latest');
+      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain(
+        'A new release of System Tools is available:',
+      );
+      expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
       expect(res.stale).to.eql(false);
     } finally {
       await Fs.remove(tmp.absolute);
