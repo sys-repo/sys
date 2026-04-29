@@ -31,7 +31,7 @@ runtime:
         views: [stripe.dev, hello]
       from: '@sys/http/server/static'
       export: HttpStatic
-      config: ./-config/@sys.http.static/view.yaml
+      config: ./-config/@sys.http/static.view.yaml
 
     - name: stripe
       kind: http-server
@@ -80,10 +80,10 @@ type RuntimeStartArgs = {
 
 ## API split
 - `Cell.load(path)` validates and loads the descriptor.
-- `Cell.Runtime.check(cell)` verifies executable runtime topology without starting services.
-- `Cell.Runtime.start(cell)` performs `check` then starts lifecycle services.
+- `Cell.Runtime.verify(cell)` verifies executable runtime topology without starting services.
+- `Cell.Runtime.start(cell)` performs `verify` then starts lifecycle services.
 
-`check` is the dry-run equivalent: it exists so tests and operators can prove declarations are accurate before opening ports or launching services.
+`verify` is the dry-run equivalent: it exists so tests and operators can prove declarations are accurate before opening ports or launching services.
 
 ## First landing sequence
 1. Update Stripe sample descriptor to the locked shape.
@@ -91,5 +91,5 @@ type RuntimeStartArgs = {
 3. Test that Stripe sample descriptor validates.
 4. Add `Cell.load(...)`.
 5. Add runtime service contract/assertion.
-6. Add `Cell.Runtime.check(...)`.
+6. Add `Cell.Runtime.verify(...)`.
 7. Only then add `Cell.Runtime.start(...)`.
