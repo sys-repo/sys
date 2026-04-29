@@ -21,6 +21,19 @@ describe('HttpServer.print', () => {
     expect(lines[3]).to.contain('two');
   });
 
+  it('prints service before module provenance', () => {
+    const lines = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        name: 'svc',
+        pkg,
+      });
+    });
+
+    const output = Cli.stripAnsi(lines.join('\n'));
+    expect(output.indexOf('service:')).to.be.lessThan(output.indexOf('module:'));
+  });
+
   it('prints non-path info rows and uses path info only for URL decoration', () => {
     const lines = capturePrint(() => {
       HttpServer.print({
