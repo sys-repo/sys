@@ -2,8 +2,8 @@ import type { t } from './common.ts';
 import type {
   PullToolGithubRelease,
   PullToolGithubReleaseAsset,
-  PullToolGithubReleaseResolveResult,
   PullToolGithubReleaseResolved,
+  PullToolGithubReleaseResolveResult,
 } from './u.github/t.ts';
 
 /**
@@ -39,6 +39,12 @@ export namespace PullTool {
   export type GithubRelease = PullToolGithubRelease;
   export type GithubReleaseResolved = PullToolGithubReleaseResolved;
   export type GithubReleaseResolveResult = PullToolGithubReleaseResolveResult;
+
+  /** Public pull helper API. */
+  export type Lib = {
+    /** Resolve pull config materialization targets without pulling remote data. */
+    resolve(config: t.StringPath): Promise<ConfigYaml.Resolved>;
+  };
 
   export namespace ConfigYaml {
     export type Defaults = {
@@ -88,5 +94,21 @@ export namespace PullTool {
     export type LoadResult =
       | { readonly ok: true; readonly cwd: t.StringDir; readonly location: Location }
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+
+    /** Resolved local materialization target for a pull bundle. */
+    export type ResolvedLocalDir = {
+      readonly index: number;
+      readonly dir: t.StringRelativeDir;
+      readonly path: t.StringDir;
+      readonly bundle: Bundle;
+    };
+
+    /** Resolved pull config materialization targets. */
+    export type Resolved = {
+      readonly config: t.StringPath;
+      readonly cwd: t.StringDir;
+      readonly dir: t.StringDir;
+      readonly localDirs: readonly ResolvedLocalDir[];
+    };
   }
 }
