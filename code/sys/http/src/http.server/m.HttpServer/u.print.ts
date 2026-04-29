@@ -1,6 +1,6 @@
 import type { HttpServerLib } from './t.ts';
 
-import { Cli, c, Fs, Str } from './common.ts';
+import { c, Cli, Fs, Str } from './common.ts';
 
 /**
  * Outputs a formatted console log within
@@ -19,38 +19,25 @@ export const print: HttpServerLib['print'] = (options) => {
   const urls = pathUrls.length > 0 ? pathUrls : [formatUrl({ host })];
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
+  const table = Cli.Table.create([]);
+  const hx = pkg ? wrangle.hashDigest(hash) : '';
+
   if (pkg) {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-
-    const hx = wrangle.hashDigest(hash);
-    const integrity = c.gray(`${hx}`);
-    const mod = c.bold(pkg.name);
-    const version = c.gray(`${pkg.version}`);
-
-    const table = Cli.Table.create([]);
-    table.push([c.gray('module:'), `${mod} ${version}`]);
-    if (name) table.push([c.gray('service:'), c.bold(name)]);
-    if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
-    for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
-    if (hx) table.push([c.gray('dist:'), `${integrity} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
-    pushUrls(table, urls);
-    if (fallback) table.push(['', fallback]);
-
-    console.info('');
-    console.info(Str.trimEdgeNewlines(String(table)));
-  } else {
-    const table = Cli.Table.create([]);
-    if (name) table.push([c.gray('service:'), c.bold(name)]);
-    if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
-    for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
-    pushUrls(table, urls);
-    if (fallback) table.push(['', fallback]);
-
-    console.info('');
-    console.info(Str.trimEdgeNewlines(String(table)));
+    table.push([c.gray('module:'), `${c.bold(pkg.name)} ${c.gray(`${pkg.version}`)}`]);
   }
-  if (!fallback) console.info('');
+
+  if (name) table.push([c.gray('service:'), c.bold(name)]);
+  if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
+  for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
+  if (hx) {
+    table.push([c.gray('dist:'), `${c.gray(`${hx}`)} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
+  }
+  pushUrls(table, urls);
+  if (fallback) table.push(['', fallback]);
+
+  wrangle.printBlock(table);
 };
 
 /**
@@ -65,7 +52,9 @@ function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
 }
 
 function formatUrl(input: { host: string; path?: string }) {
-  return input.path ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(input.path)}`)}` : `${input.host}${c.gray('/')}`;
+  return input.path
+    ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(input.path)}`)}`
+    : `${input.host}${c.gray('/')}`;
 }
 
 const URL_NOTE_INDENT = 17;
@@ -78,6 +67,11 @@ function formatPortFallback(input: { requestedPort?: number; actualPort: number 
 }
 
 const wrangle = {
+  printBlock(table: ReturnType<typeof Cli.Table.create>) {
+    console.info('');
+    console.info(Str.trimEdgeNewlines(String(table)));
+  },
+
   hashDigest(hash?: string) {
     if (!hash) return '';
     if (hash.length <= 18) return hash;
