@@ -20,7 +20,7 @@ async function loadConfig(args: t.StripeFixture.SessionArgs): Promise<
   | { readonly ok: true; readonly value: t.StripeFixture.Config }
   | { readonly ok: false; readonly status: number; readonly error: string }
 > {
-  const env = await Env.load({ cwd: args.cwd ?? Fs.cwd(), search: 'cwd' });
+  const env = await Env.load({ cwd: args.cwd ?? Fs.cwd(), search: 'upward' });
   const secretKey = env.get('STRIPE_SECRET_KEY');
   const publishableKey = env.get('STRIPE_PUBLISHABLE_KEY');
 
@@ -28,7 +28,8 @@ async function loadConfig(args: t.StripeFixture.SessionArgs): Promise<
     return {
       ok: false,
       status: 503,
-      error: 'Local Stripe runtime fixture is not configured. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY server-side.',
+      error:
+        `Local Stripe runtime fixture is not configured. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY server-side.`,
     };
   }
 

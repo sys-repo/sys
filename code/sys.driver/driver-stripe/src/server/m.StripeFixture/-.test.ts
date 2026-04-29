@@ -90,4 +90,27 @@ describe('StripeFixture', () => {
       globalThis.fetch = original;
     }
   });
+
+  it('searches upward for workspace-level server-side env', async () => {
+    const dir = await Testing.dir('driver-stripe.fixture.session-upward');
+    const child = dir.join('cell/instance');
+    await Fs.ensureDir(child);
+    await Fs.write(
+      dir.join('.env'),
+      `STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}\nSTRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}\n`,
+    );
+
+    const original = globalThis.fetch;
+    globalThis.fetch = async () => Response.json({ client_secret: CLIENT_SECRET });
+
+    try {
+      const res = await StripeFixture.createSession({ cwd: child });
+      const body = await res.json();
+      expect(res.status).to.eql(200);
+      expect(body.publishableKey).to.eql(STRIPE_PUBLISHABLE_KEY);
+      expect(body.clientSecret).to.eql(CLIENT_SECRET);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });
