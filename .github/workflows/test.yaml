@@ -20,8 +20,6 @@ jobs:
         include:
           - name: "@sys/types"
             path: code/sys/types
-          - name: "@sys/cell"
-            path: code/sys/cell
           - name: "@sys/crdt"
             path: code/sys/crdt
           - name: "@sys/std"
@@ -90,6 +88,8 @@ jobs:
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
             browser: true
+          - name: "@sys/cell"
+            path: code/sys/cell
           - name: "@sys/workspace"
             path: code/sys/workspace
           - name: "@sys/driver-deno"

@@ -1,26 +1,25 @@
 {
   ".meta": {
-    "createdAt": 1777356082887,
+    "createdAt": 1777441988940,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-79201ebab703e2e4fd93ce73b0da8f7ed30d90b113e58cb26efb3f41d88a0e89",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.75/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-af8c1a3925f66440ff190792033d3aff8b6f9332fc72d347497ccfeca7eeaa30",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.76/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.75"
+        "version": "0.0.76"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.75/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.76/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777356082892
+    "modifiedAt": 1777441988946
   },
   "graph": {
     "orderedPaths": [
       "code/sys/types",
-      "code/sys/cell",
       "code/sys/crdt",
       "code/sys/std",
       "code/sys/color",
@@ -54,6 +53,7 @@
       "code/sys.dev",
       "code/sys.driver/driver-prosemirror",
       "code/sys.driver/driver-stripe",
+      "code/sys/cell",
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
       "code/-tmpl",
@@ -942,6 +942,10 @@
       },
       {
         "from": "code/sys/schema",
+        "to": "code/sys/cell"
+      },
+      {
+        "from": "code/sys/schema",
         "to": "code/sys/workspace"
       },
       {
@@ -1031,6 +1035,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/std",
@@ -1159,6 +1167,10 @@
       {
         "from": "code/sys/testing",
         "to": "code/sys.ui/ui-react-devharness"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/testing",
@@ -1419,6 +1431,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/yaml",
