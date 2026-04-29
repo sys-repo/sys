@@ -36,6 +36,9 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+  waitableHandle(input?: unknown): input is t.WaitableHandle {
+    return isRecord(input) && isPromise(input.finished);
+  },
 
   numeric,
   number,

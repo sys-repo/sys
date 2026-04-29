@@ -20,4 +20,10 @@ describe('Types', () => {
     expectTypeOf(input).toMatchTypeOf<t.UntilInput>();
     expectTypeOf(until).toMatchTypeOf<t.Until>();
   });
+
+  it('WaitableHandle exposes observed lifecycle completion', () => {
+    const handle: t.WaitableHandle = { finished: Promise.resolve() };
+
+    expectTypeOf(handle).toMatchTypeOf<t.WaitableHandle>();
+  });
 });

@@ -61,6 +61,25 @@ describe('Is (common flags)', () => {
     }
   });
 
+  it('Is.waitableHandle', () => {
+    const test = (input: unknown, expected: boolean) => {
+      expect(Is.waitableHandle(input)).to.eql(expected);
+    };
+
+    test(undefined, false);
+    test(null, false);
+    test({}, false);
+    test({ finished: 123 }, false);
+    test({ finished: Promise.resolve() }, true);
+    test({ finished: { then: () => null } }, true);
+
+    const handle = { finished: Promise.resolve() } as unknown;
+    if (Is.waitableHandle(handle)) {
+      const finished: PromiseLike<unknown> = handle.finished;
+      expect(Is.promise(finished)).to.eql(true);
+    }
+  });
+
   it('Is.numeric', () => {
     const assert = (value: unknown, expected: boolean) => {
       expect(Is.numeric(value)).to.eql(expected);

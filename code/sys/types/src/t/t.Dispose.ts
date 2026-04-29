@@ -106,6 +106,14 @@ export type Lifecycle = Disposable & { readonly disposed: boolean };
 export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
 
 /**
+ * A started lifecycle handle that exposes observed completion.
+ *
+ * This complements `UntilInput`: `until` is an input that asks work to stop;
+ * `finished` is an output that resolves when the work has stopped.
+ */
+export type WaitableHandle = { readonly finished: PromiseLike<unknown> };
+
+/**
  * Read-only lifecycle projection.
  * Provides disposal state and signal without disposal authority.
  */

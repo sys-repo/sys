@@ -33,6 +33,11 @@ export type StdIsLib = {
   promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
   /**
+   * Determine if the value is a started lifecycle handle with observed completion.
+   */
+  waitableHandle(input?: unknown): input is t.WaitableHandle;
+
+  /**
    * Determine if the value is an observable Subject.
    */
   subject<T = unknown>(input?: any): input is t.Subject<T>;
