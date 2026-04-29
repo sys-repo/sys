@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { Cli, describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
 import { Http } from '../../../mod.ts';
 import { HttpProxy } from '../mod.ts';
 
@@ -27,6 +27,37 @@ describe('HttpProxy', () => {
 
     expect(error).to.be.instanceOf(Error);
     expect((error as Error).message).to.contain('use either config or mounts');
+  });
+
+  it('derives startup URL info from proxy routes before caller info', async () => {
+    const lines: string[] = [];
+    const original = console.info;
+    console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+
+    let server: t.HttpServerStarted | undefined;
+    try {
+      server = await HttpProxy.start({
+        port: 0,
+        config: {
+          root: { upstream: 'https://example.com/root/' as t.StringUrl },
+          mounts: [
+            { mountPath: '/payments/', upstream: 'https://example.com/payments/' as t.StringUrl },
+            { mountPath: '/-/stripe/', upstream: 'https://example.com/stripe/' as t.StringUrl },
+          ],
+        },
+      });
+    } finally {
+      console.info = original;
+    }
+
+    try {
+      const output = Cli.stripAnsi(lines.join('\n'));
+      expect(output).to.contain(`http://localhost:${server.port}/`);
+      expect(output).to.contain(`http://localhost:${server.port}/payments/`);
+      expect(output).to.contain(`http://localhost:${server.port}/-/stripe/`);
+    } finally {
+      await server?.close('test.info');
+    }
   });
 
   it('starts as a managed lifecycle endpoint and proxies POST bodies', async () => {

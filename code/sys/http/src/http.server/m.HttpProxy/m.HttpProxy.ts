@@ -41,12 +41,13 @@ export const HttpProxy: t.HttpProxy.Lib = {
 
   async start(args = {}) {
     const app = HttpProxy.create(args);
+    const config = wrangle.config(args);
     return HttpServer.start(app, {
       hostname: args.hostname as t.StringHostname | undefined,
       port: (args.port ?? D.port) as t.PortNumber,
       pkg,
       name: args.name,
-      info: args.info,
+      info: wrangle.info(config, args.info),
       silent: args.silent,
       keyboard: args.keyboard,
       until: args.until,
@@ -135,5 +136,24 @@ const wrangle = {
       .forEach((header) => headers.delete(header));
 
     return headers;
+  },
+
+  info(
+    config: t.HttpProxy.Config,
+    input?: Record<string, string>,
+  ): Record<string, string> | undefined {
+    const output: Record<string, string> = {};
+
+    if (config.root) output.root = '/';
+    for (const mount of config.mounts ?? []) {
+      output[wrangle.infoLabel(mount.mountPath)] = mount.mountPath;
+    }
+
+    return Object.keys(output).length > 0 || input ? { ...output, ...input } : undefined;
+  },
+
+  infoLabel(path: string): string {
+    const label = path.replace(/^\/+|\/+$/g, '').replace(/\//g, '.');
+    return label ? `route.${label}` : 'root';
   },
 } as const;
