@@ -71,7 +71,17 @@ export declare namespace Cell {
     };
 
     /** Runtime start options. */
-    export type StartOptions = CheckOptions;
+    export type StartOptions = CheckOptions & {
+      /** Optional operator hook for final service start arguments. */
+      args?(input: StartArgsInput): Record<string, unknown> | Promise<Record<string, unknown>>;
+    };
+
+    /** Service start argument hook input. */
+    export type StartArgsInput = {
+      readonly cell: Instance;
+      readonly service: CheckedService;
+      readonly args: Record<string, unknown>;
+    };
 
     /** Runtime topology check result. */
     export type Check = { readonly services: readonly CheckedService[] };

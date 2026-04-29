@@ -8,7 +8,7 @@
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
-    "sample": "deno run -P=sample @sys/tools serve --non-interactive --config ./-sample/cell.stripe/-config/@sys.tools.serve/view.yaml"
+    "sample": "deno run -P=sample ./-scripts/task.sample.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

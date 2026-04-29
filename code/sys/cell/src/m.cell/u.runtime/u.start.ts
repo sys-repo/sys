@@ -7,7 +7,9 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
 
   try {
     for (const service of checked.services) {
-      const started = await service.endpoint.start({ cwd: cell.root, ...service.config });
+      const args = { cwd: cell.root, ...service.config };
+      const startArgs = options.args ? await options.args({ cell, service, args }) : args;
+      const started = await service.endpoint.start(startArgs);
       services.push({ ...service, started });
     }
   } catch (cause) {
