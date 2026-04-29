@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import {
   isEmptyRecord,
   isObject,
@@ -554,11 +554,17 @@ describe('Is (common flags)', () => {
       expect(Is.until(subject)).to.eql(true);
     });
 
+    it('accepts an AbortSignal', () => {
+      const signal = new AbortController().signal;
+      expect(Is.until(signal)).to.eql(true);
+    });
+
     it('accepts arrays of until values', () => {
       const d: t.Disposable = Rx.disposable();
       const s: t.Subject<unknown> = Rx.subject();
-      expect(Is.until([d, s])).to.eql(true);
-      expect(Is.until([[d], [s]])).to.eql(true);
+      const signal = new AbortController().signal;
+      expect(Is.until([d, s, signal])).to.eql(true);
+      expect(Is.until([[d], [s], [signal]])).to.eql(true);
     });
 
     it('rejects arrays containing non-until values', () => {
@@ -573,6 +579,31 @@ describe('Is (common flags)', () => {
       expect(Is.until('abc')).to.eql(false);
       expect(Is.until({})).to.eql(false);
       expect(Is.until(() => {})).to.eql(false);
+    });
+  });
+
+  describe('Is.untilInput', () => {
+    it('accepts undefined as an omitted API parameter', () => {
+      expect(Is.untilInput(undefined)).to.eql(true);
+    });
+
+    it('accepts concrete until values and recursive undefined placeholders', () => {
+      const d: t.Disposable = Rx.disposable();
+      const s: t.Subject<unknown> = Rx.subject();
+      const signal = new AbortController().signal;
+
+      expect(Is.untilInput(d)).to.eql(true);
+      expect(Is.untilInput(s)).to.eql(true);
+      expect(Is.untilInput(signal)).to.eql(true);
+      expect(Is.untilInput([d, undefined, [s, signal]])).to.eql(true);
+    });
+
+    it('rejects null, primitives, and unrelated values', () => {
+      expect(Is.untilInput(null)).to.eql(false);
+      expect(Is.untilInput(42)).to.eql(false);
+      expect(Is.untilInput('abc')).to.eql(false);
+      expect(Is.untilInput({})).to.eql(false);
+      expect(Is.untilInput([Rx.disposable(), null])).to.eql(false);
     });
   });
 

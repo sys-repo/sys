@@ -9,7 +9,7 @@ export { Dispose } from '@sys/std/dispose';
 export { Try } from '@sys/std/try';
 export { Log } from '@sys/std/log';
 export { Pkg } from '@sys/std/pkg';
-export { Await } from '@sys/std/async';
+export { Await, Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time } from '@sys/std/time';
 export { Net } from '@sys/net';

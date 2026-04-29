@@ -1,7 +1,7 @@
-import { Time, Testing, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Testing, Time } from '../../-test.ts';
 import { Http } from '../mod.ts';
 
-import { type t, Rx } from './common.ts';
+import { Rx, Schedule, type t } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Http.Fetch', () => {
@@ -371,18 +371,22 @@ describe('Http.Fetch', () => {
   });
 
   describe('lifecycle', () => {
-    it('create: dispose$ param variants', () => {
+    it('create: dispose$ param variants', async () => {
       const life = Rx.disposable();
+      const abort = new AbortController();
       const { dispose$ } = life;
       const a = Fetch.make(life.dispose$);
       const b = Fetch.make([life.dispose$]);
       const c = Fetch.make([life.dispose$, undefined]);
       const d = Fetch.make({ dispose$ });
       const e = Fetch.make(life);
-      const all = [a, b, c, d, e];
+      const f = Fetch.make(abort.signal);
+      const all = [a, b, c, d, e, f];
 
       all.forEach(({ disposed }) => expect(disposed).to.eql(false));
       life.dispose();
+      abort.abort('test:abort');
+      await Schedule.micro();
       all.forEach(({ disposed }) => expect(disposed).to.eql(true));
     });
 

@@ -1,5 +1,6 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Rx } from '../m.Rx/mod.ts';
+import { Schedule } from '../m.Async/mod.ts';
 import { Time } from '../m.Time/mod.ts';
 import { Is } from '../m.Is/mod.ts';
 import { Dispose } from './mod.ts';
@@ -16,11 +17,7 @@ describe('Disposable', () => {
         obj.dispose();
         obj.dispose();
 
-        if (Is.disposable(until)) {
-          until?.dispose();
-        } else {
-          until?.forEach((m) => (Is.disposable(m) ? m.dispose() : m.next()));
-        }
+        fireTestUntil(until);
 
         expect(count).to.eql(1);
       };
@@ -43,11 +40,7 @@ describe('Disposable', () => {
         obj.dispose();
         obj.dispose();
 
-        if (Is.disposable(until)) {
-          until?.dispose();
-        } else {
-          until?.forEach((subject) => subject.next());
-        }
+        fireTestUntil(until);
 
         expect(count).to.eql(1); // NB: multiple calls to dispose to not refire the cleanup handler.
       };
@@ -187,7 +180,6 @@ describe('Disposable', () => {
     it('passes reason to onDispose (direct)', async () => {
       const received: unknown[] = [];
       const obj = Dispose.disposableAsync(async (e) => {
-        console.log('e', e);
         received.push(e.reason);
         await Time.wait(1);
       });
@@ -380,6 +372,79 @@ describe('Disposable', () => {
       expect(res.length).to.eql(2);
       expect(res[0]).to.eql($1);
       expect(res[1]).to.eql($2);
+    });
+
+    it('Input: AbortSignal', () => {
+      const signal = new AbortController().signal;
+      const res = Dispose.until(signal);
+      expect(res.length).to.eql(1);
+      expect(res[0]).to.not.equal(signal);
+    });
+
+    it('AbortSignal: abort → emits reason and completes', () => {
+      const abort = new AbortController();
+      const res = Dispose.until(abort.signal);
+      const fired: t.DisposeEvent[] = [];
+      let completed = false;
+
+      res[0].subscribe({
+        next: (e) => fired.push(e as t.DisposeEvent),
+        complete: () => (completed = true),
+      });
+
+      abort.abort('signal:reason');
+      abort.abort('ignored');
+
+      expect(fired).to.eql([{ reason: 'signal:reason' }]);
+      expect(completed).to.eql(true);
+    });
+
+    it('AbortSignal: unsubscribe removes listener', () => {
+      let removeCount = 0;
+      const signal = {
+        aborted: false,
+        reason: undefined,
+        addEventListener() {},
+        removeEventListener() {
+          removeCount++;
+        },
+      } as unknown as AbortSignal;
+
+      const sub = Dispose.until(signal)[0].subscribe(() => {});
+      sub.unsubscribe();
+
+      expect(removeCount).to.eql(1);
+    });
+
+    it('AbortSignal: pre-aborted lifecycle is not missed', async () => {
+      const abort = new AbortController();
+      abort.abort('pre-aborted');
+
+      const life = Dispose.lifecycle(abort.signal);
+      const fired: t.DisposeEvent[] = [];
+      life.dispose$.subscribe((e) => fired.push(e));
+
+      expect(life.disposed).to.eql(false);
+      await Schedule.micro();
+
+      expect(life.disposed).to.eql(true);
+      expect(fired).to.eql([{ reason: 'pre-aborted' }]);
+    });
+
+    it('AbortSignal: pre-aborted lifecycleAsync is not missed', async () => {
+      const abort = new AbortController();
+      abort.abort('pre-aborted:async');
+
+      let handled: unknown;
+      const life = Dispose.lifecycleAsync(abort.signal, async (e) => {
+        handled = e.reason;
+      });
+
+      expect(life.disposed).to.eql(false);
+      await waitForAsyncDispose(life);
+
+      expect(life.disposed).to.eql(true);
+      expect(handled).to.eql('pre-aborted:async');
     });
   });
 
@@ -581,6 +646,32 @@ describe('Disposable', () => {
         expect(a.signal.reason).to.eql(reason);
       });
 
+      it('propagates reason from AbortSignal until', async () => {
+        const abort = new AbortController();
+        const a = Dispose.abortable(abort.signal);
+
+        abort.abort('upstream:abort');
+        await Schedule.micro();
+
+        expect(a.disposed).to.eql(true);
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.eql('upstream:abort');
+      });
+
+      it('pre-aborted AbortSignal until preserves reason', async () => {
+        const abort = new AbortController();
+        abort.abort('upstream:pre-abort');
+
+        const a = Dispose.abortable(abort.signal);
+        expect(a.signal.aborted).to.eql(false);
+
+        await Schedule.micro();
+
+        expect(a.disposed).to.eql(true);
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.eql('upstream:pre-abort');
+      });
+
       it('preserves Error reason', () => {
         const a = Dispose.abortable();
         const err = new Error('boom');
@@ -593,3 +684,30 @@ describe('Disposable', () => {
     });
   });
 });
+
+function fireTestUntil(until?: t.DisposeInput) {
+  if (Is.disposable(until)) return until.dispose();
+  if (Is.subject(until)) return until.next(undefined);
+  if (!Array.isArray(until)) return;
+
+  const list = (until as unknown[]).flat(Infinity) as unknown[];
+  list.forEach((item) => {
+    if (Is.disposable(item)) item.dispose();
+    else if (Is.subject(item)) item.next(undefined);
+  });
+}
+
+function waitForAsyncDispose(life: t.LifecycleAsync) {
+  if (life.disposed) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    let sub: { unsubscribe(): void } | undefined;
+    sub = life.dispose$.subscribe((e) => {
+      const stage = e.payload.stage;
+      if (stage === 'complete' || stage === 'error') {
+        sub?.unsubscribe();
+        resolve();
+      }
+    });
+  });
+}

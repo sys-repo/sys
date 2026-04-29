@@ -43,9 +43,15 @@ export type DisposeEvent = { readonly reason?: unknown };
  * Examples:
  * - `Disposable` — invokes `.dispose()` when triggered.
  * - `UntilObservable` — completes when the observable emits.
- * - `DisposeInput[]` — recursive collection of either.
+ * - `AbortSignal` — completes when the signal aborts.
+ * - `DisposeInput[]` — recursive collection of lifecycle inputs.
  */
-export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];
+export type DisposeInput =
+  | t.UntilObservable
+  | t.Disposable
+  | AbortSignal
+  | undefined
+  | DisposeInput[];
 /**
  * Alias for [DisposeInput].
  * Used at API boundaries where an optional "until" parameter is accepted.
@@ -58,7 +64,7 @@ export type UntilInput = DisposeInput;
  * should cancel or finalize an operation. Unlike [DisposeInput],
  * this excludes `undefined`, ensuring a definite signal source.
  */
-export type Until = t.UntilObservable | t.Disposable | Until[];
+export type Until = t.UntilObservable | t.Disposable | AbortSignal | Until[];
 
 /**
  * An object that provides a standard asynchronous destructor pattern.

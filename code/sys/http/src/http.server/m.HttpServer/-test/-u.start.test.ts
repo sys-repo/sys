@@ -55,10 +55,10 @@ describe('HttpServer.start', () => {
     }
   });
 
-  it('external AbortSignal disposes the server lifecycle', async () => {
+  it('until AbortSignal disposes the server lifecycle', async () => {
     const app = HttpServer.create({ static: false });
     const abort = new AbortController();
-    const server = HttpServer.start(app, { silent: true, signal: abort.signal });
+    const server = HttpServer.start(app, { silent: true, until: abort.signal });
     const disposed = waitForDispose(server);
 
     abort.abort('external');
@@ -68,12 +68,12 @@ describe('HttpServer.start', () => {
     expect(server.signal.aborted).to.eql(true);
   });
 
-  it('pre-aborted AbortSignal immediately disposes the server lifecycle', async () => {
+  it('pre-aborted until AbortSignal disposes the server lifecycle', async () => {
     const app = HttpServer.create({ static: false });
     const abort = new AbortController();
     abort.abort('external');
 
-    const server = HttpServer.start(app, { silent: true, signal: abort.signal });
+    const server = HttpServer.start(app, { silent: true, until: abort.signal });
     await waitForDispose(server);
 
     expect(server.disposed).to.eql(true);

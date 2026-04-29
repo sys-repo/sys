@@ -26,10 +26,8 @@ export const start: F = (app, input = {}) => {
   const origin = wrangle.origin({ hostname, port });
 
   let closing: Promise<void> | undefined;
-  let removeSignalBridge = () => {};
 
   const life = Dispose.lifecycleAsync(input.until, async (e) => {
-    removeSignalBridge();
     closing ??= closeServer({ server, controller, reason: e.reason });
     await closing;
   });
@@ -61,7 +59,6 @@ export const start: F = (app, input = {}) => {
     },
   };
 
-  wrangle.externalSignal(input.signal, context, (fn) => (removeSignalBridge = fn));
   wrangle.serverFinished(server, life);
   wrangle.keyboard(input.keyboard, context);
 
@@ -95,20 +92,6 @@ const wrangle = {
 
   urlHost(hostname: string) {
     return hostname.includes(':') && !hostname.startsWith('[') ? `[${hostname}]` : hostname;
-  },
-
-  externalSignal(
-    signal: AbortSignal | undefined,
-    context: t.HttpServerStarted,
-    setRemove: (fn: () => void) => void,
-  ) {
-    if (!signal) return;
-
-    const dispose = () => void context.dispose(signal.reason);
-    if (signal.aborted) return dispose();
-
-    signal.addEventListener('abort', dispose, { once: true });
-    setRemove(() => signal.removeEventListener('abort', dispose));
   },
 
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {

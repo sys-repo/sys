@@ -186,6 +186,11 @@ export type StdIsLib = {
   until(input?: unknown): input is t.Until;
 
   /**
+   * Determine if the value conforms to an `UntilInput` API parameter.
+   */
+  untilInput(input?: unknown): input is t.UntilInput;
+
+  /**
    * True if the value structurally matches a WebSocket.
    */
   websocket(input?: unknown): input is WebSocket;

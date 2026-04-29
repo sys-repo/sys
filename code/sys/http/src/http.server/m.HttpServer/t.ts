@@ -54,9 +54,6 @@ export type HttpServerStartOptions = {
   silent?: boolean;
   dir?: t.StringDir;
 
-  /** External platform cancellation bridge. */
-  signal?: AbortSignal;
-
   /** Canonical @sys lifecycle bridge. */
   until?: t.UntilInput;
 

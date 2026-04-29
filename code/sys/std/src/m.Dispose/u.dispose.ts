@@ -1,4 +1,4 @@
-import { type t, Delete, Err, Is, Subject } from './common.ts';
+import { Delete, Err, Is, Subject, type t } from './common.ts';
 import { done } from './u.done.ts';
 import { until } from './u.until.ts';
 
@@ -18,10 +18,11 @@ export function disposable(until$?: t.UntilInput): t.Disposable {
     disposed = true;
 
     // Tear down any external lifetime bridges.
-    for (const s of bridges)
+    for (const s of bridges) {
       try {
         s.unsubscribe();
       } catch {}
+    }
     bridges.clear();
 
     // Emit and complete.
@@ -85,10 +86,23 @@ export function disposableAsync(...args: any[]) {
     },
   };
 
+  const bridges = new Set<{ unsubscribe(): void }>();
+  const dispose = disposable.dispose;
+  disposable.dispose = async (reason) => {
+    for (const bridge of bridges) {
+      try {
+        bridge.unsubscribe();
+      } catch {}
+    }
+    bridges.clear();
+    await dispose(reason);
+  };
+
   // Bridge external lifetimes into this disposable.
   // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
   for (const $ of until(until$)) {
-    $.subscribe((e) => disposable.dispose((e as t.DisposeEvent | undefined)?.reason));
+    const sub = $.subscribe((e) => disposable.dispose((e as t.DisposeEvent | undefined)?.reason));
+    bridges.add(sub);
   }
 
   return disposable;
@@ -104,9 +118,7 @@ export function toDisposableAsyncArgs(args: any[]) {
 
   if (typeof args[0] === 'function') onDispose = args[0];
   if (typeof args[1] === 'function') onDispose = args[1];
-  if (Is.observable(args[0]) || Array.isArray(args[0]) || Is.disposable(args[0])) {
-    until$ = until(args[0]);
-  }
+  if (Is.untilInput(args[0])) until$ = until(args[0]);
 
   return { onDispose, until$ };
 }

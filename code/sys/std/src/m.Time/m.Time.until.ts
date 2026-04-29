@@ -1,13 +1,13 @@
 import { Dispose } from '../m.Dispose/mod.ts';
 
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 import { delay, Wrangle } from './m.Time.delay.ts';
 import { interval } from './m.Time.interval.ts';
 
 /**
  * Exposes timer functions that cease after a dispose signal is received.
  */
-export function until(until$: t.UntilObservable) {
+export function until(until$?: t.UntilInput) {
   const life = Dispose.lifecycle(until$);
 
   const api: t.TimeUntil = {

@@ -1,13 +1,13 @@
 import type { StdIsLib } from './t.ts';
 
 import {
-  type t,
   isEmptyRecord,
   isObject,
   isPlainObject,
   isPlainRecord,
   isPromise,
   isRecord,
+  type t,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
@@ -238,6 +238,13 @@ export const Is: StdIsLib = {
     if (Is.disposable(input)) return true;
     if (Is.observable(input)) return true;
     if (Is.subject(input)) return true;
+    if (Is.abortSignal(input)) return true;
     return false;
+  },
+
+  untilInput(input?: unknown): input is t.UntilInput {
+    if (input === undefined) return true;
+    if (Array.isArray(input)) return input.every((v) => Is.untilInput(v));
+    return Is.until(input);
   },
 };

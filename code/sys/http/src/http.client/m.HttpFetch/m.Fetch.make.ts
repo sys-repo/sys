@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Dispose, Err, Is, Rx, toHeaders } from './common.ts';
+import { DEFAULTS, Dispose, Err, Is, Rx, type t, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
 type F = t.HttpFetchLib['make'];
@@ -32,10 +32,9 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       const method = (init.method ?? 'GET').toUpperCase();
       const hasBody = !!(init as RequestInit).body;
       const policy = createOptions.contentTypePolicy ?? 'corsSafe';
-      const shouldSetContentType =
-        policy === 'always'
-          ? true
-          : method !== 'GET' && method !== 'HEAD' && hasBody;
+      const shouldSetContentType = policy === 'always'
+        ? true
+        : method !== 'GET' && method !== 'HEAD' && hasBody;
       if (contentType && shouldSetContentType && !userHeaders['content-type']) {
         mergedHeaders['content-type'] = contentType;
       }
@@ -147,8 +146,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
 const wrangle = {
   options(input: Parameters<F>[0]): t.HttpFetchCreateOptions {
     if (!input) return {};
-    if (Array.isArray(input)) return { dispose$: Dispose.until(input) };
-    if (Is.observable(input)) return { dispose$: Dispose.until(input) };
+    if (Is.untilInput(input)) return { dispose$: Dispose.until(input) };
     if (typeof input === 'object') return input as t.HttpFetchCreateOptions;
     return {};
   },
