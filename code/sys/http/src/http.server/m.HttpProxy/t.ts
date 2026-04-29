@@ -58,23 +58,61 @@ export declare namespace HttpProxy {
     readonly transform?: ResponseTransform;
   };
 
-  /** Public reverse proxy API. */
+  /** Public reverse proxy lifecycle API. */
   export type Lib = {
     /** Create the HTTP application without starting a listener. */
-    create(options?: StartOptions): App;
+    create(options?: CreateOptions): App;
 
-    /** Start the reverse proxy listener. */
-    start(options?: StartOptions): Promise<void>;
+    /** Start a reverse proxy and return the standard HTTP server lifecycle handle. */
+    start(args?: StartArgs): Promise<t.HttpServerStarted>;
   };
 
-  /** Options used when creating or starting the reverse proxy. */
-  export type StartOptions = {
-    /** Local listen port. */
-    readonly port?: number;
-    /** Reverse proxy routing configuration. */
+  /** Options used when creating the reverse proxy application. */
+  export type CreateOptions = {
+    /** Advanced reverse proxy routing configuration. */
     readonly config?: Config;
-    /** Enable the interactive keyboard listener. */
-    readonly keyboard?: boolean;
+
+    /** Lifecycle-friendly path-prefix mounts. Use `config` for root fallback or advanced routing. */
+    readonly mounts?: readonly StartMount[];
+  };
+
+  /** Arguments passed to [HttpProxy.start]. */
+  export type StartArgs = CreateOptions & {
+    /** Listen hostname. Defaults to the underlying HTTP server convention. */
+    readonly hostname?: string;
+
+    /** Local listen port. Defaults to the proxy endpoint convention. */
+    readonly port?: number;
+
+    /** Suppress startup output. */
+    readonly silent?: boolean;
+
+    /** Enable existing HTTP server keyboard handling. */
+    readonly keyboard?: boolean | t.HttpServerStartKeyboardOptions;
+
+    /** Display name forwarded to the HTTP server startup output. */
+    readonly name?: string;
+
+    /** Extra startup output fields forwarded to the HTTP server. */
+    readonly info?: Record<string, string>;
+
+    /** Canonical @sys lifecycle bridge. */
+    readonly until?: t.UntilInput;
+  };
+
+  /** Backwards-compatible name for reverse proxy lifecycle options. */
+  export type StartOptions = StartArgs;
+
+  /** Lifecycle-friendly mounted upstream declaration. */
+  export type StartMount = {
+    /** Local path-prefix. Must start and end with `/`. */
+    readonly path: t.StringUrlRoute;
+
+    /** Absolute upstream URL-prefix. Must end with `/` and include no query/hash. */
+    readonly target: t.StringUrl;
+
+    /** Route-scoped response header overrides/transforms. */
+    readonly response?: ResponseConfig;
   };
 
   /** Server application instance. */
