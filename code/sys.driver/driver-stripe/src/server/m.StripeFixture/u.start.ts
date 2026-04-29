@@ -10,7 +10,7 @@ export const start: F = async (args = {}) => {
   const hostname = args.hostname ?? '127.0.0.1';
   const port = args.port ?? readPort(env.get('STRIPE_FIXTURE_PORT'), 9090);
   const app = createApp({ cwd });
-  return HttpServer.start(app, { port, pkg, hostname, silent: args.silent });
+  return HttpServer.start(app, { port, pkg, hostname, name: args.name, silent: args.silent });
 };
 
 /**

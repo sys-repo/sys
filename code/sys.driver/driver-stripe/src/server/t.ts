@@ -82,6 +82,9 @@ export declare namespace StripeFixture {
 
   /** Startup options for acquiring the fixture lifecycle. */
   export type StartArgs = SessionArgs & {
+    /** Human-readable service label used by the HTTP lifecycle startup output. */
+    readonly name?: string;
+
     /**
      * TCP port for the fixture server.
      *

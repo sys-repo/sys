@@ -22,7 +22,7 @@ describe('StripeFixture', () => {
 
   it('starts → closes as a managed lifecycle', async () => {
     const port = Net.port();
-    const server = await StripeFixture.start({ port, silent: true });
+    const server = await StripeFixture.start({ name: 'test:fixture', port, silent: true });
 
     try {
       expect(server.port).to.eql(port);
