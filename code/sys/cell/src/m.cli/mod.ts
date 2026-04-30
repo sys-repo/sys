@@ -2,6 +2,14 @@
  * @module
  * Cell operator CLI.
  */
-import type { t } from './common.ts';
+import { CellCli } from './m.CellCli.ts';
 
-export const CellCli: t.CellCli.Lib = {};
+export { CellCli };
+
+/**
+ * Main entry:
+ */
+if (import.meta.main) {
+  const res = await CellCli.run({ argv: Deno.args });
+  if (res.kind === 'error') Deno.exitCode = res.code;
+}

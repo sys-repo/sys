@@ -1,13 +1,6 @@
-import { type FileMapProcessor, Fs, TmplEngine, Update } from './common.ts';
-import { json } from './-bundle.ts';
-
-export type CellTemplateName = keyof typeof ROOTS;
-
-const ROOTS = {
-  default: 'cell.default',
-} as const;
-
-export const names = Object.keys(ROOTS) as CellTemplateName[];
+import { json } from '../-bundle.ts';
+import { type FileMapProcessor, Fs, TmplEngine, Update } from '../common.ts';
+import { type CellTemplateName, ROOTS } from './u.roots.ts';
 
 export function makeCellTmpl(name: CellTemplateName = 'default') {
   const root = ROOTS[name];
@@ -33,6 +26,10 @@ export function makeCellTmpl(name: CellTemplateName = 'default') {
     .makeTmpl(json, processFile)
     .filter((e) => e.path.startsWith(`${root}/`));
 }
+
+/**
+ * Helpers:
+ */
 
 function mergeGitignore(text: string, entries: readonly string[]) {
   const existing = new Set(gitignoreLines(text));
