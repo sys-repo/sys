@@ -1,6 +1,5 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@3.0.54",
     "@automerge/automerge": "npm:@automerge/automerge@3.2.6",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.5.5",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.5.5",
@@ -11,7 +10,6 @@
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.1",
     "@cliffy/table": "jsr:@cliffy/table@1.0.1",
     "@deno/vite-plugin": "npm:@deno/vite-plugin@2.0.2",
-    "@elevenlabs/elevenlabs-js": "npm:@elevenlabs/elevenlabs-js@2.45.0",
     "@mariozechner/pi-coding-agent": "npm:@mariozechner/pi-coding-agent@0.70.6",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@2.2.0",
@@ -44,7 +42,6 @@
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@6.0.1",
-    "ai": "npm:ai@6.0.170",
     "bowser": "npm:bowser@2.14.1",
     "chai": "npm:chai@6.2.2",
     "csstype": "npm:csstype@3.2.3",
@@ -63,8 +60,6 @@
     "hono/types": "npm:hono@4.12.15/types",
     "ignore": "npm:ignore@7.0.5",
     "monaco-editor": "npm:monaco-editor@0.55.1",
-    "ollama": "npm:ollama@0.6.3",
-    "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@9.4.0",
     "pretty-bytes": "npm:pretty-bytes@7.1.0",
     "prosemirror-example-setup": "npm:prosemirror-example-setup@1.2.3",
