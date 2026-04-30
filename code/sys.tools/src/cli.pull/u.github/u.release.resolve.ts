@@ -1,4 +1,12 @@
-import { type t, Is } from '../common.ts';
+import { Is, type t } from './common.ts';
+
+type SelectReleaseResult =
+  | { readonly ok: true; readonly data: t.GithubSource.Release }
+  | { readonly ok: false; readonly error: string };
+
+type SelectAssetsResult =
+  | { readonly ok: true; readonly data: readonly t.GithubSource.ReleaseAsset[] }
+  | { readonly ok: false; readonly error: string };
 
 /**
  * Resolve a github:release bundle down to concrete release + assets.
@@ -6,8 +14,8 @@ import { type t, Is } from '../common.ts';
  */
 export function resolveGithubReleaseBundle(
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
-  releases: readonly t.PullTool.GithubRelease[],
-): t.PullTool.GithubReleaseResolveResult {
+  releases: readonly t.GithubSource.Release[],
+): t.GithubSource.ReleaseResolveResult {
   const releaseRes = selectRelease(releases, bundle.tag);
   if (!releaseRes.ok) return releaseRes;
 
@@ -24,9 +32,9 @@ export function resolveGithubReleaseBundle(
 }
 
 function selectRelease(
-  releases: readonly t.PullTool.GithubRelease[],
+  releases: readonly t.GithubSource.Release[],
   wantedTag?: string,
-): { readonly ok: true; readonly data: t.PullTool.GithubRelease } | { readonly ok: false; readonly error: string } {
+): SelectReleaseResult {
   if (releases.length === 0) {
     return { ok: false, error: 'No releases found for repository.' };
   }
@@ -49,9 +57,9 @@ function selectRelease(
 }
 
 function selectAssets(
-  release: t.PullTool.GithubRelease,
+  release: t.GithubSource.Release,
   wantedAsset?: string | string[],
-): { readonly ok: true; readonly data: readonly t.PullTool.GithubReleaseAsset[] } | { readonly ok: false; readonly error: string } {
+): SelectAssetsResult {
   const assets = release.assets;
   if (assets.length === 0) {
     return { ok: false, error: `Release has no assets: ${release.tag}` };
@@ -65,7 +73,9 @@ function selectAssets(
         const available = assets.map((m) => m.name).join(', ');
         return {
           ok: false,
-          error: `Release asset not found: ${assetName}${available ? ` (available: ${available})` : ''}`,
+          error: `Release asset not found: ${assetName}${
+            available ? ` (available: ${available})` : ''
+          }`,
         };
       }
       return { ok: true, data: [asset] };
@@ -78,7 +88,7 @@ function selectAssets(
       return { ok: false, error: 'Release asset list is empty; add at least one asset name.' };
     }
 
-    const selected: t.PullTool.GithubReleaseAsset[] = [];
+    const selected: t.GithubSource.ReleaseAsset[] = [];
     const missing: string[] = [];
 
     for (const name of names) {
@@ -91,7 +101,9 @@ function selectAssets(
       const available = assets.map((m) => m.name).join(', ');
       return {
         ok: false,
-        error: `Release assets not found: ${missing.join(', ')}${available ? ` (available: ${available})` : ''}`,
+        error: `Release assets not found: ${missing.join(', ')}${
+          available ? ` (available: ${available})` : ''
+        }`,
       };
     }
 

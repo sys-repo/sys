@@ -6,30 +6,20 @@ import {
   listGithubReleases,
   loadGithubToken,
 } from '../../u.github/u.client.ts';
+import { mapGithubError } from '../../u.github/u.errors.ts';
 import { resolveGithubReleaseBundle } from '../../u.github/u.release.resolve.ts';
-import { githubTokenHelpText, mapAuthError } from './u.github.error.ts';
-import { done, errorMessage, fail } from './u.result.ts';
-import { executeGithubPullPlan } from './u.github.execute.ts';
-import { createGithubReleasePullPlan } from './u.github.plan.ts';
+import { done, errorMessage, fail } from '../u.pull/u.result.ts';
+import { executeGithubPullPlan } from './u.execute.ts';
+import { createGithubReleasePullPlan } from './u.plan.ts';
 
 export async function pullGithubReleaseBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
 ): Promise<t.PullToolRemoteBundleResult> {
   const spinner = Cli.spinner();
-  const token = await loadGithubToken();
+  const token = await loadGithubToken({ cwd: baseDir });
 
   try {
-    if (!token) {
-      return fail(
-        [
-          'GitHub token not found.',
-          'Set GH_TOKEN (or GITHUB_TOKEN) to pull github:release bundles.',
-          githubTokenHelpText(),
-        ].join('\n'),
-      );
-    }
-
     spinner.start(Fmt.spinnerText('resolving github release...'));
 
     const releases = await listGithubReleases({ repo: bundle.repo, token });
@@ -74,7 +64,12 @@ export async function pullGithubReleaseBundle(
       },
     });
   } catch (error) {
-    const auth = mapAuthError(error);
+    const auth = mapGithubError(error, {
+      kind: 'github:release',
+      repo: bundle.repo,
+      tag: bundle.tag,
+      asset: Array.isArray(bundle.asset) ? bundle.asset.join(', ') : bundle.asset,
+    });
     return fail(auth ?? errorMessage(error));
   } finally {
     spinner.stop();
@@ -90,15 +85,19 @@ export async function computeReleaseDist(dir: t.StringDir): Promise<t.DistPkg> {
 /**
  * Helpers:
  */
-function createGithubDownloader(token: string): t.GithubPull.Downloader {
+function createGithubDownloader(token?: string): t.GithubPull.Downloader {
   return async (request) => await downloadGithubAssetWithFallback({ request, token });
 }
 
 async function downloadGithubAssetWithFallback(args: {
   request: t.GithubPull.DownloadRequest;
-  token: string;
+  token?: string;
 }): Promise<Uint8Array> {
   const { request, token } = args;
+  if (request.kind !== 'release-asset') {
+    throw new Error(`Unsupported GitHub release download request: ${request.kind}`);
+  }
+
   try {
     return await downloadGithubAssetById({
       repo: request.repo,

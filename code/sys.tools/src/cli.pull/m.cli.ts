@@ -1,4 +1,4 @@
-import { type t, c, D, done, Fs, Is } from './common.ts';
+import { c, D, done, Fs, Is, type t } from './common.ts';
 import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
@@ -56,7 +56,10 @@ async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
   }
 }
 
-async function runNonInteractive(cwd: t.StringDir, args: t.PullTool.CliParsedArgs): Promise<t.RunReturn> {
+async function runNonInteractive(
+  cwd: t.StringDir,
+  args: t.PullTool.CliParsedArgs,
+): Promise<t.RunReturn> {
   const resolved = await resolveNonInteractive(cwd, args);
   const bundles = resolved.location.bundles ?? [];
   if (bundles.length === 0) {
@@ -67,7 +70,8 @@ async function runNonInteractive(cwd: t.StringDir, args: t.PullTool.CliParsedArg
   for (const bundle of bundles) {
     const result = await executeBundlePull(resolved.yamlPath, resolved.location, bundle);
     if (!result.ok) {
-      throw new Error(result.error);
+      console.info(Fmt.pullError(result.error));
+      return done(1);
     }
   }
 

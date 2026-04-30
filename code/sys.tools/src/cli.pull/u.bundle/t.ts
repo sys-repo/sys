@@ -1,8 +1,14 @@
-import type { t } from '../common.ts';
+import { type t } from '../common.ts';
 
 export type PullToolBundleSummaryMeta =
   | { readonly kind: 'http'; readonly source: t.StringUrl }
-  | { readonly kind: 'github:release'; readonly repo: string; readonly release: string };
+  | { readonly kind: 'github:release'; readonly repo: string; readonly release: string }
+  | {
+    readonly kind: 'github:repo';
+    readonly repo: string;
+    readonly ref: string;
+    readonly path?: string;
+  };
 
 /** Result from a bundle-pull operation */
 export type PullToolBundleResult = t.HttpPullToDirResult & {

@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it } from '../../../-test.ts';
-import { executeGithubPullPlan } from '../u.pull/u.github.execute.ts';
-import { type t } from '../u.pull/common.ts';
+import { executeGithubPullPlan } from '../u.pull.github/u.execute.ts';
+import { type t } from '../u.pull.github/common.ts';
 
 describe('cli.pull/u.bundle → github pull executor', () => {
   it('writes planned entries under the target root and records ops', async () => {
@@ -11,7 +11,10 @@ describe('cli.pull/u.bundle → github pull executor', () => {
       const res = await executeGithubPullPlan({
         baseDir,
         plan,
-        download: async (request) => bytes(`asset-${request.assetId}`),
+        download: (request) => {
+          if (request.kind !== 'release-asset') throw new Error('expected release asset');
+          return Promise.resolve(bytes(`asset-${request.assetId}`));
+        },
       });
 
       expect(res.ok).to.eql(true);
@@ -37,9 +40,9 @@ describe('cli.pull/u.bundle → github pull executor', () => {
         baseDir,
         plan: releasePlan(targetRoot, [entry(1, '../evil.txt')]),
         clear: true,
-        download: async () => {
+        download: () => {
           called = true;
-          return bytes('nope');
+          return Promise.resolve(bytes('nope'));
         },
       });
 
@@ -50,26 +53,27 @@ describe('cli.pull/u.bundle → github pull executor', () => {
     });
   });
 
-  it('continues after entry download failures and returns a release failure summary', async () => {
+  it('stops after entry download failures and returns a release failure summary', async () => {
     await withTmpDir(async (baseDir) => {
       const targetRoot = Fs.join(baseDir, 'target') as t.StringDir;
       const res = await executeGithubPullPlan({
         baseDir,
         plan: releasePlan(targetRoot, [entry(1, 'a.txt'), entry(2, 'b.txt'), entry(3, 'c.txt')]),
-        download: async (request) => {
+        download: (request) => {
+          if (request.kind !== 'release-asset') throw new Error('expected release asset');
           if (request.assetId === 2) throw new Error('download failed');
-          return bytes(`asset-${request.assetId}`);
+          return Promise.resolve(bytes(`asset-${request.assetId}`));
         },
       });
 
       expect(res.ok).to.eql(false);
-      expect(res.ops.map((op) => op.ok)).to.eql([true, false, true]);
+      expect(res.ops.map((op) => op.ok)).to.eql([true, false]);
       if (res.ok) return;
       expect(res.error).to.include('release pull failed (1/3 assets)');
       expect(res.error).to.include('download failed');
       expect((await Fs.readText(Fs.join(targetRoot, 'a.txt'))).data).to.eql('asset-1');
       expect(await Fs.exists(Fs.join(targetRoot, 'b.txt'))).to.eql(false);
-      expect((await Fs.readText(Fs.join(targetRoot, 'c.txt'))).data).to.eql('asset-3');
+      expect(await Fs.exists(Fs.join(targetRoot, 'c.txt'))).to.eql(false);
     });
   });
 
@@ -79,12 +83,12 @@ describe('cli.pull/u.bundle → github pull executor', () => {
       const outsideRes = await executeGithubPullPlan({
         baseDir,
         plan: releasePlan(outside, [entry(1, 'a.txt')]),
-        download: async () => bytes('nope'),
+        download: () => Promise.resolve(bytes('nope')),
       });
       const equalRes = await executeGithubPullPlan({
         baseDir,
         plan: releasePlan(baseDir, [entry(1, 'a.txt')]),
-        download: async () => bytes('nope'),
+        download: () => Promise.resolve(bytes('nope')),
       });
 
       expect(outsideRes.ok).to.eql(false);
@@ -108,7 +112,7 @@ describe('cli.pull/u.bundle → github pull executor', () => {
         const res = await executeGithubPullPlan({
           baseDir,
           plan: releasePlan(targetRoot, [entry(1, path as t.StringRelativePath)]),
-          download: async () => bytes('nope'),
+          download: () => Promise.resolve(bytes('nope')),
         });
         expect(res.ok).to.eql(false);
       }

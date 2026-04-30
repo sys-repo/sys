@@ -1,43 +1,26 @@
 import { Octokit } from '@octokit/rest';
-import { type t, Env, Is } from '../common.ts';
+import { Env, Is, type t } from './common.ts';
 
-type OctokitLike = {
-  readonly rest: {
-    readonly repos: {
-      listReleases(args: { owner: string; repo: string; per_page?: number }): Promise<{
-        data: Array<{
-          tag_name: string;
-          draft?: boolean;
-          prerelease?: boolean;
-          assets: Array<{ id: number; name: string; browser_download_url: string }>;
-        }>;
-      }>;
-      getReleaseAsset(args: {
-        owner: string;
-        repo: string;
-        asset_id: number;
-        headers?: { accept?: string };
-      }): Promise<{ data: unknown }>;
-    };
-  };
-};
-
-export type GithubRepoRef = {
+type GithubRepoRef = {
   readonly owner: string;
   readonly repo: string;
 };
 
+const RepoNamePattern = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+
 export function parseGithubRepo(value: string): GithubRepoRef {
   const raw = value.trim();
-  const parts = raw.split('/');
-  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+  if (!RepoNamePattern.test(raw)) {
     throw new Error(`Invalid GitHub repository format: "${value}" (expected "owner/repo")`);
   }
-  return { owner: parts[0], repo: parts[1] };
+  const [owner, repo] = raw.split('/') as [string, string];
+  return { owner, repo };
 }
 
-export async function loadGithubToken(): Promise<string | undefined> {
-  const env = await Env.load({ search: 'upward' });
+export async function loadGithubToken(
+  args: { cwd?: t.StringDir } = {},
+): Promise<string | undefined> {
+  const env = await Env.load({ cwd: args.cwd, search: 'upward' });
   const token = env.get('GH_TOKEN') || env.get('GITHUB_TOKEN');
   return token.trim() || undefined;
 }
@@ -45,10 +28,10 @@ export async function loadGithubToken(): Promise<string | undefined> {
 export async function listGithubReleases(args: {
   repo: string;
   token?: string;
-}): Promise<readonly t.PullTool.GithubRelease[]> {
+}): Promise<readonly t.GithubSource.Release[]> {
   const { repo, token } = args;
   const repoRef = parseGithubRepo(repo);
-  const octokit = await createOctokit(token);
+  const octokit = createOctokit(token);
   const res = await octokit.rest.repos.listReleases({
     owner: repoRef.owner,
     repo: repoRef.repo,
@@ -65,6 +48,92 @@ export async function listGithubReleases(args: {
       downloadUrl: asset.browser_download_url as t.StringUrl,
     })),
   }));
+}
+
+export async function getGithubRepositoryMetadata(args: {
+  repo: string;
+  token?: string;
+}): Promise<t.GithubSource.RepoMetadata> {
+  const repoRef = parseGithubRepo(args.repo);
+  const octokit = createOctokit(args.token);
+  const res = await octokit.rest.repos.get({ owner: repoRef.owner, repo: repoRef.repo });
+  const defaultBranch = String(res.data.default_branch ?? '').trim();
+  if (!defaultBranch) {
+    throw new Error(`GitHub repository default branch could not be resolved: ${args.repo}`);
+  }
+  return { defaultBranch };
+}
+
+export async function getGithubCommit(args: {
+  repo: string;
+  ref: string;
+  token?: string;
+}): Promise<t.GithubSource.RepoCommit> {
+  const repoRef = parseGithubRepo(args.repo);
+  const ref = args.ref.trim();
+  if (!ref) throw new Error(`GitHub ref is empty for repository: ${args.repo}`);
+
+  const octokit = createOctokit(args.token);
+  const res = await octokit.rest.repos.getCommit({
+    owner: repoRef.owner,
+    repo: repoRef.repo,
+    ref,
+  });
+  const sha = String(res.data.sha ?? '').trim();
+  const treeSha = String(res.data.commit?.tree?.sha ?? '').trim();
+  if (!sha || !treeSha) {
+    throw new Error(`GitHub ref could not be resolved to a commit tree: ${args.repo}@${ref}`);
+  }
+  return { sha, treeSha };
+}
+
+export async function getGithubTree(args: {
+  repo: string;
+  treeSha: string;
+  token?: string;
+}): Promise<t.GithubSource.RepoTree> {
+  const repoRef = parseGithubRepo(args.repo);
+  const octokit = createOctokit(args.token);
+  const res = await octokit.rest.git.getTree({
+    owner: repoRef.owner,
+    repo: repoRef.repo,
+    tree_sha: args.treeSha,
+    recursive: '1',
+  });
+
+  return {
+    sha: String(res.data.sha ?? args.treeSha),
+    truncated: res.data.truncated === true,
+    entries: res.data.tree.map((entry) => ({
+      path: String(entry.path ?? '') as t.StringPath,
+      mode: entry.mode,
+      type: String(entry.type ?? ''),
+      sha: entry.sha,
+      size: entry.size,
+      url: entry.url ? entry.url as t.StringUrl : undefined,
+    })),
+  };
+}
+
+export async function downloadGithubBlob(args: {
+  repo: string;
+  sha: string;
+  token?: string;
+}): Promise<Uint8Array> {
+  const repoRef = parseGithubRepo(args.repo);
+  const octokit = createOctokit(args.token);
+  const res = await octokit.rest.git.getBlob({
+    owner: repoRef.owner,
+    repo: repoRef.repo,
+    file_sha: args.sha,
+  });
+
+  const encoding = String(res.data.encoding ?? '').toLowerCase();
+  if (encoding !== 'base64') {
+    throw new Error(`GitHub blob API returned unsupported encoding: ${encoding || '(none)'}`);
+  }
+
+  return decodeBase64Bytes(String(res.data.content ?? ''));
 }
 
 export async function downloadGithubAsset(args: {
@@ -96,7 +165,7 @@ export async function downloadGithubAssetById(args: {
 }): Promise<Uint8Array> {
   const { repo, assetId, token } = args;
   const repoRef = parseGithubRepo(repo);
-  const octokit = await createOctokit(token);
+  const octokit = createOctokit(token);
   const res = await octokit.rest.repos.getReleaseAsset({
     owner: repoRef.owner,
     repo: repoRef.repo,
@@ -116,7 +185,8 @@ async function bytesFromUnknown(input: unknown): Promise<Uint8Array> {
   if (input && typeof input === 'object') {
     const maybe = input as { arrayBuffer?: unknown };
     if (typeof maybe.arrayBuffer === 'function') {
-      const arrayBuffer = await (maybe as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
+      const arrayBuffer = await (maybe as { arrayBuffer: () => Promise<ArrayBuffer> })
+        .arrayBuffer();
       return new Uint8Array(arrayBuffer);
     }
   }
@@ -132,7 +202,20 @@ function bytesFromBinaryString(input: string): Uint8Array {
   return bytes;
 }
 
-async function createOctokit(token?: string): Promise<OctokitLike> {
-  const OctokitCtor = Octokit as new (args?: { auth?: string }) => OctokitLike;
-  return new OctokitCtor({ auth: token });
+function decodeBase64Bytes(input: string): Uint8Array {
+  const clean = input.replace(/\s+/g, '');
+  if (!clean) return new Uint8Array();
+  return bytesFromBinaryString(atob(clean));
+}
+
+const SilentOctokitLog = {
+  debug() {},
+  info() {},
+  warn() {},
+  error() {},
+};
+
+function createOctokit(token?: string): t.GithubOctokit.Client {
+  const auth = token?.trim();
+  return new Octokit(auth ? { auth, log: SilentOctokitLog } : { log: SilentOctokitLog });
 }

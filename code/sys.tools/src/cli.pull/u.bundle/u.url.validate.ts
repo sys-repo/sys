@@ -1,8 +1,8 @@
-import { type t, c, Err, Http, Pkg, Url } from '../common.ts';
+import { c, Err, Http, Pkg, type t, Url } from '../common.ts';
 
 export type DistUrlCheck =
-  | { ok: true; url: t.StringUrl }
-  | { ok: false; url: t.StringUrl; error: string };
+  | { readonly ok: true; readonly url: t.StringUrl }
+  | { readonly ok: false; readonly url: t.StringUrl; readonly error: string };
 
 const fail = (url: t.StringUrl, error: string): DistUrlCheck => ({
   ok: false,

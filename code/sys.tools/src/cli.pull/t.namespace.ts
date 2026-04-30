@@ -1,10 +1,4 @@
-import type { t } from './common.ts';
-import type {
-  PullToolGithubRelease,
-  PullToolGithubReleaseAsset,
-  PullToolGithubReleaseResolved,
-  PullToolGithubReleaseResolveResult,
-} from './u.github/t.ts';
+import { type t } from './common.ts';
 
 /**
  * The Pull type namespace.
@@ -35,10 +29,17 @@ export namespace PullTool {
     readonly interactive: boolean;
   };
 
-  export type GithubReleaseAsset = PullToolGithubReleaseAsset;
-  export type GithubRelease = PullToolGithubRelease;
-  export type GithubReleaseResolved = PullToolGithubReleaseResolved;
-  export type GithubReleaseResolveResult = PullToolGithubReleaseResolveResult;
+  export type GithubReleaseAsset = t.GithubSource.ReleaseAsset;
+  export type GithubRelease = t.GithubSource.Release;
+  export type GithubReleaseResolved = t.GithubSource.ReleaseResolved;
+  export type GithubReleaseResolveResult = t.GithubSource.ReleaseResolveResult;
+  export type GithubRepoMetadata = t.GithubSource.RepoMetadata;
+  export type GithubRepoCommit = t.GithubSource.RepoCommit;
+  export type GithubRepoTreeEntry = t.GithubSource.RepoTreeEntry;
+  export type GithubRepoTree = t.GithubSource.RepoTree;
+  export type GithubRepoResolvedEntry = t.GithubSource.RepoResolvedEntry;
+  export type GithubRepoResolved = t.GithubSource.RepoResolved;
+  export type GithubRepoResolveResult = t.GithubSource.RepoResolveResult;
 
   /** Public pull helper API. */
   export type Lib = {
@@ -58,20 +59,27 @@ export namespace PullTool {
       clear?: boolean;
     };
 
-    export type Bundle = HttpBundle | GithubReleaseBundle;
+    export type Bundle = HttpBundle | GithubReleaseBundle | GithubRepoBundle;
     export type HttpBundle = {
       kind: 'http';
       dist: t.StringUrl;
       local: BundleLocal;
       lastUsedAt?: t.UnixTimestamp;
     };
-    export type GithubReleaseBundle = {
-      kind: 'github:release';
+    export type GithubBundleBase = {
       repo: string;
-      tag?: string;
-      asset?: string | string[];
       local: BundleLocal;
       lastUsedAt?: t.UnixTimestamp;
+    };
+    export type GithubReleaseBundle = GithubBundleBase & {
+      kind: 'github:release';
+      tag?: string;
+      asset?: string | string[];
+    };
+    export type GithubRepoBundle = GithubBundleBase & {
+      kind: 'github:repo';
+      ref?: string;
+      path?: string;
     };
 
     export type Doc = {

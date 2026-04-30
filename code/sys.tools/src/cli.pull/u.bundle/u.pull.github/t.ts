@@ -1,8 +1,10 @@
 import { type t } from '../../common.ts';
 
 export declare namespace GithubPull {
+  export type PlanKind = 'github:release' | 'github:repo';
+
   export type Plan = {
-    readonly kind: 'github:release';
+    readonly kind: PlanKind;
     readonly targetRoot: t.StringDir;
     readonly entries: readonly Entry[];
   };
@@ -10,16 +12,26 @@ export declare namespace GithubPull {
   export type Entry = {
     readonly source: t.StringUrl;
     readonly relativePath: t.StringRelativePath;
+    readonly size?: number;
     readonly request: DownloadRequest;
   };
 
-  export type DownloadRequest = ReleaseAssetRequest;
+  export type DownloadRequest = ReleaseAssetRequest | RepoBlobRequest;
 
   export type ReleaseAssetRequest = {
     readonly kind: 'release-asset';
     readonly repo: string;
     readonly assetId: number;
     readonly fallbackUrl: t.StringUrl;
+  };
+
+  export type RepoBlobRequest = {
+    readonly kind: 'repo-blob';
+    readonly repo: string;
+    readonly ref: string;
+    readonly sha: string;
+    readonly path: t.StringPath;
+    readonly url: t.StringUrl;
   };
 
   export type Downloader = (
@@ -51,6 +63,13 @@ export declare namespace GithubPull {
       readonly ok: true;
       readonly plan: Plan;
       readonly releaseDir: string;
+    }
+    | { readonly ok: false; readonly error: string };
+
+  export type RepoPlanResult =
+    | {
+      readonly ok: true;
+      readonly plan: Plan;
     }
     | { readonly ok: false; readonly error: string };
 }

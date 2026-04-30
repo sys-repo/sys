@@ -1,6 +1,6 @@
 import { Fs, Str, type t } from './common.ts';
-import { clearTargetDir } from './u.clearTargetDir.ts';
-import { errorMessage } from './u.result.ts';
+import { clearTargetDir } from '../u.pull/u.clearTargetDir.ts';
+import { errorMessage } from '../u.pull/u.result.ts';
 
 type PreparedEntry = {
   readonly entry: t.GithubPull.Entry;
@@ -13,6 +13,10 @@ type PreflightResult =
     readonly targetRoot: t.StringDir;
     readonly entries: readonly PreparedEntry[];
   }
+  | { readonly ok: false; readonly error: string };
+
+type RelativePathResult =
+  | { readonly ok: true; readonly segments: readonly string[] }
   | { readonly ok: false; readonly error: string };
 
 export async function executeGithubPullPlan(args: {
@@ -53,11 +57,14 @@ export async function executeGithubPullPlan(args: {
         path: { source: item.entry.source, target: item.target },
         error: errorMessage(error),
       });
+      break;
     }
   }
 
   const failed = ops.filter((op) => !op.ok);
-  if (failed.length > 0) return { ok: false, ops, error: summarizeFailures(failed, ops.length) };
+  if (failed.length > 0) {
+    return { ok: false, ops, error: summarizeFailures(args.plan.kind, failed, total) };
+  }
   return { ok: true, ops };
 }
 
@@ -91,11 +98,7 @@ function preparePlan(baseDir: t.StringDir, plan: t.GithubPull.Plan): PreflightRe
   return { ok: true, targetRoot, entries };
 }
 
-function normalizeRelativePath(
-  input: t.StringRelativePath,
-):
-  | { readonly ok: true; readonly segments: readonly string[] }
-  | { readonly ok: false; readonly error: string } {
+function normalizeRelativePath(input: t.StringRelativePath): RelativePathResult {
   const raw = String(input ?? '');
   const trimmed = raw.trim();
   if (!trimmed) return { ok: false, error: 'GitHub pull entry path is empty.' };
@@ -105,7 +108,7 @@ function normalizeRelativePath(
   if (/^[A-Za-z]:/.test(trimmed)) {
     return { ok: false, error: `GitHub pull entry path must not use a drive prefix: ${raw}` };
   }
-  if (/[\u0000-\u001f]/.test(trimmed)) {
+  if (hasControlChar(trimmed)) {
     return { ok: false, error: `GitHub pull entry path contains control characters: ${raw}` };
   }
 
@@ -118,12 +121,20 @@ function normalizeRelativePath(
   return { ok: true, segments };
 }
 
+function hasControlChar(input: string): boolean {
+  for (let i = 0; i < input.length; i++) {
+    if (input.charCodeAt(i) <= 0x1f) return true;
+  }
+  return false;
+}
+
 function isInside(parent: t.StringPath, child: t.StringPath): boolean {
   const rel = Fs.Path.relative(parent, child).replaceAll('\\', '/');
   return rel.length > 0 && rel !== '.' && rel !== '..' && !rel.startsWith('../');
 }
 
 function summarizeFailures(
+  kind: t.GithubPull.PlanKind,
   failed: readonly t.PullToolBundleResult['ops'][number][],
   total: number,
 ): string {
@@ -131,10 +142,12 @@ function summarizeFailures(
   if (!first) return 'GitHub pull failed';
 
   const parts: string[] = [];
+  const noun = kind === 'github:release' ? 'assets' : 'files';
+  const label = kind === 'github:release' ? 'release pull' : 'repo pull';
   parts.push(
     failed.length === 1
-      ? `release pull failed (1/${total} assets)`
-      : `release pull failed (${failed.length}/${total} assets)`,
+      ? `${label} failed (1/${total} ${noun})`
+      : `${label} failed (${failed.length}/${total} ${noun})`,
   );
   parts.push(`source: ${first.path.source}`);
   if (first.error) parts.push(first.error);

@@ -1,6 +1,6 @@
 import { describe, expect, Fs, it } from '../../../-test.ts';
-import { type t } from '../u.pull/common.ts';
-import { createGithubReleasePullPlan } from '../u.pull/u.github.plan.ts';
+import { type t } from '../u.pull.github/common.ts';
+import { createGithubReleasePullPlan, createGithubRepoPullPlan } from '../u.pull.github/u.plan.ts';
 
 describe('cli.pull/u.bundle → github pull plan', () => {
   it('creates a release asset materialization plan with safe relative filenames', () => {
@@ -68,6 +68,55 @@ describe('cli.pull/u.bundle → github pull plan', () => {
         repo: 'owner/repo',
         assetId: 4,
         fallbackUrl: 'https://example.com/%20%20%20',
+      },
+    ]);
+  });
+
+  it('creates a repo blob materialization plan under the configured local dir', () => {
+    const baseDir = '/tmp/sys.tools.pull.github.plan' as t.StringDir;
+    const bundle: t.PullTool.ConfigYaml.GithubRepoBundle = {
+      kind: 'github:repo',
+      repo: 'owner/repo',
+      ref: 'main',
+      path: 'packages/tooling',
+      local: { dir: 'pulled/tooling' as t.StringRelativeDir },
+    };
+    const resolved: t.PullTool.GithubRepoResolved = {
+      repo: 'owner/repo',
+      ref: 'main',
+      commit: 'commit-sha',
+      tree: 'tree-sha',
+      path: 'packages/tooling',
+      entries: [
+        {
+          sourcePath: 'packages/tooling/mod.ts' as t.StringPath,
+          relativePath: 'mod.ts' as t.StringRelativePath,
+          sha: 'sha-mod',
+          size: 123,
+          url: 'https://api.github.test/blob/sha-mod' as t.StringUrl,
+        },
+      ],
+    };
+
+    const res = createGithubRepoPullPlan({ baseDir, bundle, resolved });
+
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+    expect(res.plan.kind).to.eql('github:repo');
+    expect(res.plan.targetRoot).to.eql(Fs.join(baseDir, 'pulled/tooling'));
+    expect(res.plan.entries).to.eql([
+      {
+        source: 'https://github.com/owner/repo/blob/main/packages/tooling/mod.ts',
+        relativePath: 'mod.ts',
+        size: 123,
+        request: {
+          kind: 'repo-blob',
+          repo: 'owner/repo',
+          ref: 'main',
+          sha: 'sha-mod',
+          path: 'packages/tooling/mod.ts',
+          url: 'https://api.github.test/blob/sha-mod',
+        },
       },
     ]);
   });

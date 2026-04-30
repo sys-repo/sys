@@ -12,15 +12,18 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     };
 
     await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
-      async pullHttp() {
+      pullHttp() {
         called = true;
-        return {
+        return Promise.resolve({
           ok: true,
           data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
-        };
+        });
       },
-      async pullGithubRelease() {
+      pullGithubRelease() {
         throw new Error('should not call github:release puller');
+      },
+      pullGithubRepo() {
+        throw new Error('should not call github:repo puller');
       },
     });
 
@@ -36,15 +39,45 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     };
 
     await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
-      async pullHttp() {
+      pullHttp() {
         throw new Error('should not call http puller');
       },
-      async pullGithubRelease() {
+      pullGithubRelease() {
         called = true;
-        return {
+        return Promise.resolve({
           ok: true,
           data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
-        };
+        });
+      },
+      pullGithubRepo() {
+        throw new Error('should not call github:repo puller');
+      },
+    });
+
+    expect(called).to.eql(true);
+  });
+
+  it('dispatches github:repo bundles to the github repo puller', async () => {
+    let called = false;
+    const bundle: t.PullTool.ConfigYaml.GithubRepoBundle = {
+      kind: 'github:repo',
+      repo: 'owner/name',
+      local: { dir: 'dev' },
+    };
+
+    await pullRemoteBundle('/tmp' as t.StringDir, bundle, {
+      pullHttp() {
+        throw new Error('should not call http puller');
+      },
+      pullGithubRelease() {
+        throw new Error('should not call github:release puller');
+      },
+      pullGithubRepo() {
+        called = true;
+        return Promise.resolve({
+          ok: true,
+          data: { ok: true, ops: [] } as unknown as t.PullToolBundleResult,
+        });
       },
     });
 

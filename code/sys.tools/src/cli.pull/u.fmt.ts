@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, Fs, Str, Time } from './common.ts';
+import { c, Cli, Fmt as Base, Fs, Str, type t, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
@@ -22,17 +22,36 @@ export const Fmt = {
     });
   },
 
+  pullError(error: string) {
+    const parsed = parsePullError(error);
+    const b = Str.builder().line(formatPullErrorTitle()).blank();
+
+    if (parsed.message.length > 0) {
+      b.line(formatPullErrorMessage(parsed.message)).blank();
+    }
+
+    if (parsed.context.length > 0) {
+      const table = Cli.table();
+      table.body(
+        parsed.context.map(([key, value]) => [c.gray(`  ${key}`), formatContextValue(key, value)]),
+      );
+      b.line(Str.trimEdgeNewlines(String(table))).blank();
+    }
+
+    if (parsed.detail.length > 0) {
+      b.line(formatPullErrorMessage(parsed.detail)).blank();
+    }
+
+    b.line(formatPullErrorEnder());
+    return String(b).trimEnd();
+  },
+
   pullSummary(args: {
     bundle: t.PullTool.ConfigYaml.Bundle;
     data: {
       ops: readonly t.PullToolBundleResult['ops'][number][];
       dist?: t.DistPkg;
-      summary?: {
-        kind: 'http' | 'github:release';
-        source?: t.StringUrl;
-        repo?: string;
-        release?: string;
-      };
+      summary?: t.PullToolBundleSummaryMeta;
     };
   }) {
     const { bundle, data } = args;
@@ -86,23 +105,152 @@ export const Fmt = {
         [c.gray(' assets'), c.white(String(outputs.length))],
         [c.gray(' dist'), distValue],
         [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
-        [c.gray(' output'), outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)'))],
+        [
+          c.gray(' output'),
+          outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
+        ],
+      ]);
+    } else if (summary?.kind === 'github:repo') {
+      table.body([
+        [c.gray(' repo'), c.cyan(summary.repo)],
+        [c.gray(' ref'), c.white(summary.ref)],
+        [c.gray(' path'), summary.path ? c.white(summary.path) : c.gray(c.dim('(root)'))],
+        [c.gray(' files'), c.white(String(outputs.length))],
+        [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
+        [
+          c.gray(' output'),
+          outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
+        ],
       ]);
     } else {
-      const source =
-        summary?.source || (bundle.kind === 'http' ? bundle.dist : undefined);
+      const source = summary?.source || (bundle.kind === 'http' ? bundle.dist : undefined);
       table.body([
         [c.gray(' source'), source ? formatSourceUrl(source) : c.gray(c.dim('(unknown)'))],
-        [c.gray(' files'), c.white(String(dist ? Object.keys(dist.hash.parts).length : outputs.length))],
+        [
+          c.gray(' files'),
+          c.white(String(dist ? Object.keys(dist.hash.parts).length : outputs.length)),
+        ],
         [c.gray(' dist'), distValue],
         [c.gray(' bytes'), c.gray(Str.bytes(bytes))],
-        [c.gray(' output'), outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)'))],
+        [
+          c.gray(' output'),
+          outputLines.length > 0 ? outputLines.join('\n') : c.gray(c.dim('(none)')),
+        ],
       ]);
     }
 
     return String(Str.builder().blank().line(Str.trimEdgeNewlines(String(table))).blank());
   },
 } as const;
+
+type PullErrorParts = {
+  readonly message: readonly string[];
+  readonly context: readonly (readonly [string, string])[];
+  readonly detail: readonly string[];
+};
+
+function formatPullErrorTitle(): string {
+  return c.black(c.bgYellow(c.bold(' Pull Failed ')));
+}
+
+function formatPullErrorEnder(): string {
+  return c.yellow(Cli.Fmt.hr());
+}
+
+function parsePullError(error: string): PullErrorParts {
+  const lines = String(error ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const message: string[] = [];
+  const context: Array<readonly [string, string]> = [];
+  const detail: string[] = [];
+  let seenContext = false;
+
+  for (const line of lines) {
+    const contextMatch = line.match(/^([A-Za-z][A-Za-z0-9 _-]*):\s*(.+)$/);
+    if (contextMatch && isPullErrorContextKey(contextMatch[1] ?? '')) {
+      seenContext = true;
+      context.push([contextMatch[1] ?? '', contextMatch[2] ?? '']);
+      continue;
+    }
+
+    if (seenContext) detail.push(line);
+    else message.push(line);
+  }
+
+  if (message.length === 0 && detail.length === 0) message.push('Bundle pull failed');
+  return { message, context, detail };
+}
+
+function isPullErrorContextKey(key: string): boolean {
+  return ['source', 'repo', 'ref', 'path', 'tag', 'asset', 'token admin'].includes(
+    key.trim().toLowerCase(),
+  );
+}
+
+function formatPullErrorMessage(lines: readonly string[]): string {
+  return normalizePullErrorGuidance(lines)
+    .flatMap(wrapPullErrorLine)
+    .map((line) => `  ${formatPullErrorLine(line)}`)
+    .join('\n');
+}
+
+function normalizePullErrorGuidance(lines: readonly string[]): readonly string[] {
+  const privateRepo =
+    'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository.';
+  const tokenRepo =
+    'Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and grant Contents → Read-only.';
+  if (lines.length === 2 && lines[0] === privateRepo && lines[1] === tokenRepo) {
+    return [
+      'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository. Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and:',
+      'Contents → Read-only',
+    ];
+  }
+  return lines;
+}
+
+function wrapPullErrorLine(line: string): readonly string[] {
+  return wrapWords(line, 76);
+}
+
+function wrapWords(input: string, width: number): readonly string[] {
+  const words = String(input ?? '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [''];
+
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && next.length > width) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function formatPullErrorLine(line: string): string {
+  const action = 'Contents → Read-only';
+  if (line === action) return c.white(action);
+
+  const index = line.indexOf(action);
+  if (index < 0) return c.yellow(c.italic(line));
+
+  const before = line.slice(0, index);
+  const after = line.slice(index + action.length);
+  return `${c.yellow(c.italic(before))}${c.white(action)}${c.yellow(c.italic(after))}`;
+}
+
+function formatContextValue(key: string, value: string): string {
+  const label = key.trim().toLowerCase();
+  if (label === 'source' || label === 'repo' || label === 'token admin') return c.cyan(value);
+  return c.white(value);
+}
 
 function splitDirAndFile(path: string): { dir: string; file: string } {
   const a = path.lastIndexOf('/');

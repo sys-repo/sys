@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, opt, Str, Url, Yaml } from '../common.ts';
+import { c, Cli, Fs, Open, opt, Str, type t, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { resolveBundleForPull } from './u.defaults.ts';
@@ -9,6 +9,10 @@ type C = t.PullTool.MenuCmd;
 type PullResult =
   | { readonly kind: 'back' }
   | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.Bundle };
+
+type ExecuteBundlePullResult =
+  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
+  | { readonly ok: false; readonly error: string };
 
 const Fmt = {
   ...BaseFmt,
@@ -34,9 +38,19 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
   if (dist) return Fmt.distUrl(dist);
 
   if (bundle.kind === 'github:release') {
-    if (Array.isArray(bundle.asset)) return c.yellow(c.italic(`github:release (${bundle.asset.length} assets)`));
-    if (typeof bundle.asset === 'string' && bundle.asset.trim()) return c.yellow(c.italic(`github:release (${bundle.asset.trim()})`));
-    return c.yellow(c.italic('github:release (all assets)'));
+    if (Array.isArray(bundle.asset)) {
+      return c.magenta(c.italic(`github:release (${bundle.asset.length} assets)`));
+    }
+    if (typeof bundle.asset === 'string' && bundle.asset.trim()) {
+      return c.magenta(c.italic(`github:release (${bundle.asset.trim()})`));
+    }
+    return c.magenta(c.italic('github:release (all assets)'));
+  }
+
+  if (bundle.kind === 'github:repo') {
+    const ref = bundle.ref?.trim() ? ` @ ${bundle.ref.trim()}` : '';
+    const path = bundle.path?.trim() ? `:${bundle.path.trim()}` : '';
+    return c.magenta(c.italic(`github:repo ${bundle.repo}${ref}${path}`));
   }
 
   return c.gray(c.dim(bundle.kind));
@@ -59,7 +73,7 @@ export async function pullBundle(
     const branch = Fmt.Tree.branch([i, total]);
     const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
     const source = bundleSourceLabel(m);
-    const name = `${'  pull:'} ${branch} ${localDir} ← ${source}`;
+    const name = `${'  pull:'} ${branch} ${localDir} ${c.gray('←')} ${source}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
@@ -163,10 +177,7 @@ export async function pullBundle(
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
     const pulled = await executeBundlePull(yamlPath, location, bundle);
     if (!pulled.ok) {
-      const b = Str.builder()
-        .line(c.yellow('Pull failed'))
-        .line(c.gray(c.dim(pulled.error)));
-      console.info(String(b));
+      console.info(Fmt.pullError(pulled.error));
       return pullBundle(_cwd, yamlPath, location);
     }
 
@@ -180,10 +191,7 @@ export async function executeBundlePull(
   _yamlPath: t.StringPath,
   location: t.PullTool.ConfigYaml.Location,
   bundle: t.PullTool.ConfigYaml.Bundle,
-): Promise<
-  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
-  | { readonly ok: false; readonly error: string }
-> {
+): Promise<ExecuteBundlePullResult> {
   const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
   const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
   if (!pulled.ok) {

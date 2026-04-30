@@ -1,7 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
-import { D } from '../common.ts';
+import { D, type t } from '../common.ts';
 import { Pull } from '../mod.ts';
-import type { t } from '../common.ts';
 
 describe('tool: Pull', () => {
   it('API', async () => {

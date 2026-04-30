@@ -9,6 +9,19 @@ export function fail(error: string): t.PullToolRemoteBundleResult {
 }
 
 export function errorMessage(error: unknown): string {
-  if (Err.Is.error(error)) return String(error.message ?? '').trim() || 'Bundle pull failed';
-  return String(error ?? '').trim() || 'Bundle pull failed';
+  const message = Err.Is.error(error)
+    ? String(error.message ?? '').trim()
+    : String(error ?? '').trim();
+  return redactSecrets(message) || 'Bundle pull failed';
+}
+
+function redactSecrets(input: string): string {
+  return input
+    .replace(/\bAuthorization\s*:\s*Bearer\s+[^\s,;]+/gi, 'Authorization: Bearer [redacted]')
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{8,}/gi, 'Bearer [redacted]')
+    .replace(
+      /\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/g,
+      '[redacted-github-token]',
+    )
+    .replace(/([?&](?:access_token|token)=)[^&\s]+/gi, '$1[redacted]');
 }
