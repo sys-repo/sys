@@ -1,7 +1,7 @@
-export type CellTemplateName = keyof typeof ROOTS;
+import type { CellTmpl } from '../t.ts';
 
 export const ROOTS = {
   default: 'cell.default',
-} as const;
+} satisfies Record<CellTmpl.Name, string>;
 
-export const names = Object.keys(ROOTS) as CellTemplateName[];
+export const names = Object.keys(ROOTS) as CellTmpl.Name[];

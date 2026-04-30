@@ -1,9 +1,10 @@
 import { Is, type t } from '../../src/common.ts';
 import { json } from '../-bundle.ts';
-import { type CellTemplateName, ROOTS } from './u.roots.ts';
+import type { CellTmpl } from '../t.ts';
+import { ROOTS } from './u.roots.ts';
 
 export function readCellTmplDataUri(
-  name: CellTemplateName = 'default',
+  name: CellTmpl.Name = 'default',
   path: t.StringPath,
 ): string {
   const root = ROOTS[name];
@@ -16,7 +17,7 @@ export function readCellTmplDataUri(
 }
 
 export async function readCellTmplText(
-  name: CellTemplateName = 'default',
+  name: CellTmpl.Name = 'default',
   path: t.StringPath,
 ): Promise<string> {
   const dataUri = readCellTmplDataUri(name, path);

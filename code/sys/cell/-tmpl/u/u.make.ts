@@ -1,8 +1,9 @@
 import { json } from '../-bundle.ts';
 import { type FileMapProcessor, Fs, TmplEngine, Update } from '../common.ts';
-import { type CellTemplateName, ROOTS } from './u.roots.ts';
+import type { CellTmpl } from '../t.ts';
+import { ROOTS } from './u.roots.ts';
 
-export function makeCellTmpl(name: CellTemplateName = 'default') {
+export function makeCellTmpl(name: CellTmpl.Name = 'default') {
   const root = ROOTS[name];
   const processFile: FileMapProcessor = async (e) => {
     if (!e.path.startsWith(`${root}/`)) return;
