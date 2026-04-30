@@ -8,6 +8,8 @@
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
+    "prep": "deno task tmpl:bundle",
+    "tmpl:bundle": "deno run -RWE ./-tmpl/mod.ts",
     "start": "deno task sample:stripe",
     "sample:stripe": "deno run -P=sample ./-scripts/task.sample.ts"
   },
