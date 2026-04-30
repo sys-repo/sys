@@ -3,7 +3,7 @@ import { type FileMapProcessor, Fs, TmplEngine, Update } from '../common.ts';
 import type { CellTmpl } from '../t.ts';
 import { ROOTS } from './u.roots.ts';
 
-export function makeCellTmpl(name: CellTmpl.Name = 'default') {
+export function makeTmpl(name: CellTmpl.Name = 'default') {
   const root = ROOTS[name];
   const processFile: FileMapProcessor = async (e) => {
     if (!e.path.startsWith(`${root}/`)) return;

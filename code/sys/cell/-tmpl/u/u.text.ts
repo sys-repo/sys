@@ -3,10 +3,7 @@ import { json } from '../-bundle.ts';
 import type { CellTmpl } from '../t.ts';
 import { ROOTS } from './u.roots.ts';
 
-export function readCellTmplDataUri(
-  name: CellTmpl.Name = 'default',
-  path: t.StringPath,
-): string {
+export function readTmplDataUri(name: CellTmpl.Name, path: t.StringPath): string {
   const root = ROOTS[name];
   const key = `${root}/${path}`;
   const data = json[key];
@@ -16,11 +13,8 @@ export function readCellTmplDataUri(
   return data;
 }
 
-export async function readCellTmplText(
-  name: CellTmpl.Name = 'default',
-  path: t.StringPath,
-): Promise<string> {
-  const dataUri = readCellTmplDataUri(name, path);
+export async function readTmplText(name: CellTmpl.Name, path: t.StringPath): Promise<string> {
+  const dataUri = readTmplDataUri(name, path);
   const res = await fetch(dataUri);
   return await res.text();
 }
