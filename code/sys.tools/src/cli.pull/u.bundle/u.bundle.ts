@@ -30,6 +30,8 @@ const ValidConfigName = {
   },
 } as const;
 
+const PULL_PREFIX = 'bundle:pull-latest:';
+
 const toHttpDist = (bundle: t.PullTool.ConfigYaml.Bundle): t.StringUrl | undefined =>
   bundle.kind === 'http' ? bundle.dist : undefined;
 
@@ -56,6 +58,26 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
   return c.gray(c.dim(bundle.kind));
 };
 
+export function formatBundleOptionLocalDirWidth(
+  bundles: readonly t.PullTool.ConfigYaml.Bundle[],
+): number {
+  return bundles.reduce((acc, bundle) => {
+    return Math.max(acc, bundleOptionLocalDirText(bundle.local.dir).length);
+  }, 0);
+}
+
+export function formatBundleOptionName(
+  bundle: t.PullTool.ConfigYaml.Bundle,
+  index: number,
+  bundles: readonly t.PullTool.ConfigYaml.Bundle[],
+  localDirWidth = formatBundleOptionLocalDirWidth(bundles),
+): string {
+  const branch = Fmt.Tree.branch([index, bundles]);
+  const localDir = bundleOptionLocalDirLabel(bundle.local.dir, localDirWidth);
+  const source = bundleSourceLabel(bundle);
+  return `${'  pull:'} ${branch} ${localDir} ${c.gray('←')} ${source}`;
+}
+
 export async function pullBundle(
   _cwd: t.StringDir,
   yamlPath: t.StringPath,
@@ -66,15 +88,11 @@ export async function pullBundle(
     bundle,
   });
 
-  const PULL_PREFIX = 'bundle:pull-latest:';
   const bundles = location.bundles ?? [];
-  const maxLocalDirWidth = bundles.reduce((acc, m) => Math.max(acc, m.local.dir.length), 0);
-  const optBundles = bundles.map((m, i, total) => {
-    const branch = Fmt.Tree.branch([i, total]);
-    const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
-    const source = bundleSourceLabel(m);
-    const name = `${'  pull:'} ${branch} ${localDir} ${c.gray('←')} ${source}`;
-    const value = `${PULL_PREFIX}${i}`;
+  const localDirWidth = formatBundleOptionLocalDirWidth(bundles);
+  const optBundles = bundles.map((bundle, index, all) => {
+    const name = formatBundleOptionName(bundle, index, all, localDirWidth);
+    const value = `${PULL_PREFIX}${index}`;
     return { name, value };
   });
 
@@ -228,6 +246,20 @@ async function updateYamlBundles(
 /**
  * Helpers:
  */
+function bundleOptionLocalDirText(dir: string): string {
+  const relative = Str.trimLeadingDotSlash(dir);
+  if (!relative || relative === '.') return './';
+  return `./${relative}`;
+}
+
+function bundleOptionLocalDirLabel(dir: string, width: number): string {
+  const text = bundleOptionLocalDirText(dir);
+  const rest = text.slice(2);
+  const label = rest ? `${c.gray('./')}${c.cyan(rest)}` : c.gray('./');
+  const pad = ' '.repeat(Math.max(0, width - text.length));
+  return `${label}${pad}`;
+}
+
 export async function validateUrl(input: string) {
   const url = toDistUrl(input);
   if (!url) return 'Enter a valid URL.';
