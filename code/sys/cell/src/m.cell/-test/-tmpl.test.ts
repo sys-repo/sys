@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
-import { CellTmpl } from '../../../-tmpl/mod.ts';
+import { CellTmpl } from '../../m.tmpl/mod.ts';
 import { Cell } from '../mod.ts';
 
 describe('CellTmpl', () => {

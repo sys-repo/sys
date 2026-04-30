@@ -1,5 +1,5 @@
 import { json } from '../-bundle.ts';
-import { type FileMapProcessor, Fs, TmplEngine, Update } from '../common.ts';
+import { type FileMapProcessor, Fs, TmplEngine, Update } from './common.ts';
 import type { CellTmpl } from '../t.ts';
 import { ROOTS } from './u.roots.ts';
 

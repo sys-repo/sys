@@ -1,4 +1,4 @@
-import { Fs, TmplEngine } from '../common.ts';
+import { Fs, TmplEngine } from './common.ts';
 
 const SOURCE_PREFIX = 'tmpl.';
 

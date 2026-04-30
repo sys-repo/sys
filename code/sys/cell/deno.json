@@ -10,7 +10,7 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "prep": "deno task tmpl:bundle",
-    "tmpl:bundle": "deno run -RWE ./-tmpl/mod.ts",
+    "tmpl:bundle": "deno run -RWE ./src/m.tmpl/mod.ts",
     "start": "deno task sample:stripe",
     "sample:stripe": "deno run -P=sample ./-scripts/task.sample.ts"
   },

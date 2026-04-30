@@ -1,4 +1,4 @@
-import { readTmplText } from '../../-tmpl/u/u.text.ts';
+import { readTmplText } from '../m.tmpl/u/u.text.ts';
 
 export const Tmpl = {
   /**
