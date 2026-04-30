@@ -3,7 +3,7 @@ import { Table } from '../m.Table/mod.ts';
 
 export const Help: t.CliFormatLib['Help'] = {
   build(input: t.CliFormatHelpInput) {
-    const lines = [c.bold(c.brightCyan(input.tool))];
+    const lines = [`  ${c.bold(c.brightCyan(input.tool))}`];
 
     if (input.summary) lines.push('', c.white(input.summary));
     if (input.note) lines.push(c.gray(input.note));
@@ -14,7 +14,7 @@ export const Help: t.CliFormatLib['Help'] = {
       if (text) lines.push('', text);
     }
 
-    return Str.trimEdgeNewlines(lines.join('\n'));
+    return `\n${Str.trimEdgeNewlines(lines.join('\n'))}`;
   },
 
   render(input: t.CliFormatHelpInput) {
