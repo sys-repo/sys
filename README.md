@@ -8,14 +8,14 @@
 [![registry:jsr](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg?label=registry:jsr)](https://github.com/sys-repo/sys/actions/workflows/jsr.yaml)  
 
 
-# @sys
+# @sys (system)
 Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new
 *systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
 
 - **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTC](https://wintertc.org/) standards.
 - **Namespaces:**
   - [sys](/code/sys/) — foundational system libraries (types, schema, utilities).
-  - [sys.ui](/code/sys.ui/) — declarative UI composition and factories.
+  - [sys.ui](/code/sys.ui/) — declarative UI composition: factories and components.
   - [sys.model](/code/sys.model/) — pure types, schemas, and deterministic normalizers for shared concepts.
   - [sys.driver](/code/sys.driver/) — thin bindings to external engines.
   - [sys.dev](/code/sys.dev/) — *programming system* layer, higher-order developer harnesses and orchestration tools.
