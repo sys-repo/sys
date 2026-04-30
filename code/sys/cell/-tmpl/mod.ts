@@ -6,7 +6,7 @@ export type CellTemplateName = keyof typeof ROOTS;
 
 const SOURCE_PREFIX = 'cell.';
 const ROOTS = {
-  blank: 'cell.blank',
+  default: 'cell.default',
 } as const;
 
 export const CellTmpl = {
@@ -15,7 +15,7 @@ export const CellTmpl = {
   bundle: bundleCellTmpl,
 } as const;
 
-export function makeCellTmpl(name: CellTemplateName = 'blank') {
+export function makeCellTmpl(name: CellTemplateName = 'default') {
   const root = ROOTS[name];
   const processFile: FileMapProcessor = (e) => {
     if (!e.path.startsWith(`${root}/`)) return;

@@ -1,6 +1,7 @@
 {
-  "cell.blank/-config/@sys.cell/cell.yaml": "data:text/plain;base64,a2luZDogY2VsbAp2ZXJzaW9uOiAxCgpkc2w6CiAgcm9vdDogLi9kYXRhCgp2aWV3czoge30KCnJ1bnRpbWU6CiAgc2VydmljZXM6IFtdCg==",
-  "cell.blank/data/README.md": "data:text/markdown;base64,IyBDZWxsIGRhdGEKClN0b3JlZCBtZWFuaW5nIGZvciB0aGlzIENlbGwgbGl2ZXMgaGVyZS4K",
-  "cell.blank/view/README.md": "data:text/markdown;base64,IyBDZWxsIHZpZXdzCgpCb3VuZCBwZXJjZXB0aW9ucyBvdmVyIHRoaXMgQ2VsbCBjYW4gbGl2ZSBoZXJlLgo="
+  "cell.default/-config/@sys.cell/cell.yaml": "data:text/plain;base64,a2luZDogY2VsbAp2ZXJzaW9uOiAxCgpkc2w6CiAgcm9vdDogLi9kYXRhCgp2aWV3czoge30KCnJ1bnRpbWU6CiAgc2VydmljZXM6IFtdCg==",
+  "cell.default/.gitignore": "data:text/plain;base64,LmVudgo=",
+  "cell.default/data/README.md": "data:text/markdown;base64,IyBDZWxsIGRhdGEKClN0b3JlZCBtZWFuaW5nIGZvciB0aGlzIENlbGwgbGl2ZXMgaGVyZS4K",
+  "cell.default/view/README.md": "data:text/markdown;base64,IyBDZWxsIHZpZXdzCgpCb3VuZCBwZXJjZXB0aW9ucyBvdmVyIHRoaXMgQ2VsbCBjYW4gbGl2ZSBoZXJlLgo="
 }
 
