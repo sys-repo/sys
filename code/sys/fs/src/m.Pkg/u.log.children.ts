@@ -1,4 +1,4 @@
-import { type t, Arr, c, Cli, Fs, Num, Path, Pkg, Str } from './common.ts';
+import { Arr, c, CliFmt, CliTable, Fs, Num, Path, Pkg, Str, type t } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { toModuleString } from './u.log.ts';
 
@@ -58,7 +58,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
   /**
    * Build table:
    */
-  const table = Cli.table([c.gray(c.dim(` ${Cli.Fmt.Tree.vert}`))]);
+  const table = CliTable.create([c.gray(c.dim(` ${CliFmt.Tree.vert}`))]);
   const content = toContent(dist, subPackages);
 
   // Child package list:
@@ -66,7 +66,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
     const isLast = index === subPackages.length - 1;
     const child = (await Dist.load(Path.join(dir, Path.dirname(path)))).dist;
     if (child) {
-      const branch = Cli.Fmt.Tree.branch(isLast && content.length === 0, 1);
+      const branch = CliFmt.Tree.branch(isLast && content.length === 0, 1);
       const childPkg = child.pkg ?? Pkg.toPkg(child.build.builder);
       const mod = toModuleString(childPkg);
       const size = child.build.size;
@@ -88,7 +88,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
     const percent = Num.Percent.toString(totalBytes.percent);
     const label = `${c.italic('static content')} ${c.dim(`← (${percent})`)}`;
     const size = Str.bytes(content.bytes);
-    const branch = c.dim(Cli.Fmt.Tree.branch(true, 1));
+    const branch = c.dim(CliFmt.Tree.branch(true, 1));
     table.push([c.gray(` ${branch} ${label}`), '', size]);
   }
 

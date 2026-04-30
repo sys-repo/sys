@@ -1,4 +1,4 @@
-import { type t, Path, Cli } from './common.ts';
+import { CliFmt, Path, type t } from './common.ts';
 import { cwd } from './u.cwd.ts';
 import { walk } from './u.walk.ts';
 
@@ -75,14 +75,14 @@ function visit(
 
   dirNames.forEach((d, i) => {
     const isLast = i === dirNames.length - 1 && fileNames.length === 0;
-    const branch = Cli.Fmt.Tree.branch(isLast);
+    const branch = CliFmt.Tree.branch(isLast);
     out.push(`${pad}${prefix}${branch} ${d}/`);
     const nextPrefix = prefix + (isLast ? '   ' : '│  ');
     visit(node.dirs.get(d)!, nextPrefix, depth + 1, opt, out, pad);
   });
 
   fileNames.forEach((f, i, total) => {
-    const branch = Cli.Fmt.Tree.branch([i, total]);
+    const branch = CliFmt.Tree.branch([i, total]);
     out.push(`${pad}${prefix}${branch} ${f}`);
   });
 }
