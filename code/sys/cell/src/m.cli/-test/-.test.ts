@@ -11,7 +11,8 @@ describe(`@sys/cell/cli`, () => {
 
   it('help → includes the embedded default descriptor', async () => {
     const text = stripAnsi(await FmtHelp.output());
-    expect(text).to.contain('plain-folder metamedium unit');
+    expect(text).to.contain('folder-shaped metamedium');
+    expect(text).to.contain('validly rewritten');
     expect(text).to.contain('-config/@sys.cell/cell.yaml');
     expect(text).to.contain('kind: cell');
     expect(text).to.contain('runtime:');

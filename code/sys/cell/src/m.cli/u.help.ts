@@ -10,9 +10,7 @@ export const FmtHelp = {
     const descriptor = await Tmpl.minimalDescriptor();
     return {
       tool: toolname,
-      summary:
-        'A @sys/cell is a plain-folder metamedium unit: meaning, views, and services behind a small inspectable contract.',
-      note: 'Source-backed help only; this command does not write files or scaffold a Cell.',
+      summary: intro(),
       sections: [
         {
           kind: 'lines',
@@ -50,6 +48,14 @@ export const FmtHelp = {
 /**
  * Helpers:
  */
+
+function intro() {
+  return Str.dedent(`
+    A Cell is a folder-shaped metamedium whose DSL stores
+    meaning and whose meaning can be interpreted, viewed, and
+    validly rewritten within the folder that bounds it.
+  `);
+}
 
 function block(text: string): readonly string[] {
   return Str.trimEdgeNewlines(text).split('\n');
