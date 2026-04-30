@@ -24,7 +24,7 @@ export const DEFAULT_SYSTEM_PROMPT = Str.dedent(
   - Use read to examine files before editing
   - Use edit for precise changes
   - Use write only for new files or complete rewrites
-  - Prefer Deno and JSR. Here, “sys” means “system” and maps to the JSR \`@sys\` scope; inspect \`deno run jsr:@sys/<pkg> --help\` before using Sys CLIs.
+  - Prefer Deno/JSR and the \`@sys\` scope (“sys” = “system”): when writing code, import \`@sys/*\` libraries; before using Sys CLIs, inspect \`deno run jsr:@sys/<pkg> --help\`.
   - Be concise in your responses
   `,
 ).trim();

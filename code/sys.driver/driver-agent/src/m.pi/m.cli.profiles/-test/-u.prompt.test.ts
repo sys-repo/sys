@@ -5,7 +5,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.prompt`, () => {
   it('DEFAULT_SYSTEM_PROMPT → is the known short Pi-style baseline', () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('You are an expert coding assistant.');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('- read: Read file contents');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('“sys” means “system”');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('`@sys` scope (“sys” = “system”)');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('import `@sys/*` libraries');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('deno run jsr:@sys/<pkg> --help');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('- Be concise in your responses');
   });
