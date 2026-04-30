@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Open, opt, Str, type t, Url, Yaml } from '../common.ts';
+import { c, Cli, Fs, Is, Open, opt, Str, type t, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { resolveBundleForPull } from './u.defaults.ts';
@@ -41,7 +41,7 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
     if (Array.isArray(bundle.asset)) {
       return c.magenta(c.italic(`github:release (${bundle.asset.length} assets)`));
     }
-    if (typeof bundle.asset === 'string' && bundle.asset.trim()) {
+    if (Is.str(bundle.asset) && bundle.asset.trim()) {
       return c.magenta(c.italic(`github:release (${bundle.asset.trim()})`));
     }
     return c.magenta(c.italic('github:release (all assets)'));

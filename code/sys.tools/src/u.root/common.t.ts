@@ -32,6 +32,10 @@ export namespace Root {
     | 'tmpl'
     | 'update';
 
+  /** Invocation origin passed from the root launcher to selected tools. */
+  export type ToolCliOrigin = 'argv' | 'root-menu';
+  export type ToolCliContext = { readonly origin: ToolCliOrigin };
+
   /** Shared root CLI flags accepted before tool dispatch. */
   export type CliArgs = { help: boolean; debug?: boolean };
 

@@ -1,4 +1,4 @@
-import { Fs, Is, Json, Num, Path, pkg, Semver, Time, type t } from './common.ts';
+import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { resolveUpdateAdvisoryPath } from './u.advisory.path.ts';
 
@@ -32,7 +32,15 @@ export async function readUpdateAdvisoryState(deps: ReadDeps = {}): Promise<Upda
   }
 
   const path = deps.path ?? resolveUpdateAdvisoryPath();
-  if (!path) return { path: undefined, record: undefined, stale: false, hasUpdate: false, prelude: undefined };
+  if (!path) {
+    return {
+      path: undefined,
+      record: undefined,
+      stale: false,
+      hasUpdate: false,
+      prelude: undefined,
+    };
+  }
 
   const record = await readUpdateAdvisoryRecord(path);
   const stale = shouldRefreshUpdateAdvisory(record, { now: deps.now });
@@ -86,7 +94,9 @@ export function toRootUpdateAdvisoryPrelude(record?: UpdateAdvisoryRecord): stri
   return Fmt.rootAdvisoryPrelude(record.remote);
 }
 
-async function readUpdateAdvisoryRecord(path: t.StringPath): Promise<UpdateAdvisoryRecord | undefined> {
+async function readUpdateAdvisoryRecord(
+  path: t.StringPath,
+): Promise<UpdateAdvisoryRecord | undefined> {
   if (!(await Fs.exists(path))) return undefined;
 
   const read = await Fs.readText(path);
@@ -112,7 +122,7 @@ const wrangle = {
 
   error(value: unknown) {
     if (value instanceof Error && value.message.trim()) return value.message.trim();
-    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (Is.str(value) && value.trim()) return value.trim();
     return 'probe-failed';
   },
 
@@ -136,16 +146,18 @@ const wrangle = {
   },
 
   record(value: unknown): UpdateAdvisoryRecord | undefined {
-    if (typeof value !== 'object' || value === null) return undefined;
+    if (!Is.record(value)) return undefined;
 
-    const record = value as Record<string, unknown>;
+    const record = value;
     const packageName = record['package'];
     const checkedAt = record['checkedAt'];
     const ok = record['ok'];
     const remote = record['remote'];
     const error = record['error'];
 
-    if (!Is.str(packageName) || !Num.Is.safeInt(checkedAt) || checkedAt < 0 || !Is.bool(ok)) return undefined;
+    if (!Is.str(packageName) || !Num.Is.safeInt(checkedAt) || checkedAt < 0 || !Is.bool(ok)) {
+      return undefined;
+    }
 
     const base = {
       package: packageName as t.StringPkgName,

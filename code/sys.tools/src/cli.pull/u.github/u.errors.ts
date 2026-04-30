@@ -1,4 +1,4 @@
-import { Err } from './common.ts';
+import { Err, Is } from './common.ts';
 
 type GithubErrorContext = {
   readonly kind?: 'github:release' | 'github:repo';
@@ -94,15 +94,13 @@ function isRateLimit(status: number | undefined, error: unknown, lowerMessage: s
 }
 
 function headerValue(error: unknown, key: string): string | undefined {
-  if (!error || typeof error !== 'object') return;
+  if (!Is.record(error)) return;
   const headers =
     (error as { response?: { headers?: unknown }; headers?: unknown }).response?.headers ??
-      (error as { headers?: unknown }).headers;
-  if (!headers || typeof headers !== 'object') return;
-  const value = (headers as Record<string, unknown>)[key] ??
-    (headers as Record<string, unknown>)[key.toLowerCase()] ??
-    (headers as Record<string, unknown>)[key.toUpperCase()];
-  return typeof value === 'string' ? value : undefined;
+      error.headers;
+  if (!Is.record(headers)) return;
+  const value = headers[key] ?? headers[key.toLowerCase()] ?? headers[key.toUpperCase()];
+  return Is.str(value) ? value : undefined;
 }
 
 function normalizeErrorMessage(error: unknown): string {
@@ -111,12 +109,11 @@ function normalizeErrorMessage(error: unknown): string {
 }
 
 function normalizeErrorStatus(error: unknown): number | undefined {
-  if (!error || typeof error !== 'object') {
+  if (!Is.record(error)) {
     return parseStatusFromMessage(normalizeErrorMessage(error));
   }
-  const status = (error as { status?: unknown }).status ??
-    (error as { response?: { status?: unknown } }).response?.status;
-  if (typeof status === 'number') return status;
+  const status = error.status ?? (error as { response?: { status?: unknown } }).response?.status;
+  if (Is.num(status)) return status;
   return parseStatusFromMessage(normalizeErrorMessage(error));
 }
 

@@ -1,4 +1,4 @@
-import { type t, Fs } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 import { PullFs } from './u.yaml/mod.ts';
 
 export async function resolveNonInteractive(
@@ -8,7 +8,7 @@ export async function resolveNonInteractive(
   readonly yamlPath: t.StringPath;
   readonly location: t.PullTool.ConfigYaml.Location;
 }> {
-  const hasConfig = typeof args.config === 'string' && args.config.trim().length > 0;
+  const hasConfig = Is.str(args.config) && args.config.trim().length > 0;
   if (!hasConfig) {
     throw new Error('Missing required flag: --config (required with --non-interactive).');
   }

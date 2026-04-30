@@ -179,12 +179,12 @@ export async function downloadGithubAssetById(args: {
 async function bytesFromUnknown(input: unknown): Promise<Uint8Array> {
   if (input instanceof Uint8Array) return input;
   if (input instanceof ArrayBuffer) return new Uint8Array(input);
-  if (typeof input === 'string') return bytesFromBinaryString(input);
+  if (Is.str(input)) return bytesFromBinaryString(input);
   if (input instanceof Blob) return new Uint8Array(await input.arrayBuffer());
 
-  if (input && typeof input === 'object') {
+  if (Is.record(input)) {
     const maybe = input as { arrayBuffer?: unknown };
-    if (typeof maybe.arrayBuffer === 'function') {
+    if (Is.func(maybe.arrayBuffer)) {
       const arrayBuffer = await (maybe as { arrayBuffer: () => Promise<ArrayBuffer> })
         .arrayBuffer();
       return new Uint8Array(arrayBuffer);

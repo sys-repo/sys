@@ -19,8 +19,8 @@ describe('Root CLI', () => {
       refreshRootUpdateAdvisoryInBackground() {
         events.push('refresh');
       },
-      async dispatchRootCommand(cwd, command, argv) {
-        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}`);
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
       },
       info(...data) {
         events.push(`info:${data.map(String).join(' ')}`);
@@ -34,7 +34,79 @@ describe('Root CLI', () => {
       'prepare',
       'refresh',
       'info:Run sys update --latest',
-      'dispatch:/tmp/sys.tools.root:pi:pi --flag',
+      'dispatch:/tmp/sys.tools.root:pi:pi --flag:argv',
+    ]);
+  });
+
+  it('dispatches root-menu selections with root-menu origin', async () => {
+    const events: string[] = [];
+
+    await cli('/tmp/sys.tools.root' as never, [], {
+      async prepareRootUpdateAdvisory() {
+        events.push('prepare');
+        return {
+          path: undefined,
+          record: undefined,
+          stale: false,
+          hasUpdate: true,
+          prelude: undefined,
+        };
+      },
+      refreshRootUpdateAdvisoryInBackground() {
+        events.push('refresh');
+      },
+      async rootMenu(args) {
+        events.push(`menu:${args.highlightUpdate}`);
+        return { kind: 'selected', command: 'update' };
+      },
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
+      },
+    });
+
+    expect(events).to.eql([
+      'prepare',
+      'refresh',
+      'menu:true',
+      'dispatch:/tmp/sys.tools.root:update:update:root-menu',
+    ]);
+  });
+
+  it('reopens the root menu when a selected tool returns back', async () => {
+    const events: string[] = [];
+    let menuCount = 0;
+
+    await cli('/tmp/sys.tools.root' as never, [], {
+      async prepareRootUpdateAdvisory() {
+        events.push('prepare');
+        return {
+          path: undefined,
+          record: undefined,
+          stale: false,
+          hasUpdate: false,
+          prelude: undefined,
+        };
+      },
+      refreshRootUpdateAdvisoryInBackground() {
+        events.push('refresh');
+      },
+      async rootMenu(args) {
+        menuCount += 1;
+        events.push(`menu:${menuCount}:${args.highlightUpdate}`);
+        return menuCount === 1 ? { kind: 'selected', command: 'update' } : { kind: 'exit' };
+      },
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
+        return { kind: 'back' };
+      },
+    });
+
+    expect(events).to.eql([
+      'prepare',
+      'refresh',
+      'menu:1:false',
+      'dispatch:/tmp/sys.tools.root:update:update:root-menu',
+      'menu:2:false',
     ]);
   });
 
@@ -65,8 +137,8 @@ describe('Root CLI', () => {
         events.push('prepare');
         throw new Error('should not prepare advisory for subcommand help invocation');
       },
-      async dispatchRootCommand(cwd, command, argv) {
-        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}`);
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
       },
       info(...data) {
         events.push(`info:${data.map(String).join(' ')}`);
@@ -77,7 +149,7 @@ describe('Root CLI', () => {
     });
 
     expect(events).to.eql([
-      'dispatch:/tmp/sys.tools.root:pi:pi --help',
+      'dispatch:/tmp/sys.tools.root:pi:pi --help:argv',
     ]);
   });
 });
