@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
+import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
 
 describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
   it('run → merges typed profile sandbox policy and invocation args into raw Pi launch', async () => {
@@ -64,6 +65,45 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
+  it('run → uses an explicit multiline profile system prompt from YAML', async () => {
+    const prev = Process.inherit;
+    const prompt = 'You are the profile prompt.\nStay concise.';
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          prompt:
+            system: |-
+              You are the profile prompt.
+              Stay concise.
+          `,
+        ).trimStart(),
+      );
+
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        const index = input.args.indexOf('--system-prompt');
+        expect(index).to.be.greaterThan(-1);
+        expect(input.args[index + 1]).to.eql(prompt);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({
+        cwd: { invoked: cwd, git: cwd },
+        config,
+      });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → uses the selected profile file', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
@@ -86,6 +126,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
 
       Process.inherit = async (input) => {
         expect(input.args).to.include('--no-prompt');
+        expect(input.args).not.to.include('--system-prompt');
         expect(input.args).to.include.members(['--model', 'gpt-5.4']);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
@@ -141,7 +182,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → keeps Pi default system prompt when profile prompt is null', async () => {
+  it('run → uses DEFAULT_SYSTEM_PROMPT when profile prompt is null', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -160,7 +201,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        expect(input.args).not.to.include('--system-prompt');
+        expect(input.args).to.include.members(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
         return { code: 0, success: true, signal: null };
       };
 

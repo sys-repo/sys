@@ -122,7 +122,13 @@ export declare namespace PiCliProfiles {
 
   /** Prompt policy for a Pi profile. */
   export type Prompt = {
-    /** Replace Pi's default system prompt when set. */
+    /**
+     * System prompt policy.
+     *
+     * - `null` selects the wrapper-owned `DEFAULT_SYSTEM_PROMPT`.
+     * - `string` passes that explicit replacement to Pi.
+     * - omitted leaves prompt control to invocation-time passthrough.
+     */
     readonly system?: string | null;
   };
 

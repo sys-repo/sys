@@ -11,7 +11,17 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
 
   it('initialYaml → emits the minimal profile YAML shape', async () => {
     const text = ProfilesFs.initialYaml('default');
-    for (const expected of ['prompt:', 'system: null', 'sandbox:', 'read: []', 'write: []', 'env: {}', 'include: []']) {
+    for (
+      const expected of [
+        'prompt:',
+        'system: null  # default: use DEFAULT_SYSTEM_PROMPT',
+        'sandbox:',
+        'read: []',
+        'write: []',
+        'env: {}',
+        'include: []',
+      ]
+    ) {
       expect(text).to.contain(expected);
     }
 
@@ -26,7 +36,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
 });
 
 async function writeTempYaml(text: string) {
-  const dir = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.fs.test.' })).absolute as t.StringDir;
+  const dir = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.fs.test.' }))
+    .absolute as t.StringDir;
   const path = `${dir}/profiles.yaml` as t.StringPath;
   await Fs.write(path, text);
   return { dir, path };

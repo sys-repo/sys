@@ -1,6 +1,7 @@
 import { Fs, type t } from './common.ts';
 import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
 import { ProfilesFs } from './u.fs.ts';
+import { toPromptArgs } from './u.prompt.ts';
 
 export type ResolvedProfileRun = {
   readonly cwd: t.PiCli.Cwd;
@@ -47,8 +48,4 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     pkg: input.pkg,
     sandbox,
   };
-}
-
-function toPromptArgs(input?: t.PiCliProfiles.Prompt) {
-  return input?.system ? ['--system-prompt', input.system] as const : [] as const;
 }

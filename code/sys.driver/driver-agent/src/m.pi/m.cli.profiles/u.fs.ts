@@ -23,7 +23,7 @@ export const ProfilesFs = {
       # Sandbox paths resolve relative to the current working directory.
 
       prompt:
-        system: null  # null uses Pi's default system prompt
+        system: null  # default: use DEFAULT_SYSTEM_PROMPT
 
       sandbox:
         capability:
