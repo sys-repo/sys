@@ -1,6 +1,6 @@
 import { Fs, TmplEngine } from '../common.ts';
 
-const SOURCE_PREFIX = 'cell.';
+const SOURCE_PREFIX = 'tmpl.';
 
 export async function bundleTmpl() {
   const root = Fs.resolve(import.meta.dirname ?? '.', '..');
