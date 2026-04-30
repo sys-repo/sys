@@ -18,12 +18,16 @@ export declare namespace CellCli {
   export type ParsedArgs = {
     /** Show CLI help and exit. */
     readonly help: boolean;
+    /** Preview writes without changing the filesystem. */
+    readonly dryRun: boolean;
+    /** Unknown flag tokens rejected by argument parsing. */
+    readonly unknown: readonly string[];
     /** Positional argv tokens. */
     readonly _: readonly string[];
   };
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Error;
+  export type Result = Help | Init.Result | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -34,6 +38,37 @@ export declare namespace CellCli {
     /** Rendered help output. */
     readonly text: string;
   };
+
+  /** Types for the `init` command. */
+  export namespace Init {
+    /** Successful Cell init result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'init';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered init output. */
+      readonly text: string;
+      /** Target folder. */
+      readonly target: string;
+      /** True when no files were written. */
+      readonly dryRun: boolean;
+      /** Template write operations. */
+      readonly ops: readonly Op[];
+    };
+
+    /** Init write operation. */
+    export type Op = {
+      /** Operation kind. */
+      readonly kind: 'create' | 'modify' | 'skip';
+      /** Relative path. */
+      readonly path: string;
+      /** Optional skip reason. */
+      readonly reason?: string;
+      /** True when operation was previewed only. */
+      readonly dryRun?: boolean;
+    };
+  }
 
   /** Unsupported invocation result. */
   export type Error = {
