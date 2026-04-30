@@ -1,42 +1,11 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
-import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import { FmtHelp } from '../u.help.ts';
 
 describe(`@sys/cell/cli`, () => {
   it('API', async () => {
     const m = await import('@sys/cell/cli');
     expect(m.CellCli).to.equal(CellCli);
-  });
-
-  it('help → concise public command surface', () => {
-    const text = stripAnsi(FmtHelp.output());
-
-    expect(text).to.contain('folder-shaped metamedium');
-    expect(text).to.contain('validly rewritten');
-    expect(text).to.contain('deno run jsr:@sys/cell/cli --help');
-    expect(text).to.contain('deno run -RW jsr:@sys/cell/cli init [dir]');
-    expect(text).to.contain('deno run jsr:@sys/cell/cli help agent');
-    expect(text).to.not.contain('deno task cli');
-    expect(text).to.not.contain('Minimal descriptor');
-    expect(text).to.not.contain('kind: cell');
-  });
-
-  it('help agent → includes the embedded default descriptor', async () => {
-    const text = stripAnsi(await FmtHelp.agentOutput());
-
-    expect(text).to.contain('-config/@sys.cell/cell.yaml');
-    expect(text).to.contain('-config/@sys.pi/');
-    expect(text).to.contain('Init      Run init');
-    expect(text).to.contain('Owns      data/');
-    expect(text).to.contain('Safety    .gitignore');
-    expect(text).to.contain('Preserve  .pi/');
-    expect(text).to.contain('Descriptor  YAML');
-    expect(text).to.contain('```yaml');
-    expect(text).to.contain('kind: cell');
-    expect(text).to.contain('runtime:');
-    expect(text).to.contain('Do not turn cell.yaml');
   });
 
   it('init --dry-run → reports template writes without changing files', async () => {

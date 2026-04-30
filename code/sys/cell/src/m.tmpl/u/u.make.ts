@@ -1,7 +1,7 @@
 import { json } from '../-bundle.ts';
 import { Fs, type Tmpl, TmplEngine } from './common.ts';
 import type { CellTmpl } from '../t.ts';
-import { mergeGitignore } from './u.gitignore.ts';
+import { GITIGNORE_ENTRIES, GITIGNORE_PATH, mergeGitignore } from './u.gitignore.ts';
 import { ROOTS } from './u.roots.ts';
 
 export function makeTmpl(name: CellTmpl.Name = 'default') {
@@ -13,14 +13,14 @@ export function makeTmpl(name: CellTmpl.Name = 'default') {
     if (!relative) return e.skip('empty template path');
     e.target.rename(relative, true);
 
-    if (relative !== '.gitignore') return;
+    if (relative !== GITIGNORE_PATH) return;
     if (!(await e.target.exists())) return;
 
     const read = await Fs.readText(e.target.absolute);
     if (!read.ok) throw read.error;
 
     const text = read.data ?? '';
-    const next = mergeGitignore(text, ['.env']);
+    const next = mergeGitignore(text, GITIGNORE_ENTRIES);
     if (next !== text) e.modify(next);
   };
 

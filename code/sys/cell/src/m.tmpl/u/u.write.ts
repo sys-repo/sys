@@ -1,7 +1,7 @@
 import { FileMap, Fs, Path, type t } from '../common.ts';
 import { json } from '../-bundle.ts';
 import type { CellTmpl } from '../t.ts';
-import { mergeGitignore } from './u.gitignore.ts';
+import { GITIGNORE_ENTRIES, GITIGNORE_PATH, mergeGitignore } from './u.gitignore.ts';
 import { ROOTS } from './u.roots.ts';
 
 export async function writeTmpl(
@@ -28,14 +28,14 @@ function processTmplFile(root: string): t.FileMapProcessor {
     assertSafeRelativePath(relative);
     e.target.rename(relative as t.StringPath, true);
 
-    if (relative !== '.gitignore') return;
+    if (relative !== GITIGNORE_PATH) return;
     if (!(await e.target.exists())) return;
 
     const read = await Fs.readText(e.target.absolute);
     if (!read.ok) throw read.error;
 
     const before = read.data ?? '';
-    const after = mergeGitignore(before, ['.env']);
+    const after = mergeGitignore(before, GITIGNORE_ENTRIES);
     if (after !== before) e.modify(after);
   };
 }

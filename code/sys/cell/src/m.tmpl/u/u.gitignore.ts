@@ -1,3 +1,6 @@
+export const GITIGNORE_PATH = '.gitignore';
+export const GITIGNORE_ENTRIES = ['.env'] as const;
+
 export function mergeGitignore(text: string, entries: readonly string[]) {
   const existing = new Set(gitignoreLines(text));
   const missing = entries.filter((entry) => !existing.has(entry));

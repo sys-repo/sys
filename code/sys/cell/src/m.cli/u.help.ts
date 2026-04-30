@@ -46,17 +46,23 @@ export const FmtHelp = {
 
   async agentOutput(toolname: string = `${D.tool} help agent`): Promise<string> {
     const descriptor = await Tmpl.minimalDescriptor();
+    const ownedPaths = Tmpl.minimalOwnedPaths();
+    const writePaths = Tmpl.minimalWritePaths();
+    const gitignore = Tmpl.gitignore();
     const head = CliFmt.Help.build({ tool: toolname, summary: agentIntro(), sections: [] });
     const guide = table([
       [
         'Init',
         [
           'Run init when the folder is missing the Cell descriptor.',
-          'Init is additive and owns only the minimal Cell contract.',
+          'Init is additive and writes the embedded default resources.',
         ],
       ],
-      ['Owns', ['data/', 'view/', '-config/@sys.cell/cell.yaml']],
-      ['Safety', ['.gitignore may add .env once; never rewrite user rules.']],
+      ['Writes', writePaths],
+      ['Owns', ownedPaths],
+      ['Safety', [
+        `${gitignore.path} may add ${gitignore.entries.join(', ')} once; never rewrite user rules.`,
+      ]],
       ['Preserve', ['.pi/', '-config/@sys.pi/', 'other tool-owned -config/* namespaces']],
       [
         'Rule',
