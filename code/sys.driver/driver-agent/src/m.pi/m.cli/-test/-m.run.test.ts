@@ -55,6 +55,34 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     }
   });
 
+  it('run → launches the child process from the invoked cwd', async () => {
+    const prev = Process.inherit;
+    const git = await Deno.makeTempDir() as t.StringDir;
+    const invoked = Fs.join(git, 'nested', 'cell') as t.StringDir;
+    try {
+      await Deno.mkdir(Fs.join(git, '.git'));
+      await Deno.mkdir(invoked, { recursive: true });
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(invoked);
+        expect(input.env?.DENO_DIR).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'deno'));
+        expect(input.env?.PI_CODING_AGENT_DIR).to.eql(Fs.join(git, '.pi', 'agent'));
+        const readArg = findArg(input.args, '--allow-read=');
+        const writeArg = findArg(input.args, '--allow-write=');
+        expect(readArg).to.contain(git);
+        expect(writeArg).to.contain(git);
+        const settings = await Fs.readText(Fs.join(git, '.pi', 'settings.json'));
+        expect(settings.ok).to.eql(true);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Cli.run({ cwd: { invoked, git } });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Deno.remove(git, { recursive: true });
+    }
+  });
+
   it('run → passes cwd and env through to the child process', async () => {
     const prev = Process.inherit;
     const cwd = await Deno.makeTempDir() as t.StringDir;

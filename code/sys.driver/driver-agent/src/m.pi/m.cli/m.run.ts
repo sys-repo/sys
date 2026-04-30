@@ -13,6 +13,14 @@ export const run: t.PiCli.Lib['run'] = async (input) => {
   };
 
   await Settings.Fs.write({ cwd: cwd.git });
-  const args = [...(await PiArgs.toArgs(cwd.git, input.args ?? [], input.read ?? [], input.write ?? [], input.pkg))];
-  return await Process.inherit({ cmd: 'deno', args, cwd: cwd.git, env });
+  const args = [
+    ...(await PiArgs.toArgs(
+      cwd.git,
+      input.args ?? [],
+      input.read ?? [],
+      input.write ?? [],
+      input.pkg,
+    )),
+  ];
+  return await Process.inherit({ cmd: 'deno', args, cwd: cwd.invoked, env });
 };
