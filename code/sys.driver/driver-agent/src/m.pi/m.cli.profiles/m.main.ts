@@ -58,8 +58,10 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     write: input.write,
     pkg: input.pkg,
   });
-  const report = await PiSandboxReport.write({ cwd: cwd.git, sandbox: resolved.sandbox });
-  console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+  if (picked.previewed !== true) {
+    const report = await PiSandboxReport.write({ cwd: cwd.git, sandbox: resolved.sandbox });
+    console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+  }
   const output = await runCli(resolved);
 
   return { kind: 'run', input, parsed, output };

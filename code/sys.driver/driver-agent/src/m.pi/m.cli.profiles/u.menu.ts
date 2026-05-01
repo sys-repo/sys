@@ -14,6 +14,11 @@ type MenuContext = {
   readonly allowAll?: boolean;
 };
 
+type PreviewToken = {
+  readonly path: t.StringPath;
+  readonly text: string;
+};
+
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
   test(name: string) {
@@ -33,7 +38,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
     if (selected.kind === 'exit') return { kind: 'exit' };
     if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
 
-    await printSandbox({ cwd, path: selected.path, allowAll });
+    const preview = await printSandbox({ cwd, path: selected.path, allowAll });
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd, allowAll }),
@@ -45,7 +50,11 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
     if (action.kind === 'back') continue;
     if (action.kind === 'exit') return { kind: 'exit' };
     if (action.kind === 'action' && action.action === 'run') {
-      return { kind: 'selected', config: action.path };
+      return {
+        kind: 'selected',
+        config: action.path,
+        previewed: await isPreviewCurrent(preview, action.path),
+      };
     }
   }
 };
@@ -97,7 +106,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   };
 }
 
-async function printSandbox(args: MenuContext) {
+async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined> {
   const resolved = await resolveRun({
     cwd: { invoked: args.cwd, git: args.cwd },
     config: args.path,
@@ -106,4 +115,18 @@ async function printSandbox(args: MenuContext) {
   const report = await PiSandboxReport.write({ cwd: args.cwd, sandbox: resolved.sandbox });
   console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
   console.info('');
+  return await snapshotConfig(args.path);
+}
+
+async function isPreviewCurrent(preview: PreviewToken | undefined, path: t.StringPath) {
+  if (!preview) return false;
+  if (preview.path !== path) return false;
+  const current = await snapshotConfig(path);
+  return current?.text === preview.text;
+}
+
+async function snapshotConfig(path: t.StringPath): Promise<PreviewToken | undefined> {
+  const read = await Fs.readText(path);
+  if (!read.ok) return undefined;
+  return { path, text: read.data ?? '' };
 }

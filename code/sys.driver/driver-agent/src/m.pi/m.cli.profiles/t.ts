@@ -98,7 +98,7 @@ export declare namespace PiCliProfiles {
   /** Profile menu result. */
   export type MenuResult =
     | { readonly kind: 'exit' }
-    | { readonly kind: 'selected'; readonly config: t.StringPath };
+    | { readonly kind: 'selected'; readonly config: t.StringPath; readonly previewed?: boolean };
 
   /** Sandbox policy for a Pi profile. */
   export type Sandbox = {
