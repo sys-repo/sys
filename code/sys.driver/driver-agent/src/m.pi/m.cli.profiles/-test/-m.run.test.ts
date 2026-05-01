@@ -114,7 +114,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → uses the selected profile file', async () => {
+  it('run → uses the selected profile file with the wrapper-owned default prompt', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -136,7 +136,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
 
       Process.inherit = async (input) => {
         expect(input.args).to.include('--no-prompt');
-        expect(input.args).not.to.include('--system-prompt');
+        expect(input.args).to.include.members(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
         expect(input.args).to.include.members(['--model', 'gpt-5.4']);
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
@@ -154,7 +154,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → leaves prompt control with invocation-time passthrough when profile prompt is absent', async () => {
+  it('run → starts with DEFAULT_SYSTEM_PROMPT when profile prompt is absent', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -175,7 +175,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        expect(input.args).to.include.members(['--system-prompt', 'runtime prompt']);
+        const first = input.args.indexOf('--system-prompt');
+        const second = input.args.indexOf('--system-prompt', first + 1);
+        expect(first).to.be.greaterThan(-1);
+        expect(second).to.be.greaterThan(first);
+        expect(input.args[first + 1]).to.eql(DEFAULT_SYSTEM_PROMPT);
+        expect(input.args[second + 1]).to.eql('runtime prompt');
         expect(input.env?.PI_PROFILE).to.eql('main');
         return { code: 0, success: true, signal: null };
       };

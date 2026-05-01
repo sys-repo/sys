@@ -25,9 +25,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.prompt`, () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('- Be concise in your responses');
   });
 
-  it('toPromptArgs → maps null to DEFAULT_SYSTEM_PROMPT and preserves other behavior', () => {
-    expect(toPromptArgs()).to.eql([]);
-    expect(toPromptArgs({})).to.eql([]);
+  it('toPromptArgs → maps omitted and null prompts to DEFAULT_SYSTEM_PROMPT', () => {
+    expect(toPromptArgs()).to.eql(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
+    expect(toPromptArgs({})).to.eql(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
     expect(toPromptArgs({ system: null })).to.eql(['--system-prompt', DEFAULT_SYSTEM_PROMPT]);
     expect(toPromptArgs({ system: 'Custom prompt.' })).to.eql([
       '--system-prompt',

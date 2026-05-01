@@ -49,7 +49,6 @@ export const DEFAULT_SYSTEM_PROMPT = Str.dedent(
 ).trim();
 
 export function toPromptArgs(input?: t.PiCliProfiles.Prompt) {
-  if (!input || input.system === undefined) return [] as const;
-  const prompt = input.system === null ? DEFAULT_SYSTEM_PROMPT : input.system;
+  const prompt = input?.system ?? DEFAULT_SYSTEM_PROMPT;
   return ['--system-prompt', prompt] as const;
 }

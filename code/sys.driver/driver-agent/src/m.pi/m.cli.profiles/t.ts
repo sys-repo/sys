@@ -132,9 +132,8 @@ export declare namespace PiCliProfiles {
     /**
      * System prompt policy.
      *
-     * - `null` selects the wrapper-owned `DEFAULT_SYSTEM_PROMPT`.
+     * - omitted or `null` selects the wrapper-owned `DEFAULT_SYSTEM_PROMPT`.
      * - `string` passes that explicit replacement to Pi.
-     * - omitted leaves prompt control to invocation-time passthrough.
      */
     readonly system?: string | null;
   };
