@@ -21,6 +21,7 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
 ];
 const PATH_DIR_PREFIX_WIDTH = 4;
 const WRITE_CWD_MARKER = ' (git)';
+const TOOL_OPS = 'read, write, edit, bash';
 
 export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
@@ -53,9 +54,7 @@ export const PiSandboxFmt = {
     else pushWriteRows(table, input.cwd.git, input.write, contentBudget);
 
     const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'cyan';
-    const title = input.permissions === 'allow-all'
-      ? c.bold(c.yellow('Pi:no-sandbox'))
-      : c.bold(c.cyan('Pi:sandbox'));
+    const title = formatTitle(input.permissions, renderWidth);
 
     return Str.builder()
       .line(title)
@@ -65,6 +64,19 @@ export const PiSandboxFmt = {
       .toString();
   },
 } as const;
+
+function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
+  const label = permissions === 'allow-all'
+    ? c.bold(c.yellow('Pi:no-sandbox'))
+    : c.bold(c.cyan('Pi:sandbox'));
+  const labelWidth = visibleWidth(label);
+  const opsWidth = visibleWidth(TOOL_OPS);
+
+  if (labelWidth + opsWidth + 1 > width) return label;
+
+  const gap = ' '.repeat(width - labelWidth - opsWidth);
+  return `${label}${gap}${c.gray(TOOL_OPS)}`;
+}
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {
   const measured = Is.num(width) && width > 0 ? width : Cli.Screen.size().width;

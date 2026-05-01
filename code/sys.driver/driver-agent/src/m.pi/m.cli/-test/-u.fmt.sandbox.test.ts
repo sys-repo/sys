@@ -131,7 +131,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expect(text.split('\n')[0]).to.eql('Pi:no-sandbox');
+    expectHeader(text.split('\n')[0], 'Pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -200,9 +200,15 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expect(output[0]).to.eql('Pi:sandbox');
+  expectHeader(output[0], 'Pi:sandbox', width);
   expect(output[1]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
+}
+
+function expectHeader(line: string, title: string, width: number) {
+  expect(line).to.have.length(width);
+  expect(line.startsWith(title)).to.eql(true);
+  expect(line.endsWith('read, write, edit, bash')).to.eql(true);
 }
 
 function expectTargetRowsToFit(text: string, width: number, labels: readonly string[]) {
