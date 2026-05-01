@@ -9,7 +9,7 @@
 
 
 # @sys (system)
-Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new
+Monorepo comprising the core set of shared **“system”** modules purposed to flexibly compose into new
 *systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
 
 - **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTC](https://wintertc.org/) standards.
@@ -32,8 +32,8 @@ scope [jsr.io/@sys](https://jsr.io/@sys)
 
 
 [![MIT License][mit-badge]][mit-url]  
-Built on, and mission-locked to modern, portable Web Standards ([WinterTC](https://wintercg.org/)) and [ESM-only](https://jsr.io/docs/publishing-packages#jsr-package-rules) distribution.  
-Runtime posture: Deno — standards-based, TypeScript-native, and secure by default.  
+Built on, and mission-locked to modern, portable Web Standards ([WinterTC](https://wintertc.org/)) and [ESM-only](https://jsr.io/docs/publishing-packages#jsr-package-rules) distribution.  
+Runtime posture: Deno — standards-based, TypeScript-native, and secure by default for Deno-run code.  
 Public registry: [JSR](https://jsr.io/) first, via [@sys](https://jsr.io/@sys).
 
 ---
@@ -45,7 +45,7 @@ Public registry: [JSR](https://jsr.io/) first, via [@sys](https://jsr.io/@sys).
 
 ![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**
-Architecture, API's, and other conceptual primmitives will change  
+Architecture, APIs, and other conceptual primitives will change  
 (almost certainly radically 🐷) prior to any `1.x`.
 
 |     | repo                     | status
@@ -62,7 +62,7 @@ Architecture, API's, and other conceptual primmitives will change
 
 # Immutable\<T\>
 General immutability pattern.
-See full type definitions [`@sys/types`](https://jsr.io/@sys/types/0.0.157/src/t/t.Immutable.ts) and state primitives at [`@sys/immutable`](https://jsr.io/@sys/immutable/publish).
+See full type definitions at [`@sys/types`](https://jsr.io/@sys/types/doc) and state primitives at [`@sys/immutable`](https://jsr.io/@sys/immutable/doc).
 
 In its basic usage pattern:
 ```ts
@@ -74,30 +74,30 @@ foo.current;                       //  === { count: 123 }  ↓              ..(n
 ```
 
 
-...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).
+...and with more flavor to the shape and characteristics of the `ImmutableRef<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).
 
 A broad number of diverse (and divergent) systems can be driven by this one single
 "safe" state manipulation pattern.
 
-Below shows how an `Immutable<T>` of `JSON` is declared, listened to, manipulated, and then ultimately disposed of (lifecycle):
+Below shows how an `ImmutableRef<T>` of `JSON` is declared, observed, manipulated, and then ultimately disposed of (lifecycle):
 
 
 ```ts
-type Immutable<T> = {
-  current: T
-  change(fn: Mutator<T>): void
-  listen(): Events<T>
+type ImmutableRef<T, P = unknown> = {
+  readonly current: T
+  change(fn: Mutator<T>, opts?: ChangeOptions<P>): void
+  events(): ImmutableEvents<T, P>
 }
 
 type T = { count: number }
 
 // Generator<T> over some immutability strategy
 // (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
-const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
+const foo = Generator.create<T>({ count: 0 }) // ← ImmutableRef<T>
 
 
 /**
- * Imutable change pattern.
+ * Immutable change pattern.
  * (safely mutate a proxy).
  */
 foo.current;                       //  === { count: 0 }    ↓
@@ -106,7 +106,7 @@ foo.current;                       //  === { count: 123 }  ↓
 
 
 // Strongly typed Event<T> stream observable: 💦
-const events = thing.listen(): Events<T>
+const events = foo.events()
 events.$.subscribe((e) => { /* handle event stream */ });
 
 /**
@@ -116,7 +116,7 @@ events.$.subscribe((e) => { /* handle event stream */ });
  * eg. "RFC-6902 JSON patch standard".
  *
  * The Events<T> library itself enshrines the meaning of the message stream
- * conceptually through domain specific, pre-canned, stongly typed properties
+ * conceptually through domain specific, pre-canned, strongly typed properties
  * and methods of functional filters/helpers.
  */
 
@@ -276,7 +276,7 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 
 ### Runtime, Build Toolchain
-"Framework" agnostic. [Web standards](https://wintercg.org/).
+"Framework" agnostic. [Web standards](https://wintertc.org/).
 
 ![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
 

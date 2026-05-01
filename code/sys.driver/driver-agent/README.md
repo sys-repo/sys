@@ -53,6 +53,10 @@ It is:
   - `./.tmp/pi.cli/`
   - `./.log/@sys.driver-agent.pi/`
 - Default launches use scoped Deno permissions.
+- Security posture: local raw bash is not a sandbox boundary. Strict IO prompt rules are
+  defense-in-depth, not complete containment.
+- Intended runtime futures include constrained command brokers, narrowed bash substrates,
+  remote sandboxes, and a remote `Deno Sandbox`.
 - `-A` / `--allow-all` is an explicit unsafe debug mode for the launched Pi child.
   Sandbox previews and `.log/@sys.driver-agent.pi/*.sandbox.log.md` record `permissions: allow-all` when active.
 
