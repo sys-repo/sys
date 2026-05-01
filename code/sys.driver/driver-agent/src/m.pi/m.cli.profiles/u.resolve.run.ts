@@ -4,6 +4,7 @@ import { ProfilesFs } from './u.fs.ts';
 import { ProfileContext } from './u.context.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { toPromptArgs } from './u.prompt.ts';
+import { RuntimeMetadata } from './u.runtime.metadata.ts';
 
 export type ResolvedProfileRun = {
   readonly cwd: t.PiCli.Cwd;
@@ -52,6 +53,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     args: [
       ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
       ...contextResolution.args,
+      ...RuntimeMetadata.toPromptArgs({ cwd, profile: config }),
       ...(input.args ?? []),
     ],
     read,

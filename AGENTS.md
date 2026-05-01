@@ -18,7 +18,7 @@ Do not answer from this local file alone. Do not summarize or infer canon from m
 
 If any required canon read fails because the launcher sandbox does not grant access, stop and say so. Then resolve the missing permissions through the active Pi profile, not by guessing a config under `../sys.canon`.
 
-- If launcher/runtime context provides the active Pi profile path, use that exact path.
+- If launcher/runtime context provides `runtime.pi.active-profile`, use that exact path.
 - In this workspace, the local Pi profile is `./-config/@sys.driver-agent.pi/canon.yaml` (absolute: `/Users/phil/code/org.sys/sys/-config/@sys.driver-agent.pi/canon.yaml`).
 - If the active/local profile is readable and writable, offer to update it with the missing permissions. If the human approves or says to "add it", edit the profile immediately, then ask the human to restart Pi.
 - If the profile path is unknown or not writable, ask the human to add explicit Pi profile YAML permissions manually, then restart Pi.

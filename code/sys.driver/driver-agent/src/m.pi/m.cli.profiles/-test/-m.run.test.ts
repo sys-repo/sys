@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
+import { Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
 
@@ -41,14 +41,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         expect(input.args).to.include('--no-context-files');
         expect(input.args).to.include.members(['--system-prompt', 'You are the profile prompt.']);
         expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
-        const contextArg = input.args.indexOf('--append-system-prompt');
-        expect(contextArg).to.be.greaterThan(-1);
-        const contextBundle = input.args[contextArg + 1] as t.StringPath;
-        const contextText = await Fs.readText(contextBundle);
-        if (!contextText.ok) throw contextText.error;
-        expect(contextText.data).to.contain('# Project Context');
-        expect(contextText.data).to.contain(`${cwd}/profile-context`);
-        expect(contextText.data).to.contain('Profile context text.');
+        const contextText = await readContextBundle(input.args);
+        expect(contextText).to.contain('# Project Context');
+        expect(contextText).to.contain(`${cwd}/profile-context`);
+        expect(contextText).to.contain('Profile context text.');
         expect(read).to.contain('./profile-read');
         expect(read).not.to.contain('./profile-context');
         expect(read).to.contain('./extra-read');
@@ -84,8 +80,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       await Fs.write(config, 'sandbox:\n  context:\n    include: []\n');
       await Fs.ensureDir(`${cwd}/.git`);
 
-      Process.inherit = async (input) => {
-        expect(input.args).not.to.include('--append-system-prompt');
+      Process.inherit = async () => {
         return { code: 0, success: true, signal: null };
       };
 
@@ -94,6 +89,30 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       const text = (await Fs.readText(config)).data ?? '';
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → injects launcher-owned active profile runtime metadata', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = './profiles.yaml' as t.StringPath;
+    const absoluteConfig = Fs.join(cwd, 'profiles.yaml') as t.StringPath;
+    try {
+      await Fs.write(absoluteConfig, 'sandbox: {}\n');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expectRuntimeMetadata(input.args, { cwd, profile: absoluteConfig });
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
       await Fs.remove(cwd);
@@ -120,14 +139,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         expect(prompt).to.contain(`${cwd}/SYSTEM.md`);
         expect(prompt).to.contain('System guidance.');
 
-        const contextArg = input.args.indexOf('--append-system-prompt');
-        expect(contextArg).to.be.greaterThan(-1);
-        const contextBundle = input.args[contextArg + 1] as t.StringPath;
-        const contextText = await Fs.readText(contextBundle);
-        if (!contextText.ok) throw contextText.error;
-        expect(contextText.data).to.contain(`${cwd}/AGENTS.md`);
-        expect(contextText.data).to.contain('Agent guidance.');
-        expect(contextText.data).not.to.contain('SYSTEM.md');
+        const contextText = await readContextBundle(input.args);
+        expect(contextText).to.contain(`${cwd}/AGENTS.md`);
+        expect(contextText).to.contain('Agent guidance.');
+        expect(contextText).not.to.contain('SYSTEM.md');
         return { code: 0, success: true, signal: null };
       };
 
@@ -160,12 +175,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
-        const contextArg = input.args.indexOf('--append-system-prompt');
-        expect(contextArg).to.be.greaterThan(-1);
-        const contextBundle = input.args[contextArg + 1] as t.StringPath;
-        const contextText = await Fs.readText(contextBundle);
-        if (!contextText.ok) throw contextText.error;
-        const text = contextText.data ?? '';
+        const text = await readContextBundle(input.args);
         expect(text.indexOf(`${cwd}/AGENTS.md`)).to.be.lessThan(
           text.indexOf(`${cwd}/profile-context`),
         );
@@ -234,7 +244,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
       Process.inherit = async (input) => {
         expect(input.args).to.include.members(['--system-prompt', 'Custom prompt.']);
         expect(input.args).not.to.include('System guidance.');
-        expect(input.args).not.to.include('--append-system-prompt');
+        expectRuntimeMetadata(input.args, { cwd, profile: config });
         return { code: 0, success: true, signal: null };
       };
 
@@ -388,6 +398,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         expect(second).to.be.greaterThan(first);
         expect(input.args[first + 1]).to.eql('profile prompt');
         expect(input.args[second + 1]).to.eql('runtime prompt');
+        expectRuntimeMetadata(input.args, { cwd, profile: config });
         return { code: 0, success: true, signal: null };
       };
 
@@ -403,6 +414,39 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 });
+
+/**
+ * Helpers:
+ */
+
+function expectRuntimeMetadata(
+  args: readonly string[],
+  expected: { cwd: t.StringDir; profile: t.StringPath },
+) {
+  const matches = appendSystemPrompts(args).filter((value) => value.includes('# Runtime Metadata'));
+  expect(matches.length).to.eql(1);
+  const [value] = matches;
+  expect(value).to.contain('Trusted launcher-provided metadata');
+  expect(value).to.contain('runtime:');
+  expect(value).to.contain(`  cwd: ${expected.cwd}`);
+  expect(value).to.contain('  pi:');
+  expect(value).to.contain(`    active-profile: ${expected.profile}`);
+  expect(value).to.contain('    sandbox-paths-resolve-from: cwd');
+}
+
+async function readContextBundle(args: readonly string[]) {
+  const path = appendSystemPrompts(args).find((value) => !value.includes('# Runtime Metadata'));
+  expect(path).to.be.a('string');
+  const read = await Fs.readText(path as t.StringPath);
+  if (!read.ok) throw read.error;
+  return read.data ?? '';
+}
+
+function appendSystemPrompts(args: readonly string[]) {
+  return args.flatMap((arg, index) =>
+    arg === '--append-system-prompt' ? [args[index + 1] ?? ''] : []
+  );
+}
 
 function findArg(args: readonly string[], prefix: string) {
   const value = args.find((arg) => arg.startsWith(prefix));
