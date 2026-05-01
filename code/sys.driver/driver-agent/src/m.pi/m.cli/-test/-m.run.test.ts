@@ -37,9 +37,11 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(sysArg).to.contain('uid');
         expect(input.env).to.eql({
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
+          HOME: Fs.join(cwd, '.tmp', 'pi.cli', 'home'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
           PI_SKIP_VERSION_CHECK: '1',
         });
+        expect(await Fs.exists(Fs.join(cwd, '.tmp', 'pi.cli', 'home'))).to.eql(true);
         const read = await Fs.readJson<t.JsonMap>(Fs.join(cwd, '.pi', 'agent', 'settings.json'));
         if (!read.ok) throw read.error;
         expect(read.data).to.eql({
@@ -70,6 +72,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(invoked);
         expect(input.env?.DENO_DIR).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'deno'));
+        expect(input.env?.HOME).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'home'));
         expect(input.env?.PI_CODING_AGENT_DIR).to.eql(Fs.join(git, '.pi', 'agent'));
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
@@ -100,7 +103,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
       .absolute as t.StringDir;
-    const env = { PI_FOO: 'bar' };
+    const env = { PI_FOO: 'bar', HOME: '/tmp/user-home' };
     try {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
@@ -111,6 +114,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.env).to.eql({
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
+          HOME: Fs.join(cwd, '.tmp', 'pi.cli', 'home'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
           PI_SKIP_VERSION_CHECK: '1',
         });

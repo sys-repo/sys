@@ -1,17 +1,20 @@
-import { Process, type t } from './common.ts';
+import { Fs, Process, type t } from './common.ts';
 import { PiArgs } from './u.args.ts';
 import { Settings } from '../m.settings/mod.ts';
 
 export const run: t.PiCli.Lib['run'] = async (input) => {
   const cwd = input.cwd;
   const denoDir = PiArgs.toDenoDir(cwd.git);
+  const homeDir = PiArgs.toHomeDir(cwd.git);
   const env = {
     ...input.env,
     DENO_DIR: denoDir,
+    HOME: homeDir,
     PI_CODING_AGENT_DIR: PiArgs.toAgentDir(cwd.git),
     PI_SKIP_VERSION_CHECK: '1',
   };
 
+  await Fs.ensureDir(homeDir);
   await Settings.Fs.write({ cwd: cwd.git });
   const args = [
     ...(await PiArgs.toArgs(

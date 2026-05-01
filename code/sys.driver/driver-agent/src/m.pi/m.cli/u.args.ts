@@ -69,6 +69,10 @@ export const PiArgs = {
     return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'deno');
   },
 
+  toHomeDir(cwd: t.StringDir) {
+    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'home');
+  },
+
   import: PI_CODING_AGENT_IMPORT,
 } as const;
 

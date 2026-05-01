@@ -37,10 +37,11 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     );
   });
 
-  it('toAgentDir / toDenoDir → derive local runtime directories', () => {
+  it('toAgentDir / toDenoDir / toHomeDir → derive local runtime directories', () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     expect(PiArgs.toAgentDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/agent');
     expect(PiArgs.toDenoDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/deno');
+    expect(PiArgs.toHomeDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/home');
   });
 
   it('toArgs → assembles pi launch args with scoped permissions', async () => {
