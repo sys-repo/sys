@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1777441988940,
+    "createdAt": 1777593860312,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-af8c1a3925f66440ff190792033d3aff8b6f9332fc72d347497ccfeca7eeaa30",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.76/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-76f75e1bd8709e252e6667a295d0ccfa74f7ffb2268bd0735b4f6b68d3200b86",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.77/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.76"
+        "version": "0.0.77"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.76/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.77/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777441988946
+    "modifiedAt": 1777593860317
   },
   "graph": {
     "orderedPaths": [
@@ -458,6 +458,10 @@
       },
       {
         "from": "code/sys/cli",
+        "to": "code/sys/cell"
+      },
+      {
+        "from": "code/sys/cli",
         "to": "code/sys/crypto"
       },
       {
@@ -695,6 +699,10 @@
       {
         "from": "code/sys/fs",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/fs",
@@ -1215,6 +1223,10 @@
       {
         "from": "code/sys/tmpl-engine",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/sys/cell"
       },
       {
         "from": "code/sys/types",
