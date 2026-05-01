@@ -60,15 +60,15 @@ export const PiSandboxFmt = {
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
-    ? c.bold(c.yellow('Pi:no-sandbox'))
-    : c.bold(c.cyan('Pi:sandbox'));
+    ? c.bold(c.yellow('pi:no-sandbox'))
+    : c.bold(c.cyan('pi:sandbox'));
   const labelWidth = visibleWidth(label);
   const opsWidth = visibleWidth(TOOL_OPS);
 
   if (labelWidth + opsWidth + 1 > width) return label;
 
   const gap = ' '.repeat(width - labelWidth - opsWidth);
-  return `${label}${gap}${c.gray(TOOL_OPS)}`;
+  return `${label}${gap}${c.dim(c.cyan(TOOL_OPS))}`;
 }
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {

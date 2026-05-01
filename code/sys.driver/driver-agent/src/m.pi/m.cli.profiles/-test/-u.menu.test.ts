@@ -12,7 +12,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
-        expect(input.message).to.eql('Harness:');
+        expect(input.message).to.eql('pi:');
         return Promise.resolve('exit');
       },
     });
@@ -35,7 +35,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → uses Harness: for the action prompt', async () => {
+  it('menu → uses pi: for the action prompt', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -68,7 +68,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(calls).to.eql(['Harness:', 'Harness:', 'Harness:']);
+      expect(calls).to.eql(['pi:', 'pi:', 'pi:']);
       expect(strippedOptions).to.include('  start');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -112,12 +112,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd });
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
-      expect(printed).to.contain('Pi:sandbox');
+      expect(printed).to.contain('pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['Harness:', 'Harness:', 'Harness:', 'Harness:']);
+      expect(prompts).to.eql(['pi:', 'pi:', 'pi:', 'pi:']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;

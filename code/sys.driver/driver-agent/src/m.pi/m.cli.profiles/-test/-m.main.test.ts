@@ -103,7 +103,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       const res = await Profiles.main({ cwd, argv: ['--config', config, '--', '--help'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('Pi:sandbox');
+      expect(printed).to.contain('pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
     } finally {
       Process.inherit = prev;
@@ -224,7 +224,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       const res = await Profiles.main({ cwd, argv: ['--profile', 'canon', '--', '--help'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('Pi:sandbox');
+      expect(printed).to.contain('pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
     } finally {
       Process.inherit = prev;
@@ -256,7 +256,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       const res = await Profiles.main({ cwd, argv: ['--profile', 'default', '--', '--help'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('Pi:sandbox');
+      expect(printed).to.contain('pi:sandbox');
       expect(printed).to.contain('.sandbox.log.md');
       expect(printed).to.contain('write:cwd');
     } finally {

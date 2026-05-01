@@ -61,13 +61,13 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   return {
     cwd,
     dir: ProfilesFs.dir,
-    label: 'Harness',
+    label: 'pi',
     itemLabel: 'profile',
     addLabel: ' add: <profile>',
     defaultName: 'default',
     schema,
     actions: {
-      message: 'Harness:',
+      message: 'pi:',
       extra: [
         {
           name: allowAll === true ? c.yellow('start (--allow-all)') : c.cyan('start'),
