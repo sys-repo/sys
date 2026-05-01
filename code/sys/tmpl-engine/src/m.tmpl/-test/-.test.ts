@@ -11,10 +11,10 @@ describe('Tmpl', () => {
   const logOps = (
     res: t.TmplWriteResult,
     title: string,
-    options: { indent?: number; hideExcluded?: boolean; pad?: boolean } = {},
+    options: { indent?: number; hideSkipped?: boolean; pad?: boolean } = {},
   ) => {
-    const { indent, hideExcluded = true, pad = true } = options;
-    const tbl = TmplEngine.Log.table(res.ops, { hideExcluded, indent });
+    const { indent, hideSkipped = true, pad = true } = options;
+    const tbl = TmplEngine.Log.table(res.ops, { hideSkipped, indent });
     if (pad) console.info();
     console.info(c.bold(c.cyan(title)), '\n');
     console.info(tbl);

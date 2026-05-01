@@ -8,6 +8,7 @@ export type {
   FileMapOpOfKind,
   FileMapProcessor,
   FileMapProcessorArgs,
+  FileMapWriteResult,
   FsDir,
   FsFile,
 } from '@sys/fs/t';

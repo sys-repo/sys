@@ -93,6 +93,7 @@ export type TmplWriteOptions = {
 export type TmplWriteResult = {
   readonly dir: { readonly source: t.StringDir; readonly target: t.StringDir };
   readonly ops: readonly t.TmplWriteOp[];
+  readonly total: t.FileMapWriteResult['total'];
   readonly ctx?: O;
 };
 
