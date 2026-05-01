@@ -1,11 +1,23 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
+import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 
 describe(`@sys/cell/cli`, () => {
   it('API', async () => {
     const m = await import('@sys/cell/cli');
     expect(m.CellCli).to.equal(CellCli);
+  });
+
+  it('init -h → shows init-specific help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['init', '-h'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell/cli init');
+    expect(text).to.contain('deno run -RW jsr:@sys/cell init [dir]');
+    expect(text).to.contain('use --dry-run to preview exact file operations');
+    expect(text).to.not.contain('folder-shaped metamedium');
   });
 
   it('init --dry-run → reports template writes without changing files', async () => {

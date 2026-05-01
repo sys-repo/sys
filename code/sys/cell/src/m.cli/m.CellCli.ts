@@ -23,6 +23,12 @@ export const CellCli: t.CellCli.Lib = {
         print(help);
         return { kind: 'help', input: { argv }, text: help };
       }
+      if (topic === 'init') {
+        if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
+        const text = FmtHelp.initOutput();
+        print(text);
+        return { kind: 'help', input: { argv }, text };
+      }
       if (topic === 'agent') {
         if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
         const text = await FmtHelp.agentOutput();
@@ -32,7 +38,7 @@ export const CellCli: t.CellCli.Lib = {
       return fail({ argv }, `Unknown help topic: ${topic}`, help);
     }
 
-    if (args.help || argv.length === 0) {
+    if ((!command && args.help) || argv.length === 0) {
       print(help);
       return { kind: 'help', input: { argv }, text: help };
     }
@@ -40,7 +46,12 @@ export const CellCli: t.CellCli.Lib = {
     if (!command) return fail({ argv }, 'Missing command.', help);
 
     if (command === 'init') {
-      if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
+      const initHelp = FmtHelp.initOutput();
+      if (args.help) {
+        print(initHelp);
+        return { kind: 'help', input: { argv }, text: initHelp };
+      }
+      if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, initHelp);
 
       try {
         const { formatInitResult, initCell } = await import('./u.init.ts');
