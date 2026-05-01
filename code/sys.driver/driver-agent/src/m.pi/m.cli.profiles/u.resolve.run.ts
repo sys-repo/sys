@@ -19,10 +19,10 @@ export type ResolvedProfileRun = {
 
 export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
   const cwd = input.cwd;
-  const config = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
-  await ProfileMigrate.file(config);
-  const checked = await ProfilesFs.validateYaml(config);
-  if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(config)}`);
+  const activeProfile = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
+  await ProfileMigrate.file(activeProfile);
+  const checked = await ProfilesFs.validateYaml(activeProfile);
+  if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(activeProfile)}`);
 
   const profile = checked.doc;
   const prompt = profile.prompt;
@@ -53,7 +53,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     args: [
       ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
       ...contextResolution.args,
-      ...RuntimeMetadata.toPromptArgs({ cwd, profile: config }),
+      ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
       ...(input.args ?? []),
     ],
     read,
