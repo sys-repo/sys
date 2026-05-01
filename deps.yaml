@@ -5,16 +5,16 @@ deno.json:
   - import: jsr:@std/jsonc@1.0.2
   - import: jsr:@std/fs@1.0.23
   - import: jsr:@std/http@1.1.0
-    subpaths: [file-server]
+    subpaths: [ file-server ]
   - import: jsr:@std/path@1.1.4
-    subpaths: [join, posix/join, windows/join]
+    subpaths: [ join, posix/join, windows/join ]
   - import: jsr:@std/semver@1.0.8
   - import: jsr:@std/uuid@1.1.1
   - import: jsr:@std/testing@1.0.18
-    subpaths: [bdd]
+    subpaths: [ bdd ]
   - import: npm:chai@6.2.2
   - import: npm:fake-indexeddb@6.2.5
-    subpaths: [auto]
+    subpaths: [ auto ]
   - import: npm:esbuild@0.28.0
     dev: true
   - import: npm:@vitejs/plugin-react@6.0.1
@@ -30,10 +30,10 @@ deno.json:
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
   - import: npm:@noble/hashes@2.2.0
-    subpaths: [legacy.js, sha2.js]
+    subpaths: [ legacy.js, sha2.js ]
   - import: npm:@sinclair/typebox-codegen@0.11.1
   - import: npm:@sinclair/typebox@0.34.49
-    subpaths: [errors, value]
+    subpaths: [ errors, value ]
   - import: npm:gpt-tokenizer@3.4.0
   - import: npm:@automerge/automerge@3.2.6
   - import: npm:@automerge/automerge-repo@2.5.5
@@ -57,22 +57,22 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.9.0
   - import: npm:hash-it@7.0.2
-  - import: npm:hono@4.12.15
-    subpaths: [cors, deno, types]
+  - import: npm:hono@4.12.16
+    subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.70.6
+  - import: npm:@mariozechner/pi-coding-agent@0.71.0
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
   - import: npm:@types/ramda@0.31.1
   - import: npm:rxjs@7.8.2
-    subpaths: [operators]
+    subpaths: [ operators ]
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.0
   - import: npm:@octokit/rest@22.0.1
-  - import: npm:@stripe/stripe-js@9.3.1
+  - import: npm:@stripe/stripe-js@9.4.0
   - import: npm:ws@8.20.0
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3
@@ -82,7 +82,7 @@ deno.json:
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
   - import: npm:react-icons@5.6.0
-    subpaths: [bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc]
+    subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:@preact/signals-react@3.10.0
 package.json:
   - import: npm:esbuild@0.28.0
@@ -100,7 +100,7 @@ package.json:
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
   - import: npm:react-icons@5.6.0
-    subpaths: [bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc]
+    subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:prettier@3.8.3
     dev: true
   - import: npm:react@19.2.5
