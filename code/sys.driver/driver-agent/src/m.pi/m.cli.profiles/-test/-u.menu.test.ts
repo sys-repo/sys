@@ -35,6 +35,32 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 
+  it('menu → migrates generated legacy context.include before rendering profiles', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox:\n  context:\n    include: []\n');
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: () => Promise.resolve('exit'),
+    });
+
+    try {
+      const res = await menu({ cwd });
+      const text = (await Fs.readText(config)).data ?? '';
+      expect(res).to.eql({ kind: 'exit' });
+      expect(text).to.contain('append: []');
+      expect(text).not.to.contain('include:');
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      await Fs.remove(cwd);
+    }
+  });
+
   it('menu → uses pi: for the action prompt', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;

@@ -2,6 +2,7 @@ import { Fs, type t } from './common.ts';
 import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileContext } from './u.context.ts';
+import { ProfileMigrate } from './u.migrate/mod.ts';
 import { toPromptArgs } from './u.prompt.ts';
 
 export type ResolvedProfileRun = {
@@ -18,6 +19,7 @@ export type ResolvedProfileRun = {
 export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
   const cwd = input.cwd;
   const config = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
+  await ProfileMigrate.file(config);
   const checked = await ProfilesFs.validateYaml(config);
   if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(config)}`);
 

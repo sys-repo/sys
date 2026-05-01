@@ -2,6 +2,7 @@ import { c, Cli, Fs, type t, YamlConfig } from './common.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { ProfilesFs } from './u.fs.ts';
+import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from './u.schema.ts';
 
@@ -21,6 +22,7 @@ const ValidName = {
 } as const;
 
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
+  await ProfileMigrate.dir(cwd);
   while (true) {
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd, allowAll }),

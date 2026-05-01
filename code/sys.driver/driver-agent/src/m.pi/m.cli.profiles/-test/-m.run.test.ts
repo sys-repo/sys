@@ -75,6 +75,31 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
+  it('run → migrates generated legacy context.include before validation', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(config, 'sandbox:\n  context:\n    include: []\n');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        expect(input.args).not.to.include('--append-system-prompt');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+      const text = (await Fs.readText(config)).data ?? '';
+      expect(text).to.contain('append: []');
+      expect(text).not.to.contain('include:');
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → loads standard AGENTS and SYSTEM files when present', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
