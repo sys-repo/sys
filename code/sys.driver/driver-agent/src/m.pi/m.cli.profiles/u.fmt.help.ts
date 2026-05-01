@@ -13,11 +13,12 @@ function helpInput() {
       Defaults live in profile YAML; args after -- pass through to Pi.
     `).trim(),
     usage: [
-      `${tool} [--help] [--git-root <walk-up|cwd>]`,
-      `${tool} [--profile <name> | --config <path>] [--git-root <walk-up|cwd>] [-- <pi-args...>]`,
+      `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd>]`,
+      `${tool} [--profile <name> | --config <path>] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
+      ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
       ['--profile <name>', 'skip the menu and load a named profile config'],
       ['--config <path>', 'skip the menu and load a profile config file'],
       [
@@ -29,6 +30,7 @@ function helpInput() {
       `${tool}`,
       `${tool} --profile my-canon`,
       `${tool} --git-root cwd`,
+      `${tool} --allow-all`,
       `${tool} -- --model gpt-5.4`,
       `${tool} --config ./my-canon.yaml`,
     ],

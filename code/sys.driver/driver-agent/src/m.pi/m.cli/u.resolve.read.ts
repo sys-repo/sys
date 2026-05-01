@@ -7,6 +7,8 @@ export async function resolveRead(
   extra: readonly t.StringPath[] = [],
 ) {
   const scope = new Set<string>([cwd, denoDir]);
+  const home = PiEnv.toHome();
+  if (home) scope.add(home);
   for (const path of extra) scope.add(path);
   for (const path of toExecutableReadScope()) scope.add(path);
   const tmpDir = await PiEnv.toTmpDir();

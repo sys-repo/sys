@@ -10,7 +10,7 @@ type PreviewFit = {
 };
 
 const SANDBOX_EDGE_MARGIN = 1;
-const SANDBOX_TABLE_LABEL_WIDTH = 'write:cwd'.length;
+const SANDBOX_TABLE_LABEL_WIDTH = 'permissions'.length;
 const SANDBOX_TABLE_GAP = 3;
 const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + SANDBOX_TABLE_GAP;
 const PREVIEW_ELLIPSIS = '..';
@@ -20,6 +20,7 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
   [3, 10],
 ];
 const PATH_DIR_PREFIX_WIDTH = 4;
+const WRITE_CWD_MARKER = ' (git)';
 
 export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
@@ -30,6 +31,7 @@ export const PiSandboxFmt = {
     if (input.report) {
       table.push([c.gray('report'), formatReportPath(input.report, contentBudget, input.cwd.git)]);
     }
+    table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
     table.push([
       c.gray('context'),
       formatPreview(
@@ -43,15 +45,23 @@ export const PiSandboxFmt = {
     ]);
     table.push([
       c.gray('read'),
-      formatPreview(cwdAndDetail(input.cwd.git, input.read?.detail ?? []), contentBudget),
+      input.permissions === 'allow-all'
+        ? c.yellow('all')
+        : formatPreview(cwdAndDetail(input.cwd.git, input.read?.detail ?? []), contentBudget),
     ]);
-    pushWriteRows(table, input.cwd.git, input.write, contentBudget);
+    if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
+    else pushWriteRows(table, input.cwd.git, input.write, contentBudget);
+
+    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'green';
+    const title = input.permissions === 'allow-all'
+      ? c.bold(c.yellow('Agent:Sandbox'))
+      : c.bold(c.green('Agent:Sandbox'));
 
     return Str.builder()
-      .line(c.bold(c.green('Agent:Sandbox')))
-      .line(Cli.Fmt.hr(renderWidth, 'green'))
+      .line(title)
+      .line(Cli.Fmt.hr(renderWidth, frameColor))
       .line(Str.trimEdgeNewlines(String(table)))
-      .line(Cli.Fmt.hr(renderWidth, 'green'))
+      .line(Cli.Fmt.hr(renderWidth, frameColor))
       .toString();
   },
 } as const;
@@ -98,6 +108,10 @@ function fitDisplayPath(path: string, budget: number) {
   const right = Math.max(0, dirBudget - left - PREVIEW_ELLIPSIS.length);
   const shortenedDir = Str.ellipsize(dirname, [left, right], PREVIEW_ELLIPSIS);
   return `${shortenedDir}/${tail}`;
+}
+
+function formatPermissions(input: t.PiCli.PermissionMode) {
+  return input === 'allow-all' ? c.yellow(input) : c.gray(input);
 }
 
 function pushWriteRows(
@@ -205,8 +219,12 @@ function pushWriteBucket(
   budget: number,
 ) {
   if (input.length === 0) return;
-  const [head, ...tail] = input.map((path) => formatWritePath(path, cwd, budget));
-  const lead = label === 'write:cwd' ? `${head} ${c.cyan('(git)')}` : head;
+  const markerBudget = label === 'write:cwd' ? visibleWidth(WRITE_CWD_MARKER) : 0;
+  const [head, ...tail] = input.map((path, position) => {
+    const pathBudget = position === 0 ? Math.max(0, budget - markerBudget) : budget;
+    return formatWritePath(path, cwd, pathBudget);
+  });
+  const lead = label === 'write:cwd' ? `${head}${c.cyan(WRITE_CWD_MARKER)}` : head;
   table.push([c.yellow(label), lead]);
   for (const item of tail) table.push(['', item]);
 }

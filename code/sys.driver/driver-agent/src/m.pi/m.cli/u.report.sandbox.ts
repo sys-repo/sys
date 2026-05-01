@@ -27,6 +27,7 @@ export const PiSandboxReport = {
 
   text(input: Input) {
     const { sandbox } = input;
+    const allowAll = sandbox.permissions === 'allow-all';
     const write = [sandbox.cwd.git, ...(sandbox.write?.detail ?? [])];
     const context = [
       ...(sandbox.context?.detail ?? []),
@@ -41,15 +42,16 @@ export const PiSandboxReport = {
       `- cwd.invoked: ${sandbox.cwd.invoked}`,
       '',
       '## Summary',
-      `- read: ${toSummary(sandbox.read)}`,
-      `- write: ${toSummary(sandbox.write, { temp: 'tmp' })}`,
+      `- permissions: ${sandbox.permissions}`,
+      `- read: ${allowAll ? 'all' : toSummary(sandbox.read)}`,
+      `- write: ${allowAll ? 'all' : toSummary(sandbox.write, { temp: 'tmp' })}`,
       `- context: ${toContextSummary(sandbox.context)}`,
       '',
       '## Readable Paths',
-      ...toList(sandbox.read?.detail ?? []),
+      ...toCapabilityList(sandbox.permissions, sandbox.read?.detail ?? []),
       '',
       '## Writable Paths',
-      ...toList(write),
+      ...toCapabilityList(sandbox.permissions, write),
       '',
       '## Context Files',
       ...toList(context),
@@ -75,6 +77,11 @@ function toContextSummary(input?: t.PiCli.SandboxSummary['context']) {
   if ((input?.include?.length ?? 0) > 0) items.push('extra context');
   if (items.length === 0) return '-';
   return items.join(', ');
+}
+
+function toCapabilityList(permissions: t.PiCli.PermissionMode, items: readonly string[]) {
+  if (permissions === 'allow-all') return ['- all (Deno --allow-all)'];
+  return toList(items);
 }
 
 function toList(items: readonly string[]) {

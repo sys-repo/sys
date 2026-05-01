@@ -19,7 +19,7 @@ export const run: t.PiCli.Lib['run'] = async (input) => {
       input.args ?? [],
       input.read ?? [],
       input.write ?? [],
-      input.pkg,
+      { allowAll: input.allowAll, pkg: input.pkg },
     )),
   ];
   return await Process.inherit({ cmd: 'deno', args, cwd: cwd.invoked, env });

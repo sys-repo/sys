@@ -48,6 +48,9 @@ export declare namespace PiCli {
     /** Optional environment variable overrides for the Pi child process. */
     readonly env?: Record<string, string>;
 
+    /** Unsafe debug escape hatch: launch the Pi child with Deno full permissions. */
+    readonly allowAll?: boolean;
+
     /** Additional read-scope paths supplied by the caller. */
     readonly read?: readonly t.StringPath[];
 
@@ -68,6 +71,9 @@ export declare namespace PiCli {
 
     /** Optional environment variable overrides for the Pi child process. */
     readonly env?: Record<string, string>;
+
+    /** Unsafe debug escape hatch: launch the Pi child with Deno full permissions. */
+    readonly allowAll?: boolean;
 
     /** Additional read-scope paths supplied by the caller. */
     readonly read?: readonly t.StringPath[];
@@ -91,9 +97,13 @@ export declare namespace PiCli {
   /** Typed wrapper argv shape produced from `Args.parse(...)`. */
   export type ParsedArgs = {
     readonly help?: boolean;
+    readonly allowAll?: boolean;
     readonly gitRoot?: GitRootMode;
     readonly _: readonly string[];
   };
+
+  /** Effective permission posture for the launched Pi child. */
+  export type PermissionMode = 'scoped' | 'allow-all';
 
   /** Wrapper result union. */
   export type Result = Help | Ran | Exit;
@@ -109,6 +119,8 @@ export declare namespace PiCli {
   export type SandboxSummary = {
     /** Optional persisted report path for the full sandbox inspection artifact. */
     readonly report?: t.StringPath;
+    /** Effective permission posture for the launched Pi child. */
+    readonly permissions: PermissionMode;
     /** Working directories preserved across startup resolution. */
     readonly cwd: Cwd;
     /** Effective read scope grouped for display. */

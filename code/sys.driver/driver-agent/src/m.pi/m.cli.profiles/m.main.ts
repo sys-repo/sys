@@ -21,6 +21,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const resolvedCwd = await resolveCwd(input.cwd, { gitRoot: parsed.gitRoot });
   if (resolvedCwd.kind === 'exit') return { kind: 'exit', input };
   const cwd = resolvedCwd.cwd;
+  const allowAll = input.allowAll === true || parsed.allowAll === true;
 
   if (parsed.config && parsed.profile) {
     throw new Error('--config and --profile are mutually exclusive; pass exactly one.');
@@ -36,7 +37,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       kind: 'selected' as const,
       config: ProfilesFs.fileOf(parsed.profile) as t.StringPath,
     }
-    : await menu({ cwd: cwd.git });
+    : await menu({ cwd: cwd.git, allowAll });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
@@ -52,6 +53,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     config: picked.config,
     args: parsed._,
     env: input.env,
+    allowAll,
     read: input.read,
     write: input.write,
     pkg: input.pkg,

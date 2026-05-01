@@ -14,7 +14,7 @@ const ValidName = {
   },
 } as const;
 
-export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
+export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
   const schema = {
     init: () => ProfileSchema.initial(),
     validate: (value: unknown) => ProfileSchema.validate(value),
@@ -31,7 +31,10 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
     actions: {
       message: 'Harness:',
       extra: [
-        { name: c.green('start'), value: 'run' },
+        {
+          name: allowAll === true ? c.yellow('start (--allow-all)') : c.green('start'),
+          value: 'run',
+        },
         { name: 'sandbox', value: 'sandbox' },
       ],
       async onAction({ action, path }) {
@@ -39,6 +42,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd }) => {
         const resolved = await resolveRun({
           cwd: { invoked: cwd, git: cwd },
           config: path,
+          allowAll,
         });
         const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
         console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));

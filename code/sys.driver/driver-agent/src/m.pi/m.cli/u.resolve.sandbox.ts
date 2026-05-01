@@ -10,6 +10,7 @@ export async function resolveSandboxSummary(args: {
   cwd: t.PiCli.Cwd;
   read?: readonly t.StringPath[];
   write?: readonly t.StringPath[];
+  allowAll?: boolean;
   context?: t.PiCli.SandboxSummary['context'];
 }): Promise<t.PiCli.SandboxSummary> {
   const denoDir = PiArgs.toDenoDir(args.cwd.git);
@@ -23,6 +24,7 @@ export async function resolveSandboxSummary(args: {
   const context = toContext(args.cwd.git, read, args.context);
 
   return {
+    permissions: args.allowAll === true ? 'allow-all' : 'scoped',
     cwd: args.cwd,
     read: toReadScope(args.cwd.git, read, tmpDir),
     write: toWriteScope(args.cwd.git, write, tmpDir),

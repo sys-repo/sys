@@ -22,6 +22,24 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.args`, () => {
       gitRoot: 'cwd',
       _: [],
     });
+    expect(ProfileArgs.parse(['--allow-all', '--profile', 'canon'])).to.eql({
+      help: false,
+      allowAll: true,
+      profile: 'canon',
+      _: [],
+    });
+    expect(ProfileArgs.parse(['-A', '--profile', 'canon'])).to.eql({
+      help: false,
+      allowAll: true,
+      profile: 'canon',
+      _: [],
+    });
+    expect(ProfileArgs.parse(['--config', './profiles.yaml', '--', '--allow-all']))
+      .to.eql({
+        help: false,
+        config: './profiles.yaml',
+        _: ['--allow-all'],
+      });
     expect(ProfileArgs.parse(['--config', './profiles.yaml', '--', '--model']))
       .to.eql({
         help: false,

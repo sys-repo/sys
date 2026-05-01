@@ -19,6 +19,16 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       gitRoot: 'cwd',
       _: ['--model', 'gpt-5.4'],
     });
+    expect(PiArgs.parse(['-A', '--model', 'gpt-5.4'])).to.eql({
+      help: false,
+      allowAll: true,
+      _: ['--model', 'gpt-5.4'],
+    });
+    expect(PiArgs.parse(['--allow-all', '--', '--allow-all'])).to.eql({
+      help: false,
+      allowAll: true,
+      _: ['--allow-all'],
+    });
   });
 
   it('parse → rejects unsupported git root modes', () => {
@@ -40,7 +50,9 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     try {
       Deno.env.set('TMPDIR', '/tmp/pi-cli-runtime');
       const args = [
-        ...await PiArgs.toArgs(cwd, ['--help'], [], ['/tmp/pi-cli-write' as t.StringPath], pkg),
+        ...await PiArgs.toArgs(cwd, ['--help'], [], ['/tmp/pi-cli-write' as t.StringPath], {
+          pkg,
+        }),
       ];
       const readArg = findArg(args, '--allow-read=');
       const writeArg = findArg(args, '--allow-write=');
@@ -71,13 +83,28 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
     }
   });
 
+  it('toArgs → grants full Deno permissions for explicit debug launches', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const args = [...await PiArgs.toArgs(cwd, ['--help'], [], [], { allowAll: true })];
+
+    expect(args).to.include('--allow-all');
+    expect(args).not.to.include('--allow-env');
+    expect(args).not.to.include('--allow-net');
+    expect(args).not.to.include('--allow-run');
+    expect(args.some((arg) => arg.startsWith('--allow-read='))).to.eql(false);
+    expect(args.some((arg) => arg.startsWith('--allow-write='))).to.eql(false);
+    expect(args.some((arg) => arg.startsWith('--allow-ffi='))).to.eql(false);
+    expect(args.some((arg) => arg.startsWith('--allow-sys='))).to.eql(false);
+  });
+
   it('toArgs → resolves the Pi package spec from canonical deps when present above cwd', async () => {
-    const depsDir = await Deno.makeTempDir();
+    const depsDir = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.args.test.' }))
+      .absolute as t.StringDir;
     const cwd = Fs.join(depsDir, 'pkg') as t.StringDir;
     const depsPath = Fs.join(depsDir, 'deps.yaml');
     try {
-      await Deno.mkdir(cwd, { recursive: true });
-      await Deno.writeTextFile(
+      await Fs.ensureDir(cwd);
+      await Fs.write(
         depsPath,
         `deno.json:\n  - import: npm:@mariozechner/pi-coding-agent@1.2.3\n`,
       );
@@ -87,7 +114,7 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       expect(args).to.include('--no-lock');
       expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
     } finally {
-      await Deno.remove(depsDir, { recursive: true });
+      await Fs.remove(depsDir);
     }
   });
 

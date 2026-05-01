@@ -11,9 +11,10 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → writes canonical project-local settings before launch', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+      .absolute as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
       Process.inherit = async (input) => {
         expect(input.cmd).to.eql('deno');
         expect(input.cwd).to.eql(cwd);
@@ -51,17 +52,18 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('run → launches the child process from the invoked cwd', async () => {
     const prev = Process.inherit;
-    const git = await Deno.makeTempDir() as t.StringDir;
+    const git = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+      .absolute as t.StringDir;
     const invoked = Fs.join(git, 'nested', 'cell') as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(git, '.git'));
-      await Deno.mkdir(invoked, { recursive: true });
+      await Fs.ensureDir(Fs.join(git, '.git'));
+      await Fs.ensureDir(invoked);
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(invoked);
         expect(input.env?.DENO_DIR).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'deno'));
@@ -79,13 +81,14 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
-      await Deno.remove(git, { recursive: true });
+      await Fs.remove(git);
     }
   });
 
   it('run → passes cwd and env through to the child process', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+      .absolute as t.StringDir;
     const env = { PI_FOO: 'bar' };
     try {
       Process.inherit = async (input) => {
@@ -116,18 +119,19 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
       const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, env });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('run → passes extra write scope through to the child process', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+      .absolute as t.StringDir;
     try {
       Process.inherit = async (input) => {
         const writeArg = findArg(input.args, '--allow-write=');
@@ -136,7 +140,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
       const res = await Cli.run({
         cwd: { invoked: cwd, git: cwd },
         write: ['/tmp/pi-cli-extra-write' as t.StringPath],
@@ -144,7 +148,29 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → grants full Deno permissions only when explicitly requested', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+      .absolute as t.StringDir;
+    try {
+      Process.inherit = async (input) => {
+        expect(input.args).to.include('--allow-all');
+        expect(input.args.some((arg) => arg.startsWith('--allow-read='))).to.eql(false);
+        expect(input.args.some((arg) => arg.startsWith('--allow-write='))).to.eql(false);
+        expect(input.args.some((arg) => arg.startsWith('--allow-ffi='))).to.eql(false);
+        return { code: 0, success: true, signal: null };
+      };
+
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, allowAll: true });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
     }
   });
 });

@@ -22,6 +22,8 @@ export declare namespace PiCliProfiles {
     readonly cwd?: t.StringDir | t.PiCli.Cwd;
     /** Environment overrides passed to the Pi process. */
     readonly env?: Record<string, string>;
+    /** Unsafe debug escape hatch: launch the Pi child with Deno full permissions. */
+    readonly allowAll?: boolean;
     /** Extra read-scope paths added to the Pi sandbox. */
     readonly read?: readonly t.StringPath[];
     /** Extra write-scope paths added to the Pi sandbox. */
@@ -40,6 +42,8 @@ export declare namespace PiCliProfiles {
     readonly args?: readonly string[];
     /** Environment overrides merged over profile env. */
     readonly env?: Record<string, string>;
+    /** Unsafe debug escape hatch: launch the Pi child with Deno full permissions. */
+    readonly allowAll?: boolean;
     /** Extra read-scope paths merged with profile read scope. */
     readonly read?: readonly t.StringPath[];
     /** Extra write-scope paths merged with profile write scope. */
@@ -52,11 +56,14 @@ export declare namespace PiCliProfiles {
   export type MenuArgs = {
     /** Terminal working directory used to locate profile configs. */
     readonly cwd: t.StringDir;
+    /** Unsafe debug escape hatch applied to sandbox previews from the menu. */
+    readonly allowAll?: boolean;
   };
 
   /** Parsed wrapper args. */
   export type ParsedArgs = {
     readonly help?: boolean;
+    readonly allowAll?: boolean;
     readonly config?: string;
     readonly profile?: string;
     readonly gitRoot?: t.PiCli.GitRootMode;

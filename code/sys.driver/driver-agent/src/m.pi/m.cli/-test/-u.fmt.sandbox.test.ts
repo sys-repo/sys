@@ -3,6 +3,10 @@ import type { t } from '../common.ts';
 import { Cli } from '../common.ts';
 import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 
+type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
+  readonly permissions?: t.PiCli.PermissionMode;
+};
+
 describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
@@ -47,6 +51,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
 
   it('table → report row keeps path basename color semantics when shortened', () => {
     const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
       report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, { width: 52 });
@@ -103,6 +108,30 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('testing.md');
     expect(text).to.not.contain('/Users/phil/code/org.sys/sys.canon');
     expectTargetRowsToFit(text, 35, ['context']);
+  });
+
+  it('table → renders allow-all as the effective read/write posture', () => {
+    const input = {
+      permissions: 'allow-all' as const,
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+      read: {
+        summary: ['cwd'],
+        detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno'],
+      },
+      write: {
+        summary: ['cwd'],
+        detail: ['/tmp/pi-cli-test/out'],
+      },
+    };
+    const text = render(input, 80);
+    const raw = PiSandboxFmt.table(input, { width: 80 });
+
+    expect(text).to.match(/permissions\s+allow-all/);
+    expect(text).to.match(/read\s+all/);
+    expect(text).to.match(/write\s+all/);
+    expect(text).not.to.contain('write:cwd');
+    expect(raw).to.match(/\x1b\[1m\x1b\[33mAgent:Sandbox/);
+    expect(raw).to.match(/\x1b\[33m━+/);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -165,8 +194,8 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   });
 });
 
-function render(input: t.PiCli.SandboxSummary, width: number) {
-  return Cli.stripAnsi(PiSandboxFmt.table(input, { width }));
+function render(input: SandboxInput, width: number) {
+  return Cli.stripAnsi(PiSandboxFmt.table({ permissions: 'scoped', ...input }, { width }));
 }
 
 function expectHeaderFrame(text: string, width: number) {

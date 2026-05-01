@@ -20,6 +20,7 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
       });
 
       expect(res.cwd).to.eql({ invoked: `${cwd}/nested`, git: cwd });
+      expect(res.permissions).to.eql('scoped');
       expect(res.read?.summary).to.include.members(['cwd', 'runtime', 'context']);
       expect(res.read?.detail).to.include('./canon');
       expect(res.read?.detail).to.include(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
@@ -49,12 +50,23 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
         write: ['./out' as t.StringPath],
       });
 
+      expect(res.permissions).to.eql('scoped');
       expect(res.write?.summary).to.include.members(['cwd', 'temp', 'extra']);
       expect(res.write?.detail).to.include('/var/tmp/pi-cli-runtime');
       expect(res.write?.detail).to.include('./out');
     } finally {
       restoreEnv('TMPDIR', prevTmp);
     }
+  });
+
+  it('records allow-all as the effective permission posture', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const res = await resolveSandboxSummary({
+      cwd: { invoked: cwd, git: cwd },
+      allowAll: true,
+    });
+
+    expect(res.permissions).to.eql('allow-all');
   });
 });
 

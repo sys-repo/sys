@@ -24,6 +24,7 @@ export const main: t.PiCli.Lib['main'] = async (input = {}) => {
     cwd: resolved.cwd,
     args: parsed._,
     env: input.env,
+    allowAll: input.allowAll === true || parsed.allowAll === true,
     read: input.read,
     write: input.write,
     pkg: input.pkg,

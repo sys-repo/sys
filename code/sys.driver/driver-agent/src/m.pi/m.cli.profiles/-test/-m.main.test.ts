@@ -24,10 +24,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         const text = Cli.stripAnsi(res.text);
         expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles');
         expect(text).to.contain('-h, --help');
+        expect(text).to.contain('-A, --allow-all');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
         expect(text).to.contain('--git-root <walk-up|cwd>');
         expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles --git-root cwd');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles --allow-all');
         expect(text).to.contain(
           'deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4',
         );
@@ -106,6 +108,86 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → routes explicit allow-all through Profiles into the Pi child and sandbox display', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(config, 'sandbox: {}\n');
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+      Process.inherit = async (input) => {
+        expect(input.args).to.include('--allow-all');
+        expect(input.args.some((arg) => arg.startsWith('--allow-read='))).to.eql(false);
+        expect(input.args.some((arg) => arg.startsWith('--allow-write='))).to.eql(false);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({ cwd, argv: ['--allow-all', '--config', config] });
+      expect(res.kind).to.eql('run');
+      const printed = Cli.stripAnsi(calls.join('\n'));
+      expect(printed).to.match(/permissions\s+allow-all/);
+      expect(printed).to.match(/read\s+all/);
+      expect(printed).to.match(/write\s+all/);
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → carries allow-all into the interactive sandbox preview', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-agent.pi/default.yaml` as t.StringPath;
+    const calls: string[] = [];
+    let topLevelCount = 0;
+    let actionCount = 0;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.dirname(config));
+      await Fs.write(config, 'sandbox: {}\n');
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+      Process.inherit = async () => {
+        throw new Error('Process.inherit should not run during sandbox preview.');
+      };
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        value: (input: { message: string }) => {
+          if (input.message === 'Agent:\n') {
+            topLevelCount += 1;
+            if (topLevelCount === 1) return Promise.resolve(config);
+            return Promise.resolve('exit');
+          }
+          if (input.message === 'Harness:') {
+            actionCount += 1;
+            if (actionCount === 1) return Promise.resolve('sandbox');
+            return Promise.resolve('back');
+          }
+          throw new Error(`Unexpected prompt: ${input.message}`);
+        },
+      });
+
+      const res = await Profiles.main({ cwd, argv: ['-A'] });
+      expect(res.kind).to.eql('exit');
+      const printed = Cli.stripAnsi(calls.join('\n'));
+      expect(printed).to.match(/permissions\s+allow-all/);
+      expect(printed).to.match(/read\s+all/);
+      expect(printed).to.match(/write\s+all/);
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
       await Fs.remove(cwd);
     }
   });

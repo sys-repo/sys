@@ -106,10 +106,64 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.contain('Agent:Sandbox');
+      expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
       expect(prompts).to.eql(['Agent:\n', 'Harness:', 'Harness:', 'Agent:\n']);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → sandbox action preserves explicit allow-all posture', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox: {}\n');
+    const prints: string[] = [];
+    const harnessOptions: string[] = [];
+    let topLevelCount = 0;
+    let actionCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: { message: string; options?: { name: string }[] }) => {
+        if (input.message === 'Agent:\n') {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (input.message === 'Harness:') {
+          harnessOptions.push(...(input.options ?? []).map((item) => item.name));
+          actionCount += 1;
+          if (actionCount === 1) return Promise.resolve('sandbox');
+          return Promise.resolve('back');
+        }
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+
+    try {
+      const res = await menu({ cwd, allowAll: true });
+      const printed = Cli.stripAnsi(prints.join('\n'));
+      expect(res).to.eql({ kind: 'exit' });
+      expect(printed).to.match(/permissions\s+allow-all/);
+      expect(printed).to.match(/read\s+all/);
+      expect(printed).to.match(/write\s+all/);
+      expect(harnessOptions.some((name) => /\x1b\[33mstart \(--allow-all\)/.test(name))).to.eql(
+        true,
+      );
+      expect(harnessOptions.map((name) => Cli.stripAnsi(name))).to.include(
+        '  start (--allow-all)',
+      );
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;

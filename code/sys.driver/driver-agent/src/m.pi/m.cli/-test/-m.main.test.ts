@@ -20,6 +20,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
         if (res.kind !== 'help') throw new Error('Expected help result.');
         expect(res.text).to.contain('@sys/driver-agent/pi/cli');
         expect(res.text).to.contain('-h, --help');
+        expect(res.text).to.contain('-A, --allow-all');
         expect(calls).to.eql([res.text]);
       } finally {
         Process.inherit = prev;
@@ -33,9 +34,10 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → passes non-wrapper argv through to Pi launch unchanged', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
@@ -48,15 +50,38 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → passes -A through to Pi when separated by --', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include('-A');
+        expect(input.args).not.to.include('--allow-all');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Cli.main({ cwd, argv: ['--', '-A'] });
+      expect(res.kind).to.eql('run');
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
     }
   });
 
   it('main → passes --help through to Pi when separated by --', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
@@ -68,15 +93,38 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → grants full Deno permissions when requested before --', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.args).to.include('--allow-all');
+        expect(input.args).not.to.include('-A');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Cli.main({ cwd, argv: ['-A'] });
+      expect(res.kind).to.eql('run');
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
     }
   });
 
   it('main → passes extra write scope through to Pi launch', async () => {
     const prev = Process.inherit;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
 
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
@@ -93,18 +141,19 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('main → supports cwd-only git root resolution for smoke testing', async () => {
     const prev = Process.inherit;
     const prevPrompt = GitInitMenu.prompt;
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
     const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;
     try {
-      await Deno.mkdir(Fs.join(cwd, '.git'));
-      await Deno.mkdir(nested, { recursive: true });
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(nested);
 
       Process.inherit = async () => {
         throw new Error(
@@ -118,12 +167,13 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
     } finally {
       Process.inherit = prev;
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 
   it('main → exits cleanly when git init recovery is declined', async () => {
-    const cwd = await Deno.makeTempDir() as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+      .absolute as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
     try {
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
@@ -131,7 +181,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
-      await Deno.remove(cwd, { recursive: true });
+      await Fs.remove(cwd);
     }
   });
 });

@@ -9,6 +9,7 @@ export type ResolvedProfileRun = {
   readonly read: readonly t.StringPath[];
   readonly write: readonly t.StringPath[];
   readonly env: Record<string, string>;
+  readonly allowAll?: boolean;
   readonly pkg?: t.StringModuleSpecifier;
   readonly sandbox: t.PiCli.SandboxSummary;
 };
@@ -33,6 +34,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     cwd,
     read,
     write,
+    allowAll: input.allowAll,
     context: {
       agents: 'walk-up', // Include the nearest AGENTS.md and continue upward through parent folders.
       include: [...(context?.include ?? [])],
@@ -45,6 +47,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     read,
     write,
     env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },
+    allowAll: input.allowAll,
     pkg: input.pkg,
     sandbox,
   };

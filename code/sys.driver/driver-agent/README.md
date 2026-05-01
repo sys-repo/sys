@@ -10,11 +10,13 @@ import { pkg } from 'jsr:@sys/driver-agent';
 ```sh
 deno run -A jsr:@sys/driver-agent/pi/cli Profiles
 deno run -A jsr:@sys/driver-agent/pi/cli Profiles --profile canon
+deno run -A jsr:@sys/driver-agent/pi/cli Profiles --allow-all  # unsafe debug
 
 # (equivalent): from system tools ↓
 
 deno run -A jsr:@sys/tools agent
 deno run -A jsr:@sys/tools agent --profile canon
+deno run -A jsr:@sys/tools agent --allow-all  # unsafe debug
 ```
 
 ---
@@ -50,6 +52,9 @@ It is:
   - `./.pi/`
   - `./.tmp/pi.cli/`
   - `./.log/@sys.driver-agent.pi/`
+- Default launches use scoped Deno permissions.
+- `-A` / `--allow-all` is an explicit unsafe debug mode for the launched Pi child.
+  Sandbox previews and `.log/@sys.driver-agent.pi/*.sandbox.log.md` record `permissions: allow-all` when active.
 
 
 <p>&nbsp;</p>
