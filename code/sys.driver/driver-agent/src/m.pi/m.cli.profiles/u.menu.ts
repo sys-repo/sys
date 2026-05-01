@@ -5,7 +5,7 @@ import { ProfilesFs } from './u.fs.ts';
 import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from './u.schema.ts';
 
-type Action = 'run' | 'sandbox' | 'select';
+type Action = 'run' | 'select';
 
 type MenuContext = {
   readonly cwd: t.StringDir;
@@ -68,18 +68,14 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
     schema,
     actions: {
       message: 'pi:',
+      label: 'profile',
       extra: [
         {
           name: allowAll === true ? c.yellow('start (--allow-all)') : c.cyan('start'),
           value: 'run' as const,
         },
       ],
-      extraAfter: [{ name: 'reload', value: 'sandbox' as const }],
       async onAction({ action, path }: { action: string; path: t.StringPath }) {
-        if (action === 'sandbox') {
-          await printSandbox({ cwd, path, allowAll });
-          return { kind: 'stay' as const };
-        }
         if (action === 'run') return { kind: 'action' as const, action: 'run' as const, path };
         if (action === 'select') {
           return { kind: 'action' as const, action: 'select' as const, path };

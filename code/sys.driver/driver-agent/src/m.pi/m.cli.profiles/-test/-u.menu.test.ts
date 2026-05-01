@@ -77,7 +77,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → shows the sandbox sheet before the action menu and can reload it', async () => {
+  it('menu → shows the sandbox sheet before the action menu and keeps one reload action', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -87,8 +87,8 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
     const prints: string[] = [];
+    const harnessOptions: string[] = [];
     let topLevelCount = 0;
-    let actionCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
@@ -99,8 +99,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           return Promise.resolve('exit');
         }
         if (isActionMenu(input)) {
-          actionCount += 1;
-          if (actionCount === 1) return Promise.resolve('sandbox');
+          harnessOptions.push(...(input.options ?? []).map((item) => item.name));
           return Promise.resolve('back');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);
@@ -111,13 +110,17 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       const printed = Cli.stripAnsi(prints.join('\n'));
+      const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.contain('pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['pi:', 'pi:', 'pi:', 'pi:']);
+      expect(strippedOptions).to.include('  profile: reload');
+      expect(strippedOptions).not.to.include('  config: reload');
+      expect(strippedOptions).not.to.include('  reload');
+      expect(prompts).to.eql(['pi:', 'pi:', 'pi:']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -167,12 +170,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/write\s+all/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(strippedOptions).to.include('  start (--allow-all)');
-      expect(strippedOptions).to.include('  reload');
-      expect(strippedOptions.indexOf('  config: rename')).to.be.lessThan(
-        strippedOptions.indexOf('  reload'),
-      );
-      expect(strippedOptions.indexOf('  reload')).to.be.lessThan(
-        strippedOptions.indexOf(' (delete)'),
+      expect(strippedOptions).to.include('  profile: reload');
+      expect(strippedOptions).not.to.include('  config: reload');
+      expect(strippedOptions).not.to.include('  reload');
+      expect(strippedOptions.indexOf('  profile: reload')).to.be.lessThan(
+        strippedOptions.indexOf('  profile: rename'),
       );
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
