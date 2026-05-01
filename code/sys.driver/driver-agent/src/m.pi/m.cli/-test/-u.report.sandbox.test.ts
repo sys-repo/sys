@@ -46,7 +46,7 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
     expect(text).to.contain('- cwd.git: /tmp/pi-cli-test');
     expect(text).to.contain('- cwd.invoked: /tmp/pi-cli-test/nested');
     expect(text).to.contain('## Writable Paths\n- /tmp/pi-cli-test\n- /var/tmp/pi');
-    expect(text).to.contain('- context: explicit context');
+    expect(text).to.contain('- context: explicit context (--append-system-prompt)');
     expect(text).to.contain('- /tmp/pi-cli-test/canon.md');
     expect(text).to.contain('## Readable Paths\n- /tmp/pi-cli-test/.tmp/pi.cli/deno\n- /bin/bash');
   });
