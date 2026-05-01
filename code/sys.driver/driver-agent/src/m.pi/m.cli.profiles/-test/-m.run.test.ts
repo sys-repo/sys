@@ -25,7 +25,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
                 PI_PROFILE: work
                 PI_KEEP: profile
             context:
-              include: [./profile-context]
+              append: [./profile-context]
           `,
         ).trimStart(),
       );
@@ -75,6 +75,88 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
     }
   });
 
+  it('run → loads standard AGENTS and SYSTEM files when present', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(config, 'sandbox:\n  context:\n    append: []\n');
+      await Fs.write(Fs.join(cwd, 'AGENTS.md'), 'Agent guidance.');
+      await Fs.write(Fs.join(cwd, 'SYSTEM.md'), 'System guidance.');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        const promptIndex = input.args.indexOf('--system-prompt');
+        expect(promptIndex).to.be.greaterThan(-1);
+        const prompt = input.args[promptIndex + 1] ?? '';
+        expect(prompt).to.contain(DEFAULT_SYSTEM_PROMPT);
+        expect(prompt).to.contain('# Local System Instructions');
+        expect(prompt).to.contain(`${cwd}/SYSTEM.md`);
+        expect(prompt).to.contain('System guidance.');
+
+        const contextArg = input.args.indexOf('--append-system-prompt');
+        expect(contextArg).to.be.greaterThan(-1);
+        const contextBundle = input.args[contextArg + 1] as t.StringPath;
+        const contextText = await Fs.readText(contextBundle);
+        if (!contextText.ok) throw contextText.error;
+        expect(contextText.data).to.contain(`${cwd}/AGENTS.md`);
+        expect(contextText.data).to.contain('Agent guidance.');
+        expect(contextText.data).not.to.contain('SYSTEM.md');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → appends profile context after standard AGENTS context', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          sandbox:
+            context:
+              append: [./profile-context]
+          `,
+        ).trimStart(),
+      );
+      await Fs.write(Fs.join(cwd, 'AGENTS.md'), 'Agent guidance.');
+      await Fs.write(Fs.join(cwd, 'profile-context'), 'Profile context text.');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        const contextArg = input.args.indexOf('--append-system-prompt');
+        expect(contextArg).to.be.greaterThan(-1);
+        const contextBundle = input.args[contextArg + 1] as t.StringPath;
+        const contextText = await Fs.readText(contextBundle);
+        if (!contextText.ok) throw contextText.error;
+        const text = contextText.data ?? '';
+        expect(text.indexOf(`${cwd}/AGENTS.md`)).to.be.lessThan(
+          text.indexOf(`${cwd}/profile-context`),
+        );
+        expect(text).to.contain('Agent guidance.');
+        expect(text).to.contain('Profile context text.');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → uses an explicit multiline profile system prompt from YAML', async () => {
     const prev = Process.inherit;
     const prompt = 'You are the profile prompt.\nStay concise.';
@@ -107,6 +189,31 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         cwd: { invoked: cwd, git: cwd },
         config,
       });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → does not append SYSTEM to an explicit profile system prompt', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(config, 'prompt:\n  system: Custom prompt.\n');
+      await Fs.write(Fs.join(cwd, 'SYSTEM.md'), 'System guidance.');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        expect(input.args).to.include.members(['--system-prompt', 'Custom prompt.']);
+        expect(input.args).not.to.include('System guidance.');
+        expect(input.args).not.to.include('--append-system-prompt');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;

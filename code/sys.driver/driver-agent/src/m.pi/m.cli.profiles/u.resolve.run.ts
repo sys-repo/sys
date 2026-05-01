@@ -25,8 +25,11 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
-  const contextInclude = [...(context?.include ?? [])] as readonly t.StringPath[];
-  const contextArgs = await ProfileContext.toPromptArgs({ cwd, include: contextInclude });
+  const contextResolution = await ProfileContext.resolve({
+    cwd,
+    append: context?.append,
+    defaultSystem: prompt?.system == null,
+  });
   const read = [
     ...(capability?.read ?? []),
     ...(input.read ?? []),
@@ -38,13 +41,17 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     write,
     allowAll: input.allowAll,
     context: {
-      include: contextInclude,
+      include: contextResolution.include,
     },
   });
 
   return {
     cwd,
-    args: [...toPromptArgs(prompt), ...contextArgs, ...(input.args ?? [])],
+    args: [
+      ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
+      ...contextResolution.args,
+      ...(input.args ?? []),
+    ],
     read,
     write,
     env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },

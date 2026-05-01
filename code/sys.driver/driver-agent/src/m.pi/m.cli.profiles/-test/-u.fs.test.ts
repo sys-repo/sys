@@ -19,7 +19,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.fs`, () => {
         'read: []',
         'write: []',
         'env: {}',
-        'include: []',
+        'context:',
+        'append: []',
+        'extra files loaded after ./AGENTS.md and ./SYSTEM.md',
       ]
     ) {
       expect(text).to.contain(expected);

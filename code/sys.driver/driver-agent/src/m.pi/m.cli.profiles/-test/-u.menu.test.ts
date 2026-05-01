@@ -117,6 +117,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
+      expect(printed).to.match(/context\s+-/);
       expect(strippedOptions).to.include('  profile: reload');
       expect(strippedOptions).not.to.include('  config: reload');
       expect(strippedOptions).not.to.include('  reload');
@@ -128,7 +129,45 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → sandbox action preserves explicit allow-all posture', async () => {
+  it('menu → lists loaded standard context files in the sandbox sheet', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.write(Fs.join(cwd, 'AGENTS.md'), 'Agent guidance.');
+    await Fs.write(Fs.join(cwd, 'SYSTEM.md'), 'System guidance.');
+    const prints: string[] = [];
+    let topLevelCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+
+    try {
+      const res = await menu({ cwd });
+      const printed = Cli.stripAnsi(prints.join('\n'));
+      expect(res).to.eql({ kind: 'exit' });
+      expect(printed).to.match(/context\s+\.\/AGENTS\.md, \.\/SYSTEM\.md/);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('menu → sandbox preview preserves explicit allow-all posture', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -141,7 +180,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const prints: string[] = [];
     const harnessOptions: string[] = [];
     let topLevelCount = 0;
-    let actionCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
@@ -152,8 +190,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
         }
         if (isActionMenu(input)) {
           harnessOptions.push(...(input.options ?? []).map((item) => item.name));
-          actionCount += 1;
-          if (actionCount === 1) return Promise.resolve('sandbox');
           return Promise.resolve('back');
         }
         throw new Error(`Unexpected prompt: ${input.message}`);

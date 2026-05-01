@@ -9,7 +9,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
       prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
-        context: { include: [] },
+        context: { append: [] },
       },
     });
   });
@@ -39,13 +39,13 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.schema`, () => {
             write: []
             env: {}
           context:
-            include: []
+            append: []
         `,
       ).trimStart(),
     );
     expect(valid.ok).to.eql(true);
 
-    const invalid = validateProfileYamlText('sandbox:\n  context:\n    agents: walk-up\n');
+    const invalid = validateProfileYamlText('sandbox:\n  context:\n    include: [./legacy]\n');
     expect(invalid.ok).to.eql(false);
   });
 });

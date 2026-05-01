@@ -11,7 +11,7 @@ export const ProfileSchema = {
       prompt: { system: null },
       sandbox: {
         capability: { read: [], write: [], env: {} },
-        context: { include: [] },
+        context: { append: [] },
       },
     };
   },
@@ -51,7 +51,7 @@ export const ProfileSchema = {
             ),
             context: Type.Optional(
               Type.Object(
-                { include: Type.Optional(Type.Array(Type.String())) },
+                { append: Type.Optional(Type.Array(Type.String())) },
                 { additionalProperties: false },
               ),
             ),

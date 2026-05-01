@@ -122,8 +122,8 @@ export declare namespace PiCliProfiles {
 
     /** Guidance and instruction sources intentionally injected into Pi's prompt. */
     export type Context = {
-      /** Extra guidance files read by the wrapper and injected into Pi's startup prompt. */
-      readonly include?: readonly t.StringPath[];
+      /** Extra guidance files loaded after standard project-root context. */
+      readonly append?: readonly t.StringPath[];
     };
   }
 

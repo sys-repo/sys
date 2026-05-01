@@ -48,7 +48,15 @@ export const DEFAULT_SYSTEM_PROMPT = Str.dedent(
   `,
 ).trim();
 
-export function toPromptArgs(input?: t.PiCliProfiles.Prompt) {
-  const prompt = input?.system ?? DEFAULT_SYSTEM_PROMPT;
+type PromptArgsOptions = {
+  readonly append?: string;
+};
+
+export function toPromptArgs(input?: t.PiCliProfiles.Prompt, options: PromptArgsOptions = {}) {
+  const explicit = input?.system;
+  const usesDefault = explicit == null;
+  const base = usesDefault ? DEFAULT_SYSTEM_PROMPT : explicit;
+  const append = options.append?.trimEnd();
+  const prompt = usesDefault && append ? `${base}\n\n${append}` : base;
   return ['--system-prompt', prompt] as const;
 }

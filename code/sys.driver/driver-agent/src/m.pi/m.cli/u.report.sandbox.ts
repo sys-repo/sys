@@ -68,7 +68,7 @@ function toSummary(
 }
 
 function toContextSummary(input?: t.PiCli.SandboxSummary['context']) {
-  return (input?.include?.length ?? 0) > 0 ? 'explicit context (--append-system-prompt)' : '-';
+  return (input?.include?.length ?? 0) > 0 ? 'loaded context (wrapper-owned prompt)' : '-';
 }
 
 function toCapabilityList(permissions: t.PiCli.PermissionMode, items: readonly string[]) {

@@ -34,4 +34,15 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.prompt`, () => {
       'Custom prompt.',
     ]);
   });
+
+  it('toPromptArgs → appends local system text only to the default prompt', () => {
+    expect(toPromptArgs(undefined, { append: 'Local system.' })).to.eql([
+      '--system-prompt',
+      `${DEFAULT_SYSTEM_PROMPT}\n\nLocal system.`,
+    ]);
+    expect(toPromptArgs({ system: 'Custom prompt.' }, { append: 'Local system.' })).to.eql([
+      '--system-prompt',
+      'Custom prompt.',
+    ]);
+  });
 });
