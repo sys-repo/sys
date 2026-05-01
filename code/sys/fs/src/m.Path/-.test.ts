@@ -87,9 +87,11 @@ describe('Fs.Path', () => {
       const a = Path.trimCwd('/foo/bar', { cwd: '/foo' });
       const b = Path.trimCwd('/foo/bar', { cwd: '/foo', prefix: true });
       const c = Path.trimCwd('/foo/bar', { cwd: '/abc' });
+      const d = Path.trimCwd('/foo.canon/bar', { cwd: '/foo' });
       expect(a).to.eql('bar');
       expect(b).to.eql('./bar');
       expect(c).to.eql('/foo/bar');
+      expect(d).to.eql('/foo.canon/bar');
     });
 
     it('param: {prefix}', () => {

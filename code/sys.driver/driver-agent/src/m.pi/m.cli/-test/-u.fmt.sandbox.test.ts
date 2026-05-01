@@ -95,6 +95,22 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, renderWidth, ['context', 'read']);
   });
 
+  it('table → renders sibling workspace context paths with a real relative prefix', () => {
+    const text = render({
+      cwd: { invoked: '/Users/phil/code/org.sys/sys', git: '/Users/phil/code/org.sys/sys' },
+      context: {
+        include: [
+          '/Users/phil/code/org.sys/sys/AGENTS.md',
+          '/Users/phil/code/org.sys/sys.canon/AGENTS.md',
+        ],
+      },
+    }, 120);
+
+    expect(text).to.contain('./AGENTS.md');
+    expect(text).to.contain('../sys.canon/AGENTS.md');
+    expect(text).to.not.match(/context\s+\.\/AGENTS\.md, canon\/AGENTS\.md/);
+  });
+
   it('table → preserves tail identity for truncated preview paths', () => {
     const text = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },

@@ -250,11 +250,22 @@ function formatWritePath(path: t.StringPath, cwd: t.StringDir, budget: number) {
   }));
 }
 
-function trimPath(path: t.StringPath, cwd: t.StringDir) {
+function trimPath(
+  path: t.StringPath,
+  cwd: t.StringDir,
+  opts: { sibling?: boolean } = {},
+) {
   if (path === cwd) return Fs.trimCwd(path);
   const prefix = `${cwd}/`;
-  if (!path.startsWith(prefix)) return Fs.trimCwd(path);
-  return `./${path.slice(prefix.length)}`;
+  if (path.startsWith(prefix)) return `./${path.slice(prefix.length)}`;
+
+  const parent = Path.dirname(cwd);
+  const parentPrefix = `${parent}/`;
+  if (opts.sibling && Path.Is.absolute(path) && path.startsWith(parentPrefix)) {
+    return `../${path.slice(parentPrefix.length)}`;
+  }
+
+  return path;
 }
 
 function normalizeWritePath(path: t.StringPath, cwd: t.StringDir) {
@@ -267,7 +278,7 @@ function withTrailingSlash(path: string) {
 
 function previewPath(path: t.StringPath, cwd: t.StringDir) {
   if (path === cwd) return prettyPath(path);
-  return trimPath(path, cwd);
+  return trimPath(path, cwd, { sibling: true });
 }
 
 function isTempWritePath(path: t.StringPath, cwd: t.StringDir) {
