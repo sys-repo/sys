@@ -70,7 +70,8 @@ function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   if (labelWidth + opsWidth + 1 > width) return label;
 
   const gap = ' '.repeat(width - labelWidth - opsWidth);
-  return `${label}${gap}${c.dim(c.cyan(TOOL_OPS))}`;
+  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.dim(c.cyan(TOOL_OPS));
+  return `${label}${gap}${ops}`;
 }
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {
@@ -232,7 +233,7 @@ function pushWriteBucket(
     return formatWritePath(path, cwd, pathBudget);
   });
   const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(WRITE_CWD_MARKER))}` : head;
-  table.push([c.magenta(label), lead]);
+  table.push([c.dim(c.magenta(label)), lead]);
   for (const item of tail) table.push(['', item]);
 }
 
@@ -245,7 +246,7 @@ function formatWritePath(path: t.StringPath, cwd: t.StringDir, budget: number) {
   const normalized = normalizeWritePath(path, cwd);
   const fitted = fitDisplayPath(normalized, budget);
   return c.gray(Cli.Fmt.path(fitted, (e) => {
-    if (e.is.basename) e.change(c.magenta(e.part));
+    if (e.is.basename) e.change(c.dim(c.magenta(e.part)));
   }));
 }
 
