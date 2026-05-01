@@ -49,11 +49,13 @@ export const PiSandboxFmt = {
     const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'cyan';
     const title = formatTitle(input.permissions, renderWidth);
 
+    const hr = Cli.Fmt.hr(renderWidth, frameColor);
     return Str.builder()
+      .line(hr)
       .line(title)
-      .line(Cli.Fmt.hr(renderWidth, frameColor))
+      .line(hr)
       .line(Str.trimEdgeNewlines(String(table)))
-      .line(Cli.Fmt.hr(renderWidth, frameColor))
+      .line(hr)
       .toString();
   },
 } as const;

@@ -127,7 +127,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expectHeader(text.split('\n')[0], 'pi:no-sandbox', 79);
+    expectHeader(text.split('\n')[1], 'pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -195,8 +195,9 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expectHeader(output[0], 'pi:sandbox', width);
-  expect(output[1]).to.eql('━'.repeat(width));
+  expect(output[0]).to.eql('━'.repeat(width));
+  expectHeader(output[1], 'pi:sandbox', width);
+  expect(output[2]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }
 
