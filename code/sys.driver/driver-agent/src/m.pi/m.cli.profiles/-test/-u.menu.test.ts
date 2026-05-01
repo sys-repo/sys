@@ -12,7 +12,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
-        expect(input.message).to.eql('Harness:\n');
+        expect(input.message).to.eql('Harness:');
         return Promise.resolve('exit');
       },
     });
@@ -47,16 +47,14 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     let topLevelCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: { message: string }) => {
+      value: (input: SelectInput) => {
         calls.push(input.message);
-        if (input.message === 'Harness:\n') {
+        if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Harness:') {
-          return Promise.resolve('back');
-        }
+        if (isActionMenu(input)) return Promise.resolve('back');
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
@@ -65,7 +63,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
-      expect(calls).to.eql(['Harness:\n', 'Harness:', 'Harness:\n']);
+      expect(calls).to.eql(['Harness:', 'Harness:', 'Harness:']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -87,14 +85,14 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     let actionCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: { message: string }) => {
+      value: (input: SelectInput) => {
         prompts.push(input.message);
-        if (input.message === 'Harness:\n') {
+        if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Harness:') {
+        if (isActionMenu(input)) {
           actionCount += 1;
           if (actionCount === 1) return Promise.resolve('sandbox');
           return Promise.resolve('back');
@@ -113,7 +111,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['Harness:\n', 'Harness:', 'Harness:', 'Harness:\n']);
+      expect(prompts).to.eql(['Harness:', 'Harness:', 'Harness:', 'Harness:']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -137,13 +135,13 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     let actionCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: { message: string; options?: { name: string }[] }) => {
-        if (input.message === 'Harness:\n') {
+      value: (input: SelectInput) => {
+        if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (input.message === 'Harness:') {
+        if (isActionMenu(input)) {
           harnessOptions.push(...(input.options ?? []).map((item) => item.name));
           actionCount += 1;
           if (actionCount === 1) return Promise.resolve('sandbox');
@@ -180,3 +178,16 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     }
   });
 });
+
+type SelectInput = {
+  readonly message: string;
+  readonly options?: readonly { readonly name: string; readonly value: string }[];
+};
+
+function isRootMenu(input: SelectInput) {
+  return (input.options ?? []).some((item) => item.value === 'exit');
+}
+
+function isActionMenu(input: SelectInput) {
+  return (input.options ?? []).some((item) => item.value === 'back');
+}

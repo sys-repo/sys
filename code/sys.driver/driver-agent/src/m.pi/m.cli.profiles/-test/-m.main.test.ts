@@ -163,13 +163,13 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         throw new Error('Process.inherit should not run during sandbox preview.');
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: { message: string }) => {
-          if (input.message === 'Harness:\n') {
+        value: (input: { message: string; options?: { value: string }[] }) => {
+          if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
             return Promise.resolve('exit');
           }
-          if (input.message === 'Harness:') {
+          if ((input.options ?? []).some((item) => item.value === 'back')) {
             actionCount += 1;
             if (actionCount === 1) return Promise.resolve('sandbox');
             return Promise.resolve('back');

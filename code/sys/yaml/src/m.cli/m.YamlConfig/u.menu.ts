@@ -1,12 +1,6 @@
-import { type t, c, Cli, DEFAULT, Fs } from './common.ts';
+import { c, Cli, DEFAULT, Fs, type t } from './common.ts';
 import type { YamlConfigMenuArgs, YamlConfigMenuResult } from './t.menu.ts';
-import {
-  ensureConfigDir,
-  fileOf,
-  listConfigs,
-  readYaml,
-  writeYaml,
-} from './u.fs.ts';
+import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from './u.fs.ts';
 import { actionMenu } from './u.menu.action.ts';
 import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
 import { withTree } from './u.menu.tree.ts';
@@ -61,7 +55,7 @@ export async function menu<T, A extends string = string>(
     const defaultValue = lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
 
     const picked = await Cli.Input.Select.prompt<string>({
-      message: `${args.label}:\n`,
+      message: `${args.label}:`,
       options,
       default: defaultValue,
       hideDefault: true,
@@ -135,7 +129,9 @@ async function writeInitialConfig<T, A extends string>(
   if (await Fs.exists(path)) return;
 
   if (!args.add?.initYaml) {
-    if (!args.schema.init) throw new Error('YamlConfig: schema.init is required when add.initYaml is not provided');
+    if (!args.schema.init) {
+      throw new Error('YamlConfig: schema.init is required when add.initYaml is not provided');
+    }
     await writeYaml(path, args.schema.init(), args.schema);
     return;
   }
