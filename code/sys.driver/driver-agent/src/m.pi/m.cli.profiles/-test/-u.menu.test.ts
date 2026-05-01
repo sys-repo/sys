@@ -12,7 +12,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
-        expect(input.message).to.eql('Agent:\n');
+        expect(input.message).to.eql('Harness:\n');
         return Promise.resolve('exit');
       },
     });
@@ -39,6 +39,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -48,7 +49,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
         calls.push(input.message);
-        if (input.message === 'Agent:\n') {
+        if (input.message === 'Harness:\n') {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
@@ -59,18 +60,20 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
+    console.info = () => undefined;
 
     try {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
-      expect(calls).to.eql(['Agent:\n', 'Harness:', 'Agent:\n']);
+      expect(calls).to.eql(['Harness:\n', 'Harness:', 'Harness:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
       await Fs.remove(cwd);
     }
   });
 
-  it('menu → sandbox prints effective scope and returns to the action menu', async () => {
+  it('menu → shows the sandbox sheet before the action menu and can reload it', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -86,7 +89,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
         prompts.push(input.message);
-        if (input.message === 'Agent:\n') {
+        if (input.message === 'Harness:\n') {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
@@ -110,7 +113,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
-      expect(prompts).to.eql(['Agent:\n', 'Harness:', 'Harness:', 'Agent:\n']);
+      expect(prompts).to.eql(['Harness:\n', 'Harness:', 'Harness:', 'Harness:\n']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -135,7 +138,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string; options?: { name: string }[] }) => {
-        if (input.message === 'Agent:\n') {
+        if (input.message === 'Harness:\n') {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
@@ -161,8 +164,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(harnessOptions.some((name) => /\x1b\[33mstart \(--allow-all\)/.test(name))).to.eql(
         true,
       );
-      expect(harnessOptions.map((name) => Cli.stripAnsi(name))).to.include(
-        '  start (--allow-all)',
+      const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
+      expect(strippedOptions).to.include('  start (--allow-all)');
+      expect(strippedOptions).to.include('  sandbox: reload');
+      expect(strippedOptions.indexOf('  start (--allow-all)')).to.be.lessThan(
+        strippedOptions.indexOf('  sandbox: reload'),
       );
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });

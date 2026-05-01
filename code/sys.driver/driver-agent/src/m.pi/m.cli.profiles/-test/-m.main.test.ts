@@ -164,7 +164,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         value: (input: { message: string }) => {
-          if (input.message === 'Agent:\n') {
+          if (input.message === 'Harness:\n') {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
             return Promise.resolve('exit');

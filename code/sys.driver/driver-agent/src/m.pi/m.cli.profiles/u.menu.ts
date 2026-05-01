@@ -5,7 +5,13 @@ import { ProfilesFs } from './u.fs.ts';
 import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from './u.schema.ts';
 
-type Action = 'run' | 'sandbox';
+type Action = 'run' | 'sandbox' | 'select';
+
+type MenuContext = {
+  readonly cwd: t.StringDir;
+  readonly path: t.StringPath;
+  readonly allowAll?: boolean;
+};
 
 const ValidName = {
   hint: 'letters, numbers, ".", "_" or "-"',
@@ -15,15 +21,47 @@ const ValidName = {
 } as const;
 
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
+  while (true) {
+    const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
+      ...menuArgs({ cwd, allowAll }),
+      mode: 'select',
+      selectAction: 'select',
+    });
+
+    if (selected.kind === 'exit') return { kind: 'exit' };
+    if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
+
+    await printSandbox({ cwd, path: selected.path, allowAll });
+
+    const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
+      ...menuArgs({ cwd, allowAll }),
+      mode: 'action',
+      path: selected.path,
+      defaultAction: 'run',
+    });
+
+    if (action.kind === 'back') continue;
+    if (action.kind === 'exit') return { kind: 'exit' };
+    if (action.kind === 'action' && action.action === 'run') {
+      return { kind: 'selected', config: action.path };
+    }
+  }
+};
+
+/**
+ * Helpers:
+ */
+function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
+  const { cwd, allowAll } = args;
   const schema = {
     init: () => ProfileSchema.initial(),
     validate: (value: unknown) => ProfileSchema.validate(value),
   } as const;
 
-  const res = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
+  return {
     cwd,
     dir: ProfilesFs.dir,
-    label: 'Agent',
+    label: 'Harness',
     itemLabel: 'profile',
     addLabel: ' add: <profile>',
     defaultName: 'default',
@@ -33,36 +71,41 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
       extra: [
         {
           name: allowAll === true ? c.yellow('start (--allow-all)') : c.green('start'),
-          value: 'run',
+          value: 'run' as const,
         },
-        { name: 'sandbox', value: 'sandbox' },
+        { name: 'sandbox: reload', value: 'sandbox' as const },
       ],
-      async onAction({ action, path }) {
-        if (action !== 'sandbox') return { kind: 'action', action, path };
-        const resolved = await resolveRun({
-          cwd: { invoked: cwd, git: cwd },
-          config: path,
-          allowAll,
-        });
-        const report = await PiSandboxReport.write({ cwd, sandbox: resolved.sandbox });
-        console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
-        console.info('');
-        return { kind: 'stay' };
+      async onAction({ action, path }: { action: string; path: t.StringPath }) {
+        if (action === 'sandbox') {
+          await printSandbox({ cwd, path, allowAll });
+          return { kind: 'stay' as const };
+        }
+        if (action === 'run') return { kind: 'action' as const, action: 'run' as const, path };
+        if (action === 'select') {
+          return { kind: 'action' as const, action: 'select' as const, path };
+        }
+        return { kind: 'exit' as const };
       },
     },
     add: {
       message: 'Profile name',
       hint: ValidName.hint,
-      validate(value) {
+      validate(value: string) {
         if (!ValidName.test(value)) return ValidName.hint;
         return true;
       },
-      initYaml: ({ name }) => ProfilesFs.initialYaml(name),
+      initYaml: ({ name }: { name: string }) => ProfilesFs.initialYaml(name),
     },
+  };
+}
+
+async function printSandbox(args: MenuContext) {
+  const resolved = await resolveRun({
+    cwd: { invoked: args.cwd, git: args.cwd },
+    config: args.path,
+    allowAll: args.allowAll,
   });
-
-  if (res.kind === 'exit') return { kind: 'exit' };
-  if (res.kind !== 'action' || res.action !== 'run') return { kind: 'exit' };
-
-  return { kind: 'selected', config: res.path };
-};
+  const report = await PiSandboxReport.write({ cwd: args.cwd, sandbox: resolved.sandbox });
+  console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+  console.info('');
+}
