@@ -2,6 +2,9 @@ import type { t } from './common.ts';
 
 type StringBaseDir = t.StringDir;
 
+/** Named template operation table presentation. */
+export type TmplLogTablePreset = 'result' | 'plan';
+
 /**
  * Library for converting a Tmpl to console/log output.
  */
@@ -15,6 +18,8 @@ export type TmplLogLib = {
 
 /** Options passed to the `Tmpl.Log.table` method. */
 export type TmplLogTableOptions = {
+  /** Named presentation defaults. `plan` renders dry-run intent; `result` is the default. */
+  readonly preset?: TmplLogTablePreset;
   /** Resolve relative op paths against this directory and trim output relative to it by default. */
   readonly baseDir?: StringBaseDir;
   /** Prefix each action label with spaces for nested log output. */

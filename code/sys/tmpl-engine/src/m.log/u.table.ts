@@ -26,9 +26,19 @@ export const table: t.TmplLogLib['table'] = (ops, opt) => {
  */
 const wrangle = {
   options(input?: Parameters<t.TmplLogLib['table']>[1]): t.TmplLogTableOptions {
-    if (!input) return {};
-    if (Is.string(input)) return { baseDir: input };
-    return input;
+    const options = !input ? {} : Is.string(input) ? { baseDir: input } : input;
+    return { ...wrangle.preset(options.preset), ...options };
+  },
+
+  preset(preset?: t.TmplLogTablePreset): t.TmplLogTableOptions {
+    if (preset === 'plan') {
+      return {
+        actionLabel: 'kind',
+        relativePathPrefix: './',
+        showDryRunNote: false,
+      };
+    }
+    return {};
   },
 
   ops(ops: readonly t.TmplWriteOp[], options: t.TmplLogTableOptions) {

@@ -62,17 +62,13 @@ describe('Tmpl.Log', () => {
     expect(cleaned).to.not.include('b.txt');
   });
 
-  it('kind action label + relative prefix + dry-run note suppression', () => {
+  it('plan preset → operation-kind labels, ./ paths, no repeated dry-run notes', () => {
     const ops: t.FileMapOp[] = [
       { kind: 'create', path: 'x/y.txt', dryRun: true },
       { kind: 'skip', path: '.gitignore', reason: 'unchanged', dryRun: true },
     ];
 
-    const out = Log.table(ops, {
-      actionLabel: 'kind',
-      relativePathPrefix: './',
-      showDryRunNote: false,
-    });
+    const out = Log.table(ops, { preset: 'plan' });
     const cleaned = stripAnsi(out);
 
     expect(cleaned).to.include('create');

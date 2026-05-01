@@ -46,11 +46,7 @@ export function formatInitResult(res: InitCellResult) {
       ['status', status(res)],
     ]),
     '',
-    TmplEngine.Log.table(res.ops, {
-      actionLabel: 'kind',
-      relativePathPrefix: './',
-      showDryRunNote: false,
-    }).trim(),
+    TmplEngine.Log.table(res.ops, { preset: 'plan' }).trim(),
   ].join('\n');
 }
 
