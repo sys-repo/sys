@@ -27,8 +27,13 @@ describe(`@sys/cell/cli`, () => {
 
     expect(res.kind).to.eql('init');
     if (res.kind !== 'init') throw new Error('expected init result');
+    const text = stripAnsi(res.text);
+
     expect(res.dryRun).to.eql(true);
     expect(res.ops.filter((op) => op.kind === 'create').length).to.eql(4);
+    expect(text).to.contain(`target   ${fs.dir}`);
+    expect(text).to.contain('create   ./-config/@sys.cell/cell.yaml');
+    expect(text).to.contain('./.gitignore');
     expect(await Fs.exists(Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'))).to.eql(false);
   });
 

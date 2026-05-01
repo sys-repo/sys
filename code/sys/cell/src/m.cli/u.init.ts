@@ -1,4 +1,4 @@
-import { Fs, Yaml } from './common.ts';
+import { c, CliFmt, CliTable, Fs, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
 import type { CellTmpl } from '../m.tmpl/t.ts';
 import { writeTmpl } from '../m.tmpl/u/u.write.ts';
@@ -37,17 +37,21 @@ export async function initCell(options: InitCellOptions = {}): Promise<InitCellR
 }
 
 export function formatInitResult(res: InitCellResult) {
-  const lines = ['@sys/cell/cli init', ''];
-  lines.push(`target  ${res.target}`);
-  if (res.dryRun) lines.push('mode    dry-run; no files written');
-  lines.push(`status  ${status(res)}`);
-  lines.push('');
-
-  const rows = res.ops.map((op) => [formatKind(op), formatPath(op)] as const);
-  const width = Math.max(...rows.map(([kind]) => kind.length));
-  for (const [kind, path] of rows) lines.push(`${kind.padEnd(width)}  ${path}`);
-
-  return lines.join('\n');
+  return [
+    `\n  ${c.cyan('@sys/cell/cli init')}`,
+    '',
+    renderRows([
+      ['target', formatDisplayPath(res.target)],
+      ...(res.dryRun ? [['mode', 'dry-run; no files written'] as const] : []),
+      ['status', status(res)],
+    ]),
+    '',
+    TmplEngine.Log.table(res.ops, {
+      actionLabel: 'kind',
+      relativePathPrefix: './',
+      showDryRunNote: false,
+    }).trim(),
+  ].join('\n');
 }
 
 async function validateExistingDescriptor(root: string) {
@@ -74,13 +78,15 @@ function status(res: InitCellResult) {
   return res.dryRun ? 'would initialize' : 'initialized';
 }
 
-function formatKind(op: CellTmpl.Write.Op) {
-  if (!op.dryRun) return op.kind;
-  if (op.kind === 'skip') return 'skip';
-  return `would ${op.kind}`;
+function formatDisplayPath(path: string) {
+  return CliFmt.Path.str(path);
 }
 
-function formatPath(op: CellTmpl.Write.Op) {
-  const reason = op.kind === 'skip' ? op.reason : undefined;
-  return reason ? `${op.path} (${reason})` : op.path;
+function renderRows(rows: readonly (readonly [string, string])[]) {
+  const table = CliTable.create([]);
+  rows.forEach(([field, value]) => {
+    if (!field && !value) return table.push(['', '']);
+    table.push([c.gray(field), value]);
+  });
+  return String(table).trim();
 }

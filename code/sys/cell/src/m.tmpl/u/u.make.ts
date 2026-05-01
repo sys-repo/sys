@@ -1,5 +1,5 @@
 import { json } from '../-bundle.ts';
-import { Fs, type Tmpl, TmplEngine } from './common.ts';
+import { Fs, Path, type Tmpl, TmplEngine } from './common.ts';
 import type { CellTmpl } from '../t.ts';
 import { GITIGNORE_ENTRIES, GITIGNORE_PATH, mergeGitignore } from './u.gitignore.ts';
 import { ROOTS } from './u.roots.ts';
@@ -11,6 +11,7 @@ export function makeTmpl(name: CellTmpl.Name = 'default') {
 
     const relative = e.path.slice(root.length + 1);
     if (!relative) return e.skip('empty template path');
+    assertSafeRelativePath(relative);
     e.target.rename(relative, true);
 
     if (relative !== GITIGNORE_PATH) return;
@@ -27,4 +28,10 @@ export function makeTmpl(name: CellTmpl.Name = 'default') {
   return TmplEngine
     .makeTmpl(json, processFile)
     .filter((e) => e.path.startsWith(`${root}/`));
+}
+
+function assertSafeRelativePath(path: string) {
+  if (!path) throw new Error('Cell template contains an empty path.');
+  if (Path.Is.absolute(path)) throw new Error(`Cell template path must be relative: ${path}`);
+  if (path.split('/').includes('..')) throw new Error(`Cell template path escapes root: ${path}`);
 }
