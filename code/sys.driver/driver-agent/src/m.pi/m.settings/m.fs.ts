@@ -1,8 +1,10 @@
-import { Fs, type t } from './common.ts';
+import { Fs, Obj, type t } from './common.ts';
 import { resolve } from './u.resolve.ts';
 import { PiSettingsSchema } from './u.schema.ts';
 
-const SETTINGS_DIR = '.pi' as const;
+type SettingsJson = t.JsonMap;
+
+const SETTINGS_DIR = ['.pi', 'agent'] as const;
 const SETTINGS_FILE = 'settings.json' as const;
 
 /**
@@ -10,7 +12,7 @@ const SETTINGS_FILE = 'settings.json' as const;
  */
 export const SettingsFs: t.PiSettings.Fs = {
   dirOf(cwd) {
-    return Fs.join(cwd, SETTINGS_DIR) as t.StringDir;
+    return Fs.join(cwd, ...SETTINGS_DIR) as t.StringDir;
   },
 
   pathOf(cwd) {
@@ -21,10 +23,27 @@ export const SettingsFs: t.PiSettings.Fs = {
     const path = SettingsFs.pathOf(input.cwd);
     const doc = resolve(input.settings);
     const checked = PiSettingsSchema.validate(doc);
-    if (!checked.ok) throw new Error('Invalid wrapper-owned Pi settings document.');
+    if (!checked.ok) throw new Error('Invalid wrapper-owned Pi settings fragment.');
 
-    await Fs.ensureDir(Fs.dirname(path));
-    await Fs.write(path, PiSettingsSchema.stringify(checked.doc));
+    const existing = await readExisting(path);
+    const next: SettingsJson = { ...existing, ...checked.doc };
+    const written = await Fs.writeJson(path, next);
+    if (written.error) throw new Error(`Could not write Pi settings: ${written.error.message}`);
     return path;
   },
 };
+
+/**
+ * Helpers:
+ */
+async function readExisting(path: t.StringPath): Promise<SettingsJson> {
+  const read = await Fs.readJson<unknown>(path);
+  if (!read.exists) return {};
+  if (!read.ok) {
+    throw new Error(`Cannot merge existing Pi settings: ${read.error?.message ?? path}`);
+  }
+  if (!Obj.isRecord<SettingsJson>(read.data)) {
+    throw new Error(`Cannot merge existing Pi settings: expected a JSON object at ${path}`);
+  }
+  return read.data;
+}

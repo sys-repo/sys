@@ -9,7 +9,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     expect(m.Cli).to.equal(Cli);
   });
 
-  it('run → writes canonical project-local settings before launch', async () => {
+  it('run → writes git-rooted agent settings before launch', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
       .absolute as t.StringDir;
@@ -39,12 +39,14 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
           PI_SKIP_VERSION_CHECK: '1',
         });
-        const read = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
+        const read = await Fs.readJson<t.JsonMap>(Fs.join(cwd, '.pi', 'agent', 'settings.json'));
         if (!read.ok) throw read.error;
-        expect(JSON.parse(read.data ?? '')).to.eql({
+        expect(read.data).to.eql({
           quietStartup: true,
           collapseChangelog: true,
         });
+        const legacy = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
+        expect(legacy.exists).to.eql(false);
         return { code: 0, success: true, signal: null };
       };
 
@@ -56,7 +58,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
     }
   });
 
-  it('run → launches the child process from the invoked cwd', async () => {
+  it('run → launches from invoked cwd while settings stay under git-root agent dir', async () => {
     const prev = Process.inherit;
     const git = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
       .absolute as t.StringDir;
@@ -72,8 +74,16 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         const writeArg = findArg(input.args, '--allow-write=');
         expect(readArg).to.contain(git);
         expect(writeArg).to.contain(git);
-        const settings = await Fs.readText(Fs.join(git, '.pi', 'settings.json'));
-        expect(settings.ok).to.eql(true);
+        const settings = await Fs.readJson<t.JsonMap>(
+          Fs.join(git, '.pi', 'agent', 'settings.json'),
+        );
+        if (!settings.ok) throw settings.error;
+        expect(settings.data).to.eql({
+          quietStartup: true,
+          collapseChangelog: true,
+        });
+        const invokedSettings = await Fs.readText(Fs.join(invoked, '.pi', 'settings.json'));
+        expect(invokedSettings.exists).to.eql(false);
         return { code: 0, success: true, signal: null };
       };
 
@@ -110,9 +120,9 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(readArg).to.contain(cwd);
         expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
         expect(writeArg).to.contain(cwd);
-        const read = await Fs.readText(Fs.join(cwd, '.pi', 'settings.json'));
+        const read = await Fs.readJson<t.JsonMap>(Fs.join(cwd, '.pi', 'agent', 'settings.json'));
         if (!read.ok) throw read.error;
-        expect(JSON.parse(read.data ?? '')).to.eql({
+        expect(read.data).to.eql({
           quietStartup: true,
           collapseChangelog: true,
         });

@@ -9,7 +9,7 @@ describe(`@sys/driver-agent/pi/settings/u.schema`, () => {
     });
   });
 
-  it('validate → accepts the generated settings doc and rejects residue fields', () => {
+  it('validate → accepts the wrapper-owned settings fragment and rejects residue fields', () => {
     expect(PiSettingsSchema.validate({
       quietStartup: true,
       collapseChangelog: true,
@@ -22,17 +22,12 @@ describe(`@sys/driver-agent/pi/settings/u.schema`, () => {
     });
 
     expect(PiSettingsSchema.validate({ quietStartup: true }).ok).to.eql(false);
-    expect(PiSettingsSchema.validate({
-      quietStartup: true,
-      collapseChangelog: true,
-      extra: true,
-    }).ok).to.eql(false);
-  });
-
-  it('stringify → writes deterministic json with a trailing newline', () => {
-    expect(PiSettingsSchema.stringify({
-      quietStartup: true,
-      collapseChangelog: true,
-    })).to.eql('{\n  "quietStartup": true,\n  "collapseChangelog": true\n}\n');
+    expect(
+      PiSettingsSchema.validate({
+        quietStartup: true,
+        collapseChangelog: true,
+        extra: true,
+      }).ok,
+    ).to.eql(false);
   });
 });

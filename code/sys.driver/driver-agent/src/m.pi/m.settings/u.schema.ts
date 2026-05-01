@@ -1,4 +1,4 @@
-import { Json, Schema, type t } from './common.ts';
+import { Schema, type t } from './common.ts';
 
 const Type = Schema.Type;
 
@@ -17,10 +17,6 @@ export const PiSettingsSchema = {
     const ok = Schema.Value.Check(PiSettingsSchema.schema, value);
     const errors = ok ? [] : [...Schema.Value.Errors(PiSettingsSchema.schema, value)];
     return ok ? { ok: true, doc: value as t.PiSettings.Doc } : { ok: false, errors };
-  },
-
-  stringify(doc: t.PiSettings.Doc): string {
-    return Json.stringify(doc);
   },
 
   schema: Type.Object(

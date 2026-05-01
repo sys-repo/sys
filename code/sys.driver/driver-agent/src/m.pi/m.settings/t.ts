@@ -3,19 +3,19 @@ import type { t } from './common.ts';
 /**
  * Types for wrapper-owned Pi settings.
  *
- * These types describe the generated Pi settings surface that the wrapper
- * writes under project-local `.pi/settings.json`.
+ * These types describe the Pi settings fragment that the wrapper merges
+ * into the git-rooted Pi agent runtime settings.
  */
 export declare namespace PiSettings {
   /** Runtime surface for wrapper-owned Pi settings. */
   export type Lib = {
     /** Filesystem helpers for wrapper-owned Pi settings. */
     readonly Fs: PiSettings.Fs;
-    /** Resolve the wrapper-owned Pi settings document. */
+    /** Resolve the wrapper-owned Pi settings fragment. */
     resolve(input?: ResolveInput): Doc;
   };
 
-  /** Generated Pi `settings.json` document owned by the wrapper. */
+  /** Pi `settings.json` fragment owned by the wrapper. */
   export type Doc = {
     /** Suppress the verbose upstream startup surface. */
     readonly quietStartup: boolean;
@@ -26,9 +26,9 @@ export declare namespace PiSettings {
   /** Partial wrapper-owned settings overrides merged over deterministic defaults. */
   export type ResolveInput = Partial<Doc>;
 
-  /** Write the canonical settings document for the given project root. */
+  /** Write the canonical settings fragment for the given git root. */
   export type WriteArgs = {
-    /** Project root under which `.pi/settings.json` is materialized. */
+    /** Git root under which `.pi/agent/settings.json` is materialized. */
     readonly cwd: t.StringDir;
     /** Optional overrides merged over wrapper-owned defaults before writing. */
     readonly settings?: ResolveInput;
@@ -36,15 +36,15 @@ export declare namespace PiSettings {
 
   /** Filesystem helpers for wrapper-owned Pi settings. */
   export type Fs = {
-    /** Resolve the project-local `.pi/` directory. */
+    /** Resolve the git-rooted Pi agent settings directory. */
     dirOf(cwd: t.StringDir): t.StringDir;
-    /** Resolve the project-local Pi settings file path. */
+    /** Resolve the git-rooted Pi agent settings file path. */
     pathOf(cwd: t.StringDir): t.StringPath;
-    /** Materialize the canonical settings document under `.pi/settings.json`. */
+    /** Merge the canonical settings fragment into `.pi/agent/settings.json`. */
     write(input: WriteArgs): Promise<t.StringPath>;
   };
 
-  /** Validation result for a generated Pi settings document. */
+  /** Validation result for a wrapper-owned Pi settings fragment. */
   export type JsonCheck =
     | { readonly ok: true; readonly doc: Doc }
     | { readonly ok: false; readonly errors: readonly unknown[] };
