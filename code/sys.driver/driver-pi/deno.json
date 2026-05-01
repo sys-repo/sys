@@ -1,5 +1,5 @@
 {
-  "name": "@sys/driver-agent",
+  "name": "@sys/driver-pi",
   "version": "0.0.50",
   "license": "MIT",
   "tasks": {
@@ -61,4 +61,3 @@
     }
   }
 }
-
