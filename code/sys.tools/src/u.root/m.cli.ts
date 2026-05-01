@@ -24,12 +24,7 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
   const dispatchRootCommand = deps.dispatchRootCommand ??
     (await import('./u.dispatcher.ts')).dispatchRootCommand;
 
-  if (args.help) {
-    if (args.command) {
-      await dispatchRootCommand(cwd, args.command, argv, { origin: 'argv' });
-      return;
-    }
-
+  if (args.help && !args.command) {
     const printRootHelp = deps.printRootHelp ?? (await import('./u.help.ts')).printRootHelp;
     printRootHelp(args);
     return;
@@ -41,10 +36,18 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
     (await import('./u.updateAdvisory.ts')).refreshRootUpdateAdvisoryInBackground;
   const info = deps.info ?? console.info;
 
-  const advisory = await prepareRootUpdateAdvisory();
-  refreshRootUpdateAdvisoryInBackground(advisory);
-
-  if (advisory.prelude) info(advisory.prelude);
+  let advisory: UpdateAdvisoryState;
+  try {
+    advisory = await prepareRootUpdateAdvisory();
+    refreshRootUpdateAdvisoryInBackground(advisory);
+    try {
+      if (advisory.prelude) info(advisory.prelude);
+    } catch {
+      // Advisory display must never block the selected tool.
+    }
+  } catch {
+    advisory = emptyUpdateAdvisoryState;
+  }
 
   if (args.command) {
     await dispatchRootCommand(cwd, args.command, argv, { origin: 'argv' });
@@ -63,6 +66,14 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
     return;
   }
 }
+
+const emptyUpdateAdvisoryState: UpdateAdvisoryState = {
+  path: undefined,
+  record: undefined,
+  stale: false,
+  hasUpdate: false,
+  prelude: undefined,
+};
 
 function isBackResult(value: unknown): value is { readonly kind: 'back' } {
   return Is.record(value) && value.kind === 'back';

@@ -5,6 +5,7 @@
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';
 import { resolve } from './u.resolve.ts';
+import { runWithRootUpdateAdvisory } from '../u.root/u.updateAdvisory.ts';
 
 export { cli };
 export type * from './t.ts';
@@ -16,5 +17,5 @@ export const Pull: t.PullTool.Lib = { resolve };
  * CLI entry-point:
  */
 if (import.meta.main) {
-  await cli(Fs.cwd('terminal'), Deno.args);
+  await runWithRootUpdateAdvisory(() => cli(Fs.cwd('terminal'), Deno.args));
 }

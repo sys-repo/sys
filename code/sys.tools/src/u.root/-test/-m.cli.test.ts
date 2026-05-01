@@ -110,6 +110,28 @@ describe('Root CLI', () => {
     ]);
   });
 
+  it('continues root subcommand dispatch when advisory preparation fails', async () => {
+    const events: string[] = [];
+
+    await cli('/tmp/sys.tools.root' as never, ['pi'], {
+      async prepareRootUpdateAdvisory() {
+        events.push('prepare');
+        throw new Error('cache unavailable');
+      },
+      refreshRootUpdateAdvisoryInBackground() {
+        events.push('refresh');
+      },
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
+      },
+    });
+
+    expect(events).to.eql([
+      'prepare',
+      'dispatch:/tmp/sys.tools.root:pi:pi:argv',
+    ]);
+  });
+
   it('does not prepare advisory state for help-only root invocation', async () => {
     const events: string[] = [];
 
@@ -129,13 +151,22 @@ describe('Root CLI', () => {
     expect(events).to.eql(['help']);
   });
 
-  it('does not prepare advisory state for root subcommand help invocation', async () => {
+  it('prepares advisory state before root subcommand help invocation', async () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, ['pi', '--help'], {
       async prepareRootUpdateAdvisory() {
         events.push('prepare');
-        throw new Error('should not prepare advisory for subcommand help invocation');
+        return {
+          path: '/tmp/advisory.json' as never,
+          record: undefined,
+          stale: true,
+          hasUpdate: true,
+          prelude: 'Run sys update --latest',
+        };
+      },
+      refreshRootUpdateAdvisoryInBackground() {
+        events.push('refresh');
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -149,6 +180,9 @@ describe('Root CLI', () => {
     });
 
     expect(events).to.eql([
+      'prepare',
+      'refresh',
+      'info:Run sys update --latest',
       'dispatch:/tmp/sys.tools.root:pi:pi --help:argv',
     ]);
   });
