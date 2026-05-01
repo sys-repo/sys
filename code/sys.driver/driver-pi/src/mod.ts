@@ -1,6 +1,6 @@
 /**
  * @module
- * Agent driver adapters.
+ * Typed Pi launcher with profile YAML, scoped Deno permissions, and sandbox.
  */
 export { pkg } from './pkg.ts';
 

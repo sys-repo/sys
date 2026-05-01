@@ -1,6 +1,7 @@
 {
   "name": "@sys/driver-pi",
   "version": "0.0.50",
+  "description": "Typed Pi launcher with profile YAML, scoped Deno permissions, and sandbox.",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -25,7 +26,9 @@
   },
   "exclude": [
     ".tmp",
-    ".pi"
+    ".pi",
+    "-agent",
+    "-config"
   ],
   "permissions": {
     "clean": {
