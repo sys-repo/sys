@@ -59,6 +59,16 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(raw).to.match(/\x1b\[37m1775975797\.abc123\.sandbox\.log\.md/);
   });
 
+  it('table → dims the git cwd write marker', () => {
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+      write: { summary: ['cwd'], detail: [] },
+    }, { width: 120 });
+
+    expect(raw).to.contain('\x1b[2m\x1b[36m (git)\x1b[39m\x1b[22m');
+  });
+
   it('table → fits read and context previews within a narrow width budget', () => {
     const width = 52;
     const text = render({

@@ -224,7 +224,7 @@ function pushWriteBucket(
     const pathBudget = position === 0 ? Math.max(0, budget - markerBudget) : budget;
     return formatWritePath(path, cwd, pathBudget);
   });
-  const lead = label === 'write:cwd' ? `${head}${c.cyan(WRITE_CWD_MARKER)}` : head;
+  const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(WRITE_CWD_MARKER))}` : head;
   table.push([c.yellow(label), lead]);
   for (const item of tail) table.push(['', item]);
 }
