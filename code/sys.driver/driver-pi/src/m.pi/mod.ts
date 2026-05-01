@@ -1,8 +1,8 @@
 /**
  * @module
- * Root Pi driver surface.
+ * Root Pi system-agent boundary.
  */
 import type { t } from './common.ts';
 
-/** Root Pi driver namespace. */
+/** Root Pi boundary namespace. */
 export const Pi: t.Pi.Lib = {};

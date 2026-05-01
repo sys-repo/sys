@@ -1,10 +1,10 @@
 import type { t } from './common.ts';
 
 /**
- * Persisted profile configs for Pi.
+ * Profile YAML contracts for running Pi as a system agent.
  */
 export declare namespace PiCliProfiles {
-  /** Runtime surface for the persisted profile launcher. */
+  /** Runtime surface for the profile-driven Pi launcher. */
   export type Lib = {
     /** Parse wrapper args, optionally show help, then launch or open the profile menu. */
     main(input?: Input): Promise<Result>;
@@ -14,9 +14,9 @@ export declare namespace PiCliProfiles {
     menu(args: MenuArgs): Promise<MenuResult>;
   };
 
-  /** Wrapper entry input. */
+  /** Profile boundary entry input. */
   export type Input = {
-    /** Wrapper argv; args after `--` pass through to Pi. */
+    /** Boundary argv; args after `--` pass through to Pi. */
     readonly argv?: readonly string[];
     /** Terminal working directory used to resolve profile paths. */
     readonly cwd?: t.StringDir | t.PiCli.Cwd;
@@ -60,7 +60,7 @@ export declare namespace PiCliProfiles {
     readonly allowAll?: boolean;
   };
 
-  /** Parsed wrapper args. */
+  /** Parsed boundary args. */
   export type ParsedArgs = {
     readonly help?: boolean;
     readonly allowAll?: boolean;

@@ -1,6 +1,6 @@
 /**
  * @module
- * Thin CLI transport surface for launching Pi.
+ * CLI entrypoint for the typed Pi Deno boundary.
  */
 import { Fs, type t } from './common.ts';
 import { main } from './m.main.ts';
@@ -11,7 +11,7 @@ import { Profiles } from '../m.cli.profiles/mod.ts';
  * API surface:
  */
 export { Profiles };
-/** Thin CLI launcher wrapper for the upstream Pi coding agent. */
+/** CLI launcher for running Pi behind the typed Deno boundary. */
 export const Cli: t.PiCli.Lib = { main, run };
 
 /**

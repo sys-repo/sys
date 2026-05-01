@@ -2,13 +2,13 @@ import { Cli } from './common.ts';
 
 const HELP = {
   tool: '@sys/driver-pi/pi/cli',
-  summary: 'Launch Pi through the @sys sandboxed CLI wrapper.',
-  note: 'Only wrapper flags are handled locally. All other args pass through to Pi unchanged.',
+  summary: 'Run Pi behind the typed @sys Deno boundary.',
+  note: 'Only boundary flags are handled locally. All other args pass through to Pi unchanged.',
   usage: [
     '@sys/driver-pi/pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
   ],
   options: [
-    ['-h, --help', 'show wrapper help'],
+    ['-h, --help', 'show boundary help'],
     ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
     [
       '--git-root <walk-up|cwd>',

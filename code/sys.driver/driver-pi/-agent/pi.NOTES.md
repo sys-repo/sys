@@ -1,6 +1,6 @@
 # Pi integration notes
 
-Current working boundary hypothesis for `@sys/driver-agent/pi`.
+Current working boundary hypothesis for `@sys/driver-pi`.
 
 This note is intentionally provisional. It records the present design direction,
 not a locked architecture. Keep only the partitions earned by the first real Pi
@@ -11,13 +11,13 @@ adapter pass.
 - Pi is the programmable agent substrate.
 - `sys.canon/-canon` is the engineering constitution.
 - Skills are an indexing and routing layer into that constitution.
-- The value of `@sys/driver-agent/pi` is not generic agent orchestration.
-- The value is driving Pi to author and edit real `@sys` TypeScript modules
-  under canon constraints.
+- The value of `@sys/driver-pi` is not generic agent orchestration.
+- The value is a typed Deno boundary for running Pi as a profile-driven
+  system agent under canon constraints.
 
 ## What is actually known
 
-- The public package surface should be `driver-agent/pi`.
+- The public package surface should be `driver-pi`.
 - The first-class integration target should be direct Pi ESM or SDK surfaces.
 - The driver must remain truthful to Pi's real capability surface.
 - The driver must not couple core integration semantics to UI.
@@ -39,15 +39,15 @@ Reason:
 
 Start with the minimum believable shape:
 
-- `driver-agent/pi`
-  - public typed Pi driver surface
+- `driver-pi`
+  - public typed Pi boundary surface
   - exposes the runtime surface
   - exposes the type plane
   - stays free of UI coupling
 
 Only introduce a lower layer if the real Pi integration earns it:
 
-- `driver-agent/pi/core`
+- `driver-pi/core`
   - optional low-level Pi substrate
   - owns direct Pi integration only if that split reduces coupling or clarifies
     truth boundaries

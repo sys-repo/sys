@@ -1,20 +1,20 @@
 import type { t } from './common.ts';
 
 /**
- * Thin CLI transport surface for launching Pi.
+ * A typed Deno boundary for launching Pi as a profile-driven system agent.
  *
  * References:
  * - https://pi.dev/
  * - https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
  *
- * This local surface is a thin `@sys` launcher wrapper over the upstream Pi
- * coding-agent project.
+ * This local surface keeps upstream Pi execution behind explicit cwd,
+ * permissions, profile, and runtime-state seams.
  *
  * Provenance:
  * - Upstream Pi coding-agent license: MIT
  */
 export declare namespace PiCli {
-  /** Runtime surface for the Pi CLI launcher wrapper. */
+  /** Runtime surface for the Pi CLI boundary. */
   export type Lib = {
     main(input?: Input): Promise<Result>;
     run(args: RunArgs): Promise<t.Process.InheritOutput>;
@@ -34,7 +34,7 @@ export declare namespace PiCli {
     | { readonly kind: 'resolved'; readonly cwd: Cwd }
     | { readonly kind: 'exit' };
 
-  /** Wrapper entry input for launching Pi. */
+  /** Boundary entry input for launching Pi. */
   export type Input = {
     /** Raw argv tokens passed to the CLI wrapper entrypoint. */
     readonly argv?: readonly string[];
@@ -94,7 +94,7 @@ export declare namespace PiCli {
     readonly gitRoot?: GitRootMode;
   };
 
-  /** Typed wrapper argv shape produced from `Args.parse(...)`. */
+  /** Typed boundary argv shape produced from `Args.parse(...)`. */
   export type ParsedArgs = {
     readonly help?: boolean;
     readonly allowAll?: boolean;
@@ -105,7 +105,7 @@ export declare namespace PiCli {
   /** Effective permission posture for the launched Pi child. */
   export type PermissionMode = 'scoped' | 'allow-all';
 
-  /** Wrapper result union. */
+  /** Boundary result union. */
   export type Result = Help | Ran | Exit;
 
   /** Help output result. */

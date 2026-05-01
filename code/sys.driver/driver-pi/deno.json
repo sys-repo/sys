@@ -1,7 +1,6 @@
 {
   "name": "@sys/driver-pi",
   "version": "0.0.50",
-  "description": "Typed Pi launcher with profile YAML, scoped Deno permissions, and sandbox.",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -24,29 +23,11 @@
     "./pi": "./src/m.pi/mod.ts",
     "./pi/cli": "./src/m.pi/m.cli/mod.ts"
   },
-  "exclude": [
-    ".tmp",
-    ".pi",
-    "-agent",
-    "-config"
-  ],
+  "exclude": [".tmp", ".pi", "-agent", "-config"],
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "cli": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
+    "cli": { "read": true, "write": true, "run": true, "env": true },
     "dev": {
       "read": true,
       "write": true,
@@ -54,13 +35,7 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
-      }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     }
   }
 }

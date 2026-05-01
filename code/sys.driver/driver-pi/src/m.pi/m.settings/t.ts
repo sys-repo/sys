@@ -1,21 +1,21 @@
 import type { t } from './common.ts';
 
 /**
- * Types for wrapper-owned Pi settings.
+ * Types for boundary-owned Pi settings.
  *
- * These types describe the Pi settings fragment that the wrapper merges
- * into the git-rooted Pi agent runtime settings.
+ * These types describe the Pi settings fragment that the typed Deno boundary
+ * merges into the git-rooted Pi agent runtime settings.
  */
 export declare namespace PiSettings {
-  /** Runtime surface for wrapper-owned Pi settings. */
+  /** Runtime surface for boundary-owned Pi settings. */
   export type Lib = {
-    /** Filesystem helpers for wrapper-owned Pi settings. */
+    /** Filesystem helpers for boundary-owned Pi settings. */
     readonly Fs: PiSettings.Fs;
-    /** Resolve the wrapper-owned Pi settings fragment. */
+    /** Resolve the boundary-owned Pi settings fragment. */
     resolve(input?: ResolveInput): Doc;
   };
 
-  /** Pi `settings.json` fragment owned by the wrapper. */
+  /** Pi `settings.json` fragment owned by the boundary. */
   export type Doc = {
     /** Suppress the verbose upstream startup surface. */
     readonly quietStartup: boolean;
@@ -23,18 +23,18 @@ export declare namespace PiSettings {
     readonly collapseChangelog: boolean;
   };
 
-  /** Partial wrapper-owned settings overrides merged over deterministic defaults. */
+  /** Partial boundary-owned settings overrides merged over deterministic defaults. */
   export type ResolveInput = Partial<Doc>;
 
   /** Write the canonical settings fragment for the given git root. */
   export type WriteArgs = {
     /** Git root under which `.pi/agent/settings.json` is materialized. */
     readonly cwd: t.StringDir;
-    /** Optional overrides merged over wrapper-owned defaults before writing. */
+    /** Optional overrides merged over boundary-owned defaults before writing. */
     readonly settings?: ResolveInput;
   };
 
-  /** Filesystem helpers for wrapper-owned Pi settings. */
+  /** Filesystem helpers for boundary-owned Pi settings. */
   export type Fs = {
     /** Resolve the git-rooted Pi agent settings directory. */
     dirOf(cwd: t.StringDir): t.StringDir;
@@ -44,7 +44,7 @@ export declare namespace PiSettings {
     write(input: WriteArgs): Promise<t.StringPath>;
   };
 
-  /** Validation result for a wrapper-owned Pi settings fragment. */
+  /** Validation result for a boundary-owned Pi settings fragment. */
   export type JsonCheck =
     | { readonly ok: true; readonly doc: Doc }
     | { readonly ok: false; readonly errors: readonly unknown[] };

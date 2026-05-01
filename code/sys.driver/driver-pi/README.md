@@ -1,5 +1,5 @@
 # @sys/driver-pi
-Typed Pi launcher with profile YAML, scoped Deno permissions, and sandbox.
+A typed Deno boundary for running [Pi](https://pi.dev/) as a profile-driven system agent.
 
 <p>&nbsp;</p>
 

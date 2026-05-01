@@ -2,7 +2,7 @@
 
 Status: open live TODO, pre-implementation, scoped to compatibility only.
 
-Keep this plan local to `driver-agent/-agent` until the profile-context compatibility migration is implemented. Delete it in the implementation commit once tests cover the migration path.
+Keep this plan local to `driver-pi/-agent` until the profile-context compatibility migration is implemented. Delete it in the implementation commit once tests cover the migration path.
 
 ## Decision
 

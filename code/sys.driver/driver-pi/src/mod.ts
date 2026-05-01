@@ -1,6 +1,6 @@
 /**
  * @module
- * Typed Pi launcher with profile YAML, scoped Deno permissions, and sandbox.
+ * A typed Deno boundary for running Pi as a profile-driven system agent.
  */
 export { pkg } from './pkg.ts';
 
