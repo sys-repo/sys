@@ -170,19 +170,24 @@ describe('DenoDeploy.Fmt', () => {
   it('hides spinner elapsed text until it reaches one second', () => {
     expect(stripAnsi(ListenFmt.buildSpinnerText(999))).to.not.include('999');
     expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(999))).to.not.include('999');
-    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 999))).to.not.include(' - ');
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 999))).to.not
+      .include(' - ');
 
-    expect(stripAnsi(ListenFmt.buildSpinnerText(1000))).to.not.eql(stripAnsi(ListenFmt.buildSpinnerText()));
+    expect(stripAnsi(ListenFmt.buildSpinnerText(1000))).to.not.eql(
+      stripAnsi(ListenFmt.buildSpinnerText()),
+    );
     expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(1000))).to.not.eql(
       stripAnsi(ListenFmt.stageMaterializeSpinnerText()),
     );
-    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 1000))).to.include(' - ');
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 1000))).to
+      .include(' - ');
   });
 
   it('renders spinner elapsed with fixed two-decimal minutes after one minute', () => {
     expect(stripAnsi(ListenFmt.buildSpinnerText(61_234))).to.include('1.02m');
     expect(stripAnsi(ListenFmt.stageMaterializeSpinnerText(240_000))).to.include('4.00m');
-    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 240_000))).to.include('4.00m');
+    expect(stripAnsi(ListenFmt.deploySpinnerText('https://console.deno.com/sys-org', 240_000))).to
+      .include('4.00m');
   });
 
   it('renders sub-minute spinner elapsed from the elapsed duration value', () => {
@@ -229,7 +234,9 @@ stderr:
 
     expect(text).to.include('Deploy Failed');
     expect(text).to.include('deploy');
-    expect(text).to.include('An unexpected internal error occurred. If this issue persists, please contact support.');
+    expect(text).to.include(
+      'An unexpected internal error occurred. If this issue persists, please contact support.',
+    );
     expect(text).to.include('trace id');
     expect(text).to.include('6ab4a481d06f2bf753adc4897c548a2f');
   });
@@ -247,7 +254,7 @@ You can view the revision here:
 https://console.deno.com/sys-org/driver-sample/builds/axxhgz0t8jmr
 
 stderr:
-\u001b[31m✗ An error occurred:\u001b[0m
+${c.red('✗ An error occurred:')}
   Failed to parse "deploy" configuration: missing field \`org\`
         `),
       }).join('\n'),
@@ -281,7 +288,9 @@ logs:
     );
 
     expect(text).to.include('Deploy Failed');
-    expect(text).to.include('The requested app was not found, or you do not have access to view it.');
+    expect(text).to.include(
+      'The requested app was not found, or you do not have access to view it.',
+    );
     expect(text).to.not.include('error │ An error occurred:');
     expect(text).to.include('trace id');
     expect(text).to.include('8485febc7c30791441fc10fa07c406e9');

@@ -1,4 +1,4 @@
-import { describe, expect, it, Cli, Str } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Str } from '../../-test.ts';
 import { menuMessage, optionLines, optionName } from '../u.menu.ts';
 
 describe('Root Menu', () => {
@@ -19,7 +19,7 @@ describe('Root Menu', () => {
 
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
-      '\x1b[90m                                                         \x1b[39m',
+      c.gray('                                                         '),
       '├─ @sys/tools pi             (← alias agent)                 ',
     ].join('\n'));
 
@@ -29,11 +29,11 @@ describe('Root Menu', () => {
   });
 
   it('falls back when a rendered line is visibly blank', () => {
-    expect(optionName('\x1b[90m   \x1b[39m', 'fallback')).to.eql('fallback');
+    expect(optionName(c.gray('   '), 'fallback')).to.eql('fallback');
   });
 
   it('keeps more rows visibly non-empty', () => {
-    const res = optionName(undefined, '\x1b[3m\x1b[90mmore...\x1b[39m\x1b[23m');
+    const res = optionName(undefined, c.italic(c.gray('more...')));
     expect(Cli.stripAnsi(res).trim()).to.eql('more...');
   });
 

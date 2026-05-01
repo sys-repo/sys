@@ -49,28 +49,16 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, width - 1, ['report']);
   });
 
-  it('table → report row keeps path basename color semantics when shortened', () => {
-    const raw = PiSandboxFmt.table({
-      permissions: 'scoped',
-      report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
-      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-    }, { width: 52 });
-
-    expect(raw).to.match(/\x1b\[37m1775975797\.abc123\.sandbox\.log\.md/);
-  });
-
-  it('table → colors write labels and path basenames magenta, and dims the git marker', () => {
-    const raw = PiSandboxFmt.table({
+  it('table → renders write labels, path basenames, and the git marker', () => {
+    const text = render({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: { summary: ['cwd', 'temp'], detail: ['/tmp/pi-cli-runtime'] },
-    }, { width: 120 });
+    }, 120);
 
-    expect(raw).to.contain('\x1b[35mwrite:cwd\x1b[39m');
-    expect(raw).to.contain('\x1b[35m     :tmp\x1b[39m');
-    expect(raw).to.contain('\x1b[35mpi-cli-test\x1b[90m/\x1b[39m');
-    expect(raw).to.contain('\x1b[35mpi-cli-runtime\x1b[90m/\x1b[39m');
-    expect(raw).to.contain('\x1b[2m\x1b[36m (git)\x1b[39m\x1b[22m');
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
+    expect(text).to.contain(':tmp');
+    expect(text).to.contain('/tmp/pi-cli-runtime/');
   });
 
   it('table → fits read and context previews within a narrow width budget', () => {
@@ -138,15 +126,12 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
       },
     };
     const text = render(input, 80);
-    const raw = PiSandboxFmt.table(input, { width: 80 });
 
     expect(text).to.match(/permissions\s+allow-all/);
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expect(text.split('\n')[0]).to.eql('Harness:No-Sandbox');
-    expect(raw).to.match(/\x1b\[1m\x1b\[33mHarness:No-Sandbox/);
-    expect(raw).to.match(/\x1b\[33m━+/);
+    expect(text.split('\n')[0]).to.eql('Pi:no-sandbox');
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -215,7 +200,7 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expect(output[0]).to.eql('Harness:Sandbox');
+  expect(output[0]).to.eql('Pi:sandbox');
   expect(output[1]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }

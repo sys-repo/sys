@@ -70,7 +70,7 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
       message: 'Harness:',
       extra: [
         {
-          name: allowAll === true ? c.yellow('start (--allow-all)') : c.green('start'),
+          name: allowAll === true ? c.yellow('start (--allow-all)') : c.cyan('start'),
           value: 'run' as const,
         },
       ],

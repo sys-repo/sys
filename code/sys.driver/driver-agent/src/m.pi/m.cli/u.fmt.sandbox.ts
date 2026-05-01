@@ -52,10 +52,10 @@ export const PiSandboxFmt = {
     if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
     else pushWriteRows(table, input.cwd.git, input.write, contentBudget);
 
-    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'green';
+    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'cyan';
     const title = input.permissions === 'allow-all'
-      ? c.bold(c.yellow('Harness:No-Sandbox'))
-      : c.bold(c.green('Harness:Sandbox'));
+      ? c.bold(c.yellow('Pi:no-sandbox'))
+      : c.bold(c.cyan('Pi:sandbox'));
 
     return Str.builder()
       .line(title)

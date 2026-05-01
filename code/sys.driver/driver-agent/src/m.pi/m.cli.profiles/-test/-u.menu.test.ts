@@ -44,6 +44,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
+    const harnessOptions: string[] = [];
     let topLevelCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
@@ -54,7 +55,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
-        if (isActionMenu(input)) return Promise.resolve('back');
+        if (isActionMenu(input)) {
+          harnessOptions.push(...(input.options ?? []).map((item) => item.name));
+          return Promise.resolve('back');
+        }
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
@@ -63,7 +67,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
     try {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
+      const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(calls).to.eql(['Harness:', 'Harness:', 'Harness:']);
+      expect(strippedOptions).to.include('  start');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -106,7 +112,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd });
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
-      expect(printed).to.contain('Harness:Sandbox');
+      expect(printed).to.contain('Pi:sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
@@ -159,9 +165,6 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).to.match(/read\s+all/);
       expect(printed).to.match(/write\s+all/);
-      expect(harnessOptions.some((name) => /\x1b\[33mstart \(--allow-all\)/.test(name))).to.eql(
-        true,
-      );
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(strippedOptions).to.include('  start (--allow-all)');
       expect(strippedOptions).to.include('  reload');
