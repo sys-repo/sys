@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli } from '../common.ts';
 import { GitInitMenu } from '../u.menu.git.init.ts';
 
-describe('@sys/driver-agent/pi/cli/u.menu.git.init', () => {
+describe('@sys/driver-pi/pi/cli/u.menu.git.init', () => {
   it('prompt → prints the setup block and asks for a minimal action choice', async () => {
     const prevPrompt = Cli.Input.Select.prompt;
     const prevInfo = console.info;

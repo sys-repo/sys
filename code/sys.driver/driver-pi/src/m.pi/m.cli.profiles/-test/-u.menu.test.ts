@@ -2,9 +2,9 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs, type t } from '../common.ts';
 import { menu } from '../u.menu.ts';
 
-describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
+describe(`@sys/driver-pi/pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
 
@@ -19,7 +19,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
 
     try {
       const res = await menu({ cwd });
-      const path = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+      const path = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
       const read = await Fs.readText(path);
       expect(read.ok).to.eql(true);
       const text = read.data ?? '';
@@ -36,10 +36,10 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   });
 
   it('menu → migrates generated legacy context.include before rendering profiles', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
-    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
@@ -62,11 +62,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   });
 
   it('menu → uses pi: for the action prompt', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
@@ -104,11 +104,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   });
 
   it('menu → shows the sandbox sheet before the action menu and keeps one reload action', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
@@ -156,11 +156,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   });
 
   it('menu → lists loaded standard context files in the sandbox sheet', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.write(Fs.join(cwd, 'AGENTS.md'), 'Agent guidance.');
@@ -194,11 +194,11 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
   });
 
   it('menu → sandbox preview preserves explicit allow-all posture', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.menu.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-agent.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));

@@ -1,16 +1,16 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { PiSandboxReport } from '../u.report.sandbox.ts';
 
-describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
+describe(`@sys/driver-pi/pi/cli/u.report.sandbox`, () => {
   it('dir → derives the project log dir from the shared pi fs seam', () => {
     expect(PiSandboxReport.dir('/tmp/pi-cli-test')).to.eql(
-      '/tmp/pi-cli-test/.log/@sys.driver-agent.pi',
+      '/tmp/pi-cli-test/.log/@sys.driver-pi.pi',
     );
   });
 
   it('fileOf → writes reports under the derived project log dir with timestamped markdown names', () => {
     const path = PiSandboxReport.fileOf('/tmp/pi-cli-test');
-    expect(path).to.contain('/tmp/pi-cli-test/.log/@sys.driver-agent.pi/');
+    expect(path).to.contain('/tmp/pi-cli-test/.log/@sys.driver-pi.pi/');
     expect(path).to.match(/\/\d+\.[a-z0-9]+\.sandbox\.log\.md$/);
   });
 
@@ -35,7 +35,7 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
     });
 
     expect(text).to.contain('# Pi Sandbox Report');
-    expect(text).to.contain('- pkg: @sys/driver-agent@');
+    expect(text).to.contain('- pkg: @sys/driver-pi@');
     expect(text).to.contain('## Summary');
     expect(text).to.contain('## Readable Paths');
     expect(text).to.contain('## Writable Paths');

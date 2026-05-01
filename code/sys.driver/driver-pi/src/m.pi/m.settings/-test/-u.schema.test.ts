@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { PiSettingsSchema } from '../u.schema.ts';
 
-describe(`@sys/driver-agent/pi/settings/u.schema`, () => {
+describe(`@sys/driver-pi/pi/settings/u.schema`, () => {
   it('initial → returns wrapper-owned startup defaults', () => {
     expect(PiSettingsSchema.initial()).to.eql({
       quietStartup: true,

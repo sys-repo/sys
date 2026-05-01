@@ -37,17 +37,17 @@ export const PASSTHROUGH_TARGETS: readonly PassthroughTarget[] = [
   },
   {
     upstream: {
-      name: '@sys/driver-agent',
-      path: 'code/sys.driver/driver-agent',
+      name: '@sys/driver-pi',
+      path: 'code/sys.driver/driver-pi',
     },
     consumer: {
       path: 'code/sys.tools',
       fileFromRoot: 'code/sys.tools/src/cli.pi/mod.ts',
     },
     pin: {
-      constName: 'DRIVER_AGENT_PI_CLI_JSR_SPECIFIER',
-      pattern: /const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = 'jsr:@sys\/driver-agent(?:@[^']+)?\/pi\/cli';/,
-      toSpecifier: (version) => `jsr:@sys/driver-agent@${version}/pi/cli`,
+      constName: 'DRIVER_PI_CLI_JSR_SPECIFIER',
+      pattern: /const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys\/driver-pi(?:@[^']+)?\/pi\/cli';/,
+      toSpecifier: (version) => `jsr:@sys/driver-pi@${version}/pi/cli`,
     },
   },
 ] as const;

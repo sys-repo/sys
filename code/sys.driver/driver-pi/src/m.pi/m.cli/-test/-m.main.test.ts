@@ -3,7 +3,7 @@ import { Fs, Process, type t } from '../common.ts';
 import { Cli } from '../mod.ts';
 import { GitInitMenu } from '../u.menu.git.init.ts';
 
-describe(`@sys/driver-agent/pi/cli/m.main`, () => {
+describe(`@sys/driver-pi/pi/cli/m.main`, () => {
   it('help → renders wrapper help without launching Pi', async () => {
     const check = async (arg: '-h' | '--help') => {
       const prev = Process.inherit;
@@ -18,7 +18,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
         const res = await Cli.main({ argv: [arg] });
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
-        expect(res.text).to.contain('@sys/driver-agent/pi/cli');
+        expect(res.text).to.contain('@sys/driver-pi/pi/cli');
         expect(res.text).to.contain('-h, --help');
         expect(res.text).to.contain('-A, --allow-all');
         expect(calls).to.eql([res.text]);
@@ -34,7 +34,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → passes non-wrapper argv through to Pi launch unchanged', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -56,7 +56,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → passes -A through to Pi when separated by --', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -78,7 +78,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → passes --help through to Pi when separated by --', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -99,7 +99,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → grants full Deno permissions when requested before --', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -121,7 +121,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
 
   it('main → passes extra write scope through to Pi launch', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -148,7 +148,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
   it('main → supports cwd-only git root resolution for smoke testing', async () => {
     const prev = Process.inherit;
     const prevPrompt = GitInitMenu.prompt;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;
     try {
@@ -172,7 +172,7 @@ describe(`@sys/driver-agent/pi/cli/m.main`, () => {
   });
 
   it('main → exits cleanly when git init recovery is declined', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.main.test.' }))
       .absolute as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
     try {

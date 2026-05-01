@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { resolve } from '../u.resolve.ts';
 
-describe(`@sys/driver-agent/pi/settings/u.resolve`, () => {
+describe(`@sys/driver-pi/pi/settings/u.resolve`, () => {
   it('resolve → returns deterministic wrapper-owned defaults', () => {
     expect(resolve()).to.eql({
       quietStartup: true,

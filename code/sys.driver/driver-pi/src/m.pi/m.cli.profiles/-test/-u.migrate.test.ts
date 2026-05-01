@@ -3,7 +3,7 @@ import { Fs, Str, type t } from '../common.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { ProfilesFs } from '../u.fs.ts';
 
-describe(`@sys/driver-agent/pi/cli/Profiles/u.migrate`, () => {
+describe(`@sys/driver-pi/pi/cli/Profiles/u.migrate`, () => {
   it('file → rewrites generated legacy context.include to context.append', async () => {
     const { cwd, path } = await writeProfile(
       Str.dedent(
@@ -118,7 +118,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.migrate`, () => {
   });
 
   it('dir → rewrites profiles in the configured profile directory', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.migrate.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
       .absolute as t.StringDir;
     const path = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
 
@@ -136,7 +136,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.migrate`, () => {
 });
 
 async function writeProfile(text: string) {
-  const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.u.migrate.test.' }))
+  const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
     .absolute as t.StringDir;
   const path = Fs.join(cwd, 'profile.yaml') as t.StringPath;
   await Fs.write(path, text);

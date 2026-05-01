@@ -14,7 +14,7 @@ export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
       rootDepsYaml: Fs.join(root, 'deps.yaml'),
-      resolvePkgFile: Fs.join(root, 'code/sys.driver/driver-agent/src/m.pi/m.cli/u.resolve.pkg.ts'),
+      resolvePkgFile: Fs.join(root, 'code/sys.driver/driver-pi/src/m.pi/m.cli/u.resolve.pkg.ts'),
     };
   },
 } as const;

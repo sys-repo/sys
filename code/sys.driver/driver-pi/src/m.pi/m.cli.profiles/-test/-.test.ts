@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Profiles } from '../mod.ts';
 
-describe(`@sys/driver-agent/pi/cli/Profiles`, () => {
+describe(`@sys/driver-pi/pi/cli/Profiles`, () => {
   it('API', async () => {
-    const m = await import('@sys/driver-agent/pi/cli');
+    const m = await import('@sys/driver-pi/pi/cli');
     expect(m.Profiles).to.equal(Profiles);
     expect(m.Profiles.main).to.equal(Profiles.main);
     expect(m.Profiles.run).to.equal(Profiles.run);

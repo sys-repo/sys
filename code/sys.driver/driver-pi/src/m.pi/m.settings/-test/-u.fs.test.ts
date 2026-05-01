@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { SettingsFs } from '../m.fs.ts';
 
-describe(`@sys/driver-agent/pi/settings/m.fs`, () => {
+describe(`@sys/driver-pi/pi/settings/m.fs`, () => {
   it('dirOf / pathOf → derive the git-rooted Pi agent settings location', () => {
     const cwd = '/tmp/pi-settings-test' as t.StringDir;
     expect(SettingsFs.dirOf(cwd)).to.eql('/tmp/pi-settings-test/.pi/agent');

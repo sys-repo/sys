@@ -4,7 +4,7 @@ import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 import { GitInitMenu } from '../../m.cli/u.menu.git.init.ts';
 
-describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
+describe(`@sys/driver-pi/pi/cli/Profiles/m.main`, () => {
   it('help → renders profile help without launching Pi', async () => {
     const check = async (arg: '-h' | '--help') => {
       const prev = Process.inherit;
@@ -22,16 +22,16 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
         const text = Cli.stripAnsi(res.text);
-        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles');
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('-A, --allow-all');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
         expect(text).to.contain('--git-root <walk-up|cwd>');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles --git-root cwd');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-agent/pi/cli Profiles --allow-all');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles --git-root cwd');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles --allow-all');
         expect(text).to.contain(
-          'deno run -A jsr:@sys/driver-agent/pi/cli Profiles -- --model gpt-5.4',
+          'deno run -A jsr:@sys/driver-pi/pi/cli Profiles -- --model gpt-5.4',
         );
         expect(calls).to.eql([res.text]);
       } finally {
@@ -51,16 +51,16 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const prevInfo = console.info;
     const calls: string[] = [];
     try {
-      Deno.env.set('PI_CLI_PROFILES_HELP_TOOL', 'deno run -A jsr:@sys/tools agent');
+      Deno.env.set('PI_CLI_PROFILES_HELP_TOOL', 'deno run -A jsr:@sys/tools pi');
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       const res = await Profiles.main({ argv: ['--help'] });
       expect(res.kind).to.eql('help');
       if (res.kind !== 'help') throw new Error('Expected help result.');
       const text = Cli.stripAnsi(res.text);
-      expect(text).to.contain('deno run -A jsr:@sys/tools agent');
-      expect(text).to.contain('deno run -A jsr:@sys/tools agent --profile my-canon');
-      expect(text).to.contain('deno run -A jsr:@sys/tools agent --git-root cwd');
+      expect(text).to.contain('deno run -A jsr:@sys/tools pi');
+      expect(text).to.contain('deno run -A jsr:@sys/tools pi --profile my-canon');
+      expect(text).to.contain('deno run -A jsr:@sys/tools pi --git-root cwd');
       expect(calls).to.eql([res.text]);
     } finally {
       if (prev === undefined) Deno.env.delete('PI_CLI_PROFILES_HELP_TOOL');
@@ -72,7 +72,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('main → runs selected config and passes argv after -- through to Pi', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
@@ -115,7 +115,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('main → routes explicit allow-all through Profiles into the Pi child and sandbox display', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
@@ -148,9 +148,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
-    const config = `${cwd}/-config/@sys.driver-agent.pi/default.yaml` as t.StringPath;
+    const config = `${cwd}/-config/@sys.driver-pi.pi/default.yaml` as t.StringPath;
     const calls: string[] = [];
     let topLevelCount = 0;
     let actionCount = 0;
@@ -196,9 +196,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const originalPrompt = Cli.Input.Select.prompt;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
-    const config = `${cwd}/-config/@sys.driver-agent.pi/canon.yaml` as t.StringPath;
+    const config = `${cwd}/-config/@sys.driver-pi.pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     let topLevelCount = 0;
     let launchCount = 0;
@@ -226,7 +226,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       });
 
       const res = await Profiles.main({ cwd });
-      const reportFiles = (await Fs.ls(Fs.join(cwd, '.log', '@sys.driver-agent.pi') as t.StringDir))
+      const reportFiles = (await Fs.ls(Fs.join(cwd, '.log', '@sys.driver-pi.pi') as t.StringDir))
         .filter((path) => path.endsWith('.sandbox.log.md'));
       const printed = Cli.stripAnsi(calls.join('\n'));
 
@@ -245,9 +245,9 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('main → resolves --profile via the standard profile file naming convention', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
-    const config = `${cwd}/-config/@sys.driver-agent.pi/canon.yaml` as t.StringPath;
+    const config = `${cwd}/-config/@sys.driver-pi.pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -286,7 +286,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   it('main → bootstraps the default profile on first direct --profile default run', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
     const calls: string[] = [];
     try {
@@ -296,7 +296,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include.members(['--help']);
-        const created = `${cwd}/-config/@sys.driver-agent.pi/default.yaml`;
+        const created = `${cwd}/-config/@sys.driver-pi.pi/default.yaml`;
         const read = await Fs.readText(created);
         expect(read.ok).to.eql(true);
         expect(read.data ?? '').to.contain('# pi profile: default');
@@ -317,7 +317,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   });
 
   it('main → supports cwd-only git root resolution for smoke testing', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
     const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
@@ -334,7 +334,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.main`, () => {
   });
 
   it('main → exits cleanly when git init recovery is declined', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.main.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
     const prevPrompt = GitInitMenu.prompt;
     try {

@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { bootstrapGitignore, ensureGitignore } from '../u.ensure.gitignore.ts';
 
-describe('@sys/driver-agent/pi/cli/u.ensure.gitignore', () => {
+describe('@sys/driver-pi/pi/cli/u.ensure.gitignore', () => {
   it('ensureGitignore → no-op when .gitignore is missing', async () => {
     const cwd = await tempDir();
     try {

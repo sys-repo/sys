@@ -1,22 +1,22 @@
-# @sys/driver-agent
-Agent driver adapters.
+# @sys/driver-pi
+Pi driver adapters.
 
 ### Usage
 ```ts
-import { pkg } from 'jsr:@sys/driver-agent';
+import { pkg } from 'jsr:@sys/driver-pi';
 ```
 
 ### Invoking
 ```sh
-deno run -A jsr:@sys/driver-agent/pi/cli Profiles
-deno run -A jsr:@sys/driver-agent/pi/cli Profiles --profile canon
-deno run -A jsr:@sys/driver-agent/pi/cli Profiles --allow-all  # unsafe debug
+deno run -A jsr:@sys/driver-pi/pi/cli Profiles
+deno run -A jsr:@sys/driver-pi/pi/cli Profiles --profile canon
+deno run -A jsr:@sys/driver-pi/pi/cli Profiles --allow-all  # unsafe debug
 
 # (equivalent): from system tools ↓
 
-deno run -A jsr:@sys/tools agent
-deno run -A jsr:@sys/tools agent --profile canon
-deno run -A jsr:@sys/tools agent --allow-all  # unsafe debug
+deno run -A jsr:@sys/tools pi
+deno run -A jsr:@sys/tools pi --profile canon
+deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 ```
 
 ---
@@ -45,20 +45,20 @@ It is:
 
 ### Pi Startup Policy
 
-- `@sys/driver-agent/pi` requires launching inside a git repository.
+- `@sys/driver-pi/pi` requires launching inside a git repository.
 - Startup walks upward from the starting directory to the nearest ancestor containing `.git`.
 - That git root becomes the effective Pi launch cwd.
 - Runtime state and launcher artifacts are anchored to that repo root, including:
   - `./.pi/`
   - `./.tmp/pi.cli/`
-  - `./.log/@sys.driver-agent.pi/`
+  - `./.log/@sys.driver-pi.pi/`
 - Default launches use scoped Deno permissions.
 - Security posture: local raw bash is not a sandbox boundary. Strict IO prompt rules are
   defense-in-depth, not complete containment.
 - Intended runtime futures include constrained command brokers, narrowed bash substrates,
   remote sandboxes, and a remote `Deno Sandbox`.
 - `-A` / `--allow-all` is an explicit unsafe debug mode for the launched Pi child.
-  Sandbox previews and `.log/@sys.driver-agent.pi/*.sandbox.log.md` record `permissions: allow-all` when active.
+  Sandbox previews and `.log/@sys.driver-pi.pi/*.sandbox.log.md` record `permissions: allow-all` when active.
 
 
 <p>&nbsp;</p>

@@ -1,11 +1,11 @@
 import { Cli } from './common.ts';
 
 const HELP = {
-  tool: '@sys/driver-agent/pi/cli',
+  tool: '@sys/driver-pi/pi/cli',
   summary: 'Launch Pi through the @sys sandboxed CLI wrapper.',
   note: 'Only wrapper flags are handled locally. All other args pass through to Pi unchanged.',
   usage: [
-    '@sys/driver-agent/pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
+    '@sys/driver-pi/pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
   ],
   options: [
     ['-h, --help', 'show wrapper help'],

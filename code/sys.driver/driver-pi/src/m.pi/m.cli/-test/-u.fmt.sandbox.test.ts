@@ -7,11 +7,11 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
   readonly permissions?: t.PiCli.PermissionMode;
 };
 
-describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
+describe(`@sys/driver-pi/pi/cli/u.fmt.sandbox`, () => {
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
     const text = render({
-      report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
+      report: '/tmp/pi-cli-test/.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
         summary: ['cwd', 'runtime'],
@@ -28,7 +28,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
 
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
-    expect(text).to.contain('.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md');
+    expect(text).to.contain('.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.log');
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
@@ -37,7 +37,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
   it('table → report row preserves the final filename when ellipsized', () => {
     const width = 52;
     const text = render({
-      report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
+      report: '/tmp/pi-cli-test/.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, width);
 

@@ -32,8 +32,8 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
           - name: "@tdb/data"
             path: deploy/@tdb.data
           - name: "@tdb/slc"

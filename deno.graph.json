@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777593860312,
+    "createdAt": 1777666574793,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-76f75e1bd8709e252e6667a295d0ccfa74f7ffb2268bd0735b4f6b68d3200b86",
+      "/graph": "sha256-ba735f7800fe2f27ee3656250b3cfb01b3a7c6af3a3d5fa77678631fa0d5d61d",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.77/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.77/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777593860317
+    "modifiedAt": 1777666574797
   },
   "graph": {
     "orderedPaths": [
@@ -57,7 +57,7 @@
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
       "code/-tmpl",
-      "code/sys.driver/driver-agent",
+      "code/sys.driver/driver-pi",
       "code/sys.driver/driver-vite",
       "code/sys.tools",
       "deploy/@tdb.data",
@@ -98,7 +98,7 @@
       },
       {
         "from": "code/sys.driver/driver-deno",
-        "to": "code/sys.driver/driver-agent"
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.driver/driver-deno",
@@ -122,7 +122,7 @@
       },
       {
         "from": "code/sys.driver/driver-process",
-        "to": "code/sys.driver/driver-agent"
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.driver/driver-process",
@@ -170,15 +170,15 @@
       },
       {
         "from": "code/sys.ui/ui-css",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys.ui/ui-css",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys.ui/ui-css",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-css",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.ui/ui-css",
@@ -234,15 +234,15 @@
       },
       {
         "from": "code/sys.ui/ui-dom",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys.ui/ui-dom",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys.ui/ui-dom",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-dom",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.ui/ui-dom",
@@ -378,15 +378,15 @@
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys.ui/ui-react-devharness",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys.ui/ui-react-devharness",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys.ui/ui-react-devharness",
@@ -434,15 +434,15 @@
       },
       {
         "from": "code/sys/cli",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/cli",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys/cli",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/cli",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/cli",
@@ -506,10 +506,6 @@
       },
       {
         "from": "code/sys/color",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/color",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -519,6 +515,10 @@
       {
         "from": "code/sys/color",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/color",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/color",
@@ -666,15 +666,15 @@
       },
       {
         "from": "code/sys/fs",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/fs",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys/fs",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/fs",
@@ -862,11 +862,11 @@
       },
       {
         "from": "code/sys/process",
-        "to": "code/sys.driver/driver-agent"
+        "to": "code/sys.driver/driver-deno"
       },
       {
         "from": "code/sys/process",
-        "to": "code/sys.driver/driver-deno"
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/process",
@@ -930,11 +930,11 @@
       },
       {
         "from": "code/sys/schema",
-        "to": "code/sys.driver/driver-agent"
+        "to": "code/sys.driver/driver-monaco"
       },
       {
         "from": "code/sys/schema",
-        "to": "code/sys.driver/driver-monaco"
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/schema",
@@ -974,10 +974,6 @@
       },
       {
         "from": "code/sys/std",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/std",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -987,6 +983,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/std",
@@ -1142,15 +1142,15 @@
       },
       {
         "from": "code/sys/testing",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/testing",
         "to": "code/sys.driver/driver-automerge"
       },
       {
         "from": "code/sys/testing",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/testing",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/testing",
@@ -1198,7 +1198,7 @@
       },
       {
         "from": "code/sys/text",
-        "to": "code/sys.driver/driver-agent"
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/text",
@@ -1238,10 +1238,6 @@
       },
       {
         "from": "code/sys/types",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/types",
         "to": "code/sys.driver/driver-automerge"
       },
       {
@@ -1251,6 +1247,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/types",
@@ -1422,15 +1422,15 @@
       },
       {
         "from": "code/sys/yaml",
-        "to": "code/sys.driver/driver-agent"
-      },
-      {
-        "from": "code/sys/yaml",
         "to": "code/sys.driver/driver-deno"
       },
       {
         "from": "code/sys/yaml",
         "to": "code/sys.driver/driver-monaco"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/yaml",

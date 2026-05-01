@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../src/-test.ts';
 import { pinPiCodingAgentImport, resolvePiCodingAgentImport, type DenoDepsLib } from '../-prep.u.ts';
 
-describe('driver-agent/scripts/-prep', () => {
+describe('driver-pi/scripts/-prep', () => {
   it('pins PI_CODING_AGENT_IMPORT to the target deps authority version', () => {
     const source = `
 export const PI_CODING_AGENT_IMPORT = 'npm:@mariozechner/pi-coding-agent@0.65.2' as const;

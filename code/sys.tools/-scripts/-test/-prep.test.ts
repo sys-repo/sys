@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../src/-test.ts';
 import {
-  pinDriverAgentPiCliSpecifier,
+  pinDriverPiCliSpecifier,
   pinTmplSpecifier,
   prepTargets,
-  resolveDriverAgentVersion,
+  resolveDriverPiVersion,
   resolveTmplVersion,
   type DenoFileVersionLib,
 } from '../-prep.u.ts';
@@ -22,7 +22,7 @@ describe('scripts/-prep', () => {
     ]);
     expect(res.map((item) => item.target.upstream.name)).to.eql([
       '@sys/tmpl',
-      '@sys/driver-agent',
+      '@sys/driver-pi',
     ]);
   });
 
@@ -35,14 +35,14 @@ const x = 1;
     expect(res).to.contain(`const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';`);
   });
 
-  it('pins DRIVER_AGENT_PI_CLI_JSR_SPECIFIER to the target @sys/driver-agent version', () => {
+  it('pins DRIVER_PI_CLI_JSR_SPECIFIER to the target @sys/driver-pi version', () => {
     const source = `
-const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-agent@0.0.1/pi/cli';
+const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.1/pi/cli';
 const x = 1;
 `;
-    const res = pinDriverAgentPiCliSpecifier(source, '0.0.256');
+    const res = pinDriverPiCliSpecifier(source, '0.0.256');
     expect(res).to.contain(
-      `const DRIVER_AGENT_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-agent@0.0.256/pi/cli';`,
+      `const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.256/pi/cli';`,
     );
   });
 
@@ -82,20 +82,20 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     }
   });
 
-  it('resolveDriverAgentVersion reads version from workspace authority', async () => {
+  it('resolveDriverPiVersion reads version from workspace authority', async () => {
     const stub: DenoFileVersionLib = {
       workspaceVersion(name, src) {
-        expect(name).to.eql('@sys/driver-agent');
+        expect(name).to.eql('@sys/driver-pi');
         expect(src).to.eql('/tmp/deno.json');
         return Promise.resolve('0.0.256');
       },
     };
 
-    const version = await resolveDriverAgentVersion('/tmp/deno.json', stub);
+    const version = await resolveDriverPiVersion('/tmp/deno.json', stub);
     expect(version).to.eql('0.0.256');
   });
 
-  it('resolveDriverAgentVersion throws when workspace authority is missing', async () => {
+  it('resolveDriverPiVersion throws when workspace authority is missing', async () => {
     const stub: DenoFileVersionLib = {
       workspaceVersion() {
         return Promise.resolve(undefined);
@@ -103,11 +103,11 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     };
 
     try {
-      await resolveDriverAgentVersion('/tmp/deno.json', stub);
-      throw new Error('Expected resolveDriverAgentVersion to throw');
+      await resolveDriverPiVersion('/tmp/deno.json', stub);
+      throw new Error('Expected resolveDriverPiVersion to throw');
     } catch (error) {
       expect((error as Error).message).to.eql(
-        'Missing workspace version for package "@sys/driver-agent": /tmp/deno.json',
+        'Missing workspace version for package "@sys/driver-pi": /tmp/deno.json',
       );
     }
   });
@@ -118,11 +118,11 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
     );
   });
 
-  it('pinDriverAgentPiCliSpecifier throws when marker constant is missing', () => {
+  it('pinDriverPiCliSpecifier throws when marker constant is missing', () => {
     expect(() =>
-      pinDriverAgentPiCliSpecifier(`const X = 'jsr:@sys/driver-agent@0.0.1/pi/cli';`, '0.0.256'),
+      pinDriverPiCliSpecifier(`const X = 'jsr:@sys/driver-pi@0.0.1/pi/cli';`, '0.0.256'),
     ).to.throw(
-      'Could not locate DRIVER_AGENT_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
+      'Could not locate DRIVER_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
     );
   });
 });

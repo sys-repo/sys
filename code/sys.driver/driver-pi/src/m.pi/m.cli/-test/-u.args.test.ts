@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
 
-describe(`@sys/driver-agent/pi/cli/u.args`, () => {
+describe(`@sys/driver-pi/pi/cli/u.args`, () => {
   it('parse → recognizes wrapper help and preserves passthrough argv otherwise', () => {
     expect(PiArgs.parse(['-h'])).to.eql({ help: true, _: [] });
     expect(PiArgs.parse(['--model', 'gpt-5.4'])).to.eql({
@@ -99,7 +99,7 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
   });
 
   it('toArgs → resolves the Pi package spec from canonical deps when present above cwd', async () => {
-    const depsDir = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.args.test.' }))
+    const depsDir = (await Fs.makeTempDir({ prefix: 'driver-pi.args.test.' }))
       .absolute as t.StringDir;
     const cwd = Fs.join(depsDir, 'pkg') as t.StringDir;
     const depsPath = Fs.join(depsDir, 'deps.yaml');
@@ -162,7 +162,7 @@ function restoreEnv(name: string, value: string | undefined) {
 }
 
 async function toPlatformTmpDir() {
-  const probe = await Fs.makeTempDir({ prefix: 'driver-agent.pi.cli.test.' });
+  const probe = await Fs.makeTempDir({ prefix: 'driver-pi.cli.test.' });
   try {
     return Path.dirname(probe.absolute) as t.StringDir;
   } finally {

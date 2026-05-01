@@ -3,15 +3,15 @@ import { Fs, Process, type t } from '../common.ts';
 import { Cli } from '../mod.ts';
 import { PI_CODING_AGENT_IMPORT } from '../u.resolve.pkg.ts';
 
-describe(`@sys/driver-agent/pi/cli/m.run`, () => {
+describe(`@sys/driver-pi/pi/cli/m.run`, () => {
   it('API', async () => {
-    const m = await import('@sys/driver-agent/pi/cli');
+    const m = await import('@sys/driver-pi/pi/cli');
     expect(m.Cli).to.equal(Cli);
   });
 
   it('run → writes git-rooted agent settings before launch', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -63,7 +63,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → launches from invoked cwd while settings stay under git-root agent dir', async () => {
     const prev = Process.inherit;
-    const git = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+    const git = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     const invoked = Fs.join(git, 'nested', 'cell') as t.StringDir;
     try {
@@ -101,7 +101,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → passes cwd and env through to the child process', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     const env = { PI_FOO: 'bar', HOME: '/tmp/user-home' };
     try {
@@ -146,7 +146,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → passes extra write scope through to the child process', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     try {
       Process.inherit = async (input) => {
@@ -170,7 +170,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
 
   it('run → grants full Deno permissions only when explicitly requested', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     try {
       Process.inherit = async (input) => {

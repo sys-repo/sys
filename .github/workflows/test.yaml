@@ -96,8 +96,8 @@ jobs:
             path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
           - name: "@sys/tools"
