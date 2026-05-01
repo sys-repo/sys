@@ -35,14 +35,7 @@ export const PiSandboxFmt = {
     table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
     table.push([
       c.gray('context'),
-      formatPreview(
-        [
-          ...(input.context?.detail ?? []),
-          ...(input.context?.include ?? []),
-        ],
-        contentBudget,
-        input.cwd.git,
-      ),
+      formatPreview(input.context?.include ?? [], contentBudget, input.cwd.git),
     ]);
     table.push([
       c.gray('read'),

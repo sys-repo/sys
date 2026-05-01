@@ -31,7 +31,7 @@ export const ProfilesFs = {
           write: []  # extra writable paths
           env: {}    # extra environment variables
         context:
-          include: []  # extra context files
+          include: []  # context files injected into the prompt
 
       `,
     ).trimStart();

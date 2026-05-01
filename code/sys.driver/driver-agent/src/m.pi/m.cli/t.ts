@@ -127,14 +127,10 @@ export declare namespace PiCli {
     readonly read?: SandboxSummary.Scope;
     /** Effective write scope grouped for display. */
     readonly write?: SandboxSummary.Scope;
-    /** Intentional guidance context exposed to Pi. */
+    /** Intentional guidance context injected by the launcher. */
     readonly context?: {
-      /** Generic `AGENTS.md` discovery policy. */
-      readonly agents?: 'walk-up';
-      /** Extra guidance files included in Pi context. */
+      /** Source guidance files read by the wrapper and injected into Pi's prompt. */
       readonly include?: readonly t.StringPath[];
-      /** Effective context-related files discovered by the launcher. */
-      readonly detail?: readonly t.StringPath[];
     };
   };
 

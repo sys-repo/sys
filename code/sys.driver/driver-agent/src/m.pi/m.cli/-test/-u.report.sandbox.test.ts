@@ -21,7 +21,7 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
         permissions: 'scoped',
         cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
         read: {
-          summary: ['cwd', 'runtime', 'context'],
+          summary: ['cwd', 'runtime'],
           detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno', '/bin/bash'],
         },
         write: {
@@ -29,8 +29,6 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
           detail: ['/var/tmp/pi'],
         },
         context: {
-          agents: 'walk-up',
-          detail: ['/tmp/pi-cli-test/AGENTS.md'],
           include: ['/tmp/pi-cli-test/canon.md'],
         },
       },
@@ -43,12 +41,12 @@ describe(`@sys/driver-agent/pi/cli/u.report.sandbox`, () => {
     expect(text).to.contain('## Writable Paths');
     expect(text).to.contain('## Context Files');
     expect(text).to.contain('- permissions: scoped');
-    expect(text).to.contain('- read: cwd + runtime + context');
+    expect(text).to.contain('- read: cwd + runtime');
     expect(text).to.contain('- write: cwd + tmp');
     expect(text).to.contain('- cwd.git: /tmp/pi-cli-test');
     expect(text).to.contain('- cwd.invoked: /tmp/pi-cli-test/nested');
     expect(text).to.contain('## Writable Paths\n- /tmp/pi-cli-test\n- /var/tmp/pi');
-    expect(text).to.contain('- /tmp/pi-cli-test/AGENTS.md');
+    expect(text).to.contain('- context: explicit context');
     expect(text).to.contain('- /tmp/pi-cli-test/canon.md');
     expect(text).to.contain('## Readable Paths\n- /tmp/pi-cli-test/.tmp/pi.cli/deno\n- /bin/bash');
   });

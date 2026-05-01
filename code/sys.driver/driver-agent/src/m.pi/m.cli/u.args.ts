@@ -56,6 +56,7 @@ export const PiArgs = {
       '--no-extensions',
       '--no-skills',
       '--no-prompt-templates',
+      '--no-context-files',
       ...args,
     ] as const;
   },

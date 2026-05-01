@@ -29,10 +29,7 @@ export const PiSandboxReport = {
     const { sandbox } = input;
     const allowAll = sandbox.permissions === 'allow-all';
     const write = [sandbox.cwd.git, ...(sandbox.write?.detail ?? [])];
-    const context = [
-      ...(sandbox.context?.detail ?? []),
-      ...(sandbox.context?.include ?? []),
-    ];
+    const context = [...(sandbox.context?.include ?? [])];
     const lines = [
       '# Pi Sandbox Report',
       '',
@@ -71,12 +68,7 @@ function toSummary(
 }
 
 function toContextSummary(input?: t.PiCli.SandboxSummary['context']) {
-  const items: string[] = [];
-  if (input?.agents === 'walk-up') items.push('AGENTS.md walk-up');
-  if ((input?.detail?.length ?? 0) > 0) items.push('discovered context');
-  if ((input?.include?.length ?? 0) > 0) items.push('extra context');
-  if (items.length === 0) return '-';
-  return items.join(', ');
+  return (input?.include?.length ?? 0) > 0 ? 'explicit context' : '-';
 }
 
 function toCapabilityList(permissions: t.PiCli.PermissionMode, items: readonly string[]) {

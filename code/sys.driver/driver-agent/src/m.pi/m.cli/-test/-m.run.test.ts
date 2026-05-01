@@ -22,6 +22,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.args).to.include('--no-prompt');
         expect(input.args).not.to.include('--no-config');
         expect(input.args).to.include('--no-lock');
+        expect(input.args).to.include('--no-context-files');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
         expect(input.args).to.include('--help');
         expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
@@ -106,6 +107,7 @@ describe(`@sys/driver-agent/pi/cli/m.run`, () => {
         expect(input.args).to.include('--no-prompt');
         expect(input.args).not.to.include('--no-config');
         expect(input.args).to.include('--no-lock');
+        expect(input.args).to.include('--no-context-files');
         expect(input.env).to.eql({
           ...env,
           DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),

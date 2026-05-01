@@ -1,6 +1,7 @@
 import { Fs, type t } from './common.ts';
 import { resolveSandboxSummary } from '../m.cli/u.resolve.sandbox.ts';
 import { ProfilesFs } from './u.fs.ts';
+import { ProfileContext } from './u.context.ts';
 import { toPromptArgs } from './u.prompt.ts';
 
 export type ResolvedProfileRun = {
@@ -24,9 +25,10 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
   const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
+  const contextInclude = [...(context?.include ?? [])] as readonly t.StringPath[];
+  const contextArgs = await ProfileContext.toPromptArgs({ cwd, include: contextInclude });
   const read = [
     ...(capability?.read ?? []),
-    ...(context?.include ?? []),
     ...(input.read ?? []),
   ] as readonly t.StringPath[];
   const write = [...(capability?.write ?? []), ...(input.write ?? [])] as readonly t.StringPath[];
@@ -36,14 +38,13 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     write,
     allowAll: input.allowAll,
     context: {
-      agents: 'walk-up', // Include the nearest AGENTS.md and continue upward through parent folders.
-      include: [...(context?.include ?? [])],
+      include: contextInclude,
     },
   });
 
   return {
     cwd,
-    args: [...toPromptArgs(prompt), ...(input.args ?? [])],
+    args: [...toPromptArgs(prompt), ...contextArgs, ...(input.args ?? [])],
     read,
     write,
     env: { ...(capability?.env ?? {}), ...(input.env ?? {}) },

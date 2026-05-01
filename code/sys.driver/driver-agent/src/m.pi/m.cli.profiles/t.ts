@@ -120,9 +120,9 @@ export declare namespace PiCliProfiles {
       readonly env?: Record<string, string>;
     };
 
-    /** Guidance and instruction sources intentionally exposed to Pi. */
+    /** Guidance and instruction sources intentionally injected into Pi's prompt. */
     export type Context = {
-      /** Extra guidance files intentionally included in Pi's context. */
+      /** Extra guidance files read by the wrapper and injected into Pi's startup prompt. */
       readonly include?: readonly t.StringPath[];
     };
   }

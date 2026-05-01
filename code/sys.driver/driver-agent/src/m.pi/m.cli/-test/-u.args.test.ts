@@ -62,16 +62,16 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       expect(args).to.include('--no-prompt');
       expect(args).not.to.include('--no-config');
       expect(args).to.include('--no-lock');
+      expect(args).to.include('--no-context-files');
       expect(args).to.include(pkg);
       expect(args).to.include('--help');
       expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
       expect(readArg).to.contain(cwd);
-      expect(readArg).to.contain(Fs.join(cwd, '.agents', 'skills'));
-      expect(readArg).to.contain(Fs.join(cwd, '.git'));
       expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
-      expect(readArg).to.contain('/tmp/.agents/skills');
-      expect(readArg).to.contain('/tmp/.git');
       expect(readArg).to.contain('/bin/bash');
+      expect(readArg).not.to.contain(Fs.join(cwd, '.agents', 'skills'));
+      expect(readArg).not.to.contain('/tmp/.agents/skills');
+      expect(readArg).not.to.contain('/tmp/.git');
       expect(writeArg).to.contain(cwd);
       expect(writeArg).to.contain('/tmp/pi-cli-write');
       expect(writeArg).to.contain('/tmp/pi-cli-runtime');
@@ -112,6 +112,7 @@ describe(`@sys/driver-agent/pi/cli/u.args`, () => {
       const args = [...(await PiArgs.toArgs(cwd, ['--help']))];
       expect(args).not.to.include('--no-config');
       expect(args).to.include('--no-lock');
+      expect(args).to.include('--no-context-files');
       expect(args).to.include('npm:@mariozechner/pi-coding-agent@1.2.3');
     } finally {
       await Fs.remove(depsDir);

@@ -1,4 +1,4 @@
-import { Fs, type t } from './common.ts';
+import { type t } from './common.ts';
 import { PiEnv } from './u.env.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
@@ -15,13 +15,10 @@ export async function resolveSandboxSummary(args: {
 }): Promise<t.PiCli.SandboxSummary> {
   const denoDir = PiArgs.toDenoDir(args.cwd.git);
   const tmpDir = await PiEnv.toTmpDir();
-  const read = await resolveRead(args.cwd.git, denoDir, [
-    ...(args.read ?? []),
-    ...(args.context?.include ?? []),
-  ]);
+  const read = await resolveRead(args.cwd.git, denoDir, args.read ?? []);
   const write = await resolveWrite(args.cwd.git, args.write ?? []);
 
-  const context = toContext(args.cwd.git, read, args.context);
+  const context = toContext(args.context);
 
   return {
     permissions: args.allowAll === true ? 'allow-all' : 'scoped',
@@ -49,16 +46,8 @@ function toReadScope(
       continue;
     }
 
-    if (isContextRead(cwd, path)) {
-      groups.add('context');
-      continue;
-    }
-
-    if (isProbeRead(cwd, path)) {
-      groups.add('probe');
-      detail.push(path);
-      continue;
-    }
+    groups.add('extra');
+    detail.push(path);
   }
 
   return {
@@ -68,16 +57,9 @@ function toReadScope(
 }
 
 function toContext(
-  cwd: t.StringDir,
-  paths: readonly t.StringPath[],
   input?: t.PiCli.SandboxSummary['context'],
 ): t.PiCli.SandboxSummary['context'] {
-  const detail = unique(paths.filter((path) => isContextRead(cwd, path)));
-  return {
-    agents: input?.agents,
-    include: [...(input?.include ?? [])],
-    detail: detail.length > 0 ? detail : undefined,
-  };
+  return { include: unique(input?.include ?? []) };
 }
 
 function toWriteScope(
@@ -113,22 +95,11 @@ function unique(paths: readonly t.StringPath[]) {
 }
 
 function isRuntimeRead(cwd: t.StringDir, path: t.StringPath, tmpDir?: t.StringDir) {
-  return path === PiArgs.toDenoDir(cwd) || SHELLS.has(path) || isTempPath(path, tmpDir);
-}
-
-function isContextRead(cwd: t.StringDir, path: t.StringPath) {
   return (
-    path.endsWith('/AGENTS.md') ||
-    path.includes('/sys.canon/')
-  );
-}
-
-function isProbeRead(cwd: t.StringDir, path: t.StringPath) {
-  return (
-    path.endsWith('/CLAUDE.md') ||
-    path.endsWith('/.git') ||
-    path.endsWith('/.agents/skills') ||
-    (!path.startsWith(`${cwd}/`) && !path.endsWith('/AGENTS.md') && !path.includes('/sys.canon/'))
+    path === PiArgs.toDenoDir(cwd) ||
+    path === PiEnv.toShellPath() ||
+    SHELLS.has(path) ||
+    isTempPath(path, tmpDir)
   );
 }
 

@@ -14,7 +14,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
       report: '/tmp/pi-cli-test/.log/@sys.driver-agent.pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
-        summary: ['cwd', 'runtime', 'context'],
+        summary: ['cwd', 'runtime'],
         detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno', '/tmp/pi-cli-test/canon'],
       },
       write: {
@@ -22,9 +22,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
         detail: ['/tmp/pi-cli-test/out'],
       },
       context: {
-        agents: 'walk-up',
         include: ['/tmp/pi-cli-test/extra.md'],
-        detail: ['/tmp/pi-cli-test/AGENTS.md'],
       },
     }, width);
 
@@ -66,7 +64,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     const text = render({
       cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
-        summary: ['cwd', 'runtime', 'context'],
+        summary: ['cwd', 'runtime', 'extra'],
         detail: [
           '/tmp/pi-cli-test/.tmp/pi.cli/deno',
           '/bin/bash',
@@ -78,8 +76,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
         ],
       },
       context: {
-        agents: 'walk-up',
-        detail: [
+        include: [
           '/tmp/pi-cli-test/AGENTS.md',
           '/Users/phil/code/org.sys/AGENTS.md',
           '/Users/phil/code/org.sys/sys/AGENTS.md',
@@ -102,8 +99,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     const text = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       context: {
-        agents: 'walk-up',
-        detail: ['/Users/phil/code/org.sys/sys.canon/-canon/protocol.testing.md'],
+        include: ['/Users/phil/code/org.sys/sys.canon/-canon/protocol.testing.md'],
       },
     }, 36);
 
@@ -145,8 +141,7 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     const single = render({
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       context: {
-        agents: 'walk-up',
-        detail: ['/Users/phil/code/org.sys/sys/AGENTS.md'],
+        include: ['/Users/phil/code/org.sys/sys/AGENTS.md'],
       },
     }, 42);
     expect(single).to.contain('AGENTS.md');

@@ -14,26 +14,21 @@ describe(`@sys/driver-agent/pi/cli/u.resolve.sandbox`, () => {
         read: ['./canon' as t.StringPath],
         write: ['./out' as t.StringPath],
         context: {
-          agents: 'walk-up',
           include: ['./AGENTS.md' as t.StringPath],
         },
       });
 
       expect(res.cwd).to.eql({ invoked: `${cwd}/nested`, git: cwd });
       expect(res.permissions).to.eql('scoped');
-      expect(res.read?.summary).to.include.members(['cwd', 'runtime', 'context']);
+      expect(res.read?.summary).to.include.members(['cwd', 'runtime', 'extra']);
+      expect(res.read?.summary).not.to.include('context');
       expect(res.read?.detail).to.include('./canon');
       expect(res.read?.detail).to.include(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
       expect(res.read?.detail).to.include('/bin/bash');
       expect(res.write?.summary).to.include.members(['cwd', 'temp', 'extra']);
       expect(res.write?.detail).to.include('./out');
       expect(res.write?.detail).to.include('/tmp/pi-cli-runtime');
-      expect(res.context?.agents).to.eql('walk-up');
       expect(res.context?.include).to.eql(['./AGENTS.md']);
-      expect(res.context?.detail).to.include('./AGENTS.md');
-      expect(res.context?.detail).to.include(Fs.join(cwd, 'AGENTS.md'));
-      expect(res.context?.detail).not.to.include(Fs.join(cwd, '.git'));
-      expect(res.context?.detail).not.to.include(Fs.join(cwd, '.agents', 'skills'));
     } finally {
       restoreEnv('TMPDIR', prevTmp);
     }

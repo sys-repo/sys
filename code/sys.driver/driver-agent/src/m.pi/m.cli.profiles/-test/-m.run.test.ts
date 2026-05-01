@@ -29,6 +29,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
           `,
         ).trimStart(),
       );
+      await Fs.write(Fs.join(cwd, 'profile-context'), 'Profile context text.');
 
       await Fs.ensureDir(`${cwd}/.git`);
 
@@ -37,10 +38,19 @@ describe(`@sys/driver-agent/pi/cli/Profiles/m.run`, () => {
         const write = findArg(input.args, '--allow-write=');
         expect(input.cwd).to.eql(cwd);
         expect(input.args).to.include('--no-prompt');
+        expect(input.args).to.include('--no-context-files');
         expect(input.args).to.include.members(['--system-prompt', 'You are the profile prompt.']);
         expect(input.args).to.include.members(['--model', 'gpt-5.4', '--help']);
+        const contextArg = input.args.indexOf('--append-system-prompt');
+        expect(contextArg).to.be.greaterThan(-1);
+        const contextBundle = input.args[contextArg + 1] as t.StringPath;
+        const contextText = await Fs.readText(contextBundle);
+        if (!contextText.ok) throw contextText.error;
+        expect(contextText.data).to.contain('# Project Context');
+        expect(contextText.data).to.contain(`${cwd}/profile-context`);
+        expect(contextText.data).to.contain('Profile context text.');
         expect(read).to.contain('./profile-read');
-        expect(read).to.contain('./profile-context');
+        expect(read).not.to.contain('./profile-context');
         expect(read).to.contain('./extra-read');
         expect(write).to.contain('./profile-write');
         expect(write).to.contain('./extra-write');
