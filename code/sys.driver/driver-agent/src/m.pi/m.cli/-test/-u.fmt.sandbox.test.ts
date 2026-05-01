@@ -59,13 +59,17 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(raw).to.match(/\x1b\[37m1775975797\.abc123\.sandbox\.log\.md/);
   });
 
-  it('table → dims the git cwd write marker', () => {
+  it('table → colors write labels and path basenames magenta, and dims the git marker', () => {
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-      write: { summary: ['cwd'], detail: [] },
+      write: { summary: ['cwd', 'temp'], detail: ['/tmp/pi-cli-runtime'] },
     }, { width: 120 });
 
+    expect(raw).to.contain('\x1b[35mwrite:cwd\x1b[39m');
+    expect(raw).to.contain('\x1b[35m     :tmp\x1b[39m');
+    expect(raw).to.contain('\x1b[35mpi-cli-test\x1b[90m/\x1b[39m');
+    expect(raw).to.contain('\x1b[35mpi-cli-runtime\x1b[90m/\x1b[39m');
     expect(raw).to.contain('\x1b[2m\x1b[36m (git)\x1b[39m\x1b[22m');
   });
 
@@ -140,7 +144,8 @@ describe(`@sys/driver-agent/pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expect(raw).to.match(/\x1b\[1m\x1b\[33mAgent:Sandbox/);
+    expect(text.split('\n')[0]).to.eql('Harness:No-Sandbox');
+    expect(raw).to.match(/\x1b\[1m\x1b\[33mHarness:No-Sandbox/);
     expect(raw).to.match(/\x1b\[33m━+/);
   });
 
@@ -210,7 +215,7 @@ function render(input: SandboxInput, width: number) {
 
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
-  expect(output[0]).to.eql('Agent:Sandbox');
+  expect(output[0]).to.eql('Harness:Sandbox');
   expect(output[1]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }

@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open } from './common.ts';
+import { c, Cli, Fs, Open, type t } from './common.ts';
 import type {
   YamlConfigMenuActionBase,
   YamlConfigMenuArgs,
@@ -37,6 +37,7 @@ export async function actionMenu<T, A extends string = string>(
       message: args.actions?.message,
       actionLabel: args.actions?.label,
       extra: args.actions?.extra,
+      extraAfter: args.actions?.extraAfter,
     });
     lastAction = action;
 

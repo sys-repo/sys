@@ -73,8 +73,8 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
           name: allowAll === true ? c.yellow('start (--allow-all)') : c.green('start'),
           value: 'run' as const,
         },
-        { name: 'sandbox: reload', value: 'sandbox' as const },
       ],
+      extraAfter: [{ name: 'reload', value: 'sandbox' as const }],
       async onAction({ action, path }: { action: string; path: t.StringPath }) {
         if (action === 'sandbox') {
           await printSandbox({ cwd, path, allowAll });

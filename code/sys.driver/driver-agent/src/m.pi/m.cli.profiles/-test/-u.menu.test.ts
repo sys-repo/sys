@@ -108,7 +108,7 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd });
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
-      expect(printed).to.contain('Agent:Sandbox');
+      expect(printed).to.contain('Harness:Sandbox');
       expect(printed).to.match(/permissions\s+scoped/);
       expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
@@ -166,9 +166,12 @@ describe(`@sys/driver-agent/pi/cli/Profiles/u.menu`, () => {
       );
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(strippedOptions).to.include('  start (--allow-all)');
-      expect(strippedOptions).to.include('  sandbox: reload');
-      expect(strippedOptions.indexOf('  start (--allow-all)')).to.be.lessThan(
-        strippedOptions.indexOf('  sandbox: reload'),
+      expect(strippedOptions).to.include('  reload');
+      expect(strippedOptions.indexOf('  config: rename')).to.be.lessThan(
+        strippedOptions.indexOf('  reload'),
+      );
+      expect(strippedOptions.indexOf('  reload')).to.be.lessThan(
+        strippedOptions.indexOf(' (delete)'),
       );
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });

@@ -54,8 +54,8 @@ export const PiSandboxFmt = {
 
     const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'green';
     const title = input.permissions === 'allow-all'
-      ? c.bold(c.yellow('Agent:Sandbox'))
-      : c.bold(c.green('Agent:Sandbox'));
+      ? c.bold(c.yellow('Harness:No-Sandbox'))
+      : c.bold(c.green('Harness:Sandbox'));
 
     return Str.builder()
       .line(title)
@@ -225,7 +225,7 @@ function pushWriteBucket(
     return formatWritePath(path, cwd, pathBudget);
   });
   const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(WRITE_CWD_MARKER))}` : head;
-  table.push([c.yellow(label), lead]);
+  table.push([c.magenta(label), lead]);
   for (const item of tail) table.push(['', item]);
 }
 
@@ -238,7 +238,7 @@ function formatWritePath(path: t.StringPath, cwd: t.StringDir, budget: number) {
   const normalized = normalizeWritePath(path, cwd);
   const fitted = fitDisplayPath(normalized, budget);
   return c.gray(Cli.Fmt.path(fitted, (e) => {
-    if (e.is.basename) e.change(c.yellow(e.part));
+    if (e.is.basename) e.change(c.magenta(e.part));
   }));
 }
 
