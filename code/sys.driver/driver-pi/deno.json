@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-pi",
-  "version": "0.0.50",
+  "version": "0.0.51",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
@@ -23,11 +23,29 @@
     "./core": "./src/m.core/mod.ts",
     "./cli": "./src/m.core/m.cli/mod.ts"
   },
-  "exclude": [".tmp", ".pi", "-agent", "-config"],
+  "exclude": [
+    ".tmp",
+    ".pi",
+    "-agent",
+    "-config"
+  ],
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
-    "cli": { "read": true, "write": true, "run": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "cli": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true
+    },
     "dev": {
       "read": true,
       "write": true,
@@ -35,7 +53,14 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
+      }
     }
   }
 }
+
