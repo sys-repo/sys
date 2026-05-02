@@ -147,7 +147,7 @@ const wrangle = {
 
   async confirm() {
     const answer = await Cli.Input.Select.prompt<'save' | 'cancel'>({
-      message: 'Apply update plan:\n',
+      message: 'Apply update:',
       options: [
         { name: c.green(c.bold('Save')), value: 'save' },
         { name: c.gray('Cancel'), value: 'cancel' },
