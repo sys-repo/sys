@@ -37,12 +37,12 @@ const x = 1;
 
   it('pins DRIVER_PI_CLI_JSR_SPECIFIER to the target @sys/driver-pi version', () => {
     const source = `
-const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.1/pi/cli';
+const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.1/cli';
 const x = 1;
 `;
     const res = pinDriverPiCliSpecifier(source, '0.0.256');
     expect(res).to.contain(
-      `const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.256/pi/cli';`,
+      `const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys/driver-pi@0.0.256/cli';`,
     );
   });
 
@@ -120,7 +120,7 @@ const TMPL_JSR_SPECIFIER = 'jsr:@sys/tmpl@0.0.256';
 
   it('pinDriverPiCliSpecifier throws when marker constant is missing', () => {
     expect(() =>
-      pinDriverPiCliSpecifier(`const X = 'jsr:@sys/driver-pi@0.0.1/pi/cli';`, '0.0.256'),
+      pinDriverPiCliSpecifier(`const X = 'jsr:@sys/driver-pi@0.0.1/cli';`, '0.0.256'),
     ).to.throw(
       'Could not locate DRIVER_PI_CLI_JSR_SPECIFIER constant in code/sys.tools/src/cli.pi/mod.ts',
     );

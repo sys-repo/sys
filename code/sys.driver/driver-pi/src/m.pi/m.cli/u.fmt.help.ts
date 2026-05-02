@@ -1,11 +1,11 @@
 import { Cli } from './common.ts';
 
 const HELP = {
-  tool: '@sys/driver-pi/pi/cli',
+  tool: '@sys/driver-pi/cli',
   summary: 'Run Pi behind the typed @sys Deno boundary.',
   note: 'Only boundary flags are handled locally. All other args pass through to Pi unchanged.',
   usage: [
-    '@sys/driver-pi/pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
+    '@sys/driver-pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
   ],
   options: [
     ['-h, --help', 'show boundary help'],

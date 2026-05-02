@@ -1,7 +1,7 @@
 import { Cli, Str } from './common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
-const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-pi/pi/cli Profiles';
+const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-pi/cli Profiles';
 
 function helpInput() {
   const tool = Deno.env.get(HELP_TOOL_ENV) || DEFAULT_TOOL;

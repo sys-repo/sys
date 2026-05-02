@@ -4,7 +4,7 @@ import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 import { GitInitMenu } from '../../m.cli/u.menu.git.init.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/m.main`, () => {
+describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
   it('help → renders profile help without launching Pi', async () => {
     const check = async (arg: '-h' | '--help') => {
       const prev = Process.inherit;
@@ -22,16 +22,16 @@ describe(`@sys/driver-pi/pi/cli/Profiles/m.main`, () => {
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
         const text = Cli.stripAnsi(res.text);
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles');
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('-A, --allow-all');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
         expect(text).to.contain('--git-root <walk-up|cwd>');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles --git-root cwd');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/pi/cli Profiles --allow-all');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --git-root cwd');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all');
         expect(text).to.contain(
-          'deno run -A jsr:@sys/driver-pi/pi/cli Profiles -- --model gpt-5.4',
+          'deno run -A jsr:@sys/driver-pi/cli Profiles -- --model gpt-5.4',
         );
         expect(calls).to.eql([res.text]);
       } finally {

@@ -46,8 +46,8 @@ export const PASSTHROUGH_TARGETS: readonly PassthroughTarget[] = [
     },
     pin: {
       constName: 'DRIVER_PI_CLI_JSR_SPECIFIER',
-      pattern: /const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys\/driver-pi(?:@[^']+)?\/pi\/cli';/,
-      toSpecifier: (version) => `jsr:@sys/driver-pi@${version}/pi/cli`,
+      pattern: /const DRIVER_PI_CLI_JSR_SPECIFIER = 'jsr:@sys\/driver-pi(?:@[^']+)?\/cli';/,
+      toSpecifier: (version) => `jsr:@sys/driver-pi@${version}/cli`,
     },
   },
 ] as const;

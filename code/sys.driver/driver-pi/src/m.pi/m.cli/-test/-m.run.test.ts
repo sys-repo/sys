@@ -3,9 +3,9 @@ import { Fs, Process, type t } from '../common.ts';
 import { Cli } from '../mod.ts';
 import { PI_CODING_AGENT_IMPORT } from '../u.resolve.pkg.ts';
 
-describe(`@sys/driver-pi/pi/cli/m.run`, () => {
+describe(`@sys/driver-pi/cli/m.run`, () => {
   it('API', async () => {
-    const m = await import('@sys/driver-pi/pi/cli');
+    const m = await import('@sys/driver-pi/cli');
     expect(m.Cli).to.equal(Cli);
   });
 

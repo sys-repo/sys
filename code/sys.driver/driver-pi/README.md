@@ -25,15 +25,15 @@ It is:
 ```ts
 import { pkg } from 'jsr:@sys/driver-pi';
 import { Pi } from 'jsr:@sys/driver-pi/pi';
-import { Cli, Profiles } from 'jsr:@sys/driver-pi/pi/cli';
+import { Cli, Profiles } from 'jsr:@sys/driver-pi/cli';
 ```
 
 ## CLI
 
 ```sh
-deno run -A jsr:@sys/driver-pi/pi/cli Profiles
-deno run -A jsr:@sys/driver-pi/pi/cli Profiles --profile canon
-deno run -A jsr:@sys/driver-pi/pi/cli Profiles --allow-all  # unsafe debug
+deno run -A jsr:@sys/driver-pi/cli Profiles
+deno run -A jsr:@sys/driver-pi/cli Profiles --profile canon
+deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all  # unsafe debug
 
 # equivalent wrapper from @sys/tools
 deno run -A jsr:@sys/tools pi
