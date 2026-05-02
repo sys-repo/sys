@@ -23,8 +23,8 @@ It is:
 ## Usage
 
 ```ts
-import { pkg } from 'jsr:@sys/driver-pi';
-import { Pi } from 'jsr:@sys/driver-pi/pi';
+import { Pi, pkg } from 'jsr:@sys/driver-pi';
+import { Pi as PiCore } from 'jsr:@sys/driver-pi/core';
 import { Cli, Profiles } from 'jsr:@sys/driver-pi/cli';
 ```
 

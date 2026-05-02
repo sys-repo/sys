@@ -7,7 +7,7 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
   readonly permissions?: t.PiCli.PermissionMode;
 };
 
-describe(`@sys/driver-pi/pi/cli/u.fmt.sandbox`, () => {
+describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
     const text = render({

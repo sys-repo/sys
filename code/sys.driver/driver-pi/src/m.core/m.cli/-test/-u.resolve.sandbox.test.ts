@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { resolveSandboxSummary } from '../u.resolve.sandbox.ts';
 
-describe(`@sys/driver-pi/pi/cli/u.resolve.sandbox`, () => {
+describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
   it('builds the effective sandbox summary from launcher scope resolution', async () => {
     const prevTmp = Deno.env.get('TMPDIR');
     const cwd = '/tmp/pi-cli-test' as t.StringDir;

@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs, type t } from '../common.ts';
 import { menu } from '../u.menu.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/u.menu`, () => {
+describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
   it('menu → creates default profile config when none exist', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;

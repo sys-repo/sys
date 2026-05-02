@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { DEFAULT_SYSTEM_PROMPT, toPromptArgs } from '../u.prompt.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/u.prompt`, () => {
+describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
   it('DEFAULT_SYSTEM_PROMPT → is the known short Pi-style baseline', () => {
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('You are an expert coding assistant.');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('- read: Read file contents');

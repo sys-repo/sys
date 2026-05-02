@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Cli } from '../common.ts';
 import { GitInitFmt } from '../u.fmt.git.init.ts';
 
-describe('@sys/driver-pi/pi/cli/u.fmt.git.init', () => {
+describe('@sys/driver-pi/cli/u.fmt.git.init', () => {
   it('block → renders the locked directory setup copy', () => {
     const width = 80;
     const text = render('/Users/phil/Documents/tmp/foo-1', width);

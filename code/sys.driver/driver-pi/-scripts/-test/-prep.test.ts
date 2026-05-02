@@ -65,6 +65,6 @@ export const PI_CODING_AGENT_IMPORT = 'npm:@mariozechner/pi-coding-agent@0.66.1'
 
   it('pinPiCodingAgentImport throws when marker constant is missing', () => {
     expect(() => pinPiCodingAgentImport(`const X = 'npm:@mariozechner/pi-coding-agent@0.66.1';`, 'npm:@mariozechner/pi-coding-agent@0.66.1'))
-      .to.throw('Could not locate PI_CODING_AGENT_IMPORT constant in m.pi/m.cli/u.resolve.pkg.ts');
+      .to.throw('Could not locate PI_CODING_AGENT_IMPORT constant in m.core/m.cli/u.resolve.pkg.ts');
   });
 });

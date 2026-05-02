@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { resolveRead } from '../u.resolve.read.ts';
 
-describe(`@sys/driver-pi/pi/cli/u.resolve.read`, () => {
+describe(`@sys/driver-pi/cli/u.resolve.read`, () => {
   it('returns runtime and explicit read scope without ambient context walk-up', async () => {
     const root = (await Fs.makeTempDir({ prefix: 'driver-pi.resolve.read.test.' }))
       .absolute as t.StringDir;

@@ -20,7 +20,7 @@ const CANONICAL = `${
 }
 `;
 
-describe('@sys/driver-pi/pi/cli/u.ensure.gitattributes', () => {
+describe('@sys/driver-pi/cli/u.ensure.gitattributes', () => {
   it('ensureGitattributes → no-op when .gitattributes is missing', async () => {
     const cwd = await tempDir();
     try {

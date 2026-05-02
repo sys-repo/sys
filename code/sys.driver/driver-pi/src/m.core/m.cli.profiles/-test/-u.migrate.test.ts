@@ -3,7 +3,7 @@ import { Fs, Str, type t } from '../common.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { ProfilesFs } from '../u.fs.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/u.migrate`, () => {
+describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
   it('file → rewrites generated legacy context.include to context.append', async () => {
     const { cwd, path } = await writeProfile(
       Str.dedent(

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { PiSandboxReport } from '../u.report.sandbox.ts';
 
-describe(`@sys/driver-pi/pi/cli/u.report.sandbox`, () => {
+describe(`@sys/driver-pi/cli/u.report.sandbox`, () => {
   it('dir → derives the project log dir from the shared pi fs seam', () => {
     expect(PiSandboxReport.dir('/tmp/pi-cli-test')).to.eql(
       '/tmp/pi-cli-test/.log/@sys.driver-pi.pi',

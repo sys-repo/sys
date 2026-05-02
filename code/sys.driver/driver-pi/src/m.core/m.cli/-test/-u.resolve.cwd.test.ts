@@ -3,7 +3,7 @@ import { Fs, type t } from '../common.ts';
 import { GitInitMenu } from '../u.menu.git.init.ts';
 import { resolveCwd } from '../u.resolve.cwd.ts';
 
-describe(`@sys/driver-pi/pi/cli/u.resolve.cwd`, () => {
+describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
   it('resolves an existing git ancestor without prompting', async () => {
     const cwd = await tempDir();
     const nested = Fs.join(cwd, 'a', 'b') as t.StringDir;

@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, type t } from '../common.ts';
 import { ProfilesFs } from '../u.fs.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/u.fs`, () => {
+describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
   it('paths → derives canonical profile config location', () => {
     expect(ProfilesFs.dir).to.eql('-config/@sys.driver-pi.pi');
     expect(ProfilesFs.ext).to.eql('.yaml');

@@ -20,8 +20,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./pi": "./src/m.pi/mod.ts",
-    "./cli": "./src/m.pi/m.cli/mod.ts"
+    "./core": "./src/m.core/mod.ts",
+    "./cli": "./src/m.core/m.cli/mod.ts"
   },
   "exclude": [".tmp", ".pi", "-agent", "-config"],
   "permissions": {

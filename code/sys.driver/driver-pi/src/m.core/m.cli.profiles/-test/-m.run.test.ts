@@ -4,7 +4,7 @@ import { Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
 
-describe(`@sys/driver-pi/pi/cli/Profiles/m.run`, () => {
+describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
   it('run → merges typed profile sandbox policy and invocation args into raw Pi launch', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))

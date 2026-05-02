@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { PiArgs } from '../u.args.ts';
 
-describe(`@sys/driver-pi/pi/cli/u.args`, () => {
+describe(`@sys/driver-pi/cli/u.args`, () => {
   it('parse → recognizes wrapper help and preserves passthrough argv otherwise', () => {
     expect(PiArgs.parse(['-h'])).to.eql({ help: true, _: [] });
     expect(PiArgs.parse(['--model', 'gpt-5.4'])).to.eql({
