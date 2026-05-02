@@ -72,3 +72,4 @@ Local raw bash is not a sandbox boundary. These rules are defense-in-depth aroun
 - Mario Zechner, [Pi](https://pi.dev/) creator — [ref:video](https://www.youtube.com/watch?v=Dli5slNaJu0)
 - Lucas Meijer — [ref:video](https://www.youtube.com/watch?v=fdbXNWkpPMY) ("love letter to pi")
 - Mario and Armin Ronacher — [ref:video](https://www.youtube.com/watch?v=n5f51gtuGHE) ("self modifying software")
+- John McCarthy, creator of Lisp — [A programming language based on speech acts](https://www-formal.stanford.edu/jmc/elephant.pdf) (1990)
