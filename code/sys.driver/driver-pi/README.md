@@ -50,7 +50,8 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 
 ## Profiles
 
-- Named profiles resolve to `-config/@sys.driver-pi.pi/<name>.yaml`.
+- Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
+- Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
 - `--profile <name>` loads a named profile.
 - `--config <path>` loads an explicit profile YAML file.
 - Arguments after `--` pass through to Pi unchanged.
@@ -62,13 +63,14 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 - Runtime state is anchored to the resolved git root:
   - `./.pi/agent/`
   - `./.tmp/pi.cli/`
-  - `./.log/@sys.driver-pi.pi/`
+  - `./.log/@sys.driver-pi/`
 - The launcher writes wrapper-owned Pi settings to `./.pi/agent/settings.json`.
 - Default launches use scoped Deno permissions derived from cwd, runtime dirs, profile policy, and
   explicit extras.
 - `-A` / `--allow-all` is an explicit unsafe debug mode for the launched Pi child.
-- Sandbox previews and `.log/@sys.driver-pi.pi/*.sandbox.log.md` record the effective permission
+- Sandbox previews and `.log/@sys.driver-pi/*.sandbox.log.md` record the effective permission
   posture.
+- Legacy `.log/@sys.driver-pi.pi/` reports migrate without overwriting canonical files.
 
 Local raw bash is not a sandbox boundary. These rules are defense-in-depth around Pi launch
 behavior, not complete containment.

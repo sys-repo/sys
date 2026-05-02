@@ -19,7 +19,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     try {
       const res = await menu({ cwd });
-      const path = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+      const path = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
       const read = await Fs.readText(path);
       expect(read.ok).to.eql(true);
       const text = read.data ?? '';
@@ -35,11 +35,49 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
+  it('menu → migrates legacy profile dir before rendering profiles', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const original = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const oldConfig = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const newConfig = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const calls: string[] = [];
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(oldConfig));
+    await Fs.write(oldConfig, 'sandbox: {}\n');
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        const values = (input.options ?? []).map((item) => item.value);
+        expect(values).to.include(newConfig);
+        expect(values).not.to.include(oldConfig);
+        return Promise.resolve('exit');
+      },
+    });
+    console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+    try {
+      const res = await menu({ cwd });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(await Fs.exists(oldConfig)).to.eql(false);
+      expect(await Fs.exists(newConfig)).to.eql(true);
+      expect(calls).to.eql(['Migrated 1 Pi profile config.']);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('menu → migrates generated legacy context.include before rendering profiles', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const prevInfo = console.info;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+    const calls: string[] = [];
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
@@ -48,6 +86,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: () => Promise.resolve('exit'),
     });
+    console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
     try {
       const res = await menu({ cwd });
@@ -55,8 +94,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
+      expect(calls).to.eql(['Migrated 1 Pi profile config.']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+      console.info = prevInfo;
       await Fs.remove(cwd);
     }
   });
@@ -66,7 +107,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const calls: string[] = [];
@@ -108,7 +149,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     const prompts: string[] = [];
@@ -160,7 +201,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.write(Fs.join(cwd, 'AGENTS.md'), 'Agent guidance.');
@@ -198,7 +239,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));

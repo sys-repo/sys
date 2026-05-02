@@ -7,6 +7,7 @@ import { menu } from './u.menu.ts';
 import { ProfileArgs } from './u.args.ts';
 import { ProfilesFmt } from './u.fmt.help.ts';
 import { ProfilesFs } from './u.fs.ts';
+import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
 
 export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
@@ -26,6 +27,10 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   if (parsed.config && parsed.profile) {
     throw new Error('--config and --profile are mutually exclusive; pass exactly one.');
   }
+
+  const migration = await ProfileMigrate.dir(cwd.git);
+  const migrationMessage = ProfileMigrate.message(migration);
+  if (migrationMessage) console.info(migrationMessage);
 
   const picked = parsed.config
     ? {

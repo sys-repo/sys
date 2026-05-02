@@ -141,7 +141,7 @@ export declare namespace PiCliProfiles {
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
-    export type DirName = `-config/${string}.pi`;
+    export type DirName = `-config/${string}`;
     /** Profile config file extension. */
     export type Ext = '.yaml';
 

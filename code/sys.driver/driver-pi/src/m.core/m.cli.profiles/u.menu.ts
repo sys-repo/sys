@@ -27,7 +27,10 @@ const ValidName = {
 } as const;
 
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
-  await ProfileMigrate.dir(cwd);
+  const migration = await ProfileMigrate.dir(cwd);
+  const migrationMessage = ProfileMigrate.message(migration);
+  if (migrationMessage) console.info(migrationMessage);
+
   while (true) {
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs({ cwd, allowAll }),

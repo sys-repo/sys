@@ -4,9 +4,9 @@ import { ProfilesFs } from '../u.fs.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
   it('paths → derives canonical profile config location', () => {
-    expect(ProfilesFs.dir).to.eql('-config/@sys.driver-pi.pi');
+    expect(ProfilesFs.dir).to.eql('-config/@sys.driver-pi');
     expect(ProfilesFs.ext).to.eql('.yaml');
-    expect(ProfilesFs.fileOf('default')).to.eql('-config/@sys.driver-pi.pi/default.yaml');
+    expect(ProfilesFs.fileOf('default')).to.eql('-config/@sys.driver-pi/default.yaml');
   });
 
   it('initialYaml → emits the minimal profile YAML shape', async () => {
