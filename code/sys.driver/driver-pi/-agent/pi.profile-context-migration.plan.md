@@ -1,8 +1,9 @@
 # Pi profile context migration plan
 
-Status: open live TODO, pre-implementation, scoped to compatibility only.
+Status: closed. Implemented as profile migration `01` under `src/m.core/m.cli.profiles/u.migrate/`.
 
-Keep this plan local to `driver-pi/-agent` until the profile-context compatibility migration is implemented. Delete it in the implementation commit once tests cover the migration path.
+This plan is retained only as historical design context; live behavior is covered by focused
+migration tests.
 
 ## Decision
 
@@ -40,9 +41,9 @@ The project does not need a heavy data migration system here. The practical requ
 
 Add a tiny numbered compatibility migration local to `m.cli.profiles`, following the existing `@sys/tools` shape without overbuilding it:
 
-- `u.migrate.ts` — orchestrator.
-- `u.migrate.-01.ts` — normalize legacy `sandbox.context.include` to `sandbox.context.append`.
-- Future migrations append as `u.migrate.-02.ts`, `u.migrate.-03.ts`, etc.
+- `u.migrate/mod.ts` — orchestrator.
+- `u.migrate/-01.ts` — normalize legacy `sandbox.context.include` to `sandbox.context.append`.
+- Future migrations append as `u.migrate/-02.ts`, `u.migrate/-03.ts`, etc.
 
 This keeps compatibility out of schema, prompt resolution, menu logic, and runtime launch logic.
 
@@ -136,10 +137,14 @@ Design stability:
 - Legacy support is isolated in numbered migrations.
 - Future migrations follow the same chain instead of adding ad hoc compatibility branches.
 
-## Pre-implementation readiness
+## Implementation result
 
-Ready to implement.
+Implemented and covered.
 
 Implementation choice:
 
-- Use parse/stringify like current `@sys/tools` migrations. This may normalize YAML formatting/comments, but the expected legacy case is generated YAML with `include: []`; deterministic compatibility is more important than preserving comments during this one-time normalization.
+- The migration uses the YAML AST path helpers and rewrites only deterministic legacy
+  `sandbox.context.include` cases.
+- Invalid YAML is skipped without clobbering.
+- Directory migration composes with later numbered migrations while keeping directory-level results
+  meaningful.

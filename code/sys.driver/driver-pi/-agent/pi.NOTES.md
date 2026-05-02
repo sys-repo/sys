@@ -56,20 +56,20 @@ Only introduce a lower layer if the real Pi integration earns it:
 
 Optional UI helpers may exist only as adapters:
 
-- `driver-agent/pi/ui`
+- `driver-pi/ui`
   - optional primitive UI adapters or state presenters
   - must not become the source of truth
-  - must not push design pressure back into `pi` or `pi/core`
+  - must not push design pressure back into root or `/core`
 
 ## Dependency direction
 
 If `core` and `ui` are introduced, dependency direction remains one-way:
 
-- `pi/ui` -> `pi` -> `pi/core`
+- `driver-pi/ui` → `driver-pi` → `driver-pi/core`
 
 Avoid:
 
-- `pi/core` depending on `ui`
+- `/core` depending on `ui`
 - UI concerns bleeding into the integration substrate
 - hidden orchestration in the driver
 - invented capabilities that Pi does not actually expose
