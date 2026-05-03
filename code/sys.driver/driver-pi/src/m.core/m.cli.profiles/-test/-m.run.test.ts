@@ -7,7 +7,7 @@ import { DEFAULT_SYSTEM_PROMPT } from '../u.prompt.ts';
 describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
   it('run → merges typed profile sandbox policy and invocation args into raw Pi launch', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -73,7 +73,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → migrates generated legacy context.include before validation', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -97,7 +97,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → injects launcher-owned active profile runtime metadata', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = './profiles.yaml' as t.StringPath;
     const absoluteConfig = Fs.join(cwd, 'profiles.yaml') as t.StringPath;
@@ -121,7 +121,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → loads standard AGENTS and SYSTEM files when present', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -156,7 +156,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → appends profile context after standard AGENTS context', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -195,7 +195,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
   it('run → uses an explicit multiline profile system prompt from YAML', async () => {
     const prev = Process.inherit;
     const prompt = 'You are the profile prompt.\nStay concise.';
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -233,7 +233,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → does not append SYSTEM to an explicit profile system prompt', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -258,7 +258,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → uses the selected profile file with the wrapper-owned default prompt', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -298,7 +298,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → starts with DEFAULT_SYSTEM_PROMPT when profile prompt is absent', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -341,7 +341,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → uses DEFAULT_SYSTEM_PROMPT when profile prompt is null', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
@@ -375,7 +375,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
   it('run → leaves the final system prompt override with invocation-time passthrough', async () => {
     const prev = Process.inherit;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-agent.pi.profiles.m.run.test.' }))
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {

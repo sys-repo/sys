@@ -50,15 +50,15 @@ describe('@sys/workspace/bump collect helpers', () => {
     ]);
   });
 
-  it('reorders the bump picker paths to honor generated driver-agent coupling', () => {
+  it('reorders the bump picker paths to honor generated driver-pi coupling', () => {
     const res = bumpOrderedPaths(
-      ['code/sys/std', 'code/sys.tools', 'code/sys.driver/driver-agent', 'code/sys/workspace'],
-      [{ from: 'code/sys.driver/driver-agent', to: 'code/sys.tools' }],
+      ['code/sys/std', 'code/sys.tools', 'code/sys.driver/driver-pi', 'code/sys/workspace'],
+      [{ from: 'code/sys.driver/driver-pi', to: 'code/sys.tools' }],
     );
 
     expect(res).to.eql([
       'code/sys/std',
-      'code/sys.driver/driver-agent',
+      'code/sys.driver/driver-pi',
       'code/sys.tools',
       'code/sys/workspace',
     ]);

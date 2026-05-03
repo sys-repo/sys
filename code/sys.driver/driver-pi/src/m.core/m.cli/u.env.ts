@@ -18,7 +18,7 @@ function env(name: string) {
 }
 
 async function toPlatformTmpDir() {
-  const probe = await Fs.makeTempDir({ prefix: 'driver-agent.pi.cli.' });
+  const probe = await Fs.makeTempDir({ prefix: 'driver-pi.cli.' });
   try {
     return Path.dirname(probe.absolute) as t.StringDir;
   } finally {
