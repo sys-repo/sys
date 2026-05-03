@@ -4,3 +4,4 @@
 
 # Pulled Cell view artifacts are managed outputs.
 -sample/*/view/.pulled/
+-sample/foo/
