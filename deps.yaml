@@ -48,7 +48,7 @@ deno.json:
   - import: npm:prosemirror-view@1.41.8
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.4
-  - import: npm:yaml@2.8.3
+  - import: npm:yaml@2.8.4
   - import: jsr:@cliffy/keypress@1.0.1
   - import: jsr:@cliffy/prompt@1.0.1
   - import: jsr:@cliffy/table@1.0.1
@@ -61,7 +61,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.71.0
+  - import: npm:@mariozechner/pi-coding-agent@0.72.1
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0

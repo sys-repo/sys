@@ -10,7 +10,7 @@
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.1",
     "@cliffy/table": "jsr:@cliffy/table@1.0.1",
     "@deno/vite-plugin": "npm:@deno/vite-plugin@2.0.2",
-    "@mariozechner/pi-coding-agent": "npm:@mariozechner/pi-coding-agent@0.71.0",
+    "@mariozechner/pi-coding-agent": "npm:@mariozechner/pi-coding-agent@0.72.1",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@2.2.0",
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.2.0/legacy.js",
@@ -94,7 +94,7 @@
     "vite": "npm:vite@8.0.10",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.20.0",
-    "yaml": "npm:yaml@2.8.3"
+    "yaml": "npm:yaml@2.8.4"
   }
 }
 
