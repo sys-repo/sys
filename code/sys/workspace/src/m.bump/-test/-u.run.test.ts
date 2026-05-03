@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
 import { run } from '../u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
@@ -74,6 +74,52 @@ describe('@sys/workspace/bump run', () => {
     expect(res.apply?.writes).to.have.length(2);
     expect(a.data?.version).to.eql('1.0.1');
     expect(b.data?.version).to.eql('1.0.1');
+  });
+
+  it('lets interactive confirmation go back to root selection before saving', async () => {
+    const fs = await Testing.dir('WorkspaceBump.run.back');
+    const [aPath, bPath] = await writeWorkspace(fs.dir, true);
+    const prevCheckbox = Cli.Input.Checkbox.prompt;
+    const prevSelect = Cli.Input.Select.prompt;
+    const confirmOptions: string[][] = [];
+
+    try {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: async <TValue>() => {
+          return (confirmOptions.length === 0 ? ['code/pkg-a'] : ['code/pkg-b']) as TValue[];
+        },
+      });
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        configurable: true,
+        value: async <TValue>(input: { options: readonly { value: string }[] }) => {
+          confirmOptions.push(input.options.map((option) => option.value));
+          return (confirmOptions.length === 1 ? 'back' : 'save') as TValue;
+        },
+      });
+
+      const res = await run({ cwd: fs.dir, log: false });
+
+      if (!bPath) throw new Error('Expected second package path');
+      const a = await Fs.readJson<{ version?: string }>(aPath);
+      const b = await Fs.readJson<{ version?: string }>(bPath);
+      expect(confirmOptions).to.eql([
+        ['save', 'back', 'cancel'],
+        ['save', 'back', 'cancel'],
+      ]);
+      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
+      expect(a.data?.version).to.eql('1.0.0');
+      expect(b.data?.version).to.eql('1.0.1');
+    } finally {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: prevCheckbox,
+      });
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        configurable: true,
+        value: prevSelect,
+      });
+    }
   });
 
   it('fails when followups mutate an unbumped package', async () => {

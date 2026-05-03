@@ -21,27 +21,14 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     release: collected.release,
     from: args.from ? [...args.from] : undefined,
   });
-  if (selected.prompted) console.clear();
-  args.progress?.({ kind: 'plan' });
-  const planned = await runPhase({
+  let planned = await wrangle.planSelection({
+    clear: selected.prompted,
+    collect: collected,
+    log,
+    rootPkgPaths: selected.pkgPaths,
     spinner,
-    label: Fmt.phase({ kind: 'plan' }),
-    silent: !log,
-    fn: () => plan({ collect: collected, rootPkgPaths: selected.pkgPaths }),
+    progress: args.progress,
   });
-
-  const selectedPaths = new Set(planned.selectedPaths);
-  if (log) {
-    const table = Cli.table(['Module', 'Current', '', 'Next']);
-    collected.candidates.forEach((candidate) => {
-      table.push(Fmt.preflightRow({ candidate, selectedPaths, release: collected.release }));
-    });
-    console.info();
-    for (const line of Fmt.planSummary({ plan: planned })) console.info(line);
-    console.info();
-    console.info(c.gray(table.toString()));
-    console.info();
-  }
 
   if (args.dryRun) {
     if (log) {
@@ -51,8 +38,26 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
     return { collect: collected, plan: planned, dryRun: true };
   }
 
-  const confirmed = args.nonInteractive ? true : await wrangle.confirm();
-  if (!confirmed) return { collect: collected, plan: planned, dryRun: false };
+  if (!args.nonInteractive) {
+    const allowBack = !args.from?.length;
+    let confirmed = await wrangle.confirm({ allowBack });
+    while (allowBack && confirmed === 'back') {
+      const next = await wrangle.select({
+        candidates: [...collected.candidates],
+        release: collected.release,
+      });
+      planned = await wrangle.planSelection({
+        clear: next.prompted,
+        collect: collected,
+        log,
+        rootPkgPaths: next.pkgPaths,
+        spinner,
+        progress: args.progress,
+      });
+      confirmed = await wrangle.confirm({ allowBack });
+    }
+    if (confirmed !== 'save') return { collect: collected, plan: planned, dryRun: false };
+  }
 
   args.progress?.({ kind: 'integrity' });
   const untouched = await runPhase({
@@ -99,6 +104,43 @@ export const run: t.WorkspaceBump.Lib['run'] = async (args = {}) => {
 };
 
 const wrangle = {
+  async planSelection(args: {
+    clear: boolean;
+    collect: t.WorkspaceBump.CollectResult;
+    log: boolean;
+    progress?: t.WorkspaceBump.ProgressHandler;
+    rootPkgPaths: readonly t.StringPath[];
+    spinner: t.CliSpinner.Instance;
+  }) {
+    if (args.clear) console.clear();
+    args.progress?.({ kind: 'plan' });
+    const planned = await runPhase({
+      spinner: args.spinner,
+      label: Fmt.phase({ kind: 'plan' }),
+      silent: !args.log,
+      fn: () => plan({ collect: args.collect, rootPkgPaths: args.rootPkgPaths }),
+    });
+
+    const selectedPaths = new Set(planned.selectedPaths);
+    if (args.log) {
+      const table = Cli.table(['Module', 'Current', '', 'Next']);
+      args.collect.candidates.forEach((candidate) => {
+        table.push(Fmt.preflightRow({
+          candidate,
+          selectedPaths,
+          release: args.collect.release,
+        }));
+      });
+      console.info();
+      for (const line of Fmt.planSummary({ plan: planned })) console.info(line);
+      console.info();
+      console.info(c.gray(table.toString()));
+      console.info();
+    }
+
+    return planned;
+  },
+
   async select(args: {
     candidates: readonly t.WorkspaceBump.Candidate[];
     release: t.SemverReleaseType;
@@ -145,17 +187,19 @@ const wrangle = {
     return [...new Set(values)];
   },
 
-  async confirm() {
-    const answer = await Cli.Input.Select.prompt<'save' | 'cancel'>({
+  async confirm(args: { allowBack: boolean }) {
+    const options: { name: string; value: 'save' | 'back' | 'cancel' }[] = [
+      { name: c.green(c.bold('Save')), value: 'save' },
+    ];
+    if (args.allowBack) options.push({ name: c.cyan('Back'), value: 'back' });
+    options.push({ name: c.gray('Cancel'), value: 'cancel' });
+
+    return await Cli.Input.Select.prompt<'save' | 'back' | 'cancel'>({
       message: 'Apply update:',
-      options: [
-        { name: c.green(c.bold('Save')), value: 'save' },
-        { name: c.gray('Cancel'), value: 'cancel' },
-      ],
+      options,
       default: 'save',
       hideDefault: true,
     });
-    return answer === 'save';
   },
 
   async snapshotUnselected(
