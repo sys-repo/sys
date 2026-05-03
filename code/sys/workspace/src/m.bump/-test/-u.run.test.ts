@@ -81,6 +81,7 @@ describe('@sys/workspace/bump run', () => {
     const [aPath, bPath] = await writeWorkspace(fs.dir, true);
     const prevCheckbox = Cli.Input.Checkbox.prompt;
     const prevSelect = Cli.Input.Select.prompt;
+    const confirmMessages: string[] = [];
     const confirmOptions: string[][] = [];
     const confirmNames: string[][] = [];
 
@@ -94,8 +95,9 @@ describe('@sys/workspace/bump run', () => {
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         configurable: true,
         value: async <TValue>(
-          input: { options: readonly { name: string; value: string }[] },
+          input: { message?: string; options: readonly { name: string; value: string }[] },
         ) => {
+          confirmMessages.push(input.message ?? '');
           confirmOptions.push(input.options.map((option) => option.value));
           confirmNames.push(input.options.map((option) => Cli.stripAnsi(option.name)));
           return (confirmOptions.length === 1 ? 'back' : 'save') as TValue;
@@ -107,6 +109,7 @@ describe('@sys/workspace/bump run', () => {
       if (!bPath) throw new Error('Expected second package path');
       const a = await Fs.readJson<{ version?: string }>(aPath);
       const b = await Fs.readJson<{ version?: string }>(bPath);
+      expect(confirmMessages).to.eql(['', '']);
       expect(confirmOptions).to.eql([
         ['save', 'back', 'cancel'],
         ['save', 'back', 'cancel'],

@@ -195,7 +195,7 @@ const wrangle = {
     options.push({ name: `  ${c.gray('cancel')}`, value: 'cancel' });
 
     return await Cli.Input.Select.prompt<'save' | 'back' | 'cancel'>({
-      message: 'Apply update:',
+      message: '',
       options,
       default: 'save',
       hideDefault: true,
