@@ -1,12 +1,17 @@
-import { Is } from '@sys/std/is';
-import { type t } from './common.ts';
-import { parseArgs } from './u.args.ts';
+import { Is, type t } from './common.ts';
+import { parseArgs, toRootDispatchArgv } from './u.args.ts';
 import type { UpdateAdvisoryState } from '../cli.update/u.advisory.ts';
+import type { RootUpdateAdvisoryOptions } from './u.updateAdvisory.policy.ts';
 
 type CliDeps = {
   readonly printRootHelp?: (args: t.Root.CliRootParsedArgs) => unknown;
-  readonly prepareRootUpdateAdvisory?: () => Promise<UpdateAdvisoryState>;
-  readonly refreshRootUpdateAdvisoryInBackground?: (state: UpdateAdvisoryState) => void;
+  readonly prepareRootUpdateAdvisory?: (
+    options?: RootUpdateAdvisoryOptions,
+  ) => Promise<UpdateAdvisoryState>;
+  readonly refreshRootUpdateAdvisoryInBackground?: (
+    state: UpdateAdvisoryState,
+    options?: RootUpdateAdvisoryOptions,
+  ) => void;
   readonly rootMenu?: (args: { highlightUpdate?: boolean }) => Promise<
     { kind: 'exit' } | { kind: 'selected'; command: t.Root.Command }
   >;
@@ -37,9 +42,10 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
   const info = deps.info ?? console.info;
 
   let advisory: UpdateAdvisoryState;
+  const advisoryOptions = { noUpdateCheck: args.noUpdateCheck } as const;
   try {
-    advisory = await prepareRootUpdateAdvisory();
-    refreshRootUpdateAdvisoryInBackground(advisory);
+    advisory = await prepareRootUpdateAdvisory(advisoryOptions);
+    refreshRootUpdateAdvisoryInBackground(advisory, advisoryOptions);
     try {
       if (advisory.prelude) info(advisory.prelude);
     } catch {
@@ -50,7 +56,9 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
   }
 
   if (args.command) {
-    await dispatchRootCommand(cwd, args.command, argv, { origin: 'argv' });
+    await dispatchRootCommand(cwd, args.command, toRootDispatchArgv(argv, args), {
+      origin: 'argv',
+    });
     return;
   }
 

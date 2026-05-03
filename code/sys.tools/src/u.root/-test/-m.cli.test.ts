@@ -132,6 +132,38 @@ describe('Root CLI', () => {
     ]);
   });
 
+  it('passes --no-update-check only to the advisory seam and not the selected tool', async () => {
+    const events: string[] = [];
+
+    await cli('/tmp/sys.tools.root' as never, ['--no-update-check', 'pi', '--flag'], {
+      async prepareRootUpdateAdvisory(options) {
+        events.push(`prepare:${options?.noUpdateCheck}`);
+        return {
+          path: undefined,
+          record: undefined,
+          stale: false,
+          hasUpdate: false,
+          prelude: undefined,
+        };
+      },
+      refreshRootUpdateAdvisoryInBackground(_, options) {
+        events.push(`refresh:${options?.noUpdateCheck}`);
+      },
+      async dispatchRootCommand(cwd, command, argv, context) {
+        events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
+      },
+      info(...data) {
+        events.push(`info:${data.map(String).join(' ')}`);
+      },
+    });
+
+    expect(events).to.eql([
+      'prepare:true',
+      'refresh:true',
+      'dispatch:/tmp/sys.tools.root:pi:pi --flag:argv',
+    ]);
+  });
+
   it('does not prepare advisory state for help-only root invocation', async () => {
     const events: string[] = [];
 

@@ -27,6 +27,57 @@ describe('Root update advisory', () => {
     });
   });
 
+  it('does not read, probe, display, or refresh when the root flag disables update checks', async () => {
+    const events: string[] = [];
+
+    const res = await runRootUpdateAdvisory({
+      noUpdateCheck: true,
+      readState: async () => {
+        events.push('read');
+        throw new Error('should not read advisory state');
+      },
+      probe: async () => {
+        events.push('probe');
+        return { ok: true, remote: '9.9.9' as t.StringSemver };
+      },
+      spawnQuiet() {
+        events.push('refresh');
+      },
+      info(...data) {
+        events.push(`info:${data.map(String).join(' ')}`);
+      },
+    });
+
+    expect(events).to.eql([]);
+    expect(res).to.eql({
+      path: undefined,
+      record: undefined,
+      stale: false,
+      hasUpdate: false,
+      prelude: undefined,
+    });
+  });
+
+  it('does not read or probe when SYS_TOOLS_NO_UPDATE_CHECK=1 disables update checks', async () => {
+    const events: string[] = [];
+
+    const res = await prepareRootUpdateAdvisory({
+      env: (name) => name === 'SYS_TOOLS_NO_UPDATE_CHECK' ? '1' : undefined,
+      readState: async () => {
+        events.push('read');
+        throw new Error('should not read advisory state');
+      },
+      probe: async () => {
+        events.push('probe');
+        return { ok: true, remote: '9.9.9' as t.StringSemver };
+      },
+    });
+
+    expect(events).to.eql([]);
+    expect(res.hasUpdate).to.eql(false);
+    expect(res.stale).to.eql(false);
+  });
+
   it('refreshes stale advisory state before returning to startup', async () => {
     const events: string[] = [];
     let refreshed = false;
@@ -184,6 +235,28 @@ describe('Root update advisory', () => {
         prelude: undefined,
       },
       {
+        spawnQuiet(specifier) {
+          calls.push(specifier);
+        },
+      },
+    );
+
+    expect(calls).to.eql([]);
+  });
+
+  it('does not spawn the quiet advisory probe when update checks are disabled', () => {
+    const calls: string[] = [];
+
+    refreshRootUpdateAdvisoryInBackground(
+      {
+        path: '/tmp/advisory.json',
+        record: undefined,
+        stale: true,
+        hasUpdate: false,
+        prelude: undefined,
+      },
+      {
+        noUpdateCheck: true,
         spawnQuiet(specifier) {
           calls.push(specifier);
         },

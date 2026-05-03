@@ -2,13 +2,19 @@ import type { UpdateAdvisoryState } from '../cli.update/u.advisory.ts';
 import { readUpdateAdvisoryState } from '../cli.update/u.advisory.ts';
 import { runUpdateAdvisoryProbe } from '../cli.update/u.advisory.probe.ts';
 import { Process } from '../common.ts';
+import {
+  type RootUpdateAdvisoryOptions,
+  RootUpdateAdvisoryPolicy,
+} from './u.updateAdvisory.policy.ts';
 
 export async function prepareRootUpdateAdvisory(
-  deps: {
+  deps: RootUpdateAdvisoryOptions & {
     readonly readState?: typeof readUpdateAdvisoryState;
     readonly probe?: typeof runUpdateAdvisoryProbe;
   } = {},
 ): Promise<UpdateAdvisoryState> {
+  if (RootUpdateAdvisoryPolicy.isDisabled(deps)) return emptyUpdateAdvisoryState;
+
   const readState = deps.readState ?? readUpdateAdvisoryState;
   const state = await readState();
   if (!state.path || !state.stale) return state;
@@ -27,8 +33,10 @@ export async function runRootUpdateAdvisory(
     readonly probe?: typeof runUpdateAdvisoryProbe;
     readonly spawnQuiet?: (specifier: string) => void;
     readonly info?: (...data: unknown[]) => void;
-  } = {},
+  } & RootUpdateAdvisoryOptions = {},
 ): Promise<UpdateAdvisoryState> {
+  if (RootUpdateAdvisoryPolicy.isDisabled(deps)) return emptyUpdateAdvisoryState;
+
   let state: UpdateAdvisoryState;
   try {
     state = await prepareRootUpdateAdvisory(deps);
@@ -57,10 +65,11 @@ export async function runWithRootUpdateAdvisory<T>(
 
 export function refreshRootUpdateAdvisoryInBackground(
   state: UpdateAdvisoryState,
-  deps: {
+  deps: RootUpdateAdvisoryOptions & {
     readonly spawnQuiet?: (specifier: string) => void;
   } = {},
 ) {
+  if (RootUpdateAdvisoryPolicy.isDisabled(deps)) return;
   if (!state.path || !state.stale) return;
   const spawnQuiet = deps.spawnQuiet ?? wrangle.spawnQuiet;
   try {
