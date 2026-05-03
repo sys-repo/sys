@@ -1,19 +1,30 @@
 import type { UpdateAdvisoryState } from '../cli.update/u.advisory.ts';
 import { readUpdateAdvisoryState } from '../cli.update/u.advisory.ts';
+import { runUpdateAdvisoryProbe } from '../cli.update/u.advisory.probe.ts';
 import { Process } from '../common.ts';
 
 export async function prepareRootUpdateAdvisory(
   deps: {
     readonly readState?: typeof readUpdateAdvisoryState;
+    readonly probe?: typeof runUpdateAdvisoryProbe;
   } = {},
 ): Promise<UpdateAdvisoryState> {
   const readState = deps.readState ?? readUpdateAdvisoryState;
-  return await readState();
+  const state = await readState();
+  if (!state.path || !state.stale) return state;
+
+  try {
+    await (deps.probe ?? runUpdateAdvisoryProbe)();
+    return await readState();
+  } catch {
+    return state;
+  }
 }
 
 export async function runRootUpdateAdvisory(
   deps: {
     readonly readState?: typeof readUpdateAdvisoryState;
+    readonly probe?: typeof runUpdateAdvisoryProbe;
     readonly spawnQuiet?: (specifier: string) => void;
     readonly info?: (...data: unknown[]) => void;
   } = {},

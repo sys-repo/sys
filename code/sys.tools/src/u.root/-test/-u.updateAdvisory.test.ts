@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import {
   prepareRootUpdateAdvisory,
   refreshRootUpdateAdvisoryInBackground,
@@ -12,7 +12,7 @@ describe('Root update advisory', () => {
       readState: async () => ({
         path: '/tmp/advisory.json',
         record: undefined,
-        stale: true,
+        stale: false,
         hasUpdate: true,
         prelude: 'Run sys update --latest',
       }),
@@ -21,14 +21,50 @@ describe('Root update advisory', () => {
     expect(res).to.eql({
       path: '/tmp/advisory.json',
       record: undefined,
-      stale: true,
+      stale: false,
       hasUpdate: true,
       prelude: 'Run sys update --latest',
     });
   });
 
+  it('refreshes stale advisory state before returning to startup', async () => {
+    const events: string[] = [];
+    let refreshed = false;
+
+    const res = await prepareRootUpdateAdvisory({
+      readState: async () => {
+        events.push('read');
+        return refreshed
+          ? {
+            path: '/tmp/advisory.json' as never,
+            record: undefined,
+            stale: false,
+            hasUpdate: true,
+            prelude: 'Run sys update --latest',
+          }
+          : {
+            path: '/tmp/advisory.json' as never,
+            record: undefined,
+            stale: true,
+            hasUpdate: false,
+            prelude: undefined,
+          };
+      },
+      probe: async () => {
+        events.push('probe');
+        refreshed = true;
+        return { ok: true, remote: '9.9.9' as t.StringSemver };
+      },
+    });
+
+    expect(events).to.eql(['read', 'probe', 'read']);
+    expect(res.hasUpdate).to.eql(true);
+    expect(res.prelude).to.eql('Run sys update --latest');
+  });
+
   it('runs the advisory check before a direct tool entrypoint', async () => {
     const events: string[] = [];
+    let refreshed = false;
 
     await runWithRootUpdateAdvisory(
       async () => {
@@ -37,13 +73,26 @@ describe('Root update advisory', () => {
       {
         readState: async () => {
           events.push('read');
-          return {
-            path: '/tmp/advisory.json' as never,
-            record: undefined,
-            stale: true,
-            hasUpdate: true,
-            prelude: 'Run sys update --latest',
-          };
+          return refreshed
+            ? {
+              path: '/tmp/advisory.json' as never,
+              record: undefined,
+              stale: false,
+              hasUpdate: true,
+              prelude: 'Run sys update --latest',
+            }
+            : {
+              path: '/tmp/advisory.json' as never,
+              record: undefined,
+              stale: true,
+              hasUpdate: false,
+              prelude: undefined,
+            };
+        },
+        probe: async () => {
+          events.push('probe');
+          refreshed = true;
+          return { ok: true, remote: '9.9.9' as t.StringSemver };
         },
         spawnQuiet() {
           events.push('refresh');
@@ -56,7 +105,8 @@ describe('Root update advisory', () => {
 
     expect(events).to.eql([
       'read',
-      'refresh',
+      'probe',
+      'read',
       'info:Run sys update --latest',
       'tool',
     ]);
