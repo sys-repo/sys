@@ -1,3 +1,3 @@
-# Cell data
+# Cell Data
 
-Stored meaning for this Cell lives here.
+Source data and documents for this cell live here.

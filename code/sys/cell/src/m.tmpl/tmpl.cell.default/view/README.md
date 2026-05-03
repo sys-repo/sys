@@ -1,3 +1,3 @@
-# Cell views
+# Cell Views
 
-Bound perceptions over this Cell can live here.
+Materialized views (UI) over this cell can live here.
