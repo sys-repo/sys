@@ -666,9 +666,9 @@ A directory configured for `@sys/tools/pi` can become a Cell because:
 Clean relationship:
 
 ```text
-@sys/cell        local medium/runtime primitive candidate
-@sys/tools/pi    active harness/interpreter over a cell
-@sys/driver-agent proof-world / possible consumer
+@sys/cell      local medium/runtime primitive candidate
+@sys/tools/pi  active harness/interpreter over a cell
+@sys/driver-pi proof-world / possible consumer
 ```
 
 Pi can rewrite the folder because the folder is intentionally shaped to be rewritten:
@@ -810,7 +810,7 @@ A candidate `@sys/cell` needs at least two proof-worlds to fit naturally without
 One world is not enough.
 
 ### Pi profile world
-`/-config/@sys.driver-agent.pi` proves:
+`/-config/@sys.driver-pi` proves:
 - YAML as human/agent policy
 - local directory authority
 - schema-shaped operation
@@ -834,7 +834,7 @@ A YAML/Markdown editor proves:
 Rejected.
 Vite is only the bound view substrate.
 
-### `@sys/driver-agent`
+### `@sys/driver-pi`
 Rejected.
 Pi is only a consumer/proof-world.
 
