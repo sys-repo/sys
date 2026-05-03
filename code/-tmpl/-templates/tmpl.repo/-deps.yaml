@@ -1,18 +1,18 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.270
-  - import: jsr:@sys/color@0.0.239
+  - import: jsr:@sys/cli@0.0.271
+  - import: jsr:@sys/color@0.0.240
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.325
+  - import: jsr:@sys/driver-deno@0.0.327
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.386
+  - import: jsr:@sys/driver-vite@0.0.388
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.293
+  - import: jsr:@sys/fs@0.0.294
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.267
+  - import: jsr:@sys/http@0.0.268
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.272
+  - import: jsr:@sys/process@0.0.273
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.344
+  - import: jsr:@sys/std@0.0.345
     subpaths:
       [
         args,
@@ -33,26 +33,26 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.283
+  - import: jsr:@sys/testing@0.0.284
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.373
+  - import: jsr:@sys/tmpl@0.0.375
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.389
+  - import: jsr:@sys/tools@0.0.391
     subpaths: [ t ]
-  - import: jsr:@sys/types@0.0.280
-  - import: jsr:@sys/ui-css@0.0.274
+  - import: jsr:@sys/types@0.0.281
+  - import: jsr:@sys/ui-css@0.0.275
     subpaths: [ t ]
-  - import: jsr:@sys/ui-dom@0.0.281
+  - import: jsr:@sys/ui-dom@0.0.282
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.299
+  - import: jsr:@sys/ui-react@0.0.300
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react-components@0.0.262
+  - import: jsr:@sys/ui-react-components@0.0.263
     subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
-  - import: jsr:@sys/ui-react-devharness@0.0.297
+  - import: jsr:@sys/ui-react-devharness@0.0.298
     subpaths: [ t ]
-  - import: jsr:@sys/workspace@0.0.77
+  - import: jsr:@sys/workspace@0.0.78
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/esm@0.0.36
+  - import: jsr:@sys/esm@0.0.37
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.2.5
