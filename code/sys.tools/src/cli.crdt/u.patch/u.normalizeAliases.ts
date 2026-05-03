@@ -1,4 +1,4 @@
-import { Is, type t, Yaml } from '../common.ts';
+import { Is, Str, type t, Yaml } from '../common.ts';
 import { patch } from './m.patch.ts';
 
 export async function normalizeAliases(args: {
@@ -27,8 +27,7 @@ export async function normalizeAliases(args: {
       const value = String(node.value ?? '');
       if (!value.startsWith('/')) return;
 
-      // Remove exactly one leading slash
-      node.value = value.slice(1);
+      node.value = Str.stripPrefixOnce(value, '/');
     });
   });
 }
