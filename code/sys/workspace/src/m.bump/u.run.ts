@@ -189,10 +189,10 @@ const wrangle = {
 
   async confirm(args: { allowBack: boolean }) {
     const options: { name: string; value: 'save' | 'back' | 'cancel' }[] = [
-      { name: c.green(c.bold('Save')), value: 'save' },
+      { name: `  ${c.green('save')}`, value: 'save' },
     ];
-    if (args.allowBack) options.push({ name: c.cyan('Back'), value: 'back' });
-    options.push({ name: c.gray('Cancel'), value: 'cancel' });
+    if (args.allowBack) options.push({ name: `${c.cyan('←')} ${c.gray('back')}`, value: 'back' });
+    options.push({ name: `  ${c.gray('cancel')}`, value: 'cancel' });
 
     return await Cli.Input.Select.prompt<'save' | 'back' | 'cancel'>({
       message: 'Apply update:',

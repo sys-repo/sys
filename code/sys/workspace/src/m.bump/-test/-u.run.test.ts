@@ -82,6 +82,7 @@ describe('@sys/workspace/bump run', () => {
     const prevCheckbox = Cli.Input.Checkbox.prompt;
     const prevSelect = Cli.Input.Select.prompt;
     const confirmOptions: string[][] = [];
+    const confirmNames: string[][] = [];
 
     try {
       Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
@@ -92,8 +93,11 @@ describe('@sys/workspace/bump run', () => {
       });
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         configurable: true,
-        value: async <TValue>(input: { options: readonly { value: string }[] }) => {
+        value: async <TValue>(
+          input: { options: readonly { name: string; value: string }[] },
+        ) => {
           confirmOptions.push(input.options.map((option) => option.value));
+          confirmNames.push(input.options.map((option) => Cli.stripAnsi(option.name)));
           return (confirmOptions.length === 1 ? 'back' : 'save') as TValue;
         },
       });
@@ -106,6 +110,10 @@ describe('@sys/workspace/bump run', () => {
       expect(confirmOptions).to.eql([
         ['save', 'back', 'cancel'],
         ['save', 'back', 'cancel'],
+      ]);
+      expect(confirmNames).to.eql([
+        ['  save', '← back', '  cancel'],
+        ['  save', '← back', '  cancel'],
       ]);
       expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
       expect(a.data?.version).to.eql('1.0.0');
