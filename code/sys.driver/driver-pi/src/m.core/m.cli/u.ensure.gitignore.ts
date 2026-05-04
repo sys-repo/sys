@@ -1,6 +1,6 @@
 import { Fs, Update, type t } from './common.ts';
 
-const REQUIRED = ['.pi/', '.log/', '.tmp/'] as const;
+const REQUIRED = ['.pi/'] as const;
 const GITIGNORE = '.gitignore' as const;
 
 export async function ensureGitignore(cwd: t.StringDir): Promise<void> {

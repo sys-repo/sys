@@ -25,23 +25,23 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
         expect(input.args).to.include('--no-context-files');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
         expect(input.args).to.include('--help');
-        expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
+        expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
         const sysArg = findArg(input.args, '--allow-sys=');
         expect(readArg).to.contain(cwd);
-        expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
+        expect(readArg).to.contain(Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'));
         expect(writeArg).to.contain(cwd);
         expect(sysArg).to.contain('homedir');
         expect(sysArg).to.contain('osRelease');
         expect(sysArg).to.contain('uid');
         expect(input.env).to.eql({
-          DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
-          HOME: Fs.join(cwd, '.tmp', 'pi.cli', 'home'),
+          DENO_DIR: Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'),
+          HOME: Fs.join(cwd, '.pi', '@sys', 'tmp', 'home'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
           PI_SKIP_VERSION_CHECK: '1',
         });
-        expect(await Fs.exists(Fs.join(cwd, '.tmp', 'pi.cli', 'home'))).to.eql(true);
+        expect(await Fs.exists(Fs.join(cwd, '.pi', '@sys', 'tmp', 'home'))).to.eql(true);
         const read = await Fs.readJson<t.JsonMap>(Fs.join(cwd, '.pi', 'agent', 'settings.json'));
         if (!read.ok) throw read.error;
         expect(read.data).to.eql({
@@ -93,8 +93,8 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
       await Fs.ensureDir(invoked);
       Process.inherit = async (input) => {
         expect(input.cwd).to.eql(invoked);
-        expect(input.env?.DENO_DIR).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'deno'));
-        expect(input.env?.HOME).to.eql(Fs.join(git, '.tmp', 'pi.cli', 'home'));
+        expect(input.env?.DENO_DIR).to.eql(Fs.join(git, '.pi', '@sys', 'tmp', 'deno'));
+        expect(input.env?.HOME).to.eql(Fs.join(git, '.pi', '@sys', 'tmp', 'home'));
         expect(input.env?.PI_CODING_AGENT_DIR).to.eql(Fs.join(git, '.pi', 'agent'));
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
@@ -135,18 +135,18 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
         expect(input.args).to.include('--no-context-files');
         expect(input.env).to.eql({
           ...env,
-          DENO_DIR: Fs.join(cwd, '.tmp', 'pi.cli', 'deno'),
-          HOME: Fs.join(cwd, '.tmp', 'pi.cli', 'home'),
+          DENO_DIR: Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'),
+          HOME: Fs.join(cwd, '.pi', '@sys', 'tmp', 'home'),
           PI_CODING_AGENT_DIR: Fs.join(cwd, '.pi', 'agent'),
           PI_SKIP_VERSION_CHECK: '1',
         });
         expect(input.args).to.include('run');
         expect(findPkgArg(input.args)).to.eql(PI_CODING_AGENT_IMPORT);
-        expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
+        expect(input.args).to.include(`--allow-ffi=${Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno')}`);
         const readArg = findArg(input.args, '--allow-read=');
         const writeArg = findArg(input.args, '--allow-write=');
         expect(readArg).to.contain(cwd);
-        expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
+        expect(readArg).to.contain(Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'));
         expect(writeArg).to.contain(cwd);
         const read = await Fs.readJson<t.JsonMap>(Fs.join(cwd, '.pi', 'agent', 'settings.json'));
         if (!read.ok) throw read.error;

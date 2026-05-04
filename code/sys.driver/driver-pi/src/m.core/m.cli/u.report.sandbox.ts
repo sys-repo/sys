@@ -20,7 +20,6 @@ export const PiSandboxReport = {
   },
 
   async write(input: Input) {
-    await migrateLegacyLogDir(input.cwd);
     const path = PiSandboxReport.fileOf(input.cwd);
     await Fs.ensureDir(Fs.dirname(path));
     await Fs.write(path, PiSandboxReport.text(input));
@@ -62,51 +61,6 @@ export const PiSandboxReport = {
     return lines.join('\n');
   },
 } as const;
-
-async function migrateLegacyLogDir(cwd: t.StringDir) {
-  const from = Fs.join(cwd, PiFs.legacy.logDir) as t.StringPath;
-  const to = Fs.join(cwd, PiFs.logDir) as t.StringPath;
-  if (!(await Fs.exists(from))) return;
-
-  const files = await Fs.glob(from, { includeDirs: false }).find('*');
-  if (files.length === 0) {
-    await Fs.remove(from);
-    return;
-  }
-
-  if (!(await Fs.exists(to))) {
-    await Fs.ensureDir(Fs.dirname(to));
-    await Fs.move(from, to, { overwrite: false });
-    return;
-  }
-
-  for (const file of files) {
-    const target = rebase(file.path as t.StringPath, from, to);
-    if (await Fs.exists(target)) {
-      throw new Error(
-        `Sandbox log migration would overwrite existing file: ${Fs.trimCwd(target)}.`,
-      );
-    }
-  }
-
-  for (const file of files) {
-    const target = rebase(file.path as t.StringPath, from, to);
-    await Fs.ensureDir(Fs.dirname(target));
-    await Fs.move(file.path, target, { overwrite: false });
-  }
-
-  await removeIfEmpty(from);
-}
-
-function rebase(path: t.StringPath, from: t.StringPath, to: t.StringPath) {
-  const suffix = path.slice(from.length).replace(/^\//, '');
-  return Fs.join(to, suffix) as t.StringPath;
-}
-
-async function removeIfEmpty(dir: t.StringPath) {
-  const remaining = await Fs.glob(dir, { includeDirs: true }).find('*');
-  if (remaining.length === 0) await Fs.remove(dir);
-}
 
 function toSummary(
   input?: t.PiCli.SandboxSummary.Scope,

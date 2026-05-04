@@ -45,8 +45,10 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
   it('toAgentDir / toDenoDir / toHomeDir → derive local runtime directories', () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     expect(PiArgs.toAgentDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/agent');
-    expect(PiArgs.toDenoDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/deno');
-    expect(PiArgs.toHomeDir(cwd)).to.eql('/tmp/pi-cli-test/.tmp/pi.cli/home');
+    expect(PiArgs.toSysDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/@sys');
+    expect(PiArgs.toTmpDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/@sys/tmp');
+    expect(PiArgs.toDenoDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/@sys/tmp/deno');
+    expect(PiArgs.toHomeDir(cwd)).to.eql('/tmp/pi-cli-test/.pi/@sys/tmp/home');
   });
 
   it('toArgs → assembles pi launch args with scoped permissions', async () => {
@@ -71,9 +73,9 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
       expect(args).to.include('--no-context-files');
       expect(args).to.include(pkg);
       expect(args).to.include('--help');
-      expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.tmp', 'pi.cli', 'deno')}`);
+      expect(args).to.include(`--allow-ffi=${Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno')}`);
       expect(readArg).to.contain(cwd);
-      expect(readArg).to.contain(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
+      expect(readArg).to.contain(Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'));
       expect(readArg).to.contain('/bin/bash');
       expect(readArg).not.to.contain(Fs.join(cwd, '.agents', 'skills'));
       expect(readArg).not.to.contain('/tmp/.agents/skills');

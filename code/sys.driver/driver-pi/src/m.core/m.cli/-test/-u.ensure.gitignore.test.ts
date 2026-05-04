@@ -22,7 +22,7 @@ describe('@sys/driver-pi/cli/u.ensure.gitignore', () => {
 
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
-      expect(read.data).to.eql('.pi/\n.log/\n.tmp/\n');
+      expect(read.data).to.eql('.pi/\n');
     } finally {
       await Fs.remove(cwd);
     }
@@ -39,7 +39,7 @@ describe('@sys/driver-pi/cli/u.ensure.gitignore', () => {
 
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
-      expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+      expect(read.data).to.eql('node_modules/\n.pi/\n');
     } finally {
       await Fs.remove(cwd);
     }
@@ -49,13 +49,13 @@ describe('@sys/driver-pi/cli/u.ensure.gitignore', () => {
     const cwd = await tempDir();
     const path = Fs.join(cwd, '.gitignore') as t.StringPath;
     try {
-      await Fs.write(path, '.pi\n.log\n.tmp\n');
+      await Fs.write(path, '.pi\n');
 
       await ensureGitignore(cwd);
 
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
-      expect(read.data).to.eql('.pi\n.log\n.tmp\n');
+      expect(read.data).to.eql('.pi\n');
     } finally {
       await Fs.remove(cwd);
     }
@@ -71,7 +71,7 @@ describe('@sys/driver-pi/cli/u.ensure.gitignore', () => {
 
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
-      expect(read.data).to.eql('# .pi/\n.pi/\n.log/\n.tmp/\n');
+      expect(read.data).to.eql('# .pi/\n.pi/\n');
     } finally {
       await Fs.remove(cwd);
     }
@@ -87,7 +87,7 @@ describe('@sys/driver-pi/cli/u.ensure.gitignore', () => {
 
       const read = await Fs.readText(path);
       if (!read.ok) throw read.error;
-      expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+      expect(read.data).to.eql('node_modules/\n.pi/\n');
     } finally {
       await Fs.remove(cwd);
     }

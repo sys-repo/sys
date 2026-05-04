@@ -6,6 +6,7 @@ type MigrateItem = { from: t.StringPath; to: t.StringPath };
 type MigrateResult = { migrated: MigrateItem[]; skipped: MigrateItem[] };
 
 const EMPTY_RESULT: MigrateResult = { migrated: [], skipped: [] };
+const LEGACY_CONFIG_DIR = `-config/${PiFs.root}.pi` as const;
 
 /**
  * Migration 02:
@@ -13,7 +14,7 @@ const EMPTY_RESULT: MigrateResult = { migrated: [], skipped: [] };
  */
 export const migrate02 = {
   async dir(cwd: t.StringDir): Promise<MigrateResult> {
-    const from = Fs.join(cwd, PiFs.legacy.configDir) as t.StringPath;
+    const from = Fs.join(cwd, LEGACY_CONFIG_DIR) as t.StringPath;
     const to = Fs.join(cwd, ProfilesFs.dir) as t.StringPath;
 
     if (!(await Fs.exists(from))) return { ...EMPTY_RESULT };
@@ -40,7 +41,7 @@ export const migrate02 = {
       const names = conflicts.map((path) => Fs.basename(path)).sort().join(', ');
       throw new Error(
         `Profile config migration would overwrite existing profile(s): ${names}. ` +
-          `Move or remove conflicts between ${PiFs.legacy.configDir} and ${ProfilesFs.dir}.`,
+          `Move or remove conflicts between ${LEGACY_CONFIG_DIR} and ${ProfilesFs.dir}.`,
       );
     }
 

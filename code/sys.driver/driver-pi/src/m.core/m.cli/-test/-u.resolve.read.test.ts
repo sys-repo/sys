@@ -7,7 +7,7 @@ describe(`@sys/driver-pi/cli/u.resolve.read`, () => {
     const root = (await Fs.makeTempDir({ prefix: 'driver-pi.resolve.read.test.' }))
       .absolute as t.StringDir;
     const cwd = Fs.join(root, 'temp', 'foo') as t.StringDir;
-    const denoDir = Fs.join(cwd, '.tmp', 'pi.cli', 'deno') as t.StringDir;
+    const denoDir = Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno') as t.StringDir;
     const prevHome = Deno.env.get('HOME');
     const prevTmp = Deno.env.get('TMPDIR');
 

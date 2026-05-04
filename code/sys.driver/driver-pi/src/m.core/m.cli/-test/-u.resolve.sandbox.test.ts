@@ -23,7 +23,7 @@ describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
       expect(res.read?.summary).to.include.members(['cwd', 'runtime', 'extra']);
       expect(res.read?.summary).not.to.include('context');
       expect(res.read?.detail).to.include('./canon');
-      expect(res.read?.detail).to.include(Fs.join(cwd, '.tmp', 'pi.cli', 'deno'));
+      expect(res.read?.detail).to.include(Fs.join(cwd, '.pi', '@sys', 'tmp', 'deno'));
       expect(res.read?.detail).to.include('/bin/bash');
       expect(res.write?.summary).to.include.members(['cwd', 'temp', 'extra']);
       expect(res.write?.detail).to.include('./out');

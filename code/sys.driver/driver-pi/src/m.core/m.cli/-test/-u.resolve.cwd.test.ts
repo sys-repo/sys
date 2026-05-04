@@ -41,7 +41,7 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
 
         const read = await Fs.readText(path);
         if (!read.ok) throw read.error;
-        expect(read.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+        expect(read.data).to.eql('node_modules/\n.pi/\n');
       } finally {
         await Fs.remove(cwd);
       }
@@ -68,7 +68,7 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
 
         const readGitignore = await Fs.readText(gitignore);
         if (!readGitignore.ok) throw readGitignore.error;
-        expect(readGitignore.data).to.eql('node_modules/\n.pi/\n.log/\n.tmp/\n');
+        expect(readGitignore.data).to.eql('node_modules/\n.pi/\n');
 
         const readGitattributes = await Fs.readText(gitattributes);
         if (!readGitattributes.ok) throw readGitattributes.error;
@@ -103,7 +103,7 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
 
         const readGitignore = await Fs.readText(gitignore);
         if (!readGitignore.ok) throw readGitignore.error;
-        expect(readGitignore.data).to.eql('.pi/\n.log/\n.tmp/\n');
+        expect(readGitignore.data).to.eql('.pi/\n');
 
         const readGitattributes = await Fs.readText(gitattributes);
         if (!readGitattributes.ok) throw readGitattributes.error;

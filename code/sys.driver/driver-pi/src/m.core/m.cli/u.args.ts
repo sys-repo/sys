@@ -9,7 +9,8 @@ type ToArgsOptions = {
   readonly pkg?: t.StringModuleSpecifier;
 };
 
-const PI_CLI_TMP_SEGMENTS = ['.tmp', 'pi.cli'] as const;
+const PI_SYS_SEGMENTS = ['.pi', '@sys'] as const;
+const PI_CLI_TMP_SEGMENTS = [...PI_SYS_SEGMENTS, 'tmp'] as const;
 
 export const PiArgs = {
   parse(argv: readonly string[] = []): t.PiCli.ParsedArgs {
@@ -65,12 +66,20 @@ export const PiArgs = {
     return Fs.join(cwd, '.pi', 'agent');
   },
 
+  toSysDir(cwd: t.StringDir) {
+    return Fs.join(cwd, ...PI_SYS_SEGMENTS);
+  },
+
+  toTmpDir(cwd: t.StringDir) {
+    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS);
+  },
+
   toDenoDir(cwd: t.StringDir) {
-    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'deno');
+    return Fs.join(PiArgs.toTmpDir(cwd), 'deno');
   },
 
   toHomeDir(cwd: t.StringDir) {
-    return Fs.join(cwd, ...PI_CLI_TMP_SEGMENTS, 'home');
+    return Fs.join(PiArgs.toTmpDir(cwd), 'home');
   },
 
   import: PI_CODING_AGENT_IMPORT,

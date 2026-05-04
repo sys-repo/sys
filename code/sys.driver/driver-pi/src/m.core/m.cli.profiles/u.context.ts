@@ -1,4 +1,5 @@
 import { Fs, slug, Str, type t } from './common.ts';
+import { PiArgs } from '../m.cli/u.args.ts';
 import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
 type ContextRole = 'context' | 'system';
@@ -118,9 +119,7 @@ async function readRequiredContextFile(path: t.StringPath, cwd: t.StringDir) {
 
 async function writeBundle(cwd: t.StringDir, entries: readonly ContextEntry[]) {
   const path = Fs.join(
-    cwd,
-    '.tmp',
-    'pi.cli',
+    PiArgs.toTmpDir(cwd),
     'context',
     `${Date.now()}.${slug()}.context.md`,
   ) as t.StringPath;

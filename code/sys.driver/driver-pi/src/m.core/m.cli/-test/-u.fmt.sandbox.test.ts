@@ -11,11 +11,11 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
     const text = render({
-      report: '/tmp/pi-cli-test/.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md',
+      report: '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
         summary: ['cwd', 'runtime'],
-        detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno', '/tmp/pi-cli-test/canon'],
+        detail: ['/tmp/pi-cli-test/.pi/@sys/tmp/deno', '/tmp/pi-cli-test/canon'],
       },
       write: {
         summary: ['cwd', 'temp'],
@@ -28,8 +28,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
 
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
-    expect(text).to.contain('.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md');
-    expect(text).to.not.contain('/tmp/pi-cli-test/.log');
+    expect(text).to.contain('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md');
+    expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
   });
@@ -37,13 +37,13 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
   it('table → report row preserves the final filename when ellipsized', () => {
     const width = 52;
     const text = render({
-      report: '/tmp/pi-cli-test/.log/@sys.driver-pi.pi/1775975797.abc123.sandbox.log.md',
+      report: '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, width);
 
     expect(text).to.contain('sandbox.log.md');
     expect(text).to.contain('..');
-    expect(text).to.not.contain('/tmp/pi-cli-test/.log');
+    expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
     expectTargetRowsToFit(text, width - 1, ['report']);
   });
 
@@ -66,7 +66,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       read: {
         summary: ['cwd', 'runtime', 'extra'],
         detail: [
-          '/tmp/pi-cli-test/.tmp/pi.cli/deno',
+          '/tmp/pi-cli-test/.pi/@sys/tmp/deno',
           '/bin/bash',
           '/bin/sh',
           '/bin/zsh',
@@ -130,7 +130,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       read: {
         summary: ['cwd'],
-        detail: ['/tmp/pi-cli-test/.tmp/pi.cli/deno'],
+        detail: ['/tmp/pi-cli-test/.pi/@sys/tmp/deno'],
       },
       write: {
         summary: ['cwd'],
