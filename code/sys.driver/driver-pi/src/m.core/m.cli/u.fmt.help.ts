@@ -12,7 +12,7 @@ const HELP = {
     ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
     [
       '--git-root <walk-up|cwd|none>',
-      'resolve the effective runtime root by walking git ancestors, requiring cwd git, or using cwd without git',
+      'set runtime root: git walk-up, cwd git check, or cwd without git',
     ],
   ],
   examples: [

@@ -1,7 +1,8 @@
 import { Cli, Str } from './common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
-const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-pi/cli';
+const ROOT_TOOL = 'deno run -A jsr:@sys/driver-pi';
+const DEFAULT_TOOL = `${ROOT_TOOL}/cli`;
 
 function helpInput() {
   const tool = Deno.env.get(HELP_TOOL_ENV) || DEFAULT_TOOL;
@@ -25,10 +26,11 @@ function helpInput() {
       ['--config <path>', 'skip the menu and load a profile config file'],
       [
         '--git-root <walk-up|cwd|none>',
-        'resolve the effective runtime root by walking git ancestors, requiring cwd git, or using cwd without git',
+        'set runtime root: git walk-up, cwd git check, or cwd without git',
       ],
     ],
     examples: [
+      ...(tool === DEFAULT_TOOL ? [`${ROOT_TOOL}      # alias of /cli`] : []),
       `${tool}`,
       `${tool} --profile my-canon`,
       `${tool} --non-interactive --profile default`,

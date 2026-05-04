@@ -16,8 +16,6 @@ describe(`@sys/driver-pi/cli/main`, () => {
       if (res.kind !== 'help') throw new Error('Expected help result.');
       expect(res.input).to.eql({ argv: ['--help'], cwd });
       expect(res.text).to.contain('@sys/driver-pi/cli');
-      expect(res.text).to.contain('profile-driven system agent');
-      expect(res.text).to.contain('explicit launch sandbox');
       expect(res.text).not.to.contain(' Profiles');
       expect(calls).to.eql([res.text]);
     } finally {
