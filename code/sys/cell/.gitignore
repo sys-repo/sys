@@ -1,4 +1,5 @@
 # Keep sample Cell descriptors tracked despite the workspace-level `-config` ignore.
+!-sample/-config/
 !-sample/*/-config/
 !-sample/*/-config/**
 
