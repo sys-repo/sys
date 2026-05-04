@@ -3,6 +3,10 @@ import { PiEnv } from './u.env.ts';
 import { resolveRead } from './u.resolve.read.ts';
 import { resolveWrite } from './u.resolve.write.ts';
 import { PiArgs } from './u.args.ts';
+import {
+  isAncestorDiscoveryRead,
+  toAncestorDiscoveryReadScope,
+} from './u.ancestor.discovery.read.ts';
 
 const SHELLS = new Set(['/bin/bash', '/bin/sh', '/bin/zsh']);
 
@@ -13,24 +17,35 @@ export async function resolveSandboxSummary(args: {
   allowAll?: boolean;
   context?: t.PiCli.SandboxSummary['context'];
 }): Promise<t.PiCli.SandboxSummary> {
-  const denoDir = PiArgs.toDenoDir(args.cwd.git);
+  const root = runtimeRoot(args.cwd);
+  const denoDir = PiArgs.toDenoDir(root);
   const tmpDir = await PiEnv.toTmpDir();
-  const read = await resolveRead(args.cwd.git, denoDir, args.read ?? []);
-  const write = await resolveWrite(args.cwd.git, args.write ?? []);
+  const read = await resolveRead(root, denoDir, [
+    ...(args.read ?? []),
+    ...toAncestorDiscoveryReadScope(args.cwd),
+  ]);
+  const write = await resolveWrite(root, args.write ?? []);
 
   const context = toContext(args.context);
 
   return {
     permissions: args.allowAll === true ? 'allow-all' : 'scoped',
     cwd: args.cwd,
-    read: toReadScope(args.cwd.git, read, tmpDir),
-    write: toWriteScope(args.cwd.git, write, tmpDir),
+    read: toReadScope(args.cwd, root, read, tmpDir),
+    write: toWriteScope(root, write, tmpDir),
     context,
   };
 }
 
+function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
+  const root = cwd.root ?? cwd.git;
+  if (!root) throw new Error('Pi sandbox summary requires a resolved runtime root.');
+  return root;
+}
+
 function toReadScope(
-  cwd: t.StringDir,
+  cwd: t.PiCli.Cwd,
+  root: t.StringDir,
   paths: readonly t.StringPath[],
   tmpDir?: t.StringDir,
 ): t.PiCli.SandboxSummary.Scope {
@@ -38,9 +53,9 @@ function toReadScope(
   const detail: t.StringPath[] = [];
 
   for (const path of unique(paths)) {
-    if (path === cwd) continue;
+    if (path === root) continue;
 
-    if (isRuntimeRead(cwd, path, tmpDir)) {
+    if (isRuntimeRead(root, path, tmpDir) || isAncestorDiscoveryRead(cwd, path)) {
       groups.add('runtime');
       detail.push(path);
       continue;

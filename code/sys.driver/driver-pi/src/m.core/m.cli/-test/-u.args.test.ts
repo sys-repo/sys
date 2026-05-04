@@ -19,6 +19,11 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
       gitRoot: 'cwd',
       _: ['--model', 'gpt-5.4'],
     });
+    expect(PiArgs.parse(['--git-root', 'none', '--model', 'gpt-5.4'])).to.eql({
+      help: false,
+      gitRoot: 'none',
+      _: ['--model', 'gpt-5.4'],
+    });
     expect(PiArgs.parse(['-A', '--model', 'gpt-5.4'])).to.eql({
       help: false,
       allowAll: true,
@@ -33,7 +38,7 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
 
   it('parse → rejects unsupported git root modes', () => {
     expect(() => PiArgs.parse(['--git-root', 'elsewhere'])).to.throw(
-      'Unsupported --git-root value: elsewhere. Expected one of: walk-up, cwd',
+      'Unsupported --git-root value: elsewhere. Expected one of: walk-up, cwd, none',
     );
   });
 

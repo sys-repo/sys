@@ -54,6 +54,18 @@ describe(`@sys/driver-pi/cli/u.resolve.sandbox`, () => {
     }
   });
 
+  it('reports narrow ancestor discovery probes as runtime read scope for gitless launches', async () => {
+    const cwd = '/tmp/pi-cli-test/sample' as t.StringDir;
+    const res = await resolveSandboxSummary({
+      cwd: { invoked: cwd, root: cwd },
+    });
+
+    expect(res.read?.summary).to.include.members(['cwd', 'runtime']);
+    expect(res.read?.summary).not.to.include('extra');
+    expect(res.read?.detail).to.include('/tmp/pi-cli-test/.git');
+    expect(res.read?.detail).to.include('/tmp/pi-cli-test/.agents/skills');
+  });
+
   it('records allow-all as the effective permission posture', async () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     const res = await resolveSandboxSummary({

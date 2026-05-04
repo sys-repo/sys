@@ -12,10 +12,10 @@ export async function resolveCwd(
   if (isResolved(input)) return { kind: 'resolved', cwd: input };
 
   const invoked = input ?? Fs.cwd('process');
-  const git = await resolveGitRoot(invoked, opts.gitRoot);
-  if (git) {
-    await ensureGitignore(git);
-    return { kind: 'resolved', cwd: { invoked, git } };
+  const root = await resolveRoot(invoked, opts.gitRoot);
+  if (root) {
+    if (root.git) await ensureGitignore(root.git);
+    return { kind: 'resolved', cwd: { invoked, ...root } };
   }
 
   if (opts.interactive === false) {
@@ -31,11 +31,11 @@ export async function resolveCwd(
     throw new Error(initialized.hint);
   }
 
-  const resolved = await resolveGitRoot(invoked, opts.gitRoot);
-  if (resolved) {
-    await bootstrapGitignore(resolved);
-    await bootstrapGitattributes(resolved);
-    return { kind: 'resolved', cwd: { invoked, git: resolved } };
+  const resolved = await resolveRoot(invoked, opts.gitRoot);
+  if (resolved?.git) {
+    await bootstrapGitignore(resolved.git);
+    await bootstrapGitattributes(resolved.git);
+    return { kind: 'resolved', cwd: { invoked, ...resolved } };
   }
 
   throw new Error(
@@ -46,9 +46,14 @@ export async function resolveCwd(
 /**
  * Helpers:
  */
-async function resolveGitRoot(dir: t.StringDir, mode: t.PiCli.GitRootMode = 'walk-up') {
-  if (mode === 'cwd') return await isGitRoot(dir) ? dir : undefined;
-  return await findGitRoot(dir);
+async function resolveRoot(
+  dir: t.StringDir,
+  mode: t.PiCli.GitRootMode = 'walk-up',
+): Promise<{ readonly root?: t.StringDir; readonly git?: t.StringDir } | undefined> {
+  if (mode === 'none') return { root: dir };
+  if (mode === 'cwd') return await isGitRoot(dir) ? { git: dir } : undefined;
+  const git = await findGitRoot(dir);
+  return git ? { git } : undefined;
 }
 
 async function findGitRoot(dir: t.StringDir) {
@@ -60,5 +65,5 @@ async function isGitRoot(dir: t.StringDir) {
 }
 
 function isResolved(input?: CwdInput): input is t.PiCli.Cwd {
-  return Is.object(input) && Is.string(input.invoked) && Is.string(input.git);
+  return Is.object(input) && Is.string(input.invoked) && (Is.string(input.root) || Is.string(input.git));
 }

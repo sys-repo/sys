@@ -5,14 +5,14 @@ const HELP = {
   summary: 'Run Pi behind the typed @sys Deno boundary.',
   note: 'Only boundary flags are handled locally. All other args pass through to Pi unchanged.',
   usage: [
-    '@sys/driver-pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]',
+    '@sys/driver-pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]',
   ],
   options: [
     ['-h, --help', 'show boundary help'],
     ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
     [
-      '--git-root <walk-up|cwd>',
-      'resolve the effective git root by walking ancestors or using cwd only',
+      '--git-root <walk-up|cwd|none>',
+      'resolve the effective runtime root by walking git ancestors, requiring cwd git, or using cwd without git',
     ],
   ],
   examples: [

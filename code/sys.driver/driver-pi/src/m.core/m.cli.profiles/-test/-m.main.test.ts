@@ -28,7 +28,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
         expect(text).to.contain('--non-interactive');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
-        expect(text).to.contain('--git-root <walk-up|cwd>');
+        expect(text).to.contain('--git-root <walk-up|cwd|none>');
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --git-root cwd');
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all');
         expect(text).to.contain(

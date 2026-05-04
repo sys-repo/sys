@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const GIT_ROOT_MODES = ['walk-up', 'cwd'] as const;
+export const GIT_ROOT_MODES = ['walk-up', 'cwd', 'none'] as const;
 
 export function parseGitRootMode(input?: string): t.PiCli.GitRootMode | undefined {
   if (!input) return;

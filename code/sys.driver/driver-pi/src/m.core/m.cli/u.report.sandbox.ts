@@ -29,14 +29,17 @@ export const PiSandboxReport = {
   text(input: Input) {
     const { sandbox } = input;
     const allowAll = sandbox.permissions === 'allow-all';
-    const write = [sandbox.cwd.git, ...(sandbox.write?.detail ?? [])];
+    const root = runtimeRoot(sandbox.cwd);
+    const write = [root, ...(sandbox.write?.detail ?? [])];
     const context = [...(sandbox.context?.include ?? [])];
+    const git = sandbox.cwd.git ? [`- cwd.git: ${sandbox.cwd.git}`] : [];
     const lines = [
       '# Pi Sandbox Report',
       '',
       `- pkg: ${pkg.name}@${pkg.version}`,
       `- time: ${new Date().toISOString()}`,
-      `- cwd.git: ${sandbox.cwd.git}`,
+      `- cwd.root: ${root}`,
+      ...git,
       `- cwd.invoked: ${sandbox.cwd.invoked}`,
       '',
       '## Summary',
@@ -58,6 +61,12 @@ export const PiSandboxReport = {
     return lines.join('\n');
   },
 } as const;
+
+function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
+  const root = cwd.root ?? cwd.git;
+  if (!root) throw new Error('Pi sandbox report requires a resolved runtime root.');
+  return root;
+}
 
 async function migrateLegacyLogDir(cwd: t.StringDir) {
   const from = Fs.join(cwd, PiFs.legacy.logDir) as t.StringPath;

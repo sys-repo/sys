@@ -35,9 +35,10 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   });
   if (resolvedCwd.kind === 'exit') return { kind: 'exit', input };
   const cwd = resolvedCwd.cwd;
+  const root = runtimeRoot(cwd);
   const allowAll = input.allowAll === true || parsed.allowAll === true;
 
-  const migration = await ProfileMigrate.dir(cwd.git);
+  const migration = await ProfileMigrate.dir(root);
   const migrationMessage = ProfileMigrate.message(migration);
   if (migrationMessage) console.info(migrationMessage);
 
@@ -49,9 +50,9 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     : parsed.profile
     ? {
       kind: 'selected' as const,
-      config: profileConfigPath(cwd.git, parsed.profile),
+      config: profileConfigPath(root, parsed.profile),
     }
-    : await menu({ cwd: cwd.git, allowAll });
+    : await menu({ cwd: root, allowAll });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
@@ -68,7 +69,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     pkg: input.pkg,
   });
   if (picked.previewed !== true) {
-    const report = await PiSandboxReport.write({ cwd: cwd.git, sandbox: resolved.sandbox });
+    const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
     console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
   }
   const output = await run(resolved);
@@ -84,6 +85,12 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 /**
  * Helpers:
  */
+function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
+  const root = cwd.root ?? cwd.git;
+  if (!root) throw new Error('Pi profiles require a resolved runtime root.');
+  return root;
+}
+
 function profileConfigPath(cwd: t.StringDir, name: string) {
   return Fs.join(cwd, ProfilesFs.fileOf(name)) as t.StringPath;
 }

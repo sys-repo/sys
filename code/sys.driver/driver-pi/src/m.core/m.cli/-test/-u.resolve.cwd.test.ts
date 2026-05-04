@@ -164,6 +164,24 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
     }
   });
 
+  it('uses cwd as the runtime root without requiring git when requested', async () => {
+    const cwd = await tempDir();
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      Object.defineProperty(GitInitMenu, 'prompt', {
+        value: async () => {
+          throw new Error('Git init prompt should not run for --git-root none.');
+        },
+      });
+
+      const res = await resolveCwd(cwd, { gitRoot: 'none' });
+      expect(res).to.eql({ kind: 'resolved', cwd: { invoked: cwd, root: cwd } });
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
   it('ignores stale INIT_CWD when no cwd input is provided', async () => {
     const cwd = await tempDir();
     const prevCwd = Deno.cwd();

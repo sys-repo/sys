@@ -13,8 +13,8 @@ function helpInput() {
       Defaults live in profile YAML; args after -- pass through to Pi.
     `).trim(),
     usage: [
-      `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd>]`,
-      `${tool} [--profile <name> | --config <path>] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]`,
+      `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd|none>]`,
+      `${tool} [--profile <name> | --config <path>] [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
       `${tool} --non-interactive (--profile <name> | --config <path>) [-- <pi-args...>]`,
     ],
     options: [
@@ -24,8 +24,8 @@ function helpInput() {
       ['--profile <name>', 'skip the menu and load a named profile config'],
       ['--config <path>', 'skip the menu and load a profile config file'],
       [
-        '--git-root <walk-up|cwd>',
-        'resolve the effective git root by walking ancestors or using cwd only',
+        '--git-root <walk-up|cwd|none>',
+        'resolve the effective runtime root by walking git ancestors, requiring cwd git, or using cwd without git',
       ],
     ],
     examples: [
@@ -33,6 +33,7 @@ function helpInput() {
       `${tool} --profile my-canon`,
       `${tool} --non-interactive --profile default`,
       `${tool} --git-root cwd`,
+      `${tool} --git-root none --config ./config/default.yaml`,
       `${tool} --allow-all`,
       `${tool} -- --model gpt-5.4`,
       `${tool} --config ./my-canon.yaml`,

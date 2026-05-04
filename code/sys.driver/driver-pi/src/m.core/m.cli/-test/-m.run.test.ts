@@ -61,6 +61,28 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
     }
   });
 
+  it('run → adds narrow ancestor discovery probes for gitless scoped launches', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
+      .absolute as t.StringDir;
+    try {
+      Process.inherit = async (input) => {
+        const readArg = findArg(input.args, '--allow-read=');
+        expect(readArg).to.contain(cwd);
+        expect(readArg).to.contain(Fs.join(Fs.dirname(cwd), '.git'));
+        expect(readArg).to.contain(Fs.join(Fs.dirname(cwd), '.agents', 'skills'));
+        expect(readArg).not.to.contain(`${Fs.dirname(cwd)},`);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Cli.run({ cwd: { invoked: cwd, root: cwd } });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → launches from invoked cwd while settings stay under git-root agent dir', async () => {
     const prev = Process.inherit;
     const git = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))

@@ -20,13 +20,16 @@ export declare namespace PiCli {
     run(args: RunArgs): Promise<t.Process.InheritOutput>;
   };
 
-  /** Startup cwd contract preserving invocation and resolved git roots. */
+  /** Startup cwd contract preserving invocation, runtime root, and optional git root. */
   export type Cwd = {
     /** Directory the operator invoked the launcher from. */
     readonly invoked: t.StringDir;
 
-    /** Nearest ancestor git root used as the effective Pi launch root. */
-    readonly git: t.StringDir;
+    /** Effective Pi runtime root used for state, sandbox, and profile-owned paths. */
+    readonly root?: t.StringDir;
+
+    /** Resolved git repository root when startup is git-rooted. */
+    readonly git?: t.StringDir;
   };
 
   /** Startup cwd resolution result. */
@@ -85,12 +88,12 @@ export declare namespace PiCli {
     readonly pkg?: t.StringModuleSpecifier;
   };
 
-  /** Git root resolution strategy for startup cwd recovery. */
-  export type GitRootMode = 'walk-up' | 'cwd';
+  /** Runtime-root resolution strategy for startup cwd recovery. */
+  export type GitRootMode = 'walk-up' | 'cwd' | 'none';
 
   /** Wrapper-local cwd resolution options. */
   export type CwdResolveOptions = {
-    /** How startup resolves the effective git root from the invocation directory. */
+    /** How startup resolves the effective runtime root from the invocation directory. */
     readonly gitRoot?: GitRootMode;
     /** Whether startup may prompt for git-init recovery when no git root exists. */
     readonly interactive?: boolean;

@@ -20,7 +20,8 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
   [3, 10],
 ];
 const PATH_DIR_PREFIX_WIDTH = 4;
-const WRITE_CWD_MARKER = ' (git)';
+const WRITE_GIT_MARKER = ' (git)';
+const WRITE_ROOT_MARKER = ' (root)';
 const TOOL_OPS = 'read, write, edit, bash';
 
 export const PiSandboxFmt = {
@@ -29,22 +30,24 @@ export const PiSandboxFmt = {
     const contentBudget = sandboxContentBudget(renderWidth);
     const table = Cli.table([]);
 
+    const root = runtimeRoot(input.cwd);
+
     if (input.report) {
-      table.push([c.gray('report'), formatReportPath(input.report, contentBudget, input.cwd.git)]);
+      table.push([c.gray('report'), formatReportPath(input.report, contentBudget, root)]);
     }
     table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
     table.push([
       c.gray('context'),
-      formatPreview(input.context?.include ?? [], contentBudget, input.cwd.git),
+      formatPreview(input.context?.include ?? [], contentBudget, root),
     ]);
     table.push([
       c.gray('read'),
       input.permissions === 'allow-all'
         ? c.yellow('all')
-        : formatPreview(cwdAndDetail(input.cwd.git, input.read?.detail ?? []), contentBudget),
+        : formatPreview(cwdAndDetail(root, input.read?.detail ?? []), contentBudget),
     ]);
     if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
-    else pushWriteRows(table, input.cwd.git, input.write, contentBudget);
+    else pushWriteRows(table, root, input.write, contentBudget, writeCwdMarker(input.cwd));
 
     const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'cyan';
     const title = formatTitle(input.permissions, renderWidth);
@@ -59,6 +62,12 @@ export const PiSandboxFmt = {
       .toString();
   },
 } as const;
+
+function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
+  const root = cwd.root ?? cwd.git;
+  if (!root) throw new Error('Pi sandbox formatter requires a resolved runtime root.');
+  return root;
+}
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
@@ -127,9 +136,10 @@ function pushWriteRows(
   cwd: t.StringDir,
   input: t.PiCli.SandboxSummary.Scope | undefined,
   budget: number,
+  marker: string,
 ) {
   const summary = new Set(input?.summary ?? []);
-  pushWriteBucket(table, 'write:cwd', [cwd], cwd, budget);
+  pushWriteBucket(table, 'write:cwd', [cwd], cwd, budget, marker);
   if (summary.has('temp')) {
     const temp = (input?.detail ?? []).filter((path) => isTempWritePath(path, cwd));
     pushWriteBucket(table, '     :tmp', temp, cwd, budget);
@@ -225,16 +235,21 @@ function pushWriteBucket(
   input: readonly t.StringPath[],
   cwd: t.StringDir,
   budget: number,
+  marker = '',
 ) {
   if (input.length === 0) return;
-  const markerBudget = label === 'write:cwd' ? visibleWidth(WRITE_CWD_MARKER) : 0;
+  const markerBudget = label === 'write:cwd' ? visibleWidth(marker) : 0;
   const [head, ...tail] = input.map((path, position) => {
     const pathBudget = position === 0 ? Math.max(0, budget - markerBudget) : budget;
     return formatWritePath(path, cwd, pathBudget);
   });
-  const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(WRITE_CWD_MARKER))}` : head;
+  const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(marker))}` : head;
   table.push([c.dim(c.magenta(label)), lead]);
   for (const item of tail) table.push(['', item]);
+}
+
+function writeCwdMarker(cwd: t.PiCli.Cwd) {
+  return cwd.root && !cwd.git ? WRITE_ROOT_MARKER : WRITE_GIT_MARKER;
 }
 
 function prettyPath(path: t.StringPath) {
