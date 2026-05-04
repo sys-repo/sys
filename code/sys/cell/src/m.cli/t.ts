@@ -20,6 +20,8 @@ export declare namespace CellCli {
     readonly help: boolean;
     /** Preview writes without changing the filesystem. */
     readonly dryRun: boolean;
+    /** Include command-specific agent guidance with help. */
+    readonly agent: boolean;
     /** Unknown flag tokens rejected by argument parsing. */
     readonly unknown: readonly string[];
     /** Positional argv tokens. */

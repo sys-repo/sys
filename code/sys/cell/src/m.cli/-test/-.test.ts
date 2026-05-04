@@ -27,6 +27,9 @@ describe(`@sys/cell/cli`, () => {
       expect(text).to.contain(name);
       expect(text).to.contain(detail);
     });
+    expect(text).to.not.contain('help init');
+    expect(text).to.not.contain('help agent');
+    expect(text).to.not.contain('--dry-run');
   });
 
   it('init -h → shows resource-backed init help', async () => {
@@ -38,7 +41,29 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('@sys/cell/cli init');
     guidance.usage.forEach((line) => expect(text).to.contain(line));
     guidance.safety.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('--agent');
     expect(text).to.not.contain('folder-shaped metamedium');
+    expect(text).to.not.contain('Writes');
+  });
+
+  it('dsl → shows the Cell edit language', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl'] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Dsl.load();
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell/cli dsl');
+    expect(text).to.contain(guidance.intro.split('\n')[0]);
+    expect(text).to.contain('Speech acts');
+    expect(text).to.contain('Owners');
+    expect(text).to.contain('Mappings');
+  });
+
+  it('help topics are not commands in the greenfield CLI grammar', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
+
+    expect(res.kind).to.eql('error');
+    expect(res.text).to.contain('Unknown command: help');
   });
 
   it('init --dry-run → reports template writes without changing files', async () => {

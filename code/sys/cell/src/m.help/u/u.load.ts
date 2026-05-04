@@ -5,7 +5,7 @@ import { HelpYaml } from './u.yaml.ts';
 
 const RootPath = 'yaml/root.yaml' as t.StringPath;
 const InitPath = 'yaml/init.yaml' as t.StringPath;
-const AgentPath = 'yaml/agent.yaml' as t.StringPath;
+const DslPath = 'yaml/dsl.yaml' as t.StringPath;
 
 export const RootHelp: CellHelp.Root.Lib = {
   async load() {
@@ -21,35 +21,26 @@ export const RootHelp: CellHelp.Root.Lib = {
 
 export const InitHelp: CellHelp.Init.Lib = {
   async load() {
-    const data = readRecord(InitPath, ['summary', 'usage', 'options', 'safety']);
+    const data = readRecord(InitPath, ['summary', 'usage', 'options', 'safety', 'agent']);
     return {
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
       options: HelpYaml.pairs(data, 'options'),
       safety: HelpYaml.list(data, 'safety'),
+      agent: HelpYaml.list(data, 'agent'),
     };
   },
 };
 
-export const AgentHelp: CellHelp.Agent.Lib = {
+export const DslHelp: CellHelp.Dsl.Lib = {
   async load() {
-    const data = readRecord(AgentPath, [
-      'intro',
-      'init',
-      'preserve',
-      'rule',
-      'speechActs',
-      'ownerFlows',
-      'actMapping',
-    ]);
+    const data = readRecord(DslPath, ['intro', 'rule', 'speechActs', 'owners', 'mappings']);
     return {
       intro: HelpYaml.string(data, 'intro'),
-      init: HelpYaml.list(data, 'init'),
-      preserve: HelpYaml.list(data, 'preserve'),
       rule: HelpYaml.lines(data, 'rule'),
       speechActs: HelpYaml.list(data, 'speechActs'),
-      ownerFlows: HelpYaml.list(data, 'ownerFlows'),
-      actMapping: HelpYaml.list(data, 'actMapping'),
+      owners: HelpYaml.list(data, 'owners'),
+      mappings: HelpYaml.list(data, 'mappings'),
     };
   },
 };

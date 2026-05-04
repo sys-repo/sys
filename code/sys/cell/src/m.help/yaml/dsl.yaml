@@ -1,15 +1,6 @@
 intro: |
-  Expanded guidance for coding agents editing a Cell folder.
-  Keep changes additive, owner-correct, and in plain files.
-
-init:
-  - Run init when the folder is missing the Cell descriptor.
-  - Init is additive and writes the embedded default resources.
-
-preserve:
-  - .pi/
-  - -config/@sys.pi/
-  - other tool-owned -config/* namespaces
+  Cell DSL: the formal command/vocabulary surface for valid Cell edits.
+  Use these acts, owner rules, and mappings when changing a Cell folder.
 
 rule: |
   Cell owns topology; service config owns service details.
@@ -27,13 +18,13 @@ speechActs:
   - verify/load this Cell
   - start the Cell runtime
 
-ownerFlows:
+owners:
   - Cell config references owned configs.
   - Use each owning tool/API to create or validate its own config.
   - Do not hand-write tool-owned YAML when an owner CLI/API exists.
   - If no owner affordance exists, stop and ask before hand-authoring.
 
-actMapping:
+mappings:
   - add local view → create files under view/, then register views.<name>.source.local
   - add pulled view → use @sys/tools/pull, then register views.<name>.source.pull
   - add service → use service owner flow, then register runtime.services[]

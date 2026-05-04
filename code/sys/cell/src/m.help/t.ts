@@ -6,7 +6,7 @@ export declare namespace CellHelp {
   export type Lib = {
     readonly Root: Root.Lib;
     readonly Init: Init.Lib;
-    readonly Agent: Agent.Lib;
+    readonly Dsl: Dsl.Lib;
   };
 
   /** Help command name/description pair. */
@@ -43,26 +43,25 @@ export declare namespace CellHelp {
       readonly usage: readonly string[];
       readonly options: readonly Pair[];
       readonly safety: readonly string[];
+      readonly agent: readonly string[];
     };
   }
 
-  /** Coding-agent guidance resources. */
-  export namespace Agent {
-    /** Loader for authored agent guidance. */
+  /** Cell DSL guidance resources. */
+  export namespace Dsl {
+    /** Loader for authored DSL guidance. */
     export type Lib = {
-      /** Load authored agent guidance from the embedded bundle. */
+      /** Load authored DSL guidance from the embedded bundle. */
       load(): Promise<Guidance>;
     };
 
-    /** Authored guidance used by CLI composition. */
+    /** Authored DSL guidance used by CLI composition. */
     export type Guidance = {
       readonly intro: string;
-      readonly init: readonly string[];
-      readonly preserve: readonly string[];
       readonly rule: readonly string[];
       readonly speechActs: readonly string[];
-      readonly ownerFlows: readonly string[];
-      readonly actMapping: readonly string[];
+      readonly owners: readonly string[];
+      readonly mappings: readonly string[];
     };
   }
 }

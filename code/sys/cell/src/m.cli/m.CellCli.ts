@@ -17,25 +17,9 @@ export const CellCli: t.CellCli.Lib = {
       return fail({ argv }, `Unknown option: ${args.unknown.join(', ')}`, help);
     }
 
-    if (command === 'help') {
-      const topic = args._[1];
-      if (!topic) {
-        print(help);
-        return { kind: 'help', input: { argv }, text: help };
-      }
-      if (topic === 'init') {
-        if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
-        const text = await FmtHelp.initOutput();
-        print(text);
-        return { kind: 'help', input: { argv }, text };
-      }
-      if (topic === 'agent') {
-        if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
-        const text = await FmtHelp.agentOutput();
-        print(text);
-        return { kind: 'help', input: { argv }, text };
-      }
-      return fail({ argv }, `Unknown help topic: ${topic}`, help);
+    if ((!command && args.agent) || (!command && args.dryRun)) {
+      const flag = args.agent ? '--agent' : '--dry-run';
+      return fail({ argv }, `Unexpected option without command: ${flag}`, help);
     }
 
     if ((!command && args.help) || argv.length === 0) {
@@ -46,11 +30,12 @@ export const CellCli: t.CellCli.Lib = {
     if (!command) return fail({ argv }, 'Missing command.', help);
 
     if (command === 'init') {
-      const initHelp = await FmtHelp.initOutput();
+      const initHelp = await FmtHelp.initOutput({ agent: args.agent });
       if (args.help) {
         print(initHelp);
         return { kind: 'help', input: { argv }, text: initHelp };
       }
+      if (args.agent) return fail({ argv }, '--agent requires --help', initHelp);
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, initHelp);
 
       try {
@@ -69,6 +54,17 @@ export const CellCli: t.CellCli.Lib = {
       } catch (error) {
         return fail({ argv }, Err.summary(error));
       }
+    }
+
+    if (command === 'dsl') {
+      const text = await FmtHelp.dslOutput();
+      if (args._.length > 1) return fail({ argv }, `Unexpected argument: ${args._[1]}`, text);
+      if (args.agent || args.dryRun) {
+        const flag = args.agent ? '--agent' : '--dry-run';
+        return fail({ argv }, `Unexpected option for dsl: ${flag}`, text);
+      }
+      print(text);
+      return { kind: 'help', input: { argv }, text };
     }
 
     return fail({ argv }, `Unknown command: ${command}`, help);
