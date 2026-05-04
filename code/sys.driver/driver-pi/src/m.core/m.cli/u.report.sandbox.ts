@@ -1,4 +1,5 @@
 import { Fs, pkg, slug, type t } from './common.ts';
+import { runtimeRoot } from './u.runtime-root.ts';
 import { PiFs } from '../u.fs.ts';
 
 type Input = {
@@ -61,12 +62,6 @@ export const PiSandboxReport = {
     return lines.join('\n');
   },
 } as const;
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi sandbox report requires a resolved runtime root.');
-  return root;
-}
 
 async function migrateLegacyLogDir(cwd: t.StringDir) {
   const from = Fs.join(cwd, PiFs.legacy.logDir) as t.StringPath;

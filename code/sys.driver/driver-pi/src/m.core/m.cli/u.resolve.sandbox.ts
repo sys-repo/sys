@@ -7,6 +7,7 @@ import {
   isAncestorDiscoveryRead,
   toAncestorDiscoveryReadScope,
 } from './u.ancestor.discovery.read.ts';
+import { runtimeRoot } from './u.runtime-root.ts';
 
 const SHELLS = new Set(['/bin/bash', '/bin/sh', '/bin/zsh']);
 
@@ -35,12 +36,6 @@ export async function resolveSandboxSummary(args: {
     write: toWriteScope(root, write, tmpDir),
     context,
   };
-}
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi sandbox summary requires a resolved runtime root.');
-  return root;
 }
 
 function toReadScope(

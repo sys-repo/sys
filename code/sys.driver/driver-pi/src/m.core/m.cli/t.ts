@@ -66,7 +66,7 @@ export declare namespace PiCli {
 
   /** Concrete Pi run request after startup cwd resolution. */
   export type RunArgs = {
-    /** Git-rooted cwd contract already resolved by the launcher. */
+    /** Resolved cwd contract already prepared by the launcher. */
     readonly cwd: Cwd;
 
     /** Additional Pi CLI arguments. */

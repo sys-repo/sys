@@ -1,4 +1,5 @@
 import { c, Cli, Fs, Is, Num, Path, Str, type t } from './common.ts';
+import { isGitlessRoot, runtimeRoot } from './u.runtime-root.ts';
 
 type PiSandboxTableOptions = {
   readonly width?: number;
@@ -62,12 +63,6 @@ export const PiSandboxFmt = {
       .toString();
   },
 } as const;
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi sandbox formatter requires a resolved runtime root.');
-  return root;
-}
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
@@ -249,7 +244,7 @@ function pushWriteBucket(
 }
 
 function writeCwdMarker(cwd: t.PiCli.Cwd) {
-  return cwd.root && !cwd.git ? WRITE_ROOT_MARKER : WRITE_GIT_MARKER;
+  return isGitlessRoot(cwd) ? WRITE_ROOT_MARKER : WRITE_GIT_MARKER;
 }
 
 function prettyPath(path: t.StringPath) {

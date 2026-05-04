@@ -1,4 +1,5 @@
 import { type t, Yaml } from './common.ts';
+import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
 type RuntimeMetadataInput = {
   readonly cwd: t.PiCli.Cwd;
@@ -37,12 +38,6 @@ function formatMetadata(input: RuntimeMetadataInput) {
     yaml,
     '```',
   ].join('\n');
-}
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi runtime metadata requires a resolved runtime root.');
-  return root;
 }
 
 function stringifyMetadata(value: unknown) {

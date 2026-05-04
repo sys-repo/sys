@@ -1,4 +1,5 @@
 import { Fs, slug, Str, type t } from './common.ts';
+import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
 type ContextRole = 'context' | 'system';
 
@@ -77,12 +78,6 @@ async function loadEntries(input: ResolveInput, root: t.StringDir) {
   }
 
   return entries;
-}
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi profile context requires a resolved runtime root.');
-  return root;
 }
 
 async function pushOptional(

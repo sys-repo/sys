@@ -1,4 +1,5 @@
 import { Fs, type t } from './common.ts';
+import { isGitlessRoot } from './u.runtime-root.ts';
 
 /**
  * Upstream Pi auto-discovers ancestor .agents/skills and probes for a .git root
@@ -7,7 +8,7 @@ import { Fs, type t } from './common.ts';
  * ancestor read grants.
  */
 export function toAncestorDiscoveryReadScope(cwd: t.PiCli.Cwd): t.StringPath[] {
-  if (cwd.git || !cwd.root) return [];
+  if (!isGitlessRoot(cwd)) return [];
   return toParentProbePaths(cwd.root);
 }
 

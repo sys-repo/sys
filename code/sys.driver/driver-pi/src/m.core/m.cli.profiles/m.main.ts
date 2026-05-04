@@ -2,6 +2,7 @@ import { run } from '../m.cli/m.run.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
+import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
 import { Fs, type t } from './common.ts';
 import { ProfileArgs } from './u.args.ts';
@@ -85,12 +86,6 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 /**
  * Helpers:
  */
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi profiles require a resolved runtime root.');
-  return root;
-}
-
 function profileConfigPath(cwd: t.StringDir, name: string) {
   return Fs.join(cwd, ProfilesFs.fileOf(name)) as t.StringPath;
 }

@@ -1,6 +1,7 @@
 import { Fs, Process, type t } from './common.ts';
 import { PiArgs } from './u.args.ts';
 import { toAncestorDiscoveryReadScope } from './u.ancestor.discovery.read.ts';
+import { runtimeRoot } from './u.runtime-root.ts';
 import { Settings } from '../m.settings/mod.ts';
 
 export const run: t.PiCli.Lib['run'] = async (input) => {
@@ -30,9 +31,3 @@ export const run: t.PiCli.Lib['run'] = async (input) => {
   ];
   return await Process.inherit({ cmd: 'deno', args, cwd: cwd.invoked, env });
 };
-
-function runtimeRoot(cwd: t.PiCli.Cwd): t.StringDir {
-  const root = cwd.root ?? cwd.git;
-  if (!root) throw new Error('Pi run requires a resolved runtime root.');
-  return root;
-}
