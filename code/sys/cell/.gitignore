@@ -3,6 +3,9 @@
 !-sample/*/-config/
 !-sample/*/-config/**
 
+# Pi runtime state for sample launches is local and generated.
+-sample/.pi/
+
 # Pulled Cell view artifacts are managed outputs.
 -sample/*/view/.pulled/
 -sample/foo/

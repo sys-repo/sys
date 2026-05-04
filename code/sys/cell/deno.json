@@ -3,7 +3,7 @@
   "version": "0.0.8",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno test -P=test ./src",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "cli": "deno run ./src/m.cli/mod.ts",
@@ -21,6 +21,9 @@
     "./types": "./src/types.ts",
     "./cli": "./src/m.cli/mod.ts"
   },
+  "exclude": [
+    "-sample/.pi"
+  ],
   "permissions": {
     "clean": {
       "read": true,
