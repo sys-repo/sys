@@ -55,7 +55,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/guards`, () => {
       }
 
       expect(error).to.eql(
-        'Missing required flag: --profile or --config (required with --non-interactive).',
+        'Missing required flag: --profile <name|path> (required with --non-interactive).',
       );
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
@@ -91,13 +91,13 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/guards`, () => {
     }
   });
 
-  it('rejects --config and --profile together', async () => {
+  it('rejects the removed --config selector', async () => {
     let error = '';
     try {
-      await Profiles.main({ argv: ['--config', './a.yaml', '--profile', 'canon'] });
+      await Profiles.main({ argv: ['--config', './a.yaml'] });
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
     }
-    expect(error).to.eql('--config and --profile are mutually exclusive; pass exactly one.');
+    expect(error).to.eql('--config has been replaced by --profile <name|path>.');
   });
 });

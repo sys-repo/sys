@@ -4,7 +4,7 @@ import { Process } from '../../m.cli/common.ts';
 import { Profiles } from '../mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
-  it('runs selected config and passes argv after -- through to Pi', async () => {
+  it('runs selected profile path and passes argv after -- through to Pi', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
@@ -35,7 +35,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Profiles.main({ cwd, argv: ['--config', config, '--', '--help'] });
+      const res = await Profiles.main({
+        cwd,
+        argv: ['--profile', './profiles.yaml', '--', '--help'],
+      });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('pi:sandbox');
@@ -66,7 +69,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Profiles.main({ cwd, argv: ['--allow-all', '--config', config] });
+      const res = await Profiles.main({ cwd, argv: ['--allow-all', '--profile', config] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.match(/permissions\s+allow-all/);

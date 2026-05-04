@@ -39,6 +39,7 @@ import { Raw } from 'jsr:@sys/driver-pi/cli/raw';
 deno run -A jsr:@sys/driver-pi                # alias to /cli
 deno run -A jsr:@sys/driver-pi/cli
 deno run -A jsr:@sys/driver-pi/cli --profile canon
+deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
 deno run -A jsr:@sys/driver-pi/cli --allow-all  # unsafe debug
 deno run -A jsr:@sys/driver-pi/cli/raw -- --help  # explicit raw Pi boundary
 
@@ -55,8 +56,8 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 - `/cli` is profile-driven by default; raw upstream Pi access is explicit at `/cli/raw`.
 - Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
 - Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
-- `--profile <name>` loads a named profile.
-- `--config <path>` loads an explicit profile YAML file.
+- `--profile <name|path>` loads a named profile or an explicit profile YAML file.
+- Path-like profile selectors start with `/`, `./`, `../`, or `~/`.
 - Arguments after `--` pass through to Pi unchanged.
 
 ## Runtime policy

@@ -10,20 +10,19 @@ function helpInput() {
     tool,
     summary: 'Run Pi as a profile-driven system agent with an explicit launch sandbox.',
     note: Str.dedent(`
-      Select a saved profile config, or pass --profile or --config to run one directly.
+      Select a saved profile by name, or pass a YAML path with --profile.
       Defaults live in profile YAML; args after -- pass through to Pi.
     `).trim(),
     usage: [
       `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd|none>]`,
-      `${tool} [--profile <name> | --config <path>] [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
-      `${tool} --non-interactive (--profile <name> | --config <path>) [-- <pi-args...>]`,
+      `${tool} --profile <name|path> [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]`,
+      `${tool} --non-interactive --profile <name|path> [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
       ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
-      ['--non-interactive', 'disable prompts and require --profile or --config'],
-      ['--profile <name>', 'skip the menu and load a named profile config'],
-      ['--config <path>', 'skip the menu and load a profile config file'],
+      ['--non-interactive', 'disable prompts and require --profile'],
+      ['--profile <name|path>', 'skip the menu and load a named profile or YAML file'],
       [
         '--git-root <walk-up|cwd|none>',
         'set runtime root: git walk-up, cwd git check, or cwd without git',
@@ -33,12 +32,12 @@ function helpInput() {
       ...(tool === DEFAULT_TOOL ? [`${ROOT_TOOL}      # alias of /cli`] : []),
       `${tool}`,
       `${tool} --profile my-canon`,
+      `${tool} --profile ./profiles/my-canon.yaml`,
       `${tool} --non-interactive --profile default`,
       `${tool} --git-root cwd`,
-      `${tool} --git-root none --config ./config/default.yaml`,
+      `${tool} --git-root none --profile ./profiles/default.yaml`,
       `${tool} --allow-all`,
       `${tool} -- --model gpt-5.4`,
-      `${tool} --config ./my-canon.yaml`,
     ],
   } as const;
 }

@@ -4,7 +4,7 @@ import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
 import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
-import { Fs, type t } from './common.ts';
+import { Fs, Path, type t } from './common.ts';
 import { ProfileArgs } from './u.args.ts';
 import { ProfilesFmt } from './u.fmt.help.ts';
 import { ProfilesFs } from './u.fs.ts';
@@ -21,12 +21,8 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     return { kind: 'help', input, text };
   }
 
-  if (parsed.config && parsed.profile) {
-    throw new Error('--config and --profile are mutually exclusive; pass exactly one.');
-  }
-
-  if (parsed.nonInteractive && !parsed.config && !parsed.profile) {
-    const err = 'Missing required flag: --profile or --config (required with --non-interactive).';
+  if (parsed.nonInteractive && !parsed.profile) {
+    const err = 'Missing required flag: --profile <name|path> (required with --non-interactive).';
     throw new Error(err);
   }
 
@@ -43,21 +39,17 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const migrationMessage = ProfileMigrate.message(migration);
   if (migrationMessage) console.info(migrationMessage);
 
-  const picked = parsed.config
+  const selection = parsed.profile ? resolveProfileSelector(root, parsed.profile) : undefined;
+  const picked = selection
     ? {
       kind: 'selected' as const,
-      config: parsed.config as t.StringPath,
-    }
-    : parsed.profile
-    ? {
-      kind: 'selected' as const,
-      config: profileConfigPath(root, parsed.profile),
+      config: selection.config,
     }
     : await menu({ cwd: root, allowAll });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
-  if (parsed.profile) await prepareProfileConfig(picked.config, parsed.profile);
+  if (selection?.kind === 'name') await prepareProfileConfig(selection.config, selection.name);
 
   const resolved = await resolveRun({
     cwd,
@@ -86,6 +78,39 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 /**
  * Helpers:
  */
+function resolveProfileSelector(root: t.StringDir, value: string) {
+  if (isExplicitProfilePath(value)) {
+    return {
+      kind: 'path' as const,
+      config: resolveExplicitProfilePath(value),
+    };
+  }
+
+  return {
+    kind: 'name' as const,
+    name: value,
+    config: profileConfigPath(root, value),
+  };
+}
+
+function isExplicitProfilePath(value: string) {
+  return (
+    Path.Is.absolute(value as t.StringPath) ||
+    value.startsWith('./') ||
+    value.startsWith('../') ||
+    value.startsWith('~/')
+  );
+}
+
+function resolveExplicitProfilePath(value: string) {
+  if (value.startsWith('~/')) {
+    const home = Deno.env.get('HOME');
+    if (!home) throw new Error('Cannot resolve ~/ profile path because HOME is not set.');
+    return Fs.join(home, value.slice(2)) as t.StringPath;
+  }
+  return value as t.StringPath;
+}
+
 function profileConfigPath(cwd: t.StringDir, name: string) {
   return Fs.join(cwd, ProfilesFs.fileOf(name)) as t.StringPath;
 }

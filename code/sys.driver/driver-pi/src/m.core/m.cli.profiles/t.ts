@@ -65,7 +65,6 @@ export declare namespace PiCliProfiles {
     readonly help?: boolean;
     readonly allowAll?: boolean;
     readonly nonInteractive?: boolean;
-    readonly config?: string;
     readonly profile?: string;
     readonly gitRoot?: t.PiCli.GitRootMode;
     /** Pi args captured after `--`. */

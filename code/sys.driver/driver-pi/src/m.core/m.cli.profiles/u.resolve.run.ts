@@ -21,7 +21,8 @@ export type ResolvedProfileRun = {
 export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<ResolvedProfileRun> {
   const cwd = input.cwd;
   const root = ProfilePath.root(cwd);
-  // --config is a CLI path. Profile-authored paths inside the YAML use ProfilePath/root below.
+  // Path-like --profile selectors are CLI paths.
+  // Profile-authored paths inside YAML use ProfilePath/root below.
   const activeProfile = Fs.resolve(cwd.invoked, input.config) as t.StringPath;
   await ProfileMigrate.file(activeProfile);
   const checked = await ProfilesFs.validateYaml(activeProfile);

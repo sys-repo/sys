@@ -8,6 +8,7 @@ export const ProfileArgs = {
         readonly 'allow-all'?: boolean;
         readonly 'non-interactive'?: boolean;
         readonly 'git-root'?: string;
+        readonly config?: string;
       }
     >([
       ...argv,
@@ -16,13 +17,15 @@ export const ProfileArgs = {
       boolean: ['help', 'allow-all', 'non-interactive'],
       string: ['config', 'profile', 'git-root'],
     });
+    if (args.config !== undefined && args.help !== true) {
+      throw new Error('--config has been replaced by --profile <name|path>.');
+    }
     const gitRoot = parseGitRootMode(args['git-root']);
 
     return {
       help: args.help === true,
       ...(args['allow-all'] === true ? { allowAll: true } : {}),
       ...(args['non-interactive'] === true ? { nonInteractive: true } : {}),
-      ...(args.config ? { config: args.config } : {}),
       ...(args.profile ? { profile: args.profile } : {}),
       ...(gitRoot ? { gitRoot } : {}),
       _: args._ ?? [],

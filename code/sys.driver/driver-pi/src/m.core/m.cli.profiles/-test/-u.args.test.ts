@@ -5,6 +5,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
   it('parse → recognizes wrapper flags and keeps only -- separated Pi args', () => {
     expect(ProfileArgs.parse(['-h'])).to.eql({ help: true, _: [] });
     expect(ProfileArgs.parse(['--help'])).to.eql({ help: true, _: [] });
+    expect(ProfileArgs.parse(['--help', '--config', './old.yaml'])).to.eql({ help: true, _: [] });
     expect(ProfileArgs.parse(['--profile', 'canon'])).to.eql({
       help: false,
       profile: 'canon',
@@ -22,9 +23,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
       gitRoot: 'cwd',
       _: [],
     });
-    expect(ProfileArgs.parse(['--git-root', 'none', '--config', './config/default.yaml'])).to.eql({
+    expect(ProfileArgs.parse(['--git-root', 'none', '--profile', './config/default.yaml'])).to.eql({
       help: false,
-      config: './config/default.yaml',
+      profile: './config/default.yaml',
       gitRoot: 'none',
       _: [],
     });
@@ -46,18 +47,24 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
       profile: 'canon',
       _: [],
     });
-    expect(ProfileArgs.parse(['--config', './profiles.yaml', '--', '--allow-all']))
+    expect(ProfileArgs.parse(['--profile', './profiles.yaml', '--', '--allow-all']))
       .to.eql({
         help: false,
-        config: './profiles.yaml',
+        profile: './profiles.yaml',
         _: ['--allow-all'],
       });
-    expect(ProfileArgs.parse(['--config', './profiles.yaml', '--', '--model']))
+    expect(ProfileArgs.parse(['--profile', './profiles.yaml', '--', '--model']))
       .to.eql({
         help: false,
-        config: './profiles.yaml',
+        profile: './profiles.yaml',
         _: ['--model'],
       });
+  });
+
+  it('parse → rejects removed config selector', () => {
+    expect(() => ProfileArgs.parse(['--config', './profiles.yaml'])).to.throw(
+      '--config has been replaced by --profile <name|path>.',
+    );
   });
 
   it('parse → rejects unsupported git root modes', () => {
