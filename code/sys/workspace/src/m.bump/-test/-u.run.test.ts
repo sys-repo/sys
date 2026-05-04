@@ -144,11 +144,13 @@ describe('@sys/workspace/bump run', () => {
       nonInteractive: true,
       log: false,
       policy: {
-        followups: () => [{
-          label: 'mutate ambient package file',
-          cmd: 'deno',
-          args: ['eval', fsWriteEval(ambient, 'ambient')],
-        }],
+        followups() {
+          return [{
+            label: 'mutate ambient package file',
+            cmd: 'deno',
+            args: ['eval', fsWriteEval(ambient, 'ambient')],
+          }];
+        },
       },
     });
 
