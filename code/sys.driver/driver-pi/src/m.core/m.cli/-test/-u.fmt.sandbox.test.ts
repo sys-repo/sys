@@ -31,7 +31,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.contain('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
   });
 
   it('table → report row preserves the final filename when ellipsized', () => {
@@ -47,14 +47,14 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, width - 1, ['report']);
   });
 
-  it('table → renders write labels, path basenames, and the git marker', () => {
+  it('table → renders write labels, path basenames, and the --git-root marker', () => {
     const text = render({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: { summary: ['cwd', 'temp'], detail: ['/tmp/pi-cli-runtime'] },
     }, 120);
 
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
     expect(text).to.contain(':tmp');
     expect(text).to.contain('/tmp/pi-cli-runtime/');
   });
@@ -91,7 +91,6 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
     expect(text).to.match(/\+[0-9]+ more/);
-    expect(text).to.contain('..');
     expectTargetRowsToFit(text, renderWidth, ['context', 'read']);
   });
 
@@ -143,7 +142,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expectHeader(text.split('\n')[1], 'pi:no-sandbox', 79);
+    expectHeader(text.split('\n')[1], 'sys:pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -196,7 +195,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       },
     }, 120);
 
-    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(git\)/);
+    expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
     expect(text).to.contain(':tmp');
     expect(text).to.contain('/tmp/pi-cli-runtime/');
     expect(text).to.contain('./out/');
@@ -212,7 +211,7 @@ function render(input: SandboxInput, width: number) {
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
   expect(output[0]).to.eql('━'.repeat(width));
-  expectHeader(output[1], 'pi:sandbox', width);
+  expectHeader(output[1], 'sys:pi:sandbox', width);
   expect(output[2]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }

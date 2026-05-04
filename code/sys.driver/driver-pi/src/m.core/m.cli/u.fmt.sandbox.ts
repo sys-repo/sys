@@ -13,7 +13,7 @@ type PreviewFit = {
 const SANDBOX_EDGE_MARGIN = 1;
 const SANDBOX_TABLE_LABEL_WIDTH = 'permissions'.length;
 const SANDBOX_TABLE_GAP = 3;
-const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + SANDBOX_TABLE_GAP;
+const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + SANDBOX_TABLE_GAP + 1;
 const PREVIEW_ELLIPSIS = '..';
 const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
   [10, 18],
@@ -21,7 +21,7 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
   [3, 10],
 ];
 const PATH_DIR_PREFIX_WIDTH = 4;
-const WRITE_GIT_MARKER = ' (git)';
+const WRITE_GIT_MARKER = ' (--git-root)';
 const WRITE_ROOT_MARKER = ' (root)';
 const TOOL_OPS = 'read, write, edit, bash';
 
@@ -66,8 +66,8 @@ export const PiSandboxFmt = {
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
-    ? c.bold(c.yellow('pi:no-sandbox'))
-    : c.bold(c.cyan('pi:sandbox'));
+    ? c.bold(c.yellow('sys:pi:no-sandbox'))
+    : c.bold(c.cyan('sys:pi:sandbox'));
   const labelWidth = visibleWidth(label);
   const opsWidth = visibleWidth(TOOL_OPS);
 
