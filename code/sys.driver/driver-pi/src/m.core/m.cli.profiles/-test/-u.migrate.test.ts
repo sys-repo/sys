@@ -204,6 +204,74 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
       }
     });
   });
+
+  describe('03: legacy runtime logs → .pi/@sys/log', () => {
+    it('dir → moves legacy sandbox logs to the canonical runtime log directory', async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
+        .absolute as t.StringDir;
+      const oldLog = Fs.join(cwd, '.log/@sys.driver-pi/a.sandbox.log.md') as t.StringPath;
+      const oldPiLog = Fs.join(
+        cwd,
+        '.log/@sys.driver-pi.pi/nested/b.sandbox.log.md',
+      ) as t.StringPath;
+      const newLog = Fs.join(
+        cwd,
+        '.pi/@sys/log/@sys.driver-pi/a.sandbox.log.md',
+      ) as t.StringPath;
+      const newPiLog = Fs.join(
+        cwd,
+        '.pi/@sys/log/@sys.driver-pi/nested/b.sandbox.log.md',
+      ) as t.StringPath;
+
+      try {
+        await Fs.ensureDir(Fs.dirname(oldLog));
+        await Fs.ensureDir(Fs.dirname(oldPiLog));
+        await Fs.write(oldLog, '# old log\n');
+        await Fs.write(oldPiLog, '# old pi log\n');
+
+        const res = await ProfileMigrate.dir(cwd);
+        expect(res.migrated).to.eql([
+          { from: oldLog, to: newLog },
+          { from: oldPiLog, to: newPiLog },
+        ]);
+        expect(res.skipped).to.eql([]);
+        expect(await Fs.exists(oldLog)).to.eql(false);
+        expect(await Fs.exists(oldPiLog)).to.eql(false);
+        expect(await Fs.exists(Fs.join(cwd, '.log') as t.StringPath)).to.eql(false);
+        expect((await Fs.readText(newLog)).data).to.eql('# old log\n');
+        expect((await Fs.readText(newPiLog)).data).to.eql('# old pi log\n');
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('dir → refuses legacy log conflicts without clobbering', async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
+        .absolute as t.StringDir;
+      const oldLog = Fs.join(cwd, '.log/@sys.driver-pi/conflict.md') as t.StringPath;
+      const newLog = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi/conflict.md') as t.StringPath;
+
+      try {
+        await Fs.ensureDir(Fs.dirname(oldLog));
+        await Fs.ensureDir(Fs.dirname(newLog));
+        await Fs.write(oldLog, 'old\n');
+        await Fs.write(newLog, 'new\n');
+
+        let error: Error | undefined;
+        try {
+          await ProfileMigrate.dir(cwd);
+        } catch (err) {
+          error = err as Error;
+        }
+
+        expect(error?.message).to.contain('Pi runtime log migration would overwrite existing file');
+        expect((await Fs.readText(oldLog)).data).to.eql('old\n');
+        expect((await Fs.readText(newLog)).data).to.eql('new\n');
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+  });
 });
 
 async function writeProfile(text: string) {

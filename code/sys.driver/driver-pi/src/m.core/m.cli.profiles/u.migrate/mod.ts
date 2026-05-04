@@ -1,15 +1,17 @@
 import { type t } from '../common.ts';
 import { migrate01 } from './-01.ts';
 import { migrate02 } from './-02.ts';
+import { migrate03 } from './-03.ts';
 
 type MigrateItem = { from: t.StringPath; to: t.StringPath };
 export type ProfileMigrateResult = { migrated: MigrateItem[]; skipped: MigrateItem[] };
 
 export const ProfileMigrate = {
   async dir(cwd: t.StringDir): Promise<ProfileMigrateResult> {
-    const moved = await migrate02.dir(cwd);
+    const movedProfiles = await migrate02.dir(cwd);
+    const movedLogs = await migrate03.dir(cwd);
     const normalized = await migrate01.dir(cwd);
-    return changed(moved, normalized);
+    return changed(movedProfiles, movedLogs, normalized);
   },
 
   async file(path: t.StringPath): Promise<ProfileMigrateResult> {
@@ -19,8 +21,8 @@ export const ProfileMigrate = {
   message(result: ProfileMigrateResult): string | undefined {
     const count = result.migrated.length;
     if (count === 0) return undefined;
-    const noun = count === 1 ? 'config' : 'configs';
-    return `Migrated ${count} Pi profile ${noun}.`;
+    const noun = count === 1 ? 'item' : 'items';
+    return `Migrated ${count} Pi config/runtime ${noun}.`;
   },
 } as const;
 
