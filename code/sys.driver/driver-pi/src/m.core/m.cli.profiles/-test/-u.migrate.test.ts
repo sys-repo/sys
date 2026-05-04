@@ -158,6 +158,49 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
       }
     });
 
+    it('dir → moves old driver-agent profile directory to the canonical profile directory', async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
+        .absolute as t.StringDir;
+      const oldPath = Fs.join(cwd, '-config/@sys.driver-agent.pi/canon.yaml') as t.StringPath;
+      const newPath = Fs.join(cwd, ProfilesFs.fileOf('canon')) as t.StringPath;
+      const source = 'sandbox:\n  capability:\n    read: [./canon]\n';
+
+      try {
+        await Fs.ensureDir(Fs.dirname(oldPath));
+        await Fs.write(oldPath, source);
+
+        const res = await ProfileMigrate.dir(cwd);
+        expect(res.migrated).to.eql([{ from: oldPath, to: newPath }]);
+        expect(res.skipped).to.eql([]);
+        expect(await Fs.exists(Fs.dirname(oldPath))).to.eql(false);
+        expect((await Fs.readText(newPath)).data).to.eql(source);
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('dir → removes empty old driver-agent profile scar when canonical dir exists', async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
+        .absolute as t.StringDir;
+      const legacyDir = Fs.join(cwd, '-config/@sys.driver-agent.pi') as t.StringPath;
+      const newPath = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
+      const source = 'sandbox: {}\n';
+
+      try {
+        await Fs.ensureDir(legacyDir);
+        await Fs.ensureDir(Fs.dirname(newPath));
+        await Fs.write(newPath, source);
+
+        const res = await ProfileMigrate.dir(cwd);
+        expect(res.migrated).to.eql([]);
+        expect(res.skipped).to.eql([]);
+        expect(await Fs.exists(legacyDir)).to.eql(false);
+        expect((await Fs.readText(newPath)).data).to.eql(source);
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
     it('dir → leaves new-only profile directory unchanged', async () => {
       const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
         .absolute as t.StringDir;
@@ -177,32 +220,40 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
       }
     });
 
-    it('dir → refuses old/new profile conflicts without clobbering', async () => {
-      const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
-        .absolute as t.StringDir;
-      const oldPath = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml') as t.StringPath;
-      const newPath = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
+    const conflictLegacyDirs = [
+      '-config/@sys.driver-pi.pi',
+      '-config/@sys.driver-agent.pi',
+    ] as const;
 
-      try {
-        await Fs.ensureDir(Fs.dirname(oldPath));
-        await Fs.ensureDir(Fs.dirname(newPath));
-        await Fs.write(oldPath, 'sandbox:\n  capability:\n    read: [./old]\n');
-        await Fs.write(newPath, 'sandbox:\n  capability:\n    read: [./new]\n');
+    for (const legacyDir of conflictLegacyDirs) {
+      it(`dir → refuses ${legacyDir} profile conflicts without clobbering`, async () => {
+        const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
+          .absolute as t.StringDir;
+        const oldPath = Fs.join(cwd, legacyDir, 'default.yaml') as t.StringPath;
+        const newPath = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
 
-        let error: Error | undefined;
         try {
-          await ProfileMigrate.dir(cwd);
-        } catch (err) {
-          error = err as Error;
-        }
+          await Fs.ensureDir(Fs.dirname(oldPath));
+          await Fs.ensureDir(Fs.dirname(newPath));
+          await Fs.write(oldPath, 'sandbox:\n  capability:\n    read: [./old]\n');
+          await Fs.write(newPath, 'sandbox:\n  capability:\n    read: [./new]\n');
 
-        expect(error?.message).to.contain('would overwrite existing profile(s): default.yaml');
-        expect((await Fs.readText(oldPath)).data).to.contain('./old');
-        expect((await Fs.readText(newPath)).data).to.contain('./new');
-      } finally {
-        await Fs.remove(cwd);
-      }
-    });
+          let error: Error | undefined;
+          try {
+            await ProfileMigrate.dir(cwd);
+          } catch (err) {
+            error = err as Error;
+          }
+
+          expect(error?.message).to.contain('would overwrite existing profile(s): default.yaml');
+          expect(error?.message).to.contain(legacyDir);
+          expect((await Fs.readText(oldPath)).data).to.contain('./old');
+          expect((await Fs.readText(newPath)).data).to.contain('./new');
+        } finally {
+          await Fs.remove(cwd);
+        }
+      });
+    }
   });
 
   describe('03: legacy runtime logs → .pi/@sys/log', () => {
