@@ -6,7 +6,7 @@
     "test": "deno test -P=test ./src",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
-    "cli": "deno run ./src/m.cli/mod.ts",
+    "cli": "deno run -P=cli ./src/m.cli/mod.ts",
     "pi": "cd ./-sample && deno run -A @sys/driver-pi Profiles --git-root none --config ./-config/sample.yaml --",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "prep": "deno task tmpl:bundle && deno task help:bundle",
@@ -26,6 +26,9 @@
     "-sample/.pi"
   ],
   "permissions": {
+    "cli": {
+      "env": true
+    },
     "clean": {
       "read": true,
       "write": true,
