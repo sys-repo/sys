@@ -1,6 +1,6 @@
 import { Fs, slug, Str, type t } from './common.ts';
 import { PiArgs } from '../m.cli/u.args.ts';
-import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
+import { ProfilePath } from './u.path.ts';
 
 type ContextRole = 'context' | 'system';
 
@@ -22,14 +22,14 @@ type ResolvedContext = {
   readonly systemPromptAppend?: string;
 };
 
-const DEFAULT_AGENT_CONTEXT = 'AGENTS.md';
-const DEFAULT_SYSTEM_CONTEXT = 'SYSTEM.md';
+const DEFAULT_AGENT_CONTEXT = 'AGENTS.md' as t.StringPath;
+const DEFAULT_SYSTEM_CONTEXT = 'SYSTEM.md' as t.StringPath;
 
 export const ProfileContext = {
   defaults: [DEFAULT_AGENT_CONTEXT, DEFAULT_SYSTEM_CONTEXT] as const,
 
   async resolve(input: ResolveInput): Promise<ResolvedContext> {
-    const root = runtimeRoot(input.cwd);
+    const root = ProfilePath.root(input.cwd);
     const entries = await loadEntries(input, root);
     const contextEntries = entries.filter((entry) => entry.role === 'context');
     const systemEntries = entries.filter((entry) => entry.role === 'system');
@@ -57,14 +57,14 @@ async function loadEntries(input: ResolveInput, root: t.StringDir) {
   const seen = new Set<string>();
 
   await pushOptional(entries, seen, {
-    path: Fs.join(root, DEFAULT_AGENT_CONTEXT) as t.StringPath,
+    path: ProfilePath.resolve(root, DEFAULT_AGENT_CONTEXT),
     cwd: root,
     role: 'context',
   });
 
   if (input.defaultSystem !== false) {
     await pushOptional(entries, seen, {
-      path: Fs.join(root, DEFAULT_SYSTEM_CONTEXT) as t.StringPath,
+      path: ProfilePath.resolve(root, DEFAULT_SYSTEM_CONTEXT),
       cwd: root,
       role: 'system',
     });
@@ -72,7 +72,7 @@ async function loadEntries(input: ResolveInput, root: t.StringDir) {
 
   for (const path of input.append ?? []) {
     await pushRequired(entries, seen, {
-      path: Fs.resolve(input.cwd.invoked, path) as t.StringPath,
+      path: ProfilePath.resolve(root, path),
       cwd: root,
       role: 'context',
     });

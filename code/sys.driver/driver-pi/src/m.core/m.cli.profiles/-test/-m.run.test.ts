@@ -45,10 +45,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(contextText).to.contain('# Project Context');
         expect(contextText).to.contain(`${cwd}/profile-context`);
         expect(contextText).to.contain('Profile context text.');
-        expect(read).to.contain('./profile-read');
-        expect(read).not.to.contain('./profile-context');
+        expect(read).to.contain(Fs.join(cwd, 'profile-read'));
+        expect(read).not.to.contain(Fs.join(cwd, 'profile-context'));
         expect(read).to.contain('./extra-read');
-        expect(write).to.contain('./profile-write');
+        expect(write).to.contain(Fs.join(cwd, 'profile-write'));
         expect(write).to.contain('./extra-write');
         expect(input.env?.PI_PROFILE).to.eql('override');
         expect(input.env?.PI_KEEP).to.eql('profile');
@@ -431,7 +431,7 @@ function expectRuntimeMetadata(
   expect(value).to.contain(`  cwd: ${expected.cwd}`);
   expect(value).to.contain('  pi:');
   expect(value).to.contain(`    active-profile: ${expected.profile}`);
-  expect(value).to.contain('    sandbox-paths-resolve-from: cwd');
+  expect(value).to.contain('    sandbox-paths-resolve-from: runtime-root');
 }
 
 async function readContextBundle(args: readonly string[]) {

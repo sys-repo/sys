@@ -24,7 +24,7 @@ function formatMetadata(input: RuntimeMetadataInput) {
         root,
         ...(input.cwd.git ? { 'git-root': input.cwd.git } : {}),
         'active-profile': input.profile,
-        'sandbox-paths-resolve-from': 'cwd',
+        'sandbox-paths-resolve-from': 'runtime-root',
       },
     },
   }).trimEnd();

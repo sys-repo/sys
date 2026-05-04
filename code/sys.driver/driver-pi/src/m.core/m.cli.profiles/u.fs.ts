@@ -20,7 +20,7 @@ export const ProfilesFs = {
       # pi profile: ${name}
       #
       # Typed Pi launcher policy.
-      # Sandbox paths resolve relative to the current working directory.
+      # Profile sandbox/context paths resolve relative to the runtime root.
 
       prompt:
         system: null  # default: use DEFAULT_SYSTEM_PROMPT

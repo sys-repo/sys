@@ -125,6 +125,60 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
     }
   });
 
+  it('resolves profile sandbox paths from the runtime root, not the invoked nested cwd', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const nested = Fs.join(cwd, 'nested', 'child') as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
+    const contextFile = Fs.join(cwd, 'canon', 'AGENTS.md') as t.StringPath;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(nested);
+      await Fs.ensureDir(Fs.dirname(config));
+      await Fs.ensureDir(Fs.dirname(contextFile));
+      await Fs.write(contextFile, '# Canon context\n');
+      await Fs.write(
+        config,
+        Str.dedent(`
+        sandbox:
+          capability:
+            read: [./canon]
+            write: [./canon]
+          context:
+            append:
+              - ./canon/AGENTS.md
+      `).trimStart(),
+      );
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(nested);
+        const readArg = input.args.find((arg) => arg.startsWith('--allow-read='));
+        const writeArg = input.args.find((arg) => arg.startsWith('--allow-write='));
+        expect(readArg).to.contain(Fs.join(cwd, 'canon'));
+        expect(writeArg).to.contain(Fs.join(cwd, 'canon'));
+        expect(input.args).to.include.members(['--help']);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({
+        cwd: nested,
+        argv: ['--profile', 'canon', '--', '--help'],
+      });
+      expect(res.kind).to.eql('run');
+      const printed = Cli.stripAnsi(calls.join('\n'));
+      expect(printed).to.contain('canon/AGENTS.md');
+      expect(printed).to.contain('pi:sandbox');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('migrates legacy profile directory before direct --profile resolution', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
