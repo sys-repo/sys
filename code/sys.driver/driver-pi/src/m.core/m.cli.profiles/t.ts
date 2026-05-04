@@ -64,6 +64,7 @@ export declare namespace PiCliProfiles {
   export type ParsedArgs = {
     readonly help?: boolean;
     readonly allowAll?: boolean;
+    readonly nonInteractive?: boolean;
     readonly config?: string;
     readonly profile?: string;
     readonly gitRoot?: t.PiCli.GitRootMode;

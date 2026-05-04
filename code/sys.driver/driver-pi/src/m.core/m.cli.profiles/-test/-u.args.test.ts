@@ -28,6 +28,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.args`, () => {
       profile: 'canon',
       _: [],
     });
+    expect(ProfileArgs.parse(['--non-interactive', '--profile', 'canon'])).to.eql({
+      help: false,
+      nonInteractive: true,
+      profile: 'canon',
+      _: [],
+    });
     expect(ProfileArgs.parse(['-A', '--profile', 'canon'])).to.eql({
       help: false,
       allowAll: true,

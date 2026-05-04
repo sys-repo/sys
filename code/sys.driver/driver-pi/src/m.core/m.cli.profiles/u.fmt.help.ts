@@ -15,10 +15,12 @@ function helpInput() {
     usage: [
       `${tool} [--help] [--allow-all] [--git-root <walk-up|cwd>]`,
       `${tool} [--profile <name> | --config <path>] [--allow-all] [--git-root <walk-up|cwd>] [-- <pi-args...>]`,
+      `${tool} --non-interactive (--profile <name> | --config <path>) [-- <pi-args...>]`,
     ],
     options: [
       ['-h, --help', 'show help'],
       ['-A, --allow-all', 'unsafe debug: grant the launched Pi child full Deno permissions'],
+      ['--non-interactive', 'disable prompts and require --profile or --config'],
       ['--profile <name>', 'skip the menu and load a named profile config'],
       ['--config <path>', 'skip the menu and load a profile config file'],
       [
@@ -29,6 +31,7 @@ function helpInput() {
     examples: [
       `${tool}`,
       `${tool} --profile my-canon`,
+      `${tool} --non-interactive --profile default`,
       `${tool} --git-root cwd`,
       `${tool} --allow-all`,
       `${tool} -- --model gpt-5.4`,

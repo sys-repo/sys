@@ -25,11 +25,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles');
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('-A, --allow-all');
+        expect(text).to.contain('--non-interactive');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
         expect(text).to.contain('--git-root <walk-up|cwd>');
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --git-root cwd');
         expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all');
+        expect(text).to.contain(
+          'deno run -A jsr:@sys/driver-pi/cli Profiles --non-interactive --profile default',
+        );
         expect(text).to.contain(
           'deno run -A jsr:@sys/driver-pi/cli Profiles -- --model gpt-5.4',
         );
@@ -247,10 +251,12 @@ describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
     const prevInfo = console.info;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
       .absolute as t.StringDir;
+    const nested = Fs.join(cwd, 'nested') as t.StringDir;
     const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.ensureDir(nested);
       await Fs.ensureDir(Fs.dirname(config));
       await Fs.write(
         config,
@@ -264,14 +270,17 @@ describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
       Process.inherit = async (input) => {
-        expect(input.cwd).to.eql(cwd);
+        expect(input.cwd).to.eql(nested);
         expect(input.args).to.include.members(['--help']);
         expect(input.args).not.to.include('--model');
         expect(input.env?.PI_PROFILE).to.eql('canon');
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Profiles.main({ cwd, argv: ['--profile', 'canon', '--', '--help'] });
+      const res = await Profiles.main({
+        cwd: nested,
+        argv: ['--profile', 'canon', '--', '--help'],
+      });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('pi:sandbox');
@@ -385,6 +394,61 @@ describe(`@sys/driver-pi/cli/Profiles/m.main`, () => {
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → requires direct inputs in non-interactive mode', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      Object.defineProperty(GitInitMenu, 'prompt', {
+        value: async () => {
+          throw new Error('Git init prompt should not run in non-interactive mode.');
+        },
+      });
+
+      let error = '';
+      try {
+        await Profiles.main({ cwd, argv: ['--non-interactive'] });
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err);
+      }
+
+      expect(error).to.eql(
+        'Missing required flag: --profile or --config (required with --non-interactive).',
+      );
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('main → refuses to implicitly create missing named profile configs', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
+    const prev = Process.inherit;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      Process.inherit = async () => {
+        throw new Error('Pi should not launch when the named profile is missing.');
+      };
+
+      let error = '';
+      try {
+        await Profiles.main({ cwd, argv: ['--profile', 'canon'] });
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err);
+      }
+
+      expect(error).to.contain('Profile config not found:');
+      expect(error).to.contain('-config/@sys.driver-pi/canon.yaml');
+      expect(error).to.contain('Named profiles are not created implicitly');
+      expect(await Fs.exists(config)).to.eql(false);
+    } finally {
+      Process.inherit = prev;
       await Fs.remove(cwd);
     }
   });

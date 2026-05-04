@@ -18,6 +18,11 @@ export async function resolveCwd(
     return { kind: 'resolved', cwd: { invoked, git } };
   }
 
+  if (opts.interactive === false) {
+    const err = `Pi startup requires a git repository root. No .git ancestor found from ${invoked}`;
+    throw new Error(err);
+  }
+
   const action = await GitInitMenu.prompt(invoked);
   if (action === 'exit') return { kind: 'exit' };
 

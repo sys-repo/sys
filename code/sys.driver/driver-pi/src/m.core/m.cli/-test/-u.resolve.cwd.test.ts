@@ -12,7 +12,7 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.ensureDir(nested);
       Object.defineProperty(GitInitMenu, 'prompt', {
-        value: async () => {
+        async value() {
           throw new Error('Git init prompt should not run when a git root already exists.');
         },
       });
@@ -199,6 +199,32 @@ describe(`@sys/driver-pi/cli/u.resolve.cwd`, () => {
 
       const res = await resolveCwd(cwd);
       expect(res).to.eql({ kind: 'exit' });
+    } finally {
+      Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('fails without prompting when interactive recovery is disabled', async () => {
+    const cwd = await tempDir();
+    const prevPrompt = GitInitMenu.prompt;
+    try {
+      Object.defineProperty(GitInitMenu, 'prompt', {
+        value: async () => {
+          throw new Error('Git init prompt should not run when interactive recovery is disabled.');
+        },
+      });
+
+      let error = '';
+      try {
+        await resolveCwd(cwd, { interactive: false });
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err);
+      }
+
+      expect(error).to.eql(
+        `Pi startup requires a git repository root. No .git ancestor found from ${cwd}`,
+      );
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Fs.remove(cwd);

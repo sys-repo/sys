@@ -92,6 +92,8 @@ export declare namespace PiCli {
   export type CwdResolveOptions = {
     /** How startup resolves the effective git root from the invocation directory. */
     readonly gitRoot?: GitRootMode;
+    /** Whether startup may prompt for git-init recovery when no git root exists. */
+    readonly interactive?: boolean;
   };
 
   /** Typed boundary argv shape produced from `Args.parse(...)`. */
