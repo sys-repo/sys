@@ -21,7 +21,7 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.2
+  - import: npm:rollup@4.60.3
     dev: true
   - import: npm:vite@8.0.10
     dev: true
@@ -61,7 +61,7 @@ deno.json:
     subpaths: [ cors, deno, types ]
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.4.0
-  - import: npm:@mariozechner/pi-coding-agent@0.72.1
+  - import: npm:@mariozechner/pi-coding-agent@0.73.0
   - import: npm:@preact/signals-core@1.14.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:ramda@0.32.0
@@ -91,7 +91,7 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.2
+  - import: npm:rollup@4.60.3
     dev: true
   - import: npm:vite@8.0.10
     dev: true
