@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1777776357102,
+    "createdAt": 1777936476544,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-ba735f7800fe2f27ee3656250b3cfb01b3a7c6af3a3d5fa77678631fa0d5d61d",
+      "/graph": "sha256-6ff0ec29436513341916765ce23f6e26e63ff559a2574d333be95e0938a28aca",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.78/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.78/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777776357108
+    "modifiedAt": 1777936476549
   },
   "graph": {
     "orderedPaths": [
@@ -1219,6 +1219,10 @@
       {
         "from": "code/sys/tmpl-engine",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/tmpl-engine",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/tmpl-engine",

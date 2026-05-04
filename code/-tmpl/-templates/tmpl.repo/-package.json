@@ -7,7 +7,7 @@
   "devDependencies": {
     "@deno/vite-plugin": "2.0.2",
     "@vitejs/plugin-react": "6.0.1",
-    "rollup": "4.60.2",
+    "rollup": "4.60.3",
     "rollup-plugin-visualizer": "7.0.1",
     "vite": "8.0.10",
     "vite-plugin-wasm": "3.6.0"
