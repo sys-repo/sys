@@ -13,5 +13,5 @@ export type * as t from './types.ts';
  */
 if (import.meta.main) {
   const { main } = await import('./m.core/m.cli/mod.ts');
-  await main();
+  await main({ argv: Deno.args });
 }

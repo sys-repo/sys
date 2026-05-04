@@ -1,6 +1,6 @@
 # @sys/driver-pi
 
-A typed Deno boundary for running [Pi](https://pi.dev/) as a profile-driven system agent.
+A Deno launcher for running [Pi](https://pi.dev/) as a profile-driven system agent with an explicit launch sandbox.
 
 <p>&nbsp;</p>
 
@@ -30,15 +30,17 @@ It is:
 import { Pi, pkg } from 'jsr:@sys/driver-pi';
 import { Pi as PiCore } from 'jsr:@sys/driver-pi/core';
 import { Cli, Profiles } from 'jsr:@sys/driver-pi/cli';
+import { Raw } from 'jsr:@sys/driver-pi/cli/raw';
 ```
 
 ## CLI
 
 ```sh
 deno run -A jsr:@sys/driver-pi                # alias to /cli
-deno run -A jsr:@sys/driver-pi/cli Profiles
-deno run -A jsr:@sys/driver-pi/cli Profiles --profile canon
-deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all  # unsafe debug
+deno run -A jsr:@sys/driver-pi/cli
+deno run -A jsr:@sys/driver-pi/cli --profile canon
+deno run -A jsr:@sys/driver-pi/cli --allow-all  # unsafe debug
+deno run -A jsr:@sys/driver-pi/cli/raw -- --help  # explicit raw Pi boundary
 
 # equivalent wrapper from @sys/tools
 deno run -A jsr:@sys/tools pi
@@ -50,6 +52,7 @@ deno run -A jsr:@sys/tools pi --allow-all  # unsafe debug
 
 ## Profiles
 
+- `/cli` is profile-driven by default; raw upstream Pi access is explicit at `/cli/raw`.
 - Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
 - Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
 - `--profile <name>` loads a named profile.

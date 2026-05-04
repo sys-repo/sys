@@ -1,13 +1,13 @@
 import { Cli, Str } from './common.ts';
 
 const HELP_TOOL_ENV = 'PI_CLI_PROFILES_HELP_TOOL';
-const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-pi/cli Profiles';
+const DEFAULT_TOOL = 'deno run -A jsr:@sys/driver-pi/cli';
 
 function helpInput() {
   const tool = Deno.env.get(HELP_TOOL_ENV) || DEFAULT_TOOL;
   return {
     tool,
-    summary: 'Run Pi as a profile-driven system agent behind the typed Deno boundary.',
+    summary: 'Run Pi as a profile-driven system agent with an explicit launch sandbox.',
     note: Str.dedent(`
       Select a saved profile config, or pass --profile or --config to run one directly.
       Defaults live in profile YAML; args after -- pass through to Pi.

@@ -21,20 +21,22 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/help`, () => {
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
         const text = Cli.stripAnsi(res.text);
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli');
+        expect(text).to.contain('explicit launch sandbox');
+        expect(text).not.to.contain(' Profiles');
         expect(text).to.contain('-h, --help');
         expect(text).to.contain('-A, --allow-all');
         expect(text).to.contain('--non-interactive');
         expect(text).to.contain('--profile <name>');
         expect(text).to.contain('--config <path>');
         expect(text).to.contain('--git-root <walk-up|cwd|none>');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --git-root cwd');
-        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli Profiles --allow-all');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli --git-root cwd');
+        expect(text).to.contain('deno run -A jsr:@sys/driver-pi/cli --allow-all');
         expect(text).to.contain(
-          'deno run -A jsr:@sys/driver-pi/cli Profiles --non-interactive --profile default',
+          'deno run -A jsr:@sys/driver-pi/cli --non-interactive --profile default',
         );
         expect(text).to.contain(
-          'deno run -A jsr:@sys/driver-pi/cli Profiles -- --model gpt-5.4',
+          'deno run -A jsr:@sys/driver-pi/cli -- --model gpt-5.4',
         );
         expect(calls).to.eql([res.text]);
       } finally {

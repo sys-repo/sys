@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
-import { Cli } from '../mod.ts';
+import { Raw } from '../../m.cli.raw/mod.ts';
 import { GitInitMenu } from '../u.menu.git.init.ts';
 
-describe(`@sys/driver-pi/cli/m.main`, () => {
+describe(`@sys/driver-pi/cli/raw/m.main`, () => {
   it('help → renders wrapper help without launching Pi', async () => {
     const check = async (arg: '-h' | '--help') => {
       const prev = Process.inherit;
@@ -15,10 +15,11 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         };
         console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
-        const res = await Cli.main({ argv: [arg] });
+        const res = await Raw.main({ argv: [arg] });
         expect(res.kind).to.eql('help');
         if (res.kind !== 'help') throw new Error('Expected help result.');
-        expect(res.text).to.contain('@sys/driver-pi/cli');
+        expect(res.text).to.contain('deno run -A jsr:@sys/driver-pi/cli/raw');
+        expect(res.text).to.contain('only the @sys launch sandbox');
         expect(res.text).to.contain('-h, --help');
         expect(res.text).to.contain('-A, --allow-all');
         expect(calls).to.eql([res.text]);
@@ -46,7 +47,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
+      const res = await Raw.main({ cwd, argv: ['--model', 'gpt-5.4'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
@@ -68,7 +69,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.main({ cwd, argv: ['--', '-A'] });
+      const res = await Raw.main({ cwd, argv: ['--', '-A'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
@@ -89,7 +90,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.main({ cwd, argv: ['--', '--help'] });
+      const res = await Raw.main({ cwd, argv: ['--', '--help'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
@@ -111,7 +112,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.main({ cwd, argv: ['-A'] });
+      const res = await Raw.main({ cwd, argv: ['-A'] });
       expect(res.kind).to.eql('run');
     } finally {
       Process.inherit = prev;
@@ -134,7 +135,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.main({
+      const res = await Raw.main({
         cwd,
         write: ['/tmp/pi-main-extra-write' as t.StringPath],
       });
@@ -162,7 +163,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
       };
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
 
-      const res = await Cli.main({ cwd: nested, argv: ['--git-root', 'cwd'] });
+      const res = await Raw.main({ cwd: nested, argv: ['--git-root', 'cwd'] });
       expect(res.kind).to.eql('exit');
     } finally {
       Process.inherit = prev;
@@ -177,7 +178,7 @@ describe(`@sys/driver-pi/cli/m.main`, () => {
     const prevPrompt = GitInitMenu.prompt;
     try {
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
-      const res = await Cli.main({ cwd, argv: ['--model', 'gpt-5.4'] });
+      const res = await Raw.main({ cwd, argv: ['--model', 'gpt-5.4'] });
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });

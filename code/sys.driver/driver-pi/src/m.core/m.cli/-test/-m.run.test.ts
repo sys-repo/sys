@@ -1,12 +1,14 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs, Process, type t } from '../common.ts';
-import { Cli } from '../mod.ts';
+import { Raw } from '../../m.cli.raw/mod.ts';
 import { PI_CODING_AGENT_IMPORT } from '../u.resolve.pkg.ts';
 
-describe(`@sys/driver-pi/cli/m.run`, () => {
+describe(`@sys/driver-pi/cli/raw/m.run`, () => {
   it('API', async () => {
-    const m = await import('@sys/driver-pi/cli');
-    expect(m.Cli).to.equal(Cli);
+    const m = await import('@sys/driver-pi/cli/raw');
+    expect(m.Raw).to.equal(Raw);
+    expect(m.main).to.equal(Raw.main);
+    expect(m.run).to.equal(Raw.run);
   });
 
   it('run → writes git-rooted agent settings before launch', async () => {
@@ -53,7 +55,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, args: ['--help'] });
+      const res = await Raw.run({ cwd: { invoked: cwd, git: cwd }, args: ['--help'] });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -75,7 +77,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.run({ cwd: { invoked: cwd, root: cwd } });
+      const res = await Raw.run({ cwd: { invoked: cwd, root: cwd } });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -113,7 +115,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
         return { code: 0, success: true, signal: null };
       };
 
-      const res = await Cli.run({ cwd: { invoked, git } });
+      const res = await Raw.run({ cwd: { invoked, git } });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -158,7 +160,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
       };
 
       await Fs.ensureDir(Fs.join(cwd, '.git'));
-      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, env });
+      const res = await Raw.run({ cwd: { invoked: cwd, git: cwd }, env });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
@@ -179,7 +181,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
       };
 
       await Fs.ensureDir(Fs.join(cwd, '.git'));
-      const res = await Cli.run({
+      const res = await Raw.run({
         cwd: { invoked: cwd, git: cwd },
         write: ['/tmp/pi-cli-extra-write' as t.StringPath],
       });
@@ -204,7 +206,7 @@ describe(`@sys/driver-pi/cli/m.run`, () => {
       };
 
       await Fs.ensureDir(Fs.join(cwd, '.git'));
-      const res = await Cli.run({ cwd: { invoked: cwd, git: cwd }, allowAll: true });
+      const res = await Raw.run({ cwd: { invoked: cwd, git: cwd }, allowAll: true });
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;

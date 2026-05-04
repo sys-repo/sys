@@ -40,7 +40,7 @@ async function run(cwd: t.StringDir, argv: string[]) {
       INIT_CWD: cwd,
       PI_CLI_PROFILES_HELP_TOOL: 'deno run -A jsr:@sys/tools pi',
     },
-    args: ['run', '-A', ctx.specifier, 'Profiles', ...argv],
+    args: ['run', '-A', ctx.specifier, ...argv],
   });
 }
 

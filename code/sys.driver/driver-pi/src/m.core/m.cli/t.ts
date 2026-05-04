@@ -1,20 +1,21 @@
 import type { t } from './common.ts';
 
 /**
- * A typed Deno boundary for launching Pi as a profile-driven system agent.
+ * Raw Pi process boundary shared by the profile launcher and explicit raw CLI.
  *
  * References:
  * - https://pi.dev/
  * - https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
  *
- * This local surface keeps upstream Pi execution behind explicit cwd,
- * permissions, profile, and runtime-state seams.
+ * This surface keeps upstream Pi execution behind explicit cwd, permissions,
+ * package resolution, and runtime-state seams. Profile policy is modeled by
+ * `PiCliProfiles` and exposed as the default public `/cli` entrypoint.
  *
  * Provenance:
  * - Upstream Pi coding-agent license: MIT
  */
 export declare namespace PiCli {
-  /** Runtime surface for the Pi CLI boundary. */
+  /** Runtime surface for the raw Pi process boundary. */
   export type Lib = {
     main(input?: Input): Promise<Result>;
     run(args: RunArgs): Promise<t.Process.InheritOutput>;

@@ -1,11 +1,11 @@
 import { Cli } from './common.ts';
 
 const HELP = {
-  tool: '@sys/driver-pi/cli',
-  summary: 'Run Pi behind the typed @sys Deno boundary.',
-  note: 'Only boundary flags are handled locally. All other args pass through to Pi unchanged.',
+  tool: 'deno run -A jsr:@sys/driver-pi/cli/raw',
+  summary: 'Run raw Pi with only the @sys launch sandbox.',
+  note: 'Raw mode does not load profile YAML, profile context, or the wrapper-owned default system prompt. All non-boundary args pass through to Pi unchanged.',
   usage: [
-    '@sys/driver-pi/cli [--help] [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]',
+    'deno run -A jsr:@sys/driver-pi/cli/raw [--help] [--allow-all] [--git-root <walk-up|cwd|none>] [-- <pi-args...>]',
   ],
   options: [
     ['-h, --help', 'show boundary help'],
@@ -16,11 +16,11 @@ const HELP = {
     ],
   ],
   examples: [
-    'deno task cli',
-    'deno task cli -- --help',
-    'deno task cli --git-root cwd',
-    'deno task cli --allow-all',
-    'deno task cli -- --model gpt-5.4',
+    'deno run -A jsr:@sys/driver-pi/cli/raw',
+    'deno run -A jsr:@sys/driver-pi/cli/raw -- --help',
+    'deno run -A jsr:@sys/driver-pi/cli/raw --git-root cwd',
+    'deno run -A jsr:@sys/driver-pi/cli/raw --allow-all',
+    'deno run -A jsr:@sys/driver-pi/cli/raw -- --model gpt-5.4',
   ],
 } as const;
 
