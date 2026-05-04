@@ -2,6 +2,11 @@ import { Cli, describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
 import { run } from '../u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
+const fsWriteEval = (path: string, value: string) => {
+  const mod = Json.stringify(FS_MOD);
+  const args = [path, value].map((item) => Json.stringify(item)).join(', ');
+  return `import { Fs } from ${mod}; await Fs.write(${args})`;
+};
 
 describe('@sys/workspace/bump run', () => {
   it('returns a dry-run plan without writing files', async () => {
@@ -37,12 +42,7 @@ describe('@sys/workspace/bump run', () => {
         followups: ({ cwd }) => [{
           label: 'write marker',
           cmd: 'deno',
-          args: [
-            'eval',
-            `import { Fs } from ${Json.stringify(FS_MOD)}; await Fs.write(${
-              Json.stringify(marker)
-            }, ${Json.stringify(cwd)})`,
-          ],
+          args: ['eval', fsWriteEval(marker, cwd)],
         }],
       },
     });
@@ -133,6 +133,28 @@ describe('@sys/workspace/bump run', () => {
     }
   });
 
+  it('ignores ambient local files when checking unbumped packages', async () => {
+    const fs = await Testing.dir('WorkspaceBump.run.unbumpedAmbientMutation');
+    await writeWorkspace(fs.dir, true);
+    const ambient = Fs.join(fs.dir, 'code/pkg-b/.DS_Store');
+
+    const res = await run({
+      cwd: fs.dir,
+      from: ['@scope/a'],
+      nonInteractive: true,
+      log: false,
+      policy: {
+        followups: () => [{
+          label: 'mutate ambient package file',
+          cmd: 'deno',
+          args: ['eval', fsWriteEval(ambient, 'ambient')],
+        }],
+      },
+    });
+
+    expect(res.dryRun).to.eql(false);
+  });
+
   it('fails when followups mutate an unbumped package', async () => {
     const fs = await Testing.dir('WorkspaceBump.run.unbumpedMutation');
     await writeWorkspace(fs.dir, true);
@@ -149,12 +171,7 @@ describe('@sys/workspace/bump run', () => {
           followups: ({ cwd }) => [{
             label: 'mutate other package',
             cmd: 'deno',
-            args: [
-              'eval',
-              `import { Fs } from ${Json.stringify(FS_MOD)}; await Fs.write(${
-                Json.stringify(other)
-              }, ${Json.stringify('export const b = "b2";\\n')})`,
-            ],
+            args: ['eval', fsWriteEval(other, 'export const b = "b2";\n')],
           }],
         },
       });

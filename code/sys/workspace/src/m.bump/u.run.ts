@@ -211,7 +211,7 @@ const wrangle = {
     for (const candidate of candidates) {
       if (selected.has(candidate.pkgPath)) continue;
       const dir = Path.dirname(candidate.denoFilePath);
-      const res = await Dir.Hash.compute(dir);
+      const res = await Dir.Hash.compute(dir, snapshotFilter(dir));
       snapshots.set(candidate.pkgPath, res.hash.digest);
     }
     return snapshots;
@@ -227,7 +227,7 @@ const wrangle = {
     for (const candidate of candidates) {
       if (selected.has(candidate.pkgPath)) continue;
       const dir = Path.dirname(candidate.denoFilePath);
-      const res = await Dir.Hash.compute(dir);
+      const res = await Dir.Hash.compute(dir, snapshotFilter(dir));
       if (before.get(candidate.pkgPath) === res.hash.digest) continue;
       changed.push(candidate);
     }
@@ -237,3 +237,16 @@ const wrangle = {
     throw new Error(`Bump followups changed unbumped packages: ${list}`);
   },
 } as const;
+
+const AmbientSnapshotSegments = new Set(['.git', '.pi', '.tmp', 'node_modules', 'dist']);
+const AmbientSnapshotFiles = new Set(['.DS_Store']);
+
+function snapshotFilter(dir: t.StringDir) {
+  return (path: string) => {
+    const relative = path.slice(dir.length + 1);
+    const parts = relative.split('/');
+    return !parts.some((part: string) => {
+      return AmbientSnapshotSegments.has(part) || AmbientSnapshotFiles.has(part);
+    });
+  };
+}
