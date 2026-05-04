@@ -21,9 +21,13 @@ export function PaymentElementSample() {
   const theme = Signal.useSignal<'Light' | 'Dark'>(defaults.theme);
   const debug = Signal.useSignal(defaults.debug);
   const loadSession = Signal.useSignal(defaults.loadSession);
-  const session = useRuntimeSession(loadSession.value, runtime.sessionUrl);
+  const signals = { debug, theme, loadSession };
+  const v = Signal.toObject(signals);
+  Signal.useRedrawEffect(() => Signal.listen(signals, true));
+
+  const session = useRuntimeSession(v.loadSession, runtime.sessionUrl);
   const ready = session.status === 'ready';
-  const colors = Color.theme(theme.value);
+  const colors = Color.theme(v.theme);
 
   const styles = {
     root: css({
@@ -49,10 +53,8 @@ export function PaymentElementSample() {
     pie: css({ pointerEvents: 'none', position: 'absolute', left: 18, bottom: 12, fontSize: 64 }),
   };
 
-  const summary = {
-    debug: debug.value,
-    theme: theme.value,
-    loadSession: loadSession.value,
+  const data = {
+    ...v,
     runtime,
     session: session.status,
     error: session.status === 'error' ? session.error.message : undefined,
@@ -67,10 +69,10 @@ export function PaymentElementSample() {
   return (
     <div className={styles.root.class}>
       <div className={styles.stage.class}>
-        <Cropmarks theme={theme.value} borderOpacity={0.12} size={{ mode: 'center', width: 360 }}>
+        <Cropmarks theme={v.theme} borderOpacity={0.12} size={{ mode: 'center', width: 360 }}>
           <PaymentElement.UI
-            debug={debug.value}
-            theme={theme.value}
+            debug={v.debug}
+            theme={v.theme}
             publishableKey={ready ? session.publishableKey : ''}
             clientSecret={ready ? session.clientSecret : undefined}
             onReady={(element) => console.info(`⚡️ onReady:`, element)}
@@ -84,18 +86,18 @@ export function PaymentElementSample() {
         <div className={styles.title.class}>{'Stripe.PaymentElement'}</div>
         <Button
           block
-          label={() => `theme: ${theme.value}`}
-          onClick={() => (theme.value = theme.value === 'Dark' ? 'Light' : 'Dark')}
+          label={() => `theme: ${v.theme}`}
+          onClick={() => (theme.value = v.theme === 'Dark' ? 'Light' : 'Dark')}
         />
         <hr />
-        <Button block label={() => `debug: ${debug.value}`} onClick={() => Signal.toggle(debug)} />
+        <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(debug)} />
         <Button
           block
-          label={() => `runtime session: ${loadSession.value ? 'enabled' : 'disabled'}`}
+          label={() => `runtime session: ${v.loadSession ? 'enabled' : 'disabled'}`}
           onClick={() => Signal.toggle(loadSession)}
         />
         <Button block label={() => `(reset)`} onClick={reset} />
-        <ObjectView name={'debug'} data={summary} expand={0} style={{ marginTop: 20 }} />
+        <ObjectView name={'debug'} data={data} expand={0} style={{ marginTop: 20 }} />
       </div>
     </div>
   );

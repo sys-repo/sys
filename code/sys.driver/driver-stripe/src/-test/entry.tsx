@@ -1,7 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { pkg } from '../pkg.ts';
-import { PaymentElementSample } from './ui.PaymentElement.Sample.tsx';
 
 /**
  * Service Worker:
@@ -36,9 +35,7 @@ if (document) {
 
 export async function main() {
   const root = createRoot(document.getElementById('root')!);
-
-  if (import.meta.env.DEV) return renderDevHarness(root);
-  return renderSample(root);
+  return renderDevHarness(root);
 }
 
 async function renderDevHarness(root: ReturnType<typeof createRoot>) {
@@ -55,14 +52,6 @@ async function renderDevHarness(root: ReturnType<typeof createRoot>) {
   }
 
   root.render(<React.StrictMode><App /></React.StrictMode>);
-}
-
-function renderSample(root: ReturnType<typeof createRoot>) {
-  root.render(
-    <React.StrictMode>
-      <PaymentElementSample />
-    </React.StrictMode>,
-  );
 }
 
 main().catch((err) => console.error(`💥 Failed to render Stripe.PaymentElement`, err));
