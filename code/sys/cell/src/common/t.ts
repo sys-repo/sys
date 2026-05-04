@@ -1,18 +1,17 @@
 /**
- * @external
- */
-/**
  * @system
  */
-export type * from '@sys/types';
-export type { SpecImports, TestingDir } from '@sys/testing/t';
-export type { TSchema } from '@sys/schema/t';
 export type {
+  FileMap,
   FileMapBundleResult,
   FileMapOp,
   FileMapProcessor,
   FileMapWriteResult,
 } from '@sys/fs/t';
+export type { TSchema } from '@sys/schema/t';
+export type { SpecImports, TestingDir } from '@sys/testing/t';
+export type { Tmpl, TmplProcessFile } from '@sys/tmpl-engine/t';
+export type * from '@sys/types';
 
 /**
  * @local

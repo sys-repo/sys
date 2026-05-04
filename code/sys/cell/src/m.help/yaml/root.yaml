@@ -1,0 +1,24 @@
+summary: |
+  A Cell is a folder-shaped metamedium whose DSL stores
+  meaning and whose meaning can be interpreted, viewed, and
+  validly rewritten within the folder that bounds it.
+
+usage:
+  - deno run jsr:@sys/cell/cli --help
+  - deno run -RW jsr:@sys/cell/cli init [dir]
+  - deno run jsr:@sys/cell/cli help init
+  - deno run jsr:@sys/cell/cli help agent
+
+commands:
+  - name: init
+    text: create the minimal Cell folder contract
+  - name: help init
+    text: show init command help
+  - name: help agent
+    text: show expanded guidance for coding agents
+
+options:
+  - name: -h, --help
+    text: show help
+  - name: --dry-run
+    text: preview init without writing files

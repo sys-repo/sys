@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { json } from '../-bundle.ts';
+import { json } from '../-bundle/-bundle.ts';
 import type { CellTmpl } from '../t.ts';
 import { GITIGNORE_PATH } from './u.gitignore.ts';
 import { ROOTS } from './u.roots.ts';

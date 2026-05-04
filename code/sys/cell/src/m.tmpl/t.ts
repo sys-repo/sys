@@ -1,4 +1,4 @@
-import type { t, Tmpl } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * Cell template types.
@@ -29,7 +29,7 @@ export declare namespace CellTmpl {
     /** Available Cell template names. */
     readonly names: readonly Name[];
     /** Create a template writer for the selected Cell template. */
-    make(name?: Name): Tmpl.Tmpl;
+    make(name?: Name): t.Tmpl;
     /** Read a text file from the embedded template bundle. */
     text(name: Name, path: t.StringPath): Promise<string>;
     /** Rebuild the embedded template bundle from source files. */

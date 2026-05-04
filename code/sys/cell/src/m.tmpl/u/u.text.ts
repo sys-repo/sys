@@ -1,5 +1,5 @@
 import { FileMap, Is, type t } from '../common.ts';
-import { json } from '../-bundle.ts';
+import { json } from '../-bundle/-bundle.ts';
 import type { CellTmpl } from '../t.ts';
 import { ROOTS } from './u.roots.ts';
 

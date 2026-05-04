@@ -11,7 +11,7 @@ export const CellCli: t.CellCli.Lib = {
     const args = parseArgs(argv);
     const command = args._[0];
 
-    const help = FmtHelp.output();
+    const help = await FmtHelp.output();
 
     if (args.unknown.length > 0) {
       return fail({ argv }, `Unknown option: ${args.unknown.join(', ')}`, help);
@@ -25,7 +25,7 @@ export const CellCli: t.CellCli.Lib = {
       }
       if (topic === 'init') {
         if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, help);
-        const text = FmtHelp.initOutput();
+        const text = await FmtHelp.initOutput();
         print(text);
         return { kind: 'help', input: { argv }, text };
       }
@@ -46,7 +46,7 @@ export const CellCli: t.CellCli.Lib = {
     if (!command) return fail({ argv }, 'Missing command.', help);
 
     if (command === 'init') {
-      const initHelp = FmtHelp.initOutput();
+      const initHelp = await FmtHelp.initOutput();
       if (args.help) {
         print(initHelp);
         return { kind: 'help', input: { argv }, text: initHelp };

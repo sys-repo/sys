@@ -1,56 +1,21 @@
-import { CliFmt, Str } from './common.ts';
-import { Fmt } from './u.fmt.ts';
+import { CellHelp } from '../m.help/mod.ts';
+import { CliFmt } from './common.ts';
 
 export const FmtRootHelp = {
-  input(toolname = '@sys/cell/cli') {
+  async input(toolname = '@sys/cell/cli') {
+    const guidance = await CellHelp.Root.load();
     return {
       tool: toolname,
-      summary: intro(),
+      summary: guidance.summary,
       sections: [
-        {
-          kind: 'lines',
-          label: 'Usage',
-          items: [
-            'deno run jsr:@sys/cell/cli --help',
-            'deno run -RW jsr:@sys/cell/cli init [dir]',
-            'deno run jsr:@sys/cell/cli help init',
-            'deno run jsr:@sys/cell/cli help agent',
-          ],
-        },
-        {
-          kind: 'pairs',
-          label: 'Commands',
-          items: [
-            ['init', `create the minimal ${Fmt.Cell()} folder contract`],
-            ['help init', 'show init command help'],
-            ['help agent', 'show expanded guidance for coding agents'],
-          ],
-        },
-        {
-          kind: 'pairs',
-          label: 'Options',
-          items: [
-            ['-h, --help', 'show help'],
-            ['--dry-run', 'preview init without writing files'],
-          ],
-        },
+        { kind: 'lines', label: 'Usage', items: guidance.usage },
+        { kind: 'pairs', label: 'Commands', items: guidance.commands },
+        { kind: 'pairs', label: 'Options', items: guidance.options },
       ],
     } as const;
   },
 
-  output(toolname?: string): string {
-    return CliFmt.Help.build(FmtRootHelp.input(toolname));
+  async output(toolname?: string): Promise<string> {
+    return CliFmt.Help.build(await FmtRootHelp.input(toolname));
   },
 } as const;
-
-/**
- * Helpers:
- */
-
-function intro() {
-  return Str.dedent(`
-    A ${Fmt.Cell()} is a folder-shaped metamedium whose DSL stores
-    meaning and whose meaning can be interpreted, viewed, and
-    validly rewritten within the folder that bounds it.
-  `);
-}

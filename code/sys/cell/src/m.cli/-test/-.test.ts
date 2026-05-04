@@ -1,5 +1,6 @@
 import { describe, expect, Fs, it, Testing } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
+import { CellHelp } from '../../m.help/mod.ts';
 import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 
@@ -9,14 +10,34 @@ describe(`@sys/cell/cli`, () => {
     expect(m.CellCli).to.equal(CellCli);
   });
 
-  it('init -h → shows init-specific help', async () => {
+  it('root help → shows resource-backed root guidance', async () => {
+    const res = await silent(() => CellCli.run({ argv: [] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Root.load();
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell/cli');
+    expect(text).to.contain(guidance.summary.split('\n')[0]);
+    guidance.usage.forEach((line) => expect(text).to.contain(line));
+    guidance.commands.forEach(([name, detail]) => {
+      expect(text).to.contain(name);
+      expect(text).to.contain(detail);
+    });
+    guidance.options.forEach(([name, detail]) => {
+      expect(text).to.contain(name);
+      expect(text).to.contain(detail);
+    });
+  });
+
+  it('init -h → shows resource-backed init help', async () => {
     const res = await silent(() => CellCli.run({ argv: ['init', '-h'] }));
     const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Init.load();
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell/cli init');
-    expect(text).to.contain('deno run -RW jsr:@sys/cell init [dir]');
-    expect(text).to.contain('use --dry-run to preview exact file operations');
+    guidance.usage.forEach((line) => expect(text).to.contain(line));
+    guidance.safety.forEach((line) => expect(text).to.contain(line));
     expect(text).to.not.contain('folder-shaped metamedium');
   });
 

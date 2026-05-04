@@ -1,12 +1,12 @@
-import { json } from '../-bundle.ts';
-import { Fs, Path, type Tmpl, TmplEngine } from './common.ts';
+import { json } from '../-bundle/-bundle.ts';
 import type { CellTmpl } from '../t.ts';
+import { Fs, Path, type t, TmplEngine } from './common.ts';
 import { GITIGNORE_ENTRIES, GITIGNORE_PATH, mergeGitignore } from './u.gitignore.ts';
 import { ROOTS } from './u.roots.ts';
 
 export function makeTmpl(name: CellTmpl.Name = 'default') {
   const root = ROOTS[name];
-  const processFile: Tmpl.TmplProcessFile = async (e) => {
+  const processFile: t.TmplProcessFile = async (e) => {
     if (!e.path.startsWith(`${root}/`)) return;
 
     const relative = e.path.slice(root.length + 1);

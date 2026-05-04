@@ -1,0 +1,20 @@
+summary: |
+  Create the minimal Cell folder contract in the target directory.
+  Init creates the descriptor, stored-meaning lane, view lane, and
+  local ignore for .env.
+
+usage:
+  - deno run -RW jsr:@sys/cell init [dir]
+  - deno run -RW jsr:@sys/cell/cli init [dir]
+
+options:
+  - name: -h, --help
+    text: show init help
+  - name: --dry-run
+    text: preview writes without changing files
+
+safety:
+  - additive; validates existing Cell descriptors before writing
+  - use --dry-run to preview exact file operations
+  - .gitignore may add .env once
+  - leaves .pi/ and other tool-owned -config/* namespaces untouched
