@@ -1,22 +1,13 @@
 import { CellHelp } from '../m.help/mod.ts';
+import type { CellHelp as TCellHelp } from '../m.help/t.ts';
 import { c, CliFmt, CliTable, Str } from './common.ts';
-
-type HelpSection = {
-  readonly label: string;
-  readonly items: readonly string[];
-};
 
 export const FmtDslHelp = {
   async output(toolname = '@sys/cell/cli dsl'): Promise<string> {
     const guidance = await CellHelp.Dsl.load();
     const help = CliFmt.Help.build({ tool: toolname, summary: guidance.intro });
 
-    return `${help}\n\n${guideTable([
-      { label: 'Rule', items: guidance.rule },
-      { label: 'Speech acts', items: guidance.speechActs },
-      { label: 'Owners', items: guidance.owners },
-      { label: 'Mappings', items: guidance.mappings },
-    ])}`;
+    return `${help}\n\n${guideTable(guidance.sections)}`;
   },
 } as const;
 
@@ -24,7 +15,7 @@ export const FmtDslHelp = {
  * Helpers:
  */
 
-function guideTable(sections: readonly HelpSection[]): string {
+function guideTable(sections: readonly TCellHelp.Section[]): string {
   const table = CliTable.create([]);
 
   sections.forEach((section, sectionIndex) => {

@@ -44,15 +44,21 @@ export declare namespace Cell {
     /** Materialization source for a view. */
     export type Source = Source.Pull | Source.Local;
 
-    /** Named view descriptor. */
+    /** Named view descriptor. Cell owns only topology and the source reference. */
     export type Descriptor = { source: Source };
 
     export namespace Source {
-      /** View materialized by a pull config. */
-      export type Pull = { pull: Path };
+      /** View materialized by `@sys/tools/pull`. */
+      export type Pull = { pull: PullConfigPath };
 
       /** View already local under the Cell root. */
-      export type Local = { local: Path };
+      export type Local = { local: LocalPath };
+
+      /** Cell-root-relative path to the `@sys/tools/pull` owner config YAML. */
+      export type PullConfigPath = Path;
+
+      /** Cell-root-relative path to already materialized view files. */
+      export type LocalPath = Path;
     }
   }
 

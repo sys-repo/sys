@@ -26,15 +26,22 @@ describe('FmtHelp', () => {
   it('dsl → renders bundled edit language guidance', async () => {
     const text = stripAnsi(await FmtHelp.dslOutput());
     const guidance = await CellHelp.Dsl.load();
-    const rule = sectionItems(between(text, 'Rule', 'Speech acts'), 'Rule');
-    const speechActs = sectionItems(between(text, 'Speech acts', 'Owners'), 'Speech acts');
-    const owners = sectionItems(between(text, 'Owners', 'Mappings'), 'Owners');
-    const mappings = sectionItems(after(text, 'Mappings'), 'Mappings');
+    const sections = guidance.sections.map((section, index, all) => {
+      const end = all[index + 1]?.label;
+      const block = end ? between(text, section.label, end) : after(text, section.label);
+      return {
+        label: section.label,
+        items: sectionItems(block, section.label),
+      };
+    });
 
-    expect(rule).to.eql([...guidance.rule]);
-    expect(speechActs).to.eql([...guidance.speechActs]);
-    expect(owners).to.eql([...guidance.owners]);
-    expect(mappings).to.eql([...guidance.mappings]);
+    expect(sections).to.eql([...guidance.sections]);
+    expect(section(sections, 'Pull views')).to.contain(
+      'views.<name>.source.pull is a Cell-root-relative path to an @sys/tools/pull config YAML.',
+    );
+    expect(section(sections, 'Pull views')).to.contain(
+      'It is not the dist URL and not the local materialized view directory.',
+    );
   });
 });
 
@@ -49,6 +56,12 @@ function sectionItems(text: string, label: string) {
     .split('\n')
     .map((line) => line.startsWith(label) ? line.slice(label.length).trim() : line.trim())
     .filter((line) => line.length > 0);
+}
+
+function section(sections: readonly { label: string; items: readonly string[] }[], label: string) {
+  const found = sections.find((item) => item.label === label);
+  expect(found).not.to.eql(undefined);
+  return found?.items ?? [];
 }
 
 function between(text: string, start: string, end: string) {

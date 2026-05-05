@@ -5,19 +5,66 @@ export const Fmt = {
 
   async help(cwd: t.StringDir) {
     const cmd = Base.invoke('pull');
+    const config = './-config/@sys.tools.pull/components.yaml';
     return await Base.help(cmd, {
       note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
-      usage: [
-        `${cmd}`,
-        `${cmd} --non-interactive --config ./my-config.yaml`,
-      ],
-      options: [
-        ['-h, --help', 'show help'],
-        ['--non-interactive', 'disable prompts and require direct inputs'],
-        ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
-      ],
-      examples: [
-        `${cmd} --non-interactive --config ./my-config.yaml`,
+      sections: [
+        {
+          kind: 'lines',
+          label: 'Usage',
+          items: [
+            `${cmd}`,
+            `${cmd} --non-interactive --config ${config}`,
+          ],
+        },
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [
+            ['-h, --help', 'show help'],
+            ['--non-interactive', 'disable prompts and require direct inputs'],
+            ['--config <path>', 'load a saved pull config YAML and pull all configured bundles'],
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Owner',
+          items: [
+            'Pull owns materialization: remote source → local target.',
+            'Cell views reference the pull config path, not the dist URL or local directory.',
+            `Cell example: views.components.source.pull = ${config}`,
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Workflow',
+          items: [
+            `${cmd} opens the interactive config menu.`,
+            'Interactive mode can create/select a config and add an HTTP dist bundle.',
+            '--non-interactive requires --config and pulls every bundle in that config.',
+            'Non-interactive mode executes an existing config; it does not create one from flags.',
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Config YAML',
+          items: [
+            config,
+            'dir: .',
+            'bundles:',
+            '  - kind: http',
+            '    dist: https://fs.db.team/ui.components/dist.json',
+            '    local:',
+            '      dir: ./view/components',
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Examples',
+          items: [
+            `${cmd} --non-interactive --config ${config}`,
+          ],
+        },
       ],
     });
   },

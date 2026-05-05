@@ -34,13 +34,10 @@ export const InitHelp: CellHelp.Init.Lib = {
 
 export const DslHelp: CellHelp.Dsl.Lib = {
   async load() {
-    const data = readRecord(DslPath, ['intro', 'rule', 'speechActs', 'owners', 'mappings']);
+    const data = readRecord(DslPath, ['intro', 'sections']);
     return {
       intro: HelpYaml.string(data, 'intro'),
-      rule: HelpYaml.lines(data, 'rule'),
-      speechActs: HelpYaml.list(data, 'speechActs'),
-      owners: HelpYaml.list(data, 'owners'),
-      mappings: HelpYaml.list(data, 'mappings'),
+      sections: HelpYaml.sections(data, 'sections'),
     };
   },
 };

@@ -2,33 +2,44 @@ intro: |
   Cell DSL: the formal command/vocabulary surface for valid Cell edits.
   Use these acts, owner rules, and mappings when changing a Cell folder.
 
-rule: |
-  Cell owns topology; service config owns service details.
-  Pull config owns materialization. Do not turn cell.yaml
-  into a mega-config.
+sections:
+  - label: Rule
+    items: |
+      Cell owns topology; owner configs own mechanics.
+      Do not put pull, service, proxy, or mount mechanics into cell.yaml.
+      Do not turn cell.yaml into a mega-config.
 
-speechActs:
-  - initialize this folder as a Cell
-  - add a local view named <name> at <path>
-  - add a pulled view named <name> from <dist-url> into <path>
-  - add a static view service named <name>
-  - add a runtime service named <name> using <module/export>
-  - add a proxy service named <name>
-  - mount <route> to <view/service/upstream>
-  - verify/load this Cell
-  - start the Cell runtime
+  - label: Speech acts
+    items:
+      - initialize this folder as a Cell
+      - add a local view named <name> at <path>
+      - add a pulled view named <name> by pulling <dist-url> into <path>
+      - add a static view service named <name>
+      - add a runtime service named <name> using <module/export>
+      - add a proxy service named <name>
+      - mount <route> to <view/service/upstream>
+      - verify/load this Cell
+      - start the Cell runtime
 
-owners:
-  - Cell config references owned configs.
-  - Use each owning tool/API to create or validate its own config.
-  - Do not hand-write tool-owned YAML when an owner CLI/API exists.
-  - If no owner affordance exists, stop and ask before hand-authoring.
+  - label: Owners
+    items:
+      - Cell config references owned configs; it does not own their internals.
+      - Use each owning CLI/API to create, validate, or execute its own config.
+      - If no owner affordance can create the config, stop and ask before authoring it.
 
-mappings:
-  - add local view → create files under view/, then register views.<name>.source.local
-  - add pulled view → use @sys/tools/pull, then register views.<name>.source.pull
-  - add service → use service owner flow, then register runtime.services[]
-  - add proxy → use proxy owner flow, then register runtime service and mounts
-  - mount route → update proxy owner config; cell.yaml only names the proxy service
-  - verify/load → run Cell.load against the folder
-  - start runtime → load Cell, start Cell.Runtime, wait/close lifecycle
+  - label: Pull views
+    items:
+      - views.<name>.source.pull is a Cell-root-relative path to an @sys/tools/pull config YAML.
+      - It is not the dist URL and not the local materialized view directory.
+      - Pull owns the dist URL → local target materialization.
+      - After pull materialization, register only the pull config path in cell.yaml.
+
+  - label: Mappings
+    items:
+      - add local view → create files under view/, then register views.<name>.source.local
+      - add pulled view → use @sys/tools/pull owner flow, then register views.<name>.source.pull
+      - add service → use service owner flow, then register runtime.services[]
+      - add proxy → use proxy owner flow, then register runtime service and mounts
+      - mount route → update proxy owner config; cell.yaml only names the proxy service
+      - verify/load → run Cell.load against the folder
+      - start runtime → load Cell, start Cell.Runtime, wait/close lifecycle

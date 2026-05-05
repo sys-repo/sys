@@ -4,14 +4,22 @@ const T = Schema.Type;
 
 const Id = T.String({ pattern: IdPattern });
 const CellPath = T.String({ pattern: RelativePathPattern });
+const PullConfigPath = T.String({
+  pattern: RelativePathPattern,
+  description: 'Cell-root-relative path to the @sys/tools/pull owner config YAML.',
+});
+const LocalViewPath = T.String({
+  pattern: RelativePathPattern,
+  description: 'Cell-root-relative path to already materialized view files.',
+});
 
 const ViewSourcePull = T.Object(
-  { pull: CellPath },
+  { pull: PullConfigPath },
   { additionalProperties: false },
 );
 
 const ViewSourceLocal = T.Object(
-  { local: CellPath },
+  { local: LocalViewPath },
   { additionalProperties: false },
 );
 

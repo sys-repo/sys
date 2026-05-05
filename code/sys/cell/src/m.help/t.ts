@@ -12,6 +12,12 @@ export declare namespace CellHelp {
   /** Help command name/description pair. */
   export type Pair = readonly [string, string];
 
+  /** Authored help section with display label and ordered items. */
+  export type Section = {
+    readonly label: string;
+    readonly items: readonly string[];
+  };
+
   /** Root CLI help resources. */
   export namespace Root {
     /** Loader for authored root help. */
@@ -58,10 +64,7 @@ export declare namespace CellHelp {
     /** Authored DSL guidance used by CLI composition. */
     export type Guidance = {
       readonly intro: string;
-      readonly rule: readonly string[];
-      readonly speechActs: readonly string[];
-      readonly owners: readonly string[];
-      readonly mappings: readonly string[];
+      readonly sections: readonly Section[];
     };
   }
 }
