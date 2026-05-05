@@ -21,11 +21,16 @@ export namespace PullTool {
   export type MenuOption = { readonly name: string; readonly value: MenuCmd };
 
   /** Command line arguments (argv). */
+  export type CliCommand = 'add';
   export type CliArgs = t.Tools.CliArgs & {
     config?: string;
+    dist?: string;
+    local?: string;
+    'dry-run'?: boolean;
     'non-interactive'?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
+    readonly command?: CliCommand;
     readonly interactive: boolean;
   };
 

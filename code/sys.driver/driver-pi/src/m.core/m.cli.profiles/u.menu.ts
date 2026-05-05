@@ -75,13 +75,13 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   return {
     cwd,
     dir: ProfilesFs.dir,
-    label: 'pi',
+    label: 'agent',
     itemLabel: 'profile',
     addLabel: ' add: <profile>',
     defaultName: 'default',
     schema,
     actions: {
-      message: 'pi:',
+      message: 'agent:',
       label: 'profile',
       extra: [
         {

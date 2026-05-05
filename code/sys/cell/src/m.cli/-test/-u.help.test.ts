@@ -37,7 +37,7 @@ describe('FmtHelp', () => {
 
     expect(sections).to.eql([...guidance.sections]);
     expect(section(sections, 'Pull views')).to.contain(
-      'views.<name>.source.pull is a Cell-root-relative path to an @sys/tools/pull config YAML.',
+      '`views.<name>.source.pull` is a Cell-root-relative path to an `@sys/tools/pull` config YAML.',
     );
     expect(section(sections, 'Pull views')).to.contain(
       'It is not the dist URL and not the local materialized view directory.',

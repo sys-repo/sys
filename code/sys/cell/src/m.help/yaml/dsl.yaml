@@ -6,8 +6,8 @@ sections:
   - label: Rule
     items: |
       Cell owns topology; owner configs own mechanics.
-      Do not put pull, service, proxy, or mount mechanics into cell.yaml.
-      Do not turn cell.yaml into a mega-config.
+      Do not put pull, service, proxy, or mount mechanics into `cell.yaml`.
+      Do not turn `cell.yaml` into a mega-config.
 
   - label: Speech acts
     items:
@@ -29,17 +29,18 @@ sections:
 
   - label: Pull views
     items:
-      - views.<name>.source.pull is a Cell-root-relative path to an @sys/tools/pull config YAML.
+      - '`views.<name>.source.pull` is a Cell-root-relative path to an `@sys/tools/pull` config YAML.'
       - It is not the dist URL and not the local materialized view directory.
       - Pull owns the dist URL → local target materialization.
-      - After pull materialization, register only the pull config path in cell.yaml.
+      - Create or update the pull config with `@sys/tools pull add`.
+      - After pull materialization, register only the pull config path in `cell.yaml`.
 
   - label: Mappings
     items:
-      - add local view → create files under view/, then register views.<name>.source.local
-      - add pulled view → use @sys/tools/pull owner flow, then register views.<name>.source.pull
-      - add service → use service owner flow, then register runtime.services[]
+      - add local view → create files under `view/`, then register `views.<name>.source.local`
+      - add pulled view → run `@sys/tools pull add`, then register `views.<name>.source.pull`
+      - add service → use service owner flow, then register `runtime.services[]`
       - add proxy → use proxy owner flow, then register runtime service and mounts
-      - mount route → update proxy owner config; cell.yaml only names the proxy service
-      - verify/load → run Cell.load against the folder
-      - start runtime → load Cell, start Cell.Runtime, wait/close lifecycle
+      - mount route → update proxy owner config; `cell.yaml` only names the proxy service
+      - verify/load → run `Cell.load` against the folder
+      - start runtime → load Cell, start `Cell.Runtime`, wait/close lifecycle

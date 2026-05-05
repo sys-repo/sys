@@ -12,7 +12,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: { message: string }) => {
-        expect(input.message).to.eql('pi:');
+        expect(input.message).to.eql('agent:');
         return Promise.resolve('exit');
       },
     });
@@ -102,7 +102,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
-  it('menu → uses pi: for the action prompt', async () => {
+  it('menu → uses agent: for the action prompt', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;
     const original = Cli.Input.Select.prompt;
@@ -135,7 +135,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const res = await menu({ cwd });
       expect(res).to.eql({ kind: 'exit' });
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
-      expect(calls).to.eql(['pi:', 'pi:', 'pi:']);
+      expect(calls).to.eql(['agent:', 'agent:', 'agent:']);
       expect(strippedOptions).to.include('  start');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -188,7 +188,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(strippedOptions).to.include('  profile: reload');
       expect(strippedOptions).not.to.include('  config: reload');
       expect(strippedOptions).not.to.include('  reload');
-      expect(prompts).to.eql(['pi:', 'pi:', 'pi:']);
+      expect(prompts).to.eql(['agent:', 'agent:', 'agent:']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;

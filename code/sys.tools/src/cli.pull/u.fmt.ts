@@ -1,4 +1,5 @@
 import { c, Cli, Fmt as Base, Fs, Str, type t, Time } from './common.ts';
+import type { PullAddResult } from './u.add.ts';
 
 export const Fmt = {
   ...Base,
@@ -7,14 +8,22 @@ export const Fmt = {
     const cmd = Base.invoke('pull');
     const config = './-config/@sys.tools.pull/components.yaml';
     return await Base.help(cmd, {
-      note: c.gray(`working dir: ${Fs.trimCwd(cwd)}`),
+      note: c.gray(`working dir: ${formatWorkingDir(cwd)}`),
       sections: [
         {
           kind: 'lines',
           label: 'Usage',
           items: [
             `${cmd}`,
+            `${cmd} add --config ${config} --dist <dist-url> --local <path>`,
             `${cmd} --non-interactive --config ${config}`,
+          ],
+        },
+        {
+          kind: 'pairs',
+          label: 'Commands',
+          items: [
+            ['add', 'add an HTTP dist bundle to a pull config'],
           ],
         },
         {
@@ -40,9 +49,10 @@ export const Fmt = {
           label: 'Workflow',
           items: [
             `${cmd} opens the interactive config menu.`,
-            'Interactive mode can create/select a config and add an HTTP dist bundle.',
+            'Configure first, execute second.',
+            `${cmd} add mutates durable pull config state; it does not pull files.`,
             '--non-interactive requires --config and pulls every bundle in that config.',
-            'Non-interactive mode executes an existing config; it does not create one from flags.',
+            'Non-interactive pull execution runs an existing config; it does not create one from flags.',
           ],
         },
         {
@@ -53,7 +63,7 @@ export const Fmt = {
             'dir: .',
             'bundles:',
             '  - kind: http',
-            '    dist: https://fs.db.team/ui.components/dist.json',
+            '    dist: https://example.com/ui.components/dist.json',
             '    local:',
             '      dir: ./view/components',
           ],
@@ -62,11 +72,82 @@ export const Fmt = {
           kind: 'lines',
           label: 'Examples',
           items: [
+            `${cmd} add --config ${config} --dist https://example.com/ui.components/dist.json --local ./view/components`,
             `${cmd} --non-interactive --config ${config}`,
           ],
         },
       ],
     });
+  },
+
+  async addHelp(cwd: t.StringDir) {
+    const cmd = Base.invoke('pull add');
+    const config = './-config/@sys.tools.pull/components.yaml';
+    return await Base.help(cmd, {
+      note: c.gray(`working dir: ${formatWorkingDir(cwd)}`),
+      sections: [
+        {
+          kind: 'lines',
+          label: 'Usage',
+          items: [
+            `${cmd} --config ${config} --dist <dist-url> --local <path>`,
+            `${cmd} --dry-run --config ${config} --dist <dist-url> --local <path>`,
+          ],
+        },
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [
+            ['-h, --help', 'show add help'],
+            ['--config <path>', 'pull config YAML to create or mutate'],
+            ['--dist <url>', 'HTTP dist.json URL to record'],
+            ['--local <path>', 'relative local target directory under the config root'],
+            ['--dry-run', 'preview the config mutation without writing'],
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Semantics',
+          items: [
+            'Adds one HTTP dist bundle to durable pull config state; it does not pull files.',
+            'Missing config is created with the minimal pull YAML shape.',
+            'An exact existing dist/local bundle is a no-op success.',
+            'A reused local target with a different source fails.',
+            'The resulting YAML is validated before writing.',
+            `Next: ${Base.invoke('pull')} --non-interactive --config ${config}`,
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Examples',
+          items: [
+            `${cmd} --config ${config} --dist https://example.com/ui.components/dist.json --local ./view/components`,
+          ],
+        },
+      ],
+    });
+  },
+
+  addResult(result: PullAddResult) {
+    const status = result.kind === 'exists'
+      ? 'already configured'
+      : result.kind === 'dry-run'
+      ? 'would add bundle'
+      : 'added bundle';
+    const table = Cli.table();
+    table.body([
+      [c.gray(' status'), c.white(status)],
+      [c.gray(' config'), c.cyan(Fs.trimCwd(result.yamlPath))],
+      [c.gray(' source'), c.cyan(result.bundle.dist)],
+      [c.gray(' local'), c.white(result.bundle.local.dir)],
+      [c.gray(' created'), c.white(String(result.createdConfig))],
+    ]);
+    return String(Str.builder().blank().line(Str.trimEdgeNewlines(String(table))).blank())
+      .trimEnd();
+  },
+
+  addError(error: string) {
+    return c.yellow(error);
   },
 
   pullError(error: string) {
@@ -331,4 +412,8 @@ function formatSourceUrl(input: t.StringUrl): string {
   const i = url.lastIndexOf('/');
   if (i < 0) return c.cyan(url);
   return c.cyan(url.slice(0, i) + c.dim(url.slice(i)));
+}
+
+function formatWorkingDir(cwd: t.StringDir): string {
+  return Fs.trimCwd(cwd) || '.';
 }

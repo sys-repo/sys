@@ -1,6 +1,7 @@
 import { c, D, done, Fs, Is, type t } from './common.ts';
-import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
+import { runAdd } from './u.add.run.ts';
 import { parseArgs } from './u.args.ts';
+import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
 import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
@@ -13,6 +14,22 @@ export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
   const args = parseArgs(argv);
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
+
+  if (args.command === 'add') {
+    if (args.help) return void console.info(await Fmt.addHelp(cwd));
+    console.info(await Fmt.header(toolname, undefined, { exitHint: false }));
+    const res = await runAdd(cwd, args);
+    console.info(Fmt.signoff(toolname));
+    const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
+    if (exit > -1) Deno.exit(exit);
+    return;
+  }
+
+  if (args._.length > 0) {
+    console.info(await Fmt.help(cwd));
+    console.info(c.yellow(`Unknown command: ${args._[0]}`));
+    Deno.exit(1);
+  }
 
   if (args.help) return void console.info(await Fmt.help(cwd));
   await PullMigrate.run(cwd);
