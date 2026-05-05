@@ -44,49 +44,14 @@ describe('FmtHelp', () => {
     expect(guidance.chapters.map((chapter) => chapter.id)).to.eql(['pulled-view']);
   });
 
-  it('dsl pulled-view → renders the pulled-view chapter', async () => {
+  it('dsl pulled-view → faithfully renders the requested chapter', async () => {
     const text = stripAnsi(await FmtHelp.dslOutput({ path: ['pulled-view'] }));
     const guidance = await CellHelp.Dsl.load(['pulled-view']);
-    const sections = renderedSections(text, guidance.sections);
 
     expect(text).to.contain('@sys/cell dsl pulled-view');
     expect(text).to.contain(guidance.summary);
-    expect(section(sections, 'Rule')).to.contain(
-      'Configure first; materialize only when needed or approved.',
-    );
-    expect(section(sections, 'Slot policy')).to.contain('`<dist-url>` is given by the prompt.');
-    expect(section(sections, 'Slot policy')).to.contain(
-      '`<name>` must ask; view names are semantic/user-facing.',
-    );
-    expect(section(sections, 'Slot policy')).to.contain(
-      'Propose pull config: `./-config/@sys.tools.pull/view.yaml`.',
-    );
-    expect(section(sections, 'Slot policy')).to.contain(
-      'Propose local target: `./view/.pulled/<dist-name>`.',
-    );
-    expect(section(sections, 'Dialogue')).to.contain(
-      'Do not restate the DSL contract to the user.',
-    );
-    expect(section(sections, 'Dialogue')).to.contain(
-      'Example response for `https://example.com/foo/dist.json`:',
-    );
-    expect(section(sections, 'Dialogue')).to.contain('OK — I can get that pulled view ready.');
-    expect(section(sections, 'Dialogue')).to.contain(
-      'dist URL: `https://example.com/foo/dist.json`',
-    );
-    expect(section(sections, 'Dialogue')).to.contain(
-      'Please confirm those paths and tell me the view name to register.',
-    );
-    expect(section(sections, 'Owner flow')).to.contain('Use owner CLI: `@sys/tools pull add`.');
-    expect(section(sections, 'Owner flow')).to.contain('Pass `--config <pull-config-path>`.');
-    expect(section(sections, 'Owner flow')).to.contain('Pass `--dist <dist-url>`.');
-    expect(section(sections, 'Owner flow')).to.contain('Pass `--local <local-target>`.');
-    expect(section(sections, 'Materialize')).to.contain(
-      'Pull add configures only; it does not pull files.',
-    );
-    expect(section(sections, 'Materialize')).to.contain('Use owner CLI: `@sys/tools pull`.');
-    expect(section(sections, 'Materialize')).to.contain('Pass `--non-interactive`.');
-    expect(section(sections, 'Materialize')).to.contain('Pass `--config <pull-config-path>`.');
+    expectRenderedSections(text, guidance.sections);
+    expect(text).to.not.contain('deno run jsr:@sys/cell dsl pulled-view');
   });
 });
 
@@ -99,6 +64,16 @@ function renderedSections(text: string, sections: readonly { readonly label: str
       items: sectionItems(block, section.label),
     };
   });
+}
+
+function expectRenderedSections(
+  text: string,
+  expected: readonly { readonly label: string; readonly items: readonly string[] }[],
+) {
+  const sections = renderedSections(text, expected);
+
+  expect(sections.map((item) => item.label)).to.eql(expected.map((item) => item.label));
+  expected.forEach((item) => expect(section(sections, item.label)).to.eql([...item.items]));
 }
 
 function descriptorLines(text: string): readonly string[] {

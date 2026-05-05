@@ -17,7 +17,9 @@ sections:
       Do not derive `<name>` from the URL.
       Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
       Propose local target: `./view/.pulled/<dist-name>`.
+      Do not ask for a destination path when only `<dist-url>` is missing context.
       Confirm proposed paths before writing.
+      If the user confirms alternate paths, use those confirmed values.
       Derive `<dist-name>` from the URL segment before `dist.json`.
       Example URL segment: `foo`.
 
@@ -25,6 +27,7 @@ sections:
     items: |
       Do not restate the DSL contract to the user.
       Ask for the missing semantic slot and confirm proposed paths.
+      Do not present the proposed local target as a required user operand.
       Example response for `https://example.com/foo/dist.json`:
       OK — I can get that pulled view ready.
       I’ll use:
