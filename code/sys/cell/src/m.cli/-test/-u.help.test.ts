@@ -64,7 +64,19 @@ describe('FmtHelp', () => {
     expect(section(sections, 'Slot policy')).to.contain(
       'Propose local target: `./view/.pulled/<dist-name>`.',
     );
-    expect(section(sections, 'Dialogue')).to.contain('What view name should I register?');
+    expect(section(sections, 'Dialogue')).to.contain(
+      'Do not restate the DSL contract to the user.',
+    );
+    expect(section(sections, 'Dialogue')).to.contain(
+      'Example response for `https://example.com/foo/dist.json`:',
+    );
+    expect(section(sections, 'Dialogue')).to.contain('OK — I can get that pulled view ready.');
+    expect(section(sections, 'Dialogue')).to.contain(
+      'dist URL: `https://example.com/foo/dist.json`',
+    );
+    expect(section(sections, 'Dialogue')).to.contain(
+      'Please confirm those paths and tell me the view name to register.',
+    );
     expect(section(sections, 'Owner flow')).to.contain('Use owner CLI: `@sys/tools pull add`.');
     expect(section(sections, 'Owner flow')).to.contain('Pass `--config <pull-config-path>`.');
     expect(section(sections, 'Owner flow')).to.contain('Pass `--dist <dist-url>`.');

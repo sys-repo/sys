@@ -19,14 +19,19 @@ sections:
       Propose local target: `./view/.pulled/<dist-name>`.
       Confirm proposed paths before writing.
       Derive `<dist-name>` from the URL segment before `dist.json`.
-      Example URL segment: `driver.stripe`.
+      Example URL segment: `foo`.
 
   - label: 'Dialogue'
     items: |
-      I can add that pulled view. I’ll use:
+      Do not restate the DSL contract to the user.
+      Ask for the missing semantic slot and confirm proposed paths.
+      Example response for `https://example.com/foo/dist.json`:
+      OK — I can get that pulled view ready.
+      I’ll use:
+      dist URL: `https://example.com/foo/dist.json`
       pull config: `./-config/@sys.tools.pull/view.yaml`
-      local target: `./view/.pulled/driver.stripe`
-      What view name should I register?
+      local target: `./view/.pulled/foo`
+      Please confirm those paths and tell me the view name to register.
 
   - label: 'Owner flow'
     items: |
