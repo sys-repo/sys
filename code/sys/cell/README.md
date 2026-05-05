@@ -30,10 +30,15 @@ View     =  bound perception            ./view
 
 ## Prompting `--dsl`
 
-| Intent                  | [Speech act](https://en.wikipedia.org/wiki/Speech_act) |
-| ----------------------- | ------------------------------------------------------ |
-| create **Cell**         | Initialize this folder as an `@sys/cell`.              |
-| create **Cell** at path | Initialize `./foo` as an `@sys/cell`.                  |
+| Intent                          | [Speech act](https://en.wikipedia.org/wiki/Speech_act) |
+| ------------------------------- | ------------------------------------------------------ |
+| create: **Cell**                | Initialize this folder as an `@sys/cell`.              |
+| create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                  |
+| add: pulled view                | 🐷                                                      |
+| add: local view                 | 🐷                                                      |
+| add: static HTTP service (view) | 🐷                                                      |
+| add: runtime service            | 🐷                                                      |
+| add: proxy service              | 🐷                                                      |
 
 <p>&nbsp;</p>
 
