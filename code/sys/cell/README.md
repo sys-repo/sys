@@ -22,7 +22,7 @@ The DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScri
 
 ```
 DSL      =  stored meaning              ./data
-Runtime  =  ƒ(active interpretation)    deno run jsr:@sys/cell
+Runtime  =  ƒ(active interpretation)    Cell.Runtime.start(🧫)
 View     =  bound perception            ./view
 ```
 
