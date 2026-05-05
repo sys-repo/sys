@@ -14,7 +14,7 @@ export const Help: t.CliFormatLib['Help'] = {
       if (text) lines.push('', text);
     }
 
-    return `\n${Str.trimEdgeNewlines(lines.join('\n'))}`;
+    return `\n${Str.trimEdgeNewlines(lines.join('\n'))}\n`;
   },
 
   render(input: t.CliFormatHelpInput) {

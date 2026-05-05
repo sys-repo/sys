@@ -79,7 +79,6 @@ export const CellCli: t.CellCli.Lib = {
 
 function print(text: string) {
   console.info(text);
-  console.info();
 }
 
 function fail(input: t.CellCli.Input, message: string, help?: string): t.CellCli.Error {

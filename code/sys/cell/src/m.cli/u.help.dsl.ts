@@ -1,5 +1,6 @@
 import { CellHelp } from '../m.help/mod.ts';
 import { c, CliFmt, CliTable, Str, type t } from './common.ts';
+import { composeHelpBlocks } from './u.help.compose.ts';
 
 export type DslHelpInput = {
   readonly path?: readonly string[];
@@ -14,7 +15,7 @@ export const FmtDslHelp = {
     const help = CliFmt.Help.build({ tool: toolname, summary: chapter.summary });
     const table = guideTable(chapter);
 
-    return table ? `${help}\n\n${table}` : help;
+    return table ? composeHelpBlocks(help, table) : help;
   },
 } as const;
 

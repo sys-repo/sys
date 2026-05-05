@@ -1,5 +1,6 @@
 import { CellHelp } from '../m.help/mod.ts';
 import { c, CliFmt, CliTable, Str } from './common.ts';
+import { composeHelpBlocks } from './u.help.compose.ts';
 import { Tmpl } from './u.tmpl.ts';
 
 type OutputOptions = {
@@ -27,17 +28,16 @@ export const FmtInitHelp = {
 
     const guidance = await CellHelp.Init.load();
     const descriptor = await Tmpl.minimalDescriptor();
-    return `${help}\n\n${
-      agentTable([
-        { label: 'Agent', items: guidance.agent },
-        { label: 'Writes', items: Tmpl.minimalWritePaths() },
-        { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
-        {
-          label: 'Descriptor',
-          items: ['```yaml', ...block(descriptor).map((line) => line ? `  ${line}` : ''), '```'],
-        },
-      ])
-    }`;
+    const agent = agentTable([
+      { label: 'Agent', items: guidance.agent },
+      { label: 'Writes', items: Tmpl.minimalWritePaths() },
+      { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
+      {
+        label: 'Descriptor',
+        items: ['```yaml', ...block(descriptor).map((line) => line ? `  ${line}` : ''), '```'],
+      },
+    ]);
+    return composeHelpBlocks(help, agent);
   },
 } as const;
 

@@ -30,7 +30,8 @@ describe('Cli.Fmt.Help', () => {
     const help = Fmt.Help.build({
       tool: '@sys/workspace/cli',
       summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-      note: 'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
+      note:
+        'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
       usage: ['@sys/workspace/cli [options]'],
       options: [
         ['-h, --help', 'show help'],
@@ -48,9 +49,13 @@ describe('Cli.Fmt.Help', () => {
     const plain = Cli.stripAnsi(help);
     expect(help).to.include(`  ${c.bold(c.brightCyan('@sys/workspace/cli'))}`);
     expect(plain).to.match(/^\n  @sys\/workspace\/cli\n\nUpgrade workspace dependencies/m);
+    expect(plain.endsWith('\n')).to.eql(true);
+    expect(plain.endsWith('\n\n')).to.eql(false);
     expect(help).to.include(c.white('Upgrade workspace dependencies from canonical deps.yaml.'));
     expect(help).to.include(
-      c.gray('Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.'),
+      c.gray(
+        'Interactive by default; non-interactive applies deterministically, and --dry-run previews without writing.',
+      ),
     );
     expect(plain).to.include('Usage');
     expect(plain).to.include('Options');
