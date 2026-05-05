@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/**
+ * Child-process contracts for `Process`.
+ */
 export declare namespace Process {
   /**
    * Unix child process.
