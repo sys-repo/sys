@@ -7,5 +7,6 @@ describe(`yaml: cli tools`, () => {
     const m = await import('@sys/yaml/cli');
     expect(m.YamlConfig).to.equal(YamlConfig);
     expectTypeOf(YamlConfig.Edit).toMatchTypeOf<t.YamlConfigEditLib>();
+    expectTypeOf(YamlConfig.Ref).toMatchTypeOf<t.YamlConfigRefLib>();
   });
 });

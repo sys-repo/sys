@@ -4,7 +4,7 @@ import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { resolveCwd } from '../m.cli/u.resolve.cwd.ts';
 import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 
-import { Fs, Path, type t } from './common.ts';
+import { Fs, type t, YamlConfig } from './common.ts';
 import { ProfileArgs } from './u.args.ts';
 import { ProfilesFmt } from './u.fmt.help.ts';
 import { ProfilesFs } from './u.fs.ts';
@@ -93,40 +93,27 @@ function resolveTty(input: t.PiCliProfiles.Input): t.PiCliProfiles.Tty {
 }
 
 function resolveProfileSelector(root: t.StringDir, value: string) {
-  if (isExplicitProfilePath(value)) {
+  const ref = YamlConfig.Ref.resolve({
+    value,
+    dir: Fs.join(root, ProfilesFs.dir) as t.StringDir,
+    ext: ProfilesFs.ext,
+    label: '--profile',
+    errorPrefix: 'Pi profiles',
+    expandTilde: true,
+  });
+
+  if (ref.kind === 'path') {
     return {
       kind: 'path' as const,
-      config: resolveExplicitProfilePath(value),
+      config: ref.path,
     };
   }
 
   return {
     kind: 'name' as const,
-    name: value,
-    config: profileConfigPath(root, value),
+    name: ref.name,
+    config: ref.path,
   };
-}
-
-function isExplicitProfilePath(value: string) {
-  return (
-    Path.Is.absolute(value as t.StringPath) ||
-    value.startsWith('./') ||
-    value.startsWith('../') ||
-    value.startsWith('~/')
-  );
-}
-
-function resolveExplicitProfilePath(value: string) {
-  if (value.startsWith('~/')) {
-    const home = Deno.env.get('HOME');
-    if (!home) throw new Error('Cannot resolve ~/ profile path because HOME is not set.');
-    return Fs.join(home, value.slice(2)) as t.StringPath;
-  }
-  return value as t.StringPath;
-}
-
-function profileConfigPath(cwd: t.StringDir, name: string) {
-  return Fs.join(cwd, ProfilesFs.fileOf(name)) as t.StringPath;
 }
 
 async function prepareProfileConfig(path: t.StringPath, name: string) {

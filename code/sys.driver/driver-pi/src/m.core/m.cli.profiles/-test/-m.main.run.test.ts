@@ -50,6 +50,44 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
     }
   });
 
+  it('treats a YAML-looking profile selector as an explicit path', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          sandbox:
+            capability:
+              env:
+                PI_PROFILE: explicit-yaml
+          `,
+        ).trimStart(),
+      );
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+      Process.inherit = async (input) => {
+        expect(input.cwd).to.eql(cwd);
+        expect(input.env?.PI_PROFILE).to.eql('explicit-yaml');
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({ cwd, argv: ['--profile', 'profiles.yaml'] });
+      expect(res.kind).to.eql('run');
+      expect(Cli.stripAnsi(calls.join('\n'))).to.contain('pi:sandbox');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('routes explicit allow-all through Profiles into the Pi child and sandbox display', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;

@@ -16,4 +16,9 @@ export namespace YamlConfig {
   export namespace Migrate {
     export type DirResult = t.YamlConfigFileMigrateDirResult;
   }
+
+  export namespace Ref {
+    export type Resolved = t.YamlConfigRef;
+    export type Input = t.YamlConfigRefResolveInput;
+  }
 }
