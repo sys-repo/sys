@@ -1,11 +1,14 @@
-intro: |
+id: dsl
+title: Cell DSL
+summary: |
   Cell DSL: the formal command/vocabulary surface for valid Cell edits.
-  Use these acts, owner rules, and mappings when changing a Cell folder.
+  Use these acts, owner rules, mappings, and chapters when changing a Cell folder.
 
 sections:
   - label: Rule
     items: |
       Cell owns topology; owner configs own mechanics.
+      Use chapters for detailed slot policy and owner flows.
       Do not put pull/service/proxy/mount mechanics in `cell.yaml`.
       Do not turn `cell.yaml` into a mega-config.
 
@@ -27,17 +30,6 @@ sections:
       - Cell does not own their internals.
       - Use owning CLI/API to create, validate, or execute config.
       - If no owner affordance exists, stop and ask.
-
-  - label: Pull views
-    items:
-      - '`views.<name>.source.pull` points to pull config YAML.'
-      - Owner is `@sys/tools/pull`.
-      - The path is Cell-root-relative.
-      - It is not the dist URL.
-      - It is not the local materialized view directory.
-      - Pull owns the dist URL → local target materialization.
-      - Create or update the pull config with `@sys/tools pull add`.
-      - Register only the pull config path in `cell.yaml`.
 
   - label: Mappings
     items:

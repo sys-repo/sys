@@ -29,29 +29,29 @@ describe('FmtHelp', () => {
     });
   });
 
-  it('dsl → renders bundled edit language guidance', async () => {
+  it('dsl → renders the root chapter with child chapter index', async () => {
     const text = stripAnsi(await FmtHelp.dslOutput());
     const guidance = await CellHelp.Dsl.load();
-    const sections = guidance.sections.map((section, index, all) => {
-      const end = all[index + 1]?.label;
-      const block = end ? between(text, section.label, end) : after(text, section.label);
-      return {
-        label: section.label,
-        items: sectionItems(block, section.label),
-      };
-    });
 
-    expect(sections).to.eql([...guidance.sections]);
-    expect(section(sections, 'Pull views')).to.contain(
-      '`views.<name>.source.pull` points to pull config YAML.',
-    );
-    expect(section(sections, 'Pull views')).to.contain('Owner is `@sys/tools/pull`.');
-    expect(section(sections, 'Pull views')).to.contain('The path is Cell-root-relative.');
-    expect(section(sections, 'Pull views')).to.contain('It is not the dist URL.');
-    expect(section(sections, 'Pull views')).to.contain(
-      'It is not the local materialized view directory.',
-    );
-    expect(section(sections, 'Pulled view')).to.contain(
+    expect(text).to.contain(guidance.summary.split('\n')[0]);
+    expect(text).to.contain('Speech acts');
+    expect(text).to.contain('Owners');
+    expect(text).to.contain('Mappings');
+    expect(text).to.contain('Chapter');
+    expect(text).to.contain('deno run jsr:@sys/cell dsl pulled-view');
+    expect(text).to.contain('# Add a view backed by an `@sys/tools/pull` config.');
+    expect(text).to.not.contain('Slot policy');
+    expect(guidance.chapters.map((chapter) => chapter.id)).to.eql(['pulled-view']);
+  });
+
+  it('dsl pulled-view → renders the pulled-view chapter', async () => {
+    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['pulled-view'] }));
+    const guidance = await CellHelp.Dsl.load(['pulled-view']);
+    const sections = renderedSections(text, guidance.sections);
+
+    expect(text).to.contain('@sys/cell dsl pulled-view');
+    expect(text).to.contain(guidance.summary);
+    expect(section(sections, 'Rule')).to.contain(
       'Configure first; materialize only when needed or approved.',
     );
     expect(section(sections, 'Slot policy')).to.contain('`<dist-url>` is given by the prompt.');
@@ -77,6 +77,17 @@ describe('FmtHelp', () => {
     expect(section(sections, 'Materialize')).to.contain('Pass `--config <pull-config-path>`.');
   });
 });
+
+function renderedSections(text: string, sections: readonly { readonly label: string }[]) {
+  return sections.map((section, index, all) => {
+    const end = all[index + 1]?.label;
+    const block = end ? between(text, section.label, end) : after(text, section.label);
+    return {
+      label: section.label,
+      items: sectionItems(block, section.label),
+    };
+  });
+}
 
 function descriptorLines(text: string): readonly string[] {
   return Str.trimEdgeNewlines(text)

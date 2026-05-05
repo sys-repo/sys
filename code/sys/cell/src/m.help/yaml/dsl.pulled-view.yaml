@@ -1,5 +1,9 @@
+id: pulled-view
+title: Pulled view
+summary: Add a view backed by an `@sys/tools/pull` config.
+
 sections:
-  - label: 'Pulled view'
+  - label: Rule
     items: |
       Classify "add a pulled view from <dist-url>" as `add: pulled view`.
       Treat the speech act as intent plus partial slots.

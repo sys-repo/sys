@@ -53,10 +53,38 @@ describe(`@sys/cell/cli`, () => {
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell dsl');
-    expect(text).to.contain(guidance.intro.split('\n')[0]);
+    expect(text).to.contain(guidance.summary.split('\n')[0]);
     expect(text).to.contain('Speech acts');
     expect(text).to.contain('Owners');
+    expect(text).to.contain('Chapter');
+    expect(text).to.contain('deno run jsr:@sys/cell dsl pulled-view');
     expect(text).to.contain('Mappings');
+    expect(text).to.not.contain('Slot policy');
+  });
+
+  it('dsl pulled-view → shows the pulled-view chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'pulled-view'] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Dsl.load(['pulled-view']);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell dsl pulled-view');
+    expect(text).to.contain(guidance.summary);
+    expect(text).to.contain('Slot policy');
+    expect(text).to.contain('Owner flow');
+    expect(text).to.contain('Materialize');
+    expect(text).to.not.contain('Mappings');
+  });
+
+  it('dsl unknown → fails with root DSL help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'missing'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('error');
+    expect(text).to.contain('CellHelp: DSL chapter not found: missing');
+    expect(text).to.contain('@sys/cell dsl');
+    expect(text).to.contain('Chapter');
+    expect(text).to.contain('deno run jsr:@sys/cell dsl pulled-view');
   });
 
   it('help topics are not commands in the greenfield CLI grammar', async () => {

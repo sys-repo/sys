@@ -1,13 +1,20 @@
 import { CellHelp } from '../m.help/mod.ts';
-import type { CellHelp as TCellHelp } from '../m.help/t.ts';
-import { c, CliFmt, CliTable, Str } from './common.ts';
+import { c, CliFmt, CliTable, Str, type t } from './common.ts';
+
+export type DslHelpInput = {
+  readonly path?: readonly string[];
+  readonly toolname?: string;
+};
 
 export const FmtDslHelp = {
-  async output(toolname = '@sys/cell dsl'): Promise<string> {
-    const guidance = await CellHelp.Dsl.load();
-    const help = CliFmt.Help.build({ tool: toolname, summary: guidance.intro });
+  async output(input: DslHelpInput = {}): Promise<string> {
+    const path = input.path ?? [];
+    const chapter = await CellHelp.Dsl.load(path);
+    const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
+    const help = CliFmt.Help.build({ tool: toolname, summary: chapter.summary });
+    const table = guideTable(chapter);
 
-    return `${help}\n\n${guideTable(guidance.sections)}`;
+    return table ? `${help}\n\n${table}` : help;
   },
 } as const;
 
@@ -15,10 +22,17 @@ export const FmtDslHelp = {
  * Helpers:
  */
 
-function guideTable(sections: readonly TCellHelp.Section[]): string {
+function guideTable(chapter: t.CellHelp.Dsl.Chapter): string {
   const table = CliTable.create([]);
 
-  sections.forEach((section, sectionIndex) => {
+  if (chapter.chapters.length > 0) {
+    chapter.chapters.forEach((item, itemIndex) => {
+      table.push([itemIndex === 0 ? c.gray('Chapter') : '', chapterLine(item)]);
+    });
+    if (chapter.sections.length > 0) table.push(['', '']);
+  }
+
+  chapter.sections.forEach((section, sectionIndex) => {
     if (sectionIndex > 0) table.push(['', '']);
     section.items.forEach((item, itemIndex) => {
       table.push([itemIndex === 0 ? c.gray(section.label) : '', c.white(item)]);
@@ -26,4 +40,10 @@ function guideTable(sections: readonly TCellHelp.Section[]): string {
   });
 
   return Str.trimEdgeNewlines(String(table));
+}
+
+function chapterLine(chapter: t.CellHelp.Dsl.ChapterLink): string {
+  const prefix = c.dim(c.cyan('deno run jsr:@sys/cell dsl'));
+  const name = c.cyan(chapter.path.join(' '));
+  return `${prefix} ${name}   ${c.gray(`# ${chapter.summary}`)}`;
 }

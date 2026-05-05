@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /**
  * Cell help resource types.
  */
@@ -57,14 +59,33 @@ export declare namespace CellHelp {
   export namespace Dsl {
     /** Loader for authored DSL guidance. */
     export type Lib = {
-      /** Load authored DSL guidance from the embedded bundle. */
-      load(): Promise<Guidance>;
+      /** Load an authored DSL chapter from the embedded bundle. */
+      load(path?: readonly string[]): Promise<Chapter>;
     };
 
-    /** Authored DSL guidance used by CLI composition. */
-    export type Guidance = {
-      readonly intro: string;
+    /** Navigable DSL chapter used by CLI composition. */
+    export type Chapter = {
+      readonly id: string;
+      readonly path: readonly string[];
+      readonly title: string;
+      readonly summary: string;
       readonly sections: readonly Section[];
+      readonly chapters: readonly ChapterLink[];
+    };
+
+    /** Child chapter shown as a drill-down link. */
+    export type ChapterLink = {
+      readonly id: string;
+      readonly path: readonly string[];
+      readonly title: string;
+      readonly summary: string;
+    };
+
+    /** Authored DSL chapter resource registered for recursive lookup. */
+    export type ChapterResource = {
+      readonly id: string;
+      readonly file: t.StringPath;
+      readonly children: readonly ChapterResource[];
     };
   }
 }

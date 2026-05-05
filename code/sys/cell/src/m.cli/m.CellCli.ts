@@ -57,14 +57,20 @@ export const CellCli: t.CellCli.Lib = {
     }
 
     if (command === 'dsl') {
-      const text = await FmtHelp.dslOutput();
-      if (args._.length > 1) return fail({ argv }, `Unexpected argument: ${args._[1]}`, text);
+      const path = args._.slice(1).map(String);
+      const rootHelp = async () => await FmtHelp.dslOutput();
       if (args.agent || args.dryRun) {
         const flag = args.agent ? '--agent' : '--dry-run';
-        return fail({ argv }, `Unexpected option for dsl: ${flag}`, text);
+        return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
       }
-      print(text);
-      return { kind: 'help', input: { argv }, text };
+
+      try {
+        const text = await FmtHelp.dslOutput({ path });
+        print(text);
+        return { kind: 'help', input: { argv }, text };
+      } catch (error) {
+        return fail({ argv }, Err.summary(error), await rootHelp());
+      }
     }
 
     return fail({ argv }, `Unknown command: ${command}`, help);
