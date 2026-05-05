@@ -1,12 +1,8 @@
 // Bundle-only dependencies stay out of ../common.ts so runtime help readers do not load template tools.
 import { Fs, TmplEngine } from '@sys/tmpl-engine';
+import { HelpResource } from '../u/u.paths.ts';
 
-const SourceFiles = new Set([
-  'yaml/root.yaml',
-  'yaml/init.yaml',
-  'yaml/dsl.yaml',
-  'yaml/dsl.pulled-view.yaml',
-]);
+const SourceFiles = new Set<string>(HelpResource.Source.Files);
 
 export async function bundleHelp() {
   const root = Fs.resolve(import.meta.dirname ?? '.', '..');

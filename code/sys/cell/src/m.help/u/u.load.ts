@@ -1,16 +1,12 @@
 import { json } from '../-bundle/-bundle.ts';
 import { FileMap, Is, type t } from '../common.ts';
 import type { CellHelp } from '../t.ts';
+import { HelpResource } from './u.paths.ts';
 import { HelpYaml } from './u.yaml.ts';
-
-const RootPath = 'yaml/root.yaml' as t.StringPath;
-const InitPath = 'yaml/init.yaml' as t.StringPath;
-const DslPath = 'yaml/dsl.yaml' as t.StringPath;
-const DslActPaths = ['yaml/dsl.pulled-view.yaml'] as const satisfies readonly t.StringPath[];
 
 export const RootHelp: CellHelp.Root.Lib = {
   async load() {
-    const data = readRecord(RootPath, ['summary', 'usage', 'commands', 'options']);
+    const data = readRecord(HelpResource.Root, ['summary', 'usage', 'commands', 'options']);
     return {
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -22,7 +18,7 @@ export const RootHelp: CellHelp.Root.Lib = {
 
 export const InitHelp: CellHelp.Init.Lib = {
   async load() {
-    const data = readRecord(InitPath, ['summary', 'usage', 'options', 'safety', 'agent']);
+    const data = readRecord(HelpResource.Init, ['summary', 'usage', 'options', 'safety', 'agent']);
     return {
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
@@ -35,7 +31,7 @@ export const InitHelp: CellHelp.Init.Lib = {
 
 export const DslHelp: CellHelp.Dsl.Lib = {
   async load() {
-    const data = readRecord(DslPath, ['intro', 'sections']);
+    const data = readRecord(HelpResource.Dsl.Index, ['intro', 'sections']);
     const sections = HelpYaml.sections(data, 'sections');
     return {
       intro: HelpYaml.string(data, 'intro'),
@@ -49,7 +45,7 @@ export const DslHelp: CellHelp.Dsl.Lib = {
  */
 
 function readDslActSections(): readonly CellHelp.Section[] {
-  return DslActPaths.flatMap((path) => {
+  return HelpResource.Dsl.Acts.flatMap((path) => {
     const data = readRecord(path, ['sections']);
     return HelpYaml.sections(data, 'sections');
   });
