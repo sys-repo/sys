@@ -43,11 +43,22 @@ describe('FmtHelp', () => {
 
     expect(sections).to.eql([...guidance.sections]);
     expect(section(sections, 'Pull views')).to.contain(
-      '`views.<name>.source.pull` is a Cell-root-relative path to an `@sys/tools/pull` config YAML.',
+      '`views.<name>.source.pull` points to pull config YAML.',
     );
+    expect(section(sections, 'Pull views')).to.contain('Owner is `@sys/tools/pull`.');
+    expect(section(sections, 'Pull views')).to.contain('The path is Cell-root-relative.');
+    expect(section(sections, 'Pull views')).to.contain('It is not the dist URL.');
     expect(section(sections, 'Pull views')).to.contain(
-      'It is not the dist URL and not the local materialized view directory.',
+      'It is not the local materialized view directory.',
     );
+    expect(section(sections, 'Pulled view')).to.contain('Required slots:');
+    expect(section(sections, 'Pulled view')).to.contain(
+      '`<name>`, `<dist-url>`, `<pull-config-path>`, `<local-target>`.',
+    );
+    expect(section(sections, 'Owner flow')).to.contain('Use owner CLI: `@sys/tools pull add`.');
+    expect(section(sections, 'Owner flow')).to.contain('Pass `--config <pull-config-path>`.');
+    expect(section(sections, 'Owner flow')).to.contain('Pass `--dist <dist-url>`.');
+    expect(section(sections, 'Owner flow')).to.contain('Pass `--local <local-target>`.');
   });
 });
 

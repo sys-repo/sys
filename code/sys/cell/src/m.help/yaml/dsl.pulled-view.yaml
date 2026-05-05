@@ -1,0 +1,22 @@
+sections:
+  - label: 'Pulled view'
+    items: |
+      Classify "add a pulled view from <dist-url>" as `add: pulled view`.
+      Treat the speech act as intent plus partial slots.
+      Do not guess missing values.
+      Required slots:
+      `<name>`, `<dist-url>`, `<pull-config-path>`, `<local-target>`.
+      If any required slot is missing, ask before writing.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/tools pull add`.
+      Pass `--config <pull-config-path>`.
+      Pass `--dist <dist-url>`.
+      Pass `--local <local-target>`.
+      This creates or updates pull config.
+      Do not hand-author `@sys/tools/pull` YAML.
+      Use owner CLI when it can create config.
+      Register only `views.<name>.source.pull` in `cell.yaml`.
+      The value is `<pull-config-path>`.
+      Do not put `<dist-url>` or `<local-target>` in `cell.yaml`.

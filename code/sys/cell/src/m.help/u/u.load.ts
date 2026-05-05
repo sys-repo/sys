@@ -6,6 +6,7 @@ import { HelpYaml } from './u.yaml.ts';
 const RootPath = 'yaml/root.yaml' as t.StringPath;
 const InitPath = 'yaml/init.yaml' as t.StringPath;
 const DslPath = 'yaml/dsl.yaml' as t.StringPath;
+const DslActPaths = ['yaml/dsl.pulled-view.yaml'] as const satisfies readonly t.StringPath[];
 
 export const RootHelp: CellHelp.Root.Lib = {
   async load() {
@@ -35,9 +36,10 @@ export const InitHelp: CellHelp.Init.Lib = {
 export const DslHelp: CellHelp.Dsl.Lib = {
   async load() {
     const data = readRecord(DslPath, ['intro', 'sections']);
+    const sections = HelpYaml.sections(data, 'sections');
     return {
       intro: HelpYaml.string(data, 'intro'),
-      sections: HelpYaml.sections(data, 'sections'),
+      sections: [...sections, ...readDslActSections()],
     };
   },
 };
@@ -45,6 +47,13 @@ export const DslHelp: CellHelp.Dsl.Lib = {
 /**
  * Helpers:
  */
+
+function readDslActSections(): readonly CellHelp.Section[] {
+  return DslActPaths.flatMap((path) => {
+    const data = readRecord(path, ['sections']);
+    return HelpYaml.sections(data, 'sections');
+  });
+}
 
 function readRecord(path: t.StringPath, fields: readonly string[]) {
   const text = readText(path);
