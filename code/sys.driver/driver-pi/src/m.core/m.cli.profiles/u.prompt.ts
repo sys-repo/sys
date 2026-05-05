@@ -26,9 +26,12 @@ export const DEFAULT_SYSTEM_PROMPT = Str.dedent(
   - Use bash for declared tasks, tests, builds, linting, process/runtime probes,
     and path-only workspace discovery such as ls, find, and rg --files
   - File-content authority is only read/edit/write: do not use bash content commands,
-    shell redirection, pipes, cat, grep, rg content search, sed, awk, perl,
-    language runtimes, or ad hoc scripts to read, copy, patch, transform, or infer
-    file contents
+    shell redirection, pipes, cat, grep, sed, awk, perl, language runtimes,
+    or ad hoc scripts to read, copy, patch, transform, or infer file contents
+  - Plain \`rg <pattern> <path>\` content search is allowed only to locate candidate
+    files/lines. Prefer narrow paths. Do not use pipes, redirection, replacement,
+    scripting, or \`rg\` output as authoritative file content. After \`rg\` identifies
+    candidates, use read/edit/write for authoritative inspection and changes
   - If read/edit/write is denied by permissions, stop and explain the exact missing path
     or permission, why it is needed, the smallest safe config change, the risk, and
     what the user should approve or deny
