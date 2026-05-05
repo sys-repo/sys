@@ -4,6 +4,7 @@ import { start } from './u.start.ts';
 import { methodNotAllowed, path } from './u.route.ts';
 import { serve } from './u.serve.ts';
 
+/** Local runtime fixture for exercising the Stripe Payment Element integration. */
 export const StripeFixture: t.StripeFixture.Lib = {
   path,
   createSession,

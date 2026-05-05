@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Public server-side types for the local Stripe fixture runtime.
+ */
 import type * as THttp from '@sys/http/t';
 import type * as TSys from '@sys/types';
 
