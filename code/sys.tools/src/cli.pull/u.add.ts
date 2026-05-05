@@ -1,4 +1,4 @@
-import { Fs, Str, type t, Url, Yaml } from './common.ts';
+import { Fs, Str, type t, Url, Yaml, YamlConfig } from './common.ts';
 import { toDistUrl } from './u.bundle/u.ts';
 import { PullFs, PullYamlSchema, validatePullYamlText } from './u.yaml/mod.ts';
 
@@ -17,27 +17,59 @@ export type PullAddResult = {
   readonly bundle: t.PullTool.ConfigYaml.HttpBundle;
 };
 
+type PullAddChange = {
+  readonly kind: 'added' | 'exists';
+  readonly bundle: t.PullTool.ConfigYaml.HttpBundle;
+};
+
 export async function addHttpBundle(input: PullAddInput): Promise<PullAddResult> {
-  const yamlPath = resolveConfigPath(input.cwd, input.config);
   const bundle = resolveBundle(input.dist, input.local);
-  const exists = await Fs.exists(yamlPath);
+  const edit = await YamlConfig.Edit.update<t.PullTool.ConfigYaml.Doc, PullAddChange>({
+    cwd: input.cwd,
+    config: requireConfig(input.config),
+    dryRun: input.dryRun,
+    initial: () => PullYamlSchema.initial(),
+    load: loadConfig,
+    mutate: (doc) => addBundle(doc, bundle),
+    stringify: stringifyDoc,
+    validateText: validateDocText,
+  });
 
-  const loaded = exists
-    ? await PullFs.validateYaml(yamlPath)
-    : { ok: true, doc: PullYamlSchema.initial() };
-  if (!loaded.ok) throw new Error(`Pull add: invalid config: ${Fs.trimCwd(yamlPath)}`);
+  return {
+    kind: edit.kind === 'dry-run' ? 'dry-run' : edit.change.kind,
+    yamlPath: edit.path,
+    createdConfig: edit.created,
+    bundle: edit.change.bundle,
+  };
+}
 
-  const doc = cloneDoc(loaded.doc);
+/**
+ * Helpers:
+ */
+
+function requireConfig(config: string): string {
+  const text = String(config ?? '').trim();
+  if (!text) throw new Error('Pull add: missing required flag: --config');
+  return text;
+}
+
+async function loadConfig(path: t.StringPath): Promise<t.PullTool.ConfigYaml.Doc> {
+  const loaded = await PullFs.validateYaml(path);
+  if (!loaded.ok) throw new Error(`Pull add: invalid config: ${Fs.trimCwd(path)}`);
+  return loaded.doc;
+}
+
+function addBundle(
+  source: t.PullTool.ConfigYaml.Doc,
+  bundle: t.PullTool.ConfigYaml.HttpBundle,
+): t.YamlConfig.Edit.Mutation<t.PullTool.ConfigYaml.Doc, PullAddChange> {
+  const doc = cloneDoc(source);
   const bundles = doc.bundles ?? [];
   const existing = bundles.find((item) => sameLocal(item.local.dir, bundle.local.dir));
+
   if (existing) {
     if (existing.kind === 'http' && sameDist(existing.dist, bundle.dist)) {
-      return {
-        kind: 'exists',
-        yamlPath,
-        createdConfig: false,
-        bundle: existing,
-      };
+      return { doc, changed: false, change: { kind: 'exists', bundle: existing } };
     }
     throw new Error(
       `Pull add: local target already used by a different bundle: ${bundle.local.dir}`,
@@ -46,36 +78,7 @@ export async function addHttpBundle(input: PullAddInput): Promise<PullAddResult>
 
   bundles.push(bundle);
   doc.bundles = bundles;
-
-  if (input.dryRun === true) {
-    return {
-      kind: 'dry-run',
-      yamlPath,
-      createdConfig: !exists,
-      bundle,
-    };
-  }
-
-  const text = stringifyDoc(doc, yamlPath);
-  await Fs.ensureDir(Fs.dirname(yamlPath));
-  await Fs.write(yamlPath, text, { force: true });
-
-  return {
-    kind: 'added',
-    yamlPath,
-    createdConfig: !exists,
-    bundle,
-  };
-}
-
-/**
- * Helpers:
- */
-
-function resolveConfigPath(cwd: t.StringDir, config: string): t.StringPath {
-  const text = String(config ?? '').trim();
-  if (!text) throw new Error('Pull add: missing required flag: --config');
-  return Fs.resolve(cwd, text) as t.StringPath;
+  return { doc, changed: true, change: { kind: 'added', bundle } };
 }
 
 function resolveBundle(dist: string, local: string): t.PullTool.ConfigYaml.HttpBundle {
@@ -126,15 +129,15 @@ function cloneDoc(doc: t.PullTool.ConfigYaml.Doc): t.PullTool.ConfigYaml.Doc {
   };
 }
 
-function stringifyDoc(doc: t.PullTool.ConfigYaml.Doc, yamlPath: t.StringPath): string {
+function stringifyDoc(doc: t.PullTool.ConfigYaml.Doc): string {
   const yaml = Yaml.stringify(doc);
-  if (yaml.error || !yaml.data) {
-    throw new Error(`Pull add: failed to stringify config: ${Fs.trimCwd(yamlPath)}`);
-  }
-
-  const checked = validatePullYamlText(yaml.data);
-  if (!checked.ok) throw new Error(`Pull add: generated invalid config: ${Fs.trimCwd(yamlPath)}`);
+  if (yaml.error || !yaml.data) throw new Error('Pull add: failed to stringify config.');
   return yaml.data;
+}
+
+function validateDocText(text: string, path: t.StringPath): void {
+  const checked = validatePullYamlText(text);
+  if (!checked.ok) throw new Error(`Pull add: generated invalid config: ${Fs.trimCwd(path)}`);
 }
 
 function sameLocal(a: string, b: string): boolean {
