@@ -81,7 +81,10 @@ describe(`Pi: sandbox filesystem extension`, () => {
     expect(enabled[0]).to.eql('--append-system-prompt');
     expect(enabled[1]).to.contain('Runtime Tool Contract: remove');
     expect(enabled[1]).to.contain('- remove: Remove a file or directory path');
-    expect(enabled[1]).to.contain('Do not use `bash` for file deletion or cleanup.');
+    expect(enabled[1]).to.contain('Bash is not a file deletion or cleanup fallback.');
+    expect(enabled[1]).to.contain('Do not use `bash`, `rm`, `rmdir`, `unlink`');
+    expect(enabled[1]).to.contain('If asked to delete and the callable `remove` tool is unavailable');
+    expect(enabled[1]).to.contain('Do not fall back to `bash`.');
     expect(enabled[1]).to.contain('Recursive removal is disabled');
   });
 

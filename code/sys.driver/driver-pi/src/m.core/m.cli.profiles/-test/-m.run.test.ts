@@ -104,7 +104,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
         const prompt = appendSystemPrompts(input.args).join('\n');
         expect(prompt).to.contain('Runtime Tool Contract: remove');
-        expect(prompt).to.contain('Do not use `bash` for file deletion or cleanup.');
+        expect(prompt).to.contain('Bash is not a file deletion or cleanup fallback.');
+        expect(prompt).to.contain('Do not use `bash`, `rm`, `rmdir`, `unlink`');
+        expect(prompt).to.contain('If asked to delete and the callable `remove` tool is unavailable');
+        expect(prompt).to.contain('Do not fall back to `bash`.');
         expect(prompt).to.contain('Recursive removal is disabled');
 
         const read = await Fs.readText(extensionPath);
