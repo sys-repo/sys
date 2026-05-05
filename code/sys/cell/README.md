@@ -36,7 +36,7 @@ View     =  bound perception            ./view
 | create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                                |
 | add: pulled view                | Add a pulled view from `https://fs.db.team/driver.stripe/dist.json`. |
 | add: local view                 | 🐷                                                                   |
-| add: static HTTP service (view) | 🐷                                                                   |
+| add: static HTTP service (view) | Add a static HTTP service for the `stripe` view.                     |
 | add: runtime service            | 🐷                                                                   |
 | add: proxy service              | 🐷                                                                   |
 

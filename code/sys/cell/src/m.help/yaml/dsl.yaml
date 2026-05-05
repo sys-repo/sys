@@ -17,7 +17,7 @@ sections:
       - initialize this folder as a Cell
       - add a local view named <name> at <path>
       - add a pulled view from <dist-url>
-      - add a static view service named <name>
+      - add a static HTTP service for <view>
       - add a runtime service named <name> using <module/export>
       - add a proxy service named <name>
       - mount <route> to <view/service/upstream>
