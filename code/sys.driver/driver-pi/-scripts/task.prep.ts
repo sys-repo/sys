@@ -1,6 +1,7 @@
 import { c } from '@sys/cli';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import { Fs } from '@sys/fs';
+import { bundleSandboxFs } from '../src/m.core/m.extension/m.sandbox.fs/-bundle/mod.ts';
 import { PATH, pinPiCodingAgentImport, resolvePiCodingAgentImport } from './-prep.u.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../../..');
@@ -9,6 +10,8 @@ const path = PATH.fromRoot(root);
 await main();
 
 async function main() {
+  await bundleSandboxFs();
+
   const source = await readText(path.resolvePkgFile);
   const specifier = await resolvePiCodingAgentImport(path.rootDepsYaml, DenoDeps);
   const next = pinPiCodingAgentImport(source, specifier);
