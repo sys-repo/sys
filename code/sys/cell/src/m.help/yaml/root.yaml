@@ -4,9 +4,9 @@ summary: |
   validly rewritten within the folder that bounds it.
 
 usage:
-  - deno run jsr:@sys/cell/cli --help
-  - deno run -RW jsr:@sys/cell/cli init [dir]
-  - deno run jsr:@sys/cell/cli dsl
+  - deno run jsr:@sys/cell --help
+  - deno run -RW jsr:@sys/cell init [dir]
+  - deno run jsr:@sys/cell dsl
 
 commands:
   - name: init

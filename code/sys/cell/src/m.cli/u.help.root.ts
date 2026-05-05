@@ -2,7 +2,7 @@ import { CellHelp } from '../m.help/mod.ts';
 import { CliFmt } from './common.ts';
 
 export const FmtRootHelp = {
-  async input(toolname = '@sys/cell/cli') {
+  async input(toolname = '@sys/cell') {
     const guidance = await CellHelp.Root.load();
     return {
       tool: toolname,

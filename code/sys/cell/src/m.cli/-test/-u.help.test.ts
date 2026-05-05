@@ -5,6 +5,12 @@ import { FmtHelp } from '../u.help.ts';
 import { Tmpl } from '../u.tmpl.ts';
 
 describe('FmtHelp', () => {
+  it('uses conceptual @sys/cell command titles', async () => {
+    expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
+    expect(stripAnsi(await FmtHelp.initOutput())).to.contain('@sys/cell init');
+    expect(stripAnsi(await FmtHelp.dslOutput())).to.contain('@sys/cell dsl');
+  });
+
   it('init --help --agent → renders command-specific agent facts', async () => {
     const text = stripAnsi(await FmtHelp.initOutput({ agent: true }));
     const guidance = await CellHelp.Init.load();

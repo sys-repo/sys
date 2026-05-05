@@ -1,5 +1,5 @@
 import { CellHelp } from '../m.help/mod.ts';
-import { CliFmt, c, CliTable, Str } from './common.ts';
+import { c, CliFmt, CliTable, Str } from './common.ts';
 import { Tmpl } from './u.tmpl.ts';
 
 type OutputOptions = {
@@ -8,7 +8,7 @@ type OutputOptions = {
 };
 
 export const FmtInitHelp = {
-  async input(toolname = '@sys/cell/cli init') {
+  async input(toolname = '@sys/cell init') {
     const guidance = await CellHelp.Init.load();
     return {
       tool: toolname,
@@ -27,15 +27,17 @@ export const FmtInitHelp = {
 
     const guidance = await CellHelp.Init.load();
     const descriptor = await Tmpl.minimalDescriptor();
-    return `${help}\n\n${agentTable([
-      { label: 'Agent', items: guidance.agent },
-      { label: 'Writes', items: Tmpl.minimalWritePaths() },
-      { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
-      {
-        label: 'Descriptor',
-        items: ['```yaml', ...block(descriptor).map((line) => line ? `  ${line}` : ''), '```'],
-      },
-    ])}`;
+    return `${help}\n\n${
+      agentTable([
+        { label: 'Agent', items: guidance.agent },
+        { label: 'Writes', items: Tmpl.minimalWritePaths() },
+        { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
+        {
+          label: 'Descriptor',
+          items: ['```yaml', ...block(descriptor).map((line) => line ? `  ${line}` : ''), '```'],
+        },
+      ])
+    }`;
   },
 } as const;
 

@@ -3,7 +3,7 @@ import type { CellHelp as TCellHelp } from '../m.help/t.ts';
 import { c, CliFmt, CliTable, Str } from './common.ts';
 
 export const FmtDslHelp = {
-  async output(toolname = '@sys/cell/cli dsl'): Promise<string> {
+  async output(toolname = '@sys/cell dsl'): Promise<string> {
     const guidance = await CellHelp.Dsl.load();
     const help = CliFmt.Help.build({ tool: toolname, summary: guidance.intro });
 

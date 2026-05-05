@@ -4,9 +4,9 @@ summary: |
   local ignore for .env.
 
 usage:
-  - deno run -RW jsr:@sys/cell/cli init [dir]
-  - deno run -RW jsr:@sys/cell/cli init [dir] --dry-run
-  - deno run -RW jsr:@sys/cell/cli init [dir] --help --agent
+  - deno run -RW jsr:@sys/cell init [dir]
+  - deno run -RW jsr:@sys/cell init [dir] --dry-run
+  - deno run -RW jsr:@sys/cell init [dir] --help --agent
 
 options:
   - name: -h, --help
