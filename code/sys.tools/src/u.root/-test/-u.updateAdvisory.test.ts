@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { Cli, describe, expect, it, type t } from '../../-test.ts';
 import { prepareRootUpdateAdvisory, runWithRootUpdateAdvisory } from '../u.updateAdvisory.ts';
 
 describe('Root update advisory', () => {
@@ -26,7 +26,7 @@ describe('Root update advisory', () => {
     expect(res.record?.ok).to.eql(true);
     if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
     expect(res.hasUpdate).to.eql(true);
-    expect(res.prelude ?? '').to.contain('sys update --latest');
+    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
   });
 
   it('does not read or probe when the root flag disables update checks', async () => {
@@ -112,7 +112,7 @@ describe('Root update advisory', () => {
 
     expect(events).to.eql(['read', 'probe']);
     expect(res.hasUpdate).to.eql(true);
-    expect(res.prelude ?? '').to.contain('sys update --latest');
+    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
   });
 
   it('probes even when cached advisory state has no update', async () => {
@@ -136,7 +136,7 @@ describe('Root update advisory', () => {
 
     expect(events).to.eql(['read', 'probe']);
     expect(res.hasUpdate).to.eql(true);
-    expect(res.prelude ?? '').to.contain('sys update --latest');
+    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
   });
 
   it('uses the live probe result even when advisory persistence is unavailable', async () => {
@@ -161,7 +161,7 @@ describe('Root update advisory', () => {
     expect(events).to.eql(['read', 'probe']);
     expect(res.path).to.eql(undefined);
     expect(res.hasUpdate).to.eql(true);
-    expect(res.prelude ?? '').to.contain('sys update --latest');
+    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
   });
 
   it('keeps non-persistent forced advisory state without probing', async () => {
@@ -242,7 +242,7 @@ describe('Root update advisory', () => {
           return { ok: true, remote: '9.9.9' as t.StringSemver };
         },
         info(...data) {
-          events.push(`info:${String(data[0]).includes('sys update --latest')}`);
+          events.push(`info:${Cli.stripAnsi(String(data[0])).includes('sys update --latest')}`);
         },
       },
     );

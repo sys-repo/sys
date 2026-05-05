@@ -59,9 +59,10 @@ export const Fmt = {
   },
 
   rootAdvisoryPrelude(remote?: t.StringSemver) {
+    const { gray: g, white: w, magenta: m } = c;
     const hr = c.green(Cli.Fmt.hr());
     const width = Cli.stripAnsi(hr).length;
-    const message = `${c.gray('Run ')}${c.white('sys update --latest')}`;
+    const message = `${g('Run ')}${w('sys ')}${m('update')}${w(' --latest')}`;
     const latest = remote ? c.gray(`next ${remote}`) : undefined;
 
     return Str.builder()

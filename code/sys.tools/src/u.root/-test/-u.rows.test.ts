@@ -1,4 +1,4 @@
-import { Cli, describe, expect, it } from '../../-test.ts';
+import { c, Cli, describe, expect, it } from '../../-test.ts';
 import { rootRows } from '../u.rows.ts';
 
 describe('Root Rows', () => {
@@ -30,7 +30,7 @@ describe('Root Rows', () => {
     expect(rootRows('utility').map((item) => item.command)).to.eql(['update']);
   });
 
-  it('preserves visible command text when update attention is present', () => {
+  it('renders update attention with a magenta command label while preserving visible text', () => {
     const normal = rootRows('utility').find((item) => item.command === 'update');
     const highlighted = rootRows('utility', { highlightCommand: 'update' }).find((item) =>
       item.command === 'update'
@@ -39,5 +39,6 @@ describe('Root Rows', () => {
     expect(Cli.stripAnsi(highlighted?.columns[0] ?? '')).to.eql(
       Cli.stripAnsi(normal?.columns[0] ?? ''),
     );
+    expect(highlighted?.columns[0]).to.eql(`${c.gray(c.dim('@sys/tools '))}${c.magenta('update')}`);
   });
 });

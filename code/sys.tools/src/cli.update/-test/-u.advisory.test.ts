@@ -98,7 +98,11 @@ describe('cli.update advisory', () => {
     const lines = text.split('\n').filter(Boolean);
     const message = lines[1] ?? '';
 
-    expect(message.startsWith(`${c.gray('Run ')}${c.white('sys update --latest')}`)).to.eql(true);
+    expect(
+      message.startsWith(
+        `${c.gray('Run ')}${c.white('sys ')}${c.magenta('update')}${c.white(' --latest')}`,
+      ),
+    ).to.eql(true);
     expect(message.endsWith(c.gray('next 9.9.9'))).to.eql(true);
   });
 
