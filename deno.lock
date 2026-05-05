@@ -219,6 +219,7 @@
     "npm:ws@8.19.0": "8.19.0",
     "npm:ws@8.20.0": "8.20.0",
     "npm:yaml@2.8.2": "2.8.2",
+    "npm:yaml@2.8.3": "2.8.3",
     "npm:yaml@2.8.4": "2.8.4"
   },
   "jsr": {
@@ -727,7 +728,8 @@
         "jsr:@sys/fs@^0.0.287",
         "jsr:@sys/immutable@^0.0.125",
         "jsr:@sys/std@^0.0.339",
-        "jsr:@sys/types@^0.0.277"
+        "jsr:@sys/types@^0.0.277",
+        "npm:yaml@2.8.3"
       ]
     },
     "@sys/http@0.0.237": {
@@ -1129,7 +1131,8 @@
         "jsr:@sys/immutable@^0.0.125",
         "jsr:@sys/process@^0.0.266",
         "jsr:@sys/std@^0.0.339",
-        "jsr:@sys/types@^0.0.277"
+        "jsr:@sys/types@^0.0.277",
+        "npm:yaml@2.8.3"
       ]
     },
     "@zip-js/zip-js@2.8.26": {
@@ -5352,6 +5355,10 @@
     },
     "yaml@2.8.2": {
       "integrity": "sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==",
+      "bin": true
+    },
+    "yaml@2.8.3": {
+      "integrity": "sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==",
       "bin": true
     },
     "yaml@2.8.4": {
