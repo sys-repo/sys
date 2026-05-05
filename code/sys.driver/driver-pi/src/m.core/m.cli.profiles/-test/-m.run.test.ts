@@ -71,6 +71,88 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
+  it('run → materializes enabled remove extension with truthful prompt contract', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          sandbox:
+            capability:
+              write: [./allowed]
+          tools:
+            remove:
+              enabled: true
+              recursive: false
+          `,
+        ).trimStart(),
+      );
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        const extensionIndex = input.args.indexOf('--extension');
+        expect(extensionIndex).to.be.greaterThan(-1);
+        const extensionPath = input.args[extensionIndex + 1] as t.StringPath;
+        expect(extensionPath).to.eql(
+          Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs.ts'),
+        );
+        expect(input.args).to.include('--no-extensions');
+
+        const prompt = appendSystemPrompts(input.args).join('\n');
+        expect(prompt).to.contain('Runtime Tool Contract: remove');
+        expect(prompt).to.contain('Do not use `bash` for file deletion or cleanup.');
+        expect(prompt).to.contain('Recursive removal is disabled');
+
+        const read = await Fs.readText(extensionPath);
+        if (!read.ok) throw read.error;
+        const text = read.data ?? '';
+        expect(text).to.contain("name: 'remove'");
+        expect(text).to.contain(`${cwd}/allowed`);
+        expect(text).to.contain(`${cwd}/.git`);
+        expect(text).to.contain(`${cwd}/.pi`);
+        expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
+        expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('run → leaves remove extension disabled unless profile opts in', async () => {
+    const prev = Process.inherit;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    try {
+      await Fs.write(config, 'tools:\n  remove:\n    recursive: true\n');
+      await Fs.ensureDir(`${cwd}/.git`);
+
+      Process.inherit = async (input) => {
+        expect(input.args).not.to.include('--extension');
+        const prompt = appendSystemPrompts(input.args).join('\n');
+        expect(prompt).not.to.contain('Runtime Tool Contract: remove');
+        const exists = await Fs.exists(Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs.ts'));
+        expect(exists).to.eql(false);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.run({ cwd: { invoked: cwd, git: cwd }, config });
+      expect(res.success).to.eql(true);
+    } finally {
+      Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('run → migrates generated legacy context.include before validation', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))

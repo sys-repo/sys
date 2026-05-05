@@ -6,6 +6,7 @@ import { ProfilePath } from './u.path.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { toPromptArgs } from './u.prompt.ts';
 import { RuntimeMetadata } from './u.runtime.metadata.ts';
+import { SandboxFs } from '../m.extension/m.sandbox.fs/mod.ts';
 
 export type ResolvedProfileRun = {
   readonly cwd: t.PiCli.Cwd;
@@ -41,10 +42,20 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     ...ProfilePath.resolveAll(root, capability?.read),
     ...(input.read ?? []),
   ] as readonly t.StringPath[];
+  const profileWrite = ProfilePath.resolveAll(root, capability?.write);
+  const callerWrite = input.write ?? [];
   const write = [
-    ...ProfilePath.resolveAll(root, capability?.write),
-    ...(input.write ?? []),
+    ...profileWrite,
+    ...callerWrite,
   ] as readonly t.StringPath[];
+  const removePolicy = SandboxFs.resolvePolicy({
+    cwd,
+    write: [...profileWrite, ...ProfilePath.resolveAll(root, callerWrite)],
+    remove: profile.tools?.remove,
+  });
+  const extension = removePolicy.enabled
+    ? await SandboxFs.write({ cwd: root, policy: removePolicy })
+    : undefined;
   const sandbox = await resolveSandboxSummary({
     cwd,
     read,
@@ -60,7 +71,9 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     args: [
       ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
       ...contextResolution.args,
+      ...SandboxFs.toPromptArgs(removePolicy),
       ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
+      ...(extension?.args ?? []),
       ...(input.args ?? []),
     ],
     read,
