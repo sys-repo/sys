@@ -1,0 +1,39 @@
+# Cell descriptor.
+
+kind: cell
+version: 1
+
+dsl:
+  root: ./data
+
+views:
+  stripe.dev:
+    source:
+      pull: ./-config/@sys.tools.pull/view.yaml
+  hello:
+    source:
+      local: ./view/hello-world
+
+runtime:
+  services:
+    - name: view
+      kind: http-static
+      for:
+        views: [stripe.dev, hello]
+      from: '@sys/http/server/static'
+      export: HttpStatic
+      config: ./-config/@sys.http/static.view.yaml
+
+    - name: stripe
+      kind: http-server
+      from: '@sys/driver-stripe/server/fixture'
+      export: StripeFixture
+      config: ./-config/@sys.driver-stripe/fixture.yaml
+
+    - name: app
+      kind: http-proxy
+      for:
+        views: [stripe.dev, hello]
+      from: '@sys/http/server/proxy'
+      export: HttpProxy
+      config: ./-config/@sys.http/proxy.yaml

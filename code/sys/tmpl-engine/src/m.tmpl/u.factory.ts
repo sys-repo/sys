@@ -59,6 +59,7 @@ function factory(args: {
         ctx,
         get dir() { return { source: source.dir, target }; },
         get ops() { return res.ops; },
+        get total() { return res.total; },
       };
     },
 

@@ -14,6 +14,7 @@ describe('WorkspaceCi.Test', () => {
     await Fs.writeJson(Fs.join(b, 'deno.json'), {
       name: '@scope/beta',
       tasks: { test: 'deno task info' },
+      'x-sys': { ci: { test: { browser: true } } },
     });
 
     const yaml = await WorkspaceCi.Test.text({ paths: [a, b] });
@@ -25,6 +26,13 @@ describe('WorkspaceCi.Test', () => {
     expect(yaml.includes(`path: ${b}`)).to.eql(true);
     expect(yaml.includes('name: "@scope/beta"')).to.eql(true);
     expect(yaml.indexOf('@scope/alpha') < yaml.indexOf('@scope/beta')).to.eql(true);
+    expect(yaml.includes('Configure Browser Runtime: Chrome')).to.eql(true);
+    expect(yaml.includes('if: ${{ matrix.browser == true }}')).to.eql(true);
+    expect(yaml.includes('browser-actions/setup-chrome@v1')).to.eql(false);
+    expect(yaml.includes('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24')).to.eql(false);
+    expect(yaml.includes('for bin in google-chrome google-chrome-stable chromium chromium-browser')).to.eql(true);
+    expect(yaml.includes('echo "CHROME_BIN=$path" >> "$GITHUB_ENV"')).to.eql(true);
+    expect(yaml.includes('browser: true')).to.eql(true);
     expect(yaml.includes('Verify workspace graph')).to.eql(true);
     expect(yaml.includes('run: deno task check:graph')).to.eql(true);
     expect(yaml.includes('deno task test')).to.eql(true);

@@ -1,7 +1,12 @@
-import { describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
 import { run } from '../u.run.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
+const fsWriteEval = (path: string, value: string) => {
+  const mod = Json.stringify(FS_MOD);
+  const args = [path, value].map((item) => Json.stringify(item)).join(', ');
+  return `import { Fs } from ${mod}; await Fs.write(${args})`;
+};
 
 describe('@sys/workspace/bump run', () => {
   it('returns a dry-run plan without writing files', async () => {
@@ -37,12 +42,7 @@ describe('@sys/workspace/bump run', () => {
         followups: ({ cwd }) => [{
           label: 'write marker',
           cmd: 'deno',
-          args: [
-            'eval',
-            `import { Fs } from ${Json.stringify(FS_MOD)}; await Fs.write(${
-              Json.stringify(marker)
-            }, ${Json.stringify(cwd)})`,
-          ],
+          args: ['eval', fsWriteEval(marker, cwd)],
         }],
       },
     });
@@ -76,6 +76,87 @@ describe('@sys/workspace/bump run', () => {
     expect(b.data?.version).to.eql('1.0.1');
   });
 
+  it('lets interactive confirmation go back to root selection before saving', async () => {
+    const fs = await Testing.dir('WorkspaceBump.run.back');
+    const [aPath, bPath] = await writeWorkspace(fs.dir, true);
+    const prevCheckbox = Cli.Input.Checkbox.prompt;
+    const prevSelect = Cli.Input.Select.prompt;
+    const confirmMessages: string[] = [];
+    const confirmOptions: string[][] = [];
+    const confirmNames: string[][] = [];
+
+    try {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: async <TValue>() => {
+          return (confirmOptions.length === 0 ? ['code/pkg-a'] : ['code/pkg-b']) as TValue[];
+        },
+      });
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        configurable: true,
+        value: async <TValue>(
+          input: { message?: string; options: readonly { name: string; value: string }[] },
+        ) => {
+          confirmMessages.push(input.message ?? '');
+          confirmOptions.push(input.options.map((option) => option.value));
+          confirmNames.push(input.options.map((option) => Cli.stripAnsi(option.name)));
+          return (confirmOptions.length === 1 ? 'back' : 'save') as TValue;
+        },
+      });
+
+      const res = await run({ cwd: fs.dir, log: false });
+
+      if (!bPath) throw new Error('Expected second package path');
+      const a = await Fs.readJson<{ version?: string }>(aPath);
+      const b = await Fs.readJson<{ version?: string }>(bPath);
+      expect(confirmMessages).to.eql(['', '']);
+      expect(confirmOptions).to.eql([
+        ['save', 'back', 'cancel'],
+        ['save', 'back', 'cancel'],
+      ]);
+      expect(confirmNames).to.eql([
+        ['  save', '← reselect', '  cancel'],
+        ['  save', '← reselect', '  cancel'],
+      ]);
+      expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
+      expect(a.data?.version).to.eql('1.0.0');
+      expect(b.data?.version).to.eql('1.0.1');
+    } finally {
+      Object.defineProperty(Cli.Input.Checkbox, 'prompt', {
+        configurable: true,
+        value: prevCheckbox,
+      });
+      Object.defineProperty(Cli.Input.Select, 'prompt', {
+        configurable: true,
+        value: prevSelect,
+      });
+    }
+  });
+
+  it('ignores ambient local files when checking unbumped packages', async () => {
+    const fs = await Testing.dir('WorkspaceBump.run.unbumpedAmbientMutation');
+    await writeWorkspace(fs.dir, true);
+    const ambient = Fs.join(fs.dir, 'code/pkg-b/.DS_Store');
+
+    const res = await run({
+      cwd: fs.dir,
+      from: ['@scope/a'],
+      nonInteractive: true,
+      log: false,
+      policy: {
+        followups() {
+          return [{
+            label: 'mutate ambient package file',
+            cmd: 'deno',
+            args: ['eval', fsWriteEval(ambient, 'ambient')],
+          }];
+        },
+      },
+    });
+
+    expect(res.dryRun).to.eql(false);
+  });
+
   it('fails when followups mutate an unbumped package', async () => {
     const fs = await Testing.dir('WorkspaceBump.run.unbumpedMutation');
     await writeWorkspace(fs.dir, true);
@@ -92,12 +173,7 @@ describe('@sys/workspace/bump run', () => {
           followups: ({ cwd }) => [{
             label: 'mutate other package',
             cmd: 'deno',
-            args: [
-              'eval',
-              `import { Fs } from ${Json.stringify(FS_MOD)}; await Fs.write(${
-                Json.stringify(other)
-              }, ${Json.stringify('export const b = "b2";\\n')})`,
-            ],
+            args: ['eval', fsWriteEval(other, 'export const b = "b2";\n')],
           }],
         },
       });

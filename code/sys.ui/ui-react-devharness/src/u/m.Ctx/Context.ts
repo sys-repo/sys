@@ -13,9 +13,9 @@ export const Context: ContextLib = {
    */
   async init(
     instance: t.DevInstance,
-    options?: { env?: t.DevEnvVars; dispose$?: t.UntilObservable },
+    options?: { env?: t.DevEnvVars; until?: t.UntilInput },
   ) {
-    const events = BusEvents({ instance, dispose$: options?.dispose$ });
+    const events = BusEvents({ instance, until: options?.until });
     const props = await CtxProps(events);
     const { dispose, dispose$ } = events;
 

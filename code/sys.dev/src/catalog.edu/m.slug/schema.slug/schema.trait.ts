@@ -26,7 +26,7 @@ export const TraitBindingSchemaInternal = T.Object(
 
 /**
  * Trait definition descriptor (root catalog-level).
- * Concrete prop schemas live in a runtime registry (eg. `regs.ts`).
+ * Concrete prop schemas live in the trait registry.
  */
 export const TraitDefSchemaInternal = T.Object(
   {

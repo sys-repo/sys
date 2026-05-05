@@ -1,0 +1,5 @@
+# Stripe fixture runtime.
+
+name: stripe:dev:fixture
+hostname: 127.0.0.1
+port: 9090

@@ -18,5 +18,4 @@ export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, Hash } from '@sys/crypto/hash';
 
 export { ensureDir, ensureSymlink, exists, move } from '@std/fs';
-export { Cli } from '@sys/cli';
-export { c, stripAnsi } from '@sys/cli/fmt';
+export { c, Fmt as CliFmt, stripAnsi, Table as CliTable } from '@sys/cli/fmt';

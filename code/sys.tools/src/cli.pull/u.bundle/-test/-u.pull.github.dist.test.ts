@@ -1,8 +1,8 @@
-import { describe, expect, it, Fs } from '../../../-test.ts';
+import { describe, expect, Fs, it } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import { computeReleaseDist } from '../u.pull/u.pull.github.ts';
+import { computeReleaseDist } from '../u.pull.github/u.release.ts';
 
-describe('cli.pull/u.bundle/u.pull.github', () => {
+describe('cli.pull/u.bundle/u.pull.github/u.release', () => {
   it('computes and saves dist.json for release output directory', async () => {
     const root = await Fs.makeTempDir({ prefix: 'sys.tools.pull.u.bundle.release.' });
     const dir = Fs.join(root.absolute, 'release') as t.StringDir;

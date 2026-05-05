@@ -45,7 +45,6 @@ export type {
 /** Type Schema: */
 export type { Schema, SpecWith } from '@sys/schema/t';
 export type * from '@sys/schema/primitives/t';
-export type * from '@sys/ui-factory/t';
 
 /**
  * @local

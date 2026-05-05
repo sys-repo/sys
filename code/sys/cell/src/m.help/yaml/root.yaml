@@ -1,0 +1,19 @@
+summary: |
+  A Cell is a folder-shaped metamedium whose DSL stores
+  meaning and whose meaning can be interpreted, viewed, and
+  validly rewritten within the folder that bounds it.
+
+usage:
+  - deno run jsr:@sys/cell --help
+  - deno run -RW jsr:@sys/cell init [dir]
+  - deno run jsr:@sys/cell dsl [chapter...]
+
+commands:
+  - name: init
+    text: create the minimal Cell folder contract
+  - name: dsl
+    text: show the Cell edit language and navigable DSL chapters
+
+options:
+  - name: -h, --help
+    text: show help

@@ -12,20 +12,19 @@ export async function serve(args: t.ViteEntryArgsServe) {
   const hash = dist?.hash.digest ?? '';
   const pkg = wrangle.pkg(dist);
 
+  const staticDir = `${dir.replace(/^\.\//, '').replace(/\/$/, '')}/`;
+  const staticInfo = dirExists ? staticDir : `${staticDir} ${c.yellow(c.bold('(does not exist)'))}`;
+
   const app = Http.Server.create({ pkg, hash, static: ['/*', dir] });
-  const options = Http.Server.options({ port, pkg, hash, silent });
-
-  const fmtDir = c.gray(dir.replace(/^\.\//, '').replace(/\/$/, ''));
-  const fmtDirExists = c.yellow(!dirExists ? c.bold('(does not exist)') : '');
-  console.info(c.gray(`Static:   ${fmtDir}/ ${fmtDirExists}`));
-
-  const listener = Deno.serve(options, app.fetch);
-  const addr = listener.addr as Deno.NetAddr;
-  await Http.Server.keyboard({
-    port: addr.port,
-    url: `http://localhost:${addr.port}`,
-    print: !silent,
+  const server = Http.Server.start(app, {
+    port,
+    pkg,
+    hash,
+    silent,
+    info: { static: staticInfo },
+    keyboard: { print: !silent },
   });
+  await server.finished;
 }
 
 /**

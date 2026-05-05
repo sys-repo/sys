@@ -3,6 +3,16 @@ Tools for testing.
 Standard testing helpers (surfaced from [@sys/std](https://jsr.io/@sys/std/testing)).
 
 
+### Local verification
+
+```sh
+deno task test
+```
+
+The normal test suite includes a `Browser.load(...)` proof that opens a local page in an installed
+Chrome/Chromium browser. Set `CHROME_BIN` if Chrome is not in a common platform location.
+
+
 ### Examples
 Import test helpers (all environments, browser AND server):
 

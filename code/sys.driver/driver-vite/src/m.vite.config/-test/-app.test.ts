@@ -55,17 +55,19 @@ describe('Config.Build', () => {
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
+      expect(config.oxc).to.eql(undefined);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
+      expect(includesPlugin(config, 'sys:oxc-preflight')).to.be.true;
     });
 
     it('no common plugins', async () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names).to.eql(['sys:optimize-imports']);
+      expect(names).to.eql(['sys:optimize-imports', 'sys:oxc-preflight']);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
@@ -96,7 +98,8 @@ describe('Config.Build', () => {
       });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names.at(-2)).to.eql('custom:a');
+      expect(names.at(-3)).to.eql('custom:a');
+      expect(names.at(-2)).to.eql('sys:oxc-preflight');
       expect(names.at(-1)).to.eql('visualizer');
     });
 
@@ -181,15 +184,17 @@ describe('Config.Build', () => {
       expect(config.cacheDir).to.eql('/pkg/node_modules/.vite');
     });
 
-    it('passes optimizeDeps through without adding driver defaults', async () => {
+    it('passes optimizeDeps and explicit OXC options through', async () => {
       const optimizeDeps: NonNullable<t.ViteUserConfig['optimizeDeps']> = {
         include: ['react', 'react-dom/client'],
         exclude: ['@acme/skip'],
         entries: ['src/-test/index.html'],
       };
-      const config = await ViteConfig.app({ optimizeDeps });
+      const oxc: NonNullable<t.ViteUserConfig['oxc']> = { include: /\.tsx$/ };
+      const config = await ViteConfig.app({ optimizeDeps, oxc });
 
       expect(config.optimizeDeps).to.eql(optimizeDeps);
+      expect(config.oxc).to.eql(oxc);
     });
 
     it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {

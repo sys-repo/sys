@@ -1,6 +1,6 @@
 {
   "name": "@sys/yaml",
-  "version": "0.0.140",
+  "version": "0.0.145",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",

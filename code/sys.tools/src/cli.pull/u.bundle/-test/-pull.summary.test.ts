@@ -1,8 +1,30 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Cli } from '../../common.ts';
+import { Cli, type t } from '../../common.ts';
 import { Fmt } from '../../u.fmt.ts';
 
 describe('cli.pull summary formatting', () => {
+  it('formats pull failures with separated message, context table, and detail', () => {
+    const res = Fmt.pullError([
+      'GitHub repository/path/ref not accessible.',
+      'source: github:repo',
+      'repo: sys-repo/sys.canon',
+      'The repository may not exist, the ref/path may be wrong, or GitHub may be hiding a private repository.',
+      'Set GH_TOKEN or GITHUB_TOKEN to a fine-grained PAT with this repository selected and grant Contents → Read-only.',
+    ].join('\n'));
+
+    const text = Cli.stripAnsi(res);
+    expect(text).to.include('Pull Failed');
+    expect(text).to.include('  GitHub repository/path/ref not accessible.');
+    expect(text).to.match(/source\s+github:repo/);
+    expect(text).to.match(/repo\s+sys-repo\/sys\.canon/);
+    expect(text).to.not.match(
+      /token admin\s+https:\/\/github\.com\/settings\/personal-access-tokens/,
+    );
+    expect(text).to.include('  The repository may not exist');
+    expect(text).to.include('  PAT with this repository selected and:');
+    expect(text).to.include('  Contents → Read-only');
+  });
+
   it('formats github:release summary rows with aligned output size column', () => {
     const bundle: t.PullTool.ConfigYaml.GithubReleaseBundle = {
       kind: 'github:release',
@@ -46,7 +68,8 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './dist.json': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=1234`,
+              './dist.json':
+                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=1234`,
             },
           },
         },
@@ -66,6 +89,56 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.match(/dist\s+#1bb18\s+built\s+\S+\s+ago/);
     expect(text).to.include('repo      owner/repo');
     expect(text).to.include('release   v1.2.3');
+  });
+
+  it('formats github:repo summary rows without requiring dist', () => {
+    const bundle: t.PullTool.ConfigYaml.GithubRepoBundle = {
+      kind: 'github:repo',
+      repo: 'owner/repo',
+      ref: 'main',
+      path: 'packages/tooling',
+      local: { dir: 'pulled/tooling' as t.StringRelativeDir },
+    };
+
+    const ops = [
+      {
+        ok: true,
+        path: {
+          source: 'https://github.com/owner/repo/blob/main/packages/tooling/mod.ts' as t.StringUrl,
+          target: 'pulled/tooling/mod.ts' as t.StringPath,
+        },
+        bytes: 123,
+      },
+      {
+        ok: true,
+        path: {
+          source:
+            'https://github.com/owner/repo/blob/main/packages/tooling/README.md' as t.StringUrl,
+          target: 'pulled/tooling/README.md' as t.StringPath,
+        },
+        bytes: 456,
+      },
+    ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
+
+    const res = Fmt.pullSummary({
+      bundle,
+      data: {
+        ops,
+        summary: {
+          kind: 'github:repo',
+          repo: bundle.repo,
+          ref: 'main',
+          path: 'packages/tooling',
+        },
+      },
+    });
+
+    const text = Cli.stripAnsi(res);
+    expect(text).to.include('repo     owner/repo');
+    expect(text).to.include('ref      main');
+    expect(text).to.include('path     packages/tooling');
+    expect(text).to.include('files    2');
+    expect(text).to.not.include('dist');
   });
 
   it('formats http summary rows', () => {
@@ -111,7 +184,8 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './index.html': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
+              './index.html':
+                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
             },
           },
         },
@@ -158,7 +232,8 @@ describe('cli.pull summary formatting', () => {
           hash: {
             digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
             parts: {
-              './index.html': `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
+              './index.html':
+                `sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18:size=3400`,
             },
           },
         },

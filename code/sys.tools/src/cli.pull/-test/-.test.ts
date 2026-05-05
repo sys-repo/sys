@@ -1,8 +1,13 @@
 import { describe, expect, it } from '../../-test.ts';
-import { D } from '../common.ts';
-import type { t } from '../common.ts';
+import { D, type t } from '../common.ts';
+import { Pull } from '../mod.ts';
 
 describe('tool: Pull', () => {
+  it('API', async () => {
+    const m = await import('@sys/tools/pull');
+    expect(m.Pull).to.equal(Pull);
+  });
+
   it('exposes canonical tool metadata', () => {
     type Id = t.PullTool.Id;
     type Name = t.PullTool.Name;

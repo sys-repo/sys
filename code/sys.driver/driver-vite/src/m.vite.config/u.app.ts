@@ -3,6 +3,7 @@ import { Perf } from '../common/u.perf.ts';
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { OptimizeImportsPlugin } from '../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../m.vite.plugins/m.OptimizeImports/u.derive.ts';
+import { oxcPreflightPlugin } from './u.oxcPreflight.ts';
 import { asArray, Delete, DenoFile, Fs, Is, Path, type t } from './common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { paths as formatPaths } from './u.paths.ts';
@@ -110,6 +111,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   if (options.vitePlugins?.length) {
     plugins.push(...options.vitePlugins);
   }
+  plugins.push(oxcPreflightPlugin());
   if (Boolean(options.visualizer)) {
     // NB: the visualizer must be added last.
     const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
@@ -137,6 +139,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     publicDir,
     cacheDir,
     base: paths.app.base,
+    oxc: options.oxc,
     optimizeDeps: options.optimizeDeps,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
     worker: {

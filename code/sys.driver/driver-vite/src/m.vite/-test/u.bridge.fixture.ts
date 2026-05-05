@@ -335,35 +335,13 @@ async function localToolchainImports(authority: BridgeAuthority) {
     throw new Error('Missing root package version authority for package "vite"');
   }
 
-  const pluginReact = authority.packageVersions['@vitejs/plugin-react'];
-  if (!Is.str(pluginReact)) {
-    throw new Error('Missing root package version authority for package "@vitejs/plugin-react"');
-  }
-  const pluginReactPkgPath = ROOT.resolve(
-    'node_modules/.deno',
-    `${toDenoNpmDir('@vitejs/plugin-react')}@${pluginReact}`,
-    'node_modules/@vitejs/plugin-react/package.json',
-  );
-  const pluginReactPkg = (await Fs.readJson<{ dependencies?: O }>(pluginReactPkgPath)).data ?? {};
-  const pluginutils = pluginReactPkg.dependencies?.['@rolldown/pluginutils'];
-  if (!Is.str(pluginutils)) {
-    throw new Error(
-      'Missing @rolldown/pluginutils dependency authority from installed @vitejs/plugin-react package',
-    );
-  }
-
   return {
-    '@rolldown/pluginutils': `npm:@rolldown/pluginutils@${pluginutils}`,
     fs: 'node:fs',
     path: 'node:path',
     'vite/internal': `npm:vite@${vite}/internal`,
     'vite/module-runner': `npm:vite@${vite}/module-runner`,
     zlib: 'node:zlib',
   } as const;
-}
-
-function toDenoNpmDir(name: string) {
-  return name.replace('/', '+');
 }
 
 function defaultDenoJson(dir: string) {
@@ -388,7 +366,11 @@ function defaultTsconfigJson() {
   return Json.stringify(obj, 2);
 }
 
-export async function writeLocalFixtureImports(dir: string, config = 'vite.config.ts') {
+export async function writeLocalFixtureImports(
+  dir: string,
+  config = 'vite.config.ts',
+  options: { skipTsconfig?: boolean } = {},
+) {
   const importsPath = Fs.join(dir, 'imports.json');
   const denoJsonPath = Fs.join(dir, 'deno.json');
   const packageJsonPath = Fs.join(dir, 'package.json');
@@ -411,7 +393,7 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   if (!hadDenoJson) {
     await Fs.write(denoJsonPath, defaultDenoJson(dir));
   }
-  if (!hadTsconfig) {
+  if (!options.skipTsconfig && !hadTsconfig) {
     await Fs.write(tsconfigPath, defaultTsconfigJson());
   }
 
@@ -475,12 +457,12 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
     else await Fs.remove(packageJsonPath, { log: false });
 
     if (hadTsconfig) await Fs.write(tsconfigPath, originalTsconfig);
-    else await Fs.remove(tsconfigPath, { log: false });
+    else if (!options.skipTsconfig) await Fs.remove(tsconfigPath, { log: false });
 
     await Fs.write(configPath, originalConfig);
   };
 }
 
-export async function writeLocalBridgeImports(dir: string) {
-  return writeLocalFixtureImports(dir);
+export async function writeLocalBridgeImports(dir: string, options: { skipTsconfig?: boolean } = {}) {
+  return writeLocalFixtureImports(dir, 'vite.config.ts', options);
 }

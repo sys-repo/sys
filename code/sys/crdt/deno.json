@@ -1,59 +1,22 @@
 {
   "name": "@sys/crdt",
-  "version": "0.0.181",
+  "version": "0.0.185",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
-    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/index.html",
-    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/",
-    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
-    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+    "check": "deno check src/*"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
-    "./fs": "./src/-export.am/m.fs.ts",
-    "./web": "./src/-export.am/m.web.ts",
-    "./web/ui": "./src/-export.am/m.web.ui.ts",
-    "./am/t": "./src/-export.am/types.ts",
-    "./am/fs": "./src/-export.am/m.fs.ts",
-    "./am/web": "./src/-export.am/m.web.ts",
-    "./am/web/ui": "./src/-export.am/m.web.ui.ts"
+    "./types": "./src/types.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
     "test": {
       "read": true,
       "write": true,
       "env": true
-    },
-    "dev": {
-      "read": true,
-      "write": true,
-      "run": true,
-      "env": true,
-      "net": true,
-      "ffi": true,
-      "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
-      }
     }
   }
 }

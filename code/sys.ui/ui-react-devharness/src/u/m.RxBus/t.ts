@@ -49,4 +49,4 @@ export type BusConnection<E extends t.Event> = t.Disposable & {
   readonly buses: t.EventBus<E>[];
 };
 /** Options passed to bus connect. */
-export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };
+export type BusConnectOptions = { async?: boolean; until?: t.UntilInput };

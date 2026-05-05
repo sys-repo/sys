@@ -12,6 +12,8 @@ export namespace UpdateTool {
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & { latest?: boolean };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+  export type CliContext = { readonly origin?: 'argv' | 'root-menu' };
+  export type CliResult = void | { readonly kind: 'back' };
 
   /** Cached advisory record persisted between root CLI startups. */
   export type AdvisoryRecord =

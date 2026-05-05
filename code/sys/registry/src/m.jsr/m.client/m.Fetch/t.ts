@@ -42,8 +42,8 @@ export namespace JsrFetch {
 
   /** Options for the `Jsr.Fetch.<fetch-method>` methods */
   export type PkgOptions = {
-    /** Cancels the underlying request when the observable emits. */
-    dispose$?: t.UntilObservable;
+    /** Cancels the underlying request when the lifecycle ends. */
+    until?: t.UntilInput;
   };
 
   /** Options for the `Jsr.Fetch.<fetch-method>` methods that perform hash checksums on the fetched content. */

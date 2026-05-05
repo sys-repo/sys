@@ -1,4 +1,4 @@
-import { type t, D, Delete, Fs, Path } from './common.ts';
+import { D, Delete, Fs, Path, type t } from './common.ts';
 
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
@@ -91,15 +91,17 @@ export async function write(
         changed = true;
         if (isText) {
           // Text branch:
-          if (typeof next !== 'string')
+          if (typeof next !== 'string') {
             throw new Error('Expected string content to update text-file');
+          }
           text = next;
           bytes = undefined;
           return;
         } else {
           // Binary branch:
-          if (!(next instanceof Uint8Array))
+          if (!(next instanceof Uint8Array)) {
             throw new Error('Expected Uint8Array content to update binary-file');
+          }
           bytes = next;
           text = undefined;
         }
@@ -131,29 +133,30 @@ export async function write(
       }
     }
 
-    // Resolve single op:
-    const common = {
-      dryRun: dryRun || undefined,
-      forced: forcedWrite || undefined,
-    } satisfies t.FileMapOpCommon;
-
     // Compute write-kind:
+    const wouldWrite = dryRun && existedBefore && (changed || force);
     let kind: t.FileMapOp['kind'];
     if (skipped) {
       kind = 'skip';
     } else if (!existedBefore) {
       kind = 'create';
-    } else if (existedBefore && wrote) {
+    } else if (existedBefore && (wrote || wouldWrite)) {
       kind = 'modify';
     } else {
       kind = 'skip'; // (unchanged)
     }
 
+    // Resolve single op:
+    const forced = forcedWrite || (dryRun && force && existedBefore && kind === 'modify');
+    const common = {
+      dryRun: dryRun || undefined,
+      forced: forced || undefined,
+    } satisfies t.FileMapOpCommon;
+
     // Attach renamed meta only on writes (create/modify) and only if path actually changed.
-    const renamed =
-      prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
-        ? Delete.undefined<t.FileMapOpRenamed>({ from: prevPath, silent: silentRename })
-        : undefined;
+    const renamed = prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
+      ? Delete.undefined<t.FileMapOpRenamed>({ from: prevPath, silent: silentRename })
+      : undefined;
 
     let resolved: t.FileMapOp;
     if (kind === 'create') {

@@ -11,4 +11,19 @@ describe('Types', () => {
     console.info('b (valid):', b);
     console.info();
   });
+
+  it('AbortSignal is an UntilInput and concrete Until', () => {
+    const signal = new AbortController().signal;
+    const input: t.UntilInput = signal;
+    const until: t.Until = signal;
+
+    expectTypeOf(input).toMatchTypeOf<t.UntilInput>();
+    expectTypeOf(until).toMatchTypeOf<t.Until>();
+  });
+
+  it('WaitableHandle exposes observed lifecycle completion', () => {
+    const handle: t.WaitableHandle = { finished: Promise.resolve() };
+
+    expectTypeOf(handle).toMatchTypeOf<t.WaitableHandle>();
+  });
 });

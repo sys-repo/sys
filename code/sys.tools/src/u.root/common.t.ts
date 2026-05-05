@@ -32,11 +32,15 @@ export namespace Root {
     | 'tmpl'
     | 'update';
 
+  /** Invocation origin passed from the root launcher to selected tools. */
+  export type ToolCliOrigin = 'argv' | 'root-menu';
+  export type ToolCliContext = { readonly origin: ToolCliOrigin };
+
   /** Shared root CLI flags accepted before tool dispatch. */
-  export type CliArgs = { help: boolean; debug?: boolean };
+  export type CliArgs = { help: boolean; debug?: boolean; noUpdateCheck?: boolean };
 
   /** Root-level argument shape parsed from the launcher argv. */
-  export type CliRootArgs = CliArgs & {};
+  export type CliRootArgs = CliArgs & { readonly 'no-update-check'?: boolean };
 
   /** Parsed root args, with an optional resolved tool command. */
   export type CliRootParsedArgs = ParsedArgs<CliRootArgs> & { readonly command?: Command };

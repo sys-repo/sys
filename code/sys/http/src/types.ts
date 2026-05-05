@@ -13,3 +13,4 @@ export type * from './http.client/m.HttpPreload/t.ts';
 export type * from './http.server/m.HttpProxy/t.ts';
 export type * from './http.server/m.HttpPull/t.ts';
 export type * from './http.server/m.HttpServer/t.ts';
+export type * from './http.server/m.HttpStatic/t.ts';

@@ -1,7 +1,14 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.280",
+  "version": "0.0.285",
   "license": "MIT",
+  "x-sys": {
+    "ci": {
+      "test": {
+        "browser": true
+      }
+    }
+  },
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
@@ -25,7 +32,8 @@
       "read": true,
       "write": true,
       "env": true,
-      "net": true
+      "net": true,
+      "run": true
     }
   }
 }

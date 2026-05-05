@@ -1,5 +1,5 @@
 import { ContextState } from '../m.Ctx/Context.State.ts';
-import { type t, asArray, Rx, RxBus, slug } from './common.ts';
+import { asArray, Rx, RxBus, slug, type t } from './common.ts';
 
 const DEFAULT = { TIMEOUT: 500 };
 type O = Record<string, unknown>;
@@ -10,10 +10,10 @@ type O = Record<string, unknown>;
 export function BusEvents(args: {
   instance: { bus: t.EventBus<any>; id: t.StringId };
   filter?: (e: t.DevEvent) => boolean;
-  dispose$?: t.UntilObservable;
+  until?: t.UntilInput;
 }): t.DevEvents {
   let _disposed = false;
-  const { dispose, dispose$ } = Rx.disposable(args.dispose$);
+  const { dispose, dispose$ } = Rx.disposable(args.until);
   dispose$.subscribe(() => (_disposed = true));
 
   const bus = RxBus.asType<t.DevEvent>(args.instance.bus);

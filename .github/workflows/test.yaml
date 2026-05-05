@@ -20,6 +20,8 @@ jobs:
         include:
           - name: "@sys/types"
             path: code/sys/types
+          - name: "@sys/crdt"
+            path: code/sys/crdt
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/color"
@@ -28,8 +30,6 @@ jobs:
             path: code/sys.ui/ui-css
           - name: "@sys/cli"
             path: code/sys/cli
-          - name: "@sys/crdt-t"
-            path: code/sys/crdt.t
           - name: "@sys/crypto"
             path: code/sys/crypto
           - name: "@sys/event"
@@ -54,10 +54,9 @@ jobs:
             path: code/sys/http
           - name: "@sys/registry"
             path: code/sys/registry
-          - name: "@sys/skills"
-            path: code/sys/skills
           - name: "@sys/testing"
             path: code/sys/testing
+            browser: true
           - name: "@sys/ui-react"
             path: code/sys.ui/ui-react
           - name: "@sys/ui-react-devharness"
@@ -82,24 +81,23 @@ jobs:
             path: code/sys.driver/driver-automerge
           - name: "@sys/driver-monaco"
             path: code/sys.driver/driver-monaco
+          - name: "@sys/dev"
+            path: code/sys.dev
           - name: "@sys/driver-prosemirror"
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@sys/ui-factory"
-            path: code/sys.ui/ui-factory
-          - name: "@sys/dev"
-            path: code/sys.dev
-          - name: "@sys/crdt"
-            path: code/sys/crdt
+            browser: true
+          - name: "@sys/cell"
+            path: code/sys/cell
           - name: "@sys/workspace"
             path: code/sys/workspace
           - name: "@sys/driver-deno"
             path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
           - name: "@sys/tools"
@@ -121,7 +119,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.13
+          deno-version: v2.7.14
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -141,6 +139,20 @@ jobs:
         run: deno task info
       - name: Deno Info
         run: deno info && deno --version
+      - name: 'Configure Browser Runtime: Chrome'
+        if: ${{ matrix.browser == true }}
+        run: |
+          for bin in google-chrome google-chrome-stable chromium chromium-browser; do
+            if command -v "$bin" >/dev/null 2>&1; then
+              path="$(command -v "$bin")"
+              echo "CHROME_BIN=$path" >> "$GITHUB_ENV"
+              "$path" --version
+              exit 0
+            fi
+          done
+          echo "::error::Chrome/Chromium runtime not found"
+          exit 1
+
       - name: Verify workspace graph
         run: deno task check:graph
 

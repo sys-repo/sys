@@ -53,6 +53,40 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(true);
   });
 
+  it('accepts github:repo bundle entries', () => {
+    const doc = {
+      dir: '.',
+      bundles: [
+        {
+          kind: 'github:repo' as const,
+          repo: 'owner/name',
+          ref: 'main',
+          path: 'packages/tooling',
+          local: { dir: 'dev' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+  });
+
+  it('accepts minimal github:repo bundle entries', () => {
+    const doc = {
+      dir: '.',
+      bundles: [
+        {
+          kind: 'github:repo' as const,
+          repo: 'owner/name',
+          local: { dir: 'dev' },
+        },
+      ],
+    };
+
+    const res = PullYamlSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+  });
+
   it('accepts local.clear on bundle targets', () => {
     const doc = {
       dir: '.',
@@ -127,16 +161,35 @@ describe('PullYamlSchema', () => {
     expect(res.ok).to.eql(false);
   });
 
-  it('rejects github:release repo values that are not owner/repo', () => {
+  it('rejects github repo values that are not owner/repo', () => {
     const bad = ['owner', '/repo', 'owner/', 'owner/repo/extra'];
 
-    for (const repo of bad) {
+    for (const kind of ['github:release', 'github:repo'] as const) {
+      for (const repo of bad) {
+        const doc = {
+          dir: '.',
+          bundles: [
+            {
+              kind,
+              repo,
+              local: { dir: 'dev' },
+            },
+          ],
+        };
+
+        const res = PullYamlSchema.validate(doc);
+        expect(res.ok).to.eql(false);
+      }
+    }
+  });
+
+  it('rejects github bundles without repo', () => {
+    for (const kind of ['github:release', 'github:repo'] as const) {
       const doc = {
         dir: '.',
         bundles: [
           {
-            kind: 'github:release' as const,
-            repo,
+            kind,
             local: { dir: 'dev' },
           },
         ],
@@ -147,12 +200,14 @@ describe('PullYamlSchema', () => {
     }
   });
 
-  it('rejects github:release without repo', () => {
+  it('rejects unknown github:repo fields', () => {
     const doc = {
       dir: '.',
       bundles: [
         {
-          kind: 'github:release' as const,
+          kind: 'github:repo' as const,
+          repo: 'owner/name',
+          private: true,
           local: { dir: 'dev' },
         },
       ],

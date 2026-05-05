@@ -1,0 +1,55 @@
+id: pulled-view
+title: Pulled view
+summary: Add a view backed by an `@sys/tools/pull` config.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a pulled view from <dist-url>" as `add: pulled view`.
+      Treat the speech act as intent plus partial slots.
+      Do not guess missing values.
+      Configure first; materialize only when needed or approved.
+
+  - label: 'Slot policy'
+    items: |
+      `<dist-url>` is given by the prompt.
+      `<name>` must ask; view names are semantic/user-facing.
+      Do not derive `<name>` from the URL.
+      Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
+      Propose local target: `./view/.pulled/<dist-name>`.
+      Confirm proposed paths before writing.
+      Derive `<dist-name>` from the URL segment before `dist.json`.
+      Example URL segment: `foo`.
+
+  - label: 'Dialogue'
+    items: |
+      Do not restate the DSL contract to the user.
+      Ask for the missing semantic slot and confirm proposed paths.
+      Example response for `https://example.com/foo/dist.json`:
+      OK — I can get that pulled view ready.
+      I’ll use:
+      dist URL: `https://example.com/foo/dist.json`
+      pull config: `./-config/@sys.tools.pull/view.yaml`
+      local target: `./view/.pulled/foo`
+      Please confirm those paths and tell me the view name to register.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/tools pull add`.
+      Pass `--config <pull-config-path>`.
+      Pass `--dist <dist-url>`.
+      Pass `--local <local-target>`.
+      This creates or updates pull config.
+      Do not hand-author `@sys/tools/pull` YAML.
+      Use owner CLI when it can create config.
+      Register only `views.<name>.source.pull` in `cell.yaml`.
+      The value is `<pull-config-path>`.
+      Do not put `<dist-url>` or `<local-target>` in `cell.yaml`.
+
+  - label: 'Materialize'
+    items: |
+      Pull add configures only; it does not pull files.
+      Materialize only when needed or approved.
+      Use owner CLI: `@sys/tools pull`.
+      Pass `--non-interactive`.
+      Pass `--config <pull-config-path>`.

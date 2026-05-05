@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, opt, Str, Time, Url, Yaml } from '../common.ts';
+import { c, Cli, Fs, Is, Open, opt, Str, type t, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { resolveBundleForPull } from './u.defaults.ts';
@@ -9,6 +9,10 @@ type C = t.PullTool.MenuCmd;
 type PullResult =
   | { readonly kind: 'back' }
   | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.Bundle };
+
+type ExecuteBundlePullResult =
+  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
+  | { readonly ok: false; readonly error: string };
 
 const Fmt = {
   ...BaseFmt,
@@ -26,6 +30,8 @@ const ValidConfigName = {
   },
 } as const;
 
+const PULL_PREFIX = 'bundle:pull-latest:';
+
 const toHttpDist = (bundle: t.PullTool.ConfigYaml.Bundle): t.StringUrl | undefined =>
   bundle.kind === 'http' ? bundle.dist : undefined;
 
@@ -34,13 +40,43 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
   if (dist) return Fmt.distUrl(dist);
 
   if (bundle.kind === 'github:release') {
-    if (Array.isArray(bundle.asset)) return c.yellow(c.italic(`github:release (${bundle.asset.length} assets)`));
-    if (typeof bundle.asset === 'string' && bundle.asset.trim()) return c.yellow(c.italic(`github:release (${bundle.asset.trim()})`));
-    return c.yellow(c.italic('github:release (all assets)'));
+    if (Array.isArray(bundle.asset)) {
+      return c.magenta(c.italic(`github:release (${bundle.asset.length} assets)`));
+    }
+    if (Is.str(bundle.asset) && bundle.asset.trim()) {
+      return c.magenta(c.italic(`github:release (${bundle.asset.trim()})`));
+    }
+    return c.magenta(c.italic('github:release (all assets)'));
+  }
+
+  if (bundle.kind === 'github:repo') {
+    const ref = bundle.ref?.trim() ? ` @ ${bundle.ref.trim()}` : '';
+    const path = bundle.path?.trim() ? `:${bundle.path.trim()}` : '';
+    return c.magenta(c.italic(`github:repo ${bundle.repo}${ref}${path}`));
   }
 
   return c.gray(c.dim(bundle.kind));
 };
+
+export function formatBundleOptionLocalDirWidth(
+  bundles: readonly t.PullTool.ConfigYaml.Bundle[],
+): number {
+  return bundles.reduce((acc, bundle) => {
+    return Math.max(acc, bundleOptionLocalDirText(bundle.local.dir).length);
+  }, 0);
+}
+
+export function formatBundleOptionName(
+  bundle: t.PullTool.ConfigYaml.Bundle,
+  index: number,
+  bundles: readonly t.PullTool.ConfigYaml.Bundle[],
+  localDirWidth = formatBundleOptionLocalDirWidth(bundles),
+): string {
+  const branch = Fmt.Tree.branch([index, bundles]);
+  const localDir = bundleOptionLocalDirLabel(bundle.local.dir, localDirWidth);
+  const source = bundleSourceLabel(bundle);
+  return `${'  pull:'} ${branch} ${localDir} ${c.gray('←')} ${source}`;
+}
 
 export async function pullBundle(
   _cwd: t.StringDir,
@@ -52,15 +88,11 @@ export async function pullBundle(
     bundle,
   });
 
-  const PULL_PREFIX = 'bundle:pull-latest:';
   const bundles = location.bundles ?? [];
-  const maxLocalDirWidth = bundles.reduce((acc, m) => Math.max(acc, m.local.dir.length), 0);
-  const optBundles = bundles.map((m, i, total) => {
-    const branch = Fmt.Tree.branch([i, total]);
-    const localDir = c.cyan(m.local.dir.padEnd(maxLocalDirWidth, ' '));
-    const source = bundleSourceLabel(m);
-    const name = `${'  pull:'} ${branch} ${localDir} ← ${source}`;
-    const value = `${PULL_PREFIX}${i}`;
+  const localDirWidth = formatBundleOptionLocalDirWidth(bundles);
+  const optBundles = bundles.map((bundle, index, all) => {
+    const name = formatBundleOptionName(bundle, index, all, localDirWidth);
+    const value = `${PULL_PREFIX}${index}`;
     return { name, value };
   });
 
@@ -163,10 +195,7 @@ export async function pullBundle(
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
     const pulled = await executeBundlePull(yamlPath, location, bundle);
     if (!pulled.ok) {
-      const b = Str.builder()
-        .line(c.yellow('Pull failed'))
-        .line(c.gray(c.dim(pulled.error)));
-      console.info(String(b));
+      console.info(Fmt.pullError(pulled.error));
       return pullBundle(_cwd, yamlPath, location);
     }
 
@@ -177,13 +206,10 @@ export async function pullBundle(
 }
 
 export async function executeBundlePull(
-  yamlPath: t.StringPath,
+  _yamlPath: t.StringPath,
   location: t.PullTool.ConfigYaml.Location,
   bundle: t.PullTool.ConfigYaml.Bundle,
-): Promise<
-  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
-  | { readonly ok: false; readonly error: string }
-> {
+): Promise<ExecuteBundlePullResult> {
   const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
   const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
   if (!pulled.ok) {
@@ -192,38 +218,7 @@ export async function executeBundlePull(
 
   console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
 
-  await updateYamlBundles(yamlPath, (list) => {
-    const hit = list.find((m) => isSameBundle(m, bundle));
-    if (hit) hit.lastUsedAt = Time.now.timestamp;
-  });
-
   return { ok: true, bundle: effectiveBundle };
-}
-
-function isSameBundle(a: t.PullTool.ConfigYaml.Bundle, b: t.PullTool.ConfigYaml.Bundle): boolean {
-  if (a.kind !== b.kind) return false;
-  if (a.local.dir !== b.local.dir) return false;
-
-  if (a.kind === 'http' && b.kind === 'http') {
-    return a.dist === b.dist;
-  }
-
-  if (a.kind === 'github:release' && b.kind === 'github:release') {
-    return a.repo === b.repo &&
-      normalizeOptional(a.tag) === normalizeOptional(b.tag) &&
-      normalizeAsset(a.asset) === normalizeAsset(b.asset);
-  }
-
-  return false;
-}
-
-function normalizeOptional(value?: string): string {
-  return String(value ?? '').trim();
-}
-
-function normalizeAsset(value?: string | string[]): string {
-  if (Array.isArray(value)) return value.map((m) => normalizeOptional(m)).join('|');
-  return normalizeOptional(value);
 }
 
 /**
@@ -251,6 +246,20 @@ async function updateYamlBundles(
 /**
  * Helpers:
  */
+function bundleOptionLocalDirText(dir: string): string {
+  const relative = Str.trimLeadingDotSlash(dir);
+  if (!relative || relative === '.') return './';
+  return `./${relative}`;
+}
+
+function bundleOptionLocalDirLabel(dir: string, width: number): string {
+  const text = bundleOptionLocalDirText(dir);
+  const rest = text.slice(2);
+  const label = rest ? `${c.gray('./')}${c.cyan(rest)}` : c.gray('./');
+  const pad = ' '.repeat(Math.max(0, width - text.length));
+  return `${label}${pad}`;
+}
+
 export async function validateUrl(input: string) {
   const url = toDistUrl(input);
   if (!url) return 'Enter a valid URL.';

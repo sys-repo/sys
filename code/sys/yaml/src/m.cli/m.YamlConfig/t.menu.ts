@@ -86,6 +86,8 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
     /** Label used for built-in edit/reload/rename actions (default: "config"). */
     label?: string;
     extra?: YamlConfigMenuExtra<A, T>[];
+    /** Extra actions placed after built-in edit/reload/rename and before delete. */
+    extraAfter?: YamlConfigMenuExtra<A, T>[];
     onAction?: YamlConfigMenuHandler<A>;
   };
   /** Add prompt configuration. */

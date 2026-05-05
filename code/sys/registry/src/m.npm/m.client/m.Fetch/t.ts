@@ -29,8 +29,8 @@ export namespace NpmFetch {
 
   /** Options for the `Npm.Fetch.<fetch-method>` methods. */
   export type PkgOptions = {
-    /** Cancels the underlying request when the observable emits. */
-    dispose$?: t.UntilObservable;
+    /** Cancels the underlying request when the lifecycle ends. */
+    until?: t.UntilInput;
   };
 
   /** Response to a `Npm.Fetch.Pkg.versions` request. */

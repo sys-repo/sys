@@ -1,4 +1,4 @@
-import { type t, c, pkg } from './common.ts';
+import { c, pkg, type t } from './common.ts';
 import { ROOT_REGISTRY } from './registry.ts';
 
 export type RootRow = { readonly command: t.Root.Command; readonly columns: string[] };
@@ -10,7 +10,7 @@ type RootRowOptions = {
 
 export function rootRows(group?: RootRowGroup, options: RootRowOptions = {}): RootRow[] {
   const fmt = (command: t.Root.Command, tool: string) => {
-    const label = options.highlightCommand === command ? c.cyan(tool) : tool;
+    const label = options.highlightCommand === command ? c.magenta(tool) : tool;
     return c.gray(c.dim(`${pkg.name} `)) + label;
   };
   const rows: RootRow[] = [];
@@ -22,7 +22,8 @@ export function rootRows(group?: RootRowGroup, options: RootRowOptions = {}): Ro
     displayAlias?: readonly string[],
   ) => {
     const items = [fmt(command, label ?? command)];
-    const displayAliases = displayAlias ?? alias?.filter((item) => item !== command && item !== label);
+    const displayAliases = displayAlias ??
+      alias?.filter((item) => item !== command && item !== label);
     if (displayAliases?.length) items.push(fmtAliases(displayAliases));
     rows.push({ command, columns: items });
   };

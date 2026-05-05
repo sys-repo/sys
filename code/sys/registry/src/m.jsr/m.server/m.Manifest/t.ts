@@ -85,8 +85,8 @@ export type JsrManifestPullResponse = {
 
 /** Options passed to `manifest.pull` method. */
 export type JsrManifestPullOptions = {
-  /** Cancels fetch work when the observable emits. */
-  dispose$?: t.UntilObservable;
+  /** Cancels fetch work when the lifecycle ends. */
+  until?: t.UntilInput;
   /** Base directory to write fetched files into. */
   write?: t.StringDir;
   /** Predicate used to keep or skip manifest paths before pulling them. */

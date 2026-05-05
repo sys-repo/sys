@@ -54,6 +54,8 @@ export namespace ServeTool {
       name: string;
       /** Directory to serve (relative to CLI cwd, or absolute). */
       dir: t.StringDir;
+      /** Extra human-facing server info; path-like values decorate the served URL. */
+      info?: Record<string, string>;
     };
 
     /**
@@ -76,6 +78,8 @@ export namespace ServeTool {
       readonly name: string;
       /** Resolved absolute directory to serve. */
       readonly dir: t.StringDir;
+      /** Extra human-facing server info; path-like values decorate the served URL. */
+      readonly info?: Record<string, string>;
     };
   }
 

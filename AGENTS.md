@@ -1,11 +1,21 @@
 # AGENTS.md (workspace)
 This file adds `sys`-local constraints only.
-All broader behavior is governed by root `AGENTS.md` and canonical canon.
+Canonical agent policy lives in `../sys.canon/` and is authoritative.
 
 Agents MUST:
-- continue AGENTS.md traversal upward and apply the parent `AGENTS.md`
-- treat the parent bootstrap and its canonical references as authoritative
-- apply this file cumulatively with that canon
+- Apply loaded canon cumulatively with this file.
+- If canon has not been loaded by the launcher, read `../sys.canon/AGENTS.md` and follow its references.
+- Do not use `../AGENTS.md` for `sys` workspace bootstrap.
+- Do not answer from this local file alone or infer canon from memory.
+
+If canon reads fail because launcher sandbox access is missing, stop and say so. Resolve missing access through the active Pi profile, not by guessing a config path.
+
+- If launcher/runtime context provides `runtime.pi.active-profile`, use that exact path.
+- Otherwise, the local fallback profile is `./-config/@sys.driver-pi/default.yaml`.
+- If the profile is readable and writable, offer to update it; if approved, edit it and ask the human to restart Pi.
+- If the profile path is unknown or not writable, ask the human to update the active profile and restart Pi.
+
+The active profile owns canon read/context grants; do not duplicate those grants here.
 
 ### Local note
 - Canonical skills live under `../sys.canon/skills/`.

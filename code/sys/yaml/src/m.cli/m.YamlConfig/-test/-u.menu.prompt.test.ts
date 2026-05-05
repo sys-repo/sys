@@ -56,6 +56,40 @@ describe('YamlConfig.menu.prompt', () => {
     }
   });
 
+  it('places extraAfter items after base actions and before delete/back', async () => {
+    const original = Cli.Input.Select.prompt;
+    let seen: { name: string; value: string }[] = [];
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: async (args: { options: { name: string; value: string }[] }) => {
+        seen = args.options;
+        return args.options[0]?.value ?? 'back';
+      },
+    });
+
+    try {
+      await promptAction({
+        name: 'alpha',
+        path: '/tmp/alpha.yaml',
+        valid: true,
+        extra: [{ name: 'start', value: 'run' }],
+        extraAfter: [{ name: 'reload', value: 'sandbox' }],
+      });
+
+      expect(seen.map((item) => Cli.stripAnsi(item.name))).to.eql([
+        '  start',
+        '  config: edit',
+        '  config: reload',
+        '  config: rename',
+        '  reload',
+        ' (delete)',
+        '← back',
+      ]);
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
+    }
+  });
+
   it('uses a custom base action label', async () => {
     const original = Cli.Input.Select.prompt;
     let seen: { name: string; value: string }[] = [];

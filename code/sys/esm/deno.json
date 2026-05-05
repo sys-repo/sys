@@ -1,6 +1,6 @@
 {
   "name": "@sys/esm",
-  "version": "0.0.33",
+  "version": "0.0.38",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",

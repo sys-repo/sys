@@ -9,20 +9,22 @@ export async function keyboard(args: {
   port: number;
   url?: string;
   print?: boolean;
+  exit?: boolean;
   dispose?: () => Promise<void>;
 }) {
   try {
+    if (!Deno.stdin.isTerminal()) return;
     if (args.print) {
       const branch = (isLast: boolean, indent = 0) => {
         const b = Fmt.Tree.branch(isLast);
         return c.gray(`${' '.repeat(indent)}${c.dim(b)}`);
       };
 
-      const fmt = (str: string) => c.italic(c.gray(str));
+      const fmt = (str: string) => c.gray(str);
       const str = Str.builder()
-        .line(c.gray('Keyboard:'))
-        .line(branch(false, 1) + fmt(` ${c.white('O')}      open in browser`))
-        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to exit`))
+        .line(c.gray('keyboard:'))
+        .line(branch(false, 1) + fmt(` ${c.white('O')} open in browser`))
+        .line(branch(true, 1) + fmt(` ${c.white('Ctrl+C')} or ${c.white('Q')} to quit`))
         .line();
       console.info(String(str));
     }
@@ -38,19 +40,20 @@ export async function keyboard(args: {
       }
 
       /**
-       * QUIT → shutdown server and exit.
+       * QUIT → shutdown server and optionally exit.
        */
       let isQuit = false;
       if (e.ctrlKey && e.key === 'c') isQuit = true;
       if (e.key === 'q') isQuit = true;
       if (isQuit) {
         await args.dispose?.();
-        Deno.exit(0);
+        if (args.exit ?? true) Deno.exit(0);
+        return;
       }
     }
   } catch (error) {
     if (error instanceof Deno.errors.BadResource) return;
-    if (error instanceof Error && /ENOTTY|Not a typewriter/i.test(error.message)) return;
+    if (error instanceof Error && /ENODEV|ENOTTY|No such device|Not a typewriter/i.test(error.message)) return;
     throw error;
   }
 }

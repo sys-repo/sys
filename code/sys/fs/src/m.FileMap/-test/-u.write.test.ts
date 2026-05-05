@@ -1,6 +1,6 @@
 import { Sample } from './-u.ts';
 import { c, describe, expect, expectError, it, Str } from '../../-test.ts';
-import { type t, Fs, Path } from '../common.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap.write', () => {
@@ -79,8 +79,7 @@ describe('FileMap.write', () => {
 
       // Choose a real text file from the bundle deterministically.
       const keys = Object.keys(bundle);
-      const pickText =
-        keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
+      const pickText = keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
         keys.find((k) => k.endsWith('.md')) ??
         keys.find((k) => k.endsWith('.ts')) ??
         keys.find((k) => k.endsWith('.json'));
@@ -197,14 +196,34 @@ describe('FileMap.write', () => {
     logOps('operations | binary pass-through:', res.ops);
   });
 
+  it('dryRun existing + modify → modify without writing', async () => {
+    const sample = await Sample.init();
+    const bundle = await FileMap.toMap(Sample.source.dir);
+    const rel = Object.keys(bundle).find((k) => k.endsWith('.md'))!;
+
+    await FileMap.write(bundle, sample.target);
+    const before = (await Fs.readText(Path.join(sample.target, rel))).data ?? '';
+
+    const res = await FileMap.write(bundle, sample.target, {
+      dryRun: true,
+      processFile(e) {
+        if (e.path === rel && e.text) e.modify(`${e.text}\n<!-- dry-run patch -->\n`);
+      },
+    });
+
+    const op = res.ops.find((o) => o.path === rel)!;
+    expect(op.kind).to.eql('modify');
+    expect(op.dryRun).to.eql(true);
+    expect((await Fs.readText(Path.join(sample.target, rel))).data).to.eql(before);
+  });
+
   it('modify on first write → create', async () => {
     const sample = await Sample.init();
     const bundle = await FileMap.toMap(Sample.source.dir);
 
     // Pick a text file deterministically:
     const keys = Object.keys(bundle);
-    const pickText =
-      keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
+    const pickText = keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
       keys.find((k) => k.endsWith('.md')) ??
       keys.find((k) => k.endsWith('.ts')) ??
       keys.find((k) => k.endsWith('.json'))!;
@@ -230,8 +249,7 @@ describe('FileMap.write', () => {
     const bundle = await FileMap.toMap(Sample.source.dir);
 
     const keys = Object.keys(bundle);
-    const pick =
-      keys.find((k) => k === '.gitignore') ??
+    const pick = keys.find((k) => k === '.gitignore') ??
       keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
       keys.find((k) => k.endsWith('.md'))!;
     const from = pick;
@@ -295,8 +313,7 @@ describe('FileMap.write', () => {
       },
     });
 
-    const op =
-      res.ops.find((o) => o.path === anyKey + '.ignored') ??
+    const op = res.ops.find((o) => o.path === anyKey + '.ignored') ??
       res.ops.find((o) => o.path === anyKey)!;
     expect(op.kind).to.eql('skip');
     expect((op as t.FileMapOpOfKind<'skip'>).reason).to.eql('filtered');

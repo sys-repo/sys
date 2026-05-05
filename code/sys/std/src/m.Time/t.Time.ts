@@ -58,7 +58,7 @@ export type TimeLib = {
   ): Promise<T>;
 
   /** A Time helper that runs only until it has been disposed. */
-  until(until$?: t.DisposeInput): t.TimeUntil;
+  until(until?: t.UntilInput): t.TimeUntil;
 };
 
 /**

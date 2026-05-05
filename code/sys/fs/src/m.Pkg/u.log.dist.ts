@@ -1,4 +1,4 @@
-import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Pkg, Str, Time } from './common.ts';
+import { c, CliTable, Date, Fs, HashFmt, Num, Path, Pkg, Str, type t, Time } from './common.ts';
 import { toModuleString } from './u.log.ts';
 
 /**
@@ -34,7 +34,7 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   /**
    * Build table:
    */
-  const table = Cli.table([]);
+  const table = CliTable.create([]);
   const push = (label: string, value: string) => table.push([c.gray(label), '    ', value]);
 
   push('size:', totalSize);

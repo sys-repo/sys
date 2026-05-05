@@ -34,52 +34,24 @@ if (document) {
 }
 
 export async function main() {
-  const params = new URL(location.href).searchParams;
-  const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
-
-  /**
-   * DevHarness:
-   */
-  async function renderDev() {
-    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
-    const { Specs } = await import('./-specs.ts');
-    const el = await render(pkg, Specs, {
-      style: { Absolute: 0 },
-      hr: (e) => {},
-    });
-
-    function App() {
-      useKeyboard();
-      return el;
-    }
-
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
-  }
-
-  /**
-   * Entry/Splash:
-   */
-  async function renderSplash() {
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { Splash } = await import('./ui.Splash.tsx');
-
-    function App() {
-      useKeyboard();
-      return <Splash />;
-    }
-
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
-  }
-
-  if (isDev) {
-    return void renderDev();
-  } else {
-    // return void renderSplash();
-    return void renderDev();
-  }
+  return renderDevHarness(root);
 }
 
-main().catch((err) => console.error(`💥 Failed to render DevHarness`, err));
+async function renderDevHarness(root: ReturnType<typeof createRoot>) {
+  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+  const { Specs } = await import('./-specs.ts');
+  const el = await render(pkg, Specs, {
+    style: { Absolute: 0 },
+    hr: () => {},
+  });
+
+  function App() {
+    useKeyboard();
+    return el;
+  }
+
+  root.render(<React.StrictMode><App /></React.StrictMode>);
+}
+
+main().catch((err) => console.error(`💥 Failed to render Stripe.PaymentElement`, err));

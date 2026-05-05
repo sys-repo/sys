@@ -1,4 +1,4 @@
-import { type t, Schema } from '../common.ts';
+import { Schema, type t } from '../common.ts';
 
 const BundleSharedSchema = {
   local: Schema.Type.Object(
@@ -9,6 +9,11 @@ const BundleSharedSchema = {
     { additionalProperties: false },
   ),
   lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
+} as const;
+
+const GithubBundleSharedSchema = {
+  repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
+  ...BundleSharedSchema,
 } as const;
 
 const BundleHttpSchema = Schema.Type.Object(
@@ -23,7 +28,7 @@ const BundleHttpSchema = Schema.Type.Object(
 const BundleGithubReleaseSchema = Schema.Type.Object(
   {
     kind: Schema.Type.Literal('github:release'),
-    repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
+    ...GithubBundleSharedSchema,
     tag: Schema.Type.Optional(Schema.Type.String()),
     asset: Schema.Type.Optional(
       Schema.Type.Union([
@@ -31,7 +36,16 @@ const BundleGithubReleaseSchema = Schema.Type.Object(
         Schema.Type.Array(Schema.Type.String(), { minItems: 1 }),
       ]),
     ),
-    ...BundleSharedSchema,
+  },
+  { additionalProperties: false },
+);
+
+const BundleGithubRepoSchema = Schema.Type.Object(
+  {
+    kind: Schema.Type.Literal('github:repo'),
+    ...GithubBundleSharedSchema,
+    ref: Schema.Type.Optional(Schema.Type.String()),
+    path: Schema.Type.Optional(Schema.Type.String()),
   },
   { additionalProperties: false },
 );
@@ -67,7 +81,7 @@ export const PullYamlSchema = {
       ),
       bundles: Schema.Type.Optional(
         Schema.Type.Array(
-          Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema]),
+          Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema, BundleGithubRepoSchema]),
         ),
       ),
     },

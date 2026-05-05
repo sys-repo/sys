@@ -1,4 +1,4 @@
-import { type t, exists, isDir, StdPath } from './common.ts';
+import { exists, isDir, StdPath, type t } from './common.ts';
 
 type L = t.FsPathLib;
 
@@ -21,7 +21,9 @@ export const Path: L = {
     if (StdPath.Is.relative(path)) {
       return wrangle.relativePrefix(path, prefix);
     } else {
-      if (path.startsWith(cwd)) path = path.slice(cwd.length + 1);
+      const cwdPrefix = cwd.endsWith('/') ? cwd : `${cwd}/`;
+      if (path === cwd) path = '';
+      else if (path.startsWith(cwdPrefix)) path = path.slice(cwdPrefix.length);
       return wrangle.relativePrefix(path, prefix);
     }
   },

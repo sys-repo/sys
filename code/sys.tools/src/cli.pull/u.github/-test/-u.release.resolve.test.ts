@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t } from '../../common.ts';
+import { type t } from '../common.ts';
 import { resolveGithubReleaseBundle } from '../u.release.resolve.ts';
 
 describe('cli.pull/u.github → release resolver', () => {

@@ -43,11 +43,11 @@ export async function resolveTmplVersion(
   return await resolveWorkspaceVersion('@sys/tmpl', source, denoFile);
 }
 
-export async function resolveDriverAgentVersion(
+export async function resolveDriverPiVersion(
   source: string,
   denoFile: DenoFileVersionLib,
 ): Promise<string> {
-  return await resolveWorkspaceVersion('@sys/driver-agent', source, denoFile);
+  return await resolveWorkspaceVersion('@sys/driver-pi', source, denoFile);
 }
 
 export async function resolveWorkspaceVersion(
@@ -66,8 +66,8 @@ export function pinTmplSpecifier(source: string, version: string): string {
   return pinPassthroughSpecifier(source, toTarget('@sys/tmpl'), version);
 }
 
-export function pinDriverAgentPiCliSpecifier(source: string, version: string): string {
-  return pinPassthroughSpecifier(source, toTarget('@sys/driver-agent'), version);
+export function pinDriverPiCliSpecifier(source: string, version: string): string {
+  return pinPassthroughSpecifier(source, toTarget('@sys/driver-pi'), version);
 }
 
 export function pinPassthrough(

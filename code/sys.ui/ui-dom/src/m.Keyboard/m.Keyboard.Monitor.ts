@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, R, Rx } from './common.ts';
+import { DEFAULTS, R, Rx, type t } from './common.ts';
 import { Match } from './m.Match.ts';
 import { Util } from './u.ts';
 
@@ -195,34 +195,34 @@ function updatePressedKeys(e: t.KeyboardKeypress) {
 
 export function handlerFiltered(
   filter: () => boolean,
-  options: { dispose$?: t.UntilInput } = {},
+  options: { until?: t.UntilInput } = {},
 ): t.KeyboardMonitorOn {
-  const { dispose$ } = options;
+  const { until } = options;
   return {
     on(...args: any[]) {
-      return handlerOnOverloaded(args, { filter, dispose$ });
+      return handlerOnOverloaded(args, { filter, until });
     },
   };
 }
 
 export function handlerOnOverloaded(
   args: any[],
-  options: { filter?: () => boolean; dispose$?: t.UntilInput } = {},
+  options: { filter?: () => boolean; until?: t.UntilInput } = {},
 ): t.Lifecycle {
   const { filter } = options;
-  const life = Rx.lifecycle(options.dispose$);
+  const life = Rx.lifecycle(options.until);
   const { dispose$ } = life;
 
   if (typeof args[0] === 'object') {
     const patterns = args[0] as t.KeyMatchPatterns;
     Object.entries(patterns).forEach(([pattern, fn]) => {
-      handlerOn(pattern, fn, { dispose$, filter });
+      handlerOn(pattern, fn, { until: dispose$, filter });
     });
     return life;
   }
 
   if (typeof args[0] === 'string' && typeof args[1] === 'function') {
-    return handlerOn(args[0], args[1], { dispose$, filter });
+    return handlerOn(args[0], args[1], { until: dispose$, filter });
   }
 
   throw new Error('Input paramters for [Keyboard.on] not matched.');
@@ -231,10 +231,10 @@ export function handlerOnOverloaded(
 export function handlerOn(
   pattern: t.KeyPattern,
   fn: t.KeyMatchSubscriberHandler,
-  options: { dispose$?: t.UntilInput; filter?: () => boolean } = {},
+  options: { until?: t.UntilInput; filter?: () => boolean } = {},
 ) {
   const { filter } = options;
-  const life = Rx.lifecycle(options.dispose$);
+  const life = Rx.lifecycle(options.until);
   if (!KeyboardMonitor.is.supported) return life;
 
   ensureStarted();

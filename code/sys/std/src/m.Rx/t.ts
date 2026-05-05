@@ -24,7 +24,7 @@ export type RxLib = RxjsLib & {
   withinTimeThreshold<T>(
     $: t.Observable<T>,
     timeout: t.Msecs,
-    options?: { dispose$?: t.UntilObservable },
+    options?: { until?: t.UntilInput },
   ): t.TimeThreshold<T>;
 };
 

@@ -51,9 +51,9 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
       expect((await Testing.connect(port)).refused).to.eql(true);
     });
 
-    it('dispose$ param', async () => {
+    it('until param', async () => {
       const life = Rx.disposable();
-      const ws = await Server.ws({ silent, dispose$: life });
+      const ws = await Server.ws({ silent, until: life });
       const port = ws.addr.port;
       expect(ws.disposed).to.eql(false);
       expect(ws.repo.disposed).to.eql(false);

@@ -24,7 +24,7 @@ type CreateMethod = {
 export type EffectRef<State> = {
   readonly current: State;
   change(mutator: (draft: State) => void): void;
-  events(dispose$: t.UntilInput): { readonly $: t.Observable<{ readonly after: State }> };
+  events(until: t.UntilInput): { readonly $: t.Observable<{ readonly after: State }> };
 };
 
 /**

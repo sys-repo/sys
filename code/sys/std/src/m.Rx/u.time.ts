@@ -1,6 +1,6 @@
 import { Time } from '../m.Time/mod.ts';
-import { type t, Dispose } from './common.ts';
-import { Subject, filter, take, takeUntil } from './u.Rx.libs.ts';
+import { Dispose, type t } from './common.ts';
+import { filter, Subject, take, takeUntil } from './u.Rx.libs.ts';
 
 /**
  * Listen for an event within a given time threshold.
@@ -9,16 +9,16 @@ import { Subject, filter, take, takeUntil } from './u.Rx.libs.ts';
 export function withinTimeThreshold<T>(
   $: t.Observable<T>,
   timeout: t.Msecs,
-  options: { dispose$?: t.UntilInput } = {},
+  options: { until?: t.UntilInput } = {},
 ): t.TimeThreshold<T> {
-  const life = Dispose.lifecycle(options.dispose$);
+  const life = Dispose.lifecycle(options.until);
 
   const listen = (timeout: number) => {
     type R = { result: boolean; value?: T };
     const startedAt = Date.now();
     const $$ = new Subject<R>();
 
-    const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
+    const { dispose, dispose$ } = Dispose.disposable(options.until);
 
     let timer: t.TimeDelayPromise | undefined;
     const cancelTimer = () => {

@@ -37,6 +37,7 @@ export const Fmt: t.WorkspaceRun.Fmt.Lib = {
 
     const packages = Fmt.packages(result);
     if (packages) str.blank().line(packages);
+    str.line(Cli.Fmt.hr(color));
 
     return Str.trimEdgeNewlines(String(str));
   },

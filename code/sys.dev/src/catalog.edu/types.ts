@@ -2,12 +2,6 @@
  * @module Catalog-Types
  */
 
-/** Catalog Id union. */
-export type CatalogId = 'VideoRecorder:view';
-
-/** Catalog Slot union. */
-export type CatalogSlot = never;
-
 /**
  * Library:
  */

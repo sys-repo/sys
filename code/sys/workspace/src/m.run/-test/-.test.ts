@@ -104,6 +104,7 @@ describe('WorkspaceRun', () => {
     expect(text.includes('package')).to.eql(true);
     expect(text.includes('code/pkg-a')).to.eql(true);
     expect(text.includes('code/pkg-c')).to.eql(true);
+    expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
   });
 
   it('formats dry run summary text and cyan task highlight', async () => {
@@ -122,6 +123,7 @@ describe('WorkspaceRun', () => {
     expect(text.includes('task dry')).to.eql(true);
     expect(formatted.includes(c.cyan('dry runs'))).to.eql(true);
     expect(formatted.includes(c.cyan('dry'))).to.eql(true);
+    expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
   });
 
   it('stops on the first failing package check', async () => {

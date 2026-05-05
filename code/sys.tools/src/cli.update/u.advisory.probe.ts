@@ -14,10 +14,18 @@ export async function runUpdateAdvisoryProbe(
 
   try {
     const version = await getInfo();
-    await writeSuccess(version.remote);
+    try {
+      await writeSuccess(version.remote);
+    } catch {
+      // Advisory persistence must not suppress a successful live probe.
+    }
     return { ok: true as const, remote: version.remote };
   } catch (error) {
-    await writeFailure(error);
+    try {
+      await writeFailure(error);
+    } catch {
+      // Advisory persistence must remain fail-quiet.
+    }
     return { ok: false as const };
   }
 }

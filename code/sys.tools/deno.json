@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.377",
+  "version": "0.0.400",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./-scripts ./src",
@@ -18,6 +18,7 @@
     "./types": "./src/types.ts",
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
+    "./pull": "./src/cli.pull/mod.ts",
     "./pi": "./src/cli.pi/mod.ts",
     "./tmpl": "./src/cli.tmpl/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",

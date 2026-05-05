@@ -33,6 +33,11 @@ export type StdIsLib = {
   promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
   /**
+   * Determine if the value is a started lifecycle handle with observed completion.
+   */
+  waitableHandle(input?: unknown): input is t.WaitableHandle;
+
+  /**
    * Determine if the value is an observable Subject.
    */
   subject<T = unknown>(input?: any): input is t.Subject<T>;
@@ -184,6 +189,11 @@ export type StdIsLib = {
    * Determine if the value conforms to an `Until`:
    */
   until(input?: unknown): input is t.Until;
+
+  /**
+   * Determine if the value conforms to an `UntilInput` API parameter.
+   */
+  untilInput(input?: unknown): input is t.UntilInput;
 
   /**
    * True if the value structurally matches a WebSocket.

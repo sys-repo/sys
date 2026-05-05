@@ -100,21 +100,28 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         const modules = res.data?.graph?.modules ?? [];
         const max = 5;
         const title = c.cyan(`${c.bold('graph modules')} (first ${max} of ${modules.length}):`);
-        console.info(title, modules.slice(0, max).map((module) => ({
-          path: module.path,
-          dependencies: module.dependencies.length,
-        })));
+        console.info(
+          title,
+          modules.slice(0, max).map((module) => ({
+            path: module.path,
+            dependencies: module.dependencies.length,
+          })),
+        );
         const deps = modules
           .flatMap((module) => module.dependencies.map((dep) => dep.specifier))
           .filter((specifier, index, items) => items.indexOf(specifier) === index)
           .sort((a, b) => a.localeCompare(b));
-        const rel = deps.filter((specifier) => specifier.startsWith('./') || specifier.startsWith('../'));
+        const rel = deps.filter((specifier) =>
+          specifier.startsWith('./') || specifier.startsWith('../')
+        );
         const jsr = deps.filter((specifier) => specifier.startsWith('jsr:'));
         const npm = deps.filter((specifier) => specifier.startsWith('npm:'));
         const preview = (items: readonly string[]) => {
           const shown = items.slice(0, 5);
           const more = items.length - shown.length;
-          const lines = shown.length === 0 ? ['  - []'] : shown.map((item) => `  - ${c.green(JSON.stringify(item))}`);
+          const lines = shown.length === 0
+            ? ['  - []']
+            : shown.map((item) => `  - ${c.green(JSON.stringify(item))}`);
           if (more > 0) lines.push(`  ${c.gray(c.italic(`${more} more`))}`);
           return lines.join('\n');
         };
@@ -144,7 +151,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
 
   it('dispose ← (cancel fetch operation)', async () => {
     const { dispose, dispose$ } = Rx.disposable();
-    const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
+    const promise = Fetch.Pkg.versions('@sys/std', { until: dispose$ });
 
     dispose();
     const res = await promise;

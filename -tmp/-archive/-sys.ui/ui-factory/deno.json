@@ -1,0 +1,67 @@
+{
+  "name": "@sys/ui-factory",
+  "version": "0.0.221",
+  "license": "MIT",
+  "tasks": {
+    "dev": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=dev    --in=./src/index.html",
+    "test": "deno test -P=test",
+    "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build  --in=./src/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "info": "deno run -P=dev   ./-scripts/task.vite.ts --cmd=info",
+    "tmpl": "deno run -P=tmpl ./src/m.tmpl/mod.ts",
+    "prep": "deno run -P=tmpl ./src/m.tmpl/mod.ts --bundle",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./core": "./src/m.core/mod.ts",
+    "./schema": "./src/m.schema/mod.ts",
+    "./tmpl": "./src/m.tmpl/mod.ts",
+    "./adapter/react": "./src/m.react/mod.ts",
+    "./components/react": "./src/ui/mod.ts",
+    "./sample/catalog": "./src/-test/-sample/catalog.ts",
+    "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "tmpl": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
+  }
+}
+

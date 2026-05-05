@@ -53,8 +53,8 @@
  */
 export { pkg } from './pkg.ts';
 
-/**
- * Library
- */
+/** Child-process helpers for invoking, inheriting, and spawning commands. */
 export { Process } from './m.process/mod.ts';
+
+/** Detached OS open helpers for URLs and paths. */
 export { Open } from './m.open/mod.ts';

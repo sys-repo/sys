@@ -1,4 +1,4 @@
-import { Rx, Time, describe, expect, it, type t } from '../../../-test.ts';
+import { describe, expect, it, Rx, type t, Time } from '../../../-test.ts';
 import { RxBus } from '../mod.ts';
 import { connect } from '../u.bus.connect.ts';
 
@@ -78,11 +78,11 @@ describe('BusConnect', () => {
     expect(firedB).to.eql([event]); // NB: Has immediate value (because synchronous).
   });
 
-  it('dispose: via { dispose$ } param', async () => {
+  it('dispose: via { until } param', async () => {
     const { dispose, dispose$ } = Rx.disposable();
     const a = RxBus<E>();
     const b = RxBus<E>();
-    connect<E>([a, b], { dispose$ });
+    connect<E>([a, b], { until: dispose$ });
 
     const firedA: E[] = [];
     const firedB: E[] = [];

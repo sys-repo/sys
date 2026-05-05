@@ -9,5 +9,9 @@ export type * from './t.namespace.ts';
  */
 export type UpdateToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
-  cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
+  cli(
+    cwd?: t.StringDir,
+    argv?: string[],
+    context?: t.UpdateTool.CliContext,
+  ): Promise<t.UpdateTool.CliResult>;
 };

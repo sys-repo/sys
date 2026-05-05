@@ -1,4 +1,4 @@
-import { type t, c, Rx } from './common.ts';
+import { c, Rx, type t } from './common.ts';
 import { asCommand, kill } from './u.ts';
 
 type H = t.Process.Handle;
@@ -11,7 +11,7 @@ type E = { source: t.Process.StdStream; fn: t.Process.EventHandler };
 export const spawn: t.Process.Lib['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
-  const life = Rx.lifecycleAsync(config.dispose$, async () => {
+  const life = Rx.lifecycleAsync(config.until, async () => {
     await stdoutReader.cancel();
     await stderrReader.cancel();
     await kill(child);

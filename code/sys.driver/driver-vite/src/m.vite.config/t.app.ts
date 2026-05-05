@@ -46,6 +46,14 @@ export type ViteConfigAppOptions = {
   vitePlugins?: t.VitePluginOption[];
 
   /**
+   * Canonical pass-through for Vite's OXC transform configuration.
+   *
+   * Unset by default so Vite keeps its native OXC behavior. Pass `false` only
+   * when intentionally disabling Vite's OXC transform path.
+   */
+  oxc?: t.ViteUserConfig['oxc'];
+
+  /**
    * Canonical pass-through for Vite dependency-optimizer configuration.
    *
    * This packet intentionally exposes Vite's native surface without adding

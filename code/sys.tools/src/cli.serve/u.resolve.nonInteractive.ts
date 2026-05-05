@@ -1,4 +1,4 @@
-import { type t, Fs, Open } from './common.ts';
+import { Fs, Is, Open, type t } from './common.ts';
 import { ServeFs } from './u.yaml/mod.ts';
 
 type Resolved = {
@@ -7,12 +7,15 @@ type Resolved = {
   readonly open: boolean;
 };
 
-export async function resolveNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<Resolved> {
+export async function resolveNonInteractive(
+  cwd: t.StringDir,
+  args: t.ServeTool.CliParsedArgs,
+): Promise<Resolved> {
   const host = resolveHost(args.host);
   const open = args.open === true;
 
-  const hasDir = typeof args.dir === 'string' && args.dir.trim().length > 0;
-  const hasConfig = typeof args.config === 'string' && args.config.trim().length > 0;
+  const hasDir = Is.str(args.dir) && args.dir.trim().length > 0;
+  const hasConfig = Is.str(args.config) && args.config.trim().length > 0;
 
   if (hasDir === hasConfig) {
     throw new Error('Exactly one of --dir or --config is required with --non-interactive.');

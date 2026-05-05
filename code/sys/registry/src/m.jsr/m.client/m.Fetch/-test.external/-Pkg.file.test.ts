@@ -1,14 +1,4 @@
-import {
-  type t,
-  describe,
-  expect,
-  Hash,
-  it,
-  Rx,
-  SAMPLE,
-  slug,
-  Testing,
-} from '../../../-test.ts';
+import { describe, expect, Hash, it, Rx, SAMPLE, slug, type t, Testing } from '../../../-test.ts';
 import { assertFetchDisposed } from '../-u.ts';
 import { JsrUrl } from '../common.ts';
 import { Fetch } from '../mod.ts';
@@ -121,18 +111,18 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
   describe('dispose ← (cancel fetch operation)', () => {
     const path = '/src/pkg.ts';
 
-    it('dispose$: param on fetcher constructor', async () => {
+    it('until param on fetcher constructor', async () => {
       const { dispose, dispose$ } = Rx.disposable();
-      const file = Fetch.Pkg.file(name, version, { dispose$ });
+      const file = Fetch.Pkg.file(name, version, { until: dispose$ });
       const promise = file.text(path);
       dispose();
       assertFetchDisposed(await promise);
     });
 
-    it('dispose$: param on path fetch request', async () => {
+    it('until param on path fetch request', async () => {
       const { dispose, dispose$ } = Rx.disposable();
       const file = Fetch.Pkg.file(name, version);
-      const promise = file.text(path, { dispose$ });
+      const promise = file.text(path, { until: dispose$ });
       dispose();
       assertFetchDisposed(await promise);
     });

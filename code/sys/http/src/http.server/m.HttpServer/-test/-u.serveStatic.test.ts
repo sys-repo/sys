@@ -1,7 +1,7 @@
 import { describe, expect, it, Testing, Time } from '../../../-test.ts';
 import { Fs, Http } from '../common.ts';
 import { HttpServer } from '../mod.ts';
-import { usingServer } from './fixture.usingServer.ts';
+import { usingServer } from './u.fixture.usingServer.ts';
 
 /**
  * Invariant:

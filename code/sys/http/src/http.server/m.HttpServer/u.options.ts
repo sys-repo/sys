@@ -14,8 +14,8 @@ export const options: F = (...input: any[]) => {
     port,
     onListen(address) {
       const addr = address as Deno.NetAddr;
-      const { dir, port: requestedPort } = options;
-      if (!options.silent) print({ addr, pkg, hash, dir, requestedPort });
+      const { dir, name, info, port: requestedPort } = options;
+      if (!options.silent) print({ addr, pkg, hash, name, info, dir, requestedPort });
     },
   };
 };

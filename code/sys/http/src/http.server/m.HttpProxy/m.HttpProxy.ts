@@ -1,9 +1,9 @@
-import { D, Http, HttpServer, pkg, type t } from './common.ts';
+import { D, HttpServer, pkg, type t } from './common.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
 export const HttpProxy: t.HttpProxy.Lib = {
   create(options = {}) {
-    const resolver = HttpProxyResolver(options.config ?? {});
+    const resolver = HttpProxyResolver(wrangle.config(options));
     const app = HttpServer.create({ pkg, static: false, cors: false });
 
     app.all('*', async (c) => {
@@ -22,7 +22,8 @@ export const HttpProxy: t.HttpProxy.Lib = {
       const upstream = `${result.upstream}${url.search}`;
 
       try {
-        const response = await fetch(new Request(upstream, c.req.raw));
+        const request = wrangle.request(c.req.raw, upstream as t.StringUrl);
+        const response = await fetch(request);
         const transformed = await applyResponseTransform(response, {
           request: c.req.raw,
           pathname,
@@ -38,20 +39,19 @@ export const HttpProxy: t.HttpProxy.Lib = {
     return app;
   },
 
-  async start(options = {}) {
-    const port = options.port ?? D.port;
-    const app = HttpProxy.create(options);
-    const serverOptions = HttpServer.options({ port, pkg });
-
-    const listener = Deno.serve(serverOptions, app.fetch);
-    const addr = listener.addr as Deno.NetAddr;
-    if (options.keyboard !== false) {
-      await HttpServer.keyboard({
-        port: addr.port,
-        url: `http://localhost:${addr.port}`,
-        print: true,
-      });
-    }
+  async start(args = {}) {
+    const app = HttpProxy.create(args);
+    const config = wrangle.config(args);
+    return HttpServer.start(app, {
+      hostname: args.hostname as t.StringHostname | undefined,
+      port: (args.port ?? D.port) as t.PortNumber,
+      pkg,
+      name: args.name,
+      info: wrangle.info(config, args.info),
+      silent: args.silent,
+      keyboard: args.keyboard,
+      until: args.until,
+    });
   },
 };
 
@@ -80,3 +80,80 @@ async function applyResponseTransform(
   if (!config?.transform) return response;
   return await config.transform(response, context);
 }
+
+const BODYLESS_METHODS = new Set(['GET', 'HEAD']);
+const FORWARDED_HEADER_DENYLIST = [
+  'connection',
+  'host',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+];
+
+const wrangle = {
+  config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Config {
+    if (options.config && options.mounts) {
+      throw new Error('HttpProxy: use either config or mounts, not both');
+    }
+
+    if (options.mounts) {
+      return {
+        mounts: options.mounts.map((mount) => ({
+          mountPath: mount.path,
+          upstream: mount.target,
+          response: mount.response,
+        })),
+      } satisfies t.HttpProxy.Config;
+    }
+
+    return options.config ?? {};
+  },
+
+  request(source: Request, upstream: t.StringUrl): Request {
+    const method = source.method.toUpperCase();
+    const headers = wrangle.headers(source.headers);
+    const init: RequestInit = { method: source.method, headers, redirect: 'manual' };
+
+    if (!BODYLESS_METHODS.has(method) && source.body) {
+      init.body = source.body;
+      (init as RequestInit & { duplex?: 'half' }).duplex = 'half';
+    }
+
+    return new Request(upstream, init);
+  },
+
+  headers(source: Headers): Headers {
+    const headers = new Headers(source);
+    const connectionHeaders = headers.get('connection')?.split(',').map((value) => value.trim()) ??
+      [];
+
+    [...FORWARDED_HEADER_DENYLIST, ...connectionHeaders]
+      .filter(Boolean)
+      .forEach((header) => headers.delete(header));
+
+    return headers;
+  },
+
+  info(
+    config: t.HttpProxy.Config,
+    input?: Record<string, string>,
+  ): Record<string, string> | undefined {
+    const output: Record<string, string> = {};
+
+    if (config.root) output.root = '/';
+    for (const mount of config.mounts ?? []) {
+      output[wrangle.infoLabel(mount.mountPath)] = mount.mountPath;
+    }
+
+    return Object.keys(output).length > 0 || input ? { ...output, ...input } : undefined;
+  },
+
+  infoLabel(path: string): string {
+    const label = path.replace(/^\/+|\/+$/g, '').replace(/\//g, '.');
+    return label ? `route.${label}` : 'root';
+  },
+} as const;

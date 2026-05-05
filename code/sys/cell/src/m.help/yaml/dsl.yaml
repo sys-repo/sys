@@ -1,0 +1,47 @@
+id: dsl
+title: Cell DSL
+summary: |
+  Cell DSL: the formal command/vocabulary surface for valid Cell edits.
+  Use these acts, owner rules, mappings, and chapters when changing a Cell folder.
+
+sections:
+  - label: Rule
+    items: |
+      Cell owns topology; owner configs own mechanics.
+      Use chapters for detailed slot policy and owner flows.
+      Do not put pull/service/proxy/mount mechanics in `cell.yaml`.
+      Do not turn `cell.yaml` into a mega-config.
+
+  - label: Speech acts
+    items:
+      - initialize this folder as a Cell
+      - add a local view named <name> at <path>
+      - add a pulled view from <dist-url>
+      - add a static view service named <name>
+      - add a runtime service named <name> using <module/export>
+      - add a proxy service named <name>
+      - mount <route> to <view/service/upstream>
+      - verify/load this Cell
+      - start the Cell runtime
+
+  - label: Owners
+    items:
+      - Cell config references owned configs.
+      - Cell does not own their internals.
+      - Use owning CLI/API to create, validate, or execute config.
+      - If no owner affordance exists, stop and ask.
+
+  - label: Mappings
+    items:
+      - add local view → create files under `view/`
+      - then register `views.<name>.source.local`
+      - add pulled view → run `@sys/tools pull add`
+      - then register `views.<name>.source.pull`
+      - add service → use service owner flow
+      - then register `runtime.services[]`
+      - add proxy → use proxy owner flow
+      - then register runtime service and mounts
+      - mount route → update proxy owner config
+      - '`cell.yaml` only names the proxy service'
+      - verify/load → run `Cell.load` against the folder
+      - start runtime → load Cell, start `Cell.Runtime`
