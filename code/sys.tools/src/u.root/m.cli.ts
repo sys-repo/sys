@@ -8,10 +8,6 @@ type CliDeps = {
   readonly prepareRootUpdateAdvisory?: (
     options?: RootUpdateAdvisoryOptions,
   ) => Promise<UpdateAdvisoryState>;
-  readonly refreshRootUpdateAdvisoryInBackground?: (
-    state: UpdateAdvisoryState,
-    options?: RootUpdateAdvisoryOptions,
-  ) => void;
   readonly rootMenu?: (args: { highlightUpdate?: boolean }) => Promise<
     { kind: 'exit' } | { kind: 'selected'; command: t.Root.Command }
   >;
@@ -37,15 +33,12 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
 
   const prepareRootUpdateAdvisory = deps.prepareRootUpdateAdvisory ??
     (await import('./u.updateAdvisory.ts')).prepareRootUpdateAdvisory;
-  const refreshRootUpdateAdvisoryInBackground = deps.refreshRootUpdateAdvisoryInBackground ??
-    (await import('./u.updateAdvisory.ts')).refreshRootUpdateAdvisoryInBackground;
   const info = deps.info ?? console.info;
 
   let advisory: UpdateAdvisoryState;
   const advisoryOptions = { noUpdateCheck: args.noUpdateCheck } as const;
   try {
     advisory = await prepareRootUpdateAdvisory(advisoryOptions);
-    refreshRootUpdateAdvisoryInBackground(advisory, advisoryOptions);
     try {
       if (advisory.prelude) info(advisory.prelude);
     } catch {
@@ -78,7 +71,6 @@ export async function cli(cwd: t.StringDir, argv: string[], deps: CliDeps = {}) 
 const emptyUpdateAdvisoryState: UpdateAdvisoryState = {
   path: undefined,
   record: undefined,
-  stale: false,
   hasUpdate: false,
   prelude: undefined,
 };

@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { cli } from '../m.cli.ts';
 
 describe('Root CLI', () => {
-  it('shows cached advisory and refreshes it before dispatching a root subcommand', async () => {
+  it('shows checked advisory before dispatching a root subcommand', async () => {
     const events: string[] = [];
 
     await cli('/tmp/sys.tools.root' as never, ['pi', '--flag'], {
@@ -11,13 +11,9 @@ describe('Root CLI', () => {
         return {
           path: '/tmp/advisory.json' as never,
           record: undefined,
-          stale: true,
           hasUpdate: true,
           prelude: 'Run sys update --latest',
         };
-      },
-      refreshRootUpdateAdvisoryInBackground() {
-        events.push('refresh');
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -32,7 +28,6 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'refresh',
       'info:Run sys update --latest',
       'dispatch:/tmp/sys.tools.root:pi:pi --flag:argv',
     ]);
@@ -47,13 +42,9 @@ describe('Root CLI', () => {
         return {
           path: undefined,
           record: undefined,
-          stale: false,
           hasUpdate: true,
           prelude: undefined,
         };
-      },
-      refreshRootUpdateAdvisoryInBackground() {
-        events.push('refresh');
       },
       async rootMenu(args) {
         events.push(`menu:${args.highlightUpdate}`);
@@ -66,7 +57,6 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'refresh',
       'menu:true',
       'dispatch:/tmp/sys.tools.root:update:update:root-menu',
     ]);
@@ -82,13 +72,9 @@ describe('Root CLI', () => {
         return {
           path: undefined,
           record: undefined,
-          stale: false,
           hasUpdate: false,
           prelude: undefined,
         };
-      },
-      refreshRootUpdateAdvisoryInBackground() {
-        events.push('refresh');
       },
       async rootMenu(args) {
         menuCount += 1;
@@ -103,7 +89,6 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'refresh',
       'menu:1:false',
       'dispatch:/tmp/sys.tools.root:update:update:root-menu',
       'menu:2:false',
@@ -117,9 +102,6 @@ describe('Root CLI', () => {
       async prepareRootUpdateAdvisory() {
         events.push('prepare');
         throw new Error('cache unavailable');
-      },
-      refreshRootUpdateAdvisoryInBackground() {
-        events.push('refresh');
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -141,13 +123,9 @@ describe('Root CLI', () => {
         return {
           path: undefined,
           record: undefined,
-          stale: false,
           hasUpdate: false,
           prelude: undefined,
         };
-      },
-      refreshRootUpdateAdvisoryInBackground(_, options) {
-        events.push(`refresh:${options?.noUpdateCheck}`);
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -159,7 +137,6 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare:true',
-      'refresh:true',
       'dispatch:/tmp/sys.tools.root:pi:pi --flag:argv',
     ]);
   });
@@ -192,13 +169,9 @@ describe('Root CLI', () => {
         return {
           path: '/tmp/advisory.json' as never,
           record: undefined,
-          stale: true,
           hasUpdate: true,
           prelude: 'Run sys update --latest',
         };
-      },
-      refreshRootUpdateAdvisoryInBackground() {
-        events.push('refresh');
       },
       async dispatchRootCommand(cwd, command, argv, context) {
         events.push(`dispatch:${cwd}:${command}:${argv.join(' ')}:${context.origin}`);
@@ -213,7 +186,6 @@ describe('Root CLI', () => {
 
     expect(events).to.eql([
       'prepare',
-      'refresh',
       'info:Run sys update --latest',
       'dispatch:/tmp/sys.tools.root:pi:pi --help:argv',
     ]);

@@ -1,7 +1,6 @@
 import { c, Cli, describe, expect, Fs, it, type t } from '../../-test.ts';
 import {
   readUpdateAdvisoryState,
-  shouldRefreshUpdateAdvisory,
   toRootUpdateAdvisoryPrelude,
   writeUpdateAdvisoryFailure,
   writeUpdateAdvisorySuccess,
@@ -26,28 +25,6 @@ describe('cli.update advisory', () => {
     expect(path).to.eql(undefined);
   });
 
-  it('treats missing records as stale so the first probe can run', () => {
-    expect(shouldRefreshUpdateAdvisory(undefined, { now: fixture.now(2_000) })).to.eql(true);
-  });
-
-  it('treats fresh records as non-stale within the ttl window', () => {
-    expect(
-      shouldRefreshUpdateAdvisory(
-        { package: '@sys/tools', checkedAt: 1_000, ok: true, remote: '0.0.372' },
-        { now: fixture.now(1_000 + 60_000) },
-      ),
-    ).to.eql(false);
-  });
-
-  it('treats old records as stale once the ttl expires', () => {
-    expect(
-      shouldRefreshUpdateAdvisory(
-        { package: '@sys/tools', checkedAt: 1_000, ok: true, remote: '0.0.372' },
-        { now: fixture.now(1_000 + 25 * 60 * 60 * 1000) },
-      ),
-    ).to.eql(true);
-  });
-
   it('suppresses the pre-menu advisory when cached remote is not newer', () => {
     const text = toRootUpdateAdvisoryPrelude({
       package: '@sys/tools',
@@ -59,17 +36,16 @@ describe('cli.update advisory', () => {
     expect(text).to.eql(undefined);
   });
 
-  it('reads malformed advisory files fail-quiet and marks them stale', async () => {
+  it('reads malformed advisory files fail-quiet', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'sys.tools.update.advisory.malformed.' });
     const path = `${tmp.absolute}/advisory.json`;
 
     try {
       await Fs.write(path, '{nope');
-      const res = await readUpdateAdvisoryState({ path, now: fixture.now(5_000) });
+      const res = await readUpdateAdvisoryState({ path });
       expect(res.record).to.eql(undefined);
       expect(res.hasUpdate).to.eql(false);
       expect(res.prelude).to.eql(undefined);
-      expect(res.stale).to.eql(true);
     } finally {
       await Fs.remove(tmp.absolute);
     }
@@ -81,9 +57,8 @@ describe('cli.update advisory', () => {
 
     try {
       Deno.env.set(key, '9.9.9');
-      const res = await readUpdateAdvisoryState({ now: fixture.now(1_000) });
+      const res = await readUpdateAdvisoryState();
       expect(res.path).to.eql(undefined);
-      expect(res.stale).to.eql(false);
       expect(res.hasUpdate).to.eql(true);
       expect(res.record?.ok).to.eql(true);
       if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
@@ -133,7 +108,7 @@ describe('cli.update advisory', () => {
 
     try {
       await writeUpdateAdvisorySuccess('9.9.9', { path, now: fixture.now(12_345) });
-      const res = await readUpdateAdvisoryState({ path, now: fixture.now(12_346) });
+      const res = await readUpdateAdvisoryState({ path });
 
       expect(res.record).to.eql({
         package: '@sys/tools',
@@ -143,7 +118,6 @@ describe('cli.update advisory', () => {
       });
       expect(res.hasUpdate).to.eql(true);
       expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
-      expect(res.stale).to.eql(false);
     } finally {
       await Fs.remove(tmp.absolute);
     }
@@ -155,7 +129,7 @@ describe('cli.update advisory', () => {
 
     try {
       await writeUpdateAdvisoryFailure(new Error('network down'), { path, now: fixture.now(55) });
-      const res = await readUpdateAdvisoryState({ path, now: fixture.now(56) });
+      const res = await readUpdateAdvisoryState({ path });
 
       expect(res.record).to.eql({
         package: '@sys/tools',
@@ -189,6 +163,25 @@ describe('cli.update advisory', () => {
 
     expect(res).to.eql({ ok: true, remote: '0.0.2' });
     expect(written).to.eql('0.0.2');
+  });
+
+  it('probe keeps live success when advisory persistence fails', async () => {
+    const res = await runUpdateAdvisoryProbe({
+      getVersionInfo: async () => ({
+        local: '0.0.1',
+        remote: '0.0.2',
+        latest: '0.0.2',
+        is: { latest: false },
+      }),
+      writeSuccess: async () => {
+        throw new Error('cache unavailable');
+      },
+      writeFailure: async () => {
+        throw new Error('should not write failure after live success');
+      },
+    });
+
+    expect(res).to.eql({ ok: true, remote: '0.0.2' });
   });
 
   it('probe writes failure advisory state when live version fetch fails', async () => {

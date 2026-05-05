@@ -2,18 +2,16 @@ import { Fs, Is, Json, Num, Path, pkg, Semver, type t, Time } from './common.ts'
 import { Fmt } from './u.fmt.ts';
 import { resolveUpdateAdvisoryPath } from './u.advisory.path.ts';
 
-const TTL_MSEC = 24 * 60 * 60 * 1000;
 const DEBUG_REMOTE_ENV = 'SYS_TOOLS_DEBUG_UPDATE_ADVISORY_REMOTE';
 
 type Now = () => t.UnixTimestamp;
-type ReadDeps = { readonly now?: Now; readonly path?: t.StringPath };
+type ReadDeps = { readonly path?: t.StringPath };
 type WriteDeps = { readonly now?: Now; readonly path?: t.StringPath };
 type UpdateAdvisoryRecord = t.UpdateTool.AdvisoryRecord;
 
 export type UpdateAdvisoryState = {
   readonly path?: t.StringPath;
   readonly record?: t.UpdateTool.AdvisoryRecord;
-  readonly stale: boolean;
   readonly hasUpdate: boolean;
   readonly prelude?: string;
 };
@@ -25,7 +23,6 @@ export async function readUpdateAdvisoryState(deps: ReadDeps = {}): Promise<Upda
     return {
       path: undefined,
       record: debugRecord,
-      stale: false,
       hasUpdate,
       prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(debugRecord) : undefined,
     };
@@ -36,19 +33,16 @@ export async function readUpdateAdvisoryState(deps: ReadDeps = {}): Promise<Upda
     return {
       path: undefined,
       record: undefined,
-      stale: false,
       hasUpdate: false,
       prelude: undefined,
     };
   }
 
   const record = await readUpdateAdvisoryRecord(path);
-  const stale = shouldRefreshUpdateAdvisory(record, { now: deps.now });
   const hasUpdate = wrangle.hasUpdate(record);
   return {
     path,
     record,
-    stale,
     hasUpdate,
     prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(record) : undefined,
   };
@@ -78,20 +72,29 @@ export async function writeUpdateAdvisoryFailure(error: unknown, deps: WriteDeps
   });
 }
 
-export function shouldRefreshUpdateAdvisory(
-  record?: UpdateAdvisoryRecord,
-  deps: { readonly now?: Now } = {},
-): boolean {
-  if (!record) return true;
-  if (record.package !== pkg.name) return true;
-  if (!Num.Is.safeInt(record.checkedAt) || record.checkedAt < 0) return true;
-  return ((deps.now?.() ?? Time.now.timestamp) - record.checkedAt) >= TTL_MSEC;
-}
-
 export function toRootUpdateAdvisoryPrelude(record?: UpdateAdvisoryRecord): string | undefined {
   if (!record?.ok) return undefined;
   if (!wrangle.hasUpdate(record)) return undefined;
   return Fmt.rootAdvisoryPrelude(record.remote);
+}
+
+export function toUpdateAdvisoryStateFromRemote(
+  remote: t.StringSemver,
+  deps: { readonly now?: Now; readonly path?: t.StringPath } = {},
+): UpdateAdvisoryState {
+  const record: UpdateAdvisoryRecord = {
+    package: pkg.name,
+    checkedAt: wrangle.checkedAt(deps.now),
+    ok: true,
+    remote,
+  };
+  const hasUpdate = wrangle.hasUpdate(record);
+  return {
+    path: deps.path,
+    record,
+    hasUpdate,
+    prelude: hasUpdate ? toRootUpdateAdvisoryPrelude(record) : undefined,
+  };
 }
 
 async function readUpdateAdvisoryRecord(
@@ -176,8 +179,8 @@ const wrangle = {
 
 export const UpdateAdvisory = {
   readState: readUpdateAdvisoryState,
-  shouldRefresh: shouldRefreshUpdateAdvisory,
   toRootPrelude: toRootUpdateAdvisoryPrelude,
+  toStateFromRemote: toUpdateAdvisoryStateFromRemote,
   writeSuccess: writeUpdateAdvisorySuccess,
   writeFailure: writeUpdateAdvisoryFailure,
 } as const;
