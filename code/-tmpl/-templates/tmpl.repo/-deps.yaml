@@ -4,7 +4,7 @@ deno.json:
     subpaths: [ t ]
   - import: jsr:@sys/driver-deno@0.0.328
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.388
+  - import: jsr:@sys/driver-vite@0.0.389
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.294
     subpaths: [ t ]
@@ -35,9 +35,9 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.284
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.380
+  - import: jsr:@sys/tmpl@0.0.381
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.395
+  - import: jsr:@sys/tools@0.0.397
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.281
   - import: jsr:@sys/ui-css@0.0.275
