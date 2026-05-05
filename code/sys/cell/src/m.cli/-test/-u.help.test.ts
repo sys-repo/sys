@@ -51,14 +51,30 @@ describe('FmtHelp', () => {
     expect(section(sections, 'Pull views')).to.contain(
       'It is not the local materialized view directory.',
     );
-    expect(section(sections, 'Pulled view')).to.contain('Required slots:');
     expect(section(sections, 'Pulled view')).to.contain(
-      '`<name>`, `<dist-url>`, `<pull-config-path>`, `<local-target>`.',
+      'Configure first; materialize only when needed or approved.',
     );
+    expect(section(sections, 'Slot policy')).to.contain('`<dist-url>` is given by the prompt.');
+    expect(section(sections, 'Slot policy')).to.contain(
+      '`<name>` must ask; view names are semantic/user-facing.',
+    );
+    expect(section(sections, 'Slot policy')).to.contain(
+      'Propose pull config: `./-config/@sys.tools.pull/view.yaml`.',
+    );
+    expect(section(sections, 'Slot policy')).to.contain(
+      'Propose local target: `./view/.pulled/<dist-name>`.',
+    );
+    expect(section(sections, 'Dialogue')).to.contain('What view name should I register?');
     expect(section(sections, 'Owner flow')).to.contain('Use owner CLI: `@sys/tools pull add`.');
     expect(section(sections, 'Owner flow')).to.contain('Pass `--config <pull-config-path>`.');
     expect(section(sections, 'Owner flow')).to.contain('Pass `--dist <dist-url>`.');
     expect(section(sections, 'Owner flow')).to.contain('Pass `--local <local-target>`.');
+    expect(section(sections, 'Materialize')).to.contain(
+      'Pull add configures only; it does not pull files.',
+    );
+    expect(section(sections, 'Materialize')).to.contain('Use owner CLI: `@sys/tools pull`.');
+    expect(section(sections, 'Materialize')).to.contain('Pass `--non-interactive`.');
+    expect(section(sections, 'Materialize')).to.contain('Pass `--config <pull-config-path>`.');
   });
 });
 

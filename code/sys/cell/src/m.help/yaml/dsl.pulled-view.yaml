@@ -4,9 +4,25 @@ sections:
       Classify "add a pulled view from <dist-url>" as `add: pulled view`.
       Treat the speech act as intent plus partial slots.
       Do not guess missing values.
-      Required slots:
-      `<name>`, `<dist-url>`, `<pull-config-path>`, `<local-target>`.
-      If any required slot is missing, ask before writing.
+      Configure first; materialize only when needed or approved.
+
+  - label: 'Slot policy'
+    items: |
+      `<dist-url>` is given by the prompt.
+      `<name>` must ask; view names are semantic/user-facing.
+      Do not derive `<name>` from the URL.
+      Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
+      Propose local target: `./view/.pulled/<dist-name>`.
+      Confirm proposed paths before writing.
+      Derive `<dist-name>` from the URL segment before `dist.json`.
+      Example URL segment: `driver.stripe`.
+
+  - label: 'Dialogue'
+    items: |
+      I can add that pulled view. I’ll use:
+      pull config: `./-config/@sys.tools.pull/view.yaml`
+      local target: `./view/.pulled/driver.stripe`
+      What view name should I register?
 
   - label: 'Owner flow'
     items: |
@@ -20,3 +36,11 @@ sections:
       Register only `views.<name>.source.pull` in `cell.yaml`.
       The value is `<pull-config-path>`.
       Do not put `<dist-url>` or `<local-target>` in `cell.yaml`.
+
+  - label: 'Materialize'
+    items: |
+      Pull add configures only; it does not pull files.
+      Materialize only when needed or approved.
+      Use owner CLI: `@sys/tools pull`.
+      Pass `--non-interactive`.
+      Pass `--config <pull-config-path>`.
