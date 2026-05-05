@@ -30,6 +30,16 @@ export declare namespace PiCliProfiles {
     readonly write?: readonly t.StringPath[];
     /** Pi package specifier override, primarily for tests and pinned launchers. */
     readonly pkg?: t.StringModuleSpecifier;
+    /** Terminal capability override for embedded/test launches; defaults to process stdio. */
+    readonly tty?: Tty;
+  };
+
+  /** Terminal capability snapshot used before opening interactive prompts. */
+  export type Tty = {
+    /** Whether stdin can safely serve an interactive prompt. */
+    readonly stdin: boolean;
+    /** Whether stdout can safely render an interactive prompt. */
+    readonly stdout: boolean;
   };
 
   /** Concrete run request after startup cwd resolution. */

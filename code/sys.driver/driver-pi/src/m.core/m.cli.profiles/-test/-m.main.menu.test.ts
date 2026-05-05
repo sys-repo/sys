@@ -38,7 +38,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         },
       });
 
-      const res = await Profiles.main({ cwd, argv: ['-A'] });
+      const res = await Profiles.main({ cwd, argv: ['-A'], tty: { stdin: true, stdout: true } });
       expect(res.kind).to.eql('exit');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.match(/permissions\s+allow-all/);
@@ -85,7 +85,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         },
       });
 
-      const res = await Profiles.main({ cwd });
+      const res = await Profiles.main({ cwd, tty: { stdin: true, stdout: true } });
       const reportFiles = (await Fs.ls(
         Fs.join(cwd, '.pi', '@sys', 'log', '@sys.driver-pi') as t.StringDir,
       )).filter((path) => path.endsWith('.sandbox.log.md'));

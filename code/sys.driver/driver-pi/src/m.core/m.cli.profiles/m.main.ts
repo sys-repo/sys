@@ -26,9 +26,13 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     throw new Error(err);
   }
 
+  const tty = resolveTty(input);
+  const canOpenProfileMenu = tty.stdin && tty.stdout;
+  if (!parsed.profile && !canOpenProfileMenu) throw new Error(ProfileMenuNonTtyError);
+
   const resolvedCwd = await resolveCwd(input.cwd, {
     gitRoot: parsed.gitRoot,
-    interactive: parsed.nonInteractive !== true,
+    interactive: parsed.nonInteractive !== true && canOpenProfileMenu,
   });
   if (resolvedCwd.kind === 'exit') return { kind: 'exit', input };
   const cwd = resolvedCwd.cwd;
@@ -78,6 +82,16 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
 /**
  * Helpers:
  */
+const ProfileMenuNonTtyError = [
+  'Cannot open the interactive profile menu because stdin/stdout is not a TTY.',
+  'Pass --profile <name|path>, or use --non-interactive --profile <name|path>.',
+  'Use --help for wrapper help; args after -- are passed to Pi after a profile is selected.',
+].join(' ');
+
+function resolveTty(input: t.PiCliProfiles.Input): t.PiCliProfiles.Tty {
+  return input.tty ?? { stdin: Deno.stdin.isTerminal(), stdout: Deno.stdout.isTerminal() };
+}
+
 function resolveProfileSelector(root: t.StringDir, value: string) {
   if (isExplicitProfilePath(value)) {
     return {

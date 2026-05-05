@@ -14,7 +14,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/guards`, () => {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.ensureDir(nested);
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
-      const res = await Profiles.main({ cwd: nested, argv: ['--git-root', 'cwd'] });
+      const res = await Profiles.main({
+        cwd: nested,
+        argv: ['--git-root', 'cwd'],
+        tty: { stdin: true, stdout: true },
+      });
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
@@ -28,7 +32,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/guards`, () => {
     const prevPrompt = GitInitMenu.prompt;
     try {
       Object.defineProperty(GitInitMenu, 'prompt', { value: async () => 'exit' });
-      const res = await Profiles.main({ cwd, argv: ['--profile', 'canon'] });
+      const res = await Profiles.main({
+        cwd,
+        argv: ['--profile', 'canon'],
+        tty: { stdin: true, stdout: true },
+      });
       expect(res.kind).to.eql('exit');
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
@@ -60,6 +68,31 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/guards`, () => {
     } finally {
       Object.defineProperty(GitInitMenu, 'prompt', { value: prevPrompt });
       await Fs.remove(cwd);
+    }
+  });
+
+  it('fails clearly instead of opening the profile menu when no TTY is available', async () => {
+    const prev = Process.inherit;
+    try {
+      Process.inherit = async () => {
+        throw new Error('Pi should not launch without a selected profile.');
+      };
+
+      let error = '';
+      try {
+        await Profiles.main({ argv: [], tty: { stdin: false, stdout: false } });
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err);
+      }
+
+      expect(error).to.contain(
+        'Cannot open the interactive profile menu because stdin/stdout is not a TTY.',
+      );
+      expect(error).to.contain('Pass --profile <name|path>');
+      expect(error).to.contain('Use --help for wrapper help');
+      expect(error).to.contain('args after -- are passed to Pi after a profile is selected');
+    } finally {
+      Process.inherit = prev;
     }
   });
 
