@@ -33,6 +33,11 @@ export const ProfilesFs = {
         context:
           append: []  # extra files loaded after ./AGENTS.md and ./SYSTEM.md
 
+      tools:
+        remove:
+          enabled: false  # opt-in filesystem cleanup tool
+          recursive: true # normal directory-tree cleanup through the protected remove tool
+
       `,
     ).trimStart();
   },

@@ -138,6 +138,23 @@ export declare namespace PiCliProfiles {
     readonly system?: string | null;
   };
 
+  /** Tool policy exposed by a Pi profile. */
+  export type Tools = {
+    /** Filesystem removal tool policy. */
+    readonly remove?: Tools.Remove;
+  };
+
+  /** Tool policy helper types. */
+  export namespace Tools {
+    /** Filesystem removal tool policy. */
+    export type Remove = {
+      /** Enable the wrapper-owned `remove` tool. */
+      readonly enabled?: boolean;
+      /** Allow recursive directory tree removal through `remove`. */
+      readonly recursive?: boolean;
+    };
+  }
+
   /** Persisted YAML document types. */
   export namespace Yaml {
     /** Canonical config directory shape. */
@@ -151,6 +168,8 @@ export declare namespace PiCliProfiles {
       readonly prompt?: PiCliProfiles.Prompt;
       /** Explicit sandbox policy for this profile. */
       readonly sandbox?: PiCliProfiles.Sandbox;
+      /** Explicit tool policy for this profile. */
+      readonly tools?: PiCliProfiles.Tools;
     };
 
     /** YAML validation result. */

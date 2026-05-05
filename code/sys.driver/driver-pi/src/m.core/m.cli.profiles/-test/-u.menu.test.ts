@@ -63,7 +63,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
-      expect(calls).to.eql(['Migrated 1 Pi config/runtime item.']);
+      expect(calls).to.eql(['Migrated 2 Pi config/runtime items.']);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;

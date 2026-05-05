@@ -13,6 +13,9 @@ export const ProfileSchema = {
         capability: { read: [], write: [], env: {} },
         context: { append: [] },
       },
+      tools: {
+        remove: { enabled: false, recursive: true },
+      },
     };
   },
 
@@ -52,6 +55,22 @@ export const ProfileSchema = {
             context: Type.Optional(
               Type.Object(
                 { append: Type.Optional(Type.Array(Type.String())) },
+                { additionalProperties: false },
+              ),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
+      tools: Type.Optional(
+        Type.Object(
+          {
+            remove: Type.Optional(
+              Type.Object(
+                {
+                  enabled: Type.Optional(Type.Boolean()),
+                  recursive: Type.Optional(Type.Boolean()),
+                },
                 { additionalProperties: false },
               ),
             ),

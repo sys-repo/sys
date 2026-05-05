@@ -215,7 +215,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       const res = await Profiles.main({ cwd, argv: ['--profile', 'canon'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('Migrated 1 Pi config/runtime item.');
+      expect(printed).to.contain('Migrated 2 Pi config/runtime items.');
       expect(printed).to.contain('pi:sandbox');
     } finally {
       Process.inherit = prev;

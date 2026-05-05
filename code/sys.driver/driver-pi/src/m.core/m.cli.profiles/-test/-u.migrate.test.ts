@@ -149,10 +149,17 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         await Fs.write(oldPath, source);
 
         const res = await ProfileMigrate.dir(cwd);
-        expect(res.migrated).to.eql([{ from: oldPath, to: newPath }]);
+        expect(res.migrated).to.eql([
+          { from: oldPath, to: newPath },
+          { from: newPath, to: newPath },
+        ]);
         expect(res.skipped).to.eql([]);
         expect(await Fs.exists(oldPath)).to.eql(false);
-        expect((await Fs.readText(newPath)).data).to.eql(source);
+        const checked = await ProfilesFs.validateYaml(newPath);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+        }
       } finally {
         await Fs.remove(cwd);
       }
@@ -170,10 +177,17 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         await Fs.write(oldPath, source);
 
         const res = await ProfileMigrate.dir(cwd);
-        expect(res.migrated).to.eql([{ from: oldPath, to: newPath }]);
+        expect(res.migrated).to.eql([
+          { from: oldPath, to: newPath },
+          { from: newPath, to: newPath },
+        ]);
         expect(res.skipped).to.eql([]);
         expect(await Fs.exists(Fs.dirname(oldPath))).to.eql(false);
-        expect((await Fs.readText(newPath)).data).to.eql(source);
+        const checked = await ProfilesFs.validateYaml(newPath);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+        }
       } finally {
         await Fs.remove(cwd);
       }
@@ -184,7 +198,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         .absolute as t.StringDir;
       const legacyDir = Fs.join(cwd, '-config/@sys.driver-agent.pi') as t.StringPath;
       const newPath = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
-      const source = 'sandbox: {}\n';
+      const source = profileWithRemoveDefaults('sandbox: {}');
 
       try {
         await Fs.ensureDir(legacyDir);
@@ -205,7 +219,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
       const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
         .absolute as t.StringDir;
       const path = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
-      const source = 'sandbox: {}\n';
+      const source = profileWithRemoveDefaults('sandbox: {}');
 
       try {
         await Fs.ensureDir(Fs.dirname(path));
@@ -254,6 +268,124 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         }
       });
     }
+  });
+
+  describe('04: tools.remove disabled defaults', () => {
+    it('file → adds disabled remove-tool defaults when tools is absent', async () => {
+      const { cwd, path } = await writeProfile('sandbox:\n  capability:\n    write: [./src]\n');
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([{ from: path, to: path }]);
+        expect(res.skipped).to.eql([]);
+
+        const checked = await ProfilesFs.validateYaml(path);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+        }
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → preserves explicit remove enablement while adding missing defaults', async () => {
+      const { cwd, path } = await writeProfile(
+        Str.dedent(
+          `
+          tools:
+            remove:
+              enabled: true
+          `,
+        ).trimStart(),
+      );
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([{ from: path, to: path }]);
+
+        const checked = await ProfilesFs.validateYaml(path);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+        }
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → upgrades disabled legacy recursive false default to true', async () => {
+      const { cwd, path } = await writeProfile(
+        Str.dedent(
+          `
+          tools:
+            remove:
+              enabled: false
+              recursive: false
+          `,
+        ).trimStart(),
+      );
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([{ from: path, to: path }]);
+
+        const checked = await ProfilesFs.validateYaml(path);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+        }
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → preserves enabled recursive false as an explicit policy', async () => {
+      const { cwd, path } = await writeProfile(
+        Str.dedent(
+          `
+          tools:
+            remove:
+              enabled: true
+              recursive: false
+          `,
+        ).trimStart(),
+      );
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([]);
+        expect(res.skipped).to.eql([{ from: path, to: path }]);
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → is idempotent after disabled defaults are present', async () => {
+      const { cwd, path } = await writeProfile(profileWithRemoveDefaults('sandbox: {}'));
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([]);
+        expect(res.skipped).to.eql([{ from: path, to: path }]);
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → skips invalid tools shape without clobbering it', async () => {
+      const source = 'tools: ./bad\n';
+      const { cwd, path } = await writeProfile(source);
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([]);
+        expect(res.skipped).to.eql([{ from: path, to: path }]);
+        expect((await Fs.readText(path)).data).to.eql(source);
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
   });
 
   describe('03: legacy runtime logs → .pi/@sys/log', () => {
@@ -331,4 +463,16 @@ async function writeProfile(text: string) {
   const path = Fs.join(cwd, 'profile.yaml') as t.StringPath;
   await Fs.write(path, text);
   return { cwd, path };
+}
+
+function profileWithRemoveDefaults(prefix: string) {
+  return Str.dedent(
+    `
+    ${prefix}
+    tools:
+      remove:
+        enabled: false
+        recursive: true
+    `,
+  ).trimStart();
 }

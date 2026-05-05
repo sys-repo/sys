@@ -22,6 +22,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
         'context:',
         'append: []',
         'extra files loaded after ./AGENTS.md and ./SYSTEM.md',
+        'tools:',
+        'remove:',
+        'enabled: false',
+        'recursive: true',
       ]
     ) {
       expect(text).to.contain(expected);

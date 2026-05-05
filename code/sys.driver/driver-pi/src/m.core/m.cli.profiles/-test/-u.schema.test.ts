@@ -11,6 +11,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
         capability: { read: [], write: [], env: {} },
         context: { append: [] },
       },
+      tools: {
+        remove: { enabled: false, recursive: true },
+      },
     });
   });
 
@@ -19,12 +22,16 @@ describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
       ProfileSchema.validate({
         prompt: { system: 'You are focused.' },
         sandbox: { capability: { read: ['./canon'] } },
+        tools: { remove: { enabled: true, recursive: false } },
       }).ok,
     ).to.eql(true);
+    expect(ProfileSchema.validate({ tools: { remove: {} } }).ok).to.eql(true);
     expect(ProfileSchema.validate({ prompt: { system: '' } }).ok).to.eql(false);
     expect(ProfileSchema.validate({ name: 'main' }).ok).to.eql(false);
     expect(ProfileSchema.validate({ args: [], sandbox: {} }).ok).to.eql(false);
     expect(ProfileSchema.validate({ sandbox: {}, read: ['./legacy'] }).ok).to.eql(false);
+    expect(ProfileSchema.validate({ tools: { delete: { enabled: true } } }).ok).to.eql(false);
+    expect(ProfileSchema.validate({ tools: { remove: { force: true } } }).ok).to.eql(false);
   });
 
   it('validateProfileYamlText → parses valid YAML and reports invalid YAML', () => {
