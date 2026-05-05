@@ -191,7 +191,9 @@ const wrangle = {
     const options: { name: string; value: 'save' | 'back' | 'cancel' }[] = [
       { name: `  ${c.green('save')}`, value: 'save' },
     ];
-    if (args.allowBack) options.push({ name: `${c.cyan('←')} ${c.gray('back')}`, value: 'back' });
+    if (args.allowBack) {
+      options.push({ name: `${c.cyan('←')} ${c.gray('reselect')}`, value: 'back' });
+    }
     options.push({ name: `  ${c.gray('cancel')}`, value: 'cancel' });
 
     return await Cli.Input.Select.prompt<'save' | 'back' | 'cancel'>({

@@ -115,8 +115,8 @@ describe('@sys/workspace/bump run', () => {
         ['save', 'back', 'cancel'],
       ]);
       expect(confirmNames).to.eql([
-        ['  save', '← back', '  cancel'],
-        ['  save', '← back', '  cancel'],
+        ['  save', '← reselect', '  cancel'],
+        ['  save', '← reselect', '  cancel'],
       ]);
       expect(res.plan.roots.map((root) => root.name)).to.eql(['@scope/b']);
       expect(a.data?.version).to.eql('1.0.0');
