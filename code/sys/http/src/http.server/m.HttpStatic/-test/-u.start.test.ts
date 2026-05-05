@@ -27,6 +27,7 @@ describe('HttpStatic', () => {
 
     expect(mod.HttpStatic).to.equal(HttpStatic);
     expect(mod.HttpStatic.start).to.equal(HttpStatic.start);
+    expect(mod.HttpStatic.Config).to.equal(HttpStatic.Config);
   });
 
   it('starts a static server and serves index.html', async () => {

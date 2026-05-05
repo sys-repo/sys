@@ -8,6 +8,69 @@ export declare namespace HttpStatic {
   export type Lib = {
     /** Start a static file server and return the standard HTTP server lifecycle handle. */
     start(args?: StartArgs): Promise<t.HttpServerStarted>;
+
+    /** Durable static-server config owner affordances. */
+    readonly Config: ConfigLib;
+  };
+
+  /** Durable static-server config owner affordances. */
+  export type ConfigLib = {
+    /** Create or update a static-server config YAML document. */
+    add(input: ConfigAddInput): Promise<ConfigAddResult>;
+  };
+
+  /** Durable YAML shape owned by the static-server endpoint. */
+  export type ConfigDoc = {
+    /** Display name forwarded to static server startup output. */
+    readonly name: string;
+
+    /** Static root to serve. Relative paths resolve against the service cwd. */
+    readonly dir: string;
+
+    /** Listen hostname. */
+    readonly hostname: string;
+
+    /** Listen port. Use `0` for an ephemeral port. */
+    readonly port: number;
+  };
+
+  /** Config mutation input. */
+  export type ConfigAddInput = {
+    /** Base directory used to resolve relative `config` paths. */
+    readonly cwd: t.StringDir;
+
+    /** Static config ref: bare name or explicit YAML path. */
+    readonly config?: string;
+
+    /** Static server display name. Defaults from `config`. */
+    readonly name?: string;
+
+    /** Static root to serve. */
+    readonly dir?: string;
+
+    /** Listen hostname. */
+    readonly hostname?: string;
+
+    /** Listen port. */
+    readonly port?: number | string;
+
+    /** Preview the config mutation without writing. */
+    readonly dryRun?: boolean;
+  };
+
+  /** Config mutation result. */
+  export type ConfigAddResult = {
+    /** Result kind. */
+    readonly kind: 'added' | 'updated' | 'exists' | 'dry-run';
+
+    /** Resolved config YAML path. */
+    readonly yamlPath: t.StringPath;
+
+    /** Whether the file did not exist before the mutation. */
+    readonly created: boolean;
+
+    /** Desired durable config document. */
+    readonly config: ConfigDoc;
   };
 
   /** Arguments passed to [HttpStatic.start]. */
