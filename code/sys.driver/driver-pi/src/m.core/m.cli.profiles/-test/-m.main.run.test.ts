@@ -1,14 +1,13 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, Str, type t } from '../common.ts';
 import { Process } from '../../m.cli/common.ts';
+import { Cli, Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
   it('runs selected profile path and passes argv after -- through to Pi', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
-      .absolute as t.StringDir;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' })).absolute;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     const calls: string[] = [];
     try {
