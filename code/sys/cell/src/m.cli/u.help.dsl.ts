@@ -26,20 +26,20 @@ export const FmtDslHelp = {
 function guideTable(chapter: t.CellHelp.Dsl.Chapter): string {
   const table = CliTable.create([]);
 
-  if (chapter.chapters.length > 0) {
-    const commandWidth = maxVisibleWidth(chapter.chapters.map(chapterCommand));
-    chapter.chapters.forEach((item, itemIndex) => {
-      table.push([itemIndex === 0 ? c.gray('Chapter') : '', chapterLine(item, commandWidth)]);
-    });
-    if (chapter.sections.length > 0) table.push(['', '']);
-  }
-
   chapter.sections.forEach((section, sectionIndex) => {
     if (sectionIndex > 0) table.push(['', '']);
     section.items.forEach((item, itemIndex) => {
       table.push([itemIndex === 0 ? c.gray(section.label) : '', c.white(item)]);
     });
   });
+
+  if (chapter.chapters.length > 0) {
+    if (chapter.sections.length > 0) table.push(['', '']);
+    const commandWidth = maxVisibleWidth(chapter.chapters.map(chapterCommand));
+    chapter.chapters.forEach((item, itemIndex) => {
+      table.push([itemIndex === 0 ? c.gray('Chapter') : '', chapterLine(item, commandWidth)]);
+    });
+  }
 
   return Str.trimEdgeNewlines(String(table));
 }
