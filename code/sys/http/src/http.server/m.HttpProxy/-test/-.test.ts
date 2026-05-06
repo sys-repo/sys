@@ -10,6 +10,8 @@ describe('HttpProxy', () => {
     expect(m.HttpProxy).to.equal(HttpProxy);
     expect(direct.HttpProxy).to.equal(HttpProxy);
     expect(HttpProxy).to.be.ok;
+    expect(HttpProxy.Config).to.be.ok;
+    expect(HttpProxy.Mount).to.be.ok;
     expectTypeOf(HttpProxy).toMatchTypeOf<t.HttpProxy.Lib>();
   });
 

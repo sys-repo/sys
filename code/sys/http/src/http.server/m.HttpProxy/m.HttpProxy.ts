@@ -1,7 +1,12 @@
 import { D, HttpServer, pkg, type t } from './common.ts';
+import { Config } from './m.Config.ts';
+import { Mount } from './m.Mount.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
 export const HttpProxy: t.HttpProxy.Lib = {
+  Config,
+  Mount,
+
   create(options = {}) {
     const resolver = HttpProxyResolver(wrangle.config(options));
     const app = HttpServer.create({ pkg, static: false, cors: false });
@@ -74,8 +79,8 @@ function applyResponseHeaders(response: Response, headers?: HeadersInit): Respon
 
 async function applyResponseTransform(
   response: Response,
-  context: t.HttpProxy.ResponseTransformContext,
-  config?: t.HttpProxy.ResponseConfig,
+  context: t.HttpProxy.Response.TransformContext,
+  config?: t.HttpProxy.Response.Config,
 ): Promise<Response> {
   if (!config?.transform) return response;
   return await config.transform(response, context);
@@ -95,7 +100,7 @@ const FORWARDED_HEADER_DENYLIST = [
 ];
 
 const wrangle = {
-  config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Config {
+  config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Routing.Config {
     if (options.config && options.mounts) {
       throw new Error('HttpProxy: use either config or mounts, not both');
     }
@@ -105,9 +110,8 @@ const wrangle = {
         mounts: options.mounts.map((mount) => ({
           mountPath: mount.path,
           upstream: mount.target,
-          response: mount.response,
         })),
-      } satisfies t.HttpProxy.Config;
+      } satisfies t.HttpProxy.Routing.Config;
     }
 
     return options.config ?? {};
@@ -139,7 +143,7 @@ const wrangle = {
   },
 
   info(
-    config: t.HttpProxy.Config,
+    config: t.HttpProxy.Routing.Config,
     input?: Record<string, string>,
   ): Record<string, string> | undefined {
     const output: Record<string, string> = {};
