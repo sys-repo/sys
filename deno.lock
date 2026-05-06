@@ -99,6 +99,7 @@
     "npm:strip-ansi@7.2.0": "7.2.0",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.2.0": "10.2.0",
+    "npm:typebox@1.1.38": "1.1.38",
     "npm:vite-plugin-wasm@*": "3.6.0_vite@8.0.10__esbuild@0.28.0__yaml@2.8.4_yaml@2.8.4",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.10__esbuild@0.28.0__yaml@2.8.4_yaml@2.8.4",
     "npm:vite@*": "8.0.10_esbuild@0.28.0_yaml@2.8.4",
@@ -1513,7 +1514,7 @@
       "integrity": "sha512-ugcpvq0X9fr9fTSK29/3S4+KU/eeVMrBb7ZU3HqiF3xD7I1GlgumLj4FYmDrYSEA6+rzgNWlJUKwjKh9o0Z6AA==",
       "dependencies": [
         "@mariozechner/pi-ai",
-        "typebox"
+        "typebox@1.1.37"
       ]
     },
     "@mariozechner/pi-ai@0.73.0_ws@8.20.0_zod@4.4.3": {
@@ -1527,7 +1528,7 @@
         "openai",
         "partial-json",
         "proxy-agent",
-        "typebox",
+        "typebox@1.1.37",
         "undici",
         "zod-to-json-schema"
       ],
@@ -1553,7 +1554,7 @@
         "minimatch@10.2.5",
         "proper-lockfile",
         "strip-ansi@7.2.0",
-        "typebox",
+        "typebox@1.1.37",
         "undici",
         "uuid@14.0.0",
         "yaml"
@@ -4163,6 +4164,9 @@
     },
     "typebox@1.1.37": {
       "integrity": "sha512-jb7jp6KvOvvy5sd+11AfJ0/e0F0AS9RcOXd55oGi2ZnRHIGmFvrTaNF+ZidRmGBmmNTkM5KKl0Z37KzxJ+owEQ=="
+    },
+    "typebox@1.1.38": {
+      "integrity": "sha512-pZ0aQPmMmXoUvSbeuWf/Hzsc+avNw/Zd6VeE8CFgkVGWyuHPJvqeJJDeJqLve+K70LvjYIoleGcoJHPT17cWoA=="
     },
     "typescript@5.8.3": {
       "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==",
