@@ -44,8 +44,8 @@ describe('cli.shell CLI', () => {
     const text = Cli.stripAnsi(output.join('\n'));
     expect(text).to.contain('system:shell alias list');
     expect(text).to.contain('  aliases   sys conflict');
-    expect(text).to.contain('              command:   deno run -A jsr:@sys/tools');
-    expect(text).to.contain('              conflicts: /home/me/.zprofile');
+    expect(text).to.contain('            - command:   deno run -A jsr:@sys/tools');
+    expect(text).to.contain('            - conflicts: /home/me/.zprofile');
     expect(text).to.contain('  profiles  /home/me/.zshrc (interactive) exists; block: missing');
   });
 

@@ -154,11 +154,11 @@ function aliasListLines(items: readonly t.ShellTool.Alias.Item[]): readonly stri
     const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
     const lines = [
       `${c.cyan(item.entry.name)} ${state}${stale}`,
-      `  ${field('command', item.entry.command, 10)}`,
+      `${c.gray('-')} ${field('command', item.entry.command, 10)}`,
     ];
 
     if (item.conflictProfiles.length > 0) {
-      lines.push(`  ${field('conflicts', item.conflictProfiles.join(', '), 10)}`);
+      lines.push(`${c.gray('-')} ${field('conflicts', item.conflictProfiles.join(', '), 10)}`);
     }
 
     return lines;
@@ -173,11 +173,11 @@ function pathListLines(items: readonly t.ShellTool.Path.Item[]): readonly string
     const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
     const lines = [
       `${c.cyan(item.entry.label)} ${state}${stale}`,
-      `  ${field('expression', item.entry.expression.split(/\r?\n/)[0] ?? '', 11)}`,
+      `${c.gray('-')} ${field('expression', item.entry.expression.split(/\r?\n/)[0] ?? '', 11)}`,
     ];
 
     if (item.unmanagedProfiles.length > 0) {
-      lines.push(`  ${field('unmanaged', item.unmanagedProfiles.join(', '), 11)}`);
+      lines.push(`${c.gray('-')} ${field('unmanaged', item.unmanagedProfiles.join(', '), 11)}`);
     }
 
     return lines;
