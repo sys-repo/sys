@@ -1,6 +1,6 @@
 import { Args } from '../common.ts';
 
-export type ProxyCliCommand = 'config' | 'config:add' | 'mount' | 'mount:add';
+export type ProxyCliCommand = 'config' | 'config:add' | 'root' | 'root:set' | 'mount' | 'mount:add';
 
 export type ProxyCliArgs = {
   readonly _: readonly string[];
@@ -34,6 +34,7 @@ export function parseArgs(argv: string[] = []): ProxyCliParsedArgs {
 
 function parseCommand(args: readonly string[]): ProxyCliCommand | undefined {
   if (args[0] === 'config') return args[1] === 'add' ? 'config:add' : 'config';
+  if (args[0] === 'root') return args[1] === 'set' ? 'root:set' : 'root';
   if (args[0] === 'mount') return args[1] === 'add' ? 'mount:add' : 'mount';
   return undefined;
 }

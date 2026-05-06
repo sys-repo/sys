@@ -1,4 +1,4 @@
-import { HttpClient, Time, type t } from '../common.ts';
+import { HttpClient, type t, Time } from '../common.ts';
 
 export const DEFAULT_TIMEOUT = 10_000;
 

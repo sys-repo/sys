@@ -23,6 +23,9 @@ export declare namespace HttpProxy {
     /** Durable reverse-proxy config owner affordances. */
     readonly Config: Config.Lib;
 
+    /** Durable reverse-proxy root/default route owner affordances. */
+    readonly Root: Root.Lib;
+
     /** Durable reverse-proxy mount owner affordances. */
     readonly Mount: Mount.Lib;
   };
@@ -32,7 +35,10 @@ export declare namespace HttpProxy {
     /** Advanced reverse proxy routing configuration. */
     readonly config?: Routing.Config;
 
-    /** Lifecycle-friendly path-prefix mounts. Use `config` for root fallback or advanced routing. */
+    /** Lifecycle-friendly root/default upstream. Use `config` for advanced routing. */
+    readonly root?: Root.Doc;
+
+    /** Lifecycle-friendly path-prefix mounts. Use `config` for advanced routing. */
     readonly mounts?: readonly Mount.Doc[];
   };
 
@@ -85,6 +91,9 @@ export declare namespace HttpProxy {
       /** Listen port. Use `0` for an ephemeral port. */
       readonly port: number;
 
+      /** Durable lifecycle-friendly root/default upstream declaration. */
+      readonly root?: Root.Doc;
+
       /** Durable lifecycle-friendly mounted upstream declarations. */
       readonly mounts: readonly Mount.Doc[];
     };
@@ -123,6 +132,63 @@ export declare namespace HttpProxy {
 
       /** Desired durable config document. */
       readonly config: Doc;
+    };
+  }
+
+  /** Durable reverse-proxy root/default route owner affordances. */
+  export namespace Root {
+    /** Owner root/default route mutation API. */
+    export type Lib = {
+      /** Create or update the root/default upstream in a reverse-proxy config YAML document. */
+      set(input: SetInput): Promise<SetResult>;
+    };
+
+    /** Durable lifecycle-friendly root/default upstream declaration. */
+    export type Doc = {
+      /** Absolute root/default upstream URL-prefix. Must end with `/` and include no query/hash. */
+      readonly target: t.StringUrl;
+    };
+
+    /** Root/default route mutation input. */
+    export type SetInput = {
+      /** Base directory used to resolve relative `config` paths. */
+      readonly cwd: t.StringDir;
+
+      /** Proxy config ref: bare name or explicit YAML path. */
+      readonly config?: string;
+
+      /** Absolute root/default upstream URL-prefix. */
+      readonly upstream?: string;
+
+      /** Optional proxy display name used when the config must be created. */
+      readonly name?: string;
+
+      /** Optional listen hostname used when the config must be created. */
+      readonly hostname?: string;
+
+      /** Optional listen port used when the config must be created. */
+      readonly port?: number | string;
+
+      /** Preview the config mutation without writing. */
+      readonly dryRun?: boolean;
+    };
+
+    /** Root/default route mutation result. */
+    export type SetResult = {
+      /** Result kind. */
+      readonly kind: 'added' | 'updated' | 'exists' | 'dry-run';
+
+      /** Resolved config YAML path. */
+      readonly yamlPath: t.StringPath;
+
+      /** Whether the file did not exist before the mutation. */
+      readonly created: boolean;
+
+      /** Desired durable config document. */
+      readonly config: Config.Doc;
+
+      /** Desired root/default upstream. */
+      readonly root: Doc;
     };
   }
 

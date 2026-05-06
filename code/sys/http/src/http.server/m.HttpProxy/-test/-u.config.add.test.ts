@@ -36,11 +36,11 @@ describe('HttpProxy.Config.add', () => {
     expect(doc.name).to.eql('proxy.app');
   });
 
-  it('updates lifecycle fields while preserving mounts', async () => {
+  it('updates lifecycle fields while preserving root and mounts', async () => {
     const cwd = await tempRoot();
     await writeConfig(
       cwd,
-      'name: old\nhostname: 0.0.0.0\nport: 3000\nmounts:\n  - path: /payments/\n    target: https://example.com/payments/\n',
+      'name: old\nhostname: 0.0.0.0\nport: 3000\nroot:\n  target: http://127.0.0.1:4040/\nmounts:\n  - path: /payments/\n    target: http://127.0.0.1:4040/payments/\n',
     );
 
     const res = await HttpProxy.Config.add({ cwd, ...INPUT });
@@ -51,8 +51,9 @@ describe('HttpProxy.Config.add', () => {
     expect(doc.name).to.eql('app');
     expect(doc.hostname).to.eql('127.0.0.1');
     expect(doc.port).to.eql(4040);
+    expect(doc.root).to.eql({ target: 'http://127.0.0.1:4040/' });
     expect(doc.mounts).to.eql([
-      { path: '/payments/', target: 'https://example.com/payments/' },
+      { path: '/payments/', target: 'http://127.0.0.1:4040/payments/' },
     ]);
   });
 

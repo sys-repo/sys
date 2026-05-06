@@ -28,6 +28,21 @@ export async function cli(cwd: t.StringDir, argv: string[] = []): Promise<number
     return 1;
   }
 
+  if (args.command === 'root:set') {
+    if (args.help) {
+      console.info(Fmt.rootSetHelp(cwd));
+      return 0;
+    }
+    return await runRootSet(cwd, args);
+  }
+
+  if (args.command === 'root') {
+    console.info(Fmt.rootHelp(cwd));
+    if (args.help || args._.length === 1) return 0;
+    console.info(c.yellow(`Unknown root command: ${args._.slice(1).join(' ')}`));
+    return 1;
+  }
+
   if (args.command === 'mount:add') {
     if (args.help) {
       console.info(Fmt.mountAddHelp(cwd));
@@ -74,6 +89,29 @@ async function runConfigAdd(cwd: t.StringDir, args: ProxyCliParsedArgs): Promise
   }
 }
 
+async function runRootSet(cwd: t.StringDir, args: ProxyCliParsedArgs): Promise<number> {
+  try {
+    if (args._.length > 2) throw new Error(`Unexpected argument: ${args._[2]}`);
+    assertRootSetOptions(args);
+
+    const result = await HttpProxy.Root.set({
+      cwd,
+      config: args.config,
+      upstream: args.upstream,
+      name: args.name,
+      hostname: args.hostname,
+      port: args.port,
+      dryRun: args['dry-run'] === true,
+    });
+
+    console.info(Fmt.rootSetResult(result));
+    return 0;
+  } catch (error) {
+    console.info(Fmt.error(Err.summary(error)));
+    return 1;
+  }
+}
+
 async function runMountAdd(cwd: t.StringDir, args: ProxyCliParsedArgs): Promise<number> {
   try {
     if (args._.length > 2) throw new Error(`Unexpected argument: ${args._[2]}`);
@@ -103,7 +141,15 @@ function assertConfigAddOptions(args: ProxyCliParsedArgs): void {
     throw new Error('Unexpected option for config add: --mount. Use mount add to write mounts.');
   }
   if (args.upstream !== undefined) {
-    throw new Error('Unexpected option for config add: --upstream. Use mount add to write mounts.');
+    throw new Error(
+      'Unexpected option for config add: --upstream. Use root set or mount add to write upstreams.',
+    );
+  }
+}
+
+function assertRootSetOptions(args: ProxyCliParsedArgs): void {
+  if (args.mount !== undefined) {
+    throw new Error('Unexpected option for root set: --mount. Use mount add to write mounts.');
   }
 }
 

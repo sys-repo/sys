@@ -11,6 +11,7 @@ describe('HttpProxy', () => {
     expect(direct.HttpProxy).to.equal(HttpProxy);
     expect(HttpProxy).to.be.ok;
     expect(HttpProxy.Config).to.be.ok;
+    expect(HttpProxy.Root).to.be.ok;
     expect(HttpProxy.Mount).to.be.ok;
     expectTypeOf(HttpProxy).toMatchTypeOf<t.HttpProxy.Lib>();
   });
@@ -20,18 +21,18 @@ describe('HttpProxy', () => {
 
     try {
       HttpProxy.create({
-        config: { root: { upstream: 'https://example.com/root/' as t.StringUrl } },
-        mounts: [{ path: '/api/', target: 'https://example.com/api/' as t.StringUrl }],
+        config: { root: { upstream: 'http://127.0.0.1:4040/root/' as t.StringUrl } },
+        mounts: [{ path: '/api/', target: 'http://127.0.0.1:4040/api/' as t.StringUrl }],
       });
     } catch (thrown) {
       error = thrown;
     }
 
     expect(error).to.be.instanceOf(Error);
-    expect((error as Error).message).to.contain('use either config or mounts');
+    expect((error as Error).message).to.contain('use either config or lifecycle root/mounts');
   });
 
-  it('derives startup URL info from proxy routes before caller info', async () => {
+  it('derives startup URL info from lifecycle proxy routes before caller info', async () => {
     const lines: string[] = [];
     const original = console.info;
     console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
@@ -40,13 +41,11 @@ describe('HttpProxy', () => {
     try {
       server = await HttpProxy.start({
         port: 0,
-        config: {
-          root: { upstream: 'https://example.com/root/' as t.StringUrl },
-          mounts: [
-            { mountPath: '/payments/', upstream: 'https://example.com/payments/' as t.StringUrl },
-            { mountPath: '/-/stripe/', upstream: 'https://example.com/stripe/' as t.StringUrl },
-          ],
-        },
+        root: { target: 'http://127.0.0.1:4040/root/' as t.StringUrl },
+        mounts: [
+          { path: '/payments/', target: 'http://127.0.0.1:4040/payments/' as t.StringUrl },
+          { path: '/-/fixture/', target: 'http://127.0.0.1:4040/-/fixture/' as t.StringUrl },
+        ],
       });
     } finally {
       console.info = original;
@@ -56,7 +55,7 @@ describe('HttpProxy', () => {
       const output = Cli.stripAnsi(lines.join('\n'));
       expect(output).to.contain(`http://localhost:${server.port}/`);
       expect(output).to.contain(`http://localhost:${server.port}/payments/`);
-      expect(output).to.contain(`http://localhost:${server.port}/-/stripe/`);
+      expect(output).to.contain(`http://localhost:${server.port}/-/fixture/`);
     } finally {
       await server?.close('test.info');
     }
@@ -64,7 +63,7 @@ describe('HttpProxy', () => {
 
   it('starts as a managed lifecycle endpoint and proxies POST bodies', async () => {
     const upstreamApp = Http.Server.create({ static: false, cors: false });
-    upstreamApp.post('/-/stripe/payment-intent', async (c) => {
+    upstreamApp.post('/-/fixture/echo', async (c) => {
       const url = new URL(c.req.raw.url);
       return c.json({
         method: c.req.raw.method,
@@ -81,11 +80,11 @@ describe('HttpProxy', () => {
       hostname: '127.0.0.1',
       port: 0,
       silent: true,
-      mounts: [{ path: '/-/stripe/', target: `${upstream.origin}/-/stripe/` as t.StringUrl }],
+      mounts: [{ path: '/-/fixture/', target: `${upstream.origin}/-/fixture/` as t.StringUrl }],
     });
 
     try {
-      const res = await fetch(`${proxy.origin}/-/stripe/payment-intent?x=1`, {
+      const res = await fetch(`${proxy.origin}/-/fixture/echo?x=1`, {
         method: 'POST',
         headers: { 'content-type': 'text/plain', 'x-proxy-test': 'post' },
         body: 'hello',
@@ -95,7 +94,7 @@ describe('HttpProxy', () => {
       expect(res.status).to.eql(200);
       expect(body).to.eql({
         method: 'POST',
-        pathname: '/-/stripe/payment-intent',
+        pathname: '/-/fixture/echo',
         search: '?x=1',
         header: 'post',
         body: 'hello',

@@ -1,5 +1,6 @@
 import { Fs, Is, type t, Yaml } from '../common.ts';
 import { normalizeMounts } from './u.mount.ts';
+import { validateRoot } from './u.root.ts';
 
 export async function loadConfig(
   path: t.StringPath,
@@ -41,9 +42,11 @@ function parseConfigText(
     name: readNonEmptyString(data, 'name', path, errorPrefix),
     hostname: readNonEmptyString(data, 'hostname', path, errorPrefix),
     port: readPort(data.port, path, errorPrefix),
+    root: readRoot(data.root, path, errorPrefix),
     mounts: readMounts(data.mounts, path, errorPrefix),
   } satisfies t.HttpProxy.Config.Doc;
 
+  if (doc.root) validateRoot(doc.root, errorPrefix);
   normalizeMounts(doc.mounts, errorPrefix);
   return doc;
 }
@@ -53,7 +56,7 @@ function assertKnownKeys(
   path: t.StringPath,
   errorPrefix: string,
 ): void {
-  const allowed = ['name', 'hostname', 'port', 'mounts'];
+  const allowed = ['name', 'hostname', 'port', 'root', 'mounts'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown config key '${unknown[0]}': ${Fs.trimCwd(path)}`);
@@ -84,6 +87,27 @@ function readPort(value: unknown, path: t.StringPath, errorPrefix: string): numb
     );
   }
   return value;
+}
+
+function readRoot(
+  value: unknown,
+  path: t.StringPath,
+  errorPrefix: string,
+): t.HttpProxy.Root.Doc | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (!Is.record(value)) {
+    throw new Error(`${errorPrefix}: config key 'root' must be a YAML object: ${Fs.trimCwd(path)}`);
+  }
+
+  const allowed = ['target'];
+  const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) {
+    throw new Error(`${errorPrefix}: unknown root key '${unknown[0]}': ${Fs.trimCwd(path)}`);
+  }
+
+  return {
+    target: readNonEmptyRootString(value, 'target', path, errorPrefix) as t.StringUrl,
+  } satisfies t.HttpProxy.Root.Doc;
 }
 
 function readMounts(
@@ -117,6 +141,20 @@ function readMount(
     path: readNonEmptyMountString(input, 'path', label, path, errorPrefix) as t.StringUrlRoute,
     target: readNonEmptyMountString(input, 'target', label, path, errorPrefix) as t.StringUrl,
   } satisfies t.HttpProxy.Mount.Doc;
+}
+
+function readNonEmptyRootString(
+  doc: Record<string, unknown>,
+  key: keyof t.HttpProxy.Root.Doc,
+  path: t.StringPath,
+  errorPrefix: string,
+): string {
+  const value = doc[key];
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    const err = `${errorPrefix}: root.${key} must be a non-empty string: ${Fs.trimCwd(path)}`;
+    throw new Error(err);
+  }
+  return value.trim();
 }
 
 function readNonEmptyMountString(

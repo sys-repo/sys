@@ -1,5 +1,6 @@
 import { D, Is, type t, YamlConfig } from '../common.ts';
 import { validateMount } from './u.mount.ts';
+import { validateRoot } from './u.root.ts';
 import { ProxyConfigPath } from './u.path.ts';
 
 export function resolveConfigRef(input: unknown, errorPrefix: string) {
@@ -37,6 +38,16 @@ export function parseMount(
   const upstream = requireText(input.upstream, '--upstream', errorPrefix);
   const parsed = { path: mount as t.StringUrlRoute, target: upstream as t.StringUrl };
   validateMount(parsed, errorPrefix);
+  return parsed;
+}
+
+export function parseRoot(
+  input: { readonly upstream?: unknown },
+  errorPrefix: string,
+): t.HttpProxy.Root.Doc {
+  const upstream = requireText(input.upstream, '--upstream', errorPrefix);
+  const parsed = { target: upstream as t.StringUrl };
+  validateRoot(parsed, errorPrefix);
   return parsed;
 }
 

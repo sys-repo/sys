@@ -1,10 +1,12 @@
 import { D, HttpServer, pkg, type t } from './common.ts';
 import { Config } from './m.Config.ts';
 import { Mount } from './m.Mount.ts';
+import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
 export const HttpProxy: t.HttpProxy.Lib = {
   Config,
+  Root,
   Mount,
 
   create(options = {}) {
@@ -101,13 +103,14 @@ const FORWARDED_HEADER_DENYLIST = [
 
 const wrangle = {
   config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Routing.Config {
-    if (options.config && options.mounts) {
-      throw new Error('HttpProxy: use either config or mounts, not both');
+    if (options.config && (options.root || options.mounts)) {
+      throw new Error('HttpProxy: use either config or lifecycle root/mounts, not both');
     }
 
-    if (options.mounts) {
+    if (options.root || options.mounts) {
       return {
-        mounts: options.mounts.map((mount) => ({
+        root: options.root ? { upstream: options.root.target } : undefined,
+        mounts: options.mounts?.map((mount) => ({
           mountPath: mount.path,
           upstream: mount.target,
         })),

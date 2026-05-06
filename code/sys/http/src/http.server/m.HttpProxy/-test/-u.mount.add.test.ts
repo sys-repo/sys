@@ -6,7 +6,7 @@ const CONFIG_PATH = '-config/@sys.http/proxy/app.yaml';
 const INPUT = {
   config: CONFIG,
   mount: '/payments/',
-  upstream: 'https://example.com/payments/',
+  upstream: 'http://127.0.0.1:4040/payments/',
 } as const;
 
 describe('HttpProxy.Mount.add', () => {
@@ -22,15 +22,15 @@ describe('HttpProxy.Mount.add', () => {
       name: 'app',
       hostname: '127.0.0.1',
       port: 4040,
-      mounts: [{ path: '/payments/', target: 'https://example.com/payments/' }],
+      mounts: [{ path: '/payments/', target: 'http://127.0.0.1:4040/payments/' }],
     });
   });
 
-  it('appends a new mount to an existing config', async () => {
+  it('appends a new mount to an existing config while preserving root', async () => {
     const cwd = await tempRoot();
     await writeConfig(
       cwd,
-      'name: app\nhostname: 127.0.0.1\nport: 4040\nmounts:\n  - path: /api/\n    target: https://example.com/api/\n',
+      'name: app\nhostname: 127.0.0.1\nport: 4040\nroot:\n  target: http://127.0.0.1:4040/\nmounts:\n  - path: /api/\n    target: http://127.0.0.1:4040/api/\n',
     );
 
     const res = await HttpProxy.Mount.add({ cwd, ...INPUT });
@@ -38,9 +38,10 @@ describe('HttpProxy.Mount.add', () => {
 
     expect(res.kind).to.eql('added');
     expect(res.created).to.eql(false);
+    expect(doc.root).to.eql({ target: 'http://127.0.0.1:4040/' });
     expect(doc.mounts).to.eql([
-      { path: '/api/', target: 'https://example.com/api/' },
-      { path: '/payments/', target: 'https://example.com/payments/' },
+      { path: '/api/', target: 'http://127.0.0.1:4040/api/' },
+      { path: '/payments/', target: 'http://127.0.0.1:4040/payments/' },
     ]);
   });
 
@@ -48,7 +49,7 @@ describe('HttpProxy.Mount.add', () => {
     const cwd = await tempRoot();
     await writeConfig(
       cwd,
-      'name: app\nhostname: 127.0.0.1\nport: 4040\nmounts:\n  - path: /payments/\n    target: https://example.com/old/\n',
+      'name: app\nhostname: 127.0.0.1\nport: 4040\nmounts:\n  - path: /payments/\n    target: http://127.0.0.1:4040/old/\n',
     );
 
     const res = await HttpProxy.Mount.add({ cwd, ...INPUT });
@@ -56,7 +57,7 @@ describe('HttpProxy.Mount.add', () => {
 
     expect(res.kind).to.eql('updated');
     expect(doc.mounts).to.eql([
-      { path: '/payments/', target: 'https://example.com/payments/' },
+      { path: '/payments/', target: 'http://127.0.0.1:4040/payments/' },
     ]);
   });
 
@@ -64,7 +65,7 @@ describe('HttpProxy.Mount.add', () => {
     const cwd = await tempRoot();
     await writeConfig(
       cwd,
-      'name: app\nhostname: 127.0.0.1\nport: 4040\nmounts:\n  - path: /payments/\n    target: https://example.com/payments/\n',
+      'name: app\nhostname: 127.0.0.1\nport: 4040\nmounts:\n  - path: /payments/\n    target: http://127.0.0.1:4040/payments/\n',
     );
 
     const res = await HttpProxy.Mount.add({ cwd, ...INPUT });
@@ -88,15 +89,15 @@ describe('HttpProxy.Mount.add', () => {
 
     await expectError(
       () => HttpProxy.Mount.add({ cwd, ...INPUT, mount: '/' }),
-      'HttpProxy mount add: invalid mount: / -> https://example.com/payments/',
+      'HttpProxy mount add: invalid mount: / -> http://127.0.0.1:4040/payments/',
     );
     await expectError(
-      () => HttpProxy.Mount.add({ cwd, ...INPUT, upstream: 'https://example.com/payments' }),
-      'HttpProxy mount add: invalid mount: /payments/ -> https://example.com/payments',
+      () => HttpProxy.Mount.add({ cwd, ...INPUT, upstream: 'http://127.0.0.1:4040/payments' }),
+      'HttpProxy mount add: invalid mount: /payments/ -> http://127.0.0.1:4040/payments',
     );
     await expectError(
-      () => HttpProxy.Mount.add({ cwd, ...INPUT, upstream: 'https://example.com/payments/?x=1' }),
-      'HttpProxy mount add: invalid mount: /payments/ -> https://example.com/payments/?x=1',
+      () => HttpProxy.Mount.add({ cwd, ...INPUT, upstream: 'http://127.0.0.1:4040/payments/?x=1' }),
+      'HttpProxy mount add: invalid mount: /payments/ -> http://127.0.0.1:4040/payments/?x=1',
     );
     expect(await Fs.exists(Fs.join(cwd, CONFIG_PATH))).to.eql(false);
   });
