@@ -50,31 +50,29 @@ jobs:
             path: code/sys.driver/driver-process
           - name: "@sys/driver-signer"
             path: code/sys.driver/driver-signer
-          - name: "@sys/http"
-            path: code/sys/http
-          - name: "@sys/registry"
-            path: code/sys/registry
           - name: "@sys/testing"
             path: code/sys/testing
             browser: true
-          - name: "@sys/ui-react"
-            path: code/sys.ui/ui-react
-          - name: "@sys/ui-react-devharness"
-            path: code/sys.ui/ui-react-devharness
-          - name: "@sys/text"
-            path: code/sys/text
-          - name: "@sys/tmpl-engine"
-            path: code/sys/tmpl-engine
           - name: "@sys/yaml"
             path: code/sys/yaml
           - name: "@sys/esm"
             path: code/sys/esm
+          - name: "@sys/http"
+            path: code/sys/http
+          - name: "@sys/ui-react"
+            path: code/sys.ui/ui-react
+          - name: "@sys/ui-react-devharness"
+            path: code/sys.ui/ui-react-devharness
+          - name: "@sys/registry"
+            path: code/sys/registry
           - name: "@sys/schema"
             path: code/sys/schema
           - name: "@sys/model"
             path: code/sys.model/model
           - name: "@sys/model-slug"
             path: code/sys.model/model-slug
+          - name: "@sys/text"
+            path: code/sys/text
           - name: "@sys/ui-react-components"
             path: code/sys.ui/ui-react-components
           - name: "@sys/driver-automerge"
@@ -88,6 +86,8 @@ jobs:
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
             browser: true
+          - name: "@sys/tmpl-engine"
+            path: code/sys/tmpl-engine
           - name: "@sys/cell"
             path: code/sys/cell
           - name: "@sys/workspace"

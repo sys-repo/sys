@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1777946527566,
+    "createdAt": 1778044680440,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-6ff0ec29436513341916765ce23f6e26e63ff559a2574d333be95e0938a28aca",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.80/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-869058bbb71373daa072350f830583e0a0827726c400a284582905dd5c77fabe",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.81/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.80"
+        "version": "0.0.81"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.80/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.81/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1777946527572
+    "modifiedAt": 1778044680446
   },
   "graph": {
     "orderedPaths": [
@@ -35,24 +35,24 @@
       "code/sys/process",
       "code/sys.driver/driver-process",
       "code/sys.driver/driver-signer",
-      "code/sys/http",
-      "code/sys/registry",
       "code/sys/testing",
-      "code/sys.ui/ui-react",
-      "code/sys.ui/ui-react-devharness",
-      "code/sys/text",
-      "code/sys/tmpl-engine",
       "code/sys/yaml",
       "code/sys/esm",
+      "code/sys/http",
+      "code/sys.ui/ui-react",
+      "code/sys.ui/ui-react-devharness",
+      "code/sys/registry",
       "code/sys/schema",
       "code/sys.model/model",
       "code/sys.model/model-slug",
+      "code/sys/text",
       "code/sys.ui/ui-react-components",
       "code/sys.driver/driver-automerge",
       "code/sys.driver/driver-monaco",
       "code/sys.dev",
       "code/sys.driver/driver-prosemirror",
       "code/sys.driver/driver-stripe",
+      "code/sys/tmpl-engine",
       "code/sys/cell",
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
@@ -551,10 +551,6 @@
       {
         "from": "code/sys/color",
         "to": "code/sys/cli"
-      },
-      {
-        "from": "code/sys/color",
-        "to": "code/sys/http"
       },
       {
         "from": "code/sys/color",
@@ -1455,6 +1451,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys/esm"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys/http"
       },
       {
         "from": "code/sys/yaml",
