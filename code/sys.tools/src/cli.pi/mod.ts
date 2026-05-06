@@ -1,3 +1,8 @@
+/**
+ * @module
+ * Pass-through CLI entry for launching `@sys/driver-pi/cli`
+ * via the `@sys/tools/pi` published surface.
+ */
 import { Fs, Is, Process, type t } from '../common.ts';
 import { resolvePassThroughContext } from '../u.passThrough/u.context.ts';
 import type { PassThroughTarget } from '../u.passThrough/t.ts';
@@ -20,7 +25,7 @@ const TARGET = {
 } satisfies PassThroughTarget;
 
 /**
- * Main entry.
+ * CLI pass-through for the published Pi launcher surface.
  *
  * Delegates all argv/cwd handling to the Pi profile launcher.
  */

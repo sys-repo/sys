@@ -2,6 +2,7 @@
  * @module
  * Runtime environment setup and initializers.
  */
+/** Options for the `env` runtime initializer. */
 export type EnvOptions = {
   vscode?: boolean;
   silent?: boolean;
