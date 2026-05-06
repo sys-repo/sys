@@ -29,7 +29,7 @@ secret after\n`,
       'deno',
       'enabled',
     ]]);
-    expect(text).to.contain('system/shell:tools path list');
+    expect(text).to.contain('system:shell path list');
     expect(text).to.contain('deno enabled');
     expect(text).not.to.contain('secret before');
     expect(text).not.to.contain('secret after');
@@ -60,9 +60,10 @@ secret after\n`,
 
     expect(report.profile?.path).to.eql(zshrc);
     expect(report.plan?.kind).to.eql('add');
-    expect(text).to.contain('system/shell:tools path add deno');
+    expect(text).to.contain('system:shell path add deno');
     expect(text).to.contain('export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
-    expect(text).to.contain('Edit with: sys shell ...\n\n# @sys.shell path deno');
+    expect(text).to.contain('Edit with: sys shell ...');
+    expect(text).to.contain('# @sys.shell path deno');
     expect(text).not.to.contain('secret profile text');
   });
 });

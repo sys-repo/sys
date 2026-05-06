@@ -46,7 +46,7 @@ alias sys="deno run -A jsr:@sys/tools"
     });
     const text = Cli.stripAnsi(formatDoctor(report));
 
-    expect(text).to.contain('system/shell:tools doctor');
+    expect(text).to.contain('system:shell doctor');
     expect(text).to.contain('support: doctor-only');
     expect(text).to.contain('Deno install bin is not currently on PATH');
     expect(text).not.to.contain('secret profile text');

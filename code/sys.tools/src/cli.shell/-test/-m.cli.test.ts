@@ -42,10 +42,11 @@ describe('cli.shell CLI', () => {
     });
 
     const text = Cli.stripAnsi(output.join('\n'));
-    expect(text).to.contain('system/shell:tools alias list');
-    expect(text).to.contain('      command:   deno run -A jsr:@sys/tools');
-    expect(text).to.contain('      conflicts: /home/me/.zprofile');
-    expect(text).to.contain('    /home/me/.zshrc (interactive) exists; block: missing');
+    expect(text).to.contain('system:shell alias list');
+    expect(text).to.contain('  aliases   sys conflict');
+    expect(text).to.contain('              command:   deno run -A jsr:@sys/tools');
+    expect(text).to.contain('              conflicts: /home/me/.zprofile');
+    expect(text).to.contain('  profiles  /home/me/.zshrc (interactive) exists; block: missing');
   });
 
   it('routes `alias enable` through the CLI', async () => {
@@ -90,7 +91,7 @@ describe('cli.shell CLI', () => {
       info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools alias enable common');
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell alias enable common');
   });
 
   it('routes `path list` through the CLI', async () => {
@@ -130,7 +131,9 @@ describe('cli.shell CLI', () => {
       info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools path list');
+    const text = Cli.stripAnsi(output.join('\n'));
+    expect(text).to.contain('system:shell path list');
+    expect(text).to.contain('  profiles     ! no profile candidates');
   });
 
   it('routes `path add` through the CLI', async () => {
@@ -176,7 +179,7 @@ describe('cli.shell CLI', () => {
       info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools path add deno');
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell path add deno');
   });
 
   it('routes `apply` through the CLI', async () => {
@@ -220,7 +223,7 @@ describe('cli.shell CLI', () => {
       profile: '/tmp/profile',
       shell: 'zsh',
     });
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools apply');
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell apply');
   });
 
   it('routes `doctor` through the CLI', async () => {
@@ -252,6 +255,6 @@ describe('cli.shell CLI', () => {
       info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools doctor');
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell doctor');
   });
 });

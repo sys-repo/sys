@@ -22,7 +22,7 @@ secret after\n`,
     const text = Cli.stripAnsi(formatAliasList(report));
 
     expect(report.items.map((item) => [item.entry.name, item.state])).to.eql([['sys', 'enabled']]);
-    expect(text).to.contain('system/shell:tools alias list');
+    expect(text).to.contain('system:shell alias list');
     expect(text).to.contain('sys enabled');
     expect(text).not.to.contain('secret before');
     expect(text).not.to.contain('secret after');
@@ -53,9 +53,10 @@ secret after\n`,
 
     expect(report.profile?.path).to.eql(zshrc);
     expect(report.plan?.kind).to.eql('add');
-    expect(text).to.contain('system/shell:tools alias enable sys');
+    expect(text).to.contain('system:shell alias enable sys');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
-    expect(text).to.contain('Edit with: sys shell ...\n\n# @sys.shell alias sys');
+    expect(text).to.contain('Edit with: sys shell ...');
+    expect(text).to.contain('# @sys.shell alias sys');
     expect(text).not.to.contain('secret profile text');
   });
 });

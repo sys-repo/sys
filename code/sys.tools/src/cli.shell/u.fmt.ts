@@ -1,176 +1,141 @@
-import { c, Str, type t } from './common.ts';
+import { c, type t } from './common.ts';
+import {
+  field,
+  listLabels,
+  renderShellOutput,
+  type Section,
+  successField,
+  warningLines,
+} from './u.fmt.layout.ts';
 
 /** Format a read-only shell doctor report for CLI output. */
 export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
-  const shellLabel = report.shell.path ?? c.gray('(unknown)');
-  const dialectLabel = report.shell.dialect ?? c.gray('(unknown)');
-  const supportLabel = support(report.shell.support);
-  const profiles = report.profiles.length
-    ? report.profiles.map(formatProfile)
-    : [emptyProfilesMessage(report)];
-  const warnings = report.warnings.length
-    ? report.warnings.map((warning) => `  ${c.yellow('!')} ${warning}`)
-    : [`  ${c.green('✓')} no blocking issues detected`];
-
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray('doctor')}`)
-    .blank()
-    .line(`  ${c.bold('shell')}`)
-    .line(`    path: ${shellLabel}`)
-    .line(`    dialect: ${dialectLabel}`)
-    .line(`    support: ${supportLabel}`)
-    .blank()
-    .line(`  ${c.bold('catalog')}`)
-    .line(`    aliases: ${report.catalog.aliases.map((entry) => c.cyan(entry.name)).join(', ')}`)
-    .line(`    path: ${report.catalog.paths.map((entry) => c.cyan(entry.label)).join(', ')}`)
-    .blank()
-    .line(`  ${c.bold('environment')}`)
-    .line(`    HOME: ${report.env.home ?? c.gray('(unset)')}`)
-    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
-    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`)
-    .blank()
-    .line(`  ${c.bold('profiles')}`);
-
-  profiles.forEach((line) => out.line(line));
-  out.blank().line(`  ${c.bold('diagnosis')}`);
-  warnings.forEach((line) => out.line(line));
-
-  return finishOutput(out);
+  return renderShellOutput('doctor', [
+    {
+      label: 'shell',
+      lines: [
+        field('path', report.shell.path ?? c.gray('(unknown)'), 8),
+        field('dialect', report.shell.dialect ?? c.gray('(unknown)'), 8),
+        field('support', support(report.shell.support), 8),
+      ],
+    },
+    {
+      label: 'catalog',
+      lines: [
+        field('aliases', listLabels(report.catalog.aliases.map((entry) => entry.name)), 8),
+        field('path', listLabels(report.catalog.paths.map((entry) => entry.label)), 8),
+      ],
+    },
+    {
+      label: 'environment',
+      lines: [
+        field('HOME', report.env.home ?? c.gray('(unset)'), 17),
+        field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
+        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+      ],
+    },
+    { label: 'profiles', lines: profileLines(report.profiles, report) },
+    { label: 'diagnosis', lines: warningLines(report.warnings, 'no blocking issues detected') },
+  ]);
 }
 
 /** Format the shell alias catalog and managed profile state. */
 export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray('alias list')}`)
-    .blank()
-    .line(`  ${c.bold('aliases')}`);
-
-  report.items.forEach((item) => {
-    const state = aliasState(item);
-    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
-    out.line(`    ${c.cyan(item.entry.name)} ${state}${stale}`);
-    out.line(`      ${c.gray('command:')}   ${item.entry.command}`);
-    if (item.conflictProfiles.length > 0) {
-      out.line(`      ${c.gray('conflicts:')} ${item.conflictProfiles.join(', ')}`);
-    }
-  });
-
-  out.blank().line(`  ${c.bold('profiles')}`);
-  const profiles = report.profiles.length
-    ? report.profiles.map(formatProfile)
-    : [`    ${c.yellow('!')} no profile candidates`];
-  profiles.forEach((line) => out.line(line));
+  const sections: Section[] = [
+    { label: 'aliases', lines: aliasListLines(report.items) },
+    { label: 'profiles', lines: profileLines(report.profiles) },
+  ];
 
   if (report.warnings.length > 0) {
-    out.blank().line(`  ${c.bold('warnings')}`);
-    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+    sections.push({ label: 'warnings', lines: warningLines(report.warnings) });
   }
 
-  return finishOutput(out);
+  return renderShellOutput('alias list', sections);
 }
 
 /** Format a dry-run alias enable plan without leaking profile content. */
 export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): string {
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray(`alias enable ${report.target}`)}`)
-    .blank()
-    .line(`  ${c.bold('aliases')}`);
-
-  report.entries.forEach((entry) => {
-    out.line(`    ${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`);
-  });
-
-  appendPlan(out, report.profile, report.plan);
-  appendWarnings(out, report.warnings);
-
-  return finishOutput(out);
+  return renderShellOutput(`alias enable ${report.target}`, [
+    {
+      label: 'aliases',
+      lines: report.entries.map((entry) =>
+        `${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`
+      ),
+    },
+    ...planSections(report.profile, report.plan),
+    statusSection(report.warnings),
+  ]);
 }
 
 /** Format the shell PATH catalog and managed profile state. */
 export function formatPathList(report: t.ShellTool.Path.ListReport): string {
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray('path list')}`)
-    .blank()
-    .line(`  ${c.bold('path')}`);
-
-  report.items.forEach((item) => {
-    const state = pathState(item);
-    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
-    out.line(`    ${c.cyan(item.entry.label)} ${state}${stale}`);
-    out.line(`      ${c.gray('expression:')} ${item.entry.expression.split(/\r?\n/)[0] ?? ''}`);
-    if (item.unmanagedProfiles.length > 0) {
-      out.line(`      ${c.gray('unmanaged:')} ${item.unmanagedProfiles.join(', ')}`);
-    }
-  });
-
-  out.blank().line(`  ${c.bold('environment')}`)
-    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
-    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
-
-  out.blank().line(`  ${c.bold('profiles')}`);
-  const profiles = report.profiles.length
-    ? report.profiles.map(formatProfile)
-    : [`    ${c.yellow('!')} no profile candidates`];
-  profiles.forEach((line) => out.line(line));
+  const sections: Section[] = [
+    { label: 'path', lines: pathListLines(report.items) },
+    {
+      label: 'environment',
+      lines: [
+        field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
+        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+      ],
+    },
+    { label: 'profiles', lines: profileLines(report.profiles) },
+  ];
 
   if (report.warnings.length > 0) {
-    out.blank().line(`  ${c.bold('warnings')}`);
-    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+    sections.push({ label: 'warnings', lines: warningLines(report.warnings) });
   }
 
-  return finishOutput(out);
+  return renderShellOutput('path list', sections);
 }
 
 /** Format a dry-run PATH add plan without leaking profile content. */
 export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray(`path add ${report.target}`)}`)
-    .blank()
-    .line(`  ${c.bold('path')}`);
-
-  report.entries.forEach((entry) => {
-    out.line(`    ${c.cyan(entry.label)}`);
-  });
-
-  out.blank().line(`  ${c.bold('environment')}`)
-    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
-    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
-
-  appendPlan(out, report.profile, report.plan);
-  appendWarnings(out, report.warnings);
-
-  return finishOutput(out);
+  return renderShellOutput(`path add ${report.target}`, [
+    { label: 'path', lines: report.entries.map((entry) => c.cyan(entry.label)) },
+    {
+      label: 'environment',
+      lines: [
+        field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
+        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+      ],
+    },
+    ...planSections(report.profile, report.plan),
+    statusSection(report.warnings),
+  ]);
 }
 
 /** Format the recommended baseline apply flow without leaking profile content. */
 export function formatApply(report: t.ShellTool.Apply.Report): string {
-  const out = Str.builder()
-    .line(`  ${c.green('system/shell:tools')} ${c.gray('apply')}`)
-    .blank()
-    .line(`  ${c.bold('baseline')}`);
-
-  report.aliases.forEach((entry) => {
-    out.line(`    ${c.cyan(`alias ${entry.name}`)} ${c.gray('→')} ${entry.command}`);
-  });
-
+  const baseline = report.aliases.map((entry) =>
+    `${c.cyan(`alias ${entry.name}`)} ${c.gray('→')} ${entry.command}`
+  );
   if (report.paths.length > 0) {
-    report.paths.forEach((entry) => out.line(`    ${c.cyan(`path ${entry.label}`)}`));
+    baseline.push(...report.paths.map((entry) => c.cyan(`path ${entry.label}`)));
   } else {
-    out.line(`    ${c.yellow('path deno skipped')}`);
+    baseline.push(c.yellow('path deno skipped'));
   }
 
-  out.blank().line(`  ${c.bold('environment')}`)
-    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
-    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
+  const sections: Section[] = [
+    { label: 'baseline', lines: baseline },
+    {
+      label: 'environment',
+      lines: [
+        field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
+        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+      ],
+    },
+  ];
 
   if (report.status === 'applied') {
-    appendApplied(out, report);
+    sections.push(...appliedSections(report));
   } else {
-    appendPlan(out, report.profile, report.plan, report.backup);
-    appendWarnings(out, report.warnings);
+    sections.push(
+      ...planSections(report.profile, report.plan, report.backup),
+      statusSection(report.warnings),
+    );
   }
 
-  return finishOutput(out);
+  return renderShellOutput('apply', sections);
 }
 
 /**
@@ -181,49 +146,88 @@ type ManagedBlockPlan =
   | t.ShellTool.Path.AddPlan
   | t.ShellTool.Apply.Plan;
 
-function finishOutput(out: ReturnType<typeof Str.builder>): string {
-  return `${Str.trimEdgeNewlines(out.toString())}\n`;
+function aliasListLines(items: readonly t.ShellTool.Alias.Item[]): readonly string[] {
+  if (items.length === 0) return [c.gray('(none)')];
+
+  return items.flatMap((item) => {
+    const state = aliasState(item);
+    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
+    const lines = [
+      `${c.cyan(item.entry.name)} ${state}${stale}`,
+      `  ${field('command', item.entry.command, 10)}`,
+    ];
+
+    if (item.conflictProfiles.length > 0) {
+      lines.push(`  ${field('conflicts', item.conflictProfiles.join(', '), 10)}`);
+    }
+
+    return lines;
+  });
 }
 
-function appendPlan(
-  out: ReturnType<typeof Str.builder>,
+function pathListLines(items: readonly t.ShellTool.Path.Item[]): readonly string[] {
+  if (items.length === 0) return [c.gray('(none)')];
+
+  return items.flatMap((item) => {
+    const state = pathState(item);
+    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
+    const lines = [
+      `${c.cyan(item.entry.label)} ${state}${stale}`,
+      `  ${field('expression', item.entry.expression.split(/\r?\n/)[0] ?? '', 11)}`,
+    ];
+
+    if (item.unmanagedProfiles.length > 0) {
+      lines.push(`  ${field('unmanaged', item.unmanagedProfiles.join(', '), 11)}`);
+    }
+
+    return lines;
+  });
+}
+
+function profileLines(
+  profiles: readonly t.ShellTool.Doctor.Profile[],
+  report?: t.ShellTool.Doctor.Report,
+): readonly string[] {
+  if (profiles.length > 0) return profiles.map(formatProfile);
+  return [emptyProfilesMessage(report)];
+}
+
+function planSections(
   profile: t.ShellTool.Doctor.Profile | undefined,
   plan: ManagedBlockPlan | undefined,
   backup?: t.StringPath,
-): void {
-  out.blank().line(`  ${c.bold('plan')}`);
-  if (profile && plan) {
-    out.line(`    profile: ${c.cyan(profile.path)}`);
-    if (backup) out.line(`    backup: ${c.cyan(backup)}`);
-    out.line(`    operation: ${planKind(plan)}`);
-    out.blank().line(`  ${c.bold('managed block preview')}`);
-    blockPreviewLines(plan.preview).forEach((line) => out.line(line));
-  } else {
-    out.line(`    ${c.yellow('no plan available')}`);
-  }
+): readonly Section[] {
+  if (!(profile && plan)) return [{ label: 'plan', lines: [c.yellow('no plan available')] }];
+
+  const lines = [field('profile', c.cyan(profile.path), 10)];
+  if (backup) lines.push(field('backup', c.cyan(backup), 10));
+  lines.push(field('operation', planKind(plan), 10));
+
+  return [
+    { label: 'plan', lines },
+    { label: 'preview', lines: blockPreviewLines(plan.preview) },
+  ];
 }
 
-function appendWarnings(out: ReturnType<typeof Str.builder>, warnings: readonly string[]): void {
-  const lines = warnings.length ? warnings : ['No changes written'];
-  out.blank().line(`  ${c.bold('status')}`);
-  lines.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+function statusSection(warnings: readonly string[]): Section {
+  const lines = warnings.length ? warningLines(warnings) : [c.yellow('! No changes written')];
+  return { label: 'status', lines };
 }
 
-function appendApplied(
-  out: ReturnType<typeof Str.builder>,
-  report: t.ShellTool.Apply.Report,
-): void {
-  out.blank().line(`  ${c.bold('status')}`);
-  if (report.profile) out.line(`    ${c.green('wrote:')} ${report.profile.path}`);
-  if (report.backup) out.line(`    ${c.green('backup:')} ${report.backup}`);
+function appliedSections(report: t.ShellTool.Apply.Report): readonly Section[] {
+  const status: string[] = [];
+  if (report.profile) status.push(successField('wrote', report.profile.path, 7));
+  if (report.backup) status.push(successField('backup', report.backup, 7));
   if (report.aftercare) {
-    out.line(`    ${c.green('next:')} ${report.aftercare.source}`);
-    out.line(`    ${c.green('verify:')} ${report.aftercare.verify}`);
+    status.push(successField('next', report.aftercare.source, 7));
+    status.push(successField('verify', report.aftercare.verify, 7));
   }
+
+  const sections: Section[] = [{ label: 'status', lines: status }];
   if (report.warnings.length > 0) {
-    out.blank().line(`  ${c.bold('notes')}`);
-    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+    sections.push({ label: 'notes', lines: warningLines(report.warnings) });
   }
+  return sections;
 }
 
 function blockPreviewLines(preview: string): readonly string[] {
@@ -232,11 +236,13 @@ function blockPreviewLines(preview: string): readonly string[] {
   return lines;
 }
 
-function emptyProfilesMessage(report: t.ShellTool.Doctor.Report): string {
+function emptyProfilesMessage(report?: t.ShellTool.Doctor.Report): string {
+  if (!report) return `${c.yellow('!')} no profile candidates`;
+
   const reason = report.env.home
     ? 'shell dialect has no write profile candidates'
     : 'HOME is not set';
-  return `    ${c.yellow('!')} no profile candidates (${reason})`;
+  return `${c.yellow('!')} no profile candidates (${reason})`;
 }
 
 function aliasState(item: t.ShellTool.Alias.Item): string {
@@ -261,7 +267,7 @@ function planKind(plan: ManagedBlockPlan): string {
 function formatProfile(profile: t.ShellTool.Doctor.Profile): string {
   const exists = profile.exists ? c.green('exists') : c.gray('missing');
   const block = formatBlock(profile.block);
-  return `    ${c.cyan(profile.path)} ${c.gray(`(${profile.role})`)} ${exists}; block: ${block}`;
+  return `${c.cyan(profile.path)} ${c.gray(`(${profile.role})`)} ${exists}; block: ${block}`;
 }
 
 function formatBlock(block: t.ShellTool.BlockState): string {
@@ -279,3 +285,4 @@ function support(value: t.ShellTool.Support): string {
 function yesNo(value: boolean): string {
   return value ? c.green('yes') : c.yellow('no');
 }
+

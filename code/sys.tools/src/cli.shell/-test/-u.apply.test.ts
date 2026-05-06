@@ -27,7 +27,7 @@ describe('cli.shell apply', () => {
     expect(report.paths.map((entry) => entry.id)).to.eql(['deno']);
     expect(report.aliases.map((entry) => entry.name)).to.eql(['sys']);
     expect(writes).to.eql([]);
-    expect(text).to.contain('system/shell:tools apply');
+    expect(text).to.contain('system:shell apply');
     expect(text).to.contain('backup:');
     expect(text).to.contain('export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
@@ -66,7 +66,7 @@ describe('cli.shell apply', () => {
     expect(writes[1]?.text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('wrote:');
     expect(text).to.contain('backup:');
-    expect(text).to.contain(`next: source '${zshrc}'`);
+    expect(text).to.contain(`next:   source '${zshrc}'`);
     expect(text).to.contain('verify: sys --help');
     expect(text).not.to.contain('user profile text');
   });
