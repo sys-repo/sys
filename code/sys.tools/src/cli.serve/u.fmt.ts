@@ -32,15 +32,6 @@ export const Fmt = {
         },
         {
           kind: 'lines',
-          label: 'Cell runtime',
-          items: [
-            `${cmd} is an operator CLI for serving a directory.`,
-            'For durable Cell static HTTP services, use `deno run -ERW jsr:@sys/http/server/static config add`.',
-            "Cell runtime services should reference `from: '@sys/http/server/static'` and `export: HttpStatic`.",
-          ],
-        },
-        {
-          kind: 'lines',
           label: 'Examples',
           items: [
             `${cmd} --non-interactive --dir .`,
