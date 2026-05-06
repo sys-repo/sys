@@ -81,17 +81,20 @@ deno run jsr:@sys/cell dsl
   ### DEBUG: simulate published `@sys/cell` usage
 
   Use `./-sample/foo/` as the working folder and behave as if you are in a virgin user project, not inside the `sys` source repo.
-  Do not inspect `code/sys/cell/src/` or any package source code. 
   Treat `@sys/cell` as a published package.
+  Do not inspect local workspace source such as `code/sys/cell/src/` while simulating published-package usage.
 
-  Use only the public CLI/help surfaces to understand the DSL and owner flows:
+  Start from public CLI/help surfaces to understand the DSL and owner flows:
 
       deno run jsr:@sys/cell --help
       deno run jsr:@sys/cell dsl
 
-  When another owner package is needed, discover it through its own --help surface before using it. 
-  Do not hand-author owner YAML when an owner CLI/API can writeit.
+  When another owner package is needed, discover it through its own --help surface before using it.
+  If a module/export contract is still ambiguous, inspect the published JSR package docs/source for that specifier.
+  Use source inspection only to confirm public exports, types, and lifecycle contracts.
+  Do not use source inspection to bypass owner CLI/API config affordances.
+  Do not hand-author owner YAML when an owner CLI/API can write it.
 
-  Now interpret the next human prompt as a Cell DSL speech-act and operate only from these public help surfaces.
+  Now interpret the next human prompt as a Cell DSL speech-act and operate from public help surfaces first.
 ```
 

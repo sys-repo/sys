@@ -116,9 +116,7 @@ export declare namespace Cell {
     export type StartedService = VerifiedService & { readonly started: unknown };
 
     /** Runtime service lifecycle endpoint. */
-    export type LifecycleEndpoint = {
-      start(args: StartArgs): unknown | Promise<unknown>;
-    };
+    export type LifecycleEndpoint = { start(args: StartArgs): unknown | Promise<unknown> };
 
     /** Runtime section of the Cell descriptor. */
     export type Descriptor = { services: Service[] };

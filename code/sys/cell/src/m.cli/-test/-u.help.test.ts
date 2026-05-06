@@ -40,6 +40,9 @@ describe('FmtHelp', () => {
     expect(text).to.contain('pull latest configured views → run `@sys/tools pull`');
     expect(text).to.contain('do not edit `cell.yaml` for refresh-only pulls');
     expect(text).to.contain('Owners');
+    expect(text).to.contain('Start from public `--help` surfaces');
+    expect(text).to.contain('inspect the published JSR package docs/source');
+    expect(text).to.contain('Do not use source inspection to bypass owner CLI/API config affordances');
     expect(text).to.contain('Mappings');
     expect(text).to.contain('Chapter');
     expect(text).to.contain('deno run jsr:@sys/cell dsl pulled-view');
