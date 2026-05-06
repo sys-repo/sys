@@ -35,7 +35,7 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
   out.blank().line(`  ${c.bold('diagnosis')}`);
   warnings.forEach((line) => out.line(line));
 
-  return `${Str.trimEdgeNewlines(out.toString())}\n`;
+  return finishOutput(out);
 }
 
 /** Format the shell alias catalog and managed profile state. */
@@ -66,7 +66,7 @@ export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
     report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
   }
 
-  return Str.trimEdgeNewlines(out.toString());
+  return finishOutput(out);
 }
 
 /** Format a dry-run alias enable plan without leaking profile content. */
@@ -83,7 +83,7 @@ export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): strin
   appendPlan(out, report.profile, report.plan);
   appendWarnings(out, report.warnings);
 
-  return Str.trimEdgeNewlines(out.toString());
+  return finishOutput(out);
 }
 
 /** Format the shell PATH catalog and managed profile state. */
@@ -118,7 +118,7 @@ export function formatPathList(report: t.ShellTool.Path.ListReport): string {
     report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
   }
 
-  return Str.trimEdgeNewlines(out.toString());
+  return finishOutput(out);
 }
 
 /** Format a dry-run PATH add plan without leaking profile content. */
@@ -139,12 +139,17 @@ export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
   appendPlan(out, report.profile, report.plan);
   appendWarnings(out, report.warnings);
 
-  return Str.trimEdgeNewlines(out.toString());
+  return finishOutput(out);
 }
 
 /**
  * Helpers:
  */
+function finishOutput(out: ReturnType<typeof Str.builder>): string {
+  return `${Str.trimEdgeNewlines(out.toString())}\n`;
+}
+
+
 function appendPlan(
   out: ReturnType<typeof Str.builder>,
   profile: t.ShellTool.Doctor.Profile | undefined,
