@@ -9,7 +9,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
       'path-only workspace discovery such as ls, find, and rg --files',
     );
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('File-content authority is only read/edit/write');
-    expect(DEFAULT_SYSTEM_PROMPT).to.contain('rg content search');
+    expect(DEFAULT_SYSTEM_PROMPT).to.contain('content search is allowed only to locate candidate');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('If read/edit/write is denied by permissions');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('NO AMBIENT HELPER RUNTIMES');
     expect(DEFAULT_SYSTEM_PROMPT).to.contain('python3, pip, node, npm, npx');
