@@ -30,7 +30,7 @@ View     =  bound perception            ./view
 
 ## Prompting `dsl --help`
 
-| Intent                          | [Speech act](https://en.wikipedia.org/wiki/Speech_act)               |
+| Intent                          | Example [speech-acts](https://en.wikipedia.org/wiki/Speech_act)               |
 | ------------------------------- | -------------------------------------------------------------------- |
 | create: **Cell**                | Initialize this folder as an `@sys/cell`.                            |
 | create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                                |
@@ -71,3 +71,27 @@ deno run jsr:@sys/cell --help
 deno run jsr:@sys/cell init --help
 deno run jsr:@sys/cell dsl
 ```
+
+<p>&nbsp;</p>
+
+---
+## Development
+
+```md
+  ### DEBUG: simulate published `@sys/cell` usage
+
+  Use `./-sample/foo/` as the working folder and behave as if you are in a virgin user project, not inside the `sys` source repo.
+  Do not inspect `code/sys/cell/src/` or any package source code. 
+  Treat `@sys/cell` as a published package.
+
+  Use only the public CLI/help surfaces to understand the DSL and owner flows:
+
+      deno run jsr:@sys/cell --help
+      deno run jsr:@sys/cell dsl
+
+  When another owner package is needed, discover it through its own --help surface before using it. 
+  Do not hand-author owner YAML when an owner CLI/API can writeit.
+
+  Now interpret the next human prompt as a Cell DSL speech-act and operate only from these public help surfaces.
+```
+
