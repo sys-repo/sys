@@ -8,6 +8,7 @@ sections:
   - label: Rule
     items: |
       Cell owns topology; owner configs own mechanics.
+      Local files are ordinary Cell content; runtime services own how files are served or interpreted.
       Use chapters for detailed slot policy and owner flows.
       Do not put pull/service/proxy/mount mechanics in `cell.yaml`.
       Do not turn `cell.yaml` into a mega-config.
