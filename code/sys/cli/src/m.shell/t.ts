@@ -5,9 +5,9 @@ export declare namespace Shell {
   /** Pure shell planning helper surface. */
   export type Lib = {
     /** Alias catalog and planning helpers. */
-    readonly Alias: AliasLib;
+    readonly Alias: Alias.Lib;
     /** PATH catalog and planning helpers. */
-    readonly Path: PathLib;
+    readonly Path: Path.Lib;
     /** Managed shell block helpers. */
     readonly Block: Block.Lib;
     /** Whole-profile plan helpers. */
@@ -49,8 +49,6 @@ export declare namespace Shell {
     readonly command: string;
     /** Alias collision risk. */
     readonly risk: 'safe' | 'shadowing';
-    /** Optional catalog group name. */
-    readonly group?: string;
   };
 
   /** PATH entry intended for a managed shell block. */
@@ -85,11 +83,32 @@ export declare namespace Shell {
     readonly warnings: readonly string[];
   };
 
-  /** Alias helper namespace. */
-  export type AliasLib = Record<string, never>;
+  /** Alias catalog types. */
+  export namespace Alias {
+    /** Alias catalog helper namespace. */
+    export type Lib = {
+      /** List all known alias entries. */
+      readonly list: () => readonly AliasEntry[];
+      /** Resolve one alias entry by id. */
+      readonly get: (id: AliasId) => AliasEntry | undefined;
+      /** Resolve a named alias set. */
+      readonly group: (id: GroupId) => readonly AliasEntry[];
+    };
 
-  /** PATH helper namespace. */
-  export type PathLib = Record<string, never>;
+    /** Known alias group id. */
+    export type GroupId = 'sys' | 'common';
+  }
+
+  /** PATH catalog types. */
+  export namespace Path {
+    /** PATH catalog helper namespace. */
+    export type Lib = {
+      /** List all known PATH entries. */
+      readonly list: () => readonly PathEntry[];
+      /** Resolve one PATH entry by id. */
+      readonly get: (id: PathId) => PathEntry | undefined;
+    };
+  }
 
   /** Managed block types. */
   export namespace Block {

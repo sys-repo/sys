@@ -1,10 +1,9 @@
-import { Str } from './common.ts';
-import type { Shell as TShell } from './t.ts';
+import { Str, type t } from './common.ts';
 
 type LineEnding = '\n' | '\r\n';
 
 type LocatedBlock = {
-  readonly state: TShell.Block.State;
+  readonly state: t.Shell.Block.State;
   readonly range?: { readonly start: number; readonly end: number };
 };
 
@@ -15,7 +14,7 @@ type LineSpan = {
 };
 
 /** Managed shell block helpers. */
-export const Block: TShell.Block.Lib = {
+export const Block: t.Shell.Block.Lib = {
   markers,
   render,
   detect: (args) => locate(args).state,
@@ -26,14 +25,14 @@ export const Block: TShell.Block.Lib = {
 /**
  * Helpers:
  */
-function markers(owner: TShell.Owner): TShell.Block.Markers {
+function markers(owner: t.Shell.Owner): t.Shell.Block.Markers {
   return {
     start: `# >>> ${owner.label}`,
     end: `# <<< ${owner.label}`,
   };
 }
 
-function render(args: TShell.Block.RenderArgs): string {
+function render(args: t.Shell.Block.RenderArgs): string {
   const newline = args.newline ?? '\n';
   const lines = [
     markers(args.owner).start,
@@ -54,7 +53,7 @@ function render(args: TShell.Block.RenderArgs): string {
   return `${lines.join(newline)}${newline}`;
 }
 
-function update(args: TShell.Block.UpdateArgs): TShell.Plan {
+function update(args: t.Shell.Block.UpdateArgs): t.Shell.Plan {
   const newline = args.newline ?? newlineOf(args.text);
   const block = render({ ...args, newline });
   const located = locate(args);
@@ -87,7 +86,7 @@ function update(args: TShell.Block.UpdateArgs): TShell.Plan {
   };
 }
 
-function remove(args: TShell.Block.RemoveArgs): TShell.Plan {
+function remove(args: t.Shell.Block.RemoveArgs): t.Shell.Plan {
   const located = locate(args);
 
   if (located.state.kind === 'invalid') {
@@ -117,7 +116,7 @@ function remove(args: TShell.Block.RemoveArgs): TShell.Plan {
   };
 }
 
-function locate(args: TShell.Block.DetectArgs): LocatedBlock {
+function locate(args: t.Shell.Block.DetectArgs): LocatedBlock {
   const mark = markers(args.owner);
   const starts = markerLines(args.text, mark.start);
   const ends = markerLines(args.text, mark.end);
@@ -142,10 +141,10 @@ function locate(args: TShell.Block.DetectArgs): LocatedBlock {
   };
 }
 
-function parseModel(owner: TShell.Owner, blockText: string): TShell.ManagedModel {
+function parseModel(owner: t.Shell.Owner, blockText: string): t.Shell.ManagedModel {
   const lines = blockText.split(/\r?\n/);
-  const aliases: TShell.AliasEntry[] = [];
-  const paths: TShell.PathEntry[] = [];
+  const aliases: t.Shell.AliasEntry[] = [];
+  const paths: t.Shell.PathEntry[] = [];
 
   lines.forEach((line, index) => {
     const item = parseItemComment(owner, line);
@@ -164,7 +163,7 @@ function parseModel(owner: TShell.Owner, blockText: string): TShell.ManagedModel
   return { aliases, paths };
 }
 
-function parseItemComment(owner: TShell.Owner, line: string) {
+function parseItemComment(owner: t.Shell.Owner, line: string) {
   const prefix = itemPrefix(owner);
   if (!line.startsWith(prefix)) return undefined;
 
@@ -178,7 +177,7 @@ function parseItemComment(owner: TShell.Owner, line: string) {
   return { kind, id } as const;
 }
 
-function parseAlias(id: string, line: string | undefined): TShell.AliasEntry | undefined {
+function parseAlias(id: string, line: string | undefined): t.Shell.AliasEntry | undefined {
   if (!line) return undefined;
   const match = line.match(/^alias\s+([^=]+)="(.*)"$/);
   if (!match) return undefined;
@@ -190,7 +189,7 @@ function parseAlias(id: string, line: string | undefined): TShell.AliasEntry | u
   };
 }
 
-function expressionAfterItem(owner: TShell.Owner, lines: readonly string[], start: number): string {
+function expressionAfterItem(owner: t.Shell.Owner, lines: readonly string[], start: number): string {
   const out: string[] = [];
   const prefix = itemPrefix(owner);
   for (const line of lines.slice(start)) {
@@ -235,11 +234,11 @@ function newlineOf(text: string): LineEnding {
   return text.includes('\r\n') ? '\r\n' : '\n';
 }
 
-function itemComment(owner: TShell.Owner, kind: 'alias' | 'path', id: string): string {
+function itemComment(owner: t.Shell.Owner, kind: 'alias' | 'path', id: string): string {
   return `${itemPrefix(owner)}${kind} ${id}`;
 }
 
-function itemPrefix(owner: TShell.Owner): string {
+function itemPrefix(owner: t.Shell.Owner): string {
   return `# ${owner.id} `;
 }
 
@@ -251,7 +250,7 @@ function shellUnquoteDouble(input: string): string {
   return Str.replaceAll(Str.replaceAll(input, /\\"/g, '"').after, /\\\\/g, '\\').after;
 }
 
-function warningsFor(block: TShell.Block.State): readonly string[] {
+function warningsFor(block: t.Shell.Block.State): readonly string[] {
   if (block.kind === 'present' && block.stale) {
     return ['Managed shell block has manual edits and will be normalized'];
   }
@@ -262,7 +261,7 @@ function invalidLocated(reason: 'partial-markers' | 'multiple-blocks'): LocatedB
   return { state: { kind: 'invalid', reason } };
 }
 
-function invalidPlan(text: string, block: TShell.Block.State): TShell.Plan {
+function invalidPlan(text: string, block: t.Shell.Block.State): t.Shell.Plan {
   const reason = block.kind === 'invalid' ? block.reason : 'partial-markers';
   return {
     kind: 'unchanged',

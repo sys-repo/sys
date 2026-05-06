@@ -1,14 +1,14 @@
 import { describe, expect, it, Str } from '../../-test.ts';
+import { type t } from '../common.ts';
 import { Shell } from '../mod.ts';
-import type { Shell as TShell } from '../t.ts';
 
-const owner: TShell.Owner = {
+const owner: t.Shell.Owner = {
   id: '@sys.shell',
   label: '@sys/tools shell',
   commandHint: 'sys shell ...',
 };
 
-const model: TShell.ManagedModel = {
+const model: t.Shell.ManagedModel = {
   paths: [
     {
       id: 'deno',
