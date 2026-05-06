@@ -1,4 +1,4 @@
-import { type t, Cli, Fs } from './common.ts';
+import { Cli, Fs, type t } from './common.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
 import { parseArgs, wantsHelp } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
@@ -11,7 +11,6 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   if (wantsHelp(argv)) {
     const text = FmtHelp.output();
     console.info(text);
-    console.info();
     return { kind: 'help', input: { argv, cwd }, text };
   }
 
@@ -48,8 +47,7 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
       WorkspaceUpgrade.upgrade(
         upgradeInput,
         wrangle.upgradeOptions(options, selection.exclude, (progress) =>
-          spinner.start(Fmt.spinnerProgress(progress))
-        ),
+          spinner.start(Fmt.spinnerProgress(progress))),
       ),
   );
   if (options.dryRun) {
@@ -64,8 +62,7 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
       WorkspaceUpgrade.apply(
         upgradeInput,
         wrangle.upgradeOptions(options, selection.exclude, (progress) =>
-          spinner.start(Fmt.spinnerProgress(progress))
-        ),
+          spinner.start(Fmt.spinnerProgress(progress))),
       ),
   );
 
@@ -76,7 +73,14 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
     console.info(commit);
   }
   console.info();
-  return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade: applied.upgrade, applied };
+  return {
+    kind: 'apply',
+    input: { argv, cwd },
+    options,
+    selection,
+    upgrade: applied.upgrade,
+    applied,
+  };
 };
 
 /**
