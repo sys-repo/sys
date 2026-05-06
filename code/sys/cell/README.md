@@ -84,8 +84,9 @@ deno run -A jsr:@sys/cell start .
 ---
 ## Development
 
+**Debug:** simulate published `@sys/cell` usage:
+
 ```md
-  ### DEBUG: simulate published `@sys/cell` usage
 
   Use `./-sample/foo/` as the working folder and behave as if you are in a virgin user project, not inside the `sys` source repo.
   Treat `@sys/cell` as a published package.
