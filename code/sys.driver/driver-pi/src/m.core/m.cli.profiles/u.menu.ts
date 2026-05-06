@@ -85,7 +85,9 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
       label: 'profile',
       extra: [
         {
-          name: allowAll === true ? c.yellow('start (--allow-all)') : c.cyan('start'),
+          name: allowAll === true
+            ? `${c.cyan('start')}${c.dim(c.yellow(' (--allow-all)'))}`
+            : c.cyan('start'),
           value: 'run' as const,
         },
       ],

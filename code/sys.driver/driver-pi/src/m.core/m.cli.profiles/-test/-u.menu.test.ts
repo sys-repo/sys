@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Cli, Fs, type t } from '../common.ts';
+import { c, Cli, Fs, type t } from '../common.ts';
 import { menu } from '../u.menu.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
@@ -136,6 +136,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(calls).to.eql(['agent:', 'agent:', 'agent:']);
+      expect(harnessOptions).to.include(`  ${c.cyan('start')}`);
       expect(strippedOptions).to.include('  start');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
@@ -272,6 +273,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).to.match(/read\s+all/);
       expect(printed).to.match(/write\s+all/);
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
+      expect(harnessOptions).to.include(
+        `  ${c.cyan('start')}${c.dim(c.yellow(' (--allow-all)'))}`,
+      );
       expect(strippedOptions).to.include('  start (--allow-all)');
       expect(strippedOptions).to.include('  profile: reload');
       expect(strippedOptions).not.to.include('  config: reload');

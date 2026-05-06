@@ -50,7 +50,7 @@ export const PiSandboxFmt = {
     if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
     else pushWriteRows(table, root, input.write, contentBudget, writeCwdMarker(input.cwd));
 
-    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'cyan';
+    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'gray';
     const title = formatTitle(input.permissions, renderWidth);
 
     const hr = Cli.Fmt.hr(renderWidth, frameColor);
@@ -67,14 +67,14 @@ export const PiSandboxFmt = {
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
     ? c.bold(c.yellow('sys:pi:no-sandbox'))
-    : c.bold(c.cyan('sys:pi:sandbox'));
+    : c.bold(c.gray('sys:pi:sandbox'));
   const labelWidth = visibleWidth(label);
   const opsWidth = visibleWidth(TOOL_OPS);
 
   if (labelWidth + opsWidth + 1 > width) return label;
 
   const gap = ' '.repeat(width - labelWidth - opsWidth);
-  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.dim(c.cyan(TOOL_OPS));
+  const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.gray(TOOL_OPS);
   return `${label}${gap}${ops}`;
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { Cli } from '../common.ts';
+import { c, Cli } from '../common.ts';
 import { PiSandboxFmt } from '../u.fmt.sandbox.ts';
 
 type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
@@ -8,6 +8,20 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
+  it('table → keeps scoped sandbox chrome gray so content colors carry meaning', () => {
+    const width = 80;
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width });
+
+    expect(lines(raw)[0]).to.eql(Cli.Fmt.hr(width - 1, 'gray'));
+    expect(raw).to.contain(c.gray('sys:pi:sandbox'));
+    expect(raw).to.contain(c.gray('read, write, edit, bash'));
+    expect(raw).not.to.contain(c.dim(c.gray('read, write, edit, bash')));
+    expect(raw).not.to.contain(c.cyan('sys:pi:sandbox'));
+  });
+
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
     const text = render({
