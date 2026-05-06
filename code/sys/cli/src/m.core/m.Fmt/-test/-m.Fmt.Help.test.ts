@@ -89,6 +89,83 @@ describe('Cli.Fmt.Help', () => {
     expect(plain).to.include('auth token for remote operations');
   });
 
+  it('aligns section gutters across the help page', () => {
+    const help = Fmt.Help.build({
+      tool: '@sys/http/server/static config add',
+      sections: [
+        {
+          kind: 'lines',
+          label: 'Usage',
+          items: ['run static config add', 'run static config add --dry-run'],
+        },
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [
+            ['--config <name|path>', 'bare name maps to config path'],
+            ['--dry-run', 'preview without writing'],
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Semantics',
+          items: ['writes only durable config state'],
+        },
+        {
+          kind: 'lines',
+          label: 'Examples',
+          tone: 'muted',
+          items: ['run static config add --config view'],
+        },
+      ],
+    });
+
+    const lines = Cli.stripAnsi(help).split('\n');
+    const find = (text: string) => {
+      const line = lines.find((line) => line.includes(text));
+      expect(line).to.not.eql(undefined);
+      return line ?? '';
+    };
+
+    const usage = find('run static config add');
+    const usageContinuation = find('run static config add --dry-run');
+    const configOption = find('--config <name|path>');
+    const dryRunOption = find('preview without writing');
+    const semantics = find('writes only durable config state');
+    const examples = find('run static config add --config view');
+
+    const column = usage.indexOf('run static config add');
+    expect(usageContinuation.indexOf('run static config add --dry-run')).to.eql(column);
+    expect(configOption.indexOf('--config <name|path>')).to.eql(column);
+    expect(dryRunOption.indexOf('--dry-run')).to.eql(column);
+    expect(semantics.indexOf('writes only durable config state')).to.eql(column);
+    expect(examples.indexOf('run static config add --config view')).to.eql(column);
+  });
+
+  it('keeps pair sections locally aligned', () => {
+    const help = Fmt.Help.build({
+      tool: '@sys/tool',
+      sections: [
+        {
+          kind: 'pairs',
+          label: 'Options',
+          items: [
+            ['--long-option <value>', 'long option description'],
+            ['--x', 'short option description'],
+          ],
+        },
+      ],
+    });
+
+    const lines = Cli.stripAnsi(help).split('\n');
+    const long = lines.find((line) => line.includes('long option description')) ?? '';
+    const short = lines.find((line) => line.includes('short option description')) ?? '';
+
+    expect(long.indexOf('long option description')).to.eql(
+      short.indexOf('short option description'),
+    );
+  });
+
   it('render prints the built help page', () => {
     const calls: string[] = [];
     const info = console.info;
