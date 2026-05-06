@@ -1,7 +1,7 @@
 id: dsl
 title: Cell DSL
 summary: |
-  Cell DSL: the formal command/vocabulary surface for valid Cell edits.
+  Cell DSL (domain-specific-language): the formal command/vocabulary surface for valid Cell edits.
   Use these acts, owner rules, mappings, and chapters when changing a Cell folder.
 
 sections:

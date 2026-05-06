@@ -33,6 +33,7 @@ describe('FmtHelp', () => {
     const text = stripAnsi(await FmtHelp.dslOutput());
     const guidance = await CellHelp.Dsl.load();
 
+    expect(text).to.contain('Cell DSL (domain-specific-language):');
     expect(text).to.contain(guidance.summary.split('\n')[0]);
     expect(text).to.contain('Speech acts');
     expect(text).to.contain('Owners');
@@ -40,8 +41,16 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Chapter');
     expect(text).to.contain('deno run jsr:@sys/cell dsl pulled-view');
     expect(text).to.contain('# Add a view backed by an `@sys/tools/pull` config.');
+    expect(text).to.contain('deno run jsr:@sys/cell dsl static-http-service');
+    expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/static` config.');
+    expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
+      chapterCommentColumn(text, 'static-http-service'),
+    );
     expect(text).to.not.contain('Slot policy');
-    expect(guidance.chapters.map((chapter) => chapter.id)).to.eql(['pulled-view']);
+    expect(guidance.chapters.map((chapter) => chapter.id)).to.eql([
+      'pulled-view',
+      'static-http-service',
+    ]);
   });
 
   it('dsl pulled-view → faithfully renders the requested chapter', async () => {
@@ -52,6 +61,20 @@ describe('FmtHelp', () => {
     expect(text).to.contain(guidance.summary);
     expectRenderedSections(text, guidance.sections);
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl pulled-view');
+  });
+
+  it('dsl static-http-service → faithfully renders the requested chapter', async () => {
+    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['static-http-service'] }));
+    const guidance = await CellHelp.Dsl.load(['static-http-service']);
+
+    expect(text).to.contain('@sys/cell dsl static-http-service');
+    expect(text).to.contain(guidance.summary);
+    guidance.sections.forEach((section) => expect(text).to.contain(section.label));
+    expect(text).to.contain('@sys/http/server/static config add');
+    expect(text).to.contain('deno run -A jsr:@sys/http/server/static config add');
+    expect(text).to.contain('runtime:');
+    expect(text).to.contain("from: '@sys/http/server/static'");
+    expect(text).to.not.contain('deno run jsr:@sys/cell dsl static-http-service');
   });
 });
 
@@ -74,6 +97,12 @@ function expectRenderedSections(
 
   expect(sections.map((item) => item.label)).to.eql(expected.map((item) => item.label));
   expected.forEach((item) => expect(section(sections, item.label)).to.eql([...item.items]));
+}
+
+function chapterCommentColumn(text: string, chapter: string): number {
+  const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
+  expect(line).to.not.eql(undefined);
+  return line?.indexOf('#') ?? -1;
 }
 
 function descriptorLines(text: string): readonly string[] {

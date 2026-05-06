@@ -34,6 +34,7 @@ export const HelpResource = {
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
+      chapter('static-http-service', 'yaml/dsl.static-http-service.yaml'),
     ]),
   },
   Source: {

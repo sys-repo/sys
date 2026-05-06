@@ -1,0 +1,60 @@
+id: static-http-service
+title: Static HTTP service
+summary: Add a runtime service backed by `@sys/http/server/static` config.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a static HTTP service for <view>" as `add: static HTTP service`.
+      Treat the speech act as intent plus partial slots.
+      Cell registers a runtime service; HTTP owns static-server config.
+      Do not hand-author `@sys/http` config YAML when the owner CLI can write it.
+      Do not put HTTP static-server mechanics directly in `cell.yaml`.
+
+  - label: 'Slot policy'
+    items: |
+      `<view>` is the Cell view the service serves; ask if missing or ambiguous.
+      `<service-name>` is semantic; propose `static.<view>` and confirm if not obvious.
+      `<config>` is an owner config reference; propose `./-config/@sys.http/static/<view>.yaml`.
+      `<dir>` is the static root; ask unless the user named it or the Cell view path is obvious.
+      Use owner defaults for hostname and port unless the user specifies them.
+      Confirm proposed service name, config path, and static root before writing.
+
+  - label: Dialogue
+    items: |
+      Do not restate the DSL contract to the user.
+      Ask for missing semantic slots and confirm proposed owner paths.
+      Example response for serving view `web` from `./view/web`:
+      OK — I can add that static HTTP runtime service.
+      I’ll use:
+      service name: `static.web`
+      static config: `./-config/@sys.http/static/web.yaml`
+      static root: `./view/web`
+      Please confirm those values before I write the owner config and Cell topology.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/http/server/static config add`.
+      Pass `--config <config>`.
+      Pass `--dir <dir>`.
+      Pass `--hostname` and `--port` only when specified or confirmed.
+      This creates or updates HTTP static-server config.
+      Do not duplicate HTTP config schema in the Cell edit.
+      Cell records only the runtime service and config reference.
+
+  - label: 'Owner command'
+    items: |
+      deno run -A jsr:@sys/http/server/static config add --config ./-config/@sys.http/static/web.yaml --dir ./view/web
+      deno run -A jsr:@sys/http/server/static config add --dry-run --config ./-config/@sys.http/static/web.yaml --dir ./view/web --hostname 127.0.0.1 --port 4040
+
+  - label: 'Cell topology'
+    items: |
+      runtime:
+        services:
+          - name: static.web
+            kind: http.static
+            for:
+              views: [web]
+            from: '@sys/http/server/static'
+            export: HttpStatic
+            config: ./-config/@sys.http/static/web.yaml
