@@ -28,7 +28,7 @@ View     =  bound perception            ./view
 
 <p>&nbsp;</p>
 
-## Prompting `--dsl`
+## Prompting `dsl --help`
 
 | Intent                          | [Speech act](https://en.wikipedia.org/wiki/Speech_act)               |
 | ------------------------------- | -------------------------------------------------------------------- |
@@ -36,12 +36,19 @@ View     =  bound perception            ./view
 | create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                                |
 | add: pulled view                | Add a pulled view from `<dist-url>`.                                 |
 | refresh: pulled views           | Pull latest configured views.                                        |
-| add: local view                 | 🐷                                                                   |
 | add: static HTTP service (view) | Add a static HTTP service for `<view>`.                              |
 | add: runtime service            | 🐷                                                                   |
 | add: proxy service              | Add a proxy service named `<service-name>`.                          |
 | route: proxy root               | Route `/` to `<view/service/upstream>`.                              |
 | route: proxy mount              | Route `<path-prefix>` to `<view/service/upstream>`.                  |
+
+Sample slot values, not DSL grammar:
+
+- `<dist-url>`: `https://fs.db.team/driver.stripe/dist.json`
+- `<dist-url>`: `https://fs.db.team/ui.components/dist.json`
+- `<service-name>`: `stripe` for the Stripe fixture service
+- `<service-name>`: `app` for the sample public proxy
+- `<view>`: `stripe.dev`, `hello`
 
 <p>&nbsp;</p>
 
