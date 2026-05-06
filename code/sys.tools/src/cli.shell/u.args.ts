@@ -7,7 +7,9 @@ export function parseArgs(argv: readonly string[]): t.ShellTool.CliParsedArgs {
   const head = parts[0];
   return {
     ...args,
-    command: head === 'doctor' || head === 'alias' || head === 'path' ? head : undefined,
+    command: head === 'doctor' || head === 'alias' || head === 'path' || head === 'apply'
+      ? head
+      : undefined,
     alias: parseAliasCommand(parts),
     path: parsePathCommand(parts),
   };

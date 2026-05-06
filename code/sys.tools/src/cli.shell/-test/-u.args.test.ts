@@ -25,6 +25,12 @@ describe('cli.shell args', () => {
     expect(args.alias).to.eql({ command: 'enable', target: undefined });
   });
 
+  it('parses apply command', () => {
+    const args = parseArgs(['apply', '--dry-run']);
+    expect(args.command).to.eql('apply');
+    expect(args['dry-run']).to.eql(true);
+  });
+
   it('parses path list command', () => {
     const args = parseArgs(['path', 'list']);
     expect(args.command).to.eql('path');

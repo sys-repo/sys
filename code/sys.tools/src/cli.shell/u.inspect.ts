@@ -12,12 +12,16 @@ export type ShellInspectOptions = {
   readonly shell?: t.ShellTool.PosixDialect;
 };
 
-export type ShellInspectProfile = t.ShellTool.Doctor.Profile & { readonly text: string };
+export type ShellInspectProfile = t.ShellTool.Doctor.Profile & {
+  readonly text: string;
+  readonly readError?: string;
+};
 
 export type ShellInspectContext = {
   readonly home?: t.StringDir;
   readonly shell: t.ShellTool.Doctor.ShellInfo;
   readonly profiles: readonly ShellInspectProfile[];
+  readonly warnings: readonly string[];
 };
 
 /** Inspect shell env/profile state without writing profile files. */
@@ -36,7 +40,7 @@ export async function inspectShell(
     dialect,
     support: dialect ? 'write' : 'doctor-only',
   };
-  const profiles = await inspectProfiles({
+  const inspected = await inspectProfiles({
     home,
     shell,
     explicitProfile: options.profile,
@@ -44,7 +48,7 @@ export async function inspectShell(
     readText,
   });
 
-  return { home, shell, profiles };
+  return { home, shell, profiles: inspected.profiles, warnings: inspected.warnings };
 }
 
 /** Strip profile text from an inspected profile for public reports. */
@@ -71,7 +75,7 @@ async function inspectProfiles(args: {
   readonly explicitProfile?: t.StringPath;
   readonly exists: (path: t.StringPath) => Promise<boolean>;
   readonly readText: (path: t.StringPath) => Promise<string>;
-}): Promise<readonly ShellInspectProfile[]> {
+}): Promise<{ readonly profiles: readonly ShellInspectProfile[]; readonly warnings: readonly string[] }> {
   const candidates = args.explicitProfile
     ? [{ role: 'explicit', path: args.explicitProfile }]
     : profileNames(args.shell.dialect).map((item) => ({
@@ -82,22 +86,38 @@ async function inspectProfiles(args: {
     );
 
   const profiles: ShellInspectProfile[] = [];
+  const warnings: string[] = [];
   for (const candidate of candidates) {
     const found = await args.exists(candidate.path);
-    const text = found ? await args.readText(candidate.path) : '';
+    let text = '';
+    let readError: string | undefined;
+    let block: t.ShellTool.BlockState = { kind: 'missing' };
+
+    if (found) {
+      try {
+        text = await args.readText(candidate.path);
+        block = Shell.Block.detect({ owner: OWNER, text });
+      } catch (cause) {
+        readError = errorMessage(cause);
+        warnings.push(`Failed to read profile ${candidate.path}: ${readError}`);
+      }
+    }
+
     profiles.push({
       ...candidate,
       exists: found,
       text,
-      block: found ? Shell.Block.detect({ owner: OWNER, text }) : { kind: 'missing' },
+      readError,
+      block,
     });
   }
 
-  return profiles;
+  return { profiles, warnings };
 }
 
 async function readTextFile(path: t.StringPath): Promise<string> {
   const read = await Fs.readText(path);
+  if (read.error) throw read.error;
   return read.data ?? '';
 }
 
@@ -113,6 +133,11 @@ function basename(path?: string): string | undefined {
   if (!path) return undefined;
   const parts = path.split('/').filter((part) => part.length > 0);
   return parts.at(-1);
+}
+
+function errorMessage(cause: unknown): string {
+  if (Is.errorLike(cause)) return String(cause.message ?? 'unknown error');
+  return String(cause);
 }
 
 function profileNames(

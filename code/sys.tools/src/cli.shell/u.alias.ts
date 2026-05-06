@@ -9,12 +9,7 @@ import { OWNER } from './u.owner.ts';
 
 export type ShellAliasDeps = ShellInspectDeps;
 
-export type ShellAliasEnableOptions = {
-  readonly dryRun?: boolean;
-  readonly apply?: boolean;
-  readonly profile?: t.StringPath;
-  readonly shell?: t.ShellTool.PosixDialect;
-};
+type ShellAliasEnableOptions = t.ShellTool.MutationOptions;
 
 /** Alias catalog and managed-block planning helpers. */
 export const Alias = {
@@ -48,10 +43,7 @@ export async function aliasEnable(
   const entries = resolveAliases(target);
   const warnings = [...ctx.warnings];
 
-  if (options.apply) {
-    warnings.push('Profile writes are not enabled in this command yet; no changes written');
-  }
-  if (!options.dryRun && !options.apply) warnings.push('Dry-run preview only; no changes written');
+  if (!options.dryRun) warnings.push('Dry-run preview only; no changes written');
 
   const profile = selectProfile(ctx.profiles, options.profile);
   if (!profile) {
@@ -116,7 +108,7 @@ async function inspectContext(
   options: ShellAliasEnableOptions = {},
 ): Promise<InspectedContext> {
   const inspected = await inspectShell(deps, { profile: options.profile, shell: options.shell });
-  const warnings: string[] = [];
+  const warnings = [...inspected.warnings];
 
   if (!inspected.home && !options.profile) {
     warnings.push('HOME is not set; pass --profile <path> to preview a plan');

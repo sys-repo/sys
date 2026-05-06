@@ -1,20 +1,24 @@
-import { D, Fmt, Fs, type t } from './common.ts';
+import { Fs, type t } from './common.ts';
 import { Alias } from './u.alias.ts';
+import { apply } from './u.apply.ts';
 import { parseArgs, shellFlag, stringFlag } from './u.args.ts';
 import { doctor } from './u.doctor.ts';
 import {
   formatAliasEnable,
   formatAliasList,
+  formatApply,
   formatDoctor,
   formatPathAdd,
   formatPathList,
 } from './u.fmt.ts';
+import { help } from './u.help.ts';
 import { Path } from './u.path.ts';
 
 type CliDeps = {
-  readonly Alias?: Partial<typeof Alias>;
-  readonly Path?: Partial<typeof Path>;
-  readonly doctor?: typeof doctor;
+  readonly Alias?: Partial<t.ShellTool.Alias.Lib>;
+  readonly Path?: Partial<t.ShellTool.Path.Lib>;
+  readonly apply?: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+  readonly doctor?: () => Promise<t.ShellTool.Doctor.Report>;
   readonly info?: (...data: unknown[]) => void;
 };
 
@@ -34,6 +38,16 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
     return;
   }
 
+  if (args.command === 'apply') {
+    const runApply = deps.apply ?? apply;
+    info(formatApply(await runApply({
+      dryRun: Boolean(args['dry-run']),
+      profile: stringFlag(args.profile) as t.StringPath | undefined,
+      shell: shellFlag(args.shell),
+    })));
+    return;
+  }
+
   if (args.command === 'alias' && args.alias?.command === 'list') {
     const runAliasList = deps.Alias?.list ?? Alias.list;
     info(formatAliasList(await runAliasList()));
@@ -45,7 +59,6 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
     info(formatAliasEnable(
       await runAliasEnable(args.alias.target, {
         dryRun: Boolean(args['dry-run']),
-        apply: Boolean(args.apply),
         profile: stringFlag(args.profile) as t.StringPath | undefined,
         shell: shellFlag(args.shell),
       }),
@@ -64,7 +77,6 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
     info(formatPathAdd(
       await runPathAdd(args.path.target, {
         dryRun: Boolean(args['dry-run']),
-        apply: Boolean(args.apply),
         profile: stringFlag(args.profile) as t.StringPath | undefined,
         shell: shellFlag(args.shell),
       }),
@@ -74,29 +86,3 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
 
   info(await help());
 };
-
-async function help() {
-  return await Fmt.help(D.tool.name, {
-    usage: [
-      `shell doctor`,
-      `shell alias list`,
-      `shell alias enable <sys|common> --dry-run`,
-      `shell path list`,
-      `shell path add deno --dry-run`,
-    ],
-    options: [
-      ['--dry-run', 'Preview alias/PATH changes without writing.'],
-      ['--apply', 'Reserved for the apply flow; currently writes nothing.'],
-      ['--profile <path>', 'Preview against an explicit profile path.'],
-      ['--shell <zsh|bash|posix>', 'Override detected shell dialect for rendering.'],
-      ['-h, --help', 'Show help.'],
-    ],
-    examples: [
-      `${Fmt.invoke('shell', 'doctor')}`,
-      `${Fmt.invoke('shell', 'alias', 'list')}`,
-      `${Fmt.invoke('shell', 'alias', 'enable', 'sys', '--dry-run')}`,
-      `${Fmt.invoke('shell', 'path', 'list')}`,
-      `${Fmt.invoke('shell', 'path', 'add', 'deno', '--dry-run')}`,
-    ],
-  });
-}

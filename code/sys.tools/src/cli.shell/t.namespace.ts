@@ -21,6 +21,9 @@ export namespace ShellTool {
     /** Run the read-only shell doctor. */
     doctor(): Promise<Doctor.Report>;
 
+    /** Plan or apply the recommended managed shell baseline. */
+    apply(options?: Apply.Options): Promise<Apply.Report>;
+
     /** Alias catalog and managed-block planning helpers. */
     readonly Alias: Alias.Lib;
 
@@ -29,13 +32,11 @@ export namespace ShellTool {
   };
 
   /** CLI sub-commands (first positional token). */
-  export type Command = 'doctor' | 'alias' | 'path';
+  export type Command = 'doctor' | 'alias' | 'path' | 'apply';
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & {
-    readonly apply?: boolean;
     readonly 'dry-run'?: boolean;
-    readonly 'non-interactive'?: boolean;
     readonly profile?: string;
     readonly shell?: string;
   };
@@ -69,7 +70,7 @@ export namespace ShellTool {
       list(): Promise<ListReport>;
 
       /** Plan an alias enable operation without writing shell profile files. */
-      enable(target: Target): Promise<EnableReport>;
+      enable(target: Target, options?: MutationOptions): Promise<EnableReport>;
     };
 
     export type ParsedCommand =
@@ -121,7 +122,7 @@ export namespace ShellTool {
       list(): Promise<ListReport>;
 
       /** Plan a PATH add operation without writing shell profile files. */
-      add(target: Target): Promise<AddReport>;
+      add(target: Target, options?: MutationOptions): Promise<AddReport>;
     };
 
     export type ParsedCommand =
@@ -162,6 +163,50 @@ export namespace ShellTool {
       readonly warnings: readonly string[];
     };
   }
+
+  /** Recommended baseline shell apply flow. */
+  export namespace Apply {
+    export type Options = MutationOptions;
+    export type Status = 'planned' | 'applied' | 'unchanged' | 'blocked';
+
+    export type WriteOptions = {
+      readonly force?: boolean;
+    };
+
+    export type Plan = {
+      readonly kind: t.Shell.Plan['kind'];
+      readonly changed: boolean;
+      readonly block: BlockState;
+      readonly preview: string;
+    };
+
+    export type Aftercare = {
+      readonly source: string;
+      readonly verify: string;
+    };
+
+    export type Report = {
+      readonly owner: Owner;
+      readonly status: Status;
+      readonly dryRun: boolean;
+      readonly shell: Doctor.ShellInfo;
+      readonly env: Doctor.EnvInfo;
+      readonly aliases: readonly Alias.Entry[];
+      readonly paths: readonly Path.Entry[];
+      readonly profile?: Doctor.Profile;
+      readonly backup?: t.StringPath;
+      readonly plan?: Plan;
+      readonly aftercare?: Aftercare;
+      readonly warnings: readonly string[];
+    };
+  }
+
+  /** Mutation command options shared by planning/write flows. */
+  export type MutationOptions = {
+    readonly dryRun?: boolean;
+    readonly profile?: t.StringPath;
+    readonly shell?: PosixDialect;
+  };
 
   /** Read-only shell doctor report. */
   export namespace Doctor {

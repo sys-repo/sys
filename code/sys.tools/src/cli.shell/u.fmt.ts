@@ -142,22 +142,59 @@ export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
   return finishOutput(out);
 }
 
+/** Format the recommended baseline apply flow without leaking profile content. */
+export function formatApply(report: t.ShellTool.Apply.Report): string {
+  const out = Str.builder()
+    .line(`  ${c.green('system/shell:tools')} ${c.gray('apply')}`)
+    .blank()
+    .line(`  ${c.bold('baseline')}`);
+
+  report.aliases.forEach((entry) => {
+    out.line(`    ${c.cyan(`alias ${entry.name}`)} ${c.gray('→')} ${entry.command}`);
+  });
+
+  if (report.paths.length > 0) {
+    report.paths.forEach((entry) => out.line(`    ${c.cyan(`path ${entry.label}`)}`));
+  } else {
+    out.line(`    ${c.yellow('path deno skipped')}`);
+  }
+
+  out.blank().line(`  ${c.bold('environment')}`)
+    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
+    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
+
+  if (report.status === 'applied') {
+    appendApplied(out, report);
+  } else {
+    appendPlan(out, report.profile, report.plan, report.backup);
+    appendWarnings(out, report.warnings);
+  }
+
+  return finishOutput(out);
+}
+
 /**
  * Helpers:
  */
+type ManagedBlockPlan =
+  | t.ShellTool.Alias.EnablePlan
+  | t.ShellTool.Path.AddPlan
+  | t.ShellTool.Apply.Plan;
+
 function finishOutput(out: ReturnType<typeof Str.builder>): string {
   return `${Str.trimEdgeNewlines(out.toString())}\n`;
 }
 
-
 function appendPlan(
   out: ReturnType<typeof Str.builder>,
   profile: t.ShellTool.Doctor.Profile | undefined,
-  plan: t.ShellTool.Alias.EnablePlan | t.ShellTool.Path.AddPlan | undefined,
+  plan: ManagedBlockPlan | undefined,
+  backup?: t.StringPath,
 ): void {
   out.blank().line(`  ${c.bold('plan')}`);
   if (profile && plan) {
     out.line(`    profile: ${c.cyan(profile.path)}`);
+    if (backup) out.line(`    backup: ${c.cyan(backup)}`);
     out.line(`    operation: ${planKind(plan)}`);
     out.blank().line(`  ${c.bold('managed block preview')}`);
     blockPreviewLines(plan.preview).forEach((line) => out.line(line));
@@ -170,6 +207,23 @@ function appendWarnings(out: ReturnType<typeof Str.builder>, warnings: readonly 
   const lines = warnings.length ? warnings : ['No changes written'];
   out.blank().line(`  ${c.bold('status')}`);
   lines.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+}
+
+function appendApplied(
+  out: ReturnType<typeof Str.builder>,
+  report: t.ShellTool.Apply.Report,
+): void {
+  out.blank().line(`  ${c.bold('status')}`);
+  if (report.profile) out.line(`    ${c.green('wrote:')} ${report.profile.path}`);
+  if (report.backup) out.line(`    ${c.green('backup:')} ${report.backup}`);
+  if (report.aftercare) {
+    out.line(`    ${c.green('next:')} ${report.aftercare.source}`);
+    out.line(`    ${c.green('verify:')} ${report.aftercare.verify}`);
+  }
+  if (report.warnings.length > 0) {
+    out.blank().line(`  ${c.bold('notes')}`);
+    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+  }
 }
 
 function blockPreviewLines(preview: string): readonly string[] {
@@ -197,7 +251,7 @@ function pathState(item: t.ShellTool.Path.Item): string {
   return c.gray('missing');
 }
 
-function planKind(plan: t.ShellTool.Alias.EnablePlan | t.ShellTool.Path.AddPlan): string {
+function planKind(plan: ManagedBlockPlan): string {
   if (plan.kind === 'unchanged') return c.green('unchanged');
   if (plan.kind === 'add') return c.yellow('add');
   if (plan.kind === 'replace') return c.yellow('replace');

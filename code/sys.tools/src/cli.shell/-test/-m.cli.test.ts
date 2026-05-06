@@ -170,6 +170,50 @@ describe('cli.shell CLI', () => {
     expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools path add deno');
   });
 
+  it('routes `apply` through the CLI', async () => {
+    const output: string[] = [];
+    let received: t.ShellTool.Apply.Options | undefined;
+    const run = cli as unknown as (
+      cwd: t.StringDir,
+      argv: string[],
+      context: t.ShellTool.CliContext | undefined,
+      deps: {
+        readonly apply: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+        readonly info: (...data: unknown[]) => void;
+      },
+    ) => Promise<t.ShellTool.CliResult>;
+
+    await run('/tmp' as t.StringDir, [
+      'apply',
+      '--profile',
+      '/tmp/profile',
+      '--shell',
+      'zsh',
+    ], undefined, {
+      apply: async (options) => {
+        received = options;
+        return {
+          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+          status: 'blocked',
+          dryRun: true,
+          shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+          env: { pathContainsDenoBin: false },
+          aliases: [],
+          paths: [],
+          warnings: ['No files written'],
+        };
+      },
+      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+    });
+
+    expect(received).to.eql({
+      dryRun: false,
+      profile: '/tmp/profile',
+      shell: 'zsh',
+    });
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools apply');
+  });
+
   it('routes `doctor` through the CLI', async () => {
     const output: string[] = [];
     const run = cli as unknown as (

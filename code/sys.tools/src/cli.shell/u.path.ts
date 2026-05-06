@@ -10,12 +10,7 @@ import { OWNER } from './u.owner.ts';
 
 export type ShellPathDeps = ShellInspectDeps;
 
-export type ShellPathAddOptions = {
-  readonly dryRun?: boolean;
-  readonly apply?: boolean;
-  readonly profile?: t.StringPath;
-  readonly shell?: t.ShellTool.PosixDialect;
-};
+type ShellPathAddOptions = t.ShellTool.MutationOptions;
 
 /** PATH catalog and managed-block planning helpers. */
 export const Path = {
@@ -50,11 +45,8 @@ export async function pathAdd(
   const entries = resolvePaths(target);
   const warnings = [...ctx.warnings];
 
-  if (options.apply) {
-    warnings.push('Profile writes are not enabled in this command yet; no changes written');
-  }
   if (options.dryRun) warnings.push('No changes written');
-  if (!options.dryRun && !options.apply) warnings.push('Dry-run preview only; no changes written');
+  if (!options.dryRun) warnings.push('Dry-run preview only; no changes written');
   if (target === 'deno' && ctx.env.pathContainsDenoBin) {
     warnings.push('Deno install bin is already on PATH; managed block preview still shown');
   }
@@ -143,7 +135,7 @@ async function inspectContext(
     denoBin,
     pathContainsDenoBin,
   };
-  const warnings: string[] = [];
+  const warnings = [...inspected.warnings];
 
   if (!inspected.home && !options.profile) {
     warnings.push('HOME is not set; pass --profile <path> to preview a plan');

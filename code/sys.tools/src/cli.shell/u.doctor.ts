@@ -14,7 +14,7 @@ export async function doctor(deps: ShellDoctorDeps = {}): Promise<t.ShellTool.Do
   const denoBin = denoInstall ? Fs.join(denoInstall, 'bin') as t.StringDir : undefined;
   const pathContainsDenoBin = Is.str(denoBin) && pathIncludes(env('PATH'), denoBin);
   const profiles = inspected.profiles.map(publicProfile);
-  const warnings = warningsFor({ home, shell, profiles, pathContainsDenoBin });
+  const warnings = [...inspected.warnings, ...warningsFor({ home, shell, profiles, pathContainsDenoBin })];
 
   return {
     owner: OWNER,
