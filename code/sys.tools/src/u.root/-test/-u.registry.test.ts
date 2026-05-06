@@ -13,6 +13,16 @@ describe('Root Registry', () => {
     expect(new Set(aliases).size).to.eql(aliases.length);
   });
 
+  it('surfaces shell as a secondary root tool without aliases', () => {
+    const shell = ROOT_REGISTRY.find((item) => item.id === 'shell');
+    expect(shell).to.eql({
+      id: 'shell',
+      aliases: undefined,
+      group: 'secondary',
+      specifier: '../cli.shell/mod.ts',
+    });
+  });
+
   it('derives import map and aliases map from registry', () => {
     for (const item of ROOT_REGISTRY) {
       expect(typeof Imports[item.id]).to.eql('function');

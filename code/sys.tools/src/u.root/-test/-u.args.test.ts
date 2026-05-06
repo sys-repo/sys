@@ -30,6 +30,13 @@ describe('Root Args', () => {
     expect(alias._).eql(['pi', 'x']);
   });
 
+  it('recognizes shell as a root command without aliases', () => {
+    const res = parseArgs(['shell', 'doctor']);
+    expect(res.command).eql('shell');
+    expect(res._).eql(['shell', 'doctor']);
+    expect(toRootDispatchArgv(['shell', 'doctor'], res)).eql(['shell', 'doctor']);
+  });
+
   it('does not accept removed fn command', () => {
     const res = parseArgs(['fn', 'x']);
     expect(res.command).eql(undefined);

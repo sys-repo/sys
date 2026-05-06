@@ -5,9 +5,7 @@ async function captureInfo(fn: () => Promise<void>) {
   const output: string[] = [];
   const original = console.info;
   try {
-    console.info = (...data: unknown[]) => {
-      output.push(data.map(String).join(' '));
-    };
+    console.info = (...data: unknown[]) => void output.push(data.map(String).join(' '));
     await fn();
   } finally {
     console.info = original;
@@ -16,10 +14,14 @@ async function captureInfo(fn: () => Promise<void>) {
 }
 
 describe('Root Help', () => {
+  it('lists shell in the root help', async () => {
+    const output = await captureInfo(async () => void await printRootHelp({ help: true, _: [] }));
+    const text = Cli.stripAnsi(output);
+    expect(text).to.contain('@sys/tools shell');
+  });
+
   it('documents the update-advisory opt-out flag and env var', async () => {
-    const output = await captureInfo(async () => {
-      await printRootHelp({ help: true, _: [] });
-    });
+    const output = await captureInfo(async () => void await printRootHelp({ help: true, _: [] }));
     const text = Cli.stripAnsi(output);
 
     expect(text).to.contain('--no-update-check');
