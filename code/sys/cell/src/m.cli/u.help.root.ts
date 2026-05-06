@@ -1,12 +1,12 @@
 import { CellHelp } from '../m.help/mod.ts';
-import { CliFmt } from './common.ts';
+import { c, CliFmt } from './common.ts';
 
 export const FmtRootHelp = {
   async input(toolname = '@sys/cell') {
     const guidance = await CellHelp.Root.load();
     return {
       tool: toolname,
-      summary: guidance.summary,
+      summary: guidance.summary.replace('Cell', c.cyan('Cell')),
       sections: [
         { kind: 'lines', label: 'Usage', items: guidance.usage },
         { kind: 'pairs', label: 'Commands', items: guidance.commands },
