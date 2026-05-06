@@ -37,7 +37,7 @@ View     =  bound perception            ./view
 | add: pulled view                | Add a pulled view from `<dist-url>`.                                 |
 | refresh: pulled views           | Pull latest configured views.                                        |
 | add: static HTTP service (view) | Add a static HTTP service for `<view>`.                              |
-| add: runtime service            | 🐷                                                                   |
+| add: runtime service            | Add a service named `<service-name>` using `<@scope/pkg>/<export>`.  |
 | add: proxy service              | Add a proxy service named `<service-name>`.                          |
 | route: proxy root               | Route `/` to `<view/service/upstream>`.                              |
 | route: proxy mount              | Route `<path-prefix>` to `<view/service/upstream>`.                  |
