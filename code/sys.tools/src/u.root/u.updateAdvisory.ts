@@ -1,9 +1,7 @@
 import type { UpdateAdvisoryState } from '../cli.update/u.advisory.ts';
-import {
-  readUpdateAdvisoryState,
-  toUpdateAdvisoryStateFromRemote,
-} from '../cli.update/u.advisory.ts';
+import { readUpdateAdvisoryState } from '../cli.update/u.advisory.ts';
 import { runUpdateAdvisoryProbe } from '../cli.update/u.advisory.probe.ts';
+import { Path, pkg, Process } from './common.ts';
 import {
   type RootUpdateAdvisoryOptions,
   RootUpdateAdvisoryPolicy,
@@ -18,25 +16,19 @@ export async function prepareRootUpdateAdvisory(
   if (RootUpdateAdvisoryPolicy.isDisabled(deps)) return emptyUpdateAdvisoryState;
 
   const readState = deps.readState ?? readUpdateAdvisoryState;
-  const probe = deps.probe ?? runUpdateAdvisoryProbe;
 
   let state = emptyUpdateAdvisoryState;
   try {
     state = await readState();
   } catch {
-    // Cache reads are fallback only; they must not suppress a live startup probe.
+    // Cache reads are fallback only; they must not suppress startup.
   }
 
   // Non-persistent forced advisory state, e.g. the debug remote env, is already authoritative.
   if (!state.path && state.hasUpdate) return state;
 
-  try {
-    const result = await probe();
-    if (result.ok) return toUpdateAdvisoryStateFromRemote(result.remote, { path: state.path });
-    return state;
-  } catch {
-    return state;
-  }
+  startRootUpdateAdvisoryProbe(deps);
+  return state;
 }
 
 export async function runWithRootUpdateAdvisory<T>(
@@ -55,6 +47,59 @@ export async function runWithRootUpdateAdvisory<T>(
   }
 
   return await fn();
+}
+
+function startRootUpdateAdvisoryProbe(
+  deps: { readonly probe?: typeof runUpdateAdvisoryProbe } = {},
+) {
+  if (deps.probe) return startInjectedRootUpdateAdvisoryProbe(deps.probe);
+  void startDetachedRootUpdateAdvisoryProbe();
+}
+
+function startInjectedRootUpdateAdvisoryProbe(probe: typeof runUpdateAdvisoryProbe) {
+  void (async () => {
+    try {
+      await probe();
+    } catch {
+      // Background advisory probes must never block the selected tool.
+    }
+  })();
+}
+
+async function startDetachedRootUpdateAdvisoryProbe() {
+  try {
+    const permission = await Deno.permissions.query({ name: 'run', command: Deno.execPath() });
+    if (permission.state !== 'granted') return;
+
+    const target = rootUpdateAdvisoryProbeTarget();
+    Process.invokeDetached({
+      cmd: Deno.execPath(),
+      cwd: target.cwd,
+      args: ['run', '-A', '--no-prompt', target.specifier],
+      silent: true,
+    });
+  } catch {
+    // Background advisory probes must never block the selected tool.
+  }
+}
+
+function rootUpdateAdvisoryProbeTarget() {
+  const current = new URL(import.meta.url);
+  if (isLocalSourceUrl(current)) {
+    return {
+      cwd: Path.fromFileUrl(new URL('../../', current)),
+      specifier: new URL('../cli.update/u.advisory.probe.ts', current).href,
+    };
+  }
+
+  return {
+    cwd: undefined,
+    specifier: `jsr:${pkg.name}@${pkg.version}/update/advisory-probe`,
+  };
+}
+
+function isLocalSourceUrl(url: URL) {
+  return url.protocol === 'file:' && url.pathname.includes('/code/sys.tools/src/');
 }
 
 const emptyUpdateAdvisoryState: UpdateAdvisoryState = {

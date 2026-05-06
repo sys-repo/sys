@@ -2,6 +2,8 @@ export type * as t from './common.t.ts';
 
 export { pkg } from '../pkg.ts';
 export { Args, c, Cli } from '@sys/cli';
+export { Path } from '@sys/fs';
+export { Process } from '@sys/process';
 export { Is } from '@sys/std/is';
 export { Str } from '@sys/std/str';
 export { Fmt } from '../common/u.fmt.ts';

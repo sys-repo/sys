@@ -2,8 +2,10 @@ import { Cli, describe, expect, it, type t } from '../../-test.ts';
 import { prepareRootUpdateAdvisory, runWithRootUpdateAdvisory } from '../u.updateAdvisory.ts';
 
 describe('Root update advisory', () => {
-  it('prepares root advisory state through the update-owned advisory seam', async () => {
+  it('returns cached advisory state and starts the update-owned advisory seam', async () => {
     const events: string[] = [];
+    let resolveProbe: (() => void) | undefined;
+    const probeDone = new Promise<void>((resolve) => (resolveProbe = resolve));
 
     const res = await prepareRootUpdateAdvisory({
       readState: async () => {
@@ -17,16 +19,18 @@ describe('Root update advisory', () => {
       },
       probe: async () => {
         events.push('probe');
+        await probeDone;
         return { ok: true, remote: '9.9.9' as t.StringSemver };
       },
     });
 
     expect(events).to.eql(['read', 'probe']);
     expect(res.path).to.eql('/tmp/advisory.json');
-    expect(res.record?.ok).to.eql(true);
-    if (res.record?.ok) expect(res.record.remote).to.eql('9.9.9');
+    expect(res.record).to.eql(undefined);
     expect(res.hasUpdate).to.eql(true);
     expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
+    resolveProbe?.();
+    await Promise.resolve();
   });
 
   it('does not read or probe when the root flag disables update checks', async () => {
@@ -91,7 +95,7 @@ describe('Root update advisory', () => {
     expect(res.hasUpdate).to.eql(false);
   });
 
-  it('probes path-backed advisory state before returning to startup', async () => {
+  it('starts a background probe for path-backed advisory state without using it for startup', async () => {
     const events: string[] = [];
 
     const res = await prepareRootUpdateAdvisory({
@@ -111,8 +115,8 @@ describe('Root update advisory', () => {
     });
 
     expect(events).to.eql(['read', 'probe']);
-    expect(res.hasUpdate).to.eql(true);
-    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
+    expect(res.hasUpdate).to.eql(false);
+    expect(res.prelude).to.eql(undefined);
   });
 
   it('probes even when cached advisory state has no update', async () => {
@@ -135,11 +139,11 @@ describe('Root update advisory', () => {
     });
 
     expect(events).to.eql(['read', 'probe']);
-    expect(res.hasUpdate).to.eql(true);
-    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
+    expect(res.hasUpdate).to.eql(false);
+    expect(res.prelude).to.eql(undefined);
   });
 
-  it('uses the live probe result even when advisory persistence is unavailable', async () => {
+  it('starts a background probe even when advisory persistence is unavailable', async () => {
     const events: string[] = [];
 
     const res = await prepareRootUpdateAdvisory({
@@ -160,8 +164,8 @@ describe('Root update advisory', () => {
 
     expect(events).to.eql(['read', 'probe']);
     expect(res.path).to.eql(undefined);
-    expect(res.hasUpdate).to.eql(true);
-    expect(Cli.stripAnsi(res.prelude ?? '')).to.contain('sys update --latest');
+    expect(res.hasUpdate).to.eql(false);
+    expect(res.prelude).to.eql(undefined);
   });
 
   it('keeps non-persistent forced advisory state without probing', async () => {
@@ -220,8 +224,10 @@ describe('Root update advisory', () => {
     expect(res.hasUpdate).to.eql(false);
   });
 
-  it('runs the advisory check before a direct tool entrypoint', async () => {
+  it('starts the advisory probe before a direct tool entrypoint without waiting for it', async () => {
     const events: string[] = [];
+    let resolveProbe: (() => void) | undefined;
+    const probeDone = new Promise<void>((resolve) => (resolveProbe = resolve));
 
     await runWithRootUpdateAdvisory(
       async () => {
@@ -239,6 +245,7 @@ describe('Root update advisory', () => {
         },
         probe: async () => {
           events.push('probe');
+          await probeDone;
           return { ok: true, remote: '9.9.9' as t.StringSemver };
         },
         info(...data) {
@@ -247,12 +254,9 @@ describe('Root update advisory', () => {
       },
     );
 
-    expect(events).to.eql([
-      'read',
-      'probe',
-      'info:true',
-      'tool',
-    ]);
+    expect(events).to.eql(['read', 'probe', 'tool']);
+    resolveProbe?.();
+    await Promise.resolve();
   });
 
   it('direct tool entrypoints continue when advisory preparation fails', async () => {

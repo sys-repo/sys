@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Background update advisory probe entrypoint.
+ */
 import { getVersionInfo } from './u.ts';
 import { writeUpdateAdvisoryFailure, writeUpdateAdvisorySuccess } from './u.advisory.ts';
 
@@ -28,4 +32,8 @@ export async function runUpdateAdvisoryProbe(
     }
     return { ok: false as const };
   }
+}
+
+if (import.meta.main) {
+  await runUpdateAdvisoryProbe();
 }

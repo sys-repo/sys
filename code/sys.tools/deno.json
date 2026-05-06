@@ -28,6 +28,7 @@
     "./deploy": "./src/cli.deploy/mod.ts",
     "./up": "./src/cli.update/mod.ts",
     "./update": "./src/cli.update/mod.ts",
+    "./update/advisory-probe": "./src/cli.update/u.advisory.probe.ts",
     "./env": "./src/-exports/-env.ts"
   },
   "permissions": {
