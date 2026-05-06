@@ -19,6 +19,7 @@
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
     "./pull": "./src/cli.pull/mod.ts",
+    "./shell": "./src/cli.shell/mod.ts",
     "./pi": "./src/cli.pi/mod.ts",
     "./tmpl": "./src/cli.tmpl/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
@@ -51,4 +52,3 @@
     }
   }
 }
-

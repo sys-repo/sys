@@ -18,6 +18,7 @@ export namespace Tools {
     | t.UpdateTool.Id
     | t.VideoTool.Id
     | t.PullTool.Id
+    | t.ShellTool.Id
     | t.TmplTool.Id;
 
   /** Command line arguments (argv). */

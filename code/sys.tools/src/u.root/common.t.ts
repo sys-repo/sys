@@ -22,6 +22,7 @@ export namespace Root {
   /** Tool command ids handled by the root launcher. */
   export type Command =
     | 'pull'
+    | 'shell'
     | 'serve'
     | 'pi'
     | 'deploy'

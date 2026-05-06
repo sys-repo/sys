@@ -22,6 +22,7 @@ describe('Root Rows', () => {
       'deploy',
     ]);
     expect(rootRows('secondary').map((item) => item.command)).to.eql([
+      'shell',
       'crdt',
       'video',
       'crypto',

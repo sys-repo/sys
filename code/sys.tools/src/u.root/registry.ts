@@ -15,17 +15,32 @@ export const ROOT_REGISTRY: readonly ToolRegistryItem[] = [
   { id: 'pull', aliases: undefined, group: 'primary', specifier: '../cli.pull/mod.ts' },
   { id: 'serve', aliases: undefined, group: 'primary', specifier: '../cli.serve/mod.ts' },
   { id: 'deploy', aliases: undefined, group: 'primary', specifier: '../cli.deploy/mod.ts' },
+  { id: 'shell', aliases: undefined, group: 'secondary', specifier: '../cli.shell/mod.ts' },
   { id: 'crdt', aliases: undefined, group: 'secondary', specifier: '../cli.crdt/mod.ts' },
   { id: 'video', aliases: undefined, group: 'secondary', specifier: '../cli.video/mod.ts' },
-  { id: 'crypto', label: 'cryptography', aliases: ['crypto'], group: 'secondary', specifier: '../cli.crypto/mod.ts' },
-  { id: 'copy', label: 'clipboard', aliases: ['cp'], group: 'secondary', specifier: '../cli.clipboard/mod.ts' },
+  {
+    id: 'crypto',
+    label: 'cryptography',
+    aliases: ['crypto'],
+    group: 'secondary',
+    specifier: '../cli.crypto/mod.ts',
+  },
+  {
+    id: 'copy',
+    label: 'clipboard',
+    aliases: ['cp'],
+    group: 'secondary',
+    specifier: '../cli.clipboard/mod.ts',
+  },
   { id: 'update', aliases: ['up', 'info'], group: 'utility', specifier: '../cli.update/mod.ts' },
 ] as const;
 
 export const TOOL_IDS = ROOT_REGISTRY.map((item) => item.id) as readonly t.Root.Command[];
 
 export const Imports = Object.fromEntries(
-  ROOT_REGISTRY.map((item) => [item.id, () => import(new URL(item.specifier, import.meta.url).href)]),
+  ROOT_REGISTRY.map((
+    item,
+  ) => [item.id, () => import(new URL(item.specifier, import.meta.url).href)]),
 ) as Record<t.Root.Command, () => Promise<unknown>>;
 
 export const ALIAS = ROOT_REGISTRY.reduce((acc, item) => {
