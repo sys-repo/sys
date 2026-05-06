@@ -35,7 +35,7 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
   out.blank().line(`  ${c.bold('diagnosis')}`);
   warnings.forEach((line) => out.line(line));
 
-  return Str.trimEdgeNewlines(out.toString());
+  return `${Str.trimEdgeNewlines(out.toString())}\n`;
 }
 
 /** Format the shell alias catalog and managed profile state. */
