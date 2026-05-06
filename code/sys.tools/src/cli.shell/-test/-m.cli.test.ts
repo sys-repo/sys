@@ -186,7 +186,7 @@ describe('cli.shell CLI', () => {
     expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell path add deno');
   });
 
-  it('routes `apply` through the CLI', async () => {
+  it('routes `init` through the CLI', async () => {
     const output: string[] = [];
     let received: t.ShellTool.Apply.Options | undefined;
     const run = cli as unknown as (
@@ -194,19 +194,19 @@ describe('cli.shell CLI', () => {
       argv: string[],
       context: t.ShellTool.CliContext | undefined,
       deps: {
-        readonly apply: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+        readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
         readonly info: (...data: unknown[]) => void;
       },
     ) => Promise<t.ShellTool.CliResult>;
 
     await run('/tmp' as t.StringDir, [
-      'apply',
+      'init',
       '--profile',
       '/tmp/profile',
       '--shell',
       'zsh',
     ], undefined, {
-      apply: async (options) => {
+      init: async (options) => {
         received = options;
         return {
           owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
@@ -227,7 +227,36 @@ describe('cli.shell CLI', () => {
       profile: '/tmp/profile',
       shell: 'zsh',
     });
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell apply');
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
+  });
+
+  it('routes hidden `apply` compatibility alias as init', async () => {
+    const output: string[] = [];
+    const run = cli as unknown as (
+      cwd: t.StringDir,
+      argv: string[],
+      context: t.ShellTool.CliContext | undefined,
+      deps: {
+        readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+        readonly info: (...data: unknown[]) => void;
+      },
+    ) => Promise<t.ShellTool.CliResult>;
+
+    await run('/tmp' as t.StringDir, ['apply', '--dry-run'], undefined, {
+      init: async () => ({
+        owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+        status: 'planned',
+        dryRun: true,
+        shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+        env: { pathContainsDenoBin: false },
+        aliases: [],
+        paths: [],
+        warnings: ['No files written'],
+      }),
+      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+    });
+
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
   });
 
   it('routes `doctor` through the CLI', async () => {

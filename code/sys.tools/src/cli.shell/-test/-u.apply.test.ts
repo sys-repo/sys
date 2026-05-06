@@ -4,7 +4,7 @@ import { formatApply } from '../u.fmt.ts';
 
 const NOW = new Date('2026-05-06T14:30:12Z');
 
-describe('cli.shell apply', () => {
+describe('cli.shell init', () => {
   it('plans the recommended baseline as a dry-run without profile content leakage', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
@@ -27,16 +27,16 @@ describe('cli.shell apply', () => {
     expect(report.paths.map((entry) => entry.id)).to.eql(['deno']);
     expect(report.aliases.map((entry) => entry.name)).to.eql(['sys']);
     expect(writes).to.eql([]);
-    expect(text).to.contain('system:shell apply');
+    expect(text).to.contain('system:shell init');
     expect(text).to.contain('backup:');
     expect(text).to.contain('export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('No files written');
-    expect(text).to.contain('Apply with: sys shell apply');
+    expect(text).to.contain('Initialize with: sys shell init');
     expect(text).not.to.contain('secret profile text');
   });
 
-  it('writes a backup before updating the profile on apply', async () => {
+  it('writes a backup before updating the profile on init', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const denoBin = `${home}/.deno/bin` as t.StringPath;
@@ -94,7 +94,7 @@ describe('cli.shell apply', () => {
     expect(report.warnings.join('\n')).to.contain('permission denied');
   });
 
-  it('blocks apply when the target profile cannot be read', async () => {
+  it('blocks init when the target profile cannot be read', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const denoBin = `${home}/.deno/bin` as t.StringPath;
@@ -117,7 +117,7 @@ describe('cli.shell apply', () => {
     expect(report.warnings.join('\n')).to.contain('permission denied');
   });
 
-  it('blocks apply when an unmanaged sys alias already exists', async () => {
+  it('blocks init when an unmanaged sys alias already exists', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const denoBin = `${home}/.deno/bin` as t.StringPath;
@@ -136,7 +136,7 @@ describe('cli.shell apply', () => {
     expect(report.warnings.join('\n')).to.contain('unmanaged alias/function: sys');
   });
 
-  it('blocks dry-run apply plans that would collide with unmanaged aliases', async () => {
+  it('blocks dry-run init plans that would collide with unmanaged aliases', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const denoBin = `${home}/.deno/bin` as t.StringPath;
@@ -155,7 +155,7 @@ describe('cli.shell apply', () => {
     expect(report.dryRun).to.eql(true);
     expect(writes).to.eql([]);
     expect(report.warnings.join('\n')).to.contain('unmanaged alias/function: sys');
-    expect(text).not.to.contain('Apply with: sys shell apply');
+    expect(text).not.to.contain('Initialize with: sys shell init');
   });
 
   it('blocks ambiguous bash profile selection without an explicit profile', async () => {
@@ -198,6 +198,6 @@ describe('cli.shell apply', () => {
     expect(text).to.contain('path deno skipped');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('Skipped Deno PATH entry');
-    expect(text).to.contain('Apply with: sys shell apply');
+    expect(text).to.contain('Initialize with: sys shell init');
   });
 });

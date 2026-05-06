@@ -25,7 +25,13 @@ describe('cli.shell args', () => {
     expect(args.alias).to.eql({ command: 'enable', target: undefined });
   });
 
-  it('parses apply command', () => {
+  it('parses init command', () => {
+    const args = parseArgs(['init', '--dry-run']);
+    expect(args.command).to.eql('init');
+    expect(args['dry-run']).to.eql(true);
+  });
+
+  it('parses apply as a hidden compatibility alias', () => {
     const args = parseArgs(['apply', '--dry-run']);
     expect(args.command).to.eql('apply');
     expect(args['dry-run']).to.eql(true);

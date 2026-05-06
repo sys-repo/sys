@@ -20,7 +20,7 @@ import { OWNER } from './u.owner.ts';
 
 export type ShellApplyDeps = ShellInspectDeps & ShellMutationDeps;
 
-/** Plan or apply the recommended managed shell baseline. */
+/** Plan or initialize the recommended managed shell baseline. */
 export async function apply(
   options: t.ShellTool.Apply.Options = {},
   deps: ShellApplyDeps = {},
@@ -39,7 +39,7 @@ export async function apply(
   const dryRun = Boolean(options.dryRun);
 
   if (!profile) {
-    warnings.push('No supported profile target was found; pass --profile <path> to apply a plan');
+    warnings.push('No supported profile target was found; pass --profile <path> to initialize shell baseline');
     return report({
       status: 'blocked',
       dryRun,
@@ -52,7 +52,7 @@ export async function apply(
   }
 
   if (!shell.dialect) {
-    warnings.push('Shell dialect is not supported for apply block rendering');
+    warnings.push('Shell dialect is not supported for init block rendering');
     return report({
       status: 'blocked',
       dryRun,
@@ -96,7 +96,7 @@ export async function apply(
   const conflicts = aliases.filter((entry) => hasUnmanagedAlias(profile, entry.name));
   if (conflicts.length > 0) {
     const names = conflicts.map((entry) => entry.name).join(', ');
-    const msg = `Cannot apply because ${profile.path} contains unmanaged alias/function: ${names}`;
+    const msg = `Cannot initialize because ${profile.path} contains unmanaged alias/function: ${names}`;
     warnings.push(msg);
   }
 
@@ -140,7 +140,7 @@ export async function apply(
 
   if (dryRun) {
     warnings.push('No files written');
-    if (planned.changed) warnings.push(`Apply with: ${applyCommand(options)}`);
+    if (planned.changed) warnings.push(`Initialize with: ${initCommand(options)}`);
     return report({
       status: planned.changed ? 'planned' : 'unchanged',
       dryRun: true,
@@ -223,6 +223,9 @@ export async function apply(
   });
 }
 
+/** Initialize the recommended managed shell baseline. */
+export const init = apply;
+
 /**
  * Helpers:
  */
@@ -278,7 +281,7 @@ function initialWarnings(
   const warnings = [...inspected.warnings];
 
   if (!inspected.home && !options.profile) {
-    warnings.push('HOME is not set; pass --profile <path> to apply a plan');
+    warnings.push('HOME is not set; pass --profile <path> to initialize shell baseline');
   }
   if (!inspected.shell.dialect) {
     warnings.push('Shell dialect is not supported for managed writes yet');
@@ -376,8 +379,8 @@ function mergePaths(
   return [...map.values()];
 }
 
-function applyCommand(options: t.ShellTool.Apply.Options): string {
-  const parts = ['sys shell apply'];
+function initCommand(options: t.ShellTool.Apply.Options): string {
+  const parts = ['sys shell init'];
   if (options.profile) parts.push(`--profile ${shellSingleQuote(options.profile)}`);
   if (options.shell) parts.push(`--shell ${options.shell}`);
   return parts.join(' ');

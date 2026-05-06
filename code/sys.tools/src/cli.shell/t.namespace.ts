@@ -21,7 +21,10 @@ export namespace ShellTool {
     /** Run the read-only shell doctor. */
     doctor(): Promise<Doctor.Report>;
 
-    /** Plan or apply the recommended managed shell baseline. */
+    /** Initialize the recommended managed shell baseline. */
+    init(options?: Apply.Options): Promise<Apply.Report>;
+
+    /** @deprecated Use `init`. Hidden CLI compatibility alias. */
     apply(options?: Apply.Options): Promise<Apply.Report>;
 
     /** Alias catalog and managed-block mutation helpers. */
@@ -32,7 +35,7 @@ export namespace ShellTool {
   };
 
   /** CLI sub-commands (first positional token). */
-  export type Command = 'doctor' | 'alias' | 'path' | 'apply';
+  export type Command = 'doctor' | 'alias' | 'path' | 'init' | 'apply';
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & {
@@ -179,7 +182,7 @@ export namespace ShellTool {
     };
   }
 
-  /** Recommended baseline shell apply flow. */
+  /** Recommended baseline shell init flow. */
   export namespace Apply {
     export type Options = MutationOptions;
     export type Status = MutationStatus;

@@ -116,8 +116,11 @@ export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
   return renderShellOutput(`path add ${report.target}`, sections);
 }
 
-/** Format the recommended baseline apply flow without leaking profile content. */
-export function formatApply(report: t.ShellTool.Apply.Report): string {
+/** Format the recommended baseline init flow without leaking profile content. */
+export function formatApply(
+  report: t.ShellTool.Apply.Report,
+  command: 'init' | 'apply' = 'init',
+): string {
   const baseline = report.aliases.map((entry) =>
     `${c.cyan(`alias ${entry.name}`)} ${c.gray('→')} ${entry.command}`
   );
@@ -147,7 +150,7 @@ export function formatApply(report: t.ShellTool.Apply.Report): string {
     );
   }
 
-  return renderShellOutput('apply', sections);
+  return renderShellOutput(command, sections);
 }
 
 /**

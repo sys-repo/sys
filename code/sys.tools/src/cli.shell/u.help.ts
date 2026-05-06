@@ -17,11 +17,11 @@ export async function help(): Promise<string> {
         label: 'Commands',
         items: [
           ['doctor', 'inspect shell, env, and profile candidates (read-only)'],
+          ['init', 'initialize the recommended shell baseline'],
           ['alias list', 'show known aliases and where they are enabled'],
           ['alias enable <sys|common>', 'write managed aliases; add --dry-run to preview'],
           ['path list', 'show known PATH entries and where they are present'],
           ['path add deno', 'write Deno bin PATH block; add --dry-run to preview'],
-          ['apply', 'write recommended setup: sys alias + Deno PATH when safe'],
         ],
       },
       {
@@ -39,11 +39,11 @@ export async function help(): Promise<string> {
         label: 'Examples',
         items: [
           c.gray(Fmt.invoke('shell', 'doctor')),
+          c.gray(Fmt.invoke('shell', 'init', '--dry-run')),
           c.gray(Fmt.invoke('shell', 'alias', 'list')),
           c.gray(Fmt.invoke('shell', 'alias', 'enable', 'sys', '--dry-run')),
           c.gray(Fmt.invoke('shell', 'path', 'list')),
           c.gray(Fmt.invoke('shell', 'path', 'add', 'deno', '--dry-run')),
-          c.gray(Fmt.invoke('shell', 'apply', '--dry-run')),
         ],
       },
     ],

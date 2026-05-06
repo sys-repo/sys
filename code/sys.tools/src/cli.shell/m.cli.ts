@@ -1,6 +1,6 @@
 import { Fs, type t } from './common.ts';
 import { Alias } from './u.alias.ts';
-import { apply } from './u.apply.ts';
+import { init } from './u.apply.ts';
 import { parseArgs, shellFlag, stringFlag } from './u.args.ts';
 import { doctor } from './u.doctor.ts';
 import {
@@ -17,6 +17,7 @@ import { Path } from './u.path.ts';
 type CliDeps = {
   readonly Alias?: Partial<t.ShellTool.Alias.Lib>;
   readonly Path?: Partial<t.ShellTool.Path.Lib>;
+  readonly init?: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
   readonly apply?: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
   readonly doctor?: () => Promise<t.ShellTool.Doctor.Report>;
   readonly info?: (...data: unknown[]) => void;
@@ -38,13 +39,13 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
     return;
   }
 
-  if (args.command === 'apply') {
-    const runApply = deps.apply ?? apply;
-    info(formatApply(await runApply({
+  if (args.command === 'init' || args.command === 'apply') {
+    const runInit = deps.init ?? deps.apply ?? init;
+    info(formatApply(await runInit({
       dryRun: Boolean(args['dry-run']),
       profile: stringFlag(args.profile) as t.StringPath | undefined,
       shell: shellFlag(args.shell),
-    })));
+    }), 'init'));
     return;
   }
 

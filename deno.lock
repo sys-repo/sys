@@ -34,6 +34,7 @@
     "jsr:@std/text@^1.0.17": "1.0.18",
     "jsr:@std/yaml@*": "1.0.12",
     "jsr:@sys/cell@*": "0.0.13",
+    "jsr:@sys/tools@*": "0.0.402",
     "jsr:@sys/ui-dom@^0.0.247": "0.0.247",
     "npm:@automerge/automerge-repo-network-websocket@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5": "2.5.5",
@@ -254,6 +255,12 @@
     },
     "@sys/driver-deno@0.0.292": {
       "integrity": "ea17baa1b3d49245ac827eca807b79afe92819aa3f5bd95d5d4cf8d30184c56b"
+    },
+    "@sys/tools@0.0.402": {
+      "integrity": "093ee8a6a7d8d78845c9038bd823c74422f2497908af0f58dd68d2fc14dcdc90",
+      "dependencies": [
+        "npm:@types/react"
+      ]
     },
     "@sys/ui-dom@0.0.247": {
       "integrity": "3ac0158be5c13e81051ec65c24b4de5b52913c2e40e7093a2c79463e0263cca0"
