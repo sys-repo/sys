@@ -1,7 +1,4 @@
-import { Process } from '@sys/process';
-import { c } from '@sys/color/ansi';
-import { Cli, Fmt } from '@sys/cli';
-import { Str } from '@sys/std/str';
+import { c, Cli, Process, Str } from './common.ts';
 /**
  * Create a keyboard listener to control the running dev server.
  */
@@ -16,7 +13,7 @@ export async function keyboard(args: {
     if (!Deno.stdin.isTerminal()) return;
     if (args.print) {
       const branch = (isLast: boolean, indent = 0) => {
-        const b = Fmt.Tree.branch(isLast);
+        const b = Cli.Fmt.Tree.branch(isLast);
         return c.gray(`${' '.repeat(indent)}${c.dim(b)}`);
       };
 
@@ -53,7 +50,9 @@ export async function keyboard(args: {
     }
   } catch (error) {
     if (error instanceof Deno.errors.BadResource) return;
-    if (error instanceof Error && /ENODEV|ENOTTY|No such device|Not a typewriter/i.test(error.message)) return;
+    if (
+      error instanceof Error && /ENODEV|ENOTTY|No such device|Not a typewriter/i.test(error.message)
+    ) return;
     throw error;
   }
 }
