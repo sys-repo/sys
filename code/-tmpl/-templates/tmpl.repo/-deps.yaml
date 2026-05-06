@@ -1,18 +1,18 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.272
-  - import: jsr:@sys/color@0.0.240
+  - import: jsr:@sys/cli@0.0.273
+  - import: jsr:@sys/color@0.0.241
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.330
+  - import: jsr:@sys/driver-deno@0.0.331
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.391
+  - import: jsr:@sys/driver-vite@0.0.392
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.295
+  - import: jsr:@sys/fs@0.0.296
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.270
+  - import: jsr:@sys/http@0.0.271
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.275
+  - import: jsr:@sys/process@0.0.276
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.345
+  - import: jsr:@sys/std@0.0.346
     subpaths:
       [
         args,
@@ -33,26 +33,26 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.286
+  - import: jsr:@sys/testing@0.0.287
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.385
+  - import: jsr:@sys/tmpl@0.0.386
     subpaths: [ t ]
   - import: jsr:@sys/tools@0.0.401
     subpaths: [ t ]
-  - import: jsr:@sys/types@0.0.281
-  - import: jsr:@sys/ui-css@0.0.275
+  - import: jsr:@sys/types@0.0.282
+  - import: jsr:@sys/ui-css@0.0.276
     subpaths: [ t ]
-  - import: jsr:@sys/ui-dom@0.0.282
+  - import: jsr:@sys/ui-dom@0.0.283
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.302
+  - import: jsr:@sys/ui-react@0.0.303
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react-components@0.0.265
+  - import: jsr:@sys/ui-react-components@0.0.266
     subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
-  - import: jsr:@sys/ui-react-devharness@0.0.300
+  - import: jsr:@sys/ui-react-devharness@0.0.301
     subpaths: [ t ]
-  - import: jsr:@sys/workspace@0.0.81
+  - import: jsr:@sys/workspace@0.0.82
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/esm@0.0.39
+  - import: jsr:@sys/esm@0.0.40
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.2.5
