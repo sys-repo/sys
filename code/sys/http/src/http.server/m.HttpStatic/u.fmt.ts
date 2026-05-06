@@ -2,7 +2,11 @@ import { c, Cli, D, Fs, Str, type t } from './common.ts';
 import { StaticConfigPath } from './u.config.path.ts';
 
 const TITLE = '@sys/http/server/static';
-const RUN = 'deno run -A jsr:@sys/http/server/static';
+const RUN_HELP = 'deno run -E jsr:@sys/http/server/static';
+const RUN_START = 'deno run -ERN jsr:@sys/http/server/static';
+const RUN_CONFIG = 'deno run -E jsr:@sys/http/server/static config';
+const RUN_CONFIG_ADD = 'deno run -ERW jsr:@sys/http/server/static config add';
+const RUN_CONFIG_ADD_DRY = 'deno run -ER jsr:@sys/http/server/static config add';
 const CONFIG = 'view';
 const CONFIG_DIR = StaticConfigPath.dir;
 
@@ -16,9 +20,9 @@ export const Fmt = {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${RUN} [options]`,
-            `${RUN} --help`,
-            `${RUN} config --help`,
+            `${RUN_START} [options]`,
+            `${RUN_HELP} --help`,
+            `${RUN_CONFIG} --help`,
           ],
         },
         {
@@ -45,7 +49,7 @@ export const Fmt = {
           label: 'Examples',
           tone: 'muted',
           items: [
-            `${RUN} --dir ${D.dir} --hostname ${D.hostname} --port ${D.port}`,
+            `${RUN_START} --dir ${D.dir} --hostname ${D.hostname} --port ${D.port}`,
           ],
         },
       ],
@@ -54,7 +58,7 @@ export const Fmt = {
 
   configHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config`;
-    const run = `${RUN} config`;
+    const run = RUN_CONFIG;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Manage durable config for static HTTP server instances.',
@@ -64,8 +68,8 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} --help`,
-            `${run} add [options]`,
-            `${run} add --help`,
+            `${RUN_CONFIG_ADD} [options]`,
+            `${RUN_HELP} config add --help`,
           ],
         },
         {
@@ -81,7 +85,7 @@ export const Fmt = {
 
   configAddHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config add`;
-    const run = `${RUN} config add`;
+    const run = RUN_CONFIG_ADD;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Create or update durable static HTTP server config.',
@@ -91,7 +95,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} [options]`,
-            `${run} --dry-run [options]`,
+            `${RUN_CONFIG_ADD_DRY} --dry-run [options]`,
           ],
         },
         {
@@ -127,7 +131,7 @@ export const Fmt = {
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG}`,
-            `${run} --dry-run --config ${CONFIG} --dir ./public --hostname ${D.hostname} --port 8080`,
+            `${RUN_CONFIG_ADD_DRY} --dry-run --config ${CONFIG} --dir ./public --hostname ${D.hostname} --port 8080`,
           ],
         },
       ],

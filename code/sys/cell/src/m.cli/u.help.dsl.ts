@@ -14,7 +14,7 @@ export const FmtDslHelp = {
     const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
     const help = Cli.Fmt.Help.build({ tool: toolname, summary: chapter.summary });
     const table = Cli.Fmt.Chapters.format({
-      command: 'deno run jsr:@sys/cell dsl',
+      command: 'deno run -E jsr:@sys/cell dsl',
       chapter,
       label: 'Chapter',
     });

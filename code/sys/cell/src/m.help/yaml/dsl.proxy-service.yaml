@@ -62,10 +62,10 @@ sections:
   - label: 'Owner command'
     items: |
       Command templates; replace placeholders with confirmed slot values.
-      deno run -A jsr:@sys/http/server/proxy config add --config <proxy-config> --hostname <hostname> --port <port>
-      deno run -A jsr:@sys/http/server/proxy root set --config <proxy-config> --upstream <upstream-url-prefix>
-      deno run -A jsr:@sys/http/server/proxy mount add --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
-      deno run -A jsr:@sys/http/server/proxy mount add --dry-run --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
+      deno run -ERW jsr:@sys/http/server/proxy config add --config <proxy-config> --hostname <hostname> --port <port>
+      deno run -ERW jsr:@sys/http/server/proxy root set --config <proxy-config> --upstream <upstream-url-prefix>
+      deno run -ERW jsr:@sys/http/server/proxy mount add --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
+      deno run -ER jsr:@sys/http/server/proxy mount add --dry-run --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
 
   - label: 'Root routes'
     items: |

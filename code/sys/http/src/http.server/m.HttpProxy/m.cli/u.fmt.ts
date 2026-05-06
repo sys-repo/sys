@@ -2,7 +2,16 @@ import { c, Cli, D, Fs, Str, type t } from '../common.ts';
 import { ProxyConfigPath } from '../u.config/u.path.ts';
 
 const TITLE = '@sys/http/server/proxy';
-const RUN = 'deno run -A jsr:@sys/http/server/proxy';
+const RUN_HELP = 'deno run -E jsr:@sys/http/server/proxy';
+const RUN_CONFIG = 'deno run -E jsr:@sys/http/server/proxy config';
+const RUN_ROOT = 'deno run -E jsr:@sys/http/server/proxy root';
+const RUN_MOUNT = 'deno run -E jsr:@sys/http/server/proxy mount';
+const RUN_CONFIG_ADD = 'deno run -ERW jsr:@sys/http/server/proxy config add';
+const RUN_CONFIG_ADD_DRY = 'deno run -ER jsr:@sys/http/server/proxy config add';
+const RUN_ROOT_SET = 'deno run -ERW jsr:@sys/http/server/proxy root set';
+const RUN_ROOT_SET_DRY = 'deno run -ER jsr:@sys/http/server/proxy root set';
+const RUN_MOUNT_ADD = 'deno run -ERW jsr:@sys/http/server/proxy mount add';
+const RUN_MOUNT_ADD_DRY = 'deno run -ER jsr:@sys/http/server/proxy mount add';
 const CONFIG = 'app';
 const CONFIG_DIR = ProxyConfigPath.dir;
 
@@ -16,10 +25,10 @@ export const Fmt = {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${RUN} --help`,
-            `${RUN} config --help`,
-            `${RUN} root --help`,
-            `${RUN} mount --help`,
+            `${RUN_HELP} --help`,
+            `${RUN_CONFIG} --help`,
+            `${RUN_ROOT} --help`,
+            `${RUN_MOUNT} --help`,
           ],
         },
         {
@@ -37,7 +46,7 @@ export const Fmt = {
 
   configHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config`;
-    const run = `${RUN} config`;
+    const run = RUN_CONFIG;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Manage durable config for reverse proxy instances.',
@@ -47,8 +56,8 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} --help`,
-            `${run} add [options]`,
-            `${run} add --help`,
+            `${RUN_CONFIG_ADD} [options]`,
+            `${RUN_HELP} config add --help`,
           ],
         },
         {
@@ -64,7 +73,7 @@ export const Fmt = {
 
   configAddHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config add`;
-    const run = `${RUN} config add`;
+    const run = RUN_CONFIG_ADD;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Create or update durable reverse proxy config.',
@@ -74,7 +83,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} [options]`,
-            `${run} --dry-run [options]`,
+            `${RUN_CONFIG_ADD_DRY} --dry-run [options]`,
           ],
         },
         {
@@ -109,7 +118,7 @@ export const Fmt = {
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG}`,
-            `${run} --dry-run --config ${CONFIG} --hostname ${D.hostname} --port ${D.port}`,
+            `${RUN_CONFIG_ADD_DRY} --dry-run --config ${CONFIG} --hostname ${D.hostname} --port ${D.port}`,
           ],
         },
       ],
@@ -118,7 +127,7 @@ export const Fmt = {
 
   rootHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} root`;
-    const run = `${RUN} root`;
+    const run = RUN_ROOT;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Manage the proxy default route (`/`) for requests that do not match a mount.',
@@ -128,8 +137,8 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} --help`,
-            `${run} set [options]`,
-            `${run} set --help`,
+            `${RUN_ROOT_SET} [options]`,
+            `${RUN_HELP} root set --help`,
           ],
         },
         {
@@ -145,7 +154,7 @@ export const Fmt = {
 
   rootSetHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} root set`;
-    const run = `${RUN} root set`;
+    const run = RUN_ROOT_SET;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Create or update the proxy default route (`/`) in durable reverse proxy config.',
@@ -155,7 +164,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} [options]`,
-            `${run} --dry-run [options]`,
+            `${RUN_ROOT_SET_DRY} --dry-run [options]`,
           ],
         },
         {
@@ -194,7 +203,7 @@ export const Fmt = {
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG} --upstream http://127.0.0.1:4040/`,
-            `${run} --dry-run --config ${CONFIG} --upstream http://127.0.0.1:4040/app/`,
+            `${RUN_ROOT_SET_DRY} --dry-run --config ${CONFIG} --upstream http://127.0.0.1:4040/app/`,
           ],
         },
       ],
@@ -203,7 +212,7 @@ export const Fmt = {
 
   mountHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} mount`;
-    const run = `${RUN} mount`;
+    const run = RUN_MOUNT;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Manage non-root path-prefix routes that win over the default route.',
@@ -213,8 +222,8 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} --help`,
-            `${run} add [options]`,
-            `${run} add --help`,
+            `${RUN_MOUNT_ADD} [options]`,
+            `${RUN_HELP} mount add --help`,
           ],
         },
         {
@@ -230,7 +239,7 @@ export const Fmt = {
 
   mountAddHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} mount add`;
-    const run = `${RUN} mount add`;
+    const run = RUN_MOUNT_ADD;
     return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Create or update a non-root path-prefix mount in durable reverse proxy config.',
@@ -240,7 +249,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${run} [options]`,
-            `${run} --dry-run [options]`,
+            `${RUN_MOUNT_ADD_DRY} --dry-run [options]`,
           ],
         },
         {
@@ -283,7 +292,7 @@ export const Fmt = {
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG} --mount /payments/ --upstream http://127.0.0.1:4040/payments/`,
-            `${run} --dry-run --config ${CONFIG} --mount /api/ --upstream http://127.0.0.1:4040/api/`,
+            `${RUN_MOUNT_ADD_DRY} --dry-run --config ${CONFIG} --mount /api/ --upstream http://127.0.0.1:4040/api/`,
           ],
         },
       ],

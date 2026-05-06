@@ -1,29 +1,29 @@
 # HTTP
-Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational protocol of the "world wide web."
 
+Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational protocol of the
+"world wide web."
 
 ### Simple File Server
+
 Standing up an HTTP server directly from the command line.
 
 ```bash
-deno run -RNE jsr:@sys/http/serve
+deno run -ERN jsr:@sys/http/serve
 
 # ↑ default options:
 #   --port=8080
 #   --dir=dist  # ← default is "."
 ```
 
-
-
-
 ### HTTP Client (Programmatic)
+
 Fetch tools:
 
 ```ts
 import { Http } from 'jsr:@sys/http/client';
 
 const fetch = Http.Fetch.make({ accessToken: 'my-jwt' });
-const fetch = Http.fetcher();  // ← shorthand alternative.
+const fetch = Http.fetcher(); // ← shorthand alternative.
 
 const url = 'https://url.com/api';
 const checksum = 'sha256-01234';
@@ -42,16 +42,17 @@ const { dispose$, dispose } = rx.disposable();
 
 // Dispose aborts all in-progress operations.
 const fetch = Http.fetcher({ dispose$ });
-const fetch = Http.fetcher(dispose$);       // (alternative)
+const fetch = Http.fetcher(dispose$); // (alternative)
 
 // Dispose aborts the specific fetch operation.
 const json = fetch.json(url, {}, { dispose$ });
 const text = fetch.json(url, {}, { dispose$, checksum });
 ```
 
-
 ### HTTP Server (Programmatic)
-Serving tools. A lightweight, highly performant, HTTP server that can run locally or at the "edges" ([WinterTC](https://wintertc.org/)):
+
+Serving tools. A lightweight, highly performant, HTTP server that can run locally or at the "edges"
+([WinterTC](https://wintertc.org/)):
 
 ```ts
 import { Net } from 'jsr:@sys/http/server';
@@ -66,7 +67,6 @@ Standing up an HTTP server programatically:
 ```ts
 import { HttpServer, Net } from 'jsr:@sys/http/server';
 
-
 type T = { count: number };
 app.get('/', (c) => c.json({ count: 123 }));
 
@@ -80,7 +80,5 @@ const fetch = Http.fetcher();
 const url = Http.url(listener.addr);
 
 const res = await fetch.json<T>(url.base);
-res.data // ← { count: 123 }
+res.data; // ← { count: 123 }
 ```
-
-

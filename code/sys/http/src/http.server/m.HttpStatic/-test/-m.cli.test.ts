@@ -12,7 +12,7 @@ describe('HttpStatic CLI', () => {
 
     expect(res.value).to.eql(0);
     expect(res.output).to.contain('@sys/http/server/static');
-    expect(res.output).to.contain('deno run -A jsr:@sys/http/server/static [options]');
+    expect(res.output).to.contain('deno run -ERN jsr:@sys/http/server/static [options]');
     expect(res.output).to.contain('config --help');
     expect(res.output).to.contain('--dir <path>');
     expect(res.output.includes('Does not start a server')).to.eql(false);

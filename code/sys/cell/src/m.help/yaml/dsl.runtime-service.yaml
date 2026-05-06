@@ -48,7 +48,8 @@ sections:
   - label: 'Owner flow'
     items: |
       Start with owner help for `<module>`.
-      Run `deno run -A jsr:<module> --help` when the module is a CLI entrypoint.
+      Run `deno run -E jsr:<module> --help` when the module is a CLI entrypoint.
+      Add permissions only when owner help says they are required.
       Check for owner config affordances such as `config`, `config add`, or owner-specific create/update commands.
       Use owner CLI/API to create, validate, or update `<config>` when available.
       If no owner affordance exists, stop and ask before hand-authoring owner config YAML.
