@@ -1,4 +1,5 @@
 import type { Shell as TShell } from './t.ts';
+import { Block } from './u.block.ts';
 
 /**
  * Pure shell PATH and alias planning substrate.
@@ -6,6 +7,6 @@ import type { Shell as TShell } from './t.ts';
 export const Shell: TShell.Lib = {
   Alias: {},
   Path: {},
-  Block: {},
+  Block,
   Plan: {},
 };
