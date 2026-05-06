@@ -24,7 +24,22 @@ describe('Cell.Runtime.verify', () => {
     expect(verify.services[2].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/proxy.yaml'),
     );
+    expect(verify.services[0].service.for).to.eql(undefined);
+    expect(verify.services[0].config.dir).to.eql('./view');
     expect(verify.services[2].service.for?.views).to.eql(['stripe.dev', 'hello']);
+
+    const proxyConfig = verify.services[2].config as {
+      readonly config: {
+        readonly root: { readonly upstream: string };
+        readonly mounts: readonly { readonly mountPath: string; readonly upstream: string }[];
+      };
+    };
+    expect(proxyConfig.config.root.upstream).to.eql('http://127.0.0.1:4040/hello-world/');
+    expect(proxyConfig.config.mounts).to.eql([
+      { mountPath: '/payments/', upstream: 'http://127.0.0.1:4040/.pulled/driver.stripe/' },
+      { mountPath: '/view/', upstream: 'http://127.0.0.1:4040/' },
+      { mountPath: '/-/stripe/', upstream: 'http://127.0.0.1:9090/-/stripe/' },
+    ]);
   });
 
   it('fails clearly when service config is missing', async () => {

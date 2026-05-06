@@ -18,12 +18,12 @@ Create the minimal plain-file shape for:
 
 Use these runtime pieces:
 
-- static view service: `@sys/http/server/static`, `HttpStatic`, `127.0.0.1:4040`
+- static view service: `@sys/http/server/static`, `HttpStatic`, `127.0.0.1:4040`, serving `./view`
 - Stripe fixture service: `@sys/driver-stripe/server/fixture`, `StripeFixture`, `127.0.0.1:9090`
 - proxy app: `@sys/http/server/proxy`, `HttpProxy`, `127.0.0.1:8080`
 
-Proxy `/` to the hello view, `/payments/` to the pulled Stripe view, `/view/` to the raw view
-folder, and `/-/stripe/` to the Stripe fixture.
+Proxy `/` to the hello view, `/payments/` to the pulled Stripe view, `/view/` to the static
+view-folder root, and `/-/stripe/` to the Stripe fixture.
 
 Use the Stripe view dist at `https://fs.db.team/driver.stripe/dist.json`, materialize it with the
 `@sys/tools/pull` CLI, and inspect that CLI's help if needed.

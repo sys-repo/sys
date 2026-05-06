@@ -18,8 +18,6 @@ runtime:
   services:
     - name: view
       kind: http-static
-      for:
-        views: [stripe.dev, hello]
       from: '@sys/http/server/static'
       export: HttpStatic
       config: ./-config/@sys.http/static.view.yaml

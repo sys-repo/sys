@@ -52,7 +52,7 @@ sections:
       runtime:
         services:
           - name: static.web
-            kind: http.static
+            kind: http-static
             for:
               views: [web]
             from: '@sys/http/server/static'

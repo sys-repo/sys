@@ -36,6 +36,9 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Cell DSL (domain-specific-language):');
     expect(text).to.contain(guidance.summary.split('\n')[0]);
     expect(text).to.contain('Speech acts');
+    expect(text).to.contain('pull latest configured views');
+    expect(text).to.contain('pull latest configured views → run `@sys/tools pull`');
+    expect(text).to.contain('do not edit `cell.yaml` for refresh-only pulls');
     expect(text).to.contain('Owners');
     expect(text).to.contain('Mappings');
     expect(text).to.contain('Chapter');
@@ -59,6 +62,10 @@ describe('FmtHelp', () => {
 
     expect(text).to.contain('@sys/cell dsl pulled-view');
     expect(text).to.contain(guidance.summary);
+    expect(text).to.contain('Classify "pull latest configured views" as `refresh: pulled views`.');
+    expect(text).to.contain(
+      'For `refresh: pulled views`, read `views.*.source.pull` from `cell.yaml`.',
+    );
     expectRenderedSections(text, guidance.sections);
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl pulled-view');
   });

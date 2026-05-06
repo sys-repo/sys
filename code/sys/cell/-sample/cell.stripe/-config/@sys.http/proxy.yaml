@@ -5,11 +5,11 @@ hostname: 127.0.0.1
 port: 8080
 config:
   root:
-    upstream: http://127.0.0.1:4040/view/hello-world/
+    upstream: http://127.0.0.1:4040/hello-world/
   mounts:
     - mountPath: /payments/
-      upstream: http://127.0.0.1:4040/view/.pulled/driver.stripe/
+      upstream: http://127.0.0.1:4040/.pulled/driver.stripe/
     - mountPath: /view/
-      upstream: http://127.0.0.1:4040/view/
+      upstream: http://127.0.0.1:4040/
     - mountPath: /-/stripe/
       upstream: http://127.0.0.1:9090/-/stripe/

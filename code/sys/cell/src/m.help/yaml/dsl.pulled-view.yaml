@@ -6,7 +6,9 @@ sections:
   - label: Rule
     items: |
       Classify "add a pulled view from <dist-url>" as `add: pulled view`.
-      Treat the speech act as intent plus partial slots.
+      Classify "pull latest configured views" as `refresh: pulled views`.
+      Treat add prompts as intent plus partial slots.
+      Treat refresh prompts as an owner materialization operation.
       Do not guess missing values.
       Configure first; materialize only when needed or approved.
 
@@ -53,6 +55,9 @@ sections:
     items: |
       Pull add configures only; it does not pull files.
       Materialize only when needed or approved.
+      For `refresh: pulled views`, read `views.*.source.pull` from `cell.yaml`.
+      Run one materialization per distinct pull config.
       Use owner CLI: `@sys/tools pull`.
       Pass `--non-interactive`.
       Pass `--config <pull-config-path>`.
+      Do not edit `cell.yaml` for refresh-only pulls.
