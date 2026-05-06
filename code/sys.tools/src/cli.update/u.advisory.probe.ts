@@ -2,6 +2,7 @@
  * @module
  * Background update advisory probe entrypoint.
  */
+import { type t } from './common.ts';
 import { getVersionInfo } from './u.ts';
 import { writeUpdateAdvisoryFailure, writeUpdateAdvisorySuccess } from './u.advisory.ts';
 
@@ -11,7 +12,7 @@ export async function runUpdateAdvisoryProbe(
     readonly writeSuccess?: typeof writeUpdateAdvisorySuccess;
     readonly writeFailure?: typeof writeUpdateAdvisoryFailure;
   } = {},
-) {
+): Promise<{ readonly ok: true; readonly remote: t.StringSemver } | { readonly ok: false }> {
   const getInfo = deps.getVersionInfo ?? getVersionInfo;
   const writeSuccess = deps.writeSuccess ?? writeUpdateAdvisorySuccess;
   const writeFailure = deps.writeFailure ?? writeUpdateAdvisoryFailure;
