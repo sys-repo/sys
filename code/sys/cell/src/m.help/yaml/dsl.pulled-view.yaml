@@ -23,19 +23,18 @@ sections:
       Confirm proposed paths before writing.
       If the user confirms alternate paths, use those confirmed values.
       Derive `<dist-name>` from the URL segment before `dist.json`.
-      Example URL segment: `foo`.
 
   - label: 'Dialogue'
     items: |
       Do not restate the DSL contract to the user.
       Ask for the missing semantic slot and confirm proposed paths.
       Do not present the proposed local target as a required user operand.
-      Example response for `https://example.com/foo/dist.json`:
+      Example response when the prompt supplies `<dist-url>` but not `<name>`:
       OK — I can get that pulled view ready.
       I’ll use:
-      dist URL: `https://example.com/foo/dist.json`
-      pull config: `./-config/@sys.tools.pull/view.yaml`
-      local target: `./view/.pulled/foo`
+      dist URL: `<dist-url>`
+      pull config: `<pull-config-path>`
+      local target: `<local-target>`
       Please confirm those paths and tell me the view name to register.
 
   - label: 'Owner flow'

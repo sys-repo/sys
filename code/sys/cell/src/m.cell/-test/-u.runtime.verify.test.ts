@@ -29,16 +29,14 @@ describe('Cell.Runtime.verify', () => {
     expect(verify.services[2].service.for?.views).to.eql(['stripe.dev', 'hello']);
 
     const proxyConfig = verify.services[2].config as {
-      readonly config: {
-        readonly root: { readonly upstream: string };
-        readonly mounts: readonly { readonly mountPath: string; readonly upstream: string }[];
-      };
+      readonly root: { readonly target: string };
+      readonly mounts: readonly { readonly path: string; readonly target: string }[];
     };
-    expect(proxyConfig.config.root.upstream).to.eql('http://127.0.0.1:4040/hello-world/');
-    expect(proxyConfig.config.mounts).to.eql([
-      { mountPath: '/payments/', upstream: 'http://127.0.0.1:4040/.pulled/driver.stripe/' },
-      { mountPath: '/view/', upstream: 'http://127.0.0.1:4040/' },
-      { mountPath: '/-/stripe/', upstream: 'http://127.0.0.1:9090/-/stripe/' },
+    expect(proxyConfig.root.target).to.eql('http://127.0.0.1:4040/hello-world/');
+    expect(proxyConfig.mounts).to.eql([
+      { path: '/payments/', target: 'http://127.0.0.1:4040/.pulled/driver.stripe/' },
+      { path: '/view/', target: 'http://127.0.0.1:4040/' },
+      { path: '/-/stripe/', target: 'http://127.0.0.1:9090/-/stripe/' },
     ]);
   });
 

@@ -73,6 +73,10 @@ describe('FmtHelp', () => {
       'For `refresh: pulled views`, read `views.*.source.pull` from `cell.yaml`.',
     );
     expectRenderedSections(text, guidance.sections);
+    expect(text).to.contain('<dist-url>');
+    expect(text).to.contain('<pull-config-path>');
+    expect(text).to.contain('<local-target>');
+    expect(text).to.not.contain('https://example.com/foo/dist.json');
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl pulled-view');
   });
 
@@ -85,8 +89,13 @@ describe('FmtHelp', () => {
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/http/server/static config add');
     expect(text).to.contain('deno run -A jsr:@sys/http/server/static config add');
+    expect(text).to.contain('<static-config>');
+    expect(text).to.contain('<service-name>');
+    expect(text).to.contain('<dir>');
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/static'");
+    expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
+    expect(text).to.not.contain('./view/web');
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl static-http-service');
   });
 
@@ -98,12 +107,24 @@ describe('FmtHelp', () => {
     expect(text).to.contain(guidance.summary);
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/http/server/proxy config add');
+    expect(text).to.contain('@sys/http/server/proxy root set');
     expect(text).to.contain('@sys/http/server/proxy mount add');
     expect(text).to.contain('deno run -A jsr:@sys/http/server/proxy config add');
+    expect(text).to.contain('deno run -A jsr:@sys/http/server/proxy root set');
     expect(text).to.contain('deno run -A jsr:@sys/http/server/proxy mount add');
     expect(text).to.contain('Do not use `/` as a mount');
+    expect(text).to.contain('<proxy-config>');
+    expect(text).to.contain('<service-name>');
+    expect(text).to.contain('<path-prefix>');
+    expect(text).to.contain('<upstream-url-prefix>');
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/proxy'");
+    expect(text).to.not.contain('Stripe');
+    expect(text).to.not.contain('stripe');
+    expect(text).to.not.contain('/payments/');
+    expect(text).to.not.contain('driver.stripe');
+    expect(text).to.not.contain('example.com');
+    expect(text).to.not.contain('http://127.0.0.1:4040/');
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl proxy-service');
   });
 });

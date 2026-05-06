@@ -6,7 +6,8 @@ sections:
   - label: Rule
     items: |
       Classify "add a proxy service named <name>" as `add: proxy service`.
-      Classify "mount <route> to <view/service/upstream>" as a proxy route-mount act.
+      Classify "route / to <view/service/upstream>" as a proxy root-route act.
+      Classify "route <path-prefix> to <view/service/upstream>" as a proxy mount-route act.
       Proxy owns public route orchestration; static and fixture services own endpoint serving.
       Cell registers a runtime service; HTTP owns proxy config and mount mechanics.
       Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
@@ -15,10 +16,12 @@ sections:
 
   - label: 'Slot policy'
     items: |
-      `<service-name>` is semantic; propose `app` for a public app proxy and confirm.
+      `<service-name>` is semantic; propose a concise public proxy name only when the prompt implies one, and confirm.
       `<config>` is an owner config reference; propose `./-config/@sys.http/proxy/<service-name>.yaml`.
-      `<route>` is the public mounted path-prefix; ask if missing or ambiguous.
-      `<upstream>` is an absolute URL-prefix ending with `/`; ask unless exactly derivable and confirmed.
+      `<route>` is `/` or a public mounted path-prefix; ask if missing or ambiguous.
+      Use proxy root/default routing for `/`.
+      Use proxy mount routing for confirmed non-root `<path-prefix>` routes.
+      `<upstream>` is an absolute URL-prefix ending with `/`; resolve from declared owner configs when possible, otherwise ask.
       If the Cell already declares local HTTP services, check owner configs for port collisions.
       Use owner defaults for hostname and port unless the user specifies or confirms alternatives.
       Add `for.views` only when the prompt says this proxy serves declared Cell views.
@@ -28,15 +31,15 @@ sections:
     items: |
       Do not restate the DSL contract to the user.
       Ask for missing semantic slots and confirm proposed owner paths.
-      Example response for mounting `/payments/` to `https://example.com/payments/`:
+      Example response for routing a non-root path-prefix to a declared upstream:
       OK — I can add that proxy runtime service and route mount.
       I’ll use:
-      service name: `app`
-      proxy config: `./-config/@sys.http/proxy/app.yaml`
-      listen: `127.0.0.1:8080`
-      mount: `/payments/`
-      upstream: `https://example.com/payments/`
-      Please confirm those values before I write the owner config and Cell topology.
+      service name: `<service-name>`
+      proxy config: `<proxy-config>`
+      listen: `<hostname>:<port>`
+      mount: `<path-prefix>`
+      upstream: `<upstream-url-prefix>`
+      Please confirm those values before I run the owner commands and update Cell topology.
 
   - label: 'Owner flow'
     items: |
@@ -44,7 +47,11 @@ sections:
       Pass `--config <config>`.
       Pass `--hostname` and `--port` only when specified or confirmed.
       This creates or updates HTTP proxy lifecycle config.
-      Use owner CLI: `@sys/http/server/proxy mount add`.
+      Use owner CLI: `@sys/http/server/proxy root set` for `/`.
+      Pass `--config <config>`.
+      Pass `--upstream <upstream>`.
+      This creates or updates the root/default upstream in the proxy owner config.
+      Use owner CLI: `@sys/http/server/proxy mount add` for non-root path-prefixes.
       Pass `--config <config>`.
       Pass `--mount <route>`.
       Pass `--upstream <upstream>`.
@@ -54,25 +61,27 @@ sections:
 
   - label: 'Owner command'
     items: |
-      deno run -A jsr:@sys/http/server/proxy config add --config ./-config/@sys.http/proxy/app.yaml --hostname 127.0.0.1 --port 8080
-      deno run -A jsr:@sys/http/server/proxy mount add --config ./-config/@sys.http/proxy/app.yaml --mount /payments/ --upstream https://example.com/payments/
-      deno run -A jsr:@sys/http/server/proxy mount add --dry-run --config ./-config/@sys.http/proxy/app.yaml --mount /api/ --upstream https://example.com/api/
+      Command templates; replace placeholders with confirmed slot values.
+      deno run -A jsr:@sys/http/server/proxy config add --config <proxy-config> --hostname <hostname> --port <port>
+      deno run -A jsr:@sys/http/server/proxy root set --config <proxy-config> --upstream <upstream-url-prefix>
+      deno run -A jsr:@sys/http/server/proxy mount add --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
+      deno run -A jsr:@sys/http/server/proxy mount add --dry-run --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
 
   - label: 'Root routes'
     items: |
-      `mount add` manages mounted path-prefixes such as `/payments/` and `/api/`.
+      `root set` manages the root/default upstream for `/`.
+      `mount add` manages confirmed non-root `<path-prefix>` routes.
       Do not use `/` as a mount; proxy runtime treats root/default upstream as a separate route kind.
-      If the prompt requires a root/default upstream and owner help exposes no root-route command, stop and ask.
-      Do not bypass the missing owner affordance by hand-writing proxy YAML.
+      Do not bypass owner affordances by hand-writing proxy YAML.
 
   - label: 'Cell topology'
     items: |
       runtime:
         services:
-          - name: app
+          - name: <service-name>
             kind: http-proxy
             from: '@sys/http/server/proxy'
             export: HttpProxy
-            config: ./-config/@sys.http/proxy/app.yaml
+            config: <proxy-config>
 
       Add `for.views` only when the prompt identifies declared views this proxy serves.

@@ -24,13 +24,13 @@ sections:
     items: |
       Do not restate the DSL contract to the user.
       Ask for missing semantic slots and confirm proposed owner paths.
-      Example response for serving view `web` from `./view/web`:
+      Example response for serving a declared view from a static root:
       OK — I can add that static HTTP runtime service.
       I’ll use:
-      service name: `static.web`
-      static config: `./-config/@sys.http/static/web.yaml`
-      static root: `./view/web`
-      Please confirm those values before I write the owner config and Cell topology.
+      service name: `<service-name>`
+      static config: `<static-config>`
+      static root: `<dir>`
+      Please confirm those values before I run the owner command and update Cell topology.
 
   - label: 'Owner flow'
     items: |
@@ -44,17 +44,18 @@ sections:
 
   - label: 'Owner command'
     items: |
-      deno run -A jsr:@sys/http/server/static config add --config ./-config/@sys.http/static/web.yaml --dir ./view/web
-      deno run -A jsr:@sys/http/server/static config add --dry-run --config ./-config/@sys.http/static/web.yaml --dir ./view/web --hostname 127.0.0.1 --port 4040
+      Command templates; replace placeholders with confirmed slot values.
+      deno run -A jsr:@sys/http/server/static config add --config <static-config> --dir <dir>
+      deno run -A jsr:@sys/http/server/static config add --dry-run --config <static-config> --dir <dir> --hostname <hostname> --port <port>
 
   - label: 'Cell topology'
     items: |
       runtime:
         services:
-          - name: static.web
+          - name: <service-name>
             kind: http-static
             for:
-              views: [web]
+              views: [<view>]
             from: '@sys/http/server/static'
             export: HttpStatic
-            config: ./-config/@sys.http/static/web.yaml
+            config: <static-config>
