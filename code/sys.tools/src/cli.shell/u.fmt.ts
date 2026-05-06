@@ -38,14 +38,92 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
   return Str.trimEdgeNewlines(out.toString());
 }
 
+/** Format the shell alias catalog and managed profile state. */
+export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
+  const out = Str.builder()
+    .line(`  ${c.green('system/shell:tools')} ${c.gray('alias list')}`)
+    .blank()
+    .line(`  ${c.bold('aliases')}`);
+
+  report.items.forEach((item) => {
+    const state = aliasState(item);
+    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
+    out.line(`    ${c.cyan(item.entry.name)} ${state}${stale}`);
+    out.line(`      ${c.gray('command:')} ${item.entry.command}`);
+    if (item.conflictProfiles.length > 0) {
+      out.line(`      ${c.gray('conflicts:')} ${item.conflictProfiles.join(', ')}`);
+    }
+  });
+
+  out.blank().line(`  ${c.bold('profiles')}`);
+  const profiles = report.profiles.length
+    ? report.profiles.map(formatProfile)
+    : [`  ${c.yellow('!')} no profile candidates`];
+  profiles.forEach((line) => out.line(line));
+
+  if (report.warnings.length > 0) {
+    out.blank().line(`  ${c.bold('warnings')}`);
+    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+  }
+
+  return Str.trimEdgeNewlines(out.toString());
+}
+
+/** Format a dry-run alias enable plan without leaking profile content. */
+export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): string {
+  const out = Str.builder()
+    .line(`  ${c.green('system/shell:tools')} ${c.gray(`alias enable ${report.target}`)}`)
+    .blank()
+    .line(`  ${c.bold('aliases')}`);
+
+  report.entries.forEach((entry) => {
+    out.line(`    ${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`);
+  });
+
+  out.blank().line(`  ${c.bold('plan')}`);
+  if (report.profile && report.plan) {
+    out.line(`    profile: ${c.cyan(report.profile.path)}`);
+    out.line(`    operation: ${planKind(report.plan)}`);
+    out.blank().line(`  ${c.bold('managed block preview')}`);
+    blockPreviewLines(report.plan.preview).forEach((line) => out.line(line));
+  } else {
+    out.line(`    ${c.yellow('no plan available')}`);
+  }
+
+  const warnings = report.warnings.length ? report.warnings : ['No changes written'];
+  out.blank().line(`  ${c.bold('status')}`);
+  warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+
+  return Str.trimEdgeNewlines(out.toString());
+}
+
 /**
  * Helpers:
  */
+function blockPreviewLines(preview: string): readonly string[] {
+  const lines = preview.split(/\r?\n/);
+  if (lines.at(-1) === '') return lines.slice(0, -1);
+  return lines;
+}
+
 function emptyProfilesMessage(report: t.ShellTool.Doctor.Report): string {
   const reason = report.env.home
     ? 'shell dialect has no write profile candidates'
     : 'HOME is not set';
   return `  ${c.yellow('!')} no profile candidates (${reason})`;
+}
+
+function aliasState(item: t.ShellTool.Alias.Item): string {
+  if (item.state === 'enabled') return c.green('enabled');
+  if (item.state === 'conflict') return c.yellow('conflict');
+  return c.gray('missing');
+}
+
+function planKind(plan: t.ShellTool.Alias.EnablePlan): string {
+  if (plan.kind === 'unchanged') return c.green('unchanged');
+  if (plan.kind === 'add') return c.yellow('add');
+  if (plan.kind === 'replace') return c.yellow('replace');
+  return c.gray(plan.kind);
 }
 
 function formatProfile(profile: t.ShellTool.Doctor.Profile): string {

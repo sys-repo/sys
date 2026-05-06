@@ -11,8 +11,8 @@ export { cli };
  * Library:
  */
 export { ShellTools } from './m.ShellTools.ts';
+export { Alias, aliasEnable, aliasList } from './u.alias.ts';
 export { doctor } from './u.doctor.ts';
-export { formatDoctor } from './u.fmt.ts';
 
 /**
  * CLI entry-point:
