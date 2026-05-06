@@ -1,5 +1,4 @@
-import { Err, type t } from './common.ts';
-import { c } from '@sys/cli';
+import { c, Err, type t } from './common.ts';
 import { HttpStatic } from './m.HttpStatic.ts';
 import { parseArgs, type StaticCliParsedArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';

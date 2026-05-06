@@ -1,5 +1,4 @@
-import { describe, expect, expectError, Fs, it, type t } from '../../../-test.ts';
-import { Yaml } from '@sys/yaml';
+import { describe, expect, expectError, Fs, it, type t, Yaml } from '../../../-test.ts';
 import { HttpStatic } from '../mod.ts';
 
 const CONFIG = 'view';

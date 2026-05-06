@@ -1,5 +1,4 @@
-import { pkg, type t } from './common.ts';
-import { YamlConfig } from '@sys/yaml/cli';
+import { pkg, type t, YamlConfig } from './common.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config' as t.StringDir, pkg).dir.path;
 

@@ -1,6 +1,4 @@
-import { Str, type t } from './common.ts';
-import { c, Cli, Fmt as CliFmt } from '@sys/cli';
-import { Fs } from '@sys/fs';
+import { c, Cli, D, Fs, Str, type t } from './common.ts';
 import { StaticConfigPath } from './u.config.path.ts';
 
 const TITLE = '@sys/http/server/static';
@@ -10,7 +8,7 @@ const CONFIG_DIR = StaticConfigPath.dir;
 
 export const Fmt = {
   help(_cwd: t.StringDir): string {
-    return CliFmt.Help.build({
+    return Cli.Fmt.Help.build({
       tool: TITLE,
       summary: 'Static HTTP server lifecycle endpoint.',
       sections: [
@@ -28,8 +26,8 @@ export const Fmt = {
           label: 'Options',
           items: [
             ['-h, --help', 'show help'],
-            ['--dir <path>', 'static root to serve; defaults to .'],
-            ['--hostname <host>', 'listen hostname; defaults to 127.0.0.1'],
+            ['--dir <path>', `static root to serve; defaults to ${D.dir}`],
+            ['--hostname <host>', `listen hostname; defaults to ${D.hostname}`],
             ['--port <port>', 'listen port; defaults to the HTTP server convention'],
             ['--name <name>', 'display name in startup output'],
             ['--silent', 'suppress startup output'],
@@ -47,7 +45,7 @@ export const Fmt = {
           label: 'Examples',
           tone: 'muted',
           items: [
-            `${RUN} --dir . --hostname 127.0.0.1 --port 4040`,
+            `${RUN} --dir ${D.dir} --hostname ${D.hostname} --port ${D.port}`,
           ],
         },
       ],
@@ -57,7 +55,7 @@ export const Fmt = {
   configHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config`;
     const run = `${RUN} config`;
-    return CliFmt.Help.build({
+    return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Manage durable config for static HTTP server instances.',
       sections: [
@@ -84,7 +82,7 @@ export const Fmt = {
   configAddHelp(_cwd: t.StringDir): string {
     const title = `${TITLE} config add`;
     const run = `${RUN} config add`;
-    return CliFmt.Help.build({
+    return Cli.Fmt.Help.build({
       tool: title,
       summary: 'Create or update durable static HTTP server config.',
       sections: [
@@ -106,9 +104,9 @@ export const Fmt = {
               `bare name maps to ${CONFIG_DIR}/<name>.yaml; path-like values are used as paths`,
             ],
             ['--name <name>', 'optional static server display name; defaults from --config'],
-            ['--dir <path>', 'static root to serve; defaults to .'],
-            ['--hostname <host>', 'listen hostname; defaults to 127.0.0.1'],
-            ['--port <port>', 'listen port, integer 0..65535; defaults to 4040'],
+            ['--dir <path>', `static root to serve; defaults to ${D.dir}`],
+            ['--hostname <host>', `listen hostname; defaults to ${D.hostname}`],
+            ['--port <port>', `listen port, integer 0..65535; defaults to ${D.port}`],
             ['--dry-run', 'preview the config mutation without writing'],
           ],
         },
@@ -129,7 +127,7 @@ export const Fmt = {
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG}`,
-            `${run} --dry-run --config ${CONFIG} --dir ./public --hostname 127.0.0.1 --port 8080`,
+            `${run} --dry-run --config ${CONFIG} --dir ./public --hostname ${D.hostname} --port 8080`,
           ],
         },
       ],
