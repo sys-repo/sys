@@ -30,7 +30,7 @@ View     =  bound perception            ./view
 
 ## Prompting `dsl --help`
 
-| Intent                          | Example [speech-acts](https://en.wikipedia.org/wiki/Speech_act)               |
+| Intent                          | [Speech-acts](https://en.wikipedia.org/wiki/Speech_act) examples:     |
 | ------------------------------- | -------------------------------------------------------------------- |
 | create: **Cell**                | Initialize this folder as an `@sys/cell`.                            |
 | create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                                |
