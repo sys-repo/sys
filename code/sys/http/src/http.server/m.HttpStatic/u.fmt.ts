@@ -3,23 +3,24 @@ import { c, Cli, Fmt as CliFmt } from '@sys/cli';
 import { Fs } from '@sys/fs';
 import { StaticConfigPath } from './u.config.path.ts';
 
-const CMD = 'deno run -A jsr:@sys/http/server/static';
+const TITLE = '@sys/http/server/static';
+const RUN = 'deno run -A jsr:@sys/http/server/static';
 const CONFIG = 'view';
 const CONFIG_DIR = StaticConfigPath.dir;
 
 export const Fmt = {
   help(_cwd: t.StringDir): string {
     return CliFmt.Help.build({
-      tool: CMD,
+      tool: TITLE,
       summary: 'Static HTTP server lifecycle endpoint.',
       sections: [
         {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${CMD} [options]`,
-            `${CMD} --help`,
-            `${CMD} config --help`,
+            `${RUN} [options]`,
+            `${RUN} --help`,
+            `${RUN} config --help`,
           ],
         },
         {
@@ -46,7 +47,7 @@ export const Fmt = {
           label: 'Examples',
           tone: 'muted',
           items: [
-            `${CMD} --dir . --hostname 127.0.0.1 --port 4040`,
+            `${RUN} --dir . --hostname 127.0.0.1 --port 4040`,
           ],
         },
       ],
@@ -54,18 +55,19 @@ export const Fmt = {
   },
 
   configHelp(_cwd: t.StringDir): string {
-    const cmd = `${CMD} config`;
+    const title = `${TITLE} config`;
+    const run = `${RUN} config`;
     return CliFmt.Help.build({
-      tool: cmd,
+      tool: title,
       summary: 'Manage durable config for static HTTP server instances.',
       sections: [
         {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${cmd} --help`,
-            `${cmd} add [options]`,
-            `${cmd} add --help`,
+            `${run} --help`,
+            `${run} add [options]`,
+            `${run} add --help`,
           ],
         },
         {
@@ -80,17 +82,18 @@ export const Fmt = {
   },
 
   configAddHelp(_cwd: t.StringDir): string {
-    const cmd = `${CMD} config add`;
+    const title = `${TITLE} config add`;
+    const run = `${RUN} config add`;
     return CliFmt.Help.build({
-      tool: cmd,
+      tool: title,
       summary: 'Create or update durable static HTTP server config.',
       sections: [
         {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${cmd} [options]`,
-            `${cmd} --dry-run [options]`,
+            `${run} [options]`,
+            `${run} --dry-run [options]`,
           ],
         },
         {
@@ -125,8 +128,8 @@ export const Fmt = {
           label: 'Examples',
           tone: 'muted',
           items: [
-            `${cmd} --config ${CONFIG}`,
-            `${cmd} --dry-run --config ${CONFIG} --dir ./public --hostname 127.0.0.1 --port 8080`,
+            `${run} --config ${CONFIG}`,
+            `${run} --dry-run --config ${CONFIG} --dir ./public --hostname 127.0.0.1 --port 8080`,
           ],
         },
       ],
