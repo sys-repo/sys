@@ -62,7 +62,7 @@ export const Fmt = {
     const { gray: g, white: w, magenta: m } = c;
     const hr = c.green(Cli.Fmt.hr());
     const width = Cli.stripAnsi(hr).length;
-    const message = `${g('Run ')}${w('sys ')}${m('update')}${w(' --latest')}`;
+    const message = `${g('Run ')}${w('sys ')}${m('update --latest')}`;
     const latest = remote ? c.gray(`next ${remote}`) : undefined;
 
     return Str.builder()
