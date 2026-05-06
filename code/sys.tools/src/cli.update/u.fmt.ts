@@ -33,16 +33,17 @@ export const Fmt = {
   },
 
   versionInfoTable(version: t.UpdateTool.VersionInfo) {
-    const formatVersion = (v?: t.StringSemver, upToDate?: boolean, okSuffix = '') => {
+    const formatVersion = (v: t.StringSemver | undefined, kind: 'local' | 'latest') => {
       if (!v) return c.gray('-');
-      return v === version.latest ? c.green(`${v} ${upToDate ? okSuffix : ''}`) : c.yellow(v);
+      if (version.is.latest) return c.green(`${v} ✔`);
+      return kind === 'local' ? c.gray(v) : c.white(v);
     };
     const table = Cli.table([]);
 
     const upToDate = version.is.latest;
-    const remote = formatVersion(version.remote, upToDate, '✔');
-    const local = formatVersion(version.local, upToDate, '✔');
-    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(upgrade available)'))}`);
+    const remote = formatVersion(version.remote, 'latest');
+    const local = formatVersion(version.local, 'local');
+    const updateReq = upToDate ? '' : c.gray('← (upgrade available)');
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);

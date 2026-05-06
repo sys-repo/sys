@@ -99,9 +99,11 @@ export async function runUpdate(
     if (interactive) {
       const fromRootMenu = source === 'root-menu';
       const cancelValue = fromRootMenu ? BACK : EXIT;
-      const upgradeName = fromRootMenu
-        ? `  upgrade to ${c.green(version.latest)} now`
-        : ` - upgrade to ${c.green(version.latest)} now`;
+      const upgradeName = c.magenta(
+        fromRootMenu
+          ? `  upgrade to ${version.latest} now`
+          : ` - upgrade to ${version.latest} now`,
+      );
       const cancelName = fromRootMenu ? c.gray('← back') : c.dim(c.gray(`(exit)`));
 
       const answer = await deps.prompt({
