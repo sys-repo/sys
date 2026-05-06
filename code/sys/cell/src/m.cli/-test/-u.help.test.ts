@@ -50,6 +50,11 @@ describe('FmtHelp', () => {
     expect(text).to.contain('do not use `@sys/tools serve` for Cell runtime static services');
     expect(text).to.contain('Owners');
     expect(text).to.contain('Start from public `--help` surfaces');
+    expect(text).to.contain('retry once with `--reload` as a troubleshooting move');
+    expect(text).to.contain('continue with normal non-`--reload` owner commands');
+    expect(text).to.contain(
+      'Do not hand-author owner YAML just because cached public help was stale',
+    );
     expect(text).to.contain('inspect the published JSR package docs/source');
     expect(text).to.contain(
       'Do not use source inspection to bypass owner CLI/API config affordances',

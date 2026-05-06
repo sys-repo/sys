@@ -40,6 +40,9 @@ sections:
       - Cell config references owned configs.
       - Cell does not own their internals.
       - Start from public `--help` surfaces.
+      - If public `jsr:@sys/... --help` output is missing, stale, or silent, retry once with `--reload` as a troubleshooting move.
+      - If `--reload` fixes help, continue with normal non-`--reload` owner commands.
+      - Do not hand-author owner YAML just because cached public help was stale.
       - Use owning CLI/API to create, validate, or execute config.
       - If no owner affordance exists, stop and ask.
       - If a module/export contract is still ambiguous, inspect the published JSR package docs/source.
