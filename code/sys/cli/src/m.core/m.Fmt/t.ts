@@ -1,9 +1,11 @@
 import type { t } from '../common.ts';
 import type { AnsiColor } from '@sys/color/t';
+import type { CliFormatChapters } from '../m.Fmt.Chapters/t.ts';
 import type { CliFormatCommitLib } from './t.commit.ts';
 import type { CliFormatHelpLib } from './t.help.ts';
 
 /** Type re-exports. */
+export type * from '../m.Fmt.Chapters/t.ts';
 export type * from './t.commit.ts';
 export type * from './t.help.ts';
 
@@ -22,6 +24,9 @@ export type CliFormatLib = {
 
   /** Help page formatting. */
   readonly Help: CliFormatHelpLib;
+
+  /** Navigable help chapter formatting and tree helpers. */
+  readonly Chapters: CliFormatChapters.Lib;
 
   /** Commit message suggestion formatting. */
   readonly Commit: CliFormatCommitLib;

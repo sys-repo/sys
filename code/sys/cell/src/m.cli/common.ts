@@ -3,6 +3,7 @@ export * from '../common.ts';
 /**
  * Libraries:
  */
+export { Cli } from '@sys/cli';
 export { c, Fmt as CliFmt, stripAnsi, Table as CliTable } from '@sys/cli/fmt';
 export { Fs } from '@sys/fs';
 export { Args } from '@sys/std/args';

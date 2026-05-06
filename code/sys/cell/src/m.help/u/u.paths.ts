@@ -1,3 +1,4 @@
+import { Fmt as CliFmt } from '@sys/cli/fmt';
 import type { t } from '../common.ts';
 
 const path = (value: string) => value as t.StringPath;
@@ -10,22 +11,14 @@ const chapter = (
 export function chapterResourceFiles(
   chapter: t.CellHelp.Dsl.ChapterResource,
 ): readonly t.StringPath[] {
-  return [chapter.file, ...chapter.children.flatMap(chapterResourceFiles)];
+  return CliFmt.Chapters.files(chapter);
 }
 
 export function resolveChapterResource(
   root: t.CellHelp.Dsl.ChapterResource,
   path: readonly string[],
 ): t.CellHelp.Dsl.ChapterResource | undefined {
-  let resource = root;
-
-  for (const id of path) {
-    const child = resource.children.find((item) => item.id === id);
-    if (!child) return undefined;
-    resource = child;
-  }
-
-  return resource;
+  return CliFmt.Chapters.resolve(root, path);
 }
 
 export const HelpResource = {

@@ -11,5 +11,7 @@ export { Color } from '../common.ts';
 export { stripAnsi } from '../common.ts';
 /** Shared command-line formatting helper library. */
 export { Fmt } from './m.Fmt.ts';
+/** Navigable help chapter formatting and tree helpers. */
+export { Chapters } from '../m.Fmt.Chapters/mod.ts';
 /** Terminal table formatter. */
 export { Table } from '../m.Table/mod.ts';

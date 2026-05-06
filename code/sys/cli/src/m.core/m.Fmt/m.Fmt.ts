@@ -3,6 +3,7 @@
  * Command-line formatting tools (e.g. color, tree, path).
  */
 import { type t, c, PathFormat } from '../common.ts';
+import { Chapters } from '../m.Fmt.Chapters/mod.ts';
 import { Commit } from './m.Fmt.Commit.ts';
 import { Help } from './m.Fmt.Help.ts';
 import { hr } from './m.Fmt.Hr.ts';
@@ -23,6 +24,7 @@ export const Fmt: t.CliFormatLib = {
   hr,
   Commit,
   Help,
+  Chapters,
   Tree,
   Path,
   path: PathFormat.string,
