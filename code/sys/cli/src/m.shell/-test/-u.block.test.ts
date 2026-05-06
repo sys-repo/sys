@@ -13,7 +13,8 @@ const model: t.Shell.ManagedModel = {
     {
       id: 'deno',
       label: 'deno',
-      expression: 'export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"\ncase ":$PATH:" in\n  *":$DENO_INSTALL/bin:"*) ;;\n  *) export PATH="$DENO_INSTALL/bin:$PATH" ;;\nesac',
+      expression:
+        'export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"\ncase ":$PATH:" in\n  *":$DENO_INSTALL/bin:"*) ;;\n  *) export PATH="$DENO_INSTALL/bin:$PATH" ;;\nesac',
     },
   ],
   aliases: [
@@ -65,10 +66,12 @@ alias sys="deno run -A jsr:@sys/tools"
   });
 
   it('replaces one complete managed block only', () => {
-    const before = `before\n\n${Shell.Block.render({
-      owner,
-      model: { paths: [], aliases: [] },
-    })}after\n`;
+    const before = `before\n\n${
+      Shell.Block.render({
+        owner,
+        model: { paths: [], aliases: [] },
+      })
+    }after\n`;
     const result = Shell.Block.update({ owner, model, text: before });
 
     expect(result.kind).to.eql('replace');

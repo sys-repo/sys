@@ -80,19 +80,64 @@ export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): strin
     out.line(`    ${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`);
   });
 
-  out.blank().line(`  ${c.bold('plan')}`);
-  if (report.profile && report.plan) {
-    out.line(`    profile: ${c.cyan(report.profile.path)}`);
-    out.line(`    operation: ${planKind(report.plan)}`);
-    out.blank().line(`  ${c.bold('managed block preview')}`);
-    blockPreviewLines(report.plan.preview).forEach((line) => out.line(line));
-  } else {
-    out.line(`    ${c.yellow('no plan available')}`);
+  appendPlan(out, report.profile, report.plan);
+  appendWarnings(out, report.warnings);
+
+  return Str.trimEdgeNewlines(out.toString());
+}
+
+/** Format the shell PATH catalog and managed profile state. */
+export function formatPathList(report: t.ShellTool.Path.ListReport): string {
+  const out = Str.builder()
+    .line(`  ${c.green('system/shell:tools')} ${c.gray('path list')}`)
+    .blank()
+    .line(`  ${c.bold('path')}`);
+
+  report.items.forEach((item) => {
+    const state = pathState(item);
+    const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
+    out.line(`    ${c.cyan(item.entry.label)} ${state}${stale}`);
+    out.line(`      ${c.gray('expression:')} ${item.entry.expression.split(/\r?\n/)[0] ?? ''}`);
+    if (item.unmanagedProfiles.length > 0) {
+      out.line(`      ${c.gray('unmanaged:')} ${item.unmanagedProfiles.join(', ')}`);
+    }
+  });
+
+  out.blank().line(`  ${c.bold('environment')}`)
+    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
+    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
+
+  out.blank().line(`  ${c.bold('profiles')}`);
+  const profiles = report.profiles.length
+    ? report.profiles.map(formatProfile)
+    : [`  ${c.yellow('!')} no profile candidates`];
+  profiles.forEach((line) => out.line(line));
+
+  if (report.warnings.length > 0) {
+    out.blank().line(`  ${c.bold('warnings')}`);
+    report.warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
   }
 
-  const warnings = report.warnings.length ? report.warnings : ['No changes written'];
-  out.blank().line(`  ${c.bold('status')}`);
-  warnings.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+  return Str.trimEdgeNewlines(out.toString());
+}
+
+/** Format a dry-run PATH add plan without leaking profile content. */
+export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
+  const out = Str.builder()
+    .line(`  ${c.green('system/shell:tools')} ${c.gray(`path add ${report.target}`)}`)
+    .blank()
+    .line(`  ${c.bold('path')}`);
+
+  report.entries.forEach((entry) => {
+    out.line(`    ${c.cyan(entry.label)}`);
+  });
+
+  out.blank().line(`  ${c.bold('environment')}`)
+    .line(`    DENO_INSTALL: ${report.env.denoInstall ?? c.gray('(unresolved)')}`)
+    .line(`    DENO bin on PATH: ${yesNo(report.env.pathContainsDenoBin)}`);
+
+  appendPlan(out, report.profile, report.plan);
+  appendWarnings(out, report.warnings);
 
   return Str.trimEdgeNewlines(out.toString());
 }
@@ -100,6 +145,28 @@ export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): strin
 /**
  * Helpers:
  */
+function appendPlan(
+  out: ReturnType<typeof Str.builder>,
+  profile: t.ShellTool.Doctor.Profile | undefined,
+  plan: t.ShellTool.Alias.EnablePlan | t.ShellTool.Path.AddPlan | undefined,
+): void {
+  out.blank().line(`  ${c.bold('plan')}`);
+  if (profile && plan) {
+    out.line(`    profile: ${c.cyan(profile.path)}`);
+    out.line(`    operation: ${planKind(plan)}`);
+    out.blank().line(`  ${c.bold('managed block preview')}`);
+    blockPreviewLines(plan.preview).forEach((line) => out.line(line));
+  } else {
+    out.line(`    ${c.yellow('no plan available')}`);
+  }
+}
+
+function appendWarnings(out: ReturnType<typeof Str.builder>, warnings: readonly string[]): void {
+  const lines = warnings.length ? warnings : ['No changes written'];
+  out.blank().line(`  ${c.bold('status')}`);
+  lines.forEach((warning) => out.line(`  ${c.yellow('!')} ${warning}`));
+}
+
 function blockPreviewLines(preview: string): readonly string[] {
   const lines = preview.split(/\r?\n/);
   if (lines.at(-1) === '') return lines.slice(0, -1);
@@ -119,7 +186,13 @@ function aliasState(item: t.ShellTool.Alias.Item): string {
   return c.gray('missing');
 }
 
-function planKind(plan: t.ShellTool.Alias.EnablePlan): string {
+function pathState(item: t.ShellTool.Path.Item): string {
+  if (item.state === 'enabled') return c.green('enabled');
+  if (item.state === 'present') return c.yellow('present');
+  return c.gray('missing');
+}
+
+function planKind(plan: t.ShellTool.Alias.EnablePlan | t.ShellTool.Path.AddPlan): string {
   if (plan.kind === 'unchanged') return c.green('unchanged');
   if (plan.kind === 'add') return c.yellow('add');
   if (plan.kind === 'replace') return c.yellow('replace');

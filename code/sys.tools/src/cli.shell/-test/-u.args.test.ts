@@ -25,6 +25,24 @@ describe('cli.shell args', () => {
     expect(args.alias).to.eql({ command: 'enable', target: undefined });
   });
 
+  it('parses path list command', () => {
+    const args = parseArgs(['path', 'list']);
+    expect(args.command).to.eql('path');
+    expect(args.path).to.eql({ command: 'list' });
+  });
+
+  it('parses path add target', () => {
+    const args = parseArgs(['path', 'add', 'deno', '--dry-run']);
+    expect(args.command).to.eql('path');
+    expect(args.path).to.eql({ command: 'add', target: 'deno' });
+    expect(args['dry-run']).to.eql(true);
+  });
+
+  it('rejects unknown path add targets', () => {
+    const args = parseArgs(['path', 'add', 'node']);
+    expect(args.path).to.eql({ command: 'add', target: undefined });
+  });
+
   it('normalizes supported shell and string flags', () => {
     expect(shellFlag('zsh')).to.eql('zsh');
     expect(shellFlag('fish')).to.eql(undefined);

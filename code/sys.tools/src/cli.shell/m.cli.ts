@@ -2,10 +2,18 @@ import { D, Fmt, Fs, type t } from './common.ts';
 import { Alias } from './u.alias.ts';
 import { parseArgs, shellFlag, stringFlag } from './u.args.ts';
 import { doctor } from './u.doctor.ts';
-import { formatAliasEnable, formatAliasList, formatDoctor } from './u.fmt.ts';
+import {
+  formatAliasEnable,
+  formatAliasList,
+  formatDoctor,
+  formatPathAdd,
+  formatPathList,
+} from './u.fmt.ts';
+import { Path } from './u.path.ts';
 
 type CliDeps = {
   readonly Alias?: Partial<typeof Alias>;
+  readonly Path?: Partial<typeof Path>;
   readonly doctor?: typeof doctor;
   readonly info?: (...data: unknown[]) => void;
 };
@@ -45,6 +53,25 @@ export const cli: t.ShellTool.Lib['cli'] = async (cwd, argv, _context, deps: Cli
     return;
   }
 
+  if (args.command === 'path' && args.path?.command === 'list') {
+    const runPathList = deps.Path?.list ?? Path.list;
+    info(formatPathList(await runPathList()));
+    return;
+  }
+
+  if (args.command === 'path' && args.path?.command === 'add' && args.path.target) {
+    const runPathAdd = deps.Path?.add ?? Path.add;
+    info(formatPathAdd(
+      await runPathAdd(args.path.target, {
+        dryRun: Boolean(args['dry-run']),
+        apply: Boolean(args.apply),
+        profile: stringFlag(args.profile) as t.StringPath | undefined,
+        shell: shellFlag(args.shell),
+      }),
+    ));
+    return;
+  }
+
   info(await help());
 };
 
@@ -54,9 +81,11 @@ async function help() {
       `shell doctor`,
       `shell alias list`,
       `shell alias enable <sys|common> --dry-run`,
+      `shell path list`,
+      `shell path add deno --dry-run`,
     ],
     options: [
-      ['--dry-run', 'Preview alias changes without writing.'],
+      ['--dry-run', 'Preview alias/PATH changes without writing.'],
       ['--apply', 'Reserved for the apply flow; currently writes nothing.'],
       ['--profile <path>', 'Preview against an explicit profile path.'],
       ['--shell <zsh|bash|posix>', 'Override detected shell dialect for rendering.'],
@@ -66,6 +95,8 @@ async function help() {
       `${Fmt.invoke('shell', 'doctor')}`,
       `${Fmt.invoke('shell', 'alias', 'list')}`,
       `${Fmt.invoke('shell', 'alias', 'enable', 'sys', '--dry-run')}`,
+      `${Fmt.invoke('shell', 'path', 'list')}`,
+      `${Fmt.invoke('shell', 'path', 'add', 'deno', '--dry-run')}`,
     ],
   });
 }

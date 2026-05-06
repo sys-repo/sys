@@ -33,40 +33,12 @@ export declare namespace Shell {
     readonly commandHint: string;
   };
 
-  /** Stable alias catalog id. */
-  export type AliasId = string;
-
-  /** Stable PATH catalog id. */
-  export type PathId = string;
-
-  /** Alias entry intended for a managed shell block. */
-  export type AliasEntry = {
-    /** Stable alias catalog id. */
-    readonly id: AliasId;
-    /** Shell alias name. */
-    readonly name: string;
-    /** Shell command assigned to the alias. */
-    readonly command: string;
-    /** Alias collision risk. */
-    readonly risk: 'safe' | 'shadowing';
-  };
-
-  /** PATH entry intended for a managed shell block. */
-  export type PathEntry = {
-    /** Stable PATH catalog id. */
-    readonly id: PathId;
-    /** Shell expression used in the generated PATH snippet. */
-    readonly expression: string;
-    /** Human-readable label for reports. */
-    readonly label: string;
-  };
-
   /** Desired managed shell block model. */
   export type ManagedModel = {
     /** Managed aliases. */
-    readonly aliases: readonly AliasEntry[];
+    readonly aliases: readonly Alias.Entry[];
     /** Managed PATH entries. */
-    readonly paths: readonly PathEntry[];
+    readonly paths: readonly Path.Entry[];
   };
 
   /** Planned text transform for one profile. */
@@ -85,14 +57,29 @@ export declare namespace Shell {
 
   /** Alias catalog types. */
   export namespace Alias {
+    /** Stable alias catalog id. */
+    export type Id = string;
+
+    /** Alias entry intended for a managed shell block. */
+    export type Entry = {
+      /** Stable alias catalog id. */
+      readonly id: Id;
+      /** Shell alias name. */
+      readonly name: string;
+      /** Shell command assigned to the alias. */
+      readonly command: string;
+      /** Alias collision risk. */
+      readonly risk: 'safe' | 'shadowing';
+    };
+
     /** Alias catalog helper namespace. */
     export type Lib = {
       /** List all known alias entries. */
-      readonly list: () => readonly AliasEntry[];
+      readonly list: () => readonly Entry[];
       /** Resolve one alias entry by id. */
-      readonly get: (id: AliasId) => AliasEntry | undefined;
+      readonly get: (id: Id) => Entry | undefined;
       /** Resolve a named alias set. */
-      readonly group: (id: GroupId) => readonly AliasEntry[];
+      readonly group: (id: GroupId) => readonly Entry[];
     };
 
     /** Known alias group id. */
@@ -101,12 +88,25 @@ export declare namespace Shell {
 
   /** PATH catalog types. */
   export namespace Path {
+    /** Stable PATH catalog id. */
+    export type Id = string;
+
+    /** PATH entry intended for a managed shell block. */
+    export type Entry = {
+      /** Stable PATH catalog id. */
+      readonly id: Id;
+      /** Shell expression used in the generated PATH snippet. */
+      readonly expression: string;
+      /** Human-readable label for reports. */
+      readonly label: string;
+    };
+
     /** PATH catalog helper namespace. */
     export type Lib = {
       /** List all known PATH entries. */
-      readonly list: () => readonly PathEntry[];
+      readonly list: () => readonly Entry[];
       /** Resolve one PATH entry by id. */
-      readonly get: (id: PathId) => PathEntry | undefined;
+      readonly get: (id: Id) => Entry | undefined;
     };
   }
 

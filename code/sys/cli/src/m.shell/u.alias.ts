@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-const ALIASES: readonly t.Shell.AliasEntry[] = [
+const ALIASES: readonly t.Shell.Alias.Entry[] = [
   {
     id: 'sys',
     name: 'sys',
@@ -9,7 +9,7 @@ const ALIASES: readonly t.Shell.AliasEntry[] = [
   },
 ];
 
-const GROUPS: Readonly<Record<t.Shell.Alias.GroupId, readonly t.Shell.AliasId[]>> = {
+const GROUPS: Readonly<Record<t.Shell.Alias.GroupId, readonly t.Shell.Alias.Id[]>> = {
   sys: ['sys'],
   common: ['sys'],
 };
@@ -18,5 +18,6 @@ const GROUPS: Readonly<Record<t.Shell.Alias.GroupId, readonly t.Shell.AliasId[]>
 export const Alias: t.Shell.Alias.Lib = {
   list: () => ALIASES,
   get: (id) => ALIASES.find((entry) => entry.id === id),
-  group: (id) => GROUPS[id].map((aliasId) => Alias.get(aliasId)).filter((entry) => entry !== undefined),
+  group: (id) =>
+    GROUPS[id].map((aliasId) => Alias.get(aliasId)).filter((entry) => entry !== undefined),
 };

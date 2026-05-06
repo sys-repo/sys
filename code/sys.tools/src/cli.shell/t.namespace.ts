@@ -1,6 +1,4 @@
-import type { Shell, t } from './common.ts';
-
-type ShellLib = typeof Shell;
+import type { t } from './common.ts';
 
 /**
  * The `@sys/tools/shell` namespace.
@@ -25,10 +23,13 @@ export namespace ShellTool {
 
     /** Alias catalog and managed-block planning helpers. */
     readonly Alias: Alias.Lib;
+
+    /** PATH catalog and managed-block planning helpers. */
+    readonly Path: Path.Lib;
   };
 
   /** CLI sub-commands (first positional token). */
-  export type Command = 'doctor' | 'alias';
+  export type Command = 'doctor' | 'alias' | 'path';
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs & {
@@ -41,27 +42,26 @@ export namespace ShellTool {
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     readonly command?: Command;
     readonly alias?: Alias.ParsedCommand;
+    readonly path?: Path.ParsedCommand;
   };
   export type CliContext = { readonly origin?: 'argv' | 'root-menu' };
   export type CliResult = void | { readonly kind: 'back' };
 
   /** POSIX-family dialects the shell planner can write today. */
-  export type PosixDialect = NonNullable<Parameters<ShellLib['Block']['render']>[0]['dialect']>;
+  export type PosixDialect = t.Shell.PosixDialect;
   /** Write support available for a shell dialect. */
   export type Support = 'write' | 'doctor-only' | 'unsupported';
 
   /** Managed block owner metadata. */
-  export type Owner = Parameters<ShellLib['Block']['markers']>[0];
-  /** Catalog entry shapes from @sys/cli/shell. */
-  export type AliasEntry = ReturnType<ShellLib['Alias']['list']>[number];
-  export type PathEntry = ReturnType<ShellLib['Path']['list']>[number];
+  export type Owner = t.Shell.Owner;
   /** Existing managed block state from @sys/cli/shell. */
-  export type BlockState = ReturnType<ShellLib['Block']['detect']>;
+  export type BlockState = t.Shell.Block.State;
 
   /** Alias command state and plans. */
   export namespace Alias {
     export type Command = 'list' | 'enable';
     export type Target = 'sys' | 'common';
+    export type Entry = t.Shell.Alias.Entry;
     export type State = 'enabled' | 'missing' | 'conflict';
 
     export type Lib = {
@@ -77,7 +77,7 @@ export namespace ShellTool {
       | { readonly command: 'enable'; readonly target?: Target };
 
     export type Item = {
-      readonly entry: AliasEntry;
+      readonly entry: Entry;
       readonly state: State;
       readonly profiles: readonly t.StringPath[];
       readonly conflictProfiles: readonly t.StringPath[];
@@ -93,7 +93,7 @@ export namespace ShellTool {
     };
 
     export type EnablePlan = {
-      readonly kind: ReturnType<ShellLib['Block']['update']>['kind'];
+      readonly kind: t.Shell.Plan['kind'];
       readonly changed: boolean;
       readonly block: BlockState;
       readonly preview: string;
@@ -102,9 +102,63 @@ export namespace ShellTool {
     export type EnableReport = {
       readonly owner: Owner;
       readonly target: Target;
-      readonly entries: readonly AliasEntry[];
+      readonly entries: readonly Entry[];
       readonly profile?: Doctor.Profile;
       readonly plan?: EnablePlan;
+      readonly warnings: readonly string[];
+    };
+  }
+
+  /** PATH command state and plans. */
+  export namespace Path {
+    export type Command = 'list' | 'add';
+    export type Target = 'deno';
+    export type Entry = t.Shell.Path.Entry;
+    export type State = 'enabled' | 'present' | 'missing';
+
+    export type Lib = {
+      /** Inspect the managed PATH catalog and profile-managed PATH state. */
+      list(): Promise<ListReport>;
+
+      /** Plan a PATH add operation without writing shell profile files. */
+      add(target: Target): Promise<AddReport>;
+    };
+
+    export type ParsedCommand =
+      | { readonly command: 'list' }
+      | { readonly command: 'add'; readonly target?: Target };
+
+    export type Item = {
+      readonly entry: Entry;
+      readonly state: State;
+      readonly profiles: readonly t.StringPath[];
+      readonly unmanagedProfiles: readonly t.StringPath[];
+      readonly stale: boolean;
+    };
+
+    export type ListReport = {
+      readonly owner: Owner;
+      readonly shell: Doctor.ShellInfo;
+      readonly env: Doctor.EnvInfo;
+      readonly profiles: readonly Doctor.Profile[];
+      readonly items: readonly Item[];
+      readonly warnings: readonly string[];
+    };
+
+    export type AddPlan = {
+      readonly kind: t.Shell.Plan['kind'];
+      readonly changed: boolean;
+      readonly block: BlockState;
+      readonly preview: string;
+    };
+
+    export type AddReport = {
+      readonly owner: Owner;
+      readonly target: Target;
+      readonly entries: readonly Entry[];
+      readonly env: Doctor.EnvInfo;
+      readonly profile?: Doctor.Profile;
+      readonly plan?: AddPlan;
       readonly warnings: readonly string[];
     };
   }
@@ -132,8 +186,8 @@ export namespace ShellTool {
     };
 
     export type Catalog = {
-      readonly aliases: readonly AliasEntry[];
-      readonly paths: readonly PathEntry[];
+      readonly aliases: readonly Alias.Entry[];
+      readonly paths: readonly Path.Entry[];
     };
 
     export type Report = {

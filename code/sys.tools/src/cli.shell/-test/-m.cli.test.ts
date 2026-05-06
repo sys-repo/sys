@@ -2,6 +2,7 @@ import { Cli, describe, expect, it, type t } from '../../-test.ts';
 import { cli } from '../m.cli.ts';
 import { Alias } from '../u.alias.ts';
 import { doctor } from '../u.doctor.ts';
+import { Path } from '../u.path.ts';
 
 describe('cli.shell CLI', () => {
   it('routes `alias list` through the CLI', async () => {
@@ -81,6 +82,92 @@ describe('cli.shell CLI', () => {
     });
 
     expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools alias enable common');
+  });
+
+  it('routes `path list` through the CLI', async () => {
+    const output: string[] = [];
+    const run = cli as unknown as (
+      cwd: t.StringDir,
+      argv: string[],
+      context: t.ShellTool.CliContext | undefined,
+      deps: {
+        readonly Path: Pick<typeof Path, 'list'>;
+        readonly info: (...data: unknown[]) => void;
+      },
+    ) => Promise<t.ShellTool.CliResult>;
+
+    await run('/tmp' as t.StringDir, ['path', 'list'], undefined, {
+      Path: {
+        list: async () => ({
+          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+          shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+          env: {
+            home: '/home/me' as t.StringDir,
+            denoInstall: '/home/me/.deno' as t.StringDir,
+            denoBin: '/home/me/.deno/bin' as t.StringDir,
+            pathContainsDenoBin: false,
+          },
+          profiles: [],
+          items: [{
+            entry: { id: 'deno', label: 'deno', expression: 'export PATH="$PATH"' },
+            state: 'missing',
+            profiles: [],
+            unmanagedProfiles: [],
+            stale: false,
+          }],
+          warnings: [],
+        }),
+      },
+      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+    });
+
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools path list');
+  });
+
+  it('routes `path add` through the CLI', async () => {
+    const output: string[] = [];
+    const run = cli as unknown as (
+      cwd: t.StringDir,
+      argv: string[],
+      context: t.ShellTool.CliContext | undefined,
+      deps: {
+        readonly Path: Pick<typeof Path, 'add'>;
+        readonly info: (...data: unknown[]) => void;
+      },
+    ) => Promise<t.ShellTool.CliResult>;
+
+    await run('/tmp' as t.StringDir, ['path', 'add', 'deno', '--dry-run'], undefined, {
+      Path: {
+        add: async (target) => ({
+          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+          target,
+          entries: [{ id: 'deno', label: 'deno', expression: 'export PATH="$PATH"' }],
+          env: {
+            home: '/home/me' as t.StringDir,
+            denoInstall: '/home/me/.deno' as t.StringDir,
+            denoBin: '/home/me/.deno/bin' as t.StringDir,
+            pathContainsDenoBin: false,
+          },
+          profile: {
+            path: '/home/me/.zshrc' as t.StringPath,
+            role: 'interactive',
+            exists: true,
+            block: { kind: 'missing' },
+          },
+          plan: {
+            kind: 'add',
+            changed: true,
+            block: { kind: 'missing' },
+            preview:
+              '# >>> @sys/tools shell\n# @sys.shell path deno\nexport PATH="$PATH"\n# <<< @sys/tools shell\n',
+          },
+          warnings: ['Dry-run preview only; no changes written'],
+        }),
+      },
+      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+    });
+
+    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools path add deno');
   });
 
   it('routes `doctor` through the CLI', async () => {

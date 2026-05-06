@@ -1,6 +1,6 @@
 import { Str, type t } from './common.ts';
 
-const PATHS: readonly t.Shell.PathEntry[] = [
+const PATHS: readonly t.Shell.Path.Entry[] = [
   {
     id: 'deno',
     label: 'deno',

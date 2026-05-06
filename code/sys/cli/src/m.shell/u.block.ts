@@ -143,8 +143,8 @@ function locate(args: t.Shell.Block.DetectArgs): LocatedBlock {
 
 function parseModel(owner: t.Shell.Owner, blockText: string): t.Shell.ManagedModel {
   const lines = blockText.split(/\r?\n/);
-  const aliases: t.Shell.AliasEntry[] = [];
-  const paths: t.Shell.PathEntry[] = [];
+  const aliases: t.Shell.Alias.Entry[] = [];
+  const paths: t.Shell.Path.Entry[] = [];
 
   lines.forEach((line, index) => {
     const item = parseItemComment(owner, line);
@@ -177,7 +177,7 @@ function parseItemComment(owner: t.Shell.Owner, line: string) {
   return { kind, id } as const;
 }
 
-function parseAlias(id: string, line: string | undefined): t.Shell.AliasEntry | undefined {
+function parseAlias(id: string, line: string | undefined): t.Shell.Alias.Entry | undefined {
   if (!line) return undefined;
   const match = line.match(/^alias\s+([^=]+)="(.*)"$/);
   if (!match) return undefined;
@@ -189,7 +189,11 @@ function parseAlias(id: string, line: string | undefined): t.Shell.AliasEntry | 
   };
 }
 
-function expressionAfterItem(owner: t.Shell.Owner, lines: readonly string[], start: number): string {
+function expressionAfterItem(
+  owner: t.Shell.Owner,
+  lines: readonly string[],
+  start: number,
+): string {
   const out: string[] = [];
   const prefix = itemPrefix(owner);
   for (const line of lines.slice(start)) {

@@ -132,7 +132,7 @@ async function inspectContext(
 }
 
 function aliasState(
-  entry: t.ShellTool.AliasEntry,
+  entry: t.ShellTool.Alias.Entry,
   profiles: readonly ShellInspectProfile[],
 ): t.ShellTool.Alias.Item {
   const enabledProfiles = profiles.filter((profile) => hasManagedAlias(profile, entry));
@@ -156,7 +156,7 @@ function aliasState(
   };
 }
 
-function hasManagedAlias(profile: ShellInspectProfile, entry: t.ShellTool.AliasEntry): boolean {
+function hasManagedAlias(profile: ShellInspectProfile, entry: t.ShellTool.Alias.Entry): boolean {
   if (profile.block.kind !== 'present') return false;
   return profile.block.model.aliases.some((alias) =>
     alias.id === entry.id && alias.name === entry.name && alias.command === entry.command
@@ -169,15 +169,15 @@ function hasUnmanagedAlias(profile: ShellInspectProfile, name: string): boolean 
   return unmanagedConflictExpressions(name).some((expr) => expr.test(unmanaged));
 }
 
-function resolveAliases(target: t.ShellTool.Alias.Target): readonly t.ShellTool.AliasEntry[] {
+function resolveAliases(target: t.ShellTool.Alias.Target): readonly t.ShellTool.Alias.Entry[] {
   return Shell.Alias.group(target);
 }
 
 function mergeAliases(
-  existing: readonly t.ShellTool.AliasEntry[],
-  next: readonly t.ShellTool.AliasEntry[],
-): readonly t.ShellTool.AliasEntry[] {
-  const map = new Map<string, t.ShellTool.AliasEntry>();
+  existing: readonly t.ShellTool.Alias.Entry[],
+  next: readonly t.ShellTool.Alias.Entry[],
+): readonly t.ShellTool.Alias.Entry[] {
+  const map = new Map<string, t.ShellTool.Alias.Entry>();
   existing.forEach((entry) => map.set(entry.id, entry));
   next.forEach((entry) => map.set(entry.id, entry));
   return [...map.values()];

@@ -31,6 +31,7 @@ export type {
   CliTable,
   MenuResult,
   MenuResultKind,
+  Shell,
 } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { FileMap, FileMapProcessor, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
