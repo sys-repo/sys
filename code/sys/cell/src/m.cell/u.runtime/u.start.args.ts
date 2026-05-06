@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { Is, Str, type t } from './common.ts';
+import { Is, Path, Str, type t } from './common.ts';
 
 type O = Record<string, string>;
 
@@ -11,7 +11,7 @@ export async function deriveStartArgs(
 ): Promise<t.Cell.Runtime.StartArgs> {
   if (service.service.kind !== 'http-static') return base;
 
-  const info = await staticViewInfo(cell, service.service);
+  const info = await staticViewInfo(cell, service.service, base);
   if (Object.keys(info).length === 0) return base;
 
   const current = Is.record(base.info) ? base.info : {};
@@ -21,12 +21,15 @@ export async function deriveStartArgs(
 async function staticViewInfo(
   cell: t.Cell.Instance,
   service: t.Cell.Runtime.Service,
+  base: t.Cell.Runtime.StartArgs,
 ): Promise<O> {
   const info: O = {};
+  const root = staticRootPath(cell, base);
   for (const id of service.for?.views ?? []) {
     const view = cell.descriptor.views?.[id];
     if (!view) continue;
-    info[id] = `/${Str.trimLeadingSlashes(await viewPath(cell, view))}/`;
+    const path = urlPath(root, viewAbsPath(cell, await viewPath(cell, view)));
+    if (path) info[id] = path;
   }
   return info;
 }
@@ -34,6 +37,25 @@ async function staticViewInfo(
 async function viewPath(cell: t.Cell.Instance, view: t.Cell.View.Descriptor): Promise<string> {
   if ('local' in view.source) return Str.trimLeadingDotSlash(view.source.local);
   return await pulledViewPath(cell, view.source.pull);
+}
+
+function staticRootPath(cell: t.Cell.Instance, base: t.Cell.Runtime.StartArgs): string {
+  const cwd = Is.str(base.cwd) ? Fs.resolve(base.cwd) : cell.root;
+  const dir = Is.str(base.dir) ? base.dir : '.';
+  return Path.Is.absolute(dir) ? Path.normalize(dir) : Path.resolve(cwd, dir);
+}
+
+function viewAbsPath(cell: t.Cell.Instance, path: string): string {
+  return Path.Is.absolute(path) ? Path.normalize(path) : Path.resolve(cell.root, path);
+}
+
+function urlPath(root: string, path: string): string | undefined {
+  const relative = Path.relative(root, path).replaceAll('\\', '/');
+  if (relative === '') return '/';
+  if (relative === '..' || relative.startsWith('../') || Path.Is.absolute(relative)) {
+    return undefined;
+  }
+  return `/${Str.trimLeadingSlashes(relative)}/`;
 }
 
 async function pulledViewPath(cell: t.Cell.Instance, path: t.Cell.Path): Promise<string> {

@@ -16,6 +16,8 @@ sections:
   - label: 'Slot policy'
     items: |
       `<view>` is the Cell view the service serves; ask if missing or ambiguous.
+      `<view>` and `<service-name>` are Cell topology IDs and must match `^[a-z][a-z0-9.-]*$`.
+      Reject invalid IDs such as `http:static`; ask for a valid ID instead of rewriting it.
       `<service-name>` is semantic; propose `static.<view>` and confirm if not obvious.
       `<config>` is an owner config reference; propose `./-config/@sys.http/static/<view>.yaml`.
       `<dir>` is the static root; ask unless the user named it or the Cell view path is obvious.

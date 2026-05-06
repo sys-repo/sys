@@ -35,6 +35,10 @@ describe('FmtHelp', () => {
 
     expect(text).to.contain('Cell DSL (domain-specific-language):');
     expect(text).to.contain(guidance.summary.split('\n')[0]);
+    expect(text).to.contain('Topology IDs');
+    expect(text).to.contain('^[a-z][a-z0-9.-]*$');
+    expect(text).to.contain('Do not use `:`, `_`, `/`, spaces, or uppercase letters');
+    expect(text).to.contain('If a requested ID is invalid, stop and ask for a valid ID');
     expect(text).to.contain('Speech acts');
     expect(text).to.contain('add an @sys/http static service for <view>');
     expect(text).to.contain('pull latest configured views');
@@ -117,6 +121,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('deno run -ER jsr:@sys/http/server/static config add --dry-run');
     expect(text).to.contain('<static-config>');
     expect(text).to.contain('<service-name>');
+    expect(text).to.contain('Reject invalid IDs such as `http:static`');
     expect(text).to.contain('<dir>');
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/static'");
@@ -141,6 +146,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('owner config affordances');
     expect(text).to.contain('config add');
     expect(text).to.contain('<service-name>');
+    expect(text).to.contain('Reject invalid IDs such as `http:static`');
     expect(text).to.contain('<kind>');
     expect(text).to.contain('<module>');
     expect(text).to.contain('<export>');

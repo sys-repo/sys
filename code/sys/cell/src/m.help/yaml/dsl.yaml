@@ -13,6 +13,15 @@ sections:
       Do not put pull/service/proxy/mount mechanics in `cell.yaml`.
       Do not turn `cell.yaml` into a mega-config.
 
+  - label: 'Topology IDs'
+    items: |
+      Cell topology identifiers use the pattern `^[a-z][a-z0-9.-]*$`.
+      This applies to view names, service names, service kinds, and view references.
+      Allowed characters are lowercase letters, digits after the first character, `.` and `-`.
+      Do not use `:`, `_`, `/`, spaces, or uppercase letters in Cell topology IDs.
+      Validate user-provided topology ID slots before editing `cell.yaml`.
+      If a requested ID is invalid, stop and ask for a valid ID; do not silently rewrite it.
+
   - label: Speech acts
     items:
       - initialize this folder as a Cell

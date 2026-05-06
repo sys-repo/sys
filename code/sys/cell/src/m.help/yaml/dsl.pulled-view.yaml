@@ -16,6 +16,8 @@ sections:
     items: |
       `<dist-url>` is given by the prompt.
       `<name>` must ask; view names are semantic/user-facing.
+      `<name>` is a Cell topology ID and must match `^[a-z][a-z0-9.-]*$`.
+      Reject invalid IDs such as `view:fs`; ask for a valid ID instead of rewriting it.
       Do not derive `<name>` from the URL.
       Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
       Propose local target: `./view/.pulled/<dist-name>`.

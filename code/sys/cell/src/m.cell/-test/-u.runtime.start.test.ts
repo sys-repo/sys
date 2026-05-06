@@ -69,6 +69,26 @@ describe('Cell.Runtime.start', () => {
     await Cell.Runtime.wait(runtime);
   });
 
+  it('derives static view URL paths relative to the configured static root', async () => {
+    const source =
+      `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
+    const from = `data:application/javascript;base64,${btoa(source)}`;
+    const root = await tempCell(
+      'runtime-start-static-info-relative-root',
+      descriptor({ from, export: 'Capture' }),
+    );
+    await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: ./view/hello\n`, {
+      force: true,
+    });
+
+    const cell = await Cell.load(root);
+    const runtime = await Cell.Runtime.start(cell, { trusted: ['data:'] });
+    const started = runtime.services[0].started as Record<string, unknown>;
+
+    expect(started.info).to.eql({ hello: '/' });
+    await Cell.Runtime.wait(runtime);
+  });
+
   it('fails clearly when a service start fails', async () => {
     const source = `export const Failing = { start() { throw new Error('boom'); } };`;
     const from = `data:application/javascript;base64,${btoa(source)}`;

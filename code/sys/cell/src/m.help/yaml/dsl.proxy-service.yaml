@@ -17,6 +17,8 @@ sections:
   - label: 'Slot policy'
     items: |
       `<service-name>` is semantic; propose a concise public proxy name only when the prompt implies one, and confirm.
+      `<service-name>` is a Cell topology ID and must match `^[a-z][a-z0-9.-]*$`.
+      Reject invalid IDs such as `http:proxy`; ask for a valid ID instead of rewriting it.
       `<config>` is an owner config reference; propose `./-config/@sys.http/proxy/<service-name>.yaml`.
       `<route>` is `/` or a public mounted path-prefix; ask if missing or ambiguous.
       Use proxy root/default routing for `/`.

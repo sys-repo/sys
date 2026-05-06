@@ -14,6 +14,8 @@ sections:
   - label: 'Slot policy'
     items: |
       `<service-name>` is semantic; examples: `worker`, `api`, `fixture`, `sync`.
+      `<service-name>`, `<kind>`, and `<views>` entries are Cell topology IDs and must match `^[a-z][a-z0-9.-]*$`.
+      Reject invalid IDs such as `http:static`; ask for a valid ID instead of rewriting it.
       `<kind>` describes capability for review/grouping; examples: `http-server`, `worker`, `sync-service`, `domain-service`.
       `<module>` is a trusted import specifier; shape examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/runtime`.
       `<export>` is the named export that implements `Cell.Runtime.LifecycleEndpoint`; examples: `Server`, `Worker`, `Runtime`, `Fixture`.

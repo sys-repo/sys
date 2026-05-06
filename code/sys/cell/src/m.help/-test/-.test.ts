@@ -11,6 +11,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.title).to.eql('Cell DSL');
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
+      'Topology IDs',
       'Speech acts',
       'Owners',
       'Mappings',
