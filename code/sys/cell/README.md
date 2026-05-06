@@ -39,7 +39,8 @@ View     =  bound perception            ./view
 | add: local view                 | 🐷                                                                   |
 | add: static HTTP service (view) | Add a static HTTP service for the `stripe` view.                     |
 | add: runtime service            | 🐷                                                                   |
-| add: proxy service              | 🐷                                                                   |
+| add: proxy service              | Add a proxy service named `app`.                                     |
+| mount: proxy route              | Route `/payments/` to the pulled Stripe view.                        |
 
 <p>&nbsp;</p>
 

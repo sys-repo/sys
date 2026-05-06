@@ -18,12 +18,17 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters.map((child) => child.id)).to.eql([
       'pulled-view',
       'static-http-service',
+      'proxy-service',
     ]);
     expect(chapter.chapters[0].path).to.eql(['pulled-view']);
     expect(chapter.chapters[0].summary).to.eql('Add a view backed by an `@sys/tools/pull` config.');
     expect(chapter.chapters[1].path).to.eql(['static-http-service']);
     expect(chapter.chapters[1].summary).to.eql(
       'Add a runtime service backed by `@sys/http/server/static` config.',
+    );
+    expect(chapter.chapters[2].path).to.eql(['proxy-service']);
+    expect(chapter.chapters[2].summary).to.eql(
+      'Add a runtime service backed by `@sys/http/server/proxy` config.',
     );
   });
 
@@ -59,6 +64,27 @@ describe('CellHelp.Dsl', () => {
       'Dialogue',
       'Owner flow',
       'Owner command',
+      'Cell topology',
+    ]);
+    expect(chapter.chapters).to.eql([]);
+  });
+
+  it('loads the proxy service DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['proxy-service']);
+
+    expect(chapter.id).to.eql('proxy-service');
+    expect(chapter.path).to.eql(['proxy-service']);
+    expect(chapter.title).to.eql('Proxy service');
+    expect(chapter.summary).to.eql(
+      'Add a runtime service backed by `@sys/http/server/proxy` config.',
+    );
+    expect(chapter.sections.map((section) => section.label)).to.eql([
+      'Rule',
+      'Slot policy',
+      'Dialogue',
+      'Owner flow',
+      'Owner command',
+      'Root routes',
       'Cell topology',
     ]);
     expect(chapter.chapters).to.eql([]);

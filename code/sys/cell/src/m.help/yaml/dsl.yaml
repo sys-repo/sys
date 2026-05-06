@@ -44,8 +44,8 @@ sections:
       - add service → use service owner flow
       - then register `runtime.services[]`
       - add proxy → use proxy owner flow
-      - then register runtime service and mounts
+      - then register runtime service and config ref
       - mount route → update proxy owner config
-      - '`cell.yaml` only names the proxy service'
+      - '`cell.yaml` only names the proxy service and config ref'
       - verify/load → run `Cell.load` against the folder
       - start runtime → load Cell, start `Cell.Runtime`

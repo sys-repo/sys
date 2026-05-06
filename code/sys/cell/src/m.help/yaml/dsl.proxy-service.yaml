@@ -1,0 +1,78 @@
+id: proxy-service
+title: Proxy service
+summary: Add a runtime service backed by `@sys/http/server/proxy` config.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a proxy service named <name>" as `add: proxy service`.
+      Classify "mount <route> to <view/service/upstream>" as a proxy route-mount act.
+      Proxy owns public route orchestration; static and fixture services own endpoint serving.
+      Cell registers a runtime service; HTTP owns proxy config and mount mechanics.
+      Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
+      Do not put proxy mounts, upstreams, or route mechanics directly in `cell.yaml`.
+      Proxy maps path-prefixes; it only redirects for slash normalization.
+
+  - label: 'Slot policy'
+    items: |
+      `<service-name>` is semantic; propose `app` for a public app proxy and confirm.
+      `<config>` is an owner config reference; propose `./-config/@sys.http/proxy/<service-name>.yaml`.
+      `<route>` is the public mounted path-prefix; ask if missing or ambiguous.
+      `<upstream>` is an absolute URL-prefix ending with `/`; ask unless exactly derivable and confirmed.
+      If the Cell already declares local HTTP services, check owner configs for port collisions.
+      Use owner defaults for hostname and port unless the user specifies or confirms alternatives.
+      Add `for.views` only when the prompt says this proxy serves declared Cell views.
+      Confirm service name, config path, listener, route, and upstream before writing.
+
+  - label: Dialogue
+    items: |
+      Do not restate the DSL contract to the user.
+      Ask for missing semantic slots and confirm proposed owner paths.
+      Example response for mounting `/payments/` to `https://example.com/payments/`:
+      OK — I can add that proxy runtime service and route mount.
+      I’ll use:
+      service name: `app`
+      proxy config: `./-config/@sys.http/proxy/app.yaml`
+      listen: `127.0.0.1:8080`
+      mount: `/payments/`
+      upstream: `https://example.com/payments/`
+      Please confirm those values before I write the owner config and Cell topology.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/http/server/proxy config add`.
+      Pass `--config <config>`.
+      Pass `--hostname` and `--port` only when specified or confirmed.
+      This creates or updates HTTP proxy lifecycle config.
+      Use owner CLI: `@sys/http/server/proxy mount add`.
+      Pass `--config <config>`.
+      Pass `--mount <route>`.
+      Pass `--upstream <upstream>`.
+      This creates or updates mounted upstreams in the proxy owner config.
+      Do not duplicate HTTP proxy config schema in the Cell edit.
+      Cell records only the runtime service and config reference.
+
+  - label: 'Owner command'
+    items: |
+      deno run -A jsr:@sys/http/server/proxy config add --config ./-config/@sys.http/proxy/app.yaml --hostname 127.0.0.1 --port 8080
+      deno run -A jsr:@sys/http/server/proxy mount add --config ./-config/@sys.http/proxy/app.yaml --mount /payments/ --upstream https://example.com/payments/
+      deno run -A jsr:@sys/http/server/proxy mount add --dry-run --config ./-config/@sys.http/proxy/app.yaml --mount /api/ --upstream https://example.com/api/
+
+  - label: 'Root routes'
+    items: |
+      `mount add` manages mounted path-prefixes such as `/payments/` and `/api/`.
+      Do not use `/` as a mount; proxy runtime treats root/default upstream as a separate route kind.
+      If the prompt requires a root/default upstream and owner help exposes no root-route command, stop and ask.
+      Do not bypass the missing owner affordance by hand-writing proxy YAML.
+
+  - label: 'Cell topology'
+    items: |
+      runtime:
+        services:
+          - name: app
+            kind: http-proxy
+            from: '@sys/http/server/proxy'
+            export: HttpProxy
+            config: ./-config/@sys.http/proxy/app.yaml
+
+      Add `for.views` only when the prompt identifies declared views this proxy serves.

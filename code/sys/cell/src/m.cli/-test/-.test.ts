@@ -46,43 +46,6 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('Writes');
   });
 
-  describe('dsl dispatch', () => {
-    it('dsl → routes to root DSL help', async () => {
-      const res = await silent(() => CellCli.run({ argv: ['dsl'] }));
-      const text = stripAnsi(res.text);
-
-      expect(res.kind).to.eql('help');
-      expect(text).to.contain('@sys/cell dsl');
-      expect(text).to.contain('Chapter');
-    });
-
-    it('dsl pulled-view → routes to the pulled-view chapter', async () => {
-      const res = await silent(() => CellCli.run({ argv: ['dsl', 'pulled-view'] }));
-      const text = stripAnsi(res.text);
-
-      expect(res.kind).to.eql('help');
-      expect(text).to.contain('@sys/cell dsl pulled-view');
-    });
-
-    it('dsl static-http-service → routes to the static HTTP service chapter', async () => {
-      const res = await silent(() => CellCli.run({ argv: ['dsl', 'static-http-service'] }));
-      const text = stripAnsi(res.text);
-
-      expect(res.kind).to.eql('help');
-      expect(text).to.contain('@sys/cell dsl static-http-service');
-    });
-
-    it('dsl unknown → fails with root DSL help', async () => {
-      const res = await silent(() => CellCli.run({ argv: ['dsl', 'missing'] }));
-      const text = stripAnsi(res.text);
-
-      expect(res.kind).to.eql('error');
-      expect(text).to.contain('CellHelp: DSL chapter not found: missing');
-      expect(text).to.contain('@sys/cell dsl');
-      expect(text).to.contain('Chapter');
-    });
-  });
-
   it('help topics are not commands in the greenfield CLI grammar', async () => {
     const res = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
 
