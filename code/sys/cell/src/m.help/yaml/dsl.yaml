@@ -18,7 +18,7 @@ sections:
       - initialize this folder as a Cell
       - add a pulled view from <dist-url>
       - pull latest configured views
-      - add a static HTTP service for <view>
+      - add an @sys/http static service for <view>
       - add a service named <service-name> using <@scope/pkg>/<export>
       - add a proxy service named <service-name>
       - route / to <view/service/upstream>
@@ -44,7 +44,10 @@ sections:
       - pull latest configured views → run `@sys/tools pull`
       - use each distinct `views.*.source.pull` config
       - do not edit `cell.yaml` for refresh-only pulls
-      - add runtime service → confirm `Cell.Runtime.LifecycleEndpoint`
+      - add @sys/http static service → run `@sys/http/server/static config add`
+      - "then register `runtime.services[]` with `from: '@sys/http/server/static'` and `export: HttpStatic`"
+      - do not use `@sys/tools serve` for Cell runtime static services
+      - add generic runtime service → confirm `Cell.Runtime.LifecycleEndpoint`
       - use owner config affordance when available
       - then register `runtime.services[]`
       - add proxy → use proxy owner flow

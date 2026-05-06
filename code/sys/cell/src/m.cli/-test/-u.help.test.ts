@@ -36,9 +36,14 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Cell DSL (domain-specific-language):');
     expect(text).to.contain(guidance.summary.split('\n')[0]);
     expect(text).to.contain('Speech acts');
+    expect(text).to.contain('add an @sys/http static service for <view>');
     expect(text).to.contain('pull latest configured views');
     expect(text).to.contain('pull latest configured views → run `@sys/tools pull`');
     expect(text).to.contain('do not edit `cell.yaml` for refresh-only pulls');
+    expect(text).to.contain(
+      'add @sys/http static service → run `@sys/http/server/static config add`',
+    );
+    expect(text).to.contain('do not use `@sys/tools serve` for Cell runtime static services');
     expect(text).to.contain('Owners');
     expect(text).to.contain('Start from public `--help` surfaces');
     expect(text).to.contain('inspect the published JSR package docs/source');
@@ -50,7 +55,9 @@ describe('FmtHelp', () => {
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl pulled-view');
     expect(text).to.contain('# Add a view backed by an `@sys/tools/pull` config.');
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
-    expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/static` config.');
+    expect(text).to.contain(
+      '# Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
+    );
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl runtime-service');
     expect(text).to.contain('# Add a trusted lifecycle service backed by a service-owned config.');
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl proxy-service');
@@ -105,6 +112,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain(guidance.summary);
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/http/server/static config add');
+    expect(text).to.contain('Do not use `@sys/tools serve`');
     expect(text).to.contain('deno run -ERW jsr:@sys/http/server/static config add');
     expect(text).to.contain('deno run -ER jsr:@sys/http/server/static config add --dry-run');
     expect(text).to.contain('<static-config>');

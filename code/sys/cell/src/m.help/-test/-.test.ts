@@ -26,7 +26,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters[0].summary).to.eql('Add a view backed by an `@sys/tools/pull` config.');
     expect(chapter.chapters[1].path).to.eql(['static-http-service']);
     expect(chapter.chapters[1].summary).to.eql(
-      'Add a runtime service backed by `@sys/http/server/static` config.',
+      'Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
     );
     expect(chapter.chapters[2].path).to.eql(['runtime-service']);
     expect(chapter.chapters[2].summary).to.eql(
@@ -66,7 +66,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.path).to.eql(['static-http-service']);
     expect(chapter.title).to.eql('Static HTTP service');
     expect(chapter.summary).to.eql(
-      'Add a runtime service backed by `@sys/http/server/static` config.',
+      'Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
     );
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
