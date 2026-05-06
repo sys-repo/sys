@@ -15,6 +15,9 @@ describe('HttpProxy CLI', () => {
     expect(res.output).to.contain('config --help');
     expect(res.output).to.contain('root --help');
     expect(res.output).to.contain('mount --help');
+    expect(res.output).to.contain('Asset route closure');
+    expect(res.output).to.contain('Path-prefix mounts are routing only');
+    expect(res.output).to.contain('mount those prefixes');
     expect(res.output.includes('Cell')).to.eql(false);
   });
 
@@ -72,6 +75,7 @@ describe('HttpProxy CLI', () => {
     );
     expect(res.output).to.contain('mount add [options]');
     expect(res.output).to.contain('create or update a durable non-root path-prefix upstream');
+    expect(res.output).to.contain('A mount only covers its own prefix');
   });
 
   it('shows mount add help', async () => {
@@ -85,6 +89,13 @@ describe('HttpProxy CLI', () => {
     expect(res.output).to.contain('--upstream <url>');
     expect(res.output).to.contain('Use `root set` for `/`');
     expect(res.output).to.contain('Mounts win over the default route');
+    expect(res.output).to.contain('Asset route closure');
+    expect(res.output).to.contain('`--mount /app/` forwards only `/app/**`');
+    expect(res.output).to.contain('browser requests to `/view/**` do not pass through `/app/`');
+    expect(res.output).to.contain('inspect the upstream document base and asset prefixes');
+    expect(res.output).to.contain('<base href="/view/foo/">');
+    expect(res.output).to.contain('Asset route closure example');
+    expect(res.output).to.contain('--mount /view/ --upstream http://127.0.0.1:5050/');
     expect(res.output).to.contain('does not start a server');
   });
 

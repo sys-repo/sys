@@ -40,6 +40,14 @@ export const Fmt = {
             ['mount', 'show non-root path-prefix mount commands'],
           ],
         },
+        {
+          kind: 'lines',
+          label: 'Asset route closure',
+          items: [
+            'Path-prefix mounts are routing only: the proxy does not rewrite HTML, <base>, modulepreload, service-worker, or asset URLs.',
+            'If proxied documents name absolute paths, mount those prefixes to the upstream origin that serves them.',
+          ],
+        },
       ],
     });
   },
@@ -233,6 +241,13 @@ export const Fmt = {
             ['add', 'create or update a durable non-root path-prefix upstream'],
           ],
         },
+        {
+          kind: 'lines',
+          label: 'Asset route closure',
+          items: [
+            'A mount only covers its own prefix; run `mount add --help` for asset-prefix closure examples.',
+          ],
+        },
       ],
     });
   },
@@ -288,11 +303,29 @@ export const Fmt = {
         },
         {
           kind: 'lines',
+          label: 'Asset route closure',
+          items: [
+            '`--mount /app/` forwards only `/app/**`; browser requests to `/view/**` do not pass through `/app/`.',
+            'Before closing a mounted app route, inspect the upstream document base and asset prefixes; mount each absolute prefix.',
+            'For `<base href="/view/foo/">`, add `/view/` to the static origin root; do not rewrite generated `<base>` output by hand.',
+          ],
+        },
+        {
+          kind: 'lines',
           label: 'Examples',
           tone: 'muted',
           items: [
             `${run} --config ${CONFIG} --mount /payments/ --upstream http://127.0.0.1:4040/payments/`,
             `${RUN_MOUNT_ADD_DRY} --dry-run --config ${CONFIG} --mount /api/ --upstream http://127.0.0.1:4040/api/`,
+          ],
+        },
+        {
+          kind: 'lines',
+          label: 'Asset route closure example',
+          tone: 'muted',
+          items: [
+            `${run} --config ${CONFIG} --mount /foobar/ --upstream http://127.0.0.1:5050/fs/driver.monaco/`,
+            `${run} --config ${CONFIG} --mount /view/ --upstream http://127.0.0.1:5050/`,
           ],
         },
       ],

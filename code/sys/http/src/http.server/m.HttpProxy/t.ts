@@ -7,6 +7,8 @@ import type { t } from './common.ts';
  * - Local mounts are modeled as path-prefix mounts, not `:ns/:bundle` params.
  * - A mounted upstream may live at the upstream domain root or at any deeper upstream path.
  * - Matching is expected to use longest-prefix wins semantics.
+ * - Proxy routing does not rewrite HTML, `<base>`, service-worker, or asset URLs;
+ *   route configs must cover every absolute prefix a proxied document references.
  * - Mount paths should be treated as slash-normalized prefixes (start and end with `/`).
  * - Upstream roots should be treated as slash-normalized base URLs (end with `/`).
  * - Upstream roots must not include query strings or hash fragments.
