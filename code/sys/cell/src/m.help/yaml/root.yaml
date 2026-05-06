@@ -7,12 +7,15 @@ usage:
   - deno run jsr:@sys/cell --help
   - deno run -RW jsr:@sys/cell init [dir]
   - deno run jsr:@sys/cell dsl [chapter...]
+  - deno run -A jsr:@sys/cell start [dir]
 
 commands:
   - name: init
     text: create the minimal Cell folder contract
   - name: dsl
     text: show the Cell edit language and navigable DSL chapters
+  - name: start
+    text: start the Cell runtime services
 
 options:
   - name: -h, --help

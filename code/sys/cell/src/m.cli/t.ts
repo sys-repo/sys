@@ -29,7 +29,7 @@ export declare namespace CellCli {
   };
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Init.Result | Error;
+  export type Result = Help | Init.Result | Start.Result | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -69,6 +69,23 @@ export declare namespace CellCli {
       readonly reason?: string;
       /** True when operation was previewed only. */
       readonly dryRun?: boolean;
+    };
+  }
+
+  /** Types for the `start` command. */
+  export namespace Start {
+    /** Successful Cell runtime start result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'start';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered start output. */
+      readonly text: string;
+      /** Loaded Cell root. */
+      readonly root: string;
+      /** Number of runtime services started. */
+      readonly services: number;
     };
   }
 

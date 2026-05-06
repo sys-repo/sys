@@ -41,6 +41,9 @@ View     =  bound perception            ./view
 | add: proxy service              | Add a proxy service named `<service-name>`.                          |
 | route: proxy root               | Route `/` to `<view/service/upstream>`.                              |
 | route: proxy mount              | Route `<path-prefix>` to `<view/service/upstream>`.                  |
+| start: runtime                  | Start the Cell runtime.                                              |
+
+<p>&nbsp;</p>
 
 Sample slot values, not DSL grammar:
 
@@ -73,6 +76,7 @@ Use `dsl` as the agent-facing speech-act help surface.
 deno run jsr:@sys/cell --help
 deno run jsr:@sys/cell init --help
 deno run jsr:@sys/cell dsl
+deno run -A jsr:@sys/cell start .
 ```
 
 <p>&nbsp;</p>

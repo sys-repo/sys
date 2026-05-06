@@ -46,6 +46,21 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('Writes');
   });
 
+  it('start -h → shows resource-backed start help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['start', '-h'] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Start.load();
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell start');
+    guidance.usage.forEach((line) => expect(text).to.contain(line));
+    guidance.runtime.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('Cell.Runtime.wait');
+    expect(text).to.contain('started handle with `finished`');
+    expect(text).to.not.contain('--agent');
+    expect(text).to.not.contain('--dry-run');
+  });
+
   it('help topics are not commands in the greenfield CLI grammar', async () => {
     const res = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
 
@@ -103,6 +118,31 @@ describe(`@sys/cell/cli`, () => {
     expect(res.kind).to.eql('error');
     expect(res.text).to.contain('existing descriptor is invalid');
     expect(await read(descriptor)).to.eql(invalid);
+  });
+
+  it('start → loads and starts an empty Cell runtime', async () => {
+    const fs = await Testing.dir('CellCli.start.empty-runtime');
+    await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
+
+    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('start');
+    if (res.kind !== 'start') throw new Error('expected start result');
+    expect(res.root).to.eql(fs.dir);
+    expect(res.services).to.eql(0);
+    expect(text).to.contain(`root       ${fs.dir}`);
+    expect(text).to.contain('services   0');
+  });
+
+  it('start → rejects unsupported command options and extra args', async () => {
+    const help = stripAnsi((await silent(() => CellCli.run({ argv: ['start', '--dry-run'] }))).text);
+    const extra = stripAnsi((await silent(() => CellCli.run({ argv: ['start', '.', 'extra'] }))).text);
+
+    expect(help).to.contain('Unexpected option for start: --dry-run');
+    expect(help).to.contain('@sys/cell start');
+    expect(extra).to.contain('Unexpected argument: extra');
+    expect(extra).to.contain('@sys/cell start');
   });
 });
 

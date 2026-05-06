@@ -28,6 +28,18 @@ export const InitHelp: t.CellHelp.Init.Lib = {
   },
 };
 
+export const StartHelp: t.CellHelp.Start.Lib = {
+  load() {
+    const data = readRecord(HelpResource.Start, ['summary', 'usage', 'options', 'runtime']);
+    return Promise.resolve({
+      summary: HelpYaml.string(data, 'summary'),
+      usage: HelpYaml.list(data, 'usage'),
+      options: HelpYaml.pairs(data, 'options'),
+      runtime: HelpYaml.list(data, 'runtime'),
+    });
+  },
+};
+
 export const DslHelp: t.CellHelp.Dsl.Lib = {
   load(path = []) {
     return Promise.resolve(readDslChapter(path));

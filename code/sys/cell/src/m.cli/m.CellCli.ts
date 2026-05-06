@@ -73,6 +73,28 @@ export const CellCli: t.CellCli.Lib = {
       }
     }
 
+    if (command === 'start') {
+      const startHelp = await FmtHelp.startOutput();
+      if (args.help) {
+        print(startHelp);
+        return { kind: 'help', input: { argv }, text: startHelp };
+      }
+      if (args.agent || args.dryRun) {
+        const flag = args.agent ? '--agent' : '--dry-run';
+        return fail({ argv }, `Unexpected option for start: ${flag}`, startHelp);
+      }
+      if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);
+
+      try {
+        const { startCell, toStartResult } = await import('./u.start.ts');
+        const res = toStartResult({ argv }, await startCell({ dir: args._[1] }));
+        print(res.text);
+        return res;
+      } catch (error) {
+        return fail({ argv }, Err.summary(error));
+      }
+    }
+
     return fail({ argv }, `Unknown command: ${command}`, help);
   },
 };

@@ -20,6 +20,7 @@ describe('CellHelp.Dsl', () => {
       'static-http-service',
       'runtime-service',
       'proxy-service',
+      'start-runtime',
     ]);
     expect(chapter.chapters[0].path).to.eql(['pulled-view']);
     expect(chapter.chapters[0].summary).to.eql('Add a view backed by an `@sys/tools/pull` config.');
@@ -34,6 +35,10 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters[3].path).to.eql(['proxy-service']);
     expect(chapter.chapters[3].summary).to.eql(
       'Add a runtime service backed by `@sys/http/server/proxy` config.',
+    );
+    expect(chapter.chapters[4].path).to.eql(['start-runtime']);
+    expect(chapter.chapters[4].summary).to.eql(
+      'Start a composed Cell runtime from a Cell folder.',
     );
   });
 
@@ -111,6 +116,23 @@ describe('CellHelp.Dsl', () => {
       'Owner command',
       'Root routes',
       'Cell topology',
+    ]);
+    expect(chapter.chapters).to.eql([]);
+  });
+
+  it('loads the start runtime DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['start-runtime']);
+
+    expect(chapter.id).to.eql('start-runtime');
+    expect(chapter.path).to.eql(['start-runtime']);
+    expect(chapter.title).to.eql('Start runtime');
+    expect(chapter.summary).to.eql('Start a composed Cell runtime from a Cell folder.');
+    expect(chapter.sections.map((section) => section.label)).to.eql([
+      'Rule',
+      'Operator flow',
+      'Command',
+      'Project task',
+      'Runtime',
     ]);
     expect(chapter.chapters).to.eql([]);
   });

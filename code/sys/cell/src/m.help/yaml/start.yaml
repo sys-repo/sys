@@ -1,0 +1,19 @@
+summary: |
+  Start a Cell runtime from a Cell folder.
+  Loads `cell.yaml`, starts declared runtime services, and waits for service completion.
+
+usage:
+  - deno run -A jsr:@sys/cell start [dir]
+  - deno run -A jsr:@sys/cell start [dir] --help
+
+options:
+  - name: -h, --help
+    text: show start help
+
+runtime:
+  - Cell loads `[dir]` or `.` as the Cell root.
+  - Cell starts services declared in `runtime.services[]`.
+  - Service owners keep their own config schema, mechanics, and runtime display.
+  - Cell calls `Cell.Runtime.wait` for started service handles that expose `finished`.
+  - Services that should keep `@sys/cell start` alive should return a started handle with `finished`.
+  - Cell closes started services when runtime wait completes or startup fails.

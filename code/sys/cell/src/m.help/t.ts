@@ -8,6 +8,7 @@ export declare namespace CellHelp {
   export type Lib = {
     readonly Root: Root.Lib;
     readonly Init: Init.Lib;
+    readonly Start: Start.Lib;
     readonly Dsl: Dsl.Lib;
   };
 
@@ -52,6 +53,23 @@ export declare namespace CellHelp {
       readonly options: readonly Pair[];
       readonly safety: readonly string[];
       readonly agent: readonly string[];
+    };
+  }
+
+  /** Start command help resources. */
+  export namespace Start {
+    /** Loader for authored start help. */
+    export type Lib = {
+      /** Load authored start help from the embedded bundle. */
+      load(): Promise<Guidance>;
+    };
+
+    /** Authored start help used by CLI composition. */
+    export type Guidance = {
+      readonly summary: string;
+      readonly usage: readonly string[];
+      readonly options: readonly Pair[];
+      readonly runtime: readonly string[];
     };
   }
 
