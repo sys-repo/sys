@@ -31,12 +31,14 @@ export function resolveChapterResource(
 export const HelpResource = {
   Root: path('yaml/root.yaml'),
   Init: path('yaml/init.yaml'),
+  Start: path('yaml/start.yaml'),
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
       chapter('static-http-service', 'yaml/dsl.static-http-service.yaml'),
       chapter('runtime-service', 'yaml/dsl.runtime-service.yaml'),
       chapter('proxy-service', 'yaml/dsl.proxy-service.yaml'),
+      chapter('start-runtime', 'yaml/dsl.start-runtime.yaml'),
     ]),
   },
   Source: {
@@ -44,6 +46,7 @@ export const HelpResource = {
       return [
         HelpResource.Root,
         HelpResource.Init,
+        HelpResource.Start,
         ...chapterResourceFiles(HelpResource.Dsl.Root),
       ];
     },

@@ -44,6 +44,14 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl proxy-service');
   });
 
+  it('dsl start-runtime → routes to the start runtime chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'start-runtime'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell dsl start-runtime');
+  });
+
   it('dsl unknown → fails with root DSL help', async () => {
     const res = await silent(() => CellCli.run({ argv: ['dsl', 'missing'] }));
     const text = stripAnsi(res.text);

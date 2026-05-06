@@ -53,6 +53,8 @@ describe('FmtHelp', () => {
     expect(text).to.contain('# Add a trusted lifecycle service backed by a service-owned config.');
     expect(text).to.contain('deno run jsr:@sys/cell dsl proxy-service');
     expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/proxy` config.');
+    expect(text).to.contain('deno run jsr:@sys/cell dsl start-runtime');
+    expect(text).to.contain('# Start a composed Cell runtime from a Cell folder.');
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
       chapterCommentColumn(text, 'static-http-service'),
     );
@@ -62,12 +64,16 @@ describe('FmtHelp', () => {
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
       chapterCommentColumn(text, 'proxy-service'),
     );
+    expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
+      chapterCommentColumn(text, 'start-runtime'),
+    );
     expect(text).to.not.contain('Slot policy');
     expect(guidance.chapters.map((chapter) => chapter.id)).to.eql([
       'pulled-view',
       'static-http-service',
       'runtime-service',
       'proxy-service',
+      'start-runtime',
     ]);
   });
 
@@ -135,6 +141,27 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('127.0.0.1');
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl runtime-service');
+  });
+
+  it('dsl start-runtime → faithfully renders the requested chapter', async () => {
+    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['start-runtime'] }));
+    const guidance = await CellHelp.Dsl.load(['start-runtime']);
+
+    expect(text).to.contain('@sys/cell dsl start-runtime');
+    expect(text).to.contain(guidance.summary);
+    guidance.sections.forEach((section) => expect(text).to.contain(section.label));
+    expect(text).to.contain('@sys/cell start');
+    expect(text).to.contain('deno run -A jsr:@sys/cell start .');
+    expect(text).to.contain('Cell.Runtime.start');
+    expect(text).to.contain('Cell.Runtime.wait');
+    expect(text).to.contain('started service handles that expose `finished`');
+    expect(text).to.contain('should keep `@sys/cell start` alive');
+    expect(text).to.contain('Do not write a custom launcher script');
+    expect(text).to.contain('Service owners keep their own config schema, mechanics, ports, URLs, and runtime display');
+    expect(text).to.contain('"start": "deno run -A jsr:@sys/cell start ."');
+    expect(text).to.not.contain('Stripe');
+    expect(text).to.not.contain('stripe');
+    expect(text).to.not.contain('deno run jsr:@sys/cell dsl start-runtime');
   });
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {

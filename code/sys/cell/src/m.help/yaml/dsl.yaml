@@ -52,4 +52,4 @@ sections:
       - mount route → run `@sys/http/server/proxy mount add`
       - '`cell.yaml` only names the proxy service and config ref'
       - verify/load → run `Cell.load` against the folder
-      - start runtime → load Cell, start `Cell.Runtime`
+      - start runtime → run `@sys/cell start`

@@ -1,0 +1,40 @@
+id: start-runtime
+title: Start runtime
+summary: Start a composed Cell runtime from a Cell folder.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "start the Cell runtime" as `start runtime`.
+      Start is an operator action, not a config mutation.
+      Cell orchestrates runtime services; owner packages own serving behavior and display.
+      Do not write a custom launcher script unless explicitly asked.
+      Do not edit `cell.yaml` just to start an already configured runtime.
+
+  - label: 'Operator flow'
+    items: |
+      Use Cell CLI: `@sys/cell start [dir]`.
+      Pass `[dir]` when the Cell root is not the current folder.
+      This loads the Cell descriptor, starts declared `runtime.services[]`, waits, and closes services.
+      If startup fails for a named service, inspect that service's owner config and owner `--help`.
+      If a module/export contract is ambiguous, inspect the published JSR package docs/source.
+
+  - label: Command
+    items: |
+      deno run -A jsr:@sys/cell start [dir]
+      deno run -A jsr:@sys/cell start .
+
+  - label: 'Project task'
+    items: |
+      Add a project task only when the user asks for a persistent convenience command.
+      Use the public Cell CLI as the stable primitive.
+      Example `deno.json` task shape:
+      "start": "deno run -A jsr:@sys/cell start ."
+
+  - label: Runtime
+    items: |
+      Cell start calls `Cell.load`, then `Cell.Runtime.start`, then `Cell.Runtime.wait`.
+      `Cell.Runtime.wait` waits for started service handles that expose `finished`.
+      Services that should keep `@sys/cell start` alive should return a started handle with `finished`.
+      Service owners keep their own config schema, mechanics, ports, URLs, and runtime display.
+      Cell closes started services when runtime wait completes or startup fails.
