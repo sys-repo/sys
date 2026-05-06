@@ -1,0 +1,78 @@
+id: runtime-service
+title: Runtime service
+summary: Add a trusted lifecycle service backed by a service-owned config.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a service named <service-name> using <@scope/pkg>/<export>" as `add: runtime service`.
+      Cell records runtime topology; the service owner owns config schema and mechanics.
+      Runtime imports must be trusted by `Cell.Runtime.verify/start`; the default trusted prefix is `@sys/`.
+      Do not put service config internals directly in `cell.yaml`.
+      Do not hand-author owner YAML when the owner CLI/API can write it.
+
+  - label: 'Slot policy'
+    items: |
+      `<service-name>` is semantic; examples: `worker`, `api`, `fixture`, `sync`.
+      `<kind>` describes capability for review/grouping; examples: `http-server`, `worker`, `sync-service`, `domain-service`.
+      `<module>` is a trusted import specifier; shape examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/runtime`.
+      `<export>` is the named export that implements `Cell.Runtime.LifecycleEndpoint`; examples: `Server`, `Worker`, `Runtime`, `Fixture`.
+      `<config>` is a Cell-relative owner config path; examples: `./-config/@scope.pkg/service.yaml`, `./-config/@scope.pkg/<service-name>.yaml`.
+      `<views>` is optional; use it only when the service serves or supports declared Cell views.
+      Confirm service name, kind, module/export, config path, and optional view links before writing.
+
+  - label: 'Lifecycle contract'
+    items: |
+      The exported endpoint must implement `Cell.Runtime.LifecycleEndpoint`.
+      `Cell.Runtime.LifecycleEndpoint` exposes `start(args)`.
+      Cell passes service config plus Cell-derived start args into `start(args)`.
+      The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
+      Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
+      If the module/export contract is ambiguous, inspect the published JSR package docs/source.
+      Use source inspection only to confirm public exports, types, and lifecycle contracts.
+
+  - label: Dialogue
+    items: |
+      Do not restate the DSL contract to the user.
+      Ask for missing semantic slots and confirm proposed owner paths.
+      Example response for adding a generic trusted service:
+      OK — I can add that runtime service.
+      I’ll use:
+      service name: `<service-name>`
+      kind: `<kind>`
+      module/export: `<module>/<export>`
+      config: `<config>`
+      views: `<views>` if this service is for declared Cell views
+      Please confirm those values before I update Cell topology or create service-owned config.
+
+  - label: 'Owner flow'
+    items: |
+      Start with owner help for `<module>`.
+      Run `deno run -A jsr:<module> --help` when the module is a CLI entrypoint.
+      Check for owner config affordances such as `config`, `config add`, or owner-specific create/update commands.
+      Use owner CLI/API to create, validate, or update `<config>` when available.
+      If no owner affordance exists, stop and ask before hand-authoring owner config YAML.
+      Do not duplicate the owner config schema in the Cell edit.
+      Cell records only the runtime service and config reference.
+
+  - label: 'Cell topology'
+    items: |
+      runtime:
+        services:
+          - name: <service-name>
+            kind: <kind>
+            from: '<module>'
+            export: <export>
+            config: <config>
+
+      Optional declared-view relationship:
+
+      runtime:
+        services:
+          - name: <service-name>
+            kind: <kind>
+            for:
+              views: [<view>]
+            from: '<module>'
+            export: <export>
+            config: <config>

@@ -28,6 +28,14 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl static-http-service');
   });
 
+  it('dsl runtime-service → routes to the runtime service chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'runtime-service'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell dsl runtime-service');
+  });
+
   it('dsl proxy-service → routes to the proxy service chapter', async () => {
     const res = await silent(() => CellCli.run({ argv: ['dsl', 'proxy-service'] }));
     const text = stripAnsi(res.text);

@@ -15,12 +15,11 @@ sections:
   - label: Speech acts
     items:
       - initialize this folder as a Cell
-      - add a local view named <name> at <path>
       - add a pulled view from <dist-url>
       - pull latest configured views
       - add a static HTTP service for <view>
-      - add a runtime service named <name> using <module/export>
-      - add a proxy service named <name>
+      - add a service named <service-name> using <@scope/pkg>/<export>
+      - add a proxy service named <service-name>
       - route / to <view/service/upstream>
       - route <path-prefix> to <view/service/upstream>
       - verify/load this Cell
@@ -39,14 +38,13 @@ sections:
 
   - label: Mappings
     items:
-      - add local view → create files under `view/`
-      - then register `views.<name>.source.local`
       - add pulled view → run `@sys/tools pull add`
       - then register `views.<name>.source.pull`
       - pull latest configured views → run `@sys/tools pull`
       - use each distinct `views.*.source.pull` config
       - do not edit `cell.yaml` for refresh-only pulls
-      - add service → use service owner flow
+      - add runtime service → confirm `Cell.Runtime.LifecycleEndpoint`
+      - use owner config affordance when available
       - then register `runtime.services[]`
       - add proxy → use proxy owner flow
       - then register runtime service and config ref
