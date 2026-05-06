@@ -4,18 +4,18 @@ summary: |
   validly rewritten within the folder that bounds it.
 
 usage:
-  - deno run jsr:@sys/cell --help
-  - deno run -RW jsr:@sys/cell init [dir]
-  - deno run jsr:@sys/cell dsl [chapter...]
-  - deno run -A jsr:@sys/cell start [dir]
+  - deno run -E    jsr:@sys/cell --help
+  - deno run -ERW  jsr:@sys/cell init [dir]
+  - deno run -E    jsr:@sys/cell dsl [chapter...]
+  - deno run -ERWN jsr:@sys/cell start [dir]
 
 commands:
   - name: init
-    text: create the minimal Cell folder contract
+    text: initialize a folder as a Cell
   - name: dsl
-    text: show the Cell edit language and navigable DSL chapters
+    text: show Cell speech acts, owner rules, and chapters
   - name: start
-    text: start the Cell runtime services
+    text: start the Cell runtime
 
 options:
   - name: -h, --help

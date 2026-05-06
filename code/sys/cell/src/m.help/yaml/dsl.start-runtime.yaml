@@ -21,20 +21,21 @@ sections:
 
   - label: Command
     items: |
-      deno run -A jsr:@sys/cell start [dir]
-      deno run -A jsr:@sys/cell start .
+      deno run -ERWN jsr:@sys/cell start [dir]
+      deno run -ERWN jsr:@sys/cell start .
 
   - label: 'Project task'
     items: |
       Add a project task only when the user asks for a persistent convenience command.
       Use the public Cell CLI as the stable primitive.
       Example `deno.json` task shape:
-      "start": "deno run -A jsr:@sys/cell start ."
+      "start": "deno run -ERWN jsr:@sys/cell start ."
 
   - label: Runtime
     items: |
       Cell start calls `Cell.load`, then `Cell.Runtime.start`, then `Cell.Runtime.wait`.
       `Cell.Runtime.wait` waits for started service handles that expose `finished`.
       Services that should keep `@sys/cell start` alive should return a started handle with `finished`.
-      Service owners keep their own config schema, mechanics, ports, URLs, and runtime display.
+      Service owners keep their own config schema, mechanics, ports, URLs, permissions, and runtime display.
+      Add any extra permissions required by declared owner services.
       Cell closes started services when runtime wait completes or startup fails.

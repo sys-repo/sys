@@ -30,7 +30,7 @@ View     =  bound perception            ./view
 
 ## Prompting `dsl --help`
 
-| Intent                          | [Speech-acts](https://en.wikipedia.org/wiki/Speech_act) examples:     |
+| Intent                          | [Speech acts](https://en.wikipedia.org/wiki/Speech_act) examples:     |
 | ------------------------------- | -------------------------------------------------------------------- |
 | create: **Cell**                | Initialize this folder as an `@sys/cell`.                            |
 | create: **Cell** at path        | Initialize `./foo` as an `@sys/cell`.                                |
@@ -73,10 +73,10 @@ await runtime.close('done');
 Use `dsl` as the agent-facing speech-act help surface.
 
 ```sh
-deno run jsr:@sys/cell --help
-deno run jsr:@sys/cell init --help
-deno run jsr:@sys/cell dsl
-deno run -A jsr:@sys/cell start .
+deno run -E    jsr:@sys/cell --help
+deno run -ERW  jsr:@sys/cell init --help
+deno run -E    jsr:@sys/cell dsl
+deno run -ERWN jsr:@sys/cell start .
 ```
 
 <p>&nbsp;</p>
@@ -94,8 +94,8 @@ deno run -A jsr:@sys/cell start .
 
   Start from public CLI/help surfaces to understand the DSL and owner flows:
 
-      deno run jsr:@sys/cell --help
-      deno run jsr:@sys/cell dsl
+      deno run -E jsr:@sys/cell --help
+      deno run -E jsr:@sys/cell dsl
 
   When another owner package is needed, discover it through its own --help surface before using it.
   If a module/export contract is still ambiguous, inspect the published JSR package docs/source for that specifier.

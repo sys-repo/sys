@@ -151,14 +151,15 @@ describe('FmtHelp', () => {
     expect(text).to.contain(guidance.summary);
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/cell start');
-    expect(text).to.contain('deno run -A jsr:@sys/cell start .');
+    expect(text).to.contain('deno run -ERWN jsr:@sys/cell start .');
     expect(text).to.contain('Cell.Runtime.start');
     expect(text).to.contain('Cell.Runtime.wait');
     expect(text).to.contain('started service handles that expose `finished`');
     expect(text).to.contain('should keep `@sys/cell start` alive');
     expect(text).to.contain('Do not write a custom launcher script');
-    expect(text).to.contain('Service owners keep their own config schema, mechanics, ports, URLs, and runtime display');
-    expect(text).to.contain('"start": "deno run -A jsr:@sys/cell start ."');
+    expect(text).to.contain('Service owners keep their own config schema, mechanics, ports, URLs, permissions, and runtime display');
+    expect(text).to.contain('Add any extra permissions required by declared owner services');
+    expect(text).to.contain('"start": "deno run -ERWN jsr:@sys/cell start ."');
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('deno run jsr:@sys/cell dsl start-runtime');
