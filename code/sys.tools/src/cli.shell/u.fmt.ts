@@ -49,7 +49,7 @@ export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
     const state = aliasState(item);
     const stale = item.stale ? ` ${c.yellow('(stale managed block)')}` : '';
     out.line(`    ${c.cyan(item.entry.name)} ${state}${stale}`);
-    out.line(`      ${c.gray('command:')} ${item.entry.command}`);
+    out.line(`      ${c.gray('command:')}   ${item.entry.command}`);
     if (item.conflictProfiles.length > 0) {
       out.line(`      ${c.gray('conflicts:')} ${item.conflictProfiles.join(', ')}`);
     }
@@ -58,7 +58,7 @@ export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
   out.blank().line(`  ${c.bold('profiles')}`);
   const profiles = report.profiles.length
     ? report.profiles.map(formatProfile)
-    : [`  ${c.yellow('!')} no profile candidates`];
+    : [`    ${c.yellow('!')} no profile candidates`];
   profiles.forEach((line) => out.line(line));
 
   if (report.warnings.length > 0) {
@@ -110,7 +110,7 @@ export function formatPathList(report: t.ShellTool.Path.ListReport): string {
   out.blank().line(`  ${c.bold('profiles')}`);
   const profiles = report.profiles.length
     ? report.profiles.map(formatProfile)
-    : [`  ${c.yellow('!')} no profile candidates`];
+    : [`    ${c.yellow('!')} no profile candidates`];
   profiles.forEach((line) => out.line(line));
 
   if (report.warnings.length > 0) {
@@ -236,7 +236,7 @@ function emptyProfilesMessage(report: t.ShellTool.Doctor.Report): string {
   const reason = report.env.home
     ? 'shell dialect has no write profile candidates'
     : 'HOME is not set';
-  return `  ${c.yellow('!')} no profile candidates (${reason})`;
+  return `    ${c.yellow('!')} no profile candidates (${reason})`;
 }
 
 function aliasState(item: t.ShellTool.Alias.Item): string {
@@ -261,7 +261,7 @@ function planKind(plan: ManagedBlockPlan): string {
 function formatProfile(profile: t.ShellTool.Doctor.Profile): string {
   const exists = profile.exists ? c.green('exists') : c.gray('missing');
   const block = formatBlock(profile.block);
-  return `  ${c.cyan(profile.path)} ${c.gray(`(${profile.role})`)} ${exists}; block: ${block}`;
+  return `    ${c.cyan(profile.path)} ${c.gray(`(${profile.role})`)} ${exists}; block: ${block}`;
 }
 
 function formatBlock(block: t.ShellTool.BlockState): string {

@@ -22,12 +22,17 @@ describe('cli.shell CLI', () => {
         list: async () => ({
           owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
           shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
-          profiles: [],
+          profiles: [{
+            path: '/home/me/.zshrc' as t.StringPath,
+            role: 'interactive',
+            exists: true,
+            block: { kind: 'missing' },
+          }],
           items: [{
             entry: { id: 'sys', name: 'sys', command: 'deno run -A jsr:@sys/tools', risk: 'safe' },
-            state: 'missing',
+            state: 'conflict',
             profiles: [],
-            conflictProfiles: [],
+            conflictProfiles: ['/home/me/.zprofile' as t.StringPath],
             stale: false,
           }],
           warnings: [],
@@ -36,7 +41,11 @@ describe('cli.shell CLI', () => {
       info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system/shell:tools alias list');
+    const text = Cli.stripAnsi(output.join('\n'));
+    expect(text).to.contain('system/shell:tools alias list');
+    expect(text).to.contain('      command:   deno run -A jsr:@sys/tools');
+    expect(text).to.contain('      conflicts: /home/me/.zprofile');
+    expect(text).to.contain('    /home/me/.zshrc (interactive) exists; block: missing');
   });
 
   it('routes `alias enable` through the CLI', async () => {
