@@ -65,6 +65,8 @@ describe('cli.shell CLI', () => {
       Alias: {
         enable: async (target) => ({
           owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+          status: 'planned',
+          dryRun: true,
           target,
           entries: [{
             id: 'sys',
@@ -152,6 +154,8 @@ describe('cli.shell CLI', () => {
       Path: {
         add: async (target) => ({
           owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+          status: 'planned',
+          dryRun: true,
           target,
           entries: [{ id: 'deno', label: 'deno', expression: 'export PATH="$PATH"' }],
           env: {

@@ -1,4 +1,4 @@
-import { Fs, Is, Shell, Str, type t, Time } from './common.ts';
+import { Fs, Is, Shell, type t } from './common.ts';
 import {
   cleanEnv,
   inspectShell,
@@ -7,16 +7,18 @@ import {
   type ShellInspectDeps,
   type ShellInspectProfile,
 } from './u.inspect.ts';
+import {
+  backupPath,
+  mutationNow,
+  mutationWriter,
+  profileAftercare,
+  type ShellMutationDeps,
+  shellSingleQuote,
+  writeProfileUpdate,
+} from './u.mutation.ts';
 import { OWNER } from './u.owner.ts';
 
-export type ShellApplyDeps = ShellInspectDeps & {
-  readonly writeText?: (
-    path: t.StringPath,
-    text: string,
-    options?: t.ShellTool.Apply.WriteOptions,
-  ) => Promise<void>;
-  readonly now?: () => Date;
-};
+export type ShellApplyDeps = ShellInspectDeps & ShellMutationDeps;
 
 /** Plan or apply the recommended managed shell baseline. */
 export async function apply(
@@ -25,8 +27,8 @@ export async function apply(
 ): Promise<t.ShellTool.Apply.Report> {
   const env = deps.env ?? ((name: string) => Deno.env.get(name));
   const exists = deps.exists ?? Fs.exists;
-  const writeText = deps.writeText ?? writeTextFile;
-  const now = deps.now ?? (() => Time.now.date);
+  const writeText = mutationWriter(deps);
+  const now = mutationNow(deps);
   const inspected = await inspectShell(deps, { profile: options.profile, shell: options.shell });
   const envInfo = await inspectEnv(inspected.home, env, exists);
   const shell = inspected.shell;
@@ -164,7 +166,7 @@ export async function apply(
       paths,
       profile,
       plan,
-      aftercare: aftercare(profile, shell.dialect),
+      aftercare: profileAftercare(profile, shell.dialect),
       warnings,
     });
   }
@@ -184,28 +186,14 @@ export async function apply(
     });
   }
 
-  try {
-    await writeText(backup, profile.text, { force: false });
-  } catch (cause) {
-    warnings.push(`Failed to write backup ${backup}: ${errorMessage(cause)}`);
-    return report({
-      status: 'blocked',
-      dryRun: false,
-      shell,
-      env: envInfo.public,
-      aliases,
-      paths,
-      profile,
-      backup,
-      plan,
-      warnings,
-    });
-  }
-
-  try {
-    await writeText(profile.path, planned.nextText, { force: true });
-  } catch (cause) {
-    warnings.push(`Failed to write profile ${profile.path}: ${errorMessage(cause)}`);
+  const written = await writeProfileUpdate({
+    writeText,
+    profile,
+    backup,
+    nextText: planned.nextText,
+  });
+  if (!written.ok) {
+    warnings.push(written.warning);
     return report({
       status: 'blocked',
       dryRun: false,
@@ -230,7 +218,7 @@ export async function apply(
     profile,
     backup,
     plan,
-    aftercare: aftercare(profile, shell.dialect),
+    aftercare: profileAftercare(profile, shell.dialect),
     warnings,
   });
 }
@@ -388,44 +376,11 @@ function mergePaths(
   return [...map.values()];
 }
 
-function backupPath(path: t.StringPath, date: Date): t.StringPath {
-  return `${path}.sys-tools-shell.${timestamp(date)}.bak` as t.StringPath;
-}
-
-function timestamp(date: Date): string {
-  const yyyy = String(date.getUTCFullYear());
-  const mm = pad(date.getUTCMonth() + 1);
-  const dd = pad(date.getUTCDate());
-  const hh = pad(date.getUTCHours());
-  const mi = pad(date.getUTCMinutes());
-  const ss = pad(date.getUTCSeconds());
-  return `${yyyy}${mm}${dd}-${hh}${mi}${ss}`;
-}
-
 function applyCommand(options: t.ShellTool.Apply.Options): string {
   const parts = ['sys shell apply'];
   if (options.profile) parts.push(`--profile ${shellSingleQuote(options.profile)}`);
   if (options.shell) parts.push(`--shell ${options.shell}`);
   return parts.join(' ');
-}
-
-function aftercare(
-  profile: ShellInspectProfile,
-  dialect: t.ShellTool.PosixDialect,
-): t.ShellTool.Apply.Aftercare {
-  return {
-    source: `${dialect === 'posix' ? '.' : 'source'} ${shellSingleQuote(profile.path)}`,
-    verify: 'sys --help',
-  };
-}
-
-async function writeTextFile(
-  path: t.StringPath,
-  text: string,
-  options: t.ShellTool.Apply.WriteOptions = {},
-): Promise<void> {
-  const result = await Fs.write(path, text, { force: options.force ?? true });
-  if (result.error) throw result.error;
 }
 
 function pathIncludes(pathEnv: string | undefined, target: string): boolean {
@@ -445,15 +400,3 @@ function escapeRegExp(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function shellSingleQuote(input: string): string {
-  return `'${Str.replaceAll(input, /'/g, "'\\''").after}'`;
-}
-
-function pad(value: number): string {
-  return String(value).padStart(2, '0');
-}
-
-function errorMessage(cause: unknown): string {
-  if (Is.errorLike(cause)) return String(cause.message ?? 'unknown error');
-  return String(cause);
-}

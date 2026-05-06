@@ -6,13 +6,21 @@ import {
   type ShellInspectDeps,
   type ShellInspectProfile,
 } from './u.inspect.ts';
+import {
+  backupPath,
+  mutationNow,
+  mutationWriter,
+  profileAftercare,
+  type ShellMutationDeps,
+  writeProfileUpdate,
+} from './u.mutation.ts';
 import { OWNER } from './u.owner.ts';
 
-export type ShellPathDeps = ShellInspectDeps;
+export type ShellPathDeps = ShellInspectDeps & ShellMutationDeps;
 
 type ShellPathAddOptions = t.ShellTool.MutationOptions;
 
-/** PATH catalog and managed-block planning helpers. */
+/** PATH catalog and managed-block mutation helpers. */
 export const Path = {
   list: pathList,
   add: pathAdd,
@@ -35,48 +43,43 @@ export async function pathList(
   };
 }
 
-/** Plan a PATH add operation without writing shell profile files. */
+/** Add PATH entries in the managed shell block, or preview with `--dry-run`. */
 export async function pathAdd(
   target: t.ShellTool.Path.Target,
   options: ShellPathAddOptions = {},
   deps: ShellPathDeps = {},
 ): Promise<t.ShellTool.Path.AddReport> {
+  const writeText = mutationWriter(deps);
+  const now = mutationNow(deps);
   const ctx = await inspectContext(deps, options);
   const entries = resolvePaths(target);
   const warnings = [...ctx.warnings];
+  const dryRun = Boolean(options.dryRun);
 
-  if (options.dryRun) warnings.push('No changes written');
-  if (!options.dryRun) warnings.push('Dry-run preview only; no changes written');
   if (target === 'deno' && ctx.env.pathContainsDenoBin) {
-    warnings.push('Deno install bin is already on PATH; managed block preview still shown');
+    warnings.push('Deno install bin is already on PATH; managed block still shown');
   }
 
   const profile = selectProfile(ctx.profiles, options.profile);
   if (!profile) {
-    warnings.push('No supported profile target was found; pass --profile <path> to preview a plan');
-    return {
-      owner: OWNER,
-      target,
-      entries,
-      env: ctx.env,
-      profile: undefined,
-      plan: undefined,
-      warnings,
-    };
+    warnings.push('No supported profile target was found; pass --profile <path> to add PATH entries');
+    return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, warnings });
   }
 
   const dialect = ctx.shell.dialect;
   if (!dialect) {
     warnings.push('Shell dialect is not supported for PATH block rendering');
-    return {
-      owner: OWNER,
-      target,
-      entries,
-      env: ctx.env,
-      profile: publicProfile(profile),
-      plan: undefined,
-      warnings,
-    };
+    return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, profile, warnings });
+  }
+
+  if (profile.readError) {
+    warnings.push(`Cannot update unreadable profile ${profile.path}`);
+    return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, profile, warnings });
+  }
+
+  if (profile.block.kind === 'invalid') {
+    warnings.push(`Cannot update invalid managed shell block: ${profile.block.reason}`);
+    return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, profile, warnings });
   }
 
   const existing = profile.block.kind === 'present'
@@ -93,21 +96,92 @@ export async function pathAdd(
     model,
   });
   const preview = Shell.Block.render({ owner: OWNER, dialect, model });
+  const plan: t.ShellTool.Path.AddPlan = {
+    kind: planned.kind,
+    changed: planned.changed,
+    block: planned.block,
+    preview,
+  };
+  warnings.push(...planned.warnings);
+  const backup = planned.changed ? backupPath(profile.path, now()) : undefined;
 
-  return {
-    owner: OWNER,
+  if (dryRun) {
+    warnings.push('Dry-run preview only; no changes written');
+    return report({
+      status: planned.changed ? 'planned' : 'unchanged',
+      dryRun,
+      target,
+      entries,
+      env: ctx.env,
+      profile,
+      backup,
+      plan,
+      warnings,
+    });
+  }
+
+  if (!planned.changed) {
+    warnings.push('Managed shell block already up to date; no files written');
+    return report({
+      status: 'unchanged',
+      dryRun,
+      target,
+      entries,
+      env: ctx.env,
+      profile,
+      plan,
+      aftercare: profileAftercare(profile, dialect),
+      warnings,
+    });
+  }
+
+  if (!backup) {
+    warnings.push('No backup target was created; no files written');
+    return report({
+      status: 'blocked',
+      dryRun,
+      target,
+      entries,
+      env: ctx.env,
+      profile,
+      plan,
+      warnings,
+    });
+  }
+
+  const written = await writeProfileUpdate({
+    writeText,
+    profile,
+    backup,
+    nextText: planned.nextText,
+  });
+  if (!written.ok) {
+    warnings.push(written.warning);
+    return report({
+      status: 'blocked',
+      dryRun,
+      target,
+      entries,
+      env: ctx.env,
+      profile,
+      backup,
+      plan,
+      warnings,
+    });
+  }
+
+  return report({
+    status: 'applied',
+    dryRun,
     target,
     entries,
     env: ctx.env,
-    profile: publicProfile(profile),
-    plan: {
-      kind: planned.kind,
-      changed: planned.changed,
-      block: planned.block,
-      preview,
-    },
-    warnings: [...warnings, ...planned.warnings],
-  };
+    profile,
+    backup,
+    plan,
+    aftercare: profileAftercare(profile, dialect),
+    warnings,
+  });
 }
 
 /**
@@ -119,6 +193,35 @@ type InspectedContext = {
   readonly profiles: readonly ShellInspectProfile[];
   readonly warnings: readonly string[];
 };
+
+type ReportArgs = {
+  readonly status: t.ShellTool.MutationStatus;
+  readonly dryRun: boolean;
+  readonly target: t.ShellTool.Path.Target;
+  readonly entries: readonly t.ShellTool.Path.Entry[];
+  readonly env: t.ShellTool.Doctor.EnvInfo;
+  readonly profile?: ShellInspectProfile;
+  readonly backup?: t.StringPath;
+  readonly plan?: t.ShellTool.Path.AddPlan;
+  readonly aftercare?: t.ShellTool.Aftercare;
+  readonly warnings: readonly string[];
+};
+
+function report(args: ReportArgs): t.ShellTool.Path.AddReport {
+  return {
+    owner: OWNER,
+    status: args.status,
+    dryRun: args.dryRun,
+    target: args.target,
+    entries: args.entries,
+    env: args.env,
+    profile: args.profile ? publicProfile(args.profile) : undefined,
+    backup: args.backup,
+    plan: args.plan,
+    aftercare: args.aftercare,
+    warnings: args.warnings,
+  };
+}
 
 async function inspectContext(
   deps: ShellPathDeps,
@@ -235,3 +338,4 @@ function denoPathExpressions(): readonly RegExp[] {
     /~\/\.deno\/bin/,
   ];
 }
+

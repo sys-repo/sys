@@ -24,10 +24,10 @@ export namespace ShellTool {
     /** Plan or apply the recommended managed shell baseline. */
     apply(options?: Apply.Options): Promise<Apply.Report>;
 
-    /** Alias catalog and managed-block planning helpers. */
+    /** Alias catalog and managed-block mutation helpers. */
     readonly Alias: Alias.Lib;
 
-    /** PATH catalog and managed-block planning helpers. */
+    /** PATH catalog and managed-block mutation helpers. */
     readonly Path: Path.Lib;
   };
 
@@ -57,6 +57,13 @@ export namespace ShellTool {
   export type Owner = t.Shell.Owner;
   /** Existing managed block state from @sys/cli/shell. */
   export type BlockState = t.Shell.Block.State;
+  /** Mutation lifecycle status. */
+  export type MutationStatus = 'planned' | 'applied' | 'unchanged' | 'blocked';
+  /** Post-write instructions for activating shell profile changes. */
+  export type Aftercare = {
+    readonly source: string;
+    readonly verify: string;
+  };
 
   /** Alias command state and plans. */
   export namespace Alias {
@@ -69,7 +76,7 @@ export namespace ShellTool {
       /** Inspect the managed alias catalog and profile-managed alias state. */
       list(): Promise<ListReport>;
 
-      /** Plan an alias enable operation without writing shell profile files. */
+      /** Enable aliases in the managed shell block, or preview with `--dry-run`. */
       enable(target: Target, options?: MutationOptions): Promise<EnableReport>;
     };
 
@@ -102,10 +109,14 @@ export namespace ShellTool {
 
     export type EnableReport = {
       readonly owner: Owner;
+      readonly status: MutationStatus;
+      readonly dryRun: boolean;
       readonly target: Target;
       readonly entries: readonly Entry[];
       readonly profile?: Doctor.Profile;
+      readonly backup?: t.StringPath;
       readonly plan?: EnablePlan;
+      readonly aftercare?: Aftercare;
       readonly warnings: readonly string[];
     };
   }
@@ -121,7 +132,7 @@ export namespace ShellTool {
       /** Inspect the managed PATH catalog and profile-managed PATH state. */
       list(): Promise<ListReport>;
 
-      /** Plan a PATH add operation without writing shell profile files. */
+      /** Add PATH entries in the managed shell block, or preview with `--dry-run`. */
       add(target: Target, options?: MutationOptions): Promise<AddReport>;
     };
 
@@ -155,11 +166,15 @@ export namespace ShellTool {
 
     export type AddReport = {
       readonly owner: Owner;
+      readonly status: MutationStatus;
+      readonly dryRun: boolean;
       readonly target: Target;
       readonly entries: readonly Entry[];
       readonly env: Doctor.EnvInfo;
       readonly profile?: Doctor.Profile;
+      readonly backup?: t.StringPath;
       readonly plan?: AddPlan;
+      readonly aftercare?: Aftercare;
       readonly warnings: readonly string[];
     };
   }
@@ -167,7 +182,7 @@ export namespace ShellTool {
   /** Recommended baseline shell apply flow. */
   export namespace Apply {
     export type Options = MutationOptions;
-    export type Status = 'planned' | 'applied' | 'unchanged' | 'blocked';
+    export type Status = MutationStatus;
 
     export type WriteOptions = {
       readonly force?: boolean;
@@ -180,10 +195,7 @@ export namespace ShellTool {
       readonly preview: string;
     };
 
-    export type Aftercare = {
-      readonly source: string;
-      readonly verify: string;
-    };
+    export type Aftercare = ShellTool.Aftercare;
 
     export type Report = {
       readonly owner: Owner;

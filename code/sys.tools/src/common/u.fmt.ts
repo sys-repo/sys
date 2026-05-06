@@ -43,7 +43,7 @@ export const Fmt = {
     if ('sections' in input && input.sections) {
       return {
         tool: toolname,
-        summary: `${pkg.name} v${pkg.version}`,
+        summary: input.summary ?? `${pkg.name} v${pkg.version}`,
         note: input.note,
         sections: input.sections,
       };
@@ -51,7 +51,7 @@ export const Fmt = {
 
     return {
       tool: toolname,
-      summary: `${pkg.name} v${pkg.version}`,
+      summary: input.summary ?? `${pkg.name} v${pkg.version}`,
       note: input.note,
       usage: input.usage,
       options: input.options,

@@ -5,13 +5,21 @@ import {
   type ShellInspectDeps,
   type ShellInspectProfile,
 } from './u.inspect.ts';
+import {
+  backupPath,
+  mutationNow,
+  mutationWriter,
+  profileAftercare,
+  type ShellMutationDeps,
+  writeProfileUpdate,
+} from './u.mutation.ts';
 import { OWNER } from './u.owner.ts';
 
-export type ShellAliasDeps = ShellInspectDeps;
+export type ShellAliasDeps = ShellInspectDeps & ShellMutationDeps;
 
 type ShellAliasEnableOptions = t.ShellTool.MutationOptions;
 
-/** Alias catalog and managed-block planning helpers. */
+/** Alias catalog and managed-block mutation helpers. */
 export const Alias = {
   list: aliasList,
   enable: aliasEnable,
@@ -33,35 +41,45 @@ export async function aliasList(
   };
 }
 
-/** Plan an alias enable operation without writing shell profile files. */
+/** Enable aliases in the managed shell block, or preview with `--dry-run`. */
 export async function aliasEnable(
   target: t.ShellTool.Alias.Target,
   options: ShellAliasEnableOptions = {},
   deps: ShellAliasDeps = {},
 ): Promise<t.ShellTool.Alias.EnableReport> {
+  const writeText = mutationWriter(deps);
+  const now = mutationNow(deps);
   const ctx = await inspectContext(deps, options);
   const entries = resolveAliases(target);
   const warnings = [...ctx.warnings];
-
-  if (!options.dryRun) warnings.push('Dry-run preview only; no changes written');
+  const dryRun = Boolean(options.dryRun);
 
   const profile = selectProfile(ctx.profiles, options.profile);
   if (!profile) {
-    warnings.push('No supported profile target was found; pass --profile <path> to preview a plan');
-    return { owner: OWNER, target, entries, profile: undefined, plan: undefined, warnings };
+    warnings.push('No supported profile target was found; pass --profile <path> to enable aliases');
+    return report({ status: 'blocked', dryRun, target, entries, warnings });
   }
 
   const dialect = ctx.shell.dialect;
   if (!dialect) {
     warnings.push('Shell dialect is not supported for alias block rendering');
-    return {
-      owner: OWNER,
-      target,
-      entries,
-      profile: publicProfile(profile),
-      plan: undefined,
-      warnings,
-    };
+    return report({ status: 'blocked', dryRun, target, entries, profile, warnings });
+  }
+
+  if (profile.readError) {
+    warnings.push(`Cannot update unreadable profile ${profile.path}`);
+    return report({ status: 'blocked', dryRun, target, entries, profile, warnings });
+  }
+
+  if (profile.block.kind === 'invalid') {
+    warnings.push(`Cannot update invalid managed shell block: ${profile.block.reason}`);
+    return report({ status: 'blocked', dryRun, target, entries, profile, warnings });
+  }
+
+  const conflicts = entries.filter((entry) => hasUnmanagedAlias(profile, entry.name));
+  if (conflicts.length > 0) {
+    const names = conflicts.map((entry) => entry.name).join(', ');
+    warnings.push(`Cannot enable aliases because ${profile.path} contains unmanaged alias/function: ${names}`);
   }
 
   const existing = profile.block.kind === 'present'
@@ -78,20 +96,74 @@ export async function aliasEnable(
     model,
   });
   const preview = Shell.Block.render({ owner: OWNER, dialect, model });
+  const plan: t.ShellTool.Alias.EnablePlan = {
+    kind: planned.kind,
+    changed: planned.changed,
+    block: planned.block,
+    preview,
+  };
+  warnings.push(...planned.warnings);
+  const backup = planned.changed ? backupPath(profile.path, now()) : undefined;
 
-  return {
-    owner: OWNER,
+  if (conflicts.length > 0) {
+    return report({ status: 'blocked', dryRun, target, entries, profile, backup, plan, warnings });
+  }
+
+  if (dryRun) {
+    warnings.push('Dry-run preview only; no changes written');
+    return report({
+      status: planned.changed ? 'planned' : 'unchanged',
+      dryRun,
+      target,
+      entries,
+      profile,
+      backup,
+      plan,
+      warnings,
+    });
+  }
+
+  if (!planned.changed) {
+    warnings.push('Managed shell block already up to date; no files written');
+    return report({
+      status: 'unchanged',
+      dryRun,
+      target,
+      entries,
+      profile,
+      plan,
+      aftercare: profileAftercare(profile, dialect),
+      warnings,
+    });
+  }
+
+  if (!backup) {
+    warnings.push('No backup target was created; no files written');
+    return report({ status: 'blocked', dryRun, target, entries, profile, plan, warnings });
+  }
+
+  const written = await writeProfileUpdate({
+    writeText,
+    profile,
+    backup,
+    nextText: planned.nextText,
+  });
+  if (!written.ok) {
+    warnings.push(written.warning);
+    return report({ status: 'blocked', dryRun, target, entries, profile, backup, plan, warnings });
+  }
+
+  return report({
+    status: 'applied',
+    dryRun,
     target,
     entries,
-    profile: publicProfile(profile),
-    plan: {
-      kind: planned.kind,
-      changed: planned.changed,
-      block: planned.block,
-      preview,
-    },
-    warnings: [...warnings, ...planned.warnings],
-  };
+    profile,
+    backup,
+    plan,
+    aftercare: profileAftercare(profile, dialect),
+    warnings,
+  });
 }
 
 /**
@@ -102,6 +174,33 @@ type InspectedContext = {
   readonly profiles: readonly ShellInspectProfile[];
   readonly warnings: readonly string[];
 };
+
+type ReportArgs = {
+  readonly status: t.ShellTool.MutationStatus;
+  readonly dryRun: boolean;
+  readonly target: t.ShellTool.Alias.Target;
+  readonly entries: readonly t.ShellTool.Alias.Entry[];
+  readonly profile?: ShellInspectProfile;
+  readonly backup?: t.StringPath;
+  readonly plan?: t.ShellTool.Alias.EnablePlan;
+  readonly aftercare?: t.ShellTool.Aftercare;
+  readonly warnings: readonly string[];
+};
+
+function report(args: ReportArgs): t.ShellTool.Alias.EnableReport {
+  return {
+    owner: OWNER,
+    status: args.status,
+    dryRun: args.dryRun,
+    target: args.target,
+    entries: args.entries,
+    profile: args.profile ? publicProfile(args.profile) : undefined,
+    backup: args.backup,
+    plan: args.plan,
+    aftercare: args.aftercare,
+    warnings: args.warnings,
+  };
+}
 
 async function inspectContext(
   deps: ShellAliasDeps,
@@ -195,3 +294,4 @@ function unmanagedConflictExpressions(name: string): readonly RegExp[] {
 function escapeRegExp(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+

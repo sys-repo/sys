@@ -53,18 +53,23 @@ export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
   return renderShellOutput('alias list', sections);
 }
 
-/** Format a dry-run alias enable plan without leaking profile content. */
+/** Format an alias enable report without leaking profile content. */
 export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): string {
-  return renderShellOutput(`alias enable ${report.target}`, [
-    {
-      label: 'aliases',
-      lines: report.entries.map((entry) =>
-        `${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`
-      ),
-    },
-    ...planSections(report.profile, report.plan),
-    statusSection(report.warnings),
-  ]);
+  const sections: Section[] = [{
+    label: 'aliases',
+    lines: report.entries.map((entry) =>
+      `${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`
+    ),
+  }];
+
+  if (report.status === 'applied') {
+    sections.push(...mutationAppliedSections(report));
+  } else {
+    sections.push(...planSections(report.profile, report.plan, report.backup));
+    sections.push(statusSection(report.warnings));
+  }
+
+  return renderShellOutput(`alias enable ${report.target}`, sections);
 }
 
 /** Format the shell PATH catalog and managed profile state. */
@@ -88,9 +93,9 @@ export function formatPathList(report: t.ShellTool.Path.ListReport): string {
   return renderShellOutput('path list', sections);
 }
 
-/** Format a dry-run PATH add plan without leaking profile content. */
+/** Format a PATH add report without leaking profile content. */
 export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
-  return renderShellOutput(`path add ${report.target}`, [
+  const sections: Section[] = [
     { label: 'path', lines: report.entries.map((entry) => c.cyan(entry.label)) },
     {
       label: 'environment',
@@ -99,9 +104,16 @@ export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
         field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
       ],
     },
-    ...planSections(report.profile, report.plan),
-    statusSection(report.warnings),
-  ]);
+  ];
+
+  if (report.status === 'applied') {
+    sections.push(...mutationAppliedSections(report));
+  } else {
+    sections.push(...planSections(report.profile, report.plan, report.backup));
+    sections.push(statusSection(report.warnings));
+  }
+
+  return renderShellOutput(`path add ${report.target}`, sections);
 }
 
 /** Format the recommended baseline apply flow without leaking profile content. */
@@ -215,6 +227,15 @@ function statusSection(warnings: readonly string[]): Section {
 }
 
 function appliedSections(report: t.ShellTool.Apply.Report): readonly Section[] {
+  return mutationAppliedSections(report);
+}
+
+function mutationAppliedSections(report: {
+  readonly profile?: t.ShellTool.Doctor.Profile;
+  readonly backup?: t.StringPath;
+  readonly aftercare?: t.ShellTool.Aftercare;
+  readonly warnings: readonly string[];
+}): readonly Section[] {
   const status: string[] = [];
   if (report.profile) status.push(successField('wrote', report.profile.path, 7));
   if (report.backup) status.push(successField('backup', report.backup, 7));
@@ -232,8 +253,8 @@ function appliedSections(report: t.ShellTool.Apply.Report): readonly Section[] {
 
 function blockPreviewLines(preview: string): readonly string[] {
   const lines = preview.split(/\r?\n/);
-  if (lines.at(-1) === '') return lines.slice(0, -1);
-  return lines;
+  const trimmed = lines.at(-1) === '' ? lines.slice(0, -1) : lines;
+  return trimmed.map((line) => line.length > 0 ? c.gray(line) : '');
 }
 
 function emptyProfilesMessage(report?: t.ShellTool.Doctor.Report): string {
