@@ -41,7 +41,7 @@ View     =  bound perception            ./view
 | add: proxy service              | Add a proxy service named `<service-name>`.                          |
 | route: proxy root               | Route `/` to `<view/service/upstream>`.                              |
 | route: proxy mount              | Route `<path-prefix>` to `<view/service/upstream>`.                  |
-| start: runtime                  | Start the Cell runtime.                                              |
+| start: runtime                  | Start the **Cell** runtime.                                              |
 
 <p>&nbsp;</p>
 
