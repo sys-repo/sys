@@ -2,9 +2,11 @@
 
 ## Goal
 
-Refine `@sys/cell` CLI help into a clean Unix-shaped information hierarchy with standard `--help` semantics and a durable DSL surface.
+Refine `@sys/cell` CLI help into a clean Unix-shaped information hierarchy with standard `--help`
+semantics and a durable DSL surface.
 
-The DSL is the formal command/vocabulary surface for valid Cell edits: the bridge from human/agent language to future typed command algebra and owner-aware edits.
+The DSL is the formal command/vocabulary surface for valid Cell edits: the bridge from human/agent
+language to future typed command algebra and owner-aware edits.
 
 ```text
 natural utterance
@@ -55,9 +57,9 @@ meaning and whose meaning can be interpreted, viewed, and
 validly rewritten within the folder that bounds it.
 
 Usage
-  deno run jsr:@sys/cell/cli --help
-  deno run -RW jsr:@sys/cell/cli init [dir]
-  deno run jsr:@sys/cell/cli dsl
+  deno run -ER @sys/cell --help
+  deno run -ERW @sys/cell init [dir]
+  deno run -ER @sys/cell dsl
 
 Commands
   init   create the minimal Cell folder contract
@@ -77,9 +79,9 @@ Init creates the descriptor, stored-meaning lane, view lane, and
 local ignore for .env.
 
 Usage
-  deno run -RW jsr:@sys/cell/cli init [dir]
-  deno run -RW jsr:@sys/cell/cli init [dir] --dry-run
-  deno run -RW jsr:@sys/cell/cli init [dir] --help --agent
+  deno run -ERW @sys/cell init [dir]
+  deno run -ERW @sys/cell init [dir] --dry-run
+  deno run -ERW @sys/cell init [dir] --help --agent
 
 Options
   -h, --help   show init help
@@ -95,9 +97,10 @@ Safety
 
 ### Init agent expansion
 
-`cell init --help --agent` should include the normal init help plus command-specific implementation facts:
+`cell init --help --agent` should include the normal init help plus command-specific implementation
+facts:
 
-```text
+````text
 Agent
   Run init when the folder is missing the Cell descriptor.
   Init is additive and writes the embedded default resources.
@@ -117,9 +120,9 @@ Descriptor
   ```yaml
   kind: cell
   version: 1
-  ```
-```
+````
 
+````
 ### DSL help
 
 ```text
@@ -158,7 +161,7 @@ Mappings
   mount route → update proxy owner config; cell.yaml only names the proxy service
   verify/load → run Cell.load against the folder
   start runtime → load Cell, start Cell.Runtime, wait/close lifecycle
-```
+````
 
 ## Future breakout shape
 
@@ -185,7 +188,8 @@ verify     checks that resulting state satisfies the act
 ## Implementation notes
 
 - Rename current `help agent` resource/formatter concept to DSL-oriented naming.
-- Update YAML resources so authored prose uses `dsl`, `speechActs`, `owners`, and `mappings` vocabulary.
+- Update YAML resources so authored prose uses `dsl`, `speechActs`, `owners`, and `mappings`
+  vocabulary.
 - Update parser to accept `--agent` as a boolean flag.
 - Remove `help init` and `help agent` routing.
 - Add `dsl` command routing.

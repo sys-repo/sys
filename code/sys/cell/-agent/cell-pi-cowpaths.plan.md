@@ -28,10 +28,10 @@ Do not start with a wizard, framework, or large skill.
 
 ## First Primitive
 
-Expose `@sys/cell/cli` as the source-backed Cell affordance:
+Expose `@sys/cell` as the source-backed Cell affordance:
 
 ```sh
-deno run jsr:@sys/cell/cli --help
+deno run -ER @sys/cell --help
 ```
 
 Slice one landed as help-only:
@@ -45,8 +45,8 @@ Slice two is now earned: add a minimal `init` command that materializes the defa
 from `src/m.tmpl/tmpl.cell.default`.
 
 ```sh
-deno run -RW jsr:@sys/cell/cli init [dir]
-deno run -R jsr:@sys/cell/cli init [dir] --dry-run
+deno run -ERW @sys/cell init [dir]
+deno run -ERW @sys/cell init [dir] --dry-run
 ```
 
 `init` should automate only the boring baseline; deeper Cell evolution remains agent/human-guided.
@@ -60,19 +60,19 @@ Top-level help should show:
 
 ```text
 Usage
-  deno run jsr:@sys/cell/cli --help
-  deno run -RW jsr:@sys/cell/cli init [dir]
-  deno run jsr:@sys/cell/cli help agent
+  deno run -ER @sys/cell --help
+  deno run -ERW @sys/cell init [dir]
+  deno run -ERW @sys/cell init [dir] --help --agent
 
 Commands
   init         create the minimal Cell folder contract
   help agent   show expanded guidance for coding agents
 ```
 
-Move expanded teaching material to topic help:
+Move expanded teaching material to init agent help:
 
 ```sh
-deno run jsr:@sys/cell/cli help agent
+deno run -ERW @sys/cell init [dir] --help --agent
 ```
 
 Agent help may include:

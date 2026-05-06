@@ -47,15 +47,15 @@ describe('FmtHelp', () => {
     );
     expect(text).to.contain('Mappings');
     expect(text).to.contain('Chapter');
-    expect(text).to.contain('deno run -E jsr:@sys/cell dsl pulled-view');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl pulled-view');
     expect(text).to.contain('# Add a view backed by an `@sys/tools/pull` config.');
-    expect(text).to.contain('deno run -E jsr:@sys/cell dsl static-http-service');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
     expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/static` config.');
-    expect(text).to.contain('deno run -E jsr:@sys/cell dsl runtime-service');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl runtime-service');
     expect(text).to.contain('# Add a trusted lifecycle service backed by a service-owned config.');
-    expect(text).to.contain('deno run -E jsr:@sys/cell dsl proxy-service');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl proxy-service');
     expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/proxy` config.');
-    expect(text).to.contain('deno run -E jsr:@sys/cell dsl start-runtime');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl start-runtime');
     expect(text).to.contain('# Start a composed Cell runtime from a Cell folder.');
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
       chapterCommentColumn(text, 'static-http-service'),
@@ -94,7 +94,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('<pull-config-path>');
     expect(text).to.contain('<local-target>');
     expect(text).to.not.contain('https://example.com/foo/dist.json');
-    expect(text).to.not.contain('deno run -E jsr:@sys/cell dsl pulled-view');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl pulled-view');
   });
 
   it('dsl static-http-service → faithfully renders the requested chapter', async () => {
@@ -114,7 +114,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain("from: '@sys/http/server/static'");
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
     expect(text).to.not.contain('./view/web');
-    expect(text).to.not.contain('deno run -E jsr:@sys/cell dsl static-http-service');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
   });
 
   it('dsl runtime-service → faithfully renders the requested chapter', async () => {
@@ -143,7 +143,7 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('127.0.0.1');
-    expect(text).to.not.contain('deno run -E jsr:@sys/cell dsl runtime-service');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl runtime-service');
   });
 
   it('dsl start-runtime → faithfully renders the requested chapter', async () => {
@@ -167,7 +167,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('"start": "deno run -ERWN jsr:@sys/cell start ."');
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
-    expect(text).to.not.contain('deno run -E jsr:@sys/cell dsl start-runtime');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl start-runtime');
   });
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {
@@ -197,7 +197,7 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('example.com');
     expect(text).to.not.contain('http://127.0.0.1:4040/');
-    expect(text).to.not.contain('deno run -E jsr:@sys/cell dsl proxy-service');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl proxy-service');
   });
 });
 
