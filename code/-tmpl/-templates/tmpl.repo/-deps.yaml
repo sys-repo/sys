@@ -2,13 +2,13 @@ deno.json:
   - import: jsr:@sys/cli@0.0.273
   - import: jsr:@sys/color@0.0.241
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.331
+  - import: jsr:@sys/driver-deno@0.0.332
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.392
+  - import: jsr:@sys/driver-vite@0.0.393
     subpaths: [ main, t ]
   - import: jsr:@sys/fs@0.0.296
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.271
+  - import: jsr:@sys/http@0.0.272
     subpaths: [ client, t ]
   - import: jsr:@sys/process@0.0.276
     subpaths: [ t ]
@@ -35,22 +35,22 @@ deno.json:
       ]
   - import: jsr:@sys/testing@0.0.287
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.386
+  - import: jsr:@sys/tmpl@0.0.387
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.402
+  - import: jsr:@sys/tools@0.0.403
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.282
   - import: jsr:@sys/ui-css@0.0.276
     subpaths: [ t ]
   - import: jsr:@sys/ui-dom@0.0.283
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.303
+  - import: jsr:@sys/ui-react@0.0.304
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react-components@0.0.266
+  - import: jsr:@sys/ui-react-components@0.0.267
     subpaths: [ button, cropmarks, icon, key-value, object-view, t ]
-  - import: jsr:@sys/ui-react-devharness@0.0.301
+  - import: jsr:@sys/ui-react-devharness@0.0.302
     subpaths: [ t ]
-  - import: jsr:@sys/workspace@0.0.82
+  - import: jsr:@sys/workspace@0.0.83
     subpaths: [ cli, t, testing ]
   - import: jsr:@sys/esm@0.0.40
     subpaths: [ testing ]
@@ -66,7 +66,7 @@ package.json:
     dev: true
   - import: npm:rollup-plugin-visualizer@7.0.1
     dev: true
-  - import: npm:vite@8.0.10
+  - import: npm:vite@8.0.11
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
