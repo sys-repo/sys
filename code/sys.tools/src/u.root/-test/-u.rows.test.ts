@@ -2,10 +2,10 @@ import { c, Cli, describe, expect, it } from '../../-test.ts';
 import { rootRows } from '../u.rows.ts';
 
 describe('Root Rows', () => {
-  it('renders the pi row with agent as a compatibility alias', () => {
+  it('renders the pi row with helpful aliases', () => {
     const row = rootRows('primary').find((item) => item.command === 'pi');
     expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools pi');
-    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← alias agent)');
+    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases agent, harness)');
   });
 
   it('renders multi-alias rows with a plural alias label', () => {

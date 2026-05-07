@@ -5,13 +5,13 @@ describe('Root Menu', () => {
   it('drops leading whitespace-only table rows', () => {
     const lines = optionLines([
       '                                                         ',
-      '├─ @sys/tools pi             (← alias agent)             ',
+      '├─ @sys/tools pi             (← aliases agent, harness)  ',
       '└─ @sys/tools update         (← alias up, info)          ',
       '  (exit)                                                 ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools pi             (← alias agent)             ',
+      '├─ @sys/tools pi             (← aliases agent, harness)  ',
       '└─ @sys/tools update         (← alias up, info)          ',
       '  (exit)                                                 ',
     ]);
@@ -20,11 +20,11 @@ describe('Root Menu', () => {
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
       c.gray('                                                         '),
-      '├─ @sys/tools pi             (← alias agent)                 ',
+      '├─ @sys/tools pi             (← aliases agent, harness)      ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools pi             (← alias agent)                 ',
+      '├─ @sys/tools pi             (← aliases agent, harness)      ',
     ]);
   });
 

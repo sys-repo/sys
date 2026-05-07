@@ -20,14 +20,18 @@ describe('Root Args', () => {
     }
   });
 
-  it('keeps pi as the canonical root command and normalizes agent as an alias', () => {
+  it('keeps pi as the canonical root command and normalizes aliases', () => {
     const primary = parseArgs(['pi', 'x']);
     expect(primary.command).eql('pi');
     expect(primary._).eql(['pi', 'x']);
 
-    const alias = parseArgs(['agent', 'x']);
-    expect(alias.command).eql('pi');
-    expect(alias._).eql(['pi', 'x']);
+    const agent = parseArgs(['agent', 'x']);
+    expect(agent.command).eql('pi');
+    expect(agent._).eql(['pi', 'x']);
+
+    const harness = parseArgs(['harness', 'x']);
+    expect(harness.command).eql('pi');
+    expect(harness._).eql(['pi', 'x']);
   });
 
   it('recognizes shell as a root command without aliases', () => {
