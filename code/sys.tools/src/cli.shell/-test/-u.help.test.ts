@@ -7,13 +7,15 @@ describe('cli.shell help', () => {
     const text = Cli.stripAnsi(raw);
     const lines = text.split('\n').map((line) => line.trim());
 
-    expect(text).to.contain('Shell profile manager: inspect profiles, enable @sys aliases, and update PATH.');
+    expect(text).to.contain(
+      'Shell profile manager: inspect profiles, enable @sys aliases, and update PATH.',
+    );
     expect(text).not.to.contain('@sys/tools v');
     expect(text).to.contain('Usage');
     expect(text).to.contain('shell <command> [options]');
     expect(text).to.contain('Commands');
     expect(text).to.contain('doctor');
-    expect(text).to.contain('inspect shell, env, and profile candidates (read-only)');
+    expect(text).to.contain('diagnose shell, env, PATH, and profile setup (read-only)');
     expect(text).to.contain('alias enable <sys|common>');
     expect(text).to.contain('write managed aliases; add --dry-run to preview');
     expect(text).to.contain('init');

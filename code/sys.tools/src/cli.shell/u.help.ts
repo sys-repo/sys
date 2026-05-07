@@ -16,7 +16,7 @@ export async function help(): Promise<string> {
         kind: 'pairs',
         label: 'Commands',
         items: [
-          ['doctor', 'inspect shell, env, and profile candidates (read-only)'],
+          ['doctor', 'diagnose shell, env, PATH, and profile setup (read-only)'],
           ['init', 'initialize the recommended shell baseline'],
           ['alias list', 'show known aliases and where they are enabled'],
           ['alias enable <sys|common>', 'write managed aliases; add --dry-run to preview'],
