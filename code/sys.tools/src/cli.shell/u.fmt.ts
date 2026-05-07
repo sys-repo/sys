@@ -57,9 +57,7 @@ export function formatAliasList(report: t.ShellTool.Alias.ListReport): string {
 export function formatAliasEnable(report: t.ShellTool.Alias.EnableReport): string {
   const sections: Section[] = [{
     label: 'aliases',
-    lines: report.entries.map((entry) =>
-      `${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`
-    ),
+    lines: report.entries.map((entry) => `${c.cyan(entry.name)} ${c.gray('→')} ${entry.command}`),
   }];
 
   if (report.status === 'applied') {
@@ -192,7 +190,7 @@ function pathListLines(items: readonly t.ShellTool.Path.Item[]): readonly string
     ];
 
     if (item.unmanagedProfiles.length > 0) {
-      lines.push(`${c.gray('-')} ${field('unmanaged', item.unmanagedProfiles.join(', '), 11)}`);
+      lines.push(`${c.gray('-')} ${field('manual PATH', item.unmanagedProfiles.join(', '), 11)}`);
     }
 
     return lines;
@@ -309,4 +307,3 @@ function support(value: t.ShellTool.Support): string {
 function yesNo(value: boolean): string {
   return value ? c.green('yes') : c.yellow('no');
 }
-

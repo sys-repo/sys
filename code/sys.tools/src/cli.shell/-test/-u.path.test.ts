@@ -37,7 +37,7 @@ secret after\n`,
     expect(text).not.to.contain('secret after');
   });
 
-  it('detects unmanaged Deno PATH profile entries as present', async () => {
+  it('detects manual Deno PATH profile entries as present', async () => {
     const home = '/tmp/sys-tools-shell-home' as t.StringDir;
     const zshrc = `${home}/.zshrc` as t.StringPath;
     const report = await pathList({
@@ -45,9 +45,14 @@ secret after\n`,
       exists: async (path) => path === zshrc,
       readText: async () => 'export PATH="$HOME/.deno/bin:$PATH"\n',
     });
+    const text = Cli.stripAnsi(formatPathList(report));
 
     expect(report.items.map((item) => [item.entry.label, item.state, item.unmanagedProfiles])).to
       .eql([['deno', 'present', [zshrc]]]);
+    expect(text).to.contain('deno present');
+    expect(text).to.contain('- expression: export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
+    expect(text).to.contain(`- manual PATH: ${zshrc}`);
+    expect(text).not.to.contain('unmanaged:');
   });
 
   it('plans PATH add as a dry-run managed block preview', async () => {
@@ -86,7 +91,8 @@ secret after\n`,
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: '/usr/bin' })[name],
       exists: async (path) => path === zshrc,
       readText: async () => original,
-      writeText: async (path, text, options) => void writes.push({ path, text, force: options?.force }),
+      writeText: async (path, text, options) =>
+        void writes.push({ path, text, force: options?.force }),
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatPathAdd(report));
