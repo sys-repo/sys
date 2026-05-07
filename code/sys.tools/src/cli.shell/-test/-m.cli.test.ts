@@ -49,7 +49,9 @@ describe('cli.shell CLI', () => {
     expect(text).to.contain('  aliases   sys conflict');
     expect(text).to.contain('            - command:   deno run -A jsr:@sys/tools');
     expect(text).to.contain('            - conflicts: /home/me/.zprofile');
-    expect(text).to.contain('  profiles  /home/me/.zshrc (interactive) exists; block: missing');
+    expect(text).to.contain(
+      '  profiles  /home/me/.zshrc (interactive) exists; managed block: absent',
+    );
   });
 
   it('routes `alias enable` through the CLI', async () => {
@@ -306,6 +308,7 @@ describe('cli.shell CLI', () => {
 
     const text = Cli.stripAnsi(output.join('\n'));
     expect(text).to.contain('system:shell doctor');
+    expect(text).to.contain('✓ no issues detected');
     expect(text).to.not.contain('Usage');
   });
 

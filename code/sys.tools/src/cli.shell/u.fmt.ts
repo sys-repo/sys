@@ -35,7 +35,7 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
       ],
     },
     { label: 'profiles', lines: profileLines(report.profiles, report) },
-    { label: 'diagnosis', lines: warningLines(report.warnings, 'no blocking issues detected') },
+    { label: 'diagnosis', lines: warningLines(report.warnings, 'no issues detected') },
   ]);
 }
 
@@ -289,13 +289,15 @@ function planKind(plan: ManagedBlockPlan): string {
 function formatProfile(profile: t.ShellTool.Doctor.Profile): string {
   const exists = profile.exists ? c.green('exists') : c.gray('missing');
   const block = formatBlock(profile.block);
-  return `${c.cyan(profile.path)} ${c.gray(`(${profile.role})`)} ${exists}; block: ${block}`;
+  return `${c.cyan(profile.path)} ${
+    c.gray(`(${profile.role})`)
+  } ${exists}; managed block: ${block}`;
 }
 
 function formatBlock(block: t.ShellTool.BlockState): string {
-  if (block.kind === 'missing') return c.gray('missing');
-  if (block.kind === 'invalid') return c.yellow(`invalid:${block.reason}`);
-  return block.stale ? c.yellow('present:stale') : c.green('present:fresh');
+  if (block.kind === 'missing') return c.gray('absent');
+  if (block.kind === 'invalid') return c.yellow(`invalid markers (${block.reason})`);
+  return block.stale ? c.yellow('present (manual edits)') : c.green('present (current)');
 }
 
 function support(value: t.ShellTool.Support): string {

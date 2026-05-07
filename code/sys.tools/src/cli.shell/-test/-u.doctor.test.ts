@@ -36,6 +36,11 @@ alias sys="deno run -A jsr:@sys/tools"
         [`${home}/.zprofile`, false, 'missing'],
       ]);
     expect(report.warnings).to.eql([]);
+
+    const text = Cli.stripAnsi(formatDoctor(report));
+    expect(text).to.contain(`${zshrc} (interactive) exists; managed block: present (current)`);
+    expect(text).to.contain(`${home}/.zprofile (login) missing; managed block: absent`);
+    expect(text).to.contain('✓ no issues detected');
   });
 
   it('formats doctor output without profile content leakage', async () => {
