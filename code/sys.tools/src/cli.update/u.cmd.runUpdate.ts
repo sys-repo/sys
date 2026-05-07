@@ -82,7 +82,7 @@ export async function runUpdate(
           message: 'No updates',
           options: [
             { name: '  rescan', value: RESCAN },
-            { name: c.gray('← back'), value: BACK },
+            { name: Fmt.back(), value: BACK },
           ],
           hideDefault: true,
         });
@@ -100,11 +100,9 @@ export async function runUpdate(
       const fromRootMenu = source === 'root-menu';
       const cancelValue = fromRootMenu ? BACK : EXIT;
       const upgradeName = c.magenta(
-        fromRootMenu
-          ? `  upgrade to ${version.latest} now`
-          : ` - upgrade to ${version.latest} now`,
+        fromRootMenu ? `  upgrade to ${version.latest} now` : ` - upgrade to ${version.latest} now`,
       );
-      const cancelName = fromRootMenu ? c.gray('← back') : c.dim(c.gray(`(exit)`));
+      const cancelName = fromRootMenu ? Fmt.back() : c.dim(c.gray(`(exit)`));
 
       const answer = await deps.prompt({
         message: 'Run',

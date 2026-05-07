@@ -1,4 +1,4 @@
-import { type t, c, Cli, D, Fmt, Http, Open, Str } from '../common.ts';
+import { c, Cli, D, Fmt, Http, Open, Str, type t } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
 import { route } from './u.serve.route.ts';
 
@@ -101,7 +101,10 @@ function firstPathInfo(info?: Record<string, string>) {
   return Object.values(info ?? {}).find((value) => value.startsWith('/'));
 }
 
-async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext): Promise<ServeResult> {
+async function runOpenPromptLoop(
+  cwd: t.StringDir,
+  context: StartServingContext,
+): Promise<ServeResult> {
   const { location, host, port, baseUrl } = context;
   let didBack = false;
   let lastSelection: OpenValue | undefined;
@@ -163,7 +166,7 @@ async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext)
     const options = [
       ...openMenu,
       { name: c.dim(c.gray('  ↻ reload')), value: { cmd: 'reload' } },
-      { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } },
+      { name: Fmt.back({ indent: '  ' }), value: { cmd: 'back' } },
     ];
     console.clear();
     console.info(renderHeader());

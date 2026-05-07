@@ -96,7 +96,6 @@ export async function pullBundle(
     return { name, value };
   });
 
-  const dim = (s: string) => c.gray(c.dim(s));
   const A = (await Cli.Input.Select.prompt<C>({
     message: 'Action:',
     options: [
@@ -104,7 +103,7 @@ export async function pullBundle(
       opt('   add: <remote>', 'bundle:add-remote'),
       opt('config: edit', 'config:edit'),
       opt('config: rename', 'config:rename'),
-      opt(dim('← back'), 'back'),
+      opt(Fmt.back(), 'back'),
     ],
   })) as C;
 

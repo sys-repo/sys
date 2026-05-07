@@ -1,4 +1,4 @@
-import { c, Cli, pkg, Str, type t } from './common.ts';
+import { c, Cli, Fmt, pkg, Str, type t } from './common.ts';
 import { isToolCommand } from './u.is.ts';
 import { rootRows } from './u.rows.ts';
 
@@ -137,7 +137,7 @@ function specialRow(kind: 'more' | 'back'): MenuRow {
   return {
     value: kind,
     columns: [
-      kind === 'more' ? c.gray(c.italic('more...')) : c.gray('← back'),
+      kind === 'more' ? c.gray(c.italic('more...')) : Fmt.back(),
     ],
   };
 }

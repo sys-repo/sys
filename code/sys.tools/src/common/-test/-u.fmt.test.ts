@@ -17,6 +17,12 @@ describe('common/Fmt', () => {
     expect(Fmt.invoke('deploy')).to.eql('deno run -A jsr:@sys/tools deploy');
   });
 
+  it('formats menu back affordances with a cyan arrow', () => {
+    const res = Fmt.back({ indent: '  ' });
+    expect(res).to.contain(c.cyan('←'));
+    expect(Cli.stripAnsi(res)).to.eql('  ← back');
+  });
+
   it('builds help pages via the shared cli help formatter surface', async () => {
     const help = await Fmt.help('sys update', {
       usage: ['sys update [options]'],

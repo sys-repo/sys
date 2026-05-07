@@ -103,6 +103,14 @@ export const Fmt = {
   },
 
   /**
+   * Common back affordance for interactive menus.
+   */
+  back(opts: { readonly indent?: string; readonly label?: string } = {}) {
+    const { indent = '', label = 'back' } = opts;
+    return `${indent}${c.cyan('←')} ${c.gray(c.dim(label))}`;
+  },
+
+  /**
    * Common compact hash suffix display.
    * eg. "#abcde" with dim/gray "#" and green suffix.
    */

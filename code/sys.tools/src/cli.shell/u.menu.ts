@@ -1,4 +1,4 @@
-import { c, Cli, D } from './common.ts';
+import { c, Cli, D, Fmt } from './common.ts';
 
 export type ShellMenuAction =
   | 'doctor'
@@ -97,5 +97,5 @@ function commandArgv(value: string): readonly string[] | undefined {
 }
 
 function backName(): string {
-  return `${c.cyan('←')} ${c.gray(c.dim('back'))}`;
+  return Fmt.back();
 }

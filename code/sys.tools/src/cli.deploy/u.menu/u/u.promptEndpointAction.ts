@@ -1,4 +1,4 @@
-import { type t, c, Cli, Is, Str } from './common.ts';
+import { c, Cli, Fmt, Is, Str, type t } from './common.ts';
 
 type A = t.DeployTool.Endpoint.Menu.Action;
 
@@ -52,11 +52,13 @@ export async function promptEndpointAction(args: {
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
   const pushElapsed = args.pushElapsed;
   const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const shardPart =
-    pushedOk && pushShards ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}` : '';
+  const shardPart = pushedOk && pushShards
+    ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
+    : '';
   const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
-  const elapsedPart =
-    pushedOk && pushElapsed ? `${pushElapsed}${shardPart}${bytesPart}` : undefined;
+  const elapsedPart = pushedOk && pushElapsed
+    ? `${pushElapsed}${shardPart}${bytesPart}`
+    : undefined;
   const pushElapsedMeta = pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
   const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
   const pushPrefix = `  ${hashPrefix}  pushed ✔`;
@@ -74,7 +76,7 @@ export async function promptEndpointAction(args: {
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },
       { name: c.dim(c.gray(' (delete)')), value: 'delete' },
-      { name: `${c.cyan('←')} back`, value: 'back' },
+      { name: Fmt.back(), value: 'back' },
     ],
     hideDefault: true,
   });
