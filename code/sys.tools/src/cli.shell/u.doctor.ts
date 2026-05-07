@@ -14,7 +14,10 @@ export async function doctor(deps: ShellDoctorDeps = {}): Promise<t.ShellTool.Do
   const denoBin = denoInstall ? Fs.join(denoInstall, 'bin') as t.StringDir : undefined;
   const pathContainsDenoBin = Is.str(denoBin) && pathIncludes(env('PATH'), denoBin);
   const profiles = inspected.profiles.map(publicProfile);
-  const warnings = [...inspected.warnings, ...warningsFor({ home, shell, profiles, pathContainsDenoBin })];
+  const warnings = [
+    ...inspected.warnings,
+    ...warningsFor({ home, shell, profiles, pathContainsDenoBin }),
+  ];
 
   return {
     owner: OWNER,
@@ -55,8 +58,10 @@ function warningsFor(args: {
   const warnings: string[] = [];
 
   if (!args.home) warnings.push('HOME is not set; profile discovery is unavailable');
-  if (!args.shell.dialect) warnings.push('Shell dialect is not supported for managed writes yet');
-  if (!args.pathContainsDenoBin) warnings.push('Deno install bin is not currently on PATH');
+  if (!args.shell.dialect) {
+    warnings.push('Shell dialect supports doctor only; profile edits are unavailable');
+  }
+  if (!args.pathContainsDenoBin) warnings.push('Deno bin is not currently on PATH');
   if (args.profiles.some((profile) => profile.block.kind === 'invalid')) {
     warnings.push('One or more profile files contain invalid @sys/tools shell block markers');
   }

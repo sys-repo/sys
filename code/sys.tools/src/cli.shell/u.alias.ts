@@ -62,7 +62,7 @@ export async function aliasEnable(
 
   const dialect = ctx.shell.dialect;
   if (!dialect) {
-    warnings.push('Shell dialect is not supported for alias block rendering');
+    warnings.push('Shell dialect does not support alias profile edits');
     return report({ status: 'blocked', dryRun, target, entries, profile, warnings });
   }
 
@@ -79,7 +79,9 @@ export async function aliasEnable(
   const conflicts = entries.filter((entry) => hasUnmanagedAlias(profile, entry.name));
   if (conflicts.length > 0) {
     const names = conflicts.map((entry) => entry.name).join(', ');
-    warnings.push(`Cannot enable aliases because ${profile.path} contains unmanaged alias/function: ${names}`);
+    warnings.push(
+      `Cannot enable aliases because ${profile.path} contains unmanaged alias/function: ${names}`,
+    );
   }
 
   const existing = profile.block.kind === 'present'
@@ -213,7 +215,7 @@ async function inspectContext(
     warnings.push('HOME is not set; pass --profile <path> to preview a plan');
   }
   if (!inspected.shell.dialect) {
-    warnings.push('Shell dialect is not supported for managed writes yet');
+    warnings.push('Shell dialect supports doctor only; profile edits are unavailable');
   }
   if (inspected.profiles.some((profile) => profile.block.kind === 'invalid')) {
     warnings.push('One or more profile files contain invalid @sys/tools shell block markers');
@@ -294,4 +296,3 @@ function unmanagedConflictExpressions(name: string): readonly RegExp[] {
 function escapeRegExp(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-

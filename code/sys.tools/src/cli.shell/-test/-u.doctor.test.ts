@@ -29,7 +29,10 @@ alias sys="deno run -A jsr:@sys/tools"
     expect(report.shell).to.eql({ path: '/bin/zsh', dialect: 'zsh', support: 'write' });
     expect(report.env.pathContainsDenoBin).to.eql(true);
     expect(report.catalog.aliases.map((entry) => entry.name)).to.eql(['sys']);
-    expect(report.catalog.paths.map((entry) => entry.id)).to.eql(['deno']);
+    expect(report.catalog.paths.map((entry) => [entry.id, entry.label])).to.eql([[
+      'deno',
+      'Deno bin',
+    ]]);
     expect(report.profiles.map((profile) => [profile.path, profile.exists, profile.block.kind])).to
       .eql([
         [zshrc, true, 'present'],
@@ -39,7 +42,10 @@ alias sys="deno run -A jsr:@sys/tools"
 
     const text = Cli.stripAnsi(formatDoctor(report));
     expect(text).to.contain('profile edits: supported');
-    expect(text).to.contain(`${zshrc} (interactive) exists; managed block: present (current)`);
+    expect(text).to.contain('baseline');
+    expect(text).to.contain('aliases:      sys');
+    expect(text).to.contain('PATH entries: Deno bin');
+    expect(text).to.contain(`${zshrc} (interactive) exists; managed block: current`);
     expect(text).to.contain(`${home}/.zprofile (login) missing; managed block: absent`);
     expect(text).to.contain('✓ no issues detected');
   });
@@ -54,7 +60,7 @@ alias sys="deno run -A jsr:@sys/tools"
 
     expect(text).to.contain('system:shell doctor');
     expect(text).to.contain('profile edits: doctor only');
-    expect(text).to.contain('Deno install bin is not currently on PATH');
+    expect(text).to.contain('Deno bin is not currently on PATH');
     expect(text).not.to.contain('secret profile text');
   });
 });

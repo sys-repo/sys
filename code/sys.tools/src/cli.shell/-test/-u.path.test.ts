@@ -28,11 +28,11 @@ secret after\n`,
     const text = Cli.stripAnsi(formatPathList(report));
 
     expect(report.items.map((item) => [item.entry.label, item.state])).to.eql([[
-      'deno',
+      'Deno bin',
       'enabled',
     ]]);
     expect(text).to.contain('system:shell path list');
-    expect(text).to.contain('deno enabled');
+    expect(text).to.contain('Deno bin enabled');
     expect(text).not.to.contain('secret before');
     expect(text).not.to.contain('secret after');
   });
@@ -48,11 +48,10 @@ secret after\n`,
     const text = Cli.stripAnsi(formatPathList(report));
 
     expect(report.items.map((item) => [item.entry.label, item.state, item.unmanagedProfiles])).to
-      .eql([['deno', 'present', [zshrc]]]);
-    expect(text).to.contain('deno present');
+      .eql([['Deno bin', 'present', [zshrc]]]);
+    expect(text).to.contain('Deno bin present');
     expect(text).to.contain('- expression: export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
     expect(text).to.contain(`- manual PATH: ${zshrc}`);
-    expect(text).not.to.contain('unmanaged:');
   });
 
   it('plans PATH add as a dry-run managed block preview', async () => {

@@ -51,7 +51,8 @@ describe('cli.shell init', () => {
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: '/usr/bin' })[name],
       exists: async (path) => path === zshrc || path === denoBin,
       readText: async () => original,
-      writeText: async (path, text, options) => void writes.push({ path, text, force: options?.force }),
+      writeText: async (path, text, options) =>
+        void writes.push({ path, text, force: options?.force }),
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatApply(report));
@@ -195,7 +196,7 @@ describe('cli.shell init', () => {
     expect(report.paths).to.eql([]);
     expect(report.aliases.map((entry) => entry.name)).to.eql(['sys']);
     expect(report.plan?.preview).not.to.contain('DENO_INSTALL');
-    expect(text).to.contain('path deno skipped');
+    expect(text).to.contain('path Deno bin skipped');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('Skipped Deno PATH entry');
     expect(text).to.contain('Initialize with: sys shell init');

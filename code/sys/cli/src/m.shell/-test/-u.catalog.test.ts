@@ -29,7 +29,7 @@ describe('Shell.Path', () => {
     expect(Shell.Path.list()).to.eql([
       {
         id: 'deno',
-        label: 'deno',
+        label: 'Deno bin',
         expression: `export DENO_INSTALL="\${DENO_INSTALL:-$HOME/.deno}"
 case ":$PATH:" in
   *":$DENO_INSTALL/bin:"*) ;;

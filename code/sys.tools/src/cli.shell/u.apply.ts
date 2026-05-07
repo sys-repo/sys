@@ -39,7 +39,9 @@ export async function apply(
   const dryRun = Boolean(options.dryRun);
 
   if (!profile) {
-    warnings.push('No supported profile target was found; pass --profile <path> to initialize shell baseline');
+    warnings.push(
+      'No supported profile target was found; pass --profile <path> to initialize shell baseline',
+    );
     return report({
       status: 'blocked',
       dryRun,
@@ -52,7 +54,7 @@ export async function apply(
   }
 
   if (!shell.dialect) {
-    warnings.push('Shell dialect is not supported for init block rendering');
+    warnings.push('Shell dialect does not support baseline profile edits');
     return report({
       status: 'blocked',
       dryRun,
@@ -96,7 +98,8 @@ export async function apply(
   const conflicts = aliases.filter((entry) => hasUnmanagedAlias(profile, entry.name));
   if (conflicts.length > 0) {
     const names = conflicts.map((entry) => entry.name).join(', ');
-    const msg = `Cannot initialize because ${profile.path} contains unmanaged alias/function: ${names}`;
+    const msg =
+      `Cannot initialize because ${profile.path} contains unmanaged alias/function: ${names}`;
     warnings.push(msg);
   }
 
@@ -284,7 +287,7 @@ function initialWarnings(
     warnings.push('HOME is not set; pass --profile <path> to initialize shell baseline');
   }
   if (!inspected.shell.dialect) {
-    warnings.push('Shell dialect is not supported for managed writes yet');
+    warnings.push('Shell dialect supports doctor only; profile edits are unavailable');
   }
   if (inspected.profiles.some((profile) => profile.block.kind === 'invalid')) {
     warnings.push('One or more profile files contain invalid @sys/tools shell block markers');
@@ -292,7 +295,7 @@ function initialWarnings(
   if (paths.length === 0) {
     warnings.push('Skipped Deno PATH entry because no trustworthy Deno bin target was found');
   }
-  if (!env.public.pathContainsDenoBin) warnings.push('Deno install bin is not currently on PATH');
+  if (!env.public.pathContainsDenoBin) warnings.push('Deno bin is not currently on PATH');
 
   return warnings;
 }
@@ -402,4 +405,3 @@ function unmanagedConflictExpressions(name: string): readonly RegExp[] {
 function escapeRegExp(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-

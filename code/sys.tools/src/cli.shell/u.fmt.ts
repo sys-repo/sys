@@ -20,10 +20,10 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
       ],
     },
     {
-      label: 'catalog',
+      label: 'baseline',
       lines: [
-        field('aliases', listLabels(report.catalog.aliases.map((entry) => entry.name)), 8),
-        field('path', listLabels(report.catalog.paths.map((entry) => entry.label)), 8),
+        field('aliases', listLabels(report.catalog.aliases.map((entry) => entry.name)), 13),
+        field('PATH entries', listLabels(report.catalog.paths.map((entry) => entry.label)), 13),
       ],
     },
     {
@@ -31,7 +31,7 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
       lines: [
         field('HOME', report.env.home ?? c.gray('(unset)'), 17),
         field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
-        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+        field('Deno bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
       ],
     },
     { label: 'profiles', lines: profileLines(report.profiles, report) },
@@ -78,7 +78,7 @@ export function formatPathList(report: t.ShellTool.Path.ListReport): string {
       label: 'environment',
       lines: [
         field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
-        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+        field('Deno bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
       ],
     },
     { label: 'profiles', lines: profileLines(report.profiles) },
@@ -99,7 +99,7 @@ export function formatPathAdd(report: t.ShellTool.Path.AddReport): string {
       label: 'environment',
       lines: [
         field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
-        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+        field('Deno bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
       ],
     },
   ];
@@ -125,7 +125,7 @@ export function formatApply(
   if (report.paths.length > 0) {
     baseline.push(...report.paths.map((entry) => c.cyan(`path ${entry.label}`)));
   } else {
-    baseline.push(c.yellow('path deno skipped'));
+    baseline.push(c.yellow('path Deno bin skipped'));
   }
 
   const sections: Section[] = [
@@ -134,7 +134,7 @@ export function formatApply(
       label: 'environment',
       lines: [
         field('DENO_INSTALL', report.env.denoInstall ?? c.gray('(unresolved)'), 17),
-        field('DENO bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
+        field('Deno bin on PATH', yesNo(report.env.pathContainsDenoBin), 17),
       ],
     },
   ];
@@ -262,7 +262,7 @@ function emptyProfilesMessage(report?: t.ShellTool.Doctor.Report): string {
   if (!report) return `${c.yellow('!')} no profile candidates`;
 
   const reason = report.env.home
-    ? 'shell dialect has no write profile candidates'
+    ? 'shell dialect has no profile edit candidates'
     : 'HOME is not set';
   return `${c.yellow('!')} no profile candidates (${reason})`;
 }
@@ -297,7 +297,7 @@ function formatProfile(profile: t.ShellTool.Doctor.Profile): string {
 function formatBlock(block: t.ShellTool.BlockState): string {
   if (block.kind === 'missing') return c.gray('absent');
   if (block.kind === 'invalid') return c.yellow(`invalid markers (${block.reason})`);
-  return block.stale ? c.yellow('present (manual edits)') : c.green('present (current)');
+  return block.stale ? c.yellow('manual edits') : c.green('current');
 }
 
 function profileEditSupport(value: t.ShellTool.Support): string {

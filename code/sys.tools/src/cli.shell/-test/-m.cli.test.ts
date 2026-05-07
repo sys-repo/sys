@@ -126,7 +126,7 @@ describe('cli.shell CLI', () => {
           },
           profiles: [],
           items: [{
-            entry: { id: 'deno', label: 'deno', expression: 'export PATH="$PATH"' },
+            entry: { id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' },
             state: 'missing',
             profiles: [],
             unmanagedProfiles: [],
@@ -162,7 +162,7 @@ describe('cli.shell CLI', () => {
           status: 'planned',
           dryRun: true,
           target,
-          entries: [{ id: 'deno', label: 'deno', expression: 'export PATH="$PATH"' }],
+          entries: [{ id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' }],
           env: {
             home: '/home/me' as t.StringDir,
             denoInstall: '/home/me/.deno' as t.StringDir,

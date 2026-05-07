@@ -57,18 +57,20 @@ export async function pathAdd(
   const dryRun = Boolean(options.dryRun);
 
   if (target === 'deno' && ctx.env.pathContainsDenoBin) {
-    warnings.push('Deno install bin is already on PATH; managed block still shown');
+    warnings.push('Deno bin is already on PATH; managed block still shown');
   }
 
   const profile = selectProfile(ctx.profiles, options.profile);
   if (!profile) {
-    warnings.push('No supported profile target was found; pass --profile <path> to add PATH entries');
+    warnings.push(
+      'No supported profile target was found; pass --profile <path> to add PATH entries',
+    );
     return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, warnings });
   }
 
   const dialect = ctx.shell.dialect;
   if (!dialect) {
-    warnings.push('Shell dialect is not supported for PATH block rendering');
+    warnings.push('Shell dialect does not support PATH profile edits');
     return report({ status: 'blocked', dryRun, target, entries, env: ctx.env, profile, warnings });
   }
 
@@ -244,12 +246,12 @@ async function inspectContext(
     warnings.push('HOME is not set; pass --profile <path> to preview a plan');
   }
   if (!inspected.shell.dialect) {
-    warnings.push('Shell dialect is not supported for managed writes yet');
+    warnings.push('Shell dialect supports doctor only; profile edits are unavailable');
   }
   if (inspected.profiles.some((profile) => profile.block.kind === 'invalid')) {
     warnings.push('One or more profile files contain invalid @sys/tools shell block markers');
   }
-  if (!pathContainsDenoBin) warnings.push('Deno install bin is not currently on PATH');
+  if (!pathContainsDenoBin) warnings.push('Deno bin is not currently on PATH');
 
   return { shell: inspected.shell, env: envInfo, profiles: inspected.profiles, warnings };
 }
@@ -338,4 +340,3 @@ function denoPathExpressions(): readonly RegExp[] {
     /~\/\.deno\/bin/,
   ];
 }
-
