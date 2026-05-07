@@ -83,6 +83,63 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.not.contain('Chapter');
   });
 
+  it('renders a full terminal chapter help page', () => {
+    const text = Fmt.Chapters.page({
+      command,
+      chapter,
+      help: {
+        tool: '@sys/example dsl',
+        summary: 'Example chapter help.',
+        sections: [
+          { kind: 'lines', label: 'Usage', items: [`${command} [chapter...]`] },
+          { kind: 'pairs', label: 'Options', items: [['--format <format>', 'render output']] },
+        ],
+      },
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('@sys/example dsl');
+    expect(plain).to.contain('Example chapter help.');
+    expect(plain).to.contain('Usage');
+    expect(plain).to.contain(`${command} [chapter...]`);
+    expect(plain).to.contain('--format <format>');
+    expect(plain).to.contain('━'.repeat(8));
+    expect(plain).to.contain('Rule');
+    expect(plain).to.contain('Chapter');
+    expect(plain.indexOf('--format <format>')).to.be.lessThan(plain.indexOf('Rule'));
+    expect(plain.indexOf('━'.repeat(8))).to.be.lessThan(plain.indexOf('Rule'));
+    expect(plain).to.not.contain('@sys/cell');
+  });
+
+  it('renders a full terminal chapter help page without a separator', () => {
+    const text = Fmt.Chapters.page({
+      command,
+      chapter,
+      separator: false,
+      help: { tool: '@sys/example dsl', summary: 'Example chapter help.' },
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('@sys/example dsl');
+    expect(plain).to.contain('Rule');
+    expect(plain).to.not.contain('━'.repeat(8));
+  });
+
+  it('omits the separator when a full terminal chapter help page has no chapter body', () => {
+    const text = Fmt.Chapters.page({
+      command,
+      chapter: { ...chapter, sections: [], chapters: [] },
+      help: { tool: '@sys/example dsl', summary: 'Example chapter help.' },
+    });
+    const plain = Cli.stripAnsi(text);
+
+    expect(plain).to.contain('@sys/example dsl');
+    expect(plain).to.contain('Example chapter help.');
+    expect(plain).to.not.contain('Rule');
+    expect(plain).to.not.contain('Chapter');
+    expect(plain).to.not.contain('━'.repeat(8));
+  });
+
   it('renders Markdown with frontmatter, sections, and child chapter links', () => {
     const text = Fmt.Chapters.markdown({
       command,

@@ -1,3 +1,5 @@
+import type { CliFormatHelpInput } from '../m.Fmt/t.help.ts';
+
 /**
  * Navigable help chapter formatter types.
  */
@@ -6,6 +8,9 @@ export declare namespace CliFormatChapters {
   export type Lib = {
     /** Render chapter sections and child chapter index rows for terminal help. */
     format(input: FormatInput): string;
+
+    /** Render a complete terminal help page with front matter and chapter content. */
+    page(input: PageInput): string;
 
     /** Render chapter sections and child chapter links as Markdown. */
     markdown(input: MarkdownInput): string;
@@ -28,6 +33,14 @@ export declare namespace CliFormatChapters {
     readonly chapter: Chapter;
     /** Label for the child chapter index. Defaults to `Chapter`. */
     readonly label?: string;
+  };
+
+  /** Complete terminal chapter help page rendering input. */
+  export type PageInput = FormatInput & {
+    /** Help front matter rendered before the chapter body. */
+    readonly help: CliFormatHelpInput;
+    /** Render a gray horizontal separator between help and chapter body. Defaults to true. */
+    readonly separator?: boolean;
   };
 
   /** Markdown chapter rendering input. */

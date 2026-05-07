@@ -1,9 +1,12 @@
 import { c, Str, stripAnsi, type t } from '../common.ts';
+import { Help } from '../m.Fmt/m.Fmt.Help.ts';
+import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
 /** Navigable help chapter formatting and tree helpers. */
 export const Chapters: t.CliFormatChapters.Lib = {
   format,
+  page,
   markdown,
   files,
   resolve,
@@ -34,6 +37,18 @@ function format(input: t.CliFormatChapters.FormatInput): string {
   }
 
   return Str.trimEdgeNewlines(String(table));
+}
+
+function page(input: t.CliFormatChapters.PageInput): string {
+  const help = Help.build(input.help);
+  const chapter = format(input);
+  const hasChapter = Str.trimEdgeNewlines(chapter).length > 0;
+  const blocks = !hasChapter
+    ? [help]
+    : input.separator === false
+    ? [help, chapter]
+    : [help, hr('gray'), chapter];
+  return composeBlocks(blocks);
 }
 
 function markdown(input: t.CliFormatChapters.MarkdownInput): string {
@@ -127,6 +142,14 @@ function yamlDoubleQuoted(input: string): string {
 
 function singleLine(input: string): string {
   return Str.trimEdgeNewlines(input).split(/\s+/).join(' ');
+}
+
+function composeBlocks(blocks: readonly string[]): string {
+  const body = blocks
+    .map((block) => Str.trimEdgeNewlines(block))
+    .filter((block) => block.length > 0)
+    .join('\n\n');
+  return `\n${body}\n`;
 }
 
 function visibleWidth(input: string): number {

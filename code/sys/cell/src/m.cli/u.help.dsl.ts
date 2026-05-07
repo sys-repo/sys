@@ -1,6 +1,5 @@
 import { CellHelp } from '../m.help/mod.ts';
 import { Cli, Str, type t } from './common.ts';
-import { composeHelpBlocks } from './u.help.compose.ts';
 
 const command = 'deno run -ER jsr:@sys/cell dsl';
 
@@ -19,36 +18,38 @@ export const FmtDslHelp = {
     if (format === 'skill') return skill(chapter);
 
     const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
-    const help = Cli.Fmt.Help.build({
-      tool: toolname,
-      summary: chapter.summary,
-      sections: [
-        { kind: 'lines', label: 'Usage', items: [`${command} [chapter...] [--format <format>]`] },
-        {
-          kind: 'pairs',
-          label: 'Options',
-          items: [
-            ['--format <format>', 'render output as human or skill'],
-            ['-h, --help', 'show DSL help'],
-          ],
-        },
-        {
-          kind: 'pairs',
-          label: 'Formats',
-          items: [
-            ['human', 'terminal help output (default)'],
-            ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
-          ],
-        },
-      ],
-    });
-    const table = Cli.Fmt.Chapters.format({
+    return Cli.Fmt.Chapters.page({
       command,
       chapter,
       label: 'Chapter',
+      help: {
+        tool: toolname,
+        summary: chapter.summary,
+        sections: [
+          {
+            kind: 'lines',
+            label: 'Usage',
+            items: [`${command} [chapter...] [--format <format>]`],
+          },
+          {
+            kind: 'pairs',
+            label: 'Options',
+            items: [
+              ['--format <format>', 'render output as human or skill'],
+              ['-h, --help', 'show DSL help'],
+            ],
+          },
+          {
+            kind: 'pairs',
+            label: 'Formats',
+            items: [
+              ['human', 'terminal help output (default)'],
+              ['skill', 'agent-skill Markdown projection of the requested DSL chapter'],
+            ],
+          },
+        ],
+      },
     });
-
-    return table ? composeHelpBlocks(help, Cli.Fmt.hr('gray'), table) : help;
   },
 } as const;
 
