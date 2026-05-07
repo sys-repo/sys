@@ -6,7 +6,7 @@ summary: |
 usage:
   - deno run -ER   jsr:@sys/cell --help
   - deno run -ERW  jsr:@sys/cell init [dir]
-  - deno run -ER   jsr:@sys/cell dsl [chapter...]
+  - deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
   - deno run -ERWN jsr:@sys/cell start [dir]
 
 commands:

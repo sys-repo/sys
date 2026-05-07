@@ -35,6 +35,20 @@ describe('FmtHelp', () => {
 
     expect(text).to.contain('Cell DSL (domain-specific-language):');
     expect(text).to.contain(guidance.summary.split('\n')[0]);
+    expect(text).to.contain('Usage');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl [chapter...] [--format <format>]');
+    expect(text).to.contain('Options');
+    expect(text).to.contain('--format <format>');
+    expect(text).to.contain('render output as human or skill');
+    expect(text).to.contain('-h, --help');
+    expect(text).to.contain('Formats');
+    expect(text).to.contain('human');
+    expect(text).to.contain('terminal help output (default)');
+    expect(text).to.contain('skill');
+    expect(text).to.contain('agent-skill Markdown projection of the requested DSL chapter');
+    expect(text).to.contain('━'.repeat(8));
+    expect(text.indexOf('agent-skill Markdown projection')).to.be.lessThan(text.indexOf('Rule'));
+    expect(text.indexOf('━'.repeat(8))).to.be.lessThan(text.indexOf('Rule'));
     expect(text).to.contain('Topology IDs');
     expect(text).to.contain('^[a-z][a-z0-9.-]*$');
     expect(text).to.contain('Do not use `:`, `_`, `/`, spaces, or uppercase letters');
@@ -93,6 +107,64 @@ describe('FmtHelp', () => {
       'proxy-service',
       'start-runtime',
     ]);
+  });
+
+  it('dsl --format skill → renders the root DSL chapter as a skill projection', async () => {
+    const text = await FmtHelp.dslOutput({ format: 'skill' });
+
+    expect(text).to.eql(stripAnsi(text));
+    expect(text).to.contain('---\nname: "sys-cell-dsl"');
+    expect(text).to.contain(
+      'description: "Guides Cell DSL speech acts, owner rules, mappings, and chapters; use when changing a Cell folder."',
+    );
+    expect(text).to.contain('Use these acts, owner rules, mappings, and chapters');
+    expect(text).to.contain('# Cell DSL');
+    expect(text).to.contain('## Rule');
+    expect(text).to.contain('## Topology IDs');
+    expect(text).to.contain('## Chapters');
+    expect(text).to.contain(
+      '- `deno run -ER jsr:@sys/cell dsl pulled-view --format skill` — Add a view backed by an `@sys/tools/pull` config.',
+    );
+    expect(text).to.contain(
+      '- `deno run -ER jsr:@sys/cell dsl start-runtime --format skill` — Start a composed Cell runtime from a Cell folder.',
+    );
+    expect(text).to.not.contain('Chapter   deno run -ER');
+  });
+
+  it('dsl pulled-view --format skill → renders deterministic child skill metadata', async () => {
+    const text = await FmtHelp.dslOutput({ path: ['pulled-view'], format: 'skill' });
+
+    expect(text).to.eql(stripAnsi(text));
+    expect(text).to.contain('name: "sys-cell-dsl-pulled-view"');
+    expect(text).to.contain(
+      'description: "Guides valid Cell folder edits; use when you need to add a view backed by an @sys/tools/pull config."',
+    );
+    expect(text).to.contain('# Pulled view');
+    expect(text).to.contain('Add a view backed by an `@sys/tools/pull` config.');
+    expect(text).to.contain('## Slot policy');
+    expect(text).to.contain('Confirm proposed paths before writing.');
+    expect(text).to.not.contain('## Chapters');
+    expect(text).to.not.contain('@sys/cell dsl pulled-view');
+  });
+
+  it('dsl --format skill → emits canonical skill metadata for every current chapter', async () => {
+    const cases = [
+      { path: [], name: 'sys-cell-dsl' },
+      { path: ['pulled-view'], name: 'sys-cell-dsl-pulled-view' },
+      { path: ['static-http-service'], name: 'sys-cell-dsl-static-http-service' },
+      { path: ['runtime-service'], name: 'sys-cell-dsl-runtime-service' },
+      { path: ['proxy-service'], name: 'sys-cell-dsl-proxy-service' },
+      { path: ['start-runtime'], name: 'sys-cell-dsl-start-runtime' },
+    ] as const;
+
+    for (const item of cases) {
+      const text = await FmtHelp.dslOutput({ path: item.path, format: 'skill' });
+      const meta = frontmatter(text);
+
+      expect(meta.name).to.eql(item.name);
+      expect(/^[a-z0-9-]+$/.test(meta.name ?? '')).to.eql(true);
+      expect(meta.description).to.contain('use when');
+    }
   });
 
   it('dsl pulled-view → faithfully renders the requested chapter', async () => {
@@ -251,6 +323,22 @@ function descriptorLines(text: string): readonly string[] {
   return Str.trimEdgeNewlines(text)
     .split('\n')
     .filter((line) => line.length > 0);
+}
+
+function frontmatter(text: string): Record<string, string> {
+  expect(text.startsWith('---\n')).to.eql(true);
+  const end = text.indexOf('\n---', 4);
+  expect(end).to.be.greaterThan(-1);
+
+  const result: Record<string, string> = {};
+  text
+    .slice(4, end)
+    .split('\n')
+    .forEach((line) => {
+      const [key, value = ''] = line.split(/: /, 2);
+      result[key] = value.replace(/^"|"$/g, '');
+    });
+  return result;
 }
 
 function sectionItems(text: string, label: string) {

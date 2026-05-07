@@ -4,8 +4,11 @@
 export declare namespace CliFormatChapters {
   /** Navigable chapter formatting and tree utility library. */
   export type Lib = {
-    /** Render chapter sections and child chapter index rows. */
+    /** Render chapter sections and child chapter index rows for terminal help. */
     format(input: FormatInput): string;
+
+    /** Render chapter sections and child chapter links as Markdown. */
+    markdown(input: MarkdownInput): string;
 
     /** Return all chapter resource files in recursive order. */
     files<TFile extends string>(chapter: Chapter.Resource<TFile>): readonly TFile[];
@@ -17,7 +20,7 @@ export declare namespace CliFormatChapters {
     ): Chapter.Resource<TFile> | undefined;
   };
 
-  /** Chapter guide rendering input. */
+  /** Terminal chapter guide rendering input. */
   export type FormatInput = {
     /** Base command prefix used to open child chapters. */
     readonly command: string;
@@ -25,6 +28,25 @@ export declare namespace CliFormatChapters {
     readonly chapter: Chapter;
     /** Label for the child chapter index. Defaults to `Chapter`. */
     readonly label?: string;
+  };
+
+  /** Markdown chapter rendering input. */
+  export type MarkdownInput = {
+    /** Base command prefix used to open child chapters. */
+    readonly command: string;
+    /** Optional suffix appended after each child chapter path. */
+    readonly commandSuffix?: string;
+    /** Chapter to render. */
+    readonly chapter: Chapter;
+    /** Label for the child chapter index heading. Defaults to `Chapters`. */
+    readonly label?: string;
+    /** Optional YAML frontmatter fields emitted before the Markdown body. */
+    readonly frontmatter?: Frontmatter;
+  };
+
+  /** YAML frontmatter fields for Markdown chapter output. */
+  export type Frontmatter = {
+    readonly [key: string]: string;
   };
 
   /** Navigable help chapter rendered by a CLI help surface. */

@@ -22,11 +22,19 @@ export declare namespace CellCli {
     readonly dryRun: boolean;
     /** Include command-specific agent guidance with help. */
     readonly agent: boolean;
+    /** Raw `--format` flag value, accepted only by `dsl`. */
+    readonly format?: string | boolean | readonly (string | boolean)[];
     /** Unknown flag tokens rejected by argument parsing. */
     readonly unknown: readonly string[];
     /** Positional argv tokens. */
     readonly _: readonly string[];
   };
+
+  /** Types for the `dsl` command. */
+  export namespace Dsl {
+    /** Supported DSL chapter output formats. */
+    export type Format = 'human' | 'skill';
+  }
 
   /** Result from a Cell CLI run. */
   export type Result = Help | Init.Result | Start.Result | Error;

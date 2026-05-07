@@ -68,6 +68,23 @@ describe(`@sys/cell/cli`, () => {
     expect(res.text).to.contain('Unknown command: help');
   });
 
+  it('--format is scoped to dsl only', async () => {
+    const root = stripAnsi((await silent(() => CellCli.run({ argv: ['--format', 'skill'] }))).text);
+    const init = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['init', '--format', 'skill'] }))).text,
+    );
+    const start = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '--format', 'skill'] }))).text,
+    );
+
+    expect(root).to.contain('Unexpected option without command: --format');
+    expect(root).to.contain('@sys/cell');
+    expect(init).to.contain('Unexpected option for init: --format');
+    expect(init).to.contain('@sys/cell init');
+    expect(start).to.contain('Unexpected option for start: --format');
+    expect(start).to.contain('@sys/cell start');
+  });
+
   it('init --dry-run → reports template writes without changing files', async () => {
     const fs = await Testing.dir('CellCli.init.dry-run');
 
@@ -136,8 +153,12 @@ describe(`@sys/cell/cli`, () => {
   });
 
   it('start → rejects unsupported command options and extra args', async () => {
-    const help = stripAnsi((await silent(() => CellCli.run({ argv: ['start', '--dry-run'] }))).text);
-    const extra = stripAnsi((await silent(() => CellCli.run({ argv: ['start', '.', 'extra'] }))).text);
+    const help = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '--dry-run'] }))).text,
+    );
+    const extra = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['start', '.', 'extra'] }))).text,
+    );
 
     expect(help).to.contain('Unexpected option for start: --dry-run');
     expect(help).to.contain('@sys/cell start');

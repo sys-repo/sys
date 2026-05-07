@@ -83,6 +83,51 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.not.contain('Chapter');
   });
 
+  it('renders Markdown with frontmatter, sections, and child chapter links', () => {
+    const text = Fmt.Chapters.markdown({
+      command,
+      commandSuffix: '--format skill',
+      chapter,
+      frontmatter: {
+        name: 'example-dsl',
+        description: 'Example skill projection.',
+      },
+    });
+
+    expect(text).to.eql(Cli.stripAnsi(text));
+    expect(text).to.contain(
+      '---\nname: "example-dsl"\ndescription: "Example skill projection."\n---',
+    );
+    expect(text).to.contain('# Example DSL');
+    expect(text).to.contain('Example DSL root.');
+    expect(text).to.contain('## Rule');
+    expect(text).to.contain('Start from public help.');
+    expect(text).to.contain('## Mappings');
+    expect(text).to.contain('add thing → run owner add');
+    expect(text).to.contain('## Chapters');
+    expect(text).to.contain(
+      '- `deno run jsr:@sys/example dsl short --format skill` — Short chapter.',
+    );
+    expect(text).to.contain(
+      '- `deno run jsr:@sys/example dsl longer-chapter --format skill` — Longer chapter.',
+    );
+    expect(text).to.not.contain('@sys/cell');
+  });
+
+  it('escapes YAML frontmatter scalar strings in Markdown output', () => {
+    const text = Fmt.Chapters.markdown({
+      command,
+      chapter: { ...chapter, chapters: [] },
+      frontmatter: {
+        name: 'quote-test',
+        description: 'A "quoted" path C:\\tmp over\ntwo lines.',
+      },
+    });
+
+    expect(text).to.contain('name: "quote-test"');
+    expect(text).to.contain('description: "A \\"quoted\\" path C:\\\\tmp over\\ntwo lines."');
+  });
+
   it('omits the child chapter index for leaf chapters', () => {
     const text = Fmt.Chapters.format({
       command,

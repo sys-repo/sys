@@ -1,4 +1,4 @@
-import { Err, type t } from './common.ts';
+import { Err, Is, type t } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { FmtHelp } from './u.help.ts';
 
@@ -17,6 +17,10 @@ export const CellCli: t.CellCli.Lib = {
       return fail({ argv }, `Unknown option: ${args.unknown.join(', ')}`, help);
     }
 
+    if (!command && args.format !== undefined) {
+      return fail({ argv }, 'Unexpected option without command: --format', help);
+    }
+
     if ((!command && args.agent) || (!command && args.dryRun)) {
       const flag = args.agent ? '--agent' : '--dry-run';
       return fail({ argv }, `Unexpected option without command: ${flag}`, help);
@@ -31,6 +35,9 @@ export const CellCli: t.CellCli.Lib = {
 
     if (command === 'init') {
       const initHelp = await FmtHelp.initOutput({ agent: args.agent });
+      if (args.format !== undefined) {
+        return fail({ argv }, 'Unexpected option for init: --format', initHelp);
+      }
       if (args.help) {
         print(initHelp);
         return { kind: 'help', input: { argv }, text: initHelp };
@@ -59,13 +66,17 @@ export const CellCli: t.CellCli.Lib = {
     if (command === 'dsl') {
       const path = args._.slice(1).map(String);
       const rootHelp = async () => await FmtHelp.dslOutput();
+      const format = dslFormat(args.format);
+
+      if (!format.ok) return fail({ argv }, format.message, await rootHelp());
+
       if (args.agent || args.dryRun) {
         const flag = args.agent ? '--agent' : '--dry-run';
         return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
       }
 
       try {
-        const text = await FmtHelp.dslOutput({ path });
+        const text = await FmtHelp.dslOutput({ path, format: format.value });
         print(text);
         return { kind: 'help', input: { argv }, text };
       } catch (error) {
@@ -75,6 +86,9 @@ export const CellCli: t.CellCli.Lib = {
 
     if (command === 'start') {
       const startHelp = await FmtHelp.startOutput();
+      if (args.format !== undefined) {
+        return fail({ argv }, 'Unexpected option for start: --format', startHelp);
+      }
       if (args.help) {
         print(startHelp);
         return { kind: 'help', input: { argv }, text: startHelp };
@@ -98,6 +112,20 @@ export const CellCli: t.CellCli.Lib = {
     return fail({ argv }, `Unknown command: ${command}`, help);
   },
 };
+
+type DslFormatResult =
+  | { readonly ok: true; readonly value: t.CellCli.Dsl.Format }
+  | { readonly ok: false; readonly message: string };
+
+function dslFormat(value: t.CellCli.ParsedArgs['format']): DslFormatResult {
+  if (value === undefined) return { ok: true, value: 'human' };
+  if (Is.array<string | boolean>(value)) {
+    return { ok: false, message: 'Repeated option for dsl: --format' };
+  }
+  if (!Is.str(value)) return { ok: false, message: 'Option requires a value: --format' };
+  if (value === 'human' || value === 'skill') return { ok: true, value };
+  return { ok: false, message: `Unsupported dsl format: ${value} (expected: human, skill)` };
+}
 
 function print(text: string) {
   console.info(text);
