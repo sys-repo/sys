@@ -14,9 +14,9 @@ export function formatDoctor(report: t.ShellTool.Doctor.Report): string {
     {
       label: 'shell',
       lines: [
-        field('path', report.shell.path ?? c.gray('(unknown)'), 8),
-        field('dialect', report.shell.dialect ?? c.gray('(unknown)'), 8),
-        field('support', support(report.shell.support), 8),
+        field('path', report.shell.path ?? c.gray('(unknown)'), 14),
+        field('dialect', report.shell.dialect ?? c.gray('(unknown)'), 14),
+        field('profile edits', profileEditSupport(report.shell.support), 14),
       ],
     },
     {
@@ -300,10 +300,10 @@ function formatBlock(block: t.ShellTool.BlockState): string {
   return block.stale ? c.yellow('present (manual edits)') : c.green('present (current)');
 }
 
-function support(value: t.ShellTool.Support): string {
-  if (value === 'write') return c.green(value);
-  if (value === 'doctor-only') return c.yellow(value);
-  return c.gray(value);
+function profileEditSupport(value: t.ShellTool.Support): string {
+  if (value === 'write') return c.green('supported');
+  if (value === 'doctor-only') return c.yellow('doctor only');
+  return c.gray('unsupported');
 }
 
 function yesNo(value: boolean): string {

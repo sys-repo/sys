@@ -38,6 +38,7 @@ alias sys="deno run -A jsr:@sys/tools"
     expect(report.warnings).to.eql([]);
 
     const text = Cli.stripAnsi(formatDoctor(report));
+    expect(text).to.contain('profile edits: supported');
     expect(text).to.contain(`${zshrc} (interactive) exists; managed block: present (current)`);
     expect(text).to.contain(`${home}/.zprofile (login) missing; managed block: absent`);
     expect(text).to.contain('✓ no issues detected');
@@ -52,7 +53,7 @@ alias sys="deno run -A jsr:@sys/tools"
     const text = Cli.stripAnsi(formatDoctor(report));
 
     expect(text).to.contain('system:shell doctor');
-    expect(text).to.contain('support: doctor-only');
+    expect(text).to.contain('profile edits: doctor only');
     expect(text).to.contain('Deno install bin is not currently on PATH');
     expect(text).not.to.contain('secret profile text');
   });
