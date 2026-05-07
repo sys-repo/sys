@@ -34,8 +34,18 @@
     "jsr:@std/text@^1.0.17": "1.0.18",
     "jsr:@std/yaml@*": "1.0.12",
     "jsr:@sys/cell@*": "0.0.13",
+    "jsr:@sys/driver-automerge@^0.0.263": "0.0.263",
+    "jsr:@sys/driver-deno@^0.0.331": "0.0.331",
+    "jsr:@sys/http@^0.0.271": "0.0.271",
+    "jsr:@sys/registry@^0.0.266": "0.0.266",
+    "jsr:@sys/text@^0.0.294": "0.0.294",
+    "jsr:@sys/tmpl-engine@^0.0.298": "0.0.298",
     "jsr:@sys/tools@*": "0.0.402",
     "jsr:@sys/ui-dom@^0.0.247": "0.0.247",
+    "jsr:@sys/ui-react-components@^0.0.266": "0.0.266",
+    "jsr:@sys/ui-react-devharness@^0.0.301": "0.0.301",
+    "jsr:@sys/ui-react@^0.0.303": "0.0.303",
+    "jsr:@sys/workspace@^0.0.82": "0.0.82",
     "npm:@automerge/automerge-repo-network-websocket@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.5": "2.5.5",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.5": "2.5.5",
@@ -95,6 +105,7 @@
     "npm:react-icons@5.6.0": "5.6.0_react@19.2.6",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.6",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.6_react-dom@19.2.6__react@19.2.6",
+    "npm:react@19.2.5": "19.2.5",
     "npm:react@19.2.6": "19.2.6",
     "npm:resend@*": "6.9.2",
     "npm:rollup-plugin-visualizer@7.0.1": "7.0.1_rollup@4.60.3",
@@ -255,22 +266,126 @@
     "@sys/cell@0.0.13": {
       "integrity": "da33bc3ee03ad6bf0bcda124ea6f83d0028238cf67189461dd9b50cf9cfc4eb3"
     },
+    "@sys/driver-automerge@0.0.263": {
+      "integrity": "13edc8c264570e385d326fc77687821686026e7fc6b7ec22186abc7b6c280b93",
+      "dependencies": [
+        "jsr:@sys/http",
+        "jsr:@sys/ui-react",
+        "jsr:@sys/ui-react-components",
+        "jsr:@sys/ui-react-devharness",
+        "npm:@automerge/automerge",
+        "npm:@automerge/automerge-repo",
+        "npm:@automerge/automerge-repo-network-websocket",
+        "npm:@automerge/automerge-repo-storage-indexeddb",
+        "npm:@automerge/automerge-repo-storage-nodefs",
+        "npm:@types/react",
+        "npm:@types/ws",
+        "npm:react-icons",
+        "npm:react@19.2.5",
+        "npm:ws"
+      ]
+    },
     "@sys/driver-deno@0.0.292": {
       "integrity": "ea17baa1b3d49245ac827eca807b79afe92819aa3f5bd95d5d4cf8d30184c56b"
+    },
+    "@sys/driver-deno@0.0.331": {
+      "integrity": "8ed1969048c671a71720f38076d3acef98a89caf61dfd756b7305b72407676b4",
+      "dependencies": [
+        "jsr:@sys/http",
+        "jsr:@sys/registry",
+        "jsr:@sys/tmpl-engine",
+        "jsr:@sys/workspace"
+      ]
+    },
+    "@sys/http@0.0.271": {
+      "integrity": "9ffdcd864b7d4b92e6c8940835a7e89c0b99583b6b79b2a6f7331a2fcd8bfd67",
+      "dependencies": [
+        "jsr:@std/http",
+        "npm:hono"
+      ]
+    },
+    "@sys/registry@0.0.266": {
+      "integrity": "814ee26ec048c4972c274d0877faabe42082aad3be4f0f68232958734e669387",
+      "dependencies": [
+        "jsr:@sys/http"
+      ]
+    },
+    "@sys/text@0.0.294": {
+      "integrity": "96ebd47d9b09e9705bee6fbaffe61ad3af2ddf5bc21a9fd45eaaaff32489e9f8",
+      "dependencies": [
+        "jsr:@sys/registry",
+        "npm:gpt-tokenizer"
+      ]
+    },
+    "@sys/tmpl-engine@0.0.298": {
+      "integrity": "58abb9d0d26dea6ecb62827ee8386c4a0ee19a39be9e66ae5c7a737f3e0a63fe",
+      "dependencies": [
+        "jsr:@sys/text"
+      ]
     },
     "@sys/tools@0.0.402": {
       "integrity": "093ee8a6a7d8d78845c9038bd823c74422f2497908af0f58dd68d2fc14dcdc90",
       "dependencies": [
+        "jsr:@sys/driver-automerge",
+        "jsr:@sys/driver-deno",
+        "jsr:@sys/http",
+        "jsr:@sys/registry",
+        "jsr:@sys/text",
+        "jsr:@sys/tmpl-engine",
+        "jsr:@sys/ui-react-devharness",
         "npm:@types/react"
       ]
     },
     "@sys/ui-dom@0.0.247": {
       "integrity": "3ac0158be5c13e81051ec65c24b4de5b52913c2e40e7093a2c79463e0263cca0"
     },
+    "@sys/ui-react@0.0.303": {
+      "integrity": "10d7dcc756cbae5016ba22aca6c39613432ebbc95b3c25930b08e3272e29e123",
+      "dependencies": [
+        "jsr:@sys/http",
+        "npm:@preact/signals-react",
+        "npm:@testing-library/react",
+        "npm:@types/react",
+        "npm:react@19.2.5"
+      ]
+    },
+    "@sys/ui-react-components@0.0.266": {
+      "integrity": "d098482f1d7a35991b9a258196441cce05e963abc4f2b83ccebbeede9361e5c4",
+      "dependencies": [
+        "jsr:@sys/http",
+        "jsr:@sys/text",
+        "jsr:@sys/ui-react",
+        "jsr:@sys/ui-react-devharness",
+        "npm:@svgdotjs/svg.js",
+        "npm:@types/react",
+        "npm:motion",
+        "npm:react-error-boundary",
+        "npm:react-icons",
+        "npm:react-inspector",
+        "npm:react-spinners",
+        "npm:react@19.2.5"
+      ]
+    },
     "@sys/ui-react-devharness@0.0.252": {
       "integrity": "56c6cf18f95bc8d8ea3a5b146e21a4f09604729db71e7f1c35e8e7a63c521401",
       "dependencies": [
         "jsr:@sys/ui-dom"
+      ]
+    },
+    "@sys/ui-react-devharness@0.0.301": {
+      "integrity": "1c5fd7e7c94bc8259319746c33c77bcda97537233b8617e276ebeb01a2c50065",
+      "dependencies": [
+        "jsr:@sys/ui-react",
+        "npm:@types/react",
+        "npm:react-error-boundary",
+        "npm:react-icons",
+        "npm:react@19.2.5"
+      ]
+    },
+    "@sys/workspace@0.0.82": {
+      "integrity": "68d536092820b2997e0c430e64753c843090385273ac08c7be27f4311d155238",
+      "dependencies": [
+        "jsr:@sys/registry"
       ]
     }
   },
@@ -1609,7 +1724,7 @@
       "dependencies": [
         "@monaco-editor/loader",
         "monaco-editor",
-        "react",
+        "react@19.2.6",
         "react-dom"
       ]
     },
@@ -1728,7 +1843,7 @@
       "integrity": "sha512-Uxu6lidNVr9z27b/6DbCin86ekzHiJDrLXZii82aXSzvyMXYMr7l0Bab1cKbfWdbkxq13e7kS7paix3pjKBTLA==",
       "dependencies": [
         "@preact/signals-core",
-        "react",
+        "react@19.2.6",
         "use-sync-external-store"
       ]
     },
@@ -2416,7 +2531,7 @@
         "@testing-library/dom",
         "@types/react",
         "@types/react-dom",
-        "react",
+        "react@19.2.6",
         "react-dom"
       ],
       "optionalPeers": [
@@ -3043,12 +3158,12 @@
       "dependencies": [
         "motion-dom",
         "motion-utils",
-        "react",
+        "react@19.2.6",
         "react-dom",
         "tslib"
       ],
       "optionalPeers": [
-        "react",
+        "react@19.2.6",
         "react-dom"
       ]
     },
@@ -3426,12 +3541,12 @@
       "integrity": "sha512-uYfXzeHlgThchzwz5Te47dlv5JOUC7OB4rjJ/7XTUgtBZD8CchMN8qEJ4ZVsUmTyYA44zjV0fBwsiktRuFnn+w==",
       "dependencies": [
         "framer-motion",
-        "react",
+        "react@19.2.6",
         "react-dom",
         "tslib"
       ],
       "optionalPeers": [
-        "react",
+        "react@19.2.6",
         "react-dom"
       ]
     },
@@ -3850,26 +3965,26 @@
     "react-dom@19.2.6_react@19.2.6": {
       "integrity": "sha512-0prMI+hvBbPjsWnxDLxlCGyM8PN6UuWjEUCYmZhO67xIV9Xasa/r/vDnq+Xyq4Lo27g8QSbO5YzARu0D1Sps3g==",
       "dependencies": [
-        "react",
+        "react@19.2.6",
         "scheduler"
       ]
     },
     "react-error-boundary@6.1.1_react@19.2.6": {
       "integrity": "sha512-BrYwPOdXi5mqkk5lw+Uvt0ThHx32rCt3BkukS4X23A2AIWDPSGX6iaWTc0y9TU/mHDA/6qOSGel+B2ERkOvD1w==",
       "dependencies": [
-        "react"
+        "react@19.2.6"
       ]
     },
     "react-icons@5.6.0_react@19.2.6": {
       "integrity": "sha512-RH93p5ki6LfOiIt0UtDyNg/cee+HLVR6cHHtW3wALfo+eOHTp8RnU2kRkI6E+H19zMIs03DyxUG/GfZMOGvmiA==",
       "dependencies": [
-        "react"
+        "react@19.2.6"
       ]
     },
     "react-inspector@9.0.0_react@19.2.6": {
       "integrity": "sha512-w/VJucSeHxlwRa2nfM2k7YhpT1r5EtlDOClSR+L7DyQP91QMdfFEDXDs9bPYN4kzP7umFtom7L0b2GGjph4Kow==",
       "dependencies": [
-        "react"
+        "react@19.2.6"
       ]
     },
     "react-is@17.0.2": {
@@ -3878,9 +3993,12 @@
     "react-spinners@0.17.0_react@19.2.6_react-dom@19.2.6__react@19.2.6": {
       "integrity": "sha512-L/8HTylaBmIWwQzIjMq+0vyaRXuoAevzWoD35wKpNTxxtYXWZp+xtgkfD7Y4WItuX0YvdxMPU79+7VhhmbmuTQ==",
       "dependencies": [
-        "react",
+        "react@19.2.6",
         "react-dom"
       ]
+    },
+    "react@19.2.5": {
+      "integrity": "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="
     },
     "react@19.2.6": {
       "integrity": "sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q=="
@@ -4212,7 +4330,7 @@
     "use-sync-external-store@1.6.0_react@19.2.6": {
       "integrity": "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==",
       "dependencies": [
-        "react"
+        "react@19.2.6"
       ]
     },
     "uuid@10.0.0": {
