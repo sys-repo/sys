@@ -4,5 +4,7 @@ export { Str } from '@sys/std/str';
 export { Is } from '@sys/std/is';
 export { Time } from '@sys/std/time';
 export { Args } from '@sys/std/args';
+export { TextBlock } from '@sys/text/block';
+export { TextUpdate } from '@sys/text/update';
 export { Format as PathFormat, Path } from '@sys/std/path';
 export { Rx } from '@sys/std/rx';

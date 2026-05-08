@@ -1,16 +1,9 @@
-import { Str, type t } from './common.ts';
+import { Is, Str, type t, TextBlock, TextUpdate } from './common.ts';
 
 type LineEnding = '\n' | '\r\n';
 
 type LocatedBlock = {
   readonly state: t.Shell.Block.State;
-  readonly range?: { readonly start: number; readonly end: number };
-};
-
-type LineSpan = {
-  readonly text: string;
-  readonly start: number;
-  readonly end: number;
 };
 
 /** Managed shell block helpers. */
@@ -34,110 +27,62 @@ function markers(owner: t.Shell.Owner): t.Shell.Block.Markers {
 
 function render(args: t.Shell.Block.RenderArgs): string {
   const newline = args.newline ?? '\n';
-  const lines = [
-    markers(args.owner).start,
-    `# Managed by ${args.owner.label}. Edit with: ${args.owner.commandHint}`,
-  ];
-
-  args.model.paths.forEach((entry) => {
-    lines.push('', itemComment(args.owner, 'path', entry.id));
-    lines.push(...entry.expression.split(/\r?\n/));
-  });
-
-  args.model.aliases.forEach((entry) => {
-    lines.push('', itemComment(args.owner, 'alias', entry.id));
-    lines.push(`alias ${entry.name}="${shellQuoteDouble(entry.command)}"`);
-  });
-
-  lines.push('', markers(args.owner).end);
-  return `${lines.join(newline)}${newline}`;
+  return TextBlock.render({ markers: markers(args.owner), lines: renderLines(args), newline });
 }
 
 function update(args: t.Shell.Block.UpdateArgs): t.Shell.Plan {
-  const newline = args.newline ?? newlineOf(args.text);
-  const block = render({ ...args, newline });
+  const newline = args.newline ?? TextUpdate.newlineOf(args.text);
   const located = locate(args);
 
-  if (located.state.kind === 'invalid') {
-    return invalidPlan(args.text, located.state);
-  }
+  if (located.state.kind === 'invalid') return invalidPlan(args.text, located.state);
 
-  if (located.state.kind === 'missing') {
-    const nextText = appendBlock(args.text, block, newline);
-    return {
-      kind: 'add',
-      block: located.state,
-      nextText,
-      changed: nextText !== args.text,
-      warnings: [],
-    };
-  }
+  const text = located.state.kind === 'missing'
+    ? textWithShellSeparator(args.text, newline)
+    : args.text;
+  const result = TextBlock.update({
+    text,
+    markers: markers(args.owner),
+    lines: renderLines(args),
+    newline,
+  });
 
-  const range = located.range;
-  if (!range) return invalidPlan(args.text, { kind: 'invalid', reason: 'partial-markers' });
-
-  const nextText = `${args.text.slice(0, range.start)}${block}${args.text.slice(range.end)}`;
   return {
-    kind: nextText === args.text ? 'unchanged' : 'replace',
+    kind: result.kind === 'invalid' ? 'unchanged' : result.kind,
     block: located.state,
-    nextText,
-    changed: nextText !== args.text,
-    warnings: warningsFor(located.state),
+    nextText: result.kind === 'invalid' ? args.text : result.after,
+    changed: result.kind !== 'invalid' && result.after !== args.text,
+    warnings: result.kind === 'invalid'
+      ? invalidWarnings(result.state)
+      : warningsFor(located.state),
   };
 }
 
 function remove(args: t.Shell.Block.RemoveArgs): t.Shell.Plan {
   const located = locate(args);
+  if (located.state.kind === 'invalid') return invalidPlan(args.text, located.state);
 
-  if (located.state.kind === 'invalid') {
-    return invalidPlan(args.text, located.state);
-  }
-
-  if (located.state.kind === 'missing') {
-    return {
-      kind: 'unchanged',
-      block: located.state,
-      nextText: args.text,
-      changed: false,
-      warnings: [],
-    };
-  }
-
-  const range = located.range;
-  if (!range) return invalidPlan(args.text, { kind: 'invalid', reason: 'partial-markers' });
-
-  const nextText = `${args.text.slice(0, range.start)}${args.text.slice(range.end)}`;
+  const result = TextBlock.remove({ text: args.text, markers: markers(args.owner) });
   return {
-    kind: 'remove',
+    kind: result.kind === 'invalid' ? 'unchanged' : result.kind,
     block: located.state,
-    nextText,
-    changed: nextText !== args.text,
-    warnings: [],
+    nextText: result.kind === 'invalid' ? args.text : result.after,
+    changed: result.kind !== 'invalid' && result.changed,
+    warnings: result.kind === 'invalid' ? invalidWarnings(result.state) : [],
   };
 }
 
 function locate(args: t.Shell.Block.DetectArgs): LocatedBlock {
-  const mark = markers(args.owner);
-  const starts = markerLines(args.text, mark.start);
-  const ends = markerLines(args.text, mark.end);
+  const state = TextBlock.detect({ text: args.text, markers: markers(args.owner) });
+  if (state.kind === 'missing') return { state };
+  if (state.kind === 'invalid') return invalidLocated(mapInvalidReason(state.reason));
 
-  if (starts.length === 0 && ends.length === 0) return { state: { kind: 'missing' } };
-  if (starts.length > 1 || ends.length > 1) return invalidLocated('multiple-blocks');
-  if (starts.length !== ends.length) return invalidLocated('partial-markers');
-
-  const start = starts[0]!;
-  const end = ends[0]!;
-  if (end.start < start.start) return invalidLocated('partial-markers');
-
-  const blockText = args.text.slice(start.start, end.end);
-  const model = parseModel(args.owner, blockText);
+  const model = parseModel(args.owner, state.block);
   return {
     state: {
       kind: 'present',
       model,
-      stale: blockText !== render({ owner: args.owner, model, newline: newlineOf(blockText) }),
+      stale: state.block !== render({ owner: args.owner, model, newline: state.newline }),
     },
-    range: { start: start.start, end: end.end },
   };
 }
 
@@ -206,36 +151,26 @@ function expressionAfterItem(
   return out.join('\n');
 }
 
-function appendBlock(text: string, block: string, newline: LineEnding): string {
-  if (text.length === 0) return block;
-  const suffix = text.endsWith('\n') ? newline : `${newline}${newline}`;
-  return `${text}${suffix}${block}`;
-}
+function renderLines(args: t.Shell.Block.RenderArgs): readonly string[] {
+  const lines = [`# Managed by ${args.owner.label}. Edit with: ${args.owner.commandHint}`];
 
-function markerLines(text: string, marker: string): readonly LineSpan[] {
-  return lineSpans(text).filter((line) => line.text === marker);
-}
-
-function lineSpans(text: string): readonly LineSpan[] {
-  const spans: LineSpan[] = [];
-  let start = 0;
-  text.split(/(?<=\n)/).forEach((raw) => {
-    if (raw.length === 0) return;
-    const end = start + raw.length;
-    spans.push({ text: trimLineEnding(raw), start, end });
-    start = end;
+  args.model.paths.forEach((entry) => {
+    lines.push('', itemComment(args.owner, 'path', entry.id));
+    lines.push(...entry.expression.split(/\r?\n/));
   });
-  return spans;
+
+  args.model.aliases.forEach((entry) => {
+    lines.push('', itemComment(args.owner, 'alias', entry.id));
+    lines.push(`alias ${entry.name}="${shellQuoteDouble(entry.command)}"`);
+  });
+
+  lines.push('');
+  return lines;
 }
 
-function trimLineEnding(input: string): string {
-  if (input.endsWith('\r\n')) return input.slice(0, -2);
-  if (input.endsWith('\n')) return input.slice(0, -1);
-  return input;
-}
-
-function newlineOf(text: string): LineEnding {
-  return text.includes('\r\n') ? '\r\n' : '\n';
+function textWithShellSeparator(text: string, newline: LineEnding): string {
+  if (text.length === 0) return text;
+  return text.endsWith('\n') ? `${text}${newline}` : `${text}${newline}${newline}`;
 }
 
 function itemComment(owner: t.Shell.Owner, kind: 'alias' | 'path', id: string): string {
@@ -259,6 +194,17 @@ function warningsFor(block: t.Shell.Block.State): readonly string[] {
     return ['Managed shell block has manual edits and will be normalized'];
   }
   return [];
+}
+
+function mapInvalidReason(reason: string): 'partial-markers' | 'multiple-blocks' {
+  return reason === 'multiple-blocks' ? 'multiple-blocks' : 'partial-markers';
+}
+
+function invalidWarnings(state: unknown): readonly string[] {
+  const reason = Is.record(state) && Is.string(state.reason)
+    ? mapInvalidReason(state.reason)
+    : 'partial-markers';
+  return [`Cannot update invalid managed shell block: ${reason}`];
 }
 
 function invalidLocated(reason: 'partial-markers' | 'multiple-blocks'): LocatedBlock {
