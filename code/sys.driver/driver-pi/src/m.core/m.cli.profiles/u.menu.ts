@@ -1,6 +1,7 @@
-import { c, Cli, Fs, type t, YamlConfig } from './common.ts';
+import { c, Cli, Fs, Is, type t, YamlConfig } from './common.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
+import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
@@ -9,9 +10,10 @@ import { ProfileSchema } from './u.schema.ts';
 type Action = 'run' | 'select';
 
 type MenuContext = {
-  readonly cwd: t.StringDir;
+  readonly cwd: t.PiCli.Cwd;
   readonly path: t.StringPath;
   readonly allowAll?: boolean;
+  readonly gitRootExplicit?: boolean;
 };
 
 type PreviewToken = {
@@ -26,14 +28,16 @@ const ValidName = {
   },
 } as const;
 
-export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
-  const migration = await ProfileMigrate.dir(cwd);
+export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRootExplicit }) => {
+  const resolvedCwd = toMenuCwd(cwd);
+  const root = runtimeRoot(resolvedCwd);
+  const migration = await ProfileMigrate.dir(root);
   const migrationMessage = ProfileMigrate.message(migration);
   if (migrationMessage) console.info(migrationMessage);
 
   while (true) {
     const selected = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd, allowAll }),
+      ...menuArgs({ cwd: root, allowAll }),
       mode: 'select',
       selectAction: 'select',
     });
@@ -41,10 +45,15 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
     if (selected.kind === 'exit') return { kind: 'exit' };
     if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
 
-    const preview = await printSandbox({ cwd, path: selected.path, allowAll });
+    const preview = await printSandbox({
+      cwd: resolvedCwd,
+      path: selected.path,
+      allowAll,
+      gitRootExplicit,
+    });
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
-      ...menuArgs({ cwd, allowAll }),
+      ...menuArgs({ cwd: root, allowAll }),
       mode: 'action',
       path: selected.path,
       defaultAction: 'run',
@@ -65,6 +74,10 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll }) => {
 /**
  * Helpers:
  */
+function toMenuCwd(cwd: t.PiCliProfiles.MenuArgs['cwd']): t.PiCli.Cwd {
+  return Is.string(cwd) ? { invoked: cwd, git: cwd } : cwd;
+}
+
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   const { cwd, allowAll } = args;
   const schema = {
@@ -112,13 +125,18 @@ function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
 }
 
 async function printSandbox(args: MenuContext): Promise<PreviewToken | undefined> {
+  const root = runtimeRoot(args.cwd);
   const resolved = await resolveRun({
-    cwd: { invoked: args.cwd, git: args.cwd },
+    cwd: args.cwd,
     config: args.path,
     allowAll: args.allowAll,
   });
-  const report = await PiSandboxReport.write({ cwd: args.cwd, sandbox: resolved.sandbox });
-  console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+  const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
+  console.info(
+    PiSandboxFmt.table({ ...resolved.sandbox, report }, {
+      gitRootExplicit: args.gitRootExplicit === true,
+    }),
+  );
   console.info('');
   return await snapshotConfig(args.path);
 }

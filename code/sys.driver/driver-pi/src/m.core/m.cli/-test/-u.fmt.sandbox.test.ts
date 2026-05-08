@@ -16,15 +16,31 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     }, { width });
 
     expect(lines(raw)[0]).to.eql(Cli.Fmt.hr(width - 1, 'gray'));
-    expect(raw).to.contain(c.gray('sys:pi:sandbox'));
+    expect(raw).to.contain(c.gray('system:pi:sandbox'));
     expect(raw).to.contain(c.gray('read, write, edit, bash'));
+    expect(raw).to.contain(c.dim(c.cyan(' (--git-root)')));
     expect(raw).not.to.contain(c.dim(c.gray('read, write, edit, bash')));
-    expect(raw).not.to.contain(c.cyan('sys:pi:sandbox'));
+    expect(raw).not.to.contain(c.cyan('system:pi:sandbox'));
+  });
+
+  it('table → brightens the git-root marker only when --git-root was explicit', () => {
+    const implicit = PiSandboxFmt.table({
+      permissions: 'scoped',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width: 80 });
+    const explicit = PiSandboxFmt.table({
+      permissions: 'scoped',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width: 80, gitRootExplicit: true });
+
+    expect(implicit).to.contain(c.dim(c.cyan(' (--git-root)')));
+    expect(explicit).to.contain(c.cyan(' (--git-root)'));
+    expect(explicit).not.to.contain(c.dim(c.cyan(' (--git-root)')));
   });
 
   it('table → uses available terminal width and trims report paths to cwd first', () => {
     const width = 120;
-    const text = render({
+    const input = {
       report: '/tmp/pi-cli-test/.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md',
       cwd: { invoked: '/tmp/pi-cli-test/nested', git: '/tmp/pi-cli-test' },
       read: {
@@ -38,12 +54,16 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       context: {
         include: ['/tmp/pi-cli-test/extra.md'],
       },
-    }, width);
+    } as const;
+    const raw = PiSandboxFmt.table({ permissions: 'scoped', ...input }, { width });
+    const text = Cli.stripAnsi(raw);
 
     const renderWidth = width - 1;
     expectHeaderFrame(text, renderWidth);
     expect(text).to.contain('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md');
     expect(text).to.not.contain('/tmp/pi-cli-test/.pi');
+    expect(raw).to.contain(c.gray('.pi/@sys/log/@sys.driver-pi/1775975797.abc123.sandbox.log.md'));
+    expect(raw).not.to.contain(c.white('1775975797.abc123.sandbox.log.md'));
     expectTargetRowsToFit(text, renderWidth, ['report', 'context', 'read']);
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
   });
@@ -61,13 +81,17 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expectTargetRowsToFit(text, width - 1, ['report']);
   });
 
-  it('table → renders write labels, path basenames, and the --git-root marker', () => {
-    const text = render({
+  it('table → renders gray write labels, path basenames, and the --git-root marker', () => {
+    const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
       write: { summary: ['cwd', 'temp'], detail: ['/tmp/pi-cli-runtime'] },
-    }, 120);
+    }, { width: 120 });
+    const text = Cli.stripAnsi(raw);
 
+    expect(raw).to.contain(c.gray('write:cwd'));
+    expect(raw).to.contain(c.gray('     :tmp'));
+    expect(raw).not.to.contain(c.dim(c.magenta('write:cwd')));
     expect(text).to.match(/write:cwd\s+\/tmp\/pi-cli-test\/\s+\(--git-root\)/);
     expect(text).to.contain(':tmp');
     expect(text).to.contain('/tmp/pi-cli-runtime/');
@@ -150,13 +174,16 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
         detail: ['/tmp/pi-cli-test/out'],
       },
     };
-    const text = render(input, 80);
+    const raw = PiSandboxFmt.table(input, { width: 80 });
+    const text = Cli.stripAnsi(raw);
 
+    expect(raw).to.contain(c.yellow('--allow-all'));
+    expect(text).to.match(/system:pi:no-sandbox --allow-all\s+read, write, edit, bash/);
     expect(text).to.match(/permissions\s+allow-all/);
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expectHeader(text.split('\n')[1], 'sys:pi:no-sandbox', 79);
+    expectHeader(text.split('\n')[1], 'system:pi:no-sandbox', 79);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -225,7 +252,7 @@ function render(input: SandboxInput, width: number) {
 function expectHeaderFrame(text: string, width: number) {
   const output = lines(text);
   expect(output[0]).to.eql('━'.repeat(width));
-  expectHeader(output[1], 'sys:pi:sandbox', width);
+  expectHeader(output[1], 'system:pi:sandbox', width);
   expect(output[2]).to.eql('━'.repeat(width));
   expect(output.at(-1)).to.eql('━'.repeat(width));
 }

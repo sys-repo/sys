@@ -49,7 +49,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       kind: 'selected' as const,
       config: selection.config,
     }
-    : await menu({ cwd: root, allowAll });
+    : await menu({ cwd, allowAll, gitRootExplicit: parsed.gitRoot !== undefined });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
@@ -67,7 +67,11 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   });
   if (picked.previewed !== true) {
     const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
-    console.info(PiSandboxFmt.table({ ...resolved.sandbox, report }));
+    console.info(
+      PiSandboxFmt.table({ ...resolved.sandbox, report }, {
+        gitRootExplicit: parsed.gitRoot !== undefined,
+      }),
+    );
   }
   const output = await run(resolved);
 

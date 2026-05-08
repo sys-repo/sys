@@ -64,10 +64,12 @@ export declare namespace PiCliProfiles {
 
   /** Menu input. */
   export type MenuArgs = {
-    /** Terminal working directory used to locate profile configs. */
-    readonly cwd: t.StringDir;
+    /** Resolved cwd contract, or a runtime-root shorthand for direct menu callers. */
+    readonly cwd: t.PiCli.Cwd | t.StringDir;
     /** Unsafe debug escape hatch applied to sandbox previews from the menu. */
     readonly allowAll?: boolean;
+    /** Whether `--git-root` was explicitly supplied at the launcher boundary. */
+    readonly gitRootExplicit?: boolean;
   };
 
   /** Parsed boundary args. */

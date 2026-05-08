@@ -3,11 +3,17 @@ import { isGitlessRoot, runtimeRoot } from './u.runtime-root.ts';
 
 type PiSandboxTableOptions = {
   readonly width?: number;
+  readonly gitRootExplicit?: boolean;
 };
 
 type PreviewFit = {
   readonly visible: readonly string[];
   readonly hidden: number;
+};
+
+type Marker = {
+  readonly text: string;
+  readonly explicit?: boolean;
 };
 
 const SANDBOX_EDGE_MARGIN = 1;
@@ -48,7 +54,10 @@ export const PiSandboxFmt = {
         : formatPreview(cwdAndDetail(root, input.read?.detail ?? []), contentBudget),
     ]);
     if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
-    else pushWriteRows(table, root, input.write, contentBudget, writeCwdMarker(input.cwd));
+    else {
+      const marker = writeCwdMarker(input.cwd, opts.gitRootExplicit === true);
+      pushWriteRows(table, root, input.write, contentBudget, marker);
+    }
 
     const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'gray';
     const title = formatTitle(input.permissions, renderWidth);
@@ -66,16 +75,18 @@ export const PiSandboxFmt = {
 
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
-    ? c.bold(c.yellow('sys:pi:no-sandbox'))
-    : c.bold(c.gray('sys:pi:sandbox'));
-  const labelWidth = visibleWidth(label);
+    ? c.bold(c.yellow('system:pi:no-sandbox'))
+    : c.bold(c.gray('system:pi:sandbox'));
+  const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
+  const left = [label, flag].filter((part) => part.length > 0).join(' ');
+  const leftWidth = visibleWidth(left);
   const opsWidth = visibleWidth(TOOL_OPS);
 
-  if (labelWidth + opsWidth + 1 > width) return label;
+  if (leftWidth + opsWidth + 1 > width) return left;
 
-  const gap = ' '.repeat(width - labelWidth - opsWidth);
+  const gap = ' '.repeat(width - leftWidth - opsWidth);
   const ops = permissions === 'allow-all' ? c.dim(c.yellow(TOOL_OPS)) : c.gray(TOOL_OPS);
-  return `${label}${gap}${ops}`;
+  return `${left}${gap}${ops}`;
 }
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {
@@ -90,7 +101,7 @@ function sandboxContentBudget(renderWidth: number) {
 function formatReportPath(path: t.StringPath, budget: number, cwd: t.StringDir) {
   const trimmed = Fs.trimCwd(path, { cwd });
   const fitted = fitDisplayPath(trimmed, budget);
-  return Cli.Fmt.Path.str(fitted);
+  return c.gray(fitted);
 }
 
 function fitDisplayPath(path: string, budget: number) {
@@ -131,7 +142,7 @@ function pushWriteRows(
   cwd: t.StringDir,
   input: t.PiCli.SandboxSummary.Scope | undefined,
   budget: number,
-  marker: string,
+  marker: Marker,
 ) {
   const summary = new Set(input?.summary ?? []);
   pushWriteBucket(table, 'write:cwd', [cwd], cwd, budget, marker);
@@ -230,21 +241,28 @@ function pushWriteBucket(
   input: readonly t.StringPath[],
   cwd: t.StringDir,
   budget: number,
-  marker = '',
+  marker?: Marker,
 ) {
   if (input.length === 0) return;
-  const markerBudget = label === 'write:cwd' ? visibleWidth(marker) : 0;
+  const markerBudget = label === 'write:cwd' && marker ? visibleWidth(marker.text) : 0;
   const [head, ...tail] = input.map((path, position) => {
     const pathBudget = position === 0 ? Math.max(0, budget - markerBudget) : budget;
     return formatWritePath(path, cwd, pathBudget);
   });
-  const lead = label === 'write:cwd' ? `${head}${c.dim(c.cyan(marker))}` : head;
-  table.push([c.dim(c.magenta(label)), lead]);
+  const lead = label === 'write:cwd' && marker ? `${head}${formatMarker(marker)}` : head;
+  table.push([c.gray(label), lead]);
   for (const item of tail) table.push(['', item]);
 }
 
-function writeCwdMarker(cwd: t.PiCli.Cwd) {
-  return isGitlessRoot(cwd) ? WRITE_ROOT_MARKER : WRITE_GIT_MARKER;
+function writeCwdMarker(cwd: t.PiCli.Cwd, explicit: boolean): Marker {
+  return {
+    text: isGitlessRoot(cwd) ? WRITE_ROOT_MARKER : WRITE_GIT_MARKER,
+    explicit,
+  };
+}
+
+function formatMarker(marker: Marker) {
+  return marker.explicit === true ? c.cyan(marker.text) : c.dim(c.cyan(marker.text));
 }
 
 function prettyPath(path: t.StringPath) {

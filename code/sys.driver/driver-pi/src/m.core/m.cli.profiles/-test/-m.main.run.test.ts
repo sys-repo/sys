@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Process } from '../../m.cli/common.ts';
-import { Cli, Fs, Str, type t } from '../common.ts';
+import { c, Cli, Fs, Str, type t } from '../common.ts';
 import { Profiles } from '../mod.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
@@ -112,6 +112,32 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).to.match(/read\s+all/);
       expect(printed).to.match(/write\s+all/);
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('brightens the git-root marker for explicit --git-root in direct profile launch', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(config, 'sandbox: {}\n');
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+
+      Process.inherit = async () => ({ code: 0, success: true, signal: null });
+
+      const res = await Profiles.main({ cwd, argv: ['--git-root', 'cwd', '--profile', config] });
+      expect(res.kind).to.eql('run');
+      const printed = calls.join('\n');
+      expect(printed).to.contain(c.cyan(' (--git-root)'));
+      expect(printed).not.to.contain(c.dim(c.cyan(' (--git-root)')));
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
