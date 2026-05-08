@@ -99,9 +99,10 @@ export async function runUpdate(
     if (interactive) {
       const fromRootMenu = source === 'root-menu';
       const cancelValue = fromRootMenu ? BACK : EXIT;
-      const upgradeName = c.magenta(
-        fromRootMenu ? `  upgrade to ${version.latest} now` : ` - upgrade to ${version.latest} now`,
-      );
+      const upgradeName = formatUpgradeOption({
+        prefix: fromRootMenu ? '  ' : ' - ',
+        latest: version.latest,
+      });
       const cancelName = fromRootMenu ? Fmt.back() : c.dim(c.gray(`(exit)`));
 
       const answer = await deps.prompt({
@@ -123,13 +124,11 @@ export async function runUpdate(
       }
     }
 
-    const msg = `upgrading ${c.white(pkg.name)} from ${version.local} to ${
-      c.green(version.latest)
-    }...`;
+    const msg = formatUpgradeSpinnerText(version);
 
     /** Run process: */
     const spinner = deps.spinner();
-    spinner.start(Cli.Fmt.spinnerText(msg));
+    spinner.start(Cli.Fmt.spinnerRaw(msg));
     const out = await (async () => {
       try {
         return await deps.refreshCache(cwd);
@@ -144,8 +143,36 @@ export async function runUpdate(
       throw new Error(msg);
     }
 
-    deps.info(c.gray(`Updated ${c.white(pkg.name)} to latest ${c.green(version.latest + ' ✔')}`));
+    deps.info(formatUpgradeSuccess(version.latest));
     deps.info();
     return;
   }
+}
+
+/**
+ * Helpers:
+ */
+
+function formatUpgradeOption(args: { prefix: string; latest: t.StringSemver }) {
+  const { prefix, latest } = args;
+  return `${prefix}${c.magenta('upgrade now to')} ${c.white(latest)}`;
+}
+
+function formatUpgradeSpinnerText(version: t.UpdateTool.VersionInfo) {
+  return [
+    c.gray(c.italic('upgrading ')),
+    c.white(pkg.name),
+    c.gray(c.italic(` from ${version.local} to `)),
+    c.white(version.latest),
+    c.gray(c.italic('...')),
+  ].join('');
+}
+
+function formatUpgradeSuccess(latest: t.StringSemver) {
+  return [
+    c.gray('Updated '),
+    c.white(pkg.name),
+    c.gray(' to latest '),
+    c.green(`${latest} ✔`),
+  ].join('');
 }

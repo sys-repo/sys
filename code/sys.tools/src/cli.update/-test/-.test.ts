@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Is, it, type t } from '../../-test.ts';
+import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
 import { D } from '../common.ts';
 import { UpdateTools } from '../mod.ts';
 import { runUpdate } from '../u.cmd.runUpdate.ts';
@@ -179,6 +179,11 @@ describe('cli.update.runUpdate', () => {
     ).to.be.greaterThan(
       plain.indexOf('prompt'),
     );
+    const upgradeStart = events.find((line) =>
+      Cli.stripAnsi(line).includes('start:upgrading @sys/tools from 0.0.318 to 0.0.319...')
+    );
+    expect(upgradeStart).to.contain(c.white('0.0.319'));
+    expect(upgradeStart).not.to.contain(c.green('0.0.319'));
     expect(advisoryRemote).to.eql('0.0.319');
   });
 
@@ -209,7 +214,7 @@ describe('cli.update.runUpdate', () => {
     expect(result).to.eql(undefined);
     expect(refreshed).to.eql(false);
     expect(options).to.eql([
-      ' - upgrade to 0.0.319 now',
+      ' - upgrade now to 0.0.319',
       '(exit)',
     ]);
   });
@@ -217,6 +222,7 @@ describe('cli.update.runUpdate', () => {
   it('uses a back affordance from the root menu and returns without refreshing', async () => {
     let refreshed = false;
     let options: string[] = [];
+    let rawOptions: string[] = [];
 
     const result = await runUpdate('/tmp' as t.StringDir, {
       interactive: true,
@@ -233,6 +239,7 @@ describe('cli.update.runUpdate', () => {
         return { success: true, toString: () => '' };
       },
       prompt: async (args) => {
+        rawOptions = promptOptionNames(args.options, { stripAnsi: false });
         options = promptOptionNames(args.options);
         return '__back__';
       },
@@ -243,8 +250,9 @@ describe('cli.update.runUpdate', () => {
 
     expect(result).to.eql({ kind: 'back' });
     expect(refreshed).to.eql(false);
+    expect(rawOptions[0]).to.eql(`  ${c.magenta('upgrade now to')} ${c.white('0.0.319')}`);
     expect(options).to.eql([
-      '  upgrade to 0.0.319 now',
+      '  upgrade now to 0.0.319',
       '← back',
     ]);
     expect(options.join('\n')).to.not.contain('(exit)');
@@ -282,17 +290,26 @@ describe('cli.update.runUpdate', () => {
 
     const plain = events.map((line) => Cli.stripAnsi(line));
     expect(refreshed).to.eql(true);
+    const success = events.find((line) =>
+      Cli.stripAnsi(line).includes('Updated @sys/tools to latest 0.0.319 ✔')
+    );
+    expect(success).to.contain(c.green('0.0.319 ✔'));
     expect(
       plain.some((line) => line.includes('Updated @sys/tools to latest 0.0.319 ✔')),
     ).to.eql(true);
   });
 });
 
-function promptOptionNames(options: readonly unknown[]) {
+function promptOptionNames(
+  options: readonly unknown[],
+  opts: { stripAnsi?: boolean } = {},
+) {
+  const { stripAnsi = true } = opts;
   return options.map((option) => {
-    if (Is.str(option)) return Cli.stripAnsi(option);
-    const name = (option as { readonly name?: unknown }).name;
-    return Cli.stripAnsi(String(name ?? ''));
+    const name = Is.str(option)
+      ? option
+      : String((option as { readonly name?: unknown }).name ?? '');
+    return stripAnsi ? Cli.stripAnsi(name) : name;
   });
 }
 
@@ -300,7 +317,7 @@ function spinner(events: string[]) {
   return {
     text: '',
     start(text?: string) {
-      events.push(`start:${Cli.stripAnsi(String(text ?? ''))}`);
+      events.push(`start:${String(text ?? '')}`);
       this.text = String(text ?? '');
       return this;
     },
