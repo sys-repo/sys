@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1778135147349,
+    "createdAt": 1778235484370,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-869058bbb71373daa072350f830583e0a0827726c400a284582905dd5c77fabe",
+      "/graph": "sha256-ef28fed65cf5ef5c84be3deccb92efced8a18f0f32342c0d798cdf36bf988215",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.84/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.84/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1778135147354
+    "modifiedAt": 1778235484375
   },
   "graph": {
     "orderedPaths": [
@@ -24,18 +24,20 @@
       "code/sys/std",
       "code/sys/color",
       "code/sys.ui/ui-css",
-      "code/sys/cli",
-      "code/sys/crypto",
       "code/sys/event",
       "code/sys.ui/ui-state",
       "code/sys/immutable",
       "code/sys.ui/ui-dom",
-      "code/sys/fs",
       "code/sys/net",
+      "code/sys/text",
+      "code/sys/cli",
+      "code/sys/crypto",
+      "code/sys/fs",
       "code/sys/process",
       "code/sys.driver/driver-process",
       "code/sys.driver/driver-signer",
       "code/sys/testing",
+      "code/sys/tmpl-engine",
       "code/sys/yaml",
       "code/sys/esm",
       "code/sys/http",
@@ -45,14 +47,12 @@
       "code/sys/schema",
       "code/sys.model/model",
       "code/sys.model/model-slug",
-      "code/sys/text",
       "code/sys.ui/ui-react-components",
       "code/sys.driver/driver-automerge",
       "code/sys.driver/driver-monaco",
       "code/sys.dev",
       "code/sys.driver/driver-prosemirror",
       "code/sys.driver/driver-stripe",
-      "code/sys/tmpl-engine",
       "code/sys/cell",
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
@@ -914,10 +914,6 @@
       },
       {
         "from": "code/sys/registry",
-        "to": "code/sys/text"
-      },
-      {
-        "from": "code/sys/registry",
         "to": "code/sys/workspace"
       },
       {
@@ -1203,6 +1199,10 @@
       {
         "from": "code/sys/text",
         "to": "code/sys.ui/ui-react-components"
+      },
+      {
+        "from": "code/sys/text",
+        "to": "code/sys/cli"
       },
       {
         "from": "code/sys/text",
