@@ -1,13 +1,13 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Update } from '../mod.ts';
+import { TextUpdate } from '../mod.ts';
 
-describe('Update apply primitives', () => {
+describe('TextUpdate apply primitives', () => {
   it('applies inserts, replacements, and deletes', () => {
-    const res = Update.apply('abc', [
-      Update.insert(0, '1'),
-      Update.replace({ start: 1, end: 2 }, 'B'),
-      Update.delete({ start: 2, end: 3 }),
-      Update.insert(3, 'Z'),
+    const res = TextUpdate.apply('abc', [
+      TextUpdate.insert(0, '1'),
+      TextUpdate.replace({ start: 1, end: 2 }, 'B'),
+      TextUpdate.delete({ start: 2, end: 3 }),
+      TextUpdate.insert(3, 'Z'),
     ]);
 
     expect(res.ok).to.eql(true);
@@ -22,11 +22,11 @@ describe('Update apply primitives', () => {
   });
 
   it('allows adjacent replacements and stable same-offset inserts', () => {
-    const res = Update.apply('abcd', [
-      Update.replace({ start: 0, end: 2 }, 'AB'),
-      Update.insert(2, '-'),
-      Update.insert(2, '+'),
-      Update.replace({ start: 2, end: 4 }, 'CD'),
+    const res = TextUpdate.apply('abcd', [
+      TextUpdate.replace({ start: 0, end: 2 }, 'AB'),
+      TextUpdate.insert(2, '-'),
+      TextUpdate.insert(2, '+'),
+      TextUpdate.replace({ start: 2, end: 4 }, 'CD'),
     ]);
 
     expect(res.ok).to.eql(true);
@@ -34,10 +34,10 @@ describe('Update apply primitives', () => {
   });
 
   it('orders inserts at replacement start before replacement and end after replacement', () => {
-    const res = Update.apply('abcd', [
-      Update.insert(1, '<'),
-      Update.replace({ start: 1, end: 3 }, 'BC'),
-      Update.insert(3, '>'),
+    const res = TextUpdate.apply('abcd', [
+      TextUpdate.insert(1, '<'),
+      TextUpdate.replace({ start: 1, end: 3 }, 'BC'),
+      TextUpdate.insert(3, '>'),
     ]);
 
     expect(res.ok).to.eql(true);
@@ -45,7 +45,7 @@ describe('Update apply primitives', () => {
   });
 
   it('omits unchanged replacements from changes', () => {
-    const res = Update.apply('abc', [Update.replace({ start: 1, end: 2 }, 'b')]);
+    const res = TextUpdate.apply('abc', [TextUpdate.replace({ start: 1, end: 2 }, 'b')]);
 
     expect(res.ok).to.eql(true);
     expect(res.changed).to.eql(false);
@@ -55,11 +55,11 @@ describe('Update apply primitives', () => {
 
   it('snapshots builder and applied change ranges', () => {
     const range = { start: 1, end: 2 };
-    const edit = Update.replace(range, 'B');
+    const edit = TextUpdate.replace(range, 'B');
     range.start = 0;
     range.end = 3;
 
-    const res = Update.apply('abc', [edit]);
+    const res = TextUpdate.apply('abc', [edit]);
     expect(res.ok).to.eql(true);
     expect(res.after).to.eql('aBc');
 
@@ -69,27 +69,29 @@ describe('Update apply primitives', () => {
   });
 
   it('fails safely for invalid ranges and overlapping edits', () => {
-    const invalidRange = Update.apply('abc', [Update.replace({ start: 3, end: 2 }, 'x')]);
+    const invalidRange = TextUpdate.apply('abc', [
+      TextUpdate.replace({ start: 3, end: 2 }, 'x'),
+    ]);
     expect(invalidRange.ok).to.eql(false);
     expect(invalidRange.after).to.eql('abc');
     if (invalidRange.ok) throw new Error('expected invalid range');
     expect(invalidRange.error.reason).to.eql('invalid-range');
 
-    const nonInteger = Update.apply('abc', [Update.insert(1.5, 'x')]);
+    const nonInteger = TextUpdate.apply('abc', [TextUpdate.insert(1.5, 'x')]);
     expect(nonInteger.ok).to.eql(false);
     expect(nonInteger.after).to.eql('abc');
     if (nonInteger.ok) throw new Error('expected non-integer offset failure');
     expect(nonInteger.error.reason).to.eql('invalid-range');
 
-    const malformed = Update.apply('abc', [{} as never]);
+    const malformed = TextUpdate.apply('abc', [{} as never]);
     expect(malformed.ok).to.eql(false);
     expect(malformed.after).to.eql('abc');
     if (malformed.ok) throw new Error('expected malformed edit failure');
     expect(malformed.error.reason).to.eql('invalid-range');
 
-    const overlap = Update.apply('abc', [
-      Update.replace({ start: 0, end: 2 }, 'x'),
-      Update.replace({ start: 1, end: 3 }, 'y'),
+    const overlap = TextUpdate.apply('abc', [
+      TextUpdate.replace({ start: 0, end: 2 }, 'x'),
+      TextUpdate.replace({ start: 1, end: 3 }, 'y'),
     ]);
     expect(overlap.ok).to.eql(false);
     expect(overlap.after).to.eql('abc');
@@ -98,9 +100,9 @@ describe('Update apply primitives', () => {
   });
 
   it('rejects inserts inside replacement ranges', () => {
-    const res = Update.apply('abcd', [
-      Update.replace({ start: 1, end: 3 }, 'BC'),
-      Update.insert(2, '!'),
+    const res = TextUpdate.apply('abcd', [
+      TextUpdate.replace({ start: 1, end: 3 }, 'BC'),
+      TextUpdate.insert(2, '!'),
     ]);
 
     expect(res.ok).to.eql(false);
@@ -111,12 +113,12 @@ describe('Update apply primitives', () => {
 
   it('rejects ranges and inserts that split surrogate pairs', () => {
     const text = 'a👋b';
-    const replace = Update.apply(text, [Update.replace({ start: 2, end: 3 }, 'x')]);
+    const replace = TextUpdate.apply(text, [TextUpdate.replace({ start: 2, end: 3 }, 'x')]);
     expect(replace.ok).to.eql(false);
     if (replace.ok) throw new Error('expected split range');
     expect(replace.error.reason).to.eql('split-surrogate-pair');
 
-    const insert = Update.apply(text, [Update.insert(2, 'x')]);
+    const insert = TextUpdate.apply(text, [TextUpdate.insert(2, 'x')]);
     expect(insert.ok).to.eql(false);
     if (insert.ok) throw new Error('expected split insert');
     expect(insert.error.reason).to.eql('split-surrogate-pair');

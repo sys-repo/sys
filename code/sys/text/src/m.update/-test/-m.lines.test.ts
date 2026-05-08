@@ -1,12 +1,12 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Update } from '../mod.ts';
+import { TextUpdate } from '../mod.ts';
 
-describe('Update.lines', () => {
+describe('TextUpdate.lines', () => {
   const sample = () => 'line-1\nline-2\nline-3\n';
 
   it('no change without visitor preserves text exactly', () => {
     const text = 'line-1';
-    const res = Update.lines(text);
+    const res = TextUpdate.lines(text);
 
     expect(res.ok).to.eql(true);
     expect(res.changed).to.eql(false);
@@ -16,7 +16,7 @@ describe('Update.lines', () => {
   });
 
   it('no change when replace returns same value', () => {
-    const res = Update.lines(sample(), (line) => line.replace(line.text));
+    const res = TextUpdate.lines(sample(), (line) => line.replace(line.text));
 
     expect(res.ok).to.eql(true);
     expect(res.changed).to.eql(false);
@@ -24,7 +24,7 @@ describe('Update.lines', () => {
   });
 
   it('replaces, inserts, and deletes lines functionally', () => {
-    const res = Update.lines(sample(), (line) => {
+    const res = TextUpdate.lines(sample(), (line) => {
       if (line.text === 'line-1') return line.insertBefore('head');
       if (line.text === 'line-2') return line.replace('line-2 updated');
       if (line.text === 'line-3') return [line.insertAfter('tail'), line.delete()];
@@ -42,7 +42,7 @@ describe('Update.lines', () => {
 
   it('does not revisit inserted lines in the same pass', () => {
     const seen: string[] = [];
-    const res = Update.lines('a\nb', (line) => {
+    const res = TextUpdate.lines('a\nb', (line) => {
       seen.push(line.text);
       if (line.text === 'a') return line.insertAfter('inserted');
       if (line.text === 'inserted') return line.insertAfter('should-not-run');
@@ -54,13 +54,13 @@ describe('Update.lines', () => {
   });
 
   it('inserts after a final unterminated line with preserve and ensure EOF policies', () => {
-    const preserve = Update.lines('line-1', (line) => {
+    const preserve = TextUpdate.lines('line-1', (line) => {
       if (line.is.last) return line.insertAfter('tail');
     });
     expect(preserve.ok).to.eql(true);
     expect(preserve.after).to.eql('line-1\ntail');
 
-    const ensure = Update.lines('line-1', (line) => {
+    const ensure = TextUpdate.lines('line-1', (line) => {
       if (line.is.last) return line.insertAfter('tail');
     }, { eof: 'ensure' });
     expect(ensure.ok).to.eql(true);
@@ -68,29 +68,29 @@ describe('Update.lines', () => {
   });
 
   it('preserves and normalizes newline styles intentionally', () => {
-    const preserve = Update.lines('a\r\nb\r\n', (line) => {
+    const preserve = TextUpdate.lines('a\r\nb\r\n', (line) => {
       if (line.text === 'a') return line.insertAfter('x');
     });
     expect(preserve.ok).to.eql(true);
     expect(preserve.after).to.eql('a\r\nx\r\nb\r\n');
 
-    const lf = Update.lines('a\r\nb\r\n', undefined, { newline: '\n' });
+    const lf = TextUpdate.lines('a\r\nb\r\n', undefined, { newline: '\n' });
     expect(lf.ok).to.eql(true);
     expect(lf.after).to.eql('a\nb\n');
   });
 
   it('supports EOF ensure and strip policies', () => {
-    const ensure = Update.lines('a', undefined, { eof: 'ensure' });
+    const ensure = TextUpdate.lines('a', undefined, { eof: 'ensure' });
     expect(ensure.ok).to.eql(true);
     expect(ensure.after).to.eql('a\n');
 
-    const strip = Update.lines('a\n', undefined, { eof: 'strip' });
+    const strip = TextUpdate.lines('a\n', undefined, { eof: 'strip' });
     expect(strip.ok).to.eql(true);
     expect(strip.after).to.eql('a');
   });
 
   it('reports EOF normalization from empty text as an insert', () => {
-    const res = Update.lines('', undefined, { eof: 'ensure' });
+    const res = TextUpdate.lines('', undefined, { eof: 'ensure' });
 
     expect(res.ok).to.eql(true);
     expect(res.after).to.eql('\n');
@@ -100,14 +100,14 @@ describe('Update.lines', () => {
   });
 
   it('fails safely for invalid logical line text and malformed visitor edits', () => {
-    const invalidText = Update.lines('a\n', (line) => line.replace('x\ny'));
+    const invalidText = TextUpdate.lines('a\n', (line) => line.replace('x\ny'));
 
     expect(invalidText.ok).to.eql(false);
     expect(invalidText.after).to.eql('a\n');
     if (invalidText.ok) throw new Error('expected invalid line text');
     expect(invalidText.error.reason).to.eql('invalid-line-text');
 
-    const malformed = Update.lines('a\n', () => ({} as never));
+    const malformed = TextUpdate.lines('a\n', () => ({} as never));
     expect(malformed.ok).to.eql(false);
     expect(malformed.after).to.eql('a\n');
     if (malformed.ok) throw new Error('expected malformed visitor edit');
@@ -116,7 +116,7 @@ describe('Update.lines', () => {
 
   it('exposes immutable original line snapshots', () => {
     const seen: (readonly string[])[] = [];
-    Update.lines(sample(), (line) => {
+    TextUpdate.lines(sample(), (line) => {
       if (line.text === 'line-1') {
         seen.push(line.lines);
         seen.push(line.lines);
@@ -132,7 +132,7 @@ describe('Update.lines', () => {
 
   it('keeps original line snapshots stable across visitor mutation attempts', () => {
     const seen: (readonly string[])[] = [];
-    Update.lines('a\nb', (line) => {
+    TextUpdate.lines('a\nb', (line) => {
       seen.push(line.lines);
       try {
         (line.lines as string[]).push('mutated');
@@ -148,7 +148,7 @@ describe('Update.lines', () => {
   });
 
   it('keeps helper ranges stable across visitor mutation attempts', () => {
-    const res = Update.lines('a\nb', (line) => {
+    const res = TextUpdate.lines('a\nb', (line) => {
       if (line.text !== 'a') return;
       (line.range as { start: number }).start = 100;
       return line.delete();

@@ -1,4 +1,4 @@
-import { Update } from '@sys/text/update';
+import { TextUpdate } from '@sys/text/update';
 import type * as text from '@sys/text/t';
 import { Err, Fs, Is, Json, type t } from './common.ts';
 
@@ -133,7 +133,7 @@ async function updatePath(
     }
     : undefined;
 
-  const res = Update.lines(f.data ?? '', visit, { eof: 'ensure', newline: '\n' });
+  const res = TextUpdate.lines(f.data ?? '', visit, { eof: 'ensure', newline: '\n' });
 
   if (!res.ok) return withError(res.error.message, { before: res.before, after: res.after });
   const changes = res.changes.filter((change) => change.label !== 'normalize').map(toTmplChange);

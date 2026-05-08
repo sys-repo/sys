@@ -1,4 +1,4 @@
-import { Fs, type t, Update } from './common.ts';
+import { Fs, type t, TextUpdate } from './common.ts';
 
 const REQUIRED = ['.pi/'] as const;
 const GITIGNORE = '.gitignore' as const;
@@ -41,7 +41,7 @@ function mergeGitignore(text: string) {
 function appendLines(text: string, lines: readonly string[]) {
   if (text.trim().length === 0) return `${lines.join('\n')}\n`;
 
-  const update = Update.lines(text, (line) => {
+  const update = TextUpdate.lines(text, (line) => {
     if (!line.is.last) return;
     if (line.text.length === 0) return lines.map((item) => line.insertBefore(item));
     return lines.map((item) => line.insertAfter(item));
