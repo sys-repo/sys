@@ -1,4 +1,6 @@
-import { Is, type t, TextBlock, TextUpdate } from './common.ts';
+import { TextBlock } from '@sys/text/block';
+import { TextUpdate } from '@sys/text/update';
+import { Is, type t } from './common.ts';
 import { renderLines } from './u.block.body.ts';
 import { locate, mapInvalidReason } from './u.block.locate.ts';
 

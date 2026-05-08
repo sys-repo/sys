@@ -1,4 +1,5 @@
-import { type t, TextBlock } from './common.ts';
+import { TextBlock } from '@sys/text/block';
+import { type t } from './common.ts';
 import { renderLines } from './u.block.body.ts';
 import { locate } from './u.block.locate.ts';
 import { markers } from './u.block.markers.ts';

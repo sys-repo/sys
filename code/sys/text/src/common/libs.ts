@@ -1,4 +1,3 @@
-export { Jsr } from '@sys/registry/jsr';
 export { Arr } from '@sys/std/arr';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
