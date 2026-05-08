@@ -6,6 +6,7 @@ import { ProfilesFs } from './u.fs.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
 import { ProfileSchema } from './u.schema.ts';
+import { clearInteractiveScreen } from './u.terminal.ts';
 
 type Action = 'run' | 'select';
 
@@ -45,6 +46,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
     if (selected.kind === 'exit') return { kind: 'exit' };
     if (selected.kind !== 'action' || selected.action !== 'select') return { kind: 'exit' };
 
+    clearInteractiveScreen();
     const preview = await printSandbox({
       cwd: resolvedCwd,
       path: selected.path,

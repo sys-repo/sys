@@ -197,6 +197,65 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     }
   });
 
+  it('menu → clears transient profile list before printing the sandbox sheet on TTY', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
+      .absolute as t.StringDir;
+    const originalPrompt = Cli.Input.Select.prompt;
+    const prevInfo = console.info;
+    const prevClear = console.clear;
+    const prevIsTerminal = Deno.stdout.isTerminal.bind(Deno.stdout);
+    const screen = Cli.Screen as { size: () => { width: number; height: number } };
+    const prevScreenSize = screen.size;
+    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
+
+    await Fs.ensureDir(Fs.join(cwd, '.git'));
+    await Fs.ensureDir(Fs.dirname(config));
+    await Fs.write(config, 'sandbox: {}\n');
+    const events: string[] = [];
+    let topLevelCount = 0;
+
+    Object.defineProperty(Cli.Input.Select, 'prompt', {
+      value: (input: SelectInput) => {
+        if (isRootMenu(input)) {
+          topLevelCount += 1;
+          if (topLevelCount === 1) return Promise.resolve(config);
+          return Promise.resolve('exit');
+        }
+        if (isActionMenu(input)) return Promise.resolve('back');
+        throw new Error(`Unexpected prompt: ${input.message}`);
+      },
+    });
+    Object.defineProperty(Deno.stdout, 'isTerminal', {
+      value: () => true,
+      configurable: true,
+      writable: true,
+    });
+    screen.size = () => ({ width: 80, height: 24 });
+    console.clear = () => events.push('clear');
+    console.info = (value?: unknown) => {
+      const text = String(value ?? '');
+      if (Cli.stripAnsi(text).includes('system:pi:sandbox')) events.push('sandbox');
+    };
+
+    try {
+      const res = await menu({ cwd });
+      expect(res).to.eql({ kind: 'exit' });
+      expect(events).to.include.members(['clear', 'sandbox']);
+      expect(events.indexOf('clear')).to.be.lessThan(events.indexOf('sandbox'));
+    } finally {
+      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
+      Object.defineProperty(Deno.stdout, 'isTerminal', {
+        value: prevIsTerminal,
+        configurable: true,
+        writable: true,
+      });
+      screen.size = prevScreenSize;
+      console.clear = prevClear;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
   it('menu → lists loaded standard context files in the sandbox sheet', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
       .absolute as t.StringDir;

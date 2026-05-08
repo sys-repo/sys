@@ -11,6 +11,7 @@ import { ProfilesFs } from './u.fs.ts';
 import { menu } from './u.menu.ts';
 import { ProfileMigrate } from './u.migrate/mod.ts';
 import { resolveRun } from './u.resolve.run.ts';
+import { clearInteractiveScreen } from './u.terminal.ts';
 
 export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const parsed = ProfileArgs.parse(input.argv);
@@ -38,6 +39,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
   const cwd = resolvedCwd.cwd;
   const root = runtimeRoot(cwd);
   const allowAll = input.allowAll === true || parsed.allowAll === true;
+  const gitRootExplicit = parsed.gitRoot !== undefined;
 
   const migration = await ProfileMigrate.dir(root);
   const migrationMessage = ProfileMigrate.message(migration);
@@ -49,7 +51,7 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
       kind: 'selected' as const,
       config: selection.config,
     }
-    : await menu({ cwd, allowAll, gitRootExplicit: parsed.gitRoot !== undefined });
+    : await menu({ cwd, allowAll, gitRootExplicit });
 
   if (picked.kind === 'exit') return { kind: 'exit', input };
 
@@ -66,10 +68,11 @@ export const main: t.PiCliProfiles.Lib['main'] = async (input = {}) => {
     pkg: input.pkg,
   });
   if (picked.previewed !== true) {
+    if (!selection) clearInteractiveScreen();
     const report = await PiSandboxReport.write({ cwd: root, sandbox: resolved.sandbox });
     console.info(
       PiSandboxFmt.table({ ...resolved.sandbox, report }, {
-        gitRootExplicit: parsed.gitRoot !== undefined,
+        gitRootExplicit,
       }),
     );
   }
