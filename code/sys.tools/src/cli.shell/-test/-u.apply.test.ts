@@ -63,7 +63,7 @@ describe('cli.shell init', () => {
       [zshrc, true],
     ]);
     expect(writes[0]?.text).to.eql(original);
-    expect(writes[1]?.text).to.contain('user profile text\n\n# >>> @sys/tools shell');
+    expect(writes[1]?.text).to.contain('user profile text\n\n# ━━━ BEGIN: @sys/tools:shell');
     expect(writes[1]?.text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('wrote:');
     expect(text).to.contain('backup:');

@@ -12,13 +12,13 @@ describe('cli.shell Alias', () => {
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh' })[name],
       exists: async (path) => path === zshrc,
       readText: async () =>
-        `secret before\n# >>> @sys/tools shell
-# Managed by @sys/tools shell. Edit with: sys shell ...
+        `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+# Generated settings. Do not manually edit. Update with \`sys shell\`.
 
-# @sys.shell alias sys
+# alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
-# <<< @sys/tools shell
+# ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
 secret after\n`,
     });
     const text = Cli.stripAnsi(formatAliasList(report));
@@ -59,8 +59,8 @@ secret after\n`,
     expect(report.plan?.kind).to.eql('add');
     expect(text).to.contain('system:shell alias enable sys');
     expect(text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
-    expect(text).to.contain('Edit with: sys shell ...');
-    expect(text).to.contain('# @sys.shell alias sys');
+    expect(text).to.contain('Update with `sys shell`.');
+    expect(text).to.contain('# alias: sys');
     expect(text).to.contain('Dry-run preview only; no changes written');
     expect(text).not.to.contain('secret profile text');
   });
@@ -79,7 +79,8 @@ secret after\n`,
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh' })[name],
       exists: async (path) => path === zshrc,
       readText: async () => original,
-      writeText: async (path, text, options) => void writes.push({ path, text, force: options?.force }),
+      writeText: async (path, text, options) =>
+        void writes.push({ path, text, force: options?.force }),
       now: () => NOW,
     });
     const text = Cli.stripAnsi(formatAliasEnable(report));
@@ -91,7 +92,7 @@ secret after\n`,
       [zshrc, true],
     ]);
     expect(writes[0]?.text).to.eql(original);
-    expect(writes[1]?.text).to.contain('user profile text\n\n# >>> @sys/tools shell');
+    expect(writes[1]?.text).to.contain('user profile text\n\n# ━━━ BEGIN: @sys/tools:shell');
     expect(writes[1]?.text).to.contain('alias sys="deno run -A jsr:@sys/tools"');
     expect(text).to.contain('wrote:');
     expect(text).to.contain('backup:');

@@ -16,13 +16,13 @@ describe('cli.shell doctor', () => {
         })[name],
       exists: async (path) => path === zshrc,
       readText: async () =>
-        `# >>> @sys/tools shell
-# Managed by @sys/tools shell. Edit with: sys shell ...
+        `# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+# Generated settings. Do not manually edit. Update with \`sys shell\`.
 
-# @sys.shell alias sys
+# alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
-# <<< @sys/tools shell
+# ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
 `,
     });
 

@@ -5,8 +5,11 @@ import { Shell } from '../mod.ts';
 const owner: t.Shell.Owner = {
   id: '@sys.shell',
   label: '@sys/tools shell',
-  commandHint: 'sys shell ...',
+  commandHint: 'sys shell',
 };
+
+const markerStart = `# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}`;
+const markerEnd = `# ━━━ END: @sys/tools:shell ${'━'.repeat(56)}`;
 
 const model: t.Shell.ManagedModel = {
   paths: [
@@ -25,20 +28,20 @@ const model: t.Shell.ManagedModel = {
 describe('Shell.Block', () => {
   it('renders a deterministic managed block', () => {
     const block = Shell.Block.render({ owner, model });
-    expect(block).to.eql(`# >>> @sys/tools shell
-# Managed by @sys/tools shell. Edit with: sys shell ...
+    expect(block).to.eql(`${markerStart}
+# Generated settings. Do not manually edit. Update with \`sys shell\`.
 
-# @sys.shell path deno
+# path: deno
 export DENO_INSTALL="\${DENO_INSTALL:-$HOME/.deno}"
 case ":$PATH:" in
   *":$DENO_INSTALL/bin:"*) ;;
   *) export PATH="$DENO_INSTALL/bin:$PATH" ;;
 esac
 
-# @sys.shell alias sys
+# alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
-# <<< @sys/tools shell
+${markerEnd}
 `);
   });
 
@@ -61,8 +64,8 @@ alias sys="deno run -A jsr:@sys/tools"
 
     expect(result.kind).to.eql('add');
     expect(result.changed).to.eql(true);
-    expect(result.nextText.startsWith('# user content\n\n# >>> @sys/tools shell')).to.eql(true);
-    expect(result.nextText.endsWith('# <<< @sys/tools shell\n')).to.eql(true);
+    expect(result.nextText.startsWith(`# user content\n\n${markerStart}`)).to.eql(true);
+    expect(result.nextText.endsWith(`${markerEnd}\n`)).to.eql(true);
   });
 
   it('replaces one complete managed block only', () => {
@@ -76,8 +79,8 @@ alias sys="deno run -A jsr:@sys/tools"
 
     expect(result.kind).to.eql('replace');
     expect(result.changed).to.eql(true);
-    expect(result.nextText.startsWith('before\n\n# >>> @sys/tools shell')).to.eql(true);
-    expect(result.nextText.endsWith('# <<< @sys/tools shell\nafter\n')).to.eql(true);
+    expect(result.nextText.startsWith(`before\n\n${markerStart}`)).to.eql(true);
+    expect(result.nextText.endsWith(`${markerEnd}\nafter\n`)).to.eql(true);
   });
 
   it('removes one complete managed block only', () => {
@@ -90,14 +93,14 @@ alias sys="deno run -A jsr:@sys/tools"
   });
 
   it('fails safe for partial or multiple markers', () => {
-    const partial = Shell.Block.update({ owner, model, text: '# >>> @sys/tools shell\n' });
+    const partial = Shell.Block.update({ owner, model, text: `${markerStart}\n` });
     expect(partial.block).to.eql({ kind: 'invalid', reason: 'partial-markers' });
     expect(partial.changed).to.eql(false);
 
     const reversed = Shell.Block.update({
       owner,
       model,
-      text: '# <<< @sys/tools shell\n# >>> @sys/tools shell\n',
+      text: `${markerEnd}\n${markerStart}\n`,
     });
     expect(reversed.block).to.eql({ kind: 'invalid', reason: 'partial-markers' });
     expect(reversed.changed).to.eql(false);
@@ -112,7 +115,7 @@ alias sys="deno run -A jsr:@sys/tools"
     const result = Shell.Block.update({
       owner,
       model,
-      text: '# >>> @sys/tools shell extra\n# <<< @sys/tools shell\n',
+      text: `${markerStart} extra\n${markerEnd}\n`,
     });
     expect(result.block).to.eql({ kind: 'invalid', reason: 'partial-markers' });
     expect(result.changed).to.eql(false);
@@ -121,8 +124,8 @@ alias sys="deno run -A jsr:@sys/tools"
   it('marks unknown manual edits inside the managed block as stale', () => {
     const text = Str.replaceAll(
       Shell.Block.render({ owner, model }),
-      '# @sys.shell alias sys\n',
-      '# manual edit\n# @sys.shell alias sys\n',
+      '# alias: sys\n',
+      '# manual edit\n# alias: sys\n',
     ).after;
     const state = Shell.Block.detect({ owner, text });
 
@@ -138,7 +141,7 @@ alias sys="deno run -A jsr:@sys/tools"
     const before = 'before\r\n';
     const result = Shell.Block.update({ owner, model: { paths: [], aliases: [] }, text: before });
 
-    expect(result.nextText.includes('\r\n# >>> @sys/tools shell\r\n')).to.eql(true);
-    expect(result.nextText.includes('\n# >>> @sys/tools shell\n')).to.eql(false);
+    expect(result.nextText.includes(`\r\n${markerStart}\r\n`)).to.eql(true);
+    expect(result.nextText.includes(`\n${markerStart}\n`)).to.eql(false);
   });
 });

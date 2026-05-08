@@ -12,17 +12,17 @@ describe('cli.shell Path', () => {
       env: (name) => ({ HOME: home, SHELL: '/bin/zsh', PATH: `${home}/.deno/bin:/usr/bin` })[name],
       exists: async (path) => path === zshrc,
       readText: async () =>
-        `secret before\n# >>> @sys/tools shell
-# Managed by @sys/tools shell. Edit with: sys shell ...
+        `secret before\n# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}
+# Generated settings. Do not manually edit. Update with \`sys shell\`.
 
-# @sys.shell path deno
+# path: deno
 export DENO_INSTALL="\${DENO_INSTALL:-$HOME/.deno}"
 case ":$PATH:" in
   *":$DENO_INSTALL/bin:"*) ;;
   *) export PATH="$DENO_INSTALL/bin:$PATH" ;;
 esac
 
-# <<< @sys/tools shell
+# ━━━ END: @sys/tools:shell ${'━'.repeat(56)}
 secret after\n`,
     });
     const text = Cli.stripAnsi(formatPathList(report));
@@ -70,8 +70,8 @@ secret after\n`,
     expect(report.plan?.kind).to.eql('add');
     expect(text).to.contain('system:shell path add deno');
     expect(text).to.contain('export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
-    expect(text).to.contain('Edit with: sys shell ...');
-    expect(text).to.contain('# @sys.shell path deno');
+    expect(text).to.contain('Update with `sys shell`.');
+    expect(text).to.contain('# path: deno');
     expect(text).to.contain('Dry-run preview only; no changes written');
     expect(text).not.to.contain('secret profile text');
   });
@@ -103,7 +103,7 @@ secret after\n`,
       [zshrc, true],
     ]);
     expect(writes[0]?.text).to.eql(original);
-    expect(writes[1]?.text).to.contain('user profile text\n\n# >>> @sys/tools shell');
+    expect(writes[1]?.text).to.contain('user profile text\n\n# ━━━ BEGIN: @sys/tools:shell');
     expect(writes[1]?.text).to.contain('export DENO_INSTALL="${DENO_INSTALL:-$HOME/.deno}"');
     expect(text).to.contain('wrote:');
     expect(text).to.contain('backup:');

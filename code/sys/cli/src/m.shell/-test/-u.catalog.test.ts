@@ -5,7 +5,7 @@ import { Shell } from '../mod.ts';
 const owner: t.Shell.Owner = {
   id: '@sys.shell',
   label: '@sys/tools shell',
-  commandHint: 'sys shell ...',
+  commandHint: 'sys shell',
 };
 
 describe('Shell.Alias', () => {
@@ -49,20 +49,21 @@ esac`,
       },
     });
 
-    expect(block).to.eql(`# >>> @sys/tools shell
-# Managed by @sys/tools shell. Edit with: sys shell ...
+    const markers = Shell.Block.markers(owner);
+    expect(block).to.eql(`${markers.start}
+# Generated settings. Do not manually edit. Update with \`sys shell\`.
 
-# @sys.shell path deno
+# path: deno
 export DENO_INSTALL="\${DENO_INSTALL:-$HOME/.deno}"
 case ":$PATH:" in
   *":$DENO_INSTALL/bin:"*) ;;
   *) export PATH="$DENO_INSTALL/bin:$PATH" ;;
 esac
 
-# @sys.shell alias sys
+# alias: sys
 alias sys="deno run -A jsr:@sys/tools"
 
-# <<< @sys/tools shell
+${markers.end}
 `);
   });
 });

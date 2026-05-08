@@ -7,286 +7,296 @@ import { Path } from '../u.path.ts';
 
 type ShellMenuPick = Awaited<ReturnType<typeof shellMenu>>;
 
+const owner = { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell' } as const;
+const markerStart = `# ━━━ BEGIN: @sys/tools:shell ${'━'.repeat(54)}`;
+const markerEnd = `# ━━━ END: @sys/tools:shell ${'━'.repeat(56)}`;
+
 describe('cli.shell CLI', () => {
-  it('routes `alias list` through the CLI', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly Alias: Pick<typeof Alias, 'list'>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
+  describe('routes', () => {
+    it('routes `alias list` through the CLI', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly Alias: Pick<typeof Alias, 'list'>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
 
-    await run('/tmp' as t.StringDir, ['alias', 'list'], undefined, {
-      Alias: {
-        list: async () => ({
-          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-          shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
-          profiles: [{
-            path: '/home/me/.zshrc' as t.StringPath,
-            role: 'interactive',
-            exists: true,
-            block: { kind: 'missing' },
-          }],
-          items: [{
-            entry: { id: 'sys', name: 'sys', command: 'deno run -A jsr:@sys/tools', risk: 'safe' },
-            state: 'conflict',
-            profiles: [],
-            conflictProfiles: ['/home/me/.zprofile' as t.StringPath],
-            stale: false,
-          }],
-          warnings: [],
-        }),
-      },
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
-    });
-
-    const text = Cli.stripAnsi(output.join('\n'));
-    expect(text).to.contain('system:shell alias list');
-    expect(text).to.contain('  aliases   sys conflict');
-    expect(text).to.contain('            - command:   deno run -A jsr:@sys/tools');
-    expect(text).to.contain('            - conflicts: /home/me/.zprofile');
-    expect(text).to.contain(
-      '  profiles  /home/me/.zshrc (interactive) exists; managed block: absent',
-    );
-  });
-
-  it('routes `alias enable` through the CLI', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly Alias: Pick<typeof Alias, 'enable'>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
-
-    await run('/tmp' as t.StringDir, ['alias', 'enable', 'common', '--dry-run'], undefined, {
-      Alias: {
-        enable: async (target) => ({
-          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-          status: 'planned',
-          dryRun: true,
-          target,
-          entries: [{
-            id: 'sys',
-            name: 'sys',
-            command: 'deno run -A jsr:@sys/tools',
-            risk: 'safe',
-          }],
-          profile: {
-            path: '/home/me/.zshrc' as t.StringPath,
-            role: 'interactive',
-            exists: true,
-            block: { kind: 'missing' },
-          },
-          plan: {
-            kind: 'add',
-            changed: true,
-            block: { kind: 'missing' },
-            preview:
-              '# >>> @sys/tools shell\n# @sys.shell alias sys\nalias sys="deno run -A jsr:@sys/tools"\n# <<< @sys/tools shell\n',
-          },
-          warnings: ['Dry-run preview only; no changes written'],
-        }),
-      },
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
-    });
-
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell alias enable common');
-  });
-
-  it('routes `path list` through the CLI', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly Path: Pick<typeof Path, 'list'>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
-
-    await run('/tmp' as t.StringDir, ['path', 'list'], undefined, {
-      Path: {
-        list: async () => ({
-          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-          shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
-          env: {
-            home: '/home/me' as t.StringDir,
-            denoInstall: '/home/me/.deno' as t.StringDir,
-            denoBin: '/home/me/.deno/bin' as t.StringDir,
-            pathContainsDenoBin: false,
-          },
-          profiles: [],
-          items: [{
-            entry: { id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' },
-            state: 'missing',
-            profiles: [],
-            unmanagedProfiles: [],
-            stale: false,
-          }],
-          warnings: [],
-        }),
-      },
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
-    });
-
-    const text = Cli.stripAnsi(output.join('\n'));
-    expect(text).to.contain('system:shell path list');
-    expect(text).to.contain('  profiles     ! no profile candidates');
-  });
-
-  it('routes `path add` through the CLI', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly Path: Pick<typeof Path, 'add'>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
-
-    await run('/tmp' as t.StringDir, ['path', 'add', 'deno', '--dry-run'], undefined, {
-      Path: {
-        add: async (target) => ({
-          owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-          status: 'planned',
-          dryRun: true,
-          target,
-          entries: [{ id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' }],
-          env: {
-            home: '/home/me' as t.StringDir,
-            denoInstall: '/home/me/.deno' as t.StringDir,
-            denoBin: '/home/me/.deno/bin' as t.StringDir,
-            pathContainsDenoBin: false,
-          },
-          profile: {
-            path: '/home/me/.zshrc' as t.StringPath,
-            role: 'interactive',
-            exists: true,
-            block: { kind: 'missing' },
-          },
-          plan: {
-            kind: 'add',
-            changed: true,
-            block: { kind: 'missing' },
-            preview:
-              '# >>> @sys/tools shell\n# @sys.shell path deno\nexport PATH="$PATH"\n# <<< @sys/tools shell\n',
-          },
-          warnings: ['Dry-run preview only; no changes written'],
-        }),
-      },
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
-    });
-
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell path add deno');
-  });
-
-  it('routes `init` through the CLI', async () => {
-    const output: string[] = [];
-    let received: t.ShellTool.Apply.Options | undefined;
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
-
-    await run(
-      '/tmp' as t.StringDir,
-      [
-        'init',
-        '--profile',
-        '/tmp/profile',
-        '--shell',
-        'zsh',
-      ],
-      undefined,
-      {
-        init: async (options) => {
-          received = options;
-          return {
-            owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-            status: 'blocked',
-            dryRun: true,
+      await run('/tmp' as t.StringDir, ['alias', 'list'], undefined, {
+        Alias: {
+          list: async () => ({
+            owner,
             shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
-            env: { pathContainsDenoBin: false },
-            aliases: [],
-            paths: [],
-            warnings: ['No files written'],
-          };
+            profiles: [{
+              path: '/home/me/.zshrc' as t.StringPath,
+              role: 'interactive',
+              exists: true,
+              block: { kind: 'missing' },
+            }],
+            items: [{
+              entry: {
+                id: 'sys',
+                name: 'sys',
+                command: 'deno run -A jsr:@sys/tools',
+                risk: 'safe',
+              },
+              state: 'conflict',
+              profiles: [],
+              conflictProfiles: ['/home/me/.zprofile' as t.StringPath],
+              stale: false,
+            }],
+            warnings: [],
+          }),
         },
         info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
-      },
-    );
+      });
 
-    expect(received).to.eql({
-      dryRun: false,
-      profile: '/tmp/profile',
-      shell: 'zsh',
-    });
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
-  });
-
-  it('routes hidden `apply` compatibility alias as init', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
-
-    await run('/tmp' as t.StringDir, ['apply', '--dry-run'], undefined, {
-      init: async () => ({
-        owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
-        status: 'planned',
-        dryRun: true,
-        shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
-        env: { pathContainsDenoBin: false },
-        aliases: [],
-        paths: [],
-        warnings: ['No files written'],
-      }),
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      const text = Cli.stripAnsi(output.join('\n'));
+      expect(text).to.contain('system:shell alias list');
+      expect(text).to.contain('  aliases   sys conflict');
+      expect(text).to.contain('            - command:   deno run -A jsr:@sys/tools');
+      expect(text).to.contain('            - conflicts: /home/me/.zprofile');
+      expect(text).to.contain(
+        '  profiles  /home/me/.zshrc (interactive) exists; managed block: absent',
+      );
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
-  });
+    it('routes `alias enable` through the CLI', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly Alias: Pick<typeof Alias, 'enable'>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
 
-  it('routes `doctor` through the CLI', async () => {
-    const output: string[] = [];
-    const run = cli as unknown as (
-      cwd: t.StringDir,
-      argv: string[],
-      context: t.ShellTool.CliContext | undefined,
-      deps: {
-        readonly doctor: typeof doctor;
-        readonly info: (...data: unknown[]) => void;
-      },
-    ) => Promise<t.ShellTool.CliResult>;
+      await run('/tmp' as t.StringDir, ['alias', 'enable', 'common', '--dry-run'], undefined, {
+        Alias: {
+          enable: async (target) => ({
+            owner,
+            status: 'planned',
+            dryRun: true,
+            target,
+            entries: [{
+              id: 'sys',
+              name: 'sys',
+              command: 'deno run -A jsr:@sys/tools',
+              risk: 'safe',
+            }],
+            profile: {
+              path: '/home/me/.zshrc' as t.StringPath,
+              role: 'interactive',
+              exists: true,
+              block: { kind: 'missing' },
+            },
+            plan: {
+              kind: 'add',
+              changed: true,
+              block: { kind: 'missing' },
+              preview:
+                `${markerStart}\n# alias: sys\nalias sys="deno run -A jsr:@sys/tools"\n${markerEnd}\n`,
+            },
+            warnings: ['Dry-run preview only; no changes written'],
+          }),
+        },
+        info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      });
 
-    await run('/tmp' as t.StringDir, ['doctor'], undefined, {
-      doctor: async () => doctorReport(),
-      info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell alias enable common');
     });
 
-    expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell doctor');
+    it('routes `path list` through the CLI', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly Path: Pick<typeof Path, 'list'>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
+
+      await run('/tmp' as t.StringDir, ['path', 'list'], undefined, {
+        Path: {
+          list: async () => ({
+            owner,
+            shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+            env: {
+              home: '/home/me' as t.StringDir,
+              denoInstall: '/home/me/.deno' as t.StringDir,
+              denoBin: '/home/me/.deno/bin' as t.StringDir,
+              pathContainsDenoBin: false,
+            },
+            profiles: [],
+            items: [{
+              entry: { id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' },
+              state: 'missing',
+              profiles: [],
+              unmanagedProfiles: [],
+              stale: false,
+            }],
+            warnings: [],
+          }),
+        },
+        info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      });
+
+      const text = Cli.stripAnsi(output.join('\n'));
+      expect(text).to.contain('system:shell path list');
+      expect(text).to.contain('  profiles     ! no profile candidates');
+    });
+
+    it('routes `path add` through the CLI', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly Path: Pick<typeof Path, 'add'>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
+
+      await run('/tmp' as t.StringDir, ['path', 'add', 'deno', '--dry-run'], undefined, {
+        Path: {
+          add: async (target) => ({
+            owner,
+            status: 'planned',
+            dryRun: true,
+            target,
+            entries: [{ id: 'deno', label: 'Deno bin', expression: 'export PATH="$PATH"' }],
+            env: {
+              home: '/home/me' as t.StringDir,
+              denoInstall: '/home/me/.deno' as t.StringDir,
+              denoBin: '/home/me/.deno/bin' as t.StringDir,
+              pathContainsDenoBin: false,
+            },
+            profile: {
+              path: '/home/me/.zshrc' as t.StringPath,
+              role: 'interactive',
+              exists: true,
+              block: { kind: 'missing' },
+            },
+            plan: {
+              kind: 'add',
+              changed: true,
+              block: { kind: 'missing' },
+              preview: `${markerStart}\n# path: deno\nexport PATH="$PATH"\n${markerEnd}\n`,
+            },
+            warnings: ['Dry-run preview only; no changes written'],
+          }),
+        },
+        info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      });
+
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell path add deno');
+    });
+
+    it('routes `init` through the CLI', async () => {
+      const output: string[] = [];
+      let received: t.ShellTool.Apply.Options | undefined;
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
+
+      await run(
+        '/tmp' as t.StringDir,
+        [
+          'init',
+          '--profile',
+          '/tmp/profile',
+          '--shell',
+          'zsh',
+        ],
+        undefined,
+        {
+          init: async (options) => {
+            received = options;
+            return {
+              owner,
+              status: 'blocked',
+              dryRun: true,
+              shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+              env: { pathContainsDenoBin: false },
+              aliases: [],
+              paths: [],
+              warnings: ['No files written'],
+            };
+          },
+          info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+        },
+      );
+
+      expect(received).to.eql({
+        dryRun: false,
+        profile: '/tmp/profile',
+        shell: 'zsh',
+      });
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
+    });
+
+    it('routes hidden `apply` compatibility alias as init', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly init: (options?: t.ShellTool.Apply.Options) => Promise<t.ShellTool.Apply.Report>;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
+
+      await run('/tmp' as t.StringDir, ['apply', '--dry-run'], undefined, {
+        init: async () => ({
+          owner,
+          status: 'planned',
+          dryRun: true,
+          shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
+          env: { pathContainsDenoBin: false },
+          aliases: [],
+          paths: [],
+          warnings: ['No files written'],
+        }),
+        info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      });
+
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell init');
+    });
+
+    it('routes `doctor` through the CLI', async () => {
+      const output: string[] = [];
+      const run = cli as unknown as (
+        cwd: t.StringDir,
+        argv: string[],
+        context: t.ShellTool.CliContext | undefined,
+        deps: {
+          readonly doctor: typeof doctor;
+          readonly info: (...data: unknown[]) => void;
+        },
+      ) => Promise<t.ShellTool.CliResult>;
+
+      await run('/tmp' as t.StringDir, ['doctor'], undefined, {
+        doctor: async () => doctorReport(),
+        info: (...data: unknown[]) => output.push(data.map(String).join(' ')),
+      });
+
+      expect(Cli.stripAnsi(output.join('\n'))).to.contain('system:shell doctor');
+    });
   });
 
   it('runs `doctor` by default for direct no-command invocation', async () => {
@@ -383,7 +393,7 @@ describe('cli.shell CLI', () => {
 
 function doctorReport(): t.ShellTool.Doctor.Report {
   return {
-    owner: { id: '@sys.shell', label: '@sys/tools shell', commandHint: 'sys shell ...' },
+    owner,
     shell: { path: '/bin/zsh', dialect: 'zsh', support: 'write' },
     env: {
       home: '/home/me' as t.StringDir,

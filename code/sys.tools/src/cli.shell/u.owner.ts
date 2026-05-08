@@ -4,5 +4,5 @@ import { type t } from './common.ts';
 export const OWNER = {
   id: '@sys.shell',
   label: '@sys/tools shell',
-  commandHint: 'sys shell ...',
+  commandHint: 'sys shell',
 } as const satisfies t.ShellTool.Owner;
