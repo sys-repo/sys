@@ -18,7 +18,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     });
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       const path = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
       const read = await Fs.readText(path);
       expect(read.ok).to.eql(true);
@@ -59,7 +59,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
@@ -89,7 +89,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => calls.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       const text = (await Fs.readText(config)).data ?? '';
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('append: []');
@@ -132,7 +132,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = () => undefined;
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(calls).to.eql(['agent:', 'agent:', 'agent:']);
@@ -176,7 +176,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => prints.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       const printed = Cli.stripAnsi(prints.join('\n'));
       const strippedOptions = harnessOptions.map((name) => Cli.stripAnsi(name));
       expect(res).to.eql({ kind: 'exit' });
@@ -238,7 +238,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     };
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       expect(events).to.include.members(['clear', 'sandbox']);
       expect(events.indexOf('clear')).to.be.lessThan(events.indexOf('sandbox'));
@@ -283,7 +283,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => prints.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd });
+      const res = await menu({ cwd: testCwd(cwd) });
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.match(/context\s+\.\/AGENTS\.md, \.\/SYSTEM\.md/);
@@ -325,7 +325,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     console.info = (value?: unknown) => prints.push(String(value ?? ''));
 
     try {
-      const res = await menu({ cwd, allowAll: true });
+      const res = await menu({ cwd: testCwd(cwd), allowAll: true });
       const printed = Cli.stripAnsi(prints.join('\n'));
       expect(res).to.eql({ kind: 'exit' });
       expect(printed).to.match(/permissions\s+allow-all/);
@@ -354,6 +354,10 @@ type SelectInput = {
   readonly message: string;
   readonly options?: readonly { readonly name: string; readonly value: string }[];
 };
+
+function testCwd(cwd: t.StringDir): t.PiCli.Cwd {
+  return { invoked: cwd, git: cwd };
+}
 
 function isRootMenu(input: SelectInput) {
   return (input.options ?? []).some((item) => item.value === 'exit');

@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, type t, YamlConfig } from './common.ts';
+import { c, Cli, Fs, type t, YamlConfig } from './common.ts';
 import { PiSandboxFmt } from '../m.cli/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../m.cli/u.report.sandbox.ts';
 import { runtimeRoot } from '../m.cli/u.runtime-root.ts';
@@ -30,8 +30,7 @@ const ValidName = {
 } as const;
 
 export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRootExplicit }) => {
-  const resolvedCwd = toMenuCwd(cwd);
-  const root = runtimeRoot(resolvedCwd);
+  const root = runtimeRoot(cwd);
   const migration = await ProfileMigrate.dir(root);
   const migrationMessage = ProfileMigrate.message(migration);
   if (migrationMessage) console.info(migrationMessage);
@@ -48,7 +47,7 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 
     clearInteractiveScreen();
     const preview = await printSandbox({
-      cwd: resolvedCwd,
+      cwd,
       path: selected.path,
       allowAll,
       gitRootExplicit,
@@ -76,10 +75,6 @@ export const menu: t.PiCliProfiles.Lib['menu'] = async ({ cwd, allowAll, gitRoot
 /**
  * Helpers:
  */
-function toMenuCwd(cwd: t.PiCliProfiles.MenuArgs['cwd']): t.PiCli.Cwd {
-  return Is.string(cwd) ? { invoked: cwd, git: cwd } : cwd;
-}
-
 function menuArgs(args: { cwd: t.StringDir; allowAll?: boolean }) {
   const { cwd, allowAll } = args;
   const schema = {

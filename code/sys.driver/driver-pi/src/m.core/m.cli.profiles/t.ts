@@ -64,8 +64,8 @@ export declare namespace PiCliProfiles {
 
   /** Menu input. */
   export type MenuArgs = {
-    /** Resolved cwd contract, or a runtime-root shorthand for direct menu callers. */
-    readonly cwd: t.PiCli.Cwd | t.StringDir;
+    /** Resolved cwd contract used to locate profiles and render sandbox previews. */
+    readonly cwd: t.PiCli.Cwd;
     /** Unsafe debug escape hatch applied to sandbox previews from the menu. */
     readonly allowAll?: boolean;
     /** Whether `--git-root` was explicitly supplied at the launcher boundary. */
