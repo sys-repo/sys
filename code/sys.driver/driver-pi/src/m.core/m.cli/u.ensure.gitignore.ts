@@ -1,4 +1,4 @@
-import { Fs, Update, type t } from './common.ts';
+import { Fs, type t, Update } from './common.ts';
 
 const REQUIRED = ['.pi/'] as const;
 const GITIGNORE = '.gitignore' as const;
@@ -13,13 +13,15 @@ export async function ensureGitignore(cwd: t.StringDir): Promise<void> {
   const text = read.data ?? '';
   const updated = mergeGitignore(text);
   if (updated === text) return;
-  await Fs.write(path, updated);
+  const write = await Fs.write(path, updated);
+  if (write.error) throw write.error;
 }
 
 export async function bootstrapGitignore(cwd: t.StringDir): Promise<void> {
   const path = Fs.join(cwd, GITIGNORE) as t.StringPath;
   if (!(await Fs.exists(path))) {
-    await Fs.write(path, `${REQUIRED.join('\n')}\n`);
+    const write = await Fs.write(path, `${REQUIRED.join('\n')}\n`);
+    if (write.error) throw write.error;
     return;
   }
 
@@ -41,11 +43,10 @@ function appendLines(text: string, lines: readonly string[]) {
 
   const update = Update.lines(text, (line) => {
     if (!line.is.last) return;
-    const position = line.text.length === 0 ? 'before' : 'after';
-    for (const item of lines) {
-      line.insert(item, position);
-    }
-  });
+    if (line.text.length === 0) return lines.map((item) => line.insertBefore(item));
+    return lines.map((item) => line.insertAfter(item));
+  }, { eof: 'ensure', newline: '\n' });
+  if (!update.ok) throw new Error(update.error.message);
   return update.after;
 }
 
