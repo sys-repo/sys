@@ -1,5 +1,5 @@
 import { CellHelp } from '../m.help/mod.ts';
-import { c, CliFmt } from './common.ts';
+import { c, Fmt } from './common.ts';
 
 export const FmtRootHelp = {
   async input(toolname = '@sys/cell') {
@@ -16,6 +16,6 @@ export const FmtRootHelp = {
   },
 
   async output(toolname?: string): Promise<string> {
-    return CliFmt.Help.build(await FmtRootHelp.input(toolname));
+    return Fmt.Help.build(await FmtRootHelp.input(toolname));
   },
 } as const;

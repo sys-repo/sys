@@ -1,4 +1,4 @@
-import { c, CliFmt, CliTable, Fs, TmplEngine, Yaml } from './common.ts';
+import { c, CliTable, Fmt, Fs, TmplEngine, Yaml } from './common.ts';
 import { Cell } from '../m.cell/mod.ts';
 import type { CellTmpl } from '../m.tmpl/t.ts';
 import { writeTmpl } from '../m.tmpl/u/u.write.ts';
@@ -75,7 +75,7 @@ function status(res: InitCellResult) {
 }
 
 function formatDisplayPath(path: string) {
-  return CliFmt.Path.str(path);
+  return Fmt.Path.str(path);
 }
 
 function renderRows(rows: readonly (readonly [string, string])[]) {

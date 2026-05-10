@@ -1,5 +1,5 @@
 import { CellHelp } from '../m.help/mod.ts';
-import { c, CliFmt, CliTable, Str } from './common.ts';
+import { c, CliTable, Fmt, Str } from './common.ts';
 import { composeHelpBlocks } from './u.help.compose.ts';
 import { Tmpl } from './u.tmpl.ts';
 
@@ -23,20 +23,19 @@ export const FmtInitHelp = {
   },
 
   async output(options: OutputOptions = {}): Promise<string> {
-    const help = CliFmt.Help.build(await FmtInitHelp.input(options.toolname));
+    const help = Fmt.Help.build(await FmtInitHelp.input(options.toolname));
     if (options.agent !== true) return help;
 
     const guidance = await CellHelp.Init.load();
     const descriptor = await Tmpl.minimalDescriptor();
-    const agent = agentTable([
-      { label: 'Agent', items: guidance.agent },
-      { label: 'Writes', items: Tmpl.minimalWritePaths() },
-      { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
-      {
-        label: 'Descriptor',
-        items: ['```yaml', ...block(descriptor).map((line) => line ? `  ${line}` : ''), '```'],
-      },
-    ]);
+    const agent = composeHelpBlocks(
+      agentTable([
+        { label: 'Agent', items: guidance.agent },
+        { label: 'Writes', items: Tmpl.minimalWritePaths() },
+        { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
+      ]),
+      descriptorBlock(descriptor),
+    );
     return composeHelpBlocks(help, agent);
   },
 } as const;
@@ -45,8 +44,8 @@ export const FmtInitHelp = {
  * Helpers:
  */
 
-function block(text: string): readonly string[] {
-  return Str.trimEdgeNewlines(text).split('\n');
+function descriptorBlock(descriptor: string): string {
+  return [c.gray('Descriptor'), Fmt.Code.block(descriptor, { indent: 2 })].join('\n');
 }
 
 function agentTable(sections: readonly { label: string; items: readonly string[] }[]): string {

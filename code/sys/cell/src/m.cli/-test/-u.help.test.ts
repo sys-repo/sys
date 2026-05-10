@@ -24,7 +24,15 @@ describe('FmtHelp', () => {
     expect(writes).to.contain('.gitignore');
     expect(owns).to.not.contain('.gitignore');
 
-    descriptorLines(await Tmpl.minimalDescriptor()).forEach((line) => {
+    const descriptor = await Tmpl.minimalDescriptor();
+    const renderedDescriptor = descriptorBlock(descriptor);
+
+    const descriptorTail = after(text, 'Descriptor');
+
+    expect(text).to.contain(renderedDescriptor);
+    expect(text).to.not.contain('Descriptor   ```yaml');
+    expect(descriptorTail).to.not.contain('```yaml');
+    descriptorLines(descriptor).forEach((line) => {
       expect(text).to.contain(line);
     });
   });
@@ -317,6 +325,11 @@ function chapterCommentColumn(text: string, chapter: string): number {
   const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
   expect(line).to.not.eql(undefined);
   return line?.indexOf('#') ?? -1;
+}
+
+function descriptorBlock(text: string): string {
+  const lines = Str.trimEdgeNewlines(text).split('\n').map((line) => line ? `  ${line}` : '');
+  return ['Descriptor', ...lines].join('\n');
 }
 
 function descriptorLines(text: string): readonly string[] {
