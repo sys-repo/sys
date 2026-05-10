@@ -4,6 +4,18 @@ import type { t } from './common.ts';
  * ANSI color helper types.
  */
 export declare namespace AnsiColor {
+  /** CLI color formatting tools. */
+  export type Lib = {
+    /** Full ANSI formatter surface. */
+    readonly ansi: t.AnsiColors;
+    /** Foreground color formatters only. */
+    readonly foreground: Foreground;
+    /** Raw ANSI escape sequences. */
+    readonly escape: Escape;
+    /** RGB color helpers re-exported for convenience. */
+    readonly rgb: t.ColorLib;
+  };
+
   /** ANSI color names supported by the terminal formatter. */
   export type Name =
     | 'black'
@@ -35,17 +47,3 @@ export declare namespace AnsiColor {
     readonly underline: string;
   };
 }
-
-/**
- * CLI color formatting tools.
- */
-export type AnsiColorLib = {
-  /** Full ANSI formatter surface. */
-  readonly ansi: t.AnsiColors;
-  /** Foreground color formatters only. */
-  readonly foreground: AnsiColor.Foreground;
-  /** Raw ANSI escape sequences. */
-  readonly escape: AnsiColor.Escape;
-  /** RGB color helpers re-exported for convenience. */
-  readonly rgb: t.ColorLib;
-};

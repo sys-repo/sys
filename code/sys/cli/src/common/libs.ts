@@ -1,4 +1,4 @@
-export { ANSI, c, Color, stripAnsi } from '@sys/color/ansi';
+export { c, Color, stripAnsi } from '@sys/color/ansi';
 export { Num } from '@sys/std/num';
 export { Str } from '@sys/std/str';
 export { Is } from '@sys/std/is';

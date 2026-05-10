@@ -1,5 +1,5 @@
 import type { codeToTokens } from 'shiki';
-import { ANSI, D, Is } from './common.ts';
+import { Color, D, Is } from './common.ts';
 import type { CliFormatCode, ShikiCodeToTokensOptions } from './t.ts';
 import { langLabel, layout, sourceLines } from './u.layout.ts';
 
@@ -40,7 +40,7 @@ function token(input: Token): string {
     style.length > 0
   );
   if (styles.length === 0) return input.content;
-  return `${styles.join('')}${input.content}${ANSI.reset}`;
+  return `${styles.join('')}${input.content}${Color.escape.reset}`;
 }
 
 function tokenColor(input: Token): string | undefined {
@@ -54,9 +54,9 @@ function fontStyle(input: number | undefined): string {
   if (!Is.number(input) || input <= 0) return '';
 
   const styles: string[] = [];
-  if ((input & 1) === 1) styles.push(ANSI.italic);
-  if ((input & 2) === 2) styles.push(ANSI.bold);
-  if ((input & 4) === 4) styles.push(ANSI.underline);
+  if ((input & 1) === 1) styles.push(Color.escape.italic);
+  if ((input & 2) === 2) styles.push(Color.escape.bold);
+  if ((input & 4) === 4) styles.push(Color.escape.underline);
   return styles.join('');
 }
 
