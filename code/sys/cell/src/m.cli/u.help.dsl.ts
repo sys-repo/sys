@@ -20,7 +20,7 @@ export const FmtDslHelp = {
     const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
     return Fmt.Chapters.page({
       command,
-      chapter,
+      chapter: await highlightedYaml(chapter),
       label: 'Chapter',
       help: {
         tool: toolname,
@@ -52,6 +52,22 @@ export const FmtDslHelp = {
     });
   },
 } as const;
+
+async function highlightedYaml(chapter: t.CellHelp.Dsl.Chapter): Promise<t.CellHelp.Dsl.Chapter> {
+  const sections = await Promise.all(chapter.sections.map(highlightYamlSection));
+  return { ...chapter, sections };
+}
+
+async function highlightYamlSection(
+  section: t.CellHelp.Section,
+): Promise<t.CellHelp.Section> {
+  if (section.label !== 'Cell topology') return section;
+
+  const items = await Promise.all(
+    section.items.map((item) => Fmt.Code.highlight(item, { lang: 'yaml' })),
+  );
+  return { ...section, items };
+}
 
 function skill(chapter: t.CellHelp.Dsl.Chapter): string {
   return Fmt.Chapters.markdown({

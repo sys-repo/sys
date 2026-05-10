@@ -48,10 +48,19 @@ sections:
       Cell records only the runtime service and config reference.
 
   - label: 'Owner command'
-    items: |
-      Command templates; replace placeholders with confirmed slot values.
-      deno run -ERW jsr:@sys/http/server/static config add --config <static-config> --dir <dir>
-      deno run -ER jsr:@sys/http/server/static config add --dry-run --config <static-config> --dir <dir> --hostname <hostname> --port <port>
+    items:
+      - Command templates; replace placeholders with confirmed slot values.
+      - |
+          deno run -ERW jsr:@sys/http/server/static config add \
+            --config <static-config> \
+            --dir <dir>
+      - |
+          deno run -ER jsr:@sys/http/server/static config add \
+            --dry-run \
+            --config <static-config> \
+            --dir <dir> \
+            --hostname <hostname> \
+            --port <port>
 
   - label: 'Cell topology'
     items: |

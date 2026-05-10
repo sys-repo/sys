@@ -4,6 +4,8 @@ import { Str, stripAnsi } from '../common.ts';
 import { FmtHelp } from '../u.help.ts';
 import { Tmpl } from '../u.tmpl.ts';
 
+const hasTrueColorAnsi = /\x1b\[38;2;/;
+
 describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {
     expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
@@ -12,7 +14,8 @@ describe('FmtHelp', () => {
   });
 
   it('init --help --agent → renders command-specific agent facts', async () => {
-    const text = stripAnsi(await FmtHelp.initOutput({ agent: true }));
+    const raw = await FmtHelp.initOutput({ agent: true });
+    const text = stripAnsi(raw);
     const guidance = await CellHelp.Init.load();
     const agent = sectionItems(between(text, 'Agent', 'Writes'), 'Agent');
     const writes = sectionItems(between(text, 'Writes', 'Owns'), 'Writes');
@@ -25,11 +28,11 @@ describe('FmtHelp', () => {
     expect(owns).to.not.contain('.gitignore');
 
     const descriptor = await Tmpl.minimalDescriptor();
-    const renderedDescriptor = descriptorBlock(descriptor);
-
     const descriptorTail = after(text, 'Descriptor');
 
-    expect(text).to.contain(renderedDescriptor);
+    expect(raw).to.match(hasTrueColorAnsi);
+    expect(text).to.contain('Descriptor   kind: cell');
+    expect(text).to.not.contain('Descriptor\n  kind: cell');
     expect(text).to.not.contain('Descriptor   ```yaml');
     expect(descriptorTail).to.not.contain('```yaml');
     descriptorLines(descriptor).forEach((line) => {
@@ -194,7 +197,8 @@ describe('FmtHelp', () => {
   });
 
   it('dsl static-http-service → faithfully renders the requested chapter', async () => {
-    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['static-http-service'] }));
+    const raw = await FmtHelp.dslOutput({ path: ['static-http-service'] });
+    const text = stripAnsi(raw);
     const guidance = await CellHelp.Dsl.load(['static-http-service']);
 
     expect(text).to.contain('@sys/cell dsl static-http-service');
@@ -202,12 +206,14 @@ describe('FmtHelp', () => {
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/http/server/static config add');
     expect(text).to.contain('Do not use `@sys/tools serve`');
-    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/static config add');
-    expect(text).to.contain('deno run -ER jsr:@sys/http/server/static config add --dry-run');
+    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/static config add \\');
+    expect(text).to.contain('deno run -ER jsr:@sys/http/server/static config add \\');
+    expect(text).to.contain('--dry-run \\');
     expect(text).to.contain('<static-config>');
     expect(text).to.contain('<service-name>');
     expect(text).to.contain('Reject invalid IDs such as `http:static`');
     expect(text).to.contain('<dir>');
+    expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/static'");
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
@@ -216,7 +222,8 @@ describe('FmtHelp', () => {
   });
 
   it('dsl runtime-service → faithfully renders the requested chapter', async () => {
-    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['runtime-service'] }));
+    const raw = await FmtHelp.dslOutput({ path: ['runtime-service'] });
+    const text = stripAnsi(raw);
     const guidance = await CellHelp.Dsl.load(['runtime-service']);
 
     expect(text).to.contain('@sys/cell dsl runtime-service');
@@ -236,6 +243,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('<module>');
     expect(text).to.contain('<export>');
     expect(text).to.contain('<config>');
+    expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '<module>'");
     expect(text).to.not.contain('Stripe');
@@ -270,7 +278,8 @@ describe('FmtHelp', () => {
   });
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {
-    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['proxy-service'] }));
+    const raw = await FmtHelp.dslOutput({ path: ['proxy-service'] });
+    const text = stripAnsi(raw);
     const guidance = await CellHelp.Dsl.load(['proxy-service']);
 
     expect(text).to.contain('@sys/cell dsl proxy-service');
@@ -279,15 +288,17 @@ describe('FmtHelp', () => {
     expect(text).to.contain('@sys/http/server/proxy config add');
     expect(text).to.contain('@sys/http/server/proxy root set');
     expect(text).to.contain('@sys/http/server/proxy mount add');
-    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy config add');
-    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy root set');
-    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy mount add');
-    expect(text).to.contain('deno run -ER jsr:@sys/http/server/proxy mount add --dry-run');
+    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy config add \\');
+    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy root set \\');
+    expect(text).to.contain('deno run -ERW jsr:@sys/http/server/proxy mount add \\');
+    expect(text).to.contain('deno run -ER jsr:@sys/http/server/proxy mount add \\');
+    expect(text).to.contain('--dry-run \\');
     expect(text).to.contain('Do not use `/` as a mount');
     expect(text).to.contain('<proxy-config>');
     expect(text).to.contain('<service-name>');
     expect(text).to.contain('<path-prefix>');
     expect(text).to.contain('<upstream-url-prefix>');
+    expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/proxy'");
     expect(text).to.not.contain('Stripe');
@@ -325,11 +336,6 @@ function chapterCommentColumn(text: string, chapter: string): number {
   const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
   expect(line).to.not.eql(undefined);
   return line?.indexOf('#') ?? -1;
-}
-
-function descriptorBlock(text: string): string {
-  const lines = Str.trimEdgeNewlines(text).split('\n').map((line) => line ? `  ${line}` : '');
-  return ['Descriptor', ...lines].join('\n');
 }
 
 function descriptorLines(text: string): readonly string[] {

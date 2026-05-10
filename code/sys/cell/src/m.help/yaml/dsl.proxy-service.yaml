@@ -26,7 +26,7 @@ sections:
       `<upstream>` is an absolute URL-prefix ending with `/`; resolve from declared owner configs when possible, otherwise ask.
       If the Cell already declares local HTTP services, check owner configs for port collisions.
       Use owner defaults for hostname and port unless the user specifies or confirms alternatives.
-      Add `for.views` only when the prompt says this proxy serves declared Cell views.
+      Add `for.views` only when the prompt identifies declared views this proxy serves.
       Confirm service name, config path, listener, route, and upstream before writing.
 
   - label: Dialogue
@@ -62,12 +62,28 @@ sections:
       Cell records only the runtime service and config reference.
 
   - label: 'Owner command'
-    items: |
-      Command templates; replace placeholders with confirmed slot values.
-      deno run -ERW jsr:@sys/http/server/proxy config add --config <proxy-config> --hostname <hostname> --port <port>
-      deno run -ERW jsr:@sys/http/server/proxy root set --config <proxy-config> --upstream <upstream-url-prefix>
-      deno run -ERW jsr:@sys/http/server/proxy mount add --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
-      deno run -ER jsr:@sys/http/server/proxy mount add --dry-run --config <proxy-config> --mount <path-prefix> --upstream <upstream-url-prefix>
+    items:
+      - Command templates; replace placeholders with confirmed slot values.
+      - |
+          deno run -ERW jsr:@sys/http/server/proxy config add \
+            --config <proxy-config> \
+            --hostname <hostname> \
+            --port <port>
+      - |
+          deno run -ERW jsr:@sys/http/server/proxy root set \
+            --config <proxy-config> \
+            --upstream <upstream-url-prefix>
+      - |
+          deno run -ERW jsr:@sys/http/server/proxy mount add \
+            --config <proxy-config> \
+            --mount <path-prefix> \
+            --upstream <upstream-url-prefix>
+      - |
+          deno run -ER jsr:@sys/http/server/proxy mount add \
+            --dry-run \
+            --config <proxy-config> \
+            --mount <path-prefix> \
+            --upstream <upstream-url-prefix>
 
   - label: 'Root routes'
     items: |
@@ -85,5 +101,3 @@ sections:
             from: '@sys/http/server/proxy'
             export: HttpProxy
             config: <proxy-config>
-
-      Add `for.views` only when the prompt identifies declared views this proxy serves.

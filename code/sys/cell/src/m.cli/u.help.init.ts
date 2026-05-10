@@ -8,6 +8,12 @@ type OutputOptions = {
   readonly agent?: boolean;
 };
 
+type AgentTableSection = {
+  readonly label: string;
+  readonly items: readonly string[];
+  readonly style?: 'normal' | 'raw';
+};
+
 export const FmtInitHelp = {
   async input(toolname = '@sys/cell init') {
     const guidance = await CellHelp.Init.load();
@@ -27,15 +33,13 @@ export const FmtInitHelp = {
     if (options.agent !== true) return help;
 
     const guidance = await CellHelp.Init.load();
-    const descriptor = await Tmpl.minimalDescriptor();
-    const agent = composeHelpBlocks(
-      agentTable([
-        { label: 'Agent', items: guidance.agent },
-        { label: 'Writes', items: Tmpl.minimalWritePaths() },
-        { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
-      ]),
-      descriptorBlock(descriptor),
-    );
+    const descriptor = await Fmt.Code.highlight(await Tmpl.minimalDescriptor(), { lang: 'yaml' });
+    const agent = agentTable([
+      { label: 'Agent', items: guidance.agent },
+      { label: 'Writes', items: Tmpl.minimalWritePaths() },
+      { label: 'Owns', items: Tmpl.minimalOwnedPaths() },
+      { label: 'Descriptor', items: [descriptor], style: 'raw' },
+    ]);
     return composeHelpBlocks(help, agent);
   },
 } as const;
@@ -44,19 +48,19 @@ export const FmtInitHelp = {
  * Helpers:
  */
 
-function descriptorBlock(descriptor: string): string {
-  return [c.gray('Descriptor'), Fmt.Code.block(descriptor, { indent: 2 })].join('\n');
-}
-
-function agentTable(sections: readonly { label: string; items: readonly string[] }[]): string {
+function agentTable(sections: readonly AgentTableSection[]): string {
   const table = CliTable.create([]);
 
   sections.forEach((section, sectionIndex) => {
     if (sectionIndex > 0) table.push(['', '']);
     section.items.forEach((item, itemIndex) => {
-      table.push([itemIndex === 0 ? c.gray(section.label) : '', c.white(item)]);
+      table.push([itemIndex === 0 ? c.gray(section.label) : '', tableItem(section, item)]);
     });
   });
 
   return Str.trimEdgeNewlines(String(table));
+}
+
+function tableItem(section: AgentTableSection, item: string): string {
+  return section.style === 'raw' ? item : c.white(item);
 }
