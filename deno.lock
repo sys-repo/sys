@@ -62,7 +62,6 @@
     "npm:@preact/signals-core@1.14.1": "1.14.1",
     "npm:@preact/signals-react@3.10.0": "3.10.0_react@19.2.6",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
-    "npm:@sinclair/typebox@0.34.49": "0.34.49",
     "npm:@stripe/stripe-js@9.4.0": "9.4.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -1644,7 +1643,8 @@
       "dependencies": [
         "@mariozechner/pi-ai",
         "typebox"
-      ]
+      ],
+      "deprecated": true
     },
     "@mariozechner/pi-ai@0.73.0_ws@8.20.0_zod@4.4.3": {
       "integrity": "sha512-phKOpcde/ssz6UYszkmaGJ9LF9mgt/AP8LrtSwsfap+kMSeFfSQ2/mCSBT1mLJ2BqVuff9uXs1/+op1aQeaafQ==",
@@ -1661,6 +1661,7 @@
         "undici",
         "zod-to-json-schema"
       ],
+      "deprecated": true,
       "bin": true
     },
     "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.0_zod@4.4.3": {
@@ -1691,6 +1692,7 @@
       "optionalDependencies": [
         "@mariozechner/clipboard"
       ],
+      "deprecated": true,
       "bin": true
     },
     "@mariozechner/pi-tui@0.73.0": {
@@ -1704,7 +1706,8 @@
       ],
       "optionalDependencies": [
         "koffi"
-      ]
+      ],
+      "deprecated": true
     },
     "@mistralai/mistralai@2.2.1": {
       "integrity": "sha512-uKU8CZmL2RzYKmplsU01hii4p3pe4HqJefpWNRWXm1Tcm0Sm4xXfwSLIy4k7ZCPlbETCGcp69E7hZs+WOJ5itQ==",
@@ -2098,16 +2101,13 @@
     "@sinclair/typebox-codegen@0.11.1": {
       "integrity": "sha512-Bckbrf1sJFTIVD88PvI0vWUfE3Sh/6pwu6Jov+6xyMrEqnabOxEFAmPSDWjB1FGPL5C1/HfdScwa1imwAtGi9w==",
       "dependencies": [
-        "@sinclair/typebox@0.33.22",
+        "@sinclair/typebox",
         "prettier@2.8.8",
         "typescript"
       ]
     },
     "@sinclair/typebox@0.33.22": {
       "integrity": "sha512-auUj4k+f4pyrIVf4GW5UKquSZFHJWri06QgARy9C0t9ZTjJLIuNIrr1yl9bWcJWJ1Gz1vOvYN1D+QPaIlNMVkQ=="
-    },
-    "@sinclair/typebox@0.34.49": {
-      "integrity": "sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A=="
     },
     "@smithy/config-resolver@4.4.17": {
       "integrity": "sha512-TzDZcAnhTyAHbXVxWZo7/tEcrIeFq20IBk8So3OLOetWpR8EwY/yEqBMBFaJMeyEiREDq4NfEl+qO3OAUD+vbQ==",
@@ -4515,7 +4515,6 @@
       "npm:@preact/signals-core@1.14.1",
       "npm:@preact/signals-react@3.10.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
-      "npm:@sinclair/typebox@0.34.49",
       "npm:@stripe/stripe-js@9.4.0",
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",

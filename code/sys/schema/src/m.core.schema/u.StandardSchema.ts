@@ -1,5 +1,4 @@
-import { Value } from '@sinclair/typebox/value';
-import { type t, D, Obj } from './common.ts';
+import { D, Obj, type t, Value } from './common.ts';
 
 /**
  * Wrap a JSON Schema (TypeBox) with the Standard Schema v1 interface.

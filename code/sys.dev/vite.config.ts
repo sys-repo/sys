@@ -15,7 +15,7 @@ export default defineConfig(() => {
       e.chunk('yaml', 'yaml');
       e.chunk('crdt', '@sys/driver-automerge');
       e.chunk('svg', '@svgdotjs/svg.js');
-      e.chunk('typebox', '@sinclair/typebox');
+      e.chunk('typebox', 'typebox');
       e.chunk('motion', 'motion');
     },
   });

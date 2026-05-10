@@ -1,9 +1,10 @@
-import { AssertError, type ValueError } from '@sinclair/typebox/value';
+import type { t } from './common.ts';
+import { AssertError } from './m.Value.ts';
 
 /**
  * Safe try/throw execution for schema-related actions.
- * Returns { ok:true, value } on success; { ok:false, errors: ValueError[] } on TypeBox failure.
- * Non-TypeBox errors are rethrown.
+ * Returns { ok:true, value } on success; { ok:false, errors: ValueError[] } on schema assertion failure.
+ * Unexpected errors are rethrown.
  */
 export function tryValidate<T>(fn: () => T | undefined) {
   try {
@@ -13,7 +14,7 @@ export function tryValidate<T>(fn: () => T | undefined) {
     if (err instanceof AssertError) {
       return { ok: false as const, errors: toErrorArray(err) };
     }
-    // Important: bubble up non-TypeBox errors
+    // Important: bubble up unexpected errors.
     throw err;
   }
 }
@@ -22,20 +23,10 @@ export function tryValidate<T>(fn: () => T | undefined) {
  * Helpers:
  */
 
-/** Normalize thrown TypeBox error shapes into ValueError[] */
-function toErrorArray(err: unknown): ValueError[] {
-  const any = err as any;
-
-  // Common AssertError shapes:
-  if (Array.isArray(any?.errors)) return any.errors as ValueError[];
-  if (Array.isArray(any?.error)) return any.error as ValueError[];
-  if (any?.error) return [any.error as ValueError];
-
-  // Already looks like a single ValueError
-  if (any && typeof any.path === 'string' && typeof any.message === 'string') {
-    return [any as ValueError];
-  }
+/** Normalize thrown schema error shapes into ValueError[] */
+function toErrorArray(err: unknown): t.ValueError[] {
+  if (err instanceof AssertError) return [...err.errors];
 
   // Fallback (should be rare)
-  return [{ path: '', message: String(err) } as unknown as ValueError];
+  return [{ path: '', message: String(err) } as t.ValueError];
 }
