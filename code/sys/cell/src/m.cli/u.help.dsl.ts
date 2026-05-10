@@ -1,5 +1,5 @@
 import { CellHelp } from '../m.help/mod.ts';
-import { Cli, Str, type t } from './common.ts';
+import { Fmt, Str, type t } from './common.ts';
 
 const command = 'deno run -ER jsr:@sys/cell dsl';
 
@@ -18,7 +18,7 @@ export const FmtDslHelp = {
     if (format === 'skill') return skill(chapter);
 
     const toolname = input.toolname ?? ['@sys/cell dsl', ...path].join(' ');
-    return Cli.Fmt.Chapters.page({
+    return Fmt.Chapters.page({
       command,
       chapter,
       label: 'Chapter',
@@ -54,7 +54,7 @@ export const FmtDslHelp = {
 } as const;
 
 function skill(chapter: t.CellHelp.Dsl.Chapter): string {
-  return Cli.Fmt.Chapters.markdown({
+  return Fmt.Chapters.markdown({
     command,
     commandSuffix: '--format skill',
     chapter,
