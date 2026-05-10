@@ -10,7 +10,7 @@ import { hr } from './m.Fmt.Hr.ts';
 import { spinnerRaw, spinnerText } from './m.Fmt.spinnerText.ts';
 import { Tree } from './m.Fmt.Tree.ts';
 
-export const Path: t.CliFormatLib['Path'] = {
+export const Path: t.CliFormat.Lib['Path'] = {
   str: (path) => c.gray(Fmt.path(path, Fmt.Path.fmt())),
   fmt(_opts = {}) {
     return (e) => {
@@ -20,7 +20,7 @@ export const Path: t.CliFormatLib['Path'] = {
 };
 
 /** Command-line formatting helper library. */
-export const Fmt: t.CliFormatLib = {
+export const Fmt: t.CliFormat.Lib = {
   hr,
   Commit,
   Help,

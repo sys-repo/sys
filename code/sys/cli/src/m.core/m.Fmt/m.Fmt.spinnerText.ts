@@ -1,16 +1,16 @@
 import { c, Num } from '../common.ts';
 import type { t } from '../common.ts';
 
-export const spinnerText: t.CliFormatLib['spinnerText'] = (
+export const spinnerText: t.CliFormat.Lib['spinnerText'] = (
   text,
-  spacing: t.CliFormatSpinnerSpacing = true,
+  spacing: t.CliFormat.Spinner.Spacing = true,
 ) => {
   return spinnerRaw(c.gray(c.italic(text)), spacing);
 };
 
-export const spinnerRaw: t.CliFormatLib['spinnerRaw'] = (
+export const spinnerRaw: t.CliFormat.Lib['spinnerRaw'] = (
   text,
-  spacing: t.CliFormatSpinnerSpacing = true,
+  spacing: t.CliFormat.Spinner.Spacing = true,
 ) => {
   const [before, after] = wrangle.spacing(spacing);
   return `${'\n'.repeat(before)}${text}${'\n'.repeat(after)}`;
@@ -20,7 +20,7 @@ export const spinnerRaw: t.CliFormatLib['spinnerRaw'] = (
  * Helpers:
  */
 const wrangle = {
-  spacing(input: t.CliFormatSpinnerSpacing): [number, number] {
+  spacing(input: t.CliFormat.Spinner.Spacing): [number, number] {
     if (input === false) return [0, 0];
     if (input === true) return [0, 1];
     if (typeof input === 'number') {

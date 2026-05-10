@@ -5,7 +5,7 @@ type Layout = {
   readonly labelWidth: number;
 };
 
-export const Help: t.CliFormatLib['Help'] = {
+export const Help: t.CliFormat.Lib['Help'] = {
   build(input: t.CliFormatHelpInput) {
     const lines = [`  ${c.bold(c.brightCyan(input.tool))}`];
 

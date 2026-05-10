@@ -18,7 +18,7 @@ export type CliLib = {
   readonly Spinner: t.CliSpinner.Lib;
 
   /** Common formatting heleprs. */
-  readonly Fmt: t.CliFormatLib;
+  readonly Fmt: t.CliFormat.Lib;
 
   /** Tools for working with the keyboard within a CLI. */
   readonly Keyboard: t.CliKeyboardLib;

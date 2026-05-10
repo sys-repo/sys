@@ -6,7 +6,7 @@ const HR_FALLBACK_WIDTH = 80;
 
 type HrInput = number | t.CliFormat.Hr.Color | t.CliFormat.Hr.Options | undefined;
 
-export const hr: t.CliFormatLib['hr'] = (first?: HrInput, second?: t.CliFormat.Hr.Color) => {
+export const hr: t.CliFormat.Lib['hr'] = (first?: HrInput, second?: t.CliFormat.Hr.Color) => {
   const options = wrangle.options(first, second);
   const width = wrangle.width(options.width);
   const line = HR_CHAR.repeat(width);
