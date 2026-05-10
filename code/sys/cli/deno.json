@@ -14,6 +14,7 @@
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
     "./fmt": "./src/m.core/m.Fmt/mod.ts",
+    "./fmt/code": "./src/m.core/m.Fmt.Code/mod.ts",
     "./shell": "./src/m.shell/mod.ts"
   },
   "permissions": {

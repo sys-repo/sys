@@ -1,6 +1,7 @@
 /** Type re-exports. */
 export type * from './m.Cli/t.ts';
 export type * from './m.Fmt/t.ts';
+export type * from './m.Fmt.Code/t.ts';
 export type * from './m.Input/t.ts';
 export type * from './m.Keyboard/t.ts';
 export type * from './m.Prompt/t.ts';
