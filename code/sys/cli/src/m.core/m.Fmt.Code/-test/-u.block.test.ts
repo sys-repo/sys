@@ -1,4 +1,5 @@
 import { c, describe, expect, it, Str, stripAnsi } from '../../../-test.ts';
+import { Fmt } from '../../mod.ts';
 import { block } from '../u.block.ts';
 
 describe('Cli.Fmt.Code.block', () => {
@@ -51,8 +52,11 @@ describe('Cli.Fmt.Code.block', () => {
     // Tiny sanity check so the test is not "print only".
     expect(stripAnsi(output)).to.contain('  tasks:\n    check: deno check ./mod.ts');
 
+    const title = 'Cli.Fmt.Code.block → fenced YAML:';
+
     console.info();
-    console.info(c.cyan(c.bold('Cli.Fmt.Code.block → fenced YAML')));
+    console.info(c.green(title));
+    console.info(Fmt.hr('green'));
     console.info();
     console.info(output);
     console.info();

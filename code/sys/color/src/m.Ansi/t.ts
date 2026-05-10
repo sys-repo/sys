@@ -26,6 +26,14 @@ export declare namespace AnsiColor {
 
   /** ANSI foreground formatter subset keyed by color name. */
   export type Foreground = Pick<t.AnsiColors, Name>;
+
+  /** Raw ANSI escape sequences. */
+  export type Escape = {
+    readonly reset: string;
+    readonly italic: string;
+    readonly bold: string;
+    readonly underline: string;
+  };
 }
 
 /**
@@ -36,6 +44,8 @@ export type AnsiColorLib = {
   readonly ansi: t.AnsiColors;
   /** Foreground color formatters only. */
   readonly foreground: AnsiColor.Foreground;
+  /** Raw ANSI escape sequences. */
+  readonly escape: AnsiColor.Escape;
   /** RGB color helpers re-exported for convenience. */
   readonly rgb: t.ColorLib;
 };

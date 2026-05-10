@@ -9,6 +9,13 @@ import { Color as rgb } from '../m.Rgb/mod.ts';
 
 export { c, stripAnsi };
 
+export const ANSI: AnsiColor.Escape = {
+  reset: '\x1b[0m',
+  italic: '\x1b[3m',
+  bold: '\x1b[1m',
+  underline: '\x1b[4m',
+} as const;
+
 const foreground: AnsiColor.Foreground = {
   black: c.black,
   red: c.red,
@@ -35,5 +42,6 @@ const foreground: AnsiColor.Foreground = {
 export const Color: AnsiColorLib = {
   ansi: c,
   foreground,
+  escape: ANSI,
   rgb,
 };

@@ -10,11 +10,8 @@ describe('Cli.Fmt.Code', () => {
     expect('Code' in base.Fmt).to.eql(false);
     expect(m.Code).to.equal(Code);
     expect(m.Fmt).to.equal(Fmt);
-    expect(m.Fmt.Code).to.equal(Code);
     expect(m.Fmt.hr).to.equal(BaseFmt.hr);
-  });
-
-  it('wires Code.block to the block formatter', () => {
-    expect(Code.block('name: example')).to.eql('name: example');
+    expect(m.Fmt.Code).to.equal(Code);
+    expect(m.Fmt.Code.highlight).to.equal(Code.highlight);
   });
 });
