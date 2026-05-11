@@ -10,10 +10,10 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
       const base: t.Cell.Runtime.StartArgs = { cwd: cell.root, ...service.config };
       const args = options.startArgs ? await options.startArgs({ cell, service, base }) : base;
       const startedAt = Time.now.timestamp;
-      const started = await service.endpoint.start(args);
+      const handle = await service.endpoint.start(args);
       const readyAt = Time.now.timestamp;
       const metrics: t.Cell.Runtime.ServiceMetrics = { start: { startedAt, readyAt } };
-      services.push({ ...service, started, metrics });
+      services.push({ ...service, handle, metrics });
     }
   } catch (cause) {
     await closeStarted(services, 'start-failed');
@@ -32,7 +32,7 @@ async function closeStarted(
   reason?: unknown,
 ): Promise<void> {
   for (const service of [...services].reverse()) {
-    await closeHandle(service.started, reason);
+    await closeHandle(service.handle, reason);
   }
 }
 

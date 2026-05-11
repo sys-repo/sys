@@ -23,7 +23,7 @@ describe('Cell.Runtime.start', () => {
       expect(metrics.readyAt).to.be.at.most(after);
       expect(duration).to.be.at.least(0);
       expect(runtime.services[0].metrics).to.not.have.property('duration');
-      const server = runtime.services[0].started as { readonly origin: string };
+      const server = runtime.services[0].handle as { readonly origin: string };
       const res = await fetch(`${server.origin}/view/hello/`);
       const html = await res.text();
       expect(res.status).to.eql(200);
@@ -60,9 +60,9 @@ describe('Cell.Runtime.start', () => {
       },
     });
 
-    const started = runtime.services[0].started as Record<string, unknown>;
+    const handle = runtime.services[0].handle as Record<string, unknown>;
     expect(base).to.eql({ cwd: root, dir: './view', value: 'from-config' });
-    expect(started).to.include({ cwd: root, dir: './view', value: 'from-config', marker: true });
+    expect(handle).to.include({ cwd: root, dir: './view', value: 'from-config', marker: true });
     await Cell.Runtime.wait(runtime);
   });
 
@@ -86,6 +86,9 @@ describe('Cell.Runtime.start', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
 function staticConfig() {
   return Str.dedent(`
     dir: .
@@ -98,7 +101,6 @@ function staticConfig() {
 function descriptor(overrides: Partial<{ from: string; export: string }> = {}) {
   const from = overrides.from ?? '@sys/http/server/static';
   const exp = overrides.export ?? 'HttpStatic';
-
   return Str.dedent(`
     kind: cell
     version: 1

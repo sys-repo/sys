@@ -68,25 +68,28 @@ export declare namespace Cell {
     };
 
     /** Runtime topology verification result. */
-    export type Verification = { readonly services: readonly VerifiedService[] };
+    export type Verification<Handle = unknown> = {
+      readonly services: readonly VerifiedService<Handle>[];
+    };
 
     /** Started runtime services. */
-    export type Started = {
-      readonly services: readonly StartedService[];
+    export type Started<Handle = unknown> = {
+      readonly services: readonly StartedService<Handle>[];
       close(reason?: unknown): Promise<void>;
     };
 
     /** Verified runtime service with resolved config and lifecycle endpoint. */
-    export type VerifiedService = {
+    export type VerifiedService<Handle = unknown> = {
       readonly service: Service;
       readonly paths: { readonly config: t.StringPath };
       readonly config: Record<string, unknown>;
-      readonly endpoint: LifecycleEndpoint;
+      readonly endpoint: LifecycleEndpoint<Handle>;
     };
 
-    /** Started runtime service with its lifecycle handle and Cell-measured metrics. */
-    export type StartedService = VerifiedService & {
-      readonly started: unknown;
+    /** Started runtime service with its opaque owner handle and Cell-measured metrics. */
+    export type StartedService<Handle = unknown> = VerifiedService<Handle> & {
+      /** Opaque owner handle returned by `LifecycleEndpoint.start(args)`. */
+      readonly handle: Handle;
       readonly metrics: ServiceMetrics;
     };
 
@@ -99,7 +102,9 @@ export declare namespace Cell {
     };
 
     /** Runtime service lifecycle endpoint. */
-    export type LifecycleEndpoint = { start(args: StartArgs): unknown | Promise<unknown> };
+    export type LifecycleEndpoint<Handle = unknown> = {
+      start(args: StartArgs): Handle | Promise<Handle>;
+    };
 
     /** Runtime section of the Cell descriptor. */
     export type Descriptor = { services: Service[] };
