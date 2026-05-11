@@ -11,7 +11,11 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
-    expect(Object.keys(cell.descriptor.views ?? {})).to.eql(['stripe.dev', 'hello']);
+    expect(cell.descriptor.runtime?.services.map((service) => service.name)).to.eql([
+      'view',
+      'stripe',
+      'app',
+    ]);
   });
 
   it('fails clearly when the descriptor is missing', async () => {
@@ -35,6 +39,6 @@ describe('Cell.load', () => {
     const error = await catchLoad(root);
 
     expect(error?.message).to.contain('Cell.load: invalid descriptor:');
-    expect(error?.message).to.contain('/dsl/root');
+    expect(error?.message).to.contain('/dsl');
   });
 });

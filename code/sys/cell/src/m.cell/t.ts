@@ -11,7 +11,7 @@ export declare namespace Cell {
     load(root: t.StringDir, options?: LoadOptions): Promise<Instance>;
   };
 
-  /** Cell-local identifier used for views and runtime services. */
+  /** Cell-local identifier used for runtime services. */
   export type Id = t.StringId;
 
   /** Path declared in `cell.yaml`, resolved relative to the Cell root. */
@@ -27,40 +27,12 @@ export declare namespace Cell {
     readonly descriptor: Descriptor;
   };
 
-  /** Parsed `-config/@sys.cell/cell.yaml` descriptor. */
+  /** Parsed `-config/@sys.cell/cell.yaml` boot/composition descriptor. */
   export type Descriptor = {
     kind: 'cell';
     version: 1;
-    dsl: Dsl;
-    views?: Record<Id, View.Descriptor>;
     runtime?: Runtime.Descriptor;
   };
-
-  /** Stored-meaning lane. */
-  export type Dsl = { root: Path };
-
-  /** Named Cell views and their materialization source. */
-  export namespace View {
-    /** Materialization source for a view. */
-    export type Source = Source.Pull | Source.Local;
-
-    /** Named view descriptor. Cell owns only topology and the source reference. */
-    export type Descriptor = { source: Source };
-
-    export namespace Source {
-      /** View materialized by `@sys/tools/pull`. */
-      export type Pull = { pull: PullConfigPath };
-
-      /** View already local under the Cell root. */
-      export type Local = { local: LocalPath };
-
-      /** Cell-root-relative path to the `@sys/tools/pull` owner config YAML. */
-      export type PullConfigPath = Path;
-
-      /** Cell-root-relative path to already materialized view files. */
-      export type LocalPath = Path;
-    }
-  }
 
   /** Runtime services declared by the Cell descriptor. */
   export namespace Runtime {
@@ -80,7 +52,7 @@ export declare namespace Cell {
 
     /** Runtime start options. */
     export type StartOptions = VerifyOptions & {
-      /** Optional operator hook for final service start arguments after Cell-derived defaults. */
+      /** Optional operator hook for final service start arguments after owner config loading. */
       startArgs?(input: StartArgsInput): StartArgs | Promise<StartArgs>;
     };
 
@@ -91,7 +63,7 @@ export declare namespace Cell {
     export type StartArgsInput = {
       readonly cell: Instance;
       readonly service: VerifiedService;
-      /** Base arguments derived from Cell runtime context and service config. */
+      /** Base arguments derived from Cell root and service-owned config. */
       readonly base: StartArgs;
     };
 
@@ -124,17 +96,10 @@ export declare namespace Cell {
     /** Runtime service resolved through `from` + `export` and service-owned `config`. */
     export type Service = {
       name: Id;
-      kind: Id;
-      for?: Service.For;
       from: string;
       export: string;
       config: Path;
     };
-
-    export namespace Service {
-      /** Declared Cell resources this service is for. */
-      export type For = { views: Id[] };
-    }
   }
 
   /** Schema/validation surface. */

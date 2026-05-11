@@ -12,11 +12,6 @@ describe('Cell.Runtime.verify', () => {
       'stripe',
       'app',
     ]);
-    expect(verify.services.map((service) => service.service.kind)).to.eql([
-      'http-static',
-      'http-server',
-      'http-proxy',
-    ]);
     expect(verify.services.every((service) => Is.func(service.endpoint.start))).to.eql(true);
     expect(verify.services[0].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/static.view.yaml'),
@@ -24,9 +19,7 @@ describe('Cell.Runtime.verify', () => {
     expect(verify.services[2].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/proxy.yaml'),
     );
-    expect(verify.services[0].service.for).to.eql(undefined);
     expect(verify.services[0].config.dir).to.eql('./view');
-    expect(verify.services[2].service.for?.views).to.eql(['stripe.dev', 'hello']);
 
     const proxyConfig = verify.services[2].config as {
       readonly root: { readonly target: string };
@@ -151,20 +144,9 @@ function descriptor(overrides: Partial<{ from: string; export: string; config: s
     kind: cell
     version: 1
 
-    dsl:
-      root: ./data
-
-    views:
-      hello:
-        source:
-          local: ./view/hello
-
     runtime:
       services:
         - name: view
-          kind: http-static
-          for:
-            views: [hello]
           from: '${from}'
           export: ${exp}
           config: ${config}
