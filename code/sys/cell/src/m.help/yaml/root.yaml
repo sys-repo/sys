@@ -1,7 +1,7 @@
 summary: |
-  A Cell is a folder-shaped metamedium whose DSL stores
-  meaning and whose meaning can be interpreted, viewed, and
-  validly rewritten within the folder that bounds it.
+  A Cell is a folder-shaped metamedium whose ordinary files
+  carry DSL-shaped meaning that can be interpreted, viewed,
+  and validly rewritten within the folder that bounds it.
 
 usage:
   - deno run -ER   jsr:@sys/cell --help
