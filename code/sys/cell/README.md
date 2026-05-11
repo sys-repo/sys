@@ -28,9 +28,11 @@ service-specific config paths.
  ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
 
+### Command Line `--help`
+
 <!-- Sync note: this block mirrors the plain @sys/cell --help body. Refresh via: cd code/sys/cell && deno task cli --help. -->
 ```text
-@sys/cell  --help
+@sys/cell
 
 A Cell is a folder-shaped metamedium whose ordinary files
 carry DSL-shaped meaning that can be interpreted, viewed,
@@ -81,7 +83,8 @@ Sample slot values, not DSL grammar:
 
 <p>&nbsp;</p>
 
-## Programmatic
+## Usage
+### Programmatic
 
 ```ts
 import { Cell } from 'jsr:@sys/cell';
@@ -91,7 +94,7 @@ const runtime = await Cell.Runtime.start(cell);
 await runtime.close('done');
 ```
 
-## CLI
+### CLI
 
 Use `dsl` as the agent-facing speech-act help surface.
 
