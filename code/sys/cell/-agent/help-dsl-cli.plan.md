@@ -1,5 +1,7 @@
 # Cell CLI help and DSL plan
 
+Status: implemented; retire after recording completed outcome. Posture: STIER/BMIND/TMIND.
+
 ## Goal
 
 Refine `@sys/cell` CLI help into a clean Unix-shaped information hierarchy with standard `--help`
@@ -132,9 +134,8 @@ Cell DSL: the formal command/vocabulary surface for valid Cell edits.
 Use these acts, owner rules, and mappings when changing a Cell folder.
 
 Rule
-  Cell owns topology; service config owns service details.
-  Pull config owns materialization. Do not turn cell.yaml
-  into a mega-config.
+  Cell owns boot/composition; owner configs own mechanics and state interpretation.
+  Do not turn cell.yaml into a mega-config.
 
 Speech acts
   initialize this folder as a Cell
@@ -154,10 +155,9 @@ Owners
   If no owner affordance exists, stop and ask before hand-authoring.
 
 Mappings
-  add local view → create files under view/, then register views.<name>.source.local
-  add pulled view → use @sys/tools/pull, then register views.<name>.source.pull
+  add pulled view → use @sys/tools/pull owner config; do not register views in cell.yaml
   add service → use service owner flow, then register runtime.services[]
-  add proxy → use proxy owner flow, then register runtime service and mounts
+  add proxy → use proxy owner flow, then register runtime service and owner config ref
   mount route → update proxy owner config; cell.yaml only names the proxy service
   verify/load → run Cell.load against the folder
   start runtime → load Cell, start Cell.Runtime, wait/close lifecycle
@@ -206,3 +206,15 @@ refactor(cell): reshape cli help around init and dsl
 - remove greenfield help topic commands
 - update help resources and CLI help tests
 ```
+
+## Completed outcome
+
+This plan has landed:
+
+- root, init, start, and DSL help are resource-backed
+- greenfield help-topic commands were removed
+- `dsl` is the top-level edit-language surface
+- `init --help --agent` owns command-specific agent expansion
+- DSL chapters now follow owner-owned views and microkernel descriptor boundaries
+
+Retire this file after committing this completed record.

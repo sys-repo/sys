@@ -1,6 +1,6 @@
 # Cell Pi Cowpaths Plan
 
-Status: plan. Posture: XHIGH design, STIER/BMIND.
+Status: implemented; retire after recording completed outcome. Posture: XHIGH design, STIER/BMIND/TMIND.
 
 ## Aim
 
@@ -65,8 +65,9 @@ Usage
   deno run -ERW @sys/cell init [dir] --help --agent
 
 Commands
-  init         create the minimal Cell folder contract
-  help agent   show expanded guidance for coding agents
+  init   initialize a folder as a Cell
+  dsl    show Cell speech acts, owner rules, and chapters
+  start  start the Cell runtime
 ```
 
 Move expanded teaching material to init agent help:
@@ -91,11 +92,6 @@ view/
 kind: cell
 version: 1
 
-dsl:
-  root: ./data
-
-views: {}
-
 runtime:
   services: []
 ```
@@ -116,7 +112,7 @@ Short, copyable recipes for:
 ### Ownership rules
 
 ```text
-Cell owns topology.
+Cell owns boot/composition.
 Service config owns service details.
 Pull config owns materialization.
 Sample scripts are orchestration only.
@@ -225,3 +221,16 @@ and editing plain files.
 
 The power comes from the lower-level construct being real, typed, runtime-verified YAML — not from
 agent cleverness.
+
+## Completed outcome
+
+This plan has landed:
+
+- `@sys/cell --help` is source-backed and public-facing.
+- `init`, `init --dry-run`, and `init --help --agent` exist.
+- `dsl` is the source-backed Cell edit language surface.
+- `start` loads the descriptor, starts runtime services, waits, and closes lifecycle handles.
+- Init is additive, idempotent, and preserves Pi/tool-owned config.
+- The descriptor is now microkernel v1: Cell owns boot/composition refs only.
+
+Retire this file after committing this completed record.
