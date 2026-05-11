@@ -51,15 +51,25 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to
         .eql(true);
       expect(text.includes('jsr:@sys/tmpl/repo')).to.eql(false);
-      expect(text.includes('Use `dsl` to map scaffold prompts to the correct template')).to.eql(
+      expect(
+        text.includes('Run `dsl` first to resolve prompt → template, slots, command, verify.'),
+      ).to.eql(true);
+      expect(text.includes('dsl')).to.eql(true);
+      expect(text.includes('run first — maps prompt → template, slots, command, verify')).to.eql(
         true,
       );
-      expect(text.includes('dsl')).to.eql(true);
-      expect(text.includes('explain scaffold speech acts, template choice, slots')).to.eql(true);
       expect(text.indexOf('Commands')).to.be.lessThan(text.indexOf('Templates'));
       expect(text.indexOf('Templates')).to.be.lessThan(text.indexOf('Examples'));
+      expect(text.indexOf('deno run -A jsr:@sys/tmpl dsl')).to.be.lessThan(
+        text.indexOf('deno run -A jsr:@sys/tmpl repo'),
+      );
+      expect(text.includes('Prompt mapping')).to.eql(true);
+      expect(text.includes('workspace root')).to.eql(true);
+      expect(text.includes('package inside workspace')).to.eql(true);
+      expect(text.includes('React UI + controller/state')).to.eql(true);
+      expect(text.includes('m.mod.ui.controller (--name)')).to.eql(true);
       expect(text.includes('repo')).to.eql(true);
-      expect(text.includes('no extra template flags; identity inferred from --dir')).to.eql(true);
+      expect(text.includes('no extra flags; identity from --dir')).to.eql(true);
       expect(text.includes('--dir <path>')).to.eql(true);
       expect(text.includes('target directory to create/update')).to.eql(true);
       expect(text.includes('--dry-run')).to.eql(true);

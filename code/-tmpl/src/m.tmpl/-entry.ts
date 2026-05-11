@@ -32,7 +32,7 @@ function printHelp() {
     tool: `${pkg.name} ${pkg.version}`,
     summary: [
       'Scaffold system repos, packages, modules, and UI components.',
-      'Use `dsl` to map scaffold prompts to the correct template, slots, command, side effects, and verification.',
+      'Run `dsl` first to resolve prompt → template, slots, command, verify.',
     ].join('\n'),
     sections: [
       {
@@ -40,19 +40,14 @@ function printHelp() {
         label: 'Usage',
         items: [
           'deno run -A jsr:@sys/tmpl <template> [flags]',
-          'deno run -A jsr:@sys/tmpl --non-interactive --dir <path> <template> [template-flags]',
+          'deno run -A jsr:@sys/tmpl --non-interactive --dir <path> <template> [flags]',
           'deno run -A jsr:@sys/tmpl dsl [chapter...] [--format human|skill]',
         ],
       },
       {
         kind: 'pairs',
         label: 'Commands',
-        items: [
-          [
-            'dsl',
-            'explain scaffold speech acts, template choice, slots, side effects, and verification',
-          ],
-        ],
+        items: [['dsl', 'run first — maps prompt → template, slots, command, verify']],
       },
       {
         kind: 'lines',
@@ -75,7 +70,7 @@ function printHelp() {
         kind: 'pairs',
         label: 'Template flags',
         items: [
-          ['repo', 'no extra template flags; identity inferred from --dir'],
+          ['repo', 'no extra flags; identity from --dir'],
           ['pkg', '--pkgName <@scope/name>'],
           ['m.mod.ui, m.mod.ui.controller', '--name <value>'],
         ],
@@ -85,12 +80,23 @@ function printHelp() {
         label: 'Examples',
         tone: 'muted',
         items: [
+          'deno run -A jsr:@sys/tmpl dsl',
+          'deno run -A jsr:@sys/tmpl dsl m.mod.ui --format skill',
           'deno run -A jsr:@sys/tmpl repo',
           'deno run -A jsr:@sys/tmpl --dir my-repo repo',
           'deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo',
-          'deno run -A jsr:@sys/tmpl --non-interactive --dir packages/foo pkg --pkgName @acme/foo',
-          'deno run -A jsr:@sys/tmpl dsl',
-          'deno run -A jsr:@sys/tmpl dsl m.mod.ui --format skill',
+          'deno run -A jsr:@sys/tmpl --non-interactive --dir pkg/foo pkg --pkgName @acme/foo',
+        ],
+      },
+      {
+        kind: 'pairs',
+        label: 'Prompt mapping',
+        items: [
+          ['workspace root', 'repo'],
+          ['package inside workspace', 'pkg (--pkgName)'],
+          ['TS module folder', 'm.mod'],
+          ['React UI component', 'm.mod.ui (--name)'],
+          ['React UI + controller/state', 'm.mod.ui.controller (--name)'],
         ],
       },
     ],
