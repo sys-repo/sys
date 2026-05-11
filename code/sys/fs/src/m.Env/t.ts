@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Helpers for retrieveing environment variables (aka. "secrets").
+ * Helpers for retrieving environment variables (aka. "secrets").
  */
 export type EnvLib = Readonly<{
   Is: t.EnvIsLib;
@@ -28,7 +28,11 @@ export type EnvLoadSearch = 'cwd' | 'upward';
  * directly from the running process via [Deno.env].
  */
 export type Env = {
+  /** Resolve an env var value. Missing keys resolve to an empty string for backwards compatibility. */
   get(key: string): string;
+
+  /** True when the key exists in loaded dotenv values or process env, including present-empty values. */
+  has(key: string): boolean;
 };
 
 /**

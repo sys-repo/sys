@@ -12,7 +12,10 @@ export const load: t.EnvLib['load'] = async (options = {}) => {
   const dotenv = await loadDotEnvFiles(envPaths);
   const api: t.Env = {
     get(key) {
-      return Object.prototype.hasOwnProperty.call(dotenv, key) ? dotenv[key] : Deno.env.get(key) || '';
+      return hasOwn(dotenv, key) ? dotenv[key] : Deno.env.get(key) || '';
+    },
+    has(key) {
+      return hasOwn(dotenv, key) || Deno.env.has(key);
     },
   };
   return api;
@@ -51,3 +54,7 @@ const fileExists = async (path: t.StringFile): Promise<boolean> => {
     return false;
   }
 };
+
+function hasOwn(obj: Record<string, string>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
