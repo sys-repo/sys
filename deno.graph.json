@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1778475169246,
+    "createdAt": 1778497684479,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-ef28fed65cf5ef5c84be3deccb92efced8a18f0f32342c0d798cdf36bf988215",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.86/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-451f571c6879fb3e0eaa9e1bbfccadb1e8a91ae81c57a17cae1a168a7f624d73",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.87/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.86"
+        "version": "0.0.87"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.86/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.87/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1778475169250
+    "modifiedAt": 1778497684483
   },
   "graph": {
     "orderedPaths": [
@@ -1415,6 +1415,10 @@
       {
         "from": "code/sys/workspace",
         "to": "code/sys.driver/driver-deno"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/-tmpl"
       },
       {
         "from": "code/sys/yaml",
