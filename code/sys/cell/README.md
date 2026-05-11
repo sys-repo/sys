@@ -4,7 +4,10 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 ---
 
-Its state is a [DSL](https://martinfowler.com/dsl.html): ordinary files whose meaning can be
+`@sys/cell` is the Cell's boot/composition microkernel: it does not define the Cell's state model or
+ontology; it composes owner services that interpret Cell state.
+
+A Cell's state is a [DSL](https://martinfowler.com/dsl.html): ordinary files whose meaning can be
 interpreted, viewed, and validly rewritten within the folder that bounds it.
 
 Concretely, the medium is a folder of ordinary files: Markdown, YAML, TypeScript, JSON, binary data,
@@ -13,17 +16,21 @@ and other file-carried forms.
 The DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScript type surface, or
 Markdown whose structure, conventions, and "prose schema" carry stable meaning.
 
+`@sys/cell` marks the folder boundary, loads the Cell descriptor, and composes trusted runtime
+services. Owner packages name and interpret sub-roots such as `./data`, `./view`, or other
+service-specific config paths.
+
 ```text
-@sys/cell
- ↓ dsl      🧬
- ↓ runtime  🧫
- ↓ view     👁️
+@sys/cell               boot/composition kernel
+ ↓ dsl      🧬          stored meaning in ordinary files
+ ↓ runtime  🧫          active interpretation by declared services
+ ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
 
 ```
-DSL      =  stored meaning              ./data
-Runtime  =  ƒ(active interpretation)    Cell.Runtime.start(🧫)
-View     =  bound perception            ./view
+DSL      =  stored meaning in files
+Runtime  =  ƒ(active interpretation)           ← Cell.Runtime.start(🧫)
+View     =  bound projection over Cell state   ← owner-defined, not a kernel field
 ```
 
 <p>&nbsp;</p>
