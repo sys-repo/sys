@@ -1,4 +1,4 @@
-import { Cli, describe, expect, it, pkg } from '../../../-test.ts';
+import { c, Cli, describe, expect, it, pkg } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
 
 describe('HttpServer.print', () => {
@@ -34,7 +34,7 @@ describe('HttpServer.print', () => {
     expect(output.indexOf('service:')).to.be.lessThan(output.indexOf('module:'));
   });
 
-  it('keeps service and module values readable without bold weight', () => {
+  it('keeps service identity and module provenance readable without bold weight', () => {
     const raw = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
@@ -43,8 +43,9 @@ describe('HttpServer.print', () => {
       });
     }).join('\n');
 
-    expect(raw).to.not.contain('\x1b[1mstripe:dev:fixture');
-    expect(raw).to.not.contain(`\x1b[1m${pkg.name}`);
+    expect(raw).to.contain(c.white('stripe:dev:fixture'));
+    expect(raw).to.not.contain(c.bold(c.white('stripe:dev:fixture')));
+    expect(raw).to.not.contain(c.bold(c.white(pkg.name)));
   });
 
   it('prints non-path info rows and uses path info only for URL decoration', () => {
@@ -63,6 +64,27 @@ describe('HttpServer.print', () => {
     expect(output).to.contain('dist:');
     expect(output).to.contain('url:      http://localhost:8080/foo/bar/');
     expect(output).not.to.contain('view:');
+  });
+
+  it('keeps the first URL origin cyan and mutes repeated origins', () => {
+    const raw = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        info: { root: '/', payments: '/payments/', view: '/view/' },
+      });
+    }).join('\n');
+
+    const firstOrigin = c.cyan(`http://localhost:${c.bold(c.brightCyan('8080'))}`);
+    const repeatedOrigin = c.gray('http://localhost:8080');
+    expect(raw).to.contain(firstOrigin);
+    expect(raw).to.contain(repeatedOrigin);
+    expect(raw.indexOf(firstOrigin)).to.be.lessThan(raw.indexOf(repeatedOrigin));
+
+    const output = Cli.stripAnsi(raw);
+    expect(output).to.contain('url:');
+    expect(output).to.contain('http://localhost:8080/');
+    expect(output).to.contain('http://localhost:8080/payments/');
+    expect(output).to.contain('http://localhost:8080/view/');
   });
 });
 

@@ -1,4 +1,4 @@
-import { type t, Net } from './common.ts';
+import { Net, type t } from './common.ts';
 import { print } from './u.print.ts';
 
 type F = t.HttpServerLib['options'];

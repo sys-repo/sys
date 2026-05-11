@@ -96,8 +96,10 @@ export declare namespace Cell {
     /** Runtime service metrics measured by Cell-owned composition. */
     export type ServiceMetrics = {
       readonly start: {
+        /** Instant immediately before `LifecycleEndpoint.start(args)` is called. */
         readonly startedAt: t.UnixTimestamp;
-        readonly readyAt: t.UnixTimestamp;
+        /** Instant immediately after `LifecycleEndpoint.start(args)` returns or resolves. */
+        readonly resolvedAt: t.UnixTimestamp;
       };
     };
 

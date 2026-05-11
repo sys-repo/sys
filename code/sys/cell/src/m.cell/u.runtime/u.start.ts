@@ -11,8 +11,8 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
       const args = options.startArgs ? await options.startArgs({ cell, service, base }) : base;
       const startedAt = Time.now.timestamp;
       const handle = await service.endpoint.start(args);
-      const readyAt = Time.now.timestamp;
-      const metrics: t.Cell.Runtime.ServiceMetrics = { start: { startedAt, readyAt } };
+      const resolvedAt = Time.now.timestamp;
+      const metrics: t.Cell.Runtime.ServiceMetrics = { start: { startedAt, resolvedAt } };
       services.push({ ...service, handle, metrics });
     }
   } catch (cause) {

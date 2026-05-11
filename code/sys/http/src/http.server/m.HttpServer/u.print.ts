@@ -12,17 +12,17 @@ export const print: HttpServerLib['print'] = (options) => {
 
   const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
   const host = c.cyan(`http://localhost:${port}`);
+  const repeatedHost = c.gray(`http://localhost:${addr.port}`);
   const infoEntries = Object.entries(info ?? {});
   const pathEntries = findPathEntries(infoEntries);
   const detailEntries = infoEntries.filter((entry) => !pathEntries.includes(entry));
-  const pathUrls = pathEntries.map(([, path]) => formatUrl({ host, path }));
-  const urls = pathUrls.length > 0 ? pathUrls : [formatUrl({ host })];
+  const urls = formatUrls({ host, repeatedHost, paths: pathEntries.map(([, path]) => path) });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
   const table = Cli.Table.create([]);
   const hx = pkg ? wrangle.hashDigest(hash) : '';
 
-  if (name) table.push([c.gray('service:'), name]);
+  if (name) table.push([c.gray('service:'), formatServiceName(name)]);
 
   if (pkg) {
     const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
@@ -50,6 +50,22 @@ function findPathEntries(infoEntries: readonly (readonly [string, string])[]) {
 
 function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
   urls.forEach((url, index) => table.push([index === 0 ? c.gray('url:') : '', url]));
+}
+
+function formatServiceName(name: string) {
+  return c.white(name);
+}
+
+function formatUrls(input: {
+  readonly host: string;
+  readonly repeatedHost: string;
+  readonly paths: readonly string[];
+}) {
+  if (input.paths.length === 0) return [formatUrl({ host: input.host })];
+  return input.paths.map((path, index) => {
+    const host = index === 0 ? input.host : input.repeatedHost;
+    return formatUrl({ host, path });
+  });
 }
 
 function formatUrl(input: { host: string; path?: string }) {

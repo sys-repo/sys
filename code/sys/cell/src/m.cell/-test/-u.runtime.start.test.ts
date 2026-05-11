@@ -17,12 +17,13 @@ describe('Cell.Runtime.start', () => {
     try {
       expect(runtime.services.map((service) => service.service.name)).to.eql(['view']);
       const metrics = runtime.services[0].metrics.start;
-      const duration = (metrics.readyAt - metrics.startedAt) as t.Msecs;
+      const duration = (metrics.resolvedAt - metrics.startedAt) as t.Msecs;
       expect(metrics.startedAt).to.be.at.least(before);
-      expect(metrics.readyAt).to.be.at.least(metrics.startedAt);
-      expect(metrics.readyAt).to.be.at.most(after);
+      expect(metrics.resolvedAt).to.be.at.least(metrics.startedAt);
+      expect(metrics.resolvedAt).to.be.at.most(after);
       expect(duration).to.be.at.least(0);
       expect(runtime.services[0].metrics).to.not.have.property('duration');
+      expect(runtime.services[0].metrics.start).to.not.have.property('readyAt');
       const server = runtime.services[0].handle as { readonly origin: string };
       const res = await fetch(`${server.origin}/view/hello/`);
       const html = await res.text();
