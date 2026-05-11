@@ -46,13 +46,24 @@ describe('m.tmpl/-entry', () => {
       await entry(['--help']);
 
       const text = lines.join('\n');
-      expect(text.includes('Templates are selected by positional argument, not by JSR subpath.')).to.eql(true);
-      expect(text.includes('Use: deno run -A jsr:@sys/tmpl repo')).to.eql(true);
-      expect(text.includes('Not: deno run -A jsr:@sys/tmpl/repo')).to.eql(true);
-      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to.eql(true);
-      expect(text.includes('repo      → no extra template flags; identity inferred from --dir')).to.eql(true);
-      expect(text.includes('--dir <path>          target directory to create/update')).to.eql(true);
-      expect(text.includes('--dry-run             write preview only')).to.eql(true);
+      expect(text.includes('deno run -A jsr:@sys/tmpl <template> [flags]')).to.eql(true);
+      expect(text.includes('deno run -A jsr:@sys/tmpl dsl [chapter...]')).to.eql(true);
+      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to
+        .eql(true);
+      expect(text.includes('jsr:@sys/tmpl/repo')).to.eql(false);
+      expect(text.includes('Use `dsl` to map scaffold prompts to the correct template')).to.eql(
+        true,
+      );
+      expect(text.includes('dsl')).to.eql(true);
+      expect(text.includes('explain scaffold speech acts, template choice, slots')).to.eql(true);
+      expect(text.indexOf('Commands')).to.be.lessThan(text.indexOf('Templates'));
+      expect(text.indexOf('Templates')).to.be.lessThan(text.indexOf('Examples'));
+      expect(text.includes('repo')).to.eql(true);
+      expect(text.includes('no extra template flags; identity inferred from --dir')).to.eql(true);
+      expect(text.includes('--dir <path>')).to.eql(true);
+      expect(text.includes('target directory to create/update')).to.eql(true);
+      expect(text.includes('--dry-run')).to.eql(true);
+      expect(text.includes('write preview only')).to.eql(true);
       expect(text.includes('--dryRun')).to.eql(false);
     } finally {
       console.info = info;

@@ -6,10 +6,11 @@ summary: |
 sections:
   - label: Rule
     items: |
-      Use `repo` only for a workspace root, not for adding a package or module to an existing workspace.
+      Use `repo` only for a workspace root.
+      Do not use it to add a package or module to an existing workspace.
       The target directory is the repo root to create or update.
-      The template copies the workspace root files, then runs repo prep when not in `--dry-run` mode.
-      Use `--force` only after the human confirms overwrite/merge intent for an existing target.
+      The template copies workspace root files, then runs repo prep when not in `--dry-run` mode.
+      Use `--force` only after the human confirms overwrite/merge intent.
       For an uncertain target, run `--dry-run` first and review the write set.
 
   - label: Speech acts
@@ -31,22 +32,29 @@ sections:
 
   - label: Command
     items: |
-      Preview: `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo --dry-run`.
-      Write: `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo`.
+      Preview:
+      `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo --dry-run`.
+      Write:
+      `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo`.
       Existing target with approval: add `--force`.
       Do not use `jsr:@sys/tmpl/repo`.
 
   - label: Side effects
     items: |
-      Creates root workspace files such as `deno.json`, `imports.json`, `deps.yaml`, `package.json`, `README.md`, `code/`, and `-scripts/`.
+      Creates root workspace files such as `deno.json`, `imports.json`, and `deps.yaml`.
+      Also creates `package.json`, `README.md`, `code/`, and `-scripts/`.
       Runs the generated repo prep flow after writing when not in `--dry-run` mode.
-      Repo prep syncs dependency/import surfaces, workspace graph outputs, package metadata, and CI workflows when packages exist.
+      Repo prep syncs dependency/import surfaces and workspace graph outputs.
+      It also syncs package metadata and CI workflows when packages exist.
       `--dry-run` previews copied files but does not run setup side effects.
 
   - label: Verify
     items: |
-      Confirm the target contains `deno.json`, `imports.json`, `deps.yaml`, `README.md`, `code/`, and `-scripts/`.
-      Confirm repo prep wrote expected generated outputs such as `deno.graph.json` when not in `--dry-run` mode.
+      Confirm the target contains `deno.json`, `imports.json`, and `deps.yaml`.
+      Confirm it also contains `README.md`, `code/`, and `-scripts/`.
+      Confirm repo prep wrote expected generated outputs such as `deno.graph.json`.
+      Skip prep-output checks in `--dry-run` mode.
       Confirm no template initializer `.tmpl.ts` was copied into the target.
       Run `deno task ci` from the generated repo when dependencies can resolve.
-      If prep fails, fix the reported repo-level dependency/import issue; do not hand-copy template internals.
+      If prep fails, fix the reported repo-level dependency/import issue.
+      Do not hand-copy template internals.
