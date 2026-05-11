@@ -28,6 +28,26 @@ service-specific config paths.
  ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
 
+<!-- Sync note: this block mirrors the plain @sys/cell --help body. Refresh via: cd code/sys/cell && deno task cli --help. -->
+```text
+@sys/cell  --help
+
+A Cell is a folder-shaped metamedium whose ordinary files
+carry DSL-shaped meaning that can be interpreted, viewed,
+and validly rewritten within the folder that bounds it.
+
+Usage      deno run -ER   jsr:@sys/cell --help
+           deno run -ERW  jsr:@sys/cell init [dir]
+           deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
+           deno run -ERWN jsr:@sys/cell start [dir]
+
+Commands   init    initialize a folder as a Cell
+           dsl     show Cell speech acts, owner rules, and chapters
+           start   start the Cell runtime
+
+Options    -h, --help   show help
+```
+
 
 <p>&nbsp;</p>
 
