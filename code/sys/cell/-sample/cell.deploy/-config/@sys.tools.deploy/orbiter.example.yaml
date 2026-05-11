@@ -1,0 +1,21 @@
+# Example Orbiter endpoint.
+#
+# Copy this file to ./orbiter.yaml and replace the provider values before running push.
+
+provider:
+  kind: orbiter
+  siteId: <orbiter-site-id>
+  domain: <domain>
+
+source:
+  dir: .
+
+staging:
+  dir: ./.tmp/deploy/orbiter
+  clear: true
+
+mappings:
+  - mode: copy
+    dir:
+      source: view/.pulled/ui.components
+      staging: .

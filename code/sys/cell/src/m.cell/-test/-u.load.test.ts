@@ -18,6 +18,17 @@ describe('Cell.load', () => {
     ]);
   });
 
+  it('loads and validates the Deploy sample descriptor', async () => {
+    const root = new URL('../../../-sample/cell.deploy', import.meta.url).pathname;
+    const cell = await Cell.load(root);
+
+    expect(cell.root).to.eql(Fs.resolve(root));
+    expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
+    expect(cell.descriptor.kind).to.eql('cell');
+    expect(cell.descriptor.version).to.eql(1);
+    expect(cell.descriptor.runtime).to.eql(undefined);
+  });
+
   it('fails clearly when the descriptor is missing', async () => {
     const root = Fs.resolve('./.tmp/cell.missing');
     const error = await catchLoad(root);

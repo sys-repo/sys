@@ -6,6 +6,11 @@
 # Pi runtime state for sample launches is local and generated.
 -sample/.pi/
 
-# Pulled Cell view artifacts are managed outputs.
+# Pulled Cell view artifacts and local deploy outputs are managed outputs.
 -sample/*/view/.pulled/
+-sample/*/.tmp/
+
+# Real deploy provider configs are operator-local.
+-sample/*/-config/@sys.tools.deploy/orbiter.yaml
+
 -sample/foo/

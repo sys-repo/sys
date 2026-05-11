@@ -1,0 +1,8 @@
+# Pull baseline view artifact.
+
+dir: .
+bundles:
+  - kind: http
+    dist: https://fs.db.team/ui.components/dist.json
+    local:
+      dir: view/.pulled/ui.components
