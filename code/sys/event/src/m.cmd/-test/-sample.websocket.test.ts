@@ -6,7 +6,7 @@ import { Fixture } from './u.fixture.ts';
 import { fromWebSocket } from '../transport/mod.ts';
 
 describe('Cmd over WebSocket', () => {
-  describe('vanilla WebSocket networking baselin', () => {
+  describe('vanilla WebSocket networking baseline', () => {
     it('ping/pong roundtrip over localhost WebSocket', async () => {
       const port = Net.port();
       const ac = new AbortController();

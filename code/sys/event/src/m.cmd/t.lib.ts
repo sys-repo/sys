@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Namespace-style library surface for the command bus.
  * The implementation in `m.Cmd/mod.ts` should satisfy this shape.
  *
- * Call `Cmd.make<N,P,R>()` to obtain a typed instance for a concrete
+ * Call `Cmd.make<N,P,R,E>()` to obtain a typed instance for a concrete
  * command set (e.g. worker commands in @sys/driver-automerge).
  */
 export type CmdLib = {

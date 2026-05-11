@@ -8,6 +8,7 @@ describe(`Cmd: Command (Bus)`, () => {
     const m = await import('@sys/event/cmd');
     expect(m.Cmd).to.equal(Cmd);
     expect(m.Cmd.Is).to.equal(CmdIs);
+    expect(m.Cmd.Is.cancel).to.equal(CmdIs.cancel);
     expect(m.Cmd.Transport.fromWebSocket).to.equal(fromWebSocket);
   });
 });

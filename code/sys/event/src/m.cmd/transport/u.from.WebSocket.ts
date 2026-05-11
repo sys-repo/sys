@@ -3,8 +3,8 @@ import { type t, Json } from '../common.ts';
 /**
  * Adapt a WebSocket into a CmdEndpoint using JSON-encoded messages.
  *
- * Outbound messages are sent with `JSON.stringify`, and inbound messages are
- * parsed with `JSON.parse` when possible. Parsed values are delivered to
+ * Outbound messages are sent with `Json.stringify`, and inbound messages are
+ * parsed with `Json.safeParse` when possible. Parsed values are delivered to
  * listeners as `MessageEvent` instances carrying the decoded `data`.
  */
 export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
@@ -12,11 +12,8 @@ export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
 
   ws.onmessage = (ev) => {
     let data: unknown = ev.data;
-    try {
-      data = JSON.parse(String(ev.data));
-    } catch {
-      // Non-JSON payloads are passed through unchanged.
-    }
+    const parsed = Json.safeParse<unknown>(String(ev.data));
+    if (parsed.ok) data = parsed.data;
 
     const message = new MessageEvent('message', { data });
     for (const fn of listeners) fn(message);

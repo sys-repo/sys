@@ -17,14 +17,16 @@ export type CmdEndpoint = {
 };
 
 /**
- * Maps from command name → payload / result payload.
+ * Maps from command name → payload.
  * Concrete libs define their own name + maps (e.g. WorkerCmdName, etc).
  */
 export type CmdPayloadMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
+
 /**
  * Maps from command name → result payload.
  */
 export type CmdPayloadResultMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
+
 /**
  * Maps from command name → event payload for streaming commands.
  * Concrete command sets can specialise this, or fall back to `unknown`.
@@ -44,6 +46,21 @@ export type CmdClientUnary<
 };
 
 /**
+ * Host-side request context for emitting stream events and observing cancellation.
+ */
+export type CmdHandlerContext<
+  N extends string,
+  E extends CmdPayloadEventMap<N>,
+  K extends N = N,
+> = {
+  readonly id: t.CmdReqId;
+  readonly name: K;
+  readonly ns?: t.CmdNamespace;
+  readonly signal: AbortSignal;
+  emit(event: E[K]): void;
+};
+
+/**
  * Handle returned from a streaming command invocation.
  *
  * - `id`: the underlying request identifier.
@@ -56,7 +73,7 @@ export type CmdStream<
   R extends CmdPayloadResultMap<N>,
   E extends CmdPayloadEventMap<N> = CmdPayloadEventMap<N>,
   K extends N = N,
-> = {
+> = AsyncIterable<E[K]> & {
   readonly id: t.CmdReqId;
   readonly done: Promise<R[K]>;
   dispose(): void;
@@ -86,8 +103,9 @@ export type CmdHandler<
   N extends string,
   P extends CmdPayloadMap<N>,
   R extends CmdPayloadResultMap<N>,
+  E extends CmdPayloadEventMap<N> = CmdPayloadEventMap<N>,
   K extends N = N,
-> = (payload: P[K]) => R[K] | Promise<R[K]>;
+> = (payload: P[K], ctx: t.CmdHandlerContext<N, E, K>) => R[K] | Promise<R[K]>;
 
 /**
  * Host-side handler map keyed by command name.
@@ -96,6 +114,7 @@ export type CmdHandlers<
   N extends string,
   P extends CmdPayloadMap<N>,
   R extends CmdPayloadResultMap<N>,
+  E extends CmdPayloadEventMap<N> = CmdPayloadEventMap<N>,
 > = {
-  readonly [K in N]: CmdHandler<N, P, R, K>;
+  readonly [K in N]: CmdHandler<N, P, R, E, K>;
 };

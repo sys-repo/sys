@@ -1,19 +1,7 @@
-import { type t, describe, expect, it, Schedule, Time } from '../../-test.ts';
+import { type t, describe, expect, it, Schedule } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
 
 describe('Cmd: core command behavior', () => {
-  it('Cmd.make returns a typed instance', () => {
-    type Name = 'foo';
-    type Payload = { foo: { n: number } };
-    type Result = { foo: { ok: boolean } };
-
-    const cmd = Cmd.make<Name, Payload, Result>();
-
-    expect(cmd).to.be.an('object');
-    expect(cmd.client).to.be.a('function');
-    expect(cmd.host).to.be.a('function');
-  });
-
   describe('unary: request/response', () => {
     it('roundtrip → success', async () => {
       type Name = 'echo';
@@ -29,15 +17,63 @@ describe('Cmd: core command behavior', () => {
 
       const client = cmd.client(port2);
       const res = await client.send('echo', { msg: 'hi' });
-      expect(res.reply).to.eql('HI');
+      expect(res).to.eql({ reply: 'HI' });
 
       client.dispose();
       host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('host handler receives request context', async () => {
+      type Name = 'inspect';
+      type Payload = { inspect: { value: number } };
+      type Result = { inspect: { ok: boolean; value: number } };
+
+      const ns: t.CmdNamespace = 'ctx/ns';
+      const cmd = Cmd.make<Name, Payload, Result>({ ns });
+      const { port1, port2 } = new MessageChannel();
+
+      let context: {
+        readonly id: t.CmdReqId;
+        readonly name: Name;
+        readonly ns?: t.CmdNamespace;
+        readonly aborted: boolean;
+        readonly emit: 'function' | 'other';
+      } | undefined;
+
+      const host = cmd.host(port1, {
+        inspect(payload, ctx) {
+          context = {
+            id: ctx.id,
+            name: ctx.name,
+            ns: ctx.ns,
+            aborted: ctx.signal.aborted,
+            emit: typeof ctx.emit === 'function' ? 'function' : 'other',
+          };
+          return { ok: true, value: payload.value };
+        },
+      });
+
+      const client = cmd.client(port2);
+      const res = await client.send('inspect', { value: 123 });
+
+      expect(res).to.eql({ ok: true, value: 123 });
+      expect(context?.id).to.match(/^req-/);
+      expect(context?.name).to.eql('inspect');
+      expect(context?.ns).to.eql(ns);
+      expect(context?.aborted).to.eql(false);
+      expect(context?.emit).to.eql('function');
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
     });
   });
 
   describe('streaming', () => {
-    it('timeout rejects stream.done and stops delivering further events', async () => {
+    it('host ctx.emit delivers stream events before terminal result', async () => {
       type Name = 'ping';
       type Payload = { ping: { msg: string } };
       type Result = { ping: { reply: string } };
@@ -46,176 +82,258 @@ describe('Cmd: core command behavior', () => {
       const cmd = Cmd.make<Name, Payload, Result, Events>();
       const { port1, port2 } = new MessageChannel();
 
-      const client = cmd.client(port2, { timeout: 10 });
-
-      const stream = client.stream('ping', { msg: 'hello' });
-      const events: Events['ping'][] = [];
-
-      const subscription = stream.onEvent((event) => {
-        events.push(event);
+      const host = cmd.host(port1, {
+        async ping({ msg }, ctx) {
+          await Schedule.sleep(1);
+          ctx.emit({ tick: 1 });
+          ctx.emit({ tick: 2 });
+          return { reply: `pong: ${msg}` };
+        },
       });
-
-      // Event before timeout.
-      port1.postMessage({
-        kind: 'cmd:event',
-        id: stream.id,
-        name: 'ping',
-        payload: { tick: 1 },
-      });
-
-      // Event after timeout should not be delivered.
-      Time.delay(30, () => {
-        port1.postMessage({
-          kind: 'cmd:event',
-          id: stream.id,
-          name: 'ping',
-          payload: { tick: 2 },
-        });
-      });
-
-      let thrown: unknown;
-      try {
-        await stream.done;
-        expect.fail('Expected stream.done to reject on timeout');
-      } catch (e) {
-        thrown = e;
-      }
-
-      const err = thrown as t.CmdError;
-      expect(err).to.be.instanceOf(Error);
-      expect(err.name).to.eql('CmdErrorTimeout');
-      expect(err.message).to.contain('timed out');
-      expect(err.cmd).to.be.an('object');
-      expect(err.cmd?.name).to.eql('ping');
-      expect(err.cmd?.id).to.be.a('string');
-      expect(err.cmd?.id).to.match(/^req-/);
-      expect(err.ns).to.eql(undefined);
-      expect(err.cmd?.ns).to.eql(undefined);
-
-      // Give the late event time to arrive if the handler were still attached.
-      await Schedule.sleep(40);
-
-      // Only the pre-timeout event should have been observed.
-      expect(events).to.eql([{ tick: 1 }]);
-
-      subscription.dispose();
-      client.dispose();
-      port1.close();
-    });
-
-    it('client.dispose rejects stream.done and detaches event subscriptions', async () => {
-      type Name = 'ping';
-      type Payload = { ping: { msg: string } };
-      type Result = { ping: { ok: boolean } };
-      type Events = { ping: { tick: number } };
-
-      const cmd = Cmd.make<Name, Payload, Result, Events>();
-      const { port1, port2 } = new MessageChannel();
 
       const client = cmd.client(port2);
       const stream = client.stream('ping', { msg: 'hello' });
 
       const events: Events['ping'][] = [];
-      const subscription = stream.onEvent((event) => {
-        events.push(event);
+      const subscription = stream.onEvent((event) => events.push(event));
+      const res = await stream.done;
+
+      expect(res).to.eql({ reply: 'pong: hello' });
+      expect(events).to.eql([{ tick: 1 }, { tick: 2 }]);
+
+      subscription.dispose();
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('async iteration yields stream events and completes on terminal result', async () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: { done: true } };
+      type Events = { ping: { tick: number } };
+
+      const cmd = Cmd.make<Name, Payload, Result, Events>();
+      const { port1, port2 } = new MessageChannel();
+
+      const host = cmd.host(port1, {
+        async ping(_payload, ctx) {
+          await Schedule.sleep(1);
+          ctx.emit({ tick: 1 });
+          ctx.emit({ tick: 2 });
+          return { done: true };
+        },
       });
 
-      // First event before disposal should be observed.
-      port1.postMessage({
-        kind: 'cmd:event',
-        id: stream.id,
-        name: 'ping',
-        payload: { tick: 1 },
-      });
+      const client = cmd.client(port2);
+      const stream = client.stream('ping', {});
+      const events: Events['ping'][] = [];
 
-      // Allow the message loop to deliver the first event before teardown.
-      await Schedule.sleep(5);
-      expect(events).to.eql([{ tick: 1 }]);
-
-      const awaitingDone = (async () => {
-        let thrown: unknown;
-        try {
-          await stream.done;
-          expect.fail('Expected stream.done to reject when client is disposed');
-        } catch (e) {
-          thrown = e;
+      const iterate = (async () => {
+        for await (const event of stream) {
+          events.push(event);
         }
-
-        const err = thrown as t.CmdError;
-        expect(err).to.be.instanceOf(Error);
-        expect(err.name).to.eql('CmdErrorClientDisposed');
-        expect(err.message).to.contain('disposed');
-        expect(err.cmd).to.eql(undefined);
-        expect(err.ns).to.eql(undefined);
       })();
 
-      // Dispose the client, triggering teardown.
+      const res = await stream.done;
+      await iterate;
+
+      expect(res).to.eql({ done: true });
+      expect(events).to.eql([{ tick: 1 }, { tick: 2 }]);
+
       client.dispose();
-
-      // Event after disposal should not be delivered to the handler.
-      port1.postMessage({
-        kind: 'cmd:event',
-        id: stream.id,
-        name: 'ping',
-        payload: { tick: 2 },
-      });
-
-      await Schedule.sleep(10);
-      // Still only the first event.
-      expect(events).to.eql([{ tick: 1 }]);
-
-      subscription.dispose();
+      host.dispose();
       port1.close();
-      await awaitingDone;
+      port2.close();
     });
 
-    it('subscription dispose stops receiving further events for a stream', async () => {
-      type Name = 'ping';
-      type Payload = { ping: { msg: string } };
-      type Result = { ping: { reply: string } };
-      type Events = { ping: { tick: number } };
+    it('stream.dispose rejects done with CmdErrorCancelled and aborts host work', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: { ok: boolean } };
+      type Events = { slow: { tick: number } };
 
       const cmd = Cmd.make<Name, Payload, Result, Events>();
       const { port1, port2 } = new MessageChannel();
 
+      let startedResolve: () => void = () => {};
+      const started = new Promise<void>((resolve) => {
+        startedResolve = resolve;
+      });
+      let abortSeenResolve: () => void = () => {};
+      const abortSeen = new Promise<void>((resolve) => {
+        abortSeenResolve = resolve;
+      });
+
+      const host = cmd.host(port1, {
+        slow(_payload, ctx) {
+          startedResolve();
+          return new Promise<Result['slow']>((resolve) => {
+            ctx.signal.addEventListener(
+              'abort',
+              () => {
+                abortSeenResolve();
+                resolve({ ok: false });
+              },
+              { once: true },
+            );
+          });
+        },
+      });
+
       const client = cmd.client(port2);
-      const stream = client.stream('ping', { msg: 'hello' });
+      const stream = client.stream('slow', {});
+      const done = stream.done.catch((err: unknown) => err);
 
-      const events: Events['ping'][] = [];
-      const subscription = stream.onEvent((event) => {
-        events.push(event);
-      });
+      await started;
+      stream.dispose();
 
-      // First event arrives while subscribed.
-      port1.postMessage({
-        kind: 'cmd:event',
-        id: stream.id,
-        name: 'ping',
-        payload: { tick: 1 },
-      });
+      const err = await done;
+      expectCmdError(err, 'CmdErrorCancelled');
+      await abortSeen;
 
-      await Schedule.sleep(5);
-      expect(events).to.eql([{ tick: 1 }]);
-
-      // Dispose subscription, then send another event.
-      subscription.dispose();
-
-      port1.postMessage({
-        kind: 'cmd:event',
-        id: stream.id,
-        name: 'ping',
-        payload: { tick: 2 },
-      });
-
-      await Schedule.sleep(10);
-      // No new events after subscription is disposed.
-      expect(events).to.eql([{ tick: 1 }]);
-
-      // Clean up the pending stream: allow rejection on dispose but swallow it.
-      const done = stream.done.catch(() => {});
       client.dispose();
+      host.dispose();
       port1.close();
-      await done;
+      port2.close();
+    });
+
+    it('async iterator return cancels the stream', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: { ok: boolean } };
+      type Events = { slow: { tick: number } };
+
+      const cmd = Cmd.make<Name, Payload, Result, Events>();
+      const { port1, port2 } = new MessageChannel();
+
+      let abortSeenResolve: () => void = () => {};
+      const abortSeen = new Promise<void>((resolve) => {
+        abortSeenResolve = resolve;
+      });
+
+      const host = cmd.host(port1, {
+        async slow(_payload, ctx) {
+          await Schedule.sleep(1);
+          ctx.emit({ tick: 1 });
+          return await new Promise<Result['slow']>((resolve) => {
+            ctx.signal.addEventListener(
+              'abort',
+              () => {
+                abortSeenResolve();
+                resolve({ ok: false });
+              },
+              { once: true },
+            );
+          });
+        },
+      });
+
+      const client = cmd.client(port2);
+      const stream = client.stream('slow', {});
+      const iterator = stream[Symbol.asyncIterator]();
+
+      const first = await iterator.next();
+      expect(first).to.eql({ done: false, value: { tick: 1 } });
+
+      const done = stream.done.catch((err: unknown) => err);
+      const returned = await iterator.return?.();
+      expect(returned).to.eql({ done: true, value: undefined });
+
+      const err = await done;
+      expectCmdError(err, 'CmdErrorCancelled');
+      await abortSeen;
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('timeout rejects pending request and sends cancel to host', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: { ok: boolean } };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+
+      let abortSeenResolve: () => void = () => {};
+      const abortSeen = new Promise<void>((resolve) => {
+        abortSeenResolve = resolve;
+      });
+
+      const host = cmd.host(port1, {
+        slow(_payload, ctx) {
+          return new Promise<Result['slow']>((resolve) => {
+            ctx.signal.addEventListener(
+              'abort',
+              () => {
+                abortSeenResolve();
+                resolve({ ok: false });
+              },
+              { once: true },
+            );
+          });
+        },
+      });
+
+      const client = cmd.client(port2, { timeout: 10 });
+      const res = await client.send('slow', {}).catch((err: unknown) => err);
+
+      const err = expectCmdError(res, 'CmdErrorTimeout');
+      expect(err.message).to.contain('timed out');
+      expect(err.cmd?.name).to.eql('slow');
+      expect(err.cmd?.id).to.match(/^req-/);
+      await abortSeen;
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('client.dispose rejects pending requests and sends cancel to host', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: { ok: boolean } };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+
+      let abortSeenResolve: () => void = () => {};
+      const abortSeen = new Promise<void>((resolve) => {
+        abortSeenResolve = resolve;
+      });
+
+      const host = cmd.host(port1, {
+        slow(_payload, ctx) {
+          return new Promise<Result['slow']>((resolve) => {
+            ctx.signal.addEventListener(
+              'abort',
+              () => {
+                abortSeenResolve();
+                resolve({ ok: false });
+              },
+              { once: true },
+            );
+          });
+        },
+      });
+
+      const client = cmd.client(port2);
+      const pending = client.send('slow', {}).catch((err: unknown) => err);
+
+      client.dispose();
+
+      const err = await pending;
+      expectCmdError(err, 'CmdErrorClientDisposed');
+      await abortSeen;
+
+      host.dispose();
+      port1.close();
+      port2.close();
     });
   });
 
@@ -235,31 +353,45 @@ describe('Cmd: core command behavior', () => {
       });
 
       const client = cmd.client(port2);
+      const err = await client.send('fail', {}).catch((err: unknown) => err);
 
-      let thrownError: unknown;
-      try {
-        await client.send('fail', {});
-        expect.fail('Expected client.send to throw');
-      } catch (e) {
-        thrownError = e;
-      }
-
-      const err = thrownError as t.CmdError;
-      expect(err).to.be.instanceOf(Error);
-      expect(err.message).to.eql('boom');
-
-      expect(err.name).to.eql('CmdErrorRemote');
-      expect(err.cmd).to.be.an('object');
-      expect(err.cmd?.name).to.eql('fail');
-      expect(err.cmd?.id).to.be.a('string');
-      expect(err.cmd?.id).to.match(/^req-/);
-
-      // No namespace configured → ns should be undefined.
-      expect(err.ns).to.eql(undefined);
-      expect(err.cmd?.ns).to.eql(undefined);
+      const error = expectCmdError(err, 'CmdErrorRemote');
+      expect(error.message).to.eql('boom');
+      expect(error.cmd?.name).to.eql('fail');
+      expect(error.cmd?.id).to.match(/^req-/);
+      expect(error.ns).to.eql(undefined);
 
       client.dispose();
       host.dispose();
+      port1.close();
+      port2.close();
+    });
+
+    it('empty remote error message still rejects', async () => {
+      type Name = 'fail';
+      type Payload = { fail: {} };
+      type Result = { fail: {} };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+
+      const host = cmd.host(port1, {
+        fail() {
+          throw new Error('');
+        },
+      });
+
+      const client = cmd.client(port2);
+      const err = await client.send('fail', {}).catch((err: unknown) => err);
+
+      const error = expectCmdError(err, 'CmdErrorRemote');
+      expect(error.message).to.eql('');
+      expect(error.cmd?.name).to.eql('fail');
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
     });
 
     it('unknown command → error', async () => {
@@ -274,240 +406,142 @@ describe('Cmd: core command behavior', () => {
       const client = cmd.client(port2);
 
       // @ts-expect-error name is wrong — runtime should error too.
-      const p = client.send('bar', {});
+      const err = await client.send('bar', {}).catch((err: unknown) => err);
 
-      let thrownError: unknown;
-      try {
-        await p;
-        expect.fail('Expected client.send to throw for unknown command');
-      } catch (e) {
-        thrownError = e;
-      }
-
-      const err = thrownError as t.CmdError;
-      expect(err).to.be.instanceOf(Error);
-      expect(err.message).to.match(/No handler registered for command "bar"/);
-
-      expect(err.name).to.eql('CmdErrorRemote');
-      expect(err.cmd).to.be.an('object');
-      expect(err.cmd?.name).to.eql('bar');
-      expect(err.cmd?.id).to.be.a('string');
-      expect(err.cmd?.id).to.match(/^req-/);
-
-      // No namespace configured → ns should be undefined.
-      expect(err.ns).to.eql(undefined);
-      expect(err.cmd?.ns).to.eql(undefined);
-
-      client.dispose();
-      host.dispose();
-    });
-
-    it('client timeout rejects pending request with CmdErrorTimeout and cmd meta', async () => {
-      type Name = 'slow';
-      type Payload = { slow: {} };
-      type Result = { slow: {} };
-
-      const cmd = Cmd.make<Name, Payload, Result>();
-      const { port1, port2 } = new MessageChannel();
-
-      const host = cmd.host(port1, {
-        async slow() {
-          /* Intentionally never resolve - ensure timeout error */
-          await new Promise<never>(() => {});
-        },
-      });
-
-      const client = cmd.client(port2, { timeout: 10 });
-      const p = client.send('slow', {});
-
-      let err: unknown;
-      try {
-        await p;
-        expect.fail('Expected client.send to throw on timeout');
-      } catch (e) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceOf(Error);
-      const error = err as t.CmdError;
-      expect(error.name).to.eql('CmdErrorTimeout');
-      expect(error.message).to.contain('timed out');
-
-      expect(error.cmd).to.be.an('object');
-      expect(error.cmd?.name).to.eql('slow');
-      expect(error.cmd?.id).to.be.a('string');
+      const error = expectCmdError(err, 'CmdErrorRemote');
+      expect(error.message).to.match(/No handler registered for command "bar"/);
+      expect(error.cmd?.name).to.eql('bar');
       expect(error.cmd?.id).to.match(/^req-/);
 
-      // No namespace configured → ns should be undefined.
-      expect(error.ns).to.eql(undefined);
-      expect(error.cmd?.ns).to.eql(undefined);
-
       client.dispose();
       host.dispose();
+      port1.close();
+      port2.close();
     });
   });
 
-  describe('lifecycle', () => {
-    it('client.dispose rejects any pending requests', async () => {
-      type Name = 'slow';
-      type Payload = { slow: {} };
-      type Result = { slow: {} };
+  describe('lifecycle and transport ownership', () => {
+    it('dispose removes listeners but keeps endpoints open by default', () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: {} };
 
       const cmd = Cmd.make<Name, Payload, Result>();
       const { port1, port2 } = new MessageChannel();
+      const endpoint1 = trackEndpoint(port1);
+      const endpoint2 = trackEndpoint(port2);
 
-      const host = cmd.host(port1, {
-        async slow() {
-          await Schedule.sleep(50);
-          return {};
-        },
-      });
-
-      const client = cmd.client(port2);
-      const p = client.send('slow', {});
+      const host = cmd.host(endpoint1, { ping: () => ({}) });
+      const client = cmd.client(endpoint2);
 
       client.dispose();
-      host.dispose(); // NB: required to stop Schedule.sleep()
+      host.dispose();
 
-      let thrownError: unknown;
-      try {
-        await p;
-        expect.fail('Expected pending request to be rejected on dispose');
-      } catch (e) {
-        thrownError = e;
-      }
+      expect(endpoint1.closed()).to.eql(0);
+      expect(endpoint2.closed()).to.eql(0);
 
-      const err = thrownError as t.CmdError;
-      expect(err).to.be.instanceOf(Error);
-      expect(err.message).to.contain('disposed');
+      port1.close();
+      port2.close();
+    });
 
-      expect(err.name).to.eql('CmdErrorClientDisposed');
-      expect(err.cmd).to.eql(undefined);
-      expect(err.ns).to.eql(undefined);
+    it('client rejects commands started after dispose', async () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: { ok: boolean } };
+      type Events = { ping: { tick: number } };
+
+      const cmd = Cmd.make<Name, Payload, Result, Events>();
+      const { port1, port2 } = new MessageChannel();
+      const client = cmd.client(port2);
+
+      client.dispose();
+
+      const sendErr = await client.send('ping', {}).catch((err: unknown) => err);
+      const sendError = expectCmdError(sendErr, 'CmdErrorClientDisposed');
+      expect(sendError.cmd?.name).to.eql('ping');
+      expect(sendError.cmd?.id).to.match(/^req-/);
+
+      const stream = client.stream('ping', {});
+      const streamErr = await stream.done.catch((err: unknown) => err);
+      const streamError = expectCmdError(streamErr, 'CmdErrorClientDisposed');
+      expect(streamError.cmd?.name).to.eql('ping');
+      expect(streamError.cmd?.id).to.match(/^req-/);
+
+      const iteratorErr = await stream[Symbol.asyncIterator]().next().catch((err: unknown) => err);
+      expectCmdError(iteratorErr, 'CmdErrorClientDisposed');
+
+      const subscription = stream.onEvent(() => {});
+      expect(subscription.disposed).to.eql(true);
+
+      port1.close();
+      port2.close();
+    });
+
+    it('closeEndpoint opts into endpoint closing', () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: {} };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+      const endpoint1 = trackEndpoint(port1);
+      const endpoint2 = trackEndpoint(port2);
+
+      const host = cmd.host(endpoint1, { ping: () => ({}) }, { closeEndpoint: true });
+      const client = cmd.client(endpoint2, { closeEndpoint: true });
+
+      client.dispose();
+      host.dispose();
+
+      expect(endpoint1.closed()).to.eql(1);
+      expect(endpoint2.closed()).to.eql(1);
     });
   });
 
   describe('namespaces', () => {
-    it('routes commands by ns on a shared MessageChannel', async () => {
-      // Command set A
-      type NameA = 'pingA';
-      type PayloadA = { pingA: {} };
-      type ResultA = { pingA: { reply: string } };
+    it('matches namespaces exactly on a shared MessageChannel', async () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: { reply: string } };
 
-      // Command set B
-      type NameB = 'pingB';
-      type PayloadB = { pingB: {} };
-      type ResultB = { pingB: { reply: string } };
-
-      const nsA: t.CmdNamespace = 'ns/A';
-      const nsB: t.CmdNamespace = 'ns/B';
-
-      const cmdA = Cmd.make<NameA, PayloadA, ResultA>({ ns: nsA });
-      const cmdB = Cmd.make<NameB, PayloadB, ResultB>({ ns: nsB });
+      const ns: t.CmdNamespace = 'ns/exact';
+      const plain = Cmd.make<Name, Payload, Result>();
+      const named = Cmd.make<Name, Payload, Result>({ ns });
       const { port1, port2 } = new MessageChannel();
 
-      let calledA = 0;
-      let calledB = 0;
+      let plainCalled = 0;
+      let namedCalled = 0;
 
-      const hostA = cmdA.host(port1, {
-        pingA() {
-          calledA += 1;
-          return { reply: 'A' };
+      const plainHost = plain.host(port1, {
+        ping() {
+          plainCalled += 1;
+          return { reply: 'plain' };
+        },
+      });
+      const namedHost = named.host(port1, {
+        ping() {
+          namedCalled += 1;
+          return { reply: 'named' };
         },
       });
 
-      const hostB = cmdB.host(port1, {
-        pingB() {
-          calledB += 1;
-          return { reply: 'B' };
-        },
-      });
+      const plainClient = plain.client(port2);
+      const namedClient = named.client(port2);
 
-      const clientA = cmdA.client(port2);
-      const clientB = cmdB.client(port2);
+      const namedRes = await namedClient.send('ping', {});
+      const plainRes = await plainClient.send('ping', {});
 
-      const resA = await clientA.send('pingA', {});
-      const resB = await clientB.send('pingB', {});
+      expect(namedRes).to.eql({ reply: 'named' });
+      expect(plainRes).to.eql({ reply: 'plain' });
+      expect(namedCalled).to.eql(1);
+      expect(plainCalled).to.eql(1);
 
-      expect(resA.reply).to.eql('A');
-      expect(resB.reply).to.eql('B');
-
-      // Each host only handled its own namespace.
-      expect(calledA).to.eql(1);
-      expect(calledB).to.eql(1);
-
-      clientA.dispose();
-      clientB.dispose();
-      hostA.dispose();
-      hostB.dispose();
-    });
-
-    it('routes stream events by ns on a shared MessageChannel', async () => {
-      // Command set A
-      type NameA = 'pingA';
-      type PayloadA = { pingA: {} };
-      type ResultA = { pingA: { reply: string } };
-      type EventsA = { pingA: { tick: number } };
-
-      // Command set B
-      type NameB = 'pingB';
-      type PayloadB = { pingB: {} };
-      type ResultB = { pingB: { reply: string } };
-      type EventsB = { pingB: { tick: number } };
-
-      const nsA: t.CmdNamespace = 'ns/A';
-      const nsB: t.CmdNamespace = 'ns/B';
-
-      const cmdA = Cmd.make<NameA, PayloadA, ResultA, EventsA>({ ns: nsA });
-      const cmdB = Cmd.make<NameB, PayloadB, ResultB, EventsB>({ ns: nsB });
-
-      const { port1, port2 } = new MessageChannel();
-      const clientA = cmdA.client(port2);
-      const clientB = cmdB.client(port2);
-
-      const streamA = clientA.stream('pingA', {});
-      const streamB = clientB.stream('pingB', {});
-
-      const eventsA: EventsA['pingA'][] = [];
-      const eventsB: EventsB['pingB'][] = [];
-      const subA = streamA.onEvent((event) => eventsA.push(event));
-      const subB = streamB.onEvent((event) => eventsB.push(event));
-
-      // Event for nsA should only reach clientA.
-      port1.postMessage({
-        kind: 'cmd:event',
-        ns: nsA,
-        id: streamA.id,
-        name: 'pingA',
-        payload: { tick: 1 },
-      });
-
-      // Event for nsB should only reach clientB.
-      port1.postMessage({
-        kind: 'cmd:event',
-        ns: nsB,
-        id: streamB.id,
-        name: 'pingB',
-        payload: { tick: 10 },
-      });
-
-      await Schedule.sleep(10);
-
-      expect(eventsA).to.eql([{ tick: 1 }]);
-      expect(eventsB).to.eql([{ tick: 10 }]);
-
-      // Clean up: handle pending stream.done rejections from client.dispose.
-      const doneA = streamA.done.catch(() => {});
-      const doneB = streamB.done.catch(() => {});
-
-      subA.dispose();
-      subB.dispose();
-      clientA.dispose();
-      clientB.dispose();
+      plainClient.dispose();
+      namedClient.dispose();
+      plainHost.dispose();
+      namedHost.dispose();
       port1.close();
-
-      await doneA;
-      await doneB;
+      port2.close();
     });
 
     it('attaches ns to CmdError when configured', async () => {
@@ -516,7 +550,6 @@ describe('Cmd: core command behavior', () => {
       type Result = { fail: {} };
 
       const ns: t.CmdNamespace = 'worker/fail';
-
       const cmd = Cmd.make<Name, Payload, Result>({ ns });
       const { port1, port2 } = new MessageChannel();
 
@@ -527,30 +560,54 @@ describe('Cmd: core command behavior', () => {
       });
 
       const client = cmd.client(port2);
+      const err = await client.send('fail', {}).catch((err: unknown) => err);
 
-      let thrown: unknown;
-      try {
-        await client.send('fail', {});
-        expect.fail('Expected client.send to throw');
-      } catch (e) {
-        thrown = e;
-      }
-
-      const err = thrown as t.CmdError;
-      expect(err).to.be.instanceOf(Error);
-      expect(err.message).to.eql('ns-boom');
-      expect(err.name).to.eql('CmdErrorRemote');
-
-      // Namespace is attached at the top level and within cmd meta.
-      expect(err.ns).to.eql(ns);
-      expect(err.cmd).to.be.an('object');
-      expect(err.cmd?.name).to.eql('fail');
-      expect(err.cmd?.id).to.be.a('string');
-      expect(err.cmd?.id).to.match(/^req-/);
-      expect(err.cmd?.ns).to.eql(ns);
+      const error = expectCmdError(err, 'CmdErrorRemote');
+      expect(error.message).to.eql('ns-boom');
+      expect(error.ns).to.eql(ns);
+      expect(error.cmd?.name).to.eql('fail');
+      expect(error.cmd?.id).to.match(/^req-/);
+      expect(error.cmd?.ns).to.eql(ns);
 
       client.dispose();
       host.dispose();
+      port1.close();
+      port2.close();
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+function expectCmdError(input: unknown, kind: t.CmdErrorKind) {
+  expect(input).to.be.instanceOf(Error);
+
+  const err = input as t.CmdError;
+  expect(err.name).to.eql(kind);
+  return err;
+}
+
+function trackEndpoint(port: MessagePort) {
+  let closed = 0;
+
+  return {
+    postMessage(data: unknown) {
+      port.postMessage(data);
+    },
+    addEventListener(type: 'message', handler: (event: MessageEvent) => void) {
+      port.addEventListener(type, handler);
+    },
+    removeEventListener(type: 'message', handler: (event: MessageEvent) => void) {
+      port.removeEventListener(type, handler);
+    },
+    start() {
+      port.start();
+    },
+    close() {
+      closed += 1;
+      port.close();
+    },
+    closed: () => closed,
+  } satisfies t.CmdEndpoint & { readonly closed: () => number };
+}

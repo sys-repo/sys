@@ -1,7 +1,11 @@
 import type { t } from './common.ts';
 
 /** Classification for command-client errors. */
-export type CmdErrorKind = 'CmdErrorTimeout' | 'CmdErrorClientDisposed' | 'CmdErrorRemote';
+export type CmdErrorKind =
+  | 'CmdErrorTimeout'
+  | 'CmdErrorClientDisposed'
+  | 'CmdErrorRemote'
+  | 'CmdErrorCancelled';
 
 /** Context attached to command-client errors. */
 export type CmdErrorMeta = {

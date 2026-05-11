@@ -3,10 +3,10 @@ import type { t } from './common.ts';
 /**
  * Discriminant for command wire messages.
  */
-export type CmdKind = 'cmd' | 'cmd:event' | 'cmd:result';
+export type CmdKind = 'cmd' | 'cmd:event' | 'cmd:result' | 'cmd:cancel';
 
 /**
- * Command indentifying name.
+ * Command identifying name.
  * Typically a dotted or slash-delimited string, e.g. 'worker/ping'.
  */
 export type CmdName = string;
@@ -26,7 +26,7 @@ export type CmdReqId = `req-${string}`;
 /**
  * Union of all command wire envelopes.
  */
-export type CmdWireEnvelope = CmdEnvelope | CmdEventEnvelope | CmdResultEnvelope;
+export type CmdWireEnvelope = CmdEnvelope | CmdEventEnvelope | CmdResultEnvelope | CmdCancelEnvelope;
 
 /**
  * Wire envelope sent from client → host.
@@ -60,4 +60,15 @@ export type CmdResultEnvelope = {
   readonly ns?: t.CmdNamespace;
   readonly payload?: unknown;
   readonly error?: string;
+};
+
+/**
+ * Wire envelope sent from client → host to cancel an active request.
+ */
+export type CmdCancelEnvelope = {
+  readonly kind: 'cmd:cancel';
+  readonly id: t.CmdReqId;
+  readonly name: CmdName;
+  readonly ns?: t.CmdNamespace;
+  readonly reason?: string;
 };

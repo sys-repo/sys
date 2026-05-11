@@ -16,8 +16,8 @@ export function make<
     client(endpoint, clientOpts) {
       return makeClient<N, P, R, E>(endpoint, { ...clientOpts, ns });
     },
-    host(endpoint, handlers) {
-      return makeHost<N, P, R>(endpoint, handlers, { ns });
+    host(endpoint, handlers, hostOpts) {
+      return makeHost<N, P, R, E>(endpoint, handlers, { ...hostOpts, ns });
     },
   };
 }

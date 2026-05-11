@@ -1,4 +1,4 @@
-import { type t, Is } from '../common.ts';
+import { type t, Json } from '../common.ts';
 
 /**
  * Test utilities for wrapping WebSocket → MessagePort → CmdEndpoint.
@@ -12,23 +12,21 @@ export const Fixture = {
 
     ws.onmessage = (ev) => {
       let data: unknown = ev.data;
-      try {
-        data = JSON.parse(String(ev.data));
-      } catch {
-        // if it's already an object, just pass it through
-      }
+      const parsed = Json.safeParse<unknown>(String(ev.data));
+      if (parsed.ok) data = parsed.data;
+
       for (const fn of listeners) fn({ data });
     };
 
     return {
       postMessage(data: unknown) {
-        ws.send(JSON.stringify(data));
+        ws.send(Json.stringify(data));
       },
       addEventListener(_type, handler) {
         listeners.add(handler);
       },
       start() {
-        // no-op, here for MessagePort compatibility
+        // No-op, here for MessagePort compatibility.
       },
       close() {
         ws.close();
@@ -44,14 +42,5 @@ export const Fixture = {
       ws.onopen = () => resolve();
       ws.onerror = (err) => reject(err);
     });
-  },
-} as const;
-
-/**
- * Helpers:
- */
-const wrangle = {
-  port(input: t.CmdMessagePort | WebSocket): t.CmdMessagePort {
-    return Is.websocket(input) ? Fixture.portFromWebSocket(input) : (input as t.CmdMessagePort);
   },
 } as const;

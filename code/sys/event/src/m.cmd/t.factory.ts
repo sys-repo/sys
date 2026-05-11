@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  * - N: command names
  * - P: payloads per name
  * - R: result payloads per name
+ * - E: streamed event payloads per name
  *
  * Produces transport-bound endpoints.
  */
@@ -14,7 +15,11 @@ export type CmdFactory<
   R extends t.CmdPayloadResultMap<N>,
   E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
 > = {
-  host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;
+  host(
+    endpoint: t.CmdEndpoint,
+    handlers: t.CmdHandlers<N, P, R, E>,
+    opts?: t.CmdHostOptions,
+  ): t.CmdHost;
   client(endpoint: t.CmdEndpoint, opts?: t.CmdClientOptions): t.CmdClient<N, P, R, E>;
 };
 
@@ -22,6 +27,14 @@ export type CmdFactory<
 export type CmdClientOptions = {
   /** Optional timeout in milliseconds for each command request. */
   timeout?: t.Msecs;
+  /** Close the underlying endpoint when the client is disposed. Defaults to false. */
+  closeEndpoint?: boolean;
+};
+
+/** Options passed to `Cmd.make().host()` */
+export type CmdHostOptions = {
+  /** Close the underlying endpoint when the host is disposed. Defaults to false. */
+  closeEndpoint?: boolean;
 };
 
 /**
