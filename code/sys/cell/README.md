@@ -5,10 +5,11 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 ---
 
 `@sys/cell` is the Cell's boot/composition microkernel: it does not define the Cell's state model or
-ontology; it composes owner services that interpret Cell state.
+ontology; it composes owner services that in turn interpret the Cell state.
 
-A Cell's state is a [DSL](https://martinfowler.com/dsl.html): ordinary files whose meaning can be
-interpreted, viewed, and validly rewritten within the folder that bounds it.
+A Cell's state is carried by ordinary files that can function as a
+[DSL](https://martinfowler.com/dsl.html): their meaning can be interpreted, viewed, and validly
+rewritten within the folder that bounds them.
 
 Concretely, the medium is a folder of ordinary files: Markdown, YAML, TypeScript, JSON, binary data,
 and other file-carried forms.
@@ -27,11 +28,6 @@ service-specific config paths.
  ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
 
-```
-DSL      =  stored meaning in files
-Runtime  =  ƒ(active interpretation)           ← Cell.Runtime.start(🧫)
-View     =  bound projection over Cell state   ← owner-defined, not a kernel field
-```
 
 <p>&nbsp;</p>
 
