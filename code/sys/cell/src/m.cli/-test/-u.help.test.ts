@@ -60,14 +60,19 @@ describe('FmtHelp', () => {
     expect(text).to.contain('━'.repeat(8));
     expect(text.indexOf('agent-skill Markdown projection')).to.be.lessThan(text.indexOf('Rule'));
     expect(text.indexOf('━'.repeat(8))).to.be.lessThan(text.indexOf('Rule'));
-    expect(text).to.contain('Topology IDs');
-    expect(text).to.contain('^[a-z][a-z0-9.-]*$');
-    expect(text).to.contain('Do not use `:`, `_`, `/`, spaces, or uppercase letters');
-    expect(text).to.contain('If a requested ID is invalid, stop and ask for a valid ID');
+    expect(text).to.contain('Descriptor IDs');
+    expect(text).to.contain('^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$');
+    expect(text).to.contain('Allowed separators are `.`, `:`, and `-`');
+    expect(text).to.contain('Do not treat service names as raw paths');
+    expect(text).to.contain(
+      'If a requested service name is invalid, stop and ask for a valid name',
+    );
     expect(text).to.contain('Speech acts');
     expect(text).to.contain('add an @sys/http static service for <view>');
     expect(text).to.contain('pull latest configured views');
-    expect(text).to.contain('pull latest configured views → run `@sys/tools pull`');
+    expect(text).to.contain(
+      'pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)',
+    );
     expect(text).to.contain('do not edit `cell.yaml` for refresh-only pulls');
     expect(text).to.contain(
       'add @sys/http static service → run `@sys/http/server/static config add`',
@@ -131,7 +136,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Use these acts, owner rules, mappings, and chapters');
     expect(text).to.contain('# Cell DSL');
     expect(text).to.contain('## Rule');
-    expect(text).to.contain('## Topology IDs');
+    expect(text).to.contain('## Descriptor IDs');
     expect(text).to.contain('## Chapters');
     expect(text).to.contain(
       '- `deno run -ER jsr:@sys/cell dsl pulled-view --format skill` — Add a view backed by an `@sys/tools/pull` config.',
@@ -185,9 +190,8 @@ describe('FmtHelp', () => {
     expect(text).to.contain('@sys/cell dsl pulled-view');
     expect(text).to.contain(guidance.summary);
     expect(text).to.contain('Classify "pull latest configured views" as `refresh: pulled views`.');
-    expect(text).to.contain(
-      'For `refresh: pulled views`, read `views.*.source.pull` from `cell.yaml`.',
-    );
+    expect(text).to.contain('For `refresh: pulled views`, use confirmed pull config path(s).');
+    expect(text).to.contain('Do not read `views.*` from `cell.yaml`.');
     expectRenderedSections(text, guidance.sections);
     expect(text).to.contain('<dist-url>');
     expect(text).to.contain('<pull-config-path>');
@@ -211,11 +215,13 @@ describe('FmtHelp', () => {
     expect(text).to.contain('--dry-run \\');
     expect(text).to.contain('<static-config>');
     expect(text).to.contain('<service-name>');
-    expect(text).to.contain('Reject invalid IDs such as `http:static`');
+    expect(text).to.contain('Reject invalid service names such as `http/static`');
     expect(text).to.contain('<dir>');
     expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/static'");
+    expect(text).to.not.contain('kind: http-static');
+    expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
     expect(text).to.not.contain('./view/web');
     expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
@@ -238,14 +244,16 @@ describe('FmtHelp', () => {
     expect(text).to.contain('owner config affordances');
     expect(text).to.contain('config add');
     expect(text).to.contain('<service-name>');
-    expect(text).to.contain('Reject invalid IDs such as `http:static`');
-    expect(text).to.contain('<kind>');
+    expect(text).to.contain('Reject invalid service names such as `service/path`');
+    expect(text).to.not.contain('<kind>');
     expect(text).to.contain('<module>');
     expect(text).to.contain('<export>');
     expect(text).to.contain('<config>');
     expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '<module>'");
+    expect(text).to.not.contain('kind: <kind>');
+    expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('driver.stripe');
@@ -301,6 +309,8 @@ describe('FmtHelp', () => {
     expect(raw).to.match(hasTrueColorAnsi);
     expect(text).to.contain('runtime:');
     expect(text).to.contain("from: '@sys/http/server/proxy'");
+    expect(text).to.not.contain('kind: http-proxy');
+    expect(text).to.not.contain('for.views');
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('/payments/');

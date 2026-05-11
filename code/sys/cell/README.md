@@ -56,9 +56,8 @@ Sample slot values, not DSL grammar:
 
 - `<dist-url>`: `https://fs.db.team/driver.stripe/dist.json`
 - `<dist-url>`: `https://fs.db.team/ui.components/dist.json`
-- `<service-name>`: `stripe` for the Stripe fixture service
-- `<service-name>`: `app` for the sample public proxy
-- `<kind>`: `http-server` for the Stripe fixture service
+- `<service-name>`: `stripe:fixture` for the Stripe fixture service
+- `<service-name>`: `cell:proxy` for the sample public proxy
 - `<@scope/pkg>/<export>`: `@sys/driver-stripe/server/fixture` / `StripeFixture`
 - `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
 - `<view>`: `stripe.dev`, `hello`

@@ -9,7 +9,7 @@ sections:
       Classify "route / to <view/service/upstream>" as a proxy root-route act.
       Classify "route <path-prefix> to <view/service/upstream>" as a proxy mount-route act.
       Proxy owns public route orchestration; static and fixture services own endpoint serving.
-      Cell registers a runtime service; HTTP owns proxy config and mount mechanics.
+      Cell registers a runtime service name, module/export, and owner config reference.
       Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
       Do not put proxy mounts, upstreams, or route mechanics directly in `cell.yaml`.
       Proxy maps path-prefixes; it only redirects for slash normalization.
@@ -17,16 +17,17 @@ sections:
   - label: 'Slot policy'
     items: |
       `<service-name>` is semantic; propose a concise public proxy name only when the prompt implies one, and confirm.
-      `<service-name>` is a Cell topology ID and must match `^[a-z][a-z0-9.-]*$`.
-      Reject invalid IDs such as `http:proxy`; ask for a valid ID instead of rewriting it.
-      `<config>` is an owner config reference; propose `./-config/@sys.http/proxy/<service-name>.yaml`.
+      `<service-name>` is a Cell descriptor service ID and must match `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Reject invalid service names such as `http/proxy`, `HttpProxy`, `http_proxy`, or `bad..id`.
+      `<config>` is an owner config reference; propose a concrete path such as `./-config/@sys.http/proxy/default.yaml`.
+      Do not derive config paths by embedding raw service IDs without confirmation.
       `<route>` is `/` or a public mounted path-prefix; ask if missing or ambiguous.
       Use proxy root/default routing for `/`.
       Use proxy mount routing for confirmed non-root `<path-prefix>` routes.
-      `<upstream>` is an absolute URL-prefix ending with `/`; resolve from declared owner configs when possible, otherwise ask.
+      `<upstream>` is an absolute URL-prefix ending with `/`; resolve from owner service configs when possible, otherwise ask.
+      If the route target is a view, keep that relationship in owner proxy/static config, not `cell.yaml`.
       If the Cell already declares local HTTP services, check owner configs for port collisions.
       Use owner defaults for hostname and port unless the user specifies or confirms alternatives.
-      Add `for.views` only when the prompt identifies declared views this proxy serves.
       Confirm service name, config path, listener, route, and upstream before writing.
 
   - label: Dialogue
@@ -41,7 +42,7 @@ sections:
       listen: `<hostname>:<port>`
       mount: `<path-prefix>`
       upstream: `<upstream-url-prefix>`
-      Please confirm those values before I run the owner commands and update Cell topology.
+      Please confirm those values before I run the owner commands and update the Cell descriptor.
 
   - label: 'Owner flow'
     items: |
@@ -59,7 +60,7 @@ sections:
       Pass `--upstream <upstream>`.
       This creates or updates mounted upstreams in the proxy owner config.
       Do not duplicate HTTP proxy config schema in the Cell edit.
-      Cell records only the runtime service and config reference.
+      Cell records only runtime service name, module/export, and config reference.
 
   - label: 'Owner command'
     items:
@@ -92,12 +93,11 @@ sections:
       Do not use `/` as a mount; proxy runtime treats root/default upstream as a separate route kind.
       Do not bypass owner affordances by hand-writing proxy YAML.
 
-  - label: 'Cell topology'
+  - label: 'Descriptor patch'
     items: |
       runtime:
         services:
           - name: <service-name>
-            kind: http-proxy
             from: '@sys/http/server/proxy'
             export: HttpProxy
             config: <proxy-config>

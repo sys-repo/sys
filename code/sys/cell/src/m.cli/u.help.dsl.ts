@@ -61,7 +61,7 @@ async function highlightedYaml(chapter: t.CellHelp.Dsl.Chapter): Promise<t.CellH
 async function highlightYamlSection(
   section: t.CellHelp.Section,
 ): Promise<t.CellHelp.Section> {
-  if (section.label !== 'Cell topology') return section;
+  if (section.label !== 'Descriptor patch') return section;
 
   const items = await Promise.all(
     section.items.map((item) => Fmt.Code.highlight(item, { lang: 'yaml' })),

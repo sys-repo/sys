@@ -8,7 +8,7 @@ sections:
       Classify prompt shape:
       "add a service named <service-name> using <@scope/pkg>/<export>"
       as `add: runtime service`.
-      Cell records runtime topology.
+      Cell records runtime composition.
       The service owner owns config schema and mechanics.
       Runtime imports must be trusted by `Cell.Runtime.verify/start`.
       The default trusted prefix is `@sys/`.
@@ -17,28 +17,29 @@ sections:
 
   - label: 'Slot policy'
     items: |
-      `<service-name>` is semantic; examples: `worker`, `api`, `fixture`, `sync`.
-      `<service-name>`, `<kind>`, and `<views>` entries are Cell topology IDs.
-      Cell topology IDs must match `^[a-z][a-z0-9.-]*$`.
-      Reject invalid IDs such as `http:static`; ask for a valid ID instead of rewriting it.
-      `<kind>` describes capability for review/grouping.
-      Kind examples: `http-server`, `worker`, `sync-service`, `domain-service`.
+      `<service-name>` is semantic; examples: `worker`, `api`, `dev:fixture`, `app.proxy-v1`.
+      `<service-name>` is a Cell descriptor service ID and must match `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Reject invalid service names such as `service/path`, `BadService`, `worker_1`, or `bad..id`.
+      Treat service names as opaque identifiers for display, logs, and review.
+      Do not treat service names as raw paths, URLs, imports, task names, or config filenames.
       `<module>` is a trusted import specifier.
       Module examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/runtime`.
       `<export>` is the named export that implements `Cell.Runtime.LifecycleEndpoint`.
       Export examples: `Server`, `Worker`, `Runtime`, `Fixture`.
       `<config>` is a Cell-relative owner config path.
       Config examples: `./-config/@scope.pkg/service.yaml`.
-      Config examples: `./-config/@scope.pkg/<service-name>.yaml`.
-      `<views>` is optional.
-      Use `<views>` only when the service serves or supports declared Cell views.
-      Confirm service name, kind, module/export, config path, and optional view links.
+      Config examples: `./-config/@scope.pkg/default.yaml`.
+      Do not derive config paths by embedding raw service IDs without confirmation.
+      Confirm service name, module/export, and config path.
 
   - label: 'Lifecycle contract'
     items: |
       The exported endpoint must implement `Cell.Runtime.LifecycleEndpoint`.
       `Cell.Runtime.LifecycleEndpoint` exposes `start(args)`.
-      Cell passes service config plus Cell-derived start args into `start(args)`.
+      Cell loads service-owned config, then calls `start(args)`.
+      Base args are `{ cwd: <cell-root>, ...<service-config> }`.
+      Optional `startArgs` callers may override or extend those base args.
+      Cell does not derive args from service kind or view links.
       The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
       Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
       If the module/export contract is ambiguous, inspect the published JSR package docs/source.
@@ -52,11 +53,9 @@ sections:
       OK — I can add that runtime service.
       I’ll use:
       service name: `<service-name>`
-      kind: `<kind>`
       module/export: `<module>/<export>`
       config: `<config>`
-      views: `<views>` if this service is for declared Cell views
-      Please confirm those values before I update Cell topology
+      Please confirm those values before I update the Cell descriptor
       or create service-owned config.
 
   - label: 'Owner flow'
@@ -72,24 +71,12 @@ sections:
       Do not duplicate the owner config schema in the Cell edit.
       Cell records only the runtime service and config reference.
 
-  - label: 'Cell topology'
+  - label: 'Descriptor patch'
     items:
       - |
           runtime:
             services:
               - name: <service-name>
-                kind: <kind>
-                from: '<module>'
-                export: <export>
-                config: <config>
-      - |
-          # Optional declared-view relationship:
-          runtime:
-            services:
-              - name: <service-name>
-                kind: <kind>
-                for:
-                  views: [<view>]
                 from: '<module>'
                 export: <export>
                 config: <config>

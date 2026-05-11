@@ -7,20 +7,22 @@ summary: |
 sections:
   - label: Rule
     items: |
-      Cell owns topology; owner configs own mechanics.
-      Local files are ordinary Cell content; runtime services own how files are served or interpreted.
-      Use chapters for detailed slot policy and owner flows.
+      Cell owns boot/composition; owner configs own mechanics and state interpretation.
+      `cell.yaml` names trusted runtime services and owner config references.
+      Views are owner-defined projections that make Cell state perceivable.
+      Do not register views or service-to-view relationships in `cell.yaml`.
       Do not put pull/service/proxy/mount mechanics in `cell.yaml`.
       Do not turn `cell.yaml` into a mega-config.
 
-  - label: 'Topology IDs'
+  - label: 'Descriptor IDs'
     items: |
-      Cell topology identifiers use the pattern `^[a-z][a-z0-9.-]*$`.
-      This applies to view names, service names, service kinds, and view references.
-      Allowed characters are lowercase letters, digits after the first character, `.` and `-`.
-      Do not use `:`, `_`, `/`, spaces, or uppercase letters in Cell topology IDs.
-      Validate user-provided topology ID slots before editing `cell.yaml`.
-      If a requested ID is invalid, stop and ask for a valid ID; do not silently rewrite it.
+      Runtime service names in `cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
+      Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or repeated separators.
+      Treat service names as opaque identifiers for display, logs, and review.
+      Do not treat service names as raw paths, URLs, import specifiers, task names, or config filenames.
+      Validate user-provided service-name slots before editing `cell.yaml`.
+      If a requested service name is invalid, stop and ask for a valid name; do not silently rewrite it.
 
   - label: Speech acts
     items:
@@ -51,21 +53,22 @@ sections:
 
   - label: Mappings
     items:
-      - add pulled view → run `@sys/tools pull add`
-      - then register `views.<name>.source.pull`
-      - pull latest configured views → run `@sys/tools pull`
-      - use each distinct `views.*.source.pull` config
+      - add pulled view → run `@sys/tools pull add` against confirmed owner config
+      - owner pull config owns dist URL and local target
+      - do not register pulled views in `cell.yaml`
+      - pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)
+      - if no pull config is specified or known, ask for it
       - do not edit `cell.yaml` for refresh-only pulls
       - add @sys/http static service → run `@sys/http/server/static config add`
-      - "then register `runtime.services[]` with `from: '@sys/http/server/static'` and `export: HttpStatic`"
+      - "then register `runtime.services[]` with `name`, `from: '@sys/http/server/static'`, `export: HttpStatic`, and `config`"
       - do not use `@sys/tools serve` for Cell runtime static services
       - add generic runtime service → confirm `Cell.Runtime.LifecycleEndpoint`
       - use owner config affordance when available
-      - then register `runtime.services[]`
+      - then register `runtime.services[]` with `name`, `from`, `export`, and `config`
       - add proxy → use proxy owner flow
-      - then register runtime service and config ref
+      - then register runtime service name and config ref
       - root route → run `@sys/http/server/proxy root set`
       - mount route → run `@sys/http/server/proxy mount add`
-      - '`cell.yaml` only names the proxy service and config ref'
+      - '`cell.yaml` only names runtime services and owner config refs'
       - verify/load → run `Cell.load` against the folder
       - start runtime → run `@sys/cell start`

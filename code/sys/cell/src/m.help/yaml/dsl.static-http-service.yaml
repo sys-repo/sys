@@ -8,19 +8,21 @@ sections:
       Classify "add an @sys/http static service for <view>" as `add: static HTTP service`.
       Also classify "add a static HTTP service for <view>" as this act, then route to @sys/http.
       Treat the speech act as intent plus partial slots.
-      Cell registers a runtime service; `@sys/http/server/static` owns static-server config.
+      Cell registers a runtime service name, module/export, and owner config reference.
       Do not hand-author `@sys/http` config YAML when the owner CLI can write it.
       Do not put HTTP static-server mechanics directly in `cell.yaml`.
       Do not use `@sys/tools serve` for Cell runtime static services; it is an operator CLI façade.
 
   - label: 'Slot policy'
     items: |
-      `<view>` is the Cell view the service serves; ask if missing or ambiguous.
-      `<view>` and `<service-name>` are Cell topology IDs and must match `^[a-z][a-z0-9.-]*$`.
-      Reject invalid IDs such as `http:static`; ask for a valid ID instead of rewriting it.
-      `<service-name>` is semantic; propose `static.<view>` and confirm if not obvious.
-      `<config>` is an owner config reference; propose `./-config/@sys.http/static/<view>.yaml`.
-      `<dir>` is the static root; ask unless the user named it or the Cell view path is obvious.
+      `<view>` is an owner-defined projection/static root the service serves; ask if missing or ambiguous.
+      `<view>` is not a Cell descriptor field.
+      `<service-name>` is a Cell descriptor service ID and must match `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Reject invalid service names such as `http/static`, `HttpStatic`, `http_static`, or `bad..id`.
+      `<service-name>` is semantic; propose `ui:static:<view>` and confirm if not obvious.
+      `<config>` is an owner config reference; propose a concrete path such as `./-config/@sys.http/static/<view>.yaml`.
+      Do not derive config paths by embedding raw service IDs without confirmation.
+      `<dir>` is the static root; ask unless the user named it or the view path is obvious.
       Use owner defaults for hostname and port unless the user specifies them.
       Confirm proposed service name, config path, and static root before writing.
 
@@ -34,7 +36,7 @@ sections:
       service name: `<service-name>`
       static config: `<static-config>`
       static root: `<dir>`
-      Please confirm those values before I run the owner command and update Cell topology.
+      Please confirm those values before I run the owner command and update the Cell descriptor.
 
   - label: 'Owner flow'
     items: |
@@ -45,7 +47,7 @@ sections:
       Pass `--hostname` and `--port` only when specified or confirmed.
       This creates or updates HTTP static-server config.
       Do not duplicate HTTP config schema in the Cell edit.
-      Cell records only the runtime service and config reference.
+      Cell records only runtime service name, module/export, and config reference.
 
   - label: 'Owner command'
     items:
@@ -62,14 +64,11 @@ sections:
             --hostname <hostname> \
             --port <port>
 
-  - label: 'Cell topology'
+  - label: 'Descriptor patch'
     items: |
       runtime:
         services:
           - name: <service-name>
-            kind: http-static
-            for:
-              views: [<view>]
             from: '@sys/http/server/static'
             export: HttpStatic
             config: <static-config>

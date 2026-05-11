@@ -15,10 +15,12 @@ sections:
   - label: 'Slot policy'
     items: |
       `<dist-url>` is given by the prompt.
-      `<name>` must ask; view names are semantic/user-facing.
-      `<name>` is a Cell topology ID and must match `^[a-z][a-z0-9.-]*$`.
-      Reject invalid IDs such as `view:fs`; ask for a valid ID instead of rewriting it.
+      `<name>` must ask; view names are semantic/user-facing owner handles.
+      `<name>` is not a Cell descriptor field.
+      Prefer lowercase segmented names for owner-facing handles.
+      Avoid `_`, `/`, spaces, uppercase letters, and path-like values in view handles.
       Do not derive `<name>` from the URL.
+      Do not use a raw view handle as a path segment without confirming concrete owner paths.
       Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
       Propose local target: `./view/.pulled/<dist-name>`.
       Do not ask for a destination path when only `<dist-url>` is missing context.
@@ -37,7 +39,7 @@ sections:
       dist URL: `<dist-url>`
       pull config: `<pull-config-path>`
       local target: `<local-target>`
-      Please confirm those paths and tell me the view name to register.
+      Please confirm those paths and tell me the view name to use.
 
   - label: 'Owner flow'
     items: |
@@ -48,17 +50,19 @@ sections:
       This creates or updates pull config.
       Do not hand-author `@sys/tools/pull` YAML.
       Use owner CLI when it can create config.
-      Register only `views.<name>.source.pull` in `cell.yaml`.
-      The value is `<pull-config-path>`.
-      Do not put `<dist-url>` or `<local-target>` in `cell.yaml`.
+      Owner pull config records `<dist-url>` and `<local-target>`.
+      Cell descriptor is unchanged for pulled-view setup.
+      Do not put `<dist-url>`, `<local-target>`, or view registry entries in `cell.yaml`.
 
   - label: 'Materialize'
     items: |
       Pull add configures only; it does not pull files.
       Materialize only when needed or approved.
-      For `refresh: pulled views`, read `views.*.source.pull` from `cell.yaml`.
+      For `refresh: pulled views`, use confirmed pull config path(s).
+      If the prompt does not identify pull config(s) and no project convention is established, ask.
       Run one materialization per distinct pull config.
       Use owner CLI: `@sys/tools pull`.
       Pass `--non-interactive`.
       Pass `--config <pull-config-path>`.
+      Do not read `views.*` from `cell.yaml`.
       Do not edit `cell.yaml` for refresh-only pulls.

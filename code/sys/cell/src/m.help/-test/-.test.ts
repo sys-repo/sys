@@ -11,7 +11,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.title).to.eql('Cell DSL');
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
-      'Topology IDs',
+      'Descriptor IDs',
       'Speech acts',
       'Owners',
       'Mappings',
@@ -75,7 +75,7 @@ describe('CellHelp.Dsl', () => {
       'Dialogue',
       'Owner flow',
       'Owner command',
-      'Cell topology',
+      'Descriptor patch',
     ]);
     expect(chapter.chapters).to.eql([]);
   });
@@ -95,7 +95,7 @@ describe('CellHelp.Dsl', () => {
       'Lifecycle contract',
       'Dialogue',
       'Owner flow',
-      'Cell topology',
+      'Descriptor patch',
     ]);
     expect(chapter.chapters).to.eql([]);
   });
@@ -116,7 +116,7 @@ describe('CellHelp.Dsl', () => {
       'Owner flow',
       'Owner command',
       'Root routes',
-      'Cell topology',
+      'Descriptor patch',
     ]);
     expect(chapter.chapters).to.eql([]);
   });
