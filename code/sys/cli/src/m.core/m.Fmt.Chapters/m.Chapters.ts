@@ -1,5 +1,7 @@
 import { c, Str, stripAnsi, type t } from '../common.ts';
 import { Help } from '../m.Fmt/m.Fmt.Help.ts';
+import { Book } from './m.Book.ts';
+import { files, resolve } from './u.resources.ts';
 import { hr } from '../m.Fmt/m.Fmt.Hr.ts';
 import { Table } from '../m.Table/mod.ts';
 
@@ -10,6 +12,7 @@ export const Chapters: t.CliFormatChapters.Lib = {
   markdown,
   files,
   resolve,
+  Book,
 };
 
 function format(input: t.CliFormatChapters.FormatInput): string {
@@ -74,27 +77,6 @@ function markdown(input: t.CliFormatChapters.MarkdownInput): string {
   }
 
   return Str.trimEdgeNewlines(lines.join('\n'));
-}
-
-function files<TFile extends string>(
-  chapter: t.CliFormatChapters.Chapter.Resource<TFile>,
-): readonly TFile[] {
-  return [chapter.file, ...chapter.children.flatMap(files)];
-}
-
-function resolve<TFile extends string>(
-  root: t.CliFormatChapters.Chapter.Resource<TFile>,
-  path: readonly string[],
-): t.CliFormatChapters.Chapter.Resource<TFile> | undefined {
-  let resource = root;
-
-  for (const id of path) {
-    const child = resource.children.find((item) => item.id === id);
-    if (!child) return undefined;
-    resource = child;
-  }
-
-  return resource;
 }
 
 function chapterLine(

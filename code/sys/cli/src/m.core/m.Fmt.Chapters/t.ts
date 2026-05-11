@@ -23,6 +23,9 @@ export declare namespace CliFormatChapters {
       root: Chapter.Resource<TFile>,
       path: readonly string[],
     ): Chapter.Resource<TFile> | undefined;
+
+    /** Create loaders for authored chapter-book resources. */
+    readonly Book: Book.Lib;
   };
 
   /** Terminal chapter guide rendering input. */
@@ -61,6 +64,43 @@ export declare namespace CliFormatChapters {
   export type Frontmatter = {
     readonly [key: string]: string;
   };
+
+  /** Reusable chapter-book loader for authored chapter resources. */
+  export type Book<TFile extends string = string> = {
+    /** Root chapter resource for this book. */
+    readonly root: Chapter.Resource<TFile>;
+    /** Return all chapter resource files in recursive order. */
+    files(): readonly TFile[];
+    /** Resolve a child chapter resource by path. */
+    resolve(path?: readonly string[]): Chapter.Resource<TFile> | undefined;
+    /** Load a chapter by path. */
+    load(path?: readonly string[]): Promise<Chapter>;
+  };
+
+  export namespace Book {
+    /** Chapter-book loader factory surface. */
+    export type Lib = {
+      /** Create a reusable chapter-book loader from a resource tree and record reader. */
+      create<TFile extends string>(input: Input<TFile>): Book<TFile>;
+    };
+
+    /** Input used to create a chapter-book loader. */
+    export type Input<TFile extends string = string> = {
+      /** Root chapter resource. */
+      readonly root: Chapter.Resource<TFile>;
+      /** Read a parsed record for a resource file. */
+      readonly read: Reader<TFile>;
+      /** Error prefix used for diagnostics. Defaults to `ChapterBook`. */
+      readonly label?: string;
+      /** Human noun used for missing-resource diagnostics. Defaults to `chapter`. */
+      readonly noun?: string;
+      /** Human record kind used for non-record diagnostics. Defaults to `record`. */
+      readonly recordKind?: string;
+    };
+
+    /** Resource record reader. */
+    export type Reader<TFile extends string = string> = (file: TFile) => unknown | Promise<unknown>;
+  }
 
   /** Navigable help chapter rendered by a CLI help surface. */
   export type Chapter = {

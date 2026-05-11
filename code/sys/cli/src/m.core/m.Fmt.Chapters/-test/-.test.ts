@@ -53,6 +53,89 @@ describe('Cli.Fmt.Chapters', () => {
     expect(Fmt.Chapters.resolve(root, ['child', 'missing'])).to.eql(undefined);
   });
 
+  it('loads authored chapter-book records by nested path', async () => {
+    const root = {
+      id: 'root',
+      file: 'root.yaml',
+      children: [
+        {
+          id: 'child',
+          file: 'child.yaml',
+          children: [{ id: 'leaf', file: 'leaf.yaml', children: [] }],
+        },
+      ],
+    } as const;
+    const records: Record<string, unknown> = {
+      'root.yaml': {
+        id: 'root',
+        title: 'Root chapter',
+        summary: 'Root summary.',
+        sections: [{ label: 'Rule', items: 'Line one.\nLine two.' }],
+      },
+      'child.yaml': {
+        id: 'child',
+        title: 'Child chapter',
+        summary: 'Child summary.',
+        sections: [{ label: 'Owner flow', items: ['Run owner command.'] }],
+      },
+      'leaf.yaml': {
+        id: 'leaf',
+        title: 'Leaf chapter',
+        summary: 'Leaf summary.',
+        sections: [{ label: 'Verify', items: ['Run targeted test.'] }],
+      },
+    };
+    const book = Fmt.Chapters.Book.create({
+      root,
+      label: 'ExampleHelp',
+      noun: 'DSL chapter',
+      recordKind: 'YAML record',
+      read: (file) => records[file],
+    });
+
+    expect(book.root).to.equal(root);
+    expect(book.files()).to.eql(['root.yaml', 'child.yaml', 'leaf.yaml']);
+    expect(book.resolve(['child', 'leaf'])?.file).to.eql('leaf.yaml');
+
+    const loadedRoot = await book.load();
+    expect(loadedRoot.id).to.eql('root');
+    expect(loadedRoot.sections).to.eql([
+      { label: 'Rule', items: ['Line one.', 'Line two.'] },
+    ]);
+    expect(loadedRoot.chapters).to.eql([
+      {
+        id: 'child',
+        path: ['child'],
+        title: 'Child chapter',
+        summary: 'Child summary.',
+      },
+    ]);
+
+    const leaf = await book.load(['child', 'leaf']);
+    expect(leaf.path).to.eql(['child', 'leaf']);
+    expect(leaf.chapters).to.eql([]);
+  });
+
+  it('chapter-book loader fails clearly for missing paths and invalid records', async () => {
+    const root = { id: 'root', file: 'root.yaml', children: [] } as const;
+    const records: Record<string, unknown> = {
+      'root.yaml': { id: 'wrong' },
+    };
+    const book = Fmt.Chapters.Book.create({
+      root,
+      label: 'ExampleHelp',
+      noun: 'DSL chapter',
+      recordKind: 'YAML record',
+      read: (file) => records[file],
+    });
+
+    await expectFailure(
+      () => book.load(['missing']),
+      'ExampleHelp: DSL chapter not found: missing',
+    );
+    await expectFailure(() => book.load(), 'ExampleHelp: missing field: title');
+  });
+
   it('renders sections and a parameterized child chapter index', () => {
     const text = Fmt.Chapters.format({ command, chapter });
     const plain = Cli.stripAnsi(text);
@@ -198,6 +281,18 @@ describe('Cli.Fmt.Chapters', () => {
     expect(plain).to.not.contain(`${command} short`);
   });
 });
+
+async function expectFailure(fn: () => Promise<unknown>, message: string) {
+  let error: unknown;
+  try {
+    await fn();
+  } catch (err) {
+    error = err;
+  }
+
+  expect(error).to.be.instanceOf(Error);
+  if (error instanceof Error) expect(error.message).to.eql(message);
+}
 
 function chapterCommentColumn(text: string, chapter: string): number {
   const line = text.split('\n').find((line) => line.includes(`dsl ${chapter}`));
