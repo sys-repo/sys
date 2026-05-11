@@ -53,7 +53,7 @@ Options    -h, --help   show help
 
 <p>&nbsp;</p>
 
-## Prompting `dsl --help`
+## Prompting `cell dsl`
 
 | Intent                        | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:    |
 | ----------------------------- | ------------------------------------------------------------------- |
