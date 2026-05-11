@@ -1,13 +1,12 @@
 import { c, Cli, DEFAULT, Fs, type t } from './common.ts';
-import type { YamlConfigMenuArgs, YamlConfigMenuResult } from './t.menu.ts';
 import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from './u.fs.ts';
 import { actionMenu } from './u.menu.action.ts';
 import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
 import { withTree } from './u.menu.tree.ts';
 
 export async function menu<T, A extends string = string>(
-  args: YamlConfigMenuArgs<T, A>,
-): Promise<YamlConfigMenuResult<A>> {
+  args: t.YamlConfig.Menu.Args<T, A>,
+): Promise<t.YamlConfig.Menu.Result<A>> {
   const { ext = DEFAULT.EXT, mode = 'menu', defaultAction } = args;
   const dir = await ensureConfigDir(args.cwd, args.dir);
 
@@ -120,7 +119,7 @@ function normalizeAddLabel(label?: string): string {
 }
 
 async function writeInitialConfig<T, A extends string>(
-  args: YamlConfigMenuArgs<T, A>,
+  args: t.YamlConfig.Menu.Args<T, A>,
   dir: t.StringDir,
   name: string,
   ext: string,
@@ -145,7 +144,7 @@ function padLabel(label: string, width: number): string {
 }
 
 function resolveItemValue<T>(
-  itemValue: YamlConfigMenuArgs<T>['itemValue'],
+  itemValue: t.YamlConfig.Menu.Args<T>['itemValue'],
   args: { name: string; path: t.StringFile; doc?: T },
 ): string {
   if (!itemValue) return args.name;

@@ -1,9 +1,4 @@
 import { c, Cli, Fs, Open, type t } from './common.ts';
-import type {
-  YamlConfigMenuActionBase,
-  YamlConfigMenuArgs,
-  YamlConfigMenuResult,
-} from './t.menu.ts';
 import { fileLabel, readYaml } from './u.fs.ts';
 import { promptAction } from './u.menu.prompt.ts';
 import { renameConfig } from './u.menu.rename.ts';
@@ -12,17 +7,17 @@ type ActionMenuArgs<T, A extends string> = {
   cwd: t.StringDir;
   path: t.StringFile;
   ext: string;
-  defaultAction?: YamlConfigMenuActionBase | A;
-  schema: YamlConfigMenuArgs<T, A>['schema'];
-  invalid?: YamlConfigMenuArgs<T, A>['invalid'];
-  actions?: YamlConfigMenuArgs<T, A>['actions'];
+  defaultAction?: t.YamlConfig.Menu.ActionBase | A;
+  schema: t.YamlConfig.Menu.Args<T, A>['schema'];
+  invalid?: t.YamlConfig.Menu.Args<T, A>['invalid'];
+  actions?: t.YamlConfig.Menu.Args<T, A>['actions'];
 };
 
 export async function actionMenu<T, A extends string = string>(
   args: ActionMenuArgs<T, A>,
-): Promise<YamlConfigMenuResult<A>> {
+): Promise<t.YamlConfig.Menu.Result<A>> {
   let current = args.path;
-  let lastAction: YamlConfigMenuActionBase | A | undefined = args.defaultAction;
+  let lastAction: t.YamlConfig.Menu.ActionBase | A | undefined = args.defaultAction;
   while (true) {
     const doc = await readYaml<T>(current);
     const check = doc ? args.schema.validate(doc) : { ok: false, errors: [] };

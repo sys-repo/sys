@@ -1,5 +1,4 @@
 import { type t, Fs, Yaml, DEFAULT } from './common.ts';
-import { type YamlConfigSchema } from './t.menu.ts';
 
 export async function ensureConfigDir(cwd: t.StringDir, dir: t.StringPath): Promise<t.StringDir> {
   const abs = Fs.join(cwd, dir);
@@ -22,7 +21,7 @@ export async function listConfigs(
 
 export async function ensureDefaultConfig<T>(
   dir: t.StringDir,
-  schema: YamlConfigSchema<T>,
+  schema: t.YamlConfig.Menu.Schema<T>,
   name: string = DEFAULT.NAME,
   ext: string = DEFAULT.EXT,
 ): Promise<t.StringFile> {
@@ -31,7 +30,10 @@ export async function ensureDefaultConfig<T>(
   return path;
 }
 
-export async function ensureInitialYaml<T>(path: t.StringFile, schema: YamlConfigSchema<T>) {
+export async function ensureInitialYaml<T>(
+  path: t.StringFile,
+  schema: t.YamlConfig.Menu.Schema<T>,
+) {
   if (await Fs.exists(path)) return;
   if (!schema.init) throw new Error('YamlConfig: schema.init is required to create a default config');
   await writeYaml(path, schema.init(), schema);
@@ -49,7 +51,7 @@ export function fileOf(name: string, ext: string = DEFAULT.EXT): string {
 
 export async function validateYaml<T>(
   path: t.StringFile,
-  schema: YamlConfigSchema<T>,
+  schema: t.YamlConfig.Menu.Schema<T>,
 ): Promise<{ ok: boolean; errors: readonly unknown[] }> {
   const res = await Fs.readYaml<T>(path);
   if (!res.ok || !res.exists) return { ok: false, errors: [] };
@@ -61,7 +63,11 @@ export async function readYaml<T>(path: t.StringFile): Promise<T | undefined> {
   return res.ok ? res.data : undefined;
 }
 
-export async function writeYaml<T>(path: t.StringFile, doc: T, schema: YamlConfigSchema<T>) {
+export async function writeYaml<T>(
+  path: t.StringFile,
+  doc: T,
+  schema: t.YamlConfig.Menu.Schema<T>,
+) {
   const text = schema.stringifyYaml ? schema.stringifyYaml(doc) : (Yaml.stringify(doc).data ?? '');
   await Fs.write(path, text);
 }

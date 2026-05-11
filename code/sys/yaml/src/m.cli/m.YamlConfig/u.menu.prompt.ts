@@ -1,9 +1,4 @@
-import { c, Cli, Is } from './common.ts';
-import type {
-  YamlConfigMenuActionBase,
-  YamlConfigMenuItemArgs,
-  YamlConfigMenuItemName,
-} from './t.menu.ts';
+import { c, Cli, Is, type t } from './common.ts';
 
 type PromptActionArgs<A extends string, T> = {
   name: string;
@@ -11,17 +6,17 @@ type PromptActionArgs<A extends string, T> = {
   doc?: T;
   valid: boolean;
   invalidLabel?: string;
-  allow?: YamlConfigMenuActionBase[];
-  defaultValue?: YamlConfigMenuActionBase | A;
+  allow?: t.YamlConfig.Menu.ActionBase[];
+  defaultValue?: t.YamlConfig.Menu.ActionBase | A;
   message?: string;
   actionLabel?: string;
-  extra?: { name: YamlConfigMenuItemName<T>; value: A }[];
-  extraAfter?: { name: YamlConfigMenuItemName<T>; value: A }[];
+  extra?: { name: t.YamlConfig.Menu.ItemName<T>; value: A }[];
+  extraAfter?: { name: t.YamlConfig.Menu.ItemName<T>; value: A }[];
 };
 
 export async function promptAction<A extends string = string, T = unknown>(
   args: PromptActionArgs<A, T>,
-): Promise<YamlConfigMenuActionBase | A> {
+): Promise<t.YamlConfig.Menu.ActionBase | A> {
   const extraActions = resolveExtras(args.extra ?? [], args);
   const extraAfterActions = resolveExtras(args.extraAfter ?? [], args);
   const actionLabel = String(args.actionLabel ?? 'config').trim() || 'config';
@@ -44,11 +39,11 @@ export async function promptAction<A extends string = string, T = unknown>(
     ? all
     : all.filter((opt) =>
       (args.allow ?? ['edit', 'reload', 'rename', 'delete', 'back']).includes(
-        opt.value as YamlConfigMenuActionBase,
+        opt.value as t.YamlConfig.Menu.ActionBase,
       )
     );
 
-  const answer = await Cli.Input.Select.prompt<YamlConfigMenuActionBase | A>({
+  const answer = await Cli.Input.Select.prompt<t.YamlConfig.Menu.ActionBase | A>({
     message: args.valid
       ? args.message ?? 'Actions:'
       : `${args.message ?? 'Actions:'} ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
@@ -56,11 +51,11 @@ export async function promptAction<A extends string = string, T = unknown>(
     default: args.defaultValue,
     hideDefault: true,
   });
-  return answer as YamlConfigMenuActionBase | A;
+  return answer as t.YamlConfig.Menu.ActionBase | A;
 }
 
 function resolveExtras<A extends string, T>(
-  extras: { name: YamlConfigMenuItemName<T>; value: A }[],
+  extras: { name: t.YamlConfig.Menu.ItemName<T>; value: A }[],
   args: PromptActionArgs<A, T>,
 ) {
   return extras.map((item) => ({
@@ -69,6 +64,6 @@ function resolveExtras<A extends string, T>(
   }));
 }
 
-function resolveName<T>(name: YamlConfigMenuItemName<T>, args: YamlConfigMenuItemArgs<T>) {
+function resolveName<T>(name: t.YamlConfig.Menu.ItemName<T>, args: t.YamlConfig.Menu.ItemArgs<T>) {
   return Is.func(name) ? name(args) : name;
 }

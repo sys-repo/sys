@@ -7,4 +7,4 @@ import { File } from './m.File.ts';
 import { Ref } from './m.Ref.ts';
 import { menu } from './u.menu.ts';
 
-export const YamlConfig: t.YamlConfigLib = { menu, File, Edit, Ref };
+export const YamlConfig: t.YamlConfig.Lib = { menu, File, Edit, Ref };

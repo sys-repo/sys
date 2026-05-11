@@ -1,7 +1,7 @@
 import { type t, Fs, Pkg, Str } from './common.ts';
 import { DEFAULT } from './u.fs.ts';
 
-export const create: t.YamlConfigFileLib['create'] = (args) => {
+export const create: t.YamlConfig.File.Lib['create'] = (args) => {
   const name = args.basename;
   return {
     dir: {
@@ -11,14 +11,14 @@ export const create: t.YamlConfigFileLib['create'] = (args) => {
   };
 };
 
-export const fromPkg: t.YamlConfigFileLib['fromPkg'] = (dir, pkg) => {
+export const fromPkg: t.YamlConfig.File.Lib['fromPkg'] = (dir, pkg) => {
   const raw = Pkg.toString(pkg, undefined, false).trim();
   const name = normalizePkgName(raw);
   const flattened = Str.replaceAll(name, '/', '.').after as t.StringName;
   return create({ dir: normalizeDir(dir), basename: flattened });
 };
 
-export const migrateDir: t.YamlConfigFileLib['migrateDir'] = async (args) => {
+export const migrateDir: t.YamlConfig.File.Lib['migrateDir'] = async (args) => {
   const ext = args.ext ?? DEFAULT.EXT;
   const sourceDir = Fs.join(args.cwd, args.from);
   const targetDir = Fs.join(args.cwd, args.to);

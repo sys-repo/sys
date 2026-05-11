@@ -6,7 +6,10 @@ describe(`yaml: cli tools`, () => {
   it('API', async () => {
     const m = await import('@sys/yaml/cli');
     expect(m.YamlConfig).to.equal(YamlConfig);
-    expectTypeOf(YamlConfig.Edit).toMatchTypeOf<t.YamlConfigEditLib>();
-    expectTypeOf(YamlConfig.Ref).toMatchTypeOf<t.YamlConfigRefLib>();
+    expectTypeOf(YamlConfig).toMatchTypeOf<t.YamlConfig.Lib>();
+    expectTypeOf(YamlConfig.File).toMatchTypeOf<t.YamlConfig.File.Lib>();
+    expectTypeOf(YamlConfig.Edit).toMatchTypeOf<t.YamlConfig.Edit.Lib>();
+    expectTypeOf(YamlConfig.Ref).toMatchTypeOf<t.YamlConfig.Ref.Lib>();
+    expectTypeOf(YamlConfig.menu).toMatchTypeOf<t.YamlConfig.Menu.Run>();
   });
 });

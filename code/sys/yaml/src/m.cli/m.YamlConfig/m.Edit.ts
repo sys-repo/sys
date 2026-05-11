@@ -1,6 +1,6 @@
 import { Fs, type t } from './common.ts';
 
-export const Edit: t.YamlConfigEditLib = {
+export const Edit: t.YamlConfig.Edit.Lib = {
   async update(input) {
     const path = resolveConfigPath(input.cwd, input.config);
     const exists = await Fs.exists(path);
