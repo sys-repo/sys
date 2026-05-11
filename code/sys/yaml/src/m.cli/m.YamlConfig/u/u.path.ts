@@ -1,4 +1,4 @@
-import { Fs } from './common.ts';
+import { Fs } from '../common.ts';
 
 const DEFAULT_EXT = '.yaml';
 

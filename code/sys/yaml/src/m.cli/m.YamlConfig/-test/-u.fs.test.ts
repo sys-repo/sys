@@ -7,7 +7,7 @@ import {
   fileLabel,
   fileOf,
   validateYaml,
-} from '../u.fs.ts';
+} from '../u/u.fs.ts';
 
 describe('YamlConfig.fs', () => {
   it('formats filenames and labels', () => {

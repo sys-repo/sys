@@ -1,5 +1,5 @@
 import { describe, expect, expectError, it } from '../../../-test.ts';
-import { RefPath } from '../u.path.ts';
+import { RefPath } from '../u/u.path.ts';
 
 describe('YamlConfig RefPath', () => {
   it('requireValue trims present values and rejects missing values', async () => {

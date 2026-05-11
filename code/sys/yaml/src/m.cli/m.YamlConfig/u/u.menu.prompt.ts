@@ -1,4 +1,4 @@
-import { c, Cli, Is, type t } from './common.ts';
+import { c, Cli, Is, type t } from '../common.ts';
 
 type PromptActionArgs<A extends string, T> = {
   name: string;

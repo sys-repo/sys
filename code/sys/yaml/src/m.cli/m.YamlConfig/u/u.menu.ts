@@ -1,4 +1,4 @@
-import { c, Cli, DEFAULT, Fs, type t } from './common.ts';
+import { c, Cli, DEFAULT, Fs, type t } from '../common.ts';
 import { ensureConfigDir, fileOf, listConfigs, readYaml, writeYaml } from './u.fs.ts';
 import { actionMenu } from './u.menu.action.ts';
 import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';

@@ -1,4 +1,4 @@
-import { type t, Fs, Yaml, DEFAULT } from './common.ts';
+import { type t, Fs, Yaml, DEFAULT } from '../common.ts';
 
 export async function ensureConfigDir(cwd: t.StringDir, dir: t.StringPath): Promise<t.StringDir> {
   const abs = Fs.join(cwd, dir);
@@ -76,4 +76,4 @@ function stripExt(name: string, ext: string): string {
   return name.endsWith(ext) ? name.slice(0, -ext.length) : name;
 }
 
-export { DEFAULT } from './common.ts';
+export { DEFAULT } from '../common.ts';

@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /** Context supplied to an owner config mutation. */
 export type YamlConfigEditContext = {

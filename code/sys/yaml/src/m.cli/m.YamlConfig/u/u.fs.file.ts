@@ -1,4 +1,4 @@
-import { type t, Fs, Pkg, Str } from './common.ts';
+import { type t, Fs, Pkg, Str } from '../common.ts';
 import { DEFAULT } from './u.fs.ts';
 
 export const create: t.YamlConfig.File.Lib['create'] = (args) => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli } from '../common.ts';
-import { promptAction } from '../u.menu.prompt.ts';
+import { promptAction } from '../u/u.menu.prompt.ts';
 
 describe('YamlConfig.menu.prompt', () => {
   it('renders extra items with a name function', async () => {

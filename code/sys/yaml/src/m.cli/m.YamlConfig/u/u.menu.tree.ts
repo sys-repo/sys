@@ -1,4 +1,4 @@
-import { c, Fmt } from './common.ts';
+import { c, Fmt } from '../common.ts';
 import { fileLabel } from './u.fs.ts';
 
 export function withTree(paths: readonly string[], ext: string) {

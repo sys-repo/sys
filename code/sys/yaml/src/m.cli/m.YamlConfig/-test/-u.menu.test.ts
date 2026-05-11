@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Cli, Fs } from '../common.ts';
-import { menu } from '../u.menu.ts';
+import { menu } from '../u/u.menu.ts';
 
 describe('YamlConfig.menu', () => {
   it('menu → creates default config with add init YAML renderer', async () => {

@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Open, type t } from './common.ts';
+import { c, Cli, Fs, Open, type t } from '../common.ts';
 import { fileLabel, readYaml } from './u.fs.ts';
 import { promptAction } from './u.menu.prompt.ts';
 import { renameConfig } from './u.menu.rename.ts';

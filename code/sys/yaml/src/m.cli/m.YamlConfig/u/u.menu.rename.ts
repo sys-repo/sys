@@ -1,4 +1,4 @@
-import { type t, Cli, Fs } from './common.ts';
+import { type t, Cli, Fs } from '../common.ts';
 import { fileLabel, fileOf } from './u.fs.ts';
 import { NAME_REGEX } from './u.menu.constants.ts';
 
