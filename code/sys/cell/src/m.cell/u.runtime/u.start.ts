@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t, Time } from './common.ts';
 import { verify } from './u.verify.ts';
 
 export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => {
@@ -9,8 +9,11 @@ export const start: t.Cell.Runtime.Lib['start'] = async (cell, options = {}) => 
     for (const service of verification.services) {
       const base: t.Cell.Runtime.StartArgs = { cwd: cell.root, ...service.config };
       const args = options.startArgs ? await options.startArgs({ cell, service, base }) : base;
+      const startedAt = Time.now.timestamp;
       const started = await service.endpoint.start(args);
-      services.push({ ...service, started });
+      const readyAt = Time.now.timestamp;
+      const metrics: t.Cell.Runtime.ServiceMetrics = { start: { startedAt, readyAt } };
+      services.push({ ...service, started, metrics });
     }
   } catch (cause) {
     await closeStarted(services, 'start-failed');

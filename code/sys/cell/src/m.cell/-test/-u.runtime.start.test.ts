@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Str } from '../../-test.ts';
+import { describe, expect, Fs, it, Str, type t, Time } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { tempCell } from './u.fixture.ts';
 
@@ -10,10 +10,19 @@ describe('Cell.Runtime.start', () => {
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), staticConfig(), { force });
 
     const cell = await Cell.load(root);
+    const before = Time.now.timestamp;
     const runtime = await Cell.Runtime.start(cell);
+    const after = Time.now.timestamp;
 
     try {
       expect(runtime.services.map((service) => service.service.name)).to.eql(['view']);
+      const metrics = runtime.services[0].metrics.start;
+      const duration = (metrics.readyAt - metrics.startedAt) as t.Msecs;
+      expect(metrics.startedAt).to.be.at.least(before);
+      expect(metrics.readyAt).to.be.at.least(metrics.startedAt);
+      expect(metrics.readyAt).to.be.at.most(after);
+      expect(duration).to.be.at.least(0);
+      expect(runtime.services[0].metrics).to.not.have.property('duration');
       const server = runtime.services[0].started as { readonly origin: string };
       const res = await fetch(`${server.origin}/view/hello/`);
       const html = await res.text();

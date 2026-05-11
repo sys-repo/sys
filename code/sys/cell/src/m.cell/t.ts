@@ -84,8 +84,19 @@ export declare namespace Cell {
       readonly endpoint: LifecycleEndpoint;
     };
 
-    /** Started runtime service with its lifecycle handle. */
-    export type StartedService = VerifiedService & { readonly started: unknown };
+    /** Started runtime service with its lifecycle handle and Cell-measured metrics. */
+    export type StartedService = VerifiedService & {
+      readonly started: unknown;
+      readonly metrics: ServiceMetrics;
+    };
+
+    /** Runtime service metrics measured by Cell-owned composition. */
+    export type ServiceMetrics = {
+      readonly start: {
+        readonly startedAt: t.UnixTimestamp;
+        readonly readyAt: t.UnixTimestamp;
+      };
+    };
 
     /** Runtime service lifecycle endpoint. */
     export type LifecycleEndpoint = { start(args: StartArgs): unknown | Promise<unknown> };
