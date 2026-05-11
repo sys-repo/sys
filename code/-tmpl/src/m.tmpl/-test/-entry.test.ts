@@ -69,6 +69,8 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('React UI + controller/state')).to.eql(true);
       expect(text.includes('m.mod.ui.controller (--name)')).to.eql(true);
       expect(text.includes('repo')).to.eql(true);
+      expect(text.includes('•')).to.eql(true);
+      expect(text.includes('- m.mod')).to.eql(false);
       expect(text.includes('no extra flags; identity from --dir')).to.eql(true);
       expect(text.includes('--dir <path>')).to.eql(true);
       expect(text.includes('target directory to create/update')).to.eql(true);

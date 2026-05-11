@@ -52,7 +52,7 @@ function printHelp() {
       {
         kind: 'lines',
         label: 'Templates',
-        items: TemplateNames.map((name) => `- ${name}`),
+        items: TemplateNames.map((name) => `${c.gray('•')} ${c.white(name)}`),
       },
       {
         kind: 'pairs',
