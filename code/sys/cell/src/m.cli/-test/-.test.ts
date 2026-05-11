@@ -23,6 +23,12 @@ describe(`@sys/cell/cli`, () => {
       expect(text).to.contain(name);
       expect(text).to.contain(detail);
     });
+    expect(text).to.contain('Run `dsl` first before changing Cell config');
+    expect(text).to.contain('run first — maps Cell acts, owner rules, services, and chapters');
+    expect(text.indexOf('jsr:@sys/cell dsl')).to.be.lessThan(
+      text.indexOf('jsr:@sys/cell init'),
+    );
+    expect(text.indexOf('Commands')).to.be.lessThan(text.indexOf('Options'));
     guidance.options.forEach(([name, detail]) => {
       expect(text).to.contain(name);
       expect(text).to.contain(detail);
