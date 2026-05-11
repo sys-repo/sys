@@ -84,4 +84,28 @@ describe('m.tmpl/-entry', () => {
       Deno.exitCode = previousExitCode;
     }
   });
+
+  it('prints DSL hint for scaffold argument errors', async () => {
+    const lines: string[] = [];
+    const info = console.info;
+    const warn = console.warn;
+    const previousExitCode = Deno.exitCode;
+
+    try {
+      console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+      console.warn = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+      Deno.exitCode = 0;
+
+      await entry(['pkg', '--dir', 'code/ns/foo', '--non-interactive']);
+
+      const text = lines.join('\n');
+      expect(Deno.exitCode).to.eql(1);
+      expect(text.includes('Template "pkg" requires --pkgName')).to.eql(true);
+      expect(text.includes('hint: deno run -A jsr:@sys/tmpl dsl pkg')).to.eql(true);
+    } finally {
+      console.info = info;
+      console.warn = warn;
+      Deno.exitCode = previousExitCode;
+    }
+  });
 });

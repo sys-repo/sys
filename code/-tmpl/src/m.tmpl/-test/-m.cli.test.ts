@@ -1,4 +1,4 @@
-import { describe, expect, expectError, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it } from '../../-test.ts';
 import { makeWorkspace } from '../../-tests/u.ts';
 import { cli } from '../m.cli.ts';
 import { parseArgs } from '../u.args.ts';
@@ -86,23 +86,32 @@ describe('m.tmpl/m.cli', () => {
 
   it('non-interactive fails when --dir missing', async () => {
     const test = await makeWorkspace();
-    await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive'])),
-      'Missing required flag: --dir',
+    const message = await errorText(() =>
+      cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive']))
     );
+
+    expect(message).to.contain('Missing required flag: --dir');
+    expect(message).to.contain('hint: deno run -A jsr:@sys/tmpl dsl pkg');
   });
 
   it('non-interactive fails when required template params are missing', async () => {
     const test = await makeWorkspace();
-    await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive'])),
-      'requires --pkgName',
+    const pkgMessage = await errorText(() =>
+      cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive']))
     );
 
-    await expectError(
-      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive'])),
-      'requires --name',
+    expect(pkgMessage).to.contain('requires --pkgName');
+    expect(pkgMessage).to.contain('hint: deno run -A jsr:@sys/tmpl dsl pkg');
+
+    const uiMessage = await errorText(() =>
+      cli(
+        test.root,
+        parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive']),
+      )
     );
+
+    expect(uiMessage).to.contain('requires --name');
+    expect(uiMessage).to.contain('hint: deno run -A jsr:@sys/tmpl dsl m.mod.ui');
   });
 
   it('non-interactive repo dry-run does not execute setup side effects', async () => {
@@ -174,3 +183,13 @@ describe('m.tmpl/m.cli', () => {
     expect(await Fs.exists(Fs.join(target, 'src', 'mod.ts'))).to.eql(true);
   });
 });
+
+async function errorText(fn: () => Promise<unknown>): Promise<string> {
+  try {
+    await fn();
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  throw new Error('Expected function to throw.');
+}
