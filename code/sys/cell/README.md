@@ -61,7 +61,7 @@ Options    -h, --help   show help
 | create: **Cell** at path      | Initialize `./foo` as an `@sys/cell`.                               |
 | add: pulled view              | Add a pulled view from `<dist-url>`.                                |
 | refresh: pulled views         | Pull latest configured views.                                       |
-| add: @sys/http static service | Add an `@sys/http` static service for `<view>`.                     |
+| add: static HTTP service      | Add an `@sys/http` static service for `<view>`.                     |
 | add: runtime service          | Add a service named `<service-name>` using `<@scope/pkg>/<export>`. |
 | add: proxy service            | Add a proxy service named `<service-name>`.                         |
 | route: proxy root             | Route `/` to `<view/service/upstream>`.                             |
