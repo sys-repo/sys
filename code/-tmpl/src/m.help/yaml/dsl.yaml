@@ -1,0 +1,63 @@
+id: dsl
+title: Templater DSL
+summary: |
+  Templater DSL: the operating contract for agents using `@sys/tmpl`.
+  It maps scaffold speech acts to one template choice, explicit slots, an exact command, known side effects, and verification.
+
+sections:
+  - label: Rule
+    items: |
+      Treat template requests as scaffold operations, not manual copy/edit tasks.
+      Use `@sys/tmpl` with a positional template name; never use `jsr:@sys/tmpl/<template>` subpaths.
+      Do not invoke `@sys/tmpl-engine` directly to scaffold; use `@sys/tmpl`.
+      Pick one scaffold boundary per operation; do not silently cascade repo → pkg → module → component.
+      In agent runs, prefer `--non-interactive` and provide every required slot explicitly.
+      Choose command cwd deliberately: repo from intended parent, pkg from workspace root, module/UI from containing package root.
+      Relative `--dir` values resolve from the command cwd.
+      If a slot, target, overwrite policy, or side-effect boundary is unclear, stop and ask.
+      Use `--dry-run` first when the target, write set, or side effects are not confirmed.
+
+  - label: Decision protocol
+    items: |
+      New system workspace or monorepo root → `repo`.
+      New package inside an existing system workspace → `pkg`.
+      New TypeScript module folder inside a package → `m.mod`.
+      New React UI component module → `m.mod.ui`.
+      New React UI component with controller/state boundary → `m.mod.ui.controller`.
+      If a prompt spans multiple boundaries, scaffold and verify outer-to-inner: repo → pkg → m.mod/m.mod.ui/m.mod.ui.controller.
+      Ask for approval before each next write.
+
+  - label: Speech acts
+    items: |
+      create a new sys repo
+      bootstrap a system workspace
+      add a package named <@scope/name>
+      create a module at <target-dir>
+      add a UI component named <ComponentName>
+      add a controlled UI component named <ComponentName>
+      make a module for <concept>
+
+  - label: Slots
+    items: |
+      Every deterministic agent run needs `--dir <target-dir>`.
+      `pkg` requires `--pkgName <@scope/name>`.
+      `m.mod.ui` and `m.mod.ui.controller` require `--name <ComponentName>`.
+      `repo` has no template-specific name flag; identity comes from the target directory and later metadata.
+      `m.mod` has no `--name` flag; module identity comes from the target directory.
+      Ask for missing slots; do not invent names from vibes or rewrite user names silently.
+      If a proposed package/component name needs normalization, ask before changing it.
+
+  - label: Command grammar
+    items: |
+      Normal form: `deno run -A jsr:@sys/tmpl --non-interactive --dir <target-dir> <template> [template-flags]`.
+      Template selection is positional: `repo`, `pkg`, `m.mod`, `m.mod.ui`, or `m.mod.ui.controller`.
+      Preview form: add `--dry-run`.
+      Existing target with approval: add `--force`.
+      Do not run `deno run -A jsr:@sys/tmpl/repo` or any other template subpath.
+
+  - label: Verification
+    items: |
+      Read the command output table for created/modified files and read the suggested commit message line.
+      Inspect the target folder, nearest parent `types.ts`, workspace `deno.json`, or `src/-test/-specs.ts` as applicable.
+      Prefer the narrowest relevant check: package `deno task check`, repo `deno task ci`, or targeted tests.
+      If setup logs a missing `types.ts` warning, stop and decide whether to create one or choose a different target; do not hand-wire guessed exports.

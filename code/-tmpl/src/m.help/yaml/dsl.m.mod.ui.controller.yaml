@@ -1,0 +1,55 @@
+id: m.mod.ui.controller
+title: UI controller module template
+summary: |
+  Scaffold a React UI component with a controller/state boundary.
+
+sections:
+  - label: Rule
+    items: |
+      Use `m.mod.ui.controller` when the component needs lifecycle, state, controlled props, or a reusable state/lifecycle boundary.
+      Use `m.mod.ui` for simple component modules without a controller boundary.
+      Do not add a controller just because the prompt says "component"; the state/control need must be explicit or confirmed.
+      The target directory should be the component module folder, commonly `<package>/src/ui/<ComponentName>`.
+      The component name must be a valid TypeScript/React identifier; ask before normalizing it.
+
+  - label: Speech acts
+    items: |
+      add a controlled UI component named <ComponentName>
+      create a component with controller state
+      scaffold a UI controller module
+      make a React component with controlled and uncontrolled APIs
+      add a stateful component to the dev harness
+
+  - label: Slots
+    items: |
+      Required: `--dir <component-dir>`.
+      Required: `--name <ComponentName>`.
+      Run from the containing package root when using a relative `<component-dir>`.
+      `<component-dir>` resolves relative to the current working directory unless absolute.
+      `<ComponentName>` replaces the internal `MyCtrl` placeholder.
+      Ask when the prompt does not make the controller/state need explicit.
+
+  - label: Command
+    items: |
+      Preview: `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui.controller --name <ComponentName> --dry-run`.
+      Write: `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui.controller --name <ComponentName>`.
+      Existing target with approval: add `--force`.
+      Do not use `jsr:@sys/tmpl/m.mod.ui.controller`.
+
+  - label: Side effects
+    items: |
+      Creates component files including controlled/uncontrolled UI surfaces, `u.controller.ts`, `mod.ts`, `t.ts`, `common.ts`, and `-spec/` files.
+      Replaces `MyCtrl` with `--name` across TypeScript and TSX files in the new module.
+      Updates the nearest parent `types.ts` to include the component module `t.ts`.
+      When `<package>/src/-test/-specs.ts` exists and contains the dev-harness registry pattern, inserts a component import entry and removes the sample stub when present.
+      `--dry-run` previews copied files but does not run setup side effects.
+
+  - label: Verify
+    items: |
+      Confirm no `MyCtrl` placeholder remains in the new module.
+      Confirm `u.controller.ts`, `ui.Controlled.tsx`, and `ui.tsx` exist.
+      Confirm the nearest parent `types.ts` points at the component `t.ts`.
+      Confirm the updated `types.ts` is inside the intended package boundary.
+      When the package has a recognized dev-harness registry, confirm `src/-test/-specs.ts` has an entry for the component.
+      Run the package `deno task check` and targeted UI/controller tests.
+      If a plain component was requested, switch to `m.mod.ui` before scaffolding.

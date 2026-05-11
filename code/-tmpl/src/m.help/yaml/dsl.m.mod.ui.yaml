@@ -1,0 +1,55 @@
+id: m.mod.ui
+title: UI module template
+summary: |
+  Scaffold a React UI component module and wire its type/dev-harness pointers.
+
+sections:
+  - label: Rule
+    items: |
+      Use `m.mod.ui` for a React component module without a separate controller/state boundary.
+      Use `m.mod.ui.controller` when the component needs lifecycle, state, controlled props, or a reusable state/lifecycle boundary.
+      The target directory should be the component module folder, commonly `<package>/src/ui/<ComponentName>`.
+      The component name must be a valid TypeScript/React identifier; ask before normalizing it.
+      Do not infer the component name from the folder if the human supplied a different name.
+
+  - label: Speech acts
+    items: |
+      add a UI component named <ComponentName>
+      create a React component at <component-dir>
+      scaffold a component module
+      make a UI component for <concept>
+      add a component to the dev harness
+
+  - label: Slots
+    items: |
+      Required: `--dir <component-dir>`.
+      Required: `--name <ComponentName>`.
+      Run from the containing package root when using a relative `<component-dir>`.
+      `<component-dir>` resolves relative to the current working directory unless absolute.
+      `<ComponentName>` replaces the internal `MyComponent` placeholder.
+      If the prompt gives only a concept, ask for the component name and target directory before running.
+      Ask when name casing, target folder, or UI package boundary is ambiguous.
+
+  - label: Command
+    items: |
+      Preview: `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui --name <ComponentName> --dry-run`.
+      Write: `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui --name <ComponentName>`.
+      Existing target with approval: add `--force`.
+      Do not use `jsr:@sys/tmpl/m.mod.ui`.
+
+  - label: Side effects
+    items: |
+      Creates component files including `mod.ts`, `t.ts`, `common.ts`, `ui.tsx`, scoped styles, and `-spec/` dev-harness files.
+      Replaces `MyComponent` with `--name` across TypeScript and TSX files in the new module.
+      Updates the nearest parent `types.ts` to include the component module `t.ts`.
+      When `<package>/src/-test/-specs.ts` exists and contains the dev-harness registry pattern, inserts a component import entry and removes the sample stub when present.
+      `--dry-run` previews copied files but does not run setup side effects.
+
+  - label: Verify
+    items: |
+      Confirm no `MyComponent` placeholder remains in the new module.
+      Confirm the nearest parent `types.ts` points at the component `t.ts`.
+      Confirm the updated `types.ts` is inside the intended package boundary.
+      When the package has a recognized dev-harness registry, confirm `src/-test/-specs.ts` has an entry for the component.
+      Run the package `deno task check` and any UI/dev-harness tests that apply.
+      If the package root is missing, stop and ask; do not hand-wire guessed imports.
