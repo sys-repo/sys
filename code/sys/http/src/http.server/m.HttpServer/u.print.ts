@@ -22,12 +22,12 @@ export const print: HttpServerLib['print'] = (options) => {
   const table = Cli.Table.create([]);
   const hx = pkg ? wrangle.hashDigest(hash) : '';
 
-  if (name) table.push([c.gray('service:'), c.bold(name)]);
+  if (name) table.push([c.gray('service:'), name]);
 
   if (pkg) {
     const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([c.gray('module:'), `${c.bold(pkgName)} ${c.gray(`${pkgVersion}`)}`]);
+    table.push([c.gray('module:'), `${pkgName} ${c.gray(`${pkgVersion}`)}`]);
   }
   if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
   for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);

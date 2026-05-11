@@ -34,6 +34,19 @@ describe('HttpServer.print', () => {
     expect(output.indexOf('service:')).to.be.lessThan(output.indexOf('module:'));
   });
 
+  it('keeps service and module values readable without bold weight', () => {
+    const raw = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        name: 'stripe:dev:fixture',
+        pkg,
+      });
+    }).join('\n');
+
+    expect(raw).to.not.contain('\x1b[1mstripe:dev:fixture');
+    expect(raw).to.not.contain(`\x1b[1m${pkg.name}`);
+  });
+
   it('prints non-path info rows and uses path info only for URL decoration', () => {
     const lines = capturePrint(() => {
       HttpServer.print({
