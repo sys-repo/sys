@@ -1,4 +1,5 @@
-import { describe, it, expect, expectTypeOf } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { providerlessPrebuiltStageDoc } from '../../-test/-fixtures.ts';
 import { EndpointYamlSchema } from '../mod.ts';
 
 describe('Schema: endpoint', () => {
@@ -19,6 +20,13 @@ describe('Schema: endpoint', () => {
     const res = EndpointYamlSchema.validate({ nope: 123 });
     expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
+  });
+
+  it('validate: accepts providerless prebuilt copy stage endpoint', () => {
+    const res = EndpointYamlSchema.validate(providerlessPrebuiltStageDoc());
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
   });
 
   it('validate: accepts provider.orbiter', () => {

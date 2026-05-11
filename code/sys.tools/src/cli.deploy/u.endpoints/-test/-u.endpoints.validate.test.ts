@@ -1,4 +1,5 @@
-import { describe, it, expect, Str } from '../../../-test.ts';
+import { describe, expect, it, Str } from '../../../-test.ts';
+import { providerlessPrebuiltStageYaml } from '../../-test/-fixtures.ts';
 import { validateEndpointYamlText } from '../mod.ts';
 
 describe('Endpoints: validateEndpointYamlText', () => {
@@ -24,6 +25,17 @@ describe('Endpoints: validateEndpointYamlText', () => {
     );
     expect(res.ok).to.eql(true);
     if (res.ok) expect(res.doc.mappings ?? []).to.eql([]);
+  });
+
+  it('valid providerless copy stage YAML → ok:true', () => {
+    const res = validateEndpointYamlText(providerlessPrebuiltStageYaml());
+    expect(res.ok).to.eql(true);
+
+    if (res.ok) {
+      expect(res.doc.provider).to.eql(undefined);
+      expect(res.doc.staging?.clear).to.eql(true);
+      expect(res.doc.mappings?.[0]?.mode).to.eql('copy');
+    }
   });
 
   it('empty YAML → ok:false', () => {

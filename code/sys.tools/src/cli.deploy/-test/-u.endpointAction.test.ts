@@ -1,8 +1,83 @@
-import { describe, expect, Fs, it, Str } from '../../-test.ts';
+import { Cli, describe, expect, Fs, it, Pkg, Str } from '../../-test.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
-import { withTmpDir } from './-fixtures.ts';
+import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './-fixtures.ts';
 
 describe('@sys/tools/deploy endpoint actions', () => {
+  it('stage → stages providerless prebuilt artifact with source root and clear', async () => {
+    await withTmpDir(async (cwd) => {
+      const yamlPath = `${cwd}/-config/@sys.tools.deploy/stage.yaml`;
+      await Fs.ensureDir(`${cwd}/view/.pulled/ui.components/assets`);
+      await Fs.write(
+        `${cwd}/view/.pulled/ui.components/index.html`,
+        '<!doctype html><html><body>ui.components</body></html>\n',
+      );
+      await Fs.write(
+        `${cwd}/view/.pulled/ui.components/sw.js`,
+        'self.addEventListener("install", () => undefined);\n',
+      );
+      await Fs.write(`${cwd}/view/.pulled/ui.components/assets/app.js`, 'export {};\n');
+      await Pkg.Dist.compute({ dir: `${cwd}/view/.pulled/ui.components`, save: true });
+
+      await Fs.ensureDir(`${cwd}/.tmp/deploy/stage/stale`);
+      await Fs.write(`${cwd}/.tmp/deploy/stage/stale/old.txt`, 'old');
+      await Fs.write(`${cwd}/outside.txt`, 'outside');
+      await Fs.write(yamlPath, providerlessPrebuiltStageYaml());
+
+      const res = await runEndpointAction({
+        cwd,
+        key: 'stage',
+        yamlPath,
+        action: 'stage',
+      });
+
+      expect(res.ok).to.eql(true);
+      expect(res.stageOk).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/stage/index.html`)).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/stage/sw.js`)).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/stage/assets/app.js`)).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/stage/stale/old.txt`)).to.eql(false);
+      expect(await Fs.exists(`${cwd}/outside.txt`)).to.eql(true);
+
+      const dist = await Fs.readJson(`${cwd}/.tmp/deploy/stage/dist.json`);
+      expect(dist.ok).to.eql(true);
+      expect(dist.exists).to.eql(true);
+    });
+  });
+
+  it('push → rejects providerless endpoints even when staging output exists', async () => {
+    await withTmpDir(async (cwd) => {
+      const yamlPath = `${cwd}/-config/@sys.tools.deploy/stage.yaml`;
+      await Fs.ensureDir(`${cwd}/.tmp/deploy/stage`);
+      await Fs.write(
+        `${cwd}/.tmp/deploy/stage/index.html`,
+        '<!doctype html><html><body>staged</body></html>\n',
+      );
+      await Pkg.Dist.compute({ dir: `${cwd}/.tmp/deploy/stage`, save: true });
+      await Fs.ensureDir(`${cwd}/view/.pulled/ui.components`);
+      await Fs.write(
+        `${cwd}/view/.pulled/ui.components/index.html`,
+        '<!doctype html><html><body>source</body></html>\n',
+      );
+      await Fs.write(yamlPath, providerlessPrebuiltStageYaml());
+
+      const { value: res, output } = await captureInfo(() =>
+        runEndpointAction({
+          cwd,
+          key: 'stage',
+          yamlPath,
+          action: 'push',
+        })
+      );
+
+      expect(res.ok).to.eql(false);
+      expect(res.push?.ok).to.eql(false);
+
+      const text = Cli.stripAnsi(output);
+      expect(text).to.include('reason: no-provider');
+      expect(text).to.include('No provider configured for this endpoint.');
+    });
+  });
+
   it('stage → copies configured mappings into the staging root', async () => {
     await withTmpDir(async (cwd) => {
       const yamlPath = `${cwd}/-config/@sys.tools.deploy/slc.yaml`;
