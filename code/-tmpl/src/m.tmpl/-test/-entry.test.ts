@@ -48,8 +48,9 @@ describe('m.tmpl/-entry', () => {
       const text = lines.join('\n');
       expect(text.includes('deno run -A jsr:@sys/tmpl <template> [flags]')).to.eql(true);
       expect(text.includes('deno run -A jsr:@sys/tmpl dsl [chapter...]')).to.eql(true);
-      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-repo repo')).to
+      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-thing repo')).to
         .eql(true);
+      expect(text.includes('--dir my-repo repo')).to.eql(false);
       expect(text.includes('jsr:@sys/tmpl/repo')).to.eql(false);
       expect(
         text.includes('Run `dsl` first to resolve prompt → template, slots, command, verify.'),
