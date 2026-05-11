@@ -1,6 +1,7 @@
 import { type t, Rx } from './common.ts';
 import { CmdIs } from './m.Is.ts';
 import { createId } from './u.id.ts';
+import { sameNamespace } from './u.namespace.ts';
 
 type ClientRuntimeOptions = t.CmdClientOptions & {
   readonly ns?: t.CmdNamespace;
@@ -476,10 +477,6 @@ function createAsyncIterator<T>(args: {
 
 function done<T>() {
   return Promise.resolve<IteratorResult<T>>({ done: true, value: undefined });
-}
-
-function sameNamespace(a: t.CmdNamespace | undefined, b: t.CmdNamespace | undefined) {
-  return a === b;
 }
 
 const makeError = (args: {

@@ -148,6 +148,42 @@ describe('Cmd: core command behavior', () => {
       port2.close();
     });
 
+    it('late stream consumers do not receive replayed events', async () => {
+      type Name = 'ping';
+      type Payload = { ping: {} };
+      type Result = { ping: { done: true } };
+      type Events = { ping: { tick: number } };
+
+      const cmd = Cmd.make<Name, Payload, Result, Events>();
+      const { port1, port2 } = new MessageChannel();
+
+      const host = cmd.host(port1, {
+        async ping(_payload, ctx) {
+          await Schedule.sleep(1);
+          ctx.emit({ tick: 1 });
+          return { done: true };
+        },
+      });
+
+      const client = cmd.client(port2);
+      const stream = client.stream('ping', {});
+      const res = await stream.done;
+
+      const lateEvents: Events['ping'][] = [];
+      const lateSubscription = stream.onEvent((event) => lateEvents.push(event));
+      const lateNext = await stream[Symbol.asyncIterator]().next();
+
+      expect(res).to.eql({ done: true });
+      expect(lateSubscription.disposed).to.eql(true);
+      expect(lateEvents).to.eql([]);
+      expect(lateNext).to.eql({ done: true, value: undefined });
+
+      client.dispose();
+      host.dispose();
+      port1.close();
+      port2.close();
+    });
+
     it('stream.dispose rejects done with CmdErrorCancelled and aborts host work', async () => {
       type Name = 'slow';
       type Payload = { slow: {} };
@@ -440,6 +476,57 @@ describe('Cmd: core command behavior', () => {
       expect(endpoint1.closed()).to.eql(0);
       expect(endpoint2.closed()).to.eql(0);
 
+      port1.close();
+      port2.close();
+    });
+
+    it('host.dispose settles active requests with a remote error', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: { ok: boolean } };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+
+      let startedResolve: () => void = () => {};
+      const started = new Promise<void>((resolve) => {
+        startedResolve = resolve;
+      });
+      let abortSeenResolve: () => void = () => {};
+      const abortSeen = new Promise<void>((resolve) => {
+        abortSeenResolve = resolve;
+      });
+
+      const host = cmd.host(port1, {
+        slow(_payload, ctx) {
+          startedResolve();
+          return new Promise<Result['slow']>((resolve) => {
+            ctx.signal.addEventListener(
+              'abort',
+              () => {
+                abortSeenResolve();
+                resolve({ ok: false });
+              },
+              { once: true },
+            );
+          });
+        },
+      });
+
+      const client = cmd.client(port2);
+      const pending = client.send('slow', {}).catch((err: unknown) => err);
+
+      await started;
+      host.dispose();
+
+      const err = await pending;
+      const error = expectCmdError(err, 'CmdErrorRemote');
+      expect(error.message).to.eql('Command host disposed before response was sent.');
+      expect(error.cmd?.name).to.eql('slow');
+      expect(error.cmd?.id).to.match(/^req-/);
+      await abortSeen;
+
+      client.dispose();
       port1.close();
       port2.close();
     });

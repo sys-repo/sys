@@ -1,5 +1,6 @@
 import { type t, Rx } from './common.ts';
 import { CmdIs } from './m.Is.ts';
+import { sameNamespace } from './u.namespace.ts';
 
 type HostRuntimeOptions = t.CmdHostOptions & {
   readonly ns?: t.CmdNamespace;
@@ -98,10 +99,11 @@ export function makeHost<
   function teardown() {
     endpoint.removeEventListener('message', onMessage);
 
-    for (const item of active.values()) {
+    for (const [id, item] of active.entries()) {
+      active.delete(id);
+      postHostDisposed(id, item.name);
       item.controller.abort('host-disposed');
     }
-    active.clear();
 
     if (closeEndpoint) endpoint.close?.();
   }
@@ -124,11 +126,20 @@ export function makeHost<
     active.delete(id);
     item.controller.abort(reason ?? 'cancelled');
   }
-}
 
-/**
- * Helpers:
- */
-function sameNamespace(a: t.CmdNamespace | undefined, b: t.CmdNamespace | undefined) {
-  return a === b;
+  function postHostDisposed(id: t.CmdReqId, name: t.CmdName) {
+    const envelope: t.CmdResultEnvelope = {
+      kind: 'cmd:result',
+      ns,
+      id,
+      name,
+      error: 'Command host disposed before response was sent.',
+    };
+
+    try {
+      endpoint.postMessage(envelope);
+    } catch {
+      // Host disposal is terminal locally; remote settlement is best-effort if transport is failing.
+    }
+  }
 }

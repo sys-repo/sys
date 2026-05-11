@@ -149,7 +149,8 @@ res.total; // 6
 
 Stream events are live. Attach `onEvent` or async-iterator consumers immediately
 after `stream(...)`; late consumers should not expect event replay. Breaking out
-of async iteration cancels the stream.
+of async iteration cancels the stream. Disposing a host terminal-settles active
+requests with remote errors before aborting their cooperative `AbortSignal`.
 
 ```ts
 /**
