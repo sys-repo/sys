@@ -4,6 +4,7 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './t.Ast.ts';
 export type * from './t.Diagnostic.ts';
+export type * from './t.EnvRef.ts';
 export type * from './t.Error.ts';
 export type * from './t.Is.ts';
 export type * from './t.lib.ts';

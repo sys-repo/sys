@@ -2,6 +2,7 @@ import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
 export type * from './t.Diagnostic.ts';
+export type * from './t.EnvRef.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
 export type * from './t.Range.ts';
@@ -20,6 +21,8 @@ export type YamlLib = {
   readonly Error: t.YamlErrorLib;
   /** Helpers for normalizing YAML parser errors into standard diagnostics. */
   readonly Diagnostic: t.YamlDiagnosticLib;
+  /** Helpers for resolving pure YAML scalar env refs. */
+  readonly EnvRef: t.Yaml.EnvRef.Lib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(src?: t.StringYaml): YamlParseResult<T>;

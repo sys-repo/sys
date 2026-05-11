@@ -6,6 +6,17 @@ export namespace Yaml {
   export type Error = t.YamlError;
   export type Diagnostic = t.YamlDiagnostic;
 
+  // Env refs:
+  export namespace EnvRef {
+    export type Lib = t.YamlEnvRef.Lib;
+    export type Ref = t.YamlEnvRef.Ref;
+
+    export namespace Resolve {
+      export type Options = t.YamlEnvRef.Resolve.Options;
+      export type Result = t.YamlEnvRef.Resolve.Result;
+    }
+  }
+
   // Position:
   export type Range = t.YamlRange;
   export type LinePos = t.YamlLinePos;

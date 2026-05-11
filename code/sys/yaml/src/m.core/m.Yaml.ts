@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 import { Diagnostic } from './m.Diagnostic.ts';
+import { EnvRef } from './m.EnvRef.ts';
 import { Error } from './m.Error.ts';
 import { YamlIs as Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
@@ -19,6 +20,7 @@ export const Yaml: t.YamlLib = {
   Range,
   Error,
   Diagnostic,
+  EnvRef,
 
   parse,
   parseAst,
