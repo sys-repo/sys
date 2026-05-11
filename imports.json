@@ -16,8 +16,8 @@
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.2.0/legacy.js",
     "@noble/hashes/sha2.js": "npm:@noble/hashes@2.2.0/sha2.js",
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
-    "@preact/signals-core": "npm:@preact/signals-core@1.14.1",
-    "@preact/signals-react": "npm:@preact/signals-react@3.10.0",
+    "@preact/signals-core": "npm:@preact/signals-core@1.14.2",
+    "@preact/signals-react": "npm:@preact/signals-react@3.10.1",
     "@sinclair/typebox-codegen": "npm:@sinclair/typebox-codegen@0.11.1",
     "@std/datetime": "jsr:@std/datetime@0.225.7",
     "@std/dotenv": "jsr:@std/dotenv@0.225.6",
@@ -92,10 +92,10 @@
     "typebox": "npm:typebox@1.1.38",
     "typebox/error": "npm:typebox@1.1.38/error",
     "typebox/value": "npm:typebox@1.1.38/value",
-    "vite": "npm:vite@8.0.11",
+    "vite": "npm:vite@8.0.12",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.20.0",
-    "yaml": "npm:yaml@2.8.4"
+    "yaml": "npm:yaml@2.9.0"
   }
 }
 
