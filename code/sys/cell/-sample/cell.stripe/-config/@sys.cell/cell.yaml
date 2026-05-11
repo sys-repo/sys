@@ -5,17 +5,17 @@ version: 1
 
 runtime:
   services:
-    - name: view
+    - name: ui:static:views
       from: '@sys/http/server/static'
       export: HttpStatic
       config: ./-config/@sys.http/static.view.yaml
 
-    - name: stripe
+    - name: stripe:dev:fixture
       from: '@sys/driver-stripe/server/fixture'
       export: StripeFixture
       config: ./-config/@sys.driver-stripe/fixture.yaml
 
-    - name: app
+    - name: cell:proxy
       from: '@sys/http/server/proxy'
       export: HttpProxy
       config: ./-config/@sys.http/proxy.yaml

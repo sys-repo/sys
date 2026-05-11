@@ -8,11 +8,16 @@ describe('Cell.Runtime.verify', () => {
     const verify = await Cell.Runtime.verify(cell);
 
     expect(verify.services.map((service) => service.service.name)).to.eql([
-      'view',
-      'stripe',
-      'app',
+      'ui:static:views',
+      'stripe:dev:fixture',
+      'cell:proxy',
     ]);
     expect(verify.services.every((service) => Is.func(service.endpoint.start))).to.eql(true);
+    expect(verify.services.map((service) => service.config.name)).to.eql([
+      'ui:static:views',
+      'stripe:dev:fixture',
+      'cell:proxy',
+    ]);
     expect(verify.services[0].paths.config).to.eql(
       Fs.join(cell.root, '-config/@sys.http/static.view.yaml'),
     );

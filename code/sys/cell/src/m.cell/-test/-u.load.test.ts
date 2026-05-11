@@ -12,9 +12,9 @@ describe('Cell.load', () => {
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.runtime?.services.map((service) => service.name)).to.eql([
-      'view',
-      'stripe',
-      'app',
+      'ui:static:views',
+      'stripe:dev:fixture',
+      'cell:proxy',
     ]);
   });
 
