@@ -8,6 +8,7 @@ export declare namespace Cell {
   export type Lib = {
     readonly Schema: Schema.Lib;
     readonly Runtime: Runtime.Lib;
+    readonly Action: Action.Lib;
     load(root: t.StringDir, options?: LoadOptions): Promise<Instance>;
   };
 
@@ -37,6 +38,24 @@ export declare namespace Cell {
 
   /** Finite operator workflows declared by the Cell descriptor. */
   export namespace Action {
+    /** Action verification/execution API. */
+    export type Lib = {
+      verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
+      run(cell: Instance, name: Id, options?: RunOptions): Promise<RunResult>;
+    };
+
+    /** Action verification options. */
+    export type VerifyOptions = {
+      /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
+      readonly trusted?: readonly string[];
+    };
+
+    /** Action run options. */
+    export type RunOptions = VerifyOptions & {
+      /** Optional operator hook for final leaf action args after owner config loading. */
+      runArgs?(input: RunArgsInput): RunArgs | Promise<RunArgs>;
+    };
+
     /** Root action entry. Every root action is runnable by name. */
     export type Descriptor = Leaf | Composite;
 
@@ -57,6 +76,74 @@ export declare namespace Cell {
     /** Ref-only composite step. */
     export type Step = {
       action: Id;
+    };
+
+    /** Action verification result. */
+    export type Verification = {
+      readonly actions: readonly VerifiedAction[];
+    };
+
+    /** Verified root action. */
+    export type VerifiedAction = VerifiedLeaf | VerifiedComposite;
+
+    /** Verified executable leaf action. */
+    export type VerifiedLeaf = {
+      readonly kind: 'leaf';
+      readonly action: Leaf;
+      readonly paths: { readonly config?: t.StringPath };
+      readonly config?: Record<string, unknown>;
+      readonly endpoint: Endpoint;
+    };
+
+    /** Verified composite action. */
+    export type VerifiedComposite = {
+      readonly kind: 'composite';
+      readonly action: Composite;
+    };
+
+    /** Finite action endpoint. */
+    export type Endpoint<Result = unknown> = {
+      run(args: RunArgs): Result | Promise<Result>;
+    };
+
+    /** Structured arguments passed to a leaf action endpoint. */
+    export type RunArgs = {
+      readonly cwd: t.StringDir;
+      readonly config?: Record<string, unknown>;
+      readonly paths: { readonly config?: t.StringPath };
+    };
+
+    /** Action run argument hook input. */
+    export type RunArgsInput = {
+      readonly cell: Instance;
+      readonly root: Descriptor;
+      readonly action: VerifiedLeaf;
+      readonly base: RunArgs;
+    };
+
+    /** Action run result. */
+    export type RunResult = {
+      readonly action: Descriptor;
+      readonly steps: readonly StepResult[];
+    };
+
+    /** Leaf action execution result. */
+    export type StepResult = {
+      readonly action: Leaf;
+      readonly ok: boolean;
+      readonly result?: unknown;
+      readonly error?: unknown;
+      readonly metrics: RunMetrics;
+    };
+
+    /** Cell-measured finite action metrics. */
+    export type RunMetrics = {
+      readonly run: {
+        /** Instant immediately before endpoint args are finalized and `run(args)` is called. */
+        readonly startedAt: t.UnixTimestamp;
+        /** Instant immediately after `run(args)` returns, resolves, or fails. */
+        readonly resolvedAt: t.UnixTimestamp;
+      };
     };
   }
 

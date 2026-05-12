@@ -10,6 +10,9 @@ describe(`Cell`, () => {
     expect(m.Cell.Runtime.verify).to.equal(Cell.Runtime.verify);
     expect(m.Cell.Runtime.start).to.equal(Cell.Runtime.start);
     expect(m.Cell.Runtime.wait).to.equal(Cell.Runtime.wait);
+    expect(m.Cell.Action).to.equal(Cell.Action);
+    expect(m.Cell.Action.verify).to.equal(Cell.Action.verify);
+    expect(m.Cell.Action.run).to.equal(Cell.Action.run);
   });
 
   it('keeps FS-aware seams out of the public import graph', async () => {
@@ -18,7 +21,11 @@ describe(`Cell`, () => {
     await EsmAssert.runtimeGraphBoundary({
       entry: Path.resolve(root, '../../mod.ts'),
       forbiddenImports: ['@sys/fs'],
-      forbiddenPathIncludes: ['/src/m.cell/u.load.ts', '/src/m.cell/u.runtime/'],
+      forbiddenPathIncludes: [
+        '/src/m.cell/u.load.ts',
+        '/src/m.cell/u.runtime/',
+        '/src/m.cell/u.action/',
+      ],
     });
   });
 });

@@ -53,6 +53,34 @@ export const Cell: t.Cell.Lib = {
       return CellRuntime.wait(runtime);
     },
   },
+  Action: {
+    async verify(cell, options) {
+      /**
+       * Action-only verifier import.
+       *
+       * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+       * does not scan the FS/import-aware action verifier into browser bundles
+       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
+       * this string.
+       */
+      const ACTION_SPEC = './u.' + 'action/mod.ts';
+      const { CellAction } = await import(/* @vite-ignore */ ACTION_SPEC);
+      return CellAction.verify(cell, options);
+    },
+    async run(cell, name, options) {
+      /**
+       * Action-only runner import.
+       *
+       * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
+       * does not scan the FS/import-aware action runner into browser bundles
+       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
+       * this string.
+       */
+      const ACTION_SPEC = './u.' + 'action/mod.ts';
+      const { CellAction } = await import(/* @vite-ignore */ ACTION_SPEC);
+      return CellAction.run(cell, name, options);
+    },
+  },
   async load(root, options) {
     /**
      * Runtime-only loader import.
