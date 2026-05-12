@@ -5,7 +5,7 @@
 import type * as THttp from '@sys/http/t';
 import type * as TSys from '@sys/types';
 
-export type { PortNumber, StringDir, StringHostname } from '@sys/types';
+export type { PortNumber, StringDir, StringHostname, StringPath } from '@sys/types';
 
 /**
  * Server-side helpers for the local Stripe PaymentElement fixture.
@@ -86,6 +86,9 @@ export declare namespace StripeFixture {
 
   /** Startup options for acquiring the fixture lifecycle. */
   export type StartArgs = SessionArgs & {
+    /** Config refs resolved by the caller and interpreted by this endpoint. */
+    readonly paths?: { readonly config?: TSys.StringPath };
+
     /** Human-readable service label used by the HTTP lifecycle startup output. */
     readonly name?: string;
 

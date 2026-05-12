@@ -39,6 +39,30 @@ describe('StripeFixture', () => {
     expect(server.disposed).to.eql(true);
   });
 
+  it('starts from a config-ref args shape', async () => {
+    const dir = await Testing.dir('driver-stripe.fixture.config-ref');
+    const port = Net.port();
+    await Fs.write(
+      dir.join('-config/fixture.yaml'),
+      `name: stripe:fixture\nhostname: 127.0.0.1\nport: ${port}\n`,
+    );
+
+    const server = await StripeFixture.start({
+      cwd: dir.dir,
+      paths: { config: dir.join('-config/fixture.yaml') },
+      silent: true,
+    });
+
+    try {
+      expect(server.port).to.eql(port);
+      const res = await fetch(`${server.origin}/`);
+      await res.body?.cancel();
+      expect(res.status).to.eql(200);
+    } finally {
+      await server.close('test.config-ref');
+    }
+  });
+
   it('reads STRIPE_FIXTURE_PORT from cwd .env at startup', async () => {
     const dir = await Testing.dir('driver-stripe.fixture.port-env');
     await Fs.write(dir.join('.env'), 'STRIPE_FIXTURE_PORT=not-a-port\n');
@@ -93,7 +117,7 @@ describe('StripeFixture', () => {
 
   it('searches upward for workspace-level server-side env', async () => {
     const dir = await Testing.dir('driver-stripe.fixture.session-upward');
-    const child = dir.join('cell/instance');
+    const child = dir.join('workspace/instance');
     await Fs.ensureDir(child);
     await Fs.write(
       dir.join('.env'),
