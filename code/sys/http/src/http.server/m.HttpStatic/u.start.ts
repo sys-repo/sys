@@ -1,11 +1,13 @@
 import { Fs, HttpServer, Path, type t } from './common.ts';
+import { loadConfig } from './u.config.doc.ts';
 
 type F = t.HttpStatic.Lib['start'];
 
 /**
  * Start a static HTTP server lifecycle.
  */
-export const start: F = async (args = {}) => {
+export const start: F = async (input = {}) => {
+  const args = await wrangle.args(input);
   const root = wrangle.root(args);
   const app = HttpServer.create({ static: false });
 
@@ -28,6 +30,22 @@ export const start: F = async (args = {}) => {
  * Helpers:
  */
 const wrangle = {
+  async args(args: t.HttpStatic.StartArgs): Promise<t.HttpStatic.StartArgs> {
+    const config = args.paths?.config;
+    if (!config) return args;
+
+    const doc = await loadConfig(wrangle.configPath(args), 'HttpStatic.start');
+    return { ...doc, ...args };
+  },
+
+  configPath(args: t.HttpStatic.StartArgs): t.StringPath {
+    const path = args.paths?.config;
+    if (!path) throw new Error('HttpStatic.start: missing config path.');
+    if (Path.Is.absolute(path)) return Path.normalize(path) as t.StringPath;
+    const cwd = args.cwd ? Fs.resolve(args.cwd) : Fs.cwd('process');
+    return Path.resolve(cwd, path) as t.StringPath;
+  },
+
   root(args: t.HttpStatic.StartArgs): t.StringDir {
     const cwd = args.cwd ? Fs.resolve(args.cwd) : Fs.cwd('process');
     const dir = args.dir ?? '.';

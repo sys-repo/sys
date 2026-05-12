@@ -32,6 +32,9 @@ export declare namespace HttpStatic {
 
     /** Listen port. Use `0` for an ephemeral port. */
     readonly port: number;
+
+    /** Suppress startup output when this config is used as a lifecycle ref. */
+    readonly silent?: boolean;
   };
 
   /** Config mutation input. */
@@ -75,8 +78,11 @@ export declare namespace HttpStatic {
 
   /** Arguments passed to [HttpStatic.start]. */
   export type StartArgs = {
-    /** Base directory used to resolve relative `dir` values. Defaults to the process cwd. */
+    /** Base directory used to resolve relative `dir` and config refs. Defaults to the process cwd. */
     cwd?: string;
+
+    /** Config refs resolved by the caller and interpreted by this endpoint. */
+    paths?: { readonly config?: t.StringPath };
 
     /** Static root to serve. Relative paths resolve against `cwd`. Defaults to `.`. */
     dir?: string;

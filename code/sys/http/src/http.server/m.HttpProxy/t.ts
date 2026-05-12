@@ -46,6 +46,12 @@ export declare namespace HttpProxy {
 
   /** Arguments passed to [HttpProxy.start]. */
   export type StartArgs = CreateOptions & {
+    /** Base directory used to resolve relative config refs. Defaults to the process cwd. */
+    readonly cwd?: string;
+
+    /** Config refs resolved by the caller and interpreted by this endpoint. */
+    readonly paths?: { readonly config?: t.StringPath };
+
     /** Listen hostname. Defaults to the underlying HTTP server convention. */
     readonly hostname?: string;
 

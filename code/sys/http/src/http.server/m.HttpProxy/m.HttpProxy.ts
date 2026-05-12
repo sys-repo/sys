@@ -1,8 +1,9 @@
-import { D, HttpServer, pkg, type t } from './common.ts';
+import { D, Fs, HttpServer, Path, pkg, type t } from './common.ts';
 import { Config } from './m.Config.ts';
 import { Mount } from './m.Mount.ts';
 import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
+import { loadConfig } from './u.config/u.doc.ts';
 
 export const HttpProxy: t.HttpProxy.Lib = {
   Config,
@@ -46,7 +47,8 @@ export const HttpProxy: t.HttpProxy.Lib = {
     return app;
   },
 
-  async start(args = {}) {
+  async start(input = {}) {
+    const args = await wrangle.startArgs(input);
     const app = HttpProxy.create(args);
     const config = wrangle.config(args);
     return HttpServer.start(app, {
@@ -102,6 +104,22 @@ const FORWARDED_HEADER_DENYLIST = [
 ];
 
 const wrangle = {
+  async startArgs(args: t.HttpProxy.StartArgs): Promise<t.HttpProxy.StartArgs> {
+    const config = args.paths?.config;
+    if (!config) return args;
+
+    const doc = await loadConfig(wrangle.configPath(args), 'HttpProxy.start');
+    return { ...doc, ...args };
+  },
+
+  configPath(args: t.HttpProxy.StartArgs): t.StringPath {
+    const path = args.paths?.config;
+    if (!path) throw new Error('HttpProxy.start: missing config path.');
+    if (Path.Is.absolute(path)) return Path.normalize(path) as t.StringPath;
+    const cwd = args.cwd ? Fs.resolve(args.cwd) : Fs.cwd('process');
+    return Path.resolve(cwd, path) as t.StringPath;
+  },
+
   config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Routing.Config {
     if (options.config && (options.root || options.mounts)) {
       throw new Error('HttpProxy: use either config or lifecycle root/mounts, not both');

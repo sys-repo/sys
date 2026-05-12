@@ -73,6 +73,28 @@ describe('HttpStatic', () => {
     }
   });
 
+  it('starts from a config-ref args shape', async () => {
+    const fs = await Testing.dir('HttpStatic.config-ref');
+    await Fs.write(Fs.join(fs.dir, 'public/index.html'), '<h1>config-ref</h1>');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/static.yaml'),
+      'name: static\ndir: ./public\nhostname: 127.0.0.1\nport: 0\nsilent: true\n',
+    );
+
+    const server = await HttpStatic.start({
+      cwd: fs.dir,
+      paths: { config: Fs.join(fs.dir, '-config/static.yaml') },
+    });
+
+    try {
+      const res = await fetch(`${server.origin}/`);
+      expect(res.status).to.eql(200);
+      expect(await res.text()).to.eql('<h1>config-ref</h1>');
+    } finally {
+      await close(server);
+    }
+  });
+
   it('returns the standard HTTP server lifecycle handle', async () => {
     const fs = await Testing.dir('HttpStatic');
     await Fs.write(Fs.join(fs.dir, 'index.html'), '<h1>lifecycle</h1>');

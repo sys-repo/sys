@@ -1,4 +1,4 @@
-import { Cli, describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { Cli, describe, expect, expectTypeOf, Fs, it, Testing, type t } from '../../../-test.ts';
 import { Http } from '../../../mod.ts';
 import { HttpProxy } from '../mod.ts';
 
@@ -58,6 +58,32 @@ describe('HttpProxy', () => {
       expect(output).to.contain(`http://localhost:${server.port}/-/fixture/`);
     } finally {
       await server?.close('test.info');
+    }
+  });
+
+  it('starts from a config-ref args shape', async () => {
+    const fs = await Testing.dir('HttpProxy.config-ref');
+    const upstreamApp = Http.Server.create({ static: false, cors: false });
+    upstreamApp.get('/hello', (c) => c.text('config-ref'));
+    const upstream = Http.Server.start(upstreamApp, { port: 0, silent: true });
+    await Fs.write(
+      Fs.join(fs.dir, '-config/proxy.yaml'),
+      `name: proxy\nhostname: 127.0.0.1\nport: 0\nroot:\n  target: ${upstream.origin}/\nmounts: []\n`,
+    );
+
+    const proxy = await HttpProxy.start({
+      cwd: fs.dir,
+      paths: { config: Fs.join(fs.dir, '-config/proxy.yaml') },
+      silent: true,
+    });
+
+    try {
+      const res = await fetch(`${proxy.origin}/hello`);
+      expect(res.status).to.eql(200);
+      expect(await res.text()).to.eql('config-ref');
+    } finally {
+      await proxy.close('test.proxy.config-ref');
+      await upstream.close('test.upstream.config-ref');
     }
   });
 
