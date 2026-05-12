@@ -1,65 +1,8 @@
-import { c, Cli, D, Fmt, Http, Open, Str, type t } from '../common.ts';
+import { c, Cli, Fmt, Open, Str, type t } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
-import { route } from './u.serve.route.ts';
+import { startServer } from './u.startServer.ts';
 
-type Opts = { port?: number; host?: 'local' | 'network'; silent?: boolean; keyboard?: boolean };
-export type StartServingContext = {
-  readonly location: t.ServeTool.LocationYaml.Location;
-  readonly host: 'local' | 'network';
-  readonly hostname: '127.0.0.1' | '0.0.0.0';
-  readonly port: number;
-  readonly baseUrl: t.StringUrl;
-  readonly url: t.StringUrl;
-  readonly server: Deno.HttpServer<Deno.NetAddr>;
-  close(): Promise<void>;
-};
 type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
-
-/**
- * Start a local HTTP server for the given directory and return the running context.
- */
-export async function startServer(
-  location: t.ServeTool.LocationYaml.Location,
-  opts: Opts = {},
-): Promise<StartServingContext> {
-  const { dir, name } = location;
-  const app = Http.Server.create({ static: false });
-
-  app.use('*', Http.Server.forceDirSlash(dir));
-  app.use('*', route({ dir }));
-  app.use('*', Http.Server.static({ root: dir }));
-
-  const host = opts.host ?? 'local';
-  const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
-  const info = await resolveInfo(location);
-  const infoPath = firstPathInfo(info);
-  const started = Http.Server.start(app, {
-    port: opts.port ?? D.port,
-    hostname,
-    name,
-    info,
-    dir,
-    silent: opts.silent === true,
-    keyboard: opts.keyboard,
-  });
-  const port = started.port;
-  const server = started.server;
-  const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `${started.origin}`;
-  const url = infoPath ? `${baseUrl}/${Str.trimLeadingSlashes(infoPath)}` : `${baseUrl}/`;
-
-  return {
-    location,
-    host,
-    hostname,
-    port,
-    baseUrl: baseUrl as t.StringUrl,
-    url: url as t.StringUrl,
-    server,
-    async close() {
-      await started.close('serve.close');
-    },
-  };
-}
 
 /**
  * Start a local HTTP server for the given directory and run the interactive menu loop.
@@ -67,7 +10,7 @@ export async function startServer(
 export async function startServing(
   cwd: t.StringDir,
   location: t.ServeTool.LocationYaml.Location,
-  opts: Opts = {},
+  opts: t.ServeTool.StartServerOpts = {},
 ): Promise<ServeResult> {
   const context = await startServer(location, { ...opts, silent: false });
   return await runOpenPromptLoop(cwd, context);
@@ -75,35 +18,12 @@ export async function startServing(
 
 type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
 
-async function resolveInfo(location: t.ServeTool.LocationYaml.Location) {
-  const explicit = normalizeInfo(location.info);
-  if (explicit) return explicit;
-
-  const targets = await OpenTargets.discover(location.dir);
-  const paths = targets.map((target) => target.path).filter(Boolean);
-  if (paths.length !== 1) return undefined;
-
-  return { path: `/${Str.trimSlashes(paths[0])}/` };
-}
-
-function normalizeInfo(info?: Record<string, string>) {
-  if (!info) return undefined;
-  return Object.fromEntries(
-    Object.entries(info).map(([key, value]) => {
-      const trimmed = value.trim();
-      const normalized = trimmed.startsWith('/') ? `/${Str.trimLeadingSlashes(trimmed)}` : trimmed;
-      return [key, normalized];
-    }),
-  );
-}
-
-function firstPathInfo(info?: Record<string, string>) {
-  return Object.values(info ?? {}).find((value) => value.startsWith('/'));
-}
-
+/**
+ * Helpers:
+ */
 async function runOpenPromptLoop(
   cwd: t.StringDir,
-  context: StartServingContext,
+  context: t.ServeTool.StartServingContext,
 ): Promise<ServeResult> {
   const { location, host, port, baseUrl } = context;
   let didBack = false;

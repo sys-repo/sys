@@ -9,6 +9,59 @@ export namespace ServeTool {
   export type Id = typeof ID;
   export type Name = typeof NAME;
 
+  /** Public serve helper API. */
+  export type Lib = {
+    /** Start a static serve location from owner YAML. */
+    start(args: StartArgs): Promise<StartResult>;
+  };
+
+  /** Programmatic server host policy. */
+  export type Host = 'local' | 'network';
+  /** Concrete bind hostname derived from the host policy. */
+  export type Hostname = '127.0.0.1' | '0.0.0.0';
+
+  export type StartArgs = {
+    cwd?: t.StringDir;
+    config: t.StringPath;
+    host?: Host;
+    /** Use `0` to let the runtime choose an available port. */
+    port?: number;
+  };
+
+  export type StartResult = {
+    readonly ok: true;
+    readonly cwd: t.StringDir;
+    readonly config: t.StringPath;
+    readonly location: LocationYaml.Location;
+    readonly host: Host;
+    readonly hostname: Hostname;
+    readonly port: number;
+    readonly baseUrl: t.StringUrl;
+    readonly url: t.StringUrl;
+    readonly finished: Promise<void>;
+    readonly close: () => Promise<void>;
+  };
+
+  /** Low-level static server start options. */
+  export type StartServerOpts = {
+    readonly port?: number;
+    readonly host?: Host;
+    readonly silent?: boolean;
+    readonly keyboard?: boolean;
+  };
+
+  /** Running low-level static server context. */
+  export type StartServingContext = {
+    readonly location: LocationYaml.Location;
+    readonly host: Host;
+    readonly hostname: Hostname;
+    readonly port: number;
+    readonly baseUrl: t.StringUrl;
+    readonly url: t.StringUrl;
+    readonly server: Deno.HttpServer<Deno.NetAddr>;
+    readonly close: () => Promise<void>;
+  };
+
   /** Command names. */
   export type Command =
     | 'dir:add'
@@ -29,7 +82,7 @@ export namespace ServeTool {
     port?: number;
     dir?: string;
     config?: string;
-    host?: 'local' | 'network';
+    host?: Host;
     open?: boolean;
     'non-interactive'?: boolean;
   };
