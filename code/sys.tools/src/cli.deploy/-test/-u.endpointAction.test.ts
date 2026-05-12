@@ -44,6 +44,50 @@ describe('@sys/tools/deploy endpoint actions', () => {
     });
   });
 
+  it('stage → resolves env refs before staging providerless prebuilt artifact', async () => {
+    await withTmpDir(async (cwd) => {
+      const yamlPath = `${cwd}/env-stage.yaml`;
+      await Fs.ensureDir(`${cwd}/view/.pulled/ui.components/assets`);
+      await Fs.write(
+        `${cwd}/view/.pulled/ui.components/index.html`,
+        '<!doctype html><html><body>ui.components</body></html>\n',
+      );
+      await Fs.write(`${cwd}/view/.pulled/ui.components/assets/app.js`, 'export {};\n');
+      await Pkg.Dist.compute({ dir: `${cwd}/view/.pulled/ui.components`, save: true });
+      await Fs.write(
+        `${cwd}/.env`,
+        'SAMPLE_DEPLOY_SOURCE="view/.pulled/ui.components"\nSAMPLE_DEPLOY_STAGE="./.tmp/deploy/env-stage"\n',
+      );
+      await Fs.write(
+        yamlPath,
+        Str.dedent(`
+          source:
+            dir: .
+          staging:
+            dir: \${env:SAMPLE_DEPLOY_STAGE}
+            clear: true
+          mappings:
+            - mode: copy
+              dir:
+                source: \${env:SAMPLE_DEPLOY_SOURCE}
+                staging: .
+        `).trimStart(),
+      );
+
+      const res = await runEndpointAction({
+        cwd,
+        key: 'env-stage',
+        yamlPath,
+        action: 'stage',
+      });
+
+      expect(res.ok).to.eql(true);
+      expect(res.stageOk).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/env-stage/index.html`)).to.eql(true);
+      expect(await Fs.exists(`${cwd}/.tmp/deploy/env-stage/assets/app.js`)).to.eql(true);
+    });
+  });
+
   it('push → rejects providerless endpoints even when staging output exists', async () => {
     await withTmpDir(async (cwd) => {
       const yamlPath = `${cwd}/-config/@sys.tools.deploy/stage.yaml`;

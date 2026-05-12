@@ -1,5 +1,5 @@
-import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time } from '../common.ts';
-import { D as ServeD } from '../../cli.serve/common.ts';
+import { c, Cli, Fs, Is, Open, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { D as ServeDefaults } from '../../cli.serve/common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -45,19 +45,20 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       await EndpointsFs.ensureInitialYaml(yamlAbs);
     }
 
-    const check = await EndpointsFs.validateYaml(yamlAbs);
+    const check = await EndpointsFs.validateYaml(yamlAbs, { cwd });
     const yaml = check.ok ? check.doc : undefined;
 
     const capability = await pushCapabilityOf({
       cwd,
       yamlPath: yamlRel,
       checkOk: check.ok,
+      yaml,
       probe: false,
     });
 
     const provider = yaml?.provider;
-    const mapping =
-      (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
+    const mapping = (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ??
+      (yaml?.mappings ?? [])[0];
 
     const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
     const stagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel });
@@ -72,8 +73,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const dist = rootDist?.hash?.digest
       ? rootDist
       : mappingDist?.hash?.digest
-        ? mappingDist
-        : (rootDist ?? mappingDist);
+      ? mappingDist
+      : (rootDist ?? mappingDist);
     const digest = dist?.hash?.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
@@ -87,7 +88,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const hasStagedOutput = !!digest;
     const servePort = Is.num(yaml?.staging?.serve?.port)
       ? yaml.staging.serve.port
-      : ServeD.port;
+      : ServeDefaults.port;
     const pushUrl = provider?.kind === 'orbiter'
       ? String(provider.domain ?? '').trim()
         ? `https://${String(provider.domain ?? '').trim()}`
@@ -97,7 +98,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const showPush = capability.show;
     const showStagePush = check.ok && !!provider && provider.kind !== 'noop';
 
-    const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel });
+    const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel }, { yaml });
     console.info(renderEndpointScreen({ table: table.text, check }));
 
     const mappings = table.yaml?.mappings ?? [];

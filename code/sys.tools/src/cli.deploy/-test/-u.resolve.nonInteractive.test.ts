@@ -56,4 +56,83 @@ describe('@sys/tools/deploy non-interactive resolution', () => {
     const args = parseArgs(['--non-interactive', '--config', './x.yaml', '--action', 'serve']);
     await expectError(() => resolveNonInteractive(cwd, args), 'Invalid --action');
   });
+
+  it('uses CLI cwd for env refs when --config is outside endpoint dir', async () => {
+    const key = 'SAMPLE_DEPLOY_EXTERNAL_SOURCE';
+    await withoutProcessEnv(key, async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
+      const yamlRel = 'deploy.yaml';
+      await Fs.ensureDir(`${cwd}/src/site`);
+      await Fs.write(`${cwd}/src/site/index.html`, '<!doctype html><html></html>\n');
+      await Fs.write(`${cwd}/.env`, `${key}="./src/site"\n`);
+      await Fs.write(
+        `${cwd}/${yamlRel}`,
+        Str.dedent(`
+          staging:
+            dir: ./stage
+          mappings:
+            - mode: copy
+              dir:
+                source: \${env:${key}}
+                staging: .
+        `).trimStart(),
+      );
+
+      const res = await resolveNonInteractive(
+        cwd,
+        parseArgs(['--non-interactive', '--config', `./${yamlRel}`, '--action', 'stage']),
+      );
+
+      expect(res.yamlPath).to.eql(`${cwd}/${yamlRel}`);
+      expect(res.key).to.eql('deploy');
+      expect(res.action).to.eql('stage');
+    });
+  });
+
+  it('fails clearly for missing env refs', async () => {
+    const key = 'SAMPLE_DEPLOY_MISSING_SITE_ID';
+    await withoutProcessEnv(key, async () => {
+      const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.deploy.resolve.' })).absolute;
+      const yamlRel = '-config/@sys.tools.deploy/env-missing.yaml';
+      await Fs.ensureDir(`${cwd}/-config/@sys.tools.deploy`);
+      await Fs.write(`${cwd}/.env`, 'SAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n');
+      await Fs.write(
+        `${cwd}/${yamlRel}`,
+        Str.dedent(`
+          provider:
+            kind: orbiter
+            siteId: \${env:${key}}
+            domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+          staging:
+            dir: ./stage
+          mappings: []
+        `).trimStart(),
+      );
+
+      const args = parseArgs([
+        '--non-interactive',
+        '--config',
+        `./${yamlRel}`,
+        '--action',
+        'stage',
+      ]);
+      await expectError(
+        () => resolveNonInteractive(cwd, args),
+        `provider.siteId references missing env var: ${key}`,
+      );
+    });
+  });
 });
+
+/**
+ * Helpers:
+ */
+const withoutProcessEnv = async (key: string, fn: () => Promise<void>) => {
+  const original = Deno.env.get(key);
+  Deno.env.delete(key);
+  try {
+    await fn();
+  } finally {
+    if (original != null) Deno.env.set(key, original);
+  }
+};

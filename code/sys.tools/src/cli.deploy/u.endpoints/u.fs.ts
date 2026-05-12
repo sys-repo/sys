@@ -1,6 +1,6 @@
-import { type t, Fs, Is, Obj, Path, pkg, Schema, Yaml } from '../common.ts';
+import { Fs, Is, Obj, Path, pkg, Schema, type t, Yaml } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
-import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
+import { EndpointYamlErrorCode, validateEndpointYamlAst } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
 import { expandShardTemplatePaths, shouldRequireAllShards } from '../u.shardTemplate.ts';
@@ -24,11 +24,15 @@ export const EndpointsFs = {
    *
    * - Missing file → YAML error
    * - Read failure → YAML error
-   * - Content validation → delegated to `validateEndpointYamlText`
+   * - Env refs → resolved at the FS boundary before schema/semantic validation
+   * - Content validation → delegated to `validateEndpointYamlAst`
    *
    * No throwing. Always returns a YamlCheck.
    */
-  async validateYaml(path: t.StringPath): Promise<t.DeployTool.Endpoint.Fs.YamlCheck> {
+  async validateYaml(
+    path: t.StringPath,
+    options: { readonly cwd?: t.StringDir } = {},
+  ): Promise<t.DeployTool.Endpoint.Fs.YamlCheck> {
     if (!(await Fs.exists(path))) {
       const err = Yaml.Error.synthetic({
         message: 'Endpoint YAML file does not exist.',
@@ -48,15 +52,22 @@ export const EndpointsFs = {
       return { ok: false, errors: Schema.Error.fromYaml([err]) };
     }
 
-    const checked = validateEndpointYamlText(read.data ?? '');
+    const ast = Yaml.parseAst(read.data ?? '');
+    if (ast.errors?.length) return validateEndpointYamlAst(ast);
+
+    const cwd = options.cwd ?? resolveCwdFromYamlPath(path);
+    const resolved = await YamlConfig.Env.resolveAst(ast, { cwd, search: 'upward' });
+    if (!resolved.ok) return { ok: false, errors: Schema.Error.fromYaml([...resolved.errors]) };
+
+    const checked = validateEndpointYamlAst(ast);
     if (!checked.ok) return checked;
 
-    const cwd = resolveCwdFromYamlPath(path);
     const bases = resolveBases(cwd, checked.doc);
 
     const errors: t.Yaml.Error[] = [];
-    const providerShards =
-      checked.doc.provider?.kind === 'orbiter' ? checked.doc.provider?.shards : undefined;
+    const providerShards = checked.doc.provider?.kind === 'orbiter'
+      ? checked.doc.provider?.shards
+      : undefined;
     const mappings = mappingChecksOf(checked.doc);
 
     {
@@ -127,7 +138,8 @@ export const EndpointsFs = {
         if (requireAll) {
           errors.push(
             Yaml.Error.synthetic({
-              message: `${entry.label}.dir.source does not exist: ${expandedPath.source}\nresolved: ${sourceAbs}`,
+              message:
+                `${entry.label}.dir.source does not exist: ${expandedPath.source}\nresolved: ${sourceAbs}`,
               code: EndpointYamlErrorCode,
               pos: [0, 0],
             }),
@@ -140,7 +152,9 @@ export const EndpointsFs = {
         const sourceAbs = resolvePath(bases.sourceBaseAbs, expanded[0]!.source);
         errors.push(
           Yaml.Error.synthetic({
-            message: `${entry.label}.dir.source does not exist: ${expanded[0]!.source}\nresolved: ${sourceAbs}`,
+            message: `${entry.label}.dir.source does not exist: ${
+              expanded[0]!.source
+            }\nresolved: ${sourceAbs}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
@@ -184,7 +198,9 @@ function mappingChecksOf(
   doc: t.DeployTool.Config.EndpointYaml.Doc,
 ): readonly {
   readonly label: string;
-  readonly mapping: t.DeployTool.Config.EndpointYaml.Mapping | t.DeployTool.Config.EndpointYaml.DenoMapping;
+  readonly mapping:
+    | t.DeployTool.Config.EndpointYaml.Mapping
+    | t.DeployTool.Config.EndpointYaml.DenoMapping;
 }[] {
   if (doc.provider?.kind === 'deno') {
     return doc.mapping ? [{ label: 'mapping', mapping: doc.mapping }] : [];

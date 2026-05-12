@@ -1,8 +1,12 @@
-import { type t, c, Cli, Fmt, Fs, Is, Pkg, Str } from '../common.ts';
+import { c, Cli, Fmt, Fs, Is, Pkg, Str, type t } from '../common.ts';
 import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
-export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
+export async function endpointTable(
+  cwd: t.StringDir,
+  ref: t.DeployTool.Config.EndpointRef,
+  options: { readonly yaml?: t.EndpointYamlFile } = {},
+) {
   const table = Cli.table();
 
   const childText = (label: string, isLast = false) => ` ${Fmt.Tree.branch(isLast)} ${label}`;
@@ -14,28 +18,32 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const file = String(ref.file ?? '');
 
   // Read YAML once (provider + mappings); never throw.
-  let yaml: t.EndpointYamlFile | undefined;
+  let yaml = options.yaml;
   try {
-    const abs = Fs.join(cwd, file);
-    const res = await Fs.readYaml<t.EndpointYamlFile>(abs);
-    yaml = res.ok ? res.data : undefined;
+    if (!yaml) {
+      const abs = Fs.join(cwd, file);
+      const res = await Fs.readYaml<t.EndpointYamlFile>(abs);
+      yaml = res.ok ? res.data : undefined;
+    }
   } catch {
     yaml = undefined;
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
   const shardTotal = yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
-  const mappingsLabel =
-    Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
-      ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${c.white(`${shardTotal}-shards`)}`
-      : `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
+  const mappingsLabel = Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
+    ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${
+      c.white(`${shardTotal}-shards`)
+    }`
+    : `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
   const providerFmt = fmtProvider(yaml?.provider);
-  const providerDomain =
-    yaml?.provider?.kind === 'orbiter' ? String(yaml.provider.domain ?? '').trim() : '';
+  const providerDomain = yaml?.provider?.kind === 'orbiter'
+    ? String(yaml.provider.domain ?? '').trim()
+    : '';
 
   let providerProbe: t.PushProbe | undefined;
   try {
-    const provider = yaml?.provider;
+    const provider = options.yaml?.provider;
     if (provider) providerProbe = await Provider.probe(cwd, provider);
   } catch {
     providerProbe = undefined;
@@ -70,8 +78,8 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
 
   rows.forEach((row, index) => {
-    const isLast =
-      index === rows.length - 1 && !(providerFmt && providerProbe && !providerProbe.ok);
+    const isLast = index === rows.length - 1 &&
+      !(providerFmt && providerProbe && !providerProbe.ok);
     body.push([child(row.label, isLast), row.value]);
   });
 

@@ -47,12 +47,13 @@ async function runPushAction(args: {
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, yamlPath } = args;
   const yamlDisplay = displayYamlPath(cwd, yamlPath);
-  const freshCheck = await EndpointsFs.validateYaml(yamlPath);
+  const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   const freshCapability = await pushCapabilityOf({
     cwd,
     yamlPath: yamlDisplay as t.StringRelativeDir,
     checkOk: freshCheck.ok,
+    yaml: freshYaml,
   });
   const freshProvider = freshYaml?.provider;
   const freshStagingRootRel = String(freshYaml?.staging?.dir ?? '').trim() || '.';
@@ -182,7 +183,7 @@ async function runStageAction(args: {
   yamlPath: t.StringPath;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, yamlPath } = args;
-  const freshCheck = await EndpointsFs.validateYaml(yamlPath);
+  const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   if (!freshYaml) return { ok: false, stageOk: false };
 
@@ -225,7 +226,7 @@ async function runServeAction(args: {
   yamlPath: t.StringPath;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, key, yamlPath } = args;
-  const freshCheck = await EndpointsFs.validateYaml(yamlPath);
+  const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   if (!freshYaml) return { ok: false };
 

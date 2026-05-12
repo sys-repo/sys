@@ -166,6 +166,99 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: resolves env refs in providerless string leaves before validation', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-stage')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.ensureDir(`${tmp}/src/site`);
+      await Fs.write(
+        `${tmp}/.env`,
+        'SAMPLE_DEPLOY_SOURCE="./src/site"\nSAMPLE_DEPLOY_STAGE="./stage"\n',
+      );
+
+      const yaml = Str.dedent(`
+        staging:
+          dir: \${env:SAMPLE_DEPLOY_STAGE}
+        mappings:
+          - mode: copy
+            dir:
+              source: \${env:SAMPLE_DEPLOY_SOURCE}
+              staging: .
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+      if (res.ok) {
+        expect(res.doc.staging?.dir).to.eql('./stage');
+        expect(res.doc.mappings?.[0]?.dir.source).to.eql('./src/site');
+      }
+    });
+  });
+
+  it('validateYaml: resolves orbiter provider env refs before validation', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-orbiter')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.write(
+        `${tmp}/.env`,
+        'SAMPLE_DEPLOY_ORBITER_SITE_ID="site-123"\nSAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n',
+      );
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: orbiter
+          siteId: \${env:SAMPLE_DEPLOY_ORBITER_SITE_ID}
+          domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+        staging:
+          dir: ./staging
+        mappings: []
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+      if (res.ok && res.doc.provider?.kind === 'orbiter') {
+        expect(res.doc.provider.siteId).to.eql('site-123');
+        expect(res.doc.provider.domain).to.eql('example.com');
+      }
+    });
+  });
+
+  it('validateYaml: missing env ref fails before schema/provider validation', async () => {
+    const key = 'SAMPLE_DEPLOY_MISSING_SITE_ID';
+    await withoutProcessEnv(key, async () => {
+      await withTmpDir(async (tmp) => {
+        const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-missing')}`;
+        await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+        await Fs.write(`${tmp}/.env`, 'SAMPLE_DEPLOY_ORBITER_DOMAIN="example.com"\n');
+
+        const yaml = Str.dedent(`
+          provider:
+            kind: orbiter
+            siteId: \${env:${key}}
+            domain: \${env:SAMPLE_DEPLOY_ORBITER_DOMAIN}
+          staging:
+            dir: ./staging
+          mappings: []
+          `);
+
+        await Fs.write(yamlPath, yaml);
+        const res = await EndpointsFs.validateYaml(yamlPath);
+
+        expect(res.ok).to.eql(false);
+        if (!res.ok) {
+          const rendered = JSON.stringify(res.errors, null, 2);
+          expect(rendered.includes(`provider.siteId references missing env var: ${key}`)).to.eql(
+            true,
+          );
+        }
+      });
+    });
+  });
+
   it('validateYaml: shard templates expand to existing sources → ok:true', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-ok')}`;
@@ -404,11 +497,14 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.write(path, Str.dedent(`
+      await Fs.write(
+        path,
+        Str.dedent(`
         staging:
           dir: ./staging
         mappings: []
-      `));
+      `),
+      );
 
       const res = await EndpointsFs.validateYaml(path);
       expect(res.ok).to.eql(true);
@@ -586,3 +682,16 @@ describe('EndpointsFs', () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+const withoutProcessEnv = async (key: string, fn: () => Promise<void>) => {
+  const original = Deno.env.get(key);
+  Deno.env.delete(key);
+  try {
+    await fn();
+  } finally {
+    if (original != null) Deno.env.set(key, original);
+  }
+};
