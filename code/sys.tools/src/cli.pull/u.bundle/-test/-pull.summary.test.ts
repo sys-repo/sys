@@ -49,7 +49,7 @@ describe('cli.pull summary formatting', () => {
         },
         bytes: 81_400_000,
       },
-    ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
+    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
 
     const res = Fmt.pullSummary({
       bundle,
@@ -118,7 +118,7 @@ describe('cli.pull summary formatting', () => {
         },
         bytes: 456,
       },
-    ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
+    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
 
     const res = Fmt.pullSummary({
       bundle,
@@ -165,7 +165,7 @@ describe('cli.pull summary formatting', () => {
         },
         bytes: 3400,
       },
-    ] as const satisfies readonly t.PullToolBundleResult['ops'][number][];
+    ] as const satisfies readonly t.PullTool.Bundle.Result['ops'][number][];
 
     const res = Fmt.pullSummary({
       bundle,

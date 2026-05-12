@@ -17,7 +17,7 @@ export async function pullGithubRepoBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubRepoBundle,
   options: t.PullTool.Bundle.RunOptions = {},
-): Promise<t.PullToolRemoteBundleResult> {
+): Promise<t.PullTool.Bundle.Remote.Result> {
   const spinner = options.silent ? undefined : Cli.spinner();
   const token = await loadGithubToken({ cwd: baseDir });
   let effectiveRef = bundle.ref?.trim() || '';

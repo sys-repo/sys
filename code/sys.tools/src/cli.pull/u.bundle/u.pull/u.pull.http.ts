@@ -35,7 +35,7 @@ export async function pullHttpBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
   options: t.PullTool.Bundle.RunOptions = {},
-): Promise<t.PullToolRemoteBundleResult> {
+): Promise<t.PullTool.Bundle.Remote.Result> {
   const spinner = options.silent ? undefined : Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
   const distUrl = Url.toCanonical(bundle.dist);

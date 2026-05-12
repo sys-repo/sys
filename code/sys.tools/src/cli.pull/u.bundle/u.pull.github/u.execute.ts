@@ -36,7 +36,7 @@ export async function executeGithubPullPlan(args: {
 
   await Fs.ensureDir(preflight.targetRoot);
 
-  const ops: Array<t.PullToolBundleResult['ops'][number]> = [];
+  const ops: Array<t.PullTool.Bundle.Result['ops'][number]> = [];
   const total = preflight.entries.length;
 
   for (const [index, item] of preflight.entries.entries()) {
@@ -135,7 +135,7 @@ function isInside(parent: t.StringPath, child: t.StringPath): boolean {
 
 function summarizeFailures(
   kind: t.GithubPull.PlanKind,
-  failed: readonly t.PullToolBundleResult['ops'][number][],
+  failed: readonly t.PullTool.Bundle.Result['ops'][number][],
   total: number,
 ): string {
   const first = failed[0];

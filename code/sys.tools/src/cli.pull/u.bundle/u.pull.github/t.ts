@@ -50,11 +50,11 @@ export declare namespace GithubPull {
   export type ExecuteResult =
     | {
       readonly ok: true;
-      readonly ops: readonly t.PullToolBundleResult['ops'][number][];
+      readonly ops: readonly t.PullTool.Bundle.Result['ops'][number][];
     }
     | {
       readonly ok: false;
-      readonly ops: readonly t.PullToolBundleResult['ops'][number][];
+      readonly ops: readonly t.PullTool.Bundle.Result['ops'][number][];
       readonly error: string;
     };
 

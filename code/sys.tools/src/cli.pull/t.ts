@@ -2,7 +2,6 @@ import { type t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.namespace.ts';
-export type * from './u.bundle/t.ts';
 export type * from './u.github/t.ts';
 
 /**

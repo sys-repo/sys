@@ -62,7 +62,7 @@ export namespace PullTool {
 
   export type RunBundleResult = {
     readonly bundle: ConfigYaml.Bundle;
-    readonly data: t.PullToolBundleResult;
+    readonly data: Bundle.Result;
   };
 
   export type RunResult = {
@@ -74,6 +74,29 @@ export namespace PullTool {
   };
 
   export namespace Bundle {
+    export type SummaryMeta =
+      | { readonly kind: 'http'; readonly source: t.StringUrl }
+      | { readonly kind: 'github:release'; readonly repo: string; readonly release: string }
+      | {
+        readonly kind: 'github:repo';
+        readonly repo: string;
+        readonly ref: string;
+        readonly path?: string;
+      };
+
+    /** Result from a bundle-pull operation. */
+    export type Result = t.HttpPullToDirResult & {
+      dist?: t.DistPkg;
+      dists?: readonly t.DistPkg[];
+      summary?: SummaryMeta;
+    };
+
+    export namespace Remote {
+      export type Result =
+        | { readonly ok: true; readonly data: Bundle.Result }
+        | { readonly ok: false; readonly error: string };
+    }
+
     export type RunOptions = {
       readonly silent?: boolean;
     };

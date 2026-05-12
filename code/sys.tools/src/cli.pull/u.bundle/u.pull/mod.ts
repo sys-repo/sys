@@ -8,17 +8,17 @@ type PullHttp = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
   options?: t.PullTool.Bundle.RunOptions,
-) => Promise<t.PullToolRemoteBundleResult>;
+) => Promise<t.PullTool.Bundle.Remote.Result>;
 type PullGithubRelease = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
   options?: t.PullTool.Bundle.RunOptions,
-) => Promise<t.PullToolRemoteBundleResult>;
+) => Promise<t.PullTool.Bundle.Remote.Result>;
 type PullGithubRepo = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubRepoBundle,
   options?: t.PullTool.Bundle.RunOptions,
-) => Promise<t.PullToolRemoteBundleResult>;
+) => Promise<t.PullTool.Bundle.Remote.Result>;
 type Pullers = {
   pullHttp: PullHttp;
   pullGithubRelease: PullGithubRelease;
@@ -38,7 +38,7 @@ export async function pullRemoteBundle(
     pullGithubRepo: pullGithubRepoBundle,
   },
   options: t.PullTool.Bundle.RunOptions = {},
-): Promise<t.PullToolRemoteBundleResult> {
+): Promise<t.PullTool.Bundle.Remote.Result> {
   try {
     if (bundle.kind === 'http') return await pullers.pullHttp(baseDir, bundle, options);
     if (bundle.kind === 'github:release') {

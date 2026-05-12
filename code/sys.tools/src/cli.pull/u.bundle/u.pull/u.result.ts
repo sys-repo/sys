@@ -1,10 +1,10 @@
 import { Err, type t } from './common.ts';
 
-export function done(data: t.PullToolBundleResult): t.PullToolRemoteBundleResult {
+export function done(data: t.PullTool.Bundle.Result): t.PullTool.Bundle.Remote.Result {
   return { ok: true, data };
 }
 
-export function fail(error: string): t.PullToolRemoteBundleResult {
+export function fail(error: string): t.PullTool.Bundle.Remote.Result {
   return { ok: false, error };
 }
 

@@ -16,7 +16,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
         called = true;
         return Promise.resolve({
           ok: true,
-          data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
+          data: { ok: true, ops: [], dist: {} } as unknown as t.PullTool.Bundle.Result,
         });
       },
       pullGithubRelease() {
@@ -46,7 +46,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
         called = true;
         return Promise.resolve({
           ok: true,
-          data: { ok: true, ops: [], dist: {} } as unknown as t.PullToolBundleResult,
+          data: { ok: true, ops: [], dist: {} } as unknown as t.PullTool.Bundle.Result,
         });
       },
       pullGithubRepo() {
@@ -76,7 +76,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
         called = true;
         return Promise.resolve({
           ok: true,
-          data: { ok: true, ops: [] } as unknown as t.PullToolBundleResult,
+          data: { ok: true, ops: [] } as unknown as t.PullTool.Bundle.Result,
         });
       },
     });

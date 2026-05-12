@@ -14,7 +14,7 @@ type ExecuteBundlePullResult =
   | {
     readonly ok: true;
     readonly bundle: t.PullTool.ConfigYaml.Bundle;
-    readonly data: t.PullToolBundleResult;
+    readonly data: t.PullTool.Bundle.Result;
   }
   | { readonly ok: false; readonly error: string };
 
