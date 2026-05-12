@@ -15,12 +15,13 @@ import { createGithubReleasePullPlan } from './u.plan.ts';
 export async function pullGithubReleaseBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
+  options: t.PullTool.Bundle.RunOptions = {},
 ): Promise<t.PullToolRemoteBundleResult> {
-  const spinner = Cli.spinner();
+  const spinner = options.silent ? undefined : Cli.spinner();
   const token = await loadGithubToken({ cwd: baseDir });
 
   try {
-    spinner.start(Fmt.spinnerText('resolving github release...'));
+    spinner?.start(Fmt.spinnerText('resolving github release...'));
 
     const releases = await listGithubReleases({ repo: bundle.repo, token });
     const resolved = resolveGithubReleaseBundle(bundle, releases);
@@ -36,11 +37,15 @@ export async function pullGithubReleaseBundle(
       download: createGithubDownloader(token),
       events: {
         clearing: () => {
-          spinner.text = Fmt.spinnerText('clearing local target...');
+          if (spinner) spinner.text = Fmt.spinnerText('clearing local target...');
         },
         entry: ({ entry, current, total }) => {
           const progress = total > 1 ? ` ${c.white(String(current))}/${total}` : '';
-          spinner.text = Fmt.spinnerText(`downloading${progress} ${c.cyan(entry.relativePath)}...`);
+          if (spinner) {
+            spinner.text = Fmt.spinnerText(
+              `downloading${progress} ${c.cyan(entry.relativePath)}...`,
+            );
+          }
         },
       },
     });
@@ -51,7 +56,7 @@ export async function pullGithubReleaseBundle(
     const msgPulled = `${c.green('release pulled')} → ${
       c.cyan(`${bundle.local.dir}/${planned.releaseDir}`)
     } (${executed.ops.length} assets)`;
-    spinner.succeed(Fmt.spinnerText(c.gray(msgPulled)));
+    spinner?.succeed(Fmt.spinnerText(c.gray(msgPulled)));
 
     return done({
       ok: true,
@@ -72,7 +77,7 @@ export async function pullGithubReleaseBundle(
     });
     return fail(auth ?? errorMessage(error));
   } finally {
-    spinner.stop();
+    spinner?.stop();
   }
 }
 

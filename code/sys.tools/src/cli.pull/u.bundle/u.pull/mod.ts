@@ -7,14 +7,17 @@ import { pullHttpBundle } from './u.pull.http.ts';
 type PullHttp = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
+  options?: t.PullTool.Bundle.RunOptions,
 ) => Promise<t.PullToolRemoteBundleResult>;
 type PullGithubRelease = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
+  options?: t.PullTool.Bundle.RunOptions,
 ) => Promise<t.PullToolRemoteBundleResult>;
 type PullGithubRepo = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubRepoBundle,
+  options?: t.PullTool.Bundle.RunOptions,
 ) => Promise<t.PullToolRemoteBundleResult>;
 type Pullers = {
   pullHttp: PullHttp;
@@ -34,11 +37,16 @@ export async function pullRemoteBundle(
     pullGithubRelease: pullGithubReleaseBundle,
     pullGithubRepo: pullGithubRepoBundle,
   },
+  options: t.PullTool.Bundle.RunOptions = {},
 ): Promise<t.PullToolRemoteBundleResult> {
   try {
-    if (bundle.kind === 'http') return await pullers.pullHttp(baseDir, bundle);
-    if (bundle.kind === 'github:release') return await pullers.pullGithubRelease(baseDir, bundle);
-    if (bundle.kind === 'github:repo') return await pullers.pullGithubRepo(baseDir, bundle);
+    if (bundle.kind === 'http') return await pullers.pullHttp(baseDir, bundle, options);
+    if (bundle.kind === 'github:release') {
+      return await pullers.pullGithubRelease(baseDir, bundle, options);
+    }
+    if (bundle.kind === 'github:repo') {
+      return await pullers.pullGithubRepo(baseDir, bundle, options);
+    }
     const _never: never = bundle;
     return fail(`Unknown bundle kind: ${String(_never)}`);
   } catch (error) {

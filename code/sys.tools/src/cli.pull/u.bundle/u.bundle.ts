@@ -224,9 +224,10 @@ export async function pullBundleWithSummary(
 export async function pullConfiguredBundle(
   location: t.PullTool.ConfigYaml.Location,
   bundle: t.PullTool.ConfigYaml.Bundle,
+  options: t.PullTool.Bundle.RunOptions = {},
 ): Promise<ExecuteBundlePullResult> {
   const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
-  const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
+  const pulled = await pullRemoteBundle(location.dir, effectiveBundle, undefined, options);
   if (!pulled.ok) return { ok: false, error: pulled.error };
   return { ok: true, bundle: effectiveBundle, data: pulled.data };
 }

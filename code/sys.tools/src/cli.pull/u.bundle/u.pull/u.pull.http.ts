@@ -34,22 +34,25 @@ const Fmt = {
 export async function pullHttpBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.HttpBundle,
+  options: t.PullTool.Bundle.RunOptions = {},
 ): Promise<t.PullToolRemoteBundleResult> {
-  const spinner = Cli.spinner();
+  const spinner = options.silent ? undefined : Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
   const distUrl = Url.toCanonical(bundle.dist);
   if (!distUrl.ok) return fail(`Invalid dist.json URL: ${distUrl.href}`);
 
   // Pull `dist.json` manifest:
-  spinner.start(Fmt.pullingSpinnerText());
+  spinner?.start(Fmt.pullingSpinnerText());
   const dist = await pullDist(distUrl.href);
 
   const updateSpinnerText = (progress?: Progress) => Fmt.pullingSpinnerText({ dist, progress });
-  const updateSpinner = (progress?: Progress) => (spinner.text = updateSpinnerText(progress));
+  const updateSpinner = (progress?: Progress) => {
+    if (spinner) spinner.text = updateSpinnerText(progress);
+  };
   updateSpinner();
 
   if (bundle.local.clear === true) {
-    spinner.text = Fmt.spinnerText('clearing local target...');
+    if (spinner) spinner.text = Fmt.spinnerText('clearing local target...');
     await clearTargetDir({ baseDir, targetDir });
     updateSpinner();
   }
@@ -69,14 +72,14 @@ export async function pullHttpBundle(
 
     if (!result.ok) {
       const error = summarizePullFailure(result);
-      spinner.fail(Fmt.spinnerText(error));
+      spinner?.fail(Fmt.spinnerText(error));
       return fail(error);
     } else {
       const size = c.dim(`(${Fmt.bundleSize(dist)})`);
       const fullpath = Fmt.prettyPath(targetDir);
       const path = `./${c.cyan(bundle.local.dir)} ${size}\n  ${fullpath}`;
       const msg = c.gray(`${c.green('bundle pulled')} → ${path}`);
-      spinner.succeed(Fmt.spinnerText(msg));
+      spinner?.succeed(Fmt.spinnerText(msg));
     }
 
     return done({
@@ -88,10 +91,10 @@ export async function pullHttpBundle(
       },
     });
   } catch (error) {
-    spinner.fail(Fmt.spinnerText('bundle pull error'));
+    spinner?.fail(Fmt.spinnerText('bundle pull error'));
     return fail(errorMessage(error));
   } finally {
-    spinner.stop();
+    spinner?.stop();
   }
 }
 

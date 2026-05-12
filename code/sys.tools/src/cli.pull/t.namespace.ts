@@ -73,6 +73,12 @@ export namespace PullTool {
     readonly bundles: readonly RunBundleResult[];
   };
 
+  export namespace Bundle {
+    export type RunOptions = {
+      readonly silent?: boolean;
+    };
+  }
+
   export namespace ConfigYaml {
     export type Defaults = {
       local?: {
