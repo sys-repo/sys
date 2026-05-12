@@ -9,6 +9,7 @@ export namespace YamlConfig {
     readonly File: File.Lib;
     readonly Edit: Edit.Lib;
     readonly Ref: Ref.Lib;
+    readonly Env: Env.Lib;
     readonly menu: Menu.Run;
   };
 
@@ -38,6 +39,17 @@ export namespace YamlConfig {
     export type Lib = t.YamlConfigRefLib;
     export type Resolved = t.YamlConfigRef;
     export type Input = t.YamlConfigRefResolveInput;
+  }
+
+  /** Dotenv-backed YAML config env-ref helpers. */
+  export namespace Env {
+    export type Lib = t.YamlConfigEnv.Lib;
+    export type Search = t.YamlConfigEnv.Search;
+
+    export namespace Resolve {
+      export type Options = t.YamlConfigEnv.Resolve.Options;
+      export type Result = t.YamlConfigEnv.Resolve.Result;
+    }
   }
 
   /** Interactive YAML config menu helpers. */

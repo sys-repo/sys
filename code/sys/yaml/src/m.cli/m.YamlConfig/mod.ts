@@ -3,8 +3,9 @@
  */
 import type { t } from './common.ts';
 import { Edit } from './m.Edit.ts';
+import { Env } from './m.Env.ts';
 import { File } from './m.File.ts';
 import { Ref } from './m.Ref.ts';
 import { menu } from './u/u.menu.ts';
 
-export const YamlConfig: t.YamlConfig.Lib = { menu, File, Edit, Ref };
+export const YamlConfig: t.YamlConfig.Lib = { menu, File, Edit, Ref, Env };

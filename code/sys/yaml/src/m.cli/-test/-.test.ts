@@ -10,6 +10,7 @@ describe(`yaml: cli tools`, () => {
     expectTypeOf(YamlConfig.File).toMatchTypeOf<t.YamlConfig.File.Lib>();
     expectTypeOf(YamlConfig.Edit).toMatchTypeOf<t.YamlConfig.Edit.Lib>();
     expectTypeOf(YamlConfig.Ref).toMatchTypeOf<t.YamlConfig.Ref.Lib>();
+    expectTypeOf(YamlConfig.Env).toMatchTypeOf<t.YamlConfig.Env.Lib>();
     expectTypeOf(YamlConfig.menu).toMatchTypeOf<t.YamlConfig.Menu.Run>();
   });
 });
