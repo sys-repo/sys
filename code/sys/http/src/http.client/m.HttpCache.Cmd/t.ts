@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type * as tCmd from '@sys/event/t';
+import type * as TCmd from '@sys/event/t';
 
 /**
  * Namespace for HTTP cache command routing.
@@ -96,25 +96,24 @@ export type HttpCacheCmdEventMap = {
   readonly 'http.cache.info': never;
 };
 
+export type HttpCacheCmdHandlerContext<K extends HttpCacheCmdName = HttpCacheCmdName> =
+  TCmd.CmdHandlerContext<HttpCacheCmdName, HttpCacheCmdEventMap, K>;
+
 /**
  * Handler for the `http.cache.clear` command.
  */
-export type HttpCacheCmdClearHandler = tCmd.CmdHandler<
-  HttpCacheCmdName,
-  HttpCacheCmdPayloadMap,
-  HttpCacheCmdResultMap,
-  'http.cache.clear'
->;
+export type HttpCacheCmdClearHandler = (
+  payload: HttpCacheCmdClearPayload,
+  ctx?: HttpCacheCmdHandlerContext<'http.cache.clear'>,
+) => HttpCacheCmdClearResult | Promise<HttpCacheCmdClearResult>;
 
 /**
  * Handler for the `http.cache.info` command.
  */
-export type HttpCacheCmdInfoHandler = tCmd.CmdHandler<
-  HttpCacheCmdName,
-  HttpCacheCmdPayloadMap,
-  HttpCacheCmdResultMap,
-  'http.cache.info'
->;
+export type HttpCacheCmdInfoHandler = (
+  payload: HttpCacheCmdInfoPayload,
+  ctx?: HttpCacheCmdHandlerContext<'http.cache.info'>,
+) => HttpCacheCmdInfoResult | Promise<HttpCacheCmdInfoResult>;
 
 /**
  * Input for creating the default clear command handler.
@@ -191,7 +190,7 @@ export type HttpCacheCmdListenArgs = {
    * Optional default namespace for hosted command traffic.
    * A string `ns` from the handshake message overrides this per connection.
    */
-  readonly ns?: tCmd.CmdNamespace;
+  readonly ns?: TCmd.CmdNamespace;
 
   /**
    * Optional handshake kind override.
@@ -237,8 +236,8 @@ export type HttpCacheCmdLib = {
    * satisfies the `Cmd` endpoint contract.
    */
   readonly make: (args?: {
-    readonly ns?: tCmd.CmdNamespace;
-  }) => tCmd.CmdFactory<
+    readonly ns?: TCmd.CmdNamespace;
+  }) => TCmd.CmdFactory<
     HttpCacheCmdName,
     HttpCacheCmdPayloadMap,
     HttpCacheCmdResultMap,

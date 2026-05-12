@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 
 import { CacheCmd } from '../m.Cmd.ts';
 import { Cache } from '../../m.HttpCache/mod.ts';
@@ -49,21 +49,25 @@ describe('Http.Cache.Cmd', () => {
       });
 
       const client = cmd.client(port2);
-      const result = await client.send(CacheCmd.CLEAR, { scope: 'pkg' });
+      try {
+        const result = await client.send(CacheCmd.CLEAR, { scope: 'pkg' });
 
-      expect(result.ok).to.eql(true);
-      expect(result.deleted).to.eql(['a', 'b']);
-      expect(result.total).to.eql(2);
-      expect(result.at).to.eql(123);
+        expect(result.ok).to.eql(true);
+        expect(result.deleted).to.eql(['a', 'b']);
+        expect(result.total).to.eql(2);
+        expect(result.at).to.eql(123);
 
-      const info = await client.send(CacheCmd.INFO, { scope: 'all' });
-      expect(info.ok).to.eql(true);
-      expect(info.scope).to.eql('all');
-      expect(info.totals.entries).to.eql(5);
-      expect(info.caches.length).to.eql(2);
-
-      client.dispose();
-      host.dispose();
+        const info = await client.send(CacheCmd.INFO, { scope: 'all' });
+        expect(info.ok).to.eql(true);
+        expect(info.scope).to.eql('all');
+        expect(info.totals.entries).to.eql(5);
+        expect(info.caches.length).to.eql(2);
+      } finally {
+        client.dispose();
+        host.dispose();
+        port1.close();
+        port2.close();
+      }
     });
   });
 
@@ -319,27 +323,30 @@ describe('Http.Cache.Cmd', () => {
         },
       });
 
-      sender.postMessage({ kind: CacheCmd.CONNECT }, [hostEndpoint]);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
       const client = CacheCmd.make().client(clientEndpoint);
-      const result = await client.send(CacheCmd.CLEAR, { scope: 'all' });
+      try {
+        sender.postMessage({ kind: CacheCmd.CONNECT }, [hostEndpoint]);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(result.ok).to.eql(true);
-      expect(result.deleted).to.eql(['x', 'y', 'z']);
-      expect(result.total).to.eql(3);
-      expect(typeof result.at).to.eql('number');
+        const result = await client.send(CacheCmd.CLEAR, { scope: 'all' });
 
-      const info = await client.send(CacheCmd.INFO, { scope: 'pkg' });
-      expect(info.ok).to.eql(true);
-      expect(info.scope).to.eql('pkg');
-      expect(info.totals.caches).to.eql(1);
+        expect(result.ok).to.eql(true);
+        expect(result.deleted).to.eql(['x', 'y', 'z']);
+        expect(result.total).to.eql(3);
+        expect(typeof result.at).to.eql('number');
 
-      client.dispose();
-      life.dispose();
-      target.close();
-      sender.close();
-      clientEndpoint.close();
+        const info = await client.send(CacheCmd.INFO, { scope: 'pkg' });
+        expect(info.ok).to.eql(true);
+        expect(info.scope).to.eql('pkg');
+        expect(info.totals.caches).to.eql(1);
+      } finally {
+        client.dispose();
+        life.dispose();
+        target.close();
+        sender.close();
+        clientEndpoint.close();
+        hostEndpoint.close();
+      }
     });
   });
 });
