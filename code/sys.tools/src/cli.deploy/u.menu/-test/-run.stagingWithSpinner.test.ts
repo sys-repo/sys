@@ -1,6 +1,31 @@
 import { describe, expect, Fs, it, Pkg, Str } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
+import type { StagePlan } from '../../u.stage.ts';
 import { runStagingWithSpinner } from '../run.stagingWithSpinner.ts';
+
+function stagePlanOf(args: {
+  readonly cwd: string;
+  readonly mappings: Extract<StagePlan, { readonly kind: 'mappings' }>['stage']['mappings'];
+  readonly stagingRoot: string;
+  readonly clear?: boolean;
+}): Extract<StagePlan, { readonly kind: 'mappings' }> {
+  return {
+    kind: 'mappings',
+    cwd: args.cwd,
+    config: `${args.cwd}/deploy.yaml`,
+    yaml: {
+      staging: { dir: args.stagingRoot, clear: args.clear },
+      mappings: args.mappings,
+    },
+    stagingRoot: `${args.cwd}/${args.stagingRoot}`,
+    stage: {
+      cwd: args.cwd,
+      mappings: args.mappings,
+      stagingRoot: args.stagingRoot,
+      clear: args.clear,
+    },
+  } as Extract<StagePlan, { readonly kind: 'mappings' }>;
+}
 
 describe('Staging: runStagingWithSpinner', () => {
   it('regenerates root dist.json when cleanStagingRoot runs', async () => {
@@ -12,12 +37,12 @@ describe('Staging: runStagingWithSpinner', () => {
       await Fs.write(`${tmp}/stage/dist.json`, 'sentinel');
 
       const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: '.' } }];
-      const res = await runStagingWithSpinner({
+      const res = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
         clear: true,
-      });
+      }));
       expect(res.ok).to.eql(true);
 
       const text = (await Fs.readText(`${tmp}/stage/dist.json`)).data!;
@@ -45,7 +70,9 @@ describe('Staging: runStagingWithSpinner', () => {
       await Fs.remove(`${childDir}/a.txt`);
 
       const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'other' } }];
-      const res = await runStagingWithSpinner({ cwd: tmp, mappings, stagingRoot: 'stage' });
+      const res = await runStagingWithSpinner(
+        stagePlanOf({ cwd: tmp, mappings, stagingRoot: 'stage' }),
+      );
       expect(res.ok).to.eql(true);
 
       const child = await Pkg.Dist.load(`${tmp}/stage/child`);
@@ -64,14 +91,17 @@ describe('Staging: runStagingWithSpinner', () => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/a.txt`, 'a');
 
-      const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'releases/sys.app.shell' } }];
+      const mappings = [{
+        mode: 'copy' as const,
+        dir: { source: 'src', staging: 'releases/sys.app.shell' },
+      }];
 
-      const first = await runStagingWithSpinner({
+      const first = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
         clear: true,
-      });
+      }));
       expect(first.ok).to.eql(true);
 
       const releases = await Pkg.Dist.load(`${tmp}/stage/releases`);
@@ -83,11 +113,11 @@ describe('Staging: runStagingWithSpinner', () => {
       const rootHash1 = String(root1.dist?.hash?.digest ?? '').trim();
       expect(rootHash1).to.not.eql('');
 
-      const second = await runStagingWithSpinner({
+      const second = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
-      });
+      }));
       expect(second.ok).to.eql(true);
 
       const releases2 = await Pkg.Dist.load(`${tmp}/stage/releases`);
@@ -106,12 +136,15 @@ describe('Staging: runStagingWithSpinner', () => {
       await Fs.ensureDir(`${tmp}/stage/releases`);
       await Fs.write(`${tmp}/stage/releases/index.html`, '<html>custom releases index</html>\n');
 
-      const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'releases/sys.app.shell' } }];
-      const result = await runStagingWithSpinner({
+      const mappings = [{
+        mode: 'copy' as const,
+        dir: { source: 'src', staging: 'releases/sys.app.shell' },
+      }];
+      const result = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
-      });
+      }));
       expect(result.ok).to.eql(true);
 
       const custom = (await Fs.readText(`${tmp}/stage/releases/index.html`)).data ?? '';
@@ -147,22 +180,22 @@ describe('Staging: runStagingWithSpinner', () => {
 
       const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
 
-      const a = await runStagingWithSpinner({
+      const a = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
         clear: true,
-      });
+      }));
       expect(a.ok).to.eql(true);
       const first = await Pkg.Dist.load(`${tmp}/stage`);
       const hash1 = String(first.dist?.hash?.digest ?? '').trim();
       expect(hash1).to.not.eql('');
 
-      const b = await runStagingWithSpinner({
+      const b = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
-      });
+      }));
       expect(b.ok).to.eql(true);
       const second = await Pkg.Dist.load(`${tmp}/stage`);
       const hash2 = String(second.dist?.hash?.digest ?? '').trim();
@@ -200,21 +233,21 @@ describe('Staging: runStagingWithSpinner', () => {
 
       const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
 
-      const first = await runStagingWithSpinner({
+      const first = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
         clear: true,
-      });
+      }));
       expect(first.ok).to.eql(true);
       expect(await Fs.exists(`${tmp}/stage/chunk-v1.js`)).to.eql(true);
 
       await Fs.write(`${srcRoot}/mode.txt`, 'v2');
-      const second = await runStagingWithSpinner({
+      const second = await runStagingWithSpinner(stagePlanOf({
         cwd: tmp,
         mappings,
         stagingRoot: 'stage',
-      });
+      }));
       expect(second.ok).to.eql(true);
       expect(await Fs.exists(`${tmp}/stage/chunk-v2.js`)).to.eql(true);
       expect(await Fs.exists(`${tmp}/stage/chunk-v1.js`)).to.eql(false);

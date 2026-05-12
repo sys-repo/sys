@@ -42,15 +42,17 @@ export namespace DeployTool {
     readonly stagingRoot: t.StringDir;
   };
 
-  export type StageOperationResult =
-    | StageResult
-    | {
+  export namespace StageOperation {
+    export type Result = StageResult | Failure;
+
+    export type Failure = {
       readonly ok: false;
       readonly config: t.StringPath;
       readonly cwd: t.StringDir;
       readonly stagingRoot?: t.StringDir;
       readonly error?: unknown;
     };
+  }
 
   export namespace Config {
     export type File = t.JsonFile<Doc>;

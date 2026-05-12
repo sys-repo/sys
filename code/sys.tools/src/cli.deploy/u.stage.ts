@@ -99,7 +99,10 @@ export async function loadStagePlan(args: {
 }
 
 /** Stage a loaded endpoint plan without presentation side-effects. */
-export async function stagePlan(plan: StagePlan): Promise<t.DeployTool.StageOperationResult> {
+export async function stagePlan(
+  plan: StagePlan,
+  options: { readonly onProgress?: StageMappingsArgs['onProgress'] } = {},
+): Promise<t.DeployTool.StageOperation.Result> {
   try {
     if (plan.kind === 'deno') {
       const res = await DenoProvider.stage({ cwd: plan.cwd, yaml: plan.yaml });
@@ -107,7 +110,10 @@ export async function stagePlan(plan: StagePlan): Promise<t.DeployTool.StageOper
       return stageOk(plan, res.stagingRoot);
     }
 
-    const staged = await stageMappings(plan.stage);
+    const stage = options.onProgress
+      ? { ...plan.stage, onProgress: options.onProgress }
+      : plan.stage;
+    const staged = await stageMappings(stage);
     return stageOk(plan, staged.stagingRoot);
   } catch (error) {
     return stageFailed(plan, error);
@@ -118,7 +124,7 @@ export async function stagePlan(plan: StagePlan): Promise<t.DeployTool.StageOper
 export async function stageEndpoint(args: {
   readonly cwd: t.StringDir;
   readonly config: t.StringPath;
-}): Promise<t.DeployTool.StageOperationResult> {
+}): Promise<t.DeployTool.StageOperation.Result> {
   const loaded = await loadStagePlan(args);
   if (!loaded.ok) return loaded;
   return await stagePlan(loaded.plan);
@@ -134,7 +140,7 @@ function stageOk(
 function stageFailed(
   plan: Pick<StagePlanBase, 'cwd' | 'config' | 'stagingRoot'>,
   error: unknown,
-): t.DeployTool.StageOperationResult {
+): t.DeployTool.StageOperation.Result {
   return {
     ok: false,
     cwd: plan.cwd,

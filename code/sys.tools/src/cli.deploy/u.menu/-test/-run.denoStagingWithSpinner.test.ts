@@ -1,7 +1,21 @@
 import { describe, expect, Fs, it, Path } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
+import type { StagePlan } from '../../u.stage.ts';
 import { runDenoStagingWithSpinner } from '../run.denoStagingWithSpinner.ts';
 import { createDenoWorkspace } from './u.fixture.ts';
+
+function denoPlanOf(args: {
+  readonly cwd: string;
+  readonly yaml: Extract<StagePlan, { readonly kind: 'deno' }>['yaml'];
+}): Extract<StagePlan, { readonly kind: 'deno' }> {
+  return {
+    kind: 'deno',
+    cwd: args.cwd,
+    config: `${args.cwd}/deploy.yaml`,
+    yaml: args.yaml,
+    stagingRoot: String(args.yaml.staging?.dir ?? ''),
+  } as Extract<StagePlan, { readonly kind: 'deno' }>;
+}
 
 describe('Staging: runDenoStagingWithSpinner', () => {
   it('stages a selected Deno workspace target into the caller-owned stage root', async () => {
@@ -10,7 +24,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
       await withTmpDir(async (stageParent) => {
         const stageRoot = Path.join(stageParent, 'stage');
 
-        const res = await runDenoStagingWithSpinner({
+        const res = await runDenoStagingWithSpinner(denoPlanOf({
           cwd: tmp,
           yaml: {
             provider: { kind: 'deno', app: 'my-app' },
@@ -18,7 +32,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
             staging: { dir: stageRoot, clear: true },
             mapping: { dir: { source: './code/apps/foo', staging: '.' } },
           },
-        });
+        }));
 
         expect(res.ok).to.eql(true);
         expect(await Fs.exists(`${stageRoot}/deno.json`)).to.eql(true);
@@ -36,7 +50,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
     await withTmpDir(async (tmp) => {
       await createDenoWorkspace(tmp);
 
-      const res = await runDenoStagingWithSpinner({
+      const res = await runDenoStagingWithSpinner(denoPlanOf({
         cwd: tmp,
         yaml: {
           provider: { kind: 'deno', app: 'my-app' },
@@ -44,7 +58,7 @@ describe('Staging: runDenoStagingWithSpinner', () => {
           staging: { dir: './stage', clear: true },
           mapping: { dir: { source: './code/apps/foo', staging: '.' } },
         },
-      });
+      }));
 
       expect(res.ok).to.eql(false);
       expect(String('error' in res ? res.error : '')).to.include(

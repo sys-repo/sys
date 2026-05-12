@@ -185,14 +185,11 @@ async function runStageAction(args: {
   if (!loaded.ok) return { ok: false, stageOk: false, error: loaded.error };
 
   if (loaded.plan.kind === 'deno') {
-    const res = await runDenoStagingWithSpinner({
-      cwd: loaded.plan.cwd,
-      yaml: loaded.plan.yaml,
-    });
+    const res = await runDenoStagingWithSpinner(loaded.plan);
     return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
   }
 
-  const res = await runStagingWithSpinner(loaded.plan.stage);
+  const res = await runStagingWithSpinner(loaded.plan);
   return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
 }
 

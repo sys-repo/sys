@@ -1,6 +1,6 @@
 import { c, Cli, Err, Path, Pkg, Str, type t, Time } from '../common.ts';
-import { stageMappings } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { type StagePlan, stagePlan } from '../u.stage.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 
@@ -8,16 +8,11 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
  * Run endpoint staging with a stable spinner UI.
  * Never throws unless you choose to rethrow based on ok:false.
  */
-export async function runStagingWithSpinner(args: {
-  cwd: t.StringDir;
-  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
-  stagingRoot: t.StringRelativeDir;
-  sourceRoot?: string;
-  clear?: boolean;
-  indexBaseDomain?: string;
-  buildResetHtml?: boolean;
-}): Promise<RunStagingResult> {
-  const { cwd, mappings } = args;
+export async function runStagingWithSpinner(
+  plan: Extract<StagePlan, { readonly kind: 'mappings' }>,
+): Promise<RunStagingResult> {
+  const { cwd } = plan;
+  const { mappings } = plan.stage;
 
   const spin = Cli.spinner();
   const started = Time.now.timestamp;
@@ -53,15 +48,7 @@ export async function runStagingWithSpinner(args: {
 
   try {
     try {
-      const staged = await stageMappings({
-        cwd,
-        mappings,
-        stagingRoot: args.stagingRoot,
-        sourceRoot: args.sourceRoot,
-        indexBaseDomain: args.indexBaseDomain,
-        buildResetHtml: args.buildResetHtml,
-        clear: args.clear,
-
+      const staged = await stagePlan(plan, {
         onProgress(e) {
           if (e.kind === 'mapping:start') {
             active.set(e.index, Path.basename(e.source));
@@ -86,6 +73,7 @@ export async function runStagingWithSpinner(args: {
           refresh();
         },
       });
+      if (!staged.ok) throw (staged.error ?? new Error('Staging failed'));
       const dist = (await Pkg.Dist.load(staged.stagingRoot)).dist;
       const hash = String(dist?.hash?.digest ?? '').trim();
       const suffix = hash ? Fmt.hashSuffix(hash) : '';
