@@ -1,13 +1,6 @@
 import { Fmt as CliFmt } from '@sys/cli/fmt';
 import type { t } from '../common.ts';
 
-const path = (value: string) => value as t.StringPath;
-const chapter = (
-  id: string,
-  file: string,
-  children: readonly t.CellHelp.Dsl.ChapterResource[] = [],
-): t.CellHelp.Dsl.ChapterResource => ({ id, file: path(file), children });
-
 export function chapterResourceFiles(
   chapter: t.CellHelp.Dsl.ChapterResource,
 ): readonly t.StringPath[] {
@@ -24,6 +17,7 @@ export function resolveChapterResource(
 export const HelpResource = {
   Root: path('yaml/root.yaml'),
   Init: path('yaml/init.yaml'),
+  Action: path('yaml/action.yaml'),
   Start: path('yaml/start.yaml'),
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
@@ -39,9 +33,26 @@ export const HelpResource = {
       return [
         HelpResource.Root,
         HelpResource.Init,
+        HelpResource.Action,
         HelpResource.Start,
         ...chapterResourceFiles(HelpResource.Dsl.Root),
       ];
     },
   },
 } as const;
+
+/**
+ * Helpers:
+ */
+
+function path(value: string) {
+  return value as t.StringPath;
+}
+
+function chapter(
+  id: string,
+  file: string,
+  children: readonly t.CellHelp.Dsl.ChapterResource[] = [],
+): t.CellHelp.Dsl.ChapterResource {
+  return { id, file: path(file), children };
+}

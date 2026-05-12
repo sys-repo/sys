@@ -10,6 +10,7 @@ describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {
     expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
     expect(stripAnsi(await FmtHelp.initOutput())).to.contain('@sys/cell init');
+    expect(stripAnsi(await FmtHelp.actionOutput())).to.contain('@sys/cell action');
     expect(stripAnsi(await FmtHelp.dslOutput())).to.contain('@sys/cell dsl');
   });
 
@@ -63,9 +64,9 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Descriptor IDs');
     expect(text).to.contain('^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$');
     expect(text).to.contain('Allowed separators are `.`, `:`, and `-`');
-    expect(text).to.contain('Do not treat service names as raw paths');
+    expect(text).to.contain('Do not treat names as raw paths');
     expect(text).to.contain(
-      'If a requested service name is invalid, stop and ask for a valid name',
+      'If a requested name is invalid, stop and ask for a valid name',
     );
     expect(text).to.contain('Speech acts');
     expect(text).to.contain('add an @sys/http static service for <view>');
@@ -321,6 +322,9 @@ describe('FmtHelp', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
 function renderedSections(text: string, sections: readonly { readonly label: string }[]) {
   return sections.map((section, index, all) => {
     const end = all[index + 1]?.label;

@@ -37,7 +37,7 @@ export declare namespace CellCli {
   }
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Init.Result | Start.Result | Error;
+  export type Result = Help | Init.Result | Action.Result | Start.Result | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -77,6 +77,25 @@ export declare namespace CellCli {
       readonly reason?: string;
       /** True when operation was previewed only. */
       readonly dryRun?: boolean;
+    };
+  }
+
+  /** Types for the `action` command. */
+  export namespace Action {
+    /** Successful finite Cell action result. */
+    export type Result = {
+      /** Result discriminant. */
+      readonly kind: 'action';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered action output. */
+      readonly text: string;
+      /** Loaded Cell root. */
+      readonly root: string;
+      /** Root action name that was run. */
+      readonly action: string;
+      /** Number of leaf steps executed. */
+      readonly steps: number;
     };
   }
 

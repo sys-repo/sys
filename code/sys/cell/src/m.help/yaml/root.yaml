@@ -3,19 +3,22 @@ summary: |
   carry DSL-shaped meaning that can be interpreted, viewed,
   and validly rewritten within the folder that bounds it.
   Run `dsl` first before changing Cell config, owner configs,
-  services, or routes.
+  actions, services, or routes.
 
 usage:
   - deno run -ER   jsr:@sys/cell --help
   - deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
   - deno run -ERW  jsr:@sys/cell init [dir]
+  - deno run -ERWN jsr:@sys/cell action <name> [dir]
   - deno run -ERWN jsr:@sys/cell start [dir]
 
 commands:
   - name: dsl
-    text: run first — maps Cell acts, owner rules, services, and chapters
+    text: run first — maps Cell acts, owner rules, actions, services, and chapters
   - name: init
     text: initialize a folder as a Cell
+  - name: action
+    text: run a named trusted action from actions[]
   - name: start
     text: start the Cell runtime
 

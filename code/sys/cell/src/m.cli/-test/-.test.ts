@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
 import { CellHelp } from '../../m.help/mod.ts';
 import { stripAnsi } from '../common.ts';
@@ -24,7 +24,9 @@ describe(`@sys/cell/cli`, () => {
       expect(text).to.contain(detail);
     });
     expect(text).to.contain('Run `dsl` first before changing Cell config');
-    expect(text).to.contain('run first — maps Cell acts, owner rules, services, and chapters');
+    expect(text).to.contain(
+      'run first — maps Cell acts, owner rules, actions, services, and chapters',
+    );
     expect(text.indexOf('jsr:@sys/cell dsl')).to.be.lessThan(
       text.indexOf('jsr:@sys/cell init'),
     );
@@ -50,6 +52,21 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('--agent');
     expect(text).to.not.contain('folder-shaped metamedium');
     expect(text).to.not.contain('Writes');
+  });
+
+  it('action -h → shows resource-backed action help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['action', '-h'] }));
+    const text = stripAnsi(res.text);
+    const guidance = await CellHelp.Action.load();
+
+    expect(res.kind).to.eql('help');
+    expect(text).to.contain('@sys/cell action');
+    guidance.usage.forEach((line) => expect(text).to.contain(line));
+    guidance.action.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('Cell verifies actions declared in `actions[]`');
+    expect(text).to.contain('structured args');
+    expect(text).to.not.contain('--agent');
+    expect(text).to.not.contain('--dry-run');
   });
 
   it('start -h → shows resource-backed start help', async () => {
@@ -79,6 +96,9 @@ describe(`@sys/cell/cli`, () => {
     const init = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['init', '--format', 'skill'] }))).text,
     );
+    const action = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['action', '--format', 'skill'] }))).text,
+    );
     const start = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['start', '--format', 'skill'] }))).text,
     );
@@ -87,6 +107,8 @@ describe(`@sys/cell/cli`, () => {
     expect(root).to.contain('@sys/cell');
     expect(init).to.contain('Unexpected option for init: --format');
     expect(init).to.contain('@sys/cell init');
+    expect(action).to.contain('Unexpected option for action: --format');
+    expect(action).to.contain('@sys/cell action');
     expect(start).to.contain('Unexpected option for start: --format');
     expect(start).to.contain('@sys/cell start');
   });
@@ -143,6 +165,43 @@ describe(`@sys/cell/cli`, () => {
     expect(await read(descriptor)).to.eql(invalid);
   });
 
+  it('action → runs a named finite action', async () => {
+    resetActionEvents();
+    const fs = await Testing.dir('CellCli.action.run');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        actions:
+          - name: capture
+            from: ./-actions/capture.ts
+            export: CaptureAction
+            config: ./-config/capture.yaml
+      `).trimStart(),
+    );
+    await Fs.write(Fs.join(fs.dir, '-config/capture.yaml'), `value: from-config\n`);
+    await Fs.write(Fs.join(fs.dir, '-actions/capture.ts'), actionSource('CaptureAction'));
+
+    const res = await silent(() => CellCli.run({ argv: ['action', 'capture', fs.dir] }));
+    const text = stripAnsi(res.text);
+    const event = actionEvents()[0];
+
+    expect(res.kind).to.eql('action');
+    if (res.kind !== 'action') throw new Error('expected action result');
+    expect(res.root).to.eql(fs.dir);
+    expect(res.action).to.eql('capture');
+    expect(res.steps).to.eql(1);
+    expect(text).to.contain(`root     ${fs.dir}`);
+    expect(text).to.contain('action   capture');
+    expect(text).to.contain('steps    1');
+    expect(text).to.contain('ok       capture');
+    expect(event.args.cwd).to.eql(fs.dir);
+    expect(event.args.config).to.eql({ value: 'from-config' });
+    expect(event.args.paths.config).to.eql(Fs.join(fs.dir, '-config/capture.yaml'));
+  });
+
   it('start → loads and starts an empty Cell runtime', async () => {
     const fs = await Testing.dir('CellCli.start.empty-runtime');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
@@ -156,6 +215,25 @@ describe(`@sys/cell/cli`, () => {
     expect(res.services).to.eql(0);
     expect(text).to.contain(`root       ${fs.dir}`);
     expect(text).to.contain('services   0');
+  });
+
+  it('action → rejects missing names, unsupported options, and extra args', async () => {
+    const missing = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['action'] }))).text,
+    );
+    const help = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['action', '--dry-run'] }))).text,
+    );
+    const extra = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['action', 'capture', '.', 'extra'] }))).text,
+    );
+
+    expect(missing).to.contain('Missing action name.');
+    expect(missing).to.contain('@sys/cell action');
+    expect(help).to.contain('Unexpected option for action: --dry-run');
+    expect(help).to.contain('@sys/cell action');
+    expect(extra).to.contain('Unexpected argument: extra');
+    expect(extra).to.contain('@sys/cell action');
   });
 
   it('start → rejects unsupported command options and extra args', async () => {
@@ -172,6 +250,40 @@ describe(`@sys/cell/cli`, () => {
     expect(extra).to.contain('@sys/cell start');
   });
 });
+
+/**
+ * Helpers:
+ */
+type ActionEvent = {
+  readonly args: {
+    readonly cwd: string;
+    readonly config?: Record<string, unknown>;
+    readonly paths: { readonly config?: string };
+  };
+};
+
+type ActionGlobal = typeof globalThis & { __cellCliActionEvents?: ActionEvent[] };
+
+function resetActionEvents() {
+  (globalThis as ActionGlobal).__cellCliActionEvents = [];
+}
+
+function actionEvents(): readonly ActionEvent[] {
+  return (globalThis as ActionGlobal).__cellCliActionEvents ?? [];
+}
+
+function actionSource(exportName: string) {
+  return Str.dedent(`
+    export const ${exportName} = {
+      run(args: unknown) {
+        const g = globalThis as unknown as { __cellCliActionEvents?: unknown[] };
+        g.__cellCliActionEvents ??= [];
+        g.__cellCliActionEvents.push({ args });
+        return { ok: true };
+      },
+    };
+  `).trimStart();
+}
 
 async function silent<T>(fn: () => Promise<T>) {
   const info = console.info;

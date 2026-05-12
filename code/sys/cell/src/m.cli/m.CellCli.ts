@@ -84,6 +84,35 @@ export const CellCli: t.CellCli.Lib = {
       }
     }
 
+    if (command === 'action') {
+      const actionHelp = await FmtHelp.actionOutput();
+      if (args.format !== undefined) {
+        return fail({ argv }, 'Unexpected option for action: --format', actionHelp);
+      }
+      if (args.help) {
+        print(actionHelp);
+        return { kind: 'help', input: { argv }, text: actionHelp };
+      }
+      if (args.agent || args.dryRun) {
+        const flag = args.agent ? '--agent' : '--dry-run';
+        return fail({ argv }, `Unexpected option for action: ${flag}`, actionHelp);
+      }
+      if (args._.length < 2) return fail({ argv }, 'Missing action name.', actionHelp);
+      if (args._.length > 3) return fail({ argv }, `Unexpected argument: ${args._[3]}`, actionHelp);
+
+      try {
+        const { runCellAction, toActionResult } = await import('./u.action.ts');
+        const res = toActionResult(
+          { argv },
+          await runCellAction({ name: args._[1] as t.Cell.Id, dir: args._[2] }),
+        );
+        print(res.text);
+        return res;
+      } catch (error) {
+        return fail({ argv }, Err.summary(error));
+      }
+    }
+
     if (command === 'start') {
       const startHelp = await FmtHelp.startOutput();
       if (args.format !== undefined) {
@@ -113,6 +142,9 @@ export const CellCli: t.CellCli.Lib = {
   },
 };
 
+/**
+ * Helpers:
+ */
 type DslFormatResult =
   | { readonly ok: true; readonly value: t.CellCli.Dsl.Format }
   | { readonly ok: false; readonly message: string };
