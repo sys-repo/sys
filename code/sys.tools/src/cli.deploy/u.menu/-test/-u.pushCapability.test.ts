@@ -13,16 +13,14 @@ describe('Deploy: pushCapabilityOf', () => {
         Fs.join(tmp, yamlPath),
         Str.dedent(`
         provider:
-          kind: deno
-          app: my-app
+          kind: orbiter
+          siteId: site-1
+          domain: example.com
         source:
           dir: .
         staging:
-          dir: ${tmp}/stage
-        mapping:
-          dir:
-            source: ./pkg
-            staging: .
+          dir: ./stage
+        mappings: []
         `),
       );
 

@@ -3,7 +3,6 @@ import { c, Cli, Is, Path, Pkg, Str, type t, Time, Url } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
 import { loadStagePlan } from './u.stage.ts';
 
-import { runDenoStagingWithSpinner } from './u.menu/run.denoStagingWithSpinner.ts';
 import { runPushWithSpinner } from './u.menu/run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './u.menu/run.stagingWithSpinner.ts';
 import { checkUpToDate } from './u.menu/u/u.checkUpToDate.ts';
@@ -183,11 +182,6 @@ async function runStageAction(args: {
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const loaded = await loadStagePlan({ cwd: args.cwd, config: args.yamlPath });
   if (!loaded.ok) return { ok: false, stageOk: false, error: loaded.error };
-
-  if (loaded.plan.kind === 'deno') {
-    const res = await runDenoStagingWithSpinner(loaded.plan);
-    return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
-  }
 
   const res = await runStagingWithSpinner(loaded.plan);
   return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };

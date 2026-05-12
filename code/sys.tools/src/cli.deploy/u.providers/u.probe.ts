@@ -39,10 +39,6 @@ export async function probe(
       return done({ ok: false, reason: res.reason, hint: res.hint, error: res.error });
     }
 
-    case 'deno': {
-      return done({ ok: true });
-    }
-
     case 'noop': {
       // No-op provider is always "available"
       return done({ ok: true });

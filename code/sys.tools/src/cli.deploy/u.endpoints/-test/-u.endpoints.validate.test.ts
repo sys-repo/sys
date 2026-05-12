@@ -64,41 +64,14 @@ describe('Endpoints: validateEndpointYamlText', () => {
     }
   });
 
-  it('valid YAML with deno provider and singular mapping → ok:true', () => {
+  it('deno provider YAML → ok:false', () => {
     const yaml = Str.dedent(`
       staging:
         dir: ./staging
       provider:
         kind: deno
         app: my-app
-      mapping:
-        dir:
-          source: ./pkg
-          staging: .
-    `);
-
-    const res = validateEndpointYamlText(yaml);
-    expect(res.ok).to.eql(true);
-
-    if (res.ok) {
-      expect(res.doc.provider?.kind).to.eql('deno');
-      expect(res.doc.mapping).to.eql({ dir: { source: './pkg', staging: '.' } });
-      expect(res.doc.mappings).to.eql(undefined);
-    }
-  });
-
-  it('deno YAML carrying orbiter mappings → ok:false', () => {
-    const yaml = Str.dedent(`
-      staging:
-        dir: ./staging
-      provider:
-        kind: deno
-        app: my-app
-      mappings:
-        - mode: index
-          dir:
-            source: ./pkg
-            staging: .
+      mappings: []
     `);
 
     const res = validateEndpointYamlText(yaml);

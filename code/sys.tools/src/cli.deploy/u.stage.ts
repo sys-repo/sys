@@ -1,7 +1,6 @@
 import { Err, Fs, Is, Path, Str, type t } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
 import { resolveBases } from './u.endpoints/u.resolve.ts';
-import { DenoProvider } from './u.providers/mod.ts';
 import {
   resolveMappingsForStaging,
   stageMappings,
@@ -15,12 +14,10 @@ type StagePlanBase = {
   readonly stagingRoot: t.StringDir;
 };
 
-export type StagePlan =
-  | (StagePlanBase & { readonly kind: 'deno' })
-  | (StagePlanBase & {
-    readonly kind: 'mappings';
-    readonly stage: StageMappingsArgs;
-  });
+export type StagePlan = StagePlanBase & {
+  readonly kind: 'mappings';
+  readonly stage: StageMappingsArgs;
+};
 
 export type StagePlanLoadResult =
   | { readonly ok: true; readonly plan: StagePlan }
@@ -58,10 +55,6 @@ export async function loadStagePlan(args: {
   const yaml = check.doc;
   const bases = resolveBases(cwd, yaml);
   const stagingRoot = bases.stagingBaseAbs as t.StringDir;
-
-  if (yaml.provider?.kind === 'deno') {
-    return { ok: true, plan: { kind: 'deno', cwd, config, yaml, stagingRoot } };
-  }
 
   const resolved = await resolveMappingsForStaging({
     cwd,
@@ -104,12 +97,6 @@ export async function stagePlan(
   options: { readonly onProgress?: StageMappingsArgs['onProgress'] } = {},
 ): Promise<t.DeployTool.StageOperation.Result> {
   try {
-    if (plan.kind === 'deno') {
-      const res = await DenoProvider.stage({ cwd: plan.cwd, yaml: plan.yaml });
-      if (!res.ok) return stageFailed(plan, res.error);
-      return stageOk(plan, res.stagingRoot);
-    }
-
     const stage = options.onProgress
       ? { ...plan.stage, onProgress: options.onProgress }
       : plan.stage;

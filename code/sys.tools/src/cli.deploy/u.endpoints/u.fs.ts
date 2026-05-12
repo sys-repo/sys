@@ -198,14 +198,8 @@ function mappingChecksOf(
   doc: t.DeployTool.Config.EndpointYaml.Doc,
 ): readonly {
   readonly label: string;
-  readonly mapping:
-    | t.DeployTool.Config.EndpointYaml.Mapping
-    | t.DeployTool.Config.EndpointYaml.DenoMapping;
+  readonly mapping: t.DeployTool.Config.EndpointYaml.Mapping;
 }[] {
-  if (doc.provider?.kind === 'deno') {
-    return doc.mapping ? [{ label: 'mapping', mapping: doc.mapping }] : [];
-  }
-
   return (doc.mappings ?? []).map((mapping, index) => ({
     label: `mappings[${index}]`,
     mapping,
@@ -213,7 +207,7 @@ function mappingChecksOf(
 }
 
 function resolveShardConfig(
-  mapping: t.DeployTool.Config.EndpointYaml.Mapping | t.DeployTool.Config.EndpointYaml.DenoMapping,
+  mapping: t.DeployTool.Config.EndpointYaml.Mapping,
   providerShards: t.OrbiterProvider['shards'] | undefined,
 ): { readonly total?: number; readonly requireAll?: boolean } {
   if ('shards' in mapping && Is.num(mapping.shards?.total)) {

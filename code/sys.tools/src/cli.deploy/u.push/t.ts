@@ -32,17 +32,6 @@ export type OrbiterPushTarget = {
   readonly domain?: string;
 };
 
-/**
- * Caller-owned staged Deno artifact root selected for a later prepare/deploy flow.
- */
-export type DenoPushTarget = {
-  readonly provider: t.DeployTool.Config.Provider.Deno;
-  readonly sourceDir: t.StringDir;
-  readonly stagingDir: t.StringDir;
-  readonly shard?: number;
-  readonly domain?: string;
-};
-
 export type NoopPushTarget = {
   readonly provider: t.DeployTool.Config.Provider.Noop;
   readonly sourceDir: t.StringDir;
@@ -51,7 +40,7 @@ export type NoopPushTarget = {
   readonly domain?: string;
 };
 
-export type PushTarget = OrbiterPushTarget | DenoPushTarget | NoopPushTarget;
+export type PushTarget = OrbiterPushTarget | NoopPushTarget;
 
 export type PushPlanStats = {
   readonly total: number;

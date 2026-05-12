@@ -1,5 +1,5 @@
 import { type t, Schema } from '../common.ts';
-import { DenoProvider, NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
+import { NoopProvider, OrbiterProvider } from '../u.providers/mod.ts';
 import { EndpointSchemaParts } from './u.schema.parts.ts';
 
 const GenericDocSchema = Schema.Type.Object(
@@ -64,6 +64,5 @@ export const EndpointYamlSchema = {
     GenericDocSchema,
     OrbiterProvider.EndpointSchema.doc,
     NoopProvider.EndpointSchema.doc,
-    DenoProvider.EndpointSchema.doc,
   ]),
 } as const;

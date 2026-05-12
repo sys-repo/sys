@@ -11,14 +11,13 @@ describe('EndpointsFs', () => {
     expect(EndpointsFs.fileOf('alpha')).to.eql(`${EndpointsFs.dir}/alpha.yaml`);
   });
 
-  it('initialYaml: contains mappings: []', () => {
+  it('initialYaml: contains the supported staged mapping scaffold', () => {
     const yaml = EndpointsFs.initialYaml();
     expect(yaml.includes('mappings: []')).to.eql(true);
-    expect(yaml.includes('# mapping:')).to.eql(true);
     expect(yaml.includes('# deploy endpoint: alpha')).to.eql(false);
     expect(yaml.includes('siteId: SITE_ID_HERE')).to.eql(true);
-    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(true);
-    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(true);
+    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(false);
+    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(false);
     expect(yaml.includes('source: ./my-public')).to.eql(true);
   });
 
@@ -136,32 +135,6 @@ describe('EndpointsFs', () => {
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
 
-      expect(res.ok).to.eql(true);
-    });
-  });
-
-  it('validateYaml: deno singular mapping source exists relative to tool cwd → ok:true', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('deno')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.ensureDir(`${tmp}/code/apps/foo`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: deno
-          app: my-app
-        source:
-          dir: .
-        staging:
-          dir: ./stage
-        mapping:
-          dir:
-            source: ./code/apps/foo
-            staging: .
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
       expect(res.ok).to.eql(true);
     });
   });

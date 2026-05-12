@@ -17,13 +17,6 @@ describe('Provider: probe', () => {
     }
   });
 
-  it('treats deno as available once runtime wiring exists', async () => {
-    const cwd = (await Fs.makeTempDir()).absolute;
-    const res = await Provider.probe(cwd, { kind: 'deno', app: 'my-app' });
-
-    expect(res.ok).to.eql(true);
-  });
-
   it('treats noop as available', async () => {
     const cwd = (await Fs.makeTempDir()).absolute;
     const res = await Provider.probe(cwd, { kind: 'noop' });

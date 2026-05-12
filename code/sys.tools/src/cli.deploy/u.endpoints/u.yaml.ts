@@ -11,25 +11,12 @@ export function initialYaml(): string {
       # - provider     → publish target
       # - source.dir   → optional source base
       # - staging.dir  → local staging root
-      # - mappings     → orbiter/shared staged filesystem layout
-      # - mapping      → singular deno package target
+      # - mappings     → staged filesystem layout
 
       # provider:
       #   kind: orbiter
       #   siteId: SITE_ID_HERE
       #   domain: foo
-
-      # provider:
-      #   kind: deno
-      #   app: APP_NAME_HERE
-      #   org: ORG_NAME_HERE
-      #   tokenEnv: TOKEN_ENV_HERE
-      #   verifyPreview: true
-      #
-      # mapping:
-      #   dir:
-      #     source: ./my-app
-      #     staging: .
 
       # source:
       #   dir: .
