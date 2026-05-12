@@ -5,13 +5,14 @@
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';
 import { resolve } from './u.resolve.ts';
+import { run } from './u.run.ts';
 import { runWithRootUpdateAdvisory } from '../u.root/u.updateAdvisory.ts';
 
 export { cli };
 export type * from './t.ts';
 
 /** Public Pull helper API. */
-export const Pull: t.PullTool.Lib = { resolve };
+export const Pull: t.PullTool.Lib = { resolve, run };
 
 /**
  * CLI entry-point:

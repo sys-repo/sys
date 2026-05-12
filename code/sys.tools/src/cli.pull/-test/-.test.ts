@@ -6,6 +6,7 @@ describe('tool: Pull', () => {
   it('API', async () => {
     const m = await import('@sys/tools/pull');
     expect(m.Pull).to.equal(Pull);
+    expect(m.Pull.run).to.equal(Pull.run);
   });
 
   it('exposes canonical tool metadata', () => {

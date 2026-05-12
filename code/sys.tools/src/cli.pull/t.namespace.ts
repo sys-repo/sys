@@ -50,6 +50,27 @@ export namespace PullTool {
   export type Lib = {
     /** Resolve pull config materialization targets without pulling remote data. */
     resolve(config: t.StringPath): Promise<ConfigYaml.Resolved>;
+
+    /** Pull configured remote bundles from owner YAML. */
+    run(args: RunArgs): Promise<RunResult>;
+  };
+
+  export type RunArgs = {
+    readonly cwd?: t.StringDir;
+    readonly config: t.StringPath;
+  };
+
+  export type RunBundleResult = {
+    readonly bundle: ConfigYaml.Bundle;
+    readonly data: t.PullToolBundleResult;
+  };
+
+  export type RunResult = {
+    readonly ok: true;
+    readonly config: t.StringPath;
+    readonly cwd: t.StringDir;
+    readonly dir: t.StringDir;
+    readonly bundles: readonly RunBundleResult[];
   };
 
   export namespace ConfigYaml {

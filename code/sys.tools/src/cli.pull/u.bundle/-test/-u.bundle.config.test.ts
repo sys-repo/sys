@@ -1,6 +1,6 @@
-import { describe, expect, it, Fs, Str } from '../../../-test.ts';
+import { describe, expect, Fs, it, Str } from '../../../-test.ts';
 import { type t } from '../../common.ts';
-import { executeBundlePull } from '../u.bundle.ts';
+import { pullBundleWithSummary } from '../u.bundle.ts';
 
 describe('cli.pull/u.bundle → config stability', () => {
   it('successful pull does not write recency metadata into source config', async () => {
@@ -27,7 +27,7 @@ describe('cli.pull/u.bundle → config stability', () => {
           bundles: [bundle],
         };
 
-        const result = await executeBundlePull(yamlPath, location, bundle);
+        const result = await pullBundleWithSummary(yamlPath, location, bundle);
         expect(result.ok).to.eql(true);
 
         const after = await Fs.readText(yamlPath);

@@ -1,7 +1,7 @@
 import { c, D, done, Fs, Is, type t } from './common.ts';
 import { runAdd } from './u.add.run.ts';
 import { parseArgs } from './u.args.ts';
-import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
+import { pullBundle, pullBundleWithSummary } from './u.bundle/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
 import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
@@ -85,7 +85,7 @@ async function runNonInteractive(
   }
 
   for (const bundle of bundles) {
-    const result = await executeBundlePull(resolved.yamlPath, resolved.location, bundle);
+    const result = await pullBundleWithSummary(resolved.yamlPath, resolved.location, bundle);
     if (!result.ok) {
       console.info(Fmt.pullError(result.error));
       return done(1);

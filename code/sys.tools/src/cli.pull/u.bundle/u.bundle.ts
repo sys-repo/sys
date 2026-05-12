@@ -11,7 +11,11 @@ type PullResult =
   | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.Bundle };
 
 type ExecuteBundlePullResult =
-  | { readonly ok: true; readonly bundle: t.PullTool.ConfigYaml.Bundle }
+  | {
+    readonly ok: true;
+    readonly bundle: t.PullTool.ConfigYaml.Bundle;
+    readonly data: t.PullToolBundleResult;
+  }
   | { readonly ok: false; readonly error: string };
 
 const Fmt = {
@@ -192,7 +196,7 @@ export async function pullBundle(
     const index = Number(A.slice(PULL_PREFIX.length));
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-    const pulled = await executeBundlePull(yamlPath, location, bundle);
+    const pulled = await pullBundleWithSummary(yamlPath, location, bundle);
     if (!pulled.ok) {
       console.info(Fmt.pullError(pulled.error));
       return pullBundle(_cwd, yamlPath, location);
@@ -204,20 +208,27 @@ export async function pullBundle(
   return done();
 }
 
-export async function executeBundlePull(
+export async function pullBundleWithSummary(
   _yamlPath: t.StringPath,
+  location: t.PullTool.ConfigYaml.Location,
+  bundle: t.PullTool.ConfigYaml.Bundle,
+): Promise<ExecuteBundlePullResult> {
+  const pulled = await pullConfiguredBundle(location, bundle);
+  if (!pulled.ok) return pulled;
+
+  console.info(Fmt.pullSummary({ bundle: pulled.bundle, data: pulled.data }));
+
+  return pulled;
+}
+
+export async function pullConfiguredBundle(
   location: t.PullTool.ConfigYaml.Location,
   bundle: t.PullTool.ConfigYaml.Bundle,
 ): Promise<ExecuteBundlePullResult> {
   const effectiveBundle = resolveBundleForPull(bundle, location.defaults);
   const pulled = await pullRemoteBundle(location.dir, effectiveBundle);
-  if (!pulled.ok) {
-    return { ok: false, error: pulled.error };
-  }
-
-  console.info(Fmt.pullSummary({ bundle: effectiveBundle, data: pulled.data }));
-
-  return { ok: true, bundle: effectiveBundle };
+  if (!pulled.ok) return { ok: false, error: pulled.error };
+  return { ok: true, bundle: effectiveBundle, data: pulled.data };
 }
 
 /**
