@@ -59,16 +59,20 @@ export const PiSandboxFmt = {
       pushWriteRows(table, root, input.write, contentBudget, marker);
     }
 
-    const frameColor = input.permissions === 'allow-all' ? 'yellow' : 'gray';
     const title = formatTitle(input.permissions, renderWidth);
+    const topHr = input.permissions === 'allow-all'
+      ? Cli.Fmt.hr(renderWidth, 'yellow')
+      : Cli.Fmt.hr(renderWidth, 'cyan');
+    const bodyHr = input.permissions === 'allow-all'
+      ? Cli.Fmt.hr(renderWidth, 'yellow')
+      : c.dim(Cli.Fmt.hr(renderWidth, 'gray'));
 
-    const hr = Cli.Fmt.hr(renderWidth, frameColor);
     return Str.builder()
-      .line(hr)
+      .line(topHr)
       .line(title)
-      .line(hr)
+      .line(bodyHr)
       .line(Str.trimEdgeNewlines(String(table)))
-      .line(hr)
+      .line(bodyHr)
       .toString();
   },
 } as const;
@@ -76,7 +80,7 @@ export const PiSandboxFmt = {
 function formatTitle(permissions: t.PiCli.PermissionMode, width: number) {
   const label = permissions === 'allow-all'
     ? c.bold(c.yellow('system:pi:no-sandbox'))
-    : c.bold(c.gray('system:pi:sandbox'));
+    : c.bold(c.cyan('system:pi:sandbox'));
   const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
   const left = [label, flag].filter((part) => part.length > 0).join(' ');
   const leftWidth = visibleWidth(left);

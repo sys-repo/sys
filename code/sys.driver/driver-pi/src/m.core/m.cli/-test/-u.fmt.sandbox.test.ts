@@ -8,19 +8,22 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
-  it('table → keeps scoped sandbox chrome gray so content colors carry meaning', () => {
+  it('table → renders scoped sandbox title cyan with dim gray body rules', () => {
     const width = 80;
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
     }, { width });
+    const output = lines(raw);
 
-    expect(lines(raw)[0]).to.eql(Cli.Fmt.hr(width - 1, 'gray'));
-    expect(raw).to.contain(c.gray('system:pi:sandbox'));
+    expect(output[0]).to.eql(Cli.Fmt.hr(width - 1, 'cyan'));
+    expect(output[2]).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(output.at(-1)).to.eql(c.dim(Cli.Fmt.hr(width - 1, 'gray')));
+    expect(raw).to.contain(c.cyan('system:pi:sandbox'));
     expect(raw).to.contain(c.gray('read, write, edit, bash'));
     expect(raw).to.contain(c.dim(c.cyan(' (--git-root)')));
     expect(raw).not.to.contain(c.dim(c.gray('read, write, edit, bash')));
-    expect(raw).not.to.contain(c.cyan('system:pi:sandbox'));
+    expect(raw).not.to.contain(c.gray('system:pi:sandbox'));
   });
 
   it('table → brightens the git-root marker only when --git-root was explicit', () => {
