@@ -14,7 +14,7 @@
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "start": "deno task sample:stripe",
     "sample:stripe": "deno run -P=sample ./-scripts/task.sample.ts",
-    "sample:deploy": "deno run -P=sample ./-scripts/task.sample.deploy.ts",
+    "sample:deploy": "deno run -P=sample @sys/cell action sample:deploy ./-sample/cell.deploy",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -39,8 +39,7 @@
       "read": true,
       "write": true,
       "env": true,
-      "net": true,
-      "run": true
+      "net": true
     },
     "test": {
       "read": true,
@@ -50,4 +49,3 @@
     }
   }
 }
-
