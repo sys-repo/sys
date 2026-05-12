@@ -1,12 +1,13 @@
 import { startServing } from './m.server/mod.ts';
 
-import { type t, c, D, done, Fs, Is, Open } from './common.ts';
+import { c, D, done, Err, Fs, Is, Open, type t } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { parseArgs } from './u.args.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
 import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
-import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
+import { loadStartTarget } from './u.startTarget.ts';
+import { ServeMigrate } from './u.yaml/mod.ts';
 
 /**
  * Main entry:
@@ -21,7 +22,9 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   await ServeMigrate.run(cwd);
 
   /* Run */
-  const res = args.interactive ? await runInteractiveWithShell(cwd, args, toolname) : await runNonInteractive(cwd, args);
+  const res = args.interactive
+    ? await runInteractiveWithShell(cwd, args, toolname)
+    : await runNonInteractive(cwd, args);
 
   /* Exit */
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -42,23 +45,20 @@ async function runInteractiveWithShell(
   return res;
 }
 
-async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
+async function runInteractive(
+  cwd: t.StringDir,
+  args: t.ServeTool.CliParsedArgs,
+): Promise<t.RunReturn> {
   const port = Is.num(args.port) ? args.port : D.port;
 
   while (true) {
     const picked = await serveLocationsMenu(cwd);
     if (picked.kind === 'exit') return done();
 
-    const yamlPath = Fs.join(cwd, ServeFs.fileOf(picked.key));
-    const loaded = await ServeFs.loadLocation(yamlPath);
+    const target = await loadPickedTarget(cwd, picked.key);
+    if (!target) continue;
 
-    if (!loaded.ok) {
-      console.info(c.yellow(`Could not load server configuration`));
-      console.info(c.gray(`location: ${picked.key}`));
-      continue;
-    }
-
-    const location = loaded.location;
+    const location = target.location;
     if (Fs.cwd() !== location.dir) {
       console.info(c.gray(`directory: ${location.dir}`));
     }
@@ -67,7 +67,7 @@ async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs)
       const res = await serveLocationMenu({ location, port });
       if (res.kind === 'back') break;
       if (res.kind === 'remove') {
-        await promptRemoveLocation(yamlPath);
+        if (target.config) await promptRemoveLocation(target.config);
         return done(0);
       }
       if (res.kind === 'start') {
@@ -79,7 +79,10 @@ async function runInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs)
   }
 }
 
-async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedArgs): Promise<t.RunReturn> {
+async function runNonInteractive(
+  cwd: t.StringDir,
+  args: t.ServeTool.CliParsedArgs,
+): Promise<t.RunReturn> {
   const resolved = await resolveNonInteractive(cwd, args);
   const { startServer } = await import('./m.server/mod.ts');
   const context = await startServer(resolved.location, {
@@ -92,6 +95,20 @@ async function runNonInteractive(cwd: t.StringDir, args: t.ServeTool.CliParsedAr
 
   await context.server.finished;
   return done(0);
+}
+
+async function loadPickedTarget(
+  cwd: t.StringDir,
+  profile: string,
+): Promise<t.ServeTool.StartTarget | undefined> {
+  try {
+    return await loadStartTarget(cwd, { profile }, '@sys/tools/serve');
+  } catch (error) {
+    console.info(c.yellow(`Could not load server configuration`));
+    console.info(c.gray(`location: ${profile}`));
+    console.info(c.gray(Err.summary(error, { cause: true, stack: false })));
+    return undefined;
+  }
 }
 
 /**

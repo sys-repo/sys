@@ -1,18 +1,15 @@
-import { Err, Fs, Is, type t } from './common.ts';
+import { Err, Fs, type t } from './common.ts';
 import { startServer } from './m.server/u.startServer.ts';
 import { resolveServeHost, resolveServePort } from './u.startOptions.ts';
-import { ServeFs } from './u.yaml/mod.ts';
+import { loadStartTarget } from './u.startTarget.ts';
 
-/** Start a static serve location from owner YAML. */
+/** Start a static serve target from a directory, config path, or named profile. */
 export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.StartResult> {
   const cwd = args.cwd ?? Fs.cwd('terminal');
-  const config = Fs.resolve(cwd, args.config) as t.StringPath;
-  const loaded = await ServeFs.loadLocation(config);
-  if (!loaded.ok) throw loadError(config, loaded);
-
+  const target = await loadStartTarget(cwd, args, 'Serve.start');
   const host = resolveServeHost(args.host, 'Serve.start');
   const port = resolveServePort(args.port, 'Serve.start');
-  const context = await startContext({ config, location: loaded.location, host, port });
+  const context = await startContext({ target, host, port });
 
   let closed = false;
   let closePromise: Promise<void> | undefined;
@@ -42,8 +39,9 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
 
   return {
     ok: true,
-    cwd: loaded.cwd,
-    config,
+    cwd: target.cwd,
+    selector: target.selector,
+    config: target.config,
     location: context.location,
     host: context.host,
     hostname: context.hostname,
@@ -59,46 +57,27 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
  * Helpers:
  */
 async function startContext(args: {
-  config: t.StringPath;
-  location: t.ServeTool.LocationYaml.Location;
+  target: t.ServeTool.StartTarget;
   host: t.ServeTool.Host;
   port?: number;
 }) {
   try {
-    return await startServer(args.location, {
+    return await startServer(args.target.location, {
       host: args.host,
       port: args.port,
       silent: true,
       keyboard: false,
     });
   } catch (error) {
-    throw startError(args.config, error);
+    throw startError(args.target, error);
   }
 }
 
-function loadError(
-  config: t.StringPath,
-  loaded: Extract<t.ServeTool.LocationYaml.LoadResult, { readonly ok: false }>,
-): Error {
-  const details = errorMessagesOf(loaded.errors);
-  const suffix = details ? `\n${details}` : '';
-  return new Error(`Serve.start: failed to load config: ${Fs.trimCwd(config)}${suffix}`);
-}
-
-function startError(config: t.StringPath, error: unknown): Error {
+function startError(target: t.ServeTool.StartTarget, error: unknown): Error {
   const detail = Err.summary(error, { cause: true, stack: false });
   const suffix = detail ? `\n${detail}` : '';
-  return new Error(`Serve.start: failed to start config: ${Fs.trimCwd(config)}${suffix}`, {
+  const [kind, path] = target.config ? ['config', target.config] : ['dir', target.location.dir];
+  return new Error(`Serve.start: failed to start ${kind}: ${Fs.trimCwd(path)}${suffix}`, {
     cause: error,
   });
-}
-
-function errorMessagesOf(errors: readonly t.Schema.Error[]): string {
-  return errors
-    .map((error) => {
-      const message = (error as { readonly message?: unknown }).message;
-      return Is.str(message) ? message.trim() : '';
-    })
-    .filter((message) => message.length > 0)
-    .join('\n');
 }

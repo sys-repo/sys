@@ -15,6 +15,7 @@ export const Fmt = {
             `${cmd}`,
             `${cmd} --non-interactive --dir . [--host local|network] [--port 4040] [--open]`,
             `${cmd} --non-interactive --config ./my-config.yaml [--port 4040] [--open]`,
+            `${cmd} --non-interactive --profile view [--port 4040] [--open]`,
           ],
         },
         {
@@ -26,6 +27,7 @@ export const Fmt = {
             ['--non-interactive', 'disable prompts and require direct inputs'],
             ['--dir <path>', 'serve this directory directly'],
             ['--config <path>', 'load a saved serve config YAML'],
+            ['--profile <name>', 'load a named serve config profile'],
             ['--host <local|network>', 'bind 127.0.0.1 or 0.0.0.0'],
             ['--open', 'open the resolved URL after start'],
           ],
@@ -38,6 +40,7 @@ export const Fmt = {
             `${cmd} --non-interactive --dir . --port 4040`,
             `${cmd} --non-interactive --dir . --host network`,
             `${cmd} --non-interactive --config ./my-config.yaml --open`,
+            `${cmd} --non-interactive --profile view --open`,
           ],
         },
       ],

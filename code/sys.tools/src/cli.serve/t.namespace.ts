@@ -11,7 +11,7 @@ export namespace ServeTool {
 
   /** Public serve helper API. */
   export type Lib = {
-    /** Start a static serve location from owner YAML. */
+    /** Start a static serve target from a directory, config path, or named profile. */
     start(args: StartArgs): Promise<StartResult>;
   };
 
@@ -20,18 +20,61 @@ export namespace ServeTool {
   /** Concrete bind hostname derived from the host policy. */
   export type Hostname = '127.0.0.1' | '0.0.0.0';
 
-  export type StartArgs = {
+  export type StartArgs = StartArgsBase & StartSelectorArgs;
+
+  export type StartArgsBase = {
     cwd?: t.StringDir;
-    config: t.StringPath;
     host?: Host;
     /** Use `0` to let the runtime choose an available port. */
     port?: number;
   };
 
+  export type StartSelectorArgs = StartDirArgs | StartConfigArgs | StartProfileArgs;
+
+  export type StartDirArgs = {
+    /** Serve this directory directly, resolved relative to `cwd`. */
+    dir: t.StringDir;
+    config?: never;
+    profile?: never;
+  };
+
+  export type StartConfigArgs = {
+    /** Explicit serve YAML config path. */
+    config: t.StringPath;
+    dir?: never;
+    profile?: never;
+  };
+
+  export type StartProfileArgs = {
+    /** Bare serve config profile name under `-config/@sys.tools.serve`. */
+    profile: string;
+    dir?: never;
+    config?: never;
+  };
+
+  export type StartTargetInput = {
+    dir?: string;
+    config?: string;
+    profile?: string;
+  };
+
+  export type StartTargetSelector =
+    | { readonly kind: 'dir'; readonly input: string; readonly dir: t.StringDir }
+    | { readonly kind: 'config'; readonly config: t.StringPath }
+    | { readonly kind: 'profile'; readonly profile: string; readonly config: t.StringPath };
+
+  export type StartTarget = {
+    readonly cwd: t.StringDir;
+    readonly selector: StartTargetSelector;
+    readonly config?: t.StringPath;
+    readonly location: LocationYaml.Location;
+  };
+
   export type StartResult = {
     readonly ok: true;
     readonly cwd: t.StringDir;
-    readonly config: t.StringPath;
+    readonly selector: StartTargetSelector;
+    readonly config?: t.StringPath;
     readonly location: LocationYaml.Location;
     readonly host: Host;
     readonly hostname: Hostname;
@@ -82,6 +125,7 @@ export namespace ServeTool {
     port?: number;
     dir?: string;
     config?: string;
+    profile?: string;
     host?: Host;
     open?: boolean;
     'non-interactive'?: boolean;
