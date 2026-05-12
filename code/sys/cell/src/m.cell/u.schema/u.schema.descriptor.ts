@@ -15,6 +15,31 @@ const RuntimeService = T.Object(
   { additionalProperties: false },
 );
 
+const ActionLeaf = T.Object(
+  {
+    name: Id,
+    from: T.String({ minLength: 1 }),
+    export: T.String({ pattern: ExportNamePattern }),
+    config: T.Optional(CellPath),
+  },
+  { additionalProperties: false },
+);
+
+const ActionStep = T.Object(
+  { action: Id },
+  { additionalProperties: false },
+);
+
+const ActionComposite = T.Object(
+  {
+    name: Id,
+    steps: T.Array(ActionStep, { minItems: 1 }),
+  },
+  { additionalProperties: false },
+);
+
+const Action = T.Union([ActionLeaf, ActionComposite]);
+
 export const DescriptorSchema = T.Object(
   {
     kind: T.Literal('cell'),
@@ -25,6 +50,7 @@ export const DescriptorSchema = T.Object(
         { additionalProperties: false },
       ),
     ),
+    actions: T.Optional(T.Array(Action)),
   },
   { additionalProperties: false },
 );

@@ -32,7 +32,33 @@ export declare namespace Cell {
     kind: 'cell';
     version: 1;
     runtime?: Runtime.Descriptor;
+    actions?: Action.Descriptor[];
   };
+
+  /** Finite operator workflows declared by the Cell descriptor. */
+  export namespace Action {
+    /** Root action entry. Every root action is runnable by name. */
+    export type Descriptor = Leaf | Composite;
+
+    /** Trusted finite endpoint action. */
+    export type Leaf = {
+      name: Id;
+      from: string;
+      export: string;
+      config?: Path;
+    };
+
+    /** Composite action that sequences other root actions by reference. */
+    export type Composite = {
+      name: Id;
+      steps: Step[];
+    };
+
+    /** Ref-only composite step. */
+    export type Step = {
+      action: Id;
+    };
+  }
 
   /** Runtime services declared by the Cell descriptor. */
   export namespace Runtime {

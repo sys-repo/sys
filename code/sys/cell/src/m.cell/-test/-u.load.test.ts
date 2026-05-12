@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Str } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { catchLoad, sampleRoot, tempCell } from './u.fixture.ts';
 
@@ -27,6 +27,54 @@ describe('Cell.load', () => {
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
     expect(cell.descriptor.runtime).to.eql(undefined);
+  });
+
+  it('loads and validates descriptors with action composition', async () => {
+    const root = await tempCell(
+      'actions',
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        actions:
+          - name: pull:view
+            from: ./-actions/pull.view.ts
+            export: PullViewAction
+            config: ./-config/@sys.tools.pull/view.yaml
+
+          - name: deploy:stage
+            from: ./-actions/deploy.stage.ts
+            export: DeployStageAction
+            config: ./-config/@sys.tools.deploy/stage.yaml
+
+          - name: clean:tmp
+            from: ./-actions/clean.tmp.ts
+            export: CleanTmpAction
+
+          - name: sample:deploy
+            steps:
+              - action: pull:view
+              - action: deploy:stage
+      `).trimStart(),
+    );
+
+    const cell = await Cell.load(root);
+
+    expect(cell.descriptor.actions?.map((action) => action.name)).to.eql([
+      'pull:view',
+      'deploy:stage',
+      'clean:tmp',
+      'sample:deploy',
+    ]);
+    expect(cell.descriptor.actions?.[2]).to.eql({
+      name: 'clean:tmp',
+      from: './-actions/clean.tmp.ts',
+      export: 'CleanTmpAction',
+    });
+    expect(cell.descriptor.actions?.[3]).to.eql({
+      name: 'sample:deploy',
+      steps: [{ action: 'pull:view' }, { action: 'deploy:stage' }],
+    });
   });
 
   it('fails clearly when the descriptor is missing', async () => {
