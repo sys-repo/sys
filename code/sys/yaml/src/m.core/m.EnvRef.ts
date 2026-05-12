@@ -1,7 +1,7 @@
 import { Is, type t } from './common.ts';
 import { Error } from './m.Error.ts';
 import { YamlIs } from './m.Is.ts';
-import { walk } from './u.walk.ts';
+import { walk } from './u/u.walk.ts';
 
 const REF_PREFIX = '${env:';
 const WHOLE_REF = /^\$\{env:([^}]*)\}$/;

@@ -1,6 +1,6 @@
 import type * as Y from 'yaml';
 import { isMap, isSeq, isScalar } from 'yaml';
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export function deepGet(node: Y.Node | null | undefined, path: t.ObjectPath): unknown {
   let current: unknown = node;

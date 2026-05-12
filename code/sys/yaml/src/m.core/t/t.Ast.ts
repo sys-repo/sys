@@ -1,5 +1,5 @@
 import type * as Y from 'yaml';
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Parsed YAML Abstract Syntax Tree (AST).

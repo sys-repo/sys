@@ -1,6 +1,6 @@
 import type * as Y from 'yaml';
-import { type t } from './common.ts';
-import { YamlIs } from './m.Is.ts';
+import { type t } from '../common.ts';
+import { YamlIs } from '../m.Is.ts';
 
 export const walk: t.YamlAstWalk = (doc, fn) => {
   let stopped = false;

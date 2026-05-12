@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { deepGet } from './u.path.get.ts';
 import { deepSet } from './u.path.set.ts';
 

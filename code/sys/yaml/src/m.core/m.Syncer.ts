@@ -1,7 +1,7 @@
 import { YAMLError } from 'yaml';
 import { type t, Arr, Immutable, Is, Obj, Rx } from './common.ts';
-import { parseAst } from './u.parse.ts';
-import { toJS } from './u.toJS.ts';
+import { parseAst } from './u/u.parse.ts';
+import { toJS } from './u/u.toJS.ts';
 
 type S = t.YamlLib['syncer'];
 type O = Record<string, unknown>;

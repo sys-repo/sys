@@ -1,5 +1,5 @@
 import type * as Y from 'yaml';
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 export type * from './t.Diagnostic.ts';
 export type * from './t.EnvRef.ts';

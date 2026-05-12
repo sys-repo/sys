@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 export * from './u.range.toLinePos.ts';
 
 export const normalize: t.YamlRangeLib['normalize'] = (r) => {

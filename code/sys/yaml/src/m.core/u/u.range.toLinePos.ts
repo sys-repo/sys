@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export const toLinePos: t.YamlRangeLib['toLinePos'] = (text, range): t.YamlLinePosPair => {
   // Normalize the incoming range: use first two numbers only.

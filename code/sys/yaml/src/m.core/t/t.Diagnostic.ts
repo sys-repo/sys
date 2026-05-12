@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Helpers for normalizing YAML parser errors into standard diagnostics.

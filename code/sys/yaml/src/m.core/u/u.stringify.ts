@@ -1,4 +1,4 @@
-import { type t, Err } from './common.ts';
+import { type t, Err } from '../common.ts';
 import { Document } from 'yaml';
 import { walk } from './u.walk.ts';
 

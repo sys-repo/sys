@@ -1,6 +1,6 @@
 import type * as Y from 'yaml';
 import { isMap, isScalar, isSeq } from 'yaml';
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 type NodeOrNull = Y.Node | null | undefined;
 type YAMLPair = Y.Pair<NodeOrNull, NodeOrNull>;

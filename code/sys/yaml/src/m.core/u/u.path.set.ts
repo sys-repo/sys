@@ -1,7 +1,7 @@
 import type { Node } from 'yaml';
 import { isMap, isScalar, isSeq, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import { deepGet } from './u.path.get.ts';
 
 /**

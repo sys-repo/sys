@@ -1,7 +1,7 @@
 import * as Y from 'yaml';
 
-import { type t, Is } from './common.ts';
-import { YamlIs } from './m.Is.ts';
+import { type t, Is } from '../common.ts';
+import { YamlIs } from '../m.Is.ts';
 
 export const toJS: t.YamlLib['toJS'] = (input) => {
   try {

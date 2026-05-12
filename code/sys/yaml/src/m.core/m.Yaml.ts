@@ -7,10 +7,10 @@ import { YamlIs as Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
 import { Range } from './m.Range.ts';
 import { Syncer } from './m.Syncer.ts';
-import { parse, parseAst } from './u.parse.ts';
-import { stringify } from './u.stringify.ts';
-import { toJS } from './u.toJS.ts';
-import { walk } from './u.walk.ts';
+import { parse, parseAst } from './u/u.parse.ts';
+import { stringify } from './u/u.stringify.ts';
+import { toJS } from './u/u.toJS.ts';
+import { walk } from './u/u.walk.ts';
 
 /**
  * Helpers for working with YAML.
