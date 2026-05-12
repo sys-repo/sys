@@ -1,17 +1,16 @@
 import { startServing } from '../cli.serve/m.server/mod.ts';
 import { c, Cli, Is, Path, Pkg, Str, type t, Time, Url } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
-import { DenoProvider } from './u.providers/mod.ts';
+import { loadStagePlan } from './u.stage.ts';
 
+import { runDenoStagingWithSpinner } from './u.menu/run.denoStagingWithSpinner.ts';
 import { runPushWithSpinner } from './u.menu/run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './u.menu/run.stagingWithSpinner.ts';
 import { checkUpToDate } from './u.menu/u/u.checkUpToDate.ts';
 import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
-import { resolveMappingsForStaging } from './u.menu/u/u.resolveMappingsForStaging.ts';
-import { resolveMissingStagingOutputs } from './u.menu/u/u.resolveMissingStagingOutputs.ts';
 import { resolveOrbiterPushTargets } from './u.menu/u/u.resolveOrbiterPushTargets.ts';
-import { resolvePushStagingDir } from './u.menu/u/u.resolvePushStagingDir.ts';
 import { resolvePushTargets } from './u.menu/u/u.resolvePushTargets.ts';
+import { resolveMissingStagingOutputs, resolveStagingRoot } from './u.staging/mod.ts';
 
 export async function runEndpointAction(args: {
   cwd: t.StringDir;
@@ -182,41 +181,18 @@ async function runStageAction(args: {
   cwd: t.StringDir;
   yamlPath: t.StringPath;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
-  const { cwd, yamlPath } = args;
-  const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
-  const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
-  if (!freshYaml) return { ok: false, stageOk: false };
+  const loaded = await loadStagePlan({ cwd: args.cwd, config: args.yamlPath });
+  if (!loaded.ok) return { ok: false, stageOk: false, error: loaded.error };
 
-  if (freshYaml.provider?.kind === 'deno') {
-    const res = await DenoProvider.stage({ cwd, yaml: freshYaml });
+  if (loaded.plan.kind === 'deno') {
+    const res = await runDenoStagingWithSpinner({
+      cwd: loaded.plan.cwd,
+      yaml: loaded.plan.yaml,
+    });
     return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
   }
 
-  const resolved = await resolveMappingsForStaging({
-    cwd,
-    yamlPath: displayYamlPath(cwd, yamlPath) as t.StringRelativeDir,
-    yaml: freshYaml,
-  });
-  if (!resolved.ok) return { ok: false, stageOk: false };
-
-  const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
-  const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
-  const clearStaging = freshYaml.staging?.clear === true;
-  const buildResetHtml = freshYaml.staging?.html?.buildReset === true;
-  const indexBaseDomain = freshYaml.provider?.kind === 'orbiter'
-    ? String(freshYaml.provider.domain ?? '').trim()
-    : undefined;
-
-  const res = await runStagingWithSpinner({
-    cwd,
-    mappings: resolved.mappings,
-    sourceRoot: sourceRootRel,
-    stagingRoot: stagingRootRel,
-    clear: clearStaging,
-    indexBaseDomain,
-    buildResetHtml,
-  });
-
+  const res = await runStagingWithSpinner(loaded.plan.stage);
   return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
 }
 
@@ -231,7 +207,7 @@ async function runServeAction(args: {
   if (!freshYaml) return { ok: false };
 
   const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
-  const freshStagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel: freshStagingRootRel });
+  const freshStagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel: freshStagingRootRel });
   const servePort = Is.num(freshYaml.staging?.serve?.port)
     ? freshYaml.staging.serve.port
     : undefined;
@@ -272,7 +248,7 @@ async function loadEndpointDist(
   const mapping = (yaml.mappings ?? []).find((m) => m.mode === 'build+copy') ??
     (yaml.mappings ?? [])[0];
   const stagingRootRel = String(yaml.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel });
+  const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
   const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
   const mappingStagingAbs = mappingStagingRel
     ? Path.resolve(stagingRootAbs, mappingStagingRel)

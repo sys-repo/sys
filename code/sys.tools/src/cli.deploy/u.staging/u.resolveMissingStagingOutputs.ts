@@ -1,20 +1,18 @@
-import { type t, Is, Path, Pkg } from './common.ts';
+import { Is, Path, Pkg, type t } from '../common.ts';
 import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
-import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
+import { resolveStagingRoot } from './u.resolveStagingRoot.ts';
 
-/**
- * Resolve mapping output names whose staging dirs do not have dist metadata yet.
- */
+/** Resolve mapping output names whose staging dirs do not have dist metadata yet. */
 export async function resolveMissingStagingOutputs(args: {
-  cwd: t.StringDir;
-  yamlPath: t.StringRelativeDir;
-  yaml: t.DeployTool.Config.EndpointYaml.Doc;
+  readonly cwd: t.StringDir;
+  readonly yamlPath: t.StringRelativeDir;
+  readonly yaml: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<readonly string[]> {
   const resolved = await resolveMappingsForStaging(args);
   if (!resolved.ok) return [];
 
   const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = resolvePushStagingDir({ cwd: args.cwd, stagingRootRel });
+  const stagingRootAbs = resolveStagingRoot({ cwd: args.cwd, stagingRootRel });
   const missing: string[] = [];
 
   for (const mapping of resolved.mappings) {

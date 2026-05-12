@@ -24,6 +24,34 @@ export namespace DeployTool {
     interactive: boolean;
   };
 
+  /** Public deploy helper API. */
+  export type Lib = {
+    /** Stage endpoint files from owner YAML. */
+    stage(args: StageArgs): Promise<StageResult>;
+  };
+
+  export type StageArgs = {
+    readonly cwd?: t.StringDir;
+    readonly config: t.StringPath;
+  };
+
+  export type StageResult = {
+    readonly ok: true;
+    readonly config: t.StringPath;
+    readonly cwd: t.StringDir;
+    readonly stagingRoot: t.StringDir;
+  };
+
+  export type StageOperationResult =
+    | StageResult
+    | {
+      readonly ok: false;
+      readonly config: t.StringPath;
+      readonly cwd: t.StringDir;
+      readonly stagingRoot?: t.StringDir;
+      readonly error?: unknown;
+    };
+
   export namespace Config {
     export type File = t.JsonFile<Doc>;
     export type Doc = t.JsonFileDoc & {

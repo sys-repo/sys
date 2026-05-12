@@ -1,12 +1,11 @@
-import { type t, pkg, c, Cli, Err, Path, Pkg, Str, Time } from '../common.ts';
-import { shouldExclude } from '../u.exclude.ts';
-import { executeStaging, finalizeDistTree, stagingConcurrencyDefault } from '../u.staging/mod.ts';
+import { c, Cli, Err, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { stageMappings } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 
 /**
- * Run executeStaging with a stable spinner UI.
+ * Run endpoint staging with a stable spinner UI.
  * Never throws unless you choose to rethrow based on ok:false.
  */
 export async function runStagingWithSpinner(args: {
@@ -54,28 +53,14 @@ export async function runStagingWithSpinner(args: {
 
   try {
     try {
-      await executeStaging({
+      const staged = await stageMappings({
         cwd,
         mappings,
         stagingRoot: args.stagingRoot,
         sourceRoot: args.sourceRoot,
         indexBaseDomain: args.indexBaseDomain,
         buildResetHtml: args.buildResetHtml,
-        concurrency: stagingConcurrencyDefault({ total }),
-        cleanStagingRoot: args.clear ?? false,
-        writeDistJson: true,
-
-        async onWriteDistJson(e) {
-          // Regenerate dist metadata for the entire staging tree.
-          await finalizeDistTree({
-            dir: e.stagingRoot,
-            pkg,
-            builder: pkg,
-            baseDomain: args.indexBaseDomain,
-            buildResetToken: e.buildResetToken,
-            filter: (path) => !shouldExclude(Path.basename(path)),
-          });
-        },
+        clear: args.clear,
 
         onProgress(e) {
           if (e.kind === 'mapping:start') {
@@ -101,17 +86,15 @@ export async function runStagingWithSpinner(args: {
           refresh();
         },
       });
+      const dist = (await Pkg.Dist.load(staged.stagingRoot)).dist;
+      const hash = String(dist?.hash?.digest ?? '').trim();
+      const suffix = hash ? Fmt.hashSuffix(hash) : '';
+      const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
+      spin.succeed(Fmt.spinnerText(status));
+      return { ok: true };
     } finally {
       globalThis.clearInterval(timer);
     }
-
-    const stageAbs = Path.resolve(cwd, args.stagingRoot);
-    const dist = (await Pkg.Dist.load(stageAbs)).dist;
-    const hash = String(dist?.hash?.digest ?? '').trim();
-    const suffix = hash ? Fmt.hashSuffix(hash) : '';
-    const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
-    spin.succeed(Fmt.spinnerText(status));
-    return { ok: true };
   } catch (error) {
     spin.fail(Fmt.spinnerText('Staging failed'));
     const detail = Err.summary(error, { cause: true, stack: false });

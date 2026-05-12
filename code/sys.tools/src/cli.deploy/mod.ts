@@ -2,10 +2,15 @@
  * @module
  * Deploy CLI tools.
  */
-import { Fs } from './common.ts';
+import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';
+import { stage } from './u.stage.ts';
 import { runWithRootUpdateAdvisory } from '../u.root/u.updateAdvisory.ts';
 export { cli };
+export type * from './t.ts';
+
+/** Public Deploy helper API. */
+export const Deploy: t.DeployTool.Lib = { stage };
 
 /**
  * CLI entry-point:

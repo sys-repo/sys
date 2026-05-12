@@ -1,6 +1,6 @@
-import { type t, describe, expect, Fs, it } from '../../../-test.ts';
-import { resolveMappingsForStaging } from '../u/u.resolveMappingsForStaging.ts';
+import { describe, expect, Fs, it, type t } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
+import { resolveMappingsForStaging } from '../u.resolveMappingsForStaging.ts';
 
 describe('Deploy: resolveMappingsForStaging', () => {
   it('expands shard templates when configured', async () => {

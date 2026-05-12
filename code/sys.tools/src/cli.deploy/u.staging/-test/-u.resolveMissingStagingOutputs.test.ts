@@ -1,6 +1,6 @@
-import { type t, describe, expect, Fs, it, Pkg } from '../../../-test.ts';
+import { describe, expect, Fs, it, Pkg, type t } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/-fixtures.ts';
-import { resolveMissingStagingOutputs } from '../u/u.resolveMissingStagingOutputs.ts';
+import { resolveMissingStagingOutputs } from '../u.resolveMissingStagingOutputs.ts';
 
 describe('Deploy: resolveMissingStagingOutputs', () => {
   it('lists mappings whose staging output has no dist.json digest', async () => {

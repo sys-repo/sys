@@ -1,7 +1,7 @@
 import { includesShardTemplate, resolveShardTemplate } from '../../u.shardTemplate.ts';
-import { type t, c, Fs, Is, Obj, Path } from './common.ts';
+import { c, Fs, Is, Obj, Path, type t } from './common.ts';
 import { resolveBases } from '../../u.endpoints/u.resolve.ts';
-import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
+import { resolveStagingRoot } from '../../u.staging/mod.ts';
 
 export async function resolveOrbiterPushTargets(args: {
   cwd: t.StringDir;
@@ -17,7 +17,7 @@ export async function resolveOrbiterPushTargets(args: {
 
   const mappings = args.yaml.mappings ?? [];
   const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = resolvePushStagingDir({ cwd: args.cwd, stagingRootRel });
+  const stagingRootAbs = resolveStagingRoot({ cwd: args.cwd, stagingRootRel });
 
   const shardMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
   const baseMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
@@ -104,8 +104,9 @@ export async function resolveOrbiterPushTargets(args: {
   }
 
   const only = shardConfig?.only ?? [];
-  const indices =
-    only.length > 0 ? only : Obj.keys(siteIds).map((key) => Number.parseInt(String(key), 10));
+  const indices = only.length > 0
+    ? only
+    : Obj.keys(siteIds).map((key) => Number.parseInt(String(key), 10));
 
   for (const shard of indices) {
     if (!Is.num(shard) || !Number.isInteger(shard)) continue;

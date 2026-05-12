@@ -9,7 +9,7 @@ import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
-import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
+import { resolveStagingRoot } from '../u.staging/mod.ts';
 
 type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
 const STAGE_JUST_NOW_MSEC = 1000;
@@ -61,7 +61,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       (yaml?.mappings ?? [])[0];
 
     const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
-    const stagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel });
+    const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
     const mappingStagingAbs = mappingStagingRel
       ? Path.resolve(stagingRootAbs, mappingStagingRel)

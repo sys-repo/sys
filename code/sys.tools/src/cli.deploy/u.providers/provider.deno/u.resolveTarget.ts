@@ -1,21 +1,21 @@
 import { resolveBases, resolvePath } from '../../u.endpoints/u.resolve.ts';
-import { type t, Path } from '../../common.ts';
-import { resolvePushStagingDir } from '../../u.menu/u/u.resolvePushStagingDir.ts';
+import { Path, type t } from '../../common.ts';
+import { resolveStagingRoot } from '../../u.staging/mod.ts';
 
 export type ResolveDenoTargetResult =
   | {
-      readonly ok: true;
-      readonly provider: t.DeployTool.Config.Provider.Deno;
-      readonly targetDir: t.StringDir;
-      readonly sourceRootAbs: t.StringDir;
-      readonly stagingRootAbs: t.StringDir;
-      readonly clear: boolean;
-    }
+    readonly ok: true;
+    readonly provider: t.DeployTool.Config.Provider.Deno;
+    readonly targetDir: t.StringDir;
+    readonly sourceRootAbs: t.StringDir;
+    readonly stagingRootAbs: t.StringDir;
+    readonly clear: boolean;
+  }
   | {
-      readonly ok: false;
-      readonly reason: 'not-deno' | 'missing-mapping';
-      readonly hint: string;
-    };
+    readonly ok: false;
+    readonly reason: 'not-deno' | 'missing-mapping';
+    readonly hint: string;
+  };
 
 /**
  * Resolve the selected Deno package target and caller-owned stage root from endpoint YAML.
@@ -45,7 +45,7 @@ export function resolveTarget(args: {
   const bases = resolveBases(args.cwd, args.yaml);
   const targetDir = resolvePath(bases.sourceBaseAbs, mapping.dir.source) as t.StringDir;
   const sourceRootAbs = Path.resolve(bases.sourceBaseAbs, '.') as t.StringDir;
-  const stagingRootAbs = resolvePushStagingDir({
+  const stagingRootAbs = resolveStagingRoot({
     cwd: args.cwd,
     stagingRootRel: String(args.yaml.staging?.dir ?? '').trim() || '.',
   });

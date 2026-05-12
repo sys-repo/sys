@@ -1,16 +1,16 @@
-import { describe, expect, Fs, it, Path } from '../../../-test.ts';
-import { withTmpDir } from '../../-test/-fixtures.ts';
-import { runDenoStagingWithSpinner } from '../run.denoStagingWithSpinner.ts';
-import { createDenoWorkspace } from './u.fixture.ts';
+import { describe, expect, Fs, it, Path } from '../../../../-test.ts';
+import { withTmpDir } from '../../../-test/-fixtures.ts';
+import { createDenoWorkspace } from '../../../u.menu/-test/u.fixture.ts';
+import { DenoProvider } from '../mod.ts';
 
-describe('Staging: runDenoStagingWithSpinner', () => {
+describe('DenoProvider.stage', () => {
   it('stages a selected Deno workspace target into the caller-owned stage root', async () => {
     await withTmpDir(async (tmp) => {
       const workspace = await createDenoWorkspace(tmp);
       await withTmpDir(async (stageParent) => {
         const stageRoot = Path.join(stageParent, 'stage');
 
-        const res = await runDenoStagingWithSpinner({
+        const res = await DenoProvider.stage({
           cwd: tmp,
           yaml: {
             provider: { kind: 'deno', app: 'my-app' },
@@ -32,11 +32,11 @@ describe('Staging: runDenoStagingWithSpinner', () => {
     });
   });
 
-  it('reports failure details when staging.dir resolves inside the workspace root', async () => {
+  it('fails fast when staging.dir resolves inside the workspace root', async () => {
     await withTmpDir(async (tmp) => {
       await createDenoWorkspace(tmp);
 
-      const res = await runDenoStagingWithSpinner({
+      const res = await DenoProvider.stage({
         cwd: tmp,
         yaml: {
           provider: { kind: 'deno', app: 'my-app' },

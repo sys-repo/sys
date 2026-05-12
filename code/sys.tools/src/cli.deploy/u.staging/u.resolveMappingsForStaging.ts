@@ -1,21 +1,24 @@
-import { type t, Fs, Is, Path } from './common.ts';
-import { expandShardTemplatePaths } from '../../u.shardTemplate.ts';
-import { resolveBases, resolvePath } from '../../u.endpoints/u.resolve.ts';
-import { shouldRequireAllShards, includesShardTemplate } from '../../u.shardTemplate.ts';
+import { Fs, Is, Path, type t } from '../common.ts';
+import { resolveBases, resolvePath } from '../u.endpoints/u.resolve.ts';
+import {
+  expandShardTemplatePaths,
+  includesShardTemplate,
+  shouldRequireAllShards,
+} from '../u.shardTemplate.ts';
 
 type ResolveMappingsResult =
   | { readonly ok: true; readonly mappings: readonly t.DeployTool.Staging.Mapping[] }
   | { readonly ok: false; readonly mappings: readonly t.DeployTool.Staging.Mapping[] };
 
 /**
- * Read endpoint YAML and return mappings for staging.
+ * Resolve endpoint mappings into concrete staging mappings.
  *
- * Returns ok:false when YAML read fails (callers can decide how to handle).
+ * Returns ok:false when YAML read fails and no already-validated YAML is provided.
  */
 export async function resolveMappingsForStaging(args: {
-  cwd: t.StringDir;
-  yamlPath: t.StringRelativeDir;
-  yaml?: t.DeployTool.Config.EndpointYaml.Doc;
+  readonly cwd: t.StringDir;
+  readonly yamlPath: t.StringRelativeDir;
+  readonly yaml?: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<ResolveMappingsResult> {
   const { cwd } = args;
   const yamlAbs = Path.resolve(cwd, args.yamlPath);
@@ -29,8 +32,9 @@ export async function resolveMappingsForStaging(args: {
   const providerShards = provider?.kind === 'orbiter' ? provider.shards : undefined;
   const bases = res.ok ? resolveBases(cwd, res.data ?? {}) : undefined;
   const resolved: t.DeployTool.Staging.Mapping[] = [];
-  for (const m of raw) {
-    const expanded = await expandShardMappings(m, providerShards, bases);
+
+  for (const mapping of raw) {
+    const expanded = await expandShardMappings(mapping, providerShards, bases);
     resolved.push(...expanded);
   }
 
@@ -57,20 +61,20 @@ async function expandShardMappings(
   const requireAll = shouldRequireAllShards({
     source,
     staging,
-    total: shards.total,
+    total,
     requireAll: shards.requireAll,
   });
 
-  if (!bases || !hasTemplate || requireAll || !Is.num(total) || !Number.isFinite(total) || total <= 0) {
+  if (
+    !bases || !hasTemplate || requireAll || !Is.num(total) || !Number.isFinite(total) || total <= 0
+  ) {
     return expanded.map((dir) => ({ mode: mapping.mode, dir }));
   }
 
   const filtered: t.DeployTool.Staging.Mapping[] = [];
   for (const dir of expanded) {
     const sourceAbs = resolvePath(bases.sourceBaseAbs, dir.source);
-    if (await Fs.exists(sourceAbs)) {
-      filtered.push({ mode: mapping.mode, dir });
-    }
+    if (await Fs.exists(sourceAbs)) filtered.push({ mode: mapping.mode, dir });
   }
   return filtered;
 }
