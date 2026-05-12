@@ -21,7 +21,6 @@ describe('CellTmpl', () => {
       expect(cell.descriptor).to.eql({
         kind: 'cell',
         version: 1,
-        runtime: { services: [] },
       });
     } finally {
       await Fs.remove(root);

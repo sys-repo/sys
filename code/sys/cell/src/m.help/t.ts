@@ -4,11 +4,11 @@ import type { t } from './common.ts';
  * Cell help resource types.
  */
 export declare namespace CellHelp {
-  /** Runtime surface for bundled Cell help resources. */
+  /** Library surface for bundled Cell help resources. */
   export type Lib = {
     readonly Root: Root.Lib;
     readonly Init: Init.Lib;
-    readonly Action: Action.Lib;
+    readonly Task: Task.Lib;
     readonly Start: Start.Lib;
     readonly Dsl: Dsl.Lib;
   };
@@ -57,20 +57,20 @@ export declare namespace CellHelp {
     };
   }
 
-  /** Action command help resources. */
-  export namespace Action {
-    /** Loader for authored action help. */
+  /** Task command help resources. */
+  export namespace Task {
+    /** Loader for authored task help. */
     export type Lib = {
-      /** Load authored action help from the embedded bundle. */
+      /** Load authored task help from the embedded bundle. */
       load(): Promise<Guidance>;
     };
 
-    /** Authored action help used by CLI composition. */
+    /** Authored task help used by CLI composition. */
     export type Guidance = {
       readonly summary: string;
       readonly usage: readonly string[];
       readonly options: readonly Pair[];
-      readonly action: readonly string[];
+      readonly task: readonly string[];
     };
   }
 
@@ -87,7 +87,7 @@ export declare namespace CellHelp {
       readonly summary: string;
       readonly usage: readonly string[];
       readonly options: readonly Pair[];
-      readonly runtime: readonly string[];
+      readonly services: readonly string[];
     };
   }
 

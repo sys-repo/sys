@@ -1,5 +1,5 @@
-id: runtime-service
-title: Runtime service
+id: service
+title: Service
 summary: Add a trusted lifecycle service backed by a service-owned config.
 
 sections:
@@ -7,10 +7,10 @@ sections:
     items: |
       Classify prompt shape:
       "add a service named <service-name> using <@scope/pkg>/<export>"
-      as `add: runtime service`.
-      Cell records runtime composition.
+      as `add: service`.
+      Cell records service composition.
       The service owner owns config schema and mechanics.
-      Runtime imports must be trusted by `Cell.Runtime.verify/start`.
+      Service imports must be trusted by `Cell.Services.verify/start`.
       The default trusted prefix is `@sys/`.
       Do not put service config internals directly in `cell.yaml`.
       Do not hand-author owner YAML when the owner CLI/API can write it.
@@ -22,10 +22,10 @@ sections:
       Reject invalid service names such as `service/path`, `BadService`, `worker_1`, or `bad..id`.
       Treat service names as opaque identifiers for display, logs, and review.
       Do not treat service names as raw paths, URLs, imports, task names, or config filenames.
-      `<module>` is a trusted import specifier.
-      Module examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/runtime`.
-      `<export>` is the named export that implements `Cell.Runtime.LifecycleEndpoint`.
-      Export examples: `Server`, `Worker`, `Runtime`, `Fixture`.
+      `<module>` is a trusted import specifier or Cell-local relative adapter path.
+      Module examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/service`, `./-services/local.ts`.
+      `<export>` is the named export that implements `Cell.Services.LifecycleEndpoint`.
+      Export examples: `Server`, `Worker`, `Service`, `Fixture`.
       `<config>` is a Cell-relative owner config path.
       Config examples: `./-config/@scope.pkg/service.yaml`.
       Config examples: `./-config/@scope.pkg/default.yaml`.
@@ -34,11 +34,11 @@ sections:
 
   - label: 'Lifecycle contract'
     items: |
-      The exported endpoint must implement `Cell.Runtime.LifecycleEndpoint`.
-      `Cell.Runtime.LifecycleEndpoint` exposes `start(args)`.
-      Cell loads service-owned config, then calls `start(args)`.
-      Base args are `{ cwd: <cell-root>, ...<service-config> }`.
-      Optional `startArgs` callers may override or extend those base args.
+      The exported endpoint must implement `Cell.Services.LifecycleEndpoint`.
+      `Cell.Services.LifecycleEndpoint` exposes `start(args)`.
+      Cell resolves the service-owned config ref, then calls `start(args)`.
+      Base args include the Cell root and the service-owned config reference.
+      Service adapters must accept those base args directly; Cell does not rewrite endpoint args.
       Cell does not derive args from service kind or view links.
       The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
       Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
@@ -50,7 +50,7 @@ sections:
       Do not restate the DSL contract to the user.
       Ask for missing semantic slots and confirm proposed owner paths.
       Example response for adding a generic trusted service:
-      OK — I can add that runtime service.
+      OK — I can add that service.
       I’ll use:
       service name: `<service-name>`
       module/export: `<module>/<export>`
@@ -69,14 +69,13 @@ sections:
       Use owner CLI/API to create, validate, or update `<config>` when available.
       If no owner affordance exists, stop and ask before hand-authoring owner config YAML.
       Do not duplicate the owner config schema in the Cell edit.
-      Cell records only the runtime service and config reference.
+      Cell records only the service and config reference.
 
   - label: 'Descriptor patch'
     items:
       - |
-          runtime:
-            services:
-              - name: <service-name>
-                from: '<module>'
-                export: <export>
-                config: <config>
+          services:
+            - name: <service-name>
+              from: '<module>'
+              export: <export>
+              config: <config>

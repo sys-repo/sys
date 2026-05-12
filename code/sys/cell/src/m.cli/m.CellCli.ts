@@ -84,27 +84,27 @@ export const CellCli: t.CellCli.Lib = {
       }
     }
 
-    if (command === 'action') {
-      const actionHelp = await FmtHelp.actionOutput();
+    if (command === 'task') {
+      const taskHelp = await FmtHelp.taskOutput();
       if (args.format !== undefined) {
-        return fail({ argv }, 'Unexpected option for action: --format', actionHelp);
+        return fail({ argv }, 'Unexpected option for task: --format', taskHelp);
       }
       if (args.help) {
-        print(actionHelp);
-        return { kind: 'help', input: { argv }, text: actionHelp };
+        print(taskHelp);
+        return { kind: 'help', input: { argv }, text: taskHelp };
       }
       if (args.agent || args.dryRun) {
         const flag = args.agent ? '--agent' : '--dry-run';
-        return fail({ argv }, `Unexpected option for action: ${flag}`, actionHelp);
+        return fail({ argv }, `Unexpected option for task: ${flag}`, taskHelp);
       }
-      if (args._.length < 2) return fail({ argv }, 'Missing action name.', actionHelp);
-      if (args._.length > 3) return fail({ argv }, `Unexpected argument: ${args._[3]}`, actionHelp);
+      if (args._.length < 2) return fail({ argv }, 'Missing task name.', taskHelp);
+      if (args._.length > 3) return fail({ argv }, `Unexpected argument: ${args._[3]}`, taskHelp);
 
       try {
-        const { runCellAction, toActionResult } = await import('./u.action.ts');
-        const res = toActionResult(
+        const { runCellTask, toTaskResult } = await import('./u.task.ts');
+        const res = toTaskResult(
           { argv },
-          await runCellAction({ name: args._[1] as t.Cell.Id, dir: args._[2] }),
+          await runCellTask({ name: args._[1] as t.Cell.Id, dir: args._[2] }),
         );
         print(res.text);
         return res;

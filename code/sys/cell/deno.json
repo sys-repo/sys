@@ -14,7 +14,7 @@
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "start": "deno task sample:stripe",
     "sample:stripe": "deno run -P=sample ./-scripts/task.sample.ts",
-    "sample:deploy": "deno run -P=sample @sys/cell action sample:deploy ./-sample/cell.deploy",
+    "sample:deploy": "deno run -P=sample @sys/cell task sample:deploy ./-sample/cell.deploy",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -24,7 +24,8 @@
     "./cli": "./src/m.cli/mod.ts"
   },
   "exclude": [
-    "-sample/.pi"
+    "-sample/.pi",
+    "-spec.agent"
   ],
   "permissions": {
     "cli": {

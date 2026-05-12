@@ -1,89 +1,90 @@
 /**
  * @module
- * Cell descriptor loading and runtime service composition.
+ * Cell descriptor loading, service composition, and finite task execution.
  *
  * A Cell is a folder bounded by its root and described by
  * `-config/@sys.cell/cell.yaml`. The descriptor records boot/composition facts:
- * trusted runtime service references and their owner config paths. Runtime
- * services are declared as ESM lifecycle endpoints so service composition remains
- * typed, importable, and owner-correct instead of hidden in shell task choreography.
+ * trusted service references, finite task references, and their owner config
+ * paths. Services and tasks are declared as ESM endpoints so composition remains
+ * typed, importable, and owner-correct instead of hidden in shell choreography.
  */
 import type { t } from './common.ts';
 import { CellSchema } from './u.schema/mod.ts';
 
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
-  Runtime: {
+  Services: {
     async verify(cell, options) {
       /**
-       * Runtime-only service verifier import.
+       * Services-only verifier import.
        *
        * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
-       * does not scan the FS/import-aware runtime verifier into browser bundles
+       * does not scan the FS/import-aware services verifier into browser bundles
        * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
        * this string.
        */
-      const RUNTIME_SPEC = './u.' + 'runtime/mod.ts';
-      const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
-      return CellRuntime.verify(cell, options);
+      const SERVICES_SPEC = './u.' + 'services/mod.ts';
+      const { CellServices } = await import(/* @vite-ignore */ SERVICES_SPEC);
+      return CellServices.verify(cell, options);
     },
     async start(cell, options) {
       /**
-       * Runtime-only service starter import.
+       * Services-only starter import.
        *
        * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
-       * does not scan the FS/import-aware runtime starter into browser bundles
+       * does not scan the FS/import-aware services starter into browser bundles
        * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
        * this string.
        */
-      const RUNTIME_SPEC = './u.' + 'runtime/mod.ts';
-      const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
-      return CellRuntime.start(cell, options);
+      const SERVICES_SPEC = './u.' + 'services/mod.ts';
+      const { CellServices } = await import(/* @vite-ignore */ SERVICES_SPEC);
+      return CellServices.start(cell, options);
     },
-    async wait(runtime) {
+    async wait(started) {
       /**
-       * Runtime-only service waiter import.
+       * Services-only waiter import.
        *
        * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
-       * does not scan runtime lifecycle helpers into browser bundles that only
-       * import `@sys/cell` for descriptor/schema work. Do NOT simplify this string.
+       * does not scan service lifecycle helpers into browser bundles that only
+       * import `@sys/cell` for descriptor/schema work. Do NOT simplify this
+       * string.
        */
-      const RUNTIME_SPEC = './u.' + 'runtime/mod.ts';
-      const { CellRuntime } = await import(/* @vite-ignore */ RUNTIME_SPEC);
-      return CellRuntime.wait(runtime);
+      const SERVICES_SPEC = './u.' + 'services/mod.ts';
+      const { CellServices } = await import(/* @vite-ignore */ SERVICES_SPEC);
+      return CellServices.wait(started);
     },
   },
-  Action: {
+  Task: {
     async verify(cell, options) {
       /**
-       * Action-only verifier import.
+       * Task-only verifier import.
        *
        * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
-       * does not scan the FS/import-aware action verifier into browser bundles
+       * does not scan the FS/import-aware task verifier into browser bundles
        * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
        * this string.
        */
-      const ACTION_SPEC = './u.' + 'action/mod.ts';
-      const { CellAction } = await import(/* @vite-ignore */ ACTION_SPEC);
-      return CellAction.verify(cell, options);
+      const TASK_SPEC = './u.' + 'task/mod.ts';
+      const { CellTask } = await import(/* @vite-ignore */ TASK_SPEC);
+      return CellTask.verify(cell, options);
     },
     async run(cell, name, options) {
       /**
-       * Action-only runner import.
+       * Task-only runner import.
        *
        * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
-       * does not scan the FS/import-aware action runner into browser bundles
-       * that only import `@sys/cell` for descriptor/schema work. Do NOT simplify
-       * this string.
+       * does not scan the FS/import-aware task runner into browser bundles that
+       * only import `@sys/cell` for descriptor/schema work. Do NOT simplify this
+       * string.
        */
-      const ACTION_SPEC = './u.' + 'action/mod.ts';
-      const { CellAction } = await import(/* @vite-ignore */ ACTION_SPEC);
-      return CellAction.run(cell, name, options);
+      const TASK_SPEC = './u.' + 'task/mod.ts';
+      const { CellTask } = await import(/* @vite-ignore */ TASK_SPEC);
+      return CellTask.run(cell, name, options);
     },
   },
   async load(root, options) {
     /**
-     * Runtime-only loader import.
+     * Load-only import.
      *
      * Keep this specifier constructed and marked `@vite-ignore` so Vite/Rollup
      * does not scan the FS-aware loader into browser bundles that only import
@@ -92,5 +93,11 @@ export const Cell: t.Cell.Lib = {
     const LOAD_SPEC = './u.' + 'load.ts';
     const { loadCell } = await import(/* @vite-ignore */ LOAD_SPEC);
     return loadCell(root, options);
+  },
+  start(cell, options) {
+    return Cell.Services.start(cell, options);
+  },
+  task(cell, name, options) {
+    return Cell.Task.run(cell, name, options);
   },
 };

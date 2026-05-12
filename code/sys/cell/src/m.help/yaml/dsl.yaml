@@ -8,20 +8,20 @@ sections:
   - label: Rule
     items: |
       Cell owns boot/composition; owner configs own mechanics and state interpretation.
-      `cell.yaml` names trusted runtime services, finite actions, and owner config references.
+      `cell.yaml` names trusted services, finite tasks, and owner config references.
       Views are owner-defined projections that make Cell state perceivable.
-      Actions are finite workflow declarations; endpoint modules own execution mechanics.
+      Tasks are finite workflow declarations; endpoint modules own execution mechanics.
       Do not register views or service-to-view relationships in `cell.yaml`.
-      Do not put pull/service/proxy/mount/action mechanics in `cell.yaml`.
+      Do not put pull/service/proxy/mount/task mechanics in `cell.yaml`.
       Do not turn `cell.yaml` into a mega-config.
 
   - label: 'Descriptor IDs'
     items: |
-      Runtime service and action names in `cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
+      Service and task names in `cell.yaml` use the pattern `^[a-z][a-z0-9]*(?:[.:-][a-z0-9]+)*$`.
       Allowed separators are `.`, `:`, and `-` between lowercase alphanumeric segments.
       Do not use `_`, `/`, spaces, uppercase letters, leading/trailing separators, or repeated separators.
-      Treat service and action names as opaque identifiers for display, logs, and review.
-      Do not treat names as raw paths, URLs, import specifiers, task names, or config filenames.
+      Treat service and task names as opaque identifiers for display, logs, and review.
+      Do not treat names as raw paths, URLs, import specifiers, Deno task names, or config filenames.
       Validate user-provided name slots before editing `cell.yaml`.
       If a requested name is invalid, stop and ask for a valid name; do not silently rewrite it.
 
@@ -33,14 +33,14 @@ sections:
       - add an @sys/http static service for <view>
       - add a service named <service-name> using <@scope/pkg>/<export>
       - add a proxy service named <service-name>
-      - add a leaf action named <action-name> using <module>/<export>
-      - add a local action adapter at <relative-action-module>
-      - add a composite action named <action-name> from <step-action-names>
+      - add a leaf task named <task-name> using <module>/<export>
+      - add a local task adapter at <relative-task-module>
+      - add a composite task named <task-name> from <step-task-names>
       - route / to <view/service/upstream>
       - route <path-prefix> to <view/service/upstream>
       - verify/load this Cell
-      - run a finite action named <action-name>
-      - start the Cell runtime
+      - run a finite task named <task-name>
+      - start the Cell services
 
   - label: Owners
     items:
@@ -65,22 +65,23 @@ sections:
       - if no pull config is specified or known, ask for it
       - do not edit `cell.yaml` for refresh-only pulls
       - add @sys/http static service → run `@sys/http/server/static config add`
-      - "then register `runtime.services[]` with `name`, `from: '@sys/http/server/static'`, `export: HttpStatic`, and `config`"
-      - do not use `@sys/tools serve` for Cell runtime static services
-      - add generic runtime service → confirm `Cell.Runtime.LifecycleEndpoint`
+      - "then register `services[]` with `name`, `from: '@sys/http/server/static'`, `export: HttpStatic`, and `config`"
+      - do not use `@sys/tools serve` for Cell services; it is an operator CLI façade
+      - add generic service → confirm `Cell.Services.LifecycleEndpoint`
+      - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
       - use owner config affordance when available
-      - then register `runtime.services[]` with `name`, `from`, `export`, and `config`
+      - then register `services[]` with `name`, `from`, `export`, and `config`
       - add proxy → use proxy owner flow
-      - then register runtime service name and config ref
+      - then register service name and config ref
       - root route → run `@sys/http/server/proxy root set`
       - mount route → run `@sys/http/server/proxy mount add`
-      - add leaf action → confirm the endpoint exposes `run(args)` and owner config affordance when config is needed
-      - local action adapter → keep adapter code under the Cell root, typically `./-actions/*.ts`
-      - action config → owner-owned YAML object resolved relative to the Cell root and passed as `config`
-      - leaf action descriptor → register `actions[]` with `name`, `from`, `export`, and optional `config`
-      - composite action descriptor → register `actions[]` with `name` and `steps[]` action refs only
-      - do not put shell commands, `deno task`, or inline executable fields in `actions[].steps[]`
-      - '`cell.yaml` only names runtime services, finite actions, endpoint refs, and owner config refs'
+      - add leaf task → confirm the endpoint exposes `run(args)` and owner config affordance when config is needed
+      - local task adapter → keep adapter code under the Cell root, typically `./-tasks/*.ts`
+      - task config → owner-owned ref resolved relative to the Cell root and passed as `paths.config`
+      - leaf task descriptor → register `tasks[]` with `name`, `from`, `export`, and optional `config`
+      - composite task descriptor → register `tasks[]` with `name` and `steps[]` task refs only
+      - do not put shell commands, `deno task`, or inline executable fields in `tasks[].steps[]`
+      - '`cell.yaml` only names services, finite tasks, endpoint refs, and owner config refs'
       - verify/load → run `Cell.load` against the folder
-      - run finite action → run `@sys/cell action <action-name>`
-      - start runtime → run `@sys/cell start`
+      - run finite task → run `@sys/cell task <task-name>`
+      - start services → run `@sys/cell start`

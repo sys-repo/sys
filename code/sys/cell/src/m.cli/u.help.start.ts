@@ -10,7 +10,7 @@ export const FmtStartHelp = {
       sections: [
         { kind: 'lines', label: 'Usage', items: guidance.usage },
         { kind: 'pairs', label: 'Options', items: guidance.options },
-        { kind: 'lines', label: 'Runtime', items: guidance.runtime },
+        { kind: 'lines', label: 'Services', items: guidance.services },
       ],
     } as const;
   },

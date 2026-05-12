@@ -12,17 +12,17 @@ export type StartCellResult = {
 
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
   const cell = await Cell.load(args.dir ?? '.');
-  const runtime = await Cell.Runtime.start(cell);
+  const started = await Cell.start(cell);
 
   try {
-    await Cell.Runtime.wait(runtime);
+    await Cell.Services.wait(started);
   } finally {
-    await runtime.close('cell.start.finished');
+    await started.close('cell.start.finished');
   }
 
   return {
     root: cell.root,
-    services: runtime.services.length,
+    services: started.services.length,
   };
 }
 

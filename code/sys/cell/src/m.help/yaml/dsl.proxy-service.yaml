@@ -1,6 +1,6 @@
 id: proxy-service
 title: Proxy service
-summary: Add a runtime service backed by `@sys/http/server/proxy` config.
+summary: Add a service backed by `@sys/http/server/proxy` config.
 
 sections:
   - label: Rule
@@ -9,7 +9,7 @@ sections:
       Classify "route / to <view/service/upstream>" as a proxy root-route act.
       Classify "route <path-prefix> to <view/service/upstream>" as a proxy mount-route act.
       Proxy owns public route orchestration; static and fixture services own endpoint serving.
-      Cell registers a runtime service name, module/export, and owner config reference.
+      Cell registers a service name, module/export, and owner config reference.
       Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
       Do not put proxy mounts, upstreams, or route mechanics directly in `cell.yaml`.
       Proxy maps path-prefixes; it only redirects for slash normalization.
@@ -35,7 +35,7 @@ sections:
       Do not restate the DSL contract to the user.
       Ask for missing semantic slots and confirm proposed owner paths.
       Example response for routing a non-root path-prefix to a declared upstream:
-      OK — I can add that proxy runtime service and route mount.
+      OK — I can add that proxy service and route mount.
       I’ll use:
       service name: `<service-name>`
       proxy config: `<proxy-config>`
@@ -60,7 +60,7 @@ sections:
       Pass `--upstream <upstream>`.
       This creates or updates mounted upstreams in the proxy owner config.
       Do not duplicate HTTP proxy config schema in the Cell edit.
-      Cell records only runtime service name, module/export, and config reference.
+      Cell records only service name, module/export, and config reference.
 
   - label: 'Owner command'
     items:
@@ -90,14 +90,13 @@ sections:
     items: |
       `root set` manages the root/default upstream for `/`.
       `mount add` manages confirmed non-root `<path-prefix>` routes.
-      Do not use `/` as a mount; proxy runtime treats root/default upstream as a separate route kind.
+      Do not use `/` as a mount; proxy service treats root/default upstream as a separate route kind.
       Do not bypass owner affordances by hand-writing proxy YAML.
 
   - label: 'Descriptor patch'
     items: |
-      runtime:
-        services:
-          - name: <service-name>
-            from: '@sys/http/server/proxy'
-            export: HttpProxy
-            config: <proxy-config>
+      services:
+        - name: <service-name>
+          from: '@sys/http/server/proxy'
+          export: HttpProxy
+          config: <proxy-config>

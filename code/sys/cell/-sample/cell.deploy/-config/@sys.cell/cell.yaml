@@ -3,18 +3,18 @@
 kind: cell
 version: 1
 
-actions:
+tasks:
   - name: pull:view
     from: ./-scripts/deploy.ts
-    export: PullViewAction
+    export: PullViewTask
     config: ./-config/@sys.tools.pull/view.yaml
 
   - name: deploy:stage
     from: ./-scripts/deploy.ts
-    export: DeployStageAction
+    export: DeployStageTask
     config: ./-config/@sys.tools.deploy/stage.yaml
 
   - name: sample:deploy
     steps:
-      - action: pull:view
-      - action: deploy:stage
+      - task: pull:view
+      - task: deploy:stage

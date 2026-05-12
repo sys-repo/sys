@@ -10,7 +10,7 @@ describe('FmtHelp', () => {
   it('uses conceptual @sys/cell command titles', async () => {
     expect(stripAnsi(await FmtHelp.output())).to.contain('@sys/cell');
     expect(stripAnsi(await FmtHelp.initOutput())).to.contain('@sys/cell init');
-    expect(stripAnsi(await FmtHelp.actionOutput())).to.contain('@sys/cell action');
+    expect(stripAnsi(await FmtHelp.taskOutput())).to.contain('@sys/cell task');
     expect(stripAnsi(await FmtHelp.dslOutput())).to.contain('@sys/cell dsl');
   });
 
@@ -78,7 +78,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain(
       'add @sys/http static service → run `@sys/http/server/static config add`',
     );
-    expect(text).to.contain('do not use `@sys/tools serve` for Cell runtime static services');
+    expect(text).to.contain('do not use `@sys/tools serve` for Cell services');
     expect(text).to.contain('Owners');
     expect(text).to.contain('Start from public `--help` surfaces');
     expect(text).to.contain('retry once with `--reload` as a troubleshooting move');
@@ -96,33 +96,33 @@ describe('FmtHelp', () => {
     expect(text).to.contain('# Add a view backed by an `@sys/tools/pull` config.');
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
     expect(text).to.contain(
-      '# Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
+      '# Add an @sys/http static service backed by `@sys/http/server/static` config.',
     );
-    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl runtime-service');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl service');
     expect(text).to.contain('# Add a trusted lifecycle service backed by a service-owned config.');
     expect(text).to.contain('deno run -ER jsr:@sys/cell dsl proxy-service');
-    expect(text).to.contain('# Add a runtime service backed by `@sys/http/server/proxy` config.');
-    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl start-runtime');
-    expect(text).to.contain('# Start a composed Cell runtime from a Cell folder.');
+    expect(text).to.contain('# Add a service backed by `@sys/http/server/proxy` config.');
+    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl start-services');
+    expect(text).to.contain('# Start composed Cell services from a Cell folder.');
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
       chapterCommentColumn(text, 'static-http-service'),
     );
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
-      chapterCommentColumn(text, 'runtime-service'),
+      chapterCommentColumn(text, 'service'),
     );
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
       chapterCommentColumn(text, 'proxy-service'),
     );
     expect(chapterCommentColumn(text, 'pulled-view')).to.eql(
-      chapterCommentColumn(text, 'start-runtime'),
+      chapterCommentColumn(text, 'start-services'),
     );
     expect(text).to.not.contain('Slot policy');
     expect(guidance.chapters.map((chapter) => chapter.id)).to.eql([
       'pulled-view',
       'static-http-service',
-      'runtime-service',
+      'service',
       'proxy-service',
-      'start-runtime',
+      'start-services',
     ]);
   });
 
@@ -143,7 +143,7 @@ describe('FmtHelp', () => {
       '- `deno run -ER jsr:@sys/cell dsl pulled-view --format skill` — Add a view backed by an `@sys/tools/pull` config.',
     );
     expect(text).to.contain(
-      '- `deno run -ER jsr:@sys/cell dsl start-runtime --format skill` — Start a composed Cell runtime from a Cell folder.',
+      '- `deno run -ER jsr:@sys/cell dsl start-services --format skill` — Start composed Cell services from a Cell folder.',
     );
     expect(text).to.not.contain('Chapter   deno run -ER');
   });
@@ -169,9 +169,9 @@ describe('FmtHelp', () => {
       { path: [], name: 'sys-cell-dsl' },
       { path: ['pulled-view'], name: 'sys-cell-dsl-pulled-view' },
       { path: ['static-http-service'], name: 'sys-cell-dsl-static-http-service' },
-      { path: ['runtime-service'], name: 'sys-cell-dsl-runtime-service' },
+      { path: ['service'], name: 'sys-cell-dsl-service' },
       { path: ['proxy-service'], name: 'sys-cell-dsl-proxy-service' },
-      { path: ['start-runtime'], name: 'sys-cell-dsl-start-runtime' },
+      { path: ['start-services'], name: 'sys-cell-dsl-start-services' },
     ] as const;
 
     for (const item of cases) {
@@ -219,7 +219,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('Reject invalid service names such as `http/static`');
     expect(text).to.contain('<dir>');
     expect(raw).to.match(hasTrueColorAnsi);
-    expect(text).to.contain('runtime:');
+    expect(text).to.contain('services:');
     expect(text).to.contain("from: '@sys/http/server/static'");
     expect(text).to.not.contain('kind: http-static');
     expect(text).to.not.contain('views: [<view>]');
@@ -228,15 +228,15 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl static-http-service');
   });
 
-  it('dsl runtime-service → faithfully renders the requested chapter', async () => {
-    const raw = await FmtHelp.dslOutput({ path: ['runtime-service'] });
+  it('dsl service → faithfully renders the requested chapter', async () => {
+    const raw = await FmtHelp.dslOutput({ path: ['service'] });
     const text = stripAnsi(raw);
-    const guidance = await CellHelp.Dsl.load(['runtime-service']);
+    const guidance = await CellHelp.Dsl.load(['service']);
 
-    expect(text).to.contain('@sys/cell dsl runtime-service');
+    expect(text).to.contain('@sys/cell dsl service');
     expect(text).to.contain(guidance.summary);
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
-    expect(text).to.contain('Cell.Runtime.LifecycleEndpoint');
+    expect(text).to.contain('Cell.Services.LifecycleEndpoint');
     expect(text).to.contain('start(args)');
     expect(text).to.contain('close(reason)');
     expect(text).to.contain('dispose(reason)');
@@ -251,7 +251,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('<export>');
     expect(text).to.contain('<config>');
     expect(raw).to.match(hasTrueColorAnsi);
-    expect(text).to.contain('runtime:');
+    expect(text).to.contain('services:');
     expect(text).to.contain("from: '<module>'");
     expect(text).to.not.contain('kind: <kind>');
     expect(text).to.not.contain('views: [<view>]');
@@ -259,31 +259,31 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('stripe');
     expect(text).to.not.contain('driver.stripe');
     expect(text).to.not.contain('127.0.0.1');
-    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl runtime-service');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl service');
   });
 
-  it('dsl start-runtime → faithfully renders the requested chapter', async () => {
-    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['start-runtime'] }));
-    const guidance = await CellHelp.Dsl.load(['start-runtime']);
+  it('dsl start-services → faithfully renders the requested chapter', async () => {
+    const text = stripAnsi(await FmtHelp.dslOutput({ path: ['start-services'] }));
+    const guidance = await CellHelp.Dsl.load(['start-services']);
 
-    expect(text).to.contain('@sys/cell dsl start-runtime');
+    expect(text).to.contain('@sys/cell dsl start-services');
     expect(text).to.contain(guidance.summary);
     guidance.sections.forEach((section) => expect(text).to.contain(section.label));
     expect(text).to.contain('@sys/cell start');
     expect(text).to.contain('deno run -ERWN jsr:@sys/cell start .');
-    expect(text).to.contain('Cell.Runtime.start');
-    expect(text).to.contain('Cell.Runtime.wait');
+    expect(text).to.contain('Cell.Services.start');
+    expect(text).to.contain('Cell.Services.wait');
     expect(text).to.contain('started service handles that expose `finished`');
     expect(text).to.contain('should keep `@sys/cell start` alive');
     expect(text).to.contain('Do not write a custom launcher script');
     expect(text).to.contain(
-      'Service owners keep their own config schema, mechanics, ports, URLs, permissions, and runtime display',
+      'Service owners keep their own config schema, mechanics, ports, URLs, permissions, and display',
     );
     expect(text).to.contain('Add any extra permissions required by declared owner services');
     expect(text).to.contain('"start": "deno run -ERWN jsr:@sys/cell start ."');
     expect(text).to.not.contain('Stripe');
     expect(text).to.not.contain('stripe');
-    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl start-runtime');
+    expect(text).to.not.contain('deno run -ER jsr:@sys/cell dsl start-services');
   });
 
   it('dsl proxy-service → faithfully renders the requested chapter', async () => {
@@ -308,7 +308,7 @@ describe('FmtHelp', () => {
     expect(text).to.contain('<path-prefix>');
     expect(text).to.contain('<upstream-url-prefix>');
     expect(raw).to.match(hasTrueColorAnsi);
-    expect(text).to.contain('runtime:');
+    expect(text).to.contain('services:');
     expect(text).to.contain("from: '@sys/http/server/proxy'");
     expect(text).to.not.contain('kind: http-proxy');
     expect(text).to.not.contain('for.views');

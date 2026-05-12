@@ -1,6 +1,6 @@
 id: static-http-service
 title: Static HTTP service
-summary: Add an @sys/http static runtime service backed by `@sys/http/server/static` config.
+summary: Add an @sys/http static service backed by `@sys/http/server/static` config.
 
 sections:
   - label: Rule
@@ -8,10 +8,10 @@ sections:
       Classify "add an @sys/http static service for <view>" as `add: static HTTP service`.
       Also classify "add a static HTTP service for <view>" as this act, then route to @sys/http.
       Treat the speech act as intent plus partial slots.
-      Cell registers a runtime service name, module/export, and owner config reference.
+      Cell registers a service name, module/export, and owner config reference.
       Do not hand-author `@sys/http` config YAML when the owner CLI can write it.
       Do not put HTTP static-server mechanics directly in `cell.yaml`.
-      Do not use `@sys/tools serve` for Cell runtime static services; it is an operator CLI façade.
+      Do not use `@sys/tools serve` for Cell services; it is an operator CLI façade.
 
   - label: 'Slot policy'
     items: |
@@ -31,7 +31,7 @@ sections:
       Do not restate the DSL contract to the user.
       Ask for missing semantic slots and confirm proposed owner paths.
       Example response for serving a declared view from a static root:
-      OK — I can add that static HTTP runtime service.
+      OK — I can add that static HTTP service.
       I’ll use:
       service name: `<service-name>`
       static config: `<static-config>`
@@ -41,13 +41,13 @@ sections:
   - label: 'Owner flow'
     items: |
       Use owner CLI: `@sys/http/server/static config add`.
-      Do not use `@sys/tools serve`; it does not own this Cell runtime service config.
+      Do not use `@sys/tools serve`; it does not own this Cell service config.
       Pass `--config <config>`.
       Pass `--dir <dir>`.
       Pass `--hostname` and `--port` only when specified or confirmed.
       This creates or updates HTTP static-server config.
       Do not duplicate HTTP config schema in the Cell edit.
-      Cell records only runtime service name, module/export, and config reference.
+      Cell records only service name, module/export, and config reference.
 
   - label: 'Owner command'
     items:
@@ -66,9 +66,8 @@ sections:
 
   - label: 'Descriptor patch'
     items: |
-      runtime:
-        services:
-          - name: <service-name>
-            from: '@sys/http/server/static'
-            export: HttpStatic
-            config: <static-config>
+      services:
+        - name: <service-name>
+          from: '@sys/http/server/static'
+          export: HttpStatic
+          config: <static-config>

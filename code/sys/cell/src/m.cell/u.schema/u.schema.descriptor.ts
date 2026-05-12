@@ -5,7 +5,7 @@ const T = Schema.Type;
 const Id = T.String({ pattern: IdPattern });
 const CellPath = T.String({ pattern: RelativePathPattern });
 
-const RuntimeService = T.Object(
+const Service = T.Object(
   {
     name: Id,
     from: T.String({ minLength: 1 }),
@@ -15,7 +15,7 @@ const RuntimeService = T.Object(
   { additionalProperties: false },
 );
 
-const ActionLeaf = T.Object(
+const TaskLeaf = T.Object(
   {
     name: Id,
     from: T.String({ minLength: 1 }),
@@ -25,32 +25,27 @@ const ActionLeaf = T.Object(
   { additionalProperties: false },
 );
 
-const ActionStep = T.Object(
-  { action: Id },
+const TaskStep = T.Object(
+  { task: Id },
   { additionalProperties: false },
 );
 
-const ActionComposite = T.Object(
+const TaskComposite = T.Object(
   {
     name: Id,
-    steps: T.Array(ActionStep, { minItems: 1 }),
+    steps: T.Array(TaskStep, { minItems: 1 }),
   },
   { additionalProperties: false },
 );
 
-const Action = T.Union([ActionLeaf, ActionComposite]);
+const Task = T.Union([TaskLeaf, TaskComposite]);
 
 export const DescriptorSchema = T.Object(
   {
     kind: T.Literal('cell'),
     version: T.Literal(1),
-    runtime: T.Optional(
-      T.Object(
-        { services: T.Array(RuntimeService) },
-        { additionalProperties: false },
-      ),
-    ),
-    actions: T.Optional(T.Array(Action)),
+    services: T.Optional(T.Array(Service)),
+    tasks: T.Optional(T.Array(Task)),
   },
   { additionalProperties: false },
 );

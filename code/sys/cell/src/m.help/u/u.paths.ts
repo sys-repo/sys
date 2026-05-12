@@ -17,15 +17,15 @@ export function resolveChapterResource(
 export const HelpResource = {
   Root: path('yaml/root.yaml'),
   Init: path('yaml/init.yaml'),
-  Action: path('yaml/action.yaml'),
+  Task: path('yaml/task.yaml'),
   Start: path('yaml/start.yaml'),
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
       chapter('static-http-service', 'yaml/dsl.static-http-service.yaml'),
-      chapter('runtime-service', 'yaml/dsl.runtime-service.yaml'),
+      chapter('service', 'yaml/dsl.service.yaml'),
       chapter('proxy-service', 'yaml/dsl.proxy-service.yaml'),
-      chapter('start-runtime', 'yaml/dsl.start-runtime.yaml'),
+      chapter('start-services', 'yaml/dsl.start-services.yaml'),
     ]),
   },
   Source: {
@@ -33,7 +33,7 @@ export const HelpResource = {
       return [
         HelpResource.Root,
         HelpResource.Init,
-        HelpResource.Action,
+        HelpResource.Task,
         HelpResource.Start,
         ...chapterResourceFiles(HelpResource.Dsl.Root),
       ];
@@ -44,7 +44,6 @@ export const HelpResource = {
 /**
  * Helpers:
  */
-
 function path(value: string) {
   return value as t.StringPath;
 }

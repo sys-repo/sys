@@ -29,26 +29,26 @@ export const InitHelp: t.CellHelp.Init.Lib = {
   },
 };
 
-export const ActionHelp: t.CellHelp.Action.Lib = {
+export const TaskHelp: t.CellHelp.Task.Lib = {
   load() {
-    const data = readRecord(HelpResource.Action, ['summary', 'usage', 'options', 'action']);
+    const data = readRecord(HelpResource.Task, ['summary', 'usage', 'options', 'task']);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
       options: HelpYaml.pairs(data, 'options'),
-      action: HelpYaml.list(data, 'action'),
+      task: HelpYaml.list(data, 'task'),
     });
   },
 };
 
 export const StartHelp: t.CellHelp.Start.Lib = {
   load() {
-    const data = readRecord(HelpResource.Start, ['summary', 'usage', 'options', 'runtime']);
+    const data = readRecord(HelpResource.Start, ['summary', 'usage', 'options', 'services']);
     return Promise.resolve({
       summary: HelpYaml.string(data, 'summary'),
       usage: HelpYaml.list(data, 'usage'),
       options: HelpYaml.pairs(data, 'options'),
-      runtime: HelpYaml.list(data, 'runtime'),
+      services: HelpYaml.list(data, 'services'),
     });
   },
 };

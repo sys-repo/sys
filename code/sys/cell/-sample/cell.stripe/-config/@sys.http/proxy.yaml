@@ -1,4 +1,4 @@
-# Proxied Cell app runtime.
+# Proxied Cell app service.
 
 name: cell:proxy
 hostname: 127.0.0.1

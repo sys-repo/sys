@@ -1,4 +1,4 @@
-// Bundle-only dependencies stay out of ../common.ts so runtime help readers do not load template tools.
+// Bundle-only dependencies stay out of ../common.ts so help readers do not load template tools.
 import { Fs, TmplEngine } from '@sys/tmpl-engine';
 import { HelpResource } from '../u/u.paths.ts';
 

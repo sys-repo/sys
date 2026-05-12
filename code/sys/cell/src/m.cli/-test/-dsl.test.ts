@@ -84,12 +84,12 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl static-http-service');
   });
 
-  it('dsl runtime-service → routes to the runtime service chapter', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['dsl', 'runtime-service'] }));
+  it('dsl service → routes to the service chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'service'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell dsl runtime-service');
+    expect(text).to.contain('@sys/cell dsl service');
   });
 
   it('dsl proxy-service → routes to the proxy service chapter', async () => {
@@ -100,12 +100,12 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl proxy-service');
   });
 
-  it('dsl start-runtime → routes to the start runtime chapter', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['dsl', 'start-runtime'] }));
+  it('dsl start-services → routes to the start services chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'start-services'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell dsl start-runtime');
+    expect(text).to.contain('@sys/cell dsl start-services');
   });
 
   it('dsl unknown → fails with root DSL help', async () => {

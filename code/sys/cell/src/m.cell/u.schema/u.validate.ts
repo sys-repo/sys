@@ -19,94 +19,94 @@ function validateDescriptorSemantics(descriptor: t.Cell.Descriptor): t.Cell.Sche
   const errors: t.Cell.Schema.Issue[] = [];
   const serviceNames = new Set<string>();
 
-  descriptor.runtime?.services.forEach((service, index) => {
-    const servicePath = `/runtime/services/${index}`;
+  descriptor.services?.forEach((service, index) => {
+    const servicePath = `/services/${index}`;
 
     if (serviceNames.has(service.name)) {
       errors.push({
         kind: 'semantic',
         path: `${servicePath}/name`,
-        message: `Duplicate runtime service name: ${service.name}`,
+        message: `Duplicate service name: ${service.name}`,
       });
     }
     serviceNames.add(service.name);
   });
 
-  errors.push(...validateActionSemantics(descriptor.actions ?? []));
+  errors.push(...validateTaskSemantics(descriptor.tasks ?? []));
 
   return errors;
 }
 
-function validateActionSemantics(
-  actions: readonly t.Cell.Action.Descriptor[],
+function validateTaskSemantics(
+  tasks: readonly t.Cell.Task.Descriptor[],
 ): t.Cell.Schema.Issue[] {
   const errors: t.Cell.Schema.Issue[] = [];
-  const actionNames = new Set<string>();
-  const actionByName = new Map<string, t.Cell.Action.Descriptor>();
-  const actionIndexByName = new Map<string, number>();
+  const taskNames = new Set<string>();
+  const taskByName = new Map<string, t.Cell.Task.Descriptor>();
+  const taskIndexByName = new Map<string, number>();
 
-  actions.forEach((action, index) => {
-    if (actionNames.has(action.name)) {
+  tasks.forEach((task, index) => {
+    if (taskNames.has(task.name)) {
       errors.push({
         kind: 'semantic',
-        path: `/actions/${index}/name`,
-        message: `Duplicate action name: ${action.name}`,
+        path: `/tasks/${index}/name`,
+        message: `Duplicate task name: ${task.name}`,
       });
     }
 
-    actionNames.add(action.name);
-    if (!actionByName.has(action.name)) {
-      actionByName.set(action.name, action);
-      actionIndexByName.set(action.name, index);
+    taskNames.add(task.name);
+    if (!taskByName.has(task.name)) {
+      taskByName.set(task.name, task);
+      taskIndexByName.set(task.name, index);
     }
   });
 
-  actions.forEach((action, actionIndex) => {
-    if (!isCompositeAction(action)) return;
+  tasks.forEach((task, taskIndex) => {
+    if (!isCompositeTask(task)) return;
 
-    action.steps.forEach((step, stepIndex) => {
-      if (actionNames.has(step.action)) return;
+    task.steps.forEach((step, stepIndex) => {
+      if (taskNames.has(step.task)) return;
       errors.push({
         kind: 'semantic',
-        path: `/actions/${actionIndex}/steps/${stepIndex}/action`,
-        message: `Unknown action reference: ${step.action}`,
+        path: `/tasks/${taskIndex}/steps/${stepIndex}/task`,
+        message: `Unknown task reference: ${step.task}`,
       });
     });
   });
 
   const hasNameErrors = errors.some((error) => error.path.endsWith('/name'));
-  const hasMissingRefErrors = errors.some((error) => error.message.startsWith('Unknown action'));
+  const hasMissingRefErrors = errors.some((error) => error.message.startsWith('Unknown task'));
   if (!hasNameErrors && !hasMissingRefErrors) {
-    errors.push(...validateActionCycles({ actions, actionByName, actionIndexByName }));
+    errors.push(...validateTaskCycles({ tasks, taskByName, taskIndexByName }));
   }
 
   return errors;
 }
 
-function validateActionCycles(args: {
-  readonly actions: readonly t.Cell.Action.Descriptor[];
-  readonly actionByName: ReadonlyMap<string, t.Cell.Action.Descriptor>;
-  readonly actionIndexByName: ReadonlyMap<string, number>;
+function validateTaskCycles(args: {
+  readonly tasks: readonly t.Cell.Task.Descriptor[];
+  readonly taskByName: ReadonlyMap<string, t.Cell.Task.Descriptor>;
+  readonly taskIndexByName: ReadonlyMap<string, number>;
 }): t.Cell.Schema.Issue[] {
-  const { actions, actionByName, actionIndexByName } = args;
+  const { tasks, taskByName, taskIndexByName } = args;
   const visited = new Set<string>();
   const visiting = new Set<string>();
   const stack: string[] = [];
 
-  for (const action of actions) {
-    const issue = visitAction(action.name);
+  for (const task of tasks) {
+    const issue = visitTask(task.name);
     if (issue) return [issue];
   }
 
   return [];
 
-  function visitAction(name: string): t.Cell.Schema.Issue | undefined {
+  function visitTask(name: string): t.Cell.Schema.Issue | undefined {
     if (visited.has(name)) return undefined;
 
-    const action = actionByName.get(name);
-    if (!action) return undefined;
+    const task = taskByName.get(name);
+    if (!task) return undefined;
 
-    if (!isCompositeAction(action)) {
+    if (!isCompositeTask(task)) {
       visited.add(name);
       return undefined;
     }
@@ -114,19 +114,19 @@ function validateActionCycles(args: {
     visiting.add(name);
     stack.push(name);
 
-    for (let index = 0; index < action.steps.length; index += 1) {
-      const step = action.steps[index];
-      if (visiting.has(step.action)) {
-        const cycleStart = stack.indexOf(step.action);
-        const cycle = [...stack.slice(cycleStart), step.action];
+    for (let index = 0; index < task.steps.length; index += 1) {
+      const step = task.steps[index];
+      if (visiting.has(step.task)) {
+        const cycleStart = stack.indexOf(step.task);
+        const cycle = [...stack.slice(cycleStart), step.task];
         return {
           kind: 'semantic',
-          path: `/actions/${actionIndexByName.get(action.name) ?? 0}/steps/${index}/action`,
-          message: `Action cycle detected: ${cycle.join(' -> ')}`,
+          path: `/tasks/${taskIndexByName.get(task.name) ?? 0}/steps/${index}/task`,
+          message: `Task cycle detected: ${cycle.join(' -> ')}`,
         };
       }
 
-      const issue = visitAction(step.action);
+      const issue = visitTask(step.task);
       if (issue) return issue;
     }
 
@@ -137,8 +137,8 @@ function validateActionCycles(args: {
   }
 }
 
-function isCompositeAction(
-  action: t.Cell.Action.Descriptor,
-): action is t.Cell.Action.Composite {
-  return Is.array((action as { readonly steps?: unknown }).steps);
+function isCompositeTask(
+  task: t.Cell.Task.Descriptor,
+): task is t.Cell.Task.Composite {
+  return Is.array((task as { readonly steps?: unknown }).steps);
 }

@@ -6,13 +6,15 @@ describe(`Cell`, () => {
     const m = await import('@sys/cell');
     expect(m.Cell).to.equal(Cell);
     expect(m.Cell.Schema).to.equal(Cell.Schema);
-    expect(m.Cell.Runtime).to.equal(Cell.Runtime);
-    expect(m.Cell.Runtime.verify).to.equal(Cell.Runtime.verify);
-    expect(m.Cell.Runtime.start).to.equal(Cell.Runtime.start);
-    expect(m.Cell.Runtime.wait).to.equal(Cell.Runtime.wait);
-    expect(m.Cell.Action).to.equal(Cell.Action);
-    expect(m.Cell.Action.verify).to.equal(Cell.Action.verify);
-    expect(m.Cell.Action.run).to.equal(Cell.Action.run);
+    expect(m.Cell.Services).to.equal(Cell.Services);
+    expect(m.Cell.Services.verify).to.equal(Cell.Services.verify);
+    expect(m.Cell.Services.start).to.equal(Cell.Services.start);
+    expect(m.Cell.Services.wait).to.equal(Cell.Services.wait);
+    expect(m.Cell.Task).to.equal(Cell.Task);
+    expect(m.Cell.Task.verify).to.equal(Cell.Task.verify);
+    expect(m.Cell.Task.run).to.equal(Cell.Task.run);
+    expect(m.Cell.start).to.equal(Cell.start);
+    expect(m.Cell.task).to.equal(Cell.task);
   });
 
   it('keeps FS-aware seams out of the public import graph', async () => {
@@ -23,8 +25,8 @@ describe(`Cell`, () => {
       forbiddenImports: ['@sys/fs'],
       forbiddenPathIncludes: [
         '/src/m.cell/u.load.ts',
-        '/src/m.cell/u.runtime/',
-        '/src/m.cell/u.action/',
+        '/src/m.cell/u.services/',
+        '/src/m.cell/u.task/',
       ],
     });
   });

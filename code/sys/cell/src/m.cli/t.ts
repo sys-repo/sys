@@ -2,7 +2,7 @@
  * Cell operator CLI.
  */
 export declare namespace CellCli {
-  /** Runtime surface for Cell CLI flows. */
+  /** Library surface for Cell CLI flows. */
   export type Lib = {
     /** Run the Cell CLI from raw argv input. */
     run(input?: Input): Promise<Result>;
@@ -37,7 +37,7 @@ export declare namespace CellCli {
   }
 
   /** Result from a Cell CLI run. */
-  export type Result = Help | Init.Result | Action.Result | Start.Result | Error;
+  export type Result = Help | Init.Result | Task.Result | Start.Result | Error;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -80,20 +80,20 @@ export declare namespace CellCli {
     };
   }
 
-  /** Types for the `action` command. */
-  export namespace Action {
-    /** Successful finite Cell action result. */
+  /** Types for the `task` command. */
+  export namespace Task {
+    /** Successful finite Cell task result. */
     export type Result = {
       /** Result discriminant. */
-      readonly kind: 'action';
+      readonly kind: 'task';
       /** Raw input passed to the CLI entrypoint. */
       readonly input: Input;
-      /** Rendered action output. */
+      /** Rendered task output. */
       readonly text: string;
       /** Loaded Cell root. */
       readonly root: string;
-      /** Root action name that was run. */
-      readonly action: string;
+      /** Root task name that was run. */
+      readonly task: string;
       /** Number of leaf steps executed. */
       readonly steps: number;
     };
@@ -101,7 +101,7 @@ export declare namespace CellCli {
 
   /** Types for the `start` command. */
   export namespace Start {
-    /** Successful Cell runtime start result. */
+    /** Successful Cell services start result. */
     export type Result = {
       /** Result discriminant. */
       readonly kind: 'start';
@@ -111,7 +111,7 @@ export declare namespace CellCli {
       readonly text: string;
       /** Loaded Cell root. */
       readonly root: string;
-      /** Number of runtime services started. */
+      /** Number of services started. */
       readonly services: number;
     };
   }

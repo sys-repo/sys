@@ -25,7 +25,7 @@ describe(`@sys/cell/cli`, () => {
     });
     expect(text).to.contain('Run `dsl` first before changing Cell config');
     expect(text).to.contain(
-      'run first — maps Cell acts, owner rules, actions, services, and chapters',
+      'run first — maps Cell acts, owner rules, tasks, services, and chapters',
     );
     expect(text.indexOf('jsr:@sys/cell dsl')).to.be.lessThan(
       text.indexOf('jsr:@sys/cell init'),
@@ -54,17 +54,17 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('Writes');
   });
 
-  it('action -h → shows resource-backed action help', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['action', '-h'] }));
+  it('task -h → shows resource-backed task help', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['task', '-h'] }));
     const text = stripAnsi(res.text);
-    const guidance = await CellHelp.Action.load();
+    const guidance = await CellHelp.Task.load();
 
     expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell action');
+    expect(text).to.contain('@sys/cell task');
     guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.action.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('Cell verifies actions declared in `actions[]`');
-    expect(text).to.contain('structured args');
+    guidance.task.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('Cell validates the `tasks[]` graph');
+    expect(text).to.contain('structured config-ref args');
     expect(text).to.not.contain('--agent');
     expect(text).to.not.contain('--dry-run');
   });
@@ -76,9 +76,8 @@ describe(`@sys/cell/cli`, () => {
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell start');
-    guidance.usage.forEach((line) => expect(text).to.contain(line));
-    guidance.runtime.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('Cell.Runtime.wait');
+    guidance.services.forEach((line) => expect(text).to.contain(line));
+    expect(text).to.contain('Cell.Services.wait');
     expect(text).to.contain('started handle with `finished`');
     expect(text).to.not.contain('--agent');
     expect(text).to.not.contain('--dry-run');
@@ -96,8 +95,8 @@ describe(`@sys/cell/cli`, () => {
     const init = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['init', '--format', 'skill'] }))).text,
     );
-    const action = stripAnsi(
-      (await silent(() => CellCli.run({ argv: ['action', '--format', 'skill'] }))).text,
+    const task = stripAnsi(
+      (await silent(() => CellCli.run({ argv: ['task', '--format', 'skill'] }))).text,
     );
     const start = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['start', '--format', 'skill'] }))).text,
@@ -107,8 +106,8 @@ describe(`@sys/cell/cli`, () => {
     expect(root).to.contain('@sys/cell');
     expect(init).to.contain('Unexpected option for init: --format');
     expect(init).to.contain('@sys/cell init');
-    expect(action).to.contain('Unexpected option for action: --format');
-    expect(action).to.contain('@sys/cell action');
+    expect(task).to.contain('Unexpected option for task: --format');
+    expect(task).to.contain('@sys/cell task');
     expect(start).to.contain('Unexpected option for start: --format');
     expect(start).to.contain('@sys/cell start');
   });
@@ -165,45 +164,45 @@ describe(`@sys/cell/cli`, () => {
     expect(await read(descriptor)).to.eql(invalid);
   });
 
-  it('action → runs a named finite action', async () => {
-    resetActionEvents();
-    const fs = await Testing.dir('CellCli.action.run');
+  it('task → runs a named finite task', async () => {
+    resetTaskEvents();
+    const fs = await Testing.dir('CellCli.task.run');
     await Fs.write(
       Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
       Str.dedent(`
         kind: cell
         version: 1
 
-        actions:
+        tasks:
           - name: capture
-            from: ./-actions/capture.ts
-            export: CaptureAction
+            from: ./-tasks/capture.ts
+            export: CaptureTask
             config: ./-config/capture.yaml
       `).trimStart(),
     );
     await Fs.write(Fs.join(fs.dir, '-config/capture.yaml'), `value: from-config\n`);
-    await Fs.write(Fs.join(fs.dir, '-actions/capture.ts'), actionSource('CaptureAction'));
+    await Fs.write(Fs.join(fs.dir, '-tasks/capture.ts'), taskSource('CaptureTask'));
 
-    const res = await silent(() => CellCli.run({ argv: ['action', 'capture', fs.dir] }));
+    const res = await silent(() => CellCli.run({ argv: ['task', 'capture', fs.dir] }));
     const text = stripAnsi(res.text);
-    const event = actionEvents()[0];
+    const event = taskEvents()[0];
 
-    expect(res.kind).to.eql('action');
-    if (res.kind !== 'action') throw new Error('expected action result');
+    expect(res.kind).to.eql('task');
+    if (res.kind !== 'task') throw new Error('expected task result');
     expect(res.root).to.eql(fs.dir);
-    expect(res.action).to.eql('capture');
+    expect(res.task).to.eql('capture');
     expect(res.steps).to.eql(1);
-    expect(text).to.contain(`root     ${fs.dir}`);
-    expect(text).to.contain('action   capture');
-    expect(text).to.contain('steps    1');
-    expect(text).to.contain('ok       capture');
+    expect(text).to.contain(`root    ${fs.dir}`);
+    expect(text).to.contain('task    capture');
+    expect(text).to.contain('steps   1');
+    expect(text).to.contain('ok      capture');
     expect(event.args.cwd).to.eql(fs.dir);
-    expect(event.args.config).to.eql({ value: 'from-config' });
+    expect(event.args).to.not.have.property('config');
     expect(event.args.paths.config).to.eql(Fs.join(fs.dir, '-config/capture.yaml'));
   });
 
-  it('start → loads and starts an empty Cell runtime', async () => {
-    const fs = await Testing.dir('CellCli.start.empty-runtime');
+  it('start → loads and starts an empty Cell services set', async () => {
+    const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
 
     const res = await silent(() => CellCli.run({ argv: ['start', fs.dir] }));
@@ -217,23 +216,23 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('services   0');
   });
 
-  it('action → rejects missing names, unsupported options, and extra args', async () => {
+  it('task → rejects missing names, unsupported options, and extra args', async () => {
     const missing = stripAnsi(
-      (await silent(() => CellCli.run({ argv: ['action'] }))).text,
+      (await silent(() => CellCli.run({ argv: ['task'] }))).text,
     );
     const help = stripAnsi(
-      (await silent(() => CellCli.run({ argv: ['action', '--dry-run'] }))).text,
+      (await silent(() => CellCli.run({ argv: ['task', '--dry-run'] }))).text,
     );
     const extra = stripAnsi(
-      (await silent(() => CellCli.run({ argv: ['action', 'capture', '.', 'extra'] }))).text,
+      (await silent(() => CellCli.run({ argv: ['task', 'capture', '.', 'extra'] }))).text,
     );
 
-    expect(missing).to.contain('Missing action name.');
-    expect(missing).to.contain('@sys/cell action');
-    expect(help).to.contain('Unexpected option for action: --dry-run');
-    expect(help).to.contain('@sys/cell action');
+    expect(missing).to.contain('Missing task name.');
+    expect(missing).to.contain('@sys/cell task');
+    expect(help).to.contain('Unexpected option for task: --dry-run');
+    expect(help).to.contain('@sys/cell task');
     expect(extra).to.contain('Unexpected argument: extra');
-    expect(extra).to.contain('@sys/cell action');
+    expect(extra).to.contain('@sys/cell task');
   });
 
   it('start → rejects unsupported command options and extra args', async () => {
@@ -254,31 +253,30 @@ describe(`@sys/cell/cli`, () => {
 /**
  * Helpers:
  */
-type ActionEvent = {
+type TaskEvent = {
   readonly args: {
     readonly cwd: string;
-    readonly config?: Record<string, unknown>;
     readonly paths: { readonly config?: string };
   };
 };
 
-type ActionGlobal = typeof globalThis & { __cellCliActionEvents?: ActionEvent[] };
+type TaskGlobal = typeof globalThis & { __cellCliTaskEvents?: TaskEvent[] };
 
-function resetActionEvents() {
-  (globalThis as ActionGlobal).__cellCliActionEvents = [];
+function resetTaskEvents() {
+  (globalThis as TaskGlobal).__cellCliTaskEvents = [];
 }
 
-function actionEvents(): readonly ActionEvent[] {
-  return (globalThis as ActionGlobal).__cellCliActionEvents ?? [];
+function taskEvents(): readonly TaskEvent[] {
+  return (globalThis as TaskGlobal).__cellCliTaskEvents ?? [];
 }
 
-function actionSource(exportName: string) {
+function taskSource(exportName: string) {
   return Str.dedent(`
     export const ${exportName} = {
       run(args: unknown) {
-        const g = globalThis as unknown as { __cellCliActionEvents?: unknown[] };
-        g.__cellCliActionEvents ??= [];
-        g.__cellCliActionEvents.push({ args });
+        const g = globalThis as unknown as { __cellCliTaskEvents?: unknown[] };
+        g.__cellCliTaskEvents ??= [];
+        g.__cellCliTaskEvents.push({ args });
         return { ok: true };
       },
     };

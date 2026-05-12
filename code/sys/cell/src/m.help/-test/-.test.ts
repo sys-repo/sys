@@ -19,27 +19,27 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters.map((child) => child.id)).to.eql([
       'pulled-view',
       'static-http-service',
-      'runtime-service',
+      'service',
       'proxy-service',
-      'start-runtime',
+      'start-services',
     ]);
     expect(chapter.chapters[0].path).to.eql(['pulled-view']);
     expect(chapter.chapters[0].summary).to.eql('Add a view backed by an `@sys/tools/pull` config.');
     expect(chapter.chapters[1].path).to.eql(['static-http-service']);
     expect(chapter.chapters[1].summary).to.eql(
-      'Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
+      'Add an @sys/http static service backed by `@sys/http/server/static` config.',
     );
-    expect(chapter.chapters[2].path).to.eql(['runtime-service']);
+    expect(chapter.chapters[2].path).to.eql(['service']);
     expect(chapter.chapters[2].summary).to.eql(
       'Add a trusted lifecycle service backed by a service-owned config.',
     );
     expect(chapter.chapters[3].path).to.eql(['proxy-service']);
     expect(chapter.chapters[3].summary).to.eql(
-      'Add a runtime service backed by `@sys/http/server/proxy` config.',
+      'Add a service backed by `@sys/http/server/proxy` config.',
     );
-    expect(chapter.chapters[4].path).to.eql(['start-runtime']);
+    expect(chapter.chapters[4].path).to.eql(['start-services']);
     expect(chapter.chapters[4].summary).to.eql(
-      'Start a composed Cell runtime from a Cell folder.',
+      'Start composed Cell services from a Cell folder.',
     );
   });
 
@@ -67,7 +67,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.path).to.eql(['static-http-service']);
     expect(chapter.title).to.eql('Static HTTP service');
     expect(chapter.summary).to.eql(
-      'Add an @sys/http static runtime service backed by `@sys/http/server/static` config.',
+      'Add an @sys/http static service backed by `@sys/http/server/static` config.',
     );
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
@@ -80,12 +80,12 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters).to.eql([]);
   });
 
-  it('loads the runtime service DSL chapter by path', async () => {
-    const chapter = await CellHelp.Dsl.load(['runtime-service']);
+  it('loads the service DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['service']);
 
-    expect(chapter.id).to.eql('runtime-service');
-    expect(chapter.path).to.eql(['runtime-service']);
-    expect(chapter.title).to.eql('Runtime service');
+    expect(chapter.id).to.eql('service');
+    expect(chapter.path).to.eql(['service']);
+    expect(chapter.title).to.eql('Service');
     expect(chapter.summary).to.eql(
       'Add a trusted lifecycle service backed by a service-owned config.',
     );
@@ -107,7 +107,7 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.path).to.eql(['proxy-service']);
     expect(chapter.title).to.eql('Proxy service');
     expect(chapter.summary).to.eql(
-      'Add a runtime service backed by `@sys/http/server/proxy` config.',
+      'Add a service backed by `@sys/http/server/proxy` config.',
     );
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
@@ -121,19 +121,19 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters).to.eql([]);
   });
 
-  it('loads the start runtime DSL chapter by path', async () => {
-    const chapter = await CellHelp.Dsl.load(['start-runtime']);
+  it('loads the start services DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['start-services']);
 
-    expect(chapter.id).to.eql('start-runtime');
-    expect(chapter.path).to.eql(['start-runtime']);
-    expect(chapter.title).to.eql('Start runtime');
-    expect(chapter.summary).to.eql('Start a composed Cell runtime from a Cell folder.');
+    expect(chapter.id).to.eql('start-services');
+    expect(chapter.path).to.eql(['start-services']);
+    expect(chapter.title).to.eql('Start services');
+    expect(chapter.summary).to.eql('Start composed Cell services from a Cell folder.');
     expect(chapter.sections.map((section) => section.label)).to.eql([
       'Rule',
       'Operator flow',
       'Command',
       'Project task',
-      'Runtime',
+      'Services',
     ]);
     expect(chapter.chapters).to.eql([]);
   });

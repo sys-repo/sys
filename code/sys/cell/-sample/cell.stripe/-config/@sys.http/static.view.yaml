@@ -1,4 +1,4 @@
-# Static view-folder runtime.
+# Static view-folder service.
 
 name: ui:static:views
 dir: ./view

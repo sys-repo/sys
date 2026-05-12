@@ -23,56 +23,61 @@ Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [Y
 The DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScript type surface, or
 Markdown whose structure, conventions, and "prose schema" carry stable meaning.
 
-`@sys/cell` marks the folder boundary, loads the Cell descriptor, and composes trusted runtime
-services. Owner packages name and interpret sub-roots such as `./data`, `./view`, or other
+`@sys/cell` marks the folder boundary, loads the Cell descriptor, composes trusted services, and
+runs finite tasks. Owner packages name and interpret sub-roots such as `./data`, `./view`, or other
 service-specific config paths.
 
 ```text
 @sys/cell               boot/composition kernel
  ↓ dsl      🧬          stored meaning in ordinary files
- ↓ runtime  🧫          active interpretation by declared services
+ ↓ services 🧫          active interpretation by declared services
  ↓ view     👁️          owner-defined projections that make Cell state perceivable
 ```
 
 ### Command Line `--help`
 
 <!-- Sync note: this block mirrors the plain @sys/cell --help body. Refresh via: cd code/sys/cell && deno task cli --help. -->
+
 ```text
 @sys/cell
 
 A Cell is a folder-shaped metamedium whose ordinary files
 carry DSL-shaped meaning that can be interpreted, viewed,
 and validly rewritten within the folder that bounds it.
+Run `dsl` first before changing Cell config, owner configs,
+tasks, services, or routes.
 
 Usage      deno run -ER   jsr:@sys/cell --help
-           deno run -ERW  jsr:@sys/cell init [dir]
            deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
+           deno run -ERW  jsr:@sys/cell init [dir]
+           deno run -ERWN jsr:@sys/cell task <name> [dir]
            deno run -ERWN jsr:@sys/cell start [dir]
 
-Commands   init    initialize a folder as a Cell
-           dsl     show Cell speech acts, owner rules, and chapters
-           start   start the Cell runtime
+Commands   dsl     run first — maps Cell acts, owner rules, tasks, services, and chapters
+           init    initialize a folder as a Cell
+           task    run a named trusted task from tasks[]
+           start   start the Cell services
 
 Options    -h, --help   show help
 ```
-
 
 <p>&nbsp;</p>
 
 ## Prompting `cell dsl`
 
-| Intent                        | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:    |
-| ----------------------------- | ------------------------------------------------------------------- |
-| create: **Cell**              | Initialize this folder as an `@sys/cell`.                           |
-| create: **Cell** at path      | Initialize `./foo` as an `@sys/cell`.                               |
-| add: pulled view              | Add a pulled view from `<dist-url>`.                                |
-| refresh: pulled views         | Pull latest configured views.                                       |
-| add: static HTTP service      | Add an `@sys/http` static service for `<view>`.                     |
-| add: runtime service          | Add a service named `<service-name>` using `<@scope/pkg>/<export>`. |
-| add: proxy service            | Add a proxy service named `<service-name>`.                         |
-| route: proxy root             | Route `/` to `<view/service/upstream>`.                             |
-| route: proxy mount            | Route `<path-prefix>` to `<view/service/upstream>`.                 |
-| start: runtime                | Start the **Cell** runtime.                                         |
+| Intent                   | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:    |
+| ------------------------ | ------------------------------------------------------------------- |
+| create: **Cell**         | Initialize this folder as an `@sys/cell`.                           |
+| create: **Cell** at path | Initialize `./foo` as an `@sys/cell`.                               |
+| add: pulled view         | Add a pulled view from `<dist-url>`.                                |
+| refresh: pulled views    | Pull latest configured views.                                       |
+| add: static HTTP service | Add an `@sys/http` static service for `<view>`.                     |
+| add: service             | Add a service named `<service-name>` using `<@scope/pkg>/<export>`. |
+| add: proxy service       | Add a proxy service named `<service-name>`.                         |
+| route: proxy root        | Route `/` to `<view/service/upstream>`.                             |
+| route: proxy mount       | Route `<path-prefix>` to `<view/service/upstream>`.                 |
+| run: task                | Run a task named `<task-name>`.                                     |
+| start: services          | Start the **Cell** services.                                        |
 
 <p>&nbsp;</p>
 
@@ -90,14 +95,17 @@ Sample slot values, not DSL grammar:
 <p>&nbsp;</p>
 
 ## Usage
+
 ### Programmatic
 
 ```ts
 import { Cell } from 'jsr:@sys/cell';
 
 const cell = await Cell.load('.');
-const runtime = await Cell.Runtime.start(cell);
-await runtime.close('done');
+const started = await Cell.start(cell);
+await started.close('done');
+
+await Cell.task(cell, 'sample:deploy');
 ```
 
 ### CLI
@@ -108,6 +116,7 @@ Use `dsl` as the agent-facing speech-act help surface.
 deno run -ER   jsr:@sys/cell --help
 deno run -ERW  jsr:@sys/cell init --help
 deno run -ER   jsr:@sys/cell dsl
+deno run -ERWN jsr:@sys/cell task sample:deploy .
 deno run -ERWN jsr:@sys/cell start .
 ```
 

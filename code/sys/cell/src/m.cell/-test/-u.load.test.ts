@@ -11,7 +11,7 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
-    expect(cell.descriptor.runtime?.services.map((service) => service.name)).to.eql([
+    expect(cell.descriptor.services?.map((service) => service.name)).to.eql([
       'ui:static:views',
       'stripe:dev:fixture',
       'cell:proxy',
@@ -26,54 +26,54 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
-    expect(cell.descriptor.runtime).to.eql(undefined);
+    expect(cell.descriptor.services).to.eql(undefined);
   });
 
-  it('loads and validates descriptors with action composition', async () => {
+  it('loads and validates descriptors with task composition', async () => {
     const root = await tempCell(
-      'actions',
+      'tasks',
       Str.dedent(`
         kind: cell
         version: 1
 
-        actions:
+        tasks:
           - name: pull:view
-            from: ./-actions/pull.view.ts
-            export: PullViewAction
+            from: ./-tasks/pull.view.ts
+            export: PullViewTask
             config: ./-config/@sys.tools.pull/view.yaml
 
           - name: deploy:stage
-            from: ./-actions/deploy.stage.ts
-            export: DeployStageAction
+            from: ./-tasks/deploy.stage.ts
+            export: DeployStageTask
             config: ./-config/@sys.tools.deploy/stage.yaml
 
           - name: clean:tmp
-            from: ./-actions/clean.tmp.ts
-            export: CleanTmpAction
+            from: ./-tasks/clean.tmp.ts
+            export: CleanTmpTask
 
           - name: sample:deploy
             steps:
-              - action: pull:view
-              - action: deploy:stage
+              - task: pull:view
+              - task: deploy:stage
       `).trimStart(),
     );
 
     const cell = await Cell.load(root);
 
-    expect(cell.descriptor.actions?.map((action) => action.name)).to.eql([
+    expect(cell.descriptor.tasks?.map((task) => task.name)).to.eql([
       'pull:view',
       'deploy:stage',
       'clean:tmp',
       'sample:deploy',
     ]);
-    expect(cell.descriptor.actions?.[2]).to.eql({
+    expect(cell.descriptor.tasks?.[2]).to.eql({
       name: 'clean:tmp',
-      from: './-actions/clean.tmp.ts',
-      export: 'CleanTmpAction',
+      from: './-tasks/clean.tmp.ts',
+      export: 'CleanTmpTask',
     });
-    expect(cell.descriptor.actions?.[3]).to.eql({
+    expect(cell.descriptor.tasks?.[3]).to.eql({
       name: 'sample:deploy',
-      steps: [{ action: 'pull:view' }, { action: 'deploy:stage' }],
+      steps: [{ task: 'pull:view' }, { task: 'deploy:stage' }],
     });
   });
 

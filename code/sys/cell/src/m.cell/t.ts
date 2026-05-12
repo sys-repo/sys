@@ -1,18 +1,20 @@
 import type { t } from './common.ts';
 
 /**
- * Cell descriptor loading and runtime service composition.
+ * Cell descriptor loading, service composition, and finite task execution.
  */
 export declare namespace Cell {
   /** Root library surface exported as `Cell`. */
   export type Lib = {
     readonly Schema: Schema.Lib;
-    readonly Runtime: Runtime.Lib;
-    readonly Action: Action.Lib;
+    readonly Services: Services.Lib;
+    readonly Task: Task.Lib;
     load(root: t.StringDir, options?: LoadOptions): Promise<Instance>;
+    start(cell: Instance, options?: Services.StartOptions): Promise<Services.Started>;
+    task(cell: Instance, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
   };
 
-  /** Cell-local identifier used for runtime services. */
+  /** Cell-local identifier used for services and tasks. */
   export type Id = t.StringId;
 
   /** Path declared in `cell.yaml`, resolved relative to the Cell root. */
@@ -32,34 +34,31 @@ export declare namespace Cell {
   export type Descriptor = {
     kind: 'cell';
     version: 1;
-    runtime?: Runtime.Descriptor;
-    actions?: Action.Descriptor[];
+    services?: Services.Service[];
+    tasks?: Task.Descriptor[];
   };
 
   /** Finite operator workflows declared by the Cell descriptor. */
-  export namespace Action {
-    /** Action verification/execution API. */
+  export namespace Task {
+    /** Task verification/execution API. */
     export type Lib = {
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       run(cell: Instance, name: Id, options?: RunOptions): Promise<RunResult>;
     };
 
-    /** Action verification options. */
+    /** Task verification options. */
     export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
       readonly trusted?: readonly string[];
     };
 
-    /** Action run options. */
-    export type RunOptions = VerifyOptions & {
-      /** Optional operator hook for final leaf action args after owner config loading. */
-      runArgs?(input: RunArgsInput): RunArgs | Promise<RunArgs>;
-    };
+    /** Task run options. */
+    export type RunOptions = VerifyOptions;
 
-    /** Root action entry. Every root action is runnable by name. */
+    /** Root task entry. Every root task is runnable by name. */
     export type Descriptor = Leaf | Composite;
 
-    /** Trusted finite endpoint action. */
+    /** Trusted finite endpoint task. */
     export type Leaf = {
       name: Id;
       from: string;
@@ -67,7 +66,7 @@ export declare namespace Cell {
       config?: Path;
     };
 
-    /** Composite action that sequences other root actions by reference. */
+    /** Composite task that sequences other root tasks by reference. */
     export type Composite = {
       name: Id;
       steps: Step[];
@@ -75,68 +74,58 @@ export declare namespace Cell {
 
     /** Ref-only composite step. */
     export type Step = {
-      action: Id;
+      task: Id;
     };
 
-    /** Action verification result. */
+    /** Task verification result. */
     export type Verification = {
-      readonly actions: readonly VerifiedAction[];
+      readonly tasks: readonly VerifiedTask[];
     };
 
-    /** Verified root action. */
-    export type VerifiedAction = VerifiedLeaf | VerifiedComposite;
+    /** Verified root task. */
+    export type VerifiedTask = VerifiedLeaf | VerifiedComposite;
 
-    /** Verified executable leaf action. */
+    /** Verified executable leaf task. */
     export type VerifiedLeaf = {
       readonly kind: 'leaf';
-      readonly action: Leaf;
+      readonly task: Leaf;
       readonly paths: { readonly config?: t.StringPath };
-      readonly config?: Record<string, unknown>;
       readonly endpoint: Endpoint;
     };
 
-    /** Verified composite action. */
+    /** Verified composite task. */
     export type VerifiedComposite = {
       readonly kind: 'composite';
-      readonly action: Composite;
+      readonly task: Composite;
     };
 
-    /** Finite action endpoint. */
+    /** Finite task endpoint. */
     export type Endpoint<Result = unknown> = {
       run(args: RunArgs): Result | Promise<Result>;
     };
 
-    /** Structured arguments passed to a leaf action endpoint. */
+    /** Structured arguments passed to a leaf task endpoint. */
     export type RunArgs = {
       readonly cwd: t.StringDir;
-      readonly config?: Record<string, unknown>;
       readonly paths: { readonly config?: t.StringPath };
     };
 
-    /** Action run argument hook input. */
-    export type RunArgsInput = {
-      readonly cell: Instance;
-      readonly root: Descriptor;
-      readonly action: VerifiedLeaf;
-      readonly base: RunArgs;
-    };
-
-    /** Action run result. */
+    /** Task run result. */
     export type RunResult = {
-      readonly action: Descriptor;
+      readonly task: Descriptor;
       readonly steps: readonly StepResult[];
     };
 
-    /** Leaf action execution result. */
+    /** Leaf task execution result. */
     export type StepResult = {
-      readonly action: Leaf;
+      readonly task: Leaf;
       readonly ok: boolean;
       readonly result?: unknown;
       readonly error?: unknown;
       readonly metrics: RunMetrics;
     };
 
-    /** Cell-measured finite action metrics. */
+    /** Cell-measured finite task metrics. */
     export type RunMetrics = {
       readonly run: {
         /** Instant immediately before endpoint args are finalized and `run(args)` is called. */
@@ -147,66 +136,57 @@ export declare namespace Cell {
     };
   }
 
-  /** Runtime services declared by the Cell descriptor. */
-  export namespace Runtime {
-    /** Runtime verification/activation API. */
+  /** Services declared by the Cell descriptor. */
+  export namespace Services {
+    /** Services verification/activation API. */
     export type Lib = {
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
       /** Wait for started service lifecycle handles that expose `finished`. */
-      wait(runtime: Started): Promise<void>;
+      wait(started: Started): Promise<void>;
     };
 
-    /** Runtime verification options. */
+    /** Services verification options. */
     export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
       readonly trusted?: readonly string[];
     };
 
-    /** Runtime start options. */
-    export type StartOptions = VerifyOptions & {
-      /** Optional operator hook for final service start arguments after owner config loading. */
-      startArgs?(input: StartArgsInput): StartArgs | Promise<StartArgs>;
+    /** Services start options. */
+    export type StartOptions = VerifyOptions;
+
+    /** Service start arguments. */
+    export type StartArgs = {
+      readonly cwd: t.StringDir;
+      readonly paths: { readonly config: t.StringPath };
     };
 
-    /** Runtime service start arguments. */
-    export type StartArgs = Record<string, unknown>;
-
-    /** Service start argument hook input. */
-    export type StartArgsInput = {
-      readonly cell: Instance;
-      readonly service: VerifiedService;
-      /** Base arguments derived from Cell root and service-owned config. */
-      readonly base: StartArgs;
-    };
-
-    /** Runtime topology verification result. */
+    /** Services verification result. */
     export type Verification<Handle = unknown> = {
       readonly services: readonly VerifiedService<Handle>[];
     };
 
-    /** Started runtime services. */
+    /** Started services aggregate. */
     export type Started<Handle = unknown> = {
       readonly services: readonly StartedService<Handle>[];
       close(reason?: unknown): Promise<void>;
     };
 
-    /** Verified runtime service with resolved config and lifecycle endpoint. */
+    /** Verified service with resolved config ref and lifecycle endpoint. */
     export type VerifiedService<Handle = unknown> = {
       readonly service: Service;
       readonly paths: { readonly config: t.StringPath };
-      readonly config: Record<string, unknown>;
       readonly endpoint: LifecycleEndpoint<Handle>;
     };
 
-    /** Started runtime service with its opaque owner handle and Cell-measured metrics. */
+    /** Started service with its opaque owner handle and Cell-measured metrics. */
     export type StartedService<Handle = unknown> = VerifiedService<Handle> & {
       /** Opaque owner handle returned by `LifecycleEndpoint.start(args)`. */
       readonly handle: Handle;
       readonly metrics: ServiceMetrics;
     };
 
-    /** Runtime service metrics measured by Cell-owned composition. */
+    /** Service metrics measured by Cell-owned composition. */
     export type ServiceMetrics = {
       readonly start: {
         /** Instant immediately before `LifecycleEndpoint.start(args)` is called. */
@@ -216,15 +196,12 @@ export declare namespace Cell {
       };
     };
 
-    /** Runtime service lifecycle endpoint. */
+    /** Service lifecycle endpoint. */
     export type LifecycleEndpoint<Handle = unknown> = {
       start(args: StartArgs): Handle | Promise<Handle>;
     };
 
-    /** Runtime section of the Cell descriptor. */
-    export type Descriptor = { services: Service[] };
-
-    /** Runtime service resolved through `from` + `export` and service-owned `config`. */
+    /** Service resolved through `from` + `export` and service-owned `config`. */
     export type Service = {
       name: Id;
       from: string;
@@ -240,7 +217,7 @@ export declare namespace Cell {
       readonly Descriptor: Descriptor;
     };
 
-    /** Validator and runtime schema for `Cell.Descriptor`. */
+    /** Validator and schema for `Cell.Descriptor`. */
     export type Descriptor = {
       readonly idPattern: string;
       readonly schema: t.TSchema;

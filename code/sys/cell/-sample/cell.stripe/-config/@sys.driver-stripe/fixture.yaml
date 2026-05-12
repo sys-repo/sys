@@ -1,4 +1,4 @@
-# Stripe fixture runtime.
+# Stripe fixture service.
 
 name: stripe:dev:fixture
 hostname: 127.0.0.1
