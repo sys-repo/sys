@@ -28,6 +28,8 @@ export namespace DeployTool {
   export type Lib = {
     /** Stage endpoint files from owner YAML. */
     stage(args: StageArgs): Promise<StageResult>;
+    /** Push an already-staged endpoint from owner YAML. */
+    push(args: PushArgs): Promise<PushResult>;
   };
 
   export type StageArgs = {
@@ -50,6 +52,42 @@ export namespace DeployTool {
       readonly config: t.StringPath;
       readonly cwd: t.StringDir;
       readonly stagingRoot?: t.StringDir;
+      readonly error?: unknown;
+    };
+  }
+
+  export type PushArgs = {
+    cwd?: t.StringDir;
+    config: t.StringPath;
+  };
+
+  export type PushResult = {
+    readonly ok: true;
+    readonly cwd: t.StringDir;
+    readonly config: t.StringPath;
+    readonly targets: number;
+    readonly elapsed?: string;
+    readonly shards?: number;
+    readonly bytes?: number;
+  };
+
+  export namespace PushOperation {
+    export type Result = PushResult | Failure;
+
+    export type Failure = {
+      readonly ok: false;
+      readonly cwd: t.StringDir;
+      readonly config: t.StringPath;
+      readonly reason:
+        | 'yaml-invalid'
+        | 'no-provider'
+        | 'no-push-targets'
+        | 'no-staging-output'
+        | 'probe-failed'
+        | 'unsupported-provider'
+        | 'not-implemented'
+        | 'failed';
+      readonly hint?: string;
       readonly error?: unknown;
     };
   }
