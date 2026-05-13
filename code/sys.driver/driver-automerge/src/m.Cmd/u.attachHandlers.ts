@@ -5,7 +5,7 @@ import {
   makeDocStatsHandler,
   makeDocWriteHandler,
 } from '../m.Cmd.commands/mod.ts';
-import { type t, Is } from './common.ts';
+import { Is, type t } from './common.ts';
 import { make } from './u.make.ts';
 
 /**
@@ -18,6 +18,7 @@ export const attachHandlers = (args: {
   endpoint: t.CmdEndpoint;
   repo: t.CrdtRepoInput;
   handlers?: Partial<t.CrdtCmdHandlers>;
+  closeEndpoint?: boolean;
 }): t.CmdHost => {
   const { endpoint } = args;
   const cmd = make();
@@ -33,5 +34,5 @@ export const attachHandlers = (args: {
     ...args.handlers,
   };
 
-  return cmd.host(endpoint, handlers);
+  return cmd.host(endpoint, handlers, { closeEndpoint: args.closeEndpoint });
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it, slug } from '../../-test.ts';
-import { type t, Cmd } from '../common.ts';
+import { Cmd, type t } from '../common.ts';
 
 describe('Crdt.Worker.Cmd (RPC)', () => {
   it('attach roundtrip over a bare MessageChannel', async () => {
@@ -46,5 +46,7 @@ describe('Crdt.Worker.Cmd (RPC)', () => {
     // 6. Cleanup (ensures no MessagePort leaks).
     client.dispose();
     host.dispose();
+    port1.close();
+    port2.close();
   });
 });

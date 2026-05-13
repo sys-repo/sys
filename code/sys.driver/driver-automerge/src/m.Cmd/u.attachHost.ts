@@ -7,7 +7,7 @@ import { attachHandlers } from './u.attachHandlers.ts';
  * The host is torn down when the repo is disposed.
  */
 export const attachHost: t.CrdtCmdLib['attachHost'] = (repo, endpoint, until) => {
-  const host = attachHandlers({ endpoint, repo });
+  const host = attachHandlers({ endpoint, repo, closeEndpoint: true });
 
   const events = repo.events(until);
   const sub = events.dispose$.subscribe(() => {
