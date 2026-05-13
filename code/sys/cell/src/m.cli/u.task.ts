@@ -13,7 +13,7 @@ export type RunCellTaskResult = {
 };
 
 export async function runCellTask(args: RunCellTaskArgs): Promise<RunCellTaskResult> {
-  const cell = await Cell.load(args.dir ?? '.');
+  const cell = await Cell.load(args.dir);
   const res = await Cell.task(cell, args.name);
 
   return {

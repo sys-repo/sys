@@ -18,6 +18,13 @@ describe('Cell.load', () => {
     ]);
   });
 
+  it('defaults to the process cwd when no root is given', async () => {
+    const error = await catchLoad();
+    const descriptor = Fs.join(Fs.cwd('process'), '-config/@sys.cell/cell.yaml');
+
+    expect(error?.message).to.contain(`Cell.load: failed to read descriptor: ${descriptor}`);
+  });
+
   it('loads and validates the Deploy sample descriptor', async () => {
     const root = new URL('../../../-sample/cell.deploy', import.meta.url).pathname;
     const cell = await Cell.load(root);

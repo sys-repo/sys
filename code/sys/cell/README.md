@@ -98,13 +98,27 @@ Sample slot values, not DSL grammar:
 
 ### Programmatic
 
+Start declared services:
+
+```ts
+import { Cell } from 'jsr:@sys/cell';
+
+const cell = await Cell.load();
+const started = await Cell.start(cell);
+
+try {
+  await Cell.Services.wait(started);
+} finally {
+  await started.close();
+}
+```
+
+Run a named task:
+
 ```ts
 import { Cell } from 'jsr:@sys/cell';
 
 const cell = await Cell.load('.');
-const started = await Cell.start(cell);
-await started.close('done');
-
 await Cell.task(cell, 'sample:deploy');
 ```
 
@@ -116,34 +130,9 @@ Use `dsl` as the agent-facing speech-act help surface.
 deno run -ER   jsr:@sys/cell --help
 deno run -ERW  jsr:@sys/cell init --help
 deno run -ER   jsr:@sys/cell dsl
+
 deno run -ERWN jsr:@sys/cell task sample:deploy .
-deno run -ERWN jsr:@sys/cell start .
+deno run -ERWN jsr:@sys/cell start
 ```
 
 <p>&nbsp;</p>
-
----
-
-## Development
-
-**Debug:** simulate published `@sys/cell` usage:
-
-```md
-Use `./-sample/foo/` as the working folder and behave as if you are in a virgin user project, not
-inside the `sys` source repo. Treat `@sys/cell` as a published package. Do not inspect local
-workspace source such as `code/sys/cell/src/` while simulating published-package usage.
-
-Start from public CLI/help surfaces to understand the DSL and owner flows:
-
-    deno run -ER jsr:@sys/cell --help
-    deno run -ER jsr:@sys/cell dsl
-
-When another owner package is needed, discover it through its own --help surface before using it. If
-a module/export contract is still ambiguous, inspect the published JSR package docs/source for that
-specifier. Use source inspection only to confirm public exports, types, and lifecycle contracts. Do
-not use source inspection to bypass owner CLI/API config affordances. Do not hand-author owner YAML
-when an owner CLI/API can write it.
-
-Now interpret the next human prompt as a Cell DSL speech-act and operate from public help surfaces
-first.
-```

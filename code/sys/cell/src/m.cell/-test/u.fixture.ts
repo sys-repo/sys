@@ -2,7 +2,7 @@ import { Fs, Yaml } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { Cell } from '../mod.ts';
 
-export async function catchLoad(root: t.StringDir): Promise<Error | undefined> {
+export async function catchLoad(root?: t.StringDir): Promise<Error | undefined> {
   try {
     await Cell.load(root);
   } catch (err) {

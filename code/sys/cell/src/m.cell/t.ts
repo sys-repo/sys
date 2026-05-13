@@ -9,7 +9,8 @@ export declare namespace Cell {
     readonly Schema: Schema.Lib;
     readonly Services: Services.Lib;
     readonly Task: Task.Lib;
-    load(root: t.StringDir, options?: LoadOptions): Promise<Instance>;
+    /** Load a Cell folder. Defaults to the current process cwd when `root` is omitted. */
+    load(root?: t.StringDir, options?: LoadOptions): Promise<Instance>;
     start(cell: Instance, options?: Services.StartOptions): Promise<Services.Started>;
     task(cell: Instance, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
   };

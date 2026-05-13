@@ -11,7 +11,7 @@ export type StartCellResult = {
 };
 
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
-  const cell = await Cell.load(args.dir ?? '.');
+  const cell = await Cell.load(args.dir);
   const started = await Cell.start(cell);
 
   try {

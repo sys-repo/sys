@@ -12,7 +12,7 @@ import { Fs } from '@sys/fs';
 
 const DescriptorFile = '-config/@sys.cell/cell.yaml';
 
-export const loadCell: t.Cell.Lib['load'] = async (root) => {
+export const loadCell: t.Cell.Lib['load'] = async (root = Fs.cwd('process')) => {
   const cellRoot = Fs.resolve(root) as t.StringDir;
   const descriptorPath = Fs.join(cellRoot, DescriptorFile) as t.StringPath;
 
