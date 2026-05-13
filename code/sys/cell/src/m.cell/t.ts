@@ -90,7 +90,12 @@ export declare namespace Cell {
 
       /** Finite task run lifecycle telemetry emitted by `run(...)`. */
       export type Event =
-        | { readonly kind: 'task:start'; readonly task: Descriptor }
+        | {
+          readonly kind: 'task:start';
+          readonly task: Descriptor;
+          /** Leaf task steps in the run order expected for this task invocation. */
+          readonly leaves: readonly Leaf[];
+        }
         | {
           readonly kind: 'task:step:start';
           readonly rootTask: Descriptor;

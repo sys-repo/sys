@@ -1,4 +1,4 @@
-import { c, Cli, CliTable, Fs, Str, type t } from './common.ts';
+import { c, Cli, CliTable, Fs, Str, type t, Time } from './common.ts';
 
 type TaskResult = {
   root: string;
@@ -45,33 +45,47 @@ export const Fmt = {
       const startSpinner = deps.spinner ?? Cli.spinner;
       const silent = deps.silent ?? !isTerminal();
       let spinner: TaskProgressSpinner | undefined;
+      let completionLabelWidth = 0;
 
-      const start = (name: string) => {
+      const start = (text: string) => {
         if (silent) return;
         if (spinner) {
-          spinner.text = runningText(name);
+          spinner.text = text;
           return;
         }
-        spinner = startSpinner(runningText(name));
+        spinner = startSpinner(text);
       };
-      const succeed = (name: string) => {
+      const succeedStep = (result: t.Cell.Task.StepResult) => {
         if (!spinner) return;
-        spinner.succeed(okText(name));
+        spinner.succeed(okStepText(result, completionLabelWidth));
         spinner = undefined;
       };
-      const fail = (name: string) => {
+      const failStep = (result: t.Cell.Task.StepResult) => {
         if (!spinner) return;
-        spinner.fail(failedText(name));
+        spinner.fail(failedStepText(result, completionLabelWidth));
+        spinner = undefined;
+      };
+      const succeedTask = (name: string) => {
+        if (!spinner) return;
+        spinner.succeed(okTaskText(name));
+        spinner = undefined;
+      };
+      const failTask = (name: string) => {
+        if (!spinner) return;
+        spinner.fail(failedTaskText(name));
         spinner = undefined;
       };
 
       return (event) => {
-        if (event.kind === 'task:start') return start(event.task.name);
-        if (event.kind === 'task:step:start') return start(event.step.name);
-        if (event.kind === 'task:step:ok') return succeed(event.step.name);
-        if (event.kind === 'task:step:fail') return fail(event.step.name);
-        if (event.kind === 'task:ok') return succeed(event.task.name);
-        if (event.kind === 'task:fail') return fail(event.task.name);
+        if (event.kind === 'task:start') {
+          completionLabelWidth = stepCompletionLabelWidth(event.leaves);
+          return start(runningTaskText(event.task.name));
+        }
+        if (event.kind === 'task:step:start') return start(runningStepText(event.step.name));
+        if (event.kind === 'task:step:ok') return succeedStep(event.result);
+        if (event.kind === 'task:step:fail') return failStep(event.result);
+        if (event.kind === 'task:ok') return succeedTask(event.task.name);
+        if (event.kind === 'task:fail') return failTask(event.task.name);
       };
     },
   },
@@ -84,16 +98,64 @@ function rootPath(path: string): string {
   return c.gray(Cli.Fmt.path(Fs.trimCwd(path), Cli.Fmt.Path.fmt()));
 }
 
-function runningText(name: string): string {
+function runningTaskText(name: string): string {
   return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
 }
 
-function okText(name: string): string {
+function runningStepText(name: string): string {
+  return `${Cli.Fmt.spinnerText('running ', false)}${c.cyan(name)}`;
+}
+
+function okTaskText(name: string): string {
   return Cli.Fmt.spinnerRaw(`${c.green('ok')} ${c.white(name)}`, false);
 }
 
-function failedText(name: string): string {
+function failedTaskText(name: string): string {
   return Cli.Fmt.spinnerRaw(`${c.yellow('failed')} ${c.white(name)}`, false);
+}
+
+function okStepText(result: t.Cell.Task.StepResult, width: number): string {
+  return stepCompletionText('ok', result, width);
+}
+
+function failedStepText(result: t.Cell.Task.StepResult, width: number): string {
+  return stepCompletionText('failed', result, width);
+}
+
+function stepCompletionText(
+  status: 'ok' | 'failed',
+  result: t.Cell.Task.StepResult,
+  width: number,
+): string {
+  const color = status === 'ok' ? c.green : c.yellow;
+  const name = result.task.name;
+  const prefix = `${color(status)} ${c.gray('step')} ${c.white(name)}`;
+  const elapsed = c.gray(elapsedText(result.metrics.run));
+  const labelWidth = stepCompletionLabel(status, name).length;
+  const targetWidth = Math.max(width, labelWidth);
+  const pad = ' '.repeat(targetWidth - labelWidth + 2);
+
+  return Cli.Fmt.spinnerRaw(`${prefix}${pad}${elapsed}`, false);
+}
+
+function stepCompletionLabelWidth(leaves: Iterable<t.Cell.Task.Leaf>): number {
+  let width = 0;
+  for (const leaf of leaves) {
+    width = Math.max(
+      width,
+      stepCompletionLabel('ok', leaf.name).length,
+      stepCompletionLabel('failed', leaf.name).length,
+    );
+  }
+  return width;
+}
+
+function stepCompletionLabel(status: 'ok' | 'failed', name: string): string {
+  return `${status} step ${name}`;
+}
+
+function elapsedText(metric: t.Cell.Task.RunMetrics['run']): string {
+  return Time.elapsed(metric.startedAt, metric.resolvedAt).toString();
 }
 
 function isTerminal(): boolean {

@@ -17,7 +17,11 @@ export const run: t.Cell.Task.Lib['run'] = async (cell, name, options = {}) => {
   if (!rootDescriptor) throw new Error(`Cell.Task.run: unknown task '${name}'.`);
 
   const steps: t.Cell.Task.StepResult[] = [];
-  emit({ kind: 'task:start', task: rootDescriptor });
+  emit({
+    kind: 'task:start',
+    task: rootDescriptor,
+    leaves: leafTasksOf(rootDescriptor, descriptorByName),
+  });
 
   const { byName, root } = await verifyRunState({
     cell,
@@ -47,6 +51,19 @@ export const run: t.Cell.Task.Lib['run'] = async (cell, name, options = {}) => {
 /**
  * Helpers:
  */
+function leafTasksOf(
+  task: t.Cell.Task.Descriptor,
+  byName: ReadonlyMap<string, t.Cell.Task.Descriptor>,
+): t.Cell.Task.Leaf[] {
+  if (!isCompositeTask(task)) return [task];
+
+  return task.steps.flatMap((step) => {
+    const child = byName.get(step.task);
+    if (!child) throw new TaskRunFailure(step.task, new Error(`Unknown task: ${step.task}`));
+    return leafTasksOf(child, byName);
+  });
+}
+
 async function verifyRunState(args: {
   cell: t.Cell.Instance;
   name: t.Cell.Id;

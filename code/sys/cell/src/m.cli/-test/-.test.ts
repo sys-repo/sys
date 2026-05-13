@@ -205,24 +205,28 @@ describe(`@sys/cell/cli`, () => {
     const pull = taskLeafDescriptor('pull:view');
     const deploy = taskLeafDescriptor('deploy:stage');
 
-    render({ kind: 'task:start', task: root });
+    const pullResult = taskStepResult(pull, true, 120);
+    const deployResult = taskStepResult(deploy, false, 16);
+    const width = stepCompletionLabelWidth([pull, deploy]);
+
+    render({ kind: 'task:start', task: root, leaves: [pull, deploy] });
     render({ kind: 'task:step:start', rootTask: root, step: pull });
-    render({ kind: 'task:step:ok', rootTask: root, step: pull, result: taskStepResult(pull) });
+    render({ kind: 'task:step:ok', rootTask: root, step: pull, result: pullResult });
     render({ kind: 'task:step:start', rootTask: root, step: deploy });
     render({
       kind: 'task:step:fail',
       rootTask: root,
       step: deploy,
-      result: taskStepResult(deploy, false),
+      result: deployResult,
     });
     render({ kind: 'task:fail', task: root, error: new Error('boom'), steps: [] });
 
     expect(log).to.eql([
       { kind: 'start', text: runningTaskText('all') },
-      { kind: 'text', text: runningTaskText('pull:view') },
-      { kind: 'succeed', text: okTaskText('pull:view') },
-      { kind: 'start', text: runningTaskText('deploy:stage') },
-      { kind: 'fail', text: failedTaskText('deploy:stage') },
+      { kind: 'text', text: runningStepText('pull:view') },
+      { kind: 'succeed', text: okStepText('pull:view', '120ms', width) },
+      { kind: 'start', text: runningStepText('deploy:stage') },
+      { kind: 'fail', text: failedStepText('deploy:stage', '16ms', width) },
     ]);
   });
 
@@ -378,12 +382,46 @@ function runningTaskText(name: string): string {
   return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
 }
 
-function okTaskText(name: string): string {
-  return Cli.Fmt.spinnerRaw(`${c.green('ok')} ${c.white(name)}`, false);
+function runningStepText(name: string): string {
+  return `${Cli.Fmt.spinnerText('running ', false)}${c.cyan(name)}`;
 }
 
-function failedTaskText(name: string): string {
-  return Cli.Fmt.spinnerRaw(`${c.yellow('failed')} ${c.white(name)}`, false);
+function okStepText(name: string, elapsed: string, width: number): string {
+  return stepCompletionText('ok', name, elapsed, width);
+}
+
+function failedStepText(name: string, elapsed: string, width: number): string {
+  return stepCompletionText('failed', name, elapsed, width);
+}
+
+function stepCompletionText(
+  status: 'ok' | 'failed',
+  name: string,
+  elapsed: string,
+  width: number,
+): string {
+  const color = status === 'ok' ? c.green : c.yellow;
+  const prefix = `${color(status)} ${c.gray('step')} ${c.white(name)}`;
+  const labelWidth = stepCompletionLabel(status, name).length;
+  const targetWidth = Math.max(width, labelWidth);
+  const pad = ' '.repeat(targetWidth - labelWidth + 2);
+  return Cli.Fmt.spinnerRaw(`${prefix}${pad}${c.gray(elapsed)}`, false);
+}
+
+function stepCompletionLabelWidth(leaves: Iterable<t.Cell.Task.Leaf>): number {
+  let width = 0;
+  for (const leaf of leaves) {
+    width = Math.max(
+      width,
+      stepCompletionLabel('ok', leaf.name).length,
+      stepCompletionLabel('failed', leaf.name).length,
+    );
+  }
+  return width;
+}
+
+function stepCompletionLabel(status: 'ok' | 'failed', name: string): string {
+  return `${status} step ${name}`;
 }
 
 function fakeSpinner(log: SpinnerLog[]): t.CliSpinner.Lib['start'] {
@@ -434,10 +472,14 @@ function taskCompositeDescriptor(
   return { name, steps: tasks.map((task) => ({ task })) };
 }
 
-function taskStepResult(task: t.Cell.Task.Leaf, ok = true): t.Cell.Task.StepResult {
-  const metrics: t.Cell.Task.RunMetrics = {
-    run: { startedAt: Time.now.timestamp, resolvedAt: Time.now.timestamp },
-  };
+function taskStepResult(
+  task: t.Cell.Task.Leaf,
+  ok = true,
+  elapsed = 0,
+): t.Cell.Task.StepResult {
+  const startedAt = Time.now.timestamp;
+  const resolvedAt = startedAt + elapsed;
+  const metrics: t.Cell.Task.RunMetrics = { run: { startedAt, resolvedAt } };
   if (ok) return { task, ok: true, result: { ok: true }, metrics };
   return { task, ok: false, error: new Error('boom'), metrics };
 }

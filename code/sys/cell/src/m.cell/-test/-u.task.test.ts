@@ -131,6 +131,7 @@ describe('Cell.Task', () => {
       'task:step:ok:deploy:stage',
       'task:ok:sample:deploy',
     ]);
+    expect(taskStartLeaves(runEvents)).to.eql(['pull:view', 'deploy:stage']);
     expect(res.task.name).to.eql('sample:deploy');
     expect(res.steps.map((step) => step.task.name)).to.eql(['pull:view', 'deploy:stage']);
     expect(res.steps.every((step) => step.ok)).to.eql(true);
@@ -303,6 +304,17 @@ function runEventLabels(events: t.Cell.Task.Run.Event[]): string[] {
     }
     return `${event.kind}:${event.step.name}`;
   });
+}
+
+function taskStartLeaves(events: t.Cell.Task.Run.Event[]): string[] {
+  const event = events.find(isTaskStartEvent);
+  return event?.leaves.map((leaf) => leaf.name) ?? [];
+}
+
+function isTaskStartEvent(
+  event: t.Cell.Task.Run.Event,
+): event is Extract<t.Cell.Task.Run.Event, { kind: 'task:start' }> {
+  return event.kind === 'task:start';
 }
 
 function resetEvents() {
