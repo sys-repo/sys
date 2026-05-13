@@ -22,22 +22,22 @@ export const print: HttpServerLib['print'] = (options) => {
   const table = Cli.Table.create([]);
   const hx = pkg ? wrangle.hashDigest(hash) : '';
 
-  if (name) table.push([c.gray('service:'), formatServiceName(name)]);
+  if (name) table.push([formatLabel('service'), formatServiceName(name)]);
 
   if (pkg) {
     const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([c.gray('module:'), `${pkgName} ${c.gray(`${pkgVersion}`)}`]);
+    table.push([formatLabel('module'), `${pkgName} ${c.gray(`${pkgVersion}`)}`]);
   }
-  if (servingDir) table.push([c.gray('root:'), c.gray(servingDir)]);
-  for (const [label, value] of detailEntries) table.push([c.gray(`${label}:`), c.gray(value)]);
+  if (servingDir) table.push([formatLabel('root'), c.gray(servingDir)]);
+  for (const [label, value] of detailEntries) table.push([formatLabel(label), c.gray(value)]);
   if (hx) {
-    table.push([c.gray('dist:'), `${c.gray(`${hx}`)} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
+    table.push([formatLabel('dist'), `${c.gray(`${hx}`)} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
   }
   pushUrls(table, urls);
   if (fallback) table.push(['', fallback]);
 
-  console.info('');
+  console.info(c.dim(c.gray(Cli.Fmt.hr())));
   console.info(Str.trimEdgeNewlines(String(table)));
 };
 
@@ -49,7 +49,11 @@ function findPathEntries(infoEntries: readonly (readonly [string, string])[]) {
 }
 
 function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
-  urls.forEach((url, index) => table.push([index === 0 ? c.gray('url:') : '', url]));
+  urls.forEach((url, index) => table.push([index === 0 ? formatLabel('url') : '', url]));
+}
+
+function formatLabel(label: string) {
+  return c.gray(label);
 }
 
 function formatServiceName(name: string) {

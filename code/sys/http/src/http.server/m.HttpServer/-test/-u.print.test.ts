@@ -2,7 +2,7 @@ import { c, Cli, describe, expect, it, pkg } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
 
 describe('HttpServer.print', () => {
-  it('prints one leading separator and no trailing separator per block', () => {
+  it('prints one leading rule and no trailing separator per block', () => {
     const lines = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
@@ -15,9 +15,9 @@ describe('HttpServer.print', () => {
     });
 
     expect(lines.length).to.eql(4);
-    expect(lines[0]).to.eql('');
+    expect(Cli.stripAnsi(lines[0] ?? '')).to.match(/^━+$/);
     expect(lines[1]).to.contain('one');
-    expect(lines[2]).to.eql('');
+    expect(Cli.stripAnsi(lines[2] ?? '')).to.match(/^━+$/);
     expect(lines[3]).to.contain('two');
   });
 
@@ -31,7 +31,9 @@ describe('HttpServer.print', () => {
     });
 
     const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output.indexOf('service:')).to.be.lessThan(output.indexOf('module:'));
+    expect(output.indexOf('service')).to.be.lessThan(output.indexOf('module'));
+    expect(output).to.not.contain('service:');
+    expect(output).to.not.contain('module:');
   });
 
   it('keeps service identity and module provenance readable without bold weight', () => {
@@ -59,10 +61,10 @@ describe('HttpServer.print', () => {
     });
 
     const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('module:');
-    expect(output).to.contain('static:   dist/');
-    expect(output).to.contain('dist:');
-    expect(output).to.contain('url:      http://localhost:8080/foo/bar/');
+    expect(output).to.contain('module');
+    expect(output).to.contain('static   dist/');
+    expect(output).to.contain('dist');
+    expect(output).to.contain('url      http://localhost:8080/foo/bar/');
     expect(output).not.to.contain('view:');
   });
 
@@ -81,7 +83,7 @@ describe('HttpServer.print', () => {
     expect(raw.indexOf(firstOrigin)).to.be.lessThan(raw.indexOf(repeatedOrigin));
 
     const output = Cli.stripAnsi(raw);
-    expect(output).to.contain('url:');
+    expect(output).to.contain('url');
     expect(output).to.contain('http://localhost:8080/');
     expect(output).to.contain('http://localhost:8080/payments/');
     expect(output).to.contain('http://localhost:8080/view/');
