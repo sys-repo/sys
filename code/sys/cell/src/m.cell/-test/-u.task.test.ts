@@ -47,10 +47,19 @@ describe('Cell.Task', () => {
     });
 
     const cell = await Cell.load(root);
-    const res = await Cell.task(cell, 'capture');
+    const runEvents: t.Cell.Task.Run.Event[] = [];
+    const res = await Cell.task(cell, 'capture', {
+      onEvent: (event) => runEvents.push(event),
+    });
 
     expect(res.task.name).to.eql('capture');
     expect(events().map((event) => event.name)).to.eql(['capture']);
+    expect(runEventLabels(runEvents)).to.eql([
+      'task:start:capture',
+      'task:step:start:capture',
+      'task:step:ok:capture',
+      'task:ok:capture',
+    ]);
   });
 
   it('root Cell.task can load a root path for one-shot task run', async () => {
@@ -108,9 +117,20 @@ describe('Cell.Task', () => {
     await writeTask(root, './-tasks/pull.ts', taskSource('PullTask', 'pull:view'));
     await writeTask(root, './-tasks/deploy.ts', taskSource('DeployTask', 'deploy:stage'));
 
-    const res = await Cell.Task.run(await Cell.load(root), 'sample:deploy');
+    const runEvents: t.Cell.Task.Run.Event[] = [];
+    const res = await Cell.Task.run(await Cell.load(root), 'sample:deploy', {
+      onEvent: (event) => runEvents.push(event),
+    });
 
     expect(events().map((event) => event.name)).to.eql(['pull:view', 'deploy:stage']);
+    expect(runEventLabels(runEvents)).to.eql([
+      'task:start:sample:deploy',
+      'task:step:start:pull:view',
+      'task:step:ok:pull:view',
+      'task:step:start:deploy:stage',
+      'task:step:ok:deploy:stage',
+      'task:ok:sample:deploy',
+    ]);
     expect(res.task.name).to.eql('sample:deploy');
     expect(res.steps.map((step) => step.task.name)).to.eql(['pull:view', 'deploy:stage']);
     expect(res.steps.every((step) => step.ok)).to.eql(true);
@@ -156,6 +176,46 @@ describe('Cell.Task', () => {
     expect(events().map((event) => event.name)).to.eql(['capture']);
   });
 
+  it('ignores observer errors while running successful tasks', async () => {
+    resetEvents();
+    const root = await tempCell(
+      'task-run-observer-error-success',
+      descriptor([leaf('capture', { config: './-config/capture.yaml' })]),
+    );
+    await writeTask(root, './-tasks/capture.ts', taskSource('CaptureTask', 'capture'));
+    await Fs.write(Fs.join(root, '-config/capture.yaml'), `value: from-config\n`, {
+      force: true,
+    });
+
+    const res = await Cell.Task.run(await Cell.load(root), 'capture', {
+      onEvent: () => {
+        throw new Error('observer boom');
+      },
+    });
+
+    expect(res.task.name).to.eql('capture');
+    expect(res.steps.map((step) => step.task.name)).to.eql(['capture']);
+    expect(events().map((event) => event.name)).to.eql(['capture']);
+  });
+
+  it('preserves task failures when observers fail during failure telemetry', async () => {
+    resetEvents();
+    const root = await tempCell(
+      'task-run-observer-error-failure',
+      descriptor([leaf('fail', { use: 'FailTask', from: './-tasks/fail.ts' }, false)]),
+    );
+    await writeTask(root, './-tasks/fail.ts', failingTaskSource('FailTask', 'fail'));
+
+    const error = await catchRun(await Cell.load(root), 'fail', {
+      onEvent: () => {
+        throw new Error('observer boom');
+      },
+    });
+
+    expect(error?.message).to.eql("Cell.Task.run: failed task 'fail' while running 'fail'.");
+    expect(events().map((event) => event.name)).to.eql(['fail']);
+  });
+
   it('pre-verifies the requested task closure before executing any leaf', async () => {
     resetEvents();
     const root = await tempCell(
@@ -169,11 +229,15 @@ describe('Cell.Task', () => {
     await writeTask(root, './-tasks/first.ts', taskSource('FirstTask', 'first'));
     await writeTask(root, './-tasks/bad.ts', `export const BadTask = {};\n`);
 
-    const error = await catchRun(await Cell.load(root), 'all');
+    const runEvents: t.Cell.Task.Run.Event[] = [];
+    const error = await catchRun(await Cell.load(root), 'all', {
+      onEvent: (event) => runEvents.push(event),
+    });
 
     expect(error?.message).to.eql(
       "Cell.Task.verify: './-tasks/bad.ts' use 'BadTask' must expose run(...) for task 'bad'.",
     );
+    expect(runEventLabels(runEvents)).to.eql(['task:start:all', 'task:fail:all']);
     expect(events()).to.eql([]);
   });
 
@@ -192,9 +256,20 @@ describe('Cell.Task', () => {
     await writeTask(root, './-tasks/fail.ts', failingTaskSource('FailTask', 'fail'));
     await writeTask(root, './-tasks/after.ts', taskSource('AfterTask', 'after'));
 
-    const error = await catchRun(await Cell.load(root), 'all');
+    const runEvents: t.Cell.Task.Run.Event[] = [];
+    const error = await catchRun(await Cell.load(root), 'all', {
+      onEvent: (event) => runEvents.push(event),
+    });
 
     expect(error?.message).to.eql("Cell.Task.run: failed task 'fail' while running 'all'.");
+    expect(runEventLabels(runEvents)).to.eql([
+      'task:start:all',
+      'task:step:start:first',
+      'task:step:ok:first',
+      'task:step:start:fail',
+      'task:step:fail:fail',
+      'task:fail:all',
+    ]);
     expect(events().map((event) => event.name)).to.eql(['first', 'fail']);
   });
 });
@@ -210,14 +285,24 @@ type TaskEvent = {
 type TaskGlobal = typeof globalThis & { __cellTaskEvents?: TaskEvent[] };
 
 async function catchRun(
-  cell: Awaited<ReturnType<typeof Cell.load>>,
+  cell: t.Cell.Instance,
   name: t.Cell.Id,
+  options?: t.Cell.Task.Run.Options,
 ): Promise<Error | undefined> {
   try {
-    await Cell.Task.run(cell, name);
+    await Cell.Task.run(cell, name, options);
   } catch (err) {
     return err as Error;
   }
+}
+
+function runEventLabels(events: t.Cell.Task.Run.Event[]): string[] {
+  return events.map((event) => {
+    if (event.kind === 'task:start' || event.kind === 'task:ok' || event.kind === 'task:fail') {
+      return `${event.kind}:${event.task.name}`;
+    }
+    return `${event.kind}:${event.step.name}`;
+  });
 }
 
 function resetEvents() {
@@ -232,7 +317,7 @@ async function writeTask(root: string, path: string, source: string) {
   await Fs.write(Fs.join(root, path), source, { force: true });
 }
 
-function descriptor(tasks: readonly string[]) {
+function descriptor(tasks: string[]) {
   return `kind: cell\nversion: 1\n\ntasks:\n${tasks.join('\n')}\n`;
 }
 
@@ -257,7 +342,7 @@ function leaf(
   ].join('\n');
 }
 
-function composite(name: string, tasks: readonly string[]) {
+function composite(name: string, tasks: string[]) {
   return [
     `  - name: ${name}`,
     `    steps:`,

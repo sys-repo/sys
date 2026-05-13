@@ -1,6 +1,7 @@
 /**
  * @system
  */
+export type * from '@sys/cli/t';
 export type {
   FileMap,
   FileMapBundleResult,

@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { CellHelp } from '../../m.help/mod.ts';
 import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
+import { silent } from './u.fixture.ts';
 
 describe('@sys/cell/cli dsl', () => {
   it('dsl → routes to root DSL help', async () => {
@@ -24,9 +25,7 @@ describe('@sys/cell/cli dsl', () => {
   it('dsl pulled-view --format skill → routes to the skill projection', async () => {
     const path = ['pulled-view'] as const;
     const guidance = await CellHelp.Dsl.load(path);
-    const res = await silent(() =>
-      CellCli.run({ argv: ['dsl', ...path, '--format', 'skill'] })
-    );
+    const res = await silent(() => CellCli.run({ argv: ['dsl', ...path, '--format', 'skill'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
@@ -122,17 +121,9 @@ describe('@sys/cell/cli dsl', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
 function chapterCommand(chapter: { readonly path: readonly string[] }) {
   return ['deno run -ER jsr:@sys/cell dsl', ...chapter.path].join(' ');
-}
-
-async function silent<T>(fn: () => Promise<T>) {
-  const info = console.info;
-  console.info = () => undefined;
-
-  try {
-    return await fn();
-  } finally {
-    console.info = info;
-  }
 }

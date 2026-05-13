@@ -1,8 +1,10 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, Str, Testing, Time } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
 import { CellHelp } from '../../m.help/mod.ts';
-import { c, stripAnsi } from '../common.ts';
+import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { CellCli } from '../mod.ts';
+import { Fmt } from '../u.fmt.ts';
+import { silent } from './u.fixture.ts';
 
 describe(`@sys/cell/cli`, () => {
   it('API', async () => {
@@ -184,7 +186,6 @@ describe(`@sys/cell/cli`, () => {
     await Fs.write(Fs.join(fs.dir, '-tasks/capture.ts'), taskSource('CaptureTask'));
 
     const res = await silent(() => CellCli.run({ argv: ['task', 'capture', fs.dir] }));
-    const text = stripAnsi(res.text);
     const event = taskEvents()[0];
 
     expect(res.kind).to.eql('task');
@@ -192,13 +193,37 @@ describe(`@sys/cell/cli`, () => {
     expect(res.root).to.eql(fs.dir);
     expect(res.task).to.eql('capture');
     expect(res.steps).to.eql(1);
-    expect(text).to.contain(`root    ${fs.dir}`);
-    expect(text).to.contain('task    capture');
-    expect(text).to.contain('steps   1');
-    expect(text).to.contain('ok      capture');
     expect(event.args.cwd).to.eql(fs.dir);
     expect(event.args).to.not.have.property('config');
     expect(event.args.paths.config).to.eql(Fs.join(fs.dir, '-config/capture.yaml'));
+  });
+
+  it('task progress renderer → uses CLI spinner formatting for lifecycle events', () => {
+    const log: SpinnerLog[] = [];
+    const render = Fmt.Task.progressRenderer({ spinner: fakeSpinner(log), silent: false });
+    const root = taskCompositeDescriptor('all', ['pull:view', 'deploy:stage']);
+    const pull = taskLeafDescriptor('pull:view');
+    const deploy = taskLeafDescriptor('deploy:stage');
+
+    render({ kind: 'task:start', task: root });
+    render({ kind: 'task:step:start', rootTask: root, step: pull });
+    render({ kind: 'task:step:ok', rootTask: root, step: pull, result: taskStepResult(pull) });
+    render({ kind: 'task:step:start', rootTask: root, step: deploy });
+    render({
+      kind: 'task:step:fail',
+      rootTask: root,
+      step: deploy,
+      result: taskStepResult(deploy, false),
+    });
+    render({ kind: 'task:fail', task: root, error: new Error('boom'), steps: [] });
+
+    expect(log).to.eql([
+      { kind: 'start', text: runningTaskText('all') },
+      { kind: 'text', text: runningTaskText('pull:view') },
+      { kind: 'succeed', text: okTaskText('pull:view') },
+      { kind: 'start', text: runningTaskText('deploy:stage') },
+      { kind: 'fail', text: failedTaskText('deploy:stage') },
+    ]);
   });
 
   it('task --plan → prints a task closure without importing endpoints', async () => {
@@ -321,6 +346,11 @@ type TaskEvent = {
   };
 };
 
+type SpinnerLog = {
+  readonly kind: 'start' | 'text' | 'succeed' | 'fail' | 'stop';
+  readonly text: string;
+};
+
 type TaskGlobal = typeof globalThis & { __cellCliTaskEvents?: TaskEvent[] };
 
 function resetTaskEvents() {
@@ -344,15 +374,72 @@ function taskSource(exportName: string) {
   `).trimStart();
 }
 
-async function silent<T>(fn: () => Promise<T>) {
-  const info = console.info;
-  console.info = () => undefined;
+function runningTaskText(name: string): string {
+  return `${Cli.Fmt.spinnerText('running task ', false)}${c.cyan(name)}`;
+}
 
-  try {
-    return await fn();
-  } finally {
-    console.info = info;
-  }
+function okTaskText(name: string): string {
+  return Cli.Fmt.spinnerRaw(`${c.green('ok')} ${c.white(name)}`, false);
+}
+
+function failedTaskText(name: string): string {
+  return Cli.Fmt.spinnerRaw(`${c.yellow('failed')} ${c.white(name)}`, false);
+}
+
+function fakeSpinner(log: SpinnerLog[]): t.CliSpinner.Lib['start'] {
+  return (text = '') => {
+    log.push({ kind: 'start', text });
+    let value = text;
+    let spinner: t.CliSpinner.Instance;
+    spinner = {
+      get text() {
+        return value;
+      },
+      set text(next: string) {
+        value = next;
+        log.push({ kind: 'text', text: next });
+      },
+      start(next = value) {
+        value = next;
+        log.push({ kind: 'start', text: next });
+        return spinner;
+      },
+      stop() {
+        log.push({ kind: 'stop', text: value });
+        return spinner;
+      },
+      succeed(next = value) {
+        value = next;
+        log.push({ kind: 'succeed', text: next });
+        return spinner;
+      },
+      fail(next = value) {
+        value = next;
+        log.push({ kind: 'fail', text: next });
+        return spinner;
+      },
+    };
+    return spinner;
+  };
+}
+
+function taskLeafDescriptor(name: string): t.Cell.Task.Leaf {
+  return { name, use: 'Task', from: './-tasks/task.ts' };
+}
+
+function taskCompositeDescriptor(
+  name: string,
+  tasks: string[],
+): t.Cell.Task.Composite {
+  return { name, steps: tasks.map((task) => ({ task })) };
+}
+
+function taskStepResult(task: t.Cell.Task.Leaf, ok = true): t.Cell.Task.StepResult {
+  const metrics: t.Cell.Task.RunMetrics = {
+    run: { startedAt: Time.now.timestamp, resolvedAt: Time.now.timestamp },
+  };
+  if (ok) return { task, ok: true, result: { ok: true }, metrics };
+  return { task, ok: false, error: new Error('boom'), metrics };
 }
 
 async function read(path: string) {

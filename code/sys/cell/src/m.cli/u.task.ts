@@ -1,9 +1,10 @@
 import { Cell } from '../m.cell/mod.ts';
-import { c, CliTable, Str, type t } from './common.ts';
+import type { t } from './common.ts';
+import { Fmt } from './u.fmt.ts';
 
 export type RunCellTaskArgs = {
-  readonly name: t.Cell.Id;
-  readonly dir?: string;
+  name: t.Cell.Id;
+  dir?: string;
 };
 
 export type RunCellTaskResult = {
@@ -26,7 +27,9 @@ export async function planCellTask(args: RunCellTaskArgs): Promise<PlanCellTaskR
 
 export async function runCellTask(args: RunCellTaskArgs): Promise<RunCellTaskResult> {
   const cell = await Cell.load(args.dir);
-  const res = await Cell.task(cell, args.name);
+  const res = await Cell.task(cell, args.name, {
+    onEvent: Fmt.Task.progressRenderer(),
+  });
 
   return {
     root: cell.root,
@@ -36,27 +39,11 @@ export async function runCellTask(args: RunCellTaskArgs): Promise<RunCellTaskRes
 }
 
 export function formatTaskResult(res: RunCellTaskResult): string {
-  const table = CliTable.create([]);
-  table.push([c.gray('root'), c.white(res.root)]);
-  table.push([c.gray('task'), c.white(res.task.name)]);
-  table.push([c.gray('steps'), c.white(String(res.steps.length))]);
-  res.steps.forEach((step) => {
-    table.push([c.gray(step.ok ? 'ok' : 'failed'), c.white(step.task.name)]);
-  });
-  return Str.trimEdgeNewlines(String(table));
+  return Fmt.Task.result(res);
 }
 
 export function formatTaskPlanResult(res: PlanCellTaskResult): string {
-  const { plan } = res;
-  const table = CliTable.create([]);
-  table.push([c.gray('root'), c.white(res.root)]);
-  table.push([c.gray('task'), c.white(plan.task.name)]);
-  table.push([c.gray('steps'), c.white(String(plan.leaves.length))]);
-
-  return Str.trimEdgeNewlines([
-    String(table),
-    renderPlanTree(plan.tree),
-  ].join('\n\n'));
+  return Fmt.Task.plan(res);
 }
 
 export function toTaskResult(
@@ -85,49 +72,4 @@ export function toTaskPlanResult(
     task: res.plan.task.name,
     steps: res.plan.leaves.length,
   };
-}
-
-/**
- * Helpers:
- */
-function renderPlanTree(node: t.Cell.Task.PlanNode): string {
-  return renderPlanNode(node, { prefix: '', last: true, root: true }).join('\n');
-}
-
-function renderPlanNode(
-  node: t.Cell.Task.PlanNode,
-  options: { readonly prefix: string; readonly last: boolean; readonly root: boolean },
-): string[] {
-  const branch = options.root ? '' : options.last ? '└─ ' : '├─ ';
-  const lines = [`${options.prefix}${branch}${node.task.name}`];
-  const childPrefix = options.root ? '' : `${options.prefix}${options.last ? '   ' : '│  '}`;
-
-  if (node.kind === 'leaf') {
-    lines.push(...renderLeafDetails(node, childPrefix));
-    return lines;
-  }
-
-  node.steps.forEach((step, index) => {
-    lines.push(
-      ...renderPlanNode(step, {
-        prefix: childPrefix,
-        last: index === node.steps.length - 1,
-        root: false,
-      }),
-    );
-  });
-  return lines;
-}
-
-function renderLeafDetails(
-  leaf: t.Cell.Task.PlanLeaf,
-  prefix: string,
-): string[] {
-  const lines = [
-    `${prefix}use  ${leaf.endpoint.use}`,
-    `${prefix}from ${leaf.endpoint.from}`,
-  ];
-
-  if (leaf.task.config) lines.push(`${prefix}config ${leaf.task.config}`);
-  return lines;
 }

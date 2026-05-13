@@ -10,7 +10,7 @@ type RawArgs = [input: unknown, nameOrOptions?: unknown, options?: unknown];
 type Args = {
   target?: t.Cell.Instance | t.StringDir;
   name: t.Cell.Id;
-  options?: t.Cell.Task.RunOptions;
+  options?: t.Cell.Task.Run.Options;
 };
 
 /** Create the root happy-path `Cell.task(...)` method implementation. */
@@ -35,7 +35,7 @@ const wrangle = {
       return {
         target: input,
         name: nameOrOptions,
-        options: options as t.Cell.Task.RunOptions | undefined,
+        options: options as t.Cell.Task.Run.Options | undefined,
       };
     }
 
@@ -47,13 +47,13 @@ const wrangle = {
       return {
         target: input,
         name: nameOrOptions,
-        options: options as t.Cell.Task.RunOptions | undefined,
+        options: options as t.Cell.Task.Run.Options | undefined,
       };
     }
 
     return {
       name: input,
-      options: nameOrOptions as t.Cell.Task.RunOptions | undefined,
+      options: nameOrOptions as t.Cell.Task.Run.Options | undefined,
     };
   },
 } as const;

@@ -12,9 +12,9 @@ export declare namespace Cell {
     /** Load a Cell folder. Defaults to the current process cwd when `root` is omitted. */
     load(root?: t.StringDir, options?: LoadOptions): Promise<Instance>;
     start(cell: Instance, options?: Services.StartOptions): Promise<Services.Started>;
-    task(cell: Instance, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
-    task(root: t.StringDir, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
-    task(name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
+    task(cell: Instance, name: Id, options?: Task.Run.Options): Promise<Task.RunResult>;
+    task(root: t.StringDir, name: Id, options?: Task.Run.Options): Promise<Task.RunResult>;
+    task(name: Id, options?: Task.Run.Options): Promise<Task.RunResult>;
   };
 
   /** Cell-local identifier used for services and tasks. */
@@ -59,13 +59,13 @@ export declare namespace Cell {
     export type Lib = {
       plan(cell: Instance, name: Id, options?: PlanOptions): Promise<Plan>;
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
-      run(cell: Instance, name: Id, options?: RunOptions): Promise<RunResult>;
+      run(cell: Instance, name: Id, options?: Run.Options): Promise<RunResult>;
     };
 
     /** Trusted endpoint import policy options. */
     export type TrustOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
-      trusted?: readonly string[];
+      trusted?: string[];
     };
 
     /** Task planning options. */
@@ -74,8 +74,52 @@ export declare namespace Cell {
     /** Task verification options. */
     export type VerifyOptions = TrustOptions;
 
-    /** Task run options. */
-    export type RunOptions = VerifyOptions;
+    /** Task execution telemetry namespace. */
+    export namespace Run {
+      /** Task run options. */
+      export type Options = VerifyOptions & {
+        /** Synchronous observer for finite task run lifecycle telemetry. */
+        onEvent?: EventHandler;
+      };
+
+      /**
+       * Synchronous observer for finite task run lifecycle telemetry.
+       * Observer errors are ignored; telemetry must not change task execution semantics.
+       */
+      export type EventHandler = (event: Event) => void;
+
+      /** Finite task run lifecycle telemetry emitted by `run(...)`. */
+      export type Event =
+        | { readonly kind: 'task:start'; readonly task: Descriptor }
+        | {
+          readonly kind: 'task:step:start';
+          readonly rootTask: Descriptor;
+          readonly step: Leaf;
+        }
+        | {
+          readonly kind: 'task:step:ok';
+          readonly rootTask: Descriptor;
+          readonly step: Leaf;
+          readonly result: StepResult;
+        }
+        | {
+          readonly kind: 'task:step:fail';
+          readonly rootTask: Descriptor;
+          readonly step: Leaf;
+          readonly result: StepResult;
+        }
+        | {
+          readonly kind: 'task:ok';
+          readonly task: Descriptor;
+          readonly steps: readonly StepResult[];
+        }
+        | {
+          readonly kind: 'task:fail';
+          readonly task: Descriptor;
+          readonly error: unknown;
+          readonly steps: readonly StepResult[];
+        };
+    }
 
     /** Root task entry. Every root task is runnable by name. */
     export type Descriptor = Leaf | Composite;
@@ -213,7 +257,7 @@ export declare namespace Cell {
     /** Services verification options. */
     export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
-      trusted?: readonly string[];
+      trusted?: string[];
     };
 
     /** Services start options. */
