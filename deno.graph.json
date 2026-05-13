@@ -1,21 +1,21 @@
 {
   ".meta": {
-    "createdAt": 1778497684479,
+    "createdAt": 1778647094337,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-451f571c6879fb3e0eaa9e1bbfccadb1e8a91ae81c57a17cae1a168a7f624d73",
-      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.87/src/m.graph/m.snapshot/m.Hash.ts"
+      "/graph": "sha256-68e48b962f34df35cca6efcd1c42c29d562f250811aa29d575bb4dd658fc8f9e",
+      "/graph:policy": "https://jsr.io/@sys/workspace/0.0.88/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
       "pkg": {
         "name": "@sys/workspace",
-        "version": "0.0.87"
+        "version": "0.0.88"
       },
       "types": {
-        "/graph": "https://jsr.io/@sys/workspace/0.0.87/src/m.graph/t.ts"
+        "/graph": "https://jsr.io/@sys/workspace/0.0.88/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1778497684483
+    "modifiedAt": 1778647094343
   },
   "graph": {
     "orderedPaths": [
@@ -1435,6 +1435,10 @@
       {
         "from": "code/sys/yaml",
         "to": "code/sys.driver/driver-pi"
+      },
+      {
+        "from": "code/sys/yaml",
+        "to": "code/sys.driver/driver-stripe"
       },
       {
         "from": "code/sys/yaml",
