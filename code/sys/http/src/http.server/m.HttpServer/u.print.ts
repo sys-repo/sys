@@ -12,7 +12,7 @@ export const print: HttpServerLib['print'] = (options) => {
 
   const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
   const host = c.cyan(`http://localhost:${port}`);
-  const repeatedHost = c.gray(`http://localhost:${addr.port}`);
+  const repeatedHost = formatSubtle(`http://localhost:${addr.port}`);
   const infoEntries = Object.entries(info ?? {});
   const pathEntries = findPathEntries(infoEntries);
   const detailEntries = infoEntries.filter((entry) => !pathEntries.includes(entry));
@@ -27,17 +27,20 @@ export const print: HttpServerLib['print'] = (options) => {
   if (pkg) {
     const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([formatLabel('module'), `${pkgName} ${c.gray(`${pkgVersion}`)}`]);
+    table.push([formatLabel('module'), `${pkgName} ${formatSubtle(`${pkgVersion}`)}`]);
   }
-  if (servingDir) table.push([formatLabel('root'), c.gray(servingDir)]);
-  for (const [label, value] of detailEntries) table.push([formatLabel(label), c.gray(value)]);
+  if (servingDir) table.push([formatLabel('root'), formatSubtle(servingDir)]);
+  for (const [label, value] of detailEntries) table.push([formatLabel(label), formatSubtle(value)]);
   if (hx) {
-    table.push([formatLabel('dist'), `${c.gray(`${hx}`)} ${c.gray(`${c.dim('←')} dist/dist.json`)}`]);
+    table.push([
+      formatLabel('dist'),
+      `${formatSubtle(`${hx}`)} ${formatSubtle('← dist/dist.json')}`,
+    ]);
   }
   pushUrls(table, urls);
   if (fallback) table.push(['', fallback]);
 
-  console.info(c.dim(c.gray(Cli.Fmt.hr())));
+  if (wrangle.shouldPrintDivider()) console.info(formatDivider());
   console.info(Str.trimEdgeNewlines(String(table)));
 };
 
@@ -53,11 +56,19 @@ function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
 }
 
 function formatLabel(label: string) {
-  return c.gray(label);
+  return formatSubtle(label);
 }
 
 function formatServiceName(name: string) {
   return c.white(name);
+}
+
+function formatSubtle(text: string) {
+  return c.dim(c.gray(text));
+}
+
+function formatDivider() {
+  return formatSubtle(Cli.Fmt.hr());
 }
 
 function formatUrls(input: {
@@ -74,8 +85,8 @@ function formatUrls(input: {
 
 function formatUrl(input: { host: string; path?: string }) {
   return input.path
-    ? `${input.host}${c.gray(`/${Str.trimLeadingSlashes(input.path)}`)}`
-    : `${input.host}${c.gray('/')}`;
+    ? `${input.host}${formatSubtle(`/${Str.trimLeadingSlashes(input.path)}`)}`
+    : `${input.host}${formatSubtle('/')}`;
 }
 
 const URL_NOTE_INDENT = 17;
@@ -84,10 +95,25 @@ function formatPortFallback(input: { requestedPort?: number; actualPort: number 
   const { requestedPort, actualPort } = input;
   if (!requestedPort || requestedPort === actualPort) return '';
   const indent = ' '.repeat(URL_NOTE_INDENT);
-  return `${indent}${c.gray(c.dim(`${requestedPort} already in use`))}`;
+  return `${indent}${formatSubtle(`${requestedPort} already in use`)}`;
 }
 
+let printSink: typeof console.info | undefined;
+let hasPrintedToSink = false;
+
 const wrangle = {
+  shouldPrintDivider() {
+    const sink = console.info;
+    if (sink !== printSink) {
+      printSink = sink;
+      hasPrintedToSink = false;
+    }
+
+    const shouldPrint = hasPrintedToSink;
+    hasPrintedToSink = true;
+    return shouldPrint;
+  },
+
   hashDigest(hash?: string) {
     if (!hash) return '';
     if (hash.length <= 18) return hash;

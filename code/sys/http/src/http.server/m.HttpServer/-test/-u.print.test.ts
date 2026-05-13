@@ -2,7 +2,7 @@ import { c, Cli, describe, expect, it, pkg } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
 
 describe('HttpServer.print', () => {
-  it('prints one leading rule and no trailing separator per block', () => {
+  it('prints no first rule and uses a subtle separator between blocks', () => {
     const lines = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
@@ -14,11 +14,11 @@ describe('HttpServer.print', () => {
       });
     });
 
-    expect(lines.length).to.eql(4);
-    expect(Cli.stripAnsi(lines[0] ?? '')).to.match(/^━+$/);
-    expect(lines[1]).to.contain('one');
-    expect(Cli.stripAnsi(lines[2] ?? '')).to.match(/^━+$/);
-    expect(lines[3]).to.contain('two');
+    expect(lines.length).to.eql(3);
+    expect(lines[0]).to.contain('one');
+    expect(lines[1]).to.contain(c.dim(c.gray(Cli.Fmt.hr())));
+    expect(Cli.stripAnsi(lines[1] ?? '')).to.match(/^━+$/);
+    expect(lines[2]).to.contain('two');
   });
 
   it('prints service before module provenance', () => {
@@ -77,7 +77,7 @@ describe('HttpServer.print', () => {
     }).join('\n');
 
     const firstOrigin = c.cyan(`http://localhost:${c.bold(c.brightCyan('8080'))}`);
-    const repeatedOrigin = c.gray('http://localhost:8080');
+    const repeatedOrigin = c.dim(c.gray('http://localhost:8080'));
     expect(raw).to.contain(firstOrigin);
     expect(raw).to.contain(repeatedOrigin);
     expect(raw.indexOf(firstOrigin)).to.be.lessThan(raw.indexOf(repeatedOrigin));
