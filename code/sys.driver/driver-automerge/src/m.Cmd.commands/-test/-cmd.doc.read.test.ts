@@ -1,13 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { makeDocReadHandler } from '../mod.ts';
+import { cmdContext } from './u.fixture.ts';
+
+type Doc = { count: number; nested?: { foo: string } };
 
 describe('Command: "doc:read"', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
-
-  type Doc = { count: number; nested?: { foo: string } };
 
   describe('happy path', () => {
     it('returns the root document value', async () => {
@@ -16,7 +17,7 @@ describe('Command: "doc:read"', () => {
 
       const created = await repo.create<Doc>({ count: 123 });
       const doc = created.doc!;
-      const res = await handler({ doc: doc.id });
+      const res = await handler({ doc: doc.id }, cmdContext('doc:read'));
 
       expect(res.value).to.eql({ count: 123 });
     });
@@ -27,10 +28,13 @@ describe('Command: "doc:read"', () => {
 
       const created = await repo.create<Doc>({ count: 1, nested: { foo: 'bar' } });
       const doc = created.doc!;
-      const res = await handler({
-        doc: doc.id,
-        path: ['nested', 'foo'] as t.ObjectPath,
-      });
+      const res = await handler(
+        {
+          doc: doc.id,
+          path: ['nested', 'foo'],
+        },
+        cmdContext('doc:read'),
+      );
 
       expect(res.value).to.equal('bar');
     });
@@ -43,7 +47,7 @@ describe('Command: "doc:read"', () => {
 
       const created = await repo.create<Doc>({ count: 123 });
       const doc = created.doc!;
-      const res = await handler({ doc: `crdt:${doc.id}` });
+      const res = await handler({ doc: `crdt:${doc.id}` }, cmdContext('doc:read'));
 
       expect(res.value).to.eql(undefined);
     });
@@ -55,10 +59,13 @@ describe('Command: "doc:read"', () => {
       const created = await repo.create<Doc>({ count: 1, nested: { foo: 'bar' } });
       const doc = created.doc!;
 
-      const res = await handler({
-        doc: doc.id,
-        path: ['nested', 'missing'],
-      });
+      const res = await handler(
+        {
+          doc: doc.id,
+          path: ['nested', 'missing'],
+        },
+        cmdContext('doc:read'),
+      );
 
       expect(res.value).to.eql(undefined);
     });
@@ -67,7 +74,7 @@ describe('Command: "doc:read"', () => {
       const { repo } = env;
       const handler = makeDocReadHandler(() => repo);
 
-      const res = await handler({ doc: 'does-not-exist' });
+      const res = await handler({ doc: 'does-not-exist' }, cmdContext('doc:read'));
       expect(res.value).to.eql(undefined);
     });
 
@@ -76,7 +83,7 @@ describe('Command: "doc:read"', () => {
       const existing = (await repo.create<Doc>({ count: 1 })).doc!;
 
       const handler = makeDocReadHandler(() => undefined);
-      const res = await handler({ doc: existing.id });
+      const res = await handler({ doc: existing.id }, cmdContext('doc:read'));
 
       expect(res.value).to.eql(undefined);
     });
