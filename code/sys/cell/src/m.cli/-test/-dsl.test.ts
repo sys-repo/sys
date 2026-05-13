@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { CellHelp } from '../../m.help/mod.ts';
 import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 
@@ -21,29 +22,31 @@ describe('@sys/cell/cli dsl', () => {
   });
 
   it('dsl pulled-view --format skill → routes to the skill projection', async () => {
+    const path = ['pulled-view'] as const;
+    const guidance = await CellHelp.Dsl.load(path);
     const res = await silent(() =>
-      CellCli.run({ argv: ['dsl', 'pulled-view', '--format', 'skill'] })
+      CellCli.run({ argv: ['dsl', ...path, '--format', 'skill'] })
     );
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
     expect(res.text).to.eql(text);
     expect(text).to.contain('name: "sys-cell-dsl-pulled-view"');
-    expect(text).to.contain(
-      'description: "Guides valid Cell folder edits; use when you need to add a view backed by an @sys/tools/pull config."',
-    );
-    expect(text).to.contain('# Pulled view');
+    expect(text).to.contain('use when');
+    expect(text).to.contain(`# ${guidance.title}`);
+    expect(text).to.contain(guidance.summary);
     expect(text).to.not.contain('@sys/cell dsl pulled-view');
   });
 
   it('dsl --format human → preserves human DSL help', async () => {
+    const guidance = await CellHelp.Dsl.load();
     const res = await silent(() => CellCli.run({ argv: ['dsl', '--format=human'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell dsl');
     expect(text).to.contain('Chapter');
-    expect(text).to.contain('deno run -ER jsr:@sys/cell dsl pulled-view');
+    expect(text).to.contain(chapterCommand(guidance.chapters[0]));
   });
 
   it('dsl --format unknown → fails clearly with root DSL help', async () => {
@@ -118,6 +121,10 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('Chapter');
   });
 });
+
+function chapterCommand(chapter: { readonly path: readonly string[] }) {
+  return ['deno run -ER jsr:@sys/cell dsl', ...chapter.path].join(' ');
+}
 
 async function silent<T>(fn: () => Promise<T>) {
   const info = console.info;

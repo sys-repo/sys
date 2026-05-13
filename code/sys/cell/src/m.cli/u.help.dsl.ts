@@ -87,7 +87,7 @@ function skillName(chapter: t.CellHelp.Dsl.Chapter): string {
 
 function skillDescription(chapter: t.CellHelp.Dsl.Chapter): string {
   if (chapter.path.length === 0) {
-    return 'Guides Cell DSL speech acts, owner rules, mappings, and chapters; use when changing a Cell folder.';
+    return 'Guides Cell DSL reading protocol, speech acts, owner rules, mappings, and chapters; use when you are about to change a Cell folder.';
   }
 
   const summary = Str.trimEdgeNewlines(chapter.summary)

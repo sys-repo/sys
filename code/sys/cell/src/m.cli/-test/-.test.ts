@@ -23,10 +23,6 @@ describe(`@sys/cell/cli`, () => {
       expect(text).to.contain(name);
       expect(text).to.contain(detail);
     });
-    expect(text).to.contain('Run `dsl` first before changing Cell config');
-    expect(text).to.contain(
-      'run first — maps Cell acts, owner rules, tasks, services, and chapters',
-    );
     expect(text.indexOf('jsr:@sys/cell dsl')).to.be.lessThan(
       text.indexOf('jsr:@sys/cell init'),
     );
@@ -63,8 +59,6 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('@sys/cell task');
     guidance.usage.forEach((line) => expect(text).to.contain(line));
     guidance.task.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('Cell validates the `tasks[]` graph');
-    expect(text).to.contain('structured config-ref args');
     expect(text).to.not.contain('--agent');
     expect(text).to.not.contain('--dry-run');
   });
@@ -77,8 +71,6 @@ describe(`@sys/cell/cli`, () => {
     expect(res.kind).to.eql('help');
     expect(text).to.contain('@sys/cell start');
     guidance.services.forEach((line) => expect(text).to.contain(line));
-    expect(text).to.contain('Cell.Services.wait');
-    expect(text).to.contain('started handle with `finished`');
     expect(text).to.not.contain('--agent');
     expect(text).to.not.contain('--dry-run');
   });

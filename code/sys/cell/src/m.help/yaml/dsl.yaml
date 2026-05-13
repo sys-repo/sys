@@ -2,9 +2,17 @@ id: dsl
 title: Cell DSL
 summary: |
   Cell DSL (domain-specific-language): the formal command/vocabulary surface for valid Cell edits.
-  Use these acts, owner rules, mappings, and chapters when changing a Cell folder.
+  Read this root layer before changing a Cell folder; then read the matching chapter from the chapter index.
 
 sections:
+  - label: 'Agent reading protocol'
+    items:
+      - 'Agents MUST read this root DSL layer before changing a Cell folder: `deno run -ER jsr:@sys/cell dsl`.'
+      - Agents MUST NOT read every chapter by default.
+      - Agents MUST identify the intended speech act from Speech acts and Mappings.
+      - 'Agents MUST read each matching chapter from the chapter index before editing: `deno run -ER jsr:@sys/cell dsl <chapter>`.'
+      - If no chapter index entry matches, stop and ask.
+
   - label: Rule
     items: |
       Cell owns boot/composition; owner configs own mechanics and state interpretation.
