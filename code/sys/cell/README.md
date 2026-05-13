@@ -8,7 +8,7 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 ontology; it composes owner services that in turn interpret the Cell state.
 
 A Cell's state is carried by ordinary files that can function as a
-[DSL](https://martinfowler.com/dsl.html): their meaning can be interpreted, viewed, and validly
+[DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be interpreted, viewed, and validly
 rewritten within the folder that bounds them.
 
 Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
