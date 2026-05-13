@@ -55,14 +55,14 @@
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@*": "2.0.2_vite@8.0.12__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:@deno/vite-plugin@2.0.2": "2.0.2_vite@8.0.12__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
-    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.20.0_zod@4.4.3",
+    "npm:@mariozechner/pi-coding-agent@0.73.0": "0.73.0_ws@8.20.1",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@noble/hashes@2.2.0": "2.2.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
     "npm:@preact/signals-core@1.14.2": "1.14.2",
     "npm:@preact/signals-react@3.10.1": "3.10.1_react@19.2.6",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
-    "npm:@stripe/stripe-js@9.4.0": "9.4.0",
+    "npm:@stripe/stripe-js@9.5.0": "9.5.0",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@testing-library/react@16.3.2": "16.3.2_@types+react@19.2.14_@types+react-dom@19.2.3__@types+react@19.2.14_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/ramda@0.31.1": "0.31.1",
@@ -120,7 +120,7 @@
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.0.12__esbuild@0.28.0__yaml@2.9.0_esbuild@0.28.0_yaml@2.9.0",
     "npm:vite@*": "8.0.12_esbuild@0.28.0_yaml@2.9.0",
     "npm:vite@8.0.12": "8.0.12_esbuild@0.28.0_yaml@2.9.0",
-    "npm:ws@8.20.0": "8.20.0",
+    "npm:ws@8.20.1": "8.20.1",
     "npm:yaml@2.9.0": "2.9.0"
   },
   "jsr": {
@@ -282,8 +282,7 @@
         "npm:@types/react",
         "npm:@types/ws",
         "npm:react-icons",
-        "npm:react@19.2.5",
-        "npm:ws"
+        "npm:react@19.2.5"
       ]
     },
     "@sys/driver-deno@0.0.292": {
@@ -1638,7 +1637,7 @@
       ],
       "bin": true
     },
-    "@mariozechner/pi-agent-core@0.73.0_ws@8.20.0_zod@4.4.3": {
+    "@mariozechner/pi-agent-core@0.73.0_ws@8.20.1": {
       "integrity": "sha512-ugcpvq0X9fr9fTSK29/3S4+KU/eeVMrBb7ZU3HqiF3xD7I1GlgumLj4FYmDrYSEA6+rzgNWlJUKwjKh9o0Z6AA==",
       "dependencies": [
         "@mariozechner/pi-ai",
@@ -1646,7 +1645,7 @@
       ],
       "deprecated": true
     },
-    "@mariozechner/pi-ai@0.73.0_ws@8.20.0_zod@4.4.3": {
+    "@mariozechner/pi-ai@0.73.0_ws@8.20.1": {
       "integrity": "sha512-phKOpcde/ssz6UYszkmaGJ9LF9mgt/AP8LrtSwsfap+kMSeFfSQ2/mCSBT1mLJ2BqVuff9uXs1/+op1aQeaafQ==",
       "dependencies": [
         "@anthropic-ai/sdk",
@@ -1664,7 +1663,7 @@
       "deprecated": true,
       "bin": true
     },
-    "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.0_zod@4.4.3": {
+    "@mariozechner/pi-coding-agent@0.73.0_ws@8.20.1": {
       "integrity": "sha512-Fs2dRIgtjDT8X5VDGNGzxj251B0FvkRsgX03YJv1FK4wg5Maj+jkf8/5A6tbPnPcXsCgs41xxJRf3tF5vJRccA==",
       "dependencies": [
         "@mariozechner/jiti",
@@ -2561,8 +2560,8 @@
     "@stablelib/base64@1.0.1": {
       "integrity": "sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ=="
     },
-    "@stripe/stripe-js@9.4.0": {
-      "integrity": "sha512-zXG86DnoLU5nH2U18tX5ApTE3IAm+txoiPm4YFyEtRS0K5y7ZDH9M8e1Le/cZyI6wvW3BkJn2daZe2FqZOrSSg=="
+    "@stripe/stripe-js@9.5.0": {
+      "integrity": "sha512-dTQWkJRw5lhcQipPuw6qZRBK2zY5eWWZ1Srw9mSjhIXSLdsNYO3uaIV+YRMkI0/tB/D7yQdHYStrcZrbeHI5Jg=="
     },
     "@svgdotjs/svg.js@3.2.5": {
       "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
@@ -3453,7 +3452,7 @@
     "isexe@2.0.0": {
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="
     },
-    "isomorphic-ws@5.0.0_ws@8.20.0": {
+    "isomorphic-ws@5.0.0_ws@8.20.1": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
         "ws"
@@ -3796,7 +3795,7 @@
         "wsl-utils"
       ]
     },
-    "openai@6.26.0_ws@8.20.0_zod@4.4.3": {
+    "openai@6.26.0_ws@8.20.1": {
       "integrity": "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==",
       "dependencies": [
         "ws",
@@ -4673,8 +4672,8 @@
     "wrappy@1.0.2": {
       "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ=="
     },
-    "ws@8.20.0": {
-      "integrity": "sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA=="
+    "ws@8.20.1": {
+      "integrity": "sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w=="
     },
     "wsl-utils@0.3.1": {
       "integrity": "sha512-g/eziiSUNBSsdDJtCLB8bdYEUMj4jR7AGeUo96p/3dTafgjHhpF4RiCFPiRILwjQoDXx5MqkBr4fwWtR3Ky4Wg==",
@@ -4774,7 +4773,7 @@
       "npm:@preact/signals-core@1.14.2",
       "npm:@preact/signals-react@3.10.1",
       "npm:@sinclair/typebox-codegen@0.11.1",
-      "npm:@stripe/stripe-js@9.4.0",
+      "npm:@stripe/stripe-js@9.5.0",
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
@@ -4815,7 +4814,7 @@
       "npm:typebox@1.1.38",
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.0.12",
-      "npm:ws@8.20.0",
+      "npm:ws@8.20.1",
       "npm:yaml@2.9.0"
     ],
     "packageJson": {

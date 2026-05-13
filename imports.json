@@ -34,7 +34,7 @@
     "@std/testing": "jsr:@std/testing@1.0.18",
     "@std/testing/bdd": "jsr:@std/testing@1.0.18/bdd",
     "@std/uuid": "jsr:@std/uuid@1.1.1",
-    "@stripe/stripe-js": "npm:@stripe/stripe-js@9.4.0",
+    "@stripe/stripe-js": "npm:@stripe/stripe-js@9.5.0",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
@@ -94,7 +94,7 @@
     "typebox/value": "npm:typebox@1.1.38/value",
     "vite": "npm:vite@8.0.12",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
-    "ws": "npm:ws@8.20.0",
+    "ws": "npm:ws@8.20.1",
     "yaml": "npm:yaml@2.9.0"
   }
 }
