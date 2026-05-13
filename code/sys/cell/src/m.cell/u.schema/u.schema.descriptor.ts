@@ -1,15 +1,19 @@
-import { ExportNamePattern, IdPattern, RelativePathPattern, Schema } from './common.ts';
+import { EndpointNamePattern, IdPattern, RelativePathPattern, Schema } from './common.ts';
 
 const T = Schema.Type;
 
 const Id = T.String({ pattern: IdPattern });
 const CellPath = T.String({ pattern: RelativePathPattern });
 
+const EndpointSelector = {
+  use: T.String({ pattern: EndpointNamePattern }),
+};
+
 const Service = T.Object(
   {
     name: Id,
     from: T.String({ minLength: 1 }),
-    export: T.String({ pattern: ExportNamePattern }),
+    ...EndpointSelector,
     config: CellPath,
   },
   { additionalProperties: false },
@@ -19,7 +23,7 @@ const TaskLeaf = T.Object(
   {
     name: Id,
     from: T.String({ minLength: 1 }),
-    export: T.String({ pattern: ExportNamePattern }),
+    ...EndpointSelector,
     config: T.Optional(CellPath),
   },
   { additionalProperties: false },

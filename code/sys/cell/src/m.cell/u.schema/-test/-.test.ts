@@ -41,7 +41,7 @@ describe(`Cell.Schema`, () => {
           task('pull:view'),
           task('deploy:stage', {
             from: './-tasks/deploy.stage.ts',
-            export: 'DeployStageTask',
+            use: 'DeployStageTask',
             config: './-config/@sys.tools.deploy/stage.yaml',
           }),
           configlessTask('clean:tmp'),
@@ -109,6 +109,39 @@ describe(`Cell.Schema`, () => {
       const result = CellSchema.Descriptor.validate(descriptor);
       expect(result.ok).to.eql(false);
       expect(result.errors.filter((e) => e.kind === 'schema').length).to.be.greaterThan(0);
+    });
+
+    it('rejects stale service export selector fields', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{
+          name: 'stripe:fixture',
+          from: '@sys/driver-stripe/server/fixture',
+          export: 'StripeFixture',
+          config: './-config/@sys.driver-stripe/fixture.yaml',
+        }],
+      };
+
+      const result = CellSchema.Descriptor.validate(descriptor);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
+    });
+
+    it('rejects service selectors that omit use', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        services: [{
+          name: 'stripe:fixture',
+          from: '@sys/driver-stripe/server/fixture',
+          config: './-config/@sys.driver-stripe/fixture.yaml',
+        }],
+      };
+
+      const result = CellSchema.Descriptor.validate(descriptor);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
 
     it('rejects service ontology fields owned by previous descriptor drafts', () => {
@@ -196,7 +229,7 @@ describe(`Cell.Schema`, () => {
     it('rejects leaf task entries missing endpoint fields', () => {
       const cases: readonly unknown[] = [
         { name: 'pull:view', from: './-tasks/pull.view.ts' },
-        { name: 'pull:view', export: 'PullViewTask' },
+        { name: 'pull:view', use: 'PullViewTask' },
       ];
 
       cases.forEach((entry) => {
@@ -208,8 +241,43 @@ describe(`Cell.Schema`, () => {
 
         const result = CellSchema.Descriptor.validate(descriptor);
         expect(result.ok).to.eql(false);
-        expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
+        expect(result.errors.some((e) => e.kind === 'schema' || e.kind === 'semantic')).to.eql(
+          true,
+        );
       });
+    });
+
+    it('rejects stale task export selector fields', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        tasks: [{
+          name: 'pull:view',
+          from: './-tasks/pull.view.ts',
+          export: 'PullViewTask',
+          config: './-config/@sys.tools.pull/view.yaml',
+        }],
+      };
+
+      const result = CellSchema.Descriptor.validate(descriptor);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
+    });
+
+    it('rejects task selectors that omit use', () => {
+      const descriptor: unknown = {
+        kind: 'cell',
+        version: 1,
+        tasks: [{
+          name: 'pull:view',
+          from: './-tasks/pull.view.ts',
+          config: './-config/@sys.tools.pull/view.yaml',
+        }],
+      };
+
+      const result = CellSchema.Descriptor.validate(descriptor);
+      expect(result.ok).to.eql(false);
+      expect(result.errors.some((e) => e.kind === 'schema')).to.eql(true);
     });
 
     it('rejects inline executable step fields', () => {
@@ -342,29 +410,33 @@ describe(`Cell.Schema`, () => {
   });
 });
 
+type EndpointOverrides = Partial<{
+  from: string;
+  use: string;
+  config: string;
+}>;
+
 function service(
   name: string,
-  overrides: Partial<t.Cell.Services.Service> = {},
+  overrides: EndpointOverrides = {},
 ): t.Cell.Services.Service {
   return {
     name,
-    from: '@sys/driver-stripe/server/fixture',
-    export: 'StripeFixture',
-    config: './-config/@sys.driver-stripe/fixture.yaml',
-    ...overrides,
+    from: overrides.from ?? '@sys/driver-stripe/server/fixture',
+    use: overrides.use ?? 'StripeFixture',
+    config: overrides.config ?? './-config/@sys.driver-stripe/fixture.yaml',
   };
 }
 
 function task(
   name: string,
-  overrides: Partial<t.Cell.Task.Leaf> = {},
+  overrides: EndpointOverrides = {},
 ): t.Cell.Task.Leaf {
   return {
     name,
-    from: './-tasks/pull.view.ts',
-    export: 'PullViewTask',
-    config: './-config/@sys.tools.pull/view.yaml',
-    ...overrides,
+    from: overrides.from ?? './-tasks/pull.view.ts',
+    use: overrides.use ?? 'PullViewTask',
+    config: overrides.config ?? './-config/@sys.tools.pull/view.yaml',
   };
 }
 
@@ -372,7 +444,7 @@ function configlessTask(name: string): t.Cell.Task.Leaf {
   return {
     name,
     from: './-tasks/clean.tmp.ts',
-    export: 'CleanTmpTask',
+    use: 'CleanTmpTask',
   };
 }
 

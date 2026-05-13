@@ -6,12 +6,12 @@ version: 1
 tasks:
   - name: pull:view
     from: ./-scripts/deploy.ts
-    export: PullViewTask
+    use: PullViewTask
     config: ./-config/@sys.tools.pull/view.yaml
 
   - name: deploy:stage
     from: ./-scripts/deploy.ts
-    export: DeployStageTask
+    use: DeployStageTask
     config: ./-config/@sys.tools.deploy/stage.yaml
 
   - name: sample:deploy

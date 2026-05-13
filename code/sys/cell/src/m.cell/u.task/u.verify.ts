@@ -1,4 +1,5 @@
 import { Is, Path, Str, type t } from './common.ts';
+import { endpointNameOf } from '../u.endpoint.ts';
 import { Fs } from '@sys/fs';
 
 const DEFAULT_TRUSTED = ['@sys/'] as const;
@@ -162,11 +163,12 @@ async function loadEndpoint(
     throw new Error(err, { cause });
   }
 
-  const endpoint = (mod as Record<string, unknown>)[task.export];
+  const endpointName = endpointNameOf(task);
+  const endpoint = (mod as Record<string, unknown>)[endpointName];
 
   if (!Is.record(endpoint) || !Is.func(endpoint.run)) {
     const err =
-      `Cell.Task.verify: '${task.from}' export '${task.export}' must expose run(...) for task '${task.name}'.`;
+      `Cell.Task.verify: '${task.from}' use '${endpointName}' must expose run(...) for task '${task.name}'.`;
     throw new Error(err);
   }
 

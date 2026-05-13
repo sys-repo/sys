@@ -6,7 +6,7 @@ sections:
   - label: Rule
     items: |
       Classify prompt shape:
-      "add a service named <service-name> using <@scope/pkg>/<export>"
+      "add a service named <service-name> from <module> use <endpoint>"
       as `add: service`.
       Cell records service composition.
       The service owner owns config schema and mechanics.
@@ -24,17 +24,17 @@ sections:
       Do not treat service names as raw paths, URLs, imports, task names, or config filenames.
       `<module>` is a trusted import specifier or Cell-local relative adapter path.
       Module examples: `@scope/pkg`, `@scope/pkg/server`, `@scope/pkg/service`, `./-services/local.ts`.
-      `<export>` is the named export that implements `Cell.Services.LifecycleEndpoint`.
-      Export examples: `Server`, `Worker`, `Service`, `Fixture`.
+      `<endpoint>` is the named ESM binding selected by `use` that implements `Cell.Services.LifecycleEndpoint`.
+      Endpoint examples: `Server`, `Worker`, `Service`, `Fixture`.
       `<config>` is a Cell-relative owner config path.
       Config examples: `./-config/@scope.pkg/service.yaml`.
       Config examples: `./-config/@scope.pkg/default.yaml`.
       Do not derive config paths by embedding raw service IDs without confirmation.
-      Confirm service name, module/export, and config path.
+      Confirm service name, from/use endpoint ref, and config path.
 
   - label: 'Lifecycle contract'
     items: |
-      The exported endpoint must implement `Cell.Services.LifecycleEndpoint`.
+      The selected endpoint must implement `Cell.Services.LifecycleEndpoint`.
       `Cell.Services.LifecycleEndpoint` exposes `start(args)`.
       Cell resolves the service-owned config ref, then calls `start(args)`.
       Base args include the Cell root and the service-owned config reference.
@@ -42,7 +42,7 @@ sections:
       Cell does not derive args from service kind or view links.
       The started handle should expose `close(reason)` or `dispose(reason)` for Cell shutdown.
       Standard full @sys lifecycle handles can be `t.LifecycleAsync` compatible.
-      If the module/export contract is ambiguous, inspect the published JSR package docs/source.
+      If the from/use endpoint contract is ambiguous, inspect the published JSR package docs/source.
       Use source inspection only to confirm public exports, types, and lifecycle contracts.
 
   - label: Dialogue
@@ -53,7 +53,7 @@ sections:
       OK — I can add that service.
       I’ll use:
       service name: `<service-name>`
-      module/export: `<module>/<export>`
+      from/use: `<module>` / `<endpoint>`
       config: `<config>`
       Please confirm those values before I update the Cell descriptor
       or create service-owned config.
@@ -77,5 +77,5 @@ sections:
           services:
             - name: <service-name>
               from: '<module>'
-              export: <export>
+              use: <endpoint>
               config: <config>

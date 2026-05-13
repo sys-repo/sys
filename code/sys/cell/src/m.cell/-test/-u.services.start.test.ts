@@ -40,7 +40,7 @@ describe('Cell.Services.start', () => {
     const from = `data:application/javascript;base64,${btoa(source)}`;
     const root = await tempCell(
       'services-start-config-args',
-      descriptor({ from, export: 'Capture' }),
+      descriptor({ from, use: 'Capture' }),
     );
     await Fs.write(
       Fs.join(root, '-config/@sys.http/static.view.yaml'),
@@ -65,7 +65,7 @@ describe('Cell.Services.start', () => {
     const source =
       `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
     const from = `data:application/javascript;base64,${btoa(source)}`;
-    const root = await tempCell('services-root-start', descriptor({ from, export: 'Capture' }));
+    const root = await tempCell('services-root-start', descriptor({ from, use: 'Capture' }));
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, {
       force: true,
     });
@@ -119,7 +119,7 @@ describe('Cell.Services.start', () => {
   it('fails clearly when a service start fails', async () => {
     const source = `export const Failing = { start() { throw new Error('boom'); } };`;
     const from = `data:application/javascript;base64,${btoa(source)}`;
-    const root = await tempCell('services-start-fails', descriptor({ from, export: 'Failing' }));
+    const root = await tempCell('services-start-fails', descriptor({ from, use: 'Failing' }));
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, {
       force: true,
     });
@@ -149,9 +149,9 @@ function staticConfig() {
   `).trimStart();
 }
 
-function descriptor(overrides: Partial<{ from: string; export: string }> = {}) {
+function descriptor(overrides: Partial<{ from: string; use: string }> = {}) {
   const from = overrides.from ?? '@sys/http/server/static';
-  const exp = overrides.export ?? 'HttpStatic';
+  const use = overrides.use ?? 'HttpStatic';
   return Str.dedent(`
     kind: cell
     version: 1
@@ -159,7 +159,7 @@ function descriptor(overrides: Partial<{ from: string; export: string }> = {}) {
     services:
       - name: view
         from: '${from}'
-        export: ${exp}
+        use: ${use}
         config: ./-config/@sys.http/static.view.yaml
   `).trimStart();
 }
@@ -172,15 +172,15 @@ function multiServiceDescriptor(from: string) {
     services:
       - name: first
         from: '${from}'
-        export: First
+        use: First
         config: ./-config/first.yaml
       - name: second
         from: '${from}'
-        export: Second
+        use: Second
         config: ./-config/second.yaml
       - name: fail
         from: '${from}'
-        export: Failing
+        use: Failing
         config: ./-config/fail.yaml
   `).trimStart();
 }

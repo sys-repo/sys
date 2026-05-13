@@ -8,7 +8,7 @@ sections:
       Classify "add an @sys/http static service for <view>" as `add: static HTTP service`.
       Also classify "add a static HTTP service for <view>" as this act, then route to @sys/http.
       Treat the speech act as intent plus partial slots.
-      Cell registers a service name, module/export, and owner config reference.
+      Cell registers a service name, from/use endpoint ref, and owner config reference.
       Do not hand-author `@sys/http` config YAML when the owner CLI can write it.
       Do not put HTTP static-server mechanics directly in `cell.yaml`.
       Do not use `@sys/tools serve` for Cell services; it is an operator CLI façade.
@@ -47,7 +47,7 @@ sections:
       Pass `--hostname` and `--port` only when specified or confirmed.
       This creates or updates HTTP static-server config.
       Do not duplicate HTTP config schema in the Cell edit.
-      Cell records only service name, module/export, and config reference.
+      Cell records only service name, from/use endpoint ref, and config reference.
 
   - label: 'Owner command'
     items:
@@ -69,5 +69,5 @@ sections:
       services:
         - name: <service-name>
           from: '@sys/http/server/static'
-          export: HttpStatic
+          use: HttpStatic
           config: <static-config>

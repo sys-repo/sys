@@ -176,7 +176,7 @@ describe(`@sys/cell/cli`, () => {
         tasks:
           - name: capture
             from: ./-tasks/capture.ts
-            export: CaptureTask
+            use: CaptureTask
             config: ./-config/capture.yaml
       `).trimStart(),
     );

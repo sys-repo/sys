@@ -46,17 +46,17 @@ describe('Cell.load', () => {
         tasks:
           - name: pull:view
             from: ./-tasks/pull.view.ts
-            export: PullViewTask
+            use: PullViewTask
             config: ./-config/@sys.tools.pull/view.yaml
 
           - name: deploy:stage
             from: ./-tasks/deploy.stage.ts
-            export: DeployStageTask
+            use: DeployStageTask
             config: ./-config/@sys.tools.deploy/stage.yaml
 
           - name: clean:tmp
             from: ./-tasks/clean.tmp.ts
-            export: CleanTmpTask
+            use: CleanTmpTask
 
           - name: sample:deploy
             steps:
@@ -76,7 +76,7 @@ describe('Cell.load', () => {
     expect(cell.descriptor.tasks?.[2]).to.eql({
       name: 'clean:tmp',
       from: './-tasks/clean.tmp.ts',
-      export: 'CleanTmpTask',
+      use: 'CleanTmpTask',
     });
     expect(cell.descriptor.tasks?.[3]).to.eql({
       name: 'sample:deploy',

@@ -39,7 +39,7 @@ describe('Cell.Services.verify', () => {
   it('verifies Cell-local service adapters inside the root', async () => {
     const root = await tempCell(
       'services-local-adapter',
-      descriptor({ from: './-services/capture.ts', export: 'CaptureService' }),
+      descriptor({ from: './-services/capture.ts', use: 'CaptureService' }),
     );
     await Fs.write(
       Fs.join(root, './-services/capture.ts'),
@@ -111,28 +111,28 @@ describe('Cell.Services.verify', () => {
     );
   });
 
-  it('fails clearly when service export is missing', async () => {
-    const root = await tempCell('services-missing-export', descriptor({ export: 'MissingExport' }));
+  it('fails clearly when service use target is missing', async () => {
+    const root = await tempCell('services-missing-use', descriptor({ use: 'MissingExport' }));
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
     const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Services.verify: '@sys/http/server/static' export 'MissingExport' must expose start(...) for service 'view'.",
+      "Cell.Services.verify: '@sys/http/server/static' use 'MissingExport' must expose start(...) for service 'view'.",
     );
   });
 
-  it('fails clearly when service export has no start function', async () => {
+  it('fails clearly when service use target has no start function', async () => {
     const root = await tempCell(
-      'services-export-without-start',
-      descriptor({ from: '@sys/cell', export: 'pkg' }),
+      'services-use-without-start',
+      descriptor({ from: '@sys/cell', use: 'pkg' }),
     );
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
     const error = await catchVerify(cell);
 
     expect(error?.message).to.eql(
-      "Cell.Services.verify: '@sys/cell' export 'pkg' must expose start(...) for service 'view'.",
+      "Cell.Services.verify: '@sys/cell' use 'pkg' must expose start(...) for service 'view'.",
     );
   });
 });
@@ -151,9 +151,9 @@ async function writeStaticConfig(root: string) {
   await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, { force: true });
 }
 
-function descriptor(overrides: Partial<{ from: string; export: string; config: string }> = {}) {
+function descriptor(overrides: Partial<{ from: string; use: string; config: string }> = {}) {
   const from = overrides.from ?? '@sys/http/server/static';
-  const exp = overrides.export ?? 'HttpStatic';
+  const use = overrides.use ?? 'HttpStatic';
   const config = overrides.config ?? './-config/@sys.http/static.view.yaml';
 
   return Str.dedent(`
@@ -163,7 +163,7 @@ function descriptor(overrides: Partial<{ from: string; export: string; config: s
     services:
       - name: view
         from: '${from}'
-        export: ${exp}
+        use: ${use}
         config: ${config}
   `).trimStart();
 }

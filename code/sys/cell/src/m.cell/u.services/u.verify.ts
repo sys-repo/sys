@@ -1,4 +1,5 @@
 import { Is, Path, Str, type t } from './common.ts';
+import { endpointNameOf } from '../u.endpoint.ts';
 import { Fs } from '@sys/fs';
 
 const DEFAULT_TRUSTED = ['@sys/'] as const;
@@ -76,11 +77,12 @@ async function loadEndpoint(
     throw new Error(err, { cause });
   }
 
-  const endpoint = (mod as Record<string, unknown>)[service.export];
+  const endpointName = endpointNameOf(service);
+  const endpoint = (mod as Record<string, unknown>)[endpointName];
 
   if (!Is.record(endpoint) || !Is.func(endpoint.start)) {
     const err =
-      `Cell.Services.verify: '${service.from}' export '${service.export}' must expose start(...) for service '${service.name}'.`;
+      `Cell.Services.verify: '${service.from}' use '${endpointName}' must expose start(...) for service '${service.name}'.`;
     throw new Error(err);
   }
 

@@ -65,19 +65,19 @@ Options    -h, --help   show help
 
 ## Prompting `cell dsl`
 
-| Intent                   | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:    |
-| ------------------------ | ------------------------------------------------------------------- |
-| create: **Cell**         | Initialize this folder as an `@sys/cell`.                           |
-| create: **Cell** at path | Initialize `./foo` as an `@sys/cell`.                               |
-| add: pulled view         | Add a pulled view from `<dist-url>`.                                |
-| refresh: pulled views    | Pull latest configured views.                                       |
-| add: static HTTP service | Add an `@sys/http` static service for `<view>`.                     |
-| add: service             | Add a service named `<service-name>` using `<@scope/pkg>/<export>`. |
-| add: proxy service       | Add a proxy service named `<service-name>`.                         |
-| route: proxy root        | Route `/` to `<view/service/upstream>`.                             |
-| route: proxy mount       | Route `<path-prefix>` to `<view/service/upstream>`.                 |
-| run: task                | Run a task named `<task-name>`.                                     |
-| start: services          | Start the **Cell** services.                                        |
+| Intent                   | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:       |
+| ------------------------ | ---------------------------------------------------------------------- |
+| create: **Cell**         | Initialize this folder as an `@sys/cell`.                              |
+| create: **Cell** at path | Initialize `./foo` as an `@sys/cell`.                                  |
+| add: pulled view         | Add a pulled view from `<dist-url>`.                                   |
+| refresh: pulled views    | Pull latest configured views.                                          |
+| add: static HTTP service | Add an `@sys/http` static service for `<view>`.                        |
+| add: service             | Add a service named `<service-name>` from `<module>` use `<endpoint>`. |
+| add: proxy service       | Add a proxy service named `<service-name>`.                            |
+| route: proxy root        | Route `/` to `<view/service/upstream>`.                                |
+| route: proxy mount       | Route `<path-prefix>` to `<view/service/upstream>`.                    |
+| run: task                | Run a task named `<task-name>`.                                        |
+| start: services          | Start the **Cell** services.                                           |
 
 <p>&nbsp;</p>
 
@@ -88,7 +88,7 @@ Sample slot values, not DSL grammar:
 - `<service-name>`: `ui:static:views` for the sample static view service
 - `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
 - `<service-name>`: `cell:proxy` for the sample public proxy
-- `<@scope/pkg>/<export>`: `@sys/driver-stripe/server/fixture` / `StripeFixture`
+- `<module>` / `<endpoint>`: `@sys/driver-stripe/server/fixture` / `StripeFixture`
 - `<config>`: `./-config/@sys.driver-stripe/fixture.yaml`
 - `<view>`: `stripe.dev`, `hello`
 

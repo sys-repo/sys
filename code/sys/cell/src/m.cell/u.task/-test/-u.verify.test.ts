@@ -8,7 +8,7 @@ describe('Cell.Task.verify', () => {
       'task-verify-local',
       descriptor([
         leaf('capture', { config: './-config/capture.yaml' }),
-        leaf('clean', { from: './-tasks/clean.ts', export: 'CleanTask' }, false),
+        leaf('clean', { from: './-tasks/clean.ts', use: 'CleanTask' }, false),
         composite('all', ['capture', 'clean']),
       ]),
     );
@@ -70,7 +70,7 @@ describe('Cell.Task.verify', () => {
   it('rejects untrusted task imports by default', async () => {
     const root = await tempCell(
       'task-untrusted-import',
-      descriptor([leaf('capture', { from: 'npm:fake-package', export: 'CaptureTask' }, false)]),
+      descriptor([leaf('capture', { from: 'npm:fake-package', use: 'CaptureTask' }, false)]),
     );
 
     const error = await catchVerify(await Cell.load(root));
@@ -120,14 +120,14 @@ describe('Cell.Task.verify', () => {
     );
   });
 
-  it('fails clearly when task export is missing or has no run function', async () => {
+  it('fails clearly when task use target is missing or has no run function', async () => {
     const missingRoot = await tempCell(
-      'task-missing-export',
-      descriptor([leaf('capture', { export: 'MissingTask' }, false)]),
+      'task-missing-use',
+      descriptor([leaf('capture', { use: 'MissingTask' }, false)]),
     );
     const noRunRoot = await tempCell(
-      'task-export-no-run',
-      descriptor([leaf('capture', { export: 'NoRunTask' }, false)]),
+      'task-use-no-run',
+      descriptor([leaf('capture', { use: 'NoRunTask' }, false)]),
     );
     await writeTask(
       missingRoot,
@@ -140,10 +140,10 @@ describe('Cell.Task.verify', () => {
     const noRunError = await catchVerify(await Cell.load(noRunRoot));
 
     expect(missingError?.message).to.eql(
-      "Cell.Task.verify: './-tasks/capture.ts' export 'MissingTask' must expose run(...) for task 'capture'.",
+      "Cell.Task.verify: './-tasks/capture.ts' use 'MissingTask' must expose run(...) for task 'capture'.",
     );
     expect(noRunError?.message).to.eql(
-      "Cell.Task.verify: './-tasks/capture.ts' export 'NoRunTask' must expose run(...) for task 'capture'.",
+      "Cell.Task.verify: './-tasks/capture.ts' use 'NoRunTask' must expose run(...) for task 'capture'.",
     );
   });
 });
@@ -177,7 +177,7 @@ function leaf(
   const task: t.Cell.Task.Leaf = {
     name,
     from: './-tasks/capture.ts',
-    export: 'CaptureTask',
+    use: 'CaptureTask',
     ...overrides,
   };
   if (withConfig) task.config = overrides.config ?? './-config/capture.yaml';
@@ -185,7 +185,7 @@ function leaf(
   return [
     `  - name: ${task.name}`,
     `    from: ${task.from}`,
-    `    export: ${task.export}`,
+    `    use: ${task.use}`,
     ...(task.config ? [`    config: ${task.config}`] : []),
   ].join('\n');
 }

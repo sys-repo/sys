@@ -100,8 +100,8 @@ describe('Cell.Task', () => {
     const root = await tempCell(
       'task-run-composite',
       descriptor([
-        leaf('pull:view', { from: './-tasks/pull.ts', export: 'PullTask' }, false),
-        leaf('deploy:stage', { from: './-tasks/deploy.ts', export: 'DeployTask' }, false),
+        leaf('pull:view', { from: './-tasks/pull.ts', use: 'PullTask' }, false),
+        leaf('deploy:stage', { from: './-tasks/deploy.ts', use: 'DeployTask' }, false),
         composite('sample:deploy', ['pull:view', 'deploy:stage']),
       ]),
     );
@@ -124,7 +124,7 @@ describe('Cell.Task', () => {
     resetEvents();
     const root = await tempCell(
       'task-run-configless',
-      descriptor([leaf('clean:tmp', { export: 'CleanTask' }, false)]),
+      descriptor([leaf('clean:tmp', { use: 'CleanTask' }, false)]),
     );
     await writeTask(root, './-tasks/capture.ts', taskSource('CleanTask', 'clean:tmp'));
 
@@ -161,9 +161,9 @@ describe('Cell.Task', () => {
     const root = await tempCell(
       'task-run-failing-composite',
       descriptor([
-        leaf('first', { from: './-tasks/first.ts', export: 'FirstTask' }, false),
-        leaf('fail', { from: './-tasks/fail.ts', export: 'FailTask' }, false),
-        leaf('after', { from: './-tasks/after.ts', export: 'AfterTask' }, false),
+        leaf('first', { from: './-tasks/first.ts', use: 'FirstTask' }, false),
+        leaf('fail', { from: './-tasks/fail.ts', use: 'FailTask' }, false),
+        leaf('after', { from: './-tasks/after.ts', use: 'AfterTask' }, false),
         composite('all', ['first', 'fail', 'after']),
       ]),
     );
@@ -223,7 +223,7 @@ function leaf(
   const task: t.Cell.Task.Leaf = {
     name,
     from: './-tasks/capture.ts',
-    export: 'CaptureTask',
+    use: 'CaptureTask',
     ...overrides,
   };
   if (withConfig) task.config = overrides.config ?? './-config/capture.yaml';
@@ -231,7 +231,7 @@ function leaf(
   return [
     `  - name: ${task.name}`,
     `    from: ${task.from}`,
-    `    export: ${task.export}`,
+    `    use: ${task.use}`,
     ...(task.config ? [`    config: ${task.config}`] : []),
   ].join('\n');
 }
