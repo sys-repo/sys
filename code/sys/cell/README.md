@@ -8,8 +8,8 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 ontology; it composes owner services that in turn interpret the Cell state.
 
 A Cell's state is carried by ordinary files that can function as a
-[DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be interpreted, viewed, and validly
-rewritten within the folder that bounds them.
+[DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
+interpreted, viewed, and validly rewritten within the folder that bounds them.
 
 Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
 [TypeScript][typescript], [JSON][json], [binary data][octet-stream], and other file-carried forms.
@@ -120,6 +120,13 @@ import { Cell } from 'jsr:@sys/cell';
 
 const cell = await Cell.load('.');
 await Cell.task(cell, 'sample:deploy');
+```
+
+For one-off task calls, pass a Cell root or omit it to use the current directory:
+
+```ts
+await Cell.task('.', 'sample:deploy');
+await Cell.task('sample:deploy');
 ```
 
 ### CLI

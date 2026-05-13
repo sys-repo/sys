@@ -10,6 +10,7 @@
  */
 import type { t } from './common.ts';
 import { CellSchema } from './u.schema/mod.ts';
+import { createTaskMethod } from './u.task.root.ts';
 
 export const Cell: t.Cell.Lib = {
   Schema: CellSchema,
@@ -97,7 +98,8 @@ export const Cell: t.Cell.Lib = {
   start(cell, options) {
     return Cell.Services.start(cell, options);
   },
-  task(cell, name, options) {
-    return Cell.Task.run(cell, name, options);
-  },
+  task: createTaskMethod({
+    load: (root, options) => Cell.load(root, options),
+    run: (cell, name, options) => Cell.Task.run(cell, name, options),
+  }),
 };

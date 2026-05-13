@@ -55,7 +55,20 @@ describe(`Cell.Schema`, () => {
 
   describe('services', () => {
     it('rejects invalid service IDs', () => {
-      const cases = ['Bad', 'bad_name', 'bad/name', 'bad:', 'bad..name'];
+      const cases = [
+        'Bad',
+        'bad_name',
+        'bad/name',
+        'bad\\name',
+        'bad:',
+        'bad.',
+        'bad..name',
+        '.',
+        './bad',
+        '../bad',
+        '/bad',
+        '~bad',
+      ];
 
       cases.forEach((name) => {
         const descriptor: unknown = {
@@ -119,7 +132,20 @@ describe(`Cell.Schema`, () => {
 
   describe('tasks', () => {
     it('rejects invalid task IDs', () => {
-      const cases = ['Bad', 'bad_name', 'bad/name', 'bad:', 'bad..name'];
+      const cases = [
+        'Bad',
+        'bad_name',
+        'bad/name',
+        'bad\\name',
+        'bad:',
+        'bad.',
+        'bad..name',
+        '.',
+        './bad',
+        '../bad',
+        '/bad',
+        '~bad',
+      ];
 
       cases.forEach((name) => {
         const descriptor: unknown = {

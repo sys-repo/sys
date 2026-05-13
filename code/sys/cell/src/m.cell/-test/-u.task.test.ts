@@ -1,8 +1,9 @@
-import { describe, expect, Fs, it, Str, type t } from '../../../-test.ts';
-import { Cell } from '../../mod.ts';
-import { tempCell } from '../../-test/u.fixture.ts';
+import { describe, expect, Fs, it, Str, type t } from '../../-test.ts';
+import { Cell } from '../mod.ts';
+import { createTaskMethod } from '../u.task.root.ts';
+import { tempCell } from './u.fixture.ts';
 
-describe('Cell.Task.run', () => {
+describe('Cell.Task', () => {
   it('runs a leaf root task with structured config-ref args', async () => {
     resetEvents();
     const root = await tempCell(
@@ -50,6 +51,48 @@ describe('Cell.Task.run', () => {
 
     expect(res.task.name).to.eql('capture');
     expect(events().map((event) => event.name)).to.eql(['capture']);
+  });
+
+  it('root Cell.task can load a root path for one-shot task run', async () => {
+    resetEvents();
+    const root = await tempCell(
+      'task-run-root-path-alias',
+      descriptor([leaf('capture', { config: './-config/capture.yaml' })]),
+    );
+    await writeTask(root, './-tasks/capture.ts', taskSource('CaptureTask', 'capture'));
+    await Fs.write(Fs.join(root, '-config/capture.yaml'), `value: from-config\n`, {
+      force: true,
+    });
+
+    const res = await Cell.task(root, 'capture');
+    const event = events()[0];
+
+    expect(res.task.name).to.eql('capture');
+    expect(event.name).to.eql('capture');
+    expect(event.args.cwd).to.eql(root);
+  });
+
+  it('root Cell.task can load the default root when only the task name is given', async () => {
+    const root = await tempCell(
+      'task-run-default-root-alias',
+      descriptor([leaf('capture', { config: './-config/capture.yaml' })]),
+    );
+    const cell = await Cell.load(root);
+    const calls: string[] = [];
+    const task = createTaskMethod({
+      async load(root) {
+        calls.push(root ?? '<default>');
+        return cell;
+      },
+      async run(cell, name) {
+        return { task: cell.descriptor.tasks?.[0] ?? { name, steps: [] }, steps: [] };
+      },
+    });
+
+    const res = await task('capture');
+
+    expect(calls).to.eql(['<default>']);
+    expect(res.task.name).to.eql('capture');
   });
 
   it('runs composite tasks in referenced root-task order', async () => {
@@ -205,7 +248,7 @@ function taskSource(exportName: string, name: string) {
   return Str.dedent(`
     export const ${exportName} = {
       run(args: unknown) {
-        const input = args as { readonly paths: { readonly config?: string } };
+        const input = args as { paths: { config?: string } };
         const g = globalThis as unknown as { __cellTaskEvents?: unknown[] };
         g.__cellTaskEvents ??= [];
         g.__cellTaskEvents.push({ name: '${name}', args });

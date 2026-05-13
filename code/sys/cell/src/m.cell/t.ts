@@ -13,6 +13,8 @@ export declare namespace Cell {
     load(root?: t.StringDir, options?: LoadOptions): Promise<Instance>;
     start(cell: Instance, options?: Services.StartOptions): Promise<Services.Started>;
     task(cell: Instance, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
+    task(root: t.StringDir, name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
+    task(name: Id, options?: Task.RunOptions): Promise<Task.RunResult>;
   };
 
   /** Cell-local identifier used for services and tasks. */
@@ -50,7 +52,7 @@ export declare namespace Cell {
     /** Task verification options. */
     export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
-      readonly trusted?: readonly string[];
+      trusted?: readonly string[];
     };
 
     /** Task run options. */
@@ -107,8 +109,8 @@ export declare namespace Cell {
 
     /** Structured arguments passed to a leaf task endpoint. */
     export type RunArgs = {
-      readonly cwd: t.StringDir;
-      readonly paths: { readonly config?: t.StringPath };
+      cwd: t.StringDir;
+      paths: { config?: t.StringPath };
     };
 
     /** Task run result. */
@@ -150,7 +152,7 @@ export declare namespace Cell {
     /** Services verification options. */
     export type VerifyOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
-      readonly trusted?: readonly string[];
+      trusted?: readonly string[];
     };
 
     /** Services start options. */
@@ -158,8 +160,8 @@ export declare namespace Cell {
 
     /** Service start arguments. */
     export type StartArgs = {
-      readonly cwd: t.StringDir;
-      readonly paths: { readonly config: t.StringPath };
+      cwd: t.StringDir;
+      paths: { config: t.StringPath };
     };
 
     /** Services verification result. */
