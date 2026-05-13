@@ -11,11 +11,12 @@ A Cell's state is carried by ordinary files that can function as a
 [DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
 interpreted, viewed, and validly rewritten within the folder that bounds them.
 
-Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
+Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml], [HTML](html),
 [TypeScript][typescript], [JSON][json], [binary data][octet-stream], and other file-carried forms.
 
 [commonmark]: https://spec.commonmark.org/current/
 [yaml]: https://yaml.org/spec/1.2.2/
+[html]: https://html.spec.whatwg.org/
 [typescript]: https://www.typescriptlang.org/docs/
 [json]: https://www.rfc-editor.org/rfc/rfc8259
 [octet-stream]: https://www.iana.org/assignments/media-types/application/octet-stream
