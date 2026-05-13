@@ -44,7 +44,7 @@ export declare namespace Cell {
   /** Endpoint selected from the module referenced by `from`. */
   export type EndpointSelector = {
     /**
-     * Cell-side selection verb: from this module, use this endpoint.
+     * Cell-side selection verb: use this endpoint from the referenced module.
      *
      * The value is the named ESM binding exposed by `from` that implements
      * the task/service contract. The descriptor speaks from Cell's
@@ -81,8 +81,9 @@ export declare namespace Cell {
     export type Descriptor = Leaf | Composite;
 
     /** Trusted finite endpoint task. */
-    export type Leaf = EndpointSelector & {
+    export type Leaf = {
       name: Id;
+      use: string;
       from: string;
       config?: Path;
     };
@@ -130,10 +131,10 @@ export declare namespace Cell {
 
     /** Planned endpoint address accepted by Cell. */
     export type PlannedEndpoint = {
-      /** Descriptor-authored module specifier. */
-      readonly from: string;
       /** Descriptor-authored Cell-side endpoint selector. */
       readonly use: string;
+      /** Descriptor-authored module specifier. */
+      readonly from: string;
       /** Import address Cell would use later during verify/run. */
       readonly specifier: string;
       /** How Cell accepted `from`. */
@@ -264,9 +265,10 @@ export declare namespace Cell {
       start(args: StartArgs): Handle | Promise<Handle>;
     };
 
-    /** Service resolved through `from` + `use` and service-owned `config`. */
-    export type Service = EndpointSelector & {
+    /** Service resolved through `use` + `from` and service-owned `config`. */
+    export type Service = {
       name: Id;
+      use: string;
       from: string;
       config: Path;
     };

@@ -12,8 +12,8 @@ const EndpointSelector = {
 const Service = T.Object(
   {
     name: Id,
-    from: T.String({ minLength: 1 }),
     ...EndpointSelector,
+    from: T.String({ minLength: 1 }),
     config: CellPath,
   },
   { additionalProperties: false },
@@ -22,8 +22,8 @@ const Service = T.Object(
 const TaskLeaf = T.Object(
   {
     name: Id,
-    from: T.String({ minLength: 1 }),
     ...EndpointSelector,
+    from: T.String({ minLength: 1 }),
     config: T.Optional(CellPath),
   },
   { additionalProperties: false },

@@ -19,8 +19,8 @@ export function resolveTaskEndpointAddress(
 
   if (isRelativeSpecifier(from)) {
     return {
-      from: task.from,
       use,
+      from: task.from,
       specifier: resolveLocalImportSpecifier(cell, task, from, context),
       source: 'local',
     };
@@ -33,8 +33,8 @@ export function resolveTaskEndpointAddress(
   }
 
   return {
-    from: task.from,
     use,
+    from: task.from,
     specifier: from,
     source: 'trusted',
   };

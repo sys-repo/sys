@@ -149,7 +149,7 @@ function staticConfig() {
   `).trimStart();
 }
 
-function descriptor(overrides: Partial<{ from: string; use: string }> = {}) {
+function descriptor(overrides: Partial<{ use: string; from: string }> = {}) {
   const from = overrides.from ?? '@sys/http/server/static';
   const use = overrides.use ?? 'HttpStatic';
   return Str.dedent(`
@@ -158,8 +158,8 @@ function descriptor(overrides: Partial<{ from: string; use: string }> = {}) {
 
     services:
       - name: view
-        from: '${from}'
         use: ${use}
+        from: '${from}'
         config: ./-config/@sys.http/static.view.yaml
   `).trimStart();
 }
@@ -171,16 +171,16 @@ function multiServiceDescriptor(from: string) {
 
     services:
       - name: first
-        from: '${from}'
         use: First
+        from: '${from}'
         config: ./-config/first.yaml
       - name: second
-        from: '${from}'
         use: Second
+        from: '${from}'
         config: ./-config/second.yaml
       - name: fail
-        from: '${from}'
         use: Failing
+        from: '${from}'
         config: ./-config/fail.yaml
   `).trimStart();
 }

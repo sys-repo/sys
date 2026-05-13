@@ -17,7 +17,7 @@ sections:
       Pass `[dir]` when the Cell root is not the current folder.
       This loads the Cell descriptor, starts declared `services[]`, waits, and closes services.
       If startup fails for a named service, inspect that service's owner config and owner `--help`.
-      If a from/use endpoint contract is ambiguous, inspect the published JSR package docs/source.
+      If a selected endpoint contract is ambiguous, inspect the published JSR package docs/source.
 
   - label: Command
     items: |

@@ -39,7 +39,7 @@ describe('Cell.Services.verify', () => {
   it('verifies Cell-local service adapters inside the root', async () => {
     const root = await tempCell(
       'services-local-adapter',
-      descriptor({ from: './-services/capture.ts', use: 'CaptureService' }),
+      descriptor({ use: 'CaptureService', from: './-services/capture.ts' }),
     );
     await Fs.write(
       Fs.join(root, './-services/capture.ts'),
@@ -125,7 +125,7 @@ describe('Cell.Services.verify', () => {
   it('fails clearly when service use target has no start function', async () => {
     const root = await tempCell(
       'services-use-without-start',
-      descriptor({ from: '@sys/cell', use: 'pkg' }),
+      descriptor({ use: 'pkg', from: '@sys/cell' }),
     );
     await writeStaticConfig(root);
     const cell = await Cell.load(root);
@@ -151,7 +151,7 @@ async function writeStaticConfig(root: string) {
   await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, { force: true });
 }
 
-function descriptor(overrides: Partial<{ from: string; use: string; config: string }> = {}) {
+function descriptor(overrides: Partial<{ use: string; from: string; config: string }> = {}) {
   const from = overrides.from ?? '@sys/http/server/static';
   const use = overrides.use ?? 'HttpStatic';
   const config = overrides.config ?? './-config/@sys.http/static.view.yaml';
@@ -162,8 +162,8 @@ function descriptor(overrides: Partial<{ from: string; use: string; config: stri
 
     services:
       - name: view
-        from: '${from}'
         use: ${use}
+        from: '${from}'
         config: ${config}
   `).trimStart();
 }

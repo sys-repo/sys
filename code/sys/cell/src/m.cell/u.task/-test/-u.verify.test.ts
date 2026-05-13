@@ -8,7 +8,7 @@ describe('Cell.Task.verify', () => {
       'task-verify-local',
       descriptor([
         leaf('capture', { config: './-config/capture.yaml' }),
-        leaf('clean', { from: './-tasks/clean.ts', use: 'CleanTask' }, false),
+        leaf('clean', { use: 'CleanTask', from: './-tasks/clean.ts' }, false),
         composite('all', ['capture', 'clean']),
       ]),
     );
@@ -70,7 +70,7 @@ describe('Cell.Task.verify', () => {
   it('rejects untrusted task imports by default', async () => {
     const root = await tempCell(
       'task-untrusted-import',
-      descriptor([leaf('capture', { from: 'npm:fake-package', use: 'CaptureTask' }, false)]),
+      descriptor([leaf('capture', { use: 'CaptureTask', from: 'npm:fake-package' }, false)]),
     );
 
     const error = await catchVerify(await Cell.load(root));
@@ -176,16 +176,16 @@ function leaf(
 ) {
   const task: t.Cell.Task.Leaf = {
     name,
-    from: './-tasks/capture.ts',
     use: 'CaptureTask',
+    from: './-tasks/capture.ts',
     ...overrides,
   };
   if (withConfig) task.config = overrides.config ?? './-config/capture.yaml';
 
   return [
     `  - name: ${task.name}`,
-    `    from: ${task.from}`,
     `    use: ${task.use}`,
+    `    from: ${task.from}`,
     ...(task.config ? [`    config: ${task.config}`] : []),
   ].join('\n');
 }

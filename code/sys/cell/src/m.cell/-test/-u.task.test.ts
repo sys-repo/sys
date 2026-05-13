@@ -100,8 +100,8 @@ describe('Cell.Task', () => {
     const root = await tempCell(
       'task-run-composite',
       descriptor([
-        leaf('pull:view', { from: './-tasks/pull.ts', use: 'PullTask' }, false),
-        leaf('deploy:stage', { from: './-tasks/deploy.ts', use: 'DeployTask' }, false),
+        leaf('pull:view', { use: 'PullTask', from: './-tasks/pull.ts' }, false),
+        leaf('deploy:stage', { use: 'DeployTask', from: './-tasks/deploy.ts' }, false),
         composite('sample:deploy', ['pull:view', 'deploy:stage']),
       ]),
     );
@@ -161,8 +161,8 @@ describe('Cell.Task', () => {
     const root = await tempCell(
       'task-run-preflight-before-execute',
       descriptor([
-        leaf('first', { from: './-tasks/first.ts', use: 'FirstTask' }, false),
-        leaf('bad', { from: './-tasks/bad.ts', use: 'BadTask' }, false),
+        leaf('first', { use: 'FirstTask', from: './-tasks/first.ts' }, false),
+        leaf('bad', { use: 'BadTask', from: './-tasks/bad.ts' }, false),
         composite('all', ['first', 'bad']),
       ]),
     );
@@ -182,9 +182,9 @@ describe('Cell.Task', () => {
     const root = await tempCell(
       'task-run-failing-composite',
       descriptor([
-        leaf('first', { from: './-tasks/first.ts', use: 'FirstTask' }, false),
-        leaf('fail', { from: './-tasks/fail.ts', use: 'FailTask' }, false),
-        leaf('after', { from: './-tasks/after.ts', use: 'AfterTask' }, false),
+        leaf('first', { use: 'FirstTask', from: './-tasks/first.ts' }, false),
+        leaf('fail', { use: 'FailTask', from: './-tasks/fail.ts' }, false),
+        leaf('after', { use: 'AfterTask', from: './-tasks/after.ts' }, false),
         composite('all', ['first', 'fail', 'after']),
       ]),
     );
@@ -243,16 +243,16 @@ function leaf(
 ) {
   const task: t.Cell.Task.Leaf = {
     name,
-    from: './-tasks/capture.ts',
     use: 'CaptureTask',
+    from: './-tasks/capture.ts',
     ...overrides,
   };
   if (withConfig) task.config = overrides.config ?? './-config/capture.yaml';
 
   return [
     `  - name: ${task.name}`,
-    `    from: ${task.from}`,
     `    use: ${task.use}`,
+    `    from: ${task.from}`,
     ...(task.config ? [`    config: ${task.config}`] : []),
   ].join('\n');
 }

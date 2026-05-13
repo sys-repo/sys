@@ -5,18 +5,18 @@ version: 1
 
 tasks:
   - name: pull:view
-    from: ./-scripts/deploy.ts
     use: PullViewTask
+    from: ./-scripts/deploy.ts
     config: ./-config/@sys.tools.pull/view.yaml
 
   - name: deploy:prep
-    from: ./-scripts/deploy.ts
     use: DeployPrepTask
+    from: ./-scripts/deploy.ts
     config: ./-config/@sys.tools.deploy/orbiter.yaml
 
   - name: deploy:push
-    from: ./-scripts/deploy.ts
     use: DeployPushTask
+    from: ./-scripts/deploy.ts
     config: ./-config/@sys.tools.deploy/orbiter.yaml
 
   - name: sample:deploy:prep

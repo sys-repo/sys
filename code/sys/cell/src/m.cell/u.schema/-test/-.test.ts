@@ -40,8 +40,8 @@ describe(`Cell.Schema`, () => {
         tasks: [
           task('pull:view'),
           task('deploy:stage', {
-            from: './-tasks/deploy.stage.ts',
             use: 'DeployStageTask',
+            from: './-tasks/deploy.stage.ts',
             config: './-config/@sys.tools.deploy/stage.yaml',
           }),
           configlessTask('clean:tmp'),
@@ -411,8 +411,8 @@ describe(`Cell.Schema`, () => {
 });
 
 type EndpointOverrides = Partial<{
-  from: string;
   use: string;
+  from: string;
   config: string;
 }>;
 
@@ -422,8 +422,8 @@ function service(
 ): t.Cell.Services.Service {
   return {
     name,
-    from: overrides.from ?? '@sys/driver-stripe/server/fixture',
     use: overrides.use ?? 'StripeFixture',
+    from: overrides.from ?? '@sys/driver-stripe/server/fixture',
     config: overrides.config ?? './-config/@sys.driver-stripe/fixture.yaml',
   };
 }
@@ -434,8 +434,8 @@ function task(
 ): t.Cell.Task.Leaf {
   return {
     name,
-    from: overrides.from ?? './-tasks/pull.view.ts',
     use: overrides.use ?? 'PullViewTask',
+    from: overrides.from ?? './-tasks/pull.view.ts',
     config: overrides.config ?? './-config/@sys.tools.pull/view.yaml',
   };
 }
@@ -443,8 +443,8 @@ function task(
 function configlessTask(name: string): t.Cell.Task.Leaf {
   return {
     name,
-    from: './-tasks/clean.tmp.ts',
     use: 'CleanTmpTask',
+    from: './-tasks/clean.tmp.ts',
   };
 }
 

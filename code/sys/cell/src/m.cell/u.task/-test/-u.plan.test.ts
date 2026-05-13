@@ -32,8 +32,8 @@ describe('Cell.Task.plan', () => {
     const root = await tempCell(
       'task-plan-composite-shape',
       descriptor([
-        leaf('pull:view', { from: './-tasks/pull.ts', use: 'PullTask' }, false),
-        leaf('deploy:stage', { from: './-tasks/deploy.ts', use: 'DeployTask' }, false),
+        leaf('pull:view', { use: 'PullTask', from: './-tasks/pull.ts' }, false),
+        leaf('deploy:stage', { use: 'DeployTask', from: './-tasks/deploy.ts' }, false),
         composite('twice', ['pull:view', 'pull:view']),
         composite('all', ['twice', 'deploy:stage']),
       ]),
@@ -57,7 +57,7 @@ describe('Cell.Task.plan', () => {
       'task-plan-requested-closure-only',
       descriptor([
         leaf('capture', { config: './-config/capture.yaml' }),
-        leaf('broken:unrelated', { from: 'npm:fake-package', use: 'BrokenTask' }, false),
+        leaf('broken:unrelated', { use: 'BrokenTask', from: 'npm:fake-package' }, false),
       ]),
     );
 
@@ -82,7 +82,7 @@ describe('Cell.Task.plan', () => {
   it('does not require local module files to exist', async () => {
     const root = await tempCell(
       'task-plan-missing-module-ok',
-      descriptor([leaf('missing', { from: './-tasks/missing.ts', use: 'MissingTask' }, false)]),
+      descriptor([leaf('missing', { use: 'MissingTask', from: './-tasks/missing.ts' }, false)]),
     );
 
     const plan = await Cell.Task.plan(await Cell.load(root), 'missing');
@@ -188,8 +188,8 @@ function leaf(
 
   return [
     `  - name: ${task.name}`,
-    `    from: ${task.from}`,
     `    use: ${task.use}`,
+    `    from: ${task.from}`,
     ...(config ? [`    config: ${config}`] : []),
   ].join('\n');
 }
@@ -208,8 +208,8 @@ function leafDescriptor(
 ): t.Cell.Task.Leaf {
   return {
     name,
-    from: './-tasks/capture.ts',
     use: 'CaptureTask',
+    from: './-tasks/capture.ts',
     config: './-config/capture.yaml',
     ...overrides,
   };

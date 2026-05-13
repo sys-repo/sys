@@ -175,8 +175,8 @@ describe(`@sys/cell/cli`, () => {
 
         tasks:
           - name: capture
-            from: ./-tasks/capture.ts
             use: CaptureTask
+            from: ./-tasks/capture.ts
             config: ./-config/capture.yaml
       `).trimStart(),
     );
@@ -212,12 +212,12 @@ describe(`@sys/cell/cli`, () => {
 
         tasks:
           - name: capture
-            from: ./-tasks/capture.ts
             use: CaptureTask
+            from: ./-tasks/capture.ts
             config: ./-config/capture.yaml
           - name: clean
-            from: ./-tasks/clean.ts
             use: CleanTask
+            from: ./-tasks/clean.ts
           - name: all
             steps:
               - task: capture
@@ -240,12 +240,12 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('steps   2');
     expect(text).to.contain('all');
     expect(text).to.contain('├─ capture');
-    expect(text).to.contain('│  from ./-tasks/capture.ts');
     expect(text).to.contain('│  use  CaptureTask');
+    expect(text).to.contain('│  from ./-tasks/capture.ts');
     expect(text).to.contain('│  config ./-config/capture.yaml');
     expect(text).to.contain('└─ clean');
-    expect(text).to.contain('   from ./-tasks/clean.ts');
     expect(text).to.contain('   use  CleanTask');
+    expect(text).to.contain('   from ./-tasks/clean.ts');
     expect(text).to.not.contain('config -');
     expect(taskEvents()).to.eql([]);
   });

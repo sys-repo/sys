@@ -124,8 +124,8 @@ function renderLeafDetails(
   prefix: string,
 ): string[] {
   const lines = [
-    `${prefix}from ${leaf.endpoint.from}`,
     `${prefix}use  ${leaf.endpoint.use}`,
+    `${prefix}from ${leaf.endpoint.from}`,
   ];
 
   if (leaf.task.config) lines.push(`${prefix}config ${leaf.task.config}`);
