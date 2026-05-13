@@ -9,12 +9,22 @@ tasks:
     use: PullViewTask
     config: ./-config/@sys.tools.pull/view.yaml
 
-  - name: deploy:stage
+  - name: deploy:prep
     from: ./-scripts/deploy.ts
-    use: DeployStageTask
-    config: ./-config/@sys.tools.deploy/stage.yaml
+    use: DeployPrepTask
+    config: ./-config/@sys.tools.deploy/orbiter.yaml
+
+  - name: deploy:push
+    from: ./-scripts/deploy.ts
+    use: DeployPushTask
+    config: ./-config/@sys.tools.deploy/orbiter.yaml
+
+  - name: sample:deploy:prep
+    steps:
+      - task: pull:view
+      - task: deploy:prep
 
   - name: sample:deploy
     steps:
-      - task: pull:view
-      - task: deploy:stage
+      - task: sample:deploy:prep
+      - task: deploy:push

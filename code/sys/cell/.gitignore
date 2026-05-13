@@ -10,7 +10,4 @@
 -sample/*/view/.pulled/
 -sample/*/.tmp/
 
-# Real deploy provider configs are operator-local.
--sample/*/-config/@sys.tools.deploy/orbiter.yaml
-
 -sample/foo/

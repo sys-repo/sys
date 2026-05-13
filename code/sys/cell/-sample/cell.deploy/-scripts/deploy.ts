@@ -6,6 +6,10 @@ export const PullViewTask: t.Cell.Task.Endpoint = {
   run: ({ cwd, paths }) => Pull.run({ cwd, config: paths.config! }),
 };
 
-export const DeployStageTask: t.Cell.Task.Endpoint = {
+export const DeployPrepTask: t.Cell.Task.Endpoint = {
   run: ({ cwd, paths }) => Deploy.stage({ cwd, config: paths.config! }),
+};
+
+export const DeployPushTask: t.Cell.Task.Endpoint = {
+  run: ({ cwd, paths }) => Deploy.push({ cwd, config: paths.config! }),
 };
