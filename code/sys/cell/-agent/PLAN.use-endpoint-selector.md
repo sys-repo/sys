@@ -2,7 +2,10 @@
 
 ## Status
 
-Complete. The Cell descriptor selector is now `use` only; no compatibility alias or deprecated `export` field remains.
+Complete and landed. The Cell descriptor selector is now `use` only; no compatibility alias or
+deprecated `export` field remains.
+
+This file is historical record, not active work.
 
 ## Decision
 
@@ -20,7 +23,8 @@ const mod = await import('@sys/http/server/static');
 const endpoint = mod.HttpStatic;
 ```
 
-`export` is technically accurate from the module author's perspective, but Cell descriptors are written from the composition perspective: "from this module, use this endpoint."
+`export` is technically accurate from the module author's perspective, but Cell descriptors are
+written from the composition perspective: "from this module, use this endpoint."
 
 ## TMIND pass
 
@@ -28,7 +32,8 @@ const endpoint = mod.HttpStatic;
 - `import` is worse because it names the loading operation, not the selected binding.
 - `endpoint`, `symbol`, or `binding` are precise but colder and less human.
 - Greenfield Cell descriptors should not carry compatibility aliases.
-- `export` must disappear from the descriptor schema, docs, samples, generated help, and runtime terminology.
+- `export` must disappear from the descriptor schema, docs, samples, generated help, and runtime
+  terminology.
 - `export` can still appear in TypeScript source as normal ESM syntax, but not as a Cell YAML field.
 - Runtime errors should name the Cell selector as `use`.
 
@@ -60,4 +65,15 @@ const endpoint = mod.HttpStatic;
 - `deno test -P=test ./src/m.cell/u.schema/-test/-.test.ts ./src/m.cell/-test/-u.services.verify.test.ts ./src/m.cell/u.task/-test/-u.verify.test.ts ./src/m.cell/-test/-u.task.test.ts`
 - `deno task check`
 - `deno task test`
-- Residue search confirmed `export:` remains only in schema tests that intentionally prove stale descriptor fields are rejected.
+- Residue search confirmed `export:` remains only in schema tests that intentionally prove stale
+  descriptor fields are rejected.
+
+## Historical record
+
+- Design posture: greenfield rename, no compatibility alias, no deprecation crumbs.
+- Descriptor vocabulary moved from module-author syntax (`export`) to Cell-composer selection
+  (`use`).
+- Plan record was first committed separately as
+  `23221d2cf docs(cell): record endpoint selector rename plan`.
+- Current source truth is the landed implementation: schema, types, runtime verification, tests,
+  samples, README, help YAML, and generated help use `use`.
