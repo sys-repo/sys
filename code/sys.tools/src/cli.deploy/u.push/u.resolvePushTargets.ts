@@ -10,10 +10,16 @@ type ResolvePushTargetsArgs = {
 export async function resolvePushTargets(args: ResolvePushTargetsArgs): Promise<t.PushTargetPlan> {
   const provider = args.yaml.provider;
   if (!provider) {
-    return { targets: [], stats: { total: 0 } };
+    return { targets: [], missing: [], stats: { total: 0, missing: 0 } };
   }
-  if (provider.kind !== 'orbiter') return { targets: [], stats: { total: 0 } };
+  if (provider.kind !== 'orbiter') {
+    return { targets: [], missing: [], stats: { total: 0, missing: 0 } };
+  }
 
   const plan = await resolveOrbiterPushTargets(args);
-  return { targets: plan.targets, stats: { total: plan.stats.total } };
+  return {
+    targets: plan.targets,
+    missing: plan.missing,
+    stats: { total: plan.stats.total, missing: plan.stats.missing },
+  };
 }

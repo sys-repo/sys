@@ -37,11 +37,26 @@ export namespace DeployTool {
     readonly config: t.StringPath;
   };
 
+  export type PushArgs = {
+    cwd?: t.StringDir;
+    config: t.StringPath;
+  };
+
   export type StageResult = {
     readonly ok: true;
     readonly config: t.StringPath;
     readonly cwd: t.StringDir;
     readonly stagingRoot: t.StringDir;
+  };
+
+  export type PushResult = {
+    readonly ok: true;
+    readonly cwd: t.StringDir;
+    readonly config: t.StringPath;
+    readonly targets: number;
+    readonly elapsed?: string;
+    readonly shards?: number;
+    readonly bytes?: number;
   };
 
   export namespace StageOperation {
@@ -55,21 +70,6 @@ export namespace DeployTool {
       readonly error?: unknown;
     };
   }
-
-  export type PushArgs = {
-    cwd?: t.StringDir;
-    config: t.StringPath;
-  };
-
-  export type PushResult = {
-    readonly ok: true;
-    readonly cwd: t.StringDir;
-    readonly config: t.StringPath;
-    readonly targets: number;
-    readonly elapsed?: string;
-    readonly shards?: number;
-    readonly bytes?: number;
-  };
 
   export namespace PushOperation {
     export type Result = PushResult | Failure;
@@ -88,6 +88,8 @@ export namespace DeployTool {
         | 'not-implemented'
         | 'failed';
       readonly hint?: string;
+      readonly target?: t.PushTargetContext;
+      readonly missing?: readonly t.PushMissingTarget[];
       readonly error?: unknown;
     };
   }

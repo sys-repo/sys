@@ -3,19 +3,33 @@ import type { t } from '../common.ts';
 export type PushProbe =
   | { readonly ok: true }
   | {
-      readonly ok: false;
-      /** Coarse reason (stable for callers). */
-      readonly reason: 'no-provider' | 'not-found' | 'failed' | 'unsupported-provider';
+    readonly ok: false;
+    /** Coarse reason (stable for callers). */
+    readonly reason: 'no-provider' | 'not-found' | 'failed' | 'unsupported-provider';
 
-      /**
-       * One-line human hint (optional).
-       * For "not-found", this should be the install command (eg "npm i -g orbiter-cli").
-       */
-      readonly hint?: string;
+    /**
+     * One-line human hint (optional).
+     * For "not-found", this should be the install command (eg "npm i -g orbiter-cli").
+     */
+    readonly hint?: string;
 
-      /** Raw error for diagnostics (do not stringify unless needed). */
-      readonly error?: unknown;
-    };
+    /** Raw error for diagnostics (do not stringify unless needed). */
+    readonly error?: unknown;
+  };
+
+export type PushTargetContext = {
+  readonly index?: number;
+  readonly provider: string;
+  readonly sourceDir?: t.StringDir;
+  readonly stagingDir?: t.StringDir;
+  readonly shard?: number;
+  readonly domain?: string;
+  readonly siteId?: string;
+};
+
+export type PushMissingTarget = PushTargetContext & {
+  readonly reason: 'missing-staging-output' | 'missing-dist-metadata';
+};
 
 /**
  * Provider-specific push target.
@@ -44,6 +58,7 @@ export type PushTarget = OrbiterPushTarget | NoopPushTarget;
 
 export type PushPlanStats = {
   readonly total: number;
+  readonly missing: number;
 };
 
 export type OrbiterPushTargetStats = {
@@ -52,15 +67,18 @@ export type OrbiterPushTargetStats = {
   readonly root: number;
   readonly base: number;
   readonly skippedShards: number;
+  readonly missing: number;
 };
 
 export type PushTargetPlan = {
   readonly targets: readonly PushTarget[];
+  readonly missing: readonly PushMissingTarget[];
   readonly stats: PushPlanStats;
 };
 
 export type OrbiterPushTargetPlan = {
   readonly targets: readonly OrbiterPushTarget[];
+  readonly missing: readonly PushMissingTarget[];
   readonly stats: OrbiterPushTargetStats;
 };
 
@@ -70,8 +88,8 @@ export type OrbiterPushTargetPlan = {
 export type PushResult =
   | { readonly ok: true }
   | {
-      readonly ok: false;
-      readonly reason: 'probe-failed' | 'unsupported-provider' | 'not-implemented' | 'failed';
-      readonly hint?: string;
-      readonly error?: unknown;
-    };
+    readonly ok: false;
+    readonly reason: 'probe-failed' | 'unsupported-provider' | 'not-implemented' | 'failed';
+    readonly hint?: string;
+    readonly error?: unknown;
+  };
