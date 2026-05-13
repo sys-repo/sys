@@ -9,7 +9,7 @@ type SetupOptions = {
   name?: string;
 };
 
-const DslCommand = 'deno run -A jsr:@sys/tmpl dsl';
+const DslCommand = 'deno run -ERW jsr:@sys/tmpl dsl';
 
 /**
  * CLI entry (interactive by default, deterministic when non-interactive).

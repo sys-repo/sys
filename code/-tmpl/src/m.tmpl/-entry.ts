@@ -39,15 +39,18 @@ function printHelp() {
         kind: 'lines',
         label: 'Usage',
         items: [
-          'deno run -A jsr:@sys/tmpl <template> [flags]',
-          'deno run -A jsr:@sys/tmpl --non-interactive --dir <path> <template> [flags]',
-          'deno run -A jsr:@sys/tmpl dsl [chapter...] [--format human|skill]',
+          'deno run -ERW jsr:@sys/tmpl <template> [flags]',
+          'deno run -ERW jsr:@sys/tmpl --non-interactive --dir <path> <template> [flags]',
+          'deno run -ERW jsr:@sys/tmpl dsl [chapter...] [--format human|skill]',
         ],
       },
       {
         kind: 'pairs',
         label: 'Commands',
-        items: [['dsl', 'run first — maps prompt → template, slots, command, verify']],
+        items: [
+          ['dsl', 'run first — maps prompt → template, slots, command, verify'],
+          ['<template>', 'scaffold one template by name; see Templates below'],
+        ],
       },
       {
         kind: 'lines',
@@ -80,12 +83,12 @@ function printHelp() {
         label: 'Examples',
         tone: 'muted',
         items: [
-          'deno run -A jsr:@sys/tmpl dsl',
-          'deno run -A jsr:@sys/tmpl dsl m.mod.ui --format skill',
-          'deno run -A jsr:@sys/tmpl repo',
-          'deno run -A jsr:@sys/tmpl --dir my-thing repo',
-          'deno run -A jsr:@sys/tmpl --non-interactive --dir my-thing repo',
-          'deno run -A jsr:@sys/tmpl --non-interactive --dir pkg/foo pkg --pkgName @acme/foo',
+          'deno run -ERW jsr:@sys/tmpl dsl',
+          'deno run -ERW jsr:@sys/tmpl dsl m.mod.ui --format skill',
+          'deno run -ERW jsr:@sys/tmpl repo',
+          'deno run -ERW jsr:@sys/tmpl --dir my-thing repo',
+          'deno run -ERW jsr:@sys/tmpl --non-interactive --dir my-thing repo',
+          'deno run -ERW jsr:@sys/tmpl --non-interactive --dir pkg/foo pkg --pkgName @acme/foo',
         ],
       },
       {

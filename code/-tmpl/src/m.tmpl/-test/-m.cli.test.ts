@@ -91,7 +91,7 @@ describe('m.tmpl/m.cli', () => {
     );
 
     expect(message).to.contain('Missing required flag: --dir');
-    expect(message).to.contain('hint: deno run -A jsr:@sys/tmpl dsl pkg');
+    expect(message).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl pkg');
   });
 
   it('non-interactive fails when required template params are missing', async () => {
@@ -101,7 +101,7 @@ describe('m.tmpl/m.cli', () => {
     );
 
     expect(pkgMessage).to.contain('requires --pkgName');
-    expect(pkgMessage).to.contain('hint: deno run -A jsr:@sys/tmpl dsl pkg');
+    expect(pkgMessage).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl pkg');
 
     const uiMessage = await errorText(() =>
       cli(
@@ -111,7 +111,7 @@ describe('m.tmpl/m.cli', () => {
     );
 
     expect(uiMessage).to.contain('requires --name');
-    expect(uiMessage).to.contain('hint: deno run -A jsr:@sys/tmpl dsl m.mod.ui');
+    expect(uiMessage).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl m.mod.ui');
   });
 
   it('non-interactive repo dry-run does not execute setup side effects', async () => {

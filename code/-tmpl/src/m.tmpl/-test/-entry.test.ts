@@ -46,9 +46,9 @@ describe('m.tmpl/-entry', () => {
       await entry(['--help']);
 
       const text = lines.join('\n');
-      expect(text.includes('deno run -A jsr:@sys/tmpl <template> [flags]')).to.eql(true);
-      expect(text.includes('deno run -A jsr:@sys/tmpl dsl [chapter...]')).to.eql(true);
-      expect(text.includes('deno run -A jsr:@sys/tmpl --non-interactive --dir my-thing repo')).to
+      expect(text.includes('deno run -ERW jsr:@sys/tmpl <template> [flags]')).to.eql(true);
+      expect(text.includes('deno run -ERW jsr:@sys/tmpl dsl [chapter...]')).to.eql(true);
+      expect(text.includes('deno run -ERW jsr:@sys/tmpl --non-interactive --dir my-thing repo')).to
         .eql(true);
       expect(text.includes('--dir my-repo repo')).to.eql(false);
       expect(text.includes('jsr:@sys/tmpl/repo')).to.eql(false);
@@ -59,10 +59,12 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('run first — maps prompt → template, slots, command, verify')).to.eql(
         true,
       );
+      expect(text.includes('<template>')).to.eql(true);
+      expect(text.includes('scaffold one template by name; see Templates below')).to.eql(true);
       expect(text.indexOf('Commands')).to.be.lessThan(text.indexOf('Templates'));
       expect(text.indexOf('Templates')).to.be.lessThan(text.indexOf('Examples'));
-      expect(text.indexOf('deno run -A jsr:@sys/tmpl dsl')).to.be.lessThan(
-        text.indexOf('deno run -A jsr:@sys/tmpl repo'),
+      expect(text.indexOf('deno run -ERW jsr:@sys/tmpl dsl')).to.be.lessThan(
+        text.indexOf('deno run -ERW jsr:@sys/tmpl repo'),
       );
       expect(text.includes('Prompt mapping')).to.eql(true);
       expect(text.includes('workspace root')).to.eql(true);
@@ -101,7 +103,7 @@ describe('m.tmpl/-entry', () => {
       const text = lines.join('\n');
       expect(Deno.exitCode).to.eql(1);
       expect(text.includes('Template "pkg" requires --pkgName')).to.eql(true);
-      expect(text.includes('hint: deno run -A jsr:@sys/tmpl dsl pkg')).to.eql(true);
+      expect(text.includes('hint: deno run -ERW jsr:@sys/tmpl dsl pkg')).to.eql(true);
     } finally {
       console.info = info;
       console.warn = warn;

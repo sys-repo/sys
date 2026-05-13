@@ -40,7 +40,7 @@ async function run(cwd: t.StringDir, argv: string[]) {
   const ctx = await resolvePassThroughContext({ cwd, target: TARGET });
   return await Process.inherit({
     cwd,
-    args: ['run', '-A', ctx.specifier, ...argv],
+    args: ['run', '-ERW', ctx.specifier, ...argv],
   });
 }
 

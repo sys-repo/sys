@@ -16,11 +16,11 @@ describe('m.tmpl/-entry dsl', () => {
     expect(res.text).to.contain('@sys/tmpl dsl');
     expect(res.text).to.contain('Templater DSL:');
     expect(res.text).to.contain('Usage');
-    expect(res.text).to.contain('deno run -A jsr:@sys/tmpl dsl [chapter...]');
+    expect(res.text).to.contain('deno run -ERW jsr:@sys/tmpl dsl [chapter...]');
     expect(res.text).to.contain('Decision protocol');
     expect(res.text).to.contain('Command grammar');
     expect(res.text).to.contain('Chapter');
-    expect(res.text).to.contain('deno run -A jsr:@sys/tmpl dsl repo');
+    expect(res.text).to.contain('deno run -ERW jsr:@sys/tmpl dsl repo');
   });
 
   it('dsl repo → renders the repo chapter', async () => {
@@ -51,7 +51,7 @@ describe('m.tmpl/-entry dsl', () => {
     expect(res.exitCode).to.eql(0);
     expect(res.text).to.contain('@sys/tmpl dsl');
     expect(res.text).to.contain('Chapter');
-    expect(res.text).to.contain('deno run -A jsr:@sys/tmpl dsl pkg');
+    expect(res.text).to.contain('deno run -ERW jsr:@sys/tmpl dsl pkg');
   });
 
   it('dsl --format unknown → fails clearly', async () => {

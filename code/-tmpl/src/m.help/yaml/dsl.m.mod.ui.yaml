@@ -35,10 +35,10 @@ sections:
   - label: Command
     items: |
       Preview:
-      `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui`.
       Add `--name <ComponentName> --dry-run`.
       Write:
-      `deno run -A jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <component-dir> m.mod.ui`.
       Add `--name <ComponentName>`.
       Existing target with approval: add `--force`.
       Do not use `jsr:@sys/tmpl/m.mod.ui`.

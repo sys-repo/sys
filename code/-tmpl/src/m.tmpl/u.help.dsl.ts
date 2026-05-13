@@ -1,7 +1,7 @@
 import { TmplHelp } from '../m.help/mod.ts';
 import { Cli, Str, type t } from './common.ts';
 
-const command = 'deno run -A jsr:@sys/tmpl dsl';
+const command = 'deno run -ERW jsr:@sys/tmpl dsl';
 
 export type DslHelpInput = {
   readonly path?: readonly string[];

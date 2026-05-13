@@ -33,9 +33,9 @@ sections:
   - label: Command
     items: |
       Preview:
-      `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo --dry-run`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo --dry-run`.
       Write:
-      `deno run -A jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo`.
       Existing target with approval: add `--force`.
       Do not use `jsr:@sys/tmpl/repo`.
 

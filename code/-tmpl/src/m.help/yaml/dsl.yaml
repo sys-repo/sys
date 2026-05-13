@@ -55,12 +55,12 @@ sections:
   - label: Command grammar
     items: |
       Normal form:
-      `deno run -A jsr:@sys/tmpl --non-interactive --dir <target-dir>`.
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir>`.
       Then pass `<template> [template-flags]` as positional arguments.
       Template selection is positional: `repo`, `pkg`, `m.mod`, `m.mod.ui`, or `m.mod.ui.controller`.
       Preview form: add `--dry-run`.
       Existing target with approval: add `--force`.
-      Do not run `deno run -A jsr:@sys/tmpl/repo` or any other template subpath.
+      Do not run `deno run -ERW jsr:@sys/tmpl/repo` or any other template subpath.
 
   - label: Verification
     items: |

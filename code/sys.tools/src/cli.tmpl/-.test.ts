@@ -38,7 +38,7 @@ describe(TmplTool.NAME, () => {
     expect(calls.length).to.eql(1);
     expect(calls[0]?.cwd).to.eql('/tmp/tool-cwd');
     expect(calls[0]?.args?.[0]).to.eql('run');
-    expect(calls[0]?.args?.[1]).to.eql('-A');
+    expect(calls[0]?.args?.[1]).to.eql('-ERW');
     expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
     expect(calls[0]?.args?.slice(3)).to.eql(['pkg.deno', '--dir', 'code/ns/foo', '--non-interactive']);
   });
@@ -59,7 +59,7 @@ describe(TmplTool.NAME, () => {
     });
 
     expect(calls.length).to.eql(1);
-    expect(calls[0]?.args).to.eql(['run', '-A', '@sys/tmpl', '-h']);
+    expect(calls[0]?.args).to.eql(['run', '-ERW', '@sys/tmpl', '-h']);
   });
 
   it('propagates non-zero delegated exit via Deno.exitCode', async () => {
@@ -91,7 +91,7 @@ describe(TmplTool.NAME, () => {
 
     expect(calls.length).to.eql(1);
     expect(calls[0]?.args?.[0]).to.eql('run');
-    expect(calls[0]?.args?.[1]).to.eql('-A');
+    expect(calls[0]?.args?.[1]).to.eql('-ERW');
     expect(calls[0]?.args?.[2]).to.match(/^jsr:@sys\/tmpl@/);
     expect(calls[0]?.args?.slice(3)).to.eql(['-h']);
   });
