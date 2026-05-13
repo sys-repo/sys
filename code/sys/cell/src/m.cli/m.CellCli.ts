@@ -1,4 +1,4 @@
-import { Err, Is, type t } from './common.ts';
+import { c, Err, Is, Str, type t } from './common.ts';
 import { parseArgs } from './u.args.ts';
 import { FmtHelp } from './u.help.ts';
 
@@ -164,7 +164,8 @@ function print(text: string) {
 }
 
 function fail(input: t.CellCli.Input, message: string, help?: string): t.CellCli.Error {
-  const text = help ? `${message}\n\n${help}` : message;
+  const warning = c.yellow(`⚠ ${message}`);
+  const text = help ? `${warning}\n\n${Str.trimEdgeNewlines(help)}` : warning;
   print(text);
   return { kind: 'error', input, text, code: 1 };
 }

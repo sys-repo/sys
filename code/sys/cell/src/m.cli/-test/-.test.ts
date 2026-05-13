@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
 import { Cell } from '../../m.cell/mod.ts';
 import { CellHelp } from '../../m.help/mod.ts';
-import { stripAnsi } from '../common.ts';
+import { c, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 
 describe(`@sys/cell/cli`, () => {
@@ -83,11 +83,19 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('--dry-run');
   });
 
-  it('help topics are not commands in the greenfield CLI grammar', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
+  it('unknown commands show a yellow warning and root help', async () => {
+    const help = await silent(() => CellCli.run({ argv: ['help', 'init'] }));
+    const run = await silent(() => CellCli.run({ argv: ['run', '-h'] }));
+    const text = stripAnsi(run.text);
 
-    expect(res.kind).to.eql('error');
-    expect(res.text).to.contain('Unknown command: help');
+    expect(help.kind).to.eql('error');
+    expect(stripAnsi(help.text)).to.contain('⚠ Unknown command: help');
+    expect(run.kind).to.eql('error');
+    expect(run.text).to.contain(c.yellow('⚠ Unknown command: run'));
+    expect(text).to.contain('@sys/cell');
+    expect(text).to.not.contain('@sys/cell run');
+    expect(text).to.not.contain('Unknown task');
+    expect(text).to.not.contain('Unknown command: run\n\n\n');
   });
 
   it('--format is scoped to dsl only', async () => {
