@@ -124,7 +124,7 @@ await Cell.task(cell, 'sample:deploy');
 
 ### CLI
 
-Use `dsl` as the agent-facing speech-act help surface.
+Use `dsl` as the agent-facing [speech-act](https://en.wikipedia.org/wiki/Speech_act) help surface.
 
 ```sh
 deno run -ER   jsr:@sys/cell --help
