@@ -2,10 +2,17 @@ id: dsl
 title: Templater DSL
 summary: |
   Templater DSL: the operating contract for agents using `@sys/tmpl`.
-  It maps scaffold speech acts to template choice, slots, commands,
-  side effects, and verification.
+  Read this root layer before scaffolding; then read the matching template chapter from the chapter index.
 
 sections:
+  - label: Agent reading protocol
+    items: |
+      Agents MUST read this root DSL layer before scaffolding: `deno run -ERW jsr:@sys/tmpl dsl`.
+      Agents MUST NOT read every chapter by default.
+      Agents MUST identify the intended scaffold boundary from Speech acts and Decision protocol.
+      Agents MUST read each matching template chapter from the chapter index before running `@sys/tmpl`: `deno run -ERW jsr:@sys/tmpl dsl <template>`.
+      If no chapter index entry matches, stop and ask.
+
   - label: Rule
     items: |
       Treat template requests as scaffold operations, not manual copy/edit tasks.

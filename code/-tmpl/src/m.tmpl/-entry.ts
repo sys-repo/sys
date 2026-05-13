@@ -32,7 +32,7 @@ function printHelp() {
     tool: `${pkg.name} ${pkg.version}`,
     summary: [
       'Scaffold system repos, packages, modules, and UI components.',
-      'Run `dsl` first to resolve prompt → template, slots, command, verify.',
+      'Agents must read `dsl` before scaffolding, then read the matching template chapter from the DSL chapter index.',
     ].join('\n'),
     sections: [
       {
@@ -48,7 +48,10 @@ function printHelp() {
         kind: 'pairs',
         label: 'Commands',
         items: [
-          ['dsl', 'run first — maps prompt → template, slots, command, verify'],
+          [
+            'dsl',
+            'agent must read first — classify scaffold boundary, required slots, command grammar, and chapter index',
+          ],
           ['<template>', 'scaffold one template by name; see Templates below'],
         ],
       },

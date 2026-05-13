@@ -72,7 +72,7 @@ function skillName(chapter: t.TmplHelp.Dsl.Chapter): string {
 
 function skillDescription(chapter: t.TmplHelp.Dsl.Chapter): string {
   if (chapter.path.length === 0) {
-    return 'Guides @sys/tmpl scaffold speech acts, template selection, slots, side effects, and verification.';
+    return 'Guides @sys/tmpl reading protocol, scaffold speech acts, template selection, slots, side effects, and verification; use when you are about to scaffold with @sys/tmpl.';
   }
 
   const summary = Str.trimEdgeNewlines(chapter.summary)

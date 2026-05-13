@@ -53,12 +53,16 @@ describe('m.tmpl/-entry', () => {
       expect(text.includes('--dir my-repo repo')).to.eql(false);
       expect(text.includes('jsr:@sys/tmpl/repo')).to.eql(false);
       expect(
-        text.includes('Run `dsl` first to resolve prompt → template, slots, command, verify.'),
+        text.includes(
+          'Agents must read `dsl` before scaffolding, then read the matching template chapter from the DSL chapter index.',
+        ),
       ).to.eql(true);
       expect(text.includes('dsl')).to.eql(true);
-      expect(text.includes('run first — maps prompt → template, slots, command, verify')).to.eql(
-        true,
-      );
+      expect(
+        text.includes(
+          'agent must read first — classify scaffold boundary, required slots, command grammar, and chapter index',
+        ),
+      ).to.eql(true);
       expect(text.includes('<template>')).to.eql(true);
       expect(text.includes('scaffold one template by name; see Templates below')).to.eql(true);
       expect(text.indexOf('Commands')).to.be.lessThan(text.indexOf('Templates'));
