@@ -9,7 +9,7 @@ export async function writeTmpl(
 ): Promise<CellTmpl.Write.Result> {
   const targetDir = Fs.resolve(target);
   const dryRun = options.dryRun === true;
-  const res = await makeTmpl(name).write(targetDir as t.StringDir, { dryRun });
+  const res = await makeTmpl(name).write(targetDir, { dryRun });
 
   return { target: targetDir, dryRun, ops: res.ops, total: res.total };
 }

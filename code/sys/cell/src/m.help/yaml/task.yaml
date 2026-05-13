@@ -4,15 +4,19 @@ summary: |
 
 usage:
   - deno run -ERWN jsr:@sys/cell task <name> [dir]
+  - deno run -ERWN jsr:@sys/cell task <name> [dir] --plan
   - deno run -ERWN jsr:@sys/cell task <name> [dir] --help
 
 options:
   - name: -h, --help
     text: show task help
+  - name: --plan
+    text: print the requested task closure without importing or running endpoints
 
 task:
   - Cell loads `[dir]` or `.` as the Cell root.
   - Cell validates the `tasks[]` graph, then verifies only the requested task closure before execution.
+  - Use `--plan` to inspect the requested task closure before Cell imports endpoint modules.
   - Root tasks are runnable by name.
   - Leaf tasks resolve Cell-local or trusted package endpoints with `run(args)`.
   - Composite tasks run referenced root tasks in declared order.

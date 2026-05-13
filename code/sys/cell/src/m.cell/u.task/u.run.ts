@@ -5,7 +5,7 @@ export const run: t.Cell.Task.Lib['run'] = async (cell, name, options = {}) => {
   const descriptors = cell.descriptor.tasks ?? [];
   const descriptorByName = taskMapOf(descriptors);
 
-  verifyTaskGraph(descriptors, descriptorByName);
+  verifyTaskGraph(descriptors, descriptorByName, 'Cell.Task.run');
 
   const rootDescriptor = descriptorByName.get(name);
   if (!rootDescriptor) throw new Error(`Cell.Task.run: unknown task '${name}'.`);

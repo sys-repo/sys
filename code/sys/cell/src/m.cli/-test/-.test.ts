@@ -201,6 +201,55 @@ describe(`@sys/cell/cli`, () => {
     expect(event.args.paths.config).to.eql(Fs.join(fs.dir, '-config/capture.yaml'));
   });
 
+  it('task --plan → prints a task closure without importing endpoints', async () => {
+    resetTaskEvents();
+    const fs = await Testing.dir('CellCli.task.plan');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        tasks:
+          - name: capture
+            from: ./-tasks/capture.ts
+            use: CaptureTask
+            config: ./-config/capture.yaml
+          - name: clean
+            from: ./-tasks/clean.ts
+            use: CleanTask
+          - name: all
+            steps:
+              - task: capture
+              - task: clean
+      `).trimStart(),
+    );
+    await Fs.write(Fs.join(fs.dir, '-tasks/capture.ts'), taskSource('CaptureTask'));
+    await Fs.write(Fs.join(fs.dir, '-tasks/clean.ts'), taskSource('CleanTask'));
+
+    const res = await silent(() => CellCli.run({ argv: ['task', 'all', fs.dir, '--plan'] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('task-plan');
+    if (res.kind !== 'task-plan') throw new Error('expected task plan result');
+    expect(res.root).to.eql(fs.dir);
+    expect(res.task).to.eql('all');
+    expect(res.steps).to.eql(2);
+    expect(text).to.contain(`root    ${fs.dir}`);
+    expect(text).to.contain('task    all');
+    expect(text).to.contain('steps   2');
+    expect(text).to.contain('all');
+    expect(text).to.contain('├─ capture');
+    expect(text).to.contain('│  from ./-tasks/capture.ts');
+    expect(text).to.contain('│  use  CaptureTask');
+    expect(text).to.contain('│  config ./-config/capture.yaml');
+    expect(text).to.contain('└─ clean');
+    expect(text).to.contain('   from ./-tasks/clean.ts');
+    expect(text).to.contain('   use  CleanTask');
+    expect(text).to.not.contain('config -');
+    expect(taskEvents()).to.eql([]);
+  });
+
   it('start → loads and starts an empty Cell services set', async () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
@@ -233,6 +282,18 @@ describe(`@sys/cell/cli`, () => {
     expect(help).to.contain('@sys/cell task');
     expect(extra).to.contain('Unexpected argument: extra');
     expect(extra).to.contain('@sys/cell task');
+  });
+
+  it('--plan is scoped to task only', async () => {
+    const root = stripAnsi((await silent(() => CellCli.run({ argv: ['--plan'] }))).text);
+    const init = stripAnsi((await silent(() => CellCli.run({ argv: ['init', '--plan'] }))).text);
+    const dsl = stripAnsi((await silent(() => CellCli.run({ argv: ['dsl', '--plan'] }))).text);
+    const start = stripAnsi((await silent(() => CellCli.run({ argv: ['start', '--plan'] }))).text);
+
+    expect(root).to.contain('Unexpected option without command: --plan');
+    expect(init).to.contain('Unexpected option for init: --plan');
+    expect(dsl).to.contain('Unexpected option for dsl: --plan');
+    expect(start).to.contain('Unexpected option for start: --plan');
   });
 
   it('start → rejects unsupported command options and extra args', async () => {

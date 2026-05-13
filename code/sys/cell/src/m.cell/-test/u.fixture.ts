@@ -11,7 +11,7 @@ export async function catchLoad(root?: t.StringDir): Promise<Error | undefined> 
 }
 
 export async function tempCell(name: string, yaml: string): Promise<t.StringDir> {
-  const root = Fs.resolve(`./.tmp/cell.load/${name}`) as t.StringDir;
+  const root = Fs.resolve(`./.tmp/cell.load/${name}`);
   const path = Fs.join(root, '-config/@sys.cell/cell.yaml');
   await Fs.write(path, yaml, { force: true });
   return root;

@@ -11,6 +11,7 @@ describe(`Cell`, () => {
     expect(m.Cell.Services.start).to.equal(Cell.Services.start);
     expect(m.Cell.Services.wait).to.equal(Cell.Services.wait);
     expect(m.Cell.Task).to.equal(Cell.Task);
+    expect(m.Cell.Task.plan).to.equal(Cell.Task.plan);
     expect(m.Cell.Task.verify).to.equal(Cell.Task.verify);
     expect(m.Cell.Task.run).to.equal(Cell.Task.run);
     expect(m.Cell.start).to.equal(Cell.start);

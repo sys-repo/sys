@@ -34,7 +34,7 @@ const wrangle = {
       if (!Is.str(nameOrOptions)) throw new TypeError('Cell.task: task name is required.');
       return {
         target: input,
-        name: nameOrOptions as t.Cell.Id,
+        name: nameOrOptions,
         options: options as t.Cell.Task.RunOptions | undefined,
       };
     }
@@ -45,14 +45,14 @@ const wrangle = {
 
     if (Is.str(nameOrOptions)) {
       return {
-        target: input as t.StringDir,
-        name: nameOrOptions as t.Cell.Id,
+        target: input,
+        name: nameOrOptions,
         options: options as t.Cell.Task.RunOptions | undefined,
       };
     }
 
     return {
-      name: input as t.Cell.Id,
+      name: input,
       options: nameOrOptions as t.Cell.Task.RunOptions | undefined,
     };
   },

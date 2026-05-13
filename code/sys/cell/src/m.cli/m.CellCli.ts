@@ -21,8 +21,8 @@ export const CellCli: t.CellCli.Lib = {
       return fail({ argv }, 'Unexpected option without command: --format', help);
     }
 
-    if ((!command && args.agent) || (!command && args.dryRun)) {
-      const flag = args.agent ? '--agent' : '--dry-run';
+    if ((!command && args.agent) || (!command && args.dryRun) || (!command && args.plan)) {
+      const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
       return fail({ argv }, `Unexpected option without command: ${flag}`, help);
     }
 
@@ -38,6 +38,7 @@ export const CellCli: t.CellCli.Lib = {
       if (args.format !== undefined) {
         return fail({ argv }, 'Unexpected option for init: --format', initHelp);
       }
+      if (args.plan) return fail({ argv }, 'Unexpected option for init: --plan', initHelp);
       if (args.help) {
         print(initHelp);
         return { kind: 'help', input: { argv }, text: initHelp };
@@ -70,8 +71,8 @@ export const CellCli: t.CellCli.Lib = {
 
       if (!format.ok) return fail({ argv }, format.message, await rootHelp());
 
-      if (args.agent || args.dryRun) {
-        const flag = args.agent ? '--agent' : '--dry-run';
+      if (args.agent || args.dryRun || args.plan) {
+        const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
         return fail({ argv }, `Unexpected option for dsl: ${flag}`, await rootHelp());
       }
 
@@ -101,11 +102,18 @@ export const CellCli: t.CellCli.Lib = {
       if (args._.length > 3) return fail({ argv }, `Unexpected argument: ${args._[3]}`, taskHelp);
 
       try {
-        const { runCellTask, toTaskResult } = await import('./u.task.ts');
-        const res = toTaskResult(
-          { argv },
-          await runCellTask({ name: args._[1] as t.Cell.Id, dir: args._[2] }),
+        const { planCellTask, runCellTask, toTaskPlanResult, toTaskResult } = await import(
+          './u.task.ts'
         );
+        const res = args.plan
+          ? toTaskPlanResult(
+            { argv },
+            await planCellTask({ name: args._[1], dir: args._[2] }),
+          )
+          : toTaskResult(
+            { argv },
+            await runCellTask({ name: args._[1], dir: args._[2] }),
+          );
         print(res.text);
         return res;
       } catch (error) {
@@ -122,8 +130,8 @@ export const CellCli: t.CellCli.Lib = {
         print(startHelp);
         return { kind: 'help', input: { argv }, text: startHelp };
       }
-      if (args.agent || args.dryRun) {
-        const flag = args.agent ? '--agent' : '--dry-run';
+      if (args.agent || args.dryRun || args.plan) {
+        const flag = args.agent ? '--agent' : args.dryRun ? '--dry-run' : '--plan';
         return fail({ argv }, `Unexpected option for start: ${flag}`, startHelp);
       }
       if (args._.length > 2) return fail({ argv }, `Unexpected argument: ${args._[2]}`, startHelp);

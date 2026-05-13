@@ -156,6 +156,27 @@ describe('Cell.Task', () => {
     expect(events().map((event) => event.name)).to.eql(['capture']);
   });
 
+  it('pre-verifies the requested task closure before executing any leaf', async () => {
+    resetEvents();
+    const root = await tempCell(
+      'task-run-preflight-before-execute',
+      descriptor([
+        leaf('first', { from: './-tasks/first.ts', use: 'FirstTask' }, false),
+        leaf('bad', { from: './-tasks/bad.ts', use: 'BadTask' }, false),
+        composite('all', ['first', 'bad']),
+      ]),
+    );
+    await writeTask(root, './-tasks/first.ts', taskSource('FirstTask', 'first'));
+    await writeTask(root, './-tasks/bad.ts', `export const BadTask = {};\n`);
+
+    const error = await catchRun(await Cell.load(root), 'all');
+
+    expect(error?.message).to.eql(
+      "Cell.Task.verify: './-tasks/bad.ts' use 'BadTask' must expose run(...) for task 'bad'.",
+    );
+    expect(events()).to.eql([]);
+  });
+
   it('stops on first failing referenced task', async () => {
     resetEvents();
     const root = await tempCell(

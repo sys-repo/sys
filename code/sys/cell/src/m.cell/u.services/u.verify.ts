@@ -1,8 +1,6 @@
-import { Is, Path, Str, type t } from './common.ts';
+import { D, Is, Path, Str, type t } from './common.ts';
 import { endpointNameOf } from '../u.endpoint.ts';
 import { Fs } from '@sys/fs';
-
-const DEFAULT_TRUSTED = ['@sys/'] as const;
 
 export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) => {
   const services: t.Cell.Services.VerifiedService[] = [];
@@ -22,6 +20,9 @@ export const verify: t.Cell.Services.Lib['verify'] = async (cell, options = {}) 
   return { services };
 };
 
+/**
+ * Helpers:
+ */
 function resolveImportSpecifier(
   cell: t.Cell.Instance,
   service: t.Cell.Services.Service,
@@ -37,7 +38,7 @@ function resolveImportSpecifier(
 
   if (isRelativeSpecifier(from)) return resolveLocalImportSpecifier(cell, service, from);
 
-  const trusted = options.trusted ?? DEFAULT_TRUSTED;
+  const trusted = options.trusted ?? D.trusted;
   const ok = trusted.some((prefix) => from.startsWith(prefix));
   if (!ok) {
     const err = `Cell.Services.verify: untrusted service import for '${service.name}': ${from}`;
@@ -53,7 +54,7 @@ function resolveLocalImportSpecifier(
   from: string,
 ): string {
   const root = Path.resolve(cell.root, '.');
-  const path = Path.resolve(root, from) as t.StringPath;
+  const path = Path.resolve(root, from);
 
   if (!isInsideRoot(root, path)) {
     throw new Error(
@@ -92,7 +93,7 @@ async function loadEndpoint(
 function resolveCellPath(root: t.StringDir, path: t.StringPath): t.StringPath {
   const rootAbs = Path.resolve(root, '.');
   const relative = Str.trimLeadingDotSlash(path);
-  const resolved = Path.resolve(rootAbs, relative) as t.StringPath;
+  const resolved = Path.resolve(rootAbs, relative);
 
   if (!isInsideRoot(rootAbs, resolved)) {
     throw new Error(`Cell.Services.verify: config escapes Cell root: ${path}`);

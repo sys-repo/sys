@@ -44,8 +44,8 @@ export const HelpResource = {
 /**
  * Helpers:
  */
-function path(value: string) {
-  return value as t.StringPath;
+function path(value: string): t.StringPath {
+  return value;
 }
 
 function chapter(

@@ -22,6 +22,8 @@ export declare namespace CellCli {
     readonly dryRun: boolean;
     /** Include command-specific agent guidance with help. */
     readonly agent: boolean;
+    /** Preview a finite task closure without importing or running endpoints. */
+    readonly plan: boolean;
     /** Raw `--format` flag value, accepted only by `dsl`. */
     readonly format?: string | boolean | readonly (string | boolean)[];
     /** Unknown flag tokens rejected by argument parsing. */
@@ -83,7 +85,10 @@ export declare namespace CellCli {
   /** Types for the `task` command. */
   export namespace Task {
     /** Successful finite Cell task result. */
-    export type Result = {
+    export type Result = RunResult | PlanResult;
+
+    /** Successful finite Cell task execution result. */
+    export type RunResult = {
       /** Result discriminant. */
       readonly kind: 'task';
       /** Raw input passed to the CLI entrypoint. */
@@ -95,6 +100,22 @@ export declare namespace CellCli {
       /** Root task name that was run. */
       readonly task: string;
       /** Number of leaf steps executed. */
+      readonly steps: number;
+    };
+
+    /** Successful finite Cell task plan result. */
+    export type PlanResult = {
+      /** Result discriminant. */
+      readonly kind: 'task-plan';
+      /** Raw input passed to the CLI entrypoint. */
+      readonly input: Input;
+      /** Rendered task plan output. */
+      readonly text: string;
+      /** Loaded Cell root. */
+      readonly root: string;
+      /** Root task name that was planned. */
+      readonly task: string;
+      /** Number of planned leaf steps. */
       readonly steps: number;
     };
   }

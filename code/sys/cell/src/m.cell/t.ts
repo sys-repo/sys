@@ -55,17 +55,24 @@ export declare namespace Cell {
 
   /** Finite operator workflows declared by the Cell descriptor. */
   export namespace Task {
-    /** Task verification/execution API. */
+    /** Task planning/verification/execution API. */
     export type Lib = {
+      plan(cell: Instance, name: Id, options?: PlanOptions): Promise<Plan>;
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       run(cell: Instance, name: Id, options?: RunOptions): Promise<RunResult>;
     };
 
-    /** Task verification options. */
-    export type VerifyOptions = {
+    /** Trusted endpoint import policy options. */
+    export type TrustOptions = {
       /** Trusted import specifier prefixes. Defaults to `['@sys/']`. */
       trusted?: readonly string[];
     };
+
+    /** Task planning options. */
+    export type PlanOptions = TrustOptions;
+
+    /** Task verification options. */
+    export type VerifyOptions = TrustOptions;
 
     /** Task run options. */
     export type RunOptions = VerifyOptions;
@@ -89,6 +96,48 @@ export declare namespace Cell {
     /** Ref-only composite step. */
     export type Step = {
       task: Id;
+    };
+
+    /** Requested task closure plan without endpoint imports or execution. */
+    export type Plan = {
+      /** Loaded Cell root folder. */
+      readonly root: t.StringDir;
+      /** Requested root task descriptor. */
+      readonly task: Descriptor;
+      /** Tree-shaped task closure rooted at `task`. */
+      readonly tree: PlanNode;
+      /** Leaf tasks in the exact order `run(...)` would invoke them. */
+      readonly leaves: readonly PlanLeaf[];
+    };
+
+    /** Tree-shaped task closure node. */
+    export type PlanNode = PlanLeaf | PlanComposite;
+
+    /** Planned composite task node. */
+    export type PlanComposite = {
+      readonly kind: 'composite';
+      readonly task: Composite;
+      readonly steps: readonly PlanNode[];
+    };
+
+    /** Planned leaf task node. */
+    export type PlanLeaf = {
+      readonly kind: 'leaf';
+      readonly task: Leaf;
+      readonly paths: { readonly config?: t.StringPath };
+      readonly endpoint: PlannedEndpoint;
+    };
+
+    /** Planned endpoint address accepted by Cell. */
+    export type PlannedEndpoint = {
+      /** Descriptor-authored module specifier. */
+      readonly from: string;
+      /** Descriptor-authored Cell-side endpoint selector. */
+      readonly use: string;
+      /** Import address Cell would use later during verify/run. */
+      readonly specifier: string;
+      /** How Cell accepted `from`. */
+      readonly source: 'local' | 'trusted';
     };
 
     /** Task verification result. */
