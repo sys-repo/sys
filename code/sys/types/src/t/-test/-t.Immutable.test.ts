@@ -1,4 +1,4 @@
-import { type t, describe, expectTypeOf } from '../../-test.ts';
+import { describe, expectTypeOf, type t } from '../../-test.ts';
 
 /**
  * Type-level smoke test for Immutable primitives.
