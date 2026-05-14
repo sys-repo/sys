@@ -1,5 +1,0 @@
-# Legacy direct Cell-root serve helper.
-# The service sample serves ./view via @sys/http and composes public paths through the proxy.
-
-name: stripe
-dir: .

@@ -3,6 +3,12 @@
 kind: cell
 version: 1
 
+services:
+  - name: deploy:view
+    use: Serve
+    from: '@sys/tools/serve'
+    config: ./-config/@sys.tools.serve/view.yaml
+
 tasks:
   - name: pull:view
     use: PullViewTask

@@ -33,7 +33,7 @@ describe('Cell.load', () => {
     expect(cell.paths.descriptor).to.eql(Fs.join(cell.root, '-config/@sys.cell/cell.yaml'));
     expect(cell.descriptor.kind).to.eql('cell');
     expect(cell.descriptor.version).to.eql(1);
-    expect(cell.descriptor.services).to.eql(undefined);
+    expect(cell.descriptor.services?.map((service) => service.name)).to.eql(['deploy:view']);
   });
 
   it('loads and validates descriptors with task composition', async () => {

@@ -12,11 +12,11 @@ source:
   dir: .
 
 staging:
-  dir: ./.tmp/deploy/orbiter
+  dir: ./.tmp/staging
   clear: true
 
 mappings:
   - mode: copy
     dir:
       source: view/.pulled/ui.components
-      staging: .
+      staging: ui.components

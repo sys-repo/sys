@@ -13,7 +13,8 @@
     "tmpl:bundle": "deno run -RWE ./src/m.tmpl/-bundle/mod.ts",
     "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "start": "deno task sample:stripe",
-    "sample:stripe": "deno run -P=sample ./-scripts/task.sample.ts",
+    "sample:stripe": "deno run -P=sample @sys/cell start ./-sample/cell.stripe",
+    "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy",
     "sample:deploy:prep": "deno run -P=sample @sys/cell task sample:deploy:prep ./-sample/cell.deploy",
     "sample:deploy": "deno run -P=sample @sys/cell task sample:deploy ./-sample/cell.deploy",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
@@ -52,4 +53,3 @@
     }
   }
 }
-

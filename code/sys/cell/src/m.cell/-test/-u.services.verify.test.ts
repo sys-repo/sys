@@ -22,6 +22,20 @@ describe('Cell.Services.verify', () => {
     );
   });
 
+  it('verifies service endpoints for the Deploy sample', async () => {
+    const root = new URL('../../../-sample/cell.deploy', import.meta.url).pathname;
+    const cell = await Cell.load(root);
+    const verify = await Cell.Services.verify(cell);
+
+    expect(verify.services.map((service) => service.service.name)).to.eql(['deploy:view']);
+    expect(verify.services[0].service.from).to.eql('@sys/tools/serve');
+    expect(verify.services[0].service.use).to.eql('Serve');
+    expect(Is.func(verify.services[0].endpoint.start)).to.eql(true);
+    expect(verify.services[0].paths.config).to.eql(
+      Fs.join(cell.root, '-config/@sys.tools.serve/view.yaml'),
+    );
+  });
+
   it('does not read or parse service config refs', async () => {
     const root = await tempCell('services-config-ref-only', descriptor());
     await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .:\n`, {
