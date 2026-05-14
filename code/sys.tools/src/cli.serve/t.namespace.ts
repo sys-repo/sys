@@ -109,6 +109,8 @@ export namespace ServeTool {
     readonly baseUrl: t.StringUrl;
     readonly url: t.StringUrl;
     readonly finished: Promise<void>;
+    /** Renderer-neutral service status snapshot. */
+    status(): t.Service.Status;
     readonly close: (reason?: unknown) => Promise<void>;
   };
 

@@ -49,6 +49,41 @@ describe('Serve.start', () => {
     }
   });
 
+  it('exposes renderer-neutral serve status snapshots', async () => {
+    const cwd = await Fixture.makeTempDir('serve-start-api-status');
+    await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>status</h1>');
+    await Fixture.writeFile(
+      cwd,
+      '-config/@sys.tools.serve/view.yaml',
+      'name: View\ndir: ./site\ninfo:\n  path: /view/\n  dist: dist/\n',
+    );
+
+    const server = await Serve.start({
+      cwd,
+      paths: { config: '-config/@sys.tools.serve/view.yaml' },
+      port: 0,
+    });
+    try {
+      expect(server.status()).to.eql({
+        state: 'ready',
+        kind: 'static-serve',
+        name: 'View',
+        root: `${cwd}/site`,
+        config: `${cwd}/-config/@sys.tools.serve/view.yaml`,
+        urls: [{ href: `${server.baseUrl}/view/`, label: 'path' }],
+        details: [{ label: 'dist', value: 'dist/' }],
+      });
+
+      await server.close('test.status');
+      await server.finished;
+
+      expect(server.status().state).to.eql('stopped');
+    } finally {
+      await server.close('test.cleanup');
+      await server.finished;
+    }
+  });
+
   it('starts from an owner config ref selector', async () => {
     const cwd = await Fixture.makeTempDir('serve-start-api-paths-config');
     await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>paths config</h1>');
@@ -293,4 +328,3 @@ describe('Serve.start', () => {
     );
   });
 });
-

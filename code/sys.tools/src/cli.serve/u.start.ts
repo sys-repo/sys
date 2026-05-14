@@ -2,6 +2,7 @@ import { Err, Fs, type t } from './common.ts';
 import { startServer } from './m.server/u.startServer.ts';
 import { resolveServeHost, resolveServePort } from './u.startOptions.ts';
 import { loadStartTarget } from './u.startTarget.ts';
+import { statusError, statusOf } from './u.status.ts';
 
 /** Start a static serve target from a directory, config path, or named profile. */
 export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.StartResult> {
@@ -11,18 +12,27 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
   const port = resolveServePort(args.port, 'Serve.start');
   const context = await startContext({ target, host, port, until: args.until });
 
+  let state: t.Service.State = 'ready';
+  let error: t.StdError | undefined;
+  let failed = false;
   let closed = false;
   let closePromise: Promise<void> | undefined;
   const finished = context.server.finished;
   void (async () => {
     try {
       await finished;
+      if (!failed) state = 'stopped';
+    } catch (cause) {
+      failed = true;
+      state = 'error';
+      error = statusError(cause);
     } finally {
       closed = true;
     }
   })();
   const close = async (reason?: unknown) => {
     if (closed) return;
+    state = 'stopping';
     closePromise ??= closeContext(reason);
     await closePromise;
   };
@@ -31,9 +41,13 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
     try {
       await context.close(reason);
       closed = true;
-    } catch (error) {
+      state = 'stopped';
+    } catch (cause) {
+      failed = true;
+      state = 'error';
+      error = statusError(cause);
       closePromise = undefined;
-      throw error;
+      throw cause;
     }
   }
 
@@ -49,6 +63,9 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
     baseUrl: context.baseUrl,
     url: context.url,
     finished,
+    status() {
+      return statusOf({ target, context, state, error });
+    },
     close,
   };
 }
