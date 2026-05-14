@@ -140,7 +140,7 @@ export const CellCli: t.CellCli.Lib = {
         const { formatStartResult, startCell, toStartResult } = await import('./u.start.ts');
         const started = await startCell({ dir: args._[1], onStarted: print });
         const res = toStartResult({ argv }, started);
-        print(started.serviceText ? `\n${formatStartResult(started)}` : formatStartResult(started));
+        print(formatStartResult(started));
         return res;
       } catch (error) {
         return fail({ argv }, Err.summary(error));

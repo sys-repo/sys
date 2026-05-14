@@ -307,6 +307,10 @@ describe(`@sys/cell/cli`, () => {
             use: StatusService
             from: ./-services/status.ts
             config: ./-config/preview.yaml
+          - name: api
+            use: StatusService
+            from: ./-services/status.ts
+            config: ./-config/api.yaml
       `).trimStart(),
     );
     await Fs.write(Fs.join(fs.dir, '-services/status.ts'), statusServiceSource());
@@ -316,18 +320,32 @@ describe(`@sys/cell/cli`, () => {
 
     expect(res.kind).to.eql('start');
     if (res.kind !== 'start') throw new Error('expected start result');
-    expect(res.services).to.eql(1);
+    expect(res.services).to.eql(2);
+    expect(text.startsWith('\nservice')).to.eql(true);
+    expect(text).to.contain('\n\nroot');
     expect(text).to.contain('service');
     expect(text).to.contain('preview');
+    expect(text).to.contain('api');
     expect(text).to.contain('module');
     expect(text).to.contain('./-services/status.ts');
     expect(text).to.contain(Fs.join(fs.dir, '-config/preview.yaml'));
     expect(text).to.contain(Fs.join(fs.dir, 'view'));
     expect(text).to.contain('http://127.0.0.1:4321/view/');
+    expect(text).to.contain('http://127.0.0.1:4321/payments/');
+    expect(text).to.not.contain('http://127.0.0.1:4321/view/ path');
+    expect(text).to.not.contain('route.payments');
+    expect(res.text).to.contain(c.cyan('http://127.0.0.1:4321'));
+    expect(res.text).to.contain(c.gray('/view/'));
+    expect(res.text).to.not.contain(c.cyan('http://127.0.0.1:4321/view/'));
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
-    expect(text).to.contain('services   1');
+    expect(text).to.contain('services   2');
     expect(text).to.not.contain('owner-local-name');
+
+    const divider = stripAnsi(c.dim(c.gray(Cli.Fmt.hr())));
+    expect(text.split(divider).length - 1).to.eql(1);
+    expect(text.indexOf('preview')).to.be.lessThan(text.indexOf(divider));
+    expect(text.indexOf(divider)).to.be.lessThan(text.indexOf('api'));
   });
 
   it('task → rejects missing names, unsupported options, and extra args', async () => {
@@ -428,7 +446,10 @@ function statusServiceSource() {
               name: 'owner-local-name',
               kind: 'fixture',
               root,
-              urls: [{ href: 'http://127.0.0.1:4321/view/', label: 'path' }],
+              urls: [
+                { href: 'http://127.0.0.1:4321/view/', label: 'path' },
+                { href: 'http://127.0.0.1:4321/payments/', label: 'route.payments' },
+              ],
               details: [{ label: 'dist', value: 'dist/' }],
             };
           },

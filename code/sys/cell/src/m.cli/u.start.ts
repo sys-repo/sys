@@ -53,9 +53,8 @@ export function formatStartResult(res: StartCellResult): string {
 }
 
 export function formatStartOutput(res: StartCellResult): string {
-  return [res.serviceText, formatStartResult(res)]
-    .filter((text) => text.length > 0)
-    .join('\n\n');
+  const summary = formatStartResult(res);
+  return res.serviceText ? `${res.serviceText}\n${summary}` : summary;
 }
 
 export function toStartResult(

@@ -1,5 +1,5 @@
 import type { StartedServiceStatus } from '../m.cell/u.services/u.status.ts';
-import { c, Cli, CliTable, Fs, Is, Str, type t } from './common.ts';
+import { c, Cli, CliTable, Fs, Is, Str, type t, Url } from './common.ts';
 
 type ServicesStartedResult = {
   services: readonly StartedServiceStatus[];
@@ -7,8 +7,10 @@ type ServicesStartedResult = {
 
 export const FmtServices = {
   started(res: ServicesStartedResult): string {
-    const text = res.services.map(renderServiceStatus).join('\n\n');
-    return Str.trimEdgeNewlines(text);
+    const blocks = res.services.map(renderServiceStatus);
+    if (blocks.length === 0) return '';
+    const text = blocks.join(`\n${serviceDivider()}\n`);
+    return `\n${Str.trimEdgeNewlines(text)}\n`;
   },
 } as const;
 
@@ -65,9 +67,17 @@ function serviceSubtle(text: string): string {
   return c.gray(text);
 }
 
+function serviceDivider(): string {
+  return c.dim(c.gray(Cli.Fmt.hr()));
+}
+
 function serviceUrl(url: t.Service.Url): string {
-  const href = c.cyan(url.href);
-  return url.label ? `${href} ${serviceSubtle(url.label)}` : href;
+  const parsed = Url.parse(url.href);
+  if (!parsed.ok) return c.cyan(url.href);
+
+  const value = parsed.toURL();
+  const suffix = `${value.pathname}${value.search}${value.hash}` || '/';
+  return `${c.cyan(value.origin)}${serviceSubtle(suffix)}`;
 }
 
 function serviceState(state: t.Service.State): string {
