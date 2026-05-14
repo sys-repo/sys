@@ -102,7 +102,7 @@ export declare namespace HttpStatic {
     /** Display name forwarded to the HTTP server startup output. */
     name?: string;
 
-    /** Extra startup output fields forwarded to the HTTP server. */
+    /** Extra owner facts; path-like values are exposed as requestable URLs. */
     info?: Record<string, string>;
 
     /** Canonical @sys lifecycle bridge. */

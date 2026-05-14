@@ -32,6 +32,7 @@ export type HttpServerOptionsOptions = {
   info?: Record<string, string>;
   silent?: boolean;
   dir?: string;
+  status?: HttpServerStatusOptions;
 };
 
 /** Arguments passed to [HttpServer.keyboard]. */
@@ -129,9 +130,9 @@ export type HttpServerPrintOptions = {
   hash?: t.StringHash;
   name?: string;
   info?: Record<string, string>;
-  keyboard?: boolean;
   requestedPort?: t.PortNumber;
   dir?: t.StringDir;
+  status?: HttpServerStatusOptions;
 };
 
 /** Options passed to the creation of a server. */

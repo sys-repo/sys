@@ -1,5 +1,6 @@
-import { Dispose, Str, type t } from './common.ts';
+import { Dispose, Err, Str, type t } from './common.ts';
 import { keyboard } from './u.keyboard.ts';
+import { localOrigin } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
 
 type F = t.HttpServerLib['start'];
@@ -18,12 +19,13 @@ export const start: F = (app, input = {}) => {
     info: input.info,
     silent: input.silent,
     dir: input.dir,
+    status: input.status,
   });
 
   const server = Deno.serve({ ...baseOptions, hostname }, app.fetch);
   const addr = server.addr as Deno.NetAddr;
   const port = addr.port as t.PortNumber;
-  const origin = wrangle.origin({ hostname, port });
+  const origin = localOrigin({ hostname, port });
 
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
@@ -93,21 +95,6 @@ async function closeServer(args: {
 }
 
 const wrangle = {
-  origin(args: { readonly hostname: string; readonly port: t.PortNumber }): t.StringUrl {
-    const hostname = args.hostname;
-    const host = wrangle.isLocalHostname(hostname) ? 'localhost' : wrangle.urlHost(hostname);
-    return `http://${host}:${args.port}` as t.StringUrl;
-  },
-
-  isLocalHostname(hostname: string) {
-    return hostname === '0.0.0.0' || hostname === '::' || hostname === '127.0.0.1' ||
-      hostname === '::1';
-  },
-
-  urlHost(hostname: string) {
-    return hostname.includes(':') && !hostname.startsWith('[') ? `[${hostname}]` : hostname;
-  },
-
   status(
     input: t.HttpServerStartOptions,
     context: {
@@ -157,8 +144,7 @@ const wrangle = {
   },
 
   error(cause: unknown): t.StdError {
-    if (cause instanceof Error) return { name: cause.name, message: cause.message };
-    return { name: 'Error', message: String(cause) };
+    return Err.std(cause);
   },
 
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {

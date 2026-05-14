@@ -67,7 +67,7 @@ export declare namespace HttpProxy {
     /** Display name forwarded to the HTTP server startup output. */
     readonly name?: string;
 
-    /** Extra startup output fields forwarded to the HTTP server. */
+    /** Extra owner details exposed in structured status and startup output. */
     readonly info?: Record<string, string>;
 
     /** Canonical @sys lifecycle bridge. */

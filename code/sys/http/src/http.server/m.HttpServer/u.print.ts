@@ -1,22 +1,16 @@
 import type { HttpServerLib } from './t.ts';
 
-import { c, Cli, Fs, Str } from './common.ts';
+import { c, Cli, Fs, Str, type t } from './common.ts';
+import { formatPrintUrls } from './u.print.url.ts';
 
 /**
- * Outputs a formatted console log within
- * meta-data about the running server and module.
+ * Outputs HTTP-owner startup information for direct server use.
  */
 export const print: HttpServerLib['print'] = (options) => {
-  const { addr, pkg, hash, name, info, requestedPort } = options;
-  const port = c.bold(c.brightCyan(String(addr.port)));
-
-  const servingDir = options.dir ? Fs.trimCwd(options.dir) : '';
-  const host = c.cyan(`http://localhost:${port}`);
-  const repeatedHost = formatSubtle(`http://localhost:${addr.port}`);
-  const infoEntries = Object.entries(info ?? {});
-  const pathEntries = findPathEntries(infoEntries);
-  const detailEntries = infoEntries.filter((entry) => !pathEntries.includes(entry));
-  const urls = formatUrls({ host, repeatedHost, paths: pathEntries.map(([, path]) => path) });
+  const { addr, pkg, hash, name, requestedPort } = options;
+  const root = options.status?.root ?? options.dir;
+  const details = options.status?.details ?? infoDetails(options.info);
+  const urls = formatPrintUrls({ addr, paths: options.status?.urlPaths });
   const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
 
   const table = Cli.Table.create([]);
@@ -29,8 +23,8 @@ export const print: HttpServerLib['print'] = (options) => {
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
     table.push([formatLabel('module'), `${pkgName} ${formatSubtle(`${pkgVersion}`)}`]);
   }
-  if (servingDir) table.push([formatLabel('root'), formatSubtle(servingDir)]);
-  for (const [label, value] of detailEntries) table.push([formatLabel(label), formatSubtle(value)]);
+  if (root) table.push([formatLabel('root'), formatSubtle(Fs.trimCwd(root))]);
+  for (const detail of details) table.push([formatLabel(detail.label), formatSubtle(detail.value)]);
   if (hx) {
     table.push([
       formatLabel('dist'),
@@ -47,11 +41,11 @@ export const print: HttpServerLib['print'] = (options) => {
 /**
  * Helpers:
  */
-function findPathEntries(infoEntries: readonly (readonly [string, string])[]) {
-  return infoEntries.filter(([, value]) => value.startsWith('/'));
+function infoDetails(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
+  return Object.entries(info ?? {}).map(([label, value]) => ({ label, value }));
 }
 
-function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: string[]) {
+function pushUrls(table: ReturnType<typeof Cli.Table.create>, urls: readonly string[]) {
   urls.forEach((url, index) => table.push([index === 0 ? formatLabel('url') : '', url]));
 }
 
@@ -69,24 +63,6 @@ function formatSubtle(text: string) {
 
 function formatDivider() {
   return formatSubtle(Cli.Fmt.hr());
-}
-
-function formatUrls(input: {
-  readonly host: string;
-  readonly repeatedHost: string;
-  readonly paths: readonly string[];
-}) {
-  if (input.paths.length === 0) return [formatUrl({ host: input.host })];
-  return input.paths.map((path, index) => {
-    const host = index === 0 ? input.host : input.repeatedHost;
-    return formatUrl({ host, path });
-  });
-}
-
-function formatUrl(input: { host: string; path?: string }) {
-  return input.path
-    ? `${input.host}${formatSubtle(`/${Str.trimLeadingSlashes(input.path)}`)}`
-    : `${input.host}${formatSubtle('/')}`;
 }
 
 const URL_NOTE_INDENT = 17;

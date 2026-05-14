@@ -6,30 +6,15 @@ type F = t.HttpServerLib['options'];
 /**
  * Generates a Deno.server(...) configuration options object.
  */
-export const options: F = (...input: any[]) => {
-  const options = wrangle.options(input);
+export const options: F = (options = {}) => {
   const { pkg, hash } = options;
   const port = Net.port(options.port);
   return {
     port,
     onListen(address) {
       const addr = address as Deno.NetAddr;
-      const { dir, name, info, port: requestedPort } = options;
-      if (!options.silent) print({ addr, pkg, hash, name, info, dir, requestedPort });
+      const { dir, name, info, port: requestedPort, status } = options;
+      if (!options.silent) print({ addr, pkg, hash, name, info, dir, requestedPort, status });
     },
   };
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  options(args: any[]): t.HttpServerOptionsOptions {
-    if (typeof args[0] === 'object') return args[0];
-    return {
-      port: args[0],
-      pkg: args[1],
-      hash: args[2],
-    };
-  },
-} as const;

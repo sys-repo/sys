@@ -59,15 +59,19 @@ const wrangle = {
 
   urlPaths(info: Record<string, string> | undefined): readonly t.HttpServerStatusUrlPath[] {
     const paths = Object.entries(info ?? {})
-      .filter(([, value]) => value.startsWith('/'))
-      .map(([label, path]) => ({ label, path: path as t.StringUrlRoute }));
+      .filter(([, value]) => wrangle.isPathInfo(value))
+      .map(([label, path]) => ({ label, path: path.trim() as t.StringUrlRoute }));
     return paths.length > 0 ? paths : ['/'] as const;
   },
 
   details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
     return Object.entries(info ?? {})
-      .filter(([, value]) => !value.startsWith('/'))
-      .map(([label, value]) => ({ label, value }));
+      .filter(([, value]) => !wrangle.isPathInfo(value))
+      .map(([label, value]) => ({ label, value: value.trim() }));
+  },
+
+  isPathInfo(value: string) {
+    return value.trim().startsWith('/');
   },
 
   root(args: t.HttpStatic.StartArgs): t.StringDir {

@@ -50,29 +50,45 @@ describe('HttpServer.print', () => {
     expect(raw).to.not.contain(c.bold(c.white(pkg.name)));
   });
 
-  it('prints non-path info rows and uses path info only for URL decoration', () => {
+  it('prints info as details and uses explicit owner URL paths for URLs', () => {
     const lines = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
         pkg,
         hash: 'sha256-0391f000000000000000000000000000000000000000000000000000b313a8',
         info: { static: 'dist/', view: '/foo/bar/' },
+        status: { urlPaths: ['/foo/bar/'] },
       });
     });
 
     const output = Cli.stripAnsi(lines.join('\n'));
     expect(output).to.contain('module');
     expect(output).to.contain('static   dist/');
+    expect(output).to.contain('view     /foo/bar/');
     expect(output).to.contain('dist');
     expect(output).to.contain('url      http://localhost:8080/foo/bar/');
     expect(output).not.to.contain('view:');
+  });
+
+  it('does not infer URL rows from path-like info values', () => {
+    const lines = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+        info: { view: '/foo/bar/' },
+      });
+    });
+
+    const output = Cli.stripAnsi(lines.join('\n'));
+    expect(output).to.contain('view   /foo/bar/');
+    expect(output).to.contain('url    http://localhost:8080/');
+    expect(output).not.to.contain('http://localhost:8080/foo/bar/');
   });
 
   it('keeps the first URL origin cyan and mutes repeated origins', () => {
     const raw = capturePrint(() => {
       HttpServer.print({
         addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        info: { root: '/', payments: '/payments/', view: '/view/' },
+        status: { urlPaths: ['/', '/payments/', '/view/'] },
       });
     }).join('\n');
 
@@ -87,6 +103,22 @@ describe('HttpServer.print', () => {
     expect(output).to.contain('http://localhost:8080/');
     expect(output).to.contain('http://localhost:8080/payments/');
     expect(output).to.contain('http://localhost:8080/view/');
+  });
+
+  it('prints a browser-safe local origin from the listener address', () => {
+    const wildcard = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '0.0.0.0', port: 8080, transport: 'tcp' },
+      });
+    }).join('\n');
+    const network = capturePrint(() => {
+      HttpServer.print({
+        addr: { hostname: '192.0.2.10', port: 9090, transport: 'tcp' },
+      });
+    }).join('\n');
+
+    expect(Cli.stripAnsi(wildcard)).to.contain('http://localhost:8080/');
+    expect(Cli.stripAnsi(network)).to.contain('http://192.0.2.10:9090/');
   });
 });
 

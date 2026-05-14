@@ -32,7 +32,7 @@ describe('HttpProxy', () => {
     expect((error as Error).message).to.contain('use either config or lifecycle root/mounts');
   });
 
-  it('derives startup URL info from lifecycle proxy routes before caller info', async () => {
+  it('prints startup URLs from structured lifecycle proxy routes', async () => {
     const lines: string[] = [];
     const original = console.info;
     console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
@@ -56,8 +56,10 @@ describe('HttpProxy', () => {
       expect(output).to.contain(`http://localhost:${server.port}/`);
       expect(output).to.contain(`http://localhost:${server.port}/payments/`);
       expect(output).to.contain(`http://localhost:${server.port}/-/fixture/`);
+      expect(output).not.to.contain('route.payments');
+      expect(output).not.to.contain('route.-.fixture');
     } finally {
-      await server?.close('test.info');
+      await server?.close('test.proxy.print');
     }
   });
 

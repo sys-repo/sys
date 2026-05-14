@@ -56,7 +56,6 @@ export const HttpProxy: t.HttpProxy.Lib = {
       port: (args.port ?? D.port) as t.PortNumber,
       pkg,
       name: args.name,
-      info: wrangle.info(config, args.info),
       status: {
         kind: 'proxy',
         config: wrangle.configPathOrUndefined(args),
@@ -173,20 +172,6 @@ const wrangle = {
     return headers;
   },
 
-  info(
-    config: t.HttpProxy.Routing.Config,
-    input?: Record<string, string>,
-  ): Record<string, string> | undefined {
-    const output: Record<string, string> = {};
-
-    if (config.root) output.root = '/';
-    for (const mount of config.mounts ?? []) {
-      output[wrangle.infoLabel(mount.mountPath)] = mount.mountPath;
-    }
-
-    return Object.keys(output).length > 0 || input ? { ...output, ...input } : undefined;
-  },
-
   urlPaths(config: t.HttpProxy.Routing.Config): readonly t.HttpServerStatusUrlPath[] {
     const paths: t.HttpServerStatusUrlPath[] = [];
     if (config.root) paths.push({ label: 'root', path: '/' as t.StringUrlRoute });
@@ -197,9 +182,7 @@ const wrangle = {
   },
 
   details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
-    return Object.entries(info ?? {})
-      .filter(([, value]) => !value.startsWith('/'))
-      .map(([label, value]) => ({ label, value }));
+    return Object.entries(info ?? {}).map(([label, value]) => ({ label, value }));
   },
 
   infoLabel(path: string): string {
