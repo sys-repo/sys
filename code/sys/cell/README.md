@@ -4,7 +4,7 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 ---
 
-`@sys/cell` is the Cell's boot/composition microkernel. It does not define the Cell's state model or ontology; rather, it composes owner services that interpret Cell state.
+`@sys/cell` is a Cell folder's boot/composition microkernel. It does not define the Cell's state model or ontology; rather, it composes owner services that interpret and manage their respective aspects of Cell state.
 
 A Cell's state is carried by ordinary files that can function as a
 [DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
@@ -67,8 +67,8 @@ Options    -h, --help   show help
 
 | Intent                   | [Speech act](https://en.wikipedia.org/wiki/Speech_act) examples:       |
 | ------------------------ | ---------------------------------------------------------------------- |
-| create: **Cell**         | Initialize this folder as an `@sys/cell`.                              |
-| create: **Cell** at path | Initialize `./foo` as an `@sys/cell`.                                  |
+| create: Cell         | Initialize this folder as an `@sys/cell`.                              |
+| create: Cell at path | Initialize `./foo` as an `@sys/cell`.                                  |
 | add: pulled view         | Add a pulled view from `<dist-url>`.                                   |
 | refresh: pulled views    | Pull latest configured views.                                          |
 | add: static HTTP service | Add an `@sys/http` static service for `<view>`.                        |
