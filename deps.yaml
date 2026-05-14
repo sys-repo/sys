@@ -17,13 +17,13 @@ deno.json:
     subpaths: [ auto ]
   - import: npm:esbuild@0.28.0
     dev: true
-  - import: npm:@vitejs/plugin-react@6.0.1
+  - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.3
+  - import: npm:rollup@4.60.4
     dev: true
-  - import: npm:vite@8.0.12
+  - import: npm:vite@8.0.13
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
@@ -41,7 +41,7 @@ deno.json:
   - import: npm:@automerge/prosemirror@0.2.0
   - import: npm:@monaco-editor/react@4.7.0
   - import: npm:monaco-editor@0.55.1
-  - import: npm:prosemirror-model@1.25.4
+  - import: npm:prosemirror-model@1.25.5
   - import: npm:prosemirror-state@1.4.4
   - import: npm:prosemirror-view@1.41.8
   - import: npm:prosemirror-example-setup@1.2.3
@@ -88,13 +88,13 @@ deno.json:
 package.json:
   - import: npm:esbuild@0.28.0
     dev: true
-  - import: npm:@vitejs/plugin-react@6.0.1
+  - import: npm:@vitejs/plugin-react@6.0.2
     dev: true
   - import: npm:@deno/vite-plugin@2.0.2
     dev: true
-  - import: npm:rollup@4.60.3
+  - import: npm:rollup@4.60.4
     dev: true
-  - import: npm:vite@8.0.12
+  - import: npm:vite@8.0.13
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
