@@ -14,7 +14,9 @@ export const ProfileSchema = {
         context: { append: [] },
       },
       tools: {
-        remove: { enabled: false, recursive: true },
+        remove: { enabled: true, recursive: true },
+        move: { enabled: false },
+        copy: { enabled: true },
       },
     };
   },
@@ -71,6 +73,18 @@ export const ProfileSchema = {
                   enabled: Type.Optional(Type.Boolean()),
                   recursive: Type.Optional(Type.Boolean()),
                 },
+                { additionalProperties: false },
+              ),
+            ),
+            move: Type.Optional(
+              Type.Object(
+                { enabled: Type.Optional(Type.Boolean()) },
+                { additionalProperties: false },
+              ),
+            ),
+            copy: Type.Optional(
+              Type.Object(
+                { enabled: Type.Optional(Type.Boolean()) },
                 { additionalProperties: false },
               ),
             ),

@@ -6,41 +6,71 @@ import type { t } from './common.ts';
 export declare namespace PiSandboxFsExtension {
   /** Runtime surface for the sandbox filesystem extension. */
   export type Lib = {
-    /** Resolve effective remove-tool policy from profile policy and runtime roots. */
+    /** Resolve effective sandbox filesystem tool policy from profile policy and runtime roots. */
     resolvePolicy(input: ResolvePolicyInput): Policy;
-    /** Convert enabled remove-tool policy to Pi prompt args. */
+    /** Convert enabled sandbox filesystem tool policy to Pi prompt args. */
     toPromptArgs(policy: Policy): readonly string[];
     /** Materialize the generated Pi extension for the resolved policy. */
     write(input: WriteInput): Promise<WriteResult>;
   };
 
-  /** Resolved remove-tool policy injected into the generated extension. */
+  /** Resolved sandbox filesystem tool policy injected into the generated extension. */
   export type Policy = {
+    /** Paths readable by import-style operations such as `copy.from`. */
+    readonly readRoots: readonly t.StringPath[];
+    /** Paths writable by mutating operations such as `remove`, `move`, and `copy.to`. */
+    readonly writeRoots: readonly t.StringPath[];
+    /** Paths and descendants the sandbox filesystem tools must refuse. */
+    readonly protectedRoots: readonly t.StringPath[];
+    /** Resolved remove-tool policy. */
+    readonly remove: RemovePolicy;
+    /** Resolved move-tool policy. */
+    readonly move: MovePolicy;
+    /** Resolved copy-tool policy. */
+    readonly copy: CopyPolicy;
+  };
+
+  /** Resolved remove-tool policy. */
+  export type RemovePolicy = {
     /** Whether the `remove` tool is enabled for this launch. */
     readonly enabled: boolean;
     /** Whether recursive directory removal is permitted. */
     readonly recursive: boolean;
-    /** Paths the `remove` tool may target, excluding protected descendants. */
-    readonly removeRoots: readonly t.StringDir[];
-    /** Paths and descendants the `remove` tool must refuse. */
-    readonly protectedRoots: readonly t.StringPath[];
   };
 
-  /** Inputs required to resolve the remove-tool policy. */
+  /** Resolved move-tool policy. */
+  export type MovePolicy = {
+    /** Whether the `move` tool is enabled for this launch. */
+    readonly enabled: boolean;
+  };
+
+  /** Resolved copy-tool policy. */
+  export type CopyPolicy = {
+    /** Whether the `copy` tool is enabled for this launch. */
+    readonly enabled: boolean;
+  };
+
+  /** Inputs required to resolve the sandbox filesystem tool policy. */
   export type ResolvePolicyInput = {
     /** Resolved Pi runtime cwd contract. */
     readonly cwd: t.PiCli.Cwd;
+    /** Profile/caller-authored read roots before process-only read grants are added. */
+    readonly read?: readonly t.StringPath[];
     /** Profile/caller-authored write roots before process-only write grants are added. */
     readonly write?: readonly t.StringPath[];
     /** Profile-authored remove-tool policy. */
     readonly remove?: t.PiCliProfiles.Tools.Remove;
+    /** Profile-authored move-tool policy. */
+    readonly move?: t.PiCliProfiles.Tools.Move;
+    /** Profile-authored copy-tool policy. */
+    readonly copy?: t.PiCliProfiles.Tools.Copy;
   };
 
   /** Materialization request for the generated extension file. */
   export type WriteInput = {
     /** Runtime root under which `.pi/@sys/extensions` is materialized. */
     readonly cwd: t.StringDir;
-    /** Resolved remove-tool policy to inject into the generated extension. */
+    /** Resolved sandbox filesystem tool policy to inject into the generated extension. */
     readonly policy: Policy;
     /** Preview materialization without writing files. */
     readonly dryRun?: boolean;

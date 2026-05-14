@@ -158,7 +158,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         const checked = await ProfilesFs.validateYaml(newPath);
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
-          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
         await Fs.remove(cwd);
@@ -186,7 +188,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         const checked = await ProfilesFs.validateYaml(newPath);
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
-          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
         await Fs.remove(cwd);
@@ -198,7 +202,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         .absolute as t.StringDir;
       const legacyDir = Fs.join(cwd, '-config/@sys.driver-agent.pi') as t.StringPath;
       const newPath = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
-      const source = profileWithRemoveDefaults('sandbox: {}');
+      const source = profileWithToolDefaults('sandbox: {}');
 
       try {
         await Fs.ensureDir(legacyDir);
@@ -219,7 +223,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
       const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.migrate.test.' }))
         .absolute as t.StringDir;
       const path = Fs.join(cwd, ProfilesFs.fileOf('default')) as t.StringPath;
-      const source = profileWithRemoveDefaults('sandbox: {}');
+      const source = profileWithToolDefaults('sandbox: {}');
 
       try {
         await Fs.ensureDir(Fs.dirname(path));
@@ -270,8 +274,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
     }
   });
 
-  describe('04: tools.remove disabled defaults', () => {
-    it('file → adds disabled remove-tool defaults when tools is absent', async () => {
+  describe('04/05: sandbox filesystem tool defaults', () => {
+    it('file → adds sandbox filesystem tool defaults when tools is absent', async () => {
       const { cwd, path } = await writeProfile('sandbox:\n  capability:\n    write: [./src]\n');
 
       try {
@@ -282,7 +286,36 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         const checked = await ProfilesFs.validateYaml(path);
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
-          expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
+        }
+      } finally {
+        await Fs.remove(cwd);
+      }
+    });
+
+    it('file → preserves explicit copy disablement while adding missing defaults', async () => {
+      const { cwd, path } = await writeProfile(
+        Str.dedent(
+          `
+          tools:
+            copy:
+              enabled: false
+          `,
+        ).trimStart(),
+      );
+
+      try {
+        const res = await ProfileMigrate.file(path);
+        expect(res.migrated).to.eql([{ from: path, to: path }]);
+
+        const checked = await ProfilesFs.validateYaml(path);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: false });
         }
       } finally {
         await Fs.remove(cwd);
@@ -308,6 +341,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
         await Fs.remove(cwd);
@@ -334,13 +369,15 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
         expect(checked.ok).to.eql(true);
         if (checked.ok) {
           expect(checked.doc.tools?.remove).to.eql({ enabled: false, recursive: true });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
         }
       } finally {
         await Fs.remove(cwd);
       }
     });
 
-    it('file → preserves enabled recursive false as an explicit policy', async () => {
+    it('file → preserves enabled recursive false while adding exact-tool defaults', async () => {
       const { cwd, path } = await writeProfile(
         Str.dedent(
           `
@@ -354,15 +391,22 @@ describe(`@sys/driver-pi/cli/Profiles/u.migrate`, () => {
 
       try {
         const res = await ProfileMigrate.file(path);
-        expect(res.migrated).to.eql([]);
-        expect(res.skipped).to.eql([{ from: path, to: path }]);
+        expect(res.migrated).to.eql([{ from: path, to: path }]);
+
+        const checked = await ProfilesFs.validateYaml(path);
+        expect(checked.ok).to.eql(true);
+        if (checked.ok) {
+          expect(checked.doc.tools?.remove).to.eql({ enabled: true, recursive: false });
+          expect(checked.doc.tools?.move).to.eql({ enabled: false });
+          expect(checked.doc.tools?.copy).to.eql({ enabled: true });
+        }
       } finally {
         await Fs.remove(cwd);
       }
     });
 
-    it('file → is idempotent after disabled defaults are present', async () => {
-      const { cwd, path } = await writeProfile(profileWithRemoveDefaults('sandbox: {}'));
+    it('file → is idempotent after defaults are present', async () => {
+      const { cwd, path } = await writeProfile(profileWithToolDefaults('sandbox: {}'));
 
       try {
         const res = await ProfileMigrate.file(path);
@@ -465,14 +509,18 @@ async function writeProfile(text: string) {
   return { cwd, path };
 }
 
-function profileWithRemoveDefaults(prefix: string) {
+function profileWithToolDefaults(prefix: string) {
   return Str.dedent(
     `
     ${prefix}
     tools:
       remove:
-        enabled: false
+        enabled: true
         recursive: true
+      move:
+        enabled: false
+      copy:
+        enabled: true
     `,
   ).trimStart();
 }

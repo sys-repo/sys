@@ -5,17 +5,16 @@ type MigrateItem = { from: t.StringPath; to: t.StringPath };
 type MigrateResult = { migrated: MigrateItem[]; skipped: MigrateItem[] };
 
 const EMPTY_RESULT: MigrateResult = { migrated: [], skipped: [] };
-const REMOVE_PATH = ['tools', 'remove'];
-const ENABLED_PATH = ['tools', 'remove', 'enabled'];
-const RECURSIVE_PATH = ['tools', 'remove', 'recursive'];
+const MOVE_PATH = ['tools', 'move'];
+const COPY_PATH = ['tools', 'copy'];
+const COPY_ENABLED_PATH = ['tools', 'copy', 'enabled'];
 
 /**
- * Migration 04:
- * - add explicit `tools.remove` defaults to existing profiles for discoverability.
- * - default the bounded cleanup tool and recursive directory cleanup to enabled.
- * - preserve explicit disabled remove policy.
+ * Migration 05:
+ * - add explicit `tools.move` and `tools.copy` defaults for discoverability.
+ * - default bounded copy/import to enabled while preserving explicit disabled policy.
  */
-export const migrate04 = {
+export const migrate05 = {
   async dir(cwd: t.StringDir): Promise<MigrateResult> {
     const dir = Fs.join(cwd, ProfilesFs.dir);
     if (!(await Fs.exists(dir))) return { ...EMPTY_RESULT };
@@ -25,7 +24,7 @@ export const migrate04 = {
     const skipped: MigrateItem[] = [];
 
     for (const entry of files) {
-      const res = await migrate04.file(entry.path as t.StringPath);
+      const res = await migrate05.file(entry.path as t.StringPath);
       migrated.push(...res.migrated);
       skipped.push(...res.skipped);
     }
@@ -44,35 +43,26 @@ export const migrate04 = {
     if (!js.ok || !Is.record(js.data)) return skipped(path);
 
     const tools = childRecord(js.data, 'tools');
-    if (tools.kind === 'invalid') return skipped(path);
-
-    if (tools.kind === 'missing') {
-      Yaml.path(REMOVE_PATH).set(ast, defaultRemovePolicy());
-      await Fs.write(path, ast.toString(), { force: true });
-      return { migrated: [{ from: path, to: path }], skipped: [] };
-    }
-
-    const remove = childRecord(toMutableRecord(tools.value), 'remove');
-    if (remove.kind === 'invalid') return skipped(path);
-
-    if (remove.kind === 'missing') {
-      Yaml.path(REMOVE_PATH).set(ast, defaultRemovePolicy());
-      await Fs.write(path, ast.toString(), { force: true });
-      return { migrated: [{ from: path, to: path }], skipped: [] };
-    }
+    if (tools.kind !== 'record') return skipped(path);
 
     let changed = false;
-    if (!hasOwn(remove.value, 'enabled')) {
-      Yaml.path(ENABLED_PATH).set(ast, true);
+    if (!hasOwn(tools.value, 'move')) {
+      Yaml.path(MOVE_PATH).set(ast, defaultMovePolicy());
+      changed = true;
+    } else if (!Is.record(tools.value.move)) {
+      return skipped(path);
+    }
+
+    if (!hasOwn(tools.value, 'copy')) {
+      Yaml.path(COPY_PATH).set(ast, defaultCopyPolicy());
+      changed = true;
+    } else if (!Is.record(tools.value.copy)) {
+      return skipped(path);
+    } else if (!hasOwn(tools.value.copy, 'enabled')) {
+      Yaml.path(COPY_ENABLED_PATH).set(ast, true);
       changed = true;
     }
-    if (!hasOwn(remove.value, 'recursive')) {
-      Yaml.path(RECURSIVE_PATH).set(ast, true);
-      changed = true;
-    } else if (remove.value.enabled !== true && remove.value.recursive === false) {
-      Yaml.path(RECURSIVE_PATH).set(ast, true);
-      changed = true;
-    }
+
     if (!changed) return skipped(path);
 
     await Fs.write(path, ast.toString(), { force: true });
@@ -83,8 +73,12 @@ export const migrate04 = {
 /**
  * Helpers:
  */
-function defaultRemovePolicy(): t.PiCliProfiles.Tools.Remove {
-  return { enabled: true, recursive: true };
+function defaultMovePolicy(): t.PiCliProfiles.Tools.Move {
+  return { enabled: false };
+}
+
+function defaultCopyPolicy(): t.PiCliProfiles.Tools.Copy {
+  return { enabled: true };
 }
 
 function childRecord(root: Record<string, unknown>, key: string) {
@@ -92,10 +86,6 @@ function childRecord(root: Record<string, unknown>, key: string) {
   const value = root[key];
   if (!Is.record(value)) return { kind: 'invalid' as const };
   return { kind: 'record' as const, value };
-}
-
-function toMutableRecord(input: Readonly<Record<string, unknown>>): Record<string, unknown> {
-  return input as Record<string, unknown>;
 }
 
 function skipped(path: t.StringPath): MigrateResult {

@@ -48,13 +48,16 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     ...profileWrite,
     ...callerWrite,
   ] as readonly t.StringPath[];
-  const removePolicy = SandboxFs.resolvePolicy({
+  const sandboxFsPolicy = SandboxFs.resolvePolicy({
     cwd,
+    read: ProfilePath.resolveAll(root, [...(capability?.read ?? []), ...(input.read ?? [])]),
     write: [...profileWrite, ...ProfilePath.resolveAll(root, callerWrite)],
     remove: profile.tools?.remove,
+    move: profile.tools?.move,
+    copy: profile.tools?.copy,
   });
-  const extension = removePolicy.enabled
-    ? await SandboxFs.write({ cwd: root, policy: removePolicy })
+  const extension = hasEnabledSandboxFsTool(sandboxFsPolicy)
+    ? await SandboxFs.write({ cwd: root, policy: sandboxFsPolicy })
     : undefined;
   const sandbox = await resolveSandboxSummary({
     cwd,
@@ -71,7 +74,7 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     args: [
       ...toPromptArgs(prompt, { append: contextResolution.systemPromptAppend }),
       ...contextResolution.args,
-      ...SandboxFs.toPromptArgs(removePolicy),
+      ...SandboxFs.toPromptArgs(sandboxFsPolicy),
       ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
       ...(extension?.args ?? []),
       ...(input.args ?? []),
@@ -83,4 +86,8 @@ export async function resolveRun(input: t.PiCliProfiles.RunArgs): Promise<Resolv
     pkg: input.pkg,
     sandbox,
   };
+}
+
+function hasEnabledSandboxFsTool(policy: t.PiSandboxFsExtension.Policy) {
+  return policy.remove.enabled || policy.move.enabled || policy.copy.enabled;
 }

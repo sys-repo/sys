@@ -35,8 +35,12 @@ export const ProfilesFs = {
 
       tools:
         remove:
-          enabled: false  # opt-in filesystem cleanup tool
+          enabled: true   # filesystem cleanup tool is available by default
           recursive: true # normal directory-tree cleanup through the protected remove tool
+        move:
+          enabled: false  # opt-in filesystem move/rename tool
+        copy:
+          enabled: true   # filesystem copy/import tool is available by default
 
       `,
     ).trimStart();

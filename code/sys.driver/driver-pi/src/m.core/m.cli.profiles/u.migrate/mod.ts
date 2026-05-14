@@ -3,6 +3,7 @@ import { migrate01 } from './-01.ts';
 import { migrate02 } from './-02.ts';
 import { migrate03 } from './-03.ts';
 import { migrate04 } from './-04.ts';
+import { migrate05 } from './-05.ts';
 
 type MigrateItem = { from: t.StringPath; to: t.StringPath };
 export type ProfileMigrateResult = { migrated: MigrateItem[]; skipped: MigrateItem[] };
@@ -12,12 +13,13 @@ export const ProfileMigrate = {
     const movedProfiles = await migrate02.dir(cwd);
     const movedLogs = await migrate03.dir(cwd);
     const normalized = await migrate01.dir(cwd);
-    const toolDefaults = await migrate04.dir(cwd);
-    return changed(movedProfiles, movedLogs, normalized, toolDefaults);
+    const removeToolDefaults = await migrate04.dir(cwd);
+    const exactToolDefaults = await migrate05.dir(cwd);
+    return changed(movedProfiles, movedLogs, normalized, removeToolDefaults, exactToolDefaults);
   },
 
   async file(path: t.StringPath): Promise<ProfileMigrateResult> {
-    return combine(await migrate01.file(path), await migrate04.file(path));
+    return combine(await migrate01.file(path), await migrate04.file(path), await migrate05.file(path));
   },
 
   message(result: ProfileMigrateResult): string | undefined {

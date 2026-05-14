@@ -1,12 +1,12 @@
 import { json } from './-bundle/-bundle.ts';
-import { Path, Str, TmplEngine, type t } from './common.ts';
+import { Json, Path, Str, TmplEngine, type t } from './common.ts';
 
 const SOURCE_ROOT = 'tmpl.sandbox.fs';
 const TARGET_FILE = 'sandbox.fs.ts';
 const POLICY_MARKER = Str.dedent(
   `
-  declare const __SANDBOX_FS_POLICY__: RemovePolicy;
-  const POLICY: RemovePolicy = __SANDBOX_FS_POLICY__;
+  declare const __SANDBOX_FS_POLICY__: SandboxFsPolicy;
+  const POLICY: SandboxFsPolicy = __SANDBOX_FS_POLICY__;
   `,
 ).trim();
 
@@ -27,7 +27,7 @@ export function makeTmpl(policy: t.PiSandboxFsExtension.Policy) {
 
     const next = e.text.replace(
       POLICY_MARKER,
-      `const POLICY: RemovePolicy = ${formatPolicy(policy)};`,
+      `const POLICY: SandboxFsPolicy = ${formatPolicy(policy)};`,
     );
     if (next === e.text || next.includes('__SANDBOX_FS_POLICY__')) {
       throw new Error('Unresolved sandbox.fs template marker.');
@@ -44,7 +44,7 @@ export function makeTmpl(policy: t.PiSandboxFsExtension.Policy) {
  * Helpers:
  */
 function formatPolicy(policy: t.PiSandboxFsExtension.Policy) {
-  return JSON.stringify(policy, null, 2);
+  return Json.stringify(policy, 2);
 }
 
 function assertSafeRelativePath(path: string) {

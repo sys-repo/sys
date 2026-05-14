@@ -71,7 +71,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → materializes enabled remove extension with truthful prompt contract', async () => {
+  it('run → materializes enabled sandbox filesystem extension with truthful prompt contracts', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
@@ -88,6 +88,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
             remove:
               enabled: true
               recursive: false
+            move:
+              enabled: true
+            copy:
+              enabled: true
           `,
         ).trimStart(),
       );
@@ -104,9 +108,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
 
         const prompt = appendSystemPrompts(input.args).join('\n');
         expect(prompt).to.contain('Runtime Tool Contract: remove');
+        expect(prompt).to.contain('Runtime Tool Contract: move');
+        expect(prompt).to.contain('Runtime Tool Contract: copy');
         expect(prompt).to.contain('Bash is not a file deletion or cleanup fallback.');
+        expect(prompt).to.contain('Bash is not a file move/rename fallback.');
+        expect(prompt).to.contain('Bash is not a file copy fallback.');
         expect(prompt).to.contain('Do not use `bash`, `rm`, `rmdir`, `unlink`');
-        expect(prompt).to.contain('If asked to delete and the callable `remove` tool is unavailable');
+        expect(prompt).to.contain(
+          'If asked to delete and the callable `remove` tool is unavailable',
+        );
         expect(prompt).to.contain('Do not fall back to `bash`.');
         expect(prompt).to.contain('Recursive removal is disabled');
 
@@ -114,9 +124,13 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         if (!read.ok) throw read.error;
         const text = read.data ?? '';
         expect(text).to.contain("name: 'remove'");
+        expect(text).to.contain("name: 'move'");
+        expect(text).to.contain("name: 'copy'");
         expect(text).to.contain(`${cwd}/allowed`);
         expect(text).to.contain(`${cwd}/.git`);
         expect(text).to.contain(`${cwd}/.pi`);
+        expect(text).to.contain('Deno.lstat');
+        expect(text).not.to.contain("from '@sys/fs'");
         expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
         expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
         return { code: 0, success: true, signal: null };
@@ -130,19 +144,35 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
     }
   });
 
-  it('run → leaves remove extension disabled unless profile opts in', async () => {
+  it('run → leaves sandbox filesystem extension disabled when profile explicitly opts out', async () => {
     const prev = Process.inherit;
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
       .absolute as t.StringDir;
     const config = `${cwd}/profiles.yaml` as t.StringPath;
     try {
-      await Fs.write(config, 'tools:\n  remove:\n    recursive: true\n');
+      await Fs.write(
+        config,
+        Str.dedent(
+          `
+          tools:
+            remove:
+              enabled: false
+              recursive: true
+            move:
+              enabled: false
+            copy:
+              enabled: false
+          `,
+        ).trimStart(),
+      );
       await Fs.ensureDir(`${cwd}/.git`);
 
       Process.inherit = async (input) => {
         expect(input.args).not.to.include('--extension');
         const prompt = appendSystemPrompts(input.args).join('\n');
         expect(prompt).not.to.contain('Runtime Tool Contract: remove');
+        expect(prompt).not.to.contain('Runtime Tool Contract: move');
+        expect(prompt).not.to.contain('Runtime Tool Contract: copy');
         const exists = await Fs.exists(Fs.join(cwd, '.pi', '@sys', 'extensions', 'sandbox.fs.ts'));
         expect(exists).to.eql(false);
         return { code: 0, success: true, signal: null };

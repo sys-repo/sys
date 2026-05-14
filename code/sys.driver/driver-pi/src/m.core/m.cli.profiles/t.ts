@@ -154,6 +154,10 @@ export declare namespace PiCliProfiles {
   export type Tools = {
     /** Filesystem removal tool policy. */
     readonly remove?: Tools.Remove;
+    /** Filesystem move/rename tool policy. */
+    readonly move?: Tools.Move;
+    /** Filesystem copy/import tool policy. */
+    readonly copy?: Tools.Copy;
   };
 
   /** Tool policy helper types. */
@@ -164,6 +168,18 @@ export declare namespace PiCliProfiles {
       readonly enabled?: boolean;
       /** Allow recursive directory tree removal through `remove`. */
       readonly recursive?: boolean;
+    };
+
+    /** Filesystem move/rename tool policy. */
+    export type Move = {
+      /** Enable the wrapper-owned `move` tool. */
+      readonly enabled?: boolean;
+    };
+
+    /** Filesystem copy/import tool policy. */
+    export type Copy = {
+      /** Enable the wrapper-owned `copy` tool. */
+      readonly enabled?: boolean;
     };
   }
 

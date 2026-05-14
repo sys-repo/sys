@@ -24,6 +24,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
         'extra files loaded after ./AGENTS.md and ./SYSTEM.md',
         'tools:',
         'remove:',
+        'move:',
+        'copy:',
+        'enabled: true',
         'enabled: false',
         'recursive: true',
       ]

@@ -2,22 +2,38 @@ import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { SandboxFs } from '../mod.ts';
 
-type GuardInput = {
+type RemoveGuardInput = {
   readonly requested: string;
   readonly target: string;
   readonly recursive: boolean;
   readonly policy: t.PiSandboxFsExtension.Policy;
 };
 
+type MoveGuardInput = {
+  readonly from: string;
+  readonly to: string;
+  readonly resolvedFrom: string;
+  readonly resolvedTo: string;
+  readonly policy: t.PiSandboxFsExtension.Policy;
+};
+
+type CopyGuardInput = {
+  readonly from: string;
+  readonly to: string;
+  readonly resolvedFrom: string;
+  readonly resolvedTo: string;
+  readonly policy: t.PiSandboxFsExtension.Policy;
+};
+
 type GuardResult =
-  | { readonly ok: true; readonly info: unknown }
+  | { readonly ok: true; readonly info?: unknown }
   | { readonly ok: false; readonly reason: string };
 
-type RegisteredRemoveTool = {
+type RegisteredTool = {
   readonly name: string;
   execute(
     toolCallId: string,
-    params: { readonly path: string; readonly recursive?: boolean },
+    params: Record<string, unknown>,
     signal: AbortSignal | undefined,
     onUpdate: unknown,
     ctx: { readonly cwd: string },
@@ -25,9 +41,11 @@ type RegisteredRemoveTool = {
 };
 
 type GeneratedSandboxFsModule = {
-  readonly default: (pi: { registerTool(tool: RegisteredRemoveTool): void }) => void;
+  readonly default: (pi: { registerTool(tool: RegisteredTool): void }) => void;
   readonly __sandboxFsTest: {
-    readonly guardRemove: (input: GuardInput) => Promise<GuardResult>;
+    readonly guardRemove: (input: RemoveGuardInput) => Promise<GuardResult>;
+    readonly guardMove: (input: MoveGuardInput) => Promise<GuardResult>;
+    readonly guardCopy: (input: CopyGuardInput) => Promise<GuardResult>;
   };
 };
 
@@ -40,18 +58,20 @@ describe(`Pi: sandbox filesystem extension`, () => {
     expect(SandboxFs.write).to.equal(m.SandboxFs.write);
   });
 
-  it('resolvePolicy → separates remove roots from protected runtime roots', async () => {
+  it('resolvePolicy → separates read roots, write roots, and protected runtime roots', async () => {
     const root = '/tmp/driver-pi-sandbox-fs' as t.StringDir;
     const policy = SandboxFs.resolvePolicy({
       cwd: { invoked: root, git: root },
+      read: ['./profile-read' as t.StringPath, '/tmp/driver-pi-readable' as t.StringPath],
       write: ['./profile-write' as t.StringPath, '/tmp/driver-pi-extra' as t.StringPath],
       remove: { enabled: true, recursive: false },
+      move: { enabled: true },
+      copy: { enabled: true },
     });
 
     expect(policy).to.eql({
-      enabled: true,
-      recursive: false,
-      removeRoots: [root, `${root}/profile-write`, '/tmp/driver-pi-extra'],
+      readRoots: [root, `${root}/profile-read`, '/tmp/driver-pi-readable'],
+      writeRoots: [root, `${root}/profile-write`, '/tmp/driver-pi-extra'],
       protectedRoots: [
         `${root}/.git`,
         `${root}/.pi`,
@@ -60,31 +80,37 @@ describe(`Pi: sandbox filesystem extension`, () => {
         `${root}/.log/@sys.driver-pi`,
         `${root}/.log/@sys.driver-pi.pi`,
       ],
+      remove: { enabled: true, recursive: false },
+      move: { enabled: true },
+      copy: { enabled: true },
     });
   });
 
-  it('toPromptArgs → appends a truthful remove tool contract only when enabled', () => {
+  it('toPromptArgs → appends truthful contracts only for enabled tools', () => {
     const disabled = SandboxFs.toPromptArgs({
-      enabled: false,
-      recursive: false,
-      removeRoots: [],
+      readRoots: [],
+      writeRoots: [],
       protectedRoots: [],
+      remove: { enabled: false, recursive: false },
+      move: { enabled: false },
+      copy: { enabled: false },
     });
     expect(disabled).to.eql([]);
 
     const enabled = SandboxFs.toPromptArgs({
-      enabled: true,
-      recursive: false,
-      removeRoots: ['/tmp/pi-root' as t.StringDir],
+      readRoots: ['/tmp/pi-read' as t.StringPath],
+      writeRoots: ['/tmp/pi-root' as t.StringPath],
       protectedRoots: [],
+      remove: { enabled: true, recursive: false },
+      move: { enabled: true },
+      copy: { enabled: false },
     });
     expect(enabled[0]).to.eql('--append-system-prompt');
     expect(enabled[1]).to.contain('Runtime Tool Contract: remove');
-    expect(enabled[1]).to.contain('- remove: Remove a file or directory path');
+    expect(enabled[1]).to.contain('Runtime Tool Contract: move');
+    expect(enabled[1]).not.to.contain('Runtime Tool Contract: copy');
     expect(enabled[1]).to.contain('Bash is not a file deletion or cleanup fallback.');
-    expect(enabled[1]).to.contain('Do not use `bash`, `rm`, `rmdir`, `unlink`');
-    expect(enabled[1]).to.contain('If asked to delete and the callable `remove` tool is unavailable');
-    expect(enabled[1]).to.contain('Do not fall back to `bash`.');
+    expect(enabled[1]).to.contain('Bash is not a file move/rename fallback.');
     expect(enabled[1]).to.contain('Recursive removal is disabled');
   });
 
@@ -94,8 +120,11 @@ describe(`Pi: sandbox filesystem extension`, () => {
     try {
       const policy = SandboxFs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
+        read: ['./readable' as t.StringPath],
         write: ['./src' as t.StringPath],
         remove: { enabled: true, recursive: true },
+        move: { enabled: true },
+        copy: { enabled: true },
       });
       const res = await SandboxFs.write({ cwd, policy });
       const read = await Fs.readText(res.path);
@@ -105,9 +134,14 @@ describe(`Pi: sandbox filesystem extension`, () => {
       expect(res.args).to.eql(['--extension', res.path]);
       expect(res.ops.some((op) => op.kind === 'create')).to.eql(true);
       expect(text).to.contain("name: 'remove'");
+      expect(text).to.contain("name: 'move'");
+      expect(text).to.contain("name: 'copy'");
       expect(text).to.contain('"recursive": true');
-      expect(text).to.contain('"removeRoots"');
+      expect(text).to.contain('"readRoots"');
+      expect(text).to.contain('"writeRoots"');
       expect(text).to.contain(`${cwd}/src`);
+      expect(text).to.contain('Deno.lstat');
+      expect(text).not.to.contain("from '@sys/fs'");
       expect(text).not.to.contain('__SANDBOX_FS_POLICY__');
       expect(text).not.to.contain(`${cwd}/.pi/@sys/tmp`);
     } finally {
@@ -115,26 +149,41 @@ describe(`Pi: sandbox filesystem extension`, () => {
     }
   });
 
-  it('generated remove tool → removes files and refuses protected paths', async () => {
+  it('generated tools → register enabled tools and execute remove, move, and copy', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.sandbox-fs.test.' }))
       .absolute as t.StringDir;
+    const outside = (await Fs.makeTempDir({ prefix: 'driver-pi.sandbox-fs.read.' }))
+      .absolute as t.StringDir;
     try {
-      const file = Fs.join(cwd, 'stale.txt') as t.StringPath;
-      await Fs.write(file, 'old');
-      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      const allowed = Fs.join(cwd, 'allowed') as t.StringDir;
+      const stale = Fs.join(cwd, 'stale.txt') as t.StringPath;
+      const moveFrom = Fs.join(allowed, 'from.txt') as t.StringPath;
+      const moveTo = Fs.join(allowed, 'to.txt') as t.StringPath;
+      const copyFrom = Fs.join(outside, 'screen.png') as t.StringPath;
+      const copyTo = Fs.join(allowed, 'screen.png') as t.StringPath;
+
+      await Fs.ensureDir(allowed);
+      await Fs.write(stale, 'old');
+      await Fs.write(moveFrom, 'move me');
+      await Fs.write(copyFrom, 'png bytes');
 
       const policy = SandboxFs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
+        read: [outside],
+        write: ['./allowed' as t.StringPath],
         remove: { enabled: true, recursive: false },
+        move: { enabled: true },
+        copy: { enabled: true },
       });
       const res = await SandboxFs.write({ cwd, policy });
       const mod = await importGenerated(res.path);
-      const tools: RegisteredRemoveTool[] = [];
+      const tools: RegisteredTool[] = [];
       mod.default({ registerTool: (tool) => tools.push(tool) });
 
-      const [tool] = tools;
-      expect(tool.name).to.eql('remove');
-      const removed = await tool.execute(
+      expect(tools.map((tool) => tool.name)).to.eql(['remove', 'move', 'copy']);
+
+      const remove = findTool(tools, 'remove');
+      const removed = await remove.execute(
         'remove-1',
         { path: 'stale.txt' },
         undefined,
@@ -142,23 +191,38 @@ describe(`Pi: sandbox filesystem extension`, () => {
         { cwd },
       );
       expect(removed.isError).to.eql(undefined);
-      expect(await Fs.exists(file)).to.eql(false);
+      expect(await Fs.exists(stale)).to.eql(false);
 
-      const blocked = await tool.execute(
-        'remove-2',
-        { path: '.git' },
+      const move = findTool(tools, 'move');
+      const moved = await move.execute(
+        'move-1',
+        { from: 'allowed/from.txt', to: 'allowed/to.txt' },
         undefined,
         undefined,
         { cwd },
       );
-      expect(blocked.isError).to.eql(true);
-      expect(await Fs.exists(Fs.join(cwd, '.git'))).to.eql(true);
+      expect(moved.isError).to.eql(undefined);
+      expect(await Fs.exists(moveFrom)).to.eql(false);
+      expect((await Fs.readText(moveTo)).data).to.eql('move me');
+
+      const copy = findTool(tools, 'copy');
+      const copied = await copy.execute(
+        'copy-1',
+        { from: copyFrom, to: 'allowed/screen.png' },
+        undefined,
+        undefined,
+        { cwd },
+      );
+      expect(copied.isError).to.eql(undefined);
+      expect((await Fs.readText(copyFrom)).data).to.eql('png bytes');
+      expect((await Fs.readText(copyTo)).data).to.eql('png bytes');
     } finally {
       await Fs.remove(cwd);
+      await Fs.remove(outside);
     }
   });
 
-  it('generated guard → refuses traversal, globs, recursive symlinks, and intermediate symlinks', async () => {
+  it('generated guards → refuse traversal, protected trees, bad destinations, and bad copy sources', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.sandbox-fs.test.' }))
       .absolute as t.StringDir;
     const outside = (await Fs.makeTempDir({ prefix: 'driver-pi.sandbox-fs.outside.' }))
@@ -166,68 +230,68 @@ describe(`Pi: sandbox filesystem extension`, () => {
     try {
       await Fs.write(Fs.join(cwd, 'file.txt'), 'ok');
       await Fs.ensureDir(Fs.join(cwd, 'explicit-write-root'));
+      await Fs.ensureDir(Fs.join(cwd, '.tmp', 'pi.cli'));
       await Fs.write(Fs.join(outside, 'outside.txt'), 'outside');
-      await Deno.symlink(outside, Fs.join(cwd, 'link-parent'));
-      await Deno.symlink(Fs.join(cwd, 'file.txt'), Fs.join(cwd, 'link-file'));
 
       const policy = SandboxFs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
-        remove: { enabled: true, recursive: false },
+        read: [outside],
+        write: ['./explicit-write-root' as t.StringPath],
+        remove: { enabled: true, recursive: true },
+        move: { enabled: true },
+        copy: { enabled: true },
       });
       const res = await SandboxFs.write({ cwd, policy });
-      const guardRemove = (await importGenerated(res.path)).__sandboxFsTest.guardRemove;
+      const guards = (await importGenerated(res.path)).__sandboxFsTest;
 
-      const parent = await guardRemove({
-        requested: '../outside.txt',
-        target: Fs.join(outside, 'outside.txt'),
-        recursive: false,
+      const parent = await guards.guardMove({
+        from: '../outside.txt',
+        to: 'file-moved.txt',
+        resolvedFrom: Fs.join(outside, 'outside.txt'),
+        resolvedTo: Fs.join(cwd, 'file-moved.txt'),
         policy,
       });
       expect(parent.ok).to.eql(false);
       if (!parent.ok) expect(parent.reason).to.contain('.. segments');
 
-      const glob = await guardRemove({
-        requested: '*.txt',
-        target: Fs.join(cwd, '*.txt'),
-        recursive: false,
+      const protectedAncestor = await guards.guardRemove({
+        requested: '.tmp',
+        target: Fs.join(cwd, '.tmp'),
+        recursive: true,
         policy,
       });
-      expect(glob.ok).to.eql(false);
-      if (!glob.ok) expect(glob.reason).to.contain('glob-shaped');
+      expect(protectedAncestor.ok).to.eql(false);
+      if (!protectedAncestor.ok) expect(protectedAncestor.reason).to.contain('protected');
 
-      const withExplicitWriteRoot = SandboxFs.resolvePolicy({
-        cwd: { invoked: cwd, git: cwd },
-        write: ['./explicit-write-root' as t.StringPath],
-        remove: { enabled: true, recursive: false },
-      });
-      const operationRoot = await guardRemove({
-        requested: 'explicit-write-root',
-        target: Fs.join(cwd, 'explicit-write-root'),
-        recursive: false,
-        policy: withExplicitWriteRoot,
+      const operationRoot = await guards.guardMove({
+        from: 'explicit-write-root',
+        to: 'explicit-write-root-moved',
+        resolvedFrom: Fs.join(cwd, 'explicit-write-root'),
+        resolvedTo: Fs.join(cwd, 'explicit-write-root-moved'),
+        policy,
       });
       expect(operationRoot.ok).to.eql(false);
       if (!operationRoot.ok) expect(operationRoot.reason).to.contain('operation root');
 
-      const intermediate = await guardRemove({
-        requested: 'link-parent/outside.txt',
-        target: Fs.join(cwd, 'link-parent', 'outside.txt'),
-        recursive: false,
+      const existingDestination = await guards.guardCopy({
+        from: Fs.join(outside, 'outside.txt'),
+        to: 'file.txt',
+        resolvedFrom: Fs.join(outside, 'outside.txt'),
+        resolvedTo: Fs.join(cwd, 'file.txt'),
         policy,
       });
-      expect(intermediate.ok).to.eql(false);
-      if (!intermediate.ok) expect(intermediate.reason).to.contain('intermediate symlink');
+      expect(existingDestination.ok).to.eql(false);
+      if (!existingDestination.ok) expect(existingDestination.reason).to.contain('already exists');
 
-      const recursiveSymlink = await guardRemove({
-        requested: 'link-file',
-        target: Fs.join(cwd, 'link-file'),
-        recursive: true,
-        policy: { ...policy, recursive: true },
+      const directorySource = await guards.guardCopy({
+        from: outside,
+        to: 'copied-dir',
+        resolvedFrom: outside,
+        resolvedTo: Fs.join(cwd, 'copied-dir'),
+        policy,
       });
-      expect(recursiveSymlink.ok).to.eql(false);
-      if (!recursiveSymlink.ok) {
-        expect(recursiveSymlink.reason).to.contain('recursive removal of symlinks');
-      }
+      expect(directorySource.ok).to.eql(false);
+      if (!directorySource.ok) expect(directorySource.reason).to.contain('regular file');
     } finally {
       await Fs.remove(cwd);
       await Fs.remove(outside);
@@ -239,4 +303,10 @@ async function importGenerated(path: t.StringPath): Promise<GeneratedSandboxFsMo
   const url = Path.toFileUrl(path);
   url.search = `v=${Date.now()}.${Math.random()}`;
   return await import(url.href) as GeneratedSandboxFsModule;
+}
+
+function findTool(tools: readonly RegisteredTool[], name: string) {
+  const tool = tools.find((item) => item.name === name);
+  if (!tool) throw new Error(`Missing generated sandbox filesystem tool: ${name}`);
+  return tool;
 }
