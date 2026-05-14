@@ -1,10 +1,11 @@
-import { type t, c, exists, Path } from './common.ts';
+import { c, Path, type t } from './common.ts';
+import { lstat } from './u.lstat.ts';
 
 /**
- * Delete a directory (and it's contents).
+ * Remove a file or directory.
  */
 export const remove: t.Fs.Remove = async (path, options = {}) => {
-  const targetExists = await exists(path);
+  const targetExists = (await lstat(path)) !== undefined;
   const shortPath = Path.trimCwd(path);
 
   if (options.dryRun) {
@@ -19,7 +20,7 @@ export const remove: t.Fs.Remove = async (path, options = {}) => {
 
   if (!targetExists) return false;
   try {
-    await wrangle.remove(path);
+    await wrangle.remove(path, options.recursive ?? true);
     if (options.log) console.info(`${c.cyan('deleted')} ${c.gray(shortPath)}`);
     return true;
   } catch (error: any) {
@@ -32,12 +33,12 @@ export const remove: t.Fs.Remove = async (path, options = {}) => {
 };
 
 const wrangle = {
-  async remove(path: string) {
+  async remove(path: string, recursive: boolean) {
     const attempts = 4;
 
     for (let i = 0; i < attempts; i++) {
       try {
-        await Deno.remove(path, { recursive: true });
+        await Deno.remove(path, { recursive });
         return;
       } catch (error) {
         if (!wrangle.isRetryable(error) || i === attempts - 1) throw error;

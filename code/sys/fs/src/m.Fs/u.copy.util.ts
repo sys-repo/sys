@@ -1,10 +1,10 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 
 /**
  * Helpers
  */
 export const Wrangle = {
-  options(input?: t.Fs.CopyOptions | t.FsCopyFilter): t.Fs.CopyOptions {
+  options(input?: t.Fs.CopyFileOptions | t.FsCopyFilter): t.Fs.CopyFileOptions {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

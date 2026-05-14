@@ -1,4 +1,4 @@
-import { type t, ensureDir, Err, exists, Path, pkg } from './common.ts';
+import { ensureDir, Err, exists, Path, pkg, type t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Wrangle } from './u.copy.util.ts';
 import { remove } from './u.remove.ts';
@@ -8,7 +8,7 @@ import { remove } from './u.remove.ts';
  */
 export const copyFile: t.Fs.CopyFile = async (from, to, opt = {}) => {
   const options = Wrangle.options(opt);
-  const { log = false, force = false } = options;
+  const { log = false, force = false, ensureParent = true } = options;
   const errors = Err.errors();
 
   const done = () => {
@@ -35,8 +35,14 @@ export const copyFile: t.Fs.CopyFile = async (from, to, opt = {}) => {
   }
 
   if (await Is.dir(from)) {
-    const msg = `Cannot copy file because the given path is a directory: ${to}`;
+    const msg = `Cannot copy file because the given path is a directory: ${from}`;
     errors.push(msg);
+    return done();
+  }
+
+  const targetParent = Path.dirname(to);
+  if (!ensureParent && !(await Is.dir(targetParent))) {
+    errors.push(`Cannot copy file because target parent directory does not exist: ${targetParent}`);
     return done();
   }
 
@@ -61,7 +67,7 @@ export const copyFile: t.Fs.CopyFile = async (from, to, opt = {}) => {
 
     // Copy the file.
     if (allowCopy) {
-      await ensureDir(Path.dirname(to));
+      if (ensureParent) await ensureDir(Path.dirname(to));
       await Deno.copyFile(from, to);
     }
   } catch (error: any) {

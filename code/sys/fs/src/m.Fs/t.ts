@@ -19,6 +19,12 @@ export namespace Fs {
     /** Retrieve information about the given path. */
     readonly stat: GetStat;
 
+    /** Retrieve information about the given path without following a final symlink. */
+    readonly lstat: GetStat;
+
+    /** Rename a file or directory without copy/delete fallback semantics. */
+    readonly rename: Rename;
+
     /** Writes a string or binary file ensuring it's parent directory exists. */
     readonly write: WriteFile;
 
@@ -125,7 +131,14 @@ export namespace Fs {
   export type CopyDir = t.Fs.Copy;
 
   /** Copy an individual file. */
-  export type CopyFile = t.Fs.Copy;
+  export type CopyFile = (
+    from: t.StringPath,
+    to: t.StringPath,
+    options?: t.Fs.CopyFileOptions | t.FsCopyFilter,
+  ) => Promise<t.Fs.CopyResult>;
+
+  /** Rename a file or directory without copy/delete fallback semantics. */
+  export type Rename = (from: t.StringPath, to: t.StringPath) => Promise<void>;
 
   /** Options passed to a file-system copy operation. */
   export type CopyOptions = {
@@ -139,16 +152,27 @@ export namespace Fs {
     filter?: t.FsCopyFilter;
   };
 
+  /** Options passed to a single-file copy operation. */
+  export type CopyFileOptions = t.Fs.CopyOptions & {
+    /** Ensure the target parent directory exists before copying (default: true). */
+    ensureParent?: boolean;
+  };
+
   /** Response from the `Fs.copy` method. */
   export type CopyResult = { error?: t.StdError };
 
   /**
    * Delete a file or directory (and its contents).
    */
-  export type Remove = (
-    path: string,
-    options?: { dryRun?: boolean; log?: boolean },
-  ) => Promise<boolean>;
+  export type Remove = (path: t.StringPath, options?: RemoveOptions) => Promise<boolean>;
+  export type RemoveOptions = {
+    /** Print the intended removal without mutating the file-system (default: false). */
+    dryRun?: boolean;
+    /** Write removal metadata to the console (default: false). */
+    log?: boolean;
+    /** Recursively remove directories and their contents (default: true). */
+    recursive?: boolean;
+  };
 
   /** Options passed to `Fs.resolve`. */
   export type ResolveOptions = {

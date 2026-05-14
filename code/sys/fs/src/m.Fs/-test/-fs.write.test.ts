@@ -48,6 +48,19 @@ describe('Fs: write to the file-system operations', () => {
       await Fs.remove(sample.path.dir); // Clean up.
     });
 
+    it('{recursive:false} preserves non-empty directories', async () => {
+      const sample = await testSetup();
+      expect(await sample.dirExists()).to.eql(true);
+
+      try {
+        await expectError(() => Fs.remove(sample.path.dir, { recursive: false }));
+        expect(await sample.dirExists()).to.eql(true);
+        expect(await sample.fileExists()).to.eql(true);
+      } finally {
+        await Fs.remove(sample.path.dir); // Clean up.
+      }
+    });
+
     it('non-existent target', async () => {
       const dir = Fs.resolve('404-NO-EXIST');
       const file = Fs.join(dir, 'foo.json');

@@ -10,9 +10,11 @@ import { Size } from './m.Size.ts';
 import { Tilde } from './m.Tilde.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { cwd } from './u.cwd.ts';
+import { lstat } from './u.lstat.ts';
 import { makeTempDir } from './u.makeTmpDir.ts';
 import { read, readJson, readText, readYaml } from './u.read.ts';
 import { remove } from './u.remove.ts';
+import { rename } from './u.rename.ts';
 import { resolve } from './u.resolve.ts';
 import { stat } from './u.stat.ts';
 import { toDir } from './u.toDir.ts';
@@ -50,6 +52,8 @@ export const Fs: t.Fs.Lib = {
   },
 
   stat,
+  lstat,
+  rename,
   cwd,
   trimCwd: Path.trimCwd,
   realPath: Deno.realPath,
