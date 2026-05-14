@@ -1,5 +1,6 @@
 import { Cell } from '../m.cell/mod.ts';
 import { c, CliTable, Str, type t } from './common.ts';
+import { createShutdownSignal, isSignalShutdownReason } from './u.shutdown.ts';
 
 export type StartCellArgs = {
   readonly dir?: string;
@@ -12,17 +13,27 @@ export type StartCellResult = {
 
 export async function startCell(args: StartCellArgs = {}): Promise<StartCellResult> {
   const cell = await Cell.load(args.dir);
-  const started = await Cell.start(cell);
+  const shutdown = createShutdownSignal();
+  let started: t.Cell.Services.Started | undefined;
+  let finalReason: string | undefined;
 
   try {
-    await Cell.Services.wait(started);
+    started = await Cell.start(cell, { until: shutdown.signal });
+    await Promise.race([Cell.Services.wait(started), shutdown.done]);
   } finally {
-    await started.close('cell.start.finished');
+    try {
+      await started?.close(shutdown.reason ?? 'cell.start.finished');
+    } finally {
+      finalReason = shutdown.reason;
+      shutdown.dispose();
+    }
   }
+
+  if (isSignalShutdownReason(finalReason)) Deno.exitCode = 130;
 
   return {
     root: cell.root,
-    services: started.services.length,
+    services: started?.services.length ?? 0,
   };
 }
 

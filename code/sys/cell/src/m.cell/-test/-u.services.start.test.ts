@@ -61,6 +61,23 @@ describe('Cell.Services.start', () => {
     await Cell.Services.wait(started);
   });
 
+  it('passes lifecycle until to service endpoints when provided', async () => {
+    const source =
+      `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
+    const from = `data:application/javascript;base64,${btoa(source)}`;
+    const root = await tempCell('services-start-until', descriptor({ from, use: 'Capture' }));
+    await Fs.write(Fs.join(root, '-config/@sys.http/static.view.yaml'), `dir: .\n`, {
+      force: true,
+    });
+    const until = new AbortController().signal;
+
+    const started = await Cell.Services.start(await Cell.load(root), { trusted: ['data:'], until });
+
+    const handle = started.services[0].handle as Record<string, unknown>;
+    expect(handle.until).to.equal(until);
+    await Cell.Services.wait(started);
+  });
+
   it('root Cell.start delegates to services start', async () => {
     const source =
       `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
@@ -74,6 +91,27 @@ describe('Cell.Services.start', () => {
     const started = await Cell.start(cell, { trusted: ['data:'] });
     expect(started.services.map((service) => service.service.name)).to.eql(['view']);
     await Cell.Services.wait(started);
+  });
+
+  it('closes started services in reverse order with the shutdown reason', async () => {
+    resetServiceEvents();
+    const source = Str.dedent(`
+      const events = globalThis.__cellServiceEvents ??= [];
+      export const First = { start() { events.push('start:first'); return { close(reason) { events.push(\`close:first:\${reason}\`); } }; } };
+      export const Second = { start() { events.push('start:second'); return { close(reason) { events.push(\`close:second:\${reason}\`); } }; } };
+    `).trimStart();
+    const from = `data:application/javascript;base64,${btoa(source)}`;
+    const root = await tempCell('services-close-reverse', twoServiceDescriptor(from));
+
+    const started = await Cell.Services.start(await Cell.load(root), { trusted: ['data:'] });
+    await started.close('shutdown');
+
+    expect(serviceEvents()).to.eql([
+      'start:first',
+      'start:second',
+      'close:second:shutdown',
+      'close:first:shutdown',
+    ]);
   });
 
   it('closes all previously started services when a later service fails', async () => {
@@ -161,6 +199,23 @@ function descriptor(overrides: Partial<{ use: string; from: string }> = {}) {
         use: ${use}
         from: '${from}'
         config: ./-config/@sys.http/static.view.yaml
+  `).trimStart();
+}
+
+function twoServiceDescriptor(from: string) {
+  return Str.dedent(`
+    kind: cell
+    version: 1
+
+    services:
+      - name: first
+        use: First
+        from: '${from}'
+        config: ./-config/first.yaml
+      - name: second
+        use: Second
+        from: '${from}'
+        config: ./-config/second.yaml
   `).trimStart();
 }
 

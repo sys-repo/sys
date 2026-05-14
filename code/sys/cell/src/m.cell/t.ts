@@ -266,12 +266,17 @@ export declare namespace Cell {
     };
 
     /** Services start options. */
-    export type StartOptions = VerifyOptions;
+    export type StartOptions = VerifyOptions & {
+      /** Canonical lifecycle bridge forwarded to owner service endpoints. */
+      until?: t.UntilInput;
+    };
 
     /** Service start arguments. */
     export type StartArgs = {
       cwd: t.StringDir;
       paths: { config: t.StringPath };
+      /** Canonical lifecycle bridge supplied by the service runner. */
+      until?: t.UntilInput;
     };
 
     /** Services verification result. */

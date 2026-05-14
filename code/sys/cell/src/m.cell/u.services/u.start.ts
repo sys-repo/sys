@@ -7,10 +7,7 @@ export const start: t.Cell.Services.Lib['start'] = async (cell, options = {}) =>
 
   try {
     for (const service of verification.services) {
-      const args: t.Cell.Services.StartArgs = {
-        cwd: cell.root,
-        paths: { config: service.paths.config },
-      };
+      const args = startArgsOf(cell, service, options);
       const startedAt = Time.now.timestamp;
       const handle = await service.endpoint.start(args);
       const resolvedAt = Time.now.timestamp;
@@ -38,6 +35,22 @@ export const start: t.Cell.Services.Lib['start'] = async (cell, options = {}) =>
     close: (reason) => closeStarted(services, reason),
   };
 };
+
+/**
+ * Helpers:
+ */
+function startArgsOf(
+  cell: t.Cell.Instance,
+  service: t.Cell.Services.VerifiedService,
+  options: t.Cell.Services.StartOptions,
+): t.Cell.Services.StartArgs {
+  const args: t.Cell.Services.StartArgs = {
+    cwd: cell.root,
+    paths: { config: service.paths.config },
+  };
+  if (options.until) return { ...args, until: options.until };
+  return args;
+}
 
 async function closeStarted(
   services: readonly t.Cell.Services.StartedService[],
