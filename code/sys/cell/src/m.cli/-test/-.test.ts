@@ -339,6 +339,7 @@ describe(`@sys/cell/cli`, () => {
     expect(res.text).to.not.contain(c.cyan('http://127.0.0.1:4321/view/'));
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
+    expect(text.indexOf('dist/')).to.be.lessThan(text.indexOf('http://127.0.0.1:4321/view/'));
     expect(text).to.contain('services   2');
     expect(text).to.not.contain('owner-local-name');
 

@@ -1,4 +1,4 @@
-import { describe, expect, expectError, it, type t } from '../../-test.ts';
+import { describe, expect, expectError, it, type t, Time } from '../../-test.ts';
 import { Serve } from '../mod.ts';
 import { Fixture } from './u.ts';
 
@@ -80,6 +80,59 @@ describe('Serve.start', () => {
       expect(server.status().state).to.eql('stopped');
     } finally {
       await server.close('test.cleanup');
+      await server.finished;
+    }
+  });
+
+  it('adds dist metadata details when the served artifact has a dist.json', async () => {
+    const artifact = 'view/.pulled/ui.components';
+    const builtAt = Date.now() - 4 * 24 * 60 * 60 * 1000;
+    const { cwd } = await Fixture.makeDistServeTarget({
+      section: 'serve-start-api-dist-status',
+      builtAt,
+      artifact,
+      indexHtml: '<!doctype html><h1>artifact</h1>',
+      configText: `name: View\ndir: .\ninfo:\n  path: /${artifact}/\n`,
+    });
+
+    const server = await Serve.start({
+      cwd,
+      paths: { config: '-config/@sys.tools.serve/view.yaml' },
+      port: 0,
+    });
+    try {
+      const builtDate = Time.utc(new Date(builtAt)).format('yyyy MMM dd');
+      expect(server.status().details).to.eql([
+        { label: 'pkg', value: '@sys/example 1.2.3' },
+        { label: 'dist', value: `#1bb18, 2.1 MB, ${builtDate} · 4d ago` },
+      ]);
+    } finally {
+      await server.close('test.dist-status');
+      await server.finished;
+    }
+  });
+
+  it('omits elapsed age for dist metadata built less than one minute ago', async () => {
+    const builtAt = Date.now();
+    const { cwd } = await Fixture.makeDistServeTarget({
+      section: 'serve-start-api-fresh-dist-status',
+      builtAt,
+      indexHtml: '<!doctype html><h1>fresh</h1>',
+    });
+
+    const server = await Serve.start({
+      cwd,
+      paths: { config: '-config/@sys.tools.serve/view.yaml' },
+      port: 0,
+    });
+    try {
+      const builtDate = Time.utc(new Date(builtAt)).format('yyyy MMM dd');
+      expect(server.status().details).to.eql([
+        { label: 'pkg', value: '@sys/example 1.2.3' },
+        { label: 'dist', value: `#1bb18, 2.1 MB, ${builtDate}` },
+      ]);
+    } finally {
+      await server.close('test.fresh-dist-status');
       await server.finished;
     }
   });

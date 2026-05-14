@@ -1,16 +1,17 @@
-import { Str, type t } from './common.ts';
+import { Err, Str, type t } from './common.ts';
 
 export type StatusInput = {
   readonly target: t.ServeTool.StartTarget;
   readonly context: t.ServeTool.StartServingContext;
   readonly state: t.Service.State;
   readonly error?: t.StdError;
+  readonly artifactDetails?: readonly t.Service.Detail[];
 };
 
 /** Build a renderer-neutral status snapshot for a running serve target. */
 export function statusOf(input: StatusInput): t.Service.Status {
   const { target, context } = input;
-  const details = statusDetails(target.location.info);
+  const details = [...statusDetails(target.location.info), ...(input.artifactDetails ?? [])];
 
   return {
     state: input.state,
@@ -26,8 +27,7 @@ export function statusOf(input: StatusInput): t.Service.Status {
 
 /** Convert an unknown lifecycle failure into a structured status error. */
 export function statusError(cause: unknown): t.StdError {
-  if (cause instanceof Error) return { name: cause.name, message: cause.message };
-  return { name: 'Error', message: String(cause) };
+  return Err.std(cause);
 }
 
 /**

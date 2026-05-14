@@ -1,5 +1,5 @@
 import { expect } from '../../-test.ts';
-import { type t, Fs } from '../common.ts';
+import { Fs, Json, type t } from '../common.ts';
 
 export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
@@ -7,6 +7,8 @@ export type FixtureCaptured =
 
 export type FixtureHonoCtx = Parameters<t.HonoMiddlewareHandler>[0];
 export type FixtureHonoNext = Parameters<t.HonoMiddlewareHandler>[1];
+
+const DIST_DIGEST = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
 
 /**
  * Test helpers
@@ -19,6 +21,46 @@ export const Fixture = {
 
   async writeFile(dir: string, rel: string, data: string) {
     await Fs.write(`${dir}/${rel}`, data);
+  },
+
+  distDoc(input: { readonly builtAt: number; readonly totalBytes?: number }): t.DistPkg {
+    const { builtAt, totalBytes = 2_100_000 } = input;
+    return {
+      type: 'https://jsr.io/@sys/types/0.0.281/src/types/t.Pkg.dist.ts',
+      pkg: { name: '@sys/example', version: '1.2.3' },
+      build: {
+        time: builtAt as t.UnixTimestamp,
+        size: { total: totalBytes as t.NumberBytes, pkg: 1_500_000 as t.NumberBytes },
+        builder: '@sys/tools@0.0.400',
+        runtime: 'deno=2.7.14',
+        hash: { policy: 'https://jsr.io/@sys/fs/0.0.294/src/m.Pkg/m.Pkg.Dist.ts' },
+      },
+      hash: {
+        digest: DIST_DIGEST,
+        parts: {
+          './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        },
+      },
+    };
+  },
+
+  async makeDistServeTarget(input: {
+    readonly section: string;
+    readonly builtAt: number;
+    readonly artifact?: string;
+    readonly configText?: string;
+    readonly indexHtml?: string;
+  }) {
+    const cwd = await Fixture.makeTempDir(input.section);
+    const artifact = input.artifact ?? 'site';
+    const dist = Fixture.distDoc({ builtAt: input.builtAt });
+    const configText = input.configText ?? `name: View\ndir: ./${artifact}\n`;
+
+    await Fixture.writeFile(cwd, `${artifact}/index.html`, input.indexHtml ?? '<!doctype html>');
+    await Fixture.writeFile(cwd, `${artifact}/dist.json`, `${Json.stringify(dist, '  ')}\n`);
+    await Fixture.writeFile(cwd, '-config/@sys.tools.serve/view.yaml', configText);
+
+    return { cwd, artifact, dist } as const;
   },
 
   makeCtx(path: string, captured: { current?: FixtureCaptured }) {

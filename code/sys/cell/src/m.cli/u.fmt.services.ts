@@ -28,11 +28,11 @@ function renderServiceStatus(service: StartedServiceStatus): string {
   if (owner) {
     if (owner.state !== 'ready') table.push([serviceLabel('state'), serviceState(owner.state)]);
     if (Is.str(owner.root)) table.push([serviceLabel('root'), servicePath(owner.root)]);
-    pushServiceUrls(table, serviceUrls(owner));
     for (const detail of serviceDetails(owner)) {
       table.push([serviceLabel(detail.label), serviceSubtle(detail.value)]);
     }
     if (Is.stdError(owner.error)) table.push([serviceLabel('error'), serviceError(owner.error)]);
+    pushServiceUrls(table, serviceUrls(owner));
   }
 
   return Str.trimEdgeNewlines(String(table));

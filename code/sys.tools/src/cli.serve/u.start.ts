@@ -3,6 +3,7 @@ import { startServer } from './m.server/u.startServer.ts';
 import { resolveServeHost, resolveServePort } from './u.startOptions.ts';
 import { loadStartTarget } from './u.startTarget.ts';
 import { statusError, statusOf } from './u.status.ts';
+import { distStatusDetails } from './u.status.dist.ts';
 
 /** Start a static serve target from a directory, config path, or named profile. */
 export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.StartResult> {
@@ -11,6 +12,7 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
   const host = resolveServeHost(args.host, 'Serve.start');
   const port = resolveServePort(args.port, 'Serve.start');
   const context = await startContext({ target, host, port, until: args.until });
+  const artifactDetails = await distStatusDetails(target.location);
 
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
@@ -64,7 +66,7 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
     url: context.url,
     finished,
     status() {
-      return statusOf({ target, context, state, error });
+      return statusOf({ target, context, state, error, artifactDetails });
     },
     close,
   };
