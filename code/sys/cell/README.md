@@ -4,14 +4,21 @@ A **Cell** is a folder-shaped [metamedium](https://en.wikipedia.org/wiki/Metamed
 
 ---
 
-`@sys/cell` is a Cell folder's boot/composition microkernel. It does not define the Cell's state model or ontology; rather, it composes owner services that interpret and manage their respective aspects of Cell state.
+`@sys/cell` is the boot/composition microkernel for the **Cell folder boundary**.
+It loads a small descriptor that names trusted lifecycle services, finite task endpoints, and owner
+config references.
 
-A Cell's state is carried by ordinary files that can function as a
+Cell does not define the folder's ontology, state model, view model, or owner config schemas.
+Those meanings live in ordinary files and in the owner packages that interpret them.
+Owners interpret files; Cell composes owners.
+
+A Cell's state and meaning are carried by ordinary files that can function as a
 [DSL](https://martinfowler.com/dsl.html) (domain-specific-language): their meaning can be
 interpreted, viewed, and validly rewritten within the folder that bounds them.
 
-Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml], [HTML](html),
-[TypeScript][typescript], [JSON][json], [binary data][octet-stream], and other file-carried forms.
+Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [YAML][yaml],
+[HTML][html], [TypeScript][typescript], [JSON][json], [binary data][octet-stream], and other
+file-carried forms.
 
 [commonmark]: https://spec.commonmark.org/current/
 [yaml]: https://yaml.org/spec/1.2.2/
@@ -22,10 +29,6 @@ Concretely, the medium is a folder of ordinary files: [Markdown][commonmark], [Y
 
 The DSL may be formal or semi-formal: a JSON schema, a YAML contract, a TypeScript type surface, or
 Markdown whose structure, conventions, and "prose schema" carry stable meaning.
-
-`@sys/cell` marks the folder boundary, loads the Cell descriptor, composes trusted services, and
-runs finite tasks. Owner packages name and interpret sub-roots such as `./data`, `./view`, or other
-service-specific config paths.
 
 ```text
 @sys/cell               boot/composition kernel
@@ -44,8 +47,8 @@ service-specific config paths.
 A Cell is a folder-shaped metamedium whose ordinary files
 carry DSL-shaped meaning that can be interpreted, viewed,
 and validly rewritten within the folder that bounds it.
-Run `dsl` first before changing Cell config, owner configs,
-tasks, services, or routes.
+Agents must read `dsl` before changing Cell config, owner configs,
+tasks, services, or routes, then read the matching chapter from the DSL chapter index.
 
 Usage      deno run -ER   jsr:@sys/cell --help
            deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
@@ -53,7 +56,7 @@ Usage      deno run -ER   jsr:@sys/cell --help
            deno run -ERWN jsr:@sys/cell task <name> [dir]
            deno run -ERWN jsr:@sys/cell start [dir]
 
-Commands   dsl     run first — maps Cell acts, owner rules, tasks, services, and chapters
+Commands   dsl     agent must read first — root speech acts, owner rules, mappings, and chapter index
            init    initialize a folder as a Cell
            task    run a named trusted task from tasks[]
            start   start the Cell services
