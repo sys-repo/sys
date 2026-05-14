@@ -29,19 +29,39 @@ export namespace ServeTool {
     port?: number;
   };
 
-  export type StartSelectorArgs = StartDirArgs | StartConfigArgs | StartProfileArgs;
+  export type StartSelectorArgs =
+    | StartDirArgs
+    | StartConfigArgs
+    | StartPathsConfigArgs
+    | StartProfileArgs;
 
   export type StartDirArgs = {
     /** Serve this directory directly, resolved relative to `cwd`. */
     dir: t.StringDir;
     config?: never;
     profile?: never;
+    paths?: never;
   };
+
+  /** Owner config refs supplied by programmatic lifecycle callers. */
+  export type StartConfigPaths = { config: t.StringPath };
+  /** Optional owner config refs for selector alias compatibility. */
+  export type StartConfigPathsInput = { config?: t.StringPath };
 
   export type StartConfigArgs = {
     /** Explicit serve YAML config path. */
     config: t.StringPath;
+    /** Equivalent owner config ref; accepted only when it resolves to the same path. */
+    paths?: StartConfigPathsInput;
     dir?: never;
+    profile?: never;
+  };
+
+  export type StartPathsConfigArgs = {
+    /** Owner config refs supplied by programmatic lifecycle callers. */
+    paths: StartConfigPaths;
+    dir?: never;
+    config?: never;
     profile?: never;
   };
 
@@ -50,12 +70,17 @@ export namespace ServeTool {
     profile: string;
     dir?: never;
     config?: never;
+    paths?: never;
   };
+
+  /** Permissive raw target input used before selector normalization. */
+  export type StartTargetPathsInput = { config?: string };
 
   export type StartTargetInput = {
     dir?: string;
     config?: string;
     profile?: string;
+    paths?: StartTargetPathsInput;
   };
 
   export type StartTargetSelector =

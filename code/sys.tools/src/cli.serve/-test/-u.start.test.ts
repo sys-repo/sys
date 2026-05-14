@@ -3,6 +3,15 @@ import { Serve } from '../mod.ts';
 import { Fixture } from './u.ts';
 
 describe('Serve.start', () => {
+  it('type-level: accepts owner config refs', () => {
+    const args: t.ServeTool.StartArgs = {
+      cwd: '/tmp' as t.StringDir,
+      paths: { config: './config.yaml' },
+    };
+
+    expect(args.paths?.config).to.eql('./config.yaml');
+  });
+
   it('starts a silent closeable server from owner YAML', async () => {
     const cwd = await Fixture.makeTempDir('serve-start-api');
     await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>hello</h1>');
@@ -31,6 +40,56 @@ describe('Serve.start', () => {
       const res = await fetch(server.url);
       expect(res.status).to.eql(200);
       expect(await res.text()).to.contain('hello');
+    } finally {
+      await server.close();
+      await server.finished;
+    }
+  });
+
+  it('starts from an owner config ref selector', async () => {
+    const cwd = await Fixture.makeTempDir('serve-start-api-paths-config');
+    await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>paths config</h1>');
+    await Fixture.writeFile(cwd, '-config/@sys.tools.serve/site.yaml', 'name: Site\ndir: ./site\n');
+
+    const server = await Serve.start({
+      cwd,
+      paths: { config: '-config/@sys.tools.serve/site.yaml' },
+      port: 0,
+    });
+    try {
+      expect(server.selector).to.eql({
+        kind: 'config',
+        config: `${cwd}/-config/@sys.tools.serve/site.yaml`,
+      });
+      expect(server.config).to.eql(`${cwd}/-config/@sys.tools.serve/site.yaml`);
+      expect(server.location.name).to.eql('Site');
+      expect(server.location.dir).to.eql(`${cwd}/site`);
+
+      const res = await fetch(server.url);
+      expect(res.status).to.eql(200);
+      expect(await res.text()).to.contain('paths config');
+    } finally {
+      await server.close();
+      await server.finished;
+    }
+  });
+
+  it('starts from equivalent config and owner config refs', async () => {
+    const cwd = await Fixture.makeTempDir('serve-start-api-equal-config-refs');
+    await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>same config</h1>');
+    await Fixture.writeFile(cwd, 'profiles/site.yaml', 'name: Same\ndir: ./site\n');
+
+    const server = await Serve.start({
+      cwd,
+      config: './profiles/site.yaml',
+      paths: { config: `${cwd}/profiles/site.yaml` },
+      port: 0,
+    });
+    try {
+      expect(server.selector).to.eql({ kind: 'config', config: `${cwd}/profiles/site.yaml` });
+      expect(server.config).to.eql(`${cwd}/profiles/site.yaml`);
+      expect(server.location.name).to.eql('Same');
+      expect(server.location.dir).to.eql(`${cwd}/site`);
     } finally {
       await server.close();
       await server.finished;
@@ -141,6 +200,20 @@ describe('Serve.start', () => {
     );
   });
 
+  it('rejects conflicting config refs', async () => {
+    const cwd = await Fixture.makeTempDir('serve-start-api-config-ref-conflict');
+
+    await expectError(
+      () =>
+        Serve.start({
+          cwd,
+          config: './profiles/a.yaml',
+          paths: { config: './profiles/b.yaml' },
+        }),
+      'Serve.start: config and paths.config resolve to different paths.',
+    );
+  });
+
   it('requires exactly one config selector', async () => {
     const cwd = await Fixture.makeTempDir('serve-start-api-selector');
 
@@ -154,6 +227,24 @@ describe('Serve.start', () => {
           cwd,
           config: '-config/@sys.tools.serve/site.yaml',
           profile: 'site',
+        } as unknown as t.ServeTool.StartArgs),
+      'Serve.start: exactly one of dir, config or profile is required.',
+    );
+    await expectError(
+      () =>
+        Serve.start({
+          cwd,
+          dir: '.',
+          paths: { config: './site.yaml' },
+        } as unknown as t.ServeTool.StartArgs),
+      'Serve.start: exactly one of dir, config or profile is required.',
+    );
+    await expectError(
+      () =>
+        Serve.start({
+          cwd,
+          profile: 'site',
+          paths: { config: './site.yaml' },
         } as unknown as t.ServeTool.StartArgs),
       'Serve.start: exactly one of dir, config or profile is required.',
     );
