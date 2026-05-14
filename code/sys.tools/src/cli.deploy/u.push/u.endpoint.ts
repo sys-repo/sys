@@ -1,4 +1,4 @@
-import { Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
+import { ConfigRef, Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { pushProvider } from './u.push.ts';
 import { resolvePushTargets } from './u.resolvePushTargets.ts';
@@ -14,7 +14,7 @@ type StagingOutputCheck =
 /** Push an already-staged deploy endpoint from owner YAML. Throws when push fails. */
 export async function push(args: t.DeployTool.PushArgs): Promise<t.DeployTool.PushResult> {
   const cwd = args.cwd ?? Fs.cwd('terminal');
-  const config = Fs.resolve(cwd, args.config) as t.StringPath;
+  const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
   const result = await pushEndpoint({ cwd, config });
 
   if (!result.ok) throw pushError(config, result);

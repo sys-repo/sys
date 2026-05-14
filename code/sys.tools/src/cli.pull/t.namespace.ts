@@ -57,8 +57,7 @@ export namespace PullTool {
 
   export type RunArgs = {
     readonly cwd?: t.StringDir;
-    readonly config: t.StringPath;
-  };
+  } & t.Tools.ConfigRefArgs;
 
   export type RunBundleResult = {
     readonly bundle: ConfigYaml.Bundle;

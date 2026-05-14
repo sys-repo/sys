@@ -1,4 +1,4 @@
-import type { StringDir, UnixTimestamp } from '@sys/types';
+import type { StringDir, StringPath, UnixTimestamp } from '@sys/types';
 
 /** @system: common deploy-visible types */
 export type * from '@sys/types';
@@ -21,6 +21,11 @@ export type { Yaml, YamlConfig } from '@sys/yaml/t';
 /** Minimal root-tool vocabulary used by deploy. */
 export namespace Tools {
   export type CliArgs = { help: boolean; debug?: boolean };
+  export type ConfigRefPaths = { readonly config: StringPath };
+  export type ConfigRefPathsInput = { readonly config?: StringPath };
+  export type ConfigRefArgs =
+    | { readonly config: StringPath; readonly paths?: ConfigRefPathsInput }
+    | { readonly config?: never; readonly paths: ConfigRefPaths };
   export type Recency = {
     readonly createdAt?: UnixTimestamp;
     readonly lastUsedAt?: UnixTimestamp;

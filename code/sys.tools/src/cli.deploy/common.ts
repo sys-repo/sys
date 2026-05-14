@@ -2,6 +2,8 @@ import type * as T from './common.t.ts';
 import { pkg } from '../pkg.ts';
 import { DeployTool } from './t.namespace.ts';
 
+export { ConfigRef } from '../common/u.configRef.ts';
+
 /** @system: exports */
 import { Args, c, Cli } from '@sys/cli';
 import { Color } from '@sys/color';

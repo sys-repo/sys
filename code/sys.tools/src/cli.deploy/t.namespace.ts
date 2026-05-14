@@ -34,13 +34,11 @@ export namespace DeployTool {
 
   export type StageArgs = {
     readonly cwd?: t.StringDir;
-    readonly config: t.StringPath;
-  };
+  } & t.Tools.ConfigRefArgs;
 
   export type PushArgs = {
-    cwd?: t.StringDir;
-    config: t.StringPath;
-  };
+    readonly cwd?: t.StringDir;
+  } & t.Tools.ConfigRefArgs;
 
   export type StageResult = {
     readonly ok: true;

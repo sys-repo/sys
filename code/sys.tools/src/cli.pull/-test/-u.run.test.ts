@@ -39,6 +39,45 @@ describe('@sys/tools/pull programmatic execution', () => {
     });
   });
 
+  it('accepts owner config refs from paths.config', async () => {
+    await withTmpDir(async (cwd) => {
+      const config = Fs.join(cwd, CONFIG);
+      await Fs.write(config, 'dir: .\n', { force: true });
+
+      const result = await Pull.run({ cwd, paths: { config: `./${CONFIG}` } });
+
+      expect(result.ok).to.eql(true);
+      expect(result.config).to.eql(config);
+      expect(result.bundles).to.eql([]);
+    });
+  });
+
+  it('accepts equivalent config refs', async () => {
+    await withTmpDir(async (cwd) => {
+      const config = Fs.join(cwd, CONFIG);
+      await Fs.write(config, 'dir: .\n', { force: true });
+
+      const result = await Pull.run({ cwd, config: `./${CONFIG}`, paths: { config } });
+
+      expect(result.ok).to.eql(true);
+      expect(result.config).to.eql(config);
+    });
+  });
+
+  it('rejects conflicting config refs', async () => {
+    await withTmpDir(async (cwd) => {
+      await expectError(
+        () =>
+          Pull.run({
+            cwd,
+            config: './a.yaml',
+            paths: { config: './b.yaml' },
+          }),
+        'Pull.run: config and paths.config resolve to different paths.',
+      );
+    });
+  });
+
   it('fails clearly when the config cannot load', async () => {
     await withTmpDir(async (cwd) => {
       await expectError(

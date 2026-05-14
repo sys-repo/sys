@@ -1,4 +1,4 @@
-import { Err, Fs, Is, Path, Str, type t } from './common.ts';
+import { ConfigRef, Err, Fs, Is, Path, Str, type t } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
 import { resolveBases } from './u.endpoints/u.resolve.ts';
 import {
@@ -32,7 +32,7 @@ export type StagePlanLoadResult =
 /** Stage a deploy endpoint from owner YAML. Throws when staging fails. */
 export async function stage(args: t.DeployTool.StageArgs): Promise<t.DeployTool.StageResult> {
   const cwd = args.cwd ?? Fs.cwd('terminal');
-  const config = Fs.resolve(cwd, args.config) as t.StringPath;
+  const config = ConfigRef.resolve(cwd, args, 'Deploy.stage');
   const result = await stageEndpoint({ cwd, config });
 
   if (!result.ok) throw stageError(config, result.error);
