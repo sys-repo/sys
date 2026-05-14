@@ -34,7 +34,7 @@ describe('Cell.Services.start', () => {
     }
   });
 
-  it('passes only config refs plus cwd to service endpoints', async () => {
+  it('passes config refs, cwd, and Cell-owned quieting to service endpoints', async () => {
     const source =
       `export const Capture = { start(args) { return { ...args, finished: Promise.resolve('done') }; } };`;
     const from = `data:application/javascript;base64,${btoa(source)}`;
@@ -57,6 +57,7 @@ describe('Cell.Services.start', () => {
     const config = Fs.join(root, '-config/@sys.http/static.view.yaml');
     expect(handle.cwd).to.eql(root);
     expect(handle.paths).to.eql({ config });
+    expect(handle.silent).to.eql(true);
     expect(handle).to.not.have.property('config');
     await Cell.Services.wait(started);
   });

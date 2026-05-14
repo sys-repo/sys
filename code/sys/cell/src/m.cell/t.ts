@@ -275,6 +275,8 @@ export declare namespace Cell {
     export type StartArgs = {
       cwd: t.StringDir;
       paths: { config: t.StringPath };
+      /** Suppress owner-local startup output; Cell renders service status itself. */
+      silent?: boolean;
       /** Canonical lifecycle bridge supplied by the service runner. */
       until?: t.UntilInput;
     };

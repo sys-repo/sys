@@ -294,6 +294,42 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain('services   0');
   });
 
+  it('start → renders started service status blocks uniformly', async () => {
+    const fs = await Testing.dir('CellCli.start.service-status');
+    await Fs.write(
+      Fs.join(fs.dir, '-config/@sys.cell/cell.yaml'),
+      Str.dedent(`
+        kind: cell
+        version: 1
+
+        services:
+          - name: preview
+            use: StatusService
+            from: ./-services/status.ts
+            config: ./-config/preview.yaml
+      `).trimStart(),
+    );
+    await Fs.write(Fs.join(fs.dir, '-services/status.ts'), statusServiceSource());
+
+    const res = await silent(() => CellCli.run({ argv: ['start', fs.dir] }));
+    const text = stripAnsi(res.text);
+
+    expect(res.kind).to.eql('start');
+    if (res.kind !== 'start') throw new Error('expected start result');
+    expect(res.services).to.eql(1);
+    expect(text).to.contain('service');
+    expect(text).to.contain('preview');
+    expect(text).to.contain('module');
+    expect(text).to.contain('./-services/status.ts');
+    expect(text).to.contain(Fs.join(fs.dir, '-config/preview.yaml'));
+    expect(text).to.contain(Fs.join(fs.dir, 'view'));
+    expect(text).to.contain('http://127.0.0.1:4321/view/');
+    expect(text).to.contain('dist');
+    expect(text).to.contain('dist/');
+    expect(text).to.contain('services   1');
+    expect(text).to.not.contain('owner-local-name');
+  });
+
   it('task → rejects missing names, unsupported options, and extra args', async () => {
     const missing = stripAnsi(
       (await silent(() => CellCli.run({ argv: ['task'] }))).text,
@@ -373,6 +409,30 @@ function taskSource(exportName: string) {
         g.__cellCliTaskEvents ??= [];
         g.__cellCliTaskEvents.push({ args });
         return { ok: true };
+      },
+    };
+  `).trimStart();
+}
+
+function statusServiceSource() {
+  return Str.dedent(`
+    export const StatusService = {
+      start() {
+        const root = new URL('../view/', import.meta.url).pathname.replace(/\\/$/, '');
+        return {
+          finished: Promise.resolve('done'),
+          close() {},
+          status() {
+            return {
+              state: 'ready',
+              name: 'owner-local-name',
+              kind: 'fixture',
+              root,
+              urls: [{ href: 'http://127.0.0.1:4321/view/', label: 'path' }],
+              details: [{ label: 'dist', value: 'dist/' }],
+            };
+          },
+        };
       },
     };
   `).trimStart();

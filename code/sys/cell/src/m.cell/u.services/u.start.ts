@@ -47,6 +47,7 @@ function startArgsOf(
   const args: t.Cell.Services.StartArgs = {
     cwd: cell.root,
     paths: { config: service.paths.config },
+    silent: true,
   };
   if (options.until) return { ...args, until: options.until };
   return args;
