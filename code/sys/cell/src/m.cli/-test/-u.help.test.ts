@@ -97,7 +97,7 @@ describe('FmtHelp', () => {
     const cases = [
       { path: [], name: 'sys-cell-dsl' },
       { path: ['pulled-view'], name: 'sys-cell-dsl-pulled-view' },
-      { path: ['static-http-service'], name: 'sys-cell-dsl-static-http-service' },
+      { path: ['static-serve-service'], name: 'sys-cell-dsl-static-serve-service' },
       { path: ['service'], name: 'sys-cell-dsl-service' },
       { path: ['proxy-service'], name: 'sys-cell-dsl-proxy-service' },
       { path: ['start-services'], name: 'sys-cell-dsl-start-services' },
@@ -122,8 +122,8 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('https://example.com/foo/dist.json');
   });
 
-  it('dsl static-http-service → faithfully renders the requested chapter', async () => {
-    const path = ['static-http-service'] as const;
+  it('dsl static-serve-service → faithfully renders the requested chapter', async () => {
+    const path = ['static-serve-service'] as const;
     const raw = await FmtHelp.dslOutput({ path });
     const text = stripAnsi(raw);
     const guidance = await CellHelp.Dsl.load(path);
@@ -134,6 +134,8 @@ describe('FmtHelp', () => {
     expect(text).to.not.contain('views: [<view>]');
     expect(text).to.not.contain('./-config/@sys.http/static/web.yaml');
     expect(text).to.not.contain('./view/web');
+    expect(text).to.contain("from: '@sys/tools/serve'");
+    expect(text).to.contain('use: Serve');
   });
 
   it('dsl service → faithfully renders the requested chapter', async () => {

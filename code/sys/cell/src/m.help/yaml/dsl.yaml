@@ -15,7 +15,8 @@ sections:
 
   - label: Rule
     items: |
-      Cell owns boot/composition; owner configs own mechanics and state interpretation.
+      Cell owns boot/composition, service orchestration, and Cell CLI terminal lifecycle.
+      Owner configs own mechanics and state interpretation.
       `cell.yaml` names trusted services, finite tasks, and owner config references.
       Views are owner-defined projections that make Cell state perceivable.
       Tasks are finite workflow declarations; endpoint modules own execution mechanics.
@@ -38,7 +39,7 @@ sections:
       - initialize this folder as a Cell
       - add a pulled view from <dist-url>
       - pull latest configured views
-      - add an @sys/http static service for <view>
+      - add a static serve service for <dir>
       - add a service named <service-name> use <endpoint> from <module>
       - add a proxy service named <service-name>
       - add a leaf task named <task-name> use <endpoint> from <module>
@@ -72,9 +73,9 @@ sections:
       - pull latest configured views → run `@sys/tools pull` against confirmed pull config(s)
       - if no pull config is specified or known, ask for it
       - do not edit `cell.yaml` for refresh-only pulls
-      - add @sys/http static service → run `@sys/http/server/static config add`
-      - "then register `services[]` with `name`, `use: HttpStatic`, `from: '@sys/http/server/static'`, and `config`"
-      - do not use `@sys/tools serve` for Cell services; it is an operator CLI façade
+      - add static serve service → use the `@sys/tools/serve` service endpoint
+      - "then register `services[]` with `name`, `use: Serve`, `from: '@sys/tools/serve'`, and `config`"
+      - do not bypass Cell services with `@sys/tools serve --non-interactive` task shortcuts
       - add generic service → confirm `Cell.Services.LifecycleEndpoint`
       - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
       - use owner config affordance when available

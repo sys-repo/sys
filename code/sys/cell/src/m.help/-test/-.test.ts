@@ -19,7 +19,7 @@ describe('CellHelp.Dsl', () => {
     ]);
     expect(chapter.chapters.map((child) => child.id)).to.eql([
       'pulled-view',
-      'static-http-service',
+      'static-serve-service',
       'service',
       'proxy-service',
       'start-services',
@@ -48,11 +48,11 @@ describe('CellHelp.Dsl', () => {
     expect(chapter.chapters).to.eql([]);
   });
 
-  it('loads the static HTTP service DSL chapter by path', async () => {
-    const chapter = await CellHelp.Dsl.load(['static-http-service']);
+  it('loads the static serve service DSL chapter by path', async () => {
+    const chapter = await CellHelp.Dsl.load(['static-serve-service']);
 
-    expect(chapter.id).to.eql('static-http-service');
-    expect(chapter.path).to.eql(['static-http-service']);
+    expect(chapter.id).to.eql('static-serve-service');
+    expect(chapter.path).to.eql(['static-serve-service']);
     expect(chapter.title.length).to.be.greaterThan(0);
     expect(chapter.summary.length).to.be.greaterThan(0);
     expect(chapter.sections.map((section) => section.label)).to.eql([
@@ -60,7 +60,7 @@ describe('CellHelp.Dsl', () => {
       'Slot policy',
       'Dialogue',
       'Owner flow',
-      'Owner command',
+      'Owner config',
       'Descriptor patch',
     ]);
     expect(chapter.chapters).to.eql([]);

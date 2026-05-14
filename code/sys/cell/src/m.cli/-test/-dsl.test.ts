@@ -78,12 +78,12 @@ describe('@sys/cell/cli dsl', () => {
     expect(text).to.contain('@sys/cell dsl');
   });
 
-  it('dsl static-http-service → routes to the static HTTP service chapter', async () => {
-    const res = await silent(() => CellCli.run({ argv: ['dsl', 'static-http-service'] }));
+  it('dsl static-serve-service → routes to the static serve service chapter', async () => {
+    const res = await silent(() => CellCli.run({ argv: ['dsl', 'static-serve-service'] }));
     const text = stripAnsi(res.text);
 
     expect(res.kind).to.eql('help');
-    expect(text).to.contain('@sys/cell dsl static-http-service');
+    expect(text).to.contain('@sys/cell dsl static-serve-service');
   });
 
   it('dsl service → routes to the service chapter', async () => {

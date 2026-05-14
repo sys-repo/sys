@@ -22,7 +22,7 @@ export const HelpResource = {
   Dsl: {
     Root: chapter('dsl', 'yaml/dsl.yaml', [
       chapter('pulled-view', 'yaml/dsl.pulled-view.yaml'),
-      chapter('static-http-service', 'yaml/dsl.static-http-service.yaml'),
+      chapter('static-serve-service', 'yaml/dsl.service.static-serve.yaml'),
       chapter('service', 'yaml/dsl.service.yaml'),
       chapter('proxy-service', 'yaml/dsl.proxy-service.yaml'),
       chapter('start-services', 'yaml/dsl.start-services.yaml'),
