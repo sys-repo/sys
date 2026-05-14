@@ -29,6 +29,43 @@ describe('HttpServer.start', () => {
     expect(server.signal.aborted).to.eql(true);
   });
 
+  it('exposes renderer-neutral service status snapshots', async () => {
+    const app = HttpServer.create({ static: false });
+    const server = HttpServer.start(app, {
+      silent: true,
+      hostname: '127.0.0.1',
+      name: 'test:http',
+      dir: '/tmp/http-root' as t.StringDir,
+      status: {
+        kind: 'fixture',
+        config: '/tmp/http.yaml' as t.StringPath,
+        urlPaths: [
+          '/api/' as t.StringUrlRoute,
+          { label: 'health', path: '/-/health' as t.StringUrlRoute },
+        ],
+        details: [{ label: 'mode', value: 'test' }],
+      },
+    });
+
+    expect(server.status()).to.eql({
+      state: 'ready',
+      kind: 'fixture',
+      name: 'test:http',
+      root: '/tmp/http-root',
+      config: '/tmp/http.yaml',
+      urls: [
+        { href: `${server.origin}/api/` },
+        { href: `${server.origin}/-/health`, label: 'health' },
+      ],
+      details: [{ label: 'mode', value: 'test' }],
+    });
+
+    await server.close('test.status');
+    await server.finished;
+
+    expect(server.status().state).to.eql('stopped');
+  });
+
   it('close/dispose are idempotent lifecycle controls', async () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, { silent: true });

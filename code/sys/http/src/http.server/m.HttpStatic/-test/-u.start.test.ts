@@ -52,6 +52,34 @@ describe('HttpStatic', () => {
     }
   });
 
+  it('exposes structured static service status', async () => {
+    const fs = await Testing.dir('HttpStatic.status');
+    await Fs.write(Fs.join(fs.dir, 'index.html'), '<h1>status</h1>');
+
+    const server = await HttpStatic.start({
+      cwd: fs.dir,
+      dir: '.',
+      hostname: '127.0.0.1',
+      port: 0,
+      silent: true,
+      name: 'static:view',
+      info: { path: '/view/', dist: 'dist/' },
+    });
+
+    try {
+      expect(server.status()).to.eql({
+        state: 'ready',
+        kind: 'static',
+        name: 'static:view',
+        root: fs.dir,
+        urls: [{ href: `${server.origin}/view/`, label: 'path' }],
+        details: [{ label: 'dist', value: 'dist/' }],
+      });
+    } finally {
+      await close(server);
+    }
+  });
+
   it('resolves relative dir against supplied cwd', async () => {
     const fs = await Testing.dir('HttpStatic');
     await Fs.write(Fs.join(fs.dir, 'public/index.html'), '<h1>relative</h1>');
@@ -87,6 +115,15 @@ describe('HttpStatic', () => {
     });
 
     try {
+      expect(server.status()).to.eql({
+        state: 'ready',
+        kind: 'static',
+        name: 'static',
+        root: Fs.join(fs.dir, 'public'),
+        config: Fs.join(fs.dir, '-config/static.yaml'),
+        urls: [{ href: `${server.origin}/` }],
+      });
+
       const res = await fetch(`${server.origin}/`);
       expect(res.status).to.eql(200);
       expect(await res.text()).to.eql('<h1>config-ref</h1>');

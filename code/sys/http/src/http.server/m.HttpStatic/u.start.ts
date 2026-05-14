@@ -20,6 +20,13 @@ export const start: F = async (input = {}) => {
     name: args.name,
     info: args.info,
     dir: root,
+    status: {
+      kind: 'static',
+      root,
+      config: wrangle.configPathOrUndefined(args),
+      urlPaths: wrangle.urlPaths(args.info),
+      details: wrangle.details(args.info),
+    },
     silent: args.silent,
     keyboard: args.keyboard,
     until: args.until,
@@ -44,6 +51,23 @@ const wrangle = {
     if (Path.Is.absolute(path)) return Path.normalize(path) as t.StringPath;
     const cwd = args.cwd ? Fs.resolve(args.cwd) : Fs.cwd('process');
     return Path.resolve(cwd, path) as t.StringPath;
+  },
+
+  configPathOrUndefined(args: t.HttpStatic.StartArgs): t.StringPath | undefined {
+    return args.paths?.config ? wrangle.configPath(args) : undefined;
+  },
+
+  urlPaths(info: Record<string, string> | undefined): readonly t.HttpServerStatusUrlPath[] {
+    const paths = Object.entries(info ?? {})
+      .filter(([, value]) => value.startsWith('/'))
+      .map(([label, path]) => ({ label, path: path as t.StringUrlRoute }));
+    return paths.length > 0 ? paths : ['/'] as const;
+  },
+
+  details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
+    return Object.entries(info ?? {})
+      .filter(([, value]) => !value.startsWith('/'))
+      .map(([label, value]) => ({ label, value }));
   },
 
   root(args: t.HttpStatic.StartArgs): t.StringDir {

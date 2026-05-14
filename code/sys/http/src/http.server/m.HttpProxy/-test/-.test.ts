@@ -1,4 +1,4 @@
-import { Cli, describe, expect, expectTypeOf, Fs, it, Testing, type t } from '../../../-test.ts';
+import { Cli, describe, expect, expectTypeOf, Fs, it, type t, Testing } from '../../../-test.ts';
 import { Http } from '../../../mod.ts';
 import { HttpProxy } from '../mod.ts';
 
@@ -78,6 +78,14 @@ describe('HttpProxy', () => {
     });
 
     try {
+      expect(proxy.status()).to.eql({
+        state: 'ready',
+        kind: 'proxy',
+        name: 'proxy',
+        config: Fs.join(fs.dir, '-config/proxy.yaml'),
+        urls: [{ href: `${proxy.origin}/`, label: 'root' }],
+      });
+
       const res = await fetch(`${proxy.origin}/hello`);
       expect(res.status).to.eql(200);
       expect(await res.text()).to.eql('config-ref');
@@ -110,6 +118,13 @@ describe('HttpProxy', () => {
     });
 
     try {
+      expect(proxy.status()).to.eql({
+        state: 'ready',
+        kind: 'proxy',
+        name: 'test:proxy',
+        urls: [{ href: `${proxy.origin}/-/fixture/`, label: 'route.-.fixture' }],
+      });
+
       const res = await fetch(`${proxy.origin}/-/fixture/echo?x=1`, {
         method: 'POST',
         headers: { 'content-type': 'text/plain', 'x-proxy-test': 'post' },

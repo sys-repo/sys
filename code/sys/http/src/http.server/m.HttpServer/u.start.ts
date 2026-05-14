@@ -1,4 +1,4 @@
-import { Dispose, type t } from './common.ts';
+import { Dispose, Str, type t } from './common.ts';
 import { keyboard } from './u.keyboard.ts';
 import { options as createOptions } from './u.options.ts';
 
@@ -25,11 +25,21 @@ export const start: F = (app, input = {}) => {
   const port = addr.port as t.PortNumber;
   const origin = wrangle.origin({ hostname, port });
 
+  let state: t.Service.State = 'ready';
+  let error: t.StdError | undefined;
   let closing: Promise<void> | undefined;
 
   const life = Dispose.lifecycleAsync(input.until, async (e) => {
-    closing ??= closeServer({ server, controller, reason: e.reason });
-    await closing;
+    state = 'stopping';
+    try {
+      closing ??= closeServer({ server, controller, reason: e.reason });
+      await closing;
+      state = 'stopped';
+    } catch (cause) {
+      state = 'error';
+      error = wrangle.error(cause);
+      throw cause;
+    }
   });
 
   const context: t.HttpServerStarted = {
@@ -41,6 +51,10 @@ export const start: F = (app, input = {}) => {
     origin,
     signal: controller.signal,
     finished: server.finished,
+
+    status() {
+      return wrangle.status(input, { origin, state, error });
+    },
 
     get disposed() {
       return life.disposed;
@@ -92,6 +106,59 @@ const wrangle = {
 
   urlHost(hostname: string) {
     return hostname.includes(':') && !hostname.startsWith('[') ? `[${hostname}]` : hostname;
+  },
+
+  status(
+    input: t.HttpServerStartOptions,
+    context: {
+      readonly origin: t.StringUrl;
+      readonly state: t.Service.State;
+      readonly error?: t.StdError;
+    },
+  ): t.Service.Status {
+    const status = input.status;
+    const root = status?.root ?? input.dir;
+    const details = status?.details ?? wrangle.details(input.info);
+    const error = context.error;
+
+    return {
+      state: context.state,
+      kind: status?.kind ?? 'http',
+      urls: wrangle.urls(context.origin, status?.urlPaths),
+      ...(input.name ? { name: input.name } : {}),
+      ...(root ? { root } : {}),
+      ...(status?.config ? { config: status.config } : {}),
+      ...(details.length > 0 ? { details } : {}),
+      ...(error ? { error } : {}),
+    };
+  },
+
+  urls(
+    origin: t.StringUrl,
+    paths: readonly t.HttpServerStatusUrlPath[] | undefined,
+  ): readonly t.Service.Url[] {
+    const items = paths && paths.length > 0 ? paths : ['/'] as const;
+    return items.map((item) => {
+      const path = typeof item === 'string' ? item : item.path;
+      const label = typeof item === 'string' ? undefined : item.label;
+      const href = wrangle.url(origin, path);
+      return label ? { href, label } : { href };
+    });
+  },
+
+  url(origin: t.StringUrl, path: string): t.StringUrl {
+    const suffix = Str.trimLeadingSlashes(path);
+    if (!suffix) return `${origin}/` as t.StringUrl;
+    return `${origin}/${suffix}` as t.StringUrl;
+  },
+
+  details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
+    return Object.entries(info ?? {}).map(([label, value]) => ({ label, value }));
+  },
+
+  error(cause: unknown): t.StdError {
+    if (cause instanceof Error) return { name: cause.name, message: cause.message };
+    return { name: 'Error', message: String(cause) };
   },
 
   serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {

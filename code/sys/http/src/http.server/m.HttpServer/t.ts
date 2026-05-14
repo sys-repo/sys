@@ -54,6 +54,9 @@ export type HttpServerStartOptions = {
   silent?: boolean;
   dir?: t.StringDir;
 
+  /** Structured, renderer-neutral status metadata for the running server handle. */
+  status?: HttpServerStatusOptions;
+
   /** Canonical @sys lifecycle bridge. */
   until?: t.UntilInput;
 
@@ -90,11 +93,36 @@ export type HttpServerStarted = t.LifecycleAsync & {
   /** Resolves when the underlying Deno server has finished. */
   readonly finished: Promise<void>;
 
+  /** Renderer-neutral service status snapshot. */
+  status(): t.Service.Status;
+
   /** HTTP/domain alias for `dispose()`. */
   close(reason?: unknown): Promise<void>;
 };
 
-/** Arguments passed to [HttpServer.print] */
+/** Structured status metadata passed to [HttpServer.start]. */
+export type HttpServerStatusOptions = {
+  /** Owner-local kind, e.g. `http`, `static`, or `proxy`. */
+  readonly kind?: string;
+
+  /** Owner config path, if the server was started from one. */
+  readonly config?: t.StringPath;
+
+  /** Primary served filesystem root, if the server has one. Defaults to `dir`. */
+  readonly root?: t.StringDir;
+
+  /** URL paths to resolve against the server origin. Defaults to `/`. */
+  readonly urlPaths?: readonly HttpServerStatusUrlPath[];
+
+  /** Extra owner facts that are not URLs and not lifecycle control. */
+  readonly details?: readonly t.Service.Detail[];
+};
+
+export type HttpServerStatusUrlPath =
+  | t.StringUrlRoute
+  | { readonly path: t.StringUrlRoute; readonly label?: string };
+
+/** Arguments passed to [HttpServer.print]. */
 export type HttpServerPrintOptions = {
   addr: Deno.NetAddr;
   pkg?: t.Pkg;

@@ -57,6 +57,12 @@ export const HttpProxy: t.HttpProxy.Lib = {
       pkg,
       name: args.name,
       info: wrangle.info(config, args.info),
+      status: {
+        kind: 'proxy',
+        config: wrangle.configPathOrUndefined(args),
+        urlPaths: wrangle.urlPaths(config),
+        details: wrangle.details(args.info),
+      },
       silent: args.silent,
       keyboard: args.keyboard,
       until: args.until,
@@ -120,6 +126,10 @@ const wrangle = {
     return Path.resolve(cwd, path) as t.StringPath;
   },
 
+  configPathOrUndefined(args: t.HttpProxy.StartArgs): t.StringPath | undefined {
+    return args.paths?.config ? wrangle.configPath(args) : undefined;
+  },
+
   config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Routing.Config {
     if (options.config && (options.root || options.mounts)) {
       throw new Error('HttpProxy: use either config or lifecycle root/mounts, not both');
@@ -175,6 +185,21 @@ const wrangle = {
     }
 
     return Object.keys(output).length > 0 || input ? { ...output, ...input } : undefined;
+  },
+
+  urlPaths(config: t.HttpProxy.Routing.Config): readonly t.HttpServerStatusUrlPath[] {
+    const paths: t.HttpServerStatusUrlPath[] = [];
+    if (config.root) paths.push({ label: 'root', path: '/' as t.StringUrlRoute });
+    for (const mount of config.mounts ?? []) {
+      paths.push({ label: wrangle.infoLabel(mount.mountPath), path: mount.mountPath });
+    }
+    return paths.length > 0 ? paths : ['/'] as const;
+  },
+
+  details(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
+    return Object.entries(info ?? {})
+      .filter(([, value]) => !value.startsWith('/'))
+      .map(([label, value]) => ({ label, value }));
   },
 
   infoLabel(path: string): string {
