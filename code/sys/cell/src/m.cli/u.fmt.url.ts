@@ -1,0 +1,76 @@
+import { c, type t, Url } from './common.ts';
+
+type ServiceUrlBaseScore = readonly [
+  depth: number,
+  pathLength: number,
+  searchLength: number,
+  hashLength: number,
+  hrefLength: number,
+];
+
+export const FmtUrl = {
+  service(url: t.Service.Url, options: { readonly highlightOrigin?: boolean } = {}): string {
+    const origin = options.highlightOrigin ? c.cyan : c.gray;
+    const parsed = Url.parse(url.href);
+    if (!parsed.ok) return origin(url.href);
+
+    const value = parsed.toURL();
+    const suffix = `${value.pathname}${value.search}${value.hash}` || '/';
+    return `${origin(value.origin)}${c.gray(suffix)}`;
+  },
+
+  orderBaseLast(urls: readonly t.Service.Url[]): readonly t.Service.Url[] {
+    const baseIndex = mostBaseUrlIndex(urls);
+    if (baseIndex < 0 || baseIndex === urls.length - 1) return urls;
+
+    const ordered = [...urls];
+    const [base] = ordered.splice(baseIndex, 1);
+    ordered.push(base);
+    return ordered;
+  },
+} as const;
+
+/**
+ * Helpers:
+ */
+function mostBaseUrlIndex(urls: readonly t.Service.Url[]): number {
+  let best: { readonly index: number; readonly score: ServiceUrlBaseScore } | undefined;
+  urls.forEach((url, index) => {
+    const score = serviceUrlBaseScore(url);
+    if (!score) return;
+    if (!best || compareBaseScore(score, best.score) < 0) best = { index, score };
+  });
+  return best?.index ?? urls.length - 1;
+}
+
+function serviceUrlBaseScore(url: t.Service.Url): ServiceUrlBaseScore | undefined {
+  const parsed = Url.parse(url.href);
+  if (!parsed.ok) return;
+
+  const value = parsed.toURL();
+  const pathname = normalizePathname(value.pathname);
+  return [
+    pathDepth(pathname),
+    pathname.length,
+    value.search.length,
+    value.hash.length,
+    value.href.length,
+  ];
+}
+
+function compareBaseScore(a: ServiceUrlBaseScore, b: ServiceUrlBaseScore): number {
+  for (let i = 0; i < a.length; i++) {
+    const diff = a[i] - b[i];
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+function normalizePathname(pathname: string): string {
+  return pathname.replace(/\/+$/, '') || '/';
+}
+
+function pathDepth(pathname: string): number {
+  if (pathname === '/') return 0;
+  return pathname.split('/').filter(Boolean).length;
+}

@@ -332,10 +332,15 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.contain(Fs.join(fs.dir, 'view'));
     expect(text).to.contain('http://127.0.0.1:4321/view/');
     expect(text).to.contain('http://127.0.0.1:4321/payments/');
+    expect(text).to.contain('http://127.0.0.1:4321/');
     expect(text).to.not.contain('http://127.0.0.1:4321/view/ path');
     expect(text).to.not.contain('route.payments');
     expect(res.text).to.contain(c.cyan('http://127.0.0.1:4321'));
+    expect(res.text.split(c.cyan('http://127.0.0.1:4321')).length - 1).to.eql(2);
+    expect(res.text.split(c.gray('http://127.0.0.1:4321')).length - 1).to.eql(4);
+    expect(res.text).to.contain(`${c.cyan('http://127.0.0.1:4321')}${c.gray('/')}`);
     expect(res.text).to.contain(c.gray('/view/'));
+    expect(res.text).to.not.contain(`${c.cyan('http://127.0.0.1:4321')}${c.gray('/view/')}`);
     expect(res.text).to.not.contain(c.cyan('http://127.0.0.1:4321/view/'));
     expect(text).to.contain('dist');
     expect(text).to.contain('dist/');
@@ -344,6 +349,12 @@ describe(`@sys/cell/cli`, () => {
     expect(text).to.not.contain('owner-local-name');
 
     const divider = stripAnsi(c.dim(c.gray(Cli.Fmt.hr())));
+    const previewBlock = text.slice(0, text.indexOf(divider));
+    expect(serviceUrlsOf(previewBlock)).to.eql([
+      'http://127.0.0.1:4321/view/',
+      'http://127.0.0.1:4321/payments/',
+      'http://127.0.0.1:4321/',
+    ]);
     expect(text.split(divider).length - 1).to.eql(1);
     expect(text.indexOf('preview')).to.be.lessThan(text.indexOf(divider));
     expect(text.indexOf(divider)).to.be.lessThan(text.indexOf('api'));
@@ -448,6 +459,7 @@ function statusServiceSource() {
               kind: 'fixture',
               root,
               urls: [
+                { href: 'http://127.0.0.1:4321/', label: 'root' },
                 { href: 'http://127.0.0.1:4321/view/', label: 'path' },
                 { href: 'http://127.0.0.1:4321/payments/', label: 'route.payments' },
               ],
@@ -458,6 +470,10 @@ function statusServiceSource() {
       },
     };
   `).trimStart();
+}
+
+function serviceUrlsOf(text: string): string[] {
+  return text.match(/https?:\/\/\S+/g) ?? [];
 }
 
 function runningTaskText(name: string): string {
