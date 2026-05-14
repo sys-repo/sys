@@ -27,6 +27,7 @@ export async function startServer(
     dir,
     silent: opts.silent === true,
     keyboard: opts.keyboard,
+    until: opts.until,
   });
   const port = started.port;
   const server = started.server;
@@ -41,8 +42,8 @@ export async function startServer(
     baseUrl: baseUrl as t.StringUrl,
     url: url as t.StringUrl,
     server,
-    async close() {
-      await started.close('serve.close');
+    async close(reason) {
+      await started.close(reason ?? 'serve.close');
     },
   };
 }

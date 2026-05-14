@@ -9,7 +9,7 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
   const target = await loadStartTarget(cwd, args, 'Serve.start');
   const host = resolveServeHost(args.host, 'Serve.start');
   const port = resolveServePort(args.port, 'Serve.start');
-  const context = await startContext({ target, host, port });
+  const context = await startContext({ target, host, port, until: args.until });
 
   let closed = false;
   let closePromise: Promise<void> | undefined;
@@ -21,15 +21,15 @@ export async function start(args: t.ServeTool.StartArgs): Promise<t.ServeTool.St
       closed = true;
     }
   })();
-  const close = async () => {
+  const close = async (reason?: unknown) => {
     if (closed) return;
-    closePromise ??= closeContext();
+    closePromise ??= closeContext(reason);
     await closePromise;
   };
 
-  async function closeContext() {
+  async function closeContext(reason?: unknown) {
     try {
-      await context.close();
+      await context.close(reason);
       closed = true;
     } catch (error) {
       closePromise = undefined;
@@ -60,6 +60,7 @@ async function startContext(args: {
   target: t.ServeTool.StartTarget;
   host: t.ServeTool.Host;
   port?: number;
+  until?: t.UntilInput;
 }) {
   try {
     return await startServer(args.target.location, {
@@ -67,6 +68,7 @@ async function startContext(args: {
       port: args.port,
       silent: true,
       keyboard: false,
+      until: args.until,
     });
   } catch (error) {
     throw startError(args.target, error);

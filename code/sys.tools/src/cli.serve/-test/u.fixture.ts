@@ -1,3 +1,4 @@
+import { expect } from '../../-test.ts';
 import { type t, Fs } from '../common.ts';
 
 export type FixtureCaptured =
@@ -58,5 +59,20 @@ export const Fixture = {
   makeNext() {
     const next: FixtureHonoNext = async () => {};
     return next;
+  },
+
+  async expectFinishedSoon(finished: Promise<void>): Promise<void> {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const result = await Promise.race([
+        finished.then(() => 'finished' as const),
+        new Promise<'timeout'>((resolve) => {
+          timeout = setTimeout(() => resolve('timeout'), 500);
+        }),
+      ]);
+      expect(result).to.eql('finished');
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
   },
 } as const;

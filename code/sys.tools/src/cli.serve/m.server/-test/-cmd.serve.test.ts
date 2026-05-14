@@ -21,6 +21,26 @@ describe('serve server lifecycle', () => {
     }
   });
 
+  it('startServer: closes from external lifecycle input', async () => {
+    const dir = await Fixture.makeTempDir('serve-start-until');
+    await Fixture.writeFile(dir, 'index.html', '<!doctype html><h1>until</h1>');
+
+    const abort = new AbortController();
+    const context = await startServer(
+      { name: 'Test Site', dir },
+      { host: 'local', silent: true, until: abort.signal },
+    );
+
+    try {
+      abort.abort('test.until');
+      await Fixture.expectFinishedSoon(context.server.finished);
+      await context.close('test.after-until');
+    } finally {
+      abort.abort('test.cleanup');
+      await context.close('test.cleanup');
+    }
+  });
+
   it('startServer: infers an actionable URL when a single dist view is present', async () => {
     const dir = await Fixture.makeTempDir('serve-start-view');
     await Fixture.writeFile(dir, 'foo/bar/index.html', '<!doctype html><h1>view</h1>');

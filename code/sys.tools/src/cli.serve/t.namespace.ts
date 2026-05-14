@@ -27,6 +27,8 @@ export namespace ServeTool {
     host?: Host;
     /** Use `0` to let the runtime choose an available port. */
     port?: number;
+    /** Canonical @sys lifecycle bridge. */
+    until?: t.UntilInput;
   };
 
   export type StartSelectorArgs =
@@ -107,7 +109,7 @@ export namespace ServeTool {
     readonly baseUrl: t.StringUrl;
     readonly url: t.StringUrl;
     readonly finished: Promise<void>;
-    readonly close: () => Promise<void>;
+    readonly close: (reason?: unknown) => Promise<void>;
   };
 
   /** Low-level static server start options. */
@@ -116,6 +118,7 @@ export namespace ServeTool {
     readonly host?: Host;
     readonly silent?: boolean;
     readonly keyboard?: boolean;
+    readonly until?: t.UntilInput;
   };
 
   /** Running low-level static server context. */
@@ -127,7 +130,7 @@ export namespace ServeTool {
     readonly baseUrl: t.StringUrl;
     readonly url: t.StringUrl;
     readonly server: Deno.HttpServer<Deno.NetAddr>;
-    readonly close: () => Promise<void>;
+    readonly close: (reason?: unknown) => Promise<void>;
   };
 
   /** Command names. */

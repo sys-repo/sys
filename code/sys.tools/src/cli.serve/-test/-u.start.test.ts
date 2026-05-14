@@ -3,13 +3,16 @@ import { Serve } from '../mod.ts';
 import { Fixture } from './u.ts';
 
 describe('Serve.start', () => {
-  it('type-level: accepts owner config refs', () => {
+  it('type-level: accepts owner config refs and lifecycle input', () => {
+    const until = new AbortController().signal;
     const args: t.ServeTool.StartArgs = {
       cwd: '/tmp' as t.StringDir,
       paths: { config: './config.yaml' },
+      until,
     };
 
     expect(args.paths?.config).to.eql('./config.yaml');
+    expect(args.until).to.equal(until);
   });
 
   it('starts a silent closeable server from owner YAML', async () => {
@@ -158,6 +161,28 @@ describe('Serve.start', () => {
     }
   });
 
+  it('closes from external lifecycle input', async () => {
+    const cwd = await Fixture.makeTempDir('serve-start-api-until');
+    await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>until</h1>');
+
+    const abort = new AbortController();
+    const server = await Serve.start({ cwd, dir: './site', port: 0, until: abort.signal });
+
+    try {
+      const res = await fetch(server.url);
+      expect(res.status).to.eql(200);
+      expect(await res.text()).to.contain('until');
+
+      abort.abort('test.until');
+      await Fixture.expectFinishedSoon(server.finished);
+      await server.close('test.after-until');
+    } finally {
+      abort.abort('test.cleanup');
+      await server.close('test.cleanup');
+      await server.finished;
+    }
+  });
+
   it('supports explicit network host and idempotent close', async () => {
     const cwd = await Fixture.makeTempDir('serve-start-api-network');
     await Fixture.writeFile(cwd, 'site/index.html', '<!doctype html><h1>network</h1>');
@@ -268,3 +293,4 @@ describe('Serve.start', () => {
     );
   });
 });
+
